@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 757283F54D2
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E296F3F54CB
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:57:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234932AbhHXA4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 20:56:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47514 "EHLO mail.kernel.org"
+        id S233749AbhHXA4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 20:56:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234098AbhHXAzz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234556AbhHXAzz (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Aug 2021 20:55:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D623F615A3;
-        Tue, 24 Aug 2021 00:54:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21811615A7;
+        Tue, 24 Aug 2021 00:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629766495;
-        bh=b2jDzukeXSof/5Ux96dt4fY0FHeBbDjji0XpA6mu4Zk=;
+        s=k20201202; t=1629766497;
+        bh=mhnDZFp6Bvgo7d3AsSNxcg0qsh7TMyBGCIQMQVcAJ2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9Ui1XIRpbMPncAMJj7U7R+W1yP21AFFwWeK1SHTRZsT6G3Xn7bxA9FOIS7jbr37r
-         zLpHmnVvhWdYr5j8gzjqAWKo/Z011TO7ovVpkSZj1yUpjFl8a6Df1ZtGbNpXr6JdLE
-         LeT/E7fV0AU8yRa3pzTd7jrZMxjY+g/jPTCd8gX1IuH49ZxgCgTX9VUN3nn/KxCfAl
-         Gngfd0//jFvG8yirLByL4ySz/E6njzPXxrb9WD+d9FUiU4dma1QQJ0uaDpwuX/CRUq
-         rV/8sh03FOp4kzncjN+0r4tQpwLNdyJ3mXKPkeiJrElOKGduq+wvFtfUbhP8jWtxwY
-         azLlSdp+YHqew==
+        b=JKk41D2ZAoYLGPOlIkQcECjOsBzBvEFGdvKlgzyRxuDvY29j8DDMl/wJznqJQedyV
+         xQO0AEr+J8pwocI8PO4L4Fh9y5Qjw+5j317btY3MwqKiYaS3GOEH7ufKOKRIde08Nv
+         jk5/I6L6sput/yEb2LPNlzZJkVi2tX6xsghIxycjMXfjNZIulgMGXWAHkwux+ZYJGB
+         lWkUYUT/GSUIcr7w3spWHqtEfp6T1YEVm16sH+/DxHeHpf1HwMRrcsU6HkYZPk02RA
+         0tyvrMgz5YuTNnjou1FsgzbsYyz/WufwH3tKRWikDYC0KVfxdR4+ic/nJCFck4JbL2
+         llGKv8yU8n1Cg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 17/18] drm/nouveau: block a bunch of classes from userspace
-Date:   Mon, 23 Aug 2021 20:54:31 -0400
-Message-Id: <20210824005432.631154-17-sashal@kernel.org>
+Cc:     Gerd Rausch <gerd.rausch@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com
+Subject: [PATCH AUTOSEL 5.10 18/18] net/rds: dma_map_sg is entitled to merge entries
+Date:   Mon, 23 Aug 2021 20:54:32 -0400
+Message-Id: <20210824005432.631154-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824005432.631154-1-sashal@kernel.org>
 References: <20210824005432.631154-1-sashal@kernel.org>
@@ -42,175 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Gerd Rausch <gerd.rausch@oracle.com>
 
-[ Upstream commit 148a8653789c01f159764ffcc3f370008966b42f ]
+[ Upstream commit fb4b1373dcab086d0619c29310f0466a0b2ceb8a ]
 
-Long ago, there had been plans for making use of a bunch of these APIs
-from userspace and there's various checks in place to stop misbehaving.
+Function "dma_map_sg" is entitled to merge adjacent entries
+and return a value smaller than what was passed as "nents".
 
-Countless other projects have occurred in the meantime, and the pieces
-didn't finish falling into place for that to happen.
+Subsequently "ib_map_mr_sg" needs to work with this value ("sg_dma_len")
+rather than the original "nents" parameter ("sg_len").
 
-They will (hopefully) in the not-too-distant future, but it won't look
-quite as insane.  The super checks are causing problems right now, and
-are going to be removed.
+This old RDS bug was exposed and reliably causes kernel panics
+(using RDMA operations "rds-stress -D") on x86_64 starting with:
+commit c588072bba6b ("iommu/vt-d: Convert intel iommu driver to the iommu ops")
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
+Simply put: Linux 5.11 and later.
+
+Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Link: https://lore.kernel.org/r/60efc69f-1f35-529d-a7ef-da0549cad143@oracle.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/include/nvif/cl0080.h |  3 +-
- drivers/gpu/drm/nouveau/nouveau_drm.c         |  1 +
- drivers/gpu/drm/nouveau/nouveau_usif.c        | 57 ++++++++++++++-----
- .../gpu/drm/nouveau/nvkm/engine/device/user.c |  2 +-
- 4 files changed, 48 insertions(+), 15 deletions(-)
+ net/rds/ib_frmr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/include/nvif/cl0080.h b/drivers/gpu/drm/nouveau/include/nvif/cl0080.h
-index cd9a2e687bb6..08bda344e32f 100644
---- a/drivers/gpu/drm/nouveau/include/nvif/cl0080.h
-+++ b/drivers/gpu/drm/nouveau/include/nvif/cl0080.h
-@@ -4,7 +4,8 @@
- 
- struct nv_device_v0 {
- 	__u8  version;
--	__u8  pad01[7];
-+	__u8  priv;
-+	__u8  pad02[6];
- 	__u64 device;	/* device identifier, ~0 for client default */
- };
- 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
-index 42fc5c813a9b..12b00f1d66de 100644
---- a/drivers/gpu/drm/nouveau/nouveau_drm.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-@@ -242,6 +242,7 @@ nouveau_cli_init(struct nouveau_drm *drm, const char *sname,
- 	ret = nvif_device_ctor(&cli->base.object, "drmDevice", 0, NV_DEVICE,
- 			       &(struct nv_device_v0) {
- 					.device = ~0,
-+					.priv = true,
- 			       }, sizeof(struct nv_device_v0),
- 			       &cli->device);
- 	if (ret) {
-diff --git a/drivers/gpu/drm/nouveau/nouveau_usif.c b/drivers/gpu/drm/nouveau/nouveau_usif.c
-index 9dc10b17ad34..5da1f4d223d7 100644
---- a/drivers/gpu/drm/nouveau/nouveau_usif.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_usif.c
-@@ -32,6 +32,9 @@
- #include <nvif/event.h>
- #include <nvif/ioctl.h>
- 
-+#include <nvif/class.h>
-+#include <nvif/cl0080.h>
-+
- struct usif_notify_p {
- 	struct drm_pending_event base;
- 	struct {
-@@ -261,7 +264,7 @@ usif_object_dtor(struct usif_object *object)
- }
- 
- static int
--usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32 argc)
-+usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32 argc, bool parent_abi16)
- {
- 	struct nouveau_cli *cli = nouveau_cli(f);
- 	struct nvif_client *client = &cli->base;
-@@ -271,23 +274,48 @@ usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32 argc)
- 	struct usif_object *object;
- 	int ret = -ENOSYS;
- 
-+	if ((ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, true)))
-+		return ret;
-+
-+	switch (args->v0.oclass) {
-+	case NV_DMA_FROM_MEMORY:
-+	case NV_DMA_TO_MEMORY:
-+	case NV_DMA_IN_MEMORY:
-+		return -EINVAL;
-+	case NV_DEVICE: {
-+		union {
-+			struct nv_device_v0 v0;
-+		} *args = data;
-+
-+		if ((ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, false)))
-+			return ret;
-+
-+		args->v0.priv = false;
-+		break;
-+	}
-+	default:
-+		if (!parent_abi16)
-+			return -EINVAL;
-+		break;
-+	}
-+
- 	if (!(object = kmalloc(sizeof(*object), GFP_KERNEL)))
- 		return -ENOMEM;
- 	list_add(&object->head, &cli->objects);
- 
--	if (!(ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, true))) {
--		object->route = args->v0.route;
--		object->token = args->v0.token;
--		args->v0.route = NVDRM_OBJECT_USIF;
--		args->v0.token = (unsigned long)(void *)object;
--		ret = nvif_client_ioctl(client, argv, argc);
--		args->v0.token = object->token;
--		args->v0.route = object->route;
-+	object->route = args->v0.route;
-+	object->token = args->v0.token;
-+	args->v0.route = NVDRM_OBJECT_USIF;
-+	args->v0.token = (unsigned long)(void *)object;
-+	ret = nvif_client_ioctl(client, argv, argc);
-+	if (ret) {
-+		usif_object_dtor(object);
-+		return ret;
+diff --git a/net/rds/ib_frmr.c b/net/rds/ib_frmr.c
+index 9b6ffff72f2d..28c1b0022178 100644
+--- a/net/rds/ib_frmr.c
++++ b/net/rds/ib_frmr.c
+@@ -131,9 +131,9 @@ static int rds_ib_post_reg_frmr(struct rds_ib_mr *ibmr)
+ 		cpu_relax();
  	}
  
--	if (ret)
--		usif_object_dtor(object);
--	return ret;
-+	args->v0.token = object->token;
-+	args->v0.route = object->route;
-+	return 0;
- }
+-	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_len,
++	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_dma_len,
+ 				&off, PAGE_SIZE);
+-	if (unlikely(ret != ibmr->sg_len))
++	if (unlikely(ret != ibmr->sg_dma_len))
+ 		return ret < 0 ? ret : -EINVAL;
  
- int
-@@ -301,6 +329,7 @@ usif_ioctl(struct drm_file *filp, void __user *user, u32 argc)
- 		struct nvif_ioctl_v0 v0;
- 	} *argv = data;
- 	struct usif_object *object;
-+	bool abi16 = false;
- 	u8 owner;
- 	int ret;
- 
-@@ -331,11 +360,13 @@ usif_ioctl(struct drm_file *filp, void __user *user, u32 argc)
- 			mutex_unlock(&cli->mutex);
- 			goto done;
- 		}
-+
-+		abi16 = true;
- 	}
- 
- 	switch (argv->v0.type) {
- 	case NVIF_IOCTL_V0_NEW:
--		ret = usif_object_new(filp, data, size, argv, argc);
-+		ret = usif_object_new(filp, data, size, argv, argc, abi16);
- 		break;
- 	case NVIF_IOCTL_V0_NTFY_NEW:
- 		ret = usif_notify_new(filp, data, size, argv, argc);
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c
-index 03c6d9aef075..69ca7cb2d663 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c
-@@ -426,7 +426,7 @@ nvkm_udevice_new(const struct nvkm_oclass *oclass, void *data, u32 size,
- 		return ret;
- 
- 	/* give priviledged clients register access */
--	if (client->super)
-+	if (args->v0.priv)
- 		func = &nvkm_udevice_super;
- 	else
- 		func = &nvkm_udevice;
+ 	if (cmpxchg(&frmr->fr_state,
 -- 
 2.30.2
 
