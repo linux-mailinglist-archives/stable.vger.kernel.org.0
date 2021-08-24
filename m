@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4141D3F682E
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1C2C3F682D
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:41:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241895AbhHXRlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:41:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45840 "EHLO mail.kernel.org"
+        id S239577AbhHXRlL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:41:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45841 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242125AbhHXRjK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242124AbhHXRjK (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:39:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 083FF619FA;
-        Tue, 24 Aug 2021 17:08:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F050B61C15;
+        Tue, 24 Aug 2021 17:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824890;
-        bh=cHNemA/vMXA5Wsdnr06Z9fAl5dgxgZxFbexkE9VknA4=;
+        s=k20201202; t=1629824891;
+        bh=24ITMfCAdcsFGlnYRCGUGFfrp81ofTe/nmFJezF0Hw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ka8CwnZ/I/5VuHwZ+bgAUF6vBcjv59G/wLPGKN2oEuDJMnzrQUO76bl9zuM+CqDDG
-         qa23bhVpvIaqnV25wExel1si81pYWYtDD87Ab8gBQ3/I/jnqlFminoeGAUa+RFgynv
-         9poEryBL4U9uBDxwLJpBwh67lD6yLQsV4UIy5CKMhIhK4q0NEEwHGPyA2yQfz+BM8P
-         eMhOYKoJDJRT1WxH0UscP6idyj9k11LqTQaqaHkddn/4I7syXjqdeQfeWr8aXpNAMJ
-         6Co/fd29YgEh9LEwpq7A5kbl21mntejeUpD4yXBusDuqolppIMfg3Od/Lrw8R2GoiV
-         3Klwq8c6AF2+A==
+        b=qOfAMkzYGzLrDFRtzmZzuP3RTDx7vhWL2ynroR4CJLhtMN+h3ZeNUpWxMsB7O3gF+
+         PCESHIJk7bCet44VUmdcecW/k74JkkNkhVltBGrEDrXV4Kx3s9bci7ZDAiAaiq6YjB
+         ceF6plkW/gqpe65u63cwSDsB2+GPnzZkV4JqDVcg9uBqyWR/xp5goPf+M3OeEQiIZX
+         Sy7p9c2Fa0FbBnIsW6LIZwo4zd07BnWxhou+tTqXzdKM3c5wX0FRU/37bGiYd8he8U
+         gihawDlz2IydncreSNkTy6ZEKyB23bW4OecCl4l0i1obBW3sCKliVT5FRRL5ZKUQ9N
+         ELo/Epcaq6FVg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Jaehoon Chung <jh80.chung@samsung.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 27/31] mmc: dw_mmc: Fix hang on data CRC error
-Date:   Tue, 24 Aug 2021 13:07:39 -0400
-Message-Id: <20210824170743.710957-28-sashal@kernel.org>
+Cc:     Jaroslav Kysela <perex@perex.cz>, stable@kernel.org,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 28/31] ALSA: hda - fix the 'Capture Switch' value change notifications
+Date:   Tue, 24 Aug 2021 13:07:40 -0400
+Message-Id: <20210824170743.710957-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
@@ -49,71 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Jaroslav Kysela <perex@perex.cz>
 
-[ Upstream commit 25f8203b4be1937c4939bb98623e67dcfd7da4d1 ]
+[ Upstream commit a2befe9380dd04ee76c871568deca00eedf89134 ]
 
-When a Data CRC interrupt is received, the driver disables the DMA, then
-sends the stop/abort command and then waits for Data Transfer Over.
+The original code in the cap_put_caller() function does not
+handle correctly the positive values returned from the passed
+function for multiple iterations. It means that the change
+notifications may be lost.
 
-However, sometimes, when a data CRC error is received in the middle of a
-multi-block write transfer, the Data Transfer Over interrupt is never
-received, and the driver hangs and never completes the request.
-
-The driver sets the BMOD.SWR bit (SDMMC_IDMAC_SWRESET) when stopping the
-DMA, but according to the manual CMD.STOP_ABORT_CMD should be programmed
-"before assertion of SWR".  Do these operations in the recommended
-order.  With this change the Data Transfer Over is always received
-correctly in my tests.
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210630102232.16011-1-vincent.whitchurch@axis.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 352f7f914ebb ("ALSA: hda - Merge Realtek parser code to generic parser")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213851
+Cc: <stable@kernel.org>
+Signed-off-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20210811161441.1325250-1-perex@perex.cz
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/dw_mmc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/pci/hda/hda_generic.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
-index 72ab0623293c..7bfe9ce03944 100644
---- a/drivers/mmc/host/dw_mmc.c
-+++ b/drivers/mmc/host/dw_mmc.c
-@@ -1768,8 +1768,8 @@ static void dw_mci_tasklet_func(unsigned long priv)
- 					continue;
- 				}
+diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
+index 7fed8d1bb79c..5c708d9851b8 100644
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -3442,7 +3442,7 @@ static int cap_put_caller(struct snd_kcontrol *kcontrol,
+ 	struct hda_gen_spec *spec = codec->spec;
+ 	const struct hda_input_mux *imux;
+ 	struct nid_path *path;
+-	int i, adc_idx, err = 0;
++	int i, adc_idx, ret, err = 0;
  
--				dw_mci_stop_dma(host);
- 				send_stop_abort(host, data);
-+				dw_mci_stop_dma(host);
- 				state = STATE_SENDING_STOP;
- 				break;
- 			}
-@@ -1793,10 +1793,10 @@ static void dw_mci_tasklet_func(unsigned long priv)
- 			 */
- 			if (test_and_clear_bit(EVENT_DATA_ERROR,
- 					       &host->pending_events)) {
--				dw_mci_stop_dma(host);
- 				if (!(host->data_status & (SDMMC_INT_DRTO |
- 							   SDMMC_INT_EBE)))
- 					send_stop_abort(host, data);
-+				dw_mci_stop_dma(host);
- 				state = STATE_DATA_ERROR;
- 				break;
- 			}
-@@ -1830,10 +1830,10 @@ static void dw_mci_tasklet_func(unsigned long priv)
- 			 */
- 			if (test_and_clear_bit(EVENT_DATA_ERROR,
- 					       &host->pending_events)) {
--				dw_mci_stop_dma(host);
- 				if (!(host->data_status & (SDMMC_INT_DRTO |
- 							   SDMMC_INT_EBE)))
- 					send_stop_abort(host, data);
-+				dw_mci_stop_dma(host);
- 				state = STATE_DATA_ERROR;
- 				break;
- 			}
+ 	imux = &spec->input_mux;
+ 	adc_idx = kcontrol->id.index;
+@@ -3452,9 +3452,13 @@ static int cap_put_caller(struct snd_kcontrol *kcontrol,
+ 		if (!path || !path->ctls[type])
+ 			continue;
+ 		kcontrol->private_value = path->ctls[type];
+-		err = func(kcontrol, ucontrol);
+-		if (err < 0)
++		ret = func(kcontrol, ucontrol);
++		if (ret < 0) {
++			err = ret;
+ 			break;
++		}
++		if (ret > 0)
++			err = 1;
+ 	}
+ 	mutex_unlock(&codec->control_mutex);
+ 	if (err >= 0 && spec->cap_sync_hook)
 -- 
 2.30.2
 
