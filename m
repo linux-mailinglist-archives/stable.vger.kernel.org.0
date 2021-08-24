@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD983F65EC
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:17:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 417953F65EF
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239140AbhHXRSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:18:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56902 "EHLO mail.kernel.org"
+        id S239198AbhHXRS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:18:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239844AbhHXRQY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:16:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A2F3615E3;
-        Tue, 24 Aug 2021 17:01:52 +0000 (UTC)
+        id S239869AbhHXRQZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:16:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C59761ABA;
+        Tue, 24 Aug 2021 17:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824513;
-        bh=XKTzpkvWsPkajOHJrlG+cpL530dTo0wptawiQyunpRo=;
+        s=k20201202; t=1629824514;
+        bh=O5HzXeKbZqXP1QiRD4iUirzXsP6jVjs5v7mFHjcSywE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CGb2fD3vDomS2Cuh6UEUGiylWeJiMSXOvc+fTpYD0681zhS3Qd/VGGChFD+u53SA9
-         upFjkRHwEZumFeGoGsTpc5JpPqni4TVkteZeQ7Gbcagfqam9O2fFA3/SKaggbBbOoF
-         kw52wU/GuA4+T+HNKUkrhgGgThOmnYT27fSnYEIboHmJtwr4OwPEt/SeO2z1Ybexk5
-         2gTM93hMAAUrvtAph0Y67nCIktIT8EIy3F3NvzN/PNCd3mp01AEErltjKeG1s1WXli
-         0PP2rfvqnsaLNbtFhYe+8fRVFnduLAr9n4G27zUl2YiPR9vSyoOJq6ipNinvU5aSr0
-         AbjF//UZMoCTQ==
+        b=sYJceqbWZ+K98bf+D0OT86pDRxcvHaSUJx7iUf7RiRJ+5wiFPbKGHMpwDneq8Ajc1
+         xh8k7rMxykGerNkMv4orFYdoeIDKQB76nlnzPIg3WKDTFkjX+mjFYBuaYF74e3hJUZ
+         TWCFBidQYPSvkrtIpnUOeeeFcKvflFHcKjr12/6GAyDZC866eYwCiasvtDSf2kLZKF
+         sKuUFu0/pMpsAV1+zFhC3M6ejjoknk/BxFNJsQIKDInBKVsLBFQELKrCEMm5M5ufCp
+         YtRmoMTcyN06AGjNHmX/65QNbObmBmMn9x1W4EHQ8SFmrPOYQG0fKcYR2HiRSXpInq
+         V7u7j1FAcgIjg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Murphy Zhou <jencce.kernel@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+Cc:     Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Jaehoon Chung <jh80.chung@samsung.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 45/61] ovl: add splice file read write helper
-Date:   Tue, 24 Aug 2021 13:00:50 -0400
-Message-Id: <20210824170106.710221-46-sashal@kernel.org>
+Subject: [PATCH 5.4 46/61] mmc: dw_mmc: Fix hang on data CRC error
+Date:   Tue, 24 Aug 2021 13:00:51 -0400
+Message-Id: <20210824170106.710221-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -48,95 +49,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Murphy Zhou <jencce.kernel@gmail.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 1a980b8cbf0059a5308eea61522f232fd03002e2 ]
+[ Upstream commit 25f8203b4be1937c4939bb98623e67dcfd7da4d1 ]
 
-Now overlayfs falls back to use default file splice read
-and write, which is not compatiple with overlayfs, returning
-EFAULT. xfstests generic/591 can reproduce part of this.
+When a Data CRC interrupt is received, the driver disables the DMA, then
+sends the stop/abort command and then waits for Data Transfer Over.
 
-Tested this patch with xfstests auto group tests.
+However, sometimes, when a data CRC error is received in the middle of a
+multi-block write transfer, the Data Transfer Over interrupt is never
+received, and the driver hangs and never completes the request.
 
-Signed-off-by: Murphy Zhou <jencce.kernel@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+The driver sets the BMOD.SWR bit (SDMMC_IDMAC_SWRESET) when stopping the
+DMA, but according to the manual CMD.STOP_ABORT_CMD should be programmed
+"before assertion of SWR".  Do these operations in the recommended
+order.  With this change the Data Transfer Over is always received
+correctly in my tests.
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210630102232.16011-1-vincent.whitchurch@axis.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/file.c | 47 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 47 insertions(+)
+ drivers/mmc/host/dw_mmc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
-index 7a08a576f7b2..ab5e92897270 100644
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -9,6 +9,9 @@
- #include <linux/xattr.h>
- #include <linux/uio.h>
- #include <linux/uaccess.h>
-+#include <linux/splice.h>
-+#include <linux/mm.h>
-+#include <linux/fs.h>
- #include "overlayfs.h"
+diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
+index 79c55c7b4afd..6ace82028667 100644
+--- a/drivers/mmc/host/dw_mmc.c
++++ b/drivers/mmc/host/dw_mmc.c
+@@ -2017,8 +2017,8 @@ static void dw_mci_tasklet_func(unsigned long priv)
+ 					continue;
+ 				}
  
- static char ovl_whatisit(struct inode *inode, struct inode *realinode)
-@@ -293,6 +296,48 @@ out_unlock:
- 	return ret;
- }
- 
-+static ssize_t ovl_splice_read(struct file *in, loff_t *ppos,
-+			 struct pipe_inode_info *pipe, size_t len,
-+			 unsigned int flags)
-+{
-+	ssize_t ret;
-+	struct fd real;
-+	const struct cred *old_cred;
-+
-+	ret = ovl_real_fdget(in, &real);
-+	if (ret)
-+		return ret;
-+
-+	old_cred = ovl_override_creds(file_inode(in)->i_sb);
-+	ret = generic_file_splice_read(real.file, ppos, pipe, len, flags);
-+	revert_creds(old_cred);
-+
-+	ovl_file_accessed(in);
-+	fdput(real);
-+	return ret;
-+}
-+
-+static ssize_t
-+ovl_splice_write(struct pipe_inode_info *pipe, struct file *out,
-+			  loff_t *ppos, size_t len, unsigned int flags)
-+{
-+	struct fd real;
-+	const struct cred *old_cred;
-+	ssize_t ret;
-+
-+	ret = ovl_real_fdget(out, &real);
-+	if (ret)
-+		return ret;
-+
-+	old_cred = ovl_override_creds(file_inode(out)->i_sb);
-+	ret = iter_file_splice_write(pipe, real.file, ppos, len, flags);
-+	revert_creds(old_cred);
-+
-+	ovl_file_accessed(out);
-+	fdput(real);
-+	return ret;
-+}
-+
- static int ovl_fsync(struct file *file, loff_t start, loff_t end, int datasync)
- {
- 	struct fd real;
-@@ -649,6 +694,8 @@ const struct file_operations ovl_file_operations = {
- 	.fadvise	= ovl_fadvise,
- 	.unlocked_ioctl	= ovl_ioctl,
- 	.compat_ioctl	= ovl_compat_ioctl,
-+	.splice_read    = ovl_splice_read,
-+	.splice_write   = ovl_splice_write,
- 
- 	.copy_file_range	= ovl_copy_file_range,
- 	.remap_file_range	= ovl_remap_file_range,
+-				dw_mci_stop_dma(host);
+ 				send_stop_abort(host, data);
++				dw_mci_stop_dma(host);
+ 				state = STATE_SENDING_STOP;
+ 				break;
+ 			}
+@@ -2042,10 +2042,10 @@ static void dw_mci_tasklet_func(unsigned long priv)
+ 			 */
+ 			if (test_and_clear_bit(EVENT_DATA_ERROR,
+ 					       &host->pending_events)) {
+-				dw_mci_stop_dma(host);
+ 				if (!(host->data_status & (SDMMC_INT_DRTO |
+ 							   SDMMC_INT_EBE)))
+ 					send_stop_abort(host, data);
++				dw_mci_stop_dma(host);
+ 				state = STATE_DATA_ERROR;
+ 				break;
+ 			}
+@@ -2078,10 +2078,10 @@ static void dw_mci_tasklet_func(unsigned long priv)
+ 			 */
+ 			if (test_and_clear_bit(EVENT_DATA_ERROR,
+ 					       &host->pending_events)) {
+-				dw_mci_stop_dma(host);
+ 				if (!(host->data_status & (SDMMC_INT_DRTO |
+ 							   SDMMC_INT_EBE)))
+ 					send_stop_abort(host, data);
++				dw_mci_stop_dma(host);
+ 				state = STATE_DATA_ERROR;
+ 				break;
+ 			}
 -- 
 2.30.2
 
