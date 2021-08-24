@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BB9C3F6535
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCA413F6528
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239452AbhHXRKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:10:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52018 "EHLO mail.kernel.org"
+        id S238940AbhHXRKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:10:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239327AbhHXRJD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:09:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A12B61A50;
-        Tue, 24 Aug 2021 17:00:15 +0000 (UTC)
+        id S239323AbhHXRJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:09:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1695461A3C;
+        Tue, 24 Aug 2021 17:00:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824415;
-        bh=btWMwOiFZAZWEb/7YTv621HOBNvvdcouSg8F3+LP9wk=;
+        s=k20201202; t=1629824416;
+        bh=ZBd3tKaEOq9mZdbl+5Bunzvs+RMadcTibGQs50Uxc6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QmaImOcnUrPJ/YwghEFbwZtSzdQvrfoO0gRNwAUdrvwTPRE7lIJ1nHlszlUdajvbz
-         dM+UsSJ5wh46pfAGt3s2CqB/UadE8d8UrtZ+1yZH92DcY2p0NZdy7ZpmY57IypPAdf
-         LFYVntvsjyQaDETDPMb8sb5jHcer3puB1drGWBv+x28cZd0o0KMXg4ONOg1GbRln8Z
-         PbrUrZVTv1VLaHV8iRw4L+JAOcYm8kZz1k6afGcTA8Qsqe9z/VxHteBF39mxmb1A8Y
-         TvP4PNf+4sPClkwzhuZU4Kn5lIoU9hIi7yGsNg/h8VljZGvb691KdT71YDNVnysvf9
-         vbI4X6Z7ONC+g==
+        b=mBAggIbGWGaoTb3GyP93y8JGVNq2p26AvbA7OdoNFYnhLAOZFRtdOsyNhYhv5eYB7
+         nojPtpmAAnWRSTDwjCCHYMQcwuYdJbY3yRu1YLzUYql24hT3cz/FScBPo1UvfmIrX2
+         sPzc3JEshNRt9tKBETAa+V8Y/HfaO+scjviVGRnsgpbCGg85tMrolW//hBtk0ZEvJo
+         t6nJnuZVm+YZT2IBL6V7NZAkS8X513L+9wMkIiXwT14RDd5nXldJ+6TSWHUcDSotAH
+         WnEAJcqtHhQJ+oqAyIVAx022+YpAQ3U+RQU9bobQC+fInrk9a/nWemdYvHAsTFmsBQ
+         vPUpw6G0YwXdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
+Cc:     Liu Yi L <yi.l.liu@intel.com>,
+        Kumar Sanjay K <sanjay.k.kumar@intel.com>,
+        Yi Sun <yi.y.sun@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 66/98] iommu/vt-d: Consolidate duplicate cache invaliation code
-Date:   Tue, 24 Aug 2021 12:58:36 -0400
-Message-Id: <20210824165908.709932-67-sashal@kernel.org>
+Subject: [PATCH 5.10 67/98] iommu/vt-d: Fix incomplete cache flush in intel_pasid_tear_down_entry()
+Date:   Tue, 24 Aug 2021 12:58:37 -0400
+Message-Id: <20210824165908.709932-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -47,132 +50,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Liu Yi L <yi.l.liu@intel.com>
 
-[ Upstream commit 9872f9bd9dbd68f75e8db782717d71e8594f6a02 ]
+[ Upstream commit 8798d36411196da86e70b994725349c16c1119f6 ]
 
-The pasid based IOTLB and devTLB invalidation code is duplicate in
-several places. Consolidate them by using the common helpers.
+This fixes improper iotlb invalidation in intel_pasid_tear_down_entry().
+When a PASID was used as nested mode, released and reused, the following
+error message will appear:
 
+[  180.187556] Unexpected page request in Privilege Mode
+[  180.187565] Unexpected page request in Privilege Mode
+[  180.279933] Unexpected page request in Privilege Mode
+[  180.279937] Unexpected page request in Privilege Mode
+
+Per chapter 6.5.3.3 of VT-d spec 3.3, when tear down a pasid entry, the
+software should use Domain selective IOTLB flush if the PGTT of the pasid
+entry is SL only or Nested, while for the pasid entries whose PGTT is FL
+only or PT using PASID-based IOTLB flush is enough.
+
+Fixes: 2cd1311a26673 ("iommu/vt-d: Add set domain DOMAIN_ATTR_NESTING attr")
+Signed-off-by: Kumar Sanjay K <sanjay.k.kumar@intel.com>
+Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
+Tested-by: Yi Sun <yi.y.sun@intel.com>
+Link: https://lore.kernel.org/r/20210817042425.1784279-1-yi.l.liu@intel.com
 Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210114085021.717041-1-baolu.lu@linux.intel.com
+Link: https://lore.kernel.org/r/20210817124321.1517985-3-baolu.lu@linux.intel.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/pasid.c | 18 ++----------
- drivers/iommu/intel/svm.c   | 55 ++++++-------------------------------
- 2 files changed, 11 insertions(+), 62 deletions(-)
+ drivers/iommu/intel/pasid.c | 10 ++++++++--
+ drivers/iommu/intel/pasid.h |  6 ++++++
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
-index 1e7c17989084..77fbe9908abd 100644
+index 77fbe9908abd..fb911b6c418f 100644
 --- a/drivers/iommu/intel/pasid.c
 +++ b/drivers/iommu/intel/pasid.c
-@@ -466,20 +466,6 @@ pasid_cache_invalidation_with_pasid(struct intel_iommu *iommu,
- 	qi_submit_sync(iommu, &desc, 1, 0);
- }
+@@ -497,20 +497,26 @@ void intel_pasid_tear_down_entry(struct intel_iommu *iommu, struct device *dev,
+ 				 u32 pasid, bool fault_ignore)
+ {
+ 	struct pasid_entry *pte;
+-	u16 did;
++	u16 did, pgtt;
  
--static void
--iotlb_invalidation_with_pasid(struct intel_iommu *iommu, u16 did, u32 pasid)
--{
--	struct qi_desc desc;
--
--	desc.qw0 = QI_EIOTLB_PASID(pasid) | QI_EIOTLB_DID(did) |
--			QI_EIOTLB_GRAN(QI_GRAN_NONG_PASID) | QI_EIOTLB_TYPE;
--	desc.qw1 = 0;
--	desc.qw2 = 0;
--	desc.qw3 = 0;
--
--	qi_submit_sync(iommu, &desc, 1, 0);
--}
--
- static void
- devtlb_invalidation_with_pasid(struct intel_iommu *iommu,
- 			       struct device *dev, u32 pasid)
-@@ -524,7 +510,7 @@ void intel_pasid_tear_down_entry(struct intel_iommu *iommu, struct device *dev,
+ 	pte = intel_pasid_get_entry(dev, pasid);
+ 	if (WARN_ON(!pte))
+ 		return;
+ 
+ 	did = pasid_get_domain_id(pte);
++	pgtt = pasid_pte_get_pgtt(pte);
++
+ 	intel_pasid_clear_entry(dev, pasid, fault_ignore);
+ 
+ 	if (!ecap_coherent(iommu->ecap))
  		clflush_cache_range(pte, sizeof(*pte));
  
  	pasid_cache_invalidation_with_pasid(iommu, did, pasid);
--	iotlb_invalidation_with_pasid(iommu, did, pasid);
-+	qi_flush_piotlb(iommu, did, pasid, 0, -1, 0);
+-	qi_flush_piotlb(iommu, did, pasid, 0, -1, 0);
++
++	if (pgtt == PASID_ENTRY_PGTT_PT || pgtt == PASID_ENTRY_PGTT_FL_ONLY)
++		qi_flush_piotlb(iommu, did, pasid, 0, -1, 0);
++	else
++		iommu->flush.flush_iotlb(iommu, did, 0, 0, DMA_TLB_DSI_FLUSH);
  
  	/* Device IOTLB doesn't need to be flushed in caching mode. */
  	if (!cap_caching_mode(iommu->cap))
-@@ -540,7 +526,7 @@ static void pasid_flush_caches(struct intel_iommu *iommu,
- 
- 	if (cap_caching_mode(iommu->cap)) {
- 		pasid_cache_invalidation_with_pasid(iommu, did, pasid);
--		iotlb_invalidation_with_pasid(iommu, did, pasid);
-+		qi_flush_piotlb(iommu, did, pasid, 0, -1, 0);
- 	} else {
- 		iommu_flush_write_buffer(iommu);
- 	}
-diff --git a/drivers/iommu/intel/svm.c b/drivers/iommu/intel/svm.c
-index 6168dec7cb40..aabf56272b86 100644
---- a/drivers/iommu/intel/svm.c
-+++ b/drivers/iommu/intel/svm.c
-@@ -123,53 +123,16 @@ static void __flush_svm_range_dev(struct intel_svm *svm,
- 				  unsigned long address,
- 				  unsigned long pages, int ih)
- {
--	struct qi_desc desc;
-+	struct device_domain_info *info = get_domain_info(sdev->dev);
- 
--	if (pages == -1) {
--		desc.qw0 = QI_EIOTLB_PASID(svm->pasid) |
--			QI_EIOTLB_DID(sdev->did) |
--			QI_EIOTLB_GRAN(QI_GRAN_NONG_PASID) |
--			QI_EIOTLB_TYPE;
--		desc.qw1 = 0;
--	} else {
--		int mask = ilog2(__roundup_pow_of_two(pages));
--
--		desc.qw0 = QI_EIOTLB_PASID(svm->pasid) |
--				QI_EIOTLB_DID(sdev->did) |
--				QI_EIOTLB_GRAN(QI_GRAN_PSI_PASID) |
--				QI_EIOTLB_TYPE;
--		desc.qw1 = QI_EIOTLB_ADDR(address) |
--				QI_EIOTLB_IH(ih) |
--				QI_EIOTLB_AM(mask);
--	}
--	desc.qw2 = 0;
--	desc.qw3 = 0;
--	qi_submit_sync(sdev->iommu, &desc, 1, 0);
--
--	if (sdev->dev_iotlb) {
--		desc.qw0 = QI_DEV_EIOTLB_PASID(svm->pasid) |
--				QI_DEV_EIOTLB_SID(sdev->sid) |
--				QI_DEV_EIOTLB_QDEP(sdev->qdep) |
--				QI_DEIOTLB_TYPE;
--		if (pages == -1) {
--			desc.qw1 = QI_DEV_EIOTLB_ADDR(-1ULL >> 1) |
--					QI_DEV_EIOTLB_SIZE;
--		} else if (pages > 1) {
--			/* The least significant zero bit indicates the size. So,
--			 * for example, an "address" value of 0x12345f000 will
--			 * flush from 0x123440000 to 0x12347ffff (256KiB). */
--			unsigned long last = address + ((unsigned long)(pages - 1) << VTD_PAGE_SHIFT);
--			unsigned long mask = __rounddown_pow_of_two(address ^ last);
--
--			desc.qw1 = QI_DEV_EIOTLB_ADDR((address & ~mask) |
--					(mask - 1)) | QI_DEV_EIOTLB_SIZE;
--		} else {
--			desc.qw1 = QI_DEV_EIOTLB_ADDR(address);
--		}
--		desc.qw2 = 0;
--		desc.qw3 = 0;
--		qi_submit_sync(sdev->iommu, &desc, 1, 0);
--	}
-+	if (WARN_ON(!pages))
-+		return;
-+
-+	qi_flush_piotlb(sdev->iommu, sdev->did, svm->pasid, address, pages, ih);
-+	if (info->ats_enabled)
-+		qi_flush_dev_iotlb_pasid(sdev->iommu, sdev->sid, info->pfsid,
-+					 svm->pasid, sdev->qdep, address,
-+					 order_base_2(pages));
+diff --git a/drivers/iommu/intel/pasid.h b/drivers/iommu/intel/pasid.h
+index 086ebd697319..30cb30046b15 100644
+--- a/drivers/iommu/intel/pasid.h
++++ b/drivers/iommu/intel/pasid.h
+@@ -99,6 +99,12 @@ static inline bool pasid_pte_is_present(struct pasid_entry *pte)
+ 	return READ_ONCE(pte->val[0]) & PASID_PTE_PRESENT;
  }
  
- static void intel_flush_svm_range_dev(struct intel_svm *svm,
++/* Get PGTT field of a PASID table entry */
++static inline u16 pasid_pte_get_pgtt(struct pasid_entry *pte)
++{
++	return (u16)((READ_ONCE(pte->val[0]) >> 6) & 0x7);
++}
++
+ extern unsigned int intel_pasid_max_id;
+ int intel_pasid_alloc_id(void *ptr, int start, int end, gfp_t gfp);
+ void intel_pasid_free_id(u32 pasid);
 -- 
 2.30.2
 
