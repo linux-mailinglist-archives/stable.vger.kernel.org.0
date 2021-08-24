@@ -2,92 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5293F621A
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 17:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E08E83F6232
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238442AbhHXP6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 11:58:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42316 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236565AbhHXP6u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 11:58:50 -0400
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88D5CC061757;
-        Tue, 24 Aug 2021 08:58:06 -0700 (PDT)
-Received: by mail-lf1-x135.google.com with SMTP id z2so46598487lft.1;
-        Tue, 24 Aug 2021 08:58:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pebXoQmUWBzlSnu9s+ZDsnyoaDKmmttwsIKNnt3weIE=;
-        b=Q9jhvSUqhX4lkX2eoeELlFAvl6kH+1JR7rYZ70PDorFWAptKs27wemZX6u7svTpdNi
-         CQZNEsfniIV6d6WzPb8J7yhbOdzMtA5DOYaA5EKxM1vJhU8ZsxUmndRdY+EzVlKU+W8w
-         Rm9Lbcsw3p1hnRA996p40sb5DwjklycrpqSZ/b+oVZ0KHu3GYiUBBRFs5mK+Gcg0B8g0
-         9JaskRUdVbEFtWMRx2qwC8zni6l0aLf8bq8hynPFCSg9xduGOuSe5DWyLiR4DIkf3ECP
-         1VDS3ZeN449pq3V8mdMrBV2QsqSrBloBUL2lZQlmqzPi7XtP1aCEQTe+EGu6mBW507dU
-         Rs/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pebXoQmUWBzlSnu9s+ZDsnyoaDKmmttwsIKNnt3weIE=;
-        b=oIPB3GJfJ/TR0ruEsQG2LiGvZ/QmprSzLCPcFtfh1VhR/sxvZ28CA2mf4y7X3vOojp
-         NXR9+hMuJZn88YcvR+esGWBmhUkv2h7F805nnmxI+UfwTVvUOgAmb+9xnGK2+UiyCZn4
-         KBum56GM9owknjQKbsCXafh+nAymTQsuRyWGj385CjQFUJe/VcGDDkM/MVGUF7UaBYNG
-         OBoiZ2Yn7XZ9vCthY+rHEQMUMIVaVfRs95cWld0pC4mjyKMZhIRCfshltL96VWxMsFUb
-         dPEuze/oym3QLhQbVmX9BO3EFHt/knuKs4hMLSXVYecy8AExVeU38EVsXHudgycODfkm
-         YeTg==
-X-Gm-Message-State: AOAM533U+HI0ocEXtBktAsIxRctcc/kKxl8hEbgDp8WINeyIo9d4iZvg
-        St3IXnNvomxc/WogVg1cTtny2KWIpF74Waau1o6HMQSYlqnm6zm1
-X-Google-Smtp-Source: ABdhPJweeFB0/46GdTiQUi5WpATivrTK3DsqcsNXnsmBkdTL+2KZ4sgT2Ov+HDFZhbevcaMt0c1LJEJaFOfF4svpZsM=
-X-Received: by 2002:a05:6512:3f8e:: with SMTP id x14mr28533152lfa.389.1629820684972;
- Tue, 24 Aug 2021 08:58:04 -0700 (PDT)
+        id S229837AbhHXQGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:06:51 -0400
+Received: from mga02.intel.com ([134.134.136.20]:6056 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229478AbhHXQGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:06:51 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10086"; a="204540983"
+X-IronPort-AV: E=Sophos;i="5.84,347,1620716400"; 
+   d="scan'208";a="204540983"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2021 09:05:27 -0700
+X-IronPort-AV: E=Sophos;i="5.84,347,1620716400"; 
+   d="scan'208";a="643232071"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.25])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2021 09:05:24 -0700
+Subject: [PATCH v3 00/28] cxl_test: Enable CXL Topology and UAPI regression
+ tests
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-cxl@vger.kernel.org
+Cc:     Ben Widawsky <ben.widawsky@intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alison Schofield <alison.schofield@intel.com>,
+        kernel test robot <lkp@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        nvdimm@lists.linux.dev, Jonathan.Cameron@huawei.com,
+        ira.weiny@intel.com, ben.widawsky@intel.com,
+        vishal.l.verma@intel.com, alison.schofield@intel.com
+Date:   Tue, 24 Aug 2021 09:05:24 -0700
+Message-ID: <162982112370.1124374.2020303588105269226.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
-References: <20210824055509.1316124-1-dqfext@gmail.com> <YSUQV3jhfbhbf5Ct@sashalap>
-In-Reply-To: <YSUQV3jhfbhbf5Ct@sashalap>
-From:   DENG Qingfang <dqfext@gmail.com>
-Date:   Tue, 24 Aug 2021 23:57:53 +0800
-Message-ID: <CALW65ja3hYGmEqcWZzifP2-0WsJOnxcUXsey2ZH5vDbD0-nDeQ@mail.gmail.com>
-Subject: Re: [PATCH 4.19.y] net: dsa: mt7530: disable learning on standalone ports
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "open list:MEDIATEK SWITCH DRIVER" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+Changes since v1* [1]:
+- Rearrange setters to be next to getters (Jonathan)
+- Fix endian bug in nsl_set_slot() (kbuild robot)
+- Return NULL instead of !name (Jonathan)
+- Use {import,export}_uuid() where UUIDs are used in external interface
+  structures (Andy)
+- Fix uuid_to_nvdimm_class() to be static (kbuild robot)
+- Fixup changelog to note uuid copying fixups (Jonathan)
+- Fix the broken nlabel/nrange confusion for CXL labels (Jonathan)
+  - Add a dedicated nlabel validation helper
+  - Add nrange helpers for CXL
+- Introduce __mock to fix unnecessary global symbols (kbuild robot)
+- Include core.h to fix some missing prototype warnings (kbuild robot)
+- Fix excessive stack usage from devm_cxl_add_decoder() (kbuild robot)
+- Add spec reference for namespace label fields (Jonathan)
+- Fix uninitialized variable use in cxl_nvdimm_probe() (kbuild robot)
+- Move cxl region definition to its own patch for readability (Jonathan)
+- Move exclusive command validation to cxl_validate_cmd_from_user() (Ben)
+- Fix exclusive command locking (Ben)
+- Fold in Alison's acpi_pci_find_root() fix and rebase (Alison)
+- Rebase on 0day-induced fixups of the baseline
 
-On Tue, Aug 24, 2021 at 11:29 PM Sasha Levin <sashal@kernel.org> wrote:
-> What's the reasoning behind:
->
-> 1. Backporting this patch?
+[1]: https://lore.kernel.org/r/162854806653.1980150.3354618413963083778.stgit@dwillia2-desk3.amr.corp.intel.com
 
-Standalone ports should have address learning disabled, according to
-the documentation:
-https://www.kernel.org/doc/html/v5.14-rc7/networking/dsa/dsa.html#bridge-layer
-dsa_switch_ops on 5.10 or earlier does not have .port_bridge_flags
-function so it has to be done differently.
+Note that there were some one-off direct replies marked v2, but now this
+set supersedes those.
 
-I've identified an issue related to this.
+---
 
-> 2. A partial backport of this patch?
+Changed or new(*) patches since v1 are:
 
-The other part does not actually fix anything.
+[ PATCH v3 03/28] libnvdimm/labels: Introduce label setter helpers
+[ PATCH v3 09/28] libnvdimm/labels: Add address-abstraction uuid definitions
+[ PATCH v3 10/28] libnvdimm/labels: Add uuid helpers
+[*PATCH v3 11/28] libnvdimm/label: Add a helper for nlabel validation
+[*PATCH v3 12/28] libnvdimm/labels: Introduce the concept of multi-range namespace labels
+[*PATCH v3 13/28] libnvdimm/label: Define CXL region labels
+[ PATCH v3 14/28] libnvdimm/labels: Introduce CXL labels
+[ PATCH v3 17/28] cxl/mbox: Move mailbox and other non-PCI specific infrastructure to the core
+[ PATCH v3 20/28] cxl/mbox: Add exclusive kernel command support
+[ PATCH v3 21/28] cxl/pmem: Translate NVDIMM label commands to CXL label commands
+[ PATCH v3 22/28] cxl/pmem: Add support for multiple nvdimm-bridge objects
+[*PATCH v3 23/28] cxl/acpi: Do not add DSDT disabled ACPI0016 host bridge ports
+[ PATCH v3 24/28] tools/testing/cxl: Introduce a mocked-up CXL port hierarchy
+[ PATCH v3 27/28] tools/testing/cxl: Introduce a mock memory device + driver
+[*PATCH v3 28/28] cxl/core: Split decoder setup into alloc + add
 
->
-> --
-> Thanks,
-> Sasha
+---
+
+As mentioned in patch 24 in this series the response of upstream QEMU
+community to CXL device emulation has been underwhelming to date. Even
+if that picked up it still results in a situation where new driver
+features and new test capabilities for those features are split across
+multiple repositories.
+
+The "nfit_test" approach of mocking up platform resources via an
+external test module continues to yield positive results catching
+regressions early and often. So this attempts to repeat that success
+with a "cxl_test" module to inject custom crafted topologies and command
+responses into the CXL subsystem's sysfs and ioctl UAPIs.
+
+The first target for cxl_test to verify is the integration of CXL with
+LIBNVDIMM and the new support for the CXL namespace label + region-label
+format. The first 14 patches introduce support for the new label format.
+
+The next 9 patches rework the CXL PCI driver and to move more common
+infrastructure into the core for the unit test environment to reuse. The
+largest change here is disconnecting the mailbox command processing
+infrastructure from the PCI specific transport. The unit test
+environment replaces the PCI transport with a custom backend with mocked
+responses to command requests.
+
+Patch 24 introduces just enough mocked functionality for the cxl_acpi
+driver to load against cxl_test resources. Patch 21 fixes the first bug
+discovered by this framework, namely that HDM decoder target list maps
+were not being filled out.
+
+Finally patches 26 and 27 introduce a cxl_test representation of memory
+expander devices. In this initial implementation these memory expander
+targets implement just enough command support to pass the basic driver
+init sequence and enable label command passthrough to LIBNVDIMM.
+
+The topology of cxl_test includes:
+- (4) platform fixed memory windows. One each of a x1-volatile,
+  x4-volatile, x1-persistent, and x4-persistent.
+- (4) Host bridges each with (2) root ports
+- (8) CXL memory expanders, one for each root port
+- Each memory expander device supports the GET_SUPPORTED_LOGS, GET_LOG,
+  IDENTIFY, GET_LSA, and SET_LSA commands.
+
+Going forward the expectation is that where possible new UAPI visible
+subsystem functionality comes with cxl_test emulation of the same.
+
+The build process for cxl_test is:
+
+    make M=tools/testing/cxl
+    make M=tools/testing/cxl modules_install
+
+The implementation methodology of the test module is the same as
+nfit_test where the bulk of the emulation comes from replacing symbols
+that cxl_acpi and the cxl_core import with mocked implementation of
+those symbols. See the "--wrap=" lines in tools/testing/cxl/Kbuild. Some
+symbols need to be replaced, but are local to the modules like
+match_add_root_ports(). In those cases the local symbol is marked __weak
+(via __mock) with a strong implementation coming from
+tools/testing/cxl/. The goal being to be minimally invasive to
+production code paths.
+
+---
+
+Alison Schofield (1):
+      cxl/acpi: Do not add DSDT disabled ACPI0016 host bridge ports
+
+Dan Williams (27):
+      libnvdimm/labels: Introduce getters for namespace label fields
+      libnvdimm/labels: Add isetcookie validation helper
+      libnvdimm/labels: Introduce label setter helpers
+      libnvdimm/labels: Add a checksum calculation helper
+      libnvdimm/labels: Add blk isetcookie set / validation helpers
+      libnvdimm/labels: Add blk special cases for nlabel and position helpers
+      libnvdimm/labels: Add type-guid helpers
+      libnvdimm/labels: Add claim class helpers
+      libnvdimm/labels: Add address-abstraction uuid definitions
+      libnvdimm/labels: Add uuid helpers
+      libnvdimm/label: Add a helper for nlabel validation
+      libnvdimm/labels: Introduce the concept of multi-range namespace labels
+      libnvdimm/label: Define CXL region labels
+      libnvdimm/labels: Introduce CXL labels
+      cxl/pci: Make 'struct cxl_mem' device type generic
+      cxl/mbox: Introduce the mbox_send operation
+      cxl/mbox: Move mailbox and other non-PCI specific infrastructure to the core
+      cxl/pci: Use module_pci_driver
+      cxl/mbox: Convert 'enabled_cmds' to DECLARE_BITMAP
+      cxl/mbox: Add exclusive kernel command support
+      cxl/pmem: Translate NVDIMM label commands to CXL label commands
+      cxl/pmem: Add support for multiple nvdimm-bridge objects
+      tools/testing/cxl: Introduce a mocked-up CXL port hierarchy
+      cxl/bus: Populate the target list at decoder create
+      cxl/mbox: Move command definitions to common location
+      tools/testing/cxl: Introduce a mock memory device + driver
+      cxl/core: Split decoder setup into alloc + add
+
+
+ Documentation/driver-api/cxl/memory-devices.rst |    3 
+ drivers/cxl/acpi.c                              |  143 ++-
+ drivers/cxl/core/Makefile                       |    1 
+ drivers/cxl/core/bus.c                          |   87 +-
+ drivers/cxl/core/core.h                         |    8 
+ drivers/cxl/core/mbox.c                         |  798 +++++++++++++++++
+ drivers/cxl/core/memdev.c                       |  115 ++-
+ drivers/cxl/core/pmem.c                         |   32 +
+ drivers/cxl/cxl.h                               |   45 +
+ drivers/cxl/cxlmem.h                            |  188 ++++
+ drivers/cxl/pci.c                               | 1051 +----------------------
+ drivers/cxl/pmem.c                              |  160 +++-
+ drivers/nvdimm/btt.c                            |   11 
+ drivers/nvdimm/btt_devs.c                       |   14 
+ drivers/nvdimm/core.c                           |   40 -
+ drivers/nvdimm/label.c                          |  361 +++++---
+ drivers/nvdimm/label.h                          |  121 ++-
+ drivers/nvdimm/namespace_devs.c                 |  204 ++--
+ drivers/nvdimm/nd-core.h                        |    5 
+ drivers/nvdimm/nd.h                             |  289 ++++++
+ drivers/nvdimm/pfn_devs.c                       |    2 
+ include/linux/nd.h                              |    4 
+ tools/testing/cxl/Kbuild                        |   38 +
+ tools/testing/cxl/config_check.c                |   13 
+ tools/testing/cxl/mock_acpi.c                   |  109 ++
+ tools/testing/cxl/mock_pmem.c                   |   24 +
+ tools/testing/cxl/test/Kbuild                   |   10 
+ tools/testing/cxl/test/cxl.c                    |  587 +++++++++++++
+ tools/testing/cxl/test/mem.c                    |  255 ++++++
+ tools/testing/cxl/test/mock.c                   |  171 ++++
+ tools/testing/cxl/test/mock.h                   |   27 +
+ 31 files changed, 3422 insertions(+), 1494 deletions(-)
+ create mode 100644 drivers/cxl/core/mbox.c
+ create mode 100644 tools/testing/cxl/Kbuild
+ create mode 100644 tools/testing/cxl/config_check.c
+ create mode 100644 tools/testing/cxl/mock_acpi.c
+ create mode 100644 tools/testing/cxl/mock_pmem.c
+ create mode 100644 tools/testing/cxl/test/Kbuild
+ create mode 100644 tools/testing/cxl/test/cxl.c
+ create mode 100644 tools/testing/cxl/test/mem.c
+ create mode 100644 tools/testing/cxl/test/mock.c
+ create mode 100644 tools/testing/cxl/test/mock.h
+
+base-commit: ceeb0da0a0322bcba4c50ab3cf97fe9a7aa8a2e4
