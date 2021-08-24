@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 299893F6799
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:36:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90CBC3F677A
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241486AbhHXRgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:36:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39252 "EHLO mail.kernel.org"
+        id S239486AbhHXRfU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:35:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241631AbhHXRdK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:33:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BF4F615E5;
-        Tue, 24 Aug 2021 17:06:21 +0000 (UTC)
+        id S241664AbhHXRdL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:33:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E972619E5;
+        Tue, 24 Aug 2021 17:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824781;
-        bh=z9PNdo8n76f8x7IR+LSr4oEuoLqnAbavaFgdFyToI7M=;
+        s=k20201202; t=1629824782;
+        bh=GN1DC+CCgbEORn7KmoxuFw1XZ+T5yd1Xtq2o3y5zWCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVXBuueClkCXXNfwt6I0hfgKYkvlnhQTl+u7FUEPCCCcX9egh2R2S8fkDSa3RRDA1
-         MIvdoBCYgxYnTJ0Y5+XPsPclo36qW6jdZk8WUNKvIfX4Qe1ESNMtjUDDcmnxGIpZRo
-         uaEjo4+S64BdOXyUv3TGhbVrl6NeboOUT2ohTNf5PRQHJ4/r70sSdXpbjGN2jJu4H7
-         JfoyVzEQUnc+Xq1VWQNyWCM2rYvtXdHqbXSCeu0aANjXSvWzVidX17Hd8Jvc78a9Dx
-         RBZgVKLtUvoguSEwlonoEJJTeWS2K+WBAkrRlqy3EOXtBlGhZYPQ15w2OuUGLyjhsv
-         YPB7ReIiGnPyw==
+        b=GVSyP1EaX/H57b6CN4nNMHl+K8+Tj1sFPHdU1hNb1n+Ce3Jm6NYPUmZS2Ig+s89ka
+         BOIy37NNhP6VPRkMsEAtjKNWuhKnW7dNITnjrnhGBoImPMtTGsWTLxlg2DqmSAKa1Q
+         Z2Naf+w3M+rIaPpHJEwoBmFOe8GnvfwPOD+pkOeO8V+nq9DP1z4pOdGFk17o1xsr42
+         BIThKQK1RX2v5DPJZm6z0sd082Z9CsaZAcTbKOzdDhtvpyT43Yhx2qxWPSVZOEnuNj
+         mdjrikjPGOgbEVTqIeuzTNPTARrS4YbkZ9y0ZXJu05rEFbDzs5tFgtZDr+3T22OTEp
+         Idj94PB8APyMw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Takeshi Misawa <jeliantsurux@gmail.com>,
+        syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 05/43] ppp: Fix generating ifname when empty IFLA_IFNAME is specified
-Date:   Tue, 24 Aug 2021 13:05:36 -0400
-Message-Id: <20210824170614.710813-6-sashal@kernel.org>
+Subject: [PATCH 4.9 06/43] net: Fix memory leak in ieee802154_raw_deliver
+Date:   Tue, 24 Aug 2021 13:05:37 -0400
+Message-Id: <20210824170614.710813-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170614.710813-1-sashal@kernel.org>
 References: <20210824170614.710813-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.281-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.9.y
@@ -49,53 +50,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Takeshi Misawa <jeliantsurux@gmail.com>
 
-[ Upstream commit 2459dcb96bcba94c08d6861f8a050185ff301672 ]
+[ Upstream commit 1090340f7ee53e824fd4eef66a4855d548110c5b ]
 
-IFLA_IFNAME is nul-term string which means that IFLA_IFNAME buffer can be
-larger than length of string which contains.
+If IEEE-802.15.4-RAW is closed before receive skb, skb is leaked.
+Fix this, by freeing sk_receive_queue in sk->sk_destruct().
 
-Function __rtnl_newlink() generates new own ifname if either IFLA_IFNAME
-was not specified at all or userspace passed empty nul-term string.
+syzbot report:
+BUG: memory leak
+unreferenced object 0xffff88810f644600 (size 232):
+  comm "softirq", pid 0, jiffies 4294967032 (age 81.270s)
+  hex dump (first 32 bytes):
+    10 7d 4b 12 81 88 ff ff 10 7d 4b 12 81 88 ff ff  .}K......}K.....
+    00 00 00 00 00 00 00 00 40 7c 4b 12 81 88 ff ff  ........@|K.....
+  backtrace:
+    [<ffffffff83651d4a>] skb_clone+0xaa/0x2b0 net/core/skbuff.c:1496
+    [<ffffffff83fe1b80>] ieee802154_raw_deliver net/ieee802154/socket.c:369 [inline]
+    [<ffffffff83fe1b80>] ieee802154_rcv+0x100/0x340 net/ieee802154/socket.c:1070
+    [<ffffffff8367cc7a>] __netif_receive_skb_one_core+0x6a/0xa0 net/core/dev.c:5384
+    [<ffffffff8367cd07>] __netif_receive_skb+0x27/0xa0 net/core/dev.c:5498
+    [<ffffffff8367cdd9>] netif_receive_skb_internal net/core/dev.c:5603 [inline]
+    [<ffffffff8367cdd9>] netif_receive_skb+0x59/0x260 net/core/dev.c:5662
+    [<ffffffff83fe6302>] ieee802154_deliver_skb net/mac802154/rx.c:29 [inline]
+    [<ffffffff83fe6302>] ieee802154_subif_frame net/mac802154/rx.c:102 [inline]
+    [<ffffffff83fe6302>] __ieee802154_rx_handle_packet net/mac802154/rx.c:212 [inline]
+    [<ffffffff83fe6302>] ieee802154_rx+0x612/0x620 net/mac802154/rx.c:284
+    [<ffffffff83fe59a6>] ieee802154_tasklet_handler+0x86/0xa0 net/mac802154/main.c:35
+    [<ffffffff81232aab>] tasklet_action_common.constprop.0+0x5b/0x100 kernel/softirq.c:557
+    [<ffffffff846000bf>] __do_softirq+0xbf/0x2ab kernel/softirq.c:345
+    [<ffffffff81232f4c>] do_softirq kernel/softirq.c:248 [inline]
+    [<ffffffff81232f4c>] do_softirq+0x5c/0x80 kernel/softirq.c:235
+    [<ffffffff81232fc1>] __local_bh_enable_ip+0x51/0x60 kernel/softirq.c:198
+    [<ffffffff8367a9a4>] local_bh_enable include/linux/bottom_half.h:32 [inline]
+    [<ffffffff8367a9a4>] rcu_read_unlock_bh include/linux/rcupdate.h:745 [inline]
+    [<ffffffff8367a9a4>] __dev_queue_xmit+0x7f4/0xf60 net/core/dev.c:4221
+    [<ffffffff83fe2db4>] raw_sendmsg+0x1f4/0x2b0 net/ieee802154/socket.c:295
+    [<ffffffff8363af16>] sock_sendmsg_nosec net/socket.c:654 [inline]
+    [<ffffffff8363af16>] sock_sendmsg+0x56/0x80 net/socket.c:674
+    [<ffffffff8363deec>] __sys_sendto+0x15c/0x200 net/socket.c:1977
+    [<ffffffff8363dfb6>] __do_sys_sendto net/socket.c:1989 [inline]
+    [<ffffffff8363dfb6>] __se_sys_sendto net/socket.c:1985 [inline]
+    [<ffffffff8363dfb6>] __x64_sys_sendto+0x26/0x30 net/socket.c:1985
 
-It is expected that if userspace does not specify ifname for new ppp netdev
-then kernel generates one in format "ppp<id>" where id matches to the ppp
-unit id which can be later obtained by PPPIOCGUNIT ioctl.
-
-And it works in this way if IFLA_IFNAME is not specified at all. But it
-does not work when IFLA_IFNAME is specified with empty string.
-
-So fix this logic also for empty IFLA_IFNAME in ppp_nl_newlink() function
-and correctly generates ifname based on ppp unit identifier if userspace
-did not provided preferred ifname.
-
-Without this patch when IFLA_IFNAME was specified with empty string then
-kernel created a new ppp interface in format "ppp<id>" but id did not
-match ppp unit id returned by PPPIOCGUNIT ioctl. In this case id was some
-number generated by __rtnl_newlink() function.
-
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: bb8082f69138 ("ppp: build ifname using unit identifier for rtnl based devices")
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9ec767160357 ("net: add IEEE 802.15.4 socket family implementation")
+Reported-and-tested-by: syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com
+Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210805075414.GA15796@DESKTOP
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ppp/ppp_generic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ieee802154/socket.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
-index 5ba472691546..0a29844676f9 100644
---- a/drivers/net/ppp/ppp_generic.c
-+++ b/drivers/net/ppp/ppp_generic.c
-@@ -1136,7 +1136,7 @@ static int ppp_nl_newlink(struct net *src_net, struct net_device *dev,
- 	 * the PPP unit identifer as suffix (i.e. ppp<unit_id>). This allows
- 	 * userspace to infer the device name using to the PPPIOCGUNIT ioctl.
- 	 */
--	if (!tb[IFLA_IFNAME])
-+	if (!tb[IFLA_IFNAME] || !nla_len(tb[IFLA_IFNAME]) || !*(char *)nla_data(tb[IFLA_IFNAME]))
- 		conf.ifname_is_set = false;
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index f66e4afb978a..6383627b783e 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -987,6 +987,11 @@ static const struct proto_ops ieee802154_dgram_ops = {
+ #endif
+ };
  
- 	err = ppp_dev_configure(src_net, dev, &conf);
++static void ieee802154_sock_destruct(struct sock *sk)
++{
++	skb_queue_purge(&sk->sk_receive_queue);
++}
++
+ /* Create a socket. Initialise the socket, blank the addresses
+  * set the state.
+  */
+@@ -1027,7 +1032,7 @@ static int ieee802154_create(struct net *net, struct socket *sock,
+ 	sock->ops = ops;
+ 
+ 	sock_init_data(sock, sk);
+-	/* FIXME: sk->sk_destruct */
++	sk->sk_destruct = ieee802154_sock_destruct;
+ 	sk->sk_family = PF_IEEE802154;
+ 
+ 	/* Checksums on by default */
 -- 
 2.30.2
 
