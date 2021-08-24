@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E705B3F6635
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:21:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3180D3F6633
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232453AbhHXRV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240167AbhHXRV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:21:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56444 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240648AbhHXRTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240652AbhHXRTd (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:19:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B06D617E4;
-        Tue, 24 Aug 2021 17:03:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 198B961A83;
+        Tue, 24 Aug 2021 17:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824584;
-        bh=jYQfchHXJGdsZto16OU54Weg9VmEMz6dKyN33d1miLg=;
+        s=k20201202; t=1629824585;
+        bh=zDgfXNzrQsD/TXkeREHA6nHAtybWq++I8lF2ftfW6aU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1WnY/ImK5KJ7hL/Zi5EIJGwwLXxOsREARgTJJ2ONaGwWuq7zJuO6qWrOTODZJQku
-         uZb5swWIbUZVmiargfYFKmj6+4xroXltoYAPPaESt8GBoDUucv90Usf4/zv9jXadK9
-         g9NXaYrcAxrmEBNNYkxLOKyttdSridl1mc3VkT6GmbfeL89HXQUwNKNc5LlxeV95nv
-         5fdcDu0/k7lr9DQvTMHYrAP3VCVH6kkMrr9IhszrTBzVKVjRUzlo97fz8uerZnVj0B
-         eROYXGLRQZqUx23eeO94aRGZW+W4rn0mo3zCNBUuicZ3xLupHXVaTNcdxj27b10wPv
-         nvIjR/wLg32PA==
+        b=bCfpLfWmoNbPKGTvIIMx1YLKD6UbEcyUgfF/lPkhAQKmNP1wAl8WYyEhTFwlWJjf8
+         5fh6XHqXO4MYAe+WianN4N7wnwmGCb8IqgUBgy66EkR2GaRW4WNlj0yHVPFGIxWcWO
+         mEoKUWqVbAFI9wybOPqmxk427aWhWJAqcPayL9+tBPMTmBelYOkqyEuJkPDdYXg1eR
+         PGS3xptF1ox/xhC+55Ekre8dRGKhDPMjXb6Rcv/Wkbfp5iP4C+pUrbuKIeo7gti047
+         zIKBxCge6uoK0SIXHsGz3VZ+G9oER3h0+LJqU0lvbHnE6CnLHv1UIo96k4NBDXHrt1
+         /lHc9P3/5W8zQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     DENG Qingfang <dqfext@gmail.com>,
+Cc:     =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 13/84] net: dsa: mt7530: add the missing RxUnicast MIB counter
-Date:   Tue, 24 Aug 2021 13:01:39 -0400
-Message-Id: <20210824170250.710392-14-sashal@kernel.org>
+Subject: [PATCH 4.19 14/84] ppp: Fix generating ifname when empty IFLA_IFNAME is specified
+Date:   Tue, 24 Aug 2021 13:01:40 -0400
+Message-Id: <20210824170250.710392-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.205-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.19.y
@@ -48,32 +49,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: DENG Qingfang <dqfext@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit aff51c5da3208bd164381e1488998667269c6cf4 ]
+[ Upstream commit 2459dcb96bcba94c08d6861f8a050185ff301672 ]
 
-Add the missing RxUnicast counter.
+IFLA_IFNAME is nul-term string which means that IFLA_IFNAME buffer can be
+larger than length of string which contains.
 
-Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Function __rtnl_newlink() generates new own ifname if either IFLA_IFNAME
+was not specified at all or userspace passed empty nul-term string.
+
+It is expected that if userspace does not specify ifname for new ppp netdev
+then kernel generates one in format "ppp<id>" where id matches to the ppp
+unit id which can be later obtained by PPPIOCGUNIT ioctl.
+
+And it works in this way if IFLA_IFNAME is not specified at all. But it
+does not work when IFLA_IFNAME is specified with empty string.
+
+So fix this logic also for empty IFLA_IFNAME in ppp_nl_newlink() function
+and correctly generates ifname based on ppp unit identifier if userspace
+did not provided preferred ifname.
+
+Without this patch when IFLA_IFNAME was specified with empty string then
+kernel created a new ppp interface in format "ppp<id>" but id did not
+match ppp unit id returned by PPPIOCGUNIT ioctl. In this case id was some
+number generated by __rtnl_newlink() function.
+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: bb8082f69138 ("ppp: build ifname using unit identifier for rtnl based devices")
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ppp/ppp_generic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
-index 6335c4ea0957..2ff6a0be97de 100644
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -54,6 +54,7 @@ static const struct mt7530_mib_desc mt7530_mib[] = {
- 	MIB_DESC(2, 0x48, "TxBytes"),
- 	MIB_DESC(1, 0x60, "RxDrop"),
- 	MIB_DESC(1, 0x64, "RxFiltering"),
-+	MIB_DESC(1, 0x68, "RxUnicast"),
- 	MIB_DESC(1, 0x6c, "RxMulticast"),
- 	MIB_DESC(1, 0x70, "RxBroadcast"),
- 	MIB_DESC(1, 0x74, "RxAlignErr"),
+diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
+index 1af47aaa7ba5..dc9de8731c56 100644
+--- a/drivers/net/ppp/ppp_generic.c
++++ b/drivers/net/ppp/ppp_generic.c
+@@ -1125,7 +1125,7 @@ static int ppp_nl_newlink(struct net *src_net, struct net_device *dev,
+ 	 * the PPP unit identifer as suffix (i.e. ppp<unit_id>). This allows
+ 	 * userspace to infer the device name using to the PPPIOCGUNIT ioctl.
+ 	 */
+-	if (!tb[IFLA_IFNAME])
++	if (!tb[IFLA_IFNAME] || !nla_len(tb[IFLA_IFNAME]) || !*(char *)nla_data(tb[IFLA_IFNAME]))
+ 		conf.ifname_is_set = false;
+ 
+ 	err = ppp_dev_configure(src_net, dev, &conf);
 -- 
 2.30.2
 
