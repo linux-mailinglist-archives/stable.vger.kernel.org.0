@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B35553F5DC8
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 14:19:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 261B43F5DBF
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 14:16:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230132AbhHXMUK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 08:20:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46080 "EHLO
+        id S237030AbhHXMQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 08:16:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237183AbhHXMQZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 08:16:25 -0400
+        with ESMTP id S236676AbhHXMQ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 08:16:56 -0400
 Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97860C061757
-        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 05:15:41 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id e5so14438282wrp.8
-        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 05:15:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B5C0C061757
+        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 05:16:12 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id v10so19781241wrd.4
+        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 05:16:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=nRPKXuKClzY04XjEratZIV5Uap5YYP0xzzA287afDts=;
-        b=UXY/xdKxTAQGATnwURe1Fu5CsMDZU0WNMuCqoU29m0Wxc/iO+P61g9hzrS7SliVmoL
-         3v6ZoC9pyUfCwVjPtq/4Adzmy1Qf62wxf4BcoD5GEZRwcniQLVPS2cAj4ygpmF+kfXlJ
-         OQKcYi6p3UDBx8on7QIIZt6F1+bRokoEWFQ8wJyoAuVabHhdAaG9LMkEqNuuAyVPF5EA
-         5L9K/geCx5rPZtr91RlTvMOs73vHAHlpJMNS/Lv4O4SJ01b4aYyXtjV/BsM4qi4tyhrz
-         u+hoJC32TDe5Kc0cqe9kJ9AYllS/+mS9NPZ5BR5xpay/VkPTqS9OXRNIQSNNQij6dNuV
-         zlIw==
+        bh=4QwAksmy8AUZUJdeuvbdlR3YPV0zYUSMKlZXkpsYFQA=;
+        b=BT8nzrQeZANlRx444f/mTqxUuPqvr3q3XFm/Tz2peOUjILPBtalTy+sbxRtlZKAFsD
+         icaUBapnlJWLNDA7HRyC0Gk/Vr9zrf0iUa3e9To53Vir/Om11PQI6ipgmowpjev9blPy
+         F2vZ8UQokbNFhke85oEOONNZJJA6fUWDT46NVJE3f+cUpf2L3R0zm4gTwGUC+RbnZG70
+         oDaiRRZQVnsaI4c3BCtaAMuoQzFKg6w0muCWOqtiLPAFC03vyZiAM+s9UGE8nwItKI2n
+         bPXSADHWCtM+Ei2+BFRSTf/uYYmmJMMC5EmFqdFTn8+etWCzokj9wiVRj/s6FI4Rfm6N
+         H5hQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=nRPKXuKClzY04XjEratZIV5Uap5YYP0xzzA287afDts=;
-        b=SbjZRswpFLzqV/tI9gssZ5aEpJLGHvMvN4vSgJ30bOkpylKeNXYbS/FO92kDxZq+PN
-         sNxxsaySbkkUeBlnF4EQs88kkZpF0uzSaceddv/2zdmnkL/sE67mKGQlfJomVoH6Vp2V
-         xRIen5IfEVK/Dkq2sG+yYMgCPuQGm2Pm+wjhQLoPlxDOmki7JtummLsoc1SP+BksBBXI
-         6HbKVif7T+t5bN+88f9eElFg6yUheKWOKDfusMq8RTtZk72WpSDytIs6ibAHffZ6Uvwa
-         DT4fEKQ4LBNEVIUbzpDoel7ACfBY0/bZRID81qx/3RBUiwliLExWep5O5EvOzJutbuPY
-         ke5A==
-X-Gm-Message-State: AOAM5328AIJlup5e5VSw4QJ9TVRMBhfM5wvboNO3Jn3URiAkpsHakHWK
-        QA97KFXRKBoVE360Yfv/hvc=
-X-Google-Smtp-Source: ABdhPJzQBPKCMBuDPFBwcGUHJ9IyIzohHieTJMG5FUj3aWPjPl9zJv8Jvx/EZCfcuSCMu6nxQjYEVg==
-X-Received: by 2002:a05:6000:1b8e:: with SMTP id r14mr19691913wru.251.1629807340229;
-        Tue, 24 Aug 2021 05:15:40 -0700 (PDT)
+        bh=4QwAksmy8AUZUJdeuvbdlR3YPV0zYUSMKlZXkpsYFQA=;
+        b=D5jkb4L3zS6dFARs5QoiIxxGQ89FCXMUqkLHVfYPuUWGtj+0pg0pqfz1vEyur5PPsP
+         /crb9w08xRCJ/ZyHqTUGkXZSleF0CQE3H+QILB29099C7pVHGHhF7eBLfFstH3RojGqG
+         pNxvuv7GoyOSVZilCrBPJWenzz6CVWRriaeN/68Zbc19ReL2/2FIdRUeXbddUOdsGd6e
+         VVw+Xyq1eNb6AnIBUmJNOtUq9ujlike2+1z4oyq+keaoSbl5pkqr4mxG4Y1O1IHN4Gq1
+         UXXfa6ieHb5jDdgSnJfT4ceeA9y/jevRjx49ZuxLnW7Vjmh6Z6Bd9W2hNiw6UQtPit6/
+         u7Gg==
+X-Gm-Message-State: AOAM532MqVFZitXp3rzI0tL8uf+Y1nACNiajwK25r1fyXPzHnYUAia2R
+        lXiSiLzfm38H7X9o8DI1+YU=
+X-Google-Smtp-Source: ABdhPJw2tXFTVmxpDonMvlt66ArVFVQIOPc2IL9PSJuW7rUMXcfQQSQi6GWHVyPQqouDbWcKLOs7pA==
+X-Received: by 2002:a05:6000:11c5:: with SMTP id i5mr19043760wrx.183.1629807370787;
+        Tue, 24 Aug 2021 05:16:10 -0700 (PDT)
 Received: from localhost.localdomain ([85.255.232.113])
-        by smtp.gmail.com with ESMTPSA id o12sm13629wro.51.2021.08.24.05.15.39
+        by smtp.gmail.com with ESMTPSA id f5sm2140103wmb.47.2021.08.24.05.16.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Aug 2021 05:15:39 -0700 (PDT)
+        Tue, 24 Aug 2021 05:16:10 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 backport] io_uring: fix xa_alloc_cycle() error return value check
-Date:   Tue, 24 Aug 2021 13:15:01 +0100
-Message-Id: <efdf0cfa5a2ffe1fb9e08d3e1918a9a84385384b.1629807216.git.asml.silence@gmail.com>
+Subject: [PATCH 5.10 backport] io_uring: only assign io_uring_enter() SQPOLL error in actual error case
+Date:   Tue, 24 Aug 2021 13:15:31 +0100
+Message-Id: <aa7b8101db24bc8639e3206439c2ff9d9dfba3e3.1629807222.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -62,43 +62,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-[ upstream commit a30f895ad3239f45012e860d4f94c1a388b36d14 ]
+[ upstream commit 21f965221e7c42609521342403e8fb91b8b3e76e ]
 
-We currently check for ret != 0 to indicate error, but '1' is a valid
-return and just indicates that the allocation succeeded with a wrap.
-Correct the check to be for < 0, like it was before the xarray
-conversion.
+If an SQPOLL based ring is newly created and an application issues an
+io_uring_enter(2) system call on it, then we can return a spurious
+-EOWNERDEAD error. This happens because there's nothing to submit, and
+if the caller doesn't specify any other action, the initial error
+assignment of -EOWNERDEAD never gets overwritten. This causes us to
+return it directly, even if it isn't valid.
+
+Move the error assignment into the actual failure case instead.
 
 Cc: stable@vger.kernel.org
-Fixes: 61cf93700fe6 ("io_uring: Convert personality_idr to XArray")
+Fixes: d9d05217cb69 ("io_uring: stop SQPOLL submit on creator's death")
+Reported-by: Sherlock Holo sherlockya@gmail.com
+Link: https://github.com/axboe/liburing/issues/413
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ fs/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8492b4e7c4d7..108b0ed31c11 100644
+index ed641dca7957..8492b4e7c4d7 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -9602,11 +9602,12 @@ static int io_register_personality(struct io_ring_ctx *ctx)
+@@ -9078,9 +9078,10 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
+ 	if (ctx->flags & IORING_SETUP_SQPOLL) {
+ 		io_cqring_overflow_flush(ctx, false, NULL, NULL);
  
- 	ret = xa_alloc_cyclic(&ctx->personalities, &id, (void *)iod,
- 			XA_LIMIT(0, USHRT_MAX), &ctx->pers_next, GFP_KERNEL);
--	if (!ret)
--		return id;
--	put_cred(iod->creds);
--	kfree(iod);
--	return ret;
-+	if (ret < 0) {
-+		put_cred(iod->creds);
-+		kfree(iod);
-+		return ret;
-+	}
-+	return id;
- }
- 
- static int io_register_restrictions(struct io_ring_ctx *ctx, void __user *arg,
+-		ret = -EOWNERDEAD;
+-		if (unlikely(ctx->sqo_dead))
++		if (unlikely(ctx->sqo_dead)) {
++			ret = -EOWNERDEAD;
+ 			goto out;
++		}
+ 		if (flags & IORING_ENTER_SQ_WAKEUP)
+ 			wake_up(&ctx->sq_data->wait);
+ 		if (flags & IORING_ENTER_SQ_WAIT) {
 -- 
 2.32.0
 
