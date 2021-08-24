@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C722C3F652A
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96AE63F6532
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238972AbhHXRKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:10:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52016 "EHLO mail.kernel.org"
+        id S239425AbhHXRKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:10:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239175AbhHXRJD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239328AbhHXRJD (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:09:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A3F7613D5;
-        Tue, 24 Aug 2021 17:00:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29D4661A3D;
+        Tue, 24 Aug 2021 17:00:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824413;
-        bh=h9RulJ1emK58t4sLvYGLBgcJbGVAIooK/rfCRE0Y4Ew=;
+        s=k20201202; t=1629824415;
+        bh=Nd9FkhKEIIRkYHkdbVLek5Ox9yqkm9V+rP4Ajje0j6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcXBj+Qf+B+l/mwkv+wkbYIX5T2PVNzZYHunfBdBLGaM3Zxat1di8+GR1R/t7yOFy
-         bZ1N5q2QCkIJ3+ZzZkHsE2Sh3hrXGzsUfT4IhHWGiTPrm+GqdHSmx/4yP0tZFwgIw8
-         BsdNyG6PPOml/0r0BDfzMzwJSMzHvnWOmqrz6j/2H+GdP+OuzxXT4qrulFMV1DV+zD
-         K7EcHeWOj7qWnRn49cnVUf0OeDwse++6Fm4P5mS2ILfl32s203GG8d1vT/QcYESksF
-         KIY6q+QdE5/Ip7oqFjRlI0E6HGo5XxOPjYS1Gbu+scXSY0aG9j7TEP90hYCBqM5Uul
-         q0+Ipzl9D94pg==
+        b=outrFbHO83eTS75c6QpJOGvgNbKclqf5Z87qbR2d31h64P+IS8WDqyJiqW6kKbxMY
+         yzy+Kyb1qqf9pR1ff9IDQ917ywe/OoUyPVWCgql3WF5NNvnALG7MkZUBaiS1fRh8CN
+         crCGuN0tzfGgXtzhzZOhA08QBnTHcbyZMPS+w78wKbPNlF7UkacAImicRoaP/eM7QQ
+         LOH0L63aMjUiPZyzTl78QfuMsGcPh0cJJAnI4KGQevEI6/8RTGBY39HodW1fjA3FR4
+         2jSvNSwW4R5lNNV4b1DV2jAulN8RGRbb9AcqfQb+JCO8xQTVaeGsbYdWDn80AvMEiE
+         WQsIZ9WHiMMyQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Saravana Kannan <saravanak@google.com>,
-        Andrew Lunn <andrew@lunn.ch>, Marc Zyngier <maz@kernel.org>,
-        Kevin Hilman <khilman@baylibre.com>,
+Cc:     "kaixi.fan" <fankaixi.li@bytedance.com>,
+        xiexiaohui <xiexiaohui.xxh@bytedance.com>,
+        Cong Wang <cong.wang@bytedance.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 64/98] net: mdio-mux: Handle -EPROBE_DEFER correctly
-Date:   Tue, 24 Aug 2021 12:58:34 -0400
-Message-Id: <20210824165908.709932-65-sashal@kernel.org>
+Subject: [PATCH 5.10 65/98] ovs: clear skb->tstamp in forwarding path
+Date:   Tue, 24 Aug 2021 12:58:35 -0400
+Message-Id: <20210824165908.709932-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -50,56 +50,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: "kaixi.fan" <fankaixi.li@bytedance.com>
 
-[ Upstream commit 7bd0cef5dac685f09ef8b0b2a7748ff42d284dc7 ]
+[ Upstream commit 01634047bf0d5c2d9b7d8095bb4de1663dbeedeb ]
 
-When registering mdiobus children, if we get an -EPROBE_DEFER, we shouldn't
-ignore it and continue registering the rest of the mdiobus children. This
-would permanently prevent the deferring child mdiobus from working instead
-of reattempting it in the future. So, if a child mdiobus needs to be
-reattempted in the future, defer the entire mdio-mux initialization.
+fq qdisc requires tstamp to be cleared in the forwarding path. Now ovs
+doesn't clear skb->tstamp. We encountered a problem with linux
+version 5.4.56 and ovs version 2.14.1, and packets failed to
+dequeue from qdisc when fq qdisc was attached to ovs port.
 
-This fixes the issue where PHYs sitting under the mdio-mux aren't
-initialized correctly if the PHY's interrupt controller is not yet ready
-when the mdio-mux is being probed. Additional context in the link below.
-
-Fixes: 0ca2997d1452 ("netdev/of/phy: Add MDIO bus multiplexer support.")
-Link: https://lore.kernel.org/lkml/CAGETcx95kHrv8wA-O+-JtfH7H9biJEGJtijuPVN0V5dUKUAB3A@mail.gmail.com/#t
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Tested-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Kevin Hilman <khilman@baylibre.com>
-Tested-by: Kevin Hilman <khilman@baylibre.com>
+Fixes: fb420d5d91c1 ("tcp/fq: move back to CLOCK_MONOTONIC")
+Signed-off-by: kaixi.fan <fankaixi.li@bytedance.com>
+Signed-off-by: xiexiaohui <xiexiaohui.xxh@bytedance.com>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/mdio/mdio-mux.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/openvswitch/vport.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/mdio/mdio-mux.c b/drivers/net/mdio/mdio-mux.c
-index c96ef3b3fa3a..ccb3ee704eb1 100644
---- a/drivers/net/mdio/mdio-mux.c
-+++ b/drivers/net/mdio/mdio-mux.c
-@@ -175,11 +175,15 @@ int mdio_mux_init(struct device *dev,
- 		cb->mii_bus->write = mdio_mux_write;
- 		r = of_mdiobus_register(cb->mii_bus, child_bus_node);
- 		if (r) {
-+			mdiobus_free(cb->mii_bus);
-+			if (r == -EPROBE_DEFER) {
-+				ret_val = r;
-+				goto err_loop;
-+			}
-+			devm_kfree(dev, cb);
- 			dev_err(dev,
- 				"Error: Failed to register MDIO bus for child %pOF\n",
- 				child_bus_node);
--			mdiobus_free(cb->mii_bus);
--			devm_kfree(dev, cb);
- 		} else {
- 			cb->next = pb->children;
- 			pb->children = cb;
+diff --git a/net/openvswitch/vport.c b/net/openvswitch/vport.c
+index 82d801f063b7..1c05d4bef331 100644
+--- a/net/openvswitch/vport.c
++++ b/net/openvswitch/vport.c
+@@ -503,6 +503,7 @@ void ovs_vport_send(struct vport *vport, struct sk_buff *skb, u8 mac_proto)
+ 	}
+ 
+ 	skb->dev = vport->dev;
++	skb->tstamp = 0;
+ 	vport->ops->send(skb);
+ 	return;
+ 
 -- 
 2.30.2
 
