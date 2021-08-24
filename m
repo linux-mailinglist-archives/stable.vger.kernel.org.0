@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EFEA3F65BD
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:15:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84EB63F659B
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234724AbhHXRQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:16:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51260 "EHLO mail.kernel.org"
+        id S239737AbhHXRO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:14:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239291AbhHXRNF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239630AbhHXRNF (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:13:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90A2A61A6D;
-        Tue, 24 Aug 2021 17:01:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7383B61A70;
+        Tue, 24 Aug 2021 17:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824487;
-        bh=9usGj9LMxMGrtwCjIZPjldvX11yA78hDphKW+uN0NgQ=;
+        s=k20201202; t=1629824488;
+        bh=krB2uaUzBWhsBBI6sxpfHjcS0F3AYuSsDoqq+LlL+HU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tSi5KG3Np3o15caZOq64WctKKQdtD97BnfzKfc9zovYBmtKrDMnAMzXpwU80b8KwK
-         41gLriO/9hK0wGr4EoeVT5b7+H+162itskWoZAHVk1U397MKbu7DBVcurUVA4ZmSIv
-         gU+XcUXrJ5HNHTLMV1+HEO6iy8JCa+wAjIr7BuHui3ui5znzOx4xRuAI/mdqIWfjPY
-         A6sAGWP3x7+3ScVBJ6sjQXleC87Tz+IO+t/KlZMJocH3IqcVc42bhpJ/qobC3XBtS9
-         sXcrNqOMYV+zAaaQSUpAjdj5U1VXmISHf9eDfnn/k/kh9T9Ih2kOXSPtAZY+fPLj/m
-         fu3ZnVvWa4YXQ==
+        b=iQ2e9lgrHziWZrfJeJGhqIXMOsdSeM82wP5XBQZpgbzA/IRRT+YiT7w/elZPMCgXn
+         lTlvQyadEIS5XBMY+OfenXqVM4Ma8sW3lp6WLUNnxX+5xuW/U1KRfHDOjWo5mbqGDZ
+         opuNWfwg6/kyQf1G1GYFeS+4KFZXkDTG+02YbtJoYIvu5Yh1cu5M+KdYhjfPHaLj/f
+         k+97+BniUkFYtfGMKEWICT+YfLYqNZs6rsh1QTUU2sQMmX9YzR6sHh2K8+psUC+o3H
+         m7+JNnMpeiv+Av1rysJlYKdXmVX6sWkzyMq/MWXhU2PPm2VK1AKu7o086AGTC4n3RD
+         BiiR37ZyRj8MQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+Cc:     lijinlin <lijinlin3@huawei.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Wu Bo <wubo40@huawei.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 19/61] scsi: core: Avoid printing an error if target_alloc() returns -ENXIO
-Date:   Tue, 24 Aug 2021 13:00:24 -0400
-Message-Id: <20210824170106.710221-20-sashal@kernel.org>
+Subject: [PATCH 5.4 20/61] scsi: core: Fix capacity set to zero after offlinining device
+Date:   Tue, 24 Aug 2021 13:00:25 -0400
+Message-Id: <20210824170106.710221-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -48,43 +50,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+From: lijinlin <lijinlin3@huawei.com>
 
-[ Upstream commit 70edd2e6f652f67d854981fd67f9ad0f1deaea92 ]
+[ Upstream commit f0f82e2476f6adb9c7a0135cfab8091456990c99 ]
 
-Avoid printing a 'target allocation failed' error if the driver
-target_alloc() callback function returns -ENXIO. This return value
-indicates that the corresponding H:C:T:L entry is empty.
+After adding physical volumes to a volume group through vgextend, the
+kernel will rescan the partitions. This in turn will cause the device
+capacity to be queried.
 
-Removing this error reduces the scan time if the user issues SCAN_WILD_CARD
-scan operation through sysfs parameter on a host with a lot of empty
-H:C:T:L entries.
+If the device status is set to offline through sysfs at this time, READ
+CAPACITY command will return a result which the host byte is
+DID_NO_CONNECT, and the capacity of the device will be set to zero in
+read_capacity_error(). After setting device status back to running, the
+capacity of the device will remain stuck at zero.
 
-Avoiding the printk on -ENXIO matches the behavior of the other callback
-functions during scanning.
+Fix this issue by rescanning device when the device state changes to
+SDEV_RUNNING.
 
-Link: https://lore.kernel.org/r/20210726115402.1936-1-sreekanth.reddy@broadcom.com
-Signed-off-by: Sreekanth Reddy <sreekanth.reddy@broadcom.com>
+Link: https://lore.kernel.org/r/20210727034455.1494960-1-lijinlin3@huawei.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: lijinlin <lijinlin3@huawei.com>
+Signed-off-by: Wu Bo <wubo40@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_scan.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_sysfs.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
-index 79232cef1af1..3fd109fd9335 100644
---- a/drivers/scsi/scsi_scan.c
-+++ b/drivers/scsi/scsi_scan.c
-@@ -454,7 +454,8 @@ static struct scsi_target *scsi_alloc_target(struct device *parent,
- 		error = shost->hostt->target_alloc(starget);
+diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
+index 6d7362e7367e..11592ec7b23e 100644
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -787,11 +787,14 @@ store_state_field(struct device *dev, struct device_attribute *attr,
+ 	mutex_lock(&sdev->state_mutex);
+ 	ret = scsi_device_set_state(sdev, state);
+ 	/*
+-	 * If the device state changes to SDEV_RUNNING, we need to run
+-	 * the queue to avoid I/O hang.
++	 * If the device state changes to SDEV_RUNNING, we need to
++	 * rescan the device to revalidate it, and run the queue to
++	 * avoid I/O hang.
+ 	 */
+-	if (ret == 0 && state == SDEV_RUNNING)
++	if (ret == 0 && state == SDEV_RUNNING) {
++		scsi_rescan_device(dev);
+ 		blk_mq_run_hw_queues(sdev->request_queue, true);
++	}
+ 	mutex_unlock(&sdev->state_mutex);
  
- 		if(error) {
--			dev_printk(KERN_ERR, dev, "target allocation failed, error %d\n", error);
-+			if (error != -ENXIO)
-+				dev_err(dev, "target allocation failed, error %d\n", error);
- 			/* don't want scsi_target_reap to do the final
- 			 * put because it will be under the host lock */
- 			scsi_target_destroy(starget);
+ 	return ret == 0 ? count : -EINVAL;
 -- 
 2.30.2
 
