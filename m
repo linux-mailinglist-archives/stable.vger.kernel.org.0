@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD963F645A
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD7053F6460
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:02:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238868AbhHXRDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:03:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39584 "EHLO mail.kernel.org"
+        id S238964AbhHXRDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:03:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238981AbhHXRBe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:01:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D73B6617E3;
-        Tue, 24 Aug 2021 16:58:01 +0000 (UTC)
+        id S239076AbhHXRBi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:01:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB4AC617E4;
+        Tue, 24 Aug 2021 16:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824282;
-        bh=QS6ccdFmXBTWSgEYQ2ssQGURB4Bkmcloks3jpuqLKD8=;
+        s=k20201202; t=1629824283;
+        bh=OcO8yAZNXs7wijWO0GFhnaotokAY+Ii9xQkj1Vcm1Yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ISW0PPPepNXOjSvd3ADo2q8RtKiU0o862tl+jOOsrB7s/14CdADhaJLk/5nRxvODY
-         9wvUqk+eQp66njB3FHaID4HLj1NbqG5IU7Ff1btMu0P/WJXcyJraHWk7eArgeZ0/hc
-         6VVp38XmVg/3eAo8G0Gn/WOdlgeIJYmMgIG5rwXZtr5h83ZxcvZNe6yRclIPbJWX3T
-         I5i6f0XB4EL2/mf9BpYODSFRNNDmhLr1D8XtdHXSkeAZcyv7+dOBL4hIFhNcFMj1x1
-         P29E2S+jRK6h7PPG7SMsnd7zZRXv6AsSnU5gRIZ2fAFog3x/DrrTd73F7PlkF63PkM
-         QMNgUxbfFMxnw==
+        b=XlnvjtuOBZs75wg5jlYvVLbMzTWHIrF8Kf8v+86RTJw1VPD2pGWKTYVQLCa90Xeqh
+         9jz5UaI4Tud93DwiTORxKaoi2jULdMtVIpGYGlkWtH5RZGx4KNsZZp3Ez3AJfZEfOj
+         tK96cnek9+Jlh4YHMZyYeGMM/4xJy+dPK6kSZa2OBeGo1p1tZoCVvJNIADZQLOGUWS
+         T9H/2fMlDCswdZs2Wil6DlyKkA/JEjEqoCdczGYyPbcoa11In0rx2KSTLQnA30D/qb
+         MnFoZV26tiqeSs83/i5qzbtaVBNQRx7U8Bc8EAc4cNdVMBPDoejn3VAEVPP2uHltsy
+         P7kSvza5cu8qA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 117/127] ALSA: hda/realtek: Limit mic boost on HP ProBook 445 G8
-Date:   Tue, 24 Aug 2021 12:55:57 -0400
-Message-Id: <20210824165607.709387-118-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 118/127] ASoC: intel: atom: Fix breakage for PCM buffer address setup
+Date:   Tue, 24 Aug 2021 12:55:58 -0400
+Message-Id: <20210824165607.709387-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -47,58 +48,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 8903376dc69949199301b290cc22dc64ae5d8a6d ]
+[ Upstream commit 65ca89c2b12cca0d473f3dd54267568ad3af55cc ]
 
-The mic has lots of noises if mic boost is enabled. So disable mic boost
-to get crystal clear audio capture.
+The commit 2e6b836312a4 ("ASoC: intel: atom: Fix reference to PCM
+buffer address") changed the reference of PCM buffer address to
+substream->runtime->dma_addr as the buffer address may change
+dynamically.  However, I forgot that the dma_addr field is still not
+set up for the CONTINUOUS buffer type (that this driver uses) yet in
+5.14 and earlier kernels, and it resulted in garbage I/O.  The problem
+will be fixed in 5.15, but we need to address it quickly for now.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+The fix is to deduce the address again from the DMA pointer with
+virt_to_phys(), but from the right one, substream->runtime->dma_area.
+
+Fixes: 2e6b836312a4 ("ASoC: intel: atom: Fix reference to PCM buffer address")
+Reported-and-tested-by: Hans de Goede <hdegoede@redhat.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210818144119.121738-1-kai.heng.feng@canonical.com
+Acked-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/2048c6aa-2187-46bd-6772-36a4fb3c5aeb@redhat.com
+Link: https://lore.kernel.org/r/20210819152945.8510-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ sound/soc/intel/atom/sst-mfld-platform-pcm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 6ab53352fc9b..0c6be8509855 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6598,6 +6598,7 @@ enum {
- 	ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP,
- 	ALC623_FIXUP_LENOVO_THINKSTATION_P340,
- 	ALC255_FIXUP_ACER_HEADPHONE_AND_MIC,
-+	ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST,
- };
+diff --git a/sound/soc/intel/atom/sst-mfld-platform-pcm.c b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
+index 5db2f4865bbb..905c7965f653 100644
+--- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
++++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
+@@ -127,7 +127,7 @@ static void sst_fill_alloc_params(struct snd_pcm_substream *substream,
+ 	snd_pcm_uframes_t period_size;
+ 	ssize_t periodbytes;
+ 	ssize_t buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
+-	u32 buffer_addr = substream->runtime->dma_addr;
++	u32 buffer_addr = virt_to_phys(substream->runtime->dma_area);
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -8182,6 +8183,12 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC255_FIXUP_XIAOMI_HEADSET_MIC
- 	},
-+	[ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc269_fixup_limit_int_mic_boost,
-+		.chained = true,
-+		.chain_id = ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8378,8 +8385,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x8847, "HP EliteBook x360 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x884b, "HP EliteBook 840 Aero G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x884c, "HP EliteBook 840 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
--	SND_PCI_QUIRK(0x103c, 0x8862, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
--	SND_PCI_QUIRK(0x103c, 0x8863, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
-+	SND_PCI_QUIRK(0x103c, 0x8862, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST),
-+	SND_PCI_QUIRK(0x103c, 0x8863, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST),
- 	SND_PCI_QUIRK(0x103c, 0x886d, "HP ZBook Fury 17.3 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8870, "HP ZBook Fury 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8873, "HP ZBook Studio 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	channels = substream->runtime->channels;
+ 	period_size = substream->runtime->period_size;
 -- 
 2.30.2
 
