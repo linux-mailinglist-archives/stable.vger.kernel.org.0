@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5145D3F6741
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 445F83F6742
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239403AbhHXRcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:32:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35158 "EHLO mail.kernel.org"
+        id S240368AbhHXRcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:32:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240057AbhHXRaD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:30:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 82D6461B56;
-        Tue, 24 Aug 2021 17:05:37 +0000 (UTC)
+        id S240171AbhHXRaE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:30:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 677AA6187D;
+        Tue, 24 Aug 2021 17:05:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824738;
-        bh=ePZz+sF9yOD/Cf5qf8TlpbkemcR8a+vrRB0qNX7C4KA=;
+        s=k20201202; t=1629824739;
+        bh=qHc2rfSYFv/TMHp2CozCBZWjbBMZ0+ljM3C6bgtbvcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UBNPpj9lc4u9tQnwfHwFvKAsZmmpjjGimqWnKEZsBfhEBDZSep3jIy5gEKiX6bvLp
-         2bL+Rx220AG74CRxvxsEhPIF8LJdjyopy5WP0q7Uz/YInfsfGW8i9+Hr3a6wQAYO5k
-         HunYbtKfrQUJZXN9E1byVHs3xGnloUdKO9rCtmzvztaw0s5L/sCB7I5BTjUPjdcX2z
-         3+86+HtWkl6xUEbjXZc6TAV6KzWwNCDqZhSh40I1mTkodtH7Bc1LvbNg+FcZGdfIBa
-         oVYj7GHOb+Ph8lvcfaTcUDFSMkLBwSimcx/1B7koWXLJJaq+p3FzKnXpcf/1HU6Qth
-         kOFD4pxXLG3VA==
+        b=MATMF6rKtzqaPZB+wVWY/5khd+DRtO/jci+ddPNxJlq5nP3QIimeT1K+WMlj4emMz
+         Jyw7ffJHhNrprjrHkR2F0wPG5/7ylRGqRY1Nez/zwD3ieQPrCbI15mzi0pBgeULWkI
+         iWzuseLBLllldYqEknQZG4L6Z3E/IHt+d5p9WodMBKC24BhoW7eudN/ZOq6S3EFyGZ
+         7guNRnvW0ncHdSEHredShfUr0+azEEwYCv0xrpFf1ADx+BZz2EXkUpa4JYO3QO9wV9
+         fs60jzi2xT/zuTlarVakjxDdGVyd3TrpWrNC2rKjEM1LzZwTxM3rEAKBUW/PrUCkNN
+         ciyr9ReXxjB8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 41/64] dmaengine: of-dma: router_xlate to return -EPROBE_DEFER if controller is not yet available
-Date:   Tue, 24 Aug 2021 13:04:34 -0400
-Message-Id: <20210824170457.710623-42-sashal@kernel.org>
+Cc:     Harshvardhan Jha <harshvardhan.jha@oracle.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 42/64] scsi: megaraid_mm: Fix end of loop tests for list_for_each_entry()
+Date:   Tue, 24 Aug 2021 13:04:35 -0400
+Message-Id: <20210824170457.710623-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170457.710623-1-sashal@kernel.org>
 References: <20210824170457.710623-1-sashal@kernel.org>
@@ -47,60 +49,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
 
-[ Upstream commit eda97cb095f2958bbad55684a6ca3e7d7af0176a ]
+[ Upstream commit 77541f78eadfe9fdb018a7b8b69f0f2af2cf4b82 ]
 
-If the router_xlate can not find the controller in the available DMA
-devices then it should return with -EPORBE_DEFER in a same way as the
-of_dma_request_slave_channel() does.
+The list_for_each_entry() iterator, "adapter" in this code, can never be
+NULL.  If we exit the loop without finding the correct adapter then
+"adapter" points invalid memory that is an offset from the list head.  This
+will eventually lead to memory corruption and presumably a kernel crash.
 
-The issue can be reproduced if the event router is registered before the
-DMA controller itself and a driver would request for a channel before the
-controller is registered.
-In of_dma_request_slave_channel():
-1. of_dma_find_controller() would find the dma_router
-2. ofdma->of_dma_xlate() would fail and returned NULL
-3. -ENODEV is returned as error code
-
-with this patch we would return in this case the correct -EPROBE_DEFER and
-the client can try to request the channel later.
-
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Link: https://lore.kernel.org/r/20210717190021.21897-1-peter.ujfalusi@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210708074642.23599-1-harshvardhan.jha@oracle.com
+Acked-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/of-dma.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/scsi/megaraid/megaraid_mm.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/dma/of-dma.c b/drivers/dma/of-dma.c
-index 8344a60c2131..a9d3ab94749b 100644
---- a/drivers/dma/of-dma.c
-+++ b/drivers/dma/of-dma.c
-@@ -68,8 +68,12 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
- 		return NULL;
+diff --git a/drivers/scsi/megaraid/megaraid_mm.c b/drivers/scsi/megaraid/megaraid_mm.c
+index 65b6f6ace3a5..8ec308c5970f 100644
+--- a/drivers/scsi/megaraid/megaraid_mm.c
++++ b/drivers/scsi/megaraid/megaraid_mm.c
+@@ -250,7 +250,7 @@ mraid_mm_get_adapter(mimd_t __user *umimd, int *rval)
+ 	mimd_t		mimd;
+ 	uint32_t	adapno;
+ 	int		iterator;
+-
++	bool		is_found;
  
- 	ofdma_target = of_dma_find_controller(&dma_spec_target);
--	if (!ofdma_target)
--		return NULL;
-+	if (!ofdma_target) {
-+		ofdma->dma_router->route_free(ofdma->dma_router->dev,
-+					      route_data);
-+		chan = ERR_PTR(-EPROBE_DEFER);
-+		goto err;
-+	}
+ 	if (copy_from_user(&mimd, umimd, sizeof(mimd_t))) {
+ 		*rval = -EFAULT;
+@@ -266,12 +266,16 @@ mraid_mm_get_adapter(mimd_t __user *umimd, int *rval)
  
- 	chan = ofdma_target->of_dma_xlate(&dma_spec_target, ofdma_target);
- 	if (IS_ERR_OR_NULL(chan)) {
-@@ -80,6 +84,7 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
- 		chan->route_data = route_data;
+ 	adapter = NULL;
+ 	iterator = 0;
++	is_found = false;
+ 
+ 	list_for_each_entry(adapter, &adapters_list_g, list) {
+-		if (iterator++ == adapno) break;
++		if (iterator++ == adapno) {
++			is_found = true;
++			break;
++		}
  	}
  
-+err:
+-	if (!adapter) {
++	if (!is_found) {
+ 		*rval = -ENODEV;
+ 		return NULL;
+ 	}
+@@ -739,6 +743,7 @@ ioctl_done(uioc_t *kioc)
+ 	uint32_t	adapno;
+ 	int		iterator;
+ 	mraid_mmadp_t*	adapter;
++	bool		is_found;
+ 
  	/*
- 	 * Need to put the node back since the ofdma->of_dma_route_allocate
- 	 * has taken it for generating the new, translated dma_spec
+ 	 * When the kioc returns from driver, make sure it still doesn't
+@@ -761,19 +766,23 @@ ioctl_done(uioc_t *kioc)
+ 		iterator	= 0;
+ 		adapter		= NULL;
+ 		adapno		= kioc->adapno;
++		is_found	= false;
+ 
+ 		con_log(CL_ANN, ( KERN_WARNING "megaraid cmm: completed "
+ 					"ioctl that was timedout before\n"));
+ 
+ 		list_for_each_entry(adapter, &adapters_list_g, list) {
+-			if (iterator++ == adapno) break;
++			if (iterator++ == adapno) {
++				is_found = true;
++				break;
++			}
+ 		}
+ 
+ 		kioc->timedout = 0;
+ 
+-		if (adapter) {
++		if (is_found)
+ 			mraid_mm_dealloc_kioc( adapter, kioc );
+-		}
++
+ 	}
+ 	else {
+ 		wake_up(&wait_q);
 -- 
 2.30.2
 
