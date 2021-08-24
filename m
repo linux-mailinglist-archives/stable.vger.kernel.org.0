@@ -2,75 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD9CB3F5F01
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 15:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5B0C3F619D
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 17:29:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237604AbhHXN0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 09:26:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34254 "EHLO mail.kernel.org"
+        id S238155AbhHXPaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 11:30:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237590AbhHXN0F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 09:26:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 811D9611AF;
-        Tue, 24 Aug 2021 13:25:21 +0000 (UTC)
+        id S235683AbhHXPaN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 11:30:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E66561265;
+        Tue, 24 Aug 2021 15:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629811521;
-        bh=Xg8K4I0Gs0daaOlalTp5ULJqYhu6wF81wH5q1gzUe3w=;
+        s=k20201202; t=1629818968;
+        bh=6+biN29D5WoAzfO9BDov2cPTbiGldallkUXFPOK88js=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Tuyg+xGDwAtSeSsE7cdJlUneRlDcb/YpW627m2oKkwrvSzUlgdLnrZRUcWZNyNICN
-         bcWxByqGm597JipPnCO7rBSuoXYyb6bAlzTcapH6dzrgjaeci5xgwMVQ2USlB5Hk+A
-         GBo7iR4agE090uW4VsC63g9NMdm4avzMFkMllYTCUVlvQLvuEpcmSfzh7kxdtdvJgO
-         mOw6JWXCnwMtJ8kNXShmtDI46CDQfl6jc1Ie5xm2kvdGscsUoUkqBJnr9mC6I6Xga6
-         TqLfqbNscprG2hkgO27C/QW66fxtyu4dEZFizpxDNcQ0+1/JR/DsaIOJ7bqgeUY0AC
-         bLphbAAqV40cQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1mIWQW-0005FL-EE; Tue, 24 Aug 2021 15:25:17 +0200
-Date:   Tue, 24 Aug 2021 15:25:16 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Willy Tarreau <w@1wt.eu>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Paul =?utf-8?B?R3LDtsOfZWw=?= <pb.g@gmx.de>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] Revert "USB: serial: ch341: fix character loss at high
- transfer rates"
-Message-ID: <YSTzPIkwNDOON5j8@hovoldconsulting.com>
-References: <20210824121926.19311-1-johan@kernel.org>
- <20210824123232.GA25435@1wt.eu>
+        b=ZbXQuqv9UCGWSbmnuGM2/SP4M86QwDXHD/0D0Ely67U4o2yVP56OBp6jRRMlh1oSF
+         5veYNBtnUJ3pXEHicLmMF6V/a9iOwysLhlt/vsqQUdHtlgwaAorueBnqOszTuJSabv
+         TsEt6GGwl8QO6aCvLpqHWBQUw6JqRhg75NNX81YzwXOx0HUEZje9xsvcaExeSvMI1Q
+         omsbDbz5VS00VWVaLSIgWWbzeK3lBiYYH22ewdgCCICvGcvsvui8HzCvkjo9B8XdgL
+         WVVI1RDoxyNZJwEMsnopBguQZG1QXEfa/8eYw9wpje9g2LWHi/mRztpi9Xb943SZLm
+         ISBlKzlij56ew==
+Date:   Tue, 24 Aug 2021 11:29:27 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     DENG Qingfang <dqfext@gmail.com>
+Cc:     stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "open list:MEDIATEK SWITCH DRIVER" <netdev@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>
+Subject: Re: [PATCH 4.19.y] net: dsa: mt7530: disable learning on standalone
+ ports
+Message-ID: <YSUQV3jhfbhbf5Ct@sashalap>
+References: <20210824055509.1316124-1-dqfext@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20210824123232.GA25435@1wt.eu>
+In-Reply-To: <20210824055509.1316124-1-dqfext@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 24, 2021 at 02:32:32PM +0200, Willy Tarreau wrote:
-> On Tue, Aug 24, 2021 at 02:19:26PM +0200, Johan Hovold wrote:
-> > This reverts commit 3c18e9baee0ef97510dcda78c82285f52626764b.
-> > 
-> > These devices do not appear to send a zero-length packet when the
-> > transfer size is a multiple of the bulk-endpoint max-packet size. This
-> > means that incoming data may not be processed by the driver until a
-> > short packet is received or the receive buffer is full.
-> > 
-> > Revert back to using endpoint-sized receive buffers to avoid stalled
-> > reads.
-> 
-> Sorry for this, I didn't notice any issue here (aside for the chip
-> working where it used not to). I have no idea what these zero-length
-> packets correspond to, nor why they're affected by the transfer size.
-> Do you have any idea what I should look for ? Because without that
-> patch, the device is unusable for me :-/
+On Tue, Aug 24, 2021 at 01:55:08PM +0800, DENG Qingfang wrote:
+>This is a partial backport of commit 5a30833b9a16f8d1aa15de06636f9317ca51f9df
+>("net: dsa: mt7530: support MDB and bridge flag operations") upstream.
+>
+>Make sure that the standalone ports start up with learning disabled.
 
-Zero-length packets are used to indicate completion of bulk transfers
-that are multiples of the endpoint max-packet size (as per the USB
-spec). Without those the host controller driver doesn't now that the
-transfer is complete and that it should call the driver completion
-callback (and instead waits for the other completion conditions).
+What's the reasoning behind:
 
-It may be possible to configure the device to send ZLPs somehow but
-since there's no public documentation for the protocol that may require
-some reverse engineering.
+1. Backporting this patch?
+2. A partial backport of this patch?
 
-Johan
+-- 
+Thanks,
+Sasha
