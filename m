@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FAEA3F6398
+	by mail.lfdr.de (Postfix) with ESMTP id AEDE83F639A
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234662AbhHXQ5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
+        id S234143AbhHXQ5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234047AbhHXQ5J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 589AA613AD;
-        Tue, 24 Aug 2021 16:56:24 +0000 (UTC)
+        id S233501AbhHXQ5K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35D5A6138B;
+        Tue, 24 Aug 2021 16:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824184;
-        bh=zSsqLqs9NEQ84a3pOoD9Txi9qHD9cKc7nLGQi+AM+kQ=;
+        s=k20201202; t=1629824186;
+        bh=E9kaRJxVpf+8P2HM+fpUkNC7dS+kvhRtWM9VeXt2BJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWiefn9rt/oaUuxnj2ljqXelMWEBSEmUobUi49X4ul70vB2EQGoqGyTDNncyg55CI
-         HAOFB7CqNUwXY9vtTycQIu9Sa7wuFmFwUB7fcvNlzqqNQ57Ww+I36Gj1Fmj4By+xYX
-         waQ9VT20JddGZEneuvstN7RUIaul0aptE/mBQIBpks+wFPL1trIPIofJ2J7I7MWT3c
-         CzMg0lCbo7R3f0uW9ZeCA0rXaL/5ul1eBLdzn2wROBXq8BXqABeZVnA27nDnPzoKw7
-         9SkqqBRo84f+8cg/oJWs5PUTpsSHsSoG18e6g9Ia4KPNzNx1TcJPqdFrBTf9BBLUuI
-         RyWHVuKnWsRiQ==
+        b=Mj3KWHcy6Lga6twtOnJvHuC8lxLjJCXgrcclfj0hLtVLM78JjYrmE1kf3KosnIzlT
+         Ra06GrLM6JFO/dRkGe5EgvpI2yJKCifmqUL5MbKJSUI9wDP9RI5W84mUvqdfs/yzVI
+         yGVcjNIxDgFNR0qWJS/nRdAEH0axvyFbhej20N1dmNA6MnwE4sNgdvvxWr6aDEthL9
+         4zFz5qO/VB3350JE8kDx7UdAuphggUsadw1bPOmNecpU5Sc3ROS2ofKnr7QSxYGaIz
+         WQ0546+ZzhTbiDUP5b74/6YmG1yFvaBISLbBkRioeY4WegKV43Ns7KVAwp+V4r2/48
+         vHgX3wnDHT5ZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yifan Zhang <yifan1.zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+Cc:     Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Alok Prasad <palok@marvell.com>,
+        Shai Malin <smalin@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 016/127] drm/amdgpu: fix the doorbell missing when in CGPG issue for renoir.
-Date:   Tue, 24 Aug 2021 12:54:16 -0400
-Message-Id: <20210824165607.709387-17-sashal@kernel.org>
+Subject: [PATCH 5.13 017/127] qede: fix crash in rmmod qede while automatic debug collection
+Date:   Tue, 24 Aug 2021 12:54:17 -0400
+Message-Id: <20210824165607.709387-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,60 +51,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zhang <yifan1.zhang@amd.com>
+From: Prabhakar Kushwaha <pkushwaha@marvell.com>
 
-[ Upstream commit 1c0539a6fc8a4a4b77278e35d763073890de96b9 ]
+[ Upstream commit 1159e25c137422bdc48ee96e3fb014bd942092c6 ]
 
-If GC has entered CGPG, ringing doorbell > first page doesn't wakeup GC.
-Enlarge CP_MEC_DOORBELL_RANGE_UPPER to workaround this issue.
+A crash has been observed if rmmod is done while automatic debug
+collection in progress. It is due to a race  condition between
+both of them.
 
-Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+To fix stop the sp_task during unload to avoid running qede_sp_task
+even if they are schedule during removal process.
+
+Signed-off-by: Alok Prasad <palok@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qede/qede.h      | 1 +
+ drivers/net/ethernet/qlogic/qede/qede_main.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-index 516467e962b7..3a476b86485e 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-@@ -1293,6 +1293,16 @@ static bool is_raven_kicker(struct amdgpu_device *adev)
- 		return false;
- }
+diff --git a/drivers/net/ethernet/qlogic/qede/qede.h b/drivers/net/ethernet/qlogic/qede/qede.h
+index 2e62a2c4eb63..5630008f38b7 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede.h
++++ b/drivers/net/ethernet/qlogic/qede/qede.h
+@@ -501,6 +501,7 @@ struct qede_fastpath {
+ #define QEDE_SP_HW_ERR                  4
+ #define QEDE_SP_ARFS_CONFIG             5
+ #define QEDE_SP_AER			7
++#define QEDE_SP_DISABLE			8
  
-+static bool check_if_enlarge_doorbell_range(struct amdgpu_device *adev)
-+{
-+	if ((adev->asic_type == CHIP_RENOIR) &&
-+	    (adev->gfx.me_fw_version >= 0x000000a5) &&
-+	    (adev->gfx.me_feature_version >= 52))
-+		return true;
-+	else
-+		return false;
-+}
+ #ifdef CONFIG_RFS_ACCEL
+ int qede_rx_flow_steer(struct net_device *dev, const struct sk_buff *skb,
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
+index 01ac1e93d27a..7c6064baeba2 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_main.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
+@@ -1009,6 +1009,13 @@ static void qede_sp_task(struct work_struct *work)
+ 	struct qede_dev *edev = container_of(work, struct qede_dev,
+ 					     sp_task.work);
+ 
++	/* Disable execution of this deferred work once
++	 * qede removal is in progress, this stop any future
++	 * scheduling of sp_task.
++	 */
++	if (test_bit(QEDE_SP_DISABLE, &edev->sp_flags))
++		return;
 +
- static void gfx_v9_0_check_if_need_gfxoff(struct amdgpu_device *adev)
- {
- 	if (gfx_v9_0_should_disable_gfxoff(adev->pdev))
-@@ -3673,7 +3683,16 @@ static int gfx_v9_0_kiq_init_register(struct amdgpu_ring *ring)
- 	if (ring->use_doorbell) {
- 		WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_LOWER,
- 					(adev->doorbell_index.kiq * 2) << 2);
--		WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_UPPER,
-+		/* If GC has entered CGPG, ringing doorbell > first page
-+		 * doesn't wakeup GC. Enlarge CP_MEC_DOORBELL_RANGE_UPPER to
-+		 * workaround this issue. And this change has to align with firmware
-+		 * update.
-+		 */
-+		if (check_if_enlarge_doorbell_range(adev))
-+			WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_UPPER,
-+					(adev->doorbell.size - 4));
-+		else
-+			WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_UPPER,
- 					(adev->doorbell_index.userqueue_end * 2) << 2);
- 	}
+ 	/* The locking scheme depends on the specific flag:
+ 	 * In case of QEDE_SP_RECOVERY, acquiring the RTNL lock is required to
+ 	 * ensure that ongoing flows are ended and new ones are not started.
+@@ -1300,6 +1307,7 @@ static void __qede_remove(struct pci_dev *pdev, enum qede_remove_mode mode)
+ 	qede_rdma_dev_remove(edev, (mode == QEDE_REMOVE_RECOVERY));
  
+ 	if (mode != QEDE_REMOVE_RECOVERY) {
++		set_bit(QEDE_SP_DISABLE, &edev->sp_flags);
+ 		unregister_netdev(ndev);
+ 
+ 		cancel_delayed_work_sync(&edev->sp_task);
 -- 
 2.30.2
 
