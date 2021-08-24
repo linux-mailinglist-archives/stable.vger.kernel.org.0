@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCA413F6528
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:09:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A843F652C
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:09:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238940AbhHXRKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:10:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
+        id S239078AbhHXRKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:10:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239323AbhHXRJC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:09:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1695461A3C;
-        Tue, 24 Aug 2021 17:00:16 +0000 (UTC)
+        id S238710AbhHXRJD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:09:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3629B61A3F;
+        Tue, 24 Aug 2021 17:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824416;
-        bh=ZBd3tKaEOq9mZdbl+5Bunzvs+RMadcTibGQs50Uxc6w=;
+        s=k20201202; t=1629824418;
+        bh=tZ6H/TBRQ34caCU563PUVut+5bvcoFxoFsuyy/jbZd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBAggIbGWGaoTb3GyP93y8JGVNq2p26AvbA7OdoNFYnhLAOZFRtdOsyNhYhv5eYB7
-         nojPtpmAAnWRSTDwjCCHYMQcwuYdJbY3yRu1YLzUYql24hT3cz/FScBPo1UvfmIrX2
-         sPzc3JEshNRt9tKBETAa+V8Y/HfaO+scjviVGRnsgpbCGg85tMrolW//hBtk0ZEvJo
-         t6nJnuZVm+YZT2IBL6V7NZAkS8X513L+9wMkIiXwT14RDd5nXldJ+6TSWHUcDSotAH
-         WnEAJcqtHhQJ+oqAyIVAx022+YpAQ3U+RQU9bobQC+fInrk9a/nWemdYvHAsTFmsBQ
-         vPUpw6G0YwXdQ==
+        b=dnfGJiamjD6pDdTltxV57z2Unk9erUGkkvpjDzCuSRpgQzq+7HqfCaXrxogEqGtgj
+         uEmmJR1xmKXqLftpHuWPPyNwobRH/0sXW7fEO21NFpCQEduF7OKP3u2kOgcDelaIi+
+         LWX7AVy1RFOSJftlYqwQ/RYzYnlSiNN8VY/rJDzP5pocLLALhhv2u7E5xYQ1RFfYZp
+         9WTCniuYkhNcOtIouDdyhp/ZwQYmFNXVu/+y+a4aAWzERK7VQVEudmydHaAt4zAym9
+         J+H6n6Axclw583cTvE3SPawVuOiwUXZqETFgi6UuNRNP5MjhFprsFzKTWchfHyuCgN
+         Mtvi3uWMn53tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liu Yi L <yi.l.liu@intel.com>,
-        Kumar Sanjay K <sanjay.k.kumar@intel.com>,
-        Yi Sun <yi.y.sun@intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 67/98] iommu/vt-d: Fix incomplete cache flush in intel_pasid_tear_down_entry()
-Date:   Tue, 24 Aug 2021 12:58:37 -0400
-Message-Id: <20210824165908.709932-68-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        kernel test robot <oliver.sang@intel.com>,
+        Sandeep Patil <sspatil@android.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 68/98] pipe: avoid unnecessary EPOLLET wakeups under normal loads
+Date:   Tue, 24 Aug 2021 12:58:38 -0400
+Message-Id: <20210824165908.709932-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -50,88 +50,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Yi L <yi.l.liu@intel.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 8798d36411196da86e70b994725349c16c1119f6 ]
+[ Upstream commit 3b844826b6c6affa80755254da322b017358a2f4 ]
 
-This fixes improper iotlb invalidation in intel_pasid_tear_down_entry().
-When a PASID was used as nested mode, released and reused, the following
-error message will appear:
+I had forgotten just how sensitive hackbench is to extra pipe wakeups,
+and commit 3a34b13a88ca ("pipe: make pipe writes always wake up
+readers") ended up causing a quite noticeable regression on larger
+machines.
 
-[  180.187556] Unexpected page request in Privilege Mode
-[  180.187565] Unexpected page request in Privilege Mode
-[  180.279933] Unexpected page request in Privilege Mode
-[  180.279937] Unexpected page request in Privilege Mode
+Now, hackbench isn't necessarily a hugely meaningful benchmark, and it's
+not clear that this matters in real life all that much, but as Mel
+points out, it's used often enough when comparing kernels and so the
+performance regression shows up like a sore thumb.
 
-Per chapter 6.5.3.3 of VT-d spec 3.3, when tear down a pasid entry, the
-software should use Domain selective IOTLB flush if the PGTT of the pasid
-entry is SL only or Nested, while for the pasid entries whose PGTT is FL
-only or PT using PASID-based IOTLB flush is enough.
+It's easy enough to fix at least for the common cases where pipes are
+used purely for data transfer, and you never have any exciting poll
+usage at all.  So set a special 'poll_usage' flag when there is polling
+activity, and make the ugly "EPOLLET has crazy legacy expectations"
+semantics explicit to only that case.
 
-Fixes: 2cd1311a26673 ("iommu/vt-d: Add set domain DOMAIN_ATTR_NESTING attr")
-Signed-off-by: Kumar Sanjay K <sanjay.k.kumar@intel.com>
-Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
-Tested-by: Yi Sun <yi.y.sun@intel.com>
-Link: https://lore.kernel.org/r/20210817042425.1784279-1-yi.l.liu@intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210817124321.1517985-3-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+I would love to limit it to just the broken EPOLLET case, but the pipe
+code can't see the difference between epoll and regular select/poll, so
+any non-read/write waiting will trigger the extra wakeup behavior.  That
+is sufficient for at least the hackbench case.
+
+Apart from making the odd extra wakeup cases more explicitly about
+EPOLLET, this also makes the extra wakeup be at the _end_ of the pipe
+write, not at the first write chunk.  That is actually much saner
+semantics (as much as you can call any of the legacy edge-triggered
+expectations for EPOLLET "sane") since it means that you know the wakeup
+will happen once the write is done, rather than possibly in the middle
+of one.
+
+[ For stable people: I'm putting a "Fixes" tag on this, but I leave it
+  up to you to decide whether you actually want to backport it or not.
+  It likely has no impact outside of synthetic benchmarks  - Linus ]
+
+Link: https://lore.kernel.org/lkml/20210802024945.GA8372@xsang-OptiPlex-9020/
+Fixes: 3a34b13a88ca ("pipe: make pipe writes always wake up readers")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Tested-by: Sandeep Patil <sspatil@android.com>
+Tested-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/pasid.c | 10 ++++++++--
- drivers/iommu/intel/pasid.h |  6 ++++++
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ fs/pipe.c                 | 15 +++++++++------
+ include/linux/pipe_fs_i.h |  2 ++
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
-index 77fbe9908abd..fb911b6c418f 100644
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -497,20 +497,26 @@ void intel_pasid_tear_down_entry(struct intel_iommu *iommu, struct device *dev,
- 				 u32 pasid, bool fault_ignore)
- {
- 	struct pasid_entry *pte;
--	u16 did;
-+	u16 did, pgtt;
+diff --git a/fs/pipe.c b/fs/pipe.c
+index 28b2e973f10e..48abe65333c4 100644
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -444,9 +444,6 @@ pipe_write(struct kiocb *iocb, struct iov_iter *from)
+ #endif
  
- 	pte = intel_pasid_get_entry(dev, pasid);
- 	if (WARN_ON(!pte))
- 		return;
+ 	/*
+-	 * Epoll nonsensically wants a wakeup whether the pipe
+-	 * was already empty or not.
+-	 *
+ 	 * If it wasn't empty we try to merge new data into
+ 	 * the last buffer.
+ 	 *
+@@ -455,9 +452,9 @@ pipe_write(struct kiocb *iocb, struct iov_iter *from)
+ 	 * spanning multiple pages.
+ 	 */
+ 	head = pipe->head;
+-	was_empty = true;
++	was_empty = pipe_empty(head, pipe->tail);
+ 	chars = total_len & (PAGE_SIZE-1);
+-	if (chars && !pipe_empty(head, pipe->tail)) {
++	if (chars && !was_empty) {
+ 		unsigned int mask = pipe->ring_size - 1;
+ 		struct pipe_buffer *buf = &pipe->bufs[(head - 1) & mask];
+ 		int offset = buf->offset + buf->len;
+@@ -590,8 +587,11 @@ out:
+ 	 * This is particularly important for small writes, because of
+ 	 * how (for example) the GNU make jobserver uses small writes to
+ 	 * wake up pending jobs
++	 *
++	 * Epoll nonsensically wants a wakeup whether the pipe
++	 * was already empty or not.
+ 	 */
+-	if (was_empty) {
++	if (was_empty || pipe->poll_usage) {
+ 		wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
+ 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 	}
+@@ -654,6 +654,9 @@ pipe_poll(struct file *filp, poll_table *wait)
+ 	struct pipe_inode_info *pipe = filp->private_data;
+ 	unsigned int head, tail;
  
- 	did = pasid_get_domain_id(pte);
-+	pgtt = pasid_pte_get_pgtt(pte);
++	/* Epoll has some historical nasty semantics, this enables them */
++	pipe->poll_usage = 1;
 +
- 	intel_pasid_clear_entry(dev, pasid, fault_ignore);
- 
- 	if (!ecap_coherent(iommu->ecap))
- 		clflush_cache_range(pte, sizeof(*pte));
- 
- 	pasid_cache_invalidation_with_pasid(iommu, did, pasid);
--	qi_flush_piotlb(iommu, did, pasid, 0, -1, 0);
-+
-+	if (pgtt == PASID_ENTRY_PGTT_PT || pgtt == PASID_ENTRY_PGTT_FL_ONLY)
-+		qi_flush_piotlb(iommu, did, pasid, 0, -1, 0);
-+	else
-+		iommu->flush.flush_iotlb(iommu, did, 0, 0, DMA_TLB_DSI_FLUSH);
- 
- 	/* Device IOTLB doesn't need to be flushed in caching mode. */
- 	if (!cap_caching_mode(iommu->cap))
-diff --git a/drivers/iommu/intel/pasid.h b/drivers/iommu/intel/pasid.h
-index 086ebd697319..30cb30046b15 100644
---- a/drivers/iommu/intel/pasid.h
-+++ b/drivers/iommu/intel/pasid.h
-@@ -99,6 +99,12 @@ static inline bool pasid_pte_is_present(struct pasid_entry *pte)
- 	return READ_ONCE(pte->val[0]) & PASID_PTE_PRESENT;
- }
- 
-+/* Get PGTT field of a PASID table entry */
-+static inline u16 pasid_pte_get_pgtt(struct pasid_entry *pte)
-+{
-+	return (u16)((READ_ONCE(pte->val[0]) >> 6) & 0x7);
-+}
-+
- extern unsigned int intel_pasid_max_id;
- int intel_pasid_alloc_id(void *ptr, int start, int end, gfp_t gfp);
- void intel_pasid_free_id(u32 pasid);
+ 	/*
+ 	 * Reading pipe state only -- no need for acquiring the semaphore.
+ 	 *
+diff --git a/include/linux/pipe_fs_i.h b/include/linux/pipe_fs_i.h
+index 5d2705f1d01c..fc5642431b92 100644
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -48,6 +48,7 @@ struct pipe_buffer {
+  *	@files: number of struct file referring this pipe (protected by ->i_lock)
+  *	@r_counter: reader counter
+  *	@w_counter: writer counter
++ *	@poll_usage: is this pipe used for epoll, which has crazy wakeups?
+  *	@fasync_readers: reader side fasync
+  *	@fasync_writers: writer side fasync
+  *	@bufs: the circular array of pipe buffers
+@@ -70,6 +71,7 @@ struct pipe_inode_info {
+ 	unsigned int files;
+ 	unsigned int r_counter;
+ 	unsigned int w_counter;
++	unsigned int poll_usage;
+ 	struct page *tmp_page;
+ 	struct fasync_struct *fasync_readers;
+ 	struct fasync_struct *fasync_writers;
 -- 
 2.30.2
 
