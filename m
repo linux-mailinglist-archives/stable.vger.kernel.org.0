@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCE573F663C
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2325C3F663D
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240370AbhHXRVn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240379AbhHXRVn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58942 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240718AbhHXRTl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240721AbhHXRTl (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:19:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D218761AE2;
-        Tue, 24 Aug 2021 17:03:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF93361AEC;
+        Tue, 24 Aug 2021 17:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824589;
-        bh=wU2eLxR8iTqbcTC0t2FmT5adWev5jXlNn2/klIsljis=;
+        s=k20201202; t=1629824590;
+        bh=sWfOtnv/6eOvrkx3F4orY0PxxNBhQyXsaGUfgHB6/00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0d+eA+ghWROCys5mbPRifHtBkfSVkJ29KxDO33HT2Fw7fZcFLA0X2OlDZR6NqS9x
-         CiQSgzL7BB8KsK0rF6oJYyppGkug02sdAj23PYMkCVvrupkkrnJMYJYsf4OLpGsTjS
-         uqdTZBqu8c+1TAOcOdbsa9VvfQ02oXJdS5qR9StosiQQalzyvt+1sWmSXLBi4tbky1
-         kDOA6KIOljnNJcU/qaTEbZJea1gHC5JzYZflDETWlw9VtgZLpSGB6wsVzfuHPugzlS
-         wMa1o7JBOqY61FMymzsAUaMWv1LHV+jZXLoX6KZebPab8UkWNDSkemnIwhgexUfdtE
-         RFa6lbbK3+MbQ==
+        b=GQE+Rz7XwUQ6reVP2tLj69rTPf2s4Th2GlcjFUoM0nt7WQ9etkFkehCQydzCOGIDP
+         zenPkIts7MY/307QvhMrMaJehVCrOjRQG1ytUYhzIXN40ZipYbTXUMgjkWqUayBbUL
+         eXGW6WvvnNwiRkB6BxF9bI2WQWmAlso5aSaJnu6rLIxJKpzFa5bFABMVFvb18S6eoR
+         o065Uddp2EEd0ntMIB5Vk2mEoCB9yElmDSlmXvy3cqN9EBF/GkL2YbjJkIuSJAsRWD
+         nFnuJZ2E+9NyqSTbt2kK5+zfCH2wqbYUwWrzMOcSxM1EXaT6cazpY3DXJbsULwHO+g
+         9YyE0d3JQeMUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/84] net: dsa: lan9303: fix broken backpressure in .port_fdb_dump
-Date:   Tue, 24 Aug 2021 13:01:44 -0400
-Message-Id: <20210824170250.710392-19-sashal@kernel.org>
+Subject: [PATCH 4.19 19/84] net: bridge: fix memleak in br_add_if()
+Date:   Tue, 24 Aug 2021 13:01:45 -0400
+Message-Id: <20210824170250.710392-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -48,136 +50,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit ada2fee185d8145afb89056558bb59545b9dbdd0 ]
+[ Upstream commit 519133debcc19f5c834e7e28480b60bdc234fe02 ]
 
-rtnl_fdb_dump() has logic to split a dump of PF_BRIDGE neighbors into
-multiple netlink skbs if the buffer provided by user space is too small
-(one buffer will typically handle a few hundred FDB entries).
+I got a memleak report:
 
-When the current buffer becomes full, nlmsg_put() in
-dsa_slave_port_fdb_do_dump() returns -EMSGSIZE and DSA saves the index
-of the last dumped FDB entry, returns to rtnl_fdb_dump() up to that
-point, and then the dump resumes on the same port with a new skb, and
-FDB entries up to the saved index are simply skipped.
+BUG: memory leak
+unreferenced object 0x607ee521a658 (size 240):
+comm "syz-executor.0", pid 955, jiffies 4294780569 (age 16.449s)
+hex dump (first 32 bytes, cpu 1):
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+backtrace:
+[<00000000d830ea5a>] br_multicast_add_port+0x1c2/0x300 net/bridge/br_multicast.c:1693
+[<00000000274d9a71>] new_nbp net/bridge/br_if.c:435 [inline]
+[<00000000274d9a71>] br_add_if+0x670/0x1740 net/bridge/br_if.c:611
+[<0000000012ce888e>] do_set_master net/core/rtnetlink.c:2513 [inline]
+[<0000000012ce888e>] do_set_master+0x1aa/0x210 net/core/rtnetlink.c:2487
+[<0000000099d1cafc>] __rtnl_newlink+0x1095/0x13e0 net/core/rtnetlink.c:3457
+[<00000000a01facc0>] rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3488
+[<00000000acc9186c>] rtnetlink_rcv_msg+0x369/0xa10 net/core/rtnetlink.c:5550
+[<00000000d4aabb9c>] netlink_rcv_skb+0x134/0x3d0 net/netlink/af_netlink.c:2504
+[<00000000bc2e12a3>] netlink_unicast_kernel net/netlink/af_netlink.c:1314 [inline]
+[<00000000bc2e12a3>] netlink_unicast+0x4a0/0x6a0 net/netlink/af_netlink.c:1340
+[<00000000e4dc2d0e>] netlink_sendmsg+0x789/0xc70 net/netlink/af_netlink.c:1929
+[<000000000d22c8b3>] sock_sendmsg_nosec net/socket.c:654 [inline]
+[<000000000d22c8b3>] sock_sendmsg+0x139/0x170 net/socket.c:674
+[<00000000e281417a>] ____sys_sendmsg+0x658/0x7d0 net/socket.c:2350
+[<00000000237aa2ab>] ___sys_sendmsg+0xf8/0x170 net/socket.c:2404
+[<000000004f2dc381>] __sys_sendmsg+0xd3/0x190 net/socket.c:2433
+[<0000000005feca6c>] do_syscall_64+0x37/0x90 arch/x86/entry/common.c:47
+[<000000007304477d>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Since dsa_slave_port_fdb_do_dump() is pointed to by the "cb" passed to
-drivers, then drivers must check for the -EMSGSIZE error code returned
-by it. Otherwise, when a netlink skb becomes full, DSA will no longer
-save newly dumped FDB entries to it, but the driver will continue
-dumping. So FDB entries will be missing from the dump.
+On error path of br_add_if(), p->mcast_stats allocated in
+new_nbp() need be freed, or it will be leaked.
 
-Fix the broken backpressure by propagating the "cb" return code and
-allow rtnl_fdb_dump() to restart the FDB dump with a new skb.
-
-Fixes: ab335349b852 ("net: dsa: lan9303: Add port_fast_age and port_fdb_dump methods")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1080ab95e3c7 ("net: bridge: add support for IGMP/MLD stats and export them via netlink")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Link: https://lore.kernel.org/r/20210809132023.978546-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/lan9303-core.c | 34 +++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
+ net/bridge/br_if.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/dsa/lan9303-core.c b/drivers/net/dsa/lan9303-core.c
-index b4f6e1a67dd9..b89c474e6b6b 100644
---- a/drivers/net/dsa/lan9303-core.c
-+++ b/drivers/net/dsa/lan9303-core.c
-@@ -566,12 +566,12 @@ static int lan9303_alr_make_entry_raw(struct lan9303 *chip, u32 dat0, u32 dat1)
- 	return 0;
- }
+diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
+index 5aa508a08a69..b5fb2b682e19 100644
+--- a/net/bridge/br_if.c
++++ b/net/bridge/br_if.c
+@@ -604,6 +604,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
  
--typedef void alr_loop_cb_t(struct lan9303 *chip, u32 dat0, u32 dat1,
--			   int portmap, void *ctx);
-+typedef int alr_loop_cb_t(struct lan9303 *chip, u32 dat0, u32 dat1,
-+			  int portmap, void *ctx);
- 
--static void lan9303_alr_loop(struct lan9303 *chip, alr_loop_cb_t *cb, void *ctx)
-+static int lan9303_alr_loop(struct lan9303 *chip, alr_loop_cb_t *cb, void *ctx)
- {
--	int i;
-+	int ret = 0, i;
- 
- 	mutex_lock(&chip->alr_mutex);
- 	lan9303_write_switch_reg(chip, LAN9303_SWE_ALR_CMD,
-@@ -591,13 +591,17 @@ static void lan9303_alr_loop(struct lan9303 *chip, alr_loop_cb_t *cb, void *ctx)
- 						LAN9303_ALR_DAT1_PORT_BITOFFS;
- 		portmap = alrport_2_portmap[alrport];
- 
--		cb(chip, dat0, dat1, portmap, ctx);
-+		ret = cb(chip, dat0, dat1, portmap, ctx);
-+		if (ret)
-+			break;
- 
- 		lan9303_write_switch_reg(chip, LAN9303_SWE_ALR_CMD,
- 					 LAN9303_ALR_CMD_GET_NEXT);
- 		lan9303_write_switch_reg(chip, LAN9303_SWE_ALR_CMD, 0);
+ 	err = dev_set_allmulti(dev, 1);
+ 	if (err) {
++		br_multicast_del_port(p);
+ 		kfree(p);	/* kobject not yet init'd, manually free */
+ 		goto err1;
  	}
- 	mutex_unlock(&chip->alr_mutex);
-+
-+	return ret;
- }
- 
- static void alr_reg_to_mac(u32 dat0, u32 dat1, u8 mac[6])
-@@ -615,18 +619,20 @@ struct del_port_learned_ctx {
- };
- 
- /* Clear learned (non-static) entry on given port */
--static void alr_loop_cb_del_port_learned(struct lan9303 *chip, u32 dat0,
--					 u32 dat1, int portmap, void *ctx)
-+static int alr_loop_cb_del_port_learned(struct lan9303 *chip, u32 dat0,
-+					u32 dat1, int portmap, void *ctx)
- {
- 	struct del_port_learned_ctx *del_ctx = ctx;
- 	int port = del_ctx->port;
- 
- 	if (((BIT(port) & portmap) == 0) || (dat1 & LAN9303_ALR_DAT1_STATIC))
--		return;
-+		return 0;
- 
- 	/* learned entries has only one port, we can just delete */
- 	dat1 &= ~LAN9303_ALR_DAT1_VALID; /* delete entry */
- 	lan9303_alr_make_entry_raw(chip, dat0, dat1);
-+
-+	return 0;
- }
- 
- struct port_fdb_dump_ctx {
-@@ -635,19 +641,19 @@ struct port_fdb_dump_ctx {
- 	dsa_fdb_dump_cb_t *cb;
- };
- 
--static void alr_loop_cb_fdb_port_dump(struct lan9303 *chip, u32 dat0,
--				      u32 dat1, int portmap, void *ctx)
-+static int alr_loop_cb_fdb_port_dump(struct lan9303 *chip, u32 dat0,
-+				     u32 dat1, int portmap, void *ctx)
- {
- 	struct port_fdb_dump_ctx *dump_ctx = ctx;
- 	u8 mac[ETH_ALEN];
- 	bool is_static;
- 
- 	if ((BIT(dump_ctx->port) & portmap) == 0)
--		return;
-+		return 0;
- 
- 	alr_reg_to_mac(dat0, dat1, mac);
- 	is_static = !!(dat1 & LAN9303_ALR_DAT1_STATIC);
--	dump_ctx->cb(mac, 0, is_static, dump_ctx->data);
-+	return dump_ctx->cb(mac, 0, is_static, dump_ctx->data);
- }
- 
- /* Set a static ALR entry. Delete entry if port_map is zero */
-@@ -1214,9 +1220,7 @@ static int lan9303_port_fdb_dump(struct dsa_switch *ds, int port,
- 	};
- 
- 	dev_dbg(chip->dev, "%s(%d)\n", __func__, port);
--	lan9303_alr_loop(chip, alr_loop_cb_fdb_port_dump, &dump_ctx);
--
--	return 0;
-+	return lan9303_alr_loop(chip, alr_loop_cb_fdb_port_dump, &dump_ctx);
- }
- 
- static int lan9303_port_mdb_prepare(struct dsa_switch *ds, int port,
+@@ -708,6 +709,7 @@ err4:
+ err3:
+ 	sysfs_remove_link(br->ifobj, p->dev->name);
+ err2:
++	br_multicast_del_port(p);
+ 	kobject_put(&p->kobj);
+ 	dev_set_allmulti(dev, -1);
+ err1:
 -- 
 2.30.2
 
