@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E47E93F65C0
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:15:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F214A3F65C3
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:16:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239853AbhHXRQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:16:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52370 "EHLO mail.kernel.org"
+        id S240016AbhHXRQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:16:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240161AbhHXROZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:14:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D86A361A87;
-        Tue, 24 Aug 2021 17:01:38 +0000 (UTC)
+        id S240176AbhHXRO0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:14:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD78F61A7A;
+        Tue, 24 Aug 2021 17:01:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824499;
-        bh=TFxNky5VT8pwnV8qlMdLhGenwvHr3QJoIs1i0L9ZtI8=;
+        s=k20201202; t=1629824500;
+        bh=/JHi0V3cli/t8sdZnMZ9wI7O5zk3Oa0nGm1mPlNynys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abTd/YMhRz2BycZeaPYpEeYB57N2LhIYmpWckiv8lKX/q33wiQAN5ymb6BAave6Ey
-         OevzrivT25BRiUu0+CzSsJLXpn7dRBIS3+jF2oDs9lQES0G1XvZCQW92m0nEftdzD5
-         c/E0gtTbkP27UH7Hh8RSlI13SNj3elTAoMyb8dUOqPhg3dF6Tan1ODiL73zoNBd6h0
-         2H7VvZiiIumO1CwfH5YuRkEDxKBBCMFMmae7XyOcX31DOSUh9UVfZQGehK7fDd0ukR
-         YIxpMXQbgDZJylFNJ1lxHk6/A8FuCKDU3LtlM5Va55xNsHOjV2W0Kr3OyanIwmDHPR
-         C0hdBc364w7og==
+        b=PLPFeZ3Xm6zEjIyPEftG3ZxNzu9IdkPDgJ9+X+NvcsOQ4Ll5uTahLyx7gqsE4uj7C
+         uLVdVI5bIrr5ByJaJ8nJFM1vyIOvC+oSW4gU8Cty2g67hKColDNGWID93mDfzMb3Nf
+         MYVxjDt1bIq3OXwZUcU/Iwh/zTQ93RGtrkbR1aHTlPOB1Q5j5aIvQ0NXRr3eOT0PB3
+         7o+JyAameZwzq0Ih6Tk4t5srrU26lfXjvnyTbB3Hj5hgtXyeQSlW4JWtQcxl11eEU3
+         BIEPsKyMuNNCMbAzJeMEWxBED9BhxS4N2vWMAkNgX4FOdjEpWQKNOB+lrigY6RPbEa
+         YLW/snDxvx1RQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Edwin Peer <edwin.peer@broadcom.com>,
+Cc:     Pavel Skripkin <paskripkin@gmail.com>,
+        syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/61] bnxt: disable napi before canceling DIM
-Date:   Tue, 24 Aug 2021 13:00:37 -0400
-Message-Id: <20210824170106.710221-33-sashal@kernel.org>
+Subject: [PATCH 5.4 33/61] net: 6pack: fix slab-out-of-bounds in decode_data
+Date:   Tue, 24 Aug 2021 13:00:38 -0400
+Message-Id: <20210824170106.710221-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -49,41 +50,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 01cca6b9330ac7460de44eeeb3a0607f8aae69ff ]
+[ Upstream commit 19d1532a187669ce86d5a2696eb7275310070793 ]
 
-napi schedules DIM, napi has to be disabled first,
-then DIM canceled.
+Syzbot reported slab-out-of bounds write in decode_data().
+The problem was in missing validation checks.
 
-Noticed while reading the code.
+Syzbot's reproducer generated malicious input, which caused
+decode_data() to be called a lot in sixpack_decode(). Since
+rx_count_cooked is only 400 bytes and noone reported before,
+that 400 bytes is not enough, let's just check if input is malicious
+and complain about buffer overrun.
 
-Fixes: 0bc0b97fca73 ("bnxt_en: cleanup DIM work on device shutdown")
-Fixes: 6a8788f25625 ("bnxt_en: add support for software dynamic interrupt moderation")
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fail log:
+==================================================================
+BUG: KASAN: slab-out-of-bounds in drivers/net/hamradio/6pack.c:843
+Write of size 1 at addr ffff888087c5544e by task kworker/u4:0/7
+
+CPU: 0 PID: 7 Comm: kworker/u4:0 Not tainted 5.6.0-rc3-syzkaller #0
+...
+Workqueue: events_unbound flush_to_ldisc
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x197/0x210 lib/dump_stack.c:118
+ print_address_description.constprop.0.cold+0xd4/0x30b mm/kasan/report.c:374
+ __kasan_report.cold+0x1b/0x32 mm/kasan/report.c:506
+ kasan_report+0x12/0x20 mm/kasan/common.c:641
+ __asan_report_store1_noabort+0x17/0x20 mm/kasan/generic_report.c:137
+ decode_data.part.0+0x23b/0x270 drivers/net/hamradio/6pack.c:843
+ decode_data drivers/net/hamradio/6pack.c:965 [inline]
+ sixpack_decode drivers/net/hamradio/6pack.c:968 [inline]
+
+Reported-and-tested-by: syzbot+fc8cd9a673d4577fb2e4@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/hamradio/6pack.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index 8111aefb2411..1b5839ad97b6 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -8346,10 +8346,9 @@ static void bnxt_disable_napi(struct bnxt *bp)
- 	for (i = 0; i < bp->cp_nr_rings; i++) {
- 		struct bnxt_cp_ring_info *cpr = &bp->bnapi[i]->cp_ring;
- 
-+		napi_disable(&bp->bnapi[i]->napi);
- 		if (bp->bnapi[i]->rx_ring)
- 			cancel_work_sync(&cpr->dim.work);
--
--		napi_disable(&bp->bnapi[i]->napi);
+diff --git a/drivers/net/hamradio/6pack.c b/drivers/net/hamradio/6pack.c
+index 71d6629e65c9..da13683d52d1 100644
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -839,6 +839,12 @@ static void decode_data(struct sixpack *sp, unsigned char inbyte)
+ 		return;
  	}
- }
  
++	if (sp->rx_count_cooked + 2 >= sizeof(sp->cooked_buf)) {
++		pr_err("6pack: cooked buffer overrun, data loss\n");
++		sp->rx_count = 0;
++		return;
++	}
++
+ 	buf = sp->raw_buf;
+ 	sp->cooked_buf[sp->rx_count_cooked++] =
+ 		buf[0] | ((buf[1] << 2) & 0xc0);
 -- 
 2.30.2
 
