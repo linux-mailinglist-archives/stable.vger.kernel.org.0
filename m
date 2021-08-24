@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A74D3F66DD
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:27:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AFF23F66D5
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:27:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240475AbhHXR2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:28:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60514 "EHLO mail.kernel.org"
+        id S236251AbhHXR2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:28:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240580AbhHXR0B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:26:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E0B061B42;
+        id S240592AbhHXR0C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:26:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB03D613AD;
         Tue, 24 Aug 2021 17:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824650;
-        bh=kKv6uW8+t7LQ+dTAdr6TIEt1tITtiHvP3bcAeazDqx4=;
+        s=k20201202; t=1629824651;
+        bh=iauMXiN2QXGlJCo8KiLq0bBjy3KVosZgnepAHACd2GY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LTGGNUOXnGL6cKRU5w+L9/n31SsQr1qd63xxdON4gu0WqVFO1urNWJdugBDDMf6gI
-         UMV/pO7m4+Ad9jXEldxeB6QqsMew7A6jeFCbNxqTh38BxtO+NznmQrqq0xEtM7jbUt
-         o0tfzL6CxK5h+xo2FfWMzS6uEis6EgQcWgAx/ShNkz9OMh7liOsOvWp/adhp2HhSRj
-         Iv8Mcu9dxvhmWhjb6ni/jbMagHdcSWtorc3dZ6xTjLAguhuEKW1zEoYSdqZrmtBaCH
-         vwHmfmMFWpU8GdgKgQO/RYHojA6H5kHMkXKQgic+5a6laW0iD7rE6XN14ACphA0kma
-         dL75jA1VJ2ytw==
+        b=e0YDMKmwJc33a2YlacsLAvy4gRa9Rryjg6WCVs8/MV0Bt9q0eQwkCUgtcKnMaylsa
+         pgphQTJJYnSkSlq2sdglm4vwPk1/517vwZci+30dZbbCAgIC6HW7yWKkS8yZCsXbqb
+         oMiMDm+ozLOFPkQwrAxU499imfYf5E16Ep685Ed2ncibukLoYicPoDyjX+qctE6G86
+         boUzLyvZJ4ERRdRzc7qM8j95lWf0obFVAYuMEfHzzpjLmiPhknVT2/FEbmpkZ50H/a
+         gDO1W8Jxyv0bkRvSOfA3zHvxK/4j9htBE6ul6b+J86z9ZI/eKhjYJ2LX2AtzNI+QCM
+         LMxerMBhs+ssw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Layton <jlayton@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 82/84] fs: warn about impending deprecation of mandatory locks
-Date:   Tue, 24 Aug 2021 13:02:48 -0400
-Message-Id: <20210824170250.710392-83-sashal@kernel.org>
+Cc:     Sergey Marinkevich <sergey.marinkevich@eltex-co.ru>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 83/84] netfilter: nft_exthdr: fix endianness of tcp option cast
+Date:   Tue, 24 Aug 2021 13:02:49 -0400
+Message-Id: <20210824170250.710392-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.205-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.19.y
@@ -46,39 +50,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Sergey Marinkevich <sergey.marinkevich@eltex-co.ru>
 
-[ Upstream commit fdd92b64d15bc4aec973caa25899afd782402e68 ]
+[ Upstream commit 2e34328b396a69b73661ba38d47d92b7cf21c2c4 ]
 
-We've had CONFIG_MANDATORY_FILE_LOCKING since 2015 and a lot of distros
-have disabled it. Warn the stragglers that still use "-o mand" that
-we'll be dropping support for that mount option.
+I got a problem on MIPS with Big-Endian is turned on: every time when
+NF trying to change TCP MSS it returns because of new.v16 was greater
+than old.v16. But real MSS was 1460 and my rule was like this:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
+	add rule table chain tcp option maxseg size set 1400
+
+And 1400 is lesser that 1460, not greater.
+
+Later I founded that main causer is cast from u32 to __be16.
+
+Debugging:
+
+In example MSS = 1400(HEX: 0x578). Here is representation of each byte
+like it is in memory by addresses from left to right(e.g. [0x0 0x1 0x2
+0x3]). LE — Little-Endian system, BE — Big-Endian, left column is type.
+
+	     LE               BE
+	u32: [78 05 00 00]    [00 00 05 78]
+
+As you can see, u32 representation will be casted to u16 from different
+half of 4-byte address range. But actually nf_tables uses registers and
+store data of various size. Actually TCP MSS stored in 2 bytes. But
+registers are still u32 in definition:
+
+	struct nft_regs {
+		union {
+			u32			data[20];
+			struct nft_verdict	verdict;
+		};
+	};
+
+So, access like regs->data[priv->sreg] exactly u32. So, according to
+table presents above, per-byte representation of stored TCP MSS in
+register will be:
+
+	                     LE               BE
+	(u32)regs->data[]:   [78 05 00 00]    [05 78 00 00]
+	                                       ^^ ^^
+
+We see that register uses just half of u32 and other 2 bytes may be
+used for some another data. But in nft_exthdr_tcp_set_eval() it casted
+just like u32 -> __be16:
+
+	new.v16 = src
+
+But u32 overfill __be16, so it get 2 low bytes. For clarity draw
+one more table(<xx xx> means that bytes will be used for cast).
+
+	                     LE                 BE
+	u32:                 [<78 05> 00 00]    [00 00 <05 78>]
+	(u32)regs->data[]:   [<78 05> 00 00]    [05 78 <00 00>]
+
+As you can see, for Little-Endian nothing changes, but for Big-endian we
+take the wrong half. In my case there is some other data instead of
+zeros, so new MSS was wrongly greater.
+
+For shooting this bug I used solution for ports ranges. Applying of this
+patch does not affect Little-Endian systems.
+
+Signed-off-by: Sergey Marinkevich <sergey.marinkevich@eltex-co.ru>
+Acked-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namespace.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/netfilter/nft_exthdr.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 8d2bf350e7c6..2f3c6a0350a8 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -1611,8 +1611,12 @@ static inline bool may_mount(void)
- }
+diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
+index 64e69d6683ca..93fee4106019 100644
+--- a/net/netfilter/nft_exthdr.c
++++ b/net/netfilter/nft_exthdr.c
+@@ -137,7 +137,6 @@ static void nft_exthdr_tcp_set_eval(const struct nft_expr *expr,
+ 	unsigned int i, optl, tcphdr_len, offset;
+ 	struct tcphdr *tcph;
+ 	u8 *opt;
+-	u32 src;
  
- #ifdef	CONFIG_MANDATORY_FILE_LOCKING
--static inline bool may_mandlock(void)
-+static bool may_mandlock(void)
- {
-+	pr_warn_once("======================================================\n"
-+		     "WARNING: the mand mount option is being deprecated and\n"
-+		     "         will be removed in v5.15!\n"
-+		     "======================================================\n");
- 	return capable(CAP_SYS_ADMIN);
- }
- #else
+ 	tcph = nft_tcp_header_pointer(pkt, sizeof(buff), buff, &tcphdr_len);
+ 	if (!tcph)
+@@ -146,7 +145,6 @@ static void nft_exthdr_tcp_set_eval(const struct nft_expr *expr,
+ 	opt = (u8 *)tcph;
+ 	for (i = sizeof(*tcph); i < tcphdr_len - 1; i += optl) {
+ 		union {
+-			u8 octet;
+ 			__be16 v16;
+ 			__be32 v32;
+ 		} old, new;
+@@ -167,13 +165,13 @@ static void nft_exthdr_tcp_set_eval(const struct nft_expr *expr,
+ 		if (!tcph)
+ 			return;
+ 
+-		src = regs->data[priv->sreg];
+ 		offset = i + priv->offset;
+ 
+ 		switch (priv->len) {
+ 		case 2:
+ 			old.v16 = get_unaligned((u16 *)(opt + offset));
+-			new.v16 = src;
++			new.v16 = (__force __be16)nft_reg_load16(
++				&regs->data[priv->sreg]);
+ 
+ 			switch (priv->type) {
+ 			case TCPOPT_MSS:
+@@ -191,7 +189,7 @@ static void nft_exthdr_tcp_set_eval(const struct nft_expr *expr,
+ 						 old.v16, new.v16, false);
+ 			break;
+ 		case 4:
+-			new.v32 = src;
++			new.v32 = regs->data[priv->sreg];
+ 			old.v32 = get_unaligned((u32 *)(opt + offset));
+ 
+ 			if (old.v32 == new.v32)
 -- 
 2.30.2
 
