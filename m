@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA9B03F65A3
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:14:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BDD53F65AD
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239392AbhHXRPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:15:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51952 "EHLO mail.kernel.org"
+        id S233454AbhHXRPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:15:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235316AbhHXRNu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:13:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 585D761A63;
-        Tue, 24 Aug 2021 17:01:30 +0000 (UTC)
+        id S238456AbhHXROA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:14:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63FA561555;
+        Tue, 24 Aug 2021 17:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824491;
-        bh=8bwAjELKBHfEtCgO7fakYsnNJbvNAarkcSTfOot+Cqo=;
+        s=k20201202; t=1629824492;
+        bh=jnIgig0IhVpfDvvhGmAlwzO2xHxEuIHAp+4pNYvaWhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FUpYGCt2sAXyj/tcVcf68DKJD1nbxvSrupi69ZWCqhGQPjPYOTuWkYB7qoFnBgGYt
-         t1vjnw8oGDZqYtmMwbKrDj/oEaB2ouik4NIzuu5+5fehAQw78MHkIZ2KHySxhVrrkR
-         hL63yYAyc7opU1AL9jIHAi7FGDGfDVhiqv9NWm6LtWSwc+0xjXChUNUH38WqeLcBA2
-         uHvNQsPL2AWvWPSU2ExZNQee023Pkbc1Xzzab4pOjN7xASZGRMcb8oPFzwDQz9UTh8
-         EzCyEviLUvxc+HnpAxxkdThJ4emhwFKIJt/UywFf03ZuQtyndcW/WaimBI2N7M38rZ
-         By8j2XCR3pUeg==
+        b=S6qs+mGfY+rE3XKfROMWjtwWlil1mEJ0TPoLwf/EEaA1VhvtKG9iA7hsTVgffajrt
+         7HqqO3lQ8EnFl0Gyt9K6oE0alWeI2uFq7tLQdQ3FQzS9i867mJ6vB82WftcuBHOZBH
+         JyaRmFg7GVVE9+eMLGMC9pJeU3sa6/CgGcTb0W525Gh0jZ9vn2Jbv1Gf/GZwmjdyIY
+         y1PtRtIXqV/jRkt4vpvKRbLzmk/r5a+68cgeqJJqQwUu2J+cTb43W921UFRzsttXvG
+         /2AmSF4g8uU+5dVBGe0LcJDpCD9jZOYDcpAk8zqlYYLQyH77v+CM5/T3nbYvyzfxmV
+         U9h+JKrCVNibQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bing Guo <bing.guo@amd.com>, Martin Leung <martin.leung@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+Cc:     =?UTF-8?q?Ole=20Bj=C3=B8rn=20Midtb=C3=B8?= <omidtbo@cisco.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/61] drm/amd/display: Fix Dynamic bpp issue with 8K30 with Navi 1X
-Date:   Tue, 24 Aug 2021 13:00:28 -0400
-Message-Id: <20210824170106.710221-24-sashal@kernel.org>
+Subject: [PATCH 5.4 24/61] Bluetooth: hidp: use correct wait queue when removing ctrl_wait
+Date:   Tue, 24 Aug 2021 13:00:29 -0400
+Message-Id: <20210824170106.710221-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.143-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.4.y
@@ -49,40 +49,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bing Guo <bing.guo@amd.com>
+From: Ole Bjørn Midtbø <omidtbo@cisco.com>
 
-[ Upstream commit 06050a0f01dbac2ca33145ef19a72041206ea983 ]
+[ Upstream commit cca342d98bef68151a80b024f7bf5f388d1fbdea ]
 
-Why:
-In DCN2x, HW doesn't automatically divide MASTER_UPDATE_LOCK_DB_X
-by the number of pipes ODM Combined.
+A different wait queue was used when removing ctrl_wait than when adding
+it. This effectively made the remove operation without locking compared
+to other operations on the wait queue ctrl_wait was part of. This caused
+issues like below where dead000000000100 is LIST_POISON1 and
+dead000000000200 is LIST_POISON2.
 
-How:
-Set MASTER_UPDATE_LOCK_DB_X to the value that is adjusted by the
-number of pipes ODM Combined.
+ list_add corruption. next->prev should be prev (ffffffc1b0a33a08), \
+	but was dead000000000200. (next=ffffffc03ac77de0).
+ ------------[ cut here ]------------
+ CPU: 3 PID: 2138 Comm: bluetoothd Tainted: G           O    4.4.238+ #9
+ ...
+ ---[ end trace 0adc2158f0646eac ]---
+ Call trace:
+ [<ffffffc000443f78>] __list_add+0x38/0xb0
+ [<ffffffc0000f0d04>] add_wait_queue+0x4c/0x68
+ [<ffffffc00020eecc>] __pollwait+0xec/0x100
+ [<ffffffc000d1556c>] bt_sock_poll+0x74/0x200
+ [<ffffffc000bdb8a8>] sock_poll+0x110/0x128
+ [<ffffffc000210378>] do_sys_poll+0x220/0x480
+ [<ffffffc0002106f0>] SyS_poll+0x80/0x138
+ [<ffffffc00008510c>] __sys_trace_return+0x0/0x4
 
-Reviewed-by: Martin Leung <martin.leung@amd.com>
-Acked-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Signed-off-by: Bing Guo <bing.guo@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+ Unable to handle kernel paging request at virtual address dead000000000100
+ ...
+ CPU: 4 PID: 5387 Comm: kworker/u15:3 Tainted: G        W  O    4.4.238+ #9
+ ...
+ Call trace:
+  [<ffffffc0000f079c>] __wake_up_common+0x7c/0xa8
+  [<ffffffc0000f0818>] __wake_up+0x50/0x70
+  [<ffffffc000be11b0>] sock_def_wakeup+0x58/0x60
+  [<ffffffc000de5e10>] l2cap_sock_teardown_cb+0x200/0x224
+  [<ffffffc000d3f2ac>] l2cap_chan_del+0xa4/0x298
+  [<ffffffc000d45ea0>] l2cap_conn_del+0x118/0x198
+  [<ffffffc000d45f8c>] l2cap_disconn_cfm+0x6c/0x78
+  [<ffffffc000d29934>] hci_event_packet+0x564/0x2e30
+  [<ffffffc000d19b0c>] hci_rx_work+0x10c/0x360
+  [<ffffffc0000c2218>] process_one_work+0x268/0x460
+  [<ffffffc0000c2678>] worker_thread+0x268/0x480
+  [<ffffffc0000c94e0>] kthread+0x118/0x128
+  [<ffffffc000085070>] ret_from_fork+0x10/0x20
+  ---[ end trace 0adc2158f0646ead ]---
+
+Signed-off-by: Ole Bjørn Midtbø <omidtbo@cisco.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c | 2 +-
+ net/bluetooth/hidp/core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
-index 8d5cfd5357c7..03e207333953 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_optc.c
-@@ -362,7 +362,7 @@ void optc2_lock_doublebuffer_enable(struct timing_generator *optc)
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index bef84b95e2c4..ac98e3b37ab4 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -1290,7 +1290,7 @@ static int hidp_session_thread(void *arg)
  
- 	REG_UPDATE_2(OTG_GLOBAL_CONTROL1,
- 			MASTER_UPDATE_LOCK_DB_X,
--			h_blank_start - 200 - 1,
-+			(h_blank_start - 200 - 1) / optc1->opp_count,
- 			MASTER_UPDATE_LOCK_DB_Y,
- 			v_blank_start - 1);
- }
+ 	/* cleanup runtime environment */
+ 	remove_wait_queue(sk_sleep(session->intr_sock->sk), &intr_wait);
+-	remove_wait_queue(sk_sleep(session->intr_sock->sk), &ctrl_wait);
++	remove_wait_queue(sk_sleep(session->ctrl_sock->sk), &ctrl_wait);
+ 	wake_up_interruptible(&session->report_queue);
+ 	hidp_del_timer(session);
+ 
 -- 
 2.30.2
 
