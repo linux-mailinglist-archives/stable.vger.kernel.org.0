@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D6DF3F655A
+	by mail.lfdr.de (Postfix) with ESMTP id 65ACF3F655B
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:11:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239716AbhHXRMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:12:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52050 "EHLO mail.kernel.org"
+        id S239733AbhHXRMI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:12:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240201AbhHXRKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240199AbhHXRKN (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:10:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42415619F8;
-        Tue, 24 Aug 2021 17:00:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A35261A2A;
+        Tue, 24 Aug 2021 17:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1629824437;
-        bh=CDtwM7O3k1BXeL0dXHROWQfPC/9ogEnYpRDG2fSMH/Y=;
+        bh=QiFxqNIpjxgQVfHg9iJxZBLdgVazw/dG0F84HS+bcGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C5ybdv5EyiBhDkCHddLgSM8/DUXfDZpNc86iEJwB50KXyc0Ioi8VtmgkAZvjd7elJ
-         C9D5bRZDvzsd+F+49jm4lpbfZ7QMEOWtT65Q0pauU5rxELeGeZUMz/UHoApi+VlzLg
-         w5Z2b/iXF1JoXpUk14mgosopyRXfklW/0wdIbVd2gS9TdTmCVDXsQl3RfH8OOKuJ8t
-         qjrO/km1LNHUDKZKShznq1dTDzzr/NEAwsnLD9t7jNWrJtklTgZ4Z15zupK2ulO6le
-         32xmnk3SvqNn32r5Xf+4BR8HOpEo8kHt6dfuMma/xpiWymlfRAYVFhnwKO6pu/+Zw+
-         30wiKV3lnXICQ==
+        b=VWbVe/MGTOK2/vPsVwlpLgqzKDS1swgRLOxZvAb3Wm9VwWraUYcesReOioVUxXbU1
+         xnxqWxUwA2mdC4NZAM3euykXu4rdLBYMTXi4dvK7fufNVCHn3c/dIbFoT2CztLNpzl
+         Z9Cj+4yoFibEaqiK9tQxzdb0srF5dCs5CQy4wraMe4Hm9GikNW+IgONJjFoLHO0Ns1
+         NMjDCtjw7N+zrZeQSbVBlDlODAjqBgwUFcjYIkDpl2hd9e9o+njSL4ilM7lgGhxmeg
+         Wx8T973eZJU1Nh1wGciCcdn9zfi1L4sdMXnyDfXG2nPCzRsxW7nRKH+7nmHYrhsaQb
+         tXsPf1qRRU3tg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     NeilBrown <neilb@suse.de>, Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 88/98] btrfs: prevent rename2 from exchanging a subvol with a directory from different parents
-Date:   Tue, 24 Aug 2021 12:58:58 -0400
-Message-Id: <20210824165908.709932-89-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 89/98] ALSA: hda/via: Apply runtime PM workaround for ASUS B23E
+Date:   Tue, 24 Aug 2021 12:58:59 -0400
+Message-Id: <20210824165908.709932-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -48,121 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 3f79f6f6247c83f448c8026c3ee16d4636ef8d4f ]
+[ Upstream commit 4bf61ad5f0204b67ba570da6e5c052c2095e29df ]
 
-Cross-rename lacks a check when that would prevent exchanging a
-directory and subvolume from different parent subvolume. This causes
-data inconsistencies and is caught before commit by tree-checker,
-turning the filesystem to read-only.
+ASUS B23E requires the same workaround like other machines with
+VT1802, otherwise it looses the codec power on a few nodes and the
+sound kept silence.
 
-Calling the renameat2 with RENAME_EXCHANGE flags like
-
-  renameat2(AT_FDCWD, namesrc, AT_FDCWD, namedest, (1 << 1))
-
-on two paths:
-
-  namesrc = dir1/subvol1/dir2
- namedest = subvol2/subvol3
-
-will cause key order problem with following write time tree-checker
-report:
-
-  [1194842.307890] BTRFS critical (device loop1): corrupt leaf: root=5 block=27574272 slot=10 ino=258, invalid previous key objectid, have 257 expect 258
-  [1194842.322221] BTRFS info (device loop1): leaf 27574272 gen 8 total ptrs 11 free space 15444 owner 5
-  [1194842.331562] BTRFS info (device loop1): refs 2 lock_owner 0 current 26561
-  [1194842.338772]        item 0 key (256 1 0) itemoff 16123 itemsize 160
-  [1194842.338793]                inode generation 3 size 16 mode 40755
-  [1194842.338801]        item 1 key (256 12 256) itemoff 16111 itemsize 12
-  [1194842.338809]        item 2 key (256 84 2248503653) itemoff 16077 itemsize 34
-  [1194842.338817]                dir oid 258 type 2
-  [1194842.338823]        item 3 key (256 84 2363071922) itemoff 16043 itemsize 34
-  [1194842.338830]                dir oid 257 type 2
-  [1194842.338836]        item 4 key (256 96 2) itemoff 16009 itemsize 34
-  [1194842.338843]        item 5 key (256 96 3) itemoff 15975 itemsize 34
-  [1194842.338852]        item 6 key (257 1 0) itemoff 15815 itemsize 160
-  [1194842.338863]                inode generation 6 size 8 mode 40755
-  [1194842.338869]        item 7 key (257 12 256) itemoff 15801 itemsize 14
-  [1194842.338876]        item 8 key (257 84 2505409169) itemoff 15767 itemsize 34
-  [1194842.338883]                dir oid 256 type 2
-  [1194842.338888]        item 9 key (257 96 2) itemoff 15733 itemsize 34
-  [1194842.338895]        item 10 key (258 12 256) itemoff 15719 itemsize 14
-  [1194842.339163] BTRFS error (device loop1): block=27574272 write time tree block corruption detected
-  [1194842.339245] ------------[ cut here ]------------
-  [1194842.443422] WARNING: CPU: 6 PID: 26561 at fs/btrfs/disk-io.c:449 csum_one_extent_buffer+0xed/0x100 [btrfs]
-  [1194842.511863] CPU: 6 PID: 26561 Comm: kworker/u17:2 Not tainted 5.14.0-rc3-git+ #793
-  [1194842.511870] Hardware name: empty empty/S3993, BIOS PAQEX0-3 02/24/2008
-  [1194842.511876] Workqueue: btrfs-worker-high btrfs_work_helper [btrfs]
-  [1194842.511976] RIP: 0010:csum_one_extent_buffer+0xed/0x100 [btrfs]
-  [1194842.512068] RSP: 0018:ffffa2c284d77da0 EFLAGS: 00010282
-  [1194842.512074] RAX: 0000000000000000 RBX: 0000000000001000 RCX: ffff928867bd9978
-  [1194842.512078] RDX: 0000000000000000 RSI: 0000000000000027 RDI: ffff928867bd9970
-  [1194842.512081] RBP: ffff92876b958000 R08: 0000000000000001 R09: 00000000000c0003
-  [1194842.512085] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
-  [1194842.512088] R13: ffff92875f989f98 R14: 0000000000000000 R15: 0000000000000000
-  [1194842.512092] FS:  0000000000000000(0000) GS:ffff928867a00000(0000) knlGS:0000000000000000
-  [1194842.512095] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [1194842.512099] CR2: 000055f5384da1f0 CR3: 0000000102fe4000 CR4: 00000000000006e0
-  [1194842.512103] Call Trace:
-  [1194842.512128]  ? run_one_async_free+0x10/0x10 [btrfs]
-  [1194842.631729]  btree_csum_one_bio+0x1ac/0x1d0 [btrfs]
-  [1194842.631837]  run_one_async_start+0x18/0x30 [btrfs]
-  [1194842.631938]  btrfs_work_helper+0xd5/0x1d0 [btrfs]
-  [1194842.647482]  process_one_work+0x262/0x5e0
-  [1194842.647520]  worker_thread+0x4c/0x320
-  [1194842.655935]  ? process_one_work+0x5e0/0x5e0
-  [1194842.655946]  kthread+0x135/0x160
-  [1194842.655953]  ? set_kthread_struct+0x40/0x40
-  [1194842.655965]  ret_from_fork+0x1f/0x30
-  [1194842.672465] irq event stamp: 1729
-  [1194842.672469] hardirqs last  enabled at (1735): [<ffffffffbd1104f5>] console_trylock_spinning+0x185/0x1a0
-  [1194842.672477] hardirqs last disabled at (1740): [<ffffffffbd1104cc>] console_trylock_spinning+0x15c/0x1a0
-  [1194842.672482] softirqs last  enabled at (1666): [<ffffffffbdc002e1>] __do_softirq+0x2e1/0x50a
-  [1194842.672491] softirqs last disabled at (1651): [<ffffffffbd08aab7>] __irq_exit_rcu+0xa7/0xd0
-
-The corrupted data will not be written, and filesystem can be unmounted
-and mounted again (all changes since the last commit will be lost).
-
-Add the missing check for new_ino so that all non-subvolumes must reside
-under the same parent subvolume. There's an exception allowing to
-exchange two subvolumes from any parents as the directory representing a
-subvolume is only a logical link and does not have any other structures
-related to the parent subvolume, unlike files, directories etc, that
-are always in the inode namespace of the parent subvolume.
-
-Fixes: cdd1fedf8261 ("btrfs: add support for RENAME_EXCHANGE and RENAME_WHITEOUT")
-CC: stable@vger.kernel.org # 4.7+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: NeilBrown <neilb@suse.de>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: a0645daf1610 ("ALSA: HDA: Early Forbid of runtime PM")
+Link: https://lore.kernel.org/r/ac2232f142efcd67fe6ac38897f704f7176bd200.camel@gmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210817052432.14751-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_via.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 4f21b8fbfd4b..fc4311415fc6 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -8904,8 +8904,14 @@ static int btrfs_rename_exchange(struct inode *old_dir,
- 	bool dest_log_pinned = false;
- 	bool need_abort = false;
+diff --git a/sound/pci/hda/patch_via.c b/sound/pci/hda/patch_via.c
+index a5c1a2c4eae4..773a136161f1 100644
+--- a/sound/pci/hda/patch_via.c
++++ b/sound/pci/hda/patch_via.c
+@@ -1041,6 +1041,7 @@ static const struct hda_fixup via_fixups[] = {
+ };
  
--	/* we only allow rename subvolume link between subvolumes */
--	if (old_ino != BTRFS_FIRST_FREE_OBJECTID && root != dest)
-+	/*
-+	 * For non-subvolumes allow exchange only within one subvolume, in the
-+	 * same inode namespace. Two subvolumes (represented as directory) can
-+	 * be exchanged as they're a logical link and have a fixed inode number.
-+	 */
-+	if (root != dest &&
-+	    (old_ino != BTRFS_FIRST_FREE_OBJECTID ||
-+	     new_ino != BTRFS_FIRST_FREE_OBJECTID))
- 		return -EXDEV;
- 
- 	/* close the race window with snapshot create/destroy ioctl */
+ static const struct snd_pci_quirk vt2002p_fixups[] = {
++	SND_PCI_QUIRK(0x1043, 0x13f7, "Asus B23E", VIA_FIXUP_POWER_SAVE),
+ 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
+ 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
+ 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo", VIA_FIXUP_POWER_SAVE),
 -- 
 2.30.2
 
