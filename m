@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A09B83F5480
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACBDF3F548C
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233862AbhHXAz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 20:55:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47678 "EHLO mail.kernel.org"
+        id S234408AbhHXAze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 20:55:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233643AbhHXAzA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 20:55:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9E946140A;
-        Tue, 24 Aug 2021 00:54:15 +0000 (UTC)
+        id S233897AbhHXAzB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 20:55:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3921E6141B;
+        Tue, 24 Aug 2021 00:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629766456;
-        bh=+eEZQxjVm8xcGiVgKXT3C3Oxr9tB3gg9XaPUcH9tcgw=;
+        s=k20201202; t=1629766458;
+        bh=mSWfygBrAcGHiHALaFXdKb5REgofNVKcLCC4LuP8yU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FMwJbc5pOW5BS9VxDy/5Wzc/M+8QyAhuzaw+/Wq74DbXEfkS3G7XVhiYCYDq5kChf
-         /BiCPHvyYW6c4j7DoSXzMKSitH7rDWu1S15arg2cJSC16VswxDGhSk94PRdYcp7Er1
-         zabpHkVAY1fXh4J2Niw6Z8u6zm1IjGJzYY0PoAY/qRqV6RrWZmkeJW9AOGA42JkZbx
-         UcqXeGc1Eohp0XkNkEjUGVdNO49RE0Rje6I5HP+BYH3HL2FfdqPILKrarLtC5ltAEZ
-         AxRKBzGSWnPZr6tEGK08l2//E45BX+gEihG0+sON8fHOclgacLiYS71zhZ9868dx4y
-         3ooWeE2Kpy6Vw==
+        b=uuxrFJV4/tInBcFQRFGzFXU0b6OiD9qYsvy8vFjvHiPJ8Ih/9rZfSKI8IQGd+tm85
+         dzvMAoiUQqudrTSKqDtI7HOJcSQ2OTwzW+76OxAMedMvJwujzcUMPtwLbVnTZVPAQJ
+         eqT8L+jd4bL4NErMOGzjWdTgdKek4ZralAzlt9LFG8WzphUVmHXtaVtYYYr6Ik7ess
+         +dMB4HHTNR+xuB8NisRlpL8FMLupfCGmojmmP0TwrI8qx9qWnR76wQiQjW+WI8IB+y
+         loGVt2X5vjlRMLw80B5TLki7eSUJx7LXdO218PS9yByaSKvHPU1AG2zzXaksgKN26E
+         z5MS+wofOMN5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Kenneth Feng <kenneth.feng@amd.com>,
@@ -30,9 +30,9 @@ Cc:     Kenneth Feng <kenneth.feng@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.13 15/26] Revert "drm/amd/pm: fix workload mismatch on vega10"
-Date:   Mon, 23 Aug 2021 20:53:45 -0400
-Message-Id: <20210824005356.630888-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 16/26] drm/amd/pm: change the workload type for some cards
+Date:   Mon, 23 Aug 2021 20:53:46 -0400
+Message-Id: <20210824005356.630888-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824005356.630888-1-sashal@kernel.org>
 References: <20210824005356.630888-1-sashal@kernel.org>
@@ -46,32 +46,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kenneth Feng <kenneth.feng@amd.com>
 
-[ Upstream commit 2fd31689f9e44af949f60ff4f8aca013e628ab81 ]
+[ Upstream commit 93c5701b00d50d192ce2247cb10d6c0b3fe25cd8 ]
 
-This reverts commit 0979d43259e13846d86ba17e451e17fec185d240.
-Revert this because it does not apply to all the cards.
+change the workload type for some cards as it is needed.
 
 Signed-off-by: Kenneth Feng <kenneth.feng@amd.com>
 Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
-index 31c61ac3bd5e..f5a32654cde7 100644
+index f5a32654cde7..cc6f19a48dea 100644
 --- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
 +++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
-@@ -5160,7 +5160,7 @@ static int vega10_set_power_profile_mode(struct pp_hwmgr *hwmgr, long *input, ui
+@@ -5123,6 +5123,13 @@ static int vega10_get_power_profile_mode(struct pp_hwmgr *hwmgr, char *buf)
+ 	return size;
+ }
+ 
++static bool vega10_get_power_profile_mode_quirks(struct pp_hwmgr *hwmgr)
++{
++	struct amdgpu_device *adev = hwmgr->adev;
++
++	return (adev->pdev->device == 0x6860);
++}
++
+ static int vega10_set_power_profile_mode(struct pp_hwmgr *hwmgr, long *input, uint32_t size)
+ {
+ 	struct vega10_hwmgr *data = hwmgr->backend;
+@@ -5159,9 +5166,15 @@ static int vega10_set_power_profile_mode(struct pp_hwmgr *hwmgr, long *input, ui
+ 	}
  
  out:
- 	smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
--						(!power_profile_mode) ? 0 : 1 << (power_profile_mode - 1),
-+						1 << power_profile_mode,
+-	smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
++	if (vega10_get_power_profile_mode_quirks(hwmgr))
++		smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
+ 						1 << power_profile_mode,
  						NULL);
++	else
++		smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
++						(!power_profile_mode) ? 0 : 1 << (power_profile_mode - 1),
++						NULL);
++
  	hwmgr->power_profile_mode = power_profile_mode;
  
+ 	return 0;
 -- 
 2.30.2
 
