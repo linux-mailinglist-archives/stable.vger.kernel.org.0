@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 426D63F561F
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 04:58:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC8923F5622
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 04:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234556AbhHXC7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 22:59:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54774 "EHLO mail.kernel.org"
+        id S234579AbhHXC7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 22:59:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234227AbhHXC7G (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234184AbhHXC7G (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Aug 2021 22:59:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC9EC61248;
-        Tue, 24 Aug 2021 02:58:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62A94613B1;
+        Tue, 24 Aug 2021 02:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629773899;
-        bh=EatZb8DvglANOUSuRDJTM7s0PL8jCsi4FOmiTgW2oWE=;
+        s=k20201202; t=1629773901;
+        bh=kAL6gXunVvM1WZKbGgtL+Q+d14NqFFvMR+QOccPBkK4=;
         h=From:To:Cc:Subject:Date:From;
-        b=uHiEaP/gqo+aiN9o1clJ+jEgulLqIg4MabJoNkgFA+PT9dW5Knq1Z2R0+GwtDkdFe
-         X4uJKJHjW8yTztKJOC3lXGAAOZSpEYCM9UY+YIR4EbdccmNLFySEE7vwmtKUlaWlom
-         EA67nqyjDD+Q8S52e7NiBdJpNX+yBNu2jFcTzvbHPsm4qigMR/6IeqKOfsuOv/mTxq
-         GsDYDl5BaD29qU3ypiKBTxgtPwxZx3/ST3hmv59OLN/ei2cJIqWgvxTTJoZx5oWP4j
-         +MmMtI437o7y5PfRk4X/dspFeG9cykHFp/JEvYQFM/AHlEX18pTN1RBZyg9zyLC5Ez
-         lhRpREfxVWtLg==
+        b=InvHlOyz+uY7X/EhyayAGrnro1tdSnjrTzX8xpfc1g2F7yfc/+pZizSnSepxPUgbf
+         3YaW+6lovuuR+OoeD8KhiHlRCnigtRJz7HzSzw6brMS8DwpiGV2SYMJhZVW7U46OQA
+         4wrGJxgeWJyW0tSJ6O/jB1JsqG21rHun24uLELNyAC7K0aBPvgO2NVDi0rTEiLfm+L
+         Uqgen7mdxZJHQGxrufyI6u6dPhnQ10Jc69D2L8LmLV6YxxakVbCM2802oXVE6YYI+N
+         NaTv9fvjyHwloFzKItC0G1TSTAQVfAlLPol4wJST2cq/CrxNX3MbndOfPBw6CT2jeV
+         /A8KfYk7DaopA==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, kristin@tombom.co.uk
-Cc:     Takashi Iwai <tiwai@suse.de>, alsa-devel@alsa-project.org,
-        linux-kernel@vger.kernel.org
-Subject: FAILED: Patch "ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15 9510 laptop" failed to apply to 4.19-stable tree
-Date:   Mon, 23 Aug 2021 22:58:17 -0400
-Message-Id: <20210824025817.659050-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, kernelfans@gmail.com
+Cc:     Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: FAILED: Patch "tracing: Apply trace filters on all output channels" failed to apply to 4.19-stable tree
+Date:   Mon, 23 Aug 2021 22:58:20 -0400
+Message-Id: <20210824025820.659121-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -49,36 +48,104 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From da94692001ea45ffa1f5e9f17ecdef7aecd90c27 Mon Sep 17 00:00:00 2001
-From: Kristin Paget <kristin@tombom.co.uk>
-Date: Sat, 14 Aug 2021 15:46:05 -0700
-Subject: [PATCH] ALSA: hda/realtek: Enable 4-speaker output for Dell XPS 15
- 9510 laptop
+From 6c34df6f350df9579ce99d887a2b5fa14cc13b32 Mon Sep 17 00:00:00 2001
+From: Pingfan Liu <kernelfans@gmail.com>
+Date: Sat, 14 Aug 2021 11:45:38 +0800
+Subject: [PATCH] tracing: Apply trace filters on all output channels
 
-The 2021-model XPS 15 appears to use the same 4-speakers-on-ALC289 audio
-setup as the Precision models, so requires the same quirk to enable woofer
-output. Tested on my own 9510.
+The event filters are not applied on all of the output, which results in
+the flood of printk when using tp_printk. Unfolding
+event_trigger_unlock_commit_regs() into trace_event_buffer_commit(), so
+the filters can be applied on every output.
 
-Signed-off-by: Kristin Paget <kristin@tombom.co.uk>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/e1fc95c5-c10a-1f98-a5c2-dd6e336157e1@tombom.co.uk
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lkml.kernel.org/r/20210814034538.8428-1-kernelfans@gmail.com
+
+Cc: stable@vger.kernel.org
+Fixes: 0daa2302968c1 ("tracing: Add tp_printk cmdline to have tracepoints go to printk()")
+Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/trace/trace.c | 18 +++++++++++++++---
+ kernel/trace/trace.h | 32 --------------------------------
+ 2 files changed, 15 insertions(+), 35 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index a065260d0d20..96f32eaa24df 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8332,6 +8332,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x1028, 0x0a2e, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x0a30, "Dell", ALC236_FIXUP_DELL_AIO_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1028, 0x0a58, "Dell", ALC255_FIXUP_DELL_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1028, 0x0a61, "Dell XPS 15 9510", ALC289_FIXUP_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1028, 0x164a, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1028, 0x164b, "Dell", ALC293_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x1586, "HP", ALC269_FIXUP_HP_MUTE_LED_MIC2),
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 33899a71fdc1..a1adb29ef5c1 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2897,14 +2897,26 @@ int tracepoint_printk_sysctl(struct ctl_table *table, int write,
+ 
+ void trace_event_buffer_commit(struct trace_event_buffer *fbuffer)
+ {
++	enum event_trigger_type tt = ETT_NONE;
++	struct trace_event_file *file = fbuffer->trace_file;
++
++	if (__event_trigger_test_discard(file, fbuffer->buffer, fbuffer->event,
++			fbuffer->entry, &tt))
++		goto discard;
++
+ 	if (static_key_false(&tracepoint_printk_key.key))
+ 		output_printk(fbuffer);
+ 
+ 	if (static_branch_unlikely(&trace_event_exports_enabled))
+ 		ftrace_exports(fbuffer->event, TRACE_EXPORT_EVENT);
+-	event_trigger_unlock_commit_regs(fbuffer->trace_file, fbuffer->buffer,
+-				    fbuffer->event, fbuffer->entry,
+-				    fbuffer->trace_ctx, fbuffer->regs);
++
++	trace_buffer_unlock_commit_regs(file->tr, fbuffer->buffer,
++			fbuffer->event, fbuffer->trace_ctx, fbuffer->regs);
++
++discard:
++	if (tt)
++		event_triggers_post_call(file, tt);
++
+ }
+ EXPORT_SYMBOL_GPL(trace_event_buffer_commit);
+ 
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index a180abf76d4e..4a0e693000c6 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -1389,38 +1389,6 @@ event_trigger_unlock_commit(struct trace_event_file *file,
+ 		event_triggers_post_call(file, tt);
+ }
+ 
+-/**
+- * event_trigger_unlock_commit_regs - handle triggers and finish event commit
+- * @file: The file pointer associated with the event
+- * @buffer: The ring buffer that the event is being written to
+- * @event: The event meta data in the ring buffer
+- * @entry: The event itself
+- * @trace_ctx: The tracing context flags.
+- *
+- * This is a helper function to handle triggers that require data
+- * from the event itself. It also tests the event against filters and
+- * if the event is soft disabled and should be discarded.
+- *
+- * Same as event_trigger_unlock_commit() but calls
+- * trace_buffer_unlock_commit_regs() instead of trace_buffer_unlock_commit().
+- */
+-static inline void
+-event_trigger_unlock_commit_regs(struct trace_event_file *file,
+-				 struct trace_buffer *buffer,
+-				 struct ring_buffer_event *event,
+-				 void *entry, unsigned int trace_ctx,
+-				 struct pt_regs *regs)
+-{
+-	enum event_trigger_type tt = ETT_NONE;
+-
+-	if (!__event_trigger_test_discard(file, buffer, event, entry, &tt))
+-		trace_buffer_unlock_commit_regs(file->tr, buffer, event,
+-						trace_ctx, regs);
+-
+-	if (tt)
+-		event_triggers_post_call(file, tt);
+-}
+-
+ #define FILTER_PRED_INVALID	((unsigned short)-1)
+ #define FILTER_PRED_IS_RIGHT	(1 << 15)
+ #define FILTER_PRED_FOLD	(1 << 15)
 -- 
 2.30.2
 
