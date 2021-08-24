@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D4E43F6638
+	by mail.lfdr.de (Postfix) with ESMTP id B06EF3F6639
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:22:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238564AbhHXRVh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:21:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58930 "EHLO mail.kernel.org"
+        id S239869AbhHXRVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:21:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240673AbhHXRTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:19:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEB14611EF;
-        Tue, 24 Aug 2021 17:03:05 +0000 (UTC)
+        id S240685AbhHXRTh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:19:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC13761AED;
+        Tue, 24 Aug 2021 17:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824586;
-        bh=bdMqeNruXNSyZwU7+lLh6nBG1X8uOSUfq93Zz8T8JH0=;
+        s=k20201202; t=1629824587;
+        bh=NFA0UsF6Cg+U8it2yy5esPLYvvs8FHcEU/JTlrLO164=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j+o05xO/9XNOsc13+OUYhY0zEHAN/DcJC/Xcezx+xs6KxAwXJHB7wcX1HQNrgvuT/
-         1BJZ0ZMiNcUgC6+QfWWmqE0pmu9l/f+sqvr6DsOIFay/6Rs/STQ+4Ct7DoQnjVM0bc
-         opBBghydqcEhZuFzPO+4A+ze9sgKvqvizVeVFYL0iQXQyWuTIIG0I4EMYf+niPDXbP
-         d5T33l+vmhIBPEDpncK92lGDHTCZKPIK0nyG6mPW46mECwkHrAZMwR+xXNg3DOb9SD
-         TXh+E5yiSpyc5ShICWLb5/uw9thZwG+MznSXGESjrEfvgf4jCiFpxscLDF9sla68Jq
-         EuspPjZQCctDA==
+        b=ot3RV3dzzdbcYEO6PXUO6pwgkYvXHJGtgncf8g914dLTaG5jq406l+Ii6VQe8Yfxk
+         fVD/dDw13Po3vpVerqo49DW527GPIlTueIK/Btx6TzLpNGU+G61qYFr2dr6rCPomIg
+         cdbllxJEeb4MO60BG2S6mZC/Pjha0VhZeRD+l6RfoWHsyAjMCA80QF2zzZyKd2WDGc
+         aPqR03pR3ajhwOBEU4eABwQuxqHH1GN4wNh5AEkg9s9muQkgjaxVCP3FUAqU1b4dUM
+         uTvCMuByU5Mqo7UlV+pW2pcDh3ggSxsa3wN0zcIjLYTRWXD70eLfBQsz8pcugl7tUX
+         GZSjQ3o13t/cw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roi Dayan <roid@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
+Cc:     Takeshi Misawa <jeliantsurux@gmail.com>,
+        syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/84] psample: Add a fwd declaration for skbuff
-Date:   Tue, 24 Aug 2021 13:01:41 -0400
-Message-Id: <20210824170250.710392-16-sashal@kernel.org>
+Subject: [PATCH 4.19 16/84] net: Fix memory leak in ieee802154_raw_deliver
+Date:   Tue, 24 Aug 2021 13:01:42 -0400
+Message-Id: <20210824170250.710392-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -47,35 +50,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roi Dayan <roid@nvidia.com>
+From: Takeshi Misawa <jeliantsurux@gmail.com>
 
-[ Upstream commit beb7f2de5728b0bd2140a652fa51f6ad85d159f7 ]
+[ Upstream commit 1090340f7ee53e824fd4eef66a4855d548110c5b ]
 
-Without this there is a warning if source files include psample.h
-before skbuff.h or doesn't include it at all.
+If IEEE-802.15.4-RAW is closed before receive skb, skb is leaked.
+Fix this, by freeing sk_receive_queue in sk->sk_destruct().
 
-Fixes: 6ae0a6286171 ("net: Introduce psample, a new genetlink channel for packet sampling")
-Signed-off-by: Roi Dayan <roid@nvidia.com>
-Link: https://lore.kernel.org/r/20210808065242.1522535-1-roid@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+syzbot report:
+BUG: memory leak
+unreferenced object 0xffff88810f644600 (size 232):
+  comm "softirq", pid 0, jiffies 4294967032 (age 81.270s)
+  hex dump (first 32 bytes):
+    10 7d 4b 12 81 88 ff ff 10 7d 4b 12 81 88 ff ff  .}K......}K.....
+    00 00 00 00 00 00 00 00 40 7c 4b 12 81 88 ff ff  ........@|K.....
+  backtrace:
+    [<ffffffff83651d4a>] skb_clone+0xaa/0x2b0 net/core/skbuff.c:1496
+    [<ffffffff83fe1b80>] ieee802154_raw_deliver net/ieee802154/socket.c:369 [inline]
+    [<ffffffff83fe1b80>] ieee802154_rcv+0x100/0x340 net/ieee802154/socket.c:1070
+    [<ffffffff8367cc7a>] __netif_receive_skb_one_core+0x6a/0xa0 net/core/dev.c:5384
+    [<ffffffff8367cd07>] __netif_receive_skb+0x27/0xa0 net/core/dev.c:5498
+    [<ffffffff8367cdd9>] netif_receive_skb_internal net/core/dev.c:5603 [inline]
+    [<ffffffff8367cdd9>] netif_receive_skb+0x59/0x260 net/core/dev.c:5662
+    [<ffffffff83fe6302>] ieee802154_deliver_skb net/mac802154/rx.c:29 [inline]
+    [<ffffffff83fe6302>] ieee802154_subif_frame net/mac802154/rx.c:102 [inline]
+    [<ffffffff83fe6302>] __ieee802154_rx_handle_packet net/mac802154/rx.c:212 [inline]
+    [<ffffffff83fe6302>] ieee802154_rx+0x612/0x620 net/mac802154/rx.c:284
+    [<ffffffff83fe59a6>] ieee802154_tasklet_handler+0x86/0xa0 net/mac802154/main.c:35
+    [<ffffffff81232aab>] tasklet_action_common.constprop.0+0x5b/0x100 kernel/softirq.c:557
+    [<ffffffff846000bf>] __do_softirq+0xbf/0x2ab kernel/softirq.c:345
+    [<ffffffff81232f4c>] do_softirq kernel/softirq.c:248 [inline]
+    [<ffffffff81232f4c>] do_softirq+0x5c/0x80 kernel/softirq.c:235
+    [<ffffffff81232fc1>] __local_bh_enable_ip+0x51/0x60 kernel/softirq.c:198
+    [<ffffffff8367a9a4>] local_bh_enable include/linux/bottom_half.h:32 [inline]
+    [<ffffffff8367a9a4>] rcu_read_unlock_bh include/linux/rcupdate.h:745 [inline]
+    [<ffffffff8367a9a4>] __dev_queue_xmit+0x7f4/0xf60 net/core/dev.c:4221
+    [<ffffffff83fe2db4>] raw_sendmsg+0x1f4/0x2b0 net/ieee802154/socket.c:295
+    [<ffffffff8363af16>] sock_sendmsg_nosec net/socket.c:654 [inline]
+    [<ffffffff8363af16>] sock_sendmsg+0x56/0x80 net/socket.c:674
+    [<ffffffff8363deec>] __sys_sendto+0x15c/0x200 net/socket.c:1977
+    [<ffffffff8363dfb6>] __do_sys_sendto net/socket.c:1989 [inline]
+    [<ffffffff8363dfb6>] __se_sys_sendto net/socket.c:1985 [inline]
+    [<ffffffff8363dfb6>] __x64_sys_sendto+0x26/0x30 net/socket.c:1985
+
+Fixes: 9ec767160357 ("net: add IEEE 802.15.4 socket family implementation")
+Reported-and-tested-by: syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com
+Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210805075414.GA15796@DESKTOP
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/psample.h | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ieee802154/socket.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/psample.h b/include/net/psample.h
-index 94cb37a7bf75..796f01e5635d 100644
---- a/include/net/psample.h
-+++ b/include/net/psample.h
-@@ -18,6 +18,8 @@ struct psample_group {
- struct psample_group *psample_group_get(struct net *net, u32 group_num);
- void psample_group_put(struct psample_group *group);
+diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
+index 89819745e482..14c6fac039f9 100644
+--- a/net/ieee802154/socket.c
++++ b/net/ieee802154/socket.c
+@@ -1002,6 +1002,11 @@ static const struct proto_ops ieee802154_dgram_ops = {
+ #endif
+ };
  
-+struct sk_buff;
++static void ieee802154_sock_destruct(struct sock *sk)
++{
++	skb_queue_purge(&sk->sk_receive_queue);
++}
 +
- #if IS_ENABLED(CONFIG_PSAMPLE)
+ /* Create a socket. Initialise the socket, blank the addresses
+  * set the state.
+  */
+@@ -1042,7 +1047,7 @@ static int ieee802154_create(struct net *net, struct socket *sock,
+ 	sock->ops = ops;
  
- void psample_sample_packet(struct psample_group *group, struct sk_buff *skb,
+ 	sock_init_data(sock, sk);
+-	/* FIXME: sk->sk_destruct */
++	sk->sk_destruct = ieee802154_sock_destruct;
+ 	sk->sk_family = PF_IEEE802154;
+ 
+ 	/* Checksums on by default */
 -- 
 2.30.2
 
