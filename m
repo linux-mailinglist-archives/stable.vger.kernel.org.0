@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B12A63F6730
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:31:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 981E23F673B
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:31:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241069AbhHXRbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:31:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34270 "EHLO mail.kernel.org"
+        id S241032AbhHXRbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:31:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241463AbhHXR3U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:29:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF24161406;
-        Tue, 24 Aug 2021 17:05:30 +0000 (UTC)
+        id S241690AbhHXR3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:29:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C446E613B1;
+        Tue, 24 Aug 2021 17:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824731;
-        bh=Vvu19B4yHalICefNAcQH0OhZf60RKEY1qgHWUttZxgQ=;
+        s=k20201202; t=1629824732;
+        bh=vMhrW8544lf9t2697q+YrycaAbTA7qviK/k05MMRudg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HNU40MRECUNzVL8ToDr/OZVYvPwGaoEsWuLWicfay3uvt6aH98G632wy09FSw9ABk
-         GPouO90GWdzYpZNyeyN6LIGOATlkdi+6PPBzoQxuuHiFvkkEVhHbuxnAq+DWzprNwN
-         +LNxg3HRQzfsil8u4VD0Ao7uQvPmz1hgejZbSmREBqLtKodv8iMmg3gsAL7vMITSot
-         C8ZK21APHGYFYtk2f71brTL5D0J1woFtEq4LgiAahoYDLTCkDkzlI8RxVVS5zjov+d
-         9YiB5J/u1FX1GV9ixRmBXvGSTiBSJx+i3bvOxyydQn7u/61W37xGhOYDE8B/39rOhc
-         HVVXR4eJLrrsg==
+        b=oEsI6ctxenSOPSSIXiMs9PS6Q5ypUP412YmWZ+8BNubDeJ3BvryUlrFHF1l/bd7vh
+         FQ7oZsVAfFQTRiv9TYk94W6Z5iQMEbIXYYVJtaNB+a4K44U2NER6UdeIV60A6FPiE+
+         0FwCyiaDn8gcnO6HXXEDRip1UwFoBZOegBYDRYdh3xWWxzmo35/TqGXkyjJhdygvz7
+         TaspZaFxbYRbBxr9LMtwxoxv19a7Sc0XLYnpOyc3XEOXpjUY+tdi2gPw3k8Wfm0vKf
+         WOu1NAF7hNjtxFyq97BdO/YTUUM4ShMI4gPkxQMAi+gv2Kb5GmEDZ+ksN3k+ogf+77
+         RlcxbDrc58RJA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jouni Malinen <jouni@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 34/64] ath: Use safer key clearing with key cache entries
-Date:   Tue, 24 Aug 2021 13:04:27 -0400
-Message-Id: <20210824170457.710623-35-sashal@kernel.org>
+Subject: [PATCH 4.14 35/64] ath9k: Clear key cache explicitly on disabling hardware
+Date:   Tue, 24 Aug 2021 13:04:28 -0400
+Message-Id: <20210824170457.710623-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170457.710623-1-sashal@kernel.org>
 References: <20210824170457.710623-1-sashal@kernel.org>
@@ -52,54 +52,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jouni Malinen <jouni@codeaurora.org>
 
-commit 56c5485c9e444c2e85e11694b6c44f1338fc20fd upstream.
+commit 73488cb2fa3bb1ef9f6cf0d757f76958bd4deaca upstream.
 
-It is possible for there to be pending frames in TXQs with a reference
-to the key cache entry that is being deleted. If such a key cache entry
-is cleared, those pending frame in TXQ might get transmitted without
-proper encryption. It is safer to leave the previously used key into the
-key cache in such cases. Instead, only clear the MAC address to prevent
-RX processing from using this key cache entry.
-
-This is needed in particularly in AP mode where the TXQs cannot be
-flushed on station disconnection. This change alone may not be able to
-address all cases where the key cache entry might get reused for other
-purposes immediately (the key cache entry should be released for reuse
-only once the TXQs do not have any remaining references to them), but
-this makes it less likely to get unprotected frames and the more
-complete changes may end up being significantly more complex.
+Now that ath/key.c may not be explicitly clearing keys from the key
+cache, clear all key cache entries when disabling hardware to make sure
+no keys are left behind beyond this point.
 
 Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201214172118.18100-2-jouni@codeaurora.org
+Link: https://lore.kernel.org/r/20201214172118.18100-3-jouni@codeaurora.org
 Cc: Pali Rohár <pali@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/key.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/main.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/key.c b/drivers/net/wireless/ath/key.c
-index 1816b4e7dc26..59618bb41f6c 100644
---- a/drivers/net/wireless/ath/key.c
-+++ b/drivers/net/wireless/ath/key.c
-@@ -583,7 +583,16 @@ EXPORT_SYMBOL(ath_key_config);
-  */
- void ath_key_delete(struct ath_common *common, struct ieee80211_key_conf *key)
- {
--	ath_hw_keyreset(common, key->hw_key_idx);
-+	/* Leave CCMP and TKIP (main key) configured to avoid disabling
-+	 * encryption for potentially pending frames already in a TXQ with the
-+	 * keyix pointing to this key entry. Instead, only clear the MAC address
-+	 * to prevent RX processing from using this key cache entry.
-+	 */
-+	if (test_bit(key->hw_key_idx, common->ccmp_keymap) ||
-+	    test_bit(key->hw_key_idx, common->tkip_keymap))
-+		ath_hw_keysetmac(common, key->hw_key_idx, NULL);
-+	else
-+		ath_hw_keyreset(common, key->hw_key_idx);
- 	if (key->hw_key_idx < IEEE80211_WEP_NKID)
- 		return;
+diff --git a/drivers/net/wireless/ath/ath9k/main.c b/drivers/net/wireless/ath/ath9k/main.c
+index a678dd8035f3..63081b445f45 100644
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -895,6 +895,11 @@ static void ath9k_stop(struct ieee80211_hw *hw)
  
+ 	spin_unlock_bh(&sc->sc_pcu_lock);
+ 
++	/* Clear key cache entries explicitly to get rid of any potentially
++	 * remaining keys.
++	 */
++	ath9k_cmn_init_crypto(sc->sc_ah);
++
+ 	ath9k_ps_restore(sc);
+ 
+ 	sc->ps_idle = prev_idle;
 -- 
 2.30.2
 
