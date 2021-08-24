@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C893F6397
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FAEA3F6398
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234597AbhHXQ5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39040 "EHLO mail.kernel.org"
+        id S234662AbhHXQ5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233854AbhHXQ5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BF27611AF;
-        Tue, 24 Aug 2021 16:56:23 +0000 (UTC)
+        id S234047AbhHXQ5J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 589AA613AD;
+        Tue, 24 Aug 2021 16:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1629824184;
-        bh=ZE1n9CGxG+xYGurd3eXlT7kdR9y/DHVpGDNDZghSffY=;
+        bh=zSsqLqs9NEQ84a3pOoD9Txi9qHD9cKc7nLGQi+AM+kQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DioY95CG3IZR0GqNwa1tmgUGqfhDrdqhmjG1D8OxJoaLmHbsTGPrScsL7mpkVfbLx
-         ng19jOKgA9ZMYKNMnbcoUqSb3KZm5f6cxyplzxrfHHGJW9LkeEViRZAeL8Cxs8rzvE
-         ifVMu5pJpkMUkqbiEXeGvyDd9kDDJ+Q1zZnAJFfiWRxDF5z/i17jqHLrVYNI4iYqXj
-         ts/V3Z4RMjKaQzv+BYa7nXQKlvEM2fSdvSRzkEOX0QPD/gtzaYqbotZ97IgU6crOpA
-         1VwITeOTXD7tz13RF5eBCgEvHZ7kAs4UJEOV9AfiERL1bxJHlFTkIird8RKzLLEZ2P
-         8DRFBJkPjvACA==
+        b=PWiefn9rt/oaUuxnj2ljqXelMWEBSEmUobUi49X4ul70vB2EQGoqGyTDNncyg55CI
+         HAOFB7CqNUwXY9vtTycQIu9Sa7wuFmFwUB7fcvNlzqqNQ57Ww+I36Gj1Fmj4By+xYX
+         waQ9VT20JddGZEneuvstN7RUIaul0aptE/mBQIBpks+wFPL1trIPIofJ2J7I7MWT3c
+         CzMg0lCbo7R3f0uW9ZeCA0rXaL/5ul1eBLdzn2wROBXq8BXqABeZVnA27nDnPzoKw7
+         9SkqqBRo84f+8cg/oJWs5PUTpsSHsSoG18e6g9Ia4KPNzNx1TcJPqdFrBTf9BBLUuI
+         RyWHVuKnWsRiQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     lijinlin <lijinlin3@huawei.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Wu Bo <wubo40@huawei.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
+Cc:     Yifan Zhang <yifan1.zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 015/127] scsi: core: Fix capacity set to zero after offlinining device
-Date:   Tue, 24 Aug 2021 12:54:15 -0400
-Message-Id: <20210824165607.709387-16-sashal@kernel.org>
+Subject: [PATCH 5.13 016/127] drm/amdgpu: fix the doorbell missing when in CGPG issue for renoir.
+Date:   Tue, 24 Aug 2021 12:54:16 -0400
+Message-Id: <20210824165607.709387-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -50,55 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lijinlin <lijinlin3@huawei.com>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-[ Upstream commit f0f82e2476f6adb9c7a0135cfab8091456990c99 ]
+[ Upstream commit 1c0539a6fc8a4a4b77278e35d763073890de96b9 ]
 
-After adding physical volumes to a volume group through vgextend, the
-kernel will rescan the partitions. This in turn will cause the device
-capacity to be queried.
+If GC has entered CGPG, ringing doorbell > first page doesn't wakeup GC.
+Enlarge CP_MEC_DOORBELL_RANGE_UPPER to workaround this issue.
 
-If the device status is set to offline through sysfs at this time, READ
-CAPACITY command will return a result which the host byte is
-DID_NO_CONNECT, and the capacity of the device will be set to zero in
-read_capacity_error(). After setting device status back to running, the
-capacity of the device will remain stuck at zero.
-
-Fix this issue by rescanning device when the device state changes to
-SDEV_RUNNING.
-
-Link: https://lore.kernel.org/r/20210727034455.1494960-1-lijinlin3@huawei.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: lijinlin <lijinlin3@huawei.com>
-Signed-off-by: Wu Bo <wubo40@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_sysfs.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index 32489d25158f..ae9bfc658203 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -807,11 +807,14 @@ store_state_field(struct device *dev, struct device_attribute *attr,
- 	mutex_lock(&sdev->state_mutex);
- 	ret = scsi_device_set_state(sdev, state);
- 	/*
--	 * If the device state changes to SDEV_RUNNING, we need to run
--	 * the queue to avoid I/O hang.
-+	 * If the device state changes to SDEV_RUNNING, we need to
-+	 * rescan the device to revalidate it, and run the queue to
-+	 * avoid I/O hang.
- 	 */
--	if (ret == 0 && state == SDEV_RUNNING)
-+	if (ret == 0 && state == SDEV_RUNNING) {
-+		scsi_rescan_device(dev);
- 		blk_mq_run_hw_queues(sdev->request_queue, true);
-+	}
- 	mutex_unlock(&sdev->state_mutex);
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+index 516467e962b7..3a476b86485e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -1293,6 +1293,16 @@ static bool is_raven_kicker(struct amdgpu_device *adev)
+ 		return false;
+ }
  
- 	return ret == 0 ? count : -EINVAL;
++static bool check_if_enlarge_doorbell_range(struct amdgpu_device *adev)
++{
++	if ((adev->asic_type == CHIP_RENOIR) &&
++	    (adev->gfx.me_fw_version >= 0x000000a5) &&
++	    (adev->gfx.me_feature_version >= 52))
++		return true;
++	else
++		return false;
++}
++
+ static void gfx_v9_0_check_if_need_gfxoff(struct amdgpu_device *adev)
+ {
+ 	if (gfx_v9_0_should_disable_gfxoff(adev->pdev))
+@@ -3673,7 +3683,16 @@ static int gfx_v9_0_kiq_init_register(struct amdgpu_ring *ring)
+ 	if (ring->use_doorbell) {
+ 		WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_LOWER,
+ 					(adev->doorbell_index.kiq * 2) << 2);
+-		WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_UPPER,
++		/* If GC has entered CGPG, ringing doorbell > first page
++		 * doesn't wakeup GC. Enlarge CP_MEC_DOORBELL_RANGE_UPPER to
++		 * workaround this issue. And this change has to align with firmware
++		 * update.
++		 */
++		if (check_if_enlarge_doorbell_range(adev))
++			WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_UPPER,
++					(adev->doorbell.size - 4));
++		else
++			WREG32_SOC15(GC, 0, mmCP_MEC_DOORBELL_RANGE_UPPER,
+ 					(adev->doorbell_index.userqueue_end * 2) << 2);
+ 	}
+ 
 -- 
 2.30.2
 
