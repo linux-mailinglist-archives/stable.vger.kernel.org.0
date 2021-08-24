@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADA7F3F63B8
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:57:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBC8A3F63BB
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:57:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233954AbhHXQ56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39542 "EHLO mail.kernel.org"
+        id S234891AbhHXQ57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234194AbhHXQ51 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F022613B1;
-        Tue, 24 Aug 2021 16:56:41 +0000 (UTC)
+        id S234198AbhHXQ52 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05B39613BD;
+        Tue, 24 Aug 2021 16:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824202;
-        bh=5GkxJ/uysXH+AciU0UQE3ODT8MTstUCYeJtqNtYgWDE=;
+        s=k20201202; t=1629824203;
+        bh=t3noXGdLBRLRITPrJfjfQexRoeVHQQ0XyOD38fN0Ckk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gurek7LdcDSDTk0usj50BZzqpepgNlDm02vkekTF0+lExaYKuVsWMK3CXla7jVsC1
-         q/wNLEGYgFo2N92+kSICnmv9I0DkhaB9t7w9igDG1u9+hWChIAjGZDOZ8MEh5sHUsY
-         cjOHiSzvuThl7ZMoC9HJHhVanukQdcHtZOZEnanYtiPc5JOQuhAndNtDlxCa/6VwFF
-         x5xpQB8/AL5O6W6sVhtKqdbL+It57oZAj0oVjDZT0wGZRswo/bw4mCGOHcThkwiJG9
-         HCdr74ozvoo9IoANUlfqt3NnWtY20h5LtzyqnEnX6ai6Z3VnEyaYgMHtRspWL7sM/s
-         RNhEufMcoT5zg==
+        b=SU+rqDtIL0F2DOszCouyWRzMG+2mtOchtSogxQAhB3OOgm7MKGIqEdeK9hJKFX+7w
+         Alz2wDP3rkfkw1sZT7qrALkrUXXHlTTrIpyAg47m4fge3h4hgPmhb9JfdsgWEwlSsS
+         X+H7plaTNEPlNeQ9dowNisCfLGezNhk4JcIjpYJAKvv6UhcnTLRbpfKsZ3Lfjl0Kea
+         AMdtYbZWqaRSMyAcTTSjfqP7ipy8T84FVhKFtxLE+gL2ih3AQOgLSW2Iu57mo2VHiL
+         6pxMOblQ79wOYP4W151eaGr6XD+zi2zL9A7RqJuvBCJIj3bYR2vJE3cLQp3pKhUdah
+         QosJIuWsoXAoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Martin Kaiser <martin@kaiser.cx>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 035/127] mtd: rawnand: Fix probe failure due to of_get_nand_secure_regions()
-Date:   Tue, 24 Aug 2021 12:54:35 -0400
-Message-Id: <20210824165607.709387-36-sashal@kernel.org>
+Cc:     Maxim Kochetkov <fido_max@inbox.ru>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Saravana Kannan <saravanak@google.com>,
+        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 036/127] soc: fsl: qe: convert QE interrupt controller to platform_device
+Date:   Tue, 24 Aug 2021 12:54:36 -0400
+Message-Id: <20210824165607.709387-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -49,54 +50,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Maxim Kochetkov <fido_max@inbox.ru>
 
-[ Upstream commit b48027083a78b13356695555a05b0e085e378687 ]
+[ Upstream commit be7ecbd240b2f9ec544d3ce6fccf4cec3cd15dca ]
 
-Due to 14f97f0b8e2b, the rawnand platforms without "secure-regions"
-property defined in DT fails to probe. The issue is,
-of_get_nand_secure_regions() errors out if
-of_property_count_elems_of_size() returns a negative error code.
+Since 5.13 QE's ucc nodes can't get interrupts from devicetree:
 
-If the "secure-regions" property is not present in DT, then also we'll
-get -EINVAL from of_property_count_elems_of_size() but it should not
-be treated as an error for platforms not declaring "secure-regions"
-in DT.
+	ucc@2000 {
+		cell-index = <1>;
+		reg = <0x2000 0x200>;
+		interrupts = <32>;
+		interrupt-parent = <&qeic>;
+	};
 
-So fix this behaviour by checking for the existence of that property in
-DT and return 0 if it is not present.
+Now fw_devlink expects driver to create and probe a struct device
+for interrupt controller.
 
-Fixes: 14f97f0b8e2b ("mtd: rawnand: Add a check in of_get_nand_secure_regions()")
-Reported-by: Martin Kaiser <martin@kaiser.cx>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Martin Kaiser <martin@kaiser.cx>
-Tested-by: Martin Kaiser <martin@kaiser.cx>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210727062813.32619-1-manivannan.sadhasivam@linaro.org
+So lets convert this driver to simple platform_device with probe().
+Also use platform_get_ and devm_ family function to get/allocate
+resources and drop unused .compatible = "qeic".
+
+[1] - https://lore.kernel.org/lkml/CAGETcx9PiX==mLxB9PO8Myyk6u2vhPVwTMsA5NkD-ywH5xhusw@mail.gmail.com
+Fixes: e590474768f1 ("driver core: Set fw_devlink=on by default")
+Fixes: ea718c699055 ("Revert "Revert "driver core: Set fw_devlink=on by default""")
+Signed-off-by: Maxim Kochetkov <fido_max@inbox.ru>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Li Yang <leoyang.li@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/nand_base.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/soc/fsl/qe/qe_ic.c | 75 ++++++++++++++++++++++----------------
+ 1 file changed, 44 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
-index b18c089a7dca..4412fdc240a2 100644
---- a/drivers/mtd/nand/raw/nand_base.c
-+++ b/drivers/mtd/nand/raw/nand_base.c
-@@ -5056,8 +5056,14 @@ static bool of_get_nand_on_flash_bbt(struct device_node *np)
- static int of_get_nand_secure_regions(struct nand_chip *chip)
- {
- 	struct device_node *dn = nand_get_flash_node(chip);
-+	struct property *prop;
- 	int nr_elem, i, j;
+diff --git a/drivers/soc/fsl/qe/qe_ic.c b/drivers/soc/fsl/qe/qe_ic.c
+index 3f711c1a0996..e710d554425d 100644
+--- a/drivers/soc/fsl/qe/qe_ic.c
++++ b/drivers/soc/fsl/qe/qe_ic.c
+@@ -23,6 +23,7 @@
+ #include <linux/signal.h>
+ #include <linux/device.h>
+ #include <linux/spinlock.h>
++#include <linux/platform_device.h>
+ #include <asm/irq.h>
+ #include <asm/io.h>
+ #include <soc/fsl/qe/qe.h>
+@@ -404,41 +405,40 @@ static void qe_ic_cascade_muxed_mpic(struct irq_desc *desc)
+ 	chip->irq_eoi(&desc->irq_data);
+ }
  
-+	/* Only proceed if the "secure-regions" property is present in DT */
-+	prop = of_find_property(dn, "secure-regions", NULL);
-+	if (!prop)
-+		return 0;
+-static void __init qe_ic_init(struct device_node *node)
++static int qe_ic_init(struct platform_device *pdev)
+ {
++	struct device *dev = &pdev->dev;
+ 	void (*low_handler)(struct irq_desc *desc);
+ 	void (*high_handler)(struct irq_desc *desc);
+ 	struct qe_ic *qe_ic;
+-	struct resource res;
+-	u32 ret;
++	struct resource *res;
++	struct device_node *node = pdev->dev.of_node;
+ 
+-	ret = of_address_to_resource(node, 0, &res);
+-	if (ret)
+-		return;
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (res == NULL) {
++		dev_err(dev, "no memory resource defined\n");
++		return -ENODEV;
++	}
+ 
+-	qe_ic = kzalloc(sizeof(*qe_ic), GFP_KERNEL);
++	qe_ic = devm_kzalloc(dev, sizeof(*qe_ic), GFP_KERNEL);
+ 	if (qe_ic == NULL)
+-		return;
++		return -ENOMEM;
+ 
+-	qe_ic->irqhost = irq_domain_add_linear(node, NR_QE_IC_INTS,
+-					       &qe_ic_host_ops, qe_ic);
+-	if (qe_ic->irqhost == NULL) {
+-		kfree(qe_ic);
+-		return;
++	qe_ic->regs = devm_ioremap(dev, res->start, resource_size(res));
++	if (qe_ic->regs == NULL) {
++		dev_err(dev, "failed to ioremap() registers\n");
++		return -ENODEV;
+ 	}
+ 
+-	qe_ic->regs = ioremap(res.start, resource_size(&res));
+-
+ 	qe_ic->hc_irq = qe_ic_irq_chip;
+ 
+-	qe_ic->virq_high = irq_of_parse_and_map(node, 0);
+-	qe_ic->virq_low = irq_of_parse_and_map(node, 1);
++	qe_ic->virq_high = platform_get_irq(pdev, 0);
++	qe_ic->virq_low = platform_get_irq(pdev, 1);
+ 
+-	if (!qe_ic->virq_low) {
+-		printk(KERN_ERR "Failed to map QE_IC low IRQ\n");
+-		kfree(qe_ic);
+-		return;
++	if (qe_ic->virq_low < 0) {
++		return -ENODEV;
+ 	}
 +
- 	nr_elem = of_property_count_elems_of_size(dn, "secure-regions", sizeof(u64));
- 	if (nr_elem <= 0)
- 		return nr_elem;
+ 	if (qe_ic->virq_high != qe_ic->virq_low) {
+ 		low_handler = qe_ic_cascade_low;
+ 		high_handler = qe_ic_cascade_high;
+@@ -447,6 +447,13 @@ static void __init qe_ic_init(struct device_node *node)
+ 		high_handler = NULL;
+ 	}
+ 
++	qe_ic->irqhost = irq_domain_add_linear(node, NR_QE_IC_INTS,
++					       &qe_ic_host_ops, qe_ic);
++	if (qe_ic->irqhost == NULL) {
++		dev_err(dev, "failed to add irq domain\n");
++		return -ENODEV;
++	}
++
+ 	qe_ic_write(qe_ic->regs, QEIC_CICR, 0);
+ 
+ 	irq_set_handler_data(qe_ic->virq_low, qe_ic);
+@@ -456,20 +463,26 @@ static void __init qe_ic_init(struct device_node *node)
+ 		irq_set_handler_data(qe_ic->virq_high, qe_ic);
+ 		irq_set_chained_handler(qe_ic->virq_high, high_handler);
+ 	}
++	return 0;
+ }
++static const struct of_device_id qe_ic_ids[] = {
++	{ .compatible = "fsl,qe-ic"},
++	{ .type = "qeic"},
++	{},
++};
+ 
+-static int __init qe_ic_of_init(void)
++static struct platform_driver qe_ic_driver =
+ {
+-	struct device_node *np;
++	.driver	= {
++		.name		= "qe-ic",
++		.of_match_table	= qe_ic_ids,
++	},
++	.probe	= qe_ic_init,
++};
+ 
+-	np = of_find_compatible_node(NULL, NULL, "fsl,qe-ic");
+-	if (!np) {
+-		np = of_find_node_by_type(NULL, "qeic");
+-		if (!np)
+-			return -ENODEV;
+-	}
+-	qe_ic_init(np);
+-	of_node_put(np);
++static int __init qe_ic_of_init(void)
++{
++	platform_driver_register(&qe_ic_driver);
+ 	return 0;
+ }
+ subsys_initcall(qe_ic_of_init);
 -- 
 2.30.2
 
