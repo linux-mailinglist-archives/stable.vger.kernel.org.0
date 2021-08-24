@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64E4B3F63B7
+	by mail.lfdr.de (Postfix) with ESMTP id ADA7F3F63B8
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234184AbhHXQ55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39532 "EHLO mail.kernel.org"
+        id S233954AbhHXQ56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234778AbhHXQ50 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3203F6138B;
+        id S234194AbhHXQ51 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F022613B1;
         Tue, 24 Aug 2021 16:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824201;
-        bh=3Ivn0NdOQlS7/R3oobsU5roqVSIfAAoYr0ZRFzKsBh0=;
+        s=k20201202; t=1629824202;
+        bh=5GkxJ/uysXH+AciU0UQE3ODT8MTstUCYeJtqNtYgWDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=upqnfQIMrCEIBgD8udZh7l+Zx+CYf+Rd68czwA1BeG6seVaPDdm6muvtr9tuMJ/0T
-         l+5E4aJ8TglEbJ2xBqyiWOgYLyh/1aMCzN0eLYw2+ok27OTv0ylbxLk48Kr0AtTqRf
-         O6iVDo0z4Lc7YrZJxUnkyrQjy4wUNGGkkg7T4Kv7+37GZMiRH+yG87WxMbh6O/SKEG
-         wNXILsfaXZkWDzsKfeQSKSdqtjIVln0sce9KcRuBojQXGlAaDA9WACVYNWkD2eCS7t
-         X8iHTnOY3MR7rr1yQulD+wfZIZJf81ckFa97paAPFYNjtEgdzf3REHIDrjwfMGaVVg
-         jT8YZGghrwHWg==
+        b=Gurek7LdcDSDTk0usj50BZzqpepgNlDm02vkekTF0+lExaYKuVsWMK3CXla7jVsC1
+         q/wNLEGYgFo2N92+kSICnmv9I0DkhaB9t7w9igDG1u9+hWChIAjGZDOZ8MEh5sHUsY
+         cjOHiSzvuThl7ZMoC9HJHhVanukQdcHtZOZEnanYtiPc5JOQuhAndNtDlxCa/6VwFF
+         x5xpQB8/AL5O6W6sVhtKqdbL+It57oZAj0oVjDZT0wGZRswo/bw4mCGOHcThkwiJG9
+         HCdr74ozvoo9IoANUlfqt3NnWtY20h5LtzyqnEnX6ai6Z3VnEyaYgMHtRspWL7sM/s
+         RNhEufMcoT5zg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Kalle Valo <kvalo@codeaurora.org>,
+Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Martin Kaiser <martin@kaiser.cx>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 034/127] mt76: fix enum type mismatch
-Date:   Tue, 24 Aug 2021 12:54:34 -0400
-Message-Id: <20210824165607.709387-35-sashal@kernel.org>
+Subject: [PATCH 5.13 035/127] mtd: rawnand: Fix probe failure due to of_get_nand_secure_regions()
+Date:   Tue, 24 Aug 2021 12:54:35 -0400
+Message-Id: <20210824165607.709387-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -47,87 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit abf3d98dee7c4038152ce88833ddc2189f68cbd4 ]
+[ Upstream commit b48027083a78b13356695555a05b0e085e378687 ]
 
-There is no 'NONE' version of 'enum mcu_cipher_type', and returning
-'MT_CIPHER_NONE' causes a warning:
+Due to 14f97f0b8e2b, the rawnand platforms without "secure-regions"
+property defined in DT fails to probe. The issue is,
+of_get_nand_secure_regions() errors out if
+of_property_count_elems_of_size() returns a negative error code.
 
-drivers/net/wireless/mediatek/mt76/mt7921/mcu.c: In function 'mt7921_mcu_get_cipher':
-drivers/net/wireless/mediatek/mt76/mt7921/mcu.c:114:24: error: implicit conversion from 'enum mt76_cipher_type' to 'enum mcu_cipher_type' [-Werror=enum-conversion]
-  114 |                 return MT_CIPHER_NONE;
-      |                        ^~~~~~~~~~~~~~
+If the "secure-regions" property is not present in DT, then also we'll
+get -EINVAL from of_property_count_elems_of_size() but it should not
+be treated as an error for platforms not declaring "secure-regions"
+in DT.
 
-Add the missing MCU_CIPHER_NONE defintion that fits in here with
-the same value.
+So fix this behaviour by checking for the existence of that property in
+DT and return 0 if it is not present.
 
-Fixes: c368362c36d3 ("mt76: fix iv and CCMP header insertion")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210721150745.1914829-1-arnd@kernel.org
+Fixes: 14f97f0b8e2b ("mtd: rawnand: Add a check in of_get_nand_secure_regions()")
+Reported-by: Martin Kaiser <martin@kaiser.cx>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Martin Kaiser <martin@kaiser.cx>
+Tested-by: Martin Kaiser <martin@kaiser.cx>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210727062813.32619-1-manivannan.sadhasivam@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mcu.c | 2 +-
- drivers/net/wireless/mediatek/mt76/mt7915/mcu.h | 3 ++-
- drivers/net/wireless/mediatek/mt76/mt7921/mcu.c | 2 +-
- drivers/net/wireless/mediatek/mt76/mt7921/mcu.h | 3 ++-
- 4 files changed, 6 insertions(+), 4 deletions(-)
+ drivers/mtd/nand/raw/nand_base.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-index 607980321d27..106177072d18 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
-@@ -111,7 +111,7 @@ mt7915_mcu_get_cipher(int cipher)
- 	case WLAN_CIPHER_SUITE_SMS4:
- 		return MCU_CIPHER_WAPI;
- 	default:
--		return MT_CIPHER_NONE;
-+		return MCU_CIPHER_NONE;
- 	}
- }
+diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
+index b18c089a7dca..4412fdc240a2 100644
+--- a/drivers/mtd/nand/raw/nand_base.c
++++ b/drivers/mtd/nand/raw/nand_base.c
+@@ -5056,8 +5056,14 @@ static bool of_get_nand_on_flash_bbt(struct device_node *np)
+ static int of_get_nand_secure_regions(struct nand_chip *chip)
+ {
+ 	struct device_node *dn = nand_get_flash_node(chip);
++	struct property *prop;
+ 	int nr_elem, i, j;
  
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.h b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.h
-index 517621044d9e..c0255c3ac7d0 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.h
-@@ -1035,7 +1035,8 @@ enum {
- };
- 
- enum mcu_cipher_type {
--	MCU_CIPHER_WEP40 = 1,
-+	MCU_CIPHER_NONE = 0,
-+	MCU_CIPHER_WEP40,
- 	MCU_CIPHER_WEP104,
- 	MCU_CIPHER_WEP128,
- 	MCU_CIPHER_TKIP,
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-index 47843b055959..fc0d7dc3a5f3 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-@@ -111,7 +111,7 @@ mt7921_mcu_get_cipher(int cipher)
- 	case WLAN_CIPHER_SUITE_SMS4:
- 		return MCU_CIPHER_WAPI;
- 	default:
--		return MT_CIPHER_NONE;
-+		return MCU_CIPHER_NONE;
- 	}
- }
- 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.h b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.h
-index 07abe86f07a9..adad20819341 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.h
-@@ -198,7 +198,8 @@ struct sta_rec_sec {
- } __packed;
- 
- enum mcu_cipher_type {
--	MCU_CIPHER_WEP40 = 1,
-+	MCU_CIPHER_NONE = 0,
-+	MCU_CIPHER_WEP40,
- 	MCU_CIPHER_WEP104,
- 	MCU_CIPHER_WEP128,
- 	MCU_CIPHER_TKIP,
++	/* Only proceed if the "secure-regions" property is present in DT */
++	prop = of_find_property(dn, "secure-regions", NULL);
++	if (!prop)
++		return 0;
++
+ 	nr_elem = of_property_count_elems_of_size(dn, "secure-regions", sizeof(u64));
+ 	if (nr_elem <= 0)
+ 		return nr_elem;
 -- 
 2.30.2
 
