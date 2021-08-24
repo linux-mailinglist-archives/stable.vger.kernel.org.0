@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC8923F5622
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 04:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 766163F562F
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 04:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234579AbhHXC7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 22:59:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54814 "EHLO mail.kernel.org"
+        id S234375AbhHXC7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 22:59:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234184AbhHXC7G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 22:59:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62A94613B1;
-        Tue, 24 Aug 2021 02:58:21 +0000 (UTC)
+        id S234262AbhHXC7H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 22:59:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7A60611EF;
+        Tue, 24 Aug 2021 02:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629773901;
-        bh=kAL6gXunVvM1WZKbGgtL+Q+d14NqFFvMR+QOccPBkK4=;
+        s=k20201202; t=1629773904;
+        bh=05AyD2HAw57NY/tXoMn13DkLFf/ETc4tRXyQKjBHmQY=;
         h=From:To:Cc:Subject:Date:From;
-        b=InvHlOyz+uY7X/EhyayAGrnro1tdSnjrTzX8xpfc1g2F7yfc/+pZizSnSepxPUgbf
-         3YaW+6lovuuR+OoeD8KhiHlRCnigtRJz7HzSzw6brMS8DwpiGV2SYMJhZVW7U46OQA
-         4wrGJxgeWJyW0tSJ6O/jB1JsqG21rHun24uLELNyAC7K0aBPvgO2NVDi0rTEiLfm+L
-         Uqgen7mdxZJHQGxrufyI6u6dPhnQ10Jc69D2L8LmLV6YxxakVbCM2802oXVE6YYI+N
-         NaTv9fvjyHwloFzKItC0G1TSTAQVfAlLPol4wJST2cq/CrxNX3MbndOfPBw6CT2jeV
-         /A8KfYk7DaopA==
+        b=UpwaYs+Em0sQvSOY9qsSQb05ensQBg7n8F+pcAHPBZQVmuuuzPpk0rcKV0DKFLF8T
+         t78ZYZDdciwwh1Udb7a6bLfdUOc/pcL1wjfrqqlTKIGEF6Y9qAfjYL7T/WFmGNS0CR
+         1OC61WbfmL5sig8ifBXqf9jeuhV5iRLrzr42hU5g/vSOLf+/CpODgipGpjV9QDVHYj
+         QZ0OLRDdCMh2cx8gZyZzRxbbETWqyfvWAhHjKR6FTdjIAKdcqGVpwvC900oKWtvZsd
+         zojSePTQiIw+hlqUEfBS5+qNc5QK4AljYTTZCX6PQEeEaJkl9FI+2XIesFJt2MyPYs
+         uT1sWCoNuhnvw==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, kernelfans@gmail.com
-Cc:     Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
-Subject: FAILED: Patch "tracing: Apply trace filters on all output channels" failed to apply to 4.19-stable tree
-Date:   Mon, 23 Aug 2021 22:58:20 -0400
-Message-Id: <20210824025820.659121-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, kai.heng.feng@canonical.com
+Cc:     Takashi Iwai <tiwai@suse.de>, alsa-devel@alsa-project.org,
+        linux-kernel@vger.kernel.org
+Subject: FAILED: Patch "ALSA: hda/realtek: Limit mic boost on HP ProBook 445 G8" failed to apply to 4.19-stable tree
+Date:   Mon, 23 Aug 2021 22:58:22 -0400
+Message-Id: <20210824025822.659194-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -48,104 +49,58 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6c34df6f350df9579ce99d887a2b5fa14cc13b32 Mon Sep 17 00:00:00 2001
-From: Pingfan Liu <kernelfans@gmail.com>
-Date: Sat, 14 Aug 2021 11:45:38 +0800
-Subject: [PATCH] tracing: Apply trace filters on all output channels
+From 8903376dc69949199301b290cc22dc64ae5d8a6d Mon Sep 17 00:00:00 2001
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Date: Wed, 18 Aug 2021 22:41:18 +0800
+Subject: [PATCH] ALSA: hda/realtek: Limit mic boost on HP ProBook 445 G8
 
-The event filters are not applied on all of the output, which results in
-the flood of printk when using tp_printk. Unfolding
-event_trigger_unlock_commit_regs() into trace_event_buffer_commit(), so
-the filters can be applied on every output.
+The mic has lots of noises if mic boost is enabled. So disable mic boost
+to get crystal clear audio capture.
 
-Link: https://lkml.kernel.org/r/20210814034538.8428-1-kernelfans@gmail.com
-
-Cc: stable@vger.kernel.org
-Fixes: 0daa2302968c1 ("tracing: Add tp_printk cmdline to have tracepoints go to printk()")
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210818144119.121738-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 ---
- kernel/trace/trace.c | 18 +++++++++++++++---
- kernel/trace/trace.h | 32 --------------------------------
- 2 files changed, 15 insertions(+), 35 deletions(-)
+ sound/pci/hda/patch_realtek.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 33899a71fdc1..a1adb29ef5c1 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2897,14 +2897,26 @@ int tracepoint_printk_sysctl(struct ctl_table *table, int write,
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 96f32eaa24df..7ad689f991e7 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6658,6 +6658,7 @@ enum {
+ 	ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP,
+ 	ALC623_FIXUP_LENOVO_THINKSTATION_P340,
+ 	ALC255_FIXUP_ACER_HEADPHONE_AND_MIC,
++	ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST,
+ };
  
- void trace_event_buffer_commit(struct trace_event_buffer *fbuffer)
- {
-+	enum event_trigger_type tt = ETT_NONE;
-+	struct trace_event_file *file = fbuffer->trace_file;
-+
-+	if (__event_trigger_test_discard(file, fbuffer->buffer, fbuffer->event,
-+			fbuffer->entry, &tt))
-+		goto discard;
-+
- 	if (static_key_false(&tracepoint_printk_key.key))
- 		output_printk(fbuffer);
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -8242,6 +8243,12 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC255_FIXUP_XIAOMI_HEADSET_MIC
+ 	},
++	[ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc269_fixup_limit_int_mic_boost,
++		.chained = true,
++		.chain_id = ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
++	},
+ };
  
- 	if (static_branch_unlikely(&trace_event_exports_enabled))
- 		ftrace_exports(fbuffer->event, TRACE_EXPORT_EVENT);
--	event_trigger_unlock_commit_regs(fbuffer->trace_file, fbuffer->buffer,
--				    fbuffer->event, fbuffer->entry,
--				    fbuffer->trace_ctx, fbuffer->regs);
-+
-+	trace_buffer_unlock_commit_regs(file->tr, fbuffer->buffer,
-+			fbuffer->event, fbuffer->trace_ctx, fbuffer->regs);
-+
-+discard:
-+	if (tt)
-+		event_triggers_post_call(file, tt);
-+
- }
- EXPORT_SYMBOL_GPL(trace_event_buffer_commit);
- 
-diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
-index a180abf76d4e..4a0e693000c6 100644
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -1389,38 +1389,6 @@ event_trigger_unlock_commit(struct trace_event_file *file,
- 		event_triggers_post_call(file, tt);
- }
- 
--/**
-- * event_trigger_unlock_commit_regs - handle triggers and finish event commit
-- * @file: The file pointer associated with the event
-- * @buffer: The ring buffer that the event is being written to
-- * @event: The event meta data in the ring buffer
-- * @entry: The event itself
-- * @trace_ctx: The tracing context flags.
-- *
-- * This is a helper function to handle triggers that require data
-- * from the event itself. It also tests the event against filters and
-- * if the event is soft disabled and should be discarded.
-- *
-- * Same as event_trigger_unlock_commit() but calls
-- * trace_buffer_unlock_commit_regs() instead of trace_buffer_unlock_commit().
-- */
--static inline void
--event_trigger_unlock_commit_regs(struct trace_event_file *file,
--				 struct trace_buffer *buffer,
--				 struct ring_buffer_event *event,
--				 void *entry, unsigned int trace_ctx,
--				 struct pt_regs *regs)
--{
--	enum event_trigger_type tt = ETT_NONE;
--
--	if (!__event_trigger_test_discard(file, buffer, event, entry, &tt))
--		trace_buffer_unlock_commit_regs(file->tr, buffer, event,
--						trace_ctx, regs);
--
--	if (tt)
--		event_triggers_post_call(file, tt);
--}
--
- #define FILTER_PRED_INVALID	((unsigned short)-1)
- #define FILTER_PRED_IS_RIGHT	(1 << 15)
- #define FILTER_PRED_FOLD	(1 << 15)
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8438,8 +8445,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x8847, "HP EliteBook x360 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x884b, "HP EliteBook 840 Aero G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x884c, "HP EliteBook 840 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
+-	SND_PCI_QUIRK(0x103c, 0x8862, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
+-	SND_PCI_QUIRK(0x103c, 0x8863, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
++	SND_PCI_QUIRK(0x103c, 0x8862, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST),
++	SND_PCI_QUIRK(0x103c, 0x8863, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x103c, 0x886d, "HP ZBook Fury 17.3 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8870, "HP ZBook Fury 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8873, "HP ZBook Studio 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
 -- 
 2.30.2
 
