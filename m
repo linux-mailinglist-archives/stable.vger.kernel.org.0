@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E840E3F652F
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:09:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C60353F6536
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236525AbhHXRKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:10:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52052 "EHLO mail.kernel.org"
+        id S234514AbhHXRKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:10:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239353AbhHXRJD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:09:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D37B61A35;
-        Tue, 24 Aug 2021 17:00:18 +0000 (UTC)
+        id S239380AbhHXRJE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:09:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1975861A4F;
+        Tue, 24 Aug 2021 17:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824418;
-        bh=h4iI8qPCizwNq2s1nC5fWv27sgXvHZ9YUi+My+ND0zg=;
+        s=k20201202; t=1629824419;
+        bh=F9KU1kXUlLKMpoObCkZ7bwUTHVJgLsXCOcsbhsXwtCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sclOWyPwlTH66cJS2j6QygBi5FYmSv8x37kHaL3k1JJNGLMWPj78myEHgmtcMDz62
-         0Nqv4U4eRec0ydZL8W07jYLCM0tusRhp0X+a0CAtX4mp1ohohmzBJZJqWG6/CWGx2s
-         6u95/R9rnlmu/4MkaNzFysg3c8HSsBifj/VD9TQfPDYqaBLbSmLaO/Nn9vBv/ptE1a
-         omRx9kXF0K+edDYJIMNk9En4jC8Bk58frjdCv0ohTGBhs7TdpUb24LAX2jAVhXNdvi
-         4Fsp4MK51IHRoq8DMYUK48OiZg3mc7+xDoS5s0JutNtLIQHnkDRHC4aAnzWqg1XTbL
-         uQGc5ch7HoqKw==
+        b=ThkrL+n/Yc4rAR73U3BzeukH1iuyJvHx/ZDVKVrXSmQFm1q0MkPPQURUvANBxq+CB
+         moFQjQEEtJSwJ59/SGgiMSbAzKlWh+BNHRbDwTGWyk+yBiXOhRYlVgWmRffAl/IoTP
+         el+IuKOFbptn9DSF74WxN6RRMIeaQG5N+fTtRc2NS2w+eoQkai8oDdLkVqnnEM7B3S
+         12WtDTpBrrDyrCRFr/nbLWfc9TEqY600bGQSdco0nULCYwk7mdvcBOJejFcAh9c2Bb
+         QPqtMQ5fIOnuuVGvDJjjq9jf97NJA1g0Wwgw4V11NEq8N/j7oKgJH9gzAR2sRNZO9N
+         VgdhMdT0htIeg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hayes Wang <hayeswang@realtek.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
+        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        Dave Switzer <david.switzer@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 69/98] r8152: fix writing USB_BP2_EN
-Date:   Tue, 24 Aug 2021 12:58:39 -0400
-Message-Id: <20210824165908.709932-70-sashal@kernel.org>
+Subject: [PATCH 5.10 70/98] i40e: Fix ATR queue selection
+Date:   Tue, 24 Aug 2021 12:58:40 -0400
+Message-Id: <20210824165908.709932-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -48,34 +51,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hayes Wang <hayeswang@realtek.com>
+From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
 
-[ Upstream commit a876a33d2a1102f99fc782fefb784f4dd4841d8c ]
+[ Upstream commit a222be597e316389f9f8c26033352c124ce93056 ]
 
-The register of USB_BP2_EN is 16 bits, so we should use
-ocp_write_word(), not ocp_write_byte().
+Without this patch, ATR does not work. Receive/transmit uses queue
+selection based on SW DCB hashing method.
 
-Fixes: 9370f2d05a2a ("support request_firmware for RTL8153")
-Signed-off-by: Hayes Wang <hayeswang@realtek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+If traffic classes are not configured for PF, then use
+netdev_pick_tx function for selecting queue for packet transmission.
+Instead of calling i40e_swdcb_skb_tx_hash, call netdev_pick_tx,
+which ensures that packet is transmitted/received from CPU that is
+running the application.
+
+Reproduction steps:
+1. Load i40e driver
+2. Map each MSI interrupt of i40e port for each CPU
+3. Disable ntuple, enable ATR i.e.:
+ethtool -K $interface ntuple off
+ethtool --set-priv-flags $interface flow-director-atr
+4. Run application that is generating traffic and is bound to a
+single CPU, i.e.:
+taskset -c 9 netperf -H 1.1.1.1 -t TCP_RR -l 10
+5. Observe behavior:
+Application's traffic should be restricted to the CPU provided in
+taskset.
+
+Fixes: 89ec1f0886c1 ("i40e: Fix queue-to-TC mapping on Tx")
+Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_txrx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 105622e1defa..0bb5b1c78654 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -3432,7 +3432,7 @@ static void rtl_clear_bp(struct r8152 *tp, u16 type)
- 	case RTL_VER_09:
- 	default:
- 		if (type == MCU_TYPE_USB) {
--			ocp_write_byte(tp, MCU_TYPE_USB, USB_BP2_EN, 0);
-+			ocp_write_word(tp, MCU_TYPE_USB, USB_BP2_EN, 0);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.c b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+index 615802b07521..5ad28129fab2 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
+@@ -3556,8 +3556,7 @@ u16 i40e_lan_select_queue(struct net_device *netdev,
  
- 			ocp_write_word(tp, MCU_TYPE_USB, USB_BP_8, 0);
- 			ocp_write_word(tp, MCU_TYPE_USB, USB_BP_9, 0);
+ 	/* is DCB enabled at all? */
+ 	if (vsi->tc_config.numtc == 1)
+-		return i40e_swdcb_skb_tx_hash(netdev, skb,
+-					      netdev->real_num_tx_queues);
++		return netdev_pick_tx(netdev, skb, sb_dev);
+ 
+ 	prio = skb->priority;
+ 	hw = &vsi->back->hw;
 -- 
 2.30.2
 
