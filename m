@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D6363F6810
+	by mail.lfdr.de (Postfix) with ESMTP id 567413F6811
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239729AbhHXRkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239755AbhHXRkF (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:40:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44522 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240202AbhHXRiJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:38:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8505261BFA;
-        Tue, 24 Aug 2021 17:07:57 +0000 (UTC)
+        id S241843AbhHXRiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:38:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FE3D61BF7;
+        Tue, 24 Aug 2021 17:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824878;
-        bh=Bs25uLYLUrij4+yezHABs6V8TGXkkIOWd09X7LAQ/oQ=;
+        s=k20201202; t=1629824879;
+        bh=bggxmQ4/NIESsrzeDjUpmEdNKlfBZUPxmQySwsFCbCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHe/zYyAY36K0PaZ2+eNpzaKlftz1leZ7FraQdTebb8FvzAoGSgzNWdKidv5Vd7Ux
-         7n5Y62IzPmMi89PDoDyllO3mYJ3iHjtrpFeZhHJUkHPtp2pR46UxZjcragEJqo9HR9
-         Jzchdfij0pI3AnTkHbNKmdqu9ygBhp+Qt7EXtZrNIUL1+33i+Msnagx15c0J5I7MeK
-         QpTo7TypOF+1Sgm7fVnY4fZvHgtddKYViCsjpKB8Zymdci9+FTRSc9OzCQhAjtLXc1
-         j9enxZNrKgjoCqAclR60NEjXRbxKShFHK/jhphLrSWysZ/Df5kD045VgRNlQr1+qJJ
-         qyZiOM+SmShww==
+        b=WNGqzulNoM6bXkKTjuMLRSG0VJXOLEYixk9j62cd7VAq8bxIPOPH87wPphEz5dL9L
+         RD06m9gv6qjYTFI8fy7tlTmDWIZwFdocuTZHDJO1K+m1lzNEeL1BIbMG8bdpdiPg3N
+         Yr76VY379D6CZpz+FGBJzCUReFRufiS5Yr+Z+bWvVLsCmJWpiTJrGSJ5OFOeMojuYR
+         kU9OMokxw8cHbBB732bmnXWIp7VYhGbfCWp8awSrmFjo3wVkUtaL13SGlWX8zor4PN
+         HJ/hbnFnQkKPMQYITc93JWMPZULRvEcC7Zg8xxP958Czck5nazST7YbufsWt2D+2CN
+         bgwuR9fa9B13A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Fangrui Song <maskray@google.com>,
-        Marco Elver <elver@google.com>,
-        Kees Cook <keescook@chromium.org>,
+Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.4 14/31] vmlinux.lds.h: Handle clang's module.{c,d}tor sections
-Date:   Tue, 24 Aug 2021 13:07:26 -0400
-Message-Id: <20210824170743.710957-15-sashal@kernel.org>
+Subject: [PATCH 4.4 15/31] KVM: nSVM: avoid picking up unsupported bits from L2 in int_ctl (CVE-2021-3653)
+Date:   Tue, 24 Aug 2021 13:07:27 -0400
+Message-Id: <20210824170743.710957-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
@@ -51,54 +48,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-commit 848378812e40152abe9b9baf58ce2004f76fb988 upstream.
+[ upstream commit 0f923e07124df069ba68d8bb12324398f4b6b709 ]
 
-A recent change in LLVM causes module_{c,d}tor sections to appear when
-CONFIG_K{A,C}SAN are enabled, which results in orphan section warnings
-because these are not handled anywhere:
+* Invert the mask of bits that we pick from L2 in
+  nested_vmcb02_prepare_control
 
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_ctor) is being placed in '.text.asan.module_ctor'
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.asan.module_dtor) is being placed in '.text.asan.module_dtor'
-ld.lld: warning: arch/x86/pci/built-in.a(legacy.o):(.text.tsan.module_ctor) is being placed in '.text.tsan.module_ctor'
+* Invert and explicitly use VIRQ related bits bitmask in svm_clear_vintr
 
-Fangrui explains: "the function asan.module_ctor has the SHF_GNU_RETAIN
-flag, so it is in a separate section even with -fno-function-sections
-(default)".
+This fixes a security issue that allowed a malicious L1 to run L2 with
+AVIC enabled, which allowed the L2 to exploit the uninitialized and enabled
+AVIC to read/write the host physical memory at some offsets.
 
-Place them in the TEXT_TEXT section so that these technologies continue
-to work with the newer compiler versions. All of the KASAN and KCSAN
-KUnit tests continue to pass after this change.
-
-Cc: stable@vger.kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/1432
-Link: https://github.com/llvm/llvm-project/commit/7b789562244ee941b7bf2cefeb3fc08a59a01865
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Acked-by: Marco Elver <elver@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210731023107.1932981-1-nathan@kernel.org
-[nc: Fix conflicts due to lack of cf68fffb66d60 and 266ff2a8f51f0]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Fixes: 3d6368ef580a ("KVM: SVM: Add VMRUN handler")
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/asm-generic/vmlinux.lds.h | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/svm.h | 2 ++
+ arch/x86/kvm/svm.c         | 6 +++++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index c8535bc1826f..84c03e9647a1 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -427,6 +427,7 @@
- 		*(.text.unlikely .text.unlikely.*)			\
- 		*(.text.unknown .text.unknown.*)			\
- 		*(.ref.text)						\
-+		*(.text.asan.* .text.tsan.*)				\
- 	MEM_KEEP(init.text)						\
- 	MEM_KEEP(exit.text)						\
+diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
+index 6136d99f537b..c1adb2ed6d41 100644
+--- a/arch/x86/include/asm/svm.h
++++ b/arch/x86/include/asm/svm.h
+@@ -108,6 +108,8 @@ struct __attribute__ ((__packed__)) vmcb_control_area {
+ #define V_IGN_TPR_SHIFT 20
+ #define V_IGN_TPR_MASK (1 << V_IGN_TPR_SHIFT)
  
++#define V_IRQ_INJECTION_BITS_MASK (V_IRQ_MASK | V_INTR_PRIO_MASK | V_IGN_TPR_MASK)
++
+ #define V_INTR_MASKING_SHIFT 24
+ #define V_INTR_MASKING_MASK (1 << V_INTR_MASKING_SHIFT)
+ 
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 931acac69703..77bee73faebc 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -2564,7 +2564,11 @@ static bool nested_svm_vmrun(struct vcpu_svm *svm)
+ 	svm->nested.intercept            = nested_vmcb->control.intercept;
+ 
+ 	svm_flush_tlb(&svm->vcpu);
+-	svm->vmcb->control.int_ctl = nested_vmcb->control.int_ctl | V_INTR_MASKING_MASK;
++	svm->vmcb->control.int_ctl = nested_vmcb->control.int_ctl &
++			(V_TPR_MASK | V_IRQ_INJECTION_BITS_MASK);
++
++	svm->vmcb->control.int_ctl |= V_INTR_MASKING_MASK;
++
+ 	if (nested_vmcb->control.int_ctl & V_INTR_MASKING_MASK)
+ 		svm->vcpu.arch.hflags |= HF_VINTR_MASK;
+ 	else
 -- 
 2.30.2
 
