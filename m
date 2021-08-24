@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C08A3F6636
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:21:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E705B3F6635
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:21:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240350AbhHXRVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:21:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56438 "EHLO mail.kernel.org"
+        id S232453AbhHXRV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:21:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240625AbhHXRTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:19:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5891C61AE4;
-        Tue, 24 Aug 2021 17:03:03 +0000 (UTC)
+        id S240648AbhHXRTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:19:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B06D617E4;
+        Tue, 24 Aug 2021 17:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1629824584;
-        bh=AdB+6W+BrgRqFYWEcJ3RARVB1zXAwLFpkSeDwRHFgpQ=;
+        bh=jYQfchHXJGdsZto16OU54Weg9VmEMz6dKyN33d1miLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gkkBjpNsTm4Cux/JIQCXfz3LhQGjDqQH0CTIBk5VJnefzLzU6/3Yh9j1ij06KhAHh
-         I4urbFsGKOg8wvChnF3g45wvMAVrJ/LxMhP2Ls++eCEwh6kBVCIdkgW/wmPD9SbrcV
-         aTOXL/uv8kSPOgPPRR0FSBW3koIuceZtgjHGaEbdYl1MTES6v2XB7O48pUy6bZRRSk
-         q0z7HLZxavKVZVpceu/S2EvlmW83QkXiXOYgHggjq9n+pbu/wBocBTS3yQgiudfaS4
-         fma4sHc9b57rjBAf0YsrDJ7UHVb+cmh5HAuBVriYc44y03BsZMe4Im1BLdI29xg64F
-         s8BqDObGXr0bw==
+        b=C1WnY/ImK5KJ7hL/Zi5EIJGwwLXxOsREARgTJJ2ONaGwWuq7zJuO6qWrOTODZJQku
+         uZb5swWIbUZVmiargfYFKmj6+4xroXltoYAPPaESt8GBoDUucv90Usf4/zv9jXadK9
+         g9NXaYrcAxrmEBNNYkxLOKyttdSridl1mc3VkT6GmbfeL89HXQUwNKNc5LlxeV95nv
+         5fdcDu0/k7lr9DQvTMHYrAP3VCVH6kkMrr9IhszrTBzVKVjRUzlo97fz8uerZnVj0B
+         eROYXGLRQZqUx23eeO94aRGZW+W4rn0mo3zCNBUuicZ3xLupHXVaTNcdxj27b10wPv
+         nvIjR/wLg32PA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     DENG Qingfang <dqfext@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/84] ASoC: cs42l42: Fix LRCLK frame start edge
-Date:   Tue, 24 Aug 2021 13:01:38 -0400
-Message-Id: <20210824170250.710392-13-sashal@kernel.org>
+Subject: [PATCH 4.19 13/84] net: dsa: mt7530: add the missing RxUnicast MIB counter
+Date:   Tue, 24 Aug 2021 13:01:39 -0400
+Message-Id: <20210824170250.710392-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -48,65 +48,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: DENG Qingfang <dqfext@gmail.com>
 
-[ Upstream commit 0c2f2ad4f16a58879463d0979a54293f8f296d6f ]
+[ Upstream commit aff51c5da3208bd164381e1488998667269c6cf4 ]
 
-An I2S frame starts on the falling edge of LRCLK so ASP_STP must
-be 0.
+Add the missing RxUnicast counter.
 
-At the same time, move other format settings in the same register
-from cs42l42_pll_config() to cs42l42_set_dai_fmt() where you'd
-expect to find them, and merge into a single write.
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
-Link: https://lore.kernel.org/r/20210805161111.10410-2-rf@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: b8f126a8d543 ("net-next: dsa: add dsa support for Mediatek MT7530 switch")
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l42.c | 21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/net/dsa/mt7530.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
-index fb12fcf88878..4cb3e11c66af 100644
---- a/sound/soc/codecs/cs42l42.c
-+++ b/sound/soc/codecs/cs42l42.c
-@@ -659,15 +659,6 @@ static int cs42l42_pll_config(struct snd_soc_component *component)
- 					CS42L42_FSYNC_PULSE_WIDTH_MASK,
- 					CS42L42_FRAC1_VAL(fsync - 1) <<
- 					CS42L42_FSYNC_PULSE_WIDTH_SHIFT);
--			snd_soc_component_update_bits(component,
--					CS42L42_ASP_FRM_CFG,
--					CS42L42_ASP_5050_MASK,
--					CS42L42_ASP_5050_MASK);
--			/* Set the frame delay to 1.0 SCLK clocks */
--			snd_soc_component_update_bits(component, CS42L42_ASP_FRM_CFG,
--					CS42L42_ASP_FSD_MASK,
--					CS42L42_ASP_FSD_1_0 <<
--					CS42L42_ASP_FSD_SHIFT);
- 			/* Set the sample rates (96k or lower) */
- 			snd_soc_component_update_bits(component, CS42L42_FS_RATE_EN,
- 					CS42L42_FS_EN_MASK,
-@@ -763,6 +754,18 @@ static int cs42l42_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
- 	/* interface format */
- 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
- 	case SND_SOC_DAIFMT_I2S:
-+		/*
-+		 * 5050 mode, frame starts on falling edge of LRCLK,
-+		 * frame delayed by 1.0 SCLKs
-+		 */
-+		snd_soc_component_update_bits(component,
-+					      CS42L42_ASP_FRM_CFG,
-+					      CS42L42_ASP_STP_MASK |
-+					      CS42L42_ASP_5050_MASK |
-+					      CS42L42_ASP_FSD_MASK,
-+					      CS42L42_ASP_5050_MASK |
-+					      (CS42L42_ASP_FSD_1_0 <<
-+						CS42L42_ASP_FSD_SHIFT));
- 		break;
- 	default:
- 		return -EINVAL;
+diff --git a/drivers/net/dsa/mt7530.c b/drivers/net/dsa/mt7530.c
+index 6335c4ea0957..2ff6a0be97de 100644
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -54,6 +54,7 @@ static const struct mt7530_mib_desc mt7530_mib[] = {
+ 	MIB_DESC(2, 0x48, "TxBytes"),
+ 	MIB_DESC(1, 0x60, "RxDrop"),
+ 	MIB_DESC(1, 0x64, "RxFiltering"),
++	MIB_DESC(1, 0x68, "RxUnicast"),
+ 	MIB_DESC(1, 0x6c, "RxMulticast"),
+ 	MIB_DESC(1, 0x70, "RxBroadcast"),
+ 	MIB_DESC(1, 0x74, "RxAlignErr"),
 -- 
 2.30.2
 
