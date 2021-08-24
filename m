@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7D73F6482
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BA403F64A0
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:06:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237520AbhHXRFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:05:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45866 "EHLO mail.kernel.org"
+        id S239018AbhHXRGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233322AbhHXRCh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:02:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CE9F615A2;
+        id S238998AbhHXRCi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:02:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFDCD613E8;
         Tue, 24 Aug 2021 16:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824292;
-        bh=mTDeRg+NY7pOqvN0mODZTpMz+1lkHmEhuLA18l/dae8=;
+        s=k20201202; t=1629824293;
+        bh=2Z3S7c/lBhQsUX0OkCkzyNglGW8SQdbu3dM+7jbsjEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=inyVtPMMyCOpOEauNCinkKr3V/ClRr04dheIblkJA6YpRjkSpobMIx/5zl1NVA/gH
-         cDoFJQt1Li2UUZobXnfrGWtEsJT+YaY/yDLN2MWpUxCkjXFfyGB+exmJHK1U1AKX7F
-         3B1WNtAYhHezhWFhtm8tjAknRHqkAJTSsI8H3HB5xEw4fcQLvpN6B6wvEoiJ1Iyzt5
-         z+Kvl+It3TSjxwaGoFBYNw8beHit2IFsry1mjuw5siBYiUZGMRagBsNIvPkNzrUznr
-         uQb6QtlSFsRB4WGpJmhAqVndemG800/C9i1es5KtwGNB2rlM1DAti8V/lhWhj1kewt
-         zAzCuyrTzDybg==
+        b=E1fXrJllvEHHQe6uSSkXEFERG3iftZsOo1/fxYIGZwUlni+WvdZkcDsXkHJy6X4b0
+         fGgI4EWIKLTjh3NL1YHf45XY3gWiOiwE5Dj0UjbJKPHzp6b4ZZjzebFQkwCoXabRdZ
+         BEwOhGSyG7CaCLfJc9OsbflT7aRzAjuwIPF32LTRJYiP3tgU+7BXZ0VRXsQoW/MHaY
+         NnlOTNEkWAw0BjHkJdP0ZlLLrkRoVg7BmDgEtVo+RO2fNWZjzU5dvo13r902Fi/+uj
+         ZR6K2z1Z13Et9VATKcMxODXzb3tsZ35gjM/ccaow6T78o9CuwtXuLWuHP+Os2JNqFW
+         4OPMaDc6eUcig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 125/127] io_uring: fix xa_alloc_cycle() error return value check
-Date:   Tue, 24 Aug 2021 12:56:05 -0400
-Message-Id: <20210824165607.709387-126-sashal@kernel.org>
+Cc:     Jeff Layton <jlayton@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 126/127] fs: warn about impending deprecation of mandatory locks
+Date:   Tue, 24 Aug 2021 12:56:06 -0400
+Message-Id: <20210824165607.709387-127-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -46,43 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit a30f895ad3239f45012e860d4f94c1a388b36d14 ]
+[ Upstream commit fdd92b64d15bc4aec973caa25899afd782402e68 ]
 
-We currently check for ret != 0 to indicate error, but '1' is a valid
-return and just indicates that the allocation succeeded with a wrap.
-Correct the check to be for < 0, like it was before the xarray
-conversion.
+We've had CONFIG_MANDATORY_FILE_LOCKING since 2015 and a lot of distros
+have disabled it. Warn the stragglers that still use "-o mand" that
+we'll be dropping support for that mount option.
 
 Cc: stable@vger.kernel.org
-Fixes: 61cf93700fe6 ("io_uring: Convert personality_idr to XArray")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/namespace.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 221b80ae831f..9df82eee440a 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -9835,10 +9835,11 @@ static int io_register_personality(struct io_ring_ctx *ctx)
- 
- 	ret = xa_alloc_cyclic(&ctx->personalities, &id, (void *)creds,
- 			XA_LIMIT(0, USHRT_MAX), &ctx->pers_next, GFP_KERNEL);
--	if (!ret)
--		return id;
--	put_cred(creds);
--	return ret;
-+	if (ret < 0) {
-+		put_cred(creds);
-+		return ret;
-+	}
-+	return id;
+diff --git a/fs/namespace.c b/fs/namespace.c
+index caad091fb204..03770bae9dd5 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -1716,8 +1716,12 @@ static inline bool may_mount(void)
  }
  
- static int io_register_restrictions(struct io_ring_ctx *ctx, void __user *arg,
+ #ifdef	CONFIG_MANDATORY_FILE_LOCKING
+-static inline bool may_mandlock(void)
++static bool may_mandlock(void)
+ {
++	pr_warn_once("======================================================\n"
++		     "WARNING: the mand mount option is being deprecated and\n"
++		     "         will be removed in v5.15!\n"
++		     "======================================================\n");
+ 	return capable(CAP_SYS_ADMIN);
+ }
+ #else
 -- 
 2.30.2
 
