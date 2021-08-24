@@ -2,21 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F38B3F679E
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02C253F6874
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241515AbhHXRgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:36:19 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:36446 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240128AbhHXRbh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 13:31:37 -0400
+        id S240455AbhHXR50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:57:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40718 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240456AbhHXR5X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 13:57:23 -0400
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E806C0C1751;
+        Tue, 24 Aug 2021 10:31:04 -0700 (PDT)
 Received: from localhost.localdomain (unknown [IPv6:2600:8800:8c06:1000::c8f3])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
         (Authenticated sender: alyssa)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id D98E21F4270E;
-        Tue, 24 Aug 2021 18:30:48 +0100 (BST)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 9C5EA1F42820;
+        Tue, 24 Aug 2021 18:30:59 +0100 (BST)
 From:   Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
 To:     dri-devel@lists.freedesktop.org
 Cc:     Rob Herring <robh@kernel.org>,
@@ -26,9 +29,9 @@ Cc:     Rob Herring <robh@kernel.org>,
         David Airlie <airlied@linux.ie>,
         Daniel Vetter <daniel@ffwll.ch>, linux-kernel@vger.kernel.org,
         Chris Morgan <macromorgan@hotmail.com>, stable@vger.kernel.org
-Subject: [PATCH v2 1/4] drm/panfrost: Simplify lock_region calculation
-Date:   Tue, 24 Aug 2021 13:30:25 -0400
-Message-Id: <20210824173028.7528-2-alyssa.rosenzweig@collabora.com>
+Subject: [PATCH v2 2/4] drm/panfrost: Use u64 for size in lock_region
+Date:   Tue, 24 Aug 2021 13:30:26 -0400
+Message-Id: <20210824173028.7528-3-alyssa.rosenzweig@collabora.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824173028.7528-1-alyssa.rosenzweig@collabora.com>
 References: <20210824173028.7528-1-alyssa.rosenzweig@collabora.com>
@@ -38,62 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In lock_region, simplify the calculation of the region_width parameter.
-This field is the size, but encoded as ceil(log2(size)) - 1.
-ceil(log2(size)) may be computed directly as fls(size - 1). However, we
-want to use the 64-bit versions as the amount to lock can exceed
-32-bits.
-
-This avoids undefined (and completely wrong) behaviour when locking all
-memory (size ~0). In this case, the old code would "round up" ~0 to the
-nearest page, overflowing to 0. Since fls(0) == 0, this would calculate
-a region width of 10 + 0 = 10. But then the code would shift by
-(region_width - 11) = -1. As shifting by a negative number is undefined,
-UBSAN flags the bug. Of course, even if it were defined the behaviour is
-wrong, instead of locking all memory almost none would get locked.
-
-The new form of the calculation corrects this special case and avoids
-the undefined behaviour.
+Mali virtual addresses are 48-bit. Use a u64 instead of size_t to ensure
+we can express the "lock everything" condition as ~0ULL without
+overflow. This code was silently broken on any platform where a size_t
+is less than 48-bits; in particular, it was broken on 32-bit armv7
+platforms which remain in use with panfrost. (Mainly RK3288)
 
 Signed-off-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Reported-and-tested-by: Chris Morgan <macromorgan@hotmail.com>
+Suggested-by: Rob Herring <robh@kernel.org>
+Tested-by: Chris Morgan <macromorgan@hotmail.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
 Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
 Cc: <stable@vger.kernel.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_mmu.c | 19 +++++--------------
- 1 file changed, 5 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_mmu.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-index 0da5b3100ab1..f6e02d0392f4 100644
+index f6e02d0392f4..3a795273e505 100644
 --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
 +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -62,21 +62,12 @@ static void lock_region(struct panfrost_device *pfdev, u32 as_nr,
+@@ -58,7 +58,7 @@ static int write_cmd(struct panfrost_device *pfdev, u32 as_nr, u32 cmd)
+ }
+ 
+ static void lock_region(struct panfrost_device *pfdev, u32 as_nr,
+-			u64 iova, size_t size)
++			u64 iova, u64 size)
  {
  	u8 region_width;
  	u64 region = iova & PAGE_MASK;
--	/*
--	 * fls returns:
--	 * 1 .. 32
--	 *
--	 * 10 + fls(num_pages)
--	 * results in the range (11 .. 42)
--	 */
--
--	size = round_up(size, PAGE_SIZE);
+@@ -78,7 +78,7 @@ static void lock_region(struct panfrost_device *pfdev, u32 as_nr,
  
--	region_width = 10 + fls(size >> PAGE_SHIFT);
--	if ((size >> PAGE_SHIFT) != (1ul << (region_width - 11))) {
--		/* not pow2, so must go up to the next pow2 */
--		region_width += 1;
--	}
-+	/* The size is encoded as ceil(log2) minus(1), which may be calculated
-+	 * with fls. The size must be clamped to hardware bounds.
-+	 */
-+	size = max_t(u64, size, PAGE_SIZE);
-+	region_width = fls64(size - 1) - 1;
- 	region |= region_width;
  
- 	/* Lock the region that needs to be updated */
+ static int mmu_hw_do_operation_locked(struct panfrost_device *pfdev, int as_nr,
+-				      u64 iova, size_t size, u32 op)
++				      u64 iova, u64 size, u32 op)
+ {
+ 	if (as_nr < 0)
+ 		return 0;
+@@ -95,7 +95,7 @@ static int mmu_hw_do_operation_locked(struct panfrost_device *pfdev, int as_nr,
+ 
+ static int mmu_hw_do_operation(struct panfrost_device *pfdev,
+ 			       struct panfrost_mmu *mmu,
+-			       u64 iova, size_t size, u32 op)
++			       u64 iova, u64 size, u32 op)
+ {
+ 	int ret;
+ 
+@@ -112,7 +112,7 @@ static void panfrost_mmu_enable(struct panfrost_device *pfdev, struct panfrost_m
+ 	u64 transtab = cfg->arm_mali_lpae_cfg.transtab;
+ 	u64 memattr = cfg->arm_mali_lpae_cfg.memattr;
+ 
+-	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0UL, AS_COMMAND_FLUSH_MEM);
++	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0ULL, AS_COMMAND_FLUSH_MEM);
+ 
+ 	mmu_write(pfdev, AS_TRANSTAB_LO(as_nr), transtab & 0xffffffffUL);
+ 	mmu_write(pfdev, AS_TRANSTAB_HI(as_nr), transtab >> 32);
+@@ -128,7 +128,7 @@ static void panfrost_mmu_enable(struct panfrost_device *pfdev, struct panfrost_m
+ 
+ static void panfrost_mmu_disable(struct panfrost_device *pfdev, u32 as_nr)
+ {
+-	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0UL, AS_COMMAND_FLUSH_MEM);
++	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0ULL, AS_COMMAND_FLUSH_MEM);
+ 
+ 	mmu_write(pfdev, AS_TRANSTAB_LO(as_nr), 0);
+ 	mmu_write(pfdev, AS_TRANSTAB_HI(as_nr), 0);
+@@ -242,7 +242,7 @@ static size_t get_pgsize(u64 addr, size_t size)
+ 
+ static void panfrost_mmu_flush_range(struct panfrost_device *pfdev,
+ 				     struct panfrost_mmu *mmu,
+-				     u64 iova, size_t size)
++				     u64 iova, u64 size)
+ {
+ 	if (mmu->as < 0)
+ 		return;
 -- 
 2.30.2
 
