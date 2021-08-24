@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21E623F67B8
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:36:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0EA83F67C1
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:36:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235317AbhHXRgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:36:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39354 "EHLO mail.kernel.org"
+        id S242267AbhHXRhN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:37:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242176AbhHXRem (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:34:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E30B61BB2;
-        Tue, 24 Aug 2021 17:06:44 +0000 (UTC)
+        id S242350AbhHXRfJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:35:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3090461BBF;
+        Tue, 24 Aug 2021 17:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824804;
-        bh=DdCFrn+CyfGztriSH2JZ+AMxQnUP5WI/ieufYTal+GI=;
+        s=k20201202; t=1629824805;
+        bh=2XNBmfkXOU+krQM9YnxokQfJ96fIbLFwZ7WrGViP85Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BVTe9z51Tc6i/mob4tyE1diRsKhGF0uu8pZZKxGv8hTOcXjEl/fbGvvxoHervBAlz
-         AZwE19+Vevj2kyiZBKayLhZJBB+qdUZBn5ixZWJh4zWmpaK9CtUh2GfvAlHUqptJX3
-         KEPFHi532OhJWwid+xKbZso90Nk3mUr7s944m+Oa6JDy0R9rhBnDd/G2d9ty2J0HV7
-         S7O7Bm4J+CpBtACW+sFuZrF6n7YFziBJS8vUJf2TL8M0jJZ5LOvA5m73KEOD67KgAN
-         3HL/xTKLa1mzpEnBanCWV0Ub9G/XqyhF27xWKUBmBr0yo2cK22pMo4ITarN/Gq/Fie
-         5qRrrHGcEac7Q==
+        b=pXm1IGOZdF6nE/0224sVlal1YEzXwBsvujDtDHd3DBqFooUpVD2gYzIwT1j8HAUKf
+         jbITD7dwUyew+YmlCoMzv1zYH8ihRBm4O8iPC6EdABVn/ZUymXcb5ICmA9LVsKqjPl
+         gfQe16ZSQURlmw9vBKwc8sz7RZEm/lrUSLe/JVq8Qqb6TVQZiufL6UufsDr0Tfm05s
+         4EvNzYIK+3carIYYiUhvYbUbMFB4dMDf70xsqQr/Qhl2bA+xBLt+qfFLIIUm2HKMs/
+         En/qnAh06T0wpJ3RyGKXFj3wt6sWFIeIycVFe9RByCRZ3Aa826TmPTXt3xdqrwqhNM
+         ax6CKgj+rFchg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 29/43] ARM: dts: nomadik: Fix up interrupt controller node names
-Date:   Tue, 24 Aug 2021 13:06:00 -0400
-Message-Id: <20210824170614.710813-30-sashal@kernel.org>
+Cc:     =?UTF-8?q?Ole=20Bj=C3=B8rn=20Midtb=C3=B8?= <omidtbo@cisco.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 30/43] Bluetooth: hidp: use correct wait queue when removing ctrl_wait
+Date:   Tue, 24 Aug 2021 13:06:01 -0400
+Message-Id: <20210824170614.710813-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170614.710813-1-sashal@kernel.org>
 References: <20210824170614.710813-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.281-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.9.y
@@ -48,52 +49,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Ole Bjørn Midtbø <omidtbo@cisco.com>
 
-[ Upstream commit 47091f473b364c98207c4def197a0ae386fc9af1 ]
+[ Upstream commit cca342d98bef68151a80b024f7bf5f388d1fbdea ]
 
-Once the new schema interrupt-controller/arm,vic.yaml is added, we get
-the below warnings:
+A different wait queue was used when removing ctrl_wait than when adding
+it. This effectively made the remove operation without locking compared
+to other operations on the wait queue ctrl_wait was part of. This caused
+issues like below where dead000000000100 is LIST_POISON1 and
+dead000000000200 is LIST_POISON2.
 
-	arch/arm/boot/dts/ste-nomadik-nhk15.dt.yaml:
-	intc@10140000: $nodename:0: 'intc@10140000' does not match
-	'^interrupt-controller(@[0-9a-f,]+)*$'
+ list_add corruption. next->prev should be prev (ffffffc1b0a33a08), \
+	but was dead000000000200. (next=ffffffc03ac77de0).
+ ------------[ cut here ]------------
+ CPU: 3 PID: 2138 Comm: bluetoothd Tainted: G           O    4.4.238+ #9
+ ...
+ ---[ end trace 0adc2158f0646eac ]---
+ Call trace:
+ [<ffffffc000443f78>] __list_add+0x38/0xb0
+ [<ffffffc0000f0d04>] add_wait_queue+0x4c/0x68
+ [<ffffffc00020eecc>] __pollwait+0xec/0x100
+ [<ffffffc000d1556c>] bt_sock_poll+0x74/0x200
+ [<ffffffc000bdb8a8>] sock_poll+0x110/0x128
+ [<ffffffc000210378>] do_sys_poll+0x220/0x480
+ [<ffffffc0002106f0>] SyS_poll+0x80/0x138
+ [<ffffffc00008510c>] __sys_trace_return+0x0/0x4
 
-Fix the node names for the interrupt controller to conform
-to the standard node name interrupt-controller@..
+ Unable to handle kernel paging request at virtual address dead000000000100
+ ...
+ CPU: 4 PID: 5387 Comm: kworker/u15:3 Tainted: G        W  O    4.4.238+ #9
+ ...
+ Call trace:
+  [<ffffffc0000f079c>] __wake_up_common+0x7c/0xa8
+  [<ffffffc0000f0818>] __wake_up+0x50/0x70
+  [<ffffffc000be11b0>] sock_def_wakeup+0x58/0x60
+  [<ffffffc000de5e10>] l2cap_sock_teardown_cb+0x200/0x224
+  [<ffffffc000d3f2ac>] l2cap_chan_del+0xa4/0x298
+  [<ffffffc000d45ea0>] l2cap_conn_del+0x118/0x198
+  [<ffffffc000d45f8c>] l2cap_disconn_cfm+0x6c/0x78
+  [<ffffffc000d29934>] hci_event_packet+0x564/0x2e30
+  [<ffffffc000d19b0c>] hci_rx_work+0x10c/0x360
+  [<ffffffc0000c2218>] process_one_work+0x268/0x460
+  [<ffffffc0000c2678>] worker_thread+0x268/0x480
+  [<ffffffc0000c94e0>] kthread+0x118/0x128
+  [<ffffffc000085070>] ret_from_fork+0x10/0x20
+  ---[ end trace 0adc2158f0646ead ]---
 
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210617210825.3064367-2-sudeep.holla@arm.com
-Link: https://lore.kernel.org/r/20210626000103.830184-1-linus.walleij@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Ole Bjørn Midtbø <omidtbo@cisco.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-nomadik-stn8815.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bluetooth/hidp/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-index 1077ceebb2d6..87494773f409 100644
---- a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-+++ b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
-@@ -755,14 +755,14 @@
- 			status = "disabled";
- 		};
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index 552e00b07196..9ec37c6c8c4a 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -1282,7 +1282,7 @@ static int hidp_session_thread(void *arg)
  
--		vica: intc@10140000 {
-+		vica: interrupt-controller@10140000 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
- 			reg = <0x10140000 0x20>;
- 		};
+ 	/* cleanup runtime environment */
+ 	remove_wait_queue(sk_sleep(session->intr_sock->sk), &intr_wait);
+-	remove_wait_queue(sk_sleep(session->intr_sock->sk), &ctrl_wait);
++	remove_wait_queue(sk_sleep(session->ctrl_sock->sk), &ctrl_wait);
+ 	wake_up_interruptible(&session->report_queue);
+ 	hidp_del_timer(session);
  
--		vicb: intc@10140020 {
-+		vicb: interrupt-controller@10140020 {
- 			compatible = "arm,versatile-vic";
- 			interrupt-controller;
- 			#interrupt-cells = <1>;
 -- 
 2.30.2
 
