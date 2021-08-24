@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B06EF3F6639
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:22:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82B203F663B
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:22:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239869AbhHXRVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:21:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58932 "EHLO mail.kernel.org"
+        id S235895AbhHXRVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:21:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240685AbhHXRTh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240695AbhHXRTh (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:19:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC13761AED;
-        Tue, 24 Aug 2021 17:03:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D899A61AE0;
+        Tue, 24 Aug 2021 17:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824587;
-        bh=NFA0UsF6Cg+U8it2yy5esPLYvvs8FHcEU/JTlrLO164=;
+        s=k20201202; t=1629824588;
+        bh=XSRZczZMDIwm+A4xqV+fU4IT1lx7GL1yeLQ1bQF09Gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ot3RV3dzzdbcYEO6PXUO6pwgkYvXHJGtgncf8g914dLTaG5jq406l+Ii6VQe8Yfxk
-         fVD/dDw13Po3vpVerqo49DW527GPIlTueIK/Btx6TzLpNGU+G61qYFr2dr6rCPomIg
-         cdbllxJEeb4MO60BG2S6mZC/Pjha0VhZeRD+l6RfoWHsyAjMCA80QF2zzZyKd2WDGc
-         aPqR03pR3ajhwOBEU4eABwQuxqHH1GN4wNh5AEkg9s9muQkgjaxVCP3FUAqU1b4dUM
-         uTvCMuByU5Mqo7UlV+pW2pcDh3ggSxsa3wN0zcIjLYTRWXD70eLfBQsz8pcugl7tUX
-         GZSjQ3o13t/cw==
+        b=G09FwPx15bzFNwntPQDC3Cjo4dO36llZhvjabFRTdzmtcW0DiAQ+rLHsN6DCMhRdU
+         DjCirILAmE22rrmZnKPeIMloFYWSDlzYLNkzad5xeQQLTLbtRdsyzU382mT4hyrbE1
+         hhPIk35WHMca0RvQ4ZqICYDdDMxkA1Eohutz/5aPmvy0v/DwNZlXXEAe7CibPGp5H6
+         EaBWNFeB5ccsYqh2xTSuok1X/6719Umt2cx1xT0CWIOAqFxWM1PDo9eSsMhNQrf+Im
+         EbjcS4JIU/hmsCp9Zfj2vHYANxK6TEkrJQ4FBgspxSafIvIXMWLS5DoYMK4jvcct+i
+         IMUV5CjdUWFnQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takeshi Misawa <jeliantsurux@gmail.com>,
-        syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+Cc:     Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/84] net: Fix memory leak in ieee802154_raw_deliver
-Date:   Tue, 24 Aug 2021 13:01:42 -0400
-Message-Id: <20210824170250.710392-17-sashal@kernel.org>
+Subject: [PATCH 4.19 17/84] net: igmp: fix data-race in igmp_ifc_timer_expire()
+Date:   Tue, 24 Aug 2021 13:01:43 -0400
+Message-Id: <20210824170250.710392-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
@@ -50,85 +49,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Misawa <jeliantsurux@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 1090340f7ee53e824fd4eef66a4855d548110c5b ]
+[ Upstream commit 4a2b285e7e103d4d6c6ed3e5052a0ff74a5d7f15 ]
 
-If IEEE-802.15.4-RAW is closed before receive skb, skb is leaked.
-Fix this, by freeing sk_receive_queue in sk->sk_destruct().
+Fix the data-race reported by syzbot [1]
+Issue here is that igmp_ifc_timer_expire() can update in_dev->mr_ifc_count
+while another change just occured from another context.
 
-syzbot report:
-BUG: memory leak
-unreferenced object 0xffff88810f644600 (size 232):
-  comm "softirq", pid 0, jiffies 4294967032 (age 81.270s)
-  hex dump (first 32 bytes):
-    10 7d 4b 12 81 88 ff ff 10 7d 4b 12 81 88 ff ff  .}K......}K.....
-    00 00 00 00 00 00 00 00 40 7c 4b 12 81 88 ff ff  ........@|K.....
-  backtrace:
-    [<ffffffff83651d4a>] skb_clone+0xaa/0x2b0 net/core/skbuff.c:1496
-    [<ffffffff83fe1b80>] ieee802154_raw_deliver net/ieee802154/socket.c:369 [inline]
-    [<ffffffff83fe1b80>] ieee802154_rcv+0x100/0x340 net/ieee802154/socket.c:1070
-    [<ffffffff8367cc7a>] __netif_receive_skb_one_core+0x6a/0xa0 net/core/dev.c:5384
-    [<ffffffff8367cd07>] __netif_receive_skb+0x27/0xa0 net/core/dev.c:5498
-    [<ffffffff8367cdd9>] netif_receive_skb_internal net/core/dev.c:5603 [inline]
-    [<ffffffff8367cdd9>] netif_receive_skb+0x59/0x260 net/core/dev.c:5662
-    [<ffffffff83fe6302>] ieee802154_deliver_skb net/mac802154/rx.c:29 [inline]
-    [<ffffffff83fe6302>] ieee802154_subif_frame net/mac802154/rx.c:102 [inline]
-    [<ffffffff83fe6302>] __ieee802154_rx_handle_packet net/mac802154/rx.c:212 [inline]
-    [<ffffffff83fe6302>] ieee802154_rx+0x612/0x620 net/mac802154/rx.c:284
-    [<ffffffff83fe59a6>] ieee802154_tasklet_handler+0x86/0xa0 net/mac802154/main.c:35
-    [<ffffffff81232aab>] tasklet_action_common.constprop.0+0x5b/0x100 kernel/softirq.c:557
-    [<ffffffff846000bf>] __do_softirq+0xbf/0x2ab kernel/softirq.c:345
-    [<ffffffff81232f4c>] do_softirq kernel/softirq.c:248 [inline]
-    [<ffffffff81232f4c>] do_softirq+0x5c/0x80 kernel/softirq.c:235
-    [<ffffffff81232fc1>] __local_bh_enable_ip+0x51/0x60 kernel/softirq.c:198
-    [<ffffffff8367a9a4>] local_bh_enable include/linux/bottom_half.h:32 [inline]
-    [<ffffffff8367a9a4>] rcu_read_unlock_bh include/linux/rcupdate.h:745 [inline]
-    [<ffffffff8367a9a4>] __dev_queue_xmit+0x7f4/0xf60 net/core/dev.c:4221
-    [<ffffffff83fe2db4>] raw_sendmsg+0x1f4/0x2b0 net/ieee802154/socket.c:295
-    [<ffffffff8363af16>] sock_sendmsg_nosec net/socket.c:654 [inline]
-    [<ffffffff8363af16>] sock_sendmsg+0x56/0x80 net/socket.c:674
-    [<ffffffff8363deec>] __sys_sendto+0x15c/0x200 net/socket.c:1977
-    [<ffffffff8363dfb6>] __do_sys_sendto net/socket.c:1989 [inline]
-    [<ffffffff8363dfb6>] __se_sys_sendto net/socket.c:1985 [inline]
-    [<ffffffff8363dfb6>] __x64_sys_sendto+0x26/0x30 net/socket.c:1985
+in_dev->mr_ifc_count is only 8bit wide, so the race had little
+consequences.
 
-Fixes: 9ec767160357 ("net: add IEEE 802.15.4 socket family implementation")
-Reported-and-tested-by: syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com
-Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210805075414.GA15796@DESKTOP
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+[1]
+BUG: KCSAN: data-race in igmp_ifc_event / igmp_ifc_timer_expire
+
+write to 0xffff8881051e3062 of 1 bytes by task 12547 on cpu 0:
+ igmp_ifc_event+0x1d5/0x290 net/ipv4/igmp.c:821
+ igmp_group_added+0x462/0x490 net/ipv4/igmp.c:1356
+ ____ip_mc_inc_group+0x3ff/0x500 net/ipv4/igmp.c:1461
+ __ip_mc_join_group+0x24d/0x2c0 net/ipv4/igmp.c:2199
+ ip_mc_join_group_ssm+0x20/0x30 net/ipv4/igmp.c:2218
+ do_ip_setsockopt net/ipv4/ip_sockglue.c:1285 [inline]
+ ip_setsockopt+0x1827/0x2a80 net/ipv4/ip_sockglue.c:1423
+ tcp_setsockopt+0x8c/0xa0 net/ipv4/tcp.c:3657
+ sock_common_setsockopt+0x5d/0x70 net/core/sock.c:3362
+ __sys_setsockopt+0x18f/0x200 net/socket.c:2159
+ __do_sys_setsockopt net/socket.c:2170 [inline]
+ __se_sys_setsockopt net/socket.c:2167 [inline]
+ __x64_sys_setsockopt+0x62/0x70 net/socket.c:2167
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff8881051e3062 of 1 bytes by interrupt on cpu 1:
+ igmp_ifc_timer_expire+0x706/0xa30 net/ipv4/igmp.c:808
+ call_timer_fn+0x2e/0x1d0 kernel/time/timer.c:1419
+ expire_timers+0x135/0x250 kernel/time/timer.c:1464
+ __run_timers+0x358/0x420 kernel/time/timer.c:1732
+ run_timer_softirq+0x19/0x30 kernel/time/timer.c:1745
+ __do_softirq+0x12c/0x26e kernel/softirq.c:558
+ invoke_softirq kernel/softirq.c:432 [inline]
+ __irq_exit_rcu+0x9a/0xb0 kernel/softirq.c:636
+ sysvec_apic_timer_interrupt+0x69/0x80 arch/x86/kernel/apic/apic.c:1100
+ asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:638
+ console_unlock+0x8e8/0xb30 kernel/printk/printk.c:2646
+ vprintk_emit+0x125/0x3d0 kernel/printk/printk.c:2174
+ vprintk_default+0x22/0x30 kernel/printk/printk.c:2185
+ vprintk+0x15a/0x170 kernel/printk/printk_safe.c:392
+ printk+0x62/0x87 kernel/printk/printk.c:2216
+ selinux_netlink_send+0x399/0x400 security/selinux/hooks.c:6041
+ security_netlink_send+0x42/0x90 security/security.c:2070
+ netlink_sendmsg+0x59e/0x7c0 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:703 [inline]
+ sock_sendmsg net/socket.c:723 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2392
+ ___sys_sendmsg net/socket.c:2446 [inline]
+ __sys_sendmsg+0x1ed/0x270 net/socket.c:2475
+ __do_sys_sendmsg net/socket.c:2484 [inline]
+ __se_sys_sendmsg net/socket.c:2482 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2482
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x3d/0x90 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x01 -> 0x02
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 12539 Comm: syz-executor.1 Not tainted 5.14.0-rc4-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/socket.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/ipv4/igmp.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
-index 89819745e482..14c6fac039f9 100644
---- a/net/ieee802154/socket.c
-+++ b/net/ieee802154/socket.c
-@@ -1002,6 +1002,11 @@ static const struct proto_ops ieee802154_dgram_ops = {
- #endif
- };
+diff --git a/net/ipv4/igmp.c b/net/ipv4/igmp.c
+index ffa847fc9619..95ec3923083f 100644
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -807,10 +807,17 @@ static void igmp_gq_timer_expire(struct timer_list *t)
+ static void igmp_ifc_timer_expire(struct timer_list *t)
+ {
+ 	struct in_device *in_dev = from_timer(in_dev, t, mr_ifc_timer);
++	u8 mr_ifc_count;
  
-+static void ieee802154_sock_destruct(struct sock *sk)
-+{
-+	skb_queue_purge(&sk->sk_receive_queue);
-+}
+ 	igmpv3_send_cr(in_dev);
+-	if (in_dev->mr_ifc_count) {
+-		in_dev->mr_ifc_count--;
++restart:
++	mr_ifc_count = READ_ONCE(in_dev->mr_ifc_count);
 +
- /* Create a socket. Initialise the socket, blank the addresses
-  * set the state.
-  */
-@@ -1042,7 +1047,7 @@ static int ieee802154_create(struct net *net, struct socket *sock,
- 	sock->ops = ops;
++	if (mr_ifc_count) {
++		if (cmpxchg(&in_dev->mr_ifc_count,
++			    mr_ifc_count,
++			    mr_ifc_count - 1) != mr_ifc_count)
++			goto restart;
+ 		igmp_ifc_start_timer(in_dev,
+ 				     unsolicited_report_interval(in_dev));
+ 	}
+@@ -822,7 +829,7 @@ static void igmp_ifc_event(struct in_device *in_dev)
+ 	struct net *net = dev_net(in_dev->dev);
+ 	if (IGMP_V1_SEEN(in_dev) || IGMP_V2_SEEN(in_dev))
+ 		return;
+-	in_dev->mr_ifc_count = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
++	WRITE_ONCE(in_dev->mr_ifc_count, in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv);
+ 	igmp_ifc_start_timer(in_dev, 1);
+ }
  
- 	sock_init_data(sock, sk);
--	/* FIXME: sk->sk_destruct */
-+	sk->sk_destruct = ieee802154_sock_destruct;
- 	sk->sk_family = PF_IEEE802154;
+@@ -961,7 +968,7 @@ static bool igmp_heard_query(struct in_device *in_dev, struct sk_buff *skb,
+ 				in_dev->mr_qri;
+ 		}
+ 		/* cancel the interface change timer */
+-		in_dev->mr_ifc_count = 0;
++		WRITE_ONCE(in_dev->mr_ifc_count, 0);
+ 		if (del_timer(&in_dev->mr_ifc_timer))
+ 			__in_dev_put(in_dev);
+ 		/* clear deleted report items */
+@@ -1739,7 +1746,7 @@ void ip_mc_down(struct in_device *in_dev)
+ 		igmp_group_dropped(pmc);
  
- 	/* Checksums on by default */
+ #ifdef CONFIG_IP_MULTICAST
+-	in_dev->mr_ifc_count = 0;
++	WRITE_ONCE(in_dev->mr_ifc_count, 0);
+ 	if (del_timer(&in_dev->mr_ifc_timer))
+ 		__in_dev_put(in_dev);
+ 	in_dev->mr_gq_running = 0;
+@@ -1956,7 +1963,7 @@ static int ip_mc_del_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
+ 		pmc->sfmode = MCAST_INCLUDE;
+ #ifdef CONFIG_IP_MULTICAST
+ 		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
+-		in_dev->mr_ifc_count = pmc->crcount;
++		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
+ 		for (psf = pmc->sources; psf; psf = psf->sf_next)
+ 			psf->sf_crcount = 0;
+ 		igmp_ifc_event(pmc->interface);
+@@ -2135,7 +2142,7 @@ static int ip_mc_add_src(struct in_device *in_dev, __be32 *pmca, int sfmode,
+ 		/* else no filters; keep old mode for reports */
+ 
+ 		pmc->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
+-		in_dev->mr_ifc_count = pmc->crcount;
++		WRITE_ONCE(in_dev->mr_ifc_count, pmc->crcount);
+ 		for (psf = pmc->sources; psf; psf = psf->sf_next)
+ 			psf->sf_crcount = 0;
+ 		igmp_ifc_event(in_dev);
 -- 
 2.30.2
 
