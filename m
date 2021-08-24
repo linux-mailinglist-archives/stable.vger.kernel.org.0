@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14E513F5517
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:59:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4300E3F551A
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233536AbhHXA70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 20:59:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48618 "EHLO mail.kernel.org"
+        id S233997AbhHXA7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 20:59:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234486AbhHXA5P (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234498AbhHXA5P (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Aug 2021 20:57:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01EEC615E0;
-        Tue, 24 Aug 2021 00:55:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5E206187C;
+        Tue, 24 Aug 2021 00:55:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629766544;
-        bh=AUH35JSSsY17ol35rLqw1Deg7KdQeZy6AL5d2IXjs4Q=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IIM31lmdIrjqVySZD0b7vE6vgIm+yIlfFdy4VjeiwqgON8v+fUkXuDCBPXr0717fz
-         iOf/aVygGLxmznWhfPlZGE58/8p4jkCCVKaYl5wIgtRp1peEjTJHesIx/rJ/fyVtZR
-         w89jgF1paaqpDit2L5QQ1I6KOZGwLE5BE/tbzJJWzLpsB8tg8ZX2ZcH7amJqVWdo3s
-         CU94E318VnQ1UB41lTiDYYj7kXe3oNOn2KQ1qr1u5yfKxLS+aNfCf/GKP36KZJupW2
-         0QGhMXHrN1M5X1f5en5o9VngNQ25uwc7vzj3+MZnQnZqoF/+ncYfYY/+pgojNHoC2l
-         4ozyN7asFZAvw==
+        s=k20201202; t=1629766546;
+        bh=En1RmtZ63Bx5dbgpSDJvZol5dXvyF1o1UssfUpS+cG4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=EYoWjBg7lIUNmqZ98Gt3503RbbO+mI/yuiIn+9z2v0VrP8mk7L638SiLzdu1YNZyU
+         0K3ZDY77bxtKZ3GQTqeZoRsqwQyWpc/oOUJ6G1xYTfGzzrVLczQfMpi1G+Q9zicfAu
+         pmBRHFO3dc5cbRpR32Pxwrcgao0b2F1YGfEJ1zSMszeHNMliw1DNvI4My3cULEcBC1
+         2sBE0CqhMdENsU5h6o4qnlUif49r+GMUgkaFjj2zUe2FE4CK9SwrjEeUBioKAqUhoL
+         38IWPAjjABYqi45eD2c4rtb1J9v8xN1a0IXzVkNXg8xH12DNgyKGDS1MfpMieVBPzz
+         yss7tkLr9Cprg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gerd Rausch <gerd.rausch@oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com
-Subject: [PATCH AUTOSEL 4.9 3/3] net/rds: dma_map_sg is entitled to merge entries
-Date:   Mon, 23 Aug 2021 20:55:39 -0400
-Message-Id: <20210824005539.631820-3-sashal@kernel.org>
+Cc:     Parav Pandit <parav@nvidia.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.4 1/2] virtio: Improve vq->broken access to avoid any compiler optimization
+Date:   Mon, 23 Aug 2021 20:55:43 -0400
+Message-Id: <20210824005544.631899-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210824005539.631820-1-sashal@kernel.org>
-References: <20210824005539.631820-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,47 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Rausch <gerd.rausch@oracle.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit fb4b1373dcab086d0619c29310f0466a0b2ceb8a ]
+[ Upstream commit 60f0779862e4ab943810187752c462e85f5fa371 ]
 
-Function "dma_map_sg" is entitled to merge adjacent entries
-and return a value smaller than what was passed as "nents".
+Currently vq->broken field is read by virtqueue_is_broken() in busy
+loop in one context by virtnet_send_command().
 
-Subsequently "ib_map_mr_sg" needs to work with this value ("sg_dma_len")
-rather than the original "nents" parameter ("sg_len").
+vq->broken is set to true in other process context by
+virtio_break_device(). Reader and writer are accessing it without any
+synchronization. This may lead to a compiler optimization which may
+result to optimize reading vq->broken only once.
 
-This old RDS bug was exposed and reliably causes kernel panics
-(using RDMA operations "rds-stress -D") on x86_64 starting with:
-commit c588072bba6b ("iommu/vt-d: Convert intel iommu driver to the iommu ops")
+Hence, force reading vq->broken on each invocation of
+virtqueue_is_broken() and also force writing it so that such
+update is visible to the readers.
 
-Simply put: Linux 5.11 and later.
+It is a theoretical fix that isn't yet encountered in the field.
 
-Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Link: https://lore.kernel.org/r/60efc69f-1f35-529d-a7ef-da0549cad143@oracle.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Link: https://lore.kernel.org/r/20210721142648.1525924-2-parav@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/ib_frmr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio_ring.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/rds/ib_frmr.c b/net/rds/ib_frmr.c
-index 3d9c4c6397c3..20d045faf07c 100644
---- a/net/rds/ib_frmr.c
-+++ b/net/rds/ib_frmr.c
-@@ -112,9 +112,9 @@ static int rds_ib_post_reg_frmr(struct rds_ib_mr *ibmr)
- 		cpu_relax();
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 6b3565feddb2..b15c24c4d91f 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -840,7 +840,7 @@ bool virtqueue_is_broken(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+-	return vq->broken;
++	return READ_ONCE(vq->broken);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_is_broken);
+ 
+@@ -854,7 +854,9 @@ void virtio_break_device(struct virtio_device *dev)
+ 
+ 	list_for_each_entry(_vq, &dev->vqs, list) {
+ 		struct vring_virtqueue *vq = to_vvq(_vq);
+-		vq->broken = true;
++
++		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
++		WRITE_ONCE(vq->broken, true);
  	}
- 
--	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_len,
-+	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_dma_len,
- 				&off, PAGE_SIZE);
--	if (unlikely(ret != ibmr->sg_len))
-+	if (unlikely(ret != ibmr->sg_dma_len))
- 		return ret < 0 ? ret : -EINVAL;
- 
- 	/* Perform a WR for the fast_reg_mr. Each individual page
+ }
+ EXPORT_SYMBOL_GPL(virtio_break_device);
 -- 
 2.30.2
 
