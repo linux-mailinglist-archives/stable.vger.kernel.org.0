@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B1183F6598
+	by mail.lfdr.de (Postfix) with ESMTP id 260C83F6597
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:14:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239787AbhHXROz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238877AbhHXROz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52374 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235077AbhHXRMj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:12:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAB5861183;
-        Tue, 24 Aug 2021 17:01:21 +0000 (UTC)
+        id S235150AbhHXRMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:12:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2012615A4;
+        Tue, 24 Aug 2021 17:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824482;
-        bh=iWvU1n7Xu0JlgJ0bdwl8Mf+K9kye/OKxXwSbIDFd6S0=;
+        s=k20201202; t=1629824483;
+        bh=TKuMZoIx6DzzQUJRwV5iYDISk8/4cnAq3xXBKOyHB/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ii6GFZnfX26OH+22eslJDne3CKkuBVop00SWEjwKzkO4Ij4wRQbJYpISOdg8Segr5
-         AbN4tPrXbLzW6cg5/sFPwZ7gTujRhg1tXw+guPA5Jegunz3Bupb4FkWCJtygQNcOQi
-         L8ThiPS0uZ0CgB7M3xFVPASjdJMrUvCa3f3KFLRxdn/RYp7DEnfzK2bPcp+D4CCLla
-         H9m0NAqi1fji+mQ3LS9/Ts5MGl3YF1DnM047r189ijzIaF/YTCp4Ard/g69H3R+Zd2
-         oBZ/ulqXUsIrWFVXxkzpYudlXG6SO9Gyy6NYDfDr9KxShjsU1KkdA1IBvlP6MHnG5n
-         MZte4TqLXEFhA==
+        b=mBu33qXM7nYyeKLihUa39yCMnxC8Otli7oE5bBJkfCQsoRkwgaJ0nZ0WAkRFhzovU
+         bwLre5r60ZEZf+RKLAHip1GrbL6M59T8Mn/4EsMsEPwWL4GKmmjVar1pT18aHpBnYy
+         IPNc6H8ARKXWA/85ambiFrPcT07DVj0r10u2c8xaXk3evvCEu0KSEDZK7Rk5Otsuxy
+         IXvoDWRX+u91fXU2WgIMqLudh9aSk3m/hEHRI7SF47iUCsupcQXk/4U2ctfx6EKVDa
+         FHWWibPWzuiwVgLGtP7b+1T0xc+RTePSsVjzJ5s6shzN/w21P04ZMVuAFtcmo2+CtF
+         mtUkPGtnnB3xw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yu Kuai <yukuai3@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 14/61] dmaengine: usb-dmac: Fix PM reference leak in usb_dmac_probe()
-Date:   Tue, 24 Aug 2021 13:00:19 -0400
-Message-Id: <20210824170106.710221-15-sashal@kernel.org>
+Cc:     Dave Gerlach <d-gerlach@ti.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/61] ARM: dts: am43x-epos-evm: Reduce i2c0 bus speed for tps65218
+Date:   Tue, 24 Aug 2021 13:00:20 -0400
+Message-Id: <20210824170106.710221-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -47,38 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Dave Gerlach <d-gerlach@ti.com>
 
-[ Upstream commit 1da569fa7ec8cb0591c74aa3050d4ea1397778b4 ]
+[ Upstream commit 20a6b3fd8e2e2c063b25fbf2ee74d86b898e5087 ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by moving the error_pm label above the pm_runtime_put() in
-the error path.
+Based on the latest timing specifications for the TPS65218 from the data
+sheet, http://www.ti.com/lit/ds/symlink/tps65218.pdf, document SLDS206
+from November 2014, we must change the i2c bus speed to better fit within
+the minimum high SCL time required for proper i2c transfer.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20210706124521.1371901-1-yukuai3@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+When running at 400khz, measurements show that SCL spends
+0.8125 uS/1.666 uS high/low which violates the requirement for minimum
+high period of SCL provided in datasheet Table 7.6 which is 1 uS.
+Switching to 100khz gives us 5 uS/5 uS high/low which both fall above
+the minimum given values for 100 khz, 4.0 uS/4.7 uS high/low.
+
+Without this patch occasionally a voltage set operation from the kernel
+will appear to have worked but the actual voltage reflected on the PMIC
+will not have updated, causing problems especially with cpufreq that may
+update to a higher OPP without actually raising the voltage on DCDC2,
+leading to a hang.
+
+Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sh/usb-dmac.c | 2 +-
+ arch/arm/boot/dts/am43x-epos-evm.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/sh/usb-dmac.c b/drivers/dma/sh/usb-dmac.c
-index 8f7ceb698226..1cc06900153e 100644
---- a/drivers/dma/sh/usb-dmac.c
-+++ b/drivers/dma/sh/usb-dmac.c
-@@ -855,8 +855,8 @@ static int usb_dmac_probe(struct platform_device *pdev)
+diff --git a/arch/arm/boot/dts/am43x-epos-evm.dts b/arch/arm/boot/dts/am43x-epos-evm.dts
+index a9f191d78b54..d0ea95830d45 100644
+--- a/arch/arm/boot/dts/am43x-epos-evm.dts
++++ b/arch/arm/boot/dts/am43x-epos-evm.dts
+@@ -589,7 +589,7 @@
+ 	status = "okay";
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c0_pins>;
+-	clock-frequency = <400000>;
++	clock-frequency = <100000>;
  
- error:
- 	of_dma_controller_free(pdev->dev.of_node);
--	pm_runtime_put(&pdev->dev);
- error_pm:
-+	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	return ret;
- }
+ 	tps65218: tps65218@24 {
+ 		reg = <0x24>;
 -- 
 2.30.2
 
