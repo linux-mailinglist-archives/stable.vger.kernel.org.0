@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0CD43F6485
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:04:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23C503F6488
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:04:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234884AbhHXRFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:05:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46438 "EHLO mail.kernel.org"
+        id S234304AbhHXRFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:05:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238777AbhHXRDK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:03:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB8B0613D2;
-        Tue, 24 Aug 2021 16:59:13 +0000 (UTC)
+        id S238824AbhHXRDL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:03:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3CCD613E6;
+        Tue, 24 Aug 2021 16:59:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824354;
-        bh=5ZrJiw/X1PzG/bQGZW9mUybt9PahL4Zffn1nD7EIwH0=;
+        s=k20201202; t=1629824355;
+        bh=zLibVpV21IW3HVRbT++x8PzePun8ys/u21YDL6Dg448=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DRNA3ak9MmOrY9OYW1iyF6F54i4XBiIgZf/Y65Rzgx2J/Ddxg4VtnWRPDcZVe4lEE
-         DQNFjCDPPE8HQepbjUYrqJHW8H1tAteXdI4QWPx/AFBTBobuRxsrp/CwgIBDQxrwrK
-         BuJd3H7fIr0NjazwOW1Yzw7haOh1AYSB641JvKyjPILAYraYPzX5NC+JfJN90QU3J3
-         Ffk/ReJWB5ufTF+AElz9Wqq8Qjdy/8GnbOAtBq+Ifcaigeuy8B9t6zXVqhfOCBNUKy
-         lutKwJLasHU9MwZ1jZAZUP6Pf2Uy7CNLQFwdcFZtQ9w84rfKN1VN03RaiFqOddQp8B
-         Lx2y6gal4VtFQ==
+        b=TTEC95ezLrMuRMhob19M3EnWBE/vND5i9zENAH6yvjdDU3RFOy/3tOQOerLcSfC5O
+         rP11QGX56bo+mmMOUviBYChQHZW3iqSFAKJEd35Y164upm3KBIZxyFoxovIW9vc0d0
+         K3On93XFQK+LV7S7agfUVAf+P3oB+TtrkRJcTvTaZTN0v5wGAIqkSbKo1/xC4Gw0KZ
+         GKavPJb/2sr1HLz2hIw1G+zwG+MK0ER5WjSxpf2My3nm/JiB3h5H3+CnuNzP8BRZ1j
+         urXDZeXQNb8Y7euEPhBP+++YNVLMYGpvTi4L8Cu9rcXBdt8fHYAtMAWjrmZQsK6Re/
+         Pdtq19rC5baEA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jouni Malinen <jouni@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.10 04/98] ath: Modify ath_key_delete() to not need full key entry
-Date:   Tue, 24 Aug 2021 12:57:34 -0400
-Message-Id: <20210824165908.709932-5-sashal@kernel.org>
+Subject: [PATCH 5.10 05/98] ath9k: Postpone key cache entry deletion for TXQ frames reference it
+Date:   Tue, 24 Aug 2021 12:57:35 -0400
+Message-Id: <20210824165908.709932-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -52,153 +52,165 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jouni Malinen <jouni@codeaurora.org>
 
-commit 144cd24dbc36650a51f7fe3bf1424a1432f1f480 upstream.
+commit ca2848022c12789685d3fab3227df02b863f9696 upstream.
 
-tkip_keymap can be used internally to avoid the reference to key->cipher
-and with this, only the key index value itself is needed. This allows
-ath_key_delete() call to be postponed to be handled after the upper
-layer STA and key entry have already been removed. This is needed to
-make ath9k key cache management safer.
+Do not delete a key cache entry that is still being referenced by
+pending frames in TXQs. This avoids reuse of the key cache entry while a
+frame might still be transmitted using it.
+
+To avoid having to do any additional operations during the main TX path
+operations, track pending key cache entries in a new bitmap and check
+whether any pending entries can be deleted before every new key
+add/remove operation. Also clear any remaining entries when stopping the
+interface.
 
 Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201214172118.18100-5-jouni@codeaurora.org
+Link: https://lore.kernel.org/r/20201214172118.18100-6-jouni@codeaurora.org
 Cc: Pali Rohár <pali@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath.h                |  2 +-
- drivers/net/wireless/ath/ath5k/mac80211-ops.c |  2 +-
- drivers/net/wireless/ath/ath9k/htc_drv_main.c |  2 +-
- drivers/net/wireless/ath/ath9k/main.c         |  5 ++-
- drivers/net/wireless/ath/key.c                | 34 +++++++++----------
- 5 files changed, 22 insertions(+), 23 deletions(-)
+ drivers/net/wireless/ath/ath9k/hw.h   |  1 +
+ drivers/net/wireless/ath/ath9k/main.c | 87 ++++++++++++++++++++++++++-
+ 2 files changed, 87 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath.h b/drivers/net/wireless/ath/ath.h
-index 9d18105c449f..f083fb9038c3 100644
---- a/drivers/net/wireless/ath/ath.h
-+++ b/drivers/net/wireless/ath/ath.h
-@@ -197,7 +197,7 @@ struct sk_buff *ath_rxbuf_alloc(struct ath_common *common,
- bool ath_is_mybeacon(struct ath_common *common, struct ieee80211_hdr *hdr);
+diff --git a/drivers/net/wireless/ath/ath9k/hw.h b/drivers/net/wireless/ath/ath9k/hw.h
+index 023599e10dd5..b7b65b1c90e8 100644
+--- a/drivers/net/wireless/ath/ath9k/hw.h
++++ b/drivers/net/wireless/ath/ath9k/hw.h
+@@ -820,6 +820,7 @@ struct ath_hw {
+ 	struct ath9k_pacal_info pacal_info;
+ 	struct ar5416Stats stats;
+ 	struct ath9k_tx_queue_info txq[ATH9K_NUM_TX_QUEUES];
++	DECLARE_BITMAP(pending_del_keymap, ATH_KEYMAX);
  
- void ath_hw_setbssidmask(struct ath_common *common);
--void ath_key_delete(struct ath_common *common, struct ieee80211_key_conf *key);
-+void ath_key_delete(struct ath_common *common, u8 hw_key_idx);
- int ath_key_config(struct ath_common *common,
- 			  struct ieee80211_vif *vif,
- 			  struct ieee80211_sta *sta,
-diff --git a/drivers/net/wireless/ath/ath5k/mac80211-ops.c b/drivers/net/wireless/ath/ath5k/mac80211-ops.c
-index 5e866a193ed0..d065600791c1 100644
---- a/drivers/net/wireless/ath/ath5k/mac80211-ops.c
-+++ b/drivers/net/wireless/ath/ath5k/mac80211-ops.c
-@@ -521,7 +521,7 @@ ath5k_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
- 		}
- 		break;
- 	case DISABLE_KEY:
--		ath_key_delete(common, key);
-+		ath_key_delete(common, key->hw_key_idx);
- 		break;
- 	default:
- 		ret = -EINVAL;
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_main.c b/drivers/net/wireless/ath/ath9k/htc_drv_main.c
-index 2b7832b1c800..72ef319feeda 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_main.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_main.c
-@@ -1461,7 +1461,7 @@ static int ath9k_htc_set_key(struct ieee80211_hw *hw,
- 		}
- 		break;
- 	case DISABLE_KEY:
--		ath_key_delete(common, key);
-+		ath_key_delete(common, key->hw_key_idx);
- 		break;
- 	default:
- 		ret = -EINVAL;
+ 	enum ath9k_int imask;
+ 	u32 imrs2_reg;
 diff --git a/drivers/net/wireless/ath/ath9k/main.c b/drivers/net/wireless/ath/ath9k/main.c
-index 7d933fd8e5bb..9fd3dc66d17a 100644
+index 9fd3dc66d17a..5739c1dbf166 100644
 --- a/drivers/net/wireless/ath/ath9k/main.c
 +++ b/drivers/net/wireless/ath/ath9k/main.c
-@@ -1553,12 +1553,11 @@ static void ath9k_del_ps_key(struct ath_softc *sc,
- {
- 	struct ath_common *common = ath9k_hw_common(sc->sc_ah);
- 	struct ath_node *an = (struct ath_node *) sta->drv_priv;
--	struct ieee80211_key_conf ps_key = { .hw_key_idx = an->ps_key };
- 
- 	if (!an->ps_key)
- 	    return;
- 
--	ath_key_delete(common, &ps_key);
-+	ath_key_delete(common, an->ps_key);
- 	an->ps_key = 0;
- 	an->key_idx[0] = 0;
+@@ -826,12 +826,80 @@ exit:
+ 	ieee80211_free_txskb(hw, skb);
  }
-@@ -1758,7 +1757,7 @@ static int ath9k_set_key(struct ieee80211_hw *hw,
+ 
++static bool ath9k_txq_list_has_key(struct list_head *txq_list, u32 keyix)
++{
++	struct ath_buf *bf;
++	struct ieee80211_tx_info *txinfo;
++	struct ath_frame_info *fi;
++
++	list_for_each_entry(bf, txq_list, list) {
++		if (bf->bf_state.stale || !bf->bf_mpdu)
++			continue;
++
++		txinfo = IEEE80211_SKB_CB(bf->bf_mpdu);
++		fi = (struct ath_frame_info *)&txinfo->rate_driver_data[0];
++		if (fi->keyix == keyix)
++			return true;
++	}
++
++	return false;
++}
++
++static bool ath9k_txq_has_key(struct ath_softc *sc, u32 keyix)
++{
++	struct ath_hw *ah = sc->sc_ah;
++	int i;
++	struct ath_txq *txq;
++	bool key_in_use = false;
++
++	for (i = 0; !key_in_use && i < ATH9K_NUM_TX_QUEUES; i++) {
++		if (!ATH_TXQ_SETUP(sc, i))
++			continue;
++		txq = &sc->tx.txq[i];
++		if (!txq->axq_depth)
++			continue;
++		if (!ath9k_hw_numtxpending(ah, txq->axq_qnum))
++			continue;
++
++		ath_txq_lock(sc, txq);
++		key_in_use = ath9k_txq_list_has_key(&txq->axq_q, keyix);
++		if (sc->sc_ah->caps.hw_caps & ATH9K_HW_CAP_EDMA) {
++			int idx = txq->txq_tailidx;
++
++			while (!key_in_use &&
++			       !list_empty(&txq->txq_fifo[idx])) {
++				key_in_use = ath9k_txq_list_has_key(
++					&txq->txq_fifo[idx], keyix);
++				INCR(idx, ATH_TXFIFO_DEPTH);
++			}
++		}
++		ath_txq_unlock(sc, txq);
++	}
++
++	return key_in_use;
++}
++
++static void ath9k_pending_key_del(struct ath_softc *sc, u8 keyix)
++{
++	struct ath_hw *ah = sc->sc_ah;
++	struct ath_common *common = ath9k_hw_common(ah);
++
++	if (!test_bit(keyix, ah->pending_del_keymap) ||
++	    ath9k_txq_has_key(sc, keyix))
++		return;
++
++	/* No more TXQ frames point to this key cache entry, so delete it. */
++	clear_bit(keyix, ah->pending_del_keymap);
++	ath_key_delete(common, keyix);
++}
++
+ static void ath9k_stop(struct ieee80211_hw *hw)
+ {
+ 	struct ath_softc *sc = hw->priv;
+ 	struct ath_hw *ah = sc->sc_ah;
+ 	struct ath_common *common = ath9k_hw_common(ah);
+ 	bool prev_idle;
++	int i;
+ 
+ 	ath9k_deinit_channel_context(sc);
+ 
+@@ -899,6 +967,9 @@ static void ath9k_stop(struct ieee80211_hw *hw)
+ 
+ 	spin_unlock_bh(&sc->sc_pcu_lock);
+ 
++	for (i = 0; i < ATH_KEYMAX; i++)
++		ath9k_pending_key_del(sc, i);
++
+ 	/* Clear key cache entries explicitly to get rid of any potentially
+ 	 * remaining keys.
+ 	 */
+@@ -1728,6 +1799,12 @@ static int ath9k_set_key(struct ieee80211_hw *hw,
+ 	if (sta)
+ 		an = (struct ath_node *)sta->drv_priv;
+ 
++	/* Delete pending key cache entries if no more frames are pointing to
++	 * them in TXQs.
++	 */
++	for (i = 0; i < ATH_KEYMAX; i++)
++		ath9k_pending_key_del(sc, i);
++
+ 	switch (cmd) {
+ 	case SET_KEY:
+ 		if (sta)
+@@ -1757,7 +1834,15 @@ static int ath9k_set_key(struct ieee80211_hw *hw,
  		}
  		break;
  	case DISABLE_KEY:
--		ath_key_delete(common, key);
-+		ath_key_delete(common, key->hw_key_idx);
+-		ath_key_delete(common, key->hw_key_idx);
++		if (ath9k_txq_has_key(sc, key->hw_key_idx)) {
++			/* Delay key cache entry deletion until there are no
++			 * remaining TXQ frames pointing to this entry.
++			 */
++			set_bit(key->hw_key_idx, sc->sc_ah->pending_del_keymap);
++			ath_hw_keysetmac(common, key->hw_key_idx, NULL);
++		} else {
++			ath_key_delete(common, key->hw_key_idx);
++		}
  		if (an) {
  			for (i = 0; i < ARRAY_SIZE(an->key_idx); i++) {
  				if (an->key_idx[i] != key->hw_key_idx)
-diff --git a/drivers/net/wireless/ath/key.c b/drivers/net/wireless/ath/key.c
-index cb266cf3c77c..61b59a804e30 100644
---- a/drivers/net/wireless/ath/key.c
-+++ b/drivers/net/wireless/ath/key.c
-@@ -581,38 +581,38 @@ EXPORT_SYMBOL(ath_key_config);
- /*
-  * Delete Key.
-  */
--void ath_key_delete(struct ath_common *common, struct ieee80211_key_conf *key)
-+void ath_key_delete(struct ath_common *common, u8 hw_key_idx)
- {
- 	/* Leave CCMP and TKIP (main key) configured to avoid disabling
- 	 * encryption for potentially pending frames already in a TXQ with the
- 	 * keyix pointing to this key entry. Instead, only clear the MAC address
- 	 * to prevent RX processing from using this key cache entry.
- 	 */
--	if (test_bit(key->hw_key_idx, common->ccmp_keymap) ||
--	    test_bit(key->hw_key_idx, common->tkip_keymap))
--		ath_hw_keysetmac(common, key->hw_key_idx, NULL);
-+	if (test_bit(hw_key_idx, common->ccmp_keymap) ||
-+	    test_bit(hw_key_idx, common->tkip_keymap))
-+		ath_hw_keysetmac(common, hw_key_idx, NULL);
- 	else
--		ath_hw_keyreset(common, key->hw_key_idx);
--	if (key->hw_key_idx < IEEE80211_WEP_NKID)
-+		ath_hw_keyreset(common, hw_key_idx);
-+	if (hw_key_idx < IEEE80211_WEP_NKID)
- 		return;
- 
--	clear_bit(key->hw_key_idx, common->keymap);
--	clear_bit(key->hw_key_idx, common->ccmp_keymap);
--	if (key->cipher != WLAN_CIPHER_SUITE_TKIP)
-+	clear_bit(hw_key_idx, common->keymap);
-+	clear_bit(hw_key_idx, common->ccmp_keymap);
-+	if (!test_bit(hw_key_idx, common->tkip_keymap))
- 		return;
- 
--	clear_bit(key->hw_key_idx + 64, common->keymap);
-+	clear_bit(hw_key_idx + 64, common->keymap);
- 
--	clear_bit(key->hw_key_idx, common->tkip_keymap);
--	clear_bit(key->hw_key_idx + 64, common->tkip_keymap);
-+	clear_bit(hw_key_idx, common->tkip_keymap);
-+	clear_bit(hw_key_idx + 64, common->tkip_keymap);
- 
- 	if (!(common->crypt_caps & ATH_CRYPT_CAP_MIC_COMBINED)) {
--		ath_hw_keyreset(common, key->hw_key_idx + 32);
--		clear_bit(key->hw_key_idx + 32, common->keymap);
--		clear_bit(key->hw_key_idx + 64 + 32, common->keymap);
-+		ath_hw_keyreset(common, hw_key_idx + 32);
-+		clear_bit(hw_key_idx + 32, common->keymap);
-+		clear_bit(hw_key_idx + 64 + 32, common->keymap);
- 
--		clear_bit(key->hw_key_idx + 32, common->tkip_keymap);
--		clear_bit(key->hw_key_idx + 64 + 32, common->tkip_keymap);
-+		clear_bit(hw_key_idx + 32, common->tkip_keymap);
-+		clear_bit(hw_key_idx + 64 + 32, common->tkip_keymap);
- 	}
- }
- EXPORT_SYMBOL(ath_key_delete);
 -- 
 2.30.2
 
