@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ED713F6454
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:02:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1D43F6452
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:02:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233998AbhHXRDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:03:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39066 "EHLO mail.kernel.org"
+        id S234540AbhHXRDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:03:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238755AbhHXRAw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:00:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36E4B615E6;
+        id S238805AbhHXRBH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:01:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F2B615A7;
         Tue, 24 Aug 2021 16:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824274;
-        bh=2f3xjSiU61X6SPNSptqweo0kpsBIRfPcxUCX14ODoxM=;
+        s=k20201202; t=1629824275;
+        bh=QiFxqNIpjxgQVfHg9iJxZBLdgVazw/dG0F84HS+bcGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kFSYYYIfhk1a04A/AWWKmtZg9+sampTpexRPhFp6evwDibbQYd/KZQghD8SQrHmsq
-         Bsk9nF7N0bw2hYAibjchxJJ3K/z7699hvrlZ5Yz+tv6esF4Hx3mZlmYWL38EpcshGQ
-         n6wH+3S8vz8ZwTKVE9aLDgzXztACXGXe3RO98BrLWkm5n8oqbxhFHxacLXC47ZqxWn
-         sjJpPMwfIksbqLYwrlWXgo6US+Aro3r6a4muLVHzmGxl6WenLhzeV7/OA2mb3+Gezn
-         z75IZomFXR07ywYQBLcgO1tf5SCjT4Ep6wNhercAVbnBk9oNQdB8UYEwXZzOGJ6nG+
-         FX0tZ7x2F2r0A==
+        b=DKywJCCGBwljZ59dT298jYEK/CACXcFnGxR8mgsmLaCB1A0ITdql0y2SX8L3cMHDn
+         xjusz+IbWIvqrVg3TNzRn1VNMiBPpdUIfEulCe0Zrk45E5vR853hxJEN5alwwFFAI7
+         9tQ3nvR5pQyYv6LC76BM7aUWr9MZ3EEkz6cX1xvGHocDd8f5SN9mOvlq1Yae2GQpfv
+         GbhQ2oWmTVTf/+agFKeLEx9No2BdWp5N1nNM+xAd4ty7VGvgxIu0EpiJP51zT4t+XU
+         1d+5zmdNMWYOyYtAQVXbCGojzQHm0LdledYos5sGZApTeG/xa3r14OgE5v9gLmk7YJ
+         8SpoLPOjiBSfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pingfan Liu <kernelfans@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 109/127] tracing: Apply trace filters on all output channels
-Date:   Tue, 24 Aug 2021 12:55:49 -0400
-Message-Id: <20210824165607.709387-110-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 110/127] ALSA: hda/via: Apply runtime PM workaround for ASUS B23E
+Date:   Tue, 24 Aug 2021 12:55:50 -0400
+Message-Id: <20210824165607.709387-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,104 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pingfan Liu <kernelfans@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6c34df6f350df9579ce99d887a2b5fa14cc13b32 ]
+[ Upstream commit 4bf61ad5f0204b67ba570da6e5c052c2095e29df ]
 
-The event filters are not applied on all of the output, which results in
-the flood of printk when using tp_printk. Unfolding
-event_trigger_unlock_commit_regs() into trace_event_buffer_commit(), so
-the filters can be applied on every output.
+ASUS B23E requires the same workaround like other machines with
+VT1802, otherwise it looses the codec power on a few nodes and the
+sound kept silence.
 
-Link: https://lkml.kernel.org/r/20210814034538.8428-1-kernelfans@gmail.com
-
-Cc: stable@vger.kernel.org
-Fixes: 0daa2302968c1 ("tracing: Add tp_printk cmdline to have tracepoints go to printk()")
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: a0645daf1610 ("ALSA: HDA: Early Forbid of runtime PM")
+Link: https://lore.kernel.org/r/ac2232f142efcd67fe6ac38897f704f7176bd200.camel@gmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210817052432.14751-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c | 18 +++++++++++++++---
- kernel/trace/trace.h | 32 --------------------------------
- 2 files changed, 15 insertions(+), 35 deletions(-)
+ sound/pci/hda/patch_via.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index 018067e379f2..fa617a0a9eed 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2853,14 +2853,26 @@ int tracepoint_printk_sysctl(struct ctl_table *table, int write,
+diff --git a/sound/pci/hda/patch_via.c b/sound/pci/hda/patch_via.c
+index a5c1a2c4eae4..773a136161f1 100644
+--- a/sound/pci/hda/patch_via.c
++++ b/sound/pci/hda/patch_via.c
+@@ -1041,6 +1041,7 @@ static const struct hda_fixup via_fixups[] = {
+ };
  
- void trace_event_buffer_commit(struct trace_event_buffer *fbuffer)
- {
-+	enum event_trigger_type tt = ETT_NONE;
-+	struct trace_event_file *file = fbuffer->trace_file;
-+
-+	if (__event_trigger_test_discard(file, fbuffer->buffer, fbuffer->event,
-+			fbuffer->entry, &tt))
-+		goto discard;
-+
- 	if (static_key_false(&tracepoint_printk_key.key))
- 		output_printk(fbuffer);
- 
- 	if (static_branch_unlikely(&trace_event_exports_enabled))
- 		ftrace_exports(fbuffer->event, TRACE_EXPORT_EVENT);
--	event_trigger_unlock_commit_regs(fbuffer->trace_file, fbuffer->buffer,
--				    fbuffer->event, fbuffer->entry,
--				    fbuffer->trace_ctx, fbuffer->regs);
-+
-+	trace_buffer_unlock_commit_regs(file->tr, fbuffer->buffer,
-+			fbuffer->event, fbuffer->trace_ctx, fbuffer->regs);
-+
-+discard:
-+	if (tt)
-+		event_triggers_post_call(file, tt);
-+
- }
- EXPORT_SYMBOL_GPL(trace_event_buffer_commit);
- 
-diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
-index cd80d046c7a5..1b60ecf85391 100644
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -1391,38 +1391,6 @@ event_trigger_unlock_commit(struct trace_event_file *file,
- 		event_triggers_post_call(file, tt);
- }
- 
--/**
-- * event_trigger_unlock_commit_regs - handle triggers and finish event commit
-- * @file: The file pointer associated with the event
-- * @buffer: The ring buffer that the event is being written to
-- * @event: The event meta data in the ring buffer
-- * @entry: The event itself
-- * @trace_ctx: The tracing context flags.
-- *
-- * This is a helper function to handle triggers that require data
-- * from the event itself. It also tests the event against filters and
-- * if the event is soft disabled and should be discarded.
-- *
-- * Same as event_trigger_unlock_commit() but calls
-- * trace_buffer_unlock_commit_regs() instead of trace_buffer_unlock_commit().
-- */
--static inline void
--event_trigger_unlock_commit_regs(struct trace_event_file *file,
--				 struct trace_buffer *buffer,
--				 struct ring_buffer_event *event,
--				 void *entry, unsigned int trace_ctx,
--				 struct pt_regs *regs)
--{
--	enum event_trigger_type tt = ETT_NONE;
--
--	if (!__event_trigger_test_discard(file, buffer, event, entry, &tt))
--		trace_buffer_unlock_commit_regs(file->tr, buffer, event,
--						trace_ctx, regs);
--
--	if (tt)
--		event_triggers_post_call(file, tt);
--}
--
- #define FILTER_PRED_INVALID	((unsigned short)-1)
- #define FILTER_PRED_IS_RIGHT	(1 << 15)
- #define FILTER_PRED_FOLD	(1 << 15)
+ static const struct snd_pci_quirk vt2002p_fixups[] = {
++	SND_PCI_QUIRK(0x1043, 0x13f7, "Asus B23E", VIA_FIXUP_POWER_SAVE),
+ 	SND_PCI_QUIRK(0x1043, 0x1487, "Asus G75", VIA_FIXUP_ASUS_G75),
+ 	SND_PCI_QUIRK(0x1043, 0x8532, "Asus X202E", VIA_FIXUP_INTMIC_BOOST),
+ 	SND_PCI_QUIRK_VENDOR(0x1558, "Clevo", VIA_FIXUP_POWER_SAVE),
 -- 
 2.30.2
 
