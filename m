@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 973E83F54A0
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A86A3F5499
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233602AbhHXA4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 20:56:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48138 "EHLO mail.kernel.org"
+        id S234633AbhHXA4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 20:56:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233804AbhHXAzR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 20:55:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22DFE61501;
-        Tue, 24 Aug 2021 00:54:29 +0000 (UTC)
+        id S234217AbhHXAzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 20:55:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 901A061440;
+        Tue, 24 Aug 2021 00:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629766470;
-        bh=mhnDZFp6Bvgo7d3AsSNxcg0qsh7TMyBGCIQMQVcAJ2w=;
+        s=k20201202; t=1629766471;
+        bh=RraiY9EupY4eMBstcRZsBdE0zqlScNj3R6G7l/dTIn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gygA7mGNIvTcJTmQRj1+Nu4k6TORBRbN1DtYPNh0mgiKrSC0kOmIS2bpJklBokda/
-         Xe/Z9IWoVR9orgPuRHxzTyJ+hlc4jiDgBDE8/moGNchnTg15LWXILOcixLqoTHhVzT
-         ve9CTtIW3Zo4p9VRB+LJcErKwOtS1N1wFyVkavn1gV5eUQiGHjdmFkcNU20ANrbuDt
-         w9/K2KjcicjNwvBaz4/u1WVTAdyIz/aVzjY9U5NJdPx8nZUXiIUn9/o/dkdNEP/ycX
-         o9XrIeSSPDKW+q2UBR90qBBvJXzVGhF7yD6F9l/Ct+CEhmSpyBJw67MFUXEY3HnfzN
-         Wb5mdD3OkoLzQ==
+        b=Oq19UaEIbPaFAxU2FdA+P8YIJWXjF1mlUHNR52Ov1ujBbq5QMSfWcl38QaHj9fXqy
+         tAzKal7lEjXG1GlZs6M7miAZ7ATKmvvVXB1A8AOSkygfrKrf/x5t5bAAp+aeGJ/cJy
+         qFTgIoHlxTH8+Wxdz3oXIUMFI2Pj47EfUWQAyR66tW/Jyo4CHD3TxfU5ZuUTjrw6US
+         XohhthC5l3oPeUJ9BDjVsepnIeFGPBZncsziV3r6AwRiiTByOmNL87RVDCuV2efVgB
+         BqtzgxjZMJwkOowC2igLM2m/wodcTkT9YT5zjEuGqWZZ9gVCU1Rqo6u5haERn9kjXs
+         UqgYp1ESnkUSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gerd Rausch <gerd.rausch@oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org, rds-devel@oss.oracle.com
-Subject: [PATCH AUTOSEL 5.13 25/26] net/rds: dma_map_sg is entitled to merge entries
-Date:   Mon, 23 Aug 2021 20:53:55 -0400
-Message-Id: <20210824005356.630888-25-sashal@kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Oliver Upton <oupton@google.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.13 26/26] arm64: initialize all of CNTHCTL_EL2
+Date:   Mon, 23 Aug 2021 20:53:56 -0400
+Message-Id: <20210824005356.630888-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824005356.630888-1-sashal@kernel.org>
 References: <20210824005356.630888-1-sashal@kernel.org>
@@ -44,47 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Rausch <gerd.rausch@oracle.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit fb4b1373dcab086d0619c29310f0466a0b2ceb8a ]
+[ Upstream commit bde8fff82e4a4b0f000dbf4d5eadab2079be0b56 ]
 
-Function "dma_map_sg" is entitled to merge adjacent entries
-and return a value smaller than what was passed as "nents".
+In __init_el2_timers we initialize CNTHCTL_EL2.{EL1PCEN,EL1PCTEN} with a
+RMW sequence, leaving all other bits UNKNOWN.
 
-Subsequently "ib_map_mr_sg" needs to work with this value ("sg_dma_len")
-rather than the original "nents" parameter ("sg_len").
+In general, we should initialize all bits in a register rather than
+using an RMW sequence, since most bits are UNKNOWN out of reset, and as
+new bits are added to the reigster their reset value might not result in
+expected behaviour.
 
-This old RDS bug was exposed and reliably causes kernel panics
-(using RDMA operations "rds-stress -D") on x86_64 starting with:
-commit c588072bba6b ("iommu/vt-d: Convert intel iommu driver to the iommu ops")
+In the case of CNTHCTL_EL2, FEAT_ECV added a number of new control bits
+in previously RES0 bits, which reset to UNKNOWN values, and may cause
+issues for EL1 and EL0:
 
-Simply put: Linux 5.11 and later.
+* CNTHCTL_EL2.ECV enables the CNTPOFF_EL2 offset (which itself resets to
+  an UNKNOWN value) at EL0 and EL1. Since the offset could reset to
+  distinct values across CPUs, when the control bit resets to 1 this
+  could break timekeeping generally.
 
-Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Link: https://lore.kernel.org/r/60efc69f-1f35-529d-a7ef-da0549cad143@oracle.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+* CNTHCTL_EL2.{EL1TVT,EL1TVCT} trap EL0 and EL1 accesses to the EL1
+  virtual timer/counter registers to EL2. When reset to 1, this could
+  cause unexpected traps to EL2.
+
+Initializing these bits to zero avoids these problems, and all other
+bits in CNTHCTL_EL2 other than EL1PCEN and EL1PCTEN can safely be reset
+to zero.
+
+This patch ensures we initialize CNTHCTL_EL2 accordingly, only setting
+EL1PCEN and EL1PCTEN, and setting all other bits to zero.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Oliver Upton <oupton@google.com>
+Cc: Will Deacon <will@kernel.org>
+Reviewed-by: Oliver Upton <oupton@google.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210818161535.52786-1-mark.rutland@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/ib_frmr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/el2_setup.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/rds/ib_frmr.c b/net/rds/ib_frmr.c
-index 9b6ffff72f2d..28c1b0022178 100644
---- a/net/rds/ib_frmr.c
-+++ b/net/rds/ib_frmr.c
-@@ -131,9 +131,9 @@ static int rds_ib_post_reg_frmr(struct rds_ib_mr *ibmr)
- 		cpu_relax();
- 	}
- 
--	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_len,
-+	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_dma_len,
- 				&off, PAGE_SIZE);
--	if (unlikely(ret != ibmr->sg_len))
-+	if (unlikely(ret != ibmr->sg_dma_len))
- 		return ret < 0 ? ret : -EINVAL;
- 
- 	if (cmpxchg(&frmr->fr_state,
+diff --git a/arch/arm64/include/asm/el2_setup.h b/arch/arm64/include/asm/el2_setup.h
+index 21fa330f498d..b83fb24954b7 100644
+--- a/arch/arm64/include/asm/el2_setup.h
++++ b/arch/arm64/include/asm/el2_setup.h
+@@ -33,8 +33,7 @@
+  * EL2.
+  */
+ .macro __init_el2_timers
+-	mrs	x0, cnthctl_el2
+-	orr	x0, x0, #3			// Enable EL1 physical timers
++	mov	x0, #3				// Enable EL1 physical timers
+ 	msr	cnthctl_el2, x0
+ 	msr	cntvoff_el2, xzr		// Clear virtual offset
+ .endm
 -- 
 2.30.2
 
