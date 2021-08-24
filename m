@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF40D3F6588
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:14:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 082263F6590
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:14:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238759AbhHXROB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:14:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52020 "EHLO mail.kernel.org"
+        id S239755AbhHXROL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:14:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238798AbhHXRMB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:12:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E642A615A3;
-        Tue, 24 Aug 2021 17:01:14 +0000 (UTC)
+        id S239610AbhHXRMD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:12:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2C9E61A59;
+        Tue, 24 Aug 2021 17:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824475;
-        bh=n1P6AKtG4aTWLe1jk0g0XSrgWhmwkNv95giYLshzd1s=;
+        s=k20201202; t=1629824476;
+        bh=s70CONoP/RTBH5frNaDhB5bwpfMHzrr+9j+ErpNFcM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PNPBTlrGsr0/HfaFiuEK2hkdOnOZgDDbW38FS6DeY3/OWrb1sezXQYt6UBYk8KO0S
-         +YIHMRwzdadVFe3X9E1p2fQs8kdTDLoGcmdcyrYPQyGxEQDIUXes2tQt4wYAD8vW5m
-         fLXAlMc/U2pvZWbs3AFUcUWqksAtmMIZ8nWnro8sH+s7cOIVbhTr2KuetcgZz2RtLs
-         UbXb9djn/bJbxRxwk8MPhoVw37l7oVPlAUjWRRCJtNJDplgcIqJ+++mLyx6hsuoMQd
-         UY3ePyFbPW3AoxBIuwr2UJAIJs+iB7EZBrwcFaZ+i0hlejq2ll6JGDb7a0C1Ejowlx
-         BDymuP3dDsCMA==
+        b=odUh86acSHJZ47yFto0hYV2LOug9gYr53HVBiUP2psySu0wt00BH2UCIrD6nRaCKP
+         iXfxgwPCaOBfNxL6DGFaoz64TfrT1+eO7s53qMBL8sEXr4k/DYsQClowsbD4k7rQNB
+         RjMgEORbraO4PaCtbLGY94emHm6CSKlQJzQ+y8hJGI9eb6Ejzs3TtDtddWJqjEDfS8
+         /Qkg5itNlO8MPwIbtqRtVqi0F+7+bp7fQ5slWExUPN2NS7/ajYqSscwQQy+ep6JSCG
+         4GlxbtOc0ktMJfgl6n4HgVeMgfo7am80x9PKUfnBPIlDCc6ykuVygQv3NeLuRJukCL
+         HsRTxXR+SZiag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jouni Malinen <jouni@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+Cc:     Andreas Persson <andreasp56@outlook.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.4 07/61] ath9k: Postpone key cache entry deletion for TXQ frames reference it
-Date:   Tue, 24 Aug 2021 13:00:12 -0400
-Message-Id: <20210824170106.710221-8-sashal@kernel.org>
+Subject: [PATCH 5.4 08/61] mtd: cfi_cmdset_0002: fix crash when erasing/writing AMD cards
+Date:   Tue, 24 Aug 2021 13:00:13 -0400
+Message-Id: <20210824170106.710221-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.143-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-5.4.y
@@ -50,167 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Malinen <jouni@codeaurora.org>
+From: Andreas Persson <andreasp56@outlook.com>
 
-commit ca2848022c12789685d3fab3227df02b863f9696 upstream.
+commit 2394e628738933aa014093d93093030f6232946d upstream.
 
-Do not delete a key cache entry that is still being referenced by
-pending frames in TXQs. This avoids reuse of the key cache entry while a
-frame might still be transmitted using it.
+Erasing an AMD linear flash card (AM29F016D) crashes after the first
+sector has been erased. Likewise, writing to it crashes after two bytes
+have been written. The reason is a missing check for a null pointer -
+the cmdset_priv field is not set for this type of card.
 
-To avoid having to do any additional operations during the main TX path
-operations, track pending key cache entries in a new bitmap and check
-whether any pending entries can be deleted before every new key
-add/remove operation. Also clear any remaining entries when stopping the
-interface.
-
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201214172118.18100-6-jouni@codeaurora.org
-Cc: Pali Rohár <pali@kernel.org>
+Fixes: 4844ef80305d ("mtd: cfi_cmdset_0002: Add support for polling status register")
+Signed-off-by: Andreas Persson <andreasp56@outlook.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/DB6P189MB05830B3530B8087476C5CFE4C1159@DB6P189MB0583.EURP189.PROD.OUTLOOK.COM
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath9k/hw.h   |  1 +
- drivers/net/wireless/ath/ath9k/main.c | 87 ++++++++++++++++++++++++++-
- 2 files changed, 87 insertions(+), 1 deletion(-)
+ drivers/mtd/chips/cfi_cmdset_0002.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hw.h b/drivers/net/wireless/ath/ath9k/hw.h
-index 2e4489700a85..2842ca205a0a 100644
---- a/drivers/net/wireless/ath/ath9k/hw.h
-+++ b/drivers/net/wireless/ath/ath9k/hw.h
-@@ -819,6 +819,7 @@ struct ath_hw {
- 	struct ath9k_pacal_info pacal_info;
- 	struct ar5416Stats stats;
- 	struct ath9k_tx_queue_info txq[ATH9K_NUM_TX_QUEUES];
-+	DECLARE_BITMAP(pending_del_keymap, ATH_KEYMAX);
+diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
+index c8b9ab40a102..9c98ddef0097 100644
+--- a/drivers/mtd/chips/cfi_cmdset_0002.c
++++ b/drivers/mtd/chips/cfi_cmdset_0002.c
+@@ -119,7 +119,7 @@ static int cfi_use_status_reg(struct cfi_private *cfi)
+ 	struct cfi_pri_amdstd *extp = cfi->cmdset_priv;
+ 	u8 poll_mask = CFI_POLL_STATUS_REG | CFI_POLL_DQ;
  
- 	enum ath9k_int imask;
- 	u32 imrs2_reg;
-diff --git a/drivers/net/wireless/ath/ath9k/main.c b/drivers/net/wireless/ath/ath9k/main.c
-index c08a7202dca2..28ccdcb197de 100644
---- a/drivers/net/wireless/ath/ath9k/main.c
-+++ b/drivers/net/wireless/ath/ath9k/main.c
-@@ -823,12 +823,80 @@ exit:
- 	ieee80211_free_txskb(hw, skb);
+-	return extp->MinorVersion >= '5' &&
++	return extp && extp->MinorVersion >= '5' &&
+ 		(extp->SoftwareFeatures & poll_mask) == CFI_POLL_STATUS_REG;
  }
  
-+static bool ath9k_txq_list_has_key(struct list_head *txq_list, u32 keyix)
-+{
-+	struct ath_buf *bf;
-+	struct ieee80211_tx_info *txinfo;
-+	struct ath_frame_info *fi;
-+
-+	list_for_each_entry(bf, txq_list, list) {
-+		if (bf->bf_state.stale || !bf->bf_mpdu)
-+			continue;
-+
-+		txinfo = IEEE80211_SKB_CB(bf->bf_mpdu);
-+		fi = (struct ath_frame_info *)&txinfo->rate_driver_data[0];
-+		if (fi->keyix == keyix)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
-+static bool ath9k_txq_has_key(struct ath_softc *sc, u32 keyix)
-+{
-+	struct ath_hw *ah = sc->sc_ah;
-+	int i;
-+	struct ath_txq *txq;
-+	bool key_in_use = false;
-+
-+	for (i = 0; !key_in_use && i < ATH9K_NUM_TX_QUEUES; i++) {
-+		if (!ATH_TXQ_SETUP(sc, i))
-+			continue;
-+		txq = &sc->tx.txq[i];
-+		if (!txq->axq_depth)
-+			continue;
-+		if (!ath9k_hw_numtxpending(ah, txq->axq_qnum))
-+			continue;
-+
-+		ath_txq_lock(sc, txq);
-+		key_in_use = ath9k_txq_list_has_key(&txq->axq_q, keyix);
-+		if (sc->sc_ah->caps.hw_caps & ATH9K_HW_CAP_EDMA) {
-+			int idx = txq->txq_tailidx;
-+
-+			while (!key_in_use &&
-+			       !list_empty(&txq->txq_fifo[idx])) {
-+				key_in_use = ath9k_txq_list_has_key(
-+					&txq->txq_fifo[idx], keyix);
-+				INCR(idx, ATH_TXFIFO_DEPTH);
-+			}
-+		}
-+		ath_txq_unlock(sc, txq);
-+	}
-+
-+	return key_in_use;
-+}
-+
-+static void ath9k_pending_key_del(struct ath_softc *sc, u8 keyix)
-+{
-+	struct ath_hw *ah = sc->sc_ah;
-+	struct ath_common *common = ath9k_hw_common(ah);
-+
-+	if (!test_bit(keyix, ah->pending_del_keymap) ||
-+	    ath9k_txq_has_key(sc, keyix))
-+		return;
-+
-+	/* No more TXQ frames point to this key cache entry, so delete it. */
-+	clear_bit(keyix, ah->pending_del_keymap);
-+	ath_key_delete(common, keyix);
-+}
-+
- static void ath9k_stop(struct ieee80211_hw *hw)
- {
- 	struct ath_softc *sc = hw->priv;
- 	struct ath_hw *ah = sc->sc_ah;
- 	struct ath_common *common = ath9k_hw_common(ah);
- 	bool prev_idle;
-+	int i;
- 
- 	ath9k_deinit_channel_context(sc);
- 
-@@ -896,6 +964,9 @@ static void ath9k_stop(struct ieee80211_hw *hw)
- 
- 	spin_unlock_bh(&sc->sc_pcu_lock);
- 
-+	for (i = 0; i < ATH_KEYMAX; i++)
-+		ath9k_pending_key_del(sc, i);
-+
- 	/* Clear key cache entries explicitly to get rid of any potentially
- 	 * remaining keys.
- 	 */
-@@ -1712,6 +1783,12 @@ static int ath9k_set_key(struct ieee80211_hw *hw,
- 	if (sta)
- 		an = (struct ath_node *)sta->drv_priv;
- 
-+	/* Delete pending key cache entries if no more frames are pointing to
-+	 * them in TXQs.
-+	 */
-+	for (i = 0; i < ATH_KEYMAX; i++)
-+		ath9k_pending_key_del(sc, i);
-+
- 	switch (cmd) {
- 	case SET_KEY:
- 		if (sta)
-@@ -1741,7 +1818,15 @@ static int ath9k_set_key(struct ieee80211_hw *hw,
- 		}
- 		break;
- 	case DISABLE_KEY:
--		ath_key_delete(common, key->hw_key_idx);
-+		if (ath9k_txq_has_key(sc, key->hw_key_idx)) {
-+			/* Delay key cache entry deletion until there are no
-+			 * remaining TXQ frames pointing to this entry.
-+			 */
-+			set_bit(key->hw_key_idx, sc->sc_ah->pending_del_keymap);
-+			ath_hw_keysetmac(common, key->hw_key_idx, NULL);
-+		} else {
-+			ath_key_delete(common, key->hw_key_idx);
-+		}
- 		if (an) {
- 			for (i = 0; i < ARRAY_SIZE(an->key_idx); i++) {
- 				if (an->key_idx[i] != key->hw_key_idx)
 -- 
 2.30.2
 
