@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A7633F5605
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 04:57:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC3A3F5604
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 04:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234008AbhHXC6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 22:58:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52554 "EHLO mail.kernel.org"
+        id S234052AbhHXC6f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 22:58:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233847AbhHXC6c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 23 Aug 2021 22:58:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ECFC611C8;
-        Tue, 24 Aug 2021 02:57:48 +0000 (UTC)
+        id S233847AbhHXC6f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 23 Aug 2021 22:58:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 635BC611C8;
+        Tue, 24 Aug 2021 02:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629773869;
-        bh=flhHQzXKNCiSDM4aaiL1rBvLmbZ8bDMjLpAFb71Pq5Q=;
+        s=k20201202; t=1629773871;
+        bh=0n7izWiC7mi5vTC/aksKaslaUStcnFPrvOL0blHENTE=;
         h=From:To:Cc:Subject:Date:From;
-        b=U1nsy1+1DOwF493ss7rkoyXFnYewtCO3rZAg9u/qXYE6zTS5p2pZ+XAy19wwITMWJ
-         rTvonLS1OkofFNzS3iOlt/qLp5VNm7r2NBYAeagp4MA9DpEXjfvHzcWUBUmx0zP7l9
-         eyD3ptco19TlQSbT+5HJ7Y/1nreVXYNN+2+SfHLS6y5qXOWTvuLZWUF3Puy6SRxirC
-         uV1EnTVz6JdIF+rs4kHv2wiQ9/YjQbWGhzXMq42CrbiV5TqM14AjasWJ9fw8cvS0+p
-         IzjvSMhy9cLwtjLHtEv9z7mAZNB5eNzyPGmDX1oDnpkxZzYcXYABiGN1M6b4J9IowP
-         4iDyBCJ8tAptQ==
+        b=mOfQH2QABQzsuMsFKqlrgEBtNFlAYxOwDxt8ZARhgTUFGDbUIY8BQdT5ODjxAb9Kb
+         pcb4IgoKUb4NFs7iyqTJEaCsMmDTzFt7YCIaegzCF67CrCWiBGkCxY/MfaYO9TCqi6
+         WdFPf03nxH0O7SXFKUiWYmV4awc5yCi2ezoGyI6STgBJq0N7LYb7T4sl2CzLUGDQ3D
+         BLdVlNRfUTLqAsQjtniSruGx/dVRmCCIJJau2t0ivh1S5LaJ+51Y+4gD9f1Vlun4Vn
+         kadYSG/eIE2z8ju+mwW8L0HlbWlnaNMAOeH8Z5H1mVIG1GT+NHpCYihdIguwIaZQn+
+         3q3kwu5WMPtcw==
 From:   Sasha Levin <sashal@kernel.org>
-To:     stable@vger.kernel.org, axboe@kernel.dk
-Cc:     io-uring@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: FAILED: Patch "io_uring: only assign io_uring_enter() SQPOLL error in actual error case" failed to apply to 5.10-stable tree
-Date:   Mon, 23 Aug 2021 22:57:47 -0400
-Message-Id: <20210824025748.658175-1-sashal@kernel.org>
+To:     stable@vger.kernel.org, kernelfans@gmail.com
+Cc:     Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org
+Subject: FAILED: Patch "tracing: Apply trace filters on all output channels" failed to apply to 5.10-stable tree
+Date:   Mon, 23 Aug 2021 22:57:50 -0400
+Message-Id: <20210824025750.658248-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-Patchwork-Hint: ignore
@@ -48,47 +48,104 @@ Sasha
 
 ------------------ original commit in Linus's tree ------------------
 
-From 21f965221e7c42609521342403e8fb91b8b3e76e Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Sat, 14 Aug 2021 09:04:40 -0600
-Subject: [PATCH] io_uring: only assign io_uring_enter() SQPOLL error in actual
- error case
+From 6c34df6f350df9579ce99d887a2b5fa14cc13b32 Mon Sep 17 00:00:00 2001
+From: Pingfan Liu <kernelfans@gmail.com>
+Date: Sat, 14 Aug 2021 11:45:38 +0800
+Subject: [PATCH] tracing: Apply trace filters on all output channels
 
-If an SQPOLL based ring is newly created and an application issues an
-io_uring_enter(2) system call on it, then we can return a spurious
--EOWNERDEAD error. This happens because there's nothing to submit, and
-if the caller doesn't specify any other action, the initial error
-assignment of -EOWNERDEAD never gets overwritten. This causes us to
-return it directly, even if it isn't valid.
+The event filters are not applied on all of the output, which results in
+the flood of printk when using tp_printk. Unfolding
+event_trigger_unlock_commit_regs() into trace_event_buffer_commit(), so
+the filters can be applied on every output.
 
-Move the error assignment into the actual failure case instead.
+Link: https://lkml.kernel.org/r/20210814034538.8428-1-kernelfans@gmail.com
 
 Cc: stable@vger.kernel.org
-Fixes: d9d05217cb69 ("io_uring: stop SQPOLL submit on creator's death")
-Reported-by: Sherlock Holo sherlockya@gmail.com
-Link: https://github.com/axboe/liburing/issues/413
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 0daa2302968c1 ("tracing: Add tp_printk cmdline to have tracepoints go to printk()")
+Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
- fs/io_uring.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/trace/trace.c | 18 +++++++++++++++---
+ kernel/trace/trace.h | 32 --------------------------------
+ 2 files changed, 15 insertions(+), 35 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 04c6d059ea94..6a092a534d2b 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -9370,9 +9370,10 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- 	if (ctx->flags & IORING_SETUP_SQPOLL) {
- 		io_cqring_overflow_flush(ctx, false);
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 33899a71fdc1..a1adb29ef5c1 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2897,14 +2897,26 @@ int tracepoint_printk_sysctl(struct ctl_table *table, int write,
  
--		ret = -EOWNERDEAD;
--		if (unlikely(ctx->sq_data->thread == NULL))
-+		if (unlikely(ctx->sq_data->thread == NULL)) {
-+			ret = -EOWNERDEAD;
- 			goto out;
-+		}
- 		if (flags & IORING_ENTER_SQ_WAKEUP)
- 			wake_up(&ctx->sq_data->wait);
- 		if (flags & IORING_ENTER_SQ_WAIT) {
+ void trace_event_buffer_commit(struct trace_event_buffer *fbuffer)
+ {
++	enum event_trigger_type tt = ETT_NONE;
++	struct trace_event_file *file = fbuffer->trace_file;
++
++	if (__event_trigger_test_discard(file, fbuffer->buffer, fbuffer->event,
++			fbuffer->entry, &tt))
++		goto discard;
++
+ 	if (static_key_false(&tracepoint_printk_key.key))
+ 		output_printk(fbuffer);
+ 
+ 	if (static_branch_unlikely(&trace_event_exports_enabled))
+ 		ftrace_exports(fbuffer->event, TRACE_EXPORT_EVENT);
+-	event_trigger_unlock_commit_regs(fbuffer->trace_file, fbuffer->buffer,
+-				    fbuffer->event, fbuffer->entry,
+-				    fbuffer->trace_ctx, fbuffer->regs);
++
++	trace_buffer_unlock_commit_regs(file->tr, fbuffer->buffer,
++			fbuffer->event, fbuffer->trace_ctx, fbuffer->regs);
++
++discard:
++	if (tt)
++		event_triggers_post_call(file, tt);
++
+ }
+ EXPORT_SYMBOL_GPL(trace_event_buffer_commit);
+ 
+diff --git a/kernel/trace/trace.h b/kernel/trace/trace.h
+index a180abf76d4e..4a0e693000c6 100644
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -1389,38 +1389,6 @@ event_trigger_unlock_commit(struct trace_event_file *file,
+ 		event_triggers_post_call(file, tt);
+ }
+ 
+-/**
+- * event_trigger_unlock_commit_regs - handle triggers and finish event commit
+- * @file: The file pointer associated with the event
+- * @buffer: The ring buffer that the event is being written to
+- * @event: The event meta data in the ring buffer
+- * @entry: The event itself
+- * @trace_ctx: The tracing context flags.
+- *
+- * This is a helper function to handle triggers that require data
+- * from the event itself. It also tests the event against filters and
+- * if the event is soft disabled and should be discarded.
+- *
+- * Same as event_trigger_unlock_commit() but calls
+- * trace_buffer_unlock_commit_regs() instead of trace_buffer_unlock_commit().
+- */
+-static inline void
+-event_trigger_unlock_commit_regs(struct trace_event_file *file,
+-				 struct trace_buffer *buffer,
+-				 struct ring_buffer_event *event,
+-				 void *entry, unsigned int trace_ctx,
+-				 struct pt_regs *regs)
+-{
+-	enum event_trigger_type tt = ETT_NONE;
+-
+-	if (!__event_trigger_test_discard(file, buffer, event, entry, &tt))
+-		trace_buffer_unlock_commit_regs(file->tr, buffer, event,
+-						trace_ctx, regs);
+-
+-	if (tt)
+-		event_triggers_post_call(file, tt);
+-}
+-
+ #define FILTER_PRED_INVALID	((unsigned short)-1)
+ #define FILTER_PRED_IS_RIGHT	(1 << 15)
+ #define FILTER_PRED_FOLD	(1 << 15)
 -- 
 2.30.2
 
