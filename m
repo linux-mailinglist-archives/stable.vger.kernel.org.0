@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3363B3F65C7
+	by mail.lfdr.de (Postfix) with ESMTP id 7E4FA3F65C8
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234752AbhHXRQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240042AbhHXRQi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:16:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55604 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240400AbhHXROn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240404AbhHXROn (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:14:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFCCB61A84;
-        Tue, 24 Aug 2021 17:01:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4B2361A8A;
+        Tue, 24 Aug 2021 17:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824503;
-        bh=42W66I9RTkkSqI3Av7rQ+xajfrLKwCbRlaNxHad1oQ8=;
+        s=k20201202; t=1629824504;
+        bh=pdfOPGlNDuzzmXhSCF6aeSrwzt4evmp+6WUXhcTbLeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vj2tNJZDp1Ibe8DHfMEOrYd9SJ6hRjXbU5cwtphfYceiaFilu42my6I3xE7RWnrv+
-         aewGN8r6RC5/MF8e+2W/+YU6A3eyxhqIW9ymaUONGDu0lGtW7VJIoX8BF6tqg/UONX
-         tf6drnbVlJlHTye3FKQCigs8MjqaATSCsjMhwJvhAUTYMKJ3ZJxR6BN+1E1ZWhnrTk
-         0IRCFk23YYar8gNyKrOAGzblujwBqex4071tvlakkt2Uj9rhbL4mLtbP0lXE9e6bd9
-         Q3qc5/BONnrSwAUIPVQZwRHlA5nONDoZzqQmEqweLcZhxQzygcDJ/AooPV/lGqDq3x
-         aauFtqM6f6JHg==
+        b=LLMVpMLh7G6lXbWESWODcUFRqyLILb0zAyWdM5T4VjkO/EbpN5Jpe0dcctFJqSxa4
+         K3rtb/+VJROB2FTQrITECjqAvBjsH16d9n/DPjRTnYSvuTO8VVl0Laop5rWU0c7m0Z
+         aRHWadH6HIHO9ysAY/Gh4n2bg0sKVWMX7KqmFDXDBNHEzEeZ7nE0+xljsz/UtajU5X
+         OVVzlTySM7UY02TVP9s/PBnwpyze5zFszYXFzEPE1nKP6n777QyBQRodfQVRWe4Qur
+         gKptx3mMLh5zi7mMOxe3Xj6BsG23MLk7X8/h/947TZrQdzdKWeYG1ObbByYWw9K/Yn
+         fNLfYfQPUJh5A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lahav Schlesinger <lschlesinger@drivenets.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+Cc:     Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Dust Li <dust.li@linux.alibaba.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 36/61] vrf: Reset skb conntrack connection on VRF rcv
-Date:   Tue, 24 Aug 2021 13:00:41 -0400
-Message-Id: <20210824170106.710221-37-sashal@kernel.org>
+Subject: [PATCH 5.4 37/61] virtio-net: support XDP when not more queues
+Date:   Tue, 24 Aug 2021 13:00:42 -0400
+Message-Id: <20210824170106.710221-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -49,207 +50,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lahav Schlesinger <lschlesinger@drivenets.com>
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-[ Upstream commit 09e856d54bda5f288ef8437a90ab2b9b3eab83d1 ]
+[ Upstream commit 97c2c69e1926260c78c7f1c0b2c987934f1dc7a1 ]
 
-To fix the "reverse-NAT" for replies.
+The number of queues implemented by many virtio backends is limited,
+especially some machines have a large number of CPUs. In this case, it
+is often impossible to allocate a separate queue for
+XDP_TX/XDP_REDIRECT, then xdp cannot be loaded to work, even xdp does
+not use the XDP_TX/XDP_REDIRECT.
 
-When a packet is sent over a VRF, the POST_ROUTING hooks are called
-twice: Once from the VRF interface, and once from the "actual"
-interface the packet will be sent from:
-1) First SNAT: l3mdev_l3_out() -> vrf_l3_out() -> .. -> vrf_output_direct()
-     This causes the POST_ROUTING hooks to run.
-2) Second SNAT: 'ip_output()' calls POST_ROUTING hooks again.
+This patch allows XDP_TX/XDP_REDIRECT to run by reuse the existing SQ
+with __netif_tx_lock() hold when there are not enough queues.
 
-Similarly for replies, first ip_rcv() calls PRE_ROUTING hooks, and
-second vrf_l3_rcv() calls them again.
-
-As an example, consider the following SNAT rule:
-> iptables -t nat -A POSTROUTING -p udp -m udp --dport 53 -j SNAT --to-source 2.2.2.2 -o vrf_1
-
-In this case sending over a VRF will create 2 conntrack entries.
-The first is from the VRF interface, which performs the IP SNAT.
-The second will run the SNAT, but since the "expected reply" will remain
-the same, conntrack randomizes the source port of the packet:
-e..g With a socket bound to 1.1.1.1:10000, sending to 3.3.3.3:53, the conntrack
-rules are:
-udp      17 29 src=2.2.2.2 dst=3.3.3.3 sport=10000 dport=53 packets=1 bytes=68 [UNREPLIED] src=3.3.3.3 dst=2.2.2.2 sport=53 dport=61033 packets=0 bytes=0 mark=0 use=1
-udp      17 29 src=1.1.1.1 dst=3.3.3.3 sport=10000 dport=53 packets=1 bytes=68 [UNREPLIED] src=3.3.3.3 dst=2.2.2.2 sport=53 dport=10000 packets=0 bytes=0 mark=0 use=1
-
-i.e. First SNAT IP from 1.1.1.1 --> 2.2.2.2, and second the src port is
-SNAT-ed from 10000 --> 61033.
-
-But when a reply is sent (3.3.3.3:53 -> 2.2.2.2:61033) only the later
-conntrack entry is matched:
-udp      17 29 src=2.2.2.2 dst=3.3.3.3 sport=10000 dport=53 packets=1 bytes=68 src=3.3.3.3 dst=2.2.2.2 sport=53 dport=61033 packets=1 bytes=49 mark=0 use=1
-udp      17 28 src=1.1.1.1 dst=3.3.3.3 sport=10000 dport=53 packets=1 bytes=68 [UNREPLIED] src=3.3.3.3 dst=2.2.2.2 sport=53 dport=10000 packets=0 bytes=0 mark=0 use=1
-
-And a "port 61033 unreachable" ICMP packet is sent back.
-
-The issue is that when PRE_ROUTING hooks are called from vrf_l3_rcv(),
-the skb already has a conntrack flow attached to it, which means
-nf_conntrack_in() will not resolve the flow again.
-
-This means only the dest port is "reverse-NATed" (61033 -> 10000) but
-the dest IP remains 2.2.2.2, and since the socket is bound to 1.1.1.1 it's
-not received.
-This can be verified by logging the 4-tuple of the packet in '__udp4_lib_rcv()'.
-
-The fix is then to reset the flow when skb is received on a VRF, to let
-conntrack resolve the flow again (which now will hit the earlier flow).
-
-To reproduce: (Without the fix "Got pkt_to_nat_port" will not be printed by
-  running 'bash ./repro'):
-  $ cat run_in_A1.py
-  import logging
-  logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
-  from scapy.all import *
-  import argparse
-
-  def get_packet_to_send(udp_dst_port, msg_name):
-      return Ether(src='11:22:33:44:55:66', dst=iface_mac)/ \
-          IP(src='3.3.3.3', dst='2.2.2.2')/ \
-          UDP(sport=53, dport=udp_dst_port)/ \
-          Raw(f'{msg_name}\x0012345678901234567890')
-
-  parser = argparse.ArgumentParser()
-  parser.add_argument('-iface_mac', dest="iface_mac", type=str, required=True,
-                      help="From run_in_A3.py")
-  parser.add_argument('-socket_port', dest="socket_port", type=str,
-                      required=True, help="From run_in_A3.py")
-  parser.add_argument('-v1_mac', dest="v1_mac", type=str, required=True,
-                      help="From script")
-
-  args, _ = parser.parse_known_args()
-  iface_mac = args.iface_mac
-  socket_port = int(args.socket_port)
-  v1_mac = args.v1_mac
-
-  print(f'Source port before NAT: {socket_port}')
-
-  while True:
-      pkts = sniff(iface='_v0', store=True, count=1, timeout=10)
-      if 0 == len(pkts):
-          print('Something failed, rerun the script :(', flush=True)
-          break
-      pkt = pkts[0]
-      if not pkt.haslayer('UDP'):
-          continue
-
-      pkt_sport = pkt.getlayer('UDP').sport
-      print(f'Source port after NAT: {pkt_sport}', flush=True)
-
-      pkt_to_send = get_packet_to_send(pkt_sport, 'pkt_to_nat_port')
-      sendp(pkt_to_send, '_v0', verbose=False) # Will not be received
-
-      pkt_to_send = get_packet_to_send(socket_port, 'pkt_to_socket_port')
-      sendp(pkt_to_send, '_v0', verbose=False)
-      break
-
-  $ cat run_in_A2.py
-  import socket
-  import netifaces
-
-  print(f"{netifaces.ifaddresses('e00000')[netifaces.AF_LINK][0]['addr']}",
-        flush=True)
-  s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-  s.setsockopt(socket.SOL_SOCKET, socket.SO_BINDTODEVICE,
-               str('vrf_1' + '\0').encode('utf-8'))
-  s.connect(('3.3.3.3', 53))
-  print(f'{s. getsockname()[1]}', flush=True)
-  s.settimeout(5)
-
-  while True:
-      try:
-          # Periodically send in order to keep the conntrack entry alive.
-          s.send(b'a'*40)
-          resp = s.recvfrom(1024)
-          msg_name = resp[0].decode('utf-8').split('\0')[0]
-          print(f"Got {msg_name}", flush=True)
-      except Exception as e:
-          pass
-
-  $ cat repro.sh
-  ip netns del A1 2> /dev/null
-  ip netns del A2 2> /dev/null
-  ip netns add A1
-  ip netns add A2
-
-  ip -n A1 link add _v0 type veth peer name _v1 netns A2
-  ip -n A1 link set _v0 up
-
-  ip -n A2 link add e00000 type bond
-  ip -n A2 link add lo0 type dummy
-  ip -n A2 link add vrf_1 type vrf table 10001
-  ip -n A2 link set vrf_1 up
-  ip -n A2 link set e00000 master vrf_1
-
-  ip -n A2 addr add 1.1.1.1/24 dev e00000
-  ip -n A2 link set e00000 up
-  ip -n A2 link set _v1 master e00000
-  ip -n A2 link set _v1 up
-  ip -n A2 link set lo0 up
-  ip -n A2 addr add 2.2.2.2/32 dev lo0
-
-  ip -n A2 neigh add 1.1.1.10 lladdr 77:77:77:77:77:77 dev e00000
-  ip -n A2 route add 3.3.3.3/32 via 1.1.1.10 dev e00000 table 10001
-
-  ip netns exec A2 iptables -t nat -A POSTROUTING -p udp -m udp --dport 53 -j \
-	SNAT --to-source 2.2.2.2 -o vrf_1
-
-  sleep 5
-  ip netns exec A2 python3 run_in_A2.py > x &
-  XPID=$!
-  sleep 5
-
-  IFACE_MAC=`sed -n 1p x`
-  SOCKET_PORT=`sed -n 2p x`
-  V1_MAC=`ip -n A2 link show _v1 | sed -n 2p | awk '{print $2'}`
-  ip netns exec A1 python3 run_in_A1.py -iface_mac ${IFACE_MAC} -socket_port \
-          ${SOCKET_PORT} -v1_mac ${SOCKET_PORT}
-  sleep 5
-
-  kill -9 $XPID
-  wait $XPID 2> /dev/null
-  ip netns del A1
-  ip netns del A2
-  tail x -n 2
-  rm x
-  set +x
-
-Fixes: 73e20b761acf ("net: vrf: Add support for PREROUTING rules on vrf device")
-Signed-off-by: Lahav Schlesinger <lschlesinger@drivenets.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20210815120002.2787653-1-lschlesinger@drivenets.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vrf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/virtio_net.c | 62 +++++++++++++++++++++++++++++++---------
+ 1 file changed, 49 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
-index f08ed52d51f3..9b626c169554 100644
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -1036,6 +1036,8 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
- 	bool need_strict = rt6_need_strict(&ipv6_hdr(skb)->daddr);
- 	bool is_ndisc = ipv6_ndisc_frame(skb);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 15453d6fcc23..36f8aeb113a8 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -195,6 +195,9 @@ struct virtnet_info {
+ 	/* # of XDP queue pairs currently used by the driver */
+ 	u16 xdp_queue_pairs;
  
-+	nf_reset_ct(skb);
++	/* xdp_queue_pairs may be 0, when xdp is already loaded. So add this. */
++	bool xdp_enabled;
 +
- 	/* loopback, multicast & non-ND link-local traffic; do not push through
- 	 * packet taps again. Reset pkt_type for upper layers to process skb.
- 	 * For strict packets with a source LLA, determine the dst using the
-@@ -1092,6 +1094,8 @@ static struct sk_buff *vrf_ip_rcv(struct net_device *vrf_dev,
- 	skb->skb_iif = vrf_dev->ifindex;
- 	IPCB(skb)->flags |= IPSKB_L3SLAVE;
+ 	/* I like... big packets and I cannot lie! */
+ 	bool big_packets;
  
-+	nf_reset_ct(skb);
+@@ -485,12 +488,41 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
+ 	return 0;
+ }
+ 
+-static struct send_queue *virtnet_xdp_sq(struct virtnet_info *vi)
+-{
+-	unsigned int qp;
+-
+-	qp = vi->curr_queue_pairs - vi->xdp_queue_pairs + smp_processor_id();
+-	return &vi->sq[qp];
++/* when vi->curr_queue_pairs > nr_cpu_ids, the txq/sq is only used for xdp tx on
++ * the current cpu, so it does not need to be locked.
++ *
++ * Here we use marco instead of inline functions because we have to deal with
++ * three issues at the same time: 1. the choice of sq. 2. judge and execute the
++ * lock/unlock of txq 3. make sparse happy. It is difficult for two inline
++ * functions to perfectly solve these three problems at the same time.
++ */
++#define virtnet_xdp_get_sq(vi) ({                                       \
++	struct netdev_queue *txq;                                       \
++	typeof(vi) v = (vi);                                            \
++	unsigned int qp;                                                \
++									\
++	if (v->curr_queue_pairs > nr_cpu_ids) {                         \
++		qp = v->curr_queue_pairs - v->xdp_queue_pairs;          \
++		qp += smp_processor_id();                               \
++		txq = netdev_get_tx_queue(v->dev, qp);                  \
++		__netif_tx_acquire(txq);                                \
++	} else {                                                        \
++		qp = smp_processor_id() % v->curr_queue_pairs;          \
++		txq = netdev_get_tx_queue(v->dev, qp);                  \
++		__netif_tx_lock(txq, raw_smp_processor_id());           \
++	}                                                               \
++	v->sq + qp;                                                     \
++})
 +
- 	if (ipv4_is_multicast(ip_hdr(skb)->daddr))
- 		goto out;
++#define virtnet_xdp_put_sq(vi, q) {                                     \
++	struct netdev_queue *txq;                                       \
++	typeof(vi) v = (vi);                                            \
++									\
++	txq = netdev_get_tx_queue(v->dev, (q) - v->sq);                 \
++	if (v->curr_queue_pairs > nr_cpu_ids)                           \
++		__netif_tx_release(txq);                                \
++	else                                                            \
++		__netif_tx_unlock(txq);                                 \
+ }
  
+ static int virtnet_xdp_xmit(struct net_device *dev,
+@@ -516,7 +548,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+ 	if (!xdp_prog)
+ 		return -ENXIO;
+ 
+-	sq = virtnet_xdp_sq(vi);
++	sq = virtnet_xdp_get_sq(vi);
+ 
+ 	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK)) {
+ 		ret = -EINVAL;
+@@ -564,12 +596,13 @@ out:
+ 	sq->stats.kicks += kicks;
+ 	u64_stats_update_end(&sq->stats.syncp);
+ 
++	virtnet_xdp_put_sq(vi, sq);
+ 	return ret;
+ }
+ 
+ static unsigned int virtnet_get_headroom(struct virtnet_info *vi)
+ {
+-	return vi->xdp_queue_pairs ? VIRTIO_XDP_HEADROOM : 0;
++	return vi->xdp_enabled ? VIRTIO_XDP_HEADROOM : 0;
+ }
+ 
+ /* We copy the packet for XDP in the following cases:
+@@ -1458,12 +1491,13 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+ 		xdp_do_flush_map();
+ 
+ 	if (xdp_xmit & VIRTIO_XDP_TX) {
+-		sq = virtnet_xdp_sq(vi);
++		sq = virtnet_xdp_get_sq(vi);
+ 		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
+ 			u64_stats_update_begin(&sq->stats.syncp);
+ 			sq->stats.kicks++;
+ 			u64_stats_update_end(&sq->stats.syncp);
+ 		}
++		virtnet_xdp_put_sq(vi, sq);
+ 	}
+ 
+ 	return received;
+@@ -2480,10 +2514,9 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 
+ 	/* XDP requires extra queues for XDP_TX */
+ 	if (curr_qp + xdp_qp > vi->max_queue_pairs) {
+-		NL_SET_ERR_MSG_MOD(extack, "Too few free TX rings available");
+-		netdev_warn(dev, "request %i queues but max is %i\n",
++		netdev_warn(dev, "XDP request %i queues but max is %i. XDP_TX and XDP_REDIRECT will operate in a slower locked tx mode.\n",
+ 			    curr_qp + xdp_qp, vi->max_queue_pairs);
+-		return -ENOMEM;
++		xdp_qp = 0;
+ 	}
+ 
+ 	old_prog = rtnl_dereference(vi->rq[0].xdp_prog);
+@@ -2520,11 +2553,14 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+ 	vi->xdp_queue_pairs = xdp_qp;
+ 
+ 	if (prog) {
++		vi->xdp_enabled = true;
+ 		for (i = 0; i < vi->max_queue_pairs; i++) {
+ 			rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
+ 			if (i == 0 && !old_prog)
+ 				virtnet_clear_guest_offloads(vi);
+ 		}
++	} else {
++		vi->xdp_enabled = false;
+ 	}
+ 
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+@@ -2609,7 +2645,7 @@ static int virtnet_set_features(struct net_device *dev,
+ 	int err;
+ 
+ 	if ((dev->features ^ features) & NETIF_F_LRO) {
+-		if (vi->xdp_queue_pairs)
++		if (vi->xdp_enabled)
+ 			return -EBUSY;
+ 
+ 		if (features & NETIF_F_LRO)
 -- 
 2.30.2
 
