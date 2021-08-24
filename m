@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDEEA3F6381
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 642393F6383
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233372AbhHXQ44 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:56:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38670 "EHLO mail.kernel.org"
+        id S233793AbhHXQ5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229670AbhHXQ44 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:56:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FDC1611AF;
+        id S233433AbhHXQ45 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:56:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13FE361373;
         Tue, 24 Aug 2021 16:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824171;
-        bh=hHG7jhc/GCFrYNzx6Y2tXesC+3qSJu3AeT0cMgmSfn4=;
+        s=k20201202; t=1629824172;
+        bh=TOcl3h8y0zUeqb5SQcKCPtz9ZLYgerjxGs4W3oevh8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fw6iOYnP3QeI/eslzkcZ2UeTOsQMPsF6f62GsA5mDpAFgjl2O2y+azehfkHkNoybo
-         fVQ1PSCP/9+qTpOjAaOsI0Nw4R23dbjoub3yE2zl0wyGJ5PhKROEVAMzXzPiz/fL8f
-         5UUn23c3x7RTqSMTHLDq/Y8qDqyJ08X5pjxVIUVMBxN/OlNY+HeijHIoiK+U7d7m3Y
-         7re6egtWlAR2VI3dp1YJzvXBDvPBJ0xJeiqLkfkaPdmYSnsJBiYbL3KyB2pohqvlzH
-         IicSeiFXq7E4OrpDBgMGygrlLfH0+5dbJQaVCy5Ucnj81tfWpA4IJEcftlPlbN8YGb
-         +eVRc9dznYCaQ==
+        b=KMLsG9IHHyRX507b7sIdFbqYAKZMS+iNgxqJl/f8i36Hmne0n3EzMtL97Thsqh8v/
+         CVkipnWdJKfhUL/Zml5dbRQwHsnfhcj/7lVNvalt6Sw3w8yhF+eHn87BvoHWjgnHR3
+         L6WrX2GOZlACE4VZ1lUvC0ekXDmMM01qVvoWlB32eqTrmy1Ev+RiUKHUFIRICc9Dg4
+         17iCTbN01pERHCg3aZnhKmAj9s8IiOqjNVw/l2PVPddcUpZiijvx8r7GHDMckdJjtD
+         1eUNjaArPHD+AKBuBN7W4pwhtEr9T2376ZVzFxNT7/KmfQtGjN2Jn6911IwJoCidtm
+         xnyNUeZAHutYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nadav Amit <namit@vmware.com>, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>,
+Cc:     Alan Stern <stern@rowland.harvard.edu>,
+        Johan Hovold <johan@kernel.org>,
+        syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 002/127] io_uring: Use WRITE_ONCE() when writing to sq_flags
-Date:   Tue, 24 Aug 2021 12:54:02 -0400
-Message-Id: <20210824165607.709387-3-sashal@kernel.org>
+Subject: [PATCH 5.13 003/127] USB: core: Avoid WARNings for 0-length descriptor requests
+Date:   Tue, 24 Aug 2021 12:54:03 -0400
+Message-Id: <20210824165607.709387-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,76 +50,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 20c0b380f971e7d48f5d978bc27d827f7eabb21a ]
+[ Upstream commit 60dfe484cef45293e631b3a6e8995f1689818172 ]
 
-The compiler should be forbidden from any strange optimization for async
-writes to user visible data-structures. Without proper protection, the
-compiler can cause write-tearing or invent writes that would confuse the
-userspace.
+The USB core has utility routines to retrieve various types of
+descriptors.  These routines will now provoke a WARN if they are asked
+to retrieve 0 bytes (USB "receive" requests must not have zero
+length), so avert this by checking the size argument at the start.
 
-However, there are writes to sq_flags which are not protected by
-WRITE_ONCE(). Use WRITE_ONCE() for these writes.
-
-This is purely a theoretical issue. Presumably, any compiler is very
-unlikely to do such optimizations.
-
-Fixes: 75b28affdd6a ("io_uring: allocate the two rings together")
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Link: https://lore.kernel.org/r/20210808001342.964634-3-namit@vmware.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+CC: Johan Hovold <johan@kernel.org>
+Reported-and-tested-by: syzbot+7dbcd9ff34dc4ed45240@syzkaller.appspotmail.com
+Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20210607152307.GD1768031@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/usb/core/message.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f23ff39f7697..0a5f105c657c 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1482,7 +1482,8 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
- 	if (all_flushed) {
- 		clear_bit(0, &ctx->sq_check_overflow);
- 		clear_bit(0, &ctx->cq_check_overflow);
--		ctx->rings->sq_flags &= ~IORING_SQ_CQ_OVERFLOW;
-+		WRITE_ONCE(ctx->rings->sq_flags,
-+			   ctx->rings->sq_flags & ~IORING_SQ_CQ_OVERFLOW);
- 	}
+diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+index 30e9e680c74c..4d59d927ae3e 100644
+--- a/drivers/usb/core/message.c
++++ b/drivers/usb/core/message.c
+@@ -783,6 +783,9 @@ int usb_get_descriptor(struct usb_device *dev, unsigned char type,
+ 	int i;
+ 	int result;
  
- 	if (posted)
-@@ -1562,7 +1563,9 @@ static bool io_cqring_event_overflow(struct io_ring_ctx *ctx, u64 user_data,
- 	if (list_empty(&ctx->cq_overflow_list)) {
- 		set_bit(0, &ctx->sq_check_overflow);
- 		set_bit(0, &ctx->cq_check_overflow);
--		ctx->rings->sq_flags |= IORING_SQ_CQ_OVERFLOW;
-+		WRITE_ONCE(ctx->rings->sq_flags,
-+			   ctx->rings->sq_flags | IORING_SQ_CQ_OVERFLOW);
++	if (size <= 0)		/* No point in asking for no data */
++		return -EINVAL;
 +
- 	}
- 	ocqe->cqe.user_data = user_data;
- 	ocqe->cqe.res = res;
-@@ -6790,14 +6793,16 @@ static inline void io_ring_set_wakeup_flag(struct io_ring_ctx *ctx)
- {
- 	/* Tell userspace we may need a wakeup call */
- 	spin_lock_irq(&ctx->completion_lock);
--	ctx->rings->sq_flags |= IORING_SQ_NEED_WAKEUP;
-+	WRITE_ONCE(ctx->rings->sq_flags,
-+		   ctx->rings->sq_flags | IORING_SQ_NEED_WAKEUP);
- 	spin_unlock_irq(&ctx->completion_lock);
- }
+ 	memset(buf, 0, size);	/* Make sure we parse really received data */
  
- static inline void io_ring_clear_wakeup_flag(struct io_ring_ctx *ctx)
- {
- 	spin_lock_irq(&ctx->completion_lock);
--	ctx->rings->sq_flags &= ~IORING_SQ_NEED_WAKEUP;
-+	WRITE_ONCE(ctx->rings->sq_flags,
-+		   ctx->rings->sq_flags & ~IORING_SQ_NEED_WAKEUP);
- 	spin_unlock_irq(&ctx->completion_lock);
- }
+ 	for (i = 0; i < 3; ++i) {
+@@ -832,6 +835,9 @@ static int usb_get_string(struct usb_device *dev, unsigned short langid,
+ 	int i;
+ 	int result;
  
++	if (size <= 0)		/* No point in asking for no data */
++		return -EINVAL;
++
+ 	for (i = 0; i < 3; ++i) {
+ 		/* retry on length 0 or stall; some devices are flakey */
+ 		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
 -- 
 2.30.2
 
