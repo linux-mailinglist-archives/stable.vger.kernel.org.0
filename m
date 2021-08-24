@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCAD93F672C
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:31:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 314B43F672D
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240197AbhHXRbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239153AbhHXRbX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:31:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34266 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241462AbhHXR3U (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241464AbhHXR3U (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:29:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2367961B3F;
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F40CA61B43;
         Tue, 24 Aug 2021 17:05:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824729;
-        bh=Fa86WDYGdFDpxCxBr/hw6G5xC2hZ94PRXSHfBv8/OH0=;
+        s=k20201202; t=1629824730;
+        bh=36eifsAOxTF4eQnSGTYznbnPJqSlDlev0XVPOLvtT0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOydiVMbgNgF9W7wfYNyHlv6jQodQ6RF00dKh5X/frcxuaHyyKfZ+aqc6lxIOJjz3
-         wVRQ8h0lTPGvJEC6aPFzW+R24VQW0gCGpwTptuqfncDTjOoso36hbbMnYeoFQMlqQy
-         0NT5D3nB4UrauBwNUleNm/YBhxR/QYw+ZK99fXM0qMBQmgUjdcnxGsgwgw8Ee5qiVh
-         rG8FnT0dBqU/kv4FBEoMUshuMKPq2fW6M5saRdVFu/mO3G+WdyDfWwYPK+zVUhVmNe
-         6S2i4RNPMffbqC+bA8EZygp38rJvHM2AA2h5iD9rPjjFTuxWE63n1dnQqaFCPA/Tf8
-         Dl4eZLkwC26TA==
+        b=dV/Wex0z2mku+CBYJw9xnjxP5ELaFzgYBfJRf159TT63D97TcDFCf8qfmvdL/gbfN
+         +MteTS9Pf94EQF0XjdWUDG98crk2Mf7kz4rGE1yAkTISHnucWpiY6a5ByQweNSKGaP
+         L4zylc49cwJQIWN5+H32Wn05ai+DJ0ITQag2Wk3zDMv2HEt+yF8I9fSrQRunQ6YaDX
+         26g1OGUhtcDWj1S12sleziKJHwxH8Ynas7l+9Ts8KwXqk0kcAZz2VRf2lfZbKADkPw
+         rH7bMxnm14i0/6/fQbGtsQkEJqy3Wm7oio7wPinGL6iUDh8057vvImtn6BSHH5upAd
+         u+UD2r6CsimjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maxim Levitsky <mlevitsk@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+Cc:     Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 32/64] KVM: nSVM: avoid picking up unsupported bits from L2 in int_ctl (CVE-2021-3653)
-Date:   Tue, 24 Aug 2021 13:04:25 -0400
-Message-Id: <20210824170457.710623-33-sashal@kernel.org>
+Subject: [PATCH 4.14 33/64] x86/fpu: Make init_fpstate correct with optimized XSAVE
+Date:   Tue, 24 Aug 2021 13:04:26 -0400
+Message-Id: <20210824170457.710623-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170457.710623-1-sashal@kernel.org>
 References: <20210824170457.710623-1-sashal@kernel.org>
@@ -48,74 +47,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ upstream commit 0f923e07124df069ba68d8bb12324398f4b6b709 ]
+commit f9dfb5e390fab2df9f7944bb91e7705aba14cd26 upstream.
 
-* Invert the mask of bits that we pick from L2 in
-  nested_vmcb02_prepare_control
+The XSAVE init code initializes all enabled and supported components with
+XRSTOR(S) to init state. Then it XSAVEs the state of the components back
+into init_fpstate which is used in several places to fill in the init state
+of components.
 
-* Invert and explicitly use VIRQ related bits bitmask in svm_clear_vintr
+This works correctly with XSAVE, but not with XSAVEOPT and XSAVES because
+those use the init optimization and skip writing state of components which
+are in init state. So init_fpstate.xsave still contains all zeroes after
+this operation.
 
-This fixes a security issue that allowed a malicious L1 to run L2 with
-AVIC enabled, which allowed the L2 to exploit the uninitialized and enabled
-AVIC to read/write the host physical memory at some offsets.
+There are two ways to solve that:
 
-Fixes: 3d6368ef580a ("KVM: SVM: Add VMRUN handler")
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+   1) Use XSAVE unconditionally, but that requires to reshuffle the buffer when
+      XSAVES is enabled because XSAVES uses compacted format.
+
+   2) Save the components which are known to have a non-zero init state by other
+      means.
+
+Looking deeper, #2 is the right thing to do because all components the
+kernel supports have all-zeroes init state except the legacy features (FP,
+SSE). Those cannot be hard coded because the states are not identical on all
+CPUs, but they can be saved with FXSAVE which avoids all conditionals.
+
+Use FXSAVE to save the legacy FP/SSE components in init_fpstate along with
+a BUILD_BUG_ON() which reminds developers to validate that a newly added
+component has all zeroes init state. As a bonus remove the now unused
+copy_xregs_to_kernel_booting() crutch.
+
+The XSAVE and reshuffle method can still be implemented in the unlikely
+case that components are added which have a non-zero init state and no
+other means to save them. For now, FXSAVE is just simple and good enough.
+
+  [ bp: Fix a typo or two in the text. ]
+
+Fixes: 6bad06b76892 ("x86, xsave: Use xsaveopt in context-switch path when supported")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20210618143444.587311343@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/svm.h |  2 ++
- arch/x86/kvm/svm.c         | 15 ++++++++-------
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ arch/x86/include/asm/fpu/internal.h | 30 ++++++-----------------
+ arch/x86/kernel/fpu/xstate.c        | 38 ++++++++++++++++++++++++++---
+ 2 files changed, 43 insertions(+), 25 deletions(-)
 
-diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
-index 78dd9df88157..2a9e81e93aac 100644
---- a/arch/x86/include/asm/svm.h
-+++ b/arch/x86/include/asm/svm.h
-@@ -117,6 +117,8 @@ struct __attribute__ ((__packed__)) vmcb_control_area {
- #define V_IGN_TPR_SHIFT 20
- #define V_IGN_TPR_MASK (1 << V_IGN_TPR_SHIFT)
- 
-+#define V_IRQ_INJECTION_BITS_MASK (V_IRQ_MASK | V_INTR_PRIO_MASK | V_IGN_TPR_MASK)
-+
- #define V_INTR_MASKING_SHIFT 24
- #define V_INTR_MASKING_MASK (1 << V_INTR_MASKING_SHIFT)
- 
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 0e6e158b8f8f..5ff6c145fdbb 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -1211,12 +1211,7 @@ static __init int svm_hardware_setup(void)
- 		}
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index b8c935033d21..4f274d851986 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -215,6 +215,14 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
  	}
+ }
  
--	if (vgif) {
--		if (!boot_cpu_has(X86_FEATURE_VGIF))
--			vgif = false;
--		else
--			pr_info("Virtual GIF supported\n");
--	}
-+	vgif = false; /* Disabled for CVE-2021-3653 */
- 
- 	return 0;
- 
-@@ -3164,7 +3159,13 @@ static bool nested_svm_vmrun(struct vcpu_svm *svm)
- 	svm->nested.intercept            = nested_vmcb->control.intercept;
- 
- 	svm_flush_tlb(&svm->vcpu, true);
--	svm->vmcb->control.int_ctl = nested_vmcb->control.int_ctl | V_INTR_MASKING_MASK;
++static inline void fxsave(struct fxregs_state *fx)
++{
++	if (IS_ENABLED(CONFIG_X86_32))
++		asm volatile( "fxsave %[fx]" : [fx] "=m" (*fx));
++	else
++		asm volatile("fxsaveq %[fx]" : [fx] "=m" (*fx));
++}
 +
-+	svm->vmcb->control.int_ctl &=
-+			V_INTR_MASKING_MASK | V_GIF_ENABLE_MASK | V_GIF_MASK;
+ /* These macros all use (%edi)/(%rdi) as the single memory argument. */
+ #define XSAVE		".byte " REX_PREFIX "0x0f,0xae,0x27"
+ #define XSAVEOPT	".byte " REX_PREFIX "0x0f,0xae,0x37"
+@@ -283,28 +291,6 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
+ 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
+ 		     : "memory")
+ 
+-/*
+- * This function is called only during boot time when x86 caps are not set
+- * up and alternative can not be used yet.
+- */
+-static inline void copy_xregs_to_kernel_booting(struct xregs_state *xstate)
+-{
+-	u64 mask = -1;
+-	u32 lmask = mask;
+-	u32 hmask = mask >> 32;
+-	int err;
+-
+-	WARN_ON(system_state != SYSTEM_BOOTING);
+-
+-	if (static_cpu_has(X86_FEATURE_XSAVES))
+-		XSTATE_OP(XSAVES, xstate, lmask, hmask, err);
+-	else
+-		XSTATE_OP(XSAVE, xstate, lmask, hmask, err);
+-
+-	/* We should never fault when copying to a kernel buffer: */
+-	WARN_ON_FPU(err);
+-}
+-
+ /*
+  * This function is called only during boot time when x86 caps are not set
+  * up and alternative can not be used yet.
+diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
+index 601a5da1d196..7d372db8bee1 100644
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -404,6 +404,24 @@ static void __init print_xstate_offset_size(void)
+ 	}
+ }
+ 
++/*
++ * All supported features have either init state all zeros or are
++ * handled in setup_init_fpu() individually. This is an explicit
++ * feature list and does not use XFEATURE_MASK*SUPPORTED to catch
++ * newly added supported features at build time and make people
++ * actually look at the init state for the new feature.
++ */
++#define XFEATURES_INIT_FPSTATE_HANDLED		\
++	(XFEATURE_MASK_FP |			\
++	 XFEATURE_MASK_SSE |			\
++	 XFEATURE_MASK_YMM |			\
++	 XFEATURE_MASK_OPMASK |			\
++	 XFEATURE_MASK_ZMM_Hi256 |		\
++	 XFEATURE_MASK_Hi16_ZMM	 |		\
++	 XFEATURE_MASK_PKRU |			\
++	 XFEATURE_MASK_BNDREGS |		\
++	 XFEATURE_MASK_BNDCSR)
 +
-+	svm->vmcb->control.int_ctl |= nested_vmcb->control.int_ctl &
-+			(V_TPR_MASK | V_IRQ_INJECTION_BITS_MASK);
+ /*
+  * setup the xstate image representing the init state
+  */
+@@ -411,6 +429,8 @@ static void __init setup_init_fpu_buf(void)
+ {
+ 	static int on_boot_cpu __initdata = 1;
+ 
++	BUILD_BUG_ON(XCNTXT_MASK != XFEATURES_INIT_FPSTATE_HANDLED);
 +
- 	if (nested_vmcb->control.int_ctl & V_INTR_MASKING_MASK)
- 		svm->vcpu.arch.hflags |= HF_VINTR_MASK;
- 	else
+ 	WARN_ON_FPU(!on_boot_cpu);
+ 	on_boot_cpu = 0;
+ 
+@@ -429,10 +449,22 @@ static void __init setup_init_fpu_buf(void)
+ 	copy_kernel_to_xregs_booting(&init_fpstate.xsave);
+ 
+ 	/*
+-	 * Dump the init state again. This is to identify the init state
+-	 * of any feature which is not represented by all zero's.
++	 * All components are now in init state. Read the state back so
++	 * that init_fpstate contains all non-zero init state. This only
++	 * works with XSAVE, but not with XSAVEOPT and XSAVES because
++	 * those use the init optimization which skips writing data for
++	 * components in init state.
++	 *
++	 * XSAVE could be used, but that would require to reshuffle the
++	 * data when XSAVES is available because XSAVES uses xstate
++	 * compaction. But doing so is a pointless exercise because most
++	 * components have an all zeros init state except for the legacy
++	 * ones (FP and SSE). Those can be saved with FXSAVE into the
++	 * legacy area. Adding new features requires to ensure that init
++	 * state is all zeroes or if not to add the necessary handling
++	 * here.
+ 	 */
+-	copy_xregs_to_kernel_booting(&init_fpstate.xsave);
++	fxsave(&init_fpstate.fxsave);
+ }
+ 
+ static int xfeature_uncompacted_offset(int xfeature_nr)
 -- 
 2.30.2
 
