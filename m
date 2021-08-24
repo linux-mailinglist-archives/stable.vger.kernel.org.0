@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DC2C3F63A8
+	by mail.lfdr.de (Postfix) with ESMTP id 2163D3F63A7
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235069AbhHXQ5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39332 "EHLO mail.kernel.org"
+        id S234540AbhHXQ5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234514AbhHXQ5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E11BF6140A;
-        Tue, 24 Aug 2021 16:56:33 +0000 (UTC)
+        id S234541AbhHXQ5T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D578861357;
+        Tue, 24 Aug 2021 16:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824194;
-        bh=zWITycdEmnFZK2EjMLbdmEPHankEIC+qDAKgQrLWXQM=;
+        s=k20201202; t=1629824195;
+        bh=NAahadXB7XFnLvJQTmTJsYf7xYIcyKAYCwJbYnA81rQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcXnM5DOSsUAu+xfW+k9YMgp/2Eerv05G2IHJgzmTORtibLmNiPrpIJtFx1o4otS0
-         HbEkRP0hGmoslO/oHmxwkwiKx3fIAa/3dOd81rS3fa0N5ETctw0CP646mM8HFt6eHw
-         V9V5zX8mD52Z2P9BAxBV8djDcU6EYEVl5Rgs0fd3pdcXgJ0Tx558hcnQ0dOrXbSlyU
-         y/rWahaD+abo2oBhgYWLS49UYW3cKo+y17ZyEk4hcQr40+Hd9ns6TjH8J4r67n/chI
-         uhNw6X5cRlIrUwLlXu30BtLy3S4QMq6Z9nyDmTzatlpb//yu8ZuwYHyEshu3hsK4aI
-         T+JYMyEqgge/g==
+        b=TMB8zVdPEnuSF8BBt520dCunzDnJ/htbMD4OiZ7lEa7QJGzmtjTyy+Ncd4hT0x3yH
+         kixMAFb+Zdrg4KibifJ/uq47Y2xNCjGNUJH8rUmlBrDMzHXoyPpZ4S1uP7bNIX9Umr
+         GpOfjZihshIBiJF/DJvF2gG/LnbcjFqVEYUnk3tvwkhi1jO2JeQRhKhe17uej6X4aC
+         ZyXcm/4HHUkvuBRi+wipvBFUcY8247DxQqt7H5VVpXAz6WW58B1mTJQi2LlLd2LetU
+         Fhf4Ant4dMt1GKQnCpNw2FibvNQC7zZgJE4OL/0EiHKBjZcj3JoI+PlO0gH3z0F4z2
+         LpbUYcgYR5AFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Manivannan Sadhasivam <mani@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 026/127] mtd: rawnand: Add a check in of_get_nand_secure_regions()
-Date:   Tue, 24 Aug 2021 12:54:26 -0400
-Message-Id: <20210824165607.709387-27-sashal@kernel.org>
+Subject: [PATCH 5.13 027/127] arm64: dts: qcom: c630: fix correct powerdown pin for WSA881x
+Date:   Tue, 24 Aug 2021 12:54:27 -0400
+Message-Id: <20210824165607.709387-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -49,38 +49,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 14f97f0b8e2b9950c028d0cb7311ffe26a3cc1c0 ]
+[ Upstream commit 9a253bb42f190efd1a1c156939ad7298b3529dca ]
 
-Check for whether of_property_count_elems_of_size() returns a negative
-error code.
+WSA881x powerdown pin is connected to GPIO1, GPIO2 not GPIO2 and GPIO3,
+so correct this. This was working so far due to a shift bug in gpio driver,
+however once that is fixed this will stop working, so fix this!
 
-Fixes: 13b89768275d ("mtd: rawnand: Add support for secure regions in NAND memory")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/YMtQFXE0F1w7mUh+@mwanda
+For some reason we forgot to add this dts change in last merge cycle so
+currently audio is broken in 5.13 as the gpio driver fix already landed
+in 5.13.
+
+Reported-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: 45021d35fcb2 ("arm64: dts: qcom: c630: Enable audio support")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Tested-by: Shawn Guo <shawnguo@kernel.org>
+Link: https://lore.kernel.org/r/20210706083523.10601-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/nand_base.c | 4 ++--
+ arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/nand_base.c b/drivers/mtd/nand/raw/nand_base.c
-index fb072c444495..b18c089a7dca 100644
---- a/drivers/mtd/nand/raw/nand_base.c
-+++ b/drivers/mtd/nand/raw/nand_base.c
-@@ -5059,8 +5059,8 @@ static int of_get_nand_secure_regions(struct nand_chip *chip)
- 	int nr_elem, i, j;
+diff --git a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+index c2a709a384e9..d7591a4621a2 100644
+--- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
++++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+@@ -700,7 +700,7 @@
+ 		left_spkr: wsa8810-left{
+ 			compatible = "sdw10217211000";
+ 			reg = <0 3>;
+-			powerdown-gpios = <&wcdgpio 2 GPIO_ACTIVE_HIGH>;
++			powerdown-gpios = <&wcdgpio 1 GPIO_ACTIVE_HIGH>;
+ 			#thermal-sensor-cells = <0>;
+ 			sound-name-prefix = "SpkrLeft";
+ 			#sound-dai-cells = <0>;
+@@ -708,7 +708,7 @@
  
- 	nr_elem = of_property_count_elems_of_size(dn, "secure-regions", sizeof(u64));
--	if (!nr_elem)
--		return 0;
-+	if (nr_elem <= 0)
-+		return nr_elem;
- 
- 	chip->nr_secure_regions = nr_elem / 2;
- 	chip->secure_regions = kcalloc(chip->nr_secure_regions, sizeof(*chip->secure_regions),
+ 		right_spkr: wsa8810-right{
+ 			compatible = "sdw10217211000";
+-			powerdown-gpios = <&wcdgpio 3 GPIO_ACTIVE_HIGH>;
++			powerdown-gpios = <&wcdgpio 2 GPIO_ACTIVE_HIGH>;
+ 			reg = <0 4>;
+ 			#thermal-sensor-cells = <0>;
+ 			sound-name-prefix = "SpkrRight";
 -- 
 2.30.2
 
