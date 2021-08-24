@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 125953F637F
+	by mail.lfdr.de (Postfix) with ESMTP id EDEEA3F6381
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:56:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233330AbhHXQ4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:56:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38646 "EHLO mail.kernel.org"
+        id S233372AbhHXQ44 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:56:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230269AbhHXQ4z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:56:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40AE361371;
-        Tue, 24 Aug 2021 16:56:10 +0000 (UTC)
+        id S229670AbhHXQ44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:56:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FDC1611AF;
+        Tue, 24 Aug 2021 16:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824170;
-        bh=+iohKxA+dJ7wXNrXW47nWHqQy50s8PaxxGNPlFzoeVM=;
+        s=k20201202; t=1629824171;
+        bh=hHG7jhc/GCFrYNzx6Y2tXesC+3qSJu3AeT0cMgmSfn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BkWVCKolVSnL4//OTeqmX7aOJNfyGer8jpoS6FPkb1TyAJUtx6kzRgMKDN9nFxxyJ
-         Ey0Fzd3/8VcC4qAfI3XiC8QLKzuj9xsLlxlNMxGBK00MAhnNlHCaPjehQcqbTiQb6o
-         +zVxKLH02e9qavPjf/8+34toocaV1cSTFWuVthIll2DtO2x7BhZFsd7h0PhiM04J3f
-         K+6KAdj3GZJM+zcRKH6qHNf3kSFsca4kGAk6MtW1owWV7SAHlUNsa/rx2uy3XUO9B3
-         GiZNaKGK70M5M+LisMT/yH8NMznd8YaKI6olNlfzMhN6gI3DWjVJMynWQ4RPL95VG/
-         DC32MMKdNHpXg==
+        b=fw6iOYnP3QeI/eslzkcZ2UeTOsQMPsF6f62GsA5mDpAFgjl2O2y+azehfkHkNoybo
+         fVQ1PSCP/9+qTpOjAaOsI0Nw4R23dbjoub3yE2zl0wyGJ5PhKROEVAMzXzPiz/fL8f
+         5UUn23c3x7RTqSMTHLDq/Y8qDqyJ08X5pjxVIUVMBxN/OlNY+HeijHIoiK+U7d7m3Y
+         7re6egtWlAR2VI3dp1YJzvXBDvPBJ0xJeiqLkfkaPdmYSnsJBiYbL3KyB2pohqvlzH
+         IicSeiFXq7E4OrpDBgMGygrlLfH0+5dbJQaVCy5Ucnj81tfWpA4IJEcftlPlbN8YGb
+         +eVRc9dznYCaQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Persson <andreasp56@outlook.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.13 001/127] mtd: cfi_cmdset_0002: fix crash when erasing/writing AMD cards
-Date:   Tue, 24 Aug 2021 12:54:01 -0400
-Message-Id: <20210824165607.709387-2-sashal@kernel.org>
+Cc:     Nadav Amit <namit@vmware.com>, Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 002/127] io_uring: Use WRITE_ONCE() when writing to sq_flags
+Date:   Tue, 24 Aug 2021 12:54:02 -0400
+Message-Id: <20210824165607.709387-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -48,35 +48,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Persson <andreasp56@outlook.com>
+From: Nadav Amit <namit@vmware.com>
 
-commit 2394e628738933aa014093d93093030f6232946d upstream.
+[ Upstream commit 20c0b380f971e7d48f5d978bc27d827f7eabb21a ]
 
-Erasing an AMD linear flash card (AM29F016D) crashes after the first
-sector has been erased. Likewise, writing to it crashes after two bytes
-have been written. The reason is a missing check for a null pointer -
-the cmdset_priv field is not set for this type of card.
+The compiler should be forbidden from any strange optimization for async
+writes to user visible data-structures. Without proper protection, the
+compiler can cause write-tearing or invent writes that would confuse the
+userspace.
 
-Fixes: 4844ef80305d ("mtd: cfi_cmdset_0002: Add support for polling status register")
-Signed-off-by: Andreas Persson <andreasp56@outlook.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/DB6P189MB05830B3530B8087476C5CFE4C1159@DB6P189MB0583.EURP189.PROD.OUTLOOK.COM
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, there are writes to sq_flags which are not protected by
+WRITE_ONCE(). Use WRITE_ONCE() for these writes.
+
+This is purely a theoretical issue. Presumably, any compiler is very
+unlikely to do such optimizations.
+
+Fixes: 75b28affdd6a ("io_uring: allocate the two rings together")
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Link: https://lore.kernel.org/r/20210808001342.964634-3-namit@vmware.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/chips/cfi_cmdset_0002.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
-index 3097e93787f7..a761134fd3be 100644
---- a/drivers/mtd/chips/cfi_cmdset_0002.c
-+++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-@@ -119,7 +119,7 @@ static int cfi_use_status_reg(struct cfi_private *cfi)
- 	struct cfi_pri_amdstd *extp = cfi->cmdset_priv;
- 	u8 poll_mask = CFI_POLL_STATUS_REG | CFI_POLL_DQ;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index f23ff39f7697..0a5f105c657c 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1482,7 +1482,8 @@ static bool __io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force)
+ 	if (all_flushed) {
+ 		clear_bit(0, &ctx->sq_check_overflow);
+ 		clear_bit(0, &ctx->cq_check_overflow);
+-		ctx->rings->sq_flags &= ~IORING_SQ_CQ_OVERFLOW;
++		WRITE_ONCE(ctx->rings->sq_flags,
++			   ctx->rings->sq_flags & ~IORING_SQ_CQ_OVERFLOW);
+ 	}
  
--	return extp->MinorVersion >= '5' &&
-+	return extp && extp->MinorVersion >= '5' &&
- 		(extp->SoftwareFeatures & poll_mask) == CFI_POLL_STATUS_REG;
+ 	if (posted)
+@@ -1562,7 +1563,9 @@ static bool io_cqring_event_overflow(struct io_ring_ctx *ctx, u64 user_data,
+ 	if (list_empty(&ctx->cq_overflow_list)) {
+ 		set_bit(0, &ctx->sq_check_overflow);
+ 		set_bit(0, &ctx->cq_check_overflow);
+-		ctx->rings->sq_flags |= IORING_SQ_CQ_OVERFLOW;
++		WRITE_ONCE(ctx->rings->sq_flags,
++			   ctx->rings->sq_flags | IORING_SQ_CQ_OVERFLOW);
++
+ 	}
+ 	ocqe->cqe.user_data = user_data;
+ 	ocqe->cqe.res = res;
+@@ -6790,14 +6793,16 @@ static inline void io_ring_set_wakeup_flag(struct io_ring_ctx *ctx)
+ {
+ 	/* Tell userspace we may need a wakeup call */
+ 	spin_lock_irq(&ctx->completion_lock);
+-	ctx->rings->sq_flags |= IORING_SQ_NEED_WAKEUP;
++	WRITE_ONCE(ctx->rings->sq_flags,
++		   ctx->rings->sq_flags | IORING_SQ_NEED_WAKEUP);
+ 	spin_unlock_irq(&ctx->completion_lock);
+ }
+ 
+ static inline void io_ring_clear_wakeup_flag(struct io_ring_ctx *ctx)
+ {
+ 	spin_lock_irq(&ctx->completion_lock);
+-	ctx->rings->sq_flags &= ~IORING_SQ_NEED_WAKEUP;
++	WRITE_ONCE(ctx->rings->sq_flags,
++		   ctx->rings->sq_flags & ~IORING_SQ_NEED_WAKEUP);
+ 	spin_unlock_irq(&ctx->completion_lock);
  }
  
 -- 
