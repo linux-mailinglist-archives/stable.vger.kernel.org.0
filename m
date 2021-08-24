@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9682D3F681A
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AFAC3F682C
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:41:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240454AbhHXRkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:40:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42928 "EHLO mail.kernel.org"
+        id S241877AbhHXRlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241964AbhHXRiq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:38:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D707F61C13;
-        Tue, 24 Aug 2021 17:08:07 +0000 (UTC)
+        id S242121AbhHXRjJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:39:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3F8B61BF3;
+        Tue, 24 Aug 2021 17:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824888;
-        bh=ErkmxPQ4iJPlEC1yQgCO+iUqMqh4eNxiGZeD9PjrX1Q=;
+        s=k20201202; t=1629824889;
+        bh=53r71JBP8p2LfzAQiH3+5iKfFwea/zlRyLgqLIzUNZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C5DwTT//iuC5g/csqML9tQ1YWgpGna7dBaSNL35YeU5EZ+6g9sh6xCgUUKQharztG
-         LJoTcg4sNXLpq8Rsz3xOy4zaRjDM0xPN2yEEw6TF4Cs2cXm3FuOhkQJF/n2XG78z3A
-         tFE1cld7LB5QeMpaSFfpFzh2W190JCxF4aM28yT4N2iMMge3K4gR6DRXPi688UihFb
-         T6MBbzpzXIiaUzStdLVmgtOAXjLnxNRokFD+Y5aV9sn3wPEin/ZOZfKYWU3+/ZfZby
-         8N3N0NeANaAjLCw5QeC1klELnzIg2+2bEup0FgItQ7JYDFNSuxGsAjHsmTApv+5qnd
-         jlwLwcLGRz31A==
+        b=kL+itDfmUtshExne2+/F5OrMUGjIUuxtSlOCYndfZflc0CEuCYIjw4HbB27tFaTd9
+         mX3xTRSGjhIbMftRw7sBofo3pvakhZOrRFpSPjzf2570tDs+PFfX7kyZ++l2tanPNg
+         KmfuLbqL35p7g2PcmoyV1UV7jIxlMXgVtYLOeqQYCaBZfUwZn/Yo8WIJVByy3CviFJ
+         2g2rG5Z3yxJq/0nBGWwPeeoV54rim4yd4JNVwOOvL6AfInKrwn+SoBFFfgse0u31dA
+         tUHZjV9KhlKPY1+vspaC8+27kpK/xLiCWvGQWUlwSqrjUCa1Jn54d7O3EhYXSXLlqr
+         MJzynaCefe2KQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Doug Anderson <dianders@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Alim Akhtar <alim.akhtar@gmail.com>,
-        Jaehoon Chung <jh80.chung@samsung.com>,
+Cc:     Jaehoon Chung <jh80.chung@samsung.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Shawn Lin <shawn.lin@rock-chips.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 25/31] mmc: dw_mmc: Wait for data transfer after response errors.
-Date:   Tue, 24 Aug 2021 13:07:37 -0400
-Message-Id: <20210824170743.710957-26-sashal@kernel.org>
+Subject: [PATCH 4.4 26/31] mmc: dw_mmc: call the dw_mci_prep_stop_abort() by default
+Date:   Tue, 24 Aug 2021 13:07:38 -0400
+Message-Id: <20210824170743.710957-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
@@ -51,98 +50,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Anderson <dianders@chromium.org>
+From: Jaehoon Chung <jh80.chung@samsung.com>
 
-[ Upstream commit 46d179525a1f6d16957dcb4624517bc04142b3e7 ]
+[ Upstream commit e13c3c081845b51e8ba71a90e91c52679cfdbf89 ]
 
-According to the DesignWare state machine description, after we get a
-"response error" or "response CRC error" we move into data transfer
-mode. That means that we don't necessarily need to special case
-trying to deal with the failure right away. We can wait until we are
-notified that the data transfer is complete (with or without errors)
-and then we can deal with the failure.
+stop_cmdr should be set to values relevant to stop command.
+It migth be assigned to values whatever there is mrq->stop or not.
+Then it doesn't need to use dw_mci_prepare_command().
+It's enough to use the prep_stop_abort for preparing stop command.
 
-It may sound strange to defer dealing with a command that we know will
-fail anyway, but this appears to fix a bug. During tuning (CMD19) on
-a specific card on an rk3288-based system, we found that we could get
-a "response CRC error". Sending the stop command after the "response
-CRC error" would then throw the system into a confused state causing
-all future tuning phases to report failure.
-
-When in the confused state, the controller would show these (hex codes
-are interrupt status register):
- CMD ERR: 0x00000046 (cmd=19)
- CMD ERR: 0x0000004e (cmd=12)
- DATA ERR: 0x00000208
- DATA ERR: 0x0000020c
- CMD ERR: 0x00000104 (cmd=19)
- CMD ERR: 0x00000104 (cmd=12)
- DATA ERR: 0x00000208
- DATA ERR: 0x0000020c
- ...
- ...
-
-It is inherently difficult to deal with the complexity of trying to
-correctly send a stop command while a data transfer is taking place
-since you need to deal with different corner cases caused by the fact
-that the data transfer could complete (with errors or without errors)
-during various places in sending the stop command (dw_mci_stop_dma,
-send_stop_abort, etc)
-
-Instead of adding a bunch of extra complexity to deal with this, it
-seems much simpler to just use the more straightforward (and less
-error-prone) path of letting the data transfer finish. There
-shouldn't be any huge benefit to sending the stop command slightly
-earlier, anyway.
-
-Signed-off-by: Doug Anderson <dianders@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Alim Akhtar <alim.akhtar@gmail.com>
 Signed-off-by: Jaehoon Chung <jh80.chung@samsung.com>
+Tested-by: Heiko Stuebner <heiko@sntech.de>
+Reviewed-by: Shawn Lin <shawn.lin@rock-chips.com>
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/dw_mmc.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/mmc/host/dw_mmc.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
-index 581f5d0271f4..afdf539e06e9 100644
+index afdf539e06e9..72ab0623293c 100644
 --- a/drivers/mmc/host/dw_mmc.c
 +++ b/drivers/mmc/host/dw_mmc.c
-@@ -1744,6 +1744,33 @@ static void dw_mci_tasklet_func(unsigned long priv)
- 			}
+@@ -380,7 +380,7 @@ static void dw_mci_start_command(struct dw_mci *host,
  
- 			if (cmd->data && err) {
-+				/*
-+				 * During UHS tuning sequence, sending the stop
-+				 * command after the response CRC error would
-+				 * throw the system into a confused state
-+				 * causing all future tuning phases to report
-+				 * failure.
-+				 *
-+				 * In such case controller will move into a data
-+				 * transfer state after a response error or
-+				 * response CRC error. Let's let that finish
-+				 * before trying to send a stop, so we'll go to
-+				 * STATE_SENDING_DATA.
-+				 *
-+				 * Although letting the data transfer take place
-+				 * will waste a bit of time (we already know
-+				 * the command was bad), it can't cause any
-+				 * errors since it's possible it would have
-+				 * taken place anyway if this tasklet got
-+				 * delayed. Allowing the transfer to take place
-+				 * avoids races and keeps things simple.
-+				 */
-+				if ((err != -ETIMEDOUT) &&
-+				    (cmd->opcode == MMC_SEND_TUNING_BLOCK)) {
-+					state = STATE_SENDING_DATA;
-+					continue;
-+				}
-+
+ static inline void send_stop_abort(struct dw_mci *host, struct mmc_data *data)
+ {
+-	struct mmc_command *stop = data->stop ? data->stop : &host->stop_abort;
++	struct mmc_command *stop = &host->stop_abort;
+ 
+ 	dw_mci_start_command(host, stop, host->stop_cmdr);
+ }
+@@ -1202,10 +1202,7 @@ static void __dw_mci_start_request(struct dw_mci *host,
+ 		spin_unlock_irqrestore(&host->irq_lock, irqflags);
+ 	}
+ 
+-	if (mrq->stop)
+-		host->stop_cmdr = dw_mci_prepare_command(slot->mmc, mrq->stop);
+-	else
+-		host->stop_cmdr = dw_mci_prep_stop_abort(host, cmd);
++	host->stop_cmdr = dw_mci_prep_stop_abort(host, cmd);
+ }
+ 
+ static void dw_mci_start_request(struct dw_mci *host,
+@@ -1797,8 +1794,7 @@ static void dw_mci_tasklet_func(unsigned long priv)
+ 			if (test_and_clear_bit(EVENT_DATA_ERROR,
+ 					       &host->pending_events)) {
  				dw_mci_stop_dma(host);
- 				send_stop_abort(host, data);
- 				state = STATE_SENDING_STOP;
+-				if (data->stop ||
+-				    !(host->data_status & (SDMMC_INT_DRTO |
++				if (!(host->data_status & (SDMMC_INT_DRTO |
+ 							   SDMMC_INT_EBE)))
+ 					send_stop_abort(host, data);
+ 				state = STATE_DATA_ERROR;
+@@ -1835,8 +1831,7 @@ static void dw_mci_tasklet_func(unsigned long priv)
+ 			if (test_and_clear_bit(EVENT_DATA_ERROR,
+ 					       &host->pending_events)) {
+ 				dw_mci_stop_dma(host);
+-				if (data->stop ||
+-				    !(host->data_status & (SDMMC_INT_DRTO |
++				if (!(host->data_status & (SDMMC_INT_DRTO |
+ 							   SDMMC_INT_EBE)))
+ 					send_stop_abort(host, data);
+ 				state = STATE_DATA_ERROR;
+@@ -1913,7 +1908,7 @@ static void dw_mci_tasklet_func(unsigned long priv)
+ 			host->cmd = NULL;
+ 			host->data = NULL;
+ 
+-			if (mrq->stop)
++			if (!mrq->sbc && mrq->stop)
+ 				dw_mci_command_complete(host, mrq->stop);
+ 			else
+ 				host->cmd_status = 0;
 -- 
 2.30.2
 
