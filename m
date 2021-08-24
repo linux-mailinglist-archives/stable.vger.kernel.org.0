@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BBD43F647E
+	by mail.lfdr.de (Postfix) with ESMTP id E1C543F6480
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:04:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234631AbhHXRFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39258 "EHLO mail.kernel.org"
+        id S237794AbhHXRFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234877AbhHXRCO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:02:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B648D61882;
-        Tue, 24 Aug 2021 16:58:07 +0000 (UTC)
+        id S230255AbhHXRCU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:02:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4336961880;
+        Tue, 24 Aug 2021 16:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824289;
-        bh=XeeMr38iQ0i4olwwCt11F3iC7LgHZ7gcMd/4yzKy7/4=;
+        s=k20201202; t=1629824290;
+        bh=uCcq/XOxIZnsY216jub7sCph5r3r6fTURJlkc9QdRMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jT8vQL3IQV4IgKJdD7CRt67FGu6rcCnsD0Pq19s74aKLzUPYYkDzk7Z83sYLHzEAU
-         HGC7f2gGvNtHVXFBXSuG6s8U/mgrWe2g02eKSvPHxkrncL45ttj3ac+kYTEbXw0gBI
-         x2qvHCyWXlHBxRryPRgNLdKgkjjZwMqJZAK80G369E2CbIpekKspcpmb5c02GdqnLl
-         5ISI0jrBDqxLK+a9yfhIkrz7/oBpaBEne1y9omI3MD7i6kk8A0nVAPaVveQzRYdmfc
-         zaVtr4qsGduR5KfG+2Ij7TfGLD+tmILQkvQurCjMULIT9xAneiFmGJLAHmq+wfzPDX
-         J2k3SYcqEeuWw==
+        b=PYAm1g8hMRSb1nDO7WaDLPdaUrmLk7n3OoYlLB6tfh5lCJJhY6Xl/kmiXetT6JCZy
+         jFkpeJQAntb9Yg5zXvrPcNds90OnapyOXbW+w7Yw+D81+XNRnkZUE6ynq6K/a+jHG2
+         xnsq2NSdQXXLuSlJPg7z4UWK8WP6MokSRz+Ol8wTt0oSyuZcjUWt652o1fWSjMFxtx
+         oMw4fzhgqPihosi2InXntV7V76DtaTp6bp9k2HH+8fRnspS0d4CbeuOGiU+arwUpYl
+         nS1tG4Ji0+3sBQcymEJ8ZVySTdKnHQLAtycn61a/YtvyIPx2C9Lp9OJ+4RP7DBz99c
+         bfWSzLDUrJrVg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Michal Hocko <mhocko@suse.com>,
+Cc:     Marco Elver <elver@google.com>,
+        Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 122/127] mm/hwpoison: retry with shake_page() for unhandlable pages
-Date:   Tue, 24 Aug 2021 12:56:02 -0400
-Message-Id: <20210824165607.709387-123-sashal@kernel.org>
+Subject: [PATCH 5.13 123/127] kfence: fix is_kfence_address() for addresses below KFENCE_POOL_SIZE
+Date:   Tue, 24 Aug 2021 12:56:03 -0400
+Message-Id: <20210824165607.709387-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -55,69 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit fcc00621d88b274b5dffd8daeea71d0e4c28b84e ]
+[ Upstream commit a7cb5d23eaea148f8582229846f8dfff192f05c3 ]
 
-HWPoisonHandlable() sometimes returns false for typical user pages due
-to races with average memory events like transfers over LRU lists.  This
-causes failures in hwpoison handling.
+Originally the addr != NULL check was meant to take care of the case
+where __kfence_pool == NULL (KFENCE is disabled).  However, this does
+not work for addresses where addr > 0 && addr < KFENCE_POOL_SIZE.
 
-There's retry code for such a case but does not work because the retry
-loop reaches the retry limit too quickly before the page settles down to
-handlable state.  Let get_any_page() call shake_page() to fix it.
+This can be the case on NULL-deref where addr > 0 && addr < PAGE_SIZE or
+any other faulting access with addr < KFENCE_POOL_SIZE.  While the
+kernel would likely crash, the stack traces and report might be
+confusing due to double faults upon KFENCE's attempt to unprotect such
+an address.
 
-[naoya.horiguchi@nec.com: get_any_page(): return -EIO when retry limit reached]
-  Link: https://lkml.kernel.org/r/20210819001958.2365157-1-naoya.horiguchi@linux.dev
+Fix it by just checking that __kfence_pool != NULL instead.
 
-Link: https://lkml.kernel.org/r/20210817053703.2267588-1-naoya.horiguchi@linux.dev
-Fixes: 25182f05ffed ("mm,hwpoison: fix race with hugetlb page allocation")
-Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reported-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: <stable@vger.kernel.org>		[5.13+]
+Link: https://lkml.kernel.org/r/20210818130300.2482437-1-elver@google.com
+Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
+Signed-off-by: Marco Elver <elver@google.com>
+Reported-by: Kuan-Ying Lee <Kuan-Ying.Lee@mediatek.com>
+Acked-by: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: <stable@vger.kernel.org>    [5.12+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory-failure.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ include/linux/kfence.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index 18e83150194a..624763fdecc5 100644
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -990,7 +990,7 @@ static int __get_hwpoison_page(struct page *page)
- 	 * unexpected races caused by taking a page refcount.
+diff --git a/include/linux/kfence.h b/include/linux/kfence.h
+index a70d1ea03532..3fe6dd8a18c1 100644
+--- a/include/linux/kfence.h
++++ b/include/linux/kfence.h
+@@ -51,10 +51,11 @@ extern atomic_t kfence_allocation_gate;
+ static __always_inline bool is_kfence_address(const void *addr)
+ {
+ 	/*
+-	 * The non-NULL check is required in case the __kfence_pool pointer was
+-	 * never initialized; keep it in the slow-path after the range-check.
++	 * The __kfence_pool != NULL check is required to deal with the case
++	 * where __kfence_pool == NULL && addr < KFENCE_POOL_SIZE. Keep it in
++	 * the slow-path after the range-check!
  	 */
- 	if (!HWPoisonHandlable(head))
--		return 0;
-+		return -EBUSY;
+-	return unlikely((unsigned long)((char *)addr - __kfence_pool) < KFENCE_POOL_SIZE && addr);
++	return unlikely((unsigned long)((char *)addr - __kfence_pool) < KFENCE_POOL_SIZE && __kfence_pool);
+ }
  
- 	if (PageTransHuge(head)) {
- 		/*
-@@ -1043,9 +1043,15 @@ try_again:
- 			}
- 			goto out;
- 		} else if (ret == -EBUSY) {
--			/* We raced with freeing huge page to buddy, retry. */
--			if (pass++ < 3)
-+			/*
-+			 * We raced with (possibly temporary) unhandlable
-+			 * page, retry.
-+			 */
-+			if (pass++ < 3) {
-+				shake_page(p, 1);
- 				goto try_again;
-+			}
-+			ret = -EIO;
- 			goto out;
- 		}
- 	}
+ /**
 -- 
 2.30.2
 
