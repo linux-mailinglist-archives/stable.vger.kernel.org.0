@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECAB43F63B1
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B52873F63B3
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 18:57:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235368AbhHXQ5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 12:57:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39104 "EHLO mail.kernel.org"
+        id S236192AbhHXQ5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 12:57:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234670AbhHXQ5W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 12:57:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 860B5613AD;
-        Tue, 24 Aug 2021 16:56:37 +0000 (UTC)
+        id S233753AbhHXQ5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 12:57:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 653186141B;
+        Tue, 24 Aug 2021 16:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824198;
-        bh=ZVZuKs6XUn6BAkfA0tatcEsqam+Mrf7MKtSUxlWRcXM=;
+        s=k20201202; t=1629824199;
+        bh=xJnj4NKRrUyZ8Ye8gdpeo+POkDDlUx6Ryv2YyXYGeSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkFPxt0nXoDywSod787u+qvOCKhDTGcJVrZEB246uE67HmJpE5YvQbeuVmuslAVgf
-         o3o3lyxbdP90DJYEW1RqT5L5acio72ZwaWmGgfjNaW39kqvYGDZKNkOsC+MruE8UJ6
-         jlsKEcvFgCrUpxS8tUIUQRAu8mqWYZQ2wqUFk45Qj1GhpvOg7yDSYqGX1F65piWPr5
-         lLdFqdB7FNjlZ/FwxkyDqJQ4rHF2usLnSKVy1fpOFVWSuUm9Fk+StCnpRxjySLHU9g
-         LPboCRHLM4k7JZLbnUelyuNTQ1OTtL2oEiP3EWsuKRkCDeFhdBWHT/WI3DpszImnxK
-         TcfYg+u+zXHeQ==
+        b=FlmPGlriXKIBvtqnB3F+9O0XsC2iHXUWXEXcWY+QsIb2SG/qj9wH806t7LsH0mbD1
+         UMFIvR11lo9+7L3NzvkxTnCq2NmKYsZUW53K1mCLlv5VjJhxJRbSOVYgdQ+TttCnyi
+         GgjHyLNaOn7lgzmgjFwmmVUacD5YIMitCl9hKh6e1nNoykeREWtuoiXtY8oJnyNkFT
+         QtreHRaArSr8gpxZjZIeQjVxMJmY7qf38A3ODKXh5IZNhfgW6PEGYK2yO/4PRt7RbQ
+         /+PaSe+ZhlLw6/GwcnKdpKkP9GESJXFp54ZIcm6L9u1H0WHcumaThbKcSxv7S5/ITa
+         0y1ZfBwM+TgUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frank Wunderlich <frank-w@public-files.de>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 030/127] iommu: Check if group is NULL before remove device
-Date:   Tue, 24 Aug 2021 12:54:30 -0400
-Message-Id: <20210824165607.709387-31-sashal@kernel.org>
+Cc:     Lukasz Luba <lukasz.luba@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 031/127] cpufreq: arm_scmi: Fix error path when allocation failed
+Date:   Tue, 24 Aug 2021 12:54:31 -0400
+Message-Id: <20210824165607.709387-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
 References: <20210824165607.709387-1-sashal@kernel.org>
@@ -47,53 +49,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Wunderlich <frank-w@public-files.de>
+From: Lukasz Luba <lukasz.luba@arm.com>
 
-[ Upstream commit 5aa95d8834e07907e64937d792c12ffef7fb271f ]
+[ Upstream commit f7d635883fb73414c7c4e2648b42adc296c5d40d ]
 
-If probe_device is failing, iommu_group is not initialized because
-iommu_group_add_device is not reached, so freeing it will result
-in NULL pointer access.
+Stop the initialization when cpumask allocation failed and return an
+error.
 
-iommu_bus_init
-  ->bus_iommu_probe
-      ->probe_iommu_group in for each:/* return -22 in fail case */
-          ->iommu_probe_device
-              ->__iommu_probe_device       /* return -22 here.*/
-                  -> ops->probe_device          /* return -22 here.*/
-                  -> iommu_group_get_for_dev
-                        -> ops->device_group
-                        -> iommu_group_add_device //good case
-  ->remove_iommu_group  //in fail case, it will remove group
-     ->iommu_release_device
-         ->iommu_group_remove_device // here we don't have group
-
-In my case ops->probe_device (mtk_iommu_probe_device from
-mtk_iommu_v1.c) is due to failing fwspec->ops mismatch.
-
-Fixes: d72e31c93746 ("iommu: IOMMU Groups")
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Link: https://lore.kernel.org/r/20210731074737.4573-1-linux@fw-web.de
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 80a064dbd556 ("scmi-cpufreq: Get opp_shared_cpus from opp-v2 for EM")
+Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iommu.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/cpufreq/scmi-cpufreq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 808ab70d5df5..db966a7841fe 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -924,6 +924,9 @@ void iommu_group_remove_device(struct device *dev)
- 	struct iommu_group *group = dev->iommu_group;
- 	struct group_device *tmp_device, *device = NULL;
+diff --git a/drivers/cpufreq/scmi-cpufreq.c b/drivers/cpufreq/scmi-cpufreq.c
+index ec9a87ca2dbb..75f818d04b48 100644
+--- a/drivers/cpufreq/scmi-cpufreq.c
++++ b/drivers/cpufreq/scmi-cpufreq.c
+@@ -134,7 +134,7 @@ static int scmi_cpufreq_init(struct cpufreq_policy *policy)
+ 	}
  
-+	if (!group)
-+		return;
-+
- 	dev_info(dev, "Removing from iommu group %d\n", group->id);
+ 	if (!zalloc_cpumask_var(&opp_shared_cpus, GFP_KERNEL))
+-		ret = -ENOMEM;
++		return -ENOMEM;
  
- 	/* Pre-notify listeners that a device is being removed. */
+ 	/* Obtain CPUs that share SCMI performance controls */
+ 	ret = scmi_get_sharing_cpus(cpu_dev, policy->cpus);
 -- 
 2.30.2
 
