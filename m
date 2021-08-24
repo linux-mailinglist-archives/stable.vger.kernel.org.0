@@ -2,109 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A5763F6941
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 20:54:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9267E3F6964
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 21:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbhHXSzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 14:55:39 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:40624 "EHLO
+        id S233578AbhHXTAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 15:00:55 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:40948 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229521AbhHXSzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 14:55:39 -0400
+        with ESMTP id S229670AbhHXTAy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 15:00:54 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 30D6D1C0B7A; Tue, 24 Aug 2021 20:54:53 +0200 (CEST)
-Date:   Tue, 24 Aug 2021 20:54:52 +0200
-From:   Pavel Machek <pavel@ucw.cz>
+        id 7DF9A1C0B7C; Tue, 24 Aug 2021 21:00:09 +0200 (CEST)
+Date:   Tue, 24 Aug 2021 21:00:09 +0200
+From:   Pavel Machek <pavel@denx.de>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Parav Pandit <parav@nvidia.com>, Eli Cohen <elic@nvidia.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>
-Subject: Re: [PATCH 5.10 10/98] vdpa: Define vdpa mgmt device, ops and a
- netlink interface
-Message-ID: <20210824185452.GA15995@duo.ucw.cz>
+        Saravana Kannan <saravanak@google.com>,
+        Andrew Lunn <andrew@lunn.ch>, Marc Zyngier <maz@kernel.org>,
+        Kevin Hilman <khilman@baylibre.com>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 5.10 64/98] net: mdio-mux: Handle -EPROBE_DEFER correctly
+Message-ID: <20210824190009.GA16752@duo.ucw.cz>
 References: <20210824165908.709932-1-sashal@kernel.org>
- <20210824165908.709932-11-sashal@kernel.org>
+ <20210824165908.709932-65-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+        protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
 Content-Disposition: inline
-In-Reply-To: <20210824165908.709932-11-sashal@kernel.org>
+In-Reply-To: <20210824165908.709932-65-sashal@kernel.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---EeQfGwPcQSOJBaQU
+--DocE+STaALJfprDB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi!
+Hi1
 
-> From: Parav Pandit <parav@nvidia.com>
+> When registering mdiobus children, if we get an -EPROBE_DEFER, we shouldn=
+'t
+> ignore it and continue registering the rest of the mdiobus children. This
+> would permanently prevent the deferring child mdiobus from working instead
+> of reattempting it in the future. So, if a child mdiobus needs to be
+> reattempted in the future, defer the entire mdio-mux initialization.
 >=20
-> [ Upstream commit 33b347503f014ebf76257327cbc7001c6b721956 ]
->=20
-> To add one or more VDPA devices, define a management device which
-> allows adding or removing vdpa device. A management device defines
-> set of callbacks to manage vdpa devices.
->=20
-> To begin with, it defines add and remove callbacks through which a user
-> defined vdpa device can be added or removed.
+> This fixes the issue where PHYs sitting under the mdio-mux aren't
+> initialized correctly if the PHY's interrupt controller is not yet ready
+> when the mdio-mux is being probed. Additional context in the link
+> below.
 
-This looks quite intrusive; is it meant to be in -stable, or is it
-some kind of mistake?
+I don't believe this is quite right. AFAICT it leaks memory in the
+EPROBE_DEFER case. Could someone double-check? Suggested fix is below.
 
-Best regards,
-									Pavel
-								=09
+> +++ b/drivers/net/mdio/mdio-mux.c
+> @@ -175,11 +175,15 @@ int mdio_mux_init(struct device *dev,
+>  		cb->mii_bus->write =3D mdio_mux_write;
+>  		r =3D of_mdiobus_register(cb->mii_bus, child_bus_node);
+>  		if (r) {
+> +			mdiobus_free(cb->mii_bus);
+> +			if (r =3D=3D -EPROBE_DEFER) {
+> +				ret_val =3D r;
+> +				goto err_loop;
+> +			}
+> +			devm_kfree(dev, cb);
+>  			dev_err(dev,
+>  				"Error: Failed to register MDIO bus for child %pOF\n",
+>  				child_bus_node);
+> -			mdiobus_free(cb->mii_bus);
+> -			devm_kfree(dev, cb);
+>  		} else {
+>  			cb->next =3D pb->children;
+>  			pb->children =3D cb;
 
-> Signed-off-by: Parav Pandit <parav@nvidia.com>
-> Reviewed-by: Eli Cohen <elic@nvidia.com>
-> Reviewed-by: Jason Wang <jasowang@redhat.com>
-> Link: https://lore.kernel.org/r/20210105103203.82508-4-parav@nvidia.com
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->=20
-> Including a bugfix:
->=20
-> vpda: correctly size vdpa_nl_policy
->=20
-> We need to ensure last entry of vdpa_nl_policy[]
-> is zero, otherwise out-of-bounds access is hurting us.
->=20
-> Signed-off-by: Eric Dumazet <edumazet@google.com>
-> Reported-by: syzbot <syzkaller@googlegroups.com>
-> Cc: Parav Pandit <parav@nvidia.com>
-> Cc: Eli Cohen <elic@nvidia.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Link: https://lore.kernel.org/r/20210210134911.4119555-1-eric.dumazet@gma=
-il.com
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/vdpa/Kconfig      |   1 +
->  drivers/vdpa/vdpa.c       | 213 +++++++++++++++++++++++++++++++++++++-
->  include/linux/vdpa.h      |  31 ++++++
->  include/uapi/linux/vdpa.h |  31 ++++++
->  4 files changed, 275 insertions(+), 1 deletion(-)
->  create mode 100644 include/uapi/linux/vdpa.h
+
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+
+diff --git a/drivers/net/mdio/mdio-mux.c b/drivers/net/mdio/mdio-mux.c
+index ccb3ee704eb1..6d0e505343c5 100644
+--- a/drivers/net/mdio/mdio-mux.c
++++ b/drivers/net/mdio/mdio-mux.c
+@@ -163,6 +163,7 @@ int mdio_mux_init(struct device *dev,
+ 		cb->mii_bus =3D mdiobus_alloc();
+ 		if (!cb->mii_bus) {
+ 			ret_val =3D -ENOMEM;
++			devm_kfree(dev, cb);
+ 			goto err_loop;
+ 		}
+ 		cb->mii_bus->priv =3D cb;
+@@ -176,11 +177,11 @@ int mdio_mux_init(struct device *dev,
+ 		r =3D of_mdiobus_register(cb->mii_bus, child_bus_node);
+ 		if (r) {
+ 			mdiobus_free(cb->mii_bus);
++			devm_kfree(dev, cb);
+ 			if (r =3D=3D -EPROBE_DEFER) {
+ 				ret_val =3D r;
+ 				goto err_loop;
+ 			}
+-			devm_kfree(dev, cb);
+ 			dev_err(dev,
+ 				"Error: Failed to register MDIO bus for child %pOF\n",
+ 				child_bus_node);
+
 
 --=20
-http://www.livejournal.com/~pavelmachek
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---EeQfGwPcQSOJBaQU
+--DocE+STaALJfprDB
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYSVAfAAKCRAw5/Bqldv6
-8qy0AJ9Tg8+8GX4JgBwFkgsCWSgTB4SNVACffFIqORPcMOWxfLIoNZ4x6OOipXY=
-=RNQq
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYSVBuQAKCRAw5/Bqldv6
+8tfRAKCWghPzFCsPyYpMEcstMJGD5kGI/ACgoPniAAEgJTGINK3sjHXpEvyqCx4=
+=eArL
 -----END PGP SIGNATURE-----
 
---EeQfGwPcQSOJBaQU--
+--DocE+STaALJfprDB--
