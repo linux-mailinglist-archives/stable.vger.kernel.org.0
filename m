@@ -2,227 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7A13F6791
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:36:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB94D3F64E2
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:07:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240938AbhHXRgK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:36:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40580 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240885AbhHXRcu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:32:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D573C611C8;
-        Tue, 24 Aug 2021 17:06:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824776;
-        bh=/W79Um/9f+MCSubtCw4OsPTPZBj5y29vQqttExpd5b8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=FcPwoC6UjXvMI357FpAddjiPxwZMMSH0xEi3Wu0Kxr14zamIY5lN433YQP9BLtnss
-         +hMEBl7MMC9aMBBfrlGzGZp3RL9PhRcOPAs2C0NVQboD6dbeC9pwYeUQQnQTSbe2NR
-         SNbqfiUyz/CSaJU2MmJEeMeuIlw1I76porAkMWaT/B5OCncygqSV/m8LB5isxOkbRY
-         W98B5xM/4jZ3GehnDA8260srZUaWLbiZPhVvvQ4wkgieWHhc6iMuQEHLVLy/BAFBk3
-         gp6r6IRkh1MWUFO0+8WXj84+VGU1Rfgdq81uAm3As9AF71OwbInAJeosw4XOb8XE0M
-         ikFInFIc8ffYA==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sasha Levin <sashal@kernel.org>, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de
-Subject: [PATCH 4.9 00/43] 4.9.281-rc1 review
-Date:   Tue, 24 Aug 2021 13:05:31 -0400
-Message-Id: <20210824170614.710813-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
+        id S239131AbhHXRII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:08:08 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:25262 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238637AbhHXRGV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 13:06:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629824736;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=olgu31rPJpOTjKmA0XuNHPckB19mLh5v5zVaEM4u+Ik=;
+        b=YmKO9pCAtaQDRZDfawH2Y+1YksH1krnVgvfX4eUtYT0TAjEwsF5xoDAe5HqaL3xZyFIpR7
+        MlDJtzi32aKEq0ZTKnXNjRFTw0Gzeiv5VvM89spHC9iI8g6Gs5/fMcdO5T0i+r6vcic4SM
+        NdNgK+iCQIgg7XdgSBLjcjRsTZTMJ/c=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-422-2UAZdU3fOECLVghCqdMcMg-1; Tue, 24 Aug 2021 13:05:34 -0400
+X-MC-Unique: 2UAZdU3fOECLVghCqdMcMg-1
+Received: by mail-qt1-f198.google.com with SMTP id x11-20020ac86b4b000000b00299d7592d31so10993892qts.0
+        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 10:05:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=olgu31rPJpOTjKmA0XuNHPckB19mLh5v5zVaEM4u+Ik=;
+        b=XKkyaIq1hRPeWpTgHmSQOQnnM/K/FM2o1g6bv+sQnRAQyLGQQrR/atYPGwUebjeBcc
+         5xoZgJmjiOHv50L+1MZuoQiPUVhbmY5Rx1qUapTc3exoScRKFbs3+1UFbyOBPrhsQMqb
+         sfR5yQZDxFz2skxWMJQmiwbEPGRMSFsnv0i9ABAj8BR2Gv9eAs5g+8wlqqFFqdFZ8UWL
+         RK/kcF6L5OS+Lal8Q5H3FnwSSr9ZReJjt6TO8b9EgZLsNT2dgqTLl/tVtsbnkTlKLmgf
+         iX89I0gQlZRzQqZY9YIN7TxrYU6zhtZyvt1xRno76l7v5CMBz6hCzWiFJPvZoOrVRF45
+         QVxg==
+X-Gm-Message-State: AOAM531MoTOePDbQNPE7rpQHMayX62aiZnXSbUvRrNTKpZQp6L4qYelf
+        vey3WHqT/tGNuTlIRfcUUrqq1cxYaGPFEndr3Czl2QISIfRbXsEulf0UNgnzLjElc4dYgP6GzyL
+        Pmg/Bk33sSc3Wy7tA
+X-Received: by 2002:a05:620a:4092:: with SMTP id f18mr8019839qko.91.1629824734236;
+        Tue, 24 Aug 2021 10:05:34 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxajLXqKsquojFZCdfXxxcf5UjL2aIS6hN3ktbx8HCAz+n/TGk51Sc0c7p6Ra/u9YDvfBY57w==
+X-Received: by 2002:a05:620a:4092:: with SMTP id f18mr8019822qko.91.1629824734045;
+        Tue, 24 Aug 2021 10:05:34 -0700 (PDT)
+Received: from [192.168.8.104] (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
+        by smtp.gmail.com with ESMTPSA id y67sm11309477qkd.58.2021.08.24.10.05.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Aug 2021 10:05:33 -0700 (PDT)
+Message-ID: <75ccbdea6e8871856002edb75dff1a32822a5a89.camel@redhat.com>
+Subject: Re: [PATCH AUTOSEL 4.14 6/7] drm/nouveau: block a bunch of classes
+ from userspace
+From:   Lyude Paul <lyude@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Ben Skeggs <bskeggs@redhat.com>, dri-devel@lists.freedesktop.org,
+        nouveau@lists.freedesktop.org
+Date:   Tue, 24 Aug 2021 13:05:32 -0400
+In-Reply-To: <20210824005528.631702-6-sashal@kernel.org>
+References: <20210824005528.631702-1-sashal@kernel.org>
+         <20210824005528.631702-6-sashal@kernel.org>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.40.4 (3.40.4-1.fc34) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.281-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.281-rc1
-X-KernelTest-Deadline: 2021-08-26T17:06+00:00
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This isn't at all intended to be a fix to be backported, so I don't think this
+should be included. I don't know about 5/7, but I'll let Benjamin comment on
+that one
 
-This is the start of the stable review cycle for the 4.9.281 release.
-There are 43 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Thu 26 Aug 2021 05:06:11 PM UTC.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-4.9.y&id2=v4.9.280
-or in the git tree and branch at:
-        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
-
-Thanks,
-Sasha
-
--------------
-Pseudo-Shortlog of commits:
-
-Colin Ian King (1):
-  iio: adc: Fix incorrect exit of for-loop
-
-Dan Williams (1):
-  ACPI: NFIT: Fix support for virtual SPA ranges
-
-Dave Gerlach (1):
-  ARM: dts: am43x-epos-evm: Reduce i2c0 bus speed for tps65218
-
-Dinghao Liu (1):
-  net: qlcnic: add missed unlock in qlcnic_83xx_flash_read32
-
-Dongliang Mu (1):
-  ipack: tpci200: fix many double free issues in tpci200_pci_probe
-
-Greg Kroah-Hartman (1):
-  i2c: dev: zero out array used for i2c reads from userspace
-
-Harshvardhan Jha (1):
-  scsi: megaraid_mm: Fix end of loop tests for list_for_each_entry()
-
-Jaehoon Chung (1):
-  mmc: dw_mmc: call the dw_mci_prep_stop_abort() by default
-
-Jaroslav Kysela (1):
-  ALSA: hda - fix the 'Capture Switch' value change notifications
-
-Jeff Layton (2):
-  locks: print a warning when mount fails due to lack of "mand" support
-  fs: warn about impending deprecation of mandatory locks
-
-Johannes Berg (1):
-  mac80211: drop data frames without key on encrypted links
-
-Maxim Levitsky (1):
-  KVM: nSVM: avoid picking up unsupported bits from L2 in int_ctl
-    (CVE-2021-3653)
-
-Maximilian Heyne (1):
-  xen/events: Fix race in set_evtchn_to_irq
-
-Nathan Chancellor (1):
-  vmlinux.lds.h: Handle clang's module.{c,d}tor sections
-
-Neal Cardwell (1):
-  tcp_bbr: fix u32 wrap bug in round logic if bbr_init() called after 2B
-    packets
-
-NeilBrown (1):
-  btrfs: prevent rename2 from exchanging a subvol with a directory from
-    different parents
-
-Ole Bjørn Midtbø (1):
-  Bluetooth: hidp: use correct wait queue when removing ctrl_wait
-
-Pali Rohár (1):
-  ppp: Fix generating ifname when empty IFLA_IFNAME is specified
-
-Pavel Skripkin (1):
-  net: 6pack: fix slab-out-of-bounds in decode_data
-
-Peter Ujfalusi (1):
-  dmaengine: of-dma: router_xlate to return -EPROBE_DEFER if controller
-    is not yet available
-
-Randy Dunlap (2):
-  x86/tools: Fix objdump version check again
-  dccp: add do-while-0 stubs for dccp_pr_debug macros
-
-Sasha Levin (1):
-  Linux 4.9.281-rc1
-
-Sreekanth Reddy (1):
-  scsi: core: Avoid printing an error if target_alloc() returns -ENXIO
-
-Sudeep Holla (1):
-  ARM: dts: nomadik: Fix up interrupt controller node names
-
-Takashi Iwai (2):
-  ASoC: intel: atom: Fix reference to PCM buffer address
-  ASoC: intel: atom: Fix breakage for PCM buffer address setup
-
-Takeshi Misawa (1):
-  net: Fix memory leak in ieee802154_raw_deliver
-
-Thomas Gleixner (9):
-  PCI/MSI: Enable and mask MSI-X early
-  PCI/MSI: Do not set invalid bits in MSI mask
-  PCI/MSI: Correct misleading comments
-  PCI/MSI: Use msi_mask_irq() in pci_msi_shutdown()
-  PCI/MSI: Protect msi_desc::masked for multi-MSI
-  PCI/MSI: Mask all unused MSI-X entries
-  PCI/MSI: Enforce that MSI-X table entry is masked for update
-  PCI/MSI: Enforce MSI[X] entry updates to be visible
-  x86/fpu: Make init_fpstate correct with optimized XSAVE
-
-Vincent Whitchurch (1):
-  mmc: dw_mmc: Fix hang on data CRC error
-
-Xie Yongji (1):
-  vhost: Fix the calculation in vhost_overflow()
-
-Yang Yingliang (1):
-  net: bridge: fix memleak in br_add_if()
-
-Ye Bin (1):
-  scsi: scsi_dh_rdac: Avoid crash during rdac_bus_attach()
-
-Yu Kuai (1):
-  dmaengine: usb-dmac: Fix PM reference leak in usb_dmac_probe()
-
- .../filesystems/mandatory-locking.txt         |  10 ++
- Makefile                                      |   4 +-
- arch/arm/boot/dts/am43x-epos-evm.dts          |   2 +-
- arch/arm/boot/dts/ste-nomadik-stn8815.dtsi    |   4 +-
- arch/x86/include/asm/fpu/internal.h           |  30 ++---
- arch/x86/include/asm/svm.h                    |   2 +
- arch/x86/kernel/fpu/xstate.c                  |  38 +++++-
- arch/x86/kvm/svm.c                            |   6 +-
- arch/x86/tools/chkobjdump.awk                 |   1 +
- drivers/acpi/nfit/core.c                      |   3 +
- drivers/base/core.c                           |   1 +
- drivers/dma/of-dma.c                          |   9 +-
- drivers/dma/sh/usb-dmac.c                     |   2 +-
- drivers/i2c/i2c-dev.c                         |   5 +-
- drivers/iio/adc/palmas_gpadc.c                |   4 +-
- drivers/ipack/carriers/tpci200.c              |  36 +++---
- drivers/mmc/host/dw_mmc.c                     |  21 ++--
- .../ethernet/qlogic/qlcnic/qlcnic_83xx_hw.c   |   4 +-
- drivers/net/hamradio/6pack.c                  |   6 +
- drivers/net/ppp/ppp_generic.c                 |   2 +-
- drivers/pci/msi.c                             | 119 ++++++++++++------
- drivers/scsi/device_handler/scsi_dh_rdac.c    |   4 +-
- drivers/scsi/megaraid/megaraid_mm.c           |  21 +++-
- drivers/scsi/scsi_scan.c                      |   3 +-
- drivers/vhost/vhost.c                         |  10 +-
- drivers/xen/events/events_base.c              |  20 ++-
- fs/btrfs/inode.c                              |  10 +-
- fs/namespace.c                                |  15 ++-
- include/asm-generic/vmlinux.lds.h             |   1 +
- include/linux/device.h                        |   1 +
- include/linux/msi.h                           |   2 +-
- net/bluetooth/hidp/core.c                     |   2 +-
- net/bridge/br_if.c                            |   2 +
- net/dccp/dccp.h                               |   6 +-
- net/ieee802154/socket.c                       |   7 +-
- net/ipv4/tcp_bbr.c                            |   2 +-
- net/mac80211/debugfs_sta.c                    |   1 +
- net/mac80211/key.c                            |   1 +
- net/mac80211/sta_info.h                       |   1 +
- net/mac80211/tx.c                             |  12 +-
- sound/pci/hda/hda_generic.c                   |  10 +-
- sound/soc/intel/atom/sst-mfld-platform-pcm.c  |   3 +-
- 42 files changed, 294 insertions(+), 149 deletions(-)
+On Mon, 2021-08-23 at 20:55 -0400, Sasha Levin wrote:
+> From: Ben Skeggs <bskeggs@redhat.com>
+> 
+> [ Upstream commit 148a8653789c01f159764ffcc3f370008966b42f ]
+> 
+> Long ago, there had been plans for making use of a bunch of these APIs
+> from userspace and there's various checks in place to stop misbehaving.
+> 
+> Countless other projects have occurred in the meantime, and the pieces
+> didn't finish falling into place for that to happen.
+> 
+> They will (hopefully) in the not-too-distant future, but it won't look
+> quite as insane.  The super checks are causing problems right now, and
+> are going to be removed.
+> 
+> Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+> Reviewed-by: Lyude Paul <lyude@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/gpu/drm/nouveau/include/nvif/cl0080.h |  3 +-
+>  drivers/gpu/drm/nouveau/nouveau_drm.c         |  1 +
+>  drivers/gpu/drm/nouveau/nouveau_usif.c        | 57 ++++++++++++++-----
+>  .../gpu/drm/nouveau/nvkm/engine/device/user.c |  2 +-
+>  4 files changed, 48 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/nouveau/include/nvif/cl0080.h
+> b/drivers/gpu/drm/nouveau/include/nvif/cl0080.h
+> index 2740278d226b..61c17acd507c 100644
+> --- a/drivers/gpu/drm/nouveau/include/nvif/cl0080.h
+> +++ b/drivers/gpu/drm/nouveau/include/nvif/cl0080.h
+> @@ -4,7 +4,8 @@
+>  
+>  struct nv_device_v0 {
+>         __u8  version;
+> -       __u8  pad01[7];
+> +       __u8  priv;
+> +       __u8  pad02[6];
+>         __u64 device;   /* device identifier, ~0 for client default */
+>  };
+>  
+> diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c
+> b/drivers/gpu/drm/nouveau/nouveau_drm.c
+> index fb6b1d0f7fef..fc54a26598cc 100644
+> --- a/drivers/gpu/drm/nouveau/nouveau_drm.c
+> +++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+> @@ -151,6 +151,7 @@ nouveau_cli_init(struct nouveau_drm *drm, const char
+> *sname,
+>         ret = nvif_device_init(&cli->base.object, 0, NV_DEVICE,
+>                                &(struct nv_device_v0) {
+>                                         .device = ~0,
+> +                                       .priv = true,
+>                                }, sizeof(struct nv_device_v0),
+>                                &cli->device);
+>         if (ret) {
+> diff --git a/drivers/gpu/drm/nouveau/nouveau_usif.c
+> b/drivers/gpu/drm/nouveau/nouveau_usif.c
+> index 9dc10b17ad34..5da1f4d223d7 100644
+> --- a/drivers/gpu/drm/nouveau/nouveau_usif.c
+> +++ b/drivers/gpu/drm/nouveau/nouveau_usif.c
+> @@ -32,6 +32,9 @@
+>  #include <nvif/event.h>
+>  #include <nvif/ioctl.h>
+>  
+> +#include <nvif/class.h>
+> +#include <nvif/cl0080.h>
+> +
+>  struct usif_notify_p {
+>         struct drm_pending_event base;
+>         struct {
+> @@ -261,7 +264,7 @@ usif_object_dtor(struct usif_object *object)
+>  }
+>  
+>  static int
+> -usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32
+> argc)
+> +usif_object_new(struct drm_file *f, void *data, u32 size, void *argv, u32
+> argc, bool parent_abi16)
+>  {
+>         struct nouveau_cli *cli = nouveau_cli(f);
+>         struct nvif_client *client = &cli->base;
+> @@ -271,23 +274,48 @@ usif_object_new(struct drm_file *f, void *data, u32
+> size, void *argv, u32 argc)
+>         struct usif_object *object;
+>         int ret = -ENOSYS;
+>  
+> +       if ((ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, true)))
+> +               return ret;
+> +
+> +       switch (args->v0.oclass) {
+> +       case NV_DMA_FROM_MEMORY:
+> +       case NV_DMA_TO_MEMORY:
+> +       case NV_DMA_IN_MEMORY:
+> +               return -EINVAL;
+> +       case NV_DEVICE: {
+> +               union {
+> +                       struct nv_device_v0 v0;
+> +               } *args = data;
+> +
+> +               if ((ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0,
+> false)))
+> +                       return ret;
+> +
+> +               args->v0.priv = false;
+> +               break;
+> +       }
+> +       default:
+> +               if (!parent_abi16)
+> +                       return -EINVAL;
+> +               break;
+> +       }
+> +
+>         if (!(object = kmalloc(sizeof(*object), GFP_KERNEL)))
+>                 return -ENOMEM;
+>         list_add(&object->head, &cli->objects);
+>  
+> -       if (!(ret = nvif_unpack(ret, &data, &size, args->v0, 0, 0, true))) {
+> -               object->route = args->v0.route;
+> -               object->token = args->v0.token;
+> -               args->v0.route = NVDRM_OBJECT_USIF;
+> -               args->v0.token = (unsigned long)(void *)object;
+> -               ret = nvif_client_ioctl(client, argv, argc);
+> -               args->v0.token = object->token;
+> -               args->v0.route = object->route;
+> +       object->route = args->v0.route;
+> +       object->token = args->v0.token;
+> +       args->v0.route = NVDRM_OBJECT_USIF;
+> +       args->v0.token = (unsigned long)(void *)object;
+> +       ret = nvif_client_ioctl(client, argv, argc);
+> +       if (ret) {
+> +               usif_object_dtor(object);
+> +               return ret;
+>         }
+>  
+> -       if (ret)
+> -               usif_object_dtor(object);
+> -       return ret;
+> +       args->v0.token = object->token;
+> +       args->v0.route = object->route;
+> +       return 0;
+>  }
+>  
+>  int
+> @@ -301,6 +329,7 @@ usif_ioctl(struct drm_file *filp, void __user *user, u32
+> argc)
+>                 struct nvif_ioctl_v0 v0;
+>         } *argv = data;
+>         struct usif_object *object;
+> +       bool abi16 = false;
+>         u8 owner;
+>         int ret;
+>  
+> @@ -331,11 +360,13 @@ usif_ioctl(struct drm_file *filp, void __user *user,
+> u32 argc)
+>                         mutex_unlock(&cli->mutex);
+>                         goto done;
+>                 }
+> +
+> +               abi16 = true;
+>         }
+>  
+>         switch (argv->v0.type) {
+>         case NVIF_IOCTL_V0_NEW:
+> -               ret = usif_object_new(filp, data, size, argv, argc);
+> +               ret = usif_object_new(filp, data, size, argv, argc, abi16);
+>                 break;
+>         case NVIF_IOCTL_V0_NTFY_NEW:
+>                 ret = usif_notify_new(filp, data, size, argv, argc);
+> diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c
+> b/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c
+> index 513ee6b79553..08100eed9584 100644
+> --- a/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c
+> +++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/user.c
+> @@ -347,7 +347,7 @@ nvkm_udevice_new(const struct nvkm_oclass *oclass, void
+> *data, u32 size,
+>                 return ret;
+>  
+>         /* give priviledged clients register access */
+> -       if (client->super)
+> +       if (args->v0.priv)
+>                 func = &nvkm_udevice_super;
+>         else
+>                 func = &nvkm_udevice;
 
 -- 
-2.30.2
+Cheers,
+ Lyude Paul (she/her)
+ Software Engineer at Red Hat
 
