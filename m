@@ -2,124 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9267E3F6964
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 21:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5C2B3F696F
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 21:02:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233578AbhHXTAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 15:00:55 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:40948 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229670AbhHXTAy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 15:00:54 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 7DF9A1C0B7C; Tue, 24 Aug 2021 21:00:09 +0200 (CEST)
-Date:   Tue, 24 Aug 2021 21:00:09 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Saravana Kannan <saravanak@google.com>,
-        Andrew Lunn <andrew@lunn.ch>, Marc Zyngier <maz@kernel.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 5.10 64/98] net: mdio-mux: Handle -EPROBE_DEFER correctly
-Message-ID: <20210824190009.GA16752@duo.ucw.cz>
-References: <20210824165908.709932-1-sashal@kernel.org>
- <20210824165908.709932-65-sashal@kernel.org>
+        id S233900AbhHXTDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 15:03:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57184 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233866AbhHXTDF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 15:03:05 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67C50C061757
+        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 12:02:20 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id z9so32718735wrh.10
+        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 12:02:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TsFsBLXV+mXOTPdELKw9RkT0BKa/0Z19mbCyhJErhVE=;
+        b=AQmHZCt8tWk+cplOW48+LR8JWagIpz0AmEZxq1BO7Ah/VZGiUxwurxt1+2uP9oNqTn
+         z0BR6zXzbwaAhHw10QO0G/Q5h/o+nLq8AVN8H+u3HlmUdQTvlIVPBIzJWUAQnNDweQeB
+         FnUHwVsh82ubtXfvry0ZzPnQF0jTe8cToxGzEUJQ2MK9YW7YeWn/1l9nycXyvp7podHP
+         KsH5y+HR9txh/Gs+hPioqQ5wFEOfnPhLCK/icDlKiOQpoknS9CgxyVGyEC/sYgkd0N2/
+         kwsBvhOIMC9mL3jOU33jyweSnQMZlTFJOkOYLnea0q7c20WQpHVPBoztk+SA4bLzd6dw
+         kbNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TsFsBLXV+mXOTPdELKw9RkT0BKa/0Z19mbCyhJErhVE=;
+        b=W9twsovmZlg2mfQ6Q9fjxSuwQ/6lle886d0HdzLQhQjCUC7B8EH2OZWfunAPPoappl
+         KZ/cG1iQwDcUR4Br8ttSBwSaGdHs3Nk+V5TxFtXXz/nKvYz983BMN9mrs+aSGO6wk7N7
+         K0EmOu5D4T5PK+kabDofwcOibossAnDPjfWx7pL76LGnhVBjK2qjiOTgogMVSuFUVHXn
+         RrDiHJLFuaN0/8qznratTBDvfBNJOHArY5xO7Tl/0EjwiJK5AowGMQJXRZCEj4CONTTV
+         zGbx4l0kt2Jr/HyrAfFNapTx57PhUGEF9MvwR49kTfTLPN3PZH1zR+a00bqY0ZsfYtC4
+         4PyQ==
+X-Gm-Message-State: AOAM532X9cv380TZ7oXdDnKMYayAxMO1oVJTr8bNP6BMBz+njB+XrBZJ
+        GK9b6ndahM6Q36Yvp5IzPFoc/88+ru6jhWj9
+X-Google-Smtp-Source: ABdhPJyB2KpsHlD7iyOZCYfMNiUHd/xdQ7m9BR4VYbS8ARRgvV1fgMFXy2u1C1mERmK6VXK3RtIjBQ==
+X-Received: by 2002:a5d:634f:: with SMTP id b15mr1009463wrw.220.1629831738967;
+        Tue, 24 Aug 2021 12:02:18 -0700 (PDT)
+Received: from dell5510.suse.de (gw1.ms-free.net. [185.243.124.10])
+        by smtp.gmail.com with ESMTPSA id z11sm2299138wrw.53.2021.08.24.12.02.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Aug 2021 12:02:18 -0700 (PDT)
+From:   Petr Vorel <petr.vorel@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Petr Vorel <petr.vorel@gmail.com>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Petr Vorel <pvorel@suse.cz>
+Subject: [PATCH 1/1] arm64: dts: qcom: msm8994-angler: Fix gpio-reserved-ranges 85-88
+Date:   Tue, 24 Aug 2021 21:02:04 +0200
+Message-Id: <20210824190204.22312-1-petr.vorel@gmail.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
-Content-Disposition: inline
-In-Reply-To: <20210824165908.709932-65-sashal@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit f890f89d9a80fffbfa7ca791b78927e5b8aba869 upstream.
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reserve GPIO pins 85-88 as these aren't meant to be accessible from the
+application CPUs (causes reboot). Yet another fix similar to
+9134586715e3, 5f8d3ab136d0, which is needed to allow angler to boot after
+3edfb7bd76bd ("gpiolib: Show correct direction from the beginning").
 
-Hi1
+Fixes: feeaf56ac78d ("arm64: dts: msm8994 SoC and Huawei Angler (Nexus 6P) support")
 
-> When registering mdiobus children, if we get an -EPROBE_DEFER, we shouldn=
-'t
-> ignore it and continue registering the rest of the mdiobus children. This
-> would permanently prevent the deferring child mdiobus from working instead
-> of reattempting it in the future. So, if a child mdiobus needs to be
-> reattempted in the future, defer the entire mdio-mux initialization.
->=20
-> This fixes the issue where PHYs sitting under the mdio-mux aren't
-> initialized correctly if the PHY's interrupt controller is not yet ready
-> when the mdio-mux is being probed. Additional context in the link
-> below.
+Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20210415193913.1836153-1-petr.vorel@gmail.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Petr Vorel <pvorel@suse.cz>
+---
+For 5.13.y
 
-I don't believe this is quite right. AFAICT it leaks memory in the
-EPROBE_DEFER case. Could someone double-check? Suggested fix is below.
+ arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-> +++ b/drivers/net/mdio/mdio-mux.c
-> @@ -175,11 +175,15 @@ int mdio_mux_init(struct device *dev,
->  		cb->mii_bus->write =3D mdio_mux_write;
->  		r =3D of_mdiobus_register(cb->mii_bus, child_bus_node);
->  		if (r) {
-> +			mdiobus_free(cb->mii_bus);
-> +			if (r =3D=3D -EPROBE_DEFER) {
-> +				ret_val =3D r;
-> +				goto err_loop;
-> +			}
-> +			devm_kfree(dev, cb);
->  			dev_err(dev,
->  				"Error: Failed to register MDIO bus for child %pOF\n",
->  				child_bus_node);
-> -			mdiobus_free(cb->mii_bus);
-> -			devm_kfree(dev, cb);
->  		} else {
->  			cb->next =3D pb->children;
->  			pb->children =3D cb;
+diff --git a/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts b/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
+index 801995af3dfc..c096b7758aa0 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
++++ b/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
+@@ -36,3 +36,7 @@ serial@f991e000 {
+ 		};
+ 	};
+ };
++
++&tlmm {
++	gpio-reserved-ranges = <85 4>;
++};
+-- 
+2.32.0
 
-
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-
-diff --git a/drivers/net/mdio/mdio-mux.c b/drivers/net/mdio/mdio-mux.c
-index ccb3ee704eb1..6d0e505343c5 100644
---- a/drivers/net/mdio/mdio-mux.c
-+++ b/drivers/net/mdio/mdio-mux.c
-@@ -163,6 +163,7 @@ int mdio_mux_init(struct device *dev,
- 		cb->mii_bus =3D mdiobus_alloc();
- 		if (!cb->mii_bus) {
- 			ret_val =3D -ENOMEM;
-+			devm_kfree(dev, cb);
- 			goto err_loop;
- 		}
- 		cb->mii_bus->priv =3D cb;
-@@ -176,11 +177,11 @@ int mdio_mux_init(struct device *dev,
- 		r =3D of_mdiobus_register(cb->mii_bus, child_bus_node);
- 		if (r) {
- 			mdiobus_free(cb->mii_bus);
-+			devm_kfree(dev, cb);
- 			if (r =3D=3D -EPROBE_DEFER) {
- 				ret_val =3D r;
- 				goto err_loop;
- 			}
--			devm_kfree(dev, cb);
- 			dev_err(dev,
- 				"Error: Failed to register MDIO bus for child %pOF\n",
- 				child_bus_node);
-
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYSVBuQAKCRAw5/Bqldv6
-8tfRAKCWghPzFCsPyYpMEcstMJGD5kGI/ACgoPniAAEgJTGINK3sjHXpEvyqCx4=
-=eArL
------END PGP SIGNATURE-----
-
---DocE+STaALJfprDB--
