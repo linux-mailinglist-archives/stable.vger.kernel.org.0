@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84EB63F659B
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:14:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 193763F659E
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:14:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239737AbhHXRO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:14:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51262 "EHLO mail.kernel.org"
+        id S239303AbhHXRO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:14:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239630AbhHXRNF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:13:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7383B61A70;
-        Tue, 24 Aug 2021 17:01:27 +0000 (UTC)
+        id S239994AbhHXRNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:13:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8417361A78;
+        Tue, 24 Aug 2021 17:01:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824488;
-        bh=krB2uaUzBWhsBBI6sxpfHjcS0F3AYuSsDoqq+LlL+HU=;
+        s=k20201202; t=1629824489;
+        bh=4aPfohLNgkHCyg6c/rIJvmCcftJESo0USulmA7Chrmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQ2e9lgrHziWZrfJeJGhqIXMOsdSeM82wP5XBQZpgbzA/IRRT+YiT7w/elZPMCgXn
-         lTlvQyadEIS5XBMY+OfenXqVM4Ma8sW3lp6WLUNnxX+5xuW/U1KRfHDOjWo5mbqGDZ
-         opuNWfwg6/kyQf1G1GYFeS+4KFZXkDTG+02YbtJoYIvu5Yh1cu5M+KdYhjfPHaLj/f
-         k+97+BniUkFYtfGMKEWICT+YfLYqNZs6rsh1QTUU2sQMmX9YzR6sHh2K8+psUC+o3H
-         m7+JNnMpeiv+Av1rysJlYKdXmVX6sWkzyMq/MWXhU2PPm2VK1AKu7o086AGTC4n3RD
-         BiiR37ZyRj8MQ==
+        b=WqPV2kpGo8VbkNNbelNo8TKKLTZa4Gpt+WLg8G31EVa/rM0MlPUf4v/qAOw8w7K7H
+         c0M9zzM06x5Wxuy/zkhOzXG6odH3FAMv97S83JTdsmvw3jbloL86HKo3WdO9TKhWUq
+         i5AZl07y438uv0Mrnp7949LRQYu2KCVx9OooBbtRzX07K+dUJgxZMfpXHXPeMl9SEA
+         UpunmXJTPQUz6QjHSA+bs/aW+YPpGa2AnJA9cy5i6Pk0w8DQ0zIuPws+vnxT+hSEEW
+         vBX7vv2YzTDxBeOqBGeBipqG28Z2ovvmDTzee2aDvO+69M0FRFe0j4qsM1QvTeTQdN
+         aHWLuqYWsyQxA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     lijinlin <lijinlin3@huawei.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Wu Bo <wubo40@huawei.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/61] scsi: core: Fix capacity set to zero after offlinining device
-Date:   Tue, 24 Aug 2021 13:00:25 -0400
-Message-Id: <20210824170106.710221-21-sashal@kernel.org>
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 21/61] ARM: dts: nomadik: Fix up interrupt controller node names
+Date:   Tue, 24 Aug 2021 13:00:26 -0400
+Message-Id: <20210824170106.710221-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -50,55 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: lijinlin <lijinlin3@huawei.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit f0f82e2476f6adb9c7a0135cfab8091456990c99 ]
+[ Upstream commit 47091f473b364c98207c4def197a0ae386fc9af1 ]
 
-After adding physical volumes to a volume group through vgextend, the
-kernel will rescan the partitions. This in turn will cause the device
-capacity to be queried.
+Once the new schema interrupt-controller/arm,vic.yaml is added, we get
+the below warnings:
 
-If the device status is set to offline through sysfs at this time, READ
-CAPACITY command will return a result which the host byte is
-DID_NO_CONNECT, and the capacity of the device will be set to zero in
-read_capacity_error(). After setting device status back to running, the
-capacity of the device will remain stuck at zero.
+	arch/arm/boot/dts/ste-nomadik-nhk15.dt.yaml:
+	intc@10140000: $nodename:0: 'intc@10140000' does not match
+	'^interrupt-controller(@[0-9a-f,]+)*$'
 
-Fix this issue by rescanning device when the device state changes to
-SDEV_RUNNING.
+Fix the node names for the interrupt controller to conform
+to the standard node name interrupt-controller@..
 
-Link: https://lore.kernel.org/r/20210727034455.1494960-1-lijinlin3@huawei.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: lijinlin <lijinlin3@huawei.com>
-Signed-off-by: Wu Bo <wubo40@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210617210825.3064367-2-sudeep.holla@arm.com
+Link: https://lore.kernel.org/r/20210626000103.830184-1-linus.walleij@linaro.org'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_sysfs.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/ste-nomadik-stn8815.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index 6d7362e7367e..11592ec7b23e 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -787,11 +787,14 @@ store_state_field(struct device *dev, struct device_attribute *attr,
- 	mutex_lock(&sdev->state_mutex);
- 	ret = scsi_device_set_state(sdev, state);
- 	/*
--	 * If the device state changes to SDEV_RUNNING, we need to run
--	 * the queue to avoid I/O hang.
-+	 * If the device state changes to SDEV_RUNNING, we need to
-+	 * rescan the device to revalidate it, and run the queue to
-+	 * avoid I/O hang.
- 	 */
--	if (ret == 0 && state == SDEV_RUNNING)
-+	if (ret == 0 && state == SDEV_RUNNING) {
-+		scsi_rescan_device(dev);
- 		blk_mq_run_hw_queues(sdev->request_queue, true);
-+	}
- 	mutex_unlock(&sdev->state_mutex);
+diff --git a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
+index f78b4eabd68c..e7178a6db6be 100644
+--- a/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
++++ b/arch/arm/boot/dts/ste-nomadik-stn8815.dtsi
+@@ -755,14 +755,14 @@
+ 			status = "disabled";
+ 		};
  
- 	return ret == 0 ? count : -EINVAL;
+-		vica: intc@10140000 {
++		vica: interrupt-controller@10140000 {
+ 			compatible = "arm,versatile-vic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
+ 			reg = <0x10140000 0x20>;
+ 		};
+ 
+-		vicb: intc@10140020 {
++		vicb: interrupt-controller@10140020 {
+ 			compatible = "arm,versatile-vic";
+ 			interrupt-controller;
+ 			#interrupt-cells = <1>;
 -- 
 2.30.2
 
