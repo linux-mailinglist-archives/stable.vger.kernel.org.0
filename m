@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C34E33F6740
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:31:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5145D3F6741
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240502AbhHXRcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239403AbhHXRcE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Aug 2021 13:32:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35160 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239733AbhHXRaD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240057AbhHXRaD (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:30:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CF5561B48;
-        Tue, 24 Aug 2021 17:05:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82D6461B56;
+        Tue, 24 Aug 2021 17:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824737;
-        bh=TmRaknQ/+uPAoF/VnGCfCnrkIPRMKcViO2PEo6DbAVQ=;
+        s=k20201202; t=1629824738;
+        bh=ePZz+sF9yOD/Cf5qf8TlpbkemcR8a+vrRB0qNX7C4KA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V80vRkHzUq72xXZXb+AEXq01nnu1mDag4DQT58Vp83MVieqJfDRTSGgWZ5MJx859u
-         3ApAwOh44hIxdg/X1qiKE0xlJGg7vZp0YeixFQqH9nWOdQaCdLSRT3cnJjTz+c+RWF
-         YjWPw8k7kFwxQqlgFJXLgqS8PS0jkOlA5jWomj/1hGhrdFLNXhzfrfipVrOKciAhxH
-         dWexd6aPTYxejIZcyB1KjJzNS/DnMxpQj8WcYrp/KJIawmn07nib0Q7upqQavX2Ez6
-         pz2ib6synx1j5zXT15qAvx2fWCKPzQBtasJfoMgcyR83Yrv2zWqt2ctaoTLl/+zh6U
-         pVM8VqKY8OlrA==
+        b=UBNPpj9lc4u9tQnwfHwFvKAsZmmpjjGimqWnKEZsBfhEBDZSep3jIy5gEKiX6bvLp
+         2bL+Rx220AG74CRxvxsEhPIF8LJdjyopy5WP0q7Uz/YInfsfGW8i9+Hr3a6wQAYO5k
+         HunYbtKfrQUJZXN9E1byVHs3xGnloUdKO9rCtmzvztaw0s5L/sCB7I5BTjUPjdcX2z
+         3+86+HtWkl6xUEbjXZc6TAV6KzWwNCDqZhSh40I1mTkodtH7Bc1LvbNg+FcZGdfIBa
+         oVYj7GHOb+Ph8lvcfaTcUDFSMkLBwSimcx/1B7koWXLJJaq+p3FzKnXpcf/1HU6Qth
+         kOFD4pxXLG3VA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Gerlach <d-gerlach@ti.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 40/64] ARM: dts: am43x-epos-evm: Reduce i2c0 bus speed for tps65218
-Date:   Tue, 24 Aug 2021 13:04:33 -0400
-Message-Id: <20210824170457.710623-41-sashal@kernel.org>
+Cc:     Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 41/64] dmaengine: of-dma: router_xlate to return -EPROBE_DEFER if controller is not yet available
+Date:   Tue, 24 Aug 2021 13:04:34 -0400
+Message-Id: <20210824170457.710623-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170457.710623-1-sashal@kernel.org>
 References: <20210824170457.710623-1-sashal@kernel.org>
@@ -49,48 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Gerlach <d-gerlach@ti.com>
+From: Peter Ujfalusi <peter.ujfalusi@gmail.com>
 
-[ Upstream commit 20a6b3fd8e2e2c063b25fbf2ee74d86b898e5087 ]
+[ Upstream commit eda97cb095f2958bbad55684a6ca3e7d7af0176a ]
 
-Based on the latest timing specifications for the TPS65218 from the data
-sheet, http://www.ti.com/lit/ds/symlink/tps65218.pdf, document SLDS206
-from November 2014, we must change the i2c bus speed to better fit within
-the minimum high SCL time required for proper i2c transfer.
+If the router_xlate can not find the controller in the available DMA
+devices then it should return with -EPORBE_DEFER in a same way as the
+of_dma_request_slave_channel() does.
 
-When running at 400khz, measurements show that SCL spends
-0.8125 uS/1.666 uS high/low which violates the requirement for minimum
-high period of SCL provided in datasheet Table 7.6 which is 1 uS.
-Switching to 100khz gives us 5 uS/5 uS high/low which both fall above
-the minimum given values for 100 khz, 4.0 uS/4.7 uS high/low.
+The issue can be reproduced if the event router is registered before the
+DMA controller itself and a driver would request for a channel before the
+controller is registered.
+In of_dma_request_slave_channel():
+1. of_dma_find_controller() would find the dma_router
+2. ofdma->of_dma_xlate() would fail and returned NULL
+3. -ENODEV is returned as error code
 
-Without this patch occasionally a voltage set operation from the kernel
-will appear to have worked but the actual voltage reflected on the PMIC
-will not have updated, causing problems especially with cpufreq that may
-update to a higher OPP without actually raising the voltage on DCDC2,
-leading to a hang.
+with this patch we would return in this case the correct -EPROBE_DEFER and
+the client can try to request the channel later.
 
-Signed-off-by: Dave Gerlach <d-gerlach@ti.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20210717190021.21897-1-peter.ujfalusi@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am43x-epos-evm.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/of-dma.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am43x-epos-evm.dts b/arch/arm/boot/dts/am43x-epos-evm.dts
-index c4279b0b9f12..437e8d2dcc70 100644
---- a/arch/arm/boot/dts/am43x-epos-evm.dts
-+++ b/arch/arm/boot/dts/am43x-epos-evm.dts
-@@ -411,7 +411,7 @@
- 	status = "okay";
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&i2c0_pins>;
--	clock-frequency = <400000>;
-+	clock-frequency = <100000>;
+diff --git a/drivers/dma/of-dma.c b/drivers/dma/of-dma.c
+index 8344a60c2131..a9d3ab94749b 100644
+--- a/drivers/dma/of-dma.c
++++ b/drivers/dma/of-dma.c
+@@ -68,8 +68,12 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
+ 		return NULL;
  
- 	tps65218: tps65218@24 {
- 		reg = <0x24>;
+ 	ofdma_target = of_dma_find_controller(&dma_spec_target);
+-	if (!ofdma_target)
+-		return NULL;
++	if (!ofdma_target) {
++		ofdma->dma_router->route_free(ofdma->dma_router->dev,
++					      route_data);
++		chan = ERR_PTR(-EPROBE_DEFER);
++		goto err;
++	}
+ 
+ 	chan = ofdma_target->of_dma_xlate(&dma_spec_target, ofdma_target);
+ 	if (IS_ERR_OR_NULL(chan)) {
+@@ -80,6 +84,7 @@ static struct dma_chan *of_dma_router_xlate(struct of_phandle_args *dma_spec,
+ 		chan->route_data = route_data;
+ 	}
+ 
++err:
+ 	/*
+ 	 * Need to put the node back since the ofdma->of_dma_route_allocate
+ 	 * has taken it for generating the new, translated dma_spec
 -- 
 2.30.2
 
