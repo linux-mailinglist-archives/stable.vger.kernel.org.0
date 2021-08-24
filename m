@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 626923F65BA
+	by mail.lfdr.de (Postfix) with ESMTP id 1A2E03F65B9
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:15:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234086AbhHXRQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:16:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55476 "EHLO mail.kernel.org"
+        id S238664AbhHXRQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:16:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239587AbhHXROJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239582AbhHXROJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:14:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 106D461A86;
-        Tue, 24 Aug 2021 17:01:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E36D961A82;
+        Tue, 24 Aug 2021 17:01:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824497;
-        bh=uDcUEMMDZNHq7x2mjZ0JAwy6btOPoBs2tzjP2NpHr3c=;
+        s=k20201202; t=1629824498;
+        bh=gf1OLFyvY3SSmWF2DPapW+nBSDAMwqX1MJHprgYORFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDKJWObbX8x7ungeE9suKP0xX5kHCzwkWVUhfvepCovOAUTRJZ9GV5g1dGbAo+z29
-         3ltw5C4I/0W045q/lGp7SrD4qnBv+aHaWx9Feo2s7sy3Xz+s4GtzTkFUpIylV2wjke
-         mgNT0KUrnlKkbK3zHq+pPz63EPvrv4CMu0ieKHMZD6UqGA2II9C74XQwGXKbOjPA8i
-         17uwIIEjTjPoE3ItGDypeRwyFXJvxUHDcaMYoGUJQCvav/3BCTkNAL2OBsCB0V97PP
-         7CdIh+M7+p/lKS4J2I82Q/swdm0fLR4pbIpRFQTxE6Zs9FCjBZi2FzmpJsfi4z/HK2
-         n89K29qplAVXg==
+        b=fWPyjB7ncv5OGU5qurtHa0VOOUlGVl2Wzs3o7lr+aC2aRpYtSL4RPfTQHJ5ejxa8Y
+         E1zPot26uYS8ID2Qy0ar67Qz81i1BzeLRpAuSlRDZnUL7zS9nPgHTaYc7q053XvZ3S
+         7GOV1zYi9hlQDrITf7drF5XJQ57CVKdg5OTZVxUCsw5LvGUB5tTV/9EGwUbbGvYthY
+         XoYUV+Rue6yD1LzUnOL2s3rFCdWuNxpHwY8xTNq5VbNf5dk1jgne1Pma8ViKps6lKk
+         eGoVGnW4llCjJXFKGi6oixNiL+fS4dRBGR/euVQe/iOITslPIgTDmpv+1JlAHiTA3a
+         8jjywuhZYE1Aw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+Cc:     Jakub Kicinski <kuba@kernel.org>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 30/61] bpf: Clear zext_dst of dead insns
-Date:   Tue, 24 Aug 2021 13:00:35 -0400
-Message-Id: <20210824170106.710221-31-sashal@kernel.org>
+Subject: [PATCH 5.4 31/61] bnxt: don't lock the tx queue from napi poll
+Date:   Tue, 24 Aug 2021 13:00:36 -0400
+Message-Id: <20210824170106.710221-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
 References: <20210824170106.710221-1-sashal@kernel.org>
@@ -48,63 +49,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit 45c709f8c71b525b51988e782febe84ce933e7e0 ]
+[ Upstream commit 3c603136c9f82833813af77185618de5af67676c ]
 
-"access skb fields ok" verifier test fails on s390 with the "verifier
-bug. zext_dst is set, but no reg is defined" message. The first insns
-of the test prog are ...
+We can't take the tx lock from the napi poll routine, because
+netpoll can poll napi at any moment, including with the tx lock
+already held.
 
-   0:	61 01 00 00 00 00 00 00 	ldxw %r0,[%r1+0]
-   8:	35 00 00 01 00 00 00 00 	jge %r0,0,1
-  10:	61 01 00 08 00 00 00 00 	ldxw %r0,[%r1+8]
+The tx lock is protecting against two paths - the disable
+path, and (as Michael points out) the NETDEV_TX_BUSY case
+which may occur if NAPI completions race with start_xmit
+and both decide to re-enable the queue.
 
-... and the 3rd one is dead (this does not look intentional to me, but
-this is a separate topic).
+For the disable/ifdown path use synchronize_net() to make sure
+closing the device does not race we restarting the queues.
+Annotate accesses to dev_state against data races.
 
-sanitize_dead_code() converts dead insns into "ja -1", but keeps
-zext_dst. When opt_subreg_zext_lo32_rnd_hi32() tries to parse such
-an insn, it sees this discrepancy and bails. This problem can be seen
-only with JITs whose bpf_jit_needs_zext() returns true.
+For the NAPI cleanup vs start_xmit path - appropriate barriers
+are already in place in the main spot where Tx queue is stopped
+but we need to do the same careful dance in the TX_BUSY case.
 
-Fix by clearning dead insns' zext_dst.
-
-The commits that contributed to this problem are:
-
-1. 5aa5bd14c5f8 ("bpf: add initial suite for selftests"), which
-   introduced the test with the dead code.
-2. 5327ed3d44b7 ("bpf: verifier: mark verified-insn with
-   sub-register zext flag"), which introduced the zext_dst flag.
-3. 83a2881903f3 ("bpf: Account for BPF_FETCH in
-   insn_has_def32()"), which introduced the sanity check.
-4. 9183671af6db ("bpf: Fix leakage under speculation on
-   mispredicted branches"), which bisect points to.
-
-It's best to fix this on stable branches that contain the second one,
-since that's the point where the inconsistency was introduced.
-
-Fixes: 5327ed3d44b7 ("bpf: verifier: mark verified-insn with sub-register zext flag")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210812151811.184086-2-iii@linux.ibm.com
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 54 ++++++++++++++---------
+ 1 file changed, 32 insertions(+), 22 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 52c2b11a0b47..0b5a446ee59c 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -8586,6 +8586,7 @@ static void sanitize_dead_code(struct bpf_verifier_env *env)
- 		if (aux_data[i].seen)
- 			continue;
- 		memcpy(insn + i, &trap, sizeof(trap));
-+		aux_data[i].zext_dst = false;
- 	}
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 287ea792922a..8111aefb2411 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -360,6 +360,26 @@ static u16 bnxt_xmit_get_cfa_action(struct sk_buff *skb)
+ 	return md_dst->u.port_info.port_id;
  }
  
++static bool bnxt_txr_netif_try_stop_queue(struct bnxt *bp,
++					  struct bnxt_tx_ring_info *txr,
++					  struct netdev_queue *txq)
++{
++	netif_tx_stop_queue(txq);
++
++	/* netif_tx_stop_queue() must be done before checking
++	 * tx index in bnxt_tx_avail() below, because in
++	 * bnxt_tx_int(), we update tx index before checking for
++	 * netif_tx_queue_stopped().
++	 */
++	smp_mb();
++	if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh) {
++		netif_tx_wake_queue(txq);
++		return false;
++	}
++
++	return true;
++}
++
+ static netdev_tx_t bnxt_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct bnxt *bp = netdev_priv(dev);
+@@ -387,8 +407,8 @@ static netdev_tx_t bnxt_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 	free_size = bnxt_tx_avail(bp, txr);
+ 	if (unlikely(free_size < skb_shinfo(skb)->nr_frags + 2)) {
+-		netif_tx_stop_queue(txq);
+-		return NETDEV_TX_BUSY;
++		if (bnxt_txr_netif_try_stop_queue(bp, txr, txq))
++			return NETDEV_TX_BUSY;
+ 	}
+ 
+ 	length = skb->len;
+@@ -597,16 +617,7 @@ tx_done:
+ 		if (netdev_xmit_more() && !tx_buf->is_push)
+ 			bnxt_db_write(bp, &txr->tx_db, prod);
+ 
+-		netif_tx_stop_queue(txq);
+-
+-		/* netif_tx_stop_queue() must be done before checking
+-		 * tx index in bnxt_tx_avail() below, because in
+-		 * bnxt_tx_int(), we update tx index before checking for
+-		 * netif_tx_queue_stopped().
+-		 */
+-		smp_mb();
+-		if (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh)
+-			netif_tx_wake_queue(txq);
++		bnxt_txr_netif_try_stop_queue(bp, txr, txq);
+ 	}
+ 	return NETDEV_TX_OK;
+ 
+@@ -690,14 +701,9 @@ next_tx_int:
+ 	smp_mb();
+ 
+ 	if (unlikely(netif_tx_queue_stopped(txq)) &&
+-	    (bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh)) {
+-		__netif_tx_lock(txq, smp_processor_id());
+-		if (netif_tx_queue_stopped(txq) &&
+-		    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
+-		    txr->dev_state != BNXT_DEV_STATE_CLOSING)
+-			netif_tx_wake_queue(txq);
+-		__netif_tx_unlock(txq);
+-	}
++	    bnxt_tx_avail(bp, txr) > bp->tx_wake_thresh &&
++	    READ_ONCE(txr->dev_state) != BNXT_DEV_STATE_CLOSING)
++		netif_tx_wake_queue(txq);
+ }
+ 
+ static struct page *__bnxt_alloc_rx_page(struct bnxt *bp, dma_addr_t *mapping,
+@@ -8371,9 +8377,11 @@ void bnxt_tx_disable(struct bnxt *bp)
+ 	if (bp->tx_ring) {
+ 		for (i = 0; i < bp->tx_nr_rings; i++) {
+ 			txr = &bp->tx_ring[i];
+-			txr->dev_state = BNXT_DEV_STATE_CLOSING;
++			WRITE_ONCE(txr->dev_state, BNXT_DEV_STATE_CLOSING);
+ 		}
+ 	}
++	/* Make sure napi polls see @dev_state change */
++	synchronize_net();
+ 	/* Drop carrier first to prevent TX timeout */
+ 	netif_carrier_off(bp->dev);
+ 	/* Stop all TX queues */
+@@ -8387,8 +8395,10 @@ void bnxt_tx_enable(struct bnxt *bp)
+ 
+ 	for (i = 0; i < bp->tx_nr_rings; i++) {
+ 		txr = &bp->tx_ring[i];
+-		txr->dev_state = 0;
++		WRITE_ONCE(txr->dev_state, 0);
+ 	}
++	/* Make sure napi polls see @dev_state change */
++	synchronize_net();
+ 	netif_tx_wake_all_queues(bp->dev);
+ 	if (bp->link_info.link_up)
+ 		netif_carrier_on(bp->dev);
 -- 
 2.30.2
 
