@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B90443F66EF
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:28:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E03503F66F6
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:29:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239627AbhHXR2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:28:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35606 "EHLO mail.kernel.org"
+        id S240501AbhHXR3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:29:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240105AbhHXR0p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:26:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40D0F61B47;
-        Tue, 24 Aug 2021 17:05:03 +0000 (UTC)
+        id S240236AbhHXR1D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:27:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EF4961B49;
+        Tue, 24 Aug 2021 17:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824704;
-        bh=k8LWtFNWTOBE9dh4NNpRe9OQfT5EPwhu5gmckkYV/FA=;
+        s=k20201202; t=1629824705;
+        bh=M9fWKhUPS+ZVg1PXcpWyxYRWcVDywd5IoDbjGqunR88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZsl2kc6xF//ZlUXe0NNvfY7FRSJzl+8SYJdT0sulO2GVzlzN446eHG/deKXRfGux
-         8oy43rKetQeBeqinMAaysE/so7TI+wMStamrOHLW5adwvso7lLUHJHpBTWXFZxOBK6
-         MuRPLxHHFV5LZTwe5TFp0Ex7rpuAgqmUaQUdnk3zldF/k7IBOC5JGflpYsR1f2+nBT
-         CwoO52gUxgxKqIF6Q41L2R20GvpwX23bxvW8rEPMPTvzGOFzplfZ5IZSxLIN8HqKqa
-         l4pjkkoXQPtsD3ppK8ItYYiZbgdRVbxyRFgqc2fvwI+ZtSJM8ugeRiyaSkOYYZpCe+
-         PndWbBsGG29kA==
+        b=fJCmor3/6sii+k1GGDXIfDD1BE0gGFAc1zHXlmqY9xTVLU+9J+mxofMFp3h89CfS/
+         aD8yKqV4ieicnjj2rQG2AJTGxGMGYwTFpTxoWUC9Ff99gJe1Hb336Rw1R4w0cvR0kP
+         5/KIVOuuAmStolEdJbht7hDId/9Xj+XuIfNZCK1rv3yxdpmncsK/23s25uz6tFpjvF
+         PXu1apP+NOousN6PwXF1ZgMOEpg1eW5IWrpuqRVHYHnRrobdllB8dHXlInKy2RuS9F
+         HOdtxvanFrLN9mk0YXpuYG5pgFuLBwch2yqIpBaSGOraayFXkjcMu/rkddEV2aSLyr
+         42Yvv2sCp/Mug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Jacek Zloch <jacek.zloch@intel.com>,
-        Lukasz Sobieraj <lukasz.sobieraj@intel.com>,
-        "Lee, Chun-Yi" <jlee@suse.com>,
-        Krzysztof Rusocki <krzysztof.rusocki@intel.com>,
-        Damian Bassa <damian.bassa@intel.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.14 05/64] ACPI: NFIT: Fix support for virtual SPA ranges
-Date:   Tue, 24 Aug 2021 13:03:58 -0400
-Message-Id: <20210824170457.710623-6-sashal@kernel.org>
+Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 06/64] ASoC: cs42l42: Correct definition of ADC Volume control
+Date:   Tue, 24 Aug 2021 13:03:59 -0400
+Message-Id: <20210824170457.710623-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170457.710623-1-sashal@kernel.org>
 References: <20210824170457.710623-1-sashal@kernel.org>
@@ -53,62 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-commit b93dfa6bda4d4e88e5386490f2b277a26958f9d3 upstream.
+[ Upstream commit ee86f680ff4c9b406d49d4e22ddf10805b8a2137 ]
 
-Fix the NFIT parsing code to treat a 0 index in a SPA Range Structure as
-a special case and not match Region Mapping Structures that use 0 to
-indicate that they are not mapped. Without this fix some platform BIOS
-descriptions of "virtual disk" ranges do not result in the pmem driver
-attaching to the range.
+The ADC volume is a signed 8-bit number with range -97 to +12,
+with -97 being mute. Use a SOC_SINGLE_S8_TLV() to define this
+and fix the DECLARE_TLV_DB_SCALE() to have the correct start and
+mute flag.
 
-Details:
-In addition to typical persistent memory ranges, the ACPI NFIT may also
-convey "virtual" ranges. These ranges are indicated by a UUID in the SPA
-Range Structure of UUID_VOLATILE_VIRTUAL_DISK, UUID_VOLATILE_VIRTUAL_CD,
-UUID_PERSISTENT_VIRTUAL_DISK, or UUID_PERSISTENT_VIRTUAL_CD. The
-critical difference between virtual ranges and UUID_PERSISTENT_MEMORY,
-is that virtual do not support associations with Region Mapping
-Structures.  For this reason the "index" value of virtual SPA Range
-Structures is allowed to be 0. If a platform BIOS decides to represent
-NVDIMMs with disconnected "Region Mapping Structures" (range-index ==
-0), the kernel may falsely associate them with standalone ranges where
-the "SPA Range Structure Index" is also zero. When this happens the
-driver may falsely require labels where "virtual disks" are expected to
-be label-less. I.e. "label-less" is where the namespace-range ==
-region-range and the pmem driver attaches with no user action to create
-a namespace.
-
-Cc: Jacek Zloch <jacek.zloch@intel.com>
-Cc: Lukasz Sobieraj <lukasz.sobieraj@intel.com>
-Cc: "Lee, Chun-Yi" <jlee@suse.com>
-Cc: <stable@vger.kernel.org>
-Fixes: c2f32acdf848 ("acpi, nfit: treat virtual ramdisk SPA as pmem region")
-Reported-by: Krzysztof Rusocki <krzysztof.rusocki@intel.com>
-Reported-by: Damian Bassa <damian.bassa@intel.com>
-Reviewed-by: Jeff Moyer <jmoyer@redhat.com>
-Link: https://lore.kernel.org/r/162870796589.2521182.1240403310175570220.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210729170929.6589-1-rf@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/nfit/core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/cs42l42.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
-index 20fd197ef74c..bfa163e9d6c3 100644
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -2454,6 +2454,9 @@ static int acpi_nfit_register_region(struct acpi_nfit_desc *acpi_desc,
- 		struct acpi_nfit_memory_map *memdev = nfit_memdev->memdev;
- 		struct nd_mapping_desc *mapping;
+diff --git a/sound/soc/codecs/cs42l42.c b/sound/soc/codecs/cs42l42.c
+index 39adb2fdd003..1d997b2df477 100644
+--- a/sound/soc/codecs/cs42l42.c
++++ b/sound/soc/codecs/cs42l42.c
+@@ -404,7 +404,7 @@ static const struct regmap_config cs42l42_regmap = {
+ 	.cache_type = REGCACHE_RBTREE,
+ };
  
-+		/* range index 0 == unmapped in SPA or invalid-SPA */
-+		if (memdev->range_index == 0 || spa->range_index == 0)
-+			continue;
- 		if (memdev->range_index != spa->range_index)
- 			continue;
- 		if (count >= ND_MAX_MAPPINGS) {
+-static DECLARE_TLV_DB_SCALE(adc_tlv, -9600, 100, false);
++static DECLARE_TLV_DB_SCALE(adc_tlv, -9700, 100, true);
+ static DECLARE_TLV_DB_SCALE(mixer_tlv, -6300, 100, true);
+ 
+ static const char * const cs42l42_hpf_freq_text[] = {
+@@ -443,8 +443,7 @@ static const struct snd_kcontrol_new cs42l42_snd_controls[] = {
+ 				CS42L42_ADC_INV_SHIFT, true, false),
+ 	SOC_SINGLE("ADC Boost Switch", CS42L42_ADC_CTL,
+ 				CS42L42_ADC_DIG_BOOST_SHIFT, true, false),
+-	SOC_SINGLE_SX_TLV("ADC Volume", CS42L42_ADC_VOLUME,
+-				CS42L42_ADC_VOL_SHIFT, 0xA0, 0x6C, adc_tlv),
++	SOC_SINGLE_S8_TLV("ADC Volume", CS42L42_ADC_VOLUME, -97, 12, adc_tlv),
+ 	SOC_SINGLE("ADC WNF Switch", CS42L42_ADC_WNF_HPF_CTL,
+ 				CS42L42_ADC_WNF_EN_SHIFT, true, false),
+ 	SOC_SINGLE("ADC HPF Switch", CS42L42_ADC_WNF_HPF_CTL,
 -- 
 2.30.2
 
