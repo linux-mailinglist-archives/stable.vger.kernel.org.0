@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F293F6681
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A5823F6682
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238550AbhHXRZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:25:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59766 "EHLO mail.kernel.org"
+        id S238635AbhHXRZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:25:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240888AbhHXRW6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:22:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAD2E61AF9;
-        Tue, 24 Aug 2021 17:03:38 +0000 (UTC)
+        id S241000AbhHXRXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:23:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDE7F61AF8;
+        Tue, 24 Aug 2021 17:03:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824619;
-        bh=jvT7khzGbS2X+tgLwpLx+mNPPnkt2j9B1tBu8wzbtBs=;
+        s=k20201202; t=1629824620;
+        bh=MSbu1neapRlMUuym5EKpLXNK+liHInZpCf98VFak1Q4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkfJ3B54g6cWqRXkKDosx0+DnP741nV22eOIg4DCWcltf4C8yrtDEAmRe8bwo5js4
-         4qe/UWAuqdr7gH9HDZ+Nl5Gy6sguvxqwxNyiEQLDH1AHCLuydZpUKQ3QTfLKwrwVqY
-         JIgv2nJMo1/PmPE137W37N1a4DZJhrxZf7CsvB2mnUdQxr7lZFGo5OUu5GNDkaHdjg
-         oA1PGVSpHBgIlQS4suVBc04XzMu44AitEv1u8QpZQVAglF32f7vraEfm1dOa1gpbNT
-         RqE7qgpTfB5egGQ1X4RoX0pJjL4eAUXcUGf9CqFlCzBybz+aHaVIfRfkNCK/Czw1Xp
-         4pr66aBCJjAGw==
+        b=PoBaMA8Bdna7zuoHRbGtnWy7TA2ESZuXsUEugu+fZLHcZTAsGRMGq1l/msnXUYdwb
+         mPoFXkt9srZVuC+jwC1j3Z31/CdmcC0p+RSWfppjIN4KfBHEazZPBN3lLzNfKwFuUj
+         kMiOR7+48tR/QlFCSVJvM4ywVuDBzV2LWo6rpOaUuu/UIho5HYNQFYGdNnYre/j1WP
+         YqASXvgpBtpPAJWCm84Lkxwg1f5my+uchv+o3PoMIXcDRRhmlk9ebxr+lTJnz5nYev
+         XJiMbgrHWRK5TVxznDII5heyVGh54YIzF5wm4cbAJ4kQM7e/EZ6epNauDNX+whY9jg
+         sAGdphrs4J6cA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jouni Malinen <jouni@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 4.19 49/84] ath9k: Postpone key cache entry deletion for TXQ frames reference it
-Date:   Tue, 24 Aug 2021 13:02:15 -0400
-Message-Id: <20210824170250.710392-50-sashal@kernel.org>
+Cc:     Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 50/84] dmaengine: xilinx_dma: Fix read-after-free bug when terminating transfers
+Date:   Tue, 24 Aug 2021 13:02:16 -0400
+Message-Id: <20210824170250.710392-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170250.710392-1-sashal@kernel.org>
 References: <20210824170250.710392-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.205-rc1.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
 X-KernelTest-Branch: linux-4.19.y
@@ -50,167 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Malinen <jouni@codeaurora.org>
+From: Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>
 
-commit ca2848022c12789685d3fab3227df02b863f9696 upstream.
+[ Upstream commit 7dd2dd4ff9f3abda601f22b9d01441a0869d20d7 ]
 
-Do not delete a key cache entry that is still being referenced by
-pending frames in TXQs. This avoids reuse of the key cache entry while a
-frame might still be transmitted using it.
+When user calls dmaengine_terminate_sync, the driver will clean up any
+remaining descriptors for all the pending or active transfers that had
+previously been submitted. However, this might happen whilst the tasklet is
+invoking the DMA callback for the last finished transfer, so by the time it
+returns and takes over the channel's spinlock, the list of completed
+descriptors it was traversing is no longer valid. This leads to a
+read-after-free situation.
 
-To avoid having to do any additional operations during the main TX path
-operations, track pending key cache entries in a new bitmap and check
-whether any pending entries can be deleted before every new key
-add/remove operation. Also clear any remaining entries when stopping the
-interface.
+Fix it by signalling whether a user-triggered termination has happened by
+means of a boolean variable.
 
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201214172118.18100-6-jouni@codeaurora.org
-Cc: Pali Rohár <pali@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>
+Link: https://lore.kernel.org/r/20210706234338.7696-3-adrian.martinezlarumbe@imgtec.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hw.h   |  1 +
- drivers/net/wireless/ath/ath9k/main.c | 87 ++++++++++++++++++++++++++-
- 2 files changed, 87 insertions(+), 1 deletion(-)
+ drivers/dma/xilinx/xilinx_dma.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hw.h b/drivers/net/wireless/ath/ath9k/hw.h
-index 68956cdc8c9a..4b5687b6c0c9 100644
---- a/drivers/net/wireless/ath/ath9k/hw.h
-+++ b/drivers/net/wireless/ath/ath9k/hw.h
-@@ -818,6 +818,7 @@ struct ath_hw {
- 	struct ath9k_pacal_info pacal_info;
- 	struct ar5416Stats stats;
- 	struct ath9k_tx_queue_info txq[ATH9K_NUM_TX_QUEUES];
-+	DECLARE_BITMAP(pending_del_keymap, ATH_KEYMAX);
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 0c5668e897fe..d891ec05bc48 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -332,6 +332,7 @@ struct xilinx_dma_tx_descriptor {
+  * @genlock: Support genlock mode
+  * @err: Channel has errors
+  * @idle: Check for channel idle
++ * @terminating: Check for channel being synchronized by user
+  * @tasklet: Cleanup work after irq
+  * @config: Device configuration info
+  * @flush_on_fsync: Flush on Frame sync
+@@ -369,6 +370,7 @@ struct xilinx_dma_chan {
+ 	bool genlock;
+ 	bool err;
+ 	bool idle;
++	bool terminating;
+ 	struct tasklet_struct tasklet;
+ 	struct xilinx_vdma_config config;
+ 	bool flush_on_fsync;
+@@ -843,6 +845,13 @@ static void xilinx_dma_chan_desc_cleanup(struct xilinx_dma_chan *chan)
+ 		/* Run any dependencies, then free the descriptor */
+ 		dma_run_dependencies(&desc->async_tx);
+ 		xilinx_dma_free_tx_descriptor(chan, desc);
++
++		/*
++		 * While we ran a callback the user called a terminate function,
++		 * which takes care of cleaning up any remaining descriptors
++		 */
++		if (chan->terminating)
++			break;
+ 	}
  
- 	enum ath9k_int imask;
- 	u32 imrs2_reg;
-diff --git a/drivers/net/wireless/ath/ath9k/main.c b/drivers/net/wireless/ath/ath9k/main.c
-index 95cc581e3761..a0097bebcba3 100644
---- a/drivers/net/wireless/ath/ath9k/main.c
-+++ b/drivers/net/wireless/ath/ath9k/main.c
-@@ -823,12 +823,80 @@ exit:
- 	ieee80211_free_txskb(hw, skb);
- }
+ 	spin_unlock_irqrestore(&chan->lock, flags);
+@@ -1612,6 +1621,8 @@ static dma_cookie_t xilinx_dma_tx_submit(struct dma_async_tx_descriptor *tx)
+ 	if (desc->cyclic)
+ 		chan->cyclic = true;
  
-+static bool ath9k_txq_list_has_key(struct list_head *txq_list, u32 keyix)
-+{
-+	struct ath_buf *bf;
-+	struct ieee80211_tx_info *txinfo;
-+	struct ath_frame_info *fi;
++	chan->terminating = false;
 +
-+	list_for_each_entry(bf, txq_list, list) {
-+		if (bf->bf_state.stale || !bf->bf_mpdu)
-+			continue;
-+
-+		txinfo = IEEE80211_SKB_CB(bf->bf_mpdu);
-+		fi = (struct ath_frame_info *)&txinfo->rate_driver_data[0];
-+		if (fi->keyix == keyix)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
-+static bool ath9k_txq_has_key(struct ath_softc *sc, u32 keyix)
-+{
-+	struct ath_hw *ah = sc->sc_ah;
-+	int i;
-+	struct ath_txq *txq;
-+	bool key_in_use = false;
-+
-+	for (i = 0; !key_in_use && i < ATH9K_NUM_TX_QUEUES; i++) {
-+		if (!ATH_TXQ_SETUP(sc, i))
-+			continue;
-+		txq = &sc->tx.txq[i];
-+		if (!txq->axq_depth)
-+			continue;
-+		if (!ath9k_hw_numtxpending(ah, txq->axq_qnum))
-+			continue;
-+
-+		ath_txq_lock(sc, txq);
-+		key_in_use = ath9k_txq_list_has_key(&txq->axq_q, keyix);
-+		if (sc->sc_ah->caps.hw_caps & ATH9K_HW_CAP_EDMA) {
-+			int idx = txq->txq_tailidx;
-+
-+			while (!key_in_use &&
-+			       !list_empty(&txq->txq_fifo[idx])) {
-+				key_in_use = ath9k_txq_list_has_key(
-+					&txq->txq_fifo[idx], keyix);
-+				INCR(idx, ATH_TXFIFO_DEPTH);
-+			}
-+		}
-+		ath_txq_unlock(sc, txq);
-+	}
-+
-+	return key_in_use;
-+}
-+
-+static void ath9k_pending_key_del(struct ath_softc *sc, u8 keyix)
-+{
-+	struct ath_hw *ah = sc->sc_ah;
-+	struct ath_common *common = ath9k_hw_common(ah);
-+
-+	if (!test_bit(keyix, ah->pending_del_keymap) ||
-+	    ath9k_txq_has_key(sc, keyix))
-+		return;
-+
-+	/* No more TXQ frames point to this key cache entry, so delete it. */
-+	clear_bit(keyix, ah->pending_del_keymap);
-+	ath_key_delete(common, keyix);
-+}
-+
- static void ath9k_stop(struct ieee80211_hw *hw)
- {
- 	struct ath_softc *sc = hw->priv;
- 	struct ath_hw *ah = sc->sc_ah;
- 	struct ath_common *common = ath9k_hw_common(ah);
- 	bool prev_idle;
-+	int i;
+ 	spin_unlock_irqrestore(&chan->lock, flags);
  
- 	ath9k_deinit_channel_context(sc);
+ 	return cookie;
+@@ -2068,6 +2079,7 @@ static int xilinx_dma_terminate_all(struct dma_chan *dchan)
+ 	}
  
-@@ -896,6 +964,9 @@ static void ath9k_stop(struct ieee80211_hw *hw)
+ 	/* Remove and free all of the descriptors in the lists */
++	chan->terminating = true;
+ 	xilinx_dma_free_descriptors(chan);
+ 	chan->idle = true;
  
- 	spin_unlock_bh(&sc->sc_pcu_lock);
- 
-+	for (i = 0; i < ATH_KEYMAX; i++)
-+		ath9k_pending_key_del(sc, i);
-+
- 	/* Clear key cache entries explicitly to get rid of any potentially
- 	 * remaining keys.
- 	 */
-@@ -1712,6 +1783,12 @@ static int ath9k_set_key(struct ieee80211_hw *hw,
- 	if (sta)
- 		an = (struct ath_node *)sta->drv_priv;
- 
-+	/* Delete pending key cache entries if no more frames are pointing to
-+	 * them in TXQs.
-+	 */
-+	for (i = 0; i < ATH_KEYMAX; i++)
-+		ath9k_pending_key_del(sc, i);
-+
- 	switch (cmd) {
- 	case SET_KEY:
- 		if (sta)
-@@ -1741,7 +1818,15 @@ static int ath9k_set_key(struct ieee80211_hw *hw,
- 		}
- 		break;
- 	case DISABLE_KEY:
--		ath_key_delete(common, key->hw_key_idx);
-+		if (ath9k_txq_has_key(sc, key->hw_key_idx)) {
-+			/* Delay key cache entry deletion until there are no
-+			 * remaining TXQ frames pointing to this entry.
-+			 */
-+			set_bit(key->hw_key_idx, sc->sc_ah->pending_del_keymap);
-+			ath_hw_keysetmac(common, key->hw_key_idx, NULL);
-+		} else {
-+			ath_key_delete(common, key->hw_key_idx);
-+		}
- 		if (an) {
- 			for (i = 0; i < ARRAY_SIZE(an->key_idx); i++) {
- 				if (an->key_idx[i] != key->hw_key_idx)
 -- 
 2.30.2
 
