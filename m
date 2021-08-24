@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F2423F5482
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A09B83F5480
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 02:55:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233637AbhHXAz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Aug 2021 20:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
+        id S233862AbhHXAz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Aug 2021 20:55:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233639AbhHXAzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233643AbhHXAzA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 23 Aug 2021 20:55:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 816F8613E6;
-        Tue, 24 Aug 2021 00:54:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9E946140A;
+        Tue, 24 Aug 2021 00:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629766455;
-        bh=F9yoIotIzFik7ysVZVflN4Wd+6wIU7YL3+6ONdX9auI=;
+        s=k20201202; t=1629766456;
+        bh=+eEZQxjVm8xcGiVgKXT3C3Oxr9tB3gg9XaPUcH9tcgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwTxxaw5/aElDdIgbWJbVOTiNXkd4u2ByVsGMn7oxKCUKc/uOBqmiawV3E5n6TnI4
-         Eg76REc9aGRLUk7T04EUBfcHGadtCXwhM20NRMcDxQhTLkutppd+WMHlz3XGNiOdjr
-         XO/s/bH7UM3JMBbtlqGnA4QhYALL2RCYb/5Aetk+HSsE5lmP5Gzlp/BNG/4e7mSVR/
-         oO3OQtIEpk2K5ddYHkBu8Ry7rIY/GgoEDypgExwW+nVqiCU1gQ9qfKIzDbbSk0c6Ci
-         7e2SRW/w3Ec0rQKwa4GmPFfwXp6xlGdTV8M0souob7U/R9dS2QbtHATeRaqOHkVL2+
-         i5lCi54gY77wQ==
+        b=FMwJbc5pOW5BS9VxDy/5Wzc/M+8QyAhuzaw+/Wq74DbXEfkS3G7XVhiYCYDq5kChf
+         /BiCPHvyYW6c4j7DoSXzMKSitH7rDWu1S15arg2cJSC16VswxDGhSk94PRdYcp7Er1
+         zabpHkVAY1fXh4J2Niw6Z8u6zm1IjGJzYY0PoAY/qRqV6RrWZmkeJW9AOGA42JkZbx
+         UcqXeGc1Eohp0XkNkEjUGVdNO49RE0Rje6I5HP+BYH3HL2FfdqPILKrarLtC5ltAEZ
+         AxRKBzGSWnPZr6tEGK08l2//E45BX+gEihG0+sON8fHOclgacLiYS71zhZ9868dx4y
+         3ooWeE2Kpy6Vw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shai Malin <smalin@marvell.com>,
-        TOTE Robot <oslab@tsinghua.edu.cn>,
-        Ariel Elior <aelior@marvell.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 14/26] qed: Fix null-pointer dereference in qed_rdma_create_qp()
-Date:   Mon, 23 Aug 2021 20:53:44 -0400
-Message-Id: <20210824005356.630888-14-sashal@kernel.org>
+Cc:     Kenneth Feng <kenneth.feng@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.13 15/26] Revert "drm/amd/pm: fix workload mismatch on vega10"
+Date:   Mon, 23 Aug 2021 20:53:45 -0400
+Message-Id: <20210824005356.630888-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824005356.630888-1-sashal@kernel.org>
 References: <20210824005356.630888-1-sashal@kernel.org>
@@ -44,38 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shai Malin <smalin@marvell.com>
+From: Kenneth Feng <kenneth.feng@amd.com>
 
-[ Upstream commit d33d19d313d3466abdf8b0428be7837aff767802 ]
+[ Upstream commit 2fd31689f9e44af949f60ff4f8aca013e628ab81 ]
 
-Fix a possible null-pointer dereference in qed_rdma_create_qp().
+This reverts commit 0979d43259e13846d86ba17e451e17fec185d240.
+Revert this because it does not apply to all the cards.
 
-Changes from V2:
-- Revert checkpatch fixes.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Kenneth Feng <kenneth.feng@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_rdma.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_rdma.c b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
-index da864d12916b..4f4b79250a2b 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_rdma.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
-@@ -1285,8 +1285,7 @@ qed_rdma_create_qp(void *rdma_cxt,
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
+index 31c61ac3bd5e..f5a32654cde7 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
+@@ -5160,7 +5160,7 @@ static int vega10_set_power_profile_mode(struct pp_hwmgr *hwmgr, long *input, ui
  
- 	if (!rdma_cxt || !in_params || !out_params ||
- 	    !p_hwfn->p_rdma_info->active) {
--		DP_ERR(p_hwfn->cdev,
--		       "qed roce create qp failed due to NULL entry (rdma_cxt=%p, in=%p, out=%p, roce_info=?\n",
-+		pr_err("qed roce create qp failed due to NULL entry (rdma_cxt=%p, in=%p, out=%p, roce_info=?\n",
- 		       rdma_cxt, in_params, out_params);
- 		return NULL;
- 	}
+ out:
+ 	smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
+-						(!power_profile_mode) ? 0 : 1 << (power_profile_mode - 1),
++						1 << power_profile_mode,
+ 						NULL);
+ 	hwmgr->power_profile_mode = power_profile_mode;
+ 
 -- 
 2.30.2
 
