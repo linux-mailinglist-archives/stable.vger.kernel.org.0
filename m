@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD6403F655F
-	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:11:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC49F3F6567
+	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:12:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239422AbhHXRMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:12:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52078 "EHLO mail.kernel.org"
+        id S230488AbhHXRMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:12:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240220AbhHXRKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 24 Aug 2021 13:10:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0C92613A7;
-        Tue, 24 Aug 2021 17:00:38 +0000 (UTC)
+        id S238829AbhHXRKc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 13:10:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3935D61A58;
+        Tue, 24 Aug 2021 17:00:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824439;
-        bh=4HBTG/THShO6MFTxEnYpxg4RxDyQQ/jBfgn+vi0GY+Q=;
+        s=k20201202; t=1629824440;
+        bh=AMzktS8lR1xuZbR78zImLp/8+3UF8tWvku8qzBABSeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KBm0ubSQp7JnXb080yhVVcl+np1PZqX5W6uWtccRiSqjfMUMroL6tjlSqtO6GOFX1
-         29+8Zn/uNLQlv9CuvB61fUhZSPL3hHfSwlELXRzO0dP6jCQe1nUeJ6aBmYTN0I/cms
-         eaTuaFH+R9Kg/krFeC+iNmijhBvKHJqatCterO1EwaDi8A1h6ttWRccpBp6/104c5E
-         wIGLIwCeygwyXY37fS780C3UspzP/GR1qy461ipB7H20wOTzRe/l93VdNX0dUbNtX5
-         y63/4wwfgAHRUeeAp/+D2LRbLiXm23B/Gz79fDHSHGnDnP01gLA8ScpbEPE0pVeGDR
-         mx5KJhHm6WOiA==
+        b=QK4LE7DwwUCopd2Mmr8SsYROFBIN3fShgM3yUPWn+HeSMKF8LIKnmBLRjcFwgryLN
+         VOk9H/MOT6Wwqnuns7QyXrjfcxAD55UaxmBMCkzS9n56yjHcuNnR1oSVMLUBluFzQZ
+         LJqkOnDk/yeKExmEEcaGQqvYjGKqFXW/SZiVf8cPiBrwBVxU/gqROrH6ioSE0aOq/c
+         wZQlQw0P0R9JcFOQ77iMKio/Si82w9WKAdT9B8qnKrFsuN6IL9laj6cGGS6BEuTzP8
+         zm35Z3AGEWhAalfuaYUWmFk1AW3XQyJ63dOthtmVExZn6H6aKivrgxOZ2ZT43F5eUq
+         xZLjr0h1qBEmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcin Bachry <hegel666@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Prike Liang <prike.liang@amd.com>,
-        Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 91/98] PCI: Increase D3 delay for AMD Renoir/Cezanne XHCI
-Date:   Tue, 24 Aug 2021 12:59:01 -0400
-Message-Id: <20210824165908.709932-92-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 92/98] ALSA: hda/realtek: Limit mic boost on HP ProBook 445 G8
+Date:   Tue, 24 Aug 2021 12:59:02 -0400
+Message-Id: <20210824165908.709932-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
 References: <20210824165908.709932-1-sashal@kernel.org>
@@ -52,43 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcin Bachry <hegel666@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit e0bff43220925b7e527f9d3bc9f5c624177c959e ]
+[ Upstream commit 8903376dc69949199301b290cc22dc64ae5d8a6d ]
 
-The Renoir XHCI controller apparently doesn't resume reliably with the
-standard D3hot-to-D0 delay.  Increase it to 20ms.
+The mic has lots of noises if mic boost is enabled. So disable mic boost
+to get crystal clear audio capture.
 
-[Alex: I talked to the AMD USB hardware team and the AMD Windows team and
-they are not aware of any HW errata or specific issues.  The HW works fine
-in Windows.  I was told Windows uses a rather generous default delay of
-100ms for PCI state transitions.]
-
-Link: https://lore.kernel.org/r/20210722025858.220064-1-alexander.deucher@amd.com
-Signed-off-by: Marcin Bachry <hegel666@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
-Cc: Mario Limonciello <mario.limonciello@amd.com>
-Cc: Prike Liang <prike.liang@amd.com>
-Cc: Shyam Sundar S K <shyam-sundar.s-k@amd.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210818144119.121738-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index bb1122e257dd..cd2401d4764f 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -1905,6 +1905,7 @@ static void quirk_ryzen_xhci_d3hot(struct pci_dev *dev)
- }
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15e0, quirk_ryzen_xhci_d3hot);
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x15e1, quirk_ryzen_xhci_d3hot);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_AMD, 0x1639, quirk_ryzen_xhci_d3hot);
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index de4cd91b9ba8..6219d0311c9a 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6590,6 +6590,7 @@ enum {
+ 	ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP,
+ 	ALC623_FIXUP_LENOVO_THINKSTATION_P340,
+ 	ALC255_FIXUP_ACER_HEADPHONE_AND_MIC,
++	ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST,
+ };
  
- #ifdef CONFIG_X86_IO_APIC
- static int dmi_disable_ioapicreroute(const struct dmi_system_id *d)
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -8168,6 +8169,12 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC255_FIXUP_XIAOMI_HEADSET_MIC
+ 	},
++	[ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc269_fixup_limit_int_mic_boost,
++		.chained = true,
++		.chain_id = ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF,
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8364,8 +8371,8 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x8847, "HP EliteBook x360 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x884b, "HP EliteBook 840 Aero G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x884c, "HP EliteBook 840 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
+-	SND_PCI_QUIRK(0x103c, 0x8862, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
+-	SND_PCI_QUIRK(0x103c, 0x8863, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
++	SND_PCI_QUIRK(0x103c, 0x8862, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST),
++	SND_PCI_QUIRK(0x103c, 0x8863, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x103c, 0x886d, "HP ZBook Fury 17.3 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8870, "HP ZBook Fury 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+ 	SND_PCI_QUIRK(0x103c, 0x8873, "HP ZBook Studio 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
 -- 
 2.30.2
 
