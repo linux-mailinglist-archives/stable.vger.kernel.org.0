@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B948A3F67F1
+	by mail.lfdr.de (Postfix) with ESMTP id 42D7A3F67F0
 	for <lists+stable@lfdr.de>; Tue, 24 Aug 2021 19:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241734AbhHXRit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 13:38:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42932 "EHLO mail.kernel.org"
+        id S241677AbhHXRis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 13:38:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241854AbhHXRgo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241850AbhHXRgo (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 24 Aug 2021 13:36:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AFB061BA5;
-        Tue, 24 Aug 2021 17:07:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63DD161BBD;
+        Tue, 24 Aug 2021 17:07:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629824868;
-        bh=XkT0CHHsGjC6Ey2vyiJgBWy7JFiuuF+340dJWuGZ4/4=;
+        s=k20201202; t=1629824869;
+        bh=xFV4Mw3Ym4Jelu6DrRoXKF95ogPck8/LfduGzS2fDH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=heDTqYrq4he6Xr4TmzXXWLSjTu6Fgm+BJSP1LOIBcLKR6SBk4c6aKOuuOqlFVw3mf
-         vd6LVZtJ7lLZ/kMvhgQBYPv0rxg9EPyJHfRV+FKh/xa7+C3AnWNT47XsqXu8YqpOMg
-         K8Eifvxl4Z4Ahy83vseW4XiiLf3DEH1DzmFdKHYe+cj9fzEQNWne2/Fzx0WXMPLIdG
-         NroIAlApPDQ1CUOceN/TZmBfyCiMsW0oIi+tsJEiw60O5jnyJeraWq+ZSgPTubJyK9
-         aO9Na8Zz8Xhf3j2W71nVBUF3NhR2RAx+ymzdPXcnsT9xWAngqM/R7p0olN2tUR3vMQ
-         d19yfh+ezagKA==
+        b=R6+XS/fKliiixT8LMpPxGn4KYahYLWoLaXeEopzzkZoIsYxYMzuL+MASrd2+bTGoe
+         MDl0yq09FVP+Kpwx1NtCTvw+S38MWni39nQKk66xuHlY5lmd8yAH0LTQR+a28b0xqs
+         jIXsqulZuM8OrMyvWXr0TUPDLpr0/lu0LUcojGZvgAmxDMS7a2hyngR19r1gWDNQyq
+         00Z0AOVfdPNLVGsLYBxOa1mrP38sDoH2EDA5UzKvob4z68vDwhaMnb2j89Jsm+Kamg
+         ACiRNISx8WR7bOwRkOC3qw6+xISy1WJm2avwhbxqZy486WXv8zqkzmnt0kZ0vXTc6n
+         SmbL5s8lwe8/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takeshi Misawa <jeliantsurux@gmail.com>,
-        syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+Cc:     Maximilian Heyne <mheyne@amazon.de>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 03/31] net: Fix memory leak in ieee802154_raw_deliver
-Date:   Tue, 24 Aug 2021 13:07:15 -0400
-Message-Id: <20210824170743.710957-4-sashal@kernel.org>
+Subject: [PATCH 4.4 04/31] xen/events: Fix race in set_evtchn_to_irq
+Date:   Tue, 24 Aug 2021 13:07:16 -0400
+Message-Id: <20210824170743.710957-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210824170743.710957-1-sashal@kernel.org>
 References: <20210824170743.710957-1-sashal@kernel.org>
@@ -50,85 +48,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Misawa <jeliantsurux@gmail.com>
+From: Maximilian Heyne <mheyne@amazon.de>
 
-[ Upstream commit 1090340f7ee53e824fd4eef66a4855d548110c5b ]
+[ Upstream commit 88ca2521bd5b4e8b83743c01a2d4cb09325b51e9 ]
 
-If IEEE-802.15.4-RAW is closed before receive skb, skb is leaked.
-Fix this, by freeing sk_receive_queue in sk->sk_destruct().
+There is a TOCTOU issue in set_evtchn_to_irq. Rows in the evtchn_to_irq
+mapping are lazily allocated in this function. The check whether the row
+is already present and the row initialization is not synchronized. Two
+threads can at the same time allocate a new row for evtchn_to_irq and
+add the irq mapping to the their newly allocated row. One thread will
+overwrite what the other has set for evtchn_to_irq[row] and therefore
+the irq mapping is lost. This will trigger a BUG_ON later in
+bind_evtchn_to_cpu:
 
-syzbot report:
-BUG: memory leak
-unreferenced object 0xffff88810f644600 (size 232):
-  comm "softirq", pid 0, jiffies 4294967032 (age 81.270s)
-  hex dump (first 32 bytes):
-    10 7d 4b 12 81 88 ff ff 10 7d 4b 12 81 88 ff ff  .}K......}K.....
-    00 00 00 00 00 00 00 00 40 7c 4b 12 81 88 ff ff  ........@|K.....
-  backtrace:
-    [<ffffffff83651d4a>] skb_clone+0xaa/0x2b0 net/core/skbuff.c:1496
-    [<ffffffff83fe1b80>] ieee802154_raw_deliver net/ieee802154/socket.c:369 [inline]
-    [<ffffffff83fe1b80>] ieee802154_rcv+0x100/0x340 net/ieee802154/socket.c:1070
-    [<ffffffff8367cc7a>] __netif_receive_skb_one_core+0x6a/0xa0 net/core/dev.c:5384
-    [<ffffffff8367cd07>] __netif_receive_skb+0x27/0xa0 net/core/dev.c:5498
-    [<ffffffff8367cdd9>] netif_receive_skb_internal net/core/dev.c:5603 [inline]
-    [<ffffffff8367cdd9>] netif_receive_skb+0x59/0x260 net/core/dev.c:5662
-    [<ffffffff83fe6302>] ieee802154_deliver_skb net/mac802154/rx.c:29 [inline]
-    [<ffffffff83fe6302>] ieee802154_subif_frame net/mac802154/rx.c:102 [inline]
-    [<ffffffff83fe6302>] __ieee802154_rx_handle_packet net/mac802154/rx.c:212 [inline]
-    [<ffffffff83fe6302>] ieee802154_rx+0x612/0x620 net/mac802154/rx.c:284
-    [<ffffffff83fe59a6>] ieee802154_tasklet_handler+0x86/0xa0 net/mac802154/main.c:35
-    [<ffffffff81232aab>] tasklet_action_common.constprop.0+0x5b/0x100 kernel/softirq.c:557
-    [<ffffffff846000bf>] __do_softirq+0xbf/0x2ab kernel/softirq.c:345
-    [<ffffffff81232f4c>] do_softirq kernel/softirq.c:248 [inline]
-    [<ffffffff81232f4c>] do_softirq+0x5c/0x80 kernel/softirq.c:235
-    [<ffffffff81232fc1>] __local_bh_enable_ip+0x51/0x60 kernel/softirq.c:198
-    [<ffffffff8367a9a4>] local_bh_enable include/linux/bottom_half.h:32 [inline]
-    [<ffffffff8367a9a4>] rcu_read_unlock_bh include/linux/rcupdate.h:745 [inline]
-    [<ffffffff8367a9a4>] __dev_queue_xmit+0x7f4/0xf60 net/core/dev.c:4221
-    [<ffffffff83fe2db4>] raw_sendmsg+0x1f4/0x2b0 net/ieee802154/socket.c:295
-    [<ffffffff8363af16>] sock_sendmsg_nosec net/socket.c:654 [inline]
-    [<ffffffff8363af16>] sock_sendmsg+0x56/0x80 net/socket.c:674
-    [<ffffffff8363deec>] __sys_sendto+0x15c/0x200 net/socket.c:1977
-    [<ffffffff8363dfb6>] __do_sys_sendto net/socket.c:1989 [inline]
-    [<ffffffff8363dfb6>] __se_sys_sendto net/socket.c:1985 [inline]
-    [<ffffffff8363dfb6>] __x64_sys_sendto+0x26/0x30 net/socket.c:1985
+  INFO: pci 0000:1a:15.4: [1d0f:8061] type 00 class 0x010802
+  INFO: nvme 0000:1a:12.1: enabling device (0000 -> 0002)
+  INFO: nvme nvme77: 1/0/0 default/read/poll queues
+  CRIT: kernel BUG at drivers/xen/events/events_base.c:427!
+  WARN: invalid opcode: 0000 [#1] SMP NOPTI
+  WARN: Workqueue: nvme-reset-wq nvme_reset_work [nvme]
+  WARN: RIP: e030:bind_evtchn_to_cpu+0xc2/0xd0
+  WARN: Call Trace:
+  WARN:  set_affinity_irq+0x121/0x150
+  WARN:  irq_do_set_affinity+0x37/0xe0
+  WARN:  irq_setup_affinity+0xf6/0x170
+  WARN:  irq_startup+0x64/0xe0
+  WARN:  __setup_irq+0x69e/0x740
+  WARN:  ? request_threaded_irq+0xad/0x160
+  WARN:  request_threaded_irq+0xf5/0x160
+  WARN:  ? nvme_timeout+0x2f0/0x2f0 [nvme]
+  WARN:  pci_request_irq+0xa9/0xf0
+  WARN:  ? pci_alloc_irq_vectors_affinity+0xbb/0x130
+  WARN:  queue_request_irq+0x4c/0x70 [nvme]
+  WARN:  nvme_reset_work+0x82d/0x1550 [nvme]
+  WARN:  ? check_preempt_wakeup+0x14f/0x230
+  WARN:  ? check_preempt_curr+0x29/0x80
+  WARN:  ? nvme_irq_check+0x30/0x30 [nvme]
+  WARN:  process_one_work+0x18e/0x3c0
+  WARN:  worker_thread+0x30/0x3a0
+  WARN:  ? process_one_work+0x3c0/0x3c0
+  WARN:  kthread+0x113/0x130
+  WARN:  ? kthread_park+0x90/0x90
+  WARN:  ret_from_fork+0x3a/0x50
 
-Fixes: 9ec767160357 ("net: add IEEE 802.15.4 socket family implementation")
-Reported-and-tested-by: syzbot+1f68113fa907bf0695a8@syzkaller.appspotmail.com
-Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210805075414.GA15796@DESKTOP
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+This patch sets evtchn_to_irq rows via a cmpxchg operation so that they
+will be set only once. The row is now cleared before writing it to
+evtchn_to_irq in order to not create a race once the row is visible for
+other threads.
+
+While at it, do not require the page to be zeroed, because it will be
+overwritten with -1's in clear_evtchn_to_irq_row anyway.
+
+Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
+Fixes: d0b075ffeede ("xen/events: Refactor evtchn_to_irq array to be dynamically allocated")
+Link: https://lore.kernel.org/r/20210812130930.127134-1-mheyne@amazon.de
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/socket.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/xen/events/events_base.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/net/ieee802154/socket.c b/net/ieee802154/socket.c
-index cb6c0772ea36..42ab1b61b513 100644
---- a/net/ieee802154/socket.c
-+++ b/net/ieee802154/socket.c
-@@ -983,6 +983,11 @@ static const struct proto_ops ieee802154_dgram_ops = {
- #endif
- };
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index f27118923390..0c5b187dc7a0 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -134,12 +134,12 @@ static void disable_dynirq(struct irq_data *data);
  
-+static void ieee802154_sock_destruct(struct sock *sk)
-+{
-+	skb_queue_purge(&sk->sk_receive_queue);
-+}
+ static DEFINE_PER_CPU(unsigned int, irq_epoch);
+ 
+-static void clear_evtchn_to_irq_row(unsigned row)
++static void clear_evtchn_to_irq_row(int *evtchn_row)
+ {
+ 	unsigned col;
+ 
+ 	for (col = 0; col < EVTCHN_PER_ROW; col++)
+-		WRITE_ONCE(evtchn_to_irq[row][col], -1);
++		WRITE_ONCE(evtchn_row[col], -1);
+ }
+ 
+ static void clear_evtchn_to_irq_all(void)
+@@ -149,7 +149,7 @@ static void clear_evtchn_to_irq_all(void)
+ 	for (row = 0; row < EVTCHN_ROW(xen_evtchn_max_channels()); row++) {
+ 		if (evtchn_to_irq[row] == NULL)
+ 			continue;
+-		clear_evtchn_to_irq_row(row);
++		clear_evtchn_to_irq_row(evtchn_to_irq[row]);
+ 	}
+ }
+ 
+@@ -157,6 +157,7 @@ static int set_evtchn_to_irq(unsigned evtchn, unsigned irq)
+ {
+ 	unsigned row;
+ 	unsigned col;
++	int *evtchn_row;
+ 
+ 	if (evtchn >= xen_evtchn_max_channels())
+ 		return -EINVAL;
+@@ -169,11 +170,18 @@ static int set_evtchn_to_irq(unsigned evtchn, unsigned irq)
+ 		if (irq == -1)
+ 			return 0;
+ 
+-		evtchn_to_irq[row] = (int *)get_zeroed_page(GFP_KERNEL);
+-		if (evtchn_to_irq[row] == NULL)
++		evtchn_row = (int *) __get_free_pages(GFP_KERNEL, 0);
++		if (evtchn_row == NULL)
+ 			return -ENOMEM;
+ 
+-		clear_evtchn_to_irq_row(row);
++		clear_evtchn_to_irq_row(evtchn_row);
 +
- /* Create a socket. Initialise the socket, blank the addresses
-  * set the state.
-  */
-@@ -1023,7 +1028,7 @@ static int ieee802154_create(struct net *net, struct socket *sock,
- 	sock->ops = ops;
++		/*
++		 * We've prepared an empty row for the mapping. If a different
++		 * thread was faster inserting it, we can drop ours.
++		 */
++		if (cmpxchg(&evtchn_to_irq[row], NULL, evtchn_row) != NULL)
++			free_page((unsigned long) evtchn_row);
+ 	}
  
- 	sock_init_data(sock, sk);
--	/* FIXME: sk->sk_destruct */
-+	sk->sk_destruct = ieee802154_sock_destruct;
- 	sk->sk_family = PF_IEEE802154;
- 
- 	/* Checksums on by default */
+ 	WRITE_ONCE(evtchn_to_irq[row][col], irq);
 -- 
 2.30.2
 
