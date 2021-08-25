@@ -2,271 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 193C63F6CAF
-	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 02:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D73FC3F6CE0
+	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 03:02:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236583AbhHYAmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Aug 2021 20:42:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49352 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236572AbhHYAmZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Aug 2021 20:42:25 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A64C061757
-        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 17:41:40 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id n18so21458987pgm.12
-        for <stable@vger.kernel.org>; Tue, 24 Aug 2021 17:41:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=N7cE/Y50QWvbSatGh1zJAOgRzhgWAKWQV3R8YR7+FWo=;
-        b=v7pSZPv7XAjW4jpCGpX4siuFcejzwNb07siKcPtAaMufHMyEeWrXozJ3NwydKnaXOU
-         SGFeA3jRhF1hnuYUZ8j736dSlOcoxmw1raLqcoeQ1rOwNz90h+Yfr6AfnxP6VO7Wr+YL
-         FvoJRMJLIiK6E6K8Ukc3BommWlxcOuSiQpTV2LdHAays9m2Ho88qHQMveJ/WWjRCtpMY
-         /wb29fvzLqcCqsMHEDsDS0MsYEEWKSdsvz2aPSGStFmXHjdzuIWZT8wAsKUNhLOCiXPx
-         Vtrbf4Fh7/RUf3+IwIE1SlC5Ui8BRP7CS9WV+OUzRneT2B/ddYchbDJ9ikbhbXzhy/LY
-         JJDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=N7cE/Y50QWvbSatGh1zJAOgRzhgWAKWQV3R8YR7+FWo=;
-        b=G94fWPnCp6arNOsSryIrdoESzKTy/YCY/4+E7lhHh4fsqaCIoP0BnLcPFFkW8xxoeK
-         wBGLscpCSZCjZUiLJY/ZtSsmUZ470dgROLBrrd7bhkuXRSlGFjNricVbZTwMnc+PAiTo
-         lzk931+NrXh9Hhb3lknnwXX2V3WXWwDNejxshLLbjTxkAPM6lv6NFB5rCWm/KAO+RZcY
-         sIsGkOJZuOKTCRvrsfmO+k2VtCuR7gnZgFzUexUUHwYdEtpGKGPtxNyam7wFqpti+hXa
-         QG7pQ6UA0hHxbxZA2joOIrW86UyIEcVUi3+ycaY1TEqJxT9ARRcsKIPhnq+frFe1pVlu
-         yvuw==
-X-Gm-Message-State: AOAM532dyJKrsrXKSRZEHuFzMqt1vdNQKpjZpguIuupghIyr7Ea6ACTG
-        EfUSE6GLfwDiK2+bCbDb+ZYUKXX98DwlzjOC
-X-Google-Smtp-Source: ABdhPJw90DDFKUMUnGLbwYRRbP54Miat1Vdaz1BarKhPgNfrbkMRLGXShKQp5KXBNLypzSjm7nSsow==
-X-Received: by 2002:a63:da14:: with SMTP id c20mr39515209pgh.155.1629852099741;
-        Tue, 24 Aug 2021 17:41:39 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n32sm22415014pgl.69.2021.08.24.17.41.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Aug 2021 17:41:39 -0700 (PDT)
-Message-ID: <612591c3.1c69fb81.34a30.2c89@mx.google.com>
-Date:   Tue, 24 Aug 2021 17:41:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S236583AbhHYBDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Aug 2021 21:03:09 -0400
+Received: from mga04.intel.com ([192.55.52.120]:2753 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234058AbhHYBDJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 24 Aug 2021 21:03:09 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10086"; a="215583432"
+X-IronPort-AV: E=Sophos;i="5.84,349,1620716400"; 
+   d="scan'208";a="215583432"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Aug 2021 18:02:24 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.84,349,1620716400"; 
+   d="scan'208";a="507828430"
+Received: from siang-ilbpg0.png.intel.com ([10.88.227.28])
+  by orsmga001.jf.intel.com with ESMTP; 24 Aug 2021 18:02:18 -0700
+From:   Song Yoong Siang <yoong.siang.song@intel.com>
+To:     Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jesper Dangaard Brouer <hawk@kernel.org>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>
+Cc:     netdev@vger.kernel.org, bpf@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Song Yoong Siang <yoong.siang.song@intel.com>
+Subject: [PATCH net v2 1/1] net: stmmac: fix kernel panic due to NULL pointer dereference of xsk_pool
+Date:   Wed, 25 Aug 2021 08:55:29 +0800
+Message-Id: <20210825005529.980109-1-yoong.siang.song@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Kernel: v4.9.280-42-gf207820d8176
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.9 baseline: 140 runs,
- 5 regressions (v4.9.280-42-gf207820d8176)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 140 runs, 5 regressions (v4.9.280-42-gf207820=
-d8176)
+After free xsk_pool, there is possibility that napi polling is still
+running in the middle, thus causes a kernel crash due to kernel NULL
+pointer dereference of rx_q->xsk_pool and tx_q->xsk_pool.
 
-Regressions Summary
--------------------
+Fix this by changing the XDP pool setup sequence to:
+ 1. disable napi before free xsk_pool
+ 2. enable napi after init xsk_pool
 
-platform             | arch   | lab           | compiler | defconfig       =
-             | regressions
----------------------+--------+---------------+----------+-----------------=
--------------+------------
-qemu_arm-versatilepb | arm    | lab-baylibre  | gcc-8    | versatile_defcon=
-fig          | 1          =
+The following kernel panic is observed without this patch:
 
-qemu_arm-versatilepb | arm    | lab-broonie   | gcc-8    | versatile_defcon=
-fig          | 1          =
+RIP: 0010:xsk_uses_need_wakeup+0x5/0x10
+Call Trace:
+stmmac_napi_poll_rxtx+0x3a9/0xae0 [stmmac]
+__napi_poll+0x27/0x130
+net_rx_action+0x233/0x280
+__do_softirq+0xe2/0x2b6
+run_ksoftirqd+0x1a/0x20
+smpboot_thread_fn+0xac/0x140
+? sort_range+0x20/0x20
+kthread+0x124/0x150
+? set_kthread_struct+0x40/0x40
+ret_from_fork+0x1f/0x30
+---[ end trace a77c8956b79ac107 ]---
 
-qemu_arm-versatilepb | arm    | lab-cip       | gcc-8    | versatile_defcon=
-fig          | 1          =
+Fixes: bba2556efad6 ("net: stmmac: Enable RX via AF_XDP zero-copy")
+Cc: <stable@vger.kernel.org> # 5.13.x
+Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
+---
+v2 changelog:
+ - Add stable@vger.kernel.org in email cc list.
+---
+ drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-qemu_arm-versatilepb | arm    | lab-collabora | gcc-8    | versatile_defcon=
-fig          | 1          =
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
+index 105821b53020..2a616c6f7cd0 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_xdp.c
+@@ -34,18 +34,18 @@ static int stmmac_xdp_enable_pool(struct stmmac_priv *priv,
+ 	need_update = netif_running(priv->dev) && stmmac_xdp_is_enabled(priv);
+ 
+ 	if (need_update) {
+-		stmmac_disable_rx_queue(priv, queue);
+-		stmmac_disable_tx_queue(priv, queue);
+ 		napi_disable(&ch->rx_napi);
+ 		napi_disable(&ch->tx_napi);
++		stmmac_disable_rx_queue(priv, queue);
++		stmmac_disable_tx_queue(priv, queue);
+ 	}
+ 
+ 	set_bit(queue, priv->af_xdp_zc_qps);
+ 
+ 	if (need_update) {
+-		napi_enable(&ch->rxtx_napi);
+ 		stmmac_enable_rx_queue(priv, queue);
+ 		stmmac_enable_tx_queue(priv, queue);
++		napi_enable(&ch->rxtx_napi);
+ 
+ 		err = stmmac_xsk_wakeup(priv->dev, queue, XDP_WAKEUP_RX);
+ 		if (err)
+@@ -72,10 +72,10 @@ static int stmmac_xdp_disable_pool(struct stmmac_priv *priv, u16 queue)
+ 	need_update = netif_running(priv->dev) && stmmac_xdp_is_enabled(priv);
+ 
+ 	if (need_update) {
++		napi_disable(&ch->rxtx_napi);
+ 		stmmac_disable_rx_queue(priv, queue);
+ 		stmmac_disable_tx_queue(priv, queue);
+ 		synchronize_rcu();
+-		napi_disable(&ch->rxtx_napi);
+ 	}
+ 
+ 	xsk_pool_dma_unmap(pool, STMMAC_RX_DMA_ATTR);
+@@ -83,10 +83,10 @@ static int stmmac_xdp_disable_pool(struct stmmac_priv *priv, u16 queue)
+ 	clear_bit(queue, priv->af_xdp_zc_qps);
+ 
+ 	if (need_update) {
+-		napi_enable(&ch->rx_napi);
+-		napi_enable(&ch->tx_napi);
+ 		stmmac_enable_rx_queue(priv, queue);
+ 		stmmac_enable_tx_queue(priv, queue);
++		napi_enable(&ch->rx_napi);
++		napi_enable(&ch->tx_napi);
+ 	}
+ 
+ 	return 0;
+-- 
+2.25.1
 
-qemu_x86_64-uefi     | x86_64 | lab-broonie   | gcc-8    | x86_64_defcon...=
-6-chromebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.280-42-gf207820d8176/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.280-42-gf207820d8176
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f207820d8176d59239f1963f544896f24043900d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-             | regressions
----------------------+--------+---------------+----------+-----------------=
--------------+------------
-qemu_arm-versatilepb | arm    | lab-baylibre  | gcc-8    | versatile_defcon=
-fig          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612556ceb3b240f16b8e2c7b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gf207820d8176/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gf207820d8176/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612556ceb3b240f16b8e2=
-c7c
-        failing since 283 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-             | regressions
----------------------+--------+---------------+----------+-----------------=
--------------+------------
-qemu_arm-versatilepb | arm    | lab-broonie   | gcc-8    | versatile_defcon=
-fig          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61255694064f02b32a8e2c9d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gf207820d8176/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gf207820d8176/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61255694064f02b32a8e2=
-c9e
-        failing since 283 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-             | regressions
----------------------+--------+---------------+----------+-----------------=
--------------+------------
-qemu_arm-versatilepb | arm    | lab-cip       | gcc-8    | versatile_defcon=
-fig          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612556dcb3b240f16b8e2c95
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gf207820d8176/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gf207820d8176/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612556dcb3b240f16b8e2=
-c96
-        failing since 283 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-             | regressions
----------------------+--------+---------------+----------+-----------------=
--------------+------------
-qemu_arm-versatilepb | arm    | lab-collabora | gcc-8    | versatile_defcon=
-fig          | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612557d64f4eb1bd228e2ca8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gf207820d8176/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gf207820d8176/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612557d64f4eb1bd228e2=
-ca9
-        failing since 283 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch   | lab           | compiler | defconfig       =
-             | regressions
----------------------+--------+---------------+----------+-----------------=
--------------+------------
-qemu_x86_64-uefi     | x86_64 | lab-broonie   | gcc-8    | x86_64_defcon...=
-6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612558a9927a7c4a458e2c85
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gf207820d8176/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-broonie/ba=
-seline-qemu_x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gf207820d8176/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-broonie/ba=
-seline-qemu_x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612558a9927a7c4a458e2=
-c86
-        new failure (last pass: v4.9.280-42-g13ad08c714b5) =
-
- =20
