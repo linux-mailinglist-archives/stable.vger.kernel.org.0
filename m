@@ -2,95 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34C663F6EB1
-	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 07:05:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55BDE3F6EC4
+	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 07:22:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230513AbhHYFGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Aug 2021 01:06:22 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:36344 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230407AbhHYFGV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 01:06:21 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 7DCF01C0B77; Wed, 25 Aug 2021 07:05:35 +0200 (CEST)
-Date:   Wed, 25 Aug 2021 07:05:35 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Saravana Kannan <saravanak@google.com>
-Cc:     Pavel Machek <pavel@denx.de>, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Andrew Lunn <andrew@lunn.ch>, Marc Zyngier <maz@kernel.org>,
-        Kevin Hilman <khilman@baylibre.com>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 5.10 64/98] net: mdio-mux: Handle -EPROBE_DEFER correctly
-Message-ID: <20210825050535.GA24601@duo.ucw.cz>
-References: <20210824165908.709932-1-sashal@kernel.org>
- <20210824165908.709932-65-sashal@kernel.org>
- <20210824190009.GA16752@duo.ucw.cz>
- <CAGETcx93J_gpTLhANbjfiBrZ=PCN4bUabfHGG-jv0KdfOUMyjg@mail.gmail.com>
+        id S231775AbhHYFXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Aug 2021 01:23:12 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:36025 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231490AbhHYFXL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 01:23:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1629868946;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=mpfOZMJ9vLgo4SXlvQ8UMbbVxuhe3YDX0vpFC5xR91k=;
+        b=IqZ8HQHzPIgmQ4WFOl6jsZ7Wwz5AOdKRStGfkY2fAebm3jcFr1BlAHTtvNYbqBVAYopn7s
+        Cx3YDe06blUy5/1vGu9cXAygIIQt39sMlVpG35qAt7iqbg+AnVg7ECkdp5ie0ViN2K2WQv
+        yVCiC+UjjoMidEty9nMA7lamvOWWCQY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-231-9rZuxZTSPzC16DaZXSWOsg-1; Wed, 25 Aug 2021 01:22:22 -0400
+X-MC-Unique: 9rZuxZTSPzC16DaZXSWOsg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2459F1853028;
+        Wed, 25 Aug 2021 05:22:21 +0000 (UTC)
+Received: from lxbceph1.gsslab.pek2.redhat.com (unknown [10.72.47.117])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B38255C1A1;
+        Wed, 25 Aug 2021 05:22:18 +0000 (UTC)
+From:   xiubli@redhat.com
+To:     jlayton@kernel.org
+Cc:     idryomov@gmail.com, ukernel@gmail.com, pdonnell@redhat.com,
+        ceph-devel@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] ceph: init the i_list/g_list for cap flush
+Date:   Wed, 25 Aug 2021 13:22:12 +0800
+Message-Id: <20210825052212.19625-1-xiubli@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
-Content-Disposition: inline
-In-Reply-To: <CAGETcx93J_gpTLhANbjfiBrZ=PCN4bUabfHGG-jv0KdfOUMyjg@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Xiubo Li <xiubli@redhat.com>
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Always init the i_list/g_list in the begining to make sure it won't
+crash the kernel if someone want to delete the cap_flush from the
+lists.
 
-Hi!
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/52401
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+---
+ fs/ceph/caps.c | 2 +-
+ fs/ceph/snap.c | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-> > > When registering mdiobus children, if we get an -EPROBE_DEFER, we sho=
-uldn't
-> > > ignore it and continue registering the rest of the mdiobus children. =
-This
-> > > would permanently prevent the deferring child mdiobus from working in=
-stead
-> > > of reattempting it in the future. So, if a child mdiobus needs to be
-> > > reattempted in the future, defer the entire mdio-mux initialization.
-> > >
-> > > This fixes the issue where PHYs sitting under the mdio-mux aren't
-> > > initialized correctly if the PHY's interrupt controller is not yet re=
-ady
-> > > when the mdio-mux is being probed. Additional context in the link
-> > > below.
-> >
-> > I don't believe this is quite right. AFAICT it leaks memory in the
-> > EPROBE_DEFER case. Could someone double-check? Suggested fix is below.
->=20
-> devm_ APIs would take care of releasing the resource (memory)
-> automatically because the probe didn't succeed. So I'm not sure
-> there's a leak. Does that make sense?
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index 4f0dbc640b0b..60f60260cf42 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -3666,7 +3666,7 @@ static void handle_cap_flush_ack(struct inode *inode, u64 flush_tid,
+ 	while (!list_empty(&to_remove)) {
+ 		cf = list_first_entry(&to_remove,
+ 				      struct ceph_cap_flush, i_list);
+-		list_del(&cf->i_list);
++		list_del_init(&cf->i_list);
+ 		if (!cf->is_capsnap)
+ 			ceph_free_cap_flush(cf);
+ 	}
+diff --git a/fs/ceph/snap.c b/fs/ceph/snap.c
+index 62fab59bbf96..b41e6724c591 100644
+--- a/fs/ceph/snap.c
++++ b/fs/ceph/snap.c
+@@ -488,6 +488,8 @@ static void ceph_queue_cap_snap(struct ceph_inode_info *ci)
+ 		return;
+ 	}
+ 	capsnap->cap_flush.is_capsnap = true;
++	INIT_LIST_HEAD(&capsnap->cap_flush.i_list);
++	INIT_LIST_HEAD(&capsnap->cap_flush.g_list);
+ 
+ 	spin_lock(&ci->i_ceph_lock);
+ 	used = __ceph_caps_used(ci);
+-- 
+2.27.0
 
-Yes, it does, I believe you are right.
-
-This part of code confused me: We are going to return error there, yet
-we do explicit tree, which should not be neccessary according to this
-logic.
-
-
-        dev_err(dev, "Error: No acceptable child buses found\n");
-	devm_kfree(dev, pb);
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---bp/iNruPH9dso1Pn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYSXPnwAKCRAw5/Bqldv6
-8s8gAJ96e9g8EYddYS9zyNJcBRetQ5lJ7gCghzCQkr+EHZDoCkAdDdVCj0rH4mw=
-=Xidz
------END PGP SIGNATURE-----
-
---bp/iNruPH9dso1Pn--
