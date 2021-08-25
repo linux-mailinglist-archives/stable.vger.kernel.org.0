@@ -2,237 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C30783F7BC3
-	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 19:51:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FBBA3F7C0D
+	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 20:09:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242399AbhHYRvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Aug 2021 13:51:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60658 "EHLO
+        id S242229AbhHYSJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Aug 2021 14:09:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242336AbhHYRvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 13:51:48 -0400
-Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E64DEC0613C1
-        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 10:51:01 -0700 (PDT)
-Received: by mail-oi1-x231.google.com with SMTP id n27so856697oij.0
-        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 10:51:01 -0700 (PDT)
+        with ESMTP id S234511AbhHYSJy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 14:09:54 -0400
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFFDC061757
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 11:09:08 -0700 (PDT)
+Received: by mail-lf1-x12e.google.com with SMTP id m28so764435lfj.6
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 11:09:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=5D1tw3Md08WYLyG5LlUraIj8yn5OS2EuisWDpXs7Tm0=;
-        b=IJmgjd1SrVJsVytUowWHxX+s8xRMvY+d97fCybXk+axf5m41xtnE89Hmso4IjQwuL4
-         J5nG79B02u+RWaBPXvn7jQ3npVjw8znZNBtKL0cId4o9NEbkVfOGi7J5qpzpuZOvRib0
-         WSoqsoZW149123bpcJDlvF3+0y/q6OMu7kapqb19t7wsEx3Ww/ywx3n/JLBMT1DUX3O9
-         uFtyLjM7Ue+Ex5mIy7llFg5jPl9vhl5LcB4/S9/zAvC2F4se0xm3DrDl1DUt3rr+vFpr
-         BIXomHp8kw1XR0zM3lOvawgfYApCBwgCJll36+eSwmTPaUW/av1QBNUVuOHGMjmrNYPN
-         9IUw==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=EvOoM/HsjOni7jc8lx3KVJCCfdVfhKFUs0BKkUfmS3E=;
+        b=B1X2qLW79n6uvCp+DdrPlUbYaG77B4IZvTOIqyyfiPlLi7gaUSWnZKA5uJvtOAaqBE
+         BSwA7l6E4MVgzm7nnrtfDN6ZyWZJVCrvCLPODm0TjGUW7w8kj5OSAKgwdDt4ww+0/e9b
+         voZ09BF5BMRDvqXqXrqwZpd/yLgE7La2/rYlw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=5D1tw3Md08WYLyG5LlUraIj8yn5OS2EuisWDpXs7Tm0=;
-        b=dAxe5SPBG8wcZSvkYrtD1VztaSFU0cYRCZH33/8ojXNzYucruQZzoKm+4j65m2mpiF
-         qzEPkZX7RoVVgjF1hCQ6cVkYBPS0MbNJlLjhi+G6QmcVeIg+bl5EUyEX/3ReC6t6vebz
-         iwSyuNqHy+MrNS6Kjr0hHSy1LkS8ylBhjjo8zxRUmQnURbe1q9Y2EypPQm+wjKXq6yzs
-         hlrh/SwrTNtCBHdYAln1dAIVPlIPAIj3lY2PBBKCz0ObJ0r+Mrs+dOt4/Fqfyf0M1YLk
-         XwypxQraGdw9GNUxcvhxMPM/GBE25wM7YVZdFO1xtgc7LjdugTyDfLwPKu+mp/jlutna
-         ZyPw==
-X-Gm-Message-State: AOAM531okPohcBpUPLMahd6EZFiCBw45vClDwZB1OoaBCLPSV3C0RtKt
-        qC7wr0jupBY0dKSai1ayh0Qaig==
-X-Google-Smtp-Source: ABdhPJwq88TjIsr+7R11vG5jSL3rxRRZDUnTAvts3GR0h3Zr+Xu4HcRzWgpsQe3VCOhB1MTSOFSXIA==
-X-Received: by 2002:aca:1304:: with SMTP id e4mr7927432oii.89.1629913861316;
-        Wed, 25 Aug 2021 10:51:01 -0700 (PDT)
-Received: from [192.168.17.50] ([189.219.75.147])
-        by smtp.gmail.com with ESMTPSA id c14sm88610otd.62.2021.08.25.10.51.00
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EvOoM/HsjOni7jc8lx3KVJCCfdVfhKFUs0BKkUfmS3E=;
+        b=lD4QbwW00TdE1aEGysl8zFIDL+DQfairKSBvA6s4OXxgJepyPS6e6il67zb+acetg6
+         S854023trMAGCT09wvVwga6s70OXkcwQzpZOfr8IUKmXqlC9Sl/h1Qcd5yiz/wvJ4yjK
+         rv3ROlG6jC8FeaPUnQuQlcQ6e0AV+ecAyHp2OUngnAZ69smlYnVkBLt0XXVa65oyARy+
+         zeyJM9LUcXo+G1qRsRmUZfcX+3FCiAB5Hv1jdBFjWwa/hXxihVh4yYpDih2x7MgySHPI
+         FI0zU8PRyh4W0Pqc5N3L3WW3ot6nQGElpE2kef9KlZ+4nqx7Vs6EaK5fqc536bNJJBDo
+         PYxQ==
+X-Gm-Message-State: AOAM530E0ooy/BR0JWaj/y/DIGRFtVdSdr1qmrRhjtvWidsWE1/8gZFd
+        HRiCx/mOBxDYrshXn6qfIh6DcBQlhUThJBlk
+X-Google-Smtp-Source: ABdhPJxiCia5GFO4zWDr+4/R8dUgqeSqg89nUg7WMCRYPRwADcjBKURxOM4ghXAQJysl9gUmeGD4hA==
+X-Received: by 2002:a05:6512:3905:: with SMTP id a5mr8913237lfu.354.1629914945719;
+        Wed, 25 Aug 2021 11:09:05 -0700 (PDT)
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com. [209.85.208.172])
+        by smtp.gmail.com with ESMTPSA id y16sm70259lfg.112.2021.08.25.11.09.04
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 25 Aug 2021 10:51:00 -0700 (PDT)
-Subject: Re: [PATCH 5.10 00/98] 5.10.61-rc1 review
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de,
-        akpm@linux-foundation.org, shuah@kernel.org, linux@roeck-us.net
-References: <20210824165908.709932-1-sashal@kernel.org>
-From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-Message-ID: <51db1aba-4035-d7c6-948d-18aaa93c64ca@linaro.org>
-Date:   Wed, 25 Aug 2021 12:50:59 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        Wed, 25 Aug 2021 11:09:05 -0700 (PDT)
+Received: by mail-lj1-f172.google.com with SMTP id l18so148396lji.12
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 11:09:04 -0700 (PDT)
+X-Received: by 2002:a2e:8808:: with SMTP id x8mr37973457ljh.220.1629914944698;
+ Wed, 25 Aug 2021 11:09:04 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20210824165607.709387-1-sashal@kernel.org> <20210824165607.709387-74-sashal@kernel.org>
+ <CAHk-=wiQhb689WEk__vLy-ET4rL69cjq39pGTmrKam=c_0LYGg@mail.gmail.com>
+In-Reply-To: <CAHk-=wiQhb689WEk__vLy-ET4rL69cjq39pGTmrKam=c_0LYGg@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Wed, 25 Aug 2021 11:08:48 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjt1q++eBcxR0Q8WtJyNx5xyEXqA=z_3nXpBD6ZJmshEw@mail.gmail.com>
+Message-ID: <CAHk-=wjt1q++eBcxR0Q8WtJyNx5xyEXqA=z_3nXpBD6ZJmshEw@mail.gmail.com>
+Subject: Re: [PATCH 5.13 073/127] pipe: avoid unnecessary EPOLLET wakeups
+ under normal loads
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        kernel test robot <oliver.sang@intel.com>,
+        Sandeep Patil <sspatil@android.com>,
+        Mel Gorman <mgorman@techsingularity.net>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+On Tue, Aug 24, 2021 at 10:00 AM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> On Tue, Aug 24, 2021 at 9:57 AM Sasha Levin <sashal@kernel.org> wrote:
+> >
+> > [ Upstream commit 3b844826b6c6affa80755254da322b017358a2f4 ]
+>
+> This one has an odd performance regression report associated with it.
+>
+> Honestly, I don't understand the performance regression, but that's
+> likely on me, not on the kernel test robot.
 
-On 8/24/21 11:57 AM, Sasha Levin wrote:
-> This is the start of the stable review cycle for the 5.10.61 release.
-> There are 98 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu 26 Aug 2021 04:58:25 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
->          https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.10.y&id2=v5.10.60
-> or in the git tree and branch at:
->          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> Thanks,
-> Sasha
+So my suspicion for the cause was confirmed by the kernel test robot
+people, and I've applied the fix as commit fe67f4dd8daa ("pipe: do
+FASYNC notifications for every pipe IO, not just state changes").
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I suspect we are finally done with this saga (knock wood), and this
+all could go into stable. As before, the regressions in question are
+all for performance testing and likely there is no real-world impact
+outside of that, so this shouldn't be in any way critical. I didn't
+mark that thing for stable, but it may or may not be the right thing
+to do.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+I _think_ I fully understand all the problems we hit, and the fixes
+are all obvious and straightforward and should be fine. But clearly a
+lot of tests use pipes for doing various IO/scheduler/random latency
+and throughput testing, so this all showed up in odd places.
 
-## Build
-* kernel: 5.10.61-rc1
-* git: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git', 'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
-* git branch: linux-5.10.y
-* git commit: bd3eb40a9de703ab9ab65f9c583e40d185d6aaad
-* git describe: v5.10.60-98-gbd3eb40a9de7
-* test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.60-98-gbd3eb40a9de7
-
-## No regressions (compared to v5.10.60)
-
-## No fixes (compared to v5.10.60)
-
-## Test result summary
-total: 78086, pass: 66126, fail: 526, skip: 10629, xfail: 805
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 226 total, 226 passed, 0 failed
-* arm64: 32 total, 32 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 31 total, 31 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 48 total, 48 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 24 total, 24 passed, 0 failed
-* s390: 21 total, 21 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 33 total, 33 passed, 0 failed
-
-## Test suites summary
-* fwts
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
-
-Greetings!
-
-Daniel Díaz
-daniel.diaz@linaro.org
-
---
-Linaro LKFT
-https://lkft.linaro.org
+              Linus
