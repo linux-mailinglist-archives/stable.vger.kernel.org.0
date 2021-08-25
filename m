@@ -2,71 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C3EA3F7078
-	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 09:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C1433F708A
+	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 09:38:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238536AbhHYHgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Aug 2021 03:36:14 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:48730 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234058AbhHYHgO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 03:36:14 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 3061C1C0B7A; Wed, 25 Aug 2021 09:35:28 +0200 (CEST)
-Date:   Wed, 25 Aug 2021 09:35:27 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de
-Subject: Re: [PATCH 5.10 00/98] 5.10.61-rc1 review
-Message-ID: <20210825073527.GC4193@duo.ucw.cz>
-References: <20210824165908.709932-1-sashal@kernel.org>
+        id S238357AbhHYHjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Aug 2021 03:39:21 -0400
+Received: from szxga03-in.huawei.com ([45.249.212.189]:14319 "EHLO
+        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234058AbhHYHjV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 03:39:21 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4GvdBL1cQXz89xG;
+        Wed, 25 Aug 2021 15:38:18 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Wed, 25 Aug 2021 15:38:32 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Wed, 25 Aug 2021 15:38:31 +0800
+Subject: Re: [PATCH 5.4 00/61] 5.4.143-rc1 review
+To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>
+References: <20210824170106.710221-1-sashal@kernel.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <297c4759-32f7-118a-7d0b-441b00a82146@huawei.com>
+Date:   Wed, 25 Aug 2021 15:38:31 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="OBd5C1Lgu00Gd/Tn"
-Content-Disposition: inline
-In-Reply-To: <20210824165908.709932-1-sashal@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---OBd5C1Lgu00Gd/Tn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi!
-
-> This is the start of the stable review cycle for the 5.10.61 release.
-> There are 98 patches in this series, all will be posted as a response
+On 2021/8/25 1:00, Sasha Levin wrote:
+> 
+> This is the start of the stable review cycle for the 5.4.143 release.
+> There are 61 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
+> 
+> Responses should be made by Thu 26 Aug 2021 05:01:01 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+>          https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.4.y&id2=v5.4.142
+> or in the git tree and branch at:
+>          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> Thanks,
+> Sasha
+> 
 
-CIP testing did not find any problems here:
+Tested on arm64 and x86 for 5.4.143-rc1,
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-5.10.y
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.143-rc1
+Commit: 3b97ed8d226facd9905f634982238e5a93b4481c
+Compiler: gcc version 7.3.0 (GCC)
 
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8906
+passed: 8906
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-Best regards,
-                                                                Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8906
+passed: 8906
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
---OBd5C1Lgu00Gd/Tn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYSXyvwAKCRAw5/Bqldv6
-8h1jAKDEUhA+GWQE6PbHYv5QpfrdLDau5wCeIC8zE3jYLYX0bIc1Iztd80s1XL8=
-=pSc2
------END PGP SIGNATURE-----
-
---OBd5C1Lgu00Gd/Tn--
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
