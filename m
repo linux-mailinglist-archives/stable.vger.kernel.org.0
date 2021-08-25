@@ -2,91 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 255683F7EF0
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 01:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B7FA3F7EFC
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 01:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233242AbhHYXSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Aug 2021 19:18:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49928 "EHLO
+        id S233366AbhHYXZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Aug 2021 19:25:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231535AbhHYXSW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 19:18:22 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20ED3C061757;
-        Wed, 25 Aug 2021 16:17:36 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id j4-20020a17090a734400b0018f6dd1ec97so906716pjs.3;
-        Wed, 25 Aug 2021 16:17:36 -0700 (PDT)
+        with ESMTP id S233291AbhHYXZs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 19:25:48 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77E8C061757
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 16:25:01 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id a21so1011551pfh.5
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 16:25:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=HHA4dIqDyaRjsKrnG7msKRzMkOmDWIdi+lx15oC+hnY=;
-        b=u53eiPwI4SZX4G1LTTj5mZCu3Zl0AK0XhynL+hMzMjNY/svqjeirm1+N6itwrdCGfT
-         60BW8cG0grgspqqvF0yPGVSGrl0dDSH5wa/pdWkPwVhVWRMZvWYspQNlDJsSiVejj8EZ
-         u0KMRPOjE7z1+WjNWWmZinwH+HRlG53DiUzm59nCWLYSareoFLP6T3mv8Xc2miTCgwhA
-         AhjJt1+SRiQfKNM5vg6XTMTOK3Y4IQQejAzQi1Z2pzY1mllsZ59e6TlWqHBpv7OnRvwo
-         KC7yhYautjr/1n0pL1zc0C8CQnD0QxXBrL/9yQ1Xp+xChg6Ln0AgRpbOp5h/dGfAKfuy
-         MEVw==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=kRmuPvbpNM+x/+IUTcGSe/9pgw9jOEDJuQWzEZNmfGU=;
+        b=BGrnfn0mykzUkSyD9YoqyfyEb40JiAMgS0207bnzG7Z7g9G//RDL1ehj5Lic3HO+E/
+         dSgs7xigHCozgJXvIr/rmDSzVwDHK5IonoxfAGNWM5C1nCxqnsX6MHEsJEdajmls8PGf
+         gO8L+ijt1A2L1fmS20f6so76a42fXurRQqHw4GvvqbrBVNREnCPDUMJP4rZeg8JAUOCX
+         QI7M1n/c8/GXn8VBzolmXf0TdjQcIYgOAr//lAAJ9vdkl9B5FHeml373rnJ+7ABgc5in
+         byh8YF2DQGGwPHkvsaB9H63/F0bxaM2QEcTdY+83GSW7WMyQ8oiqduIheuGtFwAfGxlY
+         fqSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=HHA4dIqDyaRjsKrnG7msKRzMkOmDWIdi+lx15oC+hnY=;
-        b=d/BuLGE2An+rXPDkQOSGRUro0TQRFSR7R+ExzDwWVTn91fXu1Cerix93vW6i/sYRi8
-         2ePNc3wowYjPimfZopp6GG8R8FudIVz+OYIS9Cr2Kcg78f5nLGS2AOTqjOjEV9OXQwhz
-         UN/btmwTXJIWqAkbAU6DRHszzgjqpIoaEYyvrp6VdWzp6GocGHl32J42UqjS4tGJPzOQ
-         LOIMrSCbm+8rIaz5FAoNllCaAP0iceiAwHIUZ7AjeBBie+sYor+8vT5sHRTV9mG0ugyy
-         4CFoNhiY0bYFT+gHD/WLekbRT+3LbqCH3yPldJRXUdOaMAo+vdZv98kkSBl6CZX6w732
-         wh8A==
-X-Gm-Message-State: AOAM531Bothwgpy1WE16CYcLSUCWmQo7PPEqUjTqGkPV9bmFDn8NJub7
-        f5zzouTdiymQ4hgP2TZhVlM=
-X-Google-Smtp-Source: ABdhPJxT3qO3YSJ7a9BGhRAk+eoIFxHo9jpHxEMYeUSUnYscmOhUHreFAXYwbGPgWdDX/wMrRqG2nw==
-X-Received: by 2002:a17:902:82c6:b0:136:59b0:ed17 with SMTP id u6-20020a17090282c600b0013659b0ed17mr905954plz.61.1629933455556;
-        Wed, 25 Aug 2021 16:17:35 -0700 (PDT)
-Received: from google.com ([2620:15c:211:201:87f7:83a2:3b32:4366])
-        by smtp.gmail.com with ESMTPSA id f10sm989244pgm.77.2021.08.25.16.17.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Aug 2021 16:17:34 -0700 (PDT)
-Sender: Minchan Kim <minchan.kim@gmail.com>
-Date:   Wed, 25 Aug 2021 16:17:32 -0700
-From:   Minchan Kim <minchan@kernel.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     cgoldswo@codeaurora.org, david@redhat.com, linmiaohe@huawei.com,
-        linux-mm@kvack.org, mhocko@suse.com, mm-commits@vger.kernel.org,
-        naoya.horiguchi@nec.com, osalvador@suse.de, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject: Re: [patch 1/2] mm/memory_hotplug: fix potential permanent lru cache
- disable
-Message-ID: <YSbPjPykMcGIVM6b@google.com>
-References: <20210825121725.0b4f7ca217e22d9750bc6a6d@linux-foundation.org>
- <20210825191755.q1BM2fgnb%akpm@linux-foundation.org>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=kRmuPvbpNM+x/+IUTcGSe/9pgw9jOEDJuQWzEZNmfGU=;
+        b=EeSEBMpkDpYtXIK9GRXy3wuoCAoyPqShZaQasXbSuz1Z1ORby8GbWY+b38imgWq95n
+         yac6OAU+miHsdC0fEXs6oJ0IaaroUuejLY/JEAVKc5AVpMfooNBH7FaVk6I3w5YWGlJf
+         0aRAywdOttRQXFS4mdpWcTTEhrOrd8fiRDcNUfMYnxMQcITxinzlknQHad+ckCfYsKWh
+         gWu6zE8P86v8JPOITIftCXxGkfEJIIHh7l1xz6cDstg3wTK8E/iVXHwmqq6UbZNaYTMv
+         OCycPne5n/OPGMGZ4UqVSWLFx0HRkODZqG3FY0nYlaxcDiX5YRMDJMt1KEW+tp4JslY6
+         996w==
+X-Gm-Message-State: AOAM533ZHdEceG7UK9PJYLswEmfOe3YlOYjMS4TRwnjRq21cv3zCOlWe
+        Chb7KCxtLHl+SOtbNV6zLhQ2kbCzLcUw2mFbMU4=
+X-Google-Smtp-Source: ABdhPJxaBmTm6SsRI2qZjoazfHFvpv0mtaRtqzkDRXPYyE28Qn3CBj14UiSBqfHv79zxbbg1u0q6nVtdGR3FZey/7Mo=
+X-Received: by 2002:a05:6a00:24ca:b0:3e1:14fc:e34c with SMTP id
+ d10-20020a056a0024ca00b003e114fce34cmr628141pfv.76.1629933901349; Wed, 25 Aug
+ 2021 16:25:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210825191755.q1BM2fgnb%akpm@linux-foundation.org>
+Received: by 2002:a17:90a:1991:0:0:0:0 with HTTP; Wed, 25 Aug 2021 16:25:00
+ -0700 (PDT)
+Reply-To: mrmichelduku@outlook.com
+From:   michel duku <mrdukumichel@gmail.com>
+Date:   Wed, 25 Aug 2021 23:25:00 +0000
+Message-ID: <CAFOTq7b77c0tU_LDvZagoOPk-ta0RTmZ2qkxdheKXtOYczz_Wg@mail.gmail.com>
+Subject: Hello Dear.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 25, 2021 at 12:17:55PM -0700, Andrew Morton wrote:
-> From: Miaohe Lin <linmiaohe@huawei.com>
-> Subject: mm/memory_hotplug: fix potential permanent lru cache disable
-> 
-> If offline_pages failed after lru_cache_disable(), it forgot to do
-> lru_cache_enable() in error path.  So we would have lru cache disabled
-> permanently in this case.
-> 
-> Link: https://lkml.kernel.org/r/20210821094246.10149-3-linmiaohe@huawei.com
-> Fixes: d479960e44f2 ("mm: disable LRU pagevec during the migration temporarily")
-> Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-> Reviewed-by: David Hildenbrand <david@redhat.com>
-> Reviewed-by: Oscar Salvador <osalvador@suse.de>
-> Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-> Cc: Chris Goldsworthy <cgoldswo@codeaurora.org>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Minchan Kim <minchan@kernel.org>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Minchan Kim <minchan@kernel.org>
+Greetings,
 
-Thanks for catching.
+I know that this mail will come to you as a surprise, but never mind i
+have decided to make this contact with you as I believe that you can
+be of great assistance to me. I need your assistance in transferring
+the sum of $11.3million to your private account Where this money can
+be shared between us.
+
+The money has been here in our Bank lying dormant for years now
+without anybody coming for the claim. I want to release the money to
+you as the relative to our deceased customer (the account owner) who
+died in a plane crash with his family since October 2005.
+
+By indicating your interest I will send you the full details on how
+the business will be executed.
+
+Best Regards,
+Mr. Michel Duku.
