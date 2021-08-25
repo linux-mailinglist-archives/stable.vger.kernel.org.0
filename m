@@ -2,104 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AED9A3F7163
-	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 11:04:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59A363F72AF
+	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 12:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232454AbhHYJEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Aug 2021 05:04:52 -0400
-Received: from foss.arm.com ([217.140.110.172]:46236 "EHLO foss.arm.com"
+        id S238984AbhHYKKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Aug 2021 06:10:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232302AbhHYJEv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Aug 2021 05:04:51 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id CDFB131B;
-        Wed, 25 Aug 2021 02:04:05 -0700 (PDT)
-Received: from [192.168.1.179] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 802A73F66F;
-        Wed, 25 Aug 2021 02:04:04 -0700 (PDT)
-Subject: Re: [PATCH v2 1/4] drm/panfrost: Simplify lock_region calculation
-To:     Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        dri-devel@lists.freedesktop.org
-Cc:     Rob Herring <robh@kernel.org>,
-        Tomeu Vizoso <tomeu.vizoso@collabora.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, linux-kernel@vger.kernel.org,
-        Chris Morgan <macromorgan@hotmail.com>, stable@vger.kernel.org
-References: <20210824173028.7528-1-alyssa.rosenzweig@collabora.com>
- <20210824173028.7528-2-alyssa.rosenzweig@collabora.com>
-From:   Steven Price <steven.price@arm.com>
-Message-ID: <698bbb98-5fd8-d6cd-b8cd-0ff29573314c@arm.com>
-Date:   Wed, 25 Aug 2021 10:03:59 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S238949AbhHYKKv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 25 Aug 2021 06:10:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id 70E7861183;
+        Wed, 25 Aug 2021 10:10:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1629886206;
+        bh=65p/TIA87p7eJYjLp0QTn1JuyKk95BTYSGbqHgZY5Qw=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=k7iDOMivV62EC7EAlkOReOOg+q9yvXot4CH2A7q3TTMptJ+bq63IYHWTmnWcQ3E96
+         AgJnrzIdrXwvx1mVxOPiJ0iScY4sK2egYotLzkLp6IwhC/+BzCy9KAqDxK3hEUSfhE
+         5QOLCu0TK9pxF4/RFTxb5lDAQeB3k0ikabURBLxAlr9AN4HRIde6CWe0S5JPtOiUaJ
+         CDIDQNYml/+nC8JInsBee7hXJsf7FrQFpwXRqps6TBe7+QqtRj74kdW8pXkk6ihKIU
+         B/JlBPr+1+GQy4ukz/UvgbmZO0r/0iLvjNNu2WlMkO/Cg0nFZXDyWNb4AqpcDnuTUB
+         0lpK6X+uob/eQ==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 671C360A0C;
+        Wed, 25 Aug 2021 10:10:06 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20210824173028.7528-2-alyssa.rosenzweig@collabora.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2 1/1] net: stmmac: fix kernel panic due to NULL pointer
+ dereference of xsk_pool
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162988620641.3256.15807737014421094725.git-patchwork-notify@kernel.org>
+Date:   Wed, 25 Aug 2021 10:10:06 +0000
+References: <20210825005529.980109-1-yoong.siang.song@intel.com>
+In-Reply-To: <20210825005529.980109-1-yoong.siang.song@intel.com>
+To:     Song Yoong Siang <yoong.siang.song@intel.com>
+Cc:     ast@kernel.org, daniel@iogearbox.net, davem@davemloft.net,
+        kuba@kernel.org, hawk@kernel.org, john.fastabend@gmail.com,
+        peppe.cavallaro@st.com, alexandre.torgue@st.com,
+        joabreu@synopsys.com, mcoquelin.stm32@gmail.com,
+        boon.leong.ong@intel.com, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 24/08/2021 18:30, Alyssa Rosenzweig wrote:
-> In lock_region, simplify the calculation of the region_width parameter.
-> This field is the size, but encoded as ceil(log2(size)) - 1.
-> ceil(log2(size)) may be computed directly as fls(size - 1). However, we
-> want to use the 64-bit versions as the amount to lock can exceed
-> 32-bits.
-> 
-> This avoids undefined (and completely wrong) behaviour when locking all
-> memory (size ~0). In this case, the old code would "round up" ~0 to the
-> nearest page, overflowing to 0. Since fls(0) == 0, this would calculate
-> a region width of 10 + 0 = 10. But then the code would shift by
-> (region_width - 11) = -1. As shifting by a negative number is undefined,
-> UBSAN flags the bug. Of course, even if it were defined the behaviour is
-> wrong, instead of locking all memory almost none would get locked.
-> 
-> The new form of the calculation corrects this special case and avoids
-> the undefined behaviour.
-> 
-> Signed-off-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-> Reported-and-tested-by: Chris Morgan <macromorgan@hotmail.com>
-> Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
-> Cc: <stable@vger.kernel.org>
+Hello:
 
-Reviewed-by: Steven Price <steven.price@arm.com>
+This patch was applied to netdev/net.git (refs/heads/master):
 
-> ---
->  drivers/gpu/drm/panfrost/panfrost_mmu.c | 19 +++++--------------
->  1 file changed, 5 insertions(+), 14 deletions(-)
+On Wed, 25 Aug 2021 08:55:29 +0800 you wrote:
+> After free xsk_pool, there is possibility that napi polling is still
+> running in the middle, thus causes a kernel crash due to kernel NULL
+> pointer dereference of rx_q->xsk_pool and tx_q->xsk_pool.
 > 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> index 0da5b3100ab1..f6e02d0392f4 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> @@ -62,21 +62,12 @@ static void lock_region(struct panfrost_device *pfdev, u32 as_nr,
->  {
->  	u8 region_width;
->  	u64 region = iova & PAGE_MASK;
-> -	/*
-> -	 * fls returns:
-> -	 * 1 .. 32
-> -	 *
-> -	 * 10 + fls(num_pages)
-> -	 * results in the range (11 .. 42)
-> -	 */
-> -
-> -	size = round_up(size, PAGE_SIZE);
->  
-> -	region_width = 10 + fls(size >> PAGE_SHIFT);
-> -	if ((size >> PAGE_SHIFT) != (1ul << (region_width - 11))) {
-> -		/* not pow2, so must go up to the next pow2 */
-> -		region_width += 1;
-> -	}
-> +	/* The size is encoded as ceil(log2) minus(1), which may be calculated
-> +	 * with fls. The size must be clamped to hardware bounds.
-> +	 */
-> +	size = max_t(u64, size, PAGE_SIZE);
-> +	region_width = fls64(size - 1) - 1;
->  	region |= region_width;
->  
->  	/* Lock the region that needs to be updated */
+> Fix this by changing the XDP pool setup sequence to:
+>  1. disable napi before free xsk_pool
+>  2. enable napi after init xsk_pool
 > 
+> [...]
+
+Here is the summary with links:
+  - [net,v2,1/1] net: stmmac: fix kernel panic due to NULL pointer dereference of xsk_pool
+    https://git.kernel.org/netdev/net/c/a6451192da26
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
