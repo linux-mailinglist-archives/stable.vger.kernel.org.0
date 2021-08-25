@@ -2,258 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA54B3F797F
-	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 17:55:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C47C3F7A6A
+	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 18:21:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241524AbhHYP4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Aug 2021 11:56:04 -0400
-Received: from de-smtp-delivery-102.mimecast.com ([194.104.109.102]:38759 "EHLO
-        de-smtp-delivery-102.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240720AbhHYP4D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 11:56:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=mimecast20200619;
-        t=1629906916;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XkfJv/GeVwwE6dWBrnp6jjh2P1l9bZu1T9viqqgowe4=;
-        b=lUB9ryZEFlj4Zq/n8SExa6x3F9sq3RFPlz4peCfRI+Gc23OmMwolaJVq2irkviDlyXUiSP
-        1oBXR9V3W9UcNhePmzPzNe54U71/Ny8ouHoEuYQ1NUuCbHcXvr28fc3o1atIKsArZ9h5zH
-        YNO2MTgJihFTDoHzNzjF3cMD9ERuBFg=
-Received: from EUR04-HE1-obe.outbound.protection.outlook.com
- (mail-he1eur04lp2054.outbound.protection.outlook.com [104.47.13.54]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- de-mta-23-DzIgqtZRNSmknGwLHWqmTQ-1; Wed, 25 Aug 2021 17:55:14 +0200
-X-MC-Unique: DzIgqtZRNSmknGwLHWqmTQ-1
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FAB5lwI9JDwOdzRr5OGTEJD+wV6RkiJi8kfpqrdLXNoE8oG0HqeDnokOnpNEH5aUnNnF8UKyi/DSRaexfjhF6riwAYJYWf3rSCvl8kgpuHN7GV3pAlfQqIC/3XKh7/BVx88KmjD1uO+XsxogwdNS+gxpJcWnPdGEX/BU0DrEH49orEQVMRp7uDoGtxaLrzpqLody1jQNy/8Sgr1RnHKkavVM+HSbwcrKOKVt3KG3nBMktUyDxYekT+aiIunj3QBO8nRyfRUfaINFewZWqamZ1EZiF7ZSUBI3uXkBd7P7onXWfvAwYACFfzx6QWBz8LF6sngnKSWe1n/3A46fgodY+A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=yjWPYN1k146GH/igWGyIID2OvfkJxkVgl42F2FVeuG0=;
- b=F4yegEqIAS0P3I/NBSD6bfNia+JGG8HgSW85rZhOQ9GApzHx1ijZrVENVJaTcJ7hUTAe1pTLZBSeNaloibxyDisf1AVmxumSiUcLZ/GrWFCCGk0cN2MIr1wIjfkdWsTXFFos/mFL0f/JgIv/rJiSmjx25TqZSS6qz8Xs0+pmRRD7cxbzykxvEjn92drTzXRjjzRAHabLCPki79uvZBUOf7gRydgqLrJw57FjYL6FcD0ajBFlzf0+QOVoPRph4vsYeBDTz7s4/1d1gayv9DX/opIyv7+gSChP/rpgsbRN/d+rhrWt+RYY4N8MuaLI0EsJ4ZFvKEOj47VlAgF1bBIKyg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=suse.com; dmarc=pass action=none header.from=suse.com;
- dkim=pass header.d=suse.com; arc=none
-Authentication-Results: google.com; dkim=none (message not signed)
- header.d=none;google.com; dmarc=none action=none header.from=suse.com;
-Received: from VI1PR04MB5600.eurprd04.prod.outlook.com (2603:10a6:803:e7::16)
- by VE1PR04MB6671.eurprd04.prod.outlook.com (2603:10a6:803:11f::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4457.17; Wed, 25 Aug
- 2021 15:55:12 +0000
-Received: from VI1PR04MB5600.eurprd04.prod.outlook.com
- ([fe80::4d37:ec64:4e90:b16b]) by VI1PR04MB5600.eurprd04.prod.outlook.com
- ([fe80::4d37:ec64:4e90:b16b%7]) with mapi id 15.20.4457.017; Wed, 25 Aug 2021
- 15:55:12 +0000
-Subject: Re: Kernel panic in __pci_enable_msix_range on Xen PV with PCI
- passthrough
-To:     =?UTF-8?Q?Marek_Marczykowski-G=c3=b3recki?= 
-        <marmarek@invisiblethingslab.com>
-CC:     linux-pci@vger.kernel.org, stable@vger.kernel.org,
-        regressions@lists.kernel.dev,
-        xen-devel <xen-devel@lists.xenproject.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>
-References: <YSZgkQY1B+WNH50r@mail-itl>
- <3e72345b-d0e1-7856-de51-e74714474724@suse.com> <YSZmFMeVeO4Bupn+@mail-itl>
-From:   Jan Beulich <jbeulich@suse.com>
-Message-ID: <24d47a06-a887-05e5-0e3f-ed3cdd19490b@suse.com>
-Date:   Wed, 25 Aug 2021 17:55:09 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
-In-Reply-To: <YSZmFMeVeO4Bupn+@mail-itl>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-X-ClientProxiedBy: PR0P264CA0281.FRAP264.PROD.OUTLOOK.COM
- (2603:10a6:100:1::29) To VI1PR04MB5600.eurprd04.prod.outlook.com
- (2603:10a6:803:e7::16)
+        id S233289AbhHYQW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Aug 2021 12:22:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39370 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235089AbhHYQW1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 12:22:27 -0400
+Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2565C0613C1
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 09:21:41 -0700 (PDT)
+Received: by mail-oi1-x22a.google.com with SMTP id p2so429464oif.1
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 09:21:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=8fQvfIZZ8pqSEhGTsBpi6VyqU2V9n2LFFeq+H7l97f0=;
+        b=b8CGPZ5tvfjvdRG4BxmX9KLWApAyIplyR9glm/HtpUHAkjAW2VvZOLSD01LjYz/I8J
+         OxvKh57p4gG72QsQPDy/SrgwJgoJOSGTr5F4uTaqg3afgwH+ES1z2Z/8CV2Hxv6o+xJ6
+         r64d8a5zauoTjuBugFbleqD84WocBwIaxtMDSHsmt7IzMg0ZJPDe4R8JbDlMUCodTEel
+         1dE1NR43wxzfCXmdXzXOpPssKKD3tVLWPYq5RL5cigYBznRpniSCw/5doC0z7i/pcE7Y
+         XpdjoSnoEGanMz+ra/Po0CKEGlNXPVPbn40Ihe7x/tAIVIriud2UoQVEarUwT2OktgyK
+         9hGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=8fQvfIZZ8pqSEhGTsBpi6VyqU2V9n2LFFeq+H7l97f0=;
+        b=IJ7FZQ2xPFQSsw51Jops8pRfHkUzeoxnuV9y0uLn3eTaX+4pzT+mCg4BNIGHk8aMno
+         HX4kfZer7dvRWuf7wS/ZdLp61xln+0r+Rl9hs70LlbLYXLdcencowISh2BbU0ZQ/SG57
+         bccmj0MXbhPrEIHbdEs1a25mcj+boG8zQNsDO4sW1EGTx24HC5SSbmXidBEbRJ5hAOO2
+         CDNgGiS4W+1yWxv21RajWlQsT6Nz/HRd7FoqYkrClLo7bK+2M3kN0Wvp4QWCrICvav9I
+         QNyluIvl6/bDR4y5MsSxx7Ekysx9NnfKU/P3FN8q06snV/0pZImYijp56Qte/dUqafDU
+         pBDw==
+X-Gm-Message-State: AOAM533dA64CVlSkf9Zbr+MCrZW7w0TpRJLIWy7MQC+OouK5fxX9qlwJ
+        kMXyYA2XXMK61K1VDbeKcZQGHg==
+X-Google-Smtp-Source: ABdhPJz/xaEApaYOhAS3r2WU6AYrV1Fk6qUOCI9fTu85pNj+1nuMfnv5L9jfluc2KneklpTAJtzQew==
+X-Received: by 2002:aca:4509:: with SMTP id s9mr7552187oia.38.1629908501134;
+        Wed, 25 Aug 2021 09:21:41 -0700 (PDT)
+Received: from [192.168.17.50] ([189.219.75.147])
+        by smtp.gmail.com with ESMTPSA id q5sm67286ooa.1.2021.08.25.09.21.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Aug 2021 09:21:40 -0700 (PDT)
+Subject: Re: [PATCH 5.13 000/127] 5.13.13-rc1 review
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de
+References: <20210824165607.709387-1-sashal@kernel.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <b4bef2f4-0c5b-527d-4f24-788d3265f5bf@linaro.org>
+Date:   Wed, 25 Aug 2021 11:21:37 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [10.156.60.236] (37.24.206.209) by PR0P264CA0281.FRAP264.PROD.OUTLOOK.COM (2603:10a6:100:1::29) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4457.17 via Frontend Transport; Wed, 25 Aug 2021 15:55:11 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0511ef5f-2876-442a-83d6-08d967e0b8e2
-X-MS-TrafficTypeDiagnostic: VE1PR04MB6671:
-X-Microsoft-Antispam-PRVS: <VE1PR04MB667173BC64C9D2E348B465F8B3C69@VE1PR04MB6671.eurprd04.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5236;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: LPAxPTHrk9/zO8LrD3ADqOGtVeXmtLZilTFfG47wYeDsGabT2IQF7QRjWvcZD8B9UgIraYHJiX8vR3fIGBLC7skqriao0LVv2NZCNtfiilS8MxrFlIbHSrpMMDrc0jM2L2Ot5GL/lnLQRkYK/N2lYtCpTzwpAERiAzmCXRltZ/E2C3+8w3IJrxRXsunSYVAFKqrwrFxpEJbpjWZSXP/tDgr0knk1074t1Cxd2p3LvIknfNO0TAaD/8dfgs5QTQfZxWB3anS/3lA2M38txEhQoQvUXo3cEDK7Q9kPDe1fHiphQUDR3cKsFIHnU/aPdbiN7ZjhwNCeYLAChYsIGbf2glRfxfxx0OG9PYf8G0UMid1Mju8ztWX8fUTRFfX7W3HzsP7huTe6PdHyUIBIAuz2TtFSP/StUIM0DNZDEtnZM9ygfy2egGsXwIdACdlosG4ACLjK+ix2JPLdjFQ/FmNkb9LBITq+onaWDgPMbkCeasiobJR6miYI0IyNSCDNYH5zrT2MZ5JsKqhb0px0u/xbAzwu8D6MOigjGCrvbUTaBhRz99ms6MwdQUEL1tSsdQat1a+mF8EgLRxS6fRV0aViKcZ9Zcl8XcqxD0pEHgjUcqrmAcQ6qditvtLf/NpLPtxK5LmfwK094g10DYhu+e1s6I+Z2dVou420EEMy3FbsJWlaHPrslehEGdDg3uuicGx7KXqFWdjVKcE4vWU9XT1sCMGII+dbsIbnlFGowTbXghk=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5600.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(396003)(376002)(346002)(39850400004)(366004)(136003)(66946007)(478600001)(36756003)(8936002)(66476007)(66574015)(66556008)(6486002)(5660300002)(53546011)(16576012)(8676002)(54906003)(6916009)(38100700002)(2906002)(4326008)(31686004)(86362001)(316002)(31696002)(83380400001)(26005)(956004)(2616005)(186003)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?vXVjrDPX2k+goA+ZVznHWEXmnO1wmo83/aBA3MCY6IFQizJlLFItT1Xc5tOI?=
- =?us-ascii?Q?+nExplzFqllnq1ZiIPCe7WOCEDFRgLIDQqHqNHY/Ik2ZYbWbAegmltOglHJJ?=
- =?us-ascii?Q?YaJC7t3vP7VaxpL8mJVu/0ofKjhouK5GG/u/Z/rHhfukQ5W42x4WlFoxLxns?=
- =?us-ascii?Q?H8zsgXAMb46gBMfbB+UZUBG8CV+AotVFY3qJ9W2gux0k8c9xOh0wJtWiX12m?=
- =?us-ascii?Q?+fAwklFgnPnGZDvmzYumcVserHfyIglB3q6SC9eFqpCVck0Q2R9fjlkkgVRn?=
- =?us-ascii?Q?pe9OTUfcAEp6ndM6Nb82uRGiUvlWnu878CIxj/1gzmQSa7qrgfXIle7trwAq?=
- =?us-ascii?Q?dAlOpoFC7rNQ5qa4tFXOZtuHsZjipH3p4Th7pLvT6Z0+pGWwIJtrCrP9r0/K?=
- =?us-ascii?Q?Q/XBmBZf0pTLdMVW6F/1UFJyqruVB0VJ06efBr6cwfx2JBs78rP5cAjQP8nS?=
- =?us-ascii?Q?HwmG2urIYIo0B8NSboX1YSRjXrYSyKnIcQP3yzobSrFYBmP/w8U//5IliXUc?=
- =?us-ascii?Q?xGLZOe65QsKmUDNVrAchB9qxmfea3ZgbAnaBptl7Zrh6CGyqUEBMwD+vWd7D?=
- =?us-ascii?Q?i7JhQv9v8aSqHl8I4yhZIItw7qqgwIkFFDlorLewCVfyjaihP20gpqG4TG3g?=
- =?us-ascii?Q?xGTZR1j3+hbta+6rxmaRgtlq8FszAGR/Zciu7IOjWKcGC//CIoKhmJ8lKLPj?=
- =?us-ascii?Q?pDH1D9SEt1bCBsYCflpZynrak3AT+gz5U+4dxnDSjXwr+3v/5JPpb5dVgtTz?=
- =?us-ascii?Q?s19MMBCgz+o7vx3kwEZexDH1Yyg6W5CSiQXxw4f9eFrpFDVNQNzVHxhy48pt?=
- =?us-ascii?Q?kIgU92lwsxK66TJEnC83893aYrCc6k9wLHGCPlBSNPz3Rro4TIUug2AYwTdT?=
- =?us-ascii?Q?acT3QOHlhb5eip6VJBNTdkbGgpQRca/6lbKV4R/Cj1tOmkEXdmNtZ3o1eoH4?=
- =?us-ascii?Q?bf6KF2sYFmTq54A/e+jua8qtDZ9f7kp2E2cU1FofJfXwFQOw/4KsTL+qxAwd?=
- =?us-ascii?Q?APqnT4+/uiN0eQtaxNoretxILkxaMd9trAuugeM4qqGvuF6WUUFZHSWMmJEU?=
- =?us-ascii?Q?zUArTG+QuwE/ATjTel3rKcUMktUB0VNcHrEJqDH2iNWm8J9YNwk32E2585Bb?=
- =?us-ascii?Q?PL60FcEIZDOZ2miKa/sN4wYANOBti/5SW/7aKkzif2cfFmQUuCfHmLYN+VmJ?=
- =?us-ascii?Q?TMoL1wbw4l5T9m+EfVDPavi74p4NnHAs+8LiCLFKkM5SPSco1JJlZh++gyL3?=
- =?us-ascii?Q?uxB6JoapPVpvnOyUSwGUGKuh+TUflrZwxFsBzTwE2v/iHvSagySGzQhyCTL2?=
- =?us-ascii?Q?y0JRXg7uJO7YzKwWB20C7sps?=
-X-OriginatorOrg: suse.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0511ef5f-2876-442a-83d6-08d967e0b8e2
-X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5600.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Aug 2021 15:55:12.2663
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /BiBAtUVk0S9sjsZ6T6tgOAGKRlXCqpA9q/E6wp0UoMz5XISUt/MOg/LsGVR4reWe5xapik2hAXsBu6wk+vE8Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VE1PR04MB6671
+In-Reply-To: <20210824165607.709387-1-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25.08.2021 17:47, Marek Marczykowski-G=C3=B3recki wrote:
-> On Wed, Aug 25, 2021 at 05:33:54PM +0200, Jan Beulich wrote:
->> On 25.08.2021 17:24, Marek Marczykowski-G=C3=B3recki wrote:
->>> On recent kernel I get kernel panic when starting a Xen PV domain with
->>> PCI devices assigned. This happens on 5.10.60 (worked on .54) and
->>> 5.4.142 (worked on .136):=20
->>>
->>> [   13.683009] pcifront pci-0: claiming resource 0000:00:00.0/0
->>> [   13.683042] pcifront pci-0: claiming resource 0000:00:00.0/1
->>> [   13.683049] pcifront pci-0: claiming resource 0000:00:00.0/2
->>> [   13.683055] pcifront pci-0: claiming resource 0000:00:00.0/3
->>> [   13.683061] pcifront pci-0: claiming resource 0000:00:00.0/6
->>> [   14.036142] e1000e: Intel(R) PRO/1000 Network Driver
->>> [   14.036179] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
->>> [   14.036982] e1000e 0000:00:00.0: Xen PCI mapped GSI11 to IRQ13
->>> [   14.044561] e1000e 0000:00:00.0: Interrupt Throttling Rate (ints/sec=
-) set to dynamic conservative mode
->>> [   14.045188] BUG: unable to handle page fault for address: ffffc90040=
-69100c
->>> [   14.045197] #PF: supervisor write access in kernel mode
->>> [   14.045202] #PF: error_code(0x0003) - permissions violation
->>> [   14.045211] PGD 18f1c067 P4D 18f1c067 PUD 4dbd067 PMD 4fba067 PTE 80=
-100000febd4075
->>
->> I'm curious what lives at physical address FEBD4000.=20
->=20
-> This is a third BAR of this device, related to MSI-X:
->=20
-> 00:04.0 Ethernet controller: Intel Corporation 82574L Gigabit Network Con=
-nection
->         Subsystem: Intel Corporation Device 0000
->         Physical Slot: 4
->         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParEr=
-r- Stepping- SERR+ FastB2B- DisINTx-
->         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=3Dfast >TAbort- =
-<TAbort- <MAbort- >SERR- <PERR- INTx-
->         Latency: 0
->         Interrupt: pin A routed to IRQ 11
->         Region 0: Memory at feb80000 (32-bit, non-prefetchable) [size=3D1=
-28K]
->         Region 1: Memory at feba0000 (32-bit, non-prefetchable) [size=3D1=
-28K]
->         Region 2: I/O ports at c080 [size=3D32]
->         Region 3: Memory at febd4000 (32-bit, non-prefetchable) [size=3D1=
-6K]
->         Expansion ROM at feb40000 [disabled] [size=3D256K]
->         Capabilities: [c8] Power Management version 2
->                 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,=
-D2-,D3hot-,D3cold-)
->                 Status: D0 NoSoftRst- PME-Enable- DSel=3D0 DScale=3D0 PME=
--
->         Capabilities: [d0] MSI: Enable- Count=3D1/1 Maskable- 64bit+
->                 Address: 0000000000000000  Data: 0000
->         Capabilities: [e0] Express (v1) Endpoint, MSI 00
->                 DevCap: MaxPayload 128 bytes, PhantFunc 0, Latency L0s <6=
-4ns, L1 <1us
->                         ExtTag- AttnBtn- AttnInd- PwrInd- RBE+ FLReset- S=
-lotPowerLimit 0.000W
->                 DevCtl: CorrErr- NonFatalErr- FatalErr- UnsupReq-
->                         RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop-
->                         MaxPayload 128 bytes, MaxReadReq 128 bytes
->                 DevSta: CorrErr- NonFatalErr- FatalErr- UnsupReq- AuxPwr-=
- TransPend-
->                 LnkCap: Port #0, Speed 2.5GT/s, Width x1, ASPM L0s, Exit =
-Latency L0s <64ns
->                         ClockPM- Surprise- LLActRep- BwNot- ASPMOptComp-
->                 LnkCtl: ASPM Disabled; RCB 64 bytes, Disabled- CommClk-
->                         ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
->                 LnkSta: Speed 2.5GT/s (ok), Width x1 (ok)
->                         TrErr- Train- SlotClk- DLActive- BWMgmt- ABWMgmt-
->         Capabilities: [a0] MSI-X: Enable- Count=3D5 Masked-
->                 Vector table: BAR=3D3 offset=3D00000000
->                 PBA: BAR=3D3 offset=3D00002000
->         Kernel driver in use: pciback
->         Kernel modules: e1000e
->=20
->> The maximum verbosity
->> hypervisor log may also have a hint as to why this is a read-only PTE.
->=20
-> I'll try, if that still makes sense.
+Hello!
 
-I think the above data clarifies it already.
+On 8/24/21 11:54 AM, Sasha Levin wrote:
+> This is the start of the stable review cycle for the 5.13.13 release.
+> There are 127 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu 26 Aug 2021 04:55:18 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+>          https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.13.y&id2=v5.13.12
+> or in the git tree and branch at:
+>          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
+> and the diffstat can be found below.
+> 
+> Thanks,
+> Sasha
 
->>> [   14.045227] Oops: 0003 [#1] SMP NOPTI
->>> [   14.045234] CPU: 0 PID: 234 Comm: kworker/0:2 Tainted: G        W   =
-      5.14.0-rc7-1.fc32.qubes.x86_64 #15
->>> [   14.045245] Workqueue: events work_for_cpu_fn
->>> [   14.045259] RIP: e030:__pci_enable_msix_range.part.0+0x26b/0x5f0
->>> [   14.045271] Code: 2f 96 ff 48 89 44 24 28 48 89 c7 48 85 c0 0f 84 f6=
- 01 00 00 45 0f b7 f6 48 8d 40 0c ba 01 00 00 00 49 c1 e6 04 4a 8d 4c 37 1c=
- <89> 10 48 83 c0 10 48 39 c1 75 f5 41 0f b6 44 24 6a 84 c0 0f 84 48
->>> [   14.045284] RSP: e02b:ffffc9004018bd50 EFLAGS: 00010212
->>> [   14.045290] RAX: ffffc9004069100c RBX: ffff88800ed412f8 RCX: ffffc90=
-04069105c
->>> [   14.045296] RDX: 0000000000000001 RSI: 00000000000febd4 RDI: ffffc90=
-040691000
->>> [   14.045302] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000=
-0febd404f
->>> [   14.045308] R10: 0000000000007ff0 R11: ffff88800ee8ae40 R12: ffff888=
-00ed41000
->>> [   14.045313] R13: 0000000000000000 R14: 0000000000000040 R15: 0000000=
-0feba0000
->>> [   14.045393] FS:  0000000000000000(0000) GS:ffff888018400000(0000) kn=
-lGS:0000000000000000
->>> [   14.045401] CS:  e030 DS: 0000 ES: 0000 CR0: 0000000080050033
->>> [   14.045407] CR2: ffff8000007f5ea0 CR3: 0000000012f6a000 CR4: 0000000=
-000000660
->>> [   14.045420] Call Trace:
->>> [   14.045431]  e1000e_set_interrupt_capability+0xbf/0xd0 [e1000e]
->>> [   14.045479]  e1000_probe+0x41f/0xdb0 [e1000e]
->>
->> Otoh, from this it's pretty clear it's not a device Xen may have found
->> a need to access for its own purposes. If aforementioned address covers
->> (or is adjacent to) the MSI-X table of a device drive by this driver,
->> then it would also be helpful to know how many MSI-X entries the device
->> reports its table can have.
->=20
-> See above.
->=20
-> Does PCI passthrough for on PV support MSI-X at all?
+Results from Linaro’s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-It is supposed to work. The treatment by generic code shouldn't be overly
-different from how MSI-X works for Dom0 (Xen specific code of course
-differs).
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-> If so, I guess the issue is the kernel trying to write directly, instead
-> of via some hypercall, right?
+## Build
+* kernel: 5.13.13-rc1
+* git: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git', 'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
+* git branch: linux-5.13.y
+* git commit: b85f43f33b05cc36ebcb5b64122a56c9fb949a79
+* git describe: v5.13.12-127-gb85f43f33b05
+* test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.13.y/build/v5.13.12-127-gb85f43f33b05
 
-Indeed. Or to be precise - the kernel isn't supposed to be "writing" this
-at all. It is supposed to make hypercalls which may result in such writes.
-Such "mask everything" functionality imo is the job of the hypervisor
-anyway when talking about PV environments; HVM is a different thing here.
+## No regressions (compared to v5.13.12)
 
-Jan
+## No fixes (compared to v5.13.12)
 
+## Test result summary
+total: 80677, pass: 67984, fail: 1034, skip: 10884, xfail: 775
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 226 total, 226 passed, 0 failed
+* arm64: 32 total, 32 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 31 total, 31 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 48 total, 48 passed, 0 failed
+* parisc: 9 total, 9 passed, 0 failed
+* powerpc: 27 total, 27 passed, 0 failed
+* riscv: 24 total, 24 passed, 0 failed
+* s390: 21 total, 21 passed, 0 failed
+* sh: 18 total, 18 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 0 passed, 1 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 33 total, 33 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-t[
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
+
+-- 
+Linaro LKFT
+https://lkft.linaro.org
