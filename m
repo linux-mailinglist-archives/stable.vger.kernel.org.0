@@ -2,98 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1433F708A
-	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 09:38:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 649243F70DA
+	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 10:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238357AbhHYHjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Aug 2021 03:39:21 -0400
-Received: from szxga03-in.huawei.com ([45.249.212.189]:14319 "EHLO
-        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234058AbhHYHjV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 03:39:21 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4GvdBL1cQXz89xG;
-        Wed, 25 Aug 2021 15:38:18 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Wed, 25 Aug 2021 15:38:32 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Wed, 25 Aug 2021 15:38:31 +0800
-Subject: Re: [PATCH 5.4 00/61] 5.4.143-rc1 review
-To:     Sasha Levin <sashal@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>
-References: <20210824170106.710221-1-sashal@kernel.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <297c4759-32f7-118a-7d0b-441b00a82146@huawei.com>
-Date:   Wed, 25 Aug 2021 15:38:31 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S234259AbhHYIFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Aug 2021 04:05:38 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:50920 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229503AbhHYIFg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 04:05:36 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 7CE951C0B7A; Wed, 25 Aug 2021 10:04:50 +0200 (CEST)
+Date:   Wed, 25 Aug 2021 10:04:50 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Adrian Larumbe <adrian.martinezlarumbe@imgtec.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: Re: [PATCH 5.10 16/98] dmaengine: xilinx_dma: Fix read-after-free
+ bug when terminating transfers
+Message-ID: <20210825080449.GA7551@duo.ucw.cz>
+References: <20210824165908.709932-1-sashal@kernel.org>
+ <20210824165908.709932-17-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20210824170106.710221-1-sashal@kernel.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
+Content-Disposition: inline
+In-Reply-To: <20210824165908.709932-17-sashal@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+--rwEMma7ioTxnRzrJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 2021/8/25 1:00, Sasha Levin wrote:
-> 
-> This is the start of the stable review cycle for the 5.4.143 release.
-> There are 61 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu 26 Aug 2021 05:01:01 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
->          https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.4.y&id2=v5.4.142
-> or in the git tree and branch at:
->          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> Thanks,
-> Sasha
-> 
+Hi!
 
-Tested on arm64 and x86 for 5.4.143-rc1,
+> [ Upstream commit 7dd2dd4ff9f3abda601f22b9d01441a0869d20d7 ]
+>=20
+> When user calls dmaengine_terminate_sync, the driver will clean up any
+> remaining descriptors for all the pending or active transfers that had
+> previously been submitted. However, this might happen whilst the tasklet =
+is
+> invoking the DMA callback for the last finished transfer, so by the time =
+it
+> returns and takes over the channel's spinlock, the list of completed
+> descriptors it was traversing is no longer valid. This leads to a
+> read-after-free situation.
+>=20
+> Fix it by signalling whether a user-triggered termination has happened by
+> means of a boolean variable.
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.143-rc1
-Commit: 3b97ed8d226facd9905f634982238e5a93b4481c
-Compiler: gcc version 7.3.0 (GCC)
+I see the variable is cleared and tested under spinlock, but it is set
+without any locking. Do we need to take the spinlock, too?
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8906
-passed: 8906
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Best regards,
+								Pavel
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8906
-passed: 8906
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+> @@ -1049,6 +1051,13 @@ static void xilinx_dma_chan_desc_cleanup(struct xi=
+linx_dma_chan *chan)
+>  		/* Run any dependencies, then free the descriptor */
+>  		dma_run_dependencies(&desc->async_tx);
+>  		xilinx_dma_free_tx_descriptor(chan, desc);
+> +
+> +		/*
+> +		 * While we ran a callback the user called a terminate function,
+> +		 * which takes care of cleaning up any remaining descriptors
+> +		 */
+> +		if (chan->terminating)
+> +			break;
+>  	}
+> =20
+>  	spin_unlock_irqrestore(&chan->lock, flags);
+> @@ -1965,6 +1974,8 @@ static dma_cookie_t xilinx_dma_tx_submit(struct dma=
+_async_tx_descriptor *tx)
+>  	if (desc->cyclic)
+>  		chan->cyclic =3D true;
+> =20
+> +	chan->terminating =3D false;
+> +
+>  	spin_unlock_irqrestore(&chan->lock, flags);
+> =20
+>  	return cookie;
+> @@ -2436,6 +2447,7 @@ static int xilinx_dma_terminate_all(struct dma_chan=
+ *dchan)
+> =20
+>  	xilinx_dma_chan_reset(chan);
+>  	/* Remove and free all of the descriptors in the lists */
+> +	chan->terminating =3D true;
+>  	xilinx_dma_free_descriptors(chan);
+>  	chan->idle =3D true;
+> =20
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--rwEMma7ioTxnRzrJ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYSX5oQAKCRAw5/Bqldv6
+8qfhAJ9P+qJke/JZZCh0yqyJhnsvxzQJTQCfcqqmy7GprAi7UtTnGnJ/sPUGaIQ=
+=n2xD
+-----END PGP SIGNATURE-----
+
+--rwEMma7ioTxnRzrJ--
