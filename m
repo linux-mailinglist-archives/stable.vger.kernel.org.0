@@ -2,84 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0730F3F72AE
-	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 12:10:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCCDA3F72C5
+	for <lists+stable@lfdr.de>; Wed, 25 Aug 2021 12:15:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239716AbhHYKKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Aug 2021 06:10:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34068 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238783AbhHYKKv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Aug 2021 06:10:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 5BE0761176;
-        Wed, 25 Aug 2021 10:10:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629886206;
-        bh=OSv0PWWhZVtTGTqPHk5I4aEOsasp+kDfKfr1GgHP/Jg=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=hVsPT+kAgICx6tBRqyIhV1hRk3fq1W7DSNR3HAPr5WuXl5eeKpe6pOHyp3VqvwQ+N
-         V2NcJFe7BRrX4E2rZW9V7IpHi87l3AwuzTSlIwr0GtiWQuR0C+NW1NStmGbAC8WtGk
-         17WSzEYastYu2FK5g/4nxI7RphiZGXc1o5vvfqJK+Bn2S3bJUueux+HYt5Q7JjN2ny
-         RAYPQYojThwaAWg6UuqqDpeDrHkkQ6uEc9jfxKUOtPC8rigejMj6CLuNajaMPQQI3p
-         h43ADJxrIs7x0vOkLUl4N6z7/Rf3WdnHcaDH0/VbhNEALssh4Ly4nIJw1td90EyvnF
-         ZmbQ7VbqWHZIw==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 4C1EF6097B;
-        Wed, 25 Aug 2021 10:10:06 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S239654AbhHYKQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Aug 2021 06:16:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38088 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237163AbhHYKQD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 06:16:03 -0400
+Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9002AC061757
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 03:15:17 -0700 (PDT)
+Received: by mail-ed1-x543.google.com with SMTP id z19so11585067edi.9
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 03:15:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=Tf5xreh+EXaDOdBdIiJb4IE+S8DtM/q8kJSMh7+cvIA=;
+        b=teGoWVsbHD0LkpjMDwBK6hFTXXyr+bJX7O2dp0pMqqHlZtFdjRz5l55b+/CYnziTlo
+         mv98fcAWIfBkGrwcxB6P19s288uYjMJ7fDXssP/0vqnXvc3lPA45mPcmsduEUNCxD9Jg
+         PWOkIFI1+LW6cAkW3NAgWBcQWs8YedbmcTBdvdxAggiFCZGZ+D2dhXG4A198/p8yf7D1
+         ie7PeCTNgG4ll17KJuYGLTZY6GiaT98pishKqm+3Q7TFANrSqbuebBLLb2Uj8SMXHdCr
+         1bbBrgBkYX42DP56zZKeJ0X1u7fh5wOWqSKYKNERQEDCnOP5HcDnYcp2oP4hAPP4yhRT
+         FZjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=Tf5xreh+EXaDOdBdIiJb4IE+S8DtM/q8kJSMh7+cvIA=;
+        b=L9pXoikZ/ECkswexffqM2TtL9qfrifowAfLWd4+oUuB6upS8hqz8dVXuqkD2RnalNh
+         iMdoC3+LO6yGypaf/9osTkT8Yes3tGfCMQoP6jQG9homx78sJpmljq10J/JMa8e6mfe9
+         aW5ODtIUwoHG5DTT0ToLnwVI9SApiKZm4Q58oqK4YEIjWXaV00Lk8MhZWPjypOo72FCV
+         5JlJVYZErMqMl0eLbcdHLenHnPy4/vdVZ9W4CY8jW40wfk6+7t9IJxDgB/94sDrgls0F
+         zCJnMse4brJZPCogmM+YYWjZVOasfatSNmYMp3hXZww5PAoMh+GeIMDpwsbMU2ptC2wT
+         5GoQ==
+X-Gm-Message-State: AOAM531WjjW8jg3Bbx1ngVujyXBpy+28RyS1ub1ngxUVEfgCw27ueXMQ
+        2rFZcZ+Zaw2S5u8neh7YIVW3Yk3zQXU3MOp7V9s=
+X-Google-Smtp-Source: ABdhPJxJ2xGLkqMKX+ODJvTf56fNVmi02TWgCnDIMLIe8Mxb/hSXpRDepSVj9BzlWHGMvhtg/I+3aaGPDawB54+4P58=
+X-Received: by 2002:a50:ed0b:: with SMTP id j11mr10154366eds.97.1629886516141;
+ Wed, 25 Aug 2021 03:15:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2 1/1] net: stmmac: fix kernel panic due to NULL pointer
- dereference of buf->xdp
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162988620630.3256.11386363919352017742.git-patchwork-notify@kernel.org>
-Date:   Wed, 25 Aug 2021 10:10:06 +0000
-References: <20210825005742.980267-1-yoong.siang.song@intel.com>
-In-Reply-To: <20210825005742.980267-1-yoong.siang.song@intel.com>
-To:     Song Yoong Siang <yoong.siang.song@intel.com>
-Cc:     ast@kernel.org, daniel@iogearbox.net, davem@davemloft.net,
-        kuba@kernel.org, hawk@kernel.org, john.fastabend@gmail.com,
-        peppe.cavallaro@st.com, alexandre.torgue@st.com,
-        joabreu@synopsys.com, mcoquelin.stm32@gmail.com,
-        boon.leong.ong@intel.com, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
+Reply-To: afzzal.ahmed@aol.com
+Sender: afzzalahmed7@gmail.com
+Received: by 2002:a17:906:a00d:0:0:0:0 with HTTP; Wed, 25 Aug 2021 03:15:15
+ -0700 (PDT)
+From:   Afzzal Ahmed <afzzalahmed0547@gmail.com>
+Date:   Wed, 25 Aug 2021 03:15:15 -0700
+X-Google-Sender-Auth: Gc2WQXk7sft4XdHJfwS1GxUD5IA
+Message-ID: <CAMoZ5H2O--THnNK-XJmdZWD+793v1JgcptOAqTZ0rBYKQ-KUtA@mail.gmail.com>
+Subject: =?UTF-8?Q?Re=2ER=C3=A9=2EBase_on_your_reply?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+Assaalamu Alaikkum my dear friend,
+        I am Mr Afzzal Ahmed, the chief operating officer with my bank
+and I want to inform you that an amount of US$37.3 million will be
+moved on your name as the Foreign Business Partner to our late
+deceased customer Mr.Berry Bryan Floyd, I need your help to receive
+this money as we shall share the money in the ratio of 60:40%. You
+will receive this amount through a bank wire transfer.
 
-This patch was applied to netdev/net.git (refs/heads/master):
+Please send your full names, direct telephone numbers, and home
+address, more details of how to claim the form will be given upon your
+reply.
+Your quick response will be highly appreciated.
+Yours sincerely,
 
-On Wed, 25 Aug 2021 08:57:42 +0800 you wrote:
-> Ensure a valid XSK buffer before proceed to free the xdp buffer.
-> 
-> The following kernel panic is observed without this patch:
-> 
-> RIP: 0010:xp_free+0x5/0x40
-> Call Trace:
-> stmmac_napi_poll_rxtx+0x332/0xb30 [stmmac]
-> ? stmmac_tx_timer+0x3c/0xb0 [stmmac]
-> net_rx_action+0x13d/0x3d0
-> __do_softirq+0xfc/0x2fb
-> ? smpboot_register_percpu_thread+0xe0/0xe0
-> run_ksoftirqd+0x32/0x70
-> smpboot_thread_fn+0x1d8/0x2c0
-> kthread+0x169/0x1a0
-> ? kthread_park+0x90/0x90
-> ret_from_fork+0x1f/0x30
-> 
-> [...]
-
-Here is the summary with links:
-  - [net,v2,1/1] net: stmmac: fix kernel panic due to NULL pointer dereference of buf->xdp
-    https://git.kernel.org/netdev/net/c/2b9fff64f032
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Mr.Afzzal Ahmed
