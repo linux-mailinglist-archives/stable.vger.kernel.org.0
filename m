@@ -2,261 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E38B73F8363
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 09:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70F3B3F8396
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 10:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232514AbhHZHwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 03:52:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51990 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240362AbhHZHwe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 03:52:34 -0400
-Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2EA2C06179A
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 00:51:46 -0700 (PDT)
-Received: by mail-ot1-x334.google.com with SMTP id g66-20020a9d12c8000000b0051aeba607f1so2366136otg.11
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 00:51:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:in-reply-to:references:from:user-agent:date:message-id
-         :subject:to:cc;
-        bh=CyZYAhkROzPRMkmMMIprqB951HD27oZOBMzECb71gRI=;
-        b=ml6/ZvuQFhRGrvXuaRRdVOF++ZY5PCzIIf/AwSLdVunsgOgdViEMDDG8Hy4E/xr8vZ
-         l+5q3cxu4OxHoEQDd6LP1ylRdpdGsIaxJVsX0PZehoM47D0UqTLkHouZrwY0k7aGQqS9
-         v00D93CPO3oq1j/t6ibQWjkqdc//1F2c9ChyY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:in-reply-to:references:from
-         :user-agent:date:message-id:subject:to:cc;
-        bh=CyZYAhkROzPRMkmMMIprqB951HD27oZOBMzECb71gRI=;
-        b=TSQMJKrNClp64kdQG0Vz4/b0tzicLBpAb8SY1EvfNAxSTv1BBE9DZHhSY44l+MLa9B
-         l7B59v3LGVkeRyGMtUKAiH7F7VOqFPbVnnrLvhcWPT2gCS+IDop0/Ey9L7MHmkPtXKzr
-         w/GIb1sywhsF9Ca0WG8kXKGh+u0u1fBGpCksAuPhyRm/yCK48ylJ1uNQk7MR/z3HjWYF
-         aU3l/uLdw6dFHSQySEgdDc4Tyf5opJJ5WNoh5jQS3TrqbtW6IZX38N/jckEfabTy6sOJ
-         4Gqq6LT14vzhPfEQVJAZ0PPJaElCnByeL3XHzpzEgcjcinxEoDcX9ESC4sk977Pp3Tjw
-         Uu2Q==
-X-Gm-Message-State: AOAM530laldL/bUmiJOQlaL4flePiK/Bt/W90y/zymwLocQz5vAfJdG5
-        7dbt5etzM2J5yzTJthUdbL1pTREwqdnZgMmubDsiCQ==
-X-Google-Smtp-Source: ABdhPJwhUhC9AQF+4ej141s0LxvKyUaWJdZNiwS88bsmazg5jh3Pkj8ZjWU40SpErKftIgsV5l/Myw/S3Gvn5bVJw9s=
-X-Received: by 2002:a05:6830:88:: with SMTP id a8mr2016395oto.233.1629964305960;
- Thu, 26 Aug 2021 00:51:45 -0700 (PDT)
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Thu, 26 Aug 2021 07:51:45 +0000
+        id S240399AbhHZINV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 04:13:21 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:40019 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233052AbhHZINS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 04:13:18 -0400
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-81-EKLme1GqN6OZhnD0jFxktg-1; Thu, 26 Aug 2021 09:12:29 +0100
+X-MC-Unique: EKLme1GqN6OZhnD0jFxktg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.23; Thu, 26 Aug 2021 09:12:27 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.023; Thu, 26 Aug 2021 09:12:27 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Peter Collingbourne' <pcc@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Colin Ian King <colin.king@canonical.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+CC:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH] net: don't unconditionally copy_from_user a struct ifreq
+ for socket ioctls
+Thread-Topic: [PATCH] net: don't unconditionally copy_from_user a struct ifreq
+ for socket ioctls
+Thread-Index: AQHXmhmeusqat7DUPUKEZ8XxUHnOHquFbtgQ
+Date:   Thu, 26 Aug 2021 08:12:27 +0000
+Message-ID: <11f72b27c12f46eb8bef1d1773980c54@AcuMS.aculab.com>
+References: <20210826012722.3210359-1-pcc@google.com>
+In-Reply-To: <20210826012722.3210359-1-pcc@google.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-In-Reply-To: <20210824025754.658394-1-sashal@kernel.org>
-References: <20210824025754.658394-1-sashal@kernel.org>
-From:   Stephen Boyd <swboyd@chromium.org>
-User-Agent: alot/0.9.1
-Date:   Thu, 26 Aug 2021 07:51:45 +0000
-Message-ID: <CAE-0n53zk0ogf=TUknMoCAPDd97=jq3Czpp6b1c9E29ormuCSQ@mail.gmail.com>
-Subject: Re: FAILED: Patch "mmc: sdhci-msm: Update the software timeout value
- for sdhc" failed to apply to 5.4-stable tree
-To:     Sasha Levin <sashal@kernel.org>, sbhanu@codeaurora.org,
-        stable@vger.kernel.org
-Cc:     Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        linux-mmc@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Sasha Levin (2021-08-23 19:57:54)
-> The patch below does not apply to the 5.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
->
+RnJvbTogUGV0ZXIgQ29sbGluZ2JvdXJuZQ0KPiBTZW50OiAyNiBBdWd1c3QgMjAyMSAwMjoyNw0K
+PiANCj4gQSBjb21tb24gaW1wbGVtZW50YXRpb24gb2YgaXNhdHR5KDMpIGludm9sdmVzIGNhbGxp
+bmcgYSBpb2N0bCBwYXNzaW5nDQo+IGEgZHVtbXkgc3RydWN0IGFyZ3VtZW50IGFuZCBjaGVja2lu
+ZyB3aGV0aGVyIHRoZSBzeXNjYWxsIGZhaWxlZCAtLQ0KPiBiaW9uaWMgYW5kIGdsaWJjIHVzZSBU
+Q0dFVFMgKHBhc3NpbmcgYSBzdHJ1Y3QgdGVybWlvcyksIGFuZCBtdXNsIHVzZXMNCj4gVElPQ0dX
+SU5TWiAocGFzc2luZyBhIHN0cnVjdCB3aW5zaXplKS4gSWYgdGhlIEZEIGlzIGEgc29ja2V0LCB3
+ZSB3aWxsDQo+IGNvcHkgc2l6ZW9mKHN0cnVjdCBpZnJlcSkgYnl0ZXMgb2YgZGF0YSBmcm9tIHRo
+ZSBhcmd1bWVudCBhbmQgcmV0dXJuDQo+IC1FRkFVTFQgaWYgdGhhdCBmYWlscy4gVGhlIHJlc3Vs
+dCBpcyB0aGF0IHRoZSBpc2F0dHkgaW1wbGVtZW50YXRpb25zDQo+IG1heSByZXR1cm4gYSBub24t
+UE9TSVgtY29tcGxpYW50IHZhbHVlIGluIGVycm5vIGluIHRoZSBjYXNlIHdoZXJlIHBhcnQNCj4g
+b2YgdGhlIGR1bW15IHN0cnVjdCBhcmd1bWVudCBpcyBpbmFjY2Vzc2libGUsIGFzIGJvdGggc3Ry
+dWN0IHRlcm1pb3MNCj4gYW5kIHN0cnVjdCB3aW5zaXplIGFyZSBzbWFsbGVyIHRoYW4gc3RydWN0
+IGlmcmVxIChhdCBsZWFzdCBvbiBhcm02NCkuDQo+IA0KPiBBbHRob3VnaCB0aGVyZSBpcyB1c3Vh
+bGx5IGVub3VnaCBzdGFjayBzcGFjZSBmb2xsb3dpbmcgdGhlIGFyZ3VtZW50DQo+IG9uIHRoZSBz
+dGFjayB0aGF0IHRoaXMgZGlkIG5vdCBwcmVzZW50IGEgcHJhY3RpY2FsIHByb2JsZW0gdXAgdG8g
+bm93LA0KPiB3aXRoIE1URSBzdGFjayBpbnN0cnVtZW50YXRpb24gaXQncyBtb3JlIGxpa2VseSBm
+b3IgdGhlIGNvcHkgdG8gZmFpbCwNCj4gYXMgdGhlIG1lbW9yeSBmb2xsb3dpbmcgdGhlIHN0cnVj
+dCBtYXkgaGF2ZSBhIGRpZmZlcmVudCB0YWcuDQo+IA0KPiBGaXggdGhlIHByb2JsZW0gYnkgYWRk
+aW5nIGFuIGVhcmx5IGNoZWNrIGZvciB3aGV0aGVyIHRoZSBpb2N0bCBpcyBhDQo+IHZhbGlkIHNv
+Y2tldCBpb2N0bCwgYW5kIHJldHVybiAtRU5PVFRZIGlmIGl0IGlzbid0Lg0KLi4NCj4gK2Jvb2wg
+aXNfZGV2X2lvY3RsX2NtZCh1bnNpZ25lZCBpbnQgY21kKQ0KPiArew0KPiArCXN3aXRjaCAoY21k
+KSB7DQo+ICsJY2FzZSBTSU9DR0lGTkFNRToNCj4gKwljYXNlIFNJT0NHSUZIV0FERFI6DQo+ICsJ
+Y2FzZSBTSU9DR0lGRkxBR1M6DQo+ICsJY2FzZSBTSU9DR0lGTUVUUklDOg0KPiArCWNhc2UgU0lP
+Q0dJRk1UVToNCj4gKwljYXNlIFNJT0NHSUZTTEFWRToNCj4gKwljYXNlIFNJT0NHSUZNQVA6DQo+
+ICsJY2FzZSBTSU9DR0lGSU5ERVg6DQo+ICsJY2FzZSBTSU9DR0lGVFhRTEVOOg0KPiArCWNhc2Ug
+U0lPQ0VUSFRPT0w6DQo+ICsJY2FzZSBTSU9DR01JSVBIWToNCj4gKwljYXNlIFNJT0NHTUlJUkVH
+Og0KPiArCWNhc2UgU0lPQ1NJRk5BTUU6DQo+ICsJY2FzZSBTSU9DU0lGTUFQOg0KPiArCWNhc2Ug
+U0lPQ1NJRlRYUUxFTjoNCj4gKwljYXNlIFNJT0NTSUZGTEFHUzoNCj4gKwljYXNlIFNJT0NTSUZN
+RVRSSUM6DQo+ICsJY2FzZSBTSU9DU0lGTVRVOg0KPiArCWNhc2UgU0lPQ1NJRkhXQUREUjoNCj4g
+KwljYXNlIFNJT0NTSUZTTEFWRToNCj4gKwljYXNlIFNJT0NBRERNVUxUSToNCj4gKwljYXNlIFNJ
+T0NERUxNVUxUSToNCj4gKwljYXNlIFNJT0NTSUZIV0JST0FEQ0FTVDoNCj4gKwljYXNlIFNJT0NT
+TUlJUkVHOg0KPiArCWNhc2UgU0lPQ0JPTkRFTlNMQVZFOg0KPiArCWNhc2UgU0lPQ0JPTkRSRUxF
+QVNFOg0KPiArCWNhc2UgU0lPQ0JPTkRTRVRIV0FERFI6DQo+ICsJY2FzZSBTSU9DQk9ORENIQU5H
+RUFDVElWRToNCj4gKwljYXNlIFNJT0NCUkFERElGOg0KPiArCWNhc2UgU0lPQ0JSREVMSUY6DQo+
+ICsJY2FzZSBTSU9DU0hXVFNUQU1QOg0KPiArCWNhc2UgU0lPQ0JPTkRTTEFWRUlORk9RVUVSWToN
+Cj4gKwljYXNlIFNJT0NCT05ESU5GT1FVRVJZOg0KPiArCWNhc2UgU0lPQ0dJRk1FTToNCj4gKwlj
+YXNlIFNJT0NTSUZNRU06DQo+ICsJY2FzZSBTSU9DU0lGTElOSzoNCj4gKwljYXNlIFNJT0NXQU5E
+RVY6DQo+ICsJY2FzZSBTSU9DR0hXVFNUQU1QOg0KPiArCQlyZXR1cm4gdHJ1ZTsNCg0KVGhhdCBp
+cyBob3JyaWQuDQpDYW4ndCB5b3UgYXQgbGVhc3QgdXNlIF9JT0NfVFlQRSgpIHRvIGNoZWNrIGZv
+ciBzb2NrZXQgaW9jdGxzLg0KQ2xlYXJseSBpdCBjYW4gc3VjY2VlZCBmb3IgJ3JhbmRvbScgZHJp
+dmVyIGlvY3RscywgYnV0IHdpbGwgZmFpbA0KZm9yIHRoZSB0dHkgb25lcy4NCg0KVGhlIG90aGVy
+IHNhbmUgdGhpbmcgaXMgdG8gY2hlY2sgX0lPQ19TSVpFKCkuDQpTaW5jZSBhbGwgdGhlIFNJT0N4
+eHh4IGhhdmUgYSBjb3JyZWN0IF9JT0NfU0laRSgpIHRoYXQgY2FuIGJlDQp1c2VkIHRvIGNoZWNr
+IHRoZSB1c2VyIGNvcHkgbGVuZ3RoLg0KKFVubGlrZSBzb2NrZXQgb3B0aW9ucyB0aGUgY29ycmVj
+dCBsZW5ndGggaXMgYWx3YXlzIHN1cHBsaWVkLg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBB
+ZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMs
+IE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
 
-It looks like it conflicts with inline crypto code. This is equivalent
-and compiles on v5.4.142
-
-------8<-------
-From cd5d41c802f7b3e20c0c0ebd6bf0cb335954fd89 Mon Sep 17 00:00:00 2001
-From: Shaik Sajida Bhanu <sbhanu@codeaurora.org>
-Date: Fri, 16 Jul 2021 17:16:14 +0530
-Subject: [PATCH] mmc: sdhci-msm: Update the software timeout value for sdhc
-
-commit 67b13f3e221ed81b46a657e2b499bf8b20162476 upstream.
-
-Whenever SDHC run at clock rate 50MHZ or below, the hardware data
-timeout value will be 21.47secs, which is approx. 22secs and we have
-a current software timeout value as 10secs. We have to set software
-timeout value more than the hardware data timeout value to avioid seeing
-the below register dumps.
-
-[  332.953670] mmc2: Timeout waiting for hardware interrupt.
-[  332.959608] mmc2: sdhci: ============ SDHCI REGISTER DUMP ===========
-[  332.966450] mmc2: sdhci: Sys addr:  0x00000000 | Version:  0x00007202
-[  332.973256] mmc2: sdhci: Blk size:  0x00000200 | Blk cnt:  0x00000001
-[  332.980054] mmc2: sdhci: Argument:  0x00000000 | Trn mode: 0x00000027
-[  332.986864] mmc2: sdhci: Present:   0x01f801f6 | Host ctl: 0x0000001f
-[  332.993671] mmc2: sdhci: Power:     0x00000001 | Blk gap:  0x00000000
-[  333.000583] mmc2: sdhci: Wake-up:   0x00000000 | Clock:    0x00000007
-[  333.007386] mmc2: sdhci: Timeout:   0x0000000e | Int stat: 0x00000000
-[  333.014182] mmc2: sdhci: Int enab:  0x03ff100b | Sig enab: 0x03ff100b
-[  333.020976] mmc2: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000000
-[  333.027771] mmc2: sdhci: Caps:      0x322dc8b2 | Caps_1:   0x0000808f
-[  333.034561] mmc2: sdhci: Cmd:       0x0000183a | Max curr: 0x00000000
-[  333.041359] mmc2: sdhci: Resp[0]:   0x00000900 | Resp[1]:  0x00000000
-[  333.048157] mmc2: sdhci: Resp[2]:   0x00000000 | Resp[3]:  0x00000000
-[  333.054945] mmc2: sdhci: Host ctl2: 0x00000000
-[  333.059657] mmc2: sdhci: ADMA Err:  0x00000000 | ADMA Ptr:
-0x0000000ffffff218
-[  333.067178] mmc2: sdhci_msm: ----------- VENDOR REGISTER DUMP
------------
-[  333.074343] mmc2: sdhci_msm: DLL sts: 0x00000000 | DLL cfg:
-0x6000642c | DLL cfg2: 0x0020a000
-[  333.083417] mmc2: sdhci_msm: DLL cfg3: 0x00000000 | DLL usr ctl:
-0x00000000 | DDR cfg: 0x80040873
-[  333.092850] mmc2: sdhci_msm: Vndr func: 0x00008a9c | Vndr func2 :
-0xf88218a8 Vndr func3: 0x02626040
-[  333.102371] mmc2: sdhci: ============================================
-
-So, set software timeout value more than hardware timeout value.
-
-Signed-off-by: Shaik Sajida Bhanu <sbhanu@codeaurora.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1626435974-14462-1-git-send-email-sbhanu@codeaurora.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
----
- drivers/mmc/host/sdhci-msm.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
-
-diff --git a/drivers/mmc/host/sdhci-msm.c b/drivers/mmc/host/sdhci-msm.c
-index 8bed81cf03ad..8ab963055238 100644
---- a/drivers/mmc/host/sdhci-msm.c
-+++ b/drivers/mmc/host/sdhci-msm.c
-@@ -1589,6 +1589,23 @@ static void sdhci_msm_set_clock(struct
-sdhci_host *host, unsigned int clock)
- 	__sdhci_msm_set_clock(host, clock);
- }
-
-+static void sdhci_msm_set_timeout(struct sdhci_host *host, struct
-mmc_command *cmd)
-+{
-+	u32 count, start = 15;
-+
-+	__sdhci_set_timeout(host, cmd);
-+	count = sdhci_readb(host, SDHCI_TIMEOUT_CONTROL);
-+	/*
-+	 * Update software timeout value if its value is less than hardware data
-+	 * timeout value. Qcom SoC hardware data timeout value was calculated
-+	 * using 4 * MCLK * 2^(count + 13). where MCLK = 1 / host->clock.
-+	 */
-+	if (cmd && cmd->data && host->clock > 400000 &&
-+	    host->clock <= 50000000 &&
-+	    ((1 << (count + start)) > (10 * host->clock)))
-+		host->data_timeout = 22LL * NSEC_PER_SEC;
-+}
-+
- /*
-  * Platform specific register write functions. This is so that, if any
-  * register write needs to be followed up by platform specific actions,
-@@ -1753,6 +1770,7 @@ static const struct sdhci_ops sdhci_msm_ops = {
- 	.set_uhs_signaling = sdhci_msm_set_uhs_signaling,
- 	.write_w = sdhci_msm_writew,
- 	.write_b = sdhci_msm_writeb,
-+	.set_timeout = sdhci_msm_set_timeout,
- };
-
- static const struct sdhci_pltfm_data sdhci_msm_pdata = {
--- 
-https://chromeos.dev
-
-> Thanks,
-> Sasha
->
-> ------------------ original commit in Linus's tree ------------------
->
-> From 67b13f3e221ed81b46a657e2b499bf8b20162476 Mon Sep 17 00:00:00 2001
-> From: Shaik Sajida Bhanu <sbhanu@codeaurora.org>
-> Date: Fri, 16 Jul 2021 17:16:14 +0530
-> Subject: [PATCH] mmc: sdhci-msm: Update the software timeout value for sdhc
->
-> Whenever SDHC run at clock rate 50MHZ or below, the hardware data
-> timeout value will be 21.47secs, which is approx. 22secs and we have
-> a current software timeout value as 10secs. We have to set software
-> timeout value more than the hardware data timeout value to avioid seeing
-> the below register dumps.
->
-> [  332.953670] mmc2: Timeout waiting for hardware interrupt.
-> [  332.959608] mmc2: sdhci: ============ SDHCI REGISTER DUMP ===========
-> [  332.966450] mmc2: sdhci: Sys addr:  0x00000000 | Version:  0x00007202
-> [  332.973256] mmc2: sdhci: Blk size:  0x00000200 | Blk cnt:  0x00000001
-> [  332.980054] mmc2: sdhci: Argument:  0x00000000 | Trn mode: 0x00000027
-> [  332.986864] mmc2: sdhci: Present:   0x01f801f6 | Host ctl: 0x0000001f
-> [  332.993671] mmc2: sdhci: Power:     0x00000001 | Blk gap:  0x00000000
-> [  333.000583] mmc2: sdhci: Wake-up:   0x00000000 | Clock:    0x00000007
-> [  333.007386] mmc2: sdhci: Timeout:   0x0000000e | Int stat: 0x00000000
-> [  333.014182] mmc2: sdhci: Int enab:  0x03ff100b | Sig enab: 0x03ff100b
-> [  333.020976] mmc2: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000000
-> [  333.027771] mmc2: sdhci: Caps:      0x322dc8b2 | Caps_1:   0x0000808f
-> [  333.034561] mmc2: sdhci: Cmd:       0x0000183a | Max curr: 0x00000000
-> [  333.041359] mmc2: sdhci: Resp[0]:   0x00000900 | Resp[1]:  0x00000000
-> [  333.048157] mmc2: sdhci: Resp[2]:   0x00000000 | Resp[3]:  0x00000000
-> [  333.054945] mmc2: sdhci: Host ctl2: 0x00000000
-> [  333.059657] mmc2: sdhci: ADMA Err:  0x00000000 | ADMA Ptr:
-> 0x0000000ffffff218
-> [  333.067178] mmc2: sdhci_msm: ----------- VENDOR REGISTER DUMP
-> -----------
-> [  333.074343] mmc2: sdhci_msm: DLL sts: 0x00000000 | DLL cfg:
-> 0x6000642c | DLL cfg2: 0x0020a000
-> [  333.083417] mmc2: sdhci_msm: DLL cfg3: 0x00000000 | DLL usr ctl:
-> 0x00000000 | DDR cfg: 0x80040873
-> [  333.092850] mmc2: sdhci_msm: Vndr func: 0x00008a9c | Vndr func2 :
-> 0xf88218a8 Vndr func3: 0x02626040
-> [  333.102371] mmc2: sdhci: ============================================
->
-> So, set software timeout value more than hardware timeout value.
->
-> Signed-off-by: Shaik Sajida Bhanu <sbhanu@codeaurora.org>
-> Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/r/1626435974-14462-1-git-send-email-sbhanu@codeaurora.org
-> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> ---
->  drivers/mmc/host/sdhci-msm.c | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
->
-> diff --git a/drivers/mmc/host/sdhci-msm.c b/drivers/mmc/host/sdhci-msm.c
-> index e44b7a66b73c..290a14cdc1cf 100644
-> --- a/drivers/mmc/host/sdhci-msm.c
-> +++ b/drivers/mmc/host/sdhci-msm.c
-> @@ -2089,6 +2089,23 @@ static void sdhci_msm_cqe_disable(struct mmc_host *mmc, bool recovery)
->         sdhci_cqe_disable(mmc, recovery);
->  }
->
-> +static void sdhci_msm_set_timeout(struct sdhci_host *host, struct mmc_command *cmd)
-> +{
-> +       u32 count, start = 15;
-> +
-> +       __sdhci_set_timeout(host, cmd);
-> +       count = sdhci_readb(host, SDHCI_TIMEOUT_CONTROL);
-> +       /*
-> +        * Update software timeout value if its value is less than hardware data
-> +        * timeout value. Qcom SoC hardware data timeout value was calculated
-> +        * using 4 * MCLK * 2^(count + 13). where MCLK = 1 / host->clock.
-> +        */
-> +       if (cmd && cmd->data && host->clock > 400000 &&
-> +           host->clock <= 50000000 &&
-> +           ((1 << (count + start)) > (10 * host->clock)))
-> +               host->data_timeout = 22LL * NSEC_PER_SEC;
-> +}
-> +
->  static const struct cqhci_host_ops sdhci_msm_cqhci_ops = {
->         .enable         = sdhci_msm_cqe_enable,
->         .disable        = sdhci_msm_cqe_disable,
-> @@ -2438,6 +2455,7 @@ static const struct sdhci_ops sdhci_msm_ops = {
->         .irq    = sdhci_msm_cqe_irq,
->         .dump_vendor_regs = sdhci_msm_dump_vendor_regs,
->         .set_power = sdhci_set_power_noreg,
-> +       .set_timeout = sdhci_msm_set_timeout,
->  };
->
->  static const struct sdhci_pltfm_data sdhci_msm_pdata = {
-> --
-> 2.30.2
