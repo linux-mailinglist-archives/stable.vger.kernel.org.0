@@ -2,199 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB54E3F8F4F
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 21:55:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 417943F8FEF
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 23:29:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232398AbhHZT4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 15:56:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51248 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230011AbhHZT4j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 15:56:39 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75CCC061757
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 12:55:51 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id 28-20020a17090a031cb0290178dcd8a4d1so6579476pje.0
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 12:55:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Uy8m00DmvUQ+xriC6+8k2Ut4iogOjlCLgAVm1WQsL2E=;
-        b=EF/oT1IZv5Y1B/MCr3jmmPgjnnVv4Ud7/Z0gt/j0dU8VoblA97TtVcwMmGBRW28anK
-         t0d9HTpfL7Dw0zLup2K+1VvZaW19AVqX3u49HPxix5B1IVGzowgK0xRFn0/wASCQz6Bs
-         +P50T0OB69BV1CpCHMgal3T9NmD+jnBbK8+w6n0fbJGnnF/BZC8fHhzotNcEX2GIhkG2
-         KhB54IwCkT2nxzR5i2xcBy0fBiquV8HDUJTAc845PRfCfSqy17q/DSSIFXZGsW7/oqAN
-         YGPnad9jNUzTE3bkFfUoDqrHriGnYcha4uPL8igIGCEB6BoG8rMuw/QM9fNfA2nJpdB2
-         t+oQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Uy8m00DmvUQ+xriC6+8k2Ut4iogOjlCLgAVm1WQsL2E=;
-        b=Wf+xpGEIk5oaiTFSGS9DiGSe1sgN7x8Zqj8ABwndIgmF4kkA8MkDeb0OyKq9pyGzMo
-         bov1cEKotMp2V37jBFVC6JKCwTF/deSlaSzFsXUdwNYTLAj+Pg1EV9ewtzTeiHA6ZVL9
-         BcTUajrPTrYkcldB5Tx/y+y9i+ZWcmpLH455eSxvKqx0iW92OqGWLMUm9G82lZQ+9WGz
-         lc1lVVTcGbDSAl86f00cRDNuK37WShGF3FPp+6VhemLyxh0s2OpCPnngrx8dvWErUvP8
-         aIYblObAcGAj9rRU3EfpXb/FYZDKj1yAxULJqHuyd4Nbile+mPv6277w5whreZx3bHmH
-         zCxA==
-X-Gm-Message-State: AOAM530nv5U8JH9x4rYsoKIxi2qC63spMxxLlHwY5hVpaX7mG0UCz3iw
-        Ix3SK6Gjp/+1LsAqv8OXRUBTL7dNElB9lw3r
-X-Google-Smtp-Source: ABdhPJwLWcLQVv3+LOBTUYouL+3kHPooAIKErROhvVItGLlj07eEnvQNGTE0D1i3X5icBGbkeNBC8A==
-X-Received: by 2002:a17:902:7607:b0:138:9422:5122 with SMTP id k7-20020a170902760700b0013894225122mr453845pll.75.1630007751289;
-        Thu, 26 Aug 2021 12:55:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z67sm3834373pfb.169.2021.08.26.12.55.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Aug 2021 12:55:50 -0700 (PDT)
-Message-ID: <6127f1c6.1c69fb81.21440.a54f@mx.google.com>
-Date:   Thu, 26 Aug 2021 12:55:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S243518AbhHZU5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 16:57:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40128 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230125AbhHZU5G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Aug 2021 16:57:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4BAB60FDA;
+        Thu, 26 Aug 2021 20:56:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1630011379;
+        bh=kkWRiiADlno9wmE5ee4PEol8ApTDqXy3BKb1qSmxOUw=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=iwF7sBUZJX8hBAiLlR1geRdpV6Wn+bPa29xxNlMqewb8z6ds6bRs4UgcY8kVyXYFZ
+         qXlzqBO+FGXlWJeEj2/1TBpG3L0ogSiyE6ZCnvOzptCEdOsE6JY4ozMEkJIowAmS/A
+         usBwZh11fDYbmfXcL6XBBA2v29KR+ZLIlcd0L36wsTFcgVRQhHtC72KsUYxgFqL824
+         VivT3hMfw4IgvZW8OQHGzUF874t/UHll1z7RaktzId2Voz7c3ORr83pQ492p/BAq9Z
+         PZ/wOHKYII7HTh+6TUmmf+buELMATWEIQ/lSeqQl0IkH+61eQOQXQGI7AlbAhLCDSb
+         DOF2NN/pbGM6g==
+Date:   Thu, 26 Aug 2021 15:56:17 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Marek =?iso-8859-1?Q?Marczykowski-G=F3recki?= 
+        <marmarek@invisiblethingslab.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        xen-devel@lists.xenproject.org,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "open list:PCI SUBSYSTEM" <linux-pci@vger.kernel.org>
+Subject: Re: [PATCH v2] PCI/MSI: Skip masking MSI-X on Xen PV
+Message-ID: <20210826205617.GA3716609@bjorn-Precision-5520>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.13
-X-Kernelci-Kernel: v5.13.12-125-g0bca906df054
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.13 baseline: 186 runs,
- 3 regressions (v5.13.12-125-g0bca906df054)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210826170342.135172-1-marmarek@invisiblethingslab.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.13 baseline: 186 runs, 3 regressions (v5.13.12-125-g0bca9=
-06df054)
+On Thu, Aug 26, 2021 at 07:03:42PM +0200, Marek Marczykowski-Górecki wrote:
+> When running as Xen PV guest, masking MSI-X is a responsibility of the
+> hypervisor. Guest has no write access to relevant BAR at all - when it
+> tries to, it results in a crash like this:
+> 
+>     BUG: unable to handle page fault for address: ffffc9004069100c
+>     #PF: supervisor write access in kernel mode
+>     #PF: error_code(0x0003) - permissions violation
+>     PGD 18f1c067 P4D 18f1c067 PUD 4dbd067 PMD 4fba067 PTE 80100000febd4075
+>     Oops: 0003 [#1] SMP NOPTI
+>     CPU: 0 PID: 234 Comm: kworker/0:2 Tainted: G        W         5.14.0-rc7-1.fc32.qubes.x86_64 #15
+>     Workqueue: events work_for_cpu_fn
+>     RIP: e030:__pci_enable_msix_range.part.0+0x26b/0x5f0
+>     Code: 2f 96 ff 48 89 44 24 28 48 89 c7 48 85 c0 0f 84 f6 01 00 00 45 0f b7 f6 48 8d 40 0c ba 01 00 00 00 49 c1 e6 04 4a 8d 4c 37 1c <89> 10 48 83 c0 10 48 39 c1 75 f5 41 0f b6 44 24 6a 84 c0 0f 84 48
+>     RSP: e02b:ffffc9004018bd50 EFLAGS: 00010212
+>     RAX: ffffc9004069100c RBX: ffff88800ed412f8 RCX: ffffc9004069105c
+>     RDX: 0000000000000001 RSI: 00000000000febd4 RDI: ffffc90040691000
+>     RBP: 0000000000000003 R08: 0000000000000000 R09: 00000000febd404f
+>     R10: 0000000000007ff0 R11: ffff88800ee8ae40 R12: ffff88800ed41000
+>     R13: 0000000000000000 R14: 0000000000000040 R15: 00000000feba0000
+>     FS:  0000000000000000(0000) GS:ffff888018400000(0000) knlGS:0000000000000000
+>     CS:  e030 DS: 0000 ES: 0000 CR0: 0000000080050033
+>     CR2: ffff8000007f5ea0 CR3: 0000000012f6a000 CR4: 0000000000000660
+>     Call Trace:
+>      e1000e_set_interrupt_capability+0xbf/0xd0 [e1000e]
+>      e1000_probe+0x41f/0xdb0 [e1000e]
+>      local_pci_probe+0x42/0x80
+>     (...)
+> 
+> There is pci_msi_ignore_mask variable for bypassing MSI(-X) masking on Xen
+> PV, but msix_mask_all() missed checking it. Add the check there too.
+> 
+> Fixes: 7d5ec3d36123 ("PCI/MSI: Mask all unused MSI-X entries")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
 
-Regressions Summary
--------------------
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 
-platform           | arch | lab          | compiler | defconfig           |=
- regressions
--------------------+------+--------------+----------+---------------------+=
-------------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig   |=
- 1          =
-
-beagle-xm          | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  |=
- 1          =
-
-beagle-xm          | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig |=
- 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
-nel/v5.13.12-125-g0bca906df054/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.13
-  Describe: v5.13.12-125-g0bca906df054
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0bca906df0541ff6a74c0279852438970e05656c =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab          | compiler | defconfig           |=
- regressions
--------------------+------+--------------+----------+---------------------+=
-------------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig   |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6127b7d4bf2c744f648e2c7d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.12-=
-125-g0bca906df054/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837=
--rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.12-=
-125-g0bca906df054/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837=
--rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6127b7d4bf2c744f648e2=
-c7e
-        new failure (last pass: v5.13.12-125-gf6c5dda713c6) =
-
- =
-
-
-
-platform           | arch | lab          | compiler | defconfig           |=
- regressions
--------------------+------+--------------+----------+---------------------+=
-------------
-beagle-xm          | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6127bed5ce89c690638e2c9a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.12-=
-125-g0bca906df054/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.12-=
-125-g0bca906df054/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6127bed5ce89c690638e2=
-c9b
-        failing since 0 day (last pass: v5.13.12-126-g61c83bccf008, first f=
-ail: v5.13.12-125-gf6c5dda713c6) =
-
- =
-
-
-
-platform           | arch | lab          | compiler | defconfig           |=
- regressions
--------------------+------+--------------+----------+---------------------+=
-------------
-beagle-xm          | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6127b9849468d1cdff8e2c79
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.12-=
-125-g0bca906df054/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.12-=
-125-g0bca906df054/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6127b9849468d1cdff8e2=
-c7a
-        failing since 28 days (last pass: v5.13.5-224-g078d5e3a85db, first =
-fail: v5.13.5-223-g3a7649e5ffb5) =
-
- =20
+> ---
+> Cc: xen-devel@lists.xenproject.org
+> 
+> Changes in v2:
+> - update commit message (MSI -> MSI-X)
+> ---
+>  drivers/pci/msi.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+> index e5e75331b415..3a9f4f8ad8f9 100644
+> --- a/drivers/pci/msi.c
+> +++ b/drivers/pci/msi.c
+> @@ -776,6 +776,9 @@ static void msix_mask_all(void __iomem *base, int tsize)
+>  	u32 ctrl = PCI_MSIX_ENTRY_CTRL_MASKBIT;
+>  	int i;
+>  
+> +	if (pci_msi_ignore_mask)
+> +		return;
+> +
+>  	for (i = 0; i < tsize; i++, base += PCI_MSIX_ENTRY_SIZE)
+>  		writel(ctrl, base + PCI_MSIX_ENTRY_VECTOR_CTRL);
+>  }
+> -- 
+> 2.31.1
+> 
