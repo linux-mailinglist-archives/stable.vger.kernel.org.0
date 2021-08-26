@@ -2,100 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BA173F8826
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 14:54:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBCCD3F882D
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 14:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242564AbhHZMzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 08:55:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32900 "EHLO mail.kernel.org"
+        id S242484AbhHZM6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 08:58:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242545AbhHZMzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Aug 2021 08:55:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F85E60184;
-        Thu, 26 Aug 2021 12:54:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1629982462;
-        bh=k3yUZFwCFyZOzlCE6LhVinBYxVjpn929Tmh+UOgbFsA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YuNFuy5VTSi2HYzeApUAxmj3W1tmFp4RKM06bnUi29ODD/mHw5W5d1BUb2GbITFEP
-         LBq3533EDX/I+f6CPChlrj5e2zLUpD/jdP+K9PAcPna1qqE7Pzm7mRePAXCP0F/l3Z
-         P+C3Y0j6+cJjHKQX3zYb4XubUpX4P+McblWJPPVVWjL6jRCyzu6jIL7sjUSz8N7rzn
-         LHnjNaKDgje806ui4Z3q7BVx1EfFRhtCmwOadKFKrjKF2szhRimdLkLFSYGYvNOIQ/
-         i/fzjyTFsZNFkyfomDyQluzR3nyEYaE2tdpBNmn9GQVyaJQ627ZUFLtE3ix+zYPTsf
-         Idw4cslm/O3Sg==
-Date:   Thu, 26 Aug 2021 08:54:21 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Samuel Zou <zou_wei@huawei.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de
-Subject: Re: [PATCH 5.10 00/98] 5.10.61-rc1 review
-Message-ID: <YSeO/Z+dgqiYb7j9@sashalap>
-References: <20210824165908.709932-1-sashal@kernel.org>
- <b42d193e-2916-6280-b9ba-b6582887f521@huawei.com>
+        id S242471AbhHZM6K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Aug 2021 08:58:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECDB060F39;
+        Thu, 26 Aug 2021 12:57:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1629982643;
+        bh=Hw/y7DwJlfE9RrjJ+7a9J6cVF4yi59gu2L60DRSvaOI=;
+        h=Subject:To:From:Date:From;
+        b=mp40ywKH/lcpvzJ61skGkD1uHku3ghjk3PiPGddaJlL6uH9efWVFFHnX8UiyGQhbo
+         tua+/jyid2q//5ZXasqk9Sm1iClagYalmJ9JrEV6ZwXdfmcMhIfHNFouDrT0obKXjs
+         AhRPS52tfcQBC5RvlZaSQ/P7jA/0lIzbaWUQ3tA8=
+Subject: patch "usb: renesas-xhci: Prefer firmware loading on unknown ROM state" added to usb-linus
+To:     tiwai@suse.de, gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 26 Aug 2021 14:57:20 +0200
+Message-ID: <162998264015020@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <b42d193e-2916-6280-b9ba-b6582887f521@huawei.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 26, 2021 at 09:00:20AM +0800, Samuel Zou wrote:
->
->
->On 2021/8/25 0:57, Sasha Levin wrote:
->>
->>This is the start of the stable review cycle for the 5.10.61 release.
->>There are 98 patches in this series, all will be posted as a response
->>to this one.  If anyone has any issues with these being applied, please
->>let me know.
->>
->>Responses should be made by Thu 26 Aug 2021 04:58:25 PM UTC.
->>Anything received after that time might be too late.
->>
->>The whole patch series can be found in one patch at:
->>         https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/patch/?id=linux-5.10.y&id2=v5.10.60
->>or in the git tree and branch at:
->>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
->>and the diffstat can be found below.
->>
->>Thanks,
->>Sasha
->>
->
->Tested on arm64 and x86 for 5.10.61-rc1,
->
->Kernel repo:
->https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->Branch: linux-5.10.y
->Version: 5.10.61-rc1
->Commit: bd3eb40a9de703ab9ab65f9c583e40d185d6aaad
->Compiler: gcc version 7.3.0 (GCC)
->
->arm64:
->--------------------------------------------------------------------
->Testcase Result Summary:
->total: 8907
->passed: 8907
->failed: 0
->timeout: 0
->--------------------------------------------------------------------
->
->x86:
->--------------------------------------------------------------------
->Testcase Result Summary:
->total: 8907
->passed: 8907
->failed: 0
->timeout: 0
->--------------------------------------------------------------------
->
->Tested-by: Hulk Robot <hulkrobot@huawei.com>
 
-Thanks for testing, Samuel!
+This is a note to let you know that I've just added the patch titled
 
+    usb: renesas-xhci: Prefer firmware loading on unknown ROM state
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From c82cacd2f1e622a461a77d275a75d7e19e7635a3 Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Thu, 26 Aug 2021 14:41:27 +0200
+Subject: usb: renesas-xhci: Prefer firmware loading on unknown ROM state
+
+The recent attempt to handle an unknown ROM state in the commit
+d143825baf15 ("usb: renesas-xhci: Fix handling of unknown ROM state")
+resulted in a regression and reverted later by the commit 44cf53602f5a
+("Revert "usb: renesas-xhci: Fix handling of unknown ROM state"").
+The problem of the former fix was that it treated the failure of
+firmware loading as a fatal error.  Since the firmware files aren't
+included in the standard linux-firmware tree, most users don't have
+them, hence they got the non-working system after that.  The revert
+fixed the regression, but also it didn't make the firmware loading
+triggered even on the devices that do need it.  So we need still a fix
+for them.
+
+This is another attempt to handle the unknown ROM state.  Like the
+previous fix, this also tries to load the firmware when ROM shows
+unknown state.  In this patch, however, the failure of a firmware
+loading (such as a missing firmware file) isn't handled as a fatal
+error any longer when ROM has been already detected, but it falls back
+to the ROM mode like before.  The error is returned only when no ROM
+is detected and the firmware loading failed.
+
+Along with it, for simplifying the code flow, the detection and the
+check of ROM is factored out from renesas_fw_check_running() and done
+in the caller side, renesas_xhci_check_request_fw().  It avoids the
+redundant ROM checks.
+
+The patch was tested on Lenovo Thinkpad T14 gen (BIOS 1.34).  Also it
+was confirmed that no regression is seen on another Thinkpad T14
+machine that has worked without the patch, too.
+
+Fixes: 44cf53602f5a ("Revert "usb: renesas-xhci: Fix handling of unknown ROM state"")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1189207
+Link: https://lore.kernel.org/r/20210826124127.14789-1-tiwai@suse.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/host/xhci-pci-renesas.c | 35 +++++++++++++++++++----------
+ 1 file changed, 23 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/usb/host/xhci-pci-renesas.c b/drivers/usb/host/xhci-pci-renesas.c
+index 5923844ed821..ef5e91a5542d 100644
+--- a/drivers/usb/host/xhci-pci-renesas.c
++++ b/drivers/usb/host/xhci-pci-renesas.c
+@@ -207,7 +207,8 @@ static int renesas_check_rom_state(struct pci_dev *pdev)
+ 			return 0;
+ 
+ 		case RENESAS_ROM_STATUS_NO_RESULT: /* No result yet */
+-			return 0;
++			dev_dbg(&pdev->dev, "Unknown ROM status ...\n");
++			return -ENOENT;
+ 
+ 		case RENESAS_ROM_STATUS_ERROR: /* Error State */
+ 		default: /* All other states are marked as "Reserved states" */
+@@ -224,14 +225,6 @@ static int renesas_fw_check_running(struct pci_dev *pdev)
+ 	u8 fw_state;
+ 	int err;
+ 
+-	/* Check if device has ROM and loaded, if so skip everything */
+-	err = renesas_check_rom(pdev);
+-	if (err) { /* we have rom */
+-		err = renesas_check_rom_state(pdev);
+-		if (!err)
+-			return err;
+-	}
+-
+ 	/*
+ 	 * Test if the device is actually needing the firmware. As most
+ 	 * BIOSes will initialize the device for us. If the device is
+@@ -591,21 +584,39 @@ int renesas_xhci_check_request_fw(struct pci_dev *pdev,
+ 			(struct xhci_driver_data *)id->driver_data;
+ 	const char *fw_name = driver_data->firmware;
+ 	const struct firmware *fw;
++	bool has_rom;
+ 	int err;
+ 
++	/* Check if device has ROM and loaded, if so skip everything */
++	has_rom = renesas_check_rom(pdev);
++	if (has_rom) {
++		err = renesas_check_rom_state(pdev);
++		if (!err)
++			return 0;
++		else if (err != -ENOENT)
++			has_rom = false;
++	}
++
+ 	err = renesas_fw_check_running(pdev);
+ 	/* Continue ahead, if the firmware is already running. */
+ 	if (err == 0)
+ 		return 0;
+ 
++	/* no firmware interface available */
+ 	if (err != 1)
+-		return err;
++		return has_rom ? 0 : err;
+ 
+ 	pci_dev_get(pdev);
+-	err = request_firmware(&fw, fw_name, &pdev->dev);
++	err = firmware_request_nowarn(&fw, fw_name, &pdev->dev);
+ 	pci_dev_put(pdev);
+ 	if (err) {
+-		dev_err(&pdev->dev, "request_firmware failed: %d\n", err);
++		if (has_rom) {
++			dev_info(&pdev->dev, "failed to load firmware %s, fallback to ROM\n",
++				 fw_name);
++			return 0;
++		}
++		dev_err(&pdev->dev, "failed to load firmware %s: %d\n",
++			fw_name, err);
+ 		return err;
+ 	}
+ 
 -- 
-Thanks,
-Sasha
+2.32.0
+
+
