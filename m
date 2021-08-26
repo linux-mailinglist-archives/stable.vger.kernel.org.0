@@ -2,236 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0868C3F8DCD
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 20:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E64773F8DD9
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 20:30:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231310AbhHZS0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 14:26:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58362 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229733AbhHZS0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 14:26:13 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 995FDC061757
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 11:25:25 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id e7so3806158pgk.2
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 11:25:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=NdDWuHUk5WQ2SnW283fTyZTE5ZyX1tDtrPSf2xJQCac=;
-        b=TZGKgDGHBMhjO4+XO2+JGGtjP/9ATjzoGvpzVMlP4Qwwuds6DVFGMmaps4am9jeenz
-         ILUHXtsZL45Xrta7dH+P3u1jGCyGrhwvg8OP/VxEdr7++2c4jZmjohZwDOS9Y3ezFYK2
-         l3nd6VIB+yaDtmmTjlv5Rja27+ub/zu5Y4Dt8vHL4ajH2pgWzQjoVzhHsNyrUOv5HTPX
-         Ejf/b3a2cNUoOMS03yBjNFqO4MIelQAddhPT8QbJDcksrZBBimzC87rzaL9R3zXmi+XR
-         OwAtejbfnUKKWhn7p53W+t7iEvMqh0yXPW00lsYjBFO+16S0UoHKzLJtQc3GYvR1gV16
-         MNaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=NdDWuHUk5WQ2SnW283fTyZTE5ZyX1tDtrPSf2xJQCac=;
-        b=iUILNGjZrhRnHal+AUMD+Qf9l1FJXJC1D/+k9yfzmolVaAQpzo38eGT1ofdOD4TZRT
-         XnoMcsQKOgqcEBJSPDr8CZq6K5hmZ+MIAoO82dnh3M9niworW/UiaYk4jqECkWw0c5Zv
-         eYpF39d6K5SdcPoqb/Q5/yvhSSVIPhQNtThgkKJUbSzexFwiCUg63ojp1K/3v6wyvNQZ
-         Gj1/+XBXXPvASkWkGjT7P/dhV1qwO+F2zn2zCaRgurHtB7qjByNrcaqEhVWo91C6o8HH
-         MmY6hXInoCY3NFYJ3sc/y5ybyqe3kBwbCOnwb3DXMqatmLkjqcAEts7NG9hck9dKoIxN
-         2rPg==
-X-Gm-Message-State: AOAM532Kr7ZqGLNrAqj061JPofUh071jB+3ULvj/1bVJfjylNxaqR7Wc
-        2dhYfKeZPSblx/pOiVuluK0bjbfR1BnYhoo+
-X-Google-Smtp-Source: ABdhPJxkIYMlGZr7m7bycP+wliYH1+tZ/lkzujUxPT2QpZ2T5WSMHde3uU8MuA1pWFomR1JRcc8brw==
-X-Received: by 2002:aa7:8e56:0:b029:3cd:c2ec:6c1c with SMTP id d22-20020aa78e560000b02903cdc2ec6c1cmr4822205pfr.80.1630002324986;
-        Thu, 26 Aug 2021 11:25:24 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e21sm1777107pfl.188.2021.08.26.11.25.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Aug 2021 11:25:24 -0700 (PDT)
-Message-ID: <6127dc94.1c69fb81.da3f1.3d64@mx.google.com>
-Date:   Thu, 26 Aug 2021 11:25:24 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S236360AbhHZSbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 14:31:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50238 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232759AbhHZSbj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Aug 2021 14:31:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB17060FD7;
+        Thu, 26 Aug 2021 18:30:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1630002652;
+        bh=h5ksNy9W7qfIY9z2jOPrHXLzTKv2T4Uc5gEdULxAi3I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=IWXr4RXtPS7sBGpba08WKGlEZ2yNJhNz6AaQjN2bL7g8YqYn985/Q8Ztha6luFZnt
+         4YYLCRiw1us3jx9pH7f/hpIgHUqVeSHRYsmEZmBpkdsUVNCQHdPxKFifZWE1KO9Mqt
+         yiQa4+QRyV5sAnV6isG9QfyczGJ/Oi7nxEyT1VnwenXSKeAhONZxsyw+ax3fXNeFN2
+         Jnm3mUVDkquix4ynsEs2892q2yaAUFN7cXUGhkpXJYancutFmLKmFSRHgTkLOv/e/+
+         xC/oWCaGtR034OlV4ERN86DdIyZZhb+xvxrKnQEFSoLvUudc9mOaLgThg4NUO7kbWf
+         XH5sz2Jshv7Ow==
+Date:   Thu, 26 Aug 2021 14:30:50 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Stanislav Fomichev <sdf@google.com>
+Cc:     stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Roman Gushchin <guro@fb.com>
+Subject: Re: [PATCH 5.10.y] bpf: Fix NULL pointer dereference in
+ bpf_get_local_storage() helper
+Message-ID: <YSfd2tZll1We6vse@sashalap>
+References: <552c822eac5fb168f94570056ccd8a4b790db2bf.1629740134.git.sdf@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Kernel: v4.9.280-42-gdba16fd49ec7
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.9 baseline: 131 runs,
- 4 regressions (v4.9.280-42-gdba16fd49ec7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <552c822eac5fb168f94570056ccd8a4b790db2bf.1629740134.git.sdf@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 131 runs, 4 regressions (v4.9.280-42-gdba16fd=
-49ec7)
+On Mon, Aug 23, 2021 at 10:36:46AM -0700, Stanislav Fomichev wrote:
+>From: Yonghong Song <yhs@fb.com>
+>
+>commit b910eaaaa4b89976ef02e5d6448f3f73dc671d91 upstream.
+>
+>Jiri Olsa reported a bug ([1]) in kernel where cgroup local
+>storage pointer may be NULL in bpf_get_local_storage() helper.
+>There are two issues uncovered by this bug:
+>  (1). kprobe or tracepoint prog incorrectly sets cgroup local storage
+>       before prog run,
+>  (2). due to change from preempt_disable to migrate_disable,
+>       preemption is possible and percpu storage might be overwritten
+>       by other tasks.
+>
+>This issue (1) is fixed in [2]. This patch tried to address issue (2).
+>The following shows how things can go wrong:
+>  task 1:   bpf_cgroup_storage_set() for percpu local storage
+>         preemption happens
+>  task 2:   bpf_cgroup_storage_set() for percpu local storage
+>         preemption happens
+>  task 1:   run bpf program
+>
+>task 1 will effectively use the percpu local storage setting by task 2
+>which will be either NULL or incorrect ones.
+>
+>Instead of just one common local storage per cpu, this patch fixed
+>the issue by permitting 8 local storages per cpu and each local
+>storage is identified by a task_struct pointer. This way, we
+>allow at most 8 nested preemption between bpf_cgroup_storage_set()
+>and bpf_cgroup_storage_unset(). The percpu local storage slot
+>is released (calling bpf_cgroup_storage_unset()) by the same task
+>after bpf program finished running.
+>bpf_test_run() is also fixed to use the new bpf_cgroup_storage_set()
+>interface.
+>
+>The patch is tested on top of [2] with reproducer in [1].
+>Without this patch, kernel will emit error in 2-3 minutes.
+>With this patch, after one hour, still no error.
+>
+> [1] https://lore.kernel.org/bpf/CAKH8qBuXCfUz=w8L+Fj74OaUpbosO29niYwTki7e3Ag044_aww@mail.gmail.com/T
+> [2] https://lore.kernel.org/bpf/20210309185028.3763817-1-yhs@fb.com
+>
+>Signed-off-by: Yonghong Song <yhs@fb.com>
+>Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+>Acked-by: Roman Gushchin <guro@fb.com>
+>Link: https://lore.kernel.org/bpf/20210323055146.3334476-1-yhs@fb.com
+>Cc: <stable@vger.kernel.org> # 5.10.x
+>Change-Id: I0bff719d0bfbaa819316de26391b4b2e4e60faed
+>Signed-off-by: Stanislav Fomichev <sdf@google.com>
 
-Regressions Summary
--------------------
+Queued up, thanks!
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.280-42-gdba16fd49ec7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.280-42-gdba16fd49ec7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      dba16fd49ec751f4438457138a42f8caa17a1b12 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6127a67dea066d37eb8e2c78
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gdba16fd49ec7/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gdba16fd49ec7/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6127a67dea066d37eb8e2=
-c79
-        failing since 285 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6127b8b3705dacb1158e2c94
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gdba16fd49ec7/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gdba16fd49ec7/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6127b8b3705dacb1158e2=
-c95
-        failing since 285 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6127a68d5427a346798e2cb0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gdba16fd49ec7/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gdba16fd49ec7/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6127a68d5427a346798e2=
-cb1
-        failing since 285 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6127a63886795812c48e2cad
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gdba16fd49ec7/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.280-4=
-2-gdba16fd49ec7/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6127a63886795812c48e2=
-cae
-        failing since 285 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
+-- 
+Thanks,
+Sasha
