@@ -2,220 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82DD03F8AB3
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 17:07:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36E553F8B25
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 17:36:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234068AbhHZPIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 11:08:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242899AbhHZPIM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 11:08:12 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F21EFC061757
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 08:07:17 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id w7so2172938pgk.13
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 08:07:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=n7q3FL5nwihU1h4oY++t2mak0ZDXWvwHBWl/B7Zv8bg=;
-        b=cYJ/OIN/2lJCHAbk8fCcAtlzk/dwD0Ert0/DNCG1rFzLbv6jWp9Z00wYFv5KU7VhZl
-         Tc8btg/ansFo+SOpPQVchHyn5DMyPCFKOtWbugL0mEjwOGJmVIWPTcwR3+V64zF9Jg87
-         Jwz+I4bL8sI9YHi8otnW4ESP+Ic3YNrcoHUl9wJwuL3dzlyyfYnRR/7IYtvILgsvO3gB
-         UbzFJg6+5QYIqOYdePZDy7qyAp7KaQLRvMpWq4x3R3A68BN0LXq3D00yjRFAFAu4jfc2
-         SM6BSKBHuW21n/HqK9BUrbQb0H4wQLxoDEcyJdR57LyhKynEIZ1L5lOrMo8d8oC7CXdm
-         /YGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=n7q3FL5nwihU1h4oY++t2mak0ZDXWvwHBWl/B7Zv8bg=;
-        b=R/ftleXzKp3Y0pEN5fpXoFyFmhNOcZDeCXkIpheN+3agZBy8wrTA9euXIE14QJvvg7
-         75ue5GZ01sVOYZrE27E28uHBaeuU+xXB7XzhiV8akLj11pFlAFjba9EXOj2dXNeBmRiG
-         xLQbrOCBTxog6OqRQKfUeMkJ7Oq6VJVLW84FIvWKUxy2oP5gFl7pULal3jHeGcVRUXKU
-         5mv5X1LFsinzafQajUAufXqxhF7XJl1cU+FYpmiaAtO6EGqYrwuXioGpQfbgEx6CR7k2
-         gjDXY+JMQ6wrL2UkohN1pKUfUxng0zdf+1EdUozQJCvVsrbHDnoTi+VEX7Hv3EcB04NL
-         U8ag==
-X-Gm-Message-State: AOAM532hcYqiD/IbShDdIDpzrF3QO5zlRIAXSbTa6lCuLJwMUNLITsZc
-        gkvqTjXeI8HSpYUunK1Xu4FfGkS+IkqN1qLX
-X-Google-Smtp-Source: ABdhPJxzYtwvL2UjNMknZ6SpIxSM6DFyioKrUOtEg43I+WEFCwu8iK92UASqiSXrq56wTqas8ay9iA==
-X-Received: by 2002:a65:6a0d:: with SMTP id m13mr3687227pgu.371.1629990436985;
-        Thu, 26 Aug 2021 08:07:16 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id n1sm4048903pgt.63.2021.08.26.08.07.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Aug 2021 08:07:16 -0700 (PDT)
-Message-ID: <6127ae24.1c69fb81.7e6b9.b3ed@mx.google.com>
-Date:   Thu, 26 Aug 2021 08:07:16 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Kernel: v4.14.244-63-gafa238a9c097
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.14 baseline: 155 runs,
- 5 regressions (v4.14.244-63-gafa238a9c097)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S242967AbhHZPgu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 11:36:50 -0400
+Received: from mga05.intel.com ([192.55.52.43]:41889 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232350AbhHZPgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Aug 2021 11:36:49 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10088"; a="303345468"
+X-IronPort-AV: E=Sophos;i="5.84,353,1620716400"; 
+   d="scan'208";a="303345468"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2021 08:36:01 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.84,353,1620716400"; 
+   d="scan'208";a="426824678"
+Received: from otc-lr-04.jf.intel.com ([10.54.39.41])
+  by orsmga003.jf.intel.com with ESMTP; 26 Aug 2021 08:36:00 -0700
+From:   kan.liang@linux.intel.com
+To:     peterz@infradead.org, mingo@kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     eranian@google.com, ak@linux.intel.com,
+        Kan Liang <kan.liang@linux.intel.com>, stable@vger.kernel.org
+Subject: [PATCH 1/7] perf/x86/intel/uncore: Support extra IMC channel on Ice Lake server
+Date:   Thu, 26 Aug 2021 08:32:37 -0700
+Message-Id: <1629991963-102621-2-git-send-email-kan.liang@linux.intel.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1629991963-102621-1-git-send-email-kan.liang@linux.intel.com>
+References: <1629991963-102621-1-git-send-email-kan.liang@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 155 runs, 5 regressions (v4.14.244-63-gafa23=
-8a9c097)
+From: Kan Liang <kan.liang@linux.intel.com>
 
-Regressions Summary
--------------------
+There are three channels on a Ice Lake server, but only two channels
+will ever be active. Current perf only enables two channels.
 
-platform          | arch  | lab           | compiler | defconfig          |=
- regressions
-------------------+-------+---------------+----------+--------------------+=
-------------
-fsl-ls2088a-rdb   | arm64 | lab-nxp       | gcc-8    | defconfig          |=
- 1          =
+Support the extra IMC channel, which may be activated on some Ice Lake
+machines. For a non-activated channel, the SW can still access it. The
+write will be ignored by the HW. 0 is always returned for the reading.
 
-meson-gxm-q200    | arm64 | lab-baylibre  | gcc-8    | defconfig          |=
- 1          =
+Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
+---
 
-rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
- 3          =
+The patch is a RESEND patch. The original post can be found at
 
+https://lore.kernel.org/lkml/1625766302-18875-1-git-send-email-kan.liang@linux.intel.com
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.244-63-gafa238a9c097/plan/baseline/
+ arch/x86/events/intel/uncore_snbep.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.244-63-gafa238a9c097
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      afa238a9c09718124fdf29ae54a338f3447982e1 =
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/antler/uncore_snbep.c
+index 9a178a9..72a4181 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -452,7 +452,7 @@
+ #define ICX_M3UPI_PCI_PMON_BOX_CTL		0xa0
+ 
+ /* ICX IMC */
+-#define ICX_NUMBER_IMC_CHN			2
++#define ICX_NUMBER_IMC_CHN			3
+ #define ICX_IMC_MEM_STRIDE			0x4
+ 
+ /* SPR */
+@@ -5458,7 +5458,7 @@ static struct intel_uncore_ops icx_uncore_mmio_ops = {
+ static struct intel_uncore_type icx_uncore_imc = {
+ 	.name		= "imc",
+ 	.num_counters   = 4,
+-	.num_boxes	= 8,
++	.num_boxes	= 12,
+ 	.perf_ctr_bits	= 48,
+ 	.fixed_ctr_bits	= 48,
+ 	.fixed_ctr	= SNR_IMC_MMIO_PMON_FIXED_CTR,
+-- 
+2.7.4
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig          |=
- regressions
-------------------+-------+---------------+----------+--------------------+=
-------------
-fsl-ls2088a-rdb   | arm64 | lab-nxp       | gcc-8    | defconfig          |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61277d3f40374f24138e2c77
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.244=
--63-gafa238a9c097/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.244=
--63-gafa238a9c097/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61277d3f40374f24138e2=
-c78
-        failing since 1 day (last pass: v4.14.244-55-g3a7e56eceeeb, first f=
-ail: v4.14.244-63-gc883e4dd09f2) =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig          |=
- regressions
-------------------+-------+---------------+----------+--------------------+=
-------------
-meson-gxm-q200    | arm64 | lab-baylibre  | gcc-8    | defconfig          |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612785d6e3dd3cf7408e2c7a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.244=
--63-gafa238a9c097/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.244=
--63-gafa238a9c097/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612785d6e3dd3cf7408e2=
-c7b
-        failing since 178 days (last pass: v4.14.222-11-g13b8482a0f700, fir=
-st fail: v4.14.222-120-gdc8887cba23e) =
-
- =
-
-
-
-platform          | arch  | lab           | compiler | defconfig          |=
- regressions
-------------------+-------+---------------+----------+--------------------+=
-------------
-rk3288-veyron-jaq | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
- 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61277e4db22ae12d528e2c89
-
-  Results:     63 PASS, 6 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.244=
--63-gafa238a9c097/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.244=
--63-gafa238a9c097/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/61277e4db22ae12d528e2c9d
-        failing since 72 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583)
-
-    2021-08-26T11:42:54.124990  /lava-4416052/1/../bin/lava-test-case
-    2021-08-26T11:42:54.142442  [   16.778944] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-08-26T11:42:54.142940  /lava-4416052/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/61277e4db22ae12d528e2caf
-        failing since 72 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583) =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/61277e4db22ae12d528e2cb0
-        failing since 72 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583)
-
-    2021-08-26T11:42:50.674961  /lava-4416052/1/../bin/lava-test-case
-    2021-08-26T11:42:50.680341  [   13.329272] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
