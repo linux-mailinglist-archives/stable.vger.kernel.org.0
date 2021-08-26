@@ -2,93 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B5DF3F829A
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 08:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D10A33F8301
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 09:17:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239629AbhHZGpv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 02:45:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36860 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239184AbhHZGps (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 02:45:48 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3393C061796
-        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 23:45:01 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1mJ98G-0008Kk-Au
-        for stable@vger.kernel.org; Thu, 26 Aug 2021 08:45:00 +0200
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id 927AE66FF67
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 06:44:59 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id CA77666FF5A;
-        Thu, 26 Aug 2021 06:44:57 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id d093c18f;
-        Thu, 26 Aug 2021 06:44:57 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de,
-        =?UTF-8?q?Stefan=20M=C3=A4tje?= <stefan.maetje@esd.eu>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH net] can: usb: esd_usb2: esd_usb2_rx_event(): fix the interchange of the CAN RX and TX error counters
-Date:   Thu, 26 Aug 2021 08:44:56 +0200
-Message-Id: <20210826064456.1427513-2-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210826064456.1427513-1-mkl@pengutronix.de>
-References: <20210826064456.1427513-1-mkl@pengutronix.de>
+        id S239628AbhHZHSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 03:18:32 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:9366 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234415AbhHZHSc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 03:18:32 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GwDbK6TyNz8vM4;
+        Thu, 26 Aug 2021 15:13:33 +0800 (CST)
+Received: from dggpemm000001.china.huawei.com (7.185.36.245) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Thu, 26 Aug 2021 15:17:43 +0800
+Received: from huawei.com (10.174.177.108) by dggpemm000001.china.huawei.com
+ (7.185.36.245) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Thu, 26 Aug
+ 2021 15:17:42 +0800
+From:   Liu Zixian <liuzixian4@huawei.com>
+To:     <linux-mm@kvack.org>, <mike.kravetz@oracle.com>,
+        <akpm@linux-foundation.org>
+CC:     <naoya.horiguchi@nec.com>, <stable@vger.kernel.org>,
+        <wuxu.wu@huawei.com>
+Subject: [PATCH v2] mm/hugetlb: initialize hugetlb_usage in mm_init
+Date:   Thu, 26 Aug 2021 15:17:42 +0800
+Message-ID: <20210826071742.877-1-liuzixian4@huawei.com>
+X-Mailer: git-send-email 2.29.2.windows.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.174.177.108]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpemm000001.china.huawei.com (7.185.36.245)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Mätje <stefan.maetje@esd.eu>
+After fork, the child process will get incorrect (2x) hugetlb_usage.
+If a process uses 5 2MB hugetlb pages in an anonymous mapping,
+	HugetlbPages:	   10240 kB
+and then forks, the child will show,
+	HugetlbPages:	   20480 kB
+The reason for double the amount is because hugetlb_usage will be
+copied from the parent and then increased when we copy page tables
+from parent to child. Child will have 2x actual usage.
 
-This patch fixes the interchanged fetch of the CAN RX and TX error
-counters from the ESD_EV_CAN_ERROR_EXT message. The RX error counter
-is really in struct rx_msg::data[2] and the TX error counter is in
-struct rx_msg::data[3].
+Fix this by adding hugetlb_count_init in mm_init.
 
-Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
-Link: https://lore.kernel.org/r/20210825215227.4947-2-stefan.maetje@esd.eu
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Mätje <stefan.maetje@esd.eu>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 5d317b2b6536 ("mm: hugetlb: proc: add HugetlbPages field to
+/proc/PID/status")
+Signed-off-by: Liu Zixian <liuzixian4@huawei.com>
 ---
- drivers/net/can/usb/esd_usb2.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+v2:
+1. Create two hugetlb_count_init in hugetlb.h instead of using #ifdef
+  in fork.c
+2. Add an example to clearify this issue.
+---
+ include/linux/hugetlb.h | 9 +++++++++
+ kernel/fork.c           | 1 +
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/net/can/usb/esd_usb2.c b/drivers/net/can/usb/esd_usb2.c
-index 66fa8b07c2e6..95ae740fc311 100644
---- a/drivers/net/can/usb/esd_usb2.c
-+++ b/drivers/net/can/usb/esd_usb2.c
-@@ -224,8 +224,8 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
- 	if (id == ESD_EV_CAN_ERROR_EXT) {
- 		u8 state = msg->msg.rx.data[0];
- 		u8 ecc = msg->msg.rx.data[1];
--		u8 txerr = msg->msg.rx.data[2];
--		u8 rxerr = msg->msg.rx.data[3];
-+		u8 rxerr = msg->msg.rx.data[2];
-+		u8 txerr = msg->msg.rx.data[3];
+diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
+index f7ca1a387..1faebe1cd 100644
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -858,6 +858,11 @@ static inline spinlock_t *huge_pte_lockptr(struct hstate *h,
  
- 		skb = alloc_can_err_skb(priv->netdev, &cf);
- 		if (skb == NULL) {
-
-base-commit: ec92e524ee91c98e6ee06807c7d69d9e2fd141bc
+ void hugetlb_report_usage(struct seq_file *m, struct mm_struct *mm);
+ 
++static inline void hugetlb_count_init(struct mm_struct *mm)
++{
++	atomic_long_set(&mm->hugetlb_usage, 0);
++}
++
+ static inline void hugetlb_count_add(long l, struct mm_struct *mm)
+ {
+ 	atomic_long_add(l, &mm->hugetlb_usage);
+@@ -1042,6 +1047,10 @@ static inline spinlock_t *huge_pte_lockptr(struct hstate *h,
+ 	return &mm->page_table_lock;
+ }
+ 
++static inline void hugetlb_count_init(struct mm_struct *mm)
++{
++}
++
+ static inline void hugetlb_report_usage(struct seq_file *f, struct mm_struct *m)
+ {
+ }
+diff --git a/kernel/fork.c b/kernel/fork.c
+index bc94b2cc5..0dbc96ade 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1050,6 +1050,7 @@ static struct mm_struct *mm_init(struct mm_struct *mm, struct task_struct *p,
+ 	mm->pmd_huge_pte = NULL;
+ #endif
+ 	mm_init_uprobes_state(mm);
++	hugetlb_count_init(mm);
+ 
+ 	if (current->mm) {
+ 		mm->flags = current->mm->flags & MMF_INIT_MASK;
 -- 
-2.32.0
-
+2.18.1
 
