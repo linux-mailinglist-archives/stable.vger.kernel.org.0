@@ -2,217 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E19453F7FE4
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 03:28:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2263F7FE7
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 03:28:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235993AbhHZB2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Aug 2021 21:28:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50786 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235809AbhHZB2Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 21:28:16 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543D3C0613CF
-        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 18:27:30 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id r15-20020a056902154f00b00598b87f197cso1431314ybu.13
-        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 18:27:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=ezec1I4H90P09h79RVbQ3uCzdElICKnF3wN8c7nmOZk=;
-        b=iBHkey8i/T0CNWc4iUCR1opeac0+E+IlLoWBD6/iEpE//xGmQ1qFkwdvCviPV2rHdL
-         COQIG7PvgdlQscHCRQ5JN8moZvmqQXU/r4zr6mVEuoxQjNnFq/zTGo8FfJT7KcwatwCQ
-         aURduY/7LX4tBU99EOBrMIFv2f5kT3IOG0/sIamzitqzqiwchipKtBqanU0fYfnqwVte
-         PHix5nXzZPBavz90hbMhnczSdgMX5ZXtPcRkqaJRmsteP+C4j0/ohFWP+p8fF2pRVPfW
-         v9QzFodzdqKBLkGM0Qy0H4aGMu3dpX1zumru3nQG8mxeyBr0IX8jPCX62SRKS7iJNSDQ
-         NiHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=ezec1I4H90P09h79RVbQ3uCzdElICKnF3wN8c7nmOZk=;
-        b=Zhdz4NDLN/LwxgtEazYUSlYaaWPOLgQvi4uwVEdBAQvgVLCNjN4Igk0+Tp+qHKAI6/
-         3cg2mM84mNDrgTOQytxUOHBUBaOgmPQEZo5nPuWs3koV+6gDUHVv6sj/4V+d4rqiFYpy
-         dojns4ndZzP9jwy0XRqQ3OiLh8xq5DN6UJDHYrShaxyULVG4zWXc74SA27ijyFYZGavR
-         17bY8rVKlEeNu3euUCDjhXXlFrEW456i+YeA8KXofQyoUPk3G/jnbxvY64YjJ6eYxvOk
-         /3gYJvMXfRUq+SaDWbz4VvBxZssbAMHIWMJNDFFNysL6cZ4MXo4abavvb3wX1gBgpYJo
-         3h0Q==
-X-Gm-Message-State: AOAM532QtCDdDX4vqzhrkg2WmMNNbDuskN2YbYBVnYPLPWRa+XrH0E2J
-        HUEz1oz5ljvT2Icrrh1d8Tx8J6o=
-X-Google-Smtp-Source: ABdhPJwkCu2INY1MJ3PQnt4wvzh4D2iiOlPp6ROmwjTRlZsS94P9Xz6MXcuSNH6u2JvEbZhDhfxOT8w=
-X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2ce:200:4c58:f8bf:74a9:6e55])
- (user=pcc job=sendgmr) by 2002:a25:1456:: with SMTP id 83mr2003884ybu.440.1629941249562;
- Wed, 25 Aug 2021 18:27:29 -0700 (PDT)
-Date:   Wed, 25 Aug 2021 18:27:22 -0700
-Message-Id: <20210826012722.3210359-1-pcc@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.33.0.rc2.250.ged5fa647cd-goog
-Subject: [PATCH] net: don't unconditionally copy_from_user a struct ifreq for
- socket ioctls
-From:   Peter Collingbourne <pcc@google.com>
-To:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Colin Ian King <colin.king@canonical.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Peter Collingbourne <pcc@google.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S235574AbhHZB3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Aug 2021 21:29:21 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:50399 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235917AbhHZB3V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 21:29:21 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 6BF9A320099D;
+        Wed, 25 Aug 2021 21:28:33 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Wed, 25 Aug 2021 21:28:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=l0Gosy
+        gefn48r4uTH2ZI2zwepXeC3xLJDbpSKDLCccs=; b=uTKRSDE1kl4E+amDRSWl+m
+        bzQXW29LSEZdugBn3LBxpHbhhxLbAFiTEv7CCQ1V+dUHqDvJJINnjiNYJSe0YBkJ
+        4NNDTbdPnyrTXnLn+aszAvlZdMScuPqIH28Hk3ENxABA5KzqusSaSg11woeqlcA6
+        QuHn321KgITvmRcvvwZfvGwgZw/SNdh35AKIvW/+blXQzzLZ7p2cCmtZ8mLwD/ff
+        yS8xTl4LifH0vmZSWcmnpyJgOJvVbeJkaAvoeS1XO2DU+SX2U2MAryXLi+/mBLw7
+        V8krRSUwd5b4haFzZFrf39IEM3pUs0JMa/OxJbF8GISiNLXzUOaR6c9j48aOCW0A
+        ==
+X-ME-Sender: <xms:QO4mYQbvWyMmZHpIWYog-D9GhK0ogDos0m0kdM5UMxgV6k7eNNwM3g>
+    <xme:QO4mYbZFYnyen2v2uAGpvC4_uLLMxT5vx89IsKFxtLaTWWxUum7ryFKqVGnnMkV5j
+    20TyNiQpdYdbw>
+X-ME-Received: <xmr:QO4mYa-KoU-OXuS_l7hodp4186juQn3Q7S8SURa6TKjcU4WOftuRIrHHv5IKBN35z_YHGNkLeqSq8sPzadn6SbbuCwLRXw5L>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddutddggeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehgtdorredttdejnecuhfhrohhmpeforghrvghk
+    ucforghrtgiihihkohifshhkihdqifpkrhgvtghkihcuoehmrghrmhgrrhgvkhesihhnvh
+    hishhisghlvghthhhinhhgshhlrggsrdgtohhmqeenucggtffrrghtthgvrhhnpeeiieeh
+    jeegteeggeeigffhkeekieefjeduhedvfffhiefgkefhvdevfeejffdvfeenucevlhhush
+    htvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehmrghrmhgrrhgvkhes
+    ihhnvhhishhisghlvghthhhinhhgshhlrggsrdgtohhm
+X-ME-Proxy: <xmx:QO4mYaqymOorF9cRLSCbl9wd3o_mpeAJD5Zo37AKEU9JJpZi9MwS6Q>
+    <xmx:QO4mYbqShHDgdvGgFyCiFRMwWNk_hNgYGsMT2PRMHfS7yJXeV32thA>
+    <xmx:QO4mYYQxpBRJbe2-fHoovMaZQEGjJTsHnT2Qxs6h_iUi86AFnMa8Uw>
+    <xmx:Qe4mYaXDp62TzRdpSs5oZtS37xC_4f2vhvv-vAcD6TPNWQu92zqMEQ>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 25 Aug 2021 21:28:31 -0400 (EDT)
+Date:   Thu, 26 Aug 2021 03:28:28 +0200
+From:   Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>
+To:     Jan Beulich <jbeulich@suse.com>
+Cc:     linux-pci@vger.kernel.org, stable@vger.kernel.org,
+        xen-devel <xen-devel@lists.xenproject.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: Kernel panic in __pci_enable_msix_range on Xen PV with PCI
+ passthrough
+Message-ID: <YSbuPJSZxiKSSaqT@mail-itl>
+References: <YSZgkQY1B+WNH50r@mail-itl>
+ <3e72345b-d0e1-7856-de51-e74714474724@suse.com>
+ <YSZmFMeVeO4Bupn+@mail-itl>
+ <24d47a06-a887-05e5-0e3f-ed3cdd19490b@suse.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="UaYlySroUKN3Byia"
+Content-Disposition: inline
+In-Reply-To: <24d47a06-a887-05e5-0e3f-ed3cdd19490b@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A common implementation of isatty(3) involves calling a ioctl passing
-a dummy struct argument and checking whether the syscall failed --
-bionic and glibc use TCGETS (passing a struct termios), and musl uses
-TIOCGWINSZ (passing a struct winsize). If the FD is a socket, we will
-copy sizeof(struct ifreq) bytes of data from the argument and return
--EFAULT if that fails. The result is that the isatty implementations
-may return a non-POSIX-compliant value in errno in the case where part
-of the dummy struct argument is inaccessible, as both struct termios
-and struct winsize are smaller than struct ifreq (at least on arm64).
 
-Although there is usually enough stack space following the argument
-on the stack that this did not present a practical problem up to now,
-with MTE stack instrumentation it's more likely for the copy to fail,
-as the memory following the struct may have a different tag.
+--UaYlySroUKN3Byia
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Date: Thu, 26 Aug 2021 03:28:28 +0200
+From: Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
+To: Jan Beulich <jbeulich@suse.com>
+Cc: linux-pci@vger.kernel.org, stable@vger.kernel.org,
+	xen-devel <xen-devel@lists.xenproject.org>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: Kernel panic in __pci_enable_msix_range on Xen PV with PCI
+ passthrough
 
-Fix the problem by adding an early check for whether the ioctl is a
-valid socket ioctl, and return -ENOTTY if it isn't.
+On Wed, Aug 25, 2021 at 05:55:09PM +0200, Jan Beulich wrote:
+> On 25.08.2021 17:47, Marek Marczykowski-G=C3=B3recki wrote:
+> > If so, I guess the issue is the kernel trying to write directly, instead
+> > of via some hypercall, right?
+>=20
+> Indeed. Or to be precise - the kernel isn't supposed to be "writing" this
+> at all. It is supposed to make hypercalls which may result in such writes.
+> Such "mask everything" functionality imo is the job of the hypervisor
+> anyway when talking about PV environments; HVM is a different thing here.
 
-Fixes: 44c02a2c3dc5 ("dev_ioctl(): move copyin/copyout to callers")
-Link: https://linux-review.googlesource.com/id/I869da6cf6daabc3e4b7b82ac979683ba05e27d4d
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Cc: <stable@vger.kernel.org> # 4.19
----
- include/linux/netdevice.h |  1 +
- net/core/dev_ioctl.c      | 64 ++++++++++++++++++++++++++++++++-------
- net/socket.c              |  6 +++-
- 3 files changed, 59 insertions(+), 12 deletions(-)
+Ok, I dug a bit and found why it was working before: there is
+pci_mask_ignore_mask variable, that is set to 1 for Xen PV (and only
+then). This bypassed __pci_msi{x,}_desc_mask_irq(), but does not bypass the
+new msix_mask_all().
+Adding that check back fixes the issue - no crash, the device works,
+although the driver doesn't seem to enable MSI/MSI-X (but that wasn't
+the case before either).
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index eaf5bb008aa9..481b90ef0d32 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -4012,6 +4012,7 @@ int netdev_rx_handler_register(struct net_device *dev,
- void netdev_rx_handler_unregister(struct net_device *dev);
- 
- bool dev_valid_name(const char *name);
-+bool is_dev_ioctl_cmd(unsigned int cmd);
- int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr,
- 		bool *need_copyout);
- int dev_ifconf(struct net *net, struct ifconf *, int);
-diff --git a/net/core/dev_ioctl.c b/net/core/dev_ioctl.c
-index 478d032f34ac..ac807fc64da1 100644
---- a/net/core/dev_ioctl.c
-+++ b/net/core/dev_ioctl.c
-@@ -368,6 +368,54 @@ void dev_load(struct net *net, const char *name)
- }
- EXPORT_SYMBOL(dev_load);
- 
-+bool is_dev_ioctl_cmd(unsigned int cmd)
-+{
-+	switch (cmd) {
-+	case SIOCGIFNAME:
-+	case SIOCGIFHWADDR:
-+	case SIOCGIFFLAGS:
-+	case SIOCGIFMETRIC:
-+	case SIOCGIFMTU:
-+	case SIOCGIFSLAVE:
-+	case SIOCGIFMAP:
-+	case SIOCGIFINDEX:
-+	case SIOCGIFTXQLEN:
-+	case SIOCETHTOOL:
-+	case SIOCGMIIPHY:
-+	case SIOCGMIIREG:
-+	case SIOCSIFNAME:
-+	case SIOCSIFMAP:
-+	case SIOCSIFTXQLEN:
-+	case SIOCSIFFLAGS:
-+	case SIOCSIFMETRIC:
-+	case SIOCSIFMTU:
-+	case SIOCSIFHWADDR:
-+	case SIOCSIFSLAVE:
-+	case SIOCADDMULTI:
-+	case SIOCDELMULTI:
-+	case SIOCSIFHWBROADCAST:
-+	case SIOCSMIIREG:
-+	case SIOCBONDENSLAVE:
-+	case SIOCBONDRELEASE:
-+	case SIOCBONDSETHWADDR:
-+	case SIOCBONDCHANGEACTIVE:
-+	case SIOCBRADDIF:
-+	case SIOCBRDELIF:
-+	case SIOCSHWTSTAMP:
-+	case SIOCBONDSLAVEINFOQUERY:
-+	case SIOCBONDINFOQUERY:
-+	case SIOCGIFMEM:
-+	case SIOCSIFMEM:
-+	case SIOCSIFLINK:
-+	case SIOCWANDEV:
-+	case SIOCGHWTSTAMP:
-+		return true;
-+
-+	default:
-+		return cmd >= SIOCDEVPRIVATE && cmd <= SIOCDEVPRIVATE + 15;
-+	}
-+}
-+
- /*
-  *	This function handles all "interface"-type I/O control requests. The actual
-  *	'doing' part of this is dev_ifsioc above.
-@@ -521,16 +569,10 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr, bool *need_c
- 	 *	Unknown or private ioctl.
- 	 */
- 	default:
--		if (cmd == SIOCWANDEV ||
--		    cmd == SIOCGHWTSTAMP ||
--		    (cmd >= SIOCDEVPRIVATE &&
--		     cmd <= SIOCDEVPRIVATE + 15)) {
--			dev_load(net, ifr->ifr_name);
--			rtnl_lock();
--			ret = dev_ifsioc(net, ifr, cmd);
--			rtnl_unlock();
--			return ret;
--		}
--		return -ENOTTY;
-+		dev_load(net, ifr->ifr_name);
-+		rtnl_lock();
-+		ret = dev_ifsioc(net, ifr, cmd);
-+		rtnl_unlock();
-+		return ret;
- 	}
- }
-diff --git a/net/socket.c b/net/socket.c
-index 0b2dad3bdf7f..e58886b1882c 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -1109,7 +1109,7 @@ static long sock_do_ioctl(struct net *net, struct socket *sock,
- 		rtnl_unlock();
- 		if (!err && copy_to_user(argp, &ifc, sizeof(struct ifconf)))
- 			err = -EFAULT;
--	} else {
-+	} else if (is_dev_ioctl_cmd(cmd)) {
- 		struct ifreq ifr;
- 		bool need_copyout;
- 		if (copy_from_user(&ifr, argp, sizeof(struct ifreq)))
-@@ -1118,6 +1118,8 @@ static long sock_do_ioctl(struct net *net, struct socket *sock,
- 		if (!err && need_copyout)
- 			if (copy_to_user(argp, &ifr, sizeof(struct ifreq)))
- 				return -EFAULT;
-+	} else {
-+		err = -ENOTTY;
- 	}
- 	return err;
- }
-@@ -3306,6 +3308,8 @@ static int compat_ifr_data_ioctl(struct net *net, unsigned int cmd,
- 	struct ifreq ifreq;
- 	u32 data32;
- 
-+	if (!is_dev_ioctl_cmd(cmd))
-+		return -ENOTTY;
- 	if (copy_from_user(ifreq.ifr_name, u_ifreq32->ifr_name, IFNAMSIZ))
- 		return -EFAULT;
- 	if (get_user(data32, &u_ifreq32->ifr_data))
--- 
-2.33.0.rc2.250.ged5fa647cd-goog
+--=20
+Best Regards,
+Marek Marczykowski-G=C3=B3recki
+Invisible Things Lab
 
+--UaYlySroUKN3Byia
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhrpukzGPukRmQqkK24/THMrX1ywFAmEm7jwACgkQ24/THMrX
+1yyN/wf7BorSCX29k2HNQNmc90h4Hp54qa3SLXsTou5gLqJQXOwJAJz7saKR8UW1
+QOgM3+ui1fGz+x3UBynQ6MM53+2hwBsO7f4kVGG/nGvgz+2TcckJOjAZRUap/Exz
+8TCnIvcONjKKV7gMfc9Dg3JUSzvyqF3azpuiJQMZ7VWSHLpsMSenoKADIB+6EBHA
+/fxABG6KsY4Mv0I82bS2NJ0Nk0xO1Da2EPWzqmQgKnbl1dma5PlGt4p3wKAGxOCp
+Bozp7USuFSAvyHaq3+h1GV/2QIC/EMZxIw3jKlDgAnEi5bsIsb5y0rtYctqXULZy
+e9Lwr5SCNjOc05VQdT0tm0fgHwqm5g==
+=HlrS
+-----END PGP SIGNATURE-----
+
+--UaYlySroUKN3Byia--
