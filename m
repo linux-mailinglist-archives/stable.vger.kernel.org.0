@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 530F83F8615
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 13:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB8F03F8614
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 13:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231406AbhHZLHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 07:07:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54992 "EHLO mail.kernel.org"
+        id S241855AbhHZLHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 07:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241879AbhHZLHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Aug 2021 07:07:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE22961053;
-        Thu, 26 Aug 2021 11:06:57 +0000 (UTC)
+        id S241889AbhHZLHv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Aug 2021 07:07:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14BAE61026;
+        Thu, 26 Aug 2021 11:07:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629976018;
-        bh=DoMwVwUoVfRO49QfWAgMWrcd2/qHbWyE/6kaST18g/Q=;
+        s=korg; t=1629976024;
+        bh=xASihKyjQFfTqtpwkuf9m22y1KZ+V4Ph41WxW4s2k0g=;
         h=Subject:To:From:Date:From;
-        b=lbWG3Hbu+D3UsxhKucknG8xCMYpOJ05smd4q9AavWzJF4+xX0x5KAmYwBCcm98G9a
-         XPPlxCZoHjHfSNWfooRiaSlF9nWKVCQDFP6NjitE3B5lROAOYMcyj6a9KNeecUBY5v
-         LPv4To6Wvrfh3Q4zjYr4weNPIXl8XWTz6vjpgFxY=
-Subject: patch "xhci: fix even more unsafe memory usage in xhci tracing" added to usb-testing
+        b=LUv7fbRON6w0U4m79H/KDeER8WmTi/4uRQx0RCr/lOyMB+ox9G42omA+dltKJ2v42
+         EvAUfq1+VjjkSkxER01U8CNa+X6NR38t3SO5tOboSHtf3eIdiVyIBN1ZYf4CXctImm
+         PpnPqL0cAVawSz92LKC00bQh2r+2+59X5VYSXxsU=
+Subject: patch "xhci: Fix failure to give back some cached cancelled URBs." added to usb-testing
 To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        stable@vger.kernel.org, wat@codeaurora.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 26 Aug 2021 13:06:50 +0200
-Message-ID: <162997601012335@kroah.com>
+Date:   Thu, 26 Aug 2021 13:06:52 +0200
+Message-ID: <16299760127797@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    xhci: fix even more unsafe memory usage in xhci tracing
+    xhci: Fix failure to give back some cached cancelled URBs.
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,233 +51,109 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 4843b4b5ec64b875a5e334f280508f1f75e7d3e4 Mon Sep 17 00:00:00 2001
+From 94f339147fc3eb9edef7ee4ef6e39c569c073753 Mon Sep 17 00:00:00 2001
 From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Fri, 20 Aug 2021 15:34:59 +0300
-Subject: xhci: fix even more unsafe memory usage in xhci tracing
+Date: Fri, 20 Aug 2021 15:35:00 +0300
+Subject: xhci: Fix failure to give back some cached cancelled URBs.
 
-Removes static char buffer usage in the following decode functions:
-	xhci_decode_ctrl_ctx()
-	xhci_decode_slot_context()
-	xhci_decode_usbsts()
-	xhci_decode_doorbell()
-	xhci_decode_ep_context()
+Only TDs with status TD_CLEARING_CACHE will be given back after
+cache is cleared with a set TR deq command.
 
-Caller must provide a buffer to use.
-In tracing use __get_str() as recommended to pass buffer.
+xhci_invalidate_cached_td() failed to set the TD_CLEARING_CACHE status
+for some cancelled TDs as it assumed an endpoint only needs to clear the
+TD it stopped on.
 
-Minor changes are needed in other xhci code as these functions are also
-used elsewhere
+This isn't always true. For example with streams enabled an endpoint may
+have several stream rings, each stopping on a different TDs.
 
-Cc: <stable@vger.kernel.org>
+Note that if an endpoint has several stream rings, the current code
+will still only clear the cache of the stream pointed to by the last
+cancelled TD in the cancel list.
+
+This patch only focus on making sure all canceled TDs are given back,
+avoiding hung task after device removal.
+Another fix to solve clearing the caches of all stream rings with
+cancelled TDs is needed, but not as urgent.
+
+This issue was simultanously discovered and debugged by
+by Tao Wang, with a slightly different fix proposal.
+
+Fixes: 674f8438c121 ("xhci: split handling halted endpoints into two steps")
+Cc: <stable@vger.kernel.org> #5.12
+Reported-by: Tao Wang <wat@codeaurora.org>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210820123503.2605901-3-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20210820123503.2605901-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-debugfs.c |  8 ++++++--
- drivers/usb/host/xhci-ring.c    |  3 ++-
- drivers/usb/host/xhci-trace.h   | 18 +++++++++++-------
- drivers/usb/host/xhci.h         | 21 ++++++++-------------
- 4 files changed, 27 insertions(+), 23 deletions(-)
+ drivers/usb/host/xhci-ring.c | 40 ++++++++++++++++++++++--------------
+ 1 file changed, 25 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-debugfs.c b/drivers/usb/host/xhci-debugfs.c
-index 85c12f56b17c..dc832ddf7033 100644
---- a/drivers/usb/host/xhci-debugfs.c
-+++ b/drivers/usb/host/xhci-debugfs.c
-@@ -261,11 +261,13 @@ static int xhci_slot_context_show(struct seq_file *s, void *unused)
- 	struct xhci_slot_ctx	*slot_ctx;
- 	struct xhci_slot_priv	*priv = s->private;
- 	struct xhci_virt_device	*dev = priv->dev;
-+	char			str[XHCI_MSG_MAX];
- 
- 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
- 	slot_ctx = xhci_get_slot_ctx(xhci, dev->out_ctx);
- 	seq_printf(s, "%pad: %s\n", &dev->out_ctx->dma,
--		   xhci_decode_slot_context(le32_to_cpu(slot_ctx->dev_info),
-+		   xhci_decode_slot_context(str,
-+					    le32_to_cpu(slot_ctx->dev_info),
- 					    le32_to_cpu(slot_ctx->dev_info2),
- 					    le32_to_cpu(slot_ctx->tt_info),
- 					    le32_to_cpu(slot_ctx->dev_state)));
-@@ -281,6 +283,7 @@ static int xhci_endpoint_context_show(struct seq_file *s, void *unused)
- 	struct xhci_ep_ctx	*ep_ctx;
- 	struct xhci_slot_priv	*priv = s->private;
- 	struct xhci_virt_device	*dev = priv->dev;
-+	char			str[XHCI_MSG_MAX];
- 
- 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
- 
-@@ -288,7 +291,8 @@ static int xhci_endpoint_context_show(struct seq_file *s, void *unused)
- 		ep_ctx = xhci_get_ep_ctx(xhci, dev->out_ctx, ep_index);
- 		dma = dev->out_ctx->dma + (ep_index + 1) * CTX_SIZE(xhci->hcc_params);
- 		seq_printf(s, "%pad: %s\n", &dma,
--			   xhci_decode_ep_context(le32_to_cpu(ep_ctx->ep_info),
-+			   xhci_decode_ep_context(str,
-+						  le32_to_cpu(ep_ctx->ep_info),
- 						  le32_to_cpu(ep_ctx->ep_info2),
- 						  le64_to_cpu(ep_ctx->deq),
- 						  le32_to_cpu(ep_ctx->tx_info)));
 diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 8fea44bbc266..d0faa67a689d 100644
+index d0faa67a689d..9017986241f5 100644
 --- a/drivers/usb/host/xhci-ring.c
 +++ b/drivers/usb/host/xhci-ring.c
-@@ -1212,6 +1212,7 @@ void xhci_stop_endpoint_command_watchdog(struct timer_list *t)
- 	struct xhci_hcd *xhci = ep->xhci;
- 	unsigned long flags;
- 	u32 usbsts;
-+	char str[XHCI_MSG_MAX];
+@@ -942,17 +942,21 @@ static int xhci_invalidate_cancelled_tds(struct xhci_virt_ep *ep)
+ 					 td->urb->stream_id);
+ 		hw_deq &= ~0xf;
  
- 	spin_lock_irqsave(&xhci->lock, flags);
- 
-@@ -1225,7 +1226,7 @@ void xhci_stop_endpoint_command_watchdog(struct timer_list *t)
- 	usbsts = readl(&xhci->op_regs->status);
- 
- 	xhci_warn(xhci, "xHCI host not responding to stop endpoint command.\n");
--	xhci_warn(xhci, "USBSTS:%s\n", xhci_decode_usbsts(usbsts));
-+	xhci_warn(xhci, "USBSTS:%s\n", xhci_decode_usbsts(str, usbsts));
- 
- 	ep->ep_state &= ~EP_STOP_CMD_PENDING;
- 
-diff --git a/drivers/usb/host/xhci-trace.h b/drivers/usb/host/xhci-trace.h
-index 5e1c50cb7016..a5da02077297 100644
---- a/drivers/usb/host/xhci-trace.h
-+++ b/drivers/usb/host/xhci-trace.h
-@@ -322,6 +322,7 @@ DECLARE_EVENT_CLASS(xhci_log_ep_ctx,
- 		__field(u32, info2)
- 		__field(u64, deq)
- 		__field(u32, tx_info)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->info = le32_to_cpu(ctx->ep_info);
-@@ -329,8 +330,8 @@ DECLARE_EVENT_CLASS(xhci_log_ep_ctx,
- 		__entry->deq = le64_to_cpu(ctx->deq);
- 		__entry->tx_info = le32_to_cpu(ctx->tx_info);
- 	),
--	TP_printk("%s", xhci_decode_ep_context(__entry->info,
--		__entry->info2, __entry->deq, __entry->tx_info)
-+	TP_printk("%s", xhci_decode_ep_context(__get_str(str),
-+		__entry->info, __entry->info2, __entry->deq, __entry->tx_info)
- 	)
- );
- 
-@@ -367,6 +368,7 @@ DECLARE_EVENT_CLASS(xhci_log_slot_ctx,
- 		__field(u32, info2)
- 		__field(u32, tt_info)
- 		__field(u32, state)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->info = le32_to_cpu(ctx->dev_info);
-@@ -374,9 +376,9 @@ DECLARE_EVENT_CLASS(xhci_log_slot_ctx,
- 		__entry->tt_info = le64_to_cpu(ctx->tt_info);
- 		__entry->state = le32_to_cpu(ctx->dev_state);
- 	),
--	TP_printk("%s", xhci_decode_slot_context(__entry->info,
--			__entry->info2, __entry->tt_info,
--			__entry->state)
-+	TP_printk("%s", xhci_decode_slot_context(__get_str(str),
-+			__entry->info, __entry->info2,
-+			__entry->tt_info, __entry->state)
- 	)
- );
- 
-@@ -431,12 +433,13 @@ DECLARE_EVENT_CLASS(xhci_log_ctrl_ctx,
- 	TP_STRUCT__entry(
- 		__field(u32, drop)
- 		__field(u32, add)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->drop = le32_to_cpu(ctrl_ctx->drop_flags);
- 		__entry->add = le32_to_cpu(ctrl_ctx->add_flags);
- 	),
--	TP_printk("%s", xhci_decode_ctrl_ctx(__entry->drop, __entry->add)
-+	TP_printk("%s", xhci_decode_ctrl_ctx(__get_str(str), __entry->drop, __entry->add)
- 	)
- );
- 
-@@ -555,13 +558,14 @@ DECLARE_EVENT_CLASS(xhci_log_doorbell,
- 	TP_STRUCT__entry(
- 		__field(u32, slot)
- 		__field(u32, doorbell)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->slot = slot;
- 		__entry->doorbell = doorbell;
- 	),
- 	TP_printk("Ring doorbell for %s",
--		xhci_decode_doorbell(__entry->slot, __entry->doorbell)
-+		  xhci_decode_doorbell(__get_str(str), __entry->slot, __entry->doorbell)
- 	)
- );
- 
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 99ae9994f5eb..dca6181c33fd 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -2460,10 +2460,9 @@ static inline const char *xhci_decode_trb(char *str, size_t size,
- 	return str;
- }
- 
--static inline const char *xhci_decode_ctrl_ctx(unsigned long drop,
--					       unsigned long add)
-+static inline const char *xhci_decode_ctrl_ctx(char *str,
-+		unsigned long drop, unsigned long add)
- {
--	static char	str[1024];
- 	unsigned int	bit;
- 	int		ret = 0;
- 
-@@ -2489,10 +2488,9 @@ static inline const char *xhci_decode_ctrl_ctx(unsigned long drop,
- 	return str;
- }
- 
--static inline const char *xhci_decode_slot_context(u32 info, u32 info2,
--		u32 tt_info, u32 state)
-+static inline const char *xhci_decode_slot_context(char *str,
-+		u32 info, u32 info2, u32 tt_info, u32 state)
- {
--	static char str[1024];
- 	u32 speed;
- 	u32 hub;
- 	u32 mtt;
-@@ -2621,9 +2619,8 @@ static inline const char *xhci_decode_portsc(char *str, u32 portsc)
- 	return str;
- }
- 
--static inline const char *xhci_decode_usbsts(u32 usbsts)
-+static inline const char *xhci_decode_usbsts(char *str, u32 usbsts)
- {
--	static char str[256];
- 	int ret = 0;
- 
- 	if (usbsts == ~(u32)0)
-@@ -2650,9 +2647,8 @@ static inline const char *xhci_decode_usbsts(u32 usbsts)
- 	return str;
- }
- 
--static inline const char *xhci_decode_doorbell(u32 slot, u32 doorbell)
-+static inline const char *xhci_decode_doorbell(char *str, u32 slot, u32 doorbell)
- {
--	static char str[256];
- 	u8 ep;
- 	u16 stream;
- 	int ret;
-@@ -2719,10 +2715,9 @@ static inline const char *xhci_ep_type_string(u8 type)
+-		if (td->cancel_status == TD_HALTED) {
+-			cached_td = td;
+-		} else if (trb_in_td(xhci, td->start_seg, td->first_trb,
+-			      td->last_trb, hw_deq, false)) {
++		if (td->cancel_status == TD_HALTED ||
++		    trb_in_td(xhci, td->start_seg, td->first_trb, td->last_trb, hw_deq, false)) {
+ 			switch (td->cancel_status) {
+ 			case TD_CLEARED: /* TD is already no-op */
+ 			case TD_CLEARING_CACHE: /* set TR deq command already queued */
+ 				break;
+ 			case TD_DIRTY: /* TD is cached, clear it */
+ 			case TD_HALTED:
+-				/* FIXME  stream case, several stopped rings */
++				td->cancel_status = TD_CLEARING_CACHE;
++				if (cached_td)
++					/* FIXME  stream case, several stopped rings */
++					xhci_dbg(xhci,
++						 "Move dq past stream %u URB %p instead of stream %u URB %p\n",
++						 td->urb->stream_id, td->urb,
++						 cached_td->urb->stream_id, cached_td->urb);
+ 				cached_td = td;
+ 				break;
+ 			}
+@@ -961,18 +965,24 @@ static int xhci_invalidate_cancelled_tds(struct xhci_virt_ep *ep)
+ 			td->cancel_status = TD_CLEARED;
+ 		}
  	}
+-	if (cached_td) {
+-		cached_td->cancel_status = TD_CLEARING_CACHE;
+ 
+-		err = xhci_move_dequeue_past_td(xhci, slot_id, ep->ep_index,
+-						cached_td->urb->stream_id,
+-						cached_td);
+-		/* Failed to move past cached td, try just setting it noop */
+-		if (err) {
+-			td_to_noop(xhci, ring, cached_td, false);
+-			cached_td->cancel_status = TD_CLEARED;
++	/* If there's no need to move the dequeue pointer then we're done */
++	if (!cached_td)
++		return 0;
++
++	err = xhci_move_dequeue_past_td(xhci, slot_id, ep->ep_index,
++					cached_td->urb->stream_id,
++					cached_td);
++	if (err) {
++		/* Failed to move past cached td, just set cached TDs to no-op */
++		list_for_each_entry_safe(td, tmp_td, &ep->cancelled_td_list, cancelled_td_list) {
++			if (td->cancel_status != TD_CLEARING_CACHE)
++				continue;
++			xhci_dbg(xhci, "Failed to clear cancelled cached URB %p, mark clear anyway\n",
++				 td->urb);
++			td_to_noop(xhci, ring, td, false);
++			td->cancel_status = TD_CLEARED;
+ 		}
+-		cached_td = NULL;
+ 	}
+ 	return 0;
  }
- 
--static inline const char *xhci_decode_ep_context(u32 info, u32 info2, u64 deq,
--		u32 tx_info)
-+static inline const char *xhci_decode_ep_context(char *str, u32 info,
-+		u32 info2, u64 deq, u32 tx_info)
- {
--	static char str[1024];
- 	int ret;
- 
- 	u32 esit;
 -- 
 2.32.0
 
