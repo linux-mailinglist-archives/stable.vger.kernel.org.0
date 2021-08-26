@@ -2,136 +2,300 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F3B3F8E66
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 21:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99D593F8E72
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 21:07:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243356AbhHZTCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 15:02:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38698 "EHLO
+        id S243300AbhHZTHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 15:07:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243339AbhHZTCt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 15:02:49 -0400
-Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28ACAC0613C1
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 12:02:02 -0700 (PDT)
-Received: by mail-ot1-x32f.google.com with SMTP id v33-20020a0568300921b0290517cd06302dso4804955ott.13
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 12:02:02 -0700 (PDT)
+        with ESMTP id S230442AbhHZTHu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 15:07:50 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38BBDC061757
+        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 12:07:03 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id e16so3140043pfc.6
+        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 12:07:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:in-reply-to:references:jubject:from:user-agent:date
-         :message-id:subject:to:cc;
-        bh=+iVPuEHGBickynSlN/aspzgM+vCXS1pxLKvIBYzPHaY=;
-        b=m1Qh8c1JI8bJtMbx2zXs3H9EO3V3B24CTfDZ0E0MweKP5VXvP8ajaNkOgqAv29OW/F
-         xjby+KYB85j/qh0w1BGUe1u8LtcQThDspoEcg6Ho/K9SiquHynat2V84AQwXD9k8D+AX
-         lUHCf/zIj2pOkXaqiiOBJBZ//d85EfeL9KDEo=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=CBE9hd2fhMKCObyWCuiU4LY+vY4ttIeaqhVVRYDpXfA=;
+        b=f80flpfq4LgzaCazwxeO8RaqwJ5BJ6+njeTg4Ut4DK81pFpQ7pROKejIzJRyio+I1h
+         H97nB1U0KLsUQeCZUXPP3V6MQCQGZXeeCBztCCfgckOMCmILBBXQPcp652637vk90yGi
+         /QG+QKpXazkR+DKJJLwc0dz/ZRW/rr7oMnEvXpcvRfB8j0P+MKLRuIjRGtk0BY3JuwvK
+         CRNHbrSQmIexXRyjRfzJnuHV3hiJOpb19PDtE2rZTJhU+N5mVex0H3TnkW0oAm3C2JYW
+         jrhhl7lZJVOIlo0twlKfDkPmeU8Eh5YiDvYeEeDsWIRt2bstXt4HAthqzrgPndfU2xXi
+         /LGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:in-reply-to:references:jubject:from
-         :user-agent:date:message-id:subject:to:cc;
-        bh=+iVPuEHGBickynSlN/aspzgM+vCXS1pxLKvIBYzPHaY=;
-        b=kcBu9ZV/4+5QsxG/YJrbPZIZ4UlXRgxluJlD8de2wqmDfSt231haIUGSDd9C6kjYSa
-         9FxGs/qylY6GaipT6vIyWyz+Rm+1f5tn26+53rlfPl0qCe/9QD9FNFdwwu+5iKFyuWCb
-         BZ6tTZthXiKdWzlQE+LQRi9fTTdo0OBfRuo2WZ6a0szc3XSneZ9XrE/O1ecT7zWFrkZx
-         B+ilPXSANLRoIyLlflDzlNDjaj/9L8CklL6o02DRyd4NfmZapoMRIN6xh8dgzDLkKxH8
-         kUmIl4uqKzIsEC0YOPn8eBWyTevjMS6w72z1waMI6Pyu1EzNROx0wjWXsOAdrqVi5v9e
-         6Dlg==
-X-Gm-Message-State: AOAM533niwrDVqXILpMQ8uVc2So67OACZWoCEm7Ogoi1GyuP/Zq7FAE7
-        FbnWvpy6oEIjT62d2ZX0ixyozV2hlbw6o846xgifjw==
-X-Google-Smtp-Source: ABdhPJzdZYXAXrUOl9mGtjohncFB+oGrYX4mON9av982YMT3gjRIDsaw7nD/2scpYTZBlBNfwQfReCj7diwhE7RBlNg=
-X-Received: by 2002:a05:6830:88:: with SMTP id a8mr4600325oto.233.1630004521512;
- Thu, 26 Aug 2021 12:02:01 -0700 (PDT)
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Thu, 26 Aug 2021 19:02:00 +0000
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=CBE9hd2fhMKCObyWCuiU4LY+vY4ttIeaqhVVRYDpXfA=;
+        b=o7FWEmcYxLpbzS1nuUfG/EiCXgOKWqyZ9xL2EnjOCWsOefUfTAniXsHIlVWKGOMICT
+         cXXem6AeRKy9zC5vGd1LEiGHpwJDauGcFI7rr6Oynmdo8xH2Sgp13s5i7JwWmmwQ3X1L
+         sagptCyyoSut6A5urlTKwpph2F8fHeJoJfGC8GMC+t2mFa7ZakAirVVcgJz0L2bGFsG5
+         HriJnYgZQd/BCDljifZmCslE9rHer/5SkgkRxATcAojpnzx88c4en3AB7dTjEHiAJwxc
+         p6MpIDReCm4pghxMpzWLQqWH+E00Hq1QiAdcMbmlBG9kVD0bYLztbc+BLSm/STQ5wZSN
+         +iGA==
+X-Gm-Message-State: AOAM531GQZWTeqTBkEOlEQRq8bqXW4F5Dvir8DtZANuwjBz6WAjj1tHZ
+        GtbSZVcnR61DZuJpShINlwQ6CShVLEQRgJic
+X-Google-Smtp-Source: ABdhPJwD5bsqpBPqqF0UuOThmHI9XjoG0p6x5e6jQXJZrAZhC26HVhGsGIyYv9knOlQRZo1TXNUj5w==
+X-Received: by 2002:a63:1a64:: with SMTP id a36mr4589720pgm.225.1630004822422;
+        Thu, 26 Aug 2021 12:07:02 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id br3sm8060230pjb.52.2021.08.26.12.07.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Aug 2021 12:07:02 -0700 (PDT)
+Message-ID: <6127e656.1c69fb81.34608.4c68@mx.google.com>
+Date:   Thu, 26 Aug 2021 12:07:02 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <YSfioM5cEnvD3pGb@sashalap>
-References: <20210824025754.658394-1-sashal@kernel.org> <CAE-0n53zk0ogf=TUknMoCAPDd97=jq3Czpp6b1c9E29ormuCSQ@mail.gmail.com>
- <YSfioM5cEnvD3pGb@sashalap>
-jubject: Re: FAILED: Patch "mmc: sdhci-msm: Update the software timeout value
- for sdhc" failed to apply to 5.4-stable tree
-From:   Stephen Boyd <swboyd@chromium.org>
-User-Agent: alot/0.9.1
-Date:   Thu, 26 Aug 2021 19:02:00 +0000
-Message-ID: <CAE-0n50brNnTASH8xR_jSCr0=OAQohcA4cG3HFAeDmt=4U-4Uw@mail.gmail.com>
-Subject: 
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     sbhanu@codeaurora.org, stable@vger.kernel.org,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        linux-mmc@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.204-83-g8c193742738f
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/4.19 baseline: 163 runs,
+ 7 regressions (v4.19.204-83-g8c193742738f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Sasha Levin (2021-08-26 11:51:12)
-> On Thu, Aug 26, 2021 at 07:51:45AM +0000, Stephen Boyd wrote:
-> >From cd5d41c802f7b3e20c0c0ebd6bf0cb335954fd89 Mon Sep 17 00:00:00 2001
-> >From: Shaik Sajida Bhanu <sbhanu@codeaurora.org>
-> >Date: Fri, 16 Jul 2021 17:16:14 +0530
-> >Subject: [PATCH] mmc: sdhci-msm: Update the software timeout value for sdhc
-> >
-> >commit 67b13f3e221ed81b46a657e2b499bf8b20162476 upstream.
-> >
-> >Whenever SDHC run at clock rate 50MHZ or below, the hardware data
-> >timeout value will be 21.47secs, which is approx. 22secs and we have
-> >a current software timeout value as 10secs. We have to set software
-> >timeout value more than the hardware data timeout value to avioid seeing
-> >the below register dumps.
-> >
-> >[  332.953670] mmc2: Timeout waiting for hardware interrupt.
-> >[  332.959608] mmc2: sdhci: ============ SDHCI REGISTER DUMP ===========
-> >[  332.966450] mmc2: sdhci: Sys addr:  0x00000000 | Version:  0x00007202
-> >[  332.973256] mmc2: sdhci: Blk size:  0x00000200 | Blk cnt:  0x00000001
-> >[  332.980054] mmc2: sdhci: Argument:  0x00000000 | Trn mode: 0x00000027
-> >[  332.986864] mmc2: sdhci: Present:   0x01f801f6 | Host ctl: 0x0000001f
-> >[  332.993671] mmc2: sdhci: Power:     0x00000001 | Blk gap:  0x00000000
-> >[  333.000583] mmc2: sdhci: Wake-up:   0x00000000 | Clock:    0x00000007
-> >[  333.007386] mmc2: sdhci: Timeout:   0x0000000e | Int stat: 0x00000000
-> >[  333.014182] mmc2: sdhci: Int enab:  0x03ff100b | Sig enab: 0x03ff100b
-> >[  333.020976] mmc2: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000000
-> >[  333.027771] mmc2: sdhci: Caps:      0x322dc8b2 | Caps_1:   0x0000808f
-> >[  333.034561] mmc2: sdhci: Cmd:       0x0000183a | Max curr: 0x00000000
-> >[  333.041359] mmc2: sdhci: Resp[0]:   0x00000900 | Resp[1]:  0x00000000
-> >[  333.048157] mmc2: sdhci: Resp[2]:   0x00000000 | Resp[3]:  0x00000000
-> >[  333.054945] mmc2: sdhci: Host ctl2: 0x00000000
-> >[  333.059657] mmc2: sdhci: ADMA Err:  0x00000000 | ADMA Ptr:
-> >0x0000000ffffff218
-> >[  333.067178] mmc2: sdhci_msm: ----------- VENDOR REGISTER DUMP
-> >-----------
-> >[  333.074343] mmc2: sdhci_msm: DLL sts: 0x00000000 | DLL cfg:
-> >0x6000642c | DLL cfg2: 0x0020a000
-> >[  333.083417] mmc2: sdhci_msm: DLL cfg3: 0x00000000 | DLL usr ctl:
-> >0x00000000 | DDR cfg: 0x80040873
-> >[  333.092850] mmc2: sdhci_msm: Vndr func: 0x00008a9c | Vndr func2 :
-> >0xf88218a8 Vndr func3: 0x02626040
-> >[  333.102371] mmc2: sdhci: ============================================
-> >
-> >So, set software timeout value more than hardware timeout value.
-> >
-> >Signed-off-by: Shaik Sajida Bhanu <sbhanu@codeaurora.org>
-> >Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-> >Cc: stable@vger.kernel.org
-> >Link: https://lore.kernel.org/r/1626435974-14462-1-git-send-email-sbhanu@codeaurora.org
-> >Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> >Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-> >---
-> > drivers/mmc/host/sdhci-msm.c | 18 ++++++++++++++++++
-> > 1 file changed, 18 insertions(+)
-> >
-> >diff --git a/drivers/mmc/host/sdhci-msm.c b/drivers/mmc/host/sdhci-msm.c
-> >index 8bed81cf03ad..8ab963055238 100644
-> >--- a/drivers/mmc/host/sdhci-msm.c
-> >+++ b/drivers/mmc/host/sdhci-msm.c
-> >@@ -1589,6 +1589,23 @@ static void sdhci_msm_set_clock(struct
-> >sdhci_host *host, unsigned int clock)
->
-> I've queued this up, thanks!
+stable-rc/queue/4.19 baseline: 163 runs, 7 regressions (v4.19.204-83-g8c193=
+742738f)
 
-Thanks!
+Regressions Summary
+-------------------
 
->
-> Note that the patch was linewrapped (see above).
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Indeed. Must be something wrong with my mailer setup. I'll look into
-fixing it. Thanks.
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
+  | 3          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.204-83-g8c193742738f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.204-83-g8c193742738f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      8c193742738f791f15d201714582ed740d23d79e =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6127b0e3db81d5e1768e2c87
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.204=
+-83-g8c193742738f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.204=
+-83-g8c193742738f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6127b0e3db81d5e1768e2=
+c88
+        failing since 285 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6127bc60a6bcc56cde8e2c7d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.204=
+-83-g8c193742738f/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.204=
+-83-g8c193742738f/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6127bc60a6bcc56cde8e2=
+c7e
+        failing since 285 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6127b5a1df2a57397c8e2c92
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.204=
+-83-g8c193742738f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.204=
+-83-g8c193742738f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6127b5a1df2a57397c8e2=
+c93
+        failing since 285 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6127b09363158cf6308e2c7b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.204=
+-83-g8c193742738f/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.204=
+-83-g8c193742738f/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6127b09363158cf6308e2=
+c7c
+        failing since 285 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
+  | 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6127bc612924690c6e8e2c83
+
+  Results:     64 PASS, 6 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.204=
+-83-g8c193742738f/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.204=
+-83-g8c193742738f/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/6127bc612924690c6e8e2c97
+        failing since 72 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-08-26T16:07:40.318021  /lava-4418608/1/../bin/lava-test-case
+    2021-08-26T16:07:40.335188  <8>[   17.723087] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-08-26T16:07:40.335677  /lava-4418608/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/6127bc612924690c6e8e2cb0
+        failing since 72 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-08-26T16:07:37.893870  /lava-4418608/1/../bin/lava-test-case<8>[  =
+ 15.281138] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-08-26T16:07:37.897933  =
+
+    2021-08-26T16:07:37.898449  /lava-4418608/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/6127bc612924690c6e8e2cb1
+        failing since 72 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-08-26T16:07:36.857237  /lava-4418608/1/../bin/lava-test-case
+    2021-08-26T16:07:36.862676  <8>[   14.261734] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
