@@ -2,96 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E64773F8DD9
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 20:30:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F963F8E2A
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 20:51:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236360AbhHZSbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 14:31:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50238 "EHLO mail.kernel.org"
+        id S243386AbhHZSwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 14:52:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232759AbhHZSbj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Aug 2021 14:31:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB17060FD7;
-        Thu, 26 Aug 2021 18:30:51 +0000 (UTC)
+        id S231453AbhHZSwB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 26 Aug 2021 14:52:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA68860E08;
+        Thu, 26 Aug 2021 18:51:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630002652;
-        bh=h5ksNy9W7qfIY9z2jOPrHXLzTKv2T4Uc5gEdULxAi3I=;
+        s=k20201202; t=1630003874;
+        bh=1sBw6wh87JJ1PmDt2g16fO0S/CpK5Fnm5aKmdW+HMNU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IWXr4RXtPS7sBGpba08WKGlEZ2yNJhNz6AaQjN2bL7g8YqYn985/Q8Ztha6luFZnt
-         4YYLCRiw1us3jx9pH7f/hpIgHUqVeSHRYsmEZmBpkdsUVNCQHdPxKFifZWE1KO9Mqt
-         yiQa4+QRyV5sAnV6isG9QfyczGJ/Oi7nxEyT1VnwenXSKeAhONZxsyw+ax3fXNeFN2
-         Jnm3mUVDkquix4ynsEs2892q2yaAUFN7cXUGhkpXJYancutFmLKmFSRHgTkLOv/e/+
-         xC/oWCaGtR034OlV4ERN86DdIyZZhb+xvxrKnQEFSoLvUudc9mOaLgThg4NUO7kbWf
-         XH5sz2Jshv7Ow==
-Date:   Thu, 26 Aug 2021 14:30:50 -0400
+        b=BgjnFRKGrkZA0vZw607rmUkgORuR6hn6vMfw5V/tL1oPVmulD6p1QZe8tFN2jMlYr
+         EcVQWQHP9I6+WTgCo0opaz0QbL6WFWi2ANXb4UDSg2mKWeNTRC+KTN/fIz2HuFOCnU
+         GPk/LPM7Ksp0GxpOfsNA0p9wgXqsKGw1JlCJ3e3D8UOL7RUxsZSk0kdMRgoECCz6X7
+         K2h9PKN+7vKwCK89fFbykLdYELZaWaNoMhxgZk8RHJfxclNfBjuJXCck4eVq3KL4GA
+         mM4QnyiPplOC5VV+Bc1Dhkuotmo5Z9WS+ww7OerWk03pXo3H73NUeUsWrDUCmxwiDe
+         jEZljJvLVf9iA==
+Date:   Thu, 26 Aug 2021 14:51:12 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Stanislav Fomichev <sdf@google.com>
-Cc:     stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Roman Gushchin <guro@fb.com>
-Subject: Re: [PATCH 5.10.y] bpf: Fix NULL pointer dereference in
- bpf_get_local_storage() helper
-Message-ID: <YSfd2tZll1We6vse@sashalap>
-References: <552c822eac5fb168f94570056ccd8a4b790db2bf.1629740134.git.sdf@google.com>
+To:     Stephen Boyd <swboyd@chromium.org>
+Cc:     sbhanu@codeaurora.org, stable@vger.kernel.org,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        linux-mmc@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: FAILED: Patch "mmc: sdhci-msm: Update the software timeout value
+ for sdhc" failed to apply to 5.4-stable tree
+Message-ID: <YSfioM5cEnvD3pGb@sashalap>
+References: <20210824025754.658394-1-sashal@kernel.org>
+ <CAE-0n53zk0ogf=TUknMoCAPDd97=jq3Czpp6b1c9E29ormuCSQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <552c822eac5fb168f94570056ccd8a4b790db2bf.1629740134.git.sdf@google.com>
+In-Reply-To: <CAE-0n53zk0ogf=TUknMoCAPDd97=jq3Czpp6b1c9E29ormuCSQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 23, 2021 at 10:36:46AM -0700, Stanislav Fomichev wrote:
->From: Yonghong Song <yhs@fb.com>
+On Thu, Aug 26, 2021 at 07:51:45AM +0000, Stephen Boyd wrote:
+>From cd5d41c802f7b3e20c0c0ebd6bf0cb335954fd89 Mon Sep 17 00:00:00 2001
+>From: Shaik Sajida Bhanu <sbhanu@codeaurora.org>
+>Date: Fri, 16 Jul 2021 17:16:14 +0530
+>Subject: [PATCH] mmc: sdhci-msm: Update the software timeout value for sdhc
 >
->commit b910eaaaa4b89976ef02e5d6448f3f73dc671d91 upstream.
+>commit 67b13f3e221ed81b46a657e2b499bf8b20162476 upstream.
 >
->Jiri Olsa reported a bug ([1]) in kernel where cgroup local
->storage pointer may be NULL in bpf_get_local_storage() helper.
->There are two issues uncovered by this bug:
->  (1). kprobe or tracepoint prog incorrectly sets cgroup local storage
->       before prog run,
->  (2). due to change from preempt_disable to migrate_disable,
->       preemption is possible and percpu storage might be overwritten
->       by other tasks.
+>Whenever SDHC run at clock rate 50MHZ or below, the hardware data
+>timeout value will be 21.47secs, which is approx. 22secs and we have
+>a current software timeout value as 10secs. We have to set software
+>timeout value more than the hardware data timeout value to avioid seeing
+>the below register dumps.
 >
->This issue (1) is fixed in [2]. This patch tried to address issue (2).
->The following shows how things can go wrong:
->  task 1:   bpf_cgroup_storage_set() for percpu local storage
->         preemption happens
->  task 2:   bpf_cgroup_storage_set() for percpu local storage
->         preemption happens
->  task 1:   run bpf program
+>[  332.953670] mmc2: Timeout waiting for hardware interrupt.
+>[  332.959608] mmc2: sdhci: ============ SDHCI REGISTER DUMP ===========
+>[  332.966450] mmc2: sdhci: Sys addr:  0x00000000 | Version:  0x00007202
+>[  332.973256] mmc2: sdhci: Blk size:  0x00000200 | Blk cnt:  0x00000001
+>[  332.980054] mmc2: sdhci: Argument:  0x00000000 | Trn mode: 0x00000027
+>[  332.986864] mmc2: sdhci: Present:   0x01f801f6 | Host ctl: 0x0000001f
+>[  332.993671] mmc2: sdhci: Power:     0x00000001 | Blk gap:  0x00000000
+>[  333.000583] mmc2: sdhci: Wake-up:   0x00000000 | Clock:    0x00000007
+>[  333.007386] mmc2: sdhci: Timeout:   0x0000000e | Int stat: 0x00000000
+>[  333.014182] mmc2: sdhci: Int enab:  0x03ff100b | Sig enab: 0x03ff100b
+>[  333.020976] mmc2: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000000
+>[  333.027771] mmc2: sdhci: Caps:      0x322dc8b2 | Caps_1:   0x0000808f
+>[  333.034561] mmc2: sdhci: Cmd:       0x0000183a | Max curr: 0x00000000
+>[  333.041359] mmc2: sdhci: Resp[0]:   0x00000900 | Resp[1]:  0x00000000
+>[  333.048157] mmc2: sdhci: Resp[2]:   0x00000000 | Resp[3]:  0x00000000
+>[  333.054945] mmc2: sdhci: Host ctl2: 0x00000000
+>[  333.059657] mmc2: sdhci: ADMA Err:  0x00000000 | ADMA Ptr:
+>0x0000000ffffff218
+>[  333.067178] mmc2: sdhci_msm: ----------- VENDOR REGISTER DUMP
+>-----------
+>[  333.074343] mmc2: sdhci_msm: DLL sts: 0x00000000 | DLL cfg:
+>0x6000642c | DLL cfg2: 0x0020a000
+>[  333.083417] mmc2: sdhci_msm: DLL cfg3: 0x00000000 | DLL usr ctl:
+>0x00000000 | DDR cfg: 0x80040873
+>[  333.092850] mmc2: sdhci_msm: Vndr func: 0x00008a9c | Vndr func2 :
+>0xf88218a8 Vndr func3: 0x02626040
+>[  333.102371] mmc2: sdhci: ============================================
 >
->task 1 will effectively use the percpu local storage setting by task 2
->which will be either NULL or incorrect ones.
+>So, set software timeout value more than hardware timeout value.
 >
->Instead of just one common local storage per cpu, this patch fixed
->the issue by permitting 8 local storages per cpu and each local
->storage is identified by a task_struct pointer. This way, we
->allow at most 8 nested preemption between bpf_cgroup_storage_set()
->and bpf_cgroup_storage_unset(). The percpu local storage slot
->is released (calling bpf_cgroup_storage_unset()) by the same task
->after bpf program finished running.
->bpf_test_run() is also fixed to use the new bpf_cgroup_storage_set()
->interface.
+>Signed-off-by: Shaik Sajida Bhanu <sbhanu@codeaurora.org>
+>Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+>Cc: stable@vger.kernel.org
+>Link: https://lore.kernel.org/r/1626435974-14462-1-git-send-email-sbhanu@codeaurora.org
+>Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+>Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+>---
+> drivers/mmc/host/sdhci-msm.c | 18 ++++++++++++++++++
+> 1 file changed, 18 insertions(+)
 >
->The patch is tested on top of [2] with reproducer in [1].
->Without this patch, kernel will emit error in 2-3 minutes.
->With this patch, after one hour, still no error.
->
-> [1] https://lore.kernel.org/bpf/CAKH8qBuXCfUz=w8L+Fj74OaUpbosO29niYwTki7e3Ag044_aww@mail.gmail.com/T
-> [2] https://lore.kernel.org/bpf/20210309185028.3763817-1-yhs@fb.com
->
->Signed-off-by: Yonghong Song <yhs@fb.com>
->Signed-off-by: Alexei Starovoitov <ast@kernel.org>
->Acked-by: Roman Gushchin <guro@fb.com>
->Link: https://lore.kernel.org/bpf/20210323055146.3334476-1-yhs@fb.com
->Cc: <stable@vger.kernel.org> # 5.10.x
->Change-Id: I0bff719d0bfbaa819316de26391b4b2e4e60faed
->Signed-off-by: Stanislav Fomichev <sdf@google.com>
+>diff --git a/drivers/mmc/host/sdhci-msm.c b/drivers/mmc/host/sdhci-msm.c
+>index 8bed81cf03ad..8ab963055238 100644
+>--- a/drivers/mmc/host/sdhci-msm.c
+>+++ b/drivers/mmc/host/sdhci-msm.c
+>@@ -1589,6 +1589,23 @@ static void sdhci_msm_set_clock(struct
+>sdhci_host *host, unsigned int clock)
 
-Queued up, thanks!
+I've queued this up, thanks!
+
+Note that the patch was linewrapped (see above).
 
 -- 
 Thanks,
