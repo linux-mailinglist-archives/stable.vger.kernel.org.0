@@ -2,71 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E5E33F8F17
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 21:48:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D423F8F1A
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 21:48:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243398AbhHZTrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 15:47:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49040 "EHLO
+        id S243499AbhHZTr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 15:47:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238539AbhHZTrP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 15:47:15 -0400
-Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6B3C0613CF
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 12:46:27 -0700 (PDT)
-Received: by mail-io1-xd2a.google.com with SMTP id b7so5246483iob.4
-        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 12:46:27 -0700 (PDT)
+        with ESMTP id S243496AbhHZTr0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 15:47:26 -0400
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51E0AC0613C1
+        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 12:46:38 -0700 (PDT)
+Received: by mail-io1-xd30.google.com with SMTP id n24so5197210ion.10
+        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 12:46:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=IokDP2HWe55ZjXE7xtTpkpiTxzH9+5nmAT7GHdxH8j0=;
-        b=EDhyloEDMIWXQ6jhn7tD6RpuUdcxtDUO/uMYJHOWezoifS7LUqd8Aa0p1Ylx35kqOW
-         v93m8vH0UPd8OwluQPWFl9OHbI/E9v9m7Y1QFII/pTPOgn8ydKu94HgYW4O4UltWQmFf
-         VHzJadJC2OqM1feWPQnf8DLKzTz3W0s1lNXmQDGNpwnBOt/9YLD7WTIVSkjyhjzAu2YY
-         373dauNPcUBYzpxR+gc1QzZOQerEf51Gf+0p+zLT571QQkEcFKMC5ccBKZHgU+QadY7V
-         8EbpBmgAEnn6qA2DQGp/mBEit5QXfEvHyF4j6IjRLWSpFGhlh34R29jKMlDsNPTLBWn5
-         sIRw==
+        bh=W8kFVRLQYAesDVBxw8WdPC0As1KdCG134iI/ODY2Y1Y=;
+        b=nKi+TXGJ7ujecbEHxzXU7dV0s9QVYGm3fq19pyC76e7VF80u0pqHzxFWXNGXd7Q0W6
+         q+KkLjUzofYGedVr9f4tCicjHYbo6TKFaabPsSk3ZF29izDbmCcBkS0H3q3QHctKgMTy
+         /Zn+PvwsDS4mrbz36eTZRZs199Pqibc3QDGDCWbcYu57cU3F3NNCjz35WwM3pw+GFTVc
+         HpliF9G1dtalQe47kZy2kG9svB11c7EtcF7xZQVkCZ2TjFi5lNnxrYJnN6h6IA00IJ8z
+         BHTQ6bMNNU+ueTlRgkxgeBGM5pNFAyBvBnmFJHOAb0xaRvklgXfc8ocs6X7pR2N1w67H
+         kbHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=IokDP2HWe55ZjXE7xtTpkpiTxzH9+5nmAT7GHdxH8j0=;
-        b=pFDJSjrYC1ZmTlCzbks2RfbDadc7bNr/g3XTYWDapAQj7/+PXKUJkzmdJ4xLIqwYnw
-         WzEaqTZv7rI+Ib325+83Fxd9nuJFA5jJoMa+4J3+CWAHNPTgviNlPofg880cWzYoijba
-         GnK12cGyV/OxrlTLBTlJR05CViJUIe2XprDu+jN7w3p499eXpuvbDtnA7o0wbvcrYVjJ
-         8L/N/5qRxRtEB0HYY0AteiUuIGvJ0chwa0nJNq+qpozsbPePpD6KIvsLanhiZC/lt4Tc
-         A+6VuHp/xBAw7sFog2FoxTQMu4AGzxWNC4UTehoWTMU/x9/XAHRiyppe886hXiZ0wuBq
-         IqjQ==
-X-Gm-Message-State: AOAM53278pBB5MtMw3SOV8HCG27RsDlsw9t+qNgX9PigOY4aeKbVmA4L
-        w4qSUr/dJNPMl59w/IV+vvCtzUYqLuMwiNS25GokZg==
-X-Google-Smtp-Source: ABdhPJwolqCx4Q3n5fEvkPYD6T0i3SEfP10DywVBByo737JOVOv+Xg4Jj5jwOEGMT29Z/FzYj+zOtKraTZ+tAbGqoXY=
-X-Received: by 2002:a02:708f:: with SMTP id f137mr4853755jac.68.1630007186815;
- Thu, 26 Aug 2021 12:46:26 -0700 (PDT)
+        bh=W8kFVRLQYAesDVBxw8WdPC0As1KdCG134iI/ODY2Y1Y=;
+        b=iqClS8k4rlwML08yAzA/RgR3hR0k/2lWBarhpzTx5z6Y3G1snm8tKvLSp3Z1y4oMdx
+         55NlnZIP/UEfVXvV5pWj7lpW3l/9upd2W5S7f7I+Rk26lsWHEBbbndtFceacHcG5D84p
+         DpiSNHLdf1oAKoMzG7Qg4iLN4S5DXrZodTyJmINTeHlZo+EvKB1pXWr5qSjLH5B5Qcyo
+         CkiTh4WZm3XLDxvxI+oK1dURUbL6NjMwK4JIx24ieuDRvbxFOnKpfb0isW16MU3af6kJ
+         o3BEuqnUHLeZFQ+TNARJnpndW6+nMFthwEXFd47gF8TcSbasDl5YQAqeO/JjgTKd/h/K
+         cI5A==
+X-Gm-Message-State: AOAM5321NkuKcFG1jFC1zE2oDwnBeXGC1fZo0+E0Kod0SpJsfQmf8/+/
+        9cNckKnaAD0hleLkqra92w33PQdonMuP2r/lF6Btig==
+X-Google-Smtp-Source: ABdhPJwdOThufTbwmrsrSHbN9TM7Lh/yHgwXnAtct0tgQ1dnf0UERIoytNbfjVlu0wHDov2HMm2WPHkKEh44DQcwOxE=
+X-Received: by 2002:a05:6602:2ac7:: with SMTP id m7mr4404288iov.66.1630007197520;
+ Thu, 26 Aug 2021 12:46:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210826012722.3210359-1-pcc@google.com> <YSc3MGVllU8qSJXV@kroah.com>
-In-Reply-To: <YSc3MGVllU8qSJXV@kroah.com>
+References: <20210826012722.3210359-1-pcc@google.com> <11f72b27c12f46eb8bef1d1773980c54@AcuMS.aculab.com>
+In-Reply-To: <11f72b27c12f46eb8bef1d1773980c54@AcuMS.aculab.com>
 From:   Peter Collingbourne <pcc@google.com>
-Date:   Thu, 26 Aug 2021 12:46:15 -0700
-Message-ID: <CAMn1gO6W=pHwugxA_ep+vZMK5M6xmw7kn5GOZiM=rb0QV5Di6Q@mail.gmail.com>
+Date:   Thu, 26 Aug 2021 12:46:26 -0700
+Message-ID: <CAMn1gO5eT=S-BcbhDDM9=s5r1zspO==nbJjYV-p9JFq-U5U+eA@mail.gmail.com>
 Subject: Re: [PATCH] net: don't unconditionally copy_from_user a struct ifreq
  for socket ioctls
-To:     Greg KH <gregkh@linuxfoundation.org>
+To:     David Laight <David.Laight@aculab.com>
 Cc:     "David S. Miller" <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>,
         Colin Ian King <colin.king@canonical.com>,
         Cong Wang <cong.wang@bytedance.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, netdev@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 25, 2021 at 11:39 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Thu, Aug 26, 2021 at 1:12 AM David Laight <David.Laight@aculab.com> wrote:
 >
-> On Wed, Aug 25, 2021 at 06:27:22PM -0700, Peter Collingbourne wrote:
+> From: Peter Collingbourne
+> > Sent: 26 August 2021 02:27
+> >
 > > A common implementation of isatty(3) involves calling a ioctl passing
 > > a dummy struct argument and checking whether the syscall failed --
 > > bionic and glibc use TCGETS (passing a struct termios), and musl uses
@@ -84,29 +87,65 @@ On Wed, Aug 25, 2021 at 11:39 PM Greg KH <gregkh@linuxfoundation.org> wrote:
 > >
 > > Fix the problem by adding an early check for whether the ioctl is a
 > > valid socket ioctl, and return -ENOTTY if it isn't.
-> >
-> > Fixes: 44c02a2c3dc5 ("dev_ioctl(): move copyin/copyout to callers")
-> > Link: https://linux-review.googlesource.com/id/I869da6cf6daabc3e4b7b82ac979683ba05e27d4d
-> > Signed-off-by: Peter Collingbourne <pcc@google.com>
-> > Cc: <stable@vger.kernel.org> # 4.19
-> > ---
-> >  include/linux/netdevice.h |  1 +
-> >  net/core/dev_ioctl.c      | 64 ++++++++++++++++++++++++++++++++-------
-> >  net/socket.c              |  6 +++-
-> >  3 files changed, 59 insertions(+), 12 deletions(-)
-> >
-> > diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> > index eaf5bb008aa9..481b90ef0d32 100644
-> > --- a/include/linux/netdevice.h
-> > +++ b/include/linux/netdevice.h
-> > @@ -4012,6 +4012,7 @@ int netdev_rx_handler_register(struct net_device *dev,
-> >  void netdev_rx_handler_unregister(struct net_device *dev);
-> >
-> >  bool dev_valid_name(const char *name);
-> > +bool is_dev_ioctl_cmd(unsigned int cmd);
+> ..
+> > +bool is_dev_ioctl_cmd(unsigned int cmd)
+> > +{
+> > +     switch (cmd) {
+> > +     case SIOCGIFNAME:
+> > +     case SIOCGIFHWADDR:
+> > +     case SIOCGIFFLAGS:
+> > +     case SIOCGIFMETRIC:
+> > +     case SIOCGIFMTU:
+> > +     case SIOCGIFSLAVE:
+> > +     case SIOCGIFMAP:
+> > +     case SIOCGIFINDEX:
+> > +     case SIOCGIFTXQLEN:
+> > +     case SIOCETHTOOL:
+> > +     case SIOCGMIIPHY:
+> > +     case SIOCGMIIREG:
+> > +     case SIOCSIFNAME:
+> > +     case SIOCSIFMAP:
+> > +     case SIOCSIFTXQLEN:
+> > +     case SIOCSIFFLAGS:
+> > +     case SIOCSIFMETRIC:
+> > +     case SIOCSIFMTU:
+> > +     case SIOCSIFHWADDR:
+> > +     case SIOCSIFSLAVE:
+> > +     case SIOCADDMULTI:
+> > +     case SIOCDELMULTI:
+> > +     case SIOCSIFHWBROADCAST:
+> > +     case SIOCSMIIREG:
+> > +     case SIOCBONDENSLAVE:
+> > +     case SIOCBONDRELEASE:
+> > +     case SIOCBONDSETHWADDR:
+> > +     case SIOCBONDCHANGEACTIVE:
+> > +     case SIOCBRADDIF:
+> > +     case SIOCBRDELIF:
+> > +     case SIOCSHWTSTAMP:
+> > +     case SIOCBONDSLAVEINFOQUERY:
+> > +     case SIOCBONDINFOQUERY:
+> > +     case SIOCGIFMEM:
+> > +     case SIOCSIFMEM:
+> > +     case SIOCSIFLINK:
+> > +     case SIOCWANDEV:
+> > +     case SIOCGHWTSTAMP:
+> > +             return true;
 >
-> "is_socket_ioctl_cmd()" might be a better global name here.
+> That is horrid.
+> Can't you at least use _IOC_TYPE() to check for socket ioctls.
+> Clearly it can succeed for 'random' driver ioctls, but will fail
+> for the tty ones.
 
-SGTM, done in v2.
+Yes, that works, since all of the ioctls listed above are in the range
+where the _IOC_TYPE() check would succeed. It now also makes sense to
+move the check inline into the header. I've done all of that in v2.
+
+> The other sane thing is to check _IOC_SIZE().
+> Since all the SIOCxxxx have a correct _IOC_SIZE() that can be
+> used to check the user copy length.
+> (Unlike socket options the correct length is always supplied.
+
+FWIW, it doesn't look like any of them have the _IOC_SIZE() bits set,
+so that won't work. _IOC_TYPE() seems better anyway.
 
 Peter
