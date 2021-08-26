@@ -2,86 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A300B3F828B
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 08:39:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5DF3F829A
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 08:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239112AbhHZGkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Aug 2021 02:40:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38172 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234415AbhHZGkk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 26 Aug 2021 02:40:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D3BE610CA;
-        Thu, 26 Aug 2021 06:39:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1629959994;
-        bh=YDdDJ8UVx6APE79kWD1KiYfDKlzcYXXRqdvvgHhmVzk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=aP1s1YHNUe+n+sZuGly73Kfys6U2PxpfwFwgeAYLORkHO7O6dD9MtMQfP356DdWGl
-         wrpN8612/+wvBVbxWHBr0wqM9pSv8bl9T4/vi+eECS1MbOCg9OAz+0F+EQNUsPQoX5
-         4tg4ywEmo8UqB0x1lnyowZ9+UsBPOWsukJYtg3Cg=
-Date:   Thu, 26 Aug 2021 08:39:44 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Peter Collingbourne <pcc@google.com>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Colin Ian King <colin.king@canonical.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] net: don't unconditionally copy_from_user a struct ifreq
- for socket ioctls
-Message-ID: <YSc3MGVllU8qSJXV@kroah.com>
-References: <20210826012722.3210359-1-pcc@google.com>
+        id S239629AbhHZGpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Aug 2021 02:45:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36860 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239184AbhHZGps (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Aug 2021 02:45:48 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3393C061796
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 23:45:01 -0700 (PDT)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1mJ98G-0008Kk-Au
+        for stable@vger.kernel.org; Thu, 26 Aug 2021 08:45:00 +0200
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id 927AE66FF67
+        for <stable@vger.kernel.org>; Thu, 26 Aug 2021 06:44:59 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id CA77666FF5A;
+        Thu, 26 Aug 2021 06:44:57 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id d093c18f;
+        Thu, 26 Aug 2021 06:44:57 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
+        kernel@pengutronix.de,
+        =?UTF-8?q?Stefan=20M=C3=A4tje?= <stefan.maetje@esd.eu>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH net] can: usb: esd_usb2: esd_usb2_rx_event(): fix the interchange of the CAN RX and TX error counters
+Date:   Thu, 26 Aug 2021 08:44:56 +0200
+Message-Id: <20210826064456.1427513-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210826064456.1427513-1-mkl@pengutronix.de>
+References: <20210826064456.1427513-1-mkl@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210826012722.3210359-1-pcc@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Aug 25, 2021 at 06:27:22PM -0700, Peter Collingbourne wrote:
-> A common implementation of isatty(3) involves calling a ioctl passing
-> a dummy struct argument and checking whether the syscall failed --
-> bionic and glibc use TCGETS (passing a struct termios), and musl uses
-> TIOCGWINSZ (passing a struct winsize). If the FD is a socket, we will
-> copy sizeof(struct ifreq) bytes of data from the argument and return
-> -EFAULT if that fails. The result is that the isatty implementations
-> may return a non-POSIX-compliant value in errno in the case where part
-> of the dummy struct argument is inaccessible, as both struct termios
-> and struct winsize are smaller than struct ifreq (at least on arm64).
-> 
-> Although there is usually enough stack space following the argument
-> on the stack that this did not present a practical problem up to now,
-> with MTE stack instrumentation it's more likely for the copy to fail,
-> as the memory following the struct may have a different tag.
-> 
-> Fix the problem by adding an early check for whether the ioctl is a
-> valid socket ioctl, and return -ENOTTY if it isn't.
-> 
-> Fixes: 44c02a2c3dc5 ("dev_ioctl(): move copyin/copyout to callers")
-> Link: https://linux-review.googlesource.com/id/I869da6cf6daabc3e4b7b82ac979683ba05e27d4d
-> Signed-off-by: Peter Collingbourne <pcc@google.com>
-> Cc: <stable@vger.kernel.org> # 4.19
-> ---
->  include/linux/netdevice.h |  1 +
->  net/core/dev_ioctl.c      | 64 ++++++++++++++++++++++++++++++++-------
->  net/socket.c              |  6 +++-
->  3 files changed, 59 insertions(+), 12 deletions(-)
-> 
-> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-> index eaf5bb008aa9..481b90ef0d32 100644
-> --- a/include/linux/netdevice.h
-> +++ b/include/linux/netdevice.h
-> @@ -4012,6 +4012,7 @@ int netdev_rx_handler_register(struct net_device *dev,
->  void netdev_rx_handler_unregister(struct net_device *dev);
->  
->  bool dev_valid_name(const char *name);
-> +bool is_dev_ioctl_cmd(unsigned int cmd);
+From: Stefan Mätje <stefan.maetje@esd.eu>
 
-"is_socket_ioctl_cmd()" might be a better global name here.
+This patch fixes the interchanged fetch of the CAN RX and TX error
+counters from the ESD_EV_CAN_ERROR_EXT message. The RX error counter
+is really in struct rx_msg::data[2] and the TX error counter is in
+struct rx_msg::data[3].
 
-thanks,
+Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
+Link: https://lore.kernel.org/r/20210825215227.4947-2-stefan.maetje@esd.eu
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Mätje <stefan.maetje@esd.eu>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ drivers/net/can/usb/esd_usb2.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-greg k-h
+diff --git a/drivers/net/can/usb/esd_usb2.c b/drivers/net/can/usb/esd_usb2.c
+index 66fa8b07c2e6..95ae740fc311 100644
+--- a/drivers/net/can/usb/esd_usb2.c
++++ b/drivers/net/can/usb/esd_usb2.c
+@@ -224,8 +224,8 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
+ 	if (id == ESD_EV_CAN_ERROR_EXT) {
+ 		u8 state = msg->msg.rx.data[0];
+ 		u8 ecc = msg->msg.rx.data[1];
+-		u8 txerr = msg->msg.rx.data[2];
+-		u8 rxerr = msg->msg.rx.data[3];
++		u8 rxerr = msg->msg.rx.data[2];
++		u8 txerr = msg->msg.rx.data[3];
+ 
+ 		skb = alloc_can_err_skb(priv->netdev, &cf);
+ 		if (skb == NULL) {
+
+base-commit: ec92e524ee91c98e6ee06807c7d69d9e2fd141bc
+-- 
+2.32.0
+
+
