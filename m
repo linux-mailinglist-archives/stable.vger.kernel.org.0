@@ -2,194 +2,217 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F34B13F7FA7
-	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 03:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E19453F7FE4
+	for <lists+stable@lfdr.de>; Thu, 26 Aug 2021 03:28:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235061AbhHZBK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Aug 2021 21:10:58 -0400
-Received: from mail-bn7nam10on2073.outbound.protection.outlook.com ([40.107.92.73]:45569
-        "EHLO NAM10-BN7-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S235172AbhHZBK5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 25 Aug 2021 21:10:57 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KZkGwMQ499mGoZG1+/iOF7zt7Mnq4QQh0Fd3JY5pyeJm2LBc97Z8nlFfzk3NalPP1dEjSdtwpx1+8i6X06mjWi+ioAJVak7Gv3RPEQ1/Y7z2Yw0A4MTQUeAzfTvLsD07rX1QE+rux8V91yBBBAISu23QY60DynAKpL+AqZD9iEdgynbr6Ez3XyA2gGr77R8LK7+uAipxbdWngG9MIfL/35E2ynQ2b5AEgLg5EPS8ZERlB0uqvsbhLed6tMbIbUA9peREQ60qDuYgV3qdtDKAB+0AiZb2tMFSIvgxPCxrqyPdsWCOUKQMIEeEg17W35yadyJYjHKrX/fvLYRHoKk9Rg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=44yXU7nuuKpRgj0svW8oJ+GAjct6iDXfZis5dLxv7QY=;
- b=KaK6aeHM/hFdZANtZ+p/h8pf0NZ2Cz9dqM9emTyoJ2GCLDKEo8v2e3UGi2S2L9Fxz3geYxNzXFiLN2WK7EZUcT6JnQBcyfdMTFj7nwTPRgrz0cgjb/JL5c7G+IGAzv20QYnlYMvg2VM6xTLBoHBtmKV7vD2Clhk0UzLiVmH96Pjwe73+ZPJemQ8QfGolBVi1hsioLo8c6LnUYb0UrSImrGKoNXPmBgIHgUtUviRPDErRCCnA1Soz6d356fhPbYK3B4wpA5oydjPTfrLx5BBIJZMNXAIGmZvZ0sLbacJ+RVbBQOaCXDQH539G72+OrnFAcwL9p3BOiqkzf/UpiE44cA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=44yXU7nuuKpRgj0svW8oJ+GAjct6iDXfZis5dLxv7QY=;
- b=qvl6lAC/TrR3LkBoK7bUko029emvg0IJepX18N8vP5Gap8JZZkVy2rBU+hj5MY8RmY0WIDmnEc8+3ROVTgrGsZhiR6o7x/IMo5hmIeoODLEDKEBUv8xt/boB5QFiUkBtM7zup2jvqZUm26WMqVx6JI2kITonJZWeEIKDSXa76sc=
-Received: from DM5PR08CA0043.namprd08.prod.outlook.com (2603:10b6:4:60::32) by
- DM5PR12MB1691.namprd12.prod.outlook.com (2603:10b6:4:8::11) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4436.22; Thu, 26 Aug 2021 01:10:09 +0000
-Received: from DM6NAM11FT012.eop-nam11.prod.protection.outlook.com
- (2603:10b6:4:60:cafe::7b) by DM5PR08CA0043.outlook.office365.com
- (2603:10b6:4:60::32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4457.17 via Frontend
- Transport; Thu, 26 Aug 2021 01:10:09 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
- header.d=none;lists.freedesktop.org; dmarc=pass action=none
- header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- DM6NAM11FT012.mail.protection.outlook.com (10.13.173.109) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4457.17 via Frontend Transport; Thu, 26 Aug 2021 01:10:08 +0000
-Received: from SATLEXMB05.amd.com (10.181.40.146) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.12; Wed, 25 Aug
- 2021 20:10:06 -0500
-Received: from SATLEXMB03.amd.com (10.181.40.144) by SATLEXMB05.amd.com
- (10.181.40.146) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.12; Wed, 25 Aug
- 2021 20:10:06 -0500
-Received: from elite-desk-aura.lan (10.180.168.240) by SATLEXMB03.amd.com
- (10.181.40.144) with Microsoft SMTP Server id 15.1.2242.12 via Frontend
- Transport; Wed, 25 Aug 2021 20:10:05 -0500
-From:   Aurabindo Pillai <aurabindo.pillai@amd.com>
-To:     <amd-gfx@lists.freedesktop.org>
-CC:     <Harry.Wentland@amd.com>, <nicholas.kazlauskas@amd.com>,
-        <alexander.deucher@amd.com>, <aurabindo.pillai@amd.com>,
-        "Jerry (Fangzhi) Zuo" <Jerry.Zuo@amd.com>, <stable@vger.kernel.org>
-Subject: [PATCH 2/4] drm/amd/display: Update bounding box states (v2)
-Date:   Wed, 25 Aug 2021 21:10:00 -0400
-Message-ID: <20210826011002.425361-2-aurabindo.pillai@amd.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210826011002.425361-1-aurabindo.pillai@amd.com>
-References: <20210826011002.425361-1-aurabindo.pillai@amd.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 4b5ee877-601c-4bc7-a060-08d9682e3f28
-X-MS-TrafficTypeDiagnostic: DM5PR12MB1691:
-X-Microsoft-Antispam-PRVS: <DM5PR12MB1691F1EB54EE154FE1DF40FA8BC79@DM5PR12MB1691.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:3826;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: k7rUjZaFBEoRY/EAtJsinAB7WqerQvWUajVQEAgbo59Dsfz1qJKhFua+2TiQEwBqvbfgJP8enKdEi9XBE+hd9y0Gwm7pN+weDhWH8WvCPJ8toVsPoSUcMf3Ikdkg8So4fkgc1/LrWHREF6LTEJauZGn2cJF2mxw2tLEM2JPYrC7Hzn6Oes2NtK/p7Q4g9BqHk97SZ1UgrSMgJiPW24+ukhZdZG8kiOR2Q4WVXIPrOYoaO5iCm3KZdGf3PAn47+jndFs2WDjKRIcXZOorAAemGZzu+5J+rnFAKXGPiYWVsfa7L1bxco8ECrp+zn6c2A/ZR1CdKo3CUylI0cGpY7XgM+atcT2pR1x5Vk1EsyHyQjtefGH9d3Q8nN2EMMyQeKnKcsMlXda2LXrHczDnl2aoVNgMgWX2Lbd9GzG1sr0rSFBfR0TYBvFXsZLHFZbbx0EkAgll3T6rTqIwH2KJmMOgLuOCgwLY5EOkOTOvX4mmG2OcN+XKziZ3DnVdYjSb9fWAMpgRtZLNFK4j2ljLfyrE6ILl+uPgKHb6BYAMKipfA+SyBIBmiZSb3ljBLqu0k2Kq95QQx18fnKQ3NJq72zS7u78mnf5vRb3d4Crha0M8jvidWasEQbW9VGgEmucixeUbYoQSlUC2kBzQegXDn68Ua/hS52RoGQMBm3nY8+NcS+IYo4jUvFToswjm+3od7OmqWBU63vGeFSkP5suleUswvdNEH0n7I5wkaCorLFwL0UGKDKqRxYqLO2SceqJVgm17LKhNlweatSRqWue3pyMR3w==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(39860400002)(136003)(346002)(396003)(376002)(46966006)(36840700001)(70206006)(26005)(36756003)(82740400003)(6666004)(1076003)(70586007)(47076005)(2616005)(8936002)(6916009)(44832011)(82310400003)(36860700001)(81166007)(8676002)(356005)(83380400001)(426003)(186003)(336012)(4326008)(2906002)(86362001)(316002)(54906003)(5660300002)(478600001)(117716001)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2021 01:10:08.4169
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4b5ee877-601c-4bc7-a060-08d9682e3f28
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT012.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1691
+        id S235993AbhHZB2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Aug 2021 21:28:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50786 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235809AbhHZB2Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Aug 2021 21:28:16 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543D3C0613CF
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 18:27:30 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id r15-20020a056902154f00b00598b87f197cso1431314ybu.13
+        for <stable@vger.kernel.org>; Wed, 25 Aug 2021 18:27:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=ezec1I4H90P09h79RVbQ3uCzdElICKnF3wN8c7nmOZk=;
+        b=iBHkey8i/T0CNWc4iUCR1opeac0+E+IlLoWBD6/iEpE//xGmQ1qFkwdvCviPV2rHdL
+         COQIG7PvgdlQscHCRQ5JN8moZvmqQXU/r4zr6mVEuoxQjNnFq/zTGo8FfJT7KcwatwCQ
+         aURduY/7LX4tBU99EOBrMIFv2f5kT3IOG0/sIamzitqzqiwchipKtBqanU0fYfnqwVte
+         PHix5nXzZPBavz90hbMhnczSdgMX5ZXtPcRkqaJRmsteP+C4j0/ohFWP+p8fF2pRVPfW
+         v9QzFodzdqKBLkGM0Qy0H4aGMu3dpX1zumru3nQG8mxeyBr0IX8jPCX62SRKS7iJNSDQ
+         NiHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=ezec1I4H90P09h79RVbQ3uCzdElICKnF3wN8c7nmOZk=;
+        b=Zhdz4NDLN/LwxgtEazYUSlYaaWPOLgQvi4uwVEdBAQvgVLCNjN4Igk0+Tp+qHKAI6/
+         3cg2mM84mNDrgTOQytxUOHBUBaOgmPQEZo5nPuWs3koV+6gDUHVv6sj/4V+d4rqiFYpy
+         dojns4ndZzP9jwy0XRqQ3OiLh8xq5DN6UJDHYrShaxyULVG4zWXc74SA27ijyFYZGavR
+         17bY8rVKlEeNu3euUCDjhXXlFrEW456i+YeA8KXofQyoUPk3G/jnbxvY64YjJ6eYxvOk
+         /3gYJvMXfRUq+SaDWbz4VvBxZssbAMHIWMJNDFFNysL6cZ4MXo4abavvb3wX1gBgpYJo
+         3h0Q==
+X-Gm-Message-State: AOAM532QtCDdDX4vqzhrkg2WmMNNbDuskN2YbYBVnYPLPWRa+XrH0E2J
+        HUEz1oz5ljvT2Icrrh1d8Tx8J6o=
+X-Google-Smtp-Source: ABdhPJwkCu2INY1MJ3PQnt4wvzh4D2iiOlPp6ROmwjTRlZsS94P9Xz6MXcuSNH6u2JvEbZhDhfxOT8w=
+X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2ce:200:4c58:f8bf:74a9:6e55])
+ (user=pcc job=sendgmr) by 2002:a25:1456:: with SMTP id 83mr2003884ybu.440.1629941249562;
+ Wed, 25 Aug 2021 18:27:29 -0700 (PDT)
+Date:   Wed, 25 Aug 2021 18:27:22 -0700
+Message-Id: <20210826012722.3210359-1-pcc@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.33.0.rc2.250.ged5fa647cd-goog
+Subject: [PATCH] net: don't unconditionally copy_from_user a struct ifreq for
+ socket ioctls
+From:   Peter Collingbourne <pcc@google.com>
+To:     "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Colin Ian King <colin.king@canonical.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Cc:     Peter Collingbourne <pcc@google.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jerry (Fangzhi) Zuo" <Jerry.Zuo@amd.com>
+A common implementation of isatty(3) involves calling a ioctl passing
+a dummy struct argument and checking whether the syscall failed --
+bionic and glibc use TCGETS (passing a struct termios), and musl uses
+TIOCGWINSZ (passing a struct winsize). If the FD is a socket, we will
+copy sizeof(struct ifreq) bytes of data from the argument and return
+-EFAULT if that fails. The result is that the isatty implementations
+may return a non-POSIX-compliant value in errno in the case where part
+of the dummy struct argument is inaccessible, as both struct termios
+and struct winsize are smaller than struct ifreq (at least on arm64).
 
-[Why]
-Drop hardcoded dispclk, dppclk, phyclk
+Although there is usually enough stack space following the argument
+on the stack that this did not present a practical problem up to now,
+with MTE stack instrumentation it's more likely for the copy to fail,
+as the memory following the struct may have a different tag.
 
-[How]
-Read the corresponding values from clock table entries already populated.
+Fix the problem by adding an early check for whether the ioctl is a
+valid socket ioctl, and return -ENOTTY if it isn't.
 
-Signed-off-by: Jerry (Fangzhi) Zuo <Jerry.Zuo@amd.com>
-Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 44c02a2c3dc5 ("dev_ioctl(): move copyin/copyout to callers")
+Link: https://linux-review.googlesource.com/id/I869da6cf6daabc3e4b7b82ac979683ba05e27d4d
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Cc: <stable@vger.kernel.org> # 4.19
 ---
- .../drm/amd/display/dc/dcn30/dcn30_resource.c | 41 ++++++++++++++-----
- 1 file changed, 31 insertions(+), 10 deletions(-)
+ include/linux/netdevice.h |  1 +
+ net/core/dev_ioctl.c      | 64 ++++++++++++++++++++++++++++++++-------
+ net/socket.c              |  6 +++-
+ 3 files changed, 59 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-index 43ac6f42dd80..3d2443328345 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-@@ -2398,16 +2398,37 @@ void dcn30_update_bw_bounding_box(struct dc *dc, struct clk_bw_params *bw_params
- 	dc->dml.soc.dispclk_dppclk_vco_speed_mhz = dc->clk_mgr->dentist_vco_freq_khz / 1000.0;
+diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+index eaf5bb008aa9..481b90ef0d32 100644
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -4012,6 +4012,7 @@ int netdev_rx_handler_register(struct net_device *dev,
+ void netdev_rx_handler_unregister(struct net_device *dev);
  
- 	if (bw_params->clk_table.entries[0].memclk_mhz) {
-+		int max_dcfclk_mhz = 0, max_dispclk_mhz = 0, max_dppclk_mhz = 0, max_phyclk_mhz = 0;
+ bool dev_valid_name(const char *name);
++bool is_dev_ioctl_cmd(unsigned int cmd);
+ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr,
+ 		bool *need_copyout);
+ int dev_ifconf(struct net *net, struct ifconf *, int);
+diff --git a/net/core/dev_ioctl.c b/net/core/dev_ioctl.c
+index 478d032f34ac..ac807fc64da1 100644
+--- a/net/core/dev_ioctl.c
++++ b/net/core/dev_ioctl.c
+@@ -368,6 +368,54 @@ void dev_load(struct net *net, const char *name)
+ }
+ EXPORT_SYMBOL(dev_load);
+ 
++bool is_dev_ioctl_cmd(unsigned int cmd)
++{
++	switch (cmd) {
++	case SIOCGIFNAME:
++	case SIOCGIFHWADDR:
++	case SIOCGIFFLAGS:
++	case SIOCGIFMETRIC:
++	case SIOCGIFMTU:
++	case SIOCGIFSLAVE:
++	case SIOCGIFMAP:
++	case SIOCGIFINDEX:
++	case SIOCGIFTXQLEN:
++	case SIOCETHTOOL:
++	case SIOCGMIIPHY:
++	case SIOCGMIIREG:
++	case SIOCSIFNAME:
++	case SIOCSIFMAP:
++	case SIOCSIFTXQLEN:
++	case SIOCSIFFLAGS:
++	case SIOCSIFMETRIC:
++	case SIOCSIFMTU:
++	case SIOCSIFHWADDR:
++	case SIOCSIFSLAVE:
++	case SIOCADDMULTI:
++	case SIOCDELMULTI:
++	case SIOCSIFHWBROADCAST:
++	case SIOCSMIIREG:
++	case SIOCBONDENSLAVE:
++	case SIOCBONDRELEASE:
++	case SIOCBONDSETHWADDR:
++	case SIOCBONDCHANGEACTIVE:
++	case SIOCBRADDIF:
++	case SIOCBRDELIF:
++	case SIOCSHWTSTAMP:
++	case SIOCBONDSLAVEINFOQUERY:
++	case SIOCBONDINFOQUERY:
++	case SIOCGIFMEM:
++	case SIOCSIFMEM:
++	case SIOCSIFLINK:
++	case SIOCWANDEV:
++	case SIOCGHWTSTAMP:
++		return true;
 +
-+		for (i = 0; i < MAX_NUM_DPM_LVL; i++) {
-+			if (bw_params->clk_table.entries[i].dcfclk_mhz > max_dcfclk_mhz)
-+				max_dcfclk_mhz = bw_params->clk_table.entries[i].dcfclk_mhz;
-+			if (bw_params->clk_table.entries[i].dispclk_mhz > max_dispclk_mhz)
-+				max_dispclk_mhz = bw_params->clk_table.entries[i].dispclk_mhz;
-+			if (bw_params->clk_table.entries[i].dppclk_mhz > max_dppclk_mhz)
-+				max_dppclk_mhz = bw_params->clk_table.entries[i].dppclk_mhz;
-+			if (bw_params->clk_table.entries[i].phyclk_mhz > max_phyclk_mhz)
-+				max_phyclk_mhz = bw_params->clk_table.entries[i].phyclk_mhz;
-+		}
++	default:
++		return cmd >= SIOCDEVPRIVATE && cmd <= SIOCDEVPRIVATE + 15;
++	}
++}
 +
-+		if (!max_dcfclk_mhz)
-+			max_dcfclk_mhz = dcn3_0_soc.clock_limits[0].dcfclk_mhz;
-+		if (!max_dispclk_mhz)
-+			max_dispclk_mhz = dcn3_0_soc.clock_limits[0].dispclk_mhz;
-+		if (!max_dppclk_mhz)
-+			max_dppclk_mhz = dcn3_0_soc.clock_limits[0].dppclk_mhz;
-+		if (!max_phyclk_mhz)
-+			max_phyclk_mhz = dcn3_0_soc.clock_limits[0].phyclk_mhz;
+ /*
+  *	This function handles all "interface"-type I/O control requests. The actual
+  *	'doing' part of this is dev_ifsioc above.
+@@ -521,16 +569,10 @@ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr, bool *need_c
+ 	 *	Unknown or private ioctl.
+ 	 */
+ 	default:
+-		if (cmd == SIOCWANDEV ||
+-		    cmd == SIOCGHWTSTAMP ||
+-		    (cmd >= SIOCDEVPRIVATE &&
+-		     cmd <= SIOCDEVPRIVATE + 15)) {
+-			dev_load(net, ifr->ifr_name);
+-			rtnl_lock();
+-			ret = dev_ifsioc(net, ifr, cmd);
+-			rtnl_unlock();
+-			return ret;
+-		}
+-		return -ENOTTY;
++		dev_load(net, ifr->ifr_name);
++		rtnl_lock();
++		ret = dev_ifsioc(net, ifr, cmd);
++		rtnl_unlock();
++		return ret;
+ 	}
+ }
+diff --git a/net/socket.c b/net/socket.c
+index 0b2dad3bdf7f..e58886b1882c 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1109,7 +1109,7 @@ static long sock_do_ioctl(struct net *net, struct socket *sock,
+ 		rtnl_unlock();
+ 		if (!err && copy_to_user(argp, &ifc, sizeof(struct ifconf)))
+ 			err = -EFAULT;
+-	} else {
++	} else if (is_dev_ioctl_cmd(cmd)) {
+ 		struct ifreq ifr;
+ 		bool need_copyout;
+ 		if (copy_from_user(&ifr, argp, sizeof(struct ifreq)))
+@@ -1118,6 +1118,8 @@ static long sock_do_ioctl(struct net *net, struct socket *sock,
+ 		if (!err && need_copyout)
+ 			if (copy_to_user(argp, &ifr, sizeof(struct ifreq)))
+ 				return -EFAULT;
++	} else {
++		err = -ENOTTY;
+ 	}
+ 	return err;
+ }
+@@ -3306,6 +3308,8 @@ static int compat_ifr_data_ioctl(struct net *net, unsigned int cmd,
+ 	struct ifreq ifreq;
+ 	u32 data32;
  
--		if (bw_params->clk_table.entries[1].dcfclk_mhz > dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
-+		if (max_dcfclk_mhz > dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
- 			// If max DCFCLK is greater than the max DCFCLK STA target, insert into the DCFCLK STA target array
--			dcfclk_sta_targets[num_dcfclk_sta_targets] = bw_params->clk_table.entries[1].dcfclk_mhz;
-+			dcfclk_sta_targets[num_dcfclk_sta_targets] = max_dcfclk_mhz;
- 			num_dcfclk_sta_targets++;
--		} else if (bw_params->clk_table.entries[1].dcfclk_mhz < dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
-+		} else if (max_dcfclk_mhz < dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
- 			// If max DCFCLK is less than the max DCFCLK STA target, cap values and remove duplicates
- 			for (i = 0; i < num_dcfclk_sta_targets; i++) {
--				if (dcfclk_sta_targets[i] > bw_params->clk_table.entries[1].dcfclk_mhz) {
--					dcfclk_sta_targets[i] = bw_params->clk_table.entries[1].dcfclk_mhz;
-+				if (dcfclk_sta_targets[i] > max_dcfclk_mhz) {
-+					dcfclk_sta_targets[i] = max_dcfclk_mhz;
- 					break;
- 				}
- 			}
-@@ -2447,7 +2468,7 @@ void dcn30_update_bw_bounding_box(struct dc *dc, struct clk_bw_params *bw_params
- 				dcfclk_mhz[num_states] = dcfclk_sta_targets[i];
- 				dram_speed_mts[num_states++] = optimal_uclk_for_dcfclk_sta_targets[i++];
- 			} else {
--				if (j < num_uclk_states && optimal_dcfclk_for_uclk[j] <= bw_params->clk_table.entries[1].dcfclk_mhz) {
-+				if (j < num_uclk_states && optimal_dcfclk_for_uclk[j] <= max_dcfclk_mhz) {
- 					dcfclk_mhz[num_states] = optimal_dcfclk_for_uclk[j];
- 					dram_speed_mts[num_states++] = bw_params->clk_table.entries[j++].memclk_mhz * 16;
- 				} else {
-@@ -2462,7 +2483,7 @@ void dcn30_update_bw_bounding_box(struct dc *dc, struct clk_bw_params *bw_params
- 		}
- 
- 		while (j < num_uclk_states && num_states < DC__VOLTAGE_STATES &&
--				optimal_dcfclk_for_uclk[j] <= bw_params->clk_table.entries[1].dcfclk_mhz) {
-+				optimal_dcfclk_for_uclk[j] <= max_dcfclk_mhz) {
- 			dcfclk_mhz[num_states] = optimal_dcfclk_for_uclk[j];
- 			dram_speed_mts[num_states++] = bw_params->clk_table.entries[j++].memclk_mhz * 16;
- 		}
-@@ -2475,9 +2496,9 @@ void dcn30_update_bw_bounding_box(struct dc *dc, struct clk_bw_params *bw_params
- 			dcn3_0_soc.clock_limits[i].dram_speed_mts = dram_speed_mts[i];
- 
- 			/* Fill all states with max values of all other clocks */
--			dcn3_0_soc.clock_limits[i].dispclk_mhz = bw_params->clk_table.entries[1].dispclk_mhz;
--			dcn3_0_soc.clock_limits[i].dppclk_mhz  = bw_params->clk_table.entries[1].dppclk_mhz;
--			dcn3_0_soc.clock_limits[i].phyclk_mhz  = bw_params->clk_table.entries[1].phyclk_mhz;
-+			dcn3_0_soc.clock_limits[i].dispclk_mhz = max_dispclk_mhz;
-+			dcn3_0_soc.clock_limits[i].dppclk_mhz  = max_dppclk_mhz;
-+			dcn3_0_soc.clock_limits[i].phyclk_mhz  = max_phyclk_mhz;
- 			dcn3_0_soc.clock_limits[i].dtbclk_mhz = dcn3_0_soc.clock_limits[0].dtbclk_mhz;
- 			/* These clocks cannot come from bw_params, always fill from dcn3_0_soc[1] */
- 			/* FCLK, PHYCLK_D18, SOCCLK, DSCCLK */
++	if (!is_dev_ioctl_cmd(cmd))
++		return -ENOTTY;
+ 	if (copy_from_user(ifreq.ifr_name, u_ifreq32->ifr_name, IFNAMSIZ))
+ 		return -EFAULT;
+ 	if (get_user(data32, &u_ifreq32->ifr_data))
 -- 
-2.30.2
+2.33.0.rc2.250.ged5fa647cd-goog
 
