@@ -2,200 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 450F73F9C31
-	for <lists+stable@lfdr.de>; Fri, 27 Aug 2021 18:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E551C3F9C6A
+	for <lists+stable@lfdr.de>; Fri, 27 Aug 2021 18:29:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245494AbhH0QMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Aug 2021 12:12:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44042 "EHLO
+        id S231936AbhH0Q3n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Aug 2021 12:29:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234391AbhH0QMc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Aug 2021 12:12:32 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E546C061757
-        for <stable@vger.kernel.org>; Fri, 27 Aug 2021 09:11:43 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id fz10so4896647pjb.0
-        for <stable@vger.kernel.org>; Fri, 27 Aug 2021 09:11:43 -0700 (PDT)
+        with ESMTP id S230363AbhH0Q3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Aug 2021 12:29:43 -0400
+Received: from mail-qk1-x735.google.com (mail-qk1-x735.google.com [IPv6:2607:f8b0:4864:20::735])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 216E0C0613CF
+        for <stable@vger.kernel.org>; Fri, 27 Aug 2021 09:28:54 -0700 (PDT)
+Received: by mail-qk1-x735.google.com with SMTP id b64so7918756qkg.0
+        for <stable@vger.kernel.org>; Fri, 27 Aug 2021 09:28:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=M+UKMdRIZdnUZ0GDall71O3RbENjtRUsJIMAXDd+j8Q=;
-        b=DFa6tICpQKBrwycMsXivxOYoQoFYp2WjFvWCtLTcZf0kOeXNdrGukCi6l2cXRc3ps2
-         asgAIgz5L3erU4RjSWjZ285HvqD9o9I9bcBKqgi9zoTSkJ7XYTQ28c/RJiRWM6K+Mipn
-         iN+tI0Zd8Xfy+t9pEnLuj53zxIltBZ6EfTL4WuFtcS3n/5gGWCl5dbCzCZGsuzFMaKvP
-         95/3KsiFyNEowHDaObdNumu0q9FnWHlYMndwU75fvAT8LERU64G7ozUgFa0qRVVY6PGh
-         QbbMuf52FIdgjvAgwSu8G4qEnSGPWENPUVJhgRrt5CYef9NBv1vAE2eUSW/9KfgB60oy
-         EmUg==
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=HsecH+zskpsc+sAnBqxr5ZuZz+jO6o+sSCHY/MtxvCQ=;
+        b=O1ffWDj7gAU7klyHfuCVwiedzSG5T6fkgdQCMhj0P1ar6RbFlyx71pvhEk1OKUDQGq
+         /AQ/MfTpQwfDq/xNUNkLrzBbSZbOMJudxV2IYXIRHPsYsHK9M18TcS3EslzExK2Y2aUO
+         ipvMFYA2RcVazQeT+Rk6gR0SxP8dqlXpAPDz3mLV+JwGaoQlpUqTwjrqWRaIPB1G40kV
+         ay2uWYYWefjPTGoyFqUJk/FMyA8illo3bCr41jvANHIKZXmZ5BVnRdcwMxW5TRG3M894
+         7aWMZbWdJcR/I29AcajAzsoNg6jT9xhbcHoQwvwsyv9YST2s9AQRc4SbM5KnHZXIiVgU
+         CanQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=M+UKMdRIZdnUZ0GDall71O3RbENjtRUsJIMAXDd+j8Q=;
-        b=pExlGK1rKKWZ037puUgoJ8PlNXqBIlMY2hLfyBl/YnWwFGKE6ROTPXt8CxxYtQ3mJR
-         XAdAXb6Sx+tZLGwqUU0zWNOYj0tVZGSj/na025gp8/Sz0XHNXZbeZAEs3tTn3aCGYQAj
-         HVeDOBY2zE+NLT1slk7qMUM9w5uUoCYfeuQpOQ1CrTDe7D30W9hWmiI+E65g5C7Pwbn8
-         KWDzJ6IsnBFBfsAlTZ1dI98SIBRqL0TSssxcfCtBxa+BIss0ogrxyMDPvXklsXpJjFD/
-         OJyaX7G5QAPp6XTP1jLDZSD2dRfxRamiaAIpaUg1SUhunpKZucggmkn8ayBIkWyVwXF0
-         kdlA==
-X-Gm-Message-State: AOAM531GPGAOIwMRXS+lO3NFSDA0tlO6/fCdf8mAtjvaZA4MD0yPxYx3
-        HHztk5oZD/hfohjXp8i1ZpNCcXVHUnRMuguS
-X-Google-Smtp-Source: ABdhPJwudwsFooIu4SLyal/hW8qlxA9uF+PT9ydlv4kEJRn0W1UDolRQv8e3oqUTeBTNPMUYwuXpIw==
-X-Received: by 2002:a17:902:db11:b0:138:7021:2caf with SMTP id m17-20020a170902db1100b0013870212cafmr9360345plx.26.1630080702392;
-        Fri, 27 Aug 2021 09:11:42 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z65sm11612732pjj.43.2021.08.27.09.11.41
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=HsecH+zskpsc+sAnBqxr5ZuZz+jO6o+sSCHY/MtxvCQ=;
+        b=bq5r/fJL2q4YerKtgO8ooh+XRxeEQsJpgvAJm4pbXCY4Jpn6WTaZsMwuI+VFsN41gj
+         YpM50+fjFh6g7mnr+zMEkW0obR4/0XFQn+ZVmSFL7y8cJmem8mORjxqO2ZpbrowrA7nJ
+         QYzZ4jUSgAg+Ec2KGwb4OY1/JXxoKnJFQFDYiSaEgODH4MdmNiK1D6gcZcdeop4E7CHO
+         n/AUorppnSADxboeOYdXq+OijgVuZO/NVonh1guuGImxihoaKgqICeO/i7uoURidYzq0
+         zs61JgL/soupeOd1ib2TNEsLvBj5D7SB0YnchV7Aw2Jcv5CVCqeWBP101SlKit6AYmam
+         Vfpw==
+X-Gm-Message-State: AOAM533kWo3MVV8wW2FowuXptoQtRlGz1WWlrTep1q+HCaTqEcbkAYxj
+        ycwOZvHzcBMMjwuY7D14Z9Wyqg==
+X-Google-Smtp-Source: ABdhPJyEcY7aHVkmZaX3V0QWCBw0ZIrtvIgwijSbOHgj0i3rDzXComqPaqDsO3KbB50/gP6092KbSA==
+X-Received: by 2002:ae9:ec0f:: with SMTP id h15mr10159256qkg.224.1630081733346;
+        Fri, 27 Aug 2021 09:28:53 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
+        by smtp.gmail.com with ESMTPSA id c2sm3754947qte.22.2021.08.27.09.28.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Aug 2021 09:11:42 -0700 (PDT)
-Message-ID: <61290ebe.1c69fb81.9d721.d384@mx.google.com>
-Date:   Fri, 27 Aug 2021 09:11:42 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Fri, 27 Aug 2021 09:28:52 -0700 (PDT)
+Received: from jgg by mlx with local (Exim 4.94)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1mJeiq-005jqI-8p; Fri, 27 Aug 2021 13:28:52 -0300
+Date:   Fri, 27 Aug 2021 13:28:52 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Li Zhijian <lizhijian@cn.fujitsu.com>
+Cc:     linux-mm@kvack.org, linux-rdma@vger.kernel.org,
+        akpm@linux-foundation.org, jglisse@redhat.com, yishaih@nvidia.com,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] mm/hmm: bypass devmap pte when all pfn requested flags
+ are fulfilled
+Message-ID: <20210827162852.GL1200268@ziepe.ca>
+References: <20210827144500.2148-1-lizhijian@cn.fujitsu.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.13
-X-Kernelci-Kernel: v5.13.13-2-g4db03cfb5850
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.13 baseline: 155 runs,
- 3 regressions (v5.13.13-2-g4db03cfb5850)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210827144500.2148-1-lizhijian@cn.fujitsu.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.13 baseline: 155 runs, 3 regressions (v5.13.13-2-g4db03cf=
-b5850)
+On Fri, Aug 27, 2021 at 10:45:00PM +0800, Li Zhijian wrote:
+> Previously, we noticed the one rpma example was failed[1] since 36f30e486d,
+> where it will use ODP feature to do RDMA WRITE between fsdax files.
+> 
+> After digging into the code, we found hmm_vma_handle_pte() will still
+> return EFAULT even though all the its requesting flags has been
+> fulfilled. That's because a DAX page will be marked as
+> (_PAGE_SPECIAL | PAGE_DEVMAP) by pte_mkdevmap().
+> 
+> [1]: https://github.com/pmem/rpma/issues/1142
+> 
+> CC: stable@vger.kernel.org
+> Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
 
-Regressions Summary
--------------------
+You need to add a 
 
-platform           | arch | lab          | compiler | defconfig           |=
- regressions
--------------------+------+--------------+----------+---------------------+=
-------------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig   |=
- 1          =
+Fixes: 405506274922 ("mm/hmm: add missing call to hmm_pte_need_fault in HMM_PFN_SPECIAL handling")
 
-beagle-xm          | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  |=
- 1          =
+> diff --git a/mm/hmm.c b/mm/hmm.c
+> index fad6be2bf072..4766bdefb6c3 100644
+> +++ b/mm/hmm.c
+> @@ -294,6 +294,12 @@ static int hmm_vma_handle_pte(struct mm_walk *walk, unsigned long addr,
+>  	if (required_fault)
+>  		goto fault;
+>  
+> +	/*
+> +	 * just bypass devmap pte such as DAX page when all pfn requested
+> +	 * flags(pfn_req_flags) are fulfilled.
+> +	 */
+> +	if (pte_devmap(pte))
+> +		goto out;
 
-beagle-xm          | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig |=
- 1          =
+I liked your ealier version better where this was added to the
+pte_special test - logically this is about disambiguating the
+pte_special and the devmap case as they are different things.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
-nel/v5.13.13-2-g4db03cfb5850/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.13
-  Describe: v5.13.13-2-g4db03cfb5850
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4db03cfb58503ba1cf41885d8814e97d4dc1c6f3 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch | lab          | compiler | defconfig           |=
- regressions
--------------------+------+--------------+----------+---------------------+=
-------------
-bcm2837-rpi-3-b-32 | arm  | lab-baylibre | gcc-8    | bcm2835_defconfig   |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6128d68c12e14b35158e2c9f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-2-g4db03cfb5850/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
-pi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-2-g4db03cfb5850/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
-pi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6128d68c12e14b35158e2=
-ca0
-        failing since 0 day (last pass: v5.13.12-125-gf6c5dda713c6, first f=
-ail: v5.13.12-125-g0bca906df054) =
-
- =
-
-
-
-platform           | arch | lab          | compiler | defconfig           |=
- regressions
--------------------+------+--------------+----------+---------------------+=
-------------
-beagle-xm          | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6128dd07c4dc80fd938e2cac
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-2-g4db03cfb5850/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-x=
-m.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-2-g4db03cfb5850/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-x=
-m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6128dd07c4dc80fd938e2=
-cad
-        failing since 1 day (last pass: v5.13.12-126-g61c83bccf008, first f=
-ail: v5.13.12-125-gf6c5dda713c6) =
-
- =
-
-
-
-platform           | arch | lab          | compiler | defconfig           |=
- regressions
--------------------+------+--------------+----------+---------------------+=
-------------
-beagle-xm          | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6128db39755f11c4d08e2c8d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-2-g4db03cfb5850/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-2-g4db03cfb5850/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6128db39755f11c4d08e2=
-c8e
-        failing since 29 days (last pass: v5.13.5-224-g078d5e3a85db, first =
-fail: v5.13.5-223-g3a7649e5ffb5) =
-
- =20
+Jason
