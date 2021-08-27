@@ -2,74 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 069613F9674
-	for <lists+stable@lfdr.de>; Fri, 27 Aug 2021 10:50:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA4B3F96BE
+	for <lists+stable@lfdr.de>; Fri, 27 Aug 2021 11:17:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244685AbhH0Iuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Aug 2021 04:50:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48076 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244510AbhH0Iuz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Aug 2021 04:50:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 75C9760FDC;
-        Fri, 27 Aug 2021 08:50:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630054206;
-        bh=MctHQHKg5CFqgeHLwksJi8o4x2bSXwRfx6chly7psck=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=jHutDI+FmzmH3ScPyvq3BGMkjXthJt1o9QBcDJ3tjrV785ckNivWqED0gTl/QI5ic
-         DZkeXx3VMyOo2fld1bkGSMxiV2cBqCOQV5T0zUY0FWMijC2/coIUNFhq8tOtVyXHO7
-         wJoZICl/BzGjOnP7/kkEjQjID/wvRoO9AEMjqZ95sNe2SbEh765pTl6r5wOQup/a6D
-         cHxZMtjHgnTzWQTjR4pE4vobFE91L2FFaVNmRT9Ot2/pDvNFjGxVpgIm1lflhWFZq3
-         INOAVe1dIqPwZtA283JBVmAnrZTHfh5fz7BDmXoVLE2byTmm/XbURgpqAjUkSHsjFq
-         Ntd3HSflBDRsA==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 6538860A27;
-        Fri, 27 Aug 2021 08:50:06 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S244497AbhH0JSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Aug 2021 05:18:39 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:36364 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232817AbhH0JSi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Aug 2021 05:18:38 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 588FC2235F
+        for <stable@vger.kernel.org>; Fri, 27 Aug 2021 09:17:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1630055869;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=7Ux3A5uXytWJNcHtoHckNiWnyStiXjEQxZIjJFk/KyI=;
+        b=pgCS8FVsuvlZELesU/hjnIt0ARTk44J0i+8Z0Nd/7zlFradDDxjQNPHuevUO9Lfhmr7szb
+        qbSUhB1JvZk2wdkSWCYwGDqcHr3O7BAozck5t3Y1OmszdaWRwIzQjJyol5GU8zy5HdhwY8
+        O9sBbwUOGzB14CRbiNPJhYNGrSu8am8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1630055869;
+        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=7Ux3A5uXytWJNcHtoHckNiWnyStiXjEQxZIjJFk/KyI=;
+        b=+nyQQ19qm7xm4Kp02Ac9/hF4oAH4u516Pz+mBO+QpTnKFTK8+IDDFTzzZPjneZJ3pzhpHp
+        vjrH5hwd7RRh6yAA==
+Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
+        by relay2.suse.de (Postfix) with ESMTP id 51705A3B93;
+        Fri, 27 Aug 2021 09:17:49 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id C3C4CDA7F3; Fri, 27 Aug 2021 11:15:00 +0200 (CEST)
+Date:   Fri, 27 Aug 2021 11:15:00 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     stable@vger.kernel.org
+Subject: Please add beadb3347de2 to 5.4 and 5.10
+Message-ID: <20210827091500.GT3379@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2] net: don't unconditionally copy_from_user a struct ifreq
- for socket ioctls
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <163005420640.11012.15053925482191718453.git-patchwork-notify@kernel.org>
-Date:   Fri, 27 Aug 2021 08:50:06 +0000
-References: <20210826194601.3509717-1-pcc@google.com>
-In-Reply-To: <20210826194601.3509717-1-pcc@google.com>
-To:     Peter Collingbourne <pcc@google.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, colin.king@canonical.com,
-        cong.wang@bytedance.com, viro@zeniv.linux.org.uk,
-        gregkh@linuxfoundation.org, David.Laight@aculab.com,
-        arnd@kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+Hi,
 
-This patch was applied to netdev/net.git (refs/heads/master):
+please add commit
 
-On Thu, 26 Aug 2021 12:46:01 -0700 you wrote:
-> A common implementation of isatty(3) involves calling a ioctl passing
-> a dummy struct argument and checking whether the syscall failed --
-> bionic and glibc use TCGETS (passing a struct termios), and musl uses
-> TIOCGWINSZ (passing a struct winsize). If the FD is a socket, we will
-> copy sizeof(struct ifreq) bytes of data from the argument and return
-> -EFAULT if that fails. The result is that the isatty implementations
-> may return a non-POSIX-compliant value in errno in the case where part
-> of the dummy struct argument is inaccessible, as both struct termios
-> and struct winsize are smaller than struct ifreq (at least on arm64).
-> 
-> [...]
+beadb3347de27890  btrfs: fix NULL pointer dereference when deleting device by invalid id
 
-Here is the summary with links:
-  - [v2] net: don't unconditionally copy_from_user a struct ifreq for socket ioctls
-    https://git.kernel.org/netdev/net/c/d0efb16294d1
+to stable trees 5.4 and 5.10 (applies cleanly on both).
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Thanks.
