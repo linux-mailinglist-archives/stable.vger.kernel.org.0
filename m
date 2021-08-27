@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D52873F956A
-	for <lists+stable@lfdr.de>; Fri, 27 Aug 2021 09:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D07193F958E
+	for <lists+stable@lfdr.de>; Fri, 27 Aug 2021 09:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244505AbhH0HuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Aug 2021 03:50:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35736 "EHLO mail.kernel.org"
+        id S244518AbhH0Hxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Aug 2021 03:53:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244460AbhH0HuH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Aug 2021 03:50:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCF0860F42;
-        Fri, 27 Aug 2021 07:49:17 +0000 (UTC)
+        id S244475AbhH0Hxe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Aug 2021 03:53:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2784760F92;
+        Fri, 27 Aug 2021 07:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630050559;
-        bh=ibErO/t2DN91UEN1QoD2rDjYzBO3m0w6/eOEFiufOnU=;
+        s=korg; t=1630050765;
+        bh=xB6Ink6JZZe3J6MtDPDUY4z76jyjJsXnDqGUgKT+J5c=;
         h=Subject:To:From:Date:From;
-        b=TqLRMTmNJ/58J/SnApMBLt0N32UhasyfJjrawaMPvBdLskaNDs4xvjyZxzVzSigY6
-         QEf+3juVNdcZGXEdrn22dZ+WAtqsJgJl878LuntSo8mTGHbe7M2JgsAUwQ/ucSUDyJ
-         u0CRzOP58b7yNLsZpVU6PSC8vPoQlM49RRlUxkkg=
-Subject: patch "xhci: Fix failure to give back some cached cancelled URBs." added to usb-next
-To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, wat@codeaurora.org
+        b=LXikcC7UYYnOPwUKKgHohoamsNoBjXV8DxNDn1zJYTypCDPWgC0rPCdj+Pa6BjOcQ
+         SgsRdlFBpDLPFgR00/0Fdz0E+Jdqp9PXCyJkLx5BjSw06NlHHKjd+7UEAGRr6BYpJ/
+         6NQrtw4bMirDvJDYFKR2md+mLbtRtoDl0ZfDwUjM=
+Subject: patch "tty: Fix data race between tiocsti() and flush_to_ldisc()" added to tty-next
+To:     phind.uet@gmail.com, gregkh@linuxfoundation.org,
+        jirislaby@kernel.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 27 Aug 2021 09:41:00 +0200
-Message-ID: <1630050060176132@kroah.com>
+Date:   Fri, 27 Aug 2021 09:41:22 +0200
+Message-ID: <16300500822892@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,11 +36,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    xhci: Fix failure to give back some cached cancelled URBs.
+    tty: Fix data race between tiocsti() and flush_to_ldisc()
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -51,107 +51,61 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 94f339147fc3eb9edef7ee4ef6e39c569c073753 Mon Sep 17 00:00:00 2001
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Fri, 20 Aug 2021 15:35:00 +0300
-Subject: xhci: Fix failure to give back some cached cancelled URBs.
+From bb2853a6a421a052268eee00fd5d3f6b3504b2b1 Mon Sep 17 00:00:00 2001
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
+Date: Mon, 23 Aug 2021 08:06:41 +0800
+Subject: tty: Fix data race between tiocsti() and flush_to_ldisc()
 
-Only TDs with status TD_CLEARING_CACHE will be given back after
-cache is cleared with a set TR deq command.
+The ops->receive_buf() may be accessed concurrently from these two
+functions.  If the driver flushes data to the line discipline
+receive_buf() method while tiocsti() is waiting for the
+ops->receive_buf() to finish its work, the data race will happen.
 
-xhci_invalidate_cached_td() failed to set the TD_CLEARING_CACHE status
-for some cancelled TDs as it assumed an endpoint only needs to clear the
-TD it stopped on.
+For example:
+tty_ioctl			|tty_ldisc_receive_buf
+ ->tioctsi			| ->tty_port_default_receive_buf
+				|  ->tty_ldisc_receive_buf
+   ->hci_uart_tty_receive	|   ->hci_uart_tty_receive
+    ->h4_recv                   |    ->h4_recv
 
-This isn't always true. For example with streams enabled an endpoint may
-have several stream rings, each stopping on a different TDs.
+In this case, the h4 receive buffer will be overwritten by the
+latecomer, and we will lost the data.
 
-Note that if an endpoint has several stream rings, the current code
-will still only clear the cache of the stream pointed to by the last
-cancelled TD in the cancel list.
+Hence, change tioctsi() function to use the exclusive lock interface
+from tty_buffer to avoid the data race.
 
-This patch only focus on making sure all canceled TDs are given back,
-avoiding hung task after device removal.
-Another fix to solve clearing the caches of all stream rings with
-cancelled TDs is needed, but not as urgent.
-
-This issue was simultanously discovered and debugged by
-by Tao Wang, with a slightly different fix proposal.
-
-Fixes: 674f8438c121 ("xhci: split handling halted endpoints into two steps")
-Cc: <stable@vger.kernel.org> #5.12
-Reported-by: Tao Wang <wat@codeaurora.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210820123503.2605901-4-mathias.nyman@linux.intel.com
+Reported-by: syzbot+97388eb9d31b997fe1d0@syzkaller.appspotmail.com
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Link: https://lore.kernel.org/r/20210823000641.2082292-1-phind.uet@gmail.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-ring.c | 40 ++++++++++++++++++++++--------------
- 1 file changed, 25 insertions(+), 15 deletions(-)
+ drivers/tty/tty_io.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index d0faa67a689d..9017986241f5 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -942,17 +942,21 @@ static int xhci_invalidate_cancelled_tds(struct xhci_virt_ep *ep)
- 					 td->urb->stream_id);
- 		hw_deq &= ~0xf;
+diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
+index e8532006e960..6616d4a0d41d 100644
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -2290,8 +2290,6 @@ static int tty_fasync(int fd, struct file *filp, int on)
+  *	Locking:
+  *		Called functions take tty_ldiscs_lock
+  *		current->signal->tty check is safe without locks
+- *
+- *	FIXME: may race normal receive processing
+  */
  
--		if (td->cancel_status == TD_HALTED) {
--			cached_td = td;
--		} else if (trb_in_td(xhci, td->start_seg, td->first_trb,
--			      td->last_trb, hw_deq, false)) {
-+		if (td->cancel_status == TD_HALTED ||
-+		    trb_in_td(xhci, td->start_seg, td->first_trb, td->last_trb, hw_deq, false)) {
- 			switch (td->cancel_status) {
- 			case TD_CLEARED: /* TD is already no-op */
- 			case TD_CLEARING_CACHE: /* set TR deq command already queued */
- 				break;
- 			case TD_DIRTY: /* TD is cached, clear it */
- 			case TD_HALTED:
--				/* FIXME  stream case, several stopped rings */
-+				td->cancel_status = TD_CLEARING_CACHE;
-+				if (cached_td)
-+					/* FIXME  stream case, several stopped rings */
-+					xhci_dbg(xhci,
-+						 "Move dq past stream %u URB %p instead of stream %u URB %p\n",
-+						 td->urb->stream_id, td->urb,
-+						 cached_td->urb->stream_id, cached_td->urb);
- 				cached_td = td;
- 				break;
- 			}
-@@ -961,18 +965,24 @@ static int xhci_invalidate_cancelled_tds(struct xhci_virt_ep *ep)
- 			td->cancel_status = TD_CLEARED;
- 		}
- 	}
--	if (cached_td) {
--		cached_td->cancel_status = TD_CLEARING_CACHE;
- 
--		err = xhci_move_dequeue_past_td(xhci, slot_id, ep->ep_index,
--						cached_td->urb->stream_id,
--						cached_td);
--		/* Failed to move past cached td, try just setting it noop */
--		if (err) {
--			td_to_noop(xhci, ring, cached_td, false);
--			cached_td->cancel_status = TD_CLEARED;
-+	/* If there's no need to move the dequeue pointer then we're done */
-+	if (!cached_td)
-+		return 0;
-+
-+	err = xhci_move_dequeue_past_td(xhci, slot_id, ep->ep_index,
-+					cached_td->urb->stream_id,
-+					cached_td);
-+	if (err) {
-+		/* Failed to move past cached td, just set cached TDs to no-op */
-+		list_for_each_entry_safe(td, tmp_td, &ep->cancelled_td_list, cancelled_td_list) {
-+			if (td->cancel_status != TD_CLEARING_CACHE)
-+				continue;
-+			xhci_dbg(xhci, "Failed to clear cancelled cached URB %p, mark clear anyway\n",
-+				 td->urb);
-+			td_to_noop(xhci, ring, td, false);
-+			td->cancel_status = TD_CLEARED;
- 		}
--		cached_td = NULL;
- 	}
+ static int tiocsti(struct tty_struct *tty, char __user *p)
+@@ -2307,8 +2305,10 @@ static int tiocsti(struct tty_struct *tty, char __user *p)
+ 	ld = tty_ldisc_ref_wait(tty);
+ 	if (!ld)
+ 		return -EIO;
++	tty_buffer_lock_exclusive(tty->port);
+ 	if (ld->ops->receive_buf)
+ 		ld->ops->receive_buf(tty, &ch, &mbz, 1);
++	tty_buffer_unlock_exclusive(tty->port);
+ 	tty_ldisc_deref(ld);
  	return 0;
  }
 -- 
