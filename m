@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D07193F958E
-	for <lists+stable@lfdr.de>; Fri, 27 Aug 2021 09:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C86123F959B
+	for <lists+stable@lfdr.de>; Fri, 27 Aug 2021 09:54:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244518AbhH0Hxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Aug 2021 03:53:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37176 "EHLO mail.kernel.org"
+        id S244546AbhH0Hya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Aug 2021 03:54:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244475AbhH0Hxe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 27 Aug 2021 03:53:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2784760F92;
-        Fri, 27 Aug 2021 07:52:43 +0000 (UTC)
+        id S244561AbhH0Hya (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 27 Aug 2021 03:54:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AED4860F92;
+        Fri, 27 Aug 2021 07:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630050765;
-        bh=xB6Ink6JZZe3J6MtDPDUY4z76jyjJsXnDqGUgKT+J5c=;
+        s=korg; t=1630050822;
+        bh=4vVKTEzO3FAWpjQllLSWAU8CXFPgM7IImM4L+bNbNj8=;
         h=Subject:To:From:Date:From;
-        b=LXikcC7UYYnOPwUKKgHohoamsNoBjXV8DxNDn1zJYTypCDPWgC0rPCdj+Pa6BjOcQ
-         SgsRdlFBpDLPFgR00/0Fdz0E+Jdqp9PXCyJkLx5BjSw06NlHHKjd+7UEAGRr6BYpJ/
-         6NQrtw4bMirDvJDYFKR2md+mLbtRtoDl0ZfDwUjM=
-Subject: patch "tty: Fix data race between tiocsti() and flush_to_ldisc()" added to tty-next
-To:     phind.uet@gmail.com, gregkh@linuxfoundation.org,
-        jirislaby@kernel.org, stable@vger.kernel.org
+        b=hcRs+X+BMvM0bsSMWW3IgXkeJWlZc4ZmJZS1AzNGHySBeLKeD6plK3LtHQpgK5EvH
+         9b8so1V5Erw1dI3QBheN4j5NQViIyMsVom8KBxHZwS8DQYUKysvwcHYLmnOGBNL9+L
+         99eV9u2dQRDyXvRIoWdq2y3A3ULE5FUrprrJMOsc=
+Subject: patch "usb: xhci-mtk: fix issue of out-of-bounds array access" added to usb-next
+To:     chunfeng.yun@mediatek.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, stan.lu@mediatek.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 27 Aug 2021 09:41:22 +0200
-Message-ID: <16300500822892@kroah.com>
+Date:   Fri, 27 Aug 2021 09:41:29 +0200
+Message-ID: <1630050089137253@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,11 +36,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    tty: Fix data race between tiocsti() and flush_to_ldisc()
+    usb: xhci-mtk: fix issue of out-of-bounds array access
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-next branch.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -51,63 +51,46 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From bb2853a6a421a052268eee00fd5d3f6b3504b2b1 Mon Sep 17 00:00:00 2001
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
-Date: Mon, 23 Aug 2021 08:06:41 +0800
-Subject: tty: Fix data race between tiocsti() and flush_to_ldisc()
+From de5107f473190538a65aac7edea85209cd5c1a8f Mon Sep 17 00:00:00 2001
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Date: Tue, 17 Aug 2021 16:36:25 +0800
+Subject: usb: xhci-mtk: fix issue of out-of-bounds array access
 
-The ops->receive_buf() may be accessed concurrently from these two
-functions.  If the driver flushes data to the line discipline
-receive_buf() method while tiocsti() is waiting for the
-ops->receive_buf() to finish its work, the data race will happen.
+Bus bandwidth array access is based on esit, increase one
+will cause out-of-bounds issue; for example, when esit is
+XHCI_MTK_MAX_ESIT, will overstep boundary.
 
-For example:
-tty_ioctl			|tty_ldisc_receive_buf
- ->tioctsi			| ->tty_port_default_receive_buf
-				|  ->tty_ldisc_receive_buf
-   ->hci_uart_tty_receive	|   ->hci_uart_tty_receive
-    ->h4_recv                   |    ->h4_recv
-
-In this case, the h4 receive buffer will be overwritten by the
-latecomer, and we will lost the data.
-
-Hence, change tioctsi() function to use the exclusive lock interface
-from tty_buffer to avoid the data race.
-
-Reported-by: syzbot+97388eb9d31b997fe1d0@syzkaller.appspotmail.com
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Link: https://lore.kernel.org/r/20210823000641.2082292-1-phind.uet@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Fixes: 7c986fbc16ae ("usb: xhci-mtk: get the microframe boundary for ESIT")
+Cc: <stable@vger.kernel.org>
+Reported-by: Stan Lu <stan.lu@mediatek.com>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1629189389-18779-5-git-send-email-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/tty_io.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-mtk-sch.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index e8532006e960..6616d4a0d41d 100644
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -2290,8 +2290,6 @@ static int tty_fasync(int fd, struct file *filp, int on)
-  *	Locking:
-  *		Called functions take tty_ldiscs_lock
-  *		current->signal->tty check is safe without locks
-- *
-- *	FIXME: may race normal receive processing
-  */
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index cffcaf4dfa9f..0bb1a6295d64 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -575,10 +575,12 @@ static u32 get_esit_boundary(struct mu3h_sch_ep_info *sch_ep)
+ 	u32 boundary = sch_ep->esit;
  
- static int tiocsti(struct tty_struct *tty, char __user *p)
-@@ -2307,8 +2305,10 @@ static int tiocsti(struct tty_struct *tty, char __user *p)
- 	ld = tty_ldisc_ref_wait(tty);
- 	if (!ld)
- 		return -EIO;
-+	tty_buffer_lock_exclusive(tty->port);
- 	if (ld->ops->receive_buf)
- 		ld->ops->receive_buf(tty, &ch, &mbz, 1);
-+	tty_buffer_unlock_exclusive(tty->port);
- 	tty_ldisc_deref(ld);
- 	return 0;
- }
+ 	if (sch_ep->sch_tt) { /* LS/FS with TT */
+-		/* tune for CS */
+-		if (sch_ep->ep_type != ISOC_OUT_EP)
+-			boundary++;
+-		else if (boundary > 1) /* normally esit >= 8 for FS/LS */
++		/*
++		 * tune for CS, normally esit >= 8 for FS/LS,
++		 * not add one for other types to avoid access array
++		 * out of boundary
++		 */
++		if (sch_ep->ep_type == ISOC_OUT_EP && boundary > 1)
+ 			boundary--;
+ 	}
+ 
 -- 
 2.32.0
 
