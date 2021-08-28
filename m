@@ -2,200 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1853F3FAC12
-	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 15:57:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 782463FACB8
+	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 17:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231199AbhH2N6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Aug 2021 09:58:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56912 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbhH2N6A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Aug 2021 09:58:00 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BCC4C061575
-        for <stable@vger.kernel.org>; Sun, 29 Aug 2021 06:57:08 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id 7so10018495pfl.10
-        for <stable@vger.kernel.org>; Sun, 29 Aug 2021 06:57:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=bc8Zv3qLNpANbvHd8TJFjtUx381/v7nXFBWzgVjTe2Q=;
-        b=2AA3ObA3plPGNMeE33IAjJEOClmi0YlczMEC1UoVXQCS+km3BD7Xw+BlblOXYOHU0v
-         9+JlRrRowB4jCWhvNZjMRspHxjRHncpuIOJcani9qcGy6H0Ud/tm6UO7fnq2y8e8ZHsU
-         YJwXEKsba3pFHhmYRwQKX9MQIDAAVKghAMgGuHb3w5I6y8Upbisb7vuFohSZ3ihYrQYx
-         o+r6F2d5IY8EigfGtdr+kmdRhCQJEFZBwJTL9uaQHXEscYvh5DMMt9GHg12QU5NBbuOs
-         fjIAHzwhSSdh9CUdQbDz3gfAmOerMl3n+O/pS3zOD50imoS4j7vd67EAoklYFNeIIq+w
-         PKCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=bc8Zv3qLNpANbvHd8TJFjtUx381/v7nXFBWzgVjTe2Q=;
-        b=hGJ4JTxJX0WzuIWb73FFWOWc4B3A1c/PbSTEo/AHobwoRqf+fqUKIZPQPmRIJKevBd
-         9PsIViTP7/L+Xbb+idCrIe+xqXUCMrFVFVqTZq88Nk9Dtcd07ujpZX0GRfcgqlDSpZIb
-         txiwoFNJ0LGNKPV1I0J4ieG+Gn77LnoVcjAlmFNbn+BDbYi5DhUjcQu7scDH/t9cp9Jl
-         UM6r238tiyiXneUxoUC2Dyg4RQmRDbc9o5hL86cb1o2TIu8RpH//a5m7WrKScbXv5Mh7
-         /7oYWlGP9Ujru5/EalvPDghmxRwLXD1TgGnIyV+sYDvMJv3HrOsalH3b8vnyQi4JTGo0
-         DJeg==
-X-Gm-Message-State: AOAM533NXIfOzgFtcTvMqTVq6vQpjKGlf/Ke53dVbr9wNDE4CoxST36j
-        Dt4DZcEZxvsdjU301gbbVzjxi9MAh7uAsrkZ
-X-Google-Smtp-Source: ABdhPJx3sLH7ioU2pb4/XCKLfZ1LXio/n39hqRCnk/C8muLfgc8IB7SkvTNo8bmKhzxqBCjYlbBh2g==
-X-Received: by 2002:a63:2301:: with SMTP id j1mr17316753pgj.150.1630245427937;
-        Sun, 29 Aug 2021 06:57:07 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 4sm11381033pjb.21.2021.08.29.06.57.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 Aug 2021 06:57:07 -0700 (PDT)
-Message-ID: <612b9233.1c69fb81.1492f.d583@mx.google.com>
-Date:   Sun, 29 Aug 2021 06:57:07 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.205-13-gaa35e8bd0343
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 140 runs,
- 3 regressions (v4.19.205-13-gaa35e8bd0343)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S235221AbhH2Pmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Aug 2021 11:42:54 -0400
+Received: from 192-163-196-79.unifiedlayer.com ([192.163.196.79]:37560 "EHLO
+        192-163-196-79.unifiedlayer.com" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S234237AbhH2Pmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Aug 2021 11:42:54 -0400
+Received: from besteditor by 192-163-196-79.ipage.com with local (Exim 4.93)
+        (envelope-from <besteditor@192-163-196-79.ipage.com>)
+        id 1mJy9s-0003fb-GA; Sat, 28 Aug 2021 07:14:06 -0600
+To:     stalin661@gmail.com
+Subject: MANUSCRIPT PROOFREADING
+X-PHP-Script: scriptproofpub.org/mail4/send.php for 129.205.124.18
+X-PHP-Originating-Script: 1003:send.php
+From:   manuscriptediting34@pub.org
+Reply-To: mmanuscripteditserv@gmail.com
+Message-Id: <E1mJy9s-0003fb-GA@192-163-196-79.ipage.com>
+Date:   Sat, 28 Aug 2021 07:14:04 -0600
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - 192-163-196-79.ipage.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1003 991] / [47 12]
+X-AntiAbuse: Sender Address Domain - 192-163-196-79.ipage.com
+X-Get-Message-Sender-Via: 192-163-196-79.ipage.com: authenticated_id: besteditor/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: 192-163-196-79.ipage.com: besteditor
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 140 runs, 3 regressions (v4.19.205-13-gaa3=
-5e8bd0343)
-
-Regressions Summary
--------------------
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
- | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
- | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
- | 1          =
+MODERN MANUSCRIPT EDITING SERVICES
+http://www.mmanuscripteditserv.com/index.htm
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.205-13-gaa35e8bd0343/plan/baseline/
+Do you want your manuscript TO BE written in standard English?
+Do you want your journal articles, books, conference papers, and dissertations and theses to be substantially revised or edited?
+Does your manuscript have to be in a particular journal format?
+Then, MODERN MANUSCRIPT EDITING SERVICES is the right place for you.
+So hurry up and get your papers edited in Standard English.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.205-13-gaa35e8bd0343
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      aa35e8bd034370a392e0db74898b4a458a76b332 =
+Dear Colleague,
+Proofreading/Editing is a dynamic facet of publication, which we have taken into recognition; therefore, we call on writers/authors in all academic fields to submit their manuscripts for proofreading/editing. We have also observed that numerous articles are difficult to be understood by reviewers and editors due to poor grammatical usage, which is the consequence of the author learning English as a second language. Hence, we recommend that authors send us their manuscript(s) for accurate grammatical editing.
 
+Send your manuscript(s) to articles@mmanuscripteditserv.com or mmanuscripteditserv@gmail.com for proofreading and grammatical correction. The manuscript must be in Arial font, font size 12 and double line spacing. Upon receipt of the manuscript, an acknowledgment letter containing the manuscript number and the handling fee will be sent to the author(s).
 
+Our charges are as follows: $25 per 1000 words, meaning
 
-Test Regressions
----------------- =
+Number of Words	Price
+1 to 1,000    	$25
+1,001 to 2,000	$50
+2,001 to 3,000	$75
+3,001 to 4,000	$100
+4,001 to 5,000	$125
+5,001 to 6,000	$150
+6,001 to 7,000	$175
 
+Payments are made via online using credit card, PayPal or bank wire transfer. In addition, we specialize in proofreading, grammar editing, proper punctuation, paraphrasing and sentence editing, aligning articles to the required format and translating from your native language to English.
 
+For more information, please visit our website http://www.mmanuscripteditserv.com. We would appreciate it if you could share this information with your colleagues and associates. 
 
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
- | 1          =
+Best regards,
 
+Dr. Philip Benz
+Editor
+Modern Manuscript Editing Services
 
-  Details:     https://kernelci.org/test/plan/id/612b5e56b5059114918e2c99
+To unsubscribe, kindly send a mail to unsubscribe.mmanuscriptedit@gmail.com
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-05-13-gaa35e8bd0343/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-05-13-gaa35e8bd0343/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612b5e56b5059114918e2=
-c9a
-        failing since 284 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
-t fail: v4.19.157-102-g1d674327c1b7) =
-
- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612b618d94b0f83aae8e2c93
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-05-13-gaa35e8bd0343/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-05-13-gaa35e8bd0343/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612b618d94b0f83aae8e2=
-c94
-        failing since 284 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
-t fail: v4.19.157-102-g1d674327c1b7) =
-
- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612b5e64130601903f8e2c77
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-05-13-gaa35e8bd0343/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-05-13-gaa35e8bd0343/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612b5e64130601903f8e2=
-c78
-        failing since 284 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
-t fail: v4.19.157-102-g1d674327c1b7) =
-
- =20
