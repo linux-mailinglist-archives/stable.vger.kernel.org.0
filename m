@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D8C83FA9A0
-	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 08:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 080EB3FA9A2
+	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 09:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234706AbhH2G5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Aug 2021 02:57:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49064 "EHLO mail.kernel.org"
+        id S234745AbhH2HA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Aug 2021 03:00:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49733 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234585AbhH2G5x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Aug 2021 02:57:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C77360F38;
-        Sun, 29 Aug 2021 06:56:59 +0000 (UTC)
+        id S229889AbhH2HAz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Aug 2021 03:00:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3710160524;
+        Sun, 29 Aug 2021 07:00:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630220221;
-        bh=KIoBVaWSq9IBbWKICBi2mMxNJ8nTFkqHIBIvqSfO/Ig=;
+        s=korg; t=1630220403;
+        bh=An3kyq20ht9DmOuc9xqgBEhz5KwBfsTal8lRNHaqPZU=;
         h=Subject:To:Cc:From:Date:From;
-        b=bKIRacozMlWWRsREsJywqLy2WIdP+B9ILpHQuPFtX9uztse8mUarPXOLtazAHi1kv
-         CMSRPuNUOco9K0LVXuOLiLdVR/lOASRKe/l23LcSB986If9JNIH38C1PsJMlGPKTHn
-         faQtR3ju45w9MEo2KT6TK1KbbOviM0sYdiKjeD/8=
-Subject: FAILED: patch "[PATCH] drm/i915: Fix syncmap memory leak" failed to apply to 5.4-stable tree
-To:     matthew.brost@intel.com, John.C.Harrison@Intel.com,
-        rodrigo.vivi@intel.com, stable@vger.kernel.org
+        b=m3kTPfsmHqw8Hd3YYMGNtKvgpljT0tP0LcfzauzBDWKBJYoCJoIJQUFuNLIXW0Sfx
+         UB1wpyWAM2s6FamIAyuBeCVhvM2w5jFXR4is9US3EaxWX8fjcQehcROAHh5U/FD2uw
+         rJX2nRpMc4NMUyDk03vL7sR1O+vxYpE4E+34BD9Q=
+Subject: FAILED: patch "[PATCH] usb: gadget: u_audio: fix race condition on endpoint stop" failed to apply to 5.13-stable tree
+To:     jbrunet@baylibre.com, Thinh.Nguyen@synopsys.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Aug 2021 08:56:45 +0200
-Message-ID: <1630220205166108@kroah.com>
+Date:   Sun, 29 Aug 2021 08:59:55 +0200
+Message-ID: <16302203955312@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,61 +46,63 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a63bcf08f0efb5348105bb8e0e1e8c6671077753 Mon Sep 17 00:00:00 2001
-From: Matthew Brost <matthew.brost@intel.com>
-Date: Fri, 30 Jul 2021 12:53:42 -0700
-Subject: [PATCH] drm/i915: Fix syncmap memory leak
+From 068fdad20454f815e61e6f6eb9f051a8b3120e88 Mon Sep 17 00:00:00 2001
+From: Jerome Brunet <jbrunet@baylibre.com>
+Date: Fri, 27 Aug 2021 11:29:27 +0200
+Subject: [PATCH] usb: gadget: u_audio: fix race condition on endpoint stop
 
-A small race exists between intel_gt_retire_requests_timeout and
-intel_timeline_exit which could result in the syncmap not getting
-free'd. Rather than work to hard to seal this race, simply cleanup the
-syncmap on fini.
+If the endpoint completion callback is call right after the ep_enabled flag
+is cleared and before usb_ep_dequeue() is call, we could do a double free
+on the request and the associated buffer.
 
-unreferenced object 0xffff88813bc53b18 (size 96):
-  comm "gem_close_race", pid 5410, jiffies 4294917818 (age 1105.600s)
-  hex dump (first 32 bytes):
-    01 00 00 00 00 00 00 00 00 00 00 00 0a 00 00 00  ................
-    00 00 00 00 00 00 00 00 6b 6b 6b 6b 06 00 00 00  ........kkkk....
-  backtrace:
-    [<00000000120b863a>] __sync_alloc_leaf+0x1e/0x40 [i915]
-    [<00000000042f6959>] __sync_set+0x1bb/0x240 [i915]
-    [<0000000090f0e90f>] i915_request_await_dma_fence+0x1c7/0x400 [i915]
-    [<0000000056a48219>] i915_request_await_object+0x222/0x360 [i915]
-    [<00000000aaac4ee3>] i915_gem_do_execbuffer+0x1bd0/0x2250 [i915]
-    [<000000003c9d830f>] i915_gem_execbuffer2_ioctl+0x405/0xce0 [i915]
-    [<00000000fd7a8e68>] drm_ioctl_kernel+0xb0/0xf0 [drm]
-    [<00000000e721ee87>] drm_ioctl+0x305/0x3c0 [drm]
-    [<000000008b0d8986>] __x64_sys_ioctl+0x71/0xb0
-    [<0000000076c362a4>] do_syscall_64+0x33/0x80
-    [<00000000eb7a4831>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Fix this by clearing ep_enabled after all the endpoint requests have been
+dequeued.
 
-Signed-off-by: Matthew Brost <matthew.brost@intel.com>
-Fixes: 531958f6f357 ("drm/i915/gt: Track timeline activeness in enter/exit")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210730195342.110234-1-matthew.brost@intel.com
-(cherry picked from commit faf890985e30d5e88cc3a7c50c1bcad32f89ab7c)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fixes: 7de8681be2cd ("usb: gadget: u_audio: Free requests only after callback")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20210827092927.366482-1-jbrunet@baylibre.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_timeline.c b/drivers/gpu/drm/i915/gt/intel_timeline.c
-index c4a126c8caef..1257f4f11e66 100644
---- a/drivers/gpu/drm/i915/gt/intel_timeline.c
-+++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
-@@ -127,6 +127,15 @@ static void intel_timeline_fini(struct rcu_head *rcu)
+diff --git a/drivers/usb/gadget/function/u_audio.c b/drivers/usb/gadget/function/u_audio.c
+index 63d9340f008e..9e5c950612d0 100644
+--- a/drivers/usb/gadget/function/u_audio.c
++++ b/drivers/usb/gadget/function/u_audio.c
+@@ -394,8 +394,6 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
+ 	if (!prm->ep_enabled)
+ 		return;
  
- 	i915_vma_put(timeline->hwsp_ggtt);
- 	i915_active_fini(&timeline->active);
+-	prm->ep_enabled = false;
+-
+ 	audio_dev = uac->audio_dev;
+ 	params = &audio_dev->params;
+ 
+@@ -413,6 +411,8 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
+ 		}
+ 	}
+ 
++	prm->ep_enabled = false;
 +
-+	/*
-+	 * A small race exists between intel_gt_retire_requests_timeout and
-+	 * intel_timeline_exit which could result in the syncmap not getting
-+	 * free'd. Rather than work to hard to seal this race, simply cleanup
-+	 * the syncmap on fini.
-+	 */
-+	i915_syncmap_free(&timeline->sync);
-+
- 	kfree(timeline);
+ 	if (usb_ep_disable(ep))
+ 		dev_err(uac->card->dev, "%s:%d Error!\n", __func__, __LINE__);
  }
+@@ -424,8 +424,6 @@ static inline void free_ep_fback(struct uac_rtd_params *prm, struct usb_ep *ep)
+ 	if (!prm->fb_ep_enabled)
+ 		return;
  
+-	prm->fb_ep_enabled = false;
+-
+ 	if (prm->req_fback) {
+ 		if (usb_ep_dequeue(ep, prm->req_fback)) {
+ 			kfree(prm->req_fback->buf);
+@@ -434,6 +432,8 @@ static inline void free_ep_fback(struct uac_rtd_params *prm, struct usb_ep *ep)
+ 		prm->req_fback = NULL;
+ 	}
+ 
++	prm->fb_ep_enabled = false;
++
+ 	if (usb_ep_disable(ep))
+ 		dev_err(uac->card->dev, "%s:%d Error!\n", __func__, __LINE__);
+ }
 
