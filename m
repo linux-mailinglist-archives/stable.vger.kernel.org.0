@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4607C3FA991
-	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 08:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2333FA995
+	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 08:56:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230227AbhH2GyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Aug 2021 02:54:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48142 "EHLO mail.kernel.org"
+        id S234585AbhH2GzD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Aug 2021 02:55:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229889AbhH2GyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Aug 2021 02:54:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C05E5608FB;
-        Sun, 29 Aug 2021 06:53:09 +0000 (UTC)
+        id S229889AbhH2GzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Aug 2021 02:55:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD71C60F36;
+        Sun, 29 Aug 2021 06:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630219991;
-        bh=r3wsHGzXeXJyzXCInjxOUpHyGaBwY3IU5tfft8zRzAg=;
+        s=korg; t=1630220051;
+        bh=KRg0fFpe32ZDnPeQmYxlapjACO1QK0wOiLe9sTHDM1o=;
         h=Subject:To:Cc:From:Date:From;
-        b=GgU5nbyA2EjBP88djKlOVdLt7K2JefjvX0sZvPR+V00r8eFBjOcepapXx0vImogcc
-         a71pdlRDl1XcMEmYWD26yVCxeVu6fxjYMqbf6VyVPZ8ShelYCzuEqvWyCPxZLDUVoc
-         WfzcSZjUAI5UOmlNkiCqXxxw/OG9OdVzBJ3dXdfs=
-Subject: FAILED: patch "[PATCH] Revert "media: dvb header files: move some headers to" failed to apply to 5.13-stable tree
-To:     torvalds@linux-foundation.org, mchehab+huawei@kernel.org,
-        smoch@web.de
+        b=CynIiyXloox2bgHzwGqxilp+mUK1pmFooHOenw4zyIdfGJ83y/SKrBd96dXOZrZS6
+         fCaSqJX36hqNSZNVdkfwG+vlgAe7LIIrYQMyTs0juTZq0hBzOi8unOF6V1nMOHHQ3r
+         /eEsCRL9+59FzNChHyIdLypmB1LwqKli+ImaVKBY=
+Subject: FAILED: patch "[PATCH] Revert "btrfs: compression: don't try to compress if we don't" failed to apply to 4.4-stable tree
+To:     wqu@suse.com, ce3g8jdj@umail.furryterror.org, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Aug 2021 08:53:05 +0200
-Message-ID: <163021998513237@kroah.com>
+Date:   Sun, 29 Aug 2021 08:54:02 +0200
+Message-ID: <163022004223984@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,60 +45,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d5ae8d7f85b7f6f6e60f1af8ff4be52b0926fde1 Mon Sep 17 00:00:00 2001
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Mon, 23 Aug 2021 09:49:09 -0700
-Subject: [PATCH] Revert "media: dvb header files: move some headers to
- staging"
+From 4e9655763b82a91e4c341835bb504a2b1590f984 Mon Sep 17 00:00:00 2001
+From: Qu Wenruo <wqu@suse.com>
+Date: Wed, 25 Aug 2021 13:41:42 +0800
+Subject: [PATCH] Revert "btrfs: compression: don't try to compress if we don't
+ have enough pages"
 
-This reverts commit 819fbd3d8ef36c09576c2a0ffea503f5c46e9177.
+This reverts commit f2165627319ffd33a6217275e5690b1ab5c45763.
 
-It turns out that some user-space applications use these uapi header
-files, so even though the only user of the interface is an old driver
-that was moved to staging, moving the header files causes unnecessary
-pain.
+[BUG]
+It's no longer possible to create compressed inline extent after commit
+f2165627319f ("btrfs: compression: don't try to compress if we don't
+have enough pages").
 
-Generally, we really don't want user space to use kernel headers
-directly (exactly because it causes pain when we re-organize), and
-instead copy them as needed.  But these things happen, and the headers
-were in the uapi directory, so I guess it's not entirely unreasonable.
+[CAUSE]
+For compression code, there are several possible reasons we have a range
+that needs to be compressed while it's no more than one page.
 
-Link: https://lore.kernel.org/lkml/4e3e0d40-df4a-94f8-7c2d-85010b0873c4@web.de/
-Reported-by: Soeren Moch <smoch@web.de>
-Cc: stable@kernel.org  # 5.13
-Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+- Compressed inline write
+  The data is always smaller than one sector and the test lacks the
+  condition to properly recognize a non-inline extent.
 
-diff --git a/drivers/staging/media/av7110/av7110.h b/drivers/staging/media/av7110/av7110.h
-index b8e8fc8ddbe9..809d938ae166 100644
---- a/drivers/staging/media/av7110/av7110.h
-+++ b/drivers/staging/media/av7110/av7110.h
-@@ -9,12 +9,11 @@
- #include <linux/input.h>
- #include <linux/time.h>
- 
--#include "video.h"
--#include "audio.h"
--#include "osd.h"
--
-+#include <linux/dvb/video.h>
-+#include <linux/dvb/audio.h>
- #include <linux/dvb/dmx.h>
- #include <linux/dvb/ca.h>
-+#include <linux/dvb/osd.h>
- #include <linux/dvb/net.h>
- #include <linux/mutex.h>
- 
-diff --git a/drivers/staging/media/av7110/audio.h b/include/uapi/linux/dvb/audio.h
-similarity index 100%
-rename from drivers/staging/media/av7110/audio.h
-rename to include/uapi/linux/dvb/audio.h
-diff --git a/drivers/staging/media/av7110/osd.h b/include/uapi/linux/dvb/osd.h
-similarity index 100%
-rename from drivers/staging/media/av7110/osd.h
-rename to include/uapi/linux/dvb/osd.h
-diff --git a/drivers/staging/media/av7110/video.h b/include/uapi/linux/dvb/video.h
-similarity index 100%
-rename from drivers/staging/media/av7110/video.h
-rename to include/uapi/linux/dvb/video.h
+- Compressed subpage write
+  For the incoming subpage compressed write support, we require page
+  alignment of the delalloc range.
+  And for 64K page size, we can compress just one page into smaller
+  sectors.
+
+For those reasons, the requirement for the data to be more than one page
+is not correct, and is already causing regression for compressed inline
+data writeback.  The idea of skipping one page to avoid wasting CPU time
+could be revisited in the future.
+
+[FIX]
+Fix it by reverting the offending commit.
+
+Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
+Link: https://lore.kernel.org/linux-btrfs/afa2742.c084f5d6.17b6b08dffc@tnonline.net
+Fixes: f2165627319f ("btrfs: compression: don't try to compress if we don't have enough pages")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 06f9f167222b..bd5689fa290e 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -629,7 +629,7 @@ static noinline int compress_file_range(struct async_chunk *async_chunk)
+ 	 * inode has not been flagged as nocompress.  This flag can
+ 	 * change at any time if we discover bad compression ratios.
+ 	 */
+-	if (nr_pages > 1 && inode_need_compress(BTRFS_I(inode), start, end)) {
++	if (inode_need_compress(BTRFS_I(inode), start, end)) {
+ 		WARN_ON(pages);
+ 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
+ 		if (!pages) {
 
