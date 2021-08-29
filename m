@@ -2,107 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 732903FA9A7
-	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 09:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22B363FA9D6
+	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 09:11:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234739AbhH2HBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Aug 2021 03:01:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49968 "EHLO mail.kernel.org"
+        id S232001AbhH2HL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Aug 2021 03:11:59 -0400
+Received: from m43-7.mailgun.net ([69.72.43.7]:49808 "EHLO m43-7.mailgun.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229889AbhH2HBc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Aug 2021 03:01:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30E6560F45;
-        Sun, 29 Aug 2021 07:00:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630220441;
-        bh=A7eKKbqO7q0xfYnanxhty3mZ4Jn/+NfavXDlZOKwz6I=;
-        h=Subject:To:Cc:From:Date:From;
-        b=lLWoBecrub4TQVYIHfABMNOQVYbnX2XomcREPnwBHf6Bmcd2jHzk7GDEvMfVPw0uc
-         5tbMhJ369T9on0Dtm0wSxistNOsCb0424wovACO0Kv7/PhAOhhVKGMVrE0LAwQKci8
-         lS2bLhy+idzgo8j3r7UHQzdaFFWnBbsh5HbvKe7E=
-Subject: FAILED: patch "[PATCH] usb: gadget: u_audio: fix race condition on endpoint stop" failed to apply to 4.19-stable tree
-To:     jbrunet@baylibre.com, Thinh.Nguyen@synopsys.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Aug 2021 09:00:00 +0200
-Message-ID: <16302204004418@kroah.com>
+        id S234777AbhH2HL7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Aug 2021 03:11:59 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1630221067; h=Date: Message-Id: Cc: To: References:
+ In-Reply-To: From: Subject: Content-Transfer-Encoding: MIME-Version:
+ Content-Type: Sender; bh=kGWUkwWLSjglSCFuyo5qdWqvaikSa7L8lNlgZG4f8ms=;
+ b=MrAfj29MZ1eiGPd29RQ6rphRltnLRe2kGk7SUR4Em5kte0LX4NcjLSQmpn/BHZnblq+2T1LG
+ tF5ZZ+kVAxYOwfMU7nU4d55vqQEgG6bww8VW81W/RQLZBLz8N/cJ7TwoEzrFq6WQSzGZ89F7
+ TbAA83QfJwp7TYiHhjStsLpDjP4=
+X-Mailgun-Sending-Ip: 69.72.43.7
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n01.prod.us-east-1.postgun.com with SMTP id
+ 612b3302cd680e89694dc60f (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Sun, 29 Aug 2021 07:10:58
+ GMT
+Sender: kvalo=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id 53AE1C43616; Sun, 29 Aug 2021 07:10:57 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,BAYES_00,
+        MISSING_DATE,MISSING_MID,SPF_FAIL autolearn=no autolearn_force=no
+        version=3.4.0
+Received: from tykki.adurom.net (tynnyri.adurom.net [51.15.11.48])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 3BE0DC4360C;
+        Sun, 29 Aug 2021 07:10:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 smtp.codeaurora.org 3BE0DC4360C
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=codeaurora.org
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] wcn36xx: Ensure finish scan is not requested before start
+ scan
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <1629286303-13179-1-git-send-email-loic.poulain@linaro.org>
+References: <1629286303-13179-1-git-send-email-loic.poulain@linaro.org>
+To:     Loic Poulain <loic.poulain@linaro.org>
+Cc:     bryan.odonoghue@linaro.org, wcn36xx@lists.infradead.org,
+        linux-wireless@vger.kernel.org, Joseph Gates <jgates@squareup.com>,
+        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>
+User-Agent: pwcli/0.1.0-git (https://github.com/kvalo/pwcli/) Python/3.7.3
+Message-Id: <20210829071057.53AE1C43616@smtp.codeaurora.org>
+Date:   Sun, 29 Aug 2021 07:10:57 +0000 (UTC)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Loic Poulain <loic.poulain@linaro.org> wrote:
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+> If the operating channel is the first in the scan list, it was seen that
+> a finish scan request would be sent before a start scan request was
+> sent, causing the firmware to fail all future scans. Track the current
+> channel being scanned to avoid requesting the scan finish before it
+> starts.
+> 
+> Cc: <stable@vger.kernel.org>
+> Fixes: 5973a2947430 ("wcn36xx: Fix software-driven scan")
+> Signed-off-by: Joseph Gates <jgates@squareup.com>
+> Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 
-thanks,
+Patch applied to ath-next branch of ath.git, thanks.
 
-greg k-h
+d195d7aac09b wcn36xx: Ensure finish scan is not requested before start scan
 
------------------- original commit in Linus's tree ------------------
+-- 
+https://patchwork.kernel.org/project/linux-wireless/patch/1629286303-13179-1-git-send-email-loic.poulain@linaro.org/
 
-From 068fdad20454f815e61e6f6eb9f051a8b3120e88 Mon Sep 17 00:00:00 2001
-From: Jerome Brunet <jbrunet@baylibre.com>
-Date: Fri, 27 Aug 2021 11:29:27 +0200
-Subject: [PATCH] usb: gadget: u_audio: fix race condition on endpoint stop
-
-If the endpoint completion callback is call right after the ep_enabled flag
-is cleared and before usb_ep_dequeue() is call, we could do a double free
-on the request and the associated buffer.
-
-Fix this by clearing ep_enabled after all the endpoint requests have been
-dequeued.
-
-Fixes: 7de8681be2cd ("usb: gadget: u_audio: Free requests only after callback")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20210827092927.366482-1-jbrunet@baylibre.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/usb/gadget/function/u_audio.c b/drivers/usb/gadget/function/u_audio.c
-index 63d9340f008e..9e5c950612d0 100644
---- a/drivers/usb/gadget/function/u_audio.c
-+++ b/drivers/usb/gadget/function/u_audio.c
-@@ -394,8 +394,6 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
- 	if (!prm->ep_enabled)
- 		return;
- 
--	prm->ep_enabled = false;
--
- 	audio_dev = uac->audio_dev;
- 	params = &audio_dev->params;
- 
-@@ -413,6 +411,8 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
- 		}
- 	}
- 
-+	prm->ep_enabled = false;
-+
- 	if (usb_ep_disable(ep))
- 		dev_err(uac->card->dev, "%s:%d Error!\n", __func__, __LINE__);
- }
-@@ -424,8 +424,6 @@ static inline void free_ep_fback(struct uac_rtd_params *prm, struct usb_ep *ep)
- 	if (!prm->fb_ep_enabled)
- 		return;
- 
--	prm->fb_ep_enabled = false;
--
- 	if (prm->req_fback) {
- 		if (usb_ep_dequeue(ep, prm->req_fback)) {
- 			kfree(prm->req_fback->buf);
-@@ -434,6 +432,8 @@ static inline void free_ep_fback(struct uac_rtd_params *prm, struct usb_ep *ep)
- 		prm->req_fback = NULL;
- 	}
- 
-+	prm->fb_ep_enabled = false;
-+
- 	if (usb_ep_disable(ep))
- 		dev_err(uac->card->dev, "%s:%d Error!\n", __func__, __LINE__);
- }
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
 
