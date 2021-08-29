@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 517443FA99D
+	by mail.lfdr.de (Postfix) with ESMTP id BD9713FA99E
 	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 08:56:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230227AbhH2G5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Aug 2021 02:57:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48904 "EHLO mail.kernel.org"
+        id S234701AbhH2G5b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Aug 2021 02:57:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229889AbhH2G5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Aug 2021 02:57:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28E2B60F36;
-        Sun, 29 Aug 2021 06:56:27 +0000 (UTC)
+        id S234585AbhH2G5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Aug 2021 02:57:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F369060F38;
+        Sun, 29 Aug 2021 06:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630220189;
-        bh=kIwpZ8GVPJbBJc6bHRmb8jC0lhzeFhCV0RZ08cDC0P0=;
+        s=korg; t=1630220199;
+        bh=xqvLhYrx90MhwgtTzjQQfum657tkLccrxdulp60nQBw=;
         h=Subject:To:Cc:From:Date:From;
-        b=hyU41tx4fwsJ1nrA4Je+BTyRX8CEVjGrOGV4tldAmMqfZ2a4EByl8DEIPFshWUQsf
-         OzhdX8Y+Jxo4ktZMEo0kdmGEezKEPmSgHtwp8zdnrNl/5Ua6l9iNt+XUdSCFGEcZaH
-         EiPS+nebajS8Yg4diJdZmHBnE92fRZYtgCCT1zwI=
-Subject: FAILED: patch "[PATCH] net: stmmac: fix kernel panic due to NULL pointer dereference" failed to apply to 5.10-stable tree
+        b=EVFsZPVCBzER7L0UUrBBcZSxYbp87n2ZvjdEjIlBh7LkIWBXvDeo+CGXpOBEomFB7
+         VbPmuLVudDQvGCz3vzWkW8MwV39xaK/E1tCdZ2k7iDomW+ue0POllV+68+iWfjXbAW
+         9Gs92Vbf2D9Cg/MAWMaqaK0D8OgBMJJ9sO7Ya03U=
+Subject: FAILED: patch "[PATCH] net: stmmac: fix kernel panic due to NULL pointer dereference" failed to apply to 5.13-stable tree
 To:     vee.khee.wong@linux.intel.com, davem@davemloft.net,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Aug 2021 08:56:21 +0200
-Message-ID: <1630220181204200@kroah.com>
+Date:   Sun, 29 Aug 2021 08:56:23 +0200
+Message-ID: <1630220183252141@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
