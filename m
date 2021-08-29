@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF843FA998
-	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 08:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573F53FA999
+	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 08:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234710AbhH2Gzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Aug 2021 02:55:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48500 "EHLO mail.kernel.org"
+        id S234718AbhH2Gzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Aug 2021 02:55:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229889AbhH2Gza (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Aug 2021 02:55:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37BF3608FB;
-        Sun, 29 Aug 2021 06:54:37 +0000 (UTC)
+        id S229889AbhH2Gzj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Aug 2021 02:55:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C48DD608FB;
+        Sun, 29 Aug 2021 06:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630220079;
-        bh=TO8Uh/fCG43HylWx9YgIDIqW+J441KkSzXlR3VwJFOU=;
+        s=korg; t=1630220088;
+        bh=OdKkXvBpDpDIYAANKz9jwr2pK5pw53tUKukC53U10mA=;
         h=Subject:To:Cc:From:Date:From;
-        b=iG/UWaAYBVvq5j9x2Q5qQl2dYFOIruNC7EPKfA53GYTB2ddimP4EbS0xssgFf0dUv
-         xX6L1P1PMy8lzk+ZjMxnZ5dMWVueD/8JBPWQk9kPhKRx9UmyOVYcBA6bmquJRbug2l
-         nyB673eU1gxWlbBish7HI5WG8IoiIV4WRqCYC5SA=
-Subject: FAILED: patch "[PATCH] Revert "btrfs: compression: don't try to compress if we don't" failed to apply to 4.19-stable tree
+        b=EqsF/RKOo5nH2xW/N/sMitouh+QBt/CtC9C4iFkpvJybY9uWRcZKpCecFEV36NTQ3
+         dub1NneRwBaaaGD1aUAXylhQ90Mw4BYuu3Xmc700V3d9v3e/EOrKL7odPKlD/7XMvV
+         +VND3xFDCBTjv1RPj0++545PZrUyytQg0AO5k/8k=
+Subject: FAILED: patch "[PATCH] Revert "btrfs: compression: don't try to compress if we don't" failed to apply to 5.4-stable tree
 To:     wqu@suse.com, ce3g8jdj@umail.furryterror.org, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Aug 2021 08:54:09 +0200
-Message-ID: <16302200492110@kroah.com>
+Date:   Sun, 29 Aug 2021 08:54:11 +0200
+Message-ID: <16302200512317@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
