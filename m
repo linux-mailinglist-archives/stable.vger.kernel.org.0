@@ -2,181 +2,363 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 631003FAEB6
-	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 23:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 355DC3FAEC4
+	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 23:42:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234631AbhH2VaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Aug 2021 17:30:06 -0400
-Received: from mx0a-00069f02.pphosted.com ([205.220.165.32]:41058 "EHLO
-        mx0a-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231800AbhH2VaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Aug 2021 17:30:06 -0400
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 17TEOV92026248;
-        Sun, 29 Aug 2021 21:29:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=TAPnvasaW/OAzBVqJEW8s27ZXEXCOUshtqk9qpgP9as=;
- b=IwowbwedOLdmHvBOOsiDN8KF678K6XMCkydPfDokDf/aazBIYS08hZC1h16V8KoJBBmg
- 6DoETrLX+mWezWvWqOoRJP5U5dS3OrYtqne9CG+a4H0lM36HuwFoevAMYtVThZZd3Dxm
- LkBPzGh8nZlcOGQcpGyKdePS3ijWLM3d64T4ZI+pl47X5WrTRktmVx7OXXv2DznwazMd
- 0ZIPXouNt5GGyRVRb87yd3k4LCBIRhd0o+EXK5cnW+KS3YXtgJ5M51o6b6+jzQHrMSym
- 58YUUEizI3EvwUs8edKOZhKkB3aNH8+jKXKw3NBD0dC9W5jdr3kipyLFozSaKbs/Tolx Vg== 
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2020-01-29;
- bh=TAPnvasaW/OAzBVqJEW8s27ZXEXCOUshtqk9qpgP9as=;
- b=xk6vrrFHzNaRdirNgCNLbeVpXSbZ+hWMfENt37pJR8e2WDZYVdVl1WrFDD3+tVKrhnqW
- seL6VG67Uq+QskwBkHVJ20orLaMnRhCwcwwkfnqkZWBVnLqglOIIyD9BiJ4mMGJBmhsO
- Y/3iT+oAjLn0150uwqhk9NeZYGupTLZBeiSQOG17iBV/yAtzPXRMCbZDLME0YWWX0Rsv
- /DNpPP/GJfoy7h3iN1SY+ok/xrJiqI8qaxlORwUAl7glOa/fS4ETsibHLEJooFiGzwzl
- iSsBnT1P4fv6ezfHW8P3eoi3mxPlBescKDF9NkqsKEHrIhJuYV4yJGph0j7fLzrw9DTz gA== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3arbymg79w-1
+        id S236080AbhH2Vnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Aug 2021 17:43:32 -0400
+Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:57656 "EHLO
+        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232450AbhH2Vnb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Aug 2021 17:43:31 -0400
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 17TEN1LP008050;
+        Sun, 29 Aug 2021 21:42:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references :
+ content-transfer-encoding : content-type : mime-version;
+ s=corp-2021-07-09; bh=aNh356srCatNTJiAZz4WImfguPFczGLd7fXLl/m2nlA=;
+ b=Yao7Ed06DNUwDlLBxIEEmJseNNjKGSXz3ps7H0LofFUxF0j5Lr1KS+2/2vrUsnQXUmoG
+ D2nY2hKoHLzCsTenLD/KsdYl9ai6GIpNQ9RVjXBjo7JGSo8VP3CDuxh7khDRTMBajhW5
+ s6Bp0q9mH7nD4BucPDUqyCDzaNV9WSMCC5+m9cYHvT0Un0DOdZUsprN/1Y0fk18B+Q2B
+ p6PNmdxLGTHpnmNbD7dYHqdiudCrNu6auGAxzGGKrKghDs1KEsbdUOZAnVH7G6R9kZAr
+ 3/BxN2rzSYMV5SZRd7Ldi1vAQ0q05rL9KFtE84PEdXYyBJdeWmZzql33jcyqRsisiHvD DQ== 
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references :
+ content-transfer-encoding : content-type : mime-version;
+ s=corp-2020-01-29; bh=aNh356srCatNTJiAZz4WImfguPFczGLd7fXLl/m2nlA=;
+ b=wMuNPIkpDPIR/7h7uD9O8XbAACoYShfnACJ+rVIqVK35Lqa6JK1s60m4mAYayjkhblC8
+ AtKHTAmF0CobBR2WozyQDylFpaz3jE1KnlSBtDttlOaKuhctnDEMC4L20++fBh9vykXT
+ jxfQVbRX/QB1dpBzVobGIbEX0i+5Gip8DXXSPzQhmNbb5awdbRIMJbjGXM5iyiNjnAlH
+ kC1NFeiZ8mwhXAjNS3IvV6XDgoTifynRE0vlxXerMMbM0rmj5I9UKmYcQUyzO9bGsgdK
+ DLE+4ZW93xvOnlMm/q6hBxvI/zhnaf4FUKwFnDwYbu595mXW0PRTfO3MXCbXIo6on4Gu JA== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by mx0b-00069f02.pphosted.com with ESMTP id 3arbxwg7n6-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 29 Aug 2021 21:29:09 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 17TLBW2c036779;
-        Sun, 29 Aug 2021 21:29:08 GMT
-Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2104.outbound.protection.outlook.com [104.47.55.104])
-        by aserp3020.oracle.com with ESMTP id 3aqcy1t2ec-1
+        Sun, 29 Aug 2021 21:42:36 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 17TLfenh189871;
+        Sun, 29 Aug 2021 21:42:35 GMT
+Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2174.outbound.protection.outlook.com [104.47.55.174])
+        by aserp3030.oracle.com with ESMTP id 3aqb6axajq-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 29 Aug 2021 21:29:07 +0000
+        Sun, 29 Aug 2021 21:42:35 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=MoN7eBSHmMSGyQVwo7FB1hccMS9djW0HMIHqSQ4ot45SnpfOzz8px3j6qlDbmpd39v7NyGHZ/H/uFK94FwzU2Tv13or0KNuKRMANCZFFrM1OE4dxYtcwNfzJVdTRr23I3AopnILzhpQWFnLkx+rDEzMuPoHFPZJ+GHxf0Df/H8jPQKca8DpsW5bRoIdwHgBFIxX/Y7DVA0DYTdI6qXI0T5gyjPmbX1rOVgxxB0H5R/E1AGQZU5nGIgwrCI1bbXAfnYHfBqdIE6aPGidCWVNJJLp29vKegM0NZs5vrdt6UUIr0cUYk101IelYsRcGdPwO2XpQ+0YPyDTCn3sMHwHPmw==
+ b=PkID7zppmVU5sL5wgT96pqd83sj5h/wWvGEqNBIFnIu1h9Lgswb7k6hGFb9XcvnpIAiDc+X+zANQy4XnTgyJcjbXIxlQ+vSIPJCLUGISV+bs2t4aydibV0b3ILlE27jogZ7W75lPrB3H9EqgTgvtqfoTxDMMxfclBhOkIUiR3UovLgICKnIYSfenXHFs/kDLg/xjDMfEVPRzRbcokfFCfy8QZALCTPbjQVn76kD6K+r+zkxxycYOswrMZE/zrNX98Jf3y8vu6AZEZ2+NUDYPKstsrqYZwjRY3g4X8QsxCsuMxB/7aBlQnSqk4h6zIMtY84Z7t/U0X7aCWXQb3dPupQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TAPnvasaW/OAzBVqJEW8s27ZXEXCOUshtqk9qpgP9as=;
- b=VsZODSNFJls0kHx2bZe169Z43VBO50JsfR8ZwNntDBgL2aP3yGQBRpWtmdENG9tjmAaAAQ0bWLfKBArHDZpQMJJXTpdMGd7Rpvus7pdqCZn9Y7T7J0hu+xXjlNTwouZmEDMXMCXV8qpvfaCwzPxFmZtjGvhSGXfUf7lUEh9Je97OFttTogq12NbG492v1h59rvAQoTBl7wkd5rw84HcbgbAuB8JI6xEoWbikz80CO2fSSrSBcRhbYzlPjv38a6+mqHB6lqr3ih/+RZvcGeYHbtxMoO4sIFuqq8Er+xJYWQJw9ANSWjKiIexk8fuDOn/6yWSzpCYAcgmCnuzYdnHLuw==
+ bh=aNh356srCatNTJiAZz4WImfguPFczGLd7fXLl/m2nlA=;
+ b=TI7pqLrTCy/oWwTM4dSLA53Phpeuy/CeHDGuSC4gG4kXWKEzA7Ezx7raYqIdxXdrlfmwCS/Wd3zhaJM5rL/vM4myNwp2CZWqxZXo57W7qrnbfFNI9g1BNTY4WzfjlsPyjZuJ+LOf0Pb/jYSpuK23DcF0hpIyU6ekSbGHT7qGZn3Pdq4QaNLXEzoS8Ccd0rdcZ9ryQkTrrIkRRha1GMFdovliyGFo9AQqJRhgW4vKUlGL7AOlMz7MBPbugioKyKc+xtyZfB66Si/Q8UsbmonL17zTFnQ682xhdLYttFpjpZ2cwJIYZie7ORlSCl+vFtWlq45CEK+Qc//ddP0eiCuPqw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TAPnvasaW/OAzBVqJEW8s27ZXEXCOUshtqk9qpgP9as=;
- b=pxKKiCX5cj6PwQpOd6gTDhvorO5KP6bcBjTBeTpusgBk99Xf2A5yGMCjC5ROUziu4TiH5odsJmLYUNmGYlo8PUJDTl5cjPY4UfvDNTrn4FhSTUjgcOgab3CpQjwkKpE3i60s9ARsRJfWF4aXGpe4ifWjzr+C7OcoYxLdTocBUe8=
-Authentication-Results: suse.com; dkim=none (message not signed)
- header.d=none;suse.com; dmarc=none action=none header.from=oracle.com;
+ bh=aNh356srCatNTJiAZz4WImfguPFczGLd7fXLl/m2nlA=;
+ b=EnE4O89lirxyCQyciHfZnIBp1UMoNw31TWeTFUWaM3XdW6xEyX6iQBjJZMjlYEHnBpB3rrCqbk9++X1SIX0tu5RFb+T84lnbHGxdKNTLa/zgja6z2G6q4rS1G+dtcPdH/htEuBBvV6ciszyDwjQF5LfD2BM/2mTg3W5N9+a7vnE=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none header.from=oracle.com;
 Received: from MN2PR10MB4128.namprd10.prod.outlook.com (2603:10b6:208:1d2::24)
- by MN2PR10MB3773.namprd10.prod.outlook.com (2603:10b6:208:1b6::12) with
+ by BLAPR10MB5139.namprd10.prod.outlook.com (2603:10b6:208:307::20) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4457.17; Sun, 29 Aug
- 2021 21:29:05 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4436.22; Sun, 29 Aug
+ 2021 21:42:33 +0000
 Received: from MN2PR10MB4128.namprd10.prod.outlook.com
  ([fe80::b813:4805:31e:d36a]) by MN2PR10MB4128.namprd10.prod.outlook.com
  ([fe80::b813:4805:31e:d36a%5]) with mapi id 15.20.4436.024; Sun, 29 Aug 2021
- 21:29:05 +0000
-Subject: Re: [PATCH stable-5.4.y] btrfs: fix race between marking inode needs
- to be logged and log syncing
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        linux-btrfs@vger.kernel.org, Filipe Manana <fdmanana@suse.com>
-References: <2f474ee209a89b42c2471aab71a0df038f7e8d4c.1629969541.git.anand.jain@oracle.com>
- <YSsvSQR0qHhLeI6C@kroah.com>
+ 21:42:33 +0000
 From:   Anand Jain <anand.jain@oracle.com>
-Message-ID: <3b67845a-9d24-95d8-9dcf-845df319c0a6@oracle.com>
-Date:   Mon, 30 Aug 2021 05:28:57 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
-In-Reply-To: <YSsvSQR0qHhLeI6C@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SG2PR0401CA0005.apcprd04.prod.outlook.com
- (2603:1096:3:1::15) To MN2PR10MB4128.namprd10.prod.outlook.com
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     linux-btrfs@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Anand Jain <anand.jain@oracle.com>
+Subject: [PATCH stable-5.9.y, stable-5.10.y] btrfs: fix race between marking inode needs to be logged and log syncing
+Date:   Mon, 30 Aug 2021 05:42:17 +0800
+Message-Id: <7701f6238b7a6905164fa85d343d6328554414ea.1630270929.git.anand.jain@oracle.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <2f474ee209a89b42c2471aab71a0df038f7e8d4c.1629969541.git.anand.jain@oracle.com>
+References: <2f474ee209a89b42c2471aab71a0df038f7e8d4c.1629969541.git.anand.jain@oracle.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SG2PR0302CA0021.apcprd03.prod.outlook.com
+ (2603:1096:3:2::31) To MN2PR10MB4128.namprd10.prod.outlook.com
  (2603:10b6:208:1d2::24)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [192.168.10.109] (39.109.186.25) by SG2PR0401CA0005.apcprd04.prod.outlook.com (2603:1096:3:1::15) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4457.17 via Frontend Transport; Sun, 29 Aug 2021 21:29:03 +0000
+Received: from localhost.localdomain (39.109.186.25) by SG2PR0302CA0021.apcprd03.prod.outlook.com (2603:1096:3:2::31) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4478.6 via Frontend Transport; Sun, 29 Aug 2021 21:42:31 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 0fcd8dc3-029d-4600-5f4d-08d96b3406f1
-X-MS-TrafficTypeDiagnostic: MN2PR10MB3773:
-X-Microsoft-Antispam-PRVS: <MN2PR10MB3773729BA9052084003546CCE5CA9@MN2PR10MB3773.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:7219;
+X-MS-Office365-Filtering-Correlation-Id: e2bbb4d5-a2c2-4068-71cb-08d96b35e877
+X-MS-TrafficTypeDiagnostic: BLAPR10MB5139:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BLAPR10MB5139050F9ABE56940544BB50E5CA9@BLAPR10MB5139.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3513;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: feiXHsz6B6HwT/pAU2KlB8ywk4nDkv9gNWx39MMn9jmzhwGsc2HDg11O8GiQciilzoiyeb3OONUCRm8TCyuAQrx1vXCpq/MczGOuUFx1hrhI6HTx0fm1fkCN8yi3GQyA3rpu0XqApyigG1G26lTN1tBvjDEvSU6O23PF/I5HpEdaRWwv1/4hBAU5fmlg3jU/WAwNY7VcAsz2M5atOb93qeZ47rgqOIHbglqn/BcqsiCAOcy7FqhgU128rvIQ2cXhziYXmpkTOpYdGS2I/BdGyaPoiddIJhU/a9AT8nNwXrGqKcL9zrNpLt8pGnv4tEsoJ6jji0ipI5jsIE0itEPI7QffKloI0cU7a3qGQZGSEHUPt6XlNk+Za3sigg6ANOkfCfjSnPS+XFLLqMDbQHdtZhcQwRqe2vQTgtKfoBXeRvU5vjqPO8HJMqPeMyPJnrg8+Zi6zUZ2smP/Z7Np5OMRebkOMty9Q0oFzJhKRKgmZcr8rNBi1QKmo4pHcbQfRSIxfmi10+ec7lpRSSEhPbRZu5IEDCsvHbKfbSpgZ0jaTvmrLJ4zfzRkH31f87g5zlwjhDo8CEBL7ClxzFE9OZp/NhSukyAwsbKfScDjKyoG970Y1CK+mm7gWlxWY8pmXb7tcBr/W6C9v846i9qw2wAwfY5vlLERrMe88vpg+dOWTqDhkxbFbQ/yGwbrtuAiXBFV1bDX8FoXLdVNzcKi+eNq5qcVMfOOux/JUkwwXbEABgo=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR10MB4128.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(396003)(136003)(346002)(39860400002)(366004)(376002)(31686004)(4326008)(6666004)(478600001)(26005)(316002)(2906002)(16576012)(8936002)(186003)(36756003)(86362001)(38100700002)(31696002)(5660300002)(66556008)(53546011)(4744005)(6486002)(6916009)(44832011)(956004)(2616005)(66476007)(66946007)(8676002)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: CW/74YgbTWwGXeoofWT4jPTYJB2LRUOdhzNv0Nbdpx42wnxm07hpHSO4VK/L2H9cgLbBmqEfUqNw03gH7Y9aAKjt8zDsMlhyRGWgp369lGqMlR64Jym8X6hx9e25ZAm4OTW3q4NVYC819PKf6rXj9KjxG/cx666DlCBrfdz0ZHHPYNKPPHV+NUk+MGvBn08Op+dogA8E0uuajIZTsd7wPzkMOn3oGQeB1uafiy/Ftto3tzPyBKDvT9nqDn1i4Pdlu3Chifb0wlcV6frpjHXepEf9DV1QHjAxrkv32RtL1J7aEdemO2njpBexRv28C4Mv0Hc/D0pVTe8dwthTKxrASzxwFdcVOlnmJDxkO6k3Mmo/hP1IprTzBsu71NJRsxbxf88oLWRg5Y4QU4vpoHy+aHKC9qP4jYMK7mNLuGDNaLyFxhNNmaPZqJsMMo8Eiri/ASq+eqAvffcuSdwmhZnI3nsVANqXkpXK3+NH4aFuBgvzYggXPZ1m9+nyAyFArDdkOTfUTKzahmE2emUrP5ZVh14Rx8F0wR8wiTnbJc7xAmHhzEaE+fTqxVc/POUyP0XrKwK/AfwLzudDPH1fxtbNM11t611akuvW6Y7QuBSAalmvgoeLrI2pvQmu0mv/Q2g/8Cau9ONOrW/b9VPv4A1qAbA8ylznRwxoCuICNM7Kee0pRhAsae/wKXuD2AIjFkYPMSssrtVL81AbVUdpgmwW8Q==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR10MB4128.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(396003)(366004)(136003)(39860400002)(376002)(346002)(86362001)(2906002)(54906003)(107886003)(478600001)(6486002)(83380400001)(316002)(36756003)(8676002)(4326008)(66556008)(66476007)(6512007)(2616005)(956004)(5660300002)(26005)(8936002)(38100700002)(6506007)(6666004)(66946007)(38350700002)(52116002)(186003)(44832011);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?K3ZYYWRFK3hIdmlGYnk4eU1VYVd4UEVoSEFqenh2QldNNEhvWmk0RzFtOXZF?=
- =?utf-8?B?NlFMUHByWnZjTlhZV1d0dkRhQm5TZ0F1K092c1NQTTZ0K3hrQWRNRFhLYUVp?=
- =?utf-8?B?TDltbjJOa0VjcGN0YmVITWgyUmE0R2hRVXB3OXpUVmxYNWlJQzJsSDVoZHlE?=
- =?utf-8?B?QkdaVUpPSU9wQU54SkpRZkZXMVY0QW9NMEUydG8wQzUwcGNoT1pMN3o3djVT?=
- =?utf-8?B?VEdSUFhRYndCVCs3MjFZUEtvL2pQbENrUmdsVktiRWs4aHpRWXIzdWl1b21r?=
- =?utf-8?B?UTdPa0lFLzNjaDlSOXVyVmlocTFMQzBDakZsSldSMncrNVJmWjB5YlkxRlF3?=
- =?utf-8?B?b2h2dTVLTE1FbTJYMGdJeUVNdFdvWE9IZEkwejR0elo0SHlwTWhhUy9IUXB4?=
- =?utf-8?B?UWRBMEdRRHNLWHFaSjVNanAxdFpURVFvV0RGQTcwZm9ISU5tTk5PWEN1TXI0?=
- =?utf-8?B?cVk1VHZHQXQvaVBEb2hxbmhrbjBqSWt1bDdNM25taE96VTRRekJTaDFqNWFG?=
- =?utf-8?B?UUROWFRWSTk0MUR2YUUvSlNVTGc0NE9LRi8vRkhnVDVHZ2RLREVFZE0vOUxL?=
- =?utf-8?B?Z1daUW9HZksrT0lVaU9COWNSS1ViRTIybDBVdEtGT29USkJvWm0vbFU3L1B4?=
- =?utf-8?B?dGxMQVV0b0RBdG42cWxTaG1NRVFkdDNDMFBobFlyOUlNTnB0bHBjOFZMa0lT?=
- =?utf-8?B?M1NaWkxNd29ESXhqYWUwQWZiNFg5aS9TSGxzRlFrNVNGVFU2aTRZQ3JrQWF2?=
- =?utf-8?B?MTBZSUIzSUZJSVppTDA0UE11UUYvTG5tN1R1NW8zbjBGanE5aHByNS9kL3Zh?=
- =?utf-8?B?S1NVbjdJbTFIbFYya1NIK1dKVmRsL28wS0xEakNjWDFZMXFwOEcyNEFFdkc5?=
- =?utf-8?B?T1ZVNngzRHFLQkRMMHRaS2NLY0doVUZhazJla2I4YnNZS2pwSGYyK0FyTHR6?=
- =?utf-8?B?VWJaamkrcllwb1NBRWVLVHZKaTJQWmdpQnhzWFNRMGJIRW1GN3BWT0MrK0dy?=
- =?utf-8?B?MWlydnp5UjA2eGxnWHp5L1N4blJZODdpR2Z6TTZkbmpESEY4UDZLeFd3K2Vh?=
- =?utf-8?B?bkttUklVb3JEMHhvQTY4bGdxSFNWOTJoVkJtbmtwa2xlQUp3U0EwemNscDQ5?=
- =?utf-8?B?ZVVzQWxmdjhNWk10Z2tsUktocHZIM05WMzRpQWJmc3p0bjZvNXM5YzZyYk96?=
- =?utf-8?B?ZktwaEJUYStrWlVMaFNJSFNvZ09mZkNGYTJTc2locWFNNklxWVVVK3YrNjRP?=
- =?utf-8?B?cGlBYld0dnZUQUdkVkJFZXh5S3Jydk1NM0JBNzZ0emMrRWNaREpDWVUzOE1q?=
- =?utf-8?B?ZjNQMkNSWmFzVEMrTVhQOWhJRnVON0VCVWVvR1RBQVJqWitkREpQL2hSRmRx?=
- =?utf-8?B?bkdzU1lxc2xQNUdpWWc0clFGalZ3bnlmUHVrcTRhazdzdHNIQ3JQbTlGWWRW?=
- =?utf-8?B?TnR5WWEwUkM2WjdqcitPcFM1WXpKWkVOWGZkc2haM3dMN1dRV1Y5bjNxY0pI?=
- =?utf-8?B?YjhFdU5pdS8zWThuY0JNb2UxNnZURmVpakt0OXhka3l4VEhYemx6TDErd0N3?=
- =?utf-8?B?bGlic1lQbGlrVlNtWHlFSVRnVXkzczRaWnIzRGt6dDI0eUdsQXk0Wk4yS21y?=
- =?utf-8?B?Q0F5ZDVlR3dteUZQTDMrTHMrbEFZVHZIVHZhenhEOHJlQWpaZ0N2QTNrTHVh?=
- =?utf-8?B?SGYzWnB3elg4OWE3S0JrcTZ2YUJIRWFDVHBvZCtTenlvRTNmU2FuamxnNVNC?=
- =?utf-8?Q?wjmuINEW1+qgtjI7VrTZ66RDuewV9XmASc8Tk+Q?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?PCpHkb9HhzpA2u0rsmA9BQWsiKDhi+C+Wk0TwsiidIY4JwjaUuwJejCCg015?=
+ =?us-ascii?Q?TaTvSrfgGQdHxtGFNjaCWpbOG9fHcywnxR0Bj7/Fl5aFzJydnZW6L3whxp9B?=
+ =?us-ascii?Q?Ckg7KGAYl2oUpMzUvkAkXeYhaxkPsHcTIAuuG8N0mV1FZvA5kBPbMA2U0Vb9?=
+ =?us-ascii?Q?isesutLi/AbOtWsbTuyaDbM3FLgw7GKHj53CppORmgyx/LNlsHtRWCjV0rwG?=
+ =?us-ascii?Q?EeHOsIIFsY3IYq72MpIaw04X7Xq2AHhwbkaIl+7txhkL1rGZAB8NdhEtqpqY?=
+ =?us-ascii?Q?UykB8g5qbY83pNqULjqIzuRcpWwKKzylUT8HRNnr21wd1abrbGSFGqVZiMjJ?=
+ =?us-ascii?Q?xUKKlt2DDMvPHEhqHoZQ2UGP+8WP7MwjqjB38HbSc4g8yec3zMUtLFOypurD?=
+ =?us-ascii?Q?rTzof990FNjTXJ8WEHlCXwIk3PBkkbkLl3nkg6eDkewB/CSrAprHUlmVlu17?=
+ =?us-ascii?Q?XBUljJGZKlw7HKGr7OpYetZUrn9lH4oTyhEubtUdrp/bKoVKzyVxlYxHuMee?=
+ =?us-ascii?Q?L0Gxk8MyATuRgHgBWLZev0eaqBPESsEgjEKdrBtUO2dCK45/HWF7acj6LGTH?=
+ =?us-ascii?Q?SafPI5NyD8dK8CmbRGlz1fC5IMPzqyHtjCrwf8eCxE0PvlSZxl6XpY80sXYS?=
+ =?us-ascii?Q?hcm5MsGJjesLoaobO9F73o4hoSWsxapsN0lJjORb8j1rQgFWt6Pz/aHbIy0i?=
+ =?us-ascii?Q?m9fnnoQ+wftGPp4O99WkWFdRfGrUTOFkDoTFk+DZ3WGVcG5ZQQRnQvwWIggC?=
+ =?us-ascii?Q?6CjxPYmjjPFM5Lc2jXtoMhbnNwpXb3leudtBavLNqyJXjg0jHiZEISLtspe8?=
+ =?us-ascii?Q?P0pdhv3ZP9V5PetnD4f1EHPRUfjoAeTVl7pRc8S8C058WHFP6g+bJVsQrOmM?=
+ =?us-ascii?Q?joLnk60oIkwn2Q5askvzlPWTjBZ/26AmrniOCGqX3qlsmv0f4x3i8CaUUAU0?=
+ =?us-ascii?Q?VdyCGQolmSCIpCrr+RaUnqpgRRDMHPC12MKTrnUSQIf3OWUr+OTIk/C097ZF?=
+ =?us-ascii?Q?1y7Us7FcOzjGZwClafgsDCsXYtPd+AEC1dmcpOPc8XLR5DVdFJYDm6OFXjCX?=
+ =?us-ascii?Q?+aAgSxoqspwF+t76pPflKs0nTeNXud9YIA8sUCE/Zr4bftsSUNmoue2Zqc8T?=
+ =?us-ascii?Q?qBsDPywQR1Elhi6ckmbBoO/ynR1nPg+bTbsKt0Isd+e0y1wPLZGXthOqBdJX?=
+ =?us-ascii?Q?HkQxRVlp8m5/fS+QfsWPcL1agojRgdfk+matqsfcp/QZzj9uXzRUgU6OPOYu?=
+ =?us-ascii?Q?oMe2Tg+AFX9u9CDCAdSf5iAcBmqhjcFBwDjl/+b7QQtAErPWOLqkpNvfoXJI?=
+ =?us-ascii?Q?FSWysZ0GXxizmaYizv58MXWD?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0fcd8dc3-029d-4600-5f4d-08d96b3406f1
+X-MS-Exchange-CrossTenant-Network-Message-Id: e2bbb4d5-a2c2-4068-71cb-08d96b35e877
 X-MS-Exchange-CrossTenant-AuthSource: MN2PR10MB4128.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Aug 2021 21:29:05.2481
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Aug 2021 21:42:33.0382
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: o3p2w+mVRct9VpbQpGqSuyRtPXMng4tiFqN1AHqALEqMjS7nHo6u9LPBoLUEOuTyV0jCtDqnRTjR7O2ul8eakw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB3773
+X-MS-Exchange-CrossTenant-UserPrincipalName: EkTcjxjhNsn3X4Dfa/zn2D8yQqvacUzSI5K59tNqOBwmkJ0GHkZZB9jhxYusYQ5qpMI7lj+RZp+CF6knymP8TQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB5139
 X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10091 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 suspectscore=0
- phishscore=0 mlxscore=0 malwarescore=0 mlxlogscore=999 bulkscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2107140000 definitions=main-2108290137
-X-Proofpoint-ORIG-GUID: erSdHsUfXtGyuFlOgh-kL1J1BggBlWt5
-X-Proofpoint-GUID: erSdHsUfXtGyuFlOgh-kL1J1BggBlWt5
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 phishscore=0 suspectscore=0
+ adultscore=0 mlxscore=0 mlxlogscore=999 malwarescore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2107140000
+ definitions=main-2108290139
+X-Proofpoint-ORIG-GUID: PXiBxnDBTnWOXO40-E6-5jfub8CQY2Ew
+X-Proofpoint-GUID: PXiBxnDBTnWOXO40-E6-5jfub8CQY2Ew
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 29/08/2021 14:55, Greg KH wrote:
-> On Sat, Aug 28, 2021 at 06:37:28AM +0800, Anand Jain wrote:
->> From: Filipe Manana <fdmanana@suse.com>
->>
->> commit bc0939fcfab0d7efb2ed12896b1af3d819954a14 upstream.
-> 
-> 5.10 also needs this, can you provide a working backport for that as
-> well so that no one would get a regression if they moved to a newer
-> kernel release?  Then we could take this patch.
+From: Filipe Manana <fdmanana@suse.com>
 
-Ok, will do. Why are we keen on stable-5.10.y only, while there are
-other stable releases in between?
+commit bc0939fcfab0d7efb2ed12896b1af3d819954a14 upstream.
 
-I just found that this patch applies conflict-free for the stable-5.4.y
-to stable-5.8.y, you may consider integrating.
+We have a race between marking that an inode needs to be logged, either
+at btrfs_set_inode_last_trans() or at btrfs_page_mkwrite(), and between
+btrfs_sync_log(). The following steps describe how the race happens.
 
-I will send a separate backport for stable-5.10.y.
+1) We are at transaction N;
 
-Thanks, Anand
+2) Inode I was previously fsynced in the current transaction so it has:
 
-> 
-> thanks,
-> 
-> greg k-h
-> 
+    inode->logged_trans set to N;
+
+3) The inode's root currently has:
+
+   root->log_transid set to 1
+   root->last_log_commit set to 0
+
+   Which means only one log transaction was committed to far, log
+   transaction 0. When a log tree is created we set ->log_transid and
+   ->last_log_commit of its parent root to 0 (at btrfs_add_log_tree());
+
+4) One more range of pages is dirtied in inode I;
+
+5) Some task A starts an fsync against some other inode J (same root), and
+   so it joins log transaction 1.
+
+   Before task A calls btrfs_sync_log()...
+
+6) Task B starts an fsync against inode I, which currently has the full
+   sync flag set, so it starts delalloc and waits for the ordered extent
+   to complete before calling btrfs_inode_in_log() at btrfs_sync_file();
+
+7) During ordered extent completion we have btrfs_update_inode() called
+   against inode I, which in turn calls btrfs_set_inode_last_trans(),
+   which does the following:
+
+     spin_lock(&inode->lock);
+     inode->last_trans = trans->transaction->transid;
+     inode->last_sub_trans = inode->root->log_transid;
+     inode->last_log_commit = inode->root->last_log_commit;
+     spin_unlock(&inode->lock);
+
+   So ->last_trans is set to N and ->last_sub_trans set to 1.
+   But before setting ->last_log_commit...
+
+8) Task A is at btrfs_sync_log():
+
+   - it increments root->log_transid to 2
+   - starts writeback for all log tree extent buffers
+   - waits for the writeback to complete
+   - writes the super blocks
+   - updates root->last_log_commit to 1
+
+   It's a lot of slow steps between updating root->log_transid and
+   root->last_log_commit;
+
+9) The task doing the ordered extent completion, currently at
+   btrfs_set_inode_last_trans(), then finally runs:
+
+     inode->last_log_commit = inode->root->last_log_commit;
+     spin_unlock(&inode->lock);
+
+   Which results in inode->last_log_commit being set to 1.
+   The ordered extent completes;
+
+10) Task B is resumed, and it calls btrfs_inode_in_log() which returns
+    true because we have all the following conditions met:
+
+    inode->logged_trans == N which matches fs_info->generation &&
+    inode->last_subtrans (1) <= inode->last_log_commit (1) &&
+    inode->last_subtrans (1) <= root->last_log_commit (1) &&
+    list inode->extent_tree.modified_extents is empty
+
+    And as a consequence we return without logging the inode, so the
+    existing logged version of the inode does not point to the extent
+    that was written after the previous fsync.
+
+It should be impossible in practice for one task be able to do so much
+progress in btrfs_sync_log() while another task is at
+btrfs_set_inode_last_trans() right after it reads root->log_transid and
+before it reads root->last_log_commit. Even if kernel preemption is enabled
+we know the task at btrfs_set_inode_last_trans() can not be preempted
+because it is holding the inode's spinlock.
+
+However there is another place where we do the same without holding the
+spinlock, which is in the memory mapped write path at:
+
+  vm_fault_t btrfs_page_mkwrite(struct vm_fault *vmf)
+  {
+     (...)
+     BTRFS_I(inode)->last_trans = fs_info->generation;
+     BTRFS_I(inode)->last_sub_trans = BTRFS_I(inode)->root->log_transid;
+     BTRFS_I(inode)->last_log_commit = BTRFS_I(inode)->root->last_log_commit;
+     (...)
+
+So with preemption happening after setting ->last_sub_trans and before
+setting ->last_log_commit, it is less of a stretch to have another task
+do enough progress at btrfs_sync_log() such that the task doing the memory
+mapped write ends up with ->last_sub_trans and ->last_log_commit set to
+the same value. It is still a big stretch to get there, as the task doing
+btrfs_sync_log() has to start writeback, wait for its completion and write
+the super blocks.
+
+So fix this in two different ways:
+
+1) For btrfs_set_inode_last_trans(), simply set ->last_log_commit to the
+   value of ->last_sub_trans minus 1;
+
+2) For btrfs_page_mkwrite() only set the inode's ->last_sub_trans, just
+   like we do for buffered and direct writes at btrfs_file_write_iter(),
+   which is all we need to make sure multiple writes and fsyncs to an
+   inode in the same transaction never result in an fsync missing that
+   the inode changed and needs to be logged. Turn this into a helper
+   function and use it both at btrfs_page_mkwrite() and at
+   btrfs_file_write_iter() - this also fixes the problem that at
+   btrfs_page_mkwrite() we were setting those fields without the
+   protection of the inode's spinlock.
+
+This is an extremely unlikely race to happen in practice.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+---
+ fs/btrfs/btrfs_inode.h | 15 +++++++++++++++
+ fs/btrfs/file.c        | 11 ++---------
+ fs/btrfs/inode.c       |  4 +---
+ fs/btrfs/transaction.h |  2 +-
+ 4 files changed, 19 insertions(+), 13 deletions(-)
+
+diff --git a/fs/btrfs/btrfs_inode.h b/fs/btrfs/btrfs_inode.h
+index 8de4bf8edb9c..5a43f8e07122 100644
+--- a/fs/btrfs/btrfs_inode.h
++++ b/fs/btrfs/btrfs_inode.h
+@@ -308,6 +308,21 @@ static inline void btrfs_mod_outstanding_extents(struct btrfs_inode *inode,
+ 						  mod);
+ }
+ 
++/*
++ * Called every time after doing a buffered, direct IO or memory mapped write.
++ *
++ * This is to ensure that if we write to a file that was previously fsynced in
++ * the current transaction, then try to fsync it again in the same transaction,
++ * we will know that there were changes in the file and that it needs to be
++ * logged.
++ */
++static inline void btrfs_set_inode_last_sub_trans(struct btrfs_inode *inode)
++{
++	spin_lock(&inode->lock);
++	inode->last_sub_trans = inode->root->log_transid;
++	spin_unlock(&inode->lock);
++}
++
+ static inline int btrfs_inode_in_log(struct btrfs_inode *inode, u64 generation)
+ {
+ 	int ret = 0;
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index ffa48ac98d1e..6ab91661cd26 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1862,7 +1862,6 @@ static ssize_t btrfs_file_write_iter(struct kiocb *iocb,
+ 	struct file *file = iocb->ki_filp;
+ 	struct inode *inode = file_inode(file);
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+-	struct btrfs_root *root = BTRFS_I(inode)->root;
+ 	u64 start_pos;
+ 	u64 end_pos;
+ 	ssize_t num_written = 0;
+@@ -2006,14 +2005,8 @@ static ssize_t btrfs_file_write_iter(struct kiocb *iocb,
+ 
+ 	inode_unlock(inode);
+ 
+-	/*
+-	 * We also have to set last_sub_trans to the current log transid,
+-	 * otherwise subsequent syncs to a file that's been synced in this
+-	 * transaction will appear to have already occurred.
+-	 */
+-	spin_lock(&BTRFS_I(inode)->lock);
+-	BTRFS_I(inode)->last_sub_trans = root->log_transid;
+-	spin_unlock(&BTRFS_I(inode)->lock);
++	btrfs_set_inode_last_sub_trans(BTRFS_I(inode));
++
+ 	if (num_written > 0)
+ 		num_written = generic_write_sync(iocb, num_written);
+ 
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index fc4311415fc6..987afe4f7bb6 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8449,9 +8449,7 @@ vm_fault_t btrfs_page_mkwrite(struct vm_fault *vmf)
+ 	set_page_dirty(page);
+ 	SetPageUptodate(page);
+ 
+-	BTRFS_I(inode)->last_trans = fs_info->generation;
+-	BTRFS_I(inode)->last_sub_trans = BTRFS_I(inode)->root->log_transid;
+-	BTRFS_I(inode)->last_log_commit = BTRFS_I(inode)->root->last_log_commit;
++	btrfs_set_inode_last_sub_trans(BTRFS_I(inode));
+ 
+ 	unlock_extent_cached(io_tree, page_start, page_end, &cached_state);
+ 
+diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
+index 858d9153a1cd..f73654d93fa0 100644
+--- a/fs/btrfs/transaction.h
++++ b/fs/btrfs/transaction.h
+@@ -171,7 +171,7 @@ static inline void btrfs_set_inode_last_trans(struct btrfs_trans_handle *trans,
+ 	spin_lock(&inode->lock);
+ 	inode->last_trans = trans->transaction->transid;
+ 	inode->last_sub_trans = inode->root->log_transid;
+-	inode->last_log_commit = inode->root->last_log_commit;
++	inode->last_log_commit = inode->last_sub_trans - 1;
+ 	spin_unlock(&inode->lock);
+ }
+ 
+-- 
+2.31.1
 
