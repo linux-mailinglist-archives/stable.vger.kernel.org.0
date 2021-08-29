@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 080EB3FA9A2
+	by mail.lfdr.de (Postfix) with ESMTP id 7F4583FA9A3
 	for <lists+stable@lfdr.de>; Sun, 29 Aug 2021 09:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234745AbhH2HA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Aug 2021 03:00:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49733 "EHLO mail.kernel.org"
+        id S234718AbhH2HBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Aug 2021 03:01:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229889AbhH2HAz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 29 Aug 2021 03:00:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3710160524;
-        Sun, 29 Aug 2021 07:00:00 +0000 (UTC)
+        id S229889AbhH2HBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 29 Aug 2021 03:01:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 837C860524;
+        Sun, 29 Aug 2021 07:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630220403;
-        bh=An3kyq20ht9DmOuc9xqgBEhz5KwBfsTal8lRNHaqPZU=;
+        s=korg; t=1630220410;
+        bh=Jw0yH7FBk664kUHHggD18IrDhIyEuW1PK1TAJdbHCqM=;
         h=Subject:To:Cc:From:Date:From;
-        b=m3kTPfsmHqw8Hd3YYMGNtKvgpljT0tP0LcfzauzBDWKBJYoCJoIJQUFuNLIXW0Sfx
-         UB1wpyWAM2s6FamIAyuBeCVhvM2w5jFXR4is9US3EaxWX8fjcQehcROAHh5U/FD2uw
-         rJX2nRpMc4NMUyDk03vL7sR1O+vxYpE4E+34BD9Q=
-Subject: FAILED: patch "[PATCH] usb: gadget: u_audio: fix race condition on endpoint stop" failed to apply to 5.13-stable tree
+        b=YK2rYon/ExMtL0oDMnmhJi9rxMwnsX5sizLNlcq99qcquvyNaDtkOk8M8b+KTaX9P
+         r5Cg3DZLI3MX7v4pnpQokgdCTGCpPLdVimL/TFmbiT6wNY6yyD1AjnH1nTubN+bNML
+         9qibp4y01uWHGIm32Ghd8WWUBMXptEiVk738sHOA=
+Subject: FAILED: patch "[PATCH] usb: gadget: u_audio: fix race condition on endpoint stop" failed to apply to 5.10-stable tree
 To:     jbrunet@baylibre.com, Thinh.Nguyen@synopsys.com,
         gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Aug 2021 08:59:55 +0200
-Message-ID: <16302203955312@kroah.com>
+Date:   Sun, 29 Aug 2021 08:59:56 +0200
+Message-ID: <163022039622793@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
