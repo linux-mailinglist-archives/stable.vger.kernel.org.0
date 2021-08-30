@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 092BA3FB525
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:08:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 407073FB52A
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:08:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237036AbhH3MBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:01:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48024 "EHLO mail.kernel.org"
+        id S237062AbhH3MBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 08:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236905AbhH3MBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Aug 2021 08:01:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D38E56112F;
-        Mon, 30 Aug 2021 12:00:41 +0000 (UTC)
+        id S236928AbhH3MBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Aug 2021 08:01:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 656E461153;
+        Mon, 30 Aug 2021 12:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630324842;
-        bh=FwzfyyuZ6VLcfr1F4gDZkIzt9er8qc+k9jKBDlAJIYM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JMYF/egw2zZOhnix4HrxaLfi3+Ro+Y/awufRos3T6HBVk2+h/N2RQozBCh7QbHclh
-         CHY1tvx+caUZeMIIFfA/4nKh5BUQWk99Kne2oDnBT7LxHJRnMlQ4Xz1HNLWJNLiKO/
-         QK9zMp0QGE2ki7pktHEir9MCTIUq8Kp/Ir5OgnAtEhXQgOUKJkLZbNUXo8zj/+VudV
-         M9g65402UxgOmwoGF8JtEkeUfFJ8+uT5xpVtqRpSJmpfNsDD3NerVUwgiPCMmrYGDu
-         sxRm6hs4Dato98xNwfRASCLB80eAPTeyIxiT/RLMQaf1yNwQNM5GGaLXeLSrQ5U5Rr
-         35xOx59bPLbYg==
+        s=k20201202; t=1630324845;
+        bh=4k3ueqBC6+FyS0/IPM9yYUQy0wgR+I6vFAKdUCTtQLM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VShZAXj6tFYaeHnBESP6ZnkP6bJNZYcfqDt4akqpXn3HlCLHF8yhdAa6UThXeon2m
+         /GB83cMMarQwqQacLS8jeGlluBPv1VJ8OjQL+h8keJWQBvbFjvXjJ1NR/lkgtAoKgG
+         pI3bDhzirqVb0YOTS633FZnPzP2YJ5OHpwHSmgPa0W6poiWntVcC30XhkcFThqpnro
+         ccX7uzotRmpX8Df8PxTWeBP7gS9Dacc4uYJkjZO8HwLjjaEuKmv7Ktv8BRHmzgdxOL
+         /DsIv3nQgw+F7QeXk+SOLE4Ghw3hzSiMNZ1csH84kpb6fboeosG04mquWXoL68JAzw
+         Vu5UHgnV3QkBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 8/8] cryptoloop: add a deprecation warning
-Date:   Mon, 30 Aug 2021 08:00:31 -0400
-Message-Id: <20210830120031.1017977-8-sashal@kernel.org>
+Cc:     Shai Malin <smalin@marvell.com>,
+        Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 1/7] qed: Fix the VF msix vectors flow
+Date:   Mon, 30 Aug 2021 08:00:37 -0400
+Message-Id: <20210830120043.1018096-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210830120031.1017977-1-sashal@kernel.org>
-References: <20210830120031.1017977-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,60 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Shai Malin <smalin@marvell.com>
 
-[ Upstream commit 222013f9ac30b9cec44301daa8dbd0aae38abffb ]
+[ Upstream commit b0cd08537db8d2fbb227cdb2e5835209db295a24 ]
 
-Support for cryptoloop has been officially marked broken and deprecated
-in favor of dm-crypt (which supports the same broken algorithms if
-needed) in Linux 2.6.4 (released in March 2004), and support for it has
-been entirely removed from losetup in util-linux 2.23 (released in April
-2013).  Add a warning and a deprecation schedule.
+For VFs we should return with an error in case we didn't get the exact
+number of msix vectors as we requested.
+Not doing that will lead to a crash when starting queues for this VF.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210827163250.255325-1-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/Kconfig      | 4 ++--
- drivers/block/cryptoloop.c | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_main.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
-index e101f286ac35..60662771bd46 100644
---- a/drivers/block/Kconfig
-+++ b/drivers/block/Kconfig
-@@ -242,7 +242,7 @@ config BLK_DEV_LOOP_MIN_COUNT
- 	  dynamically allocated with the /dev/loop-control interface.
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
+index 52e747fd9c83..62d514b60e23 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_main.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
+@@ -437,7 +437,12 @@ static int qed_enable_msix(struct qed_dev *cdev,
+ 			rc = cnt;
+ 	}
  
- config BLK_DEV_CRYPTOLOOP
--	tristate "Cryptoloop Support"
-+	tristate "Cryptoloop Support (DEPRECATED)"
- 	select CRYPTO
- 	select CRYPTO_CBC
- 	depends on BLK_DEV_LOOP
-@@ -254,7 +254,7 @@ config BLK_DEV_CRYPTOLOOP
- 	  WARNING: This device is not safe for journaled file systems like
- 	  ext3 or Reiserfs. Please use the Device Mapper crypto module
- 	  instead, which can be configured to be on-disk compatible with the
--	  cryptoloop device.
-+	  cryptoloop device.  cryptoloop support will be removed in Linux 5.16.
- 
- source "drivers/block/drbd/Kconfig"
- 
-diff --git a/drivers/block/cryptoloop.c b/drivers/block/cryptoloop.c
-index 7033a4beda66..1b84105dfe62 100644
---- a/drivers/block/cryptoloop.c
-+++ b/drivers/block/cryptoloop.c
-@@ -201,6 +201,8 @@ init_cryptoloop(void)
- 
- 	if (rc)
- 		printk(KERN_ERR "cryptoloop: loop_register_transfer failed\n");
-+	else
-+		pr_warn("the cryptoloop driver has been deprecated and will be removed in in Linux 5.16\n");
- 	return rc;
- }
- 
+-	if (rc > 0) {
++	/* For VFs, we should return with an error in case we didn't get the
++	 * exact number of msix vectors as we requested.
++	 * Not doing that will lead to a crash when starting queues for
++	 * this VF.
++	 */
++	if ((IS_PF(cdev) && rc > 0) || (IS_VF(cdev) && rc == cnt)) {
+ 		/* MSI-x configuration was achieved */
+ 		int_params->out.int_mode = QED_INT_MODE_MSIX;
+ 		int_params->out.num_vectors = rc;
 -- 
 2.30.2
 
