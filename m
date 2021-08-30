@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64D363FB593
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:09:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B76D03FB597
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:09:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236795AbhH3MGL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:06:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48024 "EHLO mail.kernel.org"
+        id S237461AbhH3MGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 08:06:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236760AbhH3MBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Aug 2021 08:01:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B28661166;
-        Mon, 30 Aug 2021 12:00:11 +0000 (UTC)
+        id S236775AbhH3MBI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Aug 2021 08:01:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6BA861168;
+        Mon, 30 Aug 2021 12:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630324812;
-        bh=J1D+vVYM1Bp+6Auu1hyBHhe7tty7N/sPZrHc+DcdPgU=;
+        s=k20201202; t=1630324813;
+        bh=NZfRC0Ya6qgjhA9kEpkcb6Pyv/ZZ9cRI1E5z7pT3K6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jzGu74nDD3yKmdrbLXPsXn5RKnebxjT/mBYxY2HfJMoLfvbimKSITFG+xRO66n5fg
-         CU9OX+dHUsrXOTSTpFf092JDpfiMvaizg0bI4xXXqW71ERNsEXhjHFvq5ryMIrPEjm
-         FMUSELF83ypnJr5u9BtW08ftoQxfOzoWfmh85gqTtBmo6hN0R4UvPRU+s00hwxdknl
-         s5WXBStQT/F69Ab5dTVTSoDDqX1Lsw9PZud4+iGWo0flviB8uG7Q2M3cQ0ysz1KKfn
-         VJdAiq4f1DfB5RsM+P3T/WsnzUzEspoFn90iwynGZTMCAvOSUOjYFcmDSbtyJKXbyo
-         i6zdEkTj/wLTQ==
+        b=aKaaOH8hVc8yOk5IewzXhsVqMgVhIkhTPp9smQpZx5Xx0epjLNr2I9txtpxBDSRGA
+         9Z+ggLdszmnhVauX3rIOxpAIpDckJ1E3C77+VTDvYDOj3M3REs1yoQKiPxmXbspx0p
+         MYeYHP8n/pWhImeVFWZFnP/Gh6B8PVxgosCLwT+SZA9y+o9hfHVZYLRjuo/qnAyVqX
+         +3cqNoVK/60iP+nvcyhhPr25zGy9WCRwX+fBik8mut7GQjYGJueRHwLWs06eMwLdgx
+         0iEJKERJuZDhWBMrXD1KfW4by83hApcFbfkvOLsBa57hw0BraNOk/XbsXSiF9S+U4D
+         I1l0bzU656zIA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tuo Li <islituo@gmail.com>, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 07/11] ceph: fix possible null-pointer dereference in ceph_mdsmap_decode()
-Date:   Mon, 30 Aug 2021 07:59:58 -0400
-Message-Id: <20210830120002.1017700-7-sashal@kernel.org>
+Cc:     Kim Phillips <kim.phillips@amd.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 08/11] perf/x86/amd/ibs: Work around erratum #1197
+Date:   Mon, 30 Aug 2021 07:59:59 -0400
+Message-Id: <20210830120002.1017700-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210830120002.1017700-1-sashal@kernel.org>
 References: <20210830120002.1017700-1-sashal@kernel.org>
@@ -43,51 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit a9e6ffbc5b7324b6639ee89028908b1e91ceed51 ]
+[ Upstream commit 26db2e0c51fe83e1dd852c1321407835b481806e ]
 
-kcalloc() is called to allocate memory for m->m_info, and if it fails,
-ceph_mdsmap_destroy() behind the label out_err will be called:
-  ceph_mdsmap_destroy(m);
+Erratum #1197 "IBS (Instruction Based Sampling) Register State May be
+Incorrect After Restore From CC6" is published in a document:
 
-In ceph_mdsmap_destroy(), m->m_info is dereferenced through:
-  kfree(m->m_info[i].export_targets);
+  "Revision Guide for AMD Family 19h Models 00h-0Fh Processors" 56683 Rev. 1.04 July 2021
 
-To fix this possible null-pointer dereference, check m->m_info before the
-for loop to free m->m_info[i].export_targets.
+  https://bugzilla.kernel.org/show_bug.cgi?id=206537
 
-[ jlayton: fix up whitespace damage
-	   only kfree(m->m_info) if it's non-NULL ]
+Implement the erratum's suggested workaround and ignore IBS samples if
+MSRC001_1031 == 0.
 
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210817221048.88063-3-kim.phillips@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/mdsmap.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/x86/events/amd/ibs.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/ceph/mdsmap.c b/fs/ceph/mdsmap.c
-index 1096d1d3a84c..47f2903bacb9 100644
---- a/fs/ceph/mdsmap.c
-+++ b/fs/ceph/mdsmap.c
-@@ -393,9 +393,11 @@ void ceph_mdsmap_destroy(struct ceph_mdsmap *m)
- {
- 	int i;
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index 40669eac9d6d..921f47b9bb24 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -90,6 +90,7 @@ struct perf_ibs {
+ 	unsigned long			offset_mask[1];
+ 	int				offset_max;
+ 	unsigned int			fetch_count_reset_broken : 1;
++	unsigned int			fetch_ignore_if_zero_rip : 1;
+ 	struct cpu_perf_ibs __percpu	*pcpu;
  
--	for (i = 0; i < m->possible_max_rank; i++)
--		kfree(m->m_info[i].export_targets);
--	kfree(m->m_info);
-+	if (m->m_info) {
-+		for (i = 0; i < m->possible_max_rank; i++)
-+			kfree(m->m_info[i].export_targets);
-+		kfree(m->m_info);
-+	}
- 	kfree(m->m_data_pg_pools);
- 	kfree(m);
- }
+ 	struct attribute		**format_attrs;
+@@ -672,6 +673,10 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
+ 	if (check_rip && (ibs_data.regs[2] & IBS_RIP_INVALID)) {
+ 		regs.flags &= ~PERF_EFLAGS_EXACT;
+ 	} else {
++		/* Workaround for erratum #1197 */
++		if (perf_ibs->fetch_ignore_if_zero_rip && !(ibs_data.regs[1]))
++			goto out;
++
+ 		set_linear_ip(&regs, ibs_data.regs[1]);
+ 		regs.flags |= PERF_EFLAGS_EXACT;
+ 	}
+@@ -769,6 +774,9 @@ static __init void perf_event_ibs_init(void)
+ 	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
+ 		perf_ibs_fetch.fetch_count_reset_broken = 1;
+ 
++	if (boot_cpu_data.x86 == 0x19 && boot_cpu_data.x86_model < 0x10)
++		perf_ibs_fetch.fetch_ignore_if_zero_rip = 1;
++
+ 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
+ 
+ 	if (ibs_caps & IBS_CAPS_OPCNT) {
 -- 
 2.30.2
 
