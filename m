@@ -2,111 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 878283FB546
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:08:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2F33FB548
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:08:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236683AbhH3MCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:02:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50136 "EHLO mail.kernel.org"
+        id S237268AbhH3MCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 08:02:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237058AbhH3MBx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Aug 2021 08:01:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B2E960240;
-        Mon, 30 Aug 2021 12:00:58 +0000 (UTC)
+        id S237070AbhH3MBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Aug 2021 08:01:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E056D61131;
+        Mon, 30 Aug 2021 12:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630324859;
-        bh=3TQuY94cwPGzu7byHrgQlxO5emuVy8z1hkCf+t5+CLo=;
+        s=k20201202; t=1630324860;
+        bh=7DcOuY0O7gWl9b7yzExv33fKZSCdPDnTi+RIBRHA8Og=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KnNvegcktD7D28yofEFrNm8ETytwE0k7tYV0YeddY2tYzzhQ05/Q2sVR/dLuRKNcr
-         xxPzTZ1KI5t/9+JY0IEQlUOobPAUjxVQg1h1Y4u1YR7S6RsDkJSFGshJU3WE2C/l6x
-         B6fw0B0rLMdGSIAZAu/AXdXlbmt8tqUdpkTq848YhFJEvDcl68sGbfsSfO8+ewDinh
-         eE97auluYf617FM+0p38ukLnai6peQ3trQuywn16th+usWA0xJ0Uzue2IdTcHA31J7
-         ZANw1zUdGewezBITpoWcMEMfR8cpquwQ9L6h309WxPPX9ePs325W7pJjV/eXt44suK
-         IYAmpFSuHOFHA==
+        b=qHuBpLzzDGqP3XRBKyn0Qq4hZ+BhIg73myOVyPLi+1KtjzKF1kIf8zYrQTEbx6bTe
+         Mo7YjpfLlPGsEhzvCdEKFSEsfCkiUMvPQIn2oMMlQfE7GszCJziveAJPU0TZQe0OCo
+         PKpA2586cuqF7cLmXpM/BfUlJ9Zc/yHo64TPzbRU63UTlEMBAg+v9MLdF5cWGQz6et
+         UI4YbiZk3jMk/vxghJ8+mpHquxhC3xIWlk2dfJ8HwyHnF010Lo4WF+bzV1QvyVWToo
+         fVh5Z+G7fz8/e0Ku0zlmLgD5n1hqAE7cJ4wVtlOvMVuXyFEG+rK13LR2+OZPR4H3/H
+         C3dV8O6YN5OLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?=E7=8E=8B=E8=B4=87?= <yun.wang@linux.alibaba.com>,
-        Abaci <abaci@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 4/5] net: fix NULL pointer reference in cipso_v4_doi_free
-Date:   Mon, 30 Aug 2021 08:00:52 -0400
-Message-Id: <20210830120053.1018205-4-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 5/5] cryptoloop: add a deprecation warning
+Date:   Mon, 30 Aug 2021 08:00:53 -0400
+Message-Id: <20210830120053.1018205-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210830120053.1018205-1-sashal@kernel.org>
 References: <20210830120053.1018205-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 王贇 <yun.wang@linux.alibaba.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 733c99ee8be9a1410287cdbb943887365e83b2d6 ]
+[ Upstream commit 222013f9ac30b9cec44301daa8dbd0aae38abffb ]
 
-In netlbl_cipsov4_add_std() when 'doi_def->map.std' alloc
-failed, we sometime observe panic:
+Support for cryptoloop has been officially marked broken and deprecated
+in favor of dm-crypt (which supports the same broken algorithms if
+needed) in Linux 2.6.4 (released in March 2004), and support for it has
+been entirely removed from losetup in util-linux 2.23 (released in April
+2013).  Add a warning and a deprecation schedule.
 
-  BUG: kernel NULL pointer dereference, address:
-  ...
-  RIP: 0010:cipso_v4_doi_free+0x3a/0x80
-  ...
-  Call Trace:
-   netlbl_cipsov4_add_std+0xf4/0x8c0
-   netlbl_cipsov4_add+0x13f/0x1b0
-   genl_family_rcv_msg_doit.isra.15+0x132/0x170
-   genl_rcv_msg+0x125/0x240
-
-This is because in cipso_v4_doi_free() there is no check
-on 'doi_def->map.std' when 'doi_def->type' equal 1, which
-is possibe, since netlbl_cipsov4_add_std() haven't initialize
-it before alloc 'doi_def->map.std'.
-
-This patch just add the check to prevent panic happen for similar
-cases.
-
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20210827163250.255325-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/cipso_ipv4.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/block/Kconfig      | 4 ++--
+ drivers/block/cryptoloop.c | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-index 553cda6f887a..160800d21f10 100644
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -480,14 +480,16 @@ void cipso_v4_doi_free(struct cipso_v4_doi *doi_def)
- 	if (!doi_def)
- 		return;
+diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
+index 894102fd5a06..b701c79f07e5 100644
+--- a/drivers/block/Kconfig
++++ b/drivers/block/Kconfig
+@@ -257,7 +257,7 @@ config BLK_DEV_LOOP_MIN_COUNT
+ 	  dynamically allocated with the /dev/loop-control interface.
  
--	switch (doi_def->type) {
--	case CIPSO_V4_MAP_TRANS:
--		kfree(doi_def->map.std->lvl.cipso);
--		kfree(doi_def->map.std->lvl.local);
--		kfree(doi_def->map.std->cat.cipso);
--		kfree(doi_def->map.std->cat.local);
--		kfree(doi_def->map.std);
--		break;
-+	if (doi_def->map.std) {
-+		switch (doi_def->type) {
-+		case CIPSO_V4_MAP_TRANS:
-+			kfree(doi_def->map.std->lvl.cipso);
-+			kfree(doi_def->map.std->lvl.local);
-+			kfree(doi_def->map.std->cat.cipso);
-+			kfree(doi_def->map.std->cat.local);
-+			kfree(doi_def->map.std);
-+			break;
-+		}
- 	}
- 	kfree(doi_def);
+ config BLK_DEV_CRYPTOLOOP
+-	tristate "Cryptoloop Support"
++	tristate "Cryptoloop Support (DEPRECATED)"
+ 	select CRYPTO
+ 	select CRYPTO_CBC
+ 	depends on BLK_DEV_LOOP
+@@ -269,7 +269,7 @@ config BLK_DEV_CRYPTOLOOP
+ 	  WARNING: This device is not safe for journaled file systems like
+ 	  ext3 or Reiserfs. Please use the Device Mapper crypto module
+ 	  instead, which can be configured to be on-disk compatible with the
+-	  cryptoloop device.
++	  cryptoloop device.  cryptoloop support will be removed in Linux 5.16.
+ 
+ source "drivers/block/drbd/Kconfig"
+ 
+diff --git a/drivers/block/cryptoloop.c b/drivers/block/cryptoloop.c
+index 3d31761c0ed0..adbfd3e2a60f 100644
+--- a/drivers/block/cryptoloop.c
++++ b/drivers/block/cryptoloop.c
+@@ -203,6 +203,8 @@ init_cryptoloop(void)
+ 
+ 	if (rc)
+ 		printk(KERN_ERR "cryptoloop: loop_register_transfer failed\n");
++	else
++		pr_warn("the cryptoloop driver has been deprecated and will be removed in in Linux 5.16\n");
+ 	return rc;
  }
+ 
 -- 
 2.30.2
 
