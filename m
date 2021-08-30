@@ -2,21 +2,21 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D183FB374
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 11:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DB153FB37D
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 11:58:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231597AbhH3Jz1 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 30 Aug 2021 05:55:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48180 "EHLO mail.kernel.org"
+        id S231955AbhH3J6B convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 30 Aug 2021 05:58:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229901AbhH3JzX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Aug 2021 05:55:23 -0400
+        id S229901AbhH3J6A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Aug 2021 05:58:00 -0400
 Received: from jic23-huawei (cpc108967-cmbg20-2-0-cust86.5-4.cable.virginm.net [81.101.6.87])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57EFE61041;
-        Mon, 30 Aug 2021 09:54:27 +0000 (UTC)
-Date:   Mon, 30 Aug 2021 10:57:38 +0100
+        by mail.kernel.org (Postfix) with ESMTPSA id 50A6660525;
+        Mon, 30 Aug 2021 09:57:03 +0000 (UTC)
+Date:   Mon, 30 Aug 2021 11:00:15 +0100
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     "Sa, Nuno" <Nuno.Sa@analog.com>
 Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
@@ -25,13 +25,13 @@ Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
         "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH 01/16] iio: adc: max1027: Fix wrong shift with 12-bit
- devices
-Message-ID: <20210830105738.472b5f69@jic23-huawei>
-In-Reply-To: <SJ0PR03MB6359CD425BDE36688DC9265299C19@SJ0PR03MB6359.namprd03.prod.outlook.com>
+Subject: Re: [PATCH 02/16] iio: adc: max1027: Fix the number of max1X31
+ channels
+Message-ID: <20210830110015.787e0abe@jic23-huawei>
+In-Reply-To: <SJ0PR03MB63596A655409A24A442977F199C19@SJ0PR03MB6359.namprd03.prod.outlook.com>
 References: <20210818111139.330636-1-miquel.raynal@bootlin.com>
-        <20210818111139.330636-2-miquel.raynal@bootlin.com>
-        <SJ0PR03MB6359CD425BDE36688DC9265299C19@SJ0PR03MB6359.namprd03.prod.outlook.com>
+        <20210818111139.330636-3-miquel.raynal@bootlin.com>
+        <SJ0PR03MB63596A655409A24A442977F199C19@SJ0PR03MB6359.namprd03.prod.outlook.com>
 X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.30; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,7 +40,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 20 Aug 2021 07:02:54 +0000
+On Fri, 20 Aug 2021 07:03:40 +0000
 "Sa, Nuno" <Nuno.Sa@analog.com> wrote:
 
 > > -----Original Message-----
@@ -51,47 +51,50 @@ On Fri, 20 Aug 2021 07:02:54 +0000
 > > Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>; linux-
 > > iio@vger.kernel.org; linux-kernel@vger.kernel.org; Miquel Raynal
 > > <miquel.raynal@bootlin.com>; stable@vger.kernel.org
-> > Subject: [PATCH 01/16] iio: adc: max1027: Fix wrong shift with 12-bit
-> > devices
+> > Subject: [PATCH 02/16] iio: adc: max1027: Fix the number of max1X31
+> > channels
 > > 
 > > [External]
 > > 
-> > 10-bit devices must shift the value twice.
-> > This is not needed anymore on 12-bit devices.
+> > The macro MAX1X29_CHANNELS() already calls
+> > MAX1X27_CHANNELS().
+> > Calling MAX1X27_CHANNELS() before MAX1X29_CHANNELS() in the
+> > definition
+> > of MAX1X31_CHANNELS() declares the first 8 channels twice. So drop
+> > this
+> > extra call from the MAX1X31 channels list definition.
 > > 
-> > Fixes: ae47d009b508 ("iio: adc: max1027: Introduce 12-bit devices
-> > support")
+> > Fixes: 7af5257d8427 ("iio: adc: max1027: Prepare the introduction of
+> > different resolutions")
 > > Cc: stable@vger.kernel.org
 > > Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 > > ---
-> >  drivers/iio/adc/max1027.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >  drivers/iio/adc/max1027.c | 1 -
+> >  1 file changed, 1 deletion(-)
 > > 
 > > diff --git a/drivers/iio/adc/max1027.c b/drivers/iio/adc/max1027.c
-> > index 655ab02d03d8..4a42d140a4b0 100644
+> > index 4a42d140a4b0..b753658bb41e 100644
 > > --- a/drivers/iio/adc/max1027.c
 > > +++ b/drivers/iio/adc/max1027.c
-> > @@ -103,7 +103,7 @@ MODULE_DEVICE_TABLE(of,
+> > @@ -142,7 +142,6 @@ MODULE_DEVICE_TABLE(of,
 > > max1027_adc_dt_ids);
-> >  			.sign = 'u',					\
-> >  			.realbits = depth,				\
-> >  			.storagebits = 16,				\
-> > -			.shift = 2,					\
-> > +			.shift = (depth == 10) ? 2 : 0,			\
-> >  			.endianness = IIO_BE,				\
-> >  		},							\
-> >  	}
+> >  	MAX1027_V_CHAN(11, depth)
+> > 
+> >  #define MAX1X31_CHANNELS(depth)			\
+> > -	MAX1X27_CHANNELS(depth),		\
+> >  	MAX1X29_CHANNELS(depth),		\
+> >  	MAX1027_V_CHAN(12, depth),		\
+> >  	MAX1027_V_CHAN(13, depth),		\
 > > --
 > > 2.27.0  
 > 
 > Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Ouch.  I briefly wondered if we should dot his as 12 - depth, but given we are unlikely
-to ever see a 9 or 11 bit device and it doesn't make much sense for anything 8 or less
-what you have here is effectively the same.
+> 
+I guess we don't have many users of these devices as I would have expected
+this to blow up spectacularly.  Ah well.  
 
 Applied to the fixes-togreg branch of iio.git
 
+Thanks,
+
 Jonathan
-
-> 
-
