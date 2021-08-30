@@ -2,77 +2,271 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4A883FB66A
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:49:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 100343FB69B
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:58:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236735AbhH3MuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:50:23 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:47308 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236743AbhH3MuW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 08:50:22 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id BE6181C0B76; Mon, 30 Aug 2021 14:49:27 +0200 (CEST)
-Date:   Mon, 30 Aug 2021 14:49:27 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mark Brown <broonie@kernel.org>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Lucas Tanure <tanureal@opensource.cirrus.com>,
-        alsa-devel@alsa-project.org
-Subject: Re: [PATCH AUTOSEL 5.13 02/12] ASoC: component: Remove misplaced
- prefix handling in pin control functions
-Message-ID: <20210830124924.GA22096@duo.ucw.cz>
-References: <20210817003536.83063-1-sashal@kernel.org>
- <20210817003536.83063-2-sashal@kernel.org>
+        id S230379AbhH3M6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 08:58:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55560 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229809AbhH3M6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 08:58:42 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C02C061575
+        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 05:57:49 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id oa17so9438018pjb.1
+        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 05:57:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ut3YD4fMmkQVD4cEpbbCR/xRyx2ke+oFaYIhxclnpiI=;
+        b=nFwu7vbUHU3E8+kceC2akufBMU9bv0KoQga5ZEnX5P7GRY1yZYE0/NapYZ7HO/Ax4K
+         bYhzp+zxl4Z6bqVo41WwzLITbEoAzFQRFPzODb+tsREJ0FSPJBgGTNIdrsGI+PW+WjSe
+         un4a3qDSgh2LmQLawHwz34JJrHZr/+QCVjn6l0rCvxNPFGF1igmGtyHVpXhL3uiwAPrY
+         LIi7E3f+f1S5tXj3/sKMxH17u3sHJXO5Y/IZIm2DqmQd8+tT9z+1RI4lRQ2vC+VtVaus
+         IEqBEZsi5g2Uwge5v93wZN+QA6s/CvlWOQZkMhJFvCZnU6libPkH/CyO6CcTT8nCe/W7
+         /ZZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ut3YD4fMmkQVD4cEpbbCR/xRyx2ke+oFaYIhxclnpiI=;
+        b=K+AwM0S/Kx6iPO7axXAU4aqPu1/F9BymUSY3k3w9npvAXiXSHwiXdYhoQ2R62lRjEZ
+         NsRAnmWjmvH/ll+woUWhhpJ7gd5ZvW8WOaiepBHmSSVu4WxnxeDLqZgUDh4s67QSmzDS
+         MQ+SzRlrJI9ECl2i28fzi+Lomh/acfcAdHpb+A7KFoIacd+0/9LUfFO+HIYGNluuRwsU
+         r0ZaoUSO35f08drQJ7Dnsn3PiQ0RkjWHvUaLuPrctJcw9dK2D2ODER1/hOO5UMD5a3EH
+         brGtP0RykKhcTWHFMTA+RRiYKaPgAUKwEwe3h40LxcecUerqUX2TLANIu7ak+nndR6JZ
+         18aA==
+X-Gm-Message-State: AOAM533EWWDKB6y70Kx2DM0rDrw8z2/5BfI/25ZKoT8i5haVIVeC7p2o
+        /7hKWSn4VDNqcz+8MODI/L/g7iubO+cw3qc/
+X-Google-Smtp-Source: ABdhPJzeTzNekpgZ/4S4Tw0cNVG5I/CgJXAqWCCDy749EEjfaTQYouudMJFNnXS7Wd2p/O3AbNuDXQ==
+X-Received: by 2002:a17:902:7584:b0:12d:8cb5:c7b8 with SMTP id j4-20020a170902758400b0012d8cb5c7b8mr21673867pll.84.1630328268578;
+        Mon, 30 Aug 2021 05:57:48 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 132sm14702887pfy.190.2021.08.30.05.57.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Aug 2021 05:57:48 -0700 (PDT)
+Message-ID: <612cd5cc.1c69fb81.8d55c.43b5@mx.google.com>
+Date:   Mon, 30 Aug 2021 05:57:48 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
-Content-Disposition: inline
-In-Reply-To: <20210817003536.83063-2-sashal@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.245-13-gcc28263d7625
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y baseline: 122 runs,
+ 5 regressions (v4.14.245-13-gcc28263d7625)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y baseline: 122 runs, 5 regressions (v4.14.245-13-gcc2=
+8263d7625)
 
---/WwmFnJnmDyWGHa4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regressions Summary
+-------------------
 
-Hi!
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+imx6ul-14x14-evk     | arm   | lab-nxp      | gcc-8    | imx_v6_v7_defconfi=
+g | 1          =
 
-> When the component level pin control functions were added they for some
-> no longer obvious reason handled adding prefixing of widget names. This
-> meant that when the lack of prefix handling in the DAPM level pin
-> operations was fixed by ae4fc532244b3bb4d (ASoC: dapm: use component
-> prefix when checking widget names) the one device using the component
-> level API ended up with the prefix being applied twice, causing all
-> lookups to fail.
+meson-gxbb-p200      | arm64 | lab-baylibre | gcc-8    | defconfig         =
+  | 1          =
 
-AFAICT ae4fc532244b3bb4d (ASoC: dapm: use component...) is not in
-5.10-stable, so this one should not go into 5.10-stable, either?
+qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
+g | 1          =
 
-(Or alternatively, both can go in).
+qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-I hope I understand it right.
+qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---/WwmFnJnmDyWGHa4
-Content-Type: application/pgp-signature; name="signature.asc"
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.245-13-gcc28263d7625/plan/baseline/
 
------BEGIN PGP SIGNATURE-----
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.245-13-gcc28263d7625
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cc28263d76251aea0d1848beb508cce2c5c46574 =
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYSzT1wAKCRAw5/Bqldv6
-8tYvAJ9Mqv1udqvt/eQ59aUzDFbILly8+ACgqgjWJPcLX9pQWvIxE2q6Eo9VWX8=
-=xi1K
------END PGP SIGNATURE-----
 
---/WwmFnJnmDyWGHa4--
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+imx6ul-14x14-evk     | arm   | lab-nxp      | gcc-8    | imx_v6_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612ca87170fd7950428e2c8d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+45-13-gcc28263d7625/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ul-1=
+4x14-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+45-13-gcc28263d7625/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ul-1=
+4x14-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612ca87170fd7950428e2=
+c8e
+        new failure (last pass: v4.14.245-7-gc8c7d84be632) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+meson-gxbb-p200      | arm64 | lab-baylibre | gcc-8    | defconfig         =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612ca2d5f2dee506f48e2c9f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+45-13-gcc28263d7625/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
+p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+45-13-gcc28263d7625/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
+p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612ca2d5f2dee506f48e2=
+ca0
+        failing since 516 days (last pass: v4.14.172-114-g734382e2d26e, fir=
+st fail: v4.14.174-131-g234ce78cac23) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612c9fd2d4df4aed8a8e2c7c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612c9fd2d4df4aed8a8e2=
+c7d
+        failing since 288 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612ca0fb19ecf41ed98e2c9b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612ca0fb19ecf41ed98e2=
+c9c
+        failing since 288 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612c9fdca1ec96d51c8e2c93
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612c9fdca1ec96d51c8e2=
+c94
+        failing since 288 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =20
