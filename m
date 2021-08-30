@@ -2,76 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C733FB356
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 11:44:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A4403FB30B
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 11:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235829AbhH3JpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 05:45:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38182 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235733AbhH3JpV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 05:45:21 -0400
-X-Greylist: delayed 1460 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 30 Aug 2021 02:44:28 PDT
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05F63C061575;
-        Mon, 30 Aug 2021 02:44:27 -0700 (PDT)
-Received: from ip4d14bdef.dynamic.kabel-deutschland.de ([77.20.189.239] helo=[192.168.66.200]); authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1mKdSW-0000d5-Kl; Mon, 30 Aug 2021 11:20:04 +0200
-Message-ID: <a11ba91f-a520-e6ab-5566-dfc9fd934440@leemhuis.info>
-Date:   Mon, 30 Aug 2021 11:20:04 +0200
+        id S235263AbhH3JV4 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 30 Aug 2021 05:21:56 -0400
+Received: from relay1-d.mail.gandi.net ([217.70.183.193]:47119 "EHLO
+        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235340AbhH3JV4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 05:21:56 -0400
+Received: (Authenticated sender: miquel.raynal@bootlin.com)
+        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 2E0A5240007;
+        Mon, 30 Aug 2021 09:20:59 +0000 (UTC)
+Date:   Mon, 30 Aug 2021 11:20:57 +0200
+From:   Miquel Raynal <miquel.raynal@bootlin.com>
+To:     Frieder Schrempf <frieder.schrempf@kontron.de>
+Cc:     Frieder Schrempf <frieder@fris.de>, stable@vger.kernel.org,
+        voice INTER connect GmbH <developer@voiceinterconnect.de>,
+        Alexander Lobakin <alobakin@pm.me>,
+        Felix Fietkau <nbd@nbd.name>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+        Richard Weinberger <richard@nod.at>,
+        YouChing Lin <ycllin@mxic.com.tw>
+Subject: Re: [RESEND PATCH 5.10.x] mtd: spinand: Fix incorrect parameters
+ for on-die ECC
+Message-ID: <20210830112057.202355ef@xps13>
+In-Reply-To: <35e30f69-c6f8-ac9c-2314-f566190ac2cb@kontron.de>
+References: <20210830072108.13770-1-frieder@fris.de>
+        <20210830104122.58f9cdaf@xps13>
+        <35e30f69-c6f8-ac9c-2314-f566190ac2cb@kontron.de>
+Organization: Bootlin
+X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.0.3
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-Subject: Re: [PATCH] Revert "floppy: reintroduce O_NDELAY fix"
-To:     Denis Efremov <efremov@linux.com>, linux-block@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, regressions@lists.linux.dev,
-        Mark Hounschell <markh@compro.net>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Wim Osterholt <wim@djo.tudelft.nl>,
-        Kurt Garloff <kurt@garloff.de>, stable@vger.kernel.org
-References: <de10cb47-34d1-5a88-7751-225ca380f735@compro.net>
- <20210808074246.33449-1-efremov@linux.com>
-Content-Language: en-US
-In-Reply-To: <20210808074246.33449-1-efremov@linux.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1630316668;fb9dddbd;
-X-HE-SMSGID: 1mKdSW-0000d5-Kl
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 08.08.21 09:42, Denis Efremov wrote:
-> The patch breaks userspace implementations (e.g. fdutils) and introduces
-> regressions in behaviour. Previously, it was possible to O_NDELAY open a
-> floppy device with no media inserted or with write protected media without
-> an error. Some userspace tools use this particular behavior for probing.
+Hi Frieder,
+
+Frieder Schrempf <frieder.schrempf@kontron.de> wrote on Mon, 30 Aug
+2021 11:18:50 +0200:
+
+> On 30.08.21 10:41, Miquel Raynal wrote:
+> > Hi Frieder,
+> > 
+> > Frieder Schrempf <frieder@fris.de> wrote on Mon, 30 Aug 2021 09:21:07
+> > +0200:
+> >   
+> >> From: Frieder Schrempf <frieder.schrempf@kontron.de>
+> >>
+> >> The new generic NAND ECC framework stores the configuration and requirements
+> >> in separate places since commit 93ef92f6f422 (" mtd: nand: Use the new generic ECC object ").
+> >> In 5.10.x The SPI NAND layer still uses only the requirements to track the ECC
+> >> properties. This mismatch leads to values of zero being used for ECC strength
+> >> and step_size in the SPI NAND layer wherever nanddev_get_ecc_conf() is used and
+> >> therefore breaks the SPI NAND on-die ECC support in 5.10.x.
+> >>
+> >> By using nanddev_get_ecc_requirements() instead of nanddev_get_ecc_conf() for
+> >> SPI NAND, we make sure that the correct parameters for the detected chip are
+> >> used. In later versions (5.11.x) this is fixed anyway with the implementation
+> >> of the SPI NAND on-die ECC engine.
+> >>
+> >> Cc: stable@vger.kernel.org # 5.10.x
+> >> Reported-by: voice INTER connect GmbH <developer@voiceinterconnect.de>
+> >> Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>  
+> > 
+> > Why not just reverting 9a333a72c1d0 ("mtd: spinand: Use
+> > nanddev_get_ecc_conf() when relevant")? I think using this "new"
+> > nanddev_get_ecc_requirements() helper because it fits the purpose even
+> > if it is wrong [1] doesn't bring the right information. I know it is
+> > strictly equivalent but I would personally prefer keeping the old
+> > writing "nand->eccreq.xxxx".  
 > 
-> It's not the first time when we revert this patch. Previous revert is in
-> commit f2791e7eadf4 (Revert "floppy: refactor open() flags handling").
+> I think reverting 9a333a72c1d0 to use nand->eccreq.xxxx doesn't work as the eccreq member has already been removed in 93ef92f6f422 ("mtd: nand: Use the new generic ECC object"). So we would need to revert this commit, too. That would work for the SPI NAND layer, but might have implications on RAW NAND as it already uses the new generic ECC object with 'ctx.conf' and 'requirements'. At least I can't tell how this would affect the RAW NAND layer.
+
+I missed that, you're right.
+
+Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
+
 > 
-> This reverts commit 8a0c014cd20516ade9654fc13b51345ec58e7be8.
-> 
-> Link: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
+> > 
+> > [1] We don't want the requirements but the actual current configuration
+> > here, which was the primary purpose of the initial patch which ended
+> > being a mistake at that point in time because the SPI-NAND core was not
+> > ready yet.
+> > 
+> > Thanks,
+> > Miquèl  
 
-FYI, I'm just starting to act as regression tracker again and will add
-this to the list of tracked regressions.
-
-Feel free to ignore the rest of this message, it's intended for the
-regression tracking bot I'm writing. This "regzbot" in fact is running
-now and this is the first regression that gets added to the database
-(I'm sure despite a lot of testing something will go wrong, but don't
-worry about it, I'll deal with it on my side). See also:
-https://linux-regtracking.leemhuis.info/post/inital-regzbot-running/
-https://linux-regtracking.leemhuis.info/post/regzbot-approach/
-
-#regzbot ^introduced 8a0c014cd20516ade9654fc13b51345ec58e7be8
-#regzbot monitor
-https://lore.kernel.org/lkml/20210818154646.925351-1-efremov@linux.com/
-#regzbot monitor
-https://lore.kernel.org/lkml/388418f4-2b9a-6fed-836c-a004369dc7c0@linux.com/
-
-Ciao, Thorsten
-
+Thanks,
+Miquèl
