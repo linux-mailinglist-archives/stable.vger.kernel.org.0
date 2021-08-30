@@ -2,182 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40E9B3FB458
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 13:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F103FB4B4
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 13:39:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236397AbhH3LG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 07:06:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56880 "EHLO
+        id S236597AbhH3Ljs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 07:39:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235818AbhH3LG0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 07:06:26 -0400
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BB38C061575
-        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 04:05:33 -0700 (PDT)
-Received: from zn.tnic (p200300ec2f0b3b00d3b4792b4d2f5d4a.dip0.t-ipconnect.de [IPv6:2003:ec:2f0b:3b00:d3b4:792b:4d2f:5d4a])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id BF2591EC047D;
-        Mon, 30 Aug 2021 13:05:26 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1630321526;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:references;
-        bh=wDMnoW6daYd5rFh4ggH4vRCJT3b2E6Dl00LeHT92XBk=;
-        b=Qlx2sdTlqR1A5ZNN1AiBfMCT8lZ6XdV/ASBJ+yuWMCH6bkQqw4JPOFcvhaIeSS18Xq6s1/
-        brMczbxoHNbPafmUIq7yZbElgxbBep0K3APXeSQnsz/wmc9KCDnsCGoDZU9B2CMKjJGrMe
-        H1uBRQiZoGFUViG95WuuH4K4KsYq5Bc=
-Date:   Mon, 30 Aug 2021 13:05:56 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     stable@vger.kernel.org
-Cc:     bugzilla.kernel.org@e3q.eu
-Subject: [PATCH] kthread: Fix PF_KTHREAD vs to_kthread() race
-Message-ID: <YSy7lOd+qB7LXq1n@zn.tnic>
+        with ESMTP id S236434AbhH3Ljr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 07:39:47 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE074C061575
+        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 04:38:53 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id s11so13113041pgr.11
+        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 04:38:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=w04ir3tds4SV5OnAbnn5DKqiOMxi9ZCQBwX2BtOkB8A=;
+        b=d8rqWrb6g245xI+1oO+FlvOEnvEy968kXz8RQwofwhnOkdrLLVE2aY3hh9uWjEEgMW
+         RRr1FHzy5TQuhq0OxrSiujfm5vBOX+CI75fQeDZsvDP/EPkjSoWxIYyhlynevchqTAH5
+         +Ph6ZVv9/J9/NGAvY8YY8fALzAfj5UZzGVOeydk/xvT0zbySMeu387zXb2zWnYHpb+Di
+         OUJnHrLd12kYzQQyyuTxm4MUxEBgtUXueWRvC5PJb5lkVe9pk01JEHDGZOhth+6CXiEO
+         2TeZWMdWHjlrdQSNdJsJDmH1w3y7yp9bFgTOD4ojBYAajY/FZ9XjMjHM4Q3UUOdTRxUq
+         /Png==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=w04ir3tds4SV5OnAbnn5DKqiOMxi9ZCQBwX2BtOkB8A=;
+        b=t5vTvhlYqWLRYzPyaylCY9tdvwPdA+FP6ND2j02C8eEHdL7VO27L/yyHyi/NcPoKXr
+         p1YNqJpFfa87znRzM4uXQlal0EBPa6K2SG7GyWUC3iVb/HzhxW6unbJizeVxFSy5Vjvn
+         3LLEXlg0YoajBq2pESP51QUwPYRJsFWjiH6imy7EXUywq6maStYoCYTITw2N6T2V1Q30
+         UnRcgfxcOZPnRFDrrqam8YisJB1lfKDCkCovw2QDb+9DLFGmNJuM3BfrEg4cHoT8HBLN
+         MoMe6c9rswOO9D1+BzX/16WXYXn3fOJZiua7LqyVS0jpw1RKNEgssM59Yg2MugivNnw0
+         +ntQ==
+X-Gm-Message-State: AOAM5304y3JbgmSSfK0NyzaJCWGC8qDdM7hm2MdOh8JPhBhPTEURVo2V
+        JYsKjYWG8xkqE2Pgt+2S3xyOtOVVEzjwQkQO
+X-Google-Smtp-Source: ABdhPJwptM3iuDrY4eCAaaE3lGihiQ4Vfps5aZzZ2SZMcS5oGfgYWum5pD5BEuYRch5JKv7qyOjOGA==
+X-Received: by 2002:a63:7405:: with SMTP id p5mr21235439pgc.426.1630323533025;
+        Mon, 30 Aug 2021 04:38:53 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k190sm6221908pfd.211.2021.08.30.04.38.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Aug 2021 04:38:52 -0700 (PDT)
+Message-ID: <612cc34c.1c69fb81.d8a99.dc60@mx.google.com>
+Date:   Mon, 30 Aug 2021 04:38:52 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Kernel: v4.9.281-10-g68fa8d648bfb
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.9.y baseline: 104 runs,
+ 4 regressions (v4.9.281-10-g68fa8d648bfb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi stable folks,
+stable-rc/linux-4.9.y baseline: 104 runs, 4 regressions (v4.9.281-10-g68fa8=
+d648bfb)
 
-please queue for 5.10-stable.
+Regressions Summary
+-------------------
 
-See https://bugzilla.kernel.org/show_bug.cgi?id=214159 for more info.
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
+g | 1          =
 
----
-Commit 3a7956e25e1d7b3c148569e78895e1f3178122a9 upstream.
+qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-The kthread_is_per_cpu() construct relies on only being called on
-PF_KTHREAD tasks (per the WARN in to_kthread). This gives rise to the
-following usage pattern:
+qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
+g | 1          =
 
-	if ((p->flags & PF_KTHREAD) && kthread_is_per_cpu(p))
-
-However, as reported by syzcaller, this is broken. The scenario is:
-
-	CPU0				CPU1 (running p)
-
-	(p->flags & PF_KTHREAD) // true
-
-					begin_new_exec()
-					  me->flags &= ~(PF_KTHREAD|...);
-	kthread_is_per_cpu(p)
-	  to_kthread(p)
-	    WARN(!(p->flags & PF_KTHREAD) <-- *SPLAT*
-
-Introduce __to_kthread() that omits the WARN and is sure to check both
-values.
-
-Use this to remove the problematic pattern for kthread_is_per_cpu()
-and fix a number of other kthread_*() functions that have similar
-issues but are currently not used in ways that would expose the
-problem.
-
-Notably kthread_func() is only ever called on 'current', while
-kthread_probe_data() is only used for PF_WQ_WORKER, which implies the
-task is from kthread_create*().
-
-Fixes: ac687e6e8c26 ("kthread: Extract KTHREAD_IS_PER_CPU")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <Valentin.Schneider@arm.com>
-Link: https://lkml.kernel.org/r/YH6WJc825C4P0FCK@hirez.programming.kicks-ass.net
-[ Drop the balance_push() hunk as it is not needed. ]
-Signed-off-by: Borislav Petkov <bp@suse.de>
----
- kernel/kthread.c    | 33 +++++++++++++++++++++++++++------
- kernel/sched/fair.c |  2 +-
- 2 files changed, 28 insertions(+), 7 deletions(-)
-
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 9825cf89c614..508fe5278285 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -84,6 +84,25 @@ static inline struct kthread *to_kthread(struct task_struct *k)
- 	return (__force void *)k->set_child_tid;
- }
- 
-+/*
-+ * Variant of to_kthread() that doesn't assume @p is a kthread.
-+ *
-+ * Per construction; when:
-+ *
-+ *   (p->flags & PF_KTHREAD) && p->set_child_tid
-+ *
-+ * the task is both a kthread and struct kthread is persistent. However
-+ * PF_KTHREAD on it's own is not, kernel_thread() can exec() (See umh.c and
-+ * begin_new_exec()).
-+ */
-+static inline struct kthread *__to_kthread(struct task_struct *p)
-+{
-+	void *kthread = (__force void *)p->set_child_tid;
-+	if (kthread && !(p->flags & PF_KTHREAD))
-+		kthread = NULL;
-+	return kthread;
-+}
-+
- void free_kthread_struct(struct task_struct *k)
- {
- 	struct kthread *kthread;
-@@ -168,8 +187,9 @@ EXPORT_SYMBOL_GPL(kthread_freezable_should_stop);
-  */
- void *kthread_func(struct task_struct *task)
- {
--	if (task->flags & PF_KTHREAD)
--		return to_kthread(task)->threadfn;
-+	struct kthread *kthread = __to_kthread(task);
-+	if (kthread)
-+		return kthread->threadfn;
- 	return NULL;
- }
- EXPORT_SYMBOL_GPL(kthread_func);
-@@ -199,10 +219,11 @@ EXPORT_SYMBOL_GPL(kthread_data);
-  */
- void *kthread_probe_data(struct task_struct *task)
- {
--	struct kthread *kthread = to_kthread(task);
-+	struct kthread *kthread = __to_kthread(task);
- 	void *data = NULL;
- 
--	copy_from_kernel_nofault(&data, &kthread->data, sizeof(data));
-+	if (kthread)
-+		copy_from_kernel_nofault(&data, &kthread->data, sizeof(data));
- 	return data;
- }
- 
-@@ -514,9 +535,9 @@ void kthread_set_per_cpu(struct task_struct *k, int cpu)
- 	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
- }
- 
--bool kthread_is_per_cpu(struct task_struct *k)
-+bool kthread_is_per_cpu(struct task_struct *p)
- {
--	struct kthread *kthread = to_kthread(k);
-+	struct kthread *kthread = __to_kthread(p);
- 	if (!kthread)
- 		return false;
- 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 262b02d75007..bad97d35684d 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -7569,7 +7569,7 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
- 		return 0;
- 
- 	/* Disregard pcpu kthreads; they are where they need to be. */
--	if ((p->flags & PF_KTHREAD) && kthread_is_per_cpu(p))
-+	if (kthread_is_per_cpu(p))
- 		return 0;
- 
- 	if (!cpumask_test_cpu(env->dst_cpu, p->cpus_ptr)) {
--- 
-2.29.2
+r8a7795-salvator-x   | arm64 | lab-baylibre | gcc-8    | defconfig         =
+  | 1          =
 
 
--- 
-Regards/Gruss,
-    Boris.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.281-10-g68fa8d648bfb/plan/baseline/
 
-https://people.kernel.org/tglx/notes-about-netiquette
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.281-10-g68fa8d648bfb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      68fa8d648bfb471ab81317b7273edae4fc833c55 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612c8dd6b27b5732fc8e2c77
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.281=
+-10-g68fa8d648bfb/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.281=
+-10-g68fa8d648bfb/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612c8dd6b27b5732fc8e2=
+c78
+        failing since 288 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612c8dfb71b7a5c1a68e2c97
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.281=
+-10-g68fa8d648bfb/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.281=
+-10-g68fa8d648bfb/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612c8dfb71b7a5c1a68e2=
+c98
+        failing since 288 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612c8dc5d20d53e8f38e2ca6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.281=
+-10-g68fa8d648bfb/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.281=
+-10-g68fa8d648bfb/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612c8dc5d20d53e8f38e2=
+ca7
+        failing since 288 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-26-g7b603f689c1c) =
+
+ =
+
+
+
+platform             | arch  | lab          | compiler | defconfig         =
+  | regressions
+---------------------+-------+--------------+----------+-------------------=
+--+------------
+r8a7795-salvator-x   | arm64 | lab-baylibre | gcc-8    | defconfig         =
+  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612c8e9a54a774b7b08e2c91
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.281=
+-10-g68fa8d648bfb/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salva=
+tor-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.281=
+-10-g68fa8d648bfb/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salva=
+tor-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612c8e9a54a774b7b08e2=
+c92
+        failing since 285 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
+t fail: v4.9.243-79-gd3e70b39d31a) =
+
+ =20
