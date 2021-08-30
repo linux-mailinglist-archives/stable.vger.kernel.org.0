@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B2F33FB548
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:08:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C48393FB54B
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237268AbhH3MCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:02:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50264 "EHLO mail.kernel.org"
+        id S237285AbhH3MCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 08:02:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237070AbhH3MBy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Aug 2021 08:01:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E056D61131;
-        Mon, 30 Aug 2021 12:00:59 +0000 (UTC)
+        id S237084AbhH3MB4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Aug 2021 08:01:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BF2C60525;
+        Mon, 30 Aug 2021 12:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630324860;
-        bh=7DcOuY0O7gWl9b7yzExv33fKZSCdPDnTi+RIBRHA8Og=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHuBpLzzDGqP3XRBKyn0Qq4hZ+BhIg73myOVyPLi+1KtjzKF1kIf8zYrQTEbx6bTe
-         Mo7YjpfLlPGsEhzvCdEKFSEsfCkiUMvPQIn2oMMlQfE7GszCJziveAJPU0TZQe0OCo
-         PKpA2586cuqF7cLmXpM/BfUlJ9Zc/yHo64TPzbRU63UTlEMBAg+v9MLdF5cWGQz6et
-         UI4YbiZk3jMk/vxghJ8+mpHquxhC3xIWlk2dfJ8HwyHnF010Lo4WF+bzV1QvyVWToo
-         fVh5Z+G7fz8/e0Ku0zlmLgD5n1hqAE7cJ4wVtlOvMVuXyFEG+rK13LR2+OZPR4H3/H
-         C3dV8O6YN5OLw==
+        s=k20201202; t=1630324863;
+        bh=rtIVkDCTJch9eRFY0drIgdPfVahsP3zGcz9F12ZAvFc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DiK7LA33gDDy1R+uUiUTmHexubGEwi1VYjl1IecL9QJxqwUiQZmnTsqhGP5ZbVpYz
+         8m+QAAcUlOT32fpiwSkqjpRJLauNyGR2KkA4Dw/pScRkuY3gW2L2dhsBUJeZKFx6RV
+         D9eeXPLt72lvCsVMjDbbLVhvA1+bsLlHXK8cvWLJ+cS2gLxlrKFPG3LopUPIZYg3A6
+         WgOiAxXJv1bMKJyyx6nhotXMAOrZbJeBu1XYMc3nQ2JtX2UfZXifWbaMy+xwhP2QXg
+         v02CCzaWKq+0OeRcapdg/OJ8049ScNCVpqPnhOdj8ATy1HDqHr3y3ntgIC5DNubWRs
+         r3Sg8nuCivycg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 5/5] cryptoloop: add a deprecation warning
-Date:   Mon, 30 Aug 2021 08:00:53 -0400
-Message-Id: <20210830120053.1018205-5-sashal@kernel.org>
+Cc:     Shai Malin <smalin@marvell.com>,
+        Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Kees Cook <keescook@chromium.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 1/3] qede: Fix memset corruption
+Date:   Mon, 30 Aug 2021 08:00:59 -0400
+Message-Id: <20210830120101.1018298-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210830120053.1018205-1-sashal@kernel.org>
-References: <20210830120053.1018205-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,60 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Shai Malin <smalin@marvell.com>
 
-[ Upstream commit 222013f9ac30b9cec44301daa8dbd0aae38abffb ]
+[ Upstream commit e543468869e2532f5d7926e8f417782b48eca3dc ]
 
-Support for cryptoloop has been officially marked broken and deprecated
-in favor of dm-crypt (which supports the same broken algorithms if
-needed) in Linux 2.6.4 (released in March 2004), and support for it has
-been entirely removed from losetup in util-linux 2.23 (released in April
-2013).  Add a warning and a deprecation schedule.
+Thanks to Kees Cook who detected the problem of memset that starting
+from not the first member, but sized for the whole struct.
+The better change will be to remove the redundant memset and to clear
+only the msix_cnt member.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20210827163250.255325-1-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Reported-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/Kconfig      | 4 ++--
- drivers/block/cryptoloop.c | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qede/qede_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
-index 894102fd5a06..b701c79f07e5 100644
---- a/drivers/block/Kconfig
-+++ b/drivers/block/Kconfig
-@@ -257,7 +257,7 @@ config BLK_DEV_LOOP_MIN_COUNT
- 	  dynamically allocated with the /dev/loop-control interface.
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
+index c677b69bbb0b..22c6eaaf3d9f 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_main.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
+@@ -1918,6 +1918,7 @@ static void qede_sync_free_irqs(struct qede_dev *edev)
+ 	}
  
- config BLK_DEV_CRYPTOLOOP
--	tristate "Cryptoloop Support"
-+	tristate "Cryptoloop Support (DEPRECATED)"
- 	select CRYPTO
- 	select CRYPTO_CBC
- 	depends on BLK_DEV_LOOP
-@@ -269,7 +269,7 @@ config BLK_DEV_CRYPTOLOOP
- 	  WARNING: This device is not safe for journaled file systems like
- 	  ext3 or Reiserfs. Please use the Device Mapper crypto module
- 	  instead, which can be configured to be on-disk compatible with the
--	  cryptoloop device.
-+	  cryptoloop device.  cryptoloop support will be removed in Linux 5.16.
- 
- source "drivers/block/drbd/Kconfig"
- 
-diff --git a/drivers/block/cryptoloop.c b/drivers/block/cryptoloop.c
-index 3d31761c0ed0..adbfd3e2a60f 100644
---- a/drivers/block/cryptoloop.c
-+++ b/drivers/block/cryptoloop.c
-@@ -203,6 +203,8 @@ init_cryptoloop(void)
- 
- 	if (rc)
- 		printk(KERN_ERR "cryptoloop: loop_register_transfer failed\n");
-+	else
-+		pr_warn("the cryptoloop driver has been deprecated and will be removed in in Linux 5.16\n");
- 	return rc;
+ 	edev->int_info.used_cnt = 0;
++	edev->int_info.msix_cnt = 0;
  }
  
+ static int qede_req_msix_irqs(struct qede_dev *edev)
+@@ -2341,7 +2342,6 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode)
+ 
+ err4:
+ 	qede_sync_free_irqs(edev);
+-	memset(&edev->int_info.msix_cnt, 0, sizeof(struct qed_int_info));
+ err3:
+ 	qede_napi_disable_remove(edev);
+ err2:
 -- 
 2.30.2
 
