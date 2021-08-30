@@ -2,128 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 965CE3FB5EE
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F258E3FB63D
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232020AbhH3MWp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:22:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
+        id S233703AbhH3Mlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 08:41:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230426AbhH3MWo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 08:22:44 -0400
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 867FEC061575
-        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 05:21:51 -0700 (PDT)
-Received: by mail-pl1-x636.google.com with SMTP id m17so8427118plc.6
-        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 05:21:51 -0700 (PDT)
+        with ESMTP id S232020AbhH3Mlo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 08:41:44 -0400
+Received: from mail-qv1-xf35.google.com (mail-qv1-xf35.google.com [IPv6:2607:f8b0:4864:20::f35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 501ACC06175F
+        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 05:40:51 -0700 (PDT)
+Received: by mail-qv1-xf35.google.com with SMTP id g11so8172831qvd.2
+        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 05:40:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=wfDd6kmfR0ZThk6BKWmf4ZJ5f/WDRVdXu9BZ4EgklUM=;
-        b=1hkRYz9Ax5KC7sqD6Mnm9l3eslYzqJO7o3keX+Xaec9onBmjsiQ+roaUfhz827FmSg
-         X/wDf95UK0dlqyWBof6kQp2LkmOs8KPaAmLWI3Mhb++tK14ClGRLUDwOKwKOAfoOS18E
-         LjOjAGj0CUDkB+LckMFLTCpie3f6nogI1tnQg8lOPJMP0sgVUrkcNpUbGk9RoopXCsiv
-         qr6ddK/DEugwq3COt5ZtsnpbviBufAp8h/YwNyTYjL2AcnrMpRw/W+bHZ97apnkVKpjr
-         eikrjzeKMe0AOZK/d2a3do12pFQZ4SLEt6iOsLb2FBMkx+MUiv7gRq264Erp5YL+EKeS
-         SbeA==
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=T0GjF5w0oMuRtLInC2hBs3sq1EKkXCp946NJQvmrNNA=;
+        b=YJz06bSaVp5ajqLNrj0z3k7B2zNq9W3juYAjTRacLX1OTnWl+Y2TCuZRXrDpNev5ES
+         LI9vF8Ek/BlSVqhQxxZNTzpA5FUjX/13eTlFBMEzsXx19XkdMbZPqCBpO+RkihfEnj0l
+         J5p6+wZXhw44KfNzMBWBNzDL/r8IzJMq1PUz9AGeK1i6zpPFRaQj7/uzkd9BXt9TCJfc
+         W42wzWo2iZS4pWlUgqlA7jUlEn0stzTigVCRnRBofn3VEjYosxE04T10wIyEgIow15e4
+         4JqWV2i7dl5xXX5bp87lKznKwdqX/+WO93wXw52VHRAZmCWLEEbhZctMAempuTEerRIF
+         bm2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=wfDd6kmfR0ZThk6BKWmf4ZJ5f/WDRVdXu9BZ4EgklUM=;
-        b=FCM6jAk5OjcsqzW7UYqwYG2DsXaeV9lgeYccBQzWYBORucVrOrW2oHfoVcz4s1KWk2
-         bTx31RwrWjZPLo3n2lBk5/fKSaYs7zDq+r2bFNaeFg5WX4VnXF94TAO+2NbaJ56Oryab
-         57rERbkBhFrCSmamWAtWs408rdeXojBQr72F84/HjWDfx6MLz6L6xmGjEN2Tw7Nc/C2u
-         1BgXRTpjqOvvlPu7B7aKWyM1zfounSsq6TTPJCaYhGWuw6g5uCP5QYYzqL0A1uoQ+v2r
-         q+ibrkDnboFzvsoK1XNvLMAzroJXmV0FO29IZa3Po3R6yR83hUnYrx3wh0LfTCnaILnU
-         r8hQ==
-X-Gm-Message-State: AOAM533RJ8BJL7KtJFS3Jko98BQYp0mkTowx6gvK0KZ2bNK11wMgFhnl
-        F5fIf7SpcBzP7tAISu6CA56iI51Dmjm0WFvY
-X-Google-Smtp-Source: ABdhPJw3AGzoxF+C45bVjlwPhorSPrAfyQPzWAazl4914UNFSP4mL7un9+c/WN12P/g0NXGBg6nOkQ==
-X-Received: by 2002:a17:90a:bb0b:: with SMTP id u11mr39127542pjr.18.1630326110870;
-        Mon, 30 Aug 2021 05:21:50 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 26sm19311951pgx.72.2021.08.30.05.21.50
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=T0GjF5w0oMuRtLInC2hBs3sq1EKkXCp946NJQvmrNNA=;
+        b=KMXGWFPNcwh3fKBsaSi2jI0UR+aAe8aHgKI3nyavI/W7lqdJohIOlhjynRuGWaQRS2
+         f74wBvVuqXu8HMcoNmkUtLrN0nQGwixUordECgEHTVx7UGMu0KYCJZiIHstrj864ffI6
+         yqlmR9obZUSy7lwFSs81RCZMNTAK9S5RefB9cRP/jvdAdg47vRaDzbJRDJdm8tJ+1E3Y
+         47psHp4dwA4Jl61Gyw/4f5fJ8zcbRWN1kHXCKKiGhQPzSahX4UcxkJSOH8aCW7Sqh2oG
+         8KAE+tMDOWERYQ4NzrD6hi+u5XUzwrCvCh6xXdpMTift0eklQkaG5p1lZFPWSR1tast7
+         /IDA==
+X-Gm-Message-State: AOAM533h1HB9fp7yQFv1w1fwn6dAR2FV/1u2LUZ9bigXe/lpiI6ytbbe
+        nLdPal1hqKyWnJyIMd6gCMWiOwB3WbpFcw==
+X-Google-Smtp-Source: ABdhPJyaf6VQxCJ00UbLfwPFp16U/tNv3663ulooWB0/urnMOTvjl6SDaLLUsNSISMLXKOIbvLqaHA==
+X-Received: by 2002:a0c:e70f:: with SMTP id d15mr22462454qvn.47.1630327250483;
+        Mon, 30 Aug 2021 05:40:50 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
+        by smtp.gmail.com with ESMTPSA id c10sm8262652qtb.20.2021.08.30.05.40.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Aug 2021 05:21:50 -0700 (PDT)
-Message-ID: <612ccd5e.1c69fb81.5d7a5.04dd@mx.google.com>
-Date:   Mon, 30 Aug 2021 05:21:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 30 Aug 2021 05:40:49 -0700 (PDT)
+Received: from jgg by mlx with local (Exim 4.94)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1mKgan-0070tA-0m; Mon, 30 Aug 2021 09:40:49 -0300
+Date:   Mon, 30 Aug 2021 09:40:49 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Li Zhijian <lizhijian@cn.fujitsu.com>, akpm@linux-foundation.org
+Cc:     linux-mm@kvack.org, linux-rdma@vger.kernel.org, jglisse@redhat.com,
+        hch@infradead.org, yishaih@nvidia.com,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v3] mm/hmm: bypass devmap pte when all pfn requested
+ flags are fulfilled
+Message-ID: <20210830124049.GN1200268@ziepe.ca>
+References: <20210830094232.203029-1-lizhijian@cn.fujitsu.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.13.y
-X-Kernelci-Kernel: v5.13.13-74-g5a5b2e290019
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.13.y baseline: 104 runs,
- 1 regressions (v5.13.13-74-g5a5b2e290019)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210830094232.203029-1-lizhijian@cn.fujitsu.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.13.y baseline: 104 runs, 1 regressions (v5.13.13-74-g5a5b=
-2e290019)
+On Mon, Aug 30, 2021 at 05:42:32PM +0800, Li Zhijian wrote:
+> Previously, we noticed the one rpma example was failed[1] since 36f30e486d,
+> where it will use ODP feature to do RDMA WRITE between fsdax files.
+> 
+> After digging into the code, we found hmm_vma_handle_pte() will still
+> return EFAULT even though all the its requesting flags has been
+> fulfilled. That's because a DAX page will be marked as
+> (_PAGE_SPECIAL | PAGE_DEVMAP) by pte_mkdevmap().
+> 
+> [1]: https://github.com/pmem/rpma/issues/1142
+> 
+> CC: stable@vger.kernel.org
+> Fixes: 405506274922 ("mm/hmm: add missing call to hmm_pte_need_fault in HMM_PFN_SPECIAL handling")
+> Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
+> 
+> ---
+> V3: adjust the checking order
+> ---
+>  mm/hmm.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 
-Regressions Summary
--------------------
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
-   =
+Andrew, can you grab this please?
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.13.y/ker=
-nel/v5.13.13-74-g5a5b2e290019/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.13.y
-  Describe: v5.13.13-74-g5a5b2e290019
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5a5b2e290019c314fb4cdcd15fada7567df1a64a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/612c9ada5a9bc494de8e2c7d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.13.y/v5.13.1=
-3-74-g5a5b2e290019/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beag=
-le-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.13.y/v5.13.1=
-3-74-g5a5b2e290019/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beag=
-le-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612c9ada5a9bc494de8e2=
-c7e
-        failing since 45 days (last pass: v5.13.2, first fail: v5.13.2-254-=
-g761e4411c50e) =
-
- =20
+Thanks,
+Jason
