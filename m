@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 036AD3FB4DF
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 13:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23BBB3FB4EC
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:08:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236527AbhH3MAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:00:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46356 "EHLO mail.kernel.org"
+        id S236607AbhH3MAm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 08:00:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236577AbhH3MAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Aug 2021 08:00:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4676861154;
-        Mon, 30 Aug 2021 11:59:45 +0000 (UTC)
+        id S236587AbhH3MAk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Aug 2021 08:00:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77DB361155;
+        Mon, 30 Aug 2021 11:59:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630324786;
-        bh=h4s6S/fKS1X94ZYE2zRjyE0IgdC/3AncBjqqAi/i0PY=;
+        s=k20201202; t=1630324787;
+        bh=D349oO5QEXvpIRCUTESb1cUfYEXErlCjDIDFbLtpT14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMq9BkpmNIslECyhlrESf6tz4fQEk1iM/eVDiLifuWPnA7/XOg3LkmbtiiyAjOKOj
-         6ynp/qp76LZ70KNqbWCbJguZ9CJRK5eKJeUsqlAQ+NI/dUqtHykDPvMk6XCfi0UHZZ
-         Qpfsg/1Fc0Xw54UgeIsz0GKOujLEkdhISVJFJE62XwJKi22WhrGQOLyDD80aQid071
-         wSg0/46JTjVU0hHI7sGA2ouu+PtlXJPNjIchMUJbdqKprKhfnwpd9tHTZXz5RBb4l8
-         Pu2MZxcX+MRmDaDV7lYYywlS2jhtVbR1lqDO9UoeyMBCcNbYhLNnFJH3iFfOjhGaUC
-         EQ2uQAaZzbUQQ==
+        b=q2QNP8iKgHLWdWRp3PR5K/KLnXWoGiMru2HuHEYTQbLCTgLlNSu4zEQU7y3f5K+CS
+         CJEOQQ4+Tpak9DSimT7jnnnVZxpoMEIAx58xrLcTScAGP2Ox7mzp7esnyV1DDzgg8X
+         RkUo+yoysAuO9JP63vh3ESq3HdF3eBmDIUJMpPQ7aeC5uIBryqz1P9qpI0/7tFIYan
+         eJEQ6wKqt3TnM6YP7e+GwHQ2cBCHuPOhN/8fu10kAWVPwFaDL6Kiz5WVfWCyOszfwY
+         4mnT177vO3vam3MDizEYhIUCjmLUntbY/hYXMTSKuZtRabsMay6Juhh4Q/ynoI9SKz
+         1LXKVoOp4Trsw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 02/14] reset: reset-zynqmp: Fixed the argument data type
-Date:   Mon, 30 Aug 2021 07:59:30 -0400
-Message-Id: <20210830115942.1017300-2-sashal@kernel.org>
+Cc:     Shai Malin <smalin@marvell.com>,
+        Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 03/14] qed: Fix the VF msix vectors flow
+Date:   Mon, 30 Aug 2021 07:59:31 -0400
+Message-Id: <20210830115942.1017300-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210830115942.1017300-1-sashal@kernel.org>
 References: <20210830115942.1017300-1-sashal@kernel.org>
@@ -44,37 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
+From: Shai Malin <smalin@marvell.com>
 
-[ Upstream commit ed104ca4bd9c405b41e968ad4ece51f6462e90b6 ]
+[ Upstream commit b0cd08537db8d2fbb227cdb2e5835209db295a24 ]
 
-This patch changes the data type of the variable 'val' from
-int to u32.
+For VFs we should return with an error in case we didn't get the exact
+number of msix vectors as we requested.
+Not doing that will lead to a crash when starting queues for this VF.
 
-Addresses-Coverity: argument of type "int *" is incompatible with parameter of type "u32 *"
-Signed-off-by: Sai Krishna Potthuri <lakshmi.sai.krishna.potthuri@xilinx.com>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Link: https://lore.kernel.org/r/925cebbe4eb73c7d0a536da204748d33c7100d8c.1624448778.git.michal.simek@xilinx.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-zynqmp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qed/qed_main.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/reset/reset-zynqmp.c b/drivers/reset/reset-zynqmp.c
-index ebd433fa09dd..8c51768e9a72 100644
---- a/drivers/reset/reset-zynqmp.c
-+++ b/drivers/reset/reset-zynqmp.c
-@@ -53,7 +53,8 @@ static int zynqmp_reset_status(struct reset_controller_dev *rcdev,
- 			       unsigned long id)
- {
- 	struct zynqmp_reset_data *priv = to_zynqmp_reset_data(rcdev);
--	int val, err;
-+	int err;
-+	u32 val;
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
+index 5bd58c65e163..6bb9ec98a12b 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_main.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
+@@ -616,7 +616,12 @@ static int qed_enable_msix(struct qed_dev *cdev,
+ 			rc = cnt;
+ 	}
  
- 	err = zynqmp_pm_reset_get_status(priv->data->reset_id + id, &val);
- 	if (err)
+-	if (rc > 0) {
++	/* For VFs, we should return with an error in case we didn't get the
++	 * exact number of msix vectors as we requested.
++	 * Not doing that will lead to a crash when starting queues for
++	 * this VF.
++	 */
++	if ((IS_PF(cdev) && rc > 0) || (IS_VF(cdev) && rc == cnt)) {
+ 		/* MSI-x configuration was achieved */
+ 		int_params->out.int_mode = QED_INT_MODE_MSIX;
+ 		int_params->out.num_vectors = rc;
 -- 
 2.30.2
 
