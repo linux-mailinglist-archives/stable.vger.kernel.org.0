@@ -2,271 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 100343FB69B
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:58:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E89B3FB6AA
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 15:03:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230379AbhH3M6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:58:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55560 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229809AbhH3M6m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 08:58:42 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40C02C061575
-        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 05:57:49 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id oa17so9438018pjb.1
-        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 05:57:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ut3YD4fMmkQVD4cEpbbCR/xRyx2ke+oFaYIhxclnpiI=;
-        b=nFwu7vbUHU3E8+kceC2akufBMU9bv0KoQga5ZEnX5P7GRY1yZYE0/NapYZ7HO/Ax4K
-         bYhzp+zxl4Z6bqVo41WwzLITbEoAzFQRFPzODb+tsREJ0FSPJBgGTNIdrsGI+PW+WjSe
-         un4a3qDSgh2LmQLawHwz34JJrHZr/+QCVjn6l0rCvxNPFGF1igmGtyHVpXhL3uiwAPrY
-         LIi7E3f+f1S5tXj3/sKMxH17u3sHJXO5Y/IZIm2DqmQd8+tT9z+1RI4lRQ2vC+VtVaus
-         IEqBEZsi5g2Uwge5v93wZN+QA6s/CvlWOQZkMhJFvCZnU6libPkH/CyO6CcTT8nCe/W7
-         /ZZw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ut3YD4fMmkQVD4cEpbbCR/xRyx2ke+oFaYIhxclnpiI=;
-        b=K+AwM0S/Kx6iPO7axXAU4aqPu1/F9BymUSY3k3w9npvAXiXSHwiXdYhoQ2R62lRjEZ
-         NsRAnmWjmvH/ll+woUWhhpJ7gd5ZvW8WOaiepBHmSSVu4WxnxeDLqZgUDh4s67QSmzDS
-         MQ+SzRlrJI9ECl2i28fzi+Lomh/acfcAdHpb+A7KFoIacd+0/9LUfFO+HIYGNluuRwsU
-         r0ZaoUSO35f08drQJ7Dnsn3PiQ0RkjWHvUaLuPrctJcw9dK2D2ODER1/hOO5UMD5a3EH
-         brGtP0RykKhcTWHFMTA+RRiYKaPgAUKwEwe3h40LxcecUerqUX2TLANIu7ak+nndR6JZ
-         18aA==
-X-Gm-Message-State: AOAM533EWWDKB6y70Kx2DM0rDrw8z2/5BfI/25ZKoT8i5haVIVeC7p2o
-        /7hKWSn4VDNqcz+8MODI/L/g7iubO+cw3qc/
-X-Google-Smtp-Source: ABdhPJzeTzNekpgZ/4S4Tw0cNVG5I/CgJXAqWCCDy749EEjfaTQYouudMJFNnXS7Wd2p/O3AbNuDXQ==
-X-Received: by 2002:a17:902:7584:b0:12d:8cb5:c7b8 with SMTP id j4-20020a170902758400b0012d8cb5c7b8mr21673867pll.84.1630328268578;
-        Mon, 30 Aug 2021 05:57:48 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 132sm14702887pfy.190.2021.08.30.05.57.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Aug 2021 05:57:48 -0700 (PDT)
-Message-ID: <612cd5cc.1c69fb81.8d55c.43b5@mx.google.com>
-Date:   Mon, 30 Aug 2021 05:57:48 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S236729AbhH3NDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 09:03:16 -0400
+Received: from mail.fris.de ([116.203.77.234]:60030 "EHLO mail.fris.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231480AbhH3NDM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Aug 2021 09:03:12 -0400
+X-Greylist: delayed 20336 seconds by postgrey-1.27 at vger.kernel.org; Mon, 30 Aug 2021 09:03:12 EDT
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 6AAF1BFAE8;
+        Mon, 30 Aug 2021 15:02:15 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fris.de; s=dkim;
+        t=1630328536; h=from:subject:date:message-id:to:cc:mime-version:
+         content-transfer-encoding; bh=J8EqyEThj2vYt1gLlGWAPjy92OKvfcflpYFCLx+6AN0=;
+        b=0X5h4VsLaT3N7aHJkLXg5ZWUaii9HEHqc2H6UtAQqPuU/nWkmjqDalkyMY/kG3sjLyGIjz
+        +Lv9BFISoFwHKJ3FYY5fsJmDjsg0Vnm8ddkYxnbUHLMIjlPj9nCnNFmsBdOY+dVHpAGYnc
+        dxx+1ZWQD1Eq/JGXw6Brhm9F2chkjMdHfRFObkRfowKpDp6L6jmX5cOWT5Yu317iFtj8BX
+        PmoRVoPWtoQdwwLjujQ0uHMGX/K1BqjUtMnVS06NGiydYbyDCEGCP2CnXsJysnKgAOI82j
+        JCLzKNhC/QI9AJLkvaCV/84KV+KqrBPg/avn2yJgyfSwqmCA59lEctL0YZIOXA==
+From:   Frieder Schrempf <frieder@fris.de>
+To:     Miquel Raynal <miquel.raynal@bootlin.com>
+Cc:     Frieder Schrempf <frieder.schrempf@kontron.de>,
+        stable@vger.kernel.org,
+        voice INTER connect GmbH <developer@voiceinterconnect.de>,
+        Alexander Lobakin <alobakin@pm.me>,
+        Felix Fietkau <nbd@nbd.name>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
+        Richard Weinberger <richard@nod.at>,
+        YouChing Lin <ycllin@mxic.com.tw>
+Subject: [PATCH v2 5.10.x] mtd: spinand: Fix incorrect parameters for on-die ECC
+Date:   Mon, 30 Aug 2021 15:02:10 +0200
+Message-Id: <20210830130211.445728-1-frieder@fris.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.245-13-gcc28263d7625
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y baseline: 122 runs,
- 5 regressions (v4.14.245-13-gcc28263d7625)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 122 runs, 5 regressions (v4.14.245-13-gcc2=
-8263d7625)
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-Regressions Summary
--------------------
+The new generic NAND ECC framework stores the configuration and
+requirements in separate places since commit 93ef92f6f422 ("mtd: nand: Use
+the new generic ECC object"). In 5.10.x The SPI NAND layer still uses only
+the requirements to track the ECC properties. This mismatch leads to
+values of zero being used for ECC strength and step_size in the SPI NAND
+layer wherever nanddev_get_ecc_conf() is used and therefore breaks the SPI
+NAND on-die ECC support in 5.10.x.
 
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-imx6ul-14x14-evk     | arm   | lab-nxp      | gcc-8    | imx_v6_v7_defconfi=
-g | 1          =
+By using nanddev_get_ecc_requirements() instead of nanddev_get_ecc_conf()
+for SPI NAND, we make sure that the correct parameters for the detected
+chip are used. In later versions (5.11.x) this is fixed anyway with the
+implementation of the SPI NAND on-die ECC engine.
 
-meson-gxbb-p200      | arm64 | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
+Cc: stable@vger.kernel.org # 5.10.x
+Reported-by: voice INTER connect GmbH <developer@voiceinterconnect.de>
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
+---
+Changes in v2:
+  * Fix checkpatch error/warnings for commit message style
+  * Add Miquel's A-b tag
+---
+ drivers/mtd/nand/spi/core.c     | 6 +++---
+ drivers/mtd/nand/spi/macronix.c | 6 +++---
+ drivers/mtd/nand/spi/toshiba.c  | 6 +++---
+ 3 files changed, 9 insertions(+), 9 deletions(-)
 
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
+diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
+index 558d8a14810b..8794a1f6eacd 100644
+--- a/drivers/mtd/nand/spi/core.c
++++ b/drivers/mtd/nand/spi/core.c
+@@ -419,7 +419,7 @@ static int spinand_check_ecc_status(struct spinand_device *spinand, u8 status)
+ 		 * fixed, so let's return the maximum possible value so that
+ 		 * wear-leveling layers move the data immediately.
+ 		 */
+-		return nanddev_get_ecc_conf(nand)->strength;
++		return nanddev_get_ecc_requirements(nand)->strength;
+ 
+ 	case STATUS_ECC_UNCOR_ERROR:
+ 		return -EBADMSG;
+@@ -1090,8 +1090,8 @@ static int spinand_init(struct spinand_device *spinand)
+ 	mtd->oobavail = ret;
+ 
+ 	/* Propagate ECC information to mtd_info */
+-	mtd->ecc_strength = nanddev_get_ecc_conf(nand)->strength;
+-	mtd->ecc_step_size = nanddev_get_ecc_conf(nand)->step_size;
++	mtd->ecc_strength = nanddev_get_ecc_requirements(nand)->strength;
++	mtd->ecc_step_size = nanddev_get_ecc_requirements(nand)->step_size;
+ 
+ 	return 0;
+ 
+diff --git a/drivers/mtd/nand/spi/macronix.c b/drivers/mtd/nand/spi/macronix.c
+index 8e801e4c3a00..cd7a9cacc3fb 100644
+--- a/drivers/mtd/nand/spi/macronix.c
++++ b/drivers/mtd/nand/spi/macronix.c
+@@ -84,11 +84,11 @@ static int mx35lf1ge4ab_ecc_get_status(struct spinand_device *spinand,
+ 		 * data around if it's not necessary.
+ 		 */
+ 		if (mx35lf1ge4ab_get_eccsr(spinand, &eccsr))
+-			return nanddev_get_ecc_conf(nand)->strength;
++			return nanddev_get_ecc_requirements(nand)->strength;
+ 
+-		if (WARN_ON(eccsr > nanddev_get_ecc_conf(nand)->strength ||
++		if (WARN_ON(eccsr > nanddev_get_ecc_requirements(nand)->strength ||
+ 			    !eccsr))
+-			return nanddev_get_ecc_conf(nand)->strength;
++			return nanddev_get_ecc_requirements(nand)->strength;
+ 
+ 		return eccsr;
+ 
+diff --git a/drivers/mtd/nand/spi/toshiba.c b/drivers/mtd/nand/spi/toshiba.c
+index 21fde2875674..6fe7bd2a94d2 100644
+--- a/drivers/mtd/nand/spi/toshiba.c
++++ b/drivers/mtd/nand/spi/toshiba.c
+@@ -90,12 +90,12 @@ static int tx58cxgxsxraix_ecc_get_status(struct spinand_device *spinand,
+ 		 * data around if it's not necessary.
+ 		 */
+ 		if (spi_mem_exec_op(spinand->spimem, &op))
+-			return nanddev_get_ecc_conf(nand)->strength;
++			return nanddev_get_ecc_requirements(nand)->strength;
+ 
+ 		mbf >>= 4;
+ 
+-		if (WARN_ON(mbf > nanddev_get_ecc_conf(nand)->strength || !mbf))
+-			return nanddev_get_ecc_conf(nand)->strength;
++		if (WARN_ON(mbf > nanddev_get_ecc_requirements(nand)->strength || !mbf))
++			return nanddev_get_ecc_requirements(nand)->strength;
+ 
+ 		return mbf;
+ 
+-- 
+2.32.0
 
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.245-13-gcc28263d7625/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.245-13-gcc28263d7625
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      cc28263d76251aea0d1848beb508cce2c5c46574 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-imx6ul-14x14-evk     | arm   | lab-nxp      | gcc-8    | imx_v6_v7_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612ca87170fd7950428e2c8d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-45-13-gcc28263d7625/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ul-1=
-4x14-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-45-13-gcc28263d7625/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ul-1=
-4x14-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612ca87170fd7950428e2=
-c8e
-        new failure (last pass: v4.14.245-7-gc8c7d84be632) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-meson-gxbb-p200      | arm64 | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612ca2d5f2dee506f48e2c9f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-45-13-gcc28263d7625/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-45-13-gcc28263d7625/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612ca2d5f2dee506f48e2=
-ca0
-        failing since 516 days (last pass: v4.14.172-114-g734382e2d26e, fir=
-st fail: v4.14.174-131-g234ce78cac23) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612c9fd2d4df4aed8a8e2c7c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612c9fd2d4df4aed8a8e2=
-c7d
-        failing since 288 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612ca0fb19ecf41ed98e2c9b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612ca0fb19ecf41ed98e2=
-c9c
-        failing since 288 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612c9fdca1ec96d51c8e2c93
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-45-13-gcc28263d7625/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612c9fdca1ec96d51c8e2=
-c94
-        failing since 288 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =20
