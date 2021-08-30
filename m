@@ -2,144 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC0B93FB641
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:44:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4A883FB66A
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:49:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233505AbhH3Mna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:43:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51782 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229656AbhH3Mn3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 08:43:29 -0400
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C15F8C061575;
-        Mon, 30 Aug 2021 05:42:35 -0700 (PDT)
-Received: by mail-ej1-x633.google.com with SMTP id n27so30848853eja.5;
-        Mon, 30 Aug 2021 05:42:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=/y2g9rn9wt5yjW/SBXP8IWmwro5UmCGX/CodZW4eBgc=;
-        b=Mr2kTkdxRbciqEVlRnoacRmau33ZNX+QAN06nGpXy8NgHRjI1as+Ygh4MtDznwyT09
-         No+0Ed5y1sQMIZJot7mDMO2Tm2QsAh+ZhNzls9dqp6p/nIRwyDMfMwrTzkQlnopxRfaC
-         GkCNQhySbi57TfU0YsxQgYPGCD5E3KF55++w/u3NxGfeHy0TU81QCmgZ71nb8MODj2lb
-         ReerPD83Z5pidzKRayYD3VYxq0c0Ymee3iknIihuaKEeACo7BVIhnM8780S5/gxkTKE2
-         QkgOXMoDAbAa/N6nczGr6m+26Ox01J+hLhv+FnHaIYK+jw/IyJLw4o0A68QJE5jQsstK
-         uhHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=/y2g9rn9wt5yjW/SBXP8IWmwro5UmCGX/CodZW4eBgc=;
-        b=pwqFLKdUScoEWxGFb9bBDX+UgYwpAcmyRzDorY5Nxyag9jTKOaUWtmA/+1nMLyRX2U
-         ScWgpDfCYPDDeRYeCqcnnGmJArHmeMP1KwZ5dj0DTIagniDEsGlqMtURTa6G0uILcbqU
-         WEbrhMrYt7ZXbR82eb3APGQYyxDkLCm5/kJ5pfn3z8k5hakOwX7ew8+aEXcgTqDZvQgP
-         kHrUp5UTL1ihBJ0brKLhyy8aZuccEMvMSUpC37j3H06rZYzGk2qWLUE6S/WyeftrkbxH
-         spla7IbfmlFlnqe5KV6EnIK+KRrk6oVrREH4NArIvBZMDSkOU49ulT4L0JogJU5hHQlg
-         4Frg==
-X-Gm-Message-State: AOAM5332qgILl4Vcgy8Klh3YtEolLhczjh2RCa+KluVEaFnrL837kKee
-        x2MmStkqN8RDhh7HzsalLfgs/aHQ71cfimOWQ4Y=
-X-Google-Smtp-Source: ABdhPJxLsU1VpQW2C5CLwFCRKDZxkKyXVnbDoc74eSqeDsOw9goTMJEktW3Hwcg/qINw7EDeyKOq6f2LeB5ngfp/vUQ=
-X-Received: by 2002:a17:906:a3c3:: with SMTP id ca3mr24873332ejb.337.1630327354264;
- Mon, 30 Aug 2021 05:42:34 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210830115942.1017300-1-sashal@kernel.org> <20210830115942.1017300-13-sashal@kernel.org>
-In-Reply-To: <20210830115942.1017300-13-sashal@kernel.org>
-From:   Dongliang Mu <mudongliangabcd@gmail.com>
-Date:   Mon, 30 Aug 2021 20:42:08 +0800
-Message-ID: <CAD-N9QUXXjEMtdDniuqcNSAtaOhKtHE=hLMchtCJgbvxQXdABQ@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.13 13/14] net: fix NULL pointer reference in cipso_v4_doi_free
+        id S236735AbhH3MuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 08:50:23 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:47308 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236743AbhH3MuW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 08:50:22 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id BE6181C0B76; Mon, 30 Aug 2021 14:49:27 +0200 (CEST)
+Date:   Mon, 30 Aug 2021 14:49:27 +0200
+From:   Pavel Machek <pavel@denx.de>
 To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?B?546L6LSH?= <yun.wang@linux.alibaba.com>,
-        Abaci <abaci@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
-        linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mark Brown <broonie@kernel.org>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Lucas Tanure <tanureal@opensource.cirrus.com>,
+        alsa-devel@alsa-project.org
+Subject: Re: [PATCH AUTOSEL 5.13 02/12] ASoC: component: Remove misplaced
+ prefix handling in pin control functions
+Message-ID: <20210830124924.GA22096@duo.ucw.cz>
+References: <20210817003536.83063-1-sashal@kernel.org>
+ <20210817003536.83063-2-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
+Content-Disposition: inline
+In-Reply-To: <20210817003536.83063-2-sashal@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 30, 2021 at 8:01 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> From: =E7=8E=8B=E8=B4=87 <yun.wang@linux.alibaba.com>
->
-> [ Upstream commit 733c99ee8be9a1410287cdbb943887365e83b2d6 ]
->
 
-Hi Sasha,
+--/WwmFnJnmDyWGHa4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Michael Wang has sent a v2 patch [1] for this bug and it is merged
-into netdev/net-next.git. However, the v1 patch is already in the
-upstream tree.
+Hi!
 
-How do you guys handle such a issue?
+> When the component level pin control functions were added they for some
+> no longer obvious reason handled adding prefixing of widget names. This
+> meant that when the lack of prefix handling in the DAPM level pin
+> operations was fixed by ae4fc532244b3bb4d (ASoC: dapm: use component
+> prefix when checking widget names) the one device using the component
+> level API ended up with the prefix being applied twice, causing all
+> lookups to fail.
 
-[1] https://lkml.org/lkml/2021/8/30/229
+AFAICT ae4fc532244b3bb4d (ASoC: dapm: use component...) is not in
+5.10-stable, so this one should not go into 5.10-stable, either?
 
-> In netlbl_cipsov4_add_std() when 'doi_def->map.std' alloc
-> failed, we sometime observe panic:
->
->   BUG: kernel NULL pointer dereference, address:
->   ...
->   RIP: 0010:cipso_v4_doi_free+0x3a/0x80
->   ...
->   Call Trace:
->    netlbl_cipsov4_add_std+0xf4/0x8c0
->    netlbl_cipsov4_add+0x13f/0x1b0
->    genl_family_rcv_msg_doit.isra.15+0x132/0x170
->    genl_rcv_msg+0x125/0x240
->
-> This is because in cipso_v4_doi_free() there is no check
-> on 'doi_def->map.std' when 'doi_def->type' equal 1, which
-> is possibe, since netlbl_cipsov4_add_std() haven't initialize
-> it before alloc 'doi_def->map.std'.
->
-> This patch just add the check to prevent panic happen for similar
-> cases.
->
-> Reported-by: Abaci <abaci@linux.alibaba.com>
-> Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  net/ipv4/cipso_ipv4.c | 18 ++++++++++--------
->  1 file changed, 10 insertions(+), 8 deletions(-)
->
-> diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-> index e0480c6cebaa..16bbd62db791 100644
-> --- a/net/ipv4/cipso_ipv4.c
-> +++ b/net/ipv4/cipso_ipv4.c
-> @@ -466,14 +466,16 @@ void cipso_v4_doi_free(struct cipso_v4_doi *doi_def=
-)
->         if (!doi_def)
->                 return;
->
-> -       switch (doi_def->type) {
-> -       case CIPSO_V4_MAP_TRANS:
-> -               kfree(doi_def->map.std->lvl.cipso);
-> -               kfree(doi_def->map.std->lvl.local);
-> -               kfree(doi_def->map.std->cat.cipso);
-> -               kfree(doi_def->map.std->cat.local);
-> -               kfree(doi_def->map.std);
-> -               break;
-> +       if (doi_def->map.std) {
-> +               switch (doi_def->type) {
-> +               case CIPSO_V4_MAP_TRANS:
-> +                       kfree(doi_def->map.std->lvl.cipso);
-> +                       kfree(doi_def->map.std->lvl.local);
-> +                       kfree(doi_def->map.std->cat.cipso);
-> +                       kfree(doi_def->map.std->cat.local);
-> +                       kfree(doi_def->map.std);
-> +                       break;
-> +               }
->         }
->         kfree(doi_def);
->  }
-> --
-> 2.30.2
->
+(Or alternatively, both can go in).
+
+I hope I understand it right.
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--/WwmFnJnmDyWGHa4
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYSzT1wAKCRAw5/Bqldv6
+8tYvAJ9Mqv1udqvt/eQ59aUzDFbILly8+ACgqgjWJPcLX9pQWvIxE2q6Eo9VWX8=
+=xi1K
+-----END PGP SIGNATURE-----
+
+--/WwmFnJnmDyWGHa4--
