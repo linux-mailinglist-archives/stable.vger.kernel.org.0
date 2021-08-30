@@ -2,139 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D06AA3FB1EE
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 09:31:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDA2C3FB1F6
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 09:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233318AbhH3Hci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 03:32:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36314 "EHLO
+        id S233109AbhH3Hdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 03:33:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233109AbhH3Hca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 03:32:30 -0400
-X-Greylist: delayed 496 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 30 Aug 2021 00:31:37 PDT
-Received: from mail.fris.de (mail.fris.de [IPv6:2a01:4f8:c2c:390b::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C50D3C061575;
-        Mon, 30 Aug 2021 00:31:37 -0700 (PDT)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EE655BFBD1;
-        Mon, 30 Aug 2021 09:23:16 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fris.de; s=dkim;
-        t=1630308197; h=from:subject:date:message-id:to:cc:mime-version:
-         content-transfer-encoding; bh=xIhb2Ds6MFMkxjqPtaOtTzzwUnAe7e7xvIAI58hQ+yg=;
-        b=DDivLjq+bOlvSpVO8vG/ADNmBIO0xdUGwkY9az5bEiGv37TgVPXttzxYsCpePhc7ZnW2Gr
-        zqFInNaCeQpvjLUBHLLLyIVgSThGd/kkqqkOnhaKUmE+9R1vYLZgzfpSCmUmTTrB/STx2d
-        yYzeYCXkwWjKhQzYEKyzk0ecEl/RPo+Jqclb9MpjZG4DQQbVxXbP6hkyIewYT99Gt+w+t+
-        mtmw1KLxGMBmL8t2Y7L4En99+ReqziXd2/y1zY0WtlPBtCMpvKXjhsmlp2KxuAg/EuYsfZ
-        oXEi09gXNHFzB32ARN0Ml6rseRgCz+gXtPCCFuOc+9yMRjpz0bCUl6oSCYIydA==
-From:   Frieder Schrempf <frieder@fris.de>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>
-Cc:     Frieder Schrempf <frieder.schrempf@kontron.de>,
-        stable@vger.kernel.org,
-        voice INTER connect GmbH <developer@voiceinterconnect.de>,
-        Alexander Lobakin <alobakin@pm.me>,
-        Felix Fietkau <nbd@nbd.name>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
-        Richard Weinberger <richard@nod.at>,
-        YouChing Lin <ycllin@mxic.com.tw>
-Subject: [RESEND PATCH 5.10.x] mtd: spinand: Fix incorrect parameters for on-die ECC
-Date:   Mon, 30 Aug 2021 09:21:07 +0200
-Message-Id: <20210830072108.13770-1-frieder@fris.de>
+        with ESMTP id S232321AbhH3Hdx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 03:33:53 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5FFBC061575;
+        Mon, 30 Aug 2021 00:32:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=CsUY/25ldc/6yahhooVuAywYxR4PUqEW9297uxOOCDU=; b=NcP4iF5tJ9VEvyLqe7IMu72O+V
+        I3qr7DNGae5hgE7ncyEKZ/b1464fzo8K97qrKFweFipsAWDDe4ort38XqiYLHu23IPSi/+ozsftoV
+        Mey+aSOuwJBBH9RhEQ8ALrDoYyl2KJlQQC4pFs0RvXdGlsll8GF9WHSO4sY+Ynwh0hrzm4LeEKC1m
+        XZSABurZOxkd/4UD4vruvdg0OcvYk47NN2Ksar/znHeairQJoalg4v0osoxgPMZ/9iDFb9SSrtCdg
+        WIhB2PUbk/k9db0/QbIuv8XmCLSLUTr1l/D+y5qWhHC5l8U2DSYEw6cL4XYbbXKVFq9TGH9NXTuhu
+        5zrRLB9g==;
+Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mKbm1-00HSK5-13; Mon, 30 Aug 2021 07:32:10 +0000
+Date:   Mon, 30 Aug 2021 08:32:05 +0100
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Li Zhijian <lizhijian@cn.fujitsu.com>
+Cc:     linux-mm@kvack.org, linux-rdma@vger.kernel.org,
+        akpm@linux-foundation.org, jglisse@redhat.com, jgg@ziepe.ca,
+        hch@infradead.org, yishaih@nvidia.com,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2] mm/hmm: bypass devmap pte when all pfn requested
+ flags are fulfilled
+Message-ID: <YSyJdUirSGv01nTy@infradead.org>
+References: <20210828010441.3702-1-lizhijian@cn.fujitsu.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210828010441.3702-1-lizhijian@cn.fujitsu.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+On Sat, Aug 28, 2021 at 09:04:41AM +0800, Li Zhijian wrote:
+> +	if (!pte_devmap(pte) && pte_special(pte) &&
+> +	    !is_zero_pfn(pte_pfn(pte))) {
 
-The new generic NAND ECC framework stores the configuration and requirements
-in separate places since commit 93ef92f6f422 (" mtd: nand: Use the new generic ECC object ").
-In 5.10.x The SPI NAND layer still uses only the requirements to track the ECC
-properties. This mismatch leads to values of zero being used for ECC strength
-and step_size in the SPI NAND layer wherever nanddev_get_ecc_conf() is used and
-therefore breaks the SPI NAND on-die ECC support in 5.10.x.
-
-By using nanddev_get_ecc_requirements() instead of nanddev_get_ecc_conf() for
-SPI NAND, we make sure that the correct parameters for the detected chip are
-used. In later versions (5.11.x) this is fixed anyway with the implementation
-of the SPI NAND on-die ECC engine.
-
-Cc: stable@vger.kernel.org # 5.10.x
-Reported-by: voice INTER connect GmbH <developer@voiceinterconnect.de>
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
----
-Resending this with an improved subject prefix and because the previous mail
-wasn't delivered to some of the lists.
----
- drivers/mtd/nand/spi/core.c     | 6 +++---
- drivers/mtd/nand/spi/macronix.c | 6 +++---
- drivers/mtd/nand/spi/toshiba.c  | 6 +++---
- 3 files changed, 9 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
-index 558d8a14810b..8794a1f6eacd 100644
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -419,7 +419,7 @@ static int spinand_check_ecc_status(struct spinand_device *spinand, u8 status)
- 		 * fixed, so let's return the maximum possible value so that
- 		 * wear-leveling layers move the data immediately.
- 		 */
--		return nanddev_get_ecc_conf(nand)->strength;
-+		return nanddev_get_ecc_requirements(nand)->strength;
- 
- 	case STATUS_ECC_UNCOR_ERROR:
- 		return -EBADMSG;
-@@ -1090,8 +1090,8 @@ static int spinand_init(struct spinand_device *spinand)
- 	mtd->oobavail = ret;
- 
- 	/* Propagate ECC information to mtd_info */
--	mtd->ecc_strength = nanddev_get_ecc_conf(nand)->strength;
--	mtd->ecc_step_size = nanddev_get_ecc_conf(nand)->step_size;
-+	mtd->ecc_strength = nanddev_get_ecc_requirements(nand)->strength;
-+	mtd->ecc_step_size = nanddev_get_ecc_requirements(nand)->step_size;
- 
- 	return 0;
- 
-diff --git a/drivers/mtd/nand/spi/macronix.c b/drivers/mtd/nand/spi/macronix.c
-index 8e801e4c3a00..cd7a9cacc3fb 100644
---- a/drivers/mtd/nand/spi/macronix.c
-+++ b/drivers/mtd/nand/spi/macronix.c
-@@ -84,11 +84,11 @@ static int mx35lf1ge4ab_ecc_get_status(struct spinand_device *spinand,
- 		 * data around if it's not necessary.
- 		 */
- 		if (mx35lf1ge4ab_get_eccsr(spinand, &eccsr))
--			return nanddev_get_ecc_conf(nand)->strength;
-+			return nanddev_get_ecc_requirements(nand)->strength;
- 
--		if (WARN_ON(eccsr > nanddev_get_ecc_conf(nand)->strength ||
-+		if (WARN_ON(eccsr > nanddev_get_ecc_requirements(nand)->strength ||
- 			    !eccsr))
--			return nanddev_get_ecc_conf(nand)->strength;
-+			return nanddev_get_ecc_requirements(nand)->strength;
- 
- 		return eccsr;
- 
-diff --git a/drivers/mtd/nand/spi/toshiba.c b/drivers/mtd/nand/spi/toshiba.c
-index 21fde2875674..6fe7bd2a94d2 100644
---- a/drivers/mtd/nand/spi/toshiba.c
-+++ b/drivers/mtd/nand/spi/toshiba.c
-@@ -90,12 +90,12 @@ static int tx58cxgxsxraix_ecc_get_status(struct spinand_device *spinand,
- 		 * data around if it's not necessary.
- 		 */
- 		if (spi_mem_exec_op(spinand->spimem, &op))
--			return nanddev_get_ecc_conf(nand)->strength;
-+			return nanddev_get_ecc_requirements(nand)->strength;
- 
- 		mbf >>= 4;
- 
--		if (WARN_ON(mbf > nanddev_get_ecc_conf(nand)->strength || !mbf))
--			return nanddev_get_ecc_conf(nand)->strength;
-+		if (WARN_ON(mbf > nanddev_get_ecc_requirements(nand)->strength || !mbf))
-+			return nanddev_get_ecc_requirements(nand)->strength;
- 
- 		return mbf;
- 
--- 
-2.32.0
-
+Maybe this is a little too superficial and nitpicky, but I find the
+ordering of the checks a little strange.  Why not do the pte_special
+first and then the exlusions from it later?
