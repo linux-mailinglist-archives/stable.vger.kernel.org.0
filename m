@@ -2,96 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B9A83FBA83
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 18:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4702B3FBAA9
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 19:09:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237988AbhH3Q7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 12:59:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55864 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237987AbhH3Q7R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 12:59:17 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 140DAC061575
-        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 09:58:23 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id f9-20020a05600c1549b029025b0f5d8c6cso15203310wmg.4
-        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 09:58:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=bv45KdT4Zm8l8jEqKG5eCu37McR/6YB/mBE0UhGjXlI=;
-        b=Fpm8KZ30UhfR+FyeLGEv+OjD5Sa3ifrD2lU0n/5R+sGkMZlCv+VEYVmA7M6ApLw/SY
-         cKnr6j4SkD3rJEmh6qA5XVbzevsPclsPm1X1nAor1w/Am0huQlkmzGBLudAjsdb/78He
-         byXG9uDUJaGhivyVzjc+GXsEhZd11FE724sbKeHgdCrDMjuVbvA/S7aCXlcxBgI1JlUb
-         bup3LgrEzVUKZoCLdjhT6XZsdLZZ/hEEizFnI73Ee+fODeEr5c+4wkInjqb40X+lY45q
-         ap6gJPLEzBNGzqhy7wowkmbHehJOfu1DqzIXJfAim6a7hcnUG8nWknyMjaZtDVS/k+HY
-         y0kA==
+        id S235853AbhH3RK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 13:10:26 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:26150 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237951AbhH3RKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 13:10:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1630343368;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=C/p1OSWm2CX6t/EcjGNpZmpBR9OMpxp/jIg4r2klJBs=;
+        b=amwbhucI1hY1z6WiV5evLyXN496/PoTStmM94F8Q0pMF5a5vhwaM+d/rhmuYwL6aS79Coy
+        AR/iFzvzOaQCaodXGLfDaaCuW5Vr2MrqfHHdjqwnQ34YWOdR7EuY57YGMwOb9qtrKceLRs
+        t8v3HAqiEXTSjkmzIfCplruhTQpvSwY=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-279-Qkc8YCeSP7GfOisdryWtzw-1; Mon, 30 Aug 2021 13:09:26 -0400
+X-MC-Unique: Qkc8YCeSP7GfOisdryWtzw-1
+Received: by mail-qk1-f197.google.com with SMTP id p23-20020a05620a22f700b003d5ac11ac5cso3703188qki.15
+        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 10:09:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=bv45KdT4Zm8l8jEqKG5eCu37McR/6YB/mBE0UhGjXlI=;
-        b=Wm1DmDaNgwbaUf8GJGOtwy6iTOP9otpeQspFfRiKDig0GhbvLMKhVksHfd+h0oU6PF
-         hEq767+GL/I5YbMAhoiJOPC9Ur8hDPLsIV/iBu2Kg5g4JgB2fuf2VzydvnXgY7r9CBU4
-         vG6svu7f3f0hGEiHGQAFUs8yECvNpXQ7vG1bEoeQOpY9Fok/hqwcRW9MQ1E/m6QbsxbU
-         bx3hBDRCJacRqEtNIx2YhNmqXOFnpJld1PPEns9PffQQofXr2hYGWkNNNWOKleD1zTI9
-         qMGyV2ZLc+Xtg8TQc8JkN8liw6CIjRWRaAQNqfS0nHkrc2qaa2SGwAKrpc30ZtLxfJiD
-         3UFw==
-X-Gm-Message-State: AOAM5315tVaAsW8e17JfJtHk2pbiar1IjNXY9kfvdE2opiW5F/49JyCr
-        SR9bkHBoKo2hMHNTTHcp+Kw9Gg==
-X-Google-Smtp-Source: ABdhPJwOGImZ9sAtMUAlxXKrLn5YLDr9McehM+oesLu7xNEf2x5nMMhhY0satKodtzgTwC83ZOeZOw==
-X-Received: by 2002:a1c:23d2:: with SMTP id j201mr22822039wmj.163.1630342701525;
-        Mon, 30 Aug 2021 09:58:21 -0700 (PDT)
-Received: from localhost.localdomain ([2a01:e0a:82c:5f0:8009:4e09:ca3:8f6])
-        by smtp.gmail.com with ESMTPSA id r129sm72256wmr.7.2021.08.30.09.58.20
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 30 Aug 2021 09:58:21 -0700 (PDT)
-From:   Loic Poulain <loic.poulain@linaro.org>
-To:     kvalo@codeaurora.org
-Cc:     linux-wireless@vger.kernel.org, bryan.odonoghue@linaro.org,
-        Loic Poulain <loic.poulain@linaro.org>, stable@vger.kernel.org
-Subject: [PATCH] Revert "wcn36xx: Enable firmware link monitoring"
-Date:   Mon, 30 Aug 2021 19:09:20 +0200
-Message-Id: <1630343360-5942-1-git-send-email-loic.poulain@linaro.org>
-X-Mailer: git-send-email 2.7.4
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:organization:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=C/p1OSWm2CX6t/EcjGNpZmpBR9OMpxp/jIg4r2klJBs=;
+        b=Zd0k7WyTW1O6/Y22QRZND1ZaFEJx9ZkKWpJxOp+3UI6kvet37PugnW4DLKLTAC1Kxc
+         xlLBUCKQ19Ta5J/AoCRGWncXdXj3+EUvnlTisANwPx+H7JFvOCkXxp1V97Qp+mmnxzf2
+         jBTXcsxpMWcKSRsfy2aEuHRRNlN+bzYK29Y2aEEHvzwECgTB/mNylSOVPvZ42RxYs31+
+         wihQsHCJWeOxnSBFdD+IADNfQPhYVmG25ps6DyAoPaEFCERVufbicS8xjrLej2JPHln2
+         GM7DQXsz6xX0DMr57MAvghPqjrMuq7d2baahhxxa5vDJYa5Th/lrQmKvDbTW4LnY/sYw
+         yf5g==
+X-Gm-Message-State: AOAM532qJRbYUk3mjebbdjusG+8LYiDfBOvefagpLsDwmyTx0FeEddod
+        uOeU6LlrJs6iO/YFpXM1wBxfy6KnYESQp8cDhmvmrNHWgXmT58eCjV84w5gyJOfzdYqe/BEkYGp
+        Kgrb9MI/H/pBbC8Gi
+X-Received: by 2002:a37:8f04:: with SMTP id r4mr23370422qkd.351.1630343366109;
+        Mon, 30 Aug 2021 10:09:26 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyhvH3r1WkYkyhjkLLonaz0tUVij62Is1SewKkxp8wDoeh+XEGYZJb1rr+7K3QO3YKZJeC6uQ==
+X-Received: by 2002:a37:8f04:: with SMTP id r4mr23370410qkd.351.1630343365881;
+        Mon, 30 Aug 2021 10:09:25 -0700 (PDT)
+Received: from [192.168.8.104] (pool-108-49-102-102.bstnma.fios.verizon.net. [108.49.102.102])
+        by smtp.gmail.com with ESMTPSA id m68sm12047562qkb.105.2021.08.30.10.09.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Aug 2021 10:09:25 -0700 (PDT)
+Message-ID: <0777c34ddbd22ae247d293cf013cb763947b0b50.camel@redhat.com>
+Subject: Re: [PATCH AUTOSEL 5.13 20/26] drm/nouveau: recognise GA107
+From:   Lyude Paul <lyude@redhat.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ben Skeggs <bskeggs@redhat.com>,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Date:   Mon, 30 Aug 2021 13:09:24 -0400
+In-Reply-To: <c0e64fb9332b03c920de05be4c4c27f916ff6534.camel@redhat.com>
+References: <20210824005356.630888-1-sashal@kernel.org>
+         <20210824005356.630888-20-sashal@kernel.org>
+         <6607dde4207eb7ad1666b131c86f60a57a2a193c.camel@redhat.com>
+         <YSzMR4FnrnT5gjbe@sashalap>
+         <c0e64fb9332b03c920de05be4c4c27f916ff6534.camel@redhat.com>
+Organization: Red Hat
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.40.4 (3.40.4-1.fc34) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 8def9ec46a5fafc0abcf34489a9e8a787bca984d.
+oops-except for "drm/nouveau: block a bunch of classes from userspace" of
+course. the rest are fine though
 
-The firmware keep-alive does not cause any event in case of error
-such as non acked. It's just a basic keep alive to prevent the AP
-to kick-off the station due to inactivity. So let mac80211 submit
-its own monitoring packet (probe/null) and disconnect on timeout.
+On Mon, 2021-08-30 at 13:08 -0400, Lyude Paul wrote:
+> ahhh-ok, that makes these patchs make a bit more sense then. If Ben doesn't
+> have any objections I'd say these are fine to backport then
+> 
+> On Mon, 2021-08-30 at 08:17 -0400, Sasha Levin wrote:
+> > On Tue, Aug 24, 2021 at 01:08:28PM -0400, Lyude Paul wrote:
+> > > This is more hardware enablement, I'm not sure this should be going into
+> > > stable either. Ben?
+> > 
+> > We take this sort of hardware enablement patches (where the platform
+> > code is already there, and we just add quirks/ids/etc.
+> > 
+> 
 
-Note: We want to keep firmware keep alive to prevent kick-off
-when host is in suspend-to-mem (no mac80211 monitor packet).
-Ideally fw keep alive should be enabled in suspend path and disabled
-in resume path to prevent having both firmware and mac80211 submitting
-periodic null packets.
-
-This fixes non detected AP leaving issues in active mode (nothing
-monitors beacon or connection).
-
-Cc: stable@vger.kernel.org
-Fixes: 8def9ec46a5f ("wcn36xx: Enable firmware link monitoring")
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
----
- drivers/net/wireless/ath/wcn36xx/main.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
-index 216bc34..128d25d 100644
---- a/drivers/net/wireless/ath/wcn36xx/main.c
-+++ b/drivers/net/wireless/ath/wcn36xx/main.c
-@@ -1362,7 +1362,6 @@ static int wcn36xx_init_ieee80211(struct wcn36xx *wcn)
- 	ieee80211_hw_set(wcn->hw, HAS_RATE_CONTROL);
- 	ieee80211_hw_set(wcn->hw, SINGLE_SCAN_ON_ALL_BANDS);
- 	ieee80211_hw_set(wcn->hw, REPORTS_TX_ACK_STATUS);
--	ieee80211_hw_set(wcn->hw, CONNECTION_MONITOR);
- 
- 	wcn->hw->wiphy->interface_modes = BIT(NL80211_IFTYPE_STATION) |
- 		BIT(NL80211_IFTYPE_AP) |
 -- 
-2.7.4
+Cheers,
+ Lyude Paul (she/her)
+ Software Engineer at Red Hat
 
