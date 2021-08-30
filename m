@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08ABD3FB542
+	by mail.lfdr.de (Postfix) with ESMTP id 5AC823FB543
 	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:08:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237255AbhH3MCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:02:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48024 "EHLO mail.kernel.org"
+        id S237209AbhH3MCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 08:02:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237037AbhH3MBu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 30 Aug 2021 08:01:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECE806115B;
-        Mon, 30 Aug 2021 12:00:55 +0000 (UTC)
+        id S237050AbhH3MBv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 30 Aug 2021 08:01:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54FBB6023F;
+        Mon, 30 Aug 2021 12:00:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630324856;
-        bh=FFHLL3awDRe9A6BYmS2lonDjSAQGE4YHpgoABqyor48=;
+        s=k20201202; t=1630324858;
+        bh=iDRoLL5VqnlS/aZYHzep0NwRLh4BbPXHYpr+LxlY+L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uzY1+36eIA9NP+1J0f+fcWGVhHeR3roTid59KutHdUSqrxQInYfr41oiIxDdWiJwX
-         RZIQLRw/5EVZ5tq6IphOsR96JHWhhMDL/Ow+Hx3MjeM8nFBfV1zueoke77BzTZAdSX
-         1qCkMrmyOImK9koQYSVzOscSxX9HRYw5NOwedPPlTyXHZEMhxpWRC4v23VEEFc06SZ
-         Kc2aSiqvoRpjhHkhXCRQ4SuLaFCMbU8Po8BucHxFdNM5SRagVdHNyZf4tQzMvY1lzV
-         OzhbU0ttRopSecz1jcSYPRV3zF0q9Hw9FzLjtFnkbrmOcXkiFVDzUO+SfSctkjzAB0
-         yUqO61dZivIzQ==
+        b=hATqY/nEAexO6/e1aBJbexndF4vF4kzH//mqQwcLWFLJEmolUmspsCckBt2bBYYJD
+         0C65do1UoEwUnQAzXa4nGU7eKL0V6hJr49BYDK3227MToEFzGK0Tcku3ffdLzkzc1n
+         MIgrUYTOHbxK2D4Y1clqIEJ4K10e93tPV3RlEAr1rNLmqJb4PjpU58OV4uLlw9rbUZ
+         uVmOVMX3HN8VC9adoph2kaFd8GhJ9zkA5lm8SLt015XUfGUZeu1aVWUNSZ/sAH1rKn
+         LjQVfiZIvu+c64xKgKMKDUKGOmAzurD3VBKVb8z1YeMvXwSx7SvkFFuJ6h6bgi6LUG
+         Hskm/ueDd0rQg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shai Malin <smalin@marvell.com>,
-        Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Kees Cook <keescook@chromium.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 2/5] qede: Fix memset corruption
-Date:   Mon, 30 Aug 2021 08:00:50 -0400
-Message-Id: <20210830120053.1018205-2-sashal@kernel.org>
+Cc:     Kim Phillips <kim.phillips@amd.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 3/5] perf/x86/amd/ibs: Work around erratum #1197
+Date:   Mon, 30 Aug 2021 08:00:51 -0400
+Message-Id: <20210830120053.1018205-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210830120053.1018205-1-sashal@kernel.org>
 References: <20210830120053.1018205-1-sashal@kernel.org>
@@ -45,46 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shai Malin <smalin@marvell.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit e543468869e2532f5d7926e8f417782b48eca3dc ]
+[ Upstream commit 26db2e0c51fe83e1dd852c1321407835b481806e ]
 
-Thanks to Kees Cook who detected the problem of memset that starting
-from not the first member, but sized for the whole struct.
-The better change will be to remove the redundant memset and to clear
-only the msix_cnt member.
+Erratum #1197 "IBS (Instruction Based Sampling) Register State May be
+Incorrect After Restore From CC6" is published in a document:
 
-Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Reported-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  "Revision Guide for AMD Family 19h Models 00h-0Fh Processors" 56683 Rev. 1.04 July 2021
+
+  https://bugzilla.kernel.org/show_bug.cgi?id=206537
+
+Implement the erratum's suggested workaround and ignore IBS samples if
+MSRC001_1031 == 0.
+
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210817221048.88063-3-kim.phillips@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/amd/ibs.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
-index 9b1920b58594..d21a73bc4cde 100644
---- a/drivers/net/ethernet/qlogic/qede/qede_main.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
-@@ -3145,6 +3145,7 @@ static void qede_sync_free_irqs(struct qede_dev *edev)
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index f6e57bebbc6b..5c6aad14cdd9 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -89,6 +89,7 @@ struct perf_ibs {
+ 	unsigned long			offset_mask[1];
+ 	int				offset_max;
+ 	unsigned int			fetch_count_reset_broken : 1;
++	unsigned int			fetch_ignore_if_zero_rip : 1;
+ 	struct cpu_perf_ibs __percpu	*pcpu;
+ 
+ 	struct attribute		**format_attrs;
+@@ -673,6 +674,10 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
+ 	if (check_rip && (ibs_data.regs[2] & IBS_RIP_INVALID)) {
+ 		regs.flags &= ~PERF_EFLAGS_EXACT;
+ 	} else {
++		/* Workaround for erratum #1197 */
++		if (perf_ibs->fetch_ignore_if_zero_rip && !(ibs_data.regs[1]))
++			goto out;
++
+ 		set_linear_ip(&regs, ibs_data.regs[1]);
+ 		regs.flags |= PERF_EFLAGS_EXACT;
  	}
+@@ -766,6 +771,9 @@ static __init void perf_event_ibs_init(void)
+ 	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
+ 		perf_ibs_fetch.fetch_count_reset_broken = 1;
  
- 	edev->int_info.used_cnt = 0;
-+	edev->int_info.msix_cnt = 0;
- }
++	if (boot_cpu_data.x86 == 0x19 && boot_cpu_data.x86_model < 0x10)
++		perf_ibs_fetch.fetch_ignore_if_zero_rip = 1;
++
+ 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
  
- static int qede_req_msix_irqs(struct qede_dev *edev)
-@@ -3644,7 +3645,6 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode)
- 
- err4:
- 	qede_sync_free_irqs(edev);
--	memset(&edev->int_info.msix_cnt, 0, sizeof(struct qed_int_info));
- err3:
- 	qede_napi_disable_remove(edev);
- err2:
+ 	if (ibs_caps & IBS_CAPS_OPCNT) {
 -- 
 2.30.2
 
