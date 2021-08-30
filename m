@@ -2,96 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F258E3FB63D
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC0B93FB641
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 14:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233703AbhH3Mlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 08:41:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51390 "EHLO
+        id S233505AbhH3Mna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 08:43:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232020AbhH3Mlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 08:41:44 -0400
-Received: from mail-qv1-xf35.google.com (mail-qv1-xf35.google.com [IPv6:2607:f8b0:4864:20::f35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 501ACC06175F
-        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 05:40:51 -0700 (PDT)
-Received: by mail-qv1-xf35.google.com with SMTP id g11so8172831qvd.2
-        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 05:40:51 -0700 (PDT)
+        with ESMTP id S229656AbhH3Mn3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 08:43:29 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C15F8C061575;
+        Mon, 30 Aug 2021 05:42:35 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id n27so30848853eja.5;
+        Mon, 30 Aug 2021 05:42:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=T0GjF5w0oMuRtLInC2hBs3sq1EKkXCp946NJQvmrNNA=;
-        b=YJz06bSaVp5ajqLNrj0z3k7B2zNq9W3juYAjTRacLX1OTnWl+Y2TCuZRXrDpNev5ES
-         LI9vF8Ek/BlSVqhQxxZNTzpA5FUjX/13eTlFBMEzsXx19XkdMbZPqCBpO+RkihfEnj0l
-         J5p6+wZXhw44KfNzMBWBNzDL/r8IzJMq1PUz9AGeK1i6zpPFRaQj7/uzkd9BXt9TCJfc
-         W42wzWo2iZS4pWlUgqlA7jUlEn0stzTigVCRnRBofn3VEjYosxE04T10wIyEgIow15e4
-         4JqWV2i7dl5xXX5bp87lKznKwdqX/+WO93wXw52VHRAZmCWLEEbhZctMAempuTEerRIF
-         bm2A==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=/y2g9rn9wt5yjW/SBXP8IWmwro5UmCGX/CodZW4eBgc=;
+        b=Mr2kTkdxRbciqEVlRnoacRmau33ZNX+QAN06nGpXy8NgHRjI1as+Ygh4MtDznwyT09
+         No+0Ed5y1sQMIZJot7mDMO2Tm2QsAh+ZhNzls9dqp6p/nIRwyDMfMwrTzkQlnopxRfaC
+         GkCNQhySbi57TfU0YsxQgYPGCD5E3KF55++w/u3NxGfeHy0TU81QCmgZ71nb8MODj2lb
+         ReerPD83Z5pidzKRayYD3VYxq0c0Ymee3iknIihuaKEeACo7BVIhnM8780S5/gxkTKE2
+         QkgOXMoDAbAa/N6nczGr6m+26Ox01J+hLhv+FnHaIYK+jw/IyJLw4o0A68QJE5jQsstK
+         uhHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=T0GjF5w0oMuRtLInC2hBs3sq1EKkXCp946NJQvmrNNA=;
-        b=KMXGWFPNcwh3fKBsaSi2jI0UR+aAe8aHgKI3nyavI/W7lqdJohIOlhjynRuGWaQRS2
-         f74wBvVuqXu8HMcoNmkUtLrN0nQGwixUordECgEHTVx7UGMu0KYCJZiIHstrj864ffI6
-         yqlmR9obZUSy7lwFSs81RCZMNTAK9S5RefB9cRP/jvdAdg47vRaDzbJRDJdm8tJ+1E3Y
-         47psHp4dwA4Jl61Gyw/4f5fJ8zcbRWN1kHXCKKiGhQPzSahX4UcxkJSOH8aCW7Sqh2oG
-         8KAE+tMDOWERYQ4NzrD6hi+u5XUzwrCvCh6xXdpMTift0eklQkaG5p1lZFPWSR1tast7
-         /IDA==
-X-Gm-Message-State: AOAM533h1HB9fp7yQFv1w1fwn6dAR2FV/1u2LUZ9bigXe/lpiI6ytbbe
-        nLdPal1hqKyWnJyIMd6gCMWiOwB3WbpFcw==
-X-Google-Smtp-Source: ABdhPJyaf6VQxCJ00UbLfwPFp16U/tNv3663ulooWB0/urnMOTvjl6SDaLLUsNSISMLXKOIbvLqaHA==
-X-Received: by 2002:a0c:e70f:: with SMTP id d15mr22462454qvn.47.1630327250483;
-        Mon, 30 Aug 2021 05:40:50 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-129.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.129])
-        by smtp.gmail.com with ESMTPSA id c10sm8262652qtb.20.2021.08.30.05.40.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Aug 2021 05:40:49 -0700 (PDT)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1mKgan-0070tA-0m; Mon, 30 Aug 2021 09:40:49 -0300
-Date:   Mon, 30 Aug 2021 09:40:49 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Li Zhijian <lizhijian@cn.fujitsu.com>, akpm@linux-foundation.org
-Cc:     linux-mm@kvack.org, linux-rdma@vger.kernel.org, jglisse@redhat.com,
-        hch@infradead.org, yishaih@nvidia.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v3] mm/hmm: bypass devmap pte when all pfn requested
- flags are fulfilled
-Message-ID: <20210830124049.GN1200268@ziepe.ca>
-References: <20210830094232.203029-1-lizhijian@cn.fujitsu.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=/y2g9rn9wt5yjW/SBXP8IWmwro5UmCGX/CodZW4eBgc=;
+        b=pwqFLKdUScoEWxGFb9bBDX+UgYwpAcmyRzDorY5Nxyag9jTKOaUWtmA/+1nMLyRX2U
+         ScWgpDfCYPDDeRYeCqcnnGmJArHmeMP1KwZ5dj0DTIagniDEsGlqMtURTa6G0uILcbqU
+         WEbrhMrYt7ZXbR82eb3APGQYyxDkLCm5/kJ5pfn3z8k5hakOwX7ew8+aEXcgTqDZvQgP
+         kHrUp5UTL1ihBJ0brKLhyy8aZuccEMvMSUpC37j3H06rZYzGk2qWLUE6S/WyeftrkbxH
+         spla7IbfmlFlnqe5KV6EnIK+KRrk6oVrREH4NArIvBZMDSkOU49ulT4L0JogJU5hHQlg
+         4Frg==
+X-Gm-Message-State: AOAM5332qgILl4Vcgy8Klh3YtEolLhczjh2RCa+KluVEaFnrL837kKee
+        x2MmStkqN8RDhh7HzsalLfgs/aHQ71cfimOWQ4Y=
+X-Google-Smtp-Source: ABdhPJxLsU1VpQW2C5CLwFCRKDZxkKyXVnbDoc74eSqeDsOw9goTMJEktW3Hwcg/qINw7EDeyKOq6f2LeB5ngfp/vUQ=
+X-Received: by 2002:a17:906:a3c3:: with SMTP id ca3mr24873332ejb.337.1630327354264;
+ Mon, 30 Aug 2021 05:42:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210830094232.203029-1-lizhijian@cn.fujitsu.com>
+References: <20210830115942.1017300-1-sashal@kernel.org> <20210830115942.1017300-13-sashal@kernel.org>
+In-Reply-To: <20210830115942.1017300-13-sashal@kernel.org>
+From:   Dongliang Mu <mudongliangabcd@gmail.com>
+Date:   Mon, 30 Aug 2021 20:42:08 +0800
+Message-ID: <CAD-N9QUXXjEMtdDniuqcNSAtaOhKtHE=hLMchtCJgbvxQXdABQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.13 13/14] net: fix NULL pointer reference in cipso_v4_doi_free
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?B?546L6LSH?= <yun.wang@linux.alibaba.com>,
+        Abaci <abaci@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
+        linux-security-module@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 30, 2021 at 05:42:32PM +0800, Li Zhijian wrote:
-> Previously, we noticed the one rpma example was failed[1] since 36f30e486d,
-> where it will use ODP feature to do RDMA WRITE between fsdax files.
-> 
-> After digging into the code, we found hmm_vma_handle_pte() will still
-> return EFAULT even though all the its requesting flags has been
-> fulfilled. That's because a DAX page will be marked as
-> (_PAGE_SPECIAL | PAGE_DEVMAP) by pte_mkdevmap().
-> 
-> [1]: https://github.com/pmem/rpma/issues/1142
-> 
-> CC: stable@vger.kernel.org
-> Fixes: 405506274922 ("mm/hmm: add missing call to hmm_pte_need_fault in HMM_PFN_SPECIAL handling")
-> Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
-> 
+On Mon, Aug 30, 2021 at 8:01 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: =E7=8E=8B=E8=B4=87 <yun.wang@linux.alibaba.com>
+>
+> [ Upstream commit 733c99ee8be9a1410287cdbb943887365e83b2d6 ]
+>
+
+Hi Sasha,
+
+Michael Wang has sent a v2 patch [1] for this bug and it is merged
+into netdev/net-next.git. However, the v1 patch is already in the
+upstream tree.
+
+How do you guys handle such a issue?
+
+[1] https://lkml.org/lkml/2021/8/30/229
+
+> In netlbl_cipsov4_add_std() when 'doi_def->map.std' alloc
+> failed, we sometime observe panic:
+>
+>   BUG: kernel NULL pointer dereference, address:
+>   ...
+>   RIP: 0010:cipso_v4_doi_free+0x3a/0x80
+>   ...
+>   Call Trace:
+>    netlbl_cipsov4_add_std+0xf4/0x8c0
+>    netlbl_cipsov4_add+0x13f/0x1b0
+>    genl_family_rcv_msg_doit.isra.15+0x132/0x170
+>    genl_rcv_msg+0x125/0x240
+>
+> This is because in cipso_v4_doi_free() there is no check
+> on 'doi_def->map.std' when 'doi_def->type' equal 1, which
+> is possibe, since netlbl_cipsov4_add_std() haven't initialize
+> it before alloc 'doi_def->map.std'.
+>
+> This patch just add the check to prevent panic happen for similar
+> cases.
+>
+> Reported-by: Abaci <abaci@linux.alibaba.com>
+> Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
-> V3: adjust the checking order
-> ---
->  mm/hmm.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-
-Andrew, can you grab this please?
-
-Thanks,
-Jason
+>  net/ipv4/cipso_ipv4.c | 18 ++++++++++--------
+>  1 file changed, 10 insertions(+), 8 deletions(-)
+>
+> diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+> index e0480c6cebaa..16bbd62db791 100644
+> --- a/net/ipv4/cipso_ipv4.c
+> +++ b/net/ipv4/cipso_ipv4.c
+> @@ -466,14 +466,16 @@ void cipso_v4_doi_free(struct cipso_v4_doi *doi_def=
+)
+>         if (!doi_def)
+>                 return;
+>
+> -       switch (doi_def->type) {
+> -       case CIPSO_V4_MAP_TRANS:
+> -               kfree(doi_def->map.std->lvl.cipso);
+> -               kfree(doi_def->map.std->lvl.local);
+> -               kfree(doi_def->map.std->cat.cipso);
+> -               kfree(doi_def->map.std->cat.local);
+> -               kfree(doi_def->map.std);
+> -               break;
+> +       if (doi_def->map.std) {
+> +               switch (doi_def->type) {
+> +               case CIPSO_V4_MAP_TRANS:
+> +                       kfree(doi_def->map.std->lvl.cipso);
+> +                       kfree(doi_def->map.std->lvl.local);
+> +                       kfree(doi_def->map.std->cat.cipso);
+> +                       kfree(doi_def->map.std->cat.local);
+> +                       kfree(doi_def->map.std);
+> +                       break;
+> +               }
+>         }
+>         kfree(doi_def);
+>  }
+> --
+> 2.30.2
+>
