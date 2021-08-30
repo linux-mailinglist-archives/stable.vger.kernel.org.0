@@ -2,111 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 646973FBC92
-	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 20:38:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 834C93FBDA1
+	for <lists+stable@lfdr.de>; Mon, 30 Aug 2021 22:51:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229982AbhH3Sjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Aug 2021 14:39:35 -0400
-Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:36162
-        "EHLO smtp-relay-canonical-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229738AbhH3Sje (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 14:39:34 -0400
-Received: from mussarela (201-69-234-220.dial-up.telesp.net.br [201.69.234.220])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id 093D340178;
-        Mon, 30 Aug 2021 18:38:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1630348719;
-        bh=dP2bWFnr904Q3phxdSJFO6HdgfMSWA65sEUBMQrG98c=;
-        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-         Content-Type:In-Reply-To;
-        b=tEEdtAHGeXWPANZY9GSNFafDKT6z1GKu2nWOlfBIS5uxclCTIR+OK6BAg4Or0lddr
-         7eM/MOYbnRMI5cy14s8OTfzI3xxyCdrpWicFgGEmp7NF6tDKlRXWzrSj9R525VyKXY
-         HWGPF9TAWc7iCr/1oDyPbxDz9t0FApF31/RyuLlsG7z8NijAQBbfUa5pwF/hIsltuK
-         dCHv/HjFi6HCXmZgfdKFZPxT7KpfIKDHbyW/XA0MLwQnFn6HwuJhPQiLtu5SF28/gZ
-         hvxsKGH9U8JRSo6Jkhe7JH+B0fo94WfYDbFxmE+l73jzJu78L+rEdssvswM0inoqzc
-         6xPnmnMin+MHg==
-Date:   Mon, 30 Aug 2021 15:38:34 -0300
-From:   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     stable@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>,
-        daniel@iogearbox.net, john.fastabend@gmail.com, ast@kernel.org
-Subject: Re: CVE-2021-3600 aka bpf: Fix 32 bit src register truncation on
- div/mod
-Message-ID: <YS0lqmZg5Lq0scVv@mussarela>
-References: <20210826102337.GA7362@duo.ucw.cz>
+        id S235412AbhH3UwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Aug 2021 16:52:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53118 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235334AbhH3UwQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Aug 2021 16:52:16 -0400
+Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [IPv6:2a0a:51c0:0:12e:520::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E0E8C061575;
+        Mon, 30 Aug 2021 13:51:22 -0700 (PDT)
+Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
+        (envelope-from <fw@strlen.de>)
+        id 1mKoFU-0006gk-Ck; Mon, 30 Aug 2021 22:51:20 +0200
+Date:   Mon, 30 Aug 2021 22:51:20 +0200
+From:   Florian Westphal <fw@strlen.de>
+To:     Yuri Lipnesh <yuri.lipnesh@gmail.com>
+Cc:     Florian Westphal <fw@strlen.de>, netfilter-devel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: System crash in netfilter  5.10.25
+Message-ID: <20210830205120.GC13818@breakpoint.cc>
+References: <B37EABB8-355F-4A05-9BF3-1119D1E0470D@gmail.com>
+ <20201130195857.GM2730@breakpoint.cc>
+ <5BABE543-DFBB-42C0-8CA8-74C80C5F4CC0@gmail.com>
+ <E6F18819-9148-4538-B58C-5189F8641E22@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210826102337.GA7362@duo.ucw.cz>
+In-Reply-To: <E6F18819-9148-4538-B58C-5189F8641E22@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Aug 26, 2021 at 12:23:37PM +0200, Pavel Machek wrote:
-> Hi!
+Yuri Lipnesh <yuri.lipnesh@gmail.com> wrote:
+> Hello Florian,
 > 
-> As far as I can tell, CVE-2021-3600 is still a problem for 4.14 and
-> 4.19.
+> I need assistance on this one. Our customer system 5.10.25-flatcar crashed with following trace
 > 
-> Unfortunately, those kernels lack BPF_JMP32 support, and that support
-> is too big and intrusive to backport.
-> 
-> So I tried to come up with solution without JMP32 support... only to
-> end up with not seeing the bug in the affected code.
-> 
-> Changelog says:
-> 
->     bpf: Fix 32 bit src register truncation on div/mod
->     
->     While reviewing a different fix, John and I noticed an oddity in one of the
->     BPF program dumps that stood out, for example:
->     
->       # bpftool p d x i 13
->        0: (b7) r0 = 808464450
->        1: (b4) w4 = 808464432
->        2: (bc) w0 = w0
->        3: (15) if r0 == 0x0 goto pc+1
->        4: (9c) w4 %= w0
->       [...]
->     
->     In line 2 we noticed that the mov32 would 32 bit truncate the original src
->     register for the div/mod operation. While for the two operations the dst
->     register is typically marked unknown e.g. from adjust_scalar_min_max_vals()
->     the src register is not, and thus verifier keeps tracking original bounds,
->     simplified:
-> 
-> So this explains "mov32 w0, w0" is problematic, and fixes the bug by
-> replacing it with jmp32. Unfortunately, I can't do that in 4.19; plus
-> I don't really see how the bug is solved -- we avoided adding mov32
-> sequence that triggers the problem, but the problematic sequence could
-> still be produced by the userspace, no?
-> 
-> Does adjust_scalar_min_max_vals still need fixing?
-> 
-> Do you have any hints how to solve this in 4.19?
-> 
-> Best regards,
-> 								Pavel
-> -- 
-> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+> Aug 26 10:26:32.686733 amc-k8sdevsl01-worker-lx13 kernel: ------------[ cut here ]------------
+> Aug 26 10:26:32.686855 amc-k8sdevsl01-worker-lx13 kernel: refcount_t: underflow; use-after-free.
+> Aug 26 10:26:32.686877 amc-k8sdevsl01-worker-lx13 kernel: WARNING: CPU: 4 PID: 2422635 at lib/refcount.c:28 refcount_warn_saturat>
+> Aug 26 10:26:32.686930 amc-k8sdevsl01-worker-lx13 kernel: Modules linked in: binfmt_misc nfnetlink_queue xt_NFQUEUE xt_multiport >
+> Aug 26 10:26:32.689906 amc-k8sdevsl01-worker-lx13 kernel:  dm_region_hash dm_log dm_mod
+> Aug 26 10:26:32.690398 amc-k8sdevsl01-worker-lx13 kernel: CPU: 4 PID: 2422635 Comm: worker-1 Not tainted 5.10.25-flatcar #1
+> Aug 26 10:26:32.690526 amc-k8sdevsl01-worker-lx13 kernel: Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Refer>
+> Aug 26 10:26:32.691653 amc-k8sdevsl01-worker-lx13 kernel: RIP: 0010:refcount_warn_saturate+0xa6/0xf0
+> Aug 26 10:26:32.691720 amc-k8sdevsl01-worker-lx13 kernel: Code: 05 3c 1d 40 01 01 e8 81 46 38 00 0f 0b c3 80 3d 2a 1d 40 01 00 75>
+> Aug 26 10:26:32.691747 amc-k8sdevsl01-worker-lx13 kernel: RSP: 0018:ffffa3a0c3627938 EFLAGS: 00010282
+> Aug 26 10:26:32.692385 amc-k8sdevsl01-worker-lx13 kernel: RAX: 0000000000000000 RBX: ffff8c011b14fa00 RCX: 0000000000000027
+> Aug 26 10:26:32.692422 amc-k8sdevsl01-worker-lx13 kernel: RDX: 0000000000000027 RSI: 00000000ffffdfff RDI: ffff8c045d918b08
+> Aug 26 10:26:32.692446 amc-k8sdevsl01-worker-lx13 kernel: RBP: ffff8c011b14fa00 R08: ffff8c045d918b00 R09: ffffa3a0c3627750
+> Aug 26 10:26:32.693526 amc-k8sdevsl01-worker-lx13 kernel: R10: 0000000000000001 R11: 0000000000000001 R12: ffff8c011b14fa30
+> Aug 26 10:26:32.693584 amc-k8sdevsl01-worker-lx13 kernel: R13: 0000000000000002 R14: ffff8bfda3b43180 R15: ffff8c00cddb3a00
+> Aug 26 10:26:32.693615 amc-k8sdevsl01-worker-lx13 kernel: FS:  00007ff7a2331b38(0000) GS:ffff8c045d900000(0000) knlGS:00000000000>
+> Aug 26 10:26:32.693649 amc-k8sdevsl01-worker-lx13 kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> Aug 26 10:26:32.694304 amc-k8sdevsl01-worker-lx13 kernel: CR2: 00007ff79ac17a28 CR3: 00000001ee34e003 CR4: 00000000007706e0
+> Aug 26 10:26:32.694334 amc-k8sdevsl01-worker-lx13 kernel: PKRU: 55555554
+> Aug 26 10:26:32.694351 amc-k8sdevsl01-worker-lx13 kernel: Call Trace:
+> Aug 26 10:26:32.694370 amc-k8sdevsl01-worker-lx13 kernel:  nf_queue_entry_release_refs+0x82/0xa0
 
-Hi, Pavel.
+Is that sock_put()?
 
-I have just sent the fixes for 4.14. I sent fixes for 4.19 last Friday.
+If so, I don't understand this backtrace.  When refcount_t debugging is
+on, sock_hold() would also generate a backtrace in case we try to
+incrase refcount on a socket that already has a zero refcount.
 
-The problem here is that the verifier assumes the source register has a given
-value, but the fixups change that value to something else when it is truncated.
-
-The fixups run after the verifier, so a similar sequence produced by userspace
-will be correctly verified, so no fixes are necessary on adjust_scalar_min_max
-for this specific issue. The fixed-up code is not verified again.
-
-The challenge in providing those fixes to 4.14 and 4.19 is the absence of JMP32
-in those kernels. So, AX was taken as a temporary, so it would still work on
-JITs.
-
-Cascardo.
+So, looks like something else decremented sk refcount while packet
+was queued.  No idea how that could happen.
