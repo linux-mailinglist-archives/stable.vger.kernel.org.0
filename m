@@ -2,186 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B58723FC310
-	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 09:10:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D4363FC3AB
+	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 10:22:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238065AbhHaHC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Aug 2021 03:02:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48594 "EHLO
+        id S239937AbhHaH0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Aug 2021 03:26:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232209AbhHaHC0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 03:02:26 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3E98C061575
-        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 00:01:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=FClrlUF0Hb78xPiG0FP1E09AZCzNPt0C4Jjigzgw+aw=; b=JITqTsKr2olMYKKZcTMOjMJmzo
-        CxcCqdloaYtRQDlLvs3URl/DyD1WkNxHNGHJ6QLYs2SYXnIGAJJGUiVa3jwNf8w/A7J5t2UGZo8ru
-        4fBx17y8EvKr2TR4d39hkitudkmIKUGzyFn5Jthccjh2ZmBw06YUdVzAdJci05kXYWJIxz4luyyrp
-        xkaoYeZnCwvUUVppZRW5zLjLpXfNxep0/V+dNItB9ue/LnyYWIkbF0XiJnUe6ZHogGQ+qirZmB1qK
-        FxMPq4gKcR6TNDJAPwkeOyvnKr4tC9KrvBhzRft5tBQOiPel64D5ZUzzUdnNYsPbfNWaINAAiIVUO
-        Zm9mZlhA==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mKxlO-000wJS-Sm; Tue, 31 Aug 2021 07:01:05 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 0941D3001F6;
-        Tue, 31 Aug 2021 09:00:53 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id DB6242028F032; Tue, 31 Aug 2021 09:00:52 +0200 (CEST)
-Date:   Tue, 31 Aug 2021 09:00:52 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Patrick Schaaf <bof@bof.de>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev,
-        anubis@igorloncarevic.com
-Subject: Re: stable 5.4.135 REGRESSION / once-a-day WARNING: at
- kthread_is_per_cpu+0x1c/0x20
-Message-ID: <YS3TpF8B5TA2mGFr@hirez.programming.kicks-ass.net>
-References: <61018d93.xsvXcO161PFLQFCX%bof@bof.de>
- <YQGXyiMb1IntqacG@kroah.com>
- <CAJ26g5S2tbDhRbWkcgRzAu0eX=FNk00P8srboOSn=jYp4saALA@mail.gmail.com>
+        with ESMTP id S239941AbhHaH0c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 03:26:32 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95ECBC06175F;
+        Tue, 31 Aug 2021 00:25:37 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id u13-20020a17090abb0db0290177e1d9b3f7so1319339pjr.1;
+        Tue, 31 Aug 2021 00:25:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=tHn1bKbgKWkWnpZZfeyzrlp2g8PdlS3oPFK4wibr8zM=;
+        b=pMjwOP/19qT52lkjXq8sDWHfx7YGZ8eUQGoIKFiBmpYZXRbATElia9k4erKkY4o+gx
+         bPv9Q+ALqfj6l0g/7NXoYBsBaUHHT+6gpUJC0TZZA35oV6yJRINlv14SbH4wmA+hWnld
+         A5j6PaQ1FR2HPB1VVcngEVYOmhQ+NpLjrks7l/GQz3GiD/Ij6t9cbltGAt9Ghki/8W2G
+         8wonwnJqSZ31sN7su4nbQ9ehq6UPI2UCarkMqTB4TAcyt0O3UBFAOrpejOLa2u2DFQOG
+         seyxkNmsGWqWrmFUoPEtoV5VSb1OXPvizXaVppaQ4FJhDNDk0jkvQTAQjwiWAZ/5FHb6
+         r8Gw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tHn1bKbgKWkWnpZZfeyzrlp2g8PdlS3oPFK4wibr8zM=;
+        b=k1g4kjnFhN1uCtP6XDZmgz7GnL5q5sH9JdHNWjnb5sPxySZVw1xLEhD4iXnxjo1JCd
+         umgUlI12uAHVDJH0rR0NqnJw2WuPRAl+jfgvzR853YHGkMEbfCIJlOXtcFdBrPClNGVl
+         VqKRuEu8EF4S1ylT+/umcGG+9NRderhNMe+bt86y3VAJo1u9IKVuUM8QnFZTvkEnG5Ai
+         WIK5CqzT1xN2oMwar/WkJA4Tuw5YrItP9YjNHsObjHUob93SidzRiPitGQ+Qx581ob51
+         CnKry5kEtcWQ6sk08pGgnc/Wqi+D651LN43WBbkH6My9KaFUCCLN3lHHePaRJz9wRdmK
+         ie8w==
+X-Gm-Message-State: AOAM533s5v8KJCXrXVmjpTs0lvvoUBgsS8lzuFnmxkEe6FikhGOyPyCK
+        vWO4phWKY5omocU+Z1trsPY=
+X-Google-Smtp-Source: ABdhPJzpV2t1yFkjJNCWkF5oIEd1fc2kRhKJQqIj82vlMWjQvXBEEUimnllxLVlQqW5CEZE3+9QHpA==
+X-Received: by 2002:a17:90a:2e88:: with SMTP id r8mr3698988pjd.169.1630394737112;
+        Tue, 31 Aug 2021 00:25:37 -0700 (PDT)
+Received: from sanitydock.wifi-cloud.jp ([210.160.217.69])
+        by smtp.gmail.com with ESMTPSA id m11sm1720724pjn.2.2021.08.31.00.25.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 31 Aug 2021 00:25:36 -0700 (PDT)
+From:   Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+To:     maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
+        sumit.semwal@linaro.org, christian.koenig@amd.com
+Cc:     Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org, skhan@linuxfoundation.org,
+        gregkh@linuxfoundation.org,
+        linux-kernel-mentees@lists.linuxfoundation.org,
+        linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org,
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH v10 1/4] drm: fix null ptr dereference in drm_master_release
+Date:   Tue, 31 Aug 2021 15:24:58 +0800
+Message-Id: <20210831072501.184211-2-desmondcheongzx@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210831072501.184211-1-desmondcheongzx@gmail.com>
+References: <20210831072501.184211-1-desmondcheongzx@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJ26g5S2tbDhRbWkcgRzAu0eX=FNk00P8srboOSn=jYp4saALA@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Aug 31, 2021 at 06:46:40AM +0200, Patrick Schaaf wrote:
-> Looking into this again.
-> 
-> Unfortunately, couldn't see how I would do bisection on the issue, as
-> it appears with that 5.4.118 commit implicated by the call stack,and
-> with tha tremoved,is obviously gone(that I tested, 5.4.135 with
-> b56ad4febe67b8c0647c0a3e427e935a76dedb59 reverted runs smoothly for
-> me, while the original 5.4.135 with that 5.4.118 time commit in, now
-> on a dozen machines, throws the WARNING.
-> 
-> I got email on the side of someone (Igor, on Cc) who sees the same
-> with DELL servers, a newer 5.10 kernel, for him running IPVS + he sees
-> actual operational impact there.
-> 
-> I just had a look at Linus mainlinetree, and see there is this
-> followup / further fix from Peter Zijlstra,
-> https://github.com/torvalds/linux/commit/3a7956e25e1d7b3c148569e78895e1f3178122a9
-> ; now I'm much too incompetent to try and backport that, as it looks
-> more involved, but I imagine such a backport would be needed to fix
-> the WARNING (or IPVS breakage of Igor) we see.
+drm_master_release can be called on a drm_file without a master, which
+results in a null ptr dereference of file_priv->master->magic_map. The
+three cases are:
 
-3a7956e25e1d ("kthread: Fix PF_KTHREAD vs to_kthread() race") munged
-into 5.4.135
+1. Error path in drm_open_helper
+  drm_open():
+    drm_open_helper():
+      drm_master_open():
+        drm_new_set_master(); <--- returns -ENOMEM,
+                                   drm_file.master not set
+      drm_file_free():
+        drm_master_release(); <--- NULL ptr dereference
+                                   (file_priv->master->magic_map)
 
-Never even seen a compiler, please tests.
+2. Error path in mock_drm_getfile
+  mock_drm_getfile():
+    anon_inode_getfile(); <--- returns error, drm_file.master not set
+    drm_file_free():
+      drm_master_release(); <--- NULL ptr dereference
+                                 (file_priv->master->magic_map)
 
+3. In drm_client_close, as drm_client_open doesn't set up a master
+
+drm_file.master is set up in drm_open_helper through the call to
+drm_master_open, so we mirror it with a call to drm_master_release in
+drm_close_helper, and remove drm_master_release from drm_file_free to
+avoid the null ptr dereference.
+
+Fixes: 7eeaeb90a6a5 ("drm/file: Don't set master on in-kernel clients")
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- kernel/kthread.c    | 43 +++++++++++++++++++++++++++++--------------
- kernel/sched/fair.c |  2 +-
- 2 files changed, 30 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/drm_file.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index b2bac5d929d2..22750a8af83e 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -76,6 +76,25 @@ static inline struct kthread *to_kthread(struct task_struct *k)
- 	return (__force void *)k->set_child_tid;
- }
+diff --git a/drivers/gpu/drm/drm_file.c b/drivers/gpu/drm/drm_file.c
+index ed25168619fc..90b62f360da1 100644
+--- a/drivers/gpu/drm/drm_file.c
++++ b/drivers/gpu/drm/drm_file.c
+@@ -282,9 +282,6 @@ void drm_file_free(struct drm_file *file)
  
-+/*
-+ * Variant of to_kthread() that doesn't assume @p is a kthread.
-+ *
-+ * Per construction; when:
-+ *
-+ *   (p->flags & PF_KTHREAD) && p->set_child_tid
-+ *
-+ * the task is both a kthread and struct kthread is persistent. However
-+ * PF_KTHREAD on it's own is not, kernel_thread() can exec() (See umh.c and
-+ * begin_new_exec()).
-+ */
-+static inline struct kthread *__to_kthread(struct task_struct *p)
-+{
-+	void *kthread = (__force void *)p->set_child_tid;
-+	if (kthread && !(p->flags & PF_KTHREAD))
-+		kthread = NULL;
-+	return kthread;
-+}
+ 	drm_legacy_ctxbitmap_flush(dev, file);
+ 
+-	if (drm_is_primary_client(file))
+-		drm_master_release(file);
+-
+ 	if (dev->driver->postclose)
+ 		dev->driver->postclose(dev, file);
+ 
+@@ -305,6 +302,9 @@ static void drm_close_helper(struct file *filp)
+ 	list_del(&file_priv->lhead);
+ 	mutex_unlock(&dev->filelist_mutex);
+ 
++	if (drm_is_primary_client(file_priv))
++		drm_master_release(file_priv);
 +
- void free_kthread_struct(struct task_struct *k)
- {
- 	struct kthread *kthread;
-@@ -176,10 +195,11 @@ void *kthread_data(struct task_struct *task)
-  */
- void *kthread_probe_data(struct task_struct *task)
- {
--	struct kthread *kthread = to_kthread(task);
-+	struct kthread *kthread = __to_kthread(task);
- 	void *data = NULL;
- 
--	probe_kernel_read(&data, &kthread->data, sizeof(data));
-+	if (kthread)
-+		probe_kernel_read(&data, &kthread->data, sizeof(data));
- 	return data;
+ 	drm_file_free(file_priv);
  }
  
-@@ -490,9 +510,9 @@ void kthread_set_per_cpu(struct task_struct *k, int cpu)
- 	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
- }
- 
--bool kthread_is_per_cpu(struct task_struct *k)
-+bool kthread_is_per_cpu(struct task_struct *p)
- {
--	struct kthread *kthread = to_kthread(k);
-+	struct kthread *kthread = __to_kthread(p);
- 	if (!kthread)
- 		return false;
- 
-@@ -1272,11 +1292,9 @@ EXPORT_SYMBOL(kthread_destroy_worker);
-  */
- void kthread_associate_blkcg(struct cgroup_subsys_state *css)
- {
--	struct kthread *kthread;
-+	struct kthread *kthread = __to_kthread(current);
-+
- 
--	if (!(current->flags & PF_KTHREAD))
--		return;
--	kthread = to_kthread(current);
- 	if (!kthread)
- 		return;
- 
-@@ -1298,13 +1316,10 @@ EXPORT_SYMBOL(kthread_associate_blkcg);
-  */
- struct cgroup_subsys_state *kthread_blkcg(void)
- {
--	struct kthread *kthread;
-+	struct kthread *kthread = __to_kthread(current)
- 
--	if (current->flags & PF_KTHREAD) {
--		kthread = to_kthread(current);
--		if (kthread)
--			return kthread->blkcg_css;
--	}
-+	if (kthread)
-+		return kthread->blkcg_css;
- 	return NULL;
- }
- EXPORT_SYMBOL(kthread_blkcg);
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 74cb20f32f72..87d9fad9d01d 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -7301,7 +7301,7 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
- 		return 0;
- 
- 	/* Disregard pcpu kthreads; they are where they need to be. */
--	if ((p->flags & PF_KTHREAD) && kthread_is_per_cpu(p))
-+	if (kthread_is_per_cpu(p))
- 		return 0;
- 
- 	if (!cpumask_test_cpu(env->dst_cpu, p->cpus_ptr)) {
+-- 
+2.25.1
+
