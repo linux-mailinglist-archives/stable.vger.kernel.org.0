@@ -2,131 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 554553FC7D5
-	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 15:05:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 127573FC83D
+	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 15:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232838AbhHaNGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Aug 2021 09:06:10 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24086 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232604AbhHaNGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 09:06:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630415113;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=F7EjQETfnoBHWzQ9AKWabwVHwHQLRkOd1pRL+0bECbc=;
-        b=B+ZkfZdj6S+Git0LgR2QiyQQzxkZNnRxhHVdDIPfBYMpzK4bCbiXsJ+3/uzlknohJDAJXk
-        o9rEhvoJ2jth0X8cC6PI7lIYrslY0XCB1ym6rgjQjGfNLirZUekq0hlmogCcCPdzIvMJou
-        4NIOUBDCMbiO6jVPSWuTgMkOgrgzIfw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-591-xIDVd-q3MaydZZ6fj9A1nA-1; Tue, 31 Aug 2021 09:05:12 -0400
-X-MC-Unique: xIDVd-q3MaydZZ6fj9A1nA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0F9A66414A;
-        Tue, 31 Aug 2021 13:05:11 +0000 (UTC)
-Received: from x1.localdomain.com (unknown [10.39.193.70])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A448D76BF9;
-        Tue, 31 Aug 2021 13:05:09 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Jean Delvare <jdelvare@suse.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        Kai-Chuan Hsieh <kaichuan.hsieh@canonical.com>,
-        Erwan Velu <e.velu@criteo.com>
-Subject: [PATCH regression fix] firmware/dmi: Move product_sku info to the end of the modalias
-Date:   Tue, 31 Aug 2021 15:05:08 +0200
-Message-Id: <20210831130508.14511-1-hdegoede@redhat.com>
+        id S233409AbhHaNbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Aug 2021 09:31:51 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:39428 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233251AbhHaNbu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 09:31:50 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 7F8DA1C0B79; Tue, 31 Aug 2021 15:30:53 +0200 (CEST)
+Date:   Tue, 31 Aug 2021 15:30:53 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Cc:     Pavel Machek <pavel@denx.de>, stable@vger.kernel.org,
+        kernel list <linux-kernel@vger.kernel.org>,
+        daniel@iogearbox.net, john.fastabend@gmail.com, ast@kernel.org
+Subject: Re: CVE-2021-3600 aka bpf: Fix 32 bit src register truncation on
+ div/mod
+Message-ID: <20210831133053.GA32426@duo.ucw.cz>
+References: <20210826102337.GA7362@duo.ucw.cz>
+ <YS0lqmZg5Lq0scVv@mussarela>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
+Content-Disposition: inline
+In-Reply-To: <YS0lqmZg5Lq0scVv@mussarela>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit e26f023e01ef ("firmware/dmi: Include product_sku info to modalias")
-added a new field to the modalias in the middle of the modalias, breaking
-some existing udev/hwdb matches on the whole modalias without a wildcard
-('*') in between the pvr and rvn fields.
 
-All modalias matches in e.g. :
-https://github.com/systemd/systemd/blob/main/hwdb.d/60-sensor.hwdb
-deliberately end in ':*' so that new fields can be added at *the end* of
-the modalias, but adding a new field in the middle like this breaks things.
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Move the new sku field to the end of the modalias to fix some hwdb
-entries no longer matching.
+Hi!
 
-The new sku field has already been put to use in 2 new hwdb entries:
+> > So this explains "mov32 w0, w0" is problematic, and fixes the bug by
+> > replacing it with jmp32. Unfortunately, I can't do that in 4.19; plus
+> > I don't really see how the bug is solved -- we avoided adding mov32
+> > sequence that triggers the problem, but the problematic sequence could
+> > still be produced by the userspace, no?
+> >=20
+> > Does adjust_scalar_min_max_vals still need fixing?
+> >=20
+> > Do you have any hints how to solve this in 4.19?
 
- sensor:modalias:platform:HID-SENSOR-200073:dmi:*svnDell*:sku0A3E:*
-  ACCEL_LOCATION=base
+> I have just sent the fixes for 4.14. I sent fixes for 4.19 last Friday.
+>=20
+> The problem here is that the verifier assumes the source register has a g=
+iven
+> value, but the fixups change that value to something else when it is trun=
+cated.
+>=20
+> The fixups run after the verifier, so a similar sequence produced by user=
+space
+> will be correctly verified, so no fixes are necessary on adjust_scalar_mi=
+n_max
+> for this specific issue. The fixed-up code is not verified again.
 
- sensor:modalias:platform:HID-SENSOR-200073:dmi:*svnDell*:sku0B0B:*
-  ACCEL_LOCATION=base
+Thanks, understood.
 
-The wildcard use before and after the sku in these matches means that they
-should keep working with the sku moved to the end.
+> The challenge in providing those fixes to 4.14 and 4.19 is the absence of=
+ JMP32
+> in those kernels. So, AX was taken as a temporary, so it would still work=
+ on
+> JITs.
 
-Note that there is a second instance of in essence the same problem,
-commit f5152f4ded3c ("firmware/dmi: Report DMI Bios & EC firmware release")
+Yes, I got that far. I have seen the patches for 4.19 and 4.14, and
+they should fix my problems. Thanks a lot for them.
 
-Added 2 new br and efr fields in the middle of the modalias. This too
-breaks some hwdb modalias matches, but this has gone unnoticed for over
-a year. So some newer hwdb modalias matches actually depend on these
-fields being in the middle of the string. Moving these to the end now
-would break 3 hwdb entries, while fixing 8 entries.
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-Since there is no good answer for the new br and efr fields I have chosen
-to leave these as is. Instead I'll submit a hwdb update to put a wildcard
-at the place where these fields may or may not be present depending on the
-kernel version.
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature; name="signature.asc"
 
-BugLink: https://github.com/systemd/systemd/issues/20550
-Link: https://github.com/systemd/systemd/pull/20562
-Fixes: e26f023e01ef ("firmware/dmi: Include product_sku info to modalias")
-Cc: stable@vger.kernel.org
-Cc: Kai-Chuan Hsieh <kaichuan.hsieh@canonical.com>
-Cc: Erwan Velu <e.velu@criteo.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/firmware/dmi-id.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+-----BEGIN PGP SIGNATURE-----
 
-diff --git a/drivers/firmware/dmi-id.c b/drivers/firmware/dmi-id.c
-index 4d5421d14a41..940ddf916202 100644
---- a/drivers/firmware/dmi-id.c
-+++ b/drivers/firmware/dmi-id.c
-@@ -73,6 +73,10 @@ static void ascii_filter(char *d, const char *s)
- 
- static ssize_t get_modalias(char *buffer, size_t buffer_size)
- {
-+	/*
-+	 * Note new fields need to be added at the end to keep compatibility
-+	 * with udev's hwdb which does matches on "`cat dmi/id/modalias`*".
-+	 */
- 	static const struct mafield {
- 		const char *prefix;
- 		int field;
-@@ -85,13 +89,13 @@ static ssize_t get_modalias(char *buffer, size_t buffer_size)
- 		{ "svn", DMI_SYS_VENDOR },
- 		{ "pn",  DMI_PRODUCT_NAME },
- 		{ "pvr", DMI_PRODUCT_VERSION },
--		{ "sku", DMI_PRODUCT_SKU },
- 		{ "rvn", DMI_BOARD_VENDOR },
- 		{ "rn",  DMI_BOARD_NAME },
- 		{ "rvr", DMI_BOARD_VERSION },
- 		{ "cvn", DMI_CHASSIS_VENDOR },
- 		{ "ct",  DMI_CHASSIS_TYPE },
- 		{ "cvr", DMI_CHASSIS_VERSION },
-+		{ "sku", DMI_PRODUCT_SKU },
- 		{ NULL,  DMI_NONE }
- 	};
- 
--- 
-2.31.1
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYS4vDQAKCRAw5/Bqldv6
+8qDgAJ0bm7OWm/wylXX8uShwf5qRCpRJHwCfaIxAey3KNwcbTgwPdbp8O7vts3Y=
+=lf2P
+-----END PGP SIGNATURE-----
 
+--XsQoSWH+UP9D9v3l--
