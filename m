@@ -2,114 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F933FC85E
-	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 15:38:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AF653FC946
+	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 16:02:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234864AbhHaNi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Aug 2021 09:38:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53304 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233928AbhHaNi4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 09:38:56 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 273C1C061575
-        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 06:38:01 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id y18so24869652ioc.1
-        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 06:38:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=4jC7tMvXu3H0UgSbUww2U5pjAemu1fucj+730/peLnc=;
-        b=lEdnxG8rufnUuexztfAScVSsxSeMm1wxwFGA81lLXmf7hVf4IPt2fNo39gK2NNXwL3
-         ArepySLjwKOc7gV8I6WmLYXo+PuFQA2F7e/B7t55WZt6KFMB9t2pNfoKkIBo/KX/hC6w
-         eDvYybys7UapRr4y8UPoj0rtdBdpL1HLaU63d+EI25NqydcOaiPbOeZWBExWXgMJRvLm
-         v7NStgHaZdUuyOKUWhuM/HAV+FW5ythVLR8TxT7cgY9aMvi8nwhJ7gwGa1U+3Q63r9pr
-         7DpBCxAt19XT2bRn4PwqW0IyLgt+Tl+fz5q+uTuXAaNEbJLuE/bSvxJB1e6q5NJCkQMn
-         E72Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=4jC7tMvXu3H0UgSbUww2U5pjAemu1fucj+730/peLnc=;
-        b=pAHSVxmuF7gXhnT2jsjVUNeeVm+TKgre10A+ms/qt2RHc8vik3Vkks4V8bGh221x87
-         veZYhH/457ArBmWCuqMOPMYzI7C4HfNpaI8o29qOFJvTbjewWRlcfGTJzfFeYXnZr/7v
-         TLX1vaaIIO4nrEnHE3OpJqNfG9SH0sf8NMj+6TCuklNhHk6U4IbNLNKFVqBF+Nq6qieZ
-         SF5EJF21jN0/bbqqGjwTc6K6k3Z+/jIahwrZm1Et0JvXhbYZCsCPkX55tytZuuxt6RmV
-         TBwY54eG1XMv5DTYF5jAYaFnrO7PC11MpcREDIvBXuJUoNKRddF0tqyOx1OOfDS+dpXR
-         kZXQ==
-X-Gm-Message-State: AOAM532Om+g93wJa4WEbAZJC3ohbcBeI1gh/N5GkGLmNBzhg/v0XMdDv
-        Pf0kY9O8GsCJQw8RHToFek9+EkG3z8j6C+Ne/oc=
-X-Google-Smtp-Source: ABdhPJzt4FjVM45llvXR960XL57Ckz91gmuqSGLH3sWJ3I2cks4b16fyH2E77W5umstYYfSVnpGPshqWqBSkdNMZyRI=
-X-Received: by 2002:a6b:7b4b:: with SMTP id m11mr22833224iop.165.1630417080601;
- Tue, 31 Aug 2021 06:38:00 -0700 (PDT)
+        id S233044AbhHaODR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Aug 2021 10:03:17 -0400
+Received: from smtp4-g21.free.fr ([212.27.42.4]:4148 "EHLO smtp4-g21.free.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231199AbhHaODQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Aug 2021 10:03:16 -0400
+Received: from bender.morinfr.org (unknown [82.64.86.27])
+        by smtp4-g21.free.fr (Postfix) with ESMTPS id 4E8E619F553;
+        Tue, 31 Aug 2021 16:01:49 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=morinfr.org
+        ; s=20170427; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+        Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+        List-Post:List-Owner:List-Archive;
+        bh=55Oic2tBQdEhKwkImI+q3MlSVJdEokDkBiFlL5mk7CE=; b=I7NOqWvE/o4ycQDxccwJ6VSIRI
+        wuYlIWSu6fnwBGdndzr70GYLMn5cCo+Lh+/3fsK7B6cgU3buqMNhvK750jiCKE/OvRAya52uzzygb
+        G8M31NDV7UKc/a4FzRDqCr4rI3HTgnGxZeVqypWRpxODpj0NYHk0Bt3NIRqTk7Y1A6d0=;
+Received: from guillaum by bender.morinfr.org with local (Exim 4.92)
+        (envelope-from <guillaume@morinfr.org>)
+        id 1mL4Ki-0002Qo-TR; Tue, 31 Aug 2021 16:01:48 +0200
+Date:   Tue, 31 Aug 2021 16:01:48 +0200
+From:   Guillaume Morin <guillaume@morinfr.org>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        cgroups@vger.kernel.org, Mina Almasry <almasrymina@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Greg Thelen <gthelen@google.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guillaume Morin <guillaume@morinfr.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] hugetlb: fix hugetlb cgroup refcounting during vma split
+Message-ID: <20210831140147.GA18648@bender.morinfr.org>
+Mail-Followup-To: Mike Kravetz <mike.kravetz@oracle.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        cgroups@vger.kernel.org, Mina Almasry <almasrymina@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Greg Thelen <gthelen@google.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Shakeel Butt <shakeelb@google.com>, Shuah Khan <shuah@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guillaume Morin <guillaume@morinfr.org>, stable@vger.kernel.org
+References: <20210830215015.155224-1-mike.kravetz@oracle.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6e02:12a8:0:0:0:0 with HTTP; Tue, 31 Aug 2021 06:38:00
- -0700 (PDT)
-Reply-To: UBAGroupb@groupmail.com
-From:   Kirti Ptei <mrssandra76@gmail.com>
-Date:   Tue, 31 Aug 2021 14:38:00 +0100
-Message-ID: <CAO_Psvc-KtcQpNkPp6R44rbc7ysS1ezC5kHXZdT8QHU6GpyTuw@mail.gmail.com>
-Subject: Contact for your ATM CARD {$2.700,000.00}
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210830215015.155224-1-mike.kravetz@oracle.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Attention for you outstanding payment
+On 30 Aug 14:50, Mike Kravetz wrote:
+> Guillaume Morin reported hitting the following WARNING followed
+> by GPF or NULL pointer deference either in cgroups_destroy or in
+> the kill_css path.:
+> 
+> percpu ref (css_release) <= 0 (-1) after switching to atomic
+> WARNING: CPU: 23 PID: 130 at lib/percpu-refcount.c:196 percpu_ref_switch_to_atomic_rcu+0x127/0x130
+> CPU: 23 PID: 130 Comm: ksoftirqd/23 Kdump: loaded Tainted: G           O      5.10.60 #1
+> RIP: 0010:percpu_ref_switch_to_atomic_rcu+0x127/0x130
+> Call Trace:
+>  rcu_core+0x30f/0x530
+>  rcu_core_si+0xe/0x10
+>  __do_softirq+0x103/0x2a2
+>  ? sort_range+0x30/0x30
+>  run_ksoftirqd+0x2b/0x40
+>  smpboot_thread_fn+0x11a/0x170
+>  kthread+0x10a/0x140
+>  ? kthread_create_worker_on_cpu+0x70/0x70
+>  ret_from_fork+0x22/0x30
+> 
+> Upon further examination, it was discovered that the css structure
+> was associated with hugetlb reservations.
+> 
+> For private hugetlb mappings the vma points to a reserve map that
+> contains a pointer to the css.  At mmap time, reservations are set up
+> and a reference to the css is taken.  This reference is dropped in the
+> vma close operation; hugetlb_vm_op_close.  However, if a vma is split
+> no additional reference to the css is taken yet hugetlb_vm_op_close will
+> be called twice for the split vma resulting in an underflow.
+> 
+> Fix by taking another reference in hugetlb_vm_op_open.  Note that the
+> reference is only taken for the owner of the reserve map.  In the more
+> common fork case, the pointer to the reserve map is cleared for
+> non-owning vmas.
+> 
+> Fixes: e9fe92ae0cd2 ("hugetlb_cgroup: add reservation accounting for
+> private mappings")
+> Reported-by: Guillaume Morin <guillaume@morinfr.org>
+> Suggested-by: Guillaume Morin <guillaume@morinfr.org>
+> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+> Cc: <stable@vger.kernel.org>
 
-How are you doing hoping all is well with you and your family? We know
-you might have forgotten about your outstanding compensation payment
-from United Nation due to the delay on the delivery up till now. We
-are here by writing to inform you that your payment file was found in
-our Office and we discovered that your Compensation payment worth sum
-of two million seven hundred thousand United State Dollars
-{$2.700,000.00} have not been sent to you as it was instructed by The
-Economic Community of West African States (ECO-WAS) We are here to
-inform you that your payment has been converted into ATM Visa/Master
-Card to free it from Confiscating, and all necessary arrangement your
-ATM VISA/MASTER CARD Payment worth of {$2.700,000.00} has been granted
-for your payment through Our ATM Card Department Center.
+I verified that the patch does fix the underflow. I appreciate the help!
 
-Now Your ATM Visa/Master Card is well packaged with every legal
-document to convey it not having any problem with anybody therefore we
-are here by inviting you to our office here in Abidjan, Office
-Address, Commented Bank, 01 AB 1478, Cocody Abidjan, Cote D=E2=80=99Ivoire,=
- to
-enable us complete the normal formalities and activation process of
-your ATM Visa Card and issue the Secret PIN CODE/NUMBER to enable you
-start using it at any ATM MACHINE worldwide of your choice nearest to
-you, as soon as it is activated, But if you are unable to come down
-here in our office in person you will be required to update our ATM
-Department Center with your contact delivery details as stated below
-so that they will precede with the necessary arrangement for the
-delivery your ATM VISA/MASTER CARD.
+Feel free to add:
+Tested-by: Guillaume Morin <guillaume@morinfr.org>
 
-1. Your Full name, ________________
-2. Your home Address, _____________
-3. Your telephone number, _________
-4. A copy of your ID, _____________
-
-Meanwhile you should contact OUR ATM CARD PAYMENT DEPARTMENT CENTER
-immediately on their below;
-
-E-mail: { atmcustomerservicebj@gmail.com }
-
-E-mail: { officebankatm@webmail.hu }
-
-Contact Person; Dr. Bright Kalu
-Director Of United Bank For Africa (UBA)
-Telephone Number; +225 55102152
-
-Try to call him immediately to know when your ATM VISA/MASTER CARD
-will be delivered to you.
-
-I am waiting for your update as soon as you have received your
-Visa/Master ATM Card.
-
-
-Thanks and God Bless You.
-Yours sincerely
-Kirti Ptei
+-- 
+Guillaume Morin <guillaume@morinfr.org>
