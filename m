@@ -2,108 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF213FCCBF
-	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 20:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30FF3FCD30
+	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 21:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232965AbhHaSGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Aug 2021 14:06:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52128 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230145AbhHaSGT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Aug 2021 14:06:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 176896109E;
-        Tue, 31 Aug 2021 18:05:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1630433124;
-        bh=lX9CFKri/7RMibznHqcncyqG7bi/W5VDaiK5GKrCPU4=;
-        h=Date:From:To:Subject:From;
-        b=PvcWd8ycob9XLGf6P08f1BX18eS5bsEBmNeJhqiGIMPlTvAOaYdRYjaf4IGLvopDW
-         V7rT2YazWPj/+NQ1QXam4T5Y0CMoDXPx1eRd8Naq98Zfqh5L/rqBJL0G5zqbFxramx
-         rzuryBc/wUWIifKO/8INOxDW6pD/0kXzftDUfAaI=
-Date:   Tue, 31 Aug 2021 11:05:23 -0700
-From:   akpm@linux-foundation.org
-To:     cgoldswo@codeaurora.org, david@redhat.com, linmiaohe@huawei.com,
-        mhocko@suse.com, minchan@kernel.org, mm-commits@vger.kernel.org,
-        naoya.horiguchi@nec.com, osalvador@suse.de, stable@vger.kernel.org
-Subject:  [merged]
- mm-memory_hotplug-fix-potential-permanent-lru-cache-disable.patch removed
- from -mm tree
-Message-ID: <20210831180523.p_tfNaDsO%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S234139AbhHaSuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Aug 2021 14:50:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41348 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231312AbhHaStg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 14:49:36 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C4F1C061575;
+        Tue, 31 Aug 2021 11:48:40 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id u15so94568wmj.1;
+        Tue, 31 Aug 2021 11:48:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Ssx/Du/IP+VJ6yRDjCWSrw9PFpibgX8+LOfvx0arrC0=;
+        b=puHwvGy27ZCKW1/hb24T4TxdTwdhH8hvACG5TZRQSpyCBIIMky52bBklkqr9uJutP9
+         P0wNNsLYBf1rjLSkYPzkH9uMmpQw22uPzb75brSLN9IoR/EySrsjS3gV+thkKOc8/H82
+         DI3D7LnOxXZVwTOxYbmAGqepG19w67uxdr+UqtuKgQlAouvhp3shcbNh69RePVDN7xVj
+         WLCwur8FuuCsy2nyBXl015EN7380NvJAK3gPDqMFBvPm9y+8MyNgk67elQ7sxGSnioVa
+         bz6G4tYRWV/i22lvNZPWSLbZFkZstVT/Xrky1y3wroe9W8wxlSJZn3OiE4MwLdI7la+B
+         yM9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Ssx/Du/IP+VJ6yRDjCWSrw9PFpibgX8+LOfvx0arrC0=;
+        b=sOlqf8NadyCQ58VuN4nQH9HKhZiBkZt9NcCf490yJw/CpO5nGEUoOsuG3VBN65HGJY
+         XdIurWJEbDrkql45tUFd296RrOiKEFe7bVjl9vIM/XM+HzCCbFopLKb8qKNxg+gJod6T
+         zEF/4eN4Kd8FsMv+jtYJW8oq6wR1CDlXDKKQ0k1knukiLAXdAkhpBIhTFkwnWQUIo6hl
+         H7eOvCB0W5APWs8f+UGKGvNlcp6VtEgTsnWxFr0f4cUz2F16Ig9W4ANWmDiIL2PN3/Zw
+         wxUmG5Hf6ObrZlPVBcn2gBYJd7myixHbatsRyBNkwiJrqAFVYFAL5muCRX3+8o89Zo/p
+         HBYg==
+X-Gm-Message-State: AOAM530enukdWxk1YknLmahmD8vFMGRB2dP+AdpDhQgqqmKUgWuKA9CX
+        zdcJbwsKrH/+/VW8hkySAqEpiOWN5lfA1Q==
+X-Google-Smtp-Source: ABdhPJxpHtUrxMXrtWzNzUZfT5NDgfPAC3iEvcgbop4yUZWCq6uU0jUnfin9kUgN30R0dGd3QoArGw==
+X-Received: by 2002:a1c:e904:: with SMTP id q4mr5857630wmc.26.1630435719011;
+        Tue, 31 Aug 2021 11:48:39 -0700 (PDT)
+Received: from kista.localdomain (cpe-86-58-29-253.static.triera.net. [86.58.29.253])
+        by smtp.gmail.com with ESMTPSA id d145sm3111884wmd.3.2021.08.31.11.48.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 31 Aug 2021 11:48:38 -0700 (PDT)
+From:   Jernej Skrabec <jernej.skrabec@gmail.com>
+To:     mripard@kernel.org, wens@csie.org
+Cc:     airlied@linux.ie, daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
+        linux-kernel@vger.kernel.org,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org, Roman Stratiienko <r.stratiienko@gmail.com>
+Subject: [PATCH] drm/sun4i: Fix macros in sun8i_csc.h
+Date:   Tue, 31 Aug 2021 20:48:19 +0200
+Message-Id: <20210831184819.93670-1-jernej.skrabec@gmail.com>
+X-Mailer: git-send-email 2.33.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Macros SUN8I_CSC_CTRL() and SUN8I_CSC_COEFF() don't follow usual
+recommendation of having arguments enclosed in parenthesis. While that
+didn't change anything for quiet sometime, it actually become important
+after CSC code rework with commit ea067aee45a8 ("drm/sun4i: de2/de3:
+Remove redundant CSC matrices").
 
-The patch titled
-     Subject: mm/memory_hotplug: fix potential permanent lru cache disable
-has been removed from the -mm tree.  Its filename was
-     mm-memory_hotplug-fix-potential-permanent-lru-cache-disable.patch
+Without this fix, colours are completely off for supported YVU formats
+on SoCs with DE2 (A64, H3, R40, etc.).
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+Fix the issue by enclosing macro arguments in parenthesis.
 
-------------------------------------------------------
-From: Miaohe Lin <linmiaohe@huawei.com>
-Subject: mm/memory_hotplug: fix potential permanent lru cache disable
-
-If offline_pages failed after lru_cache_disable(), it forgot to do
-lru_cache_enable() in error path.  So we would have lru cache disabled
-permanently in this case.
-
-Link: https://lkml.kernel.org/r/20210821094246.10149-3-linmiaohe@huawei.com
-Fixes: d479960e44f2 ("mm: disable LRU pagevec during the migration temporarily")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: Chris Goldsworthy <cgoldswo@codeaurora.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org # 5.12+
+Fixes: 883029390550 ("drm/sun4i: Add DE2 CSC library")
+Reported-by: Roman Stratiienko <r.stratiienko@gmail.com>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 ---
+ drivers/gpu/drm/sun4i/sun8i_csc.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
- mm/memory_hotplug.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/mm/memory_hotplug.c~mm-memory_hotplug-fix-potential-permanent-lru-cache-disable
-+++ a/mm/memory_hotplug.c
-@@ -1731,6 +1731,7 @@ failed_removal_isolated:
- 	undo_isolate_page_range(start_pfn, end_pfn, MIGRATE_MOVABLE);
- 	memory_notify(MEM_CANCEL_OFFLINE, &arg);
- failed_removal_pcplists_disabled:
-+	lru_cache_enable();
- 	zone_pcp_enable(zone);
- failed_removal:
- 	pr_debug("memory offlining [mem %#010llx-%#010llx] failed due to %s\n",
-_
-
-Patches currently in -mm which might be from linmiaohe@huawei.com are
-
-mm-gup-remove-set-but-unused-local-variable-major.patch
-mm-gup-remove-unneed-local-variable-orig_refs.patch
-mm-gup-remove-useless-bug_on-in-__get_user_pages.patch
-mm-gup-fix-potential-pgmap-refcnt-leak-in-__gup_device_huge.patch
-mm-gup-use-helper-page_aligned-in-populate_vma_page_range.patch
-shmem-remove-unneeded-variable-ret.patch
-shmem-remove-unneeded-header-file.patch
-shmem-remove-unneeded-function-forward-declaration.patch
-shmem-include-header-file-to-declare-swap_info.patch
-mm-memcg-remove-unused-functions.patch
-mm-memcg-save-some-atomic-ops-when-flush-is-already-true.patch
-mm-hwpoison-remove-unneeded-variable-unmap_success.patch
-mm-hwpoison-fix-potential-pte_unmap_unlock-pte-error.patch
-mm-hwpoison-change-argument-struct-page-hpagep-to-hpage.patch
-mm-hwpoison-fix-some-obsolete-comments.patch
-mm-vmscan-remove-the-pagedirty-check-after-madv_free-pages-are-page_ref_freezed.patch
-mm-vmscan-remove-misleading-setting-to-sc-priority.patch
-mm-vmscan-remove-unneeded-return-value-of-kswapd_run.patch
-mm-vmscan-add-else-to-remove-check_pending-label.patch
-mm-vmstat-correct-some-wrong-comments.patch
-mm-vmstat-simplify-the-array-size-calculation.patch
-mm-vmstat-remove-unneeded-return-value.patch
-mm-memory_hotplug-use-helper-zone_is_zone_device-to-simplify-the-code.patch
-mm-memory_hotplug-make-hwpoisoned-dirty-swapcache-pages-unmovable.patch
-mm-zsmallocc-close-race-window-between-zs_pool_dec_isolated-and-zs_unregister_migration.patch
-mm-zsmallocc-combine-two-atomic-ops-in-zs_pool_dec_isolated.patch
+diff --git a/drivers/gpu/drm/sun4i/sun8i_csc.h b/drivers/gpu/drm/sun4i/sun8i_csc.h
+index a55a38ad849c..022cafa6c06c 100644
+--- a/drivers/gpu/drm/sun4i/sun8i_csc.h
++++ b/drivers/gpu/drm/sun4i/sun8i_csc.h
+@@ -16,8 +16,8 @@ struct sun8i_mixer;
+ #define CCSC10_OFFSET 0xA0000
+ #define CCSC11_OFFSET 0xF0000
+ 
+-#define SUN8I_CSC_CTRL(base)		(base + 0x0)
+-#define SUN8I_CSC_COEFF(base, i)	(base + 0x10 + 4 * i)
++#define SUN8I_CSC_CTRL(base)		((base) + 0x0)
++#define SUN8I_CSC_COEFF(base, i)	((base) + 0x10 + 4 * (i))
+ 
+ #define SUN8I_CSC_CTRL_EN		BIT(0)
+ 
+-- 
+2.33.0
 
