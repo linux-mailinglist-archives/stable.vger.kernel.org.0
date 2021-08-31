@@ -2,134 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D4363FC3AB
-	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 10:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E259C3FC727
+	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 14:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239937AbhHaH0d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Aug 2021 03:26:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53816 "EHLO
+        id S241968AbhHaMPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Aug 2021 08:15:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239941AbhHaH0c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 03:26:32 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95ECBC06175F;
-        Tue, 31 Aug 2021 00:25:37 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id u13-20020a17090abb0db0290177e1d9b3f7so1319339pjr.1;
-        Tue, 31 Aug 2021 00:25:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=tHn1bKbgKWkWnpZZfeyzrlp2g8PdlS3oPFK4wibr8zM=;
-        b=pMjwOP/19qT52lkjXq8sDWHfx7YGZ8eUQGoIKFiBmpYZXRbATElia9k4erKkY4o+gx
-         bPv9Q+ALqfj6l0g/7NXoYBsBaUHHT+6gpUJC0TZZA35oV6yJRINlv14SbH4wmA+hWnld
-         A5j6PaQ1FR2HPB1VVcngEVYOmhQ+NpLjrks7l/GQz3GiD/Ij6t9cbltGAt9Ghki/8W2G
-         8wonwnJqSZ31sN7su4nbQ9ehq6UPI2UCarkMqTB4TAcyt0O3UBFAOrpejOLa2u2DFQOG
-         seyxkNmsGWqWrmFUoPEtoV5VSb1OXPvizXaVppaQ4FJhDNDk0jkvQTAQjwiWAZ/5FHb6
-         r8Gw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=tHn1bKbgKWkWnpZZfeyzrlp2g8PdlS3oPFK4wibr8zM=;
-        b=k1g4kjnFhN1uCtP6XDZmgz7GnL5q5sH9JdHNWjnb5sPxySZVw1xLEhD4iXnxjo1JCd
-         umgUlI12uAHVDJH0rR0NqnJw2WuPRAl+jfgvzR853YHGkMEbfCIJlOXtcFdBrPClNGVl
-         VqKRuEu8EF4S1ylT+/umcGG+9NRderhNMe+bt86y3VAJo1u9IKVuUM8QnFZTvkEnG5Ai
-         WIK5CqzT1xN2oMwar/WkJA4Tuw5YrItP9YjNHsObjHUob93SidzRiPitGQ+Qx581ob51
-         CnKry5kEtcWQ6sk08pGgnc/Wqi+D651LN43WBbkH6My9KaFUCCLN3lHHePaRJz9wRdmK
-         ie8w==
-X-Gm-Message-State: AOAM533s5v8KJCXrXVmjpTs0lvvoUBgsS8lzuFnmxkEe6FikhGOyPyCK
-        vWO4phWKY5omocU+Z1trsPY=
-X-Google-Smtp-Source: ABdhPJzpV2t1yFkjJNCWkF5oIEd1fc2kRhKJQqIj82vlMWjQvXBEEUimnllxLVlQqW5CEZE3+9QHpA==
-X-Received: by 2002:a17:90a:2e88:: with SMTP id r8mr3698988pjd.169.1630394737112;
-        Tue, 31 Aug 2021 00:25:37 -0700 (PDT)
-Received: from sanitydock.wifi-cloud.jp ([210.160.217.69])
-        by smtp.gmail.com with ESMTPSA id m11sm1720724pjn.2.2021.08.31.00.25.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 31 Aug 2021 00:25:36 -0700 (PDT)
-From:   Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-To:     maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
-        sumit.semwal@linaro.org, christian.koenig@amd.com
-Cc:     Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        intel-gfx@lists.freedesktop.org, skhan@linuxfoundation.org,
-        gregkh@linuxfoundation.org,
-        linux-kernel-mentees@lists.linuxfoundation.org,
-        linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v10 1/4] drm: fix null ptr dereference in drm_master_release
-Date:   Tue, 31 Aug 2021 15:24:58 +0800
-Message-Id: <20210831072501.184211-2-desmondcheongzx@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210831072501.184211-1-desmondcheongzx@gmail.com>
-References: <20210831072501.184211-1-desmondcheongzx@gmail.com>
+        with ESMTP id S241852AbhHaMPB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 08:15:01 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EB54C03548A;
+        Tue, 31 Aug 2021 05:07:47 -0700 (PDT)
+Date:   Tue, 31 Aug 2021 12:07:44 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1630411665;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ZOu1lT8p5JIR/YFvIDz1elV3e0260+GL41AX8UZe44E=;
+        b=4zlRusccqnXAwRcU1BNYEMdAWOAGi8e8NLIo/1hxliySprVP/0+MaRAzzmJdGTAdWUhs5I
+        VDEMeo+GJ76XF8Mbze0zjZc1xAv/bM88rc9/0SPLBf5Qlm1SWJi1++sEdiQGf+s+wCLAdv
+        rK8y5irKmwdMeFGnrl1kMqsMfKi3qpQNRAHohuSpF3hy8Yw7a6g1NmW8F0E3jqA4/cCN5a
+        jlrcdm1rl3jwqzY02jLfkXzL0HfiKW2z18DNsJKTq/Alr+/v3Odmk0AdDQDwoOIrLxAv1I
+        VsT7q3YzmbEADXBCjS85mcl5IZ3YdgQZzJC4WZz2g4TZKH2K+lub6C43Rj5fxA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1630411665;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ZOu1lT8p5JIR/YFvIDz1elV3e0260+GL41AX8UZe44E=;
+        b=/AR/lM07XsZjR5TtRJVgXAE0Bspdz/JjqLtJFCYTfIdGeozWH3zeFJ7TL1FiSAeNaHaaEN
+        G22ZCSaI9nIsfMDg==
+From:   "tip-bot2 for Kan Liang" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: perf/core] perf/x86/intel/uncore: Fix Intel ICX IIO event constraints
+Cc:     Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1629991963-102621-4-git-send-email-kan.liang@linux.intel.com>
+References: <1629991963-102621-4-git-send-email-kan.liang@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <163041166418.25758.3528483172435513308.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-drm_master_release can be called on a drm_file without a master, which
-results in a null ptr dereference of file_priv->master->magic_map. The
-three cases are:
+The following commit has been merged into the perf/core branch of tip:
 
-1. Error path in drm_open_helper
-  drm_open():
-    drm_open_helper():
-      drm_master_open():
-        drm_new_set_master(); <--- returns -ENOMEM,
-                                   drm_file.master not set
-      drm_file_free():
-        drm_master_release(); <--- NULL ptr dereference
-                                   (file_priv->master->magic_map)
+Commit-ID:     f42e8a603c88f72bf047a710b9fc1d3579f31e71
+Gitweb:        https://git.kernel.org/tip/f42e8a603c88f72bf047a710b9fc1d3579f31e71
+Author:        Kan Liang <kan.liang@linux.intel.com>
+AuthorDate:    Thu, 26 Aug 2021 08:32:39 -07:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Tue, 31 Aug 2021 13:59:36 +02:00
 
-2. Error path in mock_drm_getfile
-  mock_drm_getfile():
-    anon_inode_getfile(); <--- returns error, drm_file.master not set
-    drm_file_free():
-      drm_master_release(); <--- NULL ptr dereference
-                                 (file_priv->master->magic_map)
+perf/x86/intel/uncore: Fix Intel ICX IIO event constraints
 
-3. In drm_client_close, as drm_client_open doesn't set up a master
+According to the latest uncore document, both NUM_OUTSTANDING_REQ_OF_CPU
+(0x88) event and COMP_BUF_OCCUPANCY(0xd5) event also have constraints. Add
+them into the event constraints table.
 
-drm_file.master is set up in drm_open_helper through the call to
-drm_master_open, so we mirror it with a call to drm_master_release in
-drm_close_helper, and remove drm_master_release from drm_file_free to
-avoid the null ptr dereference.
-
-Fixes: 7eeaeb90a6a5 ("drm/file: Don't set master on in-kernel clients")
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://lkml.kernel.org/r/1629991963-102621-4-git-send-email-kan.liang@linux.intel.com
 ---
- drivers/gpu/drm/drm_file.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/events/intel/uncore_snbep.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_file.c b/drivers/gpu/drm/drm_file.c
-index ed25168619fc..90b62f360da1 100644
---- a/drivers/gpu/drm/drm_file.c
-+++ b/drivers/gpu/drm/drm_file.c
-@@ -282,9 +282,6 @@ void drm_file_free(struct drm_file *file)
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index ea29e89..d941854 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -5076,8 +5076,10 @@ static struct event_constraint icx_uncore_iio_constraints[] = {
+ 	UNCORE_EVENT_CONSTRAINT(0x02, 0x3),
+ 	UNCORE_EVENT_CONSTRAINT(0x03, 0x3),
+ 	UNCORE_EVENT_CONSTRAINT(0x83, 0x3),
++	UNCORE_EVENT_CONSTRAINT(0x88, 0xc),
+ 	UNCORE_EVENT_CONSTRAINT(0xc0, 0xc),
+ 	UNCORE_EVENT_CONSTRAINT(0xc5, 0xc),
++	UNCORE_EVENT_CONSTRAINT(0xd5, 0xc),
+ 	EVENT_CONSTRAINT_END
+ };
  
- 	drm_legacy_ctxbitmap_flush(dev, file);
- 
--	if (drm_is_primary_client(file))
--		drm_master_release(file);
--
- 	if (dev->driver->postclose)
- 		dev->driver->postclose(dev, file);
- 
-@@ -305,6 +302,9 @@ static void drm_close_helper(struct file *filp)
- 	list_del(&file_priv->lhead);
- 	mutex_unlock(&dev->filelist_mutex);
- 
-+	if (drm_is_primary_client(file_priv))
-+		drm_master_release(file_priv);
-+
- 	drm_file_free(file_priv);
- }
- 
--- 
-2.25.1
-
