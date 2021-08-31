@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EE23FCE3D
-	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 22:16:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D4A93FCE8B
+	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 22:24:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240899AbhHaURB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Aug 2021 16:17:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46892 "EHLO mail.kernel.org"
+        id S241086AbhHaUZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Aug 2021 16:25:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232698AbhHaURA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 31 Aug 2021 16:17:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3E3B60238;
-        Tue, 31 Aug 2021 20:16:04 +0000 (UTC)
+        id S241028AbhHaUZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 31 Aug 2021 16:25:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC36060F23;
+        Tue, 31 Aug 2021 20:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1630440965;
-        bh=vrSk7NGDKruQ1GGNei/dolE9sb0nalFXWoxlFB5C8ag=;
+        s=korg; t=1630441480;
+        bh=yDCqkILFvm9fAJPJkR8tyuea8O+63omCDcjVE0x7Z5c=;
         h=Date:From:To:Subject:From;
-        b=m6Pm6SUM35dJcyPfXTZsMSgGEjbOBkHoIzqT/2ktJ6m2fNIGN5musDyk9rKZXNASH
-         I5QypLdi4eR8RcjAolA0P0mFI9lTTjCP7abEMuzOpx5OvaRlMQUej2+DsvzMDOMgpO
-         5Uxeb0OaY0TLZ5pW2Mz6za+ZKpSUybRJi2yz1tW0=
-Date:   Tue, 31 Aug 2021 13:16:04 -0700
+        b=SO3Ht7nSmS+HyO5rk0m5KejCmAcp/EVqK8HDa6RpKiykudFFRCeAGeOkEQ1tKqeJM
+         5+FZL7mZbOlNH9I2z5nJ842QnZC/Ltl13BfSKDowlXLhcyA55FF8eSRMHfpcefQ6lG
+         dwrksr5jC8lOsNU6ziujAv/VtcEyjYhHETMyPaec=
+Date:   Tue, 31 Aug 2021 13:24:39 -0700
 From:   akpm@linux-foundation.org
-To:     guillaume@morinfr.org, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  +
- hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split.patch added to -mm
- tree
-Message-ID: <20210831201604.JZQfdyjOA%akpm@linux-foundation.org>
+To:     abaci@linux.alibaba.com, mm-commits@vger.kernel.org,
+        naoya.horiguchi@nec.com, stable@vger.kernel.org,
+        yun.wang@linux.alibaba.com
+Subject:  + mm-fix-panic-caused-by-__page_handle_poison.patch added
+ to -mm tree
+Message-ID: <20210831202439.jkeWd26U_%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -35,14 +35,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: hugetlb: fix hugetlb cgroup refcounting during vma split
+     Subject: mm: fix panic caused by __page_handle_poison()
 has been added to the -mm tree.  Its filename is
-     hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split.patch
+     mm-fix-panic-caused-by-__page_handle_poison.patch
 
 This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split.patch
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-fix-panic-caused-by-__page_handle_poison.patch
 and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split.patch
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-fix-panic-caused-by-__page_handle_poison.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -56,105 +56,74 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: hugetlb: fix hugetlb cgroup refcounting during vma split
+From: Michael Wang <yun.wang@linux.alibaba.com>
+Subject: mm: fix panic caused by __page_handle_poison()
 
-Guillaume Morin reported hitting the following WARNING followed by GPF or
-NULL pointer deference either in cgroups_destroy or in the kill_css path.:
+In commit 510d25c92ec4 ("mm/hwpoison: disable pcp for
+page_handle_poison()"), __page_handle_poison() was introduced, and if we
+mark:
 
-percpu ref (css_release) <= 0 (-1) after switching to atomic
-WARNING: CPU: 23 PID: 130 at lib/percpu-refcount.c:196 percpu_ref_switch_to_atomic_rcu+0x127/0x130
-CPU: 23 PID: 130 Comm: ksoftirqd/23 Kdump: loaded Tainted: G           O      5.10.60 #1
-RIP: 0010:percpu_ref_switch_to_atomic_rcu+0x127/0x130
-Call Trace:
- rcu_core+0x30f/0x530
- rcu_core_si+0xe/0x10
- __do_softirq+0x103/0x2a2
- ? sort_range+0x30/0x30
- run_ksoftirqd+0x2b/0x40
- smpboot_thread_fn+0x11a/0x170
- kthread+0x10a/0x140
- ? kthread_create_worker_on_cpu+0x70/0x70
- ret_from_fork+0x22/0x30
+RET_A = dissolve_free_huge_page();
+RET_B = take_page_off_buddy();
 
-Upon further examination, it was discovered that the css structure was
-associated with hugetlb reservations.
+then __page_handle_poison was supposed to return TRUE When RET_A == 0 &&
+RET_B == TRUE
 
-For private hugetlb mappings the vma points to a reserve map that contains
-a pointer to the css.  At mmap time, reservations are set up and a
-reference to the css is taken.  This reference is dropped in the vma close
-operation; hugetlb_vm_op_close.  However, if a vma is split no additional
-reference to the css is taken yet hugetlb_vm_op_close will be called twice
-for the split vma resulting in an underflow.
+But since it failed to take care the case when RET_A is -EBUSY or -ENOMEM,
+and just return the ret as a bool which actually become TRUE, it break the
+original logic.
 
-Fix by taking another reference in hugetlb_vm_op_open.  Note that the
-reference is only taken for the owner of the reserve map.  In the more
-common fork case, the pointer to the reserve map is cleared for non-owning
-vmas.
+The following result is a huge page in freelist but was
+referenced as poisoned, and lead into the final panic:
 
-Link: https://lkml.kernel.org/r/20210830215015.155224-1-mike.kravetz@oracle.com
-Fixes: e9fe92ae0cd2 ("hugetlb_cgroup: add reservation accounting for
-private mappings")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Guillaume Morin <guillaume@morinfr.org>
-Suggested-by: Guillaume Morin <guillaume@morinfr.org>
-Tested-by: Guillaume Morin <guillaume@morinfr.org>
-Cc: <stable@vger.kernel.org>
+  kernel BUG at mm/internal.h:95!
+  invalid opcode: 0000 [#1] SMP PTI
+  skip...
+  RIP: 0010:set_page_refcounted mm/internal.h:95 [inline]
+  RIP: 0010:remove_hugetlb_page+0x23c/0x240 mm/hugetlb.c:1371
+  skip...
+  Call Trace:
+   remove_pool_huge_page+0xe4/0x110 mm/hugetlb.c:1892
+   return_unused_surplus_pages+0x8d/0x150 mm/hugetlb.c:2272
+   hugetlb_acct_memory.part.91+0x524/0x690 mm/hugetlb.c:4017
+
+This patch replaces 'bool' with 'int' to handle RET_A correctly.
+
+Link: https://lkml.kernel.org/r/61782ac6-1e8a-4f6f-35e6-e94fce3b37f5@linux.alibaba.com
+Fixes: 510d25c92ec4 ("mm/hwpoison: disable pcp for page_handle_poison()")
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Cc: <stable@vger.kernel.org>	[5.14+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/hugetlb_cgroup.h |   12 ++++++++++++
- mm/hugetlb.c                   |    4 +++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ mm/memory-failure.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/linux/hugetlb_cgroup.h~hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split
-+++ a/include/linux/hugetlb_cgroup.h
-@@ -121,6 +121,13 @@ static inline void hugetlb_cgroup_put_rs
- 	css_put(&h_cg->css);
- }
+--- a/mm/memory-failure.c~mm-fix-panic-caused-by-__page_handle_poison
++++ a/mm/memory-failure.c
+@@ -68,7 +68,7 @@ atomic_long_t num_poisoned_pages __read_
  
-+static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+	if (resv_map->css)
-+		css_get(resv_map->css);
-+}
-+
- extern int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					struct hugetlb_cgroup **ptr);
- extern int hugetlb_cgroup_charge_cgroup_rsvd(int idx, unsigned long nr_pages,
-@@ -199,6 +206,11 @@ static inline void hugetlb_cgroup_put_rs
+ static bool __page_handle_poison(struct page *page)
  {
+-	bool ret;
++	int ret;
+ 
+ 	zone_pcp_disable(page_zone(page));
+ 	ret = dissolve_free_huge_page(page);
+@@ -76,7 +76,7 @@ static bool __page_handle_poison(struct
+ 		ret = take_page_off_buddy(page);
+ 	zone_pcp_enable(page_zone(page));
+ 
+-	return ret;
++	return ret > 0;
  }
  
-+static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+}
-+
- static inline int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					       struct hugetlb_cgroup **ptr)
- {
---- a/mm/hugetlb.c~hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split
-+++ a/mm/hugetlb.c
-@@ -4106,8 +4106,10 @@ static void hugetlb_vm_op_open(struct vm
- 	 * after this open call completes.  It is therefore safe to take a
- 	 * new reference here without additional locking.
- 	 */
--	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER))
-+	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER)) {
-+		resv_map_dup_hugetlb_cgroup_uncharge_info(resv);
- 		kref_get(&resv->refs);
-+	}
- }
- 
- static void hugetlb_vm_op_close(struct vm_area_struct *vma)
+ static bool page_handle_poison(struct page *page, bool hugepage_or_freepage, bool release)
 _
 
-Patches currently in -mm which might be from mike.kravetz@oracle.com are
+Patches currently in -mm which might be from yun.wang@linux.alibaba.com are
 
-hugetlb-simplify-prep_compound_gigantic_page-ref-count-racing-code.patch
-hugetlb-drop-ref-count-earlier-after-page-allocation.patch
-hugetlb-before-freeing-hugetlb-page-set-dtor-to-appropriate-value.patch
-hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split.patch
+mm-fix-panic-caused-by-__page_handle_poison.patch
 
