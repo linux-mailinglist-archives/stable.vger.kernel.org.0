@@ -2,166 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA4463FC99C
-	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 16:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F383FCA70
+	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 16:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232014AbhHaOVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Aug 2021 10:21:05 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47338 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234116AbhHaOVE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 10:21:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630419608;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=kuHdMLn18IKwwH4QQSWLOw+X0/FNLXCUYkqXo3AG1Jk=;
-        b=GbowEyRVoAtR1J8FXUhpxEdeIgnxtW6eLhOSwnjdYJmYip/pkGpFYEZnrLr1jdThigX3Z2
-        Ft0KtU+1j9W6/seZrnWSgp4sY8aa6S7FU/uVkGFCPd8j/sTkJNEnW2lh4r6NbI38WtaNZ4
-        0GXNFarOroJe3Sh7jngo98NpmLxIDEo=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-68-ePwtUVXfOlSNShUn_FzdFQ-1; Tue, 31 Aug 2021 10:20:06 -0400
-X-MC-Unique: ePwtUVXfOlSNShUn_FzdFQ-1
-Received: by mail-ej1-f72.google.com with SMTP id s11-20020a170906060b00b005be824f15daso7190531ejb.2
-        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 07:20:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=kuHdMLn18IKwwH4QQSWLOw+X0/FNLXCUYkqXo3AG1Jk=;
-        b=oYzRKYIuGSVZQgksbtYC4toaxTgCFO6G8zr1WigTyy2/zEL3Esc57CNTjc7OlBr830
-         gWj5cJ685Wmjwfst7qCVmkffJs3zwpokAJZBuaRrVuWBfLS0IoMbwmJZAzZKdTqYeUQ8
-         sqg3KwI25ytBgdpcQt7fQqnEPRYz6CmXEAV1yRRgIeXWI8+CfTtL6gGTeN9LH9GnIBuc
-         KqAj/gYiICzhkMDxHoDFrF+5gtCU3o6nvozLMlz6UtOTDzTkrHgh1r0ugaCOoB3gokgy
-         PxiD2Acoyvc40q/BCf/YXA8NliT1WN3donOUISGIPqkbDeDIxBZDPscoXhHm08W5Z8Fy
-         sW4g==
-X-Gm-Message-State: AOAM533DqGRm7bySCz7AMwLYVyqipH2OpVLLDqIvCxkDjfRtDI2MeaMD
-        14LJDP/hZsVmk+rRyiqAxdkr/RFtKIO3wiGoMNpR44iAxtPe3xzw/trRKPm7WQd6japlsQicwa5
-        WZxE+zrybQWH2FPXW
-X-Received: by 2002:a17:906:4482:: with SMTP id y2mr11838347ejo.484.1630419605673;
-        Tue, 31 Aug 2021 07:20:05 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyCxB/XR66pzE/FFXAseDZAL6q3C0BZpaBf1FpxaPmkMLrL2KcZjS2xPKREZptzzbalDzsEyA==
-X-Received: by 2002:a17:906:4482:: with SMTP id y2mr11838314ejo.484.1630419605313;
-        Tue, 31 Aug 2021 07:20:05 -0700 (PDT)
-Received: from x1.localdomain (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
-        by smtp.gmail.com with ESMTPSA id h7sm3392356edr.4.2021.08.31.07.20.04
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 31 Aug 2021 07:20:04 -0700 (PDT)
-Subject: Re: [PATCH regression fix] firmware/dmi: Move product_sku info to the
- end of the modalias
-To:     Jean Delvare <jdelvare@suse.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Kai-Chuan Hsieh <kaichuan.hsieh@canonical.com>,
-        Erwan Velu <e.velu@criteo.com>
-References: <20210831130508.14511-1-hdegoede@redhat.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <0a96f1de-c0a0-40ce-e4dc-0acacfa2c7a8@redhat.com>
-Date:   Tue, 31 Aug 2021 16:20:03 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S237388AbhHaO6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Aug 2021 10:58:32 -0400
+Received: from mo1.intermailgate.com ([91.203.103.210]:41188 "EHLO
+        mo1.intermailgate.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236081AbhHaO6b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 10:58:31 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mo1.intermailgate.com (Postfix) with ESMTP id 9355D204A3
+        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 16:57:35 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=bof.de; s=20180522;
+        t=1630421855; bh=IoAwKcdc+q/wFfv5qGzkpzYehGURggWZDTsRW19a1ms=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc;
+        b=dKX+NKpPFZ0786tzFHVMlwddXLJ0UHqmnFvHO8quzDuxKGCuGKtYB7n5uJxqIP/Ar
+         gvUr17pywQHVYwh/LP6qU3lb2FfvTi3x6b4kk81O7rMgWF/vMC8aqjjEJKlrOsQ3S8
+         nGnrgFD2IQHdSvP1NDz6b0puMwyQYHMiZRGkHYhU=
+Received: from mail-lf1-f50.google.com (unknown [162.158.183.139])
+        by mo1.intermailgate.com (Postfix) with ESMTPSA id 326A82046B
+        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 16:57:31 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=bof.de; s=20180522;
+        t=1630421851; bh=IoAwKcdc+q/wFfv5qGzkpzYehGURggWZDTsRW19a1ms=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc;
+        b=mKpOeDatzqtMCJB9EZHtz7Pn+nQSZnx74dDUxF4C3bQccfVR1A12+Hi2pcki3zAR7
+         AQaPmjxYKbCO1O3WuNUNsAHmmKvBKeJTCB2GlPFiBa87Gw2WQtxUXRAjrypJK01/rm
+         MKaaG5NKPFLvathwyV4+dLnhMlyzCfxyr+z5+01w=
+Received: by mail-lf1-f50.google.com with SMTP id k13so4762516lfv.2
+        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 07:57:31 -0700 (PDT)
+X-Gm-Message-State: AOAM530e95RKmTERhlFkRi/PphUirr9yFu/SIEbemGKtbN4mjbnOjaJJ
+        OK7JfdpLShc34il9HMY2ngRQCq6STadq+R+m/zE=
+X-Google-Smtp-Source: ABdhPJzENr5JXWULNinTi3u+QPQZOQJwjUSuwLFFO075tQRFyz9Vz7UY71ii/lziTPtQpDeeCVrN8vvuDT590Ke2Ir8=
+X-Received: by 2002:a05:6512:1686:: with SMTP id bu6mr22144338lfb.168.1630421849263;
+ Tue, 31 Aug 2021 07:57:29 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210831130508.14511-1-hdegoede@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <61018d93.xsvXcO161PFLQFCX%bof@bof.de> <YQGXyiMb1IntqacG@kroah.com>
+ <CAJ26g5S2tbDhRbWkcgRzAu0eX=FNk00P8srboOSn=jYp4saALA@mail.gmail.com> <YS3TpF8B5TA2mGFr@hirez.programming.kicks-ass.net>
+In-Reply-To: <YS3TpF8B5TA2mGFr@hirez.programming.kicks-ass.net>
+From:   Patrick Schaaf <bof@bof.de>
+Date:   Tue, 31 Aug 2021 16:57:11 +0200
+X-Gmail-Original-Message-ID: <CAJ26g5Toxq-WaRFvP9V-dNL0GXx+w5PTakcQw2stW1HteUhS3w@mail.gmail.com>
+Message-ID: <CAJ26g5Toxq-WaRFvP9V-dNL0GXx+w5PTakcQw2stW1HteUhS3w@mail.gmail.com>
+Subject: Re: stable 5.4.135 REGRESSION / once-a-day WARNING: at kthread_is_per_cpu+0x1c/0x20
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev,
+        =?UTF-8?B?SWdvciBMb27EjWFyZXZpxIc=?= <anubis@igorloncarevic.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Tue, Aug 31, 2021 at 9:01 AM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> 3a7956e25e1d ("kthread: Fix PF_KTHREAD vs to_kthread() race") munged
+> into 5.4.135
+>
+> Never even seen a compiler, please tests.
 
-On 8/31/21 3:05 PM, Hans de Goede wrote:
-> Commit e26f023e01ef ("firmware/dmi: Include product_sku info to modalias")
-> added a new field to the modalias in the middle of the modalias, breaking
-> some existing udev/hwdb matches on the whole modalias without a wildcard
-> ('*') in between the pvr and rvn fields.
-> 
-> All modalias matches in e.g. :
-> https://github.com/systemd/systemd/blob/main/hwdb.d/60-sensor.hwdb
-> deliberately end in ':*' so that new fields can be added at *the end* of
-> the modalias, but adding a new field in the middle like this breaks things.
-> 
-> Move the new sku field to the end of the modalias to fix some hwdb
-> entries no longer matching.
-> 
-> The new sku field has already been put to use in 2 new hwdb entries:
-> 
->  sensor:modalias:platform:HID-SENSOR-200073:dmi:*svnDell*:sku0A3E:*
->   ACCEL_LOCATION=base
-> 
->  sensor:modalias:platform:HID-SENSOR-200073:dmi:*svnDell*:sku0B0B:*
->   ACCEL_LOCATION=base
-> 
-> The wildcard use before and after the sku in these matches means that they
-> should keep working with the sku moved to the end.
-> 
-> Note that there is a second instance of in essence the same problem,
-> commit f5152f4ded3c ("firmware/dmi: Report DMI Bios & EC firmware release")
-> 
-> Added 2 new br and efr fields in the middle of the modalias. This too
-> breaks some hwdb modalias matches, but this has gone unnoticed for over
-> a year. So some newer hwdb modalias matches actually depend on these
-> fields being in the middle of the string. Moving these to the end now
-> would break 3 hwdb entries, while fixing 8 entries.
-> 
-> Since there is no good answer for the new br and efr fields I have chosen
-> to leave these as is. Instead I'll submit a hwdb update to put a wildcard
-> at the place where these fields may or may not be present depending on the
-> kernel version.
+Thanks a lot, Peter. With the addition of a little semicolon in one
+place, I successfully built 5.4.143 with the patch applied, in both my
+host and vm configs.
 
-In case anyone is interested here is the systemd pull-req fixing this from
-the hwdb side: https://github.com/systemd/systemd/pull/20599
+I now have two machines with identical workloads (webserver, database)
+running, one with unpatched 5.4.143, the other with 5.4.143 and that
+patch. Expectation is to see the WARNING on the former, but not on the
+latter. Will report in a day or three about the outcome.
 
-Regards,
+regards
+  Patrick
 
-Hans
+Tested-By: Patrick Schaaf <bof@bof.de>
 
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index b2bac5d929d2..22750a8af83e 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -76,6 +76,25 @@ static inline struct kthread *to_kthread(struct
+task_struct *k)
+        return (__force void *)k->set_child_tid;
+ }
 
++/*
++ * Variant of to_kthread() that doesn't assume @p is a kthread.
++ *
++ * Per construction; when:
++ *
++ *   (p->flags & PF_KTHREAD) && p->set_child_tid
++ *
++ * the task is both a kthread and struct kthread is persistent. However
++ * PF_KTHREAD on it's own is not, kernel_thread() can exec() (See umh.c and
++ * begin_new_exec()).
++ */
++static inline struct kthread *__to_kthread(struct task_struct *p)
++{
++       void *kthread = (__force void *)p->set_child_tid;
++       if (kthread && !(p->flags & PF_KTHREAD))
++               kthread = NULL;
++       return kthread;
++}
++
+ void free_kthread_struct(struct task_struct *k)
+ {
+        struct kthread *kthread;
+@@ -176,10 +195,11 @@ void *kthread_data(struct task_struct *task)
+  */
+ void *kthread_probe_data(struct task_struct *task)
+ {
+-       struct kthread *kthread = to_kthread(task);
++       struct kthread *kthread = __to_kthread(task);
+        void *data = NULL;
 
-> BugLink: https://github.com/systemd/systemd/issues/20550
-> Link: https://github.com/systemd/systemd/pull/20562
-> Fixes: e26f023e01ef ("firmware/dmi: Include product_sku info to modalias")
-> Cc: stable@vger.kernel.org
-> Cc: Kai-Chuan Hsieh <kaichuan.hsieh@canonical.com>
-> Cc: Erwan Velu <e.velu@criteo.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/firmware/dmi-id.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/firmware/dmi-id.c b/drivers/firmware/dmi-id.c
-> index 4d5421d14a41..940ddf916202 100644
-> --- a/drivers/firmware/dmi-id.c
-> +++ b/drivers/firmware/dmi-id.c
-> @@ -73,6 +73,10 @@ static void ascii_filter(char *d, const char *s)
->  
->  static ssize_t get_modalias(char *buffer, size_t buffer_size)
->  {
-> +	/*
-> +	 * Note new fields need to be added at the end to keep compatibility
-> +	 * with udev's hwdb which does matches on "`cat dmi/id/modalias`*".
-> +	 */
->  	static const struct mafield {
->  		const char *prefix;
->  		int field;
-> @@ -85,13 +89,13 @@ static ssize_t get_modalias(char *buffer, size_t buffer_size)
->  		{ "svn", DMI_SYS_VENDOR },
->  		{ "pn",  DMI_PRODUCT_NAME },
->  		{ "pvr", DMI_PRODUCT_VERSION },
-> -		{ "sku", DMI_PRODUCT_SKU },
->  		{ "rvn", DMI_BOARD_VENDOR },
->  		{ "rn",  DMI_BOARD_NAME },
->  		{ "rvr", DMI_BOARD_VERSION },
->  		{ "cvn", DMI_CHASSIS_VENDOR },
->  		{ "ct",  DMI_CHASSIS_TYPE },
->  		{ "cvr", DMI_CHASSIS_VERSION },
-> +		{ "sku", DMI_PRODUCT_SKU },
->  		{ NULL,  DMI_NONE }
->  	};
->  
-> 
+-       probe_kernel_read(&data, &kthread->data, sizeof(data));
++       if (kthread)
++               probe_kernel_read(&data, &kthread->data, sizeof(data));
+        return data;
+ }
 
+@@ -490,9 +510,9 @@ void kthread_set_per_cpu(struct task_struct *k, int cpu)
+        set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
+ }
+
+-bool kthread_is_per_cpu(struct task_struct *k)
++bool kthread_is_per_cpu(struct task_struct *p)
+ {
+-       struct kthread *kthread = to_kthread(k);
++       struct kthread *kthread = __to_kthread(p);
+        if (!kthread)
+                return false;
+
+@@ -1272,11 +1292,9 @@ EXPORT_SYMBOL(kthread_destroy_worker);
+  */
+ void kthread_associate_blkcg(struct cgroup_subsys_state *css)
+ {
+-       struct kthread *kthread;
++       struct kthread *kthread = __to_kthread(current);
++
+
+-       if (!(current->flags & PF_KTHREAD))
+-               return;
+-       kthread = to_kthread(current);
+        if (!kthread)
+                return;
+
+@@ -1298,13 +1316,10 @@ EXPORT_SYMBOL(kthread_associate_blkcg);
+  */
+ struct cgroup_subsys_state *kthread_blkcg(void)
+ {
+-       struct kthread *kthread;
++       struct kthread *kthread = __to_kthread(current);
+
+-       if (current->flags & PF_KTHREAD) {
+-               kthread = to_kthread(current);
+-               if (kthread)
+-                       return kthread->blkcg_css;
+-       }
++       if (kthread)
++               return kthread->blkcg_css;
+        return NULL;
+ }
+ EXPORT_SYMBOL(kthread_blkcg);
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 74cb20f32f72..87d9fad9d01d 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -7301,7 +7301,7 @@ int can_migrate_task(struct task_struct *p,
+struct lb_env *env)
+                return 0;
+
+        /* Disregard pcpu kthreads; they are where they need to be. */
+-       if ((p->flags & PF_KTHREAD) && kthread_is_per_cpu(p))
++       if (kthread_is_per_cpu(p))
+                return 0;
+
+        if (!cpumask_test_cpu(env->dst_cpu, p->cpus_ptr)) {
