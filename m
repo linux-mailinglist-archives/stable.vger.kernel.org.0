@@ -2,75 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A36B3FC205
-	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 06:48:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D993FC288
+	for <lists+stable@lfdr.de>; Tue, 31 Aug 2021 08:16:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234726AbhHaEsA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Aug 2021 00:48:00 -0400
-Received: from mo1.intermailgate.com ([91.203.103.210]:48866 "EHLO
-        mo1.intermailgate.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233580AbhHaEr7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 00:47:59 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mo1.intermailgate.com (Postfix) with ESMTP id 3F4D4809E9
-        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 06:47:02 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=bof.de; s=20180522;
-        t=1630385222; bh=vQBdUiphtsfPgcBs1AS+zxaL3pEfW5kH2Eao5L+/iFI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc;
-        b=cLUOMyYYn8QbGbvAxPPuZeQCptVn7RKGefwMVnosYucpnbmtIHAvkHiOvehZfzUM9
-         gUnsv5zgdu3LzXsKbytl2LOL/c+5th2WePSQQMgAuvK64zy2Pa0mCACZ0qwbEli/fb
-         4Bs309qMEimaoD/s2dE6luJe+wMSqoqCANDt3ooI=
-Received: from mail-lf1-f49.google.com (unknown [162.158.183.176])
-        by mo1.intermailgate.com (Postfix) with ESMTPSA id CF82780F1A
-        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 06:46:57 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=bof.de; s=20180522;
-        t=1630385217; bh=vQBdUiphtsfPgcBs1AS+zxaL3pEfW5kH2Eao5L+/iFI=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc;
-        b=ZxinhJJ8hmfV9BJdQ6RgnXW2VXoPit68KuReBaRQmKXCyBohs4o1Za48sfmj2Gau1
-         WDzL9/0XR17qNk/6hneM6XICFS2BO9vimdJuZjX9T1Vlt+ZrbedhTzBs1AuyS6Rif8
-         Vrq64DFBNNoxmYuxMZyNLJhPcWx/ukfk4TZU3ACA=
-Received: by mail-lf1-f49.google.com with SMTP id s10so10960791lfr.11
-        for <stable@vger.kernel.org>; Mon, 30 Aug 2021 21:46:57 -0700 (PDT)
-X-Gm-Message-State: AOAM531JQ6zy8Btv7lmluG3Snh/gDFjzAtWglywXkGwVZp7vqZ7exWYm
-        jx5SKLwAMir7yCRjEMvGSzWRasqTBda34tsLUQQ=
-X-Google-Smtp-Source: ABdhPJzVdkO4u/llKb099ZNjucQmxyXekgdRXv7+Fbjpmh0/kyTt2c4StQ3wVFzF6/ZHimiDdFS6iBysPMobUZZPwJc=
-X-Received: by 2002:a05:6512:3188:: with SMTP id i8mr15909765lfe.209.1630385217206;
- Mon, 30 Aug 2021 21:46:57 -0700 (PDT)
+        id S230526AbhHaGPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Aug 2021 02:15:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38084 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229457AbhHaGPl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Aug 2021 02:15:41 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CE3EC061575;
+        Mon, 30 Aug 2021 23:14:47 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id u11-20020a17090adb4b00b00181668a56d6so1605837pjx.5;
+        Mon, 30 Aug 2021 23:14:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=tHn1bKbgKWkWnpZZfeyzrlp2g8PdlS3oPFK4wibr8zM=;
+        b=eXIjFmJAssVk3qum2qiXCLhVDT8BHwEP00acuPJC6D3sWtXepsNRzl7WSa6QoQy99y
+         dUAJT/Gv/isjtGOA3E207i4Tsg3jM8j5lwtN9mQ5mIE1L4CtzGYd9e/zLEhVdXiEHfEX
+         MK3cuuw+X9WOT70++OXU9foFpZmdwQL8+ub9sVd8DFGdh2I4LBOAdF3P8oABbUdS/Y54
+         4Qjd1EndwTYPXWN/mnR2yMNqh9M9wuTMFPtmjSuKYEHNCteFwK4boUyHPOoTuD7my/aS
+         UQusq/C0g8X0wUQzNjsJflhtzcsL03ZTs8shCqEgQNJ4GLN+7wm4QawSviE32FE7ZpHH
+         +2hA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tHn1bKbgKWkWnpZZfeyzrlp2g8PdlS3oPFK4wibr8zM=;
+        b=EwWwjrdJmDsvQQ9LERTF8z/obLCjthiPm2o75GY2i15bDK2jnegDQXWiNZJaFAd/7e
+         +xJjTUDUJkwHTRLKnQ91Tuuj5GSSSpqYd9nNVHWfsGT2LGshB01bdeoXiQq/cGvoAD2S
+         YhyAyXr7BCiWlp5KwJhfebzj7cY142PHVsonvhIN53SezqpcLoJ/ePFdfJXU+hUI5rhZ
+         LAYkBC6EtZqlf+8ln6hKYkD6o+2MrZ4fk6tyCNHkbswlu9EqxOR6lWpaA0A1EbGIbaPF
+         aKOX/LoNUcN7iPWE75iOxPLCzb9JZLMXDH35eNZ9J6BDz/8gZEdoru0b1SepLGElwL+c
+         UKew==
+X-Gm-Message-State: AOAM533JqwDsKcuWM40rTlVWgfAFxmKS8ktK5XEVXg9FMjECtuYBskyf
+        V3EyqftYV8pzj5aTYoKVDJg=
+X-Google-Smtp-Source: ABdhPJzGmBXOz6okx6of+AFSntvusISTlHPl1xEvUsw8GRcQjM3xZQnn+uaj9N1kZDXhTmMeOXLoJw==
+X-Received: by 2002:a17:90b:390d:: with SMTP id ob13mr3460845pjb.129.1630390486636;
+        Mon, 30 Aug 2021 23:14:46 -0700 (PDT)
+Received: from sanitydock.wifi-cloud.jp ([210.160.217.69])
+        by smtp.gmail.com with ESMTPSA id z7sm1405724pjr.42.2021.08.30.23.14.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Aug 2021 23:14:46 -0700 (PDT)
+From:   Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+To:     maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        tzimmermann@suse.de, airlied@linux.ie, daniel@ffwll.ch,
+        sumit.semwal@linaro.org, christian.koenig@amd.com
+Cc:     Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org, skhan@linuxfoundation.org,
+        gregkh@linuxfoundation.org,
+        linux-kernel-mentees@lists.linuxfoundation.org,
+        linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org,
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH v9 1/4] drm: fix null ptr dereference in drm_master_release
+Date:   Tue, 31 Aug 2021 14:13:45 +0800
+Message-Id: <20210831061348.97696-2-desmondcheongzx@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210831061348.97696-1-desmondcheongzx@gmail.com>
+References: <20210831061348.97696-1-desmondcheongzx@gmail.com>
 MIME-Version: 1.0
-References: <61018d93.xsvXcO161PFLQFCX%bof@bof.de> <YQGXyiMb1IntqacG@kroah.com>
-In-Reply-To: <YQGXyiMb1IntqacG@kroah.com>
-From:   Patrick Schaaf <bof@bof.de>
-Date:   Tue, 31 Aug 2021 06:46:40 +0200
-X-Gmail-Original-Message-ID: <CAJ26g5S2tbDhRbWkcgRzAu0eX=FNk00P8srboOSn=jYp4saALA@mail.gmail.com>
-Message-ID: <CAJ26g5S2tbDhRbWkcgRzAu0eX=FNk00P8srboOSn=jYp4saALA@mail.gmail.com>
-Subject: Re: stable 5.4.135 REGRESSION / once-a-day WARNING: at kthread_is_per_cpu+0x1c/0x20
-To:     stable@vger.kernel.org
-Cc:     regressions@lists.linux.dev, anubis@igorloncarevic.com,
-        peterz@infradead.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Looking into this again.
+drm_master_release can be called on a drm_file without a master, which
+results in a null ptr dereference of file_priv->master->magic_map. The
+three cases are:
 
-Unfortunately, couldn't see how I would do bisection on the issue, as
-it appears with that 5.4.118 commit implicated by the call stack,and
-with tha tremoved,is obviously gone(that I tested, 5.4.135 with
-b56ad4febe67b8c0647c0a3e427e935a76dedb59 reverted runs smoothly for
-me, while the original 5.4.135 with that 5.4.118 time commit in, now
-on a dozen machines, throws the WARNING.
+1. Error path in drm_open_helper
+  drm_open():
+    drm_open_helper():
+      drm_master_open():
+        drm_new_set_master(); <--- returns -ENOMEM,
+                                   drm_file.master not set
+      drm_file_free():
+        drm_master_release(); <--- NULL ptr dereference
+                                   (file_priv->master->magic_map)
 
-I got email on the side of someone (Igor, on Cc) who sees the same
-with DELL servers, a newer 5.10 kernel, for him running IPVS + he sees
-actual operational impact there.
+2. Error path in mock_drm_getfile
+  mock_drm_getfile():
+    anon_inode_getfile(); <--- returns error, drm_file.master not set
+    drm_file_free():
+      drm_master_release(); <--- NULL ptr dereference
+                                 (file_priv->master->magic_map)
 
-I just had a look at Linus mainlinetree, and see there is this
-followup / further fix from Peter Zijlstra,
-https://github.com/torvalds/linux/commit/3a7956e25e1d7b3c148569e78895e1f3178122a9
-; now I'm much too incompetent to try and backport that, as it looks
-more involved, but I imagine such a backport would be needed to fix
-the WARNING (or IPVS breakage of Igor) we see.
+3. In drm_client_close, as drm_client_open doesn't set up a master
 
-best regards
-  Patrick
+drm_file.master is set up in drm_open_helper through the call to
+drm_master_open, so we mirror it with a call to drm_master_release in
+drm_close_helper, and remove drm_master_release from drm_file_free to
+avoid the null ptr dereference.
+
+Fixes: 7eeaeb90a6a5 ("drm/file: Don't set master on in-kernel clients")
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+---
+ drivers/gpu/drm/drm_file.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/drm_file.c b/drivers/gpu/drm/drm_file.c
+index ed25168619fc..90b62f360da1 100644
+--- a/drivers/gpu/drm/drm_file.c
++++ b/drivers/gpu/drm/drm_file.c
+@@ -282,9 +282,6 @@ void drm_file_free(struct drm_file *file)
+ 
+ 	drm_legacy_ctxbitmap_flush(dev, file);
+ 
+-	if (drm_is_primary_client(file))
+-		drm_master_release(file);
+-
+ 	if (dev->driver->postclose)
+ 		dev->driver->postclose(dev, file);
+ 
+@@ -305,6 +302,9 @@ static void drm_close_helper(struct file *filp)
+ 	list_del(&file_priv->lhead);
+ 	mutex_unlock(&dev->filelist_mutex);
+ 
++	if (drm_is_primary_client(file_priv))
++		drm_master_release(file_priv);
++
+ 	drm_file_free(file_priv);
+ }
+ 
+-- 
+2.25.1
+
