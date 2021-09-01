@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C3443FDB18
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FBBC3FDBE1
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344308AbhIAMhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:37:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
+        id S1344374AbhIAMph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:45:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245718AbhIAMg0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:36:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E013961106;
-        Wed,  1 Sep 2021 12:33:33 +0000 (UTC)
+        id S1343688AbhIAMmb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:42:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F900610E6;
+        Wed,  1 Sep 2021 12:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499614;
-        bh=ZrIrCklu2AGtDD/CNlj2RiopKfpoGYiTuytVC/N8TXA=;
+        s=korg; t=1630499868;
+        bh=Jg7jQC8m3gMSAoteTA62dK2jyMpVR18M5cwAP06vgck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEggq4A1RPnbNNitljZyWzRBt7znpj3mZLoRg4KtVxRkPo5rVAyks1txTcBSVsCI2
-         2PnqAoONJ/2QtlTc80hrSeIRn+iM6WCL8OyAqZRShCU0SAZgqkTB9mUEf90AzVOV2M
-         5mZvYVQCyeDLrsF9pK648pqKT/AwDmVPYTqewTAk=
+        b=T+ZweIde/lw1U+mDkghiHLKK1HncYcR06DGThz3iiwvV+f2moxsNHEiPnXrqn4BJi
+         nEOIuMHL/cvV+916UCSGrI7eDKMNv2st7kmjNmRJE2td5fPFlg0OdWoyjppnJH61+c
+         Bo6s9FbRfyxd7q5nj0+VtIKQbskDotTQIB6x/qdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 019/103] usb: renesas-xhci: Prefer firmware loading on unknown ROM state
-Date:   Wed,  1 Sep 2021 14:27:29 +0200
-Message-Id: <20210901122301.169538857@linuxfoundation.org>
+        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.13 015/113] ceph: correctly handle releasing an embedded cap flush
+Date:   Wed,  1 Sep 2021 14:27:30 +0200
+Message-Id: <20210901122302.484961297@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,118 +40,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Xiubo Li <xiubli@redhat.com>
 
-commit c82cacd2f1e622a461a77d275a75d7e19e7635a3 upstream.
+commit b2f9fa1f3bd8846f50b355fc2168236975c4d264 upstream.
 
-The recent attempt to handle an unknown ROM state in the commit
-d143825baf15 ("usb: renesas-xhci: Fix handling of unknown ROM state")
-resulted in a regression and reverted later by the commit 44cf53602f5a
-("Revert "usb: renesas-xhci: Fix handling of unknown ROM state"").
-The problem of the former fix was that it treated the failure of
-firmware loading as a fatal error.  Since the firmware files aren't
-included in the standard linux-firmware tree, most users don't have
-them, hence they got the non-working system after that.  The revert
-fixed the regression, but also it didn't make the firmware loading
-triggered even on the devices that do need it.  So we need still a fix
-for them.
+The ceph_cap_flush structures are usually dynamically allocated, but
+the ceph_cap_snap has an embedded one.
 
-This is another attempt to handle the unknown ROM state.  Like the
-previous fix, this also tries to load the firmware when ROM shows
-unknown state.  In this patch, however, the failure of a firmware
-loading (such as a missing firmware file) isn't handled as a fatal
-error any longer when ROM has been already detected, but it falls back
-to the ROM mode like before.  The error is returned only when no ROM
-is detected and the firmware loading failed.
+When force umounting, the client will try to remove all the session
+caps. During this, it will free them, but that should not be done
+with the ones embedded in a capsnap.
 
-Along with it, for simplifying the code flow, the detection and the
-check of ROM is factored out from renesas_fw_check_running() and done
-in the caller side, renesas_xhci_check_request_fw().  It avoids the
-redundant ROM checks.
+Fix this by adding a new boolean that indicates that the cap flush is
+embedded in a capsnap, and skip freeing it if that's set.
 
-The patch was tested on Lenovo Thinkpad T14 gen (BIOS 1.34).  Also it
-was confirmed that no regression is seen on another Thinkpad T14
-machine that has worked without the patch, too.
+At the same time, switch to using list_del_init() when detaching the
+i_list and g_list heads.  It's possible for a forced umount to remove
+these objects but then handle_cap_flushsnap_ack() races in and does the
+list_del_init() again, corrupting memory.
 
-Fixes: 44cf53602f5a ("Revert "usb: renesas-xhci: Fix handling of unknown ROM state"")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1189207
-Link: https://lore.kernel.org/r/20210826124127.14789-1-tiwai@suse.de
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/52283
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-pci-renesas.c |   35 +++++++++++++++++++++++------------
- 1 file changed, 23 insertions(+), 12 deletions(-)
+ fs/ceph/caps.c       |   21 +++++++++++++--------
+ fs/ceph/mds_client.c |    7 ++++---
+ fs/ceph/snap.c       |    3 +++
+ fs/ceph/super.h      |    3 ++-
+ 4 files changed, 22 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/host/xhci-pci-renesas.c
-+++ b/drivers/usb/host/xhci-pci-renesas.c
-@@ -207,7 +207,8 @@ static int renesas_check_rom_state(struc
- 			return 0;
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -1753,7 +1753,11 @@ int __ceph_mark_dirty_caps(struct ceph_i
  
- 		case RENESAS_ROM_STATUS_NO_RESULT: /* No result yet */
--			return 0;
-+			dev_dbg(&pdev->dev, "Unknown ROM status ...\n");
-+			return -ENOENT;
- 
- 		case RENESAS_ROM_STATUS_ERROR: /* Error State */
- 		default: /* All other states are marked as "Reserved states" */
-@@ -224,14 +225,6 @@ static int renesas_fw_check_running(stru
- 	u8 fw_state;
- 	int err;
- 
--	/* Check if device has ROM and loaded, if so skip everything */
--	err = renesas_check_rom(pdev);
--	if (err) { /* we have rom */
--		err = renesas_check_rom_state(pdev);
--		if (!err)
--			return err;
--	}
--
- 	/*
- 	 * Test if the device is actually needing the firmware. As most
- 	 * BIOSes will initialize the device for us. If the device is
-@@ -591,21 +584,39 @@ int renesas_xhci_check_request_fw(struct
- 			(struct xhci_driver_data *)id->driver_data;
- 	const char *fw_name = driver_data->firmware;
- 	const struct firmware *fw;
-+	bool has_rom;
- 	int err;
- 
-+	/* Check if device has ROM and loaded, if so skip everything */
-+	has_rom = renesas_check_rom(pdev);
-+	if (has_rom) {
-+		err = renesas_check_rom_state(pdev);
-+		if (!err)
-+			return 0;
-+		else if (err != -ENOENT)
-+			has_rom = false;
-+	}
+ struct ceph_cap_flush *ceph_alloc_cap_flush(void)
+ {
+-	return kmem_cache_alloc(ceph_cap_flush_cachep, GFP_KERNEL);
++	struct ceph_cap_flush *cf;
 +
- 	err = renesas_fw_check_running(pdev);
- 	/* Continue ahead, if the firmware is already running. */
- 	if (err == 0)
- 		return 0;
++	cf = kmem_cache_alloc(ceph_cap_flush_cachep, GFP_KERNEL);
++	cf->is_capsnap = false;
++	return cf;
+ }
  
-+	/* no firmware interface available */
- 	if (err != 1)
--		return err;
-+		return has_rom ? 0 : err;
+ void ceph_free_cap_flush(struct ceph_cap_flush *cf)
+@@ -1788,7 +1792,7 @@ static bool __detach_cap_flush_from_mdsc
+ 		prev->wake = true;
+ 		wake = false;
+ 	}
+-	list_del(&cf->g_list);
++	list_del_init(&cf->g_list);
+ 	return wake;
+ }
  
- 	pci_dev_get(pdev);
--	err = request_firmware(&fw, fw_name, &pdev->dev);
-+	err = firmware_request_nowarn(&fw, fw_name, &pdev->dev);
- 	pci_dev_put(pdev);
- 	if (err) {
--		dev_err(&pdev->dev, "request_firmware failed: %d\n", err);
-+		if (has_rom) {
-+			dev_info(&pdev->dev, "failed to load firmware %s, fallback to ROM\n",
-+				 fw_name);
-+			return 0;
-+		}
-+		dev_err(&pdev->dev, "failed to load firmware %s: %d\n",
-+			fw_name, err);
- 		return err;
+@@ -1803,7 +1807,7 @@ static bool __detach_cap_flush_from_ci(s
+ 		prev->wake = true;
+ 		wake = false;
+ 	}
+-	list_del(&cf->i_list);
++	list_del_init(&cf->i_list);
+ 	return wake;
+ }
+ 
+@@ -2423,7 +2427,7 @@ static void __kick_flushing_caps(struct
+ 	ci->i_ceph_flags &= ~CEPH_I_KICK_FLUSH;
+ 
+ 	list_for_each_entry_reverse(cf, &ci->i_cap_flush_list, i_list) {
+-		if (!cf->caps) {
++		if (cf->is_capsnap) {
+ 			last_snap_flush = cf->tid;
+ 			break;
+ 		}
+@@ -2442,7 +2446,7 @@ static void __kick_flushing_caps(struct
+ 
+ 		first_tid = cf->tid + 1;
+ 
+-		if (cf->caps) {
++		if (!cf->is_capsnap) {
+ 			struct cap_msg_args arg;
+ 
+ 			dout("kick_flushing_caps %p cap %p tid %llu %s\n",
+@@ -3589,7 +3593,7 @@ static void handle_cap_flush_ack(struct
+ 			cleaned = cf->caps;
+ 
+ 		/* Is this a capsnap? */
+-		if (cf->caps == 0)
++		if (cf->is_capsnap)
+ 			continue;
+ 
+ 		if (cf->tid <= flush_tid) {
+@@ -3662,8 +3666,9 @@ out:
+ 	while (!list_empty(&to_remove)) {
+ 		cf = list_first_entry(&to_remove,
+ 				      struct ceph_cap_flush, i_list);
+-		list_del(&cf->i_list);
+-		ceph_free_cap_flush(cf);
++		list_del_init(&cf->i_list);
++		if (!cf->is_capsnap)
++			ceph_free_cap_flush(cf);
  	}
  
+ 	if (wake_ci)
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -1621,7 +1621,7 @@ static int remove_session_caps_cb(struct
+ 		spin_lock(&mdsc->cap_dirty_lock);
+ 
+ 		list_for_each_entry(cf, &to_remove, i_list)
+-			list_del(&cf->g_list);
++			list_del_init(&cf->g_list);
+ 
+ 		if (!list_empty(&ci->i_dirty_item)) {
+ 			pr_warn_ratelimited(
+@@ -1673,8 +1673,9 @@ static int remove_session_caps_cb(struct
+ 		struct ceph_cap_flush *cf;
+ 		cf = list_first_entry(&to_remove,
+ 				      struct ceph_cap_flush, i_list);
+-		list_del(&cf->i_list);
+-		ceph_free_cap_flush(cf);
++		list_del_init(&cf->i_list);
++		if (!cf->is_capsnap)
++			ceph_free_cap_flush(cf);
+ 	}
+ 
+ 	wake_up_all(&ci->i_cap_wq);
+--- a/fs/ceph/snap.c
++++ b/fs/ceph/snap.c
+@@ -487,6 +487,9 @@ void ceph_queue_cap_snap(struct ceph_ino
+ 		pr_err("ENOMEM allocating ceph_cap_snap on %p\n", inode);
+ 		return;
+ 	}
++	capsnap->cap_flush.is_capsnap = true;
++	INIT_LIST_HEAD(&capsnap->cap_flush.i_list);
++	INIT_LIST_HEAD(&capsnap->cap_flush.g_list);
+ 
+ 	spin_lock(&ci->i_ceph_lock);
+ 	used = __ceph_caps_used(ci);
+--- a/fs/ceph/super.h
++++ b/fs/ceph/super.h
+@@ -182,8 +182,9 @@ struct ceph_cap {
+ 
+ struct ceph_cap_flush {
+ 	u64 tid;
+-	int caps; /* 0 means capsnap */
++	int caps;
+ 	bool wake; /* wake up flush waiters when finish ? */
++	bool is_capsnap; /* true means capsnap */
+ 	struct list_head g_list; // global
+ 	struct list_head i_list; // per inode
+ };
 
 
