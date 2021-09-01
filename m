@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26AFB3FDA91
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B41BA3FDB9C
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244035AbhIAMdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:33:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34618 "EHLO mail.kernel.org"
+        id S245519AbhIAMmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:42:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244545AbhIAMbx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:31:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67FDF610C9;
-        Wed,  1 Sep 2021 12:30:56 +0000 (UTC)
+        id S1345095AbhIAMko (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BE2561100;
+        Wed,  1 Sep 2021 12:36:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499457;
-        bh=FXLTM2FmsjARSgGovu0OGsj2PLrYLKUBTC4PYZF2IOM=;
+        s=korg; t=1630499820;
+        bh=vnPqbr+xlZk1FuW1/mSsJ3hRghBhnkIStU/5Cl7ncv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6p9Zlg0G1lJ7VbBrTiKJ05oDqnKNZ8ooe/vJ0GifL4FYzlJB1qoOVP6ZWhF6+h36
-         okqPxm4xNPZyXP1sKmhKlOmiM+xd+r2sKDJjP/QmPVldmq7Xdf6voPQucwpQMGbiM4
-         sd56AsRnEreZIEIoRWCQWhcWIHcBlbhxdQqbBjLg=
+        b=vwWRlvUhYyW7O9r0/0hylMW9WoZRMFhbFFF6s6LvwCj0a+buOM+PyZ+iJlWtty9lP
+         X6VDPGTayruFEqPo5pXl5hf7y/NkYmydLmKdpr81+9xYFdBgEurYTVz1vzOy1T8oYu
+         G9+/i9PZPwmCuGmBiTxbi482plw3bcK7sDrUPNvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 29/33] vt_kdsetmode: extend console locking
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 068/103] drm/nouveau/disp: power down unused DP links during init
 Date:   Wed,  1 Sep 2021 14:28:18 +0200
-Message-Id: <20210901122251.746981984@linuxfoundation.org>
+Message-Id: <20210901122302.859384711@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
-References: <20210901122250.752620302@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-commit 2287a51ba822384834dafc1c798453375d1107c7 upstream.
+[ Upstream commit 6eaa1f3c59a707332e921e32782ffcad49915c5e ]
 
-As per the long-suffering comment.
+When booted with multiple displays attached, the EFI GOP driver on (at
+least) Ampere, can leave DP links powered up that aren't being used to
+display anything.  This confuses our tracking of SOR routing, with the
+likely result being a failed modeset and display engine hang.
 
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by (ab?)using the DisableLT IED script to power-down the link,
+restoring HW to a state the driver expects.
+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vt_ioctl.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c   | 2 +-
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h   | 1 +
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c | 9 +++++++++
+ 3 files changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -484,16 +484,19 @@ int vt_ioctl(struct tty_struct *tty,
- 			ret = -EINVAL;
- 			goto out;
- 		}
--		/* FIXME: this needs the console lock extending */
--		if (vc->vc_mode == (unsigned char) arg)
-+		console_lock();
-+		if (vc->vc_mode == (unsigned char) arg) {
-+			console_unlock();
- 			break;
-+		}
- 		vc->vc_mode = (unsigned char) arg;
--		if (console != fg_console)
-+		if (console != fg_console) {
-+			console_unlock();
- 			break;
-+		}
- 		/*
- 		 * explicitly blank/unblank the screen if switching modes
- 		 */
--		console_lock();
- 		if (arg == KD_TEXT)
- 			do_unblank_screen(1);
- 		else
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
+index 3800aeb507d0..2a7b8bc3ec4d 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
+@@ -419,7 +419,7 @@ nvkm_dp_train(struct nvkm_dp *dp, u32 dataKBps)
+ 	return ret;
+ }
+ 
+-static void
++void
+ nvkm_dp_disable(struct nvkm_outp *outp, struct nvkm_ior *ior)
+ {
+ 	struct nvkm_dp *dp = nvkm_dp(outp);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h
+index 428b3f488f03..e484d0c3b0d4 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h
+@@ -32,6 +32,7 @@ struct nvkm_dp {
+ 
+ int nvkm_dp_new(struct nvkm_disp *, int index, struct dcb_output *,
+ 		struct nvkm_outp **);
++void nvkm_dp_disable(struct nvkm_outp *, struct nvkm_ior *);
+ 
+ /* DPCD Receiver Capabilities */
+ #define DPCD_RC00_DPCD_REV                                              0x00000
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c
+index dffcac249211..129982fef7ef 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c
+@@ -22,6 +22,7 @@
+  * Authors: Ben Skeggs
+  */
+ #include "outp.h"
++#include "dp.h"
+ #include "ior.h"
+ 
+ #include <subdev/bios.h>
+@@ -257,6 +258,14 @@ nvkm_outp_init_route(struct nvkm_outp *outp)
+ 	if (!ior->arm.head || ior->arm.proto != proto) {
+ 		OUTP_DBG(outp, "no heads (%x %d %d)", ior->arm.head,
+ 			 ior->arm.proto, proto);
++
++		/* The EFI GOP driver on Ampere can leave unused DP links routed,
++		 * which we don't expect.  The DisableLT IED script *should* get
++		 * us back to where we need to be.
++		 */
++		if (ior->func->route.get && !ior->arm.head && outp->info.type == DCB_OUTPUT_DP)
++			nvkm_dp_disable(outp, ior);
++
+ 		return;
+ 	}
+ 
+-- 
+2.30.2
+
 
 
