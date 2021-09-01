@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D96DE3FDA9F
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23F933FDC20
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343538AbhIAMdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:33:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33934 "EHLO mail.kernel.org"
+        id S1344767AbhIAMq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:46:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245002AbhIAMcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:32:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D69DE61027;
-        Wed,  1 Sep 2021 12:31:11 +0000 (UTC)
+        id S1345677AbhIAMoz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:44:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79828610F9;
+        Wed,  1 Sep 2021 12:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499472;
-        bh=SijOpYyQqdDkOkhH1GYx8Q4As3/+YQr7M6n8X6rjOwg=;
+        s=korg; t=1630499957;
+        bh=dTsJCAZDOJCYDHAGrT/XoFuf+ypbwnsqUGqkEhSBU+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L0x+E0jpb3ESISoHu0hH+rouDuA4yHyQoVO6L+r4FlB8L80XsvyRjnHLslWTx8gl2
-         1EyW6jR/ntUApO0Vt+nTRtIi6iINZqUvhPS6nbss0Qn6EqWuFCS/rLZnp8KkmoL+q0
-         u9zKIfKiwQndLzStlduDzwNkbSxVY56xXpqjd23s=
+        b=tVq/cJxtogv7CchCm+SaVZIhfG/rO4ygG+OoslxaVFTP831WKfDRD97gDnGcZggj+
+         c2YBocdYvzhh6zQF653pLjQmHmGpASGT72lsNlVwRxDq/mhJ1D0bkxoedfBzVmy/SU
+         iCdZckPQv/jruO+j1FcB+t9QjHAPF3bBchWl1ltA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Li Jinlin <lijinlin3@huawei.com>,
-        Qiu Laibin <qiulaibin@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.4 13/48] scsi: core: Fix hang of freezing queue between blocking and running device
+        stable@vger.kernel.org,
+        syzbot+ff8e1b9f2f36481e2efc@syzkaller.appspotmail.com,
+        Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 048/113] ip_gre: add validation for csum_start
 Date:   Wed,  1 Sep 2021 14:28:03 +0200
-Message-Id: <20210901122253.840151831@linuxfoundation.org>
+Message-Id: <20210901122303.573563008@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
-References: <20210901122253.388326997@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,97 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jinlin <lijinlin3@huawei.com>
+From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
 
-commit 02c6dcd543f8f051973ee18bfbc4dc3bd595c558 upstream.
+[ Upstream commit 1d011c4803c72f3907eccfc1ec63caefb852fcbf ]
 
-We found a hang, the steps to reproduce  are as follows:
+Validate csum_start in gre_handle_offloads before we call _gre_xmit so
+that we do not crash later when the csum_start value is used in the
+lco_csum function call.
 
-  1. blocking device via scsi_device_set_state()
+This patch deals with ipv4 code.
 
-  2. dd if=/dev/sda of=/mnt/t.log bs=1M count=10
-
-  3. echo none > /sys/block/sda/queue/scheduler
-
-  4. echo "running" >/sys/block/sda/device/state
-
-Step 3 and 4 should complete after step 4, but they hang.
-
-  CPU#0               CPU#1                CPU#2
-  ---------------     ----------------     ----------------
-                                           Step 1: blocking device
-
-                                           Step 2: dd xxxx
-                                                  ^^^^^^ get request
-                                                         q_usage_counter++
-
-                      Step 3: switching scheculer
-                      elv_iosched_store
-                        elevator_switch
-                          blk_mq_freeze_queue
-                            blk_freeze_queue
-                              > blk_freeze_queue_start
-                                ^^^^^^ mq_freeze_depth++
-
-                              > blk_mq_run_hw_queues
-                                ^^^^^^ can't run queue when dev blocked
-
-                              > blk_mq_freeze_queue_wait
-                                ^^^^^^ Hang here!!!
-                                       wait q_usage_counter==0
-
-  Step 4: running device
-  store_state_field
-    scsi_rescan_device
-      scsi_attach_vpd
-        scsi_vpd_inquiry
-          __scsi_execute
-            blk_get_request
-              blk_mq_alloc_request
-                blk_queue_enter
-                ^^^^^^ Hang here!!!
-                       wait mq_freeze_depth==0
-
-    blk_mq_run_hw_queues
-    ^^^^^^ dispatch IO, q_usage_counter will reduce to zero
-
-                            blk_mq_unfreeze_queue
-                            ^^^^^ mq_freeze_depth--
-
-To fix this, we need to run queue before rescanning device when the device
-state changes to SDEV_RUNNING.
-
-Link: https://lore.kernel.org/r/20210824025921.3277629-1-lijinlin3@huawei.com
-Fixes: f0f82e2476f6 ("scsi: core: Fix capacity set to zero after offlinining device")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Li Jinlin <lijinlin3@huawei.com>
-Signed-off-by: Qiu Laibin <qiulaibin@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
+Reported-by: syzbot+ff8e1b9f2f36481e2efc@syzkaller.appspotmail.com
+Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_sysfs.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/ipv4/ip_gre.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -788,12 +788,15 @@ store_state_field(struct device *dev, st
- 	ret = scsi_device_set_state(sdev, state);
- 	/*
- 	 * If the device state changes to SDEV_RUNNING, we need to
--	 * rescan the device to revalidate it, and run the queue to
--	 * avoid I/O hang.
-+	 * run the queue to avoid I/O hang, and rescan the device
-+	 * to revalidate it. Running the queue first is necessary
-+	 * because another thread may be waiting inside
-+	 * blk_mq_freeze_queue_wait() and because that call may be
-+	 * waiting for pending I/O to finish.
- 	 */
- 	if (ret == 0 && state == SDEV_RUNNING) {
--		scsi_rescan_device(dev);
- 		blk_mq_run_hw_queues(sdev->request_queue, true);
-+		scsi_rescan_device(dev);
- 	}
- 	mutex_unlock(&sdev->state_mutex);
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index a68bf4c6fe9b..ff34cde983d4 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -468,6 +468,8 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
  
+ static int gre_handle_offloads(struct sk_buff *skb, bool csum)
+ {
++	if (csum && skb_checksum_start(skb) < skb->data)
++		return -EINVAL;
+ 	return iptunnel_handle_offloads(skb, csum ? SKB_GSO_GRE_CSUM : SKB_GSO_GRE);
+ }
+ 
+-- 
+2.30.2
+
 
 
