@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD0C3FDBED
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE103FDB10
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344922AbhIAMpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:45:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49728 "EHLO mail.kernel.org"
+        id S1343504AbhIAMhf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:37:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343939AbhIAMoA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:44:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2D2E61214;
-        Wed,  1 Sep 2021 12:38:28 +0000 (UTC)
+        id S1343566AbhIAMgC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:36:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F033661090;
+        Wed,  1 Sep 2021 12:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499909;
-        bh=3LtPGqVFszrceez7FmDhpht4gkC4FP08zQUorIghOx0=;
+        s=korg; t=1630499604;
+        bh=LpVbVT5UPCEoz8bnrnxcToj1FZ2Pxvrd8UXF5JNzSio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eY6IHmVSw49SYQdiiJPruaa8zBQgX1YlWdG2hSeOlqQhqMWe+Lq4QmyjvmJR3dA/W
-         yACfPtfaZSkL10N+i9gX0ErieYiPyffAZwKGaWdfCodr6sYKjlWTx1vs6Sgh2gVrf5
-         fRVR8a89fjbdceaG0g7qi2ACQek9LjR+ugxhAST0=
+        b=q4GxxdDCgSlw/sLGo5zwbS+nq4engvp9oDcrSFMPk4ByDKVAevm8lQTBP8MW/vy94
+         khXgu5DUpdakq9F5bAxD2+l7+KLfF1HL4b0HPlHqadOUmGp1+ybN7hBXddaQpCQjy2
+         nzGc6JqDLzLrQPgbbW5R/m0iz26XITsiMxF3Ravg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Hannes Frederic Sowa <hannes@stressinduktion.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Minmin chen <chenmingmin@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 009/113] once: Fix panic when module unload
-Date:   Wed,  1 Sep 2021 14:27:24 +0200
-Message-Id: <20210901122302.282685233@linuxfoundation.org>
+        Zygo Blaxell <ce3g8jdj@umail.furryterror.org>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 015/103] Revert "btrfs: compression: dont try to compress if we dont have enough pages"
+Date:   Wed,  1 Sep 2021 14:27:25 +0200
+Message-Id: <20210901122301.043928981@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,123 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 1027b96ec9d34f9abab69bc1a4dc5b1ad8ab1349 ]
+commit 4e9655763b82a91e4c341835bb504a2b1590f984 upstream.
 
-DO_ONCE
-DEFINE_STATIC_KEY_TRUE(___once_key);
-__do_once_done
-  once_disable_jump(once_key);
-    INIT_WORK(&w->work, once_deferred);
-    struct once_work *w;
-    w->key = key;
-    schedule_work(&w->work);                     module unload
-                                                   //*the key is
-destroy*
-process_one_work
-  once_deferred
-    BUG_ON(!static_key_enabled(work->key));
-       static_key_count((struct static_key *)x)    //*access key, crash*
+This reverts commit f2165627319ffd33a6217275e5690b1ab5c45763.
 
-When module uses DO_ONCE mechanism, it could crash due to the above
-concurrency problem, we could reproduce it with link[1].
+[BUG]
+It's no longer possible to create compressed inline extent after commit
+f2165627319f ("btrfs: compression: don't try to compress if we don't
+have enough pages").
 
-Fix it by add/put module refcount in the once work process.
+[CAUSE]
+For compression code, there are several possible reasons we have a range
+that needs to be compressed while it's no more than one page.
 
-[1] https://lore.kernel.org/netdev/eaa6c371-465e-57eb-6be9-f4b16b9d7cbf@huawei.com/
+- Compressed inline write
+  The data is always smaller than one sector and the test lacks the
+  condition to properly recognize a non-inline extent.
 
-Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Reported-by: Minmin chen <chenmingmin@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Acked-by: Hannes Frederic Sowa <hannes@stressinduktion.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+- Compressed subpage write
+  For the incoming subpage compressed write support, we require page
+  alignment of the delalloc range.
+  And for 64K page size, we can compress just one page into smaller
+  sectors.
+
+For those reasons, the requirement for the data to be more than one page
+is not correct, and is already causing regression for compressed inline
+data writeback.  The idea of skipping one page to avoid wasting CPU time
+could be revisited in the future.
+
+[FIX]
+Fix it by reverting the offending commit.
+
+Reported-by: Zygo Blaxell <ce3g8jdj@umail.furryterror.org>
+Link: https://lore.kernel.org/linux-btrfs/afa2742.c084f5d6.17b6b08dffc@tnonline.net
+Fixes: f2165627319f ("btrfs: compression: don't try to compress if we don't have enough pages")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/once.h |  4 ++--
- lib/once.c           | 11 ++++++++---
- 2 files changed, 10 insertions(+), 5 deletions(-)
+ fs/btrfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/once.h b/include/linux/once.h
-index 9225ee6d96c7..ae6f4eb41cbe 100644
---- a/include/linux/once.h
-+++ b/include/linux/once.h
-@@ -7,7 +7,7 @@
- 
- bool __do_once_start(bool *done, unsigned long *flags);
- void __do_once_done(bool *done, struct static_key_true *once_key,
--		    unsigned long *flags);
-+		    unsigned long *flags, struct module *mod);
- 
- /* Call a function exactly once. The idea of DO_ONCE() is to perform
-  * a function call such as initialization of random seeds, etc, only
-@@ -46,7 +46,7 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
- 			if (unlikely(___ret)) {				     \
- 				func(__VA_ARGS__);			     \
- 				__do_once_done(&___done, &___once_key,	     \
--					       &___flags);		     \
-+					       &___flags, THIS_MODULE);	     \
- 			}						     \
- 		}							     \
- 		___ret;							     \
-diff --git a/lib/once.c b/lib/once.c
-index 8b7d6235217e..59149bf3bfb4 100644
---- a/lib/once.c
-+++ b/lib/once.c
-@@ -3,10 +3,12 @@
- #include <linux/spinlock.h>
- #include <linux/once.h>
- #include <linux/random.h>
-+#include <linux/module.h>
- 
- struct once_work {
- 	struct work_struct work;
- 	struct static_key_true *key;
-+	struct module *module;
- };
- 
- static void once_deferred(struct work_struct *w)
-@@ -16,10 +18,11 @@ static void once_deferred(struct work_struct *w)
- 	work = container_of(w, struct once_work, work);
- 	BUG_ON(!static_key_enabled(work->key));
- 	static_branch_disable(work->key);
-+	module_put(work->module);
- 	kfree(work);
- }
- 
--static void once_disable_jump(struct static_key_true *key)
-+static void once_disable_jump(struct static_key_true *key, struct module *mod)
- {
- 	struct once_work *w;
- 
-@@ -29,6 +32,8 @@ static void once_disable_jump(struct static_key_true *key)
- 
- 	INIT_WORK(&w->work, once_deferred);
- 	w->key = key;
-+	w->module = mod;
-+	__module_get(mod);
- 	schedule_work(&w->work);
- }
- 
-@@ -53,11 +58,11 @@ bool __do_once_start(bool *done, unsigned long *flags)
- EXPORT_SYMBOL(__do_once_start);
- 
- void __do_once_done(bool *done, struct static_key_true *once_key,
--		    unsigned long *flags)
-+		    unsigned long *flags, struct module *mod)
- 	__releases(once_lock)
- {
- 	*done = true;
- 	spin_unlock_irqrestore(&once_lock, *flags);
--	once_disable_jump(once_key);
-+	once_disable_jump(once_key, mod);
- }
- EXPORT_SYMBOL(__do_once_done);
--- 
-2.30.2
-
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -547,7 +547,7 @@ again:
+ 	 * inode has not been flagged as nocompress.  This flag can
+ 	 * change at any time if we discover bad compression ratios.
+ 	 */
+-	if (nr_pages > 1 && inode_need_compress(BTRFS_I(inode), start, end)) {
++	if (inode_need_compress(BTRFS_I(inode), start, end)) {
+ 		WARN_ON(pages);
+ 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
+ 		if (!pages) {
 
 
