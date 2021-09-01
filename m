@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85B703FDB4F
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE6DB3FDA4F
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345112AbhIAMkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:40:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43452 "EHLO mail.kernel.org"
+        id S244517AbhIAMbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:31:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343846AbhIAMiV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:38:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EAC361175;
-        Wed,  1 Sep 2021 12:34:43 +0000 (UTC)
+        id S244528AbhIAMbJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:31:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 923A661090;
+        Wed,  1 Sep 2021 12:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499684;
-        bh=+L0WRp4son9I/Zmxd7wASBPBN0HVpvAnkcxA0+29urU=;
+        s=korg; t=1630499413;
+        bh=UXnPXI1cTXaNjcJpROv7owWl0W840oE9wPlrQJQJ1R8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNemfNMTBWhh7Neg3C9EYkaIqsZ2R49nYKURztKvTir/D7o5wK2F96BDpyebJtAHw
-         TVBffQTsKkp6S0nh8KFMVD7rQZlXcnw2bUlPEWpz+xdgUPjWbzULuL8/bpm3DLwtTG
-         pt6MXzH4XJ6dyEzSiNvco3ArTCQcaCKV1434JwM0=
+        b=abeJJyggLif4wE/76Juoest1c7wZI2kmRSmRuGU0L6a8v+k3g68eUOk3TSY59ELK7
+         x70wEb/Ae1AWLXQPC9EiShvrn9WE9caV7igx/rF54t5Q4HyzkXEgniZ7nyBNja1Kvw
+         BAqcaG4nYBRb4WLm7Hjwri5TwTE0rezzBj9lQ3Ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/103] net: hns3: fix get wrong pfc_en when query PFC configuration
+Subject: [PATCH 4.19 06/33] netfilter: conntrack: collect all entries in one cycle
 Date:   Wed,  1 Sep 2021 14:27:55 +0200
-Message-Id: <20210901122302.092048897@linuxfoundation.org>
+Message-Id: <20210901122250.993208505@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
+References: <20210901122250.752620302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +41,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 8c1671e0d13d4a0ba4fb3a0da932bf3736d7ff73 ]
+[ Upstream commit 4608fdfc07e116f9fc0895beb40abad7cdb5ee3d ]
 
-Currently, when query PFC configuration by dcbtool, driver will return
-PFC enable status based on TC. As all priorities are mapped to TC0 by
-default, if TC0 is enabled, then all priorities mapped to TC0 will be
-shown as enabled status when query PFC setting, even though some
-priorities have never been set.
+Michal Kubecek reports that conntrack gc is responsible for frequent
+wakeups (every 125ms) on idle systems.
 
-for example:
-$ dcb pfc show dev eth0
-pfc-cap 4 macsec-bypass off delay 0
-prio-pfc 0:off 1:off 2:off 3:off 4:off 5:off 6:off 7:off
-$ dcb pfc set dev eth0 prio-pfc 0:on 1:on 2:on 3:on
-$ dcb pfc show dev eth0
-pfc-cap 4 macsec-bypass off delay 0
-prio-pfc 0:on 1:on 2:on 3:on 4:on 5:on 6:on 7:on
+On busy systems, timed out entries are evicted during lookup.
+The gc worker is only needed to remove entries after system becomes idle
+after a busy period.
 
-To fix this problem, just returns user's PFC config parameter saved in
-driver.
+To resolve this, always scan the entire table.
+If the scan is taking too long, reschedule so other work_structs can run
+and resume from next bucket.
 
-Fixes: cacde272dd00 ("net: hns3: Add hclge_dcb module for the support of DCB feature")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+After a completed scan, wait for 2 minutes before the next cycle.
+Heuristics for faster re-schedule are removed.
+
+GC_SCAN_INTERVAL could be exposed as a sysctl in the future to allow
+tuning this as-needed or even turn the gc worker off.
+
+Reported-by: Michal Kubecek <mkubecek@suse.cz>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c  | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ net/netfilter/nf_conntrack_core.c | 71 ++++++++++---------------------
+ 1 file changed, 22 insertions(+), 49 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-index 3606240025a8..a93c7eb4e7cb 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-@@ -283,21 +283,12 @@ static int hclge_ieee_getpfc(struct hnae3_handle *h, struct ieee_pfc *pfc)
- 	u64 requests[HNAE3_MAX_TC], indications[HNAE3_MAX_TC];
- 	struct hclge_vport *vport = hclge_get_vport(h);
- 	struct hclge_dev *hdev = vport->back;
--	u8 i, j, pfc_map, *prio_tc;
- 	int ret;
-+	u8 i;
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index c5590d36b775..a38caf317dbb 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -70,10 +70,9 @@ EXPORT_SYMBOL_GPL(nf_conntrack_hash);
  
- 	memset(pfc, 0, sizeof(*pfc));
- 	pfc->pfc_cap = hdev->pfc_max;
--	prio_tc = hdev->tm_info.prio_tc;
--	pfc_map = hdev->tm_info.hw_pfc_map;
+ struct conntrack_gc_work {
+ 	struct delayed_work	dwork;
+-	u32			last_bucket;
++	u32			next_bucket;
+ 	bool			exiting;
+ 	bool			early_drop;
+-	long			next_gc_run;
+ };
+ 
+ static __read_mostly struct kmem_cache *nf_conntrack_cachep;
+@@ -81,12 +80,8 @@ static __read_mostly spinlock_t nf_conntrack_locks_all_lock;
+ static __read_mostly DEFINE_SPINLOCK(nf_conntrack_locks_all_lock);
+ static __read_mostly bool nf_conntrack_locks_all;
+ 
+-/* every gc cycle scans at most 1/GC_MAX_BUCKETS_DIV part of table */
+-#define GC_MAX_BUCKETS_DIV	128u
+-/* upper bound of full table scan */
+-#define GC_MAX_SCAN_JIFFIES	(16u * HZ)
+-/* desired ratio of entries found to be expired */
+-#define GC_EVICT_RATIO	50u
++#define GC_SCAN_INTERVAL	(120u * HZ)
++#define GC_SCAN_MAX_DURATION	msecs_to_jiffies(10)
+ 
+ static struct conntrack_gc_work conntrack_gc_work;
+ 
+@@ -1198,17 +1193,13 @@ static void nf_ct_offload_timeout(struct nf_conn *ct)
+ 
+ static void gc_worker(struct work_struct *work)
+ {
+-	unsigned int min_interval = max(HZ / GC_MAX_BUCKETS_DIV, 1u);
+-	unsigned int i, goal, buckets = 0, expired_count = 0;
+-	unsigned int nf_conntrack_max95 = 0;
++	unsigned long end_time = jiffies + GC_SCAN_MAX_DURATION;
++	unsigned int i, hashsz, nf_conntrack_max95 = 0;
++	unsigned long next_run = GC_SCAN_INTERVAL;
+ 	struct conntrack_gc_work *gc_work;
+-	unsigned int ratio, scanned = 0;
+-	unsigned long next_run;
 -
--	/* Pfc setting is based on TC */
--	for (i = 0; i < hdev->tm_info.num_tc; i++) {
--		for (j = 0; j < HNAE3_MAX_USER_PRIO; j++) {
--			if ((prio_tc[j] == i) && (pfc_map & BIT(i)))
--				pfc->pfc_en |= BIT(j);
--		}
--	}
-+	pfc->pfc_en = hdev->tm_info.pfc_en;
+ 	gc_work = container_of(work, struct conntrack_gc_work, dwork.work);
  
- 	ret = hclge_pfc_tx_stats_get(hdev, requests);
- 	if (ret)
+-	goal = nf_conntrack_htable_size / GC_MAX_BUCKETS_DIV;
+-	i = gc_work->last_bucket;
++	i = gc_work->next_bucket;
+ 	if (gc_work->early_drop)
+ 		nf_conntrack_max95 = nf_conntrack_max / 100u * 95u;
+ 
+@@ -1216,22 +1207,21 @@ static void gc_worker(struct work_struct *work)
+ 		struct nf_conntrack_tuple_hash *h;
+ 		struct hlist_nulls_head *ct_hash;
+ 		struct hlist_nulls_node *n;
+-		unsigned int hashsz;
+ 		struct nf_conn *tmp;
+ 
+-		i++;
+ 		rcu_read_lock();
+ 
+ 		nf_conntrack_get_ht(&ct_hash, &hashsz);
+-		if (i >= hashsz)
+-			i = 0;
++		if (i >= hashsz) {
++			rcu_read_unlock();
++			break;
++		}
+ 
+ 		hlist_nulls_for_each_entry_rcu(h, n, &ct_hash[i], hnnode) {
+ 			struct net *net;
+ 
+ 			tmp = nf_ct_tuplehash_to_ctrack(h);
+ 
+-			scanned++;
+ 			if (test_bit(IPS_OFFLOAD_BIT, &tmp->status)) {
+ 				nf_ct_offload_timeout(tmp);
+ 				continue;
+@@ -1239,7 +1229,6 @@ static void gc_worker(struct work_struct *work)
+ 
+ 			if (nf_ct_is_expired(tmp)) {
+ 				nf_ct_gc_expired(tmp);
+-				expired_count++;
+ 				continue;
+ 			}
+ 
+@@ -1271,7 +1260,14 @@ static void gc_worker(struct work_struct *work)
+ 		 */
+ 		rcu_read_unlock();
+ 		cond_resched();
+-	} while (++buckets < goal);
++		i++;
++
++		if (time_after(jiffies, end_time) && i < hashsz) {
++			gc_work->next_bucket = i;
++			next_run = 0;
++			break;
++		}
++	} while (i < hashsz);
+ 
+ 	if (gc_work->exiting)
+ 		return;
+@@ -1282,40 +1278,17 @@ static void gc_worker(struct work_struct *work)
+ 	 *
+ 	 * This worker is only here to reap expired entries when system went
+ 	 * idle after a busy period.
+-	 *
+-	 * The heuristics below are supposed to balance conflicting goals:
+-	 *
+-	 * 1. Minimize time until we notice a stale entry
+-	 * 2. Maximize scan intervals to not waste cycles
+-	 *
+-	 * Normally, expire ratio will be close to 0.
+-	 *
+-	 * As soon as a sizeable fraction of the entries have expired
+-	 * increase scan frequency.
+ 	 */
+-	ratio = scanned ? expired_count * 100 / scanned : 0;
+-	if (ratio > GC_EVICT_RATIO) {
+-		gc_work->next_gc_run = min_interval;
+-	} else {
+-		unsigned int max = GC_MAX_SCAN_JIFFIES / GC_MAX_BUCKETS_DIV;
+-
+-		BUILD_BUG_ON((GC_MAX_SCAN_JIFFIES / GC_MAX_BUCKETS_DIV) == 0);
+-
+-		gc_work->next_gc_run += min_interval;
+-		if (gc_work->next_gc_run > max)
+-			gc_work->next_gc_run = max;
++	if (next_run) {
++		gc_work->early_drop = false;
++		gc_work->next_bucket = 0;
+ 	}
+-
+-	next_run = gc_work->next_gc_run;
+-	gc_work->last_bucket = i;
+-	gc_work->early_drop = false;
+ 	queue_delayed_work(system_power_efficient_wq, &gc_work->dwork, next_run);
+ }
+ 
+ static void conntrack_gc_work_init(struct conntrack_gc_work *gc_work)
+ {
+ 	INIT_DEFERRABLE_WORK(&gc_work->dwork, gc_worker);
+-	gc_work->next_gc_run = HZ;
+ 	gc_work->exiting = false;
+ }
+ 
 -- 
 2.30.2
 
