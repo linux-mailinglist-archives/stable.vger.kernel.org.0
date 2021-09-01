@@ -2,85 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43AB93FE38B
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 22:09:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB1E63FE38D
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 22:10:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231373AbhIAUKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 16:10:54 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:46014 "EHLO
+        id S238426AbhIAULp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 16:11:45 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:46236 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242567AbhIAUKx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 16:10:53 -0400
+        with ESMTP id S231553AbhIAULp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 16:11:45 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 2B52D1C0BA1; Wed,  1 Sep 2021 22:09:54 +0200 (CEST)
-Date:   Wed, 1 Sep 2021 22:09:53 +0200
+        id 928ED1C0B7F; Wed,  1 Sep 2021 22:10:46 +0200 (CEST)
+Date:   Wed, 1 Sep 2021 22:10:46 +0200
 From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Xiaoliang Yang <xiaoliang.yang_1@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 047/103] net: stmmac: add mutex lock to protect est
- parameters
-Message-ID: <20210901200953.GB8962@duo.ucw.cz>
+Subject: Re: [PATCH 5.10 026/103] ice: do not abort devlink info if board
+ identifier cant be found
+Message-ID: <20210901201046.GC8962@duo.ucw.cz>
 References: <20210901122300.503008474@linuxfoundation.org>
- <20210901122302.156121465@linuxfoundation.org>
+ <20210901122301.400339475@linuxfoundation.org>
+ <20210901194236.GA8962@duo.ucw.cz>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
+        protocol="application/pgp-signature"; boundary="Fig2xvG2VGoz8o/s"
 Content-Disposition: inline
-In-Reply-To: <20210901122302.156121465@linuxfoundation.org>
+In-Reply-To: <20210901194236.GA8962@duo.ucw.cz>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---NDin8bjvE/0mNLFQ
+--Fig2xvG2VGoz8o/s
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> [ Upstream commit b2aae654a4794ef898ad33a179f341eb610f6b85 ]
+> > The devlink dev info command reports version information about the
+> > device and firmware running on the board. This includes the "board.id"
+> > field which is supposed to represent an identifier of the board design.
+> > The ice driver uses the Product Board Assembly identifier for this.
+> >=20
+> > In some cases, the PBA is not present in the NVM. If this happens,
+> > devlink dev info will fail with an error. Instead, modify the
+> > ice_info_pba function to just exit without filling in the context
+> > buffer. This will cause the board.id field to be skipped. Log a dev_dbg
+> > message in case someone wants to confirm why board.id is not showing up
+> > for them.
 >=20
-> Add a mutex lock to protect est structure parameters so that the
-> EST parameters can be updated by other threads.
+> Will it cause field to be skipped? I believe buffer will not be
+> initialized which will result in some confusion...
 
-Mainline version of the patch is okay, but I believe we need one more
-mutex_unlock in 5.10.
+IOW I believe this is good idea.
 
 Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/=
-ethernet/stmicro/stmmac/stmmac_tc.c
-index 22c34474e617..639980306115 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-@@ -765,6 +765,7 @@ static int tc_setup_taprio(struct stmmac_priv *priv,
- 				   priv->plat->tx_queues_to_use,
- 				   priv->plat->rx_queues_to_use, fpe);
- 	if (ret && fpe) {
-+		mutex_unlock(&priv->plat->est->lock);
- 		netdev_err(priv->dev, "failed to enable Frame Preemption\n");
- 		return ret;
- 	}
+diff --git a/drivers/net/ethernet/intel/ice/ice_devlink.c b/drivers/net/eth=
+ernet/intel/ice/ice_devlink.c
+index f18ce43b7e74..7034704b1b50 100644
+--- a/drivers/net/ethernet/intel/ice/ice_devlink.c
++++ b/drivers/net/ethernet/intel/ice/ice_devlink.c
+@@ -22,10 +22,12 @@ static int ice_info_pba(struct ice_pf *pf, char *buf, s=
+ize_t len)
+ 	enum ice_status status;
+=20
+ 	status =3D ice_read_pba_string(hw, (u8 *)buf, len);
+-	if (status)
++	if (status) {
++		*buf =3D 0;
+ 		/* We failed to locate the PBA, so just skip this entry */
+ 		dev_dbg(ice_pf_to_dev(pf), "Failed to read Product Board Assembly string=
+, status %s\n",
+ 			ice_stat_str(status));
++	}
+=20
+ 	return 0;
+ }
 
-Best regards,
-								Pavel
 --=20
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---NDin8bjvE/0mNLFQ
+--Fig2xvG2VGoz8o/s
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYS/eEQAKCRAw5/Bqldv6
-8iXtAKCmVub25dmgVRjdPVCSSwcoYfHMXwCglP2YuNR7kwoLoT4ksL7PVsmuQd4=
-=kCOO
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYS/eRgAKCRAw5/Bqldv6
+8rD3AJ4v++4A3ckn6ERC+g7sW3FQ+A3Y7gCfR2/DnUejV0yQt6WJDIUuLpb4Ng0=
+=Ok0J
 -----END PGP SIGNATURE-----
 
---NDin8bjvE/0mNLFQ--
+--Fig2xvG2VGoz8o/s--
