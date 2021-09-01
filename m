@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DA603FD9AB
+	by mail.lfdr.de (Postfix) with ESMTP id 56DA43FD9AC
 	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:28:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244244AbhIAM2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:28:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57596 "EHLO mail.kernel.org"
+        id S244251AbhIAM20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:28:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244225AbhIAM2O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:28:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 437C960ED4;
-        Wed,  1 Sep 2021 12:27:17 +0000 (UTC)
+        id S244252AbhIAM2R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:28:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25BF76101B;
+        Wed,  1 Sep 2021 12:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499237;
-        bh=EdaVfwVqQySnlK3kfvV6DheWXtvvGB/RNn59vXK5RCQ=;
+        s=korg; t=1630499240;
+        bh=SBS0IT6RXhbnkmS5TylIa8QyPTtZyHJOArYJsNiJFuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xsYnOWbSFuwebANHhCZC72R+QXa1WZrDaUNsuYjCNr6wqJ8f8WwuH2QBAQqq+He5M
-         YKrohshZCaE8lYwStjTnNK8rRQpoEVA7jNAyXpYEtyDTE/P06I7cBlbamcDd0JRkff
-         fPTNGDhR/4sySWgWadCu+596ZiEKRtQFRkfr/fbY=
+        b=BfPutSueH7lD769TCnNJ25G8K8UWkPDM/CqsNNzxZMJ/hPpVZUrYc82LgIHL+hSCx
+         VssfnAvobtKwskPbTF5NfBc6KEyF5Ol1lSrRMcEHjl5BNbm6FyOik0U5UxOlpZppAm
+         ZwrndfsOuiLhnd2oNUBWf+YKWCh5ygaGtQPzBno0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
-        syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Dhaval Giani <dhaval.giani@oracle.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.9 14/16] fbmem: add margin check to fb_check_caps()
-Date:   Wed,  1 Sep 2021 14:26:40 +0200
-Message-Id: <20210901122249.363523730@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 15/16] KVM: x86/mmu: Treat NX as used (not reserved) for all !TDP shadow MMUs
+Date:   Wed,  1 Sep 2021 14:26:41 +0200
+Message-Id: <20210901122249.394226550@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122248.920548099@linuxfoundation.org>
 References: <20210901122248.920548099@linuxfoundation.org>
@@ -42,42 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit a49145acfb975d921464b84fe00279f99827d816 upstream.
+commit 112022bdb5bc372e00e6e43cb88ee38ea67b97bd upstream
 
-A fb_ioctl() FBIOPUT_VSCREENINFO call with invalid xres setting
-or yres setting in struct fb_var_screeninfo will result in a
-KASAN: vmalloc-out-of-bounds failure in bitfill_aligned() as
-the margins are being cleared. The margins are cleared in
-chunks and if the xres setting or yres setting is a value of
-zero upto the chunk size, the failure will occur.
+Mark NX as being used for all non-nested shadow MMUs, as KVM will set the
+NX bit for huge SPTEs if the iTLB mutli-hit mitigation is enabled.
+Checking the mitigation itself is not sufficient as it can be toggled on
+at any time and KVM doesn't reset MMU contexts when that happens.  KVM
+could reset the contexts, but that would require purging all SPTEs in all
+MMUs, for no real benefit.  And, KVM already forces EFER.NX=1 when TDP is
+disabled (for WP=0, SMEP=1, NX=0), so technically NX is never reserved
+for shadow MMUs.
 
-Add a margin check to validate xres and yres settings.
-
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Reported-by: syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Dhaval Giani <dhaval.giani@oracle.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1594149963-13801-1-git-send-email-george.kennedy@oracle.com
+Fixes: b8e8c8303ff2 ("kvm: mmu: ITLB_MULTIHIT mitigation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210622175739.3610207-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[sudip: use old path and adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kvm/mmu.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1001,6 +1001,10 @@ fb_set_var(struct fb_info *info, struct
- 			goto done;
- 		}
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -3927,7 +3927,16 @@ static void reset_rsvds_bits_mask_ept(st
+ void
+ reset_shadow_zero_bits_mask(struct kvm_vcpu *vcpu, struct kvm_mmu *context)
+ {
+-	bool uses_nx = context->nx || context->base_role.smep_andnot_wp;
++	/*
++	 * KVM uses NX when TDP is disabled to handle a variety of scenarios,
++	 * notably for huge SPTEs if iTLB multi-hit mitigation is enabled and
++	 * to generate correct permissions for CR0.WP=0/CR4.SMEP=1/EFER.NX=0.
++	 * The iTLB multi-hit workaround can be toggled at any time, so assume
++	 * NX can be used by any non-nested shadow MMU to avoid having to reset
++	 * MMU contexts.  Note, KVM forces EFER.NX=1 when TDP is disabled.
++	 */
++	bool uses_nx = context->nx || !tdp_enabled ||
++		context->base_role.smep_andnot_wp;
  
-+		/* bitfill_aligned() assumes that it's at least 8x8 */
-+		if (var->xres < 8 || var->yres < 8)
-+			return -EINVAL;
-+
- 		ret = info->fbops->fb_check_var(var, info);
- 
- 		if (ret)
+ 	/*
+ 	 * Passing "true" to the last argument is okay; it adds a check
 
 
