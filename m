@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB4203FDA81
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC5CC3FDAB9
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244917AbhIAMco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:32:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34434 "EHLO mail.kernel.org"
+        id S244798AbhIAMeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:34:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244809AbhIAMbp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:31:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF5D9610C8;
-        Wed,  1 Sep 2021 12:30:48 +0000 (UTC)
+        id S1343493AbhIAMdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:33:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D17BA6109E;
+        Wed,  1 Sep 2021 12:31:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499449;
-        bh=iUBIjtZItUR18JceGiIDCeNmYK1ZiOCRqECbUy/H8Xk=;
+        s=korg; t=1630499509;
+        bh=TQnjmA9IY4rpM2sotE7Dff9Feuq9Kflv+0/e3DRW+Cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6cGSHxTqr/iFhOWrVK7ARpBOzoUwvK8kTj3KyTrGxOxi/3WMfD5EUkLimOilGJPN
-         QGkMwLDofYxT9PuzPXRwDFbzt1M2SmPCBNPxDSpSXnaGpoT9jts4O0k3o1tpBlhVQu
-         0hpLidNnr72VF1+2rL793/nJIJTvDcw/20C6yeVE=
+        b=ewxbcf/Ifj9QrKvy5f87BHxYdP5SD2US9x9nqfUgsACGVqpkiaEHpqX4mZAvlXsdC
+         IoUOt9u5DikrOfIP8JkPV8DRkIXW2OT2cnr5v1gZagZXJ7vu4WQwXWatoAKbh9xzI6
+         A4sq038EH3UU1Lvwr9Qw9QEjww7lRloSMtH84578=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
-        Mark Yacoub <markyacoub@chromium.org>,
-        Sean Paul <seanpaul@chromium.org>,
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 26/33] drm: Copy drm_wait_vblank to user before returning
-Date:   Wed,  1 Sep 2021 14:28:15 +0200
-Message-Id: <20210901122251.653741714@linuxfoundation.org>
+Subject: [PATCH 5.4 26/48] usb: gadget: u_audio: fix race condition on endpoint stop
+Date:   Wed,  1 Sep 2021 14:28:16 +0200
+Message-Id: <20210901122254.280454719@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
-References: <20210901122250.752620302@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Yacoub <markyacoub@google.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit fa0b1ef5f7a694f48e00804a391245f3471aa155 ]
+[ Upstream commit 068fdad20454f815e61e6f6eb9f051a8b3120e88 ]
 
-[Why]
-Userspace should get back a copy of drm_wait_vblank that's been modified
-even when drm_wait_vblank_ioctl returns a failure.
+If the endpoint completion callback is call right after the ep_enabled flag
+is cleared and before usb_ep_dequeue() is call, we could do a double free
+on the request and the associated buffer.
 
-Rationale:
-drm_wait_vblank_ioctl modifies the request and expects the user to read
-it back. When the type is RELATIVE, it modifies it to ABSOLUTE and updates
-the sequence to become current_vblank_count + sequence (which was
-RELATIVE), but now it became ABSOLUTE.
-drmWaitVBlank (in libdrm) expects this to be the case as it modifies
-the request to be Absolute so it expects the sequence to would have been
-updated.
+Fix this by clearing ep_enabled after all the endpoint requests have been
+dequeued.
 
-The change is in compat_drm_wait_vblank, which is called by
-drm_compat_ioctl. This change of copying the data back regardless of the
-return number makes it en par with drm_ioctl, which always copies the
-data before returning.
-
-[How]
-Return from the function after everything has been copied to user.
-
-Fixes IGT:kms_flip::modeset-vs-vblank-race-interruptible
-Tested on ChromeOS Trogdor(msm)
-
-Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
-Signed-off-by: Mark Yacoub <markyacoub@chromium.org>
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210812194917.1703356-1-markyacoub@chromium.org
+Fixes: 7de8681be2cd ("usb: gadget: u_audio: Free requests only after callback")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20210827092927.366482-1-jbrunet@baylibre.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_ioc32.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/usb/gadget/function/u_audio.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_ioc32.c b/drivers/gpu/drm/drm_ioc32.c
-index ab8847c7dd96..87e13bcd7a67 100644
---- a/drivers/gpu/drm/drm_ioc32.c
-+++ b/drivers/gpu/drm/drm_ioc32.c
-@@ -855,8 +855,6 @@ static int compat_drm_wait_vblank(struct file *file, unsigned int cmd,
- 	req.request.sequence = req32.request.sequence;
- 	req.request.signal = req32.request.signal;
- 	err = drm_ioctl_kernel(file, drm_wait_vblank_ioctl, &req, DRM_UNLOCKED);
--	if (err)
--		return err;
+diff --git a/drivers/usb/gadget/function/u_audio.c b/drivers/usb/gadget/function/u_audio.c
+index 223029fa8445..4e01ba0ab8ec 100644
+--- a/drivers/usb/gadget/function/u_audio.c
++++ b/drivers/usb/gadget/function/u_audio.c
+@@ -349,8 +349,6 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
+ 	if (!prm->ep_enabled)
+ 		return;
  
- 	req32.reply.type = req.reply.type;
- 	req32.reply.sequence = req.reply.sequence;
-@@ -865,7 +863,7 @@ static int compat_drm_wait_vblank(struct file *file, unsigned int cmd,
- 	if (copy_to_user(argp, &req32, sizeof(req32)))
- 		return -EFAULT;
+-	prm->ep_enabled = false;
+-
+ 	audio_dev = uac->audio_dev;
+ 	params = &audio_dev->params;
  
--	return 0;
-+	return err;
+@@ -368,11 +366,12 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
+ 		}
+ 	}
+ 
++	prm->ep_enabled = false;
++
+ 	if (usb_ep_disable(ep))
+ 		dev_err(uac->card->dev, "%s:%d Error!\n", __func__, __LINE__);
  }
  
- #if defined(CONFIG_X86)
+-
+ int u_audio_start_capture(struct g_audio *audio_dev)
+ {
+ 	struct snd_uac_chip *uac = audio_dev->uac;
 -- 
 2.30.2
 
