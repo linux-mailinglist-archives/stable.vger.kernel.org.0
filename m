@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0977F3FDAC5
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F243FDB55
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245494AbhIAMex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:34:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35322 "EHLO mail.kernel.org"
+        id S1345194AbhIAMkx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:40:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245019AbhIAMds (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:33:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2CCD610E8;
-        Wed,  1 Sep 2021 12:32:11 +0000 (UTC)
+        id S245726AbhIAMim (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:38:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A0506113C;
+        Wed,  1 Sep 2021 12:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499532;
-        bh=Ic/Ihy9eXVn6k6FBv6Ds/quKV3DMcpKvOsGlNAjXx64=;
+        s=korg; t=1630499692;
+        bh=tbxOlCzCwYhwSmk7Ye42VvcJ4dzKErw+SoUzdJL5cPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7ocuyZ/XqtSBMUz21gtuwK3xzmjyI8qZcC19Le8rBJFJKwuzrdRjEe/AU5yp8oNh
-         E0axbC95nJ1EtpJP3cS1amwdrMwZXPDLbSokkUxGLIBEhCd/22TjduK3AhmiavxwPu
-         lJfqDllHQwotSJXS6qTDgB7e2gBrOnLtLcay3qFQ=
+        b=lYPYa41gJS9DJ2zmwrzn1otiZ4mfENM6sNH6r58Id0ZevA+0rApHgTKRvZIsJ8B5v
+         YZWs8oXNRzMbNAB8NQsd5Y1rFxpH3IAhUESSBuL5c8jsWXiMrwJ5NQ2VfEnF8aDCLb
+         QnNshaDOxcEZzd/UPpnHhdq448GlXe3Q4Hz7YMeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Stefan=20M=C3=A4tje?= <stefan.maetje@esd.eu>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 08/48] can: usb: esd_usb2: esd_usb2_rx_event(): fix the interchange of the CAN RX and TX error counters
+        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 048/103] net: stmmac: fix kernel panic due to NULL pointer dereference of plat->est
 Date:   Wed,  1 Sep 2021 14:27:58 +0200
-Message-Id: <20210901122253.672304297@linuxfoundation.org>
+Message-Id: <20210901122302.188539211@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
-References: <20210901122253.388326997@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Mätje <stefan.maetje@esd.eu>
+From: Wong Vee Khee <vee.khee.wong@linux.intel.com>
 
-commit 044012b52029204900af9e4230263418427f4ba4 upstream.
+[ Upstream commit 82a44ae113b7b35850f4542f0443fcab221e376a ]
 
-This patch fixes the interchanged fetch of the CAN RX and TX error
-counters from the ESD_EV_CAN_ERROR_EXT message. The RX error counter
-is really in struct rx_msg::data[2] and the TX error counter is in
-struct rx_msg::data[3].
+In the case of taprio offload is not enabled, the error handling path
+causes a kernel crash due to kernel NULL pointer deference.
 
-Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
-Link: https://lore.kernel.org/r/20210825215227.4947-2-stefan.maetje@esd.eu
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Mätje <stefan.maetje@esd.eu>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by adding check for NULL before attempt to access 'plat->est'
+on the mutex_lock() call.
+
+The following kernel panic is observed without this patch:
+
+RIP: 0010:mutex_lock+0x10/0x20
+Call Trace:
+tc_setup_taprio+0x482/0x560 [stmmac]
+kmem_cache_alloc_trace+0x13f/0x490
+taprio_disable_offload.isra.0+0x9d/0x180 [sch_taprio]
+taprio_destroy+0x6c/0x100 [sch_taprio]
+qdisc_create+0x2e5/0x4f0
+tc_modify_qdisc+0x126/0x740
+rtnetlink_rcv_msg+0x12b/0x380
+_raw_spin_lock_irqsave+0x19/0x40
+_raw_spin_unlock_irqrestore+0x18/0x30
+create_object+0x212/0x340
+rtnl_calcit.isra.0+0x110/0x110
+netlink_rcv_skb+0x50/0x100
+netlink_unicast+0x191/0x230
+netlink_sendmsg+0x243/0x470
+sock_sendmsg+0x5e/0x60
+____sys_sendmsg+0x20b/0x280
+copy_msghdr_from_user+0x5c/0x90
+__mod_memcg_state+0x87/0xf0
+ ___sys_sendmsg+0x7c/0xc0
+lru_cache_add+0x7f/0xa0
+_raw_spin_unlock+0x16/0x30
+wp_page_copy+0x449/0x890
+handle_mm_fault+0x921/0xfc0
+__sys_sendmsg+0x59/0xa0
+do_syscall_64+0x33/0x40
+entry_SYSCALL_64_after_hwframe+0x44/0xa9
+---[ end trace b1f19b24368a96aa ]---
+
+Fixes: b60189e0392f ("net: stmmac: Integrate EST with TAPRIO scheduler API")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/esd_usb2.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/net/can/usb/esd_usb2.c
-+++ b/drivers/net/can/usb/esd_usb2.c
-@@ -224,8 +224,8 @@ static void esd_usb2_rx_event(struct esd
- 	if (id == ESD_EV_CAN_ERROR_EXT) {
- 		u8 state = msg->msg.rx.data[0];
- 		u8 ecc = msg->msg.rx.data[1];
--		u8 txerr = msg->msg.rx.data[2];
--		u8 rxerr = msg->msg.rx.data[3];
-+		u8 rxerr = msg->msg.rx.data[2];
-+		u8 txerr = msg->msg.rx.data[3];
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
+index 8c2eae2a7efd..22c34474e617 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
+@@ -781,11 +781,13 @@ static int tc_setup_taprio(struct stmmac_priv *priv,
+ 	return 0;
  
- 		skb = alloc_can_err_skb(priv->netdev, &cf);
- 		if (skb == NULL) {
+ disable:
+-	mutex_lock(&priv->plat->est->lock);
+-	priv->plat->est->enable = false;
+-	stmmac_est_configure(priv, priv->ioaddr, priv->plat->est,
+-			     priv->plat->clk_ptp_rate);
+-	mutex_unlock(&priv->plat->est->lock);
++	if (priv->plat->est) {
++		mutex_lock(&priv->plat->est->lock);
++		priv->plat->est->enable = false;
++		stmmac_est_configure(priv, priv->ioaddr, priv->plat->est,
++				     priv->plat->clk_ptp_rate);
++		mutex_unlock(&priv->plat->est->lock);
++	}
+ 
+ 	return ret;
+ }
+-- 
+2.30.2
+
 
 
