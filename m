@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9026A3FDA19
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECBAA3FDA20
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:15:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244480AbhIAMaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:30:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59528 "EHLO mail.kernel.org"
+        id S244546AbhIAMag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:30:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244469AbhIAM3m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:29:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08E5E610A4;
-        Wed,  1 Sep 2021 12:28:42 +0000 (UTC)
+        id S244278AbhIAM3x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:29:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 613F1610C8;
+        Wed,  1 Sep 2021 12:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499323;
-        bh=F4vxv4/IFl1X/8bFhswb76cI37QXOMt6kl9bp0yyoZU=;
+        s=korg; t=1630499325;
+        bh=PLeMsVjOUvl48FkWOmJVOj+ZLhFY8nKdY+WwvgK/A74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRNpjciwhcxQLY/k+iAZ5W7fQumP3WO0GMagbSvhYaeqX4mgrb6gb0PjmFcF/LN7b
-         dO1H7T2pRRAqCRISdWP4UC2OlAWILq6QQL1grhQAr/LHbHPXV6/DRDigi0w1ca2C7K
-         qwfEWO+kK8n9v9ZP9Sx3lElYBIPpbd0OxPxdYpqU=
+        b=S0zHGMzTRO+0cf+b3l0lB9k5AkV9bhElmEQ53mqK5BB+P49tfRIcXz714nK7QYZJ7
+         +y7SIyFHLtjticfi0C/Xj7UheH35QuzElPCY9M55xrSh9vpEcMu8nW7Hr0sRPbk+Ww
+         Opel9BcSd4zx/FWZxe2U7pykg6lXaPnI5rj0OVCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 22/23] KVM: X86: MMU: Use the correct inherited permissions to get shadow page
-Date:   Wed,  1 Sep 2021 14:27:07 +0200
-Message-Id: <20210901122250.495140430@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Hounschell <markh@compro.net>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Wim Osterholt <wim@djo.tudelft.nl>,
+        Kurt Garloff <kurt@garloff.de>,
+        Denis Efremov <efremov@linux.com>
+Subject: [PATCH 4.14 23/23] Revert "floppy: reintroduce O_NDELAY fix"
+Date:   Wed,  1 Sep 2021 14:27:08 +0200
+Message-Id: <20210901122250.527230500@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122249.786673285@linuxfoundation.org>
 References: <20210901122249.786673285@linuxfoundation.org>
@@ -40,154 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lai Jiangshan <laijs@linux.alibaba.com>
+From: Denis Efremov <efremov@linux.com>
 
-commit b1bd5cba3306691c771d558e94baa73e8b0b96b7 upstream.
+commit c7e9d0020361f4308a70cdfd6d5335e273eb8717 upstream.
 
-When computing the access permissions of a shadow page, use the effective
-permissions of the walk up to that point, i.e. the logic AND of its parents'
-permissions.  Two guest PxE entries that point at the same table gfn need to
-be shadowed with different shadow pages if their parents' permissions are
-different.  KVM currently uses the effective permissions of the last
-non-leaf entry for all non-leaf entries.  Because all non-leaf SPTEs have
-full ("uwx") permissions, and the effective permissions are recorded only
-in role.access and merged into the leaves, this can lead to incorrect
-reuse of a shadow page and eventually to a missing guest protection page
-fault.
+The patch breaks userspace implementations (e.g. fdutils) and introduces
+regressions in behaviour. Previously, it was possible to O_NDELAY open a
+floppy device with no media inserted or with write protected media without
+an error. Some userspace tools use this particular behavior for probing.
 
-For example, here is a shared pagetable:
+It's not the first time when we revert this patch. Previous revert is in
+commit f2791e7eadf4 (Revert "floppy: refactor open() flags handling").
 
-   pgd[]   pud[]        pmd[]            virtual address pointers
-                     /->pmd1(u--)->pte1(uw-)->page1 <- ptr1 (u--)
-        /->pud1(uw-)--->pmd2(uw-)->pte2(uw-)->page2 <- ptr2 (uw-)
-   pgd-|           (shared pmd[] as above)
-        \->pud2(u--)--->pmd1(u--)->pte1(uw-)->page1 <- ptr3 (u--)
-                     \->pmd2(uw-)->pte2(uw-)->page2 <- ptr4 (u--)
+This reverts commit 8a0c014cd20516ade9654fc13b51345ec58e7be8.
 
-  pud1 and pud2 point to the same pmd table, so:
-  - ptr1 and ptr3 points to the same page.
-  - ptr2 and ptr4 points to the same page.
-
-(pud1 and pud2 here are pud entries, while pmd1 and pmd2 here are pmd entries)
-
-- First, the guest reads from ptr1 first and KVM prepares a shadow
-  page table with role.access=u--, from ptr1's pud1 and ptr1's pmd1.
-  "u--" comes from the effective permissions of pgd, pud1 and
-  pmd1, which are stored in pt->access.  "u--" is used also to get
-  the pagetable for pud1, instead of "uw-".
-
-- Then the guest writes to ptr2 and KVM reuses pud1 which is present.
-  The hypervisor set up a shadow page for ptr2 with pt->access is "uw-"
-  even though the pud1 pmd (because of the incorrect argument to
-  kvm_mmu_get_page in the previous step) has role.access="u--".
-
-- Then the guest reads from ptr3.  The hypervisor reuses pud1's
-  shadow pmd for pud2, because both use "u--" for their permissions.
-  Thus, the shadow pmd already includes entries for both pmd1 and pmd2.
-
-- At last, the guest writes to ptr4.  This causes no vmexit or pagefault,
-  because pud1's shadow page structures included an "uw-" page even though
-  its role.access was "u--".
-
-Any kind of shared pagetable might have the similar problem when in
-virtual machine without TDP enabled if the permissions are different
-from different ancestors.
-
-In order to fix the problem, we change pt->access to be an array, and
-any access in it will not include permissions ANDed from child ptes.
-
-The test code is: https://lore.kernel.org/kvm/20210603050537.19605-1-jiangshanlai@gmail.com/
-Remember to test it with TDP disabled.
-
-The problem had existed long before the commit 41074d07c78b ("KVM: MMU:
-Fix inherited permissions for emulated guest pte updates"), and it
-is hard to find which is the culprit.  So there is no fixes tag here.
-
-Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
-Message-Id: <20210603052455.21023-1-jiangshanlai@gmail.com>
-Cc: stable@vger.kernel.org
-Fixes: cea0f0e7ea54 ("[PATCH] KVM: MMU: Shadow page table caching")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[OP: - apply arch/x86/kvm/mmu/* changes to arch/x86/kvm
-     - apply documentation changes to Documentation/virtual/kvm/mmu.txt
-     - add vcpu parameter to gpte_access() call]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Link: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
+Reported-by: Mark Hounschell <markh@compro.net>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Wim Osterholt <wim@djo.tudelft.nl>
+Cc: Kurt Garloff <kurt@garloff.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Denis Efremov <efremov@linux.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- Documentation/virtual/kvm/mmu.txt |    4 ++--
- arch/x86/kvm/paging_tmpl.h        |   14 +++++++++-----
- 2 files changed, 11 insertions(+), 7 deletions(-)
+ drivers/block/floppy.c |   27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
---- a/Documentation/virtual/kvm/mmu.txt
-+++ b/Documentation/virtual/kvm/mmu.txt
-@@ -152,8 +152,8 @@ Shadow pages contain the following infor
-     shadow pages) so role.quadrant takes values in the range 0..3.  Each
-     quadrant maps 1GB virtual address space.
-   role.access:
--    Inherited guest access permissions in the form uwx.  Note execute
--    permission is positive, not negative.
-+    Inherited guest access permissions from the parent ptes in the form uwx.
-+    Note execute permission is positive, not negative.
-   role.invalid:
-     The page is invalid and should not be used.  It is a root page that is
-     currently pinned (by a cpu hardware register pointing to it); once it is
---- a/arch/x86/kvm/paging_tmpl.h
-+++ b/arch/x86/kvm/paging_tmpl.h
-@@ -93,8 +93,8 @@ struct guest_walker {
- 	gpa_t pte_gpa[PT_MAX_FULL_LEVELS];
- 	pt_element_t __user *ptep_user[PT_MAX_FULL_LEVELS];
- 	bool pte_writable[PT_MAX_FULL_LEVELS];
--	unsigned pt_access;
--	unsigned pte_access;
-+	unsigned int pt_access[PT_MAX_FULL_LEVELS];
-+	unsigned int pte_access;
- 	gfn_t gfn;
- 	struct x86_exception fault;
- };
-@@ -388,13 +388,15 @@ retry_walk:
- 		}
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -4069,22 +4069,21 @@ static int floppy_open(struct block_devi
+ 	if (UFDCS->rawcmd == 1)
+ 		UFDCS->rawcmd = 2;
  
- 		walker->ptes[walker->level - 1] = pte;
-+
-+		/* Convert to ACC_*_MASK flags for struct guest_walker.  */
-+		walker->pt_access[walker->level - 1] = FNAME(gpte_access)(vcpu, pt_access ^ walk_nx_mask);
- 	} while (!is_last_gpte(mmu, walker->level, pte));
- 
- 	pte_pkey = FNAME(gpte_pkeys)(vcpu, pte);
- 	accessed_dirty = have_ad ? pte_access & PT_GUEST_ACCESSED_MASK : 0;
- 
- 	/* Convert to ACC_*_MASK flags for struct guest_walker.  */
--	walker->pt_access = FNAME(gpte_access)(vcpu, pt_access ^ walk_nx_mask);
- 	walker->pte_access = FNAME(gpte_access)(vcpu, pte_access ^ walk_nx_mask);
- 	errcode = permission_fault(vcpu, mmu, walker->pte_access, pte_pkey, access);
- 	if (unlikely(errcode))
-@@ -433,7 +435,8 @@ retry_walk:
+-	if (mode & (FMODE_READ|FMODE_WRITE)) {
+-		UDRS->last_checked = 0;
+-		clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
+-		check_disk_change(bdev);
+-		if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
+-			goto out;
+-		if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
++	if (!(mode & FMODE_NDELAY)) {
++		if (mode & (FMODE_READ|FMODE_WRITE)) {
++			UDRS->last_checked = 0;
++			clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
++			check_disk_change(bdev);
++			if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
++				goto out;
++			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
++				goto out;
++		}
++		res = -EROFS;
++		if ((mode & FMODE_WRITE) &&
++		    !test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
+ 			goto out;
  	}
- 
- 	pgprintk("%s: pte %llx pte_access %x pt_access %x\n",
--		 __func__, (u64)pte, walker->pte_access, walker->pt_access);
-+		 __func__, (u64)pte, walker->pte_access,
-+		 walker->pt_access[walker->level - 1]);
- 	return 1;
- 
- error:
-@@ -602,7 +605,7 @@ static int FNAME(fetch)(struct kvm_vcpu
- {
- 	struct kvm_mmu_page *sp = NULL;
- 	struct kvm_shadow_walk_iterator it;
--	unsigned direct_access, access = gw->pt_access;
-+	unsigned int direct_access, access;
- 	int top_level, ret;
- 	gfn_t gfn, base_gfn;
- 
-@@ -634,6 +637,7 @@ static int FNAME(fetch)(struct kvm_vcpu
- 		sp = NULL;
- 		if (!is_shadow_present_pte(*it.sptep)) {
- 			table_gfn = gw->table_gfn[it.level - 2];
-+			access = gw->pt_access[it.level - 2];
- 			sp = kvm_mmu_get_page(vcpu, table_gfn, addr, it.level-1,
- 					      false, access);
- 		}
+-
+-	res = -EROFS;
+-
+-	if ((mode & FMODE_WRITE) &&
+-			!test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
+-		goto out;
+-
+ 	mutex_unlock(&open_lock);
+ 	mutex_unlock(&floppy_mutex);
+ 	return 0;
 
 
