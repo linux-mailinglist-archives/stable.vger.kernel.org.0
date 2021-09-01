@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 683243FD9B6
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:28:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 966513FD9B9
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244357AbhIAM2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:28:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58054 "EHLO mail.kernel.org"
+        id S244303AbhIAM2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:28:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244299AbhIAM2a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:28:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2935360ED4;
-        Wed,  1 Sep 2021 12:27:33 +0000 (UTC)
+        id S244332AbhIAM2c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:28:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A18F86101B;
+        Wed,  1 Sep 2021 12:27:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499253;
-        bh=i7ORWuQXpHJSFIAnVbY8YDDmn7D7+2uKBut8Y+jXbxw=;
+        s=korg; t=1630499256;
+        bh=m+aPwWsJcspwQAYpDPatNck7V0kmt2ZB6VygYcXBdLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCcHrvuPnusVCeJeFnKeqqym+uaJi9vj6FNxFrRyeHVJ8A550z4MYm4QswCQcF9D/
-         NRvVt7jpccJWP2yTKiSJ7w5RVu8JMBSj0gKuSLJ1axf3p59F+FmqQEJrLck8oOHp7D
-         0Xt5r3N9Ou0x+t2iwzjw7weUxB+09pOiQeeoQ0i8=
+        b=tcDW17OXaTDE4IKMPqY2SeM4viO4U2Ajlt6+/OO3MYNmC9exrFjUJZxEfIg0gxREp
+         ZIcaqrAmIpNlKkc+fAcRln96m9cODB4/0KkC39Ec/0fn0qN3a4KMDEB1P4ViuZ0x79
+         UH1NNyFWE4dDpoJ4+8mX00Yw0G5kPyeQJs88oRa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 4.9 05/16] usb: dwc3: gadget: Fix dwc3_calc_trbs_left()
-Date:   Wed,  1 Sep 2021 14:26:31 +0200
-Message-Id: <20210901122249.086483978@linuxfoundation.org>
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Tuo Li <islituo@gmail.com>,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 06/16] IB/hfi1: Fix possible null-pointer dereference in _extend_sdma_tx_descs()
+Date:   Wed,  1 Sep 2021 14:26:32 +0200
+Message-Id: <20210901122249.116885140@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122248.920548099@linuxfoundation.org>
 References: <20210901122248.920548099@linuxfoundation.org>
@@ -39,60 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Tuo Li <islituo@gmail.com>
 
-commit 51f1954ad853d01ba4dc2b35dee14d8490ee05a1 upstream.
+[ Upstream commit cbe71c61992c38f72c2b625b2ef25916b9f0d060 ]
 
-We can't depend on the TRB's HWO bit to determine if the TRB ring is
-"full". A TRB is only available when the driver had processed it, not
-when the controller consumed and relinquished the TRB's ownership to the
-driver. Otherwise, the driver may overwrite unprocessed TRBs. This can
-happen when many transfer events accumulate and the system is slow to
-process them and/or when there are too many small requests.
+kmalloc_array() is called to allocate memory for tx->descp. If it fails,
+the function __sdma_txclean() is called:
+  __sdma_txclean(dd, tx);
 
-If a request is in the started_list, that means there is one or more
-unprocessed TRBs remained. Check this instead of the TRB's HWO bit
-whether the TRB ring is full.
+However, in the function __sdma_txclean(), tx-descp is dereferenced if
+tx->num_desc is not zero:
+  sdma_unmap_desc(dd, &tx->descp[0]);
 
-Fixes: c4233573f6ee ("usb: dwc3: gadget: prepare TRBs on update transfers too")
-Cc: <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/e91e975affb0d0d02770686afc3a5b9eb84409f6.1629335416.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this possible null-pointer dereference, assign the return value of
+kmalloc_array() to a local variable descp, and then assign it to tx->descp
+if it is not NULL. Otherwise, go to enomem.
+
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Link: https://lore.kernel.org/r/20210806133029.194964-1-islituo@gmail.com
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Tuo Li <islituo@gmail.com>
+Tested-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Acked-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/infiniband/hw/hfi1/sdma.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -928,19 +928,19 @@ static struct dwc3_trb *dwc3_ep_prev_trb
- 
- static u32 dwc3_calc_trbs_left(struct dwc3_ep *dep)
+diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
+index 76e63c88a87a..e9313e6f4b0e 100644
+--- a/drivers/infiniband/hw/hfi1/sdma.c
++++ b/drivers/infiniband/hw/hfi1/sdma.c
+@@ -3028,6 +3028,7 @@ static void __sdma_process_event(struct sdma_engine *sde,
+ static int _extend_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
  {
--	struct dwc3_trb		*tmp;
- 	u8			trbs_left;
+ 	int i;
++	struct sdma_desc *descp;
  
- 	/*
--	 * If enqueue & dequeue are equal than it is either full or empty.
--	 *
--	 * One way to know for sure is if the TRB right before us has HWO bit
--	 * set or not. If it has, then we're definitely full and can't fit any
--	 * more transfers in our ring.
-+	 * If the enqueue & dequeue are equal then the TRB ring is either full
-+	 * or empty. It's considered full when there are DWC3_TRB_NUM-1 of TRBs
-+	 * pending to be processed by the driver.
- 	 */
- 	if (dep->trb_enqueue == dep->trb_dequeue) {
--		tmp = dwc3_ep_prev_trb(dep, dep->trb_enqueue);
--		if (tmp->ctrl & DWC3_TRB_CTRL_HWO)
-+		/*
-+		 * If there is any request remained in the started_list at
-+		 * this point, that means there is no TRB available.
-+		 */
-+		if (!list_empty(&dep->started_list))
- 			return 0;
+ 	/* Handle last descriptor */
+ 	if (unlikely((tx->num_desc == (MAX_DESC - 1)))) {
+@@ -3048,12 +3049,10 @@ static int _extend_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
+ 	if (unlikely(tx->num_desc == MAX_DESC))
+ 		goto enomem;
  
- 		return DWC3_TRB_NUM - 1;
+-	tx->descp = kmalloc_array(
+-			MAX_DESC,
+-			sizeof(struct sdma_desc),
+-			GFP_ATOMIC);
+-	if (!tx->descp)
++	descp = kmalloc_array(MAX_DESC, sizeof(struct sdma_desc), GFP_ATOMIC);
++	if (!descp)
+ 		goto enomem;
++	tx->descp = descp;
+ 
+ 	/* reserve last descriptor for coalescing */
+ 	tx->desc_limit = MAX_DESC - 1;
+-- 
+2.30.2
+
 
 
