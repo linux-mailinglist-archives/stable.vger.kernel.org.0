@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D26283FDB33
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA373FDC4B
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343994AbhIAMi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:38:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41872 "EHLO mail.kernel.org"
+        id S1345822AbhIAMso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:48:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344163AbhIAMhL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:37:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 879FB61131;
-        Wed,  1 Sep 2021 12:34:09 +0000 (UTC)
+        id S1344266AbhIAMqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:46:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9477360F23;
+        Wed,  1 Sep 2021 12:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499650;
-        bh=GUKhH7urC3fWP/dJb2D4FsZqyIFxSwiQuVhO0ShoeFg=;
+        s=korg; t=1630499991;
+        bh=uBjfIoggYh3tdT7PSh5LAbeCIvSvrU9nJSR16UNVcr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rb3cKMPmShq5DpquZd+Kzn9lCGZvUO6SqGQ49z2lKIEsi55nhIHT0LarYMgEpX512
-         6Yb6NhQnDDv+GYWAORaDmu/81fQTMVNkwN/V7nN4mYWQqSmhowtjn6GIW0OF1yU+HY
-         JTUl59JuSAGmeQOP0KtbmWTmzCRlSqRaoAWlLUMc=
+        b=f3cS5iL+gRWy81wq+bvpGPwnPGa8NjAPBeNqLtYPJ3oBRL16aMsFKXaCKUQ9YgKlz
+         lS7sJSjJZ3TH5MrrJkiSx8zrmjLGR0DxYzbWKdshSmcUvkmShQenfdvd/dDP2mTTIh
+         wJn9nDVVGc80cG1P/0Th3tT/JvLVrtfoE4LcUrDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+ff8e1b9f2f36481e2efc@syzkaller.appspotmail.com,
-        Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 033/103] ip_gre: add validation for csum_start
+        =?UTF-8?q?Paul=20Gr=C3=B6=C3=9Fel?= <pb.g@gmx.de>,
+        Willy Tarreau <w@1wt.eu>, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.13 028/113] Revert "USB: serial: ch341: fix character loss at high transfer rates"
 Date:   Wed,  1 Sep 2021 14:27:43 +0200
-Message-Id: <20210901122301.663406152@linuxfoundation.org>
+Message-Id: <20210901122302.935651521@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 1d011c4803c72f3907eccfc1ec63caefb852fcbf ]
+commit df7b16d1c00ecb3da3a30c999cdb39f273c99a2f upstream.
 
-Validate csum_start in gre_handle_offloads before we call _gre_xmit so
-that we do not crash later when the csum_start value is used in the
-lco_csum function call.
+This reverts commit 3c18e9baee0ef97510dcda78c82285f52626764b.
 
-This patch deals with ipv4 code.
+These devices do not appear to send a zero-length packet when the
+transfer size is a multiple of the bulk-endpoint max-packet size. This
+means that incoming data may not be processed by the driver until a
+short packet is received or the receive buffer is full.
 
-Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
-Reported-by: syzbot+ff8e1b9f2f36481e2efc@syzkaller.appspotmail.com
-Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Revert back to using endpoint-sized receive buffers to avoid stalled
+reads.
+
+Reported-by: Paul Größel <pb.g@gmx.de>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214131
+Fixes: 3c18e9baee0e ("USB: serial: ch341: fix character loss at high transfer rates")
+Cc: stable@vger.kernel.org
+Cc: Willy Tarreau <w@1wt.eu>
+Link: https://lore.kernel.org/r/20210824121926.19311-1-johan@kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_gre.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/ch341.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index e70291748889..a0829495b211 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -468,6 +468,8 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
- 
- static int gre_handle_offloads(struct sk_buff *skb, bool csum)
- {
-+	if (csum && skb_checksum_start(skb) < skb->data)
-+		return -EINVAL;
- 	return iptunnel_handle_offloads(skb, csum ? SKB_GSO_GRE_CSUM : SKB_GSO_GRE);
- }
- 
--- 
-2.30.2
-
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -851,7 +851,6 @@ static struct usb_serial_driver ch341_de
+ 		.owner	= THIS_MODULE,
+ 		.name	= "ch341-uart",
+ 	},
+-	.bulk_in_size      = 512,
+ 	.id_table          = id_table,
+ 	.num_ports         = 1,
+ 	.open              = ch341_open,
 
 
