@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F1C3FDAB4
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD4043FDB79
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343595AbhIAMeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:34:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35798 "EHLO mail.kernel.org"
+        id S1343757AbhIAMlu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:41:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245340AbhIAMcc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:32:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DA2A610C7;
-        Wed,  1 Sep 2021 12:31:35 +0000 (UTC)
+        id S1344896AbhIAMkM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CFBE610E7;
+        Wed,  1 Sep 2021 12:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499496;
-        bh=QkEI0WCue3HLhyKwEt1fpN6496pjf5f9hYPCJVuQCH8=;
+        s=korg; t=1630499769;
+        bh=jVGFFhgQPDsIekeU6Mj58mUSZo3WAIr1rV2jD2J8/kA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YwSkHzDy2/iqBm6Tk3yLTZycbMzxQVT+oc7ZuNDm1gmdmzjPsuaDr7UViVhAXENIs
-         aPwtOFc9+yzVHnsLNMwVBBzUXJVyIoJwv+ojyQIQQovBl92kF4oCSSdWW+wjvkVA7d
-         OTR6v2S988ZirG2LSjdihWRMtigXmHr0HHPwAkC0=
+        b=bm4iVubeHqfAI01LyABwTe1qx05lGvytHK34hub3B8oIxPPOdjzfN/3j/AFDJvkta
+         VIU9+0xt7nkYbYFXKhadCMNioGPUM9tecdZFxwv0wsltewJthB7v24wb2HrouYpP59
+         MfjBa9U4f/SjVaoj0SF5/e+hPw/TcdI4xu1roT3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Ignatov <rdna@fb.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/48] rtnetlink: Return correct error on changing device netns
+Subject: [PATCH 5.10 061/103] tools/virtio: fix build
 Date:   Wed,  1 Sep 2021 14:28:11 +0200
-Message-Id: <20210901122254.100821660@linuxfoundation.org>
+Message-Id: <20210901122302.613323933@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
-References: <20210901122253.388326997@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,119 +39,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ignatov <rdna@fb.com>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-[ Upstream commit 96a6b93b69880b2c978e1b2be9cae6970b605008 ]
+[ Upstream commit a24ce06c70fe7df795a846ad713ccaa9b56a7666 ]
 
-Currently when device is moved between network namespaces using
-RTM_NEWLINK message type and one of netns attributes (FLA_NET_NS_PID,
-IFLA_NET_NS_FD, IFLA_TARGET_NETNSID) but w/o specifying IFLA_IFNAME, and
-target namespace already has device with same name, userspace will get
-EINVAL what is confusing and makes debugging harder.
+We use a spinlock now so add a stub.
+Ignore bogus uninitialized variable warnings.
 
-Fix it so that userspace gets more appropriate EEXIST instead what makes
-debugging much easier.
-
-Before:
-
-  # ./ifname.sh
-  + ip netns add ns0
-  + ip netns exec ns0 ip link add l0 type dummy
-  + ip netns exec ns0 ip link show l0
-  8: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-      link/ether 66:90:b5:d5:78:69 brd ff:ff:ff:ff:ff:ff
-  + ip link add l0 type dummy
-  + ip link show l0
-  10: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-      link/ether 6e:c6:1f:15:20:8d brd ff:ff:ff:ff:ff:ff
-  + ip link set l0 netns ns0
-  RTNETLINK answers: Invalid argument
-
-After:
-
-  # ./ifname.sh
-  + ip netns add ns0
-  + ip netns exec ns0 ip link add l0 type dummy
-  + ip netns exec ns0 ip link show l0
-  8: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-      link/ether 1e:4a:72:e3:e3:8f brd ff:ff:ff:ff:ff:ff
-  + ip link add l0 type dummy
-  + ip link show l0
-  10: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-      link/ether f2:fc:fe:2b:7d:a6 brd ff:ff:ff:ff:ff:ff
-  + ip link set l0 netns ns0
-  RTNETLINK answers: File exists
-
-The problem is that do_setlink() passes its `char *ifname` argument,
-that it gets from a caller, to __dev_change_net_namespace() as is (as
-`const char *pat`), but semantics of ifname and pat can be different.
-
-For example, __rtnl_newlink() does this:
-
-net/core/rtnetlink.c
-    3270	char ifname[IFNAMSIZ];
-     ...
-    3286	if (tb[IFLA_IFNAME])
-    3287		nla_strscpy(ifname, tb[IFLA_IFNAME], IFNAMSIZ);
-    3288	else
-    3289		ifname[0] = '\0';
-     ...
-    3364	if (dev) {
-     ...
-    3394		return do_setlink(skb, dev, ifm, extack, tb, ifname, status);
-    3395	}
-
-, i.e. do_setlink() gets ifname pointer that is always valid no matter
-if user specified IFLA_IFNAME or not and then do_setlink() passes this
-ifname pointer as is to __dev_change_net_namespace() as pat argument.
-
-But the pat (pattern) in __dev_change_net_namespace() is used as:
-
-net/core/dev.c
-   11198	err = -EEXIST;
-   11199	if (__dev_get_by_name(net, dev->name)) {
-   11200		/* We get here if we can't use the current device name */
-   11201		if (!pat)
-   11202			goto out;
-   11203		err = dev_get_valid_name(net, dev, pat);
-   11204		if (err < 0)
-   11205			goto out;
-   11206	}
-
-As the result the `goto out` path on line 11202 is neven taken and
-instead of returning EEXIST defined on line 11198,
-__dev_change_net_namespace() returns an error from dev_get_valid_name()
-and this, in turn, will be EINVAL for ifname[0] = '\0' set earlier.
-
-Fixes: d8a5ec672768 ("[NET]: netlink support for moving devices between network namespaces.")
-Signed-off-by: Andrey Ignatov <rdna@fb.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/rtnetlink.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/virtio/Makefile         |  3 +-
+ tools/virtio/linux/spinlock.h | 56 +++++++++++++++++++++++++++++++++++
+ tools/virtio/linux/virtio.h   |  2 ++
+ 3 files changed, 60 insertions(+), 1 deletion(-)
+ create mode 100644 tools/virtio/linux/spinlock.h
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 0bad5db23129..6fbc9cb09dc0 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -2414,6 +2414,7 @@ static int do_setlink(const struct sk_buff *skb,
- 		return err;
+diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+index b587b9a7a124..0d7bbe49359d 100644
+--- a/tools/virtio/Makefile
++++ b/tools/virtio/Makefile
+@@ -4,7 +4,8 @@ test: virtio_test vringh_test
+ virtio_test: virtio_ring.o virtio_test.o
+ vringh_test: vringh_test.o vringh.o virtio_ring.o
  
- 	if (tb[IFLA_NET_NS_PID] || tb[IFLA_NET_NS_FD] || tb[IFLA_TARGET_NETNSID]) {
-+		const char *pat = ifname && ifname[0] ? ifname : NULL;
- 		struct net *net = rtnl_link_get_net_capable(skb, dev_net(dev),
- 							    tb, CAP_NET_ADMIN);
- 		if (IS_ERR(net)) {
-@@ -2421,7 +2422,7 @@ static int do_setlink(const struct sk_buff *skb,
- 			goto errout;
- 		}
+-CFLAGS += -g -O2 -Werror -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
++CFLAGS += -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
++LDFLAGS += -lpthread
+ vpath %.c ../../drivers/virtio ../../drivers/vhost
+ mod:
+ 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test V=${V}
+diff --git a/tools/virtio/linux/spinlock.h b/tools/virtio/linux/spinlock.h
+new file mode 100644
+index 000000000000..028e3cdcc5d3
+--- /dev/null
++++ b/tools/virtio/linux/spinlock.h
+@@ -0,0 +1,56 @@
++#ifndef SPINLOCK_H_STUB
++#define SPINLOCK_H_STUB
++
++#include <pthread.h>
++
++typedef pthread_spinlock_t  spinlock_t;
++
++static inline void spin_lock_init(spinlock_t *lock)
++{
++	int r = pthread_spin_init(lock, 0);
++	assert(!r);
++}
++
++static inline void spin_lock(spinlock_t *lock)
++{
++	int ret = pthread_spin_lock(lock);
++	assert(!ret);
++}
++
++static inline void spin_unlock(spinlock_t *lock)
++{
++	int ret = pthread_spin_unlock(lock);
++	assert(!ret);
++}
++
++static inline void spin_lock_bh(spinlock_t *lock)
++{
++	spin_lock(lock);
++}
++
++static inline void spin_unlock_bh(spinlock_t *lock)
++{
++	spin_unlock(lock);
++}
++
++static inline void spin_lock_irq(spinlock_t *lock)
++{
++	spin_lock(lock);
++}
++
++static inline void spin_unlock_irq(spinlock_t *lock)
++{
++	spin_unlock(lock);
++}
++
++static inline void spin_lock_irqsave(spinlock_t *lock, unsigned long f)
++{
++	spin_lock(lock);
++}
++
++static inline void spin_unlock_irqrestore(spinlock_t *lock, unsigned long f)
++{
++	spin_unlock(lock);
++}
++
++#endif
+diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
+index 5d90254ddae4..363b98228301 100644
+--- a/tools/virtio/linux/virtio.h
++++ b/tools/virtio/linux/virtio.h
+@@ -3,6 +3,7 @@
+ #define LINUX_VIRTIO_H
+ #include <linux/scatterlist.h>
+ #include <linux/kernel.h>
++#include <linux/spinlock.h>
  
--		err = dev_change_net_namespace(dev, net, ifname);
-+		err = dev_change_net_namespace(dev, net, pat);
- 		put_net(net);
- 		if (err)
- 			goto errout;
+ struct device {
+ 	void *parent;
+@@ -12,6 +13,7 @@ struct virtio_device {
+ 	struct device dev;
+ 	u64 features;
+ 	struct list_head vqs;
++	spinlock_t vqs_list_lock;
+ };
+ 
+ struct virtqueue {
 -- 
 2.30.2
 
