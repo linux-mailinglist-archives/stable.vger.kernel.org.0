@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF733FD9A5
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:28:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 383FB3FD9A6
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:28:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244230AbhIAM2O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244203AbhIAM2O (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 1 Sep 2021 08:28:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57432 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244233AbhIAM2G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:28:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F7B661075;
-        Wed,  1 Sep 2021 12:27:09 +0000 (UTC)
+        id S244202AbhIAM2K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:28:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D4BA61056;
+        Wed,  1 Sep 2021 12:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499230;
-        bh=qhESlreqaguGA6UjYwAFl9MniaY/yGL8vZMgJ69S/zY=;
+        s=korg; t=1630499232;
+        bh=AUH35JSSsY17ol35rLqw1Deg7KdQeZy6AL5d2IXjs4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OpU1pRRUmi7Ov8ruH9OO8uZEQjxxqQZ3x54ndPruzhXnqJKu0+bZXKPnw+oTvu3Ou
-         NyPxdiOexvCVtQKR+h6vVJzxLjI1/Qw8W2/VueULmoryC+0dWWxloTVcd7Dmxx1tE5
-         gnlAy9hLbVl4j+GKf2j2eQ2rkimDjSJJQKpSQeCw=
+        b=wjExnEkDy8gG2CJBdcW3KFH6nWMvlQyagSJCK/MhCM/cupH+jrPMlYc/cmLQJ8PaO
+         jFs0OggCnS2kLR+UESbFUN9OIVONOnM4y/48pPhg8+ccZAxpgz4GXUc1irps2C5rVH
+         DcX6zz2Hk4g2Lo3XriKxlKH5X/juNA6+2AyrAKh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Gerd Rausch <gerd.rausch@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/16] vringh: Use wiov->used to check for read/write desc order
-Date:   Wed,  1 Sep 2021 14:26:37 +0200
-Message-Id: <20210901122249.274797677@linuxfoundation.org>
+Subject: [PATCH 4.9 12/16] net/rds: dma_map_sg is entitled to merge entries
+Date:   Wed,  1 Sep 2021 14:26:38 +0200
+Message-Id: <20210901122249.305212889@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122248.920548099@linuxfoundation.org>
 References: <20210901122248.920548099@linuxfoundation.org>
@@ -42,48 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neeraj Upadhyay <neeraju@codeaurora.org>
+From: Gerd Rausch <gerd.rausch@oracle.com>
 
-[ Upstream commit e74cfa91f42c50f7f649b0eca46aa049754ccdbd ]
+[ Upstream commit fb4b1373dcab086d0619c29310f0466a0b2ceb8a ]
 
-As __vringh_iov() traverses a descriptor chain, it populates
-each descriptor entry into either read or write vring iov
-and increments that iov's ->used member. So, as we iterate
-over a descriptor chain, at any point, (riov/wriov)->used
-value gives the number of descriptor enteries available,
-which are to be read or written by the device. As all read
-iovs must precede the write iovs, wiov->used should be zero
-when we are traversing a read descriptor. Current code checks
-for wiov->i, to figure out whether any previous entry in the
-current descriptor chain was a write descriptor. However,
-iov->i is only incremented, when these vring iovs are consumed,
-at a later point, and remain 0 in __vringh_iov(). So, correct
-the check for read and write descriptor order, to use
-wiov->used.
+Function "dma_map_sg" is entitled to merge adjacent entries
+and return a value smaller than what was passed as "nents".
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Link: https://lore.kernel.org/r/1624591502-4827-1-git-send-email-neeraju@codeaurora.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Subsequently "ib_map_mr_sg" needs to work with this value ("sg_dma_len")
+rather than the original "nents" parameter ("sg_len").
+
+This old RDS bug was exposed and reliably causes kernel panics
+(using RDMA operations "rds-stress -D") on x86_64 starting with:
+commit c588072bba6b ("iommu/vt-d: Convert intel iommu driver to the iommu ops")
+
+Simply put: Linux 5.11 and later.
+
+Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Link: https://lore.kernel.org/r/60efc69f-1f35-529d-a7ef-da0549cad143@oracle.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vringh.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/rds/ib_frmr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index d56736655dec..da47542496cc 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -329,7 +329,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 			iov = wiov;
- 		else {
- 			iov = riov;
--			if (unlikely(wiov && wiov->i)) {
-+			if (unlikely(wiov && wiov->used)) {
- 				vringh_bad("Readable desc %p after writable",
- 					   &descs[i]);
- 				err = -EINVAL;
+diff --git a/net/rds/ib_frmr.c b/net/rds/ib_frmr.c
+index 3d9c4c6397c3..20d045faf07c 100644
+--- a/net/rds/ib_frmr.c
++++ b/net/rds/ib_frmr.c
+@@ -112,9 +112,9 @@ static int rds_ib_post_reg_frmr(struct rds_ib_mr *ibmr)
+ 		cpu_relax();
+ 	}
+ 
+-	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_len,
++	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_dma_len,
+ 				&off, PAGE_SIZE);
+-	if (unlikely(ret != ibmr->sg_len))
++	if (unlikely(ret != ibmr->sg_dma_len))
+ 		return ret < 0 ? ret : -EINVAL;
+ 
+ 	/* Perform a WR for the fast_reg_mr. Each individual page
 -- 
 2.30.2
 
