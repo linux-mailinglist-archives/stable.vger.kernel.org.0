@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 629C23FDAF1
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C13733FDB70
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343693AbhIAMg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:36:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34838 "EHLO mail.kernel.org"
+        id S244975AbhIAMlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:41:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343892AbhIAMei (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:34:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1138661075;
-        Wed,  1 Sep 2021 12:32:44 +0000 (UTC)
+        id S1344714AbhIAMj5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:39:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E6D9610FD;
+        Wed,  1 Sep 2021 12:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499565;
-        bh=oOL6UTqDbg0OcKR1M4Omks0SqDMR+Q807rMevmkjvuQ=;
+        s=korg; t=1630499750;
+        bh=Q6rXKBWCCKY5HIZgH5Af2QbmjSkd7dUsSf7b64pcaug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dewf3m0tf2d3go28TtZS/eYYrz8JsxxHq8qh1jtuRKWp0qooXJEnKhujkk2rHLYLO
-         jkxyl4xyDG4Jn8wHtz2HWq0VZ2nO57XzfUciivjb6NEtgcwH46xPwd8IKqLg03E3Jx
-         n/lSluQwBbSfnajiBcNoMlPIdv45NasnCGbu7QZc=
+        b=ooXJBMb5HiLFYevxJ4XhQHjBCeHZOIjUfeGrhKSJUhWiP2DE0Onnfkex77XNxoKuB
+         ukkj1+Hfo6wFKW9Nq3SY1CWrVJ+IMdHZoicfnoD7fay98uDIsXrlTDJ6T/xHBdofrH
+         K6lmeBfGEdAGmYc/9J7IGSKsnIGmxAA+C737rEYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ariel Elior <aelior@marvell.com>,
-        Shai Malin <smalin@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/48] qed: qed ll2 race condition fixes
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Sandeep Patil <sspatil@android.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 072/103] pipe: avoid unnecessary EPOLLET wakeups under normal loads
 Date:   Wed,  1 Sep 2021 14:28:22 +0200
-Message-Id: <20210901122254.465317040@linuxfoundation.org>
+Message-Id: <20210901122302.991450110@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
-References: <20210901122253.388326997@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +41,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shai Malin <smalin@marvell.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 37110237f31105d679fc0aa7b11cdec867750ea7 ]
+commit 3b844826b6c6affa80755254da322b017358a2f4 upstream.
 
-Avoiding qed ll2 race condition and NULL pointer dereference as part
-of the remove and recovery flows.
+I had forgotten just how sensitive hackbench is to extra pipe wakeups,
+and commit 3a34b13a88ca ("pipe: make pipe writes always wake up
+readers") ended up causing a quite noticeable regression on larger
+machines.
 
-Changes form V1:
-- Change (!p_rx->set_prod_addr).
-- qed_ll2.c checkpatch fixes.
+Now, hackbench isn't necessarily a hugely meaningful benchmark, and it's
+not clear that this matters in real life all that much, but as Mel
+points out, it's used often enough when comparing kernels and so the
+performance regression shows up like a sore thumb.
 
-Change from V2:
-- Revert "qed_ll2.c checkpatch fixes".
+It's easy enough to fix at least for the common cases where pipes are
+used purely for data transfer, and you never have any exciting poll
+usage at all.  So set a special 'poll_usage' flag when there is polling
+activity, and make the ugly "EPOLLET has crazy legacy expectations"
+semantics explicit to only that case.
 
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+I would love to limit it to just the broken EPOLLET case, but the pipe
+code can't see the difference between epoll and regular select/poll, so
+any non-read/write waiting will trigger the extra wakeup behavior.  That
+is sufficient for at least the hackbench case.
+
+Apart from making the odd extra wakeup cases more explicitly about
+EPOLLET, this also makes the extra wakeup be at the _end_ of the pipe
+write, not at the first write chunk.  That is actually much saner
+semantics (as much as you can call any of the legacy edge-triggered
+expectations for EPOLLET "sane") since it means that you know the wakeup
+will happen once the write is done, rather than possibly in the middle
+of one.
+
+[ For stable people: I'm putting a "Fixes" tag on this, but I leave it
+  up to you to decide whether you actually want to backport it or not.
+  It likely has no impact outside of synthetic benchmarks  - Linus ]
+
+Link: https://lore.kernel.org/lkml/20210802024945.GA8372@xsang-OptiPlex-9020/
+Fixes: 3a34b13a88ca ("pipe: make pipe writes always wake up readers")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Tested-by: Sandeep Patil <sspatil@android.com>
+Tested-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_ll2.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ fs/pipe.c                 |   15 +++++++++------
+ include/linux/pipe_fs_i.h |    2 ++
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_ll2.c b/drivers/net/ethernet/qlogic/qed/qed_ll2.c
-index 19a1a58d60f8..c449ecc0add2 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_ll2.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_ll2.c
-@@ -353,6 +353,9 @@ static int qed_ll2_txq_completion(struct qed_hwfn *p_hwfn, void *p_cookie)
- 	unsigned long flags;
- 	int rc = -EINVAL;
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -444,9 +444,6 @@ pipe_write(struct kiocb *iocb, struct io
+ #endif
  
-+	if (!p_ll2_conn)
-+		return rc;
+ 	/*
+-	 * Epoll nonsensically wants a wakeup whether the pipe
+-	 * was already empty or not.
+-	 *
+ 	 * If it wasn't empty we try to merge new data into
+ 	 * the last buffer.
+ 	 *
+@@ -455,9 +452,9 @@ pipe_write(struct kiocb *iocb, struct io
+ 	 * spanning multiple pages.
+ 	 */
+ 	head = pipe->head;
+-	was_empty = true;
++	was_empty = pipe_empty(head, pipe->tail);
+ 	chars = total_len & (PAGE_SIZE-1);
+-	if (chars && !pipe_empty(head, pipe->tail)) {
++	if (chars && !was_empty) {
+ 		unsigned int mask = pipe->ring_size - 1;
+ 		struct pipe_buffer *buf = &pipe->bufs[(head - 1) & mask];
+ 		int offset = buf->offset + buf->len;
+@@ -590,8 +587,11 @@ out:
+ 	 * This is particularly important for small writes, because of
+ 	 * how (for example) the GNU make jobserver uses small writes to
+ 	 * wake up pending jobs
++	 *
++	 * Epoll nonsensically wants a wakeup whether the pipe
++	 * was already empty or not.
+ 	 */
+-	if (was_empty) {
++	if (was_empty || pipe->poll_usage) {
+ 		wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
+ 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
+ 	}
+@@ -654,6 +654,9 @@ pipe_poll(struct file *filp, poll_table
+ 	struct pipe_inode_info *pipe = filp->private_data;
+ 	unsigned int head, tail;
+ 
++	/* Epoll has some historical nasty semantics, this enables them */
++	pipe->poll_usage = 1;
 +
- 	spin_lock_irqsave(&p_tx->lock, flags);
- 	if (p_tx->b_completing_packet) {
- 		rc = -EBUSY;
-@@ -526,7 +529,16 @@ static int qed_ll2_rxq_completion(struct qed_hwfn *p_hwfn, void *cookie)
- 	unsigned long flags = 0;
- 	int rc = 0;
- 
-+	if (!p_ll2_conn)
-+		return rc;
-+
- 	spin_lock_irqsave(&p_rx->lock, flags);
-+
-+	if (!QED_LL2_RX_REGISTERED(p_ll2_conn)) {
-+		spin_unlock_irqrestore(&p_rx->lock, flags);
-+		return 0;
-+	}
-+
- 	cq_new_idx = le16_to_cpu(*p_rx->p_fw_cons);
- 	cq_old_idx = qed_chain_get_cons_idx(&p_rx->rcq_chain);
- 
-@@ -847,6 +859,9 @@ static int qed_ll2_lb_rxq_completion(struct qed_hwfn *p_hwfn, void *p_cookie)
- 	struct qed_ll2_info *p_ll2_conn = (struct qed_ll2_info *)p_cookie;
- 	int rc;
- 
-+	if (!p_ll2_conn)
-+		return 0;
-+
- 	if (!QED_LL2_RX_REGISTERED(p_ll2_conn))
- 		return 0;
- 
-@@ -870,6 +885,9 @@ static int qed_ll2_lb_txq_completion(struct qed_hwfn *p_hwfn, void *p_cookie)
- 	u16 new_idx = 0, num_bds = 0;
- 	int rc;
- 
-+	if (!p_ll2_conn)
-+		return 0;
-+
- 	if (!QED_LL2_TX_REGISTERED(p_ll2_conn))
- 		return 0;
- 
-@@ -1642,6 +1660,8 @@ int qed_ll2_post_rx_buffer(void *cxt,
- 	if (!p_ll2_conn)
- 		return -EINVAL;
- 	p_rx = &p_ll2_conn->rx_queue;
-+	if (!p_rx->set_prod_addr)
-+		return -EIO;
- 
- 	spin_lock_irqsave(&p_rx->lock, flags);
- 	if (!list_empty(&p_rx->free_descq))
--- 
-2.30.2
-
+ 	/*
+ 	 * Reading pipe state only -- no need for acquiring the semaphore.
+ 	 *
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -48,6 +48,7 @@ struct pipe_buffer {
+  *	@files: number of struct file referring this pipe (protected by ->i_lock)
+  *	@r_counter: reader counter
+  *	@w_counter: writer counter
++ *	@poll_usage: is this pipe used for epoll, which has crazy wakeups?
+  *	@fasync_readers: reader side fasync
+  *	@fasync_writers: writer side fasync
+  *	@bufs: the circular array of pipe buffers
+@@ -70,6 +71,7 @@ struct pipe_inode_info {
+ 	unsigned int files;
+ 	unsigned int r_counter;
+ 	unsigned int w_counter;
++	unsigned int poll_usage;
+ 	struct page *tmp_page;
+ 	struct fasync_struct *fasync_readers;
+ 	struct fasync_struct *fasync_writers;
 
 
