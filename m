@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 169173FDC26
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A93E93FDA3E
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:15:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344036AbhIAMrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:47:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49254 "EHLO mail.kernel.org"
+        id S244829AbhIAMbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:31:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345869AbhIAMpI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:45:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33A7661159;
-        Wed,  1 Sep 2021 12:39:19 +0000 (UTC)
+        id S244729AbhIAMat (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:30:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E2A061054;
+        Wed,  1 Sep 2021 12:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499959;
-        bh=GSrMGi3p2ZVGJglgw3oyssmrlkN+AUsMS7KZAjFK5ko=;
+        s=korg; t=1630499392;
+        bh=vo+0wE1OvcoQmdBPeqEYanvNLCv7gekrs7aUx+UHX78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7uTQZCoWJuYROW1EaxOlqIBB7h0oPTLpa0zgbMAfaIuv4ZglU43SipQmnPuGvxWv
-         cHsPQaAzU0Ks2bh00VCcq7IV1UpzBxGjf0wVuQbqHvOgloA9oxWHl9X8gm6gFzhxqk
-         uh91vk/rUG/VDhE2FE8uh+z6rD4jls7kDpcQlioY=
+        b=N6X9gtRoklfK0YNwCr2595qh6tK7V1P+/rtj2dtcQAtjrnAGLdDRQnYndfHTfPH2N
+         5ik3dYhVF2s1MjkGNJtpw2vycxwycHeaLGrauHc+Lrjme9Qo+7hHohXDGYDh2jKIO9
+         WpZ9tTtVZ0xLvEvMOt/cHpNp+Ye2wJc74RI1jSJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 049/113] xgene-v2: Fix a resource leak in the error handling path of xge_probe()
-Date:   Wed,  1 Sep 2021 14:28:04 +0200
-Message-Id: <20210901122303.610040575@linuxfoundation.org>
+Subject: [PATCH 4.19 16/33] xgene-v2: Fix a resource leak in the error handling path of xge_probe()
+Date:   Wed,  1 Sep 2021 14:28:05 +0200
+Message-Id: <20210901122251.319649711@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
+References: <20210901122250.752620302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,10 +60,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/apm/xgene-v2/main.c b/drivers/net/ethernet/apm/xgene-v2/main.c
-index 860c18fb7aae..80399c8980bd 100644
+index 0f2ad50f3bd7..7f37e7cb687e 100644
 --- a/drivers/net/ethernet/apm/xgene-v2/main.c
 +++ b/drivers/net/ethernet/apm/xgene-v2/main.c
-@@ -677,11 +677,13 @@ static int xge_probe(struct platform_device *pdev)
+@@ -691,11 +691,13 @@ static int xge_probe(struct platform_device *pdev)
  	ret = register_netdev(ndev);
  	if (ret) {
  		netdev_err(ndev, "Failed to register netdev\n");
