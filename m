@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA753FDB4A
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A08F63FDA4B
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344242AbhIAMko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:40:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40946 "EHLO mail.kernel.org"
+        id S244766AbhIAMbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:31:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344376AbhIAMiN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:38:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6072461156;
-        Wed,  1 Sep 2021 12:34:39 +0000 (UTC)
+        id S244656AbhIAMbE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:31:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8174610CB;
+        Wed,  1 Sep 2021 12:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499679;
-        bh=gg4mDgOjar1aB7r2/4i3EGT/Wz/5N4+MfJVdf2qk7xQ=;
+        s=korg; t=1630499408;
+        bh=hMp2bFsVxSew0+NXqV8vr4RxOQiDSbYc8cCqhqj/lWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=twnO/KL9/577yzrnMTU5Z5K+07aar6fIrq9dNr5qRMVaHoodOzEQwuDcV689OiN0r
-         6Kqp1ebuG8Mw1uPRJe646OqaHqxsgeSYcf4YUewymzUAh3wQpAgCloWeZ69J5zhFp7
-         TEHbqgqmgB2oF0lxF6YV2sNrm/vb3IMrQpzOoRFs=
+        b=T3V+lYVgB9yrLQPG8OoBLJb5jrbnuGmClPE3Lm3S76TfuZEOS6RUPfNK070UZiciZ
+         Jy7fI7pQ1I32+9uI7qufrIzne4f6zj+wdwmxSea86XGsfTWeA35usOFBof5EBtMz7r
+         pMcSs1+opUWQws/+2zylqNm8+GnrWyY9TQUuLaYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/103] net: hns3: add waiting time before cmdq memory is released
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 4.19 04/33] bpf: Fix truncation handling for mod32 dst reg wrt zero
 Date:   Wed,  1 Sep 2021 14:27:53 +0200
-Message-Id: <20210901122302.030426430@linuxfoundation.org>
+Message-Id: <20210901122250.916048129@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
+References: <20210901122250.752620302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,95 +41,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufeng Mo <moyufeng@huawei.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit a96d9330b02a3d051ae689bc2c5e7d3a2ba25594 ]
+Commit 9b00f1b78809309163dda2d044d9e94a3c0248a3 upstream.
 
-After the cmdq registers are cleared, the firmware may take time to
-clear out possible left over commands in the cmdq. Driver must release
-cmdq memory only after firmware has completed processing of left over
-commands.
+Recently noticed that when mod32 with a known src reg of 0 is performed,
+then the dst register is 32-bit truncated in verifier:
 
-Fixes: 232d0d55fca6 ("net: hns3: uninitialize command queue while unloading PF driver")
-Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
+  0: (b7) r0 = 0
+  1: R0_w=inv0 R1=ctx(id=0,off=0,imm=0) R10=fp0
+  1: (b7) r1 = -1
+  2: R0_w=inv0 R1_w=inv-1 R10=fp0
+  2: (b4) w2 = -1
+  3: R0_w=inv0 R1_w=inv-1 R2_w=inv4294967295 R10=fp0
+  3: (9c) w1 %= w0
+  4: R0_w=inv0 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  4: (b7) r0 = 1
+  5: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  5: (1d) if r1 == r2 goto pc+1
+   R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  6: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  6: (b7) r0 = 2
+  7: R0_w=inv2 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
+  7: (95) exit
+  7: R0=inv1 R1=inv(id=0,umin_value=4294967295,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2=inv4294967295 R10=fp0
+  7: (95) exit
+
+However, as a runtime result, we get 2 instead of 1, meaning the dst
+register does not contain (u32)-1 in this case. The reason is fairly
+straight forward given the 0 test leaves the dst register as-is:
+
+  # ./bpftool p d x i 23
+   0: (b7) r0 = 0
+   1: (b7) r1 = -1
+   2: (b4) w2 = -1
+   3: (16) if w0 == 0x0 goto pc+1
+   4: (9c) w1 %= w0
+   5: (b7) r0 = 1
+   6: (1d) if r1 == r2 goto pc+1
+   7: (b7) r0 = 2
+   8: (95) exit
+
+This was originally not an issue given the dst register was marked as
+completely unknown (aka 64 bit unknown). However, after 468f6eafa6c4
+("bpf: fix 32-bit ALU op verification") the verifier casts the register
+output to 32 bit, and hence it becomes 32 bit unknown. Note that for
+the case where the src register is unknown, the dst register is marked
+64 bit unknown. After the fix, the register is truncated by the runtime
+and the test passes:
+
+  # ./bpftool p d x i 23
+   0: (b7) r0 = 0
+   1: (b7) r1 = -1
+   2: (b4) w2 = -1
+   3: (16) if w0 == 0x0 goto pc+2
+   4: (9c) w1 %= w0
+   5: (05) goto pc+1
+   6: (bc) w1 = w1
+   7: (b7) r0 = 1
+   8: (1d) if r1 == r2 goto pc+1
+   9: (b7) r0 = 2
+  10: (95) exit
+
+Semantics also match with {R,W}x mod{64,32} 0 -> {R,W}x. Invalid div
+has always been {R,W}x div{64,32} 0 -> 0. Rewrites are as follows:
+
+  mod32:                            mod64:
+
+  (16) if w0 == 0x0 goto pc+2       (15) if r0 == 0x0 goto pc+1
+  (9c) w1 %= w0                     (9f) r1 %= r0
+  (05) goto pc+1
+  (bc) w1 = w1
+
+Fixes: 468f6eafa6c4 ("bpf: fix 32-bit ALU op verification")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+[Salvatore Bonaccorso: This is an earlier version based on work by
+Daniel and John which does not rely on availability of the BPF_JMP32
+instruction class. This means it is not even strictly a backport of the
+upstream commit mentioned but based on Daniel's and John's work to
+address the issue and was finalized by Thadeu Lima de Souza Cascardo.]
+Tested-by: Salvatore Bonaccorso <carnil@debian.org>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c   | 6 +++++-
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h   | 1 +
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c | 7 ++++++-
- drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h | 1 +
- 4 files changed, 13 insertions(+), 2 deletions(-)
+ kernel/bpf/verifier.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
-index e6321dda0f3f..6f9f759ce0c0 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
-@@ -521,9 +521,13 @@ static void hclge_cmd_uninit_regs(struct hclge_hw *hw)
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -6178,7 +6178,7 @@ static int fixup_bpf_calls(struct bpf_ve
+ 			bool is64 = BPF_CLASS(insn->code) == BPF_ALU64;
+ 			struct bpf_insn mask_and_div[] = {
+ 				BPF_MOV_REG(BPF_CLASS(insn->code), BPF_REG_AX, insn->src_reg),
+-				/* Rx div 0 -> 0 */
++				/* [R,W]x div 0 -> 0 */
+ 				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 2),
+ 				BPF_RAW_REG(*insn, insn->dst_reg, BPF_REG_AX),
+ 				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
+@@ -6186,9 +6186,10 @@ static int fixup_bpf_calls(struct bpf_ve
+ 			};
+ 			struct bpf_insn mask_and_mod[] = {
+ 				BPF_MOV_REG(BPF_CLASS(insn->code), BPF_REG_AX, insn->src_reg),
+-				/* Rx mod 0 -> Rx */
+-				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 1),
++				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 1 + (is64 ? 0 : 1)),
+ 				BPF_RAW_REG(*insn, insn->dst_reg, BPF_REG_AX),
++				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
++				BPF_MOV32_REG(insn->dst_reg, insn->dst_reg),
+ 			};
+ 			struct bpf_insn *patchlet;
  
- void hclge_cmd_uninit(struct hclge_dev *hdev)
- {
-+	set_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state);
-+	/* wait to ensure that the firmware completes the possible left
-+	 * over commands.
-+	 */
-+	msleep(HCLGE_CMDQ_CLEAR_WAIT_TIME);
- 	spin_lock_bh(&hdev->hw.cmq.csq.lock);
- 	spin_lock(&hdev->hw.cmq.crq.lock);
--	set_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state);
- 	hclge_cmd_uninit_regs(&hdev->hw);
- 	spin_unlock(&hdev->hw.cmq.crq.lock);
- 	spin_unlock_bh(&hdev->hw.cmq.csq.lock);
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
-index b38b48b9f0b1..3d70c3a47d63 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
-@@ -9,6 +9,7 @@
- #include "hnae3.h"
+@@ -6198,7 +6199,7 @@ static int fixup_bpf_calls(struct bpf_ve
+ 				cnt = ARRAY_SIZE(mask_and_div);
+ 			} else {
+ 				patchlet = mask_and_mod;
+-				cnt = ARRAY_SIZE(mask_and_mod);
++				cnt = ARRAY_SIZE(mask_and_mod) - (is64 ? 2 : 0);
+ 			}
  
- #define HCLGE_CMDQ_TX_TIMEOUT		30000
-+#define HCLGE_CMDQ_CLEAR_WAIT_TIME	200
- #define HCLGE_DESC_DATA_LEN		6
- 
- struct hclge_dev;
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
-index 66866c1cfb12..cae6db17cb19 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
-@@ -472,12 +472,17 @@ static void hclgevf_cmd_uninit_regs(struct hclgevf_hw *hw)
- 
- void hclgevf_cmd_uninit(struct hclgevf_dev *hdev)
- {
-+	set_bit(HCLGEVF_STATE_CMD_DISABLE, &hdev->state);
-+	/* wait to ensure that the firmware completes the possible left
-+	 * over commands.
-+	 */
-+	msleep(HCLGEVF_CMDQ_CLEAR_WAIT_TIME);
- 	spin_lock_bh(&hdev->hw.cmq.csq.lock);
- 	spin_lock(&hdev->hw.cmq.crq.lock);
--	set_bit(HCLGEVF_STATE_CMD_DISABLE, &hdev->state);
- 	hclgevf_cmd_uninit_regs(&hdev->hw);
- 	spin_unlock(&hdev->hw.cmq.crq.lock);
- 	spin_unlock_bh(&hdev->hw.cmq.csq.lock);
-+
- 	hclgevf_free_cmd_desc(&hdev->hw.cmq.csq);
- 	hclgevf_free_cmd_desc(&hdev->hw.cmq.crq);
- }
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
-index 9460c128c095..f90ff8a84b7e 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.h
-@@ -8,6 +8,7 @@
- #include "hnae3.h"
- 
- #define HCLGEVF_CMDQ_TX_TIMEOUT		30000
-+#define HCLGEVF_CMDQ_CLEAR_WAIT_TIME	200
- #define HCLGEVF_CMDQ_RX_INVLD_B		0
- #define HCLGEVF_CMDQ_RX_OUTVLD_B	1
- 
--- 
-2.30.2
-
+ 			new_prog = bpf_patch_insn_data(env, i + delta, patchlet, cnt);
 
 
