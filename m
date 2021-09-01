@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A69333FDB58
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF18D3FDA96
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343585AbhIAMlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44058 "EHLO mail.kernel.org"
+        id S244402AbhIAMdY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:33:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245544AbhIAMiz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:38:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3543C6115C;
-        Wed,  1 Sep 2021 12:34:57 +0000 (UTC)
+        id S244291AbhIAMcB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:32:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E2FE60F56;
+        Wed,  1 Sep 2021 12:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499697;
-        bh=garZmkr3x6ZGvRxB0Wobo7VLCt6GC7nXcCcwN5F+RYs=;
+        s=korg; t=1630499464;
+        bh=E51Muz1iXsRxNM9xs1WnIZsHhYoR0zxbn+vezwwZuvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rp2xnDC5j1PTIiQxVajd+CRamoruThgdlcG03TIP2W13kQmuwSPqSpUL2v2tpa+bH
-         YQ2gNULIFRUPo0dM4WjRDcLu28bG6yThlBdRHjm2fM/vzNkuXIl/MxGpnE2sttj7BZ
-         4vYp4alD3D26YF5FPcCIg+QBEJxqt2osVsmOh7A8=
+        b=bi8ArAI9X2vWOGRvLqooNzZWbFWRKhnNKT01ct2ppBFJZje+bKGpAAxMSA2MkwnfK
+         7GJWfw5W1TtyTdvlBD9FxUgo9U/bnrhAO/xS+gH/UNdTLGkltH4qu5mCElygPviTDK
+         WShVjCXbw672kuySQR5w17+cp7s4RmOnGw3+en/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 050/103] usb: gadget: u_audio: fix race condition on endpoint stop
+        stable@vger.kernel.org, Zhengjun Zhang <zhangzhengjun@aicrobo.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 10/48] USB: serial: option: add new VID/PID to support Fibocom FG150
 Date:   Wed,  1 Sep 2021 14:28:00 +0200
-Message-Id: <20210901122302.256387763@linuxfoundation.org>
+Message-Id: <20210901122253.747809165@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +39,278 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Zhengjun Zhang <zhangzhengjun@aicrobo.com>
 
-[ Upstream commit 068fdad20454f815e61e6f6eb9f051a8b3120e88 ]
+commit 2829a4e3cf3a6ac2fa3cdb681b37574630fb9c1a upstream.
 
-If the endpoint completion callback is call right after the ep_enabled flag
-is cleared and before usb_ep_dequeue() is call, we could do a double free
-on the request and the associated buffer.
+Fibocom FG150 is a 5G module based on Qualcomm SDX55 platform,
+support Sub-6G band.
 
-Fix this by clearing ep_enabled after all the endpoint requests have been
-dequeued.
+Here are the outputs of lsusb -v and usb-devices:
 
-Fixes: 7de8681be2cd ("usb: gadget: u_audio: Free requests only after callback")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20210827092927.366482-1-jbrunet@baylibre.com
+> T:  Bus=02 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=5000 MxCh= 0
+> D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
+> P:  Vendor=2cb7 ProdID=010b Rev=04.14
+> S:  Manufacturer=Fibocom
+> S:  Product=Fibocom Modem_SN:XXXXXXXX
+> S:  SerialNumber=XXXXXXXX
+> C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
+> I:  If#=0x0 Alt= 0 #EPs= 1 Cls=ef(misc ) Sub=04 Prot=01 Driver=rndis_host
+> I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+> I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
+> I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
+> I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+
+> Bus 002 Device 002: ID 2cb7:010b Fibocom Fibocom Modem_SN:XXXXXXXX
+> Device Descriptor:
+>   bLength                18
+>   bDescriptorType         1
+>   bcdUSB               3.20
+>   bDeviceClass            0
+>   bDeviceSubClass         0
+>   bDeviceProtocol         0
+>   bMaxPacketSize0         9
+>   idVendor           0x2cb7 Fibocom
+>   idProduct          0x010b
+>   bcdDevice            4.14
+>   iManufacturer           1 Fibocom
+>   iProduct                2 Fibocom Modem_SN:XXXXXXXX
+>   iSerial                 3 XXXXXXXX
+>   bNumConfigurations      1
+>   Configuration Descriptor:
+>     bLength                 9
+>     bDescriptorType         2
+>     wTotalLength       0x00e6
+>     bNumInterfaces          5
+>     bConfigurationValue     1
+>     iConfiguration          4 RNDIS_DUN_DIAG_ADB
+>     bmAttributes         0xa0
+>       (Bus Powered)
+>       Remote Wakeup
+>     MaxPower              896mA
+>     Interface Association:
+>       bLength                 8
+>       bDescriptorType        11
+>       bFirstInterface         0
+>       bInterfaceCount         2
+>       bFunctionClass        239 Miscellaneous Device
+>       bFunctionSubClass       4
+>       bFunctionProtocol       1
+>       iFunction               7 RNDIS
+>     Interface Descriptor:
+>       bLength                 9
+>       bDescriptorType         4
+>       bInterfaceNumber        0
+>       bAlternateSetting       0
+>       bNumEndpoints           1
+>       bInterfaceClass       239 Miscellaneous Device
+>       bInterfaceSubClass      4
+>       bInterfaceProtocol      1
+>       iInterface              0
+>       ** UNRECOGNIZED:  05 24 00 10 01
+>       ** UNRECOGNIZED:  05 24 01 00 01
+>       ** UNRECOGNIZED:  04 24 02 00
+>       ** UNRECOGNIZED:  05 24 06 00 01
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x81  EP 1 IN
+>         bmAttributes            3
+>           Transfer Type            Interrupt
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0008  1x 8 bytes
+>         bInterval               9
+>         bMaxBurst               0
+>     Interface Descriptor:
+>       bLength                 9
+>       bDescriptorType         4
+>       bInterfaceNumber        1
+>       bAlternateSetting       0
+>       bNumEndpoints           2
+>       bInterfaceClass        10 CDC Data
+>       bInterfaceSubClass      0
+>       bInterfaceProtocol      0
+>       iInterface              0
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x8e  EP 14 IN
+>         bmAttributes            2
+>           Transfer Type            Bulk
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0400  1x 1024 bytes
+>         bInterval               0
+>         bMaxBurst               6
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x0f  EP 15 OUT
+>         bmAttributes            2
+>           Transfer Type            Bulk
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0400  1x 1024 bytes
+>         bInterval               0
+>         bMaxBurst               6
+>     Interface Descriptor:
+>       bLength                 9
+>       bDescriptorType         4
+>       bInterfaceNumber        2
+>       bAlternateSetting       0
+>       bNumEndpoints           3
+>       bInterfaceClass       255 Vendor Specific Class
+>       bInterfaceSubClass      0
+>       bInterfaceProtocol      0
+>       iInterface              0
+>       ** UNRECOGNIZED:  05 24 00 10 01
+>       ** UNRECOGNIZED:  05 24 01 00 00
+>       ** UNRECOGNIZED:  04 24 02 02
+>       ** UNRECOGNIZED:  05 24 06 00 00
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x83  EP 3 IN
+>         bmAttributes            3
+>           Transfer Type            Interrupt
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x000a  1x 10 bytes
+>         bInterval               9
+>         bMaxBurst               0
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x82  EP 2 IN
+>         bmAttributes            2
+>           Transfer Type            Bulk
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0400  1x 1024 bytes
+>         bInterval               0
+>         bMaxBurst               0
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x01  EP 1 OUT
+>         bmAttributes            2
+>           Transfer Type            Bulk
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0400  1x 1024 bytes
+>         bInterval               0
+>         bMaxBurst               0
+>     Interface Descriptor:
+>       bLength                 9
+>       bDescriptorType         4
+>       bInterfaceNumber        3
+>       bAlternateSetting       0
+>       bNumEndpoints           2
+>       bInterfaceClass       255 Vendor Specific Class
+>       bInterfaceSubClass    255 Vendor Specific Subclass
+>       bInterfaceProtocol     48
+>       iInterface              0
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x84  EP 4 IN
+>         bmAttributes            2
+>           Transfer Type            Bulk
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0400  1x 1024 bytes
+>         bInterval               0
+>         bMaxBurst               0
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x02  EP 2 OUT
+>         bmAttributes            2
+>           Transfer Type            Bulk
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0400  1x 1024 bytes
+>         bInterval               0
+>         bMaxBurst               0
+>     Interface Descriptor:
+>       bLength                 9
+>       bDescriptorType         4
+>       bInterfaceNumber        4
+>       bAlternateSetting       0
+>       bNumEndpoints           2
+>       bInterfaceClass       255 Vendor Specific Class
+>       bInterfaceSubClass     66
+>       bInterfaceProtocol      1
+>       iInterface              0
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x03  EP 3 OUT
+>         bmAttributes            2
+>           Transfer Type            Bulk
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0400  1x 1024 bytes
+>         bInterval               0
+>         bMaxBurst               0
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x85  EP 5 IN
+>         bmAttributes            2
+>           Transfer Type            Bulk
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0400  1x 1024 bytes
+>         bInterval               0
+>         bMaxBurst               0
+> Binary Object Store Descriptor:
+>   bLength                 5
+>   bDescriptorType        15
+>   wTotalLength       0x0016
+>   bNumDeviceCaps          2
+>   USB 2.0 Extension Device Capability:
+>     bLength                 7
+>     bDescriptorType        16
+>     bDevCapabilityType      2
+>     bmAttributes   0x00000006
+>       BESL Link Power Management (LPM) Supported
+>   SuperSpeed USB Device Capability:
+>     bLength                10
+>     bDescriptorType        16
+>     bDevCapabilityType      3
+>     bmAttributes         0x00
+>     wSpeedsSupported   0x000f
+>       Device can operate at Low Speed (1Mbps)
+>       Device can operate at Full Speed (12Mbps)
+>       Device can operate at High Speed (480Mbps)
+>       Device can operate at SuperSpeed (5Gbps)
+>     bFunctionalitySupport   1
+>       Lowest fully-functional device speed is Full Speed (12Mbps)
+>     bU1DevExitLat           1 micro seconds
+>     bU2DevExitLat         500 micro seconds
+> Device Status:     0x0000
+>   (Bus Powered)
+
+Signed-off-by: Zhengjun Zhang <zhangzhengjun@aicrobo.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_audio.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/gadget/function/u_audio.c b/drivers/usb/gadget/function/u_audio.c
-index 908e49dafd62..95605b1ef4eb 100644
---- a/drivers/usb/gadget/function/u_audio.c
-+++ b/drivers/usb/gadget/function/u_audio.c
-@@ -334,8 +334,6 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
- 	if (!prm->ep_enabled)
- 		return;
- 
--	prm->ep_enabled = false;
--
- 	audio_dev = uac->audio_dev;
- 	params = &audio_dev->params;
- 
-@@ -353,11 +351,12 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
- 		}
- 	}
- 
-+	prm->ep_enabled = false;
-+
- 	if (usb_ep_disable(ep))
- 		dev_err(uac->card->dev, "%s:%d Error!\n", __func__, __LINE__);
- }
- 
--
- int u_audio_start_capture(struct g_audio *audio_dev)
- {
- 	struct snd_uac_chip *uac = audio_dev->uac;
--- 
-2.30.2
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2074,6 +2074,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(4) | RSVD(5) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
+ 	  .driver_info = RSVD(6) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2df3, 0x9d03, 0xff) },			/* LongSung M5710 */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
 
 
