@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29E7A3FDA62
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 154003FDB71
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244985AbhIAMcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:32:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33880 "EHLO mail.kernel.org"
+        id S245681AbhIAMlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:41:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244845AbhIAMb1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:31:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CE5761027;
-        Wed,  1 Sep 2021 12:30:30 +0000 (UTC)
+        id S1344712AbhIAMj5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:39:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F18A611C5;
+        Wed,  1 Sep 2021 12:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499430;
-        bh=X7f1X3xLhlkt2ACIPCt4Bkeku+N5/nP8p10Ow3NpR50=;
+        s=korg; t=1630499748;
+        bh=TbaqMTGtZlOdRpjbr00cCwGZ3UiHGOya7FlAZ8lpwNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nePXJuowOPBgYD6Um34gun8J6jStIX8s7MRU66K+hfwTn78N1a7y0s4YcKQItjfNM
-         iCG8/BRuz9f8h/kb+d1UB2LK5DSEHMucys50405frKxZfhqiNX/zCel2sc2yL8049Y
-         bcYm1N0mh6cSHKJDpUPIZmXFXIT+plLCbTDSkiLI=
+        b=L8B0DwjMTL7fdz8j9eiYvAPZOJRYTz9KFXnGV6GR17X2WpOmc1GUcVeVyZZ2M2v0B
+         FlE2jolJzQx49w2iMrkLRZFEUbw8OAGTh/GSACNjHPLI1cmru5IskYJoMONE4WfZqe
+         8qNvnrqul9kJmn0oZQfFt444vXIGQWxGtentHAIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 31/33] KVM: x86/mmu: Treat NX as used (not reserved) for all !TDP shadow MMUs
-Date:   Wed,  1 Sep 2021 14:28:20 +0200
-Message-Id: <20210901122251.807288061@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Anand Jain <anand.jain@oracle.com>
+Subject: [PATCH 5.10 071/103] btrfs: fix race between marking inode needs to be logged and log syncing
+Date:   Wed,  1 Sep 2021 14:28:21 +0200
+Message-Id: <20210901122302.961342408@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
-References: <20210901122250.752620302@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +40,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 112022bdb5bc372e00e6e43cb88ee38ea67b97bd upstream
+commit bc0939fcfab0d7efb2ed12896b1af3d819954a14 upstream.
 
-Mark NX as being used for all non-nested shadow MMUs, as KVM will set the
-NX bit for huge SPTEs if the iTLB mutli-hit mitigation is enabled.
-Checking the mitigation itself is not sufficient as it can be toggled on
-at any time and KVM doesn't reset MMU contexts when that happens.  KVM
-could reset the contexts, but that would require purging all SPTEs in all
-MMUs, for no real benefit.  And, KVM already forces EFER.NX=1 when TDP is
-disabled (for WP=0, SMEP=1, NX=0), so technically NX is never reserved
-for shadow MMUs.
+We have a race between marking that an inode needs to be logged, either
+at btrfs_set_inode_last_trans() or at btrfs_page_mkwrite(), and between
+btrfs_sync_log(). The following steps describe how the race happens.
 
-Fixes: b8e8c8303ff2 ("kvm: mmu: ITLB_MULTIHIT mitigation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210622175739.3610207-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[sudip: use old path and adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+1) We are at transaction N;
+
+2) Inode I was previously fsynced in the current transaction so it has:
+
+    inode->logged_trans set to N;
+
+3) The inode's root currently has:
+
+   root->log_transid set to 1
+   root->last_log_commit set to 0
+
+   Which means only one log transaction was committed to far, log
+   transaction 0. When a log tree is created we set ->log_transid and
+   ->last_log_commit of its parent root to 0 (at btrfs_add_log_tree());
+
+4) One more range of pages is dirtied in inode I;
+
+5) Some task A starts an fsync against some other inode J (same root), and
+   so it joins log transaction 1.
+
+   Before task A calls btrfs_sync_log()...
+
+6) Task B starts an fsync against inode I, which currently has the full
+   sync flag set, so it starts delalloc and waits for the ordered extent
+   to complete before calling btrfs_inode_in_log() at btrfs_sync_file();
+
+7) During ordered extent completion we have btrfs_update_inode() called
+   against inode I, which in turn calls btrfs_set_inode_last_trans(),
+   which does the following:
+
+     spin_lock(&inode->lock);
+     inode->last_trans = trans->transaction->transid;
+     inode->last_sub_trans = inode->root->log_transid;
+     inode->last_log_commit = inode->root->last_log_commit;
+     spin_unlock(&inode->lock);
+
+   So ->last_trans is set to N and ->last_sub_trans set to 1.
+   But before setting ->last_log_commit...
+
+8) Task A is at btrfs_sync_log():
+
+   - it increments root->log_transid to 2
+   - starts writeback for all log tree extent buffers
+   - waits for the writeback to complete
+   - writes the super blocks
+   - updates root->last_log_commit to 1
+
+   It's a lot of slow steps between updating root->log_transid and
+   root->last_log_commit;
+
+9) The task doing the ordered extent completion, currently at
+   btrfs_set_inode_last_trans(), then finally runs:
+
+     inode->last_log_commit = inode->root->last_log_commit;
+     spin_unlock(&inode->lock);
+
+   Which results in inode->last_log_commit being set to 1.
+   The ordered extent completes;
+
+10) Task B is resumed, and it calls btrfs_inode_in_log() which returns
+    true because we have all the following conditions met:
+
+    inode->logged_trans == N which matches fs_info->generation &&
+    inode->last_subtrans (1) <= inode->last_log_commit (1) &&
+    inode->last_subtrans (1) <= root->last_log_commit (1) &&
+    list inode->extent_tree.modified_extents is empty
+
+    And as a consequence we return without logging the inode, so the
+    existing logged version of the inode does not point to the extent
+    that was written after the previous fsync.
+
+It should be impossible in practice for one task be able to do so much
+progress in btrfs_sync_log() while another task is at
+btrfs_set_inode_last_trans() right after it reads root->log_transid and
+before it reads root->last_log_commit. Even if kernel preemption is enabled
+we know the task at btrfs_set_inode_last_trans() can not be preempted
+because it is holding the inode's spinlock.
+
+However there is another place where we do the same without holding the
+spinlock, which is in the memory mapped write path at:
+
+  vm_fault_t btrfs_page_mkwrite(struct vm_fault *vmf)
+  {
+     (...)
+     BTRFS_I(inode)->last_trans = fs_info->generation;
+     BTRFS_I(inode)->last_sub_trans = BTRFS_I(inode)->root->log_transid;
+     BTRFS_I(inode)->last_log_commit = BTRFS_I(inode)->root->last_log_commit;
+     (...)
+
+So with preemption happening after setting ->last_sub_trans and before
+setting ->last_log_commit, it is less of a stretch to have another task
+do enough progress at btrfs_sync_log() such that the task doing the memory
+mapped write ends up with ->last_sub_trans and ->last_log_commit set to
+the same value. It is still a big stretch to get there, as the task doing
+btrfs_sync_log() has to start writeback, wait for its completion and write
+the super blocks.
+
+So fix this in two different ways:
+
+1) For btrfs_set_inode_last_trans(), simply set ->last_log_commit to the
+   value of ->last_sub_trans minus 1;
+
+2) For btrfs_page_mkwrite() only set the inode's ->last_sub_trans, just
+   like we do for buffered and direct writes at btrfs_file_write_iter(),
+   which is all we need to make sure multiple writes and fsyncs to an
+   inode in the same transaction never result in an fsync missing that
+   the inode changed and needs to be logged. Turn this into a helper
+   function and use it both at btrfs_page_mkwrite() and at
+   btrfs_file_write_iter() - this also fixes the problem that at
+   btrfs_page_mkwrite() we were setting those fields without the
+   protection of the inode's spinlock.
+
+This is an extremely unlikely race to happen in practice.
+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/btrfs/btrfs_inode.h |   15 +++++++++++++++
+ fs/btrfs/file.c        |   11 ++---------
+ fs/btrfs/inode.c       |    4 +---
+ fs/btrfs/transaction.h |    2 +-
+ 4 files changed, 19 insertions(+), 13 deletions(-)
 
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -4557,7 +4557,16 @@ static void reset_rsvds_bits_mask_ept(st
- void
- reset_shadow_zero_bits_mask(struct kvm_vcpu *vcpu, struct kvm_mmu *context)
+--- a/fs/btrfs/btrfs_inode.h
++++ b/fs/btrfs/btrfs_inode.h
+@@ -308,6 +308,21 @@ static inline void btrfs_mod_outstanding
+ 						  mod);
+ }
+ 
++/*
++ * Called every time after doing a buffered, direct IO or memory mapped write.
++ *
++ * This is to ensure that if we write to a file that was previously fsynced in
++ * the current transaction, then try to fsync it again in the same transaction,
++ * we will know that there were changes in the file and that it needs to be
++ * logged.
++ */
++static inline void btrfs_set_inode_last_sub_trans(struct btrfs_inode *inode)
++{
++	spin_lock(&inode->lock);
++	inode->last_sub_trans = inode->root->log_transid;
++	spin_unlock(&inode->lock);
++}
++
+ static inline int btrfs_inode_in_log(struct btrfs_inode *inode, u64 generation)
  {
--	bool uses_nx = context->nx || context->base_role.smep_andnot_wp;
-+	/*
-+	 * KVM uses NX when TDP is disabled to handle a variety of scenarios,
-+	 * notably for huge SPTEs if iTLB multi-hit mitigation is enabled and
-+	 * to generate correct permissions for CR0.WP=0/CR4.SMEP=1/EFER.NX=0.
-+	 * The iTLB multi-hit workaround can be toggled at any time, so assume
-+	 * NX can be used by any non-nested shadow MMU to avoid having to reset
-+	 * MMU contexts.  Note, KVM forces EFER.NX=1 when TDP is disabled.
-+	 */
-+	bool uses_nx = context->nx || !tdp_enabled ||
-+		context->base_role.smep_andnot_wp;
- 	struct rsvd_bits_validate *shadow_zero_check;
- 	int i;
+ 	int ret = 0;
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1862,7 +1862,6 @@ static ssize_t btrfs_file_write_iter(str
+ 	struct file *file = iocb->ki_filp;
+ 	struct inode *inode = file_inode(file);
+ 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
+-	struct btrfs_root *root = BTRFS_I(inode)->root;
+ 	u64 start_pos;
+ 	u64 end_pos;
+ 	ssize_t num_written = 0;
+@@ -2006,14 +2005,8 @@ static ssize_t btrfs_file_write_iter(str
+ 
+ 	inode_unlock(inode);
+ 
+-	/*
+-	 * We also have to set last_sub_trans to the current log transid,
+-	 * otherwise subsequent syncs to a file that's been synced in this
+-	 * transaction will appear to have already occurred.
+-	 */
+-	spin_lock(&BTRFS_I(inode)->lock);
+-	BTRFS_I(inode)->last_sub_trans = root->log_transid;
+-	spin_unlock(&BTRFS_I(inode)->lock);
++	btrfs_set_inode_last_sub_trans(BTRFS_I(inode));
++
+ 	if (num_written > 0)
+ 		num_written = generic_write_sync(iocb, num_written);
+ 
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8449,9 +8449,7 @@ again:
+ 	set_page_dirty(page);
+ 	SetPageUptodate(page);
+ 
+-	BTRFS_I(inode)->last_trans = fs_info->generation;
+-	BTRFS_I(inode)->last_sub_trans = BTRFS_I(inode)->root->log_transid;
+-	BTRFS_I(inode)->last_log_commit = BTRFS_I(inode)->root->last_log_commit;
++	btrfs_set_inode_last_sub_trans(BTRFS_I(inode));
+ 
+ 	unlock_extent_cached(io_tree, page_start, page_end, &cached_state);
+ 
+--- a/fs/btrfs/transaction.h
++++ b/fs/btrfs/transaction.h
+@@ -171,7 +171,7 @@ static inline void btrfs_set_inode_last_
+ 	spin_lock(&inode->lock);
+ 	inode->last_trans = trans->transaction->transid;
+ 	inode->last_sub_trans = inode->root->log_transid;
+-	inode->last_log_commit = inode->root->last_log_commit;
++	inode->last_log_commit = inode->last_sub_trans - 1;
+ 	spin_unlock(&inode->lock);
+ }
  
 
 
