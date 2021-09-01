@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F12073FDCC6
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 454AF3FDCC7
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346368AbhIAMxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:53:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53706 "EHLO mail.kernel.org"
+        id S1344537AbhIAMxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:53:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345449AbhIAMvP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:51:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3AA6611CE;
-        Wed,  1 Sep 2021 12:42:37 +0000 (UTC)
+        id S1345472AbhIAMvN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:51:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36EA261246;
+        Wed,  1 Sep 2021 12:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500158;
-        bh=C2QKytDumjXHT2ueqzAJaB45BThQClq6V1lbm6fNhzw=;
+        s=korg; t=1630500160;
+        bh=xsd4HZg2QlxXwz5COfsfsuuwsMLtyViyew3TO+HO/iM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0tnAzhDFV6ygMO9Ded3f5wcfOxYkNyG420loDo55vdx3rTkFEc+6BqUIRtZ3Ta27
-         uaYyxT54V7dPPonSa1Vfm2txpvRTYCH/iX+ycZDLbePecOGRofdLSrmEHC/1XnFVKv
-         VgUC2zrA/i68a+pPHYn3SXNQ9gsSBD7UwzhIhFOg=
+        b=J+xCZlSZfv8HIUSSUl+0WHSCUIZPUxuLOA6NkCTpNRkWyRiEa3nYR1wrMMUFp5Smd
+         o00BxDfM9/YLM8FNQSTnF0m/9GnCToCzCM5JG8fmrzmqss/rLBgi0Q2ONAvlZQMdzZ
+         KVSrEuoP2J2xKSnW1CRCVxkYXp+74WHooMUgozc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pauli Virtanen <pav@iki.fi>,
-        =?UTF-8?q?Micha=C5=82=20K=C4=99pie=C5=84?= <kernel@kempniu.pl>,
-        =?UTF-8?q?Jonathan=20Lamp=C3=A9rth?= <jon@h4n.dev>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.14 02/11] Bluetooth: btusb: check conditions before enabling USB ALT 3 for WBS
-Date:   Wed,  1 Sep 2021 14:29:10 +0200
-Message-Id: <20210901122249.601112226@linuxfoundation.org>
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.14 03/11] net: dsa: mt7530: fix VLAN traffic leaks again
+Date:   Wed,  1 Sep 2021 14:29:11 +0200
+Message-Id: <20210901122249.629865060@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122249.520249736@linuxfoundation.org>
 References: <20210901122249.520249736@linuxfoundation.org>
@@ -41,81 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pauli Virtanen <pav@iki.fi>
+From: DENG Qingfang <dqfext@gmail.com>
 
-commit 55981d3541812234e687062926ff199c83f79a39 upstream.
+commit 7428022b50d0fbb4846dd0f00639ea09d36dff02 upstream.
 
-Some USB BT adapters don't satisfy the MTU requirement mentioned in
-commit e848dbd364ac ("Bluetooth: btusb: Add support USB ALT 3 for WBS")
-and have ALT 3 setting that produces no/garbled audio. Some adapters
-with larger MTU were also reported to have problems with ALT 3.
+When a port leaves a VLAN-aware bridge, the current code does not clear
+other ports' matrix field bit. If the bridge is later set to VLAN-unaware
+mode, traffic in the bridge may leak to that port.
 
-Add a flag and check it and MTU before selecting ALT 3, falling back to
-ALT 1. Enable the flag for Realtek, restoring the previous behavior for
-non-Realtek devices.
+Remove the VLAN filtering check in mt7530_port_bridge_leave.
 
-Tested with USB adapters (mtu<72, no/garbled sound with ALT3, ALT1
-works) BCM20702A1 0b05:17cb, CSR8510A10 0a12:0001, and (mtu>=72, ALT3
-works) RTL8761BU 0bda:8771, Intel AX200 8087:0029 (after disabling
-ALT6). Also got reports for (mtu>=72, ALT 3 reported to produce bad
-audio) Intel 8087:0a2b.
-
-Signed-off-by: Pauli Virtanen <pav@iki.fi>
-Fixes: e848dbd364ac ("Bluetooth: btusb: Add support USB ALT 3 for WBS")
-Tested-by: Michał Kępień <kernel@kempniu.pl>
-Tested-by: Jonathan Lampérth <jon@h4n.dev>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: 474a2ddaa192 ("net: dsa: mt7530: fix VLAN traffic leaks")
+Fixes: 83163f7dca56 ("net: dsa: mediatek: add VLAN support for MT7530")
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c |   22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ drivers/net/dsa/mt7530.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -525,6 +525,7 @@ static const struct dmi_system_id btusb_
- #define BTUSB_HW_RESET_ACTIVE	12
- #define BTUSB_TX_WAIT_VND_EVT	13
- #define BTUSB_WAKEUP_DISABLE	14
-+#define BTUSB_USE_ALT3_FOR_WBS	15
- 
- struct btusb_data {
- 	struct hci_dev       *hdev;
-@@ -1757,16 +1758,20 @@ static void btusb_work(struct work_struc
- 			/* Bluetooth USB spec recommends alt 6 (63 bytes), but
- 			 * many adapters do not support it.  Alt 1 appears to
- 			 * work for all adapters that do not have alt 6, and
--			 * which work with WBS at all.
-+			 * which work with WBS at all.  Some devices prefer
-+			 * alt 3 (HCI payload >= 60 Bytes let air packet
-+			 * data satisfy 60 bytes), requiring
-+			 * MTU >= 3 (packets) * 25 (size) - 3 (headers) = 72
-+			 * see also Core spec 5, vol 4, B 2.1.1 & Table 2.1.
- 			 */
--			new_alts = btusb_find_altsetting(data, 6) ? 6 : 1;
--			/* Because mSBC frames do not need to be aligned to the
--			 * SCO packet boundary. If support the Alt 3, use the
--			 * Alt 3 for HCI payload >= 60 Bytes let air packet
--			 * data satisfy 60 bytes.
--			 */
--			if (new_alts == 1 && btusb_find_altsetting(data, 3))
-+			if (btusb_find_altsetting(data, 6))
-+				new_alts = 6;
-+			else if (btusb_find_altsetting(data, 3) &&
-+				 hdev->sco_mtu >= 72 &&
-+				 test_bit(BTUSB_USE_ALT3_FOR_WBS, &data->flags))
- 				new_alts = 3;
-+			else
-+				new_alts = 1;
- 		}
- 
- 		if (btusb_switch_alt_setting(hdev, new_alts) < 0)
-@@ -4742,6 +4747,7 @@ static int btusb_probe(struct usb_interf
- 		 * (DEVICE_REMOTE_WAKEUP)
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -1308,11 +1308,8 @@ mt7530_port_bridge_leave(struct dsa_swit
+ 		/* Remove this port from the port matrix of the other ports
+ 		 * in the same bridge. If the port is disabled, port matrix
+ 		 * is kept and not being setup until the port becomes enabled.
+-		 * And the other port's port matrix cannot be broken when the
+-		 * other port is still a VLAN-aware port.
  		 */
- 		set_bit(BTUSB_WAKEUP_DISABLE, &data->flags);
-+		set_bit(BTUSB_USE_ALT3_FOR_WBS, &data->flags);
- 	}
- 
- 	if (!reset)
+-		if (dsa_is_user_port(ds, i) && i != port &&
+-		   !dsa_port_is_vlan_filtering(dsa_to_port(ds, i))) {
++		if (dsa_is_user_port(ds, i) && i != port) {
+ 			if (dsa_to_port(ds, i)->bridge_dev != bridge)
+ 				continue;
+ 			if (priv->ports[i].enable)
 
 
