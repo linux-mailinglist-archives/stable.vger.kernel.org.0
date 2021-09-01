@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5430D3FDB60
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9F693FDAA5
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345236AbhIAMlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42766 "EHLO mail.kernel.org"
+        id S1343546AbhIAMdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:33:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344524AbhIAMjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:39:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B19686115A;
-        Wed,  1 Sep 2021 12:35:14 +0000 (UTC)
+        id S244874AbhIAMcQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:32:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF211610A1;
+        Wed,  1 Sep 2021 12:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499715;
-        bh=whuOrwFWr6xhsVwj+mqzCEP9GGY5hWMbZmnfjaxvcZs=;
+        s=korg; t=1630499480;
+        bh=3Uufrk8sdD6bVa77cdL11TUsdKg6Ppd7wI7p2uHNkAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZEEXgQCVN35ZZ5crhRkhJ0HLR5o7Vmbr4orcyVLYt/D7sxRlWIETNgsIQ7nYyBZ/h
-         Q+/GvSwa6Gd8BliZIumSCKRFGDXLzXX4KFAkww3TSNPy7UoMMzbq/TrdkAJWvkQ9iw
-         0LiV5VrCIhXJLgATucYX7SThu6kv2eGdzYLhE0ik=
+        b=B+RYG9zdqbU1lKWdHZPQ2sa7dfsCNnU1R/N5zCxYVG4za94Yuhh2uJj10v+UzoxXS
+         FJ2YVllgKXavQYYIaFQSl3WZglbsMaXwtsqi2lSzePxlJ+LAjn24mELysltoNc5sFS
+         hmOnlGiDZNfurL6ZeiDlLZbhwZFOJ+I3LsoIfxAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thara Gopinath <thara.gopinath@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Yee Li <seven.yi.lee@gmail.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 056/103] cpufreq: blocklist Qualcomm sm8150 in cpufreq-dt-platdev
+Subject: [PATCH 5.4 16/48] e1000e: Fix the max snoop/no-snoop latency for 10M
 Date:   Wed,  1 Sep 2021 14:28:06 +0200
-Message-Id: <20210901122302.454207499@linuxfoundation.org>
+Message-Id: <20210901122253.939838145@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thara Gopinath <thara.gopinath@linaro.org>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit 5d79e5ce5489b489cbc4c327305be9dfca0fc9ce ]
+[ Upstream commit 44a13a5d99c71bf9e1676d9e51679daf4d7b3d73 ]
 
-The Qualcomm sm8150 platform uses the qcom-cpufreq-hw driver, so
-add it to the cpufreq-dt-platdev driver's blocklist.
+We should decode the latency and the max_latency before directly compare.
+The latency should be presented as lat_enc = scale x value:
+lat_enc_d = (lat_enc & 0x0x3ff) x (1U << (5*((max_ltr_enc & 0x1c00)
+>> 10)))
 
-Signed-off-by: Thara Gopinath <thara.gopinath@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: cf8fb73c23aa ("e1000e: add support for LTR on I217/I218")
+Suggested-by: Yee Li <seven.yi.lee@gmail.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq-dt-platdev.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c | 14 +++++++++++++-
+ drivers/net/ethernet/intel/e1000e/ich8lan.h |  3 +++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/cpufreq-dt-platdev.c b/drivers/cpufreq/cpufreq-dt-platdev.c
-index 1c192a42f11e..a3734014db47 100644
---- a/drivers/cpufreq/cpufreq-dt-platdev.c
-+++ b/drivers/cpufreq/cpufreq-dt-platdev.c
-@@ -136,6 +136,7 @@ static const struct of_device_id blacklist[] __initconst = {
- 	{ .compatible = "qcom,qcs404", },
- 	{ .compatible = "qcom,sc7180", },
- 	{ .compatible = "qcom,sdm845", },
-+	{ .compatible = "qcom,sm8150", },
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index a1fab77b2096..58ff747a42ae 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -995,6 +995,8 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
+ {
+ 	u32 reg = link << (E1000_LTRV_REQ_SHIFT + E1000_LTRV_NOSNOOP_SHIFT) |
+ 	    link << E1000_LTRV_REQ_SHIFT | E1000_LTRV_SEND;
++	u16 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
++	u16 lat_enc_d = 0;	/* latency decoded */
+ 	u16 lat_enc = 0;	/* latency encoded */
  
- 	{ .compatible = "st,stih407", },
- 	{ .compatible = "st,stih410", },
+ 	if (link) {
+@@ -1048,7 +1050,17 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
+ 				     E1000_PCI_LTR_CAP_LPT + 2, &max_nosnoop);
+ 		max_ltr_enc = max_t(u16, max_snoop, max_nosnoop);
+ 
+-		if (lat_enc > max_ltr_enc)
++		lat_enc_d = (lat_enc & E1000_LTRV_VALUE_MASK) *
++			     (1U << (E1000_LTRV_SCALE_FACTOR *
++			     ((lat_enc & E1000_LTRV_SCALE_MASK)
++			     >> E1000_LTRV_SCALE_SHIFT)));
++
++		max_ltr_enc_d = (max_ltr_enc & E1000_LTRV_VALUE_MASK) *
++				 (1U << (E1000_LTRV_SCALE_FACTOR *
++				 ((max_ltr_enc & E1000_LTRV_SCALE_MASK)
++				 >> E1000_LTRV_SCALE_SHIFT)));
++
++		if (lat_enc_d > max_ltr_enc_d)
+ 			lat_enc = max_ltr_enc;
+ 	}
+ 
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+index 1502895eb45d..e757896287eb 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+@@ -274,8 +274,11 @@
+ 
+ /* Latency Tolerance Reporting */
+ #define E1000_LTRV			0x000F8
++#define E1000_LTRV_VALUE_MASK		0x000003FF
+ #define E1000_LTRV_SCALE_MAX		5
+ #define E1000_LTRV_SCALE_FACTOR		5
++#define E1000_LTRV_SCALE_SHIFT		10
++#define E1000_LTRV_SCALE_MASK		0x00001C00
+ #define E1000_LTRV_REQ_SHIFT		15
+ #define E1000_LTRV_NOSNOOP_SHIFT	16
+ #define E1000_LTRV_SEND			(1 << 30)
 -- 
 2.30.2
 
