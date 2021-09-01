@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A8D3FDC69
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04A383FDB77
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344480AbhIAMur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:50:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49728 "EHLO mail.kernel.org"
+        id S1343698AbhIAMlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:41:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344153AbhIAMrM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:47:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E49AE61181;
-        Wed,  1 Sep 2021 12:40:13 +0000 (UTC)
+        id S1344880AbhIAMkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5972D610C7;
+        Wed,  1 Sep 2021 12:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500014;
-        bh=Xeinv4sBDNBrp2RkisG5hr/dvM4wPTkpnO7wSLSDEEU=;
+        s=korg; t=1630499763;
+        bh=YK+KW2Idzy+P/U+2hCDCl1WtB/7YnE2uT8Nb41k7wk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0uxz944siCvc7nW7KOgw8MPmWLeyzO4Em/IXAfIlzPqpSgQswCy71DORh7VECvphV
-         O7qHSrTlmUKj2Pn/FqENaBvxXeyuxXAZbbOkdewOHEGOGYFRaFOMIOAKsNOrMCSrB/
-         Pmfuiu3arbyUpPDTqsZZaX662o8dPEOGdpF5RjaI=
+        b=r1/Sk3EbTLC2ZZZrYWDUmCPhLyajsVWkie3YM4Lu5ZNVAEs2Q6s+yKQLqoKWWacgz
+         nhnxcN6zGTKpKeGHKEiQ1SyOLfhzV8NNHV4Yq/KoH1LPTiUjDzQuuNdaOqxBDImaaH
+         LFWUSQJsEbuaV0x2I4IkqryO8mphUaG3GohdZHD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 071/113] sched: Fix get_push_task() vs migrate_disable()
-Date:   Wed,  1 Sep 2021 14:28:26 +0200
-Message-Id: <20210901122304.360361281@linuxfoundation.org>
+        stable@vger.kernel.org, Pauli Virtanen <pav@iki.fi>,
+        =?UTF-8?q?Micha=C5=82=20K=C4=99pie=C5=84?= <kernel@kempniu.pl>,
+        =?UTF-8?q?Jonathan=20Lamp=C3=A9rth?= <jon@h4n.dev>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.10 077/103] Bluetooth: btusb: check conditions before enabling USB ALT 3 for WBS
+Date:   Wed,  1 Sep 2021 14:28:27 +0200
+Message-Id: <20210901122303.149455672@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Pauli Virtanen <pav@iki.fi>
 
-[ Upstream commit e681dcbaa4b284454fecd09617f8b24231448446 ]
+commit 55981d3541812234e687062926ff199c83f79a39 upstream.
 
-push_rt_task() attempts to move the currently running task away if the
-next runnable task has migration disabled and therefore is pinned on the
-current CPU.
+Some USB BT adapters don't satisfy the MTU requirement mentioned in
+commit e848dbd364ac ("Bluetooth: btusb: Add support USB ALT 3 for WBS")
+and have ALT 3 setting that produces no/garbled audio. Some adapters
+with larger MTU were also reported to have problems with ALT 3.
 
-The current task is retrieved via get_push_task() which only checks for
-nr_cpus_allowed == 1, but does not check whether the task has migration
-disabled and therefore cannot be moved either. The consequence is a
-pointless invocation of the migration thread which correctly observes
-that the task cannot be moved.
+Add a flag and check it and MTU before selecting ALT 3, falling back to
+ALT 1. Enable the flag for Realtek, restoring the previous behavior for
+non-Realtek devices.
 
-Return NULL if the task has migration disabled and cannot be moved to
-another CPU.
+Tested with USB adapters (mtu<72, no/garbled sound with ALT3, ALT1
+works) BCM20702A1 0b05:17cb, CSR8510A10 0a12:0001, and (mtu>=72, ALT3
+works) RTL8761BU 0bda:8771, Intel AX200 8087:0029 (after disabling
+ALT6). Also got reports for (mtu>=72, ALT 3 reported to produce bad
+audio) Intel 8087:0a2b.
 
-Fixes: a7c81556ec4d3 ("sched: Fix migrate_disable() vs rt/dl balancing")
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210826133738.yiotqbtdaxzjsnfj@linutronix.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Pauli Virtanen <pav@iki.fi>
+Fixes: e848dbd364ac ("Bluetooth: btusb: Add support USB ALT 3 for WBS")
+Tested-by: Michał Kępień <kernel@kempniu.pl>
+Tested-by: Jonathan Lampérth <jon@h4n.dev>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/sched.h | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/bluetooth/btusb.c |   22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 35f7efed75c4..f2bc99ca01e5 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -1977,6 +1977,9 @@ static inline struct task_struct *get_push_task(struct rq *rq)
- 	if (p->nr_cpus_allowed == 1)
- 		return NULL;
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -486,6 +486,7 @@ static const struct dmi_system_id btusb_
+ #define BTUSB_HW_RESET_ACTIVE	12
+ #define BTUSB_TX_WAIT_VND_EVT	13
+ #define BTUSB_WAKEUP_DISABLE	14
++#define BTUSB_USE_ALT3_FOR_WBS	15
  
-+	if (p->migration_disabled)
-+		return NULL;
-+
- 	rq->push_busy = true;
- 	return get_task_struct(p);
- }
--- 
-2.30.2
-
+ struct btusb_data {
+ 	struct hci_dev       *hdev;
+@@ -1718,16 +1719,20 @@ static void btusb_work(struct work_struc
+ 			/* Bluetooth USB spec recommends alt 6 (63 bytes), but
+ 			 * many adapters do not support it.  Alt 1 appears to
+ 			 * work for all adapters that do not have alt 6, and
+-			 * which work with WBS at all.
++			 * which work with WBS at all.  Some devices prefer
++			 * alt 3 (HCI payload >= 60 Bytes let air packet
++			 * data satisfy 60 bytes), requiring
++			 * MTU >= 3 (packets) * 25 (size) - 3 (headers) = 72
++			 * see also Core spec 5, vol 4, B 2.1.1 & Table 2.1.
+ 			 */
+-			new_alts = btusb_find_altsetting(data, 6) ? 6 : 1;
+-			/* Because mSBC frames do not need to be aligned to the
+-			 * SCO packet boundary. If support the Alt 3, use the
+-			 * Alt 3 for HCI payload >= 60 Bytes let air packet
+-			 * data satisfy 60 bytes.
+-			 */
+-			if (new_alts == 1 && btusb_find_altsetting(data, 3))
++			if (btusb_find_altsetting(data, 6))
++				new_alts = 6;
++			else if (btusb_find_altsetting(data, 3) &&
++				 hdev->sco_mtu >= 72 &&
++				 test_bit(BTUSB_USE_ALT3_FOR_WBS, &data->flags))
+ 				new_alts = 3;
++			else
++				new_alts = 1;
+ 		}
+ 
+ 		if (btusb_switch_alt_setting(hdev, new_alts) < 0)
+@@ -4170,6 +4175,7 @@ static int btusb_probe(struct usb_interf
+ 		 * (DEVICE_REMOTE_WAKEUP)
+ 		 */
+ 		set_bit(BTUSB_WAKEUP_DISABLE, &data->flags);
++		set_bit(BTUSB_USE_ALT3_FOR_WBS, &data->flags);
+ 	}
+ 
+ 	if (!reset)
 
 
