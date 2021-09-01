@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5FDD3FD9BD
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:28:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86F103FD9BF
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:28:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244401AbhIAM2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:28:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58304 "EHLO mail.kernel.org"
+        id S244360AbhIAM2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:28:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244355AbhIAM2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:28:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CC1B61056;
-        Wed,  1 Sep 2021 12:27:41 +0000 (UTC)
+        id S244366AbhIAM2k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:28:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB2F161027;
+        Wed,  1 Sep 2021 12:27:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499261;
-        bh=oMNdOFcODqgT6YXrxT7KNp0IYA94EmPaYofyCQyUO4w=;
+        s=korg; t=1630499264;
+        bh=0lkcn9p9HBPmvxNCo+5s2y6YRdg49KcGtWZEOvL2L5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XfgTBRdl5Chdlps5iwU60xqy+1/bwssWoDMcxseL8e8Fn2C9/xtGqIiPz3L/zkYsE
-         0Ib6NPPLK+VvZxLS5vrkc92kSCO8r30s4zY6YunR0gaVOp6LLh5U5Uoz0l5CNr38dP
-         6qpXG1mBdpAtMEv+uw6xg9rzFw0pClctfTgy6qDE=
+        b=VczSjkd9frS7aYUNQIE1HoHQ2+iClhZNS+XIfBTWzUwWTsORrX4Rx+yK1DHLyj779
+         9R/Ui364T7sPXOggguYq5ut5HjVvz9UlkW/LY/lFWZKT0kTQG+b+/5Q/yUur/Q1fsu
+         BZJjMG2R0qXn7PNALQ1fOtXCs9xC6pkpfyR83Aw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ff8e1b9f2f36481e2efc@syzkaller.appspotmail.com,
-        Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/16] ip_gre: add validation for csum_start
-Date:   Wed,  1 Sep 2021 14:26:34 +0200
-Message-Id: <20210901122249.175416760@linuxfoundation.org>
+Subject: [PATCH 4.9 09/16] net: marvell: fix MVNETA_TX_IN_PRGRS bit number
+Date:   Wed,  1 Sep 2021 14:26:35 +0200
+Message-Id: <20210901122249.214441660@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122248.920548099@linuxfoundation.org>
 References: <20210901122248.920548099@linuxfoundation.org>
@@ -43,39 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-[ Upstream commit 1d011c4803c72f3907eccfc1ec63caefb852fcbf ]
+[ Upstream commit 359f4cdd7d78fdf8c098713b05fee950a730f131 ]
 
-Validate csum_start in gre_handle_offloads before we call _gre_xmit so
-that we do not crash later when the csum_start value is used in the
-lco_csum function call.
+According to Armada XP datasheet bit at 0 position is corresponding for
+TxInProg indication.
 
-This patch deals with ipv4 code.
-
-Fixes: c54419321455 ("GRE: Refactor GRE tunneling code.")
-Reported-by: syzbot+ff8e1b9f2f36481e2efc@syzkaller.appspotmail.com
-Signed-off-by: Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
+Fixes: c5aff18204da ("net: mvneta: driver for Marvell Armada 370/XP network unit")
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_gre.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/marvell/mvneta.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 9609ad71dd26..fe1801d9f059 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -353,6 +353,8 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
- 
- static int gre_handle_offloads(struct sk_buff *skb, bool csum)
- {
-+	if (csum && skb_checksum_start(skb) < skb->data)
-+		return -EINVAL;
- 	return iptunnel_handle_offloads(skb, csum ? SKB_GSO_GRE_CSUM : SKB_GSO_GRE);
- }
- 
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index bb6bc84995a2..ccacdcfb5932 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -100,7 +100,7 @@
+ #define      MVNETA_DESC_SWAP                    BIT(6)
+ #define      MVNETA_TX_BRST_SZ_MASK(burst)       ((burst) << 22)
+ #define MVNETA_PORT_STATUS                       0x2444
+-#define      MVNETA_TX_IN_PRGRS                  BIT(1)
++#define      MVNETA_TX_IN_PRGRS                  BIT(0)
+ #define      MVNETA_TX_FIFO_EMPTY                BIT(8)
+ #define MVNETA_RX_MIN_FRAME_SIZE                 0x247c
+ #define MVNETA_SERDES_CFG			 0x24A0
 -- 
 2.30.2
 
