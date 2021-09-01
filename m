@@ -2,126 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B243FDCD1
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32B933FDCC0
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345269AbhIAMxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:53:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53100 "EHLO mail.kernel.org"
+        id S1345321AbhIAMxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:53:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345191AbhIAMvj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:51:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DD2561252;
-        Wed,  1 Sep 2021 12:42:58 +0000 (UTC)
+        id S1345344AbhIAMvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:51:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1640C61221;
+        Wed,  1 Sep 2021 12:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500178;
-        bh=NSrvlgG1OGAPzejKZYW5fTPnbUmv1NIH6dDo2OIK7gc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=TwTlOfHUGBNrnMbClw7KYH0bobDzVZzPu5Hmk/MOBbhXaVSOKdkuUm/nPXecu9w7X
-         NOmjmCE6mOuCnyZHRY8S1SCh9aYx6Z+s+Dh4KL45N/2RVGy47ZrBid7qzEj5Js5S7a
-         hl04bdKPjdd/Mb3rAm+sHToW7p3VP7ks4HTHhMXs=
+        s=korg; t=1630500150;
+        bh=s3gyVITa2PR9fxfQHuANQGwIuSOn3PTmdB3yN6wvSzE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Sf5TJNhJvI8Lsqg8BLzepNwXVQeqMLRFeycTQwF6B8YEVxctIb2goGi0y14SPGdEU
+         91ItegHlKegOVewDTzEroNUc/r1DUVr2yYv9ll6CPFNkQxY2FaT8CxFEzy+627Mm30
+         qUy9UvtDubTNxefuheH9Vw3n6kGXFzPiyoptBYxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.14 00/11] 5.14.1-rc1 review
-Date:   Wed,  1 Sep 2021 14:29:08 +0200
-Message-Id: <20210901122249.520249736@linuxfoundation.org>
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.14 01/11] vt_kdsetmode: extend console locking
+Date:   Wed,  1 Sep 2021 14:29:09 +0200
+Message-Id: <20210901122249.566147226@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-MIME-Version: 1.0
+In-Reply-To: <20210901122249.520249736@linuxfoundation.org>
+References: <20210901122249.520249736@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.1-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.14.1-rc1
-X-KernelTest-Deadline: 2021-09-03T12:22+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.14.1 release.
-There are 11 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-Responses should be made by Fri, 03 Sep 2021 12:22:41 +0000.
-Anything received after that time might be too late.
+commit 2287a51ba822384834dafc1c798453375d1107c7 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.1-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
-and the diffstat can be found below.
+As per the long-suffering comment.
 
-thanks,
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/vt/vt_ioctl.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.14.1-rc1
-
-Richard Guy Briggs <rgb@redhat.com>
-    audit: move put_tree() to avoid trim_trees refcount underflow and UAF
-
-Peter Collingbourne <pcc@google.com>
-    net: don't unconditionally copy_from_user a struct ifreq for socket ioctls
-
-Eric Biggers <ebiggers@google.com>
-    ubifs: report correct st_size for encrypted symlinks
-
-Eric Biggers <ebiggers@google.com>
-    f2fs: report correct st_size for encrypted symlinks
-
-Eric Biggers <ebiggers@google.com>
-    ext4: report correct st_size for encrypted symlinks
-
-Eric Biggers <ebiggers@google.com>
-    fscrypt: add fscrypt_symlink_getattr() for computing st_size
-
-Denis Efremov <efremov@linux.com>
-    Revert "floppy: reintroduce O_NDELAY fix"
-
-Qu Wenruo <wqu@suse.com>
-    btrfs: fix NULL pointer dereference when deleting device by invalid id
-
-DENG Qingfang <dqfext@gmail.com>
-    net: dsa: mt7530: fix VLAN traffic leaks again
-
-Pauli Virtanen <pav@iki.fi>
-    Bluetooth: btusb: check conditions before enabling USB ALT 3 for WBS
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    vt_kdsetmode: extend console locking
-
-
--------------
-
-Diffstat:
-
- Makefile                  |  4 ++--
- drivers/block/floppy.c    | 30 +++++++++++++++---------------
- drivers/bluetooth/btusb.c | 22 ++++++++++++++--------
- drivers/net/dsa/mt7530.c  |  5 +----
- drivers/tty/vt/vt_ioctl.c | 10 ++++++----
- fs/btrfs/volumes.c        |  2 +-
- fs/crypto/hooks.c         | 44 ++++++++++++++++++++++++++++++++++++++++++++
- fs/ext4/symlink.c         | 12 +++++++++++-
- fs/f2fs/namei.c           | 12 +++++++++++-
- fs/ubifs/file.c           | 13 ++++++++++++-
- include/linux/fscrypt.h   |  7 +++++++
- include/linux/netdevice.h |  4 ++++
- kernel/audit_tree.c       |  2 +-
- net/socket.c              |  6 +++++-
- 14 files changed, 134 insertions(+), 39 deletions(-)
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -246,6 +246,8 @@ int vt_waitactive(int n)
+  *
+  * XXX It should at least call into the driver, fbdev's definitely need to
+  * restore their engine state. --BenH
++ *
++ * Called with the console lock held.
+  */
+ static int vt_kdsetmode(struct vc_data *vc, unsigned long mode)
+ {
+@@ -262,7 +264,6 @@ static int vt_kdsetmode(struct vc_data *
+ 		return -EINVAL;
+ 	}
+ 
+-	/* FIXME: this needs the console lock extending */
+ 	if (vc->vc_mode == mode)
+ 		return 0;
+ 
+@@ -271,12 +272,10 @@ static int vt_kdsetmode(struct vc_data *
+ 		return 0;
+ 
+ 	/* explicitly blank/unblank the screen if switching modes */
+-	console_lock();
+ 	if (mode == KD_TEXT)
+ 		do_unblank_screen(1);
+ 	else
+ 		do_blank_screen(1);
+-	console_unlock();
+ 
+ 	return 0;
+ }
+@@ -378,7 +377,10 @@ static int vt_k_ioctl(struct tty_struct
+ 		if (!perm)
+ 			return -EPERM;
+ 
+-		return vt_kdsetmode(vc, arg);
++		console_lock();
++		ret = vt_kdsetmode(vc, arg);
++		console_unlock();
++		return ret;
+ 
+ 	case KDGETMODE:
+ 		return put_user(vc->vc_mode, (int __user *)arg);
 
 
