@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13E5C3FDC9B
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB133FDC9C
 	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345340AbhIAMvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54158 "EHLO mail.kernel.org"
+        id S1346010AbhIAMvc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:51:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346561AbhIAMu0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:50:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18D8761107;
-        Wed,  1 Sep 2021 12:41:58 +0000 (UTC)
+        id S1346595AbhIAMub (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:50:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED37C6109E;
+        Wed,  1 Sep 2021 12:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500119;
-        bh=5WJS1dpCELoFuKWWplGMrgAb/LCvUI/ySOqljPqtyzM=;
+        s=korg; t=1630500122;
+        bh=5FY/X+oqPoTzwQrL0zIKquHnJCsfwfI6X0lqh7AqJcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NNvp+5SI+WjPUH4FzGYujtermgTaAgTGVsS3oRSCH60yiq3WyLSZGsj9Tr5w6xACS
-         KbS8z7gjnZc9HZWzGFNHLwPR9MH+pdYwjEOw1DFRHRnrTdo4KjiQ3qGlAQWV5FYc/c
-         l15T2gKmDfrYZDFKzWiIpp7wtzjf47e8axB0p6UY=
+        b=NIs2SiYA35zwLb4VYAa7rj85pXlHh4pGcqCnhxnt/lSJByv1GFvPZ3EYIyRX59c8V
+         JGt7/AXYOh6ozj90W7zk/NJk/emqWvKdPKqeBDtYxeupVUtKEEoDB9RWOqUzrj2Q1p
+         ppHUgsQWOWXE9+86I0GocUVZqP0Rnem4eQljTU+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.13 111/113] Revert "parisc: Add assembly implementations for memset, strlen, strcpy, strncpy and strcat"
-Date:   Wed,  1 Sep 2021 14:29:06 +0200
-Message-Id: <20210901122305.627772099@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.13 112/113] net: dont unconditionally copy_from_user a struct ifreq for socket ioctls
+Date:   Wed,  1 Sep 2021 14:29:07 +0200
+Message-Id: <20210901122305.659486760@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
 References: <20210901122301.984263453@linuxfoundation.org>
@@ -40,290 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Peter Collingbourne <pcc@google.com>
 
-commit f6a3308d6feb351d9854eb8b3f6289a1ac163125 upstream.
+commit d0efb16294d145d157432feda83877ae9d7cdf37 upstream.
 
-This reverts commit 83af58f8068ea3f7b3c537c37a30887bfa585069.
+A common implementation of isatty(3) involves calling a ioctl passing
+a dummy struct argument and checking whether the syscall failed --
+bionic and glibc use TCGETS (passing a struct termios), and musl uses
+TIOCGWINSZ (passing a struct winsize). If the FD is a socket, we will
+copy sizeof(struct ifreq) bytes of data from the argument and return
+-EFAULT if that fails. The result is that the isatty implementations
+may return a non-POSIX-compliant value in errno in the case where part
+of the dummy struct argument is inaccessible, as both struct termios
+and struct winsize are smaller than struct ifreq (at least on arm64).
 
-It turns out that at least the assembly implementation for strncpy() was
-buggy.  Revert the whole commit and return back to the default coding.
+Although there is usually enough stack space following the argument
+on the stack that this did not present a practical problem up to now,
+with MTE stack instrumentation it's more likely for the copy to fail,
+as the memory following the struct may have a different tag.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v5.4+
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fix the problem by adding an early check for whether the ioctl is a
+valid socket ioctl, and return -ENOTTY if it isn't.
+
+Fixes: 44c02a2c3dc5 ("dev_ioctl(): move copyin/copyout to callers")
+Link: https://linux-review.googlesource.com/id/I869da6cf6daabc3e4b7b82ac979683ba05e27d4d
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Cc: <stable@vger.kernel.org> # 4.19
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/include/asm/string.h  |   15 ----
- arch/parisc/kernel/parisc_ksyms.c |    4 -
- arch/parisc/lib/Makefile          |    4 -
- arch/parisc/lib/memset.c          |   72 ++++++++++++++++++++
- arch/parisc/lib/string.S          |  136 --------------------------------------
- 5 files changed, 74 insertions(+), 157 deletions(-)
- create mode 100644 arch/parisc/lib/memset.c
- delete mode 100644 arch/parisc/lib/string.S
+ include/linux/netdevice.h |    4 ++++
+ net/socket.c              |    6 +++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
---- a/arch/parisc/include/asm/string.h
-+++ b/arch/parisc/include/asm/string.h
-@@ -8,19 +8,4 @@ extern void * memset(void *, int, size_t
- #define __HAVE_ARCH_MEMCPY
- void * memcpy(void * dest,const void *src,size_t count);
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -4012,6 +4012,10 @@ int netdev_rx_handler_register(struct ne
+ void netdev_rx_handler_unregister(struct net_device *dev);
  
--#define __HAVE_ARCH_STRLEN
--extern size_t strlen(const char *s);
--
--#define __HAVE_ARCH_STRCPY
--extern char *strcpy(char *dest, const char *src);
--
--#define __HAVE_ARCH_STRNCPY
--extern char *strncpy(char *dest, const char *src, size_t count);
--
--#define __HAVE_ARCH_STRCAT
--extern char *strcat(char *dest, const char *src);
--
--#define __HAVE_ARCH_MEMSET
--extern void *memset(void *, int, size_t);
--
- #endif
---- a/arch/parisc/kernel/parisc_ksyms.c
-+++ b/arch/parisc/kernel/parisc_ksyms.c
-@@ -17,10 +17,6 @@
- 
- #include <linux/string.h>
- EXPORT_SYMBOL(memset);
--EXPORT_SYMBOL(strlen);
--EXPORT_SYMBOL(strcpy);
--EXPORT_SYMBOL(strncpy);
--EXPORT_SYMBOL(strcat);
- 
- #include <linux/atomic.h>
- EXPORT_SYMBOL(__xchg8);
---- a/arch/parisc/lib/Makefile
-+++ b/arch/parisc/lib/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for parisc-specific library files
- #
- 
--lib-y	:= lusercopy.o bitops.o checksum.o io.o memcpy.o \
--	   ucmpdi2.o delay.o string.o
-+lib-y	:= lusercopy.o bitops.o checksum.o io.o memset.o memcpy.o \
-+	   ucmpdi2.o delay.o
- 
- obj-y	:= iomap.o
---- /dev/null
-+++ b/arch/parisc/lib/memset.c
-@@ -0,0 +1,72 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later */
-+#include <linux/types.h>
-+#include <asm/string.h>
-+
-+#define OPSIZ (BITS_PER_LONG/8)
-+typedef unsigned long op_t;
-+
-+void *
-+memset (void *dstpp, int sc, size_t len)
+ bool dev_valid_name(const char *name);
++static inline bool is_socket_ioctl_cmd(unsigned int cmd)
 +{
-+  unsigned int c = sc;
-+  long int dstp = (long int) dstpp;
-+
-+  if (len >= 8)
-+    {
-+      size_t xlen;
-+      op_t cccc;
-+
-+      cccc = (unsigned char) c;
-+      cccc |= cccc << 8;
-+      cccc |= cccc << 16;
-+      if (OPSIZ > 4)
-+	/* Do the shift in two steps to avoid warning if long has 32 bits.  */
-+	cccc |= (cccc << 16) << 16;
-+
-+      /* There are at least some bytes to set.
-+	 No need to test for LEN == 0 in this alignment loop.  */
-+      while (dstp % OPSIZ != 0)
-+	{
-+	  ((unsigned char *) dstp)[0] = c;
-+	  dstp += 1;
-+	  len -= 1;
-+	}
-+
-+      /* Write 8 `op_t' per iteration until less than 8 `op_t' remain.  */
-+      xlen = len / (OPSIZ * 8);
-+      while (xlen > 0)
-+	{
-+	  ((op_t *) dstp)[0] = cccc;
-+	  ((op_t *) dstp)[1] = cccc;
-+	  ((op_t *) dstp)[2] = cccc;
-+	  ((op_t *) dstp)[3] = cccc;
-+	  ((op_t *) dstp)[4] = cccc;
-+	  ((op_t *) dstp)[5] = cccc;
-+	  ((op_t *) dstp)[6] = cccc;
-+	  ((op_t *) dstp)[7] = cccc;
-+	  dstp += 8 * OPSIZ;
-+	  xlen -= 1;
-+	}
-+      len %= OPSIZ * 8;
-+
-+      /* Write 1 `op_t' per iteration until less than OPSIZ bytes remain.  */
-+      xlen = len / OPSIZ;
-+      while (xlen > 0)
-+	{
-+	  ((op_t *) dstp)[0] = cccc;
-+	  dstp += OPSIZ;
-+	  xlen -= 1;
-+	}
-+      len %= OPSIZ;
-+    }
-+
-+  /* Write the last few bytes.  */
-+  while (len > 0)
-+    {
-+      ((unsigned char *) dstp)[0] = c;
-+      dstp += 1;
-+      len -= 1;
-+    }
-+
-+  return dstpp;
++	return _IOC_TYPE(cmd) == SOCK_IOC_TYPE;
 +}
---- a/arch/parisc/lib/string.S
-+++ /dev/null
-@@ -1,136 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- *    PA-RISC assembly string functions
-- *
-- *    Copyright (C) 2019 Helge Deller <deller@gmx.de>
-- */
--
--#include <asm/assembly.h>
--#include <linux/linkage.h>
--
--	.section .text.hot
--	.level PA_ASM_LEVEL
--
--	t0 = r20
--	t1 = r21
--	t2 = r22
--
--ENTRY_CFI(strlen, frame=0,no_calls)
--	or,COND(<>) arg0,r0,ret0
--	b,l,n	.Lstrlen_null_ptr,r0
--	depwi	0,31,2,ret0
--	cmpb,COND(<>) arg0,ret0,.Lstrlen_not_aligned
--	ldw,ma	4(ret0),t0
--	cmpib,tr 0,r0,.Lstrlen_loop
--	uxor,nbz r0,t0,r0
--.Lstrlen_not_aligned:
--	uaddcm	arg0,ret0,t1
--	shladd	t1,3,r0,t1
--	mtsar	t1
--	depwi	-1,%sar,32,t0
--	uxor,nbz r0,t0,r0
--.Lstrlen_loop:
--	b,l,n	.Lstrlen_end_loop,r0
--	ldw,ma	4(ret0),t0
--	cmpib,tr 0,r0,.Lstrlen_loop
--	uxor,nbz r0,t0,r0
--.Lstrlen_end_loop:
--	extrw,u,<> t0,7,8,r0
--	addib,tr,n -3,ret0,.Lstrlen_out
--	extrw,u,<> t0,15,8,r0
--	addib,tr,n -2,ret0,.Lstrlen_out
--	extrw,u,<> t0,23,8,r0
--	addi	-1,ret0,ret0
--.Lstrlen_out:
--	bv r0(rp)
--	uaddcm ret0,arg0,ret0
--.Lstrlen_null_ptr:
--	bv,n r0(rp)
--ENDPROC_CFI(strlen)
--
--
--ENTRY_CFI(strcpy, frame=0,no_calls)
--	ldb	0(arg1),t0
--	stb	t0,0(arg0)
--	ldo	0(arg0),ret0
--	ldo	1(arg1),t1
--	cmpb,=	r0,t0,2f
--	ldo	1(arg0),t2
--1:	ldb	0(t1),arg1
--	stb	arg1,0(t2)
--	ldo	1(t1),t1
--	cmpb,<> r0,arg1,1b
--	ldo	1(t2),t2
--2:	bv,n	r0(rp)
--ENDPROC_CFI(strcpy)
--
--
--ENTRY_CFI(strncpy, frame=0,no_calls)
--	ldb	0(arg1),t0
--	stb	t0,0(arg0)
--	ldo	1(arg1),t1
--	ldo	0(arg0),ret0
--	cmpb,=	r0,t0,2f
--	ldo	1(arg0),arg1
--1:	ldo	-1(arg2),arg2
--	cmpb,COND(=),n r0,arg2,2f
--	ldb	0(t1),arg0
--	stb	arg0,0(arg1)
--	ldo	1(t1),t1
--	cmpb,<> r0,arg0,1b
--	ldo	1(arg1),arg1
--2:	bv,n	r0(rp)
--ENDPROC_CFI(strncpy)
--
--
--ENTRY_CFI(strcat, frame=0,no_calls)
--	ldb	0(arg0),t0
--	cmpb,=	t0,r0,2f
--	ldo	0(arg0),ret0
--	ldo	1(arg0),arg0
--1:	ldb	0(arg0),t1
--	cmpb,<>,n r0,t1,1b
--	ldo	1(arg0),arg0
--2:	ldb	0(arg1),t2
--	stb	t2,0(arg0)
--	ldo	1(arg0),arg0
--	ldb	0(arg1),t0
--	cmpb,<>	r0,t0,2b
--	ldo	1(arg1),arg1
--	bv,n	r0(rp)
--ENDPROC_CFI(strcat)
--
--
--ENTRY_CFI(memset, frame=0,no_calls)
--	copy	arg0,ret0
--	cmpb,COND(=) r0,arg0,4f
--	copy	arg0,t2
--	cmpb,COND(=) r0,arg2,4f
--	ldo	-1(arg2),arg3
--	subi	-1,arg3,t0
--	subi	0,t0,t1
--	cmpiclr,COND(>=) 0,t1,arg2
--	ldo	-1(t1),arg2
--	extru arg2,31,2,arg0
--2:	stb	arg1,0(t2)
--	ldo	1(t2),t2
--	addib,>= -1,arg0,2b
--	ldo	-1(arg3),arg3
--	cmpiclr,COND(<=) 4,arg2,r0
--	b,l,n	4f,r0
--#ifdef CONFIG_64BIT
--	depd,*	r0,63,2,arg2
--#else
--	depw	r0,31,2,arg2
--#endif
--	ldo	1(t2),t2
--3:	stb	arg1,-1(t2)
--	stb	arg1,0(t2)
--	stb	arg1,1(t2)
--	stb	arg1,2(t2)
--	addib,COND(>) -4,arg2,3b
--	ldo	4(t2),t2
--4:	bv,n	r0(rp)
--ENDPROC_CFI(memset)
--
--	.end
+ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr,
+ 		bool *need_copyout);
+ int dev_ifconf(struct net *net, struct ifconf *, int);
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1054,7 +1054,7 @@ static long sock_do_ioctl(struct net *ne
+ 		rtnl_unlock();
+ 		if (!err && copy_to_user(argp, &ifc, sizeof(struct ifconf)))
+ 			err = -EFAULT;
+-	} else {
++	} else if (is_socket_ioctl_cmd(cmd)) {
+ 		struct ifreq ifr;
+ 		bool need_copyout;
+ 		if (copy_from_user(&ifr, argp, sizeof(struct ifreq)))
+@@ -1063,6 +1063,8 @@ static long sock_do_ioctl(struct net *ne
+ 		if (!err && need_copyout)
+ 			if (copy_to_user(argp, &ifr, sizeof(struct ifreq)))
+ 				return -EFAULT;
++	} else {
++		err = -ENOTTY;
+ 	}
+ 	return err;
+ }
+@@ -3251,6 +3253,8 @@ static int compat_ifr_data_ioctl(struct
+ 	struct ifreq ifreq;
+ 	u32 data32;
+ 
++	if (!is_socket_ioctl_cmd(cmd))
++		return -ENOTTY;
+ 	if (copy_from_user(ifreq.ifr_name, u_ifreq32->ifr_name, IFNAMSIZ))
+ 		return -EFAULT;
+ 	if (get_user(data32, &u_ifreq32->ifr_data))
 
 
