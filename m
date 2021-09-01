@@ -2,91 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 113723FD549
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 10:22:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9283FD5C7
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 10:41:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243047AbhIAIXn convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 1 Sep 2021 04:23:43 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.85.151]:31311 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242922AbhIAIXm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 04:23:42 -0400
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-100-_u3ncUtINZaJltL-_PpvhA-1; Wed, 01 Sep 2021 09:22:44 +0100
-X-MC-Unique: _u3ncUtINZaJltL-_PpvhA-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.23; Wed, 1 Sep 2021 09:22:42 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.023; Wed, 1 Sep 2021 09:22:42 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Jakub Kicinski' <kuba@kernel.org>,
-        Peter Collingbourne <pcc@google.com>
-CC:     "David S. Miller" <davem@davemloft.net>,
-        Colin Ian King <colin.king@canonical.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        "Arnd Bergmann" <arnd@kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] net: don't unconditionally copy_from_user a struct
- ifreq for socket ioctls
-Thread-Topic: [PATCH v2] net: don't unconditionally copy_from_user a struct
- ifreq for socket ioctls
-Thread-Index: AQHXnoV4A6XjTyzNuk62FGlW78jf5auO1z/Q
-Date:   Wed, 1 Sep 2021 08:22:42 +0000
-Message-ID: <bf0f47974d7141358d810d512d4b9a00@AcuMS.aculab.com>
-References: <20210826194601.3509717-1-pcc@google.com>
- <20210831093006.6db30672@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20210831093006.6db30672@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S241500AbhIAIma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 04:42:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38746 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241473AbhIAIm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 04:42:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6548C6103D;
+        Wed,  1 Sep 2021 08:41:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1630485690;
+        bh=mOTN7T5g1qwPclcn4aUs33/Eaifp2gCvv9+Ju8xKkd4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GSLPtFuwWE1J4KmvAHJq7N0FrZ2W2keeT7XVf7ex3VmOAldVEJTgt29/1NF5hb0+6
+         tlnYOzbd1ia3CB9viGwSTrKN2lK8Zs2nezckGwdMjVVY0pYaO78tbQkqK1Y11kiNMM
+         JfyrmSDm/EKxgBhHukuBwtBpEdkvIk1NoKtrtra8=
+Date:   Wed, 1 Sep 2021 10:41:28 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Rafael David Tinoco <rafaeldtinoco@gmail.com>
+Cc:     stable@vger.kernel.org, andriin@fb.com, daniel@iogearbox.net,
+        yanivagman@gmail.com
+Subject: Re: [PATCH] bpf: Track contents of read-only maps as scalars
+Message-ID: <YS88uFRrXFW4DOen@kroah.com>
+References: <20210821203108.215937-1-rafaeldtinoco@gmail.com>
+ <20210821203108.215937-2-rafaeldtinoco@gmail.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210821203108.215937-2-rafaeldtinoco@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski
-> Sent: 31 August 2021 17:30
+On Sat, Aug 21, 2021 at 05:31:08PM -0300, Rafael David Tinoco wrote:
+> commit a23740ec43ba022dbfd139d0fe3eff193216272b upstream.
 > 
-> On Thu, 26 Aug 2021 12:46:01 -0700 Peter Collingbourne wrote:
-> > @@ -3306,6 +3308,8 @@ static int compat_ifr_data_ioctl(struct net *net, unsigned int cmd,
-> >  	struct ifreq ifreq;
-> >  	u32 data32;
-> >
-> > +	if (!is_socket_ioctl_cmd(cmd))
-> > +		return -ENOTTY;
-> >  	if (copy_from_user(ifreq.ifr_name, u_ifreq32->ifr_name, IFNAMSIZ))
-> >  		return -EFAULT;
-> >  	if (get_user(data32, &u_ifreq32->ifr_data))
+> Maps that are read-only both from BPF program side and user space side
+> have their contents constant, so verifier can track referenced values
+> precisely and use that knowledge for dead code elimination, branch
+> pruning, etc. This patch teaches BPF verifier how to do this.
 > 
-> Hi Peter, when resolving the net -> net-next merge conflict I couldn't
-> figure out why this chunk is needed. It seems all callers of
-> compat_ifr_data_ioctl() already made sure it's a socket IOCTL.
-> Please double check my resolution (tip of net-next) and if this is
-> indeed unnecessary perhaps send a cleanup? Thanks!
+>   [Backport]
+>   Already includes further build fix made at commit 2dedd7d21655 ("bpf:
+>   Fix cast to pointer from integer of different size warning").
 
-To stop the copy_from_user() faulting when the user buffer
-isn't long enough.
-In particular for iasatty() on arm with tagged pointers.
+Do not do that, let us queue up the original commits instead please.
 
-	David
+thanks,
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+greg k-h
