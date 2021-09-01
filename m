@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83BC63FDBB1
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E76673FDC86
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345315AbhIAMnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:43:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43452 "EHLO mail.kernel.org"
+        id S1345425AbhIAMvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:51:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345159AbhIAMkx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:40:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BB386109E;
-        Wed,  1 Sep 2021 12:37:12 +0000 (UTC)
+        id S1346209AbhIAMte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:49:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B559061054;
+        Wed,  1 Sep 2021 12:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499833;
-        bh=Xw1cDDUMoSm44TPOXsiygkQ10U7FEELcOh7UjW3umrM=;
+        s=korg; t=1630500076;
+        bh=Qq4OgdnOaggN6QkR5OfPnQXwH7SN2ps8A4x/L0CvvRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TPKQceoG9pjNYrkwjhN/U7Ilo06A473u222puBjzd3TyINo5DzYwr6Rpc8pELT0k8
-         oA5TKPM5K26DFejkCxv3eN2KGkoBeqQOB5Ek7trZ8eVwTrOkKjV3zftEMn7Nq5fT4T
-         IvdOwdvCuLYHzSQz2iAp9m3XcfwVBSf68j2cskhg=
+        b=GA+7Tq77CrwxlbgkauuSibkVoxYE1qDjKy2tFiw+UwG8pr6NG+OhbUbyAr9NQnTTR
+         0PpER3OC2WemqIjW0lTp3rRU/DDEb1KEWVr/4jxJGBtzWx5JTyXcBU5igUffESPr8g
+         HCNe27KsMiw0+q1MxrITm07VDswnaKUCyk7k6mPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.10 096/103] lkdtm: Enable DOUBLE_FAULT on all architectures
-Date:   Wed,  1 Sep 2021 14:28:46 +0200
-Message-Id: <20210901122303.768192626@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 092/113] drm/nouveau: recognise GA107
+Date:   Wed,  1 Sep 2021 14:28:47 +0200
+Message-Id: <20210901122305.028751285@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,37 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-commit f123c42bbeff26bfe8bdb08a01307e92d51eec39 upstream
+[ Upstream commit fa25f28ef2cef19bc9ffeb827b8ecbf48af7f892 ]
 
-Where feasible, I prefer to have all tests visible on all architectures,
-but to have them wired to XFAIL. DOUBLE_FAIL was set up to XFAIL, but
-wasn't actually being added to the test list.
+Still no GA106 as I don't have HW to verif.
 
-Fixes: cea23efb4de2 ("lkdtm/bugs: Make double-fault test always available")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210623203936.3151093-7-keescook@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lkdtm/core.c |    2 --
- 1 file changed, 2 deletions(-)
+ .../gpu/drm/nouveau/nvkm/engine/device/base.c | 21 +++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
---- a/drivers/misc/lkdtm/core.c
-+++ b/drivers/misc/lkdtm/core.c
-@@ -173,9 +173,7 @@ static const struct crashtype crashtypes
- 	CRASHTYPE(USERCOPY_KERNEL),
- 	CRASHTYPE(STACKLEAK_ERASING),
- 	CRASHTYPE(CFI_FORWARD_PROTO),
--#ifdef CONFIG_X86_32
- 	CRASHTYPE(DOUBLE_FAULT),
--#endif
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+index b930f539feec..93ddf63d1114 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+@@ -2624,6 +2624,26 @@ nv174_chipset = {
+ 	.dma      = { 0x00000001, gv100_dma_new },
  };
  
- 
++static const struct nvkm_device_chip
++nv177_chipset = {
++	.name = "GA107",
++	.bar      = { 0x00000001, tu102_bar_new },
++	.bios     = { 0x00000001, nvkm_bios_new },
++	.devinit  = { 0x00000001, ga100_devinit_new },
++	.fb       = { 0x00000001, ga102_fb_new },
++	.gpio     = { 0x00000001, ga102_gpio_new },
++	.i2c      = { 0x00000001, gm200_i2c_new },
++	.imem     = { 0x00000001, nv50_instmem_new },
++	.mc       = { 0x00000001, ga100_mc_new },
++	.mmu      = { 0x00000001, tu102_mmu_new },
++	.pci      = { 0x00000001, gp100_pci_new },
++	.privring = { 0x00000001, gm200_privring_new },
++	.timer    = { 0x00000001, gk20a_timer_new },
++	.top      = { 0x00000001, ga100_top_new },
++	.disp     = { 0x00000001, ga102_disp_new },
++	.dma      = { 0x00000001, gv100_dma_new },
++};
++
+ static int
+ nvkm_device_event_ctor(struct nvkm_object *object, void *data, u32 size,
+ 		       struct nvkm_notify *notify)
+@@ -3049,6 +3069,7 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
+ 		case 0x168: device->chip = &nv168_chipset; break;
+ 		case 0x172: device->chip = &nv172_chipset; break;
+ 		case 0x174: device->chip = &nv174_chipset; break;
++		case 0x177: device->chip = &nv177_chipset; break;
+ 		default:
+ 			if (nvkm_boolopt(device->cfgopt, "NvEnableUnsupportedChipsets", false)) {
+ 				switch (device->chipset) {
+-- 
+2.30.2
+
 
 
