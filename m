@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 496A93FD997
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:27:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D02373FD996
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:27:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244151AbhIAM1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:27:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56828 "EHLO mail.kernel.org"
+        id S244147AbhIAM1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:27:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244123AbhIAM1o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:27:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2F1660BD3;
-        Wed,  1 Sep 2021 12:26:46 +0000 (UTC)
+        id S244144AbhIAM1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:27:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 028936101B;
+        Wed,  1 Sep 2021 12:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499207;
-        bh=En1RmtZ63Bx5dbgpSDJvZol5dXvyF1o1UssfUpS+cG4=;
+        s=korg; t=1630499210;
+        bh=qhESlreqaguGA6UjYwAFl9MniaY/yGL8vZMgJ69S/zY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzny3wGS/Q3+7AnUQusBUfuOoYhGZzjCQw1sGjB0xERX4P5Lgeoy6dUJVNVzMFauZ
-         c4ssfR+lBYItNMMR2oVbr57cIMwy40CrQy1nWuOS8Q7D/AVHTVCgb42ijlOIripzrJ
-         bFKysmRYQSotE+R2CAWDfnb4Du9kifC1nJt4YvdM=
+        b=qnlGguj/oEsyd9kszBjmeWofvC+jrUqx+/0p5ifq0u1LgC/dzzArRHIzHL8yiNOLA
+         5kBAdUnWwIgvO2uHna8KbkbMNjiM0008EW3OFizIOwRVXwOTxBcQNxll22LHlsK3i1
+         3KyfG9WyaPy53Z49U1mszGvHpVRVM9CfAFf5fsnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
         "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 06/10] virtio: Improve vq->broken access to avoid any compiler optimization
-Date:   Wed,  1 Sep 2021 14:26:20 +0200
-Message-Id: <20210901122248.249551982@linuxfoundation.org>
+Subject: [PATCH 4.4 07/10] vringh: Use wiov->used to check for read/write desc order
+Date:   Wed,  1 Sep 2021 14:26:21 +0200
+Message-Id: <20210901122248.277417232@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122248.051808371@linuxfoundation.org>
 References: <20210901122248.051808371@linuxfoundation.org>
@@ -40,56 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Neeraj Upadhyay <neeraju@codeaurora.org>
 
-[ Upstream commit 60f0779862e4ab943810187752c462e85f5fa371 ]
+[ Upstream commit e74cfa91f42c50f7f649b0eca46aa049754ccdbd ]
 
-Currently vq->broken field is read by virtqueue_is_broken() in busy
-loop in one context by virtnet_send_command().
+As __vringh_iov() traverses a descriptor chain, it populates
+each descriptor entry into either read or write vring iov
+and increments that iov's ->used member. So, as we iterate
+over a descriptor chain, at any point, (riov/wriov)->used
+value gives the number of descriptor enteries available,
+which are to be read or written by the device. As all read
+iovs must precede the write iovs, wiov->used should be zero
+when we are traversing a read descriptor. Current code checks
+for wiov->i, to figure out whether any previous entry in the
+current descriptor chain was a write descriptor. However,
+iov->i is only incremented, when these vring iovs are consumed,
+at a later point, and remain 0 in __vringh_iov(). So, correct
+the check for read and write descriptor order, to use
+wiov->used.
 
-vq->broken is set to true in other process context by
-virtio_break_device(). Reader and writer are accessing it without any
-synchronization. This may lead to a compiler optimization which may
-result to optimize reading vq->broken only once.
-
-Hence, force reading vq->broken on each invocation of
-virtqueue_is_broken() and also force writing it so that such
-update is visible to the readers.
-
-It is a theoretical fix that isn't yet encountered in the field.
-
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Link: https://lore.kernel.org/r/20210721142648.1525924-2-parav@nvidia.com
+Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Link: https://lore.kernel.org/r/1624591502-4827-1-git-send-email-neeraju@codeaurora.org
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_ring.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/vhost/vringh.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 6b3565feddb2..b15c24c4d91f 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -840,7 +840,7 @@ bool virtqueue_is_broken(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
--	return vq->broken;
-+	return READ_ONCE(vq->broken);
- }
- EXPORT_SYMBOL_GPL(virtqueue_is_broken);
- 
-@@ -854,7 +854,9 @@ void virtio_break_device(struct virtio_device *dev)
- 
- 	list_for_each_entry(_vq, &dev->vqs, list) {
- 		struct vring_virtqueue *vq = to_vvq(_vq);
--		vq->broken = true;
-+
-+		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
-+		WRITE_ONCE(vq->broken, true);
- 	}
- }
- EXPORT_SYMBOL_GPL(virtio_break_device);
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index d56736655dec..da47542496cc 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -329,7 +329,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
+ 			iov = wiov;
+ 		else {
+ 			iov = riov;
+-			if (unlikely(wiov && wiov->i)) {
++			if (unlikely(wiov && wiov->used)) {
+ 				vringh_bad("Readable desc %p after writable",
+ 					   &descs[i]);
+ 				err = -EINVAL;
 -- 
 2.30.2
 
