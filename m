@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0517D3FDBB6
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 119323FDCA0
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345346AbhIAMnP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:43:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40918 "EHLO mail.kernel.org"
+        id S1345229AbhIAMvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:51:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345147AbhIAMkx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:40:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DC0161107;
-        Wed,  1 Sep 2021 12:37:07 +0000 (UTC)
+        id S1346601AbhIAMuc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:50:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9366610C8;
+        Wed,  1 Sep 2021 12:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499827;
-        bh=3Kq52ylVp0/PL8C3rzKcUQLbuu4uAnZ3NVmvuFniZU8=;
+        s=korg; t=1630500127;
+        bh=Q6rXKBWCCKY5HIZgH5Af2QbmjSkd7dUsSf7b64pcaug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cBI0CGfcHPsnBS3hgYQWN7Ged+9K8vdvm5mybBmAWaAtDhsfPTp/F3vuLbir41kYl
-         aDydOZQvZtmTCn/8rbdWLQXJjACAX5GLsHkzN9DG8z8eZCHsJ5jN7EI5rVMIMwZttx
-         6TzVIXvtfgAuV5w038TrbjZ5Jdtivyq4w1TFIFgM=
+        b=WkwA7dIMCsHFe+qRpFi7lRDiA5TJxY3Hym+GqAnQtLgEdX7UvASBkrr/2b4f5J+1O
+         iRiQkZF6dYp59bGBWJ2Zj9tbj3gp0ndUJRj27HnZjj4vsJg90GoN5kNRgxUaMd881B
+         BQvin8rc8BI8q9XkkpRed4GG0uSnj7dJ5qHl93zI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Will Deacon <will@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Seiji Nishikawa <snishika@redhat.com>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.10 103/103] audit: move put_tree() to avoid trim_trees refcount underflow and UAF
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Sandeep Patil <sspatil@android.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.13 098/113] pipe: avoid unnecessary EPOLLET wakeups under normal loads
 Date:   Wed,  1 Sep 2021 14:28:53 +0200
-Message-Id: <20210901122303.992463581@linuxfoundation.org>
+Message-Id: <20210901122305.217011938@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +41,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Guy Briggs <rgb@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 67d69e9d1a6c889d98951c1d74b19332ce0565af upstream.
+commit 3b844826b6c6affa80755254da322b017358a2f4 upstream.
 
-AUDIT_TRIM is expected to be idempotent, but multiple executions resulted
-in a refcount underflow and use-after-free.
+I had forgotten just how sensitive hackbench is to extra pipe wakeups,
+and commit 3a34b13a88ca ("pipe: make pipe writes always wake up
+readers") ended up causing a quite noticeable regression on larger
+machines.
 
-git bisect fingered commit fb041bb7c0a9	("locking/refcount: Consolidate
-implementations of refcount_t") but this patch with its more thorough
-checking that wasn't in the x86 assembly code merely exposed a previously
-existing tree refcount imbalance in the case of tree trimming code that
-was refactored with prune_one() to remove a tree introduced in
-commit 8432c7006297 ("audit: Simplify locking around untag_chunk()")
+Now, hackbench isn't necessarily a hugely meaningful benchmark, and it's
+not clear that this matters in real life all that much, but as Mel
+points out, it's used often enough when comparing kernels and so the
+performance regression shows up like a sore thumb.
 
-Move the put_tree() to cover only the prune_one() case.
+It's easy enough to fix at least for the common cases where pipes are
+used purely for data transfer, and you never have any exciting poll
+usage at all.  So set a special 'poll_usage' flag when there is polling
+activity, and make the ugly "EPOLLET has crazy legacy expectations"
+semantics explicit to only that case.
 
-Passes audit-testsuite and 3 passes of "auditctl -t" with at least one
-directory watch.
+I would love to limit it to just the broken EPOLLET case, but the pipe
+code can't see the difference between epoll and regular select/poll, so
+any non-read/write waiting will trigger the extra wakeup behavior.  That
+is sufficient for at least the hackbench case.
 
-Cc: Jan Kara <jack@suse.cz>
-Cc: Will Deacon <will@kernel.org>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Seiji Nishikawa <snishika@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 8432c7006297 ("audit: Simplify locking around untag_chunk()")
-Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-[PM: reformatted/cleaned-up the commit description]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Apart from making the odd extra wakeup cases more explicitly about
+EPOLLET, this also makes the extra wakeup be at the _end_ of the pipe
+write, not at the first write chunk.  That is actually much saner
+semantics (as much as you can call any of the legacy edge-triggered
+expectations for EPOLLET "sane") since it means that you know the wakeup
+will happen once the write is done, rather than possibly in the middle
+of one.
+
+[ For stable people: I'm putting a "Fixes" tag on this, but I leave it
+  up to you to decide whether you actually want to backport it or not.
+  It likely has no impact outside of synthetic benchmarks  - Linus ]
+
+Link: https://lore.kernel.org/lkml/20210802024945.GA8372@xsang-OptiPlex-9020/
+Fixes: 3a34b13a88ca ("pipe: make pipe writes always wake up readers")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Tested-by: Sandeep Patil <sspatil@android.com>
+Tested-by: Mel Gorman <mgorman@techsingularity.net>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/audit_tree.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/pipe.c                 |   15 +++++++++------
+ include/linux/pipe_fs_i.h |    2 ++
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
---- a/kernel/audit_tree.c
-+++ b/kernel/audit_tree.c
-@@ -593,7 +593,6 @@ static void prune_tree_chunks(struct aud
- 		spin_lock(&hash_lock);
+--- a/fs/pipe.c
++++ b/fs/pipe.c
+@@ -444,9 +444,6 @@ pipe_write(struct kiocb *iocb, struct io
+ #endif
+ 
+ 	/*
+-	 * Epoll nonsensically wants a wakeup whether the pipe
+-	 * was already empty or not.
+-	 *
+ 	 * If it wasn't empty we try to merge new data into
+ 	 * the last buffer.
+ 	 *
+@@ -455,9 +452,9 @@ pipe_write(struct kiocb *iocb, struct io
+ 	 * spanning multiple pages.
+ 	 */
+ 	head = pipe->head;
+-	was_empty = true;
++	was_empty = pipe_empty(head, pipe->tail);
+ 	chars = total_len & (PAGE_SIZE-1);
+-	if (chars && !pipe_empty(head, pipe->tail)) {
++	if (chars && !was_empty) {
+ 		unsigned int mask = pipe->ring_size - 1;
+ 		struct pipe_buffer *buf = &pipe->bufs[(head - 1) & mask];
+ 		int offset = buf->offset + buf->len;
+@@ -590,8 +587,11 @@ out:
+ 	 * This is particularly important for small writes, because of
+ 	 * how (for example) the GNU make jobserver uses small writes to
+ 	 * wake up pending jobs
++	 *
++	 * Epoll nonsensically wants a wakeup whether the pipe
++	 * was already empty or not.
+ 	 */
+-	if (was_empty) {
++	if (was_empty || pipe->poll_usage) {
+ 		wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
+ 		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
  	}
- 	spin_unlock(&hash_lock);
--	put_tree(victim);
- }
+@@ -654,6 +654,9 @@ pipe_poll(struct file *filp, poll_table
+ 	struct pipe_inode_info *pipe = filp->private_data;
+ 	unsigned int head, tail;
  
- /*
-@@ -602,6 +601,7 @@ static void prune_tree_chunks(struct aud
- static void prune_one(struct audit_tree *victim)
- {
- 	prune_tree_chunks(victim, false);
-+	put_tree(victim);
- }
- 
- /* trim the uncommitted chunks from tree */
++	/* Epoll has some historical nasty semantics, this enables them */
++	pipe->poll_usage = 1;
++
+ 	/*
+ 	 * Reading pipe state only -- no need for acquiring the semaphore.
+ 	 *
+--- a/include/linux/pipe_fs_i.h
++++ b/include/linux/pipe_fs_i.h
+@@ -48,6 +48,7 @@ struct pipe_buffer {
+  *	@files: number of struct file referring this pipe (protected by ->i_lock)
+  *	@r_counter: reader counter
+  *	@w_counter: writer counter
++ *	@poll_usage: is this pipe used for epoll, which has crazy wakeups?
+  *	@fasync_readers: reader side fasync
+  *	@fasync_writers: writer side fasync
+  *	@bufs: the circular array of pipe buffers
+@@ -70,6 +71,7 @@ struct pipe_inode_info {
+ 	unsigned int files;
+ 	unsigned int r_counter;
+ 	unsigned int w_counter;
++	unsigned int poll_usage;
+ 	struct page *tmp_page;
+ 	struct fasync_struct *fasync_readers;
+ 	struct fasync_struct *fasync_writers;
 
 
