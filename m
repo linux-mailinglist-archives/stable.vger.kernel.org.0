@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA1693FDB65
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0DF3FDB67
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245466AbhIAMlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43102 "EHLO mail.kernel.org"
+        id S1345030AbhIAMli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:41:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344592AbhIAMjm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:39:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9870C61179;
-        Wed,  1 Sep 2021 12:35:27 +0000 (UTC)
+        id S1344604AbhIAMjn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:39:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D1E46101B;
+        Wed,  1 Sep 2021 12:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499728;
-        bh=Xds0caNBGsvrEbSX4KgRyhhNwjd2j0kw4FUUFbk0lEo=;
+        s=korg; t=1630499730;
+        bh=poimH6i1NbijenaKXDUyGwQ5qb1RuQqXKvjO4tJGAwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnWD//nSo+tYJLgBbPCW67QDRRbj4kz9bqoAqlxyS6g92a3HvidEz4w6rhkGU39IF
-         CJZ2JKuxYcS1Qd5GQUv/bsw4NwEpJMJwt2riVZrAa2gk5S1Kzw4WYym608AbS4dzCx
-         nU3OSvQrz+Z7SqlYszQw2XwOPbf5Clcnc2DzW8bQ=
+        b=qUvEBpoXwNvLRSe8Vx3gTA1ONK2sa4KNdPW0XA6c6PBhUBvFf6rXL8enJ59CYWZLR
+         W0nQKdLdYel6EvDRmJEK/UY+o45yRgcjwQIfDiblkr9XppncMi++kVExgTNyrT6MGk
+         6biyZ7c1Lekyf5oMJxrnir1vCsdRNhWVWpEfmETE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Toshiki Nishioka <toshiki.nishioka@intel.com>,
-        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        stable@vger.kernel.org, Yee Li <seven.yi.lee@gmail.com>,
         Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 029/103] igc: Use num_tx_queues when iterating over tx_ring queue
-Date:   Wed,  1 Sep 2021 14:27:39 +0200
-Message-Id: <20210901122301.534031704@linuxfoundation.org>
+Subject: [PATCH 5.10 030/103] e1000e: Fix the max snoop/no-snoop latency for 10M
+Date:   Wed,  1 Sep 2021 14:27:40 +0200
+Message-Id: <20210901122301.564180487@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
 References: <20210901122300.503008474@linuxfoundation.org>
@@ -43,47 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toshiki Nishioka <toshiki.nishioka@intel.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit 691bd4d7761992914a0e83c27a4ce57d01474cda ]
+[ Upstream commit 44a13a5d99c71bf9e1676d9e51679daf4d7b3d73 ]
 
-Use num_tx_queues rather than the IGC_MAX_TX_QUEUES fixed number 4 when
-iterating over tx_ring queue since instantiated queue count could be
-less than 4 where on-line cpu count is less than 4.
+We should decode the latency and the max_latency before directly compare.
+The latency should be presented as lat_enc = scale x value:
+lat_enc_d = (lat_enc & 0x0x3ff) x (1U << (5*((max_ltr_enc & 0x1c00)
+>> 10)))
 
-Fixes: ec50a9d437f0 ("igc: Add support for taprio offloading")
-Signed-off-by: Toshiki Nishioka <toshiki.nishioka@intel.com>
-Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Tested-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
-Acked-by: Sasha Neftin <sasha.neftin@intel.com>
+Fixes: cf8fb73c23aa ("e1000e: add support for LTR on I217/I218")
+Suggested-by: Yee Li <seven.yi.lee@gmail.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c | 14 +++++++++++++-
+ drivers/net/ethernet/intel/e1000e/ich8lan.h |  3 +++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index 66f181d12578..013dd2955381 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -4761,7 +4761,7 @@ static bool validate_schedule(struct igc_adapter *adapter,
- 		if (e->command != TC_TAPRIO_CMD_SET_GATES)
- 			return false;
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index 6fb46682b058..5f0f1bd522f0 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -1006,6 +1006,8 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
+ {
+ 	u32 reg = link << (E1000_LTRV_REQ_SHIFT + E1000_LTRV_NOSNOOP_SHIFT) |
+ 	    link << E1000_LTRV_REQ_SHIFT | E1000_LTRV_SEND;
++	u16 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
++	u16 lat_enc_d = 0;	/* latency decoded */
+ 	u16 lat_enc = 0;	/* latency encoded */
  
--		for (i = 0; i < IGC_MAX_TX_QUEUES; i++) {
-+		for (i = 0; i < adapter->num_tx_queues; i++) {
- 			if (e->gate_mask & BIT(i))
- 				queue_uses[i]++;
+ 	if (link) {
+@@ -1059,7 +1061,17 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
+ 				     E1000_PCI_LTR_CAP_LPT + 2, &max_nosnoop);
+ 		max_ltr_enc = max_t(u16, max_snoop, max_nosnoop);
  
-@@ -4818,7 +4818,7 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
+-		if (lat_enc > max_ltr_enc)
++		lat_enc_d = (lat_enc & E1000_LTRV_VALUE_MASK) *
++			     (1U << (E1000_LTRV_SCALE_FACTOR *
++			     ((lat_enc & E1000_LTRV_SCALE_MASK)
++			     >> E1000_LTRV_SCALE_SHIFT)));
++
++		max_ltr_enc_d = (max_ltr_enc & E1000_LTRV_VALUE_MASK) *
++				 (1U << (E1000_LTRV_SCALE_FACTOR *
++				 ((max_ltr_enc & E1000_LTRV_SCALE_MASK)
++				 >> E1000_LTRV_SCALE_SHIFT)));
++
++		if (lat_enc_d > max_ltr_enc_d)
+ 			lat_enc = max_ltr_enc;
+ 	}
  
- 		end_time += e->interval;
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+index 1502895eb45d..e757896287eb 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+@@ -274,8 +274,11 @@
  
--		for (i = 0; i < IGC_MAX_TX_QUEUES; i++) {
-+		for (i = 0; i < adapter->num_tx_queues; i++) {
- 			struct igc_ring *ring = adapter->tx_ring[i];
- 
- 			if (!(e->gate_mask & BIT(i)))
+ /* Latency Tolerance Reporting */
+ #define E1000_LTRV			0x000F8
++#define E1000_LTRV_VALUE_MASK		0x000003FF
+ #define E1000_LTRV_SCALE_MAX		5
+ #define E1000_LTRV_SCALE_FACTOR		5
++#define E1000_LTRV_SCALE_SHIFT		10
++#define E1000_LTRV_SCALE_MASK		0x00001C00
+ #define E1000_LTRV_REQ_SHIFT		15
+ #define E1000_LTRV_NOSNOOP_SHIFT	16
+ #define E1000_LTRV_SEND			(1 << 30)
 -- 
 2.30.2
 
