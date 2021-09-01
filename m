@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36E163FDAC9
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 488513FDA35
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245510AbhIAMez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:34:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35432 "EHLO mail.kernel.org"
+        id S244486AbhIAMbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:31:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343557AbhIAMdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:33:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D270610FB;
-        Wed,  1 Sep 2021 12:32:14 +0000 (UTC)
+        id S244541AbhIAMag (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:30:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5CA0610A1;
+        Wed,  1 Sep 2021 12:29:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499534;
-        bh=qFwnu/huM5cmbh38yn1X3QJt7kkDyJ8iPygs11575fQ=;
+        s=korg; t=1630499379;
+        bh=l+woQWnwutifp6/I7WasWYPNy7tXqpL38ZJONvF7NLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XbLU9C+3h5/KjfTGayWqVMKd11l1fmBcPNoSMST1A/dkNwAdg2+C/8WYfd7kmdYpP
-         uMpqG9iLKjkv2zE3Iyhvm/KTmr1YDJgn1PHStF+O2Inr4YAIsY1PP2Gur4JdkNRhZ4
-         18oU5+dxgtgt9ge38Zkso33SC9I8DAZNu/PFLTNo=
+        b=P0egnOVt3uoTNncgfDSpaOhYBKlKcpCXFksoxQT5DbZXZwYp/fT6GEiLqADzKgW0s
+         fRv06qCQyKmlvIYoM8VIzHrM3Ckc1UQBKd+O34l1tBouu9OiiQ9pcAim9QFXPogqmw
+         WrHzqaXYPMbAB/NSxl9JPiK8egI8qMshTpFyrM1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Paul=20Gr=C3=B6=C3=9Fel?= <pb.g@gmx.de>,
-        Willy Tarreau <w@1wt.eu>, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 09/48] Revert "USB: serial: ch341: fix character loss at high transfer rates"
-Date:   Wed,  1 Sep 2021 14:27:59 +0200
-Message-Id: <20210901122253.709711719@linuxfoundation.org>
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 4.19 11/33] usb: dwc3: gadget: Fix dwc3_calc_trbs_left()
+Date:   Wed,  1 Sep 2021 14:28:00 +0200
+Message-Id: <20210901122251.154386459@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
-References: <20210901122253.388326997@linuxfoundation.org>
+In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
+References: <20210901122250.752620302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit df7b16d1c00ecb3da3a30c999cdb39f273c99a2f upstream.
+commit 51f1954ad853d01ba4dc2b35dee14d8490ee05a1 upstream.
 
-This reverts commit 3c18e9baee0ef97510dcda78c82285f52626764b.
+We can't depend on the TRB's HWO bit to determine if the TRB ring is
+"full". A TRB is only available when the driver had processed it, not
+when the controller consumed and relinquished the TRB's ownership to the
+driver. Otherwise, the driver may overwrite unprocessed TRBs. This can
+happen when many transfer events accumulate and the system is slow to
+process them and/or when there are too many small requests.
 
-These devices do not appear to send a zero-length packet when the
-transfer size is a multiple of the bulk-endpoint max-packet size. This
-means that incoming data may not be processed by the driver until a
-short packet is received or the receive buffer is full.
+If a request is in the started_list, that means there is one or more
+unprocessed TRBs remained. Check this instead of the TRB's HWO bit
+whether the TRB ring is full.
 
-Revert back to using endpoint-sized receive buffers to avoid stalled
-reads.
-
-Reported-by: Paul Größel <pb.g@gmx.de>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214131
-Fixes: 3c18e9baee0e ("USB: serial: ch341: fix character loss at high transfer rates")
-Cc: stable@vger.kernel.org
-Cc: Willy Tarreau <w@1wt.eu>
-Link: https://lore.kernel.org/r/20210824121926.19311-1-johan@kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: c4233573f6ee ("usb: dwc3: gadget: prepare TRBs on update transfers too")
+Cc: <stable@vger.kernel.org>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/e91e975affb0d0d02770686afc3a5b9eb84409f6.1629335416.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ch341.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -678,7 +678,6 @@ static struct usb_serial_driver ch341_de
- 		.owner	= THIS_MODULE,
- 		.name	= "ch341-uart",
- 	},
--	.bulk_in_size      = 512,
- 	.id_table          = id_table,
- 	.num_ports         = 1,
- 	.open              = ch341_open,
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -894,19 +894,19 @@ static struct dwc3_trb *dwc3_ep_prev_trb
+ 
+ static u32 dwc3_calc_trbs_left(struct dwc3_ep *dep)
+ {
+-	struct dwc3_trb		*tmp;
+ 	u8			trbs_left;
+ 
+ 	/*
+-	 * If enqueue & dequeue are equal than it is either full or empty.
+-	 *
+-	 * One way to know for sure is if the TRB right before us has HWO bit
+-	 * set or not. If it has, then we're definitely full and can't fit any
+-	 * more transfers in our ring.
++	 * If the enqueue & dequeue are equal then the TRB ring is either full
++	 * or empty. It's considered full when there are DWC3_TRB_NUM-1 of TRBs
++	 * pending to be processed by the driver.
+ 	 */
+ 	if (dep->trb_enqueue == dep->trb_dequeue) {
+-		tmp = dwc3_ep_prev_trb(dep, dep->trb_enqueue);
+-		if (tmp->ctrl & DWC3_TRB_CTRL_HWO)
++		/*
++		 * If there is any request remained in the started_list at
++		 * this point, that means there is no TRB available.
++		 */
++		if (!list_empty(&dep->started_list))
+ 			return 0;
+ 
+ 		return DWC3_TRB_NUM - 1;
 
 
