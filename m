@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23F933FDC20
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A090D3FDA3B
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344767AbhIAMq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:46:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48350 "EHLO mail.kernel.org"
+        id S244818AbhIAMbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:31:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345677AbhIAMoz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:44:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79828610F9;
-        Wed,  1 Sep 2021 12:39:16 +0000 (UTC)
+        id S244603AbhIAMaq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:30:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91E9760ED4;
+        Wed,  1 Sep 2021 12:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499957;
-        bh=dTsJCAZDOJCYDHAGrT/XoFuf+ypbwnsqUGqkEhSBU+M=;
+        s=korg; t=1630499390;
+        bh=NfwsYjf7WGiV3nGH6I7Tki7h7cfIT8cSvUGBslzuQXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tVq/cJxtogv7CchCm+SaVZIhfG/rO4ygG+OoslxaVFTP831WKfDRD97gDnGcZggj+
-         c2YBocdYvzhh6zQF653pLjQmHmGpASGT72lsNlVwRxDq/mhJ1D0bkxoedfBzVmy/SU
-         iCdZckPQv/jruO+j1FcB+t9QjHAPF3bBchWl1ltA=
+        b=mbR1piCAT9tgQsw+KCJRhJL6P7joOQos9ONTcjGSAxih3Z267uigA0UmwETQICzhF
+         1IoKz/gqjxcEV02XnfbmYuWngGhoArFl3cVQOWNK3VaS7j+L4yorICtzDosc/5A+bp
+         6zEpJ5ZIp+gTWuU03mT8+GqWkHc8TWK8ak4spjSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,12 +29,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 048/113] ip_gre: add validation for csum_start
-Date:   Wed,  1 Sep 2021 14:28:03 +0200
-Message-Id: <20210901122303.573563008@linuxfoundation.org>
+Subject: [PATCH 4.19 15/33] ip_gre: add validation for csum_start
+Date:   Wed,  1 Sep 2021 14:28:04 +0200
+Message-Id: <20210901122251.282344640@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
+References: <20210901122250.752620302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,10 +64,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index a68bf4c6fe9b..ff34cde983d4 100644
+index de6f89511a21..a8a37d112820 100644
 --- a/net/ipv4/ip_gre.c
 +++ b/net/ipv4/ip_gre.c
-@@ -468,6 +468,8 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
+@@ -449,6 +449,8 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
  
  static int gre_handle_offloads(struct sk_buff *skb, bool csum)
  {
