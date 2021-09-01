@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B2FE3FDC70
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FCBC3FDC73
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344538AbhIAMu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:50:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49844 "EHLO mail.kernel.org"
+        id S1344630AbhIAMu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:50:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345141AbhIAMsN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:48:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D5256115B;
-        Wed,  1 Sep 2021 12:40:27 +0000 (UTC)
+        id S1345718AbhIAMsg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:48:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3A9861163;
+        Wed,  1 Sep 2021 12:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500028;
-        bh=uICdctrZDG7chxVYHm4pT2aNQKVTK9JiuHzWHULc8xk=;
+        s=korg; t=1630500031;
+        bh=O9cNfkCI8vw3QsL7QGHGe3UudqJkNC6WFqUr1fVJRI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IdzSa6KdbyUnlA0g8V0O+0KPsfox+v3hzHWlswCkCxyi90Qy6nvNHIJLhGAvj1+jP
-         u4629MGPcfsqyeGpetY4zSB3m1yT1CEkiVeSjBCPNfJiusPxI07WNKDEyFjF1dUrfs
-         tLxQ5qIeAA4tJ2Wh+Q/AjO9F/sApV+DDuaqlQ+LU=
+        b=VSIPXBw8+eKz+5AODzfufVnXHfPMXBssmHgNB8trDCYId2kVvDV4zfhh5jdDHLuGt
+         23TD7pP8hDaAyRAEu2kWgbLMRcwKvtb1BC7uTADWlAi4kf99Ffd6XblS8lJHBftAp6
+         YqFQbA3plAC6baVpHeGA8z4gzzrUA4lc1GlPygaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        stable@vger.kernel.org, Thara Gopinath <thara.gopinath@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 076/113] opp: remove WARN when no valid OPPs remain
-Date:   Wed,  1 Sep 2021 14:28:31 +0200
-Message-Id: <20210901122304.523261226@linuxfoundation.org>
+Subject: [PATCH 5.13 077/113] cpufreq: blocklist Qualcomm sm8150 in cpufreq-dt-platdev
+Date:   Wed,  1 Sep 2021 14:28:32 +0200
+Message-Id: <20210901122304.560892506@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
 References: <20210901122301.984263453@linuxfoundation.org>
@@ -41,36 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Thara Gopinath <thara.gopinath@linaro.org>
 
-[ Upstream commit 335ffab3ef864539e814b9a2903b0ae420c1c067 ]
+[ Upstream commit 5d79e5ce5489b489cbc4c327305be9dfca0fc9ce ]
 
-This WARN can be triggered per-core and the stack trace is not useful.
-Replace it with plain dev_err(). Fix a comment while at it.
+The Qualcomm sm8150 platform uses the qcom-cpufreq-hw driver, so
+add it to the cpufreq-dt-platdev driver's blocklist.
 
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Thara Gopinath <thara.gopinath@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/opp/of.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/cpufreq/cpufreq-dt-platdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/opp/of.c b/drivers/opp/of.c
-index c582a9ca397b..01feeba78426 100644
---- a/drivers/opp/of.c
-+++ b/drivers/opp/of.c
-@@ -985,8 +985,9 @@ static int _of_add_opp_table_v2(struct device *dev, struct opp_table *opp_table)
- 		}
- 	}
+diff --git a/drivers/cpufreq/cpufreq-dt-platdev.c b/drivers/cpufreq/cpufreq-dt-platdev.c
+index 5e07065ec22f..1f8dc1164ba2 100644
+--- a/drivers/cpufreq/cpufreq-dt-platdev.c
++++ b/drivers/cpufreq/cpufreq-dt-platdev.c
+@@ -138,6 +138,7 @@ static const struct of_device_id blacklist[] __initconst = {
+ 	{ .compatible = "qcom,qcs404", },
+ 	{ .compatible = "qcom,sc7180", },
+ 	{ .compatible = "qcom,sdm845", },
++	{ .compatible = "qcom,sm8150", },
  
--	/* There should be one of more OPP defined */
--	if (WARN_ON(!count)) {
-+	/* There should be one or more OPPs defined */
-+	if (!count) {
-+		dev_err(dev, "%s: no supported OPPs", __func__);
- 		ret = -ENOENT;
- 		goto remove_static_opp;
- 	}
+ 	{ .compatible = "st,stih407", },
+ 	{ .compatible = "st,stih410", },
 -- 
 2.30.2
 
