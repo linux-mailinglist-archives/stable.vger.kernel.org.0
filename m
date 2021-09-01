@@ -2,92 +2,285 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F3DC3FDB43
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EBDD3FDACC
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344699AbhIAMkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:40:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42970 "EHLO mail.kernel.org"
+        id S1343571AbhIAMfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:35:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344332AbhIAMiC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:38:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC93960F56;
-        Wed,  1 Sep 2021 12:34:28 +0000 (UTC)
+        id S245049AbhIAMdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:33:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1722610E9;
+        Wed,  1 Sep 2021 12:32:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499669;
-        bh=9GNDmyD2bjPmvYYcPH5lzusCEqIUgNkJPiYS1mNI9ng=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0XThrxExr2Ddqq3LeKvv+xTxXWt4gCysUVrXMPt/L7HLYPwuVSs6Jex8s9qmk67j
-         AgHxDXxl0yeuGp8EpF6OH+crX8evutFdZqyc8qATMdZSWan0/RDI+BNkqcHoNoCsBE
-         MMdjIEvp2Qsi1VR/i0tFR58wSOLAUiGb39sPQsa0=
+        s=korg; t=1630499537;
+        bh=B9FKpHKlhYTdid56VTt99gPPigufzGepYJCRagjyVHk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QU6g1WUTtFfcyaU0u9vgWRoXc0sYjy8uzd4KglUr/nlJBgFzGeUky7qzmBZvXbvAl
+         LmqEwygDvrYEwdqhe3f/bnhjBtXK9gd/I0LqLY8gH3tmug1w/N8dwyG8tJlRzWu1LL
+         8bpwbIGj8nSvRvhaIEcAp3bxO3Fq+sqcPWgmKA1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/103] cxgb4: dont touch blocked freelist bitmap after free
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/48] 5.4.144-rc1 review
 Date:   Wed,  1 Sep 2021 14:27:50 +0200
-Message-Id: <20210901122301.914338365@linuxfoundation.org>
+Message-Id: <20210901122253.388326997@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.144-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.144-rc1
+X-KernelTest-Deadline: 2021-09-03T12:22+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+This is the start of the stable review cycle for the 5.4.144 release.
+There are 48 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 43fed4d48d325e0a61dc2638a84da972fbb1087b ]
+Responses should be made by Fri, 03 Sep 2021 12:22:41 +0000.
+Anything received after that time might be too late.
 
-When adapter init fails, the blocked freelist bitmap is already freed
-up and should not be touched. So, move the bitmap zeroing closer to
-where it was successfully allocated. Also handle adapter init failure
-unwind path immediately and avoid setting up RDMA memory windows.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.144-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-Fixes: 5b377d114f2b ("cxgb4: Add debugfs facility to inject FL starvation")
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+thanks,
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-index 6698afad4379..3c28a1c3c1ed 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -5072,6 +5072,7 @@ static int adap_init0(struct adapter *adap, int vpd_skip)
- 		ret = -ENOMEM;
- 		goto bye;
- 	}
-+	bitmap_zero(adap->sge.blocked_fl, adap->sge.egr_sz);
- #endif
- 
- 	params[0] = FW_PARAM_PFVF(CLIP_START);
-@@ -6792,13 +6793,11 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- 	setup_memwin(adapter);
- 	err = adap_init0(adapter, 0);
--#ifdef CONFIG_DEBUG_FS
--	bitmap_zero(adapter->sge.blocked_fl, adapter->sge.egr_sz);
--#endif
--	setup_memwin_rdma(adapter);
- 	if (err)
- 		goto out_unmap_bar;
- 
-+	setup_memwin_rdma(adapter);
-+
- 	/* configure SGE_STAT_CFG_A to read WC stats */
- 	if (!is_t4(adapter->params.chip))
- 		t4_write_reg(adapter, SGE_STAT_CFG_A, STATSOURCE_T5_V(7) |
--- 
-2.30.2
+greg k-h
 
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.144-rc1
+
+Richard Guy Briggs <rgb@redhat.com>
+    audit: move put_tree() to avoid trim_trees refcount underflow and UAF
+
+Peter Collingbourne <pcc@google.com>
+    net: don't unconditionally copy_from_user a struct ifreq for socket ioctls
+
+Helge Deller <deller@gmx.de>
+    Revert "parisc: Add assembly implementations for memset, strlen, strcpy, strncpy and strcat"
+
+Denis Efremov <efremov@linux.com>
+    Revert "floppy: reintroduce O_NDELAY fix"
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: fix NULL pointer dereference when deleting device by invalid id
+
+Petr Vorel <petr.vorel@gmail.com>
+    arm64: dts: qcom: msm8994-angler: Fix gpio-reserved-ranges 85-88
+
+Sean Christopherson <seanjc@google.com>
+    KVM: x86/mmu: Treat NX as used (not reserved) for all !TDP shadow MMUs
+
+DENG Qingfang <dqfext@gmail.com>
+    net: dsa: mt7530: fix VLAN traffic leaks again
+
+Andrii Nakryiko <andriin@fb.com>
+    bpf: Fix cast to pointer from integer of different size warning
+
+Andrii Nakryiko <andriin@fb.com>
+    bpf: Track contents of read-only maps as scalars
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    vt_kdsetmode: extend console locking
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix race between marking inode needs to be logged and log syncing
+
+Gerd Rausch <gerd.rausch@oracle.com>
+    net/rds: dma_map_sg is entitled to merge entries
+
+Ben Skeggs <bskeggs@redhat.com>
+    drm/nouveau/disp: power down unused DP links during init
+
+Mark Yacoub <markyacoub@google.com>
+    drm: Copy drm_wait_vblank to user before returning
+
+Shai Malin <smalin@marvell.com>
+    qed: Fix null-pointer dereference in qed_rdma_create_qp()
+
+Shai Malin <smalin@marvell.com>
+    qed: qed ll2 race condition fixes
+
+Neeraj Upadhyay <neeraju@codeaurora.org>
+    vringh: Use wiov->used to check for read/write desc order
+
+Parav Pandit <parav@nvidia.com>
+    virtio_pci: Support surprise removal of virtio pci device
+
+Parav Pandit <parav@nvidia.com>
+    virtio: Improve vq->broken access to avoid any compiler optimization
+
+Michał Mirosław <mirq-linux@rere.qmqm.pl>
+    opp: remove WARN when no valid OPPs remain
+
+Colin Ian King <colin.king@canonical.com>
+    perf/x86/intel/uncore: Fix integer overflow on 23 bit left shift of a u32
+
+Jerome Brunet <jbrunet@baylibre.com>
+    usb: gadget: u_audio: fix race condition on endpoint stop
+
+Matthew Brost <matthew.brost@intel.com>
+    drm/i915: Fix syncmap memory leak
+
+Guangbin Huang <huangguangbin2@huawei.com>
+    net: hns3: fix get wrong pfc_en when query PFC configuration
+
+Guojia Liao <liaoguojia@huawei.com>
+    net: hns3: fix duplicate node in VLAN list
+
+Yufeng Mo <moyufeng@huawei.com>
+    net: hns3: clear hardware resource when loading driver
+
+Andrey Ignatov <rdna@fb.com>
+    rtnetlink: Return correct error on changing device netns
+
+Maxim Kiselev <bigunclemax@gmail.com>
+    net: marvell: fix MVNETA_TX_IN_PRGRS bit number
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    xgene-v2: Fix a resource leak in the error handling path of 'xge_probe()'
+
+Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
+    ip_gre: add validation for csum_start
+
+Gal Pressman <galpress@amazon.com>
+    RDMA/efa: Free IRQ vectors on error flow
+
+Sasha Neftin <sasha.neftin@intel.com>
+    e1000e: Fix the max snoop/no-snoop latency for 10M
+
+Tuo Li <islituo@gmail.com>
+    IB/hfi1: Fix possible null-pointer dereference in _extend_sdma_tx_descs()
+
+Naresh Kumar PBS <nareshkumar.pbs@broadcom.com>
+    RDMA/bnxt_re: Add missing spin lock initialization
+
+Li Jinlin <lijinlin3@huawei.com>
+    scsi: core: Fix hang of freezing queue between blocking and running device
+
+Wesley Cheng <wcheng@codeaurora.org>
+    usb: dwc3: gadget: Stop EP0 transfers during pullup disable
+
+Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+    usb: dwc3: gadget: Fix dwc3_calc_trbs_left()
+
+Zhengjun Zhang <zhangzhengjun@aicrobo.com>
+    USB: serial: option: add new VID/PID to support Fibocom FG150
+
+Johan Hovold <johan@kernel.org>
+    Revert "USB: serial: ch341: fix character loss at high transfer rates"
+
+Stefan Mätje <stefan.maetje@esd.eu>
+    can: usb: esd_usb2: esd_usb2_rx_event(): fix the interchange of the CAN RX and TX error counters
+
+Yafang Shao <laoar.shao@gmail.com>
+    mm, oom: make the calculation of oom badness more accurate
+
+Shaik Sajida Bhanu <sbhanu@codeaurora.org>
+    mmc: sdhci-msm: Update the software timeout value for sdhc
+
+Miklos Szeredi <mszeredi@redhat.com>
+    ovl: fix uninitialized pointer read in ovl_lookup_real_one()
+
+Kefeng Wang <wangkefeng.wang@huawei.com>
+    once: Fix panic when module unload
+
+Florian Westphal <fw@strlen.de>
+    netfilter: conntrack: collect all entries in one cycle
+
+Guenter Roeck <linux@roeck-us.net>
+    ARC: Fix CONFIG_STACKDEPOT
+
+Xiaolong Huang <butterflyhuangxx@gmail.com>
+    net: qrtr: fix another OOB Read in qrtr_endpoint_post
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/arc/kernel/vmlinux.lds.S                      |   2 +
+ .../arm64/boot/dts/qcom/msm8994-angler-rev-101.dts |   4 +
+ arch/parisc/include/asm/string.h                   |  15 ---
+ arch/parisc/kernel/parisc_ksyms.c                  |   4 -
+ arch/parisc/lib/Makefile                           |   4 +-
+ arch/parisc/lib/memset.c                           |  72 +++++++++++
+ arch/parisc/lib/string.S                           | 136 ---------------------
+ arch/x86/events/intel/uncore_snbep.c               |   2 +-
+ arch/x86/kvm/mmu.c                                 |  10 +-
+ drivers/block/floppy.c                             |  27 ++--
+ drivers/gpu/drm/drm_ioc32.c                        |   4 +-
+ drivers/gpu/drm/i915/gt/intel_timeline.c           |   8 ++
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c      |   2 +-
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h      |   1 +
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c    |   9 ++
+ drivers/infiniband/hw/bnxt_re/ib_verbs.c           |   1 +
+ drivers/infiniband/hw/efa/efa_main.c               |   1 +
+ drivers/infiniband/hw/hfi1/sdma.c                  |   9 +-
+ drivers/mmc/host/sdhci-msm.c                       |  18 +++
+ drivers/net/can/usb/esd_usb2.c                     |   4 +-
+ drivers/net/dsa/mt7530.c                           |   5 +-
+ drivers/net/ethernet/apm/xgene-v2/main.c           |   4 +-
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h |   3 +
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c |  13 +-
+ .../ethernet/hisilicon/hns3/hns3pf/hclge_main.c    |  32 ++++-
+ drivers/net/ethernet/intel/e1000e/ich8lan.c        |  14 ++-
+ drivers/net/ethernet/intel/e1000e/ich8lan.h        |   3 +
+ drivers/net/ethernet/marvell/mvneta.c              |   2 +-
+ drivers/net/ethernet/qlogic/qed/qed_ll2.c          |  20 +++
+ drivers/net/ethernet/qlogic/qed/qed_rdma.c         |   3 +-
+ drivers/opp/of.c                                   |   5 +-
+ drivers/scsi/scsi_sysfs.c                          |   9 +-
+ drivers/tty/vt/vt_ioctl.c                          |  11 +-
+ drivers/usb/dwc3/gadget.c                          |  23 ++--
+ drivers/usb/gadget/function/u_audio.c              |   5 +-
+ drivers/usb/serial/ch341.c                         |   1 -
+ drivers/usb/serial/option.c                        |   2 +
+ drivers/vhost/vringh.c                             |   2 +-
+ drivers/virtio/virtio_pci_common.c                 |   7 ++
+ drivers/virtio/virtio_ring.c                       |   6 +-
+ fs/btrfs/btrfs_inode.h                             |  15 +++
+ fs/btrfs/file.c                                    |  10 +-
+ fs/btrfs/inode.c                                   |   4 +-
+ fs/btrfs/transaction.h                             |   2 +-
+ fs/btrfs/volumes.c                                 |   2 +-
+ fs/overlayfs/export.c                              |   2 +-
+ fs/proc/base.c                                     |  11 +-
+ include/linux/netdevice.h                          |   4 +
+ include/linux/once.h                               |   4 +-
+ include/linux/oom.h                                |   4 +-
+ kernel/audit_tree.c                                |   2 +-
+ kernel/bpf/verifier.c                              |  57 ++++++++-
+ lib/once.c                                         |  11 +-
+ mm/oom_kill.c                                      |  22 ++--
+ net/core/rtnetlink.c                               |   3 +-
+ net/ipv4/ip_gre.c                                  |   2 +
+ net/netfilter/nf_conntrack_core.c                  |  71 ++++-------
+ net/qrtr/qrtr.c                                    |   2 +-
+ net/rds/ib_frmr.c                                  |   4 +-
+ net/socket.c                                       |   6 +-
+ 61 files changed, 419 insertions(+), 326 deletions(-)
 
 
