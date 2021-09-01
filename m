@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D02373FD996
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:27:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAEDE3FD999
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:27:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244147AbhIAM1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:27:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56872 "EHLO mail.kernel.org"
+        id S244152AbhIAM1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:27:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244144AbhIAM1r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:27:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 028936101B;
-        Wed,  1 Sep 2021 12:26:49 +0000 (UTC)
+        id S244103AbhIAM1t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:27:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 966D161027;
+        Wed,  1 Sep 2021 12:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499210;
-        bh=qhESlreqaguGA6UjYwAFl9MniaY/yGL8vZMgJ69S/zY=;
+        s=korg; t=1630499213;
+        bh=hIdL6z+qzpijU8652Uh5NeZjddCeQI/66a2SPmdw19w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnlGguj/oEsyd9kszBjmeWofvC+jrUqx+/0p5ifq0u1LgC/dzzArRHIzHL8yiNOLA
-         5kBAdUnWwIgvO2uHna8KbkbMNjiM0008EW3OFizIOwRVXwOTxBcQNxll22LHlsK3i1
-         3KyfG9WyaPy53Z49U1mszGvHpVRVM9CfAFf5fsnI=
+        b=CmGyCauRMnbf3NTx/8qSw9zQFE10cBSq8GWQ5YYCKwudM1NxbX0XFUpsygS8SpDbi
+         9jjYDebMOBc20fDWf7VV6IHp3WO9rBpE0sqpLejHvhSP0UDqfXwkrja6m8DmCPNpjQ
+         UlHhOw8PUznAkeyElDiapP8yfuxf9jXuDHN5cXyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 07/10] vringh: Use wiov->used to check for read/write desc order
-Date:   Wed,  1 Sep 2021 14:26:21 +0200
-Message-Id: <20210901122248.277417232@linuxfoundation.org>
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 08/10] vt_kdsetmode: extend console locking
+Date:   Wed,  1 Sep 2021 14:26:22 +0200
+Message-Id: <20210901122248.313243925@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122248.051808371@linuxfoundation.org>
 References: <20210901122248.051808371@linuxfoundation.org>
@@ -42,50 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neeraj Upadhyay <neeraju@codeaurora.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit e74cfa91f42c50f7f649b0eca46aa049754ccdbd ]
+commit 2287a51ba822384834dafc1c798453375d1107c7 upstream.
 
-As __vringh_iov() traverses a descriptor chain, it populates
-each descriptor entry into either read or write vring iov
-and increments that iov's ->used member. So, as we iterate
-over a descriptor chain, at any point, (riov/wriov)->used
-value gives the number of descriptor enteries available,
-which are to be read or written by the device. As all read
-iovs must precede the write iovs, wiov->used should be zero
-when we are traversing a read descriptor. Current code checks
-for wiov->i, to figure out whether any previous entry in the
-current descriptor chain was a write descriptor. However,
-iov->i is only incremented, when these vring iovs are consumed,
-at a later point, and remain 0 in __vringh_iov(). So, correct
-the check for read and write descriptor order, to use
-wiov->used.
+As per the long-suffering comment.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Link: https://lore.kernel.org/r/1624591502-4827-1-git-send-email-neeraju@codeaurora.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vhost/vringh.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/vt/vt_ioctl.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index d56736655dec..da47542496cc 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -329,7 +329,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 			iov = wiov;
- 		else {
- 			iov = riov;
--			if (unlikely(wiov && wiov->i)) {
-+			if (unlikely(wiov && wiov->used)) {
- 				vringh_bad("Readable desc %p after writable",
- 					   &descs[i]);
- 				err = -EINVAL;
--- 
-2.30.2
-
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -487,16 +487,19 @@ int vt_ioctl(struct tty_struct *tty,
+ 			ret = -EINVAL;
+ 			goto out;
+ 		}
+-		/* FIXME: this needs the console lock extending */
+-		if (vc->vc_mode == (unsigned char) arg)
++		console_lock();
++		if (vc->vc_mode == (unsigned char) arg) {
++			console_unlock();
+ 			break;
++		}
+ 		vc->vc_mode = (unsigned char) arg;
+-		if (console != fg_console)
++		if (console != fg_console) {
++			console_unlock();
+ 			break;
++		}
+ 		/*
+ 		 * explicitly blank/unblank the screen if switching modes
+ 		 */
+-		console_lock();
+ 		if (arg == KD_TEXT)
+ 			do_unblank_screen(1);
+ 		else
 
 
