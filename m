@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40FA53FDC67
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 682C73FDB75
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244518AbhIAMup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:50:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49254 "EHLO mail.kernel.org"
+        id S245742AbhIAMlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:41:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344224AbhIAMrI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:47:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38A8F6112E;
-        Wed,  1 Sep 2021 12:40:11 +0000 (UTC)
+        id S1344821AbhIAMkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49D6A60041;
+        Wed,  1 Sep 2021 12:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500011;
-        bh=PR5+UzwjhjiHksRjiJxo2SybVQtKJ2lalyfiAKsmi+Q=;
+        s=korg; t=1630499758;
+        bh=M7QszsJE42cbAyy9TIx8m5nHBt7j1XoZrdLWCrBVbaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8EFUZUuTYUG/MEiQDBt2dP0gbKpnBZVeMXe9H1X7vIyJhYUua83eE/LNqJ6XK2hP
-         wt0cOfXnENC0wzonc1G5oICX+niCttzqsZeEGrNN8BXOm+QsQDHKRdlyhx3AfwNxZc
-         GoiGtETTZbMo8wiotb8grJND+b75u84ybwC5F5LA=
+        b=aabhbjSeueopWPFxgMmff5O5Z0hbo9SOgr17zHMszDs+rMi3l/jdPNLuwKT0IUjC1
+         wf03GrA5mny4aTSBeKYtW1FkBg0jMGrUhOjoDzxD0tjxmtCCEkMY9yiXZXt7U13li+
+         FRQnjh/ziZzWdQCzdVNETgNnJmDNY9enjPZpTR/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 070/113] perf/x86/intel/uncore: Fix integer overflow on 23 bit left shift of a u32
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: [PATCH 5.10 075/103] tipc: call tipc_wait_for_connect only when dlen is not 0
 Date:   Wed,  1 Sep 2021 14:28:25 +0200
-Message-Id: <20210901122304.330892212@linuxfoundation.org>
+Message-Id: <20210901122303.082040847@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 0b3a8738b76fe2087f7bc2bd59f4c78504c79180 ]
+commit 7387a72c5f84f0dfb57618f9e4770672c0d2e4c9 upstream.
 
-The u32 variable pci_dword is being masked with 0x1fffffff and then left
-shifted 23 places. The shift is a u32 operation,so a value of 0x200 or
-more in pci_dword will overflow the u32 and only the bottow 32 bits
-are assigned to addr. I don't believe this was the original intent.
-Fix this by casting pci_dword to a resource_size_t to ensure no
-overflow occurs.
+__tipc_sendmsg() is called to send SYN packet by either tipc_sendmsg()
+or tipc_connect(). The difference is in tipc_connect(), it will call
+tipc_wait_for_connect() after __tipc_sendmsg() to wait until connecting
+is done. So there's no need to wait in __tipc_sendmsg() for this case.
 
-Note that the mask and 12 bit left shift operation does not need this
-because the mask SNR_IMC_MMIO_MEM0_MASK and shift is always a 32 bit
-value.
+This patch is to fix it by calling tipc_wait_for_connect() only when dlen
+is not 0 in __tipc_sendmsg(), which means it's called by tipc_connect().
 
-Fixes: ee49532b38dd ("perf/x86/intel/uncore: Add IMC uncore support for Snow Ridge")
-Addresses-Coverity: ("Unintentional integer overflow")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lore.kernel.org/r/20210706114553.28249-1-colin.king@canonical.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note this also fixes the failure in tipcutils/test/ptts/:
+
+  # ./tipcTS &
+  # ./tipcTC 9
+  (hang)
+
+Fixes: 36239dab6da7 ("tipc: fix implicit-connect for SYN+")
+Reported-by: Shuang Li <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/uncore_snbep.c | 2 +-
+ net/tipc/socket.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index 1f7bb4898a9d..a8f02c889ae8 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -4701,7 +4701,7 @@ static void __snr_uncore_mmio_init_box(struct intel_uncore_box *box,
- 		return;
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1511,7 +1511,7 @@ static int __tipc_sendmsg(struct socket
  
- 	pci_read_config_dword(pdev, SNR_IMC_MMIO_BASE_OFFSET, &pci_dword);
--	addr = (pci_dword & SNR_IMC_MMIO_BASE_MASK) << 23;
-+	addr = ((resource_size_t)pci_dword & SNR_IMC_MMIO_BASE_MASK) << 23;
- 
- 	pci_read_config_dword(pdev, mem_offset, &pci_dword);
- 	addr |= (pci_dword & SNR_IMC_MMIO_MEM0_MASK) << 12;
--- 
-2.30.2
-
+ 	if (unlikely(syn && !rc)) {
+ 		tipc_set_sk_state(sk, TIPC_CONNECTING);
+-		if (timeout) {
++		if (dlen && timeout) {
+ 			timeout = msecs_to_jiffies(timeout);
+ 			tipc_wait_for_connect(sock, &timeout);
+ 		}
 
 
