@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CA3A3FDB61
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D482C3FDC3A
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345243AbhIAMl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
+        id S1345074AbhIAMsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:48:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344526AbhIAMjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:39:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BA2161165;
-        Wed,  1 Sep 2021 12:35:17 +0000 (UTC)
+        id S1345254AbhIAMqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:46:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E3526101B;
+        Wed,  1 Sep 2021 12:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499717;
-        bh=6mWqOWmVqDrBs1rqOHGZ0j2lBs3xMl6x1TdtnnblXqg=;
+        s=korg; t=1630499967;
+        bh=L3Dw+72v7UVBotWSzFei0eHE6DAeOmwvD9SuM/XoKGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ioc78s2RjZjqQW9i2KrcFM2iS1ZJtDDMplpWrsn06aytL7gZ+5CjDXOlL/n4i4UIx
-         pnzTrgR7R9fP/hzW8I9dZRuLBiHqiAKMEqHeX7rpOnhI6LbLur2SaxfX17qMzLT1ir
-         R4wyymEVUePo/LiYRpdSuW3osHQieLGeqD/NC7JA=
+        b=xPlrc6h9/sGpOwHC2MJYBTqXL5LR/VdJhddGFLaAjJ2HQ0vsfUQk/46koKM58BpIx
+         Udv+N8yuvEQReuVmvtYU7I3BrmBHzdoryi+SJjk7F08UPdpcHJiP/CV0UuvehOAIDA
+         kzAEapMoCkcRSMEXzFnkDkA0EbLQGZOfyPW7IsN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/103] virtio: Improve vq->broken access to avoid any compiler optimization
+Subject: [PATCH 5.13 052/113] net/sched: ets: fix crash when flipping from strict to quantum
 Date:   Wed,  1 Sep 2021 14:28:07 +0200
-Message-Id: <20210901122302.484455071@linuxfoundation.org>
+Message-Id: <20210901122303.714131006@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit 60f0779862e4ab943810187752c462e85f5fa371 ]
+[ Upstream commit cd9b50adc6bb9ad3f7d244590a389522215865c4 ]
 
-Currently vq->broken field is read by virtqueue_is_broken() in busy
-loop in one context by virtnet_send_command().
+While running kselftests, Hangbin observed that sch_ets.sh often crashes,
+and splats like the following one are seen in the output of 'dmesg':
 
-vq->broken is set to true in other process context by
-virtio_break_device(). Reader and writer are accessing it without any
-synchronization. This may lead to a compiler optimization which may
-result to optimize reading vq->broken only once.
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 159f12067 P4D 159f12067 PUD 159f13067 PMD 0
+ Oops: 0000 [#1] SMP NOPTI
+ CPU: 2 PID: 921 Comm: tc Not tainted 5.14.0-rc6+ #458
+ Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
+ RIP: 0010:__list_del_entry_valid+0x2d/0x50
+ Code: 48 8b 57 08 48 b9 00 01 00 00 00 00 ad de 48 39 c8 0f 84 ac 6e 5b 00 48 b9 22 01 00 00 00 00 ad de 48 39 ca 0f 84 cf 6e 5b 00 <48> 8b 32 48 39 fe 0f 85 af 6e 5b 00 48 8b 50 08 48 39 f2 0f 85 94
+ RSP: 0018:ffffb2da005c3890 EFLAGS: 00010217
+ RAX: 0000000000000000 RBX: ffff9073ba23f800 RCX: dead000000000122
+ RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff9073ba23fbc8
+ RBP: ffff9073ba23f890 R08: 0000000000000001 R09: 0000000000000001
+ R10: 0000000000000001 R11: 0000000000000001 R12: dead000000000100
+ R13: ffff9073ba23fb00 R14: 0000000000000002 R15: 0000000000000002
+ FS:  00007f93e5564e40(0000) GS:ffff9073bba00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000000 CR3: 000000014ad34000 CR4: 0000000000350ee0
+ Call Trace:
+  ets_qdisc_reset+0x6e/0x100 [sch_ets]
+  qdisc_reset+0x49/0x1d0
+  tbf_reset+0x15/0x60 [sch_tbf]
+  qdisc_reset+0x49/0x1d0
+  dev_reset_queue.constprop.42+0x2f/0x90
+  dev_deactivate_many+0x1d3/0x3d0
+  dev_deactivate+0x56/0x90
+  qdisc_graft+0x47e/0x5a0
+  tc_get_qdisc+0x1db/0x3e0
+  rtnetlink_rcv_msg+0x164/0x4c0
+  netlink_rcv_skb+0x50/0x100
+  netlink_unicast+0x1a5/0x280
+  netlink_sendmsg+0x242/0x480
+  sock_sendmsg+0x5b/0x60
+  ____sys_sendmsg+0x1f2/0x260
+  ___sys_sendmsg+0x7c/0xc0
+  __sys_sendmsg+0x57/0xa0
+  do_syscall_64+0x3a/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f93e44b8338
+ Code: 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 25 43 2c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 41 54 41 89 d4 55
+ RSP: 002b:00007ffc0db737a8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 0000000061255c06 RCX: 00007f93e44b8338
+ RDX: 0000000000000000 RSI: 00007ffc0db73810 RDI: 0000000000000003
+ RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000000
+ R10: 000000000000000b R11: 0000000000000246 R12: 0000000000000001
+ R13: 0000000000687880 R14: 0000000000000000 R15: 0000000000000000
+ Modules linked in: sch_ets sch_tbf dummy rfkill iTCO_wdt iTCO_vendor_support intel_rapl_msr intel_rapl_common joydev i2c_i801 pcspkr i2c_smbus lpc_ich virtio_balloon ip_tables xfs libcrc32c crct10dif_pclmul crc32_pclmul crc32c_intel ahci libahci ghash_clmulni_intel libata serio_raw virtio_blk virtio_console virtio_net net_failover failover sunrpc dm_mirror dm_region_hash dm_log dm_mod
+ CR2: 0000000000000000
 
-Hence, force reading vq->broken on each invocation of
-virtqueue_is_broken() and also force writing it so that such
-update is visible to the readers.
+When the change() function decreases the value of 'nstrict', we must take
+into account that packets might be already enqueued on a class that flips
+from 'strict' to 'quantum': otherwise that class will not be added to the
+bandwidth-sharing list. Then, a call to ets_qdisc_reset() will attempt to
+do list_del(&alist) with 'alist' filled with zero, hence the NULL pointer
+dereference.
+For classes flipping from 'strict' to 'quantum', initialize an empty list
+and eventually add it to the bandwidth-sharing list, if there are packets
+already enqueued. In this way, the kernel will:
+ a) prevent crashing as described above.
+ b) avoid retaining the backlog packets (for an arbitrarily long time) in
+    case no packet is enqueued after a change from 'strict' to 'quantum'.
 
-It is a theoretical fix that isn't yet encountered in the field.
-
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Link: https://lore.kernel.org/r/20210721142648.1525924-2-parav@nvidia.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reported-by: Hangbin Liu <liuhangbin@gmail.com>
+Fixes: dcc68b4d8084 ("net: sch_ets: Add a new Qdisc")
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_ring.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/sched/sch_ets.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 6b7aa26c5384..6c730d6d50f7 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2268,7 +2268,7 @@ bool virtqueue_is_broken(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
+diff --git a/net/sched/sch_ets.c b/net/sched/sch_ets.c
+index c1e84d1eeaba..c76701ac35ab 100644
+--- a/net/sched/sch_ets.c
++++ b/net/sched/sch_ets.c
+@@ -660,6 +660,13 @@ static int ets_qdisc_change(struct Qdisc *sch, struct nlattr *opt,
+ 	sch_tree_lock(sch);
  
--	return vq->broken;
-+	return READ_ONCE(vq->broken);
- }
- EXPORT_SYMBOL_GPL(virtqueue_is_broken);
+ 	q->nbands = nbands;
++	for (i = nstrict; i < q->nstrict; i++) {
++		INIT_LIST_HEAD(&q->classes[i].alist);
++		if (q->classes[i].qdisc->q.qlen) {
++			list_add_tail(&q->classes[i].alist, &q->active);
++			q->classes[i].deficit = quanta[i];
++		}
++	}
+ 	q->nstrict = nstrict;
+ 	memcpy(q->prio2band, priomap, sizeof(priomap));
  
-@@ -2283,7 +2283,9 @@ void virtio_break_device(struct virtio_device *dev)
- 	spin_lock(&dev->vqs_list_lock);
- 	list_for_each_entry(_vq, &dev->vqs, list) {
- 		struct vring_virtqueue *vq = to_vvq(_vq);
--		vq->broken = true;
-+
-+		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
-+		WRITE_ONCE(vq->broken, true);
- 	}
- 	spin_unlock(&dev->vqs_list_lock);
- }
 -- 
 2.30.2
 
