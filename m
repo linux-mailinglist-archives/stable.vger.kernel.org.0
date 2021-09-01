@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B8E43FDC49
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A42793FDBF2
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245632AbhIAMso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:48:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49982 "EHLO mail.kernel.org"
+        id S1345471AbhIAMqE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:46:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343780AbhIAMql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:46:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E677610CE;
-        Wed,  1 Sep 2021 12:40:03 +0000 (UTC)
+        id S1345457AbhIAMoQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:44:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EA9C610C9;
+        Wed,  1 Sep 2021 12:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500004;
-        bh=mmksP3toEwP3E/h3+vXYoGaiz957sYPMRJ31t9I3T2Q=;
+        s=korg; t=1630499917;
+        bh=uFoGyHp9snzNt123frTbdjiDX9s2ycIlpFAozepiU4g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c8bHajBx+uACdoh2immSymAgoydPL8tcNa7wJ4X+ZVNjiV50NYOs6ck6C9xhAiis2
-         A3mVj23OUZ0+Q+NXp7RNqwKRpLADXLETT9QsUcmilLm89b75UDG6qMFTqtvlWyrrO/
-         qx/3yPg3kdgAS7oFZn60ejgw9xMJW7QH/y+GJ6Js=
+        b=aqKhioCi+sUVrsLk4qVOr9cVbg4CbH9DaPmDRVv8QwoRSrfAQgRJysJfQhsQfGZIt
+         2aVef5liqHEUPyd+HuStgJtJ0aemXFrra7nhHubcgsssPt+HRTdbyUoUfJ6sbSujWG
+         CZ9OyPw3tWn2KKNzVUKaTVSLewCr3S5LyDfpLvaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.13 033/113] usb: dwc3: gadget: Stop EP0 transfers during pullup disable
-Date:   Wed,  1 Sep 2021 14:27:48 +0200
-Message-Id: <20210901122303.100909372@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Li Jinlin <lijinlin3@huawei.com>,
+        Qiu Laibin <qiulaibin@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.13 034/113] scsi: core: Fix hang of freezing queue between blocking and running device
+Date:   Wed,  1 Sep 2021 14:27:49 +0200
+Message-Id: <20210901122303.130577318@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
 References: <20210901122301.984263453@linuxfoundation.org>
@@ -40,59 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Li Jinlin <lijinlin3@huawei.com>
 
-commit 4a1e25c0a029b97ea4a3d423a6392bfacc3b2e39 upstream.
+commit 02c6dcd543f8f051973ee18bfbc4dc3bd595c558 upstream.
 
-During a USB cable disconnect, or soft disconnect scenario, a pending
-SETUP transaction may not be completed, leading to the following
-error:
+We found a hang, the steps to reproduce  are as follows:
 
-    dwc3 a600000.dwc3: timed out waiting for SETUP phase
+  1. blocking device via scsi_device_set_state()
 
-If this occurs, then the entire pullup disable routine is skipped and
-proper cleanup and halting of the controller does not complete.
+  2. dd if=/dev/sda of=/mnt/t.log bs=1M count=10
 
-Instead of returning an error (which is ignored from the UDC
-perspective), allow the pullup disable routine to continue, which
-will also handle disabling of EP0/1.  This will end any active
-transfers as well.  Ensure to clear any delayed_status also, as the
-timeout could happen within the STATUS stage.
+  3. echo none > /sys/block/sda/queue/scheduler
 
-Fixes: bb0147364850 ("usb: dwc3: gadget: don't clear RUN/STOP when it's invalid to do so")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/20210825042855.7977-1-wcheng@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  4. echo "running" >/sys/block/sda/device/state
+
+Step 3 and 4 should complete after step 4, but they hang.
+
+  CPU#0               CPU#1                CPU#2
+  ---------------     ----------------     ----------------
+                                           Step 1: blocking device
+
+                                           Step 2: dd xxxx
+                                                  ^^^^^^ get request
+                                                         q_usage_counter++
+
+                      Step 3: switching scheculer
+                      elv_iosched_store
+                        elevator_switch
+                          blk_mq_freeze_queue
+                            blk_freeze_queue
+                              > blk_freeze_queue_start
+                                ^^^^^^ mq_freeze_depth++
+
+                              > blk_mq_run_hw_queues
+                                ^^^^^^ can't run queue when dev blocked
+
+                              > blk_mq_freeze_queue_wait
+                                ^^^^^^ Hang here!!!
+                                       wait q_usage_counter==0
+
+  Step 4: running device
+  store_state_field
+    scsi_rescan_device
+      scsi_attach_vpd
+        scsi_vpd_inquiry
+          __scsi_execute
+            blk_get_request
+              blk_mq_alloc_request
+                blk_queue_enter
+                ^^^^^^ Hang here!!!
+                       wait mq_freeze_depth==0
+
+    blk_mq_run_hw_queues
+    ^^^^^^ dispatch IO, q_usage_counter will reduce to zero
+
+                            blk_mq_unfreeze_queue
+                            ^^^^^ mq_freeze_depth--
+
+To fix this, we need to run queue before rescanning device when the device
+state changes to SDEV_RUNNING.
+
+Link: https://lore.kernel.org/r/20210824025921.3277629-1-lijinlin3@huawei.com
+Fixes: f0f82e2476f6 ("scsi: core: Fix capacity set to zero after offlinining device")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Li Jinlin <lijinlin3@huawei.com>
+Signed-off-by: Qiu Laibin <qiulaibin@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/scsi/scsi_sysfs.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2243,10 +2243,8 @@ static int dwc3_gadget_pullup(struct usb
- 
- 		ret = wait_for_completion_timeout(&dwc->ep0_in_setup,
- 				msecs_to_jiffies(DWC3_PULL_UP_TIMEOUT));
--		if (ret == 0) {
--			dev_err(dwc->dev, "timed out waiting for SETUP phase\n");
--			return -ETIMEDOUT;
--		}
-+		if (ret == 0)
-+			dev_warn(dwc->dev, "timed out waiting for SETUP phase\n");
- 	}
- 
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -808,12 +808,15 @@ store_state_field(struct device *dev, st
+ 	ret = scsi_device_set_state(sdev, state);
  	/*
-@@ -2458,6 +2456,7 @@ static int __dwc3_gadget_start(struct dw
- 	/* begin to receive SETUP packets */
- 	dwc->ep0state = EP0_SETUP_PHASE;
- 	dwc->link_state = DWC3_LINK_STATE_SS_DIS;
-+	dwc->delayed_status = false;
- 	dwc3_ep0_out_start(dwc);
+ 	 * If the device state changes to SDEV_RUNNING, we need to
+-	 * rescan the device to revalidate it, and run the queue to
+-	 * avoid I/O hang.
++	 * run the queue to avoid I/O hang, and rescan the device
++	 * to revalidate it. Running the queue first is necessary
++	 * because another thread may be waiting inside
++	 * blk_mq_freeze_queue_wait() and because that call may be
++	 * waiting for pending I/O to finish.
+ 	 */
+ 	if (ret == 0 && state == SDEV_RUNNING) {
+-		scsi_rescan_device(dev);
+ 		blk_mq_run_hw_queues(sdev->request_queue, true);
++		scsi_rescan_device(dev);
+ 	}
+ 	mutex_unlock(&sdev->state_mutex);
  
- 	dwc3_gadget_enable_irq(dwc);
 
 
