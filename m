@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7759D3FDC4A
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA1693FDB65
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245467AbhIAMso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:48:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48348 "EHLO mail.kernel.org"
+        id S245466AbhIAMlh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:41:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245718AbhIAMql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:46:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8ED7610CB;
-        Wed,  1 Sep 2021 12:40:05 +0000 (UTC)
+        id S1344592AbhIAMjm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:39:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9870C61179;
+        Wed,  1 Sep 2021 12:35:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500006;
-        bh=eWo911t6lUyPuoWquTHUijZQndSb+BwKqfCV5c8yawA=;
+        s=korg; t=1630499728;
+        bh=Xds0caNBGsvrEbSX4KgRyhhNwjd2j0kw4FUUFbk0lEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H5WTubntu4Ikbu+4W9TsAJGL4uhDKS9fqetRgd0iBDBy3Oj5VqUQUf3MwbHESBisJ
-         gNBZwTxQ8euhJl8lOP2EETjSIlduJKmJ+QCVsC1Bp9Pka6ep638WbX5I73Gu5AqQC8
-         Hx/KHDkwV6UJoVEU8p+/bQOF1w1O3SMK4T1kKbCE=
+        b=NnWD//nSo+tYJLgBbPCW67QDRRbj4kz9bqoAqlxyS6g92a3HvidEz4w6rhkGU39IF
+         CJZ2JKuxYcS1Qd5GQUv/bsw4NwEpJMJwt2riVZrAa2gk5S1Kzw4WYym608AbS4dzCx
+         nU3OSvQrz+Z7SqlYszQw2XwOPbf5Clcnc2DzW8bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
-        Imre Deak <imre.deak@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Manasi Navare <manasi.d.navare@intel.com>,
-        Sean Paul <seanpaul@chromium.org>,
-        Uma Shankar <uma.shankar@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Swati Sharma <swati2.sharma@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.13 024/113] drm/i915/dp: Drop redundant debug print
+        Toshiki Nishioka <toshiki.nishioka@intel.com>,
+        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 029/103] igc: Use num_tx_queues when iterating over tx_ring queue
 Date:   Wed,  1 Sep 2021 14:27:39 +0200
-Message-Id: <20210901122302.801555137@linuxfoundation.org>
+Message-Id: <20210901122301.534031704@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,65 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Swati Sharma <swati2.sharma@intel.com>
+From: Toshiki Nishioka <toshiki.nishioka@intel.com>
 
-commit 71de496cc489b6bae2f51f89da7f28849bf2836e upstream.
+[ Upstream commit 691bd4d7761992914a0e83c27a4ce57d01474cda ]
 
-drm_dp_dpcd_read/write already has debug error message.
-Drop redundant error messages which gives false
-status even if correct value is read in drm_dp_dpcd_read().
+Use num_tx_queues rather than the IGC_MAX_TX_QUEUES fixed number 4 when
+iterating over tx_ring queue since instantiated queue count could be
+less than 4 where on-line cpu count is less than 4.
 
-v2: -Added fixes tag (Ankit)
-v3: -Fixed build error (CI)
-
-Fixes: 9488a030ac91 ("drm/i915: Add support for enabling link status and recovery")
-Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
-Cc: Imre Deak <imre.deak@intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: José Roberto de Souza <jose.souza@intel.com>
-Cc: Manasi Navare <manasi.d.navare@intel.com>
-Cc: Sean Paul <seanpaul@chromium.org>
-Cc: Uma Shankar <uma.shankar@intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v5.12+
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Swati Sharma <swati2.sharma@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210812131107.5531-1-swati2.sharma@intel.com
-(cherry picked from commit b6dfa416172939edaa46a5a647457b94c6d94119)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ec50a9d437f0 ("igc: Add support for taprio offloading")
+Signed-off-by: Toshiki Nishioka <toshiki.nishioka@intel.com>
+Signed-off-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Tested-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Acked-by: Sasha Neftin <sasha.neftin@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_dp.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -3833,23 +3833,18 @@ static void intel_dp_check_device_servic
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index 66f181d12578..013dd2955381 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -4761,7 +4761,7 @@ static bool validate_schedule(struct igc_adapter *adapter,
+ 		if (e->command != TC_TAPRIO_CMD_SET_GATES)
+ 			return false;
  
- static void intel_dp_check_link_service_irq(struct intel_dp *intel_dp)
- {
--	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
- 	u8 val;
+-		for (i = 0; i < IGC_MAX_TX_QUEUES; i++) {
++		for (i = 0; i < adapter->num_tx_queues; i++) {
+ 			if (e->gate_mask & BIT(i))
+ 				queue_uses[i]++;
  
- 	if (intel_dp->dpcd[DP_DPCD_REV] < 0x11)
- 		return;
+@@ -4818,7 +4818,7 @@ static int igc_save_qbv_schedule(struct igc_adapter *adapter,
  
- 	if (drm_dp_dpcd_readb(&intel_dp->aux,
--			      DP_LINK_SERVICE_IRQ_VECTOR_ESI0, &val) != 1 || !val) {
--		drm_dbg_kms(&i915->drm, "Error in reading link service irq vector\n");
-+			      DP_LINK_SERVICE_IRQ_VECTOR_ESI0, &val) != 1 || !val)
- 		return;
--	}
+ 		end_time += e->interval;
  
- 	if (drm_dp_dpcd_writeb(&intel_dp->aux,
--			       DP_LINK_SERVICE_IRQ_VECTOR_ESI0, val) != 1) {
--		drm_dbg_kms(&i915->drm, "Error in writing link service irq vector\n");
-+			       DP_LINK_SERVICE_IRQ_VECTOR_ESI0, val) != 1)
- 		return;
--	}
+-		for (i = 0; i < IGC_MAX_TX_QUEUES; i++) {
++		for (i = 0; i < adapter->num_tx_queues; i++) {
+ 			struct igc_ring *ring = adapter->tx_ring[i];
  
- 	if (val & HDMI_LINK_STATUS_CHANGED)
- 		intel_dp_handle_hdmi_link_status_change(intel_dp);
+ 			if (!(e->gate_mask & BIT(i)))
+-- 
+2.30.2
+
 
 
