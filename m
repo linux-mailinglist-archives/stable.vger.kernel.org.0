@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8BDF3FDB28
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0CD3FDBAE
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343873AbhIAMi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:38:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35322 "EHLO mail.kernel.org"
+        id S1344678AbhIAMnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:43:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343930AbhIAMgo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:36:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C48D5610C8;
-        Wed,  1 Sep 2021 12:33:54 +0000 (UTC)
+        id S1345190AbhIAMkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0665610C8;
+        Wed,  1 Sep 2021 12:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499635;
-        bh=o4/ik8aptahtt9b8svj6OhBdjic7EiRLfD3s222yUE0=;
+        s=korg; t=1630499853;
+        bh=PiEvoytnhll13TDEI3GSeTkPFU6Bqx6YjDFpfsJSSlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wLm+imezqYWVQpeLqn2v/NikKDPylgPsH/JRSM80vXE9q3RD5UpnqRkbqbXzDsFCv
-         vMVY5Dg0WM/d3o5uRhcG/Pzh7LC6fTn39Z5EWj7Po9egRNX+qZJmcEa8OQ/DHCPvrw
-         CG2GlHWQTezra5VnSpYMI7pm0I6ZKKks2zHzo8CM=
+        b=mJRQnXPFO+qIxpb1USFJZm1xors7N63eJgMWO3+iyTIUXKKMs5LYM1SydoCeZ59GK
+         CcsqQiqb+WAUgp7dQ+xziUOpYlPPkL2BMfYdi56bjZQoxlTakiwmn6SHj9oyB1nWDm
+         Z0tn1mrwZqB5EzbT+OisLKmQWYC/dYWmFbSjSHQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 006/103] ARC: Fix CONFIG_STACKDEPOT
+        stable@vger.kernel.org,
+        Xiaolong Huang <butterflyhuangxx@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.13 001/113] net: qrtr: fix another OOB Read in qrtr_endpoint_post
 Date:   Wed,  1 Sep 2021 14:27:16 +0200
-Message-Id: <20210901122300.734677947@linuxfoundation.org>
+Message-Id: <20210901122302.031489182@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,47 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Xiaolong Huang <butterflyhuangxx@gmail.com>
 
-[ Upstream commit bf79167fd86f3b97390fe2e70231d383526bd9cc ]
+commit 7e78c597c3ebfd0cb329aa09a838734147e4f117 upstream.
 
-Enabling CONFIG_STACKDEPOT results in the following build error.
+This check was incomplete, did not consider size is 0:
 
-arc-elf-ld: lib/stackdepot.o: in function `filter_irq_stacks':
-stackdepot.c:(.text+0x456): undefined reference to `__irqentry_text_start'
-arc-elf-ld: stackdepot.c:(.text+0x456): undefined reference to `__irqentry_text_start'
-arc-elf-ld: stackdepot.c:(.text+0x476): undefined reference to `__irqentry_text_end'
-arc-elf-ld: stackdepot.c:(.text+0x476): undefined reference to `__irqentry_text_end'
-arc-elf-ld: stackdepot.c:(.text+0x484): undefined reference to `__softirqentry_text_start'
-arc-elf-ld: stackdepot.c:(.text+0x484): undefined reference to `__softirqentry_text_start'
-arc-elf-ld: stackdepot.c:(.text+0x48c): undefined reference to `__softirqentry_text_end'
-arc-elf-ld: stackdepot.c:(.text+0x48c): undefined reference to `__softirqentry_text_end'
+	if (len != ALIGN(size, 4) + hdrlen)
+                    goto err;
 
-Other architectures address this problem by adding IRQENTRY_TEXT and
-SOFTIRQENTRY_TEXT to the text segment, so do the same here.
+if size from qrtr_hdr is 0, the result of ALIGN(size, 4)
+will be 0, In case of len == hdrlen and size == 0
+in header this check won't fail and
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	if (cb->type == QRTR_TYPE_NEW_SERVER) {
+                /* Remote node endpoint can bridge other distant nodes */
+                const struct qrtr_ctrl_pkt *pkt = data + hdrlen;
+
+                qrtr_node_assign(node, le32_to_cpu(pkt->server.node));
+        }
+
+will also read out of bound from data, which is hdrlen allocated block.
+
+Fixes: 194ccc88297a ("net: qrtr: Support decoding incoming v2 packets")
+Fixes: ad9d24c9429e ("net: qrtr: fix OOB Read in qrtr_endpoint_post")
+Signed-off-by: Xiaolong Huang <butterflyhuangxx@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arc/kernel/vmlinux.lds.S | 2 ++
- 1 file changed, 2 insertions(+)
+ net/qrtr/qrtr.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
-index 33ce59d91461..f67e4ad7b3ce 100644
---- a/arch/arc/kernel/vmlinux.lds.S
-+++ b/arch/arc/kernel/vmlinux.lds.S
-@@ -88,6 +88,8 @@ SECTIONS
- 		CPUIDLE_TEXT
- 		LOCK_TEXT
- 		KPROBES_TEXT
-+		IRQENTRY_TEXT
-+		SOFTIRQENTRY_TEXT
- 		*(.fixup)
- 		*(.gnu.warning)
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -493,7 +493,7 @@ int qrtr_endpoint_post(struct qrtr_endpo
+ 		goto err;
  	}
--- 
-2.30.2
-
+ 
+-	if (len != ALIGN(size, 4) + hdrlen)
++	if (!size || len != ALIGN(size, 4) + hdrlen)
+ 		goto err;
+ 
+ 	if (cb->dst_port != QRTR_PORT_CTRL && cb->type != QRTR_TYPE_DATA &&
 
 
