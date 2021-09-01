@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7BF33FDB5E
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D96DE3FDA9F
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345228AbhIAMlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42458 "EHLO mail.kernel.org"
+        id S1343538AbhIAMdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344442AbhIAMja (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:39:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 046B0610F9;
-        Wed,  1 Sep 2021 12:35:06 +0000 (UTC)
+        id S245002AbhIAMcJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:32:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D69DE61027;
+        Wed,  1 Sep 2021 12:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499707;
-        bh=DMseKcXPlJ0eQwvrZsYnP0lIdsti2YeWRPnMmmG9wno=;
+        s=korg; t=1630499472;
+        bh=SijOpYyQqdDkOkhH1GYx8Q4As3/+YQr7M6n8X6rjOwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EBb4oOYiI4pfQlih83qIvSc5CHWQe+pOSPIeIwL5z3vfI2KJ00KJXZEtJa2NCX2BX
-         b0oP9ywJREgYlhii90q2Lsez9ZaS8GOv0gZmvnGqnBqbkgHVjfPCSs5fpHuhtY/Rnw
-         teKpoaymQZy4dYe8Dtbt4Lirm2IzJAwQThHF+SIw=
+        b=L0x+E0jpb3ESISoHu0hH+rouDuA4yHyQoVO6L+r4FlB8L80XsvyRjnHLslWTx8gl2
+         1EyW6jR/ntUApO0Vt+nTRtIi6iINZqUvhPS6nbss0Qn6EqWuFCS/rLZnp8KkmoL+q0
+         u9zKIfKiwQndLzStlduDzwNkbSxVY56xXpqjd23s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 053/103] clk: renesas: rcar-usb2-clock-sel: Fix kernel NULL pointer dereference
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Li Jinlin <lijinlin3@huawei.com>,
+        Qiu Laibin <qiulaibin@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 13/48] scsi: core: Fix hang of freezing queue between blocking and running device
 Date:   Wed,  1 Sep 2021 14:28:03 +0200
-Message-Id: <20210901122302.353455604@linuxfoundation.org>
+Message-Id: <20210901122253.840151831@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Li Jinlin <lijinlin3@huawei.com>
 
-[ Upstream commit 1669a941f7c4844ae808cf441db51dde9e94db07 ]
+commit 02c6dcd543f8f051973ee18bfbc4dc3bd595c558 upstream.
 
-The probe was manually passing NULL instead of dev to devm_clk_hw_register.
-This caused a Unable to handle kernel NULL pointer dereference error.
-Fix this by passing 'dev'.
+We found a hang, the steps to reproduce  are as follows:
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Fixes: a20a40a8bbc2 ("clk: renesas: rcar-usb2-clock-sel: Fix error handling in .probe()")
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  1. blocking device via scsi_device_set_state()
+
+  2. dd if=/dev/sda of=/mnt/t.log bs=1M count=10
+
+  3. echo none > /sys/block/sda/queue/scheduler
+
+  4. echo "running" >/sys/block/sda/device/state
+
+Step 3 and 4 should complete after step 4, but they hang.
+
+  CPU#0               CPU#1                CPU#2
+  ---------------     ----------------     ----------------
+                                           Step 1: blocking device
+
+                                           Step 2: dd xxxx
+                                                  ^^^^^^ get request
+                                                         q_usage_counter++
+
+                      Step 3: switching scheculer
+                      elv_iosched_store
+                        elevator_switch
+                          blk_mq_freeze_queue
+                            blk_freeze_queue
+                              > blk_freeze_queue_start
+                                ^^^^^^ mq_freeze_depth++
+
+                              > blk_mq_run_hw_queues
+                                ^^^^^^ can't run queue when dev blocked
+
+                              > blk_mq_freeze_queue_wait
+                                ^^^^^^ Hang here!!!
+                                       wait q_usage_counter==0
+
+  Step 4: running device
+  store_state_field
+    scsi_rescan_device
+      scsi_attach_vpd
+        scsi_vpd_inquiry
+          __scsi_execute
+            blk_get_request
+              blk_mq_alloc_request
+                blk_queue_enter
+                ^^^^^^ Hang here!!!
+                       wait mq_freeze_depth==0
+
+    blk_mq_run_hw_queues
+    ^^^^^^ dispatch IO, q_usage_counter will reduce to zero
+
+                            blk_mq_unfreeze_queue
+                            ^^^^^ mq_freeze_depth--
+
+To fix this, we need to run queue before rescanning device when the device
+state changes to SDEV_RUNNING.
+
+Link: https://lore.kernel.org/r/20210824025921.3277629-1-lijinlin3@huawei.com
+Fixes: f0f82e2476f6 ("scsi: core: Fix capacity set to zero after offlinining device")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Li Jinlin <lijinlin3@huawei.com>
+Signed-off-by: Qiu Laibin <qiulaibin@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/renesas/rcar-usb2-clock-sel.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_sysfs.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/renesas/rcar-usb2-clock-sel.c b/drivers/clk/renesas/rcar-usb2-clock-sel.c
-index 0ccc6e709a38..7a64dcb7209e 100644
---- a/drivers/clk/renesas/rcar-usb2-clock-sel.c
-+++ b/drivers/clk/renesas/rcar-usb2-clock-sel.c
-@@ -190,7 +190,7 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
- 	init.num_parents = 0;
- 	priv->hw.init = &init;
+--- a/drivers/scsi/scsi_sysfs.c
++++ b/drivers/scsi/scsi_sysfs.c
+@@ -788,12 +788,15 @@ store_state_field(struct device *dev, st
+ 	ret = scsi_device_set_state(sdev, state);
+ 	/*
+ 	 * If the device state changes to SDEV_RUNNING, we need to
+-	 * rescan the device to revalidate it, and run the queue to
+-	 * avoid I/O hang.
++	 * run the queue to avoid I/O hang, and rescan the device
++	 * to revalidate it. Running the queue first is necessary
++	 * because another thread may be waiting inside
++	 * blk_mq_freeze_queue_wait() and because that call may be
++	 * waiting for pending I/O to finish.
+ 	 */
+ 	if (ret == 0 && state == SDEV_RUNNING) {
+-		scsi_rescan_device(dev);
+ 		blk_mq_run_hw_queues(sdev->request_queue, true);
++		scsi_rescan_device(dev);
+ 	}
+ 	mutex_unlock(&sdev->state_mutex);
  
--	ret = devm_clk_hw_register(NULL, &priv->hw);
-+	ret = devm_clk_hw_register(dev, &priv->hw);
- 	if (ret)
- 		goto pm_put;
- 
--- 
-2.30.2
-
 
 
