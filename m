@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DDAC3FDBF8
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C3443FDB18
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346034AbhIAMqP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:46:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42766 "EHLO mail.kernel.org"
+        id S1344308AbhIAMhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:37:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244973AbhIAMma (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:42:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87589611CB;
-        Wed,  1 Sep 2021 12:37:45 +0000 (UTC)
+        id S245718AbhIAMg0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:36:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E013961106;
+        Wed,  1 Sep 2021 12:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499866;
-        bh=Ic/Ihy9eXVn6k6FBv6Ds/quKV3DMcpKvOsGlNAjXx64=;
+        s=korg; t=1630499614;
+        bh=ZrIrCklu2AGtDD/CNlj2RiopKfpoGYiTuytVC/N8TXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n7VVLkxEbWgqgIUAweTWT8msgUk/BK2EOCVbZUrB0ZH2ZczYrDflG2jh1dhJP/mGY
-         i1pF23dCs0zDQOFzM/5MoCgQWFfhCsKNBg0ptmz477mbqLEw9Piu596sQungKk27Q2
-         1rIaE0hOG7aR8ySZCd9rpK/BxXQ3la8prcR49PMQ=
+        b=dEggq4A1RPnbNNitljZyWzRBt7znpj3mZLoRg4KtVxRkPo5rVAyks1txTcBSVsCI2
+         2PnqAoONJ/2QtlTc80hrSeIRn+iM6WCL8OyAqZRShCU0SAZgqkTB9mUEf90AzVOV2M
+         5mZvYVQCyeDLrsF9pK648pqKT/AwDmVPYTqewTAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Stefan=20M=C3=A4tje?= <stefan.maetje@esd.eu>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.13 014/113] can: usb: esd_usb2: esd_usb2_rx_event(): fix the interchange of the CAN RX and TX error counters
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 019/103] usb: renesas-xhci: Prefer firmware loading on unknown ROM state
 Date:   Wed,  1 Sep 2021 14:27:29 +0200
-Message-Id: <20210901122302.454387368@linuxfoundation.org>
+Message-Id: <20210901122301.169538857@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +38,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Mätje <stefan.maetje@esd.eu>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 044012b52029204900af9e4230263418427f4ba4 upstream.
+commit c82cacd2f1e622a461a77d275a75d7e19e7635a3 upstream.
 
-This patch fixes the interchanged fetch of the CAN RX and TX error
-counters from the ESD_EV_CAN_ERROR_EXT message. The RX error counter
-is really in struct rx_msg::data[2] and the TX error counter is in
-struct rx_msg::data[3].
+The recent attempt to handle an unknown ROM state in the commit
+d143825baf15 ("usb: renesas-xhci: Fix handling of unknown ROM state")
+resulted in a regression and reverted later by the commit 44cf53602f5a
+("Revert "usb: renesas-xhci: Fix handling of unknown ROM state"").
+The problem of the former fix was that it treated the failure of
+firmware loading as a fatal error.  Since the firmware files aren't
+included in the standard linux-firmware tree, most users don't have
+them, hence they got the non-working system after that.  The revert
+fixed the regression, but also it didn't make the firmware loading
+triggered even on the devices that do need it.  So we need still a fix
+for them.
 
-Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
-Link: https://lore.kernel.org/r/20210825215227.4947-2-stefan.maetje@esd.eu
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Mätje <stefan.maetje@esd.eu>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+This is another attempt to handle the unknown ROM state.  Like the
+previous fix, this also tries to load the firmware when ROM shows
+unknown state.  In this patch, however, the failure of a firmware
+loading (such as a missing firmware file) isn't handled as a fatal
+error any longer when ROM has been already detected, but it falls back
+to the ROM mode like before.  The error is returned only when no ROM
+is detected and the firmware loading failed.
+
+Along with it, for simplifying the code flow, the detection and the
+check of ROM is factored out from renesas_fw_check_running() and done
+in the caller side, renesas_xhci_check_request_fw().  It avoids the
+redundant ROM checks.
+
+The patch was tested on Lenovo Thinkpad T14 gen (BIOS 1.34).  Also it
+was confirmed that no regression is seen on another Thinkpad T14
+machine that has worked without the patch, too.
+
+Fixes: 44cf53602f5a ("Revert "usb: renesas-xhci: Fix handling of unknown ROM state"")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1189207
+Link: https://lore.kernel.org/r/20210826124127.14789-1-tiwai@suse.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/esd_usb2.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-pci-renesas.c |   35 +++++++++++++++++++++++------------
+ 1 file changed, 23 insertions(+), 12 deletions(-)
 
---- a/drivers/net/can/usb/esd_usb2.c
-+++ b/drivers/net/can/usb/esd_usb2.c
-@@ -224,8 +224,8 @@ static void esd_usb2_rx_event(struct esd
- 	if (id == ESD_EV_CAN_ERROR_EXT) {
- 		u8 state = msg->msg.rx.data[0];
- 		u8 ecc = msg->msg.rx.data[1];
--		u8 txerr = msg->msg.rx.data[2];
--		u8 rxerr = msg->msg.rx.data[3];
-+		u8 rxerr = msg->msg.rx.data[2];
-+		u8 txerr = msg->msg.rx.data[3];
+--- a/drivers/usb/host/xhci-pci-renesas.c
++++ b/drivers/usb/host/xhci-pci-renesas.c
+@@ -207,7 +207,8 @@ static int renesas_check_rom_state(struc
+ 			return 0;
  
- 		skb = alloc_can_err_skb(priv->netdev, &cf);
- 		if (skb == NULL) {
+ 		case RENESAS_ROM_STATUS_NO_RESULT: /* No result yet */
+-			return 0;
++			dev_dbg(&pdev->dev, "Unknown ROM status ...\n");
++			return -ENOENT;
+ 
+ 		case RENESAS_ROM_STATUS_ERROR: /* Error State */
+ 		default: /* All other states are marked as "Reserved states" */
+@@ -224,14 +225,6 @@ static int renesas_fw_check_running(stru
+ 	u8 fw_state;
+ 	int err;
+ 
+-	/* Check if device has ROM and loaded, if so skip everything */
+-	err = renesas_check_rom(pdev);
+-	if (err) { /* we have rom */
+-		err = renesas_check_rom_state(pdev);
+-		if (!err)
+-			return err;
+-	}
+-
+ 	/*
+ 	 * Test if the device is actually needing the firmware. As most
+ 	 * BIOSes will initialize the device for us. If the device is
+@@ -591,21 +584,39 @@ int renesas_xhci_check_request_fw(struct
+ 			(struct xhci_driver_data *)id->driver_data;
+ 	const char *fw_name = driver_data->firmware;
+ 	const struct firmware *fw;
++	bool has_rom;
+ 	int err;
+ 
++	/* Check if device has ROM and loaded, if so skip everything */
++	has_rom = renesas_check_rom(pdev);
++	if (has_rom) {
++		err = renesas_check_rom_state(pdev);
++		if (!err)
++			return 0;
++		else if (err != -ENOENT)
++			has_rom = false;
++	}
++
+ 	err = renesas_fw_check_running(pdev);
+ 	/* Continue ahead, if the firmware is already running. */
+ 	if (err == 0)
+ 		return 0;
+ 
++	/* no firmware interface available */
+ 	if (err != 1)
+-		return err;
++		return has_rom ? 0 : err;
+ 
+ 	pci_dev_get(pdev);
+-	err = request_firmware(&fw, fw_name, &pdev->dev);
++	err = firmware_request_nowarn(&fw, fw_name, &pdev->dev);
+ 	pci_dev_put(pdev);
+ 	if (err) {
+-		dev_err(&pdev->dev, "request_firmware failed: %d\n", err);
++		if (has_rom) {
++			dev_info(&pdev->dev, "failed to load firmware %s, fallback to ROM\n",
++				 fw_name);
++			return 0;
++		}
++		dev_err(&pdev->dev, "failed to load firmware %s: %d\n",
++			fw_name, err);
+ 		return err;
+ 	}
+ 
 
 
