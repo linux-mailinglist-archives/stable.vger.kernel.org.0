@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C13723FDC8E
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5FFA3FDB73
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344476AbhIAMvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54326 "EHLO mail.kernel.org"
+        id S1344329AbhIAMlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:41:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346414AbhIAMuM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:50:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D85E2611C5;
-        Wed,  1 Sep 2021 12:41:38 +0000 (UTC)
+        id S1344765AbhIAMkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 509AC61103;
+        Wed,  1 Sep 2021 12:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500099;
-        bh=pwuwk1VumsflOclvyV0Xrw7TvDv9wcZugJN3n83RWfM=;
+        s=korg; t=1630499755;
+        bh=Kb7qq+V45QtxptZ0QQ2V2krf6uJLTRFjPmZAp4YnKVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wut+8OCHLFaOoWG5WidF6+wvH7+AbPDznwzTE7pwTuLu6Zcd1ux1ldUbyd36KBLnp
-         +Lh+fTYVyAiUXBwWmOMaJrWS2HL5rpz/vRk5s4gr0PymwIfc+ISAzxD+B5nDh7n1h2
-         P0sPnOOt1fMfAzWWW/+Ohrdq3dALQt+Fh1lzzZ2Y=
+        b=sjKr2mKiVk0lrNB3GqPaV9i4COvUmA/WpTrEHMPMzOj0pBnu27UHAnXM5TJ4TiBS/
+         LizEo7lzxmkh0BJdWLZfSFbgNS33zNQOP5B2WD0Q2M/we6KUqEKbIDXz32uYHYf7rb
+         8jyylf/TdhBknemnpMtf9ICbjmmYdsDfX4/M9TCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org,
+        Miquel Raynal <miquel.raynal@bootlin.com>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 069/113] usb: gadget: u_audio: fix race condition on endpoint stop
+        stable@vger.kernel.org,
+        voice INTER connect GmbH <developer@voiceinterconnect.de>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>
+Subject: [PATCH 5.10 074/103] mtd: spinand: Fix incorrect parameters for on-die ECC
 Date:   Wed,  1 Sep 2021 14:28:24 +0200
-Message-Id: <20210901122304.292452499@linuxfoundation.org>
+Message-Id: <20210901122303.052491890@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 068fdad20454f815e61e6f6eb9f051a8b3120e88 ]
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
 
-If the endpoint completion callback is call right after the ep_enabled flag
-is cleared and before usb_ep_dequeue() is call, we could do a double free
-on the request and the associated buffer.
+The new generic NAND ECC framework stores the configuration and
+requirements in separate places since commit 93ef92f6f422 ("mtd: nand: Use
+the new generic ECC object"). In 5.10.x The SPI NAND layer still uses only
+the requirements to track the ECC properties. This mismatch leads to
+values of zero being used for ECC strength and step_size in the SPI NAND
+layer wherever nanddev_get_ecc_conf() is used and therefore breaks the SPI
+NAND on-die ECC support in 5.10.x.
 
-Fix this by clearing ep_enabled after all the endpoint requests have been
-dequeued.
+By using nanddev_get_ecc_requirements() instead of nanddev_get_ecc_conf()
+for SPI NAND, we make sure that the correct parameters for the detected
+chip are used. In later versions (5.11.x) this is fixed anyway with the
+implementation of the SPI NAND on-die ECC engine.
 
-Fixes: 7de8681be2cd ("usb: gadget: u_audio: Free requests only after callback")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20210827092927.366482-1-jbrunet@baylibre.com
+Cc: stable@vger.kernel.org # 5.10.x
+Reported-by: voice INTER connect GmbH <developer@voiceinterconnect.de>
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/usb/gadget/function/u_audio.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/mtd/nand/spi/core.c     |    6 +++---
+ drivers/mtd/nand/spi/macronix.c |    6 +++---
+ drivers/mtd/nand/spi/toshiba.c  |    6 +++---
+ 3 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/u_audio.c b/drivers/usb/gadget/function/u_audio.c
-index 5fbceee897a3..3b613ca06ae5 100644
---- a/drivers/usb/gadget/function/u_audio.c
-+++ b/drivers/usb/gadget/function/u_audio.c
-@@ -312,8 +312,6 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
- 	if (!prm->ep_enabled)
- 		return;
+--- a/drivers/mtd/nand/spi/core.c
++++ b/drivers/mtd/nand/spi/core.c
+@@ -419,7 +419,7 @@ static int spinand_check_ecc_status(stru
+ 		 * fixed, so let's return the maximum possible value so that
+ 		 * wear-leveling layers move the data immediately.
+ 		 */
+-		return nanddev_get_ecc_conf(nand)->strength;
++		return nanddev_get_ecc_requirements(nand)->strength;
  
--	prm->ep_enabled = false;
--
- 	audio_dev = uac->audio_dev;
- 	params = &audio_dev->params;
+ 	case STATUS_ECC_UNCOR_ERROR:
+ 		return -EBADMSG;
+@@ -1090,8 +1090,8 @@ static int spinand_init(struct spinand_d
+ 	mtd->oobavail = ret;
  
-@@ -331,11 +329,12 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
- 		}
- 	}
+ 	/* Propagate ECC information to mtd_info */
+-	mtd->ecc_strength = nanddev_get_ecc_conf(nand)->strength;
+-	mtd->ecc_step_size = nanddev_get_ecc_conf(nand)->step_size;
++	mtd->ecc_strength = nanddev_get_ecc_requirements(nand)->strength;
++	mtd->ecc_step_size = nanddev_get_ecc_requirements(nand)->step_size;
  
-+	prm->ep_enabled = false;
-+
- 	if (usb_ep_disable(ep))
- 		dev_err(uac->card->dev, "%s:%d Error!\n", __func__, __LINE__);
- }
+ 	return 0;
  
--
- int u_audio_start_capture(struct g_audio *audio_dev)
- {
- 	struct snd_uac_chip *uac = audio_dev->uac;
--- 
-2.30.2
-
+--- a/drivers/mtd/nand/spi/macronix.c
++++ b/drivers/mtd/nand/spi/macronix.c
+@@ -84,11 +84,11 @@ static int mx35lf1ge4ab_ecc_get_status(s
+ 		 * data around if it's not necessary.
+ 		 */
+ 		if (mx35lf1ge4ab_get_eccsr(spinand, &eccsr))
+-			return nanddev_get_ecc_conf(nand)->strength;
++			return nanddev_get_ecc_requirements(nand)->strength;
+ 
+-		if (WARN_ON(eccsr > nanddev_get_ecc_conf(nand)->strength ||
++		if (WARN_ON(eccsr > nanddev_get_ecc_requirements(nand)->strength ||
+ 			    !eccsr))
+-			return nanddev_get_ecc_conf(nand)->strength;
++			return nanddev_get_ecc_requirements(nand)->strength;
+ 
+ 		return eccsr;
+ 
+--- a/drivers/mtd/nand/spi/toshiba.c
++++ b/drivers/mtd/nand/spi/toshiba.c
+@@ -90,12 +90,12 @@ static int tx58cxgxsxraix_ecc_get_status
+ 		 * data around if it's not necessary.
+ 		 */
+ 		if (spi_mem_exec_op(spinand->spimem, &op))
+-			return nanddev_get_ecc_conf(nand)->strength;
++			return nanddev_get_ecc_requirements(nand)->strength;
+ 
+ 		mbf >>= 4;
+ 
+-		if (WARN_ON(mbf > nanddev_get_ecc_conf(nand)->strength || !mbf))
+-			return nanddev_get_ecc_conf(nand)->strength;
++		if (WARN_ON(mbf > nanddev_get_ecc_requirements(nand)->strength || !mbf))
++			return nanddev_get_ecc_requirements(nand)->strength;
+ 
+ 		return mbf;
+ 
 
 
