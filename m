@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A27FB3FDCA2
+	by mail.lfdr.de (Postfix) with ESMTP id EAA7D3FDCA3
 	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345556AbhIAMvl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54242 "EHLO mail.kernel.org"
+        id S245617AbhIAMv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:51:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346607AbhIAMud (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346616AbhIAMud (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 1 Sep 2021 08:50:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BF29610CA;
-        Wed,  1 Sep 2021 12:42:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A8B0610CD;
+        Wed,  1 Sep 2021 12:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500130;
-        bh=lZwH8zxKEBCqM8hgNeOLnFpdLMREYnKK2RrxL4Hem1w=;
+        s=korg; t=1630500132;
+        bh=/99hflsMViHmt/Qz/ngWQWmp3wpG7JSu0FaoU7fuGZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=suLAYiqZ5TW7c9/gGy6l8UUzv8+5rQJEfRlXdjC6486OZ0CF6azOJqxMyMEM2FXQE
-         U+MxS5dV9Q0tdwA6mFtwFjuqC2tP/ecBdIDa+2OvUR4ETRKSVvUhk0R45ZGzGnTQFl
-         e1oBXGJyfjISFwMsykgF5TveHDbKajg1QZJ3tY0k=
+        b=VVLeYtC8w+tD1RVZoOi5758X8oq0q+5lnQfBg7mC9lJgO8wru6512KCJ/yARy6j1r
+         KRAVDcdT5AWWj6dcVq9B2Ecaha+ngIEaPmCMN+Uie49Jjx3itlOf6AkCC8vCB9scYk
+         FL5JjE8kUax7xxgkvDy9icDdD0WIMW6Sx8ZETQ5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.13 099/113] pipe: do FASYNC notifications for every pipe IO, not just state changes
-Date:   Wed,  1 Sep 2021 14:28:54 +0200
-Message-Id: <20210901122305.250780315@linuxfoundation.org>
+        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Paul Gortmaker <paul.gortmaker@windriver.com>
+Subject: [PATCH 5.13 100/113] tipc: call tipc_wait_for_connect only when dlen is not 0
+Date:   Wed,  1 Sep 2021 14:28:55 +0200
+Message-Id: <20210901122305.281619582@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
 References: <20210901122301.984263453@linuxfoundation.org>
@@ -41,127 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit fe67f4dd8daa252eb9aa7acb61555f3cc3c1ce4c upstream.
+commit 7387a72c5f84f0dfb57618f9e4770672c0d2e4c9 upstream.
 
-It turns out that the SIGIO/FASYNC situation is almost exactly the same
-as the EPOLLET case was: user space really wants to be notified after
-every operation.
+__tipc_sendmsg() is called to send SYN packet by either tipc_sendmsg()
+or tipc_connect(). The difference is in tipc_connect(), it will call
+tipc_wait_for_connect() after __tipc_sendmsg() to wait until connecting
+is done. So there's no need to wait in __tipc_sendmsg() for this case.
 
-Now, in a perfect world it should be sufficient to only notify user
-space on "state transitions" when the IO state changes (ie when a pipe
-goes from unreadable to readable, or from unwritable to writable).  User
-space should then do as much as possible - fully emptying the buffer or
-what not - and we'll notify it again the next time the state changes.
+This patch is to fix it by calling tipc_wait_for_connect() only when dlen
+is not 0 in __tipc_sendmsg(), which means it's called by tipc_connect().
 
-But as with EPOLLET, we have at least one case (stress-ng) where the
-kernel sent SIGIO due to the pipe being marked for asynchronous
-notification, but the user space signal handler then didn't actually
-necessarily read it all before returning (it read more than what was
-written, but since there could be multiple writes, it could leave data
-pending).
+Note this also fixes the failure in tipcutils/test/ptts/:
 
-The user space code then expected to get another SIGIO for subsequent
-writes - even though the pipe had been readable the whole time - and
-would only then read more.
+  # ./tipcTS &
+  # ./tipcTC 9
+  (hang)
 
-This is arguably a user space bug - and Colin King already fixed the
-stress-ng code in question - but the kernel regression rules are clear:
-it doesn't matter if kernel people think that user space did something
-silly and wrong.  What matters is that it used to work.
-
-So if user space depends on specific historical kernel behavior, it's a
-regression when that behavior changes.  It's on us: we were silly to
-have that non-optimal historical behavior, and our old kernel behavior
-was what user space was tested against.
-
-Because of how the FASYNC notification was tied to wakeup behavior, this
-was first broken by commits f467a6a66419 and 1b6b26ae7053 ("pipe: fix
-and clarify pipe read/write wakeup logic"), but at the time it seems
-nobody noticed.  Probably because the stress-ng problem case ends up
-being timing-dependent too.
-
-It was then unwittingly fixed by commit 3a34b13a88ca ("pipe: make pipe
-writes always wake up readers") only to be broken again when by commit
-3b844826b6c6 ("pipe: avoid unnecessary EPOLLET wakeups under normal
-loads").
-
-And at that point the kernel test robot noticed the performance
-refression in the stress-ng.sigio.ops_per_sec case.  So the "Fixes" tag
-below is somewhat ad hoc, but it matches when the issue was noticed.
-
-Fix it for good (knock wood) by simply making the kill_fasync() case
-separate from the wakeup case.  FASYNC is quite rare, and we clearly
-shouldn't even try to use the "avoid unnecessary wakeups" logic for it.
-
-Link: https://lore.kernel.org/lkml/20210824151337.GC27667@xsang-OptiPlex-9020/
-Fixes: 3b844826b6c6 ("pipe: avoid unnecessary EPOLLET wakeups under normal loads")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Tested-by: Oliver Sang <oliver.sang@intel.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Cc: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 36239dab6da7 ("tipc: fix implicit-connect for SYN+")
+Reported-by: Shuang Li <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Paul Gortmaker <paul.gortmaker@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pipe.c |   20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ net/tipc/socket.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -363,10 +363,9 @@ pipe_read(struct kiocb *iocb, struct iov
- 		 * _very_ unlikely case that the pipe was full, but we got
- 		 * no data.
- 		 */
--		if (unlikely(was_full)) {
-+		if (unlikely(was_full))
- 			wake_up_interruptible_sync_poll(&pipe->wr_wait, EPOLLOUT | EPOLLWRNORM);
--			kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
--		}
-+		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1528,7 +1528,7 @@ static int __tipc_sendmsg(struct socket
  
- 		/*
- 		 * But because we didn't read anything, at this point we can
-@@ -385,12 +384,11 @@ pipe_read(struct kiocb *iocb, struct iov
- 		wake_next_reader = false;
- 	__pipe_unlock(pipe);
- 
--	if (was_full) {
-+	if (was_full)
- 		wake_up_interruptible_sync_poll(&pipe->wr_wait, EPOLLOUT | EPOLLWRNORM);
--		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
--	}
- 	if (wake_next_reader)
- 		wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
-+	kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
- 	if (ret > 0)
- 		file_accessed(filp);
- 	return ret;
-@@ -565,10 +563,9 @@ pipe_write(struct kiocb *iocb, struct io
- 		 * become empty while we dropped the lock.
- 		 */
- 		__pipe_unlock(pipe);
--		if (was_empty) {
-+		if (was_empty)
- 			wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
--			kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
--		}
-+		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 		wait_event_interruptible_exclusive(pipe->wr_wait, pipe_writable(pipe));
- 		__pipe_lock(pipe);
- 		was_empty = pipe_empty(pipe->head, pipe->tail);
-@@ -591,10 +588,9 @@ out:
- 	 * Epoll nonsensically wants a wakeup whether the pipe
- 	 * was already empty or not.
- 	 */
--	if (was_empty || pipe->poll_usage) {
-+	if (was_empty || pipe->poll_usage)
- 		wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
--		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
--	}
-+	kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 	if (wake_next_writer)
- 		wake_up_interruptible_sync_poll(&pipe->wr_wait, EPOLLOUT | EPOLLWRNORM);
- 	if (ret > 0 && sb_start_write_trylock(file_inode(filp)->i_sb)) {
+ 	if (unlikely(syn && !rc)) {
+ 		tipc_set_sk_state(sk, TIPC_CONNECTING);
+-		if (timeout) {
++		if (dlen && timeout) {
+ 			timeout = msecs_to_jiffies(timeout);
+ 			tipc_wait_for_connect(sock, &timeout);
+ 		}
 
 
