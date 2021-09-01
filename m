@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D43C3FDC3E
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ED193FDA92
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345135AbhIAMsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:48:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49844 "EHLO mail.kernel.org"
+        id S244158AbhIAMdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:33:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346011AbhIAMqM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:46:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1244C610A4;
-        Wed,  1 Sep 2021 12:39:34 +0000 (UTC)
+        id S244070AbhIAMb4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:31:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F68960232;
+        Wed,  1 Sep 2021 12:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499975;
-        bh=ByzqMabcrb7u0/9gS2Wcg3528tlofZxVs8tV5FBWh6M=;
+        s=korg; t=1630499459;
+        bh=oZLfST+fZeckfbcHYORaBw8qhlYlN8ehRkZ4EU2b5KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IyZH8+CYYFVqC0UNAbblVbuYyOKJZ5x+brC9hmvpX3VDlzn/tg9mFQH3F0ECQFEsi
-         rIRPBCINdSC+NUhQY4LBeKwFBBHgEjnvspuLqXN2PbQzLO8DM67nJeJvb+OFZBtcbM
-         QwFFnUWnJFbpK0K0xYmg1p8ehQhdNCa/9eKb4T64=
+        b=i20SY0B82yNSWggQrRM2wnZ9NRaxONhuKVsI2vqBAqA/nDuT5AU/bVtzhrHOTHM0R
+         QqU27mWXXzvA1owmWfLPk1CwZoFxPKp+SjAJN5NkcZyIWuXX77V+i2N8af5LBEKCz/
+         oh3f/JRwpzwe4ut1d0uVmANtu/tUOhz84S8U1vN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Keyu Man <kman001@ucr.edu>, Wei Wang <weiwan@google.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 054/113] ipv6: use siphash in rt6_exception_hash()
+Subject: [PATCH 4.19 20/33] opp: remove WARN when no valid OPPs remain
 Date:   Wed,  1 Sep 2021 14:28:09 +0200
-Message-Id: <20210901122303.774057853@linuxfoundation.org>
+Message-Id: <20210901122251.460053963@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
+References: <20210901122250.752620302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-[ Upstream commit 4785305c05b25a242e5314cc821f54ade4c18810 ]
+[ Upstream commit 335ffab3ef864539e814b9a2903b0ae420c1c067 ]
 
-A group of security researchers brought to our attention
-the weakness of hash function used in rt6_exception_hash()
+This WARN can be triggered per-core and the stack trace is not useful.
+Replace it with plain dev_err(). Fix a comment while at it.
 
-Lets use siphash instead of Jenkins Hash, to considerably
-reduce security risks.
-
-Following patch deals with IPv4.
-
-Fixes: 35732d01fe31 ("ipv6: introduce a hash table to store dst cache")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Cc: Wei Wang <weiwan@google.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Acked-by: Wei Wang <weiwan@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/route.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/opp/of.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index 09e84161b731..67c74469503a 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -41,6 +41,7 @@
- #include <linux/nsproxy.h>
- #include <linux/slab.h>
- #include <linux/jhash.h>
-+#include <linux/siphash.h>
- #include <net/net_namespace.h>
- #include <net/snmp.h>
- #include <net/ipv6.h>
-@@ -1484,17 +1485,24 @@ static void rt6_exception_remove_oldest(struct rt6_exception_bucket *bucket)
- static u32 rt6_exception_hash(const struct in6_addr *dst,
- 			      const struct in6_addr *src)
- {
--	static u32 seed __read_mostly;
--	u32 val;
-+	static siphash_key_t rt6_exception_key __read_mostly;
-+	struct {
-+		struct in6_addr dst;
-+		struct in6_addr src;
-+	} __aligned(SIPHASH_ALIGNMENT) combined = {
-+		.dst = *dst,
-+	};
-+	u64 val;
+diff --git a/drivers/opp/of.c b/drivers/opp/of.c
+index d64a13d7881b..a53123356697 100644
+--- a/drivers/opp/of.c
++++ b/drivers/opp/of.c
+@@ -423,8 +423,9 @@ static int _of_add_opp_table_v2(struct device *dev, struct device_node *opp_np)
+ 		}
+ 	}
  
--	net_get_random_once(&seed, sizeof(seed));
--	val = jhash2((const u32 *)dst, sizeof(*dst)/sizeof(u32), seed);
-+	net_get_random_once(&rt6_exception_key, sizeof(rt6_exception_key));
- 
- #ifdef CONFIG_IPV6_SUBTREES
- 	if (src)
--		val = jhash2((const u32 *)src, sizeof(*src)/sizeof(u32), val);
-+		combined.src = *src;
- #endif
--	return hash_32(val, FIB6_EXCEPTION_BUCKET_SIZE_SHIFT);
-+	val = siphash(&combined, sizeof(combined), &rt6_exception_key);
-+
-+	return hash_64(val, FIB6_EXCEPTION_BUCKET_SIZE_SHIFT);
- }
- 
- /* Helper function to find the cached rt in the hash table
+-	/* There should be one of more OPP defined */
+-	if (WARN_ON(!count)) {
++	/* There should be one or more OPPs defined */
++	if (!count) {
++		dev_err(dev, "%s: no supported OPPs", __func__);
+ 		ret = -ENOENT;
+ 		goto put_opp_table;
+ 	}
 -- 
 2.30.2
 
