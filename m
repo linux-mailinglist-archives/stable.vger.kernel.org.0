@@ -2,73 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B35FB3FD6B8
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 11:25:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4DEC3FD6BE
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 11:28:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243473AbhIAJZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 05:25:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50048 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243420AbhIAJZi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 05:25:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D09E760243;
-        Wed,  1 Sep 2021 09:24:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630488282;
-        bh=3Ub5TuLCETYGSlCwYWm/uyw/bnQeicSeTu3XhHBG160=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xPA+8vmSKq55EsCti4I/UTvMgoD3n5RwGkfW1U5KAto4/vpVayhOmORYiPMEpuDo5
-         xK95dJOIr4WQNwVokMeQ9XdAaoT9pe4woTggPTAzUk2fjtxL6lWUKfBHmfaFU9Tb20
-         z2PsrYvrPL1Q9gu3RYAqxU/Cq6Zv1Umu+hScRdGY=
-Date:   Wed, 1 Sep 2021 11:24:34 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
-        mathieu.desnoyers@efficios.com, akpm@linux-foundation.org,
-        metze@samba.org, mingo@redhat.com, peterz@infradead.org,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] tracepoint: Use rcu get state and cond
- sync for static call" failed to apply to 5.10-stable tree
-Message-ID: <YS9G0kzfRNmi0hiI@kroah.com>
-References: <1628500832155134@kroah.com>
- <20210819170933.5c4c6a38@oasis.local.home>
- <20210819204204.00f9ad28@rorschach.local.home>
- <20210820175738.GH4126399@paulmck-ThinkPad-P17-Gen-1>
- <20210820181306.72467e4a@oasis.local.home>
+        id S243465AbhIAJ3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 05:29:37 -0400
+Received: from new1-smtp.messagingengine.com ([66.111.4.221]:41261 "EHLO
+        new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S243314AbhIAJ3h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 05:29:37 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 71BA8580B31;
+        Wed,  1 Sep 2021 05:28:40 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Wed, 01 Sep 2021 05:28:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=hjKhFYSRanqW3ieK7WfmVCGe65O
+        txH7oj5QcwBwcF/I=; b=kH7ZD4TbENRfccCEhk7bbqWw/tR+TJRq4arDsT7sBoR
+        3Ag2qPqjOIprqEh1Ke4KKAjE0kpuXex8gafDEvmcxn6QxrX6ItPwEnpTVyR0n2e5
+        IlI84zbpa2VEBk81hVYqV6Yy0g48VNJp/Yen2YqbViQiDqJ3UP9Y8LHUwh2QQbhe
+        tSE5qCMFadYPmXMBGzNWr3WcWN7UwHihq1Ne9ygJw1ppgpTp2+GxDKU0znyvf6DN
+        9UzUGSqLJAyoCLPMblUBR4GqafOhHqEF3HA1Py3l0rL664j6sqV34jKROo4D4ayr
+        zAtVlCr6tBFBfjhyEzT3BVn1qIW7U+35WX383rcH8oA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hjKhFY
+        SRanqW3ieK7WfmVCGe65OtxH7oj5QcwBwcF/I=; b=UUO4osKr4lAXGXmd/Wcgm2
+        XNCDf3I5+NYFvgw/jEQbEhnKTUtW+dFiMqGf9BcdR2N+VT49HXbqMXXScak9WmAM
+        AxDg/ERJ5Gwcl+tKi/uO1lS6iW12K5E9ZpsiLAb2vFE8qQDGybZfz2pK9QEJyEmr
+        1r/UPoAS9ev5gpO6eRkxpbvna/QBsJlYHRR31oYCU4ijFjTdJndCehytsmUhT7ig
+        j9tcnBVo4q9wWE9GTiikXMoZfs0k+qfuqlgvdhSrkAgew8nEU8Dnwar1tDey5kNs
+        Q6Ad4xYJBoLFomH1ybqfQjkVdyS/7KVBn1RO3zrqA0VdIAAoec+DDvIN9kMy2UAg
+        ==
+X-ME-Sender: <xms:xkcvYYNWVqd0R3X-VOb3eOudZ3OBdhL2zAItJT26y2xSYWiFRm5Big>
+    <xme:xkcvYe-jNnTjfaSZIfQTHonWcEylQqgSInpqSSyIgxYYwrJYs9Ly2IRtBDlwmviYf
+    CnLhpa-uttcOQ>
+X-ME-Received: <xmr:xkcvYfTeQOygYOs-XPacW2GqgX_RW_ZV0KQMdBvar8LnPQfO7kZl7Qqr6FMiESlbOmP-I08nCUKXBu2S01uBhUY7dUB_X_1a>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddvfedgudeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
+    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:xkcvYQuSwUVRjF46xtUj1idAMdICA_myxKthNPm2ukIxxLBbQbXaTA>
+    <xmx:xkcvYQfVCAXY_4NmVAEsPaiXWae3JWT9XIvC_N55DNoSg3VfFNdEbA>
+    <xmx:xkcvYU2agQmAgPDCp0CwpmOnManxPEMQAp0wxj5ec3VrXV-Vv9T4rg>
+    <xmx:yEcvYTxIAokmDCwRpkbj5FYb1sTxiMCuS7wTwV56pt1uq5vRePzb2g>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 1 Sep 2021 05:28:37 -0400 (EDT)
+Date:   Wed, 1 Sep 2021 11:28:34 +0200
+From:   Greg KH <greg@kroah.com>
+To:     DENG Qingfang <dqfext@gmail.com>
+Cc:     stable@vger.kernel.org, Vladimir Oltean <olteanv@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "open list:MEDIATEK SWITCH DRIVER" <netdev@vger.kernel.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>,
+        open list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 5.4.y] net: dsa: mt7530: fix VLAN traffic leaks again
+Message-ID: <YS9HwpC9TulUvps/@kroah.com>
+References: <20210823070928.166082-1-dqfext@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210820181306.72467e4a@oasis.local.home>
+In-Reply-To: <20210823070928.166082-1-dqfext@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 20, 2021 at 06:13:28PM -0400, Steven Rostedt wrote:
-> On Fri, 20 Aug 2021 10:57:38 -0700
-> "Paul E. McKenney" <paulmck@kernel.org> wrote:
+On Mon, Aug 23, 2021 at 03:09:27PM +0800, DENG Qingfang wrote:
+> [ Upstream commit 7428022b50d0fbb4846dd0f00639ea09d36dff02 ]
 > 
-> > > Paul, do you have any issues with these four patches getting backported?  
-> > 
-> > I believe that you also need to backport 74612a07b83f ("srcu: Make Tiny
-> > SRCU use multi-bit grace-period counter").  Otherwise, Tiny SRCU polling
-> > grace periods will be at best working by accident.
-> > 
-> > This will also make your small conflict go away.
+> When a port leaves a VLAN-aware bridge, the current code does not clear
+> other ports' matrix field bit. If the bridge is later set to VLAN-unaware
+> mode, traffic in the bridge may leak to that port.
 > 
-> Thanks for looking at this Paul. Yes, that commit helps where I don't
-> have to do any fixes.
+> Remove the VLAN filtering check in mt7530_port_bridge_leave.
 > 
-> Greg,
-> 
-> Can you please backport the following commits to 5.10, and then reapply
-> this patch?
-> 
-> 29d2bb94a8a1 ("srcu: Provide internal interface to start a Tree SRCU grace period")
-> 5358c9fa54b0 ("srcu: Provide polling interfaces for Tree SRCU grace periods")
-> 1a893c711a60 ("srcu: Provide internal interface to start a Tiny SRCU grace period")
-> 74612a07b83f ("srcu: Make Tiny SRCU use multi-bit grace-period counter")
-> 8b5bd67cf642 ("srcu: Provide polling interfaces for Tiny SRCU grace periods")
+> Fixes: 4fe4e1f48ba1 ("net: dsa: mt7530: fix VLAN traffic leaks")
+> Fixes: 83163f7dca56 ("net: dsa: mediatek: add VLAN support for MT7530")
+> Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+> Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> ---
+>  drivers/net/dsa/mt7530.c | 5 +----
+>  1 file changed, 1 insertion(+), 4 deletions(-)
 
-Now done, thanks.
+Now queued up, thanks.
 
 greg k-h
