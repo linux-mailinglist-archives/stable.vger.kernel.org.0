@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 362963FDAA3
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46673FDC28
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245013AbhIAMds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:33:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35228 "EHLO mail.kernel.org"
+        id S244151AbhIAMrN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:47:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244880AbhIAMcO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:32:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 016C061054;
-        Wed,  1 Sep 2021 12:31:16 +0000 (UTC)
+        id S1345917AbhIAMpM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:45:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B504061027;
+        Wed,  1 Sep 2021 12:39:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499477;
-        bh=f0+gpd3EIWYmKisaSQRezAEUlSgRd0fBzLThl7MQRQc=;
+        s=korg; t=1630499962;
+        bh=JEd+8Xp1YGXP325hpWXdlEMZVoVaLY7ECgc9TY/vB6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OaAFQVKE7uk9EPzYq8bMaePGgsyXpdUVwyAznWV9P/jMuww7RgziHigWeaGZ4bg4P
-         KVsz6k+jNuYrtdv8a5zrEq6ypOAA3KtND3HxTKpLOHHqAzUCSV4U7E0rSovLbuELoK
-         UZIDgQDsUPvNplRRsiVv81dOvV3pGRLaIENJ5BFw=
+        b=rYYa+rIoaGDQFzRfOxYGbMjyFm9+RfUk8SuBfyiYvLnTK2vEXebVpwdhv4FN+vHwa
+         RyXwP7ZZ5LKb/eW6XX82RMAIwN84edf1pmsA52RnHq0a98cJiSGjU+pSmN7C3kX1Eo
+         yTWoFE9RhD1e0AQDVLPOTrkacHvthYQbDNIX4oO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Tuo Li <islituo@gmail.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/48] IB/hfi1: Fix possible null-pointer dereference in _extend_sdma_tx_descs()
+Subject: [PATCH 5.13 050/113] net: marvell: fix MVNETA_TX_IN_PRGRS bit number
 Date:   Wed,  1 Sep 2021 14:28:05 +0200
-Message-Id: <20210901122253.910343398@linuxfoundation.org>
+Message-Id: <20210901122303.654506724@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
-References: <20210901122253.388326997@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-[ Upstream commit cbe71c61992c38f72c2b625b2ef25916b9f0d060 ]
+[ Upstream commit 359f4cdd7d78fdf8c098713b05fee950a730f131 ]
 
-kmalloc_array() is called to allocate memory for tx->descp. If it fails,
-the function __sdma_txclean() is called:
-  __sdma_txclean(dd, tx);
+According to Armada XP datasheet bit at 0 position is corresponding for
+TxInProg indication.
 
-However, in the function __sdma_txclean(), tx-descp is dereferenced if
-tx->num_desc is not zero:
-  sdma_unmap_desc(dd, &tx->descp[0]);
-
-To fix this possible null-pointer dereference, assign the return value of
-kmalloc_array() to a local variable descp, and then assign it to tx->descp
-if it is not NULL. Otherwise, go to enomem.
-
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20210806133029.194964-1-islituo@gmail.com
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Tested-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Acked-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: c5aff18204da ("net: mvneta: driver for Marvell Armada 370/XP network unit")
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/sdma.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/marvell/mvneta.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
-index c61b6022575e..248be21acdbe 100644
---- a/drivers/infiniband/hw/hfi1/sdma.c
-+++ b/drivers/infiniband/hw/hfi1/sdma.c
-@@ -3056,6 +3056,7 @@ static void __sdma_process_event(struct sdma_engine *sde,
- static int _extend_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
- {
- 	int i;
-+	struct sdma_desc *descp;
- 
- 	/* Handle last descriptor */
- 	if (unlikely((tx->num_desc == (MAX_DESC - 1)))) {
-@@ -3076,12 +3077,10 @@ static int _extend_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
- 	if (unlikely(tx->num_desc == MAX_DESC))
- 		goto enomem;
- 
--	tx->descp = kmalloc_array(
--			MAX_DESC,
--			sizeof(struct sdma_desc),
--			GFP_ATOMIC);
--	if (!tx->descp)
-+	descp = kmalloc_array(MAX_DESC, sizeof(struct sdma_desc), GFP_ATOMIC);
-+	if (!descp)
- 		goto enomem;
-+	tx->descp = descp;
- 
- 	/* reserve last descriptor for coalescing */
- 	tx->desc_limit = MAX_DESC - 1;
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index 618623014180..76c680515764 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -105,7 +105,7 @@
+ #define	MVNETA_VLAN_PRIO_TO_RXQ			 0x2440
+ #define      MVNETA_VLAN_PRIO_RXQ_MAP(prio, rxq) ((rxq) << ((prio) * 3))
+ #define MVNETA_PORT_STATUS                       0x2444
+-#define      MVNETA_TX_IN_PRGRS                  BIT(1)
++#define      MVNETA_TX_IN_PRGRS                  BIT(0)
+ #define      MVNETA_TX_FIFO_EMPTY                BIT(8)
+ #define MVNETA_RX_MIN_FRAME_SIZE                 0x247c
+ /* Only exists on Armada XP and Armada 370 */
 -- 
 2.30.2
 
