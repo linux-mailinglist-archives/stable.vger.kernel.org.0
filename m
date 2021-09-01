@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F673FDB17
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8C933FDBF9
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245692AbhIAMhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:37:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34618 "EHLO mail.kernel.org"
+        id S1345150AbhIAMqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:46:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245700AbhIAMg0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:36:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FB6E61100;
-        Wed,  1 Sep 2021 12:33:31 +0000 (UTC)
+        id S244116AbhIAMm3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:42:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E936F610FA;
+        Wed,  1 Sep 2021 12:37:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499611;
-        bh=E51Muz1iXsRxNM9xs1WnIZsHhYoR0zxbn+vezwwZuvQ=;
+        s=korg; t=1630499863;
+        bh=bshTLC1uJlE+pTmdql1NoWvc/HC9abF6H6tLLErjrck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBcFUKs0EuTnIXxPzRJBfm9j3Jt+hHwaR2kirtB9dwsuMkDt9pveHtFDaRKwiPL8t
-         KoUyCInKk9ZCJn/PRqJq/JsvM5z+Qfys4lQR3prAf6+Iu+u6wTAZTeRH8fBPHYknKh
-         i2y5Td/iOb/RyyuzvwbXWaFVB/y6Iujmm4zksy0I=
+        b=MkDKU6F8F34dlpiJgmN1vfk4z34WeQCql0SzeOzODDt4Oot3dA9t9U28FoCS7WKUO
+         A8xg8QAMY6nVt2uKLkK0WRfZeRixT1kJMMCs4J+kUnYWCNpU8tHxuqPZmXFl3+uHaS
+         Nfl2yg07avRJlEt1YOJ3diw1B3hM/5oTtQ7ClrRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengjun Zhang <zhangzhengjun@aicrobo.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 018/103] USB: serial: option: add new VID/PID to support Fibocom FG150
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 013/113] net: mscc: Fix non-GPL export of regmap APIs
 Date:   Wed,  1 Sep 2021 14:27:28 +0200
-Message-Id: <20210901122301.139252725@linuxfoundation.org>
+Message-Id: <20210901122302.423860457@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,278 +41,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengjun Zhang <zhangzhengjun@aicrobo.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 2829a4e3cf3a6ac2fa3cdb681b37574630fb9c1a upstream.
+[ Upstream commit 48c812e0327744b4965296f65c23fe2405692afc ]
 
-Fibocom FG150 is a 5G module based on Qualcomm SDX55 platform,
-support Sub-6G band.
+The ocelot driver makes use of regmap, wrapping it with driver specific
+operations that are thin wrappers around the core regmap APIs. These are
+exported with EXPORT_SYMBOL, dropping the _GPL from the core regmap
+exports which is frowned upon. Add _GPL suffixes to at least the APIs that
+are doing register I/O.
 
-Here are the outputs of lsusb -v and usb-devices:
-
-> T:  Bus=02 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=5000 MxCh= 0
-> D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-> P:  Vendor=2cb7 ProdID=010b Rev=04.14
-> S:  Manufacturer=Fibocom
-> S:  Product=Fibocom Modem_SN:XXXXXXXX
-> S:  SerialNumber=XXXXXXXX
-> C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
-> I:  If#=0x0 Alt= 0 #EPs= 1 Cls=ef(misc ) Sub=04 Prot=01 Driver=rndis_host
-> I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-> I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-> I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
-> I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-
-> Bus 002 Device 002: ID 2cb7:010b Fibocom Fibocom Modem_SN:XXXXXXXX
-> Device Descriptor:
->   bLength                18
->   bDescriptorType         1
->   bcdUSB               3.20
->   bDeviceClass            0
->   bDeviceSubClass         0
->   bDeviceProtocol         0
->   bMaxPacketSize0         9
->   idVendor           0x2cb7 Fibocom
->   idProduct          0x010b
->   bcdDevice            4.14
->   iManufacturer           1 Fibocom
->   iProduct                2 Fibocom Modem_SN:XXXXXXXX
->   iSerial                 3 XXXXXXXX
->   bNumConfigurations      1
->   Configuration Descriptor:
->     bLength                 9
->     bDescriptorType         2
->     wTotalLength       0x00e6
->     bNumInterfaces          5
->     bConfigurationValue     1
->     iConfiguration          4 RNDIS_DUN_DIAG_ADB
->     bmAttributes         0xa0
->       (Bus Powered)
->       Remote Wakeup
->     MaxPower              896mA
->     Interface Association:
->       bLength                 8
->       bDescriptorType        11
->       bFirstInterface         0
->       bInterfaceCount         2
->       bFunctionClass        239 Miscellaneous Device
->       bFunctionSubClass       4
->       bFunctionProtocol       1
->       iFunction               7 RNDIS
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        0
->       bAlternateSetting       0
->       bNumEndpoints           1
->       bInterfaceClass       239 Miscellaneous Device
->       bInterfaceSubClass      4
->       bInterfaceProtocol      1
->       iInterface              0
->       ** UNRECOGNIZED:  05 24 00 10 01
->       ** UNRECOGNIZED:  05 24 01 00 01
->       ** UNRECOGNIZED:  04 24 02 00
->       ** UNRECOGNIZED:  05 24 06 00 01
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x81  EP 1 IN
->         bmAttributes            3
->           Transfer Type            Interrupt
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0008  1x 8 bytes
->         bInterval               9
->         bMaxBurst               0
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        1
->       bAlternateSetting       0
->       bNumEndpoints           2
->       bInterfaceClass        10 CDC Data
->       bInterfaceSubClass      0
->       bInterfaceProtocol      0
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x8e  EP 14 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               6
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x0f  EP 15 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               6
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        2
->       bAlternateSetting       0
->       bNumEndpoints           3
->       bInterfaceClass       255 Vendor Specific Class
->       bInterfaceSubClass      0
->       bInterfaceProtocol      0
->       iInterface              0
->       ** UNRECOGNIZED:  05 24 00 10 01
->       ** UNRECOGNIZED:  05 24 01 00 00
->       ** UNRECOGNIZED:  04 24 02 02
->       ** UNRECOGNIZED:  05 24 06 00 00
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x83  EP 3 IN
->         bmAttributes            3
->           Transfer Type            Interrupt
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x000a  1x 10 bytes
->         bInterval               9
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x82  EP 2 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x01  EP 1 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        3
->       bAlternateSetting       0
->       bNumEndpoints           2
->       bInterfaceClass       255 Vendor Specific Class
->       bInterfaceSubClass    255 Vendor Specific Subclass
->       bInterfaceProtocol     48
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x84  EP 4 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x02  EP 2 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        4
->       bAlternateSetting       0
->       bNumEndpoints           2
->       bInterfaceClass       255 Vendor Specific Class
->       bInterfaceSubClass     66
->       bInterfaceProtocol      1
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x03  EP 3 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x85  EP 5 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
-> Binary Object Store Descriptor:
->   bLength                 5
->   bDescriptorType        15
->   wTotalLength       0x0016
->   bNumDeviceCaps          2
->   USB 2.0 Extension Device Capability:
->     bLength                 7
->     bDescriptorType        16
->     bDevCapabilityType      2
->     bmAttributes   0x00000006
->       BESL Link Power Management (LPM) Supported
->   SuperSpeed USB Device Capability:
->     bLength                10
->     bDescriptorType        16
->     bDevCapabilityType      3
->     bmAttributes         0x00
->     wSpeedsSupported   0x000f
->       Device can operate at Low Speed (1Mbps)
->       Device can operate at Full Speed (12Mbps)
->       Device can operate at High Speed (480Mbps)
->       Device can operate at SuperSpeed (5Gbps)
->     bFunctionalitySupport   1
->       Lowest fully-functional device speed is Full Speed (12Mbps)
->     bU1DevExitLat           1 micro seconds
->     bU2DevExitLat         500 micro seconds
-> Device Status:     0x0000
->   (Bus Powered)
-
-Signed-off-by: Zhengjun Zhang <zhangzhengjun@aicrobo.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mscc/ocelot_io.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2074,6 +2074,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(4) | RSVD(5) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
- 	  .driver_info = RSVD(6) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2df3, 0x9d03, 0xff) },			/* LongSung M5710 */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
+diff --git a/drivers/net/ethernet/mscc/ocelot_io.c b/drivers/net/ethernet/mscc/ocelot_io.c
+index ea4e83410fe4..7390fa3980ec 100644
+--- a/drivers/net/ethernet/mscc/ocelot_io.c
++++ b/drivers/net/ethernet/mscc/ocelot_io.c
+@@ -21,7 +21,7 @@ u32 __ocelot_read_ix(struct ocelot *ocelot, u32 reg, u32 offset)
+ 		    ocelot->map[target][reg & REG_MASK] + offset, &val);
+ 	return val;
+ }
+-EXPORT_SYMBOL(__ocelot_read_ix);
++EXPORT_SYMBOL_GPL(__ocelot_read_ix);
+ 
+ void __ocelot_write_ix(struct ocelot *ocelot, u32 val, u32 reg, u32 offset)
+ {
+@@ -32,7 +32,7 @@ void __ocelot_write_ix(struct ocelot *ocelot, u32 val, u32 reg, u32 offset)
+ 	regmap_write(ocelot->targets[target],
+ 		     ocelot->map[target][reg & REG_MASK] + offset, val);
+ }
+-EXPORT_SYMBOL(__ocelot_write_ix);
++EXPORT_SYMBOL_GPL(__ocelot_write_ix);
+ 
+ void __ocelot_rmw_ix(struct ocelot *ocelot, u32 val, u32 mask, u32 reg,
+ 		     u32 offset)
+@@ -45,7 +45,7 @@ void __ocelot_rmw_ix(struct ocelot *ocelot, u32 val, u32 mask, u32 reg,
+ 			   ocelot->map[target][reg & REG_MASK] + offset,
+ 			   mask, val);
+ }
+-EXPORT_SYMBOL(__ocelot_rmw_ix);
++EXPORT_SYMBOL_GPL(__ocelot_rmw_ix);
+ 
+ u32 ocelot_port_readl(struct ocelot_port *port, u32 reg)
+ {
+@@ -58,7 +58,7 @@ u32 ocelot_port_readl(struct ocelot_port *port, u32 reg)
+ 	regmap_read(port->target, ocelot->map[target][reg & REG_MASK], &val);
+ 	return val;
+ }
+-EXPORT_SYMBOL(ocelot_port_readl);
++EXPORT_SYMBOL_GPL(ocelot_port_readl);
+ 
+ void ocelot_port_writel(struct ocelot_port *port, u32 val, u32 reg)
+ {
+@@ -69,7 +69,7 @@ void ocelot_port_writel(struct ocelot_port *port, u32 val, u32 reg)
+ 
+ 	regmap_write(port->target, ocelot->map[target][reg & REG_MASK], val);
+ }
+-EXPORT_SYMBOL(ocelot_port_writel);
++EXPORT_SYMBOL_GPL(ocelot_port_writel);
+ 
+ void ocelot_port_rmwl(struct ocelot_port *port, u32 val, u32 mask, u32 reg)
+ {
+@@ -77,7 +77,7 @@ void ocelot_port_rmwl(struct ocelot_port *port, u32 val, u32 mask, u32 reg)
+ 
+ 	ocelot_port_writel(port, (cur & (~mask)) | val, reg);
+ }
+-EXPORT_SYMBOL(ocelot_port_rmwl);
++EXPORT_SYMBOL_GPL(ocelot_port_rmwl);
+ 
+ u32 __ocelot_target_read_ix(struct ocelot *ocelot, enum ocelot_target target,
+ 			    u32 reg, u32 offset)
+@@ -128,7 +128,7 @@ int ocelot_regfields_init(struct ocelot *ocelot,
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL(ocelot_regfields_init);
++EXPORT_SYMBOL_GPL(ocelot_regfields_init);
+ 
+ static struct regmap_config ocelot_regmap_config = {
+ 	.reg_bits	= 32,
+@@ -148,4 +148,4 @@ struct regmap *ocelot_regmap_init(struct ocelot *ocelot, struct resource *res)
+ 
+ 	return devm_regmap_init_mmio(ocelot->dev, regs, &ocelot_regmap_config);
+ }
+-EXPORT_SYMBOL(ocelot_regmap_init);
++EXPORT_SYMBOL_GPL(ocelot_regmap_init);
+-- 
+2.30.2
+
 
 
