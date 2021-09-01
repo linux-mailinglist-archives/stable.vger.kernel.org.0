@@ -2,196 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 190453FD8C7
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 13:31:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F4943FD8CE
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 13:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243198AbhIALcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 07:32:23 -0400
-Received: from new1-smtp.messagingengine.com ([66.111.4.221]:42585 "EHLO
-        new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238369AbhIALcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 07:32:19 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 571FC5802DF;
-        Wed,  1 Sep 2021 07:31:22 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 01 Sep 2021 07:31:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=S
-        1RVPrc/JniTsOu3BXowJ2wtLOesVnuNoMJ1MWL5+Lc=; b=yOfRhLvj3kho2weuO
-        7r+/zecodQnKYEo0U2s+PaKKrq4GXfZE1bOEJARXZXU+Qmd5kYXbxFiKWVT+vFJ5
-        LrZOsJ1gvELb1u1nXqjRNeUNby3pN2QW8HFzgiX1LPmza0iH4naxdxpdzMwvrF46
-        4olrClCssrBePfJ6zEVNJCecpvgPp3ynaUmEUOgZkvsAqjbMUJVXei/aD05BFIbC
-        ujfu7Z6K+Wx/3wqojERCvH49WBDCMG1Nzf1DXWLdsdlaR+7ms2SxK2hzW9kb2nvD
-        PkeBjcVivSfXHXstJ2A67ELhke4srjNOWnc78oCQs56gnF77V+Ms1hxW6m7IQSGf
-        EWl/g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=S1RVPrc/JniTsOu3BXowJ2wtLOesVnuNoMJ1MWL5+
-        Lc=; b=BKPg07tJE1cUKlzd0dxkj3cOA43c5XguC+N0ICtkb1OR0f6CqiOJzFQYF
-        BgDvBrUt8GO7MVSGDzbyNWP9vCHmsqhSf9i0zhowk802oA+0vHnfFqTZKPlBt9uA
-        LlWpt1PSOhjIlvD2PV42NdQZWueoYAVVTqmlmomQQFvQNNbn6TuMK5OawSe6HLx9
-        /RkjIjzpwwv/alU9L3dG3X53njGmwaIDTAnwq8uoYCydJcMQg6F8BGu5gIFtnhWt
-        HQuw2MgWGI2avjWC0n5BRfLjrC28UsoKZ65xg4MbZcjvEr/onYuuwoEeXi7npn2E
-        MecJIb4jvxydo9jK4DcFYjMuSIaJw==
-X-ME-Sender: <xms:iWQvYWMtTDEWQNE3R7Iu4k96vaxr9fPtNSX8bhj-TQJ_p2DJUJYIcg>
-    <xme:iWQvYU9hcGfv0TzZBIoq_GiQ9LQ74xdjuCAZ8TN4IooLjwUtZiEMYTwxUk2iM3qqu
-    WulOv9h9hQEEw>
-X-ME-Received: <xmr:iWQvYdTAejDkL6E0A5B8f39ZSUkjskltcaaqrI1s2RiCkkB9f8qEgJ0HnLT2LKMaIhn-L0PTycbfHFfPM03n0QfmE5XrSsKl>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddruddvfedggeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtjeenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueehke
-    ehlefffeeiudetfeekjeffvdeuheejjeffheeludfgteekvdelkeduuddvnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:iWQvYWv-1c2F5Oy3S1sn6-9WkxIZuJms131P-QG0fCOKEcLOtdqK3A>
-    <xmx:iWQvYec5mXdVZUXt50l3IoAPy0txr8n1zLAciTvFWqe6upelrR8_VQ>
-    <xmx:iWQvYa3NHcoX0PDcUFa38dwXFJ5N43X3fl6IewxXLq7olJM77PBLuA>
-    <xmx:imQvYU18lPm-QR-Hfht_VmtGA6tRb9KAeS5i0XsGny7XA89DfDNRyQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 1 Sep 2021 07:31:20 -0400 (EDT)
-Date:   Wed, 1 Sep 2021 13:31:18 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Cc:     stable@vger.kernel.org, bpf@vger.kernel.org,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Pavel Machek <pavel@denx.de>
-Subject: Re: [PATCH 4.14 1/4] bpf: Do not use ax register in interpreter on
- div/mod
-Message-ID: <YS9khsCFrPQ4PZDm@kroah.com>
-References: <20210830183211.339054-1-cascardo@canonical.com>
- <20210830183211.339054-2-cascardo@canonical.com>
- <YS9kXabJPWScxiHi@kroah.com>
+        id S243816AbhIALeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 07:34:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44462 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S243815AbhIALeT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 07:34:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FAF060F6C;
+        Wed,  1 Sep 2021 11:33:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1630496003;
+        bh=uOS2PGAyYqY1T1zKjypa7soawXSbJwJhEYljZnARoPQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=VK6ebfUXvXwuQEOyDxDEnrV1C8PNeTkbiNzJFcby6HnbdYHTQFKPFjq6t1rRPpgvU
+         960Z9xNXAbXOejMDfyr1MF698ZWoQ7XSAjl3RhrsHWwreub9a6j11j/GNb20VyCLA7
+         CVo0VVJYh/P+yagJt0HbR4xsEeLqmR0yef8BrN4M=
+Subject: FAILED: patch "[PATCH] fscrypt: add fscrypt_symlink_getattr() for computing st_size" failed to apply to 5.10-stable tree
+To:     ebiggers@google.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 01 Sep 2021 13:33:20 +0200
+Message-ID: <16304960001370@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <YS9kXabJPWScxiHi@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 01, 2021 at 01:30:37PM +0200, Greg KH wrote:
-> On Mon, Aug 30, 2021 at 03:32:08PM -0300, Thadeu Lima de Souza Cascardo wrote:
-> > From: Daniel Borkmann <daniel@iogearbox.net>
-> > 
-> > Partially undo old commit 144cd91c4c2b ("bpf: move tmp variable into ax
-> > register in interpreter"). The reason we need this here is because ax
-> > register will be used for holding temporary state for div/mod instruction
-> > which otherwise interpreter would corrupt. This will cause a small +8 byte
-> > stack increase for interpreter, but with the gain that we can use it from
-> > verifier rewrites as scratch register.
-> > 
-> > Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-> > Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-> > [cascardo: This partial revert is needed in order to support using AX for
-> > the following two commits, as there is no JMP32 on 4.19.y]
-> > Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-> > ---
-> >  kernel/bpf/core.c | 32 +++++++++++++++-----------------
-> >  1 file changed, 15 insertions(+), 17 deletions(-)
-> > 
-> > diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-> > index e7211b0fa27c..30d871be9974 100644
-> > --- a/kernel/bpf/core.c
-> > +++ b/kernel/bpf/core.c
-> > @@ -616,9 +616,6 @@ static int bpf_jit_blind_insn(const struct bpf_insn *from,
-> >  	 * below.
-> >  	 *
-> >  	 * Constant blinding is only used by JITs, not in the interpreter.
-> > -	 * The interpreter uses AX in some occasions as a local temporary
-> > -	 * register e.g. in DIV or MOD instructions.
-> > -	 *
-> >  	 * In restricted circumstances, the verifier can also use the AX
-> >  	 * register for rewrites as long as they do not interfere with
-> >  	 * the above cases!
-> > @@ -951,6 +948,7 @@ static unsigned int ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn,
-> >  	u32 tail_call_cnt = 0;
-> >  	void *ptr;
-> >  	int off;
-> > +	u64 tmp;
-> >  
-> >  #define CONT	 ({ insn++; goto select_insn; })
-> >  #define CONT_JMP ({ insn++; goto select_insn; })
-> > @@ -1013,22 +1011,22 @@ static unsigned int ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn,
-> >  	ALU64_MOD_X:
-> >  		if (unlikely(SRC == 0))
-> >  			return 0;
-> > -		div64_u64_rem(DST, SRC, &AX);
-> > -		DST = AX;
-> > +		div64_u64_rem(DST, SRC, &tmp);
-> > +		DST = tmp;
-> >  		CONT;
-> >  	ALU_MOD_X:
-> >  		if (unlikely((u32)SRC == 0))
-> >  			return 0;
-> > -		AX = (u32) DST;
-> > -		DST = do_div(AX, (u32) SRC);
-> > +		tmp = (u32) DST;
-> > +		DST = do_div(tmp, (u32) SRC);
-> >  		CONT;
-> >  	ALU64_MOD_K:
-> > -		div64_u64_rem(DST, IMM, &AX);
-> > -		DST = AX;
-> > +		div64_u64_rem(DST, IMM, &tmp);
-> > +		DST = tmp;
-> >  		CONT;
-> >  	ALU_MOD_K:
-> > -		AX = (u32) DST;
-> > -		DST = do_div(AX, (u32) IMM);
-> > +		tmp = (u32) DST;
-> > +		DST = do_div(tmp, (u32) IMM);
-> >  		CONT;
-> >  	ALU64_DIV_X:
-> >  		if (unlikely(SRC == 0))
-> > @@ -1038,17 +1036,17 @@ static unsigned int ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn,
-> >  	ALU_DIV_X:
-> >  		if (unlikely((u32)SRC == 0))
-> >  			return 0;
-> > -		AX = (u32) DST;
-> > -		do_div(AX, (u32) SRC);
-> > -		DST = (u32) AX;
-> > +		tmp = (u32) DST;
-> > +		do_div(tmp, (u32) SRC);
-> > +		DST = (u32) tmp;
-> >  		CONT;
-> >  	ALU64_DIV_K:
-> >  		DST = div64_u64(DST, IMM);
-> >  		CONT;
-> >  	ALU_DIV_K:
-> > -		AX = (u32) DST;
-> > -		do_div(AX, (u32) IMM);
-> > -		DST = (u32) AX;
-> > +		tmp = (u32) DST;
-> > +		do_div(tmp, (u32) IMM);
-> > +		DST = (u32) tmp;
-> >  		CONT;
-> >  	ALU_END_TO_BE:
-> >  		switch (IMM) {
-> > -- 
-> > 2.30.2
-> > 
-> 
-> Oops, no, this patch causes build errors:
-> 
-> kernel/bpf/core.c: In function ‘___bpf_prog_run’:
-> kernel/bpf/core.c:951:13: error: redeclaration of ‘tmp’ with no linkage
->   951 |         u64 tmp;
->       |             ^~~
-> kernel/bpf/core.c:839:13: note: previous declaration of ‘tmp’ with type ‘u64’ {aka ‘long long unsigned int’}
->   839 |         u64 tmp;
->       |             ^~~
-> make[2]: *** [scripts/Makefile.build:329: kernel/bpf/core.o] Error 1
-> 
-> 
-> Please fix up and resend the whole series, as I will go drop these 3
-> patches from the 4.14.y queue now.
 
-All _4_ patches I mean.  now dropped...
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From d18760560593e5af921f51a8c9b64b6109d634c2 Mon Sep 17 00:00:00 2001
+From: Eric Biggers <ebiggers@google.com>
+Date: Thu, 1 Jul 2021 23:53:46 -0700
+Subject: [PATCH] fscrypt: add fscrypt_symlink_getattr() for computing st_size
+
+Add a helper function fscrypt_symlink_getattr() which will be called
+from the various filesystems' ->getattr() methods to read and decrypt
+the target of encrypted symlinks in order to report the correct st_size.
+
+Detailed explanation:
+
+As required by POSIX and as documented in various man pages, st_size for
+a symlink is supposed to be the length of the symlink target.
+Unfortunately, st_size has always been wrong for encrypted symlinks
+because st_size is populated from i_size from disk, which intentionally
+contains the length of the encrypted symlink target.  That's slightly
+greater than the length of the decrypted symlink target (which is the
+symlink target that userspace usually sees), and usually won't match the
+length of the no-key encoded symlink target either.
+
+This hadn't been fixed yet because reporting the correct st_size would
+require reading the symlink target from disk and decrypting or encoding
+it, which historically has been considered too heavyweight to do in
+->getattr().  Also historically, the wrong st_size had only broken a
+test (LTP lstat03) and there were no known complaints from real users.
+(This is probably because the st_size of symlinks isn't used too often,
+and when it is, typically it's for a hint for what buffer size to pass
+to readlink() -- which a slightly-too-large size still works for.)
+
+However, a couple things have changed now.  First, there have recently
+been complaints about the current behavior from real users:
+
+- Breakage in rpmbuild:
+  https://github.com/rpm-software-management/rpm/issues/1682
+  https://github.com/google/fscrypt/issues/305
+
+- Breakage in toybox cpio:
+  https://www.mail-archive.com/toybox@lists.landley.net/msg07193.html
+
+- Breakage in libgit2: https://issuetracker.google.com/issues/189629152
+  (on Android public issue tracker, requires login)
+
+Second, we now cache decrypted symlink targets in ->i_link.  Therefore,
+taking the performance hit of reading and decrypting the symlink target
+in ->getattr() wouldn't be as big a deal as it used to be, since usually
+it will just save having to do the same thing later.
+
+Also note that eCryptfs ended up having to read and decrypt symlink
+targets in ->getattr() as well, to fix this same issue; see
+commit 3a60a1686f0d ("eCryptfs: Decrypt symlink target for stat size").
+
+So, let's just bite the bullet, and read and decrypt the symlink target
+in ->getattr() in order to report the correct st_size.  Add a function
+fscrypt_symlink_getattr() which the filesystems will call to do this.
+
+(Alternatively, we could store the decrypted size of symlinks on-disk.
+But there isn't a great place to do so, and encryption is meant to hide
+the original size to some extent; that property would be lost.)
+
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210702065350.209646-2-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+
+diff --git a/fs/crypto/hooks.c b/fs/crypto/hooks.c
+index a73b0376e6f3..af74599ae1cf 100644
+--- a/fs/crypto/hooks.c
++++ b/fs/crypto/hooks.c
+@@ -384,3 +384,47 @@ const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
+ 	return ERR_PTR(err);
+ }
+ EXPORT_SYMBOL_GPL(fscrypt_get_symlink);
++
++/**
++ * fscrypt_symlink_getattr() - set the correct st_size for encrypted symlinks
++ * @path: the path for the encrypted symlink being queried
++ * @stat: the struct being filled with the symlink's attributes
++ *
++ * Override st_size of encrypted symlinks to be the length of the decrypted
++ * symlink target (or the no-key encoded symlink target, if the key is
++ * unavailable) rather than the length of the encrypted symlink target.  This is
++ * necessary for st_size to match the symlink target that userspace actually
++ * sees.  POSIX requires this, and some userspace programs depend on it.
++ *
++ * This requires reading the symlink target from disk if needed, setting up the
++ * inode's encryption key if possible, and then decrypting or encoding the
++ * symlink target.  This makes lstat() more heavyweight than is normally the
++ * case.  However, decrypted symlink targets will be cached in ->i_link, so
++ * usually the symlink won't have to be read and decrypted again later if/when
++ * it is actually followed, readlink() is called, or lstat() is called again.
++ *
++ * Return: 0 on success, -errno on failure
++ */
++int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat)
++{
++	struct dentry *dentry = path->dentry;
++	struct inode *inode = d_inode(dentry);
++	const char *link;
++	DEFINE_DELAYED_CALL(done);
++
++	/*
++	 * To get the symlink target that userspace will see (whether it's the
++	 * decrypted target or the no-key encoded target), we can just get it in
++	 * the same way the VFS does during path resolution and readlink().
++	 */
++	link = READ_ONCE(inode->i_link);
++	if (!link) {
++		link = inode->i_op->get_link(dentry, inode, &done);
++		if (IS_ERR(link))
++			return PTR_ERR(link);
++	}
++	stat->size = strlen(link);
++	do_delayed_call(&done);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(fscrypt_symlink_getattr);
+diff --git a/include/linux/fscrypt.h b/include/linux/fscrypt.h
+index 2ea1387bb497..b7bfd0cd4f3e 100644
+--- a/include/linux/fscrypt.h
++++ b/include/linux/fscrypt.h
+@@ -253,6 +253,7 @@ int __fscrypt_encrypt_symlink(struct inode *inode, const char *target,
+ const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
+ 				unsigned int max_size,
+ 				struct delayed_call *done);
++int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat);
+ static inline void fscrypt_set_ops(struct super_block *sb,
+ 				   const struct fscrypt_operations *s_cop)
+ {
+@@ -583,6 +584,12 @@ static inline const char *fscrypt_get_symlink(struct inode *inode,
+ 	return ERR_PTR(-EOPNOTSUPP);
+ }
+ 
++static inline int fscrypt_symlink_getattr(const struct path *path,
++					  struct kstat *stat)
++{
++	return -EOPNOTSUPP;
++}
++
+ static inline void fscrypt_set_ops(struct super_block *sb,
+ 				   const struct fscrypt_operations *s_cop)
+ {
+
