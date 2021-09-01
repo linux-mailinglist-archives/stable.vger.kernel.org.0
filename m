@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E57E03FD99C
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:27:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDE43FD98D
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:27:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244123AbhIAM15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:27:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57046 "EHLO mail.kernel.org"
+        id S244067AbhIAM1b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:27:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244136AbhIAM1w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:27:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4222A60BD3;
-        Wed,  1 Sep 2021 12:26:55 +0000 (UTC)
+        id S244076AbhIAM1b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:27:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 042EA6101B;
+        Wed,  1 Sep 2021 12:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499215;
-        bh=EdaVfwVqQySnlK3kfvV6DheWXtvvGB/RNn59vXK5RCQ=;
+        s=korg; t=1630499194;
+        bh=nbDaieXQmUkIedNlAIj4P9JNKmxJvEcQAwDf9D18Ao8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s6pBaR9hMIYRSoULgpPYK+G2PZVn9VM6OkbCJgZ1/RUdolEXjd5AAXeRG8DxI+CRj
-         8+cnTi33wLzeZFxqXXfxkb7veg6Z+8yjPQ/Qu3WVg8abJJg7M3wbvpp+aSJ1qvI74r
-         kVYuVRHpcifDBxOajnvJovFf5RyZt8Ok4GsDsdUs=
+        b=mvvpDM8WYt++lyNm5y7i/RagIN1SzEaSznxaC3h2/yg2ceoXsLDun/JLiMfpgjwmb
+         Ey4NiTn3f7GKLL+pMPg9rrbNFejwbQ6gycVAzdRFCdaBWdMZAJBWmknTl/Wm6EbieV
+         RFJU2HsxraImcdL2CeYoPgA5+LK9iMVBtxL6vR5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
-        syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Dhaval Giani <dhaval.giani@oracle.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.4 09/10] fbmem: add margin check to fb_check_caps()
-Date:   Wed,  1 Sep 2021 14:26:23 +0200
-Message-Id: <20210901122248.350923315@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Hounschell <markh@compro.net>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Wim Osterholt <wim@djo.tudelft.nl>,
+        Kurt Garloff <kurt@garloff.de>,
+        Denis Efremov <efremov@linux.com>
+Subject: [PATCH 4.4 10/10] Revert "floppy: reintroduce O_NDELAY fix"
+Date:   Wed,  1 Sep 2021 14:26:24 +0200
+Message-Id: <20210901122248.380753301@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122248.051808371@linuxfoundation.org>
 References: <20210901122248.051808371@linuxfoundation.org>
@@ -42,42 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Denis Efremov <efremov@linux.com>
 
-commit a49145acfb975d921464b84fe00279f99827d816 upstream.
+commit c7e9d0020361f4308a70cdfd6d5335e273eb8717 upstream.
 
-A fb_ioctl() FBIOPUT_VSCREENINFO call with invalid xres setting
-or yres setting in struct fb_var_screeninfo will result in a
-KASAN: vmalloc-out-of-bounds failure in bitfill_aligned() as
-the margins are being cleared. The margins are cleared in
-chunks and if the xres setting or yres setting is a value of
-zero upto the chunk size, the failure will occur.
+The patch breaks userspace implementations (e.g. fdutils) and introduces
+regressions in behaviour. Previously, it was possible to O_NDELAY open a
+floppy device with no media inserted or with write protected media without
+an error. Some userspace tools use this particular behavior for probing.
 
-Add a margin check to validate xres and yres settings.
+It's not the first time when we revert this patch. Previous revert is in
+commit f2791e7eadf4 (Revert "floppy: refactor open() flags handling").
 
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Reported-by: syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Dhaval Giani <dhaval.giani@oracle.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1594149963-13801-1-git-send-email-george.kennedy@oracle.com
+This reverts commit 8a0c014cd20516ade9654fc13b51345ec58e7be8.
+
+Link: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
+Reported-by: Mark Hounschell <markh@compro.net>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Wim Osterholt <wim@djo.tudelft.nl>
+Cc: Kurt Garloff <kurt@garloff.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Denis Efremov <efremov@linux.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/block/floppy.c |   27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1001,6 +1001,10 @@ fb_set_var(struct fb_info *info, struct
- 			goto done;
- 		}
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -4066,22 +4066,21 @@ static int floppy_open(struct block_devi
+ 	if (UFDCS->rawcmd == 1)
+ 		UFDCS->rawcmd = 2;
  
-+		/* bitfill_aligned() assumes that it's at least 8x8 */
-+		if (var->xres < 8 || var->yres < 8)
-+			return -EINVAL;
-+
- 		ret = info->fbops->fb_check_var(var, info);
- 
- 		if (ret)
+-	if (mode & (FMODE_READ|FMODE_WRITE)) {
+-		UDRS->last_checked = 0;
+-		clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
+-		check_disk_change(bdev);
+-		if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
+-			goto out;
+-		if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
++	if (!(mode & FMODE_NDELAY)) {
++		if (mode & (FMODE_READ|FMODE_WRITE)) {
++			UDRS->last_checked = 0;
++			clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
++			check_disk_change(bdev);
++			if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
++				goto out;
++			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
++				goto out;
++		}
++		res = -EROFS;
++		if ((mode & FMODE_WRITE) &&
++		    !test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
+ 			goto out;
+ 	}
+-
+-	res = -EROFS;
+-
+-	if ((mode & FMODE_WRITE) &&
+-			!test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
+-		goto out;
+-
+ 	mutex_unlock(&open_lock);
+ 	mutex_unlock(&floppy_mutex);
+ 	return 0;
 
 
