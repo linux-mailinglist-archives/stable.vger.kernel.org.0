@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C315D3FDCC2
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65EC43FDC93
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345131AbhIAMxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:53:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54326 "EHLO mail.kernel.org"
+        id S1344275AbhIAMv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:51:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345342AbhIAMvK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:51:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F36AD61245;
-        Wed,  1 Sep 2021 12:42:24 +0000 (UTC)
+        id S1346425AbhIAMuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:50:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A120611C9;
+        Wed,  1 Sep 2021 12:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500145;
-        bh=fXuSyLaEggTtLsZpaJOhrTJ96Armyvq2aY82TXaH6oY=;
+        s=korg; t=1630500107;
+        bh=8KFKL57BU8TXiy9A2Pa1qbTuMhjJfgk8e1ia+X1m2jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uqFR7hyIn30K2ufjGDQEwEeShwRCtUFWK7dFeBpqo43uQOBm3JJ49EKRkoOVy9art
-         WyTBCsHYlzBBXqmXCWvCcMrpZLzD2wtAcgce9xfN+ayOSWozL98hyVJdGyreDGlJs6
-         LL2fpa4pKotGWSJGCTjBdMhc7sUQQoX4RkWhi14Y=
+        b=T306dd/jf3JfDKUMz4wQmf+D825aprlqH97BRuUj8hW2riAG+1VCELSaZXWgL+K9j
+         pV4QuD9howFdbuTW3aTqEXZGCDz8Mdf/NsMh0++RAKLa1diMvJRMqhVDWzdDlWOaJi
+         uz0Dj+DV33/sst2QTdgOhSobonN4aIAp2MnvhOd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Anand Jain <anand.jain@oracle.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.13 105/113] btrfs: fix NULL pointer dereference when deleting device by invalid id
-Date:   Wed,  1 Sep 2021 14:29:00 +0200
-Message-Id: <20210901122305.431418053@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Hounschell <markh@compro.net>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Wim Osterholt <wim@djo.tudelft.nl>,
+        Kurt Garloff <kurt@garloff.de>,
+        Denis Efremov <efremov@linux.com>
+Subject: [PATCH 5.13 106/113] Revert "floppy: reintroduce O_NDELAY fix"
+Date:   Wed,  1 Sep 2021 14:29:01 +0200
+Message-Id: <20210901122305.465169580@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
 References: <20210901122301.984263453@linuxfoundation.org>
@@ -40,79 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Denis Efremov <efremov@linux.com>
 
-commit e4571b8c5e9ffa1e85c0c671995bd4dcc5c75091 upstream.
+commit c7e9d0020361f4308a70cdfd6d5335e273eb8717 upstream.
 
-[BUG]
-It's easy to trigger NULL pointer dereference, just by removing a
-non-existing device id:
+The patch breaks userspace implementations (e.g. fdutils) and introduces
+regressions in behaviour. Previously, it was possible to O_NDELAY open a
+floppy device with no media inserted or with write protected media without
+an error. Some userspace tools use this particular behavior for probing.
 
- # mkfs.btrfs -f -m single -d single /dev/test/scratch1 \
-				     /dev/test/scratch2
- # mount /dev/test/scratch1 /mnt/btrfs
- # btrfs device remove 3 /mnt/btrfs
+It's not the first time when we revert this patch. Previous revert is in
+commit f2791e7eadf4 (Revert "floppy: refactor open() flags handling").
 
-Then we have the following kernel NULL pointer dereference:
+This reverts commit 8a0c014cd20516ade9654fc13b51345ec58e7be8.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP NOPTI
- CPU: 9 PID: 649 Comm: btrfs Not tainted 5.14.0-rc3-custom+ #35
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
- RIP: 0010:btrfs_rm_device+0x4de/0x6b0 [btrfs]
-  btrfs_ioctl+0x18bb/0x3190 [btrfs]
-  ? lock_is_held_type+0xa5/0x120
-  ? find_held_lock.constprop.0+0x2b/0x80
-  ? do_user_addr_fault+0x201/0x6a0
-  ? lock_release+0xd2/0x2d0
-  ? __x64_sys_ioctl+0x83/0xb0
-  __x64_sys_ioctl+0x83/0xb0
-  do_syscall_64+0x3b/0x90
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-[CAUSE]
-Commit a27a94c2b0c7 ("btrfs: Make btrfs_find_device_by_devspec return
-btrfs_device directly") moves the "missing" device path check into
-btrfs_rm_device().
-
-But btrfs_rm_device() itself can have case where it only receives
-@devid, with NULL as @device_path.
-
-In that case, calling strcmp() on NULL will trigger the NULL pointer
-dereference.
-
-Before that commit, we handle the "missing" case inside
-btrfs_find_device_by_devspec(), which will not check @device_path at all
-if @devid is provided, thus no way to trigger the bug.
-
-[FIX]
-Before calling strcmp(), also make sure @device_path is not NULL.
-
-Fixes: a27a94c2b0c7 ("btrfs: Make btrfs_find_device_by_devspec return btrfs_device directly")
-CC: stable@vger.kernel.org # 5.4+
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
+Reported-by: Mark Hounschell <markh@compro.net>
+Cc: Jiri Kosina <jkosina@suse.cz>
+Cc: Wim Osterholt <wim@djo.tudelft.nl>
+Cc: Kurt Garloff <kurt@garloff.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Denis Efremov <efremov@linux.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/volumes.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/floppy.c |   30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -2137,7 +2137,7 @@ int btrfs_rm_device(struct btrfs_fs_info
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -4029,23 +4029,23 @@ static int floppy_open(struct block_devi
+ 	if (fdc_state[FDC(drive)].rawcmd == 1)
+ 		fdc_state[FDC(drive)].rawcmd = 2;
  
- 	if (IS_ERR(device)) {
- 		if (PTR_ERR(device) == -ENOENT &&
--		    strcmp(device_path, "missing") == 0)
-+		    device_path && strcmp(device_path, "missing") == 0)
- 			ret = BTRFS_ERROR_DEV_MISSING_NOT_FOUND;
- 		else
- 			ret = PTR_ERR(device);
+-	if (mode & (FMODE_READ|FMODE_WRITE)) {
+-		drive_state[drive].last_checked = 0;
+-		clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &drive_state[drive].flags);
+-		if (bdev_check_media_change(bdev))
+-			floppy_revalidate(bdev->bd_disk);
+-		if (test_bit(FD_DISK_CHANGED_BIT, &drive_state[drive].flags))
+-			goto out;
+-		if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &drive_state[drive].flags))
++	if (!(mode & FMODE_NDELAY)) {
++		if (mode & (FMODE_READ|FMODE_WRITE)) {
++			drive_state[drive].last_checked = 0;
++			clear_bit(FD_OPEN_SHOULD_FAIL_BIT,
++				  &drive_state[drive].flags);
++			if (bdev_check_media_change(bdev))
++				floppy_revalidate(bdev->bd_disk);
++			if (test_bit(FD_DISK_CHANGED_BIT, &drive_state[drive].flags))
++				goto out;
++			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &drive_state[drive].flags))
++				goto out;
++		}
++		res = -EROFS;
++		if ((mode & FMODE_WRITE) &&
++		    !test_bit(FD_DISK_WRITABLE_BIT, &drive_state[drive].flags))
+ 			goto out;
+ 	}
+-
+-	res = -EROFS;
+-
+-	if ((mode & FMODE_WRITE) &&
+-			!test_bit(FD_DISK_WRITABLE_BIT, &drive_state[drive].flags))
+-		goto out;
+-
+ 	mutex_unlock(&open_lock);
+ 	mutex_unlock(&floppy_mutex);
+ 	return 0;
 
 
