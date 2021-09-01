@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D19CA3FDA28
+	by mail.lfdr.de (Postfix) with ESMTP id 894663FDA27
 	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244406AbhIAMam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244387AbhIAMam (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 1 Sep 2021 08:30:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59862 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244571AbhIAM34 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:29:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0A4E6102A;
-        Wed,  1 Sep 2021 12:28:57 +0000 (UTC)
+        id S244096AbhIAM35 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:29:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 632A061054;
+        Wed,  1 Sep 2021 12:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499338;
-        bh=SSgTprFdfkjFhkooqfWAOUr0gc5o9bqBCiA0UxVorWo=;
+        s=korg; t=1630499340;
+        bh=cbWYir7BZ3xKm7Ngcz2YovVbdRdSO19bIc6LqlEhCCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0FnbNzsGRfSwPHlc3FlJgxnydwb1TXtP0nxyU+1znRROsFZMvp4lUKtK5HthvV//L
-         DVMEY0iFHWE3IQ1vCZ3VdLg47CbYzm2QlF1rfbEsJI9YjzV004qSzt6PlXHi5VGK0y
-         CIR6WcDuPL5/0FAQwLyQ8xPX1eabulW3KappuP7A=
+        b=PlPdsHXLm25FAK9/pFhV/jRIffcYlTWH4IHzBXGRps7QzkwRiuCOH7XG7VrVpILSd
+         /HGjsmJ2ipHeq+J+3RfVhhyU4bIX/iXfSh2/yOBqIDzVDaD1UYii/eJ5q37npDUN5F
+         xQHuxYtxQjIEry+rWg//0JKIEA808r2NnaUUDSq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Tuo Li <islituo@gmail.com>,
-        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Yee Li <seven.yi.lee@gmail.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/23] IB/hfi1: Fix possible null-pointer dereference in _extend_sdma_tx_descs()
-Date:   Wed,  1 Sep 2021 14:26:52 +0200
-Message-Id: <20210901122250.016752834@linuxfoundation.org>
+Subject: [PATCH 4.14 08/23] e1000e: Fix the max snoop/no-snoop latency for 10M
+Date:   Wed,  1 Sep 2021 14:26:53 +0200
+Message-Id: <20210901122250.054793101@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122249.786673285@linuxfoundation.org>
 References: <20210901122249.786673285@linuxfoundation.org>
@@ -42,62 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit cbe71c61992c38f72c2b625b2ef25916b9f0d060 ]
+[ Upstream commit 44a13a5d99c71bf9e1676d9e51679daf4d7b3d73 ]
 
-kmalloc_array() is called to allocate memory for tx->descp. If it fails,
-the function __sdma_txclean() is called:
-  __sdma_txclean(dd, tx);
+We should decode the latency and the max_latency before directly compare.
+The latency should be presented as lat_enc = scale x value:
+lat_enc_d = (lat_enc & 0x0x3ff) x (1U << (5*((max_ltr_enc & 0x1c00)
+>> 10)))
 
-However, in the function __sdma_txclean(), tx-descp is dereferenced if
-tx->num_desc is not zero:
-  sdma_unmap_desc(dd, &tx->descp[0]);
-
-To fix this possible null-pointer dereference, assign the return value of
-kmalloc_array() to a local variable descp, and then assign it to tx->descp
-if it is not NULL. Otherwise, go to enomem.
-
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20210806133029.194964-1-islituo@gmail.com
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Tested-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Acked-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: cf8fb73c23aa ("e1000e: add support for LTR on I217/I218")
+Suggested-by: Yee Li <seven.yi.lee@gmail.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/sdma.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c | 14 +++++++++++++-
+ drivers/net/ethernet/intel/e1000e/ich8lan.h |  3 +++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
-index 741938409f8e..c1c6d2c570aa 100644
---- a/drivers/infiniband/hw/hfi1/sdma.c
-+++ b/drivers/infiniband/hw/hfi1/sdma.c
-@@ -3067,6 +3067,7 @@ static void __sdma_process_event(struct sdma_engine *sde,
- static int _extend_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index 1e990f9dd379..9d5fe4ea9cee 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -1013,6 +1013,8 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
  {
- 	int i;
-+	struct sdma_desc *descp;
+ 	u32 reg = link << (E1000_LTRV_REQ_SHIFT + E1000_LTRV_NOSNOOP_SHIFT) |
+ 	    link << E1000_LTRV_REQ_SHIFT | E1000_LTRV_SEND;
++	u16 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
++	u16 lat_enc_d = 0;	/* latency decoded */
+ 	u16 lat_enc = 0;	/* latency encoded */
  
- 	/* Handle last descriptor */
- 	if (unlikely((tx->num_desc == (MAX_DESC - 1)))) {
-@@ -3087,12 +3088,10 @@ static int _extend_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
- 	if (unlikely(tx->num_desc == MAX_DESC))
- 		goto enomem;
+ 	if (link) {
+@@ -1066,7 +1068,17 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
+ 				     E1000_PCI_LTR_CAP_LPT + 2, &max_nosnoop);
+ 		max_ltr_enc = max_t(u16, max_snoop, max_nosnoop);
  
--	tx->descp = kmalloc_array(
--			MAX_DESC,
--			sizeof(struct sdma_desc),
--			GFP_ATOMIC);
--	if (!tx->descp)
-+	descp = kmalloc_array(MAX_DESC, sizeof(struct sdma_desc), GFP_ATOMIC);
-+	if (!descp)
- 		goto enomem;
-+	tx->descp = descp;
+-		if (lat_enc > max_ltr_enc)
++		lat_enc_d = (lat_enc & E1000_LTRV_VALUE_MASK) *
++			     (1U << (E1000_LTRV_SCALE_FACTOR *
++			     ((lat_enc & E1000_LTRV_SCALE_MASK)
++			     >> E1000_LTRV_SCALE_SHIFT)));
++
++		max_ltr_enc_d = (max_ltr_enc & E1000_LTRV_VALUE_MASK) *
++				 (1U << (E1000_LTRV_SCALE_FACTOR *
++				 ((max_ltr_enc & E1000_LTRV_SCALE_MASK)
++				 >> E1000_LTRV_SCALE_SHIFT)));
++
++		if (lat_enc_d > max_ltr_enc_d)
+ 			lat_enc = max_ltr_enc;
+ 	}
  
- 	/* reserve last descriptor for coalescing */
- 	tx->desc_limit = MAX_DESC - 1;
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+index 88df80c0894b..e32012d39827 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+@@ -292,8 +292,11 @@
+ 
+ /* Latency Tolerance Reporting */
+ #define E1000_LTRV			0x000F8
++#define E1000_LTRV_VALUE_MASK		0x000003FF
+ #define E1000_LTRV_SCALE_MAX		5
+ #define E1000_LTRV_SCALE_FACTOR		5
++#define E1000_LTRV_SCALE_SHIFT		10
++#define E1000_LTRV_SCALE_MASK		0x00001C00
+ #define E1000_LTRV_REQ_SHIFT		15
+ #define E1000_LTRV_NOSNOOP_SHIFT	16
+ #define E1000_LTRV_SEND			(1 << 30)
 -- 
 2.30.2
 
