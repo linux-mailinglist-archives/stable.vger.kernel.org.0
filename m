@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2143FDC87
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBC6F3FDBB2
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343780AbhIAMvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54242 "EHLO mail.kernel.org"
+        id S1345336AbhIAMnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:43:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346280AbhIAMtl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:49:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E1466120D;
-        Wed,  1 Sep 2021 12:41:18 +0000 (UTC)
+        id S1345185AbhIAMkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1256611C8;
+        Wed,  1 Sep 2021 12:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500079;
-        bh=pdzR9bAcvlOI9LJRvaU3alz4Kke8fRSlkhih6w2qr9M=;
+        s=korg; t=1630499840;
+        bh=v4m37Mcdj3/PAUrDBqe/P3b9LrKCm9UQl7lYH54LLsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qs4TTuhtJvi3r5EvFb++AvfXUIrhqvBQPyyyGDEGnVKai3k0g3ANRp/WioLs8nUWs
-         Q1wSUAhiR7K9cA0uUyFg2R4urUiHrRYELSwyuvByBbcmXCxx2q5LOfmJ2f950pIv/a
-         t/4EGLA7o/OY/ZQG3oyz16mTUrBT/dq7Ff3OK2ps=
+        b=uiQEcSWDANqzxz60bru22Fg0Z7PbRO6mSlO7TlNSY0H98pzRw6Sa8kmB/GmfI2EDR
+         Yrmq36MmwYBMeVXXoN4GV7gBdgMKGwEgy5CQDFwKY3fpjFwOiKmvzkQfteJVbhFev5
+         uCn2kiOL0iLY5L578InUe1YOMPIk6KJNm9EBLI+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 093/113] drm/nouveau/disp: power down unused DP links during init
-Date:   Wed,  1 Sep 2021 14:28:48 +0200
-Message-Id: <20210901122305.067632064@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 099/103] kthread: Fix PF_KTHREAD vs to_kthread() race
+Date:   Wed,  1 Sep 2021 14:28:49 +0200
+Message-Id: <20210901122303.861890601@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,81 +41,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 6eaa1f3c59a707332e921e32782ffcad49915c5e ]
+commit 3a7956e25e1d7b3c148569e78895e1f3178122a9 upstream.
 
-When booted with multiple displays attached, the EFI GOP driver on (at
-least) Ampere, can leave DP links powered up that aren't being used to
-display anything.  This confuses our tracking of SOR routing, with the
-likely result being a failed modeset and display engine hang.
+The kthread_is_per_cpu() construct relies on only being called on
+PF_KTHREAD tasks (per the WARN in to_kthread). This gives rise to the
+following usage pattern:
 
-Fix this by (ab?)using the DisableLT IED script to power-down the link,
-restoring HW to a state the driver expects.
+	if ((p->flags & PF_KTHREAD) && kthread_is_per_cpu(p))
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, as reported by syzcaller, this is broken. The scenario is:
+
+	CPU0				CPU1 (running p)
+
+	(p->flags & PF_KTHREAD) // true
+
+					begin_new_exec()
+					  me->flags &= ~(PF_KTHREAD|...);
+	kthread_is_per_cpu(p)
+	  to_kthread(p)
+	    WARN(!(p->flags & PF_KTHREAD) <-- *SPLAT*
+
+Introduce __to_kthread() that omits the WARN and is sure to check both
+values.
+
+Use this to remove the problematic pattern for kthread_is_per_cpu()
+and fix a number of other kthread_*() functions that have similar
+issues but are currently not used in ways that would expose the
+problem.
+
+Notably kthread_func() is only ever called on 'current', while
+kthread_probe_data() is only used for PF_WQ_WORKER, which implies the
+task is from kthread_create*().
+
+Fixes: ac687e6e8c26 ("kthread: Extract KTHREAD_IS_PER_CPU")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <Valentin.Schneider@arm.com>
+Link: https://lkml.kernel.org/r/YH6WJc825C4P0FCK@hirez.programming.kicks-ass.net
+[ Drop the balance_push() hunk as it is not needed. ]
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c   | 2 +-
- drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h   | 1 +
- drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c | 9 +++++++++
- 3 files changed, 11 insertions(+), 1 deletion(-)
+ kernel/kthread.c    |   33 +++++++++++++++++++++++++++------
+ kernel/sched/fair.c |    2 +-
+ 2 files changed, 28 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-index 55fbfe28c6dc..9669472a2749 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-@@ -440,7 +440,7 @@ nvkm_dp_train(struct nvkm_dp *dp, u32 dataKBps)
- 	return ret;
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -84,6 +84,25 @@ static inline struct kthread *to_kthread
+ 	return (__force void *)k->set_child_tid;
  }
  
--static void
-+void
- nvkm_dp_disable(struct nvkm_outp *outp, struct nvkm_ior *ior)
++/*
++ * Variant of to_kthread() that doesn't assume @p is a kthread.
++ *
++ * Per construction; when:
++ *
++ *   (p->flags & PF_KTHREAD) && p->set_child_tid
++ *
++ * the task is both a kthread and struct kthread is persistent. However
++ * PF_KTHREAD on it's own is not, kernel_thread() can exec() (See umh.c and
++ * begin_new_exec()).
++ */
++static inline struct kthread *__to_kthread(struct task_struct *p)
++{
++	void *kthread = (__force void *)p->set_child_tid;
++	if (kthread && !(p->flags & PF_KTHREAD))
++		kthread = NULL;
++	return kthread;
++}
++
+ void free_kthread_struct(struct task_struct *k)
  {
- 	struct nvkm_dp *dp = nvkm_dp(outp);
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h
-index 428b3f488f03..e484d0c3b0d4 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h
-@@ -32,6 +32,7 @@ struct nvkm_dp {
- 
- int nvkm_dp_new(struct nvkm_disp *, int index, struct dcb_output *,
- 		struct nvkm_outp **);
-+void nvkm_dp_disable(struct nvkm_outp *, struct nvkm_ior *);
- 
- /* DPCD Receiver Capabilities */
- #define DPCD_RC00_DPCD_REV                                              0x00000
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c
-index dffcac249211..129982fef7ef 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c
-@@ -22,6 +22,7 @@
-  * Authors: Ben Skeggs
+ 	struct kthread *kthread;
+@@ -168,8 +187,9 @@ EXPORT_SYMBOL_GPL(kthread_freezable_shou
   */
- #include "outp.h"
-+#include "dp.h"
- #include "ior.h"
+ void *kthread_func(struct task_struct *task)
+ {
+-	if (task->flags & PF_KTHREAD)
+-		return to_kthread(task)->threadfn;
++	struct kthread *kthread = __to_kthread(task);
++	if (kthread)
++		return kthread->threadfn;
+ 	return NULL;
+ }
+ EXPORT_SYMBOL_GPL(kthread_func);
+@@ -199,10 +219,11 @@ EXPORT_SYMBOL_GPL(kthread_data);
+  */
+ void *kthread_probe_data(struct task_struct *task)
+ {
+-	struct kthread *kthread = to_kthread(task);
++	struct kthread *kthread = __to_kthread(task);
+ 	void *data = NULL;
  
- #include <subdev/bios.h>
-@@ -257,6 +258,14 @@ nvkm_outp_init_route(struct nvkm_outp *outp)
- 	if (!ior->arm.head || ior->arm.proto != proto) {
- 		OUTP_DBG(outp, "no heads (%x %d %d)", ior->arm.head,
- 			 ior->arm.proto, proto);
-+
-+		/* The EFI GOP driver on Ampere can leave unused DP links routed,
-+		 * which we don't expect.  The DisableLT IED script *should* get
-+		 * us back to where we need to be.
-+		 */
-+		if (ior->func->route.get && !ior->arm.head && outp->info.type == DCB_OUTPUT_DP)
-+			nvkm_dp_disable(outp, ior);
-+
- 		return;
- 	}
+-	copy_from_kernel_nofault(&data, &kthread->data, sizeof(data));
++	if (kthread)
++		copy_from_kernel_nofault(&data, &kthread->data, sizeof(data));
+ 	return data;
+ }
  
--- 
-2.30.2
-
+@@ -514,9 +535,9 @@ void kthread_set_per_cpu(struct task_str
+ 	set_bit(KTHREAD_IS_PER_CPU, &kthread->flags);
+ }
+ 
+-bool kthread_is_per_cpu(struct task_struct *k)
++bool kthread_is_per_cpu(struct task_struct *p)
+ {
+-	struct kthread *kthread = to_kthread(k);
++	struct kthread *kthread = __to_kthread(p);
+ 	if (!kthread)
+ 		return false;
+ 
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -7569,7 +7569,7 @@ int can_migrate_task(struct task_struct
+ 		return 0;
+ 
+ 	/* Disregard pcpu kthreads; they are where they need to be. */
+-	if ((p->flags & PF_KTHREAD) && kthread_is_per_cpu(p))
++	if (kthread_is_per_cpu(p))
+ 		return 0;
+ 
+ 	if (!cpumask_test_cpu(env->dst_cpu, p->cpus_ptr)) {
 
 
