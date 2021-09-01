@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B7543FDB7B
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0F253FDC7A
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343733AbhIAMlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42100 "EHLO mail.kernel.org"
+        id S1345212AbhIAMvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345047AbhIAMk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:40:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 453D661213;
-        Wed,  1 Sep 2021 12:36:44 +0000 (UTC)
+        id S1345855AbhIAMsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:48:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F74D60F91;
+        Wed,  1 Sep 2021 12:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499805;
-        bh=4RyrASzB5xiC0pIFKT4U1pwY5jfaK2cnXKgU/ZysE4w=;
+        s=korg; t=1630500061;
+        bh=+eEZQxjVm8xcGiVgKXT3C3Oxr9tB3gg9XaPUcH9tcgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ya+mm78lAU6knCA1S/N6HHaymzZUlK8fx8QK2Il82xUibWYQfrv2YBRiP0feto70W
-         MGPPhtWuEOT1miZQ0eTUoB9IOaYuE4BFVIer0s37gE6eKtPsuXZmVs9fMSuGcTU2yh
-         O6uYJucDt1t5ATkPACFb4A+94RFdc8jY1WKj4R/s=
+        b=etl7GERlRWXzVQXHw8qAtrx4/h1BIsNv6ge0z67CHeX8yDmkouXlqbuuerliFvOMd
+         v7YDMdYP8RDLAFQPRINL26w4u4OIIO82lEfHtF518wp45xo+5q85+jW+yPE8odt5rg
+         O1+6MEw3jRo6Up2JZmiB06NDPXRSsyrfy+PXGtAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Benjamin Berg <bberg@redhat.com>
-Subject: [PATCH 5.10 092/103] usb: typec: ucsi: acpi: Always decode connector change information
+        stable@vger.kernel.org, Kenneth Feng <kenneth.feng@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 087/113] Revert "drm/amd/pm: fix workload mismatch on vega10"
 Date:   Wed,  1 Sep 2021 14:28:42 +0200
-Message-Id: <20210901122303.634239910@linuxfoundation.org>
+Message-Id: <20210901122304.878487127@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Berg <bberg@redhat.com>
+From: Kenneth Feng <kenneth.feng@amd.com>
 
-commit 47ea2929d58c35598e681212311d35b240c373ce upstream.
+[ Upstream commit 2fd31689f9e44af949f60ff4f8aca013e628ab81 ]
 
-Normal commands may be reporting that a connector has changed. Always
-call the usci_connector_change handler and let it take care of
-scheduling the work when needed.
-Doing this makes the ACPI code path identical to the CCG one.
+This reverts commit 0979d43259e13846d86ba17e451e17fec185d240.
+Revert this because it does not apply to all the cards.
 
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Benjamin Berg <bberg@redhat.com>
-Link: https://lore.kernel.org/r/20201009144047.505957-2-benjamin@sipsolutions.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kenneth Feng <kenneth.feng@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/ucsi/ucsi_acpi.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/typec/ucsi/ucsi_acpi.c
-+++ b/drivers/usb/typec/ucsi/ucsi_acpi.c
-@@ -103,11 +103,12 @@ static void ucsi_acpi_notify(acpi_handle
- 	if (ret)
- 		return;
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
+index 31c61ac3bd5e..f5a32654cde7 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
+@@ -5160,7 +5160,7 @@ static int vega10_set_power_profile_mode(struct pp_hwmgr *hwmgr, long *input, ui
  
-+	if (UCSI_CCI_CONNECTOR(cci))
-+		ucsi_connector_change(ua->ucsi, UCSI_CCI_CONNECTOR(cci));
-+
- 	if (test_bit(COMMAND_PENDING, &ua->flags) &&
- 	    cci & (UCSI_CCI_ACK_COMPLETE | UCSI_CCI_COMMAND_COMPLETE))
- 		complete(&ua->complete);
--	else if (UCSI_CCI_CONNECTOR(cci))
--		ucsi_connector_change(ua->ucsi, UCSI_CCI_CONNECTOR(cci));
- }
+ out:
+ 	smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
+-						(!power_profile_mode) ? 0 : 1 << (power_profile_mode - 1),
++						1 << power_profile_mode,
+ 						NULL);
+ 	hwmgr->power_profile_mode = power_profile_mode;
  
- static int ucsi_acpi_probe(struct platform_device *pdev)
+-- 
+2.30.2
+
 
 
