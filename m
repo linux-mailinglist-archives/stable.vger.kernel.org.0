@@ -2,132 +2,302 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4421F3FE2F9
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 21:24:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3CE53FE303
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 21:28:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233395AbhIATZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 15:25:42 -0400
-Received: from mail-dm6nam12on2047.outbound.protection.outlook.com ([40.107.243.47]:26977
-        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231146AbhIATZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 15:25:42 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Zb7RTkQNYf3HLyhdQhOd26Z58ll6cgkjUdr8fou6Ulq8HaHzAdmsLF+l38NsBjXONg63vcbkkg+zCDc/M2ixKiZd9qNJeY7I44gLne4crXGSeZhW784HouT0Jc6WfXTIrXx8406XSckhL6oHyo1/h0Xz4hgjniv2eEhYJYvPReJOINTyBHpVlRy6SuitMHILo0Uz6ZWLX8KWQTksU2m+snPElzBc6FZzDoNrLgmUQ1+wDsJWR2vdAt/RsX0ZSVFQicNzLM78M9zpW2szcHaP6Qwy0Zfst+WlscYWxo4h8fVqMsBHrDxuj5IBR9FTQAXwjIygM98UIj9guTJNJLj9eg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=livfvoyO2dQYsQz5ZH7ScdoAgmopnAL7GT7Hs6h2hig=;
- b=jofetzV6JAmFIYUCfkckJud5+3sdmIZ7CcYq8SlRGHHQpTg5eXtWdEvih3fbTcwcvKWqS98MqMtaYB6eOq4UKLlJDo4LiTcy/n3C2ZRyAAZJgL4NyZI9cfvqWRmKFGJNLASLmI9jnAdFPwkNmCp0LTFRLlUvagOOsOCHvJ/e8UrCNg0Cs9r1Uxz4lnW5RwyCMqRXzAWHTlN7yJ1E4GNC/xrrB1CIJ52f2HLd3OmOm8s4N4+OTUfMMlkN6rorhQEvYmuQ7WuKFcaLH9ff3GHRuRH9wb+5hEiQQHRtyhbd45JKQe9vzzNzgs+ktMPkm+zDS2qaKhil9Y0bkkMOwZaIyw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.36) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
- dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=livfvoyO2dQYsQz5ZH7ScdoAgmopnAL7GT7Hs6h2hig=;
- b=sg30nhKG3GAFuUkfDwiI4poJTWkDLJLqRMx3hAjvybRapEJrZgZHrMmLndx0tP7l2Mx5ISIB96Ne9U67ySgxMfHiWDiLiuAnREnOA3IjF/7d+u3n6MSegE88Jzlae1o5gvWBTdQZ0OD4tzEgkPAFAosknKTReMKdC3oDrCPv90pz7mLditWhfArMAlqkc+eg/hfRkKjPIVzzJy+z6y6C2WMzdCAKC3rnuyYhzfhc5z2eiL5zo9JDqkeI4kZYv1iWc/eM4nwDa8qZls88BDTYoQ0Q5DfznUxouBqq27U02gI/luU6bAO1r0rZb8NW1QM3oa6g8n0KWW0GOTNqY7cxsA==
-Received: from DM5PR2201CA0021.namprd22.prod.outlook.com (2603:10b6:4:14::31)
- by BL0PR12MB2499.namprd12.prod.outlook.com (2603:10b6:207:43::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4457.20; Wed, 1 Sep
- 2021 19:24:43 +0000
-Received: from DM6NAM11FT013.eop-nam11.prod.protection.outlook.com
- (2603:10b6:4:14:cafe::89) by DM5PR2201CA0021.outlook.office365.com
- (2603:10b6:4:14::31) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4478.19 via Frontend
- Transport; Wed, 1 Sep 2021 19:24:43 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.36)
- smtp.mailfrom=nvidia.com; denx.de; dkim=none (message not signed)
- header.d=none;denx.de; dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.36 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.36; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.36) by
- DM6NAM11FT013.mail.protection.outlook.com (10.13.173.142) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4478.19 via Frontend Transport; Wed, 1 Sep 2021 19:24:43 +0000
-Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Wed, 1 Sep
- 2021 19:24:42 +0000
-Received: from jonathanh-vm-01.nvidia.com (172.20.187.5) by mail.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
- Transport; Wed, 1 Sep 2021 19:24:42 +0000
-From:   Jon Hunter <jonathanh@nvidia.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.14 00/11] 5.14.1-rc1 review
-In-Reply-To: <20210901122249.520249736@linuxfoundation.org>
-References: <20210901122249.520249736@linuxfoundation.org>
-X-NVConfidentiality: public
+        id S231146AbhIAT3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 15:29:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43248 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233472AbhIAT27 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 15:28:59 -0400
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63487C061575
+        for <stable@vger.kernel.org>; Wed,  1 Sep 2021 12:28:02 -0700 (PDT)
+Received: by mail-pg1-x52c.google.com with SMTP id w7so473016pgk.13
+        for <stable@vger.kernel.org>; Wed, 01 Sep 2021 12:28:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=GBZwW0zTjsBvV1xfNKDsxvkDjfHMwAWJ56NRbdAFfjg=;
+        b=oMrBSKzHn/k4kdf9aNPiP2RU7qGsvaQavoPQ+PDw8JFl9F8/LSM88UxKZ3yczXlXc/
+         qLhtZtCyfQfbTM6sMBDsF83Vx3qKm46nJWacpSatdrh4VH9GObYFn62y83TvEX5B4FLW
+         oVZ4Tikm0WohWYTWcdL7dzf7jks1OAi5fXm1SeW8b8UJ1HzmlqW983O4k6vrrCLk/a9H
+         jMqfeodC6PWaIfOXGVJayr4HT4wvgWxLj4aFu5qsYMTc0b7SmbuYcGHJpFZzHHgAmxRP
+         D/0c2hR+0ONpm2IiJgwLyj8bmTFzEc4bRisPnLVYrKlk1H0QrPXYOsvmhKT1FC12Opmb
+         kmJg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=GBZwW0zTjsBvV1xfNKDsxvkDjfHMwAWJ56NRbdAFfjg=;
+        b=CN4FebDWbdzmnFvRc7J4U+81I2+rjDhz1QhbgCYpRNd0mSQna6gZvsr39BSu1960zl
+         1q50haeM0zTpLQLSEpxUpplh4l4skKQ6DfErHhsLBEYqDHQDNPEouQsahcrBgRVjm2Iy
+         wnAFmRvlnLwS7DROdNq2juVtUSVmjcpBoSWcjzQICmpewoO+FNgdb+JxMJqpZIdcGQ9r
+         Pu/kr9UJ+7XNMMJRjFQ2nU4x+RPBy0zhFIK6BqWu9hhhOQyokqL+4eiu4mIVxbInk3eI
+         ysIkYilPvaRmgn/relvDhPHKgn5DPJTrAG3ac/nYWa5w6LIv/XnUiV4FQQesv1vvMg6v
+         as2Q==
+X-Gm-Message-State: AOAM530ZEIJdkeK/W93Oy7C4L94caHPMDthgcjigt7Fh9FltqNJSUbcd
+        H3Br0kavn83+5WzUuKuAMMXrsWY6E1Ok6rGMQn0=
+X-Google-Smtp-Source: ABdhPJwEu8V8/m80AC+sGKDkmB0NMRG+fLy3x1yxks3rAWR6C6nnYo9HTKK/b78q/mMj+dUtL44nUQ==
+X-Received: by 2002:a05:6a00:150a:b0:3f7:656:6ad2 with SMTP id q10-20020a056a00150a00b003f706566ad2mr944727pfu.4.1630524481550;
+        Wed, 01 Sep 2021 12:28:01 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q22sm440466pgn.67.2021.09.01.12.28.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Sep 2021 12:28:01 -0700 (PDT)
+Message-ID: <612fd441.1c69fb81.1f200.1d33@mx.google.com>
+Date:   Wed, 01 Sep 2021 12:28:01 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Message-ID: <6d2654db510141d3a1935254ac7d88cf@HQMAIL107.nvidia.com>
-Date:   Wed, 1 Sep 2021 19:24:42 +0000
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 891115da-6264-4aef-9670-08d96d7e26b6
-X-MS-TrafficTypeDiagnostic: BL0PR12MB2499:
-X-Microsoft-Antispam-PRVS: <BL0PR12MB24996CD30D8B2E2D74DB8A76D9CD9@BL0PR12MB2499.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: KuG2Vz5ChssRdURSBq8hzQMfygBlmKfSOEGL+LVEMae6UUVThuetXEkJYDnL3YExroJqsD5oGlzXt8gxs6pNPzXCxcCk1pyDGSBnJLokrp/DeyyL6ARCFwH/nVwMr8gerhxx3ZHy8mJ/zwddcKAgTND8WL0PN3cAkT5wf2/YpfXIa/owSUI93PvgKhXv+WM8wL9zGx1ibuStfMyQAfNsfz/OGrZeuf9OiGD2QTo+qQO5cPcEFw/YsVtTL727X9qT5n6zuH/yfucoUnooqLnD8DfuuJlg6GXSRa10dCg8wQLMZh79HYDsxxPHAZ1xzV+XmhXzv1QF+0eG6IdkRt5CBO6nn61K/HtnYvjXkg16maZujVnL99N4ZkSfUSIbnHXP1xIOcCJaSY3fgTN5xb6gk+Ve9Q12oDD27UpZPih4QGI1KFP/TeNR/ZuRoP+gDmEA13rogMl0SaRo7LFTUWLNwavzEp6xYFmp/DhJt+Ate1fLcMT0t03uCI+a1njOPQ4ioTH5qZ8N2ES63ObwXtIBCj95OWrYHY5VCJnlT/G3HnX6jjx4mHVYp/e48RX243SG/Ootq5QykjkGdOAqlluEr1/ncIq3AMzdGa6kZjimqkfzRB88Y5ZB1vdYcxNxIhBbooEdbAA6hjJt697Hx6aFQ5U7KMPKWz6LGjfH0wWyBRAZHznPx0Jdx84MCs/cEAHgb4JrOdKKv46KEuUjCmNH6kiI7s/mgHKV7mOds9/4bAGDImPYiquwrjyGSuiRGgA1qf7xsHN1bHguudLdEPzFg56dNfo2KwcgDqNj2XqfHY8=
-X-Forefront-Antispam-Report: CIP:216.228.112.36;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid05.nvidia.com;CAT:NONE;SFS:(4636009)(136003)(376002)(396003)(346002)(39860400002)(36840700001)(46966006)(478600001)(70206006)(54906003)(7636003)(47076005)(70586007)(336012)(108616005)(24736004)(6916009)(426003)(2906002)(8676002)(356005)(36860700001)(82740400003)(316002)(5660300002)(36906005)(966005)(186003)(7416002)(26005)(86362001)(82310400003)(8936002)(4326008);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Sep 2021 19:24:43.1293
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 891115da-6264-4aef-9670-08d96d7e26b6
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.36];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT013.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB2499
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.205-33-gc6f620c98de6
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 173 runs,
+ 7 regressions (v4.19.205-33-gc6f620c98de6)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 01 Sep 2021 14:29:08 +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.14.1 release.
-> There are 11 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 03 Sep 2021 12:22:41 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.1-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+stable-rc/queue/4.19 baseline: 173 runs, 7 regressions (v4.19.205-33-gc6f62=
+0c98de6)
 
-All tests passing for Tegra ...
+Regressions Summary
+-------------------
 
-Test results for stable-v5.14:
-    10 builds:	10 pass, 0 fail
-    28 boots:	28 pass, 0 fail
-    114 tests:	114 pass, 0 fail
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Linux version:	5.14.1-rc1-g95dc72bb9c03
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
-                tegra20-ventana, tegra210-p2371-2180,
-                tegra210-p3450-0000, tegra30-cardhu-a04
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Jon
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
+  | 3          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.205-33-gc6f620c98de6/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.205-33-gc6f620c98de6
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c6f620c98de6347276ef4a70910f962e98e507bd =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612f9eecbe76219ffdd59677
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.205=
+-33-gc6f620c98de6/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.205=
+-33-gc6f620c98de6/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612f9eecbe76219ffdd59=
+678
+        failing since 291 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612fa1b4aed384624dd5966e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.205=
+-33-gc6f620c98de6/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.205=
+-33-gc6f620c98de6/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612fa1b4aed384624dd59=
+66f
+        failing since 291 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612f9ebc6ffacdb640d59672
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.205=
+-33-gc6f620c98de6/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.205=
+-33-gc6f620c98de6/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612f9ebc6ffacdb640d59=
+673
+        failing since 291 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612f9e783f9a21196fd596ac
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.205=
+-33-gc6f620c98de6/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.205=
+-33-gc6f620c98de6/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/612f9e783f9a21196fd59=
+6ad
+        failing since 291 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
+  | 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/612fa6a317e7d74ab6d59666
+
+  Results:     64 PASS, 6 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.205=
+-33-gc6f620c98de6/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.205=
+-33-gc6f620c98de6/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/612fa6a317e7d74ab6d5967a
+        failing since 78 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-09-01T16:13:11.251669  /lava-4428981/1/../bin/lava-test-case<8>[  =
+ 18.119436] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-09-01T16:13:11.252113  =
+
+    2021-09-01T16:13:11.252477  /lava-4428981/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/612fa6a317e7d74ab6d59693
+        failing since 78 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-09-01T16:13:08.811825  /lava-4428981/1/../bin/lava-test-case<8>[  =
+ 15.678604] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-09-01T16:13:08.812379  =
+
+    2021-09-01T16:13:08.812805  /lava-4428981/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/612fa6a317e7d74ab6d59694
+        failing since 78 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-09-01T16:13:07.773690  /lava-4428981/1/../bin/lava-test-case
+    2021-09-01T16:13:07.780826  <8>[   14.659176] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
