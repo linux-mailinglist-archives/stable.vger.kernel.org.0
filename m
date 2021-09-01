@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1529A3FDBEA
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8F063FDB05
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344790AbhIAMpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:45:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48350 "EHLO mail.kernel.org"
+        id S244801AbhIAMhN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:37:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345281AbhIAMm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:42:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D124861211;
-        Wed,  1 Sep 2021 12:38:23 +0000 (UTC)
+        id S1343493AbhIAMfJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:35:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E970261102;
+        Wed,  1 Sep 2021 12:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499904;
-        bh=/kbAo5smc4gWK6UcE+nh8xH2vXnJ5qSqaqJb2pguwY8=;
+        s=korg; t=1630499599;
+        bh=bwLrbux92Y5Vm+qskrzyq96eeJLwc3+rzDBPF2PqXJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pE1yZ3QYrGKGPwzIm2V0DtEMw1oIm9Z1GJz7yCZlYakQFcdlIz4wyABPV+Sg9ty+g
-         9qhMhG0QPoz0bO6uMFyt8wexJRSeck8hBrX/4lgVFcaqD6HwRfkswt197Wgvqj+VBy
-         WcJHiRfdad5fHUR9OJ7xfGR6B/jmey3lZ3FZCcjo=
+        b=iVwDyrARsxYjWE1yJ/VlcseTCU066XtqcjhUxjIubpLTyP1okLLquHJRCa5nht0lr
+         +1Pdv4EAhcaX8l6Ch/eVC4tWrrd8iqqE4VNVpBVk258isVSHg4jxG4OFzD5jSlgDA+
+         rBemPZHTK/XAHGx0thk0V0Pq9zkEOAbYgq6p0urU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brad Spengler <spender@grsecurity.net>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 007/113] netfilter: ipset: Limit the maximal range of consecutive elements to add/delete
-Date:   Wed,  1 Sep 2021 14:27:22 +0200
-Message-Id: <20210901122302.221691053@linuxfoundation.org>
+        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.10 013/103] ceph: correctly handle releasing an embedded cap flush
+Date:   Wed,  1 Sep 2021 14:27:23 +0200
+Message-Id: <20210901122300.975643502@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,308 +40,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jozsef Kadlecsik <kadlec@netfilter.org>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit 5f7b51bf09baca8e4f80cbe879536842bafb5f31 ]
+commit b2f9fa1f3bd8846f50b355fc2168236975c4d264 upstream.
 
-The range size of consecutive elements were not limited. Thus one could
-define a huge range which may result soft lockup errors due to the long
-execution time. Now the range size is limited to 2^20 entries.
+The ceph_cap_flush structures are usually dynamically allocated, but
+the ceph_cap_snap has an embedded one.
 
-Reported-by: Brad Spengler <spender@grsecurity.net>
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When force umounting, the client will try to remove all the session
+caps. During this, it will free them, but that should not be done
+with the ones embedded in a capsnap.
+
+Fix this by adding a new boolean that indicates that the cap flush is
+embedded in a capsnap, and skip freeing it if that's set.
+
+At the same time, switch to using list_del_init() when detaching the
+i_list and g_list heads.  It's possible for a forced umount to remove
+these objects but then handle_cap_flushsnap_ack() races in and does the
+list_del_init() again, corrupting memory.
+
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/52283
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/netfilter/ipset/ip_set.h       |  3 +++
- net/netfilter/ipset/ip_set_hash_ip.c         |  9 ++++++++-
- net/netfilter/ipset/ip_set_hash_ipmark.c     | 10 +++++++++-
- net/netfilter/ipset/ip_set_hash_ipport.c     |  3 +++
- net/netfilter/ipset/ip_set_hash_ipportip.c   |  3 +++
- net/netfilter/ipset/ip_set_hash_ipportnet.c  |  3 +++
- net/netfilter/ipset/ip_set_hash_net.c        | 11 ++++++++++-
- net/netfilter/ipset/ip_set_hash_netiface.c   | 10 +++++++++-
- net/netfilter/ipset/ip_set_hash_netnet.c     | 16 +++++++++++++++-
- net/netfilter/ipset/ip_set_hash_netport.c    | 11 ++++++++++-
- net/netfilter/ipset/ip_set_hash_netportnet.c | 16 +++++++++++++++-
- 11 files changed, 88 insertions(+), 7 deletions(-)
+ fs/ceph/caps.c       |   21 +++++++++++++--------
+ fs/ceph/mds_client.c |    7 ++++---
+ fs/ceph/snap.c       |    3 +++
+ fs/ceph/super.h      |    3 ++-
+ 4 files changed, 22 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/netfilter/ipset/ip_set.h b/include/linux/netfilter/ipset/ip_set.h
-index 10279c4830ac..ada1296c87d5 100644
---- a/include/linux/netfilter/ipset/ip_set.h
-+++ b/include/linux/netfilter/ipset/ip_set.h
-@@ -196,6 +196,9 @@ struct ip_set_region {
- 	u32 elements;		/* Number of elements vs timeout */
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -1752,7 +1752,11 @@ int __ceph_mark_dirty_caps(struct ceph_i
+ 
+ struct ceph_cap_flush *ceph_alloc_cap_flush(void)
+ {
+-	return kmem_cache_alloc(ceph_cap_flush_cachep, GFP_KERNEL);
++	struct ceph_cap_flush *cf;
++
++	cf = kmem_cache_alloc(ceph_cap_flush_cachep, GFP_KERNEL);
++	cf->is_capsnap = false;
++	return cf;
+ }
+ 
+ void ceph_free_cap_flush(struct ceph_cap_flush *cf)
+@@ -1787,7 +1791,7 @@ static bool __detach_cap_flush_from_mdsc
+ 		prev->wake = true;
+ 		wake = false;
+ 	}
+-	list_del(&cf->g_list);
++	list_del_init(&cf->g_list);
+ 	return wake;
+ }
+ 
+@@ -1802,7 +1806,7 @@ static bool __detach_cap_flush_from_ci(s
+ 		prev->wake = true;
+ 		wake = false;
+ 	}
+-	list_del(&cf->i_list);
++	list_del_init(&cf->i_list);
+ 	return wake;
+ }
+ 
+@@ -2422,7 +2426,7 @@ static void __kick_flushing_caps(struct
+ 	ci->i_ceph_flags &= ~CEPH_I_KICK_FLUSH;
+ 
+ 	list_for_each_entry_reverse(cf, &ci->i_cap_flush_list, i_list) {
+-		if (!cf->caps) {
++		if (cf->is_capsnap) {
+ 			last_snap_flush = cf->tid;
+ 			break;
+ 		}
+@@ -2441,7 +2445,7 @@ static void __kick_flushing_caps(struct
+ 
+ 		first_tid = cf->tid + 1;
+ 
+-		if (cf->caps) {
++		if (!cf->is_capsnap) {
+ 			struct cap_msg_args arg;
+ 
+ 			dout("kick_flushing_caps %p cap %p tid %llu %s\n",
+@@ -3564,7 +3568,7 @@ static void handle_cap_flush_ack(struct
+ 			cleaned = cf->caps;
+ 
+ 		/* Is this a capsnap? */
+-		if (cf->caps == 0)
++		if (cf->is_capsnap)
+ 			continue;
+ 
+ 		if (cf->tid <= flush_tid) {
+@@ -3637,8 +3641,9 @@ out:
+ 	while (!list_empty(&to_remove)) {
+ 		cf = list_first_entry(&to_remove,
+ 				      struct ceph_cap_flush, i_list);
+-		list_del(&cf->i_list);
+-		ceph_free_cap_flush(cf);
++		list_del_init(&cf->i_list);
++		if (!cf->is_capsnap)
++			ceph_free_cap_flush(cf);
+ 	}
+ 
+ 	if (wake_ci)
+--- a/fs/ceph/mds_client.c
++++ b/fs/ceph/mds_client.c
+@@ -1618,7 +1618,7 @@ static int remove_session_caps_cb(struct
+ 		spin_lock(&mdsc->cap_dirty_lock);
+ 
+ 		list_for_each_entry(cf, &to_remove, i_list)
+-			list_del(&cf->g_list);
++			list_del_init(&cf->g_list);
+ 
+ 		if (!list_empty(&ci->i_dirty_item)) {
+ 			pr_warn_ratelimited(
+@@ -1670,8 +1670,9 @@ static int remove_session_caps_cb(struct
+ 		struct ceph_cap_flush *cf;
+ 		cf = list_first_entry(&to_remove,
+ 				      struct ceph_cap_flush, i_list);
+-		list_del(&cf->i_list);
+-		ceph_free_cap_flush(cf);
++		list_del_init(&cf->i_list);
++		if (!cf->is_capsnap)
++			ceph_free_cap_flush(cf);
+ 	}
+ 
+ 	wake_up_all(&ci->i_cap_wq);
+--- a/fs/ceph/snap.c
++++ b/fs/ceph/snap.c
+@@ -487,6 +487,9 @@ void ceph_queue_cap_snap(struct ceph_ino
+ 		pr_err("ENOMEM allocating ceph_cap_snap on %p\n", inode);
+ 		return;
+ 	}
++	capsnap->cap_flush.is_capsnap = true;
++	INIT_LIST_HEAD(&capsnap->cap_flush.i_list);
++	INIT_LIST_HEAD(&capsnap->cap_flush.g_list);
+ 
+ 	spin_lock(&ci->i_ceph_lock);
+ 	used = __ceph_caps_used(ci);
+--- a/fs/ceph/super.h
++++ b/fs/ceph/super.h
+@@ -181,8 +181,9 @@ struct ceph_cap {
+ 
+ struct ceph_cap_flush {
+ 	u64 tid;
+-	int caps; /* 0 means capsnap */
++	int caps;
+ 	bool wake; /* wake up flush waiters when finish ? */
++	bool is_capsnap; /* true means capsnap */
+ 	struct list_head g_list; // global
+ 	struct list_head i_list; // per inode
  };
- 
-+/* Max range where every element is added/deleted in one step */
-+#define IPSET_MAX_RANGE		(1<<20)
-+
- /* The max revision number supported by any set type + 1 */
- #define IPSET_REVISION_MAX	9
- 
-diff --git a/net/netfilter/ipset/ip_set_hash_ip.c b/net/netfilter/ipset/ip_set_hash_ip.c
-index d1bef23fd4f5..dd30c03d5a23 100644
---- a/net/netfilter/ipset/ip_set_hash_ip.c
-+++ b/net/netfilter/ipset/ip_set_hash_ip.c
-@@ -132,8 +132,11 @@ hash_ip4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		ret = ip_set_get_hostipaddr4(tb[IPSET_ATTR_IP_TO], &ip_to);
- 		if (ret)
- 			return ret;
--		if (ip > ip_to)
-+		if (ip > ip_to) {
-+			if (ip_to == 0)
-+				return -IPSET_ERR_HASH_ELEM;
- 			swap(ip, ip_to);
-+		}
- 	} else if (tb[IPSET_ATTR_CIDR]) {
- 		u8 cidr = nla_get_u8(tb[IPSET_ATTR_CIDR]);
- 
-@@ -144,6 +147,10 @@ hash_ip4_uadt(struct ip_set *set, struct nlattr *tb[],
- 
- 	hosts = h->netmask == 32 ? 1 : 2 << (32 - h->netmask - 1);
- 
-+	/* 64bit division is not allowed on 32bit */
-+	if (((u64)ip_to - ip + 1) >> (32 - h->netmask) > IPSET_MAX_RANGE)
-+		return -ERANGE;
-+
- 	if (retried) {
- 		ip = ntohl(h->next.ip);
- 		e.ip = htonl(ip);
-diff --git a/net/netfilter/ipset/ip_set_hash_ipmark.c b/net/netfilter/ipset/ip_set_hash_ipmark.c
-index 18346d18aa16..153de3457423 100644
---- a/net/netfilter/ipset/ip_set_hash_ipmark.c
-+++ b/net/netfilter/ipset/ip_set_hash_ipmark.c
-@@ -121,6 +121,8 @@ hash_ipmark4_uadt(struct ip_set *set, struct nlattr *tb[],
- 
- 	e.mark = ntohl(nla_get_be32(tb[IPSET_ATTR_MARK]));
- 	e.mark &= h->markmask;
-+	if (e.mark == 0 && e.ip == 0)
-+		return -IPSET_ERR_HASH_ELEM;
- 
- 	if (adt == IPSET_TEST ||
- 	    !(tb[IPSET_ATTR_IP_TO] || tb[IPSET_ATTR_CIDR])) {
-@@ -133,8 +135,11 @@ hash_ipmark4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		ret = ip_set_get_hostipaddr4(tb[IPSET_ATTR_IP_TO], &ip_to);
- 		if (ret)
- 			return ret;
--		if (ip > ip_to)
-+		if (ip > ip_to) {
-+			if (e.mark == 0 && ip_to == 0)
-+				return -IPSET_ERR_HASH_ELEM;
- 			swap(ip, ip_to);
-+		}
- 	} else if (tb[IPSET_ATTR_CIDR]) {
- 		u8 cidr = nla_get_u8(tb[IPSET_ATTR_CIDR]);
- 
-@@ -143,6 +148,9 @@ hash_ipmark4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		ip_set_mask_from_to(ip, ip_to, cidr);
- 	}
- 
-+	if (((u64)ip_to - ip + 1) > IPSET_MAX_RANGE)
-+		return -ERANGE;
-+
- 	if (retried)
- 		ip = ntohl(h->next.ip);
- 	for (; ip <= ip_to; ip++) {
-diff --git a/net/netfilter/ipset/ip_set_hash_ipport.c b/net/netfilter/ipset/ip_set_hash_ipport.c
-index e1ca11196515..7303138e46be 100644
---- a/net/netfilter/ipset/ip_set_hash_ipport.c
-+++ b/net/netfilter/ipset/ip_set_hash_ipport.c
-@@ -173,6 +173,9 @@ hash_ipport4_uadt(struct ip_set *set, struct nlattr *tb[],
- 			swap(port, port_to);
- 	}
- 
-+	if (((u64)ip_to - ip + 1)*(port_to - port + 1) > IPSET_MAX_RANGE)
-+		return -ERANGE;
-+
- 	if (retried)
- 		ip = ntohl(h->next.ip);
- 	for (; ip <= ip_to; ip++) {
-diff --git a/net/netfilter/ipset/ip_set_hash_ipportip.c b/net/netfilter/ipset/ip_set_hash_ipportip.c
-index ab179e064597..334fb1ad0e86 100644
---- a/net/netfilter/ipset/ip_set_hash_ipportip.c
-+++ b/net/netfilter/ipset/ip_set_hash_ipportip.c
-@@ -180,6 +180,9 @@ hash_ipportip4_uadt(struct ip_set *set, struct nlattr *tb[],
- 			swap(port, port_to);
- 	}
- 
-+	if (((u64)ip_to - ip + 1)*(port_to - port + 1) > IPSET_MAX_RANGE)
-+		return -ERANGE;
-+
- 	if (retried)
- 		ip = ntohl(h->next.ip);
- 	for (; ip <= ip_to; ip++) {
-diff --git a/net/netfilter/ipset/ip_set_hash_ipportnet.c b/net/netfilter/ipset/ip_set_hash_ipportnet.c
-index 8f075b44cf64..7df94f437f60 100644
---- a/net/netfilter/ipset/ip_set_hash_ipportnet.c
-+++ b/net/netfilter/ipset/ip_set_hash_ipportnet.c
-@@ -253,6 +253,9 @@ hash_ipportnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 			swap(port, port_to);
- 	}
- 
-+	if (((u64)ip_to - ip + 1)*(port_to - port + 1) > IPSET_MAX_RANGE)
-+		return -ERANGE;
-+
- 	ip2_to = ip2_from;
- 	if (tb[IPSET_ATTR_IP2_TO]) {
- 		ret = ip_set_get_hostipaddr4(tb[IPSET_ATTR_IP2_TO], &ip2_to);
-diff --git a/net/netfilter/ipset/ip_set_hash_net.c b/net/netfilter/ipset/ip_set_hash_net.c
-index c1a11f041ac6..1422739d9aa2 100644
---- a/net/netfilter/ipset/ip_set_hash_net.c
-+++ b/net/netfilter/ipset/ip_set_hash_net.c
-@@ -140,7 +140,7 @@ hash_net4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_net4_elem e = { .cidr = HOST_MASK };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
--	u32 ip = 0, ip_to = 0;
-+	u32 ip = 0, ip_to = 0, ipn, n = 0;
- 	int ret;
- 
- 	if (tb[IPSET_ATTR_LINENO])
-@@ -188,6 +188,15 @@ hash_net4_uadt(struct ip_set *set, struct nlattr *tb[],
- 		if (ip + UINT_MAX == ip_to)
- 			return -IPSET_ERR_HASH_RANGE;
- 	}
-+	ipn = ip;
-+	do {
-+		ipn = ip_set_range_to_cidr(ipn, ip_to, &e.cidr);
-+		n++;
-+	} while (ipn++ < ip_to);
-+
-+	if (n > IPSET_MAX_RANGE)
-+		return -ERANGE;
-+
- 	if (retried)
- 		ip = ntohl(h->next.ip);
- 	do {
-diff --git a/net/netfilter/ipset/ip_set_hash_netiface.c b/net/netfilter/ipset/ip_set_hash_netiface.c
-index ddd51c2e1cb3..9810f5bf63f5 100644
---- a/net/netfilter/ipset/ip_set_hash_netiface.c
-+++ b/net/netfilter/ipset/ip_set_hash_netiface.c
-@@ -202,7 +202,7 @@ hash_netiface4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_netiface4_elem e = { .cidr = HOST_MASK, .elem = 1 };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
--	u32 ip = 0, ip_to = 0;
-+	u32 ip = 0, ip_to = 0, ipn, n = 0;
- 	int ret;
- 
- 	if (tb[IPSET_ATTR_LINENO])
-@@ -256,6 +256,14 @@ hash_netiface4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	} else {
- 		ip_set_mask_from_to(ip, ip_to, e.cidr);
- 	}
-+	ipn = ip;
-+	do {
-+		ipn = ip_set_range_to_cidr(ipn, ip_to, &e.cidr);
-+		n++;
-+	} while (ipn++ < ip_to);
-+
-+	if (n > IPSET_MAX_RANGE)
-+		return -ERANGE;
- 
- 	if (retried)
- 		ip = ntohl(h->next.ip);
-diff --git a/net/netfilter/ipset/ip_set_hash_netnet.c b/net/netfilter/ipset/ip_set_hash_netnet.c
-index 6532f0505e66..3d09eefe998a 100644
---- a/net/netfilter/ipset/ip_set_hash_netnet.c
-+++ b/net/netfilter/ipset/ip_set_hash_netnet.c
-@@ -168,7 +168,8 @@ hash_netnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	struct hash_netnet4_elem e = { };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
- 	u32 ip = 0, ip_to = 0;
--	u32 ip2 = 0, ip2_from = 0, ip2_to = 0;
-+	u32 ip2 = 0, ip2_from = 0, ip2_to = 0, ipn;
-+	u64 n = 0, m = 0;
- 	int ret;
- 
- 	if (tb[IPSET_ATTR_LINENO])
-@@ -244,6 +245,19 @@ hash_netnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	} else {
- 		ip_set_mask_from_to(ip2_from, ip2_to, e.cidr[1]);
- 	}
-+	ipn = ip;
-+	do {
-+		ipn = ip_set_range_to_cidr(ipn, ip_to, &e.cidr[0]);
-+		n++;
-+	} while (ipn++ < ip_to);
-+	ipn = ip2_from;
-+	do {
-+		ipn = ip_set_range_to_cidr(ipn, ip2_to, &e.cidr[1]);
-+		m++;
-+	} while (ipn++ < ip2_to);
-+
-+	if (n*m > IPSET_MAX_RANGE)
-+		return -ERANGE;
- 
- 	if (retried) {
- 		ip = ntohl(h->next.ip[0]);
-diff --git a/net/netfilter/ipset/ip_set_hash_netport.c b/net/netfilter/ipset/ip_set_hash_netport.c
-index ec1564a1cb5a..09cf72eb37f8 100644
---- a/net/netfilter/ipset/ip_set_hash_netport.c
-+++ b/net/netfilter/ipset/ip_set_hash_netport.c
-@@ -158,7 +158,8 @@ hash_netport4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	ipset_adtfn adtfn = set->variant->adt[adt];
- 	struct hash_netport4_elem e = { .cidr = HOST_MASK - 1 };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
--	u32 port, port_to, p = 0, ip = 0, ip_to = 0;
-+	u32 port, port_to, p = 0, ip = 0, ip_to = 0, ipn;
-+	u64 n = 0;
- 	bool with_ports = false;
- 	u8 cidr;
- 	int ret;
-@@ -235,6 +236,14 @@ hash_netport4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	} else {
- 		ip_set_mask_from_to(ip, ip_to, e.cidr + 1);
- 	}
-+	ipn = ip;
-+	do {
-+		ipn = ip_set_range_to_cidr(ipn, ip_to, &cidr);
-+		n++;
-+	} while (ipn++ < ip_to);
-+
-+	if (n*(port_to - port + 1) > IPSET_MAX_RANGE)
-+		return -ERANGE;
- 
- 	if (retried) {
- 		ip = ntohl(h->next.ip);
-diff --git a/net/netfilter/ipset/ip_set_hash_netportnet.c b/net/netfilter/ipset/ip_set_hash_netportnet.c
-index 0e91d1e82f1c..19bcdb3141f6 100644
---- a/net/netfilter/ipset/ip_set_hash_netportnet.c
-+++ b/net/netfilter/ipset/ip_set_hash_netportnet.c
-@@ -182,7 +182,8 @@ hash_netportnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	struct hash_netportnet4_elem e = { };
- 	struct ip_set_ext ext = IP_SET_INIT_UEXT(set);
- 	u32 ip = 0, ip_to = 0, p = 0, port, port_to;
--	u32 ip2_from = 0, ip2_to = 0, ip2;
-+	u32 ip2_from = 0, ip2_to = 0, ip2, ipn;
-+	u64 n = 0, m = 0;
- 	bool with_ports = false;
- 	int ret;
- 
-@@ -284,6 +285,19 @@ hash_netportnet4_uadt(struct ip_set *set, struct nlattr *tb[],
- 	} else {
- 		ip_set_mask_from_to(ip2_from, ip2_to, e.cidr[1]);
- 	}
-+	ipn = ip;
-+	do {
-+		ipn = ip_set_range_to_cidr(ipn, ip_to, &e.cidr[0]);
-+		n++;
-+	} while (ipn++ < ip_to);
-+	ipn = ip2_from;
-+	do {
-+		ipn = ip_set_range_to_cidr(ipn, ip2_to, &e.cidr[1]);
-+		m++;
-+	} while (ipn++ < ip2_to);
-+
-+	if (n*m*(port_to - port + 1) > IPSET_MAX_RANGE)
-+		return -ERANGE;
- 
- 	if (retried) {
- 		ip = ntohl(h->next.ip[0]);
--- 
-2.30.2
-
 
 
