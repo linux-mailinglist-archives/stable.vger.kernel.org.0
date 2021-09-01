@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6204E3FDB3D
+	by mail.lfdr.de (Postfix) with ESMTP id F2CE43FDB3F
 	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344198AbhIAMkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:40:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42460 "EHLO mail.kernel.org"
+        id S1344204AbhIAMki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:40:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343494AbhIAMhg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:37:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E92D2610C9;
-        Wed,  1 Sep 2021 12:34:16 +0000 (UTC)
+        id S244377AbhIAMhr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:37:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F4C1610FC;
+        Wed,  1 Sep 2021 12:34:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499657;
-        bh=62xQxK18jFc/cJz5yiyqEyAAfzwLKbOwlcrognj9Z5U=;
+        s=korg; t=1630499659;
+        bh=L3Dw+72v7UVBotWSzFei0eHE6DAeOmwvD9SuM/XoKGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBL08dZO0s7lcD2t+DHyavqywqUL62rrFFPx/kuzOybVe1luwLRShtMWc0JU8dPP7
-         OQoI+BFFKdS4mt+emocxYhDLo7yJXIHuU21VtZi/h5EBRNxiG9kvV0bizQWwMG7iP4
-         r4gzwUwTjLPy3zjp6egEjKQGA0VDLD0wiL7JWNyg=
+        b=voNnW98ipBWoOMHgy8GVG++Vr+jJqov/4WcVqggphT60dHXjdHMUzzWmphjZoUIV2
+         ECF3smGPgNp7UD35ltmuHbrQS1FCJXLg89hBWkxgReRbIEXz3WEGdW6H5lhsj2aivI
+         zzFoycO89hzKDTfYerEBHTCLRe/LspXt4DZKMtYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+01985d7909f9468f013c@syzkaller.appspotmail.com,
-        Alexey Gladkov <legion@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 036/103] ucounts: Increase ucounts reference counter before the security hook
-Date:   Wed,  1 Sep 2021 14:27:46 +0200
-Message-Id: <20210901122301.773759848@linuxfoundation.org>
+Subject: [PATCH 5.10 037/103] net/sched: ets: fix crash when flipping from strict to quantum
+Date:   Wed,  1 Sep 2021 14:27:47 +0200
+Message-Id: <20210901122301.813500531@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
 References: <20210901122300.503008474@linuxfoundation.org>
@@ -42,96 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Gladkov <legion@kernel.org>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit bbb6d0f3e1feb43d663af089c7dedb23be6a04fb ]
+[ Upstream commit cd9b50adc6bb9ad3f7d244590a389522215865c4 ]
 
-We need to increment the ucounts reference counter befor security_prepare_creds()
-because this function may fail and abort_creds() will try to decrement
-this reference.
+While running kselftests, Hangbin observed that sch_ets.sh often crashes,
+and splats like the following one are seen in the output of 'dmesg':
 
-[   96.465056][ T8641] FAULT_INJECTION: forcing a failure.
-[   96.465056][ T8641] name fail_page_alloc, interval 1, probability 0, space 0, times 0
-[   96.478453][ T8641] CPU: 1 PID: 8641 Comm: syz-executor668 Not tainted 5.14.0-rc6-syzkaller #0
-[   96.487215][ T8641] Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-[   96.497254][ T8641] Call Trace:
-[   96.500517][ T8641]  dump_stack_lvl+0x1d3/0x29f
-[   96.505758][ T8641]  ? show_regs_print_info+0x12/0x12
-[   96.510944][ T8641]  ? log_buf_vmcoreinfo_setup+0x498/0x498
-[   96.516652][ T8641]  should_fail+0x384/0x4b0
-[   96.521141][ T8641]  prepare_alloc_pages+0x1d1/0x5a0
-[   96.526236][ T8641]  __alloc_pages+0x14d/0x5f0
-[   96.530808][ T8641]  ? __rmqueue_pcplist+0x2030/0x2030
-[   96.536073][ T8641]  ? lockdep_hardirqs_on_prepare+0x3e2/0x750
-[   96.542056][ T8641]  ? alloc_pages+0x3f3/0x500
-[   96.546635][ T8641]  allocate_slab+0xf1/0x540
-[   96.551120][ T8641]  ___slab_alloc+0x1cf/0x350
-[   96.555689][ T8641]  ? kzalloc+0x1d/0x30
-[   96.559740][ T8641]  __kmalloc+0x2e7/0x390
-[   96.563980][ T8641]  ? kzalloc+0x1d/0x30
-[   96.568029][ T8641]  kzalloc+0x1d/0x30
-[   96.571903][ T8641]  security_prepare_creds+0x46/0x220
-[   96.577174][ T8641]  prepare_creds+0x411/0x640
-[   96.581747][ T8641]  __sys_setfsuid+0xe2/0x3a0
-[   96.586333][ T8641]  do_syscall_64+0x3d/0xb0
-[   96.590739][ T8641]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   96.596611][ T8641] RIP: 0033:0x445a69
-[   96.600483][ T8641] Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 11 15 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-[   96.620152][ T8641] RSP: 002b:00007f1054173318 EFLAGS: 00000246 ORIG_RAX: 000000000000007a
-[   96.628543][ T8641] RAX: ffffffffffffffda RBX: 00000000004ca4c8 RCX: 0000000000445a69
-[   96.636600][ T8641] RDX: 0000000000000010 RSI: 00007f10541732f0 RDI: 0000000000000000
-[   96.644550][ T8641] RBP: 00000000004ca4c0 R08: 0000000000000001 R09: 0000000000000000
-[   96.652500][ T8641] R10: 0000000000000000 R11: 0000000000000246 R12: 00000000004ca4cc
-[   96.660631][ T8641] R13: 00007fffffe0b62f R14: 00007f1054173400 R15: 0000000000022000
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 159f12067 P4D 159f12067 PUD 159f13067 PMD 0
+ Oops: 0000 [#1] SMP NOPTI
+ CPU: 2 PID: 921 Comm: tc Not tainted 5.14.0-rc6+ #458
+ Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
+ RIP: 0010:__list_del_entry_valid+0x2d/0x50
+ Code: 48 8b 57 08 48 b9 00 01 00 00 00 00 ad de 48 39 c8 0f 84 ac 6e 5b 00 48 b9 22 01 00 00 00 00 ad de 48 39 ca 0f 84 cf 6e 5b 00 <48> 8b 32 48 39 fe 0f 85 af 6e 5b 00 48 8b 50 08 48 39 f2 0f 85 94
+ RSP: 0018:ffffb2da005c3890 EFLAGS: 00010217
+ RAX: 0000000000000000 RBX: ffff9073ba23f800 RCX: dead000000000122
+ RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff9073ba23fbc8
+ RBP: ffff9073ba23f890 R08: 0000000000000001 R09: 0000000000000001
+ R10: 0000000000000001 R11: 0000000000000001 R12: dead000000000100
+ R13: ffff9073ba23fb00 R14: 0000000000000002 R15: 0000000000000002
+ FS:  00007f93e5564e40(0000) GS:ffff9073bba00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000000 CR3: 000000014ad34000 CR4: 0000000000350ee0
+ Call Trace:
+  ets_qdisc_reset+0x6e/0x100 [sch_ets]
+  qdisc_reset+0x49/0x1d0
+  tbf_reset+0x15/0x60 [sch_tbf]
+  qdisc_reset+0x49/0x1d0
+  dev_reset_queue.constprop.42+0x2f/0x90
+  dev_deactivate_many+0x1d3/0x3d0
+  dev_deactivate+0x56/0x90
+  qdisc_graft+0x47e/0x5a0
+  tc_get_qdisc+0x1db/0x3e0
+  rtnetlink_rcv_msg+0x164/0x4c0
+  netlink_rcv_skb+0x50/0x100
+  netlink_unicast+0x1a5/0x280
+  netlink_sendmsg+0x242/0x480
+  sock_sendmsg+0x5b/0x60
+  ____sys_sendmsg+0x1f2/0x260
+  ___sys_sendmsg+0x7c/0xc0
+  __sys_sendmsg+0x57/0xa0
+  do_syscall_64+0x3a/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f93e44b8338
+ Code: 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 25 43 2c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 41 54 41 89 d4 55
+ RSP: 002b:00007ffc0db737a8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+ RAX: ffffffffffffffda RBX: 0000000061255c06 RCX: 00007f93e44b8338
+ RDX: 0000000000000000 RSI: 00007ffc0db73810 RDI: 0000000000000003
+ RBP: 0000000000000000 R08: 0000000000000001 R09: 0000000000000000
+ R10: 000000000000000b R11: 0000000000000246 R12: 0000000000000001
+ R13: 0000000000687880 R14: 0000000000000000 R15: 0000000000000000
+ Modules linked in: sch_ets sch_tbf dummy rfkill iTCO_wdt iTCO_vendor_support intel_rapl_msr intel_rapl_common joydev i2c_i801 pcspkr i2c_smbus lpc_ich virtio_balloon ip_tables xfs libcrc32c crct10dif_pclmul crc32_pclmul crc32c_intel ahci libahci ghash_clmulni_intel libata serio_raw virtio_blk virtio_console virtio_net net_failover failover sunrpc dm_mirror dm_region_hash dm_log dm_mod
+ CR2: 0000000000000000
 
-Fixes: 905ae01c4ae2 ("Add a reference to ucounts for each cred")
-Reported-by: syzbot+01985d7909f9468f013c@syzkaller.appspotmail.com
-Signed-off-by: Alexey Gladkov <legion@kernel.org>
-Link: https://lkml.kernel.org/r/97433b1742c3331f02ad92de5a4f07d673c90613.1629735352.git.legion@kernel.org
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+When the change() function decreases the value of 'nstrict', we must take
+into account that packets might be already enqueued on a class that flips
+from 'strict' to 'quantum': otherwise that class will not be added to the
+bandwidth-sharing list. Then, a call to ets_qdisc_reset() will attempt to
+do list_del(&alist) with 'alist' filled with zero, hence the NULL pointer
+dereference.
+For classes flipping from 'strict' to 'quantum', initialize an empty list
+and eventually add it to the bandwidth-sharing list, if there are packets
+already enqueued. In this way, the kernel will:
+ a) prevent crashing as described above.
+ b) avoid retaining the backlog packets (for an arbitrarily long time) in
+    case no packet is enqueued after a change from 'strict' to 'quantum'.
+
+Reported-by: Hangbin Liu <liuhangbin@gmail.com>
+Fixes: dcc68b4d8084 ("net: sch_ets: Add a new Qdisc")
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cred.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/sched/sch_ets.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/kernel/cred.c b/kernel/cred.c
-index 098213d4a39c..8c0983fa794a 100644
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -286,13 +286,13 @@ struct cred *prepare_creds(void)
- 	new->security = NULL;
- #endif
+diff --git a/net/sched/sch_ets.c b/net/sched/sch_ets.c
+index c1e84d1eeaba..c76701ac35ab 100644
+--- a/net/sched/sch_ets.c
++++ b/net/sched/sch_ets.c
+@@ -660,6 +660,13 @@ static int ets_qdisc_change(struct Qdisc *sch, struct nlattr *opt,
+ 	sch_tree_lock(sch);
  
--	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
--		goto error;
--
- 	new->ucounts = get_ucounts(new->ucounts);
- 	if (!new->ucounts)
- 		goto error;
+ 	q->nbands = nbands;
++	for (i = nstrict; i < q->nstrict; i++) {
++		INIT_LIST_HEAD(&q->classes[i].alist);
++		if (q->classes[i].qdisc->q.qlen) {
++			list_add_tail(&q->classes[i].alist, &q->active);
++			q->classes[i].deficit = quanta[i];
++		}
++	}
+ 	q->nstrict = nstrict;
+ 	memcpy(q->prio2band, priomap, sizeof(priomap));
  
-+	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
-+		goto error;
-+
- 	validate_creds(new);
- 	return new;
- 
-@@ -753,13 +753,13 @@ struct cred *prepare_kernel_cred(struct task_struct *daemon)
- #ifdef CONFIG_SECURITY
- 	new->security = NULL;
- #endif
--	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
--		goto error;
--
- 	new->ucounts = get_ucounts(new->ucounts);
- 	if (!new->ucounts)
- 		goto error;
- 
-+	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
-+		goto error;
-+
- 	put_cred(old);
- 	validate_creds(new);
- 	return new;
 -- 
 2.30.2
 
