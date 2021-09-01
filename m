@@ -2,199 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F52D3FE56A
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 00:23:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ED993FE60B
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 02:33:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230168AbhIAWX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 18:23:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55668 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244397AbhIAWX5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 18:23:57 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47272C061757
-        for <stable@vger.kernel.org>; Wed,  1 Sep 2021 15:23:00 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id z24-20020a17090acb1800b0018e87a24300so87368pjt.0
-        for <stable@vger.kernel.org>; Wed, 01 Sep 2021 15:23:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6VzH0lO4ziiFwLXwDDA7Idk0B9h2jAHGfPCN4MY2guU=;
-        b=SjjxbN4KhcwjsgKV2U16wPTu5r4cAALwWH7MmsV7Gua7abPYapTjdRYKas5R4Z1BB3
-         qAE3URDSGRvbpVKWjCBRZ831tscbgUMZL1+gZsVgNcFGZITapuA8+dLeOkCt3p4voG0S
-         eemapIXKFsxer8aW7vlznqKYsTMxv7MOd9sVk1uaO9zNUZ5OIbaAbTIb/ArGesrseP+m
-         3wNSk9j/UR6pvrD6Gf+J8qCUPQzFXApKvpPSVKY4D1ZpNi4Oc18TN7fI5nG/AmgFaMsS
-         dtPuBBMb6QKX/2QvMUJUKX4V5UQtu5U1kC3y1LfJnBufLvk9G/U09EVc8YlKoTZols5O
-         4goA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6VzH0lO4ziiFwLXwDDA7Idk0B9h2jAHGfPCN4MY2guU=;
-        b=YPDEKQgcXbw/BM4gDoMTXembRhsRGfuHulbNMxdm21OgtHEzcY4AN+v1m3w3ScNmbe
-         w1rIfU89MC8nFHCDvJo177dqjtUQAsdOAhp3NHnth+dnO8swdlzfopTtRPQ9vH+UUbTT
-         Lq+3ps8QCUPzfauDU1yafh/6V4rl043qj2BTSc3mg/gihJnk8uJ9Vyu33qWpgZ+SAoxs
-         7+Ln4dRxolg1pLI5G5fM4tWJfdTMTto7B9WGAoYnZ3z7DGFjkkxw5cJaeVX3aA1KUT/h
-         WbF4vlSAJQcz6e9Ut2vJwezKIvsTqu/vddAv21fNJydLWV/w8N+p4R64dvDPPXfZWcBz
-         04cg==
-X-Gm-Message-State: AOAM531jR3ndwBhm+a4LSEXJStGFNmteqRo7vZ1e9uEHmQeODSKmEerJ
-        40ZMECELUypuBIguD2uvlFbdB2Ct1eYhj5JoIr4=
-X-Google-Smtp-Source: ABdhPJy88wvN2n1DV+tHlOcK8/JwL0J1pw0kvN6UjqHzHeTxBXCgstnsMTJlNjLNiS8fcuQy+Lvy0A==
-X-Received: by 2002:a17:903:2442:b0:138:8fdf:cf79 with SMTP id l2-20020a170903244200b001388fdfcf79mr1561870pls.75.1630534979512;
-        Wed, 01 Sep 2021 15:22:59 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w11sm11778pfj.65.2021.09.01.15.22.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Sep 2021 15:22:59 -0700 (PDT)
-Message-ID: <612ffd43.1c69fb81.49969.00dd@mx.google.com>
-Date:   Wed, 01 Sep 2021 15:22:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S244383AbhIAXVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 19:21:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38630 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229948AbhIAXVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 19:21:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46E6B60F4B;
+        Wed,  1 Sep 2021 23:20:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1630538412;
+        bh=jRDi0tXYcFMrWm0Yh9b1bdEmEczF5T2ak4Op6iKq0ao=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=NxvRQDGcBoFWPfpKZbJO6U1ejv3xRHNzmu5RnOJMjMI+RY/i4ERucpAHr2NDMsoSs
+         U4Nq1t6w0D30e+9gQWxf0Jh5vRvwb2uGkw9jzYGXXcMKxbmUWAAiC2HiW4jKug/bC/
+         hF0i7UNL9NLkknlPXnLY+bEhcCGpFiuAZgOSseAuqMZEXltqh3HppTjDDJZw4ySTxJ
+         W7cedSq+MzWcNcfutQQoNrYsVWEWxhl9hxZTuPEi0JtwaPDhazHh3M+gj4EZGgN1hE
+         Meh6s4fkcOpZjzrSplkRerQhuPjFdQJxf001ikiUIkdTswfvN5qXpGreGt3XPYSz2u
+         mjWudzNK+JWMA==
+Date:   Wed, 1 Sep 2021 16:20:11 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Peter Collingbourne <pcc@google.com>
+Cc:     David Laight <David.Laight@aculab.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Colin Ian King <colin.king@canonical.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] net: don't unconditionally copy_from_user a struct
+ ifreq for socket ioctls
+Message-ID: <20210901162011.3ce5f012@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <CAMn1gO5OmHg_10s698tNqf4X-hJ_gn17D8afyRhbW1nKpvLzWQ@mail.gmail.com>
+References: <20210826194601.3509717-1-pcc@google.com>
+        <20210831093006.6db30672@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        <bf0f47974d7141358d810d512d4b9a00@AcuMS.aculab.com>
+        <20210901070356.750ea996@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        <CAMn1gO5OmHg_10s698tNqf4X-hJ_gn17D8afyRhbW1nKpvLzWQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.13.13-114-g5315cdf77073
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.13
-Subject: stable-rc/queue/5.13 baseline: 192 runs,
- 3 regressions (v5.13.13-114-g5315cdf77073)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.13 baseline: 192 runs, 3 regressions (v5.13.13-114-g5315c=
-df77073)
+On Wed, 1 Sep 2021 11:01:32 -0700 Peter Collingbourne wrote:
+> > > To stop the copy_from_user() faulting when the user buffer
+> > > isn't long enough.
+> > > In particular for iasatty() on arm with tagged pointers.  
+> >
+> > Let me rephrase. is_socket_ioctl_cmd() is always true here. There were
+> > only two callers, both check cmd is of specific, "sockety" type.  
+> 
+> I see, it looks like we don't need the check on the compat path then.
+> 
+> I can send a followup to clean this up but given that I got a comment
+> from another reviewer saying that we should try to make the native and
+> compat paths as similar as possible, maybe it isn't too bad to leave
+> things as is?
 
-Regressions Summary
--------------------
+I have a weak preference to get rid of it, the code is a little
+complex and extra dead code makes it harder to follow, but up to you.
 
-platform         | arch | lab          | compiler | defconfig           | r=
-egressions
------------------+------+--------------+----------+---------------------+--=
-----------
-beagle-xm        | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  | 1=
-          =
+IMO the "right place" for the check is:
 
-beagle-xm        | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1=
-          =
+static long sock_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+[...]
+		default:
+			/* --> here <-- */
+			err = sock_do_ioctl(net, sock, cmd, arg);
+			break;
 
-imx6ul-14x14-evk | arm  | lab-nxp      | gcc-8    | multi_v7_defconfig  | 1=
-          =
+Since that's the point where we take all the remaining cmd values and
+call a function which assumes struct ifreq.
 
+Compat code does not have a default statement.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
-nel/v5.13.13-114-g5315cdf77073/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.13
-  Describe: v5.13.13-114-g5315cdf77073
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5315cdf77073a2a34a80589fac69c7a677c78f4e =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch | lab          | compiler | defconfig           | r=
-egressions
------------------+------+--------------+----------+---------------------+--=
-----------
-beagle-xm        | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612fc83963a157a5abd59670
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-114-g5315cdf77073/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-114-g5315cdf77073/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612fc83963a157a5abd59=
-671
-        failing since 1 day (last pass: v5.13.13-73-g193ded4206f9, first fa=
-il: v5.13.13-97-g4abdf2bb4e76) =
-
- =
-
-
-
-platform         | arch | lab          | compiler | defconfig           | r=
-egressions
------------------+------+--------------+----------+---------------------+--=
-----------
-beagle-xm        | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612fc6597383db208ed59780
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-114-g5315cdf77073/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-114-g5315cdf77073/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagl=
-e-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612fc6597383db208ed59=
-781
-        failing since 35 days (last pass: v5.13.5-224-g078d5e3a85db, first =
-fail: v5.13.5-223-g3a7649e5ffb5) =
-
- =
-
-
-
-platform         | arch | lab          | compiler | defconfig           | r=
-egressions
------------------+------+--------------+----------+---------------------+--=
-----------
-imx6ul-14x14-evk | arm  | lab-nxp      | gcc-8    | multi_v7_defconfig  | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/612fcb9263cc5cfe36d596a4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-114-g5315cdf77073/arm/multi_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ul-14x1=
-4-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.13-=
-114-g5315cdf77073/arm/multi_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ul-14x1=
-4-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/612fcb9263cc5cfe36d59=
-6a5
-        new failure (last pass: v5.13.13-102-gb80430d7822b) =
-
- =20
+But as I said no big deal, feel free to ignore.
