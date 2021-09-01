@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC4943FD991
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:27:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B87FE3FD993
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244101AbhIAM1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:27:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56656 "EHLO mail.kernel.org"
+        id S244116AbhIAM1o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:27:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244108AbhIAM1g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:27:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B94F6101B;
-        Wed,  1 Sep 2021 12:26:38 +0000 (UTC)
+        id S244117AbhIAM1j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:27:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8B9460F92;
+        Wed,  1 Sep 2021 12:26:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499199;
-        bh=94MUatUUSU8dL18vvNnMHzBkbB8JfCq9oVnmYWmC1JU=;
+        s=korg; t=1630499202;
+        bh=+z//xLPhcPSnV0PSB8MnyuMkW1yF1fSQei9SuH3na9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsQf5KcSHtPF6FY7TXsOPepFz+9b6ZcwQ3vs5iK7nBLZEfk6sCYH+l+69GhNAlyTD
-         xb8y6ZPO55xal2kq6I4h8eKosvwrX38KQ0EFAtBegsaJkFV0osQ9dAkP+AATDV40Vg
-         KWkpU1bTSC/vKl9vvaRGTy48a4ul2aq4CuoumyZM=
+        b=zmxRMgiwN0gxl4e2OLGU2VkhXif+XFx/rT4i1JL+VvfsPEZT0cwb4Z0CDLVkoWyB/
+         xorpHkY2VNF+4mkmeRor8r15RE51Hru1nJEF2kHMtEi6j6uI3zA/jYgrAczeTJIf7r
+         xmLnJLJosZHArL658nxhi2tVEM8OBGn/WqeGESjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengjun Zhang <zhangzhengjun@aicrobo.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 03/10] USB: serial: option: add new VID/PID to support Fibocom FG150
-Date:   Wed,  1 Sep 2021 14:26:17 +0200
-Message-Id: <20210901122248.162940584@linuxfoundation.org>
+        stable@vger.kernel.org, Yee Li <seven.yi.lee@gmail.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 04/10] e1000e: Fix the max snoop/no-snoop latency for 10M
+Date:   Wed,  1 Sep 2021 14:26:18 +0200
+Message-Id: <20210901122248.191315320@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122248.051808371@linuxfoundation.org>
 References: <20210901122248.051808371@linuxfoundation.org>
@@ -39,278 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengjun Zhang <zhangzhengjun@aicrobo.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-commit 2829a4e3cf3a6ac2fa3cdb681b37574630fb9c1a upstream.
+[ Upstream commit 44a13a5d99c71bf9e1676d9e51679daf4d7b3d73 ]
 
-Fibocom FG150 is a 5G module based on Qualcomm SDX55 platform,
-support Sub-6G band.
+We should decode the latency and the max_latency before directly compare.
+The latency should be presented as lat_enc = scale x value:
+lat_enc_d = (lat_enc & 0x0x3ff) x (1U << (5*((max_ltr_enc & 0x1c00)
+>> 10)))
 
-Here are the outputs of lsusb -v and usb-devices:
-
-> T:  Bus=02 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=5000 MxCh= 0
-> D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-> P:  Vendor=2cb7 ProdID=010b Rev=04.14
-> S:  Manufacturer=Fibocom
-> S:  Product=Fibocom Modem_SN:XXXXXXXX
-> S:  SerialNumber=XXXXXXXX
-> C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
-> I:  If#=0x0 Alt= 0 #EPs= 1 Cls=ef(misc ) Sub=04 Prot=01 Driver=rndis_host
-> I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-> I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-> I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
-> I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-
-> Bus 002 Device 002: ID 2cb7:010b Fibocom Fibocom Modem_SN:XXXXXXXX
-> Device Descriptor:
->   bLength                18
->   bDescriptorType         1
->   bcdUSB               3.20
->   bDeviceClass            0
->   bDeviceSubClass         0
->   bDeviceProtocol         0
->   bMaxPacketSize0         9
->   idVendor           0x2cb7 Fibocom
->   idProduct          0x010b
->   bcdDevice            4.14
->   iManufacturer           1 Fibocom
->   iProduct                2 Fibocom Modem_SN:XXXXXXXX
->   iSerial                 3 XXXXXXXX
->   bNumConfigurations      1
->   Configuration Descriptor:
->     bLength                 9
->     bDescriptorType         2
->     wTotalLength       0x00e6
->     bNumInterfaces          5
->     bConfigurationValue     1
->     iConfiguration          4 RNDIS_DUN_DIAG_ADB
->     bmAttributes         0xa0
->       (Bus Powered)
->       Remote Wakeup
->     MaxPower              896mA
->     Interface Association:
->       bLength                 8
->       bDescriptorType        11
->       bFirstInterface         0
->       bInterfaceCount         2
->       bFunctionClass        239 Miscellaneous Device
->       bFunctionSubClass       4
->       bFunctionProtocol       1
->       iFunction               7 RNDIS
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        0
->       bAlternateSetting       0
->       bNumEndpoints           1
->       bInterfaceClass       239 Miscellaneous Device
->       bInterfaceSubClass      4
->       bInterfaceProtocol      1
->       iInterface              0
->       ** UNRECOGNIZED:  05 24 00 10 01
->       ** UNRECOGNIZED:  05 24 01 00 01
->       ** UNRECOGNIZED:  04 24 02 00
->       ** UNRECOGNIZED:  05 24 06 00 01
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x81  EP 1 IN
->         bmAttributes            3
->           Transfer Type            Interrupt
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0008  1x 8 bytes
->         bInterval               9
->         bMaxBurst               0
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        1
->       bAlternateSetting       0
->       bNumEndpoints           2
->       bInterfaceClass        10 CDC Data
->       bInterfaceSubClass      0
->       bInterfaceProtocol      0
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x8e  EP 14 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               6
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x0f  EP 15 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               6
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        2
->       bAlternateSetting       0
->       bNumEndpoints           3
->       bInterfaceClass       255 Vendor Specific Class
->       bInterfaceSubClass      0
->       bInterfaceProtocol      0
->       iInterface              0
->       ** UNRECOGNIZED:  05 24 00 10 01
->       ** UNRECOGNIZED:  05 24 01 00 00
->       ** UNRECOGNIZED:  04 24 02 02
->       ** UNRECOGNIZED:  05 24 06 00 00
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x83  EP 3 IN
->         bmAttributes            3
->           Transfer Type            Interrupt
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x000a  1x 10 bytes
->         bInterval               9
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x82  EP 2 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x01  EP 1 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        3
->       bAlternateSetting       0
->       bNumEndpoints           2
->       bInterfaceClass       255 Vendor Specific Class
->       bInterfaceSubClass    255 Vendor Specific Subclass
->       bInterfaceProtocol     48
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x84  EP 4 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x02  EP 2 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        4
->       bAlternateSetting       0
->       bNumEndpoints           2
->       bInterfaceClass       255 Vendor Specific Class
->       bInterfaceSubClass     66
->       bInterfaceProtocol      1
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x03  EP 3 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x85  EP 5 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
-> Binary Object Store Descriptor:
->   bLength                 5
->   bDescriptorType        15
->   wTotalLength       0x0016
->   bNumDeviceCaps          2
->   USB 2.0 Extension Device Capability:
->     bLength                 7
->     bDescriptorType        16
->     bDevCapabilityType      2
->     bmAttributes   0x00000006
->       BESL Link Power Management (LPM) Supported
->   SuperSpeed USB Device Capability:
->     bLength                10
->     bDescriptorType        16
->     bDevCapabilityType      3
->     bmAttributes         0x00
->     wSpeedsSupported   0x000f
->       Device can operate at Low Speed (1Mbps)
->       Device can operate at Full Speed (12Mbps)
->       Device can operate at High Speed (480Mbps)
->       Device can operate at SuperSpeed (5Gbps)
->     bFunctionalitySupport   1
->       Lowest fully-functional device speed is Full Speed (12Mbps)
->     bU1DevExitLat           1 micro seconds
->     bU2DevExitLat         500 micro seconds
-> Device Status:     0x0000
->   (Bus Powered)
-
-Signed-off-by: Zhengjun Zhang <zhangzhengjun@aicrobo.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: cf8fb73c23aa ("e1000e: add support for LTR on I217/I218")
+Suggested-by: Yee Li <seven.yi.lee@gmail.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c | 14 +++++++++++++-
+ drivers/net/ethernet/intel/e1000e/ich8lan.h |  3 +++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2058,6 +2058,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(4) | RSVD(5) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
- 	  .driver_info = RSVD(6) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2df3, 0x9d03, 0xff) },			/* LongSung M5710 */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index 485b9cc53f8b..cd7403d09c3d 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -1010,6 +1010,8 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
+ {
+ 	u32 reg = link << (E1000_LTRV_REQ_SHIFT + E1000_LTRV_NOSNOOP_SHIFT) |
+ 	    link << E1000_LTRV_REQ_SHIFT | E1000_LTRV_SEND;
++	u16 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
++	u16 lat_enc_d = 0;	/* latency decoded */
+ 	u16 lat_enc = 0;	/* latency encoded */
+ 
+ 	if (link) {
+@@ -1063,7 +1065,17 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
+ 				     E1000_PCI_LTR_CAP_LPT + 2, &max_nosnoop);
+ 		max_ltr_enc = max_t(u16, max_snoop, max_nosnoop);
+ 
+-		if (lat_enc > max_ltr_enc)
++		lat_enc_d = (lat_enc & E1000_LTRV_VALUE_MASK) *
++			     (1U << (E1000_LTRV_SCALE_FACTOR *
++			     ((lat_enc & E1000_LTRV_SCALE_MASK)
++			     >> E1000_LTRV_SCALE_SHIFT)));
++
++		max_ltr_enc_d = (max_ltr_enc & E1000_LTRV_VALUE_MASK) *
++				 (1U << (E1000_LTRV_SCALE_FACTOR *
++				 ((max_ltr_enc & E1000_LTRV_SCALE_MASK)
++				 >> E1000_LTRV_SCALE_SHIFT)));
++
++		if (lat_enc_d > max_ltr_enc_d)
+ 			lat_enc = max_ltr_enc;
+ 	}
+ 
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+index 34c551e322eb..3a16c457c8dd 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+@@ -284,8 +284,11 @@
+ 
+ /* Latency Tolerance Reporting */
+ #define E1000_LTRV			0x000F8
++#define E1000_LTRV_VALUE_MASK		0x000003FF
+ #define E1000_LTRV_SCALE_MAX		5
+ #define E1000_LTRV_SCALE_FACTOR		5
++#define E1000_LTRV_SCALE_SHIFT		10
++#define E1000_LTRV_SCALE_MASK		0x00001C00
+ #define E1000_LTRV_REQ_SHIFT		15
+ #define E1000_LTRV_NOSNOOP_SHIFT	16
+ #define E1000_LTRV_SEND			(1 << 30)
+-- 
+2.30.2
+
 
 
