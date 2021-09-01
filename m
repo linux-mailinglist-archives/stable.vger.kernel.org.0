@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A47F83FDA99
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52B083FDC1B
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343519AbhIAMdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:33:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32780 "EHLO mail.kernel.org"
+        id S1344355AbhIAMqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:46:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244962AbhIAMcF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:32:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE7916102A;
-        Wed,  1 Sep 2021 12:31:06 +0000 (UTC)
+        id S1345673AbhIAMoz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:44:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FFB861157;
+        Wed,  1 Sep 2021 12:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499467;
-        bh=l+woQWnwutifp6/I7WasWYPNy7tXqpL38ZJONvF7NLA=;
+        s=korg; t=1630499951;
+        bh=IU7D+HkWh2inpqsEWSTlIdjQdrmiqhcTjCq9PImt918=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXn4Mlf3z7QNv85kY0vzwgg15QQ7xEfH2xo88CxWCt2RM1DmhTwjOupv8xz/KrrXS
-         Zh3V0/QgtqlEHUdnUSs0dWoDh+Gs6hr/YqR/Fng8Hgoaj6Q2ALSR7vN5BoxSa4/fIX
-         L4a2bOgSo8yVuhUaFWp0LJ5em/CWsCv7ZMbHAglA=
+        b=cGPF3WvHaayRZT3c3BffsqW2RXL1NrDS90/x0Qydum3tXs6bz/a4L9GwM7lhD/p57
+         3Vomiwkjrf82Yv74J2DIaZ0xw7elEEk9PVVCYdQWHk1lGTGdgWwhQTq8oFjgmgmAKJ
+         YvWKvesVfEg4DZG8DegiuatP6RkLfEybMYNPZUu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.4 11/48] usb: dwc3: gadget: Fix dwc3_calc_trbs_left()
+        stable@vger.kernel.org, Dima Ruinskiy <dima.ruinskiy@intel.com>,
+        Vitaly Lifshits <vitaly.lifshits@intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 046/113] e1000e: Do not take care about recovery NVM checksum
 Date:   Wed,  1 Sep 2021 14:28:01 +0200
-Message-Id: <20210901122253.778479964@linuxfoundation.org>
+Message-Id: <20210901122303.513928137@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
-References: <20210901122253.388326997@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-commit 51f1954ad853d01ba4dc2b35dee14d8490ee05a1 upstream.
+[ Upstream commit 4051f68318ca9f3d3becef3b54e70ad2c146df97 ]
 
-We can't depend on the TRB's HWO bit to determine if the TRB ring is
-"full". A TRB is only available when the driver had processed it, not
-when the controller consumed and relinquished the TRB's ownership to the
-driver. Otherwise, the driver may overwrite unprocessed TRBs. This can
-happen when many transfer events accumulate and the system is slow to
-process them and/or when there are too many small requests.
+On new platforms, the NVM is read-only. Attempting to update the NVM
+is causing a lockup to occur. Do not attempt to write to the NVM
+on platforms where it's not supported.
+Emit an error message when the NVM checksum is invalid.
 
-If a request is in the started_list, that means there is one or more
-unprocessed TRBs remained. Check this instead of the TRB's HWO bit
-whether the TRB ring is full.
-
-Fixes: c4233573f6ee ("usb: dwc3: gadget: prepare TRBs on update transfers too")
-Cc: <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/e91e975affb0d0d02770686afc3a5b9eb84409f6.1629335416.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=213667
+Fixes: fb776f5d57ee ("e1000e: Add support for Tiger Lake")
+Suggested-by: Dima Ruinskiy <dima.ruinskiy@intel.com>
+Suggested-by: Vitaly Lifshits <vitaly.lifshits@intel.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/e1000e/ich8lan.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -894,19 +894,19 @@ static struct dwc3_trb *dwc3_ep_prev_trb
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index 8f6ed3b31db4..c6ec669aa7bd 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -4127,13 +4127,17 @@ static s32 e1000_validate_nvm_checksum_ich8lan(struct e1000_hw *hw)
+ 		return ret_val;
  
- static u32 dwc3_calc_trbs_left(struct dwc3_ep *dep)
- {
--	struct dwc3_trb		*tmp;
- 	u8			trbs_left;
+ 	if (!(data & valid_csum_mask)) {
+-		data |= valid_csum_mask;
+-		ret_val = e1000_write_nvm(hw, word, 1, &data);
+-		if (ret_val)
+-			return ret_val;
+-		ret_val = e1000e_update_nvm_checksum(hw);
+-		if (ret_val)
+-			return ret_val;
++		e_dbg("NVM Checksum Invalid\n");
++
++		if (hw->mac.type < e1000_pch_cnp) {
++			data |= valid_csum_mask;
++			ret_val = e1000_write_nvm(hw, word, 1, &data);
++			if (ret_val)
++				return ret_val;
++			ret_val = e1000e_update_nvm_checksum(hw);
++			if (ret_val)
++				return ret_val;
++		}
+ 	}
  
- 	/*
--	 * If enqueue & dequeue are equal than it is either full or empty.
--	 *
--	 * One way to know for sure is if the TRB right before us has HWO bit
--	 * set or not. If it has, then we're definitely full and can't fit any
--	 * more transfers in our ring.
-+	 * If the enqueue & dequeue are equal then the TRB ring is either full
-+	 * or empty. It's considered full when there are DWC3_TRB_NUM-1 of TRBs
-+	 * pending to be processed by the driver.
- 	 */
- 	if (dep->trb_enqueue == dep->trb_dequeue) {
--		tmp = dwc3_ep_prev_trb(dep, dep->trb_enqueue);
--		if (tmp->ctrl & DWC3_TRB_CTRL_HWO)
-+		/*
-+		 * If there is any request remained in the started_list at
-+		 * this point, that means there is no TRB available.
-+		 */
-+		if (!list_empty(&dep->started_list))
- 			return 0;
- 
- 		return DWC3_TRB_NUM - 1;
+ 	return e1000e_validate_nvm_checksum_generic(hw);
+-- 
+2.30.2
+
 
 
