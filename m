@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E76673FDC86
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E737B3FDBAF
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345425AbhIAMvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53100 "EHLO mail.kernel.org"
+        id S1344845AbhIAMnH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:43:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346209AbhIAMte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:49:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B559061054;
-        Wed,  1 Sep 2021 12:41:15 +0000 (UTC)
+        id S1345181AbhIAMkx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 188F8610CA;
+        Wed,  1 Sep 2021 12:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500076;
-        bh=Qq4OgdnOaggN6QkR5OfPnQXwH7SN2ps8A4x/L0CvvRc=;
+        s=korg; t=1630499835;
+        bh=AjbyhZeav2HiUcYBovwRUR7miSWSqTGmlSWD0wzdWFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GA+7Tq77CrwxlbgkauuSibkVoxYE1qDjKy2tFiw+UwG8pr6NG+OhbUbyAr9NQnTTR
-         0PpER3OC2WemqIjW0lTp3rRU/DDEb1KEWVr/4jxJGBtzWx5JTyXcBU5igUffESPr8g
-         HCNe27KsMiw0+q1MxrITm07VDswnaKUCyk7k6mPI=
+        b=KNvsvCzmDm1rSmSi9cJerHCb+X5UYAFYWwRPvB/Y8n6Ebwo5dBprD6qTIcm8Xq+mk
+         Ft8fuwh38UKdG+TTiyS1P6cLGpGDcOF3kUlTE8Lstyuei8B8j9we3oy9Z1u5ymqTuV
+         asIHiMFJXa42cFuifgtDv5NdMq5gLEjzIDVRofLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 092/113] drm/nouveau: recognise GA107
+        stable@vger.kernel.org, Petr Vorel <petr.vorel@gmail.com>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.10 097/103] arm64: dts: qcom: msm8994-angler: Fix gpio-reserved-ranges 85-88
 Date:   Wed,  1 Sep 2021 14:28:47 +0200
-Message-Id: <20210901122305.028751285@linuxfoundation.org>
+Message-Id: <20210901122303.799319801@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Petr Vorel <petr.vorel@gmail.com>
 
-[ Upstream commit fa25f28ef2cef19bc9ffeb827b8ecbf48af7f892 ]
+commit f890f89d9a80fffbfa7ca791b78927e5b8aba869 upstream.
 
-Still no GA106 as I don't have HW to verif.
+Reserve GPIO pins 85-88 as these aren't meant to be accessible from the
+application CPUs (causes reboot). Yet another fix similar to
+9134586715e3, 5f8d3ab136d0, which is needed to allow angler to boot after
+3edfb7bd76bd ("gpiolib: Show correct direction from the beginning").
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: feeaf56ac78d ("arm64: dts: msm8994 SoC and Huawei Angler (Nexus 6P) support")
+
+Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20210415193913.1836153-1-petr.vorel@gmail.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../gpu/drm/nouveau/nvkm/engine/device/base.c | 21 +++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-index b930f539feec..93ddf63d1114 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-@@ -2624,6 +2624,26 @@ nv174_chipset = {
- 	.dma      = { 0x00000001, gv100_dma_new },
+--- a/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
++++ b/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
+@@ -32,3 +32,7 @@
+ 		};
+ 	};
  };
- 
-+static const struct nvkm_device_chip
-+nv177_chipset = {
-+	.name = "GA107",
-+	.bar      = { 0x00000001, tu102_bar_new },
-+	.bios     = { 0x00000001, nvkm_bios_new },
-+	.devinit  = { 0x00000001, ga100_devinit_new },
-+	.fb       = { 0x00000001, ga102_fb_new },
-+	.gpio     = { 0x00000001, ga102_gpio_new },
-+	.i2c      = { 0x00000001, gm200_i2c_new },
-+	.imem     = { 0x00000001, nv50_instmem_new },
-+	.mc       = { 0x00000001, ga100_mc_new },
-+	.mmu      = { 0x00000001, tu102_mmu_new },
-+	.pci      = { 0x00000001, gp100_pci_new },
-+	.privring = { 0x00000001, gm200_privring_new },
-+	.timer    = { 0x00000001, gk20a_timer_new },
-+	.top      = { 0x00000001, ga100_top_new },
-+	.disp     = { 0x00000001, ga102_disp_new },
-+	.dma      = { 0x00000001, gv100_dma_new },
-+};
 +
- static int
- nvkm_device_event_ctor(struct nvkm_object *object, void *data, u32 size,
- 		       struct nvkm_notify *notify)
-@@ -3049,6 +3069,7 @@ nvkm_device_ctor(const struct nvkm_device_func *func,
- 		case 0x168: device->chip = &nv168_chipset; break;
- 		case 0x172: device->chip = &nv172_chipset; break;
- 		case 0x174: device->chip = &nv174_chipset; break;
-+		case 0x177: device->chip = &nv177_chipset; break;
- 		default:
- 			if (nvkm_boolopt(device->cfgopt, "NvEnableUnsupportedChipsets", false)) {
- 				switch (device->chipset) {
--- 
-2.30.2
-
++&tlmm {
++	gpio-reserved-ranges = <85 4>;
++};
 
 
