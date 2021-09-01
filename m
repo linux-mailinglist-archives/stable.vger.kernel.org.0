@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77CFA3FDC79
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B7543FDB7B
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345173AbhIAMvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49982 "EHLO mail.kernel.org"
+        id S1343733AbhIAMlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:41:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345854AbhIAMsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:48:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 525A860F6B;
-        Wed,  1 Sep 2021 12:40:58 +0000 (UTC)
+        id S1345047AbhIAMk0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 453D661213;
+        Wed,  1 Sep 2021 12:36:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500058;
-        bh=F9yoIotIzFik7ysVZVflN4Wd+6wIU7YL3+6ONdX9auI=;
+        s=korg; t=1630499805;
+        bh=4RyrASzB5xiC0pIFKT4U1pwY5jfaK2cnXKgU/ZysE4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Srpp01IL50rORxIZg36yxVr/o0bw2EPPoEd4DoLMAWcd9qYPhoOd5XkR44OXIGW9T
-         kJsKGGzgoXDNXK2PzAXKsKN8htXZ2oESDZvdfNliubl9DHNMAW9fs4+gUJ3fLKKVnZ
-         r131G3F6jiLmWcaEIDaXbA0OcVCXvMpQtQw6jk3w=
+        b=Ya+mm78lAU6knCA1S/N6HHaymzZUlK8fx8QK2Il82xUibWYQfrv2YBRiP0feto70W
+         MGPPhtWuEOT1miZQ0eTUoB9IOaYuE4BFVIer0s37gE6eKtPsuXZmVs9fMSuGcTU2yh
+         O6uYJucDt1t5ATkPACFb4A+94RFdc8jY1WKj4R/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Ariel Elior <aelior@marvell.com>,
-        Shai Malin <smalin@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 086/113] qed: Fix null-pointer dereference in qed_rdma_create_qp()
-Date:   Wed,  1 Sep 2021 14:28:41 +0200
-Message-Id: <20210901122304.846333059@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Benjamin Berg <bberg@redhat.com>
+Subject: [PATCH 5.10 092/103] usb: typec: ucsi: acpi: Always decode connector change information
+Date:   Wed,  1 Sep 2021 14:28:42 +0200
+Message-Id: <20210901122303.634239910@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shai Malin <smalin@marvell.com>
+From: Benjamin Berg <bberg@redhat.com>
 
-[ Upstream commit d33d19d313d3466abdf8b0428be7837aff767802 ]
+commit 47ea2929d58c35598e681212311d35b240c373ce upstream.
 
-Fix a possible null-pointer dereference in qed_rdma_create_qp().
+Normal commands may be reporting that a connector has changed. Always
+call the usci_connector_change handler and let it take care of
+scheduling the work when needed.
+Doing this makes the ACPI code path identical to the CCG one.
 
-Changes from V2:
-- Revert checkpatch fixes.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Benjamin Berg <bberg@redhat.com>
+Link: https://lore.kernel.org/r/20201009144047.505957-2-benjamin@sipsolutions.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qed/qed_rdma.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/typec/ucsi/ucsi_acpi.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qed/qed_rdma.c b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
-index da864d12916b..4f4b79250a2b 100644
---- a/drivers/net/ethernet/qlogic/qed/qed_rdma.c
-+++ b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
-@@ -1285,8 +1285,7 @@ qed_rdma_create_qp(void *rdma_cxt,
+--- a/drivers/usb/typec/ucsi/ucsi_acpi.c
++++ b/drivers/usb/typec/ucsi/ucsi_acpi.c
+@@ -103,11 +103,12 @@ static void ucsi_acpi_notify(acpi_handle
+ 	if (ret)
+ 		return;
  
- 	if (!rdma_cxt || !in_params || !out_params ||
- 	    !p_hwfn->p_rdma_info->active) {
--		DP_ERR(p_hwfn->cdev,
--		       "qed roce create qp failed due to NULL entry (rdma_cxt=%p, in=%p, out=%p, roce_info=?\n",
-+		pr_err("qed roce create qp failed due to NULL entry (rdma_cxt=%p, in=%p, out=%p, roce_info=?\n",
- 		       rdma_cxt, in_params, out_params);
- 		return NULL;
- 	}
--- 
-2.30.2
-
++	if (UCSI_CCI_CONNECTOR(cci))
++		ucsi_connector_change(ua->ucsi, UCSI_CCI_CONNECTOR(cci));
++
+ 	if (test_bit(COMMAND_PENDING, &ua->flags) &&
+ 	    cci & (UCSI_CCI_ACK_COMPLETE | UCSI_CCI_COMMAND_COMPLETE))
+ 		complete(&ua->complete);
+-	else if (UCSI_CCI_CONNECTOR(cci))
+-		ucsi_connector_change(ua->ucsi, UCSI_CCI_CONNECTOR(cci));
+ }
+ 
+ static int ucsi_acpi_probe(struct platform_device *pdev)
 
 
