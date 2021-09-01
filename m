@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F10FD3FDC89
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA24D3FDABC
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344353AbhIAMvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53630 "EHLO mail.kernel.org"
+        id S1343940AbhIAMer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:34:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346374AbhIAMty (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:49:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0724D611C0;
-        Wed,  1 Sep 2021 12:41:25 +0000 (UTC)
+        id S244186AbhIAMdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:33:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD001610E5;
+        Wed,  1 Sep 2021 12:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500086;
-        bh=WPbEOBKBC6jdJIBzrm6mHtnk9ru3jB8C/pS+rDGsTcs=;
+        s=korg; t=1630499517;
+        bh=5txfqAg+66DNXSuGINbyFYrQBvbCv2bZenHXa6E9YBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2OoHJ8iKjnu6MOeEm16sVGnIwj7gcn0uHJA9g3uHL7ogke+1rXkR25JrO0baAJjfy
-         9aY9uzsrFLuS31T67uce7WogUwU17wNEnk8XnIpxzQpGEbIK79bhBkEaAy8yOJVltl
-         wQd7mN7dYCqYWQzG/rodjls7Y5xO9kzT+Wv6ZvrU=
+        b=YPcc3Z7CDM+9mHMswgx24JHU4Q7efkJR3Kjl4SqTJoW9rUQ6jSdXQ0FSSZA3IlTUW
+         m7O4b/pKFhnCiiPqYnkReCMzWsY3hgyrgMmlK3C7EvTbiwsxDVB28LYqTI9d41l6+U
+         7PQWL25xPN0siC/nvLYJaLMnXmlV/AivGgGDuPS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 064/113] net: hns3: fix get wrong pfc_en when query PFC configuration
+Subject: [PATCH 5.4 29/48] virtio: Improve vq->broken access to avoid any compiler optimization
 Date:   Wed,  1 Sep 2021 14:28:19 +0200
-Message-Id: <20210901122304.104851901@linuxfoundation.org>
+Message-Id: <20210901122254.372094121@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit 8c1671e0d13d4a0ba4fb3a0da932bf3736d7ff73 ]
+[ Upstream commit 60f0779862e4ab943810187752c462e85f5fa371 ]
 
-Currently, when query PFC configuration by dcbtool, driver will return
-PFC enable status based on TC. As all priorities are mapped to TC0 by
-default, if TC0 is enabled, then all priorities mapped to TC0 will be
-shown as enabled status when query PFC setting, even though some
-priorities have never been set.
+Currently vq->broken field is read by virtqueue_is_broken() in busy
+loop in one context by virtnet_send_command().
 
-for example:
-$ dcb pfc show dev eth0
-pfc-cap 4 macsec-bypass off delay 0
-prio-pfc 0:off 1:off 2:off 3:off 4:off 5:off 6:off 7:off
-$ dcb pfc set dev eth0 prio-pfc 0:on 1:on 2:on 3:on
-$ dcb pfc show dev eth0
-pfc-cap 4 macsec-bypass off delay 0
-prio-pfc 0:on 1:on 2:on 3:on 4:on 5:on 6:on 7:on
+vq->broken is set to true in other process context by
+virtio_break_device(). Reader and writer are accessing it without any
+synchronization. This may lead to a compiler optimization which may
+result to optimize reading vq->broken only once.
 
-To fix this problem, just returns user's PFC config parameter saved in
-driver.
+Hence, force reading vq->broken on each invocation of
+virtqueue_is_broken() and also force writing it so that such
+update is visible to the readers.
 
-Fixes: cacde272dd00 ("net: hns3: Add hclge_dcb module for the support of DCB feature")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+It is a theoretical fix that isn't yet encountered in the field.
+
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Link: https://lore.kernel.org/r/20210721142648.1525924-2-parav@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c  | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ drivers/virtio/virtio_ring.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-index 5bf5db91d16c..39f56f245d84 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-@@ -255,21 +255,12 @@ static int hclge_ieee_getpfc(struct hnae3_handle *h, struct ieee_pfc *pfc)
- 	u64 requests[HNAE3_MAX_TC], indications[HNAE3_MAX_TC];
- 	struct hclge_vport *vport = hclge_get_vport(h);
- 	struct hclge_dev *hdev = vport->back;
--	u8 i, j, pfc_map, *prio_tc;
- 	int ret;
-+	u8 i;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index f6011c9ed32f..e442d400dbb2 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2268,7 +2268,7 @@ bool virtqueue_is_broken(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
  
- 	memset(pfc, 0, sizeof(*pfc));
- 	pfc->pfc_cap = hdev->pfc_max;
--	prio_tc = hdev->tm_info.prio_tc;
--	pfc_map = hdev->tm_info.hw_pfc_map;
--
--	/* Pfc setting is based on TC */
--	for (i = 0; i < hdev->tm_info.num_tc; i++) {
--		for (j = 0; j < HNAE3_MAX_USER_PRIO; j++) {
--			if ((prio_tc[j] == i) && (pfc_map & BIT(i)))
--				pfc->pfc_en |= BIT(j);
--		}
--	}
-+	pfc->pfc_en = hdev->tm_info.pfc_en;
+-	return vq->broken;
++	return READ_ONCE(vq->broken);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_is_broken);
  
- 	ret = hclge_pfc_tx_stats_get(hdev, requests);
- 	if (ret)
+@@ -2283,7 +2283,9 @@ void virtio_break_device(struct virtio_device *dev)
+ 	spin_lock(&dev->vqs_list_lock);
+ 	list_for_each_entry(_vq, &dev->vqs, list) {
+ 		struct vring_virtqueue *vq = to_vvq(_vq);
+-		vq->broken = true;
++
++		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
++		WRITE_ONCE(vq->broken, true);
+ 	}
+ 	spin_unlock(&dev->vqs_list_lock);
+ }
 -- 
 2.30.2
 
