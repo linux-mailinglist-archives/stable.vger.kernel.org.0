@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38BA13FD7E4
+	by mail.lfdr.de (Postfix) with ESMTP id C9EAF3FD7E6
 	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 12:44:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237128AbhIAKoW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 06:44:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35174 "EHLO mail.kernel.org"
+        id S234977AbhIAKoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 06:44:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235353AbhIAKoV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 06:44:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F307B6101A;
-        Wed,  1 Sep 2021 10:43:24 +0000 (UTC)
+        id S235055AbhIAKoe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 06:44:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B9746101A;
+        Wed,  1 Sep 2021 10:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630493005;
-        bh=oNhDFPSvq/xTVlsKfX/YVO4tWuBJdV9SDEYQMgWVxv0=;
+        s=korg; t=1630493017;
+        bh=MHR4ZD5ffpA4bkHzYUh5RyDjhHJVUSoNtd/QhhOOp90=;
         h=Subject:To:Cc:From:Date:From;
-        b=C+OdA0c+SRV1CezKCT8ufZEgXLfvqzjkBzgTRGL+KWIvYzQipY4lYGcW/4KaiHqyd
-         J6MhLgmJ/MZ0GLAABdiLkIM6nkUkihZR8u2c57i4FgJnebmgyeKAnYHV3OL5DeWbB2
-         DfJEO8TZVxtw3S4gEJl2WwCx9+q2cCSdPrfnAODE=
-Subject: FAILED: patch "[PATCH] f2fs: report correct st_size for encrypted symlinks" failed to apply to 4.4-stable tree
+        b=Fp1zagL2vIOGKBRZvi1u2qWezQJQL11xkdr39VsNiL2DLMfj3mUFNJXxxaA7l3p7Y
+         cuy5DGGRJ2n3BUW2z3PJGMdy5Zk72I9x5IYhTyvD88JMw6e6X+OpIVgpQy2VqWGiMi
+         xqVBzmaUnzElZJatole4ETEk14KyOWF72rCJnjPg=
+Subject: FAILED: patch "[PATCH] f2fs: report correct st_size for encrypted symlinks" failed to apply to 4.9-stable tree
 To:     ebiggers@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 01 Sep 2021 12:43:22 +0200
-Message-ID: <1630493002127197@kroah.com>
+Date:   Wed, 01 Sep 2021 12:43:23 +0200
+Message-ID: <16304930031491@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
