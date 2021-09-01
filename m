@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAEDE3FD999
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:27:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E57E03FD99C
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 14:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244152AbhIAM1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:27:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56948 "EHLO mail.kernel.org"
+        id S244123AbhIAM15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:27:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244103AbhIAM1t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:27:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 966D161027;
-        Wed,  1 Sep 2021 12:26:52 +0000 (UTC)
+        id S244136AbhIAM1w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:27:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4222A60BD3;
+        Wed,  1 Sep 2021 12:26:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499213;
-        bh=hIdL6z+qzpijU8652Uh5NeZjddCeQI/66a2SPmdw19w=;
+        s=korg; t=1630499215;
+        bh=EdaVfwVqQySnlK3kfvV6DheWXtvvGB/RNn59vXK5RCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CmGyCauRMnbf3NTx/8qSw9zQFE10cBSq8GWQ5YYCKwudM1NxbX0XFUpsygS8SpDbi
-         9jjYDebMOBc20fDWf7VV6IHp3WO9rBpE0sqpLejHvhSP0UDqfXwkrja6m8DmCPNpjQ
-         UlHhOw8PUznAkeyElDiapP8yfuxf9jXuDHN5cXyE=
+        b=s6pBaR9hMIYRSoULgpPYK+G2PZVn9VM6OkbCJgZ1/RUdolEXjd5AAXeRG8DxI+CRj
+         8+cnTi33wLzeZFxqXXfxkb7veg6Z+8yjPQ/Qu3WVg8abJJg7M3wbvpp+aSJ1qvI74r
+         kVYuVRHpcifDBxOajnvJovFf5RyZt8Ok4GsDsdUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 08/10] vt_kdsetmode: extend console locking
-Date:   Wed,  1 Sep 2021 14:26:22 +0200
-Message-Id: <20210901122248.313243925@linuxfoundation.org>
+        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
+        syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Dhaval Giani <dhaval.giani@oracle.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 4.4 09/10] fbmem: add margin check to fb_check_caps()
+Date:   Wed,  1 Sep 2021 14:26:23 +0200
+Message-Id: <20210901122248.350923315@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122248.051808371@linuxfoundation.org>
 References: <20210901122248.051808371@linuxfoundation.org>
@@ -40,46 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: George Kennedy <george.kennedy@oracle.com>
 
-commit 2287a51ba822384834dafc1c798453375d1107c7 upstream.
+commit a49145acfb975d921464b84fe00279f99827d816 upstream.
 
-As per the long-suffering comment.
+A fb_ioctl() FBIOPUT_VSCREENINFO call with invalid xres setting
+or yres setting in struct fb_var_screeninfo will result in a
+KASAN: vmalloc-out-of-bounds failure in bitfill_aligned() as
+the margins are being cleared. The margins are cleared in
+chunks and if the xres setting or yres setting is a value of
+zero upto the chunk size, the failure will occur.
 
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Add a margin check to validate xres and yres settings.
+
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reported-by: syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Dhaval Giani <dhaval.giani@oracle.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1594149963-13801-1-git-send-email-george.kennedy@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt_ioctl.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/video/fbdev/core/fbmem.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -487,16 +487,19 @@ int vt_ioctl(struct tty_struct *tty,
- 			ret = -EINVAL;
- 			goto out;
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1001,6 +1001,10 @@ fb_set_var(struct fb_info *info, struct
+ 			goto done;
  		}
--		/* FIXME: this needs the console lock extending */
--		if (vc->vc_mode == (unsigned char) arg)
-+		console_lock();
-+		if (vc->vc_mode == (unsigned char) arg) {
-+			console_unlock();
- 			break;
-+		}
- 		vc->vc_mode = (unsigned char) arg;
--		if (console != fg_console)
-+		if (console != fg_console) {
-+			console_unlock();
- 			break;
-+		}
- 		/*
- 		 * explicitly blank/unblank the screen if switching modes
- 		 */
--		console_lock();
- 		if (arg == KD_TEXT)
- 			do_unblank_screen(1);
- 		else
+ 
++		/* bitfill_aligned() assumes that it's at least 8x8 */
++		if (var->xres < 8 || var->yres < 8)
++			return -EINVAL;
++
+ 		ret = info->fbops->fb_check_var(var, info);
+ 
+ 		if (ret)
 
 
