@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F243FDB55
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 441413FDC18
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345194AbhIAMkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:40:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
+        id S1344494AbhIAMqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:46:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245726AbhIAMim (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:38:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A0506113C;
-        Wed,  1 Sep 2021 12:34:51 +0000 (UTC)
+        id S1345667AbhIAMoy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:44:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC42D6113C;
+        Wed,  1 Sep 2021 12:38:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499692;
-        bh=tbxOlCzCwYhwSmk7Ye42VvcJ4dzKErw+SoUzdJL5cPs=;
+        s=korg; t=1630499940;
+        bh=XaVd3fd8fC8Nso5+00MSU7BHIvXqHYjAk+VwI0DIzGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYPYa41gJS9DJ2zmwrzn1otiZ4mfENM6sNH6r58Id0ZevA+0rApHgTKRvZIsJ8B5v
-         YZWs8oXNRzMbNAB8NQsd5Y1rFxpH3IAhUESSBuL5c8jsWXiMrwJ5NQ2VfEnF8aDCLb
-         QnNshaDOxcEZzd/UPpnHhdq448GlXe3Q4Hz7YMeE=
+        b=Cy/CnaBdHHcaitRFbtAmqI37LjgYcfT3fiAueK3OQBmJ+vintR6E9akNAy0Vse2e5
+         3ACiWbF/5CSxzaJEyLcT4hfQlz9q6usf5qioiTrVUuWhhGjCeaG/cd6rUQpHrcbUbU
+         4Y/1pCcLPdaKWQ/AJKDkDONYGWEkr0KHy9r6vJSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/103] net: stmmac: fix kernel panic due to NULL pointer dereference of plat->est
+Subject: [PATCH 5.13 043/113] igc: fix page fault when thunderbolt is unplugged
 Date:   Wed,  1 Sep 2021 14:27:58 +0200
-Message-Id: <20210901122302.188539211@linuxfoundation.org>
+Message-Id: <20210901122303.423837876@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+From: Aaron Ma <aaron.ma@canonical.com>
 
-[ Upstream commit 82a44ae113b7b35850f4542f0443fcab221e376a ]
+[ Upstream commit 4b79959510e6612d80f8d86022e0cb44eee6f4a2 ]
 
-In the case of taprio offload is not enabled, the error handling path
-causes a kernel crash due to kernel NULL pointer deference.
+After unplug thunderbolt dock with i225, pciehp interrupt is triggered,
+remove call will read/write mmio address which is already disconnected,
+then cause page fault and make system hang.
 
-Fix this by adding check for NULL before attempt to access 'plat->est'
-on the mutex_lock() call.
+Check PCI state to remove device safely.
 
-The following kernel panic is observed without this patch:
-
-RIP: 0010:mutex_lock+0x10/0x20
+Trace:
+BUG: unable to handle page fault for address: 000000000000b604
+Oops: 0000 [#1] SMP NOPTI
+RIP: 0010:igc_rd32+0x1c/0x90 [igc]
 Call Trace:
-tc_setup_taprio+0x482/0x560 [stmmac]
-kmem_cache_alloc_trace+0x13f/0x490
-taprio_disable_offload.isra.0+0x9d/0x180 [sch_taprio]
-taprio_destroy+0x6c/0x100 [sch_taprio]
-qdisc_create+0x2e5/0x4f0
-tc_modify_qdisc+0x126/0x740
-rtnetlink_rcv_msg+0x12b/0x380
-_raw_spin_lock_irqsave+0x19/0x40
-_raw_spin_unlock_irqrestore+0x18/0x30
-create_object+0x212/0x340
-rtnl_calcit.isra.0+0x110/0x110
-netlink_rcv_skb+0x50/0x100
-netlink_unicast+0x191/0x230
-netlink_sendmsg+0x243/0x470
-sock_sendmsg+0x5e/0x60
-____sys_sendmsg+0x20b/0x280
-copy_msghdr_from_user+0x5c/0x90
-__mod_memcg_state+0x87/0xf0
- ___sys_sendmsg+0x7c/0xc0
-lru_cache_add+0x7f/0xa0
-_raw_spin_unlock+0x16/0x30
-wp_page_copy+0x449/0x890
-handle_mm_fault+0x921/0xfc0
-__sys_sendmsg+0x59/0xa0
-do_syscall_64+0x33/0x40
-entry_SYSCALL_64_after_hwframe+0x44/0xa9
----[ end trace b1f19b24368a96aa ]---
+igc_ptp_suspend+0x6c/0xa0 [igc]
+igc_ptp_stop+0x12/0x50 [igc]
+igc_remove+0x7f/0x1c0 [igc]
+pci_device_remove+0x3e/0xb0
+__device_release_driver+0x181/0x240
 
-Fixes: b60189e0392f ("net: stmmac: Integrate EST with TAPRIO scheduler API")
-Cc: <stable@vger.kernel.org> # 5.10.x
-Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 13b5b7fd6a4a ("igc: Add support for Tx/Rx rings")
+Fixes: b03c49cde61f ("igc: Save PTP time before a reset")
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 32 ++++++++++++++---------
+ drivers/net/ethernet/intel/igc/igc_ptp.c  |  3 ++-
+ 2 files changed, 21 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-index 8c2eae2a7efd..22c34474e617 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-@@ -781,11 +781,13 @@ static int tc_setup_taprio(struct stmmac_priv *priv,
- 	return 0;
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index a8d5f196fdbd..3db86daf3568 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -146,6 +146,9 @@ static void igc_release_hw_control(struct igc_adapter *adapter)
+ 	struct igc_hw *hw = &adapter->hw;
+ 	u32 ctrl_ext;
  
- disable:
--	mutex_lock(&priv->plat->est->lock);
--	priv->plat->est->enable = false;
--	stmmac_est_configure(priv, priv->ioaddr, priv->plat->est,
--			     priv->plat->clk_ptp_rate);
--	mutex_unlock(&priv->plat->est->lock);
-+	if (priv->plat->est) {
-+		mutex_lock(&priv->plat->est->lock);
-+		priv->plat->est->enable = false;
-+		stmmac_est_configure(priv, priv->ioaddr, priv->plat->est,
-+				     priv->plat->clk_ptp_rate);
-+		mutex_unlock(&priv->plat->est->lock);
++	if (!pci_device_is_present(adapter->pdev))
++		return;
++
+ 	/* Let firmware take over control of h/w */
+ 	ctrl_ext = rd32(IGC_CTRL_EXT);
+ 	wr32(IGC_CTRL_EXT,
+@@ -4037,26 +4040,29 @@ void igc_down(struct igc_adapter *adapter)
+ 
+ 	igc_ptp_suspend(adapter);
+ 
+-	/* disable receives in the hardware */
+-	rctl = rd32(IGC_RCTL);
+-	wr32(IGC_RCTL, rctl & ~IGC_RCTL_EN);
+-	/* flush and sleep below */
+-
++	if (pci_device_is_present(adapter->pdev)) {
++		/* disable receives in the hardware */
++		rctl = rd32(IGC_RCTL);
++		wr32(IGC_RCTL, rctl & ~IGC_RCTL_EN);
++		/* flush and sleep below */
++	}
+ 	/* set trans_start so we don't get spurious watchdogs during reset */
+ 	netif_trans_update(netdev);
+ 
+ 	netif_carrier_off(netdev);
+ 	netif_tx_stop_all_queues(netdev);
+ 
+-	/* disable transmits in the hardware */
+-	tctl = rd32(IGC_TCTL);
+-	tctl &= ~IGC_TCTL_EN;
+-	wr32(IGC_TCTL, tctl);
+-	/* flush both disables and wait for them to finish */
+-	wrfl();
+-	usleep_range(10000, 20000);
++	if (pci_device_is_present(adapter->pdev)) {
++		/* disable transmits in the hardware */
++		tctl = rd32(IGC_TCTL);
++		tctl &= ~IGC_TCTL_EN;
++		wr32(IGC_TCTL, tctl);
++		/* flush both disables and wait for them to finish */
++		wrfl();
++		usleep_range(10000, 20000);
+ 
+-	igc_irq_disable(adapter);
++		igc_irq_disable(adapter);
 +	}
  
- 	return ret;
+ 	adapter->flags &= ~IGC_FLAG_NEED_LINK_UPDATE;
+ 
+diff --git a/drivers/net/ethernet/intel/igc/igc_ptp.c b/drivers/net/ethernet/intel/igc/igc_ptp.c
+index 69617d2c1be2..4ae19c6a3247 100644
+--- a/drivers/net/ethernet/intel/igc/igc_ptp.c
++++ b/drivers/net/ethernet/intel/igc/igc_ptp.c
+@@ -849,7 +849,8 @@ void igc_ptp_suspend(struct igc_adapter *adapter)
+ 	adapter->ptp_tx_skb = NULL;
+ 	clear_bit_unlock(__IGC_PTP_TX_IN_PROGRESS, &adapter->state);
+ 
+-	igc_ptp_time_save(adapter);
++	if (pci_device_is_present(adapter->pdev))
++		igc_ptp_time_save(adapter);
  }
+ 
+ /**
 -- 
 2.30.2
 
