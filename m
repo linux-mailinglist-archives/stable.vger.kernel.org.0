@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CBD83FDAE4
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 809EC3FDC77
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245077AbhIAMgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:36:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34466 "EHLO mail.kernel.org"
+        id S1344857AbhIAMvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343700AbhIAMeR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:34:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2B71610F9;
-        Wed,  1 Sep 2021 12:32:34 +0000 (UTC)
+        id S1345849AbhIAMsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:48:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 381C861103;
+        Wed,  1 Sep 2021 12:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499555;
-        bh=uT3y0XRooOacI7GzRzS2I1531PaVQezIPRj2PqINqKU=;
+        s=korg; t=1630500045;
+        bh=HigKvF2qlGkAo5mFN3wN0d0VrImeDgmCAblcxl/51ZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QuQ2IeUzTG6PgYNY/33nJWDacGP/NALE6KKzrGwChNdkrkXSFLBci2vgMfdJmjC5z
-         ZWwN9wYpngJVyvvEFREyXm9+nmyAp6fXF1XLAnSteNXEoFDeXYVUOF65ZIDwZycKlF
-         dxMM/6KbGLAijax/FKAqSSqxDpEIqGFY/5nJnuiM=
+        b=aSbKhtDUURNglPSxoVoOR0KGOeIdUvSFzd6k3H6ghD7ondw5Zk+rCisy8fOR6AvLy
+         4LeN0UuhRPsIpnOUAC+S4J1uIDgTBHwz8yU9BPK+NMMIl7fvUNTrBAgVX1+eolHrNA
+         yhYQuzm/V5r7IEmvKOcDyKVxa9Zpi1xK0cyRwZB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Hounschell <markh@compro.net>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Wim Osterholt <wim@djo.tudelft.nl>,
-        Kurt Garloff <kurt@garloff.de>,
-        Denis Efremov <efremov@linux.com>
-Subject: [PATCH 5.4 45/48] Revert "floppy: reintroduce O_NDELAY fix"
-Date:   Wed,  1 Sep 2021 14:28:35 +0200
-Message-Id: <20210901122254.864877240@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 081/113] vringh: Use wiov->used to check for read/write desc order
+Date:   Wed,  1 Sep 2021 14:28:36 +0200
+Message-Id: <20210901122304.682785667@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
-References: <20210901122253.388326997@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,69 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Denis Efremov <efremov@linux.com>
+From: Neeraj Upadhyay <neeraju@codeaurora.org>
 
-commit c7e9d0020361f4308a70cdfd6d5335e273eb8717 upstream.
+[ Upstream commit e74cfa91f42c50f7f649b0eca46aa049754ccdbd ]
 
-The patch breaks userspace implementations (e.g. fdutils) and introduces
-regressions in behaviour. Previously, it was possible to O_NDELAY open a
-floppy device with no media inserted or with write protected media without
-an error. Some userspace tools use this particular behavior for probing.
+As __vringh_iov() traverses a descriptor chain, it populates
+each descriptor entry into either read or write vring iov
+and increments that iov's ->used member. So, as we iterate
+over a descriptor chain, at any point, (riov/wriov)->used
+value gives the number of descriptor enteries available,
+which are to be read or written by the device. As all read
+iovs must precede the write iovs, wiov->used should be zero
+when we are traversing a read descriptor. Current code checks
+for wiov->i, to figure out whether any previous entry in the
+current descriptor chain was a write descriptor. However,
+iov->i is only incremented, when these vring iovs are consumed,
+at a later point, and remain 0 in __vringh_iov(). So, correct
+the check for read and write descriptor order, to use
+wiov->used.
 
-It's not the first time when we revert this patch. Previous revert is in
-commit f2791e7eadf4 (Revert "floppy: refactor open() flags handling").
-
-This reverts commit 8a0c014cd20516ade9654fc13b51345ec58e7be8.
-
-Link: https://lore.kernel.org/linux-block/de10cb47-34d1-5a88-7751-225ca380f735@compro.net/
-Reported-by: Mark Hounschell <markh@compro.net>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Wim Osterholt <wim@djo.tudelft.nl>
-Cc: Kurt Garloff <kurt@garloff.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+Link: https://lore.kernel.org/r/1624591502-4827-1-git-send-email-neeraju@codeaurora.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/floppy.c |   27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ drivers/vhost/vringh.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -4063,22 +4063,21 @@ static int floppy_open(struct block_devi
- 	if (UFDCS->rawcmd == 1)
- 		UFDCS->rawcmd = 2;
- 
--	if (mode & (FMODE_READ|FMODE_WRITE)) {
--		UDRS->last_checked = 0;
--		clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
--		check_disk_change(bdev);
--		if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
--			goto out;
--		if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
-+	if (!(mode & FMODE_NDELAY)) {
-+		if (mode & (FMODE_READ|FMODE_WRITE)) {
-+			UDRS->last_checked = 0;
-+			clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
-+			check_disk_change(bdev);
-+			if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
-+				goto out;
-+			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
-+				goto out;
-+		}
-+		res = -EROFS;
-+		if ((mode & FMODE_WRITE) &&
-+		    !test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
- 			goto out;
- 	}
--
--	res = -EROFS;
--
--	if ((mode & FMODE_WRITE) &&
--			!test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
--		goto out;
--
- 	mutex_unlock(&open_lock);
- 	mutex_unlock(&floppy_mutex);
- 	return 0;
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 4af8fa259d65..14e2043d7685 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -359,7 +359,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
+ 			iov = wiov;
+ 		else {
+ 			iov = riov;
+-			if (unlikely(wiov && wiov->i)) {
++			if (unlikely(wiov && wiov->used)) {
+ 				vringh_bad("Readable desc %p after writable",
+ 					   &descs[i]);
+ 				err = -EINVAL;
+-- 
+2.30.2
+
 
 
