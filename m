@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A913FDA80
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 008473FDABA
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245536AbhIAMco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:32:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34466 "EHLO mail.kernel.org"
+        id S1343935AbhIAMeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:34:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244500AbhIAMbs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:31:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CA196109E;
-        Wed,  1 Sep 2021 12:30:51 +0000 (UTC)
+        id S244820AbhIAMdU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:33:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96C7C610D2;
+        Wed,  1 Sep 2021 12:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499451;
-        bh=VrsQIPaHzdglb66XduYrB24NyHPFMRYRLea94YBVTMA=;
+        s=korg; t=1630499512;
+        bh=xGeeZpq2HAygFPk++Gk7ModHNahau+QWrL/yPLyjIIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUI2mY2xKnKqa/KMrTUubUrg6xlJ3V1Rtimkjy0Y40BUqhnrA8lwxyCNdcQiMLg9+
-         i3axrgH0n55UycTsUi6FMEB+kdUJAK02xC83ObEd3tzL0M4lBJzsBOIrBg3PsQqsKD
-         /ZSMJ+FaB/ISMeNWAR7Jx0HRBv/aF7DIuKxK41ok=
+        b=wGFdPhjHTP49kS3laur1ITZ2OYUJT/i5Fwt6mxUE9vBnX/0iAcdHZYeiCxqaghss0
+         ev00XpgS9/T9Zmzew0I1FvbVsFev1xRaC1RenC8XM3wv8KTxzDSAqtqX9bxXK8W7yy
+         aIUvNpb/96aNg7u70itSAlU4UcIyfnNV7+RFk2EI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/33] drm/nouveau/disp: power down unused DP links during init
-Date:   Wed,  1 Sep 2021 14:28:16 +0200
-Message-Id: <20210901122251.685195728@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 27/48] perf/x86/intel/uncore: Fix integer overflow on 23 bit left shift of a u32
+Date:   Wed,  1 Sep 2021 14:28:17 +0200
+Message-Id: <20210901122254.310509992@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
-References: <20210901122250.752620302@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,79 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 6eaa1f3c59a707332e921e32782ffcad49915c5e ]
+[ Upstream commit 0b3a8738b76fe2087f7bc2bd59f4c78504c79180 ]
 
-When booted with multiple displays attached, the EFI GOP driver on (at
-least) Ampere, can leave DP links powered up that aren't being used to
-display anything.  This confuses our tracking of SOR routing, with the
-likely result being a failed modeset and display engine hang.
+The u32 variable pci_dword is being masked with 0x1fffffff and then left
+shifted 23 places. The shift is a u32 operation,so a value of 0x200 or
+more in pci_dword will overflow the u32 and only the bottow 32 bits
+are assigned to addr. I don't believe this was the original intent.
+Fix this by casting pci_dword to a resource_size_t to ensure no
+overflow occurs.
 
-Fix this by (ab?)using the DisableLT IED script to power-down the link,
-restoring HW to a state the driver expects.
+Note that the mask and 12 bit left shift operation does not need this
+because the mask SNR_IMC_MMIO_MEM0_MASK and shift is always a 32 bit
+value.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
+Fixes: ee49532b38dd ("perf/x86/intel/uncore: Add IMC uncore support for Snow Ridge")
+Addresses-Coverity: ("Unintentional integer overflow")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Link: https://lore.kernel.org/r/20210706114553.28249-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c   | 2 +-
- drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h   | 1 +
- drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c | 9 +++++++++
- 3 files changed, 11 insertions(+), 1 deletion(-)
+ arch/x86/events/intel/uncore_snbep.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-index 818d21bd28d3..1d2837c5a8f2 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-@@ -419,7 +419,7 @@ nvkm_dp_train(struct nvkm_dp *dp, u32 dataKBps)
- 	return ret;
- }
- 
--static void
-+void
- nvkm_dp_disable(struct nvkm_outp *outp, struct nvkm_ior *ior)
- {
- 	struct nvkm_dp *dp = nvkm_dp(outp);
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h
-index 495f665a0ee6..12d6ff4cfa95 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h
-@@ -32,6 +32,7 @@ struct nvkm_dp {
- 
- int nvkm_dp_new(struct nvkm_disp *, int index, struct dcb_output *,
- 		struct nvkm_outp **);
-+void nvkm_dp_disable(struct nvkm_outp *, struct nvkm_ior *);
- 
- /* DPCD Receiver Capabilities */
- #define DPCD_RC00_DPCD_REV                                              0x00000
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c
-index c62030c96fba..4b1c72fd8f03 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c
-@@ -22,6 +22,7 @@
-  * Authors: Ben Skeggs
-  */
- #include "outp.h"
-+#include "dp.h"
- #include "ior.h"
- 
- #include <subdev/bios.h>
-@@ -216,6 +217,14 @@ nvkm_outp_init_route(struct nvkm_outp *outp)
- 	if (!ior->arm.head || ior->arm.proto != proto) {
- 		OUTP_DBG(outp, "no heads (%x %d %d)", ior->arm.head,
- 			 ior->arm.proto, proto);
-+
-+		/* The EFI GOP driver on Ampere can leave unused DP links routed,
-+		 * which we don't expect.  The DisableLT IED script *should* get
-+		 * us back to where we need to be.
-+		 */
-+		if (ior->func->route.get && !ior->arm.head && outp->info.type == DCB_OUTPUT_DP)
-+			nvkm_dp_disable(outp, ior);
-+
+diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
+index 40751af62dd3..9096a1693942 100644
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -4382,7 +4382,7 @@ static void snr_uncore_mmio_init_box(struct intel_uncore_box *box)
  		return;
- 	}
  
+ 	pci_read_config_dword(pdev, SNR_IMC_MMIO_BASE_OFFSET, &pci_dword);
+-	addr = (pci_dword & SNR_IMC_MMIO_BASE_MASK) << 23;
++	addr = ((resource_size_t)pci_dword & SNR_IMC_MMIO_BASE_MASK) << 23;
+ 
+ 	pci_read_config_dword(pdev, SNR_IMC_MMIO_MEM0_OFFSET, &pci_dword);
+ 	addr |= (pci_dword & SNR_IMC_MMIO_MEM0_MASK) << 12;
 -- 
 2.30.2
 
