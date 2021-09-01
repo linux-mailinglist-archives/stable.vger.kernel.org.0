@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F273FDB96
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4203FDA81
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245042AbhIAMm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:42:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42678 "EHLO mail.kernel.org"
+        id S244917AbhIAMco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:32:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344695AbhIAMkm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:40:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4704761104;
-        Wed,  1 Sep 2021 12:36:52 +0000 (UTC)
+        id S244809AbhIAMbp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:31:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF5D9610C8;
+        Wed,  1 Sep 2021 12:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499812;
-        bh=hGpB3OYXSQsJAMtupy5tEoYQ9i3zYDhIn0ciJMdKmAw=;
+        s=korg; t=1630499449;
+        bh=iUBIjtZItUR18JceGiIDCeNmYK1ZiOCRqECbUy/H8Xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=txafM0JFbvHWC3EksIhymZcSzwgLMC/jGaJd2YuHN1TSlhTIPVbyYNcjrHkP1RuKu
-         dQRAUgs3CMeiw97kN+zgXISzWBTv4ugz6cVnFyu7IZUSEIrHha6iN8nbag3vgQ5yxP
-         YSE5AYc7YPGA/X8KohGd53A/w3d1Pu+P+YLOPUxg=
+        b=u6cGSHxTqr/iFhOWrVK7ARpBOzoUwvK8kTj3KyTrGxOxi/3WMfD5EUkLimOilGJPN
+         QGkMwLDofYxT9PuzPXRwDFbzt1M2SmPCBNPxDSpSXnaGpoT9jts4O0k3o1tpBlhVQu
+         0hpLidNnr72VF1+2rL793/nJIJTvDcw/20C6yeVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kenneth Feng <kenneth.feng@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>,
+        Mark Yacoub <markyacoub@chromium.org>,
+        Sean Paul <seanpaul@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 065/103] drm/amd/pm: change the workload type for some cards
+Subject: [PATCH 4.19 26/33] drm: Copy drm_wait_vblank to user before returning
 Date:   Wed,  1 Sep 2021 14:28:15 +0200
-Message-Id: <20210901122302.763926408@linuxfoundation.org>
+Message-Id: <20210901122251.653741714@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
+References: <20210901122250.752620302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kenneth Feng <kenneth.feng@amd.com>
+From: Mark Yacoub <markyacoub@google.com>
 
-[ Upstream commit 93c5701b00d50d192ce2247cb10d6c0b3fe25cd8 ]
+[ Upstream commit fa0b1ef5f7a694f48e00804a391245f3471aa155 ]
 
-change the workload type for some cards as it is needed.
+[Why]
+Userspace should get back a copy of drm_wait_vblank that's been modified
+even when drm_wait_vblank_ioctl returns a failure.
 
-Signed-off-by: Kenneth Feng <kenneth.feng@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Rationale:
+drm_wait_vblank_ioctl modifies the request and expects the user to read
+it back. When the type is RELATIVE, it modifies it to ABSOLUTE and updates
+the sequence to become current_vblank_count + sequence (which was
+RELATIVE), but now it became ABSOLUTE.
+drmWaitVBlank (in libdrm) expects this to be the case as it modifies
+the request to be Absolute so it expects the sequence to would have been
+updated.
+
+The change is in compat_drm_wait_vblank, which is called by
+drm_compat_ioctl. This change of copying the data back regardless of the
+return number makes it en par with drm_ioctl, which always copies the
+data before returning.
+
+[How]
+Return from the function after everything has been copied to user.
+
+Fixes IGT:kms_flip::modeset-vs-vblank-race-interruptible
+Tested on ChromeOS Trogdor(msm)
+
+Reviewed-by: Michel Dänzer <mdaenzer@redhat.com>
+Signed-off-by: Mark Yacoub <markyacoub@chromium.org>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210812194917.1703356-1-markyacoub@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_ioc32.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
-index ed4eafc744d3..4dc27ec4d012 100644
---- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
-+++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
-@@ -5122,6 +5122,13 @@ static int vega10_get_power_profile_mode(struct pp_hwmgr *hwmgr, char *buf)
- 	return size;
+diff --git a/drivers/gpu/drm/drm_ioc32.c b/drivers/gpu/drm/drm_ioc32.c
+index ab8847c7dd96..87e13bcd7a67 100644
+--- a/drivers/gpu/drm/drm_ioc32.c
++++ b/drivers/gpu/drm/drm_ioc32.c
+@@ -855,8 +855,6 @@ static int compat_drm_wait_vblank(struct file *file, unsigned int cmd,
+ 	req.request.sequence = req32.request.sequence;
+ 	req.request.signal = req32.request.signal;
+ 	err = drm_ioctl_kernel(file, drm_wait_vblank_ioctl, &req, DRM_UNLOCKED);
+-	if (err)
+-		return err;
+ 
+ 	req32.reply.type = req.reply.type;
+ 	req32.reply.sequence = req.reply.sequence;
+@@ -865,7 +863,7 @@ static int compat_drm_wait_vblank(struct file *file, unsigned int cmd,
+ 	if (copy_to_user(argp, &req32, sizeof(req32)))
+ 		return -EFAULT;
+ 
+-	return 0;
++	return err;
  }
  
-+static bool vega10_get_power_profile_mode_quirks(struct pp_hwmgr *hwmgr)
-+{
-+	struct amdgpu_device *adev = hwmgr->adev;
-+
-+	return (adev->pdev->device == 0x6860);
-+}
-+
- static int vega10_set_power_profile_mode(struct pp_hwmgr *hwmgr, long *input, uint32_t size)
- {
- 	struct vega10_hwmgr *data = hwmgr->backend;
-@@ -5158,9 +5165,15 @@ static int vega10_set_power_profile_mode(struct pp_hwmgr *hwmgr, long *input, ui
- 	}
- 
- out:
--	smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
-+	if (vega10_get_power_profile_mode_quirks(hwmgr))
-+		smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
- 						1 << power_profile_mode,
- 						NULL);
-+	else
-+		smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
-+						(!power_profile_mode) ? 0 : 1 << (power_profile_mode - 1),
-+						NULL);
-+
- 	hwmgr->power_profile_mode = power_profile_mode;
- 
- 	return 0;
+ #if defined(CONFIG_X86)
 -- 
 2.30.2
 
