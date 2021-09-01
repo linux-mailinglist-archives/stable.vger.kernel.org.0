@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B18D63FDA41
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:15:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFF0F3FDC37
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244634AbhIAMbX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:31:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32948 "EHLO mail.kernel.org"
+        id S1344663AbhIAMsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:48:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244636AbhIAMay (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:30:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2253F610A2;
-        Wed,  1 Sep 2021 12:29:56 +0000 (UTC)
+        id S1345257AbhIAMqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:46:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9282A61075;
+        Wed,  1 Sep 2021 12:39:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499397;
-        bh=N2VJGS70HEoaxWZv2YwyzanrpLLRlNj3BIJ5IL3trfw=;
+        s=korg; t=1630499970;
+        bh=h8HYeRSMPhwCEiHN7UhHG7WhfHOKYEcSPPoWVRnUrPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uo6BxqWo/yxkZno+HSH/2l9m8Iwdr1ktSlEjtrQOHfBEBLsK+/S/WIAT7tM6m8mzw
-         8vzrAU1mN3To82oxDut5lRennjvoSvRP+J22GsFuQnNGjnnoc1wJHaZ5lpr8DgfGd4
-         8CjYS+DVgRochGn1P5OH7u1mxhW9Musj+s6Fe8CE=
+        b=phDqVu1Gc7BLBraTxTyPUKEC7UoKPyxBuLMQL5avrg2uHtgFdC+qdZifOMdQt3MUq
+         cmPeMofgPgu/OfOToo4CZ1IxjwgxaDkWo7wNCEasuY8ptzERkhzwRqKvhrVw+qLSD/
+         A9/v8bnBpTpjt+5lRS1tIJLZTmhGX3nUXWc9t+Sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 18/33] net: hns3: fix get wrong pfc_en when query PFC configuration
-Date:   Wed,  1 Sep 2021 14:28:07 +0200
-Message-Id: <20210901122251.391539266@linuxfoundation.org>
+Subject: [PATCH 5.13 053/113] SUNRPC: Fix XPT_BUSY flag leakage in svc_handle_xprt()...
+Date:   Wed,  1 Sep 2021 14:28:08 +0200
+Message-Id: <20210901122303.743147206@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
-References: <20210901122250.752620302@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 8c1671e0d13d4a0ba4fb3a0da932bf3736d7ff73 ]
+[ Upstream commit 062b829c52ef4ed5df14f4850fc07651bb7c3b33 ]
 
-Currently, when query PFC configuration by dcbtool, driver will return
-PFC enable status based on TC. As all priorities are mapped to TC0 by
-default, if TC0 is enabled, then all priorities mapped to TC0 will be
-shown as enabled status when query PFC setting, even though some
-priorities have never been set.
+If the attempt to reserve a slot fails, we currently leak the XPT_BUSY
+flag on the socket. Among other things, this make it impossible to close
+the socket.
 
-for example:
-$ dcb pfc show dev eth0
-pfc-cap 4 macsec-bypass off delay 0
-prio-pfc 0:off 1:off 2:off 3:off 4:off 5:off 6:off 7:off
-$ dcb pfc set dev eth0 prio-pfc 0:on 1:on 2:on 3:on
-$ dcb pfc show dev eth0
-pfc-cap 4 macsec-bypass off delay 0
-prio-pfc 0:on 1:on 2:on 3:on 4:on 5:on 6:on 7:on
-
-To fix this problem, just returns user's PFC config parameter saved in
-driver.
-
-Fixes: cacde272dd00 ("net: hns3: Add hclge_dcb module for the support of DCB feature")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 82011c80b3ec ("SUNRPC: Move svc_xprt_received() call sites")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c  | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ net/sunrpc/svc_xprt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-index a75d7c826fc2..dd935cd1fb44 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-@@ -204,21 +204,12 @@ static int hclge_ieee_getpfc(struct hnae3_handle *h, struct ieee_pfc *pfc)
- 	u64 requests[HNAE3_MAX_TC], indications[HNAE3_MAX_TC];
- 	struct hclge_vport *vport = hclge_get_vport(h);
- 	struct hclge_dev *hdev = vport->back;
--	u8 i, j, pfc_map, *prio_tc;
- 	int ret;
-+	u8 i;
- 
- 	memset(pfc, 0, sizeof(*pfc));
- 	pfc->pfc_cap = hdev->pfc_max;
--	prio_tc = hdev->tm_info.prio_tc;
--	pfc_map = hdev->tm_info.hw_pfc_map;
--
--	/* Pfc setting is based on TC */
--	for (i = 0; i < hdev->tm_info.num_tc; i++) {
--		for (j = 0; j < HNAE3_MAX_USER_PRIO; j++) {
--			if ((prio_tc[j] == i) && (pfc_map & BIT(i)))
--				pfc->pfc_en |= BIT(j);
--		}
+diff --git a/net/sunrpc/svc_xprt.c b/net/sunrpc/svc_xprt.c
+index d66a8e44a1ae..dbb41821b1b8 100644
+--- a/net/sunrpc/svc_xprt.c
++++ b/net/sunrpc/svc_xprt.c
+@@ -835,7 +835,8 @@ static int svc_handle_xprt(struct svc_rqst *rqstp, struct svc_xprt *xprt)
+ 		rqstp->rq_stime = ktime_get();
+ 		rqstp->rq_reserved = serv->sv_max_mesg;
+ 		atomic_add(rqstp->rq_reserved, &xprt->xpt_reserved);
 -	}
-+	pfc->pfc_en = hdev->tm_info.pfc_en;
- 
- 	ret = hclge_pfc_tx_stats_get(hdev, requests);
- 	if (ret)
++	} else
++		svc_xprt_received(xprt);
+ out:
+ 	trace_svc_handle_xprt(xprt, len);
+ 	return len;
 -- 
 2.30.2
 
