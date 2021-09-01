@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D90CC3FDB4D
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 370373FDAC0
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344258AbhIAMkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:40:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43410 "EHLO mail.kernel.org"
+        id S1343952AbhIAMev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:34:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344383AbhIAMiT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:38:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0DCB61166;
-        Wed,  1 Sep 2021 12:34:41 +0000 (UTC)
+        id S1343535AbhIAMdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:33:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A473610E6;
+        Wed,  1 Sep 2021 12:32:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499682;
-        bh=UuYecAlZmT18iwBA1sFNEa8Y7iVFhqj3CtNc9KvuAgc=;
+        s=korg; t=1630499522;
+        bh=3LtPGqVFszrceez7FmDhpht4gkC4FP08zQUorIghOx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vR5/YX6NA8RSlyvpNiJHHhkbzyhrP7PhGP160Fjt1+VimE9YKTUPUGbdTZLYpKbrx
-         pu+imMA4rp32+3itPPhy5HK0mPCPyknHAYwR47Gb2Q+wlHWWUGLbP167v+TteBIaLE
-         mUEsI0CeLVgCYCzZ3EtPDNBYtjTxxUj/0rOFUX5w=
+        b=oAkwBOlVIiXuV3qSke5BzWXVZEHFzwoGwooHMicMsI2c/4MemzA40IC4ncgKRUJ6U
+         a5a7vH+6AdZPCYqmIwQTyn63MgJhXmB2uvRda5GKl/Xm7n7K/cNNbsQscQX3UwdHkP
+         7bwiMz3fhiJI2Urd0XqGqdC4l9/jVcvL2sG77vkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guojia Liao <liaoguojia@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Hannes Frederic Sowa <hannes@stressinduktion.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Minmin chen <chenmingmin@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 044/103] net: hns3: fix duplicate node in VLAN list
+Subject: [PATCH 5.4 04/48] once: Fix panic when module unload
 Date:   Wed,  1 Sep 2021 14:27:54 +0200
-Message-Id: <20210901122302.061298057@linuxfoundation.org>
+Message-Id: <20210901122253.538567848@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guojia Liao <liaoguojia@huawei.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-[ Upstream commit 94391fae82f71c98ecc7716a32611fcca73c74eb ]
+[ Upstream commit 1027b96ec9d34f9abab69bc1a4dc5b1ad8ab1349 ]
 
-VLAN list should not be added duplicate VLAN node, otherwise it would
-cause "add failed" when restore VLAN from VLAN list, so this patch adds
-VLAN ID check before adding node into VLAN list.
+DO_ONCE
+DEFINE_STATIC_KEY_TRUE(___once_key);
+__do_once_done
+  once_disable_jump(once_key);
+    INIT_WORK(&w->work, once_deferred);
+    struct once_work *w;
+    w->key = key;
+    schedule_work(&w->work);                     module unload
+                                                   //*the key is
+destroy*
+process_one_work
+  once_deferred
+    BUG_ON(!static_key_enabled(work->key));
+       static_key_count((struct static_key *)x)    //*access key, crash*
 
-Fixes: c6075b193462 ("net: hns3: Record VF vlan tables")
-Signed-off-by: Guojia Liao <liaoguojia@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+When module uses DO_ONCE mechanism, it could crash due to the above
+concurrency problem, we could reproduce it with link[1].
+
+Fix it by add/put module refcount in the once work process.
+
+[1] https://lore.kernel.org/netdev/eaa6c371-465e-57eb-6be9-f4b16b9d7cbf@huawei.com/
+
+Cc: Hannes Frederic Sowa <hannes@stressinduktion.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Reported-by: Minmin chen <chenmingmin@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Acked-by: Hannes Frederic Sowa <hannes@stressinduktion.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/linux/once.h |  4 ++--
+ lib/once.c           | 11 ++++++++---
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index c48c845472ca..2261de5caf86 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -8792,7 +8792,11 @@ static int hclge_init_vlan_config(struct hclge_dev *hdev)
- static void hclge_add_vport_vlan_table(struct hclge_vport *vport, u16 vlan_id,
- 				       bool writen_to_tbl)
- {
--	struct hclge_vport_vlan_cfg *vlan;
-+	struct hclge_vport_vlan_cfg *vlan, *tmp;
-+
-+	list_for_each_entry_safe(vlan, tmp, &vport->vlan_list, node)
-+		if (vlan->vlan_id == vlan_id)
-+			return;
+diff --git a/include/linux/once.h b/include/linux/once.h
+index 9225ee6d96c7..ae6f4eb41cbe 100644
+--- a/include/linux/once.h
++++ b/include/linux/once.h
+@@ -7,7 +7,7 @@
  
- 	vlan = kzalloc(sizeof(*vlan), GFP_KERNEL);
- 	if (!vlan)
+ bool __do_once_start(bool *done, unsigned long *flags);
+ void __do_once_done(bool *done, struct static_key_true *once_key,
+-		    unsigned long *flags);
++		    unsigned long *flags, struct module *mod);
+ 
+ /* Call a function exactly once. The idea of DO_ONCE() is to perform
+  * a function call such as initialization of random seeds, etc, only
+@@ -46,7 +46,7 @@ void __do_once_done(bool *done, struct static_key_true *once_key,
+ 			if (unlikely(___ret)) {				     \
+ 				func(__VA_ARGS__);			     \
+ 				__do_once_done(&___done, &___once_key,	     \
+-					       &___flags);		     \
++					       &___flags, THIS_MODULE);	     \
+ 			}						     \
+ 		}							     \
+ 		___ret;							     \
+diff --git a/lib/once.c b/lib/once.c
+index 8b7d6235217e..59149bf3bfb4 100644
+--- a/lib/once.c
++++ b/lib/once.c
+@@ -3,10 +3,12 @@
+ #include <linux/spinlock.h>
+ #include <linux/once.h>
+ #include <linux/random.h>
++#include <linux/module.h>
+ 
+ struct once_work {
+ 	struct work_struct work;
+ 	struct static_key_true *key;
++	struct module *module;
+ };
+ 
+ static void once_deferred(struct work_struct *w)
+@@ -16,10 +18,11 @@ static void once_deferred(struct work_struct *w)
+ 	work = container_of(w, struct once_work, work);
+ 	BUG_ON(!static_key_enabled(work->key));
+ 	static_branch_disable(work->key);
++	module_put(work->module);
+ 	kfree(work);
+ }
+ 
+-static void once_disable_jump(struct static_key_true *key)
++static void once_disable_jump(struct static_key_true *key, struct module *mod)
+ {
+ 	struct once_work *w;
+ 
+@@ -29,6 +32,8 @@ static void once_disable_jump(struct static_key_true *key)
+ 
+ 	INIT_WORK(&w->work, once_deferred);
+ 	w->key = key;
++	w->module = mod;
++	__module_get(mod);
+ 	schedule_work(&w->work);
+ }
+ 
+@@ -53,11 +58,11 @@ bool __do_once_start(bool *done, unsigned long *flags)
+ EXPORT_SYMBOL(__do_once_start);
+ 
+ void __do_once_done(bool *done, struct static_key_true *once_key,
+-		    unsigned long *flags)
++		    unsigned long *flags, struct module *mod)
+ 	__releases(once_lock)
+ {
+ 	*done = true;
+ 	spin_unlock_irqrestore(&once_lock, *flags);
+-	once_disable_jump(once_key);
++	once_disable_jump(once_key, mod);
+ }
+ EXPORT_SYMBOL(__do_once_done);
 -- 
 2.30.2
 
