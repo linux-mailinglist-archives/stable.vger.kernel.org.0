@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F063FDB05
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D8883FDBEB
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244801AbhIAMhN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:37:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35716 "EHLO mail.kernel.org"
+        id S1344894AbhIAMps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:45:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343493AbhIAMfJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:35:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E970261102;
-        Wed,  1 Sep 2021 12:33:18 +0000 (UTC)
+        id S1344947AbhIAMnd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:43:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D4A861139;
+        Wed,  1 Sep 2021 12:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499599;
-        bh=bwLrbux92Y5Vm+qskrzyq96eeJLwc3+rzDBPF2PqXJc=;
+        s=korg; t=1630499906;
+        bh=TtcO+EvDa1OC4f0tX5LYwIZIn5H1tbWPF0jp/AEMpiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iVwDyrARsxYjWE1yJ/VlcseTCU066XtqcjhUxjIubpLTyP1okLLquHJRCa5nht0lr
-         +1Pdv4EAhcaX8l6Ch/eVC4tWrrd8iqqE4VNVpBVk258isVSHg4jxG4OFzD5jSlgDA+
-         rBemPZHTK/XAHGx0thk0V0Pq9zkEOAbYgq6p0urU=
+        b=mtTT9wdGXqXTnUcEWbUaZsNIgALph+gM9iclpQ3nmD5kVtv3lWLvHzWlYltRJ7F0v
+         XTAlQS/zCQZb2bmJMZKYHUEvVlWUp0Xsylj7f0hu9RfKLNUIofaGrZ5Ogd3ixLt2a7
+         +J4FAXh36XXzXlwJ7R9vcyMp99YpVBSQAtOQi/Sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.10 013/103] ceph: correctly handle releasing an embedded cap flush
+        stable@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 008/113] netfilter: conntrack: collect all entries in one cycle
 Date:   Wed,  1 Sep 2021 14:27:23 +0200
-Message-Id: <20210901122300.975643502@linuxfoundation.org>
+Message-Id: <20210901122302.251411959@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,157 +41,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit b2f9fa1f3bd8846f50b355fc2168236975c4d264 upstream.
+[ Upstream commit 4608fdfc07e116f9fc0895beb40abad7cdb5ee3d ]
 
-The ceph_cap_flush structures are usually dynamically allocated, but
-the ceph_cap_snap has an embedded one.
+Michal Kubecek reports that conntrack gc is responsible for frequent
+wakeups (every 125ms) on idle systems.
 
-When force umounting, the client will try to remove all the session
-caps. During this, it will free them, but that should not be done
-with the ones embedded in a capsnap.
+On busy systems, timed out entries are evicted during lookup.
+The gc worker is only needed to remove entries after system becomes idle
+after a busy period.
 
-Fix this by adding a new boolean that indicates that the cap flush is
-embedded in a capsnap, and skip freeing it if that's set.
+To resolve this, always scan the entire table.
+If the scan is taking too long, reschedule so other work_structs can run
+and resume from next bucket.
 
-At the same time, switch to using list_del_init() when detaching the
-i_list and g_list heads.  It's possible for a forced umount to remove
-these objects but then handle_cap_flushsnap_ack() races in and does the
-list_del_init() again, corrupting memory.
+After a completed scan, wait for 2 minutes before the next cycle.
+Heuristics for faster re-schedule are removed.
 
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/52283
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+GC_SCAN_INTERVAL could be exposed as a sysctl in the future to allow
+tuning this as-needed or even turn the gc worker off.
+
+Reported-by: Michal Kubecek <mkubecek@suse.cz>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/caps.c       |   21 +++++++++++++--------
- fs/ceph/mds_client.c |    7 ++++---
- fs/ceph/snap.c       |    3 +++
- fs/ceph/super.h      |    3 ++-
- 4 files changed, 22 insertions(+), 12 deletions(-)
+ net/netfilter/nf_conntrack_core.c | 71 ++++++++++---------------------
+ 1 file changed, 22 insertions(+), 49 deletions(-)
 
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1752,7 +1752,11 @@ int __ceph_mark_dirty_caps(struct ceph_i
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 69079a382d3a..6ba9f4b8d145 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -68,22 +68,17 @@ EXPORT_SYMBOL_GPL(nf_conntrack_hash);
  
- struct ceph_cap_flush *ceph_alloc_cap_flush(void)
- {
--	return kmem_cache_alloc(ceph_cap_flush_cachep, GFP_KERNEL);
-+	struct ceph_cap_flush *cf;
-+
-+	cf = kmem_cache_alloc(ceph_cap_flush_cachep, GFP_KERNEL);
-+	cf->is_capsnap = false;
-+	return cf;
- }
- 
- void ceph_free_cap_flush(struct ceph_cap_flush *cf)
-@@ -1787,7 +1791,7 @@ static bool __detach_cap_flush_from_mdsc
- 		prev->wake = true;
- 		wake = false;
- 	}
--	list_del(&cf->g_list);
-+	list_del_init(&cf->g_list);
- 	return wake;
- }
- 
-@@ -1802,7 +1806,7 @@ static bool __detach_cap_flush_from_ci(s
- 		prev->wake = true;
- 		wake = false;
- 	}
--	list_del(&cf->i_list);
-+	list_del_init(&cf->i_list);
- 	return wake;
- }
- 
-@@ -2422,7 +2426,7 @@ static void __kick_flushing_caps(struct
- 	ci->i_ceph_flags &= ~CEPH_I_KICK_FLUSH;
- 
- 	list_for_each_entry_reverse(cf, &ci->i_cap_flush_list, i_list) {
--		if (!cf->caps) {
-+		if (cf->is_capsnap) {
- 			last_snap_flush = cf->tid;
- 			break;
- 		}
-@@ -2441,7 +2445,7 @@ static void __kick_flushing_caps(struct
- 
- 		first_tid = cf->tid + 1;
- 
--		if (cf->caps) {
-+		if (!cf->is_capsnap) {
- 			struct cap_msg_args arg;
- 
- 			dout("kick_flushing_caps %p cap %p tid %llu %s\n",
-@@ -3564,7 +3568,7 @@ static void handle_cap_flush_ack(struct
- 			cleaned = cf->caps;
- 
- 		/* Is this a capsnap? */
--		if (cf->caps == 0)
-+		if (cf->is_capsnap)
- 			continue;
- 
- 		if (cf->tid <= flush_tid) {
-@@ -3637,8 +3641,9 @@ out:
- 	while (!list_empty(&to_remove)) {
- 		cf = list_first_entry(&to_remove,
- 				      struct ceph_cap_flush, i_list);
--		list_del(&cf->i_list);
--		ceph_free_cap_flush(cf);
-+		list_del_init(&cf->i_list);
-+		if (!cf->is_capsnap)
-+			ceph_free_cap_flush(cf);
- 	}
- 
- 	if (wake_ci)
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -1618,7 +1618,7 @@ static int remove_session_caps_cb(struct
- 		spin_lock(&mdsc->cap_dirty_lock);
- 
- 		list_for_each_entry(cf, &to_remove, i_list)
--			list_del(&cf->g_list);
-+			list_del_init(&cf->g_list);
- 
- 		if (!list_empty(&ci->i_dirty_item)) {
- 			pr_warn_ratelimited(
-@@ -1670,8 +1670,9 @@ static int remove_session_caps_cb(struct
- 		struct ceph_cap_flush *cf;
- 		cf = list_first_entry(&to_remove,
- 				      struct ceph_cap_flush, i_list);
--		list_del(&cf->i_list);
--		ceph_free_cap_flush(cf);
-+		list_del_init(&cf->i_list);
-+		if (!cf->is_capsnap)
-+			ceph_free_cap_flush(cf);
- 	}
- 
- 	wake_up_all(&ci->i_cap_wq);
---- a/fs/ceph/snap.c
-+++ b/fs/ceph/snap.c
-@@ -487,6 +487,9 @@ void ceph_queue_cap_snap(struct ceph_ino
- 		pr_err("ENOMEM allocating ceph_cap_snap on %p\n", inode);
- 		return;
- 	}
-+	capsnap->cap_flush.is_capsnap = true;
-+	INIT_LIST_HEAD(&capsnap->cap_flush.i_list);
-+	INIT_LIST_HEAD(&capsnap->cap_flush.g_list);
- 
- 	spin_lock(&ci->i_ceph_lock);
- 	used = __ceph_caps_used(ci);
---- a/fs/ceph/super.h
-+++ b/fs/ceph/super.h
-@@ -181,8 +181,9 @@ struct ceph_cap {
- 
- struct ceph_cap_flush {
- 	u64 tid;
--	int caps; /* 0 means capsnap */
-+	int caps;
- 	bool wake; /* wake up flush waiters when finish ? */
-+	bool is_capsnap; /* true means capsnap */
- 	struct list_head g_list; // global
- 	struct list_head i_list; // per inode
+ struct conntrack_gc_work {
+ 	struct delayed_work	dwork;
+-	u32			last_bucket;
++	u32			next_bucket;
+ 	bool			exiting;
+ 	bool			early_drop;
+-	long			next_gc_run;
  };
+ 
+ static __read_mostly struct kmem_cache *nf_conntrack_cachep;
+ static DEFINE_SPINLOCK(nf_conntrack_locks_all_lock);
+ static __read_mostly bool nf_conntrack_locks_all;
+ 
+-/* every gc cycle scans at most 1/GC_MAX_BUCKETS_DIV part of table */
+-#define GC_MAX_BUCKETS_DIV	128u
+-/* upper bound of full table scan */
+-#define GC_MAX_SCAN_JIFFIES	(16u * HZ)
+-/* desired ratio of entries found to be expired */
+-#define GC_EVICT_RATIO	50u
++#define GC_SCAN_INTERVAL	(120u * HZ)
++#define GC_SCAN_MAX_DURATION	msecs_to_jiffies(10)
+ 
+ static struct conntrack_gc_work conntrack_gc_work;
+ 
+@@ -1359,17 +1354,13 @@ static bool gc_worker_can_early_drop(const struct nf_conn *ct)
+ 
+ static void gc_worker(struct work_struct *work)
+ {
+-	unsigned int min_interval = max(HZ / GC_MAX_BUCKETS_DIV, 1u);
+-	unsigned int i, goal, buckets = 0, expired_count = 0;
+-	unsigned int nf_conntrack_max95 = 0;
++	unsigned long end_time = jiffies + GC_SCAN_MAX_DURATION;
++	unsigned int i, hashsz, nf_conntrack_max95 = 0;
++	unsigned long next_run = GC_SCAN_INTERVAL;
+ 	struct conntrack_gc_work *gc_work;
+-	unsigned int ratio, scanned = 0;
+-	unsigned long next_run;
+-
+ 	gc_work = container_of(work, struct conntrack_gc_work, dwork.work);
+ 
+-	goal = nf_conntrack_htable_size / GC_MAX_BUCKETS_DIV;
+-	i = gc_work->last_bucket;
++	i = gc_work->next_bucket;
+ 	if (gc_work->early_drop)
+ 		nf_conntrack_max95 = nf_conntrack_max / 100u * 95u;
+ 
+@@ -1377,15 +1368,15 @@ static void gc_worker(struct work_struct *work)
+ 		struct nf_conntrack_tuple_hash *h;
+ 		struct hlist_nulls_head *ct_hash;
+ 		struct hlist_nulls_node *n;
+-		unsigned int hashsz;
+ 		struct nf_conn *tmp;
+ 
+-		i++;
+ 		rcu_read_lock();
+ 
+ 		nf_conntrack_get_ht(&ct_hash, &hashsz);
+-		if (i >= hashsz)
+-			i = 0;
++		if (i >= hashsz) {
++			rcu_read_unlock();
++			break;
++		}
+ 
+ 		hlist_nulls_for_each_entry_rcu(h, n, &ct_hash[i], hnnode) {
+ 			struct nf_conntrack_net *cnet;
+@@ -1393,7 +1384,6 @@ static void gc_worker(struct work_struct *work)
+ 
+ 			tmp = nf_ct_tuplehash_to_ctrack(h);
+ 
+-			scanned++;
+ 			if (test_bit(IPS_OFFLOAD_BIT, &tmp->status)) {
+ 				nf_ct_offload_timeout(tmp);
+ 				continue;
+@@ -1401,7 +1391,6 @@ static void gc_worker(struct work_struct *work)
+ 
+ 			if (nf_ct_is_expired(tmp)) {
+ 				nf_ct_gc_expired(tmp);
+-				expired_count++;
+ 				continue;
+ 			}
+ 
+@@ -1434,7 +1423,14 @@ static void gc_worker(struct work_struct *work)
+ 		 */
+ 		rcu_read_unlock();
+ 		cond_resched();
+-	} while (++buckets < goal);
++		i++;
++
++		if (time_after(jiffies, end_time) && i < hashsz) {
++			gc_work->next_bucket = i;
++			next_run = 0;
++			break;
++		}
++	} while (i < hashsz);
+ 
+ 	if (gc_work->exiting)
+ 		return;
+@@ -1445,40 +1441,17 @@ static void gc_worker(struct work_struct *work)
+ 	 *
+ 	 * This worker is only here to reap expired entries when system went
+ 	 * idle after a busy period.
+-	 *
+-	 * The heuristics below are supposed to balance conflicting goals:
+-	 *
+-	 * 1. Minimize time until we notice a stale entry
+-	 * 2. Maximize scan intervals to not waste cycles
+-	 *
+-	 * Normally, expire ratio will be close to 0.
+-	 *
+-	 * As soon as a sizeable fraction of the entries have expired
+-	 * increase scan frequency.
+ 	 */
+-	ratio = scanned ? expired_count * 100 / scanned : 0;
+-	if (ratio > GC_EVICT_RATIO) {
+-		gc_work->next_gc_run = min_interval;
+-	} else {
+-		unsigned int max = GC_MAX_SCAN_JIFFIES / GC_MAX_BUCKETS_DIV;
+-
+-		BUILD_BUG_ON((GC_MAX_SCAN_JIFFIES / GC_MAX_BUCKETS_DIV) == 0);
+-
+-		gc_work->next_gc_run += min_interval;
+-		if (gc_work->next_gc_run > max)
+-			gc_work->next_gc_run = max;
++	if (next_run) {
++		gc_work->early_drop = false;
++		gc_work->next_bucket = 0;
+ 	}
+-
+-	next_run = gc_work->next_gc_run;
+-	gc_work->last_bucket = i;
+-	gc_work->early_drop = false;
+ 	queue_delayed_work(system_power_efficient_wq, &gc_work->dwork, next_run);
+ }
+ 
+ static void conntrack_gc_work_init(struct conntrack_gc_work *gc_work)
+ {
+ 	INIT_DEFERRABLE_WORK(&gc_work->dwork, gc_worker);
+-	gc_work->next_gc_run = HZ;
+ 	gc_work->exiting = false;
+ }
+ 
+-- 
+2.30.2
+
 
 
