@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 896223FDC44
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD66A3FDA5D
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345787AbhIAMsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:48:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49966 "EHLO mail.kernel.org"
+        id S244959AbhIAMcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:32:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344468AbhIAMqf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:46:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 846586112F;
-        Wed,  1 Sep 2021 12:39:37 +0000 (UTC)
+        id S244831AbhIAMbW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:31:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B718610A4;
+        Wed,  1 Sep 2021 12:30:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499977;
-        bh=m3rQmegEvjV+Cpnu1wQLHbUdV8WiWDw3yFLIIPHbw+Y=;
+        s=korg; t=1630499426;
+        bh=nlhbgY7JlbZUUHfACAanG1o0XxU/k6vH9k9y4N0S8zY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lh9ToBGRkhukqDTNvvFVQoa5zbg47QWBAoydNnQFgpQ9iLQa44DCegwPm7aeJAkgr
-         Dq80ofKf3Axji6iAi6qbwPgFTukAnS0fG8F4TAD5fit8TTkuepiqIG3veV+L0IlttK
-         QrfXrZ4ymtmtRlOU1gmRWL9VjwQTfpMKFXuw8bkQ=
+        b=WFRNqXg+Kws3msJ2trM7HiRWESm3Tkd7vZnWMuFygO1XtAYXnxBOS7LGcEPyojIA+
+         ggqKrp6BUMs9egQ+KrpJb93kikoV3VMP+iCT/ZiNt19uFHItmXGvb2mSdohRhB0iBs
+         LVQI1ITbwANsOtFaviNJhAk1WMZwQL1BxR6PuwI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Keyu Man <kman001@ucr.edu>, Willy Tarreau <w@1wt.eu>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 055/113] ipv4: use siphash instead of Jenkins in fnhe_hashfun()
+Subject: [PATCH 4.19 21/33] virtio: Improve vq->broken access to avoid any compiler optimization
 Date:   Wed,  1 Sep 2021 14:28:10 +0200
-Message-Id: <20210901122303.804423454@linuxfoundation.org>
+Message-Id: <20210901122251.490479445@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
+References: <20210901122250.752620302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit 6457378fe796815c973f631a1904e147d6ee33b1 ]
+[ Upstream commit 60f0779862e4ab943810187752c462e85f5fa371 ]
 
-A group of security researchers brought to our attention
-the weakness of hash function used in fnhe_hashfun().
+Currently vq->broken field is read by virtqueue_is_broken() in busy
+loop in one context by virtnet_send_command().
 
-Lets use siphash instead of Jenkins Hash, to considerably
-reduce security risks.
+vq->broken is set to true in other process context by
+virtio_break_device(). Reader and writer are accessing it without any
+synchronization. This may lead to a compiler optimization which may
+result to optimize reading vq->broken only once.
 
-Also remove the inline keyword, this really is distracting.
+Hence, force reading vq->broken on each invocation of
+virtqueue_is_broken() and also force writing it so that such
+update is visible to the readers.
 
-Fixes: d546c621542d ("ipv4: harden fnhe_hashfun()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Cc: Willy Tarreau <w@1wt.eu>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+It is a theoretical fix that isn't yet encountered in the field.
+
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Link: https://lore.kernel.org/r/20210721142648.1525924-2-parav@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/virtio/virtio_ring.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 78d1e5afc452..d8811e1fbd6c 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -600,14 +600,14 @@ static struct fib_nh_exception *fnhe_oldest(struct fnhe_hash_bucket *hash)
- 	return oldest;
- }
- 
--static inline u32 fnhe_hashfun(__be32 daddr)
-+static u32 fnhe_hashfun(__be32 daddr)
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index df7980aef927..0cc0cfd3a3cb 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1197,7 +1197,7 @@ bool virtqueue_is_broken(struct virtqueue *_vq)
  {
--	static u32 fnhe_hashrnd __read_mostly;
--	u32 hval;
-+	static siphash_key_t fnhe_hash_key __read_mostly;
-+	u64 hval;
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
  
--	net_get_random_once(&fnhe_hashrnd, sizeof(fnhe_hashrnd));
--	hval = jhash_1word((__force u32)daddr, fnhe_hashrnd);
--	return hash_32(hval, FNHE_HASH_SHIFT);
-+	net_get_random_once(&fnhe_hash_key, sizeof(fnhe_hash_key));
-+	hval = siphash_1u32((__force u32)daddr, &fnhe_hash_key);
-+	return hash_64(hval, FNHE_HASH_SHIFT);
+-	return vq->broken;
++	return READ_ONCE(vq->broken);
  }
+ EXPORT_SYMBOL_GPL(virtqueue_is_broken);
  
- static void fill_route_from_fnhe(struct rtable *rt, struct fib_nh_exception *fnhe)
+@@ -1211,7 +1211,9 @@ void virtio_break_device(struct virtio_device *dev)
+ 
+ 	list_for_each_entry(_vq, &dev->vqs, list) {
+ 		struct vring_virtqueue *vq = to_vvq(_vq);
+-		vq->broken = true;
++
++		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
++		WRITE_ONCE(vq->broken, true);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(virtio_break_device);
 -- 
 2.30.2
 
