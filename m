@@ -2,88 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA2F53FD3D2
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 08:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F07D23FD401
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 08:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242155AbhIAGcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 02:32:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58940 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229910AbhIAGcW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 02:32:22 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3DD0C061760
-        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 23:31:25 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id f11-20020a17090aa78b00b0018e98a7cddaso1277772pjq.4
-        for <stable@vger.kernel.org>; Tue, 31 Aug 2021 23:31:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Bpafk1X41xGK7MXDbJ4VMxRCE4Mzuv5uYTag/1eQibs=;
-        b=E4pSGWJ/pCQWOPy/QHPIVscmiPk7GDQnP8Ckbq4SEJS3kYCdoDp/GzKpzTwPQP/lse
-         LrpKqoqSyM2OpkcoSxmvISKxyhKrbt9a0eIF+jrjgtqFSgKnYySy6qjpxb64ufkvhSXo
-         WLaCLbuQC0EQQq/Lb84kToLsnPRw+32XzUuuhJgzo+x9ho7MBAfFY8shcFqa0S53cuF/
-         7+6lNDZ03P0VuQh4BNtQKq/sLsPhUkzytxcudzH//w8Lx6xbleCcHtS+5g6SfJcikmhF
-         2rlGg5vKWfepZK39qtS+oVNaDr/HlYYwnXrXY9s2s4LTx1zBrI+vX5vmB6rFhOa2XgP+
-         GbfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Bpafk1X41xGK7MXDbJ4VMxRCE4Mzuv5uYTag/1eQibs=;
-        b=ql8roNs8k8RDSTcAwH24tOIQEKWVB8ly2c52PbmpeyseifvKS0iUToqP3919EZQjVy
-         W+uVPZDG3xEZ4jgyehIw8y7YMVfS0PV407PgCoyKFYT2+qJnPeeMiyrb/7UfxMVmYt6B
-         f6LOgxr9SGCm47O+oeQEzH14JBadJOI6XsNEpJf/6q/pTYml4LihL+cJdRHxj1/Lud8R
-         VANxgEU2Mz95JHrKcvcTEKseMi19Tx1oUfpJglYpzQTuhlRWg2pC092sbDwvd39OthHr
-         WnzjypnUQ+67CF5Zl1RaeS/98qEHHFGhHP2HSEP9t5uYmZc+W4iYtOJBfp+gFKBs1N/V
-         0tcA==
-X-Gm-Message-State: AOAM532YNpSmU1RimwaFntuZDvgAblAC4hY6GJ2lMY9PpO1PcB4AvEZd
-        h8xO0PzcKxaWpRH6gjQCNrlwWehYEkOLiMA9EHxMQA==
-X-Google-Smtp-Source: ABdhPJxprnOJMY4UIu5n1XDKPKNGr9RV+zGkMFTEI22fw+hJGHUzBjxZ7RvaQyjWpEoorsORfRskSTs3bbt3V9WssXA=
-X-Received: by 2002:a17:90b:238b:: with SMTP id mr11mr10076478pjb.18.1630477885388;
- Tue, 31 Aug 2021 23:31:25 -0700 (PDT)
+        id S242361AbhIAGwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 02:52:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48850 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241096AbhIAGwh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 02:52:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 454796101A;
+        Wed,  1 Sep 2021 06:51:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1630479101;
+        bh=rNmdrQvuGqWSSWlNIgo4Fv34roEI4S5C4yYkmzZYlAE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=b5RfHnhWgYpn88oaOYpkj/xOr7qYO1RtgzwnL9ofhcbcXaNkrydW8cAgYlDumyn/M
+         YiZcByGGDZzechAGLg8/x1oY9mCVIc8bAD9mskHjyQ8wvcfz44pqLxqrY8lNjOzTng
+         EB+jPC1Fm0DDZS8+aoPQtIZ7C1xLjnVGp1TnPsui2T/xs3reWiq91pFfK1VStJoYX2
+         J+umMbcCYkyo/jgiyipmenoNm2CL5s1mKOEHYJQqDgfdOZGseBtO7pkGnyquKs2eQm
+         j0ANvp2CXIxO9pJcFXcXKYYXF1kCWEANFPxikcgR7V6veqD4RlwoKZGW5MUZ9zaQnZ
+         9tyAZW5w4Qddw==
+From:   Ard Biesheuvel <ardb@kernel.org>
+To:     linux-efi@vger.kernel.org
+Cc:     james.morse@arm.com, bp@alien8.de,
+        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org,
+        Joe Perches <joe@perches.com>
+Subject: [PATCH] efi/cper: use stack buffer for error record decoding
+Date:   Wed,  1 Sep 2021 08:51:21 +0200
+Message-Id: <20210901065121.642188-1-ardb@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-References: <20210901030542.17257-1-benl@squareup.com>
-In-Reply-To: <20210901030542.17257-1-benl@squareup.com>
-From:   Loic Poulain <loic.poulain@linaro.org>
-Date:   Wed, 1 Sep 2021 08:41:48 +0200
-Message-ID: <CAMZdPi8QdLwrWM5ghDNYTT2nxNJm=NgNkZGxYvbRGsYQFHGxXA@mail.gmail.com>
-Subject: Re: [PATCH] wcn36xx: handle connection loss indication
-To:     Benjamin Li <benl@squareup.com>
-Cc:     Kalle Valo <kvalo@codeaurora.org>,
-        "Bryan O'Donoghue" <bryan.odonoghue@linaro.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, wcn36xx@lists.infradead.org,
-        linux-wireless@vger.kernel.org,
-        Network Development <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Benjamin,
+Joe reports that using a statically allocated buffer for converting CPER
+error records into human readable text is probably a bad idea. Even
+though we are not aware of any actual issues, a stack buffer is clearly
+a better choice here anyway, so let's move the buffer into the stack
+frames of the two functions that refer to it.
 
-On Wed, 1 Sept 2021 at 05:05, Benjamin Li <benl@squareup.com> wrote:
->
-> Firmware sends delete_sta_context_ind when it detects the AP has gone
-> away in STA mode. Right now the handler for that indication only handles
-> AP mode; fix it to also handle STA mode.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 8def9ec46a5f ("wcn36xx: Enable firmware link monitoring")
+Cc: <stable@vger.kernel.org>
+Reported-by: Joe Perches <joe@perches.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+ drivers/firmware/efi/cper.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I think it's good to have but does it really fix the link monitoring issue?
-Is the connection loss detected in this scenario:
-- Connect to AP
-- Force active mode (iw wlan0 set power_save off)
-- Wait for no data activity
-- HW shutdown the AP (AP leave)
+diff --git a/drivers/firmware/efi/cper.c b/drivers/firmware/efi/cper.c
+index 73bdbd207e7a..6ec8edec6329 100644
+--- a/drivers/firmware/efi/cper.c
++++ b/drivers/firmware/efi/cper.c
+@@ -25,8 +25,6 @@
+ #include <acpi/ghes.h>
+ #include <ras/ras_event.h>
+ 
+-static char rcd_decode_str[CPER_REC_LEN];
+-
+ /*
+  * CPER record ID need to be unique even after reboot, because record
+  * ID is used as index for ERST storage, while CPER records from
+@@ -312,6 +310,7 @@ const char *cper_mem_err_unpack(struct trace_seq *p,
+ 				struct cper_mem_err_compact *cmem)
+ {
+ 	const char *ret = trace_seq_buffer_ptr(p);
++	char rcd_decode_str[CPER_REC_LEN];
+ 
+ 	if (cper_mem_err_location(cmem, rcd_decode_str))
+ 		trace_seq_printf(p, "%s", rcd_decode_str);
+@@ -326,6 +325,7 @@ static void cper_print_mem(const char *pfx, const struct cper_sec_mem_err *mem,
+ 	int len)
+ {
+ 	struct cper_mem_err_compact cmem;
++	char rcd_decode_str[CPER_REC_LEN];
+ 
+ 	/* Don't trust UEFI 2.1/2.2 structure with bad validation bits */
+ 	if (len == sizeof(struct cper_sec_mem_err_old) &&
+-- 
+2.30.2
 
-Do you get any indication?
-
-In this scenario, DB410C (wcn3620) does not report anything.
-
-Regards,
-Loic
