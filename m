@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F4943FD8CE
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 13:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 165E83FD8CF
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 13:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243816AbhIALeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 07:34:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44462 "EHLO mail.kernel.org"
+        id S243821AbhIALeY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 07:34:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243815AbhIALeT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 07:34:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FAF060F6C;
-        Wed,  1 Sep 2021 11:33:22 +0000 (UTC)
+        id S243809AbhIALeY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 07:34:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2806160F6C;
+        Wed,  1 Sep 2021 11:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630496003;
-        bh=uOS2PGAyYqY1T1zKjypa7soawXSbJwJhEYljZnARoPQ=;
+        s=korg; t=1630496007;
+        bh=chFYPxx2Ypy44Md2ZNFMUmm1qWrvOLIgRVRPVoJK0Ac=;
         h=Subject:To:Cc:From:Date:From;
-        b=VK6ebfUXvXwuQEOyDxDEnrV1C8PNeTkbiNzJFcby6HnbdYHTQFKPFjq6t1rRPpgvU
-         960Z9xNXAbXOejMDfyr1MF698ZWoQ7XSAjl3RhrsHWwreub9a6j11j/GNb20VyCLA7
-         CVo0VVJYh/P+yagJt0HbR4xsEeLqmR0yef8BrN4M=
-Subject: FAILED: patch "[PATCH] fscrypt: add fscrypt_symlink_getattr() for computing st_size" failed to apply to 5.10-stable tree
+        b=OkBcd9/hm0rK8te7/63zAR0O7wAs7EefFdJbTOAt1ik3fUjtcMuWoFnhk5/wxuCVA
+         dO/wI++gWtsDqjZXI/oK2gJhlFY34zRrMrM7+wWip7w7dhZjz8YxrTahixSsEPF/Ll
+         JFrYta39lKzqDIrG3rAWyTFTw81KigIW/qbHOq6c=
+Subject: FAILED: patch "[PATCH] ext4: report correct st_size for encrypted symlinks" failed to apply to 5.10-stable tree
 To:     ebiggers@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 01 Sep 2021 13:33:20 +0200
-Message-ID: <16304960001370@kroah.com>
+Date:   Wed, 01 Sep 2021 13:33:25 +0200
+Message-ID: <1630496005138242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -45,144 +45,49 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d18760560593e5af921f51a8c9b64b6109d634c2 Mon Sep 17 00:00:00 2001
+From 8c4bca10ceafc43b1ca0a9fab5fa27e13cbce99e Mon Sep 17 00:00:00 2001
 From: Eric Biggers <ebiggers@google.com>
-Date: Thu, 1 Jul 2021 23:53:46 -0700
-Subject: [PATCH] fscrypt: add fscrypt_symlink_getattr() for computing st_size
+Date: Thu, 1 Jul 2021 23:53:47 -0700
+Subject: [PATCH] ext4: report correct st_size for encrypted symlinks
 
-Add a helper function fscrypt_symlink_getattr() which will be called
-from the various filesystems' ->getattr() methods to read and decrypt
-the target of encrypted symlinks in order to report the correct st_size.
+The stat() family of syscalls report the wrong size for encrypted
+symlinks, which has caused breakage in several userspace programs.
 
-Detailed explanation:
+Fix this by calling fscrypt_symlink_getattr() after ext4_getattr() for
+encrypted symlinks.  This function computes the correct size by reading
+and decrypting the symlink target (if it's not already cached).
 
-As required by POSIX and as documented in various man pages, st_size for
-a symlink is supposed to be the length of the symlink target.
-Unfortunately, st_size has always been wrong for encrypted symlinks
-because st_size is populated from i_size from disk, which intentionally
-contains the length of the encrypted symlink target.  That's slightly
-greater than the length of the decrypted symlink target (which is the
-symlink target that userspace usually sees), and usually won't match the
-length of the no-key encoded symlink target either.
+For more details, see the commit which added fscrypt_symlink_getattr().
 
-This hadn't been fixed yet because reporting the correct st_size would
-require reading the symlink target from disk and decrypting or encoding
-it, which historically has been considered too heavyweight to do in
-->getattr().  Also historically, the wrong st_size had only broken a
-test (LTP lstat03) and there were no known complaints from real users.
-(This is probably because the st_size of symlinks isn't used too often,
-and when it is, typically it's for a hint for what buffer size to pass
-to readlink() -- which a slightly-too-large size still works for.)
-
-However, a couple things have changed now.  First, there have recently
-been complaints about the current behavior from real users:
-
-- Breakage in rpmbuild:
-  https://github.com/rpm-software-management/rpm/issues/1682
-  https://github.com/google/fscrypt/issues/305
-
-- Breakage in toybox cpio:
-  https://www.mail-archive.com/toybox@lists.landley.net/msg07193.html
-
-- Breakage in libgit2: https://issuetracker.google.com/issues/189629152
-  (on Android public issue tracker, requires login)
-
-Second, we now cache decrypted symlink targets in ->i_link.  Therefore,
-taking the performance hit of reading and decrypting the symlink target
-in ->getattr() wouldn't be as big a deal as it used to be, since usually
-it will just save having to do the same thing later.
-
-Also note that eCryptfs ended up having to read and decrypt symlink
-targets in ->getattr() as well, to fix this same issue; see
-commit 3a60a1686f0d ("eCryptfs: Decrypt symlink target for stat size").
-
-So, let's just bite the bullet, and read and decrypt the symlink target
-in ->getattr() in order to report the correct st_size.  Add a function
-fscrypt_symlink_getattr() which the filesystems will call to do this.
-
-(Alternatively, we could store the decrypted size of symlinks on-disk.
-But there isn't a great place to do so, and encryption is meant to hide
-the original size to some extent; that property would be lost.)
-
+Fixes: f348c252320b ("ext4 crypto: add symlink encryption")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210702065350.209646-2-ebiggers@kernel.org
+Link: https://lore.kernel.org/r/20210702065350.209646-3-ebiggers@kernel.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 
-diff --git a/fs/crypto/hooks.c b/fs/crypto/hooks.c
-index a73b0376e6f3..af74599ae1cf 100644
---- a/fs/crypto/hooks.c
-+++ b/fs/crypto/hooks.c
-@@ -384,3 +384,47 @@ const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
- 	return ERR_PTR(err);
- }
- EXPORT_SYMBOL_GPL(fscrypt_get_symlink);
-+
-+/**
-+ * fscrypt_symlink_getattr() - set the correct st_size for encrypted symlinks
-+ * @path: the path for the encrypted symlink being queried
-+ * @stat: the struct being filled with the symlink's attributes
-+ *
-+ * Override st_size of encrypted symlinks to be the length of the decrypted
-+ * symlink target (or the no-key encoded symlink target, if the key is
-+ * unavailable) rather than the length of the encrypted symlink target.  This is
-+ * necessary for st_size to match the symlink target that userspace actually
-+ * sees.  POSIX requires this, and some userspace programs depend on it.
-+ *
-+ * This requires reading the symlink target from disk if needed, setting up the
-+ * inode's encryption key if possible, and then decrypting or encoding the
-+ * symlink target.  This makes lstat() more heavyweight than is normally the
-+ * case.  However, decrypted symlink targets will be cached in ->i_link, so
-+ * usually the symlink won't have to be read and decrypted again later if/when
-+ * it is actually followed, readlink() is called, or lstat() is called again.
-+ *
-+ * Return: 0 on success, -errno on failure
-+ */
-+int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat)
-+{
-+	struct dentry *dentry = path->dentry;
-+	struct inode *inode = d_inode(dentry);
-+	const char *link;
-+	DEFINE_DELAYED_CALL(done);
-+
-+	/*
-+	 * To get the symlink target that userspace will see (whether it's the
-+	 * decrypted target or the no-key encoded target), we can just get it in
-+	 * the same way the VFS does during path resolution and readlink().
-+	 */
-+	link = READ_ONCE(inode->i_link);
-+	if (!link) {
-+		link = inode->i_op->get_link(dentry, inode, &done);
-+		if (IS_ERR(link))
-+			return PTR_ERR(link);
-+	}
-+	stat->size = strlen(link);
-+	do_delayed_call(&done);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(fscrypt_symlink_getattr);
-diff --git a/include/linux/fscrypt.h b/include/linux/fscrypt.h
-index 2ea1387bb497..b7bfd0cd4f3e 100644
---- a/include/linux/fscrypt.h
-+++ b/include/linux/fscrypt.h
-@@ -253,6 +253,7 @@ int __fscrypt_encrypt_symlink(struct inode *inode, const char *target,
- const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
- 				unsigned int max_size,
- 				struct delayed_call *done);
-+int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat);
- static inline void fscrypt_set_ops(struct super_block *sb,
- 				   const struct fscrypt_operations *s_cop)
- {
-@@ -583,6 +584,12 @@ static inline const char *fscrypt_get_symlink(struct inode *inode,
- 	return ERR_PTR(-EOPNOTSUPP);
+diff --git a/fs/ext4/symlink.c b/fs/ext4/symlink.c
+index dd05af983092..69109746e6e2 100644
+--- a/fs/ext4/symlink.c
++++ b/fs/ext4/symlink.c
+@@ -52,10 +52,20 @@ static const char *ext4_encrypted_get_link(struct dentry *dentry,
+ 	return paddr;
  }
  
-+static inline int fscrypt_symlink_getattr(const struct path *path,
-+					  struct kstat *stat)
++static int ext4_encrypted_symlink_getattr(struct user_namespace *mnt_userns,
++					  const struct path *path,
++					  struct kstat *stat, u32 request_mask,
++					  unsigned int query_flags)
 +{
-+	return -EOPNOTSUPP;
++	ext4_getattr(mnt_userns, path, stat, request_mask, query_flags);
++
++	return fscrypt_symlink_getattr(path, stat);
 +}
 +
- static inline void fscrypt_set_ops(struct super_block *sb,
- 				   const struct fscrypt_operations *s_cop)
- {
+ const struct inode_operations ext4_encrypted_symlink_inode_operations = {
+ 	.get_link	= ext4_encrypted_get_link,
+ 	.setattr	= ext4_setattr,
+-	.getattr	= ext4_getattr,
++	.getattr	= ext4_encrypted_symlink_getattr,
+ 	.listxattr	= ext4_listxattr,
+ };
+ 
 
