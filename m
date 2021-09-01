@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7904F3FDA70
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11F1C3FDAB4
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244759AbhIAMcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:32:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34088 "EHLO mail.kernel.org"
+        id S1343595AbhIAMeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:34:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244881AbhIAMbf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:31:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9549A610A8;
-        Wed,  1 Sep 2021 12:30:38 +0000 (UTC)
+        id S245340AbhIAMcc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:32:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DA2A610C7;
+        Wed,  1 Sep 2021 12:31:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499439;
-        bh=XmfFrVRY0rOuV9JryH8DCWide7HqkddN8WML/NnQJl8=;
+        s=korg; t=1630499496;
+        bh=QkEI0WCue3HLhyKwEt1fpN6496pjf5f9hYPCJVuQCH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VF8aHJVA1YMfAdm8yjVzeRkM/b8djX6ig8OyfrR//eBNmnvV5Df225znkUCjkjQuD
-         YoUvdkL1VM5ILaXz3cvh+zy8886b+3YBbEBn4y6uu8+ZHYQrpCt8xcIRcKS07s7fXc
-         XvcJqU8CUejJfb/miVDqCLKKmBkKARsWb86v+En0=
+        b=YwSkHzDy2/iqBm6Tk3yLTZycbMzxQVT+oc7ZuNDm1gmdmzjPsuaDr7UViVhAXENIs
+         aPwtOFc9+yzVHnsLNMwVBBzUXJVyIoJwv+ojyQIQQovBl92kF4oCSSdWW+wjvkVA7d
+         OTR6v2S988ZirG2LSjdihWRMtigXmHr0HHPwAkC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Andrey Ignatov <rdna@fb.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 22/33] virtio_pci: Support surprise removal of virtio pci device
+Subject: [PATCH 5.4 21/48] rtnetlink: Return correct error on changing device netns
 Date:   Wed,  1 Sep 2021 14:28:11 +0200
-Message-Id: <20210901122251.529897592@linuxfoundation.org>
+Message-Id: <20210901122254.100821660@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
-References: <20210901122250.752620302@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +40,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Andrey Ignatov <rdna@fb.com>
 
-[ Upstream commit 43bb40c5b92659966bdf4bfe584fde0a3575a049 ]
+[ Upstream commit 96a6b93b69880b2c978e1b2be9cae6970b605008 ]
 
-When a virtio pci device undergo surprise removal (aka async removal in
-PCIe spec), mark the device as broken so that any upper layer drivers can
-abort any outstanding operation.
+Currently when device is moved between network namespaces using
+RTM_NEWLINK message type and one of netns attributes (FLA_NET_NS_PID,
+IFLA_NET_NS_FD, IFLA_TARGET_NETNSID) but w/o specifying IFLA_IFNAME, and
+target namespace already has device with same name, userspace will get
+EINVAL what is confusing and makes debugging harder.
 
-When a virtio net pci device undergo surprise removal which is used by a
-NetworkManager, a below call trace was observed.
+Fix it so that userspace gets more appropriate EEXIST instead what makes
+debugging much easier.
 
-kernel:watchdog: BUG: soft lockup - CPU#1 stuck for 26s! [kworker/1:1:27059]
-watchdog: BUG: soft lockup - CPU#1 stuck for 52s! [kworker/1:1:27059]
-CPU: 1 PID: 27059 Comm: kworker/1:1 Tainted: G S      W I  L    5.13.0-hotplug+ #8
-Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.9.4 11/06/2020
-Workqueue: events linkwatch_event
-RIP: 0010:virtnet_send_command+0xfc/0x150 [virtio_net]
-Call Trace:
- virtnet_set_rx_mode+0xcf/0x2a7 [virtio_net]
- ? __hw_addr_create_ex+0x85/0xc0
- __dev_mc_add+0x72/0x80
- igmp6_group_added+0xa7/0xd0
- ipv6_mc_up+0x3c/0x60
- ipv6_find_idev+0x36/0x80
- addrconf_add_dev+0x1e/0xa0
- addrconf_dev_config+0x71/0x130
- addrconf_notify+0x1f5/0xb40
- ? rtnl_is_locked+0x11/0x20
- ? __switch_to_asm+0x42/0x70
- ? finish_task_switch+0xaf/0x2c0
- ? raw_notifier_call_chain+0x3e/0x50
- raw_notifier_call_chain+0x3e/0x50
- netdev_state_change+0x67/0x90
- linkwatch_do_dev+0x3c/0x50
- __linkwatch_run_queue+0xd2/0x220
- linkwatch_event+0x21/0x30
- process_one_work+0x1c8/0x370
- worker_thread+0x30/0x380
- ? process_one_work+0x370/0x370
- kthread+0x118/0x140
- ? set_kthread_struct+0x40/0x40
- ret_from_fork+0x1f/0x30
+Before:
 
-Hence, add the ability to abort the command on surprise removal
-which prevents infinite loop and system lockup.
+  # ./ifname.sh
+  + ip netns add ns0
+  + ip netns exec ns0 ip link add l0 type dummy
+  + ip netns exec ns0 ip link show l0
+  8: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+      link/ether 66:90:b5:d5:78:69 brd ff:ff:ff:ff:ff:ff
+  + ip link add l0 type dummy
+  + ip link show l0
+  10: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+      link/ether 6e:c6:1f:15:20:8d brd ff:ff:ff:ff:ff:ff
+  + ip link set l0 netns ns0
+  RTNETLINK answers: Invalid argument
 
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Link: https://lore.kernel.org/r/20210721142648.1525924-5-parav@nvidia.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+After:
+
+  # ./ifname.sh
+  + ip netns add ns0
+  + ip netns exec ns0 ip link add l0 type dummy
+  + ip netns exec ns0 ip link show l0
+  8: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+      link/ether 1e:4a:72:e3:e3:8f brd ff:ff:ff:ff:ff:ff
+  + ip link add l0 type dummy
+  + ip link show l0
+  10: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+      link/ether f2:fc:fe:2b:7d:a6 brd ff:ff:ff:ff:ff:ff
+  + ip link set l0 netns ns0
+  RTNETLINK answers: File exists
+
+The problem is that do_setlink() passes its `char *ifname` argument,
+that it gets from a caller, to __dev_change_net_namespace() as is (as
+`const char *pat`), but semantics of ifname and pat can be different.
+
+For example, __rtnl_newlink() does this:
+
+net/core/rtnetlink.c
+    3270	char ifname[IFNAMSIZ];
+     ...
+    3286	if (tb[IFLA_IFNAME])
+    3287		nla_strscpy(ifname, tb[IFLA_IFNAME], IFNAMSIZ);
+    3288	else
+    3289		ifname[0] = '\0';
+     ...
+    3364	if (dev) {
+     ...
+    3394		return do_setlink(skb, dev, ifm, extack, tb, ifname, status);
+    3395	}
+
+, i.e. do_setlink() gets ifname pointer that is always valid no matter
+if user specified IFLA_IFNAME or not and then do_setlink() passes this
+ifname pointer as is to __dev_change_net_namespace() as pat argument.
+
+But the pat (pattern) in __dev_change_net_namespace() is used as:
+
+net/core/dev.c
+   11198	err = -EEXIST;
+   11199	if (__dev_get_by_name(net, dev->name)) {
+   11200		/* We get here if we can't use the current device name */
+   11201		if (!pat)
+   11202			goto out;
+   11203		err = dev_get_valid_name(net, dev, pat);
+   11204		if (err < 0)
+   11205			goto out;
+   11206	}
+
+As the result the `goto out` path on line 11202 is neven taken and
+instead of returning EEXIST defined on line 11198,
+__dev_change_net_namespace() returns an error from dev_get_valid_name()
+and this, in turn, will be EINVAL for ifname[0] = '\0' set earlier.
+
+Fixes: d8a5ec672768 ("[NET]: netlink support for moving devices between network namespaces.")
+Signed-off-by: Andrey Ignatov <rdna@fb.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_pci_common.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/core/rtnetlink.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 45b04bc91f24..b7cc63f556ee 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -579,6 +579,13 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
- 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
- 	struct device *dev = get_device(&vp_dev->vdev.dev);
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 0bad5db23129..6fbc9cb09dc0 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -2414,6 +2414,7 @@ static int do_setlink(const struct sk_buff *skb,
+ 		return err;
  
-+	/*
-+	 * Device is marked broken on surprise removal so that virtio upper
-+	 * layers can abort any ongoing operation.
-+	 */
-+	if (!pci_device_is_present(pci_dev))
-+		virtio_break_device(&vp_dev->vdev);
-+
- 	pci_disable_sriov(pci_dev);
+ 	if (tb[IFLA_NET_NS_PID] || tb[IFLA_NET_NS_FD] || tb[IFLA_TARGET_NETNSID]) {
++		const char *pat = ifname && ifname[0] ? ifname : NULL;
+ 		struct net *net = rtnl_link_get_net_capable(skb, dev_net(dev),
+ 							    tb, CAP_NET_ADMIN);
+ 		if (IS_ERR(net)) {
+@@ -2421,7 +2422,7 @@ static int do_setlink(const struct sk_buff *skb,
+ 			goto errout;
+ 		}
  
- 	unregister_virtio_device(&vp_dev->vdev);
+-		err = dev_change_net_namespace(dev, net, ifname);
++		err = dev_change_net_namespace(dev, net, pat);
+ 		put_net(net);
+ 		if (err)
+ 			goto errout;
 -- 
 2.30.2
 
