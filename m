@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7422B3FDC82
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26AFB3FDA91
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345476AbhIAMvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54158 "EHLO mail.kernel.org"
+        id S244035AbhIAMdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:33:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346056AbhIAMtN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:49:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA94660FD7;
-        Wed,  1 Sep 2021 12:41:07 +0000 (UTC)
+        id S244545AbhIAMbx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:31:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67FDF610C9;
+        Wed,  1 Sep 2021 12:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500068;
-        bh=oZXMUwiTIOfEwuL3OmK/Oe+3RaJsvtrPBajd7B6CjoI=;
+        s=korg; t=1630499457;
+        bh=FXLTM2FmsjARSgGovu0OGsj2PLrYLKUBTC4PYZF2IOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JPpd0qmdxlUyaNcKJMi0x1gN5FW8Ygnm5cwB0gntRzZa54O9uJq8RKhFvIlQSSLyB
-         1YmO17sgZ7md2K7UcVSaghaMznzqu8Pk7NRILanj/B8QLBIO7fiW67wUhXgcf5bQix
-         3+dKkz+5K4NccPk/QPoRiCpPr37C+BdRCkN1oXnU=
+        b=j6p9Zlg0G1lJ7VbBrTiKJ05oDqnKNZ8ooe/vJ0GifL4FYzlJB1qoOVP6ZWhF6+h36
+         okqPxm4xNPZyXP1sKmhKlOmiM+xd+r2sKDJjP/QmPVldmq7Xdf6voPQucwpQMGbiM4
+         sd56AsRnEreZIEIoRWCQWhcWIHcBlbhxdQqbBjLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guojia Liao <liaoguojia@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 063/113] net: hns3: fix duplicate node in VLAN list
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 29/33] vt_kdsetmode: extend console locking
 Date:   Wed,  1 Sep 2021 14:28:18 +0200
-Message-Id: <20210901122304.066801665@linuxfoundation.org>
+Message-Id: <20210901122251.746981984@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
+References: <20210901122250.752620302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guojia Liao <liaoguojia@huawei.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 94391fae82f71c98ecc7716a32611fcca73c74eb ]
+commit 2287a51ba822384834dafc1c798453375d1107c7 upstream.
 
-VLAN list should not be added duplicate VLAN node, otherwise it would
-cause "add failed" when restore VLAN from VLAN list, so this patch adds
-VLAN ID check before adding node into VLAN list.
+As per the long-suffering comment.
 
-Fixes: c6075b193462 ("net: hns3: Record VF vlan tables")
-Signed-off-by: Guojia Liao <liaoguojia@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/tty/vt/vt_ioctl.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 00254d167904..f105ff9e3f4c 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -9869,7 +9869,11 @@ static int hclge_init_vlan_config(struct hclge_dev *hdev)
- static void hclge_add_vport_vlan_table(struct hclge_vport *vport, u16 vlan_id,
- 				       bool writen_to_tbl)
- {
--	struct hclge_vport_vlan_cfg *vlan;
-+	struct hclge_vport_vlan_cfg *vlan, *tmp;
-+
-+	list_for_each_entry_safe(vlan, tmp, &vport->vlan_list, node)
-+		if (vlan->vlan_id == vlan_id)
-+			return;
- 
- 	vlan = kzalloc(sizeof(*vlan), GFP_KERNEL);
- 	if (!vlan)
--- 
-2.30.2
-
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -484,16 +484,19 @@ int vt_ioctl(struct tty_struct *tty,
+ 			ret = -EINVAL;
+ 			goto out;
+ 		}
+-		/* FIXME: this needs the console lock extending */
+-		if (vc->vc_mode == (unsigned char) arg)
++		console_lock();
++		if (vc->vc_mode == (unsigned char) arg) {
++			console_unlock();
+ 			break;
++		}
+ 		vc->vc_mode = (unsigned char) arg;
+-		if (console != fg_console)
++		if (console != fg_console) {
++			console_unlock();
+ 			break;
++		}
+ 		/*
+ 		 * explicitly blank/unblank the screen if switching modes
+ 		 */
+-		console_lock();
+ 		if (arg == KD_TEXT)
+ 			do_unblank_screen(1);
+ 		else
 
 
