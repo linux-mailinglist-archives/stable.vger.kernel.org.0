@@ -2,34 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0213E3FDB8C
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE1613FDB8B
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343977AbhIAMmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S245486AbhIAMmG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 1 Sep 2021 08:42:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42970 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344922AbhIAMkN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344923AbhIAMkN (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 1 Sep 2021 08:40:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C200560F23;
-        Wed,  1 Sep 2021 12:36:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BBB4610FF;
+        Wed,  1 Sep 2021 12:36:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499771;
-        bh=m5/WhXy3/wigBf/4jbl3/caFt8uE823huKibzAyCNIk=;
+        s=korg; t=1630499774;
+        bh=RWFEaJQM9JI22pQcDB9RJYhNt9np77mFEJLr/m/K6YA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uww0uF3YLUpFsMor9FoGJLYLS5HiyljBnwNGGLWD8g4DohH8g4bKei5WxM02VJ1Sq
-         l/6d77DIyWQRWr8XhlbbtueOOGKiYig5dyAeistnmvwXDUDVB1l/iBVEkLyhjwSbZ/
-         6Q8RIdI0w6zrTm1nw5BEpEHf1JtxrbIeqYlmKmSU=
+        b=zUMFfUksPWiawVqQPWHWaFMNOApzU0D2UDt8Ymk0pqgpqqQA7IlrAG7nhQvD+TAsZ
+         Y+ix4TccKQpx94dYBo5SEwUvA4Kz72uEFUsP+STngCMz1PQ3ezy9FBX6oJWLk6cR+Y
+         p8GbHMjppEZbQQ988zM7ANDPRUPOcr+sh948K8p8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
-        Atish Patra <atish.patra@wdc.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Subject: [PATCH 5.10 079/103] riscv: Fixup patch_text panic in ftrace
-Date:   Wed,  1 Sep 2021 14:28:29 +0200
-Message-Id: <20210901122303.210854169@linuxfoundation.org>
+        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
+        Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Hanjun Guo <guohanjun@huawei.com>
+Subject: [PATCH 5.10 080/103] perf env: Fix memory leak of bpf_prog_info_linear member
+Date:   Wed,  1 Sep 2021 14:28:30 +0200
+Message-Id: <20210901122303.242360974@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
 References: <20210901122300.503008474@linuxfoundation.org>
@@ -41,155 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Riccardo Mancini <rickyman7@gmail.com>
 
-commit 5ad84adf5456313e285734102367c861c436c5ed upstream.
+commit 67069a1f0fe5f9eeca86d954fff2087f5542a008 upstream.
 
-Just like arm64, we can't trace the function in the patch_text path.
+ASan reported a memory leak caused by info_linear not being deallocated.
 
-Here is the bug log:
+The info_linear was allocated during in perf_event__synthesize_one_bpf_prog().
 
-[   45.234334] Unable to handle kernel paging request at virtual address ffffffd38ae80900
-[   45.242313] Oops [#1]
-[   45.244600] Modules linked in:
-[   45.247678] CPU: 0 PID: 11 Comm: migration/0 Not tainted 5.9.0-00025-g9b7db83-dirty #215
-[   45.255797] epc: ffffffe00021689a ra : ffffffe00021718e sp : ffffffe01afabb58
-[   45.262955]  gp : ffffffe00136afa0 tp : ffffffe01af94d00 t0 : 0000000000000002
-[   45.270200]  t1 : 0000000000000000 t2 : 0000000000000001 s0 : ffffffe01afabc08
-[   45.277443]  s1 : ffffffe0013718a8 a0 : 0000000000000000 a1 : ffffffe01afabba8
-[   45.284686]  a2 : 0000000000000000 a3 : 0000000000000000 a4 : c4c16ad38ae80900
-[   45.291929]  a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000052464e43
-[   45.299173]  s2 : 0000000000000001 s3 : ffffffe000206a60 s4 : ffffffe000206a60
-[   45.306415]  s5 : 00000000000009ec s6 : ffffffe0013718a8 s7 : c4c16ad38ae80900
-[   45.313658]  s8 : 0000000000000004 s9 : 0000000000000001 s10: 0000000000000001
-[   45.320902]  s11: 0000000000000003 t3 : 0000000000000001 t4 : ffffffffd192fe79
-[   45.328144]  t5 : ffffffffb8f80000 t6 : 0000000000040000
-[   45.333472] status: 0000000200000100 badaddr: ffffffd38ae80900 cause: 000000000000000f
-[   45.341514] ---[ end trace d95102172248fdcf ]---
-[   45.346176] note: migration/0[11] exited with preempt_count 1
+This patch adds the corresponding free() when bpf_prog_info_node
+is freed in perf_env__purge_bpf().
 
-(gdb) x /2i $pc
-=> 0xffffffe00021689a <__do_proc_dointvec+196>: sd      zero,0(s7)
-   0xffffffe00021689e <__do_proc_dointvec+200>: li      s11,0
+  $ sudo ./perf record -- sleep 5
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.025 MB perf.data (8 samples) ]
 
-(gdb) bt
-0  __do_proc_dointvec (tbl_data=0x0, table=0xffffffe01afabba8,
-write=0, buffer=0x0, lenp=0x7bf897061f9a0800, ppos=0x4, conv=0x0,
-data=0x52464e43) at kernel/sysctl.c:581
-1  0xffffffe00021718e in do_proc_dointvec (data=<optimized out>,
-conv=<optimized out>, ppos=<optimized out>, lenp=<optimized out>,
-buffer=<optimized out>, write=<optimized out>, table=<optimized out>)
-at kernel/sysctl.c:964
-2  proc_dointvec_minmax (ppos=<optimized out>, lenp=<optimized out>,
-buffer=<optimized out>, write=<optimized out>, table=<optimized out>)
-at kernel/sysctl.c:964
-3  proc_do_static_key (table=<optimized out>, write=1, buffer=0x0,
-lenp=0x0, ppos=0x7bf897061f9a0800) at kernel/sysctl.c:1643
-4  0xffffffe000206792 in ftrace_make_call (rec=<optimized out>,
-addr=<optimized out>) at arch/riscv/kernel/ftrace.c:109
-5  0xffffffe0002c9c04 in __ftrace_replace_code
-(rec=0xffffffe01ae40c30, enable=3) at kernel/trace/ftrace.c:2503
-6  0xffffffe0002ca0b2 in ftrace_replace_code (mod_flags=<optimized
-out>) at kernel/trace/ftrace.c:2530
-7  0xffffffe0002ca26a in ftrace_modify_all_code (command=5) at
-kernel/trace/ftrace.c:2677
-8  0xffffffe0002ca30e in __ftrace_modify_code (data=<optimized out>)
-at kernel/trace/ftrace.c:2703
-9  0xffffffe0002c13b0 in multi_cpu_stop (data=0x0) at kernel/stop_machine.c:224
-10 0xffffffe0002c0fde in cpu_stopper_thread (cpu=<optimized out>) at
-kernel/stop_machine.c:491
-11 0xffffffe0002343de in smpboot_thread_fn (data=0x0) at kernel/smpboot.c:165
-12 0xffffffe00022f8b4 in kthread (_create=0xffffffe01af0c040) at
-kernel/kthread.c:292
-13 0xffffffe000201fac in handle_exception () at arch/riscv/kernel/entry.S:236
+  =================================================================
+  ==297735==ERROR: LeakSanitizer: detected memory leaks
 
-   0xffffffe00020678a <+114>:   auipc   ra,0xffffe
-   0xffffffe00020678e <+118>:   jalr    -118(ra) # 0xffffffe000204714 <patch_text_nosync>
-   0xffffffe000206792 <+122>:   snez    a0,a0
+  Direct leak of 7688 byte(s) in 19 object(s) allocated from:
+      #0 0x4f420f in malloc (/home/user/linux/tools/perf/perf+0x4f420f)
+      #1 0xc06a74 in bpf_program__get_prog_info_linear /home/user/linux/tools/lib/bpf/libbpf.c:11113:16
+      #2 0xb426fe in perf_event__synthesize_one_bpf_prog /home/user/linux/tools/perf/util/bpf-event.c:191:16
+      #3 0xb42008 in perf_event__synthesize_bpf_events /home/user/linux/tools/perf/util/bpf-event.c:410:9
+      #4 0x594596 in record__synthesize /home/user/linux/tools/perf/builtin-record.c:1490:8
+      #5 0x58c9ac in __cmd_record /home/user/linux/tools/perf/builtin-record.c:1798:8
+      #6 0x58990b in cmd_record /home/user/linux/tools/perf/builtin-record.c:2901:8
+      #7 0x7b2a20 in run_builtin /home/user/linux/tools/perf/perf.c:313:11
+      #8 0x7b12ff in handle_internal_command /home/user/linux/tools/perf/perf.c:365:8
+      #9 0x7b2583 in run_argv /home/user/linux/tools/perf/perf.c:409:2
+      #10 0x7b0d79 in main /home/user/linux/tools/perf/perf.c:539:3
+      #11 0x7fa357ef6b74 in __libc_start_main /usr/src/debug/glibc-2.33-8.fc34.x86_64/csu/../csu/libc-start.c:332:16
 
-(gdb) disassemble patch_text_nosync
-Dump of assembler code for function patch_text_nosync:
-   0xffffffe000204714 <+0>:     addi    sp,sp,-32
-   0xffffffe000204716 <+2>:     sd      s0,16(sp)
-   0xffffffe000204718 <+4>:     sd      ra,24(sp)
-   0xffffffe00020471a <+6>:     addi    s0,sp,32
-   0xffffffe00020471c <+8>:     auipc   ra,0x0
-   0xffffffe000204720 <+12>:    jalr    -384(ra) # 0xffffffe00020459c <patch_insn_write>
-   0xffffffe000204724 <+16>:    beqz    a0,0xffffffe00020472e <patch_text_nosync+26>
-   0xffffffe000204726 <+18>:    ld      ra,24(sp)
-   0xffffffe000204728 <+20>:    ld      s0,16(sp)
-   0xffffffe00020472a <+22>:    addi    sp,sp,32
-   0xffffffe00020472c <+24>:    ret
-   0xffffffe00020472e <+26>:    sd      a0,-24(s0)
-   0xffffffe000204732 <+30>:    auipc   ra,0x4
-   0xffffffe000204736 <+34>:    jalr    -1464(ra) # 0xffffffe00020817a <flush_icache_all>
-   0xffffffe00020473a <+38>:    ld      a0,-24(s0)
-   0xffffffe00020473e <+42>:    ld      ra,24(sp)
-   0xffffffe000204740 <+44>:    ld      s0,16(sp)
-   0xffffffe000204742 <+46>:    addi    sp,sp,32
-   0xffffffe000204744 <+48>:    ret
-
-(gdb) disassemble flush_icache_all-4
-Dump of assembler code for function flush_icache_all:
-   0xffffffe00020817a <+0>:     addi    sp,sp,-8
-   0xffffffe00020817c <+2>:     sd      ra,0(sp)
-   0xffffffe00020817e <+4>:     auipc   ra,0xfffff
-   0xffffffe000208182 <+8>:     jalr    -1822(ra) # 0xffffffe000206a60 <ftrace_caller>
-   0xffffffe000208186 <+12>:    ld      ra,0(sp)
-   0xffffffe000208188 <+14>:    addi    sp,sp,8
-   0xffffffe00020818a <+0>:     addi    sp,sp,-16
-   0xffffffe00020818c <+2>:     sd      s0,0(sp)
-   0xffffffe00020818e <+4>:     sd      ra,8(sp)
-   0xffffffe000208190 <+6>:     addi    s0,sp,16
-   0xffffffe000208192 <+8>:     li      a0,0
-   0xffffffe000208194 <+10>:    auipc   ra,0xfffff
-   0xffffffe000208198 <+14>:    jalr    -410(ra) # 0xffffffe000206ffa <sbi_remote_fence_i>
-   0xffffffe00020819c <+18>:    ld      s0,0(sp)
-   0xffffffe00020819e <+20>:    ld      ra,8(sp)
-   0xffffffe0002081a0 <+22>:    addi    sp,sp,16
-   0xffffffe0002081a2 <+24>:    ret
-
-(gdb) frame 5
-(rec=0xffffffe01ae40c30, enable=3) at kernel/trace/ftrace.c:2503
-2503                    return ftrace_make_call(rec, ftrace_addr);
-(gdb) p /x rec->ip
-$2 = 0xffffffe00020817a -> flush_icache_all !
-
-When we modified flush_icache_all's patchable-entry with ftrace_caller:
- - Insert ftrace_caller at flush_icache_all prologue.
- - Call flush_icache_all to sync I/Dcache, but flush_icache_all is
-just we modified by half.
-
-Link: https://lore.kernel.org/linux-riscv/CAJF2gTT=oDWesWe0JVWvTpGi60-gpbNhYLdFWN_5EbyeqoEDdw@mail.gmail.com/T/#t
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Reviewed-by: Atish Patra <atish.patra@wdc.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Yonghong Song <yhs@fb.com>
+Link: http://lore.kernel.org/lkml/20210602224024.300485-1-rickyman7@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/Makefile |    1 +
- arch/riscv/mm/Makefile     |    1 +
- 2 files changed, 2 insertions(+)
+ tools/perf/util/env.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/riscv/kernel/Makefile
-+++ b/arch/riscv/kernel/Makefile
-@@ -6,6 +6,7 @@
- ifdef CONFIG_FTRACE
- CFLAGS_REMOVE_ftrace.o	= $(CC_FLAGS_FTRACE)
- CFLAGS_REMOVE_patch.o	= $(CC_FLAGS_FTRACE)
-+CFLAGS_REMOVE_sbi.o	= $(CC_FLAGS_FTRACE)
- endif
+--- a/tools/perf/util/env.c
++++ b/tools/perf/util/env.c
+@@ -142,6 +142,7 @@ static void perf_env__purge_bpf(struct p
+ 		node = rb_entry(next, struct bpf_prog_info_node, rb_node);
+ 		next = rb_next(&node->rb_node);
+ 		rb_erase(&node->rb_node, root);
++		free(node->info_linear);
+ 		free(node);
+ 	}
  
- extra-y += head.o
---- a/arch/riscv/mm/Makefile
-+++ b/arch/riscv/mm/Makefile
-@@ -3,6 +3,7 @@
- CFLAGS_init.o := -mcmodel=medany
- ifdef CONFIG_FTRACE
- CFLAGS_REMOVE_init.o = $(CC_FLAGS_FTRACE)
-+CFLAGS_REMOVE_cacheflush.o = $(CC_FLAGS_FTRACE)
- endif
- 
- KCOV_INSTRUMENT_init.o := n
 
 
