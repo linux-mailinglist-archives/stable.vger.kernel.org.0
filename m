@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A08F63FDA4B
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85FD83FDA4E
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244766AbhIAMbh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:31:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33218 "EHLO mail.kernel.org"
+        id S244296AbhIAMbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:31:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244656AbhIAMbE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:31:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8174610CB;
-        Wed,  1 Sep 2021 12:30:07 +0000 (UTC)
+        id S244665AbhIAMbH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:31:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21C3F610CC;
+        Wed,  1 Sep 2021 12:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499408;
-        bh=hMp2bFsVxSew0+NXqV8vr4RxOQiDSbYc8cCqhqj/lWA=;
+        s=korg; t=1630499410;
+        bh=CqTbosjXnUtabwSkr9DsvgcHDiMzeeKQ2Y5yfOQoNQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3V+lYVgB9yrLQPG8OoBLJb5jrbnuGmClPE3Lm3S76TfuZEOS6RUPfNK070UZiciZ
-         Jy7fI7pQ1I32+9uI7qufrIzne4f6zj+wdwmxSea86XGsfTWeA35usOFBof5EBtMz7r
-         pMcSs1+opUWQws/+2zylqNm8+GnrWyY9TQUuLaYk=
+        b=b4yec6S7NiWEt6isP1/V8oiBUbrjyqt9IJXu9sCCEePL42M4X3PPxUNjcIPy+XWus
+         Cgv+OQPcGoRmIMamr3pzVFdLukfvx1D24ujFkn2hxJOec20q+cjyCZdAjCVFEwCde+
+         XGIPFgrdvU9gM2mKdiY6rQCD6NdHRvP5cVTdglVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Subject: [PATCH 4.19 04/33] bpf: Fix truncation handling for mod32 dst reg wrt zero
-Date:   Wed,  1 Sep 2021 14:27:53 +0200
-Message-Id: <20210901122250.916048129@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 05/33] ARC: Fix CONFIG_STACKDEPOT
+Date:   Wed,  1 Sep 2021 14:27:54 +0200
+Message-Id: <20210901122250.952319389@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
 References: <20210901122250.752620302@linuxfoundation.org>
@@ -41,126 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Guenter Roeck <linux@roeck-us.net>
 
-Commit 9b00f1b78809309163dda2d044d9e94a3c0248a3 upstream.
+[ Upstream commit bf79167fd86f3b97390fe2e70231d383526bd9cc ]
 
-Recently noticed that when mod32 with a known src reg of 0 is performed,
-then the dst register is 32-bit truncated in verifier:
+Enabling CONFIG_STACKDEPOT results in the following build error.
 
-  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
-  0: (b7) r0 = 0
-  1: R0_w=inv0 R1=ctx(id=0,off=0,imm=0) R10=fp0
-  1: (b7) r1 = -1
-  2: R0_w=inv0 R1_w=inv-1 R10=fp0
-  2: (b4) w2 = -1
-  3: R0_w=inv0 R1_w=inv-1 R2_w=inv4294967295 R10=fp0
-  3: (9c) w1 %= w0
-  4: R0_w=inv0 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  4: (b7) r0 = 1
-  5: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  5: (1d) if r1 == r2 goto pc+1
-   R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  6: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  6: (b7) r0 = 2
-  7: R0_w=inv2 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  7: (95) exit
-  7: R0=inv1 R1=inv(id=0,umin_value=4294967295,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2=inv4294967295 R10=fp0
-  7: (95) exit
+arc-elf-ld: lib/stackdepot.o: in function `filter_irq_stacks':
+stackdepot.c:(.text+0x456): undefined reference to `__irqentry_text_start'
+arc-elf-ld: stackdepot.c:(.text+0x456): undefined reference to `__irqentry_text_start'
+arc-elf-ld: stackdepot.c:(.text+0x476): undefined reference to `__irqentry_text_end'
+arc-elf-ld: stackdepot.c:(.text+0x476): undefined reference to `__irqentry_text_end'
+arc-elf-ld: stackdepot.c:(.text+0x484): undefined reference to `__softirqentry_text_start'
+arc-elf-ld: stackdepot.c:(.text+0x484): undefined reference to `__softirqentry_text_start'
+arc-elf-ld: stackdepot.c:(.text+0x48c): undefined reference to `__softirqentry_text_end'
+arc-elf-ld: stackdepot.c:(.text+0x48c): undefined reference to `__softirqentry_text_end'
 
-However, as a runtime result, we get 2 instead of 1, meaning the dst
-register does not contain (u32)-1 in this case. The reason is fairly
-straight forward given the 0 test leaves the dst register as-is:
+Other architectures address this problem by adding IRQENTRY_TEXT and
+SOFTIRQENTRY_TEXT to the text segment, so do the same here.
 
-  # ./bpftool p d x i 23
-   0: (b7) r0 = 0
-   1: (b7) r1 = -1
-   2: (b4) w2 = -1
-   3: (16) if w0 == 0x0 goto pc+1
-   4: (9c) w1 %= w0
-   5: (b7) r0 = 1
-   6: (1d) if r1 == r2 goto pc+1
-   7: (b7) r0 = 2
-   8: (95) exit
-
-This was originally not an issue given the dst register was marked as
-completely unknown (aka 64 bit unknown). However, after 468f6eafa6c4
-("bpf: fix 32-bit ALU op verification") the verifier casts the register
-output to 32 bit, and hence it becomes 32 bit unknown. Note that for
-the case where the src register is unknown, the dst register is marked
-64 bit unknown. After the fix, the register is truncated by the runtime
-and the test passes:
-
-  # ./bpftool p d x i 23
-   0: (b7) r0 = 0
-   1: (b7) r1 = -1
-   2: (b4) w2 = -1
-   3: (16) if w0 == 0x0 goto pc+2
-   4: (9c) w1 %= w0
-   5: (05) goto pc+1
-   6: (bc) w1 = w1
-   7: (b7) r0 = 1
-   8: (1d) if r1 == r2 goto pc+1
-   9: (b7) r0 = 2
-  10: (95) exit
-
-Semantics also match with {R,W}x mod{64,32} 0 -> {R,W}x. Invalid div
-has always been {R,W}x div{64,32} 0 -> 0. Rewrites are as follows:
-
-  mod32:                            mod64:
-
-  (16) if w0 == 0x0 goto pc+2       (15) if r0 == 0x0 goto pc+1
-  (9c) w1 %= w0                     (9f) r1 %= r0
-  (05) goto pc+1
-  (bc) w1 = w1
-
-Fixes: 468f6eafa6c4 ("bpf: fix 32-bit ALU op verification")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-[Salvatore Bonaccorso: This is an earlier version based on work by
-Daniel and John which does not rely on availability of the BPF_JMP32
-instruction class. This means it is not even strictly a backport of the
-upstream commit mentioned but based on Daniel's and John's work to
-address the issue and was finalized by Thadeu Lima de Souza Cascardo.]
-Tested-by: Salvatore Bonaccorso <carnil@debian.org>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arc/kernel/vmlinux.lds.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6178,7 +6178,7 @@ static int fixup_bpf_calls(struct bpf_ve
- 			bool is64 = BPF_CLASS(insn->code) == BPF_ALU64;
- 			struct bpf_insn mask_and_div[] = {
- 				BPF_MOV_REG(BPF_CLASS(insn->code), BPF_REG_AX, insn->src_reg),
--				/* Rx div 0 -> 0 */
-+				/* [R,W]x div 0 -> 0 */
- 				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 2),
- 				BPF_RAW_REG(*insn, insn->dst_reg, BPF_REG_AX),
- 				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
-@@ -6186,9 +6186,10 @@ static int fixup_bpf_calls(struct bpf_ve
- 			};
- 			struct bpf_insn mask_and_mod[] = {
- 				BPF_MOV_REG(BPF_CLASS(insn->code), BPF_REG_AX, insn->src_reg),
--				/* Rx mod 0 -> Rx */
--				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 1),
-+				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 1 + (is64 ? 0 : 1)),
- 				BPF_RAW_REG(*insn, insn->dst_reg, BPF_REG_AX),
-+				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
-+				BPF_MOV32_REG(insn->dst_reg, insn->dst_reg),
- 			};
- 			struct bpf_insn *patchlet;
- 
-@@ -6198,7 +6199,7 @@ static int fixup_bpf_calls(struct bpf_ve
- 				cnt = ARRAY_SIZE(mask_and_div);
- 			} else {
- 				patchlet = mask_and_mod;
--				cnt = ARRAY_SIZE(mask_and_mod);
-+				cnt = ARRAY_SIZE(mask_and_mod) - (is64 ? 2 : 0);
- 			}
- 
- 			new_prog = bpf_patch_insn_data(env, i + delta, patchlet, cnt);
+diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
+index f35ed578e007..4d823d3f65bb 100644
+--- a/arch/arc/kernel/vmlinux.lds.S
++++ b/arch/arc/kernel/vmlinux.lds.S
+@@ -92,6 +92,8 @@ SECTIONS
+ 		CPUIDLE_TEXT
+ 		LOCK_TEXT
+ 		KPROBES_TEXT
++		IRQENTRY_TEXT
++		SOFTIRQENTRY_TEXT
+ 		*(.fixup)
+ 		*(.gnu.warning)
+ 	}
+-- 
+2.30.2
+
 
 
