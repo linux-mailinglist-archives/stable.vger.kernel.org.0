@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 649783FD7D1
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 12:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 043C23FD7D0
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 12:41:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236252AbhIAKmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 06:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34020 "EHLO mail.kernel.org"
+        id S235371AbhIAKmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 06:42:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231903AbhIAKmM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 06:42:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E69C6101A;
-        Wed,  1 Sep 2021 10:41:15 +0000 (UTC)
+        id S231903AbhIAKmE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 06:42:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23B6E6102A;
+        Wed,  1 Sep 2021 10:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630492876;
-        bh=/sEArIfXJlTfzYdgM0Rn8fr9LxvI/5oIpfi8whmwMhA=;
+        s=korg; t=1630492867;
+        bh=H/deronlnwgQDULH7H2Y0S+JN82BzkEdJd0n9CEV9Rw=;
         h=Subject:To:Cc:From:Date:From;
-        b=dm4rV3R2p+bLBjh/sVBtZUZ/vHMtLEhWHbGv5ASEIIAm3ZZC+vADdmIeeL0LjcxtP
-         eWHGKXxLjYqQk6CdX6w6n8rVGbs7wvKL+4KiWkI1HtfS8H7wJRm2xgVmZ4S5s72tGk
-         I6nGvkYMaOhi/RkcRIPRkhwnDw9LjBReSDkkT1k4=
-Subject: FAILED: patch "[PATCH] ext4: report correct st_size for encrypted symlinks" failed to apply to 4.9-stable tree
+        b=IDXj+8xu7ct+XF05jtFbY4xmXog8DhvcTws9lX4NdKGlYWr5tjH9LOUwmSN2UqFYK
+         FqZA6jVvD9mrtRVCs+rtOlWhLEUOVH6iYeU3jL0xZw3gcLnlDBkud51FvncllR58he
+         Zr7MnuqAlVcvbhAHJnl+XzDcjzkJSvjuNRzkQEIY=
+Subject: FAILED: patch "[PATCH] ext4: report correct st_size for encrypted symlinks" failed to apply to 4.4-stable tree
 To:     ebiggers@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 01 Sep 2021 12:41:05 +0200
-Message-ID: <16304928659880@kroah.com>
+Message-ID: <16304928657590@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
