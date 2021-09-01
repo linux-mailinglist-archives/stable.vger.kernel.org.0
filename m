@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A38D33FDAB6
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 231B43FDB91
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245360AbhIAMen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:34:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34466 "EHLO mail.kernel.org"
+        id S1344449AbhIAMmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:42:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244798AbhIAMcn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:32:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 735F2610D1;
-        Wed,  1 Sep 2021 12:31:43 +0000 (UTC)
+        id S1344191AbhIAMkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8BC5611C0;
+        Wed,  1 Sep 2021 12:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499503;
-        bh=+JjioTiCd889hspoR4SIIbCMbw3odDQq58xvRFmUezE=;
+        s=korg; t=1630499810;
+        bh=XFi6cA/Q/hPW4JHtHpkD+8ah60OgiCKtUl0ylHe1CM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6/ewQ3Uut91UFus7/eurphc0UDKHQHegKJE3JoAFIQzg9eWH9+bL8lm8Bs1YqczX
-         zDO7lHdSweSiGul857V4rcQYSN9i6+JkUa3+RZ4oh8+TN4ZrFKZ1JQ+SbWTHGvhOz1
-         QRFQD68CsXfDkLfoa9FG3lftWSesAqaYmmJbPPTg=
+        b=usCn5TB8X1jDcQMe8WUalQ+Yx6XCBQwODIXip3AmalEKulg2/vMneRqDDUFztBZvw
+         5a7OwGP5yV9qRIVgBbg870nGPNSpVr7y9xT6wr2VC3uByZFBdvi0ZAGak/VlA78wGe
+         BLdBHo3CI+o6QIFodudqiMPn4JQ7hpfvj8K5PDXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Kenneth Feng <kenneth.feng@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/48] net: hns3: fix get wrong pfc_en when query PFC configuration
+Subject: [PATCH 5.10 064/103] Revert "drm/amd/pm: fix workload mismatch on vega10"
 Date:   Wed,  1 Sep 2021 14:28:14 +0200
-Message-Id: <20210901122254.214545592@linuxfoundation.org>
+Message-Id: <20210901122302.726463459@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
-References: <20210901122253.388326997@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Kenneth Feng <kenneth.feng@amd.com>
 
-[ Upstream commit 8c1671e0d13d4a0ba4fb3a0da932bf3736d7ff73 ]
+[ Upstream commit 2fd31689f9e44af949f60ff4f8aca013e628ab81 ]
 
-Currently, when query PFC configuration by dcbtool, driver will return
-PFC enable status based on TC. As all priorities are mapped to TC0 by
-default, if TC0 is enabled, then all priorities mapped to TC0 will be
-shown as enabled status when query PFC setting, even though some
-priorities have never been set.
+This reverts commit 0979d43259e13846d86ba17e451e17fec185d240.
+Revert this because it does not apply to all the cards.
 
-for example:
-$ dcb pfc show dev eth0
-pfc-cap 4 macsec-bypass off delay 0
-prio-pfc 0:off 1:off 2:off 3:off 4:off 5:off 6:off 7:off
-$ dcb pfc set dev eth0 prio-pfc 0:on 1:on 2:on 3:on
-$ dcb pfc show dev eth0
-pfc-cap 4 macsec-bypass off delay 0
-prio-pfc 0:on 1:on 2:on 3:on 4:on 5:on 6:on 7:on
-
-To fix this problem, just returns user's PFC config parameter saved in
-driver.
-
-Fixes: cacde272dd00 ("net: hns3: Add hclge_dcb module for the support of DCB feature")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Kenneth Feng <kenneth.feng@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c  | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-index a1790af73096..d16488bab86f 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
-@@ -281,21 +281,12 @@ static int hclge_ieee_getpfc(struct hnae3_handle *h, struct ieee_pfc *pfc)
- 	u64 requests[HNAE3_MAX_TC], indications[HNAE3_MAX_TC];
- 	struct hclge_vport *vport = hclge_get_vport(h);
- 	struct hclge_dev *hdev = vport->back;
--	u8 i, j, pfc_map, *prio_tc;
- 	int ret;
-+	u8 i;
+diff --git a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
+index 132c269c7c89..ed4eafc744d3 100644
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/vega10_hwmgr.c
+@@ -5159,7 +5159,7 @@ static int vega10_set_power_profile_mode(struct pp_hwmgr *hwmgr, long *input, ui
  
- 	memset(pfc, 0, sizeof(*pfc));
- 	pfc->pfc_cap = hdev->pfc_max;
--	prio_tc = hdev->tm_info.prio_tc;
--	pfc_map = hdev->tm_info.hw_pfc_map;
--
--	/* Pfc setting is based on TC */
--	for (i = 0; i < hdev->tm_info.num_tc; i++) {
--		for (j = 0; j < HNAE3_MAX_USER_PRIO; j++) {
--			if ((prio_tc[j] == i) && (pfc_map & BIT(i)))
--				pfc->pfc_en |= BIT(j);
--		}
--	}
-+	pfc->pfc_en = hdev->tm_info.pfc_en;
+ out:
+ 	smum_send_msg_to_smc_with_parameter(hwmgr, PPSMC_MSG_SetWorkloadMask,
+-						(!power_profile_mode) ? 0 : 1 << (power_profile_mode - 1),
++						1 << power_profile_mode,
+ 						NULL);
+ 	hwmgr->power_profile_mode = power_profile_mode;
  
- 	ret = hclge_pfc_tx_stats_get(hdev, requests);
- 	if (ret)
 -- 
 2.30.2
 
