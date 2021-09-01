@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D8BA3FDC52
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4523C3FDC4F
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345880AbhIAMsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:48:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49978 "EHLO mail.kernel.org"
+        id S1345868AbhIAMsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:48:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344269AbhIAMqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343640AbhIAMqk (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 1 Sep 2021 08:46:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C115610C7;
-        Wed,  1 Sep 2021 12:39:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9B0E60E98;
+        Wed,  1 Sep 2021 12:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499993;
-        bh=E51Muz1iXsRxNM9xs1WnIZsHhYoR0zxbn+vezwwZuvQ=;
+        s=korg; t=1630499996;
+        bh=OYeaMIIOBNuPwhpnFGcyy0uOKPLSDi3ejwPR1ER5Ma4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yRkfqv8MdE5bBE21fTbJhW/SMmN41A/MVbcFkCGkcXMMU2Cj+ddMwe0jQva7bHDLy
-         pEKtXU4jxmPrddvWA4JnpzG1K0bXSinRA4INS9J3ijIGOuEe6y/X6BBQndrtYShGIJ
-         xY8hRi3xzc9vILn77GezzJV/PTe06/9GRQrBfmHw=
+        b=WG3VIl6T7E8WPFEarYGioAiDfCEYr3r+ksvtUdR3RVIE44ojCG3xftGrzJBpoSvLn
+         p8Sfs3DsOXbMdc+1Yxq7EOWFCDDgAqBQS1mWq9ydb5sqBMCExSn4uW35v3cWvdRcYT
+         8KRGWIY5suW5ceiSzin8Xu+JicKPf7snk+LVo97w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhengjun Zhang <zhangzhengjun@aicrobo.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.13 029/113] USB: serial: option: add new VID/PID to support Fibocom FG150
-Date:   Wed,  1 Sep 2021 14:27:44 +0200
-Message-Id: <20210901122302.964891162@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.13 030/113] usb: renesas-xhci: Prefer firmware loading on unknown ROM state
+Date:   Wed,  1 Sep 2021 14:27:45 +0200
+Message-Id: <20210901122302.995956828@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
 References: <20210901122301.984263453@linuxfoundation.org>
@@ -39,278 +38,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengjun Zhang <zhangzhengjun@aicrobo.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 2829a4e3cf3a6ac2fa3cdb681b37574630fb9c1a upstream.
+commit c82cacd2f1e622a461a77d275a75d7e19e7635a3 upstream.
 
-Fibocom FG150 is a 5G module based on Qualcomm SDX55 platform,
-support Sub-6G band.
+The recent attempt to handle an unknown ROM state in the commit
+d143825baf15 ("usb: renesas-xhci: Fix handling of unknown ROM state")
+resulted in a regression and reverted later by the commit 44cf53602f5a
+("Revert "usb: renesas-xhci: Fix handling of unknown ROM state"").
+The problem of the former fix was that it treated the failure of
+firmware loading as a fatal error.  Since the firmware files aren't
+included in the standard linux-firmware tree, most users don't have
+them, hence they got the non-working system after that.  The revert
+fixed the regression, but also it didn't make the firmware loading
+triggered even on the devices that do need it.  So we need still a fix
+for them.
 
-Here are the outputs of lsusb -v and usb-devices:
+This is another attempt to handle the unknown ROM state.  Like the
+previous fix, this also tries to load the firmware when ROM shows
+unknown state.  In this patch, however, the failure of a firmware
+loading (such as a missing firmware file) isn't handled as a fatal
+error any longer when ROM has been already detected, but it falls back
+to the ROM mode like before.  The error is returned only when no ROM
+is detected and the firmware loading failed.
 
-> T:  Bus=02 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=5000 MxCh= 0
-> D:  Ver= 3.20 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 9 #Cfgs=  1
-> P:  Vendor=2cb7 ProdID=010b Rev=04.14
-> S:  Manufacturer=Fibocom
-> S:  Product=Fibocom Modem_SN:XXXXXXXX
-> S:  SerialNumber=XXXXXXXX
-> C:  #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=896mA
-> I:  If#=0x0 Alt= 0 #EPs= 1 Cls=ef(misc ) Sub=04 Prot=01 Driver=rndis_host
-> I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
-> I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=(none)
-> I:  If#=0x3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=(none)
-> I:  If#=0x4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+Along with it, for simplifying the code flow, the detection and the
+check of ROM is factored out from renesas_fw_check_running() and done
+in the caller side, renesas_xhci_check_request_fw().  It avoids the
+redundant ROM checks.
 
-> Bus 002 Device 002: ID 2cb7:010b Fibocom Fibocom Modem_SN:XXXXXXXX
-> Device Descriptor:
->   bLength                18
->   bDescriptorType         1
->   bcdUSB               3.20
->   bDeviceClass            0
->   bDeviceSubClass         0
->   bDeviceProtocol         0
->   bMaxPacketSize0         9
->   idVendor           0x2cb7 Fibocom
->   idProduct          0x010b
->   bcdDevice            4.14
->   iManufacturer           1 Fibocom
->   iProduct                2 Fibocom Modem_SN:XXXXXXXX
->   iSerial                 3 XXXXXXXX
->   bNumConfigurations      1
->   Configuration Descriptor:
->     bLength                 9
->     bDescriptorType         2
->     wTotalLength       0x00e6
->     bNumInterfaces          5
->     bConfigurationValue     1
->     iConfiguration          4 RNDIS_DUN_DIAG_ADB
->     bmAttributes         0xa0
->       (Bus Powered)
->       Remote Wakeup
->     MaxPower              896mA
->     Interface Association:
->       bLength                 8
->       bDescriptorType        11
->       bFirstInterface         0
->       bInterfaceCount         2
->       bFunctionClass        239 Miscellaneous Device
->       bFunctionSubClass       4
->       bFunctionProtocol       1
->       iFunction               7 RNDIS
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        0
->       bAlternateSetting       0
->       bNumEndpoints           1
->       bInterfaceClass       239 Miscellaneous Device
->       bInterfaceSubClass      4
->       bInterfaceProtocol      1
->       iInterface              0
->       ** UNRECOGNIZED:  05 24 00 10 01
->       ** UNRECOGNIZED:  05 24 01 00 01
->       ** UNRECOGNIZED:  04 24 02 00
->       ** UNRECOGNIZED:  05 24 06 00 01
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x81  EP 1 IN
->         bmAttributes            3
->           Transfer Type            Interrupt
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0008  1x 8 bytes
->         bInterval               9
->         bMaxBurst               0
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        1
->       bAlternateSetting       0
->       bNumEndpoints           2
->       bInterfaceClass        10 CDC Data
->       bInterfaceSubClass      0
->       bInterfaceProtocol      0
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x8e  EP 14 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               6
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x0f  EP 15 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               6
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        2
->       bAlternateSetting       0
->       bNumEndpoints           3
->       bInterfaceClass       255 Vendor Specific Class
->       bInterfaceSubClass      0
->       bInterfaceProtocol      0
->       iInterface              0
->       ** UNRECOGNIZED:  05 24 00 10 01
->       ** UNRECOGNIZED:  05 24 01 00 00
->       ** UNRECOGNIZED:  04 24 02 02
->       ** UNRECOGNIZED:  05 24 06 00 00
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x83  EP 3 IN
->         bmAttributes            3
->           Transfer Type            Interrupt
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x000a  1x 10 bytes
->         bInterval               9
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x82  EP 2 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x01  EP 1 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        3
->       bAlternateSetting       0
->       bNumEndpoints           2
->       bInterfaceClass       255 Vendor Specific Class
->       bInterfaceSubClass    255 Vendor Specific Subclass
->       bInterfaceProtocol     48
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x84  EP 4 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x02  EP 2 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->     Interface Descriptor:
->       bLength                 9
->       bDescriptorType         4
->       bInterfaceNumber        4
->       bAlternateSetting       0
->       bNumEndpoints           2
->       bInterfaceClass       255 Vendor Specific Class
->       bInterfaceSubClass     66
->       bInterfaceProtocol      1
->       iInterface              0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x03  EP 3 OUT
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
->       Endpoint Descriptor:
->         bLength                 7
->         bDescriptorType         5
->         bEndpointAddress     0x85  EP 5 IN
->         bmAttributes            2
->           Transfer Type            Bulk
->           Synch Type               None
->           Usage Type               Data
->         wMaxPacketSize     0x0400  1x 1024 bytes
->         bInterval               0
->         bMaxBurst               0
-> Binary Object Store Descriptor:
->   bLength                 5
->   bDescriptorType        15
->   wTotalLength       0x0016
->   bNumDeviceCaps          2
->   USB 2.0 Extension Device Capability:
->     bLength                 7
->     bDescriptorType        16
->     bDevCapabilityType      2
->     bmAttributes   0x00000006
->       BESL Link Power Management (LPM) Supported
->   SuperSpeed USB Device Capability:
->     bLength                10
->     bDescriptorType        16
->     bDevCapabilityType      3
->     bmAttributes         0x00
->     wSpeedsSupported   0x000f
->       Device can operate at Low Speed (1Mbps)
->       Device can operate at Full Speed (12Mbps)
->       Device can operate at High Speed (480Mbps)
->       Device can operate at SuperSpeed (5Gbps)
->     bFunctionalitySupport   1
->       Lowest fully-functional device speed is Full Speed (12Mbps)
->     bU1DevExitLat           1 micro seconds
->     bU2DevExitLat         500 micro seconds
-> Device Status:     0x0000
->   (Bus Powered)
+The patch was tested on Lenovo Thinkpad T14 gen (BIOS 1.34).  Also it
+was confirmed that no regression is seen on another Thinkpad T14
+machine that has worked without the patch, too.
 
-Signed-off-by: Zhengjun Zhang <zhangzhengjun@aicrobo.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 44cf53602f5a ("Revert "usb: renesas-xhci: Fix handling of unknown ROM state"")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1189207
+Link: https://lore.kernel.org/r/20210826124127.14789-1-tiwai@suse.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/host/xhci-pci-renesas.c | 35 +++++++++++++++++++----------
+ 1 file changed, 23 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2074,6 +2074,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(4) | RSVD(5) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
- 	  .driver_info = RSVD(6) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2df3, 0x9d03, 0xff) },			/* LongSung M5710 */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
+diff --git a/drivers/usb/host/xhci-pci-renesas.c b/drivers/usb/host/xhci-pci-renesas.c
+index 5923844ed821..ef5e91a5542d 100644
+--- a/drivers/usb/host/xhci-pci-renesas.c
++++ b/drivers/usb/host/xhci-pci-renesas.c
+@@ -207,7 +207,8 @@ static int renesas_check_rom_state(struct pci_dev *pdev)
+ 			return 0;
+ 
+ 		case RENESAS_ROM_STATUS_NO_RESULT: /* No result yet */
+-			return 0;
++			dev_dbg(&pdev->dev, "Unknown ROM status ...\n");
++			return -ENOENT;
+ 
+ 		case RENESAS_ROM_STATUS_ERROR: /* Error State */
+ 		default: /* All other states are marked as "Reserved states" */
+@@ -224,14 +225,6 @@ static int renesas_fw_check_running(struct pci_dev *pdev)
+ 	u8 fw_state;
+ 	int err;
+ 
+-	/* Check if device has ROM and loaded, if so skip everything */
+-	err = renesas_check_rom(pdev);
+-	if (err) { /* we have rom */
+-		err = renesas_check_rom_state(pdev);
+-		if (!err)
+-			return err;
+-	}
+-
+ 	/*
+ 	 * Test if the device is actually needing the firmware. As most
+ 	 * BIOSes will initialize the device for us. If the device is
+@@ -591,21 +584,39 @@ int renesas_xhci_check_request_fw(struct pci_dev *pdev,
+ 			(struct xhci_driver_data *)id->driver_data;
+ 	const char *fw_name = driver_data->firmware;
+ 	const struct firmware *fw;
++	bool has_rom;
+ 	int err;
+ 
++	/* Check if device has ROM and loaded, if so skip everything */
++	has_rom = renesas_check_rom(pdev);
++	if (has_rom) {
++		err = renesas_check_rom_state(pdev);
++		if (!err)
++			return 0;
++		else if (err != -ENOENT)
++			has_rom = false;
++	}
++
+ 	err = renesas_fw_check_running(pdev);
+ 	/* Continue ahead, if the firmware is already running. */
+ 	if (err == 0)
+ 		return 0;
+ 
++	/* no firmware interface available */
+ 	if (err != 1)
+-		return err;
++		return has_rom ? 0 : err;
+ 
+ 	pci_dev_get(pdev);
+-	err = request_firmware(&fw, fw_name, &pdev->dev);
++	err = firmware_request_nowarn(&fw, fw_name, &pdev->dev);
+ 	pci_dev_put(pdev);
+ 	if (err) {
+-		dev_err(&pdev->dev, "request_firmware failed: %d\n", err);
++		if (has_rom) {
++			dev_info(&pdev->dev, "failed to load firmware %s, fallback to ROM\n",
++				 fw_name);
++			return 0;
++		}
++		dev_err(&pdev->dev, "failed to load firmware %s: %d\n",
++			fw_name, err);
+ 		return err;
+ 	}
+ 
+-- 
+2.32.0
+
 
 
