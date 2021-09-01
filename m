@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB393FDC8D
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 444F33FDA6A
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345557AbhIAMvX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54322 "EHLO mail.kernel.org"
+        id S244858AbhIAMcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:32:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346405AbhIAMuL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:50:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A237561104;
-        Wed,  1 Sep 2021 12:41:33 +0000 (UTC)
+        id S244067AbhIAMbd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:31:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA672610A2;
+        Wed,  1 Sep 2021 12:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500094;
-        bh=sL1J6GCX0cXYB6pTbhNmDiPsvxDkc/vNW2Pl3uUkdy8=;
+        s=korg; t=1630499436;
+        bh=+Q9Lm4XYrb1EMIgmdn4gmR88RXZAQDDKbrjK5B0akXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ue4YI4YK65/pecEGNNdIIFHcmM86gQFhI1yi8lRCij2gJLAXNko894cArvt9bWPVu
-         VsWQFEAjytWd71n5StdZaN1hfosFf9rAKf+lz0S9QMzD+MEijqRoU153ncyFIkgmwN
-         P3o+uECdWrxOXt590osM4Gpgo5Q7Os/SCXoAPjOY=
+        b=tnHCoJiYHS6V/IG69jezjZF1XKuEy+5jOPZQ2vE6chsqXbKfyLVXJsSqcnIuqV/Ms
+         L2m3vvholhiKHUp5bVWM8/v7VfwpYOtHDoKe4yJbc6GAtibOGN8SRzYQU3Dag1pyDS
+         1FiSJ/nsA6OdEbDdwHfP8p0Hkvm9Kv9z5XNybycU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoliang Yang <xiaoliang.yang_1@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 067/113] net: stmmac: add mutex lock to protect est parameters
+        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 33/33] net: dont unconditionally copy_from_user a struct ifreq for socket ioctls
 Date:   Wed,  1 Sep 2021 14:28:22 +0200
-Message-Id: <20210901122304.222144856@linuxfoundation.org>
+Message-Id: <20210901122251.867511719@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
+References: <20210901122250.752620302@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+From: Peter Collingbourne <pcc@google.com>
 
-[ Upstream commit b2aae654a4794ef898ad33a179f341eb610f6b85 ]
+commit d0efb16294d145d157432feda83877ae9d7cdf37 upstream.
 
-Add a mutex lock to protect est structure parameters so that the
-EST parameters can be updated by other threads.
+A common implementation of isatty(3) involves calling a ioctl passing
+a dummy struct argument and checking whether the syscall failed --
+bionic and glibc use TCGETS (passing a struct termios), and musl uses
+TIOCGWINSZ (passing a struct winsize). If the FD is a socket, we will
+copy sizeof(struct ifreq) bytes of data from the argument and return
+-EFAULT if that fails. The result is that the isatty implementations
+may return a non-POSIX-compliant value in errno in the case where part
+of the dummy struct argument is inaccessible, as both struct termios
+and struct winsize are smaller than struct ifreq (at least on arm64).
 
-Signed-off-by: Xiaoliang Yang <xiaoliang.yang_1@nxp.com>
+Although there is usually enough stack space following the argument
+on the stack that this did not present a practical problem up to now,
+with MTE stack instrumentation it's more likely for the copy to fail,
+as the memory following the struct may have a different tag.
+
+Fix the problem by adding an early check for whether the ioctl is a
+valid socket ioctl, and return -ENOTTY if it isn't.
+
+Fixes: 44c02a2c3dc5 ("dev_ioctl(): move copyin/copyout to callers")
+Link: https://linux-review.googlesource.com/id/I869da6cf6daabc3e4b7b82ac979683ba05e27d4d
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Cc: <stable@vger.kernel.org> # 4.19
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c | 12 +++++++++++-
- include/linux/stmmac.h                          |  1 +
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ include/linux/netdevice.h |    4 ++++
+ net/socket.c              |    6 +++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-index 4e70efc45458..fb5207dcbcaa 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
-@@ -775,14 +775,18 @@ static int tc_setup_taprio(struct stmmac_priv *priv,
- 					 GFP_KERNEL);
- 		if (!plat->est)
- 			return -ENOMEM;
-+
-+		mutex_init(&priv->plat->est->lock);
- 	} else {
- 		memset(plat->est, 0, sizeof(*plat->est));
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3594,6 +3594,10 @@ int netdev_rx_handler_register(struct ne
+ void netdev_rx_handler_unregister(struct net_device *dev);
+ 
+ bool dev_valid_name(const char *name);
++static inline bool is_socket_ioctl_cmd(unsigned int cmd)
++{
++	return _IOC_TYPE(cmd) == SOCK_IOC_TYPE;
++}
+ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr,
+ 		bool *need_copyout);
+ int dev_ifconf(struct net *net, struct ifconf *, int);
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1030,7 +1030,7 @@ static long sock_do_ioctl(struct net *ne
+ 		rtnl_unlock();
+ 		if (!err && copy_to_user(argp, &ifc, sizeof(struct ifconf)))
+ 			err = -EFAULT;
+-	} else {
++	} else if (is_socket_ioctl_cmd(cmd)) {
+ 		struct ifreq ifr;
+ 		bool need_copyout;
+ 		if (copy_from_user(&ifr, argp, sizeof(struct ifreq)))
+@@ -1039,6 +1039,8 @@ static long sock_do_ioctl(struct net *ne
+ 		if (!err && need_copyout)
+ 			if (copy_to_user(argp, &ifr, sizeof(struct ifreq)))
+ 				return -EFAULT;
++	} else {
++		err = -ENOTTY;
  	}
+ 	return err;
+ }
+@@ -3064,6 +3066,8 @@ static int compat_ifr_data_ioctl(struct
+ 	struct ifreq ifreq;
+ 	u32 data32;
  
- 	size = qopt->num_entries;
- 
-+	mutex_lock(&priv->plat->est->lock);
- 	priv->plat->est->gcl_size = size;
- 	priv->plat->est->enable = qopt->enable;
-+	mutex_unlock(&priv->plat->est->lock);
- 
- 	for (i = 0; i < size; i++) {
- 		s64 delta_ns = qopt->entries[i].interval;
-@@ -813,6 +817,7 @@ static int tc_setup_taprio(struct stmmac_priv *priv,
- 		priv->plat->est->gcl[i] = delta_ns | (gates << wid);
- 	}
- 
-+	mutex_lock(&priv->plat->est->lock);
- 	/* Adjust for real system time */
- 	priv->ptp_clock_ops.gettime64(&priv->ptp_clock_ops, &current_time);
- 	current_time_ns = timespec64_to_ktime(current_time);
-@@ -837,8 +842,10 @@ static int tc_setup_taprio(struct stmmac_priv *priv,
- 	priv->plat->est->ctr[0] = do_div(ctr, NSEC_PER_SEC);
- 	priv->plat->est->ctr[1] = (u32)ctr;
- 
--	if (fpe && !priv->dma_cap.fpesel)
-+	if (fpe && !priv->dma_cap.fpesel) {
-+		mutex_unlock(&priv->plat->est->lock);
- 		return -EOPNOTSUPP;
-+	}
- 
- 	/* Actual FPE register configuration will be done after FPE handshake
- 	 * is success.
-@@ -847,6 +854,7 @@ static int tc_setup_taprio(struct stmmac_priv *priv,
- 
- 	ret = stmmac_est_configure(priv, priv->ioaddr, priv->plat->est,
- 				   priv->plat->clk_ptp_rate);
-+	mutex_unlock(&priv->plat->est->lock);
- 	if (ret) {
- 		netdev_err(priv->dev, "failed to configure EST\n");
- 		goto disable;
-@@ -862,9 +870,11 @@ static int tc_setup_taprio(struct stmmac_priv *priv,
- 	return 0;
- 
- disable:
-+	mutex_lock(&priv->plat->est->lock);
- 	priv->plat->est->enable = false;
- 	stmmac_est_configure(priv, priv->ioaddr, priv->plat->est,
- 			     priv->plat->clk_ptp_rate);
-+	mutex_unlock(&priv->plat->est->lock);
- 
- 	priv->plat->fpe_cfg->enable = false;
- 	stmmac_fpe_configure(priv, priv->ioaddr,
-diff --git a/include/linux/stmmac.h b/include/linux/stmmac.h
-index 0db36360ef21..cb7fbd747ae1 100644
---- a/include/linux/stmmac.h
-+++ b/include/linux/stmmac.h
-@@ -115,6 +115,7 @@ struct stmmac_axi {
- 
- #define EST_GCL		1024
- struct stmmac_est {
-+	struct mutex lock;
- 	int enable;
- 	u32 btr_offset[2];
- 	u32 btr[2];
--- 
-2.30.2
-
++	if (!is_socket_ioctl_cmd(cmd))
++		return -ENOTTY;
+ 	if (copy_from_user(ifreq.ifr_name, u_ifreq32->ifr_name, IFNAMSIZ))
+ 		return -EFAULT;
+ 	if (get_user(data32, &u_ifreq32->ifr_data))
 
 
