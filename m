@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D63F3FDC54
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A38D33FDAB6
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344561AbhIAMsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:48:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49974 "EHLO mail.kernel.org"
+        id S245360AbhIAMen (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:34:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346110AbhIAMqk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:46:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF75761175;
-        Wed,  1 Sep 2021 12:39:47 +0000 (UTC)
+        id S244798AbhIAMcn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:32:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 735F2610D1;
+        Wed,  1 Sep 2021 12:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499988;
-        bh=CWl0Xy5b3uEviqJR9nQyplgdzO0aEM7gT0hzN7UQCgU=;
+        s=korg; t=1630499503;
+        bh=+JjioTiCd889hspoR4SIIbCMbw3odDQq58xvRFmUezE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ivW7eD4uL1lBFsTem8oWfoqMtUn+tLW8QQ24XMj2dVmwV/O/btPhVLPrmtNCzchY4
-         Z7RNNb/lCsvBnTqYcC5LlRHBwGN63hEPbVY50Bnyg4SU8EhNnuzaw/TttPoxyBTOCW
-         Mz6VNZjTBeynqaJ31y4fby0L8qKpD9EZjnqP/nHE=
+        b=u6/ewQ3Uut91UFus7/eurphc0UDKHQHegKJE3JoAFIQzg9eWH9+bL8lm8Bs1YqczX
+         zDO7lHdSweSiGul857V4rcQYSN9i6+JkUa3+RZ4oh8+TN4ZrFKZ1JQ+SbWTHGvhOz1
+         QRFQD68CsXfDkLfoa9FG3lftWSesAqaYmmJbPPTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Ignatov <rdna@fb.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 059/113] rtnetlink: Return correct error on changing device netns
+Subject: [PATCH 5.4 24/48] net: hns3: fix get wrong pfc_en when query PFC configuration
 Date:   Wed,  1 Sep 2021 14:28:14 +0200
-Message-Id: <20210901122303.939945428@linuxfoundation.org>
+Message-Id: <20210901122254.214545592@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,119 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ignatov <rdna@fb.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-[ Upstream commit 96a6b93b69880b2c978e1b2be9cae6970b605008 ]
+[ Upstream commit 8c1671e0d13d4a0ba4fb3a0da932bf3736d7ff73 ]
 
-Currently when device is moved between network namespaces using
-RTM_NEWLINK message type and one of netns attributes (FLA_NET_NS_PID,
-IFLA_NET_NS_FD, IFLA_TARGET_NETNSID) but w/o specifying IFLA_IFNAME, and
-target namespace already has device with same name, userspace will get
-EINVAL what is confusing and makes debugging harder.
+Currently, when query PFC configuration by dcbtool, driver will return
+PFC enable status based on TC. As all priorities are mapped to TC0 by
+default, if TC0 is enabled, then all priorities mapped to TC0 will be
+shown as enabled status when query PFC setting, even though some
+priorities have never been set.
 
-Fix it so that userspace gets more appropriate EEXIST instead what makes
-debugging much easier.
+for example:
+$ dcb pfc show dev eth0
+pfc-cap 4 macsec-bypass off delay 0
+prio-pfc 0:off 1:off 2:off 3:off 4:off 5:off 6:off 7:off
+$ dcb pfc set dev eth0 prio-pfc 0:on 1:on 2:on 3:on
+$ dcb pfc show dev eth0
+pfc-cap 4 macsec-bypass off delay 0
+prio-pfc 0:on 1:on 2:on 3:on 4:on 5:on 6:on 7:on
 
-Before:
+To fix this problem, just returns user's PFC config parameter saved in
+driver.
 
-  # ./ifname.sh
-  + ip netns add ns0
-  + ip netns exec ns0 ip link add l0 type dummy
-  + ip netns exec ns0 ip link show l0
-  8: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-      link/ether 66:90:b5:d5:78:69 brd ff:ff:ff:ff:ff:ff
-  + ip link add l0 type dummy
-  + ip link show l0
-  10: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-      link/ether 6e:c6:1f:15:20:8d brd ff:ff:ff:ff:ff:ff
-  + ip link set l0 netns ns0
-  RTNETLINK answers: Invalid argument
-
-After:
-
-  # ./ifname.sh
-  + ip netns add ns0
-  + ip netns exec ns0 ip link add l0 type dummy
-  + ip netns exec ns0 ip link show l0
-  8: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-      link/ether 1e:4a:72:e3:e3:8f brd ff:ff:ff:ff:ff:ff
-  + ip link add l0 type dummy
-  + ip link show l0
-  10: l0: <BROADCAST,NOARP> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
-      link/ether f2:fc:fe:2b:7d:a6 brd ff:ff:ff:ff:ff:ff
-  + ip link set l0 netns ns0
-  RTNETLINK answers: File exists
-
-The problem is that do_setlink() passes its `char *ifname` argument,
-that it gets from a caller, to __dev_change_net_namespace() as is (as
-`const char *pat`), but semantics of ifname and pat can be different.
-
-For example, __rtnl_newlink() does this:
-
-net/core/rtnetlink.c
-    3270	char ifname[IFNAMSIZ];
-     ...
-    3286	if (tb[IFLA_IFNAME])
-    3287		nla_strscpy(ifname, tb[IFLA_IFNAME], IFNAMSIZ);
-    3288	else
-    3289		ifname[0] = '\0';
-     ...
-    3364	if (dev) {
-     ...
-    3394		return do_setlink(skb, dev, ifm, extack, tb, ifname, status);
-    3395	}
-
-, i.e. do_setlink() gets ifname pointer that is always valid no matter
-if user specified IFLA_IFNAME or not and then do_setlink() passes this
-ifname pointer as is to __dev_change_net_namespace() as pat argument.
-
-But the pat (pattern) in __dev_change_net_namespace() is used as:
-
-net/core/dev.c
-   11198	err = -EEXIST;
-   11199	if (__dev_get_by_name(net, dev->name)) {
-   11200		/* We get here if we can't use the current device name */
-   11201		if (!pat)
-   11202			goto out;
-   11203		err = dev_get_valid_name(net, dev, pat);
-   11204		if (err < 0)
-   11205			goto out;
-   11206	}
-
-As the result the `goto out` path on line 11202 is neven taken and
-instead of returning EEXIST defined on line 11198,
-__dev_change_net_namespace() returns an error from dev_get_valid_name()
-and this, in turn, will be EINVAL for ifname[0] = '\0' set earlier.
-
-Fixes: d8a5ec672768 ("[NET]: netlink support for moving devices between network namespaces.")
-Signed-off-by: Andrey Ignatov <rdna@fb.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cacde272dd00 ("net: hns3: Add hclge_dcb module for the support of DCB feature")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/rtnetlink.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c  | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index c6e75bd0035d..89c7369805e9 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -2597,6 +2597,7 @@ static int do_setlink(const struct sk_buff *skb,
- 		return err;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+index a1790af73096..d16488bab86f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+@@ -281,21 +281,12 @@ static int hclge_ieee_getpfc(struct hnae3_handle *h, struct ieee_pfc *pfc)
+ 	u64 requests[HNAE3_MAX_TC], indications[HNAE3_MAX_TC];
+ 	struct hclge_vport *vport = hclge_get_vport(h);
+ 	struct hclge_dev *hdev = vport->back;
+-	u8 i, j, pfc_map, *prio_tc;
+ 	int ret;
++	u8 i;
  
- 	if (tb[IFLA_NET_NS_PID] || tb[IFLA_NET_NS_FD] || tb[IFLA_TARGET_NETNSID]) {
-+		const char *pat = ifname && ifname[0] ? ifname : NULL;
- 		struct net *net;
- 		int new_ifindex;
+ 	memset(pfc, 0, sizeof(*pfc));
+ 	pfc->pfc_cap = hdev->pfc_max;
+-	prio_tc = hdev->tm_info.prio_tc;
+-	pfc_map = hdev->tm_info.hw_pfc_map;
+-
+-	/* Pfc setting is based on TC */
+-	for (i = 0; i < hdev->tm_info.num_tc; i++) {
+-		for (j = 0; j < HNAE3_MAX_USER_PRIO; j++) {
+-			if ((prio_tc[j] == i) && (pfc_map & BIT(i)))
+-				pfc->pfc_en |= BIT(j);
+-		}
+-	}
++	pfc->pfc_en = hdev->tm_info.pfc_en;
  
-@@ -2612,7 +2613,7 @@ static int do_setlink(const struct sk_buff *skb,
- 		else
- 			new_ifindex = 0;
- 
--		err = __dev_change_net_namespace(dev, net, ifname, new_ifindex);
-+		err = __dev_change_net_namespace(dev, net, pat, new_ifindex);
- 		put_net(net);
- 		if (err)
- 			goto errout;
+ 	ret = hclge_pfc_tx_stats_get(hdev, requests);
+ 	if (ret)
 -- 
 2.30.2
 
