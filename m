@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23F433FDC7E
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A9593FDAEE
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345282AbhIAMvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49980 "EHLO mail.kernel.org"
+        id S245732AbhIAMg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:36:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345850AbhIAMsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:48:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1689061185;
-        Wed,  1 Sep 2021 12:40:47 +0000 (UTC)
+        id S1343873AbhIAMeh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:34:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6429B6101B;
+        Wed,  1 Sep 2021 12:32:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500048;
-        bh=jVGFFhgQPDsIekeU6Mj58mUSZo3WAIr1rV2jD2J8/kA=;
+        s=korg; t=1630499562;
+        bh=1qwlMTCwX3PCcmkFnA7S1Z4+zxtyGF4FyrniO142TGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F627+7klED6+bEEBtebMwnm1y8DHpof6xVWeZJkw5Gk5WWfqlde1QzEr+9ZgU4zZw
-         FgALsckA4pajyMZXS8k1C/AVk187G/zK5kTsb/UNpjBaVlzeSVrxjI9DAKkAJOiE8W
-         FbI6r+5U9xoeL+W/MR5higkScq9xLwBCKfM9X+KY=
+        b=BRmK+OIZmRmK7S9qHC3A447dtnXZxPY43EjBVvN8Su0HdIhy9WwBDNxyT6SPu4ISJ
+         mVRoVSmGLgHD0veKWNhstdBOtXMHZA1IoDkuTmt7jRi1BDOYmToIOve+JF6hCK4Xe6
+         RbTlob+hZwSJ60IsUDpxc3LUqMIjnGbUoriyvBFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 082/113] tools/virtio: fix build
-Date:   Wed,  1 Sep 2021 14:28:37 +0200
-Message-Id: <20210901122304.721106091@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Will Deacon <will@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Seiji Nishikawa <snishika@redhat.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.4 48/48] audit: move put_tree() to avoid trim_trees refcount underflow and UAF
+Date:   Wed,  1 Sep 2021 14:28:38 +0200
+Message-Id: <20210901122254.957547573@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,120 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Richard Guy Briggs <rgb@redhat.com>
 
-[ Upstream commit a24ce06c70fe7df795a846ad713ccaa9b56a7666 ]
+commit 67d69e9d1a6c889d98951c1d74b19332ce0565af upstream.
 
-We use a spinlock now so add a stub.
-Ignore bogus uninitialized variable warnings.
+AUDIT_TRIM is expected to be idempotent, but multiple executions resulted
+in a refcount underflow and use-after-free.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+git bisect fingered commit fb041bb7c0a9	("locking/refcount: Consolidate
+implementations of refcount_t") but this patch with its more thorough
+checking that wasn't in the x86 assembly code merely exposed a previously
+existing tree refcount imbalance in the case of tree trimming code that
+was refactored with prune_one() to remove a tree introduced in
+commit 8432c7006297 ("audit: Simplify locking around untag_chunk()")
+
+Move the put_tree() to cover only the prune_one() case.
+
+Passes audit-testsuite and 3 passes of "auditctl -t" with at least one
+directory watch.
+
+Cc: Jan Kara <jack@suse.cz>
+Cc: Will Deacon <will@kernel.org>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Seiji Nishikawa <snishika@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 8432c7006297 ("audit: Simplify locking around untag_chunk()")
+Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+[PM: reformatted/cleaned-up the commit description]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/virtio/Makefile         |  3 +-
- tools/virtio/linux/spinlock.h | 56 +++++++++++++++++++++++++++++++++++
- tools/virtio/linux/virtio.h   |  2 ++
- 3 files changed, 60 insertions(+), 1 deletion(-)
- create mode 100644 tools/virtio/linux/spinlock.h
+ kernel/audit_tree.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-index b587b9a7a124..0d7bbe49359d 100644
---- a/tools/virtio/Makefile
-+++ b/tools/virtio/Makefile
-@@ -4,7 +4,8 @@ test: virtio_test vringh_test
- virtio_test: virtio_ring.o virtio_test.o
- vringh_test: vringh_test.o vringh.o virtio_ring.o
+--- a/kernel/audit_tree.c
++++ b/kernel/audit_tree.c
+@@ -595,7 +595,6 @@ static void prune_tree_chunks(struct aud
+ 		spin_lock(&hash_lock);
+ 	}
+ 	spin_unlock(&hash_lock);
+-	put_tree(victim);
+ }
  
--CFLAGS += -g -O2 -Werror -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
-+CFLAGS += -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
-+LDFLAGS += -lpthread
- vpath %.c ../../drivers/virtio ../../drivers/vhost
- mod:
- 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test V=${V}
-diff --git a/tools/virtio/linux/spinlock.h b/tools/virtio/linux/spinlock.h
-new file mode 100644
-index 000000000000..028e3cdcc5d3
---- /dev/null
-+++ b/tools/virtio/linux/spinlock.h
-@@ -0,0 +1,56 @@
-+#ifndef SPINLOCK_H_STUB
-+#define SPINLOCK_H_STUB
-+
-+#include <pthread.h>
-+
-+typedef pthread_spinlock_t  spinlock_t;
-+
-+static inline void spin_lock_init(spinlock_t *lock)
-+{
-+	int r = pthread_spin_init(lock, 0);
-+	assert(!r);
-+}
-+
-+static inline void spin_lock(spinlock_t *lock)
-+{
-+	int ret = pthread_spin_lock(lock);
-+	assert(!ret);
-+}
-+
-+static inline void spin_unlock(spinlock_t *lock)
-+{
-+	int ret = pthread_spin_unlock(lock);
-+	assert(!ret);
-+}
-+
-+static inline void spin_lock_bh(spinlock_t *lock)
-+{
-+	spin_lock(lock);
-+}
-+
-+static inline void spin_unlock_bh(spinlock_t *lock)
-+{
-+	spin_unlock(lock);
-+}
-+
-+static inline void spin_lock_irq(spinlock_t *lock)
-+{
-+	spin_lock(lock);
-+}
-+
-+static inline void spin_unlock_irq(spinlock_t *lock)
-+{
-+	spin_unlock(lock);
-+}
-+
-+static inline void spin_lock_irqsave(spinlock_t *lock, unsigned long f)
-+{
-+	spin_lock(lock);
-+}
-+
-+static inline void spin_unlock_irqrestore(spinlock_t *lock, unsigned long f)
-+{
-+	spin_unlock(lock);
-+}
-+
-+#endif
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
-index 5d90254ddae4..363b98228301 100644
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -3,6 +3,7 @@
- #define LINUX_VIRTIO_H
- #include <linux/scatterlist.h>
- #include <linux/kernel.h>
-+#include <linux/spinlock.h>
+ /*
+@@ -604,6 +603,7 @@ static void prune_tree_chunks(struct aud
+ static void prune_one(struct audit_tree *victim)
+ {
+ 	prune_tree_chunks(victim, false);
++	put_tree(victim);
+ }
  
- struct device {
- 	void *parent;
-@@ -12,6 +13,7 @@ struct virtio_device {
- 	struct device dev;
- 	u64 features;
- 	struct list_head vqs;
-+	spinlock_t vqs_list_lock;
- };
- 
- struct virtqueue {
--- 
-2.30.2
-
+ /* trim the uncommitted chunks from tree */
 
 
