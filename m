@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 815CA3FDB64
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CBAD3FDBE5
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343599AbhIAMlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40918 "EHLO mail.kernel.org"
+        id S1344650AbhIAMpj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:45:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344586AbhIAMjl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:39:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA54561168;
-        Wed,  1 Sep 2021 12:35:24 +0000 (UTC)
+        id S1345278AbhIAMmz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:42:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DE9D611CC;
+        Wed,  1 Sep 2021 12:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499725;
-        bh=L7Y6cP91N7pNB5AZQsdaJ8q6ABuRbahrbd+47pIa91g=;
+        s=korg; t=1630499891;
+        bh=ikYgbC297fiIFBz93rM5Hb9aIdkxMY/8iUMvt0FWg1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ofQlWmxykDbNu1Z7cMCeKiuF/MwPRZCi/3D0YaZ7DoUo0lu6FI7CpgsOVXkGyv6PD
-         8wMkQbd8RGtbBQtuk0nBpepqLa03iT+eLHFwcgvYl69bq+nyWbSasVsDkgKBsZI50q
-         MlLpTomEUd0blb7EaVtQzTCfdC7BDgcb9PSL9HX0=
+        b=RCRn4VkcaI/JbNRcNFip79Kcl0lpo64lt/ImVwINiZSxJtLm9uob2EASziUa1LLhH
+         2oVvLnS2ECI8dOjpew4QXjwaODlgsK+rlM3y38Y6mWB3brWEbtFdEBk+47iY5Gjsgu
+         y9zuM3ouIqG5Uj/l+k8P8B/j7i6lfXvTZ3H1IuQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/103] igc: fix page fault when thunderbolt is unplugged
+        stable@vger.kernel.org, Matthew Brost <matthew.brost@intel.com>,
+        John Harrison <John.C.Harrison@Intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.13 023/113] drm/i915: Fix syncmap memory leak
 Date:   Wed,  1 Sep 2021 14:27:38 +0200
-Message-Id: <20210901122301.482963121@linuxfoundation.org>
+Message-Id: <20210901122302.761468316@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Ma <aaron.ma@canonical.com>
+From: Matthew Brost <matthew.brost@intel.com>
 
-[ Upstream commit 4b79959510e6612d80f8d86022e0cb44eee6f4a2 ]
+commit a63bcf08f0efb5348105bb8e0e1e8c6671077753 upstream.
 
-After unplug thunderbolt dock with i225, pciehp interrupt is triggered,
-remove call will read/write mmio address which is already disconnected,
-then cause page fault and make system hang.
+A small race exists between intel_gt_retire_requests_timeout and
+intel_timeline_exit which could result in the syncmap not getting
+free'd. Rather than work to hard to seal this race, simply cleanup the
+syncmap on fini.
 
-Check PCI state to remove device safely.
+unreferenced object 0xffff88813bc53b18 (size 96):
+  comm "gem_close_race", pid 5410, jiffies 4294917818 (age 1105.600s)
+  hex dump (first 32 bytes):
+    01 00 00 00 00 00 00 00 00 00 00 00 0a 00 00 00  ................
+    00 00 00 00 00 00 00 00 6b 6b 6b 6b 06 00 00 00  ........kkkk....
+  backtrace:
+    [<00000000120b863a>] __sync_alloc_leaf+0x1e/0x40 [i915]
+    [<00000000042f6959>] __sync_set+0x1bb/0x240 [i915]
+    [<0000000090f0e90f>] i915_request_await_dma_fence+0x1c7/0x400 [i915]
+    [<0000000056a48219>] i915_request_await_object+0x222/0x360 [i915]
+    [<00000000aaac4ee3>] i915_gem_do_execbuffer+0x1bd0/0x2250 [i915]
+    [<000000003c9d830f>] i915_gem_execbuffer2_ioctl+0x405/0xce0 [i915]
+    [<00000000fd7a8e68>] drm_ioctl_kernel+0xb0/0xf0 [drm]
+    [<00000000e721ee87>] drm_ioctl+0x305/0x3c0 [drm]
+    [<000000008b0d8986>] __x64_sys_ioctl+0x71/0xb0
+    [<0000000076c362a4>] do_syscall_64+0x33/0x80
+    [<00000000eb7a4831>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Trace:
-BUG: unable to handle page fault for address: 000000000000b604
-Oops: 0000 [#1] SMP NOPTI
-RIP: 0010:igc_rd32+0x1c/0x90 [igc]
-Call Trace:
-igc_ptp_suspend+0x6c/0xa0 [igc]
-igc_ptp_stop+0x12/0x50 [igc]
-igc_remove+0x7f/0x1c0 [igc]
-pci_device_remove+0x3e/0xb0
-__device_release_driver+0x181/0x240
-
-Fixes: 13b5b7fd6a4a ("igc: Add support for Tx/Rx rings")
-Fixes: b03c49cde61f ("igc: Save PTP time before a reset")
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Matthew Brost <matthew.brost@intel.com>
+Fixes: 531958f6f357 ("drm/i915/gt: Track timeline activeness in enter/exit")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210730195342.110234-1-matthew.brost@intel.com
+(cherry picked from commit faf890985e30d5e88cc3a7c50c1bcad32f89ab7c)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 32 ++++++++++++++---------
- drivers/net/ethernet/intel/igc/igc_ptp.c  |  3 ++-
- 2 files changed, 21 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_timeline.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index b9fe2785f573..66f181d12578 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -138,6 +138,9 @@ static void igc_release_hw_control(struct igc_adapter *adapter)
- 	struct igc_hw *hw = &adapter->hw;
- 	u32 ctrl_ext;
+--- a/drivers/gpu/drm/i915/gt/intel_timeline.c
++++ b/drivers/gpu/drm/i915/gt/intel_timeline.c
+@@ -127,6 +127,15 @@ static void intel_timeline_fini(struct r
  
-+	if (!pci_device_is_present(adapter->pdev))
-+		return;
+ 	i915_vma_put(timeline->hwsp_ggtt);
+ 	i915_active_fini(&timeline->active);
 +
- 	/* Let firmware take over control of h/w */
- 	ctrl_ext = rd32(IGC_CTRL_EXT);
- 	wr32(IGC_CTRL_EXT,
-@@ -3782,26 +3785,29 @@ void igc_down(struct igc_adapter *adapter)
- 
- 	igc_ptp_suspend(adapter);
- 
--	/* disable receives in the hardware */
--	rctl = rd32(IGC_RCTL);
--	wr32(IGC_RCTL, rctl & ~IGC_RCTL_EN);
--	/* flush and sleep below */
--
-+	if (pci_device_is_present(adapter->pdev)) {
-+		/* disable receives in the hardware */
-+		rctl = rd32(IGC_RCTL);
-+		wr32(IGC_RCTL, rctl & ~IGC_RCTL_EN);
-+		/* flush and sleep below */
-+	}
- 	/* set trans_start so we don't get spurious watchdogs during reset */
- 	netif_trans_update(netdev);
- 
- 	netif_carrier_off(netdev);
- 	netif_tx_stop_all_queues(netdev);
- 
--	/* disable transmits in the hardware */
--	tctl = rd32(IGC_TCTL);
--	tctl &= ~IGC_TCTL_EN;
--	wr32(IGC_TCTL, tctl);
--	/* flush both disables and wait for them to finish */
--	wrfl();
--	usleep_range(10000, 20000);
-+	if (pci_device_is_present(adapter->pdev)) {
-+		/* disable transmits in the hardware */
-+		tctl = rd32(IGC_TCTL);
-+		tctl &= ~IGC_TCTL_EN;
-+		wr32(IGC_TCTL, tctl);
-+		/* flush both disables and wait for them to finish */
-+		wrfl();
-+		usleep_range(10000, 20000);
- 
--	igc_irq_disable(adapter);
-+		igc_irq_disable(adapter);
-+	}
- 
- 	adapter->flags &= ~IGC_FLAG_NEED_LINK_UPDATE;
- 
-diff --git a/drivers/net/ethernet/intel/igc/igc_ptp.c b/drivers/net/ethernet/intel/igc/igc_ptp.c
-index 545f4d0e67cf..4ab46eee3d93 100644
---- a/drivers/net/ethernet/intel/igc/igc_ptp.c
-+++ b/drivers/net/ethernet/intel/igc/igc_ptp.c
-@@ -557,7 +557,8 @@ void igc_ptp_suspend(struct igc_adapter *adapter)
- 	adapter->ptp_tx_skb = NULL;
- 	clear_bit_unlock(__IGC_PTP_TX_IN_PROGRESS, &adapter->state);
- 
--	igc_ptp_time_save(adapter);
-+	if (pci_device_is_present(adapter->pdev))
-+		igc_ptp_time_save(adapter);
++	/*
++	 * A small race exists between intel_gt_retire_requests_timeout and
++	 * intel_timeline_exit which could result in the syncmap not getting
++	 * free'd. Rather than work to hard to seal this race, simply cleanup
++	 * the syncmap on fini.
++	 */
++	i915_syncmap_free(&timeline->sync);
++
+ 	kfree(timeline);
  }
  
- /**
--- 
-2.30.2
-
 
 
