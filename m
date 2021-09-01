@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A5973FDA60
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F10FD3FDC89
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244971AbhIAMcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:32:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33016 "EHLO mail.kernel.org"
+        id S1344353AbhIAMvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:51:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244761AbhIAMbZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:31:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA196610A1;
-        Wed,  1 Sep 2021 12:30:27 +0000 (UTC)
+        id S1346374AbhIAMty (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:49:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0724D611C0;
+        Wed,  1 Sep 2021 12:41:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499428;
-        bh=iFG2hhXMkqgI+AgC85Z5sKXg1Dvw7eyDMrwI/JpE+Gs=;
+        s=korg; t=1630500086;
+        bh=WPbEOBKBC6jdJIBzrm6mHtnk9ru3jB8C/pS+rDGsTcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wpMZL80j81ouTK4BViYM9Gy8jwO2nEYE2gzh0B1cErCq/AaR9xBC8NzZRaeJiKrc2
-         XM6hzxOuLdKxU2XiT5/ZHUYxEKMbCeJLfOuq00YFMG95ORB55yCiMawIQiZy6e6bAh
-         vyJOE/3huuhOtNJlJ+mBCJx0bEh+QOI6SVy5y+no=
+        b=2OoHJ8iKjnu6MOeEm16sVGnIwj7gcn0uHJA9g3uHL7ogke+1rXkR25JrO0baAJjfy
+         9aY9uzsrFLuS31T67uce7WogUwU17wNEnk8XnIpxzQpGEbIK79bhBkEaAy8yOJVltl
+         wQd7mN7dYCqYWQzG/rodjls7Y5xO9kzT+Wv6ZvrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, George Kennedy <george.kennedy@oracle.com>,
-        syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Dhaval Giani <dhaval.giani@oracle.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.19 30/33] fbmem: add margin check to fb_check_caps()
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 064/113] net: hns3: fix get wrong pfc_en when query PFC configuration
 Date:   Wed,  1 Sep 2021 14:28:19 +0200
-Message-Id: <20210901122251.776826620@linuxfoundation.org>
+Message-Id: <20210901122304.104851901@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
-References: <20210901122250.752620302@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-commit a49145acfb975d921464b84fe00279f99827d816 upstream.
+[ Upstream commit 8c1671e0d13d4a0ba4fb3a0da932bf3736d7ff73 ]
 
-A fb_ioctl() FBIOPUT_VSCREENINFO call with invalid xres setting
-or yres setting in struct fb_var_screeninfo will result in a
-KASAN: vmalloc-out-of-bounds failure in bitfill_aligned() as
-the margins are being cleared. The margins are cleared in
-chunks and if the xres setting or yres setting is a value of
-zero upto the chunk size, the failure will occur.
+Currently, when query PFC configuration by dcbtool, driver will return
+PFC enable status based on TC. As all priorities are mapped to TC0 by
+default, if TC0 is enabled, then all priorities mapped to TC0 will be
+shown as enabled status when query PFC setting, even though some
+priorities have never been set.
 
-Add a margin check to validate xres and yres settings.
+for example:
+$ dcb pfc show dev eth0
+pfc-cap 4 macsec-bypass off delay 0
+prio-pfc 0:off 1:off 2:off 3:off 4:off 5:off 6:off 7:off
+$ dcb pfc set dev eth0 prio-pfc 0:on 1:on 2:on 3:on
+$ dcb pfc show dev eth0
+pfc-cap 4 macsec-bypass off delay 0
+prio-pfc 0:on 1:on 2:on 3:on 4:on 5:on 6:on 7:on
 
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Reported-by: syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Dhaval Giani <dhaval.giani@oracle.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1594149963-13801-1-git-send-email-george.kennedy@oracle.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this problem, just returns user's PFC config parameter saved in
+driver.
+
+Fixes: cacde272dd00 ("net: hns3: Add hclge_dcb module for the support of DCB feature")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c  | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -991,6 +991,10 @@ fb_set_var(struct fb_info *info, struct
- 			goto done;
- 		}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+index 5bf5db91d16c..39f56f245d84 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c
+@@ -255,21 +255,12 @@ static int hclge_ieee_getpfc(struct hnae3_handle *h, struct ieee_pfc *pfc)
+ 	u64 requests[HNAE3_MAX_TC], indications[HNAE3_MAX_TC];
+ 	struct hclge_vport *vport = hclge_get_vport(h);
+ 	struct hclge_dev *hdev = vport->back;
+-	u8 i, j, pfc_map, *prio_tc;
+ 	int ret;
++	u8 i;
  
-+		/* bitfill_aligned() assumes that it's at least 8x8 */
-+		if (var->xres < 8 || var->yres < 8)
-+			return -EINVAL;
-+
- 		ret = info->fbops->fb_check_var(var, info);
+ 	memset(pfc, 0, sizeof(*pfc));
+ 	pfc->pfc_cap = hdev->pfc_max;
+-	prio_tc = hdev->tm_info.prio_tc;
+-	pfc_map = hdev->tm_info.hw_pfc_map;
+-
+-	/* Pfc setting is based on TC */
+-	for (i = 0; i < hdev->tm_info.num_tc; i++) {
+-		for (j = 0; j < HNAE3_MAX_USER_PRIO; j++) {
+-			if ((prio_tc[j] == i) && (pfc_map & BIT(i)))
+-				pfc->pfc_en |= BIT(j);
+-		}
+-	}
++	pfc->pfc_en = hdev->tm_info.pfc_en;
  
- 		if (ret)
+ 	ret = hclge_pfc_tx_stats_get(hdev, requests);
+ 	if (ret)
+-- 
+2.30.2
+
 
 
