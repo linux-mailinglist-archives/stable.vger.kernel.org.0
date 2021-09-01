@@ -2,217 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA283FDA59
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:16:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2ECE3FDB41
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244666AbhIAMcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33564 "EHLO mail.kernel.org"
+        id S1344228AbhIAMkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:40:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244691AbhIAMbU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:31:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4C5F6101B;
-        Wed,  1 Sep 2021 12:30:22 +0000 (UTC)
+        id S245698AbhIAMhy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:37:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8050761153;
+        Wed,  1 Sep 2021 12:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499423;
-        bh=h4bFY5gKYqE+pU2oso67sqWCRXQaX52C3Yh2lXErikw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=aDKWPjWMD7iaaP7ey3z5KA3BDAYSv22epOE+AzJanYzJ8LytRJJ5gfh/joMDvqs3h
-         hgBdHCu7hsz2jyl1aVmLvZKh8gm6a1kjoSXF4O7VV12Xi66v8WkLWiCwFKDDWMxycA
-         l0AlMawYKEV4DJhMWjRuQ7cisDF908pOL/z/2TrQ=
+        s=korg; t=1630499665;
+        bh=F0MW1db5OjgHtF2kTSOyksu1a1+W3Mq7CZ0qKIUJMMw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=khbJXpM5PK7w2h8L/3kqEuFyNSkBipdSysd2kDZuyZL2cAyQpFkOdZWqQ81eCPIa1
+         pUzgMo27D9VB0SjAEf97KxzoEOm88K8dYHMUb6WCCa7Ui90u6TmaFIhomdGCVcdbMO
+         pHvm9+kUhs7aFwHB+qLBOzHKwIOM3wE14jNdnw/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.19 00/33] 4.19.206-rc1 review
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Keyu Man <kman001@ucr.edu>, Willy Tarreau <w@1wt.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 039/103] ipv4: use siphash instead of Jenkins in fnhe_hashfun()
 Date:   Wed,  1 Sep 2021 14:27:49 +0200
-Message-Id: <20210901122250.752620302@linuxfoundation.org>
+Message-Id: <20210901122301.873854687@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-MIME-Version: 1.0
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.206-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.19.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.19.206-rc1
-X-KernelTest-Deadline: 2021-09-03T12:22+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.19.206 release.
-There are 33 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Eric Dumazet <edumazet@google.com>
 
-Responses should be made by Fri, 03 Sep 2021 12:22:41 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 6457378fe796815c973f631a1904e147d6ee33b1 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.206-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-and the diffstat can be found below.
+A group of security researchers brought to our attention
+the weakness of hash function used in fnhe_hashfun().
 
-thanks,
+Lets use siphash instead of Jenkins Hash, to considerably
+reduce security risks.
 
-greg k-h
+Also remove the inline keyword, this really is distracting.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: d546c621542d ("ipv4: harden fnhe_hashfun()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
+Cc: Willy Tarreau <w@1wt.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/ipv4/route.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.19.206-rc1
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index e15c1d8b7c8d..3d9946fd41f3 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -624,14 +624,14 @@ static struct fib_nh_exception *fnhe_oldest(struct fnhe_hash_bucket *hash)
+ 	return oldest;
+ }
+ 
+-static inline u32 fnhe_hashfun(__be32 daddr)
++static u32 fnhe_hashfun(__be32 daddr)
+ {
+-	static u32 fnhe_hashrnd __read_mostly;
+-	u32 hval;
++	static siphash_key_t fnhe_hash_key __read_mostly;
++	u64 hval;
+ 
+-	net_get_random_once(&fnhe_hashrnd, sizeof(fnhe_hashrnd));
+-	hval = jhash_1word((__force u32)daddr, fnhe_hashrnd);
+-	return hash_32(hval, FNHE_HASH_SHIFT);
++	net_get_random_once(&fnhe_hash_key, sizeof(fnhe_hash_key));
++	hval = siphash_1u32((__force u32)daddr, &fnhe_hash_key);
++	return hash_64(hval, FNHE_HASH_SHIFT);
+ }
+ 
+ static void fill_route_from_fnhe(struct rtable *rt, struct fib_nh_exception *fnhe)
+-- 
+2.30.2
 
-Peter Collingbourne <pcc@google.com>
-    net: don't unconditionally copy_from_user a struct ifreq for socket ioctls
-
-Denis Efremov <efremov@linux.com>
-    Revert "floppy: reintroduce O_NDELAY fix"
-
-Sean Christopherson <seanjc@google.com>
-    KVM: x86/mmu: Treat NX as used (not reserved) for all !TDP shadow MMUs
-
-George Kennedy <george.kennedy@oracle.com>
-    fbmem: add margin check to fb_check_caps()
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    vt_kdsetmode: extend console locking
-
-Gerd Rausch <gerd.rausch@oracle.com>
-    net/rds: dma_map_sg is entitled to merge entries
-
-Ben Skeggs <bskeggs@redhat.com>
-    drm/nouveau/disp: power down unused DP links during init
-
-Mark Yacoub <markyacoub@google.com>
-    drm: Copy drm_wait_vblank to user before returning
-
-Shai Malin <smalin@marvell.com>
-    qed: Fix null-pointer dereference in qed_rdma_create_qp()
-
-Shai Malin <smalin@marvell.com>
-    qed: qed ll2 race condition fixes
-
-Neeraj Upadhyay <neeraju@codeaurora.org>
-    vringh: Use wiov->used to check for read/write desc order
-
-Parav Pandit <parav@nvidia.com>
-    virtio_pci: Support surprise removal of virtio pci device
-
-Parav Pandit <parav@nvidia.com>
-    virtio: Improve vq->broken access to avoid any compiler optimization
-
-Michał Mirosław <mirq-linux@rere.qmqm.pl>
-    opp: remove WARN when no valid OPPs remain
-
-Jerome Brunet <jbrunet@baylibre.com>
-    usb: gadget: u_audio: fix race condition on endpoint stop
-
-Guangbin Huang <huangguangbin2@huawei.com>
-    net: hns3: fix get wrong pfc_en when query PFC configuration
-
-Maxim Kiselev <bigunclemax@gmail.com>
-    net: marvell: fix MVNETA_TX_IN_PRGRS bit number
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    xgene-v2: Fix a resource leak in the error handling path of 'xge_probe()'
-
-Shreyansh Chouhan <chouhan.shreyansh630@gmail.com>
-    ip_gre: add validation for csum_start
-
-Sasha Neftin <sasha.neftin@intel.com>
-    e1000e: Fix the max snoop/no-snoop latency for 10M
-
-Tuo Li <islituo@gmail.com>
-    IB/hfi1: Fix possible null-pointer dereference in _extend_sdma_tx_descs()
-
-Wesley Cheng <wcheng@codeaurora.org>
-    usb: dwc3: gadget: Stop EP0 transfers during pullup disable
-
-Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-    usb: dwc3: gadget: Fix dwc3_calc_trbs_left()
-
-Zhengjun Zhang <zhangzhengjun@aicrobo.com>
-    USB: serial: option: add new VID/PID to support Fibocom FG150
-
-Johan Hovold <johan@kernel.org>
-    Revert "USB: serial: ch341: fix character loss at high transfer rates"
-
-Stefan Mätje <stefan.maetje@esd.eu>
-    can: usb: esd_usb2: esd_usb2_rx_event(): fix the interchange of the CAN RX and TX error counters
-
-Kefeng Wang <wangkefeng.wang@huawei.com>
-    once: Fix panic when module unload
-
-Florian Westphal <fw@strlen.de>
-    netfilter: conntrack: collect all entries in one cycle
-
-Guenter Roeck <linux@roeck-us.net>
-    ARC: Fix CONFIG_STACKDEPOT
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Fix truncation handling for mod32 dst reg wrt zero
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Fix 32 bit src register truncation on div/mod
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Do not use ax register in interpreter on div/mod
-
-Xiaolong Huang <butterflyhuangxx@gmail.com>
-    net: qrtr: fix another OOB Read in qrtr_endpoint_post
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arc/kernel/vmlinux.lds.S                      |  2 +
- arch/x86/kvm/mmu.c                                 | 11 +++-
- drivers/block/floppy.c                             | 27 ++++----
- drivers/gpu/drm/drm_ioc32.c                        |  4 +-
- drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c      |  2 +-
- drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.h      |  1 +
- drivers/gpu/drm/nouveau/nvkm/engine/disp/outp.c    |  9 +++
- drivers/infiniband/hw/hfi1/sdma.c                  |  9 ++-
- drivers/net/can/usb/esd_usb2.c                     |  4 +-
- drivers/net/ethernet/apm/xgene-v2/main.c           |  4 +-
- .../net/ethernet/hisilicon/hns3/hns3pf/hclge_dcb.c | 13 +---
- drivers/net/ethernet/intel/e1000e/ich8lan.c        | 14 ++++-
- drivers/net/ethernet/intel/e1000e/ich8lan.h        |  3 +
- drivers/net/ethernet/marvell/mvneta.c              |  2 +-
- drivers/net/ethernet/qlogic/qed/qed_ll2.c          | 20 ++++++
- drivers/net/ethernet/qlogic/qed/qed_rdma.c         |  3 +-
- drivers/opp/of.c                                   |  5 +-
- drivers/tty/vt/vt_ioctl.c                          | 11 ++--
- drivers/usb/dwc3/gadget.c                          | 23 ++++---
- drivers/usb/gadget/function/u_audio.c              |  5 +-
- drivers/usb/serial/ch341.c                         |  1 -
- drivers/usb/serial/option.c                        |  2 +
- drivers/vhost/vringh.c                             |  2 +-
- drivers/video/fbdev/core/fbmem.c                   |  4 ++
- drivers/virtio/virtio_pci_common.c                 |  7 +++
- drivers/virtio/virtio_ring.c                       |  6 +-
- include/linux/filter.h                             | 24 ++++++++
- include/linux/netdevice.h                          |  4 ++
- include/linux/once.h                               |  4 +-
- kernel/bpf/core.c                                  | 32 +++++-----
- kernel/bpf/verifier.c                              | 27 ++++----
- lib/once.c                                         | 11 +++-
- net/ipv4/ip_gre.c                                  |  2 +
- net/netfilter/nf_conntrack_core.c                  | 71 +++++++---------------
- net/qrtr/qrtr.c                                    |  2 +-
- net/rds/ib_frmr.c                                  |  4 +-
- net/socket.c                                       |  6 +-
- 38 files changed, 228 insertions(+), 157 deletions(-)
 
 
