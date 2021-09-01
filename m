@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0373FDB7D
+	by mail.lfdr.de (Postfix) with ESMTP id 93B283FDB7C
 	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344331AbhIAMly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44060 "EHLO mail.kernel.org"
+        id S1343793AbhIAMlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:41:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345024AbhIAMkZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345026AbhIAMkZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 1 Sep 2021 08:40:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EF2D61090;
-        Wed,  1 Sep 2021 12:36:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96E9261185;
+        Wed,  1 Sep 2021 12:36:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499799;
-        bh=Slas5ioF+scPwRjP9/R0Fg+V/Sln45bYU25gWaOz6Rw=;
+        s=korg; t=1630499802;
+        bh=ZtTSdSlgZki8Oz0hH3QR5Ll8nn8rdGDB8uhJtHholBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySdNV5OGnsLerAUXHcAFjt/Xl5PtdoGMuw0Ii1RyrUJkxBU0b8eccrNgpp1gaCWK2
-         54Vp5/i/Uq1zb29OkKiTJ3yZSx494G+iI/zbop+tQY9x/QyKXqK2hI9cfMrutvqQzG
-         2P3xERun24Ahu/JXG2doMjc+cHrXwmB/IzIZvDn4=
+        b=NHzdiYg/B26ZmH1HMam76qQElL5jL8mU8uSCVPPwqH5fYYpfTE/ZwBoQXhC9YyHYW
+         veqm31Vfe9JKvKxaqW4cdDWtrSIknLM04P+V/6ZOWhRxZa+2yxzAsk77AoXQTtuzUO
+         w1skjvvpwuXsrbmh6pV0zm9j6BQEDctac6L6xJWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.10 090/103] srcu: Provide polling interfaces for Tiny SRCU grace periods
-Date:   Wed,  1 Sep 2021 14:28:40 +0200
-Message-Id: <20210901122303.565740274@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Stefan Metzmacher <metze@samba.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.10 091/103] tracepoint: Use rcu get state and cond sync for static call updates
+Date:   Wed,  1 Sep 2021 14:28:41 +0200
+Message-Id: <20210901122303.604440005@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
 References: <20210901122300.503008474@linuxfoundation.org>
@@ -41,169 +44,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 8b5bd67cf6422b63ee100d76d8de8960ca2df7f0 upstream.
+commit 7b40066c97ec66a44e388f82fcf694987451768f upstream.
 
-There is a need for a polling interface for SRCU grace
-periods, so this commit supplies get_state_synchronize_srcu(),
-start_poll_synchronize_srcu(), and poll_state_synchronize_srcu() for this
-purpose.  The first can be used if future grace periods are inevitable
-(perhaps due to a later call_srcu() invocation), the second if future
-grace periods might not otherwise happen, and the third to check if a
-grace period has elapsed since the corresponding call to either of the
-first two.
+State transitions from 1->0->1 and N->2->1 callbacks require RCU
+synchronization. Rather than performing the RCU synchronization every
+time the state change occurs, which is quite slow when many tracepoints
+are registered in batch, instead keep a snapshot of the RCU state on the
+most recent transitions which belong to a chain, and conditionally wait
+for a grace period on the last transition of the chain if one g.p. has
+not elapsed since the last snapshot.
 
-As with get_state_synchronize_rcu() and cond_synchronize_rcu(),
-the return value from either get_state_synchronize_srcu() or
-start_poll_synchronize_srcu() must be passed in to a later call to
-poll_state_synchronize_srcu().
+This applies to both RCU and SRCU.
 
-Link: https://lore.kernel.org/rcu/20201112201547.GF3365678@moria.home.lan/
-Reported-by: Kent Overstreet <kent.overstreet@gmail.com>
-[ paulmck: Add EXPORT_SYMBOL_GPL() per kernel test robot feedback. ]
-[ paulmck: Apply feedback from Neeraj Upadhyay. ]
-Link: https://lore.kernel.org/lkml/20201117004017.GA7444@paulmck-ThinkPad-P72/
-Reviewed-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+This brings the performance regression caused by commit 231264d6927f
+("Fix: tracepoint: static call function vs data state mismatch") back to
+what it was originally.
+
+Before this commit:
+
+  # trace-cmd start -e all
+  # time trace-cmd start -p nop
+
+  real	0m10.593s
+  user	0m0.017s
+  sys	0m0.259s
+
+After this commit:
+
+  # trace-cmd start -e all
+  # time trace-cmd start -p nop
+
+  real	0m0.878s
+  user	0m0.000s
+  sys	0m0.103s
+
+Link: https://lkml.kernel.org/r/20210805192954.30688-1-mathieu.desnoyers@efficios.com
+Link: https://lore.kernel.org/io-uring/4ebea8f0-58c9-e571-fd30-0ce4f6f09c70@samba.org/
+
+Cc: stable@vger.kernel.org
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Stefan Metzmacher <metze@samba.org>
+Fixes: 231264d6927f ("Fix: tracepoint: static call function vs data state mismatch")
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Reviewed-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/rcupdate.h |    2 +
- include/linux/srcu.h     |    3 ++
- include/linux/srcutiny.h |    1 
- kernel/rcu/srcutiny.c    |   55 +++++++++++++++++++++++++++++++++++++++++++++--
- 4 files changed, 59 insertions(+), 2 deletions(-)
+ kernel/tracepoint.c |   81 +++++++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 67 insertions(+), 14 deletions(-)
 
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -33,6 +33,8 @@
- #define ULONG_CMP_GE(a, b)	(ULONG_MAX / 2 >= (a) - (b))
- #define ULONG_CMP_LT(a, b)	(ULONG_MAX / 2 < (a) - (b))
- #define ulong2long(a)		(*(long *)(&(a)))
-+#define USHORT_CMP_GE(a, b)	(USHRT_MAX / 2 >= (unsigned short)((a) - (b)))
-+#define USHORT_CMP_LT(a, b)	(USHRT_MAX / 2 < (unsigned short)((a) - (b)))
+--- a/kernel/tracepoint.c
++++ b/kernel/tracepoint.c
+@@ -28,6 +28,44 @@ extern tracepoint_ptr_t __stop___tracepo
+ DEFINE_SRCU(tracepoint_srcu);
+ EXPORT_SYMBOL_GPL(tracepoint_srcu);
  
- /* Exported common interfaces */
- void call_rcu(struct rcu_head *head, rcu_callback_t func);
---- a/include/linux/srcu.h
-+++ b/include/linux/srcu.h
-@@ -60,6 +60,9 @@ void cleanup_srcu_struct(struct srcu_str
- int __srcu_read_lock(struct srcu_struct *ssp) __acquires(ssp);
- void __srcu_read_unlock(struct srcu_struct *ssp, int idx) __releases(ssp);
- void synchronize_srcu(struct srcu_struct *ssp);
-+unsigned long get_state_synchronize_srcu(struct srcu_struct *ssp);
-+unsigned long start_poll_synchronize_srcu(struct srcu_struct *ssp);
-+bool poll_state_synchronize_srcu(struct srcu_struct *ssp, unsigned long cookie);
- 
- #ifdef CONFIG_DEBUG_LOCK_ALLOC
- 
---- a/include/linux/srcutiny.h
-+++ b/include/linux/srcutiny.h
-@@ -16,6 +16,7 @@
- struct srcu_struct {
- 	short srcu_lock_nesting[2];	/* srcu_read_lock() nesting depth. */
- 	unsigned short srcu_idx;	/* Current reader array element in bit 0x2. */
-+	unsigned short srcu_idx_max;	/* Furthest future srcu_idx request. */
- 	u8 srcu_gp_running;		/* GP workqueue running? */
- 	u8 srcu_gp_waiting;		/* GP waiting for readers? */
- 	struct swait_queue_head srcu_wq;
---- a/kernel/rcu/srcutiny.c
-+++ b/kernel/rcu/srcutiny.c
-@@ -34,6 +34,7 @@ static int init_srcu_struct_fields(struc
- 	ssp->srcu_gp_running = false;
- 	ssp->srcu_gp_waiting = false;
- 	ssp->srcu_idx = 0;
-+	ssp->srcu_idx_max = 0;
- 	INIT_WORK(&ssp->srcu_work, srcu_drive_gp);
- 	INIT_LIST_HEAD(&ssp->srcu_work.entry);
- 	return 0;
-@@ -84,6 +85,8 @@ void cleanup_srcu_struct(struct srcu_str
- 	WARN_ON(ssp->srcu_gp_waiting);
- 	WARN_ON(ssp->srcu_cb_head);
- 	WARN_ON(&ssp->srcu_cb_head != ssp->srcu_cb_tail);
-+	WARN_ON(ssp->srcu_idx != ssp->srcu_idx_max);
-+	WARN_ON(ssp->srcu_idx & 0x1);
- }
- EXPORT_SYMBOL_GPL(cleanup_srcu_struct);
- 
-@@ -114,7 +117,7 @@ void srcu_drive_gp(struct work_struct *w
- 	struct srcu_struct *ssp;
- 
- 	ssp = container_of(wp, struct srcu_struct, srcu_work);
--	if (ssp->srcu_gp_running || !READ_ONCE(ssp->srcu_cb_head))
-+	if (ssp->srcu_gp_running || USHORT_CMP_GE(ssp->srcu_idx, READ_ONCE(ssp->srcu_idx_max)))
- 		return; /* Already running or nothing to do. */
- 
- 	/* Remove recently arrived callbacks and wait for readers. */
-@@ -147,13 +150,19 @@ void srcu_drive_gp(struct work_struct *w
- 	 * straighten that out.
- 	 */
- 	WRITE_ONCE(ssp->srcu_gp_running, false);
--	if (READ_ONCE(ssp->srcu_cb_head))
-+	if (USHORT_CMP_LT(ssp->srcu_idx, READ_ONCE(ssp->srcu_idx_max)))
- 		schedule_work(&ssp->srcu_work);
- }
- EXPORT_SYMBOL_GPL(srcu_drive_gp);
- 
- static void srcu_gp_start_if_needed(struct srcu_struct *ssp)
- {
-+	unsigned short cookie;
++enum tp_transition_sync {
++	TP_TRANSITION_SYNC_1_0_1,
++	TP_TRANSITION_SYNC_N_2_1,
 +
-+	cookie = get_state_synchronize_srcu(ssp);
-+	if (USHORT_CMP_GE(READ_ONCE(ssp->srcu_idx_max), cookie))
++	_NR_TP_TRANSITION_SYNC,
++};
++
++struct tp_transition_snapshot {
++	unsigned long rcu;
++	unsigned long srcu;
++	bool ongoing;
++};
++
++/* Protected by tracepoints_mutex */
++static struct tp_transition_snapshot tp_transition_snapshot[_NR_TP_TRANSITION_SYNC];
++
++static void tp_rcu_get_state(enum tp_transition_sync sync)
++{
++	struct tp_transition_snapshot *snapshot = &tp_transition_snapshot[sync];
++
++	/* Keep the latest get_state snapshot. */
++	snapshot->rcu = get_state_synchronize_rcu();
++	snapshot->srcu = start_poll_synchronize_srcu(&tracepoint_srcu);
++	snapshot->ongoing = true;
++}
++
++static void tp_rcu_cond_sync(enum tp_transition_sync sync)
++{
++	struct tp_transition_snapshot *snapshot = &tp_transition_snapshot[sync];
++
++	if (!snapshot->ongoing)
 +		return;
-+	WRITE_ONCE(ssp->srcu_idx_max, cookie);
- 	if (!READ_ONCE(ssp->srcu_gp_running)) {
- 		if (likely(srcu_init_done))
- 			schedule_work(&ssp->srcu_work);
-@@ -196,6 +205,48 @@ void synchronize_srcu(struct srcu_struct
- }
- EXPORT_SYMBOL_GPL(synchronize_srcu);
++	cond_synchronize_rcu(snapshot->rcu);
++	if (!poll_state_synchronize_srcu(&tracepoint_srcu, snapshot->srcu))
++		synchronize_srcu(&tracepoint_srcu);
++	snapshot->ongoing = false;
++}
++
+ /* Set to 1 to enable tracepoint debug output */
+ static const int tracepoint_debug;
  
-+/*
-+ * get_state_synchronize_srcu - Provide an end-of-grace-period cookie
-+ */
-+unsigned long get_state_synchronize_srcu(struct srcu_struct *ssp)
-+{
-+	unsigned long ret;
-+
-+	barrier();
-+	ret = (READ_ONCE(ssp->srcu_idx) + 3) & ~0x1;
-+	barrier();
-+	return ret & USHRT_MAX;
-+}
-+EXPORT_SYMBOL_GPL(get_state_synchronize_srcu);
-+
-+/*
-+ * start_poll_synchronize_srcu - Provide cookie and start grace period
-+ *
-+ * The difference between this and get_state_synchronize_srcu() is that
-+ * this function ensures that the poll_state_synchronize_srcu() will
-+ * eventually return the value true.
-+ */
-+unsigned long start_poll_synchronize_srcu(struct srcu_struct *ssp)
-+{
-+	unsigned long ret = get_state_synchronize_srcu(ssp);
-+
-+	srcu_gp_start_if_needed(ssp);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(start_poll_synchronize_srcu);
-+
-+/*
-+ * poll_state_synchronize_srcu - Has cookie's grace period ended?
-+ */
-+bool poll_state_synchronize_srcu(struct srcu_struct *ssp, unsigned long cookie)
-+{
-+	bool ret = USHORT_CMP_GE(READ_ONCE(ssp->srcu_idx), cookie);
-+
-+	barrier();
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(poll_state_synchronize_srcu);
-+
- /* Lockdep diagnostics.  */
- void __init rcu_scheduler_starting(void)
- {
+@@ -332,6 +370,11 @@ static int tracepoint_add_func(struct tr
+ 	 */
+ 	switch (nr_func_state(tp_funcs)) {
+ 	case TP_FUNC_1:		/* 0->1 */
++		/*
++		 * Make sure new static func never uses old data after a
++		 * 1->0->1 transition sequence.
++		 */
++		tp_rcu_cond_sync(TP_TRANSITION_SYNC_1_0_1);
+ 		/* Set static call to first function */
+ 		tracepoint_update_call(tp, tp_funcs);
+ 		/* Both iterator and static call handle NULL tp->funcs */
+@@ -346,10 +389,15 @@ static int tracepoint_add_func(struct tr
+ 		 * Requires ordering between RCU assign/dereference and
+ 		 * static call update/call.
+ 		 */
+-		rcu_assign_pointer(tp->funcs, tp_funcs);
+-		break;
++		fallthrough;
+ 	case TP_FUNC_N:		/* N->N+1 (N>1) */
+ 		rcu_assign_pointer(tp->funcs, tp_funcs);
++		/*
++		 * Make sure static func never uses incorrect data after a
++		 * N->...->2->1 (N>1) transition sequence.
++		 */
++		if (tp_funcs[0].data != old[0].data)
++			tp_rcu_get_state(TP_TRANSITION_SYNC_N_2_1);
+ 		break;
+ 	default:
+ 		WARN_ON_ONCE(1);
+@@ -393,24 +441,23 @@ static int tracepoint_remove_func(struct
+ 		/* Both iterator and static call handle NULL tp->funcs */
+ 		rcu_assign_pointer(tp->funcs, NULL);
+ 		/*
+-		 * Make sure new func never uses old data after a 1->0->1
+-		 * transition sequence.
+-		 * Considering that transition 0->1 is the common case
+-		 * and don't have rcu-sync, issue rcu-sync after
+-		 * transition 1->0 to break that sequence by waiting for
+-		 * readers to be quiescent.
++		 * Make sure new static func never uses old data after a
++		 * 1->0->1 transition sequence.
+ 		 */
+-		tracepoint_synchronize_unregister();
++		tp_rcu_get_state(TP_TRANSITION_SYNC_1_0_1);
+ 		break;
+ 	case TP_FUNC_1:		/* 2->1 */
+ 		rcu_assign_pointer(tp->funcs, tp_funcs);
+ 		/*
+-		 * On 2->1 transition, RCU sync is needed before setting
+-		 * static call to first callback, because the observer
+-		 * may have loaded any prior tp->funcs after the last one
+-		 * associated with an rcu-sync.
++		 * Make sure static func never uses incorrect data after a
++		 * N->...->2->1 (N>2) transition sequence. If the first
++		 * element's data has changed, then force the synchronization
++		 * to prevent current readers that have loaded the old data
++		 * from calling the new function.
+ 		 */
+-		tracepoint_synchronize_unregister();
++		if (tp_funcs[0].data != old[0].data)
++			tp_rcu_get_state(TP_TRANSITION_SYNC_N_2_1);
++		tp_rcu_cond_sync(TP_TRANSITION_SYNC_N_2_1);
+ 		/* Set static call to first function */
+ 		tracepoint_update_call(tp, tp_funcs);
+ 		break;
+@@ -418,6 +465,12 @@ static int tracepoint_remove_func(struct
+ 		fallthrough;
+ 	case TP_FUNC_N:
+ 		rcu_assign_pointer(tp->funcs, tp_funcs);
++		/*
++		 * Make sure static func never uses incorrect data after a
++		 * N->...->2->1 (N>2) transition sequence.
++		 */
++		if (tp_funcs[0].data != old[0].data)
++			tp_rcu_get_state(TP_TRANSITION_SYNC_N_2_1);
+ 		break;
+ 	default:
+ 		WARN_ON_ONCE(1);
 
 
