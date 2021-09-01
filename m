@@ -2,57 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FDA83FD528
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 10:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 910AC3FD543
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 10:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242985AbhIAITp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 04:19:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58772 "EHLO mail.kernel.org"
+        id S243129AbhIAIVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 04:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229934AbhIAITo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 04:19:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B2596103A;
-        Wed,  1 Sep 2021 08:18:47 +0000 (UTC)
+        id S243005AbhIAIVL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 04:21:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E7C461053;
+        Wed,  1 Sep 2021 08:20:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630484327;
-        bh=cSYA4sYNLTHVUZnVODL1Pu9ZQg2ARtf7ANGW/ypmKPs=;
-        h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=Gxp0cJF10zPWfg0PQG7JlT0fbRQquP6uhOf1Ptz30D9zhBg7coGPpIHZ+sMuve4ie
-         A6Qw2jbDP4+SVILStNgxYa7X80sb6LZuHe+vjwrXHQua/bGfDQInIkA7IKtokxaPh+
-         b3oMwxRdhb7cBn1NxUNnhXBNhCdIrNE2A2tWZTiA=
-Date:   Wed, 1 Sep 2021 10:18:45 +0200
+        s=korg; t=1630484414;
+        bh=v9Y83i2Qo6SVuU+7tZnVKoFUoqLTBnfwMlGWaNsUoSc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=W6hSpP1Cs1f0gT77azVMtLYsk+2kDoQePr625O8r/HshV4ofoFMayNUYQFO5N0mn9
+         JkIbGWo4Sc4zC+dm+7szL3r9LIiznKfLWOQPlp3MetRz1ys+LkugxtiSse2b4YlzKn
+         3gF3A+9yD0Jyptlo6r2GKCGf6TEhglmtiGOBRPns=
+Date:   Wed, 1 Sep 2021 10:20:12 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     dsterba@suse.cz, wqu@suse.com, ce3g8jdj@umail.furryterror.org,
-        dsterba@suse.com, stable@vger.kernel.org,
-        linux-btrfs@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] Revert "btrfs: compression: don't try to
- compress if we don't" failed to apply to 5.4-stable tree
-Message-ID: <YS83Zf1OaAZUIQ06@kroah.com>
-References: <16302200512317@kroah.com>
- <20210830130949.GB3379@suse.cz>
+To:     Paul Gortmaker <paul.gortmaker@windriver.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: TIPC fix 7387a72c5f8 needed for v5.10.x and v5.13.x
+Message-ID: <YS83vBNj7ztIyiGh@kroah.com>
+References: <20210823041340.GD144129@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210830130949.GB3379@suse.cz>
+In-Reply-To: <20210823041340.GD144129@windriver.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Aug 30, 2021 at 03:09:49PM +0200, David Sterba wrote:
-> On Sun, Aug 29, 2021 at 08:54:11AM +0200, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 5.4-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
+On Mon, Aug 23, 2021 at 12:13:40AM -0400, Paul Gortmaker wrote:
+> A bad "Fixes" SHA in mainline 7387a72c5f8 references a non-public
+> SHA, instead of referencing f8dd60de1948 -- see:
 > 
-> The code in versions from 5.4 to 4.4 is the same and the merge conflict
-> can be resolved from that (eg. from file
-> stable.git/releases/./5.4.136/btrfs-compression-don-t-try-to-compress-if-we-don-t-have-enough-pages.patch)
+> https://lore.kernel.org/lkml/20210817075644.0b5123d2@canb.auug.org.au/
+> 
+> This matters to -stable since the broken commit is here:
+> 
+> stable-queue$git grep -l f8dd60de1948
+> releases/5.10.56/tipc-fix-implicit-connect-for-syn.patch
+> releases/5.13.8/tipc-fix-implicit-connect-for-syn.patch
+> 
+> and hence those releases will need mainline 7387a72c5f8 applied but
+> I suspect automatic Fixes: parsing won't "see" it.
 
-I'm sorry, but I do not understand what you are trying to say here.
-What exactly should I do?
-
-confused,
+Now queued up, thanks.
 
 greg k-h
