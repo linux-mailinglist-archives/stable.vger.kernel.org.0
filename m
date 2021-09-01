@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C933FDBF9
+	by mail.lfdr.de (Postfix) with ESMTP id 6DDAC3FDBF8
 	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345150AbhIAMqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:46:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42678 "EHLO mail.kernel.org"
+        id S1346034AbhIAMqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:46:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244116AbhIAMm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:42:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E936F610FA;
-        Wed,  1 Sep 2021 12:37:42 +0000 (UTC)
+        id S244973AbhIAMma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:42:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87589611CB;
+        Wed,  1 Sep 2021 12:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499863;
-        bh=bshTLC1uJlE+pTmdql1NoWvc/HC9abF6H6tLLErjrck=;
+        s=korg; t=1630499866;
+        bh=Ic/Ihy9eXVn6k6FBv6Ds/quKV3DMcpKvOsGlNAjXx64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MkDKU6F8F34dlpiJgmN1vfk4z34WeQCql0SzeOzODDt4Oot3dA9t9U28FoCS7WKUO
-         A8xg8QAMY6nVt2uKLkK0WRfZeRixT1kJMMCs4J+kUnYWCNpU8tHxuqPZmXFl3+uHaS
-         Nfl2yg07avRJlEt1YOJ3diw1B3hM/5oTtQ7ClrRU=
+        b=n7VVLkxEbWgqgIUAweTWT8msgUk/BK2EOCVbZUrB0ZH2ZczYrDflG2jh1dhJP/mGY
+         i1pF23dCs0zDQOFzM/5MoCgQWFfhCsKNBg0ptmz477mbqLEw9Piu596sQungKk27Q2
+         1rIaE0hOG7aR8ySZCd9rpK/BxXQ3la8prcR49PMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 013/113] net: mscc: Fix non-GPL export of regmap APIs
-Date:   Wed,  1 Sep 2021 14:27:28 +0200
-Message-Id: <20210901122302.423860457@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Stefan=20M=C3=A4tje?= <stefan.maetje@esd.eu>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.13 014/113] can: usb: esd_usb2: esd_usb2_rx_event(): fix the interchange of the CAN RX and TX error counters
+Date:   Wed,  1 Sep 2021 14:27:29 +0200
+Message-Id: <20210901122302.454387368@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
 References: <20210901122301.984263453@linuxfoundation.org>
@@ -41,99 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Stefan Mätje <stefan.maetje@esd.eu>
 
-[ Upstream commit 48c812e0327744b4965296f65c23fe2405692afc ]
+commit 044012b52029204900af9e4230263418427f4ba4 upstream.
 
-The ocelot driver makes use of regmap, wrapping it with driver specific
-operations that are thin wrappers around the core regmap APIs. These are
-exported with EXPORT_SYMBOL, dropping the _GPL from the core regmap
-exports which is frowned upon. Add _GPL suffixes to at least the APIs that
-are doing register I/O.
+This patch fixes the interchanged fetch of the CAN RX and TX error
+counters from the ESD_EV_CAN_ERROR_EXT message. The RX error counter
+is really in struct rx_msg::data[2] and the TX error counter is in
+struct rx_msg::data[3].
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 96d8e90382dc ("can: Add driver for esd CAN-USB/2 device")
+Link: https://lore.kernel.org/r/20210825215227.4947-2-stefan.maetje@esd.eu
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Mätje <stefan.maetje@esd.eu>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mscc/ocelot_io.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/can/usb/esd_usb2.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_io.c b/drivers/net/ethernet/mscc/ocelot_io.c
-index ea4e83410fe4..7390fa3980ec 100644
---- a/drivers/net/ethernet/mscc/ocelot_io.c
-+++ b/drivers/net/ethernet/mscc/ocelot_io.c
-@@ -21,7 +21,7 @@ u32 __ocelot_read_ix(struct ocelot *ocelot, u32 reg, u32 offset)
- 		    ocelot->map[target][reg & REG_MASK] + offset, &val);
- 	return val;
- }
--EXPORT_SYMBOL(__ocelot_read_ix);
-+EXPORT_SYMBOL_GPL(__ocelot_read_ix);
+--- a/drivers/net/can/usb/esd_usb2.c
++++ b/drivers/net/can/usb/esd_usb2.c
+@@ -224,8 +224,8 @@ static void esd_usb2_rx_event(struct esd
+ 	if (id == ESD_EV_CAN_ERROR_EXT) {
+ 		u8 state = msg->msg.rx.data[0];
+ 		u8 ecc = msg->msg.rx.data[1];
+-		u8 txerr = msg->msg.rx.data[2];
+-		u8 rxerr = msg->msg.rx.data[3];
++		u8 rxerr = msg->msg.rx.data[2];
++		u8 txerr = msg->msg.rx.data[3];
  
- void __ocelot_write_ix(struct ocelot *ocelot, u32 val, u32 reg, u32 offset)
- {
-@@ -32,7 +32,7 @@ void __ocelot_write_ix(struct ocelot *ocelot, u32 val, u32 reg, u32 offset)
- 	regmap_write(ocelot->targets[target],
- 		     ocelot->map[target][reg & REG_MASK] + offset, val);
- }
--EXPORT_SYMBOL(__ocelot_write_ix);
-+EXPORT_SYMBOL_GPL(__ocelot_write_ix);
- 
- void __ocelot_rmw_ix(struct ocelot *ocelot, u32 val, u32 mask, u32 reg,
- 		     u32 offset)
-@@ -45,7 +45,7 @@ void __ocelot_rmw_ix(struct ocelot *ocelot, u32 val, u32 mask, u32 reg,
- 			   ocelot->map[target][reg & REG_MASK] + offset,
- 			   mask, val);
- }
--EXPORT_SYMBOL(__ocelot_rmw_ix);
-+EXPORT_SYMBOL_GPL(__ocelot_rmw_ix);
- 
- u32 ocelot_port_readl(struct ocelot_port *port, u32 reg)
- {
-@@ -58,7 +58,7 @@ u32 ocelot_port_readl(struct ocelot_port *port, u32 reg)
- 	regmap_read(port->target, ocelot->map[target][reg & REG_MASK], &val);
- 	return val;
- }
--EXPORT_SYMBOL(ocelot_port_readl);
-+EXPORT_SYMBOL_GPL(ocelot_port_readl);
- 
- void ocelot_port_writel(struct ocelot_port *port, u32 val, u32 reg)
- {
-@@ -69,7 +69,7 @@ void ocelot_port_writel(struct ocelot_port *port, u32 val, u32 reg)
- 
- 	regmap_write(port->target, ocelot->map[target][reg & REG_MASK], val);
- }
--EXPORT_SYMBOL(ocelot_port_writel);
-+EXPORT_SYMBOL_GPL(ocelot_port_writel);
- 
- void ocelot_port_rmwl(struct ocelot_port *port, u32 val, u32 mask, u32 reg)
- {
-@@ -77,7 +77,7 @@ void ocelot_port_rmwl(struct ocelot_port *port, u32 val, u32 mask, u32 reg)
- 
- 	ocelot_port_writel(port, (cur & (~mask)) | val, reg);
- }
--EXPORT_SYMBOL(ocelot_port_rmwl);
-+EXPORT_SYMBOL_GPL(ocelot_port_rmwl);
- 
- u32 __ocelot_target_read_ix(struct ocelot *ocelot, enum ocelot_target target,
- 			    u32 reg, u32 offset)
-@@ -128,7 +128,7 @@ int ocelot_regfields_init(struct ocelot *ocelot,
- 
- 	return 0;
- }
--EXPORT_SYMBOL(ocelot_regfields_init);
-+EXPORT_SYMBOL_GPL(ocelot_regfields_init);
- 
- static struct regmap_config ocelot_regmap_config = {
- 	.reg_bits	= 32,
-@@ -148,4 +148,4 @@ struct regmap *ocelot_regmap_init(struct ocelot *ocelot, struct resource *res)
- 
- 	return devm_regmap_init_mmio(ocelot->dev, regs, &ocelot_regmap_config);
- }
--EXPORT_SYMBOL(ocelot_regmap_init);
-+EXPORT_SYMBOL_GPL(ocelot_regmap_init);
--- 
-2.30.2
-
+ 		skb = alloc_can_err_skb(priv->netdev, &cf);
+ 		if (skb == NULL) {
 
 
