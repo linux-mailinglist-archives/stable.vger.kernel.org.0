@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C98F33FDC91
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A99653FDBA5
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345383AbhIAMvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:51:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53708 "EHLO mail.kernel.org"
+        id S1344804AbhIAMm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:42:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346422AbhIAMuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:50:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCB0561100;
-        Wed,  1 Sep 2021 12:41:43 +0000 (UTC)
+        id S1345192AbhIAMky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:40:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F67E611CA;
+        Wed,  1 Sep 2021 12:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630500104;
-        bh=RraiY9EupY4eMBstcRZsBdE0zqlScNj3R6G7l/dTIn8=;
+        s=korg; t=1630499848;
+        bh=xLAJaL3V5iczBNfB6uSXsE6fieHw/2mD5EXbhxJQm8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7qtVvcveoVp0/eRXkJ7jn7QXJ4OPjucytnb2mnw2ojjvzp150tdm2PO9VnuOJrIe
-         /fU0GL5BgSiJbFVHxbznaPZRfAlvVuPT2IeJFJS58raKzMGvivPDOfeiMbdaObC0/L
-         of+2ieqPM+BZhydWtZpeAql6up0N8VtEAqu4Ga20=
+        b=2HlrBl4GZuDxTZe9RtEqw+3lCvaRK69oltX748la8jbuWeP5ALrmxdTI2zDS0sJwM
+         JLW+b5MsKmwupE42IQPn+mF1ttTcquRnu4BUGtgV7VJGXM7ijm9cm2AnDVSRe2JjhD
+         OWBzVNtctOFCC8VJ/8rP/7txNJrSax1DqXXRwKDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Oliver Upton <oupton@google.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 097/113] arm64: initialize all of CNTHCTL_EL2
+        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 102/103] net: dont unconditionally copy_from_user a struct ifreq for socket ioctls
 Date:   Wed,  1 Sep 2021 14:28:52 +0200
-Message-Id: <20210901122305.187252773@linuxfoundation.org>
+Message-Id: <20210901122303.958750483@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Peter Collingbourne <pcc@google.com>
 
-[ Upstream commit bde8fff82e4a4b0f000dbf4d5eadab2079be0b56 ]
+commit d0efb16294d145d157432feda83877ae9d7cdf37 upstream.
 
-In __init_el2_timers we initialize CNTHCTL_EL2.{EL1PCEN,EL1PCTEN} with a
-RMW sequence, leaving all other bits UNKNOWN.
+A common implementation of isatty(3) involves calling a ioctl passing
+a dummy struct argument and checking whether the syscall failed --
+bionic and glibc use TCGETS (passing a struct termios), and musl uses
+TIOCGWINSZ (passing a struct winsize). If the FD is a socket, we will
+copy sizeof(struct ifreq) bytes of data from the argument and return
+-EFAULT if that fails. The result is that the isatty implementations
+may return a non-POSIX-compliant value in errno in the case where part
+of the dummy struct argument is inaccessible, as both struct termios
+and struct winsize are smaller than struct ifreq (at least on arm64).
 
-In general, we should initialize all bits in a register rather than
-using an RMW sequence, since most bits are UNKNOWN out of reset, and as
-new bits are added to the reigster their reset value might not result in
-expected behaviour.
+Although there is usually enough stack space following the argument
+on the stack that this did not present a practical problem up to now,
+with MTE stack instrumentation it's more likely for the copy to fail,
+as the memory following the struct may have a different tag.
 
-In the case of CNTHCTL_EL2, FEAT_ECV added a number of new control bits
-in previously RES0 bits, which reset to UNKNOWN values, and may cause
-issues for EL1 and EL0:
+Fix the problem by adding an early check for whether the ioctl is a
+valid socket ioctl, and return -ENOTTY if it isn't.
 
-* CNTHCTL_EL2.ECV enables the CNTPOFF_EL2 offset (which itself resets to
-  an UNKNOWN value) at EL0 and EL1. Since the offset could reset to
-  distinct values across CPUs, when the control bit resets to 1 this
-  could break timekeeping generally.
-
-* CNTHCTL_EL2.{EL1TVT,EL1TVCT} trap EL0 and EL1 accesses to the EL1
-  virtual timer/counter registers to EL2. When reset to 1, this could
-  cause unexpected traps to EL2.
-
-Initializing these bits to zero avoids these problems, and all other
-bits in CNTHCTL_EL2 other than EL1PCEN and EL1PCTEN can safely be reset
-to zero.
-
-This patch ensures we initialize CNTHCTL_EL2 accordingly, only setting
-EL1PCEN and EL1PCTEN, and setting all other bits to zero.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Oliver Upton <oupton@google.com>
-Cc: Will Deacon <will@kernel.org>
-Reviewed-by: Oliver Upton <oupton@google.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210818161535.52786-1-mark.rutland@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 44c02a2c3dc5 ("dev_ioctl(): move copyin/copyout to callers")
+Link: https://linux-review.googlesource.com/id/I869da6cf6daabc3e4b7b82ac979683ba05e27d4d
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Cc: <stable@vger.kernel.org> # 4.19
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/el2_setup.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/linux/netdevice.h |    4 ++++
+ net/socket.c              |    6 +++++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/el2_setup.h b/arch/arm64/include/asm/el2_setup.h
-index 21fa330f498d..b83fb24954b7 100644
---- a/arch/arm64/include/asm/el2_setup.h
-+++ b/arch/arm64/include/asm/el2_setup.h
-@@ -33,8 +33,7 @@
-  * EL2.
-  */
- .macro __init_el2_timers
--	mrs	x0, cnthctl_el2
--	orr	x0, x0, #3			// Enable EL1 physical timers
-+	mov	x0, #3				// Enable EL1 physical timers
- 	msr	cnthctl_el2, x0
- 	msr	cntvoff_el2, xzr		// Clear virtual offset
- .endm
--- 
-2.30.2
-
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3884,6 +3884,10 @@ int netdev_rx_handler_register(struct ne
+ void netdev_rx_handler_unregister(struct net_device *dev);
+ 
+ bool dev_valid_name(const char *name);
++static inline bool is_socket_ioctl_cmd(unsigned int cmd)
++{
++	return _IOC_TYPE(cmd) == SOCK_IOC_TYPE;
++}
+ int dev_ioctl(struct net *net, unsigned int cmd, struct ifreq *ifr,
+ 		bool *need_copyout);
+ int dev_ifconf(struct net *net, struct ifconf *, int);
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1062,7 +1062,7 @@ static long sock_do_ioctl(struct net *ne
+ 		rtnl_unlock();
+ 		if (!err && copy_to_user(argp, &ifc, sizeof(struct ifconf)))
+ 			err = -EFAULT;
+-	} else {
++	} else if (is_socket_ioctl_cmd(cmd)) {
+ 		struct ifreq ifr;
+ 		bool need_copyout;
+ 		if (copy_from_user(&ifr, argp, sizeof(struct ifreq)))
+@@ -1071,6 +1071,8 @@ static long sock_do_ioctl(struct net *ne
+ 		if (!err && need_copyout)
+ 			if (copy_to_user(argp, &ifr, sizeof(struct ifreq)))
+ 				return -EFAULT;
++	} else {
++		err = -ENOTTY;
+ 	}
+ 	return err;
+ }
+@@ -3264,6 +3266,8 @@ static int compat_ifr_data_ioctl(struct
+ 	struct ifreq ifreq;
+ 	u32 data32;
+ 
++	if (!is_socket_ioctl_cmd(cmd))
++		return -ENOTTY;
+ 	if (copy_from_user(ifreq.ifr_name, u_ifreq32->ifr_name, IFNAMSIZ))
+ 		return -EFAULT;
+ 	if (get_user(data32, &u_ifreq32->ifr_data))
 
 
