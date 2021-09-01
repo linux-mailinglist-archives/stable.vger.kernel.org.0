@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 790CE3FDB6F
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6743FDAF0
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244772AbhIAMll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41872 "EHLO mail.kernel.org"
+        id S1343683AbhIAMg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:36:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344716AbhIAMj5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:39:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A0106112F;
-        Wed,  1 Sep 2021 12:35:52 +0000 (UTC)
+        id S1343897AbhIAMei (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:34:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82DAC61027;
+        Wed,  1 Sep 2021 12:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499753;
-        bh=lZwH8zxKEBCqM8hgNeOLnFpdLMREYnKK2RrxL4Hem1w=;
+        s=korg; t=1630499568;
+        bh=1NAE8l39Y1pohaMnXk2jdMQqlPqRWVWj5BfpOvUOJEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anyUQDZ1sXXVZkCAH+q8YVLc6SsxY1Ha/+G63y06nh7cH3diLZGA+CyEZMN1cLVci
-         uh2Nf2ohN0dCYKy9nO0rkJQ74ZgTiCax1V9pKZs4lZqSJ7WTRDMLi1Fbihgj8iLSJb
-         ssJE9LgLdUl+BHOOPVRFAKFJVmGXkmc+C4ctkRPQ=
+        b=ZwRTQJUd7Ixu+7X/cbEBakkyBU9m1O7zZgdsYwB6ithwOGkiiD1KY/hFfDKN9kUBQ
+         wWqsbJrYFe0JAhkj5hjB6VwKlVCEPjntcdwO1cgCRGUwaPVUmo78HDNgRwGANUgCKK
+         p7dPYKdY+RbtMFf+L9bm0WoWncsoHjpZBYMTfg9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 073/103] pipe: do FASYNC notifications for every pipe IO, not just state changes
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Ariel Elior <aelior@marvell.com>,
+        Shai Malin <smalin@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 33/48] qed: Fix null-pointer dereference in qed_rdma_create_qp()
 Date:   Wed,  1 Sep 2021 14:28:23 +0200
-Message-Id: <20210901122303.022351907@linuxfoundation.org>
+Message-Id: <20210901122254.497028052@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,127 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Shai Malin <smalin@marvell.com>
 
-commit fe67f4dd8daa252eb9aa7acb61555f3cc3c1ce4c upstream.
+[ Upstream commit d33d19d313d3466abdf8b0428be7837aff767802 ]
 
-It turns out that the SIGIO/FASYNC situation is almost exactly the same
-as the EPOLLET case was: user space really wants to be notified after
-every operation.
+Fix a possible null-pointer dereference in qed_rdma_create_qp().
 
-Now, in a perfect world it should be sufficient to only notify user
-space on "state transitions" when the IO state changes (ie when a pipe
-goes from unreadable to readable, or from unwritable to writable).  User
-space should then do as much as possible - fully emptying the buffer or
-what not - and we'll notify it again the next time the state changes.
+Changes from V2:
+- Revert checkpatch fixes.
 
-But as with EPOLLET, we have at least one case (stress-ng) where the
-kernel sent SIGIO due to the pipe being marked for asynchronous
-notification, but the user space signal handler then didn't actually
-necessarily read it all before returning (it read more than what was
-written, but since there could be multiple writes, it could leave data
-pending).
-
-The user space code then expected to get another SIGIO for subsequent
-writes - even though the pipe had been readable the whole time - and
-would only then read more.
-
-This is arguably a user space bug - and Colin King already fixed the
-stress-ng code in question - but the kernel regression rules are clear:
-it doesn't matter if kernel people think that user space did something
-silly and wrong.  What matters is that it used to work.
-
-So if user space depends on specific historical kernel behavior, it's a
-regression when that behavior changes.  It's on us: we were silly to
-have that non-optimal historical behavior, and our old kernel behavior
-was what user space was tested against.
-
-Because of how the FASYNC notification was tied to wakeup behavior, this
-was first broken by commits f467a6a66419 and 1b6b26ae7053 ("pipe: fix
-and clarify pipe read/write wakeup logic"), but at the time it seems
-nobody noticed.  Probably because the stress-ng problem case ends up
-being timing-dependent too.
-
-It was then unwittingly fixed by commit 3a34b13a88ca ("pipe: make pipe
-writes always wake up readers") only to be broken again when by commit
-3b844826b6c6 ("pipe: avoid unnecessary EPOLLET wakeups under normal
-loads").
-
-And at that point the kernel test robot noticed the performance
-refression in the stress-ng.sigio.ops_per_sec case.  So the "Fixes" tag
-below is somewhat ad hoc, but it matches when the issue was noticed.
-
-Fix it for good (knock wood) by simply making the kill_fasync() case
-separate from the wakeup case.  FASYNC is quite rare, and we clearly
-shouldn't even try to use the "avoid unnecessary wakeups" logic for it.
-
-Link: https://lore.kernel.org/lkml/20210824151337.GC27667@xsang-OptiPlex-9020/
-Fixes: 3b844826b6c6 ("pipe: avoid unnecessary EPOLLET wakeups under normal loads")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Tested-by: Oliver Sang <oliver.sang@intel.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Cc: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pipe.c |   20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/qlogic/qed/qed_rdma.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/fs/pipe.c
-+++ b/fs/pipe.c
-@@ -363,10 +363,9 @@ pipe_read(struct kiocb *iocb, struct iov
- 		 * _very_ unlikely case that the pipe was full, but we got
- 		 * no data.
- 		 */
--		if (unlikely(was_full)) {
-+		if (unlikely(was_full))
- 			wake_up_interruptible_sync_poll(&pipe->wr_wait, EPOLLOUT | EPOLLWRNORM);
--			kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
--		}
-+		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_rdma.c b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
+index 38b1f402f7ed..b291971bcf92 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_rdma.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_rdma.c
+@@ -1245,8 +1245,7 @@ qed_rdma_create_qp(void *rdma_cxt,
  
- 		/*
- 		 * But because we didn't read anything, at this point we can
-@@ -385,12 +384,11 @@ pipe_read(struct kiocb *iocb, struct iov
- 		wake_next_reader = false;
- 	__pipe_unlock(pipe);
- 
--	if (was_full) {
-+	if (was_full)
- 		wake_up_interruptible_sync_poll(&pipe->wr_wait, EPOLLOUT | EPOLLWRNORM);
--		kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
--	}
- 	if (wake_next_reader)
- 		wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
-+	kill_fasync(&pipe->fasync_writers, SIGIO, POLL_OUT);
- 	if (ret > 0)
- 		file_accessed(filp);
- 	return ret;
-@@ -565,10 +563,9 @@ pipe_write(struct kiocb *iocb, struct io
- 		 * become empty while we dropped the lock.
- 		 */
- 		__pipe_unlock(pipe);
--		if (was_empty) {
-+		if (was_empty)
- 			wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
--			kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
--		}
-+		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 		wait_event_interruptible_exclusive(pipe->wr_wait, pipe_writable(pipe));
- 		__pipe_lock(pipe);
- 		was_empty = pipe_empty(pipe->head, pipe->tail);
-@@ -591,10 +588,9 @@ out:
- 	 * Epoll nonsensically wants a wakeup whether the pipe
- 	 * was already empty or not.
- 	 */
--	if (was_empty || pipe->poll_usage) {
-+	if (was_empty || pipe->poll_usage)
- 		wake_up_interruptible_sync_poll(&pipe->rd_wait, EPOLLIN | EPOLLRDNORM);
--		kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
--	}
-+	kill_fasync(&pipe->fasync_readers, SIGIO, POLL_IN);
- 	if (wake_next_writer)
- 		wake_up_interruptible_sync_poll(&pipe->wr_wait, EPOLLOUT | EPOLLWRNORM);
- 	if (ret > 0 && sb_start_write_trylock(file_inode(filp)->i_sb)) {
+ 	if (!rdma_cxt || !in_params || !out_params ||
+ 	    !p_hwfn->p_rdma_info->active) {
+-		DP_ERR(p_hwfn->cdev,
+-		       "qed roce create qp failed due to NULL entry (rdma_cxt=%p, in=%p, out=%p, roce_info=?\n",
++		pr_err("qed roce create qp failed due to NULL entry (rdma_cxt=%p, in=%p, out=%p, roce_info=?\n",
+ 		       rdma_cxt, in_params, out_params);
+ 		return NULL;
+ 	}
+-- 
+2.30.2
+
 
 
