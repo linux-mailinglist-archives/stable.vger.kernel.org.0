@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFA373FDC4B
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:18:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C533F3FDB3B
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345822AbhIAMso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:48:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49976 "EHLO mail.kernel.org"
+        id S1343897AbhIAMke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:40:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344266AbhIAMqk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:46:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9477360F23;
-        Wed,  1 Sep 2021 12:39:50 +0000 (UTC)
+        id S1344034AbhIAMhV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:37:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C3E961139;
+        Wed,  1 Sep 2021 12:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499991;
-        bh=uBjfIoggYh3tdT7PSh5LAbeCIvSvrU9nJSR16UNVcr0=;
+        s=korg; t=1630499652;
+        bh=GSrMGi3p2ZVGJglgw3oyssmrlkN+AUsMS7KZAjFK5ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f3cS5iL+gRWy81wq+bvpGPwnPGa8NjAPBeNqLtYPJ3oBRL16aMsFKXaCKUQ9YgKlz
-         lS7sJSjJZ3TH5MrrJkiSx8zrmjLGR0DxYzbWKdshSmcUvkmShQenfdvd/dDP2mTTIh
-         wJn9nDVVGc80cG1P/0Th3tT/JvLVrtfoE4LcUrDo=
+        b=KtI+iVOmjwB9tRPj690f9U22bc0gawz0UaIcEKDwqrAAtaNgg3tm3oNGI6mpBnvvG
+         z32ympZRpgtoeSLVoOpQ5j5LRMdgGs7D9PnYxFFsFbVXrtIoFLwV6WFzzOJydGfjLK
+         QLCAVRMlJUyufxW74Zv1oez9ZNHkB1f5Y2mqJ+9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Paul=20Gr=C3=B6=C3=9Fel?= <pb.g@gmx.de>,
-        Willy Tarreau <w@1wt.eu>, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.13 028/113] Revert "USB: serial: ch341: fix character loss at high transfer rates"
-Date:   Wed,  1 Sep 2021 14:27:43 +0200
-Message-Id: <20210901122302.935651521@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 034/103] xgene-v2: Fix a resource leak in the error handling path of xge_probe()
+Date:   Wed,  1 Sep 2021 14:27:44 +0200
+Message-Id: <20210901122301.701921365@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
-References: <20210901122301.984263453@linuxfoundation.org>
+In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+References: <20210901122300.503008474@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit df7b16d1c00ecb3da3a30c999cdb39f273c99a2f upstream.
+[ Upstream commit 5ed74b03eb4d08f5dd281dcb5f1c9bb92b363a8d ]
 
-This reverts commit 3c18e9baee0ef97510dcda78c82285f52626764b.
+A successful 'xge_mdio_config()' call should be balanced by a corresponding
+'xge_mdio_remove()' call in the error handling path of the probe, as
+already done in the remove function.
 
-These devices do not appear to send a zero-length packet when the
-transfer size is a multiple of the bulk-endpoint max-packet size. This
-means that incoming data may not be processed by the driver until a
-short packet is received or the receive buffer is full.
+Update the error handling path accordingly.
 
-Revert back to using endpoint-sized receive buffers to avoid stalled
-reads.
-
-Reported-by: Paul Größel <pb.g@gmx.de>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=214131
-Fixes: 3c18e9baee0e ("USB: serial: ch341: fix character loss at high transfer rates")
-Cc: stable@vger.kernel.org
-Cc: Willy Tarreau <w@1wt.eu>
-Link: https://lore.kernel.org/r/20210824121926.19311-1-johan@kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ea8ab16ab225 ("drivers: net: xgene-v2: Add MDIO support")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ch341.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/apm/xgene-v2/main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ch341.c
-+++ b/drivers/usb/serial/ch341.c
-@@ -851,7 +851,6 @@ static struct usb_serial_driver ch341_de
- 		.owner	= THIS_MODULE,
- 		.name	= "ch341-uart",
- 	},
--	.bulk_in_size      = 512,
- 	.id_table          = id_table,
- 	.num_ports         = 1,
- 	.open              = ch341_open,
+diff --git a/drivers/net/ethernet/apm/xgene-v2/main.c b/drivers/net/ethernet/apm/xgene-v2/main.c
+index 860c18fb7aae..80399c8980bd 100644
+--- a/drivers/net/ethernet/apm/xgene-v2/main.c
++++ b/drivers/net/ethernet/apm/xgene-v2/main.c
+@@ -677,11 +677,13 @@ static int xge_probe(struct platform_device *pdev)
+ 	ret = register_netdev(ndev);
+ 	if (ret) {
+ 		netdev_err(ndev, "Failed to register netdev\n");
+-		goto err;
++		goto err_mdio_remove;
+ 	}
+ 
+ 	return 0;
+ 
++err_mdio_remove:
++	xge_mdio_remove(ndev);
+ err:
+ 	free_netdev(ndev);
+ 
+-- 
+2.30.2
+
 
 
