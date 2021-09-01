@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A1F3FDB6E
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A72763FDAFE
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344990AbhIAMll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41562 "EHLO mail.kernel.org"
+        id S244795AbhIAMgv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:36:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344678AbhIAMjy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:39:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AD67610A4;
-        Wed,  1 Sep 2021 12:35:42 +0000 (UTC)
+        id S1343964AbhIAMex (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:34:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A936610FF;
+        Wed,  1 Sep 2021 12:33:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499743;
-        bh=SeOgXlnqHRSabu3WEknI16YpzR/RvSvtxZtiiLLS0OY=;
+        s=korg; t=1630499586;
+        bh=3RyVr52Scbm+6zErqN/+kNzLJPXHXbPHyDQWw6xT7wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eCTyTCjFFwvnQKTVVvqOJALQqp/vLezHADlhFNi+8lMMusJyeL6CVxtnhUNCGTT8s
-         ejJpncZcCN8g4jIa4MwX41H8/dfLVKUQRwkycDHx+EyuwUn/SSuYF/MpzawQF4+Kqt
-         Q2U5YV1pqi9HBvYRJsyxOY4s26yjqjrcbYbwUFdQ=
+        b=njnHS7pYxQt2noSu7HC17k5A5t93HMQ81lF8oKGy5VZRwK76CrHsY+ZLTToQhekOR
+         9etC5FYsPtZv+SRh6I+S1V3PYFTxLoc/8MNn4W3ycpnBE44U/4w7UrpM8yfyJ6pVtu
+         8Jm6KIxCFAdO1015ZaH7K7AFGXZaTVgr2174GU8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 069/103] drm/nouveau/kms/nv50: workaround EFI GOP window channel format differences
-Date:   Wed,  1 Sep 2021 14:28:19 +0200
-Message-Id: <20210901122302.892707751@linuxfoundation.org>
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 30/48] virtio_pci: Support surprise removal of virtio pci device
+Date:   Wed,  1 Sep 2021 14:28:20 +0200
+Message-Id: <20210901122254.403806482@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+References: <20210901122253.388326997@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,103 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit e78b1b545c6cfe9f87fc577128e00026fff230ba ]
+[ Upstream commit 43bb40c5b92659966bdf4bfe584fde0a3575a049 ]
 
-Should fix some initial modeset failures on (at least) Ampere boards.
+When a virtio pci device undergo surprise removal (aka async removal in
+PCIe spec), mark the device as broken so that any upper layer drivers can
+abort any outstanding operation.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
+When a virtio net pci device undergo surprise removal which is used by a
+NetworkManager, a below call trace was observed.
+
+kernel:watchdog: BUG: soft lockup - CPU#1 stuck for 26s! [kworker/1:1:27059]
+watchdog: BUG: soft lockup - CPU#1 stuck for 52s! [kworker/1:1:27059]
+CPU: 1 PID: 27059 Comm: kworker/1:1 Tainted: G S      W I  L    5.13.0-hotplug+ #8
+Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.9.4 11/06/2020
+Workqueue: events linkwatch_event
+RIP: 0010:virtnet_send_command+0xfc/0x150 [virtio_net]
+Call Trace:
+ virtnet_set_rx_mode+0xcf/0x2a7 [virtio_net]
+ ? __hw_addr_create_ex+0x85/0xc0
+ __dev_mc_add+0x72/0x80
+ igmp6_group_added+0xa7/0xd0
+ ipv6_mc_up+0x3c/0x60
+ ipv6_find_idev+0x36/0x80
+ addrconf_add_dev+0x1e/0xa0
+ addrconf_dev_config+0x71/0x130
+ addrconf_notify+0x1f5/0xb40
+ ? rtnl_is_locked+0x11/0x20
+ ? __switch_to_asm+0x42/0x70
+ ? finish_task_switch+0xaf/0x2c0
+ ? raw_notifier_call_chain+0x3e/0x50
+ raw_notifier_call_chain+0x3e/0x50
+ netdev_state_change+0x67/0x90
+ linkwatch_do_dev+0x3c/0x50
+ __linkwatch_run_queue+0xd2/0x220
+ linkwatch_event+0x21/0x30
+ process_one_work+0x1c8/0x370
+ worker_thread+0x30/0x380
+ ? process_one_work+0x370/0x370
+ kthread+0x118/0x140
+ ? set_kthread_struct+0x40/0x40
+ ret_from_fork+0x1f/0x30
+
+Hence, add the ability to abort the command on surprise removal
+which prevents infinite loop and system lockup.
+
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Link: https://lore.kernel.org/r/20210721142648.1525924-5-parav@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/disp.c | 27 +++++++++++++++++++++++++
- drivers/gpu/drm/nouveau/dispnv50/head.c | 13 ++++++++----
- drivers/gpu/drm/nouveau/dispnv50/head.h |  1 +
- 3 files changed, 37 insertions(+), 4 deletions(-)
+ drivers/virtio/virtio_pci_common.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-index 5b8cabb099eb..c2d34c91e840 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
-@@ -2202,6 +2202,33 @@ nv50_disp_atomic_commit_tail(struct drm_atomic_state *state)
- 		interlock[NV50_DISP_INTERLOCK_CORE] = 0;
- 	}
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index 222d630c41fc..b35bb2d57f62 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -576,6 +576,13 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
+ 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+ 	struct device *dev = get_device(&vp_dev->vdev.dev);
  
-+	/* Finish updating head(s)...
-+	 *
-+	 * NVD is rather picky about both where window assignments can change,
-+	 * *and* about certain core and window channel states matching.
-+	 *
-+	 * The EFI GOP driver on newer GPUs configures window channels with a
-+	 * different output format to what we do, and the core channel update
-+	 * in the assign_windows case above would result in a state mismatch.
-+	 *
-+	 * Delay some of the head update until after that point to workaround
-+	 * the issue.  This only affects the initial modeset.
-+	 *
-+	 * TODO: handle this better when adding flexible window mapping
++	/*
++	 * Device is marked broken on surprise removal so that virtio upper
++	 * layers can abort any ongoing operation.
 +	 */
-+	for_each_oldnew_crtc_in_state(state, crtc, old_crtc_state, new_crtc_state, i) {
-+		struct nv50_head_atom *asyh = nv50_head_atom(new_crtc_state);
-+		struct nv50_head *head = nv50_head(crtc);
++	if (!pci_device_is_present(pci_dev))
++		virtio_break_device(&vp_dev->vdev);
 +
-+		NV_ATOMIC(drm, "%s: set %04x (clr %04x)\n", crtc->name,
-+			  asyh->set.mask, asyh->clr.mask);
-+
-+		if (asyh->set.mask) {
-+			nv50_head_flush_set_wndw(head, asyh);
-+			interlock[NV50_DISP_INTERLOCK_CORE] = 1;
-+		}
-+	}
-+
- 	/* Update plane(s). */
- 	for_each_new_plane_in_state(state, plane, new_plane_state, i) {
- 		struct nv50_wndw_atom *asyw = nv50_wndw_atom(new_plane_state);
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.c b/drivers/gpu/drm/nouveau/dispnv50/head.c
-index 841edfaf5b9d..61826cac3061 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/head.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/head.c
-@@ -49,11 +49,8 @@ nv50_head_flush_clr(struct nv50_head *head,
- }
+ 	pci_disable_sriov(pci_dev);
  
- void
--nv50_head_flush_set(struct nv50_head *head, struct nv50_head_atom *asyh)
-+nv50_head_flush_set_wndw(struct nv50_head *head, struct nv50_head_atom *asyh)
- {
--	if (asyh->set.view   ) head->func->view    (head, asyh);
--	if (asyh->set.mode   ) head->func->mode    (head, asyh);
--	if (asyh->set.core   ) head->func->core_set(head, asyh);
- 	if (asyh->set.olut   ) {
- 		asyh->olut.offset = nv50_lut_load(&head->olut,
- 						  asyh->olut.buffer,
-@@ -61,6 +58,14 @@ nv50_head_flush_set(struct nv50_head *head, struct nv50_head_atom *asyh)
- 						  asyh->olut.load);
- 		head->func->olut_set(head, asyh);
- 	}
-+}
-+
-+void
-+nv50_head_flush_set(struct nv50_head *head, struct nv50_head_atom *asyh)
-+{
-+	if (asyh->set.view   ) head->func->view    (head, asyh);
-+	if (asyh->set.mode   ) head->func->mode    (head, asyh);
-+	if (asyh->set.core   ) head->func->core_set(head, asyh);
- 	if (asyh->set.curs   ) head->func->curs_set(head, asyh);
- 	if (asyh->set.base   ) head->func->base    (head, asyh);
- 	if (asyh->set.ovly   ) head->func->ovly    (head, asyh);
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.h b/drivers/gpu/drm/nouveau/dispnv50/head.h
-index dae841dc05fd..0bac6be9ba34 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/head.h
-+++ b/drivers/gpu/drm/nouveau/dispnv50/head.h
-@@ -21,6 +21,7 @@ struct nv50_head {
- 
- struct nv50_head *nv50_head_create(struct drm_device *, int index);
- void nv50_head_flush_set(struct nv50_head *head, struct nv50_head_atom *asyh);
-+void nv50_head_flush_set_wndw(struct nv50_head *head, struct nv50_head_atom *asyh);
- void nv50_head_flush_clr(struct nv50_head *head,
- 			 struct nv50_head_atom *asyh, bool flush);
- 
+ 	unregister_virtio_device(&vp_dev->vdev);
 -- 
 2.30.2
 
