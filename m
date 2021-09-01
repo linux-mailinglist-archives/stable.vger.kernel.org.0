@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF71A3FDB7F
-	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:17:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E143FDC7B
+	for <lists+stable@lfdr.de>; Wed,  1 Sep 2021 15:19:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244551AbhIAMl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 08:41:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44058 "EHLO mail.kernel.org"
+        id S1345239AbhIAMvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 08:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345022AbhIAMkY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 08:40:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 061E5611AD;
-        Wed,  1 Sep 2021 12:36:36 +0000 (UTC)
+        id S1345858AbhIAMsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 08:48:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58288611C6;
+        Wed,  1 Sep 2021 12:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630499797;
-        bh=7tbVTn4xSds3qmU1rNabZ45Hm3sMmMXSWEqLze0MOR0=;
+        s=korg; t=1630500053;
+        bh=h4u0Bx6aeNoGpapTXM+eifytyobrG/LQIW8hVQOGC7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1aZrDlZcdS1v908k6VGRcn2ol/LDf+bekO+cLPueWZ9RaBmb9rRGBShrr6UGAvXyu
-         jnOoiSf/LpwhwEfti/QCuACuMkIqZ6q7DwVyVMYNHLALrMWzNZt5qoRvRlhPrdkl5T
-         7c0qhqTDJKnGunoD2y4BGYw+VOSFhfYule6xZ6ek=
+        b=wDbwusq23/YRTZ7hTmHITUESTEpgghlXXqdQ7XgNCMPgDEaQByltdsbYOdw3pK0mi
+         ZiruP85eHcy8N5iaPpRnCwCsbjjjrZYsPgSYcMWJmTRc99EVLLyOksQB8tzUyBZDJJ
+         /YrE1ymtBN6JaMgOCWFTqSDOcaMlp0gd82C8HYB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.10 089/103] srcu: Make Tiny SRCU use multi-bit grace-period counter
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 084/113] platform/x86: asus-nb-wmi: Add tablet_mode_sw=lid-flip quirk for the TP200s
 Date:   Wed,  1 Sep 2021 14:28:39 +0200
-Message-Id: <20210901122303.534998185@linuxfoundation.org>
+Message-Id: <20210901122304.787641482@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
-References: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,74 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 74612a07b83fc46c2b2e6f71a541d55b024ebefc upstream.
+[ Upstream commit 73fcbad691110ece47a487c9e584822070e3626f ]
 
-There is a need for a polling interface for SRCU grace periods.  This
-polling needs to distinguish between an SRCU instance being idle on the
-one hand or in the middle of a grace period on the other.  This commit
-therefore converts the Tiny SRCU srcu_struct structure's srcu_idx from
-a defacto boolean to a free-running counter, using the bottom bit to
-indicate that a grace period is in progress.  The second-from-bottom
-bit is thus used as the index returned by srcu_read_lock().
+The Asus TP200s / E205SA 360 degree hinges 2-in-1 supports reporting
+SW_TABLET_MODE info through the ASUS_WMI_DEVID_LID_FLIP WMI device-id.
+Add a quirk to enable this.
 
-Link: https://lore.kernel.org/rcu/20201112201547.GF3365678@moria.home.lan/
-Reported-by: Kent Overstreet <kent.overstreet@gmail.com>
-[ paulmck: Fix ->srcu_lock_nesting[] indexing per Neeraj Upadhyay. ]
-Reviewed-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BugLink: https://gitlab.freedesktop.org/libinput/libinput/-/issues/639
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210812145513.39117-2-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/srcutiny.h |    6 +++---
- kernel/rcu/srcutiny.c    |    5 +++--
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/platform/x86/asus-nb-wmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/include/linux/srcutiny.h
-+++ b/include/linux/srcutiny.h
-@@ -15,7 +15,7 @@
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index 9929eedf7dd8..a81dc4b191b7 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -462,6 +462,15 @@ static const struct dmi_system_id asus_quirks[] = {
+ 		},
+ 		.driver_data = &quirk_asus_use_lid_flip_devid,
+ 	},
++	{
++		.callback = dmi_matched,
++		.ident = "ASUS TP200s / E205SA",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "E205SA"),
++		},
++		.driver_data = &quirk_asus_use_lid_flip_devid,
++	},
+ 	{},
+ };
  
- struct srcu_struct {
- 	short srcu_lock_nesting[2];	/* srcu_read_lock() nesting depth. */
--	short srcu_idx;			/* Current reader array element. */
-+	unsigned short srcu_idx;	/* Current reader array element in bit 0x2. */
- 	u8 srcu_gp_running;		/* GP workqueue running? */
- 	u8 srcu_gp_waiting;		/* GP waiting for readers? */
- 	struct swait_queue_head srcu_wq;
-@@ -59,7 +59,7 @@ static inline int __srcu_read_lock(struc
- {
- 	int idx;
- 
--	idx = READ_ONCE(ssp->srcu_idx);
-+	idx = ((READ_ONCE(ssp->srcu_idx) + 1) & 0x2) >> 1;
- 	WRITE_ONCE(ssp->srcu_lock_nesting[idx], ssp->srcu_lock_nesting[idx] + 1);
- 	return idx;
- }
-@@ -80,7 +80,7 @@ static inline void srcu_torture_stats_pr
- {
- 	int idx;
- 
--	idx = READ_ONCE(ssp->srcu_idx) & 0x1;
-+	idx = ((READ_ONCE(ssp->srcu_idx) + 1) & 0x2) >> 1;
- 	pr_alert("%s%s Tiny SRCU per-CPU(idx=%d): (%hd,%hd)\n",
- 		 tt, tf, idx,
- 		 READ_ONCE(ssp->srcu_lock_nesting[!idx]),
---- a/kernel/rcu/srcutiny.c
-+++ b/kernel/rcu/srcutiny.c
-@@ -124,11 +124,12 @@ void srcu_drive_gp(struct work_struct *w
- 	ssp->srcu_cb_head = NULL;
- 	ssp->srcu_cb_tail = &ssp->srcu_cb_head;
- 	local_irq_enable();
--	idx = ssp->srcu_idx;
--	WRITE_ONCE(ssp->srcu_idx, !ssp->srcu_idx);
-+	idx = (ssp->srcu_idx & 0x2) / 2;
-+	WRITE_ONCE(ssp->srcu_idx, ssp->srcu_idx + 1);
- 	WRITE_ONCE(ssp->srcu_gp_waiting, true);  /* srcu_read_unlock() wakes! */
- 	swait_event_exclusive(ssp->srcu_wq, !READ_ONCE(ssp->srcu_lock_nesting[idx]));
- 	WRITE_ONCE(ssp->srcu_gp_waiting, false); /* srcu_read_unlock() cheap. */
-+	WRITE_ONCE(ssp->srcu_idx, ssp->srcu_idx + 1);
- 
- 	/* Invoke the callbacks we removed above. */
- 	while (lh) {
+-- 
+2.30.2
+
 
 
