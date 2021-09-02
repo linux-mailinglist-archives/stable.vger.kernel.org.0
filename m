@@ -2,155 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C7093FF564
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 23:11:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F4E3FF59D
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 23:31:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245379AbhIBVMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Sep 2021 17:12:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57780 "EHLO
+        id S1346729AbhIBVcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Sep 2021 17:32:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232087AbhIBVMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 17:12:41 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A04F8C061575
-        for <stable@vger.kernel.org>; Thu,  2 Sep 2021 14:11:42 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id u6so2676213pfi.0
-        for <stable@vger.kernel.org>; Thu, 02 Sep 2021 14:11:42 -0700 (PDT)
+        with ESMTP id S1345890AbhIBVcf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 17:32:35 -0400
+Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com [IPv6:2607:f8b0:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C78AC061757
+        for <stable@vger.kernel.org>; Thu,  2 Sep 2021 14:31:36 -0700 (PDT)
+Received: by mail-oi1-x22c.google.com with SMTP id w144so3854109oie.13
+        for <stable@vger.kernel.org>; Thu, 02 Sep 2021 14:31:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=i7faQboOtO03WPso3PfT58nPdTbahHnJSYVxs6QPrf8=;
-        b=iTYcBmCDkozdDbHxwuhzyRYfcB4KBSu/8FDZC8r79cRjTvmeC3y91Dh/zFnvSjpgkN
-         waaOAq4hC4XHS5sSLzhjqJcirvsVApkCJm1EbSo+A6eknhkDCM7pAPP6miIkqsjqKvAr
-         jR4P4b+4iZqhvhp3XHpcif8T/FAsp2DBs1cIoBlsqYaaSxcO6b5eAcnFYGTPCCKX9P8x
-         IFwcdq8hBdBl17gikN6vuYkreNwV/ZztCAiyb/2Z295zJWKmqKIchp8ohivOWsgNp5CK
-         m8MkBIddNA6cpSeAknxIPxrUr34HRaGkdR0ji/1qz/dLaA514KD4X2HUE1e0tB2i42no
-         fFFA==
+        d=linuxtx.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Rc7U7oANFcXg5hGEDkjPvORFIQ7OCYwYWB6mwWTbGbs=;
+        b=M4B9RpCQEac5hi63UmX5b33SchKFeP9/F67P4mfdzvDojWIu3Qz6WXxLYwP4T5XGVp
+         F73kBAS83xgrFjD1tgFXstmuUzQEuHaodZKLRP7yhKiFkQGr89jQFgo1p8fIFiyDRa4Y
+         OOYkBNLZkOCnEIB+MnxuSdiJ92R5igK9EQYRo=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=i7faQboOtO03WPso3PfT58nPdTbahHnJSYVxs6QPrf8=;
-        b=Y9iNuhJRd8avIhWRar/r22GUrdsFh7MOyXxbN3p1uljlkTBe0BcD0AslcekZWerPrw
-         EHHivRSsd1P7N6VlFFXJ++z6WyI5Qa7ueQttjSGwrAMsAxZy0y5Zlf3/PnrnfE7I5x1m
-         UZKLH/PUiuYS2A7ylMgH2efLm2MKh2bM0CRFKy5H2/sgY19n09F+gWDpe7dAt+SJqR9q
-         rkYTq7WfiRZsdz5Tx/UIT5y7F1FgsOPwmVuNyfanMHlOgJXs6nWtsR+5A55zCuFIauqj
-         rzTewTNfwbEi/Xfctft8kFwF+SynTpYl3cnazK3xf3Y2iNeHj/fRgMA8EALHVU79P2WI
-         +Q1Q==
-X-Gm-Message-State: AOAM533UOLjDjBvTBluNtjnpL38xVURjfA0TBRZWXRqqofk6nVjj/ZRz
-        U9wm0ZEtM7J95M6+2KeK8+VT7WOJPKolgk20
-X-Google-Smtp-Source: ABdhPJzFKIJDMH8ei6rfMaNxUYVGiVH5GoF45lQEnBN3ww0Of4RjQUqSFKqO54Z2dSjd/+zcLwWM3w==
-X-Received: by 2002:a63:1618:: with SMTP id w24mr336070pgl.146.1630617101964;
-        Thu, 02 Sep 2021 14:11:41 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 138sm3101351pfz.187.2021.09.02.14.11.41
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Rc7U7oANFcXg5hGEDkjPvORFIQ7OCYwYWB6mwWTbGbs=;
+        b=Fo9deT7BSRz8Juu2pf2gzEkvU17bnzUabHsjI8Qvk9La1MZiAwPVb2rs51rtYVFxlQ
+         2JRF1COgQJd7YCFIkjD5X6a4dW09n36GGOZzawJnzU4RST24Tt6AD/0BbhKYlyyyJ9+T
+         mKlLPrSHOOdPqaWiZbayB2eHPUJwFEt96mmbwRlyp6muOkx4qLn8YR4jRImul/6t+Uah
+         u2fM7Jih9hcmfM+YMQFdSns5gIKcppqF+cuHj/HxdylSe+vlYLiLyM+9aNzB8lov4bpe
+         B9CnwmKKmj90VY7aHY+lP4x9ZmHTXLYygXi3jNb3r97MYBxNiUj63rYstpwfrEO5UuMu
+         VIcg==
+X-Gm-Message-State: AOAM531rHb4CLhqSW/tMOwd8mtbPM7ba9m0c3HvRNClvmPZ/UneCxGiH
+        YC7wKwsKSFX9hTPixEzdxNN43g==
+X-Google-Smtp-Source: ABdhPJxDZYaWMFolfko9P2jlcT4J7L/7wh9LaX11B+bzCFX778dlPirw5nwkJxsjeGc9WTkRDlDU9Q==
+X-Received: by 2002:a05:6808:cf:: with SMTP id t15mr3925022oic.108.1630618295763;
+        Thu, 02 Sep 2021 14:31:35 -0700 (PDT)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id s198sm602717oie.47.2021.09.02.14.31.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Sep 2021 14:11:41 -0700 (PDT)
-Message-ID: <61313e0d.1c69fb81.c0dc5.819a@mx.google.com>
-Date:   Thu, 02 Sep 2021 14:11:41 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 02 Sep 2021 14:31:35 -0700 (PDT)
+Date:   Thu, 2 Sep 2021 16:31:33 -0500
+From:   Justin Forbes <jmforbes@linuxtx.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.13 000/113] 5.13.14-rc1 review
+Message-ID: <YTFCtSDTwYGvqzRF@fedora64.linuxtx.org>
+References: <20210901122301.984263453@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.143-48-gb50a0fb6dbc3
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 214 runs,
- 3 regressions (v5.4.143-48-gb50a0fb6dbc3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210901122301.984263453@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 214 runs, 3 regressions (v5.4.143-48-gb50a0fb=
-6dbc3)
+On Wed, Sep 01, 2021 at 02:27:15PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.13.14 release.
+> There are 113 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 03 Sep 2021 12:22:41 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.14-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Regressions Summary
--------------------
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.143-48-gb50a0fb6dbc3/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.143-48-gb50a0fb6dbc3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b50a0fb6dbc3235158015d69d29520ce8d6b5670 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613117339bc13cb139d596a4
-
-  Results:     67 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.143-4=
-8-gb50a0fb6dbc3/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.143-4=
-8-gb50a0fb6dbc3/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/613117339bc13cb139d596b8
-        failing since 79 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-09-02T18:25:33.601494  /lava-4437024/1/../bin/lava-test-case<8>[  =
- 15.241248] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
-ed RESULT=3Dfail>
-    2021-09-02T18:25:33.602014  =
-
-    2021-09-02T18:25:33.602508  /lava-4437024/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/613117339bc13cb139d596d0
-        failing since 79 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-09-02T18:25:32.160588  /lava-4437024/1/../bin/lava-test-case
-    2021-09-02T18:25:32.165575  <8>[   13.817259] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/613117339bc13cb139d596d1
-        failing since 79 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-09-02T18:25:31.142458  /lava-4437024/1/../bin/lava-test-case
-    2021-09-02T18:25:31.142844  <8>[   12.797737] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
