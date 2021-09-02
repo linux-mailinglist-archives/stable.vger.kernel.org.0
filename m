@@ -2,67 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11F4A3FE620
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 02:34:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31B933FE643
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 02:34:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232009AbhIAXh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 19:37:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40182 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229989AbhIAXh4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 19:37:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF0C761026;
-        Wed,  1 Sep 2021 23:36:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630539419;
-        bh=EykNW2FhkEmnRMJz9o70p95envALD1NRfW3x6JldVno=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=qLn/hzTwSp+SM82jsyjhMtnQDzt3cwG3ziFnix+rpXth+629a0ZWnGw7+EWlvgOFL
-         nAhxjvvQBScUFttrJu82AdslNQnrWYrfbm/v/DjTVaQIhxKDGqEtqDSSlymxfyeTly
-         CnjL4tGH4p+JACPh0cxPie7bKnuZDVBnI6tWF6zeAK0G/qxJYOKVsei+kXQ+qAhkk4
-         he4DjmPqMMVH69ieGySuj0CYYe45/xVkHHa1CLIshTm9INNP1KXNOqZmUH9/sVcLEW
-         jTBuVzsY+xI5S+ev6ME5fEFN3IyA1DE8r8Os3i9fU4+WIdR2Hwkz8Aszoa+9dKdBy8
-         2aH35pwxm96Sw==
-Date:   Wed, 1 Sep 2021 16:36:57 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH net 2/2] net: dsa: b53: Set correct number of ports in
- the DSA struct
-Message-ID: <20210901163657.74f39079@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <ba35e7b8-4f90-9870-3e9e-f8666f5ebd0f@gmail.com>
-References: <20210901092141.6451-1-zajec5@gmail.com>
-        <20210901092141.6451-2-zajec5@gmail.com>
-        <ba35e7b8-4f90-9870-3e9e-f8666f5ebd0f@gmail.com>
+        id S232530AbhIBAG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 20:06:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50872 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232490AbhIBAG6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 20:06:58 -0400
+Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5241C061575
+        for <stable@vger.kernel.org>; Wed,  1 Sep 2021 17:06:00 -0700 (PDT)
+Received: by mail-ua1-x934.google.com with SMTP id j31so817660uad.10
+        for <stable@vger.kernel.org>; Wed, 01 Sep 2021 17:06:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=S9xCezJxwBpMaYBHYFGreqzMrgKWP/JR9N7wOdoNySU=;
+        b=QoBaxuS6GV6deL2ZPwWS3XpFz+huCY0t4/pe+4X2hxDowa3Aipbm+VEpkCZvvH5h+a
+         KnzzwHsZ0w7Eaa/sjIaT1l3iFlH751r52RkFyToFNOhpmAZlnvRJ49U4BRu5XzgH6U1U
+         FYaaXDensIREJfjX3azj66Vo7mYzQ5OqmKq6N41KaA+AmnWS604Xer8/H8WpwsJhMOcm
+         iynCZuaNCDVolf8HBHY5B9+X2mKj7aTSCXKzAmpPsQfPKl47f4k0Rp+Cz/4qn4DbnGCW
+         nK4/j/zGx1aFhEeTqVsrW6LXlWOLevNIuIrYoSPcI3ejODLWWu2zqtzlEE2aGV3srdLI
+         cDng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=S9xCezJxwBpMaYBHYFGreqzMrgKWP/JR9N7wOdoNySU=;
+        b=tyPIYjXCjv709JAuRh5g1mpmjUefYyPgDZjdnIEaV8KZtmbd+ONBnTy++KRWkKU/sy
+         yrA5rtN4FkchHsnnG2e1/UqH8WX2WCrb44eAWFzelXvqyxk7f3XCtVSSECoY87+zRwgY
+         ezcTF0icvKG2X3qL1yDLKFmbnR6XVg20LBFUFFBGnoq5CMdjWWE3zI1aJK0j1GyAorCm
+         EH+/+rRcl1hZKTB9qotYmYEuw8c4tbEE6D0KBSbqpYpMgeHJJppcO1uGONXgEu+VbZaZ
+         ndnMP2IAQikB2dZoWbZHnXpqZgOTekV4RRCXEYW+hkTH7epGnnCKMGdAYZg9lCU7WIVA
+         btHw==
+X-Gm-Message-State: AOAM5331TLWik5xM7itxH2vngpYHsVjxmckkEBeguNJkLZTAxTsEEnIl
+        J/1exm4Y5PJHeUw7erGCHr1O1zru27aYw9PXVC8=
+X-Google-Smtp-Source: ABdhPJw4rh51vk2eNuKWKwWCFTTbxTAOccZBaR4cnJGZMpRXWzzhyzsB2/UcKEbJOfu6OarcZcvJC2LyV9VWN19P88w=
+X-Received: by 2002:a9f:2661:: with SMTP id 88mr261592uag.62.1630541159785;
+ Wed, 01 Sep 2021 17:05:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Sender: labosoblessing1@gmail.com
+Received: by 2002:ab0:1d03:0:0:0:0:0 with HTTP; Wed, 1 Sep 2021 17:05:59 -0700 (PDT)
+From:   Mrs Aisha Al-Qaddafi <mrsaishag6555@gmail.com>
+Date:   Wed, 1 Sep 2021 17:05:59 -0700
+X-Google-Sender-Auth: McmXckJod1odTd-ihTanxaHZYp8
+Message-ID: <CAPVf+KX-psEVV3kVhnL0a_=kdOhEJOyiZaDtriJzu6TfNnkaCg@mail.gmail.com>
+Subject: hello dear friend please can i trust you
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 1 Sep 2021 10:21:55 -0700 Florian Fainelli wrote:
-> On 9/1/2021 2:21 AM, Rafa=C5=82 Mi=C5=82ecki wrote:
-> > From: Rafa=C5=82 Mi=C5=82ecki <rafal@milecki.pl>
-> >=20
-> > Setting DSA_MAX_PORTS caused DSA to call b53 callbacks (e.g.
-> > b53_disable_port() during dsa_register_switch()) for invalid
-> > (non-existent) ports. That made b53 modify unrelated registers and is
-> > one of reasons for a broken BCM5301x support.
-> >=20
-> > This problem exists for years but DSA_MAX_PORTS usage has changed few
-> > times so it's hard to specify a single commit this change fixes. =20
->=20
-> You should still try to identify the relevant tags that this is fixing=20
-> such that this gets back ported to the appropriate trees. We could use=20
-> Fixes: 7e99e3470172 ("net: dsa: remove dsa_switch_alloc helper"), to=20
-> minimize the amount of work doing the back port.
-
-To be clear are you okay with the fixes tag you provided or should we
-wait for Rafa=C5=82 to double check?
+Dear Friend,
+I came across your e-mail contact prior a private search while in need
+of your assistance. I am Aisha Al-Qaddafi, the
+only biological Daughter of Former President of Libya Col. Muammar
+Al-Qaddafi. Am a single Mother and a Widow
+with three Children.
+I have investment funds worth Twenty Seven Million Five Hundred
+Thousand United State Dollar ($27.500.000.00 )
+and i need a trusted investment Manager/Partner because of my current
+refugee status, however, I am interested in
+you for investment project assistance in your country, may be from
+there, we can build business relationship in the
+nearest future.
+I am willing to negotiate investment/business profit sharing ratio
+with you base on the future investment earning
+profits.
+If you are willing to handle this project on my behalf kindly reply
+urgent to enable me provide you more information
+about the investment funds.
+Your Urgent Reply Will Be Appreciated
+Best Regards
+Mrs Aisha Al-Qaddafi
