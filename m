@@ -2,62 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F406A3FEBBF
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 11:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9A3A3FEC46
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 12:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236202AbhIBJ7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Sep 2021 05:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41348 "EHLO mail.kernel.org"
+        id S244888AbhIBKlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Sep 2021 06:41:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232644AbhIBJ7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Sep 2021 05:59:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5135360F6C;
-        Thu,  2 Sep 2021 09:58:31 +0000 (UTC)
+        id S244887AbhIBKlF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Sep 2021 06:41:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id DAAD4610F9;
+        Thu,  2 Sep 2021 10:40:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630576712;
-        bh=q8E+E2rYJkV7BQee24UsqEKlRCaqEhysh5UMj0qQ8s4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=sdEgqb3FIGTAiH2nvKXrniMgXmZiqLlwkAmvCDNHptfN55A7p8D3mI2cwTZUczA99
-         4YLjT0UeAXmS7TUoiHO8OY05w0iOufK1dvHrT5XR/5oKn3XUpgxsBPJrfdlM0fSeoT
-         hPNDM272Z6LCbfTxSqo8NIMeCJTvdhI004oDK24GFSxzBxSbbrm0vcj8LRBgOSJ1vY
-         hsRMSDV+sZTAiDZkLSodD07sQ9QwGIAQhTV6LpQd/47pXRQvOzVpU8JhvxxP33iOUp
-         lidyQoUsob7oalHv4b8IFoNS0oCwakNqVHYUMFru4LKlSHvlla+dN4evFwcpCcfCnZ
-         wh7hIHoKzyNVQ==
-From:   Roger Quadros <rogerq@kernel.org>
-To:     tony@atomide.com
-Cc:     linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Roger Quadros <rogerq@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] ARM: dts: omap3430-sdp: Fix NAND device node
-Date:   Thu,  2 Sep 2021 12:58:28 +0300
-Message-Id: <20210902095828.16788-1-rogerq@kernel.org>
-X-Mailer: git-send-email 2.17.1
+        s=k20201202; t=1630579206;
+        bh=nfzd8wv9AJjbCNf/udVoWui2jMz8QWwsQPgmDGq2st8=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=Tvh+WpgYVIcq7dgKlzxsA0KNSSV1M1vqXCoIbG6oRXvh962ExMVXQfJwSbtdfTftF
+         CPjbyI627dV5nW2FLFKhz2xxeJLTbxBrMb0pILScDtIp3dYF8tIYVyUL6WPA1Ah3qi
+         7bFttnSnd4PINixc3b9eslu/oS9lgWWwoeBsVssdhf7PBk4nDA9DHUaws4WZR/MCn0
+         bb1UFGdmn1r0r/mxkhUVekz5Olp92TONAgrZXH0ikC6ol2Uzg3bPryVjmDKgfX/Xy5
+         abIgf4UMYBb2F1emYj14nG27RxV5VqkLIzsWg+SYtBQaedzAULx35rYYUjoq0tZOlr
+         /h4paKEMy2Gcg==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id CE19160A17;
+        Thu,  2 Sep 2021 10:40:06 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net: dsa: lantiq_gswip: fix maximum frame length
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <163057920683.13463.14646467225030536879.git-patchwork-notify@kernel.org>
+Date:   Thu, 02 Sep 2021 10:40:06 +0000
+References: <20210901184933.312389-1-jan@3e8.eu>
+In-Reply-To: <20210901184933.312389-1-jan@3e8.eu>
+To:     Jan Hoffmann <jan@3e8.eu>
+Cc:     hauke@hauke-m.de, netdev@vger.kernel.org, stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Nand is on CS1 so reg properties first field should be 1 not 0.
+Hello:
 
-Fixes: 44e4716499b8 ("ARM: dts: omap3: Fix NAND device nodes")
-Cc: stable@vger.kernel.org # v4.6+
-Signed-off-by: Roger Quadros <rogerq@kernel.org>
----
- arch/arm/boot/dts/omap3430-sdp.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This patch was applied to netdev/net.git (refs/heads/master):
 
-diff --git a/arch/arm/boot/dts/omap3430-sdp.dts b/arch/arm/boot/dts/omap3430-sdp.dts
-index c5b903718414..7d530ae3483b 100644
---- a/arch/arm/boot/dts/omap3430-sdp.dts
-+++ b/arch/arm/boot/dts/omap3430-sdp.dts
-@@ -101,7 +101,7 @@
- 
- 	nand@1,0 {
- 		compatible = "ti,omap2-nand";
--		reg = <0 0 4>; /* CS0, offset 0, IO size 4 */
-+		reg = <1 0 4>; /* CS1, offset 0, IO size 4 */
- 		interrupt-parent = <&gpmc>;
- 		interrupts = <0 IRQ_TYPE_NONE>, /* fifoevent */
- 			     <1 IRQ_TYPE_NONE>;	/* termcount */
--- 
-2.17.1
+On Wed,  1 Sep 2021 20:49:33 +0200 you wrote:
+> Currently, outgoing packets larger than 1496 bytes are dropped when
+> tagged VLAN is used on a switch port.
+> 
+> Add the frame check sequence length to the value of the register
+> GSWIP_MAC_FLEN to fix this. This matches the lantiq_ppa vendor driver,
+> which uses a value consisting of 1518 bytes for the MAC frame, plus the
+> lengths of special tag and VLAN tags.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net] net: dsa: lantiq_gswip: fix maximum frame length
+    https://git.kernel.org/netdev/net/c/552799f8b3b0
+
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
