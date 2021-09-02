@@ -2,110 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DE43FE798
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 04:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 549383FE84C
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 06:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233122AbhIBCXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 22:23:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39034 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232666AbhIBCXQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 1 Sep 2021 22:23:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4CAB60F91;
-        Thu,  2 Sep 2021 02:22:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1630549339;
-        bh=lC59UuP1uX1V0XEOkIEDjdHyY5dfujfBvEd2WvmYgts=;
-        h=Date:From:To:Subject:From;
-        b=pwOI6OByCziTayXJKmu86Nrti3GdHaBKV4V4ZpXvJkyz5nncHwstNuJOJtwiif7wx
-         Om/0u6zZiiRe/LL+jASKnNBH40ZsaXiqtv4tmb+mp6GudDdMQYg/PnZBwp+divqXfk
-         yNWXl2tBEJXcarHyRh4m0tSqZNyvCjD8DUWT+q3o=
-Date:   Wed, 01 Sep 2021 19:22:18 -0700
-From:   akpm@linux-foundation.org
-To:     chris@chrisdown.name, guro@fb.com, hannes@cmpxchg.org,
-        mhocko@suse.com, mm-commits@vger.kernel.org, riel@surriel.com,
-        stable@vger.kernel.org
-Subject:  + mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
- added to -mm tree
-Message-ID: <20210902022218.d3eY8D0fC%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S229486AbhIBEN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Sep 2021 00:13:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49224 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229490AbhIBEN2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 00:13:28 -0400
+Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AD61C061575
+        for <stable@vger.kernel.org>; Wed,  1 Sep 2021 21:12:30 -0700 (PDT)
+Received: by mail-vs1-xe36.google.com with SMTP id s25so364524vsa.9
+        for <stable@vger.kernel.org>; Wed, 01 Sep 2021 21:12:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=H3bGT1ZyGPu3PRQJlJHyQI9TvTjBPuNSyHjFOzNfiP0=;
+        b=HfgZgoQ8FR4l2YN9MIK1wbJ1Y2s2hTkl22o6x5JzRwcMvSwDKw9K0NKiIq16Sy29B5
+         U97ix9AGg8vlMG6w6sK5LmKBMk8D1aksw/79nfuOPwQnpd+ZxUlXBN6/dN1wmErxWngb
+         ewzEHl4aaXLKjfohygNFVtU4Wnio+8Hz8dcqeMrUA9oZ0wg+IuKekAUox2RbBG0nSpjO
+         UekLlXynV9omSDWXVMrmWigsDYMeW4idmzGJGyhL9vgQcxPWdt5+MM1WSiSDWHM1bcDX
+         p7w3eBuxhZGmtPDuaQjUJwm4w3yQ6XE4Hq3p4fIe2O3jRzyPEKaBrwlMCXaghwu3A9sW
+         8MOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=H3bGT1ZyGPu3PRQJlJHyQI9TvTjBPuNSyHjFOzNfiP0=;
+        b=ibtfx58gz8cJfbZ6kjTJpxOIabdMJqLwuac4J1BnGYuNsgGDkcNbBeyjgCoBnR9qXU
+         w5kc/brTgv/pprLwJiRaj0YSRK2eU9A5WmHsZKO/9UNk8otjOOGrj+CvQDY8PWAvsudp
+         yN2l/s+fqIWXiKaFO9ZiAs87nKxx1QuYKT+UKgIRRTlkXm78ToiMOBawA43g1XQYaDII
+         GJR1XY5IVSth9odBQiuCO3I3UhsZlooZcUZptXbE4iZ00BIegHpe3cbLYDFt3jh0tlEO
+         MfDFGfzN9bOuJMfiCElgJHNGaTr2M7u9PlgEVifOom4J5AC9/Dw+qJ2m5eDW3CQ1TylG
+         L9Sg==
+X-Gm-Message-State: AOAM533gk+61zYmJ2Phd+RvQKh+YfaHm8hXQ2sPQzQ+9STlwa2sp3y45
+        ErrVWS1DaSplUQpH4xk1uIe2Ob/LSHmDAacsQ3Q=
+X-Google-Smtp-Source: ABdhPJwhBhMYnSLwGg5KDpPopEdYZJOsFrXLbKd6XSdSO9o2WiNkEggRnkdfFPwCjthghxjMBbTxHXaORNlFuzi/iTE=
+X-Received: by 2002:a05:6102:a8d:: with SMTP id n13mr619259vsg.17.1630555949705;
+ Wed, 01 Sep 2021 21:12:29 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a67:f2c3:0:0:0:0:0 with HTTP; Wed, 1 Sep 2021 21:12:29 -0700 (PDT)
+Reply-To: abdwabbomaddah91@gmail.com
+From:   Abdwabbo Maddah <mabdwabbo@gmail.com>
+Date:   Thu, 2 Sep 2021 05:12:29 +0100
+Message-ID: <CAAVHWKkfzhWfayfi_ZpQVQdUoequKsrSgCw8SC=NGMg12kcK2A@mail.gmail.com>
+Subject: DID YOU RECEIVE MY MAIL?
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch titled
-     Subject: mm,vmscan: fix divide by zero in get_scan_count
-has been added to the -mm tree.  Its filename is
-     mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
-
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Rik van Riel <riel@surriel.com>
-Subject: mm,vmscan: fix divide by zero in get_scan_count
-
-Changeset f56ce412a59d ("mm: memcontrol: fix occasional OOMs due to
-proportional memory.low reclaim") introduced a divide by zero corner case
-when oomd is being used in combination with cgroup memory.low protection.
-
-When oomd decides to kill a cgroup, it will force the cgroup memory to be
-reclaimed after killing the tasks, by writing to the memory.max file for
-that cgroup, forcing the remaining page cache and reclaimable slab to be
-reclaimed down to zero.
-
-Previously, on cgroups with some memory.low protection that would result
-in the memory being reclaimed down to the memory.low limit, or likely not
-at all, having the page cache reclaimed asynchronously later.
-
-With f56ce412a59d the oomd write to memory.max tries to reclaim all the
-way down to zero, which may race with another reclaimer, to the point of
-ending up with the divide by zero below.
-
-This patch implements the obvious fix.
-
-Link: https://lkml.kernel.org/r/20210826220149.058089c6@imladris.surriel.com
-Fixes: f56ce412a59d ("mm: memcontrol: fix occasional OOMs due to proportional memory.low reclaim")
-Signed-off-by: Rik van Riel <riel@surriel.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Chris Down <chris@chrisdown.name>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/vmscan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/mm/vmscan.c~mmvmscan-fix-divide-by-zero-in-get_scan_count
-+++ a/mm/vmscan.c
-@@ -2592,7 +2592,7 @@ out:
- 			cgroup_size = max(cgroup_size, protection);
- 
- 			scan = lruvec_size - lruvec_size * protection /
--				cgroup_size;
-+				(cgroup_size + 1);
- 
- 			/*
- 			 * Minimally target SWAP_CLUSTER_MAX pages to keep
-_
-
-Patches currently in -mm which might be from riel@surriel.com are
-
-mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
-
+-- 
+Dear,
+I had sent you a mail but i don't think you received it that's why am
+writing you again.It is important you get back to me as soon as you
+can.
+Abd-Wabbo Maddah
