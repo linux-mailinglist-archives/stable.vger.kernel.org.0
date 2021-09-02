@@ -2,130 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43BCA3FF6BB
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 23:58:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7628C3FF82B
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 01:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347960AbhIBV7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Sep 2021 17:59:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55650 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347964AbhIBV7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Sep 2021 17:59:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDE546056B;
-        Thu,  2 Sep 2021 21:58:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1630619934;
-        bh=InL7XckgP2LayJs4waAJT2UmIK7YdTBwggKtuav0sCY=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=2j6PcwZwP21ChkhAC9PayEkwTtNcR9JszrDDdpxNS5xff0bkulxzBwk6BNsTNddGZ
-         x+mgkG6q4ZUJXY1Aw0flmtUdgF4qlCx0MHTUv4yefoBrjdOs4e70RU3Ia6NoSkpl4W
-         GjXKGM7Zr723iLs0cIiUQufAOG+CAIJGHTTZQRI8=
-Date:   Thu, 02 Sep 2021 14:58:53 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, guillaume@morinfr.org,
-        linux-mm@kvack.org, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 169/212] hugetlb: fix hugetlb cgroup refcounting
- during vma split
-Message-ID: <20210902215853.KRTbu9hz7%akpm@linux-foundation.org>
-In-Reply-To: <20210902144820.78957dff93d7bea620d55a89@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S234355AbhIBX7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Sep 2021 19:59:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40082 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245324AbhIBX7p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 19:59:45 -0400
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 650ACC061575;
+        Thu,  2 Sep 2021 16:58:46 -0700 (PDT)
+Received: by mail-pl1-x62b.google.com with SMTP id q21so2223993plq.3;
+        Thu, 02 Sep 2021 16:58:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=+NU2YOSnshAhAfj7HPnfTJ/ZV8MW6iNFINNL9VzpNvw=;
+        b=ddAppI87UDd90sTltAARDY7/zFqCvV7KxrUMjK+5PvVD0CsicD4rBaWCJYvXCblds0
+         FnIb0Jes1npCdlKoGPQU/9A1zKrCV+/ewvTIFQnEnI4jkHDCstyjjCaJuUS21ANP0Jix
+         w9bmZyMVQboaSwExgwFrg3+wxAivZ9Lqqw1hlHlEtcUNKBbm0rhYiTGU5kuhngQwZSw9
+         RefNEFfloA+tq2BUt/0/dgCY04jv0hBJeQ//MIOIhFI7X+e/pAgwurjHIqYEys8igHEA
+         iFLZgHcGTdK37knLuU8WMGWvfMrk86e+yjTpRLIsQJ4BFz4fgkanhPrKMnNRh0oAmL9y
+         RdHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=+NU2YOSnshAhAfj7HPnfTJ/ZV8MW6iNFINNL9VzpNvw=;
+        b=WMMwXrmoBwXJdkeA8AS6SjU+EqT7G0oSDZWAkn0xNcevhDQ3H0jCVneNh3PrVWkUAo
+         DAH1zfDQNikHg1hoiz4oUZRkfkQFAYKFWABVwptpxlTUkVuxfTWB28Y3tvgyJ5VRclKH
+         3DWlpK0yHmUYXKNoLWpfZeI1wMKyT0L68l+aUsGR1GmS5s+egNHnUy7WBA6HIW0TUDuC
+         eCSUSNfvvNgHK2ld1bMr8U6gy/A1s5KWUL1nD26ozwZCo/6p4/RVvQ/etIm2+ClCQm/4
+         Pqd6qLfdmfhUNiT+dmVh7tCs1h2LUkInIcqSCiGHRjUkHkcMW63TD5rkrV1a1W278Ll3
+         p0HQ==
+X-Gm-Message-State: AOAM5332PMNORiutuelzJPk817qUhJn7V9hynLm+CFVeNmVfyjsBGoYh
+        2jiQ42a1OVGg6w7zFQ4zWzo=
+X-Google-Smtp-Source: ABdhPJycx1NhZBmEWP2ncvB8Z2dVY7TGuZkISarQF2DjsHtN6dN+G9N+reJ0Hc6joA0bBOqmhFGJmA==
+X-Received: by 2002:a17:90a:d304:: with SMTP id p4mr765313pju.176.1630627125645;
+        Thu, 02 Sep 2021 16:58:45 -0700 (PDT)
+Received: from [192.168.1.121] (99-44-17-11.lightspeed.irvnca.sbcglobal.net. [99.44.17.11])
+        by smtp.gmail.com with ESMTPSA id a194sm3365962pfa.119.2021.09.02.16.58.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 02 Sep 2021 16:58:45 -0700 (PDT)
+Message-ID: <e5dd61f7-899b-29e6-7b36-7ee9c24895ae@gmail.com>
+Date:   Thu, 2 Sep 2021 16:58:43 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.0.3
+Subject: Re: [PATCH 5.14 00/11] 5.14.1-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210901122249.520249736@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20210901122249.520249736@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: hugetlb: fix hugetlb cgroup refcounting during vma split
 
-Guillaume Morin reported hitting the following WARNING followed by GPF or
-NULL pointer deference either in cgroups_destroy or in the kill_css path.:
 
-percpu ref (css_release) <= 0 (-1) after switching to atomic
-WARNING: CPU: 23 PID: 130 at lib/percpu-refcount.c:196 percpu_ref_switch_to_atomic_rcu+0x127/0x130
-CPU: 23 PID: 130 Comm: ksoftirqd/23 Kdump: loaded Tainted: G           O      5.10.60 #1
-RIP: 0010:percpu_ref_switch_to_atomic_rcu+0x127/0x130
-Call Trace:
- rcu_core+0x30f/0x530
- rcu_core_si+0xe/0x10
- __do_softirq+0x103/0x2a2
- ? sort_range+0x30/0x30
- run_ksoftirqd+0x2b/0x40
- smpboot_thread_fn+0x11a/0x170
- kthread+0x10a/0x140
- ? kthread_create_worker_on_cpu+0x70/0x70
- ret_from_fork+0x22/0x30
+On 9/1/2021 5:29 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.14.1 release.
+> There are 11 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 03 Sep 2021 12:22:41 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.1-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Upon further examination, it was discovered that the css structure was
-associated with hugetlb reservations.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-For private hugetlb mappings the vma points to a reserve map that contains
-a pointer to the css.  At mmap time, reservations are set up and a
-reference to the css is taken.  This reference is dropped in the vma close
-operation; hugetlb_vm_op_close.  However, if a vma is split no additional
-reference to the css is taken yet hugetlb_vm_op_close will be called twice
-for the split vma resulting in an underflow.
-
-Fix by taking another reference in hugetlb_vm_op_open.  Note that the
-reference is only taken for the owner of the reserve map.  In the more
-common fork case, the pointer to the reserve map is cleared for non-owning
-vmas.
-
-Link: https://lkml.kernel.org/r/20210830215015.155224-1-mike.kravetz@oracle.com
-Fixes: e9fe92ae0cd2 ("hugetlb_cgroup: add reservation accounting for
-private mappings")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Guillaume Morin <guillaume@morinfr.org>
-Suggested-by: Guillaume Morin <guillaume@morinfr.org>
-Tested-by: Guillaume Morin <guillaume@morinfr.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- include/linux/hugetlb_cgroup.h |   12 ++++++++++++
- mm/hugetlb.c                   |    4 +++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
-
---- a/include/linux/hugetlb_cgroup.h~hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split
-+++ a/include/linux/hugetlb_cgroup.h
-@@ -121,6 +121,13 @@ static inline void hugetlb_cgroup_put_rs
- 	css_put(&h_cg->css);
- }
- 
-+static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+	if (resv_map->css)
-+		css_get(resv_map->css);
-+}
-+
- extern int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					struct hugetlb_cgroup **ptr);
- extern int hugetlb_cgroup_charge_cgroup_rsvd(int idx, unsigned long nr_pages,
-@@ -199,6 +206,11 @@ static inline void hugetlb_cgroup_put_rs
- {
- }
- 
-+static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+}
-+
- static inline int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					       struct hugetlb_cgroup **ptr)
- {
---- a/mm/hugetlb.c~hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split
-+++ a/mm/hugetlb.c
-@@ -4106,8 +4106,10 @@ static void hugetlb_vm_op_open(struct vm
- 	 * after this open call completes.  It is therefore safe to take a
- 	 * new reference here without additional locking.
- 	 */
--	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER))
-+	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER)) {
-+		resv_map_dup_hugetlb_cgroup_uncharge_info(resv);
- 		kref_get(&resv->refs);
-+	}
- }
- 
- static void hugetlb_vm_op_close(struct vm_area_struct *vma)
-_
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+--
+Florian
