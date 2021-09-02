@@ -2,123 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25F3C3FF33F
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 20:30:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0888A3FF34C
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 20:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241834AbhIBSbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Sep 2021 14:31:31 -0400
-Received: from frasgout.his.huawei.com ([185.176.79.56]:3724 "EHLO
-        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230322AbhIBSbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 14:31:31 -0400
-Received: from fraeml742-chm.china.huawei.com (unknown [172.18.147.201])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4H0qF91Hynz67jRt;
-        Fri,  3 Sep 2021 02:28:45 +0800 (CST)
-Received: from lhreml710-chm.china.huawei.com (10.201.108.61) by
- fraeml742-chm.china.huawei.com (10.206.15.223) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.8; Thu, 2 Sep 2021 20:30:30 +0200
-Received: from localhost (10.52.127.69) by lhreml710-chm.china.huawei.com
- (10.201.108.61) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.8; Thu, 2 Sep 2021
- 19:30:29 +0100
-Date:   Thu, 2 Sep 2021 19:30:31 +0100
-From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To:     Dan Williams <dan.j.williams@intel.com>
-CC:     <linux-cxl@vger.kernel.org>,
-        Alison Schofield <alison.schofield@intel.com>,
-        <stable@vger.kernel.org>, <vishal.l.verma@intel.com>,
-        <nvdimm@lists.linux.dev>, <ira.weiny@intel.com>,
-        <ben.widawsky@intel.com>
-Subject: Re: [PATCH v3 23/28] cxl/acpi: Do not add DSDT disabled ACPI0016
- host bridge ports
-Message-ID: <20210902193031.000035b4@Huawei.com>
-In-Reply-To: <162982124835.1124374.16212896894542743429.stgit@dwillia2-desk3.amr.corp.intel.com>
-References: <162982112370.1124374.2020303588105269226.stgit@dwillia2-desk3.amr.corp.intel.com>
-        <162982124835.1124374.16212896894542743429.stgit@dwillia2-desk3.amr.corp.intel.com>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; i686-w64-mingw32)
+        id S1346986AbhIBSi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Sep 2021 14:38:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49800 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230322AbhIBSiY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 14:38:24 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69DA9C061575
+        for <stable@vger.kernel.org>; Thu,  2 Sep 2021 11:37:15 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id u11-20020a17090adb4b00b00181668a56d6so2143572pjx.5
+        for <stable@vger.kernel.org>; Thu, 02 Sep 2021 11:37:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=squareup.com; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=aIWjYpBOUYzVzaVlUDHdrgyjE4CFE+gBvpcecdsULzo=;
+        b=NV6f8kZoTYuzX/tEjhOIkZ4cpIS/VfQdeKinotKC8ZjhsAiCS16sCfz/4yzYlaqFQF
+         RSPN7uJMPJxNdjDhFRR/hTOsQX8yJjYahr3+R0eLgd0uhiqDFnODPmNmVo0C5eHuuDqI
+         S43I6WjyS7OB4O/Bo/iLeBKjd+PyN4mD2xfUI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=aIWjYpBOUYzVzaVlUDHdrgyjE4CFE+gBvpcecdsULzo=;
+        b=k+DtC2miq4n6wq0lXe4HIei015ewGqB3QzeulZZgvKGC4jgCvS7nrBw8Hs9mWwf+PN
+         j27sdURC45z1lHmqyZfCUDRy8I0BRR/uTYXZriu45NQcz2rHN1NmTicnOJlBYvayCoga
+         5OX5cm1tGOBIyD8go823EZrAz/VIraVAFrWMA6fP2uueUNla6ratzGQ1onpqI4BwjBJ/
+         TQdND0A6hfjeLCE/Cj1/l643YNq/7x34nzFVH6Q/YkAPnom40GhSlUSi+yyPlFA+cQPR
+         poXxGwJEZGtoUIiPDPuxd521k3+ek9r84pxvhJsbX+eBukkwa6KjdCpGb6fjcNCY0esQ
+         trHw==
+X-Gm-Message-State: AOAM533wJUcLOJV8nDp2EI7aHZV0inIolELFgG9PwI2na66bz2q9Anh4
+        4EhKpDmkzaov6oAq5E98GJdiXtF8HxXWIQ==
+X-Google-Smtp-Source: ABdhPJwkIh9FL7oKT+VZsNlyxhEYjWCIOxTFKVBxQ+EOwMADJ3K/P9pveiCVJlUMeAwnHQfsTZCapg==
+X-Received: by 2002:a17:90a:6507:: with SMTP id i7mr5390673pjj.205.1630607834855;
+        Thu, 02 Sep 2021 11:37:14 -0700 (PDT)
+Received: from benl-m5lvdt.local ([2600:6c50:4d00:2376:7473:9ba9:f43f:3a4b])
+        by smtp.gmail.com with ESMTPSA id j14sm2895983pjg.29.2021.09.02.11.37.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 02 Sep 2021 11:37:14 -0700 (PDT)
+Subject: Re: [PATCH v2] wcn36xx: handle connection loss indication
+To:     Kalle Valo <kvalo@codeaurora.org>
+Cc:     Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+        Loic Poulain <loic.poulain@linaro.org>, stable@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, wcn36xx@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20210901180606.11686-1-benl@squareup.com>
+ <8735qn2ats.fsf@codeaurora.org>
+From:   Benjamin Li <benl@squareup.com>
+Message-ID: <3a587de2-f605-fd17-4d70-878b13354b39@squareup.com>
+Date:   Thu, 2 Sep 2021 11:37:12 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+In-Reply-To: <8735qn2ats.fsf@codeaurora.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.52.127.69]
-X-ClientProxiedBy: lhreml715-chm.china.huawei.com (10.201.108.66) To
- lhreml710-chm.china.huawei.com (10.201.108.61)
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 24 Aug 2021 09:07:28 -0700
-Dan Williams <dan.j.williams@intel.com> wrote:
-
-> From: Alison Schofield <alison.schofield@intel.com>
+On 9/2/21 9:37 AM, Kalle Valo wrote:
+> Benjamin Li <benl@squareup.com> writes:
 > 
-> During CXL ACPI probe, host bridge ports are discovered by scanning
-> the ACPI0017 root port for ACPI0016 host bridge devices. The scan
-> matches on the hardware id of "ACPI0016". An issue occurs when an
-> ACPI0016 device is defined in the DSDT yet disabled on the platform.
-> Attempts by the cxl_acpi driver to add host bridge ports using a
-> disabled device fails, and the entire cxl_acpi probe fails.
+>> Firmware sends delete_sta_context_ind when it detects the AP has gone
+>> away in STA mode. Right now the handler for that indication only handles
+>> AP mode; fix it to also handle STA mode.
+>>
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Benjamin Li <benl@squareup.com>
+>> Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+>> Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
 > 
-> The DSDT table includes an _STA method that sets the status and the
-> ACPI subsystem has checks available to examine it. One such check is
-> in the acpi_pci_find_root() path. Move the call to acpi_pci_find_root()
-> to the matching function to prevent this issue when adding either
-> upstream or downstream ports.
-You could mention that has the side effect that the existing
-call in add_host_bridge_uport() is now guarantee not to fail so
-can be moved closer to where it is used.  That chunk had
-me briefly confused.
+> How well is this tested? I'm pondering should I queue this to v5.15 or
+> v5.16, at the moment I'm leaning towards v5.16.
+>
+It was an issue reported during internal testing, and the patch has not
+yet had soak time with our quality team/field devices. v5.16 sounds fine.
 
-> 
-> Suggested-by: Dan Williams <dan.j.williams@intel.com>
-> Signed-off-by: Alison Schofield <alison.schofield@intel.com>
-> Fixes: 7d4b5ca2e2cb ("cxl/acpi: Add downstream port data to cxl_port instances")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-I'd imagine we want to get this in an early rc so perhaps pull out of
-this series.
-
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-
-
-> ---
->  drivers/cxl/acpi.c |    8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/cxl/acpi.c b/drivers/cxl/acpi.c
-> index 8ae89273f58e..2d8f1ec1abff 100644
-> --- a/drivers/cxl/acpi.c
-> +++ b/drivers/cxl/acpi.c
-> @@ -243,6 +243,9 @@ static struct acpi_device *to_cxl_host_bridge(struct device *dev)
->  {
->  	struct acpi_device *adev = to_acpi_device(dev);
->  
-> +	if (!acpi_pci_find_root(adev->handle))
-> +		return NULL;
-> +
->  	if (strcmp(acpi_device_hid(adev), "ACPI0016") == 0)
->  		return adev;
->  	return NULL;
-> @@ -266,10 +269,6 @@ static int add_host_bridge_uport(struct device *match, void *arg)
->  	if (!bridge)
->  		return 0;
->  
-> -	pci_root = acpi_pci_find_root(bridge->handle);
-> -	if (!pci_root)
-> -		return -ENXIO;
-> -
->  	dport = find_dport_by_dev(root_port, match);
->  	if (!dport) {
->  		dev_dbg(host, "host bridge expected and not found\n");
-> @@ -282,6 +281,7 @@ static int add_host_bridge_uport(struct device *match, void *arg)
->  		return PTR_ERR(port);
->  	dev_dbg(host, "%s: add: %s\n", dev_name(match), dev_name(&port->dev));
->  
-> +	pci_root = acpi_pci_find_root(bridge->handle);
->  	ctx = (struct cxl_walk_context){
->  		.dev = host,
->  		.root = pci_root->bus,
-> 
-
+Ben
