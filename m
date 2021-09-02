@@ -2,85 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3E9F3FF6B7
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 23:58:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0CB33FF6BA
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 23:58:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347944AbhIBV7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Sep 2021 17:59:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40556 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347941AbhIBV7D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 17:59:03 -0400
-Received: from mail-ot1-x334.google.com (mail-ot1-x334.google.com [IPv6:2607:f8b0:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C8E3C061575;
-        Thu,  2 Sep 2021 14:58:03 -0700 (PDT)
-Received: by mail-ot1-x334.google.com with SMTP id m7-20020a9d4c87000000b0051875f56b95so4386835otf.6;
-        Thu, 02 Sep 2021 14:58:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=7XIMCPXPfpjCMBn2EIysqMZE/uVHfPxf01Yk2stwj4A=;
-        b=Lvp5HsAxmKIUcNpW7y8NKtzSL/YKKHJRhVIcCVzHD7pgvMMHFiItNkUyPoPEoWKojB
-         zkxHS4pQWxujMoTq6YPAsoXkieZHrDWpAlA8Xgc/PljxTpFlwGVuvAmVv5XgBAAQ/y+P
-         4qshyOAIodKR6KYtZHO3xaUhyYi+XB7XEdVs/9QSAA10fhooreVSbC86yVCOeF+SmTPf
-         QeRWhAJm6YmRykmS91jJbifCdm4v2fpOlDi9kYLjN9p4RPDE+DV3mv1q5w4P5Yo/3mp0
-         ApNQK1AGKRQRbFjN5ac3VGgKZFjd5GSIgKiN6iaQy4mddK/i42KYHhXEIeoziAkYmM+/
-         PgJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=7XIMCPXPfpjCMBn2EIysqMZE/uVHfPxf01Yk2stwj4A=;
-        b=rGklBqT71Au9HT8iAvNfma73XGU2KZSAv2ojMDXtenLMhuohdna9SemgP4+4/ZGq0B
-         7TdzmyAZMXWdIfs1OjONodmKi/8RQJQ8nM+R+IlNjCmxdbBGQY6nL5+SLX6Nj1hKkKZE
-         wCoqAplphhcK6uX8DX8gVtAovkQE28MR7tS8J5U5IaqtK2L5QtriDEbUgoYLOY7zrLQy
-         ddOSN97AEr1FUncekmadBc4sckkc2HIUywbDrfjyc5sQR4hPOnrLOafT2bi6bYL8+7Tt
-         547g370SaQhPQlY8AsLcL8/3I2Rsn1ta0rThQD4qWEA2EKI4p0qM3wz/gUaqukxIuhVG
-         1Cmg==
-X-Gm-Message-State: AOAM532gB1N6PLFRL2GEqlvO6XeV63DalL3mHpWfwakaLYYrX863kDSf
-        Ep+YM0W6LpqUOhlO2+f1crshyjzSbYY=
-X-Google-Smtp-Source: ABdhPJy3RSO3mTXddODFvvZ6pJgA7GkkbzJDGwSC4d1jmMPuoFSbCy7Q2aISjA7pw9pkvhAxLacI/w==
-X-Received: by 2002:a05:6830:238e:: with SMTP id l14mr318839ots.354.1630619882721;
-        Thu, 02 Sep 2021 14:58:02 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id r28sm620259oiw.45.2021.09.02.14.58.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Sep 2021 14:58:02 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Thu, 2 Sep 2021 14:58:00 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/103] 5.10.62-rc1 review
-Message-ID: <20210902215800.GH4158230@roeck-us.net>
-References: <20210901122300.503008474@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+        id S1347966AbhIBV7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Sep 2021 17:59:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55382 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1347960AbhIBV7k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Sep 2021 17:59:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4685D60F12;
+        Thu,  2 Sep 2021 21:58:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1630619921;
+        bh=Hwr15fGwIvezpliPxy+tuM8+SSJ6UmqrSw1CVEf+YfE=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=ViBpMlZYxq8UBtRudo1dzt+W+HtG10PIdTMMuemHYpJImvkdEoN9Qy/GNdtsfol72
+         xWz+gswND+5KMkqds96FzF9kzEYfu4xLSKqu4PH/VfhwCmiZ0roB60c5Nae8o/w54i
+         JJyMEblyab1V3LqjPa3V3q1zVX6TaOxWnral8mSk=
+Date:   Thu, 02 Sep 2021 14:58:40 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     abaci@linux.alibaba.com, akpm@linux-foundation.org,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org,
+        naoya.horiguchi@nec.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, yun.wang@linux.alibaba.com
+Subject:  [patch 165/212] mm: fix panic caused by
+ __page_handle_poison()
+Message-ID: <20210902215840.lw0-MrokA%akpm@linux-foundation.org>
+In-Reply-To: <20210902144820.78957dff93d7bea620d55a89@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 01, 2021 at 02:27:10PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.62 release.
-> There are 103 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 03 Sep 2021 12:22:41 +0000.
-> Anything received after that time might be too late.
-> 
+From: Michael Wang <yun.wang@linux.alibaba.com>
+Subject: mm: fix panic caused by __page_handle_poison()
 
-Build results:
-	total: 159 pass: 159 fail: 0
-Qemu test results:
-	total: 471 pass: 471 fail: 0
+In commit 510d25c92ec4 ("mm/hwpoison: disable pcp for
+page_handle_poison()"), __page_handle_poison() was introduced, and if we
+mark:
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+RET_A = dissolve_free_huge_page();
+RET_B = take_page_off_buddy();
 
-Guenter
+then __page_handle_poison was supposed to return TRUE When RET_A == 0 &&
+RET_B == TRUE
+
+But since it failed to take care the case when RET_A is -EBUSY or -ENOMEM,
+and just return the ret as a bool which actually become TRUE, it break the
+original logic.
+
+The following result is a huge page in freelist but was
+referenced as poisoned, and lead into the final panic:
+
+  kernel BUG at mm/internal.h:95!
+  invalid opcode: 0000 [#1] SMP PTI
+  skip...
+  RIP: 0010:set_page_refcounted mm/internal.h:95 [inline]
+  RIP: 0010:remove_hugetlb_page+0x23c/0x240 mm/hugetlb.c:1371
+  skip...
+  Call Trace:
+   remove_pool_huge_page+0xe4/0x110 mm/hugetlb.c:1892
+   return_unused_surplus_pages+0x8d/0x150 mm/hugetlb.c:2272
+   hugetlb_acct_memory.part.91+0x524/0x690 mm/hugetlb.c:4017
+
+This patch replaces 'bool' with 'int' to handle RET_A correctly.
+
+Link: https://lkml.kernel.org/r/61782ac6-1e8a-4f6f-35e6-e94fce3b37f5@linux.alibaba.com
+Fixes: 510d25c92ec4 ("mm/hwpoison: disable pcp for page_handle_poison()")
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Cc: <stable@vger.kernel.org>	[5.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memory-failure.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/mm/memory-failure.c~mm-fix-panic-caused-by-__page_handle_poison
++++ a/mm/memory-failure.c
+@@ -68,7 +68,7 @@ atomic_long_t num_poisoned_pages __read_
+ 
+ static bool __page_handle_poison(struct page *page)
+ {
+-	bool ret;
++	int ret;
+ 
+ 	zone_pcp_disable(page_zone(page));
+ 	ret = dissolve_free_huge_page(page);
+@@ -76,7 +76,7 @@ static bool __page_handle_poison(struct
+ 		ret = take_page_off_buddy(page);
+ 	zone_pcp_enable(page_zone(page));
+ 
+-	return ret;
++	return ret > 0;
+ }
+ 
+ static bool page_handle_poison(struct page *page, bool hugepage_or_freepage, bool release)
+_
