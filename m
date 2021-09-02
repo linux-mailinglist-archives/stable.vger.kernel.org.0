@@ -2,125 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7FD3FF376
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 20:51:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 050503FF47F
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 22:01:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347146AbhIBSwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Sep 2021 14:52:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49362 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230204AbhIBSwU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Sep 2021 14:52:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEAE6610A0;
-        Thu,  2 Sep 2021 18:51:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1630608682;
-        bh=DUFcY3wv6+PTmRHaA4osbQm/s3jE+4bLTQ6cS73hu18=;
-        h=Date:From:To:Subject:From;
-        b=Zn2WqW+TGcnDvIIX2ZEKBowkfmhtbedzeMNh2X/z7Be7qYlAHR/60pz23eLWSvUg3
-         oFTowVoFEI6Z5BREYupqeFS5z215IxfX63gIEtSYGvB14OWZiIF6gqO9LxfowYCF2u
-         XKeNcbRAjeszrmi4+Sh71ThapN3B7Nayfa9dM928=
-Date:   Thu, 02 Sep 2021 11:51:21 -0700
-From:   akpm@linux-foundation.org
-To:     david@redhat.com, linmiaohe@huawei.com,
-        mgorman@techsingularity.net, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, vbabka@suse.cz
-Subject:  +
- mm-page_allocc-avoid-accessing-uninitialized-pcp-page-migratetype.patch
- added to -mm tree
-Message-ID: <20210902185121.U-Ew8iXzl%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S244285AbhIBUCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Sep 2021 16:02:48 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:45980 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231203AbhIBUCp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 16:02:45 -0400
+Date:   Thu, 02 Sep 2021 20:01:44 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1630612905;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=oGZysDwQ3+M7Bx6ShM7b+Caqlrc/7mmenZ/odx/GLyE=;
+        b=G0lu2HQkLmToM+x58zvSAYqOBiYQdWCfuyX6URsBKwZw2LSrYRTGrP+hYPGJuZXHlz3Pmo
+        yGLfKjlasTyNKNtkIqGt0rD26epWswp094y9gKIoZfzmX+eDRQohmtoRwAMS9EvmDg5qnp
+        9VQMURqLcumQT76RLozu1vdQqKNx+BSuJhMxjJXhzqF5EFaL2sZL5tQNsKOtiLAQ5j2dW1
+        hGQoJSmwifvyhJSAEoUANaUOQAPUWUVhGndUykYKpXh2USKOMRmrv3CONoNB+VLQd/A/f2
+        04TV3uycoR98lVhxEp6sx0e5zw+EIjAitF15rvxiQ4yrrpslH6E8FeRshTYTEA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1630612905;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=oGZysDwQ3+M7Bx6ShM7b+Caqlrc/7mmenZ/odx/GLyE=;
+        b=Q4hP0u1A0bqCqw1nwia0VgeMplvI8A7cCX29+fhtr5IOHv8SNvPN5g5HX7a+f8xOSncrgQ
+        /LU75gi2FppXf/Dw==
+From:   "tip-bot2 for Jeff Moyer" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/pat: Pass valid address to sanitize_phys()
+Cc:     Jeff Moyer <jmoyer@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        David Hildenbrand <david@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <x49o8a3pu5i.fsf@segfault.boston.devel.redhat.com>
+References: <x49o8a3pu5i.fsf@segfault.boston.devel.redhat.com>
+MIME-Version: 1.0
+Message-ID: <163061290453.25758.3837946651745818105.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the x86/urgent branch of tip:
 
-The patch titled
-     Subject: mm/page_alloc.c: avoid accessing uninitialized pcp page migratetype
-has been added to the -mm tree.  Its filename is
-     mm-page_allocc-avoid-accessing-uninitialized-pcp-page-migratetype.patch
+Commit-ID:     aeef8b5089b76852bd84889f2809e69a7cfb414e
+Gitweb:        https://git.kernel.org/tip/aeef8b5089b76852bd84889f2809e69a7cfb414e
+Author:        Jeff Moyer <jmoyer@redhat.com>
+AuthorDate:    Wed, 11 Aug 2021 17:07:37 -04:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Thu, 02 Sep 2021 21:53:18 +02:00
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-page_allocc-avoid-accessing-uninitialized-pcp-page-migratetype.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-page_allocc-avoid-accessing-uninitialized-pcp-page-migratetype.patch
+x86/pat: Pass valid address to sanitize_phys()
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+The end address passed to memtype_reserve() is handed directly to
+sanitize_phys().  However, end is exclusive and sanitize_phys() expects
+an inclusive address.  If end falls at the end of the physical address
+space, sanitize_phys() will return 0.  This can result in drivers
+failing to load, and the following warning:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+ WARNING: CPU: 26 PID: 749 at arch/x86/mm/pat.c:354 reserve_memtype+0x262/0x450
+ reserve_memtype failed: [mem 0x3ffffff00000-0xffffffffffffffff], req uncached-minus
+ Call Trace:
+  [<ffffffffa427b1f2>] reserve_memtype+0x262/0x450
+  [<ffffffffa42764aa>] ioremap_nocache+0x1a/0x20
+  [<ffffffffc04620a1>] mpt3sas_base_map_resources+0x151/0xa60 [mpt3sas]
+  [<ffffffffc0465555>] mpt3sas_base_attach+0xf5/0xa50 [mpt3sas]
+ ---[ end trace 6d6eea4438db89ef ]---
+ ioremap reserve_memtype failed -22
+ mpt3sas_cm0: unable to map adapter memory! or resource not found
+ mpt3sas_cm0: failure at drivers/scsi/mpt3sas/mpt3sas_scsih.c:10597/_scsih_probe()!
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Fix this by passing the inclusive end address to sanitize_phys().
 
-------------------------------------------------------
-From: Miaohe Lin <linmiaohe@huawei.com>
-Subject: mm/page_alloc.c: avoid accessing uninitialized pcp page migratetype
-
-If it's not prepared to free unref page, the pcp page migratetype is
-unset.  Thus We will get rubbish from get_pcppage_migratetype() and might
-list_del &page->lru again after it's already deleted from the list leading
-to grumble about data corruption.
-
-Link: https://lkml.kernel.org/r/20210902115447.57050-1-linmiaohe@huawei.com
-Fixes: df1acc856923 ("mm/page_alloc: avoid conflating IRQs disabled with zone->lock")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Fixes: 510ee090abc3 ("x86/mm/pat: Prepare {reserve, free}_memtype() for "decoy" addresses")
+Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/x49o8a3pu5i.fsf@segfault.boston.devel.redhat.com
 ---
+ arch/x86/mm/pat/memtype.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
- mm/page_alloc.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
---- a/mm/page_alloc.c~mm-page_allocc-avoid-accessing-uninitialized-pcp-page-migratetype
-+++ a/mm/page_alloc.c
-@@ -3445,8 +3445,10 @@ void free_unref_page_list(struct list_he
- 	/* Prepare pages for freeing */
- 	list_for_each_entry_safe(page, next, list, lru) {
- 		pfn = page_to_pfn(page);
--		if (!free_unref_page_prepare(page, pfn, 0))
-+		if (!free_unref_page_prepare(page, pfn, 0)) {
- 			list_del(&page->lru);
-+			continue;
-+		}
+diff --git a/arch/x86/mm/pat/memtype.c b/arch/x86/mm/pat/memtype.c
+index 3112ca7..4ba2a3e 100644
+--- a/arch/x86/mm/pat/memtype.c
++++ b/arch/x86/mm/pat/memtype.c
+@@ -583,7 +583,12 @@ int memtype_reserve(u64 start, u64 end, enum page_cache_mode req_type,
+ 	int err = 0;
  
- 		/*
- 		 * Free isolated pages directly to the allocator, see
-_
-
-Patches currently in -mm which might be from linmiaohe@huawei.com are
-
-mm-page_allocc-avoid-accessing-uninitialized-pcp-page-migratetype.patch
-mm-gup-remove-set-but-unused-local-variable-major.patch
-mm-gup-remove-unneed-local-variable-orig_refs.patch
-mm-gup-remove-useless-bug_on-in-__get_user_pages.patch
-mm-gup-fix-potential-pgmap-refcnt-leak-in-__gup_device_huge.patch
-mm-gup-use-helper-page_aligned-in-populate_vma_page_range.patch
-shmem-remove-unneeded-variable-ret.patch
-shmem-remove-unneeded-header-file.patch
-shmem-remove-unneeded-function-forward-declaration.patch
-shmem-include-header-file-to-declare-swap_info.patch
-mm-memcg-remove-unused-functions.patch
-mm-memcg-save-some-atomic-ops-when-flush-is-already-true.patch
-mm-hwpoison-remove-unneeded-variable-unmap_success.patch
-mm-hwpoison-fix-potential-pte_unmap_unlock-pte-error.patch
-mm-hwpoison-change-argument-struct-page-hpagep-to-hpage.patch
-mm-hwpoison-fix-some-obsolete-comments.patch
-mm-vmscan-remove-the-pagedirty-check-after-madv_free-pages-are-page_ref_freezed.patch
-mm-vmscan-remove-misleading-setting-to-sc-priority.patch
-mm-vmscan-remove-unneeded-return-value-of-kswapd_run.patch
-mm-vmscan-add-else-to-remove-check_pending-label.patch
-mm-vmstat-correct-some-wrong-comments.patch
-mm-vmstat-simplify-the-array-size-calculation.patch
-mm-vmstat-remove-unneeded-return-value.patch
-mm-memory_hotplug-use-helper-zone_is_zone_device-to-simplify-the-code.patch
-mm-memory_hotplug-make-hwpoisoned-dirty-swapcache-pages-unmovable.patch
-mm-zsmallocc-close-race-window-between-zs_pool_dec_isolated-and-zs_unregister_migration.patch
-mm-zsmallocc-combine-two-atomic-ops-in-zs_pool_dec_isolated.patch
-
+ 	start = sanitize_phys(start);
+-	end = sanitize_phys(end);
++
++	/*
++	 * The end address passed into this function is exclusive, but
++	 * sanitize_phys() expects an inclusive address.
++	 */
++	end = sanitize_phys(end - 1) + 1;
+ 	if (start >= end) {
+ 		WARN(1, "%s failed: [mem %#010Lx-%#010Lx], req %s\n", __func__,
+ 				start, end - 1, cattr_name(req_type));
