@@ -2,79 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B933FE643
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 02:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDFB33FE6FB
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 03:07:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232530AbhIBAG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 20:06:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50872 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232490AbhIBAG6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 20:06:58 -0400
-Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5241C061575
-        for <stable@vger.kernel.org>; Wed,  1 Sep 2021 17:06:00 -0700 (PDT)
-Received: by mail-ua1-x934.google.com with SMTP id j31so817660uad.10
-        for <stable@vger.kernel.org>; Wed, 01 Sep 2021 17:06:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=S9xCezJxwBpMaYBHYFGreqzMrgKWP/JR9N7wOdoNySU=;
-        b=QoBaxuS6GV6deL2ZPwWS3XpFz+huCY0t4/pe+4X2hxDowa3Aipbm+VEpkCZvvH5h+a
-         KnzzwHsZ0w7Eaa/sjIaT1l3iFlH751r52RkFyToFNOhpmAZlnvRJ49U4BRu5XzgH6U1U
-         FYaaXDensIREJfjX3azj66Vo7mYzQ5OqmKq6N41KaA+AmnWS604Xer8/H8WpwsJhMOcm
-         iynCZuaNCDVolf8HBHY5B9+X2mKj7aTSCXKzAmpPsQfPKl47f4k0Rp+Cz/4qn4DbnGCW
-         nK4/j/zGx1aFhEeTqVsrW6LXlWOLevNIuIrYoSPcI3ejODLWWu2zqtzlEE2aGV3srdLI
-         cDng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=S9xCezJxwBpMaYBHYFGreqzMrgKWP/JR9N7wOdoNySU=;
-        b=tyPIYjXCjv709JAuRh5g1mpmjUefYyPgDZjdnIEaV8KZtmbd+ONBnTy++KRWkKU/sy
-         yrA5rtN4FkchHsnnG2e1/UqH8WX2WCrb44eAWFzelXvqyxk7f3XCtVSSECoY87+zRwgY
-         ezcTF0icvKG2X3qL1yDLKFmbnR6XVg20LBFUFFBGnoq5CMdjWWE3zI1aJK0j1GyAorCm
-         EH+/+rRcl1hZKTB9qotYmYEuw8c4tbEE6D0KBSbqpYpMgeHJJppcO1uGONXgEu+VbZaZ
-         ndnMP2IAQikB2dZoWbZHnXpqZgOTekV4RRCXEYW+hkTH7epGnnCKMGdAYZg9lCU7WIVA
-         btHw==
-X-Gm-Message-State: AOAM5331TLWik5xM7itxH2vngpYHsVjxmckkEBeguNJkLZTAxTsEEnIl
-        J/1exm4Y5PJHeUw7erGCHr1O1zru27aYw9PXVC8=
-X-Google-Smtp-Source: ABdhPJw4rh51vk2eNuKWKwWCFTTbxTAOccZBaR4cnJGZMpRXWzzhyzsB2/UcKEbJOfu6OarcZcvJC2LyV9VWN19P88w=
-X-Received: by 2002:a9f:2661:: with SMTP id 88mr261592uag.62.1630541159785;
- Wed, 01 Sep 2021 17:05:59 -0700 (PDT)
+        id S229667AbhIBBIY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 21:08:24 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:9392 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229606AbhIBBIY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 21:08:24 -0400
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.57])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4H0N2j1N0Mz8x3R;
+        Thu,  2 Sep 2021 09:03:09 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Thu, 2 Sep 2021 09:07:24 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2308.8; Thu, 2 Sep 2021 09:07:23 +0800
+Subject: Re: [PATCH 5.4 00/48] 5.4.144-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210901122253.388326997@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <c07e29bc-f5bc-9cd3-b03f-b5e0249bae3c@huawei.com>
+Date:   Thu, 2 Sep 2021 09:07:23 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Sender: labosoblessing1@gmail.com
-Received: by 2002:ab0:1d03:0:0:0:0:0 with HTTP; Wed, 1 Sep 2021 17:05:59 -0700 (PDT)
-From:   Mrs Aisha Al-Qaddafi <mrsaishag6555@gmail.com>
-Date:   Wed, 1 Sep 2021 17:05:59 -0700
-X-Google-Sender-Auth: McmXckJod1odTd-ihTanxaHZYp8
-Message-ID: <CAPVf+KX-psEVV3kVhnL0a_=kdOhEJOyiZaDtriJzu6TfNnkaCg@mail.gmail.com>
-Subject: hello dear friend please can i trust you
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210901122253.388326997@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
-I came across your e-mail contact prior a private search while in need
-of your assistance. I am Aisha Al-Qaddafi, the
-only biological Daughter of Former President of Libya Col. Muammar
-Al-Qaddafi. Am a single Mother and a Widow
-with three Children.
-I have investment funds worth Twenty Seven Million Five Hundred
-Thousand United State Dollar ($27.500.000.00 )
-and i need a trusted investment Manager/Partner because of my current
-refugee status, however, I am interested in
-you for investment project assistance in your country, may be from
-there, we can build business relationship in the
-nearest future.
-I am willing to negotiate investment/business profit sharing ratio
-with you base on the future investment earning
-profits.
-If you are willing to handle this project on my behalf kindly reply
-urgent to enable me provide you more information
-about the investment funds.
-Your Urgent Reply Will Be Appreciated
-Best Regards
-Mrs Aisha Al-Qaddafi
+
+
+On 2021/9/1 20:27, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.144 release.
+> There are 48 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Fri, 03 Sep 2021 12:22:41 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.144-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Tested on arm64 and x86 for 5.4.144-rc1,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.144-rc1
+Commit: 9bc4aee46b925fc92370b55814836e5430a85975
+Compiler: gcc version 7.3.0 (GCC)
+
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8906
+passed: 8906
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8906
+passed: 8906
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
