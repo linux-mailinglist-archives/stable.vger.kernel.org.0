@@ -2,97 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F7463FED38
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 13:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 311473FED5B
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 14:02:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343741AbhIBL4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Sep 2021 07:56:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40962 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245623AbhIBL4N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 07:56:13 -0400
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81867C061575;
-        Thu,  2 Sep 2021 04:55:15 -0700 (PDT)
-Received: by mail-wm1-x32a.google.com with SMTP id e26so1079455wmk.2;
-        Thu, 02 Sep 2021 04:55:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=WKyxnRTdCOqP1eiSg/r+qiN3xAk64HvNE12FpKyGMd0=;
-        b=kukCWYBGUXjiV8/Sp+gDsYW+BctWVDxuDXEbLR/FE3spTaqxEmNe+dqxFoYCmCKOQJ
-         CZAxHLMUsZzQOt3uZ8IztkwKtgulfeVo/K/qQKc69vLJ+rIlOUOSNNY1RAhA4gzm7yZM
-         WD24jb4T/S09F8q/n+8AaFy8Zv8BRA5NGnDcJ0R/JFzXl6LjWQqJuvR7uQCD8V+8oxIw
-         yKoMkHqz4ncn27m77T5nRN+ElN8igHY5YgjKUYnQj2Ps7l+hrW1BijDBvTc+4lyzZrwK
-         cMIDPc44aPm/UMRQqr7nTF27caC6RVKVIVBFjEfbX59ClRZAWZpDMTQBiEX5ISnNCEUU
-         bJZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=WKyxnRTdCOqP1eiSg/r+qiN3xAk64HvNE12FpKyGMd0=;
-        b=BTonWu9/Ex0rc0Yy8PTJDe29NgULL40MglHCDgv+kBactFqHYLe/TGuUC2haHSr8Je
-         vCvdokchqES/qXQl/Og1D+Bpbhz160R8RIAT261VMBaxSTn25/s0dmvawq7gvjo3PhOu
-         TZInRZW/1o7JJDLpK1spmz0O1pZHVX21DytqxUZ/9qNavW0RIlFMuw3eUMQV4NKDrip1
-         rUhT4eGQlguu06xuHoP/EuO5hVf+rlFxdfe7mhMnSZ6Q4hwwMfyMRvcM1NAi+1TG4nHO
-         N0p1UFsMld5/+IWl1y5+2h+jAavLaGMGrGIunGUxsp90CUm0RcHrN1WN8PaSg7AB6+gD
-         IfXA==
-X-Gm-Message-State: AOAM532Yw6sv77w7olRIbqYuAhQ5EmT1l5+oAsWw9HdNYVF3Wj1TJTPX
-        qFG+Bvj770uGjCxMQu1GnMA=
-X-Google-Smtp-Source: ABdhPJzEKxPf4Je8Rx1GtQWnbpvhvE4KrWf9oxivcy70/6OBobg4AO4A8exjR9seRH4PLTWGY+NeFQ==
-X-Received: by 2002:a1c:25c7:: with SMTP id l190mr2810295wml.118.1630583714125;
-        Thu, 02 Sep 2021 04:55:14 -0700 (PDT)
-Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
-        by smtp.gmail.com with ESMTPSA id k25sm1740643wrd.42.2021.09.02.04.55.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Sep 2021 04:55:13 -0700 (PDT)
-Date:   Thu, 2 Sep 2021 12:55:11 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/103] 5.10.62-rc1 review
-Message-ID: <YTC7n81Qoh0OHaBW@debian>
-References: <20210901122300.503008474@linuxfoundation.org>
+        id S234081AbhIBMDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Sep 2021 08:03:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58254 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233831AbhIBMDK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Sep 2021 08:03:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7DE2610CE;
+        Thu,  2 Sep 2021 12:02:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1630584131;
+        bh=yQLzo95e2JPxvB8ZCf/wPPKVCI/DY3xCZdaS+IbDUm0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=X7JkBEBeV61YhqaqdDdH3f8QGsteChshdkQWkLaWM82uOfjI9lihs8aXv61S2hbzh
+         T4afSsPNQxyjPUoG68L+SF09c578HuM4IV8IEYIvAIKWQcoOEfT55uPkag0dYMOZer
+         fP2gaQ466n+IoEMevOzUTEI9AT4OQTZ4uQBC3tBg=
+Date:   Thu, 2 Sep 2021 14:02:08 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     nobuhiro1.iwamatsu@toshiba.co.jp,
+        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        linux-wireless@vger.kernel.org
+Subject: Re: Backporting CVE-2020-3702 ath9k patches to stable
+Message-ID: <YTC9QBWPoulIhZYq@kroah.com>
+References: <20210818084859.vcs4vs3yd6zetmyt@pali>
+ <YRzMt53Ca/5irXc0@kroah.com>
+ <20210818091027.2mhqrhg5pcq2bagt@pali>
+ <YRzQZZIp/LfMy/xG@kroah.com>
+ <20210902114814.GA525@amd>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210901122300.503008474@linuxfoundation.org>
+In-Reply-To: <20210902114814.GA525@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On Wed, Sep 01, 2021 at 02:27:10PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.62 release.
-> There are 103 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, Sep 02, 2021 at 01:48:14PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> Responses should be made by Fri, 03 Sep 2021 12:22:41 +0000.
-> Anything received after that time might be too late.
+> > > > > Hello! I would like to request for backporting following ath9k commits
+> > > > > which are fixing CVE-2020-3702 issue.
+> > > > > 
+> > > > > 56c5485c9e44 ("ath: Use safer key clearing with key cache entries")
+> > > > > 73488cb2fa3b ("ath9k: Clear key cache explicitly on disabling hardware")
+> > > > > d2d3e36498dd ("ath: Export ath_hw_keysetmac()")
+> > > > > 144cd24dbc36 ("ath: Modify ath_key_delete() to not need full key entry")
+> > > > > ca2848022c12 ("ath9k: Postpone key cache entry deletion for TXQ frames reference it")
+> > > > > 
+> > > > > See also:
+> > > > > https://lore.kernel.org/linux-wireless/87o8hvlx5g.fsf@codeaurora.org/
+> ...
+> > > > What stable tree(s) do you want to see these go into?
+> > > 
+> > > Commits were introduced in 5.12, so it should go to all stable trees << 5.12
+> 
+> ...
+> 
+> > Great, all now queued up.  Sad that qcom didn't want to do this
+> > themselves :(
+> 
+> Thanks for the fixes; I see them in 4.14 and newer stable trees.
+> 
+> But I don't see them in 4.4 and 4.9, nor can I see reason why they
+> were not applied.
+> 
+> Can someone help?
 
-Build test:
-mips (gcc version 11.1.1 20210816): 63 configs -> no new failure
-arm (gcc version 11.1.1 20210816): 105 configs -> no new failure
-arm64 (gcc version 11.1.1 20210816): 3 configs -> no failure
-x86_64 (gcc version 10.2.1 20210110): 4 configs -> no failure
+Odd, I don't remember why I didn't even try to apply them to older
+kernels.  I'll do that after this next round is released in a few days,
+sorry about that.
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
-
-[1]. https://openqa.qa.codethink.co.uk/tests/82
-[2]. https://openqa.qa.codethink.co.uk/tests/77
-
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
+greg k-h
