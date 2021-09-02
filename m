@@ -2,110 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC053FE8CC
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 07:37:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C5C13FE900
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 07:56:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232985AbhIBFhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Sep 2021 01:37:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39262 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232994AbhIBFh1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 01:37:27 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B45C061575;
-        Wed,  1 Sep 2021 22:36:29 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id gp20-20020a17090adf1400b00196b761920aso639423pjb.3;
-        Wed, 01 Sep 2021 22:36:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-disposition:content-transfer-encoding;
-        bh=AUQQWpdPusKziL81HjIpycnRSPGEY5GISL+U0MCMSmU=;
-        b=JHDFf//yUkiuI37prdgWCjD9R3BX0MF++LeB2tn3JpuX+6C1q9/T+ceQvBcnpO3zhF
-         KqFddP7LZ1WIza6iZtjHkx+HOkhqIrB/Jwe5jYzaAPmoO8PCY0dSbiG7rSs76H6LsE2G
-         2xWEEIiFb0l4UJCSWFol0RNVwEHkXt8RseGH8qmrzmUOot+xJnb2QL7rTfy5sBb8XB83
-         ReDLFc66swXyMR4O4FI20PtOmbYvqeniHo14wvYKBGZWlw7R4FxYc/IXvHakTLtRxjQu
-         u3bn2PgY2puR6lUbYisAHUOxUJg+3sSrmjqmIz8NxNpRS7P0+kgm9SkUEvBdAwYdati8
-         Mb8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-disposition
-         :content-transfer-encoding;
-        bh=AUQQWpdPusKziL81HjIpycnRSPGEY5GISL+U0MCMSmU=;
-        b=EvlKHtNaNYRmxcgKIv4vpvvihDyjdGeE6PBLYXIq3IzhDdGj0rS8dNaN8nB1YV9KGt
-         /CweHLAh10YsMJs6yZRWGlfN/TX4XrR7J7trxe87n+vWv4ZHsoM5LqQXBQ2PPqZNky3z
-         Fn71jEeJ8Rv8yvzPoGgBU577dOo4jDZnbT7B38NC+ZAXiV7yxUOYxjliQNm4YtGLkiRL
-         79WxaqZc/Mlu9GLK43gjYICN9GHdnZw+pzEwf+OxJwL10FzeImFcWcLucimZuNZ87tX5
-         Bry+q+wYfKiFuXOvqb3PwmAmEiJz0Y+NZcdLqhaok4oF29McXcwO+2Tbiy9hyYPpmMGV
-         9vbw==
-X-Gm-Message-State: AOAM53091xGueyGrITHOxATb7GXp9iDl2zOdJsSCCDN8npskwJGjRYIc
-        YBolGcjyBj/T5YX9/G0fVC8=
-X-Google-Smtp-Source: ABdhPJxJF8LI4M1O2L1/GWavG28s+l1uKa4//ATjWdcEy8H3VklT/CtTQenaVUqvys4DN29witZiTw==
-X-Received: by 2002:a17:902:7806:b0:138:1eee:c010 with SMTP id p6-20020a170902780600b001381eeec010mr1413056pll.20.1630560989012;
-        Wed, 01 Sep 2021 22:36:29 -0700 (PDT)
-Received: from haswell-ubuntu20.lan ([138.197.212.246])
-        by smtp.gmail.com with ESMTPSA id f9sm739690pjq.36.2021.09.01.22.36.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Sep 2021 22:36:28 -0700 (PDT)
-From:   DENG Qingfang <dqfext@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Sean Wang <sean.wang@mediatek.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "open list:MEDIATEK SWITCH DRIVER" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>
-Subject: Re: [PATCH 4.19.y] net: dsa: mt7530: disable learning on standalone ports
-Date:   Thu,  2 Sep 2021 13:36:19 +0800
-Message-Id: <20210902053619.1824464-1-dqfext@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <YSi8Ky3GqBjnxbhC@kroah.com>
-References: <20210824055509.1316124-1-dqfext@gmail.com> <YSUQV3jhfbhbf5Ct@sashalap> <CALW65ja3hYGmEqcWZzifP2-0WsJOnxcUXsey2ZH5vDbD0-nDeQ@mail.gmail.com> <YSi8Ky3GqBjnxbhC@kroah.com>
+        id S231544AbhIBF5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Sep 2021 01:57:35 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:50534 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237077AbhIBF5f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 01:57:35 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 1057C1C0BA1; Thu,  2 Sep 2021 07:56:36 +0200 (CEST)
+Date:   Thu, 2 Sep 2021 07:56:35 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     "Keller, Jacob E" <jacob.e.keller@intel.com>
+Cc:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Brelinski, TonyX" <tonyx.brelinski@intel.com>,
+        "Nguyen, Anthony L" <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 026/103] ice: do not abort devlink info if board
+ identifier cant be found
+Message-ID: <20210902055635.GA17629@duo.ucw.cz>
+References: <20210901122300.503008474@linuxfoundation.org>
+ <20210901122301.400339475@linuxfoundation.org>
+ <20210901194236.GA8962@duo.ucw.cz>
+ <20210901201046.GC8962@duo.ucw.cz>
+ <8168c579-9ba7-2c31-42b3-9ad88760110a@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <8168c579-9ba7-2c31-42b3-9ad88760110a@intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Aug 27, 2021 at 12:19:23PM +0200, Greg KH wrote:
-> On Tue, Aug 24, 2021 at 11:57:53PM +0800, DENG Qingfang wrote:
-> > Standalone ports should have address learning disabled, according to
-> > the documentation:
-> > https://www.kernel.org/doc/html/v5.14-rc7/networking/dsa/dsa.html#bridge-layer
-> > dsa_switch_ops on 5.10 or earlier does not have .port_bridge_flags
-> > function so it has to be done differently.
-> > 
-> > I've identified an issue related to this.
-> 
-> What issue is that?  Where was it reported?
 
-See Florian's message here
-https://lore.kernel.org/stable/20210317003549.3964522-2-f.fainelli@gmail.com/
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > > 2. A partial backport of this patch?
-> > 
-> > The other part does not actually fix anything.
-> 
-> Then why is it not ok to just take the whole thing?
-> 
-> When backporting not-identical-patches, something almost always goes
-> wrong, so we prefer to take the original commit when ever possible.
+Hi!
 
-Okay. MDB and tag ops can be backported as is, and broadcast/multicast
-flooding can be implemented in .port_egress_floods. 
+> >>> The devlink dev info command reports version information about the
+> >>> device and firmware running on the board. This includes the "board.id"
+> >>> field which is supposed to represent an identifier of the board desig=
+n.
+> >>> The ice driver uses the Product Board Assembly identifier for this.
+> >>>
+> >>> In some cases, the PBA is not present in the NVM. If this happens,
+> >>> devlink dev info will fail with an error. Instead, modify the
+> >>> ice_info_pba function to just exit without filling in the context
+> >>> buffer. This will cause the board.id field to be skipped. Log a dev_d=
+bg
+> >>> message in case someone wants to confirm why board.id is not showing =
+up
+> >>> for them.
+> >>
+> >> Will it cause field to be skipped? I believe buffer will not be
+> >> initialized which will result in some confusion...
+> >=20
+> > IOW I believe this is good idea.
+>=20
+> It's not necessary, but I agree its not obvious without the full
+> context. The caller of ice_info_pba memsets the buffer before calling
+> each info reporter. Its already a known semantics that leaving the
+> buffer alone will skip the entry.
+>=20
+> See the code below for what we do.
+>=20
+> >                 memset(ctx->buf, 0, sizeof(ctx->buf));
+> >=20
+> >                 err =3D ice_devlink_versions[i].getter(pf, ctx);
+> >                 if (err) {
+> >                         NL_SET_ERR_MSG_MOD(extack, "Unable to obtain ve=
+rsion info");
+> >                         goto out_free_ctx;
+> >                 }
 
-> 
-> thanks,
-> 
-> greg k-h
+That memset is not present in 5.10 I was reviewing. I agree that
+backporting the memset to 5.10 is better then my patch.
+
+> We memset the buffer, call the getter, and if that doesn't modify the
+> buffer, we call the fallack, and then check again if its still empty.
+>=20
+> Because we memset each time, we don't need to assign *buf =3D 0.
+>=20
+> I guess its more clear that we're doing the correct thing here, but
+> these functions are build-for-purpose to use as pointers in this API and
+> aren't public, so I think it is fine to leave it as is.
+
+Yes, code is okay in mainline, but the memset is not present in
+5.10-stable.
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--5mCyUwZo2JvN/JJP
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYTBnkwAKCRAw5/Bqldv6
+8tEyAJ9PNrc5497CjlPnJuiOG+D4+LsLmACgpcGl1owPvR5qQtMEucZrXP90e0g=
+=8Mxd
+-----END PGP SIGNATURE-----
+
+--5mCyUwZo2JvN/JJP--
