@@ -2,104 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 968683FE73A
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 03:38:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3DE43FE798
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 04:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232530AbhIBBjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 21:39:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43206 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231880AbhIBBjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 21:39:48 -0400
-Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26E1AC061575;
-        Wed,  1 Sep 2021 18:38:51 -0700 (PDT)
-Received: by mail-qt1-x833.google.com with SMTP id s15so253121qta.10;
-        Wed, 01 Sep 2021 18:38:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=7nAENFB0y/kRriAUvRNpaGEX8ldJmWnzKenc0y0ORe8=;
-        b=KUsCx0axO9WcBtdnEYK3qA9ZMGt5L/sovPB1OxwqXklJSaLtcD40qhWGDEexww6h+y
-         y64pl+BBxPXuNo5b5m7hNYQNqMbdOiwoxNIyzVTyRd2Cb+NJ9HK4FjgYG1w7cxSZNlHU
-         ED2Ws/LoQ1OwgfnR2VPzAGJ/fPSHd083dQSZxhdD3yhiS98tg2/g9LOtm2vWOZqYB61o
-         3lDEQyAXT8XiOzTXlarHchsZZhit8gXKZ7LxAJp4lJjxsv0mxTgJbxk8Z1fPiyGrlGim
-         KlcRaFBwReAmGi+XA3zAKrO3XgIn5+Afid/bfyN/iyR+aEQf4fg3C+m6V4iPXT23dffq
-         E4Ng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=7nAENFB0y/kRriAUvRNpaGEX8ldJmWnzKenc0y0ORe8=;
-        b=ejhW3kWSPmBC9t65QedV0u2pArCJVVwFUi6Fx756EfNK2mfVfTg44VWNL8rnCO1BIC
-         mI4Cm10WEzPmhsxfioA8EZ763ud6NWQ7OX9VYb8ftKSCZO/PC8OAV4/12pyFEGMcu4Ve
-         NL3g+u+kIsd1lV0LrNFYh9VClcQYalK6dS2+WI0KELzR4I3dUbV9nKajS00VyUMizxdK
-         7fOl78k7BnuFA+lWZqk9EU2CgIFKDYeZek519bWl4EiOihgneqdg96KebkbzwO24iA+V
-         KyVJeVIzYg7Nt+AlQh50tCH695sU+XJG7CzND+DPyBJ8uM+cuQf/5oNq3wkxb8c+DDua
-         HcHw==
-X-Gm-Message-State: AOAM531iKTCpVm1BGIL6PsZibhXKEAFgvR+pGsEdnidV65KEctAWHC13
-        aQif2ySC+MDGn525dRuT91SAwtIDhYc=
-X-Google-Smtp-Source: ABdhPJztSbArmmGjpgpTi8cgfqX932ADJnfAzpJxdGctNzyWsUB7fW5NKNETCe8U7lDibHJiKCR1hQ==
-X-Received: by 2002:ac8:4618:: with SMTP id p24mr736600qtn.205.1630546730331;
-        Wed, 01 Sep 2021 18:38:50 -0700 (PDT)
-Received: from ?IPV6:2600:1700:dfe0:49f0:1456:dc25:4026:460e? ([2600:1700:dfe0:49f0:1456:dc25:4026:460e])
-        by smtp.gmail.com with ESMTPSA id v5sm362941qkh.39.2021.09.01.18.38.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Sep 2021 18:38:49 -0700 (PDT)
-Message-ID: <6411c7dd-79b4-3659-020b-aaa929447d50@gmail.com>
-Date:   Wed, 1 Sep 2021 18:38:47 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.0.3
-Subject: Re: [PATCH net 2/2] net: dsa: b53: Set correct number of ports in the
- DSA struct
-Content-Language: en-US
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        =?UTF-8?B?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
+        id S233122AbhIBCXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 22:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39034 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232666AbhIBCXQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 1 Sep 2021 22:23:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4CAB60F91;
+        Thu,  2 Sep 2021 02:22:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1630549339;
+        bh=lC59UuP1uX1V0XEOkIEDjdHyY5dfujfBvEd2WvmYgts=;
+        h=Date:From:To:Subject:From;
+        b=pwOI6OByCziTayXJKmu86Nrti3GdHaBKV4V4ZpXvJkyz5nncHwstNuJOJtwiif7wx
+         Om/0u6zZiiRe/LL+jASKnNBH40ZsaXiqtv4tmb+mp6GudDdMQYg/PnZBwp+divqXfk
+         yNWXl2tBEJXcarHyRh4m0tSqZNyvCjD8DUWT+q3o=
+Date:   Wed, 01 Sep 2021 19:22:18 -0700
+From:   akpm@linux-foundation.org
+To:     chris@chrisdown.name, guro@fb.com, hannes@cmpxchg.org,
+        mhocko@suse.com, mm-commits@vger.kernel.org, riel@surriel.com,
         stable@vger.kernel.org
-References: <20210901092141.6451-1-zajec5@gmail.com>
- <20210901092141.6451-2-zajec5@gmail.com>
- <ba35e7b8-4f90-9870-3e9e-f8666f5ebd0f@gmail.com>
- <20210901163657.74f39079@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20210901163657.74f39079@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject:  + mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
+ added to -mm tree
+Message-ID: <20210902022218.d3eY8D0fC%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch titled
+     Subject: mm,vmscan: fix divide by zero in get_scan_count
+has been added to the -mm tree.  Its filename is
+     mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
 
-On 9/1/2021 4:36 PM, Jakub Kicinski wrote:
-> On Wed, 1 Sep 2021 10:21:55 -0700 Florian Fainelli wrote:
->> On 9/1/2021 2:21 AM, Rafał Miłecki wrote:
->>> From: Rafał Miłecki <rafal@milecki.pl>
->>>
->>> Setting DSA_MAX_PORTS caused DSA to call b53 callbacks (e.g.
->>> b53_disable_port() during dsa_register_switch()) for invalid
->>> (non-existent) ports. That made b53 modify unrelated registers and is
->>> one of reasons for a broken BCM5301x support.
->>>
->>> This problem exists for years but DSA_MAX_PORTS usage has changed few
->>> times so it's hard to specify a single commit this change fixes.
->>
->> You should still try to identify the relevant tags that this is fixing
->> such that this gets back ported to the appropriate trees. We could use
->> Fixes: 7e99e3470172 ("net: dsa: remove dsa_switch_alloc helper"), to
->> minimize the amount of work doing the back port.
-> 
-> To be clear are you okay with the fixes tag you provided or should we
-> wait for Rafał to double check?
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
 
-That Fixes tag is correct and won't cause conflicts AFAICT with 
-backports all the way down to that commit.
--- 
-Florian
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Rik van Riel <riel@surriel.com>
+Subject: mm,vmscan: fix divide by zero in get_scan_count
+
+Changeset f56ce412a59d ("mm: memcontrol: fix occasional OOMs due to
+proportional memory.low reclaim") introduced a divide by zero corner case
+when oomd is being used in combination with cgroup memory.low protection.
+
+When oomd decides to kill a cgroup, it will force the cgroup memory to be
+reclaimed after killing the tasks, by writing to the memory.max file for
+that cgroup, forcing the remaining page cache and reclaimable slab to be
+reclaimed down to zero.
+
+Previously, on cgroups with some memory.low protection that would result
+in the memory being reclaimed down to the memory.low limit, or likely not
+at all, having the page cache reclaimed asynchronously later.
+
+With f56ce412a59d the oomd write to memory.max tries to reclaim all the
+way down to zero, which may race with another reclaimer, to the point of
+ending up with the divide by zero below.
+
+This patch implements the obvious fix.
+
+Link: https://lkml.kernel.org/r/20210826220149.058089c6@imladris.surriel.com
+Fixes: f56ce412a59d ("mm: memcontrol: fix occasional OOMs due to proportional memory.low reclaim")
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Chris Down <chris@chrisdown.name>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/vmscan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/vmscan.c~mmvmscan-fix-divide-by-zero-in-get_scan_count
++++ a/mm/vmscan.c
+@@ -2592,7 +2592,7 @@ out:
+ 			cgroup_size = max(cgroup_size, protection);
+ 
+ 			scan = lruvec_size - lruvec_size * protection /
+-				cgroup_size;
++				(cgroup_size + 1);
+ 
+ 			/*
+ 			 * Minimally target SWAP_CLUSTER_MAX pages to keep
+_
+
+Patches currently in -mm which might be from riel@surriel.com are
+
+mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
+
