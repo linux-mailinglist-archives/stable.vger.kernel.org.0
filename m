@@ -2,62 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 549383FE84C
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 06:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 405EF3FE8B3
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 07:28:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229486AbhIBEN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Sep 2021 00:13:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49224 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229490AbhIBEN2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Sep 2021 00:13:28 -0400
-Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AD61C061575
-        for <stable@vger.kernel.org>; Wed,  1 Sep 2021 21:12:30 -0700 (PDT)
-Received: by mail-vs1-xe36.google.com with SMTP id s25so364524vsa.9
-        for <stable@vger.kernel.org>; Wed, 01 Sep 2021 21:12:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=H3bGT1ZyGPu3PRQJlJHyQI9TvTjBPuNSyHjFOzNfiP0=;
-        b=HfgZgoQ8FR4l2YN9MIK1wbJ1Y2s2hTkl22o6x5JzRwcMvSwDKw9K0NKiIq16Sy29B5
-         U97ix9AGg8vlMG6w6sK5LmKBMk8D1aksw/79nfuOPwQnpd+ZxUlXBN6/dN1wmErxWngb
-         ewzEHl4aaXLKjfohygNFVtU4Wnio+8Hz8dcqeMrUA9oZ0wg+IuKekAUox2RbBG0nSpjO
-         UekLlXynV9omSDWXVMrmWigsDYMeW4idmzGJGyhL9vgQcxPWdt5+MM1WSiSDWHM1bcDX
-         p7w3eBuxhZGmtPDuaQjUJwm4w3yQ6XE4Hq3p4fIe2O3jRzyPEKaBrwlMCXaghwu3A9sW
-         8MOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=H3bGT1ZyGPu3PRQJlJHyQI9TvTjBPuNSyHjFOzNfiP0=;
-        b=ibtfx58gz8cJfbZ6kjTJpxOIabdMJqLwuac4J1BnGYuNsgGDkcNbBeyjgCoBnR9qXU
-         w5kc/brTgv/pprLwJiRaj0YSRK2eU9A5WmHsZKO/9UNk8otjOOGrj+CvQDY8PWAvsudp
-         yN2l/s+fqIWXiKaFO9ZiAs87nKxx1QuYKT+UKgIRRTlkXm78ToiMOBawA43g1XQYaDII
-         GJR1XY5IVSth9odBQiuCO3I3UhsZlooZcUZptXbE4iZ00BIegHpe3cbLYDFt3jh0tlEO
-         MfDFGfzN9bOuJMfiCElgJHNGaTr2M7u9PlgEVifOom4J5AC9/Dw+qJ2m5eDW3CQ1TylG
-         L9Sg==
-X-Gm-Message-State: AOAM533gk+61zYmJ2Phd+RvQKh+YfaHm8hXQ2sPQzQ+9STlwa2sp3y45
-        ErrVWS1DaSplUQpH4xk1uIe2Ob/LSHmDAacsQ3Q=
-X-Google-Smtp-Source: ABdhPJwhBhMYnSLwGg5KDpPopEdYZJOsFrXLbKd6XSdSO9o2WiNkEggRnkdfFPwCjthghxjMBbTxHXaORNlFuzi/iTE=
-X-Received: by 2002:a05:6102:a8d:: with SMTP id n13mr619259vsg.17.1630555949705;
- Wed, 01 Sep 2021 21:12:29 -0700 (PDT)
+        id S230483AbhIBF3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Sep 2021 01:29:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44190 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231324AbhIBF3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 2 Sep 2021 01:29:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58A406069E;
+        Thu,  2 Sep 2021 05:28:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1630560526;
+        bh=wuT0NIH9bYCekekfs5fpv2mHqVTwUkRu69rjXCvQtJg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FSDLJms0TcbJRGfXzZu2wSx7UxKotuijKflZgk9kwx2u7Ot1SwnkaqjZ3DnWCuDUw
+         dz8g6EpsMKkx9+B0lC092ZFfLytcywnF8UHIlVL33tr46HcMYgGU7TpiExB3uK+pS0
+         dUTkQ0RqxbnB4Gi7cvTFZjFGxjIJ399mmI/67ZDE=
+Date:   Thu, 2 Sep 2021 07:28:40 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Dongliang Mu <mudongliangabcd@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
+Subject: Re: Linux kernel 4.19 and below misses the patch - "fbmem: add
+ margin check to fb_check_caps()"
+Message-ID: <YTBhCPBu/5UhEsxF@kroah.com>
+References: <CAD-N9QUhebBrJ1fZG-i09PSKjC9Vat3Ym5VHoOrXGAO_tKQdpQ@mail.gmail.com>
+ <YS8bvAc4XbaxSssu@kroah.com>
+ <CAD-N9QXikdSxPnTnEsU3KUYkjXsOpKR14JQ_-+B7OEzMOnjTSA@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a67:f2c3:0:0:0:0:0 with HTTP; Wed, 1 Sep 2021 21:12:29 -0700 (PDT)
-Reply-To: abdwabbomaddah91@gmail.com
-From:   Abdwabbo Maddah <mabdwabbo@gmail.com>
-Date:   Thu, 2 Sep 2021 05:12:29 +0100
-Message-ID: <CAAVHWKkfzhWfayfi_ZpQVQdUoequKsrSgCw8SC=NGMg12kcK2A@mail.gmail.com>
-Subject: DID YOU RECEIVE MY MAIL?
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAD-N9QXikdSxPnTnEsU3KUYkjXsOpKR14JQ_-+B7OEzMOnjTSA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Dear,
-I had sent you a mail but i don't think you received it that's why am
-writing you again.It is important you get back to me as soon as you
-can.
-Abd-Wabbo Maddah
+On Thu, Sep 02, 2021 at 09:32:32AM +0800, Dongliang Mu wrote:
+> On Wed, Sep 1, 2021 at 2:20 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Tue, Aug 31, 2021 at 02:47:22PM +0800, Dongliang Mu wrote:
+> > > Hi stable maintainers,
+> > >
+> > > It seems that Linux kernel 4.19 and below miss the patch - "fbmem: add
+> > > margin check to fb_check_caps()" [1]. Linux kernel 5.4 and up is
+> > > already merged this patch[2].
+> > >
+> > > Are there any special issues about this patch? Why do maintainers miss
+> > > such a patch?
+> >
+> > Because it does not apply to those older kernels.  If you feel it should
+> > be included there, can you please provide a working backport of the
+> > patch so that we can apply it?
+> 
+> Sure, I will do that. Which mailing list or maintainers should I send to?
+
+Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
