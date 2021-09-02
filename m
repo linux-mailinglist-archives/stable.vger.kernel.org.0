@@ -2,100 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 642883FE705
-	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 03:09:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B54813FE72B
+	for <lists+stable@lfdr.de>; Thu,  2 Sep 2021 03:33:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232009AbhIBBKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Sep 2021 21:10:44 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:15379 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229667AbhIBBKo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 21:10:44 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.56])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4H0N5m6dfTzbgKx;
-        Thu,  2 Sep 2021 09:05:48 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Thu, 2 Sep 2021 09:09:44 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.8; Thu, 2 Sep 2021 09:09:44 +0800
-Subject: Re: [PATCH 4.19 00/33] 4.19.206-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210901122250.752620302@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <a87f3c01-18a5-cfd5-59d8-16082463a1fb@huawei.com>
-Date:   Thu, 2 Sep 2021 09:09:43 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S233001AbhIBBd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Sep 2021 21:33:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41870 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232943AbhIBBd6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Sep 2021 21:33:58 -0400
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79161C061575
+        for <stable@vger.kernel.org>; Wed,  1 Sep 2021 18:33:00 -0700 (PDT)
+Received: by mail-ej1-x634.google.com with SMTP id mf2so472459ejb.9
+        for <stable@vger.kernel.org>; Wed, 01 Sep 2021 18:33:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=6dET/6kkiERMePKTgGewFI/ZwcM7iIybz0T9uQS3Jx8=;
+        b=XJuwEuJADFpgxhjC3oNosONM4NryseC/qW48arY18LR3FHuYEeTM5ntuBEn8ixTzno
+         I9DmYkfs0r+6oZTQ9QLqeth4zUB4KbX4UC1TUrl8XDpkmVz7b74KUpaToYgZV+WDaNh2
+         rCdGnXkU5e4fmTgfnL6erShG78CUC2eIG0HRJ/bpTzt8QYh3oCsYkIH7Iq9Y/MRZTtf8
+         cZR5YLqv77QywpP5kuap/BObt7owMNCr7LwtuWgf6kEgwct6mTQFitpEYryX8QMaIQd9
+         T1R4f2YBiJdP5ZyocDkzss7obkht7AkNrzpjSLqVKuhu7MRlKW9pNSHN+SB1SO4TL4Tr
+         bt+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=6dET/6kkiERMePKTgGewFI/ZwcM7iIybz0T9uQS3Jx8=;
+        b=d93z4yJnSn39AXbCxdYfznsgrdgZRpu0egD8JW0Sm2EmRtZk0MTvEOe1N7mtul1DWO
+         F2yikRAVhw1+JiucAabxH1U30xWKNp7o0g41NMpOPy5hQfjZ6+VSPOUZ01iszJ4N7pJH
+         kRe9DfSwRVlO3QfmJ+i1DA+nf8DexmrITw/vrfIEpPMzWFIv9/xaI+43LJB9kAtk9ycH
+         etGFCHHuvKoiiMdUuj7GeYdDlfe+CX9POy1QzuMfh2NgWGFQRVPgKKlw+oViMvnN1v62
+         x94fjxFWtlcTR36s2Iw+I7bB53zKQ7OtB/DTBm5M0zCZffXzQ3k5I/0AxssmEc3/jMss
+         540g==
+X-Gm-Message-State: AOAM532jgIsJXT0C9ofe8n7BjjouAX7KUUIaFGBK5Y+qE/Y+9a5m30AM
+        ZBxSf9TMHeNwyOmf3pR5X8CGJgzGYDjoeSCnVq8=
+X-Google-Smtp-Source: ABdhPJy68TXF3iHgvi9b2ezRwLPyIPbSeznrQhgidZ3CgCRfdVnBX7ckrpIi+k74yoNAD/PeYbLKTtE4GMqy3k7h2Js=
+X-Received: by 2002:a17:906:31ca:: with SMTP id f10mr927595ejf.73.1630546379046;
+ Wed, 01 Sep 2021 18:32:59 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210901122250.752620302@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+References: <CAD-N9QUhebBrJ1fZG-i09PSKjC9Vat3Ym5VHoOrXGAO_tKQdpQ@mail.gmail.com>
+ <YS8bvAc4XbaxSssu@kroah.com>
+In-Reply-To: <YS8bvAc4XbaxSssu@kroah.com>
+From:   Dongliang Mu <mudongliangabcd@gmail.com>
+Date:   Thu, 2 Sep 2021 09:32:32 +0800
+Message-ID: <CAD-N9QXikdSxPnTnEsU3KUYkjXsOpKR14JQ_-+B7OEzMOnjTSA@mail.gmail.com>
+Subject: Re: Linux kernel 4.19 and below misses the patch - "fbmem: add margin
+ check to fb_check_caps()"
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 1, 2021 at 2:20 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Aug 31, 2021 at 02:47:22PM +0800, Dongliang Mu wrote:
+> > Hi stable maintainers,
+> >
+> > It seems that Linux kernel 4.19 and below miss the patch - "fbmem: add
+> > margin check to fb_check_caps()" [1]. Linux kernel 5.4 and up is
+> > already merged this patch[2].
+> >
+> > Are there any special issues about this patch? Why do maintainers miss
+> > such a patch?
+>
+> Because it does not apply to those older kernels.  If you feel it should
+> be included there, can you please provide a working backport of the
+> patch so that we can apply it?
 
+Sure, I will do that. Which mailing list or maintainers should I send to?
 
-On 2021/9/1 20:27, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.206 release.
-> There are 33 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 03 Sep 2021 12:22:41 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.206-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
+>
 > thanks,
-> 
+>
 > greg k-h
-> 
-
-Tested on arm64 and x86 for 4.19.206-rc1,
-
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.19.y
-Version: 4.19.206-rc1
-Commit: 0ec64a47cbb11f5919e47cdab83f201ea5ca6076
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8859
-passed: 8859
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8859
-passed: 8859
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
