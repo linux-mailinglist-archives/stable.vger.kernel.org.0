@@ -2,129 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA8B3FFCD1
-	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 11:14:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B45773FFD72
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 11:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245671AbhICJPk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 05:15:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51246 "EHLO
+        id S234898AbhICJuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 05:50:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233277AbhICJPk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 05:15:40 -0400
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7CF8C061575;
-        Fri,  3 Sep 2021 02:14:40 -0700 (PDT)
-Received: by mail-pl1-x630.google.com with SMTP id c5so2039713plz.2;
-        Fri, 03 Sep 2021 02:14:40 -0700 (PDT)
+        with ESMTP id S234932AbhICJuQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 05:50:16 -0400
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4AEC06179A
+        for <stable@vger.kernel.org>; Fri,  3 Sep 2021 02:49:11 -0700 (PDT)
+Received: by mail-pg1-x52d.google.com with SMTP id w7so5007898pgk.13
+        for <stable@vger.kernel.org>; Fri, 03 Sep 2021 02:49:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-disposition:content-transfer-encoding;
-        bh=kb8Z5KH61dlFFT8cs85Ri7+/n7iNLKzAMoxXAmW2ceA=;
-        b=VS5jH6/vJozUZwnuawGnyMC48QMXnhiunRInAGDzbwL/WM0K4OHttgn8v1WCHsygYV
-         XtAU90YgcTIDbfWQpOteVNWViEFrEkjPcJJbHLsCiJAFOUNxLEK6hbYR9cNxExvnShpo
-         LyqlT+c3lp5cystcpuSx+j0P2kH/r09xPyCfn8NuA0A1cshCiFaVISLRV+ZhlfT3bTUP
-         PhxSKw5dKyHQXBpu3yLlhAYWERBo7a+fMAYKdQEVJADI+D33toqWqcNflbD1oxzKiRG8
-         L35MKyfOzPdC/cBx/XIsdgFwmgaenK14tAvoVkxX5Zhywm8m/dL90ZbZ+9rnlCfrSOYJ
-         TJuQ==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=O9ups6ORGo/X+Es5uwWQFirzbpOOvUn8tVtnLMOndH0=;
+        b=F0OVeB8hfKAflov2gLurwrSekNXc9bVlftRcfsj8ImD+I2Su7NMJaB4OoRFbUqdBQ7
+         bBf3UgqD2vTawBLeaSbhYanOGokY3bONhgl3DsbidBoIBKt0utdMLNzru2hfGa8O2UeO
+         RhuEZqAoa5BnoV5HhNm7YT6IXMJAHsOGDzlkTeH7f8w1h83Ie3fN1NcoV+iejndxq3Ik
+         /st52dyn55BtMbiJmEVxcy1IyEk7M5oLzd8Sr/CI63J4lAHW0J8byhrR0NXGgCVJqbqm
+         i2lYpw6gz8wCoeyXa7RN4FQZ1p15HCyHbs2Kiz+Vl06+FLWOD7uo/bJyY5ko9woKj55P
+         ZqZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-disposition
-         :content-transfer-encoding;
-        bh=kb8Z5KH61dlFFT8cs85Ri7+/n7iNLKzAMoxXAmW2ceA=;
-        b=iZ9VPsuIinKVpbO1zuTdkH5E6ijy/NU5Xqsk3waVgjFE3acjAsXWv7hFCYs4gfimjm
-         +i1edhD4DdqvhHDJS7g74mX04KtVzylmBn8D4EBfqIm3Gp4Dbb7tqkrYOSF8hydm/Fcz
-         WBdm5CU/0oDeTEQH5kBQwy9V4RkzXy0UUANcl/rvq3B+fUrMbcshc9n7pBji6C+AWb6T
-         xlX1tDKhzI8GWRugLfX948WP3jQxuPrrvgYKR6mOsp8kxcoYuG7uGwcgkhluQOjgqWYT
-         tNGJ2RrloS8DdTOEEslftfqeJ7zd5WhLBAowIH6JgmH9Wy9KZpqtgX0KGI6eS75ZcAJq
-         Aw5g==
-X-Gm-Message-State: AOAM533pT9ZpJ2UrGs9QLM7kxxtjGGy26MLFdq0tR7ygfSgrHsKjHdKI
-        cn9mmvqRZHnH+CLI5EE1Kd0=
-X-Google-Smtp-Source: ABdhPJz1EryyIfzYCwBsKI7WGd4sPcZ3VHNRIpfsK7XuoGifQUKu3AiOsDLxBMlWacWq67iuYF7Weg==
-X-Received: by 2002:a17:90a:6282:: with SMTP id d2mr8791405pjj.189.1630660479349;
-        Fri, 03 Sep 2021 02:14:39 -0700 (PDT)
-Received: from haswell-ubuntu20.lan ([138.197.212.246])
-        by smtp.gmail.com with ESMTPSA id y1sm5766231pga.50.2021.09.03.02.14.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Sep 2021 02:14:38 -0700 (PDT)
-From:   DENG Qingfang <dqfext@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Sean Wang <sean.wang@mediatek.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "open list:MEDIATEK SWITCH DRIVER" <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>
-Subject: Re: [PATCH 4.19.y] net: dsa: mt7530: disable learning on standalone ports
-Date:   Fri,  3 Sep 2021 17:14:30 +0800
-Message-Id: <20210903091430.2209627-1-dqfext@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <YTBoDaYDJfBz3YzN@kroah.com>
-References: <20210824055509.1316124-1-dqfext@gmail.com> <YSUQV3jhfbhbf5Ct@sashalap> <CALW65ja3hYGmEqcWZzifP2-0WsJOnxcUXsey2ZH5vDbD0-nDeQ@mail.gmail.com> <YSi8Ky3GqBjnxbhC@kroah.com> <20210902053619.1824464-1-dqfext@gmail.com> <YTBoDaYDJfBz3YzN@kroah.com>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=O9ups6ORGo/X+Es5uwWQFirzbpOOvUn8tVtnLMOndH0=;
+        b=rFUWEwPSNxmh54wzVqT+GN4lC3KgOrQRUCHbBNLJQJPariyC/w9RJyom+KbhAfSvws
+         sOq/5lbqg0hI+DGUpwYIxZLryVvgONnIWrw2IH9xain/c1MYvhnQj5DV+Wm0Xq26s+pe
+         dv1DVpUbYbikpWKlHd5dJjVvhnnMY4zorLUWtKIDgid3crTEBPc8lSyP0vNoAYT+eqCw
+         dYNw/x7lK374R1WW1I/VXnnJqjEYWpUaEkj0Pw2BWL1ZYDS1j7iOmNhxJb+j08gjGJ0s
+         vRm/L5CUJero2jdBmK6F8XbUKHMdLiQLzkvUqjREazz/2BujrrLGDOcUm4ub8zgmAUoV
+         bnCA==
+X-Gm-Message-State: AOAM531yaLEMvds1E1MUuZR5ekJo0p/6B+LkRO9bdHux7VIpQQ5RoM6l
+        zCVUCgKhnedJv4E8zzNUtqdISy41LsfXDrq4azg=
+X-Google-Smtp-Source: ABdhPJy8hpIPMXI+GnqDx6ZN1XGGam7cuZqWX/WVOC2/MTSDHkiw6Ya9xqRAwUQhIvDhuZLfyezr8OHQQywQZxdz59k=
+X-Received: by 2002:aa7:83d0:0:b029:3c6:7261:ecb with SMTP id
+ j16-20020aa783d00000b02903c672610ecbmr2751162pfn.61.1630662550603; Fri, 03
+ Sep 2021 02:49:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a05:6a10:fd97:0:0:0:0 with HTTP; Fri, 3 Sep 2021 02:49:10
+ -0700 (PDT)
+Reply-To: cnicele2@gmail.com
+From:   Stefano Pessina <roywastonyonce@gmail.com>
+Date:   Fri, 3 Sep 2021 02:49:10 -0700
+Message-ID: <CAJyuBPL4UBL3QRCjs78icH+nNS1MNzsPNeW1huMr1uxz3w=3dQ@mail.gmail.com>
+Subject: Donation
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 02, 2021 at 07:58:37AM +0200, Greg KH wrote:
-> On Thu, Sep 02, 2021 at 01:36:19PM +0800, DENG Qingfang wrote:
-> > On Fri, Aug 27, 2021 at 12:19:23PM +0200, Greg KH wrote:
-> > > On Tue, Aug 24, 2021 at 11:57:53PM +0800, DENG Qingfang wrote:
-> > > > Standalone ports should have address learning disabled, according to
-> > > > the documentation:
-> > > > https://www.kernel.org/doc/html/v5.14-rc7/networking/dsa/dsa.html#bridge-layer
-> > > > dsa_switch_ops on 5.10 or earlier does not have .port_bridge_flags
-> > > > function so it has to be done differently.
-> > > > 
-> > > > I've identified an issue related to this.
-> > > 
-> > > What issue is that?  Where was it reported?
-> > 
-> > See Florian's message here
-> > https://lore.kernel.org/stable/20210317003549.3964522-2-f.fainelli@gmail.com/
-> 
-> THat is just the patch changelog text, or is it unique to this
-> stable-only patch?  It is not obvious at all.
+-- 
+Hello,
 
-The issue is with all DSA drivers that do not disable address learning
-on standalone ports.
+I'm Stefano Pessina, an Italian business tycoon, investor, and
+philanthropist. the vice chairman, chief executive officer (CEO), and
+the single largest shareholder of Walgreens Boots Alliance. I gave
+away 25 percent of my personal wealth to charity. And I also pledged
+to give away the rest of 25%  this year 2021 to Individuals  because
+of the COVID heart break. I have decided to donate $2M (Two Million
+dollars) to you. If you are interested in my donation, do contact me
+for more info. via my email at: cnicele2@gmail.com
 
-"With learning enabled we would end up with the switch having
-incorrectly learned the address of the CPU port which typically results
-in a complete break down of network connectivity until the address
-learned ages out and gets re-learned, from the correct port this time."
+All replies should be forwarded to: cnicele2@gmail.com
 
-> 
-> > > > > 2. A partial backport of this patch?
-> > > > 
-> > > > The other part does not actually fix anything.
-> > > 
-> > > Then why is it not ok to just take the whole thing?
-> > > 
-> > > When backporting not-identical-patches, something almost always goes
-> > > wrong, so we prefer to take the original commit when ever possible.
-> > 
-> > Okay. MDB and tag ops can be backported as is, and broadcast/multicast
-> > flooding can be implemented in .port_egress_floods. 
-> 
-> So what are we supposed to do here?
-
-Function port_egress_floods is refactored to port_bridge_flags in commit
-a8b659e7ff75 ("net: dsa: act as passthrough for bridge port flags"). I can
-backport the mt7530_port_bridge_flags function as port_egress_floods.
-
-> 
-> totally confused,
-> 
-> greg k-h
+Warm Regard
+CEO Walgreens Boots Alliance
+Stefano Pessina
