@@ -2,123 +2,395 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A34703FFC88
-	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 11:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D8B83FFC8A
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 11:04:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348573AbhICJCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 05:02:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42954 "EHLO mail.kernel.org"
+        id S1348578AbhICJCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 05:02:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348569AbhICJCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Sep 2021 05:02:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 223EA600CC;
-        Fri,  3 Sep 2021 09:01:17 +0000 (UTC)
+        id S1348579AbhICJCV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Sep 2021 05:02:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E946260E9B;
+        Fri,  3 Sep 2021 09:01:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630659678;
-        bh=MQ7I6JHqo+kNjhGHTp2v9OgOiGsoxIlU8gAkI6pPk3w=;
-        h=From:To:Cc:Subject:Date:From;
-        b=CFNFwm/kTc8SwndpLChhIOKUzkvwV4FVPlqQvAC677HH99GZTNDyTj7/AIIhPD1bx
-         CX4XJNrUf2RRHUIDWxCfrA8matUKlXZJN10SjXNs1T956HexBKqCVYyIEyoaRYsukz
-         r9etppULfz/8KFqTtzQ1TjdNci2xs+rN+1VQydyo=
+        s=korg; t=1630659681;
+        bh=rAiDf/jVY9zbYwe2JVpDXIREfxlatBZSn2ZG3k6P9ZY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=tekAKA5z4N6UPxq1dYRWdAltqdi8RwZoJOgfjY9v8j+PCdulrLTpePuXKk2mIvQeT
+         666vhzNRAgxKNCw4CCGzJb5LVhjslq5aLQozaQA/MAwdVNP1Nhk3BRGs1SXxUcPKGp
+         KRFtSTOpDZ2DH+7hKgPyfnH5jiIweohLw8byDBT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.9.282
-Date:   Fri,  3 Sep 2021 11:01:12 +0200
-Message-Id: <163065967387234@kroah.com>
+Subject: Re: Linux 4.9.282
+Date:   Fri,  3 Sep 2021 11:01:13 +0200
+Message-Id: <16306596737954@kroah.com>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <163065967387234@kroah.com>
+References: <163065967387234@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.9.282 kernel.
-
-All users of the 4.9 kernel series must upgrade.
-
-The updated 4.9.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                    |    2 +-
- arch/arc/kernel/vmlinux.lds.S               |    2 ++
- arch/x86/kvm/mmu.c                          |   11 ++++++++++-
- drivers/block/floppy.c                      |   27 +++++++++++++--------------
- drivers/infiniband/hw/hfi1/sdma.c           |    9 ++++-----
- drivers/net/can/usb/esd_usb2.c              |    4 ++--
- drivers/net/ethernet/intel/e1000e/ich8lan.c |   14 +++++++++++++-
- drivers/net/ethernet/intel/e1000e/ich8lan.h |    3 +++
- drivers/net/ethernet/marvell/mvneta.c       |    2 +-
- drivers/tty/vt/vt_ioctl.c                   |   11 +++++++----
- drivers/usb/dwc3/gadget.c                   |   16 ++++++++--------
- drivers/usb/serial/ch341.c                  |    1 -
- drivers/usb/serial/option.c                 |    2 ++
- drivers/vhost/vringh.c                      |    2 +-
- drivers/video/fbdev/core/fbmem.c            |    4 ++++
- drivers/virtio/virtio_ring.c                |    6 ++++--
- net/ipv4/ip_gre.c                           |    2 ++
- net/rds/ib_frmr.c                           |    4 ++--
- 18 files changed, 79 insertions(+), 43 deletions(-)
-
-Denis Efremov (1):
-      Revert "floppy: reintroduce O_NDELAY fix"
-
-George Kennedy (1):
-      fbmem: add margin check to fb_check_caps()
-
-Gerd Rausch (1):
-      net/rds: dma_map_sg is entitled to merge entries
-
-Greg Kroah-Hartman (1):
-      Linux 4.9.282
-
-Guenter Roeck (1):
-      ARC: Fix CONFIG_STACKDEPOT
-
-Johan Hovold (1):
-      Revert "USB: serial: ch341: fix character loss at high transfer rates"
-
-Linus Torvalds (1):
-      vt_kdsetmode: extend console locking
-
-Maxim Kiselev (1):
-      net: marvell: fix MVNETA_TX_IN_PRGRS bit number
-
-Neeraj Upadhyay (1):
-      vringh: Use wiov->used to check for read/write desc order
-
-Parav Pandit (1):
-      virtio: Improve vq->broken access to avoid any compiler optimization
-
-Sasha Neftin (1):
-      e1000e: Fix the max snoop/no-snoop latency for 10M
-
-Sean Christopherson (1):
-      KVM: x86/mmu: Treat NX as used (not reserved) for all !TDP shadow MMUs
-
-Shreyansh Chouhan (1):
-      ip_gre: add validation for csum_start
-
-Stefan Mätje (1):
-      can: usb: esd_usb2: esd_usb2_rx_event(): fix the interchange of the CAN RX and TX error counters
-
-Thinh Nguyen (1):
-      usb: dwc3: gadget: Fix dwc3_calc_trbs_left()
-
-Tuo Li (1):
-      IB/hfi1: Fix possible null-pointer dereference in _extend_sdma_tx_descs()
-
-Zhengjun Zhang (1):
-      USB: serial: option: add new VID/PID to support Fibocom FG150
-
+diff --git a/Makefile b/Makefile
+index 08bbebb4acbf..ca08ef26f416 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 9
+-SUBLEVEL = 281
++SUBLEVEL = 282
+ EXTRAVERSION =
+ NAME = Roaring Lionus
+ 
+diff --git a/arch/arc/kernel/vmlinux.lds.S b/arch/arc/kernel/vmlinux.lds.S
+index f35ed578e007..4d823d3f65bb 100644
+--- a/arch/arc/kernel/vmlinux.lds.S
++++ b/arch/arc/kernel/vmlinux.lds.S
+@@ -92,6 +92,8 @@ SECTIONS
+ 		CPUIDLE_TEXT
+ 		LOCK_TEXT
+ 		KPROBES_TEXT
++		IRQENTRY_TEXT
++		SOFTIRQENTRY_TEXT
+ 		*(.fixup)
+ 		*(.gnu.warning)
+ 	}
+diff --git a/arch/x86/kvm/mmu.c b/arch/x86/kvm/mmu.c
+index 5cbc6591fa1d..c16d24ad8356 100644
+--- a/arch/x86/kvm/mmu.c
++++ b/arch/x86/kvm/mmu.c
+@@ -3927,7 +3927,16 @@ static void reset_rsvds_bits_mask_ept(struct kvm_vcpu *vcpu,
+ void
+ reset_shadow_zero_bits_mask(struct kvm_vcpu *vcpu, struct kvm_mmu *context)
+ {
+-	bool uses_nx = context->nx || context->base_role.smep_andnot_wp;
++	/*
++	 * KVM uses NX when TDP is disabled to handle a variety of scenarios,
++	 * notably for huge SPTEs if iTLB multi-hit mitigation is enabled and
++	 * to generate correct permissions for CR0.WP=0/CR4.SMEP=1/EFER.NX=0.
++	 * The iTLB multi-hit workaround can be toggled at any time, so assume
++	 * NX can be used by any non-nested shadow MMU to avoid having to reset
++	 * MMU contexts.  Note, KVM forces EFER.NX=1 when TDP is disabled.
++	 */
++	bool uses_nx = context->nx || !tdp_enabled ||
++		context->base_role.smep_andnot_wp;
+ 
+ 	/*
+ 	 * Passing "true" to the last argument is okay; it adds a check
+diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
+index 64a3dae5381e..4496e7a49235 100644
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -4067,22 +4067,21 @@ static int floppy_open(struct block_device *bdev, fmode_t mode)
+ 	if (UFDCS->rawcmd == 1)
+ 		UFDCS->rawcmd = 2;
+ 
+-	if (mode & (FMODE_READ|FMODE_WRITE)) {
+-		UDRS->last_checked = 0;
+-		clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
+-		check_disk_change(bdev);
+-		if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
+-			goto out;
+-		if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
++	if (!(mode & FMODE_NDELAY)) {
++		if (mode & (FMODE_READ|FMODE_WRITE)) {
++			UDRS->last_checked = 0;
++			clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
++			check_disk_change(bdev);
++			if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
++				goto out;
++			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
++				goto out;
++		}
++		res = -EROFS;
++		if ((mode & FMODE_WRITE) &&
++		    !test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
+ 			goto out;
+ 	}
+-
+-	res = -EROFS;
+-
+-	if ((mode & FMODE_WRITE) &&
+-			!test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
+-		goto out;
+-
+ 	mutex_unlock(&open_lock);
+ 	mutex_unlock(&floppy_mutex);
+ 	return 0;
+diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
+index 76e63c88a87a..e9313e6f4b0e 100644
+--- a/drivers/infiniband/hw/hfi1/sdma.c
++++ b/drivers/infiniband/hw/hfi1/sdma.c
+@@ -3028,6 +3028,7 @@ static void __sdma_process_event(struct sdma_engine *sde,
+ static int _extend_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
+ {
+ 	int i;
++	struct sdma_desc *descp;
+ 
+ 	/* Handle last descriptor */
+ 	if (unlikely((tx->num_desc == (MAX_DESC - 1)))) {
+@@ -3048,12 +3049,10 @@ static int _extend_sdma_tx_descs(struct hfi1_devdata *dd, struct sdma_txreq *tx)
+ 	if (unlikely(tx->num_desc == MAX_DESC))
+ 		goto enomem;
+ 
+-	tx->descp = kmalloc_array(
+-			MAX_DESC,
+-			sizeof(struct sdma_desc),
+-			GFP_ATOMIC);
+-	if (!tx->descp)
++	descp = kmalloc_array(MAX_DESC, sizeof(struct sdma_desc), GFP_ATOMIC);
++	if (!descp)
+ 		goto enomem;
++	tx->descp = descp;
+ 
+ 	/* reserve last descriptor for coalescing */
+ 	tx->desc_limit = MAX_DESC - 1;
+diff --git a/drivers/net/can/usb/esd_usb2.c b/drivers/net/can/usb/esd_usb2.c
+index 592c6e7f3dca..fbe1173b2651 100644
+--- a/drivers/net/can/usb/esd_usb2.c
++++ b/drivers/net/can/usb/esd_usb2.c
+@@ -236,8 +236,8 @@ static void esd_usb2_rx_event(struct esd_usb2_net_priv *priv,
+ 	if (id == ESD_EV_CAN_ERROR_EXT) {
+ 		u8 state = msg->msg.rx.data[0];
+ 		u8 ecc = msg->msg.rx.data[1];
+-		u8 txerr = msg->msg.rx.data[2];
+-		u8 rxerr = msg->msg.rx.data[3];
++		u8 rxerr = msg->msg.rx.data[2];
++		u8 txerr = msg->msg.rx.data[3];
+ 
+ 		skb = alloc_can_err_skb(priv->netdev, &cf);
+ 		if (skb == NULL) {
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index 625008e8cb0d..500016209ae0 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -1010,6 +1010,8 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
+ {
+ 	u32 reg = link << (E1000_LTRV_REQ_SHIFT + E1000_LTRV_NOSNOOP_SHIFT) |
+ 	    link << E1000_LTRV_REQ_SHIFT | E1000_LTRV_SEND;
++	u16 max_ltr_enc_d = 0;	/* maximum LTR decoded by platform */
++	u16 lat_enc_d = 0;	/* latency decoded */
+ 	u16 lat_enc = 0;	/* latency encoded */
+ 
+ 	if (link) {
+@@ -1063,7 +1065,17 @@ static s32 e1000_platform_pm_pch_lpt(struct e1000_hw *hw, bool link)
+ 				     E1000_PCI_LTR_CAP_LPT + 2, &max_nosnoop);
+ 		max_ltr_enc = max_t(u16, max_snoop, max_nosnoop);
+ 
+-		if (lat_enc > max_ltr_enc)
++		lat_enc_d = (lat_enc & E1000_LTRV_VALUE_MASK) *
++			     (1U << (E1000_LTRV_SCALE_FACTOR *
++			     ((lat_enc & E1000_LTRV_SCALE_MASK)
++			     >> E1000_LTRV_SCALE_SHIFT)));
++
++		max_ltr_enc_d = (max_ltr_enc & E1000_LTRV_VALUE_MASK) *
++				 (1U << (E1000_LTRV_SCALE_FACTOR *
++				 ((max_ltr_enc & E1000_LTRV_SCALE_MASK)
++				 >> E1000_LTRV_SCALE_SHIFT)));
++
++		if (lat_enc_d > max_ltr_enc_d)
+ 			lat_enc = max_ltr_enc;
+ 	}
+ 
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.h b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+index 6374c8fc76a8..9957a4ffdc6d 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.h
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.h
+@@ -291,8 +291,11 @@
+ 
+ /* Latency Tolerance Reporting */
+ #define E1000_LTRV			0x000F8
++#define E1000_LTRV_VALUE_MASK		0x000003FF
+ #define E1000_LTRV_SCALE_MAX		5
+ #define E1000_LTRV_SCALE_FACTOR		5
++#define E1000_LTRV_SCALE_SHIFT		10
++#define E1000_LTRV_SCALE_MASK		0x00001C00
+ #define E1000_LTRV_REQ_SHIFT		15
+ #define E1000_LTRV_NOSNOOP_SHIFT	16
+ #define E1000_LTRV_SEND			(1 << 30)
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index bb6bc84995a2..ccacdcfb5932 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -100,7 +100,7 @@
+ #define      MVNETA_DESC_SWAP                    BIT(6)
+ #define      MVNETA_TX_BRST_SZ_MASK(burst)       ((burst) << 22)
+ #define MVNETA_PORT_STATUS                       0x2444
+-#define      MVNETA_TX_IN_PRGRS                  BIT(1)
++#define      MVNETA_TX_IN_PRGRS                  BIT(0)
+ #define      MVNETA_TX_FIFO_EMPTY                BIT(8)
+ #define MVNETA_RX_MIN_FRAME_SIZE                 0x247c
+ #define MVNETA_SERDES_CFG			 0x24A0
+diff --git a/drivers/tty/vt/vt_ioctl.c b/drivers/tty/vt/vt_ioctl.c
+index 9206fd248935..e1c1627a3356 100644
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -487,16 +487,19 @@ int vt_ioctl(struct tty_struct *tty,
+ 			ret = -EINVAL;
+ 			goto out;
+ 		}
+-		/* FIXME: this needs the console lock extending */
+-		if (vc->vc_mode == (unsigned char) arg)
++		console_lock();
++		if (vc->vc_mode == (unsigned char) arg) {
++			console_unlock();
+ 			break;
++		}
+ 		vc->vc_mode = (unsigned char) arg;
+-		if (console != fg_console)
++		if (console != fg_console) {
++			console_unlock();
+ 			break;
++		}
+ 		/*
+ 		 * explicitly blank/unblank the screen if switching modes
+ 		 */
+-		console_lock();
+ 		if (arg == KD_TEXT)
+ 			do_unblank_screen(1);
+ 		else
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index cca51553e0fb..e340ef67321e 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -928,19 +928,19 @@ static struct dwc3_trb *dwc3_ep_prev_trb(struct dwc3_ep *dep, u8 index)
+ 
+ static u32 dwc3_calc_trbs_left(struct dwc3_ep *dep)
+ {
+-	struct dwc3_trb		*tmp;
+ 	u8			trbs_left;
+ 
+ 	/*
+-	 * If enqueue & dequeue are equal than it is either full or empty.
+-	 *
+-	 * One way to know for sure is if the TRB right before us has HWO bit
+-	 * set or not. If it has, then we're definitely full and can't fit any
+-	 * more transfers in our ring.
++	 * If the enqueue & dequeue are equal then the TRB ring is either full
++	 * or empty. It's considered full when there are DWC3_TRB_NUM-1 of TRBs
++	 * pending to be processed by the driver.
+ 	 */
+ 	if (dep->trb_enqueue == dep->trb_dequeue) {
+-		tmp = dwc3_ep_prev_trb(dep, dep->trb_enqueue);
+-		if (tmp->ctrl & DWC3_TRB_CTRL_HWO)
++		/*
++		 * If there is any request remained in the started_list at
++		 * this point, that means there is no TRB available.
++		 */
++		if (!list_empty(&dep->started_list))
+ 			return 0;
+ 
+ 		return DWC3_TRB_NUM - 1;
+diff --git a/drivers/usb/serial/ch341.c b/drivers/usb/serial/ch341.c
+index 2e92c6fef683..c6ff79360302 100644
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -585,7 +585,6 @@ static struct usb_serial_driver ch341_device = {
+ 		.owner	= THIS_MODULE,
+ 		.name	= "ch341-uart",
+ 	},
+-	.bulk_in_size      = 512,
+ 	.id_table          = id_table,
+ 	.num_ports         = 1,
+ 	.open              = ch341_open,
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index b3336a7c09e0..02ded56bcbc6 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2058,6 +2058,8 @@ static const struct usb_device_id option_ids[] = {
+ 	  .driver_info = RSVD(4) | RSVD(5) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
+ 	  .driver_info = RSVD(6) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2df3, 0x9d03, 0xff) },			/* LongSung M5710 */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x305a, 0x1404, 0xff) },			/* GosunCn GM500 RNDIS */
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index d56736655dec..da47542496cc 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -329,7 +329,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
+ 			iov = wiov;
+ 		else {
+ 			iov = riov;
+-			if (unlikely(wiov && wiov->i)) {
++			if (unlikely(wiov && wiov->used)) {
+ 				vringh_bad("Readable desc %p after writable",
+ 					   &descs[i]);
+ 				err = -EINVAL;
+diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+index ae623cd04d6c..16f5f5633243 100644
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1001,6 +1001,10 @@ fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
+ 			goto done;
+ 		}
+ 
++		/* bitfill_aligned() assumes that it's at least 8x8 */
++		if (var->xres < 8 || var->yres < 8)
++			return -EINVAL;
++
+ 		ret = info->fbops->fb_check_var(var, info);
+ 
+ 		if (ret)
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 5cad9f41c238..cf7eccfe3469 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1150,7 +1150,7 @@ bool virtqueue_is_broken(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+-	return vq->broken;
++	return READ_ONCE(vq->broken);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_is_broken);
+ 
+@@ -1164,7 +1164,9 @@ void virtio_break_device(struct virtio_device *dev)
+ 
+ 	list_for_each_entry(_vq, &dev->vqs, list) {
+ 		struct vring_virtqueue *vq = to_vvq(_vq);
+-		vq->broken = true;
++
++		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
++		WRITE_ONCE(vq->broken, true);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(virtio_break_device);
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index 9609ad71dd26..fe1801d9f059 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -353,6 +353,8 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
+ 
+ static int gre_handle_offloads(struct sk_buff *skb, bool csum)
+ {
++	if (csum && skb_checksum_start(skb) < skb->data)
++		return -EINVAL;
+ 	return iptunnel_handle_offloads(skb, csum ? SKB_GSO_GRE_CSUM : SKB_GSO_GRE);
+ }
+ 
+diff --git a/net/rds/ib_frmr.c b/net/rds/ib_frmr.c
+index 3d9c4c6397c3..20d045faf07c 100644
+--- a/net/rds/ib_frmr.c
++++ b/net/rds/ib_frmr.c
+@@ -112,9 +112,9 @@ static int rds_ib_post_reg_frmr(struct rds_ib_mr *ibmr)
+ 		cpu_relax();
+ 	}
+ 
+-	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_len,
++	ret = ib_map_mr_sg_zbva(frmr->mr, ibmr->sg, ibmr->sg_dma_len,
+ 				&off, PAGE_SIZE);
+-	if (unlikely(ret != ibmr->sg_len))
++	if (unlikely(ret != ibmr->sg_dma_len))
+ 		return ret < 0 ? ret : -EINVAL;
+ 
+ 	/* Perform a WR for the fast_reg_mr. Each individual page
