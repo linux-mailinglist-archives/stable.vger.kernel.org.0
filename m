@@ -2,106 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC213FFAC0
-	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 08:56:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBFA93FFB77
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 10:01:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347496AbhICG5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 02:57:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47414 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347494AbhICG5J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 02:57:09 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9F2DC061757
-        for <stable@vger.kernel.org>; Thu,  2 Sep 2021 23:56:09 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id u9so6693817wrg.8
-        for <stable@vger.kernel.org>; Thu, 02 Sep 2021 23:56:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=wzcM5k1rZYX7JAfQTIh1G0ysAWH4N0zOlFmqKRSnIDo=;
-        b=IP2ShefelzpULLEjyHvtps599EpVQNx6jGCjIAlKWfwNVbNeLH0wcHWiDgB/54twaH
-         O3d/7pDDZq3/GleihdFmR3enbPjkymmSR63VPe+6LlQENSqVW1ikQ/iQ1lyogaZ3ameA
-         KhCc7f4dtBgmBp8SSvxspO1olPMjuOrf9epNOdEBp2e5BhPAuowwabvAGV7uig6wH3lG
-         mqlORz8Gk+CdLj5Ofq2JlEZy7v7v7Z/jY5rNIsi7X6SUXcMaILcMEOo91wIKIO+ABDbE
-         zhx5KtIb13A67MWAdeHteU8UEcUa3of56Ioxpn6yd5CLJjMwblCzSlD0ZmAG71vslHWa
-         Xl2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=wzcM5k1rZYX7JAfQTIh1G0ysAWH4N0zOlFmqKRSnIDo=;
-        b=CTCF0MkOW/K6aycLJWoKs59LTD3O78xK5UYT6Rq0bdycUYYdNA07GBuUvChhHspUD1
-         7JV+gWBpajg6S+bksqmqwoe94Ecd2gyhQEK3vyfJetXeYSsjqCjuA7BiGNHmNTqj69iE
-         POxsRSzqBJZhxgyfib/fIdOoOqhecdz9DvGTawjsxuXce8X34X4Iz7qjwRG06Iqy9I2l
-         OLX2ablamwOa93J7/2v/K8M6lZDUdrtOBJccnXbnwCipoEEf/hzHOuIziyjLmVscp5fi
-         hdTfJoe/g4dfayhr3vdKU5HHzJYY21uPWL1x3R0U2e5HyGzCoHgqon/QRKNAyRjF1fEw
-         8rHg==
-X-Gm-Message-State: AOAM532QpBAbY43y2SL4rzls4rHTq3kQ8L95Wi8bpdPxetFN4vSrkaYz
-        g0MCTw5o0vrBUle/d1f+lUly2kSsbAy4Y9B6NcI=
-X-Google-Smtp-Source: ABdhPJwrlHDyK2eOPqpG4OhIUw5H4iyU0mNsRD84BPrflBeZNU+OGtbyoZ83wBGz0yDilMfMdxOdyxWOYv/i3c+qe9o=
-X-Received: by 2002:adf:c149:: with SMTP id w9mr2215593wre.126.1630652167871;
- Thu, 02 Sep 2021 23:56:07 -0700 (PDT)
+        id S1348105AbhICICA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 04:02:00 -0400
+Received: from mout.gmx.net ([212.227.17.21]:36817 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1348069AbhICIB7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Sep 2021 04:01:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1630656050;
+        bh=kWncfL8ub8fyucS67Ie17YSILaF9USMducD/IDECB5s=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=eSlINVWBucKZn02pYRzSHVWh1duPLOmGnUlQFJqXoBRhU5hMr1fWtL0Io6vg987+b
+         O78Y1ktitqKZIa0rz+QovcEoG/GhJ+N8Jvati9niL2pL3uRldBkOL2bqj6f4brk3gQ
+         n803WA04f/sTK1+v0omKyXXNHWYRg1Jjp1Ms9o1U=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from ls3530.fritz.box ([92.116.183.73]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MNKlu-1mbw3E2sZO-00OnI0; Fri, 03
+ Sep 2021 10:00:50 +0200
+From:   Helge Deller <deller@gmx.de>
+To:     linux-parisc@vger.kernel.org
+Cc:     James Bottomley <James.Bottomley@HansenPartnership.com>,
+        John David Anglin <dave.anglin@bell.net>,
+        Arnd Bergmann <arnd@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] parisc: Fix unaligned-access crash in bootloader
+Date:   Fri,  3 Sep 2021 10:00:45 +0200
+Message-Id: <20210903080045.1048500-1-deller@gmx.de>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Received: by 2002:a5d:4749:0:0:0:0:0 with HTTP; Thu, 2 Sep 2021 23:56:07 -0700 (PDT)
-Reply-To: wu19129@gmail.com
-From:   Western Union Money Transfer <vinodthakur2012@gmail.com>
-Date:   Thu, 2 Sep 2021 23:56:07 -0700
-Message-ID: <CAP2X2EKe=_d5+R2_itRWs87L=G3_PojkSypVnjz46Up_eSRqDg@mail.gmail.com>
-Subject: Your Western Union First Payment Is Ready For Pick Up
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:pG1Nvoo6oDHXdISfv6u1nerCh9rslBvUKNUgc9oUytx1xc5yTeh
+ u3OdREPadsK7XDtqg5lWlydVajlEhIuLty/r9SamORcFiwgwUVlWwucqeS6xBIB6pIJ8Nkk
+ vfy0kElrcOvjlfFUcbZlT16LfXNs1xyO70zuvV3OE92S/VPvVBTNNRdyftrXlVPdmBkHoaj
+ GL0lHVeHMBnQFeM4ov66g==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:70SGwaMbBkM=:9FmaDo1kuv9ZcRdPtSpm8P
+ UzYRp91HKy8cjr+fdt8JSTvP9+TwGHwOXRbrWOgH90Zl5or4He8LbH+pVm09gqNtgekjl6Mdu
+ 2IqfMfOmQ31yXjgdQUe1nlft8J1wTQ1di1z74B4j/32Hnl2x8aZQb4mDs6z00GfIHCOq89jMx
+ wqBUcu/yR0iwWHiwWg92/PsI44s/qqVnc+2V00uKIj1x1iblQTbh1bATl1uC3CYUERubJx3jJ
+ 9UsZROq55GjwQ5RmtJDmxq4eoA3lRLPrSBSWtjrfUvUR2AMtbznNEGD34FcmiqtdYjMywZ/NM
+ Y+qJ/b5rbQu8UWvR6zTuWuoq9A6IwdqPsBjrdRW69I52BOzZ7E3AY3h53ybGJys3rMDXsKoEP
+ HsyGuKudGauZmOU9MEsEj6lLyMsaCigLBKYe61mc1MB/O+r4t1BToebMq498FSw+XlJECu1M2
+ Z5UzzHF1o+tOLZIfsHXf1wwVPKWunEz4Nh+tpciK49GqSAoHdyyuziIaJUBkNhXJDPx58Qsom
+ d0P4rvMCftCICWz+L0lAQyDn3a8v7ffXo9isB5qo1CpaPdm/M3QZIGVyM/cf3F2mqTlb8JRQa
+ yEQ+nd6eGIS94m26L9N4ZGVXtkPxd+lSElNHG/5LGVjf1RLAF5jK+e7mAobA1fXtaDQ2Z12/Z
+ +NEQSFalEogOUehYqVzX+hCoL4hP3XLYdlZfVuDX7HRoTdrTCjf1BMp+xf50W9zt8d/YeDYAE
+ 3zsKbVxFffrkMxeOol4ciJt7OYTtOKCK4xHPLkDZM7G2BV0ikJvTTmKpeIZNMIl1iX4mwntNj
+ 7anXWPK5wR/RCJJvIFPV6djLc1xPJHOq+UPc2AYMmVCqOexTbwZvV/qAd0zZYb3R84bY29++I
+ 89HbsYKXSvkm/4kPGOsE20XNVzd0Gx+G4DJSBWbc/sKfoL7F7K+i30cipRzYn7iAFRAU2AUoR
+ xm1/zlkfHZ+CpZK+TEYw33+fZvbqktvQzek6+o3KLHuNCO48c1Lg+/pNxwKBHl4PSJ0PFV5Rp
+ MA5TTgA095nVs2rllMhGTfP060V/Umwir71t/CIluDiA5tyusewpsCSYAWQzk8x21cILUWyoX
+ kZl735nxdksmmBtyquOPBscWPj3yREgzogX
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Dear Sole Beneficiary,
+Kernel v5.14 has various changes to optimize unaligned memory accesses,
+e.g. commit 0652035a5794 ("asm-generic: unaligned: remove byteshift helper=
+s").
 
-If you find the mail in your spam, it=E2=80=99s because of your internet IS=
-P.
+Those changes triggered an unalignment-exception and thus crashed the
+bootloader on parisc because the unaligned "output_len" variable now sudde=
+nly
+was read word-wise while it was read byte-wise in the past.
 
-However, it is a pleasure to write you that we have reconciled with
-our logistic department on the reimbursement of some fund spent by you
-during the cause of your inadequate dealings with some scammers who
-claim to be staff in banks and other regional payment centers.
+Fix this issue by declaring the external output_len variable as char which=
+ then
+forces the compiler to generate byte-accesses.
 
-After proper and several investigations and research at Western Union
-and Money Gram Office, we found your name in Western Union database
-through Western Union to Nigeria, PH, United States and Benin
-republic, etc.
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: Arnd Bergmann <arnd@kernel.org>
+Cc: John David Anglin <dave.anglin@bell.net>
+Bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=3D102162
+Fixes: 8c031ba63f8f ("parisc: Unbreak bootloader due to gcc-7 optimization=
+s")
+Fixes: 0652035a5794 ("asm-generic: unaligned: remove byteshift helpers")
+Cc: <stable@vger.kernel.org> # v5.14+
+=2D--
+ arch/parisc/boot/compressed/misc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-In other to compensate you, the IC3 organization has mandated to
-transfer the sum $487,000.00 Dollars to you via western union as the
-first TEST transfer have been initiated and successful.
+diff --git a/arch/parisc/boot/compressed/misc.c b/arch/parisc/boot/compres=
+sed/misc.c
+index 2d395998f524..7ee49f5881d1 100644
+=2D-- a/arch/parisc/boot/compressed/misc.c
++++ b/arch/parisc/boot/compressed/misc.c
+@@ -26,7 +26,7 @@
+ extern char input_data[];
+ extern int input_len;
+ /* output_len is inserted by the linker possibly at an unaligned address =
+*/
+-extern __le32 output_len __aligned(1);
++extern char output_len;
+ extern char _text, _end;
+ extern char _bss, _ebss;
+ extern char _startcode_end;
+=2D-
+2.31.1
 
-In this regards, I decided to email the relevant details for you to
-pick up the $5,200.00 dollars to enable us send another $5,200.00
-dollars to you. Please ensure you have your national ID card before
-pick up.
-
-Here is the western union detail to pick up the $5,200 that was sent.
-
-To confirm your MTCN visit Western Union Website on
-
-https://www.westernunion.com/global-service/track-transfer
-
-MTCN Number: # 672-738-0735
-Sender's Name: Mrs. Mercy Obiagu
-Amount: $5,200
-
-Note: I have been Officially Assigned to facilitate this Transaction,I
-hereby advise you adhere to my instruction to enable us conclude with
-your Compensation Fund Transfer Successfully. Endeavor to contact me
-through email:
-wu19129@gmail.com
-
-
-Thanks & Regards
-
-DR.AUGUSTIN ADAMS
-Accounting Officer
-Payment Department
-E-mail:wu19129@gmail.com
