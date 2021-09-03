@@ -2,192 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 809BB3FFAAA
-	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 08:52:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCC213FFAC0
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 08:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347435AbhICGvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 02:51:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58096 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234729AbhICGvl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Sep 2021 02:51:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4C8860F91;
-        Fri,  3 Sep 2021 06:50:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630651842;
-        bh=o11eN+wIvh0pLhZgN/lGDXI1hPVAU6zQCmGN470CJE8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SVqUEBE8WQlintNUCG8gahI3bVDa/nVI079PmcrsZNuj+UDR+oUFgiz3YyjSKLzwj
-         7eUpdciIo0kZVggSQ4N/A73pVrYgAxx5s1K9qRL4c+nDDJ5oUMA8craCatpeYLT8mm
-         50Q+ZaynyW2jr2ein579f2YTooXiJVYoHRsbWFYY=
-Date:   Fri, 3 Sep 2021 08:50:39 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+01985d7909f9468f013c@syzkaller.appspotmail.com,
-        Alexey Gladkov <legion@kernel.org>
-Subject: Re: [PATCH 5.10 036/103] ucounts: Increase ucounts reference counter
- before the security hook
-Message-ID: <YTHFv5ocSt4W+JZs@kroah.com>
-References: <20210901122300.503008474@linuxfoundation.org>
- <20210901122301.773759848@linuxfoundation.org>
- <87v93k4bl6.fsf@disp2133>
- <YS+s+XL0xXKGwh9a@kroah.com>
- <875yvk1a31.fsf@disp2133>
- <YTDLyU2mdeoe5cVt@sashalap>
- <875yvizwb9.fsf@disp2133>
- <YTGrQ2D1/tQR1pCh@kroah.com>
- <YTGr2ZkgfTCIGVpr@kroah.com>
+        id S1347496AbhICG5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 02:57:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47414 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347494AbhICG5J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 02:57:09 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9F2DC061757
+        for <stable@vger.kernel.org>; Thu,  2 Sep 2021 23:56:09 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id u9so6693817wrg.8
+        for <stable@vger.kernel.org>; Thu, 02 Sep 2021 23:56:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=wzcM5k1rZYX7JAfQTIh1G0ysAWH4N0zOlFmqKRSnIDo=;
+        b=IP2ShefelzpULLEjyHvtps599EpVQNx6jGCjIAlKWfwNVbNeLH0wcHWiDgB/54twaH
+         O3d/7pDDZq3/GleihdFmR3enbPjkymmSR63VPe+6LlQENSqVW1ikQ/iQ1lyogaZ3ameA
+         KhCc7f4dtBgmBp8SSvxspO1olPMjuOrf9epNOdEBp2e5BhPAuowwabvAGV7uig6wH3lG
+         mqlORz8Gk+CdLj5Ofq2JlEZy7v7v7Z/jY5rNIsi7X6SUXcMaILcMEOo91wIKIO+ABDbE
+         zhx5KtIb13A67MWAdeHteU8UEcUa3of56Ioxpn6yd5CLJjMwblCzSlD0ZmAG71vslHWa
+         Xl2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=wzcM5k1rZYX7JAfQTIh1G0ysAWH4N0zOlFmqKRSnIDo=;
+        b=CTCF0MkOW/K6aycLJWoKs59LTD3O78xK5UYT6Rq0bdycUYYdNA07GBuUvChhHspUD1
+         7JV+gWBpajg6S+bksqmqwoe94Ecd2gyhQEK3vyfJetXeYSsjqCjuA7BiGNHmNTqj69iE
+         POxsRSzqBJZhxgyfib/fIdOoOqhecdz9DvGTawjsxuXce8X34X4Iz7qjwRG06Iqy9I2l
+         OLX2ablamwOa93J7/2v/K8M6lZDUdrtOBJccnXbnwCipoEEf/hzHOuIziyjLmVscp5fi
+         hdTfJoe/g4dfayhr3vdKU5HHzJYY21uPWL1x3R0U2e5HyGzCoHgqon/QRKNAyRjF1fEw
+         8rHg==
+X-Gm-Message-State: AOAM532QpBAbY43y2SL4rzls4rHTq3kQ8L95Wi8bpdPxetFN4vSrkaYz
+        g0MCTw5o0vrBUle/d1f+lUly2kSsbAy4Y9B6NcI=
+X-Google-Smtp-Source: ABdhPJwrlHDyK2eOPqpG4OhIUw5H4iyU0mNsRD84BPrflBeZNU+OGtbyoZ83wBGz0yDilMfMdxOdyxWOYv/i3c+qe9o=
+X-Received: by 2002:adf:c149:: with SMTP id w9mr2215593wre.126.1630652167871;
+ Thu, 02 Sep 2021 23:56:07 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YTGr2ZkgfTCIGVpr@kroah.com>
+Received: by 2002:a5d:4749:0:0:0:0:0 with HTTP; Thu, 2 Sep 2021 23:56:07 -0700 (PDT)
+Reply-To: wu19129@gmail.com
+From:   Western Union Money Transfer <vinodthakur2012@gmail.com>
+Date:   Thu, 2 Sep 2021 23:56:07 -0700
+Message-ID: <CAP2X2EKe=_d5+R2_itRWs87L=G3_PojkSypVnjz46Up_eSRqDg@mail.gmail.com>
+Subject: Your Western Union First Payment Is Ready For Pick Up
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 03, 2021 at 07:00:09AM +0200, Greg Kroah-Hartman wrote:
-> On Fri, Sep 03, 2021 at 06:57:39AM +0200, Greg Kroah-Hartman wrote:
-> > On Thu, Sep 02, 2021 at 01:06:34PM -0500, Eric W. Biederman wrote:
-> > > Sasha Levin <sashal@kernel.org> writes:
-> > > 
-> > > > On Wed, Sep 01, 2021 at 12:26:10PM -0500, Eric W. Biederman wrote:
-> > > >>Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
-> > > >>
-> > > >>> On Wed, Sep 01, 2021 at 09:25:25AM -0500, Eric W. Biederman wrote:
-> > > >>>> Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
-> > > >>>>
-> > > >>>> > From: Alexey Gladkov <legion@kernel.org>
-> > > >>>> >
-> > > >>>> > [ Upstream commit bbb6d0f3e1feb43d663af089c7dedb23be6a04fb ]
-> > > >>>> >
-> > > >>>> > We need to increment the ucounts reference counter befor security_prepare_creds()
-> > > >>>> > because this function may fail and abort_creds() will try to decrement
-> > > >>>> > this reference.
-> > > >>>>
-> > > >>>> Has the conversion of the rlimits to ucounts been backported?
-> > > >>>>
-> > > >>>> Semantically the code is an improvement but I don't know of any cases
-> > > >>>> where it makes enough of a real-world difference to make it worth
-> > > >>>> backporting the code.
-> > > >>>>
-> > > >>>> Certainly the ucount/rlimit conversions do not meet the historical
-> > > >>>> criteria for backports.  AKA simple obviously correct patches.
-> > > >>>>
-> > > >>>> The fact we have been applying fixes for the entire v5.14 stabilization
-> > > >>>> period is a testament to the code not quite being obviously correct.
-> > > >>>>
-> > > >>>> Without backports the code only affects v5.14 so I have not been
-> > > >>>> including a Cc stable on any of the commits.
-> > > >>>>
-> > > >>>> So color me very puzzled about what is going on here.
-> > > >>>
-> > > >>> Sasha picked this for some reason, but if you think it should be
-> > > >>> dropped, we can easily do so.
-> > > >>
-> > > >>My question is what is the reason Sasha picked this up?
-> > > >>
-> > > >>If this patch even applies to v5.10 the earlier patches have been
-> > > >>backported.  So we can't just drop this patch.  Either the earlier
-> > > >>backports need to be reverted, or we need to make certain all of the
-> > > >>patches are backported.
-> > > >>
-> > > >>I really am trying to understand what is going on and why.
-> > > >
-> > > > I'll happily explain. The commit message is telling us that:
-> > > >
-> > > > 1. There is an issue uncovered by syzbot which this patch fixes:
-> > > >
-> > > > 	"Reported-by: syzbot"
-> > > >
-> > > > 2. The issue was introduced in 905ae01c4ae2 ("Add a reference to ucounts
-> > > > for each cred"):
-> > > >
-> > > > 	"Fixes: 905ae01c4ae2"
-> > > >
-> > > > Since 905ae01c4ae2 exist in 5.10, and this patch seemed to fix an issue,
-> > > > I've queued it up.
-> > > 
-> > > Which begs the question as Alex mentioned how did 905ae01c4ae2 get into
-> > > 5.10, as it was merged to Linus's tree in the merge window for 5.14.
-> > > 
-> > > > In general, if we're missing backports, backported something only
-> > > > partially and should revert it, or anything else that might cause an
-> > > > issue, we'd be more than happy to work with you to fix it up.
-> > > >
-> > > > All the patches we queue up get multiple rounds of emails and reviews,
-> > > > if there is a better way to solicit reviews so that we won't up in a
-> > > > place where you haven't noticed something going in earlier we'd be more
-> > > > than happy to improve that process too.
-> > > 
-> > > I have the bad feeling that 905ae01c4ae2 was backported because it was a
-> > > prerequisite to something with a Fixes tag.
-> > > 
-> > > Fixes tags especially in this instance don't mean code needs to go to
-> > > stable Fixes tags mean that a bug was fixed.  Since I thought the code
-> > > only existed in Linus's tree, I haven't been adding Cc stable or even
-> > > thinking about earlier kernels with respect to this code.
-> > > 
-> > > I honestly can't keep up with the level of review needed for patches
-> > > targeting Linus's tree.  So I occasionally glance at patches destined
-> > > for the stable tree.
-> > > 
-> > > Most of the time it is something being backported without a stable tag,
-> > > but with a fixes tag, that is unnecessary but generally harmless so I
-> > > ignore it.
-> > > 
-> > > In this instance it looks like a whole new feature that has had a rocky
-> > > history and a lot of time to stablize is somehow backported to 5.10 and
-> > > 5.13.  I think all of the known issues are addressed but I won't know
-> > > if all of the issues syzkaller can find are found for another couple of
-> > > weeks.
-> > > 
-> > > Because this code was not obviously correct, because this code did not
-> > > have a stable tag, because I am not even certain it is stable yet,
-> > > I am asking do you know how this code that feels to me like feature work
-> > > wound up being backported?  AKA why is 905ae01c4ae2 in 5.10 and 5.13.
-> > 
-> > Looks like Sasha added it to the tree last week and it went out in the
-> > last set of releases.  Sasha, why was this added?  Let me see if it was
-> > a requirement of some other patch...
-> 
-> Sorry, no, that was this patch, let me get my coffee before I dig into
-> this...
+--=20
+Dear Sole Beneficiary,
 
-Ok, it looks like the original patch came in through the AUTOSEL
-process, and you were cc:ed on it back on July 4, 2021:
-	https://lore.kernel.org/r/20210704230804.1490078-2-sashal@kernel.org
+If you find the mail in your spam, it=E2=80=99s because of your internet IS=
+P.
 
-In reading the changelog of the commit, and looking briefly at the
-patch, I can see why it was selected as a candidate for backporting to
-stable kernels (fixes reported problem from kernel test robot, fixes
-reference counting logic, etc.)
+However, it is a pleasure to write you that we have reconciled with
+our logistic department on the reimbursement of some fund spent by you
+during the cause of your inadequate dealings with some scammers who
+claim to be staff in banks and other regional payment centers.
 
-So given that it seemed like a normal candidate for a stable fix, and no
-one complained, after one week, it was applied to the tree on July 11
-(but Sasha's scripts did NOT email you about that for some reason,
-hopefully he has fixed that by now).
+After proper and several investigations and research at Western Union
+and Money Gram Office, we found your name in Western Union database
+through Western Union to Nigeria, PH, United States and Benin
+republic, etc.
 
-Then on July 12, I added commit 5e6b8a50a7ce ("cred: add missing return
-error code when set_cred_ucounts() failed") to the stable patch queue,
-as it fixed a reported problem in the original commit, and you were
-copied on that.
+In other to compensate you, the IC3 organization has mandated to
+transfer the sum $487,000.00 Dollars to you via western union as the
+first TEST transfer have been initiated and successful.
 
-Then later that day, it was put out for review:
-	https://lore.kernel.org/r/20210712060854.324880966@linuxfoundation.org
-and you were copied on that as well.
+In this regards, I decided to email the relevant details for you to
+pick up the $5,200.00 dollars to enable us send another $5,200.00
+dollars to you. Please ensure you have your national ID card before
+pick up.
 
-So you should have an email trail of when this patch was submitted for
-inclusion, and then put out for review.  Do you not see them in your
-email system?
+Here is the western union detail to pick up the $5,200 that was sent.
+
+To confirm your MTCN visit Western Union Website on
+
+https://www.westernunion.com/global-service/track-transfer
+
+MTCN Number: # 672-738-0735
+Sender's Name: Mrs. Mercy Obiagu
+Amount: $5,200
+
+Note: I have been Officially Assigned to facilitate this Transaction,I
+hereby advise you adhere to my instruction to enable us conclude with
+your Compensation Fund Transfer Successfully. Endeavor to contact me
+through email:
+wu19129@gmail.com
 
 
-I just tested a local build, and yes, it can easily be reverted (along
-with a follow-on patch that was applied to resolve a problem with this
-commit), and I will queue them up after this release happens, but for
-now, I'll let this patch stay so that we do not break anyone.
+Thanks & Regards
 
-thanks,
-
-greg k-h
+DR.AUGUSTIN ADAMS
+Accounting Officer
+Payment Department
+E-mail:wu19129@gmail.com
