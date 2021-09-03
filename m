@@ -2,119 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E6D74005E2
-	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 21:35:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3624F4005EC
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 21:38:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235044AbhICTgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 15:36:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53300 "EHLO
+        id S238632AbhICTjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 15:39:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231599AbhICTgV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 15:36:21 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BC9EC061757
-        for <stable@vger.kernel.org>; Fri,  3 Sep 2021 12:35:21 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id w8so81288pgf.5
-        for <stable@vger.kernel.org>; Fri, 03 Sep 2021 12:35:21 -0700 (PDT)
+        with ESMTP id S235044AbhICTjk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 15:39:40 -0400
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C735C061575
+        for <stable@vger.kernel.org>; Fri,  3 Sep 2021 12:38:40 -0700 (PDT)
+Received: by mail-lf1-x12e.google.com with SMTP id x27so388636lfu.5
+        for <stable@vger.kernel.org>; Fri, 03 Sep 2021 12:38:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=6K4nJVPDXdliPER7L1Aoeu1FJ4W3ySTmNXN/2lgU9tg=;
-        b=Ko/gijLYzYeKeiKULkFL3YP0HU+9b2C4YhuEcKXCM7VrgLaULRSJdTpOTnXnqhRSXb
-         t1eETjIiWWSyiOz7afcgifoaOGx3LwP0YP9nz57PTJ+Lv1RPbsExMkQtnQBRAktLIv4H
-         mzAPZBf0xPFzDRUzCgoHM09jiuWC7+UYiEH3YIfrn7uIOMmkbJFubiechA8PHhjpi2pF
-         taQ5YWHFkD+yRuZP5LCuKX05C/fTgVW9cg6rXRqgSR/dUt/ax54JL9W6v87AVu3jUT4n
-         Ii+purB0qr01Fc9bqcHGcqMsmeBXUSzEH+FT8GmbwrylP2vE27rrVtyVuNepC1PSW+Nr
-         MIDg==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=CpWTZXeHQgxI0FRIsXgHMKOEiigtxEoeHddO3FWKGkk=;
+        b=UhpAzgv7FchR19cnMXHoZ7cPsnwbRuML2DSSZEKXlKbP9d7Uh/q51lYN6dicMfTSUV
+         dMV18+ZxBaPhTEDxtpW7QeKdKnIGoeQPq4sChmtUxnlLdNqoFJI2YqFqgG0EvaVH4Khl
+         cQjGnPEclgybXcLpQg8op5cyqaW6q3ph7e4SmGdI2glcrgPorTq5EcfSXhONcxrAT9EV
+         SVUaIelOgjBRpSAzTjutRcpIv1HmjzTs7O/hqvPSmsGQOjEwyuWWlW6theTjv4gHo0vi
+         IINnLytwUQXvyKA3KgzPZHFbroL39slzKCL2Gv5DbeUdMQTO5Hn1r6ANYcmcwc0drL1+
+         RszA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=6K4nJVPDXdliPER7L1Aoeu1FJ4W3ySTmNXN/2lgU9tg=;
-        b=gyRU01VFSV/R0fzY7ePfkUbAhCspc6kLWadrZc7EoGdlUa9ygohZEh6EztF0RLHY0H
-         tYHfyCSHGGPIF9SHSqWX73jehpczTJ48CdrEpdY3CRGf6ke01kd66mry8A8HKymhMZYU
-         oERCClB2fT8hdgQ6WnNFoZ3FPCv1dP8W6FYJog6n3mxxjq//mM8Udi9wgSsdfTzPJL9Y
-         MblxP7vZsVc0ANrKRlG6LGmQiV/GH0BnVAcqV667LR+nQQlLwRQL1QeUvnWyrwqlrDcn
-         aO+Yxd/M5pQ9D++8fOB91i4ktKDyRKhnd83aen+V0Vd73j3PHJqhYBzkUmrNw8oiEAmS
-         7eyw==
-X-Gm-Message-State: AOAM533uHAMfrQaLz63Ch0C4Vq99H6aLRtYqPUGYPxLGj3qAqB5/eArj
-        ncjW0j0XhTd5btuT6OQktggtGGpOBvF56Ac9
-X-Google-Smtp-Source: ABdhPJwYPsRItyYv14RwQTlGTc5epbv1/zOUVqPdzIB0Mq5Ul46Cts7yIUILxMmR5MJ2FVWRMkSOUQ==
-X-Received: by 2002:a63:ed17:: with SMTP id d23mr549618pgi.29.1630697720708;
-        Fri, 03 Sep 2021 12:35:20 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i10sm176342pfk.87.2021.09.03.12.35.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Sep 2021 12:35:20 -0700 (PDT)
-Message-ID: <613278f8.1c69fb81.80831.0de4@mx.google.com>
-Date:   Fri, 03 Sep 2021 12:35:20 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=CpWTZXeHQgxI0FRIsXgHMKOEiigtxEoeHddO3FWKGkk=;
+        b=dsy6+6mwliRfRP4JFEZSZoZ/ttEoeQ2iZrmGXY6QyZHak/Xc00YSv81wv3hsXXgs2w
+         HgUbDcyO3zt1+ONLHTGJjjpr1E2vuV+Oz6IIuvLLge9GpjFPTskmN/Tz5Kesdhwt1vd1
+         X8z1YLC38t/OFZAbpDSqN6+UehcnSRV5ojcURDWeLCllDeXXBT/gwXSmBKSz3BfhwJYE
+         8HuqPKN/Y8gqnN7EfwodyDsRfr+l/DXOJA5CaWZ1EdtKGXZu0BTtiQF6q7lHEKhyWd+L
+         bBjRE8twygdqgwxpekwoXE7yrhnoXp94K9tgDAh9lzntYL+1F7c1w+KvOqY34OUAJd+d
+         6k5Q==
+X-Gm-Message-State: AOAM532tN/61uZGkiBk8DClfr2yx+c5KYb6QbiIBrd1UE8Lmetj5UuVj
+        1QUQpUVjsSU3Xw8cJr5xeiUB+p4ZJ0iZ4DEiMtOCAg==
+X-Google-Smtp-Source: ABdhPJzkMAwSm7ZOxAvX4qFCxpAR1VwRIYhxMiWpd1Z1azE/6kQNcFOVD1E07Ac/XUYd7vyLyUM9+oeka9mxK+cVk5k=
+X-Received: by 2002:a05:6512:11e8:: with SMTP id p8mr386145lfs.682.1630697918128;
+ Fri, 03 Sep 2021 12:38:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.14.1-2-gd77b951d0670
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.14
-Subject: stable-rc/queue/5.14 baseline: 179 runs,
- 1 regressions (v5.14.1-2-gd77b951d0670)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20210830195146.587206-1-tkjos@google.com> <CAB0TPYFmUgPTONABLTJAdonK7fY7oqURKCpLp1-WqHLtyen7Zw@mail.gmail.com>
+ <CAHRSSExONtUFu0Mb8uJeVKcyDYb8=1PO7a=aQ=DUEpA5kAcTQA@mail.gmail.com> <20210903080617.GA1957@kadam>
+In-Reply-To: <20210903080617.GA1957@kadam>
+From:   Todd Kjos <tkjos@google.com>
+Date:   Fri, 3 Sep 2021 12:38:26 -0700
+Message-ID: <CAHRSSEyDDmGRrc_paxJ2-Gkx=qMhKKhTr_Mpj-DiL8L1gcm5VA@mail.gmail.com>
+Subject: Re: [PATCH] binder: make sure fd closes complete
+To:     Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     Martijn Coenen <maco@android.com>,
+        "open list:ANDROID DRIVERS" <devel@driverdev.osuosl.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        =?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>,
+        Martijn Coenen <maco@google.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        kernel-team@android.com, Christian Brauner <christian@brauner.io>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 179 runs, 1 regressions (v5.14.1-2-gd77b951d=
-0670)
+On Fri, Sep 3, 2021 at 1:06 AM Dan Carpenter <dan.carpenter@oracle.com> wrote:
+>
+> On Thu, Sep 02, 2021 at 08:35:35AM -0700, Todd Kjos wrote:
+> > On Tue, Aug 31, 2021 at 12:24 AM Martijn Coenen <maco@android.com> wrote:
+> > >
+> > > On Mon, Aug 30, 2021 at 9:51 PM 'Todd Kjos' via kernel-team
+> > > <kernel-team@android.com> wrote:
+> > > >
+> > > > During BC_FREE_BUFFER processing, the BINDER_TYPE_FDA object
+> > > > cleanup may close 1 or more fds. The close operations are
+> > > > completed using the task work mechanism -- which means the thread
+> > > > needs to return to userspace or the file object may never be
+> > > > dereferenced -- which can lead to hung processes.
+> > > >
+> > > > Force the binder thread back to userspace if an fd is closed during
+> > > > BC_FREE_BUFFER handling.
+> > > >
+> > > > Signed-off-by: Todd Kjos <tkjos@google.com>
+> > > Reviewed-by: Martijn Coenen <maco@android.com>
+> >
+> > Please also add to stable releases 5.4 and later.
+>
+> It would be better if this had a fixes tag so we knew which is the first
+> buggy commit.
+>
+> There was a long Project Zero article about the Bad Binder exploit
+> because commit f5cb779ba163 ("ANDROID: binder: remove waitqueue when
+> thread exits.") was marked as # 4.14 but it didn't have a Fixes tag and
+> the actual buggy commit was in 4.9.
 
-Regressions Summary
--------------------
+Good point Dan. I should have included a Fixes tag. Here is the tag
+(issue introduced in 4.20):
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+Fixes: 80cd795630d6 ("binder: fix use-after-free due to ksys_close()
+during fdget()")
 
+Greg- would you like me to send a v2 with the Fixes tag and CC'ing
+stable appropriately?
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.1-2-gd77b951d0670/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.1-2-gd77b951d0670
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d77b951d067059ddd98a338d25142c741ff846cc =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613247e39bc2e93aa1d59674
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.1-2=
--gd77b951d0670/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.1-2=
--gd77b951d0670/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613247e39bc2e93aa1d59=
-675
-        new failure (last pass: v5.14-11-gedf67340fd41) =
-
- =20
+>
+> regards,
+> dan carpenter
+>
+> --
+> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
+>
