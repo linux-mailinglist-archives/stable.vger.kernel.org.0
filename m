@@ -2,81 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBBA33FFCBD
-	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 11:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EA8B3FFCD1
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 11:14:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233277AbhICJKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 05:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47724 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231734AbhICJKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Sep 2021 05:10:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22EDB60FA0;
-        Fri,  3 Sep 2021 09:08:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630660140;
-        bh=DcjjJ2WAyz1ejKxh5caZx2UjPxskQXotN1KC+CVTphM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AXVe52q+2qENaWaDMiNqezmL4BsUWssD8bJgO6b/o7VEIMHLNCgzHRygULaFTLwRR
-         oGz0JvrwOuCyWgZZPRJsgjb88aE0JCr9iBHnqDnHyutHvuocaJmuo0+o0dzEvLEmh3
-         rgQwV9xE7s8/DBL80QGApRESQeCjgwrWCZXPWS2g=
-Date:   Fri, 3 Sep 2021 11:08:58 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Juergen Gross <jgross@suse.com>
-Cc:     xen-devel@lists.xenproject.org, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>,
-        "Rafael J. Wysocki" <rafael@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] PM: base: power: don't try to use non-existing RTC
- for storing data
-Message-ID: <YTHmKvYz5j8ZT9Jt@kroah.com>
-References: <20210903084937.19392-1-jgross@suse.com>
- <20210903084937.19392-2-jgross@suse.com>
- <YTHjPbklWVDVaBfK@kroah.com>
- <1b6a8f9c-2a5f-e97e-c89d-5983ceeb20e5@suse.com>
+        id S245671AbhICJPk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 05:15:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51246 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233277AbhICJPk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 05:15:40 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7CF8C061575;
+        Fri,  3 Sep 2021 02:14:40 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id c5so2039713plz.2;
+        Fri, 03 Sep 2021 02:14:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-disposition:content-transfer-encoding;
+        bh=kb8Z5KH61dlFFT8cs85Ri7+/n7iNLKzAMoxXAmW2ceA=;
+        b=VS5jH6/vJozUZwnuawGnyMC48QMXnhiunRInAGDzbwL/WM0K4OHttgn8v1WCHsygYV
+         XtAU90YgcTIDbfWQpOteVNWViEFrEkjPcJJbHLsCiJAFOUNxLEK6hbYR9cNxExvnShpo
+         LyqlT+c3lp5cystcpuSx+j0P2kH/r09xPyCfn8NuA0A1cshCiFaVISLRV+ZhlfT3bTUP
+         PhxSKw5dKyHQXBpu3yLlhAYWERBo7a+fMAYKdQEVJADI+D33toqWqcNflbD1oxzKiRG8
+         L35MKyfOzPdC/cBx/XIsdgFwmgaenK14tAvoVkxX5Zhywm8m/dL90ZbZ+9rnlCfrSOYJ
+         TJuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-disposition
+         :content-transfer-encoding;
+        bh=kb8Z5KH61dlFFT8cs85Ri7+/n7iNLKzAMoxXAmW2ceA=;
+        b=iZ9VPsuIinKVpbO1zuTdkH5E6ijy/NU5Xqsk3waVgjFE3acjAsXWv7hFCYs4gfimjm
+         +i1edhD4DdqvhHDJS7g74mX04KtVzylmBn8D4EBfqIm3Gp4Dbb7tqkrYOSF8hydm/Fcz
+         WBdm5CU/0oDeTEQH5kBQwy9V4RkzXy0UUANcl/rvq3B+fUrMbcshc9n7pBji6C+AWb6T
+         xlX1tDKhzI8GWRugLfX948WP3jQxuPrrvgYKR6mOsp8kxcoYuG7uGwcgkhluQOjgqWYT
+         tNGJ2RrloS8DdTOEEslftfqeJ7zd5WhLBAowIH6JgmH9Wy9KZpqtgX0KGI6eS75ZcAJq
+         Aw5g==
+X-Gm-Message-State: AOAM533pT9ZpJ2UrGs9QLM7kxxtjGGy26MLFdq0tR7ygfSgrHsKjHdKI
+        cn9mmvqRZHnH+CLI5EE1Kd0=
+X-Google-Smtp-Source: ABdhPJz1EryyIfzYCwBsKI7WGd4sPcZ3VHNRIpfsK7XuoGifQUKu3AiOsDLxBMlWacWq67iuYF7Weg==
+X-Received: by 2002:a17:90a:6282:: with SMTP id d2mr8791405pjj.189.1630660479349;
+        Fri, 03 Sep 2021 02:14:39 -0700 (PDT)
+Received: from haswell-ubuntu20.lan ([138.197.212.246])
+        by smtp.gmail.com with ESMTPSA id y1sm5766231pga.50.2021.09.03.02.14.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Sep 2021 02:14:38 -0700 (PDT)
+From:   DENG Qingfang <dqfext@gmail.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        Sean Wang <sean.wang@mediatek.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@savoirfairelinux.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "open list:MEDIATEK SWITCH DRIVER" <netdev@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-mediatek@lists.infradead.org>
+Subject: Re: [PATCH 4.19.y] net: dsa: mt7530: disable learning on standalone ports
+Date:   Fri,  3 Sep 2021 17:14:30 +0800
+Message-Id: <20210903091430.2209627-1-dqfext@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <YTBoDaYDJfBz3YzN@kroah.com>
+References: <20210824055509.1316124-1-dqfext@gmail.com> <YSUQV3jhfbhbf5Ct@sashalap> <CALW65ja3hYGmEqcWZzifP2-0WsJOnxcUXsey2ZH5vDbD0-nDeQ@mail.gmail.com> <YSi8Ky3GqBjnxbhC@kroah.com> <20210902053619.1824464-1-dqfext@gmail.com> <YTBoDaYDJfBz3YzN@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1b6a8f9c-2a5f-e97e-c89d-5983ceeb20e5@suse.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 03, 2021 at 11:01:58AM +0200, Juergen Gross wrote:
-> On 03.09.21 10:56, Greg Kroah-Hartman wrote:
-> > On Fri, Sep 03, 2021 at 10:49:36AM +0200, Juergen Gross wrote:
-> > > In there is no legacy RTC device, don't try to use it for storing trace
-> > > data across suspend/resume.
+On Thu, Sep 02, 2021 at 07:58:37AM +0200, Greg KH wrote:
+> On Thu, Sep 02, 2021 at 01:36:19PM +0800, DENG Qingfang wrote:
+> > On Fri, Aug 27, 2021 at 12:19:23PM +0200, Greg KH wrote:
+> > > On Tue, Aug 24, 2021 at 11:57:53PM +0800, DENG Qingfang wrote:
+> > > > Standalone ports should have address learning disabled, according to
+> > > > the documentation:
+> > > > https://www.kernel.org/doc/html/v5.14-rc7/networking/dsa/dsa.html#bridge-layer
+> > > > dsa_switch_ops on 5.10 or earlier does not have .port_bridge_flags
+> > > > function so it has to be done differently.
+> > > > 
+> > > > I've identified an issue related to this.
 > > > 
-> > > Cc: <stable@vger.kernel.org>
-> > > Signed-off-by: Juergen Gross <jgross@suse.com>
-> > > ---
-> > >   drivers/base/power/trace.c | 10 ++++++++++
-> > >   1 file changed, 10 insertions(+)
-> > > 
-> > > diff --git a/drivers/base/power/trace.c b/drivers/base/power/trace.c
-> > > index a97f33d0c59f..b7c80849455c 100644
-> > > --- a/drivers/base/power/trace.c
-> > > +++ b/drivers/base/power/trace.c
-> > > @@ -13,6 +13,7 @@
-> > >   #include <linux/export.h>
-> > >   #include <linux/rtc.h>
-> > >   #include <linux/suspend.h>
-> > > +#include <linux/init.h>
-> > >   #include <linux/mc146818rtc.h>
-> > > @@ -165,6 +166,9 @@ void generate_pm_trace(const void *tracedata, unsigned int user)
-> > >   	const char *file = *(const char **)(tracedata + 2);
-> > >   	unsigned int user_hash_value, file_hash_value;
-> > > +	if (!x86_platform.legacy.rtc)
-> > > +		return 0;
+> > > What issue is that?  Where was it reported?
 > > 
-> > Why does the driver core code here care about a platform/arch-specific
-> > thing at all?  Did you just break all other arches?
+> > See Florian's message here
+> > https://lore.kernel.org/stable/20210317003549.3964522-2-f.fainelli@gmail.com/
 > 
-> This file is only compiled for x86. It depends on CONFIG_PM_TRACE_RTC,
-> which has a "depends on X86" attribute.
+> THat is just the patch changelog text, or is it unique to this
+> stable-only patch?  It is not obvious at all.
 
-Odd, and not obvious at all :(
+The issue is with all DSA drivers that do not disable address learning
+on standalone ports.
 
-Ok, I'll let Rafael review this...
+"With learning enabled we would end up with the switch having
+incorrectly learned the address of the CPU port which typically results
+in a complete break down of network connectivity until the address
+learned ages out and gets re-learned, from the correct port this time."
+
+> 
+> > > > > 2. A partial backport of this patch?
+> > > > 
+> > > > The other part does not actually fix anything.
+> > > 
+> > > Then why is it not ok to just take the whole thing?
+> > > 
+> > > When backporting not-identical-patches, something almost always goes
+> > > wrong, so we prefer to take the original commit when ever possible.
+> > 
+> > Okay. MDB and tag ops can be backported as is, and broadcast/multicast
+> > flooding can be implemented in .port_egress_floods. 
+> 
+> So what are we supposed to do here?
+
+Function port_egress_floods is refactored to port_bridge_flags in commit
+a8b659e7ff75 ("net: dsa: act as passthrough for bridge port flags"). I can
+backport the mt7530_port_bridge_flags function as port_egress_floods.
+
+> 
+> totally confused,
+> 
+> greg k-h
