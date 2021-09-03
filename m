@@ -2,141 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73C50400738
-	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 23:00:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 578D6400752
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 23:13:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350399AbhICVBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 17:01:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59784 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350474AbhICVBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Sep 2021 17:01:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B60C610FB;
-        Fri,  3 Sep 2021 21:00:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1630702809;
-        bh=wYOIBXyi4CkKsGEYmO+Xhc0msoehFUumKnOW/nV/cbY=;
-        h=Date:From:To:Subject:From;
-        b=oiTeSRXpyRu6Tth4m/3k9Jmk4maT4vXopSJr+87acWog3n3+2NpA1fjZI2IBXhqus
-         TZyDsKa4Wxdh0PHenewHaQK63toe7Bk57p1NmfJbOl+macVDbksABbpOgEvvLq1tlz
-         hV8MSIpeGGoHUbexCTWlOax6VX2YBYnVlLjl6oM4=
-Date:   Fri, 03 Sep 2021 14:00:09 -0700
-From:   akpm@linux-foundation.org
-To:     guillaume@morinfr.org, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  [merged]
- hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split.patch removed from
- -mm tree
-Message-ID: <20210903210009.VEHRBt0Wd%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S235876AbhICVOK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 17:14:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47624 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232927AbhICVOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 17:14:09 -0400
+Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B167C061575
+        for <stable@vger.kernel.org>; Fri,  3 Sep 2021 14:13:09 -0700 (PDT)
+Received: by mail-pl1-x631.google.com with SMTP id n4so275786plh.9
+        for <stable@vger.kernel.org>; Fri, 03 Sep 2021 14:13:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=wo+kgz6cee6QE39Xicu4m4r0tvXpCgW0scTALvp0NIA=;
+        b=XjJsk/T0qhZlLFAVbuLW3c9aJ/Gg58/f8q6JaXHuelaOpBcI8rAwKWBdMt0iMwlQd7
+         3H2yxEYAUHmGdwym7UosVbFKuZxlpCdG4rGzM7w0Yqixp6598iLrbhcxDeTz4bgCptda
+         NlfUPVqkooBQiQf9UZ3xQk7Jmqu9aVOyz8/L2KuuuFSbeWsqN2O6BPCADlIX5ZK+4Yyy
+         QNqEGLeoVQD6F5WZgOR+m1RRlVhDKb2Pqzp8akyk4seO5miAjPoYwB8+8wVAoi4Blopw
+         QNPQ+arpD285wcR4MSpKCyGaiXOLKL/kFAHgIZTRf2dxET8jF395Lrzd0IWy4nH3/RBR
+         2NTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=wo+kgz6cee6QE39Xicu4m4r0tvXpCgW0scTALvp0NIA=;
+        b=b1KInxEncnzhjZhMt+98IXhf9G5NOVItd/CL+xFrGLdAjgZQsIzSegsmy0tV88t1ki
+         5mGNHhF/nol7l9cbE4JEMiC5PSUVvcvnRckH4qtt+9vLJmCaZF6g9Mg2ezbOwca1400i
+         cczJxXox18fg8j+bzukhUnhXUzxvblNQtfDyzauYvSaeqQUYM6FBjvr1FMoTEuPedqCu
+         qBvpjwqEtCwWgToGahyeSF4xpuQjtrTsEdyR10AauWYTZP/Gcx3WA3bXEG0z0yi/7wdT
+         BX82MWVaKDLdzWP5eoB1COYTxBU/kOR0ZkL1ul/YtZbBat3PKqIzPiiYqnfsO+17ujWr
+         87Qg==
+X-Gm-Message-State: AOAM531Nbnt/Ed5+Ug203Ye1SLiyZPhHnQ2oVIsM6XCMscRzHgZZq+vm
+        p/w5kbFSamvkgvYZpSGzxpeg22M7cmc0MWzd
+X-Google-Smtp-Source: ABdhPJySNTMT1j9/ZKy6uYxL8brB3R/J59abjlIq/UOPohF1ene+7hZkTqyFCGmcdtV4/8ZpnSwM2A==
+X-Received: by 2002:a17:902:bf43:b0:13a:ae0:9dee with SMTP id u3-20020a170902bf4300b0013a0ae09deemr531548pls.62.1630703588631;
+        Fri, 03 Sep 2021 14:13:08 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o1sm188549pjk.1.2021.09.03.14.13.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Sep 2021 14:13:08 -0700 (PDT)
+Message-ID: <61328fe4.1c69fb81.df8fc.1056@mx.google.com>
+Date:   Fri, 03 Sep 2021 14:13:08 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.144-5-gaf4d70cbbe11
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 170 runs,
+ 3 regressions (v5.4.144-5-gaf4d70cbbe11)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.4 baseline: 170 runs, 3 regressions (v5.4.144-5-gaf4d70cb=
+be11)
 
-The patch titled
-     Subject: hugetlb: fix hugetlb cgroup refcounting during vma split
-has been removed from the -mm tree.  Its filename was
-     hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split.patch
+Regressions Summary
+-------------------
 
-This patch was dropped because it was merged into mainline or a subsystem tree
-
-------------------------------------------------------
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: hugetlb: fix hugetlb cgroup refcounting during vma split
-
-Guillaume Morin reported hitting the following WARNING followed by GPF or
-NULL pointer deference either in cgroups_destroy or in the kill_css path.:
-
-percpu ref (css_release) <= 0 (-1) after switching to atomic
-WARNING: CPU: 23 PID: 130 at lib/percpu-refcount.c:196 percpu_ref_switch_to_atomic_rcu+0x127/0x130
-CPU: 23 PID: 130 Comm: ksoftirqd/23 Kdump: loaded Tainted: G           O      5.10.60 #1
-RIP: 0010:percpu_ref_switch_to_atomic_rcu+0x127/0x130
-Call Trace:
- rcu_core+0x30f/0x530
- rcu_core_si+0xe/0x10
- __do_softirq+0x103/0x2a2
- ? sort_range+0x30/0x30
- run_ksoftirqd+0x2b/0x40
- smpboot_thread_fn+0x11a/0x170
- kthread+0x10a/0x140
- ? kthread_create_worker_on_cpu+0x70/0x70
- ret_from_fork+0x22/0x30
-
-Upon further examination, it was discovered that the css structure was
-associated with hugetlb reservations.
-
-For private hugetlb mappings the vma points to a reserve map that contains
-a pointer to the css.  At mmap time, reservations are set up and a
-reference to the css is taken.  This reference is dropped in the vma close
-operation; hugetlb_vm_op_close.  However, if a vma is split no additional
-reference to the css is taken yet hugetlb_vm_op_close will be called twice
-for the split vma resulting in an underflow.
-
-Fix by taking another reference in hugetlb_vm_op_open.  Note that the
-reference is only taken for the owner of the reserve map.  In the more
-common fork case, the pointer to the reserve map is cleared for non-owning
-vmas.
-
-Link: https://lkml.kernel.org/r/20210830215015.155224-1-mike.kravetz@oracle.com
-Fixes: e9fe92ae0cd2 ("hugetlb_cgroup: add reservation accounting for
-private mappings")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Guillaume Morin <guillaume@morinfr.org>
-Suggested-by: Guillaume Morin <guillaume@morinfr.org>
-Tested-by: Guillaume Morin <guillaume@morinfr.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- include/linux/hugetlb_cgroup.h |   12 ++++++++++++
- mm/hugetlb.c                   |    4 +++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
-
---- a/include/linux/hugetlb_cgroup.h~hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split
-+++ a/include/linux/hugetlb_cgroup.h
-@@ -121,6 +121,13 @@ static inline void hugetlb_cgroup_put_rs
- 	css_put(&h_cg->css);
- }
- 
-+static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+	if (resv_map->css)
-+		css_get(resv_map->css);
-+}
-+
- extern int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					struct hugetlb_cgroup **ptr);
- extern int hugetlb_cgroup_charge_cgroup_rsvd(int idx, unsigned long nr_pages,
-@@ -199,6 +206,11 @@ static inline void hugetlb_cgroup_put_rs
- {
- }
- 
-+static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+}
-+
- static inline int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					       struct hugetlb_cgroup **ptr)
- {
---- a/mm/hugetlb.c~hugetlb-fix-hugetlb-cgroup-refcounting-during-vma-split
-+++ a/mm/hugetlb.c
-@@ -4106,8 +4106,10 @@ static void hugetlb_vm_op_open(struct vm
- 	 * after this open call completes.  It is therefore safe to take a
- 	 * new reference here without additional locking.
- 	 */
--	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER))
-+	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER)) {
-+		resv_map_dup_hugetlb_cgroup_uncharge_info(resv);
- 		kref_get(&resv->refs);
-+	}
- }
- 
- static void hugetlb_vm_op_close(struct vm_area_struct *vma)
-_
-
-Patches currently in -mm which might be from mike.kravetz@oracle.com are
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.144-5-gaf4d70cbbe11/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.144-5-gaf4d70cbbe11
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      af4d70cbbe11f5332aa2e57c83bcdd1007cf9f86 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61326dae0f08417900d59680
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.144-5=
+-gaf4d70cbbe11/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-v=
+eyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.144-5=
+-gaf4d70cbbe11/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-v=
+eyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/61326dae0f08417900d59694
+        failing since 80 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-09-03T18:46:52.608084  /lava-4445585/1/../bin/lava-test-case
+    2021-09-03T18:46:52.625106  <8>[   15.270303] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-09-03T18:46:52.625560  /lava-4445585/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/61326daf0f08417900d596ac
+        failing since 80 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-09-03T18:46:51.200493  /lava-4445585/1/../bin/lava-test-case<8>[  =
+ 13.845579] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-09-03T18:46:51.201274  =
+
+    2021-09-03T18:46:51.201756  /lava-4445585/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/61326daf0f08417900d596ad
+        failing since 80 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-09-03T18:46:50.163166  /lava-4445585/1/../bin/lava-test-case
+    2021-09-03T18:46:50.168729  <8>[   12.825924] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
