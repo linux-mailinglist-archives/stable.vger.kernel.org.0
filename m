@@ -2,153 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D3D3FF9B9
-	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 07:00:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E632E3FFA6C
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 08:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231705AbhICFBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 01:01:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58980 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229561AbhICFBL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 3 Sep 2021 01:01:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E98C6056C;
-        Fri,  3 Sep 2021 05:00:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630645212;
-        bh=fbMZl8VBOcbMURISC4vnJ6+SwDyWl+Ghz6xF4QwL0ok=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=f+Js2GuiNpgDbIa3uyd5qDH2tXYsWDbamaWkQLwTTSFRg/6s0CqtU1vBZNYNGYI3V
-         JjsnfNRGldxAVCWAEGjw5lgWCKwKmdXT7LMui1djr6VivllaN3qzKQSdO7k/JOj5kA
-         1klg/0TG9WWnu7cMhkCExmSG8iDWWsSPZP6+OWJ8=
-Date:   Fri, 3 Sep 2021 07:00:09 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     "Eric W. Biederman" <ebiederm@xmission.com>
-Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+01985d7909f9468f013c@syzkaller.appspotmail.com,
-        Alexey Gladkov <legion@kernel.org>
-Subject: Re: [PATCH 5.10 036/103] ucounts: Increase ucounts reference counter
- before the security hook
-Message-ID: <YTGr2ZkgfTCIGVpr@kroah.com>
-References: <20210901122300.503008474@linuxfoundation.org>
- <20210901122301.773759848@linuxfoundation.org>
- <87v93k4bl6.fsf@disp2133>
- <YS+s+XL0xXKGwh9a@kroah.com>
- <875yvk1a31.fsf@disp2133>
- <YTDLyU2mdeoe5cVt@sashalap>
- <875yvizwb9.fsf@disp2133>
- <YTGrQ2D1/tQR1pCh@kroah.com>
+        id S232218AbhICGef (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 02:34:35 -0400
+Received: from mail-mw2nam12on2042.outbound.protection.outlook.com ([40.107.244.42]:15392
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S230128AbhICGef (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Sep 2021 02:34:35 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=dTJ8mUp6DShLmuVCKBXYvfTqRUOb1jSdVVKc9fFfl+jOHhvCZpksp8LjcYzBhjbpiDv0LnmrpRiXkLnf2VT/5UJVWM42xzLErq3sOMjboB6bDLdQ6a6epoYNzgyZeTtgDpkEcGU7XC88Um8uEbBbXj8Q9FyZWJGgiDxB80o1aIBIofZPrqOgw2uehvqrkDm4xksa1iGGzcY4lwAejCvzxxnWP2VSaqT0sjQjlO5vCZ5f8Q78ec9CwSmz8ZfcpFA6qPyyAXd1SILVhsC8tR1tICdos0Y9oHUrtQej58DG2rs9x5NCPSBWs8TYkXzIDeozhO1rvnchJZb8R17+GKI3AA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
+ bh=y1cUm9U9TKymOIG3px+NPHFpMhNVugswVzVQ+KaXYXY=;
+ b=ZMPbJy42lXy2euxgzeMH1KicGgNB5HJnEJdEaz+scpKUYJoatEBF+UQHxLoVi5AYib1idL0Fqsxaw4t+Cq2fCHV97ZW5tvoJcnVu+Ptiwb/eqqnYuA0yxEgSDeCJuk1KlilfGSk83GZu5CITcLMtkdV6uiclqG9M9aYdz3ukbEIhJ/ZrOmv/XXPumYIcT4EFCj6dl2mEXZ1BsfKTISBrxRBXuX7FhxoMrw3+dZDA/+VRTdISciP180zLUZ9k+WPvKi1+cXYWzjDI5ZvthpJ2wQbIbHWBAQZyIYvkk1Z1PUoVcbrDIu8FwzJUSCvKcPCwCgx4IEaHgM8EpBNN+SjBGQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=y1cUm9U9TKymOIG3px+NPHFpMhNVugswVzVQ+KaXYXY=;
+ b=P7Lzmd63YlcPUvFI3we1Mc5T8Gt5c773WjcaRNehUACTgZKmOEZ2jxOCrSsJccvzb06O28epL4wCcY9v5/hh8ZqfMS6AqfmFWKTjZ7ixQlL6Yw7ZB+aQTgc3A47f44rmjsNuK9mKTJcp+TLNPUY/vUZV+tGWspgfG/1iWTsXuhI=
+Received: from CO2PR04CA0182.namprd04.prod.outlook.com (2603:10b6:104:5::12)
+ by BN7PR12MB2659.namprd12.prod.outlook.com (2603:10b6:408:27::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4478.19; Fri, 3 Sep
+ 2021 06:33:34 +0000
+Received: from CO1NAM11FT044.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:104:5:cafe::53) by CO2PR04CA0182.outlook.office365.com
+ (2603:10b6:104:5::12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4478.19 via Frontend
+ Transport; Fri, 3 Sep 2021 06:33:34 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CO1NAM11FT044.mail.protection.outlook.com (10.13.175.188) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.4478.19 via Frontend Transport; Fri, 3 Sep 2021 06:33:33 +0000
+Received: from equan-buildpc.amd.com (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.12; Fri, 3 Sep
+ 2021 01:33:31 -0500
+From:   Evan Quan <evan.quan@amd.com>
+To:     <linux-pci@vger.kernel.org>
+CC:     <bhelgaas@google.com>, <Alexander.Deucher@amd.com>,
+        Evan Quan <evan.quan@amd.com>, <stable@vger.kernel.org>
+Subject: [PATCH] PCI: Create device links for AMD integrated USB xHCI and UCSI controllers
+Date:   Fri, 3 Sep 2021 14:33:11 +0800
+Message-ID: <20210903063311.3606226-1-evan.quan@amd.com>
+X-Mailer: git-send-email 2.29.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YTGrQ2D1/tQR1pCh@kroah.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: aa5e8e05-64bf-4798-e1e4-08d96ea4c0fc
+X-MS-TrafficTypeDiagnostic: BN7PR12MB2659:
+X-Microsoft-Antispam-PRVS: <BN7PR12MB26590D3311A1F89F11750FE2E4CF9@BN7PR12MB2659.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6430;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: bypGI8UAlzXd93rA4QnM8xf6JV0a/JoPX2R5LDL7AUuVSj+o4HLqDP7dVQFwZndFNhfdNaZz80CHYPxrwCxa1rT4GeF8J/T8Tifb3chdHIXTEoY8C3M6PZv8qadmoj4jzfURtyHAipNyh7nqd2JXHvs5MrUReAefCKEJqwlnyoQQaIyq/ACH+Qs/pVqFpeM3VrsHu7XRooh2u6z7/FhThNogqdG7mAQ3KVpDXm/bzXw6JKuadRwAgN7awfSw+2HL0f4tFA045n4HRDZwd01SlpiEWEg/saFRp4ComO+3fOj+kMiEof9ss/BaH/R/hfuXwTuEXEioc6WigX/UJNUck9+bd5QYvJ6vToO35JfiemldpArWFOBn2fpOK3/9b0BzuitfucLMreiRFeJ2gM0cWE96/ygl0nfP5kWLtlFenTsVrmlLCri14nXZchflpmWrrvXte3oxbh4uSl+ej/aKr1y1l9HGoCV+/zBaNxJZIio1DHHZ+XFc3p4fV/KmA4Q1Wwr20hqhhqPqqvY891iN8FI2cbvRk4jRXTibB59+u7NnMaPZ/nS6Qo9l52y/zpLspW+0oZwudS/bJczLP3EVPu/xbWRh49XjoUVsA0Ngnj+1kwtGdy6s8z2+J461xTsJM2+JS1LTrFIBX5tPxuWUq9Pd/5TEqAK3pVLxFaViJrJKOJmOpPYrPRa69w3xqmQz1DAYKt+Q14GUt8pNe5GVNMwA25g1W/0w2RaCC0XvFYQ=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(136003)(346002)(376002)(396003)(39860400002)(36840700001)(46966006)(36860700001)(8936002)(1076003)(86362001)(2616005)(4326008)(81166007)(316002)(356005)(54906003)(83380400001)(70206006)(47076005)(70586007)(7696005)(44832011)(82740400003)(426003)(336012)(6666004)(186003)(6916009)(16526019)(82310400003)(36756003)(26005)(478600001)(5660300002)(8676002)(2906002)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Sep 2021 06:33:33.9547
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: aa5e8e05-64bf-4798-e1e4-08d96ea4c0fc
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT044.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN7PR12MB2659
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 03, 2021 at 06:57:39AM +0200, Greg Kroah-Hartman wrote:
-> On Thu, Sep 02, 2021 at 01:06:34PM -0500, Eric W. Biederman wrote:
-> > Sasha Levin <sashal@kernel.org> writes:
-> > 
-> > > On Wed, Sep 01, 2021 at 12:26:10PM -0500, Eric W. Biederman wrote:
-> > >>Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
-> > >>
-> > >>> On Wed, Sep 01, 2021 at 09:25:25AM -0500, Eric W. Biederman wrote:
-> > >>>> Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
-> > >>>>
-> > >>>> > From: Alexey Gladkov <legion@kernel.org>
-> > >>>> >
-> > >>>> > [ Upstream commit bbb6d0f3e1feb43d663af089c7dedb23be6a04fb ]
-> > >>>> >
-> > >>>> > We need to increment the ucounts reference counter befor security_prepare_creds()
-> > >>>> > because this function may fail and abort_creds() will try to decrement
-> > >>>> > this reference.
-> > >>>>
-> > >>>> Has the conversion of the rlimits to ucounts been backported?
-> > >>>>
-> > >>>> Semantically the code is an improvement but I don't know of any cases
-> > >>>> where it makes enough of a real-world difference to make it worth
-> > >>>> backporting the code.
-> > >>>>
-> > >>>> Certainly the ucount/rlimit conversions do not meet the historical
-> > >>>> criteria for backports.  AKA simple obviously correct patches.
-> > >>>>
-> > >>>> The fact we have been applying fixes for the entire v5.14 stabilization
-> > >>>> period is a testament to the code not quite being obviously correct.
-> > >>>>
-> > >>>> Without backports the code only affects v5.14 so I have not been
-> > >>>> including a Cc stable on any of the commits.
-> > >>>>
-> > >>>> So color me very puzzled about what is going on here.
-> > >>>
-> > >>> Sasha picked this for some reason, but if you think it should be
-> > >>> dropped, we can easily do so.
-> > >>
-> > >>My question is what is the reason Sasha picked this up?
-> > >>
-> > >>If this patch even applies to v5.10 the earlier patches have been
-> > >>backported.  So we can't just drop this patch.  Either the earlier
-> > >>backports need to be reverted, or we need to make certain all of the
-> > >>patches are backported.
-> > >>
-> > >>I really am trying to understand what is going on and why.
-> > >
-> > > I'll happily explain. The commit message is telling us that:
-> > >
-> > > 1. There is an issue uncovered by syzbot which this patch fixes:
-> > >
-> > > 	"Reported-by: syzbot"
-> > >
-> > > 2. The issue was introduced in 905ae01c4ae2 ("Add a reference to ucounts
-> > > for each cred"):
-> > >
-> > > 	"Fixes: 905ae01c4ae2"
-> > >
-> > > Since 905ae01c4ae2 exist in 5.10, and this patch seemed to fix an issue,
-> > > I've queued it up.
-> > 
-> > Which begs the question as Alex mentioned how did 905ae01c4ae2 get into
-> > 5.10, as it was merged to Linus's tree in the merge window for 5.14.
-> > 
-> > > In general, if we're missing backports, backported something only
-> > > partially and should revert it, or anything else that might cause an
-> > > issue, we'd be more than happy to work with you to fix it up.
-> > >
-> > > All the patches we queue up get multiple rounds of emails and reviews,
-> > > if there is a better way to solicit reviews so that we won't up in a
-> > > place where you haven't noticed something going in earlier we'd be more
-> > > than happy to improve that process too.
-> > 
-> > I have the bad feeling that 905ae01c4ae2 was backported because it was a
-> > prerequisite to something with a Fixes tag.
-> > 
-> > Fixes tags especially in this instance don't mean code needs to go to
-> > stable Fixes tags mean that a bug was fixed.  Since I thought the code
-> > only existed in Linus's tree, I haven't been adding Cc stable or even
-> > thinking about earlier kernels with respect to this code.
-> > 
-> > I honestly can't keep up with the level of review needed for patches
-> > targeting Linus's tree.  So I occasionally glance at patches destined
-> > for the stable tree.
-> > 
-> > Most of the time it is something being backported without a stable tag,
-> > but with a fixes tag, that is unnecessary but generally harmless so I
-> > ignore it.
-> > 
-> > In this instance it looks like a whole new feature that has had a rocky
-> > history and a lot of time to stablize is somehow backported to 5.10 and
-> > 5.13.  I think all of the known issues are addressed but I won't know
-> > if all of the issues syzkaller can find are found for another couple of
-> > weeks.
-> > 
-> > Because this code was not obviously correct, because this code did not
-> > have a stable tag, because I am not even certain it is stable yet,
-> > I am asking do you know how this code that feels to me like feature work
-> > wound up being backported?  AKA why is 905ae01c4ae2 in 5.10 and 5.13.
-> 
-> Looks like Sasha added it to the tree last week and it went out in the
-> last set of releases.  Sasha, why was this added?  Let me see if it was
-> a requirement of some other patch...
+Latest AMD GPUs have built-in USB xHCI and UCSI controllers. Add device
+link support for them.
 
-Sorry, no, that was this patch, let me get my coffee before I dig into
-this...
+Cc: stable@vger.kernel.org
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+---
+ drivers/pci/quirks.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index dea10d62d5b9..f0c5dd3406a1 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -5338,7 +5338,7 @@ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+ 			      PCI_CLASS_MULTIMEDIA_HD_AUDIO, 8, quirk_gpu_hda);
+ 
+ /*
+- * Create device link for NVIDIA GPU with integrated USB xHCI Host
++ * Create device link for GPUs with integrated USB xHCI Host
+  * controller to VGA.
+  */
+ static void quirk_gpu_usb(struct pci_dev *usb)
+@@ -5347,9 +5347,11 @@ static void quirk_gpu_usb(struct pci_dev *usb)
+ }
+ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+ 			      PCI_CLASS_SERIAL_USB, 8, quirk_gpu_usb);
++DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
++			      PCI_CLASS_SERIAL_USB, 8, quirk_gpu_usb);
+ 
+ /*
+- * Create device link for NVIDIA GPU with integrated Type-C UCSI controller
++ * Create device link for GPUs with integrated Type-C UCSI controller
+  * to VGA. Currently there is no class code defined for UCSI device over PCI
+  * so using UNKNOWN class for now and it will be updated when UCSI
+  * over PCI gets a class code.
+@@ -5362,6 +5364,9 @@ static void quirk_gpu_usb_typec_ucsi(struct pci_dev *ucsi)
+ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+ 			      PCI_CLASS_SERIAL_UNKNOWN, 8,
+ 			      quirk_gpu_usb_typec_ucsi);
++DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
++			      PCI_CLASS_SERIAL_UNKNOWN, 8,
++			      quirk_gpu_usb_typec_ucsi);
+ 
+ /*
+  * Enable the NVIDIA GPU integrated HDA controller if the BIOS left it
+-- 
+2.29.0
+
