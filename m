@@ -2,296 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37EBE40060D
-	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 21:46:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B9B8400638
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 21:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348708AbhICTrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 15:47:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55774 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231599AbhICTrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 15:47:13 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB9C5C061575
-        for <stable@vger.kernel.org>; Fri,  3 Sep 2021 12:46:12 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id m26so327596pff.3
-        for <stable@vger.kernel.org>; Fri, 03 Sep 2021 12:46:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=GQmz1ZUQmumjYnFtjrRc7E1U1yp1wfPdpqwB8ipub2o=;
-        b=I6z8nKh5Y0ZVry9kNRXJxdUKhSw1OJfifAQYF2etq8hCrc/pHTbuDFQEGI5U+NICNv
-         spDcIDqf0y8kFZyyw0p16LzurkFA4X5IvgGRLk05+LntmFycQ9tu497ptzdA6ZxQUHCQ
-         KlN5ryK9q8I9HE/umyHMjoPf6M4XM/gbjvFIwR/sYDKYLAid3OElDyW9l1pYzv8kPbTg
-         bikEqnFgLVDHoa5oEm+5cw/In8YiFcs6Obdm2zcPFaK9Z6m27ig2rd/TennbFPz9DcsD
-         yciTDKOj3PB/J/NvzdV/2JUCrAovSgwUZu35Si9eLpUIZ6M8Q5YroijxCpsnXUUdF6Fg
-         zdFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=GQmz1ZUQmumjYnFtjrRc7E1U1yp1wfPdpqwB8ipub2o=;
-        b=oOrPdLuGaC9AaYrxVkVNfsGuiSEgUik6lyM2nffVJD+Wk4x7TIY9BVxTO88Cd/Q+Mq
-         pdcwacAGMFeHKU6orYyXShsITOIeUG7ryv00MDpuYpxTcOCNeZRQxZlSeQqRHx8hRw6M
-         2pqV+tE1NhFcXz6OGd1XElKGAdRnYfaLGE6vjBzhevQDtU6C2ubpU/Zf67jgtsyC1J95
-         msfWvBAwe012mfVEqt8qB7XhpTnEa6QTQgU2brd2HqHXu3qyHadKBdN5tSVkcQMDMSiI
-         ytNEKUQCagFPHNFmaG5nRsREtx0hGEDrAH8gkH9IMXx6CWeWzekNppLUTM5gHzLNBYa1
-         uXXA==
-X-Gm-Message-State: AOAM531fqrOCjRR/ecBIgBJAeoXUD6IMd36/m8Br7rlM7r4CHSoDNDVo
-        pr74CN0Udu0MK+D9XUm/BPrAlFsEOdaBRYmi
-X-Google-Smtp-Source: ABdhPJwvAmHUyN8hIkwYJEqrMX3K6IEyJh26a5WZjTHvBEzU4Lz4pnXKx1gO+86Ti+/Ukbg3cDSBCg==
-X-Received: by 2002:a63:5947:: with SMTP id j7mr581816pgm.193.1630698372088;
-        Fri, 03 Sep 2021 12:46:12 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p30sm188645pfh.116.2021.09.03.12.46.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Sep 2021 12:46:11 -0700 (PDT)
-Message-ID: <61327b83.1c69fb81.466c5.0ef3@mx.google.com>
-Date:   Fri, 03 Sep 2021 12:46:11 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S239368AbhICT41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 15:56:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40920 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234588AbhICT41 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Sep 2021 15:56:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7C1860FD7;
+        Fri,  3 Sep 2021 19:55:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1630698927;
+        bh=36yNiRor2maBsEgmJ0JujTWCIWZTI4VY7zC6LPi0DxM=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=StE0vBgiBakEKwjlvpqKlg4vB1tzvy6Jk96ZJtV/8RKH0nOpdD8V9j4himZzZQ9tr
+         lE7AnkRJ0zs4qOTEUWa2aNJTes0FnI7hJ7uic4m2NAxGdfI4Ancm4CUOmX6DA+XNLd
+         uua5stoOMdm16vhB+gFmc1UTf6vLDXiK5AJi/1o9M7gZ7BZbiESllBQzyukky9zqxd
+         7y+pXKZjGW6aB1dcj8UVCIWyhF6iHuCQ0LgIW9Ds0XMoHaTVtP6arFnrAtaAfOhZyf
+         SjTLPa/JodPaS693K/HsfCQ6mO+i357mE5OKZFdi6IfrudRWmC04givLopMmgCIFJd
+         PO0sd9znZlGOw==
+Date:   Fri, 3 Sep 2021 14:55:25 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Evan Quan <evan.quan@amd.com>
+Cc:     linux-pci@vger.kernel.org, bhelgaas@google.com,
+        Alexander.Deucher@amd.com, stable@vger.kernel.org
+Subject: Re: [PATCH] PCI: Create device links for AMD integrated USB xHCI and
+ UCSI controllers
+Message-ID: <20210903195525.GA485189@bjorn-Precision-5520>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.206-1-g858883949531
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 152 runs,
- 7 regressions (v4.19.206-1-g858883949531)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210903063311.3606226-1-evan.quan@amd.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 152 runs, 7 regressions (v4.19.206-1-g858883=
-949531)
-
-Regressions Summary
--------------------
-
-platform                     | arch | lab           | compiler | defconfig =
-          | regressions
------------------------------+------+---------------+----------+-----------=
-----------+------------
-qemu_arm-versatilepb         | arm  | lab-baylibre  | gcc-8    | versatile_=
-defconfig | 1          =
-
-qemu_arm-versatilepb         | arm  | lab-broonie   | gcc-8    | versatile_=
-defconfig | 1          =
-
-qemu_arm-versatilepb         | arm  | lab-cip       | gcc-8    | versatile_=
-defconfig | 1          =
-
-rk3288-veyron-jaq            | arm  | lab-collabora | gcc-8    | multi_v7_d=
-efconfig  | 3          =
-
-sun8i-h2-plus...ch-all-h3-cc | arm  | lab-baylibre  | gcc-8    | multi_v7_d=
-efconfig  | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.206-1-g858883949531/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.206-1-g858883949531
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8588839495312d3154f1d5b02f3ba5610d5bb881 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch | lab           | compiler | defconfig =
-          | regressions
------------------------------+------+---------------+----------+-----------=
-----------+------------
-qemu_arm-versatilepb         | arm  | lab-baylibre  | gcc-8    | versatile_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61324690bfeeaeb65fd59668
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
--1-g858883949531/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
--1-g858883949531/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61324690bfeeaeb65fd59=
-669
-        failing since 293 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform                     | arch | lab           | compiler | defconfig =
-          | regressions
------------------------------+------+---------------+----------+-----------=
-----------+------------
-qemu_arm-versatilepb         | arm  | lab-broonie   | gcc-8    | versatile_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613247f7006d6d7cdad5969b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
--1-g858883949531/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
--1-g858883949531/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613247f7006d6d7cdad59=
-69c
-        failing since 293 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform                     | arch | lab           | compiler | defconfig =
-          | regressions
------------------------------+------+---------------+----------+-----------=
-----------+------------
-qemu_arm-versatilepb         | arm  | lab-cip       | gcc-8    | versatile_=
-defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613246ade66e07ca1fd5967c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
--1-g858883949531/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
--1-g858883949531/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613246ade66e07ca1fd59=
-67d
-        failing since 293 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform                     | arch | lab           | compiler | defconfig =
-          | regressions
------------------------------+------+---------------+----------+-----------=
-----------+------------
-rk3288-veyron-jaq            | arm  | lab-collabora | gcc-8    | multi_v7_d=
-efconfig  | 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61325303c313d2d664d596b1
-
-  Results:     64 PASS, 6 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
--1-g858883949531/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
--veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
--1-g858883949531/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
--veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/61325303c313d2d664d596c5
-        failing since 80 days (last pass: v4.19.194-28-g6098ecdead2c, first=
- fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-09-03T16:53:12.908431  /lava-4444539/1/../bin/lava-test-case
-    2021-09-03T16:53:12.913489  <8>[   18.414491] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/61325303c313d2d664d596de
-        failing since 80 days (last pass: v4.19.194-28-g6098ecdead2c, first=
- fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-09-03T16:53:10.467491  /lava-4444539/1/../bin/lava-test-case
-    2021-09-03T16:53:10.484355  <8>[   15.973187] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/61325303c313d2d664d596df
-        failing since 80 days (last pass: v4.19.194-28-g6098ecdead2c, first=
- fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-09-03T16:53:09.454015  /lava-4444539/1/../bin/lava-test-case<8>[  =
- 14.953959] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdmmc-probe=
-d RESULT=3Dfail>
-    2021-09-03T16:53:09.454499     =
-
- =
-
-
-
-platform                     | arch | lab           | compiler | defconfig =
-          | regressions
------------------------------+------+---------------+----------+-----------=
-----------+------------
-sun8i-h2-plus...ch-all-h3-cc | arm  | lab-baylibre  | gcc-8    | multi_v7_d=
-efconfig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61324a23d86c92ea5bd59669
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
--1-g858883949531/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-sun8i-h=
-2-plus-libretech-all-h3-cc.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
--1-g858883949531/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-sun8i-h=
-2-plus-libretech-all-h3-cc.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61324a23d86c92ea5bd59=
-66a
-        new failure (last pass: v4.19.205-33-g55b15808c010) =
-
- =20
+On Fri, Sep 03, 2021 at 02:33:11PM +0800, Evan Quan wrote:
+> Latest AMD GPUs have built-in USB xHCI and UCSI controllers. Add device
+> link support for them.
+
+Please comment on https://git.kernel.org/linus/6d2e369f0d4c .
+
+Is there something the PCI core is missing here?  Or is there
+something that needs to be added to ACPI or the PCI firmware spec?
+
+We want a generic way to discover dependencies like this.
+
+A quirk should not be necessary for spec-compliant devices.  Quirks
+are an ongoing maintenance burden, and they mean that new hardware
+won't work correctly until the OS is patched to know about it.  That's
+not what we want.
+
+I expect we'll still need *this* quirk, but first I'd like to know
+whether there's a plan to handle this more generically in the future.
+
+When you repost this, please follow the subject line style of
+6d2e369f0d4c ("PCI: Add NVIDIA GPU multi-function power
+dependencies") so similar patches look similar.
+
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Evan Quan <evan.quan@amd.com>
+> ---
+>  drivers/pci/quirks.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+> index dea10d62d5b9..f0c5dd3406a1 100644
+> --- a/drivers/pci/quirks.c
+> +++ b/drivers/pci/quirks.c
+> @@ -5338,7 +5338,7 @@ DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+>  			      PCI_CLASS_MULTIMEDIA_HD_AUDIO, 8, quirk_gpu_hda);
+>  
+>  /*
+> - * Create device link for NVIDIA GPU with integrated USB xHCI Host
+> + * Create device link for GPUs with integrated USB xHCI Host
+>   * controller to VGA.
+>   */
+>  static void quirk_gpu_usb(struct pci_dev *usb)
+> @@ -5347,9 +5347,11 @@ static void quirk_gpu_usb(struct pci_dev *usb)
+>  }
+>  DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+>  			      PCI_CLASS_SERIAL_USB, 8, quirk_gpu_usb);
+> +DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
+> +			      PCI_CLASS_SERIAL_USB, 8, quirk_gpu_usb);
+>  
+>  /*
+> - * Create device link for NVIDIA GPU with integrated Type-C UCSI controller
+> + * Create device link for GPUs with integrated Type-C UCSI controller
+>   * to VGA. Currently there is no class code defined for UCSI device over PCI
+>   * so using UNKNOWN class for now and it will be updated when UCSI
+>   * over PCI gets a class code.
+> @@ -5362,6 +5364,9 @@ static void quirk_gpu_usb_typec_ucsi(struct pci_dev *ucsi)
+>  DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
+>  			      PCI_CLASS_SERIAL_UNKNOWN, 8,
+>  			      quirk_gpu_usb_typec_ucsi);
+> +DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_ATI, PCI_ANY_ID,
+> +			      PCI_CLASS_SERIAL_UNKNOWN, 8,
+> +			      quirk_gpu_usb_typec_ucsi);
+>  
+>  /*
+>   * Enable the NVIDIA GPU integrated HDA controller if the BIOS left it
+> -- 
+> 2.29.0
+> 
