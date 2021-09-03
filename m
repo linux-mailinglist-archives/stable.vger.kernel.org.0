@@ -2,132 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C15A23FF8C6
-	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 04:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D72DB3FF99A
+	for <lists+stable@lfdr.de>; Fri,  3 Sep 2021 06:39:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245618AbhICCIX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Sep 2021 22:08:23 -0400
-Received: from mga18.intel.com ([134.134.136.126]:31374 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232931AbhICCIW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 2 Sep 2021 22:08:22 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10095"; a="206422289"
-X-IronPort-AV: E=Sophos;i="5.85,264,1624345200"; 
-   d="scan'208";a="206422289"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Sep 2021 19:07:22 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.85,264,1624345200"; 
-   d="scan'208";a="691781879"
-Received: from siang-ilbpg0.png.intel.com ([10.88.227.28])
-  by fmsmga005.fm.intel.com with ESMTP; 02 Sep 2021 19:07:18 -0700
-From:   Song Yoong Siang <yoong.siang.song@intel.com>
-To:     Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Jose Abreu <joabreu@synopsys.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jesper Dangaard Brouer <hawk@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Ong Boon Leong <boon.leong.ong@intel.com>
-Cc:     netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        Song Yoong Siang <yoong.siang.song@intel.com>
-Subject: [PATCH net 1/1] net: stmmac: Fix overall budget calculation for rxtx_napi
-Date:   Fri,  3 Sep 2021 10:00:26 +0800
-Message-Id: <20210903020026.1381962-1-yoong.siang.song@intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S231953AbhICEkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 00:40:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45136 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229561AbhICEkS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 00:40:18 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DDC4C061575;
+        Thu,  2 Sep 2021 21:39:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=OJvdQPrTeeSIW2aKxp3H75/EFGJNAh2MQGun3kF8gc0=; b=W8GXkwjGUGrcZ0YktI/byhySfl
+        Z/jry2yBMifvlxl8QXdmc5ZxMkmCBf+Wy5K0VlaE+Y3/MCNtf7XO0YM427IX3v106SfIUKXo9axJT
+        pSn8U7K6glCI4oxHqxGT5pmbDqy+atR2geCfAEwW956s1uu0Evh6ttbocHqN5/3mGJkfDe3qnAyCF
+        3tItNaKTVzk3rGFY/TtJrXCfmak8tMMv+faduqTXcbz4SmZHxgd55FIAWF1Vec6fp+0ANlwO064TV
+        OScCOndgwmf8H39+bZ4wVbJ3yxqBuGu7d0CjbsgiU3BkL/4wzfgzO8sK6kMyQA6bUXWG9tRzgG47F
+        cEeBGBzw==;
+Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mM0yI-0047Vt-Ps; Fri, 03 Sep 2021 04:38:47 +0000
+Date:   Fri, 3 Sep 2021 05:38:34 +0100
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Christian L?hle <CLoehle@hyperstone.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+        "martin.petersen@oracle.com" <martin.petersen@oracle.com>,
+        "jejb@linux.ibm.com" <jejb@linux.ibm.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] sd: sd_open: prevent device removal during sd_open
+Message-ID: <YTGmyp0kzhVsuk5K@infradead.org>
+References: <98bfca4cbaa24462994bcb533d365414@hyperstone.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <98bfca4cbaa24462994bcb533d365414@hyperstone.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-tx_done is not used for napi_complete_done(). Thus, NAPI busy polling
-mechanism by gro_flush_timeout and napi_defer_hard_irqs will not able
-be triggered after a packet is transmitted when there is no receive
-packet.
+On Thu, Sep 02, 2021 at 01:57:13PM +0000, Christian L?hle wrote:
+> sd and parent devices must not be removed as sd_open checks for events
+> 
+> sd_need_revalidate and sd_revalidate_disk traverse the device path
+> to check for event changes. If during this, e.g. the scsi host is being
+> removed and its resources freed, this traversal crashes.
+> Locking with scan_mutex for just a scsi disk open may seem blunt, but there
+> does not seem to be a more granular option. Also opening /dev/sdX directly
+> happens rarely enough that this shouldn't cause any issues.
 
-Fix this by taking the maximum value between tx_done and rx_done as
-overall budget completed by the rxtx NAPI poll to ensure XDP Tx ZC
-operation is continuously polling for next Tx frame. This gives
-benefit of lower packet submission processing latency and jitter
-under XDP Tx ZC mode.
+Can you please root cause how the device could not be valid, as that
+should not happen?
 
-Performance of tx-only using xdp-sock on Intel ADL-S platform is
-the same with and without this patch.
+>
+> The issue occurred on an older kernel with the following trace:
+> stack segment: 0000 [#1] PREEMPT SMP PTI
+> CPU: 1 PID: 121457 Comm: python3 Not tainted 4.14.238hyLinux #1
 
-root@intel-corei7-64:~# ./xdpsock -i enp0s30f4 -t -z -q 1 -n 10
- sock0@enp0s30f4:1 txonly xdp-drv
-                   pps            pkts           10.00
-rx                 0              0
-tx                 511630         8659520
-
- sock0@enp0s30f4:1 txonly xdp-drv
-                   pps            pkts           10.00
-rx                 0              0
-tx                 511625         13775808
-
- sock0@enp0s30f4:1 txonly xdp-drv
-                   pps            pkts           10.00
-rx                 0              0
-tx                 511619         18892032
-
-Fixes: 132c32ee5bc0 ("net: stmmac: Add TX via XDP zero-copy socket")
-Cc: <stable@vger.kernel.org> # 5.13.x
-Co-developed-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
----
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index ed0cd3920171..97238359e101 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -5347,7 +5347,7 @@ static int stmmac_napi_poll_rxtx(struct napi_struct *napi, int budget)
- 	struct stmmac_channel *ch =
- 		container_of(napi, struct stmmac_channel, rxtx_napi);
- 	struct stmmac_priv *priv = ch->priv_data;
--	int rx_done, tx_done;
-+	int rx_done, tx_done, rxtx_done;
- 	u32 chan = ch->index;
- 
- 	priv->xstats.napi_poll++;
-@@ -5357,14 +5357,16 @@ static int stmmac_napi_poll_rxtx(struct napi_struct *napi, int budget)
- 
- 	rx_done = stmmac_rx_zc(priv, budget, chan);
- 
-+	rxtx_done = max(tx_done, rx_done);
-+
- 	/* If either TX or RX work is not complete, return budget
- 	 * and keep pooling
- 	 */
--	if (tx_done >= budget || rx_done >= budget)
-+	if (rxtx_done >= budget)
- 		return budget;
- 
- 	/* all work done, exit the polling mode */
--	if (napi_complete_done(napi, rx_done)) {
-+	if (napi_complete_done(napi, rxtx_done)) {
- 		unsigned long flags;
- 
- 		spin_lock_irqsave(&ch->lock, flags);
-@@ -5375,7 +5377,7 @@ static int stmmac_napi_poll_rxtx(struct napi_struct *napi, int budget)
- 		spin_unlock_irqrestore(&ch->lock, flags);
- 	}
- 
--	return min(rx_done, budget - 1);
-+	return min(rxtx_done, budget - 1);
- }
- 
- /**
--- 
-2.25.1
-
+.. preferably with a current mainline kernel as things changed a lot
+in this area.
