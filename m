@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51CD54008CE
-	for <lists+stable@lfdr.de>; Sat,  4 Sep 2021 03:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C70D4008D1
+	for <lists+stable@lfdr.de>; Sat,  4 Sep 2021 03:05:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241787AbhIDAcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 20:32:43 -0400
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:44128 "EHLO
+        id S241754AbhIDAfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 20:35:37 -0400
+Received: from alexa-out.qualcomm.com ([129.46.98.28]:12191 "EHLO
         alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241775AbhIDAcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 20:32:39 -0400
+        with ESMTP id S1350596AbhIDAfe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 20:35:34 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1630715499; x=1662251499;
+  t=1630715674; x=1662251674;
   h=from:to:cc:subject:date:message-id:mime-version;
   bh=H+0sThsCk1GXhtCO6un41ezE/YNTdH11kjUn+GY8Vz8=;
-  b=aquAkdCgaKQ3su6/L4Gqxf/B8p9i64CZD0p1caKeIpb0dF2+b5yvx0Zo
-   4Ap6gM9K07OfrzUhFED32jfvmAWoL3lZOeIEfuojtXvqYEKTJZL8YD7oj
-   KbbhFP0cKh+CW2MDUJgcvf3EIn9EE+zMdvGG1EleQdBqKDxFJITTUNQ6f
-   Y=;
-Received: from ironmsg08-lv.qualcomm.com ([10.47.202.152])
-  by alexa-out.qualcomm.com with ESMTP; 03 Sep 2021 17:31:39 -0700
+  b=oBQrAE/3lJKyeLyhnDmuMQHqYSWtU2GdiC+VlBkNOqciFUrpqnKTn2KO
+   Rtx08n6mqfbImVK27LVPANNjQW9kiDYFw51jKhXspEtCpTimU01I3o7Q0
+   ZWvh+lfMy63ragmxYnZq0NTAvGXLhNO7t5OaT95Ilc3LSxAyJGvzsN2hJ
+   I=;
+Received: from ironmsg07-lv.qualcomm.com ([10.47.202.151])
+  by alexa-out.qualcomm.com with ESMTP; 03 Sep 2021 17:34:33 -0700
 X-QCInternal: smtphost
 Received: from nalasex01a.na.qualcomm.com ([10.47.209.196])
-  by ironmsg08-lv.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2021 17:31:38 -0700
+  by ironmsg07-lv.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2021 17:34:33 -0700
 Received: from hu-subbaram-lv.qualcomm.com (10.49.16.6) by
  nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.922.7;
- Fri, 3 Sep 2021 17:31:38 -0700
+ Fri, 3 Sep 2021 17:34:32 -0700
 From:   Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>
-To:     <subbaram@quicinc.com>
-CC:     Subbaraman Narayanamurthy <quic_subbaram@quicinc.com>,
+To:     Zhang Rui <rui.zhang@intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amitk@kernel.org>
+CC:     <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        "Subbaraman Narayanamurthy" <quic_subbaram@quicinc.com>,
         <stable@vger.kernel.org>
 Subject: [PATCH] thermal: Fix a NULL pointer dereference
-Date:   Fri, 3 Sep 2021 17:31:26 -0700
-Message-ID: <1630715486-4880-1-git-send-email-quic_subbaram@quicinc.com>
+Date:   Fri, 3 Sep 2021 17:34:19 -0700
+Message-ID: <1630715659-5058-1-git-send-email-quic_subbaram@quicinc.com>
 X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
 Content-Type: text/plain
