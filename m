@@ -2,94 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF906400945
-	for <lists+stable@lfdr.de>; Sat,  4 Sep 2021 04:15:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DF25400949
+	for <lists+stable@lfdr.de>; Sat,  4 Sep 2021 04:23:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236224AbhIDCOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Sep 2021 22:14:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57862 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236120AbhIDCOL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Sep 2021 22:14:11 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A65AAC061757;
-        Fri,  3 Sep 2021 19:13:10 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id me10so1554590ejb.11;
-        Fri, 03 Sep 2021 19:13:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/Yxd3tLdwA6axcDY2mcJ1N4bmyKI/tSiwpamDgl6Gsc=;
-        b=EBm3Mrc/KHMZzBUaktxLe3RwEFcfcqbQXJoOhiNiRA0R5Ftc5cBYA20B5uGudCdyOE
-         MMllLDqbdQ1KoH68wR2TNLupwk6jw+2sENeTJilRhQlRgIWKGJMb1ofj6nPnvWrAzypV
-         htVAAR9Lb2aCod2V/wac4AUCwrh6ZiP2ehumiiaiMLl58zIOgFLhgKWyiXv7GEXiK4Gi
-         H1qa/pywLXm6hPa6DL8M3agUYaEyEnlEwvpIua6QaxuKBd2K8uq9vuHTx1Io0FYoDcS2
-         SsRRQF043fbg5oj8BaC4i15UPLni8mq8a5A2zg6rKChe0aJ/X5Y5Gui+/VYl7nE23Oin
-         Wi/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/Yxd3tLdwA6axcDY2mcJ1N4bmyKI/tSiwpamDgl6Gsc=;
-        b=F90ovZrqWIIOJng5Uea7YyOiVHoTi2rRpp5LqLZxplnQUi6X4aRR2wa33HjxJDaJFf
-         O/q9eFTCgMvzct9B8CEjul93U/TNlQPrc7P20lFASdPVOaY5tWHZZFB39geObhoL0QWN
-         HJZSgnOZlA6bOhEA6Db1Zc9QqVDuNObiIiYBHR5FI5WiBVQTmycpYyZdgJBwdT6HM5nK
-         4/10W/cTcANRD6Edg9Dw0AkAyg0vTSvb2l+JTtVRzrRc1/2KJRzVy7t+/BSuv/9YFgcY
-         t6Iu/ZUAlUdaLuVdqtvLYjku3youuPreY/3cDqSNwqFZaiiUbwLX2tlYMAoo84TFNIj7
-         xDQQ==
-X-Gm-Message-State: AOAM533//i4c5XpQAaqB3KOHt5bYIAlsrw3w1fplYg9R/6+OieAkjNUv
-        GTPYxJEpx1eZ45dNWJFFnrJ//wQNz36yOfa2Hmo=
-X-Google-Smtp-Source: ABdhPJz0X1b/YbEKKNLhcxMoCb87/9e/3f184cZJ+kqFRfrYc6dzaThaCuwn/x3Ad+qCblXYaajtCxLMzXHzs0wYopg=
-X-Received: by 2002:a17:906:ce24:: with SMTP id sd4mr1981555ejb.329.1630721589217;
- Fri, 03 Sep 2021 19:13:09 -0700 (PDT)
+        id S236224AbhIDCVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Sep 2021 22:21:35 -0400
+Received: from mga04.intel.com ([192.55.52.120]:3609 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231389AbhIDCVf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 3 Sep 2021 22:21:35 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10096"; a="217703033"
+X-IronPort-AV: E=Sophos;i="5.85,267,1624345200"; 
+   d="scan'208";a="217703033"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2021 19:20:34 -0700
+X-IronPort-AV: E=Sophos;i="5.85,267,1624345200"; 
+   d="scan'208";a="534516983"
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.25])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2021 19:20:34 -0700
+Subject: [PATCH 0/6] cxl fixes for v5.15-rc1
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     linux-cxl@vger.kernel.org
+Cc:     Ben Widawsky <ben.widawsky@intel.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Alison Schofield <alison.schofield@intel.com>,
+        "Li Qiang \(Johnny Li\)" <johnny.li@montage-tech.com>,
+        ben.widawsky@intel.com, Jonathan.Cameron@huawei.com
+Date:   Fri, 03 Sep 2021 19:20:33 -0700
+Message-ID: <163072203373.2250120.8373702699578427249.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-3-g996c
 MIME-Version: 1.0
-References: <20210902061048.1703559-1-mudongliangabcd@gmail.com> <YTIpXrJmJTasAGJU@kroah.com>
-In-Reply-To: <YTIpXrJmJTasAGJU@kroah.com>
-From:   Dongliang Mu <mudongliangabcd@gmail.com>
-Date:   Sat, 4 Sep 2021 10:12:43 +0800
-Message-ID: <CAD-N9QU4KBs=XwjPpqSM1T3i9r0Fsd+s64O6gbD0Cf5KFFf-ZQ@mail.gmail.com>
-Subject: Re: [PATCH 4.19] fbmem: add margin check to fb_check_caps()
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        George Kennedy <george.kennedy@oracle.com>,
-        syzbot+e5fd3e65515b48c02a30@syzkaller.appspotmail.com,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Dhaval Giani <dhaval.giani@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        DRI Development <dri-devel@lists.freedesktop.org>,
-        Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 3, 2021 at 9:55 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Thu, Sep 02, 2021 at 02:10:48PM +0800, Dongliang Mu wrote:
-> > [ Upstream commit a49145acfb975d921464b84fe00279f99827d816 ]
-> >
-> > A fb_ioctl() FBIOPUT_VSCREENINFO call with invalid xres setting
-> > or yres setting in struct fb_var_screeninfo will result in a
-> > KASAN: vmalloc-out-of-bounds failure in bitfill_aligned() as
-> > the margins are being cleared. The margins are cleared in
-> > chunks and if the xres setting or yres setting is a value of
-> > zero upto the chunk size, the failure will occur.
-> >
-> > Add a margin check to validate xres and yres settings.
-> >
-> > Note that, this patch needs special handling to backport it to linux
-> > kernel 4.19, 4.14, 4.9, 4.4.
->
-> Looks like this is already in the 4.4.283, 4.9.282, 4.14.246, and
-> 4.19.206 kernel releases.  Can you check them to verify that it matches
-> your backport as well?
+Given the decision to delay cxl_test and some of the related reworks to
+the next merge window, here are the broken out fixes that will be
+appended to the base-commit noted below. Changes from previous posting
+include:
 
-Yes, I have seen them in these releases and they are fine to me.
+- "cxl/acpi: Do not add DSDT disabled ACPI0016 host bridge ports": Add a
+  comment about when acpi_pci_find_root() is known to not fail
+  (Jonathan)
 
->
-> thanks,
->
-> greg k-h
+- Fix lockdown reason in cxl_mem_raw_command_allowed() (Ondrej)
+
+- Pick up, with small change log tweaks, Ben's defined, but not used patch
+
+- Fix some 'make docs' warnings (Ben)
+
+---
+
+Alison Schofield (1):
+      cxl/acpi: Do not add DSDT disabled ACPI0016 host bridge ports
+
+Ben Widawsky (1):
+      cxl/uapi: Fix defined but not used warnings
+
+Dan Williams (3):
+      cxl/pci: Fix lockdown level
+      cxl/pmem: Fix Documentation warning
+      cxl/registers: Fix Documentation warning
+
+Li Qiang (Johnny Li) (1):
+      cxl/pci: Fix debug message in cxl_probe_regs()
+
+
+ Documentation/driver-api/cxl/memory-devices.rst |    4 ++-
+ drivers/cxl/acpi.c                              |   12 ++++++---
+ drivers/cxl/core/pmem.c                         |   30 +++++++++++++++++++++--
+ drivers/cxl/core/regs.c                         |   15 +++++++++++-
+ drivers/cxl/pci.c                               |    6 ++---
+ include/uapi/linux/cxl_mem.h                    |    2 +-
+ 6 files changed, 56 insertions(+), 13 deletions(-)
+
+base-commit: 00ca683e618065e2375b49c91002384735c76d41
