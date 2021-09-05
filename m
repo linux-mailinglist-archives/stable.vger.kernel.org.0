@@ -2,297 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC292400E82
-	for <lists+stable@lfdr.de>; Sun,  5 Sep 2021 09:11:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94852400E84
+	for <lists+stable@lfdr.de>; Sun,  5 Sep 2021 09:11:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235749AbhIEHKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 03:10:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39670 "EHLO
+        id S232380AbhIEHKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 03:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232380AbhIEHKF (ORCPT
+        with ESMTP id S230076AbhIEHKF (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 5 Sep 2021 03:10:05 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62E8EC061575;
-        Sun,  5 Sep 2021 00:08:59 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id i6so4837121wrv.2;
-        Sun, 05 Sep 2021 00:08:59 -0700 (PDT)
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D01F9C061757;
+        Sun,  5 Sep 2021 00:09:00 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id q14so4827538wrp.3;
+        Sun, 05 Sep 2021 00:09:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Vx1PkRayMUVx2xdKlP/hp9zSV99vs5wmY2KCX4qd7OU=;
-        b=ez8/fycPhERMLJ7iC0C6+gZpxoZ5q2nsUktANRqdFZ/3EfklFjQypuWJWHBK0aOUuB
-         0h0MHQB9EN2Hbr5Rb2r7aD/V89d1dPLt34pNGO1hAyKUNB0/BMjDShNoL0eZTwRtGca7
-         88do9wmvAEWjnpjLlgikNlNtMbZjhuwkyWTI0x//z8jDFp9D/+wLQ/jEoMXmzrnqY6U1
-         8bNC/61GlkldW5BjqCqHdOJNn6vGhXwYJYQtp82utUQ839RoWVUkSVpI+UKCMBTkIiQW
-         7BWDTMP/YVvoezdZpmNRp2RGi3NY7pe7vqnT9f0GzLLKJB1waf/SbP+X8mYdqHJmBBK6
-         cCfw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=2ZNdQqhoDjiadw1b2TXLuMmpgre0sPnhos24zQJglFI=;
+        b=EmltpoVbxOK+7ncHUuk6jnbjHt0RZJh/AOO5bFEXc5f4YFypA8yQULy2wKWyOeTFEF
+         hh1d/RH6UiY53Sf/asTJ4xlI3yprCO3H3ne92IpHiqmIRaXR5L8DAw9F5jJPZqI8z2dp
+         EudIBIHe8vsCx3611KQ//scVGiHLR+Os8j3VyUhNKDy2Cii4sIC+cJoAO9VlwCest7j6
+         PGfVF3wLR+3teHOKP/f+CtRru8uyobatvwuaGnqVjCw+tO+P5HthLY3NL1Oux6hn0eSR
+         RYnihHM8HXMi5Cr1E6z/Ow5jXTIULIqc0e1xyMX8UTe1Rb9gXJYneekgt/L3Ig/BRdCQ
+         sbew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Vx1PkRayMUVx2xdKlP/hp9zSV99vs5wmY2KCX4qd7OU=;
-        b=eTot1lchrXpYEPfDYYe9pqmlnEF1UbptdN+eBjqS9oa9v1mtGVCRA1axpUsNbLXCW0
-         oJUrBH1RTngmkWpmEXbQe1BnU3DivQpAYsUMeI9AJyesxcTGy3lU2DQS+82bZPnzB8lg
-         TXtNU6YwwG/GCS1VpphhZnaIpO+I/Nf01lpXoPqYfEByhhYro+QYuyALDoSMKa8phLx6
-         UA4C4DEso8Tr5+YcJrEMj1n0xMsFY3mlmFejZFHwcDHkPDza+mLdGeHVp8tic64mpVDL
-         bV5VCqCOtc67mStjOZg49FUwJ1OazftVnkP80BFfGU0CKwm1G8/ZUIKEVbexsKUb8bUN
-         Q5hQ==
-X-Gm-Message-State: AOAM530t7MwY5ENlMPXOZ0zizE2mwyzNYMdWQW4cldRVfBmieOkqgJ41
-        PprTaFtCNixulGz4YitDXQpJ924nLi4=
-X-Google-Smtp-Source: ABdhPJz3wb1NmGVO8oVWrvKZeF7rk3x0l23DoL8d4jeXzyG6hOpIcfZBy03wpDwLl39xdaaOXXcHOw==
-X-Received: by 2002:adf:c785:: with SMTP id l5mr7088959wrg.360.1630825737849;
-        Sun, 05 Sep 2021 00:08:57 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=2ZNdQqhoDjiadw1b2TXLuMmpgre0sPnhos24zQJglFI=;
+        b=cP7kOFr5WHu0x8aBZxUlRYr31Ms2a/3VnxJKSkAgmIAYItUKmACLtO6mwajQdr3RTP
+         20HEXu7+OHWJfP8zVNhLEKtXL068pYAoPiPBTG6TdoGQy09wh3atIzN5/AY8m2uTtJsZ
+         O7l4AjhzBj6Z8VoyKzFwQbEmONNQUbOBJE30bLqoaqDrHyKVUBMskSs8FOLfpVrnP9si
+         Izp8ufDH/twhUKuOZVcznye30GRnh/YjH/z1dc/SGgkTpJKhcWqFndJH8p0feBMH9zxY
+         MTDqzf598hv7KfTrWbRqvTFPCb5BXaspgamDN1nczjUTiXY9UNJBkWj32OqMD2DlnDsU
+         23Uw==
+X-Gm-Message-State: AOAM5338D/yMGYmPdxLDVewZUHC3BmueFgI85oU5fSmeloD74qTzvJCF
+        c338clAvMSc8+isT9y2eRS2SgMRgyEI=
+X-Google-Smtp-Source: ABdhPJxW8SwU5f5H9M7CgJC0O923ysbqiEqeMbrUGu7Q36mq8gHf24GRIxUbAiZ7v7te1B1bCdZPJg==
+X-Received: by 2002:a5d:5642:: with SMTP id j2mr7131898wrw.264.1630825739450;
+        Sun, 05 Sep 2021 00:08:59 -0700 (PDT)
 Received: from localhost.localdomain ([141.226.244.47])
-        by smtp.gmail.com with ESMTPSA id q4sm4148355wra.43.2021.09.05.00.08.56
+        by smtp.gmail.com with ESMTPSA id q4sm4148355wra.43.2021.09.05.00.08.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Sep 2021 00:08:57 -0700 (PDT)
+        Sun, 05 Sep 2021 00:08:58 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Miklos Szeredi <miklos@szeredi.hu>,
         Nikolaus Rath <Nikolaus@rath.org>,
         Vivek Goyal <vgoyal@redhat.com>, stable@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.10 1/2] new helper: inode_wrong_type()
-Date:   Sun,  5 Sep 2021 10:08:32 +0300
-Message-Id: <20210905070833.201102-1-amir73il@gmail.com>
+        linux-fsdevel@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.10 2/2] fuse: fix illegal access to inode with reused nodeid
+Date:   Sun,  5 Sep 2021 10:08:33 +0300
+Message-Id: <20210905070833.201102-2-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210905070833.201102-1-amir73il@gmail.com>
+References: <20210905070833.201102-1-amir73il@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+[ Upstream commit 15db16837a35d8007cb8563358787412213db25e ]
 
-[ Upstream commit 6e3e2c4362e41a2f18e3f7a5ad81bd2f49a47b85 ]
+Server responds to LOOKUP and other ops (READDIRPLUS/CREATE/MKNOD/...)
+with ourarg containing nodeid and generation.
 
-inode_wrong_type(inode, mode) returns true if setting inode->i_mode
-to given value would've changed the inode type.  We have enough of
-those checks open-coded to make a helper worthwhile.
+If a fuse inode is found in inode cache with the same nodeid but different
+generation, the existing fuse inode should be unhashed and marked "bad" and
+a new inode with the new generation should be hashed instead.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+This can happen, for example, with passhrough fuse filesystem that returns
+the real filesystem ino/generation on lookup and where real inode numbers
+can get recycled due to real files being unlinked not via the fuse
+passthrough filesystem.
+
+With current code, this situation will not be detected and an old fuse
+dentry that used to point to an older generation real inode, can be used to
+access a completely new inode, which should be accessed only via the new
+dentry.
+
+Note that because the FORGET message carries the nodeid w/o generation, the
+server should wait to get FORGET counts for the nlookup counts of the old
+and reused inodes combined, before it can free the resources associated to
+that nodeid.
+
+Stable backport notes:
+* This is not a regression. The bug has been in fuse forever, but only
+  a certain class of low level fuse filesystems can trigger this bug
+* Because there is no way to check if this fix is applied in runtime,
+  libfuse test_examples.py tests this fix with hardcoded check for
+  kernel version >= 5.14
+* After backport to stable kernel(s), the libfuse test can be updated
+  to also check minimal stable kernel version(s)
+* Depends on "fuse: fix bad inode" which is already applied to stable
+  kernels v5.4.y and v5.10.y
+* Required backporting helper inode_wrong_type()
+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-fsdevel/CAOQ4uxi8DymG=JO_sAU+wS8akFdzh+PuXwW3Ebgahd2Nwnh7zA@mail.gmail.com/
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 ---
- fs/9p/vfs_inode.c      | 4 ++--
- fs/9p/vfs_inode_dotl.c | 4 ++--
- fs/cifs/inode.c        | 5 ++---
- fs/fuse/dir.c          | 6 +++---
- fs/fuse/inode.c        | 2 +-
- fs/fuse/readdir.c      | 2 +-
- fs/nfs/inode.c         | 6 +++---
- fs/nfsd/nfsproc.c      | 2 +-
- fs/overlayfs/namei.c   | 4 ++--
- include/linux/fs.h     | 5 +++++
- 10 files changed, 22 insertions(+), 18 deletions(-)
+ fs/fuse/dir.c     | 2 +-
+ fs/fuse/fuse_i.h  | 7 +++++++
+ fs/fuse/inode.c   | 4 ++--
+ fs/fuse/readdir.c | 7 +++++--
+ 4 files changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
-index ae0c38ad1fcb..0791480bf922 100644
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -398,7 +398,7 @@ static int v9fs_test_inode(struct inode *inode, void *data)
- 
- 	umode = p9mode2unixmode(v9ses, st, &rdev);
- 	/* don't match inode of different type */
--	if ((inode->i_mode & S_IFMT) != (umode & S_IFMT))
-+	if (inode_wrong_type(inode, umode))
- 		return 0;
- 
- 	/* compare qid details */
-@@ -1360,7 +1360,7 @@ int v9fs_refresh_inode(struct p9_fid *fid, struct inode *inode)
- 	 * Don't update inode if the file type is different
- 	 */
- 	umode = p9mode2unixmode(v9ses, st, &rdev);
--	if ((inode->i_mode & S_IFMT) != (umode & S_IFMT))
-+	if (inode_wrong_type(inode, umode))
- 		goto out;
- 
- 	/*
-diff --git a/fs/9p/vfs_inode_dotl.c b/fs/9p/vfs_inode_dotl.c
-index 0028eccb665a..72b67d810b8c 100644
---- a/fs/9p/vfs_inode_dotl.c
-+++ b/fs/9p/vfs_inode_dotl.c
-@@ -59,7 +59,7 @@ static int v9fs_test_inode_dotl(struct inode *inode, void *data)
- 	struct p9_stat_dotl *st = (struct p9_stat_dotl *)data;
- 
- 	/* don't match inode of different type */
--	if ((inode->i_mode & S_IFMT) != (st->st_mode & S_IFMT))
-+	if (inode_wrong_type(inode, st->st_mode))
- 		return 0;
- 
- 	if (inode->i_generation != st->st_gen)
-@@ -933,7 +933,7 @@ int v9fs_refresh_inode_dotl(struct p9_fid *fid, struct inode *inode)
- 	/*
- 	 * Don't update inode if the file type is different
- 	 */
--	if ((inode->i_mode & S_IFMT) != (st->st_mode & S_IFMT))
-+	if (inode_wrong_type(inode, st->st_mode))
- 		goto out;
- 
- 	/*
-diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
-index b1f0c05d6eaf..b11a919b9cab 100644
---- a/fs/cifs/inode.c
-+++ b/fs/cifs/inode.c
-@@ -425,8 +425,7 @@ int cifs_get_inode_info_unix(struct inode **pinode,
- 		}
- 
- 		/* if filetype is different, return error */
--		if (unlikely(((*pinode)->i_mode & S_IFMT) !=
--		    (fattr.cf_mode & S_IFMT))) {
-+		if (unlikely(inode_wrong_type(*pinode, fattr.cf_mode))) {
- 			CIFS_I(*pinode)->time = 0; /* force reval */
- 			rc = -ESTALE;
- 			goto cgiiu_exit;
-@@ -1243,7 +1242,7 @@ cifs_find_inode(struct inode *inode, void *opaque)
- 		return 0;
- 
- 	/* don't match inode of different type */
--	if ((inode->i_mode & S_IFMT) != (fattr->cf_mode & S_IFMT))
-+	if (inode_wrong_type(inode, fattr->cf_mode))
- 		return 0;
- 
- 	/* if it's not a directory or has no dentries, then flag it */
 diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
-index 756bbdd563e0..37d50dde845e 100644
+index 37d50dde845e..2e300176cb88 100644
 --- a/fs/fuse/dir.c
 +++ b/fs/fuse/dir.c
 @@ -252,7 +252,7 @@ static int fuse_dentry_revalidate(struct dentry *entry, unsigned int flags)
  		if (ret == -ENOMEM)
  			goto out;
  		if (ret || fuse_invalid_attr(&outarg.attr) ||
--		    (outarg.attr.mode ^ inode->i_mode) & S_IFMT)
-+		    inode_wrong_type(inode, outarg.attr.mode))
+-		    inode_wrong_type(inode, outarg.attr.mode))
++		    fuse_stale_inode(inode, outarg.generation, &outarg.attr))
  			goto invalid;
  
  		forget_all_cached_acls(inode);
-@@ -1062,7 +1062,7 @@ static int fuse_do_getattr(struct inode *inode, struct kstat *stat,
- 	err = fuse_simple_request(fm, &args);
- 	if (!err) {
- 		if (fuse_invalid_attr(&outarg.attr) ||
--		    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-+		    inode_wrong_type(inode, outarg.attr.mode)) {
- 			fuse_make_bad(inode);
- 			err = -EIO;
- 		} else {
-@@ -1699,7 +1699,7 @@ int fuse_do_setattr(struct dentry *dentry, struct iattr *attr,
- 	}
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index 8150621101c6..ff94da684017 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -860,6 +860,13 @@ static inline u64 fuse_get_attr_version(struct fuse_conn *fc)
+ 	return atomic64_read(&fc->attr_version);
+ }
  
- 	if (fuse_invalid_attr(&outarg.attr) ||
--	    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
-+	    inode_wrong_type(inode, outarg.attr.mode)) {
- 		fuse_make_bad(inode);
- 		err = -EIO;
- 		goto error;
++static inline bool fuse_stale_inode(const struct inode *inode, int generation,
++				    struct fuse_attr *attr)
++{
++	return inode->i_generation != generation ||
++		inode_wrong_type(inode, attr->mode);
++}
++
+ static inline void fuse_make_bad(struct inode *inode)
+ {
+ 	remove_inode_hash(inode);
 diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index f94b0bb57619..6345c4679fb8 100644
+index 6345c4679fb8..053c56af3b6f 100644
 --- a/fs/fuse/inode.c
 +++ b/fs/fuse/inode.c
-@@ -340,7 +340,7 @@ struct inode *fuse_iget(struct super_block *sb, u64 nodeid,
+@@ -340,8 +340,8 @@ struct inode *fuse_iget(struct super_block *sb, u64 nodeid,
  		inode->i_generation = generation;
  		fuse_init_inode(inode, attr);
  		unlock_new_inode(inode);
--	} else if ((inode->i_mode ^ attr->mode) & S_IFMT) {
-+	} else if (inode_wrong_type(inode, attr->mode)) {
- 		/* Inode has changed type, any I/O on the old should fail */
+-	} else if (inode_wrong_type(inode, attr->mode)) {
+-		/* Inode has changed type, any I/O on the old should fail */
++	} else if (fuse_stale_inode(inode, generation, attr)) {
++		/* nodeid was reused, any I/O on the old inode should fail */
  		fuse_make_bad(inode);
  		iput(inode);
+ 		goto retry;
 diff --git a/fs/fuse/readdir.c b/fs/fuse/readdir.c
-index 3441ffa740f3..277f7041d55a 100644
+index 277f7041d55a..bc267832310c 100644
 --- a/fs/fuse/readdir.c
 +++ b/fs/fuse/readdir.c
-@@ -202,7 +202,7 @@ static int fuse_direntplus_link(struct file *file,
+@@ -200,9 +200,12 @@ static int fuse_direntplus_link(struct file *file,
+ 	if (!d_in_lookup(dentry)) {
+ 		struct fuse_inode *fi;
  		inode = d_inode(dentry);
++		if (inode && get_node_id(inode) != o->nodeid)
++			inode = NULL;
  		if (!inode ||
- 		    get_node_id(inode) != o->nodeid ||
--		    ((o->attr.mode ^ inode->i_mode) & S_IFMT)) {
-+		    inode_wrong_type(inode, o->attr.mode)) {
+-		    get_node_id(inode) != o->nodeid ||
+-		    inode_wrong_type(inode, o->attr.mode)) {
++		    fuse_stale_inode(inode, o->generation, &o->attr)) {
++			if (inode)
++				fuse_make_bad(inode);
  			d_invalidate(dentry);
  			dput(dentry);
  			goto retry;
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 9811880470a0..21addb78523d 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -322,7 +322,7 @@ nfs_find_actor(struct inode *inode, void *opaque)
- 
- 	if (NFS_FILEID(inode) != fattr->fileid)
- 		return 0;
--	if ((S_IFMT & inode->i_mode) != (S_IFMT & fattr->mode))
-+	if (inode_wrong_type(inode, fattr->mode))
- 		return 0;
- 	if (nfs_compare_fh(NFS_FH(inode), fh))
- 		return 0;
-@@ -1446,7 +1446,7 @@ static int nfs_check_inode_attributes(struct inode *inode, struct nfs_fattr *fat
- 			return 0;
- 		return -ESTALE;
- 	}
--	if ((fattr->valid & NFS_ATTR_FATTR_TYPE) && (inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT))
-+	if ((fattr->valid & NFS_ATTR_FATTR_TYPE) && inode_wrong_type(inode, fattr->mode))
- 		return -ESTALE;
- 
- 
-@@ -1861,7 +1861,7 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
- 	/*
- 	 * Make sure the inode's type hasn't changed.
- 	 */
--	if ((fattr->valid & NFS_ATTR_FATTR_TYPE) && (inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT)) {
-+	if ((fattr->valid & NFS_ATTR_FATTR_TYPE) && inode_wrong_type(inode, fattr->mode)) {
- 		/*
- 		* Big trouble! The inode has become a different object.
- 		*/
-diff --git a/fs/nfsd/nfsproc.c b/fs/nfsd/nfsproc.c
-index 0d71549f9d42..9c9de2b66e64 100644
---- a/fs/nfsd/nfsproc.c
-+++ b/fs/nfsd/nfsproc.c
-@@ -376,7 +376,7 @@ nfsd_proc_create(struct svc_rqst *rqstp)
- 
- 		/* Make sure the type and device matches */
- 		resp->status = nfserr_exist;
--		if (inode && type != (inode->i_mode & S_IFMT))
-+		if (inode && inode_wrong_type(inode, type))
- 			goto out_unlock;
- 	}
- 
-diff --git a/fs/overlayfs/namei.c b/fs/overlayfs/namei.c
-index f3309e044f07..092812c2f118 100644
---- a/fs/overlayfs/namei.c
-+++ b/fs/overlayfs/namei.c
-@@ -366,7 +366,7 @@ int ovl_check_origin_fh(struct ovl_fs *ofs, struct ovl_fh *fh, bool connected,
- 		return PTR_ERR(origin);
- 
- 	if (upperdentry && !ovl_is_whiteout(upperdentry) &&
--	    ((d_inode(origin)->i_mode ^ d_inode(upperdentry)->i_mode) & S_IFMT))
-+	    inode_wrong_type(d_inode(upperdentry), d_inode(origin)->i_mode))
- 		goto invalid;
- 
- 	if (!*stackp)
-@@ -724,7 +724,7 @@ struct dentry *ovl_lookup_index(struct ovl_fs *ofs, struct dentry *upper,
- 		index = ERR_PTR(-ESTALE);
- 		goto out;
- 	} else if (ovl_dentry_weird(index) || ovl_is_whiteout(index) ||
--		   ((inode->i_mode ^ d_inode(origin)->i_mode) & S_IFMT)) {
-+		   inode_wrong_type(inode, d_inode(origin)->i_mode)) {
- 		/*
- 		 * Index should always be of the same file type as origin
- 		 * except for the case of a whiteout index. A whiteout
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 8bde32cf9711..43bb6a51e42d 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2768,6 +2768,11 @@ static inline bool execute_ok(struct inode *inode)
- 	return (inode->i_mode & S_IXUGO) || S_ISDIR(inode->i_mode);
- }
- 
-+static inline bool inode_wrong_type(const struct inode *inode, umode_t mode)
-+{
-+	return (inode->i_mode ^ mode) & S_IFMT;
-+}
-+
- static inline void file_start_write(struct file *file)
- {
- 	if (!S_ISREG(file_inode(file)->i_mode))
 -- 
 2.16.5
 
