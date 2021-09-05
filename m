@@ -2,75 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D462E4011EC
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 00:21:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29C4640122A
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 01:44:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238431AbhIEWSr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 18:18:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40410 "EHLO
+        id S232759AbhIEXoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 19:44:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229987AbhIEWSq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Sep 2021 18:18:46 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 058C5C061575
-        for <stable@vger.kernel.org>; Sun,  5 Sep 2021 15:17:43 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id v5so6783103edc.2
-        for <stable@vger.kernel.org>; Sun, 05 Sep 2021 15:17:42 -0700 (PDT)
+        with ESMTP id S229735AbhIEXoL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Sep 2021 19:44:11 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D0C2C061575
+        for <stable@vger.kernel.org>; Sun,  5 Sep 2021 16:43:07 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id t9so4226166qtp.2
+        for <stable@vger.kernel.org>; Sun, 05 Sep 2021 16:43:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=UWVukDYpnouo2TmAsoiK3YFI/UCntBVDF8OdhEqH+sQ=;
-        b=PQ85A4pF0SypJ0WQsUC45egDpAh+WtxQh4MKIDYUfNhwdtcQphU01uwBYn5yeCfao/
-         cV7WnJxwHvfKb3E6jyA8Yy7Qys85fodfBDycj4QeN3c+TtYuSQpb1Xjgm5edfmRwESsx
-         J7tjmnVnfw6HLlzkN+AGHU1HkzgXGM5NBVcUclWAqvDwnlwhGYuZKnmY9goqzp/+H70N
-         wVH1zwszYdJZUU42iLlJ3qU60C+g8EZ2B74ICOPDjsWdytaUw/5DpuNXU6zqZFoZEfN2
-         yZ7qUIGI7k5cDI7nbb2XUJYHTfZqrH/LUcugDyy2NZ3I/yFZQ6Rv6TkGAOvOeV3/IByL
-         B08g==
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=Y6xKaPysqauslqATbLRPyxhadCXJpfsENJ9c4w/8+G8=;
+        b=E4N898sf82YQV/dvZduI5vgjL7esBd8w+jMrwThH1smy05UcqqBnDGwRS5oj3eitO2
+         jupbobpHa19Ch2uw7dKoXuIH+BSD89cd3bucxfKtmQkKX+1n6q+ktvBGgpFdcD1/weY1
+         3pnzd8AF/2k792ktrG+w/mMBTKaDU/3eKomMTkf1O3AaZFoxrLls30Ki2uATjR+RvLcg
+         TKNkF9q72u31HLEfXIZWemfmbE/zJkkbhgcJd0RIIOWti05C44wHYP6UUQQJnWub6tAN
+         KbNrhz7sc3zjr4NPnn3oKIIhQTaF5i1hZyC1rbnQ7BWu/Tqr4ipx37VH1jFygG2M0V+3
+         z7SQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=UWVukDYpnouo2TmAsoiK3YFI/UCntBVDF8OdhEqH+sQ=;
-        b=HLj7TA3Sg55B+MnwE5efraxNQ3uZPAj1sjQxSEupTnONPZ37Yim/yznOc2UUA+T+sQ
-         pnm7aIUA1ai3rL54vrX8kkrf/Cgq+hop83Rt8Bb2Eogozk/NJErQ7VcOIA+S5y6+Atn0
-         P/TToEOg6ZOajM3M9MtK+VJGiJN4za/JEZxx9VDgfvHkrq+5ZLy2/zcz1LkkFjMYWci6
-         Kl6eR/jMEb+w27DbvAW0Ft2FGAO9xZomLMoHuoYMeFeMvTrYjY6cT+PNlarjdFFsXxYQ
-         r4i6TpU7427+u77CvbZWoi3taVqUlnbu8EkqHrDEPTnJ0RLTpPqyGb8b8ZDJoxwD4adO
-         alVA==
-X-Gm-Message-State: AOAM530ResQ+oT6Bmu+x5RGgZ/mtDZrQBVlc12rzS9GDWyiaf+kYw+8V
-        43vL9fTsRjjkfPu/q4yCPw4ssl27bmJsiBobFnU=
-X-Google-Smtp-Source: ABdhPJzH2m5Wt6wawfrMsDjqfAj6dNcY9CIm8F1GtCBVQNTgvQeV/P+We1hOWldz6PT0TDBuvjskQuzI8BppJqcrAvI=
-X-Received: by 2002:a05:6402:35cd:: with SMTP id z13mr5349599edc.13.1630880261400;
- Sun, 05 Sep 2021 15:17:41 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=Y6xKaPysqauslqATbLRPyxhadCXJpfsENJ9c4w/8+G8=;
+        b=MVyxFR+5MWsRu9vc+z625tz5Mt6kg4dfiIz8dHcok/2vy/c3pWCikeDalas42ZA2wF
+         kg+wPOlgpDElK3lZ9mS6kwNGt63/KVq63pWKDpovEtj7oftFNBG3bjiWIBlIpVZB67wf
+         3+YXJrlYB0wyK6TQhO5p+nlgab6p56vmrG82S0FseRTQX7T9129iFf6EHDNmkMyb+fFU
+         4lU+rNdMOgm3Z8PFO59f4WH1xP838Hr3ZzhsiukRsbZ4kRz+oczntnc9cwg6mbZLL4Y4
+         ybJlofyD3QleJAsRrWnMjDkG8kFeWFJZVjXiTFHcLW8a0KM2TRF6HyBwUTQSWKS8jexB
+         TxmQ==
+X-Gm-Message-State: AOAM53063aTyNDCzLDwJaBu51r7x6FQ2SIBnwkRYsqOtYArdsHXu9Jn/
+        lHON2BcEZv5EpFUfjfC05hYWZSh30Gk3NS/tHzQ=
+X-Google-Smtp-Source: ABdhPJyWyfCh4BjdfUxHcIzVXv2UnggSc1IQn6TU0Tq7mxGjDdni7PDXT5EyAMLPFc3wjINN4ysiV/AzqOoeSQW1WMo=
+X-Received: by 2002:a05:622a:44f:: with SMTP id o15mr8452785qtx.260.1630885386504;
+ Sun, 05 Sep 2021 16:43:06 -0700 (PDT)
 MIME-Version: 1.0
-Reply-To: aliuhuadams@gmail.com
-Sender: mrtyiacalidmar@gmail.com
-Received: by 2002:a55:f60b:0:b0:118:63d4:dc05 with HTTP; Sun, 5 Sep 2021
- 15:17:40 -0700 (PDT)
-From:   Aliuhu Adams <aliuhuadamss@gmail.com>
-Date:   Sun, 5 Sep 2021 22:17:40 +0000
-X-Google-Sender-Auth: _FHs2iRhY_9W1c53xboC1XF6N84
-Message-ID: <CAFMfcuh9Zh8BjHXHQbYGzGTw9YjyP=ikfS82YVy7LQ31wPZPBw@mail.gmail.com>
-Subject: From Aliuhu Adams
+Received: by 2002:ac8:72da:0:0:0:0:0 with HTTP; Sun, 5 Sep 2021 16:43:06 -0700 (PDT)
+Reply-To: mskristalinageorgieva3@gmail.com
+From:   OFFICE <mrtownsend1holley@gmail.com>
+Date:   Mon, 6 Sep 2021 00:43:06 +0100
+Message-ID: <CAHoZd2pGSSZ_zASZXB1FLrTwuNp5yq7wG07bgFx4Zu7Mnu8gyw@mail.gmail.com>
+Subject: PLS CHECK YOUR MAIL
 To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-From Aliuhu Adams,
+Dear Sir / Madam,
 
-My name is Aliuhu Adams, from Burkina Faso
+I write to inform you that the GOVERNMENT OF UNITED STATES in
+conjunction with International Monetary Fund (IMF), has resolved to
+refund each victim of scam (Advance Fee FRAUD) the sum of $7,500.000
+(Seven Million Five Hundred Thousand Dollars only) On that note, I
+seek your consent to collaborate with me so that I will put your name
+as one of the victims entitle and legible for this refunds for our
+mutual benefits.
 
-Please, I am contacting you for urgent assistance to help me move my
-inheritance to your country and help me to invest in your country.
+If you are interested in actualizing this deal with me respond back
+urgently with your below details to enable me put your name among
+those that will benefit from the refund this month.
 
-The amount is 14 million dollars and I want this money to be moved to your
-country urgently with me because of the fear of the killer of my parents.
+1 Your full names/ address.
+2 Your phone number.
+3 Your age/sex and occupation.
 
-I shall give you more details when I hear from you.
+Please note that the process of filing for this refund is risk free
+and has nothing to do with illegality because I have perfected every
+plan for the smooth processing of the refunds. Bear in mind that our
+working ratio shall be 50% each as soon as we get the refund in your
+name.  Email : mskristalinageorgieva3@gmail.com
 
-Thank you,
+Yours Faithfully,
 
-Aliuhu Adams
+
+Ms. Kristalina Georgieva
+Managing Director
+International Monetary Fund
