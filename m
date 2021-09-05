@@ -2,65 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3189B401145
-	for <lists+stable@lfdr.de>; Sun,  5 Sep 2021 21:06:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4AEC40116E
+	for <lists+stable@lfdr.de>; Sun,  5 Sep 2021 21:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229880AbhIETH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 15:07:29 -0400
-Received: from x127130.tudelft.net ([131.180.127.130]:34236 "EHLO
-        djo.tudelft.nl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S229865AbhIETH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Sep 2021 15:07:29 -0400
-X-Greylist: delayed 409 seconds by postgrey-1.27 at vger.kernel.org; Sun, 05 Sep 2021 15:07:28 EDT
-Received: by djo.tudelft.nl (Postfix, from userid 2001)
-        id AD58A1C42C4; Sun,  5 Sep 2021 21:00:45 +0200 (CEST)
-Date:   Sun, 5 Sep 2021 21:00:45 +0200
-From:   wim <wim@djo.tudelft.nl>
-To:     gregkh@linuxfoundation.org
-Cc:     wim <wim@djo.tudelft.nl>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: kernel-4.9.270 crash
-Message-ID: <20210905190045.GA10991@djo.tudelft.nl>
-Reply-To: wim@djo.tudelft.nl
-References: <20210904235231.GA31607@djo.tudelft.nl>
+        id S236697AbhIETv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 15:51:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36170 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235078AbhIETv4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Sep 2021 15:51:56 -0400
+Received: from mail-qv1-xf43.google.com (mail-qv1-xf43.google.com [IPv6:2607:f8b0:4864:20::f43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3AE2C061575
+        for <stable@vger.kernel.org>; Sun,  5 Sep 2021 12:50:52 -0700 (PDT)
+Received: by mail-qv1-xf43.google.com with SMTP id gf5so2909696qvb.9
+        for <stable@vger.kernel.org>; Sun, 05 Sep 2021 12:50:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=uRuJYnQr4q07JLSEYwH/yTioHcPDdzH4IkkOfqRXwAk=;
+        b=IbAjGqZPskuyzajNFQwTNMJkBMgPrEifasTLgnhNC6A/TcwZ8OdHJifKBxppVxCa/w
+         a4Phw8yg6cv41o5nWsN2MAhn1KGklyxGSIYXJj9o1f18fbekHir+k9qwmRX0I45PbmKq
+         J1UlvPpEXsT885b1z0yOrbfNYrnD6+/fO8vV7FdDg64slWXD1ULUuQ613sLNqfdfBOK4
+         uVmXaeVxWynIVjmXQE9KuE+7j5JzEm8ZhtpVoh3V/IvjID9rU63aqrBZytEA5tEQGs2+
+         /AKCWpwYZeykdz2euYjE0Yc23IrmPr7FgHDuW3LUFLCOIJ8nZUkte8o60Ada3xFVm/vp
+         0vfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=uRuJYnQr4q07JLSEYwH/yTioHcPDdzH4IkkOfqRXwAk=;
+        b=qEIovujEStCfwk6DaJtj3tAjJ9onHIhuUIz8+47DrbH3CPA1rQtoLH9N/QkUvjc9OH
+         gvCoVg39dJZCdXd5saZUMWn12LdN9TSG9uu4+4JgOOpcA75PZ9vAruhnvfYZlf0RkUJT
+         JPg2+mxeVSW75ACxZxfFLD1XLhchoUPlDpoEIsmVZpbFUciiYKRbBGWgIvtYtR5RzxPs
+         xxNjcimu+MNfcxg5U5doNc6xIjzertVrmzHOsDbXWrfkFlxT5Pf+TfS4aUVp0FrFqxvI
+         n8fLK9EDXASxFUiAFsfvuw8sM9A4AiJ3fyGJX9RHBSISX+KJSqZnLFm8iC1BCHyu/u4V
+         YOog==
+X-Gm-Message-State: AOAM531fS676BIPZRqVdgy30SIt2BKYacqPXtzHCWOZGiHgKFcIPuSTf
+        4gYSkhM1q8LAz8vZaq2p1vASzXPI2/DylCsLagw=
+X-Google-Smtp-Source: ABdhPJwKgkX0MDX18kHkr9u11iDRe5LOZ+GB+3j2jG48XzFX7TKNEuDnQ7o1pAVLhwZJO9It5QrUvt2LmT7EVjEyoeU=
+X-Received: by 2002:a0c:ef0d:: with SMTP id t13mr8765576qvr.21.1630871451835;
+ Sun, 05 Sep 2021 12:50:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210904235231.GA31607@djo.tudelft.nl>
-User-Agent: Mutt/1.11.2 (2019-01-07)
+Received: by 2002:ac8:4510:0:0:0:0:0 with HTTP; Sun, 5 Sep 2021 12:50:51 -0700 (PDT)
+Reply-To: mohamedkasim794@yahoo.com
+From:   Dr Kasim Mohamed <mr.alinmusah06@gmail.com>
+Date:   Sun, 5 Sep 2021 12:50:51 -0700
+Message-ID: <CALDhU2REMO0+ELBuWz6Rzw3XwsUtCLQ7aaEaCH0EAyot7PWy3A@mail.gmail.com>
+Subject: GOOD DAY
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 05, 2021 at 01:52:31AM +0200, wim wrote:
-> 
-> Hello Greg,
-> 
-> from kernel-4.9.270 up until now (4.9.282) I experience kernel crashes upon
-> loading a GPU module.
-> It happens on two out of at least six different machines.
-> I can't believe that I'm the only one where that happens, but since the bug
-> is still there twelve versions later, I need to report this.
-> 
-> I run Gentoo with vanilla kernels.
-> Upon loading i915.ko (automatically or manually) my laptop freezes until
-> power-down. (Note that other machines using i915.ko have no problems here.)
-> It's an Asus laptop with Intel chipset with a peculiarity:
-> 
->  00:02.0 VGA compatible controller: Intel Corporation HD Graphics 620 (rev 02)
->  01:00.0 3D controller: NVIDIA Corporation GM108M [GeForce 940MX] (rev a2)
-> 
-> (It uses Intel natively and nobody knows how to make use of that Nvidia chip)
-> 
-> 
-> On an AMD desktop I get the same crash upon loading of nouveau.ko .
-> 
-> Something ugly must have been introduced in kernel-4.9.270 .
-> Strace modprobe .. only prints two lines on the screen.
-> Strace modprobe .. 2>&1 > file produces only an empty file.
-> 
-> Any ideas?
- 
-Regards,
-Wim Osterholt.
+I am Mr Kasim Mohamed
 
+Hi Friend I am a bank director of the UBA Bank Plc bf .I want to
+transfer an abandoned sum of 27.5 millions USD  to you through ATM
+VISA CARD .50% will be for you. No risk involved. Contact me for more
+details. Kindly reply me back to my alternative email
+address(mohamedkasim794@yahoo.com) Mr kasim mohamed
