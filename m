@@ -2,60 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D2C3401033
-	for <lists+stable@lfdr.de>; Sun,  5 Sep 2021 16:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C32C40103A
+	for <lists+stable@lfdr.de>; Sun,  5 Sep 2021 16:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233995AbhIEO3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 10:29:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49998 "EHLO
+        id S233366AbhIEOcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 10:32:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229566AbhIEO3g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Sep 2021 10:29:36 -0400
-Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB389C061575
-        for <stable@vger.kernel.org>; Sun,  5 Sep 2021 07:28:32 -0700 (PDT)
-Received: by mail-ej1-x632.google.com with SMTP id h9so7940775ejs.4
-        for <stable@vger.kernel.org>; Sun, 05 Sep 2021 07:28:32 -0700 (PDT)
+        with ESMTP id S231341AbhIEOcJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Sep 2021 10:32:09 -0400
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95506C061575
+        for <stable@vger.kernel.org>; Sun,  5 Sep 2021 07:31:06 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id q3so5708423edt.5
+        for <stable@vger.kernel.org>; Sun, 05 Sep 2021 07:31:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:from:date:message-id:subject:to:cc;
-        bh=OeSEurl2+uMNxj+62TOY0u9X0gjRqzf7HvkH7Cdot5w=;
-        b=eQ+xgutM+WOZhiG81CyMUjSC4bRiNMDHUHV3e2o15+vBJHgEAp2FBXkE8un4cPEtB+
-         yx4pPxktEpvi1O/t13gc9BqMshV53ruIOXmh2buH5BfcDBQ44up9/NwTKXS76g2sDq+N
-         FlUIXQheD6GGcIThrhQ6iyKUo0AKw4b6mX1FNqtNiRNtEwdVqY4ho+gd+fXroTsWvRiZ
-         rm0XVt+XAFOffBpJ5LcbV4IfLWaMcNr2RqlaKkGpDHbp2CzmdVhGRM7o8KBEYHNlao5B
-         PbLs+hUXVB9ELtKmqJ6RHn0EWTJww35RWo0PKZwl7L0YJd65ziPseniQsW8nZyiz9WN1
-         APdg==
+        bh=7/1jDOGzfp3PXRcY9mA9mIPbXo8eoYQIufcyNrSrdxM=;
+        b=ysj6gmVcqNHadgXS9+bDPwQsbxGxVvOIR/E3NWp852m68iBMAwhSXd6/07o+6DMJsr
+         k/DirnKmIctct/dhSj0twwPKBli9JeeYmVrj2/Mk2Ofq3CAdniV5ae5/0qnSjgf2wkBo
+         daX+WtqPeBMJtXhF/7jezOqmmRlTt3GmPO7OrZV4zlRK0JhF6BOxJSNexqT2eYkOaG/3
+         424dfGfyKbBB5BkXMHhB/7g8OAV9gVN4b0O87tF8TzoHzy2yH/EEDqxS+iP0vRM0GOLv
+         eqFjRtXTuuo44PGn8M2KWjqkNkgN89PWGai9S2WsFUBybPbZAZHCQm3/5Qbtcsa805gr
+         ZoAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=OeSEurl2+uMNxj+62TOY0u9X0gjRqzf7HvkH7Cdot5w=;
-        b=FCaR3fjqfouA2nnOG1Vds+i/sd5JDng+gSm006TOxDFQKsUQKf+1hRL9xpjXjslu+z
-         lgiDCKL5Je9m7wUJlxmLFoFA2v9tbRj/g8p95z0JjMBE/KAaemdJQL5ry6KUa3p7AhtN
-         i2Rumdbr8CdU7GolUDFqLcJ4CYRsuJM5dT0D+4wRXnT6nGFC9XFy8QBD0VJeUcvxuDEX
-         BoyDzW2Kxj79tB7s+sARzAmpixJJ0vVbrD0UjEto1l9ZOUMHUXkTV9gs4mE2HehWFgC1
-         VhYmiEM656+UQ+0KAYL2SgM7iIxU/DALapkfGBX1Z+3wqhH6/J29e9mytelR7nQnRDjx
-         PL5w==
-X-Gm-Message-State: AOAM533DUdiCZ767WdEK1lylARX5aiUQekrczWibF9MEirK052EbMlD1
-        JRnoO2Hc4eo+JEgpwWeiG1F3FUwvmspndK6iIdza8w==
-X-Google-Smtp-Source: ABdhPJyM4mUratmqo/RzqN0QLV+/EokLYEhrHg7Jt6NqRa9L45VFd4AtOWILD8jrkd5U6HBEchjrJKoYZG3pZd+UaNU=
-X-Received: by 2002:a17:906:318b:: with SMTP id 11mr9194339ejy.493.1630852110473;
- Sun, 05 Sep 2021 07:28:30 -0700 (PDT)
+        bh=7/1jDOGzfp3PXRcY9mA9mIPbXo8eoYQIufcyNrSrdxM=;
+        b=hST8OdN3Si8i0lKY9Xiaq/V6g9H+FwR4/lpYDPmskRTP8K2wzbPz/six/tvpeOnYsv
+         jVyhXL4EPUAzkX4YlACv3vlf6kSruWgF99yvM29U9duMpaZO6lLl89wC1kZ+f8Z75/4q
+         BUb2fuRDe8/0oAn8clntqdArX7LCLl4WVYbi5T5JugZGqqK2ripzH4e9SjpZ2QlzUJ3r
+         0SL+35Uau9eXoXYTDnhw/vjhaRgZSpS7sqgRZVJI0TGI4wB1jSc5k3G3wlAwY96VsVdG
+         H50XlLqRiEy73aAEDc1ScujJ2TRHAiS3A9fO1HGfAEwLAw/Vru/0X9JYQoHavVgBuRK7
+         R0HA==
+X-Gm-Message-State: AOAM531Bd0cu0c1D7JRr3Ogl7Ws8CKljs8eeEmy/Sqq4gfLw0Wm0RH50
+        Ef9AVoprnGQCi+p9IbZaaeXXjSp57IpcOWZzyiMeJw==
+X-Google-Smtp-Source: ABdhPJxLkulszZ+5R2hFoQFt48ejGYp+MiYE+Yd64kvqwhDDt0F7dgJCJoOQl5S+PU2dcz0yxakLb94XV64LLw5bpuQ=
+X-Received: by 2002:aa7:d3c7:: with SMTP id o7mr8971267edr.288.1630852265055;
+ Sun, 05 Sep 2021 07:31:05 -0700 (PDT)
 MIME-Version: 1.0
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sun, 5 Sep 2021 19:58:19 +0530
-Message-ID: <CA+G9fYuYV-JUO5iZAWdh+_WooeiXhwNMh+xr24P2WDHPagTGJA@mail.gmail.com>
-Subject: udmabuf.c:30:17: warning: implicit declaration of function 'open'
+Date:   Sun, 5 Sep 2021 20:00:54 +0530
+Message-ID: <CA+G9fYsNttv1A+iWdaaabZCfbo+miw9LDTzOjrSuuEoKOqVvDA@mail.gmail.com>
+Subject: proc-pid-vm.c:214:19: warning: 'str_vsyscall' defined but not used
 To:     "open list:KERNEL SELFTEST FRAMEWORK" 
         <linux-kselftest@vger.kernel.org>,
         open list <linux-kernel@vger.kernel.org>,
         linux-stable <stable@vger.kernel.org>
 Cc:     Shuah Khan <shuah@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Tom Murphy <murphyt7@tcd.ie>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
+        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -64,20 +63,17 @@ X-Mailing-List: stable@vger.kernel.org
 Following build warnings noticed while building stable-rc Linux 5.14.1-rc1
 with gcc-11 for arm64 architecture.
 
-aarch64-linux-gnu-gcc -I../../../../../usr/include/    udmabuf.c  -o
-kselftest/drivers/dma-buf/udmabuf
-udmabuf.c: In function 'main':
-udmabuf.c:30:17: warning: implicit declaration of function 'open'; did
-you mean 'popen'? [-Wimplicit-function-declaration]
-   30 |         devfd = open(/dev/udmabuf, O_RDWR);
-      |                 ^~~~
-      |                 popen
-udmabuf.c:42:15: warning: implicit declaration of function 'fcntl'
-[-Wimplicit-function-declaration]
-   42 |         ret = fcntl(memfd, F_ADD_SEALS, F_SEAL_SHRINK);
-      |               ^~~~~
-make[3]: Leaving directory
-'/builds/linux/tools/testing/selftests/drivers/dma-buf'
+aarch64-linux-gnu-gcc -Wall -O2 -Wno-unused-function -D_GNU_SOURCE
+proc-pid-vm.c  -o kselftest/proc/proc-pid-vm
+proc-pid-vm.c:214:19: warning: 'str_vsyscall' defined but not used
+[-Wunused-const-variable=]
+  214 | static const char str_vsyscall[] =
+      |                   ^~~~~~~~~~~~
+proc-pid-vm.c:212:13: warning: 'g_vsyscall' defined but not used
+[-Wunused-variable]
+  212 | static bool g_vsyscall = false;
+      |             ^~~~~~~~~~
+
 
 Build config:
 https://builds.tuxbuild.com/1xXcUtI2INra8KaHjOXXQMOyAD0/config
