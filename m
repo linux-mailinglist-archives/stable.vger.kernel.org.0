@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 750AE401438
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:38:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A74AD401440
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:38:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241236AbhIFBcm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:32:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48340 "EHLO mail.kernel.org"
+        id S240890AbhIFBco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:32:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245003AbhIFB3o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:29:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A16C0611C6;
-        Mon,  6 Sep 2021 01:23:28 +0000 (UTC)
+        id S1344963AbhIFB3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:29:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8753611CE;
+        Mon,  6 Sep 2021 01:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891409;
-        bh=eP1WFQhf31Lq4TK7PAKnhlXK4e5Ou+XXurZgzDm4qao=;
+        s=k20201202; t=1630891410;
+        bh=Nifsjmx6VwSIanwE6ZtkUfL4R28b//7/TmFiOlhZvrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H2etP8TgcM7L2DBPbnpdB5pRtT4q9ODZL6eywncHQbV087mrO+V/0CDpluNI6oeYK
-         WNHyGbfe9g5W/snyUKIaJw29gxoyoAKAIpLiaEK5o1vO3e9u5U3sKwa6oaIzrmq5QM
-         hRToOWcQ7ZIawY57/0Ju5GWX+7OX+p9+pY0aooiI3vE7vZ2UprJb+BlUsWVo5YrnJO
-         iP+bKxGl7xwzcn0LxgDsqx8ySDzVmiJnWTMjbWX3s4zXsCfOTjgbOiAhXx/6esrBGZ
-         yZsv0f5A29ueUemJD9s3s0O+ZLorUlbTGDhDQ3E/1OkJ2fW3/F1o/gm4RyQoh57Ny2
-         +nayv+XaVPPhg==
+        b=BJY0IUnnoWH5w1WANP+FODXKaHnqLyThCMDUUTSKJqXPyppPDe4h+4x9yGYltxUuK
+         mFafr9nAMhLawAPMWPtzkcJsYUyUrKDZDVtWi1iup2gXpHt2yNdb+09ja6YY3AGk4V
+         NV27tNeVl0cC00QP+fTAebmXq4wZxvdmwKKneaj9I7clNCjpJmayHny8oBeIKd4fkI
+         aeurgYB1g5h+xmovGW40Cd57u8FSCnJH+Y3S4/K03bkmSKB9YIDB9sREOBwb2mPpVp
+         Zd+/HG5PRI/ciymuaXyO6jbiuDazZuY59TEQy8hYyt5WwEqUVYkm4C0pIR5p/rF1Ja
+         tYmOZ7AM1Gm6A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 05/23] power: supply: axp288_fuel_gauge: Report register-address on readb / writeb errors
-Date:   Sun,  5 Sep 2021 21:23:04 -0400
-Message-Id: <20210906012322.930668-5-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>,
+        Lokesh Vutla <lokeshvutla@ti.com>,
+        Tero Kristo <kristo@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 06/23] crypto: omap-sham - clear dma flags only after omap_sham_update_dma_stop()
+Date:   Sun,  5 Sep 2021 21:23:05 -0400
+Message-Id: <20210906012322.930668-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012322.930668-1-sashal@kernel.org>
 References: <20210906012322.930668-1-sashal@kernel.org>
@@ -42,47 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit caa534c3ba40c6e8352b42cbbbca9ba481814ac8 ]
+[ Upstream commit fe28140b3393b0ba1eb95cc109f974a7e58b26fd ]
 
-When fuel_gauge_reg_readb()/_writeb() fails, report which register we
-were trying to read / write when the error happened.
+We should not clear FLAGS_DMA_ACTIVE before omap_sham_update_dma_stop() is
+done calling dma_unmap_sg(). We already clear FLAGS_DMA_ACTIVE at the
+end of omap_sham_update_dma_stop().
 
-Also reword the message a bit:
-- Drop the axp288 prefix, dev_err() already prints this
-- Switch from telegram / abbreviated style to a normal sentence, aligning
-  the message with those from fuel_gauge_read_*bit_word()
+The early clearing of FLAGS_DMA_ACTIVE is not causing issues as we do not
+need to defer anything based on FLAGS_DMA_ACTIVE currently. So this can be
+applied as clean-up.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: Lokesh Vutla <lokeshvutla@ti.com>
+Cc: Tero Kristo <kristo@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp288_fuel_gauge.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/omap-sham.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
-index 157cf5ec6b02..1641868c345c 100644
---- a/drivers/power/supply/axp288_fuel_gauge.c
-+++ b/drivers/power/supply/axp288_fuel_gauge.c
-@@ -158,7 +158,7 @@ static int fuel_gauge_reg_readb(struct axp288_fg_info *info, int reg)
- 	}
- 
- 	if (ret < 0) {
--		dev_err(&info->pdev->dev, "axp288 reg read err:%d\n", ret);
-+		dev_err(&info->pdev->dev, "Error reading reg 0x%02x err: %d\n", reg, ret);
- 		return ret;
- 	}
- 
-@@ -172,7 +172,7 @@ static int fuel_gauge_reg_writeb(struct axp288_fg_info *info, int reg, u8 val)
- 	ret = regmap_write(info->regmap, reg, (unsigned int)val);
- 
- 	if (ret < 0)
--		dev_err(&info->pdev->dev, "axp288 reg write err:%d\n", ret);
-+		dev_err(&info->pdev->dev, "Error writing reg 0x%02x err: %d\n", reg, ret);
- 
- 	return ret;
- }
+diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
+index 4d31ef472436..180f2f61b8fb 100644
+--- a/drivers/crypto/omap-sham.c
++++ b/drivers/crypto/omap-sham.c
+@@ -1739,7 +1739,7 @@ static void omap_sham_done_task(unsigned long data)
+ 		if (test_and_clear_bit(FLAGS_OUTPUT_READY, &dd->flags))
+ 			goto finish;
+ 	} else if (test_bit(FLAGS_DMA_READY, &dd->flags)) {
+-		if (test_and_clear_bit(FLAGS_DMA_ACTIVE, &dd->flags)) {
++		if (test_bit(FLAGS_DMA_ACTIVE, &dd->flags)) {
+ 			omap_sham_update_dma_stop(dd);
+ 			if (dd->err) {
+ 				err = dd->err;
 -- 
 2.30.2
 
