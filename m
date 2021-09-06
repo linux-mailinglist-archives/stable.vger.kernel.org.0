@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF744012C3
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:22:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D3674012AC
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:21:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239258AbhIFBWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:22:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38354 "EHLO mail.kernel.org"
+        id S239115AbhIFBWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:22:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238903AbhIFBVf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:21:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EA6E61029;
-        Mon,  6 Sep 2021 01:20:30 +0000 (UTC)
+        id S238906AbhIFBVg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:21:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2694861056;
+        Mon,  6 Sep 2021 01:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891231;
-        bh=GMdO6/NJpyqcf6PL78pSXI3sd5nYENoU1UOu6TmTrkI=;
+        s=k20201202; t=1630891233;
+        bh=DtL66Y8+FH98k9mUk6q3XqLt289+92oGsBaVolX/9EY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvqhUNjTGyKY/YzQwxQFZD9ua13zRf8JpiAUrBDwUC2Mo2lOAxm9twZxaVDjc54Pc
-         wlz58hMLU4UTl3QiwQxZ+KxxMN8QT+oArJn7CxNTAyiQ4FiZRv/AV52z3h/eyq5Gxh
-         2y6HHdDy2muVMA9FpBwZhjIiMct+AcTRq3ofbuh6/LW0DPZU651Evo35VZ4YY/7jew
-         oXwGZs1z46BHcf4/uDxZ5JYuKn/Zr37gvCl6d4mn92W5gw36idxKwNPFKRrhtQ5Sdn
-         8YwSeAiS0xOAT+7G0hrZct6N0lPAOhnMbyJFbmu8/5Na7cwBWMDGXS5hN4sD2D2S/Y
-         HPV+iRd47qmRw==
+        b=GYfrMEFSgER3dS1DwLdNWXtgd8cdyVa6pa5ChklajkFYA5dc61AjxSCWW5GTjDvWl
+         SI8QPKLYoI4AfVjFtq1ImekpNH3y4z+Z4EC//Nfz1m1mfGP5dpxZkLPMoT2yUW2Lji
+         nV3RYcmBw8B51ysoK00FVbveWIsUM8Zd1sk951eS6CmVndufTnITmY9fKsRA+F4CtZ
+         WuQ3rd6Ric0KGPG08S0Q8Gy5MrUZCoZWKsBrd/wu603wrmeqvcq4Ux7MOQXTwdtz4S
+         2yQkjRBvpc3ZMrHDKeFT5xII3AshsN7Y6n2Gek30d0LaAyJDYECSxQuu+QSX1tTCHY
+         A9HiBqp6xF/ig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Marco Chiappero <marco.chiappero@intel.com>,
@@ -31,9 +31,9 @@ Cc:     Marco Chiappero <marco.chiappero@intel.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>, qat-linux@intel.com,
         linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 32/47] crypto: qat - fix reuse of completion variable
-Date:   Sun,  5 Sep 2021 21:19:36 -0400
-Message-Id: <20210906011951.928679-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 33/47] crypto: qat - fix naming for init/shutdown VF to PF notifications
+Date:   Sun,  5 Sep 2021 21:19:37 -0400
+Message-Id: <20210906011951.928679-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906011951.928679-1-sashal@kernel.org>
 References: <20210906011951.928679-1-sashal@kernel.org>
@@ -47,11 +47,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marco Chiappero <marco.chiappero@intel.com>
 
-[ Upstream commit 3d655732b0199562267a05c7ff69ecdd11632939 ]
+[ Upstream commit b90c1c4d3fa8cd90f4e8245b13564380fd0bfad1 ]
 
-Use reinit_completion() to set to a clean state a completion variable,
-used to coordinate the VF to PF request-response flow, before every
-new VF request.
+At start and shutdown, VFs notify the PF about their state. These
+notifications are carried out through a message exchange using the PFVF
+protocol.
+
+Function names lead to believe they do perform init or shutdown logic.
+This is to fix the naming to better reflect their purpose.
 
 Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
 Co-developed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
@@ -60,22 +63,142 @@ Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/crypto/qat/qat_c3xxxvf/adf_c3xxxvf_hw_data.c |  4 ++--
+ drivers/crypto/qat/qat_c62xvf/adf_c62xvf_hw_data.c   |  4 ++--
+ drivers/crypto/qat/qat_common/adf_common_drv.h       |  8 ++++----
+ drivers/crypto/qat/qat_common/adf_vf2pf_msg.c        | 12 ++++++------
+ .../qat/qat_dh895xccvf/adf_dh895xccvf_hw_data.c      |  4 ++--
+ 5 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-index a1b77bd7a894..663638bb5c97 100644
---- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-+++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-@@ -316,6 +316,8 @@ static int adf_vf2pf_request_version(struct adf_accel_dev *accel_dev)
- 	msg |= ADF_PFVF_COMPATIBILITY_VERSION << ADF_VF2PF_COMPAT_VER_REQ_SHIFT;
- 	BUILD_BUG_ON(ADF_PFVF_COMPATIBILITY_VERSION > 255);
+diff --git a/drivers/crypto/qat/qat_c3xxxvf/adf_c3xxxvf_hw_data.c b/drivers/crypto/qat/qat_c3xxxvf/adf_c3xxxvf_hw_data.c
+index 15f6b9bdfb22..ddf42fb32625 100644
+--- a/drivers/crypto/qat/qat_c3xxxvf/adf_c3xxxvf_hw_data.c
++++ b/drivers/crypto/qat/qat_c3xxxvf/adf_c3xxxvf_hw_data.c
+@@ -81,10 +81,10 @@ void adf_init_hw_data_c3xxxiov(struct adf_hw_device_data *hw_data)
+ 	hw_data->enable_error_correction = adf_vf_void_noop;
+ 	hw_data->init_admin_comms = adf_vf_int_noop;
+ 	hw_data->exit_admin_comms = adf_vf_void_noop;
+-	hw_data->send_admin_init = adf_vf2pf_init;
++	hw_data->send_admin_init = adf_vf2pf_notify_init;
+ 	hw_data->init_arb = adf_vf_int_noop;
+ 	hw_data->exit_arb = adf_vf_void_noop;
+-	hw_data->disable_iov = adf_vf2pf_shutdown;
++	hw_data->disable_iov = adf_vf2pf_notify_shutdown;
+ 	hw_data->get_accel_mask = get_accel_mask;
+ 	hw_data->get_ae_mask = get_ae_mask;
+ 	hw_data->get_num_accels = get_num_accels;
+diff --git a/drivers/crypto/qat/qat_c62xvf/adf_c62xvf_hw_data.c b/drivers/crypto/qat/qat_c62xvf/adf_c62xvf_hw_data.c
+index d231583428c9..7e202ef92523 100644
+--- a/drivers/crypto/qat/qat_c62xvf/adf_c62xvf_hw_data.c
++++ b/drivers/crypto/qat/qat_c62xvf/adf_c62xvf_hw_data.c
+@@ -81,10 +81,10 @@ void adf_init_hw_data_c62xiov(struct adf_hw_device_data *hw_data)
+ 	hw_data->enable_error_correction = adf_vf_void_noop;
+ 	hw_data->init_admin_comms = adf_vf_int_noop;
+ 	hw_data->exit_admin_comms = adf_vf_void_noop;
+-	hw_data->send_admin_init = adf_vf2pf_init;
++	hw_data->send_admin_init = adf_vf2pf_notify_init;
+ 	hw_data->init_arb = adf_vf_int_noop;
+ 	hw_data->exit_arb = adf_vf_void_noop;
+-	hw_data->disable_iov = adf_vf2pf_shutdown;
++	hw_data->disable_iov = adf_vf2pf_notify_shutdown;
+ 	hw_data->get_accel_mask = get_accel_mask;
+ 	hw_data->get_ae_mask = get_ae_mask;
+ 	hw_data->get_num_accels = get_num_accels;
+diff --git a/drivers/crypto/qat/qat_common/adf_common_drv.h b/drivers/crypto/qat/qat_common/adf_common_drv.h
+index c61476553728..dd4a811b7e89 100644
+--- a/drivers/crypto/qat/qat_common/adf_common_drv.h
++++ b/drivers/crypto/qat/qat_common/adf_common_drv.h
+@@ -198,8 +198,8 @@ void adf_enable_vf2pf_interrupts(struct adf_accel_dev *accel_dev,
+ void adf_enable_pf2vf_interrupts(struct adf_accel_dev *accel_dev);
+ void adf_disable_pf2vf_interrupts(struct adf_accel_dev *accel_dev);
  
-+	reinit_completion(&accel_dev->vf.iov_msg_completion);
-+
- 	/* Send request from VF to PF */
- 	ret = adf_iov_putmsg(accel_dev, msg, 0);
- 	if (ret) {
+-int adf_vf2pf_init(struct adf_accel_dev *accel_dev);
+-void adf_vf2pf_shutdown(struct adf_accel_dev *accel_dev);
++int adf_vf2pf_notify_init(struct adf_accel_dev *accel_dev);
++void adf_vf2pf_notify_shutdown(struct adf_accel_dev *accel_dev);
+ int adf_init_pf_wq(void);
+ void adf_exit_pf_wq(void);
+ int adf_init_vf_wq(void);
+@@ -222,12 +222,12 @@ static inline void adf_disable_pf2vf_interrupts(struct adf_accel_dev *accel_dev)
+ {
+ }
+ 
+-static inline int adf_vf2pf_init(struct adf_accel_dev *accel_dev)
++static inline int adf_vf2pf_notify_init(struct adf_accel_dev *accel_dev)
+ {
+ 	return 0;
+ }
+ 
+-static inline void adf_vf2pf_shutdown(struct adf_accel_dev *accel_dev)
++static inline void adf_vf2pf_notify_shutdown(struct adf_accel_dev *accel_dev)
+ {
+ }
+ 
+diff --git a/drivers/crypto/qat/qat_common/adf_vf2pf_msg.c b/drivers/crypto/qat/qat_common/adf_vf2pf_msg.c
+index e85bd62d134a..3e25fac051b2 100644
+--- a/drivers/crypto/qat/qat_common/adf_vf2pf_msg.c
++++ b/drivers/crypto/qat/qat_common/adf_vf2pf_msg.c
+@@ -5,14 +5,14 @@
+ #include "adf_pf2vf_msg.h"
+ 
+ /**
+- * adf_vf2pf_init() - send init msg to PF
++ * adf_vf2pf_notify_init() - send init msg to PF
+  * @accel_dev:  Pointer to acceleration VF device.
+  *
+  * Function sends an init message from the VF to a PF
+  *
+  * Return: 0 on success, error code otherwise.
+  */
+-int adf_vf2pf_init(struct adf_accel_dev *accel_dev)
++int adf_vf2pf_notify_init(struct adf_accel_dev *accel_dev)
+ {
+ 	u32 msg = (ADF_VF2PF_MSGORIGIN_SYSTEM |
+ 		(ADF_VF2PF_MSGTYPE_INIT << ADF_VF2PF_MSGTYPE_SHIFT));
+@@ -25,17 +25,17 @@ int adf_vf2pf_init(struct adf_accel_dev *accel_dev)
+ 	set_bit(ADF_STATUS_PF_RUNNING, &accel_dev->status);
+ 	return 0;
+ }
+-EXPORT_SYMBOL_GPL(adf_vf2pf_init);
++EXPORT_SYMBOL_GPL(adf_vf2pf_notify_init);
+ 
+ /**
+- * adf_vf2pf_shutdown() - send shutdown msg to PF
++ * adf_vf2pf_notify_shutdown() - send shutdown msg to PF
+  * @accel_dev:  Pointer to acceleration VF device.
+  *
+  * Function sends a shutdown message from the VF to a PF
+  *
+  * Return: void
+  */
+-void adf_vf2pf_shutdown(struct adf_accel_dev *accel_dev)
++void adf_vf2pf_notify_shutdown(struct adf_accel_dev *accel_dev)
+ {
+ 	u32 msg = (ADF_VF2PF_MSGORIGIN_SYSTEM |
+ 	    (ADF_VF2PF_MSGTYPE_SHUTDOWN << ADF_VF2PF_MSGTYPE_SHIFT));
+@@ -45,4 +45,4 @@ void adf_vf2pf_shutdown(struct adf_accel_dev *accel_dev)
+ 			dev_err(&GET_DEV(accel_dev),
+ 				"Failed to send Shutdown event to PF\n");
+ }
+-EXPORT_SYMBOL_GPL(adf_vf2pf_shutdown);
++EXPORT_SYMBOL_GPL(adf_vf2pf_notify_shutdown);
+diff --git a/drivers/crypto/qat/qat_dh895xccvf/adf_dh895xccvf_hw_data.c b/drivers/crypto/qat/qat_dh895xccvf/adf_dh895xccvf_hw_data.c
+index f14fb82ed6df..744734caaf7b 100644
+--- a/drivers/crypto/qat/qat_dh895xccvf/adf_dh895xccvf_hw_data.c
++++ b/drivers/crypto/qat/qat_dh895xccvf/adf_dh895xccvf_hw_data.c
+@@ -81,10 +81,10 @@ void adf_init_hw_data_dh895xcciov(struct adf_hw_device_data *hw_data)
+ 	hw_data->enable_error_correction = adf_vf_void_noop;
+ 	hw_data->init_admin_comms = adf_vf_int_noop;
+ 	hw_data->exit_admin_comms = adf_vf_void_noop;
+-	hw_data->send_admin_init = adf_vf2pf_init;
++	hw_data->send_admin_init = adf_vf2pf_notify_init;
+ 	hw_data->init_arb = adf_vf_int_noop;
+ 	hw_data->exit_arb = adf_vf_void_noop;
+-	hw_data->disable_iov = adf_vf2pf_shutdown;
++	hw_data->disable_iov = adf_vf2pf_notify_shutdown;
+ 	hw_data->get_accel_mask = get_accel_mask;
+ 	hw_data->get_ae_mask = get_ae_mask;
+ 	hw_data->get_num_accels = get_num_accels;
 -- 
 2.30.2
 
