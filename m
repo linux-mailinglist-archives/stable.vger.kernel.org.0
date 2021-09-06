@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D976401BDE
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:59:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0C13401BAA
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243076AbhIFNAB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 09:00:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37262 "EHLO mail.kernel.org"
+        id S242619AbhIFM6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:58:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243413AbhIFM7b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:59:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDFB361057;
-        Mon,  6 Sep 2021 12:58:25 +0000 (UTC)
+        id S242856AbhIFM6Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:58:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE1536103E;
+        Mon,  6 Sep 2021 12:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933106;
-        bh=cxXbVoZbpko4j+V6gp+3wR8SDxOgMa1XZ4POoerdObM=;
+        s=korg; t=1630933031;
+        bh=3+eCbje3fW8UTEA3knV/RI8TVK4lmKHcXv9hEXGbr98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Io4CVDv79av6YoCJj1iWJVguQgjvDa3D0774flyf5aQJ09kcKKmmTVzEipbi//ULk
-         j6/ebJx5zhb1SguqkT8Et4GPqcsKdCURWTlmvSUwKqYF75/uGZv1K183fwsLF9FIz/
-         v1uLP2IkT5nnkhEQuT5hTiuqWh93pvk+lWkkB60M=
+        b=RZdU29Cq475eQWCUym7Y/OUlz1oITFQIcXgM0f4ScejqICLMVwsY8NPUGznzz0D5F
+         o8gbsf2d73YZn1QUA2rzMQxP7zmU0ReDriKsOpsQrh0uVuBL9G3szOzDi5xt7zu0jM
+         ZUjTwJA2bLDJzRZ5Z6rNXAMCchw40jAIQ54Q3klE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 09/24] net: macb: Add a NULL check on desc_ptp
-Date:   Mon,  6 Sep 2021 14:55:38 +0200
-Message-Id: <20210906125449.419962287@linuxfoundation.org>
+        stable@vger.kernel.org, Zubin Mithra <zsm@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 24/29] ALSA: pcm: fix divide error in snd_pcm_lib_ioctl
+Date:   Mon,  6 Sep 2021 14:55:39 +0200
+Message-Id: <20210906125450.587128816@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210906125449.112564040@linuxfoundation.org>
-References: <20210906125449.112564040@linuxfoundation.org>
+In-Reply-To: <20210906125449.756437409@linuxfoundation.org>
+References: <20210906125449.756437409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harini Katakam <harini.katakam@xilinx.com>
+From: Zubin Mithra <zsm@chromium.org>
 
-[ Upstream commit 85520079afce885b80647fbd0d13d8f03d057167 ]
+commit f3eef46f0518a2b32ca1244015820c35a22cfe4a upstream.
 
-macb_ptp_desc will not return NULL under most circumstances with correct
-Kconfig and IP design config register. But for the sake of the extreme
-corner case, check for NULL when using the helper. In case of rx_tstamp,
-no action is necessary except to return (similar to timestamp disabled)
-and warn. In case of TX, return -EINVAL to let the skb be free. Perform
-this check before marking skb in progress.
-Fixes coverity warning:
-(4) Event dereference:
-Dereferencing a null pointer "desc_ptp"
+Syzkaller reported a divide error in snd_pcm_lib_ioctl. fifo_size
+is of type snd_pcm_uframes_t(unsigned long). If frame_size
+is 0x100000000, the error occurs.
 
-Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a9960e6a293e ("ALSA: pcm: fix fifo_size frame calculation")
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210827153735.789452-1-zsm@chromium.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cadence/macb_ptp.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ sound/core/pcm_lib.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_ptp.c b/drivers/net/ethernet/cadence/macb_ptp.c
-index 283918aeb741..09d64a29f56e 100644
---- a/drivers/net/ethernet/cadence/macb_ptp.c
-+++ b/drivers/net/ethernet/cadence/macb_ptp.c
-@@ -275,6 +275,12 @@ void gem_ptp_rxstamp(struct macb *bp, struct sk_buff *skb,
- 
- 	if (GEM_BFEXT(DMA_RXVALID, desc->addr)) {
- 		desc_ptp = macb_ptp_desc(bp, desc);
-+		/* Unlikely but check */
-+		if (!desc_ptp) {
-+			dev_warn_ratelimited(&bp->pdev->dev,
-+					     "Timestamp not supported in BD\n");
-+			return;
-+		}
- 		gem_hw_timestamp(bp, desc_ptp->ts_1, desc_ptp->ts_2, &ts);
- 		memset(shhwtstamps, 0, sizeof(struct skb_shared_hwtstamps));
- 		shhwtstamps->hwtstamp = ktime_set(ts.tv_sec, ts.tv_nsec);
-@@ -307,8 +313,11 @@ int gem_ptp_txstamp(struct macb_queue *queue, struct sk_buff *skb,
- 	if (CIRC_SPACE(head, tail, PTP_TS_BUFFER_SIZE) == 0)
- 		return -ENOMEM;
- 
--	skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
- 	desc_ptp = macb_ptp_desc(queue->bp, desc);
-+	/* Unlikely but check */
-+	if (!desc_ptp)
-+		return -EINVAL;
-+	skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
- 	tx_timestamp = &queue->tx_timestamps[head];
- 	tx_timestamp->skb = skb;
- 	/* ensure ts_1/ts_2 is loaded after ctrl (TX_USED check) */
--- 
-2.30.2
-
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1746,7 +1746,7 @@ static int snd_pcm_lib_ioctl_fifo_size(s
+ 		channels = params_channels(params);
+ 		frame_size = snd_pcm_format_size(format, channels);
+ 		if (frame_size > 0)
+-			params->fifo_size /= (unsigned)frame_size;
++			params->fifo_size /= frame_size;
+ 	}
+ 	return 0;
+ }
 
 
