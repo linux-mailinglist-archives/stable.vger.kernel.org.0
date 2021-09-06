@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8470F40130B
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:22:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297F2401307
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:22:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239423AbhIFBXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239764AbhIFBXl (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 5 Sep 2021 21:23:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38430 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239419AbhIFBWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238638AbhIFBWl (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 5 Sep 2021 21:22:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04772610FF;
-        Mon,  6 Sep 2021 01:21:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF4A3610F9;
+        Mon,  6 Sep 2021 01:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891275;
-        bh=2N0noRVgp/X4pfLYlCFS6gIxkh55PkKkiJe25n3MQaQ=;
+        s=k20201202; t=1630891276;
+        bh=5a2B2wEQdX4iBESIH14jy80cKIeGSwVc0TLqChQrICo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9+GWw8c2i0M8IfmsIvOZoF3R7o2jt0xK1ga02WLeMGiW31FWzbig/KB5MoV2svvf
-         K2njAdDCnDAm+T1PEK/vm0Z7Wt6zH0VK/66TKAmRAe4iKuFouRPV19pPrl02lUiBpD
-         sljFMDDlKvGbELRadzrsgrV30s0NtX8Lr6XOcouidHYvDaO6s9Kh6ZHJ/gIIAiEiiI
-         kysFoESVHdHL138T80clvQmBU11dIBclDEkjXwGJZbOBTBr/bexq0NT/Di0LKJRBky
-         oVsGVh3WFkbR42QDBN/3stwq1MoWBdQ+jTrh5iTAVbRa7DBPe14sCymcPSrLUs54P7
-         +rQ+/LUmRRpHg==
+        b=hzL1TmIlViNSVuC2ZZVXthuVwRUpne2m8T7MY0H7vpBuMpgLWrM3M432KEBEjjCln
+         acdDoMwsOd5Wje490IbzgO68N3/8BNaD+vpY2qbVFGHfNnXapJcCBBhoWVuImOwKdm
+         ug1ywoKpu2EYyfCcFkI3SN9vQkIYasbKNvyvMOqCVIo2PnE6dfyk3umMzvZEhef6V6
+         YHP+/563oe3GZGSmyzOk9C/09tRechAnxhIF2WJFX74UGNgjPmLZ83KRpn8GMr+svr
+         36z8I39yOgKParjoJDfbVAmnea5+u2ZWIUHS1nh1vVlgO9Qjcc0tiza6ZdWnXirkso
+         AM0fCNKnUKH4w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Baokun Li <libaokun1@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
+Cc:     Chunguang Xu <brookxu@tencent.com>, Tejun Heo <tj@kernel.org>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org, nbd@other.debian.org
-Subject: [PATCH AUTOSEL 5.13 18/46] nbd: add the check to prevent overflow in __nbd_ioctl()
-Date:   Sun,  5 Sep 2021 21:20:23 -0400
-Message-Id: <20210906012052.929174-18-sashal@kernel.org>
+        linux-block@vger.kernel.org, cgroups@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 19/46] blk-throtl: optimize IOPS throttle for large IO scenarios
+Date:   Sun,  5 Sep 2021 21:20:24 -0400
+Message-Id: <20210906012052.929174-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012052.929174-1-sashal@kernel.org>
 References: <20210906012052.929174-1-sashal@kernel.org>
@@ -43,66 +42,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baokun Li <libaokun1@huawei.com>
+From: Chunguang Xu <brookxu@tencent.com>
 
-[ Upstream commit fad7cd3310db3099f95dd34312c77740fbc455e5 ]
+[ Upstream commit 4f1e9630afe6332de7286820fedd019f19eac057 ]
 
-If user specify a large enough value of NBD blocks option, it may trigger
-signed integer overflow which may lead to nbd->config->bytesize becomes a
-large or small value, zero in particular.
+After patch 54efd50 (block: make generic_make_request handle
+arbitrarily sized bios), the IO through io-throttle may be larger,
+and these IOs may be further split into more small IOs. However,
+IOPS throttle does not seem to be aware of this change, which
+makes the calculation of IOPS of large IOs incomplete, resulting
+in disk-side IOPS that does not meet expectations. Maybe we should
+fix this problem.
 
-UBSAN: Undefined behaviour in drivers/block/nbd.c:325:31
-signed integer overflow:
-1024 * 4611686155866341414 cannot be represented in type 'long long int'
-[...]
-Call trace:
-[...]
- handle_overflow+0x188/0x1dc lib/ubsan.c:192
- __ubsan_handle_mul_overflow+0x34/0x44 lib/ubsan.c:213
- nbd_size_set drivers/block/nbd.c:325 [inline]
- __nbd_ioctl drivers/block/nbd.c:1342 [inline]
- nbd_ioctl+0x998/0xa10 drivers/block/nbd.c:1395
- __blkdev_driver_ioctl block/ioctl.c:311 [inline]
-[...]
+We can reproduce it by set max_sectors_kb of disk to 128, set
+blkio.write_iops_throttle to 100, run a dd instance inside blkio
+and use iostat to watch IOPS:
 
-Although it is not a big deal, still silence the UBSAN by limit
-the input value.
+dd if=/dev/zero of=/dev/sdb bs=1M count=1000 oflag=direct
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20210804021212.990223-1-libaokun1@huawei.com
-[axboe: dropped unlikely()]
+As a result, without this change the average IOPS is 1995, with
+this change the IOPS is 98.
+
+Signed-off-by: Chunguang Xu <brookxu@tencent.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/65869aaad05475797d63b4c3fed4f529febe3c26.1627876014.git.brookxu@tencent.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ block/blk-merge.c    |  2 ++
+ block/blk-throttle.c | 32 ++++++++++++++++++++++++++++++++
+ block/blk.h          |  2 ++
+ 3 files changed, 36 insertions(+)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 1061894a55df..7384058c24d0 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1369,6 +1369,7 @@ static int __nbd_ioctl(struct block_device *bdev, struct nbd_device *nbd,
- 		       unsigned int cmd, unsigned long arg)
- {
- 	struct nbd_config *config = nbd->config;
-+	loff_t bytesize;
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index bcdff1879c34..410ea45027c9 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -348,6 +348,8 @@ void __blk_queue_split(struct bio **bio, unsigned int *nr_segs)
+ 		trace_block_split(split, (*bio)->bi_iter.bi_sector);
+ 		submit_bio_noacct(*bio);
+ 		*bio = split;
++
++		blk_throtl_charge_bio_split(*bio);
+ 	}
+ }
  
- 	switch (cmd) {
- 	case NBD_DISCONNECT:
-@@ -1383,8 +1384,9 @@ static int __nbd_ioctl(struct block_device *bdev, struct nbd_device *nbd,
- 	case NBD_SET_SIZE:
- 		return nbd_set_size(nbd, arg, config->blksize);
- 	case NBD_SET_SIZE_BLOCKS:
--		return nbd_set_size(nbd, arg * config->blksize,
--				    config->blksize);
-+		if (check_mul_overflow((loff_t)arg, config->blksize, &bytesize))
-+			return -EINVAL;
-+		return nbd_set_size(nbd, bytesize, config->blksize);
- 	case NBD_SET_TIMEOUT:
- 		nbd_set_cmd_timeout(nbd, arg);
- 		return 0;
+diff --git a/block/blk-throttle.c b/block/blk-throttle.c
+index b1b22d863bdf..55c49015e533 100644
+--- a/block/blk-throttle.c
++++ b/block/blk-throttle.c
+@@ -178,6 +178,9 @@ struct throtl_grp {
+ 	unsigned int bad_bio_cnt; /* bios exceeding latency threshold */
+ 	unsigned long bio_cnt_reset_time;
+ 
++	atomic_t io_split_cnt[2];
++	atomic_t last_io_split_cnt[2];
++
+ 	struct blkg_rwstat stat_bytes;
+ 	struct blkg_rwstat stat_ios;
+ };
+@@ -777,6 +780,8 @@ static inline void throtl_start_new_slice_with_credit(struct throtl_grp *tg,
+ 	tg->bytes_disp[rw] = 0;
+ 	tg->io_disp[rw] = 0;
+ 
++	atomic_set(&tg->io_split_cnt[rw], 0);
++
+ 	/*
+ 	 * Previous slice has expired. We must have trimmed it after last
+ 	 * bio dispatch. That means since start of last slice, we never used
+@@ -799,6 +804,9 @@ static inline void throtl_start_new_slice(struct throtl_grp *tg, bool rw)
+ 	tg->io_disp[rw] = 0;
+ 	tg->slice_start[rw] = jiffies;
+ 	tg->slice_end[rw] = jiffies + tg->td->throtl_slice;
++
++	atomic_set(&tg->io_split_cnt[rw], 0);
++
+ 	throtl_log(&tg->service_queue,
+ 		   "[%c] new slice start=%lu end=%lu jiffies=%lu",
+ 		   rw == READ ? 'R' : 'W', tg->slice_start[rw],
+@@ -1031,6 +1039,9 @@ static bool tg_may_dispatch(struct throtl_grp *tg, struct bio *bio,
+ 				jiffies + tg->td->throtl_slice);
+ 	}
+ 
++	if (iops_limit != UINT_MAX)
++		tg->io_disp[rw] += atomic_xchg(&tg->io_split_cnt[rw], 0);
++
+ 	if (tg_with_in_bps_limit(tg, bio, bps_limit, &bps_wait) &&
+ 	    tg_with_in_iops_limit(tg, bio, iops_limit, &iops_wait)) {
+ 		if (wait)
+@@ -2052,12 +2063,14 @@ static void throtl_downgrade_check(struct throtl_grp *tg)
+ 	}
+ 
+ 	if (tg->iops[READ][LIMIT_LOW]) {
++		tg->last_io_disp[READ] += atomic_xchg(&tg->last_io_split_cnt[READ], 0);
+ 		iops = tg->last_io_disp[READ] * HZ / elapsed_time;
+ 		if (iops >= tg->iops[READ][LIMIT_LOW])
+ 			tg->last_low_overflow_time[READ] = now;
+ 	}
+ 
+ 	if (tg->iops[WRITE][LIMIT_LOW]) {
++		tg->last_io_disp[WRITE] += atomic_xchg(&tg->last_io_split_cnt[WRITE], 0);
+ 		iops = tg->last_io_disp[WRITE] * HZ / elapsed_time;
+ 		if (iops >= tg->iops[WRITE][LIMIT_LOW])
+ 			tg->last_low_overflow_time[WRITE] = now;
+@@ -2176,6 +2189,25 @@ static inline void throtl_update_latency_buckets(struct throtl_data *td)
+ }
+ #endif
+ 
++void blk_throtl_charge_bio_split(struct bio *bio)
++{
++	struct blkcg_gq *blkg = bio->bi_blkg;
++	struct throtl_grp *parent = blkg_to_tg(blkg);
++	struct throtl_service_queue *parent_sq;
++	bool rw = bio_data_dir(bio);
++
++	do {
++		if (!parent->has_rules[rw])
++			break;
++
++		atomic_inc(&parent->io_split_cnt[rw]);
++		atomic_inc(&parent->last_io_split_cnt[rw]);
++
++		parent_sq = parent->service_queue.parent_sq;
++		parent = sq_to_tg(parent_sq);
++	} while (parent);
++}
++
+ bool blk_throtl_bio(struct bio *bio)
+ {
+ 	struct request_queue *q = bio->bi_bdev->bd_disk->queue;
+diff --git a/block/blk.h b/block/blk.h
+index 8b3591aee0a5..6cff1af51c57 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -294,11 +294,13 @@ int create_task_io_context(struct task_struct *task, gfp_t gfp_mask, int node);
+ extern int blk_throtl_init(struct request_queue *q);
+ extern void blk_throtl_exit(struct request_queue *q);
+ extern void blk_throtl_register_queue(struct request_queue *q);
++extern void blk_throtl_charge_bio_split(struct bio *bio);
+ bool blk_throtl_bio(struct bio *bio);
+ #else /* CONFIG_BLK_DEV_THROTTLING */
+ static inline int blk_throtl_init(struct request_queue *q) { return 0; }
+ static inline void blk_throtl_exit(struct request_queue *q) { }
+ static inline void blk_throtl_register_queue(struct request_queue *q) { }
++static inline void blk_throtl_charge_bio_split(struct bio *bio) { }
+ static inline bool blk_throtl_bio(struct bio *bio) { return false; }
+ #endif /* CONFIG_BLK_DEV_THROTTLING */
+ #ifdef CONFIG_BLK_DEV_THROTTLING_LOW
 -- 
 2.30.2
 
