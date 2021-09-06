@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5441D401BAC
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:57:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ED96401BAD
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242868AbhIFM6m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 08:58:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35164 "EHLO mail.kernel.org"
+        id S242515AbhIFM6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:58:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242879AbhIFM6S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:58:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8291660F43;
-        Mon,  6 Sep 2021 12:57:13 +0000 (UTC)
+        id S242552AbhIFM6V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:58:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 208CB61027;
+        Mon,  6 Sep 2021 12:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933034;
-        bh=KtZMGk+XiYo0AJyQWlhdYYB1Vxc0m0xAFz1Z7VeIKz0=;
+        s=korg; t=1630933036;
+        bh=CYXxr/FbySZ3XmFuK5OlcLBmTFVKOYcNL84er3YjG+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QxJvuTJyC7Ay/0+gv6OS/hamlUQ1QBfYdR0YRLvxMMJKyhHGxd22XbehkFjeSCQjs
-         +/KyAfZ+Qs6d5yjjJaAYuycLniuGP6qiX49WZ/eECDm/U3q57fApaJ+NWVOYYnPTn3
-         OElMSxksw1u4Y2ZJMypfVT0gZfvCieveN27vU7DA=
+        b=dV8UOSBxjjeKjYll+tsfX/Z1BSzgynQSiFgkB8p769nDFFlqwNuZkI5e768NRBtZO
+         bp6yupsV8ckFJrJ1sCJR7VtyA3y+tghs6DPHmFwFLl3oJ3u88uimw+AcvRvOLWgxmw
+         CBuwIixzEGK39iaRDgFxbft1s8QmMMeKwCUGRIMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 5.10 25/29] serial: 8250: 8250_omap: Fix possible array out of bounds access
-Date:   Mon,  6 Sep 2021 14:55:40 +0200
-Message-Id: <20210906125450.618585679@linuxfoundation.org>
+Subject: [PATCH 5.10 26/29] spi: Switch to signed types for *_native_cs SPI controller fields
+Date:   Mon,  6 Sep 2021 14:55:41 +0200
+Message-Id: <20210906125450.652822168@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210906125449.756437409@linuxfoundation.org>
 References: <20210906125449.756437409@linuxfoundation.org>
@@ -40,34 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Raghavendra <vigneshr@ti.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit d4548b14dd7e5c698f81ce23ce7b69a896373b45 upstream.
+commit 35f3f8504c3b60a1ae5576e178b27fc0ddd6157d upstream.
 
-k3_soc_devices array is missing a sentinel entry which may result in out
-of bounds access as reported by kernel KASAN.
+While fixing undefined behaviour the commit f60d7270c8a3 ("spi: Avoid
+undefined behaviour when counting unused native CSs") missed the case
+when all CSs are GPIOs and thus unused_native_cs will be evaluated to
+-1 in unsigned representation. This will falsely trigger a condition
+in the spi_get_gpio_descs().
 
-Fix this by adding a sentinel entry.
+Switch to signed types for *_native_cs SPI controller fields to fix above.
 
-Fixes: 439c7183e5b9 ("serial: 8250: 8250_omap: Disable RX interrupt after DMA enable")
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Link: https://lore.kernel.org/r/20201111112653.2710-1-vigneshr@ti.com
+Fixes: f60d7270c8a3 ("spi: Avoid undefined behaviour when counting unused native CSs")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210510131242.49455-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_omap.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/spi/spi.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -1211,6 +1211,7 @@ static int omap8250_no_handle_irq(struct
- static const struct soc_device_attribute k3_soc_devices[] = {
- 	{ .family = "AM65X",  },
- 	{ .family = "J721E", .revision = "SR1.0" },
-+	{ /* sentinel */ }
- };
+--- a/include/linux/spi/spi.h
++++ b/include/linux/spi/spi.h
+@@ -646,8 +646,8 @@ struct spi_controller {
+ 	int			*cs_gpios;
+ 	struct gpio_desc	**cs_gpiods;
+ 	bool			use_gpio_descriptors;
+-	u8			unused_native_cs;
+-	u8			max_native_cs;
++	s8			unused_native_cs;
++	s8			max_native_cs;
  
- static struct omap8250_dma_params am654_dma = {
+ 	/* statistics */
+ 	struct spi_statistics	statistics;
 
 
