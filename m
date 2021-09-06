@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43B22401316
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:24:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43169401318
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:24:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239871AbhIFBYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239878AbhIFBYC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 5 Sep 2021 21:24:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39010 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239486AbhIFBW4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:22:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5C0061054;
-        Mon,  6 Sep 2021 01:21:23 +0000 (UTC)
+        id S239495AbhIFBW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:22:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E75361104;
+        Mon,  6 Sep 2021 01:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891284;
-        bh=CsjYALVIpDrXms1/IH5MyVOgUNBA0DQFj67fi+aflx0=;
+        s=k20201202; t=1630891285;
+        bh=YJJ4ExQGkPUrZyQ7xYfyygR2fz3tqJMbXkqJ1hKH7GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRwJRIyZOgSnHudDjs6C1RkJDHTDzWOfH1U22ZyiPe6V1YU7phRouOUoZKeifiJTS
-         smMcjf9vTeOzawODMVu1XyLl1PCj7T3P5EDY02n0BL5ToqvXoITcaXl89W1Fq4PLay
-         RO9I/gYVttpLa6jDUKVEp5B6aYif7PiqSV6QSKMG8o0Ej4ovCAiLzeBz85M74IQG8y
-         7DFN6YlIk6TzU3YLCkq1mXiuhbUk0+TxxzLBaHNR9riQU4NhNKpwsxxDzsxudb3gWf
-         afkFlOr85KMwfThfvxSo774UdO8R3H5xXWoHSZTuhFvLCtB9/9j4mycHDYRSeRjzpk
-         P8Qrvn3SM1hEA==
+        b=SIwBADsRX3DS0guiAqVqbIUb9INQ1QZD07UjI7W//PqinS+Y81RhpRyx88+WIHK3N
+         tY4NtqQWkGy9pyOoaanWogkDc7bzZIKEANPaPRQ4BPi0lLIDkvtA1P7PV3J1ADPx+r
+         gkDPjfLtDJyizZXQqfrIif5XPpTIn2UZgzm1sH96cQ7Z2xq7ex2FwKCAY7iAjB3Jfb
+         jUux4EIXJe5I6fG4u6OoWQMC+UnlSYkzSEBV48gF7a2L5U6ULQ32nApxkTdWUg0ohH
+         +Iaw2OEuHCPqiRChNMcvuNLB8CpCLlUygP28T7R+VQlQ4UpdlR+9/m6UEMbXXWR8aA
+         PL9qPXz/Cwnog==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
+Cc:     Harald Freudenberger <freude@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 25/46] s390/cio: add dev_busid sysfs entry for each subchannel
-Date:   Sun,  5 Sep 2021 21:20:30 -0400
-Message-Id: <20210906012052.929174-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 26/46] s390/zcrypt: fix wrong offset index for APKA master key valid state
+Date:   Sun,  5 Sep 2021 21:20:31 -0400
+Message-Id: <20210906012052.929174-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012052.929174-1-sashal@kernel.org>
 References: <20210906012052.929174-1-sashal@kernel.org>
@@ -43,63 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit d3683c055212bf910d4e318f7944910ce10dbee6 ]
+[ Upstream commit 8617bb74006252cb2286008afe7d6575a6425857 ]
 
-Introduce dev_busid, which exports the device-id associated with the
-io-subchannel (and message-subchannel). The dev_busid indicates that of
-the device which may be physically installed on the corrosponding
-subchannel. The dev_busid value "none" indicates that the subchannel
-is not valid, there is no I/O device currently associated with the
-subchannel.
+Tests showed a mismatch between what the CCA tool reports about
+the APKA master key state and what's displayed by the zcrypt dd
+in sysfs. After some investigation, we found out that the
+documentation which was the source for the zcrypt dd implementation
+lacks the listing of 3 fields. So this patch now moves the
+evaluation of the APKA master key state to the correct offset.
 
-The dev_busid information would be helpful to write device-specific
-udev-rules associated with the subchannel. The dev_busid interface would
-be available even when the sch is not bound to any driver or if there is
-no operational device connected on it. Hence this attribute can be used to
-write udev-rules which are specific to the device associated with the
-subchannel.
-
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/css.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/s390/crypto/zcrypt_ccamisc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index a974943c27da..9fcdb8d81eee 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -430,9 +430,26 @@ static ssize_t pimpampom_show(struct device *dev,
- }
- static DEVICE_ATTR_RO(pimpampom);
- 
-+static ssize_t dev_busid_show(struct device *dev,
-+			      struct device_attribute *attr,
-+			      char *buf)
-+{
-+	struct subchannel *sch = to_subchannel(dev);
-+	struct pmcw *pmcw = &sch->schib.pmcw;
-+
-+	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
-+	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
-+		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
-+				  pmcw->dev);
-+	else
-+		return sysfs_emit(buf, "none\n");
-+}
-+static DEVICE_ATTR_RO(dev_busid);
-+
- static struct attribute *io_subchannel_type_attrs[] = {
- 	&dev_attr_chpids.attr,
- 	&dev_attr_pimpampom.attr,
-+	&dev_attr_dev_busid.attr,
- 	NULL,
- };
- ATTRIBUTE_GROUPS(io_subchannel_type);
+diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/zcrypt_ccamisc.c
+index d68c0ed5e0dd..f5d0212fb4fe 100644
+--- a/drivers/s390/crypto/zcrypt_ccamisc.c
++++ b/drivers/s390/crypto/zcrypt_ccamisc.c
+@@ -1724,10 +1724,10 @@ static int fetch_cca_info(u16 cardnr, u16 domain, struct cca_info *ci)
+ 	rlen = vlen = PAGE_SIZE/2;
+ 	rc = cca_query_crypto_facility(cardnr, domain, "STATICSB",
+ 				       rarray, &rlen, varray, &vlen);
+-	if (rc == 0 && rlen >= 10*8 && vlen >= 240) {
+-		ci->new_apka_mk_state = (char) rarray[7*8];
+-		ci->cur_apka_mk_state = (char) rarray[8*8];
+-		ci->old_apka_mk_state = (char) rarray[9*8];
++	if (rc == 0 && rlen >= 13*8 && vlen >= 240) {
++		ci->new_apka_mk_state = (char) rarray[10*8];
++		ci->cur_apka_mk_state = (char) rarray[11*8];
++		ci->old_apka_mk_state = (char) rarray[12*8];
+ 		if (ci->old_apka_mk_state == '2')
+ 			memcpy(&ci->old_apka_mkvp, varray + 208, 8);
+ 		if (ci->cur_apka_mk_state == '2')
 -- 
 2.30.2
 
