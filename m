@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A91440136B
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AABD40136F
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:25:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240056AbhIFBZy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:25:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38636 "EHLO mail.kernel.org"
+        id S240061AbhIFB0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:26:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239127AbhIFBYT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:24:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AD3A610FE;
-        Mon,  6 Sep 2021 01:22:04 +0000 (UTC)
+        id S239573AbhIFBYX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:24:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52E2061076;
+        Mon,  6 Sep 2021 01:22:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891324;
-        bh=J0/QKOVQrV6NaD2AEvL3Fp1y0K2MAjINakCwnaEoKV4=;
+        s=k20201202; t=1630891326;
+        bh=ohGDI1JxsPbCYZG/zalE3wIOE61oV2iX/8ohfb05En4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ToK2UKJ7emxkLpK87SLQ8emzxDh2n1xNgNpLAqHu5JXrSwnXB0+uB91mllrNpXBVz
-         yFMJA41ebh+wgQ9PrSHrdGGJxQTxdruiHTBHYQfSnltUD86rjqBDn3mse5kMh2q+C3
-         0NK/tzaBm+8+S+UJfMw815A7zZug4YXXeLdDMlg/GYnB8OLluyO5rw1gwGgEVrOZuX
-         pLae7/bUtT7uoE2GyLun3AoK2o1h2B1vF5jU2YvxtUHrhM6aFXf3NBLDSbH1NWyIyz
-         EORqrzZCtIgCxCmdV7coVPldtmk77/pstCScPwivWKFVnqW4kasCZ1ycI1fQyHSqPv
-         TLnYeGzAcVc3A==
+        b=YoSeSw49SlSVci9AlBFuJgkWxUs3uRmsjMk3jGKhW5jXPjG4BwY9Xvq6slUXj7MZA
+         OGqO20HaZAVBONtT8c/JMfQbSLIjDtcUR1SnFBpiLAIUvaEuClRS7m2X1LHpnURmgy
+         rrUtDJvM1R5raksnAdnpw5/d8YCvZZy1vPy6ceqIkEE0C24pZN8GVEmW3xor8fMk1k
+         iKkmwFLKKhZmpL72s4lz1vSmkSRXZPhgN1/XuDrz/LrwWKkj7om2WzBgk0DfU8RbJo
+         m8O+0iyFmggV8apzU81b9X+JFxek6Rw4Bezd8w6/MmJgts9eAA1jShWgNmpuewfkkT
+         fbdBMgbaALniw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
-        "Signed-off-by : Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 09/39] rcu/tree: Handle VM stoppage in stall detection
-Date:   Sun,  5 Sep 2021 21:21:23 -0400
-Message-Id: <20210906012153.929962-9-sashal@kernel.org>
+Cc:     Smita Koralahalli <Smita.KoralahalliChannabasappa@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        Sasha Levin <sashal@kernel.org>, linux-edac@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 10/39] EDAC/mce_amd: Do not load edac_mce_amd module on guests
+Date:   Sun,  5 Sep 2021 21:21:24 -0400
+Message-Id: <20210906012153.929962-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012153.929962-1-sashal@kernel.org>
 References: <20210906012153.929962-1-sashal@kernel.org>
@@ -42,96 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
+From: Smita Koralahalli <Smita.KoralahalliChannabasappa@amd.com>
 
-[ Upstream commit ccfc9dd6914feaa9a81f10f9cce56eb0f7712264 ]
+[ Upstream commit 767f4b620edadac579c9b8b6660761d4285fa6f9 ]
 
-The soft watchdog timer function checks if a virtual machine
-was suspended and hence what looks like a lockup in fact
-is a false positive.
+Hypervisors likely do not expose the SMCA feature to the guest and
+loading this module leads to false warnings. This module should not be
+loaded in guests to begin with, but people tend to do so, especially
+when testing kernels in VMs. And then they complain about those false
+warnings.
 
-This is what kvm_check_and_clear_guest_paused() does: it
-tests guest PVCLOCK_GUEST_STOPPED (which is set by the host)
-and if it's set then we need to touch all watchdogs and bail
-out.
+Do the practical thing and do not load this module when running as a
+guest to avoid all that complaining.
 
-Watchdog timer function runs from IRQ, so PVCLOCK_GUEST_STOPPED
-check works fine.
+ [ bp: Rewrite commit message. ]
 
-There is, however, one more watchdog that runs from IRQ, so
-watchdog timer fn races with it, and that watchdog is not aware
-of PVCLOCK_GUEST_STOPPED - RCU stall detector.
-
-apic_timer_interrupt()
- smp_apic_timer_interrupt()
-  hrtimer_interrupt()
-   __hrtimer_run_queues()
-    tick_sched_timer()
-     tick_sched_handle()
-      update_process_times()
-       rcu_sched_clock_irq()
-
-This triggers RCU stalls on our devices during VM resume.
-
-If tick_sched_handle()->rcu_sched_clock_irq() runs on a VCPU
-before watchdog_timer_fn()->kvm_check_and_clear_guest_paused()
-then there is nothing on this VCPU that touches watchdogs and
-RCU reads stale gp stall timestamp and new jiffies value, which
-makes it think that RCU has stalled.
-
-Make RCU stall watchdog aware of PVCLOCK_GUEST_STOPPED and
-don't report RCU stalls when we resume the VM.
-
-Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Suggested-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Smita Koralahalli <Smita.KoralahalliChannabasappa@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Tested-by: Kim Phillips <kim.phillips@amd.com>
+Link: https://lkml.kernel.org/r/20210628172740.245689-1-Smita.KoralahalliChannabasappa@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_stall.h | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/edac/mce_amd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
-index ca21d28a0f98..0435e5e716a8 100644
---- a/kernel/rcu/tree_stall.h
-+++ b/kernel/rcu/tree_stall.h
-@@ -7,6 +7,8 @@
-  * Author: Paul E. McKenney <paulmck@linux.ibm.com>
-  */
+diff --git a/drivers/edac/mce_amd.c b/drivers/edac/mce_amd.c
+index 6c474fbef32a..b6d4ae84a9a5 100644
+--- a/drivers/edac/mce_amd.c
++++ b/drivers/edac/mce_amd.c
+@@ -1176,6 +1176,9 @@ static int __init mce_amd_init(void)
+ 	    c->x86_vendor != X86_VENDOR_HYGON)
+ 		return -ENODEV;
  
-+#include <linux/kvm_para.h>
++	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
++		return -ENODEV;
 +
- //////////////////////////////////////////////////////////////////////////////
- //
- // Controlling CPU stall warnings, including delay calculation.
-@@ -633,6 +635,14 @@ static void check_cpu_stall(struct rcu_data *rdp)
- 	    (READ_ONCE(rnp->qsmask) & rdp->grpmask) &&
- 	    cmpxchg(&rcu_state.jiffies_stall, js, jn) == js) {
- 
-+		/*
-+		 * If a virtual machine is stopped by the host it can look to
-+		 * the watchdog like an RCU stall. Check to see if the host
-+		 * stopped the vm.
-+		 */
-+		if (kvm_check_and_clear_guest_paused())
-+			return;
-+
- 		/* We haven't checked in, so go dump stack. */
- 		print_cpu_stall(gps);
- 		if (READ_ONCE(rcu_cpu_stall_ftrace_dump))
-@@ -642,6 +652,14 @@ static void check_cpu_stall(struct rcu_data *rdp)
- 		   ULONG_CMP_GE(j, js + RCU_STALL_RAT_DELAY) &&
- 		   cmpxchg(&rcu_state.jiffies_stall, js, jn) == js) {
- 
-+		/*
-+		 * If a virtual machine is stopped by the host it can look to
-+		 * the watchdog like an RCU stall. Check to see if the host
-+		 * stopped the vm.
-+		 */
-+		if (kvm_check_and_clear_guest_paused())
-+			return;
-+
- 		/* They had a few time units to dump stack, so complain. */
- 		print_other_cpu_stall(gs2, gps);
- 		if (READ_ONCE(rcu_cpu_stall_ftrace_dump))
+ 	if (boot_cpu_has(X86_FEATURE_SMCA)) {
+ 		xec_mask = 0x3f;
+ 		goto out;
 -- 
 2.30.2
 
