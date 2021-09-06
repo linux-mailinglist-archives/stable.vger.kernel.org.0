@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24C654012A0
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 301E54012A3
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:20:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238647AbhIFBVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37730 "EHLO mail.kernel.org"
+        id S238908AbhIFBVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238712AbhIFBV3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238843AbhIFBV3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 5 Sep 2021 21:21:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBAB2610F7;
-        Mon,  6 Sep 2021 01:20:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E8E261027;
+        Mon,  6 Sep 2021 01:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891224;
-        bh=E7xl6sl5aXICv+yvtADSMdwGsKCvfw4DCGPr4TIpfMQ=;
+        s=k20201202; t=1630891226;
+        bh=M2DLKss7Og2FyRfWehhKqs0LFhzzVoCrlvZh2pKx/zQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZ8EpwSPCZQnsthJwSQ4rcpRQB+IbMn8bxzvHqaBFWdsV/phsC2GnWUyffGKxgSRh
-         XPaV1RTagvgLiVE74mFg5nk4kbWMz4qfcD+QBDSJ6HTJoplxqbItsLxYS0/NeqyCgQ
-         jV94R/Y6eE1odotoK/HqOX70QNv5Z4Q6iuUKls3lO6aJ13scUMFzKe8Ln3ThPGaAiF
-         KFxQv/Lb9rcCx/HIaCVxJpFHm0j2FFSaeNNKatKaKUaQubGGL8DaIg4KcPHs03zHKx
-         5u6YsOseaHvhiuOYtdX8IskRipi138pUOvi3RUsocEBs5urnDW96RRKP91AtYKZnlf
-         ccP+DSjCFOi1w==
+        b=qh4GCxJ5UV4PNzP+WxGqzLfd36vX6a3L+loXdMJlJCeYfx1yX+vq4qPlcUjFO8DHA
+         cFGdgw9d2eI5GLjBGPkBPGm4wp6hPjFtlmS44QcV2AavFRyMxLW49Kh9Qtz/NxV3Wt
+         HToE/tJpO3kIZpU0MULzWWjMJtrsQ1wQ5/6LWivLPxa5bOw+ugNk7sm9SN74wYcjDB
+         0u/tUH/ZvpKw8vS9VfsbBfevhRib5dCdTtdJXC93pOicgAhI9hVRs0t3U3hYLM/5jO
+         yRjpvcWu6QEOZjv/MwYsbvHk7D53tnpCbK+RZV+S1ON2u1jHBU7DHrlRI1Q4ciPpKG
+         b4AcK/q+JtzGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Damien Le Moal <damien.lemoal@wdc.com>,
-        kernel test robot <lkp@intel.com>,
-        Hannes Reinecke <hare@suse.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 27/47] libata: fix ata_host_start()
-Date:   Sun,  5 Sep 2021 21:19:31 -0400
-Message-Id: <20210906011951.928679-27-sashal@kernel.org>
+Cc:     Valentin Schneider <valentin.schneider@arm.com>,
+        Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 28/47] sched/topology: Skip updating masks for non-online nodes
+Date:   Sun,  5 Sep 2021 21:19:32 -0400
+Message-Id: <20210906011951.928679-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906011951.928679-1-sashal@kernel.org>
 References: <20210906011951.928679-1-sashal@kernel.org>
@@ -43,37 +44,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit 355a8031dc174450ccad2a61c513ad7222d87a97 ]
+[ Upstream commit 0083242c93759dde353a963a90cb351c5c283379 ]
 
-The loop on entry of ata_host_start() may not initialize host->ops to a
-non NULL value. The test on the host_stop field of host->ops must then
-be preceded by a check that host->ops is not NULL.
+The scheduler currently expects NUMA node distances to be stable from
+init onwards, and as a consequence builds the related data structures
+once-and-for-all at init (see sched_init_numa()).
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Link: https://lore.kernel.org/r/20210816014456.2191776-3-damien.lemoal@wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Unfortunately, on some architectures node distance is unreliable for
+offline nodes and may very well change upon onlining.
+
+Skip over offline nodes during sched_init_numa(). Track nodes that have
+been onlined at least once, and trigger a build of a node's NUMA masks
+when it is first onlined post-init.
+
+Reported-by: Geetika Moolchandani <Geetika.Moolchandani1@ibm.com>
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210818074333.48645-1-srikar@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/topology.c | 65 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index 61c762961ca8..44f434acfce0 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -5573,7 +5573,7 @@ int ata_host_start(struct ata_host *host)
- 			have_stop = 1;
- 	}
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index b77ad49dc14f..4e8698e62f07 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -1482,6 +1482,8 @@ int				sched_max_numa_distance;
+ static int			*sched_domains_numa_distance;
+ static struct cpumask		***sched_domains_numa_masks;
+ int __read_mostly		node_reclaim_distance = RECLAIM_DISTANCE;
++
++static unsigned long __read_mostly *sched_numa_onlined_nodes;
+ #endif
  
--	if (host->ops->host_stop)
-+	if (host->ops && host->ops->host_stop)
- 		have_stop = 1;
+ /*
+@@ -1833,6 +1835,16 @@ void sched_init_numa(void)
+ 			sched_domains_numa_masks[i][j] = mask;
  
- 	if (have_stop) {
+ 			for_each_node(k) {
++				/*
++				 * Distance information can be unreliable for
++				 * offline nodes, defer building the node
++				 * masks to its bringup.
++				 * This relies on all unique distance values
++				 * still being visible at init time.
++				 */
++				if (!node_online(j))
++					continue;
++
+ 				if (sched_debug() && (node_distance(j, k) != node_distance(k, j)))
+ 					sched_numa_warn("Node-distance not symmetric");
+ 
+@@ -1886,6 +1898,53 @@ void sched_init_numa(void)
+ 	sched_max_numa_distance = sched_domains_numa_distance[nr_levels - 1];
+ 
+ 	init_numa_topology_type();
++
++	sched_numa_onlined_nodes = bitmap_alloc(nr_node_ids, GFP_KERNEL);
++	if (!sched_numa_onlined_nodes)
++		return;
++
++	bitmap_zero(sched_numa_onlined_nodes, nr_node_ids);
++	for_each_online_node(i)
++		bitmap_set(sched_numa_onlined_nodes, i, 1);
++}
++
++static void __sched_domains_numa_masks_set(unsigned int node)
++{
++	int i, j;
++
++	/*
++	 * NUMA masks are not built for offline nodes in sched_init_numa().
++	 * Thus, when a CPU of a never-onlined-before node gets plugged in,
++	 * adding that new CPU to the right NUMA masks is not sufficient: the
++	 * masks of that CPU's node must also be updated.
++	 */
++	if (test_bit(node, sched_numa_onlined_nodes))
++		return;
++
++	bitmap_set(sched_numa_onlined_nodes, node, 1);
++
++	for (i = 0; i < sched_domains_numa_levels; i++) {
++		for (j = 0; j < nr_node_ids; j++) {
++			if (!node_online(j) || node == j)
++				continue;
++
++			if (node_distance(j, node) > sched_domains_numa_distance[i])
++				continue;
++
++			/* Add remote nodes in our masks */
++			cpumask_or(sched_domains_numa_masks[i][node],
++				   sched_domains_numa_masks[i][node],
++				   sched_domains_numa_masks[0][j]);
++		}
++	}
++
++	/*
++	 * A new node has been brought up, potentially changing the topology
++	 * classification.
++	 *
++	 * Note that this is racy vs any use of sched_numa_topology_type :/
++	 */
++	init_numa_topology_type();
+ }
+ 
+ void sched_domains_numa_masks_set(unsigned int cpu)
+@@ -1893,8 +1952,14 @@ void sched_domains_numa_masks_set(unsigned int cpu)
+ 	int node = cpu_to_node(cpu);
+ 	int i, j;
+ 
++	__sched_domains_numa_masks_set(node);
++
+ 	for (i = 0; i < sched_domains_numa_levels; i++) {
+ 		for (j = 0; j < nr_node_ids; j++) {
++			if (!node_online(j))
++				continue;
++
++			/* Set ourselves in the remote node's masks */
+ 			if (node_distance(j, node) <= sched_domains_numa_distance[i])
+ 				cpumask_set_cpu(cpu, sched_domains_numa_masks[i][j]);
+ 		}
 -- 
 2.30.2
 
