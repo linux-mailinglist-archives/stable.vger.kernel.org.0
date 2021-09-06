@@ -2,74 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62C0F401837
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 10:47:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46467401839
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 10:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241358AbhIFIsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 04:48:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37600 "EHLO mail.kernel.org"
+        id S240022AbhIFIsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 04:48:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241544AbhIFIrS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 04:47:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6ACE60F21;
-        Mon,  6 Sep 2021 08:46:13 +0000 (UTC)
+        id S240824AbhIFIsQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 04:48:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E588860F92;
+        Mon,  6 Sep 2021 08:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630917974;
-        bh=4rmPg62aQaqdkQzyXS6zLr5QZI0Kw9eL0Ak7KOoGkKk=;
+        s=korg; t=1630918032;
+        bh=DPaOzuxP1WrkbEva/oMrI/njuakPOgO8GQ7zUxsW/uc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iDWnVyZW3WV/lKap9EMlOK9vFzQwOA0os6XckgsDuiLg4P+yan9zYhbJ6/UDVQ0SS
-         Rma2VpzfG9DLK63EALtYfnWLqd75xck2rOQgSurg3eWhRA/3fT2pdCGA62Z0aNDFGe
-         urDaSh8KBiTZ4WEaV3acwmpZM/YAWspbeiBvvtaU=
-Date:   Mon, 6 Sep 2021 10:46:11 +0200
+        b=OdSa4/c/c4rKlJjG2Aj/TxcNIzYb6+werRxQ13ZIXXAWWT4TNM61pHRenrq+6zyJn
+         8r8zqYcebKQ19SyVUVKOhhdoUtNSxK4Rtrs3YkjmQzjaQN6ZvbDHLuiH30QqTM6o2I
+         rkm4FWkFbtRqu8sweuYLaZ/nZYutUXFcon0vjgKw=
+Date:   Mon, 6 Sep 2021 10:47:09 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 Cc:     stable@vger.kernel.org, sashal@kernel.org,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>
-Subject: Re: [PATCH for 5.10.y] serial: 8250: 8250_omap: Fix possible array
- out of bounds access
-Message-ID: <YTXVUwK7BaLqdtj5@kroah.com>
-References: <20210906060512.2913106-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH for 5.10.y] spi: Switch to signed types for *_native_cs
+ SPI controller fields
+Message-ID: <YTXVjcc6D2oSZ0LA@kroah.com>
+References: <20210906060842.2913612-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210906060512.2913106-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+In-Reply-To: <20210906060842.2913612-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 06, 2021 at 03:05:12PM +0900, Nobuhiro Iwamatsu wrote:
-> From: Vignesh Raghavendra <vigneshr@ti.com>
+On Mon, Sep 06, 2021 at 03:08:42PM +0900, Nobuhiro Iwamatsu wrote:
+> From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 > 
-> commit d4548b14dd7e5c698f81ce23ce7b69a896373b45 upstream.
+> commit 35f3f8504c3b60a1ae5576e178b27fc0ddd6157d upstream.
 > 
-> k3_soc_devices array is missing a sentinel entry which may result in out
-> of bounds access as reported by kernel KASAN.
+> While fixing undefined behaviour the commit f60d7270c8a3 ("spi: Avoid
+> undefined behaviour when counting unused native CSs") missed the case
+> when all CSs are GPIOs and thus unused_native_cs will be evaluated to
+> -1 in unsigned representation. This will falsely trigger a condition
+> in the spi_get_gpio_descs().
 > 
-> Fix this by adding a sentinel entry.
+> Switch to signed types for *_native_cs SPI controller fields to fix above.
 > 
-> Fixes: 439c7183e5b9 ("serial: 8250: 8250_omap: Disable RX interrupt after DMA enable")
-> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-> Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-> Link: https://lore.kernel.org/r/20201111112653.2710-1-vigneshr@ti.com
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Fixes: f60d7270c8a3 ("spi: Avoid undefined behaviour when counting unused native CSs")
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Link: https://lore.kernel.org/r/20210510131242.49455-1-andriy.shevchenko@linux.intel.com
+> Signed-off-by: Mark Brown <broonie@kernel.org>
 > Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 > ---
->  drivers/tty/serial/8250/8250_omap.c | 1 +
->  1 file changed, 1 insertion(+)
+>  include/linux/spi/spi.h | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-> index 95e2d6de4f2134..ad0549dac7d792 100644
-> --- a/drivers/tty/serial/8250/8250_omap.c
-> +++ b/drivers/tty/serial/8250/8250_omap.c
-> @@ -1211,6 +1211,7 @@ static int omap8250_no_handle_irq(struct uart_port *port)
->  static const struct soc_device_attribute k3_soc_devices[] = {
->  	{ .family = "AM65X",  },
->  	{ .family = "J721E", .revision = "SR1.0" },
-> +	{ /* sentinel */ }
->  };
+> diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
+> index 2d906b9c149929..e1d88630ff2439 100644
+> --- a/include/linux/spi/spi.h
+> +++ b/include/linux/spi/spi.h
+> @@ -646,8 +646,8 @@ struct spi_controller {
+>  	int			*cs_gpios;
+>  	struct gpio_desc	**cs_gpiods;
+>  	bool			use_gpio_descriptors;
+> -	u8			unused_native_cs;
+> -	u8			max_native_cs;
+> +	s8			unused_native_cs;
+> +	s8			max_native_cs;
 >  
->  static struct omap8250_dma_params am654_dma = {
+>  	/* statistics */
+>  	struct spi_statistics	statistics;
 > -- 
 > 2.33.0
 > 
