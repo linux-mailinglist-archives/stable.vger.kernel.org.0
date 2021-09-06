@@ -2,115 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 629AE401B45
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:37:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28577401B5B
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241923AbhIFMhK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 08:37:10 -0400
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:52363 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241911AbhIFMhK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Sep 2021 08:37:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1630931766; x=1662467766;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=FuCVAG73F+hbcI49Q1OEg+f4pzJw46TdoFedAsGkVEs=;
-  b=nKLzIpRUNnwq5nWkI60O6m1++zyiRDsygOX1737d0LORiWTk7uX2MxzY
-   /OzpPtIqOdR+lgLc7NhRfkI0FdtCAy7llegBCVlZqt4nZi7OJK3sscKqO
-   DexY+gPn3xh2hG4oJh75nO/VIIzDbVpR7rQumHmkDFfzBVfNhf6dWtj4v
-   8pIGs3YelReavNmXnwxQgEeKZWJj52E8u3sq7JdbQ+YZqNp6NzW70hwQF
-   Z8D7DqKma2a5nfFwaKDoxIA6+HXVHd6Ga5+VR/ePUJkMx2IIYBCC1emxA
-   mbQ2IibbOOV4FmyxaO/JABs5CJzdeJCumKRCAevVHgNyEkmwZ3VIdfqxW
-   g==;
-X-IronPort-AV: E=Sophos;i="5.85,272,1624291200"; 
-   d="scan'208";a="179827824"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 06 Sep 2021 20:36:05 +0800
-IronPort-SDR: trvF3zLNFIZv4kFo3s+gzdaNH0eJcPuP+DE11bXCn2CzWNb5RFG2TyY8k49/KbjiN9fYCwhLor
- DFp2lst5SMZSaPn+A+8scSWH5dEX8wj1Wggz365ACzHhQta/1k8l1MoVzBA8v2A4Ztf4+qm/ZT
- JHO3kOrcgb7vrDdvsjg0BnuPKx8/peVwtDvoHdQ1tKc/hFXIsHDTJyKbkOHf5bo2TygZY6sZkI
- jXVrfb+zIbNC491EmkvXcC1EvOq80ORjWQDSA7PsgIfMVsWvVvoe9TAiFmCk9RMDgBfbO+yXGI
- 88pYmdEg1X4lGnQbvIbXjhWN
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Sep 2021 05:12:44 -0700
-IronPort-SDR: lPObxYB5FdJQKnE0MEtP+DtU6nG2b57tSofS7bazD1id1t0fgnx1Ytw1JHYR5wrT53l5RS9V1o
- 6bKgS4aAdu1DSwEz2YEz0bAJW09bIGXGQjL2szq20q+NFC6iVw+dAxIgglEWUryBRgWal04G22
- jKU9+j1DGaQeOv3+oM4GDUVEdX1kwQQjecO64Tr5Sw9ZReEAsw2WUS942OheGuWpgkB4aEPnt6
- zoYL216SJDK9/7NdiDdBhgKvxCP1prL3HrDISO3G0E0y7e2bYxNQP8/4CKS4RYfK7FSOYloGYa
- TrQ=
-WDCIronportException: Internal
-Received: from unknown (HELO redsun60.ssa.fujisawa.hgst.com) ([10.149.66.36])
-  by uls-op-cesaip02.wdc.com with ESMTP; 06 Sep 2021 05:36:04 -0700
-From:   Johannes Thumshirn <johannes.thumshirn@wdc.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Johannes Thumshirn <jth@kernel.org>, linux-kernel@vger.kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/1] mcb: fix error handling in mcb_alloc_bus()
-Date:   Mon,  6 Sep 2021 21:35:48 +0900
-Message-Id: <32e160cf6864ce77f9d62948338e24db9fd8ead9.1630931319.git.johannes.thumshirn@wdc.com>
+        id S239993AbhIFMpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:45:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50226 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242143AbhIFMpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:45:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EA0460EE6;
+        Mon,  6 Sep 2021 12:44:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1630932275;
+        bh=2LXqSReT8SHF8LfIKml+aOLX7rlWLst/LYZu0lXukhc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=OjIvZZYJAPvK97M3PpNaRASfWP7+Kp2/rLXGUbvB7ocH0/0q288viavvI91HA45EL
+         aHiUIQjKJcvXh9KHxnn1Xe4XMtK7ETp3rLOqZcPktGEvuJuqkoPuCaQlbvNF/U1dt+
+         whuOL84Ga1APMLmhjpod1ZXJsBC1UBsJjr8aFZdBzeDSPAsTQx1FCcZCbUSYACyEBJ
+         hyxJHVTYpPBbWUCLoVexSRzgOvRHR8Q+yFQ+84y4wXi2HnOl7S4PPPwKfKDjLuCL1K
+         bSaHnN0B6zgZYM0fZU4LOgtbkC1b92kQtxtnVviFTvcswBaOkrq1wqs2SW6xbN66Hh
+         z56w29WXYR2MQ==
+Received: from johan by xi with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1mNDz3-0005ny-Rk; Mon, 06 Sep 2021 14:44:22 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Oliver Neukum <oneukum@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org,
+        Jaejoong Kim <climbbb.kim@gmail.com>
+Subject: [PATCH] USB: cdc-acm: fix minor-number release
+Date:   Mon,  6 Sep 2021 14:43:39 +0200
+Message-Id: <20210906124339.22264-1-johan@kernel.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <cover.1630931319.git.johannes.thumshirn@wdc.com>
-References: <cover.1630931319.git.johannes.thumshirn@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+If the driver runs out of minor numbers it would release minor 0 and
+allow another device to claim the minor while still in use.
 
-There are two bugs:
-1) If ida_simple_get() fails then this code calls put_device(carrier)
-   but we haven't yet called get_device(carrier) and probably that
-   leads to a use after free.
-2) After device_initialize() then we need to use put_device() to
-   release the bus.  This will free the internal resources tied to the
-   device and call mcb_free_bus() which will free the rest.
+Fortunately, registering the tty class device of the second device would
+fail (with a stack dump) due to the sysfs name collision so no memory is
+leaked.
 
-Fixes: 5d9e2ab9fea4 ("mcb: Implement bus->dev.release callback")
-Fixes: 18d288198099 ("mcb: Correctly initialize the bus's device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Johannes Thumshirn <jth@kernel.org>
+Fixes: cae2bc768d17 ("usb: cdc-acm: Decrement tty port's refcount if probe() fail")
+Cc: stable@vger.kernel.org      # 4.19
+Cc: Jaejoong Kim <climbbb.kim@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/mcb/mcb-core.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/class/cdc-acm.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mcb/mcb-core.c b/drivers/mcb/mcb-core.c
-index edf4ee6eff25..cf128b3471d7 100644
---- a/drivers/mcb/mcb-core.c
-+++ b/drivers/mcb/mcb-core.c
-@@ -275,8 +275,8 @@ struct mcb_bus *mcb_alloc_bus(struct device *carrier)
+diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
+index 4895325b16a4..5f0260bc4469 100644
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -726,7 +726,8 @@ static void acm_port_destruct(struct tty_port *port)
+ {
+ 	struct acm *acm = container_of(port, struct acm, port);
  
- 	bus_nr = ida_simple_get(&mcb_ida, 0, 0, GFP_KERNEL);
- 	if (bus_nr < 0) {
--		rc = bus_nr;
--		goto err_free;
-+		kfree(bus);
-+		return ERR_PTR(bus_nr);
- 	}
+-	acm_release_minor(acm);
++	if (acm->minor != ACM_TTY_MINORS)
++		acm_release_minor(acm);
+ 	usb_put_intf(acm->control);
+ 	kfree(acm->country_codes);
+ 	kfree(acm);
+@@ -1323,8 +1324,10 @@ static int acm_probe(struct usb_interface *intf,
+ 	usb_get_intf(acm->control); /* undone in destruct() */
  
- 	bus->bus_nr = bus_nr;
-@@ -291,12 +291,12 @@ struct mcb_bus *mcb_alloc_bus(struct device *carrier)
- 	dev_set_name(&bus->dev, "mcb:%d", bus_nr);
- 	rc = device_add(&bus->dev);
- 	if (rc)
--		goto err_free;
-+		goto err_put;
+ 	minor = acm_alloc_minor(acm);
+-	if (minor < 0)
++	if (minor < 0) {
++		acm->minor = ACM_TTY_MINORS;
+ 		goto err_put_port;
++	}
  
- 	return bus;
--err_free:
--	put_device(carrier);
--	kfree(bus);
-+
-+err_put:
-+	put_device(&bus->dev);
- 	return ERR_PTR(rc);
- }
- EXPORT_SYMBOL_NS_GPL(mcb_alloc_bus, MCB);
+ 	acm->minor = minor;
+ 	acm->dev = usb_dev;
 -- 
 2.32.0
 
