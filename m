@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4929040145B
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:38:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC31D40145C
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243239AbhIFBdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:33:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48338 "EHLO mail.kernel.org"
+        id S243321AbhIFBdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:33:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351533AbhIFBai (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:30:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79E1561221;
-        Mon,  6 Sep 2021 01:23:51 +0000 (UTC)
+        id S1351536AbhIFBaj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:30:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 057AC61139;
+        Mon,  6 Sep 2021 01:23:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891432;
-        bh=E3trja30u49PQGxLI5iO0/3F9tdhTe9oBxHfSyclHs4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2SFFIvBE8YX4UbMezLflFVkNSFho2xAbmgfDDW1tXMgyEs020z8vMvbvWZAbIm4Q
-         HZdrpPzk4eehpy7ppcbIG2PORr6Sqj/dFGmz2p3WbkiDaAEVXKsZNu2kA0IFAV+rr5
-         iwZgnju5E5BIXWORv1eb/vPetuLh5sa0YYXPqEx5BnCQYyNmQ3q8ECw6v1Rn+IPoct
-         WNZXsOFA7VWzMygt2k84qODE0BbW8QWjKbX5IhyzRvUqqEwBQ8jmN/WLDXdoKOdSXk
-         bjWsyygclQ8wRfTm+M5RdnVeM2zB9/69JQmuuBHJlDVtnHU3ONKcQfDRbq9UFMhJyi
-         a/WVI95C65Hug==
+        s=k20201202; t=1630891434;
+        bh=nMaDKf7PvB3GfSvubjVxkNHXMMRtz0hVAIloS4vifmM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ERzaK6URW1mnMRgpgepOLXNmpbJmt4Nkwsf+wLhY/fokxoEKZNG5jrkNxRFP0YweF
+         16I1F1rb66CImX1/6YZUGPbL1pWnUx6Zq2++DZ8lZkL4pX+HORgMvP0aKZmAbY3ySc
+         1820H6+KREIkwZNwy5Muul5Je37frNcdEe7FvVm8DarPxZUBfLq99VnRRCRG1k/8jb
+         pDKTICb/+DHFBLcrU0Emy8pIz9Js2kCWMJC9BWwl0Rkjm1jwNZ1gTS8mf3Mrj8X6KH
+         mkcvAIG7jcKAmyKVq/woIvX76EixR4IKF6ii9ynmF5YiF2HPrm9iQR/Hhorgyazerf
+         5d/aOKWTezGzg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stian Skjelstad <stian.skjelstad@gmail.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 23/23] udf_get_extendedattr() had no boundary checks.
-Date:   Sun,  5 Sep 2021 21:23:22 -0400
-Message-Id: <20210906012322.930668-23-sashal@kernel.org>
+Cc:     Jeongtae Park <jeongtae.park@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 01/17] regmap: fix the offset of register error log
+Date:   Sun,  5 Sep 2021 21:23:36 -0400
+Message-Id: <20210906012352.930954-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210906012322.930668-1-sashal@kernel.org>
-References: <20210906012322.930668-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,50 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stian Skjelstad <stian.skjelstad@gmail.com>
+From: Jeongtae Park <jeongtae.park@gmail.com>
 
-[ Upstream commit 58bc6d1be2f3b0ceecb6027dfa17513ec6aa2abb ]
+[ Upstream commit 1852f5ed358147095297a09cc3c6f160208a676d ]
 
-When parsing the ExtendedAttr data, malicous or corrupt attribute length
-could cause kernel hangs and buffer overruns in some special cases.
+This patch fixes the offset of register error log
+by using regmap_get_offset().
 
-Link: https://lore.kernel.org/r/20210822093332.25234-1-stian.skjelstad@gmail.com
-Signed-off-by: Stian Skjelstad <stian.skjelstad@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jeongtae Park <jeongtae.park@gmail.com>
+Link: https://lore.kernel.org/r/20210701142630.44936-1-jeongtae.park@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/misc.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/base/regmap/regmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/udf/misc.c b/fs/udf/misc.c
-index 401e64cde1be..853bcff51043 100644
---- a/fs/udf/misc.c
-+++ b/fs/udf/misc.c
-@@ -173,13 +173,22 @@ struct genericFormat *udf_get_extendedattr(struct inode *inode, uint32_t type,
- 		else
- 			offset = le32_to_cpu(eahd->appAttrLocation);
- 
--		while (offset < iinfo->i_lenEAttr) {
-+		while (offset + sizeof(*gaf) < iinfo->i_lenEAttr) {
-+			uint32_t attrLength;
-+
- 			gaf = (struct genericFormat *)&ea[offset];
-+			attrLength = le32_to_cpu(gaf->attrLength);
-+
-+			/* Detect undersized elements and buffer overflows */
-+			if ((attrLength < sizeof(*gaf)) ||
-+			    (attrLength > (iinfo->i_lenEAttr - offset)))
-+				break;
-+
- 			if (le32_to_cpu(gaf->attrType) == type &&
- 					gaf->attrSubtype == subtype)
- 				return gaf;
- 			else
--				offset += le32_to_cpu(gaf->attrLength);
-+				offset += attrLength;
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 4e0cc40ad9ce..1c5ff22d92f1 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -1378,7 +1378,7 @@ int _regmap_raw_write(struct regmap *map, unsigned int reg,
+ 			if (ret) {
+ 				dev_err(map->dev,
+ 					"Error in caching of register: %x ret: %d\n",
+-					reg + i, ret);
++					reg + regmap_get_offset(map, i), ret);
+ 				return ret;
+ 			}
  		}
- 	}
- 
 -- 
 2.30.2
 
