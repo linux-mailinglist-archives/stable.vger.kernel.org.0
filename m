@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C13401BAA
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 905DB401BB5
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:58:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242619AbhIFM6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 08:58:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34572 "EHLO mail.kernel.org"
+        id S242919AbhIFM65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:58:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242856AbhIFM6Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:58:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE1536103E;
-        Mon,  6 Sep 2021 12:57:10 +0000 (UTC)
+        id S242728AbhIFM6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:58:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CF7361050;
+        Mon,  6 Sep 2021 12:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933031;
-        bh=3+eCbje3fW8UTEA3knV/RI8TVK4lmKHcXv9hEXGbr98=;
+        s=korg; t=1630933049;
+        bh=abuErqcroEVMRrvQQG4hxa9a9UeiyGaWc4yYlMcyEpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RZdU29Cq475eQWCUym7Y/OUlz1oITFQIcXgM0f4ScejqICLMVwsY8NPUGznzz0D5F
-         o8gbsf2d73YZn1QUA2rzMQxP7zmU0ReDriKsOpsQrh0uVuBL9G3szOzDi5xt7zu0jM
-         ZUjTwJA2bLDJzRZ5Z6rNXAMCchw40jAIQ54Q3klE=
+        b=K6PNqLwXsvvW+7mLC7Y847rlNHNwkMrI/xJnQef9MnYiCcnPTN8NjYQKnq70Wq5RO
+         IDFjRGNHg9N2GaNyDlTfLoUDlsAhGXgvkRNf4HMBpmmU0ytvPqNKmB6tMHblq5PEEn
+         3k4fHzun94w5RQ/e/+BQPWDaufUE1qwhwhBGjcb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zubin Mithra <zsm@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 24/29] ALSA: pcm: fix divide error in snd_pcm_lib_ioctl
+        stable@vger.kernel.org, Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Shai Malin <smalin@marvell.com>,
+        Kees Cook <keescook@chromium.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 10/24] qede: Fix memset corruption
 Date:   Mon,  6 Sep 2021 14:55:39 +0200
-Message-Id: <20210906125450.587128816@linuxfoundation.org>
+Message-Id: <20210906125449.451044864@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210906125449.756437409@linuxfoundation.org>
-References: <20210906125449.756437409@linuxfoundation.org>
+In-Reply-To: <20210906125449.112564040@linuxfoundation.org>
+References: <20210906125449.112564040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zubin Mithra <zsm@chromium.org>
+From: Shai Malin <smalin@marvell.com>
 
-commit f3eef46f0518a2b32ca1244015820c35a22cfe4a upstream.
+[ Upstream commit e543468869e2532f5d7926e8f417782b48eca3dc ]
 
-Syzkaller reported a divide error in snd_pcm_lib_ioctl. fifo_size
-is of type snd_pcm_uframes_t(unsigned long). If frame_size
-is 0x100000000, the error occurs.
+Thanks to Kees Cook who detected the problem of memset that starting
+from not the first member, but sized for the whole struct.
+The better change will be to remove the redundant memset and to clear
+only the msix_cnt member.
 
-Fixes: a9960e6a293e ("ALSA: pcm: fix fifo_size frame calculation")
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210827153735.789452-1-zsm@chromium.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Reported-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_lib.c |    2 +-
+ drivers/net/ethernet/qlogic/qede/qede_main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -1746,7 +1746,7 @@ static int snd_pcm_lib_ioctl_fifo_size(s
- 		channels = params_channels(params);
- 		frame_size = snd_pcm_format_size(format, channels);
- 		if (frame_size > 0)
--			params->fifo_size /= (unsigned)frame_size;
-+			params->fifo_size /= frame_size;
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
+index 7c6064baeba2..1c7f9ed6f1c1 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_main.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
+@@ -1874,6 +1874,7 @@ static void qede_sync_free_irqs(struct qede_dev *edev)
  	}
- 	return 0;
+ 
+ 	edev->int_info.used_cnt = 0;
++	edev->int_info.msix_cnt = 0;
  }
+ 
+ static int qede_req_msix_irqs(struct qede_dev *edev)
+@@ -2427,7 +2428,6 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode,
+ 	goto out;
+ err4:
+ 	qede_sync_free_irqs(edev);
+-	memset(&edev->int_info.msix_cnt, 0, sizeof(struct qed_int_info));
+ err3:
+ 	qede_napi_disable_remove(edev);
+ err2:
+-- 
+2.30.2
+
 
 
