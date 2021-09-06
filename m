@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C4640145A
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E763401459
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:38:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242954AbhIFBc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:32:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48056 "EHLO mail.kernel.org"
+        id S242881AbhIFBc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:32:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351482AbhIFBae (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1351488AbhIFBae (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 5 Sep 2021 21:30:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DFBB61164;
-        Mon,  6 Sep 2021 01:23:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57B3B611C2;
+        Mon,  6 Sep 2021 01:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891429;
-        bh=5u9PJq7N7hzxm6sNiHCCpXP6/HjC2HxHXzIWC/PSEMY=;
+        s=k20201202; t=1630891431;
+        bh=hrvckz5zgTtjPQZh4rLELH8lNg+zFQ0ABt3RKIeG+OM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AG7UD9XHh2sktWXhabletJoT2E0hZAZuPVyhENbHl3gLe2Vb+15dWxDCfJoQJHe98
-         c+aK7JMSGmmW+wr/zKE+NNw26CWGyaN/wdH1U98h5mPYbPXxsXsfjJ0aLhOIeOX6F6
-         HTo2hkBz261LH15tilPArcv8otTbk1n6/tcdSqOak1VblliSPny7ruSMGGTu0hmPAk
-         +O53x86H03un2O7rYk61E3l/hfxDDvpJ1DvgabQ2NRiHrCcOSXFFhyHoSITmx3rNf8
-         LgohiFR4EuQL2oNu53kpzSswJvCTirVfeOALnD4KRiBhXzTpcPCQIVeLctmu9tlQa7
-         uBnNr0rdFZSDg==
+        b=dYMptqPfCRPwGru/dVHgOQXYo1ySl4dSHmyUTjIwuNgIFyYXWPPrj/0RR1D5B2D5U
+         MI12DSPCFP3YQXjDMYmsjORvsHJr1wEjOwtqVniXSfUu4VnFRF+cbsVKTDfT5EDjmp
+         ARL5BfjJ/vV4QJ1d2S4w3kqTjT3GRdyYa+Pxem+os7erlNEjN7JGAL6BQ78gN4MNUj
+         PpxUTXDIgUosTg+64xi2GoMk8FmVdNzU29eU+S3lW6op7N3iIuYFeOnrM9cEL8aRDk
+         ZBy9+JhSgBe4uWZJFsg5HfYepNdQy+F4s0pJ9prGB3od+ZIlzpJhGBSywBSkRT2cEp
+         36r7ufZIQailw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, qat-linux@intel.com,
-        linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 21/23] crypto: qat - do not export adf_iov_putmsg()
-Date:   Sun,  5 Sep 2021 21:23:20 -0400
-Message-Id: <20210906012322.930668-21-sashal@kernel.org>
+Cc:     Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 22/23] fcntl: fix potential deadlock for &fasync_struct.fa_lock
+Date:   Sun,  5 Sep 2021 21:23:21 -0400
+Message-Id: <20210906012322.930668-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012322.930668-1-sashal@kernel.org>
 References: <20210906012322.930668-1-sashal@kernel.org>
@@ -44,34 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 645ae0af1840199086c33e4f841892ebee73f615 ]
+[ Upstream commit 2f488f698fda820f8e6fa0407630154eceb145d6 ]
 
-The function adf_iov_putmsg() is only used inside the intel_qat module
-therefore should not be exported.
-Remove EXPORT_SYMBOL for the function adf_iov_putmsg().
+There is an existing lock hierarchy of
+&dev->event_lock --> &fasync_struct.fa_lock --> &f->f_owner.lock
+from the following call chain:
 
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+  input_inject_event():
+    spin_lock_irqsave(&dev->event_lock,...);
+    input_handle_event():
+      input_pass_values():
+        input_to_handler():
+          evdev_events():
+            evdev_pass_values():
+              spin_lock(&client->buffer_lock);
+              __pass_event():
+                kill_fasync():
+                  kill_fasync_rcu():
+                    read_lock(&fa->fa_lock);
+                    send_sigio():
+                      read_lock_irqsave(&fown->lock,...);
+
+&dev->event_lock is HARDIRQ-safe, so interrupts have to be disabled
+while grabbing &fasync_struct.fa_lock, otherwise we invert the lock
+hierarchy. However, since kill_fasync which calls kill_fasync_rcu is
+an exported symbol, it may not necessarily be called with interrupts
+disabled.
+
+As kill_fasync_rcu may be called with interrupts disabled (for
+example, in the call chain above), we replace calls to
+read_lock/read_unlock on &fasync_struct.fa_lock in kill_fasync_rcu
+with read_lock_irqsave/read_unlock_irqrestore.
+
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/fcntl.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-index 9dab2cc11fdf..c64481160b71 100644
---- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-+++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-@@ -231,7 +231,6 @@ int adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
- 
- 	return ret;
- }
--EXPORT_SYMBOL_GPL(adf_iov_putmsg);
- 
- void adf_vf2pf_req_hndl(struct adf_accel_vf_info *vf_info)
+diff --git a/fs/fcntl.c b/fs/fcntl.c
+index e039af1872ab..dffb5245ae72 100644
+--- a/fs/fcntl.c
++++ b/fs/fcntl.c
+@@ -993,13 +993,14 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
  {
+ 	while (fa) {
+ 		struct fown_struct *fown;
++		unsigned long flags;
+ 
+ 		if (fa->magic != FASYNC_MAGIC) {
+ 			printk(KERN_ERR "kill_fasync: bad magic number in "
+ 			       "fasync_struct!\n");
+ 			return;
+ 		}
+-		read_lock(&fa->fa_lock);
++		read_lock_irqsave(&fa->fa_lock, flags);
+ 		if (fa->fa_file) {
+ 			fown = &fa->fa_file->f_owner;
+ 			/* Don't send SIGURG to processes which have not set a
+@@ -1008,7 +1009,7 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
+ 			if (!(sig == SIGURG && fown->signum == 0))
+ 				send_sigio(fown, fa->fa_fd, band);
+ 		}
+-		read_unlock(&fa->fa_lock);
++		read_unlock_irqrestore(&fa->fa_lock, flags);
+ 		fa = rcu_dereference(fa->fa_next);
+ 	}
+ }
 -- 
 2.30.2
 
