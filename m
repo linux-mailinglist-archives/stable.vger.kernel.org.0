@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAFD040144D
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:38:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC060401450
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:38:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241543AbhIFBct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:32:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47360 "EHLO mail.kernel.org"
+        id S241045AbhIFBcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:32:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351376AbhIFBaY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:30:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 092B26120A;
-        Mon,  6 Sep 2021 01:23:36 +0000 (UTC)
+        id S1351395AbhIFBa0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:30:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40043611EF;
+        Mon,  6 Sep 2021 01:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891417;
-        bh=+V+55lPU0e89x11WekxDbsZ4MadTMrFS1/1T2QQ+KgM=;
+        s=k20201202; t=1630891419;
+        bh=iO7NCkoA0Z8ZCilKJsMYkUfxXp2UzeeJ05EuQUhobl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQrREGKmCnN7t0b2+JD9TJ7krPQwd3mSie8MQuY4U/pSXZX43VMpl0XYPaIprf70T
-         l5KhY1BuufhcA0jYOOpcy9+dVZGBomiDK57Iyz1eUFPeDh0CsBn7dDujPEbHkhgGzM
-         qV9mL9/K6bNTP0O1HjXmqPxiGmVUDJlbYlLTtlqKsbuP7zSCDF7j7tjEmryEjrlSGH
-         EQwbku9HqqEds2G0zFZCOHq4f3Ec/TbW+6Y2qPNsfaRRVagXRjqq5yFDyjnyn+htvv
-         KK2ptDKi+gb+roLz8yUBd0Z+dK1DTZ0SF25izRFVeIi4YFlm9w3rf0VunQr8t/OoAm
-         VYTaV+8Ty0Psw==
+        b=EXyhFKsNx9AJeP5TNt1xObJEM3gWtFm/jejaJ/xKM7X23T/dTzM5AdEP9SbmfvOhf
+         WZqOOWvgL1q6n4D8IwBXltvFI1JbLgbVEhJoSJ6WfHv3p6CiutHt+QjyUYdTzj8eA8
+         3Ted2u9G2kdZyAQ8w06ZCmN68ah+dGBfA0ru30pnRINLG9HjeufnIN3b/IAE/w/nB3
+         ViNV63XWj4IJSc0Q1IynhsR1M81E2gsaLzWYs7nt17HmdQW+8ww/JGR8UZmTB5wgyB
+         UKb6YZYgrtTRwroTBS5ah+t+OTQLy8ea15A0co9I3FxS2K4h9N/xymkonCAoWsjDnk
+         CN+TKcKUz1vXw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/23] bcache: add proper error unwinding in bcache_device_init
-Date:   Sun,  5 Sep 2021 21:23:11 -0400
-Message-Id: <20210906012322.930668-12-sashal@kernel.org>
+Cc:     Ruozhu Li <liruozhu@huawei.com>, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 13/23] nvme-rdma: don't update queue count when failing to set io queues
+Date:   Sun,  5 Sep 2021 21:23:12 -0400
+Message-Id: <20210906012322.930668-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012322.930668-1-sashal@kernel.org>
 References: <20210906012322.930668-1-sashal@kernel.org>
@@ -42,67 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Ruozhu Li <liruozhu@huawei.com>
 
-[ Upstream commit 224b0683228c5f332f9cee615d85e75e9a347170 ]
+[ Upstream commit 85032874f80ba17bf187de1d14d9603bf3f582b8 ]
 
-Except for the IDA none of the allocations in bcache_device_init is
-unwound on error, fix that.
+We update ctrl->queue_count and schedule another reconnect when io queue
+count is zero.But we will never try to create any io queue in next reco-
+nnection, because ctrl->queue_count already set to zero.We will end up
+having an admin-only session in Live state, which is exactly what we try
+to avoid in the original patch.
+Update ctrl->queue_count after queue_count zero checking to fix it.
 
+Signed-off-by: Ruozhu Li <liruozhu@huawei.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Coly Li <colyli@suse.de>
-Link: https://lore.kernel.org/r/20210809064028.1198327-7-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/nvme/host/rdma.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 7787ec42f81e..2df75db52e91 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -824,20 +824,20 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
- 	n = BITS_TO_LONGS(d->nr_stripes) * sizeof(unsigned long);
- 	d->full_dirty_stripes = kvzalloc(n, GFP_KERNEL);
- 	if (!d->full_dirty_stripes)
--		return -ENOMEM;
-+		goto out_free_stripe_sectors_dirty;
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 8798274dc3ba..ffd6a7204509 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -643,13 +643,13 @@ static int nvme_rdma_alloc_io_queues(struct nvme_rdma_ctrl *ctrl)
+ 	if (ret)
+ 		return ret;
  
- 	idx = ida_simple_get(&bcache_device_idx, 0,
- 				BCACHE_DEVICE_IDX_MAX, GFP_KERNEL);
- 	if (idx < 0)
--		return idx;
-+		goto out_free_full_dirty_stripes;
+-	ctrl->ctrl.queue_count = nr_io_queues + 1;
+-	if (ctrl->ctrl.queue_count < 2) {
++	if (nr_io_queues == 0) {
+ 		dev_err(ctrl->ctrl.device,
+ 			"unable to set any I/O queues\n");
+ 		return -ENOMEM;
+ 	}
  
- 	if (bioset_init(&d->bio_split, 4, offsetof(struct bbio, bio),
- 			BIOSET_NEED_BVECS|BIOSET_NEED_RESCUER))
--		goto err;
-+		goto out_ida_remove;
++	ctrl->ctrl.queue_count = nr_io_queues + 1;
+ 	dev_info(ctrl->ctrl.device,
+ 		"creating %d I/O queues.\n", nr_io_queues);
  
- 	d->disk = alloc_disk(BCACHE_MINORS);
- 	if (!d->disk)
--		goto err;
-+		goto out_bioset_exit;
- 
- 	set_capacity(d->disk, sectors);
- 	snprintf(d->disk->disk_name, DISK_NAME_LEN, "bcache%i", idx);
-@@ -872,8 +872,14 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
- 
- 	return 0;
- 
--err:
-+out_bioset_exit:
-+	bioset_exit(&d->bio_split);
-+out_ida_remove:
- 	ida_simple_remove(&bcache_device_idx, idx);
-+out_free_full_dirty_stripes:
-+	kvfree(d->full_dirty_stripes);
-+out_free_stripe_sectors_dirty:
-+	kvfree(d->stripe_sectors_dirty);
- 	return -ENOMEM;
- 
- }
 -- 
 2.30.2
 
