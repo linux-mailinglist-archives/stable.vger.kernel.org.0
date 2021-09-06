@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04D05401BF5
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92F30401BCC
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:58:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243903AbhIFNAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 09:00:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37906 "EHLO mail.kernel.org"
+        id S243179AbhIFM7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:59:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243333AbhIFM7y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:59:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4881561056;
-        Mon,  6 Sep 2021 12:58:48 +0000 (UTC)
+        id S243190AbhIFM7H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:59:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C74461051;
+        Mon,  6 Sep 2021 12:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933128;
-        bh=H6Ec/h8dYi+r/7tH8UjUPCKMdRzqno0ISBFRLdo00bQ=;
+        s=korg; t=1630933082;
+        bh=qEKW48lz5RT6WnzKz7AWCCSB+KFTcUVLx6/d/jOkxag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/nauYAPeveYyqCWP2pM6WavJSsy+MBM23KJxiHSq3Z3HLi34ea1PYy+kUt3MLTmc
-         XL9sgIv4096AzE68MhzL4zGMYB9XcJAidn96sNGk/z+4HeRlkvpsU81BTMpH7LQh9u
-         dV4NoIHUA5OtfAi4QA/rwx5cFN229EQ37e7qYmT8=
+        b=aozVJushOXyAwhjRkZpw/QcF02ddXiZ1jf0/4ELzhqUFivGPu/9X9mDmQxhVJsH7W
+         MqWjzXcYuMCxtsRB2lHZtTdnt/Y9MEmce6H/RWX92+RCAFDGYwS+HceSZECR2eCkGu
+         4pih57PuYrucRlcRD7ALzCOvh++HWKTrrTbxTAVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Marko <robert.marko@sartura.hr>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.14 04/14] USB: serial: pl2303: fix GL type detection
-Date:   Mon,  6 Sep 2021 14:55:50 +0200
-Message-Id: <20210906125448.302396823@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.13 22/24] ALSA: hda/realtek: Workaround for conflicting SSID on ASUS ROG Strix G17
+Date:   Mon,  6 Sep 2021 14:55:51 +0200
+Message-Id: <20210906125449.845321148@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210906125448.160263393@linuxfoundation.org>
-References: <20210906125448.160263393@linuxfoundation.org>
+In-Reply-To: <20210906125449.112564040@linuxfoundation.org>
+References: <20210906125449.112564040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +38,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Marko <robert.marko@sartura.hr>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit dcf097e7d21fbdfbf20e473ac155f4d154018374 upstream.
+commit 13d9c6b998aaa76fd098133277a28a21f2cc2264 upstream.
 
-At least some PL2303GL have a bcdDevice of 0x405 instead of 0x100 as the
-datasheet claims. Add it to the list of known release numbers for the
-HXN (G) type.
+ASUS ROG Strix G17 has the very same PCI and codec SSID (1043:103f) as
+ASUS TX300, and unfortunately, the existing quirk for TX300 is broken
+on ASUS ROG.  Actually the device works without the quirk, so we'll
+need to clear the quirk before applying for this device.
+Since ASUS ROG has a different codec (ALC294 - while TX300 has
+ALC282), this patch adds a workaround for the device, just clearing
+the codec->fixup_id by checking the codec vendor_id.
 
-Fixes: 894758d0571d ("USB: serial: pl2303: tighten type HXN (G) detection")
-Signed-off-by: Robert Marko <robert.marko@sartura.hr>
-Cc: stable@vger.kernel.org	# 5.13
-Link: https://lore.kernel.org/r/20210826110239.5269-1-robert.marko@sartura.hr
-Signed-off-by: Johan Hovold <johan@kernel.org>
+It's a bit ugly to add such a workaround there, but it seems to be the
+simplest way.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214101
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210820143214.3654-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/pl2303.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -433,6 +433,7 @@ static int pl2303_detect_type(struct usb
- 		switch (bcdDevice) {
- 		case 0x100:
- 		case 0x305:
-+		case 0x405:
- 			/*
- 			 * Assume it's an HXN-type if the device doesn't
- 			 * support the old read request value.
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9457,6 +9457,16 @@ static int patch_alc269(struct hda_codec
+ 
+ 	snd_hda_pick_fixup(codec, alc269_fixup_models,
+ 		       alc269_fixup_tbl, alc269_fixups);
++	/* FIXME: both TX300 and ROG Strix G17 have the same SSID, and
++	 * the quirk breaks the latter (bko#214101).
++	 * Clear the wrong entry.
++	 */
++	if (codec->fixup_id == ALC282_FIXUP_ASUS_TX300 &&
++	    codec->core.vendor_id == 0x10ec0294) {
++		codec_dbg(codec, "Clear wrong fixup for ASUS ROG Strix G17\n");
++		codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
++	}
++
+ 	snd_hda_pick_pin_fixup(codec, alc269_pin_fixup_tbl, alc269_fixups, true);
+ 	snd_hda_pick_pin_fixup(codec, alc269_fallback_pin_fixup_tbl, alc269_fixups, false);
+ 	snd_hda_pick_fixup(codec, NULL,	alc269_fixup_vendor_tbl,
 
 
