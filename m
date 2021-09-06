@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04A9740128C
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8019F40128B
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:20:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238766AbhIFBVb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238868AbhIFBVb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 5 Sep 2021 21:21:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37604 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238749AbhIFBVQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:21:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A61BD61054;
-        Mon,  6 Sep 2021 01:20:11 +0000 (UTC)
+        id S238679AbhIFBVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:21:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E12CA6108E;
+        Mon,  6 Sep 2021 01:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891212;
-        bh=Q78iZj1z+aPDomDiRWa/HraSx72nx4Z0Tki2Fi8AuMo=;
+        s=k20201202; t=1630891213;
+        bh=mABDKOQrNOYmohIEZGbu+NdedYH3RHu/VM8TY9sq2bI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UoJbZe0gS+88W2kdoI0heKnqvHCyRbRA7pHGE420/cX/eNyRS2eV6+19y8yByALNA
-         Q1K7r7itIk2T+Ap+gK6f2surMD8csAbbmZU3KwKXcM98RBsXeFGz/1dKZIZdDukGEa
-         rU4aXHUikzahRgap+9hxkJmNDBduLiVSR0SrrldfoU9D3jay4XWH195vssjChALCF9
-         EY6trQqsVipBYwc0RtZz042EfzH8IhRdiTOcwgxY0uN8cuv+o4wjSR7/Mgp14RyC4y
-         v/KMEv6BAtt/rdBsOPu3xaysx5+jQEHsvPlfcinv7c4v46ar59NIWFWf0RXQdUvHJq
-         H7v6FzQKYBk3w==
+        b=aGXpONY9NGBiLz4IqcKjkJsOMnhBSlomI8IcdCMPvGobasPM8d4/IJNOVg9dHfaUC
+         kGHguuB28U5Xvxu21j8HbktJ+nk4RdEkArtylbknJQLMI3hBbRCcl5XU8a0i5XEiF4
+         j8ZFiimTJUjT+gYeaH430psDGWyJJQq+SBhPH+K4Mad1ehlZZgpbsTvcjnk9E+8It/
+         baYl1p/h2Kudkr7mmL0zK5xiKRYFhOpWG6ip+VWk5spCz4inWawRuZG793aU6Lc4A6
+         i44Ue8Z7N+M010EnR29xz2DVtwwohIQKV9AAiRmNrMYHXFM3/9K+W2A13aRGhtrWjV
+         VWdlHMbLomwuw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Coly Li <colyli@suse.de>,
+Cc:     Baokun Li <libaokun1@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 17/47] bcache: add proper error unwinding in bcache_device_init
-Date:   Sun,  5 Sep 2021 21:19:21 -0400
-Message-Id: <20210906011951.928679-17-sashal@kernel.org>
+        linux-block@vger.kernel.org, nbd@other.debian.org
+Subject: [PATCH AUTOSEL 5.14 18/47] nbd: add the check to prevent overflow in __nbd_ioctl()
+Date:   Sun,  5 Sep 2021 21:19:22 -0400
+Message-Id: <20210906011951.928679-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906011951.928679-1-sashal@kernel.org>
 References: <20210906011951.928679-1-sashal@kernel.org>
@@ -42,67 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Baokun Li <libaokun1@huawei.com>
 
-[ Upstream commit 224b0683228c5f332f9cee615d85e75e9a347170 ]
+[ Upstream commit fad7cd3310db3099f95dd34312c77740fbc455e5 ]
 
-Except for the IDA none of the allocations in bcache_device_init is
-unwound on error, fix that.
+If user specify a large enough value of NBD blocks option, it may trigger
+signed integer overflow which may lead to nbd->config->bytesize becomes a
+large or small value, zero in particular.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Coly Li <colyli@suse.de>
-Link: https://lore.kernel.org/r/20210809064028.1198327-7-hch@lst.de
+UBSAN: Undefined behaviour in drivers/block/nbd.c:325:31
+signed integer overflow:
+1024 * 4611686155866341414 cannot be represented in type 'long long int'
+[...]
+Call trace:
+[...]
+ handle_overflow+0x188/0x1dc lib/ubsan.c:192
+ __ubsan_handle_mul_overflow+0x34/0x44 lib/ubsan.c:213
+ nbd_size_set drivers/block/nbd.c:325 [inline]
+ __nbd_ioctl drivers/block/nbd.c:1342 [inline]
+ nbd_ioctl+0x998/0xa10 drivers/block/nbd.c:1395
+ __blkdev_driver_ioctl block/ioctl.c:311 [inline]
+[...]
+
+Although it is not a big deal, still silence the UBSAN by limit
+the input value.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20210804021212.990223-1-libaokun1@huawei.com
+[axboe: dropped unlikely()]
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/block/nbd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 185246a0d855..d0f08e946453 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -931,20 +931,20 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
- 	n = BITS_TO_LONGS(d->nr_stripes) * sizeof(unsigned long);
- 	d->full_dirty_stripes = kvzalloc(n, GFP_KERNEL);
- 	if (!d->full_dirty_stripes)
--		return -ENOMEM;
-+		goto out_free_stripe_sectors_dirty;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 19f5d5a8b16a..acf3f85bf3c7 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1388,6 +1388,7 @@ static int __nbd_ioctl(struct block_device *bdev, struct nbd_device *nbd,
+ 		       unsigned int cmd, unsigned long arg)
+ {
+ 	struct nbd_config *config = nbd->config;
++	loff_t bytesize;
  
- 	idx = ida_simple_get(&bcache_device_idx, 0,
- 				BCACHE_DEVICE_IDX_MAX, GFP_KERNEL);
- 	if (idx < 0)
--		return idx;
-+		goto out_free_full_dirty_stripes;
- 
- 	if (bioset_init(&d->bio_split, 4, offsetof(struct bbio, bio),
- 			BIOSET_NEED_BVECS|BIOSET_NEED_RESCUER))
--		goto err;
-+		goto out_ida_remove;
- 
- 	d->disk = blk_alloc_disk(NUMA_NO_NODE);
- 	if (!d->disk)
--		goto err;
-+		goto out_bioset_exit;
- 
- 	set_capacity(d->disk, sectors);
- 	snprintf(d->disk->disk_name, DISK_NAME_LEN, "bcache%i", idx);
-@@ -987,8 +987,14 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
- 
- 	return 0;
- 
--err:
-+out_bioset_exit:
-+	bioset_exit(&d->bio_split);
-+out_ida_remove:
- 	ida_simple_remove(&bcache_device_idx, idx);
-+out_free_full_dirty_stripes:
-+	kvfree(d->full_dirty_stripes);
-+out_free_stripe_sectors_dirty:
-+	kvfree(d->stripe_sectors_dirty);
- 	return -ENOMEM;
- 
- }
+ 	switch (cmd) {
+ 	case NBD_DISCONNECT:
+@@ -1402,8 +1403,9 @@ static int __nbd_ioctl(struct block_device *bdev, struct nbd_device *nbd,
+ 	case NBD_SET_SIZE:
+ 		return nbd_set_size(nbd, arg, config->blksize);
+ 	case NBD_SET_SIZE_BLOCKS:
+-		return nbd_set_size(nbd, arg * config->blksize,
+-				    config->blksize);
++		if (check_mul_overflow((loff_t)arg, config->blksize, &bytesize))
++			return -EINVAL;
++		return nbd_set_size(nbd, bytesize, config->blksize);
+ 	case NBD_SET_TIMEOUT:
+ 		nbd_set_cmd_timeout(nbd, arg);
+ 		return 0;
 -- 
 2.30.2
 
