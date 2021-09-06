@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40ADB4012F4
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C154012F2
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:22:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239192AbhIFBXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:23:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39352 "EHLO mail.kernel.org"
+        id S239597AbhIFBXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:23:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239244AbhIFBWL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:22:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 851DB61100;
-        Mon,  6 Sep 2021 01:21:06 +0000 (UTC)
+        id S239254AbhIFBWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:22:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3C1E61076;
+        Mon,  6 Sep 2021 01:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891267;
-        bh=QXfB9IkgdJ38uoFBC5JLs/ZZDszcSYaew4MxRUIZG7c=;
+        s=k20201202; t=1630891268;
+        bh=P1AxaQ9+zM30Tonb/KP3KFJiQiILILoaklZ7K8+TBhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ACTFtC5MaIsiWaLe33WpiIEsG4Re7ICzh5SYWjeA0rRZOJhPQzI2jY2ym05LhW9Qa
-         hR5Hu02YItY+3ucDVIFi+R6o1PtQL5TRfpmgpbhynZk6AfAL8eOul0MDqToJ+FAuSX
-         L+T7CjYTZDuDOxBEmhyX/r8+YIXHW3XgdmLrBIQ51sQtXAGfqcciE0THwj+y5xIC+y
-         uH+0pAwLbjvJlCG+fMQv/Vvfo4HjxL6qPfZu9aVAJB+NWeaxUU7+giBk3MifdRwBph
-         YgTwYm6CwjZPhEMMpeOo6WsF/dootbz1I1mUIc6nazTvcDhZb8uabEb+ddzwLGoDHV
-         YNdMwmlccnhGA==
+        b=Ytk5ACtwjB9o8NBOVZnowU/Y/CGCzzMJLkf9+YwnALjOPaNZIj75Ub6mvMzKsi3zd
+         EaPYmg87Ot2mMvv/oNzHj04eMnbf4pV2J9HRiTB/BBUalPPHOu8QiVSA1veMRQ8NN6
+         K7RzS01yaV7ouDf9V+9IQnxqeTQyZGmCF/ru+ucQ+9FJgkPW07KW+zK7TP18IKTE9T
+         VkRFODGo9sEWjNaAbICCg2PlbktW3OfCNEWzw6BIc6zGTJ1zEWxmoRHprNh9TVZiXf
+         eS82DtGU08ggRfO43V+++lDimISJDxZ2CGEoSv5z3wPyBJtLt9pMuYclcwx9O3SAF4
+         ohjBWX+Azrdrw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Lorenzo Colitti <lorenzo@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.13 12/46] hrtimer: Avoid double reprogramming in __hrtimer_start_range_ns()
-Date:   Sun,  5 Sep 2021 21:20:17 -0400
-Message-Id: <20210906012052.929174-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 13/46] hrtimer: Ensure timerfd notification for HIGHRES=n
+Date:   Sun,  5 Sep 2021 21:20:18 -0400
+Message-Id: <20210906012052.929174-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012052.929174-1-sashal@kernel.org>
 References: <20210906012052.929174-1-sashal@kernel.org>
@@ -44,135 +43,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 627ef5ae2df8eeccb20d5af0e4cfa4df9e61ed28 ]
+[ Upstream commit 8c3b5e6ec0fee18bc2ce38d1dfe913413205f908 ]
 
-If __hrtimer_start_range_ns() is invoked with an already armed hrtimer then
-the timer has to be canceled first and then added back. If the timer is the
-first expiring timer then on removal the clockevent device is reprogrammed
-to the next expiring timer to avoid that the pending expiry fires needlessly.
+If high resolution timers are disabled the timerfd notification about a
+clock was set event is not happening for all cases which use
+clock_was_set_delayed() because that's a NOP for HIGHRES=n, which is wrong.
 
-If the new expiry time ends up to be the first expiry again then the clock
-event device has to reprogrammed again.
+Make clock_was_set_delayed() unconditially available to fix that.
 
-Avoid this by checking whether the timer is the first to expire and in that
-case, keep the timer on the current CPU and delay the reprogramming up to
-the point where the timer has been enqueued again.
-
-Reported-by: Lorenzo Colitti <lorenzo@google.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20210713135157.873137732@linutronix.de
+Link: https://lore.kernel.org/r/20210713135158.196661266@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/hrtimer.c | 60 ++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 53 insertions(+), 7 deletions(-)
+ include/linux/hrtimer.h     |  5 -----
+ kernel/time/hrtimer.c       | 32 ++++++++++++++++----------------
+ kernel/time/tick-internal.h |  3 +++
+ 3 files changed, 19 insertions(+), 21 deletions(-)
 
-diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index 4a66725b1d4a..ba2e0d0a0e5a 100644
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -1030,12 +1030,13 @@ static void __remove_hrtimer(struct hrtimer *timer,
-  * remove hrtimer, called with base lock held
-  */
- static inline int
--remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base, bool restart)
-+remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base,
-+	       bool restart, bool keep_local)
- {
- 	u8 state = timer->state;
+diff --git a/include/linux/hrtimer.h b/include/linux/hrtimer.h
+index bb5e7b0a4274..77295af72426 100644
+--- a/include/linux/hrtimer.h
++++ b/include/linux/hrtimer.h
+@@ -318,16 +318,12 @@ struct clock_event_device;
  
- 	if (state & HRTIMER_STATE_ENQUEUED) {
--		int reprogram;
-+		bool reprogram;
+ extern void hrtimer_interrupt(struct clock_event_device *dev);
  
- 		/*
- 		 * Remove the timer and force reprogramming when high
-@@ -1048,8 +1049,16 @@ remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base, bool rest
- 		debug_deactivate(timer);
- 		reprogram = base->cpu_base == this_cpu_ptr(&hrtimer_bases);
+-extern void clock_was_set_delayed(void);
+-
+ extern unsigned int hrtimer_resolution;
  
-+		/*
-+		 * If the timer is not restarted then reprogramming is
-+		 * required if the timer is local. If it is local and about
-+		 * to be restarted, avoid programming it twice (on removal
-+		 * and a moment later when it's requeued).
-+		 */
- 		if (!restart)
- 			state = HRTIMER_STATE_INACTIVE;
-+		else
-+			reprogram &= !keep_local;
+ #else
  
- 		__remove_hrtimer(timer, base, state, reprogram);
- 		return 1;
-@@ -1103,9 +1112,31 @@ static int __hrtimer_start_range_ns(struct hrtimer *timer, ktime_t tim,
- 				    struct hrtimer_clock_base *base)
- {
- 	struct hrtimer_clock_base *new_base;
-+	bool force_local, first;
+ #define hrtimer_resolution	(unsigned int)LOW_RES_NSEC
  
--	/* Remove an active timer from the queue: */
--	remove_hrtimer(timer, base, true);
-+	/*
-+	 * If the timer is on the local cpu base and is the first expiring
-+	 * timer then this might end up reprogramming the hardware twice
-+	 * (on removal and on enqueue). To avoid that by prevent the
-+	 * reprogram on removal, keep the timer local to the current CPU
-+	 * and enforce reprogramming after it is queued no matter whether
-+	 * it is the new first expiring timer again or not.
-+	 */
-+	force_local = base->cpu_base == this_cpu_ptr(&hrtimer_bases);
-+	force_local &= base->cpu_base->next_timer == timer;
-+
-+	/*
-+	 * Remove an active timer from the queue. In case it is not queued
-+	 * on the current CPU, make sure that remove_hrtimer() updates the
-+	 * remote data correctly.
-+	 *
-+	 * If it's on the current CPU and the first expiring timer, then
-+	 * skip reprogramming, keep the timer local and enforce
-+	 * reprogramming later if it was the first expiring timer.  This
-+	 * avoids programming the underlying clock event twice (once at
-+	 * removal and once after enqueue).
-+	 */
-+	remove_hrtimer(timer, base, true, force_local);
+-static inline void clock_was_set_delayed(void) { }
+-
+ #endif
  
- 	if (mode & HRTIMER_MODE_REL)
- 		tim = ktime_add_safe(tim, base->get_time());
-@@ -1115,9 +1146,24 @@ static int __hrtimer_start_range_ns(struct hrtimer *timer, ktime_t tim,
- 	hrtimer_set_expires_range_ns(timer, tim, delta_ns);
- 
- 	/* Switch the timer base, if necessary: */
--	new_base = switch_hrtimer_base(timer, base, mode & HRTIMER_MODE_PINNED);
-+	if (!force_local) {
-+		new_base = switch_hrtimer_base(timer, base,
-+					       mode & HRTIMER_MODE_PINNED);
-+	} else {
-+		new_base = base;
-+	}
-+
-+	first = enqueue_hrtimer(timer, new_base, mode);
-+	if (!force_local)
-+		return first;
- 
--	return enqueue_hrtimer(timer, new_base, mode);
-+	/*
-+	 * Timer was forced to stay on the current CPU to avoid
-+	 * reprogramming on removal and enqueue. Force reprogram the
-+	 * hardware by evaluating the new first expiring timer.
-+	 */
-+	hrtimer_force_reprogram(new_base->cpu_base, 1);
-+	return 0;
+ static inline ktime_t
+@@ -351,7 +347,6 @@ hrtimer_expires_remaining_adjusted(const struct hrtimer *timer)
+ 						    timer->base->get_time());
  }
  
- /**
-@@ -1183,7 +1229,7 @@ int hrtimer_try_to_cancel(struct hrtimer *timer)
- 	base = lock_hrtimer_base(timer, &flags);
+-extern void clock_was_set(void);
+ #ifdef CONFIG_TIMERFD
+ extern void timerfd_clock_was_set(void);
+ #else
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index ba2e0d0a0e5a..5af758473488 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -758,22 +758,6 @@ static void hrtimer_switch_to_hres(void)
+ 	retrigger_next_event(NULL);
+ }
  
- 	if (!hrtimer_callback_running(timer))
--		ret = remove_hrtimer(timer, base, false);
-+		ret = remove_hrtimer(timer, base, false, false);
+-static void clock_was_set_work(struct work_struct *work)
+-{
+-	clock_was_set();
+-}
+-
+-static DECLARE_WORK(hrtimer_work, clock_was_set_work);
+-
+-/*
+- * Called from timekeeping and resume code to reprogram the hrtimer
+- * interrupt device on all cpus.
+- */
+-void clock_was_set_delayed(void)
+-{
+-	schedule_work(&hrtimer_work);
+-}
+-
+ #else
  
- 	unlock_hrtimer_base(timer, &flags);
+ static inline int hrtimer_is_hres_enabled(void) { return 0; }
+@@ -891,6 +875,22 @@ void clock_was_set(void)
+ 	timerfd_clock_was_set();
+ }
  
++static void clock_was_set_work(struct work_struct *work)
++{
++	clock_was_set();
++}
++
++static DECLARE_WORK(hrtimer_work, clock_was_set_work);
++
++/*
++ * Called from timekeeping and resume code to reprogram the hrtimer
++ * interrupt device on all cpus and to notify timerfd.
++ */
++void clock_was_set_delayed(void)
++{
++	schedule_work(&hrtimer_work);
++}
++
+ /*
+  * During resume we might have to reprogram the high resolution timer
+  * interrupt on all online CPUs.  However, all other CPUs will be
+diff --git a/kernel/time/tick-internal.h b/kernel/time/tick-internal.h
+index 7a981c9e87a4..e61c1244e7d4 100644
+--- a/kernel/time/tick-internal.h
++++ b/kernel/time/tick-internal.h
+@@ -164,3 +164,6 @@ DECLARE_PER_CPU(struct hrtimer_cpu_base, hrtimer_bases);
+ 
+ extern u64 get_next_timer_interrupt(unsigned long basej, u64 basem);
+ void timer_clear_idle(void);
++
++void clock_was_set(void);
++void clock_was_set_delayed(void);
 -- 
 2.30.2
 
