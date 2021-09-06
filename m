@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B63A4013E1
+	by mail.lfdr.de (Postfix) with ESMTP id DD7514013E3
 	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240545AbhIFBcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:32:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47504 "EHLO mail.kernel.org"
+        id S240597AbhIFBcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:32:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241060AbhIFB1f (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241062AbhIFB1f (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 5 Sep 2021 21:27:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8067E61101;
-        Mon,  6 Sep 2021 01:22:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0423861185;
+        Mon,  6 Sep 2021 01:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891368;
-        bh=WIhAtogWrHU206UCb2vW6PRQGML7LBfLTU1JD9Y1cFI=;
+        s=k20201202; t=1630891369;
+        bh=uUIWVZz5XUg/rEj4UYTgGO8eQs3sAcwNHViLVpRV0QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7UETSIDOXraz+VKPOe7ZHMVBckgTYjaKTkKzgDgudb0jhzteaQTGn6Z9rdS8zwoO
-         e3OFI5K1porsAXy/8gDui20I3HLNO48CjrvB4ZuVWI0pyJ4Af/ctfxaC6pCpP3+Fjy
-         bMt9TcUxO5Pd1MPcq6AgmoENXuQ5G63OZKp441YVSe86BnvIHZraiTf8PwvE7otC1g
-         nl9tfWIBFcL5sEV+AlRfr1drPKdrZlIcZRIHxlKOo8c9if2PG8z5mJ9AqJjp/avWtt
-         GobH+UgDrPLmwxbQh4x/KSmSHF852Cdx+ZBBkfrcCw4iQQwUx8C70OEhxdyhRwYqAU
-         haFxUBqpzx8nw==
+        b=InfKPYuxh6w54xiY+fezI3dLuTW90YPsUvdtPNlIvqTFlReIm+zdj8giKd6HTKCOE
+         OCPf/ShyjQAp8OcIdKaXPkZsM+6p3a7LUMNVGhVxXsZveACxD3ikcOhf6IQxd/Uodu
+         /kqDJQ6/kfx4dhFcYYAmgF3frbNtZabTPRLqf7Ko+Nmiz0ya6eyJcE5fj/lSPPMWmE
+         p58mCRRdMl9UqNHxgeff9w0UCzFxtFicNlIaosBOgZKYl2SaaUBnqVchyKwXQZVDGQ
+         eYZR2uRcnAOhhRhF6wgALRWPlukn+cD5twGxC2s7rYwim9SSWhKSzm+6JszW/r6jge
+         w4kLIbk86Ho/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Anderson <sean.anderson@seco.com>,
-        Richard Weinberger <richard@nod.at>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 03/30] crypto: mxs-dcp - Check for DMA mapping errors
-Date:   Sun,  5 Sep 2021 21:22:16 -0400
-Message-Id: <20210906012244.930338-3-sashal@kernel.org>
+Cc:     Quentin Perret <qperret@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 04/30] sched/deadline: Fix reset_on_fork reporting of DL tasks
+Date:   Sun,  5 Sep 2021 21:22:17 -0400
+Message-Id: <20210906012244.930338-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012244.930338-1-sashal@kernel.org>
 References: <20210906012244.930338-1-sashal@kernel.org>
@@ -44,123 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Quentin Perret <qperret@google.com>
 
-[ Upstream commit df6313d707e575a679ada3313358289af24454c0 ]
+[ Upstream commit f95091536f78971b269ec321b057b8d630b0ad8a ]
 
-After calling dma_map_single(), we must also call dma_mapping_error().
-This fixes the following warning when compiling with CONFIG_DMA_API_DEBUG:
+It is possible for sched_getattr() to incorrectly report the state of
+the reset_on_fork flag when called on a deadline task.
 
-[  311.241478] WARNING: CPU: 0 PID: 428 at kernel/dma/debug.c:1027 check_unmap+0x79c/0x96c
-[  311.249547] DMA-API: mxs-dcp 2280000.crypto: device driver failed to check map error[device address=0x00000000860cb080] [size=32 bytes] [mapped as single]
+Indeed, if the flag was set on a deadline task using sched_setattr()
+with flags (SCHED_FLAG_RESET_ON_FORK | SCHED_FLAG_KEEP_PARAMS), then
+p->sched_reset_on_fork will be set, but __setscheduler() will bail out
+early, which means that the dl_se->flags will not get updated by
+__setscheduler_params()->__setparam_dl(). Consequently, if
+sched_getattr() is then called on the task, __getparam_dl() will
+override kattr.sched_flags with the now out-of-date copy in dl_se->flags
+and report the stale value to userspace.
 
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Reviewed-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+To fix this, make sure to only copy the flags that are relevant to
+sched_deadline to and from the dl_se->flags field.
+
+Signed-off-by: Quentin Perret <qperret@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20210727101103.2729607-2-qperret@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/mxs-dcp.c | 45 +++++++++++++++++++++++++++++++---------
- 1 file changed, 35 insertions(+), 10 deletions(-)
+ kernel/sched/deadline.c | 7 ++++---
+ kernel/sched/sched.h    | 2 ++
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/mxs-dcp.c b/drivers/crypto/mxs-dcp.c
-index f8a48a84df2a..66fa524b6261 100644
---- a/drivers/crypto/mxs-dcp.c
-+++ b/drivers/crypto/mxs-dcp.c
-@@ -168,15 +168,19 @@ static struct dcp *global_sdcp;
- 
- static int mxs_dcp_start_dma(struct dcp_async_ctx *actx)
- {
-+	int dma_err;
- 	struct dcp *sdcp = global_sdcp;
- 	const int chan = actx->chan;
- 	uint32_t stat;
- 	unsigned long ret;
- 	struct dcp_dma_desc *desc = &sdcp->coh->desc[actx->chan];
--
- 	dma_addr_t desc_phys = dma_map_single(sdcp->dev, desc, sizeof(*desc),
- 					      DMA_TO_DEVICE);
- 
-+	dma_err = dma_mapping_error(sdcp->dev, desc_phys);
-+	if (dma_err)
-+		return dma_err;
-+
- 	reinit_completion(&sdcp->completion[chan]);
- 
- 	/* Clear status register. */
-@@ -214,18 +218,29 @@ static int mxs_dcp_start_dma(struct dcp_async_ctx *actx)
- static int mxs_dcp_run_aes(struct dcp_async_ctx *actx,
- 			   struct ablkcipher_request *req, int init)
- {
-+	dma_addr_t key_phys, src_phys, dst_phys;
- 	struct dcp *sdcp = global_sdcp;
- 	struct dcp_dma_desc *desc = &sdcp->coh->desc[actx->chan];
- 	struct dcp_aes_req_ctx *rctx = ablkcipher_request_ctx(req);
- 	int ret;
- 
--	dma_addr_t key_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_key,
--					     2 * AES_KEYSIZE_128,
--					     DMA_TO_DEVICE);
--	dma_addr_t src_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_in_buf,
--					     DCP_BUF_SZ, DMA_TO_DEVICE);
--	dma_addr_t dst_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_out_buf,
--					     DCP_BUF_SZ, DMA_FROM_DEVICE);
-+	key_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_key,
-+				  2 * AES_KEYSIZE_128, DMA_TO_DEVICE);
-+	ret = dma_mapping_error(sdcp->dev, key_phys);
-+	if (ret)
-+		return ret;
-+
-+	src_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_in_buf,
-+				  DCP_BUF_SZ, DMA_TO_DEVICE);
-+	ret = dma_mapping_error(sdcp->dev, src_phys);
-+	if (ret)
-+		goto err_src;
-+
-+	dst_phys = dma_map_single(sdcp->dev, sdcp->coh->aes_out_buf,
-+				  DCP_BUF_SZ, DMA_FROM_DEVICE);
-+	ret = dma_mapping_error(sdcp->dev, dst_phys);
-+	if (ret)
-+		goto err_dst;
- 
- 	if (actx->fill % AES_BLOCK_SIZE) {
- 		dev_err(sdcp->dev, "Invalid block size!\n");
-@@ -263,10 +278,12 @@ static int mxs_dcp_run_aes(struct dcp_async_ctx *actx,
- 	ret = mxs_dcp_start_dma(actx);
- 
- aes_done_run:
-+	dma_unmap_single(sdcp->dev, dst_phys, DCP_BUF_SZ, DMA_FROM_DEVICE);
-+err_dst:
-+	dma_unmap_single(sdcp->dev, src_phys, DCP_BUF_SZ, DMA_TO_DEVICE);
-+err_src:
- 	dma_unmap_single(sdcp->dev, key_phys, 2 * AES_KEYSIZE_128,
- 			 DMA_TO_DEVICE);
--	dma_unmap_single(sdcp->dev, src_phys, DCP_BUF_SZ, DMA_TO_DEVICE);
--	dma_unmap_single(sdcp->dev, dst_phys, DCP_BUF_SZ, DMA_FROM_DEVICE);
- 
- 	return ret;
+diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
+index 3cf776d5bce8..7ab0b80cb12d 100644
+--- a/kernel/sched/deadline.c
++++ b/kernel/sched/deadline.c
+@@ -2622,7 +2622,7 @@ void __setparam_dl(struct task_struct *p, const struct sched_attr *attr)
+ 	dl_se->dl_runtime = attr->sched_runtime;
+ 	dl_se->dl_deadline = attr->sched_deadline;
+ 	dl_se->dl_period = attr->sched_period ?: dl_se->dl_deadline;
+-	dl_se->flags = attr->sched_flags;
++	dl_se->flags = attr->sched_flags & SCHED_DL_FLAGS;
+ 	dl_se->dl_bw = to_ratio(dl_se->dl_period, dl_se->dl_runtime);
+ 	dl_se->dl_density = to_ratio(dl_se->dl_deadline, dl_se->dl_runtime);
  }
-@@ -565,6 +582,10 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
- 	dma_addr_t buf_phys = dma_map_single(sdcp->dev, sdcp->coh->sha_in_buf,
- 					     DCP_BUF_SZ, DMA_TO_DEVICE);
+@@ -2635,7 +2635,8 @@ void __getparam_dl(struct task_struct *p, struct sched_attr *attr)
+ 	attr->sched_runtime = dl_se->dl_runtime;
+ 	attr->sched_deadline = dl_se->dl_deadline;
+ 	attr->sched_period = dl_se->dl_period;
+-	attr->sched_flags = dl_se->flags;
++	attr->sched_flags &= ~SCHED_DL_FLAGS;
++	attr->sched_flags |= dl_se->flags;
+ }
  
-+	ret = dma_mapping_error(sdcp->dev, buf_phys);
-+	if (ret)
-+		return ret;
+ /*
+@@ -2710,7 +2711,7 @@ bool dl_param_changed(struct task_struct *p, const struct sched_attr *attr)
+ 	if (dl_se->dl_runtime != attr->sched_runtime ||
+ 	    dl_se->dl_deadline != attr->sched_deadline ||
+ 	    dl_se->dl_period != attr->sched_period ||
+-	    dl_se->flags != attr->sched_flags)
++	    dl_se->flags != (attr->sched_flags & SCHED_DL_FLAGS))
+ 		return true;
+ 
+ 	return false;
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index 4e490e3db2f8..fe755c1a0af9 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -209,6 +209,8 @@ static inline int task_has_dl_policy(struct task_struct *p)
+  */
+ #define SCHED_FLAG_SUGOV	0x10000000
+ 
++#define SCHED_DL_FLAGS (SCHED_FLAG_RECLAIM | SCHED_FLAG_DL_OVERRUN | SCHED_FLAG_SUGOV)
 +
- 	/* Fill in the DMA descriptor. */
- 	desc->control0 = MXS_DCP_CONTROL0_DECR_SEMAPHORE |
- 		    MXS_DCP_CONTROL0_INTERRUPT |
-@@ -597,6 +618,10 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
- 	if (rctx->fini) {
- 		digest_phys = dma_map_single(sdcp->dev, sdcp->coh->sha_out_buf,
- 					     DCP_SHA_PAY_SZ, DMA_FROM_DEVICE);
-+		ret = dma_mapping_error(sdcp->dev, digest_phys);
-+		if (ret)
-+			goto done_run;
-+
- 		desc->control0 |= MXS_DCP_CONTROL0_HASH_TERM;
- 		desc->payload = digest_phys;
- 	}
+ static inline bool dl_entity_is_special(struct sched_dl_entity *dl_se)
+ {
+ #ifdef CONFIG_CPU_FREQ_GOV_SCHEDUTIL
 -- 
 2.30.2
 
