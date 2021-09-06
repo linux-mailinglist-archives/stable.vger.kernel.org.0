@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EE18401B77
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81476401B7A
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242296AbhIFM5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 08:57:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33010 "EHLO mail.kernel.org"
+        id S242330AbhIFM5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:57:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231825AbhIFM5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:57:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5070660238;
-        Mon,  6 Sep 2021 12:56:13 +0000 (UTC)
+        id S231825AbhIFM5V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:57:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF30660238;
+        Mon,  6 Sep 2021 12:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630932974;
-        bh=A3yhzek3Q2NAAdaVhdnIuEitYX1LqhUb1uhoffjlKBo=;
+        s=korg; t=1630932976;
+        bh=vDWDkkhl0/rrC2qD671xVZRLlT/+NKJUV6SSm23trRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0zL4pgnfGTWU9udYHC+RwZC+zURvIY5SpqEJmq48GHr2VMRD1j8g41eZoof9Zes1U
-         8GjTeMQF+T4vQuS0dfqN1iNz/BDpqRf/7OZbG0YJg1OvCdC1NLvk90jlz2A0hoLmO7
-         +JDv1+egQk90dxHDg4vAlPSRKQMw8hqbxl9efMUE=
+        b=vdC2iEO+hCINLvqQZ+jADYMxV4bVRJ7GDif8lecF4mNw36n6+X/Dyf3mj/P9zJ0d0
+         /HiTWlIAsAMwPYrFwvA6qiWhEIdYpTXPfW7/PNR+w39bD+Q1cmf/Vs6OeEwlkRgb9Y
+         McvXm10W7uiZOqahbgTJ8AC1y8+Db20WejGgff/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Chris Zankel <chris@zankel.net>, linux-xtensa@linux-xtensa.org
-Subject: [PATCH 5.10 10/29] xtensa: fix kconfig unmet dependency warning for HAVE_FUTEX_CMPXCHG
-Date:   Mon,  6 Sep 2021 14:55:25 +0200
-Message-Id: <20210906125450.122839447@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Maciej Falkowski <maciej.falkowski9@gmail.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.10 11/29] ARM: OMAP1: ams-delta: remove unused function ams_delta_camera_power
+Date:   Mon,  6 Sep 2021 14:55:26 +0200
+Message-Id: <20210906125450.155894077@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210906125449.756437409@linuxfoundation.org>
 References: <20210906125449.756437409@linuxfoundation.org>
@@ -40,40 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Maciej Falkowski <maciej.falkowski9@gmail.com>
 
-commit ed5aacc81cd41efc4d561e14af408d1003f7b855 upstream.
+commit bae989c4bc53f861cc1b706aab0194703e9907a8 upstream.
 
-XTENSA should only select HAVE_FUTEX_CMPXCHG when FUTEX is
-set/enabled. This prevents a kconfig warning.
+The ams_delta_camera_power() function is unused as reports
+Clang compilation with omap1_defconfig on linux-next:
 
-WARNING: unmet direct dependencies detected for HAVE_FUTEX_CMPXCHG
-  Depends on [n]: FUTEX [=n]
-  Selected by [y]:
-  - XTENSA [=y] && !MMU [=n]
+arch/arm/mach-omap1/board-ams-delta.c:462:12: warning: unused function 'ams_delta_camera_power' [-Wunused-function]
+static int ams_delta_camera_power(struct device *dev, int power)
+           ^
+1 warning generated.
 
-Fixes: d951ba21b959 ("xtensa: nommu: select HAVE_FUTEX_CMPXCHG")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Chris Zankel <chris@zankel.net>
-Cc: linux-xtensa@linux-xtensa.org
-Message-Id: <20210526070337.28130-1-rdunlap@infradead.org>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+The soc_camera support was dropped without removing
+ams_delta_camera_power() function, making it unused.
+
+Fixes: ce548396a433 ("media: mach-omap1: board-ams-delta.c: remove soc_camera dependencies")
+Signed-off-by: Maciej Falkowski <maciej.falkowski9@gmail.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1326
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-omap1/board-ams-delta.c |   14 --------------
+ 1 file changed, 14 deletions(-)
 
---- a/arch/xtensa/Kconfig
-+++ b/arch/xtensa/Kconfig
-@@ -30,7 +30,7 @@ config XTENSA
- 	select HAVE_DMA_CONTIGUOUS
- 	select HAVE_EXIT_THREAD
- 	select HAVE_FUNCTION_TRACER
--	select HAVE_FUTEX_CMPXCHG if !MMU
-+	select HAVE_FUTEX_CMPXCHG if !MMU && FUTEX
- 	select HAVE_HW_BREAKPOINT if PERF_EVENTS
- 	select HAVE_IRQ_TIME_ACCOUNTING
- 	select HAVE_OPROFILE
+--- a/arch/arm/mach-omap1/board-ams-delta.c
++++ b/arch/arm/mach-omap1/board-ams-delta.c
+@@ -458,20 +458,6 @@ static struct gpiod_lookup_table leds_gp
+ 
+ #ifdef CONFIG_LEDS_TRIGGERS
+ DEFINE_LED_TRIGGER(ams_delta_camera_led_trigger);
+-
+-static int ams_delta_camera_power(struct device *dev, int power)
+-{
+-	/*
+-	 * turn on camera LED
+-	 */
+-	if (power)
+-		led_trigger_event(ams_delta_camera_led_trigger, LED_FULL);
+-	else
+-		led_trigger_event(ams_delta_camera_led_trigger, LED_OFF);
+-	return 0;
+-}
+-#else
+-#define ams_delta_camera_power	NULL
+ #endif
+ 
+ static struct platform_device ams_delta_audio_device = {
 
 
