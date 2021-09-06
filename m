@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 568A840147A
+	by mail.lfdr.de (Postfix) with ESMTP id 018C9401479
 	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:40:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235761AbhIFBdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:33:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48678 "EHLO mail.kernel.org"
+        id S240055AbhIFBdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:33:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351783AbhIFBbD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1351786AbhIFBbD (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 5 Sep 2021 21:31:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 011D36101C;
-        Mon,  6 Sep 2021 01:24:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19824610CC;
+        Mon,  6 Sep 2021 01:24:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891463;
-        bh=2JtWPME+xttzJ8PlVIQbShK/g6LNb8ObZ24KKtTYQys=;
+        s=k20201202; t=1630891464;
+        bh=nup1VEPDadJYUtHHiAk5JlOcP7Bm6E25hV0DQVm78U8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MvSM8B6D2vGz136nenvNHUYl6imqNjLyO1XxIKMHCxR1/qaRpPRM0xN9Hq/OKJES2
-         MxiBbjSiDv9boogRZs+sVyoaJveagt86I70OUupl8+NgM8nAUYdU/by96pyzuMsWVZ
-         U1Nr04uwlUxWQeDQGMOokCojgoQouJG1gTDl3DKrJ1klcH+zk7wtHj04lyTxxwet2q
-         yfdm52tFbn1/ZCbX4VAVEyM214i90P2eF7SBdvlmAwdj82b18etq2lKG0ESJc38k97
-         +XzRPiZh+ppe09YMfJbJ6aKNSfwUIqgqOXMgSuNatIHGvhTjYhkLhZgxKc4Ke8LEXK
-         JdqeWj1olcSPQ==
+        b=H098EKp5wudgM13d/oTAMru6g63WHkFmuUOp46KkXASobTqzxbBk2YSgfww+antin
+         gfCBJT9xdoyQcLJB6zNgfcjwKcxqUHxz7Dt2zfKfmsldFbuOGuliLsEv9QSu1v4H0a
+         05jErg6ch22+9jI8SdhVYPVVn7lEBZQrU3M0ukuPBUko5O3gKUitSshg+VWtkKme4a
+         NdGhps/LAsizo6lzCnBVOjBbtEudY0LsFCEmbQ9Ps16ETqCxFPZOODUdH77GrqVWcl
+         dGz+C1AoCDEhT/PyI6co45uBMPm7dkihO1O3U0daLxpj5GWRpAjx3rsPoz+WEFPbSL
+         X6lU1ZQgDVXXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>,
-        syzbot+7fbfe5fed73ebb675748@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 06/14] udf: Check LVID earlier
-Date:   Sun,  5 Sep 2021 21:24:07 -0400
-Message-Id: <20210906012415.931147-6-sashal@kernel.org>
+Cc:     Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 07/14] power: supply: max17042_battery: fix typo in MAx17042_TOFF
+Date:   Sun,  5 Sep 2021 21:24:08 -0400
+Message-Id: <20210906012415.931147-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012415.931147-1-sashal@kernel.org>
 References: <20210906012415.931147-1-sashal@kernel.org>
@@ -42,83 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
 
-[ Upstream commit 781d2a9a2fc7d0be53a072794dc03ef6de770f3d ]
+[ Upstream commit ed0d0a0506025f06061325cedae1bbebd081620a ]
 
-We were checking validity of LVID entries only when getting
-implementation use information from LVID in udf_sb_lvidiu(). However if
-the LVID is suitably corrupted, it can cause problems also to code such
-as udf_count_free() which doesn't use udf_sb_lvidiu(). So check validity
-of LVID already when loading it from the disk and just disable LVID
-altogether when it is not valid.
-
-Reported-by: syzbot+7fbfe5fed73ebb675748@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/super.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ drivers/power/supply/max17042_battery.c | 2 +-
+ include/linux/power/max17042_battery.h  | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index c8c037e8e57b..cf2e770080f9 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -115,16 +115,10 @@ struct logicalVolIntegrityDescImpUse *udf_sb_lvidiu(struct super_block *sb)
- 		return NULL;
- 	lvid = (struct logicalVolIntegrityDesc *)UDF_SB(sb)->s_lvid_bh->b_data;
- 	partnum = le32_to_cpu(lvid->numOfPartitions);
--	if ((sb->s_blocksize - sizeof(struct logicalVolIntegrityDescImpUse) -
--	     offsetof(struct logicalVolIntegrityDesc, impUse)) /
--	     (2 * sizeof(uint32_t)) < partnum) {
--		udf_err(sb, "Logical volume integrity descriptor corrupted "
--			"(numOfPartitions = %u)!\n", partnum);
--		return NULL;
--	}
- 	/* The offset is to skip freeSpaceTable and sizeTable arrays */
- 	offset = partnum * 2 * sizeof(uint32_t);
--	return (struct logicalVolIntegrityDescImpUse *)&(lvid->impUse[offset]);
-+	return (struct logicalVolIntegrityDescImpUse *)
-+					(((uint8_t *)(lvid + 1)) + offset);
- }
+diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
+index da7a75f82489..249b0758dae6 100644
+--- a/drivers/power/supply/max17042_battery.c
++++ b/drivers/power/supply/max17042_battery.c
+@@ -644,7 +644,7 @@ static inline void max17042_override_por_values(struct max17042_chip *chip)
+ 	struct max17042_config_data *config = chip->pdata->config_data;
  
- /* UDF filesystem type */
-@@ -1571,6 +1565,7 @@ static void udf_load_logicalvolint(struct super_block *sb, struct kernel_extent_
- 	struct udf_sb_info *sbi = UDF_SB(sb);
- 	struct logicalVolIntegrityDesc *lvid;
- 	int indirections = 0;
-+	u32 parts, impuselen;
+ 	max17042_override_por(map, MAX17042_TGAIN, config->tgain);
+-	max17042_override_por(map, MAx17042_TOFF, config->toff);
++	max17042_override_por(map, MAX17042_TOFF, config->toff);
+ 	max17042_override_por(map, MAX17042_CGAIN, config->cgain);
+ 	max17042_override_por(map, MAX17042_COFF, config->coff);
  
- 	while (++indirections <= UDF_MAX_LVID_NESTING) {
- 		final_bh = NULL;
-@@ -1597,15 +1592,27 @@ static void udf_load_logicalvolint(struct super_block *sb, struct kernel_extent_
- 
- 		lvid = (struct logicalVolIntegrityDesc *)final_bh->b_data;
- 		if (lvid->nextIntegrityExt.extLength == 0)
--			return;
-+			goto check;
- 
- 		loc = leea_to_cpu(lvid->nextIntegrityExt);
- 	}
- 
- 	udf_warn(sb, "Too many LVID indirections (max %u), ignoring.\n",
- 		UDF_MAX_LVID_NESTING);
-+out_err:
- 	brelse(sbi->s_lvid_bh);
- 	sbi->s_lvid_bh = NULL;
-+	return;
-+check:
-+	parts = le32_to_cpu(lvid->numOfPartitions);
-+	impuselen = le32_to_cpu(lvid->lengthOfImpUse);
-+	if (parts >= sb->s_blocksize || impuselen >= sb->s_blocksize ||
-+	    sizeof(struct logicalVolIntegrityDesc) + impuselen +
-+	    2 * parts * sizeof(u32) > sb->s_blocksize) {
-+		udf_warn(sb, "Corrupted LVID (parts=%u, impuselen=%u), "
-+			 "ignoring.\n", parts, impuselen);
-+		goto out_err;
-+	}
- }
- 
+diff --git a/include/linux/power/max17042_battery.h b/include/linux/power/max17042_battery.h
+index 522757ac9cd4..890f53881fad 100644
+--- a/include/linux/power/max17042_battery.h
++++ b/include/linux/power/max17042_battery.h
+@@ -75,7 +75,7 @@ enum max17042_register {
+ 	MAX17042_RelaxCFG	= 0x2A,
+ 	MAX17042_MiscCFG	= 0x2B,
+ 	MAX17042_TGAIN		= 0x2C,
+-	MAx17042_TOFF		= 0x2D,
++	MAX17042_TOFF		= 0x2D,
+ 	MAX17042_CGAIN		= 0x2E,
+ 	MAX17042_COFF		= 0x2F,
  
 -- 
 2.30.2
