@@ -2,114 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F947401A2D
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 12:52:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 456E2401A85
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 13:22:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231173AbhIFKx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 06:53:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34272 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229913AbhIFKx1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 06:53:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B46AF60BD3;
-        Mon,  6 Sep 2021 10:52:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630925543;
-        bh=7aB6HfPdr5Yl8Nnnfur1GuUry6u6BYdCQEqDbhYDueE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TQ4dC4sUY+wPs5mbHvpU3f5ki/gIUIrHjxzHsNAZOi3eRMR+Wo295abanu0l4e9od
-         u0ORDGzVdaowGZAJpMwc77qciLVXFWBJ/6o2zb2GLtz8J4RBoHo2SWvbyoUNYBi0kw
-         0olCigQ/27Ztn6KxLkeaaKshkgyKLE1akkZ5ALBQ=
-Date:   Mon, 6 Sep 2021 12:52:20 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     wim <wim@djo.tudelft.nl>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: kernel-4.9.270 crash
-Message-ID: <YTXy5BmzQpY0SprA@kroah.com>
-References: <20210904235231.GA31607@djo.tudelft.nl>
- <20210905190045.GA10991@djo.tudelft.nl>
- <YTWgKo4idyocDuCD@kroah.com>
- <20210906093611.GA20123@djo.tudelft.nl>
+        id S241070AbhIFLXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 07:23:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47142 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234967AbhIFLXS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Sep 2021 07:23:18 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2835DC061757
+        for <stable@vger.kernel.org>; Mon,  6 Sep 2021 04:22:14 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id j1so4105316pjv.3
+        for <stable@vger.kernel.org>; Mon, 06 Sep 2021 04:22:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=r/37onsbCt9Jvvefig1eO7ZofPIu2sGG/9B+eBV1BDU=;
+        b=qmkNZiVTYuRuZVTINynETojmECtFrPEfJM9uQzmuMZTxwxTqd+qST8V6Nfioqb88+g
+         9YKP3eTn22M3QtDV13VUSge2Oz8RBMBJf68DcPJd45SeZV2L4WO9AAqRjFDkEVsJaNYW
+         6S1Q2k3pOWk8Pu2mNgBLeNhHWDdIdgHu3akDP4CBgOYz117GRv43/sInGa1f/OYdJnLW
+         f806gxutAZbraJ7V0Tj1jpEQoQvuTq0xs3Zc6T0HOWZx+oSWhXMEb6fpSTgEszyYr8jx
+         LKRVtvP43sxOATAQJS+LNvZjJwPzbhLX1cEo4nDR7zgOYz2DOCr0zVOZhUP9ROPtmQD9
+         Sbcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=r/37onsbCt9Jvvefig1eO7ZofPIu2sGG/9B+eBV1BDU=;
+        b=qPvJ8bKH3f2OdPU9XqSIZYskSnS93XXYh5169u0o8mH5Uzx7VxiwxuYleDsIXYvBEJ
+         30gocbipZyd2qaUYilVDprGQne9MMRnoj1rlse9NvfmQ2CzJq5O5ZM4oGcEYdgtfKWfV
+         PfGyChBRxHGYIauKlciRDcLSUTQpTyiQWRtaBcp6+KDaFCEnG7MccTb9/vbQYaYBngVt
+         iPKfIRTmWy3vUZZTcozK69YA1aJahwvprm/AfLzR9oWAhK4WwM0oejRsaUFylTYk2wA0
+         8PFLNjiq+9gsa+0hPz5RVdJTKoqIFlZ8HTsUeTEuqt819y1xM6OktXlAL9mcTJ+/5XLX
+         xO3A==
+X-Gm-Message-State: AOAM531NOrTIXlh16C33GNWQHOTtePZUIpp00LfvP1O4lWcreOkqUujo
+        vwsvB/B3S+XA4K6KQL6ChVrvwCTtxw4O68M0
+X-Google-Smtp-Source: ABdhPJzOoli6eygOo9PvfvXpykHQHtup8aHqnVHDKLsvqpY6XFDeOqCEg3uFxmW+d4ciG+vE1S5gpA==
+X-Received: by 2002:a17:902:ab18:b0:138:a41d:c7a0 with SMTP id ik24-20020a170902ab1800b00138a41dc7a0mr10446000plb.6.1630927333431;
+        Mon, 06 Sep 2021 04:22:13 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y7sm7496240pff.206.2021.09.06.04.22.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Sep 2021 04:22:13 -0700 (PDT)
+Message-ID: <6135f9e5.1c69fb81.c44cb.4630@mx.google.com>
+Date:   Mon, 06 Sep 2021 04:22:13 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210906093611.GA20123@djo.tudelft.nl>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.144-17-gaf318e5ddb77
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 158 runs,
+ 3 regressions (v5.4.144-17-gaf318e5ddb77)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 06, 2021 at 11:36:11AM +0200, wim wrote:
-> On Mon, Sep 06, 2021 at 06:59:22AM +0200, Greg KH wrote:
-> > On Sun, Sep 05, 2021 at 09:00:45PM +0200, wim wrote:
-> > > On Sun, Sep 05, 2021 at 01:52:31AM +0200, wim wrote:
-> > > > 
-> > > > Hello Greg,
-> > > > 
-> > > > from kernel-4.9.270 up until now (4.9.282) I experience kernel crashes upon
-> > > > loading a GPU module.
-> > > > It happens on two out of at least six different machines.
-> > > > I can't believe that I'm the only one where that happens, but since the bug
-> > > > is still there twelve versions later, I need to report this.
-> > > > ...
-> > 
-> > Do you have any kernel log messages when these crashes happen?
-> 
-> On the AMD machine:
-> 
-> Aug  1 20:51:24 djo kernel: [drm] Initialized
-> Aug  1 20:51:24 djo kernel: checking generic (a0000 10000) vs hw (e0000000 8000000)
-> Aug  1 20:51:24 djo kernel: checking generic (a0000 10000) vs hw (ea000000 1000000)
-> Aug  1 20:51:24 djo kernel: fb: switching to nouveaufb from VGA16 VGA
-> Aug  1 20:51:24 djo kernel: divide error: 0000 [#1] SMP
-> Aug  1 20:51:24 djo kernel: Modules linked in: nouveau(+) video drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops ttm drm agpgart i2c_algo_bit tun lirc_serial(C) lirc_dev arc4 binfmt_misc snd_pcm_oss snd_mixer_oss fbcon bitblit softcursor font tileblit ath9k_htc ath9k_common ath9k_hw ath mac80211 cfg80211 uvcvideo rfkill firmware_class snd_usb_audio sr9700 videobuf2_vmalloc videobuf2_memops snd_usbmidi_lib videobuf2_v4l2 dm9601 videobuf2_core usbnet snd_rawmidi mii usb_storage snd_hda_codec_generic kvm snd_hda_intel irqbypass snd_hda_codec gpio_ich ppdev snd_hwdep pcspkr snd_hda_core snd_pcm uhci_hcd ohci_pci snd_timer ohci_hcd lpc_ich ehci_pci snd ehci_hcd wmi mfd_core usbcore soundcore parport_pc floppy usb_common parport acpi_cpufreq button processor
-> Aug  1 20:51:24 djo kernel: CPU: 0 PID: 2791 Comm: modprobe Tainted: G         C      4.9.277 #1
-> Aug  1 20:51:24 djo kernel: Hardware name: Hewlett-Packard HP xw4300 Workstation/0A00h, BIOS 786D3 v01.08 03/10/2006
-> Aug  1 20:51:24 djo kernel: task: f6317080 task.stack: f4058000
-> Aug  1 20:51:24 djo kernel: EIP: 0060:[<c02f789d>] EFLAGS: 00010206 CPU: 0
-> Aug  1 20:51:24 djo kernel: EAX: 00000190 EBX: ffffffea ECX: 00000019 EDX: 00000000
-> Aug  1 20:51:24 djo kernel: ESI: f52db800 EDI: 00000050 EBP: c02f7838 ESP: f4059c10
-> Aug  1 20:51:24 djo kernel:  DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068
-> Aug  1 20:51:24 djo kernel: CR0: 80050033 CR2: 080a1a54 CR3: 35234000 CR4: 00000690
-> Aug  1 20:51:24 djo kernel: Stack:
-> Aug  1 20:51:24 djo kernel:  00000050 f52db800 00000019 c0340732 00000000 000000a0 000000a0 00000fa0
-> Aug  1 20:51:24 djo kernel:  f62f4000 0000001e 00000000 00000000 f5a63800 00000000 00000000 00000000
-> Aug  1 20:51:24 djo kernel:  00000000 00000000 f6024000 00000000 f52db800 00000001 00000000 00000000
-> Aug  1 20:51:24 djo kernel: Call Trace:
-> Aug  1 20:51:24 djo kernel:  [<c0340732>] ? 0xc0340732
-> Aug  1 20:51:24 djo kernel:  [<c0340988>] ? 0xc0340988
-> Aug  1 20:51:24 djo kernel:  [<c02f734a>] ? 0xc02f734a
-> Aug  1 20:51:24 djo kernel:  [<c033f780>] ? 0xc033f780
-> Aug  1 20:51:24 djo kernel:  [<c0340b32>] ? 0xc0340b32
-> Aug  1 20:51:24 djo kernel:  [<c0340d20>] ? 0xc0340d20
-> Aug  1 20:51:24 djo kernel:  [<f8bc4ef7>] ? 0xf8bc4ef7
-> Aug  1 20:51:24 djo kernel:  [<c0163715>] ? 0xc0163715
+stable-rc/queue/5.4 baseline: 158 runs, 3 regressions (v5.4.144-17-gaf318e5=
+ddb77)
 
-<snip>
+Regressions Summary
+-------------------
 
-These aren't going to help us much, can you turn on debugging symbols
-for these crashes for us to see the symbol names?
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
 
-<snip>
 
-> > Can you use 'git bisect' to track down the offending commit?
-> 
-> If I would know how to do that
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.144-17-gaf318e5ddb77/plan/baseline/
 
-'man git bisect' should provide a tutorial on how to do this.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.144-17-gaf318e5ddb77
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      af318e5ddb774dd742d48c2dd6bbe1edf18febff =
 
-> > And why are you stuck on 4.9.y for these machines?  Why not use 5.10 or
-> > newer?
-> 
-> Because in 4.10 they dropped lirc-serial and I need that. The new ir-serial
-> is no replacement. (The last working version of LIRC is 0.9.6. After that
-> they destroyed transmitter support.)
-> 
-> (I believe irda support got dropped too, which I need for my old nokia.)
 
-If the new functionality is not working properly, please work with those
-developers to fix that up.  Sticking with the 4.4.x kernel isn't going
-to be a good long-term solution for you.
 
-thanks,
+Test Regressions
+---------------- =
 
-greg k-h
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6135cad0f42c1e8af2d59675
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.144-1=
+7-gaf318e5ddb77/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
+veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.144-1=
+7-gaf318e5ddb77/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
+veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/6135cad0f42c1e8af2d59689
+        failing since 83 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-09-06T08:00:57.730629  /lava-4455871/1/../bin/lava-test-case
+    2021-09-06T08:00:57.746693  <8>[   15.116949] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-09-06T08:00:57.750809  /lava-4455871/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/6135cad0f42c1e8af2d596a1
+        failing since 83 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-09-06T08:00:56.322286  /lava-4455871/1/../bin/lava-test-case<8>[  =
+ 13.692800] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-09-06T08:00:56.322645  =
+
+    2021-09-06T08:00:56.322817  /lava-4455871/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/6135cad0f42c1e8af2d596a2
+        failing since 83 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-09-06T08:00:55.285041  /lava-4455871/1/../bin/lava-test-case
+    2021-09-06T08:00:55.290442  <8>[   12.673237] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
