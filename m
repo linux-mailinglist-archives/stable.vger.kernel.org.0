@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27B6F401BC5
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:58:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8582401BCA
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243022AbhIFM7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 08:59:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36482 "EHLO mail.kernel.org"
+        id S243151AbhIFM7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:59:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243131AbhIFM7C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:59:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7094661052;
-        Mon,  6 Sep 2021 12:57:57 +0000 (UTC)
+        id S243147AbhIFM7F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:59:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05BEC60F45;
+        Mon,  6 Sep 2021 12:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933078;
-        bh=5pWxRXWS6BeYnRDm27Yaob4ot5rEujuppscH3KhZuNM=;
+        s=korg; t=1630933080;
+        bh=mic5qVkF7Rr8iez1JKtmdhalvP13xxT+ZtxRZJcYobM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ArV/5VG0wvtE93qMa3q9eG/DhTVRQC0aWnxSeg4wv+N9UR+4xLZkLpsLt/2CUZ5KY
-         ktSjLx6V7nQSiMrWwlqiIl4n13SJLiE9FpUMj3bhIO/8TLT08CVhqKicARUnDo8Y1Z
-         z//bLv4xG7EXIBI3QNd9rA+Chh0LEwgly2X2Jles=
+        b=ZqUr9s4n80osvAKQ6L2Kg8LZ/nsRwc0+jap8FO5eNjB134lv09jK89giQIGS2EA5M
+         HhoN6vnzXDM7wLrdceSLerTga55qiMXMymzvnZ6rLp/+FpIJ5DC+/BZbmB+RQ3KOY0
+         T70VU+9lLGI3bOX4H7h5XviSXmnKgbXogF8O/+yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johnathon Clark <john.clark@cantab.net>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.13 20/24] ALSA: hda/realtek: Quirk for HP Spectre x360 14 amp setup
-Date:   Mon,  6 Sep 2021 14:55:49 +0200
-Message-Id: <20210906125449.780294969@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.13 21/24] ALSA: usb-audio: Fix regression on Sony WALKMAN NW-A45 DAC
+Date:   Mon,  6 Sep 2021 14:55:50 +0200
+Message-Id: <20210906125449.809396204@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210906125449.112564040@linuxfoundation.org>
 References: <20210906125449.112564040@linuxfoundation.org>
@@ -39,32 +38,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johnathon Clark <john.clark@cantab.net>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 93ab3eafb0b3551c54175cb38afed3b82356a047 upstream.
+commit 7af5a14371c1cf94a41f08eabb62a3faceec8911 upstream.
 
-This patch extends support for the HP Spectre x360 14
-amp enable quirk to support a model of the device with
-an additional subdevice ID.
+We've got a regression report for USB-audio with Sony WALKMAN NW-A45
+DAC device where no sound is audible on recent kernel.  The bisection
+resulted in the code change wrt endpoint management, and the further
+debug session revealed that it was caused by the order of the USB
+audio interface.  In the earlier code, we always set up the USB
+interface at first before other setups, but it was changed to be done
+at the last for UAC2/3, which is more standard way, while keeping the
+old way for UAC1.  OTOH, this device seems requiring the setup of the
+interface at first just like UAC1.
 
-Signed-off-by: Johnathon Clark <john.clark@cantab.net>
-Link: https://lore.kernel.org/r/20210823162110.8870-1-john.clark@cantab.net
+This patch works around the regression by applying the interface setup
+specifically for the WALKMAN at the beginning of the endpoint setup
+procedure.  This change is written straightforwardly to be easily
+backported in old kernels.  A further cleanup to move the workaround
+into a generic quirk section will follow in a later patch.
+
+Fixes: bf6313a0ff76 ("ALSA: usb-audio: Refactor endpoint management")
 Cc: <stable@vger.kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214105
+Link: https://lore.kernel.org/r/20210824054700.8236-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/endpoint.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8378,6 +8378,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x87f2, "HP ProBook 640 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f4, "HP", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f5, "HP", ALC287_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x87f6, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
- 	SND_PCI_QUIRK(0x103c, 0x87f7, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
- 	SND_PCI_QUIRK(0x103c, 0x8805, "HP ProBook 650 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x880d, "HP EliteBook 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -1286,6 +1286,11 @@ int snd_usb_endpoint_configure(struct sn
+ 	 * to be set up before parameter setups
+ 	 */
+ 	iface_first = ep->cur_audiofmt->protocol == UAC_VERSION_1;
++	/* Workaround for Sony WALKMAN NW-A45 DAC;
++	 * it requires the interface setup at first like UAC1
++	 */
++	if (chip->usb_id == USB_ID(0x054c, 0x0b8c))
++		iface_first = true;
+ 	if (iface_first) {
+ 		err = endpoint_set_interface(chip, ep, true);
+ 		if (err < 0)
 
 
