@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB3EF401BEE
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:59:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46FEF401BEF
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:59:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242865AbhIFNAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 09:00:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37712 "EHLO mail.kernel.org"
+        id S243326AbhIFNAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 09:00:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243553AbhIFM7q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:59:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 301C161027;
-        Mon,  6 Sep 2021 12:58:41 +0000 (UTC)
+        id S243324AbhIFM7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:59:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AD3A61077;
+        Mon,  6 Sep 2021 12:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933121;
-        bh=I/NLYrDuphiqD/WjAPPv3UBO4x4TyMqvKU9dWDJ9zgo=;
+        s=korg; t=1630933124;
+        bh=u9zluEWB18JkYxp3OuvxqEPeLfuUjRgiLvaU6qfkzmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DjwLG+h0eb5XS/uMyHYHk/RlDXOgavIbGb8HeAfByzJyRmhxFYhr6tWFnaGWUiWDR
-         S0kX8jaIZUI5aiB4+L7ntb+cm8h+PJnJ7b8j7Drn9KfEtMzj2AV+sqCeMZgCDJ3fDl
-         WImHnEV3616oFBb1Wk/j5eub6tSnWTIJ+xs1fXfE=
+        b=dvscstVwXcE4dW9UYNH0oEGWLGmN+H20GAUNDKqvPPEoXEuU6VYPHi9bNRWUnVSrq
+         iJ/Faj8ByiF3wlGcUKvNwWPtaH6vDYWMpbzffMqVoMdq/LyLjvRZwHT8XOESdhcSPg
+         C6abhK73j7Uu65ZO6rvh4frJnN9zyoxyLl0HLZoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.14 13/14] ALSA: usb-audio: Work around for XRUN with low latency playback
-Date:   Mon,  6 Sep 2021 14:55:59 +0200
-Message-Id: <20210906125448.624783028@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.14 14/14] media: stkwebcam: fix memory leak in stk_camera_probe
+Date:   Mon,  6 Sep 2021 14:56:00 +0200
+Message-Id: <20210906125448.654452908@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210906125448.160263393@linuxfoundation.org>
 References: <20210906125448.160263393@linuxfoundation.org>
@@ -38,104 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 4267c5a8f3133db0572cd9abee059b42cafbbdad upstream.
+commit 514e97674400462cc09c459a1ddfb9bf39017223 upstream.
 
-The recent change for low latency playback works in most of test cases
-but it turned out still to hit errors on some use cases, most notably
-with JACK with small buffer sizes.  This is because USB-audio driver
-fills up and submits full URBs at the beginning, while the URBs would
-return immediately and try to fill more -- that can easily trigger
-XRUN.  It was more or less expected, but in the small buffer size, the
-problem became pretty obvious.
+My local syzbot instance hit memory leak in usb_set_configuration().
+The problem was in unputted usb interface. In case of errors after
+usb_get_intf() the reference should be putted to correclty free memory
+allocated for this interface.
 
-Fixing this behavior properly would require the change of the
-fundamental driver design, so it's no trivial task, unfortunately.
-Instead, here we work around the problem just by switching back to the
-old method when the given configuration is too fragile with the low
-latency stream handling.  As a threshold, we calculate the total
-buffer bytes in all plus one URBs, and check whether it's beyond the
-PCM buffer bytes.  The one extra URB is needed because XRUN happens at
-the next submission after the first round.
-
-Fixes: 307cc9baac5c ("ALSA: usb-audio: Reduce latency at playback start, take#2")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210827203311.5987-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: ec16dae5453e ("V4L/DVB (7019): V4L: add support for Syntek DC1125 webcams")
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/card.h     |    2 ++
- sound/usb/endpoint.c |    4 ++++
- sound/usb/pcm.c      |   13 +++++++++++--
- 3 files changed, 17 insertions(+), 2 deletions(-)
+ drivers/media/usb/stkwebcam/stk-webcam.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/sound/usb/card.h
-+++ b/sound/usb/card.h
-@@ -94,6 +94,7 @@ struct snd_usb_endpoint {
- 	struct list_head ready_playback_urbs; /* playback URB FIFO for implicit fb */
- 
- 	unsigned int nurbs;		/* # urbs */
-+	unsigned int nominal_queue_size; /* total buffer sizes in URBs */
- 	unsigned long active_mask;	/* bitmask of active urbs */
- 	unsigned long unlink_mask;	/* bitmask of unlinked urbs */
- 	char *syncbuf;			/* sync buffer for all sync URBs */
-@@ -187,6 +188,7 @@ struct snd_usb_substream {
- 	} dsd_dop;
- 
- 	bool trigger_tstamp_pending_update; /* trigger timestamp being updated from initial estimate */
-+	bool early_playback_start;	/* early start needed for playback? */
- 	struct media_ctl *media_ctl;
- };
- 
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -1126,6 +1126,10 @@ static int data_ep_set_params(struct snd
- 		INIT_LIST_HEAD(&u->ready_list);
+--- a/drivers/media/usb/stkwebcam/stk-webcam.c
++++ b/drivers/media/usb/stkwebcam/stk-webcam.c
+@@ -1346,7 +1346,7 @@ static int stk_camera_probe(struct usb_i
+ 	if (!dev->isoc_ep) {
+ 		pr_err("Could not find isoc-in endpoint\n");
+ 		err = -ENODEV;
+-		goto error;
++		goto error_put;
  	}
+ 	dev->vsettings.palette = V4L2_PIX_FMT_RGB565;
+ 	dev->vsettings.mode = MODE_VGA;
+@@ -1359,10 +1359,12 @@ static int stk_camera_probe(struct usb_i
  
-+	/* total buffer bytes of all URBs plus the next queue;
-+	 * referred in pcm.c
-+	 */
-+	ep->nominal_queue_size = maxsize * urb_packs * (ep->nurbs + 1);
+ 	err = stk_register_video_device(dev);
+ 	if (err)
+-		goto error;
++		goto error_put;
+ 
  	return 0;
  
- out_of_memory:
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -614,6 +614,14 @@ static int snd_usb_pcm_prepare(struct sn
- 	subs->period_elapsed_pending = 0;
- 	runtime->delay = 0;
- 
-+	/* check whether early start is needed for playback stream */
-+	subs->early_playback_start =
-+		subs->direction == SNDRV_PCM_STREAM_PLAYBACK &&
-+		subs->data_endpoint->nominal_queue_size >= subs->buffer_bytes;
-+
-+	if (subs->early_playback_start)
-+		ret = start_endpoints(subs);
-+
-  unlock:
- 	snd_usb_unlock_shutdown(chip);
- 	return ret;
-@@ -1394,7 +1402,7 @@ static void prepare_playback_urb(struct
- 		subs->trigger_tstamp_pending_update = false;
- 	}
- 
--	if (period_elapsed && !subs->running) {
-+	if (period_elapsed && !subs->running && !subs->early_playback_start) {
- 		subs->period_elapsed_pending = 1;
- 		period_elapsed = 0;
- 	}
-@@ -1448,7 +1456,8 @@ static int snd_usb_substream_playback_tr
- 					      prepare_playback_urb,
- 					      retire_playback_urb,
- 					      subs);
--		if (cmd == SNDRV_PCM_TRIGGER_START) {
-+		if (!subs->early_playback_start &&
-+		    cmd == SNDRV_PCM_TRIGGER_START) {
- 			err = start_endpoints(subs);
- 			if (err < 0) {
- 				snd_usb_endpoint_set_callback(subs->data_endpoint,
++error_put:
++	usb_put_intf(interface);
+ error:
+ 	v4l2_ctrl_handler_free(hdl);
+ 	v4l2_device_unregister(&dev->v4l2_dev);
 
 
