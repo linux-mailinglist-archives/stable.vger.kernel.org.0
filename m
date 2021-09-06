@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81476401B7A
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F13E401B7C
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242330AbhIFM5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 08:57:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33116 "EHLO mail.kernel.org"
+        id S231825AbhIFM5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:57:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231825AbhIFM5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:57:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF30660238;
-        Mon,  6 Sep 2021 12:56:15 +0000 (UTC)
+        id S242340AbhIFM5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:57:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3ADAC60F92;
+        Mon,  6 Sep 2021 12:56:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630932976;
-        bh=vDWDkkhl0/rrC2qD671xVZRLlT/+NKJUV6SSm23trRs=;
+        s=korg; t=1630932978;
+        bh=9kJQP3kDazEVJswsuuU6kyZ7aIsHLDddyN3en8ooMZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vdC2iEO+hCINLvqQZ+jADYMxV4bVRJ7GDif8lecF4mNw36n6+X/Dyf3mj/P9zJ0d0
-         /HiTWlIAsAMwPYrFwvA6qiWhEIdYpTXPfW7/PNR+w39bD+Q1cmf/Vs6OeEwlkRgb9Y
-         McvXm10W7uiZOqahbgTJ8AC1y8+Db20WejGgff/8=
+        b=cZS+zU+dCM2x4dwKnrpYdZxpr1Nd2OcNOvPz4KPNZcLU0AEjvGw1+sYKjkh16EWRU
+         7k/VoU/MUAroiLol9++2m5W4DpCgfak8V1D0y5LB+924kdpFTmvwr+nAVdHfGdhl77
+         EvqZqcvMeHHpHJUcNBJGdIqUCnxa4xl9Bp2T0oWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Falkowski <maciej.falkowski9@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 5.10 11/29] ARM: OMAP1: ams-delta: remove unused function ams_delta_camera_power
-Date:   Mon,  6 Sep 2021 14:55:26 +0200
-Message-Id: <20210906125450.155894077@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Halasa <khalasa@piap.pl>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 12/29] gpu: ipu-v3: Fix i.MX IPU-v3 offset calculations for (semi)planar U/V formats
+Date:   Mon,  6 Sep 2021 14:55:27 +0200
+Message-Id: <20210906125450.194520247@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210906125449.756437409@linuxfoundation.org>
 References: <20210906125449.756437409@linuxfoundation.org>
@@ -42,54 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Falkowski <maciej.falkowski9@gmail.com>
+From: Krzysztof Hałasa <khalasa@piap.pl>
 
-commit bae989c4bc53f861cc1b706aab0194703e9907a8 upstream.
+[ Upstream commit 7cca7c8096e2c8a4149405438329b5035d0744f0 ]
 
-The ams_delta_camera_power() function is unused as reports
-Clang compilation with omap1_defconfig on linux-next:
+Video captured in 1400x1050 resolution (bytesperline aka stride = 1408
+bytes) is invalid. Fix it.
 
-arch/arm/mach-omap1/board-ams-delta.c:462:12: warning: unused function 'ams_delta_camera_power' [-Wunused-function]
-static int ams_delta_camera_power(struct device *dev, int power)
-           ^
-1 warning generated.
-
-The soc_camera support was dropped without removing
-ams_delta_camera_power() function, making it unused.
-
-Fixes: ce548396a433 ("media: mach-omap1: board-ams-delta.c: remove soc_camera dependencies")
-Signed-off-by: Maciej Falkowski <maciej.falkowski9@gmail.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1326
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Krzysztof Halasa <khalasa@piap.pl>
+Link: https://lore.kernel.org/r/m3y2bmq7a4.fsf@t19.piap.pl
+[p.zabel@pengutronix.de: added "gpu: ipu-v3:" prefix to commit description]
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap1/board-ams-delta.c |   14 --------------
- 1 file changed, 14 deletions(-)
+ drivers/gpu/ipu-v3/ipu-cpmem.c | 30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
---- a/arch/arm/mach-omap1/board-ams-delta.c
-+++ b/arch/arm/mach-omap1/board-ams-delta.c
-@@ -458,20 +458,6 @@ static struct gpiod_lookup_table leds_gp
+diff --git a/drivers/gpu/ipu-v3/ipu-cpmem.c b/drivers/gpu/ipu-v3/ipu-cpmem.c
+index a1c85d1521f5..82b244cb313e 100644
+--- a/drivers/gpu/ipu-v3/ipu-cpmem.c
++++ b/drivers/gpu/ipu-v3/ipu-cpmem.c
+@@ -585,21 +585,21 @@ static const struct ipu_rgb def_bgra_16 = {
+ 	.bits_per_pixel = 16,
+ };
  
- #ifdef CONFIG_LEDS_TRIGGERS
- DEFINE_LED_TRIGGER(ams_delta_camera_led_trigger);
--
--static int ams_delta_camera_power(struct device *dev, int power)
--{
--	/*
--	 * turn on camera LED
--	 */
--	if (power)
--		led_trigger_event(ams_delta_camera_led_trigger, LED_FULL);
--	else
--		led_trigger_event(ams_delta_camera_led_trigger, LED_OFF);
--	return 0;
--}
--#else
--#define ams_delta_camera_power	NULL
- #endif
+-#define Y_OFFSET(pix, x, y)	((x) + pix->width * (y))
+-#define U_OFFSET(pix, x, y)	((pix->width * pix->height) +		\
+-				 (pix->width * ((y) / 2) / 2) + (x) / 2)
+-#define V_OFFSET(pix, x, y)	((pix->width * pix->height) +		\
+-				 (pix->width * pix->height / 4) +	\
+-				 (pix->width * ((y) / 2) / 2) + (x) / 2)
+-#define U2_OFFSET(pix, x, y)	((pix->width * pix->height) +		\
+-				 (pix->width * (y) / 2) + (x) / 2)
+-#define V2_OFFSET(pix, x, y)	((pix->width * pix->height) +		\
+-				 (pix->width * pix->height / 2) +	\
+-				 (pix->width * (y) / 2) + (x) / 2)
+-#define UV_OFFSET(pix, x, y)	((pix->width * pix->height) +	\
+-				 (pix->width * ((y) / 2)) + (x))
+-#define UV2_OFFSET(pix, x, y)	((pix->width * pix->height) +	\
+-				 (pix->width * y) + (x))
++#define Y_OFFSET(pix, x, y)	((x) + pix->bytesperline * (y))
++#define U_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * ((y) / 2) / 2) + (x) / 2)
++#define V_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * pix->height / 4) + \
++				 (pix->bytesperline * ((y) / 2) / 2) + (x) / 2)
++#define U2_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * (y) / 2) + (x) / 2)
++#define V2_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * pix->height / 2) + \
++				 (pix->bytesperline * (y) / 2) + (x) / 2)
++#define UV_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * ((y) / 2)) + (x))
++#define UV2_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * y) + (x))
  
- static struct platform_device ams_delta_audio_device = {
+ #define NUM_ALPHA_CHANNELS	7
+ 
+-- 
+2.30.2
+
 
 
