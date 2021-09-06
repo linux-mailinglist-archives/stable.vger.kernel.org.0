@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BFEF401BC2
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:58:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A894401BE7
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:59:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243088AbhIFM7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 08:59:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34962 "EHLO mail.kernel.org"
+        id S243695AbhIFNAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 09:00:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243083AbhIFM64 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:58:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEF2560F92;
-        Mon,  6 Sep 2021 12:57:50 +0000 (UTC)
+        id S243258AbhIFM7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:59:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9C566105A;
+        Mon,  6 Sep 2021 12:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933071;
-        bh=BbFQTMnMVcbcQP+/8uleePfdrKe0+A9XIIteMV/lkVw=;
+        s=korg; t=1630933114;
+        bh=rp7vDUL6sKAqNXAQOnLfxXDYz3lqlgEwihphZXyF4O8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/EDQ7VCB4inrZf9JmNkQUrpbejjx6+NknOwz0Xm/bDTIlIODs3Yy2fI+nbRfcLuT
-         rNEhKQUfxIk9DLfRvAvDMR3b3gJ19emgk7CxL+x2MIHjBTK59wqe7KUKKW3FNlDUUU
-         Z8wirfHkHN8bwLn5a3Hxar0XkylGaUx+8tdl4OrI=
+        b=rIz27bVQwt/4iPlLE+rW8unuSJyMHvacJewpUJViRGyWg23nbAC6+nkyiwWA+WkRK
+         +3ZoYVZM7FumbDn0+ChcoXosC0q9moQ8M9ZpKw9E+DNCbCl4wuwZDk0PwV6vL9LB+z
+         w2vW9tZb55OHhFI2XSoo/rWUMe9pDq7TG7khs2IE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.13 19/24] USB: serial: cp210x: fix flow-control error handling
+        stable@vger.kernel.org, stable@kernel.org,
+        Boyang Xue <bxue@redhat.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.14 02/14] ext4: fix e2fsprogs checksum failure for mounted filesystem
 Date:   Mon,  6 Sep 2021 14:55:48 +0200
-Message-Id: <20210906125449.747969044@linuxfoundation.org>
+Message-Id: <20210906125448.240195770@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210906125449.112564040@linuxfoundation.org>
-References: <20210906125449.112564040@linuxfoundation.org>
+In-Reply-To: <20210906125448.160263393@linuxfoundation.org>
+References: <20210906125448.160263393@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,63 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-commit ba4bbdabecd11530dca78dbae3ee7e51ffdc0a06 upstream.
+commit b2bbb92f7042e8075fb036bf97043339576330c3 upstream.
 
-Make sure that the driver crtscts state is not updated in the unlikely
-event that the flow-control request fails. Not doing so could break RTS
-control.
+Commit 81414b4dd48 ("ext4: remove redundant sb checksum
+recomputation") removed checksum recalculation after updating
+superblock free space / inode counters in ext4_fill_super() based on
+the fact that we will recalculate the checksum on superblock
+writeout.
 
-Fixes: 5951b8508855 ("USB: serial: cp210x: suppress modem-control errors")
-Cc: stable@vger.kernel.org	# 5.11
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+That is correct assumption but until the writeout happens (which can
+take a long time) the checksum is incorrect in the buffer cache and if
+programs such as tune2fs or resize2fs is called shortly after a file
+system is mounted can fail.  So return back the checksum recalculation
+and add a comment explaining why.
+
+Fixes: 81414b4dd48f ("ext4: remove redundant sb checksum recomputation")
+Cc: stable@kernel.org
+Reported-by: Boyang Xue <bxue@redhat.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210812124737.21981-1-jack@suse.cz
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ fs/ext4/super.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -1136,6 +1136,7 @@ static void cp210x_set_flow_control(stru
- 	struct cp210x_flow_ctl flow_ctl;
- 	u32 flow_repl;
- 	u32 ctl_hs;
-+	bool crtscts;
- 	int ret;
- 
- 	/*
-@@ -1195,14 +1196,14 @@ static void cp210x_set_flow_control(stru
- 			flow_repl |= CP210X_SERIAL_RTS_FLOW_CTL;
- 		else
- 			flow_repl |= CP210X_SERIAL_RTS_INACTIVE;
--		port_priv->crtscts = true;
-+		crtscts = true;
- 	} else {
- 		ctl_hs &= ~CP210X_SERIAL_CTS_HANDSHAKE;
- 		if (port_priv->rts)
- 			flow_repl |= CP210X_SERIAL_RTS_ACTIVE;
- 		else
- 			flow_repl |= CP210X_SERIAL_RTS_INACTIVE;
--		port_priv->crtscts = false;
-+		crtscts = false;
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5032,6 +5032,14 @@ no_journal:
+ 		err = percpu_counter_init(&sbi->s_freeinodes_counter, freei,
+ 					  GFP_KERNEL);
  	}
- 
- 	if (I_IXOFF(tty)) {
-@@ -1225,8 +1226,12 @@ static void cp210x_set_flow_control(stru
- 	flow_ctl.ulControlHandshake = cpu_to_le32(ctl_hs);
- 	flow_ctl.ulFlowReplace = cpu_to_le32(flow_repl);
- 
--	cp210x_write_reg_block(port, CP210X_SET_FLOW, &flow_ctl,
-+	ret = cp210x_write_reg_block(port, CP210X_SET_FLOW, &flow_ctl,
- 			sizeof(flow_ctl));
-+	if (ret)
-+		goto out_unlock;
-+
-+	port_priv->crtscts = crtscts;
- out_unlock:
- 	mutex_unlock(&port_priv->mutex);
- }
++	/*
++	 * Update the checksum after updating free space/inode
++	 * counters.  Otherwise the superblock can have an incorrect
++	 * checksum in the buffer cache until it is written out and
++	 * e2fsprogs programs trying to open a file system immediately
++	 * after it is mounted can fail.
++	 */
++	ext4_superblock_csum_set(sb);
+ 	if (!err)
+ 		err = percpu_counter_init(&sbi->s_dirs_counter,
+ 					  ext4_count_dirs(sb), GFP_KERNEL);
 
 
