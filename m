@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF527401394
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:28:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2608A40139C
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240352AbhIFB1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:27:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38492 "EHLO mail.kernel.org"
+        id S240463AbhIFB12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:27:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239196AbhIFBZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:25:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DAB3610C8;
-        Mon,  6 Sep 2021 01:22:17 +0000 (UTC)
+        id S240457AbhIFBZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:25:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA96261156;
+        Mon,  6 Sep 2021 01:22:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891338;
-        bh=z8AA1EfCo8S/9fC5SzWZcni02Tq5jrEtRJiAkJXgr0I=;
+        s=k20201202; t=1630891339;
+        bh=srCEX5hDH1f1BlauxJ8yXAYw6/Hk5sS8nPcQ4WwwupE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgV2Rg7dd/84tOSJQ4bPyg8M0MqwDg9GymX8xYknRE9qS8x3smUXglmiWgwCKRH1E
-         qkWwbwxVPOKV1t2Gsls4us551oFgKIwvVmp+3nkcbqUm2JkTinUE7WWpHVfRDMjPzC
-         aepT8rK3Zb50/RPcGdrgtQOd1cWLbNNi0lpkAPFxoPlQwzc+fXbo8AqizHqxYeZria
-         //oVtiO7DeA5UQPSqEXPHImlm2fZ4QJXhG37q+0vIlQ/CJGgOU86QuY9CC6bULPgHv
-         M4A0iHY1DMsl1vmjxbCpHnmVjC5y81RM9JSULenrGlkRzbG/MMWctkieIstldauIW4
-         AKnELOBncUDnQ==
+        b=CMIMRwpnJIEDuVg8UedO5CjYG6TwnlF+JHOFoeUpWEnUSnPiY7mC4KjQ4cE0t50KR
+         yOUIEyVdpgiD1gvmeyl8mQc8EW/O6m5c1ioNsl/81sDc7gj+bYccOz9DSB7z4WGbz9
+         t2eu54mSgSQAMXC+x4cMPBJRNg9JD+RP1W2yDxzD6tPcC56kzyxZ0ilWzxaGcAK5Ug
+         jmHM1nGcCZ96Iu7216NWGxLlx63vsi+39F3poXeVPPi9vzSdpDtoXiF7N2UZqGJdSE
+         6kacwbg53sWDnlkdgjzNX4W6dTF4GWB2qU3P443UyXIF8JScM8gjDqg7QuFa6AE02C
+         lwIsBuHrfqXEw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ruozhu Li <liruozhu@huawei.com>, Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>,
+Cc:     Amit Engel <amit.engel@dell.com>, Christoph Hellwig <hch@lst.de>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 20/39] nvme-rdma: don't update queue count when failing to set io queues
-Date:   Sun,  5 Sep 2021 21:21:34 -0400
-Message-Id: <20210906012153.929962-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 21/39] nvmet: pass back cntlid on successful completion
+Date:   Sun,  5 Sep 2021 21:21:35 -0400
+Message-Id: <20210906012153.929962-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012153.929962-1-sashal@kernel.org>
 References: <20210906012153.929962-1-sashal@kernel.org>
@@ -42,44 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ruozhu Li <liruozhu@huawei.com>
+From: Amit Engel <amit.engel@dell.com>
 
-[ Upstream commit 85032874f80ba17bf187de1d14d9603bf3f582b8 ]
+[ Upstream commit e804d5abe2d74cfe23f5f83be580d1cdc9307111 ]
 
-We update ctrl->queue_count and schedule another reconnect when io queue
-count is zero.But we will never try to create any io queue in next reco-
-nnection, because ctrl->queue_count already set to zero.We will end up
-having an admin-only session in Live state, which is exactly what we try
-to avoid in the original patch.
-Update ctrl->queue_count after queue_count zero checking to fix it.
+According to the NVMe specification, the response dword 0 value of the
+Connect command is based on status code: return cntlid for successful
+compeltion return IPO and IATTR for connect invalid parameters.  Fix
+a missing error information for a zero sized queue, and return the
+cntlid also for I/O queue Connect commands.
 
-Signed-off-by: Ruozhu Li <liruozhu@huawei.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Amit Engel <amit.engel@dell.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/rdma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvme/target/fabrics-cmd.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index e6d58402b829..c6c2e2361b2f 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -735,13 +735,13 @@ static int nvme_rdma_alloc_io_queues(struct nvme_rdma_ctrl *ctrl)
- 	if (ret)
- 		return ret;
- 
--	ctrl->ctrl.queue_count = nr_io_queues + 1;
--	if (ctrl->ctrl.queue_count < 2) {
-+	if (nr_io_queues == 0) {
- 		dev_err(ctrl->ctrl.device,
- 			"unable to set any I/O queues\n");
- 		return -ENOMEM;
+diff --git a/drivers/nvme/target/fabrics-cmd.c b/drivers/nvme/target/fabrics-cmd.c
+index 42bd12b8bf00..e62d3d0fa6c8 100644
+--- a/drivers/nvme/target/fabrics-cmd.c
++++ b/drivers/nvme/target/fabrics-cmd.c
+@@ -120,6 +120,7 @@ static u16 nvmet_install_queue(struct nvmet_ctrl *ctrl, struct nvmet_req *req)
+ 	if (!sqsize) {
+ 		pr_warn("queue size zero!\n");
+ 		req->error_loc = offsetof(struct nvmf_connect_command, sqsize);
++		req->cqe->result.u32 = IPO_IATTR_CONNECT_SQE(sqsize);
+ 		ret = NVME_SC_CONNECT_INVALID_PARAM | NVME_SC_DNR;
+ 		goto err;
+ 	}
+@@ -263,11 +264,11 @@ static void nvmet_execute_io_connect(struct nvmet_req *req)
  	}
  
-+	ctrl->ctrl.queue_count = nr_io_queues + 1;
- 	dev_info(ctrl->ctrl.device,
- 		"creating %d I/O queues.\n", nr_io_queues);
+ 	status = nvmet_install_queue(ctrl, req);
+-	if (status) {
+-		/* pass back cntlid that had the issue of installing queue */
+-		req->cqe->result.u16 = cpu_to_le16(ctrl->cntlid);
++	if (status)
+ 		goto out_ctrl_put;
+-	}
++
++	/* pass back cntlid for successful completion */
++	req->cqe->result.u16 = cpu_to_le16(ctrl->cntlid);
+ 
+ 	pr_debug("adding queue %d to ctrl %d.\n", qid, ctrl->cntlid);
  
 -- 
 2.30.2
