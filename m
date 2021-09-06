@@ -2,86 +2,584 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29C4640122A
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 01:44:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D60C6401244
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 02:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232759AbhIEXoL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 19:44:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58960 "EHLO
+        id S230243AbhIFA5k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 20:57:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229735AbhIEXoL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Sep 2021 19:44:11 -0400
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D0C2C061575
-        for <stable@vger.kernel.org>; Sun,  5 Sep 2021 16:43:07 -0700 (PDT)
-Received: by mail-qt1-x841.google.com with SMTP id t9so4226166qtp.2
-        for <stable@vger.kernel.org>; Sun, 05 Sep 2021 16:43:07 -0700 (PDT)
+        with ESMTP id S229917AbhIFA5j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Sep 2021 20:57:39 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89F3EC061575
+        for <stable@vger.kernel.org>; Sun,  5 Sep 2021 17:56:35 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id u13-20020a17090abb0db0290177e1d9b3f7so3267206pjr.1
+        for <stable@vger.kernel.org>; Sun, 05 Sep 2021 17:56:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=Y6xKaPysqauslqATbLRPyxhadCXJpfsENJ9c4w/8+G8=;
-        b=E4N898sf82YQV/dvZduI5vgjL7esBd8w+jMrwThH1smy05UcqqBnDGwRS5oj3eitO2
-         jupbobpHa19Ch2uw7dKoXuIH+BSD89cd3bucxfKtmQkKX+1n6q+ktvBGgpFdcD1/weY1
-         3pnzd8AF/2k792ktrG+w/mMBTKaDU/3eKomMTkf1O3AaZFoxrLls30Ki2uATjR+RvLcg
-         TKNkF9q72u31HLEfXIZWemfmbE/zJkkbhgcJd0RIIOWti05C44wHYP6UUQQJnWub6tAN
-         KbNrhz7sc3zjr4NPnn3oKIIhQTaF5i1hZyC1rbnQ7BWu/Tqr4ipx37VH1jFygG2M0V+3
-         z7SQ==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=RV51q7M+axC2YJ6wkBbOU+NIoDvv7ZAmo3lIel7lSUU=;
+        b=WXXrFMopQirAwl1YFhIQEWzDwTIprx+IzvSPY38XYtC4hj6sE8rC9BkHhPWPfC6O7T
+         35EY2rxnjoXLXH0roHbBY1MY0M5SKjqjQYezm1ROWITKDRD7G7eRB4bBhptTEzpY5Vbo
+         zH4ivWSLAHu7G6gDo7md+313h5qRDaEkCB2RvAcJabhtKITm2T9LStyuRyndBMaMWpNh
+         9YRBVfE7iOSYLq+w71xPLM7ieJTcx/eN6bXJeIS3oXCzJEHzuiFFwEXPjhiX4c0HjRMZ
+         AuouF+Sr7PlePsKKY6r1jfIQ8YCgQvwnHY1GGqX3uQwQTl6D7J4pfz0IKScL95Gw/VpD
+         /a3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=Y6xKaPysqauslqATbLRPyxhadCXJpfsENJ9c4w/8+G8=;
-        b=MVyxFR+5MWsRu9vc+z625tz5Mt6kg4dfiIz8dHcok/2vy/c3pWCikeDalas42ZA2wF
-         kg+wPOlgpDElK3lZ9mS6kwNGt63/KVq63pWKDpovEtj7oftFNBG3bjiWIBlIpVZB67wf
-         3+YXJrlYB0wyK6TQhO5p+nlgab6p56vmrG82S0FseRTQX7T9129iFf6EHDNmkMyb+fFU
-         4lU+rNdMOgm3Z8PFO59f4WH1xP838Hr3ZzhsiukRsbZ4kRz+oczntnc9cwg6mbZLL4Y4
-         ybJlofyD3QleJAsRrWnMjDkG8kFeWFJZVjXiTFHcLW8a0KM2TRF6HyBwUTQSWKS8jexB
-         TxmQ==
-X-Gm-Message-State: AOAM53063aTyNDCzLDwJaBu51r7x6FQ2SIBnwkRYsqOtYArdsHXu9Jn/
-        lHON2BcEZv5EpFUfjfC05hYWZSh30Gk3NS/tHzQ=
-X-Google-Smtp-Source: ABdhPJyWyfCh4BjdfUxHcIzVXv2UnggSc1IQn6TU0Tq7mxGjDdni7PDXT5EyAMLPFc3wjINN4ysiV/AzqOoeSQW1WMo=
-X-Received: by 2002:a05:622a:44f:: with SMTP id o15mr8452785qtx.260.1630885386504;
- Sun, 05 Sep 2021 16:43:06 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=RV51q7M+axC2YJ6wkBbOU+NIoDvv7ZAmo3lIel7lSUU=;
+        b=jfIYopbniDnkmub+kKXGkpuy+MwKJ5G3oYiRNwMZqNYySc3rXTtfduIZ58P6ELCQxH
+         jhMzJtINJDgZtAowuxK/Y2IcP/A2QJ4ltFZq7o8Zrra45GzxGOI+8Hwoo6ePza1TMRrC
+         dyeGq7V+T3Y+XNYEmfSimJO0ZRrhO20XDvr/VeJJ/9+LpadjAe2pAcsDD2YKOpPUCwR4
+         FpkFEd4nNs79hwyiIMpb9TXf8KWRFZGHqxisNxwC8x5Xgi+sLV3I0+bS2H8lWHimol6z
+         oPfO00xYQbKENYaIIHiFwV6Px0BRSXCYhSiGe7nyJTsQRpshxaK1UmsCHozUam40Ikq0
+         YGVw==
+X-Gm-Message-State: AOAM532wXSWYeQE2DzdhpXK1GDOeWoBywdyLtobt0E5J/DfNAsLSRl7m
+        VCaoJNW6vdUhsos9Ld2YaZKMcwxluFXfRA==
+X-Google-Smtp-Source: ABdhPJyRcfRRfGugZVNtxGDAAfAmubFO1kkL+MyCXn+wRe6l/gmrT8kLXLDbX4amfDIlRMT7t0kmfQ==
+X-Received: by 2002:a17:90a:420c:: with SMTP id o12mr11386362pjg.101.1630889794761;
+        Sun, 05 Sep 2021 17:56:34 -0700 (PDT)
+Received: from localhost.localdomain (52.55.96.58.static.exetel.com.au. [58.96.55.52])
+        by smtp.gmail.com with ESMTPSA id c15sm5444810pfl.181.2021.09.05.17.56.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 05 Sep 2021 17:56:34 -0700 (PDT)
+From:   Ben Skeggs <skeggsb@gmail.com>
+To:     dri-devel@lists.freedesktop.org
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] drm/nouveau/ga102-: support ttm buffer moves via copy engine
+Date:   Mon,  6 Sep 2021 10:56:27 +1000
+Message-Id: <20210906005628.11499-1-skeggsb@gmail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Received: by 2002:ac8:72da:0:0:0:0:0 with HTTP; Sun, 5 Sep 2021 16:43:06 -0700 (PDT)
-Reply-To: mskristalinageorgieva3@gmail.com
-From:   OFFICE <mrtownsend1holley@gmail.com>
-Date:   Mon, 6 Sep 2021 00:43:06 +0100
-Message-ID: <CAHoZd2pGSSZ_zASZXB1FLrTwuNp5yq7wG07bgFx4Zu7Mnu8gyw@mail.gmail.com>
-Subject: PLS CHECK YOUR MAIL
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Sir / Madam,
+From: Ben Skeggs <bskeggs@redhat.com>
 
-I write to inform you that the GOVERNMENT OF UNITED STATES in
-conjunction with International Monetary Fund (IMF), has resolved to
-refund each victim of scam (Advance Fee FRAUD) the sum of $7,500.000
-(Seven Million Five Hundred Thousand Dollars only) On that note, I
-seek your consent to collaborate with me so that I will put your name
-as one of the victims entitle and legible for this refunds for our
-mutual benefits.
+We don't currently have any kind of real acceleration on Ampere GPUs,
+but the TTM memcpy() fallback paths aren't really designed to handle
+copies between different devices, such as on Optimus systems, and
+result in a kernel OOPS.
 
-If you are interested in actualizing this deal with me respond back
-urgently with your below details to enable me put your name among
-those that will benefit from the refund this month.
+A few options were investigated to try and fix this, but didn't work
+out, and likely would have resulted in a very unpleasant experience
+for users anyway.
 
-1 Your full names/ address.
-2 Your phone number.
-3 Your age/sex and occupation.
+This commit adds just enough support for setting up a single channel
+connected to a copy engine, which the kernel can use to accelerate
+the buffer copies between devices.  Userspace has no access to this
+incomplete channel support, but it's suitable for TTM's needs.
 
-Please note that the process of filing for this refund is risk free
-and has nothing to do with illegality because I have perfected every
-plan for the smooth processing of the refunds. Bear in mind that our
-working ratio shall be 50% each as soon as we get the refund in your
-name.  Email : mskristalinageorgieva3@gmail.com
+A more complete implementation of host(fifo) for Ampere GPUs is in
+the works, but the required changes are far too invasive that they
+would be unsuitable to backport to fix this issue on current kernels.
 
-Yours Faithfully,
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Karol Herbst <kherbst@redhat.com>
+Cc: <stable@vger.kernel.org> # v5.12+
+---
+ drivers/gpu/drm/nouveau/include/nvif/class.h  |   2 +
+ .../drm/nouveau/include/nvkm/engine/fifo.h    |   1 +
+ drivers/gpu/drm/nouveau/nouveau_bo.c          |   1 +
+ drivers/gpu/drm/nouveau/nouveau_chan.c        |   6 +-
+ drivers/gpu/drm/nouveau/nouveau_drm.c         |   4 +
+ drivers/gpu/drm/nouveau/nv84_fence.c          |   2 +-
+ .../gpu/drm/nouveau/nvkm/engine/device/base.c |   3 +
+ .../gpu/drm/nouveau/nvkm/engine/fifo/Kbuild   |   1 +
+ .../gpu/drm/nouveau/nvkm/engine/fifo/ga102.c  | 308 ++++++++++++++++++
+ .../gpu/drm/nouveau/nvkm/subdev/top/ga100.c   |   7 +-
+ 10 files changed, 329 insertions(+), 6 deletions(-)
+ create mode 100644 drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c
 
+diff --git a/drivers/gpu/drm/nouveau/include/nvif/class.h b/drivers/gpu/drm/nouveau/include/nvif/class.h
+index c68cc957248e..a582c0cb0cb0 100644
+--- a/drivers/gpu/drm/nouveau/include/nvif/class.h
++++ b/drivers/gpu/drm/nouveau/include/nvif/class.h
+@@ -71,6 +71,7 @@
+ #define PASCAL_CHANNEL_GPFIFO_A                       /* cla06f.h */ 0x0000c06f
+ #define VOLTA_CHANNEL_GPFIFO_A                        /* clc36f.h */ 0x0000c36f
+ #define TURING_CHANNEL_GPFIFO_A                       /* clc36f.h */ 0x0000c46f
++#define AMPERE_CHANNEL_GPFIFO_B                       /* clc36f.h */ 0x0000c76f
+ 
+ #define NV50_DISP                                     /* cl5070.h */ 0x00005070
+ #define G82_DISP                                      /* cl5070.h */ 0x00008270
+@@ -200,6 +201,7 @@
+ #define PASCAL_DMA_COPY_B                                            0x0000c1b5
+ #define VOLTA_DMA_COPY_A                                             0x0000c3b5
+ #define TURING_DMA_COPY_A                                            0x0000c5b5
++#define AMPERE_DMA_COPY_B                                            0x0000c7b5
+ 
+ #define FERMI_DECOMPRESS                                             0x000090b8
+ 
+diff --git a/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h b/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h
+index 54fab7cc36c1..64ee82c7c1be 100644
+--- a/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h
++++ b/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h
+@@ -77,4 +77,5 @@ int gp100_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct
+ int gp10b_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
+ int gv100_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
+ int tu102_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
++int ga102_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
+ #endif
+diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
+index 4a7cebac8060..b3e4f555fa05 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_bo.c
++++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
+@@ -844,6 +844,7 @@ nouveau_bo_move_init(struct nouveau_drm *drm)
+ 			    struct ttm_resource *, struct ttm_resource *);
+ 		int (*init)(struct nouveau_channel *, u32 handle);
+ 	} _methods[] = {
++		{  "COPY", 4, 0xc7b5, nve0_bo_move_copy, nve0_bo_move_init },
+ 		{  "COPY", 4, 0xc5b5, nve0_bo_move_copy, nve0_bo_move_init },
+ 		{  "GRCE", 0, 0xc5b5, nve0_bo_move_copy, nvc0_bo_move_init },
+ 		{  "COPY", 4, 0xc3b5, nve0_bo_move_copy, nve0_bo_move_init },
+diff --git a/drivers/gpu/drm/nouveau/nouveau_chan.c b/drivers/gpu/drm/nouveau/nouveau_chan.c
+index 80099ef75702..ea7769135b0d 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_chan.c
++++ b/drivers/gpu/drm/nouveau/nouveau_chan.c
+@@ -250,7 +250,8 @@ static int
+ nouveau_channel_ind(struct nouveau_drm *drm, struct nvif_device *device,
+ 		    u64 runlist, bool priv, struct nouveau_channel **pchan)
+ {
+-	static const u16 oclasses[] = { TURING_CHANNEL_GPFIFO_A,
++	static const u16 oclasses[] = { AMPERE_CHANNEL_GPFIFO_B,
++					TURING_CHANNEL_GPFIFO_A,
+ 					VOLTA_CHANNEL_GPFIFO_A,
+ 					PASCAL_CHANNEL_GPFIFO_A,
+ 					MAXWELL_CHANNEL_GPFIFO_A,
+@@ -386,7 +387,8 @@ nouveau_channel_init(struct nouveau_channel *chan, u32 vram, u32 gart)
+ 
+ 	nvif_object_map(&chan->user, NULL, 0);
+ 
+-	if (chan->user.oclass >= FERMI_CHANNEL_GPFIFO) {
++	if (chan->user.oclass >= FERMI_CHANNEL_GPFIFO &&
++	    chan->user.oclass < AMPERE_CHANNEL_GPFIFO_B) {
+ 		ret = nvif_notify_ctor(&chan->user, "abi16ChanKilled",
+ 				       nouveau_channel_killed,
+ 				       true, NV906F_V0_NTFY_KILLED,
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+index 1f828c9f691c..6109cd9e3399 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -345,6 +345,9 @@ nouveau_accel_gr_init(struct nouveau_drm *drm)
+ 	u32 arg0, arg1;
+ 	int ret;
+ 
++	if (device->info.family >= NV_DEVICE_INFO_V0_AMPERE)
++		return;
++
+ 	/* Allocate channel that has access to the graphics engine. */
+ 	if (device->info.family >= NV_DEVICE_INFO_V0_KEPLER) {
+ 		arg0 = nvif_fifo_runlist(device, NV_DEVICE_HOST_RUNLIST_ENGINES_GR);
+@@ -469,6 +472,7 @@ nouveau_accel_init(struct nouveau_drm *drm)
+ 		case PASCAL_CHANNEL_GPFIFO_A:
+ 		case VOLTA_CHANNEL_GPFIFO_A:
+ 		case TURING_CHANNEL_GPFIFO_A:
++		case AMPERE_CHANNEL_GPFIFO_B:
+ 			ret = nvc0_fence_create(drm);
+ 			break;
+ 		default:
+diff --git a/drivers/gpu/drm/nouveau/nv84_fence.c b/drivers/gpu/drm/nouveau/nv84_fence.c
+index 7c9c928c3196..c3526a8622e3 100644
+--- a/drivers/gpu/drm/nouveau/nv84_fence.c
++++ b/drivers/gpu/drm/nouveau/nv84_fence.c
+@@ -204,7 +204,7 @@ nv84_fence_create(struct nouveau_drm *drm)
+ 	priv->base.context_new = nv84_fence_context_new;
+ 	priv->base.context_del = nv84_fence_context_del;
+ 
+-	priv->base.uevent = true;
++	priv->base.uevent = drm->client.device.info.family < NV_DEVICE_INFO_V0_AMPERE;
+ 
+ 	mutex_init(&priv->mutex);
+ 
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+index 93ddf63d1114..ca75c5f6ecaf 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
+@@ -2602,6 +2602,7 @@ nv172_chipset = {
+ 	.top      = { 0x00000001, ga100_top_new },
+ 	.disp     = { 0x00000001, ga102_disp_new },
+ 	.dma      = { 0x00000001, gv100_dma_new },
++	.fifo     = { 0x00000001, ga102_fifo_new },
+ };
+ 
+ static const struct nvkm_device_chip
+@@ -2622,6 +2623,7 @@ nv174_chipset = {
+ 	.top      = { 0x00000001, ga100_top_new },
+ 	.disp     = { 0x00000001, ga102_disp_new },
+ 	.dma      = { 0x00000001, gv100_dma_new },
++	.fifo     = { 0x00000001, ga102_fifo_new },
+ };
+ 
+ static const struct nvkm_device_chip
+@@ -2642,6 +2644,7 @@ nv177_chipset = {
+ 	.top      = { 0x00000001, ga100_top_new },
+ 	.disp     = { 0x00000001, ga102_disp_new },
+ 	.dma      = { 0x00000001, gv100_dma_new },
++	.fifo     = { 0x00000001, ga102_fifo_new },
+ };
+ 
+ static int
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild
+index 3209eb7af65f..5e831d347a95 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild
+@@ -18,6 +18,7 @@ nvkm-y += nvkm/engine/fifo/gp100.o
+ nvkm-y += nvkm/engine/fifo/gp10b.o
+ nvkm-y += nvkm/engine/fifo/gv100.o
+ nvkm-y += nvkm/engine/fifo/tu102.o
++nvkm-y += nvkm/engine/fifo/ga102.o
+ 
+ nvkm-y += nvkm/engine/fifo/chan.o
+ nvkm-y += nvkm/engine/fifo/channv50.o
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c
+new file mode 100644
+index 000000000000..bfb66457100c
+--- /dev/null
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c
+@@ -0,0 +1,308 @@
++/*
++ * Copyright 2021 Red Hat Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in
++ * all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE COPYRIGHT HOLDER(S) OR AUTHOR(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
++ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
++ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ * OTHER DEALINGS IN THE SOFTWARE.
++ */
++#define ga102_fifo(p) container_of((p), struct ga102_fifo, base.engine)
++#define ga102_chan(p) container_of((p), struct ga102_chan, object)
++#include <engine/fifo.h>
++#include "user.h"
++
++#include <core/memory.h>
++#include <subdev/mmu.h>
++#include <subdev/timer.h>
++#include <subdev/top.h>
++
++#include <nvif/cl0080.h>
++#include <nvif/clc36f.h>
++#include <nvif/class.h>
++
++struct ga102_fifo {
++	struct nvkm_fifo base;
++};
++
++struct ga102_chan {
++	struct nvkm_object object;
++
++	struct {
++		u32 runl;
++		u32 chan;
++	} ctrl;
++
++	struct nvkm_memory *mthd;
++	struct nvkm_memory *inst;
++	struct nvkm_memory *user;
++	struct nvkm_memory *runl;
++
++	struct nvkm_vmm *vmm;
++};
++
++static int
++ga102_chan_sclass(struct nvkm_object *object, int index, struct nvkm_oclass *oclass)
++{
++	if (index == 0) {
++		oclass->ctor = nvkm_object_new;
++		oclass->base = (struct nvkm_sclass) { -1, -1, AMPERE_DMA_COPY_B };
++		return 0;
++	}
++
++	return -EINVAL;
++}
++
++static int
++ga102_chan_map(struct nvkm_object *object, void *argv, u32 argc,
++	       enum nvkm_object_map *type, u64 *addr, u64 *size)
++{
++	struct ga102_chan *chan = ga102_chan(object);
++	struct nvkm_device *device = chan->object.engine->subdev.device;
++	u64 bar2 = nvkm_memory_bar2(chan->user);
++
++	if (bar2 == ~0ULL)
++		return -EFAULT;
++
++	*type = NVKM_OBJECT_MAP_IO;
++	*addr = device->func->resource_addr(device, 3) + bar2;
++	*size = 0x1000;
++	return 0;
++}
++
++static int
++ga102_chan_fini(struct nvkm_object *object, bool suspend)
++{
++	struct ga102_chan *chan = ga102_chan(object);
++	struct nvkm_device *device = chan->object.engine->subdev.device;
++
++	nvkm_wr32(device, chan->ctrl.chan, 0x00000003);
++
++	nvkm_wr32(device, chan->ctrl.runl + 0x098, 0x01000000);
++	nvkm_msec(device, 2000,
++		if (!(nvkm_rd32(device, chan->ctrl.runl + 0x098) & 0x00100000))
++			break;
++	);
++
++	nvkm_wr32(device, chan->ctrl.runl + 0x088, 0);
++
++	nvkm_wr32(device, chan->ctrl.chan, 0xffffffff);
++	return 0;
++}
++
++static int
++ga102_chan_init(struct nvkm_object *object)
++{
++	struct ga102_chan *chan = ga102_chan(object);
++	struct nvkm_device *device = chan->object.engine->subdev.device;
++
++	nvkm_mask(device, chan->ctrl.runl + 0x300, 0x80000000, 0x80000000);
++
++	nvkm_wr32(device, chan->ctrl.runl + 0x080, lower_32_bits(nvkm_memory_addr(chan->runl)));
++	nvkm_wr32(device, chan->ctrl.runl + 0x084, upper_32_bits(nvkm_memory_addr(chan->runl)));
++	nvkm_wr32(device, chan->ctrl.runl + 0x088, 2);
++
++	nvkm_wr32(device, chan->ctrl.chan, 0x00000002);
++	nvkm_wr32(device, chan->ctrl.runl + 0x0090, 0);
++	return 0;
++}
++
++static void *
++ga102_chan_dtor(struct nvkm_object *object)
++{
++	struct ga102_chan *chan = ga102_chan(object);
++
++	if (chan->vmm) {
++		nvkm_vmm_part(chan->vmm, chan->inst);
++		nvkm_vmm_unref(&chan->vmm);
++	}
++
++	nvkm_memory_unref(&chan->runl);
++	nvkm_memory_unref(&chan->user);
++	nvkm_memory_unref(&chan->inst);
++	nvkm_memory_unref(&chan->mthd);
++	return chan;
++}
++
++static const struct nvkm_object_func
++ga102_chan = {
++	.dtor = ga102_chan_dtor,
++	.init = ga102_chan_init,
++	.fini = ga102_chan_fini,
++	.map = ga102_chan_map,
++	.sclass = ga102_chan_sclass,
++};
++
++static int
++ga102_chan_new(struct nvkm_device *device,
++	       const struct nvkm_oclass *oclass, void *argv, u32 argc, struct nvkm_object **pobject)
++{
++	struct volta_channel_gpfifo_a_v0 *args = argv;
++	struct nvkm_top_device *tdev;
++	struct nvkm_vmm *vmm;
++	struct ga102_chan *chan;
++	int ret;
++
++	if (argc != sizeof(*args))
++		return -ENOSYS;
++
++	vmm = nvkm_uvmm_search(oclass->client, args->vmm);
++	if (IS_ERR(vmm))
++		return PTR_ERR(vmm);
++
++	if (!(chan = kzalloc(sizeof(*chan), GFP_KERNEL)))
++		return -ENOMEM;
++
++	nvkm_object_ctor(&ga102_chan, oclass, &chan->object);
++	*pobject = &chan->object;
++
++	list_for_each_entry(tdev, &device->top->device, head) {
++		if (tdev->type == NVKM_ENGINE_CE) {
++			chan->ctrl.runl = tdev->runlist;
++			break;
++		}
++	}
++
++	if (!chan->ctrl.runl)
++		return -ENODEV;
++
++	chan->ctrl.chan = nvkm_rd32(device, chan->ctrl.runl + 0x004) & 0xfffffff0;
++	args->token = nvkm_rd32(device, chan->ctrl.runl + 0x008) & 0xffff0000;
++
++	ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->mthd);
++	if (ret)
++		return ret;
++
++	ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->inst);
++	if (ret)
++		return ret;
++
++	nvkm_kmap(chan->inst);
++	nvkm_wo32(chan->inst, 0x010, 0x0000face);
++	nvkm_wo32(chan->inst, 0x030, 0x7ffff902);
++	nvkm_wo32(chan->inst, 0x048, lower_32_bits(args->ioffset));
++	nvkm_wo32(chan->inst, 0x04c, upper_32_bits(args->ioffset) |
++				     (order_base_2(args->ilength) << 16));
++	nvkm_wo32(chan->inst, 0x084, 0x20400000);
++	nvkm_wo32(chan->inst, 0x094, 0x30000001);
++	nvkm_wo32(chan->inst, 0x0ac, 0x00020000);
++	nvkm_wo32(chan->inst, 0x0e4, 0x00000000);
++	nvkm_wo32(chan->inst, 0x0e8, 0);
++	nvkm_wo32(chan->inst, 0x0f4, 0x00001000);
++	nvkm_wo32(chan->inst, 0x0f8, 0x10003080);
++	nvkm_mo32(chan->inst, 0x218, 0x00000000, 0x00000000);
++	nvkm_wo32(chan->inst, 0x220, lower_32_bits(nvkm_memory_bar2(chan->mthd)));
++	nvkm_wo32(chan->inst, 0x224, upper_32_bits(nvkm_memory_bar2(chan->mthd)));
++	nvkm_done(chan->inst);
++
++	ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->user);
++	if (ret)
++		return ret;
++
++	ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->runl);
++	if (ret)
++		return ret;
++
++	nvkm_kmap(chan->runl);
++	nvkm_wo32(chan->runl, 0x00, 0x80030001);
++	nvkm_wo32(chan->runl, 0x04, 1);
++	nvkm_wo32(chan->runl, 0x08, 0);
++	nvkm_wo32(chan->runl, 0x0c, 0x00000000);
++	nvkm_wo32(chan->runl, 0x10, lower_32_bits(nvkm_memory_addr(chan->user)));
++	nvkm_wo32(chan->runl, 0x14, upper_32_bits(nvkm_memory_addr(chan->user)));
++	nvkm_wo32(chan->runl, 0x18, lower_32_bits(nvkm_memory_addr(chan->inst)));
++	nvkm_wo32(chan->runl, 0x1c, upper_32_bits(nvkm_memory_addr(chan->inst)));
++	nvkm_done(chan->runl);
++
++	ret = nvkm_vmm_join(vmm, chan->inst);
++	if (ret)
++		return ret;
++
++	chan->vmm = nvkm_vmm_ref(vmm);
++	return 0;
++}
++
++static const struct nvkm_device_oclass
++ga102_chan_oclass = {
++	.ctor = ga102_chan_new,
++};
++
++static int
++ga102_user_new(struct nvkm_device *device,
++	       const struct nvkm_oclass *oclass, void *argv, u32 argc, struct nvkm_object **pobject)
++{
++	return tu102_fifo_user_new(oclass, argv, argc, pobject);
++}
++
++static const struct nvkm_device_oclass
++ga102_user_oclass = {
++	.ctor = ga102_user_new,
++};
++
++static int
++ga102_fifo_sclass(struct nvkm_oclass *oclass, int index, const struct nvkm_device_oclass **class)
++{
++	if (index == 0) {
++		oclass->base = (struct nvkm_sclass) { -1, -1, VOLTA_USERMODE_A };
++		*class = &ga102_user_oclass;
++		return 0;
++	} else
++	if (index == 1) {
++		oclass->base = (struct nvkm_sclass) { 0, 0, AMPERE_CHANNEL_GPFIFO_B };
++		*class = &ga102_chan_oclass;
++		return 0;
++	}
++
++	return 2;
++}
++
++static int
++ga102_fifo_info(struct nvkm_engine *engine, u64 mthd, u64 *data)
++{
++	switch (mthd) {
++	case NV_DEVICE_HOST_CHANNELS: *data = 1; return 0;
++	default:
++		break;
++	}
++
++	return -ENOSYS;
++}
++
++static void *
++ga102_fifo_dtor(struct nvkm_engine *engine)
++{
++	return ga102_fifo(engine);
++}
++
++static const struct nvkm_engine_func
++ga102_fifo = {
++	.dtor = ga102_fifo_dtor,
++	.info = ga102_fifo_info,
++	.base.sclass = ga102_fifo_sclass,
++};
++
++int
++ga102_fifo_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
++	       struct nvkm_fifo **pfifo)
++{
++	struct ga102_fifo *fifo;
++
++	if (!(fifo = kzalloc(sizeof(*fifo), GFP_KERNEL)))
++		return -ENOMEM;
++
++	nvkm_engine_ctor(&ga102_fifo, device, type, inst, true, &fifo->base.engine);
++	*pfifo = &fifo->base;
++	return 0;
++}
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c b/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c
+index 31933f3e5a07..c982d834c8d9 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c
+@@ -54,7 +54,7 @@ ga100_top_oneinit(struct nvkm_top *top)
+ 			info->reset   = (data & 0x0000001f);
+ 			break;
+ 		case 2:
+-			info->runlist = (data & 0x0000fc00) >> 10;
++			info->runlist = (data & 0x00fffc00);
+ 			info->engine  = (data & 0x00000003);
+ 			break;
+ 		default:
+@@ -85,9 +85,10 @@ ga100_top_oneinit(struct nvkm_top *top)
+ 		}
+ 
+ 		nvkm_debug(subdev, "%02x.%d (%8s): addr %06x fault %2d "
+-				   "runlist %2d engine %2d reset %2d\n", type, inst,
++				   "runlist %6x engine %2d reset %2d\n", type, inst,
+ 			   info->type == NVKM_SUBDEV_NR ? "????????" : nvkm_subdev_type[info->type],
+-			   info->addr, info->fault, info->runlist, info->engine, info->reset);
++			   info->addr, info->fault, info->runlist < 0 ? 0 : info->runlist,
++			   info->engine, info->reset);
+ 		info = NULL;
+ 	}
+ 
+-- 
+2.31.1
 
-Ms. Kristalina Georgieva
-Managing Director
-International Monetary Fund
