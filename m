@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DE8F40146A
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:40:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D56D8401468
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:40:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351647AbhIFBdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:33:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47360 "EHLO mail.kernel.org"
+        id S241111AbhIFBdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:33:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351659AbhIFBaw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1351658AbhIFBaw (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 5 Sep 2021 21:30:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 846726121F;
-        Mon,  6 Sep 2021 01:24:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A26D8611F2;
+        Mon,  6 Sep 2021 01:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891444;
-        bh=Ci8KDVpMEADlOHkWurzHkcZelu3nh3AyxqYz6cz8V/A=;
+        s=k20201202; t=1630891445;
+        bh=xGwExUppbd3H53PxpNT/Y7MZXZdRKAOroOEcEFe8Yis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIVsYiS8LZf/9PTi1cyThEpVEAk9xda1QFXq/ryLPN4DR78KTkfuvWgG972mYt5fZ
-         umZH4MPI+79ZncC2dzJbKwiEG1tVyeGbst3EjWoYGkl96HZMzRiRAZjwfPA2Pg19CI
-         bj966+FfrqTJgGh4wHHbczaGO33NpdkMVy5JYHBBKBnbtbpwb+hpIyfMdWE5JMifaZ
-         J6PhAGjjhMHXeMiv4JSKx/o2III8o5mnqBjThkXivGzD1aKVW+YLXK8FtGD/94zGH2
-         VB5WfC0nDNeeY6O9UI5YZWnKIb+7pZ1UtsNNc1FwtyqQQzg1mTb5AQ3Wki/9Uc9Tab
-         HiG2YZPK0oqjw==
+        b=L4P4f10sXffG85AO2F23jNUwm9r8hUx/dqczhV9KUKe4z+Gkmon1LgW/xqdP3Zzf7
+         on9LJER9h8piqQAK3vZUcdOp8YLnbi3BHmTIfAhv6eXT/pe2Zopx3gBQFCpREjAWxd
+         InCXPuKLziRF8fVaJNCE8+H/purqcmce7csi9O3oXGoKih5q+qEwQdmmv4+bkqzt5+
+         bL590FxlFNbGIcqHaZOHDWb4kW7mJTkWHpxdTDgDC+u4mgIjdnyy5RujXTpQPSpggx
+         BlkTEmB4pV3FHw0ix/7sKiQJMiM3UAGslQGAnVQogFqyZatDiVov/Ws2t5Qc6oWTOB
+         GNlBCAx0scEAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/17] power: supply: max17042_battery: fix typo in MAx17042_TOFF
-Date:   Sun,  5 Sep 2021 21:23:44 -0400
-Message-Id: <20210906012352.930954-9-sashal@kernel.org>
+Cc:     Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 10/17] s390/cio: add dev_busid sysfs entry for each subchannel
+Date:   Sun,  5 Sep 2021 21:23:45 -0400
+Message-Id: <20210906012352.930954-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012352.930954-1-sashal@kernel.org>
 References: <20210906012352.930954-1-sashal@kernel.org>
@@ -42,44 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-[ Upstream commit ed0d0a0506025f06061325cedae1bbebd081620a ]
+[ Upstream commit d3683c055212bf910d4e318f7944910ce10dbee6 ]
 
-Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Introduce dev_busid, which exports the device-id associated with the
+io-subchannel (and message-subchannel). The dev_busid indicates that of
+the device which may be physically installed on the corrosponding
+subchannel. The dev_busid value "none" indicates that the subchannel
+is not valid, there is no I/O device currently associated with the
+subchannel.
+
+The dev_busid information would be helpful to write device-specific
+udev-rules associated with the subchannel. The dev_busid interface would
+be available even when the sch is not bound to any driver or if there is
+no operational device connected on it. Hence this attribute can be used to
+write udev-rules which are specific to the device associated with the
+subchannel.
+
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/max17042_battery.c | 2 +-
- include/linux/power/max17042_battery.h  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/cio/css.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
-index 911d42366ef1..e824ab19318a 100644
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -717,7 +717,7 @@ static inline void max17042_override_por_values(struct max17042_chip *chip)
- 	struct max17042_config_data *config = chip->pdata->config_data;
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index e2026d54dd37..435e804b6b8b 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -330,9 +330,26 @@ static ssize_t pimpampom_show(struct device *dev,
+ }
+ static DEVICE_ATTR(pimpampom, 0444, pimpampom_show, NULL);
  
- 	max17042_override_por(map, MAX17042_TGAIN, config->tgain);
--	max17042_override_por(map, MAx17042_TOFF, config->toff);
-+	max17042_override_por(map, MAX17042_TOFF, config->toff);
- 	max17042_override_por(map, MAX17042_CGAIN, config->cgain);
- 	max17042_override_por(map, MAX17042_COFF, config->coff);
- 
-diff --git a/include/linux/power/max17042_battery.h b/include/linux/power/max17042_battery.h
-index a7ed29baf44a..86e5ad8aeee4 100644
---- a/include/linux/power/max17042_battery.h
-+++ b/include/linux/power/max17042_battery.h
-@@ -82,7 +82,7 @@ enum max17042_register {
- 	MAX17042_RelaxCFG	= 0x2A,
- 	MAX17042_MiscCFG	= 0x2B,
- 	MAX17042_TGAIN		= 0x2C,
--	MAx17042_TOFF		= 0x2D,
-+	MAX17042_TOFF		= 0x2D,
- 	MAX17042_CGAIN		= 0x2E,
- 	MAX17042_COFF		= 0x2F,
- 
++static ssize_t dev_busid_show(struct device *dev,
++			      struct device_attribute *attr,
++			      char *buf)
++{
++	struct subchannel *sch = to_subchannel(dev);
++	struct pmcw *pmcw = &sch->schib.pmcw;
++
++	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
++	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
++		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
++				  pmcw->dev);
++	else
++		return sysfs_emit(buf, "none\n");
++}
++static DEVICE_ATTR_RO(dev_busid);
++
+ static struct attribute *io_subchannel_type_attrs[] = {
+ 	&dev_attr_chpids.attr,
+ 	&dev_attr_pimpampom.attr,
++	&dev_attr_dev_busid.attr,
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(io_subchannel_type);
 -- 
 2.30.2
 
