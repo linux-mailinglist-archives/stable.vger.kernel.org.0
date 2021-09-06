@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C389B4013F2
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:38:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACE1A4013FB
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240679AbhIFBcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:32:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48056 "EHLO mail.kernel.org"
+        id S240710AbhIFBcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:32:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240599AbhIFB2B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:28:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87C4C61102;
-        Mon,  6 Sep 2021 01:22:57 +0000 (UTC)
+        id S239273AbhIFB2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:28:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82641611BD;
+        Mon,  6 Sep 2021 01:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891378;
-        bh=5WCdiSfoYC4iCYUhDtOeTfNzUT9R7Tz2ghmwEOEsMQU=;
+        s=k20201202; t=1630891379;
+        bh=H8KL1o4j68UZ23VwRe7k8lTMSo7HBv9cjsNMKexuoT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NgXmyl9fotMo7dz4h/OwKwZGQFLyEhcHZKW/PrqNiggxRO4AgMlw7wqw/dd/ylvan
-         ipZnMJBZak5G0mpNgkPlyXWdExG6q6JsGa/zld9SIF8Qs3uRZlrZlgDJLqIfj9rcFu
-         9vJl7K7Fi9dE6bFLBjkC/GX2OmK/qpQbe720r6KIDkwToYVeuDJrLdjFqQE7LC89xN
-         7oyWYeJ6cIbEtR4VYugX0X63bL3uZYPfyvPTjxKV7VSordr7NmXZAenY5fIQQ/13Sa
-         A6YQwJiY/r7FD2Urjz9gcoFUFwUJ7l1xtsjxVxYDqgKQ1fqqWBWdLafp5XUKJtc5Rd
-         WYuRr4Qcy7JYg==
+        b=pzR03kBsiv0oHld3odM7ZnjOiv4uMRTNFvc7MVm/6GHkBz//rj6s889mZLLFIXst5
+         Ydx/n6ZngEZYvRQQzsJONzq05Yh2N2ANx5LrnWqagRb0QG61jmlVLkoDNXn+II6eNx
+         9okRBqqx8kzI6V/MhyqDukMEGjMbc/2qFMm63i6ANPtiqkIDW8/5HpxAmbgWiSH/Nf
+         GYOwKCmN0JpKrkW7r6a+m29kmEfX/NL3aumh/nnkeRxDHj8cOQVOSGWOgsWaGQKXIT
+         l86tZe58n6gt34lq8/CV4N8W6OVLmNKWVSoMqUMsWPGauxeHuGh1mSBdZ6M49Wi19c
+         EC5sN8RwFkyPw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
+Cc:     Jan Kara <jack@suse.cz>,
+        syzbot+7fbfe5fed73ebb675748@syzkaller.appspotmail.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 11/30] hrtimer: Ensure timerfd notification for HIGHRES=n
-Date:   Sun,  5 Sep 2021 21:22:24 -0400
-Message-Id: <20210906012244.930338-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 12/30] udf: Check LVID earlier
+Date:   Sun,  5 Sep 2021 21:22:25 -0400
+Message-Id: <20210906012244.930338-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012244.930338-1-sashal@kernel.org>
 References: <20210906012244.930338-1-sashal@kernel.org>
@@ -41,115 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 8c3b5e6ec0fee18bc2ce38d1dfe913413205f908 ]
+[ Upstream commit 781d2a9a2fc7d0be53a072794dc03ef6de770f3d ]
 
-If high resolution timers are disabled the timerfd notification about a
-clock was set event is not happening for all cases which use
-clock_was_set_delayed() because that's a NOP for HIGHRES=n, which is wrong.
+We were checking validity of LVID entries only when getting
+implementation use information from LVID in udf_sb_lvidiu(). However if
+the LVID is suitably corrupted, it can cause problems also to code such
+as udf_count_free() which doesn't use udf_sb_lvidiu(). So check validity
+of LVID already when loading it from the disk and just disable LVID
+altogether when it is not valid.
 
-Make clock_was_set_delayed() unconditially available to fix that.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20210713135158.196661266@linutronix.de
+Reported-by: syzbot+7fbfe5fed73ebb675748@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/hrtimer.h     |  5 -----
- kernel/time/hrtimer.c       | 32 ++++++++++++++++----------------
- kernel/time/tick-internal.h |  3 +++
- 3 files changed, 19 insertions(+), 21 deletions(-)
+ fs/udf/super.c | 25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/hrtimer.h b/include/linux/hrtimer.h
-index 1f98b52118f0..48be92aded5e 100644
---- a/include/linux/hrtimer.h
-+++ b/include/linux/hrtimer.h
-@@ -317,16 +317,12 @@ struct clock_event_device;
- 
- extern void hrtimer_interrupt(struct clock_event_device *dev);
- 
--extern void clock_was_set_delayed(void);
--
- extern unsigned int hrtimer_resolution;
- 
- #else
- 
- #define hrtimer_resolution	(unsigned int)LOW_RES_NSEC
- 
--static inline void clock_was_set_delayed(void) { }
--
- #endif
- 
- static inline ktime_t
-@@ -350,7 +346,6 @@ hrtimer_expires_remaining_adjusted(const struct hrtimer *timer)
- 						    timer->base->get_time());
+diff --git a/fs/udf/super.c b/fs/udf/super.c
+index 8bb001c7927f..a1efcf0593cb 100644
+--- a/fs/udf/super.c
++++ b/fs/udf/super.c
+@@ -108,16 +108,10 @@ struct logicalVolIntegrityDescImpUse *udf_sb_lvidiu(struct super_block *sb)
+ 		return NULL;
+ 	lvid = (struct logicalVolIntegrityDesc *)UDF_SB(sb)->s_lvid_bh->b_data;
+ 	partnum = le32_to_cpu(lvid->numOfPartitions);
+-	if ((sb->s_blocksize - sizeof(struct logicalVolIntegrityDescImpUse) -
+-	     offsetof(struct logicalVolIntegrityDesc, impUse)) /
+-	     (2 * sizeof(uint32_t)) < partnum) {
+-		udf_err(sb, "Logical volume integrity descriptor corrupted "
+-			"(numOfPartitions = %u)!\n", partnum);
+-		return NULL;
+-	}
+ 	/* The offset is to skip freeSpaceTable and sizeTable arrays */
+ 	offset = partnum * 2 * sizeof(uint32_t);
+-	return (struct logicalVolIntegrityDescImpUse *)&(lvid->impUse[offset]);
++	return (struct logicalVolIntegrityDescImpUse *)
++					(((uint8_t *)(lvid + 1)) + offset);
  }
  
--extern void clock_was_set(void);
- #ifdef CONFIG_TIMERFD
- extern void timerfd_clock_was_set(void);
- #else
-diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index 39beb9aaa24b..e1e8d5dab0c5 100644
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -759,22 +759,6 @@ static void hrtimer_switch_to_hres(void)
- 	retrigger_next_event(NULL);
+ /* UDF filesystem type */
+@@ -1548,6 +1542,7 @@ static void udf_load_logicalvolint(struct super_block *sb, struct kernel_extent_
+ 	struct udf_sb_info *sbi = UDF_SB(sb);
+ 	struct logicalVolIntegrityDesc *lvid;
+ 	int indirections = 0;
++	u32 parts, impuselen;
+ 
+ 	while (++indirections <= UDF_MAX_LVID_NESTING) {
+ 		final_bh = NULL;
+@@ -1574,15 +1569,27 @@ static void udf_load_logicalvolint(struct super_block *sb, struct kernel_extent_
+ 
+ 		lvid = (struct logicalVolIntegrityDesc *)final_bh->b_data;
+ 		if (lvid->nextIntegrityExt.extLength == 0)
+-			return;
++			goto check;
+ 
+ 		loc = leea_to_cpu(lvid->nextIntegrityExt);
+ 	}
+ 
+ 	udf_warn(sb, "Too many LVID indirections (max %u), ignoring.\n",
+ 		UDF_MAX_LVID_NESTING);
++out_err:
+ 	brelse(sbi->s_lvid_bh);
+ 	sbi->s_lvid_bh = NULL;
++	return;
++check:
++	parts = le32_to_cpu(lvid->numOfPartitions);
++	impuselen = le32_to_cpu(lvid->lengthOfImpUse);
++	if (parts >= sb->s_blocksize || impuselen >= sb->s_blocksize ||
++	    sizeof(struct logicalVolIntegrityDesc) + impuselen +
++	    2 * parts * sizeof(u32) > sb->s_blocksize) {
++		udf_warn(sb, "Corrupted LVID (parts=%u, impuselen=%u), "
++			 "ignoring.\n", parts, impuselen);
++		goto out_err;
++	}
  }
  
--static void clock_was_set_work(struct work_struct *work)
--{
--	clock_was_set();
--}
--
--static DECLARE_WORK(hrtimer_work, clock_was_set_work);
--
--/*
-- * Called from timekeeping and resume code to reprogram the hrtimer
-- * interrupt device on all cpus.
-- */
--void clock_was_set_delayed(void)
--{
--	schedule_work(&hrtimer_work);
--}
--
- #else
- 
- static inline int hrtimer_is_hres_enabled(void) { return 0; }
-@@ -892,6 +876,22 @@ void clock_was_set(void)
- 	timerfd_clock_was_set();
- }
- 
-+static void clock_was_set_work(struct work_struct *work)
-+{
-+	clock_was_set();
-+}
-+
-+static DECLARE_WORK(hrtimer_work, clock_was_set_work);
-+
-+/*
-+ * Called from timekeeping and resume code to reprogram the hrtimer
-+ * interrupt device on all cpus and to notify timerfd.
-+ */
-+void clock_was_set_delayed(void)
-+{
-+	schedule_work(&hrtimer_work);
-+}
-+
  /*
-  * During resume we might have to reprogram the high resolution timer
-  * interrupt on all online CPUs.  However, all other CPUs will be
-diff --git a/kernel/time/tick-internal.h b/kernel/time/tick-internal.h
-index 7b2496136729..5294f5b1f955 100644
---- a/kernel/time/tick-internal.h
-+++ b/kernel/time/tick-internal.h
-@@ -165,3 +165,6 @@ DECLARE_PER_CPU(struct hrtimer_cpu_base, hrtimer_bases);
- 
- extern u64 get_next_timer_interrupt(unsigned long basej, u64 basem);
- void timer_clear_idle(void);
-+
-+void clock_was_set(void);
-+void clock_was_set_delayed(void);
 -- 
 2.30.2
 
