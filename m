@@ -2,645 +2,365 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD264021A9
-	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 02:29:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21B4340223B
+	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 04:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231693AbhIGA3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 20:29:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:53903 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229975AbhIGA3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Sep 2021 20:29:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1630974528;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=E6ZdGOSF63VZuCE41BzoQlaPvidhot7MYSfDpKRDYfU=;
-        b=cRRgAyE63QvytUyebGQjRU/YddMPO2uy0iponQVyWpSAgdrtJSasXO2ETISmx+CGbhDJNI
-        FpZoeqaZk1pPybKTE+MM0IZf/3V1+9I4BVERaDyi012wYy4dg4vXDQ+Ll8Kv0Mdp769Ffl
-        P79CIRAf0NnE4RnXno8B2cfIFepe5N0=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-150-Wq66S8QZOcqMnCV5bpnrEw-1; Mon, 06 Sep 2021 20:28:47 -0400
-X-MC-Unique: Wq66S8QZOcqMnCV5bpnrEw-1
-Received: by mail-wm1-f69.google.com with SMTP id k5-20020a7bc3050000b02901e081f69d80so2824794wmj.8
-        for <stable@vger.kernel.org>; Mon, 06 Sep 2021 17:28:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=E6ZdGOSF63VZuCE41BzoQlaPvidhot7MYSfDpKRDYfU=;
-        b=rcJ7hRrdHN3sfZUCMIcfbUl6jb9fFhiLa3DjV58GFaGAecsc9uBGKxqiVflx0aJJAZ
-         1qQRLUrGml4fVmtMuofV7f1tuFjwRRQHEsqQLTlCUeBjOMoplN0CUo112S6SpHXWHREq
-         SaYVuemi2YLMvxEURjxTIh/pTGmFm0s+SqjJNylb4w6q/KAdw/3NHYlu7dpaKbALAI8D
-         w3zW8H1F+0N5+VGa2WEO0wnOdTZLC4iMnE919ylQdhTD6oDlCEk15PDaftjXL3JUqj8i
-         ps3lsYwhe1w54TSEKAEh27b+NY1JMCgUJaD8WfjwQzn+UjMRXmBypIc8Q9iB4E5QcsJI
-         K7yg==
-X-Gm-Message-State: AOAM531CeCbBMCXb32lEm4iBpyu8fU6GON075lSXtYFNdikH24Scurap
-        B0Grd8cq10KuW5jqc9yJWbfkNHhsIQsOoA9OH9mo31X8nP03RXsco4C3HgAwqXL9nxlet33xWTU
-        aHtF0/XUFHehLzkAqjw6mpVdvWdnXhq9i
-X-Received: by 2002:adf:d184:: with SMTP id v4mr15711752wrc.229.1630974525769;
-        Mon, 06 Sep 2021 17:28:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwYLUdL8ApimSRZt5qnpKfxSOjlKuzVGbvBjyB+2+8at1ZVQJVaVBhkdUYNnyYSieFXKfNMAn4J3X64fZ+TpNo=
-X-Received: by 2002:adf:d184:: with SMTP id v4mr15711742wrc.229.1630974525570;
- Mon, 06 Sep 2021 17:28:45 -0700 (PDT)
+        id S232833AbhIGCNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 22:13:17 -0400
+Received: from mx2.hcg.gr ([84.205.254.49]:49816 "EHLO mx2.hcg.gr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232411AbhIGCNR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 22:13:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; d=yna.gov.gr; s=selector1; c=relaxed/simple;
+        q=dns/txt; i=@yna.gov.gr; t=1630980730; x=1631088730;
+        h=From:Sender:Reply-To:Subject:Date:Message-Id:To:Cc:MIME-Version:Content-Type:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=gXP9rKyNF8/vjw4foSZzoodKmgRunPT9pfFOF84oSc8=;
+        b=03nPUUX2xzrhjta5Igi7w3VJcFxlGkv78CMdKbe8diboXZcOy+Kj4opLJ8j9wSY3
+        hipRhnBuq2yHenOn9wRvxoO8WQIodsLA+iDmJwAspKczHPKLkKGzSUZXm/7JniEo
+        768anLzQHPbS7VFKlLyUAo0z1AyFUPVZb1XejATvv5w=;
+X-AuditID: ac138d0e-8d6d670000000931-6c-6136ca7a0e3c
+Received: from newmail.hcg.gr (Unknown_Domain [172.18.2.10])
+        (using TLS with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by mx2.hcg.gr (Symantec Messaging Gateway) with SMTP id 00.FB.02353.A7AC6316; Tue,  7 Sep 2021 05:12:10 +0300 (EEST)
+Received: from localhost (localhost [127.0.0.1])
+        by newmail.hcg.gr (Postfix) with ESMTP id 3333F3804D5E5E;
+        Tue,  7 Sep 2021 01:36:18 +0300 (EEST)
+Received: from newmail.hcg.gr ([127.0.0.1])
+        by localhost (newmail.hcg.gr [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id rw9wp6t7DhxE; Tue,  7 Sep 2021 01:36:18 +0300 (EEST)
+Received: from localhost (localhost [127.0.0.1])
+        by newmail.hcg.gr (Postfix) with ESMTP id DF34D3805FD788;
+        Tue,  7 Sep 2021 01:35:34 +0300 (EEST)
+X-Virus-Scanned: amavisd-new at newmail.hcg.gr
+Received: from newmail.hcg.gr ([127.0.0.1])
+        by localhost (newmail.hcg.gr [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id Dd3KdONw-K8L; Tue,  7 Sep 2021 01:35:34 +0300 (EEST)
+Received: from [172.20.10.6] (unknown [129.205.113.12])
+        by newmail.hcg.gr (Postfix) with ESMTPSA id 1EE9F3805FD787;
+        Tue,  7 Sep 2021 01:34:23 +0300 (EEST)
+Content-Type: multipart/mixed; boundary="===============0348017149=="
 MIME-Version: 1.0
-References: <20210906005628.11499-1-skeggsb@gmail.com> <CACO55tuZf+O==VZis-CsOFqV=qno1h=ek2YNaJiLTPL-E5Vq9Q@mail.gmail.com>
- <CACAvsv7OU1gM6RiFKYWETct2qcHVoCWganLVRGdmmhwtfyNjBQ@mail.gmail.com>
-In-Reply-To: <CACAvsv7OU1gM6RiFKYWETct2qcHVoCWganLVRGdmmhwtfyNjBQ@mail.gmail.com>
-From:   Karol Herbst <kherbst@redhat.com>
-Date:   Tue, 7 Sep 2021 02:28:34 +0200
-Message-ID: <CACO55tudGfFV_=4pZU+PF-XmzSRT2m0-+=f5aM3bx9XgnFnBrA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] drm/nouveau/ga102-: support ttm buffer moves via copy engine
-To:     Ben Skeggs <skeggsb@gmail.com>
-Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
-        Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Subject: =?utf-8?q?AW=3AGesch=C3=A4ftsvorschlag=2E?=
+To:     Recipients <mmastrok@yna.gov.gr>
+From:   "Yi Huiman" <mmastrok@yna.gov.gr>
+Date:   Mon, 06 Sep 2021 23:34:18 +0100
+Reply-To: info@yi.huiman.ureil.ga
+Message-Id: <20210906223424.1EE9F3805FD787@newmail.hcg.gr>
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrHIsWRmVeSWpSXmKPExsWyRoiJS7fqlFmiwaseQ4sDF+8zWextb2ey
+        +PPhObPFvQ0PGS22/eSzWPizldFiwcZHjBb3emaxWnx6fInNouHjQhYHLo/JTzYyeexbs4fN
+        Y9H5oyweX47vZfc4/+shk8fnTXIeE248Zgxgj+KySUnNySxLLdK3S+DK6Hw0n73gxVrGisl7
+        JrI2ML5YwdjFyMkhIWAi8WzbR9YuRi4OIYGFTBIH29YygSSEBKYySmzvcIVIbGOUuHrzLRtc
+        YlaHJkS3nsTuQ3OZ4YqeTj3HCOHMY5TY27sHrINZwFVi2c+rrCA2r4CgxMmZT1hAbGGg3TsO
+        nQOKc3CICKhILPkbARJmE1CXWP/3Llgri4CqxKOeRewQixUl7h2/zQwxxkri1dK7zBMYBWYh
+        2TALyQaIuJ7EjalT2DDFtSWWLXzNPAtoM7OAmsTXrhKIsKzE5CffmTGVK0pM6X7IDmGbSdy8
+        cpN5ASPXKkau3AojvYzkdL30ok2MoGgV7uXbwfj0zVe9Q4xMHIyHGFWA6h9tWH2BUYolLz8v
+        VUmE96+5WaIQb0piZVVqUX58UWlOavEhRmkOFiVx3gVaFQlCAumJJanZqakFqUUwWSYOTqkG
+        JoWWdq6GqQ5yL6XPFc98/fKT4mWXD03vdiVFd9clmSiVXdnxMiF4f3lK4hnO8p02ty5L9p59
+        L/FUYPrGBb9XfjZRq702fcuUyyEO3QdUZf/uW778sjhz7cocp1RrN7mM5ROmlFcveCdT+Ve9
+        /IuST/W1xkXXZ4f/8G2yCihe2iXBcTjo4MeqMMk9ulumTfHcnTyD64WlvPXefVuUNW4ulNG5
+        J+7fKnWPoWin+2qrurb+A+/P/XA4xSesLKmupNi5o+KZHf/mecI/rXY+Wpyu1vDAXHR9EmNo
+        vNOnl7VeJzMMbGRe54RVVU6cdsRDY7fzPLOD9w7P5/r6oHHhBs0jLSr/rh+V13osxbrhh2zV
+        BiWW4oxEQy3mouJEAOq3k7lRAwAA
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 7, 2021 at 1:28 AM Ben Skeggs <skeggsb@gmail.com> wrote:
->
-> On Tue, 7 Sept 2021 at 09:17, Karol Herbst <kherbst@redhat.com> wrote:
-> >
-> > ."
-> >
-> >
-> > On Mon, Sep 6, 2021 at 2:56 AM Ben Skeggs <skeggsb@gmail.com> wrote:
-> > >
-> > > From: Ben Skeggs <bskeggs@redhat.com>
-> > >
-> > > We don't currently have any kind of real acceleration on Ampere GPUs,
-> > > but the TTM memcpy() fallback paths aren't really designed to handle
-> > > copies between different devices, such as on Optimus systems, and
-> > > result in a kernel OOPS.
-> > >
-> > > A few options were investigated to try and fix this, but didn't work
-> > > out, and likely would have resulted in a very unpleasant experience
-> > > for users anyway.
-> > >
-> > > This commit adds just enough support for setting up a single channel
-> > > connected to a copy engine, which the kernel can use to accelerate
-> > > the buffer copies between devices.  Userspace has no access to this
-> > > incomplete channel support, but it's suitable for TTM's needs.
-> > >
-> > > A more complete implementation of host(fifo) for Ampere GPUs is in
-> > > the works, but the required changes are far too invasive that they
-> > > would be unsuitable to backport to fix this issue on current kernels.
-> > >
-> > > Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-> > > Cc: Lyude Paul <lyude@redhat.com>
-> > > Cc: Karol Herbst <kherbst@redhat.com>
-> > > Cc: <stable@vger.kernel.org> # v5.12+
-> > > ---
-> > >  drivers/gpu/drm/nouveau/include/nvif/class.h  |   2 +
-> > >  .../drm/nouveau/include/nvkm/engine/fifo.h    |   1 +
-> > >  drivers/gpu/drm/nouveau/nouveau_bo.c          |   1 +
-> > >  drivers/gpu/drm/nouveau/nouveau_chan.c        |   6 +-
-> > >  drivers/gpu/drm/nouveau/nouveau_drm.c         |   4 +
-> > >  drivers/gpu/drm/nouveau/nv84_fence.c          |   2 +-
-> > >  .../gpu/drm/nouveau/nvkm/engine/device/base.c |   3 +
-> > >  .../gpu/drm/nouveau/nvkm/engine/fifo/Kbuild   |   1 +
-> > >  .../gpu/drm/nouveau/nvkm/engine/fifo/ga102.c  | 308 ++++++++++++++++++
-> > >  .../gpu/drm/nouveau/nvkm/subdev/top/ga100.c   |   7 +-
-> > >  10 files changed, 329 insertions(+), 6 deletions(-)
-> > >  create mode 100644 drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c
-> > >
-> > > diff --git a/drivers/gpu/drm/nouveau/include/nvif/class.h b/drivers/gpu/drm/nouveau/include/nvif/class.h
-> > > index c68cc957248e..a582c0cb0cb0 100644
-> > > --- a/drivers/gpu/drm/nouveau/include/nvif/class.h
-> > > +++ b/drivers/gpu/drm/nouveau/include/nvif/class.h
-> > > @@ -71,6 +71,7 @@
-> > >  #define PASCAL_CHANNEL_GPFIFO_A                       /* cla06f.h */ 0x0000c06f
-> > >  #define VOLTA_CHANNEL_GPFIFO_A                        /* clc36f.h */ 0x0000c36f
-> > >  #define TURING_CHANNEL_GPFIFO_A                       /* clc36f.h */ 0x0000c46f
-> > > +#define AMPERE_CHANNEL_GPFIFO_B                       /* clc36f.h */ 0x0000c76f
-> > >
-> > >  #define NV50_DISP                                     /* cl5070.h */ 0x00005070
-> > >  #define G82_DISP                                      /* cl5070.h */ 0x00008270
-> > > @@ -200,6 +201,7 @@
-> > >  #define PASCAL_DMA_COPY_B                                            0x0000c1b5
-> > >  #define VOLTA_DMA_COPY_A                                             0x0000c3b5
-> > >  #define TURING_DMA_COPY_A                                            0x0000c5b5
-> > > +#define AMPERE_DMA_COPY_B                                            0x0000c7b5
-> > >
-> > >  #define FERMI_DECOMPRESS                                             0x000090b8
-> > >
-> > > diff --git a/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h b/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h
-> > > index 54fab7cc36c1..64ee82c7c1be 100644
-> > > --- a/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h
-> > > +++ b/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h
-> > > @@ -77,4 +77,5 @@ int gp100_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct
-> > >  int gp10b_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
-> > >  int gv100_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
-> > >  int tu102_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
-> > > +int ga102_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
-> > >  #endif
-> > > diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
-> > > index 4a7cebac8060..b3e4f555fa05 100644
-> > > --- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-> > > +++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-> > > @@ -844,6 +844,7 @@ nouveau_bo_move_init(struct nouveau_drm *drm)
-> > >                             struct ttm_resource *, struct ttm_resource *);
-> > >                 int (*init)(struct nouveau_channel *, u32 handle);
-> > >         } _methods[] = {
-> > > +               {  "COPY", 4, 0xc7b5, nve0_bo_move_copy, nve0_bo_move_init },
-> >
-> > so, I was looking at the COPY class headers and noticed something strange.
-> >
-> > "BYPASS_L2" was moved with MAXWELL_DMA_COPY_A from bit 11 to bit 20.
-> > It got split out to SRC_ (20) and DST_ (21) with PASCAL_DMA_COPY_A and
-> > got removed with AMPERE_DMA_COPY_A.
-> >
-> > Since MAXWELL_DMA_COPY_A bit 11 is FORCE_RMWDISABLE. I don't know if
-> > that causes any issues, I just noticed this while comparing the copy
-> > class headers.
-> Yeah, I think for the way we're using the CE for TTM moves, it's OK.
-> In the very least, no more wrong that it already is on existing GPUs
-> ;)
->
-> >
-> > >                 {  "COPY", 4, 0xc5b5, nve0_bo_move_copy, nve0_bo_move_init },
-> > >                 {  "GRCE", 0, 0xc5b5, nve0_bo_move_copy, nvc0_bo_move_init },
-> > >                 {  "COPY", 4, 0xc3b5, nve0_bo_move_copy, nve0_bo_move_init },
-> > > diff --git a/drivers/gpu/drm/nouveau/nouveau_chan.c b/drivers/gpu/drm/nouveau/nouveau_chan.c
-> > > index 80099ef75702..ea7769135b0d 100644
-> > > --- a/drivers/gpu/drm/nouveau/nouveau_chan.c
-> > > +++ b/drivers/gpu/drm/nouveau/nouveau_chan.c
-> > > @@ -250,7 +250,8 @@ static int
-> > >  nouveau_channel_ind(struct nouveau_drm *drm, struct nvif_device *device,
-> > >                     u64 runlist, bool priv, struct nouveau_channel **pchan)
-> > >  {
-> > > -       static const u16 oclasses[] = { TURING_CHANNEL_GPFIFO_A,
-> > > +       static const u16 oclasses[] = { AMPERE_CHANNEL_GPFIFO_B,
-> > > +                                       TURING_CHANNEL_GPFIFO_A,
-> > >                                         VOLTA_CHANNEL_GPFIFO_A,
-> > >                                         PASCAL_CHANNEL_GPFIFO_A,
-> > >                                         MAXWELL_CHANNEL_GPFIFO_A,
-> > > @@ -386,7 +387,8 @@ nouveau_channel_init(struct nouveau_channel *chan, u32 vram, u32 gart)
-> > >
-> > >         nvif_object_map(&chan->user, NULL, 0);
-> > >
-> > > -       if (chan->user.oclass >= FERMI_CHANNEL_GPFIFO) {
-> > > +       if (chan->user.oclass >= FERMI_CHANNEL_GPFIFO &&
-> > > +           chan->user.oclass < AMPERE_CHANNEL_GPFIFO_B) {
-> > >                 ret = nvif_notify_ctor(&chan->user, "abi16ChanKilled",
-> > >                                        nouveau_channel_killed,
-> > >                                        true, NV906F_V0_NTFY_KILLED,
-> > > diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
-> > > index 1f828c9f691c..6109cd9e3399 100644
-> > > --- a/drivers/gpu/drm/nouveau/nouveau_drm.c
-> > > +++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-> > > @@ -345,6 +345,9 @@ nouveau_accel_gr_init(struct nouveau_drm *drm)
-> > >         u32 arg0, arg1;
-> > >         int ret;
-> > >
-> > > +       if (device->info.family >= NV_DEVICE_INFO_V0_AMPERE)
-> > > +               return;
-> > > +
-> > >         /* Allocate channel that has access to the graphics engine. */
-> > >         if (device->info.family >= NV_DEVICE_INFO_V0_KEPLER) {
-> > >                 arg0 = nvif_fifo_runlist(device, NV_DEVICE_HOST_RUNLIST_ENGINES_GR);
-> > > @@ -469,6 +472,7 @@ nouveau_accel_init(struct nouveau_drm *drm)
-> > >                 case PASCAL_CHANNEL_GPFIFO_A:
-> > >                 case VOLTA_CHANNEL_GPFIFO_A:
-> > >                 case TURING_CHANNEL_GPFIFO_A:
-> > > +               case AMPERE_CHANNEL_GPFIFO_B:
-> > >                         ret = nvc0_fence_create(drm);
-> > >                         break;
-> > >                 default:
-> > > diff --git a/drivers/gpu/drm/nouveau/nv84_fence.c b/drivers/gpu/drm/nouveau/nv84_fence.c
-> > > index 7c9c928c3196..c3526a8622e3 100644
-> > > --- a/drivers/gpu/drm/nouveau/nv84_fence.c
-> > > +++ b/drivers/gpu/drm/nouveau/nv84_fence.c
-> > > @@ -204,7 +204,7 @@ nv84_fence_create(struct nouveau_drm *drm)
-> > >         priv->base.context_new = nv84_fence_context_new;
-> > >         priv->base.context_del = nv84_fence_context_del;
-> > >
-> > > -       priv->base.uevent = true;
-> > > +       priv->base.uevent = drm->client.device.info.family < NV_DEVICE_INFO_V0_AMPERE;
-> > >
-> > >         mutex_init(&priv->mutex);
-> > >
-> > > diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-> > > index 93ddf63d1114..ca75c5f6ecaf 100644
-> > > --- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-> > > +++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-> > > @@ -2602,6 +2602,7 @@ nv172_chipset = {
-> > >         .top      = { 0x00000001, ga100_top_new },
-> > >         .disp     = { 0x00000001, ga102_disp_new },
-> > >         .dma      = { 0x00000001, gv100_dma_new },
-> > > +       .fifo     = { 0x00000001, ga102_fifo_new },
-> > >  };
-> > >
-> > >  static const struct nvkm_device_chip
-> > > @@ -2622,6 +2623,7 @@ nv174_chipset = {
-> > >         .top      = { 0x00000001, ga100_top_new },
-> > >         .disp     = { 0x00000001, ga102_disp_new },
-> > >         .dma      = { 0x00000001, gv100_dma_new },
-> > > +       .fifo     = { 0x00000001, ga102_fifo_new },
-> > >  };
-> > >
-> > >  static const struct nvkm_device_chip
-> > > @@ -2642,6 +2644,7 @@ nv177_chipset = {
-> > >         .top      = { 0x00000001, ga100_top_new },
-> > >         .disp     = { 0x00000001, ga102_disp_new },
-> > >         .dma      = { 0x00000001, gv100_dma_new },
-> > > +       .fifo     = { 0x00000001, ga102_fifo_new },
-> > >  };
-> > >
-> > >  static int
-> > > diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild
-> > > index 3209eb7af65f..5e831d347a95 100644
-> > > --- a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild
-> > > +++ b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild
-> > > @@ -18,6 +18,7 @@ nvkm-y += nvkm/engine/fifo/gp100.o
-> > >  nvkm-y += nvkm/engine/fifo/gp10b.o
-> > >  nvkm-y += nvkm/engine/fifo/gv100.o
-> > >  nvkm-y += nvkm/engine/fifo/tu102.o
-> > > +nvkm-y += nvkm/engine/fifo/ga102.o
-> > >
-> > >  nvkm-y += nvkm/engine/fifo/chan.o
-> > >  nvkm-y += nvkm/engine/fifo/channv50.o
-> > > diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c
-> > > new file mode 100644
-> > > index 000000000000..bfb66457100c
-> > > --- /dev/null
-> > > +++ b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c
-> > > @@ -0,0 +1,308 @@
-> > > +/*
-> > > + * Copyright 2021 Red Hat Inc.
-> > > + *
-> > > + * Permission is hereby granted, free of charge, to any person obtaining a
-> > > + * copy of this software and associated documentation files (the "Software"),
-> > > + * to deal in the Software without restriction, including without limitation
-> > > + * the rights to use, copy, modify, merge, publish, distribute, sublicense,
-> > > + * and/or sell copies of the Software, and to permit persons to whom the
-> > > + * Software is furnished to do so, subject to the following conditions:
-> > > + *
-> > > + * The above copyright notice and this permission notice shall be included in
-> > > + * all copies or substantial portions of the Software.
-> > > + *
-> > > + * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> > > + * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> > > + * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-> > > + * THE COPYRIGHT HOLDER(S) OR AUTHOR(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
-> > > + * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-> > > + * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-> > > + * OTHER DEALINGS IN THE SOFTWARE.
-> > > + */
-> > > +#define ga102_fifo(p) container_of((p), struct ga102_fifo, base.engine)
-> > > +#define ga102_chan(p) container_of((p), struct ga102_chan, object)
-> > > +#include <engine/fifo.h>
-> > > +#include "user.h"
-> > > +
-> > > +#include <core/memory.h>
-> > > +#include <subdev/mmu.h>
-> > > +#include <subdev/timer.h>
-> > > +#include <subdev/top.h>
-> > > +
-> > > +#include <nvif/cl0080.h>
-> > > +#include <nvif/clc36f.h>
-> > > +#include <nvif/class.h>
-> > > +
-> > > +struct ga102_fifo {
-> > > +       struct nvkm_fifo base;
-> > > +};
-> > > +
-> > > +struct ga102_chan {
-> > > +       struct nvkm_object object;
-> > > +
-> > > +       struct {
-> > > +               u32 runl;
-> > > +               u32 chan;
-> > > +       } ctrl;
-> > > +
-> > > +       struct nvkm_memory *mthd;
-> > > +       struct nvkm_memory *inst;
-> > > +       struct nvkm_memory *user;
-> > > +       struct nvkm_memory *runl;
-> > > +
-> > > +       struct nvkm_vmm *vmm;
-> > > +};
-> > > +
-> > > +static int
-> > > +ga102_chan_sclass(struct nvkm_object *object, int index, struct nvkm_oclass *oclass)
-> > > +{
-> > > +       if (index == 0) {
-> > > +               oclass->ctor = nvkm_object_new;
-> > > +               oclass->base = (struct nvkm_sclass) { -1, -1, AMPERE_DMA_COPY_B };
-> > > +               return 0;
-> > > +       }
-> > > +
-> > > +       return -EINVAL;
-> > > +}
-> > > +
-> > > +static int
-> > > +ga102_chan_map(struct nvkm_object *object, void *argv, u32 argc,
-> > > +              enum nvkm_object_map *type, u64 *addr, u64 *size)
-> > > +{
-> > > +       struct ga102_chan *chan = ga102_chan(object);
-> > > +       struct nvkm_device *device = chan->object.engine->subdev.device;
-> > > +       u64 bar2 = nvkm_memory_bar2(chan->user);
-> > > +
-> > > +       if (bar2 == ~0ULL)
-> > > +               return -EFAULT;
-> > > +
-> > > +       *type = NVKM_OBJECT_MAP_IO;
-> > > +       *addr = device->func->resource_addr(device, 3) + bar2;
-> > > +       *size = 0x1000;
-> > > +       return 0;
-> > > +}
-> > > +
-> > > +static int
-> > > +ga102_chan_fini(struct nvkm_object *object, bool suspend)
-> > > +{
-> > > +       struct ga102_chan *chan = ga102_chan(object);
-> > > +       struct nvkm_device *device = chan->object.engine->subdev.device;
-> > > +
-> > > +       nvkm_wr32(device, chan->ctrl.chan, 0x00000003);
-> > > +
-> > > +       nvkm_wr32(device, chan->ctrl.runl + 0x098, 0x01000000);
-> > > +       nvkm_msec(device, 2000,
-> > > +               if (!(nvkm_rd32(device, chan->ctrl.runl + 0x098) & 0x00100000))
-> > > +                       break;
-> > > +       );
-> > > +
-> > > +       nvkm_wr32(device, chan->ctrl.runl + 0x088, 0);
-> > > +
-> > > +       nvkm_wr32(device, chan->ctrl.chan, 0xffffffff);
-> > > +       return 0;
-> > > +}
-> > > +
-> > > +static int
-> > > +ga102_chan_init(struct nvkm_object *object)
-> > > +{
-> > > +       struct ga102_chan *chan = ga102_chan(object);
-> > > +       struct nvkm_device *device = chan->object.engine->subdev.device;
-> > > +
-> > > +       nvkm_mask(device, chan->ctrl.runl + 0x300, 0x80000000, 0x80000000);
-> > > +
-> > > +       nvkm_wr32(device, chan->ctrl.runl + 0x080, lower_32_bits(nvkm_memory_addr(chan->runl)));
-> > > +       nvkm_wr32(device, chan->ctrl.runl + 0x084, upper_32_bits(nvkm_memory_addr(chan->runl)));
-> > > +       nvkm_wr32(device, chan->ctrl.runl + 0x088, 2);
-> > > +
-> > > +       nvkm_wr32(device, chan->ctrl.chan, 0x00000002);
-> > > +       nvkm_wr32(device, chan->ctrl.runl + 0x0090, 0);
-> > > +       return 0;
-> > > +}
-> > > +
-> > > +static void *
-> > > +ga102_chan_dtor(struct nvkm_object *object)
-> > > +{
-> > > +       struct ga102_chan *chan = ga102_chan(object);
-> > > +
-> > > +       if (chan->vmm) {
-> > > +               nvkm_vmm_part(chan->vmm, chan->inst);
-> > > +               nvkm_vmm_unref(&chan->vmm);
-> > > +       }
-> > > +
-> > > +       nvkm_memory_unref(&chan->runl);
-> > > +       nvkm_memory_unref(&chan->user);
-> > > +       nvkm_memory_unref(&chan->inst);
-> > > +       nvkm_memory_unref(&chan->mthd);
-> > > +       return chan;
-> > > +}
-> > > +
-> > > +static const struct nvkm_object_func
-> > > +ga102_chan = {
-> > > +       .dtor = ga102_chan_dtor,
-> > > +       .init = ga102_chan_init,
-> > > +       .fini = ga102_chan_fini,
-> > > +       .map = ga102_chan_map,
-> > > +       .sclass = ga102_chan_sclass,
-> > > +};
-> > > +
-> > > +static int
-> > > +ga102_chan_new(struct nvkm_device *device,
-> > > +              const struct nvkm_oclass *oclass, void *argv, u32 argc, struct nvkm_object **pobject)
-> > > +{
-> > > +       struct volta_channel_gpfifo_a_v0 *args = argv;
-> > > +       struct nvkm_top_device *tdev;
-> > > +       struct nvkm_vmm *vmm;
-> > > +       struct ga102_chan *chan;
-> > > +       int ret;
-> > > +
-> > > +       if (argc != sizeof(*args))
-> > > +               return -ENOSYS;
-> > > +
-> > > +       vmm = nvkm_uvmm_search(oclass->client, args->vmm);
-> > > +       if (IS_ERR(vmm))
-> > > +               return PTR_ERR(vmm);
-> > > +
-> > > +       if (!(chan = kzalloc(sizeof(*chan), GFP_KERNEL)))
-> > > +               return -ENOMEM;
-> > > +
-> > > +       nvkm_object_ctor(&ga102_chan, oclass, &chan->object);
-> > > +       *pobject = &chan->object;
-> > > +
-> > > +       list_for_each_entry(tdev, &device->top->device, head) {
-> > > +               if (tdev->type == NVKM_ENGINE_CE) {
-> > > +                       chan->ctrl.runl = tdev->runlist;
-> > > +                       break;
-> > > +               }
-> > > +       }
-> > > +
-> > > +       if (!chan->ctrl.runl)
-> > > +               return -ENODEV;
-> > > +
-> > > +       chan->ctrl.chan = nvkm_rd32(device, chan->ctrl.runl + 0x004) & 0xfffffff0;
-> > > +       args->token = nvkm_rd32(device, chan->ctrl.runl + 0x008) & 0xffff0000;
-> > > +
-> > > +       ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->mthd);
-> > > +       if (ret)
-> > > +               return ret;
-> > > +
-> > > +       ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->inst);
-> > > +       if (ret)
-> > > +               return ret;
-> > > +
-> > > +       nvkm_kmap(chan->inst);
-> > > +       nvkm_wo32(chan->inst, 0x010, 0x0000face);
-> > > +       nvkm_wo32(chan->inst, 0x030, 0x7ffff902);
-> > > +       nvkm_wo32(chan->inst, 0x048, lower_32_bits(args->ioffset));
-> > > +       nvkm_wo32(chan->inst, 0x04c, upper_32_bits(args->ioffset) |
-> > > +                                    (order_base_2(args->ilength) << 16));
-> > > +       nvkm_wo32(chan->inst, 0x084, 0x20400000);
-> > > +       nvkm_wo32(chan->inst, 0x094, 0x30000001);
-> > > +       nvkm_wo32(chan->inst, 0x0ac, 0x00020000);
-> > > +       nvkm_wo32(chan->inst, 0x0e4, 0x00000000);
-> > > +       nvkm_wo32(chan->inst, 0x0e8, 0);
-> > > +       nvkm_wo32(chan->inst, 0x0f4, 0x00001000);
-> > > +       nvkm_wo32(chan->inst, 0x0f8, 0x10003080);
-> > > +       nvkm_mo32(chan->inst, 0x218, 0x00000000, 0x00000000);
-> > > +       nvkm_wo32(chan->inst, 0x220, lower_32_bits(nvkm_memory_bar2(chan->mthd)));
-> > > +       nvkm_wo32(chan->inst, 0x224, upper_32_bits(nvkm_memory_bar2(chan->mthd)));
-> > > +       nvkm_done(chan->inst);
-> > > +
-> > > +       ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->user);
-> > > +       if (ret)
-> > > +               return ret;
-> > > +
-> > > +       ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->runl);
-> > > +       if (ret)
-> > > +               return ret;
-> > > +
-> > > +       nvkm_kmap(chan->runl);
-> > > +       nvkm_wo32(chan->runl, 0x00, 0x80030001);
-> > > +       nvkm_wo32(chan->runl, 0x04, 1);
-> > > +       nvkm_wo32(chan->runl, 0x08, 0);
-> > > +       nvkm_wo32(chan->runl, 0x0c, 0x00000000);
-> > > +       nvkm_wo32(chan->runl, 0x10, lower_32_bits(nvkm_memory_addr(chan->user)));
-> > > +       nvkm_wo32(chan->runl, 0x14, upper_32_bits(nvkm_memory_addr(chan->user)));
-> > > +       nvkm_wo32(chan->runl, 0x18, lower_32_bits(nvkm_memory_addr(chan->inst)));
-> > > +       nvkm_wo32(chan->runl, 0x1c, upper_32_bits(nvkm_memory_addr(chan->inst)));
-> > > +       nvkm_done(chan->runl);
-> >
-> > Do we actually have documentation on what those offsets all mean?
-> > (same for chan->inst above(
-> Yes.  The chan->inst stuff is NV_RAMFC (dev_ram.ref), and the copy
-> engine context data.  The chan->runl stuff is NV_RAMRL (also
-> dev_ram.ref).  It's actually almost identical to GV100, though RAMFC
-> lost USERD fields, they're only specified in the RAMRL entry now.  The
-> code is shared in the full host implementation I'm trying to finish
-> up.
->
+You will not see this in a MIME-aware mail reader.
+--===============0348017149==
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
 
-oh wow, that file has actual documentation.
+Ich bin Herr Yi Huiman, Vorsitzender der China Securities Regulatory Commis=
+sion. Ich habe einen Gesch=E4ftsvorschlag im Wert von 45.275.000,00 USD f=
+=FCr Sie. F=FCr weitere Informationen lesen Sie den Anhang unten
+--===============0348017149==
+Content-Type: application/pdf
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="Huiman.pdf"
 
-Cool, actually something to read through and understand :D Anyway, it
-seems like it actually is just like the volta code, just with more
-hard coded bits.
+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
+TTk/+eubOP7b5X9YJ4OoCmVuZHN0cmVhbQplbmRvYmoKCjMgMCBvYmoKMTc2OAplbmRvYmoKCjUg
+MCBvYmoKPDwvTGVuZ3RoIDYgMCBSL0ZpbHRlci9GbGF0ZURlY29kZS9MZW5ndGgxIDE4NzA0Pj4K
+c3RyZWFtCnic3XwHeFvXlea9r6AQjQ+9kOADHgGCRCFIkAQ7QYJVpGRSpCRChSLYREpsJqlmW7Fs
+WbJMF0kjd6fI3UkcG5QnsmNvYo8dZzJxiieTnXxOs514s7PJZDZxvomztgjtuQ+PFNVS5pvd79sF
+Ddxz7z23nXvuOf+578kLc3tHkRodRjSKDU8lZz/7jaVHEELfRgjrh/ct8N+48LEL6PegrHJsdtdU
+vOw1K0IUfLP27po8OPbNn8weQ0h9EqFi7/hocmSm7nQKoZqXgL9iHAp60m/KIf9byOePTy0cMOTP
+QdtaI/QZm5wZTj79jv8fEarrg/rHppIHZh9Qa4Cs+yP88NPJqdFHnvnvbyNUT8bbODszv/A6+vQF
+hNonSf3s3OhsU92+E5C/C/K3wBfDH/mogZSRPEXLFcoslVqj1WVzeoPRZLbY7I6cXGce73Lne7wF
+vsIifyAYKg6XRsrKK6KVVdW19bHGpnhzS1t7x7qu9RuuQ/9ffb6M7iBf1o0Qezv9fYTS5+SfXf4R
+W3LhQ8i/f+HD9KMkn0KBFD84FkzhAD/Cp17rTjHerSmmZVu/S3A5Fvv5VHd3vysVSzj4VCWhKhMJ
+PqVqSY6kfCSrauFTYUKECcdr3f38GL+4mORTWd39g1DCk7osQlUQqmLQMZhIJBwp5E8khBTq7h9N
+JIIpKsBDP4wnCVNg4939KVZoSsmEJofLlUjhwWCKDggwH35kiR1q4knNWRWmilxAxvlFfhG6Wwqz
+nsWe/sFuR3Jjol9IQF2stx8qHGT20lDBFBNIyeP+s4hC8cGmYIqFrNAk8CkkNCVT1NBYCg/DgCmm
+KJiSBXgyK6pl+CUGDfGkh1RsMEFYBpvFWckzHMgvLCkYzyDfsigkiRTFRSMHEUyKd8DwK+OnaI+Q
+bM40VgSWWLYlhZPNwZQyAEU8n1LG1xFGIISmRCqL5DZCLgtywVRWgE9lizPkYULDMFZKFR/kFwdh
+P2ANwZQq0NnXvyTHzYn8lGZUOBBMqQOdPf2dvZlChwvKDWK5JrCE1PFN/UtqdRxm0JTK8idSKJ6i
+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
+dRDNoQm0C9DgAuKRDywUeGVUSp6xwDcoUREoGwJeHrgOgv2aQZMoCTZsBEq60F60B3Lz6AbINcPv
+BBqFGpIOQ8l+SBegfx5thPJ5+M6hfSIHj1qhp2lx5A3QwxSU8oD740DPwQik3Qwi901kFNLbKHDP
+S233iuOT3nixf9K2F3UAJ4+ug5UR3rUjXNpDAEo2i63noXxG5C2Bkcj30vHJrHfBaJNiaYYnDBKp
+kWTRBdSlLWqAowqViTx90L4M5FgG7cLStwxqy+H30lZXn01mJB41Qe0C8JeIuSS0mhT3JCm2IHIe
+EaVL9pK03gW9zEAZWec8UBnZDovULPzOi6OSFjyUJMW9HRJ5ZtAY/NWI4yzA3xjU7hVnOA5tpiU9
+2SeupApViPoSFGdTKVJkP8qhltBtki5lcgfgN0PtF/e5Db4kt0X8HbtMHpfmeEjnxZWTWc1BStY7
+JfLskWb912tn6K9u8adrrz3nebH/jPZPrM6VaCmR77Ao+THxDExA+4Ore5vR9YxGdEEJ6Zech3Fx
+b2ZRNSqGv/3iX0jq8+JqQtKOF//V/Gu1KaOXxZesfecVay/+v2ZRfH/1agr/H7RDV65zHtoR2c5C
+2TzwzIu6EoJWcyDvYhitFXovhBKCEcXPhYfQ6+gqn86X0Dc39i9hfE/iKwoAWMN8CgvNKVqYTVla
+eD7lGxwj/9uK1f8PwFCKEprPqrCs6KxaBj9G+EmcZXzKlo3NZ9UKedGSDDcv5ePjPf2p2PH+JRnd
+vOQluZcYRLLkNe5E4iV84WiKuXuJFW/K/zcuSD5vCmVuZHN0cmVhbQplbmRvYmoKCjYgMCBvYmoK
+MTE0MjMKZW5kb2JqCgo3IDAgb2JqCjw8L1R5cGUvRm9udERlc2NyaXB0b3IvRm9udE5hbWUvQkFB
+QUFBK0NhcmxpdG8KL0ZsYWdzIDQKL0ZvbnRCQm94Wy00ODkgLTI1OCAxMTQ2IDEwMTRdL0l0YWxp
+Y0FuZ2xlIDAKL0FzY2VudCA3NTAKL0Rlc2NlbnQgLTI1MAovQ2FwSGVpZ2h0IDEwMTQKL1N0ZW1W
+IDgwCi9Gb250RmlsZTIgNSAwIFIKPj4KZW5kb2JqCgo4IDAgb2JqCjw8L0xlbmd0aCA1MjgvRmls
+dGVyL0ZsYXRlRGVjb2RlPj4Kc3RyZWFtCnicXZTNbqNAEITvPAXH7CGC+QEcyUJybCP5sD9aZx8A
+w9hBigGN8cFvv1Nds4m0B1s1Q/d0fc002fawO4zDkv3yU3d0S3oext6723T3nUtP7jKMidJpP3RL
+XMl/d23nJAu5x8dtcdfDeJ7W6yT7HZ7dFv9Inzb9dHLfkuyn750fxkv69Gd7DOvjfZ4/3NWNS5on
+dZ327hzO+d7OP9qryyTr+dCHx8PyeA4pXwFvj9mlWtaKVrqpd7e57Zxvx4tL1nlep+umqRM39v89
+K1dMOZ2799aHUBVC89zu6qC16LKANtQv0JZ6D12I1jl0yVzZrxijoFfUcuaL6MpAb7hvoV+Zu4Le
+MkZD70QXUnfPffHTsO42aJXzHOQq+i9lP/qvoOm/gE9F/3vUVfRfiY7+4VlF//Cp6N/Cj6L/8hU6
++m+g6b8soenfSi79Vxvo6N/GPioyFIjTZChQQ5OhQowmgwabJoOWfTJo9FqTwco+GUo5hwwNeqHJ
+UMGfJoMFgyaDAbMmg5HcyADfOjKgj5oMVjT9W7wPQ/8W5xv1xSlrMlj02EQG0WQwoslg5CwyGNQw
+ZDB4byYyiI4M6L0hQyG1yKBx1wwZDPpi4j2SWmQopBYZGuTaeI/K+H6s+lzL/bDkMOiJJYeFF0uO
+opIBi5OEUcO34N8Ip93d+zC+8sGQucXEDqP7/KbM04ws+f0FkXYN0wplbmRzdHJlYW0KZW5kb2Jq
+Cgo5IDAgb2JqCjw8L1R5cGUvRm9udC9TdWJ0eXBlL1RydWVUeXBlL0Jhc2VGb250L0JBQUFBQStD
+YXJsaXRvCi9GaXJzdENoYXIgMAovTGFzdENoYXIgNjgKL1dpZHRoc1s1MDYgODU0IDQ5NyAyMjkg
+NTI1IDIyNiA2NDUgNDc5IDc5OCAzOTEgNTI1IDYyMyAzNDggNDg3IDUyNSAyNDkKNTI1IDIyOSA0
+NzAgNTE2IDQ3OSAzMzQgNTc4IDQyMiA1NDMgNDU0IDUyNyAzMDUgNTMzIDM5NSA1NTcgNDU5CjU0
+MiA0NTIgMzAzIDMwMyAyNTIgMjUxIDUyNSA1MjUgNDUxIDUxOSA1MDYgNTA2IDMxOCA3MTQgNjMw
+IDQ4OAo0NTkgNjEyIDYxNSA1MDYgNTA2IDUwNiA1MDYgNTA2IDUyNSA2NjIgNTY3IDMwNiA1MDYg
+NDg3IDY0MSA1MjcKNTI5IDYxNSAyNjcgODk0IDg4OSBdCi9Gb250RGVzY3JpcHRvciA3IDAgUgov
+VG9Vbmljb2RlIDggMCBSCj4+CmVuZG9iagoKMTAgMCBvYmoKPDwvRjEgOSAwIFIKPj4KZW5kb2Jq
+CgoxMSAwIG9iago8PC9Gb250IDEwIDAgUgovUHJvY1NldFsvUERGL1RleHRdCj4+CmVuZG9iagoK
+MSAwIG9iago8PC9UeXBlL1BhZ2UvUGFyZW50IDQgMCBSL1Jlc291cmNlcyAxMSAwIFIvTWVkaWFC
+b3hbMCAwIDYxMiA3OTJdL0dyb3VwPDwvUy9UcmFuc3BhcmVuY3kvQ1MvRGV2aWNlUkdCL0kgdHJ1
+ZT4+L0NvbnRlbnRzIDIgMCBSPj4KZW5kb2JqCgo0IDAgb2JqCjw8L1R5cGUvUGFnZXMKL1Jlc291
+cmNlcyAxMSAwIFIKL01lZGlhQm94WyAwIDAgNjEyIDc5MiBdCi9LaWRzWyAxIDAgUiBdCi9Db3Vu
+dCAxPj4KZW5kb2JqCgoxMiAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgNCAwIFIKL09wZW5B
+Y3Rpb25bMSAwIFIgL1hZWiBudWxsIG51bGwgMF0KL0xhbmcoZW4tVVMpCj4+CmVuZG9iagoKMTMg
+MCBvYmoKPDwvQXV0aG9yPEZFRkYwMDMyMDAzMzAwMzQwMDM4MDAzMTAwMzMwMDMzMDAzMDAwMzQw
+MDM4MDAzNjAwMzIwMDMxPgovQ3JlYXRvcjxGRUZGMDA1NzAwNzIwMDY5MDA3NDAwNjUwMDcyPgov
+UHJvZHVjZXI8RkVGRjAwNEMwMDY5MDA2MjAwNzIwMDY1MDA0RjAwNjYwMDY2MDA2OTAwNjMwMDY1
+MDAyMDAwMzYwMDJFMDAzND4KL0NyZWF0aW9uRGF0ZShEOjIwMjEwOTAxMTcyODU2KzAyJzAwJyk+
+PgplbmRvYmoKCnhyZWYKMCAxNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMTQ3MDYgMDAwMDAg
+biAKMDAwMDAwMDAxOSAwMDAwMCBuIAowMDAwMDAxODU4IDAwMDAwIG4gCjAwMDAwMTQ4NDkgMDAw
+MDAgbiAKMDAwMDAwMTg3OSAwMDAwMCBuIAowMDAwMDEzMzg3IDAwMDAwIG4gCjAwMDAwMTM0MDkg
+MDAwMDAgbiAKMDAwMDAxMzU5OCAwMDAwMCBuIAowMDAwMDE0MTk1IDAwMDAwIG4gCjAwMDAwMTQ2
+MTkgMDAwMDAgbiAKMDAwMDAxNDY1MSAwMDAwMCBuIAowMDAwMDE0OTQ4IDAwMDAwIG4gCjAwMDAw
+MTUwNDUgMDAwMDAgbiAKdHJhaWxlcgo8PC9TaXplIDE0L1Jvb3QgMTIgMCBSCi9JbmZvIDEzIDAg
+UgovSUQgWyA8RTExQkEwOTVDRTJFNDM3RDk4OEYzRUNCMkMwNkQ1QzI+CjxFMTFCQTA5NUNFMkU0
+MzdEOTg4RjNFQ0IyQzA2RDVDMj4gXQovRG9jQ2hlY2tzdW0gLzNENzY4QzNCNEI4M0ZDQzc1MzQ5
+QURFRkFERENBODIxCj4+CnN0YXJ0eHJlZgoxNTI4NgolJUVPRgo=
 
-Overall I think the code is fine, so a
-
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
-
-I just don't know if I should feel comfortable getting into stable
-kernels or not, but as it does "fixes" prime offloading, even though
-it's more "enabling" than anything else. I think we might want to
-either add such a workaround for future gens as well or try to
-disallow setting up offloading? Not sure. If others are fine with it,
-so am I :)
-
-
-> >
-> > > +
-> > > +       ret = nvkm_vmm_join(vmm, chan->inst);
-> > > +       if (ret)
-> > > +               return ret;
-> > > +
-> > > +       chan->vmm = nvkm_vmm_ref(vmm);
-> > > +       return 0;
-> > > +}
-> > > +
-> > > +static const struct nvkm_device_oclass
-> > > +ga102_chan_oclass = {
-> > > +       .ctor = ga102_chan_new,
-> > > +};
-> > > +
-> > > +static int
-> > > +ga102_user_new(struct nvkm_device *device,
-> > > +              const struct nvkm_oclass *oclass, void *argv, u32 argc, struct nvkm_object **pobject)
-> > > +{
-> > > +       return tu102_fifo_user_new(oclass, argv, argc, pobject);
-> > > +}
-> > > +
-> > > +static const struct nvkm_device_oclass
-> > > +ga102_user_oclass = {
-> > > +       .ctor = ga102_user_new,
-> > > +};
-> > > +
-> > > +static int
-> > > +ga102_fifo_sclass(struct nvkm_oclass *oclass, int index, const struct nvkm_device_oclass **class)
-> > > +{
-> > > +       if (index == 0) {
-> > > +               oclass->base = (struct nvkm_sclass) { -1, -1, VOLTA_USERMODE_A };
-> > > +               *class = &ga102_user_oclass;
-> > > +               return 0;
-> > > +       } else
-> > > +       if (index == 1) {
-> > > +               oclass->base = (struct nvkm_sclass) { 0, 0, AMPERE_CHANNEL_GPFIFO_B };
-> > > +               *class = &ga102_chan_oclass;
-> > > +               return 0;
-> > > +       }
-> > > +
-> > > +       return 2;
-> > > +}
-> > > +
-> > > +static int
-> > > +ga102_fifo_info(struct nvkm_engine *engine, u64 mthd, u64 *data)
-> > > +{
-> > > +       switch (mthd) {
-> > > +       case NV_DEVICE_HOST_CHANNELS: *data = 1; return 0;
-> > > +       default:
-> > > +               break;
-> > > +       }
-> > > +
-> > > +       return -ENOSYS;
-> > > +}
-> > > +
-> > > +static void *
-> > > +ga102_fifo_dtor(struct nvkm_engine *engine)
-> > > +{
-> > > +       return ga102_fifo(engine);
-> > > +}
-> > > +
-> > > +static const struct nvkm_engine_func
-> > > +ga102_fifo = {
-> > > +       .dtor = ga102_fifo_dtor,
-> > > +       .info = ga102_fifo_info,
-> > > +       .base.sclass = ga102_fifo_sclass,
-> > > +};
-> > > +
-> > > +int
-> > > +ga102_fifo_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
-> > > +              struct nvkm_fifo **pfifo)
-> > > +{
-> > > +       struct ga102_fifo *fifo;
-> > > +
-> > > +       if (!(fifo = kzalloc(sizeof(*fifo), GFP_KERNEL)))
-> > > +               return -ENOMEM;
-> > > +
-> > > +       nvkm_engine_ctor(&ga102_fifo, device, type, inst, true, &fifo->base.engine);
-> > > +       *pfifo = &fifo->base;
-> > > +       return 0;
-> > > +}
-> > > diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c b/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c
-> > > index 31933f3e5a07..c982d834c8d9 100644
-> > > --- a/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c
-> > > +++ b/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c
-> > > @@ -54,7 +54,7 @@ ga100_top_oneinit(struct nvkm_top *top)
-> > >                         info->reset   = (data & 0x0000001f);
-> > >                         break;
-> > >                 case 2:
-> > > -                       info->runlist = (data & 0x0000fc00) >> 10;
-> > > +                       info->runlist = (data & 0x00fffc00);
-> > >                         info->engine  = (data & 0x00000003);
-> > >                         break;
-> > >                 default:
-> > > @@ -85,9 +85,10 @@ ga100_top_oneinit(struct nvkm_top *top)
-> > >                 }
-> > >
-> > >                 nvkm_debug(subdev, "%02x.%d (%8s): addr %06x fault %2d "
-> > > -                                  "runlist %2d engine %2d reset %2d\n", type, inst,
-> > > +                                  "runlist %6x engine %2d reset %2d\n", type, inst,
-> > >                            info->type == NVKM_SUBDEV_NR ? "????????" : nvkm_subdev_type[info->type],
-> > > -                          info->addr, info->fault, info->runlist, info->engine, info->reset);
-> > > +                          info->addr, info->fault, info->runlist < 0 ? 0 : info->runlist,
-> > > +                          info->engine, info->reset);
-> > >                 info = NULL;
-> > >         }
-> > >
-> > > --
-> > > 2.31.1
-> > >
-> >
-> > Overall the changes look fine. I don't know if the ampere
-> > implementation is itself correct, but the surrounding is fine imho.
-> >
->
-
+--===============0348017149==--
