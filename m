@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2BA8401BC4
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:58:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3834E401B84
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242679AbhIFM7T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 08:59:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36364 "EHLO mail.kernel.org"
+        id S242453AbhIFM5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:57:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242971AbhIFM7A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:59:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C483960238;
-        Mon,  6 Sep 2021 12:57:54 +0000 (UTC)
+        id S242457AbhIFM5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:57:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96B1F61027;
+        Mon,  6 Sep 2021 12:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933075;
-        bh=PccPhp9/jPxlR4OvAeMVMDKSr0uu4kaq5JhbYerJlf0=;
+        s=korg; t=1630932989;
+        bh=0Q8EKeXxkYgT94UKm7lT9utLHVkGRoZMzD9jbo+cAPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPxeXRUiaFhK+kchdaV1PhEKbxmEw0/g16jXTdHpuFG378X3kLctojvm5Rpcib6Pr
-         KkDCbqv6yoS0Iu/2GxaBIVr9Ww8ClY3oQflbYNO3dEBAnXMQQh1YW74QtrppYVr/kq
-         +Zp51Cd5z5K4ZF2AmsbCOtw0ZHf2Pf0J7W62xUTQ=
+        b=YpfML9hMLB4FbWldZGK2QrXGSY0UZEqUrzOgu7j+q4g11oFr7hQeOceF9slYd5efR
+         HWSHiCDNKJBbI2FiQaqYn4/jInSjoooQmVMtECzKuJU2MOHkeeWuUm1mTDC2aPI0CP
+         A///CZDIWcnJCM85QgFOvHunPEBr2gqtTkfNS6Bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Boyang Xue <bxue@redhat.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.13 02/24] ext4: fix e2fsprogs checksum failure for mounted filesystem
+        stable@vger.kernel.org, Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Shai Malin <smalin@marvell.com>,
+        Kees Cook <keescook@chromium.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 16/29] qede: Fix memset corruption
 Date:   Mon,  6 Sep 2021 14:55:31 +0200
-Message-Id: <20210906125449.193516869@linuxfoundation.org>
+Message-Id: <20210906125450.325804754@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210906125449.112564040@linuxfoundation.org>
-References: <20210906125449.112564040@linuxfoundation.org>
+In-Reply-To: <20210906125449.756437409@linuxfoundation.org>
+References: <20210906125449.756437409@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Shai Malin <smalin@marvell.com>
 
-commit b2bbb92f7042e8075fb036bf97043339576330c3 upstream.
+[ Upstream commit e543468869e2532f5d7926e8f417782b48eca3dc ]
 
-Commit 81414b4dd48 ("ext4: remove redundant sb checksum
-recomputation") removed checksum recalculation after updating
-superblock free space / inode counters in ext4_fill_super() based on
-the fact that we will recalculate the checksum on superblock
-writeout.
+Thanks to Kees Cook who detected the problem of memset that starting
+from not the first member, but sized for the whole struct.
+The better change will be to remove the redundant memset and to clear
+only the msix_cnt member.
 
-That is correct assumption but until the writeout happens (which can
-take a long time) the checksum is incorrect in the buffer cache and if
-programs such as tune2fs or resize2fs is called shortly after a file
-system is mounted can fail.  So return back the checksum recalculation
-and add a comment explaining why.
-
-Fixes: 81414b4dd48f ("ext4: remove redundant sb checksum recomputation")
-Cc: stable@kernel.org
-Reported-by: Boyang Xue <bxue@redhat.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210812124737.21981-1-jack@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Reported-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/qlogic/qede/qede_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5051,6 +5051,14 @@ no_journal:
- 		err = percpu_counter_init(&sbi->s_freeinodes_counter, freei,
- 					  GFP_KERNEL);
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
+index d9a3c811ac8b..e93f06e4a172 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_main.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
+@@ -1869,6 +1869,7 @@ static void qede_sync_free_irqs(struct qede_dev *edev)
  	}
-+	/*
-+	 * Update the checksum after updating free space/inode
-+	 * counters.  Otherwise the superblock can have an incorrect
-+	 * checksum in the buffer cache until it is written out and
-+	 * e2fsprogs programs trying to open a file system immediately
-+	 * after it is mounted can fail.
-+	 */
-+	ext4_superblock_csum_set(sb);
- 	if (!err)
- 		err = percpu_counter_init(&sbi->s_dirs_counter,
- 					  ext4_count_dirs(sb), GFP_KERNEL);
+ 
+ 	edev->int_info.used_cnt = 0;
++	edev->int_info.msix_cnt = 0;
+ }
+ 
+ static int qede_req_msix_irqs(struct qede_dev *edev)
+@@ -2409,7 +2410,6 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode,
+ 	goto out;
+ err4:
+ 	qede_sync_free_irqs(edev);
+-	memset(&edev->int_info.msix_cnt, 0, sizeof(struct qed_int_info));
+ err3:
+ 	qede_napi_disable_remove(edev);
+ err2:
+-- 
+2.30.2
+
 
 
