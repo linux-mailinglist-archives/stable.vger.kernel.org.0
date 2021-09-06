@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FF26401BE9
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB550401BEB
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:59:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242559AbhIFNAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 09:00:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37566 "EHLO mail.kernel.org"
+        id S242729AbhIFNAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 09:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243479AbhIFM7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:59:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E75861052;
-        Mon,  6 Sep 2021 12:58:36 +0000 (UTC)
+        id S243498AbhIFM7n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:59:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4DFE61076;
+        Mon,  6 Sep 2021 12:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933117;
-        bh=sKJu24ox6e6/cmQXLCi918Wr24EPoxVeJUDu80DyqFM=;
+        s=korg; t=1630933119;
+        bh=3+eCbje3fW8UTEA3knV/RI8TVK4lmKHcXv9hEXGbr98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z2lHbnfchU4xm1oJF0rU/QlXUK1+HiYgN6fxqjqsSIlcJRApYVtWUEvQDEOicJtED
-         K2Xje1NUM1iUI6j/vniuTPxNL4Q76PGmLwOLJjYjkunGXm/2ahw4L7r0kMjAeRsFE/
-         vbrxjp3v4TONMCllzsDW4HnIYC2I6kUS2rW7UpJo=
+        b=itERQJFWlYVDYhqFIy2uKyrhxKor5hOG6UxwXcjfFeMyNrA4MFrudKYA+73l9lMDE
+         hNjGM9paQvP70czS04f6WYY61r2K904YmbuT8qUXeOtyjRdtBfHCj8Eup6YymKAmoR
+         Ov5nois44r0i+GaacSboGYB4j2y6jqZgecRU3PtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.14 11/14] ALSA: hda/realtek: Workaround for conflicting SSID on ASUS ROG Strix G17
-Date:   Mon,  6 Sep 2021 14:55:57 +0200
-Message-Id: <20210906125448.557469841@linuxfoundation.org>
+        stable@vger.kernel.org, Zubin Mithra <zsm@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.14 12/14] ALSA: pcm: fix divide error in snd_pcm_lib_ioctl
+Date:   Mon,  6 Sep 2021 14:55:58 +0200
+Message-Id: <20210906125448.596897554@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210906125448.160263393@linuxfoundation.org>
 References: <20210906125448.160263393@linuxfoundation.org>
@@ -38,48 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Zubin Mithra <zsm@chromium.org>
 
-commit 13d9c6b998aaa76fd098133277a28a21f2cc2264 upstream.
+commit f3eef46f0518a2b32ca1244015820c35a22cfe4a upstream.
 
-ASUS ROG Strix G17 has the very same PCI and codec SSID (1043:103f) as
-ASUS TX300, and unfortunately, the existing quirk for TX300 is broken
-on ASUS ROG.  Actually the device works without the quirk, so we'll
-need to clear the quirk before applying for this device.
-Since ASUS ROG has a different codec (ALC294 - while TX300 has
-ALC282), this patch adds a workaround for the device, just clearing
-the codec->fixup_id by checking the codec vendor_id.
+Syzkaller reported a divide error in snd_pcm_lib_ioctl. fifo_size
+is of type snd_pcm_uframes_t(unsigned long). If frame_size
+is 0x100000000, the error occurs.
 
-It's a bit ugly to add such a workaround there, but it seems to be the
-simplest way.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214101
+Fixes: a9960e6a293e ("ALSA: pcm: fix fifo_size frame calculation")
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210820143214.3654-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20210827153735.789452-1-zsm@chromium.org
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/core/pcm_lib.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9522,6 +9522,16 @@ static int patch_alc269(struct hda_codec
- 
- 	snd_hda_pick_fixup(codec, alc269_fixup_models,
- 		       alc269_fixup_tbl, alc269_fixups);
-+	/* FIXME: both TX300 and ROG Strix G17 have the same SSID, and
-+	 * the quirk breaks the latter (bko#214101).
-+	 * Clear the wrong entry.
-+	 */
-+	if (codec->fixup_id == ALC282_FIXUP_ASUS_TX300 &&
-+	    codec->core.vendor_id == 0x10ec0294) {
-+		codec_dbg(codec, "Clear wrong fixup for ASUS ROG Strix G17\n");
-+		codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
-+	}
-+
- 	snd_hda_pick_pin_fixup(codec, alc269_pin_fixup_tbl, alc269_fixups, true);
- 	snd_hda_pick_pin_fixup(codec, alc269_fallback_pin_fixup_tbl, alc269_fixups, false);
- 	snd_hda_pick_fixup(codec, NULL,	alc269_fixup_vendor_tbl,
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1746,7 +1746,7 @@ static int snd_pcm_lib_ioctl_fifo_size(s
+ 		channels = params_channels(params);
+ 		frame_size = snd_pcm_format_size(format, channels);
+ 		if (frame_size > 0)
+-			params->fifo_size /= (unsigned)frame_size;
++			params->fifo_size /= frame_size;
+ 	}
+ 	return 0;
+ }
 
 
