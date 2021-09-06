@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 286E1401466
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3EBC401469
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244434AbhIFBdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:33:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47508 "EHLO mail.kernel.org"
+        id S1351440AbhIFBdN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:33:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351661AbhIFBaw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1351660AbhIFBaw (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 5 Sep 2021 21:30:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D40BF6113D;
-        Mon,  6 Sep 2021 01:24:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29EB26121E;
+        Mon,  6 Sep 2021 01:24:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891446;
-        bh=OoUqBVge1C9xES448Bjx3bhGyCuz5R+VhD+qKHAcN+E=;
+        s=k20201202; t=1630891448;
+        bh=6UmB6ykUfxJtqzo3qnDcVnv31GjeZXUQrxUoahVRJAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hsPgdn4AV085JG1OW+zXk0KYcHVQO2E9BwQrfJoCZlCshYueLQn5NWU9pa/mGNjg+
-         bngYYovh8JOfPAMPYRr7b9oTR21gBTPbb3Mg0O6tfZmDnH/YzpX8g0JvISXXDM6Uh9
-         AX/EfP3T8wv09u56trFGnMj+IQCsdKFM6K5Bc1PEX8YrDFiTwFOzqTJC1vSNrQGZx8
-         wf5r8EDqxJgESWqUhEjG0fELWAcK3bLOHF1hnS2nzi/HwcKrGOsG2hwVK3FhHIuLGE
-         NCtb5D5Lx70MI/aafO53mG7f/L3sUaGOXhBJyV/+pthmwVtK7eoeSZCape+jq/C+Em
-         y7n4WIPyXStHw==
+        b=NyY8YR2O+sNriSHQmxX2IJH/as1nPAPr3hibGi4iBQiVq2M7KR85T/UmBwy+3ndWa
+         +W9QZI+utilFOS1hlmVpiangpNXPfqyUi+UDG4u2uMNbbGsk7Y7lnZP6/O75R3ywnf
+         cgz+R8ZJgb6XF4cFROqDaFeb0vg3FlZVBT38CDhxBLW2Y3gtsz87jXEjHQW2oarJJy
+         0nwNQzJjOsWI5O2udf1LL4oiwqZx0xZSeO1YcZCHsOshU+j6NJJMYIBGb1Eg1C9JRh
+         22MfPMp9G3iUmDJfpY6lU++vxIuaT2dyswVZ6cCSLr6bLR/q2JfMWjLU4c8KZFu860
+         J2jI5w8gdVVsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Damien Le Moal <damien.lemoal@wdc.com>,
-        kernel test robot <lkp@intel.com>,
-        Hannes Reinecke <hare@suse.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 11/17] libata: fix ata_host_start()
-Date:   Sun,  5 Sep 2021 21:23:46 -0400
-Message-Id: <20210906012352.930954-11-sashal@kernel.org>
+Cc:     Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Fiona Trahe <fiona.trahe@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, qat-linux@intel.com,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 12/17] crypto: qat - do not ignore errors from enable_vf2pf_comms()
+Date:   Sun,  5 Sep 2021 21:23:47 -0400
+Message-Id: <20210906012352.930954-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012352.930954-1-sashal@kernel.org>
 References: <20210906012352.930954-1-sashal@kernel.org>
@@ -43,37 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 355a8031dc174450ccad2a61c513ad7222d87a97 ]
+[ Upstream commit 5147f0906d50a9d26f2b8698cd06b5680e9867ff ]
 
-The loop on entry of ata_host_start() may not initialize host->ops to a
-non NULL value. The test on the host_stop field of host->ops must then
-be preceded by a check that host->ops is not NULL.
+The function adf_dev_init() ignores the error code reported by
+enable_vf2pf_comms(). If the latter fails, e.g. the VF is not compatible
+with the pf, then the load of the VF driver progresses.
+This patch changes adf_dev_init() so that the error code from
+enable_vf2pf_comms() is returned to the caller.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Link: https://lore.kernel.org/r/20210816014456.2191776-3-damien.lemoal@wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/adf_init.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index c28b0ca24907..0f0ed04de886 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -6339,7 +6339,7 @@ int ata_host_start(struct ata_host *host)
- 			have_stop = 1;
+diff --git a/drivers/crypto/qat/qat_common/adf_init.c b/drivers/crypto/qat/qat_common/adf_init.c
+index 26556c713049..7a7d43c47534 100644
+--- a/drivers/crypto/qat/qat_common/adf_init.c
++++ b/drivers/crypto/qat/qat_common/adf_init.c
+@@ -105,6 +105,7 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
+ 	struct service_hndl *service;
+ 	struct list_head *list_itr;
+ 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
++	int ret;
+ 
+ 	if (!hw_data) {
+ 		dev_err(&GET_DEV(accel_dev),
+@@ -171,9 +172,9 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
  	}
  
--	if (host->ops->host_stop)
-+	if (host->ops && host->ops->host_stop)
- 		have_stop = 1;
+ 	hw_data->enable_error_correction(accel_dev);
+-	hw_data->enable_vf2pf_comms(accel_dev);
++	ret = hw_data->enable_vf2pf_comms(accel_dev);
  
- 	if (have_stop) {
+-	return 0;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(adf_dev_init);
+ 
 -- 
 2.30.2
 
