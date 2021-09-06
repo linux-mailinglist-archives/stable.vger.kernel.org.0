@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEE8E40147B
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E582F40147E
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239628AbhIFBdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:33:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48688 "EHLO mail.kernel.org"
+        id S240647AbhIFBdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:33:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351794AbhIFBbD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:31:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92F59611C9;
-        Mon,  6 Sep 2021 01:24:26 +0000 (UTC)
+        id S1351816AbhIFBbF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:31:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0310D61246;
+        Mon,  6 Sep 2021 01:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891467;
-        bh=hqK4GfwyrxKZtwjNnAU39wYf3mmtdL9Jnu9htZQlyfI=;
+        s=k20201202; t=1630891468;
+        bh=/e15gvj7qBjprY6aQymNkjhUTUd5HRUn2s6Stl57cDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UM2sPPunDEKaMP+txsijnZXey/MBdCinXG1UDwEew26T7REnTKFX5ZTzDAYUSt0YH
-         9CG+GRnnZTKwPaO6P0JgQQDUasOY/JgOzQch4r7l66oyF2tpkix5r5yF/uURfOHTEt
-         Pc5zN82Kao9dLEqu1oJvGfQD6Ix5Ew6gSPSs8n8OFyptud9yUNWqgxlC/4a9gqvK6p
-         8amDNtyK9bJAAy4XCzbS2DIqPQZgmvT+QzL0vQ+IHf/lsYvGQdLocfuHWKFal7dnlC
-         h29BD1nYkCf0hl7XK7zg84yRQOUsPbGEc8AjEQr1O7E5SC1mFPeUIbiaMF3peAl4+t
-         w9OqnU3SfiG/Q==
+        b=heKbaZHEjfqLlsoh2DL4pqFoPX+uRwPrVBrG2TGBf/08+mmJOiwAW9mhmUZ6ZBoOB
+         sFQQO0XFe6/FU/qHJ17k9Qym/f3dTZp+eeX/f6fsgiCCTZ6FtAQ7vYmPS1wtlNPBv3
+         /IyWFG6O/nXlln/ZL8+zr7U7ThrlwkArcqf0mSIppr0mJWsqt41KuM79g+PGQj/7BC
+         KoPpLJmQS8HbLxV7aXYR6kC0jn0xi08pJ4+keCVcH3nrSw1oJMWQ1KxUxxDFS9WhUE
+         e6bU4jGMV4TlAuN2geOExTaiTRMt0oa5c3mt1M8ZbhnWrU6++XFWVBdA5xgsKC8c+D
+         ie463/fQePrww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
@@ -31,9 +31,9 @@ Cc:     Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>, qat-linux@intel.com,
         linux-crypto@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 09/14] crypto: qat - do not ignore errors from enable_vf2pf_comms()
-Date:   Sun,  5 Sep 2021 21:24:10 -0400
-Message-Id: <20210906012415.931147-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 10/14] crypto: qat - handle both source of interrupt in VF ISR
+Date:   Sun,  5 Sep 2021 21:24:11 -0400
+Message-Id: <20210906012415.931147-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906012415.931147-1-sashal@kernel.org>
 References: <20210906012415.931147-1-sashal@kernel.org>
@@ -47,13 +47,15 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 5147f0906d50a9d26f2b8698cd06b5680e9867ff ]
+[ Upstream commit 0a73c762e1eee33a5e5dc0e3488f1b7cd17249b3 ]
 
-The function adf_dev_init() ignores the error code reported by
-enable_vf2pf_comms(). If the latter fails, e.g. the VF is not compatible
-with the pf, then the load of the VF driver progresses.
-This patch changes adf_dev_init() so that the error code from
-enable_vf2pf_comms() is returned to the caller.
+The top half of the VF drivers handled only a source at the time.
+If an interrupt for PF2VF and bundle occurred at the same time, the ISR
+scheduled only the bottom half for PF2VF.
+This patch fixes the VF top half so that if both sources of interrupt
+trigger at the same time, both bottom halves are scheduled.
+
+This patch is based on earlier work done by Conor McLoughlin.
 
 Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
@@ -61,33 +63,43 @@ Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_init.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/crypto/qat/qat_common/adf_vf_isr.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_init.c b/drivers/crypto/qat/qat_common/adf_init.c
-index 888c6675e7e5..03856cc604b6 100644
---- a/drivers/crypto/qat/qat_common/adf_init.c
-+++ b/drivers/crypto/qat/qat_common/adf_init.c
-@@ -101,6 +101,7 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
- 	struct service_hndl *service;
- 	struct list_head *list_itr;
- 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
-+	int ret;
+diff --git a/drivers/crypto/qat/qat_common/adf_vf_isr.c b/drivers/crypto/qat/qat_common/adf_vf_isr.c
+index 4c1217ba83ae..36db3c443e7e 100644
+--- a/drivers/crypto/qat/qat_common/adf_vf_isr.c
++++ b/drivers/crypto/qat/qat_common/adf_vf_isr.c
+@@ -203,6 +203,7 @@ static irqreturn_t adf_isr(int irq, void *privdata)
+ 	struct adf_bar *pmisc =
+ 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
+ 	void __iomem *pmisc_bar_addr = pmisc->virt_addr;
++	bool handled = false;
+ 	u32 v_int;
  
- 	if (!hw_data) {
- 		dev_err(&GET_DEV(accel_dev),
-@@ -167,9 +168,9 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
+ 	/* Read VF INT source CSR to determine the source of VF interrupt */
+@@ -215,7 +216,7 @@ static irqreturn_t adf_isr(int irq, void *privdata)
+ 
+ 		/* Schedule tasklet to handle interrupt BH */
+ 		tasklet_hi_schedule(&accel_dev->vf.pf2vf_bh_tasklet);
+-		return IRQ_HANDLED;
++		handled = true;
  	}
  
- 	hw_data->enable_error_correction(accel_dev);
--	hw_data->enable_vf2pf_comms(accel_dev);
-+	ret = hw_data->enable_vf2pf_comms(accel_dev);
+ 	/* Check bundle interrupt */
+@@ -227,10 +228,10 @@ static irqreturn_t adf_isr(int irq, void *privdata)
+ 		WRITE_CSR_INT_FLAG_AND_COL(bank->csr_addr, bank->bank_number,
+ 					   0);
+ 		tasklet_hi_schedule(&bank->resp_handler);
+-		return IRQ_HANDLED;
++		handled = true;
+ 	}
  
--	return 0;
-+	return ret;
+-	return IRQ_NONE;
++	return handled ? IRQ_HANDLED : IRQ_NONE;
  }
- EXPORT_SYMBOL_GPL(adf_dev_init);
  
+ static int adf_request_msi_irq(struct adf_accel_dev *accel_dev)
 -- 
 2.30.2
 
