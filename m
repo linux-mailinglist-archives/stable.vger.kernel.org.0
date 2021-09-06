@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE0A1401C0A
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 15:00:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FF26401BE9
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:59:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243583AbhIFNBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 09:01:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38324 "EHLO mail.kernel.org"
+        id S242559AbhIFNAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 09:00:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243687AbhIFNAH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 09:00:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9A6E61039;
-        Mon,  6 Sep 2021 12:59:02 +0000 (UTC)
+        id S243479AbhIFM7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:59:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E75861052;
+        Mon,  6 Sep 2021 12:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933143;
-        bh=F4nW9+6bqy5jXUpLK5Zm71GCJLXbHcqGgL5PNruXAeY=;
+        s=korg; t=1630933117;
+        bh=sKJu24ox6e6/cmQXLCi918Wr24EPoxVeJUDu80DyqFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VpmIpLWhGIa2IDzHKr1uwlN46+nV/M43NdnRoPlyu0xtoWGOsJ1cICZXIlN04fGuR
-         DeBXkJY15I+Uzhf5EvultjxGhUHqkvyrmnblXNIX/5wo+X2953G85e1fY+oaTuulqq
-         srhp5YLbnG45sjb2uYFXyZjUCscNd8lH/rRPEU94=
+        b=Z2lHbnfchU4xm1oJF0rU/QlXUK1+HiYgN6fxqjqsSIlcJRApYVtWUEvQDEOicJtED
+         K2Xje1NUM1iUI6j/vniuTPxNL4Q76PGmLwOLJjYjkunGXm/2ahw4L7r0kMjAeRsFE/
+         vbrxjp3v4TONMCllzsDW4HnIYC2I6kUS2rW7UpJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.14 10/14] ALSA: usb-audio: Fix regression on Sony WALKMAN NW-A45 DAC
-Date:   Mon,  6 Sep 2021 14:55:56 +0200
-Message-Id: <20210906125448.527911430@linuxfoundation.org>
+Subject: [PATCH 5.14 11/14] ALSA: hda/realtek: Workaround for conflicting SSID on ASUS ROG Strix G17
+Date:   Mon,  6 Sep 2021 14:55:57 +0200
+Message-Id: <20210906125448.557469841@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210906125448.160263393@linuxfoundation.org>
 References: <20210906125448.160263393@linuxfoundation.org>
@@ -40,47 +40,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 7af5a14371c1cf94a41f08eabb62a3faceec8911 upstream.
+commit 13d9c6b998aaa76fd098133277a28a21f2cc2264 upstream.
 
-We've got a regression report for USB-audio with Sony WALKMAN NW-A45
-DAC device where no sound is audible on recent kernel.  The bisection
-resulted in the code change wrt endpoint management, and the further
-debug session revealed that it was caused by the order of the USB
-audio interface.  In the earlier code, we always set up the USB
-interface at first before other setups, but it was changed to be done
-at the last for UAC2/3, which is more standard way, while keeping the
-old way for UAC1.  OTOH, this device seems requiring the setup of the
-interface at first just like UAC1.
+ASUS ROG Strix G17 has the very same PCI and codec SSID (1043:103f) as
+ASUS TX300, and unfortunately, the existing quirk for TX300 is broken
+on ASUS ROG.  Actually the device works without the quirk, so we'll
+need to clear the quirk before applying for this device.
+Since ASUS ROG has a different codec (ALC294 - while TX300 has
+ALC282), this patch adds a workaround for the device, just clearing
+the codec->fixup_id by checking the codec vendor_id.
 
-This patch works around the regression by applying the interface setup
-specifically for the WALKMAN at the beginning of the endpoint setup
-procedure.  This change is written straightforwardly to be easily
-backported in old kernels.  A further cleanup to move the workaround
-into a generic quirk section will follow in a later patch.
+It's a bit ugly to add such a workaround there, but it seems to be the
+simplest way.
 
-Fixes: bf6313a0ff76 ("ALSA: usb-audio: Refactor endpoint management")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214101
 Cc: <stable@vger.kernel.org>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214105
-Link: https://lore.kernel.org/r/20210824054700.8236-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20210820143214.3654-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/endpoint.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ sound/pci/hda/patch_realtek.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -1287,6 +1287,11 @@ int snd_usb_endpoint_configure(struct sn
- 	 * to be set up before parameter setups
- 	 */
- 	iface_first = ep->cur_audiofmt->protocol == UAC_VERSION_1;
-+	/* Workaround for Sony WALKMAN NW-A45 DAC;
-+	 * it requires the interface setup at first like UAC1
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9522,6 +9522,16 @@ static int patch_alc269(struct hda_codec
+ 
+ 	snd_hda_pick_fixup(codec, alc269_fixup_models,
+ 		       alc269_fixup_tbl, alc269_fixups);
++	/* FIXME: both TX300 and ROG Strix G17 have the same SSID, and
++	 * the quirk breaks the latter (bko#214101).
++	 * Clear the wrong entry.
 +	 */
-+	if (chip->usb_id == USB_ID(0x054c, 0x0b8c))
-+		iface_first = true;
- 	if (iface_first) {
- 		err = endpoint_set_interface(chip, ep, true);
- 		if (err < 0)
++	if (codec->fixup_id == ALC282_FIXUP_ASUS_TX300 &&
++	    codec->core.vendor_id == 0x10ec0294) {
++		codec_dbg(codec, "Clear wrong fixup for ASUS ROG Strix G17\n");
++		codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
++	}
++
+ 	snd_hda_pick_pin_fixup(codec, alc269_pin_fixup_tbl, alc269_fixups, true);
+ 	snd_hda_pick_pin_fixup(codec, alc269_fallback_pin_fixup_tbl, alc269_fixups, false);
+ 	snd_hda_pick_fixup(codec, NULL,	alc269_fixup_vendor_tbl,
 
 
