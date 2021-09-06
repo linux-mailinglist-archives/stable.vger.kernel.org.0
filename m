@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 905DB401BB5
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D39401BB9
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:58:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242919AbhIFM65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 08:58:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35632 "EHLO mail.kernel.org"
+        id S243096AbhIFM7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:59:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242728AbhIFM6d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:58:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CF7361050;
-        Mon,  6 Sep 2021 12:57:28 +0000 (UTC)
+        id S242991AbhIFM6g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:58:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF37E61052;
+        Mon,  6 Sep 2021 12:57:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933049;
-        bh=abuErqcroEVMRrvQQG4hxa9a9UeiyGaWc4yYlMcyEpM=;
+        s=korg; t=1630933051;
+        bh=XTeGxOIsRjhNchLp8E3OiO0GBydqMgFT84tuT1oUj0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6PNqLwXsvvW+7mLC7Y847rlNHNwkMrI/xJnQef9MnYiCcnPTN8NjYQKnq70Wq5RO
-         IDFjRGNHg9N2GaNyDlTfLoUDlsAhGXgvkRNf4HMBpmmU0ytvPqNKmB6tMHblq5PEEn
-         3k4fHzun94w5RQ/e/+BQPWDaufUE1qwhwhBGjcb8=
+        b=OZ9UjKenoTCB1ek6xPsDyAy3eFSfabIgNT2vF1FD+rGm+0PSldr6vWIgNTlk+1ZjS
+         jVJo4X2ufi1AunLCJXoVDzW63VE2APW/G8TqoX0jwczfqjfNDEOsDDvuHjgorHzxnW
+         EUmTYRRe0TPEnwYAiOZWCg1VFNaK8FufIBNn2Bsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prabhakar Kushwaha <pkushwaha@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Shai Malin <smalin@marvell.com>,
-        Kees Cook <keescook@chromium.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Xiaoyao Li <xiaoyao.li@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 10/24] qede: Fix memset corruption
-Date:   Mon,  6 Sep 2021 14:55:39 +0200
-Message-Id: <20210906125449.451044864@linuxfoundation.org>
+Subject: [PATCH 5.13 11/24] perf/x86/intel/pt: Fix mask of num_address_ranges
+Date:   Mon,  6 Sep 2021 14:55:40 +0200
+Message-Id: <20210906125449.483125622@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210906125449.112564040@linuxfoundation.org>
 References: <20210906125449.112564040@linuxfoundation.org>
@@ -43,46 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shai Malin <smalin@marvell.com>
+From: Xiaoyao Li <xiaoyao.li@intel.com>
 
-[ Upstream commit e543468869e2532f5d7926e8f417782b48eca3dc ]
+[ Upstream commit c53c6b7409f4cd9e542991b53d597fbe2751d7db ]
 
-Thanks to Kees Cook who detected the problem of memset that starting
-from not the first member, but sized for the whole struct.
-The better change will be to remove the redundant memset and to clear
-only the msix_cnt member.
+Per SDM, bit 2:0 of CPUID(0x14,1).EAX[2:0] reports the number of
+configurable address ranges for filtering, not bit 1:0.
 
-Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Shai Malin <smalin@marvell.com>
-Reported-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xiaoyao Li <xiaoyao.li@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lkml.kernel.org/r/20210824040622.4081502-1-xiaoyao.li@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_main.c | 2 +-
+ arch/x86/events/intel/pt.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
-index 7c6064baeba2..1c7f9ed6f1c1 100644
---- a/drivers/net/ethernet/qlogic/qede/qede_main.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
-@@ -1874,6 +1874,7 @@ static void qede_sync_free_irqs(struct qede_dev *edev)
- 	}
- 
- 	edev->int_info.used_cnt = 0;
-+	edev->int_info.msix_cnt = 0;
- }
- 
- static int qede_req_msix_irqs(struct qede_dev *edev)
-@@ -2427,7 +2428,6 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode,
- 	goto out;
- err4:
- 	qede_sync_free_irqs(edev);
--	memset(&edev->int_info.msix_cnt, 0, sizeof(struct qed_int_info));
- err3:
- 	qede_napi_disable_remove(edev);
- err2:
+diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
+index 915847655c06..b044577785bb 100644
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -62,7 +62,7 @@ static struct pt_cap_desc {
+ 	PT_CAP(single_range_output,	0, CPUID_ECX, BIT(2)),
+ 	PT_CAP(output_subsys,		0, CPUID_ECX, BIT(3)),
+ 	PT_CAP(payloads_lip,		0, CPUID_ECX, BIT(31)),
+-	PT_CAP(num_address_ranges,	1, CPUID_EAX, 0x3),
++	PT_CAP(num_address_ranges,	1, CPUID_EAX, 0x7),
+ 	PT_CAP(mtc_periods,		1, CPUID_EAX, 0xffff0000),
+ 	PT_CAP(cycle_thresholds,	1, CPUID_EBX, 0xffff),
+ 	PT_CAP(psb_periods,		1, CPUID_EBX, 0xffff0000),
 -- 
 2.30.2
 
