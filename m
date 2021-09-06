@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA45C401BFA
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 328F4401BCE
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 14:58:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243981AbhIFNAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 09:00:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36784 "EHLO mail.kernel.org"
+        id S242699AbhIFM7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 08:59:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243340AbhIFM7z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 6 Sep 2021 08:59:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74F686108D;
-        Mon,  6 Sep 2021 12:58:50 +0000 (UTC)
+        id S243273AbhIFM7J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 6 Sep 2021 08:59:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B23F361077;
+        Mon,  6 Sep 2021 12:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1630933130;
-        bh=w11nx2O0Iv4yalhiKt0toQ28MWc0Vtxq3Gql6Am9A0Q=;
+        s=korg; t=1630933085;
+        bh=3+eCbje3fW8UTEA3knV/RI8TVK4lmKHcXv9hEXGbr98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wAQLlpWUx/zzR20ugwS0Ag2D52TGVzFRVwQdcAEU+xFByYYGnKUre9MUfjrhsx0u7
-         7aALijmKBENlfIYy299s6JMDad7VjJ+eCkPU8jLvH7yVlWAbPUCwETDZe++TCWX7mH
-         sQY3j593mhFgNPwsIMDjDquCluD6FLhTJouNml7k=
+        b=ZOFVaDm/vwLt9r9KWKspNZcCwxiJgf6N/5Zp5WvpQjO4AiKKqUUsalVroVLByejP9
+         RbKrLSaSEz3IG+09WdeNW+/UrACaPk93buD60mUjd19CyQPcsLT2MqWD3qjoulVhAh
+         uNObsCAHvkdMjYfgw1g0w77knlG9/Ty78QAuOKUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.14 05/14] USB: serial: cp210x: fix control-characters error handling
-Date:   Mon,  6 Sep 2021 14:55:51 +0200
-Message-Id: <20210906125448.343349963@linuxfoundation.org>
+        stable@vger.kernel.org, Zubin Mithra <zsm@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.13 23/24] ALSA: pcm: fix divide error in snd_pcm_lib_ioctl
+Date:   Mon,  6 Sep 2021 14:55:52 +0200
+Message-Id: <20210906125449.877189197@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210906125448.160263393@linuxfoundation.org>
-References: <20210906125448.160263393@linuxfoundation.org>
+In-Reply-To: <20210906125449.112564040@linuxfoundation.org>
+References: <20210906125449.112564040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,52 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Zubin Mithra <zsm@chromium.org>
 
-commit 2d9a00705910ccea2dc5d9cba5469ff2de72fc87 upstream.
+commit f3eef46f0518a2b32ca1244015820c35a22cfe4a upstream.
 
-In the unlikely event that setting the software flow-control characters
-fails the other flow-control settings should still be updated (just like
-all other terminal settings).
+Syzkaller reported a divide error in snd_pcm_lib_ioctl. fifo_size
+is of type snd_pcm_uframes_t(unsigned long). If frame_size
+is 0x100000000, the error occurs.
 
-Move out the error message printed by the set_chars() helper to make it
-more obvious that this is intentional.
-
-Fixes: 7748feffcd80 ("USB: serial: cp210x: add support for software flow control")
-Cc: stable@vger.kernel.org	# 5.11
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: a9960e6a293e ("ALSA: pcm: fix fifo_size frame calculation")
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210827153735.789452-1-zsm@chromium.org
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/core/pcm_lib.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -1164,10 +1164,8 @@ static int cp210x_set_chars(struct usb_s
- 
- 	kfree(dmabuf);
- 
--	if (result < 0) {
--		dev_err(&port->dev, "failed to set special chars: %d\n", result);
-+	if (result < 0)
- 		return result;
--	}
- 
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1746,7 +1746,7 @@ static int snd_pcm_lib_ioctl_fifo_size(s
+ 		channels = params_channels(params);
+ 		frame_size = snd_pcm_format_size(format, channels);
+ 		if (frame_size > 0)
+-			params->fifo_size /= (unsigned)frame_size;
++			params->fifo_size /= frame_size;
+ 	}
  	return 0;
  }
-@@ -1219,8 +1217,10 @@ static void cp210x_set_flow_control(stru
- 		chars.bXoffChar = STOP_CHAR(tty);
- 
- 		ret = cp210x_set_chars(port, &chars);
--		if (ret)
--			return;
-+		if (ret) {
-+			dev_err(&port->dev, "failed to set special chars: %d\n",
-+					ret);
-+		}
- 	}
- 
- 	mutex_lock(&port_priv->mutex);
 
 
