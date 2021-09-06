@@ -2,234 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A67140160E
-	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 07:52:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE9640162B
+	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 08:05:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235152AbhIFFxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 01:53:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56144 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbhIFFxO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Sep 2021 01:53:14 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34DF6C061575
-        for <stable@vger.kernel.org>; Sun,  5 Sep 2021 22:52:10 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id t1so5671481pgv.3
-        for <stable@vger.kernel.org>; Sun, 05 Sep 2021 22:52:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=4dvyc/af6fEhvWN7zhm44XlzNhAgXOR6BPsddaz3UA0=;
-        b=dlfuVOyl0xdBCPpJThUu5qcWvAA2J17r38MIYCkJzMZjfqfWyVSkz7pBCu11YIa4eW
-         d9OHNguNi0bdl/yHdLLGdoJDl6dutnYJRbOK6s4OwVQKgLCu3pxSpbnaGZpxDlZ8jcBV
-         1u4yscpOXY9aZ66irdtmBzIeKeOl42A2Hy/+beE2gH3z+020OYzboV4RMJOo60I0grFn
-         GAqHI44KrlZXkVnN/j3NraKrzHWUYTAybYbYxksDVLWa1qmVnZACEXratUd5LLsLsyfk
-         XaVI/epz1hj7NGuroBAe99sqJtCOmRSVUMo5XUS+iimoEEtRfsw7ht1doXjdu9Yp8ZPF
-         mW/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=4dvyc/af6fEhvWN7zhm44XlzNhAgXOR6BPsddaz3UA0=;
-        b=DnL8DpZHkWnTXTYZxct/lKnT6QH8Us0JDnsmm3jsPy0i3gvyiUXXriGtIJqSeah5Ur
-         pcFCvq9UsP3bxTwMA50iUmKMi6QZXegxCyRqzRQznDu+Jwfslyo8L3hbuhVVYx4TeHsJ
-         j2NBBXYqeGyOQnstp+FNniSPYSATZtTyeHdMYPGMatNhmfXOZhZvzQJlPPAXEH0PiDnl
-         Wv51RP2PbLiFXnmGWmRhrauevuaAkklV2YX7lA6pygWgHno61fXEUqbRmZhmLbRNnk+w
-         bxx8GhvM2JftXbOkp90i/TEAXz9d4EbrBKAzgfrDGWQRoPUJmf6xl2azt97hCMaMxWW9
-         raxQ==
-X-Gm-Message-State: AOAM531j8/uNeiNaHUSR9pvraJfM8j6395sek0Hv0iURf2N4f7/OGq4o
-        CbP5adeYEZcp9I2Ygb19l3FxuSTtT3Ff/V6G
-X-Google-Smtp-Source: ABdhPJxxSzh3g8GEW7TakYv8/9pItV5OyAUNbK+KVjfPWoGX0xy3YCQVs8erTk5a3G1qzmmrA2DbYA==
-X-Received: by 2002:a65:404d:: with SMTP id h13mr10811212pgp.130.1630907529483;
-        Sun, 05 Sep 2021 22:52:09 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b27sm7395903pge.52.2021.09.05.22.52.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Sep 2021 22:52:09 -0700 (PDT)
-Message-ID: <6135ac89.1c69fb81.23868.5a18@mx.google.com>
-Date:   Sun, 05 Sep 2021 22:52:09 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S238941AbhIFGGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 02:06:30 -0400
+Received: from mo-csw1114.securemx.jp ([210.130.202.156]:56392 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230046AbhIFGG3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Sep 2021 02:06:29 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1114) id 18665OTI001342; Mon, 6 Sep 2021 15:05:24 +0900
+X-Iguazu-Qid: 2wHH6p2Z5wNq93JvTX
+X-Iguazu-QSIG: v=2; s=0; t=1630908324; q=2wHH6p2Z5wNq93JvTX; m=IBk0ow9+6eQiwzWPNmbwY5PAVXFm5nzwVfWUXOn9bJg=
+Received: from imx2-a.toshiba.co.jp (imx2-a.toshiba.co.jp [106.186.93.35])
+        by relay.securemx.jp (mx-mr1111) id 18665Na7012743
+        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
+        Mon, 6 Sep 2021 15:05:24 +0900
+Received: from enc01.toshiba.co.jp (enc01.toshiba.co.jp [106.186.93.100])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by imx2-a.toshiba.co.jp (Postfix) with ESMTPS id B2B6B1000D9
+        for <stable@vger.kernel.org>; Mon,  6 Sep 2021 15:05:23 +0900 (JST)
+Received: from hop001.toshiba.co.jp ([133.199.164.63])
+        by enc01.toshiba.co.jp  with ESMTP id 18665NBM017821
+        for <stable@vger.kernel.org>; Mon, 6 Sep 2021 15:05:23 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH for 5.10.y] serial: 8250: 8250_omap: Fix possible array out of bounds access
+Date:   Mon,  6 Sep 2021 15:05:12 +0900
+X-TSB-HOP: ON
+Message-Id: <20210906060512.2913106-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.13.14-15-g3835d2f168e4
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.13
-Subject: stable-rc/queue/5.13 baseline: 213 runs,
- 4 regressions (v5.13.14-15-g3835d2f168e4)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.13 baseline: 213 runs, 4 regressions (v5.13.14-15-g3835d2=
-f168e4)
+From: Vignesh Raghavendra <vigneshr@ti.com>
 
-Regressions Summary
--------------------
+commit d4548b14dd7e5c698f81ce23ce7b69a896373b45 upstream.
 
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig  | 1          =
+k3_soc_devices array is missing a sentinel entry which may result in out
+of bounds access as reported by kernel KASAN.
 
-beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
-nfig | 1          =
+Fix this by adding a sentinel entry.
 
-imx8mp-evk              | arm64 | lab-nxp      | gcc-8    | defconfig      =
-     | 1          =
+Fixes: 439c7183e5b9 ("serial: 8250: 8250_omap: Disable RX interrupt after DMA enable")
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20201111112653.2710-1-vigneshr@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+---
+ drivers/tty/serial/8250/8250_omap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
-nel/v5.13.14-15-g3835d2f168e4/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.13
-  Describe: v5.13.14-15-g3835d2f168e4
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3835d2f168e480dd434ecf41382b9ce2cf430c8b =
-
-
-
-Test Regressions
----------------- =
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index 95e2d6de4f2134..ad0549dac7d792 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -1211,6 +1211,7 @@ static int omap8250_no_handle_irq(struct uart_port *port)
+ static const struct soc_device_attribute k3_soc_devices[] = {
+ 	{ .family = "AM65X",  },
+ 	{ .family = "J721E", .revision = "SR1.0" },
++	{ /* sentinel */ }
+ };
+ 
+ static struct omap8250_dma_params am654_dma = {
+-- 
+2.33.0
 
 
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61357cc6eb49e9f024d5967e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-15-g3835d2f168e4/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-15-g3835d2f168e4/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61357cc6eb49e9f024d59=
-67f
-        failing since 1 day (last pass: v5.13.14-2-g1b53bca7aeb0, first fai=
-l: v5.13.14-2-g74aad924bd80) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61357b72671caa7da6d5969f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-15-g3835d2f168e4/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-15-g3835d2f168e4/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61357b72671caa7da6d59=
-6a0
-        failing since 39 days (last pass: v5.13.5-224-g078d5e3a85db, first =
-fail: v5.13.5-223-g3a7649e5ffb5) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-imx8mp-evk              | arm64 | lab-nxp      | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61357c0181c7fdb73ed59693
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-15-g3835d2f168e4/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-15-g3835d2f168e4/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61357c0181c7fdb73ed59=
-694
-        failing since 1 day (last pass: v5.13.14-2-g1b53bca7aeb0, first fai=
-l: v5.13.14-2-g74aad924bd80) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61357b1373c9767ef5d59674
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-15-g3835d2f168e4/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banan=
-api-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-15-g3835d2f168e4/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banan=
-api-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61357b1373c9767ef5d59=
-675
-        failing since 1 day (last pass: v5.13.14-2-g1b53bca7aeb0, first fai=
-l: v5.13.14-2-g74aad924bd80) =
-
- =20
