@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F17C4012CD
+	by mail.lfdr.de (Postfix) with ESMTP id D55DE4012CF
 	for <lists+stable@lfdr.de>; Mon,  6 Sep 2021 03:22:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239371AbhIFBW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Sep 2021 21:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37738 "EHLO mail.kernel.org"
+        id S239016AbhIFBW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Sep 2021 21:22:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239030AbhIFBVt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 5 Sep 2021 21:21:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E080061027;
-        Mon,  6 Sep 2021 01:20:44 +0000 (UTC)
+        id S239033AbhIFBVu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 5 Sep 2021 21:21:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BF10610E8;
+        Mon,  6 Sep 2021 01:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1630891245;
-        bh=V4zQKo3zm95xUkUBmIe5IpXxDHQrL+nsc7ZQnDPEk0M=;
+        s=k20201202; t=1630891246;
+        bh=UFRJs25GAxMiG7B0qj1s1sKyWGAdP0VM+21PtaJwPdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dXJOjvQTxBUssuMaRjB6ttr1H1zrt2tsbgxOxX/xV3NqcKfuI7zH1AnAmZN0Nc2SN
-         KeTvparVf/Myf0ig3FsWV77ivxH7AVQcU86Xtpc1LdeCo24EybWRbntJ01+CNu+G/E
-         Taecq4ANhayyB3YNLHobKZGSpJaGUrzutMWlDesr8+jyvlfr348XPcqt4JVNFyFrik
-         ueQZEZeTFQopI/gUs+RxdCmm8OBryP4z4Hm3Gd4rMBq5LrogY9fwQc7MsnTcTt0Xfs
-         WQpoqnhyCTH5KYy5eaASrcxIdiKzQd+C3TubGOKmch/TqKiJDFlg96bjn+TNM/d5Z9
-         8H6lZHW8Hx5mg==
+        b=K7ppdXotmssxcZ9q4/3MxQzLbw2ZoTEQSgCCn5TpYBqbFe6bmJa45aOHmxqP4/yUp
+         zuoUa5JcBnWYtFBM8iP2awtO4fT+zcYns66ieK0AZzhZsZjo1N9kkMObrhKsjZPULa
+         zscetGbUur1LkeW0aLg2rpNgJPST8JDDT2PlUxEXgt4mqWcM1W0PIVe4m9NVOiN67/
+         /h6AaTsC9JniG7Aem2EPDCp80cVZ8LgYFLzk+A2ZurF6lUemN7nZYUZ0tUo44fPXRM
+         cXxnxtGLKeSN7A1LTSlr3UH5neQHKgACbv6ylq1ssq1zcQ99KeExrpL0pou5eipKzG
+         ygJy9iBRdyAlw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
+Cc:     Peter Oberparleiter <oberpar@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 43/47] s390/pci: fix misleading rc in clp_set_pci_fn()
-Date:   Sun,  5 Sep 2021 21:19:47 -0400
-Message-Id: <20210906011951.928679-43-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 44/47] s390/debug: keep debug data on resize
+Date:   Sun,  5 Sep 2021 21:19:48 -0400
+Message-Id: <20210906011951.928679-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210906011951.928679-1-sashal@kernel.org>
 References: <20210906011951.928679-1-sashal@kernel.org>
@@ -43,128 +42,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Peter Oberparleiter <oberpar@linux.ibm.com>
 
-[ Upstream commit f7addcdd527a6dddfebe20c358b87bdb95624612 ]
+[ Upstream commit 1204777867e8486a88dbb4793fe256b31ea05eeb ]
 
-Currently clp_set_pci_fn() always returns 0 as long as the CLP request
-itself succeeds even if the operation itself returns a response code
-other than CLP_RC_OK or CLP_RC_SETPCIFN_ALRDY. This is highly misleading
-because calling code assumes that a zero rc means that the operation was
-successful.
+Any previously recorded s390dbf debug data is reset when a debug area
+is resized using the 'pages' sysfs attribute. This can make
+live-debugging unnecessarily complex.
 
-Fix this by returning the response code or cc on failure with the
-exception of the special handling for CLP_RC_SETPCIFN_ALRDY. Also let's
-not assume that the returned function handle for CLP_RC_SETPCIFN_ALRDY
-is 0, we don't need it anyway.
+Fix this by copying existing debug data to the newly allocated debug
+area when resizing.
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/pci/pci.c     |  7 ++++---
- arch/s390/pci/pci_clp.c | 33 ++++++++++++++++-----------------
- 2 files changed, 20 insertions(+), 20 deletions(-)
+ arch/s390/kernel/debug.c | 74 ++++++++++++++++++++++++++++------------
+ 1 file changed, 53 insertions(+), 21 deletions(-)
 
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 8fcb7ecb7225..77cd965cffef 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -661,9 +661,10 @@ int zpci_enable_device(struct zpci_dev *zdev)
+diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
+index 09b6c6402f9b..0dbe48f550ff 100644
+--- a/arch/s390/kernel/debug.c
++++ b/arch/s390/kernel/debug.c
+@@ -24,6 +24,7 @@
+ #include <linux/export.h>
+ #include <linux/init.h>
+ #include <linux/fs.h>
++#include <linux/minmax.h>
+ #include <linux/debugfs.h>
+ 
+ #include <asm/debug.h>
+@@ -92,6 +93,8 @@ static int debug_hex_ascii_format_fn(debug_info_t *id, struct debug_view *view,
+ 				     char *out_buf, const char *in_buf);
+ static int debug_sprintf_format_fn(debug_info_t *id, struct debug_view *view,
+ 				   char *out_buf, debug_sprintf_entry_t *curr_event);
++static void debug_areas_swap(debug_info_t *a, debug_info_t *b);
++static void debug_events_append(debug_info_t *dest, debug_info_t *src);
+ 
+ /* globals */
+ 
+@@ -726,35 +729,28 @@ EXPORT_SYMBOL(debug_unregister);
+  */
+ static int debug_set_size(debug_info_t *id, int nr_areas, int pages_per_area)
  {
- 	int rc;
+-	debug_entry_t ***new_areas;
++	debug_info_t *new_id;
+ 	unsigned long flags;
+-	int rc = 0;
  
--	rc = clp_enable_fh(zdev, ZPCI_NR_DMA_SPACES);
--	if (rc)
-+	if (clp_enable_fh(zdev, ZPCI_NR_DMA_SPACES)) {
-+		rc = -EIO;
- 		goto out;
-+	}
- 
- 	rc = zpci_dma_init_device(zdev);
- 	if (rc)
-@@ -684,7 +685,7 @@ int zpci_disable_device(struct zpci_dev *zdev)
- 	 * The zPCI function may already be disabled by the platform, this is
- 	 * detected in clp_disable_fh() which becomes a no-op.
- 	 */
--	return clp_disable_fh(zdev);
-+	return clp_disable_fh(zdev) ? -EIO : 0;
+ 	if (!id || (nr_areas <= 0) || (pages_per_area < 0))
+ 		return -EINVAL;
+-	if (pages_per_area > 0) {
+-		new_areas = debug_areas_alloc(pages_per_area, nr_areas);
+-		if (!new_areas) {
+-			pr_info("Allocating memory for %i pages failed\n",
+-				pages_per_area);
+-			rc = -ENOMEM;
+-			goto out;
+-		}
+-	} else {
+-		new_areas = NULL;
++
++	new_id = debug_info_alloc("", pages_per_area, nr_areas, id->buf_size,
++				  id->level, ALL_AREAS);
++	if (!new_id) {
++		pr_info("Allocating memory for %i pages failed\n",
++			pages_per_area);
++		return -ENOMEM;
+ 	}
++
+ 	spin_lock_irqsave(&id->lock, flags);
+-	debug_areas_free(id);
+-	id->areas = new_areas;
+-	id->nr_areas = nr_areas;
+-	id->pages_per_area = pages_per_area;
+-	id->active_area = 0;
+-	memset(id->active_entries, 0, sizeof(int)*id->nr_areas);
+-	memset(id->active_pages, 0, sizeof(int)*id->nr_areas);
++	debug_events_append(new_id, id);
++	debug_areas_swap(new_id, id);
++	debug_info_free(new_id);
+ 	spin_unlock_irqrestore(&id->lock, flags);
+ 	pr_info("%s: set new size (%i pages)\n", id->name, pages_per_area);
+-out:
+-	return rc;
++
++	return 0;
  }
  
  /**
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index d3331596ddbe..0a0e8b8293be 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -213,15 +213,19 @@ int clp_query_pci_fn(struct zpci_dev *zdev)
+@@ -821,6 +817,42 @@ static inline debug_entry_t *get_active_entry(debug_info_t *id)
+ 				  id->active_entries[id->active_area]);
  }
  
- static int clp_refresh_fh(u32 fid);
--/*
-- * Enable/Disable a given PCI function and update its function handle if
-- * necessary
-+/**
-+ * clp_set_pci_fn() - Execute a command on a PCI function
-+ * @zdev: Function that will be affected
-+ * @nr_dma_as: DMA address space number
-+ * @command: The command code to execute
-+ *
-+ * Returns: 0 on success, < 0 for Linux errors (e.g. -ENOMEM), and
-+ * > 0 for non-success platform responses
-  */
- static int clp_set_pci_fn(struct zpci_dev *zdev, u8 nr_dma_as, u8 command)
- {
- 	struct clp_req_rsp_set_pci *rrb;
- 	int rc, retries = 100;
--	u32 fid = zdev->fid;
- 
- 	rrb = clp_alloc_block(GFP_KERNEL);
- 	if (!rrb)
-@@ -245,17 +249,16 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u8 nr_dma_as, u8 command)
- 		}
- 	} while (rrb->response.hdr.rsp == CLP_RC_SETPCIFN_BUSY);
- 
--	if (rc || rrb->response.hdr.rsp != CLP_RC_OK) {
--		zpci_err("Set PCI FN:\n");
--		zpci_err_clp(rrb->response.hdr.rsp, rc);
--	}
--
- 	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK) {
- 		zdev->fh = rrb->response.fh;
--	} else if (!rc && rrb->response.hdr.rsp == CLP_RC_SETPCIFN_ALRDY &&
--			rrb->response.fh == 0) {
-+	} else if (!rc && rrb->response.hdr.rsp == CLP_RC_SETPCIFN_ALRDY) {
- 		/* Function is already in desired state - update handle */
--		rc = clp_refresh_fh(fid);
-+		rc = clp_refresh_fh(zdev->fid);
-+	} else {
-+		zpci_err("Set PCI FN:\n");
-+		zpci_err_clp(rrb->response.hdr.rsp, rc);
-+		if (!rc)
-+			rc = rrb->response.hdr.rsp;
- 	}
- 	clp_free_block(rrb);
- 	return rc;
-@@ -301,17 +304,13 @@ int clp_enable_fh(struct zpci_dev *zdev, u8 nr_dma_as)
- 
- 	rc = clp_set_pci_fn(zdev, nr_dma_as, CLP_SET_ENABLE_PCI_FN);
- 	zpci_dbg(3, "ena fid:%x, fh:%x, rc:%d\n", zdev->fid, zdev->fh, rc);
--	if (rc)
--		goto out;
--
--	if (zpci_use_mio(zdev)) {
-+	if (!rc && zpci_use_mio(zdev)) {
- 		rc = clp_set_pci_fn(zdev, nr_dma_as, CLP_SET_ENABLE_MIO);
- 		zpci_dbg(3, "ena mio fid:%x, fh:%x, rc:%d\n",
- 				zdev->fid, zdev->fh, rc);
- 		if (rc)
- 			clp_disable_fh(zdev);
- 	}
--out:
- 	return rc;
- }
- 
++/* Swap debug areas of a and b. */
++static void debug_areas_swap(debug_info_t *a, debug_info_t *b)
++{
++	swap(a->nr_areas, b->nr_areas);
++	swap(a->pages_per_area, b->pages_per_area);
++	swap(a->areas, b->areas);
++	swap(a->active_area, b->active_area);
++	swap(a->active_pages, b->active_pages);
++	swap(a->active_entries, b->active_entries);
++}
++
++/* Append all debug events in active area from source to destination log. */
++static void debug_events_append(debug_info_t *dest, debug_info_t *src)
++{
++	debug_entry_t *from, *to, *last;
++
++	if (!src->areas || !dest->areas)
++		return;
++
++	/* Loop over all entries in src, starting with oldest. */
++	from = get_active_entry(src);
++	last = from;
++	do {
++		if (from->clock != 0LL) {
++			to = get_active_entry(dest);
++			memset(to, 0, dest->entry_size);
++			memcpy(to, from, min(src->entry_size,
++					     dest->entry_size));
++			proceed_active_entry(dest);
++		}
++
++		proceed_active_entry(src);
++		from = get_active_entry(src);
++	} while (from != last);
++}
++
+ /*
+  * debug_finish_entry:
+  * - set timestamp, caller address, cpu number etc.
 -- 
 2.30.2
 
