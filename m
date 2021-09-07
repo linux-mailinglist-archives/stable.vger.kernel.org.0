@@ -2,78 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20783402178
-	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 01:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D19A4021A1
+	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 02:27:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231969AbhIFX3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 19:29:32 -0400
-Received: from mo-csw1514.securemx.jp ([210.130.202.153]:56412 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229866AbhIFX3c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Sep 2021 19:29:32 -0400
-Received: by mo-csw.securemx.jp (mx-mo-csw1514) id 186NSP9g018178; Tue, 7 Sep 2021 08:28:26 +0900
-X-Iguazu-Qid: 34trSLAaBUf4iRoNdJ
-X-Iguazu-QSIG: v=2; s=0; t=1630970905; q=34trSLAaBUf4iRoNdJ; m=k0nqQviaHAGOM0ZxlOQQUL6foy2fJbaNjhwZxSkC5qg=
-Received: from imx2-a.toshiba.co.jp (imx2-a.toshiba.co.jp [106.186.93.35])
-        by relay.securemx.jp (mx-mr1511) id 186NSPZ8005829
-        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
-        Tue, 7 Sep 2021 08:28:25 +0900
-Received: from enc01.toshiba.co.jp (enc01.toshiba.co.jp [106.186.93.100])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by imx2-a.toshiba.co.jp (Postfix) with ESMTPS id 5A0561000F3
-        for <stable@vger.kernel.org>; Tue,  7 Sep 2021 08:28:25 +0900 (JST)
-Received: from hop001.toshiba.co.jp ([133.199.164.63])
-        by enc01.toshiba.co.jp  with ESMTP id 186NSPSK031977
-        for <stable@vger.kernel.org>; Tue, 7 Sep 2021 08:28:25 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        Colin Ian King <colin.king@canonical.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 2/2 for 4.19.y] ARM: imx: fix missing 3rd argument in macro imx_mmdc_perf_init
-Date:   Tue,  7 Sep 2021 08:28:19 +0900
-X-TSB-HOP: ON
-Message-Id: <20210906232819.2950209-1-nobuhiro1.iwamatsu@toshiba.co.jp>
-X-Mailer: git-send-email 2.31.1
+        id S232552AbhIGA0P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 20:26:15 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52423 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229975AbhIGA0P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Sep 2021 20:26:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1630974309;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jic5HY4jNpPRbTOqmnYf0rZzsoprtJWy8oewb7ALUqk=;
+        b=FktdDvNA8Exhe/HhN5xYZRX0QfPYD20s2GriYh09M9bYsbB1A72yBEtcvDVlm6shulA4Wx
+        h1OGC1J6i1b4Dck609fqhQSG7vyMq94eS30Xkhbkkp8/mKHjY1XVtCylXfGc9X8IAn25c0
+        YL/uG33M6vZeFk0YhossKcu/mGfFhY0=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-157-LvXbf9WrPhW_AGOtRZWo9w-1; Mon, 06 Sep 2021 20:25:08 -0400
+X-MC-Unique: LvXbf9WrPhW_AGOtRZWo9w-1
+Received: by mail-wm1-f70.google.com with SMTP id e33-20020a05600c4ba100b002f8993a54f8so388819wmp.7
+        for <stable@vger.kernel.org>; Mon, 06 Sep 2021 17:25:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jic5HY4jNpPRbTOqmnYf0rZzsoprtJWy8oewb7ALUqk=;
+        b=hw4VcCHUbcHc+J+k0KwpKad2d42QmkakiuL62kYTThSD0SKZemwrcg3tnJIp+ziE6d
+         /TSlif8DdnXQEo7Ukv70BZc9kSR0mbcK7HYuGnHkKczaPEHgSWHCNPtX+T9eJyeCqzsA
+         PAfWojJ+v2qCiNYbitzZa0Ez6bO2O0iv4HoKidOSznN9hELBvFWZLUP2eyAMv49l2nHQ
+         q7lHMX8NFA/3U79H6gUq/avfYYEQqw7J9MHYnoko6aO+vWrW9jQe9HAOFnOC3RmvnJ9w
+         bGQiiC6yKoWHSY+pBviwdfXF3o/s19eWsucEdo/g3PuRr7q1qStZ6pxvEA6hK7sgYzOF
+         3zwA==
+X-Gm-Message-State: AOAM531vhTmzK8HyPPw9BMw5y3eYGKPGGeZjQz5rqSNm5h5Ad6O2w/kT
+        6NPE1MR4Auj9Z00QkhU6NeusnDEH6oGKi6ZJIGZT0EdKH1khzdnNcVMyFPFPcwlBl9j5y+YmQCb
+        maRFvNRdi8+WROn4T8sLzPdT6XKBoBVnQ
+X-Received: by 2002:adf:d184:: with SMTP id v4mr15702439wrc.229.1630974307010;
+        Mon, 06 Sep 2021 17:25:07 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz9oaLql9qw9yoEaRVBWmdJjUHaViTSV2BQtZQNSO/tf1UNrEHGPGIDNAwEVdW+beEeqqgAckgH7AK38kefaRo=
+X-Received: by 2002:adf:d184:: with SMTP id v4mr15702436wrc.229.1630974306848;
+ Mon, 06 Sep 2021 17:25:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210906005628.11499-1-skeggsb@gmail.com> <20210906005628.11499-2-skeggsb@gmail.com>
+In-Reply-To: <20210906005628.11499-2-skeggsb@gmail.com>
+From:   Karol Herbst <kherbst@redhat.com>
+Date:   Tue, 7 Sep 2021 02:24:56 +0200
+Message-ID: <CACO55ttVQBhvakr4OhfE6x0rvE1kifLuQht6x+1X3HgXHv=z0A@mail.gmail.com>
+Subject: Re: [PATCH 2/2] drm/nouveau/kms/tu102-: delay enabling cursor until
+ after assign_windows
+To:     Ben Skeggs <skeggsb@gmail.com>
+Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
+        Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+On Mon, Sep 6, 2021 at 2:56 AM Ben Skeggs <skeggsb@gmail.com> wrote:
+>
+> From: Ben Skeggs <bskeggs@redhat.com>
+>
+> Prevent NVD core channel error code 67 occuring and hanging display,
+> managed to reproduce on GA102 while testing suspend/resume scenarios.
+>
+> Required extension of earlier commit to fix interactions with EFI.
+>
 
-commit 20fb73911fec01f06592de1cdbca00b66602ebd7 upstream.
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
 
-The function imx_mmdc_perf_init recently had a 3rd argument added to
-it but the equivalent macro was not updated and is still the older
-2 argument version. Fix this by adding in the missing 3rd argumement
-mmdc_ipg_clk.
 
-Fixes: f07ec8536580 ("ARM: imx: add missing clk_disable_unprepare()")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
----
- arch/arm/mach-imx/mmdc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm/mach-imx/mmdc.c b/arch/arm/mach-imx/mmdc.c
-index ba830be0b53102..14be73ca107a5e 100644
---- a/arch/arm/mach-imx/mmdc.c
-+++ b/arch/arm/mach-imx/mmdc.c
-@@ -545,7 +545,7 @@ static int imx_mmdc_perf_init(struct platform_device *pdev, void __iomem *mmdc_b
- 
- #else
- #define imx_mmdc_remove NULL
--#define imx_mmdc_perf_init(pdev, mmdc_base) 0
-+#define imx_mmdc_perf_init(pdev, mmdc_base, mmdc_ipg_clk) 0
- #endif
- 
- static int imx_mmdc_probe(struct platform_device *pdev)
--- 
-2.33.0
-
+> Fixes: e78b1b545c6c ("drm/nouveau/kms/nv50: workaround EFI GOP window channel format differences").
+> Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+> Cc: Lyude Paul <lyude@redhat.com>
+> Cc: Karol Herbst <kherbst@redhat.com>
+> Cc: <stable@vger.kernel.org> # v5.12+
+> ---
+>  drivers/gpu/drm/nouveau/dispnv50/head.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.c b/drivers/gpu/drm/nouveau/dispnv50/head.c
+> index f8438a886b64..c3c57be54e1c 100644
+> --- a/drivers/gpu/drm/nouveau/dispnv50/head.c
+> +++ b/drivers/gpu/drm/nouveau/dispnv50/head.c
+> @@ -52,6 +52,7 @@ nv50_head_flush_clr(struct nv50_head *head,
+>  void
+>  nv50_head_flush_set_wndw(struct nv50_head *head, struct nv50_head_atom *asyh)
+>  {
+> +       if (asyh->set.curs   ) head->func->curs_set(head, asyh);
+>         if (asyh->set.olut   ) {
+>                 asyh->olut.offset = nv50_lut_load(&head->olut,
+>                                                   asyh->olut.buffer,
+> @@ -67,7 +68,6 @@ nv50_head_flush_set(struct nv50_head *head, struct nv50_head_atom *asyh)
+>         if (asyh->set.view   ) head->func->view    (head, asyh);
+>         if (asyh->set.mode   ) head->func->mode    (head, asyh);
+>         if (asyh->set.core   ) head->func->core_set(head, asyh);
+> -       if (asyh->set.curs   ) head->func->curs_set(head, asyh);
+>         if (asyh->set.base   ) head->func->base    (head, asyh);
+>         if (asyh->set.ovly   ) head->func->ovly    (head, asyh);
+>         if (asyh->set.dither ) head->func->dither  (head, asyh);
+> --
+> 2.31.1
+>
 
