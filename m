@@ -2,106 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7450340295F
-	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 15:07:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D3A7402978
+	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 15:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344621AbhIGNIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Sep 2021 09:08:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52128 "EHLO
+        id S1344579AbhIGNNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Sep 2021 09:13:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344612AbhIGNIE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Sep 2021 09:08:04 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58807C0613C1
-        for <stable@vger.kernel.org>; Tue,  7 Sep 2021 06:06:58 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id u14so19503661ejf.13
-        for <stable@vger.kernel.org>; Tue, 07 Sep 2021 06:06:58 -0700 (PDT)
+        with ESMTP id S243976AbhIGNNa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Sep 2021 09:13:30 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E817C061575;
+        Tue,  7 Sep 2021 06:12:24 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id v10so14390655wrd.4;
+        Tue, 07 Sep 2021 06:12:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=L4oWWGov+bkftJWApz4guBbjvDk1FzTK4dXqUmqhsGo=;
-        b=rnSIxm8cJRcatY6H7Eo6xNBmKdAEFiSjwDRpe1p581pHp2njaMR21jCJhp4BSa6AF9
-         sdAlWMYna02+u2ELL6Dy9FN4vDBj1NbNoYRcvx7YrBG60NFQBZTkEkJkVB02YtmUl49u
-         GlpTMTsuwJOd3+A4KMoTcJQE2njez1aT+nZbbWyHy3rE+DzcGRsL1uChH1WXPA3vVecs
-         wpU53lPC5zPSWTm1g09vm2+9YVOWzWWPLoZh+1GyxgAox4HcOZudkDV2WBP6hHp75FVG
-         T1WQdjvUc/J8teTsE4S6db1q46Vn+Zvjzy9m6ghat29UvFjY9ZQI2hgX58E499q6xR7Q
-         1WRw==
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=FgS+MIH5N3h8N+LQXoZfHIEGWm1MmwH0CNQRBpzXRKg=;
+        b=AZmqDj/66mdp+uMYJu3wK2CgL8REQ2tSE43LMDNDBFEuD7HoSikQC0lpOpWAtfez/a
+         MlBsy2x4xXO9jqw2YNZmqbVoQeYdHLHXtBQQasb3xDFpCiOrY3IlPw9ZkzjgxjtY+NUc
+         ZmOxIEuLW/E/1XAwyCLwINQLPsQRovywddyuykk9qoiIFxmAe6mLShslBwbBBeGLO4VP
+         xCbgSsjZZ5ChfXx2m3XLkfS0h5tMs2Tm+n8A+8yVP8pCX8NVVwhv5dA903cwYYwe8sCm
+         pllA8p89Vy783h6g80cfuJw6t7Eps3neCv9l6/OwaR9NN7On91e0y3DexezyN0tC4z2F
+         /kEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=L4oWWGov+bkftJWApz4guBbjvDk1FzTK4dXqUmqhsGo=;
-        b=Z5PISAF528Sxy8ZIXkknw32OFa8ffPbg2xGqzuKMcXnkzmETFCAxjltKG1EPCYtUtQ
-         V5qvToSMb7KtIFuqe1omLb4bFQ/uHbI0fwPxRqD88G0OxHoD7qPs86NIEzy08WjZ2ExM
-         oGWFfTPQ0N3I8XNUiWq0ZtOX/+R2PfVsx67DgLhv2eazHHm/jLeSqhOPRcDvKR09C7Ev
-         ecX3te0zkECXdnWeLYb6DQLmxIlI2KyEKEX4JCTO1N83yOYCPRxmpjOPchEQxuJPdgkN
-         wL9Wsbi116DTF0RSn7wctiUwA4m6jndN+vA6iFUZrv7bQnaNSVGYphFC6/Pv65mPcfTW
-         DfOw==
-X-Gm-Message-State: AOAM531rWvA1IvuomCHadkwiTEx4TF1GlunKu6/Y/qov/M3IEAMUodBJ
-        LjQ/Gt446NTlXFveydmOLeEiYduB1hnw+/bmyB8g
-X-Google-Smtp-Source: ABdhPJwDAmt2hGxT5ZkcZv9YGnSEohNbSITnIOxntCgMm5mnhtxhhGJHKQSwvGW7B6b8gVrXH65MjjesrNwq98dkGuI=
-X-Received: by 2002:a17:906:8cd:: with SMTP id o13mr18352630eje.341.1631020016659;
- Tue, 07 Sep 2021 06:06:56 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=FgS+MIH5N3h8N+LQXoZfHIEGWm1MmwH0CNQRBpzXRKg=;
+        b=VKHeIU8YNWN+RugSU0iVRNbBCDI8/62TGJO9wjegzzLiJPQsOYX8DWFY4iEsoc+iZe
+         Yui9hkTvUatinm3EPODrHc+dKIdeX7X9IG7WeQxGRzvNuJzylCRUJ1Rqis+ChBPWvRw4
+         ChPzs+L2plzJNU0JdW6yhiClO+KusYHeruutPqzFC6/NDLNavM6I0rBiYXSWnTHDjCH2
+         aQtdtnrrzeZN1QTdtVJ6a0t7CchlCkYCwv9SCpujvbqvQpt0DotPveqE3gTke2F9cPlT
+         4sWADsq7DgniFEzn63+nUxcABTEcPGOQwMXgiM6Y+oX8wVY00s9rVoT/IIJjtCAWltzW
+         /QYw==
+X-Gm-Message-State: AOAM5335vqovALXNHbdehisJPU37pqYGPIkT2n6eqwaSqZFQ1ZT3Cg24
+        9Ub5lWcQCFcEVUAVLfyn2A+ufJUjlgI=
+X-Google-Smtp-Source: ABdhPJyUt4DFkV971lutP6SfYRPRGBfe7Syb2BSg2e1q+EKUdxzLDxLuKP3FTUG/RK7Fvf2gppmWvQ==
+X-Received: by 2002:a05:6000:23a:: with SMTP id l26mr18260083wrz.369.1631020342682;
+        Tue, 07 Sep 2021 06:12:22 -0700 (PDT)
+Received: from debian (host-2-99-153-109.as13285.net. [2.99.153.109])
+        by smtp.gmail.com with ESMTPSA id j4sm10708755wrt.23.2021.09.07.06.12.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Sep 2021 06:12:22 -0700 (PDT)
+Date:   Tue, 7 Sep 2021 14:12:20 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/29] 5.10.63-rc1 review
+Message-ID: <YTdlNHq0U+uJa2sM@debian>
+References: <20210906125449.756437409@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20210830115942.1017300-1-sashal@kernel.org> <20210830115942.1017300-13-sashal@kernel.org>
- <CAD-N9QUXXjEMtdDniuqcNSAtaOhKtHE=hLMchtCJgbvxQXdABQ@mail.gmail.com>
- <CAHC9VhTjFMw111-fyZsFaCSnN3b-TuQjqXcc1zVu2QTTekTohw@mail.gmail.com> <YTS96ql9DzxpYpnl@sashalap>
-In-Reply-To: <YTS96ql9DzxpYpnl@sashalap>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 7 Sep 2021 09:06:45 -0400
-Message-ID: <CAHC9VhR_eHxS9HFGx1QwRj9wqcmcg5794cCJ8QXKsbGA1+QELQ@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.13 13/14] net: fix NULL pointer reference in cipso_v4_doi_free
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        =?UTF-8?B?546L6LSH?= <yun.wang@linux.alibaba.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
-        linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210906125449.756437409@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Sep 5, 2021 at 8:54 AM Sasha Levin <sashal@kernel.org> wrote:
-> On Mon, Aug 30, 2021 at 10:20:22AM -0400, Paul Moore wrote:
-> >On Mon, Aug 30, 2021 at 8:42 AM Dongliang Mu <mudongliangabcd@gmail.com>=
- wrote:
-> >>
-> >> On Mon, Aug 30, 2021 at 8:01 PM Sasha Levin <sashal@kernel.org> wrote:
-> >> >
-> >> > From: =E7=8E=8B=E8=B4=87 <yun.wang@linux.alibaba.com>
-> >> >
-> >> > [ Upstream commit 733c99ee8be9a1410287cdbb943887365e83b2d6 ]
-> >> >
-> >>
-> >> Hi Sasha,
-> >>
-> >> Michael Wang has sent a v2 patch [1] for this bug and it is merged
-> >> into netdev/net-next.git. However, the v1 patch is already in the
-> >> upstream tree.
-> >>
-> >> How do you guys handle such a issue?
-> >>
-> >> [1] https://lkml.org/lkml/2021/8/30/229
-> >
-> >Ugh.  Michael can you please work with netdev to fix this in the
-> >upstream, and hopefully -stable, kernels?  My guess is you will need
-> >to rebase your v2 patch on top of the v1 patch (basically what exists
-> >in upstream) and send that back out.
->
-> I'm just going to drop this one for now (it never made it in). If there
-> is a follow-up you do want us to queue please let us know :)
+Hi Greg,
 
-Thanks Sasha.  The lore link below is the v2 version of the patch and
-it is worth merging as a fix into the older kernels.
+On Mon, Sep 06, 2021 at 02:55:15PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.63 release.
+> There are 29 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 08 Sep 2021 12:54:40 +0000.
+> Anything received after that time might be too late.
 
-* https://lore.kernel.org/linux-security-module/18f0171e-0cc8-6ae6-d04a-a69=
-a2a3c1a39@linux.alibaba.com
+Build test:
+mips (gcc version 11.1.1 20210816): 63 configs -> no new failure
+arm (gcc version 11.1.1 20210816): 105 configs -> no new failure
+arm64 (gcc version 11.1.1 20210816): 3 configs -> no failure
+x86_64 (gcc version 10.2.1 20210110): 4 configs -> no failure
 
---=20
-paul moore
-www.paul-moore.com
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
+
+[1]. https://openqa.qa.codethink.co.uk/tests/99
+[2]. https://openqa.qa.codethink.co.uk/tests/100
+
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
+
