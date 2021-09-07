@@ -2,154 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9343E402EFC
-	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 21:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B34C3402F03
+	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 21:34:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232112AbhIGTdl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Sep 2021 15:33:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56756 "EHLO
+        id S236164AbhIGTfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Sep 2021 15:35:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231941AbhIGTdk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Sep 2021 15:33:40 -0400
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B72DC061575
-        for <stable@vger.kernel.org>; Tue,  7 Sep 2021 12:32:34 -0700 (PDT)
-Received: by mail-pf1-x434.google.com with SMTP id q22so15073pfu.0
-        for <stable@vger.kernel.org>; Tue, 07 Sep 2021 12:32:34 -0700 (PDT)
+        with ESMTP id S229574AbhIGTfy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Sep 2021 15:35:54 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E93AC061575
+        for <stable@vger.kernel.org>; Tue,  7 Sep 2021 12:34:48 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id d17so6470609plr.12
+        for <stable@vger.kernel.org>; Tue, 07 Sep 2021 12:34:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=3lPN7wGl/ajSOEmivr9kv6zaWDeQ4//mtDgl3i+1HH0=;
-        b=Zq061Njnl++4V3SXcHya1t0wIFz3ZSBHWtBFn+vo6x1Zg1f1SGY+CGCJzRlHFZtGc6
-         SdJ8tieQ5rQVmillvMRHNaZX+rjpVEqoX3dssTTplkX7GyXu4FkWrVSSqdqLHEYfPICK
-         609UGlT2SaRcPc2bNlOHsqy3bkCzgYsxMTmGKiaj44ngzup8/rhb7ai6bD6DWZZ4upM6
-         Aqkeu/3HjSt/NB7ZTM6mckZCVqekDER0z6eQYk9Y49NzeMcSmiaTh5SnkvS9/D9+T3Nl
-         PAGg8ebHjIRcQjAbd5deywlaIbGAsf1SWAMTpc7oeTyh5fSZ/aGCdc6DOnkNBEYmkdCl
-         Us+Q==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=L5lwOC/KEE0gVZhse9x0TtGeL/8XUcgfK7pngTjKxOw=;
+        b=JtoNgoxzXN2iH3PqILOmbkN6ITBInFv/SjJxy84ULZI0yBlPGWcGHNih+ywlCMC03B
+         PluuXZ7J24QbjoghQ7eKrxmaqLdif1GD4JkOimedTllmB1nt5s9eHfVwz9J+l+dsQoTC
+         dRkQnV9+W+dGjt0sO+bmyhYBN6LM/+j7fg0mygpZYss+tQGtOEKDZyrtq4J2uhadGK5D
+         gsEfzArTlnSl3cptHUqwVB3SuNq/lbnXXPGeKZhQBE67mqeEqqoESyJu+/0NqgOZHTfo
+         kq2g/Ji6GAvHtq4d5zqN6SysG4aSR/ud75RXUu4rjv/7hsN+Lp8j6razgiUlLYLYTwKp
+         5U/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=3lPN7wGl/ajSOEmivr9kv6zaWDeQ4//mtDgl3i+1HH0=;
-        b=grgSq7uDGd+Nh9dOT0ZsCo+C7fv5eFR1UCP1FjWKPMXfIhiIDodiBUUcnHD0RjpRWc
-         drbPvbEnQcAVBpJZJX4RN7EFhnSZczFjL3YrxSDzL7L0plio6tYSr42kXZ537t5RVWD4
-         0Zi3BpfGqkkGa8ZnfBJb5z7VVUdwLDcwHDWKwc6JTVQhl58u40hzzJXA9QNtJazeQze+
-         2Aftaev940cDse5lYLop04HQIuMmHAmIzP3H+aC1w5klq2ssU64BLPJ+kYE7F70Be3rX
-         JnxUaCu9K8AwynejvK4l3LpX3U2MMTuFdTqqVqISfW5g7zmO2tqo2BBfCyq6/skU9pIj
-         WMOw==
-X-Gm-Message-State: AOAM533cP1naOHHDNn9m/miMs9C6BUVcFYi73nouYLuwqo21QR5kOOxQ
-        A3Ql92JLQ8CPQlb8YxGTobi2EhFTd8uUpkJT
-X-Google-Smtp-Source: ABdhPJw1YeElJWV/4161HeBSkz2A3VrlozNrF77Ge0IbTxvLOcluedhOaGf0YjmqxlC9ntsmNSx7yw==
-X-Received: by 2002:a63:841:: with SMTP id 62mr18444941pgi.354.1631043153525;
-        Tue, 07 Sep 2021 12:32:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q29sm14635673pgc.91.2021.09.07.12.32.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Sep 2021 12:32:33 -0700 (PDT)
-Message-ID: <6137be51.1c69fb81.3224d.8b9e@mx.google.com>
-Date:   Tue, 07 Sep 2021 12:32:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=L5lwOC/KEE0gVZhse9x0TtGeL/8XUcgfK7pngTjKxOw=;
+        b=axTMDrUXjw73d5vCYz/nFQEPnO3vXItmfXpqWqzyMonkp0mY+f03IGY6XhfAMHleP8
+         oGToUFBBUj6fQ83IBUpgasRlo6bo2ZAWCugO4/zqe96+5lwvwCq0LoDso7NYSTnOwgVy
+         A3fYPFfSp9flATu/EDSbBjBhCI52OyupRNOjKh4N5nicJ9px9pGoM2NnuOQtLdJIAT9o
+         HJlrK7/+/q2fEAT3mtPFWorQQlUNdanPnXynej6YpeehgUgRYo8DsfNiMnHlRXWaVEHS
+         dmR/MvBK97CQ67s/JD4cwBgCWZxJZuB/S7L1wAQGh23KyCH9dSvca4DJULAm2pv+U5Pr
+         shAA==
+X-Gm-Message-State: AOAM531LL92nWAPoXuPiEYwhVsMbGES7l3+IV7zNZy51dJtKxEtQnWnF
+        h694+crXoI66oYM31kbZvDbFJ3C5uj1gADiF1nY=
+X-Google-Smtp-Source: ABdhPJzSsoq1WBtxXU/C1jdACVOjDA/KYoPve456RlK9HssFYw3mTVfFIT/M1daWUCRHxZ0uSUlU6jcxlkdAoZkW2RI=
+X-Received: by 2002:a17:902:bccc:b0:136:1474:3f37 with SMTP id
+ o12-20020a170902bccc00b0013614743f37mr16105459pls.57.1631043287611; Tue, 07
+ Sep 2021 12:34:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.246-12-g4a6168861a83
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 187 runs,
- 3 regressions (v4.14.246-12-g4a6168861a83)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Received: by 2002:a05:6a10:ea17:0:0:0:0 with HTTP; Tue, 7 Sep 2021 12:34:47
+ -0700 (PDT)
+Reply-To: yatmirnutha@gmail.com
+From:   Mr Yatmir Nutha <mrronanpectual@gmail.com>
+Date:   Tue, 7 Sep 2021 12:34:47 -0700
+Message-ID: <CAATtkqvvCXX43a+H5YP7Q=St_=d3pbMEouO78h+uUwVrVpD-RQ@mail.gmail.com>
+Subject: i need your urgent help and assistance.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 187 runs, 3 regressions (v4.14.246-12-g4a616=
-8861a83)
-
-Regressions Summary
--------------------
-
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.246-12-g4a6168861a83/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.246-12-g4a6168861a83
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4a6168861a83d8358a3b3c30509e417741959d68 =
+Dear Friend.
 
 
 
-Test Regressions
----------------- =
 
+I am Mr Yatmir Nutha. the director of the accounts & auditing
+department at the bank Ouagadougou-Burkina Faso in west Africa. With
+due respect, I have decided to contact you on a business transaction
+that will be beneficial to both of us.
 
+At the bank's last accounts/auditing evaluations, my staffs came
+across an old account which was being maintained by a foreign client
+who we learn was among the deceased passengers of motor accident on
+November.2003, the deceased was unable to run this account since his
+death. The account has remained dormant without the knowledge of his
+family since it was put in a safe deposit account in the bank for
+future investment by the client.
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
+Since his demise, even the members of his family haven't applied for
+claims over this fund and it has been in the safe deposit account
+until I discovered that it cannot be claimed since our client is a
+foreign national and we are sure that he has no next of kin here to
+file claims over the money. As the director of the department,this
+discovery was brought to my office so as to decide what is to be
+done.I decided to seek ways through which to transfer this money out
+of the bank and out of the country too.
 
+The total amount in the account is ten million five hundred thousand
+dollars (USD 10,500,000.00).with my positions as staffs of the bank, I
+am handicapped because I cannot operate foreign accounts and cannot
+lay bonafide claim over this money. The client was a foreign national
+and you will only be asked to act as his next of kin and I will supply
+you with all the necessary information and bank data to assist you in
+being able to transfer this money to any bank of your choice where
+this money could be transferred into.
 
-  Details:     https://kernelci.org/test/plan/id/6137902d12a5029128d59665
+The total sum will be shared as follows: 50% for me, 50% for you and
+expenses incidental occur during the transfer will be incur by both of
+us. The transfer is risk free on both sides hence you are going to
+follow my instruction till the fund transfer to your account.Since I
+work in this bank that is why you should be confident in the success
+of this transaction because you will be updated with information as at
+when desired.
 
-  Results:     63 PASS, 6 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.246=
--12-g4a6168861a83/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.246=
--12-g4a6168861a83/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+I will wish you to keep this transaction secret and confidential as I
+am hoping to retire with my share of this money at the end of
+transaction which will be when this  money is safety in your account.
+I will then come over to your country for sharing according to the
+previously agreed percentages. You might even have to advise me on
+possibilities of investment in your country or elsewhere of our
+choice. May God help you to help me to a restive retirement, Amen.
 
+Please for further information and inquires feel free to contact me
+back immediately for more explanation and better understanding I want
+you to assure me your capability of handling this project with trust.
 
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/6137902d12a5029128d59679
-        failing since 84 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583)
-
-    2021-09-07T16:15:22.040326  /lava-4467851/1/../bin/lava-test-case
-    2021-09-07T16:15:22.057496  [   16.380250] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-09-07T16:15:22.057909  /lava-4467851/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/6137902d12a5029128d59692
-        failing since 84 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583)
-
-    2021-09-07T16:15:19.608492  /lava-4467851/1/../bin/lava-test-case
-    2021-09-07T16:15:19.625465  [   13.948219] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
-    2021-09-07T16:15:19.625986  /lava-4467851/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/6137902d12a5029128d59693
-        failing since 84 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583)
-
-    2021-09-07T16:15:18.589383  /lava-4467851/1/../bin/lava-test-case
-    2021-09-07T16:15:18.594954  [   12.929324] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
+Contact me via Email: yatmirnutha@gmail.com
+Thanks and remain blessed
+Mr Yatmir Nutha.
++22664234630
