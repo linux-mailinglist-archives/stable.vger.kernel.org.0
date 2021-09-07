@@ -2,657 +2,698 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E7B4021F5
-	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 04:30:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0892402217
+	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 04:30:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235605AbhIGArq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Sep 2021 20:47:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56478 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234074AbhIGArq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Sep 2021 20:47:46 -0400
-Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E42FFC061575
-        for <stable@vger.kernel.org>; Mon,  6 Sep 2021 17:46:40 -0700 (PDT)
-Received: by mail-yb1-xb35.google.com with SMTP id a93so16518183ybi.1
-        for <stable@vger.kernel.org>; Mon, 06 Sep 2021 17:46:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=9rxbXZZT8YWKvbW4xdqEgpDsceMpnTVN+2C/xpVUN8c=;
-        b=UESKRy/n0cujp6aBUWcZdlHsENt0XwjOdYwjbegnWEEOHGI20iH+weTUFcB68SMzz7
-         uvL0qThZdayKabKjB1+bZf2c7/vSuVXimj5Ae853kqiAp1m9lodMsDXC6CQUdY0egOIA
-         mJGjzHY6qtKoTkir/JuAK0kUmZbtWhO7MngG6IQYzY3YzQG6Q3qnW+zVafzE79xmrxYd
-         WbuPiH+/AZMtc9Qp2yTtQ2+BWa3XZ4z7xOdKxhxStYKzsYqzKmQDDBIAunqNa4YXbH7I
-         bx8yNTtiAAzdiLL6Fl489/ooM013m1sCpt+TSmPH9Fso1QW8OOqtpyS13oeNOI3f63R2
-         LxqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=9rxbXZZT8YWKvbW4xdqEgpDsceMpnTVN+2C/xpVUN8c=;
-        b=StjvG+Au8FohSZi1vJRPY/uz/VlqIKMdDbRuNWQH4t/2mIozpHSzv+JFK1BSBrco8f
-         5Do7dvZb0avhJ1GgdNNIqyR5MjckWCeuJ2C5NwOEfgfeEOOoIEobPtlU3mKKwySh2N/i
-         MRkcWCjkC7z32hyCyh4ZRmYccIhSEzOZfHemTykQvAMJf4DutjyOvF6DNfPe+Sh7upbo
-         R+XY2sTsA2lIGqpS6Ddj4YVIWtBrOeDWsifzF6uAVLmYEnBsC3Bj4MX/4VmNcCixT+7V
-         L205xjKuxxnUDD+GW70CMR6v8IAgxb4Is0oKBPYPL6hZhBk9kKNyINVypaxEdy/aSeTT
-         O/vw==
-X-Gm-Message-State: AOAM533kjWnCgnC3FgTz4REgpXu8k33TvKQcuzSpQ/zHNEdnnFXMKSBy
-        jod8mlEeKwrQeE/KGYFhJfyFqFQfq0IBRMMXwHU=
-X-Google-Smtp-Source: ABdhPJxsqnrLayw1zLupKsce4pzNkVBtdkSYC+HEqnqhzVbblvoZM8NK3IlnwnJvKrHriXQoZgkEedFoA//2b6PERJw=
-X-Received: by 2002:a25:4941:: with SMTP id w62mr20332532yba.230.1630975600006;
- Mon, 06 Sep 2021 17:46:40 -0700 (PDT)
+        id S230143AbhIGBnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Sep 2021 21:43:17 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31279 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229967AbhIGBnR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Sep 2021 21:43:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1630978931;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=fF0+9AvyKwCmfZZFfgWBqIUlM/ucRqOfQ6qLDLeCfbI=;
+        b=Y2AMIEBcPv02fG7MtpK0COTIjA5ory13Xuh2+M3zwrwbrZtznrbvRmxquZL2oWUlU7ENlJ
+        25N4/uvSlLEGo85rPFQo/yN8hR3XjkZviBujlGz/JY2AeNoAbBjQP37/N9bkUKyhCoV71v
+        D41Tj6usGIJNqZ19lD6Hs76A2uW0U4Y=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-575-_ELbc3rRPf6CYID8JODsQQ-1; Mon, 06 Sep 2021 21:42:09 -0400
+X-MC-Unique: _ELbc3rRPf6CYID8JODsQQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C7A3E1883520
+        for <stable@vger.kernel.org>; Tue,  7 Sep 2021 01:42:08 +0000 (UTC)
+Received: from [172.64.9.18] (unknown [10.30.33.187])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7C7655D9DE;
+        Tue,  7 Sep 2021 01:41:56 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <20210906005628.11499-1-skeggsb@gmail.com> <CACO55tuZf+O==VZis-CsOFqV=qno1h=ek2YNaJiLTPL-E5Vq9Q@mail.gmail.com>
- <CACAvsv7OU1gM6RiFKYWETct2qcHVoCWganLVRGdmmhwtfyNjBQ@mail.gmail.com> <CACO55tudGfFV_=4pZU+PF-XmzSRT2m0-+=f5aM3bx9XgnFnBrA@mail.gmail.com>
-In-Reply-To: <CACO55tudGfFV_=4pZU+PF-XmzSRT2m0-+=f5aM3bx9XgnFnBrA@mail.gmail.com>
-From:   Ben Skeggs <skeggsb@gmail.com>
-Date:   Tue, 7 Sep 2021 10:46:28 +1000
-Message-ID: <CACAvsv6Depgf=wn=MRGrhPJFJJMNexEReAjJS9g2GbDu6Xr+rQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] drm/nouveau/ga102-: support ttm buffer moves via copy engine
-To:     Karol Herbst <kherbst@redhat.com>
-Cc:     dri-devel <dri-devel@lists.freedesktop.org>,
-        Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+From:   CKI Project <cki-project@redhat.com>
+To:     skt-results-master@redhat.com,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.13.14 (stable-queue,
+ f9121bcd)
+Date:   Tue, 07 Sep 2021 01:41:56 -0000
+CC:     Memory Management <mm-qe@redhat.com>, Li Wang <liwang@redhat.com>,
+        Jeff Bastian <jbastian@redhat.com>,
+        Yi Zhang <yizhan@redhat.com>
+Message-ID: <cki.30A36CFA45.OERAGUYW08@redhat.com>
+X-Gitlab-Pipeline-ID: 365661213
+X-Gitlab-Url: https://gitlab.com
+X-Gitlab-Path: =?utf-8?q?/redhat/red-hat-ci-tools/kernel/cki-internal-pipeli?=
+ =?utf-8?q?nes/cki-trusted-contributors/pipelines/365661213?=
+X-DataWarehouse-Checkout-IID: None
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 Sept 2021 at 10:28, Karol Herbst <kherbst@redhat.com> wrote:
->
-> On Tue, Sep 7, 2021 at 1:28 AM Ben Skeggs <skeggsb@gmail.com> wrote:
-> >
-> > On Tue, 7 Sept 2021 at 09:17, Karol Herbst <kherbst@redhat.com> wrote:
-> > >
-> > > ."
-> > >
-> > >
-> > > On Mon, Sep 6, 2021 at 2:56 AM Ben Skeggs <skeggsb@gmail.com> wrote:
-> > > >
-> > > > From: Ben Skeggs <bskeggs@redhat.com>
-> > > >
-> > > > We don't currently have any kind of real acceleration on Ampere GPUs,
-> > > > but the TTM memcpy() fallback paths aren't really designed to handle
-> > > > copies between different devices, such as on Optimus systems, and
-> > > > result in a kernel OOPS.
-> > > >
-> > > > A few options were investigated to try and fix this, but didn't work
-> > > > out, and likely would have resulted in a very unpleasant experience
-> > > > for users anyway.
-> > > >
-> > > > This commit adds just enough support for setting up a single channel
-> > > > connected to a copy engine, which the kernel can use to accelerate
-> > > > the buffer copies between devices.  Userspace has no access to this
-> > > > incomplete channel support, but it's suitable for TTM's needs.
-> > > >
-> > > > A more complete implementation of host(fifo) for Ampere GPUs is in
-> > > > the works, but the required changes are far too invasive that they
-> > > > would be unsuitable to backport to fix this issue on current kernels.
-> > > >
-> > > > Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-> > > > Cc: Lyude Paul <lyude@redhat.com>
-> > > > Cc: Karol Herbst <kherbst@redhat.com>
-> > > > Cc: <stable@vger.kernel.org> # v5.12+
-> > > > ---
-> > > >  drivers/gpu/drm/nouveau/include/nvif/class.h  |   2 +
-> > > >  .../drm/nouveau/include/nvkm/engine/fifo.h    |   1 +
-> > > >  drivers/gpu/drm/nouveau/nouveau_bo.c          |   1 +
-> > > >  drivers/gpu/drm/nouveau/nouveau_chan.c        |   6 +-
-> > > >  drivers/gpu/drm/nouveau/nouveau_drm.c         |   4 +
-> > > >  drivers/gpu/drm/nouveau/nv84_fence.c          |   2 +-
-> > > >  .../gpu/drm/nouveau/nvkm/engine/device/base.c |   3 +
-> > > >  .../gpu/drm/nouveau/nvkm/engine/fifo/Kbuild   |   1 +
-> > > >  .../gpu/drm/nouveau/nvkm/engine/fifo/ga102.c  | 308 ++++++++++++++++++
-> > > >  .../gpu/drm/nouveau/nvkm/subdev/top/ga100.c   |   7 +-
-> > > >  10 files changed, 329 insertions(+), 6 deletions(-)
-> > > >  create mode 100644 drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c
-> > > >
-> > > > diff --git a/drivers/gpu/drm/nouveau/include/nvif/class.h b/drivers/gpu/drm/nouveau/include/nvif/class.h
-> > > > index c68cc957248e..a582c0cb0cb0 100644
-> > > > --- a/drivers/gpu/drm/nouveau/include/nvif/class.h
-> > > > +++ b/drivers/gpu/drm/nouveau/include/nvif/class.h
-> > > > @@ -71,6 +71,7 @@
-> > > >  #define PASCAL_CHANNEL_GPFIFO_A                       /* cla06f.h */ 0x0000c06f
-> > > >  #define VOLTA_CHANNEL_GPFIFO_A                        /* clc36f.h */ 0x0000c36f
-> > > >  #define TURING_CHANNEL_GPFIFO_A                       /* clc36f.h */ 0x0000c46f
-> > > > +#define AMPERE_CHANNEL_GPFIFO_B                       /* clc36f.h */ 0x0000c76f
-> > > >
-> > > >  #define NV50_DISP                                     /* cl5070.h */ 0x00005070
-> > > >  #define G82_DISP                                      /* cl5070.h */ 0x00008270
-> > > > @@ -200,6 +201,7 @@
-> > > >  #define PASCAL_DMA_COPY_B                                            0x0000c1b5
-> > > >  #define VOLTA_DMA_COPY_A                                             0x0000c3b5
-> > > >  #define TURING_DMA_COPY_A                                            0x0000c5b5
-> > > > +#define AMPERE_DMA_COPY_B                                            0x0000c7b5
-> > > >
-> > > >  #define FERMI_DECOMPRESS                                             0x000090b8
-> > > >
-> > > > diff --git a/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h b/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h
-> > > > index 54fab7cc36c1..64ee82c7c1be 100644
-> > > > --- a/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h
-> > > > +++ b/drivers/gpu/drm/nouveau/include/nvkm/engine/fifo.h
-> > > > @@ -77,4 +77,5 @@ int gp100_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct
-> > > >  int gp10b_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
-> > > >  int gv100_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
-> > > >  int tu102_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
-> > > > +int ga102_fifo_new(struct nvkm_device *, enum nvkm_subdev_type, int inst, struct nvkm_fifo **);
-> > > >  #endif
-> > > > diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
-> > > > index 4a7cebac8060..b3e4f555fa05 100644
-> > > > --- a/drivers/gpu/drm/nouveau/nouveau_bo.c
-> > > > +++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
-> > > > @@ -844,6 +844,7 @@ nouveau_bo_move_init(struct nouveau_drm *drm)
-> > > >                             struct ttm_resource *, struct ttm_resource *);
-> > > >                 int (*init)(struct nouveau_channel *, u32 handle);
-> > > >         } _methods[] = {
-> > > > +               {  "COPY", 4, 0xc7b5, nve0_bo_move_copy, nve0_bo_move_init },
-> > >
-> > > so, I was looking at the COPY class headers and noticed something strange.
-> > >
-> > > "BYPASS_L2" was moved with MAXWELL_DMA_COPY_A from bit 11 to bit 20.
-> > > It got split out to SRC_ (20) and DST_ (21) with PASCAL_DMA_COPY_A and
-> > > got removed with AMPERE_DMA_COPY_A.
-> > >
-> > > Since MAXWELL_DMA_COPY_A bit 11 is FORCE_RMWDISABLE. I don't know if
-> > > that causes any issues, I just noticed this while comparing the copy
-> > > class headers.
-> > Yeah, I think for the way we're using the CE for TTM moves, it's OK.
-> > In the very least, no more wrong that it already is on existing GPUs
-> > ;)
-> >
-> > >
-> > > >                 {  "COPY", 4, 0xc5b5, nve0_bo_move_copy, nve0_bo_move_init },
-> > > >                 {  "GRCE", 0, 0xc5b5, nve0_bo_move_copy, nvc0_bo_move_init },
-> > > >                 {  "COPY", 4, 0xc3b5, nve0_bo_move_copy, nve0_bo_move_init },
-> > > > diff --git a/drivers/gpu/drm/nouveau/nouveau_chan.c b/drivers/gpu/drm/nouveau/nouveau_chan.c
-> > > > index 80099ef75702..ea7769135b0d 100644
-> > > > --- a/drivers/gpu/drm/nouveau/nouveau_chan.c
-> > > > +++ b/drivers/gpu/drm/nouveau/nouveau_chan.c
-> > > > @@ -250,7 +250,8 @@ static int
-> > > >  nouveau_channel_ind(struct nouveau_drm *drm, struct nvif_device *device,
-> > > >                     u64 runlist, bool priv, struct nouveau_channel **pchan)
-> > > >  {
-> > > > -       static const u16 oclasses[] = { TURING_CHANNEL_GPFIFO_A,
-> > > > +       static const u16 oclasses[] = { AMPERE_CHANNEL_GPFIFO_B,
-> > > > +                                       TURING_CHANNEL_GPFIFO_A,
-> > > >                                         VOLTA_CHANNEL_GPFIFO_A,
-> > > >                                         PASCAL_CHANNEL_GPFIFO_A,
-> > > >                                         MAXWELL_CHANNEL_GPFIFO_A,
-> > > > @@ -386,7 +387,8 @@ nouveau_channel_init(struct nouveau_channel *chan, u32 vram, u32 gart)
-> > > >
-> > > >         nvif_object_map(&chan->user, NULL, 0);
-> > > >
-> > > > -       if (chan->user.oclass >= FERMI_CHANNEL_GPFIFO) {
-> > > > +       if (chan->user.oclass >= FERMI_CHANNEL_GPFIFO &&
-> > > > +           chan->user.oclass < AMPERE_CHANNEL_GPFIFO_B) {
-> > > >                 ret = nvif_notify_ctor(&chan->user, "abi16ChanKilled",
-> > > >                                        nouveau_channel_killed,
-> > > >                                        true, NV906F_V0_NTFY_KILLED,
-> > > > diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
-> > > > index 1f828c9f691c..6109cd9e3399 100644
-> > > > --- a/drivers/gpu/drm/nouveau/nouveau_drm.c
-> > > > +++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
-> > > > @@ -345,6 +345,9 @@ nouveau_accel_gr_init(struct nouveau_drm *drm)
-> > > >         u32 arg0, arg1;
-> > > >         int ret;
-> > > >
-> > > > +       if (device->info.family >= NV_DEVICE_INFO_V0_AMPERE)
-> > > > +               return;
-> > > > +
-> > > >         /* Allocate channel that has access to the graphics engine. */
-> > > >         if (device->info.family >= NV_DEVICE_INFO_V0_KEPLER) {
-> > > >                 arg0 = nvif_fifo_runlist(device, NV_DEVICE_HOST_RUNLIST_ENGINES_GR);
-> > > > @@ -469,6 +472,7 @@ nouveau_accel_init(struct nouveau_drm *drm)
-> > > >                 case PASCAL_CHANNEL_GPFIFO_A:
-> > > >                 case VOLTA_CHANNEL_GPFIFO_A:
-> > > >                 case TURING_CHANNEL_GPFIFO_A:
-> > > > +               case AMPERE_CHANNEL_GPFIFO_B:
-> > > >                         ret = nvc0_fence_create(drm);
-> > > >                         break;
-> > > >                 default:
-> > > > diff --git a/drivers/gpu/drm/nouveau/nv84_fence.c b/drivers/gpu/drm/nouveau/nv84_fence.c
-> > > > index 7c9c928c3196..c3526a8622e3 100644
-> > > > --- a/drivers/gpu/drm/nouveau/nv84_fence.c
-> > > > +++ b/drivers/gpu/drm/nouveau/nv84_fence.c
-> > > > @@ -204,7 +204,7 @@ nv84_fence_create(struct nouveau_drm *drm)
-> > > >         priv->base.context_new = nv84_fence_context_new;
-> > > >         priv->base.context_del = nv84_fence_context_del;
-> > > >
-> > > > -       priv->base.uevent = true;
-> > > > +       priv->base.uevent = drm->client.device.info.family < NV_DEVICE_INFO_V0_AMPERE;
-> > > >
-> > > >         mutex_init(&priv->mutex);
-> > > >
-> > > > diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-> > > > index 93ddf63d1114..ca75c5f6ecaf 100644
-> > > > --- a/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-> > > > +++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/base.c
-> > > > @@ -2602,6 +2602,7 @@ nv172_chipset = {
-> > > >         .top      = { 0x00000001, ga100_top_new },
-> > > >         .disp     = { 0x00000001, ga102_disp_new },
-> > > >         .dma      = { 0x00000001, gv100_dma_new },
-> > > > +       .fifo     = { 0x00000001, ga102_fifo_new },
-> > > >  };
-> > > >
-> > > >  static const struct nvkm_device_chip
-> > > > @@ -2622,6 +2623,7 @@ nv174_chipset = {
-> > > >         .top      = { 0x00000001, ga100_top_new },
-> > > >         .disp     = { 0x00000001, ga102_disp_new },
-> > > >         .dma      = { 0x00000001, gv100_dma_new },
-> > > > +       .fifo     = { 0x00000001, ga102_fifo_new },
-> > > >  };
-> > > >
-> > > >  static const struct nvkm_device_chip
-> > > > @@ -2642,6 +2644,7 @@ nv177_chipset = {
-> > > >         .top      = { 0x00000001, ga100_top_new },
-> > > >         .disp     = { 0x00000001, ga102_disp_new },
-> > > >         .dma      = { 0x00000001, gv100_dma_new },
-> > > > +       .fifo     = { 0x00000001, ga102_fifo_new },
-> > > >  };
-> > > >
-> > > >  static int
-> > > > diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild
-> > > > index 3209eb7af65f..5e831d347a95 100644
-> > > > --- a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild
-> > > > +++ b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/Kbuild
-> > > > @@ -18,6 +18,7 @@ nvkm-y += nvkm/engine/fifo/gp100.o
-> > > >  nvkm-y += nvkm/engine/fifo/gp10b.o
-> > > >  nvkm-y += nvkm/engine/fifo/gv100.o
-> > > >  nvkm-y += nvkm/engine/fifo/tu102.o
-> > > > +nvkm-y += nvkm/engine/fifo/ga102.o
-> > > >
-> > > >  nvkm-y += nvkm/engine/fifo/chan.o
-> > > >  nvkm-y += nvkm/engine/fifo/channv50.o
-> > > > diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c
-> > > > new file mode 100644
-> > > > index 000000000000..bfb66457100c
-> > > > --- /dev/null
-> > > > +++ b/drivers/gpu/drm/nouveau/nvkm/engine/fifo/ga102.c
-> > > > @@ -0,0 +1,308 @@
-> > > > +/*
-> > > > + * Copyright 2021 Red Hat Inc.
-> > > > + *
-> > > > + * Permission is hereby granted, free of charge, to any person obtaining a
-> > > > + * copy of this software and associated documentation files (the "Software"),
-> > > > + * to deal in the Software without restriction, including without limitation
-> > > > + * the rights to use, copy, modify, merge, publish, distribute, sublicense,
-> > > > + * and/or sell copies of the Software, and to permit persons to whom the
-> > > > + * Software is furnished to do so, subject to the following conditions:
-> > > > + *
-> > > > + * The above copyright notice and this permission notice shall be included in
-> > > > + * all copies or substantial portions of the Software.
-> > > > + *
-> > > > + * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-> > > > + * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-> > > > + * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-> > > > + * THE COPYRIGHT HOLDER(S) OR AUTHOR(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
-> > > > + * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-> > > > + * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-> > > > + * OTHER DEALINGS IN THE SOFTWARE.
-> > > > + */
-> > > > +#define ga102_fifo(p) container_of((p), struct ga102_fifo, base.engine)
-> > > > +#define ga102_chan(p) container_of((p), struct ga102_chan, object)
-> > > > +#include <engine/fifo.h>
-> > > > +#include "user.h"
-> > > > +
-> > > > +#include <core/memory.h>
-> > > > +#include <subdev/mmu.h>
-> > > > +#include <subdev/timer.h>
-> > > > +#include <subdev/top.h>
-> > > > +
-> > > > +#include <nvif/cl0080.h>
-> > > > +#include <nvif/clc36f.h>
-> > > > +#include <nvif/class.h>
-> > > > +
-> > > > +struct ga102_fifo {
-> > > > +       struct nvkm_fifo base;
-> > > > +};
-> > > > +
-> > > > +struct ga102_chan {
-> > > > +       struct nvkm_object object;
-> > > > +
-> > > > +       struct {
-> > > > +               u32 runl;
-> > > > +               u32 chan;
-> > > > +       } ctrl;
-> > > > +
-> > > > +       struct nvkm_memory *mthd;
-> > > > +       struct nvkm_memory *inst;
-> > > > +       struct nvkm_memory *user;
-> > > > +       struct nvkm_memory *runl;
-> > > > +
-> > > > +       struct nvkm_vmm *vmm;
-> > > > +};
-> > > > +
-> > > > +static int
-> > > > +ga102_chan_sclass(struct nvkm_object *object, int index, struct nvkm_oclass *oclass)
-> > > > +{
-> > > > +       if (index == 0) {
-> > > > +               oclass->ctor = nvkm_object_new;
-> > > > +               oclass->base = (struct nvkm_sclass) { -1, -1, AMPERE_DMA_COPY_B };
-> > > > +               return 0;
-> > > > +       }
-> > > > +
-> > > > +       return -EINVAL;
-> > > > +}
-> > > > +
-> > > > +static int
-> > > > +ga102_chan_map(struct nvkm_object *object, void *argv, u32 argc,
-> > > > +              enum nvkm_object_map *type, u64 *addr, u64 *size)
-> > > > +{
-> > > > +       struct ga102_chan *chan = ga102_chan(object);
-> > > > +       struct nvkm_device *device = chan->object.engine->subdev.device;
-> > > > +       u64 bar2 = nvkm_memory_bar2(chan->user);
-> > > > +
-> > > > +       if (bar2 == ~0ULL)
-> > > > +               return -EFAULT;
-> > > > +
-> > > > +       *type = NVKM_OBJECT_MAP_IO;
-> > > > +       *addr = device->func->resource_addr(device, 3) + bar2;
-> > > > +       *size = 0x1000;
-> > > > +       return 0;
-> > > > +}
-> > > > +
-> > > > +static int
-> > > > +ga102_chan_fini(struct nvkm_object *object, bool suspend)
-> > > > +{
-> > > > +       struct ga102_chan *chan = ga102_chan(object);
-> > > > +       struct nvkm_device *device = chan->object.engine->subdev.device;
-> > > > +
-> > > > +       nvkm_wr32(device, chan->ctrl.chan, 0x00000003);
-> > > > +
-> > > > +       nvkm_wr32(device, chan->ctrl.runl + 0x098, 0x01000000);
-> > > > +       nvkm_msec(device, 2000,
-> > > > +               if (!(nvkm_rd32(device, chan->ctrl.runl + 0x098) & 0x00100000))
-> > > > +                       break;
-> > > > +       );
-> > > > +
-> > > > +       nvkm_wr32(device, chan->ctrl.runl + 0x088, 0);
-> > > > +
-> > > > +       nvkm_wr32(device, chan->ctrl.chan, 0xffffffff);
-> > > > +       return 0;
-> > > > +}
-> > > > +
-> > > > +static int
-> > > > +ga102_chan_init(struct nvkm_object *object)
-> > > > +{
-> > > > +       struct ga102_chan *chan = ga102_chan(object);
-> > > > +       struct nvkm_device *device = chan->object.engine->subdev.device;
-> > > > +
-> > > > +       nvkm_mask(device, chan->ctrl.runl + 0x300, 0x80000000, 0x80000000);
-> > > > +
-> > > > +       nvkm_wr32(device, chan->ctrl.runl + 0x080, lower_32_bits(nvkm_memory_addr(chan->runl)));
-> > > > +       nvkm_wr32(device, chan->ctrl.runl + 0x084, upper_32_bits(nvkm_memory_addr(chan->runl)));
-> > > > +       nvkm_wr32(device, chan->ctrl.runl + 0x088, 2);
-> > > > +
-> > > > +       nvkm_wr32(device, chan->ctrl.chan, 0x00000002);
-> > > > +       nvkm_wr32(device, chan->ctrl.runl + 0x0090, 0);
-> > > > +       return 0;
-> > > > +}
-> > > > +
-> > > > +static void *
-> > > > +ga102_chan_dtor(struct nvkm_object *object)
-> > > > +{
-> > > > +       struct ga102_chan *chan = ga102_chan(object);
-> > > > +
-> > > > +       if (chan->vmm) {
-> > > > +               nvkm_vmm_part(chan->vmm, chan->inst);
-> > > > +               nvkm_vmm_unref(&chan->vmm);
-> > > > +       }
-> > > > +
-> > > > +       nvkm_memory_unref(&chan->runl);
-> > > > +       nvkm_memory_unref(&chan->user);
-> > > > +       nvkm_memory_unref(&chan->inst);
-> > > > +       nvkm_memory_unref(&chan->mthd);
-> > > > +       return chan;
-> > > > +}
-> > > > +
-> > > > +static const struct nvkm_object_func
-> > > > +ga102_chan = {
-> > > > +       .dtor = ga102_chan_dtor,
-> > > > +       .init = ga102_chan_init,
-> > > > +       .fini = ga102_chan_fini,
-> > > > +       .map = ga102_chan_map,
-> > > > +       .sclass = ga102_chan_sclass,
-> > > > +};
-> > > > +
-> > > > +static int
-> > > > +ga102_chan_new(struct nvkm_device *device,
-> > > > +              const struct nvkm_oclass *oclass, void *argv, u32 argc, struct nvkm_object **pobject)
-> > > > +{
-> > > > +       struct volta_channel_gpfifo_a_v0 *args = argv;
-> > > > +       struct nvkm_top_device *tdev;
-> > > > +       struct nvkm_vmm *vmm;
-> > > > +       struct ga102_chan *chan;
-> > > > +       int ret;
-> > > > +
-> > > > +       if (argc != sizeof(*args))
-> > > > +               return -ENOSYS;
-> > > > +
-> > > > +       vmm = nvkm_uvmm_search(oclass->client, args->vmm);
-> > > > +       if (IS_ERR(vmm))
-> > > > +               return PTR_ERR(vmm);
-> > > > +
-> > > > +       if (!(chan = kzalloc(sizeof(*chan), GFP_KERNEL)))
-> > > > +               return -ENOMEM;
-> > > > +
-> > > > +       nvkm_object_ctor(&ga102_chan, oclass, &chan->object);
-> > > > +       *pobject = &chan->object;
-> > > > +
-> > > > +       list_for_each_entry(tdev, &device->top->device, head) {
-> > > > +               if (tdev->type == NVKM_ENGINE_CE) {
-> > > > +                       chan->ctrl.runl = tdev->runlist;
-> > > > +                       break;
-> > > > +               }
-> > > > +       }
-> > > > +
-> > > > +       if (!chan->ctrl.runl)
-> > > > +               return -ENODEV;
-> > > > +
-> > > > +       chan->ctrl.chan = nvkm_rd32(device, chan->ctrl.runl + 0x004) & 0xfffffff0;
-> > > > +       args->token = nvkm_rd32(device, chan->ctrl.runl + 0x008) & 0xffff0000;
-> > > > +
-> > > > +       ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->mthd);
-> > > > +       if (ret)
-> > > > +               return ret;
-> > > > +
-> > > > +       ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->inst);
-> > > > +       if (ret)
-> > > > +               return ret;
-> > > > +
-> > > > +       nvkm_kmap(chan->inst);
-> > > > +       nvkm_wo32(chan->inst, 0x010, 0x0000face);
-> > > > +       nvkm_wo32(chan->inst, 0x030, 0x7ffff902);
-> > > > +       nvkm_wo32(chan->inst, 0x048, lower_32_bits(args->ioffset));
-> > > > +       nvkm_wo32(chan->inst, 0x04c, upper_32_bits(args->ioffset) |
-> > > > +                                    (order_base_2(args->ilength) << 16));
-> > > > +       nvkm_wo32(chan->inst, 0x084, 0x20400000);
-> > > > +       nvkm_wo32(chan->inst, 0x094, 0x30000001);
-> > > > +       nvkm_wo32(chan->inst, 0x0ac, 0x00020000);
-> > > > +       nvkm_wo32(chan->inst, 0x0e4, 0x00000000);
-> > > > +       nvkm_wo32(chan->inst, 0x0e8, 0);
-> > > > +       nvkm_wo32(chan->inst, 0x0f4, 0x00001000);
-> > > > +       nvkm_wo32(chan->inst, 0x0f8, 0x10003080);
-> > > > +       nvkm_mo32(chan->inst, 0x218, 0x00000000, 0x00000000);
-> > > > +       nvkm_wo32(chan->inst, 0x220, lower_32_bits(nvkm_memory_bar2(chan->mthd)));
-> > > > +       nvkm_wo32(chan->inst, 0x224, upper_32_bits(nvkm_memory_bar2(chan->mthd)));
-> > > > +       nvkm_done(chan->inst);
-> > > > +
-> > > > +       ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->user);
-> > > > +       if (ret)
-> > > > +               return ret;
-> > > > +
-> > > > +       ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000, true, &chan->runl);
-> > > > +       if (ret)
-> > > > +               return ret;
-> > > > +
-> > > > +       nvkm_kmap(chan->runl);
-> > > > +       nvkm_wo32(chan->runl, 0x00, 0x80030001);
-> > > > +       nvkm_wo32(chan->runl, 0x04, 1);
-> > > > +       nvkm_wo32(chan->runl, 0x08, 0);
-> > > > +       nvkm_wo32(chan->runl, 0x0c, 0x00000000);
-> > > > +       nvkm_wo32(chan->runl, 0x10, lower_32_bits(nvkm_memory_addr(chan->user)));
-> > > > +       nvkm_wo32(chan->runl, 0x14, upper_32_bits(nvkm_memory_addr(chan->user)));
-> > > > +       nvkm_wo32(chan->runl, 0x18, lower_32_bits(nvkm_memory_addr(chan->inst)));
-> > > > +       nvkm_wo32(chan->runl, 0x1c, upper_32_bits(nvkm_memory_addr(chan->inst)));
-> > > > +       nvkm_done(chan->runl);
-> > >
-> > > Do we actually have documentation on what those offsets all mean?
-> > > (same for chan->inst above(
-> > Yes.  The chan->inst stuff is NV_RAMFC (dev_ram.ref), and the copy
-> > engine context data.  The chan->runl stuff is NV_RAMRL (also
-> > dev_ram.ref).  It's actually almost identical to GV100, though RAMFC
-> > lost USERD fields, they're only specified in the RAMRL entry now.  The
-> > code is shared in the full host implementation I'm trying to finish
-> > up.
-> >
->
-> oh wow, that file has actual documentation.
->
-> Cool, actually something to read through and understand :D Anyway, it
-> seems like it actually is just like the volta code, just with more
-> hard coded bits.
->
-> Overall I think the code is fine, so a
->
-> Reviewed-by: Karol Herbst <kherbst@redhat.com>
->
-> I just don't know if I should feel comfortable getting into stable
-> kernels or not, but as it does "fixes" prime offloading, even though
-> it's more "enabling" than anything else. I think we might want to
-> either add such a workaround for future gens as well or try to
-> disallow setting up offloading? Not sure. If others are fine with it,
-> so am I :)
-It's the first time this situation has happened actually, usually
-host/ce support appears in the "initial support" without firmware.
 
-Disabling prime was the last-resort option, though it means most
-laptops with external displays won't work, which is... Not great.  I
-decided to see how awful it'd be to hack up something just for this
-temporarily, and throw it out there to see.  It should be safe
-(definitely for earlier chipsets), and the result otherwise is an
-OOPS, so, probably worth it on the whole.
+Hello,
 
-Ben.
+We ran automated tests on a recent commit from this kernel tree:
 
->
->
-> > >
-> > > > +
-> > > > +       ret = nvkm_vmm_join(vmm, chan->inst);
-> > > > +       if (ret)
-> > > > +               return ret;
-> > > > +
-> > > > +       chan->vmm = nvkm_vmm_ref(vmm);
-> > > > +       return 0;
-> > > > +}
-> > > > +
-> > > > +static const struct nvkm_device_oclass
-> > > > +ga102_chan_oclass = {
-> > > > +       .ctor = ga102_chan_new,
-> > > > +};
-> > > > +
-> > > > +static int
-> > > > +ga102_user_new(struct nvkm_device *device,
-> > > > +              const struct nvkm_oclass *oclass, void *argv, u32 argc, struct nvkm_object **pobject)
-> > > > +{
-> > > > +       return tu102_fifo_user_new(oclass, argv, argc, pobject);
-> > > > +}
-> > > > +
-> > > > +static const struct nvkm_device_oclass
-> > > > +ga102_user_oclass = {
-> > > > +       .ctor = ga102_user_new,
-> > > > +};
-> > > > +
-> > > > +static int
-> > > > +ga102_fifo_sclass(struct nvkm_oclass *oclass, int index, const struct nvkm_device_oclass **class)
-> > > > +{
-> > > > +       if (index == 0) {
-> > > > +               oclass->base = (struct nvkm_sclass) { -1, -1, VOLTA_USERMODE_A };
-> > > > +               *class = &ga102_user_oclass;
-> > > > +               return 0;
-> > > > +       } else
-> > > > +       if (index == 1) {
-> > > > +               oclass->base = (struct nvkm_sclass) { 0, 0, AMPERE_CHANNEL_GPFIFO_B };
-> > > > +               *class = &ga102_chan_oclass;
-> > > > +               return 0;
-> > > > +       }
-> > > > +
-> > > > +       return 2;
-> > > > +}
-> > > > +
-> > > > +static int
-> > > > +ga102_fifo_info(struct nvkm_engine *engine, u64 mthd, u64 *data)
-> > > > +{
-> > > > +       switch (mthd) {
-> > > > +       case NV_DEVICE_HOST_CHANNELS: *data = 1; return 0;
-> > > > +       default:
-> > > > +               break;
-> > > > +       }
-> > > > +
-> > > > +       return -ENOSYS;
-> > > > +}
-> > > > +
-> > > > +static void *
-> > > > +ga102_fifo_dtor(struct nvkm_engine *engine)
-> > > > +{
-> > > > +       return ga102_fifo(engine);
-> > > > +}
-> > > > +
-> > > > +static const struct nvkm_engine_func
-> > > > +ga102_fifo = {
-> > > > +       .dtor = ga102_fifo_dtor,
-> > > > +       .info = ga102_fifo_info,
-> > > > +       .base.sclass = ga102_fifo_sclass,
-> > > > +};
-> > > > +
-> > > > +int
-> > > > +ga102_fifo_new(struct nvkm_device *device, enum nvkm_subdev_type type, int inst,
-> > > > +              struct nvkm_fifo **pfifo)
-> > > > +{
-> > > > +       struct ga102_fifo *fifo;
-> > > > +
-> > > > +       if (!(fifo = kzalloc(sizeof(*fifo), GFP_KERNEL)))
-> > > > +               return -ENOMEM;
-> > > > +
-> > > > +       nvkm_engine_ctor(&ga102_fifo, device, type, inst, true, &fifo->base.engine);
-> > > > +       *pfifo = &fifo->base;
-> > > > +       return 0;
-> > > > +}
-> > > > diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c b/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c
-> > > > index 31933f3e5a07..c982d834c8d9 100644
-> > > > --- a/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c
-> > > > +++ b/drivers/gpu/drm/nouveau/nvkm/subdev/top/ga100.c
-> > > > @@ -54,7 +54,7 @@ ga100_top_oneinit(struct nvkm_top *top)
-> > > >                         info->reset   = (data & 0x0000001f);
-> > > >                         break;
-> > > >                 case 2:
-> > > > -                       info->runlist = (data & 0x0000fc00) >> 10;
-> > > > +                       info->runlist = (data & 0x00fffc00);
-> > > >                         info->engine  = (data & 0x00000003);
-> > > >                         break;
-> > > >                 default:
-> > > > @@ -85,9 +85,10 @@ ga100_top_oneinit(struct nvkm_top *top)
-> > > >                 }
-> > > >
-> > > >                 nvkm_debug(subdev, "%02x.%d (%8s): addr %06x fault %2d "
-> > > > -                                  "runlist %2d engine %2d reset %2d\n", type, inst,
-> > > > +                                  "runlist %6x engine %2d reset %2d\n", type, inst,
-> > > >                            info->type == NVKM_SUBDEV_NR ? "????????" : nvkm_subdev_type[info->type],
-> > > > -                          info->addr, info->fault, info->runlist, info->engine, info->reset);
-> > > > +                          info->addr, info->fault, info->runlist < 0 ? 0 : info->runlist,
-> > > > +                          info->engine, info->reset);
-> > > >                 info = NULL;
-> > > >         }
-> > > >
-> > > > --
-> > > > 2.31.1
-> > > >
-> > >
-> > > Overall the changes look fine. I don't know if the ampere
-> > > implementation is itself correct, but the surrounding is fine imho.
-> > >
-> >
->
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: f9121bcdcc09 - xtensa: fix kconfig unmet dependency warni=
+ng for HAVE_FUTEX_CMPXCHG
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+    Targeted tests: NO
+
+All kernel binaries, config files, and logs are available for download here:
+
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2021/09/06/365661213
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 LTP - cve
+       =E2=9C=85 LTP - sched
+       =E2=9C=85 LTP - syscalls
+       =E2=9C=85 LTP - can
+       =E2=9C=85 LTP - commands
+       =E2=9C=85 LTP - containers
+       =E2=9C=85 LTP - dio
+       =E2=9C=85 LTP - fs
+       =E2=9C=85 LTP - fsx
+       =E2=9C=85 LTP - math
+       =E2=9C=85 LTP - hugetlb
+       =E2=9C=85 LTP - mm
+       =E2=9C=85 LTP - nptl
+       =E2=9C=85 LTP - pty
+       =E2=9C=85 LTP - ipc
+       =E2=9C=85 LTP - tracing
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 NFS Connectathon
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: dm/common
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking: igmp conformance test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 lvm cache test
+       =F0=9F=9A=A7 =E2=9C=85 lvm snapper test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 IPMI driver test
+       =E2=9C=85 IPMItool loop stress test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 Storage blktests
+       =E2=9C=85 Storage block - filesystem fio test
+       =E2=9C=85 Storage block - queue scheduler test
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as root
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as user
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =F0=9F=92=A5 stress: stress-ng
+
+  ppc64le:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 LTP - cve
+       =E2=9C=85 LTP - sched
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - syscalls
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - can
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - commands
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - containers
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - dio
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - fs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - fsx
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - math
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - hugetlb
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - mm
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - nptl
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - pty
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - ipc
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - tracing
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 NFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm cache test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm snapper test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 IPMI driver test
+       =E2=9C=85 IPMItool loop stress test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 Storage blktests
+       =E2=9C=85 Storage block - filesystem fio test
+       =E2=9C=85 Storage block - queue scheduler test
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as root
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as user
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test - upstream
+
+    Host 3:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 LTP - cve
+       =E2=9C=85 LTP - sched
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - syscalls
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - can
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - commands
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - containers
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - dio
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - fs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - fsx
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - math
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - hugetlb
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - mm
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - nptl
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - pty
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - ipc
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - tracing
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 NFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm cache test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm snapper test
+
+    Host 4:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 LTP - cve
+       =E2=9C=85 LTP - sched
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - syscalls
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - can
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - commands
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - containers
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - dio
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - fs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - fsx
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - math
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - hugetlb
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - mm
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - nptl
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - pty
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - ipc
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - tracing
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 NFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm cache test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm snapper test
+
+  s390x:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 Storage blktests
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as root
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as user
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 LTP - cve
+       =E2=9C=85 LTP - sched
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - syscalls
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - can
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - commands
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - containers
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - dio
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - fs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - fsx
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - math
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - hugetlb
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - mm
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - nptl
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - pty
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - ipc
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - tracing
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 NFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm cache test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm snapper test
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 LTP - cve
+       =E2=9C=85 LTP - sched
+       =E2=9C=85 LTP - syscalls
+       =E2=9C=85 LTP - can
+       =E2=9C=85 LTP - commands
+       =E2=9C=85 LTP - containers
+       =E2=9C=85 LTP - dio
+       =E2=9C=85 LTP - fs
+       =E2=9C=85 LTP - fsx
+       =E2=9C=85 LTP - math
+       =E2=9C=85 LTP - hugetlb
+       =E2=9C=85 LTP - mm
+       =E2=9C=85 LTP - nptl
+       =E2=9C=85 LTP - pty
+       =E2=9C=85 LTP - ipc
+       =E2=9C=85 LTP - tracing
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 NFS Connectathon
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 storage: dm/common
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9D=8C xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 lvm cache test
+       =F0=9F=9A=A7 =E2=9C=85 lvm snapper test
+
+  x86_64:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Reboot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ACPI table test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - cve
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - sched
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - syscalls
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - can
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - commands
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - containers
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - dio
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - fs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - fsx
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - math
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - hugetlb
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - mm
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - nptl
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - pty
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - ipc
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP - tracing
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 NFS Connectathon
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm - jcstress tests
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory: fork_mem
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: memfd_create
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking bridge: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - local
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func - forward
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking TCP: keepalive test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking UDP: socket
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking cki netfilter test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: geneve basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: gre basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 L2TP basic test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking tunnel: vxlan basic
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - transport
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking ipsec: basic netns - tunnel
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Libkcapi AF_ALG test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: sanity smoke test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: update pci ids test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Firmware test suite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking: igmp conformance =
+test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm cache test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 lvm snapper test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 xfstests - ext4
+       =E2=9C=85 xfstests - xfs
+       =E2=9C=85 xfstests - nfsv4.2
+       =E2=9C=85 xfstests - cifsv3.11
+       =E2=9C=85 IPMI driver test
+       =E2=9C=85 IPMItool loop stress test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 power-management: cpupower/sanity test
+       =E2=9C=85 Storage blktests
+       =E2=9C=85 Storage block - filesystem fio test
+       =E2=9C=85 Storage block - queue scheduler test
+       =E2=9C=85 storage: software RAID testing
+       =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as root
+       =F0=9F=9A=A7 =E2=9C=85 Podman system integration test - as user
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9D=8C Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test - upstream
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Reboot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 LTP - cve
+       =E2=9C=85 LTP - sched
+       =E2=9C=85 LTP - syscalls
+       =E2=9C=85 LTP - can
+       =E2=9C=85 LTP - commands
+       =E2=9C=85 LTP - containers
+       =E2=9C=85 LTP - dio
+       =E2=9C=85 LTP - fs
+       =E2=9C=85 LTP - fsx
+       =E2=9C=85 LTP - math
+       =E2=9C=85 LTP - hugetlb
+       =E2=9C=85 LTP - mm
+       =E2=9C=85 LTP - nptl
+       =E2=9C=85 LTP - pty
+       =E2=9C=85 LTP - ipc
+       =E2=9C=85 LTP - tracing
+       =E2=9C=85 CIFS Connectathon
+       =E2=9C=85 POSIX pjd-fstest suites
+       =E2=9C=85 NFS Connectathon
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm - jcstress tests
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking cki netfilter test
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: dm/common
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 xarray-idr-radixtree-test
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Networking: igmp conformance test
+       =F0=9F=9A=A7 =E2=9C=85 audit: audit testsuite test
+       =F0=9F=9A=A7 =E2=9C=85 lvm cache test
+       =F0=9F=9A=A7 =E2=9C=85 lvm snapper test
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
+Targeted tests
+--------------
+Test runs for patches always include a set of base tests, plus some
+tests chosen based on the file paths modified by the patch. The latter
+are called "targeted tests". If no targeted tests are run, that means
+no patch-specific tests are available. Please, consider contributing a
+targeted test for related patches to increase test coverage. See
+https://docs.engineering.redhat.com/x/_wEZB for more details.
+
