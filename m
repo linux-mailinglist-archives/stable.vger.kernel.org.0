@@ -2,144 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E5740301D
-	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 23:09:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98563403059
+	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 23:36:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346455AbhIGVKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Sep 2021 17:10:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51910 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344670AbhIGVKq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Sep 2021 17:10:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C555261103;
-        Tue,  7 Sep 2021 21:09:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1631048979;
-        bh=JeGwobpl2T0OjPT/9MbulzjljynIwxEUrsK3Z64UqPo=;
-        h=Date:From:To:Subject:From;
-        b=x9S4DjK8hreA8u4ax3NQMXpDTEVANCbiikvQekj7FNEsb87XWle1k8FTdBzFgbW/u
-         8I5k0d6ITUvPgxirbFgE8VvFEvT6x/fTXW0/wuAsvJNjPJfqf9e9SEw/863C4f0Jcg
-         APA2uu+JGgVgP5TUQIMzYQJXLrltPjgIK3mhtLbk=
-Date:   Tue, 07 Sep 2021 14:09:39 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, songmuchun@bytedance.com,
-        stable@vger.kernel.org, yanghui.def@bytedance.com
-Subject:  +
- mm-mempolicy-fix-a-race-between-offset_il_node-and-mpol_rebind_task.patch
- added to -mm tree
-Message-ID: <20210907210939.o1mG3MgPY%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S244484AbhIGVh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Sep 2021 17:37:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57400 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243917AbhIGVh5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Sep 2021 17:37:57 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95525C061757
+        for <stable@vger.kernel.org>; Tue,  7 Sep 2021 14:36:50 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id l7-20020a0568302b0700b0051c0181deebso99963otv.12
+        for <stable@vger.kernel.org>; Tue, 07 Sep 2021 14:36:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Cq2RpdWRFR+UJ1eunmYcEEJnFAucRxkrMkgHCnagpFk=;
+        b=EtfvV1UQAdKlQR8G538c1zvAh6HZnSaRSH46IaYnNXXQeCqudGc4Iibh/1OqP6I/sP
+         Va4gAg/pTcXUd4AAgDNrHOG9yp3QrmX7H8KhPH7/bxRdOOwBF+34q637fkfrv0u60yBe
+         FgUQuugc9+B5cxKzNJw6KbBNfA9gZky1mbyoA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Cq2RpdWRFR+UJ1eunmYcEEJnFAucRxkrMkgHCnagpFk=;
+        b=MpFXRL42VM7+mhmRmoVaI2tWs0ly3iDVVipGO0+LDXaVjVWqhW3J4Tbe389QhPAHP0
+         YD0hhqqKiHE7tmv1GkaluwJFb4UfX+t5B7J+hjecuur8QBNwtrBFZiRcynwDFyRhXvno
+         fSjRmDPTzIQ61vfGoZNF+P+VZuWCQ1W3lIpBu9WuJKHIbjQ1y1z2azWdlfqwPbsFoX1R
+         +4urgq3SrRPbxYKCCz/HtssmOIhU1nJ2mEOM/pZHvLgAwf66ysROqVM6RotCv9kGiDbh
+         LqaJxAPwK5wCBhn0I2ggy7UA4q6azVUb+fV8FVFH2U/BlBxVZtKUEadymffot3bYPZft
+         MtIg==
+X-Gm-Message-State: AOAM531aNpQCFImyjEq17iiGRby+KSxAi86QMp8T6LT+UWqsU4R0AJOz
+        PJ3OsxTI/1MKw5NpPaopaZ5t7hG/gbEJJZRb
+X-Google-Smtp-Source: ABdhPJzs3kNTVYBemwHzzzOsf+62in0rMRleY8QoiiOZHZnNG+IiIWE26TV31NAvMOfBW27vVTCFog==
+X-Received: by 2002:a05:6830:241d:: with SMTP id j29mr428186ots.47.1631050609864;
+        Tue, 07 Sep 2021 14:36:49 -0700 (PDT)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id l4sm31380oth.4.2021.09.07.14.36.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Sep 2021 14:36:49 -0700 (PDT)
+Date:   Tue, 7 Sep 2021 16:36:47 -0500
+From:   Justin Forbes <jmforbes@linuxtx.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.13 00/24] 5.13.15-rc1 review
+Message-ID: <YTfbbyQr3+nrrpxm@fedora64.linuxtx.org>
+References: <20210906125449.112564040@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210906125449.112564040@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Sep 06, 2021 at 02:55:29PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.13.15 release.
+> There are 24 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 08 Sep 2021 12:54:40 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.15-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-The patch titled
-     Subject: mm/mempolicy: fix a race between offset_il_node and mpol_rebind_task
-has been added to the -mm tree.  Its filename is
-     mm-mempolicy-fix-a-race-between-offset_il_node-and-mpol_rebind_task.patch
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-mempolicy-fix-a-race-between-offset_il_node-and-mpol_rebind_task.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-mempolicy-fix-a-race-between-offset_il_node-and-mpol_rebind_task.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: yanghui <yanghui.def@bytedance.com>
-Subject: mm/mempolicy: fix a race between offset_il_node and mpol_rebind_task
-
-Servers happened below panic:
-Kernel version:5.4.56
-BUG: unable to handle page fault for address: 0000000000002c48
-RIP: 0010:__next_zones_zonelist+0x1d/0x40
-[264003.977696] RAX: 0000000000002c40 RBX: 0000000000100dca RCX: 0000000000000014
-[264003.977872] Call Trace:
-[264003.977888]  __alloc_pages_nodemask+0x277/0x310
-[264003.977908]  alloc_page_interleave+0x13/0x70
-[264003.977926]  handle_mm_fault+0xf99/0x1390
-[264003.977951]  __do_page_fault+0x288/0x500
-[264003.977979]  ? schedule+0x39/0xa0
-[264003.977994]  do_page_fault+0x30/0x110
-[264003.978010]  page_fault+0x3e/0x50
-
-The reason for the panic is that MAX_NUMNODES is passed in the third
-parameter in __alloc_pages_nodemask(preferred_nid).  So access to
-zonelist->zoneref->zone_idx in __next_zones_zonelist will cause a panic.
-
-In offset_il_node(), first_node() returns nid from pol->v.nodes, after
-this other threads may chang pol->v.nodes before next_node().  This race
-condition will let next_node return MAX_NUMNODES.  So put pol->nodes in a
-local variable.
-
-The race condition is between offset_il_node and cpuset_change_task_nodemask:
-CPU0:                                     CPU1:
-alloc_pages_vma()
-  interleave_nid(pol,)
-    offset_il_node(pol,)
-      first_node(pol->v.nodes)            cpuset_change_task_nodemask
-                      //nodes==0xc          mpol_rebind_task
-                                              mpol_rebind_policy
-                                                mpol_rebind_nodemask(pol,nodes)
-                      //nodes==0x3
-      next_node(nid, pol->v.nodes)//return MAX_NUMNODES
-
-Link: https://lkml.kernel.org/r/20210906034658.48721-1-yanghui.def@bytedance.com
-Signed-off-by: yanghui <yanghui.def@bytedance.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/mempolicy.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
-
---- a/mm/mempolicy.c~mm-mempolicy-fix-a-race-between-offset_il_node-and-mpol_rebind_task
-+++ a/mm/mempolicy.c
-@@ -1979,17 +1979,26 @@ unsigned int mempolicy_slab_node(void)
-  */
- static unsigned offset_il_node(struct mempolicy *pol, unsigned long n)
- {
--	unsigned nnodes = nodes_weight(pol->nodes);
--	unsigned target;
-+	nodemask_t nodemask = pol->nodes;
-+	unsigned int target, nnodes;
- 	int i;
- 	int nid;
-+	/*
-+	 * The barrier will stabilize the nodemask in a register or on
-+	 * the stack so that it will stop changing under the code.
-+	 *
-+	 * Between first_node() and next_node(), pol->nodes could be changed
-+	 * by other threads. So we put pol->nodes in a local stack.
-+	 */
-+	barrier();
- 
-+	nnodes = nodes_weight(nodemask);
- 	if (!nnodes)
- 		return numa_node_id();
- 	target = (unsigned int)n % nnodes;
--	nid = first_node(pol->nodes);
-+	nid = first_node(nodemask);
- 	for (i = 0; i < target; i++)
--		nid = next_node(nid, pol->nodes);
-+		nid = next_node(nid, nodemask);
- 	return nid;
- }
- 
-_
-
-Patches currently in -mm which might be from yanghui.def@bytedance.com are
-
-mm-mempolicy-fix-a-race-between-offset_il_node-and-mpol_rebind_task.patch
-
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
