@@ -2,125 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 933BE402DC3
-	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 19:35:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04F35402DC9
+	for <lists+stable@lfdr.de>; Tue,  7 Sep 2021 19:39:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345706AbhIGRgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Sep 2021 13:36:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51278 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229493AbhIGRgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 7 Sep 2021 13:36:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9234261100;
-        Tue,  7 Sep 2021 17:35:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631036114;
-        bh=YfxSwWHZRzMGmkWC/hAviiwiNsQyNxzFxgDEWaJnTGU=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=cvUITHmy/USDmBAUJ01846IpEWExmkc+1lTFRQFAUWxCMLgiMMmcTUbAbn19ehfEh
-         e1DUgN7NoibOD0LBpoi74fS7A1aHz4wqcecsyKCUFlI2orTNRKZE2pd6Wifei3/pll
-         PyIqy7pxegeYC9UB+atZViBP0YmMjBOqMcHow5ldU4HQLJfDAbI+ZbdQGPAZMUkhaF
-         ImUeIH2OSvi+3450yswPUbmEGV/cpWcra+qiaq4alDsEd91Arf0AMuAXNyeoYEF8zg
-         LQpRdHgCzqFQ0f65UtKF/GS16S2F2rGAma9PEiKSwX1pSCzqO5KCm9vj4ws4teoEPF
-         LzwuoBCTum47A==
-Date:   Tue, 7 Sep 2021 12:35:13 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     "Deucher, Alexander" <Alexander.Deucher@amd.com>
-Cc:     "Quan, Evan" <Evan.Quan@amd.com>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        "bhelgaas@google.com" <bhelgaas@google.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH] PCI: Create device links for AMD integrated USB xHCI and
- UCSI controllers
-Message-ID: <20210907173513.GA746796@bjorn-Precision-5520>
+        id S231394AbhIGRkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Sep 2021 13:40:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59020 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230404AbhIGRkJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Sep 2021 13:40:09 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79C1C061757
+        for <stable@vger.kernel.org>; Tue,  7 Sep 2021 10:39:02 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id k23so1979424pji.0
+        for <stable@vger.kernel.org>; Tue, 07 Sep 2021 10:39:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=intel-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Nb1QdhQIZxRidJbjvk6oUIPprkF08p70/cAJW4OCztU=;
+        b=wyx6j2Ke6KGH1+GtS+FmBBw8MIn8UfqsMQ88d9I56GsJSjx9rLSuUQYilcU91ysLl6
+         MPc7OLra+HW+o3JnvRz3z0iDXklV2gphDLs/X5NGtGuTjgfrxTHO6DdZh+DNXdW3mJv+
+         T3IHwSj7tA9twpptY5hArVuBDozo1P1kZ+V4uRUcQ7e6Et+hpgCKiiWX4V7yJB5WAuHY
+         Ds2tnuOV4MutR76CKU+BR5rxSFjkSXrCDANGtNhZb+Kmakp9RdncK1pQu4SEYvaVZ8mn
+         oGQAJRAv22snd1O04oQrp9hpIyfhgKZ3IFKm57DPcnH3SK2/Hz2ZOFTL2eQgIDavTBh0
+         vOew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Nb1QdhQIZxRidJbjvk6oUIPprkF08p70/cAJW4OCztU=;
+        b=Ae2Dj9Hhl/XoLOrCuJnftpvhiWxl9Gt0MuWckTcTT4sQdCVKLQXHjOy6a907HMxoIk
+         BpTGOYqMjaEY9+whSGD01PWv56Fiw8QDRu+w5HEpFSHU6XyGjLvfg70e8/rdpF8/OygA
+         xCEaNh+i1JggHX/iSxG9gyqzEQNA6FusOM02bjkqMRU1tw+pN09UNrCpEmfQBvZmwiX+
+         zJg3EEjawhgA223HmvkqC/weoNZPT8EE4j7nWjW3hrN2v7yEWrsz58WfIB/nOsm/BH+D
+         e7zu6wj52OF0Fu1IaHELvCcUeRwQ0wOTDIMLWHQAEANxY1oe+idCmYGSj0YiRU8Kk1Bs
+         FGRg==
+X-Gm-Message-State: AOAM531x77OGrvngMB0ZgU+Lte4yzH8jVN35Oaze8hmDDCfgNEx8lPL5
+        Y8Fm1jxnfKAKovkmR1k98mzDWgAyG9TtwghGTNNLRg==
+X-Google-Smtp-Source: ABdhPJyxjdmxx5YwqE43UTOGkU0EiBDhIhoi4uVrUHQxTpBgtVsICiCkVI6pIqc3GLqMDepUzeTMoKF25Yw0c3D9K7s=
+X-Received: by 2002:a17:90b:3b84:: with SMTP id pc4mr4799709pjb.220.1631036341937;
+ Tue, 07 Sep 2021 10:39:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BL1PR12MB5144184FB2D6686C1B00ADE4F7D39@BL1PR12MB5144.namprd12.prod.outlook.com>
+References: <163072203373.2250120.8373702699578427249.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <163072204525.2250120.16615792476976546735.stgit@dwillia2-desk3.amr.corp.intel.com>
+ <CAHC9VhTNu8E9WkzUHbQC9xKK5U74L8oqetUtPXGX2RSofMcqgw@mail.gmail.com>
+In-Reply-To: <CAHC9VhTNu8E9WkzUHbQC9xKK5U74L8oqetUtPXGX2RSofMcqgw@mail.gmail.com>
+From:   Dan Williams <dan.j.williams@intel.com>
+Date:   Tue, 7 Sep 2021 10:38:51 -0700
+Message-ID: <CAPcyv4gR+WbYf-dT0niT23UY8jZZVBXMk4R-1_0exPcbHrs=0Q@mail.gmail.com>
+Subject: Re: [PATCH 2/6] cxl/pci: Fix lockdown level
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     linux-cxl@vger.kernel.org, Ben Widawsky <ben.widawsky@intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable <stable@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        "Schofield, Alison" <alison.schofield@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[+cc Rafael, beginning of thread:
-https://lore.kernel.org/all/20210903063311.3606226-1-evan.quan@amd.com/]
+On Fri, Sep 3, 2021 at 8:57 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Fri, Sep 3, 2021 at 10:20 PM Dan Williams <dan.j.williams@intel.com> wrote:
+> >
+> > A proposed rework of security_locked_down() users identified that the
+> > cxl_pci driver was passing the wrong lockdown_reason. Update
+> > cxl_mem_raw_command_allowed() to fail raw command access when raw pci
+> > access is also disabled.
+> >
+> > Fixes: 13237183c735 ("cxl/mem: Add a "RAW" send command")
+> > Cc: Ben Widawsky <ben.widawsky@intel.com>
+> > Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> > Cc: <stable@vger.kernel.org>
+> > Cc: Ondrej Mosnacek <omosnace@redhat.com>
+> > Cc: Paul Moore <paul@paul-moore.com>
+> > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> > ---
+> >  drivers/cxl/pci.c |    2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> Hi Dan,
+>
+> Thanks for fixing this up.  Would you mind if this was included in
+> Ondrej's patchset, or would you prefer to merge it via another tree
+> (e.g. cxl)?
 
-On Tue, Sep 07, 2021 at 04:09:40PM +0000, Deucher, Alexander wrote:
-> > -----Original Message-----
-> > From: Bjorn Helgaas <helgaas@kernel.org>
-> > Sent: Friday, September 3, 2021 3:55 PM
-> > To: Quan, Evan <Evan.Quan@amd.com>
-> > Cc: linux-pci@vger.kernel.org; bhelgaas@google.com; Deucher, Alexander
-> > <Alexander.Deucher@amd.com>; stable@vger.kernel.org
-> > Subject: Re: [PATCH] PCI: Create device links for AMD integrated USB xHCI
-> > and UCSI controllers
-> > 
-> > On Fri, Sep 03, 2021 at 02:33:11PM +0800, Evan Quan wrote:
-> > > Latest AMD GPUs have built-in USB xHCI and UCSI controllers. Add
-> > > device link support for them.
-> > 
-> > Please comment on
-> > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fgit.k
-> > ernel.org%2Flinus%2F6d2e369f0d4c&amp;data=04%7C01%7CAlexander.Deu
-> > cher%40amd.com%7C9fa0d66e5f29424df36b08d96f14c710%7C3dd8961fe488
-> > 4e608e11a82d994e183d%7C0%7C0%7C637662957313172831%7CUnknown%7
-> > CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwi
-> > LCJXVCI6Mn0%3D%7C1000&amp;sdata=6IlPLWlcO7iptbTqfh71fe5wmHN7RN
-> > 13OvScyYaWyI8%3D&amp;reserved=0 .
-> > 
-> > Is there something the PCI core is missing here?  Or is there
-> > something that needs to be added to ACPI or the PCI firmware spec?
-> > 
-> > We want a generic way to discover dependencies like this.
-> > 
-> > A quirk should not be necessary for spec-compliant devices.
-> > Quirks are an ongoing maintenance burden, and they mean that new
-> > hardware won't work correctly until the OS is patched to know
-> > about it.  That's not what we want.
-> > 
-> > I expect we'll still need *this* quirk, but first I'd like to know
-> > whether there's a plan to handle this more generically in the
-> > future.
-> 
-> The requirement here is that all of the additional endpoints are
-> dependencies for powering down the GPU.  E.g., the audio controller
-> and USB endpoints need to be in d3 before you put the GPU into d3,
-> otherwise the non-GPU endpoints will be powered down as well behind
-> their drivers' backs.  On newer AMD hardware there is logic in the
-> hardware to wait for all dependent devices to go into d3 before
-> powering down everything or power up everything if anything enters
-> d0, but this requires additional software setup in the GPU driver as
-> well and older versions of the driver didn't set this up correctly,
-> instead relying on software logic via dependencies.  Earlier
-> hardware didn't have that logic and needed software help.  That
-> said, I think all of the relevant drivers expect the hardware state
-> to be powered down when d3 is entered and they may not handle a wake
-> up properly if not all devices entered d3 and hence all of the
-> devices never entered a powered down state.  
-
-I'm not sure whether this answered my question.  Will we need more
-quirks for future devices?
-
-You said "On newer AMD hardware there is logic to wait for all
-dependent devices to go to d3 ...," which sounds promising, but then
-it "requires additional setup in the GPU driver."
-
-So maybe PM works as per PCIe spec, but only after the driver sets
-things up?  I'm not sure what, if any, PM we do before a driver claims
-the device.
-
-The above suggests that if we put some (but not all) functions, in D3,
-the new logic will keep them from entering D3 until later.  That
-doesn't really *sound* spec-compliant -- if we write D3 to a
-function's PCI_PM_CTRL and then read it back, the function will remain
-in D0 indefinitely, until we put that last function in D3?
-
-pci_raw_set_power_state() does this read then write, and it expects
-PCI_PM_CTRL to change to the new state after the delay prescribed by
-the spec, which of course has nothing to do with sibling functions.
-
-And if all the functions are in D3, and we write D0 to one function's
-PCI_PM_CTRL, *all* the functions magically go to D0?  That sounds
-potentially confusing.
-
-Bjorn
+I was planning to merge this via the cxl tree for v5.15-rc1.
