@@ -2,173 +2,1143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79C354034B9
-	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 09:08:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16CB74034BB
+	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 09:08:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236309AbhIHHHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 03:07:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38640 "EHLO mail.kernel.org"
+        id S235984AbhIHHH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 03:07:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234219AbhIHHHR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Sep 2021 03:07:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8938460ED8;
-        Wed,  8 Sep 2021 07:06:09 +0000 (UTC)
+        id S242761AbhIHHH2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Sep 2021 03:07:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 031F660ED8;
+        Wed,  8 Sep 2021 07:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631084770;
-        bh=4DnWL0qEEkiBkY5nEzSTOSyivSxdKRdD3GrEBhk14nM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=NQAr8nDDETFwSbFVfjBdGo/67EA680h8EANorLUPsZu1fHYMO6MWZLIVd9/KFxspb
-         NXceZnur/0pCsUEDWbRRUVvXBsNkeir+cDxGRT+qOWSssgrCBOQCSfZe6YnVrVG6Hy
-         Zv2zbmbn0j7Xl9pCM+n327u38qX1rpO6TisAsNCc=
+        s=korg; t=1631084780;
+        bh=BzyYBnSeJTEJgQdX4v6/EqNt/aEh+LyAHatAqpS7ins=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=aOMfg7qS0AWcF+dakxoaOtoHIzqeTt7XWwm8JXLwfF1yF9eDKPRjVXcP+mH9wj0I3
+         mH7AZeSFiGsRTZqL2dBA748CQr90AmJDeHsM7Tjg9ESN+23V624mXXqybANVEoRgkM
+         4Yl12kwxmI66yOTh654jFjNqyyvkCvokZXcBftzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.10.63
-Date:   Wed,  8 Sep 2021 09:06:04 +0200
-Message-Id: <1631084764230217@kroah.com>
+Subject: Re: Linux 5.10.63
+Date:   Wed,  8 Sep 2021 09:06:05 +0200
+Message-Id: <1631084764222109@kroah.com>
 X-Mailer: git-send-email 2.33.0
+In-Reply-To: <1631084764230217@kroah.com>
+References: <1631084764230217@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.10.63 kernel.
-
-All users of the 5.10 kernel series must upgrade.
-
-The updated 5.10.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                     |    2 -
- arch/arm/mach-omap1/board-ams-delta.c        |   14 --------
- arch/x86/events/amd/ibs.c                    |    8 ++++
- arch/x86/events/amd/power.c                  |    1 
- arch/x86/events/intel/pt.c                   |    2 -
- arch/xtensa/Kconfig                          |    2 -
- drivers/block/Kconfig                        |    4 +-
- drivers/block/cryptoloop.c                   |    2 +
- drivers/gpu/ipu-v3/ipu-cpmem.c               |   30 +++++++++---------
- drivers/media/usb/stkwebcam/stk-webcam.c     |    6 ++-
- drivers/net/ethernet/cadence/macb_ptp.c      |   11 ++++++
- drivers/net/ethernet/qlogic/qed/qed_main.c   |    7 +++-
- drivers/net/ethernet/qlogic/qede/qede_main.c |    2 -
- drivers/reset/reset-zynqmp.c                 |    3 +
- drivers/tty/serial/8250/8250_omap.c          |    1 
- fs/9p/vfs_inode.c                            |    4 +-
- fs/9p/vfs_inode_dotl.c                       |    4 +-
- fs/ceph/mdsmap.c                             |    8 +++-
- fs/cifs/inode.c                              |    5 +--
- fs/crypto/hooks.c                            |   44 +++++++++++++++++++++++++++
- fs/exec.c                                    |    4 --
- fs/ext4/inline.c                             |    6 +++
- fs/ext4/symlink.c                            |   11 ++++++
- fs/f2fs/namei.c                              |   11 ++++++
- fs/fuse/dir.c                                |    6 +--
- fs/fuse/fuse_i.h                             |    7 ++++
- fs/fuse/inode.c                              |    4 +-
- fs/fuse/readdir.c                            |    7 +++-
- fs/nfs/inode.c                               |    6 +--
- fs/nfsd/nfsproc.c                            |    2 -
- fs/overlayfs/namei.c                         |    4 +-
- fs/ubifs/file.c                              |   12 ++++++-
- include/linux/cred.h                         |    2 -
- include/linux/fs.h                           |    5 +++
- include/linux/fscrypt.h                      |    7 ++++
- include/linux/spi/spi.h                      |    4 +-
- include/linux/user_namespace.h               |    4 --
- kernel/cred.c                                |   41 -------------------------
- kernel/fork.c                                |    6 ---
- kernel/static_call.c                         |    4 +-
- kernel/sys.c                                 |   12 -------
- kernel/ucount.c                              |   40 +-----------------------
- kernel/user_namespace.c                      |    3 -
- sound/core/pcm_lib.c                         |    2 -
- sound/pci/hda/patch_realtek.c                |   11 ++++++
- 45 files changed, 201 insertions(+), 180 deletions(-)
-
-Al Viro (1):
-      new helper: inode_wrong_type()
-
-Amir Goldstein (1):
-      fuse: fix illegal access to inode with reused nodeid
-
-Andy Shevchenko (1):
-      spi: Switch to signed types for *_native_cs SPI controller fields
-
-Christoph Hellwig (1):
-      cryptoloop: add a deprecation warning
-
-Eric Biggers (4):
-      fscrypt: add fscrypt_symlink_getattr() for computing st_size
-      ext4: report correct st_size for encrypted symlinks
-      f2fs: report correct st_size for encrypted symlinks
-      ubifs: report correct st_size for encrypted symlinks
-
-Greg Kroah-Hartman (4):
-      Revert "ucounts: Increase ucounts reference counter before the security hook"
-      Revert "cred: add missing return error code when set_cred_ucounts() failed"
-      Revert "Add a reference to ucounts for each cred"
-      Linux 5.10.63
-
-Harini Katakam (1):
-      net: macb: Add a NULL check on desc_ptp
-
-Johnathon Clark (1):
-      ALSA: hda/realtek: Quirk for HP Spectre x360 14 amp setup
-
-Kim Phillips (2):
-      perf/x86/amd/ibs: Work around erratum #1197
-      perf/x86/amd/power: Assign pmu.module
-
-Krzysztof Hałasa (1):
-      gpu: ipu-v3: Fix i.MX IPU-v3 offset calculations for (semi)planar U/V formats
-
-Maciej Falkowski (1):
-      ARM: OMAP1: ams-delta: remove unused function ams_delta_camera_power
-
-Matthieu Baerts (1):
-      static_call: Fix unused variable warn w/o MODULE
-
-Pavel Skripkin (1):
-      media: stkwebcam: fix memory leak in stk_camera_probe
-
-Randy Dunlap (1):
-      xtensa: fix kconfig unmet dependency warning for HAVE_FUTEX_CMPXCHG
-
-Sai Krishna Potthuri (1):
-      reset: reset-zynqmp: Fixed the argument data type
-
-Shai Malin (2):
-      qed: Fix the VF msix vectors flow
-      qede: Fix memset corruption
-
-Takashi Iwai (1):
-      ALSA: hda/realtek: Workaround for conflicting SSID on ASUS ROG Strix G17
-
-Theodore Ts'o (1):
-      ext4: fix race writing to an inline_data file while its xattrs are changing
-
-Tuo Li (1):
-      ceph: fix possible null-pointer dereference in ceph_mdsmap_decode()
-
-Vignesh Raghavendra (1):
-      serial: 8250: 8250_omap: Fix possible array out of bounds access
-
-Xiaoyao Li (1):
-      perf/x86/intel/pt: Fix mask of num_address_ranges
-
-Zubin Mithra (1):
-      ALSA: pcm: fix divide error in snd_pcm_lib_ioctl
-
+diff --git a/Makefile b/Makefile
+index 90c0cb3e4d3c..b2d326f4dea6 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 10
+-SUBLEVEL = 62
++SUBLEVEL = 63
+ EXTRAVERSION =
+ NAME = Dare mighty things
+ 
+diff --git a/arch/arm/mach-omap1/board-ams-delta.c b/arch/arm/mach-omap1/board-ams-delta.c
+index 2ee527c00284..1026a816dcc0 100644
+--- a/arch/arm/mach-omap1/board-ams-delta.c
++++ b/arch/arm/mach-omap1/board-ams-delta.c
+@@ -458,20 +458,6 @@ static struct gpiod_lookup_table leds_gpio_table = {
+ 
+ #ifdef CONFIG_LEDS_TRIGGERS
+ DEFINE_LED_TRIGGER(ams_delta_camera_led_trigger);
+-
+-static int ams_delta_camera_power(struct device *dev, int power)
+-{
+-	/*
+-	 * turn on camera LED
+-	 */
+-	if (power)
+-		led_trigger_event(ams_delta_camera_led_trigger, LED_FULL);
+-	else
+-		led_trigger_event(ams_delta_camera_led_trigger, LED_OFF);
+-	return 0;
+-}
+-#else
+-#define ams_delta_camera_power	NULL
+ #endif
+ 
+ static struct platform_device ams_delta_audio_device = {
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index 40669eac9d6d..921f47b9bb24 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -90,6 +90,7 @@ struct perf_ibs {
+ 	unsigned long			offset_mask[1];
+ 	int				offset_max;
+ 	unsigned int			fetch_count_reset_broken : 1;
++	unsigned int			fetch_ignore_if_zero_rip : 1;
+ 	struct cpu_perf_ibs __percpu	*pcpu;
+ 
+ 	struct attribute		**format_attrs;
+@@ -672,6 +673,10 @@ static int perf_ibs_handle_irq(struct perf_ibs *perf_ibs, struct pt_regs *iregs)
+ 	if (check_rip && (ibs_data.regs[2] & IBS_RIP_INVALID)) {
+ 		regs.flags &= ~PERF_EFLAGS_EXACT;
+ 	} else {
++		/* Workaround for erratum #1197 */
++		if (perf_ibs->fetch_ignore_if_zero_rip && !(ibs_data.regs[1]))
++			goto out;
++
+ 		set_linear_ip(&regs, ibs_data.regs[1]);
+ 		regs.flags |= PERF_EFLAGS_EXACT;
+ 	}
+@@ -769,6 +774,9 @@ static __init void perf_event_ibs_init(void)
+ 	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
+ 		perf_ibs_fetch.fetch_count_reset_broken = 1;
+ 
++	if (boot_cpu_data.x86 == 0x19 && boot_cpu_data.x86_model < 0x10)
++		perf_ibs_fetch.fetch_ignore_if_zero_rip = 1;
++
+ 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
+ 
+ 	if (ibs_caps & IBS_CAPS_OPCNT) {
+diff --git a/arch/x86/events/amd/power.c b/arch/x86/events/amd/power.c
+index 16a2369c586e..37d5b380516e 100644
+--- a/arch/x86/events/amd/power.c
++++ b/arch/x86/events/amd/power.c
+@@ -213,6 +213,7 @@ static struct pmu pmu_class = {
+ 	.stop		= pmu_event_stop,
+ 	.read		= pmu_event_read,
+ 	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.module		= THIS_MODULE,
+ };
+ 
+ static int power_cpu_exit(unsigned int cpu)
+diff --git a/arch/x86/events/intel/pt.c b/arch/x86/events/intel/pt.c
+index e94af4a54d0d..37129b76135a 100644
+--- a/arch/x86/events/intel/pt.c
++++ b/arch/x86/events/intel/pt.c
+@@ -62,7 +62,7 @@ static struct pt_cap_desc {
+ 	PT_CAP(single_range_output,	0, CPUID_ECX, BIT(2)),
+ 	PT_CAP(output_subsys,		0, CPUID_ECX, BIT(3)),
+ 	PT_CAP(payloads_lip,		0, CPUID_ECX, BIT(31)),
+-	PT_CAP(num_address_ranges,	1, CPUID_EAX, 0x3),
++	PT_CAP(num_address_ranges,	1, CPUID_EAX, 0x7),
+ 	PT_CAP(mtc_periods,		1, CPUID_EAX, 0xffff0000),
+ 	PT_CAP(cycle_thresholds,	1, CPUID_EBX, 0xffff),
+ 	PT_CAP(psb_periods,		1, CPUID_EBX, 0xffff0000),
+diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
+index d0dfa50bd0bb..87e08ad38ea7 100644
+--- a/arch/xtensa/Kconfig
++++ b/arch/xtensa/Kconfig
+@@ -30,7 +30,7 @@ config XTENSA
+ 	select HAVE_DMA_CONTIGUOUS
+ 	select HAVE_EXIT_THREAD
+ 	select HAVE_FUNCTION_TRACER
+-	select HAVE_FUTEX_CMPXCHG if !MMU
++	select HAVE_FUTEX_CMPXCHG if !MMU && FUTEX
+ 	select HAVE_HW_BREAKPOINT if PERF_EVENTS
+ 	select HAVE_IRQ_TIME_ACCOUNTING
+ 	select HAVE_OPROFILE
+diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
+index f40ebe9f5047..f2548049aa0e 100644
+--- a/drivers/block/Kconfig
++++ b/drivers/block/Kconfig
+@@ -230,7 +230,7 @@ config BLK_DEV_LOOP_MIN_COUNT
+ 	  dynamically allocated with the /dev/loop-control interface.
+ 
+ config BLK_DEV_CRYPTOLOOP
+-	tristate "Cryptoloop Support"
++	tristate "Cryptoloop Support (DEPRECATED)"
+ 	select CRYPTO
+ 	select CRYPTO_CBC
+ 	depends on BLK_DEV_LOOP
+@@ -242,7 +242,7 @@ config BLK_DEV_CRYPTOLOOP
+ 	  WARNING: This device is not safe for journaled file systems like
+ 	  ext3 or Reiserfs. Please use the Device Mapper crypto module
+ 	  instead, which can be configured to be on-disk compatible with the
+-	  cryptoloop device.
++	  cryptoloop device.  cryptoloop support will be removed in Linux 5.16.
+ 
+ source "drivers/block/drbd/Kconfig"
+ 
+diff --git a/drivers/block/cryptoloop.c b/drivers/block/cryptoloop.c
+index 3cabc335ae74..f0a91faa43a8 100644
+--- a/drivers/block/cryptoloop.c
++++ b/drivers/block/cryptoloop.c
+@@ -189,6 +189,8 @@ init_cryptoloop(void)
+ 
+ 	if (rc)
+ 		printk(KERN_ERR "cryptoloop: loop_register_transfer failed\n");
++	else
++		pr_warn("the cryptoloop driver has been deprecated and will be removed in in Linux 5.16\n");
+ 	return rc;
+ }
+ 
+diff --git a/drivers/gpu/ipu-v3/ipu-cpmem.c b/drivers/gpu/ipu-v3/ipu-cpmem.c
+index a1c85d1521f5..82b244cb313e 100644
+--- a/drivers/gpu/ipu-v3/ipu-cpmem.c
++++ b/drivers/gpu/ipu-v3/ipu-cpmem.c
+@@ -585,21 +585,21 @@ static const struct ipu_rgb def_bgra_16 = {
+ 	.bits_per_pixel = 16,
+ };
+ 
+-#define Y_OFFSET(pix, x, y)	((x) + pix->width * (y))
+-#define U_OFFSET(pix, x, y)	((pix->width * pix->height) +		\
+-				 (pix->width * ((y) / 2) / 2) + (x) / 2)
+-#define V_OFFSET(pix, x, y)	((pix->width * pix->height) +		\
+-				 (pix->width * pix->height / 4) +	\
+-				 (pix->width * ((y) / 2) / 2) + (x) / 2)
+-#define U2_OFFSET(pix, x, y)	((pix->width * pix->height) +		\
+-				 (pix->width * (y) / 2) + (x) / 2)
+-#define V2_OFFSET(pix, x, y)	((pix->width * pix->height) +		\
+-				 (pix->width * pix->height / 2) +	\
+-				 (pix->width * (y) / 2) + (x) / 2)
+-#define UV_OFFSET(pix, x, y)	((pix->width * pix->height) +	\
+-				 (pix->width * ((y) / 2)) + (x))
+-#define UV2_OFFSET(pix, x, y)	((pix->width * pix->height) +	\
+-				 (pix->width * y) + (x))
++#define Y_OFFSET(pix, x, y)	((x) + pix->bytesperline * (y))
++#define U_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * ((y) / 2) / 2) + (x) / 2)
++#define V_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * pix->height / 4) + \
++				 (pix->bytesperline * ((y) / 2) / 2) + (x) / 2)
++#define U2_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * (y) / 2) + (x) / 2)
++#define V2_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * pix->height / 2) + \
++				 (pix->bytesperline * (y) / 2) + (x) / 2)
++#define UV_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * ((y) / 2)) + (x))
++#define UV2_OFFSET(pix, x, y)	((pix->bytesperline * pix->height) +	 \
++				 (pix->bytesperline * y) + (x))
+ 
+ #define NUM_ALPHA_CHANNELS	7
+ 
+diff --git a/drivers/media/usb/stkwebcam/stk-webcam.c b/drivers/media/usb/stkwebcam/stk-webcam.c
+index a45d464427c4..0e231e576dc3 100644
+--- a/drivers/media/usb/stkwebcam/stk-webcam.c
++++ b/drivers/media/usb/stkwebcam/stk-webcam.c
+@@ -1346,7 +1346,7 @@ static int stk_camera_probe(struct usb_interface *interface,
+ 	if (!dev->isoc_ep) {
+ 		pr_err("Could not find isoc-in endpoint\n");
+ 		err = -ENODEV;
+-		goto error;
++		goto error_put;
+ 	}
+ 	dev->vsettings.palette = V4L2_PIX_FMT_RGB565;
+ 	dev->vsettings.mode = MODE_VGA;
+@@ -1359,10 +1359,12 @@ static int stk_camera_probe(struct usb_interface *interface,
+ 
+ 	err = stk_register_video_device(dev);
+ 	if (err)
+-		goto error;
++		goto error_put;
+ 
+ 	return 0;
+ 
++error_put:
++	usb_put_intf(interface);
+ error:
+ 	v4l2_ctrl_handler_free(hdl);
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+diff --git a/drivers/net/ethernet/cadence/macb_ptp.c b/drivers/net/ethernet/cadence/macb_ptp.c
+index 283918aeb741..09d64a29f56e 100644
+--- a/drivers/net/ethernet/cadence/macb_ptp.c
++++ b/drivers/net/ethernet/cadence/macb_ptp.c
+@@ -275,6 +275,12 @@ void gem_ptp_rxstamp(struct macb *bp, struct sk_buff *skb,
+ 
+ 	if (GEM_BFEXT(DMA_RXVALID, desc->addr)) {
+ 		desc_ptp = macb_ptp_desc(bp, desc);
++		/* Unlikely but check */
++		if (!desc_ptp) {
++			dev_warn_ratelimited(&bp->pdev->dev,
++					     "Timestamp not supported in BD\n");
++			return;
++		}
+ 		gem_hw_timestamp(bp, desc_ptp->ts_1, desc_ptp->ts_2, &ts);
+ 		memset(shhwtstamps, 0, sizeof(struct skb_shared_hwtstamps));
+ 		shhwtstamps->hwtstamp = ktime_set(ts.tv_sec, ts.tv_nsec);
+@@ -307,8 +313,11 @@ int gem_ptp_txstamp(struct macb_queue *queue, struct sk_buff *skb,
+ 	if (CIRC_SPACE(head, tail, PTP_TS_BUFFER_SIZE) == 0)
+ 		return -ENOMEM;
+ 
+-	skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
+ 	desc_ptp = macb_ptp_desc(queue->bp, desc);
++	/* Unlikely but check */
++	if (!desc_ptp)
++		return -EINVAL;
++	skb_shinfo(skb)->tx_flags |= SKBTX_IN_PROGRESS;
+ 	tx_timestamp = &queue->tx_timestamps[head];
+ 	tx_timestamp->skb = skb;
+ 	/* ensure ts_1/ts_2 is loaded after ctrl (TX_USED check) */
+diff --git a/drivers/net/ethernet/qlogic/qed/qed_main.c b/drivers/net/ethernet/qlogic/qed/qed_main.c
+index 5bd58c65e163..6bb9ec98a12b 100644
+--- a/drivers/net/ethernet/qlogic/qed/qed_main.c
++++ b/drivers/net/ethernet/qlogic/qed/qed_main.c
+@@ -616,7 +616,12 @@ static int qed_enable_msix(struct qed_dev *cdev,
+ 			rc = cnt;
+ 	}
+ 
+-	if (rc > 0) {
++	/* For VFs, we should return with an error in case we didn't get the
++	 * exact number of msix vectors as we requested.
++	 * Not doing that will lead to a crash when starting queues for
++	 * this VF.
++	 */
++	if ((IS_PF(cdev) && rc > 0) || (IS_VF(cdev) && rc == cnt)) {
+ 		/* MSI-x configuration was achieved */
+ 		int_params->out.int_mode = QED_INT_MODE_MSIX;
+ 		int_params->out.num_vectors = rc;
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
+index d9a3c811ac8b..e93f06e4a172 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_main.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
+@@ -1869,6 +1869,7 @@ static void qede_sync_free_irqs(struct qede_dev *edev)
+ 	}
+ 
+ 	edev->int_info.used_cnt = 0;
++	edev->int_info.msix_cnt = 0;
+ }
+ 
+ static int qede_req_msix_irqs(struct qede_dev *edev)
+@@ -2409,7 +2410,6 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode,
+ 	goto out;
+ err4:
+ 	qede_sync_free_irqs(edev);
+-	memset(&edev->int_info.msix_cnt, 0, sizeof(struct qed_int_info));
+ err3:
+ 	qede_napi_disable_remove(edev);
+ err2:
+diff --git a/drivers/reset/reset-zynqmp.c b/drivers/reset/reset-zynqmp.c
+index ebd433fa09dd..8c51768e9a72 100644
+--- a/drivers/reset/reset-zynqmp.c
++++ b/drivers/reset/reset-zynqmp.c
+@@ -53,7 +53,8 @@ static int zynqmp_reset_status(struct reset_controller_dev *rcdev,
+ 			       unsigned long id)
+ {
+ 	struct zynqmp_reset_data *priv = to_zynqmp_reset_data(rcdev);
+-	int val, err;
++	int err;
++	u32 val;
+ 
+ 	err = zynqmp_pm_reset_get_status(priv->data->reset_id + id, &val);
+ 	if (err)
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index 95e2d6de4f21..ad0549dac7d7 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -1211,6 +1211,7 @@ static int omap8250_no_handle_irq(struct uart_port *port)
+ static const struct soc_device_attribute k3_soc_devices[] = {
+ 	{ .family = "AM65X",  },
+ 	{ .family = "J721E", .revision = "SR1.0" },
++	{ /* sentinel */ }
+ };
+ 
+ static struct omap8250_dma_params am654_dma = {
+diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
+index ae0c38ad1fcb..0791480bf922 100644
+--- a/fs/9p/vfs_inode.c
++++ b/fs/9p/vfs_inode.c
+@@ -398,7 +398,7 @@ static int v9fs_test_inode(struct inode *inode, void *data)
+ 
+ 	umode = p9mode2unixmode(v9ses, st, &rdev);
+ 	/* don't match inode of different type */
+-	if ((inode->i_mode & S_IFMT) != (umode & S_IFMT))
++	if (inode_wrong_type(inode, umode))
+ 		return 0;
+ 
+ 	/* compare qid details */
+@@ -1360,7 +1360,7 @@ int v9fs_refresh_inode(struct p9_fid *fid, struct inode *inode)
+ 	 * Don't update inode if the file type is different
+ 	 */
+ 	umode = p9mode2unixmode(v9ses, st, &rdev);
+-	if ((inode->i_mode & S_IFMT) != (umode & S_IFMT))
++	if (inode_wrong_type(inode, umode))
+ 		goto out;
+ 
+ 	/*
+diff --git a/fs/9p/vfs_inode_dotl.c b/fs/9p/vfs_inode_dotl.c
+index 0028eccb665a..72b67d810b8c 100644
+--- a/fs/9p/vfs_inode_dotl.c
++++ b/fs/9p/vfs_inode_dotl.c
+@@ -59,7 +59,7 @@ static int v9fs_test_inode_dotl(struct inode *inode, void *data)
+ 	struct p9_stat_dotl *st = (struct p9_stat_dotl *)data;
+ 
+ 	/* don't match inode of different type */
+-	if ((inode->i_mode & S_IFMT) != (st->st_mode & S_IFMT))
++	if (inode_wrong_type(inode, st->st_mode))
+ 		return 0;
+ 
+ 	if (inode->i_generation != st->st_gen)
+@@ -933,7 +933,7 @@ int v9fs_refresh_inode_dotl(struct p9_fid *fid, struct inode *inode)
+ 	/*
+ 	 * Don't update inode if the file type is different
+ 	 */
+-	if ((inode->i_mode & S_IFMT) != (st->st_mode & S_IFMT))
++	if (inode_wrong_type(inode, st->st_mode))
+ 		goto out;
+ 
+ 	/*
+diff --git a/fs/ceph/mdsmap.c b/fs/ceph/mdsmap.c
+index 1096d1d3a84c..47f2903bacb9 100644
+--- a/fs/ceph/mdsmap.c
++++ b/fs/ceph/mdsmap.c
+@@ -393,9 +393,11 @@ void ceph_mdsmap_destroy(struct ceph_mdsmap *m)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < m->possible_max_rank; i++)
+-		kfree(m->m_info[i].export_targets);
+-	kfree(m->m_info);
++	if (m->m_info) {
++		for (i = 0; i < m->possible_max_rank; i++)
++			kfree(m->m_info[i].export_targets);
++		kfree(m->m_info);
++	}
+ 	kfree(m->m_data_pg_pools);
+ 	kfree(m);
+ }
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index b1f0c05d6eaf..b11a919b9cab 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -425,8 +425,7 @@ int cifs_get_inode_info_unix(struct inode **pinode,
+ 		}
+ 
+ 		/* if filetype is different, return error */
+-		if (unlikely(((*pinode)->i_mode & S_IFMT) !=
+-		    (fattr.cf_mode & S_IFMT))) {
++		if (unlikely(inode_wrong_type(*pinode, fattr.cf_mode))) {
+ 			CIFS_I(*pinode)->time = 0; /* force reval */
+ 			rc = -ESTALE;
+ 			goto cgiiu_exit;
+@@ -1243,7 +1242,7 @@ cifs_find_inode(struct inode *inode, void *opaque)
+ 		return 0;
+ 
+ 	/* don't match inode of different type */
+-	if ((inode->i_mode & S_IFMT) != (fattr->cf_mode & S_IFMT))
++	if (inode_wrong_type(inode, fattr->cf_mode))
+ 		return 0;
+ 
+ 	/* if it's not a directory or has no dentries, then flag it */
+diff --git a/fs/crypto/hooks.c b/fs/crypto/hooks.c
+index 061418be4b08..4180371bf864 100644
+--- a/fs/crypto/hooks.c
++++ b/fs/crypto/hooks.c
+@@ -379,3 +379,47 @@ const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
+ 	return ERR_PTR(err);
+ }
+ EXPORT_SYMBOL_GPL(fscrypt_get_symlink);
++
++/**
++ * fscrypt_symlink_getattr() - set the correct st_size for encrypted symlinks
++ * @path: the path for the encrypted symlink being queried
++ * @stat: the struct being filled with the symlink's attributes
++ *
++ * Override st_size of encrypted symlinks to be the length of the decrypted
++ * symlink target (or the no-key encoded symlink target, if the key is
++ * unavailable) rather than the length of the encrypted symlink target.  This is
++ * necessary for st_size to match the symlink target that userspace actually
++ * sees.  POSIX requires this, and some userspace programs depend on it.
++ *
++ * This requires reading the symlink target from disk if needed, setting up the
++ * inode's encryption key if possible, and then decrypting or encoding the
++ * symlink target.  This makes lstat() more heavyweight than is normally the
++ * case.  However, decrypted symlink targets will be cached in ->i_link, so
++ * usually the symlink won't have to be read and decrypted again later if/when
++ * it is actually followed, readlink() is called, or lstat() is called again.
++ *
++ * Return: 0 on success, -errno on failure
++ */
++int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat)
++{
++	struct dentry *dentry = path->dentry;
++	struct inode *inode = d_inode(dentry);
++	const char *link;
++	DEFINE_DELAYED_CALL(done);
++
++	/*
++	 * To get the symlink target that userspace will see (whether it's the
++	 * decrypted target or the no-key encoded target), we can just get it in
++	 * the same way the VFS does during path resolution and readlink().
++	 */
++	link = READ_ONCE(inode->i_link);
++	if (!link) {
++		link = inode->i_op->get_link(dentry, inode, &done);
++		if (IS_ERR(link))
++			return PTR_ERR(link);
++	}
++	stat->size = strlen(link);
++	do_delayed_call(&done);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(fscrypt_symlink_getattr);
+diff --git a/fs/exec.c b/fs/exec.c
+index c7a4ef8df305..ca89e0e3ef10 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1347,10 +1347,6 @@ int begin_new_exec(struct linux_binprm * bprm)
+ 	WRITE_ONCE(me->self_exec_id, me->self_exec_id + 1);
+ 	flush_signal_handlers(me, 0);
+ 
+-	retval = set_cred_ucounts(bprm->cred);
+-	if (retval < 0)
+-		goto out_unlock;
+-
+ 	/*
+ 	 * install the new credentials for this executable
+ 	 */
+diff --git a/fs/ext4/inline.c b/fs/ext4/inline.c
+index b41512d1badc..0f7b53d5edea 100644
+--- a/fs/ext4/inline.c
++++ b/fs/ext4/inline.c
+@@ -750,6 +750,12 @@ int ext4_write_inline_data_end(struct inode *inode, loff_t pos, unsigned len,
+ 	ext4_write_lock_xattr(inode, &no_expand);
+ 	BUG_ON(!ext4_has_inline_data(inode));
+ 
++	/*
++	 * ei->i_inline_off may have changed since ext4_write_begin()
++	 * called ext4_try_to_write_inline_data()
++	 */
++	(void) ext4_find_inline_data_nolock(inode);
++
+ 	kaddr = kmap_atomic(page);
+ 	ext4_write_inline_data(inode, &iloc, kaddr, pos, len);
+ 	kunmap_atomic(kaddr);
+diff --git a/fs/ext4/symlink.c b/fs/ext4/symlink.c
+index dd05af983092..a9457fed351e 100644
+--- a/fs/ext4/symlink.c
++++ b/fs/ext4/symlink.c
+@@ -52,10 +52,19 @@ static const char *ext4_encrypted_get_link(struct dentry *dentry,
+ 	return paddr;
+ }
+ 
++static int ext4_encrypted_symlink_getattr(const struct path *path,
++					  struct kstat *stat, u32 request_mask,
++					  unsigned int query_flags)
++{
++	ext4_getattr(path, stat, request_mask, query_flags);
++
++	return fscrypt_symlink_getattr(path, stat);
++}
++
+ const struct inode_operations ext4_encrypted_symlink_inode_operations = {
+ 	.get_link	= ext4_encrypted_get_link,
+ 	.setattr	= ext4_setattr,
+-	.getattr	= ext4_getattr,
++	.getattr	= ext4_encrypted_symlink_getattr,
+ 	.listxattr	= ext4_listxattr,
+ };
+ 
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index 17d0e5f4efec..710a6f73a685 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -1307,9 +1307,18 @@ static const char *f2fs_encrypted_get_link(struct dentry *dentry,
+ 	return target;
+ }
+ 
++static int f2fs_encrypted_symlink_getattr(const struct path *path,
++					  struct kstat *stat, u32 request_mask,
++					  unsigned int query_flags)
++{
++	f2fs_getattr(path, stat, request_mask, query_flags);
++
++	return fscrypt_symlink_getattr(path, stat);
++}
++
+ const struct inode_operations f2fs_encrypted_symlink_inode_operations = {
+ 	.get_link	= f2fs_encrypted_get_link,
+-	.getattr	= f2fs_getattr,
++	.getattr	= f2fs_encrypted_symlink_getattr,
+ 	.setattr	= f2fs_setattr,
+ 	.listxattr	= f2fs_listxattr,
+ };
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index 756bbdd563e0..2e300176cb88 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -252,7 +252,7 @@ static int fuse_dentry_revalidate(struct dentry *entry, unsigned int flags)
+ 		if (ret == -ENOMEM)
+ 			goto out;
+ 		if (ret || fuse_invalid_attr(&outarg.attr) ||
+-		    (outarg.attr.mode ^ inode->i_mode) & S_IFMT)
++		    fuse_stale_inode(inode, outarg.generation, &outarg.attr))
+ 			goto invalid;
+ 
+ 		forget_all_cached_acls(inode);
+@@ -1062,7 +1062,7 @@ static int fuse_do_getattr(struct inode *inode, struct kstat *stat,
+ 	err = fuse_simple_request(fm, &args);
+ 	if (!err) {
+ 		if (fuse_invalid_attr(&outarg.attr) ||
+-		    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
++		    inode_wrong_type(inode, outarg.attr.mode)) {
+ 			fuse_make_bad(inode);
+ 			err = -EIO;
+ 		} else {
+@@ -1699,7 +1699,7 @@ int fuse_do_setattr(struct dentry *dentry, struct iattr *attr,
+ 	}
+ 
+ 	if (fuse_invalid_attr(&outarg.attr) ||
+-	    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
++	    inode_wrong_type(inode, outarg.attr.mode)) {
+ 		fuse_make_bad(inode);
+ 		err = -EIO;
+ 		goto error;
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index 8150621101c6..ff94da684017 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -860,6 +860,13 @@ static inline u64 fuse_get_attr_version(struct fuse_conn *fc)
+ 	return atomic64_read(&fc->attr_version);
+ }
+ 
++static inline bool fuse_stale_inode(const struct inode *inode, int generation,
++				    struct fuse_attr *attr)
++{
++	return inode->i_generation != generation ||
++		inode_wrong_type(inode, attr->mode);
++}
++
+ static inline void fuse_make_bad(struct inode *inode)
+ {
+ 	remove_inode_hash(inode);
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index f94b0bb57619..053c56af3b6f 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -340,8 +340,8 @@ struct inode *fuse_iget(struct super_block *sb, u64 nodeid,
+ 		inode->i_generation = generation;
+ 		fuse_init_inode(inode, attr);
+ 		unlock_new_inode(inode);
+-	} else if ((inode->i_mode ^ attr->mode) & S_IFMT) {
+-		/* Inode has changed type, any I/O on the old should fail */
++	} else if (fuse_stale_inode(inode, generation, attr)) {
++		/* nodeid was reused, any I/O on the old inode should fail */
+ 		fuse_make_bad(inode);
+ 		iput(inode);
+ 		goto retry;
+diff --git a/fs/fuse/readdir.c b/fs/fuse/readdir.c
+index 3441ffa740f3..bc267832310c 100644
+--- a/fs/fuse/readdir.c
++++ b/fs/fuse/readdir.c
+@@ -200,9 +200,12 @@ static int fuse_direntplus_link(struct file *file,
+ 	if (!d_in_lookup(dentry)) {
+ 		struct fuse_inode *fi;
+ 		inode = d_inode(dentry);
++		if (inode && get_node_id(inode) != o->nodeid)
++			inode = NULL;
+ 		if (!inode ||
+-		    get_node_id(inode) != o->nodeid ||
+-		    ((o->attr.mode ^ inode->i_mode) & S_IFMT)) {
++		    fuse_stale_inode(inode, o->generation, &o->attr)) {
++			if (inode)
++				fuse_make_bad(inode);
+ 			d_invalidate(dentry);
+ 			dput(dentry);
+ 			goto retry;
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index 9811880470a0..21addb78523d 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -322,7 +322,7 @@ nfs_find_actor(struct inode *inode, void *opaque)
+ 
+ 	if (NFS_FILEID(inode) != fattr->fileid)
+ 		return 0;
+-	if ((S_IFMT & inode->i_mode) != (S_IFMT & fattr->mode))
++	if (inode_wrong_type(inode, fattr->mode))
+ 		return 0;
+ 	if (nfs_compare_fh(NFS_FH(inode), fh))
+ 		return 0;
+@@ -1446,7 +1446,7 @@ static int nfs_check_inode_attributes(struct inode *inode, struct nfs_fattr *fat
+ 			return 0;
+ 		return -ESTALE;
+ 	}
+-	if ((fattr->valid & NFS_ATTR_FATTR_TYPE) && (inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT))
++	if ((fattr->valid & NFS_ATTR_FATTR_TYPE) && inode_wrong_type(inode, fattr->mode))
+ 		return -ESTALE;
+ 
+ 
+@@ -1861,7 +1861,7 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 	/*
+ 	 * Make sure the inode's type hasn't changed.
+ 	 */
+-	if ((fattr->valid & NFS_ATTR_FATTR_TYPE) && (inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT)) {
++	if ((fattr->valid & NFS_ATTR_FATTR_TYPE) && inode_wrong_type(inode, fattr->mode)) {
+ 		/*
+ 		* Big trouble! The inode has become a different object.
+ 		*/
+diff --git a/fs/nfsd/nfsproc.c b/fs/nfsd/nfsproc.c
+index 0d71549f9d42..9c9de2b66e64 100644
+--- a/fs/nfsd/nfsproc.c
++++ b/fs/nfsd/nfsproc.c
+@@ -376,7 +376,7 @@ nfsd_proc_create(struct svc_rqst *rqstp)
+ 
+ 		/* Make sure the type and device matches */
+ 		resp->status = nfserr_exist;
+-		if (inode && type != (inode->i_mode & S_IFMT))
++		if (inode && inode_wrong_type(inode, type))
+ 			goto out_unlock;
+ 	}
+ 
+diff --git a/fs/overlayfs/namei.c b/fs/overlayfs/namei.c
+index f3309e044f07..092812c2f118 100644
+--- a/fs/overlayfs/namei.c
++++ b/fs/overlayfs/namei.c
+@@ -366,7 +366,7 @@ int ovl_check_origin_fh(struct ovl_fs *ofs, struct ovl_fh *fh, bool connected,
+ 		return PTR_ERR(origin);
+ 
+ 	if (upperdentry && !ovl_is_whiteout(upperdentry) &&
+-	    ((d_inode(origin)->i_mode ^ d_inode(upperdentry)->i_mode) & S_IFMT))
++	    inode_wrong_type(d_inode(upperdentry), d_inode(origin)->i_mode))
+ 		goto invalid;
+ 
+ 	if (!*stackp)
+@@ -724,7 +724,7 @@ struct dentry *ovl_lookup_index(struct ovl_fs *ofs, struct dentry *upper,
+ 		index = ERR_PTR(-ESTALE);
+ 		goto out;
+ 	} else if (ovl_dentry_weird(index) || ovl_is_whiteout(index) ||
+-		   ((inode->i_mode ^ d_inode(origin)->i_mode) & S_IFMT)) {
++		   inode_wrong_type(inode, d_inode(origin)->i_mode)) {
+ 		/*
+ 		 * Index should always be of the same file type as origin
+ 		 * except for the case of a whiteout index. A whiteout
+diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
+index b77d1637bbbc..f4826b6da682 100644
+--- a/fs/ubifs/file.c
++++ b/fs/ubifs/file.c
+@@ -1629,6 +1629,16 @@ static const char *ubifs_get_link(struct dentry *dentry,
+ 	return fscrypt_get_symlink(inode, ui->data, ui->data_len, done);
+ }
+ 
++static int ubifs_symlink_getattr(const struct path *path, struct kstat *stat,
++				 u32 request_mask, unsigned int query_flags)
++{
++	ubifs_getattr(path, stat, request_mask, query_flags);
++
++	if (IS_ENCRYPTED(d_inode(path->dentry)))
++		return fscrypt_symlink_getattr(path, stat);
++	return 0;
++}
++
+ const struct address_space_operations ubifs_file_address_operations = {
+ 	.readpage       = ubifs_readpage,
+ 	.writepage      = ubifs_writepage,
+@@ -1654,7 +1664,7 @@ const struct inode_operations ubifs_file_inode_operations = {
+ const struct inode_operations ubifs_symlink_inode_operations = {
+ 	.get_link    = ubifs_get_link,
+ 	.setattr     = ubifs_setattr,
+-	.getattr     = ubifs_getattr,
++	.getattr     = ubifs_symlink_getattr,
+ #ifdef CONFIG_UBIFS_FS_XATTR
+ 	.listxattr   = ubifs_listxattr,
+ #endif
+diff --git a/include/linux/cred.h b/include/linux/cred.h
+index ad160e5fe5c6..18639c069263 100644
+--- a/include/linux/cred.h
++++ b/include/linux/cred.h
+@@ -144,7 +144,6 @@ struct cred {
+ #endif
+ 	struct user_struct *user;	/* real user ID subscription */
+ 	struct user_namespace *user_ns; /* user_ns the caps and keyrings are relative to. */
+-	struct ucounts *ucounts;
+ 	struct group_info *group_info;	/* supplementary groups for euid/fsgid */
+ 	/* RCU deletion */
+ 	union {
+@@ -171,7 +170,6 @@ extern int set_security_override_from_ctx(struct cred *, const char *);
+ extern int set_create_files_as(struct cred *, struct inode *);
+ extern int cred_fscmp(const struct cred *, const struct cred *);
+ extern void __init cred_init(void);
+-extern int set_cred_ucounts(struct cred *);
+ 
+ /*
+  * check for validity of credentials
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 8bde32cf9711..43bb6a51e42d 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2768,6 +2768,11 @@ static inline bool execute_ok(struct inode *inode)
+ 	return (inode->i_mode & S_IXUGO) || S_ISDIR(inode->i_mode);
+ }
+ 
++static inline bool inode_wrong_type(const struct inode *inode, umode_t mode)
++{
++	return (inode->i_mode ^ mode) & S_IFMT;
++}
++
+ static inline void file_start_write(struct file *file)
+ {
+ 	if (!S_ISREG(file_inode(file)->i_mode))
+diff --git a/include/linux/fscrypt.h b/include/linux/fscrypt.h
+index 8e1d31c959bf..d0a1b8edfd9d 100644
+--- a/include/linux/fscrypt.h
++++ b/include/linux/fscrypt.h
+@@ -252,6 +252,7 @@ int __fscrypt_encrypt_symlink(struct inode *inode, const char *target,
+ const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
+ 				unsigned int max_size,
+ 				struct delayed_call *done);
++int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat);
+ static inline void fscrypt_set_ops(struct super_block *sb,
+ 				   const struct fscrypt_operations *s_cop)
+ {
+@@ -575,6 +576,12 @@ static inline const char *fscrypt_get_symlink(struct inode *inode,
+ 	return ERR_PTR(-EOPNOTSUPP);
+ }
+ 
++static inline int fscrypt_symlink_getattr(const struct path *path,
++					  struct kstat *stat)
++{
++	return -EOPNOTSUPP;
++}
++
+ static inline void fscrypt_set_ops(struct super_block *sb,
+ 				   const struct fscrypt_operations *s_cop)
+ {
+diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
+index 2d906b9c1499..e1d88630ff24 100644
+--- a/include/linux/spi/spi.h
++++ b/include/linux/spi/spi.h
+@@ -646,8 +646,8 @@ struct spi_controller {
+ 	int			*cs_gpios;
+ 	struct gpio_desc	**cs_gpiods;
+ 	bool			use_gpio_descriptors;
+-	u8			unused_native_cs;
+-	u8			max_native_cs;
++	s8			unused_native_cs;
++	s8			max_native_cs;
+ 
+ 	/* statistics */
+ 	struct spi_statistics	statistics;
+diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
+index e1bd560da1cd..7616c7bf4b24 100644
+--- a/include/linux/user_namespace.h
++++ b/include/linux/user_namespace.h
+@@ -101,15 +101,11 @@ struct ucounts {
+ };
+ 
+ extern struct user_namespace init_user_ns;
+-extern struct ucounts init_ucounts;
+ 
+ bool setup_userns_sysctls(struct user_namespace *ns);
+ void retire_userns_sysctls(struct user_namespace *ns);
+ struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid, enum ucount_type type);
+ void dec_ucount(struct ucounts *ucounts, enum ucount_type type);
+-struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid);
+-struct ucounts *get_ucounts(struct ucounts *ucounts);
+-void put_ucounts(struct ucounts *ucounts);
+ 
+ #ifdef CONFIG_USER_NS
+ 
+diff --git a/kernel/cred.c b/kernel/cred.c
+index 8c0983fa794a..421b1149c651 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -60,7 +60,6 @@ struct cred init_cred = {
+ 	.user			= INIT_USER,
+ 	.user_ns		= &init_user_ns,
+ 	.group_info		= &init_groups,
+-	.ucounts		= &init_ucounts,
+ };
+ 
+ static inline void set_cred_subscribers(struct cred *cred, int n)
+@@ -120,8 +119,6 @@ static void put_cred_rcu(struct rcu_head *rcu)
+ 	if (cred->group_info)
+ 		put_group_info(cred->group_info);
+ 	free_uid(cred->user);
+-	if (cred->ucounts)
+-		put_ucounts(cred->ucounts);
+ 	put_user_ns(cred->user_ns);
+ 	kmem_cache_free(cred_jar, cred);
+ }
+@@ -225,7 +222,6 @@ struct cred *cred_alloc_blank(void)
+ #ifdef CONFIG_DEBUG_CREDENTIALS
+ 	new->magic = CRED_MAGIC;
+ #endif
+-	new->ucounts = get_ucounts(&init_ucounts);
+ 
+ 	if (security_cred_alloc_blank(new, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+@@ -286,13 +282,8 @@ struct cred *prepare_creds(void)
+ 	new->security = NULL;
+ #endif
+ 
+-	new->ucounts = get_ucounts(new->ucounts);
+-	if (!new->ucounts)
+-		goto error;
+-
+ 	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+-
+ 	validate_creds(new);
+ 	return new;
+ 
+@@ -372,9 +363,6 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
+ 		ret = create_user_ns(new);
+ 		if (ret < 0)
+ 			goto error_put;
+-		ret = set_cred_ucounts(new);
+-		if (ret < 0)
+-			goto error_put;
+ 	}
+ 
+ #ifdef CONFIG_KEYS
+@@ -665,31 +653,6 @@ int cred_fscmp(const struct cred *a, const struct cred *b)
+ }
+ EXPORT_SYMBOL(cred_fscmp);
+ 
+-int set_cred_ucounts(struct cred *new)
+-{
+-	struct task_struct *task = current;
+-	const struct cred *old = task->real_cred;
+-	struct ucounts *old_ucounts = new->ucounts;
+-
+-	if (new->user == old->user && new->user_ns == old->user_ns)
+-		return 0;
+-
+-	/*
+-	 * This optimization is needed because alloc_ucounts() uses locks
+-	 * for table lookups.
+-	 */
+-	if (old_ucounts && old_ucounts->ns == new->user_ns && uid_eq(old_ucounts->uid, new->euid))
+-		return 0;
+-
+-	if (!(new->ucounts = alloc_ucounts(new->user_ns, new->euid)))
+-		return -EAGAIN;
+-
+-	if (old_ucounts)
+-		put_ucounts(old_ucounts);
+-
+-	return 0;
+-}
+-
+ /*
+  * initialise the credentials stuff
+  */
+@@ -753,10 +716,6 @@ struct cred *prepare_kernel_cred(struct task_struct *daemon)
+ #ifdef CONFIG_SECURITY
+ 	new->security = NULL;
+ #endif
+-	new->ucounts = get_ucounts(new->ucounts);
+-	if (!new->ucounts)
+-		goto error;
+-
+ 	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+ 
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 096945ef49ad..9705439439fe 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2960,12 +2960,6 @@ int ksys_unshare(unsigned long unshare_flags)
+ 	if (err)
+ 		goto bad_unshare_cleanup_cred;
+ 
+-	if (new_cred) {
+-		err = set_cred_ucounts(new_cred);
+-		if (err)
+-			goto bad_unshare_cleanup_cred;
+-	}
+-
+ 	if (new_fs || new_fd || do_sysvsem || new_cred || new_nsproxy) {
+ 		if (do_sysvsem) {
+ 			/*
+diff --git a/kernel/static_call.c b/kernel/static_call.c
+index b62a0c41c905..dc5665b62814 100644
+--- a/kernel/static_call.c
++++ b/kernel/static_call.c
+@@ -165,13 +165,13 @@ void __static_call_update(struct static_call_key *key, void *tramp, void *func)
+ 
+ 		stop = __stop_static_call_sites;
+ 
+-#ifdef CONFIG_MODULES
+ 		if (mod) {
++#ifdef CONFIG_MODULES
+ 			stop = mod->static_call_sites +
+ 			       mod->num_static_call_sites;
+ 			init = mod->state == MODULE_STATE_COMING;
+-		}
+ #endif
++		}
+ 
+ 		for (site = site_mod->sites;
+ 		     site < stop && static_call_key(site) == key; site++) {
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 0670e824e019..a730c03ee607 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -552,10 +552,6 @@ long __sys_setreuid(uid_t ruid, uid_t euid)
+ 	if (retval < 0)
+ 		goto error;
+ 
+-	retval = set_cred_ucounts(new);
+-	if (retval < 0)
+-		goto error;
+-
+ 	return commit_creds(new);
+ 
+ error:
+@@ -614,10 +610,6 @@ long __sys_setuid(uid_t uid)
+ 	if (retval < 0)
+ 		goto error;
+ 
+-	retval = set_cred_ucounts(new);
+-	if (retval < 0)
+-		goto error;
+-
+ 	return commit_creds(new);
+ 
+ error:
+@@ -693,10 +685,6 @@ long __sys_setresuid(uid_t ruid, uid_t euid, uid_t suid)
+ 	if (retval < 0)
+ 		goto error;
+ 
+-	retval = set_cred_ucounts(new);
+-	if (retval < 0)
+-		goto error;
+-
+ 	return commit_creds(new);
+ 
+ error:
+diff --git a/kernel/ucount.c b/kernel/ucount.c
+index 9894795043c4..11b1596e2542 100644
+--- a/kernel/ucount.c
++++ b/kernel/ucount.c
+@@ -8,12 +8,6 @@
+ #include <linux/kmemleak.h>
+ #include <linux/user_namespace.h>
+ 
+-struct ucounts init_ucounts = {
+-	.ns    = &init_user_ns,
+-	.uid   = GLOBAL_ROOT_UID,
+-	.count = 1,
+-};
+-
+ #define UCOUNTS_HASHTABLE_BITS 10
+ static struct hlist_head ucounts_hashtable[(1 << UCOUNTS_HASHTABLE_BITS)];
+ static DEFINE_SPINLOCK(ucounts_lock);
+@@ -131,15 +125,7 @@ static struct ucounts *find_ucounts(struct user_namespace *ns, kuid_t uid, struc
+ 	return NULL;
+ }
+ 
+-static void hlist_add_ucounts(struct ucounts *ucounts)
+-{
+-	struct hlist_head *hashent = ucounts_hashentry(ucounts->ns, ucounts->uid);
+-	spin_lock_irq(&ucounts_lock);
+-	hlist_add_head(&ucounts->node, hashent);
+-	spin_unlock_irq(&ucounts_lock);
+-}
+-
+-struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid)
++static struct ucounts *get_ucounts(struct user_namespace *ns, kuid_t uid)
+ {
+ 	struct hlist_head *hashent = ucounts_hashentry(ns, uid);
+ 	struct ucounts *ucounts, *new;
+@@ -174,26 +160,7 @@ struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid)
+ 	return ucounts;
+ }
+ 
+-struct ucounts *get_ucounts(struct ucounts *ucounts)
+-{
+-	unsigned long flags;
+-
+-	if (!ucounts)
+-		return NULL;
+-
+-	spin_lock_irqsave(&ucounts_lock, flags);
+-	if (ucounts->count == INT_MAX) {
+-		WARN_ONCE(1, "ucounts: counter has reached its maximum value");
+-		ucounts = NULL;
+-	} else {
+-		ucounts->count += 1;
+-	}
+-	spin_unlock_irqrestore(&ucounts_lock, flags);
+-
+-	return ucounts;
+-}
+-
+-void put_ucounts(struct ucounts *ucounts)
++static void put_ucounts(struct ucounts *ucounts)
+ {
+ 	unsigned long flags;
+ 
+@@ -227,7 +194,7 @@ struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid,
+ {
+ 	struct ucounts *ucounts, *iter, *bad;
+ 	struct user_namespace *tns;
+-	ucounts = alloc_ucounts(ns, uid);
++	ucounts = get_ucounts(ns, uid);
+ 	for (iter = ucounts; iter; iter = tns->ucounts) {
+ 		int max;
+ 		tns = iter->ns;
+@@ -270,7 +237,6 @@ static __init int user_namespace_sysctl_init(void)
+ 	BUG_ON(!user_header);
+ 	BUG_ON(!setup_userns_sysctls(&init_user_ns));
+ #endif
+-	hlist_add_ucounts(&init_ucounts);
+ 	return 0;
+ }
+ subsys_initcall(user_namespace_sysctl_init);
+diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
+index 8206a13c81eb..ce396ea4de60 100644
+--- a/kernel/user_namespace.c
++++ b/kernel/user_namespace.c
+@@ -1340,9 +1340,6 @@ static int userns_install(struct nsset *nsset, struct ns_common *ns)
+ 	put_user_ns(cred->user_ns);
+ 	set_cred_user_ns(cred, get_user_ns(user_ns));
+ 
+-	if (set_cred_ucounts(cred) < 0)
+-		return -EINVAL;
+-
+ 	return 0;
+ }
+ 
+diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
+index bda3514c7b2d..5e04c4b9e023 100644
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1746,7 +1746,7 @@ static int snd_pcm_lib_ioctl_fifo_size(struct snd_pcm_substream *substream,
+ 		channels = params_channels(params);
+ 		frame_size = snd_pcm_format_size(format, channels);
+ 		if (frame_size > 0)
+-			params->fifo_size /= (unsigned)frame_size;
++			params->fifo_size /= frame_size;
+ 	}
+ 	return 0;
+ }
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 6219d0311c9a..f47f639980db 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8364,6 +8364,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x103c, 0x87f2, "HP ProBook 640 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x87f4, "HP", ALC287_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x87f5, "HP", ALC287_FIXUP_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x87f6, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
+ 	SND_PCI_QUIRK(0x103c, 0x87f7, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
+ 	SND_PCI_QUIRK(0x103c, 0x8805, "HP ProBook 650 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x880d, "HP EliteBook 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
+@@ -9440,6 +9441,16 @@ static int patch_alc269(struct hda_codec *codec)
+ 
+ 	snd_hda_pick_fixup(codec, alc269_fixup_models,
+ 		       alc269_fixup_tbl, alc269_fixups);
++	/* FIXME: both TX300 and ROG Strix G17 have the same SSID, and
++	 * the quirk breaks the latter (bko#214101).
++	 * Clear the wrong entry.
++	 */
++	if (codec->fixup_id == ALC282_FIXUP_ASUS_TX300 &&
++	    codec->core.vendor_id == 0x10ec0294) {
++		codec_dbg(codec, "Clear wrong fixup for ASUS ROG Strix G17\n");
++		codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
++	}
++
+ 	snd_hda_pick_pin_fixup(codec, alc269_pin_fixup_tbl, alc269_fixups, true);
+ 	snd_hda_pick_pin_fixup(codec, alc269_fallback_pin_fixup_tbl, alc269_fixups, false);
+ 	snd_hda_pick_fixup(codec, NULL,	alc269_fixup_vendor_tbl,
