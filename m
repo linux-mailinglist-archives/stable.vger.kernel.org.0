@@ -2,374 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31EC04034C1
-	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 09:08:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A520D40358A
+	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 09:37:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347063AbhIHHH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 03:07:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48948 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346276AbhIHHH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Sep 2021 03:07:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79BD760ED8;
-        Wed,  8 Sep 2021 07:06:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631084810;
-        bh=Ly3EkTEich3eQK1JP3ut9e5gzKql9couVBmppJUEH2c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RXmtHu0QyIxLgvy6NMXEjn/nQtnYQaKO9HitI+NY84bWCqNCGgghycLPcmc5OCQj3
-         L5bNFby2yZdasw3tpfl8dyULMoXC09Zpgq5By1tINKEGFZ2kAK+iVCvca7rTP14alp
-         C7kzUOtPoAe+wdzZD9Uv6jr+ea9qgLoEEIa+hM3w=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.14.2
-Date:   Wed,  8 Sep 2021 09:06:41 +0200
-Message-Id: <1631084800151162@kroah.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <1631084800230205@kroah.com>
-References: <1631084800230205@kroah.com>
+        id S1347784AbhIHHhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 03:37:52 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:48344 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345900AbhIHHhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Sep 2021 03:37:51 -0400
+Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 2C5C420002;
+        Wed,  8 Sep 2021 07:36:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1631086603; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=Z+WndBSU3C8fZ88DpLGMyx1R2eYI/u6zm2djOHlAuhI=;
+        b=Gxv+cR175RWwcar+tgco/LV9K7gZvM79EFqyhBr+f3UXoCEbLE/QUAkRS6fNiZ7lBQkSJu
+        zF92+gHGNw1F6qIchk8eh/7NlH3reksuw4VWG2W/5DQu0IkjV76wlvPNl12TKkDJUr4LqG
+        HjIAEFm6aGO7BCxqzOKpy69FZalwFK8=
+Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id C194613721;
+        Wed,  8 Sep 2021 07:36:42 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap1.suse-dmz.suse.de with ESMTPSA
+        id OfMuLQpoOGElRgAAGKfGzw
+        (envelope-from <jgross@suse.com>); Wed, 08 Sep 2021 07:36:42 +0000
+From:   Juergen Gross <jgross@suse.com>
+To:     xen-devel@lists.xenproject.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org,
+        Sander Eikelenboom <linux@eikelenboom.it>
+Subject: [PATCH] xen: fix usage of pmd/pud_poplulate in mremap for pv guests
+Date:   Wed,  8 Sep 2021 09:36:40 +0200
+Message-Id: <20210908073640.11299-1-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 83d1f7c1fd30..9a2b00ecc6af 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 14
--SUBLEVEL = 1
-+SUBLEVEL = 2
- EXTRAVERSION =
- NAME = Opossums on Parade
+Commit 0881ace292b662 ("mm/mremap: use pmd/pud_poplulate to update page
+table entries") introduced a regression when running as Xen PV guest.
+
+Today pmd/pud_poplulate() for Xen PV assumes that the PFN inserted is
+referencing a not yet used page table. In case of move_normal_pmd/pud()
+this is not true, resulting in WARN splats like:
+
+[34321.304270] ------------[ cut here ]------------
+[34321.304277] WARNING: CPU: 0 PID: 23628 at arch/x86/xen/multicalls.c:102 xen_mc_flush+0x176/0x1a0
+[34321.304288] Modules linked in:
+[34321.304291] CPU: 0 PID: 23628 Comm: apt-get Not tainted 5.14.1-20210906-doflr-mac80211debug+ #1
+[34321.304294] Hardware name: MSI MS-7640/890FXA-GD70 (MS-7640)  , BIOS V1.8B1 09/13/2010
+[34321.304296] RIP: e030:xen_mc_flush+0x176/0x1a0
+[34321.304300] Code: 89 45 18 48 c1 e9 3f 48 89 ce e9 20 ff ff ff e8 60 03 00 00 66 90 5b 5d 41 5c 41 5d c3 48 c7 45 18 ea ff ff ff be 01 00 00 00 <0f> 0b 8b 55 00 48 c7 c7 10 97 aa 82 31 db 49 c7 c5 38 97 aa 82 65
+[34321.304303] RSP: e02b:ffffc90000a97c90 EFLAGS: 00010002
+[34321.304305] RAX: ffff88807d416398 RBX: ffff88807d416350 RCX: ffff88807d416398
+[34321.304306] RDX: 0000000000000001 RSI: 0000000000000001 RDI: deadbeefdeadf00d
+[34321.304308] RBP: ffff88807d416300 R08: aaaaaaaaaaaaaaaa R09: ffff888006160cc0
+[34321.304309] R10: deadbeefdeadf00d R11: ffffea000026a600 R12: 0000000000000000
+[34321.304310] R13: ffff888012f6b000 R14: 0000000012f6b000 R15: 0000000000000001
+[34321.304320] FS:  00007f5071177800(0000) GS:ffff88807d400000(0000) knlGS:0000000000000000
+[34321.304322] CS:  10000e030 DS: 0000 ES: 0000 CR0: 0000000080050033
+[34321.304323] CR2: 00007f506f542000 CR3: 00000000160cc000 CR4: 0000000000000660
+[34321.304326] Call Trace:
+[34321.304331]  xen_alloc_pte+0x294/0x320
+[34321.304334]  move_pgt_entry+0x165/0x4b0
+[34321.304339]  move_page_tables+0x6fa/0x8d0
+[34321.304342]  move_vma.isra.44+0x138/0x500
+[34321.304345]  __x64_sys_mremap+0x296/0x410
+[34321.304348]  do_syscall_64+0x3a/0x80
+[34321.304352]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[34321.304355] RIP: 0033:0x7f507196301a
+[34321.304358] Code: 73 01 c3 48 8b 0d 76 0e 0c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 49 89 ca b8 19 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 46 0e 0c 00 f7 d8 64 89 01 48
+[34321.304360] RSP: 002b:00007ffda1eecd38 EFLAGS: 00000246 ORIG_RAX: 0000000000000019
+[34321.304362] RAX: ffffffffffffffda RBX: 000056205f950f30 RCX: 00007f507196301a
+[34321.304363] RDX: 0000000001a00000 RSI: 0000000001900000 RDI: 00007f506dc56000
+[34321.304364] RBP: 0000000001a00000 R08: 0000000000000010 R09: 0000000000000004
+[34321.304365] R10: 0000000000000001 R11: 0000000000000246 R12: 00007f506dc56060
+[34321.304367] R13: 00007f506dc56000 R14: 00007f506dc56060 R15: 000056205f950f30
+[34321.304368] ---[ end trace a19885b78fe8f33e ]---
+[34321.304370] 1 of 2 multicall(s) failed: cpu 0
+[34321.304371]   call  2: op=12297829382473034410 arg=[aaaaaaaaaaaaaaaa] result=-22
+
+Fix that by modifying xen_alloc_ptpage() to only pin the page table in
+case it wasn't pinned already.
+
+Fixes: 0881ace292b662 ("mm/mremap: use pmd/pud_poplulate to update page table entries")
+Cc: <stable@vger.kernel.org>
+Reported-by: Sander Eikelenboom <linux@eikelenboom.it>
+Tested-by: Sander Eikelenboom <linux@eikelenboom.it>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ arch/x86/xen/mmu_pv.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
+index 1df5f01529e5..8d751939c6f3 100644
+--- a/arch/x86/xen/mmu_pv.c
++++ b/arch/x86/xen/mmu_pv.c
+@@ -1518,14 +1518,17 @@ static inline void xen_alloc_ptpage(struct mm_struct *mm, unsigned long pfn,
+ 	if (pinned) {
+ 		struct page *page = pfn_to_page(pfn);
  
-diff --git a/arch/xtensa/Kconfig b/arch/xtensa/Kconfig
-index 3878880469d1..b843902ad9fd 100644
---- a/arch/xtensa/Kconfig
-+++ b/arch/xtensa/Kconfig
-@@ -30,7 +30,7 @@ config XTENSA
- 	select HAVE_DMA_CONTIGUOUS
- 	select HAVE_EXIT_THREAD
- 	select HAVE_FUNCTION_TRACER
--	select HAVE_FUTEX_CMPXCHG if !MMU
-+	select HAVE_FUTEX_CMPXCHG if !MMU && FUTEX
- 	select HAVE_HW_BREAKPOINT if PERF_EVENTS
- 	select HAVE_IRQ_TIME_ACCOUNTING
- 	select HAVE_PCI
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 06130dc431a0..b234958f883a 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -377,27 +377,27 @@ static int hid_submit_ctrl(struct hid_device *hid)
- 	len = hid_report_len(report);
- 	if (dir == USB_DIR_OUT) {
- 		usbhid->urbctrl->pipe = usb_sndctrlpipe(hid_to_usb_dev(hid), 0);
--		usbhid->urbctrl->transfer_buffer_length = len;
- 		if (raw_report) {
- 			memcpy(usbhid->ctrlbuf, raw_report, len);
- 			kfree(raw_report);
- 			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
- 		}
- 	} else {
--		int maxpacket, padlen;
-+		int maxpacket;
- 
- 		usbhid->urbctrl->pipe = usb_rcvctrlpipe(hid_to_usb_dev(hid), 0);
- 		maxpacket = usb_maxpacket(hid_to_usb_dev(hid),
- 					  usbhid->urbctrl->pipe, 0);
- 		if (maxpacket > 0) {
--			padlen = DIV_ROUND_UP(len, maxpacket);
--			padlen *= maxpacket;
--			if (padlen > usbhid->bufsize)
--				padlen = usbhid->bufsize;
-+			len += (len == 0);    /* Don't allow 0-length reports */
-+			len = DIV_ROUND_UP(len, maxpacket);
-+			len *= maxpacket;
-+			if (len > usbhid->bufsize)
-+				len = usbhid->bufsize;
- 		} else
--			padlen = 0;
--		usbhid->urbctrl->transfer_buffer_length = padlen;
-+			len = 0;
- 	}
-+	usbhid->urbctrl->transfer_buffer_length = len;
- 	usbhid->urbctrl->dev = hid_to_usb_dev(hid);
- 
- 	usbhid->cr->bRequestType = USB_TYPE_CLASS | USB_RECIP_INTERFACE | dir;
-diff --git a/drivers/media/usb/stkwebcam/stk-webcam.c b/drivers/media/usb/stkwebcam/stk-webcam.c
-index a45d464427c4..0e231e576dc3 100644
---- a/drivers/media/usb/stkwebcam/stk-webcam.c
-+++ b/drivers/media/usb/stkwebcam/stk-webcam.c
-@@ -1346,7 +1346,7 @@ static int stk_camera_probe(struct usb_interface *interface,
- 	if (!dev->isoc_ep) {
- 		pr_err("Could not find isoc-in endpoint\n");
- 		err = -ENODEV;
--		goto error;
-+		goto error_put;
- 	}
- 	dev->vsettings.palette = V4L2_PIX_FMT_RGB565;
- 	dev->vsettings.mode = MODE_VGA;
-@@ -1359,10 +1359,12 @@ static int stk_camera_probe(struct usb_interface *interface,
- 
- 	err = stk_register_video_device(dev);
- 	if (err)
--		goto error;
-+		goto error_put;
- 
- 	return 0;
- 
-+error_put:
-+	usb_put_intf(interface);
- error:
- 	v4l2_ctrl_handler_free(hdl);
- 	v4l2_device_unregister(&dev->v4l2_dev);
-diff --git a/drivers/usb/serial/cp210x.c b/drivers/usb/serial/cp210x.c
-index 3c80bfbf3bec..d48bed5782a5 100644
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -1164,10 +1164,8 @@ static int cp210x_set_chars(struct usb_serial_port *port,
- 
- 	kfree(dmabuf);
- 
--	if (result < 0) {
--		dev_err(&port->dev, "failed to set special chars: %d\n", result);
-+	if (result < 0)
- 		return result;
--	}
- 
- 	return 0;
- }
-@@ -1192,6 +1190,7 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
- 	struct cp210x_flow_ctl flow_ctl;
- 	u32 flow_repl;
- 	u32 ctl_hs;
-+	bool crtscts;
- 	int ret;
- 
- 	/*
-@@ -1219,8 +1218,10 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
- 		chars.bXoffChar = STOP_CHAR(tty);
- 
- 		ret = cp210x_set_chars(port, &chars);
--		if (ret)
--			return;
-+		if (ret) {
-+			dev_err(&port->dev, "failed to set special chars: %d\n",
-+					ret);
+-		if (static_branch_likely(&xen_struct_pages_ready))
++		pinned = false;
++		if (static_branch_likely(&xen_struct_pages_ready)) {
++			pinned = PagePinned(page);
+ 			SetPagePinned(page);
 +		}
- 	}
  
- 	mutex_lock(&port_priv->mutex);
-@@ -1249,14 +1250,14 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
- 			flow_repl |= CP210X_SERIAL_RTS_FLOW_CTL;
- 		else
- 			flow_repl |= CP210X_SERIAL_RTS_INACTIVE;
--		port_priv->crtscts = true;
-+		crtscts = true;
- 	} else {
- 		ctl_hs &= ~CP210X_SERIAL_CTS_HANDSHAKE;
- 		if (port_priv->rts)
- 			flow_repl |= CP210X_SERIAL_RTS_ACTIVE;
- 		else
- 			flow_repl |= CP210X_SERIAL_RTS_INACTIVE;
--		port_priv->crtscts = false;
-+		crtscts = false;
- 	}
+ 		xen_mc_batch();
  
- 	if (I_IXOFF(tty)) {
-@@ -1279,8 +1280,12 @@ static void cp210x_set_flow_control(struct tty_struct *tty,
- 	flow_ctl.ulControlHandshake = cpu_to_le32(ctl_hs);
- 	flow_ctl.ulFlowReplace = cpu_to_le32(flow_repl);
+ 		__set_pfn_prot(pfn, PAGE_KERNEL_RO);
  
--	cp210x_write_reg_block(port, CP210X_SET_FLOW, &flow_ctl,
-+	ret = cp210x_write_reg_block(port, CP210X_SET_FLOW, &flow_ctl,
- 			sizeof(flow_ctl));
-+	if (ret)
-+		goto out_unlock;
-+
-+	port_priv->crtscts = crtscts;
- out_unlock:
- 	mutex_unlock(&port_priv->mutex);
- }
-diff --git a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
-index 930b3d50a330..f45ca7ddf78e 100644
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -433,6 +433,7 @@ static int pl2303_detect_type(struct usb_serial *serial)
- 		switch (bcdDevice) {
- 		case 0x100:
- 		case 0x305:
-+		case 0x405:
- 			/*
- 			 * Assume it's an HXN-type if the device doesn't
- 			 * support the old read request value.
-diff --git a/fs/ext4/inline.c b/fs/ext4/inline.c
-index 70cb64db33f7..24e994e75f5c 100644
---- a/fs/ext4/inline.c
-+++ b/fs/ext4/inline.c
-@@ -750,6 +750,12 @@ int ext4_write_inline_data_end(struct inode *inode, loff_t pos, unsigned len,
- 	ext4_write_lock_xattr(inode, &no_expand);
- 	BUG_ON(!ext4_has_inline_data(inode));
+-		if (level == PT_PTE && USE_SPLIT_PTE_PTLOCKS)
++		if (level == PT_PTE && USE_SPLIT_PTE_PTLOCKS && !pinned)
+ 			__pin_pagetable_pfn(MMUEXT_PIN_L1_TABLE, pfn);
  
-+	/*
-+	 * ei->i_inline_off may have changed since ext4_write_begin()
-+	 * called ext4_try_to_write_inline_data()
-+	 */
-+	(void) ext4_find_inline_data_nolock(inode);
-+
- 	kaddr = kmap_atomic(page);
- 	ext4_write_inline_data(inode, &iloc, kaddr, pos, len);
- 	kunmap_atomic(kaddr);
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index dfa09a277b56..970013c93d3e 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5032,6 +5032,14 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 		err = percpu_counter_init(&sbi->s_freeinodes_counter, freei,
- 					  GFP_KERNEL);
- 	}
-+	/*
-+	 * Update the checksum after updating free space/inode
-+	 * counters.  Otherwise the superblock can have an incorrect
-+	 * checksum in the buffer cache until it is written out and
-+	 * e2fsprogs programs trying to open a file system immediately
-+	 * after it is mounted can fail.
-+	 */
-+	ext4_superblock_csum_set(sb);
- 	if (!err)
- 		err = percpu_counter_init(&sbi->s_dirs_counter,
- 					  ext4_count_dirs(sb), GFP_KERNEL);
-diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
-index 7d5883432085..a144a3f68e9e 100644
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -1746,7 +1746,7 @@ static int snd_pcm_lib_ioctl_fifo_size(struct snd_pcm_substream *substream,
- 		channels = params_channels(params);
- 		frame_size = snd_pcm_format_size(format, channels);
- 		if (frame_size > 0)
--			params->fifo_size /= (unsigned)frame_size;
-+			params->fifo_size /= frame_size;
- 	}
- 	return 0;
- }
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 7ad689f991e7..70516527ebce 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8438,6 +8438,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x87f2, "HP ProBook 640 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f4, "HP", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f5, "HP", ALC287_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x87f6, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
- 	SND_PCI_QUIRK(0x103c, 0x87f7, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
- 	SND_PCI_QUIRK(0x103c, 0x8805, "HP ProBook 650 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x880d, "HP EliteBook 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
-@@ -9521,6 +9522,16 @@ static int patch_alc269(struct hda_codec *codec)
- 
- 	snd_hda_pick_fixup(codec, alc269_fixup_models,
- 		       alc269_fixup_tbl, alc269_fixups);
-+	/* FIXME: both TX300 and ROG Strix G17 have the same SSID, and
-+	 * the quirk breaks the latter (bko#214101).
-+	 * Clear the wrong entry.
-+	 */
-+	if (codec->fixup_id == ALC282_FIXUP_ASUS_TX300 &&
-+	    codec->core.vendor_id == 0x10ec0294) {
-+		codec_dbg(codec, "Clear wrong fixup for ASUS ROG Strix G17\n");
-+		codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
-+	}
-+
- 	snd_hda_pick_pin_fixup(codec, alc269_pin_fixup_tbl, alc269_fixups, true);
- 	snd_hda_pick_pin_fixup(codec, alc269_fallback_pin_fixup_tbl, alc269_fixups, false);
- 	snd_hda_pick_fixup(codec, NULL,	alc269_fixup_vendor_tbl,
-diff --git a/sound/usb/card.h b/sound/usb/card.h
-index 6c0a052a28f9..5b19901f305a 100644
---- a/sound/usb/card.h
-+++ b/sound/usb/card.h
-@@ -94,6 +94,7 @@ struct snd_usb_endpoint {
- 	struct list_head ready_playback_urbs; /* playback URB FIFO for implicit fb */
- 
- 	unsigned int nurbs;		/* # urbs */
-+	unsigned int nominal_queue_size; /* total buffer sizes in URBs */
- 	unsigned long active_mask;	/* bitmask of active urbs */
- 	unsigned long unlink_mask;	/* bitmask of unlinked urbs */
- 	char *syncbuf;			/* sync buffer for all sync URBs */
-@@ -187,6 +188,7 @@ struct snd_usb_substream {
- 	} dsd_dop;
- 
- 	bool trigger_tstamp_pending_update; /* trigger timestamp being updated from initial estimate */
-+	bool early_playback_start;	/* early start needed for playback? */
- 	struct media_ctl *media_ctl;
- };
- 
-diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
-index 4f856771216b..bf26c04cf471 100644
---- a/sound/usb/endpoint.c
-+++ b/sound/usb/endpoint.c
-@@ -1126,6 +1126,10 @@ static int data_ep_set_params(struct snd_usb_endpoint *ep)
- 		INIT_LIST_HEAD(&u->ready_list);
- 	}
- 
-+	/* total buffer bytes of all URBs plus the next queue;
-+	 * referred in pcm.c
-+	 */
-+	ep->nominal_queue_size = maxsize * urb_packs * (ep->nurbs + 1);
- 	return 0;
- 
- out_of_memory:
-@@ -1287,6 +1291,11 @@ int snd_usb_endpoint_configure(struct snd_usb_audio *chip,
- 	 * to be set up before parameter setups
- 	 */
- 	iface_first = ep->cur_audiofmt->protocol == UAC_VERSION_1;
-+	/* Workaround for Sony WALKMAN NW-A45 DAC;
-+	 * it requires the interface setup at first like UAC1
-+	 */
-+	if (chip->usb_id == USB_ID(0x054c, 0x0b8c))
-+		iface_first = true;
- 	if (iface_first) {
- 		err = endpoint_set_interface(chip, ep, true);
- 		if (err < 0)
-diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
-index 4e5031a68064..f5cbf61ac366 100644
---- a/sound/usb/pcm.c
-+++ b/sound/usb/pcm.c
-@@ -614,6 +614,14 @@ static int snd_usb_pcm_prepare(struct snd_pcm_substream *substream)
- 	subs->period_elapsed_pending = 0;
- 	runtime->delay = 0;
- 
-+	/* check whether early start is needed for playback stream */
-+	subs->early_playback_start =
-+		subs->direction == SNDRV_PCM_STREAM_PLAYBACK &&
-+		subs->data_endpoint->nominal_queue_size >= subs->buffer_bytes;
-+
-+	if (subs->early_playback_start)
-+		ret = start_endpoints(subs);
-+
-  unlock:
- 	snd_usb_unlock_shutdown(chip);
- 	return ret;
-@@ -1394,7 +1402,7 @@ static void prepare_playback_urb(struct snd_usb_substream *subs,
- 		subs->trigger_tstamp_pending_update = false;
- 	}
- 
--	if (period_elapsed && !subs->running) {
-+	if (period_elapsed && !subs->running && !subs->early_playback_start) {
- 		subs->period_elapsed_pending = 1;
- 		period_elapsed = 0;
- 	}
-@@ -1448,7 +1456,8 @@ static int snd_usb_substream_playback_trigger(struct snd_pcm_substream *substrea
- 					      prepare_playback_urb,
- 					      retire_playback_urb,
- 					      subs);
--		if (cmd == SNDRV_PCM_TRIGGER_START) {
-+		if (!subs->early_playback_start &&
-+		    cmd == SNDRV_PCM_TRIGGER_START) {
- 			err = start_endpoints(subs);
- 			if (err < 0) {
- 				snd_usb_endpoint_set_callback(subs->data_endpoint,
+ 		xen_mc_issue(PARAVIRT_LAZY_MMU);
+-- 
+2.26.2
+
