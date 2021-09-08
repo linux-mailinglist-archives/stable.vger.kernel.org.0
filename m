@@ -2,195 +2,308 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C86A3403BD2
-	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 16:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98EE2403BED
+	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 16:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348854AbhIHOzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 10:55:45 -0400
-Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:8060 "EHLO
-        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233754AbhIHOzp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Sep 2021 10:55:45 -0400
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 188EqxO2013120;
-        Wed, 8 Sep 2021 14:54:16 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=R9CyFc89EI4mmm0TQEqBL19rGkf/JvNABOb3GOn/r5A=;
- b=RJWapuPcRb7dK7JLYWYhl+SPp3Bs9fPoGaJeNETVCxU2fULDBt+Mzfe8DlAkt63CuuWF
- dIOv24wtv1ZBjU5Yt/n8CqYCkT1fFq1tOi/KmfwoaY7aoCzFlKtDCGsNCxMDNpw6gSEG
- vFhLJa8kzvtEkO5y6ql9aMpIA1EqjXWTpQ+dUtPITyCodZfx2UhEfqmob7RYD1r1n8fZ
- gONIKku9MPmtNdhAODHWJv9MQk9ohQ4RIXnK0mPNTdyHEuK1bZBQ4ZgO36sYQx2VVGMM
- ipKbk9GSXuY/tVHi/uTBJUf8e7k5V88eC6C+7AOeTkC+lRFDXQdrt8UkV/RWeU0PU+ZQ EA== 
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2020-01-29;
- bh=R9CyFc89EI4mmm0TQEqBL19rGkf/JvNABOb3GOn/r5A=;
- b=OoHcIVPIz+jqJ3N99214gI4DWgHUBJ5Q+8hdPsFwNRQueEDBYZp6yeV/tbmhT2LpqtAU
- 4qy3NhCi+aw/8IzTnU7nIA3BY4KWd11wrM5zJGARv6l2Y8WEj3wuYA65BNeR7MmBz4PK
- Bh36crNjnqWv1iDYxeC8qpMAsX1XqeuOIP+BQwUQmjfphO5wJGGOq7pDwJ0KFVTSWFVq
- KMn18yj0f7U77+5F6YiFG2Qmu9M45TSKYrPSS8E0JxvfVBgAme/G1Y1tmrS32poiuOFG
- scdnu+cQ02IsMxt7Q9NLrN1Yfhmlo5B8FoZiMAgLfpqHZWop2Rh+ldBVkVI9vhvsvfQd BQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3axcw6b1d5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 08 Sep 2021 14:54:15 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 188EoMJC159962;
-        Wed, 8 Sep 2021 14:54:14 GMT
-Received: from nam02-dm3-obe.outbound.protection.outlook.com (mail-dm3nam07lp2040.outbound.protection.outlook.com [104.47.56.40])
-        by userp3020.oracle.com with ESMTP id 3axst3xexg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 08 Sep 2021 14:54:14 +0000
+        id S1349193AbhIHO4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 10:56:18 -0400
+Received: from mail-co1nam11on2086.outbound.protection.outlook.com ([40.107.220.86]:60160
+        "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S233754AbhIHO4R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Sep 2021 10:56:17 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JatBAAa8Al7H/EPuRuKb1/ulkUmIOM7Tsvj/wePVUSrNTjsM36mNZ6UbEGCRGQVK7036H2BZj3b2K9mp+Izs2W8jV/AYxwVEQJyDyuiJI7pjDY2KAYAgC2wWUbKr252+WQAInail8b4o1KrJZ5ctPItIcuf65BdG6UQ2p7NunwOuSS3x8HmBBDKKmYh9SK2aRXXhnRSAIKTKcMBYj0yvS4fMLJwMcySLHQVnPR2fcpJUY3PnxqRlWM4zOrpxnToOgz/0PCYoerIGklP6sYfWsiRMUunA4cSlL7xWSnfQ4XX7FdhGkGa3i3XJ0l1GIZ9uo49YtZ+bNCY4eP7Y4/2sMw==
+ b=fqeqOLiOt78Tzzs+yIsUkd4eJ8bY/hYPSS/VFIXBAUpcTlJ8Bw+O+28ZuACRDtugNL+VSEWO7hFocJu8cKui+rO9e+jdFJ5BNrMosIdkgdIqO8lsCPO4mfJzthPSXb5IbwCYVLwVzaGp10Z0ogzvx8FReOA6vSthzFpEXHTozoeq2X4Boa0jtyj1B9A1HQy2wAGjpF9/4OtqEV2KVB7bwKWBcx4E0ewNoZUIPEhH1ih1esmO0oG1joUVtsPVg91Hd6ffY+jSaS5O14gQ5P092L0PyDvGv2ZkLiPwfzdQak2mKX0ObptKuiHPl49wkd56B01ajF9+wcQpuHyxiGuOEQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
- bh=R9CyFc89EI4mmm0TQEqBL19rGkf/JvNABOb3GOn/r5A=;
- b=CGuRI04im/M3G8H0gfR5UmtJhSugMLh7k5TFxcZeIdJAHRIfgNTMy3b130D8RRM5fzjLl2YlreXYkH2IoXCvuJIpC3YlSzGLlHNbvsC141OmwWL+iNJ+pywpPca+RZ2+zgUjg0UGmVXtnlKiZEeSA+qmJcgRnz+vT3HCi1nnxbLSKvKWeOgQyMOqDmInWmHjVgdTmwGeDzhIPyYJiCJivCRDCpEXwEWOZ6tfJY5+0n1J5S5y71fkBb+8b9MYVvXGxXXFWJYZriWLdgXJ/bilFUdwwnl/SEHenNK15Q+1pJQJhr3A82zUesvWQHFrGTyrjXRxfGSPGEoHX0rtHUuMVg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=R9CyFc89EI4mmm0TQEqBL19rGkf/JvNABOb3GOn/r5A=;
- b=sdIvNrp4+X4ATfxFezfasklSsId+ofFvV+w4gMNmyFAO97GLn4xYN1pd4WGSO8gZ1IxxawE+FwhLiASoLe6g9EZ0brBQT52JWmeDCL3WcidgAQFm77aBxpHHMvC2yl6cgFlnu5NwzXcVCXhlDJVaMLO3x+U15oluBpKA9MILXd8=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=oracle.com;
-Received: from BLAPR10MB5009.namprd10.prod.outlook.com (2603:10b6:208:321::10)
- by BL0PR10MB3444.namprd10.prod.outlook.com (2603:10b6:208:73::24) with
+ bh=xZYj+a3vFIz/VTk3GSZ7HjVDs2Ms11Q/Ih0RSZlfYe0=;
+ b=nVCu19pyg19sEZV9ltLobnKxHI8avka3j349Y+s2WP4Aqnm3RiezVLGFBbHiMC0l08lhq+2SPaiH0fyCE7ApVmbrj88oUNKXt0+4acP/fDFjlgsiTpMBZfl/OGenTJRqKn8JfXP30wN1fJjJm63WwioWjDRY/SGCWdPreCdCskU8cmP3g9+aKR0AfgxWJqUjyLuVAxJA9egIF0m2i4ZcOpc3tnZ2CNgrh9xvCMfb3AhfuYjHb+AHVV/yh8wzwpnSt2bW/4YZ3ZFIyHORZZYwPVSZDsaYdJ3S7bD7gF8cxc70YNf0o0PwH+bMLtr4bpIhfgIAEsD7wxssRzYlvqtCkQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=xZYj+a3vFIz/VTk3GSZ7HjVDs2Ms11Q/Ih0RSZlfYe0=;
+ b=d/dz8rEa9lla7PTaWLLmzKdUx5IvFFMdGoUTne6lx8FaZv5RfJ5pCTzdiuM3yXLPm4dYDPQqwd+bjb15yCwSWIfCY9EeUH5P50XkOq7r0wFErZ2FkUmfsouqbrEhjNfcErlkbKRfbSFlU5PB/XoHYKDf4bhhCTp6tHVuHAW9lGI=
+Received: from DM5PR13CA0052.namprd13.prod.outlook.com (2603:10b6:3:117::14)
+ by BYAPR12MB2695.namprd12.prod.outlook.com (2603:10b6:a03:71::32) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4478.24; Wed, 8 Sep
- 2021 14:54:11 +0000
-Received: from BLAPR10MB5009.namprd10.prod.outlook.com
- ([fe80::f520:b987:b36e:618f]) by BLAPR10MB5009.namprd10.prod.outlook.com
- ([fe80::f520:b987:b36e:618f%7]) with mapi id 15.20.4478.026; Wed, 8 Sep 2021
- 14:54:11 +0000
-Subject: Re: [PATCH 2/2] xen: reset legacy rtc flag for PV domU
-To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-Cc:     Stefano Stabellini <sstabellini@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org
-References: <20210903084937.19392-1-jgross@suse.com>
- <20210903084937.19392-3-jgross@suse.com>
-From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Message-ID: <b2cd2936-7ec4-e0b2-458e-51c12a3f56aa@oracle.com>
-Date:   Wed, 8 Sep 2021 10:54:07 -0400
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.14.0
-In-Reply-To: <20210903084937.19392-3-jgross@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-ClientProxiedBy: SN7P220CA0014.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:806:123::19) To BLAPR10MB5009.namprd10.prod.outlook.com
- (2603:10b6:208:321::10)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4457.23; Wed, 8 Sep
+ 2021 14:55:03 +0000
+Received: from DM6NAM11FT038.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:3:117:cafe::37) by DM5PR13CA0052.outlook.office365.com
+ (2603:10b6:3:117::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4523.8 via Frontend
+ Transport; Wed, 8 Sep 2021 14:55:02 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
+ header.d=none;lists.freedesktop.org; dmarc=pass action=none
+ header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ DM6NAM11FT038.mail.protection.outlook.com (10.13.173.137) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.4500.14 via Frontend Transport; Wed, 8 Sep 2021 14:55:02 +0000
+Received: from DESKTOP-9DR2N9S.localdomain (10.180.168.240) by
+ SATLEXMB04.amd.com (10.181.40.145) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.8; Wed, 8 Sep 2021 09:55:01 -0500
+From:   Mikita Lipski <mikita.lipski@amd.com>
+To:     <amd-gfx@lists.freedesktop.org>
+CC:     <Harry.Wentland@amd.com>, <Sunpeng.Li@amd.com>,
+        <Bhawanpreet.Lakha@amd.com>, <Rodrigo.Siqueira@amd.com>,
+        <Aurabindo.Pillai@amd.com>, <qingqing.zhuo@amd.com>,
+        <mikita.lipski@amd.com>, <roman.li@amd.com>, <Anson.Jacob@amd.com>,
+        <wayne.lin@amd.com>, <stylon.wang@amd.com>, <solomon.chiu@amd.com>,
+        Hersen Wu <hersenwu@amd.com>, <stable@vger.kernel.org>,
+        Scott Foster <Scott.Foster@amd.com>
+Subject: [PATCH 22/33] drm/amd/display: dsc mst 2 4K displays go dark with 2 lane HBR3
+Date:   Wed, 8 Sep 2021 10:54:13 -0400
+Message-ID: <20210908145424.3311-23-mikita.lipski@amd.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210908145424.3311-1-mikita.lipski@amd.com>
+References: <20210908145424.3311-1-mikita.lipski@amd.com>
 MIME-Version: 1.0
-Received: from [10.74.115.194] (138.3.201.2) by SN7P220CA0014.NAMP220.PROD.OUTLOOK.COM (2603:10b6:806:123::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.14 via Frontend Transport; Wed, 8 Sep 2021 14:54:09 +0000
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 9c67d3e7-3179-4284-7f7a-08d972d88477
-X-MS-TrafficTypeDiagnostic: BL0PR10MB3444:
-X-Microsoft-Antispam-PRVS: <BL0PR10MB3444ED12E1A5C04A32E24A178AD49@BL0PR10MB3444.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:923;
+X-MS-Office365-Filtering-Correlation-Id: 5135934f-f20d-4fdd-f4b8-08d972d8a34a
+X-MS-TrafficTypeDiagnostic: BYAPR12MB2695:
+X-Microsoft-Antispam-PRVS: <BYAPR12MB2695ED98BF646D8263AEC9AFE4D49@BYAPR12MB2695.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:419;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Gl7oYKj8lVelmHxOmcoOcSFbYLyhAOlcd8nxrPtF4ibotx8wNSjAEZ/6sqKlp+5XBPBTekMBa45MlcBZyTzPxoIr6BP+ObepOgRZFpm/fZOE/RbReOqzM2WgQ/amW2c+J2RXhNQgTlbuHCPinG7MYr6Bm8r1r56pB1L2/BQeGLqLwc0pvfuMTRxC2P75V4umdKSIBKbTtt7slnn21zy/SJ73M3owM6iyeeI334xKZ5JBbOXu9dNhyK0YYwZJx+7tkr34GgPDLC8p9Br76SeOEHEyvnf9IVqRpw97Di9dEa46iTrrLuN7Pi4LdjR8WfjEECQOabNPVB4mbErdOHZDDJbCK/J3+hTDTwiHSGJ+BK3IOfTZnpkkurQM7iHj2iqcJNqejxFSRuJGeqdVf3Qt7Cw19b9xVKcNlIxkr4f5DG6Dt30vnLb+ZeAKeiaMNVwSArHfaPCQFrJcow4lNyeuMZNvK9NX66seRn5q5smuMal5u9QE4iQaKg9op5Bje8/m9nMEZl9R0tyagSmEMxsCzcctC1+a3yJhfhkz0ykvSsGcBZicvXh+KwVmvH+28RuoZVG6z0b6CEOtidfI6Oh9CzPw8P3cxIgv+o/w0OTz4w2082jSrLjPYUeda0JksCSvaogmaLPSLjsAeT111munmDVPAHEYPLmaz8V5k/VZZvBcWJq8sAzB4uTa/MjtR6U6Ius69aMTbukBPY8buHvo8YG33dPmE/FUfs57q+7hAak=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BLAPR10MB5009.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(316002)(45080400002)(66476007)(6486002)(54906003)(31686004)(44832011)(66556008)(16576012)(8936002)(83380400001)(26005)(2906002)(31696002)(8676002)(186003)(2616005)(4326008)(38100700002)(86362001)(66946007)(36756003)(7416002)(508600001)(5660300002)(53546011)(956004)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?NmJ3WmE2ZjVaUE15TUFiVFFQV2dvUTFiY3RIc3M2RGNlTEcxNlBjMDdwenkv?=
- =?utf-8?B?aXl6enFldUJ3YTVXRWVCVFo1aUNCNzNuU1Y0ZFBqakxoRWVETG9paEFKdGZU?=
- =?utf-8?B?QUF3T1F2SVNKVy81YnlLSEV4SG9OK1U0czZBYlQxS3hKNElZTlNhdTVORVMv?=
- =?utf-8?B?ZDJpVjdaamJWL1F3R0VmdzRJQVVjeno2K2Y4bzVuZ0lRcXJQajB5dUw1MktW?=
- =?utf-8?B?ZkxRenc1TlVtRGc1RWk3TTFXS2c2L0hTVC82MDRnR3hjTG5tVFI4ZndjeWx2?=
- =?utf-8?B?Z0VGV1IveGVRYnZrL1R1UzIwb1MzQ0FVMTh4QldaNHhzdlh5dnh5Si81OVk1?=
- =?utf-8?B?Zk91NzIxVkd0VC9GTXMveXNxQjZ2cVdTeGpiTWxweFF0REZ5MjNXWmEvNUZ1?=
- =?utf-8?B?VHNMZjdMOUs1Uk12MDVBUTZrRnRRQ2F1R0diS1g3Y2lXMk1wV0Nta1ZtNkJW?=
- =?utf-8?B?VlJ6cEFiaGppdWFHcWNHbWlxTlhnUk1EZm8vYWh6eVlEcFFVZTJKUis3RlZn?=
- =?utf-8?B?K3gvbkdNYUV6MWFEcWZtdlRsRks0dTgzejBncGg5WC80VkJ4bm82WHFrc1BK?=
- =?utf-8?B?bkdRSDZaWkdScVJSeVAyL3lmOUpMYmlwVnI0Q2V0YjdGdGhnMzFnc2YvQ0FD?=
- =?utf-8?B?ODNmQlJFWjI1Wm5MeDhnaWxMZzltY1UrVVNWQVpLMnh5akN1K3gwZFU4ZmZI?=
- =?utf-8?B?QWlIRWt4amFyU1dXd0pRRjFIb2E4TXd4ZHl4NGlaQXpOTCt0bysrTk1LVzBG?=
- =?utf-8?B?S3FSTWN1QW1wWWZTWmFOVGhpbzFxejYzOHp3U2pLS3g3MUZHejlGTzllWFky?=
- =?utf-8?B?ekozKzhBcllQUzhzT29EeGM1YTdTdlhRSVFUR3FwZm9BQ2JicUxQbm9xa05R?=
- =?utf-8?B?dGZreElZWVBkY1BiRGZ6RC9zb2dORjlwYmVHc1R6N1RId3pMVVpYL1ZmNEdW?=
- =?utf-8?B?eFlEZFJ5ZnpNaXJPMUc2VUkwUUxaZWZZM1dYcjgwcU5GeUFWM3hwOTVsTFJh?=
- =?utf-8?B?dzZSU1NwdlNPbWFxZWJCTkl2anBMV2FueGxSUnREZWdqM1VUQXFUWXVBdzBW?=
- =?utf-8?B?ZU56bnJjT0dtajlmazRuSXlXQ2NWMkhWQk9lVU10eDV6T05OdlREN284Q0VR?=
- =?utf-8?B?b2NKNWtFMFFUc2FiYVRDa2ZwMmgzaVM5WDNaYmhlc3BNQTlJam1QTFc1TEdB?=
- =?utf-8?B?UE5ZODI2Qy9WeVNBM1dOTEJwZ01XUDVrakM3TGhXVzlTYlViOE11RjV0SjRY?=
- =?utf-8?B?ZGdsTHpPTEx3QXl6dEdkRWNQcUl6VXNBRG1reUtKVHZpRWlKek5iNmJFN0dV?=
- =?utf-8?B?bngySEZQVVVzNmw2UnpkSFg2RUVCejEzSDdPazBPQTdpS25zVkV3bzRMU1RF?=
- =?utf-8?B?NjRlbGpSUWVOcG82dXJMYWQrT01UYTBPbDlDaDFVcHhCWXhmZFlES2tlWUVC?=
- =?utf-8?B?YkYxTjl3QmlLLzBLaHFRbGxFc0g3d1NwS1RMR3RWZWlEb2VmelRCZlVydjBo?=
- =?utf-8?B?eDEwR29jQUZWZHR5NmttdE5UVDRIUEk2bWNSREEwWFRGeWFyOEloczdNNUpp?=
- =?utf-8?B?NXY4VVl6WnJwbytvRzdTLzlzcENiZU5xRkhqS3pRUXRLeGhoVXZyaVRTK1Ux?=
- =?utf-8?B?dnpLS1BBQkNvOWdrVnNDd295T1VXcnJ0WEd1VXNHQWZVc3E2TGtibjFpclY1?=
- =?utf-8?B?NnJXNmI1bFVmU29VREl1aUdpSWRBNnp3endIN0RJNU8yN1FoLyswS2xJdWVK?=
- =?utf-8?Q?RolcjRs08WzEtLzjiX//bpizM7Ep4Jk4NIYKF2y?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9c67d3e7-3179-4284-7f7a-08d972d88477
-X-MS-Exchange-CrossTenant-AuthSource: BLAPR10MB5009.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Sep 2021 14:54:11.2224
+X-Microsoft-Antispam-Message-Info: BmUJqWEfXz1bSF9rm+jHUW090d3p51kNZNhGTH0BPy6mYjfXYSpsWUnS4JZaXZxeD1XF2f1G4bnQPka4eRcfb2lQuB7cb+8+BnA0xANjzyZd7NTJCU3RIzHRjYh1mTkNmD2tDBqp94JhQvQ7B2b+UDE9tU1SRM2DjfmCswQMH/h182F9stRN1LUzBSHBWYphWXdTM0ZJn3m+FcjZyK3NL8FsPl2O/oYk3CGeHOYI6nFxx13jA+O5IE8DGQC12PsoLVhwrrfq8hjtJc2C/hwD0lyyJxqqAigdi3+yCaoG2S9DfYcVBk7m/2cqxJpJO3e5HbNZnXJBDSTsKUtNDZ1HFNyWaaECoNyOmy77t5YaYg5woddyz/BaVGNnze3fsXqIIge0PmLyLNreIT1nOnDip6c/P2I7oyzpF6r4+BmH+SILY4unquLYTTv7JveDKb+Ftm0fC+4pQ3gKUfaBNO7jjrIIjEzvyzMSV0E1gwMZSP4khEktUdAajpY3bwPSUAKdW/WDFklg9sPuOIsh/IFFv5IBk9eU09bFDSKhDXO1wPWLO+MxgdbbdQJdhoSeidXzgxpVaBnDqrGuCY0OIhh5pTRYd5t+n2+FdxkB8LtDQtN0XT0roIjkP+0TylC9Av0/VxyD4FkRvVYzjIo8tKmYrpqEaOpGifhwGgNiqBurV8iDDQFXVBMJMIuJBTrdbSs0a8VMSpbh1VchUrQTsokjYMHjDTd1jO+xrls+E83kjjU=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(39860400002)(346002)(376002)(136003)(396003)(46966006)(36840700001)(47076005)(82740400003)(81166007)(186003)(54906003)(1076003)(70206006)(4326008)(6916009)(6666004)(356005)(478600001)(5660300002)(83380400001)(36756003)(86362001)(316002)(336012)(36860700001)(8936002)(8676002)(2616005)(82310400003)(44832011)(2906002)(426003)(16526019)(26005)(70586007)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Sep 2021 14:55:02.6747
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: bRLXF+EPkNc+8N4+wrckUmzNzw6wmUKX47qx1iM1qj71KHEXpzkBfkpVqixhoI4FZdeCcSKvzyMkI1AsP0rVnUWo1EHuAJarqO9Fle6pkXQ=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR10MB3444
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10101 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0
- mlxlogscore=999 malwarescore=0 spamscore=0 mlxscore=0 suspectscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109030001 definitions=main-2109080093
-X-Proofpoint-GUID: 7U7S6iHGs1PIrquqq2ApWZHCvSLEFWlN
-X-Proofpoint-ORIG-GUID: 7U7S6iHGs1PIrquqq2ApWZHCvSLEFWlN
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5135934f-f20d-4fdd-f4b8-08d972d8a34a
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT038.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB2695
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Hersen Wu <hersenwu@amd.com>
 
-On 9/3/21 4:49 AM, Juergen Gross wrote:
-> A Xen PV guest doesn't have a legacy RTC device, so reset the legacy
-> RTC flag. Otherwise the following WARN splat will occur at boot:
->
-> [    1.333404] WARNING: CPU: 1 PID: 1 at /home/gross/linux/head/drivers/rtc/rtc-mc146818-lib.c:25 mc146818_get_time+0x1be/0x210
-> [    1.333404] Modules linked in:
-> [    1.333404] CPU: 1 PID: 1 Comm: swapper/0 Tainted: G        W         5.14.0-rc7-default+ #282
-> [    1.333404] RIP: e030:mc146818_get_time+0x1be/0x210
-> [    1.333404] Code: c0 64 01 c5 83 fd 45 89 6b 14 7f 06 83 c5 64 89 6b 14 41 83 ec 01 b8 02 00 00 00 44 89 63 10 5b 5d 41 5c 41 5d 41 5e 41 5f c3 <0f> 0b 48 c7 c7 30 0e ef 82 4c 89 e6 e8 71 2a 24 00 48 c7 c0 ff ff
-> [    1.333404] RSP: e02b:ffffc90040093df8 EFLAGS: 00010002
-> [    1.333404] RAX: 00000000000000ff RBX: ffffc90040093e34 RCX: 0000000000000000
-> [    1.333404] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 000000000000000d
-> [    1.333404] RBP: ffffffff82ef0e30 R08: ffff888005013e60 R09: 0000000000000000
-> [    1.333404] R10: ffffffff82373e9b R11: 0000000000033080 R12: 0000000000000200
-> [    1.333404] R13: 0000000000000000 R14: 0000000000000002 R15: ffffffff82cdc6d4
-> [    1.333404] FS:  0000000000000000(0000) GS:ffff88807d440000(0000) knlGS:0000000000000000
-> [    1.333404] CS:  10000e030 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [    1.333404] CR2: 0000000000000000 CR3: 000000000260a000 CR4: 0000000000050660
-> [    1.333404] Call Trace:
-> [    1.333404]  ? wakeup_sources_sysfs_init+0x30/0x30
-> [    1.333404]  ? rdinit_setup+0x2b/0x2b
-> [    1.333404]  early_resume_init+0x23/0xa4
-> [    1.333404]  ? cn_proc_init+0x36/0x36
-> [    1.333404]  do_one_initcall+0x3e/0x200
-> [    1.333404]  kernel_init_freeable+0x232/0x28e
-> [    1.333404]  ? rest_init+0xd0/0xd0
-> [    1.333404]  kernel_init+0x16/0x120
-> [    1.333404]  ret_from_fork+0x1f/0x30
->
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+[Why]
+call stack of amdgpu dsc mst pbn, slot num calculation is as below:
+-compute_bpp_x16_from_target_bandwidth
+-decide_dsc_target_bpp_x16
+-setup_dsc_config
+-dc_dsc_compute_bandwidth_range
+-compute_mst_dsc_configs_for_link
+-compute_mst_dsc_configs_for_state
 
+from pbn -> dsc target bpp_x16
 
-Fixes: 211e5db19d15 ("rtc: mc146818: Detect and handle broken RTCs") ?
+bpp_x16 is calulated by compute_bpp_x16_from_target_bandwidth.
+Beside pixel clock and bpp, num_slices_h and bpp_increment_div
+will also affect bpp_x16.
 
+from dsc target bpp_x16 -> pbn
 
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+within dm_update_mst_vcpi_slots_for_dsc,
+pbn = drm_dp_calc_pbn_mode(clock, bpp_x16, true);
 
+drm_dp_calc_pbn_mode(int clock, int bpp, bool dsc)
+{
+  return DIV_ROUND_UP_ULL(mul_u32_u32(clock * (bpp / 16), 64 * 1006),
+            8 * 54 * 1000 * 1000);
+}
+
+bpp / 16 trunc digits after decimal point. This will cause calculation
+delta. drm_dp_calc_pbn_mode does not have other informations,
+like num_slices_h, bpp_increment_div. therefore, it does not do revese
+calcuation properly from bpp_x16 to pbn.
+
+pbn from drm_dp_calc_pbn_mode is less than pbn from
+compute_mst_dsc_configs_for_state. This cause not enough mst slot
+allocated to display. display could not visually light up.
+
+[How]
+pass pbn from compute_mst_dsc_configs_for_state to
+dm_update_mst_vcpi_slots_for_dsc
+
+Cc: stable@vger.kernel.org
+
+Reviewed-by: Scott Foster <Scott.Foster@amd.com>
+Acked-by: Mikita Lipski <mikita.lipski@amd.com>
+Signed-off-by: Hersen Wu <hersenwu@amd.com>
+---
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 22 ++++++++++++++-----
+ .../display/amdgpu_dm/amdgpu_dm_mst_types.c   | 18 +++++++--------
+ .../display/amdgpu_dm/amdgpu_dm_mst_types.h   | 11 +++++++++-
+ 3 files changed, 34 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index a6c8c30f8c2d..87499ef5282c 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -7090,14 +7090,15 @@ const struct drm_encoder_helper_funcs amdgpu_dm_encoder_helper_funcs = {
+ 
+ #if defined(CONFIG_DRM_AMD_DC_DCN)
+ static int dm_update_mst_vcpi_slots_for_dsc(struct drm_atomic_state *state,
+-					    struct dc_state *dc_state)
++					    struct dc_state *dc_state,
++					    struct dsc_mst_fairness_vars *vars)
+ {
+ 	struct dc_stream_state *stream = NULL;
+ 	struct drm_connector *connector;
+ 	struct drm_connector_state *new_con_state;
+ 	struct amdgpu_dm_connector *aconnector;
+ 	struct dm_connector_state *dm_conn_state;
+-	int i, j, clock, bpp;
++	int i, j, clock;
+ 	int vcpi, pbn_div, pbn = 0;
+ 
+ 	for_each_new_connector_in_state(state, connector, new_con_state, i) {
+@@ -7136,9 +7137,15 @@ static int dm_update_mst_vcpi_slots_for_dsc(struct drm_atomic_state *state,
+ 		}
+ 
+ 		pbn_div = dm_mst_get_pbn_divider(stream->link);
+-		bpp = stream->timing.dsc_cfg.bits_per_pixel;
+ 		clock = stream->timing.pix_clk_100hz / 10;
+-		pbn = drm_dp_calc_pbn_mode(clock, bpp, true);
++		/* pbn is calculated by compute_mst_dsc_configs_for_state*/
++		for (j = 0; j < dc_state->stream_count; j++) {
++			if (vars[j].aconnector == aconnector) {
++				pbn = vars[j].pbn;
++				break;
++			}
++		}
++
+ 		vcpi = drm_dp_mst_atomic_enable_dsc(state,
+ 						    aconnector->port,
+ 						    pbn, pbn_div,
+@@ -10542,6 +10549,9 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+ 	int ret, i;
+ 	bool lock_and_validation_needed = false;
+ 	struct dm_crtc_state *dm_old_crtc_state;
++#if defined(CONFIG_DRM_AMD_DC_DCN)
++	struct dsc_mst_fairness_vars vars[MAX_PIPES];
++#endif
+ 
+ 	trace_amdgpu_dm_atomic_check_begin(state);
+ 
+@@ -10772,10 +10782,10 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+ 			goto fail;
+ 
+ #if defined(CONFIG_DRM_AMD_DC_DCN)
+-		if (!compute_mst_dsc_configs_for_state(state, dm_state->context))
++		if (!compute_mst_dsc_configs_for_state(state, dm_state->context, vars))
+ 			goto fail;
+ 
+-		ret = dm_update_mst_vcpi_slots_for_dsc(state, dm_state->context);
++		ret = dm_update_mst_vcpi_slots_for_dsc(state, dm_state->context, vars);
+ 		if (ret)
+ 			goto fail;
+ #endif
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
+index 705f2e67edb5..1a99fcc27078 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
+@@ -518,12 +518,7 @@ struct dsc_mst_fairness_params {
+ 	uint32_t num_slices_h;
+ 	uint32_t num_slices_v;
+ 	uint32_t bpp_overwrite;
+-};
+-
+-struct dsc_mst_fairness_vars {
+-	int pbn;
+-	bool dsc_enabled;
+-	int bpp_x16;
++	struct amdgpu_dm_connector *aconnector;
+ };
+ 
+ static int kbps_to_peak_pbn(int kbps)
+@@ -750,12 +745,12 @@ static void try_disable_dsc(struct drm_atomic_state *state,
+ 
+ static bool compute_mst_dsc_configs_for_link(struct drm_atomic_state *state,
+ 					     struct dc_state *dc_state,
+-					     struct dc_link *dc_link)
++					     struct dc_link *dc_link,
++					     struct dsc_mst_fairness_vars *vars)
+ {
+ 	int i;
+ 	struct dc_stream_state *stream;
+ 	struct dsc_mst_fairness_params params[MAX_PIPES];
+-	struct dsc_mst_fairness_vars vars[MAX_PIPES];
+ 	struct amdgpu_dm_connector *aconnector;
+ 	int count = 0;
+ 	bool debugfs_overwrite = false;
+@@ -776,6 +771,7 @@ static bool compute_mst_dsc_configs_for_link(struct drm_atomic_state *state,
+ 		params[count].timing = &stream->timing;
+ 		params[count].sink = stream->sink;
+ 		aconnector = (struct amdgpu_dm_connector *)stream->dm_stream_context;
++		params[count].aconnector = aconnector;
+ 		params[count].port = aconnector->port;
+ 		params[count].clock_force_enable = aconnector->dsc_settings.dsc_force_enable;
+ 		if (params[count].clock_force_enable == DSC_CLK_FORCE_ENABLE)
+@@ -798,6 +794,7 @@ static bool compute_mst_dsc_configs_for_link(struct drm_atomic_state *state,
+ 	}
+ 	/* Try no compression */
+ 	for (i = 0; i < count; i++) {
++		vars[i].aconnector = params[i].aconnector;
+ 		vars[i].pbn = kbps_to_peak_pbn(params[i].bw_range.stream_kbps);
+ 		vars[i].dsc_enabled = false;
+ 		vars[i].bpp_x16 = 0;
+@@ -851,7 +848,8 @@ static bool compute_mst_dsc_configs_for_link(struct drm_atomic_state *state,
+ }
+ 
+ bool compute_mst_dsc_configs_for_state(struct drm_atomic_state *state,
+-				       struct dc_state *dc_state)
++				       struct dc_state *dc_state,
++				       struct dsc_mst_fairness_vars *vars)
+ {
+ 	int i, j;
+ 	struct dc_stream_state *stream;
+@@ -882,7 +880,7 @@ bool compute_mst_dsc_configs_for_state(struct drm_atomic_state *state,
+ 			return false;
+ 
+ 		mutex_lock(&aconnector->mst_mgr.lock);
+-		if (!compute_mst_dsc_configs_for_link(state, dc_state, stream->link)) {
++		if (!compute_mst_dsc_configs_for_link(state, dc_state, stream->link, vars)) {
+ 			mutex_unlock(&aconnector->mst_mgr.lock);
+ 			return false;
+ 		}
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.h
+index b38bd68121ce..900d3f7a8498 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.h
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.h
+@@ -39,8 +39,17 @@ void
+ dm_dp_create_fake_mst_encoders(struct amdgpu_device *adev);
+ 
+ #if defined(CONFIG_DRM_AMD_DC_DCN)
++
++struct dsc_mst_fairness_vars {
++	int pbn;
++	bool dsc_enabled;
++	int bpp_x16;
++	struct amdgpu_dm_connector *aconnector;
++};
++
+ bool compute_mst_dsc_configs_for_state(struct drm_atomic_state *state,
+-				       struct dc_state *dc_state);
++				       struct dc_state *dc_state,
++				       struct dsc_mst_fairness_vars *vars);
+ #endif
+ 
+ #endif
+-- 
+2.25.1
 
