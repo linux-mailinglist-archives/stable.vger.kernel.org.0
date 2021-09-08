@@ -2,235 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94527403268
-	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 03:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DD1B4032C4
+	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 04:55:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347136AbhIHByU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Sep 2021 21:54:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58090 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346901AbhIHByQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Sep 2021 21:54:16 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D1BC061575
-        for <stable@vger.kernel.org>; Tue,  7 Sep 2021 18:53:09 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id 18so670930pfh.9
-        for <stable@vger.kernel.org>; Tue, 07 Sep 2021 18:53:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=zqucBCizfxfobok+0kefp4lz6QiSQoc+uEdOltcdj70=;
-        b=LnEPyiHZHkmzChN+T7pVkpTR0PHvWWC0sjcO0vrDrDq1RqF7qrVIeimWN1yImZL7h+
-         Ps0OdHx7zF9v3QJshplp/8bvsuIpPX/33oP3GwWUvAhCi7IhFexBPf2HrYD3jVJoB/26
-         CIL2ogjyzsj7V+vjuwSn205wB2u/13M/namx6NfG6GE5vikMFIdgnuATKrE2u0/Te2eP
-         qSZCSX3Mb66BJdcJQ2F9bp0WCqsArdRxNjik5rbS69Y0M96R7tgUB84+lrczH1wgpYSE
-         AVYg8lpeOfF57Tn+JNAT3y7GE+u8LdPFeDJKok9TxIc1WP4rlGi80VjmZlYTPvPj/R/L
-         fOaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=zqucBCizfxfobok+0kefp4lz6QiSQoc+uEdOltcdj70=;
-        b=NoeDaqQUEEmgHWcNYrmxXMCZDD6Hb4zwmLRSbgxNP4rOcKxukQP2u1qADs64On1dmc
-         h/3pHmdPL0wew6K1ZY7T9fGJdd7BAn7hgsuH42bAV/xz3VeJACkdjZWyUdIahkegecpi
-         hFHQ+Y1rgelCRKHbh/GNeMyM1FJXVA//T4Tznv+kEpqXc2arOcd4qYvxMkEKR4/dPhpS
-         TLs4kUpHgf9KNi3j6X7O323IS4lAD0XXawCDHzwE8WZ8jjvFLIn2/zeDdpC60V7zr1Zc
-         aA+twCZQCR2N+oHCXW7h7TrJJRokBWOFldHL1JuH+tWOoyiAKPyCee0sANklLqXZDc2j
-         fdAw==
-X-Gm-Message-State: AOAM532D7ISTi36Bifr2HzOAiU5kVtGTiXYI3W69ViJU4r1rUOylcg5c
-        1//2/NzzIChh1HvzmFKqvfB+qah+BX2YId80
-X-Google-Smtp-Source: ABdhPJy0CZ4sekRIw+xuxmlffFaPdC1rZlbbvATZjnHvDwPFBkUGlGzRVLzIumgcs7SnLyLzCB80ZQ==
-X-Received: by 2002:a63:1351:: with SMTP id 17mr1244321pgt.173.1631065988493;
-        Tue, 07 Sep 2021 18:53:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g13sm306858pfi.176.2021.09.07.18.53.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Sep 2021 18:53:08 -0700 (PDT)
-Message-ID: <61381784.1c69fb81.c8eed.1f6b@mx.google.com>
-Date:   Tue, 07 Sep 2021 18:53:08 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.13.14-24-gff358fe92fee
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.13
-Subject: stable-rc/queue/5.13 baseline: 229 runs,
- 4 regressions (v5.13.14-24-gff358fe92fee)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1347428AbhIHC4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Sep 2021 22:56:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52394 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1347363AbhIHC4I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 7 Sep 2021 22:56:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEDDE61101;
+        Wed,  8 Sep 2021 02:54:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1631069701;
+        bh=fUew40qj/8w4/AzPxfELH062qu0GY66FEfx5GfWLGXk=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=GO37iwyFKwwRJkO/QJ0/BZq1sUPxd1S3MIUuqzyng/Znm4cJvrswrErpto7jws2Te
+         EgrU9q1qGq0XNpXJ+tT4ubZq4c2/KHk5JlcWLlmXSMGxGs7xMRjORsw2pmG/Uqqq9v
+         n/V9VFmSUwPqCh13D+iPB3YvkHRVSo6pJHG/Hyjk=
+Date:   Tue, 07 Sep 2021 19:54:59 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, aneesh.kumar@linux.ibm.com,
+        anshuman.khandual@arm.com, anton@ozlabs.org, ardb@kernel.org,
+        bauerman@linux.ibm.com, benh@kernel.crashing.org, bhe@redhat.com,
+        borntraeger@de.ibm.com, bp@alien8.de, catalin.marinas@arm.com,
+        cheloha@linux.ibm.com, christophe.leroy@c-s.fr, dalias@libc.org,
+        dan.j.williams@intel.com, dave.hansen@linux.intel.com,
+        dave.jiang@intel.com, david@redhat.com, gor@linux.ibm.com,
+        hca@linux.ibm.com, hpa@zytor.com, jasowang@redhat.com,
+        joe@perches.com, justin.he@arm.com, ldufour@linux.ibm.com,
+        lenb@kernel.org, linux-mm@kvack.org, luto@kernel.org,
+        mhocko@kernel.org, michel@lespinasse.org, mingo@redhat.com,
+        mm-commits@vger.kernel.org, mpe@ellerman.id.au, mst@redhat.com,
+        nathanl@linux.ibm.com, npiggin@gmail.com, osalvador@suse.de,
+        pankaj.gupta.linux@gmail.com, pankaj.gupta@ionos.com,
+        pasha.tatashin@soleen.com, paulus@samba.org, peterz@infradead.org,
+        pmorel@linux.ibm.com, rafael.j.wysocki@intel.com,
+        richard.weiyang@linux.alibaba.com, rjw@rjwysocki.net,
+        rppt@kernel.org, slyfox@gentoo.org, songmuchun@bytedance.com,
+        stable@vger.kernel.org, tglx@linutronix.de,
+        torvalds@linux-foundation.org, vbabka@suse.cz,
+        vishal.l.verma@intel.com, vkuznets@redhat.com,
+        wangkefeng.wang@huawei.com, will@kernel.org,
+        ysato@users.sourceforge.jp
+Subject:  [patch 038/147] mm/memory_hotplug: use "unsigned long"
+ for PFN in zone_for_pfn_range()
+Message-ID: <20210908025459.6ns0U_Ngx%akpm@linux-foundation.org>
+In-Reply-To: <20210907195226.14b1d22a07c085b22968b933@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.13 baseline: 229 runs, 4 regressions (v5.13.14-24-gff358f=
-e92fee)
+From: David Hildenbrand <david@redhat.com>
+Subject: mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
 
-Regressions Summary
--------------------
+Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
 
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig  | 1          =
+These are all cleanups and one fix previously sent as part of [1]:
+[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
+groups.
 
-beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
-nfig | 1          =
+These patches make sense even without the other series, therefore I pulled
+them out to make the other series easier to digest.
 
-imx6ull-14x14-evk       | arm   | lab-nxp      | gcc-8    | imx_v6_v7_defco=
-nfig | 1          =
-
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
-nel/v5.13.14-24-gff358fe92fee/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.13
-  Describe: v5.13.14-24-gff358fe92fee
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ff358fe92fee068698342fe4f99131a479151f59 =
+[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com 
 
 
 
-Test Regressions
----------------- =
+This patch (of 4):
 
+Checkpatch complained on a follow-up patch that we are using "unsigned"
+here, which defaults to "unsigned int" and checkpatch is correct.
 
+As we will search for a fitting zone using the wrong pfn, we might end 
+up onlining memory to one of the special kernel zones, such as ZONE_DMA, 
+which can end badly as the onlined memory does not satisfy properties of 
+these zones.
 
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig  | 1          =
+Use "unsigned long" instead, just as we do in other places when handling
+PFNs.  This can bite us once we have physical addresses in the range of
+multiple TB.
 
+Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
+Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Anton Blanchard <anton@ozlabs.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jia He <justin.he@arm.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Laurent Dufour <ldufour@linux.ibm.com>
+Cc: Michel Lespinasse <michel@lespinasse.org>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Pierre Morel <pmorel@linux.ibm.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Scott Cheloha <cheloha@linux.ibm.com>
+Cc: Sergei Trofimovich <slyfox@gentoo.org>
+Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-  Details:     https://kernelci.org/test/plan/id/6137e3af8531b77c14d59669
+ include/linux/memory_hotplug.h |    4 ++--
+ mm/memory_hotplug.c            |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-24-gff358fe92fee/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-24-gff358fe92fee/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6137e3af8531b77c14d59=
-66a
-        failing since 3 days (last pass: v5.13.14-2-g1b53bca7aeb0, first fa=
-il: v5.13.14-2-g74aad924bd80) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6137e25d68b3a2fdaed596b8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-24-gff358fe92fee/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-24-gff358fe92fee/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6137e25d68b3a2fdaed59=
-6b9
-        failing since 41 days (last pass: v5.13.5-224-g078d5e3a85db, first =
-fail: v5.13.5-223-g3a7649e5ffb5) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-imx6ull-14x14-evk       | arm   | lab-nxp      | gcc-8    | imx_v6_v7_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6138036cc46d93a989d59665
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-24-gff358fe92fee/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ull-14x=
-14-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-24-gff358fe92fee/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx6ull-14x=
-14-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6138036cc46d93a989d59=
-666
-        new failure (last pass: v5.13.14-2-g74aad924bd80) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6137e4d04d966c23fed596a2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-24-gff358fe92fee/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banan=
-api-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.14-=
-24-gff358fe92fee/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banan=
-api-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6137e4d04d966c23fed59=
-6a3
-        failing since 3 days (last pass: v5.13.14-2-g1b53bca7aeb0, first fa=
-il: v5.13.14-2-g74aad924bd80) =
-
- =20
+--- a/include/linux/memory_hotplug.h~mm-memory_hotplug-use-unsigned-long-for-pfn-in-zone_for_pfn_range
++++ a/include/linux/memory_hotplug.h
+@@ -339,8 +339,8 @@ extern void sparse_remove_section(struct
+ 		unsigned long map_offset, struct vmem_altmap *altmap);
+ extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
+ 					  unsigned long pnum);
+-extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
+-		unsigned long nr_pages);
++extern struct zone *zone_for_pfn_range(int online_type, int nid,
++		unsigned long start_pfn, unsigned long nr_pages);
+ extern int arch_create_linear_mapping(int nid, u64 start, u64 size,
+ 				      struct mhp_params *params);
+ void arch_remove_linear_mapping(u64 start, u64 size);
+--- a/mm/memory_hotplug.c~mm-memory_hotplug-use-unsigned-long-for-pfn-in-zone_for_pfn_range
++++ a/mm/memory_hotplug.c
+@@ -708,8 +708,8 @@ static inline struct zone *default_zone_
+ 	return movable_node_enabled ? movable_zone : kernel_zone;
+ }
+ 
+-struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
+-		unsigned long nr_pages)
++struct zone *zone_for_pfn_range(int online_type, int nid,
++		unsigned long start_pfn, unsigned long nr_pages)
+ {
+ 	if (online_type == MMOP_ONLINE_KERNEL)
+ 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
+_
