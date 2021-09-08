@@ -2,177 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA89F403F57
-	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 21:03:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB6D3403F7C
+	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 21:10:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241581AbhIHTEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 15:04:23 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:54086 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230044AbhIHTEW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Sep 2021 15:04:22 -0400
-Date:   Wed, 08 Sep 2021 19:03:11 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1631127793;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Cc4XKzlAxS2JV3J1f8eqsKquDD1+Lo6QrqMckR6OU9E=;
-        b=2a9isP1SrMzoKsMARCnOodf/AOZ4OZtCWOdXAC1t+/rWl6OvwXl26r4/KFYZKnaTiuoXd9
-        xAuzMdfiZ07CKIdOTJEUycBlhcEaZwEk75weluEC6m5wChahDeuET4euXuTs5oFYUHLZcz
-        PZDqbxYdnZksqK3LRVoFN1E6KZOaQWssSlPEHyV8Z9hFMuFfubt19RQbrdPsEhvfS6OUs8
-        ccmI+bOH62lRUEsew9wkjEgF0B6EcrQYr33hhTtKolWH11TsLeuxfxVeTLsATdyGMm3kgo
-        HXE1dc3/XLsQsf7kMVol79UmncR5IshfRbeCy5kR9F54SGlXifz1Bpt8ImVIlw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1631127793;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Cc4XKzlAxS2JV3J1f8eqsKquDD1+Lo6QrqMckR6OU9E=;
-        b=mrTXsTWCaeOhZ6ev+EEwpnC9sR5WC5nHWYBli36E25xcC8vdjA2gJGqbebGKjmju251SWJ
-        obpS3wTu0wVfmrCg==
-From:   "tip-bot2 for Mike Rapoport" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/mm: Fix kern_addr_valid() to cope with existing
- but not present entries
-Cc:     Jiri Olsa <jolsa@redhat.com>, Mike Rapoport <rppt@linux.ibm.com>,
-        Borislav Petkov <bp@suse.de>,
-        David Hildenbrand <david@redhat.com>,
-        Dave Hansen <dave.hansen@intel.com>, <stable@vger.kernel.org>,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210819132717.19358-1-rppt@kernel.org>
-References: <20210819132717.19358-1-rppt@kernel.org>
-MIME-Version: 1.0
-Message-ID: <163112779151.25758.9291514239160548248.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        id S231734AbhIHTLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 15:11:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39556 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230161AbhIHTLJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Sep 2021 15:11:09 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54267C061575
+        for <stable@vger.kernel.org>; Wed,  8 Sep 2021 12:10:01 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id k23so2421052pji.0
+        for <stable@vger.kernel.org>; Wed, 08 Sep 2021 12:10:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=KIaCMNcMhg5m8WgBo0DhgM7rGgZMRmpXbJssqUNr8jc=;
+        b=CVOKpKoGo+QX6oa3ZTaqytXWEzWe3xmoYEVEqh0tQMG/Tr2Di8N2alyeHP79zmIKk3
+         otUswoQW/mCeQB8PkyNAOuAntRVwx2olhno3nlS8IfMt4j2TrrskYcZi2Xs934kqjiSv
+         rvrJTcHfUxXil6840zgyXYQ/JhlaB7dLQFQcUx02dAAeM90C35V6AZD7aPOSHemhzLkN
+         FccsHVlK8VUHHxnu96Yj9qBQX12DB0i2Y+G2iJR6kFojKaRdFHbnhBZxlXhn0O74smRD
+         CDcmeX7PQh/DWqDHjBEUTunv4KaM0aCdBERy59NnpdNol2WFBtE5wjEeyZxuLvMHEdEj
+         RZrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=KIaCMNcMhg5m8WgBo0DhgM7rGgZMRmpXbJssqUNr8jc=;
+        b=sNNBVFM9RzsOFfxXjXnBjRdC+xYoeTebeHU6s5hWNbc+r5UjTRxq6/3BdWTfNnk5Ii
+         hnusTC4iVvSfJEYcvIKOxBHM/0vldf/eCQVKb8i3/S2QencZxi5q3lgxMZH4d4LEwzrK
+         3yi2BGIFzx+ns6XLpwcl+7ffs5+UT+TYxfdgPwiMlDuNnX8rpvbKvTgbJ6QB7gtYW/4h
+         pcWnfhKSuogvV/746MB1s8cROXtqVQ9hPDPajqfpb7Q32apSHjAtfSI3HYbKuyGq7QCe
+         q5O7w9Uf9vxvFBiFJPw4YIGHBREBrAXigpCgpXzhuhQvWe/PBOERJJmM8epmbmmluk9u
+         werw==
+X-Gm-Message-State: AOAM530b8uJVzHaFTYl/CUQk4kAp9j8jC5GoSz831FjYc1mDR7SikrWH
+        Ocd/s7VNgVp2E9oKS6OQcl9mJpNql9zpGiTz
+X-Google-Smtp-Source: ABdhPJxEcRak2CKmSIbo2KHuq/OM8JHKQEf7/PiFo6B+E61xo3RDKs9LPONucIfac0/hi17hJ7T3Jg==
+X-Received: by 2002:a17:90a:fa0b:: with SMTP id cm11mr5625743pjb.103.1631128200218;
+        Wed, 08 Sep 2021 12:10:00 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d18sm3542597pge.65.2021.09.08.12.09.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Sep 2021 12:09:59 -0700 (PDT)
+Message-ID: <61390a87.1c69fb81.4c73b.af54@mx.google.com>
+Date:   Wed, 08 Sep 2021 12:09:59 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.14.2-3-g5e3461135fe5
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.14
+Subject: stable-rc/queue/5.14 baseline: 202 runs,
+ 3 regressions (v5.14.2-3-g5e3461135fe5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+stable-rc/queue/5.14 baseline: 202 runs, 3 regressions (v5.14.2-3-g5e346113=
+5fe5)
 
-Commit-ID:     34b1999da935a33be6239226bfa6cd4f704c5c88
-Gitweb:        https://git.kernel.org/tip/34b1999da935a33be6239226bfa6cd4f704c5c88
-Author:        Mike Rapoport <rppt@linux.ibm.com>
-AuthorDate:    Thu, 19 Aug 2021 16:27:17 +03:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Wed, 08 Sep 2021 20:50:32 +02:00
+Regressions Summary
+-------------------
 
-x86/mm: Fix kern_addr_valid() to cope with existing but not present entries
+platform                | arch  | lab          | compiler | defconfig      =
+     | regressions
+------------------------+-------+--------------+----------+----------------=
+-----+------------
+beagle-xm               | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
+fig  | 1          =
 
-Jiri Olsa reported a fault when running:
+beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
+nfig | 1          =
 
-  # cat /proc/kallsyms | grep ksys_read
-  ffffffff8136d580 T ksys_read
-  # objdump -d --start-address=0xffffffff8136d580 --stop-address=0xffffffff8136d590 /proc/kcore
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
+     | 1          =
 
-  /proc/kcore:     file format elf64-x86-64
 
-  Segmentation fault
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
+nel/v5.14.2-3-g5e3461135fe5/plan/baseline/
 
-  general protection fault, probably for non-canonical address 0xf887ffcbff000: 0000 [#1] SMP PTI
-  CPU: 12 PID: 1079 Comm: objdump Not tainted 5.14.0-rc5qemu+ #508
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-4.fc34 04/01/2014
-  RIP: 0010:kern_addr_valid
-  Call Trace:
-   read_kcore
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? trace_hardirqs_on
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? rcu_read_lock_sched_held
-   ? lock_release
-   ? _raw_spin_unlock
-   ? __handle_mm_fault
-   ? rcu_read_lock_sched_held
-   ? lock_acquire
-   ? rcu_read_lock_sched_held
-   ? lock_release
-   proc_reg_read
-   ? vfs_read
-   vfs_read
-   ksys_read
-   do_syscall_64
-   entry_SYSCALL_64_after_hwframe
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.14
+  Describe: v5.14.2-3-g5e3461135fe5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5e3461135fe5e259e09bffb69f3faca12e8e7e9f =
 
-The fault happens because kern_addr_valid() dereferences existent but not
-present PMD in the high kernel mappings.
 
-Such PMDs are created when free_kernel_image_pages() frees regions larger
-than 2Mb. In this case, a part of the freed memory is mapped with PMDs and
-the set_memory_np_noalias() -> ... -> __change_page_attr() sequence will
-mark the PMD as not present rather than wipe it completely.
 
-Have kern_addr_valid() check whether higher level page table entries are
-present before trying to dereference them to fix this issue and to avoid
-similar issues in the future.
+Test Regressions
+---------------- =
 
-Stable backporting note:
-------------------------
 
-Note that the stable marking is for all active stable branches because
-there could be cases where pagetable entries exist but are not valid -
-see 9a14aefc1d28 ("x86: cpa, fix lookup_address"), for example. So make
-sure to be on the safe side here and use pXY_present() accessors rather
-than pXY_none() which could #GP when accessing pages in the direct map.
 
-Also see:
+platform                | arch  | lab          | compiler | defconfig      =
+     | regressions
+------------------------+-------+--------------+----------+----------------=
+-----+------------
+beagle-xm               | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
+fig  | 1          =
 
-  c40a56a7818c ("x86/mm/init: Remove freed kernel image areas from alias mapping")
 
-for more info.
+  Details:     https://kernelci.org/test/plan/id/6138dad62f2ca22fe9d59688
 
-Reported-by: Jiri Olsa <jolsa@redhat.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Dave Hansen <dave.hansen@intel.com>
-Tested-by: Jiri Olsa <jolsa@redhat.com>
-Cc: <stable@vger.kernel.org>	# 4.4+
-Link: https://lkml.kernel.org/r/20210819132717.19358-1-rppt@kernel.org
----
- arch/x86/mm/init_64.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
+-g5e3461135fe5/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-xm=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
+-g5e3461135fe5/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-xm=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
 
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index ddeaba9..879886c 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1433,18 +1433,18 @@ int kern_addr_valid(unsigned long addr)
- 		return 0;
- 
- 	p4d = p4d_offset(pgd, addr);
--	if (p4d_none(*p4d))
-+	if (!p4d_present(*p4d))
- 		return 0;
- 
- 	pud = pud_offset(p4d, addr);
--	if (pud_none(*pud))
-+	if (!pud_present(*pud))
- 		return 0;
- 
- 	if (pud_large(*pud))
- 		return pfn_valid(pud_pfn(*pud));
- 
- 	pmd = pmd_offset(pud, addr);
--	if (pmd_none(*pmd))
-+	if (!pmd_present(*pmd))
- 		return 0;
- 
- 	if (pmd_large(*pmd))
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6138dad62f2ca22fe9d59=
+689
+        failing since 0 day (last pass: v5.14.1-17-g77d60f40b9ee, first fai=
+l: v5.14.2-3-gbf9435541571) =
+
+ =
+
+
+
+platform                | arch  | lab          | compiler | defconfig      =
+     | regressions
+------------------------+-------+--------------+----------+----------------=
+-----+------------
+beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6138d730c7f093dc11d5967b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
+-g5e3461135fe5/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-x=
+m.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
+-g5e3461135fe5/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-x=
+m.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6138d730c7f093dc11d59=
+67c
+        new failure (last pass: v5.14.2-3-gbf9435541571) =
+
+ =
+
+
+
+platform                | arch  | lab          | compiler | defconfig      =
+     | regressions
+------------------------+-------+--------------+----------+----------------=
+-----+------------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6138d4ade9c79b4835d59695
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
+-g5e3461135fe5/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bananap=
+i-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
+-g5e3461135fe5/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bananap=
+i-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6138d4ade9c79b4835d59=
+696
+        failing since 0 day (last pass: v5.14.1-14-gc097b4308d82, first fai=
+l: v5.14.1-17-g77d60f40b9ee) =
+
+ =20
