@@ -2,199 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB6D3403F7C
-	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 21:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A754403FB2
+	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 21:20:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231734AbhIHTLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 15:11:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39556 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230161AbhIHTLJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Sep 2021 15:11:09 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54267C061575
-        for <stable@vger.kernel.org>; Wed,  8 Sep 2021 12:10:01 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id k23so2421052pji.0
-        for <stable@vger.kernel.org>; Wed, 08 Sep 2021 12:10:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KIaCMNcMhg5m8WgBo0DhgM7rGgZMRmpXbJssqUNr8jc=;
-        b=CVOKpKoGo+QX6oa3ZTaqytXWEzWe3xmoYEVEqh0tQMG/Tr2Di8N2alyeHP79zmIKk3
-         otUswoQW/mCeQB8PkyNAOuAntRVwx2olhno3nlS8IfMt4j2TrrskYcZi2Xs934kqjiSv
-         rvrJTcHfUxXil6840zgyXYQ/JhlaB7dLQFQcUx02dAAeM90C35V6AZD7aPOSHemhzLkN
-         FccsHVlK8VUHHxnu96Yj9qBQX12DB0i2Y+G2iJR6kFojKaRdFHbnhBZxlXhn0O74smRD
-         CDcmeX7PQh/DWqDHjBEUTunv4KaM0aCdBERy59NnpdNol2WFBtE5wjEeyZxuLvMHEdEj
-         RZrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KIaCMNcMhg5m8WgBo0DhgM7rGgZMRmpXbJssqUNr8jc=;
-        b=sNNBVFM9RzsOFfxXjXnBjRdC+xYoeTebeHU6s5hWNbc+r5UjTRxq6/3BdWTfNnk5Ii
-         hnusTC4iVvSfJEYcvIKOxBHM/0vldf/eCQVKb8i3/S2QencZxi5q3lgxMZH4d4LEwzrK
-         3yi2BGIFzx+ns6XLpwcl+7ffs5+UT+TYxfdgPwiMlDuNnX8rpvbKvTgbJ6QB7gtYW/4h
-         pcWnfhKSuogvV/746MB1s8cROXtqVQ9hPDPajqfpb7Q32apSHjAtfSI3HYbKuyGq7QCe
-         q5O7w9Uf9vxvFBiFJPw4YIGHBREBrAXigpCgpXzhuhQvWe/PBOERJJmM8epmbmmluk9u
-         werw==
-X-Gm-Message-State: AOAM530b8uJVzHaFTYl/CUQk4kAp9j8jC5GoSz831FjYc1mDR7SikrWH
-        Ocd/s7VNgVp2E9oKS6OQcl9mJpNql9zpGiTz
-X-Google-Smtp-Source: ABdhPJxEcRak2CKmSIbo2KHuq/OM8JHKQEf7/PiFo6B+E61xo3RDKs9LPONucIfac0/hi17hJ7T3Jg==
-X-Received: by 2002:a17:90a:fa0b:: with SMTP id cm11mr5625743pjb.103.1631128200218;
-        Wed, 08 Sep 2021 12:10:00 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d18sm3542597pge.65.2021.09.08.12.09.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Sep 2021 12:09:59 -0700 (PDT)
-Message-ID: <61390a87.1c69fb81.4c73b.af54@mx.google.com>
-Date:   Wed, 08 Sep 2021 12:09:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1349847AbhIHTVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 15:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33788 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232168AbhIHTVZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Sep 2021 15:21:25 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 791AF61102;
+        Wed,  8 Sep 2021 19:20:17 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1mO36v-0014Xv-RK; Wed, 08 Sep 2021 15:19:53 -0400
+Message-ID: <20210908191953.686120093@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Wed, 08 Sep 2021 15:18:54 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        <stable@vger.kernel.org>,
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        "Qiang.Zhang" <qiang.zhang@windriver.com>
+Subject: [for-next][PATCH 03/12] tracing/osnoise: Fix missed cpus_read_unlock() in
+ start_per_cpu_kthreads()
+References: <20210908191851.381347939@goodmis.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.14.2-3-g5e3461135fe5
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.14
-Subject: stable-rc/queue/5.14 baseline: 202 runs,
- 3 regressions (v5.14.2-3-g5e3461135fe5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.14 baseline: 202 runs, 3 regressions (v5.14.2-3-g5e346113=
-5fe5)
+From: "Qiang.Zhang" <qiang.zhang@windriver.com>
 
-Regressions Summary
--------------------
+When start_kthread() return error, the cpus_read_unlock() need
+to be called.
 
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig  | 1          =
+Link: https://lkml.kernel.org/r/20210831022919.27630-1-qiang.zhang@windriver.com
 
-beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
-nfig | 1          =
+Cc: <stable@vger.kernel.org>
+Fixes: c8895e271f79 ("trace/osnoise: Support hotplug operations")
+Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Qiang.Zhang <qiang.zhang@windriver.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/trace/trace_osnoise.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
-nel/v5.14.2-3-g5e3461135fe5/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.14
-  Describe: v5.14.2-3-g5e3461135fe5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5e3461135fe5e259e09bffb69f3faca12e8e7e9f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | multi_v7_defcon=
-fig  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6138dad62f2ca22fe9d59688
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
--g5e3461135fe5/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-xm=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
--g5e3461135fe5/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-xm=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6138dad62f2ca22fe9d59=
-689
-        failing since 0 day (last pass: v5.14.1-17-g77d60f40b9ee, first fai=
-l: v5.14.2-3-gbf9435541571) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-beagle-xm               | arm   | lab-baylibre | gcc-8    | omap2plus_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6138d730c7f093dc11d5967b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
--g5e3461135fe5/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-x=
-m.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
--g5e3461135fe5/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle-x=
-m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6138d730c7f093dc11d59=
-67c
-        new failure (last pass: v5.14.2-3-gbf9435541571) =
-
- =
-
-
-
-platform                | arch  | lab          | compiler | defconfig      =
-     | regressions
-------------------------+-------+--------------+----------+----------------=
------+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6138d4ade9c79b4835d59695
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
--g5e3461135fe5/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bananap=
-i-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.2-3=
--g5e3461135fe5/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bananap=
-i-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6138d4ade9c79b4835d59=
-696
-        failing since 0 day (last pass: v5.14.1-14-gc097b4308d82, first fai=
-l: v5.14.1-17-g77d60f40b9ee) =
-
- =20
+diff --git a/kernel/trace/trace_osnoise.c b/kernel/trace/trace_osnoise.c
+index 65b08b8e5bf8..ce053619f289 100644
+--- a/kernel/trace/trace_osnoise.c
++++ b/kernel/trace/trace_osnoise.c
+@@ -1548,7 +1548,7 @@ static int start_kthread(unsigned int cpu)
+ static int start_per_cpu_kthreads(struct trace_array *tr)
+ {
+ 	struct cpumask *current_mask = &save_cpumask;
+-	int retval;
++	int retval = 0;
+ 	int cpu;
+ 
+ 	cpus_read_lock();
+@@ -1568,13 +1568,13 @@ static int start_per_cpu_kthreads(struct trace_array *tr)
+ 		retval = start_kthread(cpu);
+ 		if (retval) {
+ 			stop_per_cpu_kthreads();
+-			return retval;
++			break;
+ 		}
+ 	}
+ 
+ 	cpus_read_unlock();
+ 
+-	return 0;
++	return retval;
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+-- 
+2.32.0
