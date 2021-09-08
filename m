@@ -2,156 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9DCA403249
-	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 03:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D9C1403264
+	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 03:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346971AbhIHBoB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Sep 2021 21:44:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55648 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346698AbhIHBnz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Sep 2021 21:43:55 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 612C0C061575
-        for <stable@vger.kernel.org>; Tue,  7 Sep 2021 18:42:48 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id u1so302609plq.5
-        for <stable@vger.kernel.org>; Tue, 07 Sep 2021 18:42:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JGagQsuajAUhezEaxy3S/UY2KFqWwtYtT1LtkNptB8Y=;
-        b=kw7UVPAkMar02ps/AYUm+PbCYrx/89+GnrQ3FG+Hs5c86l6DeKFwzV03ZcX+WZ8CLf
-         eOLmKbae9E4BigrRbH/4+1SCoeqDgCFW/2Vqxsh/ZyiuE6b84kLzd5/EFDLyArKme5A4
-         L1sD/MV+Xe/kTDrmva+bJ4MU7rXP2LLdBjvifvWQDCxTl/2TKtHTFQe54QYjhOHxPzZ3
-         iK+QOMz8mshK5PeGguMw91vF7rNyN6IjYA85bpVh655RXgTEcK9h7ous2XJD8dtjPPGl
-         er3Mew/Zk0MSvrTICuUqb8812UUc+SUTGZkSamUkpxbvu6ksP2YZ09t3pivqgP42Geg1
-         XVDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JGagQsuajAUhezEaxy3S/UY2KFqWwtYtT1LtkNptB8Y=;
-        b=Pza5CQ3gqZymnR7EzaIUYo7C4ZBRHzisArPN55fYt/0Xv5xsmNxnAYUyZ1iBsFQjlW
-         kZuPWpblYA9FIUzsrBw3Jjo+OulHAHg6TJGoGrk8tH12v/n1g/vJzKRaVQ/uO8gdUpya
-         L+G43IK3KAJXgCbiMKu0p4ED704z16DEieHtKa/RC1tZM171pZZdlMTWGOppLCfhtM/y
-         1AsuQ//QFYSilqmjsaUIiHfwpHNGsL2hTbZTT2FWYaF06jXcG3Wk9cZsJ6MwjPmAkHPE
-         rItYSiqdGFNdWaHY4Sv7yqKkU7XrBnszUA0VS6fT27vFYQlvonwurKkYzND+23hLmPQl
-         o2vg==
-X-Gm-Message-State: AOAM532I7MEWCMQTtCbHtenmW1MErmhuqsjq7+l6hbXtlBEmE3WDCdXe
-        spy+Uw6syZ5fMMpL0IJu0v3P9R0UlaSzwhMc
-X-Google-Smtp-Source: ABdhPJyZfldI8rNzTQMWEz6+CDtG5rtF+dTVL2TVTkZ3nFxC2ZX+/V4HRUIw6zXb8+11xPnM2Ewbxg==
-X-Received: by 2002:a17:90b:1b06:: with SMTP id nu6mr641750pjb.15.1631065367803;
-        Tue, 07 Sep 2021 18:42:47 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q29sm392016pgc.91.2021.09.07.18.42.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Sep 2021 18:42:47 -0700 (PDT)
-Message-ID: <61381517.1c69fb81.56ac1.2809@mx.google.com>
-Date:   Tue, 07 Sep 2021 18:42:47 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1346957AbhIHBve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Sep 2021 21:51:34 -0400
+Received: from x127130.tudelft.net ([131.180.127.130]:53048 "EHLO
+        djo.tudelft.nl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1347068AbhIHBvd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Sep 2021 21:51:33 -0400
+Received: by djo.tudelft.nl (Postfix, from userid 2001)
+        id C71311C42C2; Wed,  8 Sep 2021 03:51:39 +0200 (CEST)
+Date:   Wed, 8 Sep 2021 03:51:39 +0200
+From:   wim <wim@djo.tudelft.nl>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        wim <wim@djo.tudelft.nl>
+Subject: Re: kernel-4.9.270 crash
+Message-ID: <20210908015139.GA26272@djo.tudelft.nl>
+Reply-To: wim@djo.tudelft.nl
+References: <20210904235231.GA31607@djo.tudelft.nl>
+ <20210905190045.GA10991@djo.tudelft.nl>
+ <YTWgKo4idyocDuCD@kroah.com>
+ <20210906093611.GA20123@djo.tudelft.nl>
+ <YTXy5BmzQpY0SprA@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.144-21-gb97123bcdebe
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 221 runs,
- 3 regressions (v5.4.144-21-gb97123bcdebe)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YTXy5BmzQpY0SprA@kroah.com>
+User-Agent: Mutt/1.11.2 (2019-01-07)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 221 runs, 3 regressions (v5.4.144-21-gb97123b=
-cdebe)
+On Mon, Sep 06, 2021 at 12:52:20PM +0200, Greg KH wrote:
+> > > > > 
+> > > > > from kernel-4.9.270 up until now (4.9.282) I experience kernel crashes upon
+> > > > > loading a GPU module.
+> > > > > ...
+> > > 
+> > > Do you have any kernel log messages when these crashes happen?
+> > ...
+> > Aug  1 20:51:24 djo kernel:  [<f8bc4ef7>] ? 0xf8bc4ef7
+> 
+> <snip>
+> 
+> These aren't going to help us much, can you turn on debugging symbols
+> for these crashes for us to see the symbol names?
 
-Regressions Summary
--------------------
+ERROR: not enough memory to load nouveau.ko
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.144-21-gb97123bcdebe/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.144-21-gb97123bcdebe
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b97123bcdebe234536f8f276dd1a68c59fedd583 =
+i915.ko is smaller and my laptop is bigger. Identical crash, no symbols.
 
 
+> > > Can you use 'git bisect' to track down the offending commit?
+> > 
+> > If I would know how to do that
+> 
+> 'man git bisect' should provide a tutorial on how to do this.
 
-Test Regressions
----------------- =
+No, it does not.
+It would have taken an enormous amount of time and GBs less if I'd found
+earlier the only pointer on internet that stated:
 
+  cd linux
+  git remote add stable git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+ 
+and that brought me reasonably fast to this:
 
+  3bd3a8ca5a7b1530f463b6e1cc811c085e6ffa01 is the first bad commit
+  commit 3bd3a8ca5a7b1530f463b6e1cc811c085e6ffa01
+  Author: Maciej W. Rozycki <macro@orcam.me.uk>
+  Date:   Thu May 13 11:51:50 2021 +0200
+  ...
+ 
+> > > And why are you stuck on 4.9.y for these machines?  Why not use 5.10 or
+> > > newer?
+> > 
+> > Because in 4.10 they dropped lirc-serial and I need that. The new ir-serial
+> > is no replacement. (The last working version of LIRC is 0.9.6. After that
+> > they destroyed transmitter support.)
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
+Correction: lirc-0.9.0-rc6 it is.
 
+> > 
+> If the new functionality is not working properly, please work with those
+> developers to fix that up. 
 
-  Details:     https://kernelci.org/test/plan/id/6137e92265d574b6d9d59677
+I can't.  I can hardly write and compile 'Hello world', let alone fix some
+complex fossil and abandoned software.  To make a long LIRC story short:
+LIRC got orphaned long ago. A dozen patches from Gentoo kept it alive (until
+kernel-3.x where f_dentry got dropped, which gentoo never fixed).  I managed
+to get around that problem. By then there was a new maintainer that was not
+interested in bug reports and clearly stated that he was against a transmitter
+(over the serial port). The new LIRC-0.10 is not popular, to say the least.
+The only route for IR blasting nowadays seems to be a RaspberryPi, where
+Rasbian seems to have something like 'ir-ctl' outside of LIRC.
 
-  Results:     67 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.144-2=
-1-gb97123bcdebe/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.144-2=
-1-gb97123bcdebe/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288-=
-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+Regards, Wim.
 
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/6137e92365d574b6d9d5968b
-        failing since 84 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-09-07T22:34:59.593178  /lava-4469690/1/../bin/lava-test-case
-    2021-09-07T22:34:59.609610  <8>[   15.341075] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-09-07T22:34:59.610063  /lava-4469690/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/6137e92365d574b6d9d596a1
-        failing since 84 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-09-07T22:34:58.185855  /lava-4469690/1/../bin/lava-test-case<8>[  =
- 13.915993] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
-d RESULT=3Dfail>
-    2021-09-07T22:34:58.186190  =
-
-    2021-09-07T22:34:58.186413  /lava-4469690/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/6137e92365d574b6d9d596a2
-        failing since 84 days (last pass: v5.4.125-37-g7cda316475cf, first =
-fail: v5.4.125-84-g411d62eda127)
-
-    2021-09-07T22:34:57.148071  /lava-4469690/1/../bin/lava-test-case
-    2021-09-07T22:34:57.153836  <8>[   12.896316] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
