@@ -2,95 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 081AC4040B8
-	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 23:51:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A0F64040CE
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 00:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235723AbhIHVwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 17:52:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38310 "EHLO mail.kernel.org"
+        id S235447AbhIHWBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 18:01:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235135AbhIHVwi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Sep 2021 17:52:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE0216115B;
-        Wed,  8 Sep 2021 21:51:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631137889;
-        bh=Q7/Auj+gxb7Tq2h7AKECQp7f+V7wXd8uIeRwsSwC2uI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g6B3xPzWzmSOWbVujz05WcWiMqbJmrvjf663bftxNBe3SpFvKrqnf9HjmQt02WCYM
-         SWydEF5fnJe2PDJt02TSsWwnOJNVN0DQIA8QyX31MW4y4bh6/xnq2+ec4fqkHIuubd
-         SvzFgbwlnsZrqqazTbtxtlvrW9iAUFJ0MBEqmS/KMjUsF4ZUwPLf58CtQO2n3YuINH
-         mUhMtIpAHEDSWvdU8iX5EZZMCqDZHUUQ0lA4wUD7b1eC2QFKcNXTByJg0iLHO3eXl9
-         YqTesOY0LwkjQtsa9SStbmzHvBr/PfEGeGubbTW0QRwltraAP+uT2feQHOEReo6aol
-         SXsE9sw2hR4Kw==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     linux-fscrypt@vger.kernel.org, linux-ext4@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net,
-        linux-mtd@lists.infradead.org
-Subject: [PATCH 4/4] ubifs: report correct st_size for encrypted symlinks
-Date:   Wed,  8 Sep 2021 14:50:33 -0700
-Message-Id: <20210908215033.1122580-5-ebiggers@kernel.org>
+        id S234144AbhIHWBc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Sep 2021 18:01:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F77D61102;
+        Wed,  8 Sep 2021 22:00:24 +0000 (UTC)
+From:   Jaegeuk Kim <jaegeuk@google.com>
+To:     stable@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>
+Subject: [PATCH] f2fs: guarantee to write dirty data when enabling checkpoint back
+Date:   Wed,  8 Sep 2021 15:00:20 -0700
+Message-Id: <20210908220020.599899-1-jaegeuk@google.com>
 X-Mailer: git-send-email 2.33.0.153.gba50c8fa24-goog
-In-Reply-To: <20210908215033.1122580-1-ebiggers@kernel.org>
-References: <20210908215033.1122580-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit 064c734986011390b4d111f1a99372b7f26c3850 upstream.
+commit dddd3d65293a52c2c3850c19b1e5115712e534d8 upstream.
 
-The stat() family of syscalls report the wrong size for encrypted
-symlinks, which has caused breakage in several userspace programs.
+We must flush all the dirty data when enabling checkpoint back. Let's guarantee
+that first by adding a retry logic on sync_inodes_sb(). In addition to that,
+this patch adds to flush data in fsync when checkpoint is disabled, which can
+mitigate the sync_inodes_sb() failures in advance.
 
-Fix this by calling fscrypt_symlink_getattr() after ubifs_getattr() for
-encrypted symlinks.  This function computes the correct size by reading
-and decrypting the symlink target (if it's not already cached).
-
-For more details, see the commit which added fscrypt_symlink_getattr().
-
-Fixes: ca7f85be8d6c ("ubifs: Add support for encrypted symlinks")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210702065350.209646-5-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 ---
- fs/ubifs/file.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/f2fs/file.c  |  5 ++---
+ fs/f2fs/super.c | 11 ++++++++++-
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ubifs/file.c b/fs/ubifs/file.c
-index d7d2fdda4bbd..3dbb5ac630e4 100644
---- a/fs/ubifs/file.c
-+++ b/fs/ubifs/file.c
-@@ -1642,6 +1642,16 @@ static const char *ubifs_get_link(struct dentry *dentry,
- 	return fscrypt_get_symlink(inode, ui->data, ui->data_len, done);
- }
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 5c74b2997197..6ee8b1e0e174 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -259,8 +259,7 @@ static int f2fs_do_sync_file(struct file *file, loff_t start, loff_t end,
+ 	};
+ 	unsigned int seq_id = 0;
  
-+static int ubifs_symlink_getattr(const struct path *path, struct kstat *stat,
-+				 u32 request_mask, unsigned int query_flags)
-+{
-+	ubifs_getattr(path, stat, request_mask, query_flags);
+-	if (unlikely(f2fs_readonly(inode->i_sb) ||
+-				is_sbi_flag_set(sbi, SBI_CP_DISABLED)))
++	if (unlikely(f2fs_readonly(inode->i_sb)))
+ 		return 0;
+ 
+ 	trace_f2fs_sync_file_enter(inode);
+@@ -274,7 +273,7 @@ static int f2fs_do_sync_file(struct file *file, loff_t start, loff_t end,
+ 	ret = file_write_and_wait_range(file, start, end);
+ 	clear_inode_flag(inode, FI_NEED_IPU);
+ 
+-	if (ret) {
++	if (ret || is_sbi_flag_set(sbi, SBI_CP_DISABLED)) {
+ 		trace_f2fs_sync_file_exit(inode, cp_reason, datasync, ret);
+ 		return ret;
+ 	}
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index c52988067887..476b2c497d28 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1764,8 +1764,17 @@ static int f2fs_disable_checkpoint(struct f2fs_sb_info *sbi)
+ 
+ static void f2fs_enable_checkpoint(struct f2fs_sb_info *sbi)
+ {
++	int retry = DEFAULT_RETRY_IO_COUNT;
 +
-+	if (IS_ENCRYPTED(d_inode(path->dentry)))
-+		return fscrypt_symlink_getattr(path, stat);
-+	return 0;
-+}
+ 	/* we should flush all the data to keep data consistency */
+-	sync_inodes_sb(sbi->sb);
++	do {
++		sync_inodes_sb(sbi->sb);
++		cond_resched();
++		congestion_wait(BLK_RW_ASYNC, DEFAULT_IO_TIMEOUT);
++	} while (get_pages(sbi, F2FS_DIRTY_DATA) && retry--);
 +
- const struct address_space_operations ubifs_file_address_operations = {
- 	.readpage       = ubifs_readpage,
- 	.writepage      = ubifs_writepage,
-@@ -1669,7 +1679,7 @@ const struct inode_operations ubifs_file_inode_operations = {
- const struct inode_operations ubifs_symlink_inode_operations = {
- 	.get_link    = ubifs_get_link,
- 	.setattr     = ubifs_setattr,
--	.getattr     = ubifs_getattr,
-+	.getattr     = ubifs_symlink_getattr,
- #ifdef CONFIG_UBIFS_FS_XATTR
- 	.listxattr   = ubifs_listxattr,
- #endif
++	if (unlikely(retry < 0))
++		f2fs_warn(sbi, "checkpoint=enable has some unwritten data.");
+ 
+ 	down_write(&sbi->gc_lock);
+ 	f2fs_dirty_to_prefree(sbi);
 -- 
 2.33.0.153.gba50c8fa24-goog
 
