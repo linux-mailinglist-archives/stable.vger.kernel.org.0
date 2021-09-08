@@ -2,244 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1599E403BBF
-	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 16:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C673C403BC6
+	for <lists+stable@lfdr.de>; Wed,  8 Sep 2021 16:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229968AbhIHOss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 10:48:48 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:46858 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349052AbhIHOss (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Sep 2021 10:48:48 -0400
-Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 52D7022256;
-        Wed,  8 Sep 2021 14:47:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1631112459; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=jEFNWRIePbeIPt9GmDov9/wA6u8O4zqeE8y8N3lFb/0=;
-        b=R7t45CL/vN0fqwIkKaTAptvlWWf5gcWvgVuoFeE8stPitbx+wMt2erghnki2rfI1oLiRal
-        wySquU2/gkjDEWjjC/y+en3qzsYcI3d8UpNpxOHZ8/P2XcT+jtCtj+m9xtfmFOMJM65BAm
-        5nu0K6rkLjboJJnJRO4INfze4CY3N6A=
-Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id E608C13A96;
-        Wed,  8 Sep 2021 14:47:38 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap1.suse-dmz.suse.de with ESMTPSA
-        id Kxm0NgrNOGFWNwAAGKfGzw
-        (envelope-from <jgross@suse.com>); Wed, 08 Sep 2021 14:47:38 +0000
-To:     Jan Beulich <jbeulich@suse.com>
-Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, stable@vger.kernel.org,
-        Sander Eikelenboom <linux@eikelenboom.it>,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20210908073640.11299-1-jgross@suse.com>
- <5a4859db-d173-88dd-5ea9-dd5fd893d934@suse.com>
- <34afed98-5072-c563-5d29-97e09a0b4ebd@suse.com>
- <6862566d-4d55-dc5c-082a-da4fbcafcfce@suse.com>
-From:   Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH] xen: fix usage of pmd/pud_poplulate in mremap for pv
- guests
-Message-ID: <21bad77f-90fb-1288-be52-291b56ccdd40@suse.com>
-Date:   Wed, 8 Sep 2021 16:47:38 +0200
+        id S1349482AbhIHOwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 10:52:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36666 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349384AbhIHOwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Sep 2021 10:52:21 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED963C061757
+        for <stable@vger.kernel.org>; Wed,  8 Sep 2021 07:51:13 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id i28so3753860wrb.2
+        for <stable@vger.kernel.org>; Wed, 08 Sep 2021 07:51:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=iCptGHIr4yOo9jmgBHruQRL65b7qc9ZYb50YuwH+tDI=;
+        b=jaYJJWAqBXG23YiUD930ob6F8/DuGdPuUryLdHZWjTtwrQB7ykp2ec9oBDewIZJdpD
+         AWVU72gt0OimQfsE1UBR+a1GeJswp0TsyxJJWr6S3N2hdHR9O32b/zf+aBadO8FCqFq6
+         Lh88fw9klAslfPnO6t6Ertr0I2Kqp/WQ5ye1CizXy6s/hnfnUqPEj+70/AP8rgfy85W3
+         aOCr1FXVBilsLH7fASi55LFicBMtADm/DPaWF8eS/rJJd4nKpdjxRF2FIbBOquqWwHDD
+         O3iLFWS4RvYXQKxZBrjzhvWY8ZLN6b12Vg1G4Sya1SgwYeH8P4erXTw8v/kaxmkvgTAV
+         3LtA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=iCptGHIr4yOo9jmgBHruQRL65b7qc9ZYb50YuwH+tDI=;
+        b=sR8cJDyquJroIpb/+woIH3vhEoixAcydtmonYlwypezDK8k3M4wOuKEeP8Psbkk74q
+         1bkRXQSEG1yW8nAek5ESlBnzoVA/4fQk+bLhN4D5ldNqhAQDsDyEy9tBfX2zA/ZWd2Bz
+         JgkDa8/81ZvuGYr2D5SkLZM/UBlFbwPPnbPO3X/LjcRMbssp+sbgjBzQuRbmIwFdLh+n
+         468Tz07ayy4BkC0OHH8xyg16V+Zq/Zy0HAbYpwtIKppxAmUndtFjRYNrVonz9uzLSrcL
+         3PuiIaW0hKJIbaG65/bDbPcVb8/XLhyhPR7G/A3m+YH1ZDqTVTkQIMJ2hc0SfmnoD4lJ
+         /b8g==
+X-Gm-Message-State: AOAM530hk1CZyLZHyahX34jnqPUHQg0G3fVy89Fj7Gw6Saz+wmzOpz2o
+        nU+wRPFw6cVkgt81yiCi1Ese1zOpKzMlyg==
+X-Google-Smtp-Source: ABdhPJznVODf0WQvmu3E/ocU5tfbFXjh8UnQofVXfrtPNLqJdAhATIUIepHIfNwMTD91144P0lWTxQ==
+X-Received: by 2002:adf:cd07:: with SMTP id w7mr3633438wrm.232.1631112672182;
+        Wed, 08 Sep 2021 07:51:12 -0700 (PDT)
+Received: from [192.168.0.162] (188-141-3-169.dynamic.upc.ie. [188.141.3.169])
+        by smtp.gmail.com with ESMTPSA id s205sm2367229wme.4.2021.09.08.07.51.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Sep 2021 07:51:11 -0700 (PDT)
+Subject: Re: [PATCH] Revert "wcn36xx: Enable firmware link monitoring"
+To:     Loic Poulain <loic.poulain@linaro.org>, kvalo@codeaurora.org
+Cc:     linux-wireless@vger.kernel.org, stable@vger.kernel.org
+References: <1630343360-5942-1-git-send-email-loic.poulain@linaro.org>
+From:   Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Message-ID: <266e31ea-ec74-1ab7-e5ac-4eafc7db0983@linaro.org>
+Date:   Wed, 8 Sep 2021 15:53:07 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <6862566d-4d55-dc5c-082a-da4fbcafcfce@suse.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="3GzrgL9tJGXXoMnm3mnp4eEQIR0B4Ilr6"
+In-Reply-To: <1630343360-5942-1-git-send-email-loic.poulain@linaro.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---3GzrgL9tJGXXoMnm3mnp4eEQIR0B4Ilr6
-Content-Type: multipart/mixed; boundary="BAS2MNyQNemPES6JplNDoPiAx8GLYmZex";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Jan Beulich <jbeulich@suse.com>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Stefano Stabellini <sstabellini@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- stable@vger.kernel.org, Sander Eikelenboom <linux@eikelenboom.it>,
- xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org
-Message-ID: <21bad77f-90fb-1288-be52-291b56ccdd40@suse.com>
-Subject: Re: [PATCH] xen: fix usage of pmd/pud_poplulate in mremap for pv
- guests
-References: <20210908073640.11299-1-jgross@suse.com>
- <5a4859db-d173-88dd-5ea9-dd5fd893d934@suse.com>
- <34afed98-5072-c563-5d29-97e09a0b4ebd@suse.com>
- <6862566d-4d55-dc5c-082a-da4fbcafcfce@suse.com>
-In-Reply-To: <6862566d-4d55-dc5c-082a-da4fbcafcfce@suse.com>
+On 30/08/2021 18:09, Loic Poulain wrote:
+> This reverts commit 8def9ec46a5fafc0abcf34489a9e8a787bca984d.
+> 
+> The firmware keep-alive does not cause any event in case of error
+> such as non acked. It's just a basic keep alive to prevent the AP
+> to kick-off the station due to inactivity. So let mac80211 submit
+> its own monitoring packet (probe/null) and disconnect on timeout.
+> 
+> Note: We want to keep firmware keep alive to prevent kick-off
+> when host is in suspend-to-mem (no mac80211 monitor packet).
+> Ideally fw keep alive should be enabled in suspend path and disabled
+> in resume path to prevent having both firmware and mac80211 submitting
+> periodic null packets.
+> 
+> This fixes non detected AP leaving issues in active mode (nothing
+> monitors beacon or connection).
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 8def9ec46a5f ("wcn36xx: Enable firmware link monitoring")
+> Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+> ---
+>   drivers/net/wireless/ath/wcn36xx/main.c | 1 -
+>   1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
+> index 216bc34..128d25d 100644
+> --- a/drivers/net/wireless/ath/wcn36xx/main.c
+> +++ b/drivers/net/wireless/ath/wcn36xx/main.c
+> @@ -1362,7 +1362,6 @@ static int wcn36xx_init_ieee80211(struct wcn36xx *wcn)
+>   	ieee80211_hw_set(wcn->hw, HAS_RATE_CONTROL);
+>   	ieee80211_hw_set(wcn->hw, SINGLE_SCAN_ON_ALL_BANDS);
+>   	ieee80211_hw_set(wcn->hw, REPORTS_TX_ACK_STATUS);
+> -	ieee80211_hw_set(wcn->hw, CONNECTION_MONITOR);
+>   
+>   	wcn->hw->wiphy->interface_modes = BIT(NL80211_IFTYPE_STATION) |
+>   		BIT(NL80211_IFTYPE_AP) |
+> 
 
---BAS2MNyQNemPES6JplNDoPiAx8GLYmZex
-Content-Type: multipart/mixed;
- boundary="------------57ADF394A2EC90BAF7B799FF"
-Content-Language: en-US
+OK.
 
-This is a multi-part message in MIME format.
---------------57ADF394A2EC90BAF7B799FF
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+We've made a good effort to resolve offloaded link monitoring but, it 
+feels like spaghetti code and isn't as reliable as letting Linux do the 
+link monitoring.
 
-On 08.09.21 16:28, Jan Beulich wrote:
-> On 08.09.2021 15:32, Juergen Gross wrote:
->> On 08.09.21 13:07, Jan Beulich wrote:
->>> On 08.09.2021 09:36, Juergen Gross wrote:
->>>> Commit 0881ace292b662 ("mm/mremap: use pmd/pud_poplulate to update p=
-age
->>>> table entries") introduced a regression when running as Xen PV guest=
-=2E
->>>
->>> The description of that change starts with "pmd/pud_populate is the
->>> right interface to be used to set the respective page table entries."=
+Let's go ahead with the reversion.
 
->>> If this is deemed true, I don't think pmd_populate() should call
->>> paravirt_alloc_pte(): The latter function, as its name says, is
->>> supposed to be called for newly allocated page tables only (aiui).
->>
->> In theory you are correct, but my experience with reality tells me tha=
-t
->> another set of macros for this case will not be appreciated.
->=20
-> Perhaps a new parameter to the macros / inlines identifying fresh
-> vs moved? Or perhaps the offending change wasn't really correct in
-> what its description said?
-
-The problem is that those macros are spread over all architectures with
-each architecture defining them separately. Changing all those will not
-be really welcomed.
-
-And the change was correct IMO, as the replaced pmd_set() should be used
-for leaf entries only (at least in arch independent code).
-pmd_populate() is the correct one for non-leaf entries.
-
-
-Juergen
-
---------------57ADF394A2EC90BAF7B799FF
-Content-Type: application/pgp-keys;
- name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: OpenPGP public key
-Content-Disposition: attachment;
- filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
-cWx
-w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
-f8Z
-d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
-9bf
-IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
-G7/
-377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
-3Jv
-c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
-QIe
-AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
-hpw
-dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
-MbD
-1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
-oPH
-Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
-5QL
-+qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
-2Vu
-IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
-QoL
-BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
-Wf0
-teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
-/nu
-AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
-ITT
-d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
-XBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
-80h
-SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
-AcD
-AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
-FOX
-gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
-jnD
-kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
-N51
-N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
-otu
-fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
-tqS
-EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
-hsD
-BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
-g3O
-ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
-dM7
-wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
-D+j
-LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
-V2x
-AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
-Eaw
-QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
-nHI
-s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
-wgn
-BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
-bVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
-pEd
-IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
-QAB
-wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
-Tbe
-8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
-vJz
-Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
-VGi
-wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
-svi
-uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
-zXs
-ZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------57ADF394A2EC90BAF7B799FF--
-
---BAS2MNyQNemPES6JplNDoPiAx8GLYmZex--
-
---3GzrgL9tJGXXoMnm3mnp4eEQIR0B4Ilr6
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmE4zQoFAwAAAAAACgkQsN6d1ii/Ey+r
-dgf6Ake5fyapfF3DOH1qLAFqjRubIjOR2e/8QUAFI5HTwoeZXQhCgyPXBCLL6RRk/EdXEoiq8S9M
-cjQmylBZGpE3ow72fI2tGPV1OVasY/3aowSKd8Ib+a7lcOr/y7Kt0kBo7IpWahER4GX0nmBjZHve
-9izQnBRiAgGFoBHwq/1SKegbW0bKk9RSUnhboEb106+64kYG3Aaa4OGvSt9XMAUEYllq3VX2m62x
-GQjcimcHVViw2CVSCJUu7gDr9qmY3O6aIctZln0G2TVsc9SpPm4ZctEq1psKvFz+ikW8JT68MWPd
-EckUq8qIkYDKV+GltlE3Xz4GRcjWY99z5IJ9WS75sA==
-=zv9R
------END PGP SIGNATURE-----
-
---3GzrgL9tJGXXoMnm3mnp4eEQIR0B4Ilr6--
+Acked-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
