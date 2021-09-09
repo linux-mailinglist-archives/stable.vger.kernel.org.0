@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C2F74051E0
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 648E64051DD
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352580AbhIIMjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:39:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45824 "EHLO mail.kernel.org"
+        id S1354443AbhIIMjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:39:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353786AbhIIMe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353782AbhIIMe5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:34:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE83B61B72;
-        Thu,  9 Sep 2021 11:53:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F75261B67;
+        Thu,  9 Sep 2021 11:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188420;
-        bh=whpcVyJRZN+NsnXXC9/NR7/jIQ+/1/X+427Ww8E2Fns=;
+        s=k20201202; t=1631188421;
+        bh=bXd0XILONge7uFoWc+BDvqYnrBLisRONyyx29I2aG64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YIe5dA+jP+RJg+dL+TsR+0xDTK8SmNE2W8PP3j67UTFPOCMIquyC4E+5sLwGV47VW
-         sBnpVq6+shynmDukv+zq9zIRB2hmz5UWKDCWIOhoJtq6EPmKYEu01Cata3j6p4fRoE
-         LvFBiCddveekkJWuvu8L6osXzDIvpFeuCJBbF8FtUn2y2nRXiSY6Zyc3Y+YmUDx2aa
-         gDZjS8e1JZbeT35rLeP2vJGE5BF1v8vI9ZlWw6QCccX7PeWtwkfew9CZla9l/U7YIj
-         cPdIY6iXZ1k9mjRehkE4Ws7RwPdtAzET57welw7j71uVc18DBgvJZgy6hvCTIOFCsm
-         Jqxj5+5SAUbqg==
+        b=m61eNSq3JwW4aDIduVEI4iS+IfiHj6AUNqz5QgszGtFxdYB5LURIRS53y6k4AJLGD
+         4k8H+tAPh5XpoDBG4Ter/5UgLAjOzkAyx2c55m0Gm6aGI/OwJaA6ZtraHHoqoUCPjk
+         3cXx8WatuE3tJt9HtP8K+1qo/V89w4NKUrF+4cg1Sv6grYiwPH1rNOKSX5y+t2gzRp
+         3u9AcDhxnRmRaKx6kXIkBLsYZGE2Y6BrYNl/YU2snA3GgOlChGIKuOcyR5/oQAFZ86
+         KePhpDb438zIJqwkkPjety5vaj4zY6cWHzx4ZsZtCGM5eJOuJsq+S+DXYgQPUMelEV
+         9iUu5qEOJpC0g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 110/176] arm64: tegra: Fix compatible string for Tegra132 CPUs
-Date:   Thu,  9 Sep 2021 07:50:12 -0400
-Message-Id: <20210909115118.146181-110-sashal@kernel.org>
+Cc:     Raag Jadav <raagjadav@gmail.com>, Li Yang <leoyang.li@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 111/176] arm64: dts: ls1046a: fix eeprom entries
+Date:   Thu,  9 Sep 2021 07:50:13 -0400
+Message-Id: <20210909115118.146181-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -42,40 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Raag Jadav <raagjadav@gmail.com>
 
-[ Upstream commit f865d0292ff3c0ca09414436510eb4c815815509 ]
+[ Upstream commit c1a6018d1839c9cb8f807dc863a50102a1a5c412 ]
 
-The documented compatible string for the CPUs found on Tegra132 is
-"nvidia,tegra132-denver", rather than the previously used compatible
-string "nvidia,denver".
+ls1046afrwy and ls1046ardb boards have CAT24C04[1] and CAT24C05[2]
+eeproms respectively. Both are 4Kb (512 bytes) in size,
+and compatible with AT24C04[3].
+Remove multi-address entries, as both the boards have a single chip each.
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+[1] https://www.onsemi.com/pdf/datasheet/cat24c01-d.pdf
+[2] https://www.onsemi.com/pdf/datasheet/cat24c03-d.pdf
+[3] https://ww1.microchip.com/downloads/en/DeviceDoc/doc0180.pdf
+
+Signed-off-by: Raag Jadav <raagjadav@gmail.com>
+Acked-by: Li Yang <leoyang.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra132.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts | 8 +-------
+ arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts  | 7 +------
+ 2 files changed, 2 insertions(+), 13 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra132.dtsi b/arch/arm64/boot/dts/nvidia/tegra132.dtsi
-index e40281510c0c..b14e9f3bfdbd 100644
---- a/arch/arm64/boot/dts/nvidia/tegra132.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra132.dtsi
-@@ -1215,13 +1215,13 @@ cpus {
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts
+index db3d303093f6..6d22efbd645c 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts
+@@ -83,15 +83,9 @@ rtc@51 {
+ 			};
  
- 		cpu@0 {
- 			device_type = "cpu";
--			compatible = "nvidia,denver";
-+			compatible = "nvidia,tegra132-denver";
- 			reg = <0>;
- 		};
- 
- 		cpu@1 {
- 			device_type = "cpu";
--			compatible = "nvidia,denver";
-+			compatible = "nvidia,tegra132-denver";
- 			reg = <1>;
+ 			eeprom@52 {
+-				compatible = "atmel,24c512";
++				compatible = "onnn,cat24c04", "atmel,24c04";
+ 				reg = <0x52>;
+ 			};
+-
+-			eeprom@53 {
+-				compatible = "atmel,24c512";
+-				reg = <0x53>;
+-			};
+-
  		};
  	};
+ };
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
+index d53ccc56bb63..07139e35686d 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
++++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
+@@ -58,14 +58,9 @@ temp-sensor@4c {
+ 	};
+ 
+ 	eeprom@52 {
+-		compatible = "atmel,24c512";
++		compatible = "onnn,cat24c05", "atmel,24c04";
+ 		reg = <0x52>;
+ 	};
+-
+-	eeprom@53 {
+-		compatible = "atmel,24c512";
+-		reg = <0x53>;
+-	};
+ };
+ 
+ &i2c3 {
 -- 
 2.30.2
 
