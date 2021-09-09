@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FCA2404BD6
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:54:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0409A404BFF
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237922AbhIILx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:53:28 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:33646 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242053AbhIILv0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 07:51:26 -0400
+        id S240916AbhIILzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:55:19 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:42128 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242586AbhIILwY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 07:52:24 -0400
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id D167A22379;
-        Thu,  9 Sep 2021 11:50:15 +0000 (UTC)
+        by smtp-out2.suse.de (Postfix) with ESMTP id 7E3221FDEB;
+        Thu,  9 Sep 2021 11:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1631188215; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1631188274; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=oMMzYgFomu2hzy4XldWLmrCH+2DxQolZBrOnMq3NMaM=;
-        b=cyqFGhpECSHWqtUvsWZV/5lrWWrH8zR6sBwqGy5bVN/4fyJSS4gI10U0qIKr0j/r8FetLL
-        Cvp0QS8otNt/SMDnDJc5V9hMp8YSPQXJV3LPXecYOLDK6QR0UyTTh0emB11per5FbndkvG
-        O5dWYQI3A0jH0TskWBNR71FUAYwTfEU=
+        bh=/zXUSp3CWYH2uEgmU10zyMNDC163pc7YpBZFGZqywqM=;
+        b=DyKsUaUBcqFGE6NHZ4M7Xhf3Q6QWhKT71Hss7m0PTpYw24FWsHtEBJOsyzBWpAoU0NFSPr
+        ZxupCY2n/4j1f2bfVqu6eH6KYjxCDEPnjDxlU0KOE//FEyNL6FjFby/wHAigINZ5VHcmNC
+        +LFXmRt2xZif2PxOP4OQsUfEzibHUTM=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1631188215;
+        s=susede2_ed25519; t=1631188274;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=oMMzYgFomu2hzy4XldWLmrCH+2DxQolZBrOnMq3NMaM=;
-        b=3GQqPmQxwLYIU4Xdtn24ECXbp16Kes+Bd1eoaCEinAynLXaJ19qmgsncrt66vsh0lqRS1r
-        PqxknUoxO4QArUCQ==
+        bh=/zXUSp3CWYH2uEgmU10zyMNDC163pc7YpBZFGZqywqM=;
+        b=f/xJ4S/jYZSLSPoD3erC1mTmF+mVluHcdt6sN7p19BS+wWY1h2/FV3GUr2nmYbICnQnSo3
+        9SoYuSuVY0DeMpBw==
 Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
-        by relay2.suse.de (Postfix) with ESMTP id CAD70A3BC6;
-        Thu,  9 Sep 2021 11:50:15 +0000 (UTC)
-Date:   Thu, 09 Sep 2021 13:50:15 +0200
-Message-ID: <s5hr1dy7ytk.wl-tiwai@suse.de>
+        by relay2.suse.de (Postfix) with ESMTP id 77FE5A3E13;
+        Thu,  9 Sep 2021 11:51:14 +0000 (UTC)
+Date:   Thu, 09 Sep 2021 13:51:14 +0200
+Message-ID: <s5hpmti7yrx.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         alsa-devel@alsa-project.org
-Subject: Re: [PATCH AUTOSEL 5.14 166/252] ALSA: hda: Drop workaround for a hang at shutdown again
-In-Reply-To: <20210909114106.141462-166-sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.14 198/252] ASoC: intel: atom: Revert PCM buffer address setup workaround again
+In-Reply-To: <20210909114106.141462-198-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
-        <20210909114106.141462-166-sashal@kernel.org>
+        <20210909114106.141462-198-sashal@kernel.org>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -52,33 +52,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 09 Sep 2021 13:39:40 +0200,
+On Thu, 09 Sep 2021 13:40:12 +0200,
 Sasha Levin wrote:
 > 
 > From: Takashi Iwai <tiwai@suse.de>
 > 
-> [ Upstream commit 8fc8e903156f42c66245838441d03607e9067381 ]
+> [ Upstream commit e28ac04a705e946eddc5e7d2fc712dea3f20fe9e ]
 > 
-> The commit 0165c4e19f6e ("ALSA: hda: Fix hang during shutdown due to
-> link reset") modified the shutdown callback of the HD-audio controller
-> for working around a hang.  Meanwhile, the actual culprit of the hang
-> was identified to be the leftover active codecs that may interfere
-> with the powered down controller somehow, but we took a minimal fix
-> approach for 5.14, and that was the commit above.
+> We worked around the breakage of PCM buffer setup by the commit
+> 65ca89c2b12c ("ASoC: intel: atom: Fix breakage for PCM buffer address
+> setup"), but this isn't necessary since the CONTINUOUS buffer type
+> also sets runtime->dma_addr since commit f84ba106a018 ("ALSA:
+> memalloc: Store snd_dma_buffer.addr for continuous pages, too").
+> Let's revert the change again.
 > 
-> Now, since the codec drivers go runtime-suspend at shutdown for 5.15,
-> we can revert the change and make sure that the full runtime-suspend
-> is performed at shutdown of HD-audio controller again.  This patch
-> essentially reverts the commit above to restore the behavior.
-> 
-> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214045
-> Link: https://lore.kernel.org/r/20210817075630.7115-1-tiwai@suse.de
+> Link: https://lore.kernel.org/r/20210822072127.9786-1-tiwai@suse.de
 > Signed-off-by: Takashi Iwai <tiwai@suse.de>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-Please drop this, it's not for 5.14.
-As stated in the commit log, the fundamental fix was merged in 5.15
-that obsoletes the workaround, but it isn't included in 5.14.
+Please drop this, it's not for 5.14.  The commit f84ba106a018 is new
+and present only on 5.15.
 
 
 thanks,
