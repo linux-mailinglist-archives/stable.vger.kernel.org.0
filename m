@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAAF4404C2A
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:55:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F55B404CC5
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:01:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240218AbhIIL4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:56:04 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:33768 "EHLO
+        id S243802AbhIIL5b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:57:31 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:33962 "EHLO
         smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241491AbhIILyQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 07:54:16 -0400
+        with ESMTP id S240149AbhIILzb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 07:55:31 -0400
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 9F62622376;
-        Thu,  9 Sep 2021 11:53:02 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTP id 1A93E22379;
+        Thu,  9 Sep 2021 11:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1631188382; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1631188461; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=UCQLO2IbVqctc2BGQv11qcnpDIpuIqJg85PCOnX6wUg=;
-        b=oxJTIny45fDt3iBjfRCgl/yDttmXQULX4CmEFzHFZDkWaVOYbPZLoOzGmeuxYY/gIgY6EA
-        n5zzahWr8yq3JehltwZ14q4yneL8MERcUjVvZRIrxM8rQS9L09hc+nzEnDbZ67v4j1h8vE
-        Qt3ExHsY3REBRJcZEsrmRAjj5VsuPbI=
+        bh=6m61k1ghdXB4xDvtlbKuFsRgoqnvKEASTJwAkG8Xs7k=;
+        b=sYLjbqg+j/zKsMkMcfzaPLb4EFYaZsLN3jYjuwRkNTfUQ1zO3OhYNHJndfhJAzpDsAq7fB
+        Ic4i3rxA9ZBlpt6DvcwWtKYYzEPj4EvrfmKBJ6T/Nt9ZEv+pP6iYyn2FnJIqPuAlzz+rIG
+        DEBxLrKFowZQNe8SX7TzowR4Ltu3tcs=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1631188382;
+        s=susede2_ed25519; t=1631188461;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=UCQLO2IbVqctc2BGQv11qcnpDIpuIqJg85PCOnX6wUg=;
-        b=AQX0+8SSlp6R1LGwRxmoHhe4BAuo/8QXlfDBI5m7ELZULKzE7wKCswr9FjixHxIPCEizz2
-        CzWfjuZ1yE3t9tCw==
+        bh=6m61k1ghdXB4xDvtlbKuFsRgoqnvKEASTJwAkG8Xs7k=;
+        b=jiBi2hbDsiXY9IDvF6wjQpmD1u2PsUqmudPNOMMvsgIu53DVMzeZsnXq4aCVWOyMamSmMZ
+        +Vg2ydkgDiomPOCQ==
 Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
-        by relay2.suse.de (Postfix) with ESMTP id 96142A3D1F;
-        Thu,  9 Sep 2021 11:53:02 +0000 (UTC)
-Date:   Thu, 09 Sep 2021 13:53:02 +0200
-Message-ID: <s5ho8927yox.wl-tiwai@suse.de>
+        by relay2.suse.de (Postfix) with ESMTP id 1477DA3D33;
+        Thu,  9 Sep 2021 11:54:21 +0000 (UTC)
+Date:   Thu, 09 Sep 2021 13:54:21 +0200
+Message-ID: <s5h5yvaq80i.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         alsa-devel@alsa-project.org
-Subject: Re: [PATCH AUTOSEL 5.14 132/252] ALSA: pci: cs46xx: Fix set up buffer type properly
-In-Reply-To: <20210909114106.141462-132-sashal@kernel.org>
-References: <20210909114106.141462-1-sashal@kernel.org>
-        <20210909114106.141462-132-sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.13 176/219] ASoC: intel: atom: Revert PCM buffer address setup workaround again
+In-Reply-To: <20210909114635.143983-176-sashal@kernel.org>
+References: <20210909114635.143983-1-sashal@kernel.org>
+        <20210909114635.143983-176-sashal@kernel.org>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -52,30 +52,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 09 Sep 2021 13:39:06 +0200,
+On Thu, 09 Sep 2021 13:45:52 +0200,
 Sasha Levin wrote:
 > 
 > From: Takashi Iwai <tiwai@suse.de>
 > 
-> [ Upstream commit 4d9e9153f1c64d91a125c6967bc0bfb0bb653ea0 ]
+> [ Upstream commit e28ac04a705e946eddc5e7d2fc712dea3f20fe9e ]
 > 
-> CS46xx driver switches the buffer depending on the number of periods,
-> and in some cases it switches to the own buffer without updating the
-> buffer type properly.  This may cause a problem with the mmap on
-> exotic architectures that require the own mmap call for the coherent
-> DMA buffer.
+> We worked around the breakage of PCM buffer setup by the commit
+> 65ca89c2b12c ("ASoC: intel: atom: Fix breakage for PCM buffer address
+> setup"), but this isn't necessary since the CONTINUOUS buffer type
+> also sets runtime->dma_addr since commit f84ba106a018 ("ALSA:
+> memalloc: Store snd_dma_buffer.addr for continuous pages, too").
+> Let's revert the change again.
 > 
-> This patch addresses the potential breakage by replacing the buffer
-> setup with the proper macro.  It also simplifies the source code,
-> too.
-> 
-> Link: https://lore.kernel.org/r/20210809071829.22238-4-tiwai@suse.de
+> Link: https://lore.kernel.org/r/20210822072127.9786-1-tiwai@suse.de
 > Signed-off-by: Takashi Iwai <tiwai@suse.de>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-This change is superfluous for 5.14.  Please drop.
+Please drop.  It's only for 5.15.
 
-
-thanks,
 
 Takashi
