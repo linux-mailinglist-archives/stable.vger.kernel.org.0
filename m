@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8740404A1A
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:44:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFECC404A5B
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:45:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237611AbhIILoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:44:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46380 "EHLO mail.kernel.org"
+        id S239995AbhIILqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:46:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238199AbhIILn3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:43:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EA3C611EF;
-        Thu,  9 Sep 2021 11:42:03 +0000 (UTC)
+        id S236659AbhIILna (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:43:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30565611C5;
+        Thu,  9 Sep 2021 11:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187724;
-        bh=JU4iJc6oY871eBLmLglTyk8lAnK2nHC5KV9FVXhDFpo=;
+        s=k20201202; t=1631187725;
+        bh=RbQK7DXt1AUNw7ujUS0IVL77fwIheGxdH1R23y+YR30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bTzzWY853UDUuBGirw9UAK+WL2djwmfur80CTjlaiqop9zK9yJdCQ2IKvSUWbKbIq
-         RnzZ4m7AedRNNkLlWW8YMJjxrCW4xosSLbja3wayQBs8MfhOzDiQ7vsJCcGM4TK9Ay
-         /KmZ47VHE3ArojEBa9GWUP5siA+8R/LwCkfDVdcypKwB7FMOMKJbCWOzviRzvhoGZS
-         vyhkKRosuU9Ls5iNNWAdsXx/As75uCBfR/dSgyhjWwsTqQ8wWmS9v6v1nnv+KrrJuk
-         zJ5Zz7L6OjhyfXmp08NYulZVUXB3PN5NOzy9wrl5C6ogT3UW8bbdzw9nH5p1hCG8oV
-         ywjMNEmqMp87w==
+        b=Nh5+2H37NZ301CTnzRJd1ZS79NMFICAEqSsyXecv86ZaTogCZyFQ1fiCDyJoNM+Ke
+         siPGtt4tonwf/kzanFZ8mTUZxw5Hc2ADS0J0hNFtDkFii4vY3DMd4IQhJ8A/p/Xm3O
+         BkIHigh30KWP5UFUuv9QVapW5JiOuSiEd2eOXM0qN4+6g5wlr92PLt+JGLW3QRdzKu
+         cv6E3HE8LB+RUnQ7UCj6WY3ePkaFt4H8rVAahIxlzqAopBDv67MQjpyRuAQF3qPEds
+         OercuzPjGCqB9IHpizXV8RRfO4JG/lkHsvxf4E+nVsTENJvxyPml4addKaJOZ4tj9q
+         drbMdtOTALusg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.14 045/252] staging: board: Fix uninitialized spinlock when attaching genpd
-Date:   Thu,  9 Sep 2021 07:37:39 -0400
-Message-Id: <20210909114106.141462-45-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 046/252] staging: hisilicon,hi6421-spmi-pmic.yaml: fix patternProperties
+Date:   Thu,  9 Sep 2021 07:37:40 -0400
+Message-Id: <20210909114106.141462-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -42,65 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit df00609821bf17f50a75a446266d19adb8339d84 ]
+[ Upstream commit 334201d503d5903f38f6e804263fc291ce8f451a ]
 
-On Armadillo-800-EVA with CONFIG_DEBUG_SPINLOCK=y:
+The regex at the patternProperties is wrong, although this was
+not reported as the DT schema was not enforcing properties.
 
-    BUG: spinlock bad magic on CPU#0, swapper/1
-     lock: lcdc0_device+0x10c/0x308, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    CPU: 0 PID: 1 Comm: swapper Not tainted 5.11.0-rc5-armadillo-00036-gbbca04be7a80-dirty #287
-    Hardware name: Generic R8A7740 (Flattened Device Tree)
-    [<c010c3c8>] (unwind_backtrace) from [<c010a49c>] (show_stack+0x10/0x14)
-    [<c010a49c>] (show_stack) from [<c0159534>] (do_raw_spin_lock+0x20/0x94)
-    [<c0159534>] (do_raw_spin_lock) from [<c040858c>] (dev_pm_get_subsys_data+0x8c/0x11c)
-    [<c040858c>] (dev_pm_get_subsys_data) from [<c05fbcac>] (genpd_add_device+0x78/0x2b8)
-    [<c05fbcac>] (genpd_add_device) from [<c0412db4>] (of_genpd_add_device+0x34/0x4c)
-    [<c0412db4>] (of_genpd_add_device) from [<c0a1ea74>] (board_staging_register_device+0x11c/0x148)
-    [<c0a1ea74>] (board_staging_register_device) from [<c0a1eac4>] (board_staging_register_devices+0x24/0x28)
+Fix it.
 
-of_genpd_add_device() is called before platform_device_register(), as it
-needs to attach the genpd before the device is probed.  But the spinlock
-is only initialized when the device is registered.
-
-Fix this by open-coding the spinlock initialization, cfr.
-device_pm_init_common() in the internal drivers/base code, and in the
-SuperH early platform code.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/57783ece7ddae55f2bda2f59f452180bff744ea0.1626257398.git.geert+renesas@glider.be
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://lore.kernel.org/r/46b2f30df235481cb1404913380e45706dfd8253.1626515862.git.mchehab+huawei@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/board/board.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/board/board.c b/drivers/staging/board/board.c
-index cb6feb34dd40..f980af037345 100644
---- a/drivers/staging/board/board.c
-+++ b/drivers/staging/board/board.c
-@@ -136,6 +136,7 @@ int __init board_staging_register_clock(const struct board_staging_clk *bsc)
- static int board_staging_add_dev_domain(struct platform_device *pdev,
- 					const char *domain)
- {
-+	struct device *dev = &pdev->dev;
- 	struct of_phandle_args pd_args;
- 	struct device_node *np;
+diff --git a/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml b/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml
+index 8e355cddd437..6c348578e4a2 100644
+--- a/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml
++++ b/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml
+@@ -41,6 +41,8 @@ properties:
+   regulators:
+     type: object
  
-@@ -148,7 +149,11 @@ static int board_staging_add_dev_domain(struct platform_device *pdev,
- 	pd_args.np = np;
- 	pd_args.args_count = 0;
- 
--	return of_genpd_add_device(&pd_args, &pdev->dev);
-+	/* Initialization similar to device_pm_init_common() */
-+	spin_lock_init(&dev->power.lock);
-+	dev->power.early_init = true;
++    additionalProperties: false
 +
-+	return of_genpd_add_device(&pd_args, dev);
- }
- #else
- static inline int board_staging_add_dev_domain(struct platform_device *pdev,
+     properties:
+       '#address-cells':
+         const: 1
+@@ -49,11 +51,13 @@ properties:
+         const: 0
+ 
+     patternProperties:
+-      '^ldo[0-9]+@[0-9a-f]$':
++      '^(ldo|LDO)[0-9]+$':
+         type: object
+ 
+         $ref: "/schemas/regulator/regulator.yaml#"
+ 
++        unevaluatedProperties: false
++
+ required:
+   - compatible
+   - reg
 -- 
 2.30.2
 
