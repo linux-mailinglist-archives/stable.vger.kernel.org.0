@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D8D404B55
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B199404B5E
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236257AbhIILvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:51:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53540 "EHLO mail.kernel.org"
+        id S242389AbhIILvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:51:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240613AbhIILtd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:49:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB30261283;
-        Thu,  9 Sep 2021 11:43:40 +0000 (UTC)
+        id S243110AbhIILte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:49:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B6386128A;
+        Thu,  9 Sep 2021 11:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187821;
-        bh=grpqI8sJsgtdBrayXqXN5K8Cvo1phWPDGxjB1M24YFE=;
+        s=k20201202; t=1631187823;
+        bh=e4TbRqrlT9HprV2lUzQMVPH5udOoHeA2y0wRp2sP4t4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ME6TynkeA3zFuc4k+Bc04dzrj5MbDGIC2pwzpPIrP5ixDZr0aivDvjhSRYcszajIv
-         pZe8mh1S/xbVq2R5qvJQ9nQmzORxPHiiXWZgRQY0/SHUep7bB1N6vq6ky+dn1XA9JD
-         DJxYKCowjrJEDZsvOC7c3CryAx3MfMmKIyBjijxH+KT7qd5Z6k1YxHBuRCQ8URdmuv
-         P5gYn7TS9kDs0luVw19U2Th0gC3eo8DOd4f+OmF2zHD008WZmEKf2WUyrkteu2631G
-         bA9lytZV3atRkmm+xxaZoTEEemVM0lx7T8WLC6rpMu5sa4fpBQ+67PU1dCBENewHbf
-         TW8SYOBSMk0gw==
+        b=RCowduifKtHGYSZhBhFbvIFeI3QDKjouLQV3FbDw765AKuSPwMiYcHL8Z1Li+te0j
+         rWD7YXjKcGSgtuwK3E6PqySQUqk+gxqM02qzphSGhfqwqECu1HqgclVI9smFNv5VRv
+         +l60ZcYSx6+TNT0bNcmsA2RO0VOzeBS5tXg5s03PxJJwsE0PBOJ0Ca8XZssH8+bw0A
+         pSptwbTgc4B6G4G1ypi08f4G1OLwcq2Faejcnl5iRiIpqZJzmzwI+mdLs/yt9gb/CD
+         4pJUliH4BDWTxFvYPCvsrmgybT6pzjEYbydEbcYos5m1tlZf/zsM6u6TyB/eAXgtnV
+         RmcWleIIHJY/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vinod Koul <vkoul@kernel.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
         devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 120/252] arm64: dts: qcom: ipq6018: drop '0x' from unit address
-Date:   Thu,  9 Sep 2021 07:38:54 -0400
-Message-Id: <20210909114106.141462-120-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 121/252] arm64: dts: qcom: sdm630: don't use underscore in node name
+Date:   Thu,  9 Sep 2021 07:38:55 -0400
+Message-Id: <20210909114106.141462-121-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -45,35 +45,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 1b91b8ef60e9a67141e66af3cca532c00f4605fe ]
+[ Upstream commit 639dfdbecd88ec05bda87b1d5d419afad50af21c ]
 
-Nodes need not contain '0x' for the unit address. Drop it to fix the
-below warning:
+We have underscore (_) in node name so fix that up as well.
 
-arch/arm64/boot/dts/qcom/ipq6018-cp01-c1.dt.yaml: reserved-memory:
-'memory@0x60000' does not match any of the regexes
+Fix this by changing node name to use dash (-)
 
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210308060826.3074234-19-vkoul@kernel.org
+Link: https://lore.kernel.org/r/20210308060826.3074234-11-vkoul@kernel.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq6018.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sdm630.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq6018.dtsi b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-index 9fa5b028e4f3..23ee1bfa4318 100644
---- a/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-@@ -151,7 +151,7 @@ reserved-memory {
- 		#size-cells = <2>;
- 		ranges;
+diff --git a/arch/arm64/boot/dts/qcom/sdm630.dtsi b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+index 5b73659f2a75..06a0ae773ad5 100644
+--- a/arch/arm64/boot/dts/qcom/sdm630.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+@@ -17,14 +17,14 @@ / {
+ 	chosen { };
  
--		rpm_msg_ram: memory@0x60000 {
-+		rpm_msg_ram: memory@60000 {
- 			reg = <0x0 0x60000 0x0 0x6000>;
- 			no-map;
+ 	clocks {
+-		xo_board: xo_board {
++		xo_board: xo-board {
+ 			compatible = "fixed-clock";
+ 			#clock-cells = <0>;
+ 			clock-frequency = <19200000>;
+ 			clock-output-names = "xo_board";
  		};
+ 
+-		sleep_clk: sleep_clk {
++		sleep_clk: sleep-clk {
+ 			compatible = "fixed-clock";
+ 			#clock-cells = <0>;
+ 			clock-frequency = <32764>;
 -- 
 2.30.2
 
