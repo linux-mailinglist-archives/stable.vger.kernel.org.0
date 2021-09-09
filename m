@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 814264051B1
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E1D94051B2
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343857AbhIIMiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:38:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39530 "EHLO mail.kernel.org"
+        id S1353344AbhIIMiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:38:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349892AbhIIMb5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242942AbhIIMb5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:31:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD90F61B26;
-        Thu,  9 Sep 2021 11:53:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F40761B4D;
+        Thu,  9 Sep 2021 11:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188382;
-        bh=jSJqcUvCFXY0TSGL+J9ywJwvrgzomddM6ITW1FZSD/M=;
+        s=k20201202; t=1631188384;
+        bh=HVvKxqPS8rU9yOzp1wJgm9OCAmPEnHndi0UR/vCAWoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pl4UNFSoOvHeEZAn5DrcaoExFc1/XF+Okd2Nx/l2qehY+gKJWffc3WzispvmVco7u
-         EXYRv66Txc2I4YlTH9mAm8GVgi8t0gALeJOLJLETr1qC5nnjAhzot6V7bPC2I5pSkp
-         XyrumU5EyAzHoowMM4loF7zCDE+umCBUlL5MfpjW4ZwFPEExRBqT7wfQNxaZAu5EJz
-         Acs7S7Ehad6NLHd8WaN9PBeJBeQAQYaNYpFIxaBWTB3tp1Ef4SMyVqkFzEVc0E8lf4
-         B16o4n2EX0JPIn1noUrMHmuz3fMwyIntXgkIaIqrmyeijojjCG1msnn3tOPStt1uOM
-         6EKgtgn6nCNwQ==
+        b=IhILP+D6GAU2cTLEc2np4vyqqyWK3T7aCbiJAk3VXZYL6I+XL9JHFtc+kA5HCKes0
+         cyKSfdOdFrNcv103N+slhNRjw9L1z9oifSDndAWOxNo74H3JgKJdlOhNH1TnIK2EOZ
+         oJuYcQc9DGASDAmjyfv8mAW7ethuD1fEOUMM47id7iyM6UITN5j2RihG5Mpc32oCci
+         v0O4gx2ZOrgEVDjUspV0ACft+LPysaNtwOS8sWy1OFhzrP/O88XYpNx8Y1bb0OcpYp
+         BsX3MV0X3nZcXzsPhMDmdiAr8+0pE5VKbn7RiLrXSVhsh9lwmOFyFdlBvgHsTGkDsL
+         i/RTR5V+9p6EA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>,
-        Carl Philipp Klemm <philipp@uvos.xyz>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
+Cc:     Sebastian Reichel <sebastian.reichel@collabora.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 081/176] serial: 8250_omap: Handle optional overrun-throttle-ms property
-Date:   Thu,  9 Sep 2021 07:49:43 -0400
-Message-Id: <20210909115118.146181-81-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 082/176] ARM: dts: imx53-ppd: Fix ACHC entry
+Date:   Thu,  9 Sep 2021 07:49:44 -0400
+Message-Id: <20210909115118.146181-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -47,95 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit 1fe0e1fa3209ad8e9124147775bd27b1d9f04bd4 ]
+[ Upstream commit cd7cd5b716d594e27a933c12f026d4f2426d7bf4 ]
 
-Handle optional overrun-throttle-ms property as done for 8250_fsl in commit
-6d7f677a2afa ("serial: 8250: Rate limit serial port rx interrupts during
-input overruns"). This can be used to rate limit the UART interrupts on
-noisy lines that end up producing messages like the following:
+PPD has only one ACHC device, which effectively is a Kinetis
+microcontroller. It has one SPI interface used for normal
+communication. Additionally it's possible to flash the device
+firmware using NXP's EzPort protocol by correctly driving a
+second chip select pin and the device reset pin.
 
-ttyS ttyS2: 4 input overrun(s)
-
-At least on droid4, the multiplexed USB and UART port is left to UART mode
-by the bootloader for a debug console, and if a USB charger is connected
-on boot, we get noise on the UART until the PMIC related drivers for PHY
-and charger are loaded.
-
-With this patch and overrun-throttle-ms = <500> we avoid the extra rx
-interrupts.
-
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210727103533.51547-2-tony@atomide.com
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Link: https://lore.kernel.org/r/20210802172309.164365-3-sebastian.reichel@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx53-ppd.dts | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 95e2d6de4f21..cd85491a52f9 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -604,7 +604,7 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- 	struct uart_port *port = dev_id;
- 	struct omap8250_priv *priv = port->private_data;
- 	struct uart_8250_port *up = up_to_u8250p(port);
--	unsigned int iir;
-+	unsigned int iir, lsr;
- 	int ret;
+diff --git a/arch/arm/boot/dts/imx53-ppd.dts b/arch/arm/boot/dts/imx53-ppd.dts
+index f7dcdf96e5c0..6d9a5ede94aa 100644
+--- a/arch/arm/boot/dts/imx53-ppd.dts
++++ b/arch/arm/boot/dts/imx53-ppd.dts
+@@ -70,6 +70,12 @@ cko2_11M: sgtl-clock-cko2 {
+ 		clock-frequency = <11289600>;
+ 	};
  
- #ifdef CONFIG_SERIAL_8250_DMA
-@@ -615,6 +615,7 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- #endif
- 
- 	serial8250_rpm_get(up);
-+	lsr = serial_port_in(port, UART_LSR);
- 	iir = serial_port_in(port, UART_IIR);
- 	ret = serial8250_handle_irq(port, iir);
- 
-@@ -629,6 +630,24 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- 		serial_port_in(port, UART_RX);
- 	}
- 
-+	/* Stop processing interrupts on input overrun */
-+	if ((lsr & UART_LSR_OE) && up->overrun_backoff_time_ms > 0) {
-+		unsigned long delay;
++	achc_24M: achc-clock {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <24000000>;
++	};
 +
-+		up->ier = port->serial_in(port, UART_IER);
-+		if (up->ier & (UART_IER_RLSI | UART_IER_RDI)) {
-+			port->ops->stop_rx(port);
-+		} else {
-+			/* Keep restarting the timer until
-+			 * the input overrun subsides.
-+			 */
-+			cancel_delayed_work(&up->overrun_backoff);
-+		}
-+
-+		delay = msecs_to_jiffies(up->overrun_backoff_time_ms);
-+		schedule_delayed_work(&up->overrun_backoff, delay);
-+	}
-+
- 	serial8250_rpm_put(up);
+ 	sgtlsound: sound {
+ 		compatible = "fsl,imx53-cpuvo-sgtl5000",
+ 			     "fsl,imx-audio-sgtl5000";
+@@ -313,16 +319,13 @@ &gpio4 11 GPIO_ACTIVE_LOW
+ 		    &gpio4 12 GPIO_ACTIVE_LOW>;
+ 	status = "okay";
  
- 	return IRQ_RETVAL(ret);
-@@ -1345,6 +1364,10 @@ static int omap8250_probe(struct platform_device *pdev)
- 		}
- 	}
+-	spidev0: spi@0 {
+-		compatible = "ge,achc";
+-		reg = <0>;
+-		spi-max-frequency = <1000000>;
+-	};
+-
+-	spidev1: spi@1 {
+-		compatible = "ge,achc";
+-		reg = <1>;
+-		spi-max-frequency = <1000000>;
++	spidev0: spi@1 {
++		compatible = "ge,achc", "nxp,kinetis-k20";
++		reg = <1>, <0>;
++		vdd-supply = <&reg_3v3>;
++		vdda-supply = <&reg_3v3>;
++		clocks = <&achc_24M>;
++		reset-gpios = <&gpio3 6 GPIO_ACTIVE_LOW>;
+ 	};
  
-+	if (of_property_read_u32(np, "overrun-throttle-ms",
-+				 &up.overrun_backoff_time_ms) != 0)
-+		up.overrun_backoff_time_ms = 0;
-+
- 	priv->wakeirq = irq_of_parse_and_map(np, 1);
- 
- 	pdata = of_device_get_match_data(&pdev->dev);
+ 	gpioxra0: gpio@2 {
 -- 
 2.30.2
 
