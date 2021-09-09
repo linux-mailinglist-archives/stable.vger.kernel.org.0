@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F04405664
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:37:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05693405669
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:37:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359665AbhIINTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:19:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
+        id S1359688AbhIINTt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:19:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358489AbhIINLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358450AbhIINLR (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 09:11:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DAE161501;
-        Thu,  9 Sep 2021 12:01:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 416FA61462;
+        Thu,  9 Sep 2021 12:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188880;
-        bh=SY6y8U71EGd4aHjByJyQV570JiwGzg0mb0VxOk/josg=;
+        s=k20201202; t=1631188882;
+        bh=tVvaw6HlpLk74LVq/wGIqdRnM0lfG0tiM0yTIJlP9E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qVWXli0qiWWnoZf/apDvKbvj4UAxoCxAWaXRJ9FNSXAi8mTN5MhoNXloXIHxC6x86
-         YL6Iq0oahGEmqxCu2A8AkmF1eP9oEYymQXK9VHwXhOU8DkzMloCWmUpH0bw9G/diY7
-         +cVRCXfM9z3ckCRNsvVWMBt3d2Ud1c/s7A3UrdYMiLffgXoxX8z+B6v9E+miTkjW/Y
-         Qw61rrG1rIoWJfO6kL1ncFRNkfoezrYT8MMuEswGVoyt7G/5Cmag6uZUW626xDksbK
-         kESsbF/jvNMNwbCpYEJ7qUYChEDzN2nTxdgp3Td/n3w60+5+uXuppqHyK0UZY4FdLl
-         ECMbcucW2p84w==
+        b=VzmX1h+kbOnNYs7mk3gjMSyrGe3FgXGcQcMfjDVfnTt7SN0D3M4qF39PlrejcByKI
+         /gxlkZFG20trN/3rsIAvIBRDYgkQBPaYrvhgGFIm4kZ6cUCHLh7HScsEOBXEWSXuqH
+         /n/QC7whnTSoHiDSuViDUD2/0A8ZKktqD45cxPUZDwbs0FbFy0ktvEbD5DyRDAP9ky
+         AHD2RtJGQfWVA/nlFHbzFsrwnlEbCYEhWCWsPA4bbEaa5vLdTHL09Nrf1FtATz1eoQ
+         5XPe0N/F2ShvXkLGM42KyNWPU9Un3a/2l1ZjC97XPeX0/a9w03/PuPIHmwefE3FXQ8
+         42ux/ATHy8u7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 03/35] iio: dac: ad5624r: Fix incorrect handling of an optional regulator.
-Date:   Thu,  9 Sep 2021 08:00:44 -0400
-Message-Id: <20210909120116.150912-3-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>, Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 04/35] video: fbdev: kyro: fix a DoS bug by restricting user input
+Date:   Thu,  9 Sep 2021 08:00:45 -0400
+Message-Id: <20210909120116.150912-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909120116.150912-1-sashal@kernel.org>
 References: <20210909120116.150912-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,66 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 97683c851f9cdbd3ea55697cbe2dcb6af4287bbd ]
+[ Upstream commit 98a65439172dc69cb16834e62e852afc2adb83ed ]
 
-The naming of the regulator is problematic.  VCC is usually a supply
-voltage whereas these devices have a separate VREF pin.
+The user can pass in any value to the driver through the 'ioctl'
+interface. The driver dost not check, which may cause DoS bugs.
 
-Secondly, the regulator core might have provided a stub regulator if
-a real regulator wasn't provided. That would in turn have failed to
-provide a voltage when queried. So reality was that there was no way
-to use the internal reference.
+The following log reveals it:
 
-In order to avoid breaking any dts out in the wild, make sure to fallback
-to the original vcc naming if vref is not available.
+divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+RIP: 0010:SetOverlayViewPort+0x133/0x5f0 drivers/video/fbdev/kyro/STG4000OverlayDevice.c:476
+Call Trace:
+ kyro_dev_overlay_viewport_set drivers/video/fbdev/kyro/fbdev.c:378 [inline]
+ kyrofb_ioctl+0x2eb/0x330 drivers/video/fbdev/kyro/fbdev.c:603
+ do_fb_ioctl+0x1f3/0x700 drivers/video/fbdev/core/fbmem.c:1171
+ fb_ioctl+0xeb/0x130 drivers/video/fbdev/core/fbmem.c:1185
+ vfs_ioctl fs/ioctl.c:48 [inline]
+ __do_sys_ioctl fs/ioctl.c:753 [inline]
+ __se_sys_ioctl fs/ioctl.c:739 [inline]
+ __x64_sys_ioctl+0x19b/0x220 fs/ioctl.c:739
+ do_syscall_64+0x32/0x80 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210627163244.1090296-9-jic23@kernel.org
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1626235762-2590-1-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ad5624r_spi.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/kyro/fbdev.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/iio/dac/ad5624r_spi.c b/drivers/iio/dac/ad5624r_spi.c
-index 5489ec43b95d..e5cefdb674f8 100644
---- a/drivers/iio/dac/ad5624r_spi.c
-+++ b/drivers/iio/dac/ad5624r_spi.c
-@@ -231,7 +231,7 @@ static int ad5624r_probe(struct spi_device *spi)
- 	if (!indio_dev)
- 		return -ENOMEM;
- 	st = iio_priv(indio_dev);
--	st->reg = devm_regulator_get(&spi->dev, "vcc");
-+	st->reg = devm_regulator_get_optional(&spi->dev, "vref");
- 	if (!IS_ERR(st->reg)) {
- 		ret = regulator_enable(st->reg);
- 		if (ret)
-@@ -242,6 +242,22 @@ static int ad5624r_probe(struct spi_device *spi)
- 			goto error_disable_reg;
+diff --git a/drivers/video/fbdev/kyro/fbdev.c b/drivers/video/fbdev/kyro/fbdev.c
+index 5bb01533271e..8482444259ce 100644
+--- a/drivers/video/fbdev/kyro/fbdev.c
++++ b/drivers/video/fbdev/kyro/fbdev.c
+@@ -372,6 +372,11 @@ static int kyro_dev_overlay_viewport_set(u32 x, u32 y, u32 ulWidth, u32 ulHeight
+ 		/* probably haven't called CreateOverlay yet */
+ 		return -EINVAL;
  
- 		voltage_uv = ret;
-+	} else {
-+		if (PTR_ERR(st->reg) != -ENODEV)
-+			return PTR_ERR(st->reg);
-+		/* Backwards compatibility. This naming is not correct */
-+		st->reg = devm_regulator_get_optional(&spi->dev, "vcc");
-+		if (!IS_ERR(st->reg)) {
-+			ret = regulator_enable(st->reg);
-+			if (ret)
-+				return ret;
++	if (ulWidth == 0 || ulWidth == 0xffffffff ||
++	    ulHeight == 0 || ulHeight == 0xffffffff ||
++	    (x < 2 && ulWidth + 2 == 0))
++		return -EINVAL;
 +
-+			ret = regulator_get_voltage(st->reg);
-+			if (ret < 0)
-+				goto error_disable_reg;
-+
-+			voltage_uv = ret;
-+		}
- 	}
+ 	/* Stop Ramdac Output */
+ 	DisableRamdacOutput(deviceInfo.pSTGReg);
  
- 	spi_set_drvdata(spi, indio_dev);
 -- 
 2.30.2
 
