@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E48B405472
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:29:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 558FB4057C3
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348562AbhIIM6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:58:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33696 "EHLO mail.kernel.org"
+        id S1353197AbhIINmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356447AbhIIMzM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1356448AbhIIMzM (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:55:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C73D663250;
-        Thu,  9 Sep 2021 11:58:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02D676324E;
+        Thu,  9 Sep 2021 11:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188682;
-        bh=r5gz44xUGjKQNP9W0Z+Pc8rBVdPIxDjXE7XorbWSThM=;
+        s=k20201202; t=1631188683;
+        bh=9yQVsBKhkMPV/1QFKagHMGFQ/CidzBP1nHpUmOc3MUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQUQvY2lDnbLwOdg1HZp1+pz6+U7A8+1Uy4ccIyh6LjqRktgiW3p8X2I5OxKRs2QG
-         VW5oLrRTEcWncGHMFL+qiaqdYTKpBa6NSafPM4ByxXGYR7ARGg0En7bYJGNtoadZ3l
-         YpcqAxH+3uJu1uVhMZLMlUMUq92WkOHTwC68ilgqVjA1LsdnmgMuYcqTBkj8syZP0n
-         KHgC5uoEacCa3t1bkj6F0tfP2Z2h7AFJGbAhpFbUIjTA+VN+zHw/oSCABQDW8by1Qz
-         P8ZiS6fWb+e951+IflzKgGAVTDDqP0qmQTISzTh+eT1oBsvC7Z9LpAjLGd/jPBIF7P
-         mD+Aa87u1AP1A==
+        b=XXu58rGFgvtlFfbnifwwBKjaVZh7QpcIqOrS/6tEMcp7iTMsz+EklAvztEjsC5iBq
+         XuViTQJFuvZWApZxlNT2iwp8Efmyl/EsPG8y6Z0PoAvYGGgluTcDhuSKpnBl0LJWaq
+         VsOIqG5JENF/Du0sB4JbsvDuABuRULGoU2rEeNAvv1mxbXkOFaufuIQaSuFr7QxMXS
+         kAYmjdZ8MRfncL6krJZswUmYhEscPt23EeAK+tuc0Nn4uPMPbMRxZbTpQGtCGZUcEg
+         bvuut8ACAKCiXp7qlYZRK0mZVUHeyiWp2X6idu+hlh8Rr1jbkNTirNUevpmbQ7HUjq
+         iV4Pki191O9zw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 4.19 29/74] staging: ks7010: Fix the initialization of the 'sleep_status' structure
-Date:   Thu,  9 Sep 2021 07:56:41 -0400
-Message-Id: <20210909115726.149004-29-sashal@kernel.org>
+Cc:     Juhee Kang <claudiajkang@gmail.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 30/74] samples: bpf: Fix tracex7 error raised on the missing argument
+Date:   Thu,  9 Sep 2021 07:56:42 -0400
+Message-Id: <20210909115726.149004-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115726.149004-1-sashal@kernel.org>
 References: <20210909115726.149004-1-sashal@kernel.org>
@@ -42,36 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Juhee Kang <claudiajkang@gmail.com>
 
-[ Upstream commit 56315e55119c0ea57e142b6efb7c31208628ad86 ]
+[ Upstream commit 7d07006f05922b95518be403f08ef8437b67aa32 ]
 
-'sleep_status' has 3 atomic_t members. Initialize the 3 of them instead of
-initializing only 2 of them and setting 0 twice to the same variable.
+The current behavior of 'tracex7' doesn't consist with other bpf samples
+tracex{1..6}. Other samples do not require any argument to run with, but
+tracex7 should be run with btrfs device argument. (it should be executed
+with test_override_return.sh)
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/d2e52a33a9beab41879551d0ae2fdfc99970adab.1626856991.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Currently, tracex7 doesn't have any description about how to run this
+program and raises an unexpected error. And this result might be
+confusing since users might not have a hunch about how to run this
+program.
+
+    // Current behavior
+    # ./tracex7
+    sh: 1: Syntax error: word unexpected (expecting ")")
+    // Fixed behavior
+    # ./tracex7
+    ERROR: Run with the btrfs device argument!
+
+In order to fix this error, this commit adds logic to report a message
+and exit when running this program with a missing argument.
+
+Additionally in test_override_return.sh, there is a problem with
+multiple directory(tmpmnt) creation. So in this commit adds a line with
+removing the directory with every execution.
+
+Signed-off-by: Juhee Kang <claudiajkang@gmail.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20210727041056.23455-1-claudiajkang@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/ks7010/ks7010_sdio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ samples/bpf/test_override_return.sh | 1 +
+ samples/bpf/tracex7_user.c          | 5 +++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/staging/ks7010/ks7010_sdio.c b/drivers/staging/ks7010/ks7010_sdio.c
-index 74551eb717fc..79d0513bd282 100644
---- a/drivers/staging/ks7010/ks7010_sdio.c
-+++ b/drivers/staging/ks7010/ks7010_sdio.c
-@@ -938,9 +938,9 @@ static void ks7010_private_init(struct ks_wlan_private *priv,
- 	memset(&priv->wstats, 0, sizeof(priv->wstats));
+diff --git a/samples/bpf/test_override_return.sh b/samples/bpf/test_override_return.sh
+index e68b9ee6814b..35db26f736b9 100755
+--- a/samples/bpf/test_override_return.sh
++++ b/samples/bpf/test_override_return.sh
+@@ -1,5 +1,6 @@
+ #!/bin/bash
  
- 	/* sleep mode */
-+	atomic_set(&priv->sleepstatus.status, 0);
- 	atomic_set(&priv->sleepstatus.doze_request, 0);
- 	atomic_set(&priv->sleepstatus.wakeup_request, 0);
--	atomic_set(&priv->sleepstatus.wakeup_request, 0);
++rm -r tmpmnt
+ rm -f testfile.img
+ dd if=/dev/zero of=testfile.img bs=1M seek=1000 count=1
+ DEVICE=$(losetup --show -f testfile.img)
+diff --git a/samples/bpf/tracex7_user.c b/samples/bpf/tracex7_user.c
+index ea6dae78f0df..2ed13e9f3fcb 100644
+--- a/samples/bpf/tracex7_user.c
++++ b/samples/bpf/tracex7_user.c
+@@ -13,6 +13,11 @@ int main(int argc, char **argv)
+ 	char command[256];
+ 	int ret;
  
- 	trx_device_init(priv);
- 	hostif_init(priv);
++	if (!argv[1]) {
++		fprintf(stderr, "ERROR: Run with the btrfs device argument!\n");
++		return 0;
++	}
++
+ 	snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
+ 
+ 	if (load_bpf_file(filename)) {
 -- 
 2.30.2
 
