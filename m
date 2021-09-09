@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E01F404E00
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:16:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2078F404E01
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:16:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344571AbhIIMHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:07:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42148 "EHLO mail.kernel.org"
+        id S244833AbhIIMHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347788AbhIIME2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:04:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1DAD6187D;
-        Thu,  9 Sep 2021 11:47:07 +0000 (UTC)
+        id S1347796AbhIIME3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:04:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E41AB615A6;
+        Thu,  9 Sep 2021 11:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188028;
-        bh=2ZQgAdSqM3Z1B/NFboHJ5P2AqXD4GDXImXq2D9M7XEk=;
+        s=k20201202; t=1631188029;
+        bh=6mcHWBWcWXuC5Tmts2xdto8ZuoMFECF0/tuKk/l87Uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KINcNcCBBbvbrOe2QstnrbfRUhJX1bpFIBLa2crU9mClGRUM5PLNLNpnK2drlxpHq
-         BgFq/KwEA8IBurstZ6L8PeWgmY5z5jHzsMSaUtqcY/xRhK64N2PPNwyjHeRb4+6vZN
-         O6IeXNiT3S3jSp9wW1DKsfkI/bPlmXagYRuknQt+2Np70bSk7zXqKsUvyElIilQGuI
-         o1Qltz2yfeRCMTgrYAke2HXDaSek6rQRUT7R84gjxWY36pkTZgfVlZXhq6UMXj7ZwB
-         L8l+ErB2iofZSgG+fQvaF0mTLu4cw3j52JjarwtD7rKFtr+OiGP0oFID2inKp5omyW
-         ybSf5HHXe8u9g==
+        b=Zmz/R2gtTghYLlvRwLozSxhWUKGdRITKJ18CeoZYtKvvUKBGujPjdZNbGGqqPrx/t
+         /Nt1efPoG5Z7UMyeVxOd256BojXZL9CQUsNRrKOClpkhOQOFXif0bN9YQqvmbTMIlU
+         iVVIBT8J3Cs5okpktcBHaKL8ig/UkEpPA3JKJJjrZ6T+obxJRui+Sat03ZhcAa4Ot5
+         fWEzMFoA5Dmky6zR2P9mxZCCGj71AjVPeK3xZIIfiHv6nK47uYUeBi9T56DPdapUvv
+         u4IZdVFm+J+zJQ3rWhBrSDSK38+KTg/uzq6kFc57vZFBQ2lqTrre7EHfHF2hIOfPPy
+         GBTrTtJnjTIkA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Elder <elder@linaro.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 025/219] net: ipa: fix IPA v4.11 interconnect data
-Date:   Thu,  9 Sep 2021 07:43:21 -0400
-Message-Id: <20210909114635.143983-25-sashal@kernel.org>
+Cc:     Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 026/219] Smack: Fix wrong semantics in smk_access_entry()
+Date:   Thu,  9 Sep 2021 07:43:22 -0400
+Message-Id: <20210909114635.143983-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -42,51 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit 0ac26271344478ff718329fa9d4ef81d4bcbc43b ]
+[ Upstream commit 6d14f5c7028eea70760df284057fe198ce7778dd ]
 
-Currently three interconnects are defined for the Qualcomm SC7280
-SoC, but this was based on a misunderstanding.  There should only be
-two interconnects defined:  one between the IPA and system memory;
-and another between the AP and IPA config space.  The bandwidths
-defined for the memory and config interconnects do not match what I
-understand to be proper values, so update these.
+In the smk_access_entry() function, if no matching rule is found
+in the rust_list, a negative error code will be used to perform bit
+operations with the MAY_ enumeration value. This is semantically
+wrong. This patch fixes this issue.
 
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa_data-v4.11.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ security/smack/smack_access.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ipa/ipa_data-v4.11.c b/drivers/net/ipa/ipa_data-v4.11.c
-index 05806ceae8b5..157f8d47058b 100644
---- a/drivers/net/ipa/ipa_data-v4.11.c
-+++ b/drivers/net/ipa/ipa_data-v4.11.c
-@@ -346,18 +346,13 @@ static const struct ipa_mem_data ipa_mem_data = {
- static const struct ipa_interconnect_data ipa_interconnect_data[] = {
- 	{
- 		.name			= "memory",
--		.peak_bandwidth		= 465000,	/* 465 MBps */
--		.average_bandwidth	= 80000,	/* 80 MBps */
--	},
--	/* Average rate is unused for the next two interconnects */
--	{
--		.name			= "imem",
--		.peak_bandwidth		= 68570,	/* 68.57 MBps */
--		.average_bandwidth	= 80000,	/* 80 MBps (unused?) */
-+		.peak_bandwidth		= 600000,	/* 600 MBps */
-+		.average_bandwidth	= 150000,	/* 150 MBps */
- 	},
-+	/* Average rate is unused for the next interconnect */
- 	{
- 		.name			= "config",
--		.peak_bandwidth		= 30000,	/* 30 MBps */
-+		.peak_bandwidth		= 74000,	/* 74 MBps */
- 		.average_bandwidth	= 0,		/* unused */
- 	},
- };
+diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
+index 7eabb448acab..169929c6c4eb 100644
+--- a/security/smack/smack_access.c
++++ b/security/smack/smack_access.c
+@@ -81,23 +81,22 @@ int log_policy = SMACK_AUDIT_DENIED;
+ int smk_access_entry(char *subject_label, char *object_label,
+ 			struct list_head *rule_list)
+ {
+-	int may = -ENOENT;
+ 	struct smack_rule *srp;
+ 
+ 	list_for_each_entry_rcu(srp, rule_list, list) {
+ 		if (srp->smk_object->smk_known == object_label &&
+ 		    srp->smk_subject->smk_known == subject_label) {
+-			may = srp->smk_access;
+-			break;
++			int may = srp->smk_access;
++			/*
++			 * MAY_WRITE implies MAY_LOCK.
++			 */
++			if ((may & MAY_WRITE) == MAY_WRITE)
++				may |= MAY_LOCK;
++			return may;
+ 		}
+ 	}
+ 
+-	/*
+-	 * MAY_WRITE implies MAY_LOCK.
+-	 */
+-	if ((may & MAY_WRITE) == MAY_WRITE)
+-		may |= MAY_LOCK;
+-	return may;
++	return -ENOENT;
+ }
+ 
+ /**
 -- 
 2.30.2
 
