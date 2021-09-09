@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AAAF40512C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:43:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53EFD405125
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350991AbhIIMd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:33:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39852 "EHLO mail.kernel.org"
+        id S1351099AbhIIMdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:33:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354434AbhIIMa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1354436AbhIIMa5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:30:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D62E61B2E;
-        Thu,  9 Sep 2021 11:52:45 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ED0961B47;
+        Thu,  9 Sep 2021 11:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188366;
-        bh=bSCXnLw3gVNNxShwTG5WpCUg8/UXDfQ2rza84uJNu1c=;
+        s=k20201202; t=1631188367;
+        bh=aEmmNDItKKfIvYWiPzZzc9Ik6tR4WWo7PiWkhXxbDw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rSs9sX4+m6W7Vqc9eSGsXP8Ajd7fFz6ovNT/nl1yPxi/aA8uxZOuj+p6qTX1h81PX
-         E0lDUv8HyEpZglrAqMBfxFu1Iy9uA802yvPvaQb9RZsfzvN3T4C9ilxVTZ81LqCyiX
-         z8qLjp8MR2yPx/I/HQ9caLGxy3KXsHo423AmI4KvyyMrJVUeEPeklieLBd8UPXSgN/
-         Pr6qpi1aE9VJPnsxpVpoCZPSmffkm382MUAyzQZub/qxrlvqJR+UdHR/AJN60Eq3N1
-         8bMPaFCpwaELuX77Ez2sPtMCuEF8yE2orNjFj7c601QpPS2DZAdDMZe5K5jgnlOn+2
-         OgSZPqXe22Www==
+        b=W1pkAQa8U29FvI7G3+tNLO0Xjhhf8g9vDyaMjnAB+fbX9Lo/qevlp2Zq5nYlPXh67
+         lZ95o98BfaM1BBAL9C7H8Di6bduJPtdHrcUurRbb57elSPAxdZsajxpEb0/Lou67Ts
+         EZ3udN+IWZbGI/Fn2Ez8QtXXb0jeeWRS/762fFT0elEjXX+VeXWCqgt6IOJyHunaGL
+         xRRkmXpWDcUSbqAwbTuEZd7IJP+oPGYWKenHKEH/e7X6jsB298AiFOt524Zt4BSBm2
+         VNbkdsYGiGzu/Gy2lRht78R4CYzfzkJH690B39HpzMSABx5NolExfj0mvvqRDxUowN
+         xyXRkA0KkUGmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolas Ferre <nicolas.ferre@microchip.com>,
-        =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+Cc:     Vidya Sagar <vidyas@nvidia.com>, Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 068/176] ARM: dts: at91: use the right property for shutdown controller
-Date:   Thu,  9 Sep 2021 07:49:30 -0400
-Message-Id: <20210909115118.146181-68-sashal@kernel.org>
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 069/176] arm64: tegra: Fix Tegra194 PCIe EP compatible string
+Date:   Thu,  9 Sep 2021 07:49:31 -0400
+Message-Id: <20210909115118.146181-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,122 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 818c4593434e81c9971b8fc278215121622c755e ]
+[ Upstream commit bf2942a8b7c38e8cc2d5157b4f0323d7f4e5ec71 ]
 
-The wrong property "atmel,shdwc-debouncer" was used to specify the
-debounce delay for the shutdown controler. Replace it with the
-documented and implemented property "debounce-delay-us", as mentioned
-in v4 driver submission. See:
-https://lore.kernel.org/r/1458134390-23847-3-git-send-email-nicolas.ferre@atmel.com/
+The initialization sequence performed by the generic platform driver
+pcie-designware-plat.c for a DWC based implementation doesn't work for
+Tegra194. Tegra194 has a different initialization sequence requirement
+which can only be satisfied by the Tegra194 specific platform driver
+pcie-tegra194.c. So, remove the generic compatible string "snps,dw-pcie-ep"
+from Tegra194's endpoint controller nodes.
 
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Reported-by: Clément Léger <clement.leger@bootlin.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20210730172729.28093-1-nicolas.ferre@microchip.com/
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-kizbox3_common.dtsi    | 2 +-
- arch/arm/boot/dts/at91-sam9x60ek.dts          | 2 +-
- arch/arm/boot/dts/at91-sama5d27_som1_ek.dts   | 2 +-
- arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts | 2 +-
- arch/arm/boot/dts/at91-sama5d2_icp.dts        | 2 +-
- arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts     | 2 +-
- arch/arm/boot/dts/at91-sama5d2_xplained.dts   | 2 +-
- 7 files changed, 7 insertions(+), 7 deletions(-)
+ arch/arm64/boot/dts/nvidia/tegra194.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91-kizbox3_common.dtsi b/arch/arm/boot/dts/at91-kizbox3_common.dtsi
-index 7c3076e245ef..dc77d8e80e56 100644
---- a/arch/arm/boot/dts/at91-kizbox3_common.dtsi
-+++ b/arch/arm/boot/dts/at91-kizbox3_common.dtsi
-@@ -336,7 +336,7 @@ &pwm0 {
- };
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+index 6946fb210e48..9b5007e5f790 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+@@ -1976,7 +1976,7 @@ pcie@141a0000 {
+ 	};
  
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	atmel,wakeup-rtc-timer;
+ 	pcie_ep@14160000 {
+-		compatible = "nvidia,tegra194-pcie-ep", "snps,dw-pcie-ep";
++		compatible = "nvidia,tegra194-pcie-ep";
+ 		power-domains = <&bpmp TEGRA194_POWER_DOMAIN_PCIEX4A>;
+ 		reg = <0x00 0x14160000 0x0 0x00020000>, /* appl registers (128K)      */
+ 		      <0x00 0x36040000 0x0 0x00040000>, /* iATU_DMA reg space (256K)  */
+@@ -2008,7 +2008,7 @@ pcie_ep@14160000 {
+ 	};
  
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sam9x60ek.dts b/arch/arm/boot/dts/at91-sam9x60ek.dts
-index edca66c232c1..a071e53cb854 100644
---- a/arch/arm/boot/dts/at91-sam9x60ek.dts
-+++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
-@@ -648,7 +648,7 @@ &rtt {
- };
+ 	pcie_ep@14180000 {
+-		compatible = "nvidia,tegra194-pcie-ep", "snps,dw-pcie-ep";
++		compatible = "nvidia,tegra194-pcie-ep";
+ 		power-domains = <&bpmp TEGRA194_POWER_DOMAIN_PCIEX8B>;
+ 		reg = <0x00 0x14180000 0x0 0x00020000>, /* appl registers (128K)      */
+ 		      <0x00 0x38040000 0x0 0x00040000>, /* iATU_DMA reg space (256K)  */
+@@ -2040,7 +2040,7 @@ pcie_ep@14180000 {
+ 	};
  
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	status = "okay";
- 
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-index d3cd2443ba25..9a18453d7842 100644
---- a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-@@ -138,7 +138,7 @@ i2c3: i2c@600 {
- 			};
- 
- 			shdwc@f8048010 {
--				atmel,shdwc-debouncer = <976>;
-+				debounce-delay-us = <976>;
- 				atmel,wakeup-rtc-timer;
- 
- 				input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-index 4883b84b4ede..20bcb7480d2e 100644
---- a/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-@@ -205,7 +205,7 @@ &sdmmc0 {
- };
- 
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	atmel,wakeup-rtc-timer;
- 
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-index 19bb50f50c1f..308d472bd104 100644
---- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-@@ -693,7 +693,7 @@ &sdmmc0 {
- };
- 
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	atmel,wakeup-rtc-timer;
- 
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-index 1c6361ba1aca..317c6ddb5677 100644
---- a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-@@ -203,7 +203,7 @@ i2c2: i2c@600 {
- 			};
- 
- 			shdwc@f8048010 {
--				atmel,shdwc-debouncer = <976>;
-+				debounce-delay-us = <976>;
- 
- 				input@0 {
- 					reg = <0>;
-diff --git a/arch/arm/boot/dts/at91-sama5d2_xplained.dts b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-index d767968ae217..08c5182ba86b 100644
---- a/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-@@ -347,7 +347,7 @@ i2c2: i2c@600 {
- 			};
- 
- 			shdwc@f8048010 {
--				atmel,shdwc-debouncer = <976>;
-+				debounce-delay-us = <976>;
- 				atmel,wakeup-rtc-timer;
- 
- 				input@0 {
+ 	pcie_ep@141a0000 {
+-		compatible = "nvidia,tegra194-pcie-ep", "snps,dw-pcie-ep";
++		compatible = "nvidia,tegra194-pcie-ep";
+ 		power-domains = <&bpmp TEGRA194_POWER_DOMAIN_PCIEX8A>;
+ 		reg = <0x00 0x141a0000 0x0 0x00020000>, /* appl registers (128K)      */
+ 		      <0x00 0x3a040000 0x0 0x00040000>, /* iATU_DMA reg space (256K)  */
 -- 
 2.30.2
 
