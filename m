@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACB8140554C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A47B405548
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:32:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358739AbhIINJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:09:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53480 "EHLO mail.kernel.org"
+        id S1358718AbhIINJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:09:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357895AbhIINFS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1357887AbhIINFS (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 09:05:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DE9C63288;
-        Thu,  9 Sep 2021 12:00:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C9AD6329F;
+        Thu,  9 Sep 2021 12:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188806;
-        bh=T91Zgokphle+V0vjmg+UqKidMYlUGT5t5wylyld9/q4=;
+        s=k20201202; t=1631188807;
+        bh=GwWGm9WFdrC2XQPy9txcEwUY19vlnXcJNvKB8+v6fa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/LlBrkxGvi4lus4fRXdE7bK4ZksvepoyW9GF1nXlq73xqiF4pFW6kvi9fLIfMOLN
-         pwbQms9Tz34b/0TrbddeNDkkRtBRUFGIXVw7+CgbDXXTFk7JYAdF+lMwR5PczS+Van
-         Sn4Xx/I0jCtps36dOdZgtbVnJa2xPhbfsnFdQEDABaZJB6Q0qwzJn9euECS8CNncw/
-         pIQkAi90dFtRVgqTNau4r/MnNhYFtC8QNmU1NUvMYEPc05kTQkg/nPZcZmvYYQGOu2
-         NqRvhRMrfU5nBhW1CzFDcmXXotNhjmvwk3ch1pFx8H8dAACHL2ji6Z53v6UtDl3O+T
-         TLGCRqj2cKtLw==
+        b=BTivrnSBFF7BIaA2++vGxHWiMkHl21UndMKpHnpkKsRNDBdxneWz63ICZoyyDpmnC
+         rup/4+5/neMn5KYeh2RLWKonI0NNfbE+pvxzGzbFHPw8iiF7whH7BEiJkqF/77SUCP
+         lPO3pUJmpva1dWWFpeTaMl/ETfxK8DPquIpq9IRc0twkpR36d63LwVE2JAq63tqfys
+         oZb2diDJkYSuB/H9cHsbEtqdEkFjc7PNWAY6SIWeMoegLZhfi7nFfU5Pf/iXjeyJ4t
+         Vsx3XxJ58+PGu7pbboQmryhbiqjSrH2gMZxrWXvrhHOvRLH/UVmippxHQFzC856+tw
+         1fug+JJWrUdIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shuah Khan <skhan@linuxfoundation.org>,
-        Michael <msbroadf@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 52/59] usbip:vhci_hcd USB port can get stuck in the disabled state
-Date:   Thu,  9 Sep 2021 07:58:53 -0400
-Message-Id: <20210909115900.149795-52-sashal@kernel.org>
+Cc:     Sugar Zhang <sugar.zhang@rock-chips.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 53/59] ASoC: rockchip: i2s: Fix regmap_ops hang
+Date:   Thu,  9 Sep 2021 07:58:54 -0400
+Message-Id: <20210909115900.149795-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115900.149795-1-sashal@kernel.org>
 References: <20210909115900.149795-1-sashal@kernel.org>
@@ -43,56 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Sugar Zhang <sugar.zhang@rock-chips.com>
 
-[ Upstream commit 66cce9e73ec61967ed1f97f30cee79bd9a2bb7ee ]
+[ Upstream commit 53ca9b9777b95cdd689181d7c547e38dc79adad0 ]
 
-When a remote usb device is attached to the local Virtual USB
-Host Controller Root Hub port, the bound device driver may send
-a port reset command.
+API 'set_fmt' maybe called when PD is off, in the situation,
+any register access will hang the system. so, enable PD
+before r/w register.
 
-vhci_hcd accepts port resets only when the device doesn't have
-port address assigned to it. When reset happens device is in
-assigned/used state and vhci_hcd rejects it leaving the port in
-a stuck state.
-
-This problem was found when a blue-tooth or xbox wireless dongle
-was passed through using usbip.
-
-A few drivers reset the port during probe including mt76 driver
-specific to this bug report. Fix the problem with a change to
-honor reset requests when device is in used state (VDEV_ST_USED).
-
-Reported-and-tested-by: Michael <msbroadf@gmail.com>
-Suggested-by: Michael <msbroadf@gmail.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20210819225937.41037-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
+Link: https://lore.kernel.org/r/1629950520-14190-4-git-send-email-sugar.zhang@rock-chips.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/vhci_hcd.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ sound/soc/rockchip/rockchip_i2s.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
-index 709214df2c18..22e8cda7a137 100644
---- a/drivers/usb/usbip/vhci_hcd.c
-+++ b/drivers/usb/usbip/vhci_hcd.c
-@@ -469,8 +469,14 @@ static int vhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
- 			vhci_hcd->port_status[rhport] &= ~(1 << USB_PORT_FEAT_RESET);
- 			vhci_hcd->re_timeout = 0;
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 0e07e3dea7de..93a4829f80cc 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -188,7 +188,9 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ {
+ 	struct rk_i2s_dev *i2s = to_info(cpu_dai);
+ 	unsigned int mask = 0, val = 0;
++	int ret = 0;
  
-+			/*
-+			 * A few drivers do usb reset during probe when
-+			 * the device could be in VDEV_ST_USED state
-+			 */
- 			if (vhci_hcd->vdev[rhport].ud.status ==
--			    VDEV_ST_NOTASSIGNED) {
-+				VDEV_ST_NOTASSIGNED ||
-+			    vhci_hcd->vdev[rhport].ud.status ==
-+				VDEV_ST_USED) {
- 				usbip_dbg_vhci_rh(
- 					" enable rhport %d (status %u)\n",
- 					rhport,
++	pm_runtime_get_sync(cpu_dai->dev);
+ 	mask = I2S_CKR_MSS_MASK;
+ 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
+ 	case SND_SOC_DAIFMT_CBS_CFS:
+@@ -201,7 +203,8 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ 		i2s->is_master_mode = false;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_pm_put;
+ 	}
+ 
+ 	regmap_update_bits(i2s->regmap, I2S_CKR, mask, val);
+@@ -215,7 +218,8 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ 		val = I2S_CKR_CKP_POS;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_pm_put;
+ 	}
+ 
+ 	regmap_update_bits(i2s->regmap, I2S_CKR, mask, val);
+@@ -238,7 +242,8 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ 		val = I2S_TXCR_TFS_PCM | I2S_TXCR_PBM_MODE(1);
+ 		break;
+ 	default:
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_pm_put;
+ 	}
+ 
+ 	regmap_update_bits(i2s->regmap, I2S_TXCR, mask, val);
+@@ -261,12 +266,16 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ 		val = I2S_RXCR_TFS_PCM | I2S_RXCR_PBM_MODE(1);
+ 		break;
+ 	default:
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_pm_put;
+ 	}
+ 
+ 	regmap_update_bits(i2s->regmap, I2S_RXCR, mask, val);
+ 
+-	return 0;
++err_pm_put:
++	pm_runtime_put(cpu_dai->dev);
++
++	return ret;
+ }
+ 
+ static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
 -- 
 2.30.2
 
