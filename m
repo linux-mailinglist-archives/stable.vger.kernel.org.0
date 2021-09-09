@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A04A405435
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:28:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 975F340543E
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236422AbhIIM5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:57:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46220 "EHLO mail.kernel.org"
+        id S1354068AbhIIM5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:57:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354465AbhIIMvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1354503AbhIIMvK (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:51:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46A9863235;
-        Thu,  9 Sep 2021 11:57:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9474A63237;
+        Thu,  9 Sep 2021 11:57:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188633;
-        bh=UsaLy+VS9uGznDshld/1XfrmZjQm8g1fmvtDiPhgZ/Y=;
+        s=k20201202; t=1631188634;
+        bh=XxpWqRYLel/LG59Qm3NLQDHNtbTcwgshYBLulKw/lvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S0QsmXEmCcNPRreD+jynqxqRy8Ir4ec+wZMu1uio+FgJGipWmQF27v3oyOTjKkZpL
-         CcjNBP6M0PZYFDq8KAYNi0kNs1VKr5MZORvhT+u/Lcj1VXSt1lGe9yltMm590VCxPk
-         p/L4fCQMMNXHyox9Hq4qkpO3iibHku++152HB2m0VsWfNhMgT/dRbn5w8kXQ7TwQTg
-         a/mzq7iHTtHVokmhnIcIYGN/pwzB1rBT/rdyg8ibPfp4rvIY9RUwflHO8EZ1wDvdy/
-         ksVSZRHVt7f3UXk8cqBQBt6HNPBpjHiegViv0K8ySPBQInFTwGSf6rN4Z28V4vu8jz
-         do9BIpEHyd1/g==
+        b=i45/0f+MzfjrcimtJoTA0j4C4KmBVWVnqRrE7mlCnp2JEKKb9yHQQ4jhWQYBAB+Ax
+         loDU5NFa/VrMXJtGp5KL0NJieW3NW4CD5pCgMBqOl/o5igk0ULeVdRiRRxuMhHcZhh
+         PYoQgR5p8YGqzUGvIq/DQScgDddsZPeEk3h8sd7NOdFCwLh7ftX1Ds7Fz9BxeTDV18
+         N10MdbKO/zbzvU7Wk1/IAU7QvCKCu2Cm5tJy8D4FxIv5XGz350EyAKLrtptZWx0tjz
+         A4V2Diy4CrEA6lrSNzEbrsis7yCDJUvpLOSLSa7YvJsHHZdd9CLdwGbPDIbKoCk2sX
+         9zMMatNGYFarw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Keely <Sean.Keely@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 099/109] drm/amdkfd: Account for SH/SE count when setting up cu masks.
-Date:   Thu,  9 Sep 2021 07:54:56 -0400
-Message-Id: <20210909115507.147917-99-sashal@kernel.org>
+Cc:     Zhang Qilong <zhangqilong3@huawei.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 100/109] iwlwifi: mvm: fix a memory leak in iwl_mvm_mac_ctxt_beacon_changed
+Date:   Thu,  9 Sep 2021 07:54:57 -0400
+Message-Id: <20210909115507.147917-100-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -44,148 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Keely <Sean.Keely@amd.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 1ec06c2dee679e9f089e78ed20cb74ee90155f61 ]
+[ Upstream commit 0f5d44ac6e55551798dd3da0ff847c8df5990822 ]
 
-On systems with multiple SH per SE compute_static_thread_mgmt_se#
-is split into independent masks, one for each SH, in the upper and
-lower 16 bits.  We need to detect this and apply cu masking to each
-SH.  The cu mask bits are assigned first to each SE, then to
-alternate SHs, then finally to higher CU id.  This ensures that
-the maximum number of SPIs are engaged as early as possible while
-balancing CU assignment to each SH.
+If beacon_inject_active is true, we will return without freeing
+beacon.  Fid that by freeing it before returning.
 
-v2: Use max SH/SE rather than max SH in cu_per_sh.
-
-v3: Fix comment blocks, ensure se_mask is initially zero filled,
-    and correctly assign se.sh.cu positions to unset bits in cu_mask.
-
-Signed-off-by: Sean Keely <Sean.Keely@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+[reworded the commit message]
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210802172232.d16206ca60fc.I9984a9b442c84814c307cee3213044e24d26f38a@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c | 84 +++++++++++++++-----
- drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h |  1 +
- 2 files changed, 64 insertions(+), 21 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c
-index 88813dad731f..c021519af810 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c
-@@ -98,36 +98,78 @@ void mqd_symmetrically_map_cu_mask(struct mqd_manager *mm,
- 		uint32_t *se_mask)
- {
- 	struct kfd_cu_info cu_info;
--	uint32_t cu_per_se[KFD_MAX_NUM_SE] = {0};
--	int i, se, sh, cu = 0;
--
-+	uint32_t cu_per_sh[KFD_MAX_NUM_SE][KFD_MAX_NUM_SH_PER_SE] = {0};
-+	int i, se, sh, cu;
- 	amdgpu_amdkfd_get_cu_info(mm->dev->kgd, &cu_info);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c
+index 9c417dd06291..7736621dca65 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c
+@@ -1043,8 +1043,10 @@ int iwl_mvm_mac_ctxt_beacon_changed(struct iwl_mvm *mvm,
+ 		return -ENOMEM;
  
- 	if (cu_mask_count > cu_info.cu_active_number)
- 		cu_mask_count = cu_info.cu_active_number;
- 
-+	/* Exceeding these bounds corrupts the stack and indicates a coding error.
-+	 * Returning with no CU's enabled will hang the queue, which should be
-+	 * attention grabbing.
-+	 */
-+	if (cu_info.num_shader_engines > KFD_MAX_NUM_SE) {
-+		pr_err("Exceeded KFD_MAX_NUM_SE, chip reports %d\n", cu_info.num_shader_engines);
-+		return;
+ #ifdef CONFIG_IWLWIFI_DEBUGFS
+-	if (mvm->beacon_inject_active)
++	if (mvm->beacon_inject_active) {
++		dev_kfree_skb(beacon);
+ 		return -EBUSY;
 +	}
-+	if (cu_info.num_shader_arrays_per_engine > KFD_MAX_NUM_SH_PER_SE) {
-+		pr_err("Exceeded KFD_MAX_NUM_SH, chip reports %d\n",
-+			cu_info.num_shader_arrays_per_engine * cu_info.num_shader_engines);
-+		return;
-+	}
-+	/* Count active CUs per SH.
-+	 *
-+	 * Some CUs in an SH may be disabled.	HW expects disabled CUs to be
-+	 * represented in the high bits of each SH's enable mask (the upper and lower
-+	 * 16 bits of se_mask) and will take care of the actual distribution of
-+	 * disabled CUs within each SH automatically.
-+	 * Each half of se_mask must be filled only on bits 0-cu_per_sh[se][sh]-1.
-+	 *
-+	 * See note on Arcturus cu_bitmap layout in gfx_v9_0_get_cu_info.
-+	 */
- 	for (se = 0; se < cu_info.num_shader_engines; se++)
- 		for (sh = 0; sh < cu_info.num_shader_arrays_per_engine; sh++)
--			cu_per_se[se] += hweight32(cu_info.cu_bitmap[se % 4][sh + (se / 4)]);
--
--	/* Symmetrically map cu_mask to all SEs:
--	 * cu_mask[0] bit0 -> se_mask[0] bit0;
--	 * cu_mask[0] bit1 -> se_mask[1] bit0;
--	 * ... (if # SE is 4)
--	 * cu_mask[0] bit4 -> se_mask[0] bit1;
-+			cu_per_sh[se][sh] = hweight32(cu_info.cu_bitmap[se % 4][sh + (se / 4)]);
-+
-+	/* Symmetrically map cu_mask to all SEs & SHs:
-+	 * se_mask programs up to 2 SH in the upper and lower 16 bits.
-+	 *
-+	 * Examples
-+	 * Assuming 1 SH/SE, 4 SEs:
-+	 * cu_mask[0] bit0 -> se_mask[0] bit0
-+	 * cu_mask[0] bit1 -> se_mask[1] bit0
-+	 * ...
-+	 * cu_mask[0] bit4 -> se_mask[0] bit1
-+	 * ...
-+	 *
-+	 * Assuming 2 SH/SE, 4 SEs
-+	 * cu_mask[0] bit0 -> se_mask[0] bit0 (SE0,SH0,CU0)
-+	 * cu_mask[0] bit1 -> se_mask[1] bit0 (SE1,SH0,CU0)
-+	 * ...
-+	 * cu_mask[0] bit4 -> se_mask[0] bit16 (SE0,SH1,CU0)
-+	 * cu_mask[0] bit5 -> se_mask[1] bit16 (SE1,SH1,CU0)
-+	 * ...
-+	 * cu_mask[0] bit8 -> se_mask[0] bit1 (SE0,SH0,CU1)
- 	 * ...
-+	 *
-+	 * First ensure all CUs are disabled, then enable user specified CUs.
- 	 */
--	se = 0;
--	for (i = 0; i < cu_mask_count; i++) {
--		if (cu_mask[i / 32] & (1 << (i % 32)))
--			se_mask[se] |= 1 << cu;
--
--		do {
--			se++;
--			if (se == cu_info.num_shader_engines) {
--				se = 0;
--				cu++;
-+	for (i = 0; i < cu_info.num_shader_engines; i++)
-+		se_mask[i] = 0;
-+
-+	i = 0;
-+	for (cu = 0; cu < 16; cu++) {
-+		for (sh = 0; sh < cu_info.num_shader_arrays_per_engine; sh++) {
-+			for (se = 0; se < cu_info.num_shader_engines; se++) {
-+				if (cu_per_sh[se][sh] > cu) {
-+					if (cu_mask[i / 32] & (1 << (i % 32)))
-+						se_mask[se] |= 1 << (cu + sh * 16);
-+					i++;
-+					if (i == cu_mask_count)
-+						return;
-+				}
- 			}
--		} while (cu >= cu_per_se[se] && cu < 32);
-+		}
- 	}
- }
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h
-index fbdb16418847..4edc012e3138 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h
-@@ -27,6 +27,7 @@
- #include "kfd_priv.h"
+ #endif
  
- #define KFD_MAX_NUM_SE 8
-+#define KFD_MAX_NUM_SH_PER_SE 2
- 
- /**
-  * struct mqd_manager
+ 	ret = iwl_mvm_mac_ctxt_send_beacon(mvm, vif, beacon);
 -- 
 2.30.2
 
