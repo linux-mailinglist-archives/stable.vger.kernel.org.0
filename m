@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AD6D404E3C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 731B1404E5B
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239376AbhIIMKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:10:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43206 "EHLO mail.kernel.org"
+        id S243937AbhIIMLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:11:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348907AbhIIMFI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:05:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8072611CC;
-        Thu,  9 Sep 2021 11:47:13 +0000 (UTC)
+        id S1348919AbhIIMFH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:05:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16068617E3;
+        Thu,  9 Sep 2021 11:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188034;
-        bh=thpL6AW9gfvM62P9aPozmTg4bDfzk4C3pcgMyurRBJU=;
+        s=k20201202; t=1631188036;
+        bh=cVzuaQ2uqDC6xVYgHkhTzbNHaKughqasOwpslbxgqfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BjXysXZUnVMx3BvTse4euWb602aMDf8UImrz4ytc6IJVeV6CRCIKQfY+EsD8vJUOf
-         G6ydAYU8iJ/iqMG/XoMBo25ksLR5nqo/blOuCqrN88bXQl2E29MDX0SQorUeKZQuJW
-         0lTzZSl7I4JTYA+hm00ZmBBrm/rcL73fol0ojru8Sjy1DdEwN7K3bv+lu0k943vYBj
-         0qEqCcthNBdc03a0QwjTOYMSy+9jYDunVRCzjWNIXvVjESKOoGJ0Kc+iIH/xcz4uRa
-         Zi9GgHZmG0AoH3Hy8wPic0LQhWzIpxy4rykKPMifB+qAn+DeUe9v+anp2bLZXyUX47
-         xvdL404628+zQ==
+        b=tx31CNaEWn/hrpoGNNWMV0tlccn0oRhRFC7KqP6vJBZ0EvZRTppjr1oD/ALTifkD7
+         nmWiiljrqrrSmt7vxwHF8nBvlJIrOdXScpT86voR62cgZBu5a8FQyztIkX4KuPY5hF
+         DzQyqxWAcRvy2YRAQD2MN6L3bY6vQLG8aSBt7scvkL/UcMMSJPsrTkInz6vmdwe6zC
+         9i8Ty0HHGULwdaQPPNx6U8PKcuKDwkcE3waom3ZXX+HeBISMu0fYRdawklIEYxpUfz
+         lGvCkepU93UzUKTfvwRPUuKprtQEXCTn3AXlbs/di8AUJqs5S8Bz3sAxlmA+ZGzxM+
+         ntzHityDkSRvQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhouyi Zhou <zhouzhouyi@gmail.com>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 030/219] rcu: Fix macro name CONFIG_TASKS_RCU_TRACE
-Date:   Thu,  9 Sep 2021 07:43:26 -0400
-Message-Id: <20210909114635.143983-30-sashal@kernel.org>
+Cc:     Sasha Neftin <sasha.neftin@intel.com>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 031/219] igc: Check if num of q_vectors is smaller than max before array access
+Date:   Thu,  9 Sep 2021 07:43:27 -0400
+Message-Id: <20210909114635.143983-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -42,63 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhouyi Zhou <zhouzhouyi@gmail.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit fed31a4dd3adb5455df7c704de2abb639a1dc1c0 ]
+[ Upstream commit 373e2829e7c2e1e606503cdb5c97749f512a4be9 ]
 
-This commit fixes several typos where CONFIG_TASKS_RCU_TRACE should
-instead be CONFIG_TASKS_TRACE_RCU.  Among other things, these typos
-could cause CONFIG_TASKS_TRACE_RCU_READ_MB=y kernels to suffer from
-memory-ordering bugs that could result in false-positive quiescent
-states and too-short grace periods.
+Ensure that the adapter->q_vector[MAX_Q_VECTORS] array isn't accessed
+beyond its size. It was fixed by using a local variable num_q_vectors
+as a limit for loop index, and ensure that num_q_vectors is not bigger
+than MAX_Q_VECTORS.
 
-Signed-off-by: Zhouyi Zhou <zhouzhouyi@gmail.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Suggested-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rcupdate.h | 2 +-
- kernel/rcu/tree_plugin.h | 8 ++++----
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
-index 1199ffd305d1..fcd8ec0b7408 100644
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -167,7 +167,7 @@ void synchronize_rcu_tasks(void);
- # define synchronize_rcu_tasks synchronize_rcu
- # endif
- 
--# ifdef CONFIG_TASKS_RCU_TRACE
-+# ifdef CONFIG_TASKS_TRACE_RCU
- # define rcu_tasks_trace_qs(t)						\
- 	do {								\
- 		if (!likely(READ_ONCE((t)->trc_reader_checked)) &&	\
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index ad0156b86937..d14905051535 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -2995,17 +2995,17 @@ static void noinstr rcu_dynticks_task_exit(void)
- /* Turn on heavyweight RCU tasks trace readers on idle/user entry. */
- static void rcu_dynticks_task_trace_enter(void)
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index 9b85fdf01297..3e301c5c5270 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -4402,6 +4402,7 @@ static irqreturn_t igc_msix_ring(int irq, void *data)
+  */
+ static int igc_request_msix(struct igc_adapter *adapter)
  {
--#ifdef CONFIG_TASKS_RCU_TRACE
-+#ifdef CONFIG_TASKS_TRACE_RCU
- 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB))
- 		current->trc_reader_special.b.need_mb = true;
--#endif /* #ifdef CONFIG_TASKS_RCU_TRACE */
-+#endif /* #ifdef CONFIG_TASKS_TRACE_RCU */
- }
++	unsigned int num_q_vectors = adapter->num_q_vectors;
+ 	int i = 0, err = 0, vector = 0, free_vector = 0;
+ 	struct net_device *netdev = adapter->netdev;
  
- /* Turn off heavyweight RCU tasks trace readers on idle/user exit. */
- static void rcu_dynticks_task_trace_exit(void)
- {
--#ifdef CONFIG_TASKS_RCU_TRACE
-+#ifdef CONFIG_TASKS_TRACE_RCU
- 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB))
- 		current->trc_reader_special.b.need_mb = false;
--#endif /* #ifdef CONFIG_TASKS_RCU_TRACE */
-+#endif /* #ifdef CONFIG_TASKS_TRACE_RCU */
- }
+@@ -4410,7 +4411,13 @@ static int igc_request_msix(struct igc_adapter *adapter)
+ 	if (err)
+ 		goto err_out;
+ 
+-	for (i = 0; i < adapter->num_q_vectors; i++) {
++	if (num_q_vectors > MAX_Q_VECTORS) {
++		num_q_vectors = MAX_Q_VECTORS;
++		dev_warn(&adapter->pdev->dev,
++			 "The number of queue vectors (%d) is higher than max allowed (%d)\n",
++			 adapter->num_q_vectors, MAX_Q_VECTORS);
++	}
++	for (i = 0; i < num_q_vectors; i++) {
+ 		struct igc_q_vector *q_vector = adapter->q_vector[i];
+ 
+ 		vector++;
 -- 
 2.30.2
 
