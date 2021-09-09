@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDCBD4057C2
+	by mail.lfdr.de (Postfix) with ESMTP id 045FA4057C0
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353471AbhIINmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:42:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42574 "EHLO mail.kernel.org"
+        id S1353510AbhIINmA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:42:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351449AbhIIMrk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1349786AbhIIMrk (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:47:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C4DB60555;
-        Thu,  9 Sep 2021 11:56:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCBB66023D;
+        Thu,  9 Sep 2021 11:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188594;
-        bh=ya837GmVjltzofHK0e4DImDd6KZP8/OzW8tMJEzZJ3U=;
+        s=k20201202; t=1631188595;
+        bh=edGT4Irk0qRRxz1aFw3ZU8mSGoAf1jvEj3/8scOdMvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F4RFH9rGiFP9omwyzDi/XV4qeJahUx32NQH9tdoSDOKK2PBfaE/VuwBNDwfyE5S42
-         GL7i6ZDcrK3GKa3B+w6pBg8HeNL1qmUNpGpeFjmitk55ANtVVq5b4uVi8lm3HNQt36
-         F77eVoobq5rcNc5tNDAoqyXPdZEgtTMiyQjGuLq5cFignQP3T1UUdVpDHzu+6yxXl5
-         vlShKO3kOuD6Umj55jMm06VUzHvZ7K53Y5gxUbJSlY3iqAyt36Yr9ckSeFrGsprdqP
-         Al5vDNPP4hcXCtGasVeAsSu0y+NO8h5BpSyqELIbzJd8vjLb9vvn8eBDUCQ/2LDOsl
-         d/o1pCpTYQ3Cw==
+        b=JWOM08obbpocLfZR96bNS4GftxHW1jt8EMmIerJCyLPGbJWKqr6K20TD5ZJ6Sztrk
+         AW/4XlNDL78IMSuxW35E4DeW8/U40EuM1G1EYN4pyV81ufhEIGr6rxh7YJS1wsIiZw
+         7CeONqFh9nGJ/qH8TwVMx+BcNExx/JncohxdtPcQ1kWglhRflEVQ3mG7JBXHEEaail
+         V5IvdzaIBYl5yoL7a06DWwbBCQLpeju1oPOAeMp34JH2ZiZ8OnWkyX8biAEHkC+oJV
+         SnuJey0eoFtEUrcMqBWKJHhAPLVMXgo1o62umtbtTivo+1eMX8k09Y5UUxLpYQSYnD
+         NJC4UXLgPq3bw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Hannes Reinecke <hare@suse.de>,
-        Daniel Wagner <dwagner@suse.de>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 068/109] nvme-tcp: don't check blk_mq_tag_to_rq when receiving pdu data
-Date:   Thu,  9 Sep 2021 07:54:25 -0400
-Message-Id: <20210909115507.147917-68-sashal@kernel.org>
+Cc:     Bob Moore <robert.moore@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
+        devel@acpica.org
+Subject: [PATCH AUTOSEL 5.4 069/109] ACPICA: iASL: Fix for WPBT table with no command-line arguments
+Date:   Thu,  9 Sep 2021 07:54:26 -0400
+Message-Id: <20210909115507.147917-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -43,47 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Bob Moore <robert.moore@intel.com>
 
-[ Upstream commit 3b01a9d0caa8276d9ce314e09610f7fb70f49a00 ]
+[ Upstream commit 87b8ec5846cb81747088d1729acaf55a1155a267 ]
 
-We already validate it when receiving the c2hdata pdu header
-and this is not changing so this is a redundant check.
+Handle the case where the Command-line Arguments table field
+does not exist.
 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Daniel Wagner <dwagner@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+ACPICA commit d6487164497fda170a1b1453c5d58f2be7c873d6
+
+Link: https://github.com/acpica/acpica/commit/d6487164
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ include/acpi/actbl3.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 718152adc625..1458b18cbf24 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -642,17 +642,9 @@ static int nvme_tcp_recv_data(struct nvme_tcp_queue *queue, struct sk_buff *skb,
- 			      unsigned int *offset, size_t *len)
- {
- 	struct nvme_tcp_data_pdu *pdu = (void *)queue->pdu;
--	struct nvme_tcp_request *req;
--	struct request *rq;
--
--	rq = blk_mq_tag_to_rq(nvme_tcp_tagset(queue), pdu->command_id);
--	if (!rq) {
--		dev_err(queue->ctrl->ctrl.device,
--			"queue %d tag %#x not found\n",
--			nvme_tcp_queue_id(queue), pdu->command_id);
--		return -ENOENT;
--	}
--	req = blk_mq_rq_to_pdu(rq);
-+	struct request *rq =
-+		blk_mq_tag_to_rq(nvme_tcp_tagset(queue), pdu->command_id);
-+	struct nvme_tcp_request *req = blk_mq_rq_to_pdu(rq);
+diff --git a/include/acpi/actbl3.h b/include/acpi/actbl3.h
+index 7a58c10ce421..59965982879b 100644
+--- a/include/acpi/actbl3.h
++++ b/include/acpi/actbl3.h
+@@ -671,6 +671,10 @@ struct acpi_table_wpbt {
+ 	u16 arguments_length;
+ };
  
- 	while (true) {
- 		int recv_len, ret;
++struct acpi_wpbt_unicode {
++	u16 *unicode_string;
++};
++
+ /*******************************************************************************
+  *
+  * WSMT - Windows SMM Security Migrations Table
 -- 
 2.30.2
 
