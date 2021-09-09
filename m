@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2B754054C0
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21B564054C1
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:31:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349434AbhIINDY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:03:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58636 "EHLO mail.kernel.org"
+        id S1352179AbhIIND0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:03:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355571AbhIIM5h (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355594AbhIIM5h (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:57:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0657863251;
-        Thu,  9 Sep 2021 11:58:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1438D63265;
+        Thu,  9 Sep 2021 11:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188717;
-        bh=FRq+ITQ7cE3VDO3rLKqTjflgtQDvLrubnXxkMwr6glw=;
+        s=k20201202; t=1631188718;
+        bh=C56UGu/jYrwM6Jfi/51pH9IQNP0Jn9eLUHEN3yNrW1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7Xt1EIdZ5UQ6sBfjjqGC8hOz7Paz7LLsUdSkzCSdT76z/RuMmPJULcxHzynTItnY
-         5RhFhpIpijiO35YXctDG+Epk71o615PUl5cO1RfmSUMOgPHelAny2dVoHR8iyYIvcj
-         fZPOx6E3ZEQ6sxb0OZGtMt+ND86mML1fKcpHeKQTmUW3G3PAPmJDD4/+FUKqmMBsan
-         yhO9Qisj3RUmyINIKgrXNA/XkncoCll9M36g8sWeCF41wvDEABotPCoGx8asPHxmLa
-         frTDbI883XBAxJqzMOGGVb/Vb4w/02jqhfalvG6/t5oGCy9ZuIp+aXpKwJJzMP6RIO
-         L40sxeQFROxuw==
+        b=Mb4ik2fA3CWp4+GkDwzoxXZnpd3fgoOgfAfsZopUrvCLVe55vHw67akU/Lns2OxUK
+         1pUGRp9zyTuq/YqpjdY3ActDm1RytwjjRof2CgLpjEKcfX792Gml7oTGs1IeOKNMCV
+         eEkDDcBc0+i0UW3BaU34XQwOPvNZtGv5xOZnyuVe+wzs++YYDJ+jLkkxcqF+gQtlII
+         uhzBXdtI6zDgOn5fSago6Iq2rVSGqLINWtA4qydupTXpNIVh9JNwnCpt208xo1bJdh
+         EBw1oceXCaK3Ud6c1I39kC60PQkyjKbQSIOwGd7zVy1IK5bQahD9rfvnIsk5cVnHBw
+         oFsygRJR6S9Qg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 57/74] ASoC: intel: atom: Revert PCM buffer address setup workaround again
-Date:   Thu,  9 Sep 2021 07:57:09 -0400
-Message-Id: <20210909115726.149004-57-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Rob Herring <robh@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 58/74] of: Don't allow __of_attached_node_sysfs() without CONFIG_SYSFS
+Date:   Thu,  9 Sep 2021 07:57:10 -0400
+Message-Id: <20210909115726.149004-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115726.149004-1-sashal@kernel.org>
 References: <20210909115726.149004-1-sashal@kernel.org>
@@ -41,37 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit e28ac04a705e946eddc5e7d2fc712dea3f20fe9e ]
+[ Upstream commit 6211e9cb2f8faf7faae0b6caf844bfe9527cc607 ]
 
-We worked around the breakage of PCM buffer setup by the commit
-65ca89c2b12c ("ASoC: intel: atom: Fix breakage for PCM buffer address
-setup"), but this isn't necessary since the CONTINUOUS buffer type
-also sets runtime->dma_addr since commit f84ba106a018 ("ALSA:
-memalloc: Store snd_dma_buffer.addr for continuous pages, too").
-Let's revert the change again.
+Trying to boot without SYSFS, but with OF_DYNAMIC quickly
+results in a crash:
 
-Link: https://lore.kernel.org/r/20210822072127.9786-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[    0.088460] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000070
+[...]
+[    0.103927] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.14.0-rc3 #4179
+[    0.105810] Hardware name: linux,dummy-virt (DT)
+[    0.107147] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
+[    0.108876] pc : kernfs_find_and_get_ns+0x3c/0x7c
+[    0.110244] lr : kernfs_find_and_get_ns+0x3c/0x7c
+[...]
+[    0.134087] Call trace:
+[    0.134800]  kernfs_find_and_get_ns+0x3c/0x7c
+[    0.136054]  safe_name+0x4c/0xd0
+[    0.136994]  __of_attach_node_sysfs+0xf8/0x124
+[    0.138287]  of_core_init+0x90/0xfc
+[    0.139296]  driver_init+0x30/0x4c
+[    0.140283]  kernel_init_freeable+0x160/0x1b8
+[    0.141543]  kernel_init+0x30/0x140
+[    0.142561]  ret_from_fork+0x10/0x18
+
+While not having sysfs isn't a very common option these days,
+it is still expected that such configuration would work.
+
+Paper over it by bailing out from __of_attach_node_sysfs() if
+CONFIG_SYSFS isn't enabled.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210820144722.169226-1-maz@kernel.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/atom/sst-mfld-platform-pcm.c | 2 +-
+ drivers/of/kobj.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/atom/sst-mfld-platform-pcm.c b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-index 682ee41ec75c..501ac836777a 100644
---- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-+++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-@@ -135,7 +135,7 @@ static void sst_fill_alloc_params(struct snd_pcm_substream *substream,
- 	snd_pcm_uframes_t period_size;
- 	ssize_t periodbytes;
- 	ssize_t buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
--	u32 buffer_addr = virt_to_phys(substream->runtime->dma_area);
-+	u32 buffer_addr = substream->runtime->dma_addr;
+diff --git a/drivers/of/kobj.c b/drivers/of/kobj.c
+index a32e60b024b8..6675b5e56960 100644
+--- a/drivers/of/kobj.c
++++ b/drivers/of/kobj.c
+@@ -119,7 +119,7 @@ int __of_attach_node_sysfs(struct device_node *np)
+ 	struct property *pp;
+ 	int rc;
  
- 	channels = substream->runtime->channels;
- 	period_size = substream->runtime->period_size;
+-	if (!of_kset)
++	if (!IS_ENABLED(CONFIG_SYSFS) || !of_kset)
+ 		return 0;
+ 
+ 	np->kobj.kset = of_kset;
 -- 
 2.30.2
 
