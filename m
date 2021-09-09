@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE851405129
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:43:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F6DA40581C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352765AbhIIMdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:33:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38688 "EHLO mail.kernel.org"
+        id S236316AbhIINrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:47:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354452AbhIIMa7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:30:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43D6A61B52;
-        Thu,  9 Sep 2021 11:52:50 +0000 (UTC)
+        id S1354455AbhIIMbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:31:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7ADB861B51;
+        Thu,  9 Sep 2021 11:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188371;
-        bh=GZ/gu4APEh9rZOKYqejC3pLIFSjaRRfjmwKlj7WFA9w=;
+        s=k20201202; t=1631188372;
+        bh=WGAUroMp2YiF3aYdHx/k1oTKR3AUnrywzRgf7Y2IgZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YCx73X4DHqt6ezn/0IKtrEEKzuMSg3eOtZAyJ/XXJQLLINiqM9+SqmiCKhV4/jHJR
-         nQbxLM5eB4kjQFkEsIAkzzwJOxQrJxKELsth65DXijhJvhdDYN3hPP3H0mTObhSCvY
-         OTFsqOVk3gYhOJfwYMJbq/QIFuVNUu3mX4GiFKCL8P2Gjjkmfhew6fKmEnyeNV1Zz2
-         MbizhGAaohDu4Kf6fu7TTxedQig2hHSuX6LQvznEgSsBiSxvn3yymya2h2SloGkWfS
-         jo3/hupgP8dzpOnJ5x+I3BoBmeuRQTZqdD36yfbzm84TJcDcWpxHeQMMWd30uFkd0/
-         52MVntT779C2A==
+        b=LHOaCReG4fT9ku4fGsfKSYRNdNMgMZTsTKGj9pacvTngkvgh9P59suD3EdaFvsGs9
+         J99tf9o0L1P2H9YWWooAT5LYv5g0GEPJZfYgvG7Jb2zD8j8u2a4WhB3cKXA8raehQj
+         LCq4CPOOAYrnkcV+Le7LOSxjcuUCjfXsB7BaPCKSBxOK+uCJLn0pdk+9JUfMdeqYsV
+         ODXwpgJlsrCibFLDS07YWEK76rphij5B4qQyrV8hB7TctM+9/O0XoXkVkVN+a+3QwM
+         N2TCzLDuxMJAHq8ywi4DHy+wVUUSActbgBnNPouaoaRyQiwPWv/+MpsP8mfDslST+J
+         ECKmZ7rVjCDTA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 072/176] ASoC: Intel: update sof_pcm512x quirks
-Date:   Thu,  9 Sep 2021 07:49:34 -0400
-Message-Id: <20210909115118.146181-72-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Umang Jain <umang.jain@ideasonboard.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 073/176] media: imx258: Rectify mismatch of VTS value
+Date:   Thu,  9 Sep 2021 07:49:35 -0400
+Message-Id: <20210909115118.146181-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -43,74 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 22414cade8dfec25ab94df52b3a4f7aa8edb6120 ]
+[ Upstream commit 51f93add3669f1b1f540de1cf397815afbd4c756 ]
 
-The default SOF topology enables SSP capture and DMICs, even though
-both of these hardware capabilities are not always available in
-hardware (specific versions of HiFiberry and DMIC kit needed).
+The frame_length_lines (0x0340) registers are hard-coded as follows:
 
-For the SSP capture, this leads to annoying "SP5-Codec: ASoC: no
-backend capture" and "streamSSP5-Codec: ASoC: no users capture at
-close - state 0" errors.
+- 4208x3118
+  frame_length_lines = 0x0c50
 
-Update the quirks to match what the topology needs, which also allows
-for the ability to remove SSP capture and DMIC support.
+- 2104x1560
+  frame_length_lines = 0x0638
 
-BugLink: https://github.com/thesofproject/linux/issues/3061
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Link: https://lore.kernel.org/r/20210802152151.15832-4-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+- 1048x780
+  frame_length_lines = 0x034c
+
+The driver exposes the V4L2_CID_VBLANK control in read-only mode and
+sets its value to vts_def - height, where vts_def is a mode-dependent
+value coming from the supported_modes array. It is set using one of
+the following macros defined in the driver:
+
+  #define IMX258_VTS_30FPS                0x0c98
+  #define IMX258_VTS_30FPS_2K             0x0638
+  #define IMX258_VTS_30FPS_VGA            0x034c
+
+There's a clear mismatch in the value for the full resolution mode i.e.
+IMX258_VTS_30FPS. Fix it by rectifying the macro with the value set for
+the frame_length_lines register as stated above.
+
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Umang Jain <umang.jain@ideasonboard.com>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_pcm512x.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/media/i2c/imx258.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/sof_pcm512x.c b/sound/soc/intel/boards/sof_pcm512x.c
-index d2b0456236c7..bdd671f07659 100644
---- a/sound/soc/intel/boards/sof_pcm512x.c
-+++ b/sound/soc/intel/boards/sof_pcm512x.c
-@@ -26,11 +26,16 @@
+diff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c
+index ccb55fd1d506..c0a691a73ec9 100644
+--- a/drivers/media/i2c/imx258.c
++++ b/drivers/media/i2c/imx258.c
+@@ -22,7 +22,7 @@
+ #define IMX258_CHIP_ID			0x0258
  
- #define SOF_PCM512X_SSP_CODEC(quirk)		((quirk) & GENMASK(3, 0))
- #define SOF_PCM512X_SSP_CODEC_MASK			(GENMASK(3, 0))
-+#define SOF_PCM512X_ENABLE_SSP_CAPTURE		BIT(4)
-+#define SOF_PCM512X_ENABLE_DMIC			BIT(5)
- 
- #define IDISP_CODEC_MASK	0x4
- 
- /* Default: SSP5 */
--static unsigned long sof_pcm512x_quirk = SOF_PCM512X_SSP_CODEC(5);
-+static unsigned long sof_pcm512x_quirk =
-+	SOF_PCM512X_SSP_CODEC(5) |
-+	SOF_PCM512X_ENABLE_SSP_CAPTURE |
-+	SOF_PCM512X_ENABLE_DMIC;
- 
- static bool is_legacy_cpu;
- 
-@@ -245,8 +250,9 @@ static struct snd_soc_dai_link *sof_card_dai_links_create(struct device *dev,
- 	links[id].dpcm_playback = 1;
- 	/*
- 	 * capture only supported with specific versions of the Hifiberry DAC+
--	 * links[id].dpcm_capture = 1;
- 	 */
-+	if (sof_pcm512x_quirk & SOF_PCM512X_ENABLE_SSP_CAPTURE)
-+		links[id].dpcm_capture = 1;
- 	links[id].no_pcm = 1;
- 	links[id].cpus = &cpus[id];
- 	links[id].num_cpus = 1;
-@@ -381,6 +387,9 @@ static int sof_audio_probe(struct platform_device *pdev)
- 
- 	ssp_codec = sof_pcm512x_quirk & SOF_PCM512X_SSP_CODEC_MASK;
- 
-+	if (!(sof_pcm512x_quirk & SOF_PCM512X_ENABLE_DMIC))
-+		dmic_be_num = 0;
-+
- 	/* compute number of dai links */
- 	sof_audio_card_pcm512x.num_links = 1 + dmic_be_num + hdmi_num;
- 
+ /* V_TIMING internal */
+-#define IMX258_VTS_30FPS		0x0c98
++#define IMX258_VTS_30FPS		0x0c50
+ #define IMX258_VTS_30FPS_2K		0x0638
+ #define IMX258_VTS_30FPS_VGA		0x034c
+ #define IMX258_VTS_MAX			0xffff
 -- 
 2.30.2
 
