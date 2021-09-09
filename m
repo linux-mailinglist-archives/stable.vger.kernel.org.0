@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DBA6405207
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C18C040520C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:47:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243946AbhIIMkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:40:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46110 "EHLO mail.kernel.org"
+        id S1354270AbhIIMkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:40:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346132AbhIIMhe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1352289AbhIIMhe (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:37:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8249F61B98;
-        Thu,  9 Sep 2021 11:54:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CEBA761B93;
+        Thu,  9 Sep 2021 11:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188462;
-        bh=GiDCcw8EAI/e3m9h772NNoRn4DlkDc9x34kowoRI6tw=;
+        s=k20201202; t=1631188463;
+        bh=KyrPSSFkkaFfgTa331w9So5Bp9nfhgXOj9h8Ox5YpWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHChcJ+Czi/WKbL3W7hUI4bMYD4NsdYvFZlF2VpTlyAfaFr5wtyrBt1vQOBrjA+uE
-         KGqDwpcUUYacpINA5uTsbqOPLgtnmAFIOXkFOJaYP05dwD6DOzfgCZgrk7YLi7EjZz
-         V2e1y6IO3jcyyKvPmCrs5YwRBQ0x/3caUrHVB7yMiTYjCzgJGZ500N8ARMawgFxwDk
-         I/iH7LYL6zlEBcm2O77APBUj7hr5oKo6u7Hu0yKYNhYKZGXUPjBUW+IkgyeXwRLCID
-         SSlFLgy4eKffQEWmHEWkOcjqJsv4RFAN3ZOVoxmda/1YRqkPLRfcr4UPiOmZ9joDOR
-         38dfzf8PGw32Q==
+        b=b/J+l6KNK2rQiTtWk4cnciSa7ifdcJZiMt+Hmk2A5e4Tp3iij+M9Vmbqsn1Qg+IHi
+         uk5qFg5C3ljSsH2OwMBFtFrYXLNOsmStCN+du0Wt9d/z7GhvrnPzx06PSWiBIYdbMm
+         hzIY7YpSAX8dtwHA4GgpJHqY7FZLHqJ3PyWa926USwhuvIk8P9Eo91OKnfZjrPdDHS
+         YG6hddImAFcgEpn12PxLc3CGPC3Sjvff4+88YQudIWQYUbiYm0tU2HsD4O6nHGzv9L
+         wLUpM/SXL34oQXfLnJZoWJj4AGRN1NmtT95yOsfs4saBlO9tza35tEgCjBzrFR4VVn
+         iiVxrA2ezbpSw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 142/176] soundwire: intel: fix potential race condition during power down
-Date:   Thu,  9 Sep 2021 07:50:44 -0400
-Message-Id: <20210909115118.146181-142-sashal@kernel.org>
+Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
+        Lukasz Majczak <lma@semihalf.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 143/176] ASoC: Intel: Skylake: Fix module configuration for KPB and MIXER
+Date:   Thu,  9 Sep 2021 07:50:45 -0400
+Message-Id: <20210909115118.146181-143-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -44,80 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit ea6942dad4b2a7e1735aa0f10f3d0b04b847750f ]
+[ Upstream commit e4e0633bcadc950b4b4af06c7f1bb7f7e3e86321 ]
 
-The power down sequence sets the link_up flag as false outside of the
-mutex_lock. This is potentially unsafe.
+KeyPhrasebuffer, Mixin and Mixout modules configuration is described by
+firmware's basic module configuration structure. There are no extended
+parameters required. Update functions taking part in building
+INIT_INSTANCE IPC payload to reflect that.
 
-In additional the flow in that sequence can be improved by first
-testing if the link was powered, setting the link_up flag as false and
-proceeding with the power down. In case the CPA bits cannot be
-cleared, we only flag an error since we cannot deal with interrupts
-any longer.
-
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20210818024954.16873-2-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Tested-by: Lukasz Majczak <lma@semihalf.com>
+Link: https://lore.kernel.org/r/20210818075742.1515155-6-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/intel.c | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ sound/soc/intel/skylake/skl-messages.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
-index 6a1e862b16c3..dad4326a2a71 100644
---- a/drivers/soundwire/intel.c
-+++ b/drivers/soundwire/intel.c
-@@ -537,12 +537,14 @@ static int intel_link_power_down(struct sdw_intel *sdw)
+diff --git a/sound/soc/intel/skylake/skl-messages.c b/sound/soc/intel/skylake/skl-messages.c
+index 476ef1897961..79c6cf2c14bf 100644
+--- a/sound/soc/intel/skylake/skl-messages.c
++++ b/sound/soc/intel/skylake/skl-messages.c
+@@ -802,9 +802,12 @@ static u16 skl_get_module_param_size(struct skl_dev *skl,
  
- 	mutex_lock(sdw->link_res->shim_lock);
+ 	case SKL_MODULE_TYPE_BASE_OUTFMT:
+ 	case SKL_MODULE_TYPE_MIC_SELECT:
+-	case SKL_MODULE_TYPE_KPB:
+ 		return sizeof(struct skl_base_outfmt_cfg);
  
--	intel_shim_master_ip_to_glue(sdw);
--
- 	if (!(*shim_mask & BIT(link_id)))
- 		dev_err(sdw->cdns.dev,
- 			"%s: Unbalanced power-up/down calls\n", __func__);
- 
-+	sdw->cdns.link_up = false;
++	case SKL_MODULE_TYPE_MIXER:
++	case SKL_MODULE_TYPE_KPB:
++		return sizeof(struct skl_base_cfg);
 +
-+	intel_shim_master_ip_to_glue(sdw);
+ 	default:
+ 		/*
+ 		 * return only base cfg when no specific module type is
+@@ -857,10 +860,14 @@ static int skl_set_module_format(struct skl_dev *skl,
+ 
+ 	case SKL_MODULE_TYPE_BASE_OUTFMT:
+ 	case SKL_MODULE_TYPE_MIC_SELECT:
+-	case SKL_MODULE_TYPE_KPB:
+ 		skl_set_base_outfmt_format(skl, module_config, *param_data);
+ 		break;
+ 
++	case SKL_MODULE_TYPE_MIXER:
++	case SKL_MODULE_TYPE_KPB:
++		skl_set_base_module_format(skl, module_config, *param_data);
++		break;
 +
- 	*shim_mask &= ~BIT(link_id);
- 
- 	if (!*shim_mask) {
-@@ -559,20 +561,21 @@ static int intel_link_power_down(struct sdw_intel *sdw)
- 		link_control &=  spa_mask;
- 
- 		ret = intel_clear_bit(shim, SDW_SHIM_LCTL, link_control, cpa_mask);
-+		if (ret < 0) {
-+			dev_err(sdw->cdns.dev, "%s: could not power down link\n", __func__);
-+
-+			/*
-+			 * we leave the sdw->cdns.link_up flag as false since we've disabled
-+			 * the link at this point and cannot handle interrupts any longer.
-+			 */
-+		}
- 	}
- 
- 	link_control = intel_readl(shim, SDW_SHIM_LCTL);
- 
- 	mutex_unlock(sdw->link_res->shim_lock);
- 
--	if (ret < 0) {
--		dev_err(sdw->cdns.dev, "%s: could not power down link\n", __func__);
--
--		return ret;
--	}
--
--	sdw->cdns.link_up = false;
--	return 0;
-+	return ret;
- }
- 
- static void intel_shim_sync_arm(struct sdw_intel *sdw)
+ 	default:
+ 		skl_set_base_module_format(skl, module_config, *param_data);
+ 		break;
 -- 
 2.30.2
 
