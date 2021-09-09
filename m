@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13D88404EED
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCB0404EEE
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:19:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347899AbhIIMQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:16:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47410 "EHLO mail.kernel.org"
+        id S1348125AbhIIMQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:16:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351217AbhIIMJn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:09:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7442461245;
-        Thu,  9 Sep 2021 11:48:12 +0000 (UTC)
+        id S1351244AbhIIMJr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:09:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1597619F9;
+        Thu,  9 Sep 2021 11:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188093;
-        bh=JCUyILyV+6ACnUJ0rjVdIkqYyZqashxOxCmyeCo/XRk=;
+        s=k20201202; t=1631188094;
+        bh=5Ig2ASFP7PQhU3grkOm7W7+VUDD0CcVerGaQ3MjpO8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h6H7OTvYtpEIhEqiIBvND4fCn4ixDLyYSWG5u07hujcKoEum6xrGhw9TN/MYTgkpl
-         Jqcv1VZykby/c18dfeTwNVKmQiur+EVfjz45mZgEcrcr3cYWRwfQqt7jU5cfugiSnI
-         dSGH7QpG0VYva9gzm+dJzRX2cz3tTkaTTUQ9JZBbVdivXic9xtCI/dvxxICyUjdYCM
-         +bw1x+NgzMsFVdHIolvjoYmak+NoB1V55cPbbywnXCnVFhdkwJ38c/mE+h4WncyFyx
-         /worvX5GO9Jr4b+C4DjzNQ/eRPfgsGUJqdf3d7YPAGFABnHRD7VXDEYbV79C011vfT
-         7jMVN8kXyGGTA==
+        b=kX17bORNjjVCKB2N8bANO0k0JBBaJPWKr9th9Er3VpCzb2gHBfXyEihDHg584jcP+
+         cAInRccwlCdoFRt+OQ3ter/0f8eiHhwLgiJAY5Egorh2BzuxV7xmcNuOyVxkyPSkK2
+         DIcNH8RohT6yYjvRDXG2QKG3phtSpMfEAVjK19iO4/5/THSW2lcUBGijBxnAjEw6/V
+         F5XITivNU4KW2nokkwRedjpoXA8QkyxXvhSapSQ9GtPyFjDDPJ1Uqzag8p6qAOGwBT
+         y1cPVQ0cB/Dr6yYsf0zpr2G63YHkyn6pYG/sTDmdaNJfYPQ7td3wmi6SqnKYsB9Nr6
+         tARaalXWSAmJw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+Cc:     Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 076/219] drm: rcar-du: Shutdown the display on system shutdown
-Date:   Thu,  9 Sep 2021 07:44:12 -0400
-Message-Id: <20210909114635.143983-76-sashal@kernel.org>
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 077/219] Bluetooth: skip invalid hci_sync_conn_complete_evt
+Date:   Thu,  9 Sep 2021 07:44:13 -0400
+Message-Id: <20210909114635.143983-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -43,50 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 015f2ebb93767d40c442e749642fffaf10316d78 ]
+[ Upstream commit 92fe24a7db751b80925214ede43f8d2be792ea7b ]
 
-When the system shuts down or warm reboots, the display may be active,
-with the hardware accessing system memory. Upon reboot, the DDR will not
-be accessible, which may cause issues.
+Syzbot reported a corrupted list in kobject_add_internal [1]. This
+happens when multiple HCI_EV_SYNC_CONN_COMPLETE event packets with
+status 0 are sent for the same HCI connection. This causes us to
+register the device more than once which corrupts the kset list.
 
-Implement the platform_driver .shutdown() operation and shut down the
-display to fix this.
+As this is forbidden behavior, we add a check for whether we're
+trying to process the same HCI_EV_SYNC_CONN_COMPLETE event multiple
+times for one connection. If that's the case, the event is invalid, so
+we report an error that the device is misbehaving, and ignore the
+packet.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Link: https://syzkaller.appspot.com/bug?extid=66264bf2fd0476be7e6c [1]
+Reported-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
+Tested-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_du_drv.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/bluetooth/hci_event.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index bfbff90588cb..43de3d8686e8 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -561,6 +561,13 @@ static int rcar_du_remove(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 62c99e015609..c5de24372971 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -4373,6 +4373,21 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
  
-+static void rcar_du_shutdown(struct platform_device *pdev)
-+{
-+	struct rcar_du_device *rcdu = platform_get_drvdata(pdev);
+ 	switch (ev->status) {
+ 	case 0x00:
++		/* The synchronous connection complete event should only be
++		 * sent once per new connection. Receiving a successful
++		 * complete event when the connection status is already
++		 * BT_CONNECTED means that the device is misbehaving and sent
++		 * multiple complete event packets for the same new connection.
++		 *
++		 * Registering the device more than once can corrupt kernel
++		 * memory, hence upon detecting this invalid event, we report
++		 * an error and ignore the packet.
++		 */
++		if (conn->state == BT_CONNECTED) {
++			bt_dev_err(hdev, "Ignoring connect complete event for existing connection");
++			goto unlock;
++		}
 +
-+	drm_atomic_helper_shutdown(&rcdu->ddev);
-+}
-+
- static int rcar_du_probe(struct platform_device *pdev)
- {
- 	struct rcar_du_device *rcdu;
-@@ -617,6 +624,7 @@ static int rcar_du_probe(struct platform_device *pdev)
- static struct platform_driver rcar_du_platform_driver = {
- 	.probe		= rcar_du_probe,
- 	.remove		= rcar_du_remove,
-+	.shutdown	= rcar_du_shutdown,
- 	.driver		= {
- 		.name	= "rcar-du",
- 		.pm	= &rcar_du_pm_ops,
+ 		conn->handle = __le16_to_cpu(ev->handle);
+ 		conn->state  = BT_CONNECTED;
+ 		conn->type   = ev->link_type;
 -- 
 2.30.2
 
