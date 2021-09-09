@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE85404FD2
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:22:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 774EF404FCD
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353300AbhIIMWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:22:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57716 "EHLO mail.kernel.org"
+        id S1353173AbhIIMWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:22:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353054AbhIIMUL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353052AbhIIMUL (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:20:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E302C61ABC;
-        Thu,  9 Sep 2021 11:50:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13A0D6128B;
+        Thu,  9 Sep 2021 11:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188227;
-        bh=C56UGu/jYrwM6Jfi/51pH9IQNP0Jn9eLUHEN3yNrW1s=;
+        s=k20201202; t=1631188228;
+        bh=Q5XMrTSI9DyeV30QZ8sULXpxduy3HPeYCnQmNk1zuRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8hHM0F0xFKFdQ6S3seSHZFM9VlrSvFZ+gHD68GAhipl0xSxEHDh8f78i3fzyeuCH
-         P0pnxRYb4fp3uHhYwp2Q+QF8m6X5Ih6UNIQsqrNpjYl7oQ8+i/GpbemkS0V6+4Duvf
-         HEb8SWkOtUbk52HhcRB0nPNHHXDRpl9+OSObd67vLbm8K2tBF2h2AH+C0Y4GhxZjTj
-         I39ZaVhPQRq4JiwA73KoleQIw7MaB1ecFKiCQ88jmtpDs2TUk5ubx76w4TlGEncuxk
-         gm6SKHin2A+1zcaHS4LeoIX2jzTXolAmjrM0NWITcrxWaprjmi/M5W/mC4T2oHR0MU
-         n0qHB++P2vBHw==
+        b=E4vQc4wnn1kFIkMS2UqxsNhkk7OLYS/Wm9GIkMgCoKCB+Ubn2o0JbuY/Sliw28mxd
+         M05QZ1qy8WNHa0nu2a3mARKbPNhMDD0ekV+xpb++SWuCnALhF1C4984WAPxpiD02z5
+         FJZ4nOo6wgNjmyRMe9WLB3lCac8atMttkYK8LIZV7NIrcxonBwwfXHIDTPFd1K8dvm
+         3jjqh9iCzsVeYLBcIRHhFcUH1RSC2kPdA0omquuCDk0neXv9XzPD2p05SnE2q2DKUb
+         LMMqpEdQ0nXmXNQ3loSM6OpvqDsEbGcXB6iP228n2A/oPkIv0X6ZT2L7bLYPSGvjKT
+         DiY6K8v64HRfA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, Rob Herring <robh@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 180/219] of: Don't allow __of_attached_node_sysfs() without CONFIG_SYSFS
-Date:   Thu,  9 Sep 2021 07:45:56 -0400
-Message-Id: <20210909114635.143983-180-sashal@kernel.org>
+Cc:     Manish Narani <manish.narani@xilinx.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 181/219] mmc: sdhci-of-arasan: Modified SD default speed to 19MHz for ZynqMP
+Date:   Thu,  9 Sep 2021 07:45:57 -0400
+Message-Id: <20210909114635.143983-181-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -41,58 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Manish Narani <manish.narani@xilinx.com>
 
-[ Upstream commit 6211e9cb2f8faf7faae0b6caf844bfe9527cc607 ]
+[ Upstream commit c0b4e411a9b09748466ee06d2ae6772effa64dfb ]
 
-Trying to boot without SYSFS, but with OF_DYNAMIC quickly
-results in a crash:
+SD standard speed timing was met only at 19MHz and not 25 MHz, that's
+why changing driver to 19MHz. The reason for this is when a level shifter
+is used on the board, timing was met for standard speed only at 19MHz.
+Since this level shifter is commonly required for high speed modes,
+the driver is modified to use standard speed of 19Mhz.
 
-[    0.088460] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000070
-[...]
-[    0.103927] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.14.0-rc3 #4179
-[    0.105810] Hardware name: linux,dummy-virt (DT)
-[    0.107147] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
-[    0.108876] pc : kernfs_find_and_get_ns+0x3c/0x7c
-[    0.110244] lr : kernfs_find_and_get_ns+0x3c/0x7c
-[...]
-[    0.134087] Call trace:
-[    0.134800]  kernfs_find_and_get_ns+0x3c/0x7c
-[    0.136054]  safe_name+0x4c/0xd0
-[    0.136994]  __of_attach_node_sysfs+0xf8/0x124
-[    0.138287]  of_core_init+0x90/0xfc
-[    0.139296]  driver_init+0x30/0x4c
-[    0.140283]  kernel_init_freeable+0x160/0x1b8
-[    0.141543]  kernel_init+0x30/0x140
-[    0.142561]  ret_from_fork+0x10/0x18
-
-While not having sysfs isn't a very common option these days,
-it is still expected that such configuration would work.
-
-Paper over it by bailing out from __of_attach_node_sysfs() if
-CONFIG_SYSFS isn't enabled.
-
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210820144722.169226-1-maz@kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Manish Narani <manish.narani@xilinx.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/1623753837-21035-2-git-send-email-manish.narani@xilinx.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/kobj.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-of-arasan.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/of/kobj.c b/drivers/of/kobj.c
-index a32e60b024b8..6675b5e56960 100644
---- a/drivers/of/kobj.c
-+++ b/drivers/of/kobj.c
-@@ -119,7 +119,7 @@ int __of_attach_node_sysfs(struct device_node *np)
- 	struct property *pp;
- 	int rc;
+diff --git a/drivers/mmc/host/sdhci-of-arasan.c b/drivers/mmc/host/sdhci-of-arasan.c
+index 839965f7c717..fc3e41c76ab4 100644
+--- a/drivers/mmc/host/sdhci-of-arasan.c
++++ b/drivers/mmc/host/sdhci-of-arasan.c
+@@ -159,6 +159,12 @@ struct sdhci_arasan_data {
+ /* Controller immediately reports SDHCI_CLOCK_INT_STABLE after enabling the
+  * internal clock even when the clock isn't stable */
+ #define SDHCI_ARASAN_QUIRK_CLOCK_UNSTABLE BIT(1)
++/*
++ * Some of the Arasan variations might not have timing requirements
++ * met at 25MHz for Default Speed mode, those controllers work at
++ * 19MHz instead
++ */
++#define SDHCI_ARASAN_QUIRK_CLOCK_25_BROKEN BIT(2)
+ };
  
--	if (!of_kset)
-+	if (!IS_ENABLED(CONFIG_SYSFS) || !of_kset)
- 		return 0;
+ struct sdhci_arasan_of_data {
+@@ -290,6 +296,16 @@ static void sdhci_arasan_set_clock(struct sdhci_host *host, unsigned int clock)
+ 		sdhci_arasan->is_phy_on = false;
+ 	}
  
- 	np->kobj.kset = of_kset;
++	if (sdhci_arasan->quirks & SDHCI_ARASAN_QUIRK_CLOCK_25_BROKEN) {
++		/*
++		 * Some of the Arasan variations might not have timing
++		 * requirements met at 25MHz for Default Speed mode,
++		 * those controllers work at 19MHz instead.
++		 */
++		if (clock == DEFAULT_SPEED_MAX_DTR)
++			clock = (DEFAULT_SPEED_MAX_DTR * 19) / 25;
++	}
++
+ 	/* Set the Input and Output Clock Phase Delays */
+ 	if (clk_data->set_clk_delays)
+ 		clk_data->set_clk_delays(host);
+@@ -1598,6 +1614,8 @@ static int sdhci_arasan_probe(struct platform_device *pdev)
+ 	if (of_device_is_compatible(np, "xlnx,zynqmp-8.9a")) {
+ 		host->mmc_host_ops.execute_tuning =
+ 			arasan_zynqmp_execute_tuning;
++
++		sdhci_arasan->quirks |= SDHCI_ARASAN_QUIRK_CLOCK_25_BROKEN;
+ 	}
+ 
+ 	arasan_dt_parse_clk_phases(dev, &sdhci_arasan->clk_data);
 -- 
 2.30.2
 
