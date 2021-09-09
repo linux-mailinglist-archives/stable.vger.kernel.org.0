@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 630034049D2
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D2B4049DA
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236553AbhIILnj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:43:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46600 "EHLO mail.kernel.org"
+        id S238800AbhIILns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:43:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237282AbhIILmz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:42:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3559861186;
-        Thu,  9 Sep 2021 11:41:45 +0000 (UTC)
+        id S237334AbhIILm6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:42:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F8F5611CC;
+        Thu,  9 Sep 2021 11:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187706;
-        bh=JZ9MTYb74+DaVR3kO13l/TOFbMF1Vw4Aj+rV2emckYk=;
+        s=k20201202; t=1631187707;
+        bh=Fl89BLpZqkI7d42dfLouRxVDKhNQxznxdmuRukWnMdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q50aCEWhJC1s/nzyNm8pIHKo+Zqp8c2ut4SeiUfGCCnJLJHLU5pgb0NSX1Q554JH6
-         JG7V9XBdJg4RJv3NWqWZ9hPEbwLU4+7bSOKxv2poR00tWeLSBwx6Vb7SqGfpHP6XC+
-         coYphUgJtVy7aXOZ5+ZTJ4tbJp6iOs03sjDBd37CNoIdyBeG9IiLEYJg3oQGIhvGes
-         G+MxIJcTgwYu1bvSzu4YRORDbi7WbdGcJMoldsT2g1a2+8xtdwZAxyy9YqciBc+RO+
-         6sYW+84/qFwPPJApzAoQphixZj/MWddVA5bFJZOzN50IiNFcTlpVN2c9CWLLatJ851
-         Iag/pPQ9c3Luw==
+        b=IGqH3lC5Psm9d16Pp5nb6XEg3mcgcysOU/Jq12qRNMNgbJFcne7Md7UF82AKho4dq
+         hDdCgXksrAVyBqCyc55l8PShf/mP0+4LyMAd3MhYAsMjzfvTWdREOytA828Cott3NA
+         E0lfnkkTk/RGIHKH6o3CBMklFaq86TIfuoDtYZhgQPQ9USNA44XdA6Y+JW/ElsYWqM
+         ZUbQ07eyKUx9f6HyvCQKfmoDoCkcoV/5bMlUeQCDXaBMFH2NVUcP20XdDjVNhh+d14
+         2AotBcjJHuAc8CNed3/T0CU8iFlCPchp+2Y0q7Wv15nrvbPjgb4JdbnEn9JrTb9HkX
+         kZwGuV7aqf+Iw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yajun Deng <yajun.deng@linux.dev>, Yonghong Song <yhs@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 030/252] netlink: Deal with ESRCH error in nlmsg_notify()
-Date:   Thu,  9 Sep 2021 07:37:24 -0400
-Message-Id: <20210909114106.141462-30-sashal@kernel.org>
+Cc:     Bhupesh Sharma <bhupesh.sharma@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 031/252] arm64: dts: qcom: Fix usb entries for SA8155p adp board
+Date:   Thu,  9 Sep 2021 07:37:25 -0400
+Message-Id: <20210909114106.141462-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -43,67 +43,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Bhupesh Sharma <bhupesh.sharma@linaro.org>
 
-[ Upstream commit fef773fc8110d8124c73a5e6610f89e52814637d ]
+[ Upstream commit 12dd4ebda47abd5e3907da386b6fe1d8181ad179 ]
 
-Yonghong Song report:
-The bpf selftest tc_bpf failed with latest bpf-next.
-The following is the command to run and the result:
-$ ./test_progs -n 132
-[   40.947571] bpf_testmod: loading out-of-tree module taints kernel.
-test_tc_bpf:PASS:test_tc_bpf__open_and_load 0 nsec
-test_tc_bpf:PASS:bpf_tc_hook_create(BPF_TC_INGRESS) 0 nsec
-test_tc_bpf:PASS:bpf_tc_hook_create invalid hook.attach_point 0 nsec
-test_tc_bpf_basic:PASS:bpf_obj_get_info_by_fd 0 nsec
-test_tc_bpf_basic:PASS:bpf_tc_attach 0 nsec
-test_tc_bpf_basic:PASS:handle set 0 nsec
-test_tc_bpf_basic:PASS:priority set 0 nsec
-test_tc_bpf_basic:PASS:prog_id set 0 nsec
-test_tc_bpf_basic:PASS:bpf_tc_attach replace mode 0 nsec
-test_tc_bpf_basic:PASS:bpf_tc_query 0 nsec
-test_tc_bpf_basic:PASS:handle set 0 nsec
-test_tc_bpf_basic:PASS:priority set 0 nsec
-test_tc_bpf_basic:PASS:prog_id set 0 nsec
-libbpf: Kernel error message: Failed to send filter delete notification
-test_tc_bpf_basic:FAIL:bpf_tc_detach unexpected error: -3 (errno 3)
-test_tc_bpf:FAIL:test_tc_internal ingress unexpected error: -3 (errno 3)
+SA8155p adp board has two USB A-type receptacles called
+USB-portB and USB-portC respectively.
 
-The failure seems due to the commit
-    cfdf0d9ae75b ("rtnetlink: use nlmsg_notify() in rtnetlink_send()")
+While USB-portB is a USB High-Speed connector/interface, the
+USB-portC one is a USB 3.1 Super-Speed connector/interface.
 
-Deal with ESRCH error in nlmsg_notify() even the report variable is zero.
+Also the USB-portB is used as the USB emergency
+download port (for image download purposes).
 
-Reported-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
-Link: https://lore.kernel.org/r/20210719051816.11762-1-yajun.deng@linux.dev
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Enable both the ports on the board in USB Host mode (since all
+the USB interfaces are brought out to USB Type A
+connectors).
+
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Bhupesh Sharma <bhupesh.sharma@linaro.org>
+Link: https://lore.kernel.org/r/20210627114616.717101-4-bhupesh.sharma@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sa8155p-adp.dts | 60 ++++++++++++++++++++----
+ 1 file changed, 51 insertions(+), 9 deletions(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 380f95aacdec..24b7cf447bc5 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -2545,13 +2545,15 @@ int nlmsg_notify(struct sock *sk, struct sk_buff *skb, u32 portid,
- 		/* errors reported via destination sk->sk_err, but propagate
- 		 * delivery errors if NETLINK_BROADCAST_ERROR flag is set */
- 		err = nlmsg_multicast(sk, skb, exclude_portid, group, flags);
-+		if (err == -ESRCH)
-+			err = 0;
- 	}
+diff --git a/arch/arm64/boot/dts/qcom/sa8155p-adp.dts b/arch/arm64/boot/dts/qcom/sa8155p-adp.dts
+index 0da7a3b8d1bf..5ae2ddc65f7e 100644
+--- a/arch/arm64/boot/dts/qcom/sa8155p-adp.dts
++++ b/arch/arm64/boot/dts/qcom/sa8155p-adp.dts
+@@ -307,10 +307,6 @@ &qupv3_id_1 {
+ 	status = "okay";
+ };
  
- 	if (report) {
- 		int err2;
+-&tlmm {
+-	gpio-reserved-ranges = <0 4>;
+-};
+-
+ &uart2 {
+ 	status = "okay";
+ };
+@@ -337,6 +333,16 @@ &ufs_mem_phy {
+ 	vdda-pll-max-microamp = <18300>;
+ };
  
- 		err2 = nlmsg_unicast(sk, skb, portid);
--		if (!err || err == -ESRCH)
-+		if (!err)
- 			err = err2;
- 	}
++&usb_1 {
++	status = "okay";
++};
++
++&usb_1_dwc3 {
++	dr_mode = "host";
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb2phy_ac_en1_default>;
++};
  
+ &usb_1_hsphy {
+ 	status = "okay";
+@@ -346,15 +352,51 @@ &usb_1_hsphy {
+ };
+ 
+ &usb_1_qmpphy {
++	status = "disabled";
++};
++
++&usb_2 {
+ 	status = "okay";
+-	vdda-phy-supply = <&vreg_l8c_1p2>;
+-	vdda-pll-supply = <&vdda_usb_ss_dp_core_1>;
+ };
+ 
+-&usb_1 {
++&usb_2_dwc3 {
++	dr_mode = "host";
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&usb2phy_ac_en2_default>;
++};
++
++&usb_2_hsphy {
+ 	status = "okay";
++	vdda-pll-supply = <&vdd_usb_hs_core>;
++	vdda33-supply = <&vdda_usb_hs_3p1>;
++	vdda18-supply = <&vdda_usb_hs_1p8>;
+ };
+ 
+-&usb_1_dwc3 {
+-	dr_mode = "peripheral";
++&usb_2_qmpphy {
++	status = "okay";
++	vdda-phy-supply = <&vreg_l8c_1p2>;
++	vdda-pll-supply = <&vdda_usb_ss_dp_core_1>;
++};
++
++&tlmm {
++	gpio-reserved-ranges = <0 4>;
++
++	usb2phy_ac_en1_default: usb2phy_ac_en1_default {
++		mux {
++			pins = "gpio113";
++			function = "usb2phy_ac";
++			bias-disable;
++			drive-strength = <2>;
++		};
++	};
++
++	usb2phy_ac_en2_default: usb2phy_ac_en2_default {
++		mux {
++			pins = "gpio123";
++			function = "usb2phy_ac";
++			bias-disable;
++			drive-strength = <2>;
++		};
++	};
+ };
 -- 
 2.30.2
 
