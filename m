@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 851E440574A
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 289D44054C6
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357909AbhIINdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58274 "EHLO mail.kernel.org"
+        id S1354149AbhIINDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:03:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355439AbhIIM53 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:57:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C24563260;
-        Thu,  9 Sep 2021 11:58:33 +0000 (UTC)
+        id S1355560AbhIIM5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:57:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86B886325B;
+        Thu,  9 Sep 2021 11:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188714;
-        bh=/8D9dnPGMra73WqruByJ/UljnZ9TG3HBcxJ5tADVSd0=;
+        s=k20201202; t=1631188715;
+        bh=bfg+vvvQtMF9KkZ1AALbmu6qBfKTe3xCbYX0Q2Ncoy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ojwz4kUoZ33YhJmTgtnPtX5rAydkznm2J5SAiX7Ha3Xatfn1tFwd7X336Ht2seS1B
-         HfXllwQlaj4zn/UZcz9vulEyysB1tDXFdS97328fm7IBDg8PhCQ0zmZVD5v517A7fr
-         JMlxH+GsgtPsD85Ff3CBk5AO25u8HhBccINVIKUH7hlym8yf/WijvdpeT+OYkSyuQY
-         V9npvfV6T4MJVjz+KAwSZL4vOgTgnHcB4kZHHoChiazlSsjbMHyzFZuUDcsgprTGs+
-         e29Tsp77fyTZ9wy/kOwuzpN5eAFkKxxbnMbSvqKljkPiiLI8zwPcBQU65vyt4669VO
-         Y0KXm+y6kESfg==
+        b=EaJW/lJsmwgM5kFqRkyaSjtCzj/q5787KGyK2rhtiF+/kvvjrkF0I/FRckQfnDn7C
+         Go9E0AuNNQpUoI0v7PHGlydNvVYyt5a3cWh1aEBoTwpgXpY06aYz4Oh5OjRRzu0Kwc
+         mBLqOSchUGOQNK/dYHzf9YINMLGenjkUY7PJ2fTRVxCPsocMIcUJQhZgB39Cm4sfJs
+         rpMhhaDAW9L6aZCNhqcyiax6HOSA5tXDLmgECEb4gdcVpIJZwR5ApFNbts7R8Nl9Zz
+         DJ492o3AfkrPv4uIH9CjfqlJclqXkkqn5J6LfL2Xa1RW75kt+fIfxqx5Zkcml/8bRV
+         wGhTmd8JnIEmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.19 54/74] gfs2: Don't call dlm after protocol is unmounted
-Date:   Thu,  9 Sep 2021 07:57:06 -0400
-Message-Id: <20210909115726.149004-54-sashal@kernel.org>
+Cc:     Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 55/74] btrfs: subpage: check if there are compressed extents inside one page
+Date:   Thu,  9 Sep 2021 07:57:07 -0400
+Message-Id: <20210909115726.149004-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115726.149004-1-sashal@kernel.org>
 References: <20210909115726.149004-1-sashal@kernel.org>
@@ -41,52 +41,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit d1340f80f0b8066321b499a376780da00560e857 ]
+[ Upstream commit 3670e6451bc9c39ab3a46f1da19360219e4319f3 ]
 
-In the gfs2 withdraw sequence, the dlm protocol is unmounted with a call
-to lm_unmount. After a withdraw, users are allowed to unmount the
-withdrawn file system. But at that point we may still have glocks left
-over that we need to free via unmount's call to gfs2_gl_hash_clear.
-These glocks may have never been completed because of whatever problem
-caused the withdraw (IO errors or whatever).
+[BUG]
+When testing experimental subpage compressed write support, it hits a
+NULL pointer dereference inside read path:
 
-Before this patch, function gdlm_put_lock would still try to call into
-dlm to unlock these leftover glocks, which resulted in dlm returning
--EINVAL because the lock space was abandoned. These glocks were never
-freed because there was no mechanism after that to free them.
+ Unable to handle kernel NULL pointer dereference at virtual address 0000000000000018
+ pc : __pi_memcmp+0x28/0x1ec
+ lr : check_data_csum+0xd0/0x274 [btrfs]
+ Call trace:
+  __pi_memcmp+0x28/0x1ec
+  btrfs_verify_data_csum+0xf4/0x244 [btrfs]
+  end_bio_extent_readpage+0x1d0/0x6b0 [btrfs]
+  bio_endio+0x15c/0x1dc
+  end_workqueue_fn+0x44/0x64 [btrfs]
+  btrfs_work_helper+0x74/0x250 [btrfs]
+  process_one_work+0x1d4/0x47c
+  worker_thread+0x180/0x400
+  kthread+0x11c/0x120
+  ret_from_fork+0x10/0x30
+ Code: 54000261 d100044c d343fd8c f8408403 (f8408424)
+ ---[ end trace 9e2c59f33ea40866 ]---
 
-This patch adds a check to gdlm_put_lock to see if the locking protocol
-was inactive (DFL_UNMOUNT flag) and if so, free the glock and not
-make the invalid call into dlm.
+[CAUSE]
+When reading two compressed extents inside the same page, like the
+following layout, we trigger above crash:
 
-I could have combined this "if" with the one that follows, related to
-leftover glock LVBs, but I felt the code was more readable with its own
-if clause.
+	0	32K	64K
+	|-------|\\\\\\\|
+	     |	     \- Compressed extent (A)
+	     \--------- Compressed extent (B)
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+For compressed read, we don't need to populate its io_bio->csum, as we
+rely on compressed_bio->csum to verify the compressed data, and then
+copy the decompressed to inode pages.
+
+Normally btrfs_verify_data_csum() skip such page by checking and
+clearing its PageChecked flag
+
+But since that flag is still for the full page, when endio for inode
+page range [0, 32K) gets executed, it clears PageChecked flag for the
+full page.
+
+Then when endio for inode page range [32K, 64K) gets executed, since the
+page no longer has PageChecked flag, it just continues checking, even
+though io_bio->csum is NULL.
+
+[FIX]
+Thankfully there are only two users of PageChecked bit:
+
+- Cow fixup
+  Since subpage has its own way to trace page dirty (dirty_bitmap) and
+  ordered bit (ordered_bitmap), it should never trigger cow fixup.
+
+- Compressed read
+  We can distinguish such read by just checking io_bio->csum.
+
+So just check io_bio->csum before doing the verification to avoid such
+NULL pointer dereference.
+
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/lock_dlm.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/btrfs/inode.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/fs/gfs2/lock_dlm.c b/fs/gfs2/lock_dlm.c
-index 56dddc1f8ddd..9e90e42c495e 100644
---- a/fs/gfs2/lock_dlm.c
-+++ b/fs/gfs2/lock_dlm.c
-@@ -295,6 +295,11 @@ static void gdlm_put_lock(struct gfs2_glock *gl)
- 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
- 	gfs2_update_request_times(gl);
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 6f02a3f77fa8..2ba94c01d946 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -3311,6 +3311,20 @@ static int btrfs_readpage_end_io_hook(struct btrfs_io_bio *io_bio,
+ 		return 0;
+ 	}
  
-+	/* don't want to call dlm if we've unmounted the lock protocol */
-+	if (test_bit(DFL_UNMOUNT, &ls->ls_recover_flags)) {
-+		gfs2_glock_free(gl);
-+		return;
-+	}
- 	/* don't want to skip dlm_unlock writing the lvb when lock has one */
++	/*
++	 * For subpage case, above PageChecked is not safe as it's not subpage
++	 * compatible.
++	 * But for now only cow fixup and compressed read utilize PageChecked
++	 * flag, while in this context we can easily use io_bio->csum to
++	 * determine if we really need to do csum verification.
++	 *
++	 * So for now, just exit if io_bio->csum is NULL, as it means it's
++	 * compressed read, and its compressed data csum has already been
++	 * verified.
++	 */
++	if (io_bio->csum == NULL)
++		return 0;
++
+ 	if (BTRFS_I(inode)->flags & BTRFS_INODE_NODATASUM)
+ 		return 0;
  
- 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
 -- 
 2.30.2
 
