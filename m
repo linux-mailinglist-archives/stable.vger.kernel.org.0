@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C4B4050FD
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 316F24050FA
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352808AbhIIMdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:33:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34526 "EHLO mail.kernel.org"
+        id S1345473AbhIIMdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:33:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351018AbhIIM2Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1351116AbhIIM2Q (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:28:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8817561B20;
-        Thu,  9 Sep 2021 11:52:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CED3A61B32;
+        Thu,  9 Sep 2021 11:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188335;
-        bh=6dNN8OQPe/wsB34uoI/ICMKD2qSsK5yWqTj8ezysK4A=;
+        s=k20201202; t=1631188336;
+        bh=p+sAzM/XDE2JhZloIqQUgcKpO2Gb1o+zgmF5bat62yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pc3Qv4SGdOsz4zMrw/bcxpyZJC1eldDJPqtIK9m1gxgxP6u9/+u12h81kwWKJvBWm
-         yVu5KWvc6ZDSCpK8h2aDs6nHAaNBBA43/wWHqpKPe8qFtRMXbWFY1zF4UXmMeqOMO0
-         y7D9BgzuCTm4wWP8DYtbvUvQVyh9Cvb6XgYBUh1WL4w9vV6R/yjhyoBKyf+YKgMh1q
-         pjXFGHKRNnlw+lzP5heLncLXkqgP/DW1pQXvdfi6BmHwwWbPV+nbkKwz7e7Dnw4Pwx
-         quAXRoJOKc0YAd5N/ztx+ygHQXSRIKhAuJbglk2oQnw2n8H5z7aCCNHu/jRf19TK34
-         n6Rh/Y7EE6eOA==
+        b=rw+S++0rwbkQI99ZrlijyiWQDRmu76sz4r4o9+wN+BOVUeNhjd9o0i3lTxr+raIV/
+         potKDPK63xGKIC1LQ46Qy2VWmaCB5NvC6HH/4JhpRPfaR9NAaV6q/QtsEpVze5gvYI
+         HRS9ceAKyhugR2hOTA5+za553q76gEuf7rp7GPnih+OD7XFe/4kX7b5rvvJPqTCfhM
+         H5LXUKJNHbdEDrOuhGz0Gz6lCUtBCXYrpyx8YV/NwLA3y8ro3wBd6e06aw76rE8yCj
+         wWgXFDnyg7Qzl7f0jX5RDVvrlU27Qlrjy9m/f9JYhy2vhi7ypL67MFZ3C3Uc90XL7y
+         bM7l4zik6qTvg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Fabio Estevam <festevam@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 044/176] drm/bridge: nwl-dsi: Avoid potential multiplication overflow on 32-bit
-Date:   Thu,  9 Sep 2021 07:49:06 -0400
-Message-Id: <20210909115118.146181-44-sashal@kernel.org>
+Cc:     Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.10 045/176] arm64: dts: allwinner: h6: tanix-tx6: Fix regulator node names
+Date:   Thu,  9 Sep 2021 07:49:07 -0400
+Message-Id: <20210909115118.146181-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -45,46 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Jernej Skrabec <jernej.skrabec@gmail.com>
 
-[ Upstream commit 47956bc86ee4e8530cac386a04f62a6095f7afbe ]
+[ Upstream commit 7ab1f6539762946de06ca14d7401ae123821bc40 ]
 
-As nwl_dsi.lanes is u32, and NSEC_PER_SEC is 1000000000L, the second
-multiplication in
+Regulator node names don't reflect class of the device. Fix that by
+prefixing names with "regulator-".
 
-    dsi->lanes * 8 * NSEC_PER_SEC
-
-will overflow on a 32-bit platform.  Fix this by making the constant
-unsigned long long, forcing 64-bit arithmetic.
-
-As iMX8 is arm64, this driver is currently used on 64-bit platforms
-only, where long is 64-bit, so this cannot happen.  But the issue will
-start to happen when the driver is reused for a 32-bit SoC (e.g.
-i.MX7ULP), or when code is copied for a new driver.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/ebb82941a86b4e35c4fcfb1ef5a5cfad7c1fceab.1626255956.git.geert+renesas@glider.be
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20210722161220.51181-2-jernej.skrabec@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/nwl-dsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
-index c65ca860712d..6cac2e58cd15 100644
---- a/drivers/gpu/drm/bridge/nwl-dsi.c
-+++ b/drivers/gpu/drm/bridge/nwl-dsi.c
-@@ -196,7 +196,7 @@ static u32 ps2bc(struct nwl_dsi *dsi, unsigned long long ps)
- 	u32 bpp = mipi_dsi_pixel_format_to_bpp(dsi->format);
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts b/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
+index be81330db14f..02641191682e 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
+@@ -32,14 +32,14 @@ hdmi_con_in: endpoint {
+ 		};
+ 	};
  
- 	return DIV64_U64_ROUND_UP(ps * dsi->mode.clock * bpp,
--				  dsi->lanes * 8 * NSEC_PER_SEC);
-+				  dsi->lanes * 8ULL * NSEC_PER_SEC);
- }
+-	reg_vcc3v3: vcc3v3 {
++	reg_vcc3v3: regulator-vcc3v3 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vcc3v3";
+ 		regulator-min-microvolt = <3300000>;
+ 		regulator-max-microvolt = <3300000>;
+ 	};
  
- /*
+-	reg_vdd_cpu_gpu: vdd-cpu-gpu {
++	reg_vdd_cpu_gpu: regulator-vdd-cpu-gpu {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vdd-cpu-gpu";
+ 		regulator-min-microvolt = <1135000>;
 -- 
 2.30.2
 
