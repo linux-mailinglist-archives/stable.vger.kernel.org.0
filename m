@@ -2,68 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 645FD404D41
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25A064054D2
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:31:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242960AbhIIMBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:01:24 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:34668 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344744AbhIIL7W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 07:59:22 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 07C5021F7D;
-        Thu,  9 Sep 2021 11:58:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1631188691;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=iEdrw1PijOZaoVJKm9mL5ftTW8+6PaGuf/9mDi2hCl8=;
-        b=kqlCMhDdNqqfNy4rt4x97gvGl8yu81MxRDMx+AwPvUew6vFpeVyQHt/zH8HYQbeQPe0GXk
-        ghfLr1JOF4YgKJlZHyx5U37HbWs5VoQ3drIvpEzC4NWdbhpUPsjLf9/YKN7obiSDymG+am
-        0rilAsrNfKogymmf0ksIjCIwA8xBTzs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1631188691;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=iEdrw1PijOZaoVJKm9mL5ftTW8+6PaGuf/9mDi2hCl8=;
-        b=wMAM0HFxlevtBnAfdPTU7hf7NPROEgmWuSJemB1vD8CBfZbFMJpwoZ5B5wz1DiP6i4kvCB
-        lrDetLy+JKwmw3Dw==
-Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
-        by relay2.suse.de (Postfix) with ESMTP id F37E7A3FDA;
-        Thu,  9 Sep 2021 11:58:10 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id 0700DDA7A9; Thu,  9 Sep 2021 13:58:05 +0200 (CEST)
-Date:   Thu, 9 Sep 2021 13:58:05 +0200
-From:   David Sterba <dsterba@suse.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qu Wenruo <wqu@suse.com>, Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.13 172/219] btrfs: grab correct extent map for
- subpage compressed extent read
-Message-ID: <20210909115805.GH15306@suse.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qu Wenruo <wqu@suse.com>, Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
-References: <20210909114635.143983-1-sashal@kernel.org>
- <20210909114635.143983-172-sashal@kernel.org>
+        id S1353586AbhIINDo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:03:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43560 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1357132AbhIIM7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:59:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4407063272;
+        Thu,  9 Sep 2021 11:59:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631188747;
+        bh=vB0KYNHGxCN1lO8Jxd+fn371xRiVqBtRljeuyckGFEk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=LD+sF0p03wiohqTE/OnjqV4gbKrAVHRDCzA803WnoCF/AQw2OabnHN9kac/wX8XZX
+         hqUSHQaydxI8eir/LE1FroZkudC9vD3GQtRUdZqYMVECI0kYPcgRFM6fF1Sq4BOR/M
+         T+g2ck8j4y1BvkUEPBeOcffd+49isSTag4V+53DSg5n4z2KVoGlvl2iDiiUbf7sfR7
+         tyjEp1Cs898pLENy3zOuFHZ72w0H4/F2rb93Aj4u1qzZPjMwBo0e2dugcZr5ROvjHp
+         l28ypD03QFwG/eTv52su7JJTw7MB7gyHJeyy1GF2nCSROun5HVvl4HDPRNTV8zN9oV
+         b0RHIUvPce9Ag==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     David Heidelberg <david@ixit.cz>,
+        Brian Masney <masneyb@onstation.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 05/59] ARM: dts: qcom: apq8064: correct clock names
+Date:   Thu,  9 Sep 2021 07:58:06 -0400
+Message-Id: <20210909115900.149795-5-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210909115900.149795-1-sashal@kernel.org>
+References: <20210909115900.149795-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210909114635.143983-172-sashal@kernel.org>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 09, 2021 at 07:45:48AM -0400, Sasha Levin wrote:
-> From: Qu Wenruo <wqu@suse.com>
-> 
-> [ Upstream commit 557023ea9f06baf2659b232b08b8e8711f7001a6 ]
+From: David Heidelberg <david@ixit.cz>
 
-Please drop this patch from stable queue, thanks.
+[ Upstream commit 0dc6c59892ead17a9febd11202c9f6794aac1895 ]
+
+Since new code doesn't take old clk names in account, it does fixes
+error:
+
+msm_dsi 4700000.mdss_dsi: dev_pm_opp_set_clkname: Couldn't find clock: -2
+
+and following kernel oops introduced by
+b0530eb1191 ("drm/msm/dpu: Use OPP API to set clk/perf state").
+
+Also removes warning about deprecated clock names.
+
+Tested against linux-5.10.y LTS on Nexus 7 2013.
+
+Reviewed-by: Brian Masney <masneyb@onstation.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210707131453.24041-1-david@ixit.cz
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/arm/boot/dts/qcom-apq8064.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index 6089c8d56cd5..eef243998392 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1228,9 +1228,9 @@ dsi0: mdss_dsi@4700000 {
+ 				<&mmcc DSI1_BYTE_CLK>,
+ 				<&mmcc DSI_PIXEL_CLK>,
+ 				<&mmcc DSI1_ESC_CLK>;
+-			clock-names = "iface_clk", "bus_clk", "core_mmss_clk",
+-					"src_clk", "byte_clk", "pixel_clk",
+-					"core_clk";
++			clock-names = "iface", "bus", "core_mmss",
++					"src", "byte", "pixel",
++					"core";
+ 
+ 			assigned-clocks = <&mmcc DSI1_BYTE_SRC>,
+ 					<&mmcc DSI1_ESC_SRC>,
+-- 
+2.30.2
+
