@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2000D40533B
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9998A40531D
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355897AbhIIMuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:50:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57494 "EHLO mail.kernel.org"
+        id S1355858AbhIIMt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:49:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355435AbhIIMpo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355437AbhIIMpo (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:45:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90D94630EB;
-        Thu,  9 Sep 2021 11:56:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E340761C48;
+        Thu,  9 Sep 2021 11:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188565;
-        bh=6THc55M9H+piYc7a5/b5tKa38hBPIcjtanzULpo3bgM=;
+        s=k20201202; t=1631188566;
+        bh=OSeshNkxA5GDkU2sAsgtY47kOVD0qJ8DS2MJAVhlNEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MK1TN08my4z7izPDSVOnYcL9qloOK1wmDI4f+2/BTfMlLJrbtGZlBSqXfOSXUMSa3
-         pruMBIK2vzxEceLR0l0JsOVqtgu6ntmkvdiOMxr6TgNOCis7G1PHegYMJZjHyod5dl
-         32Z3QlRtEnz1npVHm1cvy/zDFNPb3u18u9NUk92Mq1b94noRt+CnQaKS6xv5AsH26j
-         /J3X9PB0IuqPQvYNvGLQZNvJDBQiIy814ClOrpnlwNE0+/d10H+6/q0+tENNqj6lYQ
-         b/gO65VzFgDaLCWWxBRz3KAgtRzzvc0rX4YuI+rRB+wvH1UWUHqLuoas9/y4vaKBie
-         ZexOah+gkVxUw==
+        b=NqdIwv0u68rtfNzII204oS5tHmGHfgH2x9RP3ALZ3bjLtP+qZokAMtX3L0IZJqOKu
+         qKJxzIa4MVK2sLuAIVj180/4fqHXgH0TKbpToC2SnxhXxygYb77nwJmxD2Wre36xns
+         JXef4in1D9uWZUPuvF8XuM/1kyocCYINNhlUEz6OspdNz3bYBjJqa+MAwvf7DA1A3Z
+         XFks1kHH020hFKtNhfbifMpLaPOKA+4kA1FE6n/Fp/Ze7BLM4ri2JOlIdutzNoNisS
+         gW4vlxnuep3S2qwnANAXG10scJ2gwmOINKwOTplNFGPfHphBzlXe/ifuzlqR4kq6l4
+         izoJpXLotCE1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vidya Sagar <vidyas@nvidia.com>, Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 046/109] arm64: tegra: Fix Tegra194 PCIe EP compatible string
-Date:   Thu,  9 Sep 2021 07:54:03 -0400
-Message-Id: <20210909115507.147917-46-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 047/109] ASoC: Intel: bytcr_rt5640: Move "Platform Clock" routes to the maps for the matching in-/output
+Date:   Thu,  9 Sep 2021 07:54:04 -0400
+Message-Id: <20210909115507.147917-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -43,56 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vidya Sagar <vidyas@nvidia.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit bf2942a8b7c38e8cc2d5157b4f0323d7f4e5ec71 ]
+[ Upstream commit dccd1dfd0770bfd494b68d1135b4547b2c602c42 ]
 
-The initialization sequence performed by the generic platform driver
-pcie-designware-plat.c for a DWC based implementation doesn't work for
-Tegra194. Tegra194 has a different initialization sequence requirement
-which can only be satisfied by the Tegra194 specific platform driver
-pcie-tegra194.c. So, remove the generic compatible string "snps,dw-pcie-ep"
-from Tegra194's endpoint controller nodes.
+Move the "Platform Clock" routes for the "Internal Mic" and "Speaker"
+routes to the intmic_*_map[] / *_spk_map[] arrays.
 
-Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+This ensures that these "Platform Clock" routes do not get added when the
+BYT_RT5640_NO_INTERNAL_MIC_MAP / BYT_RT5640_NO_SPEAKERS quirks are used.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210802142501.991985-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra194.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-index 0821754f0fd6..90adff8aa9ba 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-@@ -1434,7 +1434,7 @@ pcie@141a0000 {
- 	};
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index c67b86e2d0c0..7830d014d924 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -284,9 +284,6 @@ static const struct snd_soc_dapm_widget byt_rt5640_widgets[] = {
+ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
+ 	{"Headphone", NULL, "Platform Clock"},
+ 	{"Headset Mic", NULL, "Platform Clock"},
+-	{"Internal Mic", NULL, "Platform Clock"},
+-	{"Speaker", NULL, "Platform Clock"},
+-
+ 	{"Headset Mic", NULL, "MICBIAS1"},
+ 	{"IN2P", NULL, "Headset Mic"},
+ 	{"Headphone", NULL, "HPOL"},
+@@ -294,19 +291,23 @@ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
+ };
  
- 	pcie_ep@14160000 {
--		compatible = "nvidia,tegra194-pcie-ep", "snps,dw-pcie-ep";
-+		compatible = "nvidia,tegra194-pcie-ep";
- 		power-domains = <&bpmp TEGRA194_POWER_DOMAIN_PCIEX4A>;
- 		reg = <0x00 0x14160000 0x0 0x00020000   /* appl registers (128K)      */
- 		       0x00 0x36040000 0x0 0x00040000   /* iATU_DMA reg space (256K)  */
-@@ -1466,7 +1466,7 @@ pcie_ep@14160000 {
- 	};
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic1_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"DMIC1", NULL, "Internal Mic"},
+ };
  
- 	pcie_ep@14180000 {
--		compatible = "nvidia,tegra194-pcie-ep", "snps,dw-pcie-ep";
-+		compatible = "nvidia,tegra194-pcie-ep";
- 		power-domains = <&bpmp TEGRA194_POWER_DOMAIN_PCIEX8B>;
- 		reg = <0x00 0x14180000 0x0 0x00020000   /* appl registers (128K)      */
- 		       0x00 0x38040000 0x0 0x00040000   /* iATU_DMA reg space (256K)  */
-@@ -1498,7 +1498,7 @@ pcie_ep@14180000 {
- 	};
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic2_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"DMIC2", NULL, "Internal Mic"},
+ };
  
- 	pcie_ep@141a0000 {
--		compatible = "nvidia,tegra194-pcie-ep", "snps,dw-pcie-ep";
-+		compatible = "nvidia,tegra194-pcie-ep";
- 		power-domains = <&bpmp TEGRA194_POWER_DOMAIN_PCIEX8A>;
- 		reg = <0x00 0x141a0000 0x0 0x00020000   /* appl registers (128K)      */
- 		       0x00 0x3a040000 0x0 0x00040000   /* iATU_DMA reg space (256K)  */
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_in1_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"Internal Mic", NULL, "MICBIAS1"},
+ 	{"IN1P", NULL, "Internal Mic"},
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_in3_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"Internal Mic", NULL, "MICBIAS1"},
+ 	{"IN3P", NULL, "Internal Mic"},
+ };
+@@ -348,6 +349,7 @@ static const struct snd_soc_dapm_route byt_rt5640_ssp0_aif2_map[] = {
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
++	{"Speaker", NULL, "Platform Clock"},
+ 	{"Speaker", NULL, "SPOLP"},
+ 	{"Speaker", NULL, "SPOLN"},
+ 	{"Speaker", NULL, "SPORP"},
+@@ -355,6 +357,7 @@ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_mono_spk_map[] = {
++	{"Speaker", NULL, "Platform Clock"},
+ 	{"Speaker", NULL, "SPOLP"},
+ 	{"Speaker", NULL, "SPOLN"},
+ };
 -- 
 2.30.2
 
