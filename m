@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 083AC4051D5
+	by mail.lfdr.de (Postfix) with ESMTP id 74C834051D6
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354377AbhIIMi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1352741AbhIIMi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 08:38:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39748 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353606AbhIIMep (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:34:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50C3C61B64;
-        Thu,  9 Sep 2021 11:53:36 +0000 (UTC)
+        id S1353756AbhIIMe4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:34:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82FD961B5E;
+        Thu,  9 Sep 2021 11:53:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188417;
-        bh=5Tmo5EoUoUNPILBlPgR5l9L/1NDvicyyvoVo8uwBhKQ=;
+        s=k20201202; t=1631188418;
+        bh=SwozLfpYiQLE0tIiO65mXXvojnIJlmmHkdaJkfgdxgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9wAKuOAccQ/wN+rxQuiY2ZsC7xME/EaWkcAnXPWVGB/l3XAxyaXZJ3U6P/ydBdW7
-         qgqSt2aqSAtemOM+c7fLL54KM3kPVlJ+iZaSywBFAKWX/rtew+GJonuKfLqvuA2803
-         PNh7mFtxwTFUGmjx0ifslSaZXo06GuUi0zAr0KGcC6PQ/dqjv1DMLlFaQyf3IVqbwF
-         dZk+0zFxhap2HkvQqIda7vgvsd0EgPRD0VBMLgPFAkpgnHdSkiDsxs2aIMYTBQwfSC
-         URA7oVIM6va/hUr0oFEhRzNINgD+A9b73luSgI9qHx/IMrof1aZqw0pNJGcGeJeVdR
-         qdnuQi9KzTu5g==
+        b=rg3EsMbHeM9R/AWfgkNWjHCdreuWh8C3Lo8oyBIO+wkf1WKphSrvtDcuS18Kt1wFC
+         4Y983qKU/jLSYtRBVGnCct8iP2HWoS1KQ3GR2QNdHMJYOcxBleiVU1kbiGfuvW0xyJ
+         smOWHGWza+jOhL6aDDnjGa8oBaNRWKjxYjvdb87D+XmrXz1CT8tjDl76sQ3a9zQnSx
+         PDQLXCFHJKoQNo+4ICmYW6VudP/9QeT2frF9NtFG8lE5ytNysnittIoFPn+DDqT0ln
+         XmwoJJvuhoSzqhUBqkkiN+aua6p7zJAvrZQX9OCNVfeJutYF6GC8VbB45DGB3Z7vsu
+         lQrDy0aOZUIuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 107/176] mac80211: Fix monitor MTU limit so that A-MSDUs get through
-Date:   Thu,  9 Sep 2021 07:50:09 -0400
-Message-Id: <20210909115118.146181-107-sashal@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 108/176] ARM: tegra: acer-a500: Remove bogus USB VBUS regulators
+Date:   Thu,  9 Sep 2021 07:50:10 -0400
+Message-Id: <20210909115118.146181-108-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -43,51 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 79f5962baea74ce1cd4e5949598944bff854b166 ]
+[ Upstream commit 70e740ad55e5f93a19493720f4105555fade4a73 ]
 
-The maximum MTU was set to 2304, which is the maximum MSDU size. While
-this is valid for normal WLAN interfaces, it is too low for monitor
-interfaces. A monitor interface may receive and inject MPDU frames, and
-the maximum MPDU frame size is larger than 2304. The MPDU may also
-contain an A-MSDU frame, in which case the size may be much larger than
-the MTU limit. Since the maximum size of an A-MSDU depends on the PHY
-mode of the transmitting STA, it is not possible to set an exact MTU
-limit for a monitor interface. Now the maximum MTU for a monitor
-interface is unrestricted.
+The configuration of USB VBUS regulators was borrowed from downstream
+kernel, which is incorrect because the corresponding GPIOs are connected
+to PROX_EN (A501 3G model) and LED_EN pins in accordance to the board
+schematics. USB works fine with both GPIOs being disabled, so remove the
+bogus USB VBUS regulators. The USB VBUS of USB3 is supplied from the fixed
+5v system regulator and device-mode USB1 doesn't have VBUS switches.
 
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Link: https://lore.kernel.org/r/20210628123246.2070558-1-johan.almbladh@anyfinetworks.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/iface.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ .../boot/dts/tegra20-acer-a500-picasso.dts    | 25 +------------------
+ 1 file changed, 1 insertion(+), 24 deletions(-)
 
-diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
-index 30589b4c09da..3a15ef8dd322 100644
---- a/net/mac80211/iface.c
-+++ b/net/mac80211/iface.c
-@@ -2000,9 +2000,16 @@ int ieee80211_if_add(struct ieee80211_local *local, const char *name,
+diff --git a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
+index 5d0f0fbba1d2..5dbfb83c1b06 100644
+--- a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
++++ b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
+@@ -704,7 +704,6 @@ usb-phy@c5000000 {
+ 		nvidia,xcvr-setup-use-fuses;
+ 		nvidia,xcvr-lsfslew = <2>;
+ 		nvidia,xcvr-lsrslew = <2>;
+-		vbus-supply = <&vdd_vbus1>;
+ 	};
  
- 		netdev_set_default_ethtool_ops(ndev, &ieee80211_ethtool_ops);
+ 	usb@c5008000 {
+@@ -716,7 +715,7 @@ usb-phy@c5008000 {
+ 		nvidia,xcvr-setup-use-fuses;
+ 		nvidia,xcvr-lsfslew = <2>;
+ 		nvidia,xcvr-lsrslew = <2>;
+-		vbus-supply = <&vdd_vbus3>;
++		vbus-supply = <&vdd_5v0_sys>;
+ 	};
  
--		/* MTU range: 256 - 2304 */
-+		/* MTU range is normally 256 - 2304, where the upper limit is
-+		 * the maximum MSDU size. Monitor interfaces send and receive
-+		 * MPDU and A-MSDU frames which may be much larger so we do
-+		 * not impose an upper limit in that case.
-+		 */
- 		ndev->min_mtu = 256;
--		ndev->max_mtu = local->hw.max_mtu;
-+		if (type == NL80211_IFTYPE_MONITOR)
-+			ndev->max_mtu = 0;
-+		else
-+			ndev->max_mtu = local->hw.max_mtu;
+ 	brcm_wifi_pwrseq: wifi-pwrseq {
+@@ -967,28 +966,6 @@ vdd_pnl: regulator@3 {
+ 		vin-supply = <&vdd_5v0_sys>;
+ 	};
  
- 		ret = register_netdevice(ndev);
- 		if (ret) {
+-	vdd_vbus1: regulator@4 {
+-		compatible = "regulator-fixed";
+-		regulator-name = "vdd_usb1_vbus";
+-		regulator-min-microvolt = <5000000>;
+-		regulator-max-microvolt = <5000000>;
+-		regulator-always-on;
+-		gpio = <&gpio TEGRA_GPIO(D, 0) GPIO_ACTIVE_HIGH>;
+-		enable-active-high;
+-		vin-supply = <&vdd_5v0_sys>;
+-	};
+-
+-	vdd_vbus3: regulator@5 {
+-		compatible = "regulator-fixed";
+-		regulator-name = "vdd_usb3_vbus";
+-		regulator-min-microvolt = <5000000>;
+-		regulator-max-microvolt = <5000000>;
+-		regulator-always-on;
+-		gpio = <&gpio TEGRA_GPIO(D, 3) GPIO_ACTIVE_HIGH>;
+-		enable-active-high;
+-		vin-supply = <&vdd_5v0_sys>;
+-	};
+-
+ 	sound {
+ 		compatible = "nvidia,tegra-audio-wm8903-picasso",
+ 			     "nvidia,tegra-audio-wm8903";
 -- 
 2.30.2
 
