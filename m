@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B65F0404F9F
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:21:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 782B7404FA2
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346423AbhIIMVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56768 "EHLO mail.kernel.org"
+        id S242608AbhIIMVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:21:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240321AbhIIMRQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:17:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AE2D61A7B;
-        Thu,  9 Sep 2021 11:49:53 +0000 (UTC)
+        id S1348508AbhIIMRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:17:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35B0461A80;
+        Thu,  9 Sep 2021 11:49:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188193;
-        bh=wT3iu+1KsIblfmC2Xxu1rpoOWJc5iroPFIXC6zv3PRM=;
+        s=k20201202; t=1631188195;
+        bh=EBbZEKk1Q8+0/FK1lc9ndXo46blG1XTr/+ky+ipJG2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RgCqCZOnDW6FxafNqC0CyoA98SCOmP/WhTMPHdvNdFRiGxmIAY+BWU50oafgrhRyt
-         +xLxpwNbR6bsJjoQTwploY5X5W3wiLox71BF+9nMkaqB3/DSwF28o95RRr5Jaipd4U
-         5uIZUQWrGRW6nil/y8SKRdCZH6YxEyJaogN5YDPA7Kr8NlVy25BMlDlBx4E8ZYK5pO
-         loB4do0F9QBexijQMPuAblBL5WntfWICwcmgpDck21ijf433c+AgtRRyVMKBthJ5lt
-         SsnlxE0ZxgFg+um4nkMmxSfzXDU3/ZbgT/2RP8rJjra3y3oBgAMdrX4EsLGzslRj7R
-         0CB6OC8VSXhOA==
+        b=rQhPNBLf1FPtzcTEqP2uv3mEH63TWXNUp9y0tHBtGQki3QsMgvPYAmaJ1vtnR8rCE
+         Q7yrJ4m5qO3j9YSmCuQ57I4RznVAUFjUL0XOnRCpkxuU2MbyjYbP1wQuLIRs95sOF2
+         VLrGxoihCx60DiI0TxZ1J/jARQSH8igOoNTGQ6lzX7yfGZsioAk7c05NJURr1eW0xm
+         d9UrgjZxKj4vPusLfrZkRdTlegaDn9PspNC/eVbM6pZzyO3pVsIClBzFqRpAmMLs/D
+         Q/8USLWSJrUehghO7xhjw4ycX9NUF4l1hkmUvF+131oHQWSu6aT4c257/XqexKmya9
+         lCpG8NNRy//2A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-staging@lists.linux.dev, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.13 153/219] staging: rts5208: Fix get_ms_information() heap buffer size
-Date:   Thu,  9 Sep 2021 07:45:29 -0400
-Message-Id: <20210909114635.143983-153-sashal@kernel.org>
+Cc:     Bongsu Jeon <bongsu.jeon@samsung.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 154/219] selftests: nci: Fix the code for next nlattr offset
+Date:   Thu,  9 Sep 2021 07:45:30 -0400
+Message-Id: <20210909114635.143983-154-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -42,82 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Bongsu Jeon <bongsu.jeon@samsung.com>
 
-[ Upstream commit cbe34165cc1b7d1110b268ba8b9f30843c941639 ]
+[ Upstream commit 78a7b2a8a0fa31f63ac16ac13601db6ed8259dfc ]
 
-Fix buf allocation size (it needs to be 2 bytes larger). Found when
-__alloc_size() annotations were added to kmalloc() interfaces.
+nlattr could have a padding for 4 bytes alignment. So next nla's offset
+should be calculated with a padding.
 
-In file included from ./include/linux/string.h:253,
-                 from ./include/linux/bitmap.h:10,
-                 from ./include/linux/cpumask.h:12,
-                 from ./arch/x86/include/asm/paravirt.h:17,
-                 from ./arch/x86/include/asm/irqflags.h:63,
-                 from ./include/linux/irqflags.h:16,
-                 from ./include/linux/rcupdate.h:26,
-                 from ./include/linux/rculist.h:11,
-                 from ./include/linux/pid.h:5,
-                 from ./include/linux/sched.h:14,
-                 from ./include/linux/blkdev.h:5,
-                 from drivers/staging/rts5208/rtsx_scsi.c:12:
-In function 'get_ms_information',
-    inlined from 'ms_sp_cmnd' at drivers/staging/rts5208/rtsx_scsi.c:2877:12,
-    inlined from 'rtsx_scsi_handler' at drivers/staging/rts5208/rtsx_scsi.c:3247:12:
-./include/linux/fortify-string.h:54:29: warning: '__builtin_memcpy' forming offset [106, 107] is out
- of the bounds [0, 106] [-Warray-bounds]
-   54 | #define __underlying_memcpy __builtin_memcpy
-      |                             ^
-./include/linux/fortify-string.h:417:2: note: in expansion of macro '__underlying_memcpy'
-  417 |  __underlying_##op(p, q, __fortify_size);   \
-      |  ^~~~~~~~~~~~~
-./include/linux/fortify-string.h:463:26: note: in expansion of macro '__fortify_memcpy_chk'
-  463 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,   \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/staging/rts5208/rtsx_scsi.c:2851:3: note: in expansion of macro 'memcpy'
- 2851 |   memcpy(buf + i, ms_card->raw_sys_info, 96);
-      |   ^~~~~~
-
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-staging@lists.linux.dev
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210818044252.1533634-1-keescook@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Bongsu Jeon <bongsu.jeon@samsung.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rts5208/rtsx_scsi.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ tools/testing/selftests/nci/nci_dev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rts5208/rtsx_scsi.c b/drivers/staging/rts5208/rtsx_scsi.c
-index 1deb74112ad4..11d9d9155eef 100644
---- a/drivers/staging/rts5208/rtsx_scsi.c
-+++ b/drivers/staging/rts5208/rtsx_scsi.c
-@@ -2802,10 +2802,10 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
+diff --git a/tools/testing/selftests/nci/nci_dev.c b/tools/testing/selftests/nci/nci_dev.c
+index 57b505cb1561..9687100f15ea 100644
+--- a/tools/testing/selftests/nci/nci_dev.c
++++ b/tools/testing/selftests/nci/nci_dev.c
+@@ -113,8 +113,8 @@ static int send_cmd_mt_nla(int sd, __u16 nlmsg_type, __u32 nlmsg_pid,
+ 		if (nla_len > 0)
+ 			memcpy(NLA_DATA(na), nla_data[cnt], nla_len[cnt]);
+ 
+-		msg.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
+-		prv_len = na->nla_len;
++		prv_len = NLA_ALIGN(nla_len[cnt]) + NLA_HDRLEN;
++		msg.n.nlmsg_len += prv_len;
  	}
  
- 	if (dev_info_id == 0x15) {
--		buf_len = 0x3A;
-+		buf_len = 0x3C;
- 		data_len = 0x3A;
- 	} else {
--		buf_len = 0x6A;
-+		buf_len = 0x6C;
- 		data_len = 0x6A;
- 	}
- 
-@@ -2855,11 +2855,7 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
- 	}
- 
- 	rtsx_stor_set_xfer_buf(buf, buf_len, srb);
--
--	if (dev_info_id == 0x15)
--		scsi_set_resid(srb, scsi_bufflen(srb) - 0x3C);
--	else
--		scsi_set_resid(srb, scsi_bufflen(srb) - 0x6C);
-+	scsi_set_resid(srb, scsi_bufflen(srb) - buf_len);
- 
- 	kfree(buf);
- 	return STATUS_SUCCESS;
+ 	buf = (char *)&msg;
 -- 
 2.30.2
 
