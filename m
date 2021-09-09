@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE000404C28
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40CE1404C2B
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:55:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236545AbhIIL4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:56:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34040 "EHLO mail.kernel.org"
+        id S236201AbhIIL4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:56:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239892AbhIILyK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:54:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C846138E;
-        Thu,  9 Sep 2021 11:44:42 +0000 (UTC)
+        id S243659AbhIILyV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:54:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2024361209;
+        Thu,  9 Sep 2021 11:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187883;
-        bh=gMzlS6eZ1f/ByV3KBZmIrkiSw6UxTcu2UVXACyjKUw4=;
+        s=k20201202; t=1631187884;
+        bh=CV74dxIjhbf32IWeE/xsVObqeVRJv4nlTAX7l/Jk+zM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wesw0w6tM8cQIj/SM+2L1+lcs8ODNqvh+eWS3qsHUb79uuup9MOJ+swzm9jdXnk9m
-         cs2RFFkHI1ID4Y0hnaTea3lzymd3JZzLPopIu3PB5um6xDT6+qJDLlYxGeyULlz/lb
-         ypInvHyZFaqOsFfgZlZ4D9KyPToviAIsLVRZVqQVx9933fSux0toxaBX9uz/cQKEbV
-         vAJ25UrvIPzi8Z/+CYCnPl4dnjE8j/MAlwP0YAMbQd7QWC/GGqOysRuCDbMhUZz1/s
-         Tp7JGxPn1KiaHFIG0QH7yL/gfJH+IEPU0fgKbDK16WCQGMedjDq4g/tJcsvC5q+DBy
-         KVZkRybgyFVaA==
+        b=fwfE2WfQhkad/Iq80VqL3vE/yQA3ueA853twQl7Rk0ro1QNd6nT02DB3UwjfakxcQ
+         uN0ma7JjiALGroIu22hN4Tf61YG4K+ykCjt9xOYhU92K63kFWexTiDeOn4Hs+LDPDt
+         m9n1X3neU6ErO3RpXrWObgC5o0nGyrZ+bpLc6A+/MejCOGf1xji10b/R9UefDwiDJ2
+         2xguN/OrB95nSDLidp+0kKbj7W20fM9hcndafNrziFgWmRW1QLEvX7bVnZNFWYhOo5
+         K/+pSa0DZqsONrKzPavalWOtNkAPl7vCp8gRTnr2s3WffaPnSP2ezRI13z5bTs+Wyy
+         +Vg+L2P0OW+rg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 166/252] ALSA: hda: Drop workaround for a hang at shutdown again
-Date:   Thu,  9 Sep 2021 07:39:40 -0400
-Message-Id: <20210909114106.141462-166-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 167/252] locking/rtmutex: Set proper wait context for lockdep
+Date:   Thu,  9 Sep 2021 07:39:41 -0400
+Message-Id: <20210909114106.141462-167-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -41,69 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 8fc8e903156f42c66245838441d03607e9067381 ]
+[ Upstream commit b41cda03765580caf7723b8c1b672d191c71013f ]
 
-The commit 0165c4e19f6e ("ALSA: hda: Fix hang during shutdown due to
-link reset") modified the shutdown callback of the HD-audio controller
-for working around a hang.  Meanwhile, the actual culprit of the hang
-was identified to be the leftover active codecs that may interfere
-with the powered down controller somehow, but we took a minimal fix
-approach for 5.14, and that was the commit above.
+RT mutexes belong to the LD_WAIT_SLEEP class. Make them so.
 
-Now, since the codec drivers go runtime-suspend at shutdown for 5.15,
-we can revert the change and make sure that the full runtime-suspend
-is performed at shutdown of HD-audio controller again.  This patch
-essentially reverts the commit above to restore the behavior.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214045
-Link: https://lore.kernel.org/r/20210817075630.7115-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210815211302.031014562@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_intel.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ include/linux/rtmutex.h  | 19 ++++++++++++-------
+ kernel/locking/rtmutex.c |  2 +-
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
-index 0062c18b646a..0322b289505e 100644
---- a/sound/pci/hda/hda_intel.c
-+++ b/sound/pci/hda/hda_intel.c
-@@ -883,11 +883,10 @@ static unsigned int azx_get_pos_skl(struct azx *chip, struct azx_dev *azx_dev)
- 	return azx_get_pos_posbuf(chip, azx_dev);
- }
+diff --git a/include/linux/rtmutex.h b/include/linux/rtmutex.h
+index d1672de9ca89..87b325aec508 100644
+--- a/include/linux/rtmutex.h
++++ b/include/linux/rtmutex.h
+@@ -52,17 +52,22 @@ do { \
+ } while (0)
  
--static void __azx_shutdown_chip(struct azx *chip, bool skip_link_reset)
-+static void azx_shutdown_chip(struct azx *chip)
+ #ifdef CONFIG_DEBUG_LOCK_ALLOC
+-#define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname) \
+-	, .dep_map = { .name = #mutexname }
++#define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)	\
++	.dep_map = {					\
++		.name = #mutexname,			\
++		.wait_type_inner = LD_WAIT_SLEEP,	\
++	}
+ #else
+ #define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)
+ #endif
+ 
+-#define __RT_MUTEX_INITIALIZER(mutexname) \
+-	{ .wait_lock = __RAW_SPIN_LOCK_UNLOCKED(mutexname.wait_lock) \
+-	, .waiters = RB_ROOT_CACHED \
+-	, .owner = NULL \
+-	__DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)}
++#define __RT_MUTEX_INITIALIZER(mutexname)				\
++{									\
++	.wait_lock = __RAW_SPIN_LOCK_UNLOCKED(mutexname.wait_lock),	\
++	.waiters = RB_ROOT_CACHED,					\
++	.owner = NULL,							\
++	__DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)			\
++}
+ 
+ #define DEFINE_RT_MUTEX(mutexname) \
+ 	struct rt_mutex mutexname = __RT_MUTEX_INITIALIZER(mutexname)
+diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
+index ad0db322ed3b..1a7e3f838077 100644
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -1556,7 +1556,7 @@ void __sched __rt_mutex_init(struct rt_mutex *lock, const char *name,
+ 		     struct lock_class_key *key)
  {
- 	azx_stop_chip(chip);
--	if (!skip_link_reset)
--		azx_enter_link_reset(chip);
-+	azx_enter_link_reset(chip);
- 	azx_clear_irq_pending(chip);
- 	display_power(chip, false);
- }
-@@ -896,11 +895,6 @@ static void __azx_shutdown_chip(struct azx *chip, bool skip_link_reset)
- static DEFINE_MUTEX(card_list_lock);
- static LIST_HEAD(card_list);
+ 	debug_check_no_locks_freed((void *)lock, sizeof(*lock));
+-	lockdep_init_map(&lock->dep_map, name, key, 0);
++	lockdep_init_map_wait(&lock->dep_map, name, key, 0, LD_WAIT_SLEEP);
  
--static void azx_shutdown_chip(struct azx *chip)
--{
--	__azx_shutdown_chip(chip, false);
--}
--
- static void azx_add_card_list(struct azx *chip)
- {
- 	struct hda_intel *hda = container_of(chip, struct hda_intel, chip);
-@@ -2391,7 +2385,7 @@ static void azx_shutdown(struct pci_dev *pci)
- 		return;
- 	chip = card->private_data;
- 	if (chip && chip->running)
--		__azx_shutdown_chip(chip, true);
-+		azx_shutdown_chip(chip);
+ 	__rt_mutex_basic_init(lock);
  }
- 
- /* PCI IDs */
 -- 
 2.30.2
 
