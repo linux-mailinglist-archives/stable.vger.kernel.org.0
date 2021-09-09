@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E09EB404EA9
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:18:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40A83404EAA
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:18:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350263AbhIIMNR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:13:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47666 "EHLO mail.kernel.org"
+        id S240986AbhIIMNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351801AbhIIMKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:10:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 197D36124B;
-        Thu,  9 Sep 2021 11:48:26 +0000 (UTC)
+        id S243395AbhIIMLG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:11:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 561C661A05;
+        Thu,  9 Sep 2021 11:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188106;
-        bh=Lc4+sA1v5F/jes2Rb9XXiWEbIV278sT9/liBkcqxlbo=;
+        s=k20201202; t=1631188108;
+        bh=wTkFVaW6fkoU9QG9knrcCG0f55YhqKPa8D5jng3jo6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWUIUEgXOchCqIIgR1X8MSlujUjS7ihFL2RBwfS97h6FoHi0PmIfZ4vdAIrX4kf0z
-         6sRNg/Op71gszpcXxj2dbc6Fs8Azj1aQ+ZOnmkN4prmCR6ib3B6JdxQWF61cvuuhIM
-         7DOLzMBsrMZ4kdyBoKmii3NqW7G7yNFGrJDmWjyDhLBSNJJQB5U6AcriwQqTEbrL3c
-         45Xiln0PfFiX4Vx2l13RQySlmlPbNeoKlkNBp9ztiNVvCxIgB/7V2PZGcqkaSULbjz
-         QXyELhv0vRn7WaucO0hFAMUd8DOB8zWutVuDjYlQ8KVnG5HHDcaRUVKaFapuZkiI7a
-         htNtxLv6LR4tg==
+        b=sFztGKd+yLi9fhFtzKFzOGTOR/GCBVbpUClY0M5ryIyAhAl3k4ihxrds9unUGOfek
+         rMAL+7vIE1xlqtcUNQWbYRvfupZt20sXubE7oq6f+pHasj/CbB7GpzxY8kuxTEtXpQ
+         PdhMAZra/LDfT4TsF1yCM7x5bis1LW82YV5En0LqV4bewPvvryPHeB6zE3zrwtJKTp
+         aVPpv6dFL/2ju+VipfF7o3TX8DkqzyxnDseQqBEuOqrkmqvspqRi9QBe2Xg7OjCIug
+         LIiarFy69/k9DEo2sIsX4QH8JOuImbu19ygzccNtDKlXDiVRHXMmEARyM3ChBGp6pb
+         0R51WwhBskNcA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.13 086/219] ASoC: Intel: bytcr_rt5640: Move "Platform Clock" routes to the maps for the matching in-/output
-Date:   Thu,  9 Sep 2021 07:44:22 -0400
-Message-Id: <20210909114635.143983-86-sashal@kernel.org>
+Cc:     Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 087/219] bpf: Fix off-by-one in tail call count limiting
+Date:   Thu,  9 Sep 2021 07:44:23 -0400
+Message-Id: <20210909114635.143983-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -43,79 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 
-[ Upstream commit dccd1dfd0770bfd494b68d1135b4547b2c602c42 ]
+[ Upstream commit b61a28cf11d61f512172e673b8f8c4a6c789b425 ]
 
-Move the "Platform Clock" routes for the "Internal Mic" and "Speaker"
-routes to the intmic_*_map[] / *_spk_map[] arrays.
+Before, the interpreter allowed up to MAX_TAIL_CALL_CNT + 1 tail calls.
+Now precisely MAX_TAIL_CALL_CNT is allowed, which is in line with the
+behavior of the x86 JITs.
 
-This ensures that these "Platform Clock" routes do not get added when the
-BYT_RT5640_NO_INTERNAL_MIC_MAP / BYT_RT5640_NO_SPEAKERS quirks are used.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210802142501.991985-2-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20210728164741.350370-1-johan.almbladh@anyfinetworks.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ kernel/bpf/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 22dbd9d93c1e..4bddb969176f 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -290,9 +290,6 @@ static const struct snd_soc_dapm_widget byt_rt5640_widgets[] = {
- static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
- 	{"Headphone", NULL, "Platform Clock"},
- 	{"Headset Mic", NULL, "Platform Clock"},
--	{"Internal Mic", NULL, "Platform Clock"},
--	{"Speaker", NULL, "Platform Clock"},
--
- 	{"Headset Mic", NULL, "MICBIAS1"},
- 	{"IN2P", NULL, "Headset Mic"},
- 	{"Headphone", NULL, "HPOL"},
-@@ -300,19 +297,23 @@ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
- };
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index b1a5fc04492b..fe807b203a6f 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -1562,7 +1562,7 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn)
  
- static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic1_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"DMIC1", NULL, "Internal Mic"},
- };
+ 		if (unlikely(index >= array->map.max_entries))
+ 			goto out;
+-		if (unlikely(tail_call_cnt > MAX_TAIL_CALL_CNT))
++		if (unlikely(tail_call_cnt >= MAX_TAIL_CALL_CNT))
+ 			goto out;
  
- static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic2_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"DMIC2", NULL, "Internal Mic"},
- };
- 
- static const struct snd_soc_dapm_route byt_rt5640_intmic_in1_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"Internal Mic", NULL, "MICBIAS1"},
- 	{"IN1P", NULL, "Internal Mic"},
- };
- 
- static const struct snd_soc_dapm_route byt_rt5640_intmic_in3_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"Internal Mic", NULL, "MICBIAS1"},
- 	{"IN3P", NULL, "Internal Mic"},
- };
-@@ -354,6 +355,7 @@ static const struct snd_soc_dapm_route byt_rt5640_ssp0_aif2_map[] = {
- };
- 
- static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
-+	{"Speaker", NULL, "Platform Clock"},
- 	{"Speaker", NULL, "SPOLP"},
- 	{"Speaker", NULL, "SPOLN"},
- 	{"Speaker", NULL, "SPORP"},
-@@ -361,6 +363,7 @@ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
- };
- 
- static const struct snd_soc_dapm_route byt_rt5640_mono_spk_map[] = {
-+	{"Speaker", NULL, "Platform Clock"},
- 	{"Speaker", NULL, "SPOLP"},
- 	{"Speaker", NULL, "SPOLN"},
- };
+ 		tail_call_cnt++;
 -- 
 2.30.2
 
