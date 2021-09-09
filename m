@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A0BD405118
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CA8D40511B
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347520AbhIIMdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:33:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38910 "EHLO mail.kernel.org"
+        id S1352128AbhIIMdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354083AbhIIM3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:29:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1857861368;
-        Thu,  9 Sep 2021 11:52:32 +0000 (UTC)
+        id S1354239AbhIIMaR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:30:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51EC861B3F;
+        Thu,  9 Sep 2021 11:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188353;
-        bh=Vsy8gpBgM0GhHg3QJJJHTliUIQgYeXjTRbQ+QTXPFMk=;
+        s=k20201202; t=1631188355;
+        bh=R5DxAoygujqDzBMuS+3iVJzTamDZS/jf4GHwAfptkMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sgwmDDwLEJZhvhlGGrEJBHNrER8H85MNoUFKNxeKDnxbKDkBZQQ+RLYPgYYrqsewh
-         fhizlZEJLO6X3MnX9dPjl1FgYzjhO48AOMCqhUURwUxBYJ4GQPrArsEJR6C1mJQ2CF
-         L19HwFrdq3vOvbPQMakhtoJW4pkPIIwFq5A7SttXBqgrE6DD9RWR+fz1Yy/MkUi0BH
-         HYQwqLwYS1Nhps+dd7o7E9PM/f6BN0OFXQY1VaubwL87JlOvUbJbVCuC+JPS4tHWvX
-         Du99aq9MWg8dGgZVKnfiO9JAYBtLEcIH+wqE6RfJW+UWJFuPmF3gAjJX9Lk6qP5r7n
-         1RwFSbzwtYJnA==
+        b=vNyMfprS0NaKjZfPS3sasZwIXnS7gsdghlw8ro7upvlFhDtH3HoIevwjrshQKwFU/
+         8g134M8D8JhS/n6EmrgtF4jRmou6Zk4LD55N39Q1hN+BKB+sOE39WXLYjjkfuPnwHz
+         ZboIKz9kBs01yi6QFxCkZgmZ7NFlKGjtj9q5eO/24/NREWc3geeU0eC+O+fGsF258Q
+         7+LkP53Y3NJf+gipJLjRTWn+5NFsFCpm8fX1N25GfrlDbkbjaHQeH49w3/6sw4K9mD
+         36EOz19ANU2hBJ84+vUnvzaq6FPghCYnTH9OjJAACfqkynJ/RgeoyvSV02IAUTCI1j
+         1ibT+KOav5peA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martynas Pumputis <m@lambda.lt>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 059/176] libbpf: Fix race when pinning maps in parallel
-Date:   Thu,  9 Sep 2021 07:49:21 -0400
-Message-Id: <20210909115118.146181-59-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-ide@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 060/176] ata: sata_dwc_460ex: No need to call phy_exit() befre phy_init()
+Date:   Thu,  9 Sep 2021 07:49:22 -0400
+Message-Id: <20210909115118.146181-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -43,84 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martynas Pumputis <m@lambda.lt>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 043c5bb3c4f43670ab4fea0b847373ab42d25f3e ]
+[ Upstream commit 3ad4a31620355358316fa08fcfab37b9d6c33347 ]
 
-When loading in parallel multiple programs which use the same to-be
-pinned map, it is possible that two instances of the loader will call
-bpf_object__create_maps() at the same time. If the map doesn't exist
-when both instances call bpf_object__reuse_map(), then one of the
-instances will fail with EEXIST when calling bpf_map__pin().
+Last change to device managed APIs cleaned up error path to simple phy_exit()
+call, which in some cases has been executed with NULL parameter. This per se
+is not a problem, but rather logical misconception: no need to free resource
+when it's for sure has not been allocated yet. Fix the driver accordingly.
 
-Fix the race by retrying reusing a map if bpf_map__pin() returns
-EEXIST. The fix is similar to the one in iproute2: e4c4685fd6e4 ("bpf:
-Fix race condition with map pinning").
-
-Before retrying the pinning, we don't do any special cleaning of an
-internal map state. The closer code inspection revealed that it's not
-required:
-
-    - bpf_object__create_map(): map->inner_map is destroyed after a
-      successful call, map->fd is closed if pinning fails.
-    - bpf_object__populate_internal_map(): created map elements is
-      destroyed upon close(map->fd).
-    - init_map_slots(): slots are freed after their initialization.
-
-Signed-off-by: Martynas Pumputis <m@lambda.lt>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210726152001.34845-1-m@lambda.lt
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210727125130.19977-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/ata/sata_dwc_460ex.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index a4e61dd5d8b3..d24531bb69d4 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -4286,10 +4286,13 @@ bpf_object__create_maps(struct bpf_object *obj)
- 	char *cp, errmsg[STRERR_BUFSIZE];
- 	unsigned int i, j;
- 	int err;
-+	bool retried;
+diff --git a/drivers/ata/sata_dwc_460ex.c b/drivers/ata/sata_dwc_460ex.c
+index 9dcef6ac643b..982fe9112532 100644
+--- a/drivers/ata/sata_dwc_460ex.c
++++ b/drivers/ata/sata_dwc_460ex.c
+@@ -1249,24 +1249,20 @@ static int sata_dwc_probe(struct platform_device *ofdev)
+ 	irq = irq_of_parse_and_map(np, 0);
+ 	if (irq == NO_IRQ) {
+ 		dev_err(&ofdev->dev, "no SATA DMA irq\n");
+-		err = -ENODEV;
+-		goto error_out;
++		return -ENODEV;
+ 	}
  
- 	for (i = 0; i < obj->nr_maps; i++) {
- 		map = &obj->maps[i];
+ #ifdef CONFIG_SATA_DWC_OLD_DMA
+ 	if (!of_find_property(np, "dmas", NULL)) {
+ 		err = sata_dwc_dma_init_old(ofdev, hsdev);
+ 		if (err)
+-			goto error_out;
++			return err;
+ 	}
+ #endif
  
-+		retried = false;
-+retry:
- 		if (map->pin_path) {
- 			err = bpf_object__reuse_map(map);
- 			if (err) {
-@@ -4297,6 +4300,12 @@ bpf_object__create_maps(struct bpf_object *obj)
- 					map->name);
- 				goto err_out;
- 			}
-+			if (retried && map->fd < 0) {
-+				pr_warn("map '%s': cannot find pinned map\n",
-+					map->name);
-+				err = -ENOENT;
-+				goto err_out;
-+			}
- 		}
+ 	hsdev->phy = devm_phy_optional_get(hsdev->dev, "sata-phy");
+-	if (IS_ERR(hsdev->phy)) {
+-		err = PTR_ERR(hsdev->phy);
+-		hsdev->phy = NULL;
+-		goto error_out;
+-	}
++	if (IS_ERR(hsdev->phy))
++		return PTR_ERR(hsdev->phy);
  
- 		if (map->fd >= 0) {
-@@ -4330,9 +4339,13 @@ bpf_object__create_maps(struct bpf_object *obj)
- 		if (map->pin_path && !map->pinned) {
- 			err = bpf_map__pin(map, NULL);
- 			if (err) {
-+				zclose(map->fd);
-+				if (!retried && err == -EEXIST) {
-+					retried = true;
-+					goto retry;
-+				}
- 				pr_warn("map '%s': failed to auto-pin at '%s': %d\n",
- 					map->name, map->pin_path, err);
--				zclose(map->fd);
- 				goto err_out;
- 			}
- 		}
+ 	err = phy_init(hsdev->phy);
+ 	if (err)
 -- 
 2.30.2
 
