@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A061140525C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F254405250
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353514AbhIIMnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:43:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45826 "EHLO mail.kernel.org"
+        id S243559AbhIIMm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:42:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352566AbhIIMi7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346383AbhIIMi7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:38:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99F2D61BB6;
-        Thu,  9 Sep 2021 11:54:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDED561BB5;
+        Thu,  9 Sep 2021 11:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188476;
-        bh=L+Zrw3R7HuZQRklNozrduxknMAPTxCggBqZfIcjfZ9Q=;
+        s=k20201202; t=1631188477;
+        bh=7mmHLthpFheFiPyehS8KBoLv55k9vZhDiW0Qcdq4vcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OvM3cohXPwEzKhGk7zBbhoLhULhGxoaSocpVqvodedVRR7GAmbbo1k4K2tdkbrstm
-         wYX/rOucb1XCUql77lDwiB/VqDQrL1K+b0qrDQFRI2unvUXTK2esePur2eZ75gTj7+
-         6NkEPImyFA98+gdhFvHpYgs/YFZgTVGqeXFazuBJHcx4B6cD8XUDMic764gCmN1nz5
-         IYCxKS7vKDFUg2cJS52auBVyDAzdMwwmQAILhOtX13endibG7zDMJfpsEj8TjZVQCH
-         3tZxzTGCcApSOa1fB0aGBX9oyPFInAaWoQUN28WZ9FbkjBderVQZY+K4Tchj1zj/oF
-         IuwzG6ReAv+aQ==
+        b=Rt4aSBXjDPuxmIlnBPwV8THxvmyKYt4bInDUpMsSqAq561Fisik9UikUpBamq2pl0
+         AEQFnZcliDD3DR+Ing8OUiSAOTy+im0v8kDd07D6xPfikeqV4VFnQco6y3wI86UODI
+         6LlSwENFl4RTK3qz4MzMHzmMjRUBzX+6kl989UeVP+nHxLLU+EiV3Hv7tnpM9Mr6+r
+         HO7coWypAjcOMuIQ0QaJBCNjtEsp/ZGKll7RLforhd7TNJZ63d02AvBU6olDR1318z
+         wyFikB+QvwwfUu/HbeMpwHlQqCo9Ch6goLMgBfquFXB2cmqimHpz5SgI3hJI+qhBaq
+         8nyaZ/X6muDfg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nadezda Lutovinova <lutovinova@ispras.ru>,
+Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
+        syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 153/176] usb: musb: musb_dsps: request_irq() after initializing musb
-Date:   Thu,  9 Sep 2021 07:50:55 -0400
-Message-Id: <20210909115118.146181-153-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 154/176] usbip: give back URBs for unsent unlink requests during cleanup
+Date:   Thu,  9 Sep 2021 07:50:56 -0400
+Message-Id: <20210909115118.146181-154-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -42,61 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-[ Upstream commit 7c75bde329d7e2a93cf86a5c15c61f96f1446cdc ]
+[ Upstream commit 258c81b341c8025d79073ce2d6ce19dcdc7d10d2 ]
 
-If IRQ occurs between calling  dsps_setup_optional_vbus_irq()
-and  dsps_create_musb_pdev(), then null pointer dereference occurs
-since glue->musb wasn't initialized yet.
+In vhci_device_unlink_cleanup(), the URBs for unsent unlink requests are
+not given back. This sometimes causes usb_kill_urb to wait indefinitely
+for that urb to be given back. syzbot has reported a hung task issue [1]
+for this.
 
-The patch puts initializing of neccesery data before registration
-of the interrupt handler.
+To fix this, give back the urbs corresponding to unsent unlink requests
+(unlink_tx list) similar to how urbs corresponding to unanswered unlink
+requests (unlink_rx list) are given back.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+[1]: https://syzkaller.appspot.com/bug?id=08f12df95ae7da69814e64eb5515d5a85ed06b76
 
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Link: https://lore.kernel.org/r/20210819163323.17714-1-lutovinova@ispras.ru
+Reported-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
+Tested-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20210820190122.16379-2-mail@anirudhrb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/musb_dsps.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/usb/usbip/vhci_hcd.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/usb/musb/musb_dsps.c b/drivers/usb/musb/musb_dsps.c
-index 5892f3ce0cdc..ce9fc46c9266 100644
---- a/drivers/usb/musb/musb_dsps.c
-+++ b/drivers/usb/musb/musb_dsps.c
-@@ -890,23 +890,22 @@ static int dsps_probe(struct platform_device *pdev)
- 	if (!glue->usbss_base)
- 		return -ENXIO;
+diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
+index 4ba6bcdaa8e9..190bd3d1c1f0 100644
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -957,8 +957,32 @@ static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
+ 	spin_lock(&vdev->priv_lock);
  
--	if (usb_get_dr_mode(&pdev->dev) == USB_DR_MODE_PERIPHERAL) {
--		ret = dsps_setup_optional_vbus_irq(pdev, glue);
--		if (ret)
--			goto err_iounmap;
--	}
--
- 	platform_set_drvdata(pdev, glue);
- 	pm_runtime_enable(&pdev->dev);
- 	ret = dsps_create_musb_pdev(glue, pdev);
- 	if (ret)
- 		goto err;
- 
-+	if (usb_get_dr_mode(&pdev->dev) == USB_DR_MODE_PERIPHERAL) {
-+		ret = dsps_setup_optional_vbus_irq(pdev, glue);
-+		if (ret)
-+			goto err;
-+	}
+ 	list_for_each_entry_safe(unlink, tmp, &vdev->unlink_tx, list) {
++		struct urb *urb;
 +
- 	return 0;
++		/* give back urb of unsent unlink request */
+ 		pr_info("unlink cleanup tx %lu\n", unlink->unlink_seqnum);
++
++		urb = pickup_urb_and_free_priv(vdev, unlink->unlink_seqnum);
++		if (!urb) {
++			list_del(&unlink->list);
++			kfree(unlink);
++			continue;
++		}
++
++		urb->status = -ENODEV;
++
++		usb_hcd_unlink_urb_from_ep(hcd, urb);
++
+ 		list_del(&unlink->list);
++
++		spin_unlock(&vdev->priv_lock);
++		spin_unlock_irqrestore(&vhci->lock, flags);
++
++		usb_hcd_giveback_urb(hcd, urb, urb->status);
++
++		spin_lock_irqsave(&vhci->lock, flags);
++		spin_lock(&vdev->priv_lock);
++
+ 		kfree(unlink);
+ 	}
  
- err:
- 	pm_runtime_disable(&pdev->dev);
--err_iounmap:
- 	iounmap(glue->usbss_base);
- 	return ret;
- }
 -- 
 2.30.2
 
