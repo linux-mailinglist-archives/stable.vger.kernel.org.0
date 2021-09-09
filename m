@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD245404EFD
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1059A404F12
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238379AbhIIMQX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:16:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52264 "EHLO mail.kernel.org"
+        id S1345449AbhIIMQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:16:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350318AbhIIMNp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:13:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D96BC61A56;
-        Thu,  9 Sep 2021 11:49:03 +0000 (UTC)
+        id S1350475AbhIIMNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:13:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D49361A59;
+        Thu,  9 Sep 2021 11:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188144;
-        bh=o2FipU2T4oBNLWJncdRN5X/QBl6xzwY3qSkx4eTQtaU=;
+        s=k20201202; t=1631188145;
+        bh=e4DRZx/VtfqC41DV1FiYS0p26W6OqaMolJo8boE3nZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnDuI4iEYA2PpeMTsXuIlN1JOEFWzF1ILqJcTFyHqNxFYK6SLq9QAeuSq2rWP+7Qj
-         nhIqGBGiXQ378qNhdnqBIK7kiCJiGjYGo4j0mBONs0Wt8WnKVPgPEiN3nRkNsBRooM
-         619dmgEfXRStDpN9BT2krI+J5/2E9PJ9yWychJjztSK643KwFBFRB6huxlat2endON
-         /N1fC+U3DhH2Ex6pK3DiCnf6QziXougF6Lv8biS7wvcHe5b18pzxkBSPBM5VwTTFCt
-         3atj1euDcaMVrVtEXowbhUmBiSndyAypyJJmHZHorb71dijppFuFg7jiUu79ilLkvQ
-         xkJPKVCclqsGA==
+        b=h769yLhcv7/B4d+UKZHgvsHhnsKEXKkgUlg311u+784q6CXqw2sHT/D/zLeH85FlE
+         /X3MGJuqd1p8h4c/LSeYijJ1jWHOOZI+3OVpmSAjgt1Dd0/Q4ubsTCWSz9A8m6sPG5
+         PT0znNlnLX+2z3HWwTm+JsfWNCxpo/+EYje/TuSphcjB1lvvLRlNg8r5FeixY/Gtwe
+         sKVX4yRqvitpnOeKt9AQRUQTYp5ULyjzFBc6VC8iqCv7w/oLj+hDz0rF/aRRLjZJb/
+         m5OJCbwx65aYRHvR4EoQ6klta5LS77Oe5OVKxGILzokT7D3+FA37DutjPudVkyZWzp
+         qykAxHSxvZaDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quanyang Wang <quanyang.wang@windriver.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 115/219] drm: xlnx: zynqmp: release reset to DP controller before accessing DP registers
-Date:   Thu,  9 Sep 2021 07:44:51 -0400
-Message-Id: <20210909114635.143983-115-sashal@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 116/219] spi: tegra20-slink: Improve runtime PM usage
+Date:   Thu,  9 Sep 2021 07:44:52 -0400
+Message-Id: <20210909114635.143983-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -44,119 +43,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quanyang Wang <quanyang.wang@windriver.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit a338619bd76011035d462f0f9e8b2f24d7fe5a1e ]
+[ Upstream commit e4bb903fda0e9bbafa1338dcd2ee5e4d3ccc50da ]
 
-When insmod zynqmp-dpsub.ko after rmmod it, system will hang with the
-error log as below:
+The Tegra SPI driver supports runtime PM, which controls the clock
+enable state, but the clk is also enabled separately from the RPM
+at the driver probe time, and thus, stays always on. Fix it.
 
-root@xilinx-zynqmp:~# insmod zynqmp-dpsub.ko
-[   88.391289] [drm] Initialized zynqmp-dpsub 1.0.0 20130509 for fd4a0000.display on minor 0
-[   88.529906] Console: switching to colour frame buffer device 128x48
-[   88.549402] zynqmp-dpsub fd4a0000.display: [drm] fb0: zynqmp-dpsubdrm frame buffer device
-[   88.571624] zynqmp-dpsub fd4a0000.display: ZynqMP DisplayPort Subsystem driver probed
-root@xilinx-zynqmp:~# rmmod zynqmp_dpsub
-[   94.023404] Console: switching to colour dummy device 80x25
-root@xilinx-zynqmp:~# insmod zynqmp-dpsub.ko
-	<hang here>
+Runtime PM now is always available on Tegra, hence there is no need to
+check the RPM presence in the driver anymore. Remove these checks.
 
-This is because that in zynqmp_dp_probe it tries to access some DP
-registers while the DP controller is still in the reset state. When
-running "rmmod zynqmp_dpsub", zynqmp_dp_reset(dp, true) in
-zynqmp_dp_phy_exit is called to force the DP controller into the reset
-state. Then insmod will call zynqmp_dp_probe to program the DP registers,
-but at this moment the DP controller hasn't been brought out of the reset
-state yet since the function zynqmp_dp_reset(dp, false) is called later and
-this will result the system hang.
-
-Releasing the reset to DP controller before any read/write operation to it
-will fix this issue. And for symmetry, move zynqmp_dp_reset() call from
-zynqmp_dp_phy_exit() to zynqmp_dp_remove().
-
-Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20210731192731.5869-1-digetx@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/xlnx/zynqmp_dp.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/spi/spi-tegra20-slink.c | 73 +++++++++++----------------------
+ 1 file changed, 25 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/gpu/drm/xlnx/zynqmp_dp.c b/drivers/gpu/drm/xlnx/zynqmp_dp.c
-index 59d1fb017da0..13811332b349 100644
---- a/drivers/gpu/drm/xlnx/zynqmp_dp.c
-+++ b/drivers/gpu/drm/xlnx/zynqmp_dp.c
-@@ -402,10 +402,6 @@ static int zynqmp_dp_phy_init(struct zynqmp_dp *dp)
- 		}
+diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
+index 6a726c95ac7a..501eca1d0f89 100644
+--- a/drivers/spi/spi-tegra20-slink.c
++++ b/drivers/spi/spi-tegra20-slink.c
+@@ -1061,33 +1061,12 @@ static int tegra_slink_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "Can not get clock %d\n", ret);
+ 		goto exit_free_master;
  	}
- 
--	ret = zynqmp_dp_reset(dp, false);
--	if (ret < 0)
--		return ret;
+-	ret = clk_prepare(tspi->clk);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "Clock prepare failed %d\n", ret);
+-		goto exit_free_master;
+-	}
+-	ret = clk_enable(tspi->clk);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "Clock enable failed %d\n", ret);
+-		goto exit_clk_unprepare;
+-	}
 -
- 	zynqmp_dp_clr(dp, ZYNQMP_DP_PHY_RESET, ZYNQMP_DP_PHY_RESET_ALL_RESET);
+-	spi_irq = platform_get_irq(pdev, 0);
+-	tspi->irq = spi_irq;
+-	ret = request_threaded_irq(tspi->irq, tegra_slink_isr,
+-			tegra_slink_isr_thread, IRQF_ONESHOT,
+-			dev_name(&pdev->dev), tspi);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
+-					tspi->irq);
+-		goto exit_clk_disable;
+-	}
  
- 	/*
-@@ -441,8 +437,6 @@ static void zynqmp_dp_phy_exit(struct zynqmp_dp *dp)
- 				ret);
+ 	tspi->rst = devm_reset_control_get_exclusive(&pdev->dev, "spi");
+ 	if (IS_ERR(tspi->rst)) {
+ 		dev_err(&pdev->dev, "can not get reset\n");
+ 		ret = PTR_ERR(tspi->rst);
+-		goto exit_free_irq;
++		goto exit_free_master;
  	}
  
--	zynqmp_dp_reset(dp, true);
--
- 	for (i = 0; i < dp->num_lanes; i++) {
- 		ret = phy_exit(dp->phy[i]);
- 		if (ret)
-@@ -1682,9 +1676,13 @@ int zynqmp_dp_probe(struct zynqmp_dpsub *dpsub, struct drm_device *drm)
- 		return PTR_ERR(dp->reset);
- 	}
+ 	tspi->max_buf_size = SLINK_FIFO_DEPTH << 2;
+@@ -1095,7 +1074,7 @@ static int tegra_slink_probe(struct platform_device *pdev)
  
-+	ret = zynqmp_dp_reset(dp, false);
-+	if (ret < 0)
-+		return ret;
-+
- 	ret = zynqmp_dp_phy_probe(dp);
- 	if (ret)
--		return ret;
-+		goto err_reset;
- 
- 	/* Initialize the hardware. */
- 	zynqmp_dp_write(dp, ZYNQMP_DP_TX_PHY_POWER_DOWN,
-@@ -1696,7 +1694,7 @@ int zynqmp_dp_probe(struct zynqmp_dpsub *dpsub, struct drm_device *drm)
- 
- 	ret = zynqmp_dp_phy_init(dp);
- 	if (ret)
--		return ret;
-+		goto err_reset;
- 
- 	zynqmp_dp_write(dp, ZYNQMP_DP_TRANSMITTER_ENABLE, 1);
- 
-@@ -1708,15 +1706,18 @@ int zynqmp_dp_probe(struct zynqmp_dpsub *dpsub, struct drm_device *drm)
- 					zynqmp_dp_irq_handler, IRQF_ONESHOT,
- 					dev_name(dp->dev), dp);
+ 	ret = tegra_slink_init_dma_param(tspi, true);
  	if (ret < 0)
--		goto error;
-+		goto err_phy_exit;
+-		goto exit_free_irq;
++		goto exit_free_master;
+ 	ret = tegra_slink_init_dma_param(tspi, false);
+ 	if (ret < 0)
+ 		goto exit_rx_dma_free;
+@@ -1106,16 +1085,9 @@ static int tegra_slink_probe(struct platform_device *pdev)
+ 	init_completion(&tspi->xfer_completion);
  
- 	dev_dbg(dp->dev, "ZynqMP DisplayPort Tx probed with %u lanes\n",
- 		dp->num_lanes);
+ 	pm_runtime_enable(&pdev->dev);
+-	if (!pm_runtime_enabled(&pdev->dev)) {
+-		ret = tegra_slink_runtime_resume(&pdev->dev);
+-		if (ret)
+-			goto exit_pm_disable;
+-	}
+-
+-	ret = pm_runtime_get_sync(&pdev->dev);
+-	if (ret < 0) {
++	ret = pm_runtime_resume_and_get(&pdev->dev);
++	if (ret) {
+ 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
+-		pm_runtime_put_noidle(&pdev->dev);
+ 		goto exit_pm_disable;
+ 	}
  
- 	return 0;
+@@ -1123,33 +1095,43 @@ static int tegra_slink_probe(struct platform_device *pdev)
+ 	udelay(2);
+ 	reset_control_deassert(tspi->rst);
  
--error:
-+err_phy_exit:
- 	zynqmp_dp_phy_exit(dp);
-+err_reset:
-+	zynqmp_dp_reset(dp, true);
++	spi_irq = platform_get_irq(pdev, 0);
++	tspi->irq = spi_irq;
++	ret = request_threaded_irq(tspi->irq, tegra_slink_isr,
++				   tegra_slink_isr_thread, IRQF_ONESHOT,
++				   dev_name(&pdev->dev), tspi);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
++			tspi->irq);
++		goto exit_pm_put;
++	}
++
+ 	tspi->def_command_reg  = SLINK_M_S;
+ 	tspi->def_command2_reg = SLINK_CS_ACTIVE_BETWEEN;
+ 	tegra_slink_writel(tspi, tspi->def_command_reg, SLINK_COMMAND);
+ 	tegra_slink_writel(tspi, tspi->def_command2_reg, SLINK_COMMAND2);
+-	pm_runtime_put(&pdev->dev);
+ 
+ 	master->dev.of_node = pdev->dev.of_node;
+ 	ret = devm_spi_register_master(&pdev->dev, master);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "can not register to master err %d\n", ret);
+-		goto exit_pm_disable;
++		goto exit_free_irq;
+ 	}
++
++	pm_runtime_put(&pdev->dev);
 +
  	return ret;
+ 
++exit_free_irq:
++	free_irq(spi_irq, tspi);
++exit_pm_put:
++	pm_runtime_put(&pdev->dev);
+ exit_pm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+-	if (!pm_runtime_status_suspended(&pdev->dev))
+-		tegra_slink_runtime_suspend(&pdev->dev);
++
+ 	tegra_slink_deinit_dma_param(tspi, false);
+ exit_rx_dma_free:
+ 	tegra_slink_deinit_dma_param(tspi, true);
+-exit_free_irq:
+-	free_irq(spi_irq, tspi);
+-exit_clk_disable:
+-	clk_disable(tspi->clk);
+-exit_clk_unprepare:
+-	clk_unprepare(tspi->clk);
+ exit_free_master:
+ 	spi_master_put(master);
+ 	return ret;
+@@ -1162,8 +1144,7 @@ static int tegra_slink_remove(struct platform_device *pdev)
+ 
+ 	free_irq(tspi->irq, tspi);
+ 
+-	clk_disable(tspi->clk);
+-	clk_unprepare(tspi->clk);
++	pm_runtime_disable(&pdev->dev);
+ 
+ 	if (tspi->tx_dma_chan)
+ 		tegra_slink_deinit_dma_param(tspi, false);
+@@ -1171,10 +1152,6 @@ static int tegra_slink_remove(struct platform_device *pdev)
+ 	if (tspi->rx_dma_chan)
+ 		tegra_slink_deinit_dma_param(tspi, true);
+ 
+-	pm_runtime_disable(&pdev->dev);
+-	if (!pm_runtime_status_suspended(&pdev->dev))
+-		tegra_slink_runtime_suspend(&pdev->dev);
+-
+ 	return 0;
  }
  
-@@ -1734,4 +1735,5 @@ void zynqmp_dp_remove(struct zynqmp_dpsub *dpsub)
- 	zynqmp_dp_write(dp, ZYNQMP_DP_INT_DS, 0xffffffff);
- 
- 	zynqmp_dp_phy_exit(dp);
-+	zynqmp_dp_reset(dp, true);
- }
 -- 
 2.30.2
 
