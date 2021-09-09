@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33D9440566C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:37:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1F04405664
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359704AbhIINTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:19:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56232 "EHLO mail.kernel.org"
+        id S1359665AbhIINTe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:19:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358452AbhIINLR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358489AbhIINLR (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 09:11:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E35C8632C7;
-        Thu,  9 Sep 2021 12:01:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DAE161501;
+        Thu,  9 Sep 2021 12:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188879;
-        bh=nxEmhqXwkoygVpRjcjGTICkGMqDm8J3DhCUAHUyjG8o=;
+        s=k20201202; t=1631188880;
+        bh=SY6y8U71EGd4aHjByJyQV570JiwGzg0mb0VxOk/josg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tCDmnON1cSVDEAJ5cC1q/iiWYo9D45njOiaxUmb3yB3FmsAY53n8mCMQDipArJRPG
-         jIpc9RLPD0drH4jWfEJVzbBNuw2W3BwE5gW64GaBCiPdSiS0dh4OKXa/6GJVbzA1cP
-         DeJ6WXqnC5z+r+LoeMBIRRJD9PT6nguRLaeU5m1CRiuhv4EoiWejqqoOeyp3jXuWQI
-         zYoQgpJFaAwXAejvYWj1dikiUlxmfE0bWkspPcepzfQq+Mpts/Zgvui/2rB1J2IO+g
-         O+2rrqqye6y9G2gzN88HsuWHp0VsqTk3fv8YEEq0abZ+UxyRnBdD/CYlB40zfFNs4E
-         VHsmn2CWIj1Jw==
+        b=qVWXli0qiWWnoZf/apDvKbvj4UAxoCxAWaXRJ9FNSXAi8mTN5MhoNXloXIHxC6x86
+         YL6Iq0oahGEmqxCu2A8AkmF1eP9oEYymQXK9VHwXhOU8DkzMloCWmUpH0bw9G/diY7
+         +cVRCXfM9z3ckCRNsvVWMBt3d2Ud1c/s7A3UrdYMiLffgXoxX8z+B6v9E+miTkjW/Y
+         Qw61rrG1rIoWJfO6kL1ncFRNkfoezrYT8MMuEswGVoyt7G/5Cmag6uZUW626xDksbK
+         kESsbF/jvNMNwbCpYEJ7qUYChEDzN2nTxdgp3Td/n3w60+5+uXuppqHyK0UZY4FdLl
+         ECMbcucW2p84w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 02/35] PCI: Use pci_update_current_state() in pci_enable_device_flags()
-Date:   Thu,  9 Sep 2021 08:00:43 -0400
-Message-Id: <20210909120116.150912-2-sashal@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        kernel test robot <lkp@intel.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 03/35] iio: dac: ad5624r: Fix incorrect handling of an optional regulator.
+Date:   Thu,  9 Sep 2021 08:00:44 -0400
+Message-Id: <20210909120116.150912-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909120116.150912-1-sashal@kernel.org>
 References: <20210909120116.150912-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,51 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 14858dcc3b3587f4bb5c48e130ee7d68fc2b0a29 ]
+[ Upstream commit 97683c851f9cdbd3ea55697cbe2dcb6af4287bbd ]
 
-Updating the current_state field of struct pci_dev the way it is done
-in pci_enable_device_flags() before calling do_pci_enable_device() may
-not work.  For example, if the given PCI device depends on an ACPI
-power resource whose _STA method initially returns 0 ("off"), but the
-config space of the PCI device is accessible and the power state
-retrieved from the PCI_PM_CTRL register is D0, the current_state
-field in the struct pci_dev representing that device will get out of
-sync with the power.state of its ACPI companion object and that will
-lead to power management issues going forward.
+The naming of the regulator is problematic.  VCC is usually a supply
+voltage whereas these devices have a separate VREF pin.
 
-To avoid such issues, make pci_enable_device_flags() call
-pci_update_current_state() which takes ACPI device power management
-into account, if present, to retrieve the current power state of the
-device.
+Secondly, the regulator core might have provided a stub regulator if
+a real regulator wasn't provided. That would in turn have failed to
+provide a voltage when queried. So reality was that there was no way
+to use the internal reference.
 
-Link: https://lore.kernel.org/lkml/20210314000439.3138941-1-luzmaximilian@gmail.com/
-Reported-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Tested-by: Maximilian Luz <luzmaximilian@gmail.com>
+In order to avoid breaking any dts out in the wild, make sure to fallback
+to the original vcc naming if vref is not available.
+
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Acked-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210627163244.1090296-9-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/iio/dac/ad5624r_spi.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index b7f65fc54dc2..642694e31cb6 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1334,11 +1334,7 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
- 	 * so that things like MSI message writing will behave as expected
- 	 * (e.g. if the device really is in D0 at enable time).
- 	 */
--	if (dev->pm_cap) {
--		u16 pmcsr;
--		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
--		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
--	}
-+	pci_update_current_state(dev, dev->current_state);
+diff --git a/drivers/iio/dac/ad5624r_spi.c b/drivers/iio/dac/ad5624r_spi.c
+index 5489ec43b95d..e5cefdb674f8 100644
+--- a/drivers/iio/dac/ad5624r_spi.c
++++ b/drivers/iio/dac/ad5624r_spi.c
+@@ -231,7 +231,7 @@ static int ad5624r_probe(struct spi_device *spi)
+ 	if (!indio_dev)
+ 		return -ENOMEM;
+ 	st = iio_priv(indio_dev);
+-	st->reg = devm_regulator_get(&spi->dev, "vcc");
++	st->reg = devm_regulator_get_optional(&spi->dev, "vref");
+ 	if (!IS_ERR(st->reg)) {
+ 		ret = regulator_enable(st->reg);
+ 		if (ret)
+@@ -242,6 +242,22 @@ static int ad5624r_probe(struct spi_device *spi)
+ 			goto error_disable_reg;
  
- 	if (atomic_inc_return(&dev->enable_cnt) > 1)
- 		return 0;		/* already enabled */
+ 		voltage_uv = ret;
++	} else {
++		if (PTR_ERR(st->reg) != -ENODEV)
++			return PTR_ERR(st->reg);
++		/* Backwards compatibility. This naming is not correct */
++		st->reg = devm_regulator_get_optional(&spi->dev, "vcc");
++		if (!IS_ERR(st->reg)) {
++			ret = regulator_enable(st->reg);
++			if (ret)
++				return ret;
++
++			ret = regulator_get_voltage(st->reg);
++			if (ret < 0)
++				goto error_disable_reg;
++
++			voltage_uv = ret;
++		}
+ 	}
+ 
+ 	spi_set_drvdata(spi, indio_dev);
 -- 
 2.30.2
 
