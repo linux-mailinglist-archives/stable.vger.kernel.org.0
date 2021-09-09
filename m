@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D7A64052FC
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E92034052F8
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:50:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354470AbhIIMtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:49:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57486 "EHLO mail.kernel.org"
+        id S1353684AbhIIMtK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:49:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355155AbhIIMlo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355158AbhIIMlo (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:41:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CCEA61BF8;
-        Thu,  9 Sep 2021 11:55:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE0D161BD0;
+        Thu,  9 Sep 2021 11:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188516;
-        bh=omYj6XUZbaTMM9lekXdod8fKtmqaxDBOsY1wjQ6eYwI=;
+        s=k20201202; t=1631188517;
+        bh=FYYmUAcosH6wJTlRB+8qa2A7eYG5KleotZPuCN4eOfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qfrkxw74TDVgnAL+U9Gn0mFgOX9mS6Tt3e2XqQZSSy31mb7gnHncChSa9Ergq5Kj7
-         9bTpbQOx9SKcM7mNGrPywzC0H3zihF/NymwPj1E+wqsHT5TCfqQW+61NNU164/xt5m
-         2kk9mXf2BXU+eVDPfiIny6srKEk393bwUBDKVlXU33IW5cTy83mnaYKLPopkTBF8Aa
-         iJv98cOX+HNxycc0/u35hnEbwZaIxuZVl7/lxdki7CVgnX428TTMv27rX/g15r2Fnd
-         Wj5VrLPA8m3kIpzeHU/aqYsoarNUpdyOSe1hXPA4qHSrzqnbm9MNQWdSbNrZVebPnL
-         s7BoEeaqC+bXQ==
+        b=nfJ9NKBlqsV+rCH92qyQNceOvaWxQMC02ciPfGACzk2KybmN7+x+rQpsv5CPOCFBc
+         jlpW4BxQMtBlohL5zX4BwVKcrHvAuT6GAwDpNcTfhEA58ac11zf1M7ME7N8K1/CfWZ
+         M5iAMr1xhSEs52SMi7VfLxu32uHAMW29a7XNh4C26Yz5oJxLmKQRgVn7gWEz7UNMYE
+         VOlEdX9zTdKgYrA3mOGW2jVh7sXJs4dSAUqtCWBNYsTjpO8vYdG0kJUjZmYTY9LFxp
+         Lc7vFboi23nC34Y1n992w5EQliAO6UiVZlm6ra1hmlNuhNNzD7OEfMtCUJqqN6FcjC
+         nM/4MHAMhRJZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 007/109] iio: dac: ad5624r: Fix incorrect handling of an optional regulator.
-Date:   Thu,  9 Sep 2021 07:53:24 -0400
-Message-Id: <20210909115507.147917-7-sashal@kernel.org>
+Cc:     Stefan Assmann <sassmann@kpanic.de>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 008/109] iavf: do not override the adapter state in the watchdog task
+Date:   Thu,  9 Sep 2021 07:53:25 -0400
+Message-Id: <20210909115507.147917-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,66 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit 97683c851f9cdbd3ea55697cbe2dcb6af4287bbd ]
+[ Upstream commit 22c8fd71d3a5e6fe584ccc2c1e8760e5baefd5aa ]
 
-The naming of the regulator is problematic.  VCC is usually a supply
-voltage whereas these devices have a separate VREF pin.
+The iavf watchdog task overrides adapter->state to __IAVF_RESETTING
+when it detects a pending reset. Then schedules iavf_reset_task() which
+takes care of the reset.
 
-Secondly, the regulator core might have provided a stub regulator if
-a real regulator wasn't provided. That would in turn have failed to
-provide a voltage when queried. So reality was that there was no way
-to use the internal reference.
+The reset task is capable of handling the reset without changing
+adapter->state. In fact we lose the state information when the watchdog
+task prematurely changes the adapter state. This may lead to a crash if
+instead of the reset task the iavf_remove() function gets called before
+the reset task.
+In that case (if we were in state __IAVF_RUNNING previously) the
+iavf_remove() function triggers iavf_close() which fails to close the
+device because of the incorrect state information.
 
-In order to avoid breaking any dts out in the wild, make sure to fallback
-to the original vcc naming if vref is not available.
+This may result in a crash due to pending interrupts.
+kernel BUG at drivers/pci/msi.c:357!
+[...]
+Call Trace:
+ [<ffffffffbddf24dd>] pci_disable_msix+0x3d/0x50
+ [<ffffffffc08d2a63>] iavf_reset_interrupt_capability+0x23/0x40 [iavf]
+ [<ffffffffc08d312a>] iavf_remove+0x10a/0x350 [iavf]
+ [<ffffffffbddd3359>] pci_device_remove+0x39/0xc0
+ [<ffffffffbdeb492f>] __device_release_driver+0x7f/0xf0
+ [<ffffffffbdeb49c3>] device_release_driver+0x23/0x30
+ [<ffffffffbddcabb4>] pci_stop_bus_device+0x84/0xa0
+ [<ffffffffbddcacc2>] pci_stop_and_remove_bus_device+0x12/0x20
+ [<ffffffffbddf361f>] pci_iov_remove_virtfn+0xaf/0x160
+ [<ffffffffbddf3bcc>] sriov_disable+0x3c/0xf0
+ [<ffffffffbddf3ca3>] pci_disable_sriov+0x23/0x30
+ [<ffffffffc0667365>] i40e_free_vfs+0x265/0x2d0 [i40e]
+ [<ffffffffc0667624>] i40e_pci_sriov_configure+0x144/0x1f0 [i40e]
+ [<ffffffffbddd5307>] sriov_numvfs_store+0x177/0x1d0
+Code: 00 00 e8 3c 25 e3 ff 49 c7 86 88 08 00 00 00 00 00 00 5b 41 5c 41 5d 41 5e 41 5f 5d c3 48 8b 7b 28 e8 0d 44
+RIP  [<ffffffffbbbf1068>] free_msi_irqs+0x188/0x190
 
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210627163244.1090296-9-jic23@kernel.org
+The solution is to not touch the adapter->state in iavf_watchdog_task()
+and let the reset task handle the state transition.
+
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ad5624r_spi.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/iio/dac/ad5624r_spi.c b/drivers/iio/dac/ad5624r_spi.c
-index e6c022e1dc1c..17cc8b3fc5d8 100644
---- a/drivers/iio/dac/ad5624r_spi.c
-+++ b/drivers/iio/dac/ad5624r_spi.c
-@@ -229,7 +229,7 @@ static int ad5624r_probe(struct spi_device *spi)
- 	if (!indio_dev)
- 		return -ENOMEM;
- 	st = iio_priv(indio_dev);
--	st->reg = devm_regulator_get(&spi->dev, "vcc");
-+	st->reg = devm_regulator_get_optional(&spi->dev, "vref");
- 	if (!IS_ERR(st->reg)) {
- 		ret = regulator_enable(st->reg);
- 		if (ret)
-@@ -240,6 +240,22 @@ static int ad5624r_probe(struct spi_device *spi)
- 			goto error_disable_reg;
- 
- 		voltage_uv = ret;
-+	} else {
-+		if (PTR_ERR(st->reg) != -ENODEV)
-+			return PTR_ERR(st->reg);
-+		/* Backwards compatibility. This naming is not correct */
-+		st->reg = devm_regulator_get_optional(&spi->dev, "vcc");
-+		if (!IS_ERR(st->reg)) {
-+			ret = regulator_enable(st->reg);
-+			if (ret)
-+				return ret;
-+
-+			ret = regulator_get_voltage(st->reg);
-+			if (ret < 0)
-+				goto error_disable_reg;
-+
-+			voltage_uv = ret;
-+		}
- 	}
- 
- 	spi_set_drvdata(spi, indio_dev);
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 94a3f000e999..3e76111af872 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1961,7 +1961,6 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 		/* check for hw reset */
+ 	reg_val = rd32(hw, IAVF_VF_ARQLEN1) & IAVF_VF_ARQLEN1_ARQENABLE_MASK;
+ 	if (!reg_val) {
+-		adapter->state = __IAVF_RESETTING;
+ 		adapter->flags |= IAVF_FLAG_RESET_PENDING;
+ 		adapter->aq_required = 0;
+ 		adapter->current_op = VIRTCHNL_OP_UNKNOWN;
 -- 
 2.30.2
 
