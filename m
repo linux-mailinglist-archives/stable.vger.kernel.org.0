@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D565740564F
+	by mail.lfdr.de (Postfix) with ESMTP id 1E5A540564D
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:36:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359510AbhIINTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:19:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56240 "EHLO mail.kernel.org"
+        id S1359481AbhIINTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:19:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358649AbhIINJN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358651AbhIINJN (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 09:09:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35029632C1;
-        Thu,  9 Sep 2021 12:00:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64BB2632BF;
+        Thu,  9 Sep 2021 12:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188860;
-        bh=3RGwpW3gG0wkrNuOkhj36/Cp/1+U2ZEWQlN+K8Mu9yA=;
+        s=k20201202; t=1631188861;
+        bh=tZ4XmEDq5WrOAOAVUR7U8zB9+XCNdK20ihOrupYXedc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d1XRpUzO3jBDXOxranjSx4tBqNBOI+alMqRoSgSG9q0AP20//rGPZblSsMDmJJw/K
-         3ToTHK1X8uovei4VlKXbCd47srb2+H3jo78/hBN1CBhho1ME6GRGioGOq2rLi10Eli
-         62IWDnEWdiujJlViiE44Kd8RmoHdi4IvjjRmimQE+ynNojfFHPrV5v4weASwjySlTf
-         /CtS//AmtEmUI5yRxLlCidOr01noaR1qrLI7sZA0kDNf3BH7n5yv8jN4ftKN9wRi1Z
-         SodMmGQf9LHcjfo3vU7c32g5miMsu1e7tVh5fRpa35lx5qWTLhYs4BXNBdOQjsaIIw
-         n1X4wSkw3YXNA==
+        b=T0qVDl7rtATVAfgX92R+Iv+XEbKmqbTnu0QtTLKz3MXJYGrAbtdjySY9TG6VUxJPl
+         82tZQWomytAhhFkniPxc2zFeN+4ujK9i/yOBnJJGU+nQR5Bv+BQP5Vl3eGsOSOzSFk
+         bnMGrUHQK02EgJbdRyFzm0lBkFc8czB70qZaWSEmXKlhjrHfEeCkGFl6AhQjpK0U2j
+         DIU/lThxc/TTQPAV7AdCsfQnGsdsFFvXiIKCQr1Fw/Jes9f35wOVOs3MmSEDNrRpsi
+         wFIJHmOpUAsHBWtihucha2ZvRnHOLGnJcXwrx/2WZouSDArURWn+vp9d45/liUi0eZ
+         +qfb9UW5fb9Jw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 35/48] rpc: fix gss_svc_init cleanup on failure
-Date:   Thu,  9 Sep 2021 08:00:02 -0400
-Message-Id: <20210909120015.150411-35-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.9 36/48] gfs2: Don't call dlm after protocol is unmounted
+Date:   Thu,  9 Sep 2021 08:00:03 -0400
+Message-Id: <20210909120015.150411-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909120015.150411-1-sashal@kernel.org>
 References: <20210909120015.150411-1-sashal@kernel.org>
@@ -43,32 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "J. Bruce Fields" <bfields@redhat.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 5a4753446253a427c0ff1e433b9c4933e5af207c ]
+[ Upstream commit d1340f80f0b8066321b499a376780da00560e857 ]
 
-The failure case here should be rare, but it's obviously wrong.
+In the gfs2 withdraw sequence, the dlm protocol is unmounted with a call
+to lm_unmount. After a withdraw, users are allowed to unmount the
+withdrawn file system. But at that point we may still have glocks left
+over that we need to free via unmount's call to gfs2_gl_hash_clear.
+These glocks may have never been completed because of whatever problem
+caused the withdraw (IO errors or whatever).
 
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Before this patch, function gdlm_put_lock would still try to call into
+dlm to unlock these leftover glocks, which resulted in dlm returning
+-EINVAL because the lock space was abandoned. These glocks were never
+freed because there was no mechanism after that to free them.
+
+This patch adds a check to gdlm_put_lock to see if the locking protocol
+was inactive (DFL_UNMOUNT flag) and if so, free the glock and not
+make the invalid call into dlm.
+
+I could have combined this "if" with the one that follows, related to
+leftover glock LVBs, but I felt the code was more readable with its own
+if clause.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/auth_gss/svcauth_gss.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/gfs2/lock_dlm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
-index 85ad23d9a8a9..5a7041c34c7b 100644
---- a/net/sunrpc/auth_gss/svcauth_gss.c
-+++ b/net/sunrpc/auth_gss/svcauth_gss.c
-@@ -1853,7 +1853,7 @@ gss_svc_init_net(struct net *net)
- 		goto out2;
- 	return 0;
- out2:
--	destroy_use_gss_proxy_proc_entry(net);
-+	rsi_cache_destroy_net(net);
- out1:
- 	rsc_cache_destroy_net(net);
- 	return rv;
+diff --git a/fs/gfs2/lock_dlm.c b/fs/gfs2/lock_dlm.c
+index 3cbc9147286d..da9f97911852 100644
+--- a/fs/gfs2/lock_dlm.c
++++ b/fs/gfs2/lock_dlm.c
+@@ -296,6 +296,11 @@ static void gdlm_put_lock(struct gfs2_glock *gl)
+ 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
+ 	gfs2_update_request_times(gl);
+ 
++	/* don't want to call dlm if we've unmounted the lock protocol */
++	if (test_bit(DFL_UNMOUNT, &ls->ls_recover_flags)) {
++		gfs2_glock_free(gl);
++		return;
++	}
+ 	/* don't want to skip dlm_unlock writing the lvb when lock has one */
+ 
+ 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
 -- 
 2.30.2
 
