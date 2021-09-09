@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B527F404A17
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:44:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8740404A1A
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:44:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237572AbhIILop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:44:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47268 "EHLO mail.kernel.org"
+        id S237611AbhIILoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:44:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237876AbhIILnV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:43:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA306611F2;
-        Thu,  9 Sep 2021 11:42:02 +0000 (UTC)
+        id S238199AbhIILn3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:43:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EA3C611EF;
+        Thu,  9 Sep 2021 11:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187723;
-        bh=R/FP0+oAVo2AeNFA7qf0OxWozrEBzLnjnBDryWXRD4M=;
+        s=k20201202; t=1631187724;
+        bh=JU4iJc6oY871eBLmLglTyk8lAnK2nHC5KV9FVXhDFpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GATFNgfIaD2J6gbcv2RtQnThVSI1oTPb0mjNhR/27rYOJD70pm3A2ZqAJa430+z66
-         vdnIuFgJjN//SodcHW7mNbJGk7mdFC6WZNbLd3tbCW8fvI/u+7F/YAMOajOcXLTxU0
-         VOhGMVQLi8m7tcuPDl9uimpSOsXTspn7MjQ6/eyfnxRwAextl4HOqRyW7XqYGgbnIx
-         tu03P9WFz5n62z28EBhD1ea7+/Ul1UehjMyzgIOa/aQ90Bw2S4WMXvfM/nkcXr2DpH
-         s/826/JhnmR7jINyy3D0Byzd6F9D0OPeGRT4ZhfjGPYAeiBb9Kj2OTsMzYpc7WByyM
-         8bg93h4SosmQQ==
+        b=bTzzWY853UDUuBGirw9UAK+WL2djwmfur80CTjlaiqop9zK9yJdCQ2IKvSUWbKbIq
+         RnzZ4m7AedRNNkLlWW8YMJjxrCW4xosSLbja3wayQBs8MfhOzDiQ7vsJCcGM4TK9Ay
+         /KmZ47VHE3ArojEBa9GWUP5siA+8R/LwCkfDVdcypKwB7FMOMKJbCWOzviRzvhoGZS
+         vyhkKRosuU9Ls5iNNWAdsXx/As75uCBfR/dSgyhjWwsTqQ8wWmS9v6v1nnv+KrrJuk
+         zJ5Zz7L6OjhyfXmp08NYulZVUXB3PN5NOzy9wrl5C6ogT3UW8bbdzw9nH5p1hCG8oV
+         ywjMNEmqMp87w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Phillip Potter <phil@philpotter.co.uk>,
-        kernel test robot <lkp@intel.com>,
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.14 044/252] staging: rtl8188eu: remove rtw_wx_set_rate handler function
-Date:   Thu,  9 Sep 2021 07:37:38 -0400
-Message-Id: <20210909114106.141462-44-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 045/252] staging: board: Fix uninitialized spinlock when attaching genpd
+Date:   Thu,  9 Sep 2021 07:37:39 -0400
+Message-Id: <20210909114106.141462-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -43,120 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit ac5951a6e3d50cfa861ea83baa2ec15d994389cb ]
+[ Upstream commit df00609821bf17f50a75a446266d19adb8339d84 ]
 
-Remove rtw_wx_set_rate handler function, which currently handles the
-SIOCSIWRATE wext ioctl. This function (although containing a lot of
-code) set nothing outside its own local variables, and did nothing other
-than call a now removed debugging statement repeatedly. Removing it and
-leaving its associated entry in rtw_handlers as NULL is therefore the
-better option. Removing this function also fixes a kernel test robot
-warning.
+On Armadillo-800-EVA with CONFIG_DEBUG_SPINLOCK=y:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210625191658.1299-1-phil@philpotter.co.uk
+    BUG: spinlock bad magic on CPU#0, swapper/1
+     lock: lcdc0_device+0x10c/0x308, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    CPU: 0 PID: 1 Comm: swapper Not tainted 5.11.0-rc5-armadillo-00036-gbbca04be7a80-dirty #287
+    Hardware name: Generic R8A7740 (Flattened Device Tree)
+    [<c010c3c8>] (unwind_backtrace) from [<c010a49c>] (show_stack+0x10/0x14)
+    [<c010a49c>] (show_stack) from [<c0159534>] (do_raw_spin_lock+0x20/0x94)
+    [<c0159534>] (do_raw_spin_lock) from [<c040858c>] (dev_pm_get_subsys_data+0x8c/0x11c)
+    [<c040858c>] (dev_pm_get_subsys_data) from [<c05fbcac>] (genpd_add_device+0x78/0x2b8)
+    [<c05fbcac>] (genpd_add_device) from [<c0412db4>] (of_genpd_add_device+0x34/0x4c)
+    [<c0412db4>] (of_genpd_add_device) from [<c0a1ea74>] (board_staging_register_device+0x11c/0x148)
+    [<c0a1ea74>] (board_staging_register_device) from [<c0a1eac4>] (board_staging_register_devices+0x24/0x28)
+
+of_genpd_add_device() is called before platform_device_register(), as it
+needs to attach the genpd before the device is probed.  But the spinlock
+is only initialized when the device is registered.
+
+Fix this by open-coding the spinlock initialization, cfr.
+device_pm_init_common() in the internal drivers/base code, and in the
+SuperH early platform code.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/57783ece7ddae55f2bda2f59f452180bff744ea0.1626257398.git.geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/rtl8188eu/os_dep/ioctl_linux.c    | 75 -------------------
- 1 file changed, 75 deletions(-)
+ drivers/staging/board/board.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c b/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-index b958a8d882b0..d4dce8ef0322 100644
---- a/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-+++ b/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-@@ -1262,80 +1262,6 @@ static int rtw_wx_get_essid(struct net_device *dev,
- 	return 0;
- }
+diff --git a/drivers/staging/board/board.c b/drivers/staging/board/board.c
+index cb6feb34dd40..f980af037345 100644
+--- a/drivers/staging/board/board.c
++++ b/drivers/staging/board/board.c
+@@ -136,6 +136,7 @@ int __init board_staging_register_clock(const struct board_staging_clk *bsc)
+ static int board_staging_add_dev_domain(struct platform_device *pdev,
+ 					const char *domain)
+ {
++	struct device *dev = &pdev->dev;
+ 	struct of_phandle_args pd_args;
+ 	struct device_node *np;
  
--static int rtw_wx_set_rate(struct net_device *dev,
--			   struct iw_request_info *a,
--			   union iwreq_data *wrqu, char *extra)
--{
--	int i;
--	u8 datarates[NumRates];
--	u32	target_rate = wrqu->bitrate.value;
--	u32	fixed = wrqu->bitrate.fixed;
--	u32	ratevalue = 0;
--	u8 mpdatarate[NumRates] = {11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0xff};
--
--	if (target_rate == -1) {
--		ratevalue = 11;
--		goto set_rate;
--	}
--	target_rate /= 100000;
--
--	switch (target_rate) {
--	case 10:
--		ratevalue = 0;
--		break;
--	case 20:
--		ratevalue = 1;
--		break;
--	case 55:
--		ratevalue = 2;
--		break;
--	case 60:
--		ratevalue = 3;
--		break;
--	case 90:
--		ratevalue = 4;
--		break;
--	case 110:
--		ratevalue = 5;
--		break;
--	case 120:
--		ratevalue = 6;
--		break;
--	case 180:
--		ratevalue = 7;
--		break;
--	case 240:
--		ratevalue = 8;
--		break;
--	case 360:
--		ratevalue = 9;
--		break;
--	case 480:
--		ratevalue = 10;
--		break;
--	case 540:
--		ratevalue = 11;
--		break;
--	default:
--		ratevalue = 11;
--		break;
--	}
--
--set_rate:
--
--	for (i = 0; i < NumRates; i++) {
--		if (ratevalue == mpdatarate[i]) {
--			datarates[i] = mpdatarate[i];
--			if (fixed == 0)
--				break;
--		} else {
--			datarates[i] = 0xff;
--		}
--	}
--
--	return 0;
--}
--
- static int rtw_wx_get_rate(struct net_device *dev,
- 			   struct iw_request_info *info,
- 			   union iwreq_data *wrqu, char *extra)
-@@ -2715,7 +2641,6 @@ static iw_handler rtw_handlers[] = {
- 	IW_HANDLER(SIOCSIWESSID, rtw_wx_set_essid),
- 	IW_HANDLER(SIOCGIWESSID, rtw_wx_get_essid),
- 	IW_HANDLER(SIOCGIWNICKN, rtw_wx_get_nick),
--	IW_HANDLER(SIOCSIWRATE, rtw_wx_set_rate),
- 	IW_HANDLER(SIOCGIWRATE, rtw_wx_get_rate),
- 	IW_HANDLER(SIOCSIWRTS, rtw_wx_set_rts),
- 	IW_HANDLER(SIOCGIWRTS, rtw_wx_get_rts),
+@@ -148,7 +149,11 @@ static int board_staging_add_dev_domain(struct platform_device *pdev,
+ 	pd_args.np = np;
+ 	pd_args.args_count = 0;
+ 
+-	return of_genpd_add_device(&pd_args, &pdev->dev);
++	/* Initialization similar to device_pm_init_common() */
++	spin_lock_init(&dev->power.lock);
++	dev->power.early_init = true;
++
++	return of_genpd_add_device(&pd_args, dev);
+ }
+ #else
+ static inline int board_staging_add_dev_domain(struct platform_device *pdev,
 -- 
 2.30.2
 
