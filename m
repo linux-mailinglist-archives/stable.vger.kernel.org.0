@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC133405573
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:33:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBA90405556
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243009AbhIINKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:10:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54044 "EHLO mail.kernel.org"
+        id S1358796AbhIINJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:09:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357955AbhIINFn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1357956AbhIINFn (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 09:05:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBECA632A6;
-        Thu,  9 Sep 2021 12:00:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 214EB61425;
+        Thu,  9 Sep 2021 12:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188822;
-        bh=WwdYoU+YKR2WTEntQqahmsMrosrnyHurpKyhtKXYdh4=;
+        s=k20201202; t=1631188823;
+        bh=b8Ip5Tlfr4+O+jheC+jZU1Z375KCC7CxM8QX+LyED5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpRMtWpT2g3tlP7eFF6WaOSHWZkhgkVEgamYgQo7Ek/huNjVsyX96+YXV7DtZLADv
-         sZoWP87aXuf+wEQqMHNtoTcBCR+Kl5F0kIqxR9V7Hwwt4XZJD0jTNaPgQvC97NGmD7
-         S58U9dVmleih+eoodtOe30UE0umFQV4hW0MMZGLNPSEXngcX1Sylvu+WPya5AL2yUN
-         wpyRFDGFsLDn6+ydD3x4jK/HRDeTUAvza00sZlCFr5ndZuMig7Wa0214MOjrgykk9e
-         i1RMqcl1L7DgMtcVRIi7OpM2HLxNrop6ErWlWtfoXkgGXFxwIPfwlGv87AC8EElmsG
-         g2LjVDjBP6yvQ==
+        b=dA/txOdma3i54W0v31mW6o5iAhfoYpg1R/OW1YNQaylC0afMsXUvKrOyCcOJwaGF+
+         NvegWaYV/0aRM2yDo+rL21Bjnt+EiX8B0/VHpEFyr7H2YuA7cWRABIhEkTYx6B9/zq
+         sB4h/O06Crlewd9nLSQUOdUn+KeSeiEb0XFFezBBXTM0Xx+zleHBbRjphhk/ONh6Lm
+         6wmA/nNmA3hYBzAcEnZ4kH6EoNG/YpLLknQ/1p16R/nULL+E41fMVS2A7wwGm9bB4y
+         mWouUqGj8OjzNiiDnyhWGUkNcJoh9LJYHb0i56cBlrzIiOLsd0tGYBLXVu+WZ2DPKG
+         o/rN6qJwS0uPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yajun Deng <yajun.deng@linux.dev>, Yonghong Song <yhs@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 05/48] netlink: Deal with ESRCH error in nlmsg_notify()
-Date:   Thu,  9 Sep 2021 07:59:32 -0400
-Message-Id: <20210909120015.150411-5-sashal@kernel.org>
+Cc:     Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-security-module@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 06/48] Smack: Fix wrong semantics in smk_access_entry()
+Date:   Thu,  9 Sep 2021 07:59:33 -0400
+Message-Id: <20210909120015.150411-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909120015.150411-1-sashal@kernel.org>
 References: <20210909120015.150411-1-sashal@kernel.org>
@@ -43,67 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit fef773fc8110d8124c73a5e6610f89e52814637d ]
+[ Upstream commit 6d14f5c7028eea70760df284057fe198ce7778dd ]
 
-Yonghong Song report:
-The bpf selftest tc_bpf failed with latest bpf-next.
-The following is the command to run and the result:
-$ ./test_progs -n 132
-[   40.947571] bpf_testmod: loading out-of-tree module taints kernel.
-test_tc_bpf:PASS:test_tc_bpf__open_and_load 0 nsec
-test_tc_bpf:PASS:bpf_tc_hook_create(BPF_TC_INGRESS) 0 nsec
-test_tc_bpf:PASS:bpf_tc_hook_create invalid hook.attach_point 0 nsec
-test_tc_bpf_basic:PASS:bpf_obj_get_info_by_fd 0 nsec
-test_tc_bpf_basic:PASS:bpf_tc_attach 0 nsec
-test_tc_bpf_basic:PASS:handle set 0 nsec
-test_tc_bpf_basic:PASS:priority set 0 nsec
-test_tc_bpf_basic:PASS:prog_id set 0 nsec
-test_tc_bpf_basic:PASS:bpf_tc_attach replace mode 0 nsec
-test_tc_bpf_basic:PASS:bpf_tc_query 0 nsec
-test_tc_bpf_basic:PASS:handle set 0 nsec
-test_tc_bpf_basic:PASS:priority set 0 nsec
-test_tc_bpf_basic:PASS:prog_id set 0 nsec
-libbpf: Kernel error message: Failed to send filter delete notification
-test_tc_bpf_basic:FAIL:bpf_tc_detach unexpected error: -3 (errno 3)
-test_tc_bpf:FAIL:test_tc_internal ingress unexpected error: -3 (errno 3)
+In the smk_access_entry() function, if no matching rule is found
+in the rust_list, a negative error code will be used to perform bit
+operations with the MAY_ enumeration value. This is semantically
+wrong. This patch fixes this issue.
 
-The failure seems due to the commit
-    cfdf0d9ae75b ("rtnetlink: use nlmsg_notify() in rtnetlink_send()")
-
-Deal with ESRCH error in nlmsg_notify() even the report variable is zero.
-
-Reported-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
-Link: https://lore.kernel.org/r/20210719051816.11762-1-yajun.deng@linux.dev
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ security/smack/smack_access.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 541410f1c3b7..453b0efdc0d7 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -2409,13 +2409,15 @@ int nlmsg_notify(struct sock *sk, struct sk_buff *skb, u32 portid,
- 		/* errors reported via destination sk->sk_err, but propagate
- 		 * delivery errors if NETLINK_BROADCAST_ERROR flag is set */
- 		err = nlmsg_multicast(sk, skb, exclude_portid, group, flags);
-+		if (err == -ESRCH)
-+			err = 0;
+diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
+index e5d5c7fb2dac..b25cc69ef7ba 100644
+--- a/security/smack/smack_access.c
++++ b/security/smack/smack_access.c
+@@ -90,23 +90,22 @@ int log_policy = SMACK_AUDIT_DENIED;
+ int smk_access_entry(char *subject_label, char *object_label,
+ 			struct list_head *rule_list)
+ {
+-	int may = -ENOENT;
+ 	struct smack_rule *srp;
+ 
+ 	list_for_each_entry_rcu(srp, rule_list, list) {
+ 		if (srp->smk_object->smk_known == object_label &&
+ 		    srp->smk_subject->smk_known == subject_label) {
+-			may = srp->smk_access;
+-			break;
++			int may = srp->smk_access;
++			/*
++			 * MAY_WRITE implies MAY_LOCK.
++			 */
++			if ((may & MAY_WRITE) == MAY_WRITE)
++				may |= MAY_LOCK;
++			return may;
+ 		}
  	}
  
- 	if (report) {
- 		int err2;
+-	/*
+-	 * MAY_WRITE implies MAY_LOCK.
+-	 */
+-	if ((may & MAY_WRITE) == MAY_WRITE)
+-		may |= MAY_LOCK;
+-	return may;
++	return -ENOENT;
+ }
  
- 		err2 = nlmsg_unicast(sk, skb, portid);
--		if (!err || err == -ESRCH)
-+		if (!err)
- 			err = err2;
- 	}
- 
+ /**
 -- 
 2.30.2
 
