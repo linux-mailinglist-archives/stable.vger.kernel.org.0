@@ -2,96 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BD05404274
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 02:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36662404285
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 03:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349033AbhIIA5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 20:57:40 -0400
-Received: from x127130.tudelft.net ([131.180.127.130]:54186 "EHLO
-        djo.tudelft.nl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1348847AbhIIA5k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Sep 2021 20:57:40 -0400
-Received: by djo.tudelft.nl (Postfix, from userid 2001)
-        id EC4DD1C42C2; Thu,  9 Sep 2021 02:57:48 +0200 (CEST)
-Date:   Thu, 9 Sep 2021 02:57:48 +0200
-From:   wim <wim@djo.tudelft.nl>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        wim <wim@djo.tudelft.nl>
-Subject: Re: kernel-4.9.270 crash
-Message-ID: <20210909005748.GA8236@djo.tudelft.nl>
-Reply-To: wim@djo.tudelft.nl
-References: <20210904235231.GA31607@djo.tudelft.nl>
- <20210905190045.GA10991@djo.tudelft.nl>
- <YTWgKo4idyocDuCD@kroah.com>
- <20210906093611.GA20123@djo.tudelft.nl>
- <YTXy5BmzQpY0SprA@kroah.com>
- <20210908015139.GA26272@djo.tudelft.nl>
- <YThKidnH3d1fb18g@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YThKidnH3d1fb18g@kroah.com>
-User-Agent: Mutt/1.11.2 (2019-01-07)
+        id S1348992AbhIIBBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 21:01:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56026 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1348959AbhIIBBp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Sep 2021 21:01:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBA4C61132;
+        Thu,  9 Sep 2021 01:00:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1631149237;
+        bh=vvUQSt/TXPjtKT/V8QBOOn0K+CU9XvKpmj4qs/egiAI=;
+        h=Date:From:To:Subject:From;
+        b=wufLLa8GJnDtU0h1QhhBv5tpegULiHRiV4A6Wf+K1zumPKFQybfkTYADfXU/f7j+q
+         sjTfzWY8dikAkcdv37HAImZWS3yS/opvAjPL1PAtB2H1VlHZ8CK27/eqJ1LoAtXf4t
+         ZM5tOt+xCmgO2yaQhRzlC/h3hxPe19A1X1qifgrs=
+Date:   Wed, 08 Sep 2021 18:00:36 -0700
+From:   akpm@linux-foundation.org
+To:     david@redhat.com, mhocko@suse.com, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, naoya.horiguchi@nec.com,
+        osalvador@suse.de, shy828301@gmail.com, stable@vger.kernel.org,
+        tony.luck@intel.com
+Subject:  +
+ mm-hwpoison-add-is_free_buddy_page-in-hwpoisonhandlable.patch added to -mm
+ tree
+Message-ID: <20210909010036.KFc0UhCIW%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 08, 2021 at 07:30:49AM +0200, Greg KH wrote:
-> > > > ...
-> > > > Aug  1 20:51:24 djo kernel:  [<f8bc4ef7>] ? 0xf8bc4ef7
-> > > 
-> > > <snip>
-> > > 
-> > > These aren't going to help us much, can you turn on debugging symbols
-> > > for these crashes for us to see the symbol names?
-> > 
-> > ERROR: not enough memory to load nouveau.ko
-> 
-> That's the only error?  Maybe you don't have enough memory?
 
-Nouveau.ko with symbols is really huge. I see only 2GB RAM in that machine,
-so I'm not amazed.
+The patch titled
+     Subject: mm, hwpoison: add is_free_buddy_page() in HWPoisonHandlable()
+has been added to the -mm tree.  Its filename is
+     mm-hwpoison-add-is_free_buddy_page-in-hwpoisonhandlable.patch
 
-> > i915.ko is smaller and my laptop is bigger. Identical crash, no symbols.
-> 
-> Odd.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-hwpoison-add-is_free_buddy_page-in-hwpoisonhandlable.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hwpoison-add-is_free_buddy_page-in-hwpoisonhandlable.patch
 
-I've had that before, some years ago. The devs were very reluctant to start
-investigating. After a while the bug just vanished. Bugs come and go was
-their remark.
-This time the bug doesn't vanish spontaneously.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-> > > > > Can you use 'git bisect' to track down the offending commit?
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-> > and that brought me reasonably fast to this:
-> > 
-> >   3bd3a8ca5a7b1530f463b6e1cc811c085e6ffa01 is the first bad commit
-> >   commit 3bd3a8ca5a7b1530f463b6e1cc811c085e6ffa01
-> >   Author: Maciej W. Rozycki <macro@orcam.me.uk>
-> >   Date:   Thu May 13 11:51:50 2021 +0200
-> >   ...
-> 
-> That is a vt change that handles an issue with a console driver, so this
-> feels like a false failure.
-> 
-> If you revert this change on a newer kernel release, does it work?
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-No false failure.
+------------------------------------------------------
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Subject: mm, hwpoison: add is_free_buddy_page() in HWPoisonHandlable()
 
-git checkout v4.9.282
-git revert <the above patch>
+commit fcc00621d88b ("mm/hwpoison: retry with shake_page() for unhandlable
+pages") changes the return value of __get_hwpoison_page() to retry for
+transiently unhandlable cases.  However, __get_hwpoison_page() currently
+fails to properly judge buddy pages as handlable, so hard/soft offline for
+buddy pages always fail as "unhandlable page".  This is totally
+regrettable.
 
-Lo and behold, no crash on modprobe i915 !!!
+So let's add is_free_buddy_page() in HWPoisonHandlable(), so that
+__get_hwpoison_page() returns different return values between buddy
+pages and unhandlable pages as intended.
 
+Link: https://lkml.kernel.org/r/20210909004131.163221-1-naoya.horiguchi@linux.dev
+Fixes: fcc00621d88b ("mm/hwpoison: retry with shake_page() for unhandlable pages")
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-> And what about showing us the symbols of that traceback?
+ mm/memory-failure.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-What symbols of what traceback? It does not crash!
+--- a/mm/memory-failure.c~mm-hwpoison-add-is_free_buddy_page-in-hwpoisonhandlable
++++ a/mm/memory-failure.c
+@@ -1126,7 +1126,7 @@ static int page_action(struct page_state
+  */
+ static inline bool HWPoisonHandlable(struct page *page)
+ {
+-	return PageLRU(page) || __PageMovable(page);
++	return PageLRU(page) || __PageMovable(page) || is_free_buddy_page(page);
+ }
+ 
+ static int __get_hwpoison_page(struct page *page)
+_
 
-And when it crashes (the previous case) there are no symbols, despite
-debugging set to on. Just the same log. Apparently it ran invalid code.
-What does the 'Divide Error: 0000' mean? A divide by zero error?
+Patches currently in -mm which might be from naoya.horiguchi@nec.com are
 
-Regards, Wim.
+mm-sparse-set-section_nid_shift-to-6.patch
+mm-hwpoison-add-is_free_buddy_page-in-hwpoisonhandlable.patch
 
