@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A279B40567B
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:37:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D09F740567E
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359772AbhIINT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:19:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36122 "EHLO mail.kernel.org"
+        id S1359811AbhIINUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:20:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358967AbhIINLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358968AbhIINLk (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 09:11:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CFC260F6C;
-        Thu,  9 Sep 2021 12:01:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67578632CB;
+        Thu,  9 Sep 2021 12:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188895;
-        bh=K5gwc1hm6QAcBwI9w5qko2ajGG95XuMHVbJfJJua3zE=;
+        s=k20201202; t=1631188897;
+        bh=26DpxREAUW4RnhxRwr/LD/ekH0ARh3OLBDizhE3yZ2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OPUIYBYEjIH+ZejMzQWwhiEtNilpkI8nmL5DLsiKGmRzQ+QA0G6hGKdKX8tVAmVjt
-         0Eig82fWhslyQ/AZQ54+b5razfsIJ3J2FYyq+rAsRwVC0OaetgKANggPEDOUgpVvMD
-         2ISiZn7X+k9WHcRsXtGXUxJ3xvIVvrf2RJ7C1vv+szSs+cZoGeXGo8EDCBt3XHetYt
-         fw8vVOFgx5LG2XIrvZ5jVS0JVEOrGpDES4hXyQXzMvtveFMG65juHqJh4Jg6O/ExtB
-         9rug3uca2He67bgP9WROGMzlQutcbBL293znVz3JfHAi1TfjKAwA7I67pT/ftxWduQ
-         2+vWyeojgXyfg==
+        b=JUXe3COJN30v67f8Zh5bSDPE3AofFXgnRjYXxi14yJ/+QtAJpTP/wzAwsi+T5SMLM
+         qyzitH1hd8UZh+flYlaO2PIowtv4ce3ub1Uu1xtYbjkoOPrZonaZnU88y9YTR55dg0
+         eW6Xu2iLArU3CIfD9Gy8OG7YKltEL8AwcdtIaHrvRXOh9s/hmZd015V46x9TkFao/U
+         vI245zhzefmAd39j4o0JCDdy6ocOUvj5Xurc9E16TXkJIS/hLcZygvFlF6k7JCR+Gh
+         MHeopmUu91u62ZNsumn/JT60fMEjON/c7pbCsbZxl4tT8STUNJCVxPZbcrSY3Ye+UW
+         N+dqrEnnLtJow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 15/35] ipv4: ip_output.c: Fix out-of-bounds warning in ip_copy_addrs()
-Date:   Thu,  9 Sep 2021 08:00:56 -0400
-Message-Id: <20210909120116.150912-15-sashal@kernel.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 16/35] s390/jump_label: print real address in a case of a jump label bug
+Date:   Thu,  9 Sep 2021 08:00:57 -0400
+Message-Id: <20210909120116.150912-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909120116.150912-1-sashal@kernel.org>
 References: <20210909120116.150912-1-sashal@kernel.org>
@@ -43,57 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 6321c7acb82872ef6576c520b0e178eaad3a25c0 ]
+[ Upstream commit 5492886c14744d239e87f1b0b774b5a341e755cc ]
 
-Fix the following out-of-bounds warning:
+In case of a jump label print the real address of the piece of code
+where a mismatch was detected. This is right before the system panics,
+so there is nothing revealed.
 
-    In function 'ip_copy_addrs',
-        inlined from '__ip_queue_xmit' at net/ipv4/ip_output.c:517:2:
-net/ipv4/ip_output.c:449:2: warning: 'memcpy' offset [40, 43] from the object at 'fl' is out of the bounds of referenced subobject 'saddr' with type 'unsigned int' at offset 36 [-Warray-bounds]
-      449 |  memcpy(&iph->saddr, &fl4->saddr,
-          |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      450 |         sizeof(fl4->saddr) + sizeof(fl4->daddr));
-          |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The problem is that the original code is trying to copy data into a
-couple of struct members adjacent to each other in a single call to
-memcpy(). This causes a legitimate compiler warning because memcpy()
-overruns the length of &iph->saddr and &fl4->saddr. As these are just
-a couple of struct members, fix this by using direct assignments,
-instead of memcpy().
-
-This helps with the ongoing efforts to globally enable -Warray-bounds
-and get us closer to being able to tighten the FORTIFY_SOURCE routines
-on memcpy().
-
-Link: https://github.com/KSPP/linux/issues/109
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/d5ae2e65-1f18-2577-246f-bada7eee6ccd@intel.com/
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_output.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/kernel/jump_label.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-index e808227c58d6..477540b3d320 100644
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -376,8 +376,9 @@ static void ip_copy_addrs(struct iphdr *iph, const struct flowi4 *fl4)
- {
- 	BUILD_BUG_ON(offsetof(typeof(*fl4), daddr) !=
- 		     offsetof(typeof(*fl4), saddr) + sizeof(fl4->saddr));
--	memcpy(&iph->saddr, &fl4->saddr,
--	       sizeof(fl4->saddr) + sizeof(fl4->daddr));
-+
-+	iph->saddr = fl4->saddr;
-+	iph->daddr = fl4->daddr;
- }
+diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
+index 083b05f5f5ab..cbc187706648 100644
+--- a/arch/s390/kernel/jump_label.c
++++ b/arch/s390/kernel/jump_label.c
+@@ -43,7 +43,7 @@ static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
+ 	unsigned char *ipe = (unsigned char *)expected;
+ 	unsigned char *ipn = (unsigned char *)new;
  
- /* Note: skb->sk can be different from sk, in case of tunnels */
+-	pr_emerg("Jump label code mismatch at %pS [%p]\n", ipc, ipc);
++	pr_emerg("Jump label code mismatch at %pS [%px]\n", ipc, ipc);
+ 	pr_emerg("Found:    %6ph\n", ipc);
+ 	pr_emerg("Expected: %6ph\n", ipe);
+ 	pr_emerg("New:      %6ph\n", ipn);
 -- 
 2.30.2
 
