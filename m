@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94077405412
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:28:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61CBC40540F
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:28:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354154AbhIIM45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:56:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40988 "EHLO mail.kernel.org"
+        id S1353960AbhIIM4y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:56:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353445AbhIIMtJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353125AbhIIMtJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:49:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C336613A3;
-        Thu,  9 Sep 2021 11:56:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5F4E63218;
+        Thu,  9 Sep 2021 11:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188608;
-        bh=QOZ5zytWglQA3/+3KXYARHhWSKqxTsAXNpce4qfrPMQ=;
+        s=k20201202; t=1631188609;
+        bh=8DU1iuGYv74LnsIoiQnBgxC46+p/xTgoTDxSj+Xr8tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oSdzFhimbbD+Ta8wuaAYihw/lVKidoGnMxQXIU2GVHWUQV3nJn37lTq8EQ2MsPy7M
-         rnMAywK6YF7g6wFiicmRk6+0KblZrJpiA3KOeqtnnTKDeRE3kFb0q9sMZN2Szvd6hC
-         eKfSEtI4Lm5LD4+869wo31Tcgx2fhFYIhHIsaz2CoibYNOkm9mCMm1w9pZKpYInUnu
-         usMVEGFEN/Wvvs8tCkjJdYwpn2bhzoVIfvK/bKrdVrwXUyUlVE/lQE8VLMBg5s/hoT
-         guLwMYilPf0jByLYs+yP/atuBL6fbv3jZCDOt30C9jAalfk3FmWnw0J+fJHnEV3TYq
-         Tqjy47hZ+RDHg==
+        b=NxtsmOm4q87e14q0etvwVcxTSBTlXGiZne6ebLDtDVnxg0apr8SIuyBuKn/w9NuoL
+         dXbtv78cDWmDefrcQDAkGC1ewstJ8yQ4r7skOCowzNX3FllzwN6ZJwExfO3DWFB6iq
+         so6ncnjzr7zM5BTdDKXVotkn77LBzn4MjH1nVWuUHryLaYT1l16sOg697DR1ApVFFc
+         BygkkcwyZYQvLhilFPvav103XVij7sT+HXrCDoz6qQtC2J8rG+Ek7ypqHcMvmY1ClD
+         Pb01MNkPVb7EuSukKwkzO5Ax1Y1eRt45Tj6/PYQ/XWKJYZVQPasTiRb824hHYvi38A
+         6e4Z63AARGuHw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        Inki Dae <inki.dae@samsung.com>,
+Cc:     Arnd Bergmann <arnd@arndb.de>, Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.4 079/109] drm/exynos: Always initialize mapping in exynos_drm_register_dma()
-Date:   Thu,  9 Sep 2021 07:54:36 -0400
-Message-Id: <20210909115507.147917-79-sashal@kernel.org>
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 5.4 080/109] m68knommu: only set CONFIG_ISA_DMA_API for ColdFire sub-arch
+Date:   Thu,  9 Sep 2021 07:54:37 -0400
+Message-Id: <20210909115507.147917-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -47,62 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit c626f3864bbbb28bbe06476b0b497c1330aa4463 ]
+[ Upstream commit db87db65c1059f3be04506d122f8ec9b2fa3b05e ]
 
-In certain randconfigs, clang warns:
+> Hi Arnd,
+>
+> First bad commit (maybe != root cause):
+>
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
+> head:   2f73937c9aa561e2082839bc1a8efaac75d6e244
+> commit: 47fd22f2b84765a2f7e3f150282497b902624547 [4771/5318] cs89x0: rework driver configuration
+> config: m68k-randconfig-c003-20210804 (attached as .config)
+> compiler: m68k-linux-gcc (GCC) 10.3.0
+> reproduce (this is a W=1 build):
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=47fd22f2b84765a2f7e3f150282497b902624547
+>         git remote add linux-next https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+>         git fetch --no-tags linux-next master
+>         git checkout 47fd22f2b84765a2f7e3f150282497b902624547
+>         # save the attached .config to linux build tree
+>         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-10.3.0 make.cross ARCH=m68k
+>
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+>
+> All errors (new ones prefixed by >>):
+>
+>    In file included from include/linux/kernel.h:19,
+>                     from include/linux/list.h:9,
+>                     from include/linux/module.h:12,
+>                     from drivers/net/ethernet/cirrus/cs89x0.c:51:
+>    drivers/net/ethernet/cirrus/cs89x0.c: In function 'net_open':
+>    drivers/net/ethernet/cirrus/cs89x0.c:897:20: error: implicit declaration of function 'isa_virt_to_bus'; did you mean 'virt_to_bus'? [-Werror=implicit-function-declaration]
+>      897 |     (unsigned long)isa_virt_to_bus(lp->dma_buff));
+>          |                    ^~~~~~~~~~~~~~~
+>    include/linux/printk.h:141:17: note: in definition of macro 'no_printk'
+>      141 |   printk(fmt, ##__VA_ARGS__);  \
+>          |                 ^~~~~~~~~~~
+>    drivers/net/ethernet/cirrus/cs89x0.c:86:3: note: in expansion of macro 'pr_debug'
+>       86 |   pr_##level(fmt, ##__VA_ARGS__);   \
+>          |   ^~~
+>    drivers/net/ethernet/cirrus/cs89x0.c:894:3: note: in expansion of macro 'cs89_dbg'
+>      894 |   cs89_dbg(1, debug, "%s: dma %lx %lx\n",
+>          |   ^~~~~~~~
+> >> drivers/net/ethernet/cirrus/cs89x0.c:914:3: error: implicit declaration of function 'disable_dma'; did you mean 'disable_irq'? [-Werror=implicit-function-declaration]
 
-drivers/gpu/drm/exynos/exynos_drm_dma.c:121:19: warning: variable
-'mapping' is uninitialized when used here [-Wuninitialized]
-                priv->mapping = mapping;
-                                ^~~~~~~
-drivers/gpu/drm/exynos/exynos_drm_dma.c:111:16: note: initialize the
-variable 'mapping' to silence this warning
-                void *mapping;
-                             ^
-                              = NULL
-1 warning generated.
+As far as I can tell, this is a bug with the m68kmmu architecture, not
+with my driver:
+The CONFIG_ISA_DMA_API option is provided for coldfire, which implements it,
+but dragonball also sets the option as a side-effect, without actually
+implementing
+the interfaces. The patch below should fix it.
 
-This occurs when CONFIG_EXYNOS_IOMMU is enabled and both
-CONFIG_ARM_DMA_USE_IOMMU and CONFIG_IOMMU_DMA are disabled, which makes
-the code look like
-
-  void *mapping;
-
-  if (0)
-    mapping = arm_iommu_create_mapping()
-  else if (0)
-    mapping = iommu_get_domain_for_dev()
-
-  ...
-  priv->mapping = mapping;
-
-Add an else branch that initializes mapping to the -ENODEV error pointer
-so that there is no more warning and the driver does not change during
-runtime.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Inki Dae <inki.dae@samsung.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/exynos/exynos_drm_dma.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/m68k/Kconfig.bus | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_dma.c b/drivers/gpu/drm/exynos/exynos_drm_dma.c
-index 58b89ec11b0e..a3c9d8b9e1a1 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_dma.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_dma.c
-@@ -140,6 +140,8 @@ int exynos_drm_register_dma(struct drm_device *drm, struct device *dev,
- 				EXYNOS_DEV_ADDR_START, EXYNOS_DEV_ADDR_SIZE);
- 		else if (IS_ENABLED(CONFIG_IOMMU_DMA))
- 			mapping = iommu_get_domain_for_dev(priv->dma_dev);
-+		else
-+			mapping = ERR_PTR(-ENODEV);
+diff --git a/arch/m68k/Kconfig.bus b/arch/m68k/Kconfig.bus
+index 9d0a3a23d50e..355c51309ed8 100644
+--- a/arch/m68k/Kconfig.bus
++++ b/arch/m68k/Kconfig.bus
+@@ -63,7 +63,7 @@ source "drivers/zorro/Kconfig"
  
- 		if (IS_ERR(mapping))
- 			return PTR_ERR(mapping);
+ endif
+ 
+-if !MMU
++if COLDFIRE
+ 
+ config ISA_DMA_API
+         def_bool !M5272
 -- 
 2.30.2
 
