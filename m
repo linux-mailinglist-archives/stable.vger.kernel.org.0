@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1187D404D46
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE229404D4C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343505AbhIIMB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:01:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41250 "EHLO mail.kernel.org"
+        id S245627AbhIIMBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:01:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344741AbhIIL7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:59:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D862261465;
-        Thu,  9 Sep 2021 11:45:58 +0000 (UTC)
+        id S1345014AbhIIL7c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:59:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 490C661425;
+        Thu,  9 Sep 2021 11:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187959;
-        bh=BJ5jpffpZV24DZA1GQvEEw0dm+XQ1zpkg6i3g/vhDS0=;
+        s=k20201202; t=1631187961;
+        bh=O4QDUrrhok5Yx1hnbaku5IUMizrFXg2FjhyeUpa7OvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TPKfKQ1/NAjGvhm+j0vgZQQDCbzjerRTZ5r2ksg4yQK9XQur19N4a/XnPLXIg6xi6
-         JtAYgGzkhioInNA1iaPBARyaHTV4gx2gQJj2kCKEp8hbmohoqthbI60qiiPz0yDskS
-         iCS6Fz2nmJJW8fDefBPjFwskgnEVU9TFKUY0eTzXDE+B7VVuUV+Qzt7kgHHY1o9faZ
-         U9y3W8++J1e/FuouvcoudSWvlz8NcmSl0zS8hDiz1YgXwaegZVrX7bZ8vjBxJCO44y
-         FkdabhWohxlM8o1w7vIWi2AbV0Bh6I9bIDWXSjTM9BV2IJcZVTGMP4ZcmZR5EJQugP
-         bLQOPlO6520Og==
+        b=J+moTNGtF37LH0dSo3DOCwTMc6Br5Vsx51QFb62zc1h7igoxJ1CM4s1CpCi0LNHyB
+         hNODAOlkiXXDrO7yiNTt4X3MtRNj5DGxzxp9bel7aZOfwPOEIBRER4Mi2EdZZCLHlY
+         2onDpR3L3XqHmz7BXLdsG1DNVu+clPmiPZFgLzdrCWaHOIfPYSTJyRjh6KA2oB2F68
+         5KKSqSStzH3AWiFgvnBH7huJ2grrlXc2Nk+LhspiwX0Fku5Ah5emvtiYE5MMMe+F6l
+         9vNAdHF+9qrhD5MU4YVmu5G+KzHZ7j7MlJ8EuHeRAA0Eu72jOGQNrz3/FWwF3zbrzo
+         Dg2e5EVTG/AOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sean Keely <Sean.Keely@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.14 225/252] drm/amdkfd: Account for SH/SE count when setting up cu masks.
-Date:   Thu,  9 Sep 2021 07:40:39 -0400
-Message-Id: <20210909114106.141462-225-sashal@kernel.org>
+Cc:     "J. Bruce Fields" <bfields@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 226/252] nfs: don't atempt blocking locks on nfs reexports
+Date:   Thu,  9 Sep 2021 07:40:40 -0400
+Message-Id: <20210909114106.141462-226-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -44,148 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Keely <Sean.Keely@amd.com>
+From: "J. Bruce Fields" <bfields@redhat.com>
 
-[ Upstream commit 1ec06c2dee679e9f089e78ed20cb74ee90155f61 ]
+[ Upstream commit f657f8eef3ff870552c9fd2839e0061046f44618 ]
 
-On systems with multiple SH per SE compute_static_thread_mgmt_se#
-is split into independent masks, one for each SH, in the upper and
-lower 16 bits.  We need to detect this and apply cu masking to each
-SH.  The cu mask bits are assigned first to each SE, then to
-alternate SHs, then finally to higher CU id.  This ensures that
-the maximum number of SPIs are engaged as early as possible while
-balancing CU assignment to each SH.
+NFS implements blocking locks by blocking inside its lock method.  In
+the reexport case, this blocks the nfs server thread, which could lead
+to deadlocks since an nfs server thread might be required to unlock the
+conflicting lock.  It also causes a crash, since the nfs server thread
+assumes it can free the lock when its lm_notify lock callback is called.
 
-v2: Use max SH/SE rather than max SH in cu_per_sh.
+Ideal would be to make the nfs lock method return without blocking in
+this case, but for now it works just not to attempt blocking locks.  The
+difference is just that the original client will have to poll (as it
+does in the v4.0 case) instead of getting a callback when the lock's
+available.
 
-v3: Fix comment blocks, ensure se_mask is initially zero filled,
-    and correctly assign se.sh.cu positions to unset bits in cu_mask.
-
-Signed-off-by: Sean Keely <Sean.Keely@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Acked-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c | 84 +++++++++++++++-----
- drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h |  1 +
- 2 files changed, 64 insertions(+), 21 deletions(-)
+ fs/nfs/export.c          | 2 +-
+ fs/nfsd/nfs4state.c      | 8 ++++++--
+ include/linux/exportfs.h | 2 ++
+ 3 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c
-index 88813dad731f..c021519af810 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.c
-@@ -98,36 +98,78 @@ void mqd_symmetrically_map_cu_mask(struct mqd_manager *mm,
- 		uint32_t *se_mask)
- {
- 	struct kfd_cu_info cu_info;
--	uint32_t cu_per_se[KFD_MAX_NUM_SE] = {0};
--	int i, se, sh, cu = 0;
--
-+	uint32_t cu_per_sh[KFD_MAX_NUM_SE][KFD_MAX_NUM_SH_PER_SE] = {0};
-+	int i, se, sh, cu;
- 	amdgpu_amdkfd_get_cu_info(mm->dev->kgd, &cu_info);
- 
- 	if (cu_mask_count > cu_info.cu_active_number)
- 		cu_mask_count = cu_info.cu_active_number;
- 
-+	/* Exceeding these bounds corrupts the stack and indicates a coding error.
-+	 * Returning with no CU's enabled will hang the queue, which should be
-+	 * attention grabbing.
-+	 */
-+	if (cu_info.num_shader_engines > KFD_MAX_NUM_SE) {
-+		pr_err("Exceeded KFD_MAX_NUM_SE, chip reports %d\n", cu_info.num_shader_engines);
-+		return;
-+	}
-+	if (cu_info.num_shader_arrays_per_engine > KFD_MAX_NUM_SH_PER_SE) {
-+		pr_err("Exceeded KFD_MAX_NUM_SH, chip reports %d\n",
-+			cu_info.num_shader_arrays_per_engine * cu_info.num_shader_engines);
-+		return;
-+	}
-+	/* Count active CUs per SH.
-+	 *
-+	 * Some CUs in an SH may be disabled.	HW expects disabled CUs to be
-+	 * represented in the high bits of each SH's enable mask (the upper and lower
-+	 * 16 bits of se_mask) and will take care of the actual distribution of
-+	 * disabled CUs within each SH automatically.
-+	 * Each half of se_mask must be filled only on bits 0-cu_per_sh[se][sh]-1.
-+	 *
-+	 * See note on Arcturus cu_bitmap layout in gfx_v9_0_get_cu_info.
-+	 */
- 	for (se = 0; se < cu_info.num_shader_engines; se++)
- 		for (sh = 0; sh < cu_info.num_shader_arrays_per_engine; sh++)
--			cu_per_se[se] += hweight32(cu_info.cu_bitmap[se % 4][sh + (se / 4)]);
--
--	/* Symmetrically map cu_mask to all SEs:
--	 * cu_mask[0] bit0 -> se_mask[0] bit0;
--	 * cu_mask[0] bit1 -> se_mask[1] bit0;
--	 * ... (if # SE is 4)
--	 * cu_mask[0] bit4 -> se_mask[0] bit1;
-+			cu_per_sh[se][sh] = hweight32(cu_info.cu_bitmap[se % 4][sh + (se / 4)]);
-+
-+	/* Symmetrically map cu_mask to all SEs & SHs:
-+	 * se_mask programs up to 2 SH in the upper and lower 16 bits.
-+	 *
-+	 * Examples
-+	 * Assuming 1 SH/SE, 4 SEs:
-+	 * cu_mask[0] bit0 -> se_mask[0] bit0
-+	 * cu_mask[0] bit1 -> se_mask[1] bit0
-+	 * ...
-+	 * cu_mask[0] bit4 -> se_mask[0] bit1
-+	 * ...
-+	 *
-+	 * Assuming 2 SH/SE, 4 SEs
-+	 * cu_mask[0] bit0 -> se_mask[0] bit0 (SE0,SH0,CU0)
-+	 * cu_mask[0] bit1 -> se_mask[1] bit0 (SE1,SH0,CU0)
-+	 * ...
-+	 * cu_mask[0] bit4 -> se_mask[0] bit16 (SE0,SH1,CU0)
-+	 * cu_mask[0] bit5 -> se_mask[1] bit16 (SE1,SH1,CU0)
-+	 * ...
-+	 * cu_mask[0] bit8 -> se_mask[0] bit1 (SE0,SH0,CU1)
- 	 * ...
-+	 *
-+	 * First ensure all CUs are disabled, then enable user specified CUs.
- 	 */
--	se = 0;
--	for (i = 0; i < cu_mask_count; i++) {
--		if (cu_mask[i / 32] & (1 << (i % 32)))
--			se_mask[se] |= 1 << cu;
--
--		do {
--			se++;
--			if (se == cu_info.num_shader_engines) {
--				se = 0;
--				cu++;
-+	for (i = 0; i < cu_info.num_shader_engines; i++)
-+		se_mask[i] = 0;
-+
-+	i = 0;
-+	for (cu = 0; cu < 16; cu++) {
-+		for (sh = 0; sh < cu_info.num_shader_arrays_per_engine; sh++) {
-+			for (se = 0; se < cu_info.num_shader_engines; se++) {
-+				if (cu_per_sh[se][sh] > cu) {
-+					if (cu_mask[i / 32] & (1 << (i % 32)))
-+						se_mask[se] |= 1 << (cu + sh * 16);
-+					i++;
-+					if (i == cu_mask_count)
-+						return;
-+				}
- 			}
--		} while (cu >= cu_per_se[se] && cu < 32);
-+		}
+diff --git a/fs/nfs/export.c b/fs/nfs/export.c
+index 37a1a88df771..d772c20bbfd1 100644
+--- a/fs/nfs/export.c
++++ b/fs/nfs/export.c
+@@ -180,5 +180,5 @@ const struct export_operations nfs_export_ops = {
+ 	.fetch_iversion = nfs_fetch_iversion,
+ 	.flags = EXPORT_OP_NOWCC|EXPORT_OP_NOSUBTREECHK|
+ 		EXPORT_OP_CLOSE_BEFORE_UNLINK|EXPORT_OP_REMOTE_FS|
+-		EXPORT_OP_NOATOMIC_ATTR,
++		EXPORT_OP_NOATOMIC_ATTR|EXPORT_OP_SYNC_LOCKS,
+ };
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index fa67ecd5fe63..bebe86cce7c7 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -6835,6 +6835,7 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 	struct nfsd4_blocked_lock *nbl = NULL;
+ 	struct file_lock *file_lock = NULL;
+ 	struct file_lock *conflock = NULL;
++	struct super_block *sb;
+ 	__be32 status = 0;
+ 	int lkflg;
+ 	int err;
+@@ -6856,6 +6857,7 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 		dprintk("NFSD: nfsd4_lock: permission denied!\n");
+ 		return status;
  	}
- }
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h
-index b5e2ea7550d4..6e6918ccedfd 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_mqd_manager.h
-@@ -27,6 +27,7 @@
- #include "kfd_priv.h"
++	sb = cstate->current_fh.fh_dentry->d_sb;
  
- #define KFD_MAX_NUM_SE 8
-+#define KFD_MAX_NUM_SH_PER_SE 2
+ 	if (lock->lk_is_new) {
+ 		if (nfsd4_has_session(cstate))
+@@ -6904,7 +6906,8 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 	fp = lock_stp->st_stid.sc_file;
+ 	switch (lock->lk_type) {
+ 		case NFS4_READW_LT:
+-			if (nfsd4_has_session(cstate))
++			if (nfsd4_has_session(cstate) &&
++			    !(sb->s_export_op->flags & EXPORT_OP_SYNC_LOCKS))
+ 				fl_flags |= FL_SLEEP;
+ 			fallthrough;
+ 		case NFS4_READ_LT:
+@@ -6916,7 +6919,8 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ 			fl_type = F_RDLCK;
+ 			break;
+ 		case NFS4_WRITEW_LT:
+-			if (nfsd4_has_session(cstate))
++			if (nfsd4_has_session(cstate) &&
++			    !(sb->s_export_op->flags & EXPORT_OP_SYNC_LOCKS))
+ 				fl_flags |= FL_SLEEP;
+ 			fallthrough;
+ 		case NFS4_WRITE_LT:
+diff --git a/include/linux/exportfs.h b/include/linux/exportfs.h
+index fe848901fcc3..3260fe714846 100644
+--- a/include/linux/exportfs.h
++++ b/include/linux/exportfs.h
+@@ -221,6 +221,8 @@ struct export_operations {
+ #define EXPORT_OP_NOATOMIC_ATTR		(0x10) /* Filesystem cannot supply
+ 						  atomic attribute updates
+ 						*/
++#define EXPORT_OP_SYNC_LOCKS		(0x20) /* Filesystem can't do
++						  asychronous blocking locks */
+ 	unsigned long	flags;
+ };
  
- /**
-  * struct mqd_manager
 -- 
 2.30.2
 
