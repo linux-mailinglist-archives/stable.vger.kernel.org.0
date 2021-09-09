@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E42BC404BCE
+	by mail.lfdr.de (Postfix) with ESMTP id 1EFDE404BCC
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:54:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238199AbhIILxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:53:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55120 "EHLO mail.kernel.org"
+        id S241213AbhIILxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:53:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241447AbhIILu7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241446AbhIILu7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 07:50:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5092C6135E;
-        Thu,  9 Sep 2021 11:43:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 966DB6127A;
+        Thu,  9 Sep 2021 11:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187840;
-        bh=6+FigFe1JfRp3EsUrqy4XkTFd6p4WNxKygRAKeaCjxE=;
+        s=k20201202; t=1631187841;
+        bh=qMBC1L/AVg6yHH1DMtljl6zFQJ6blv5t5dZtGJ+J2Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LiizHbSSrEO9pcSVyKt+0gJj9EBSUIxEt7HKK1VnOA6MYwtTk7/xSE5BdxwnWASDO
-         Nolo1VA7IIJQWmaMADuwX5XmRKl6O06K+VM9MZWDtKIYn1FKnUmFQ7L+LqXDmd5Wj7
-         o5HRftaQnmJpTPKiRYVRaXDR3wSpeCDrtmGQmnqq0+jblmHEUZ4CV1scQd8mvzTNq0
-         P9VdQl/iLEDbW1HygGnuEffPo/c5nfKUB4YhtUdTqfq66PK+TLRjGP9+u34Zg+hy6s
-         oZ7yIg5V1EE2xIxInU2SU4cjhdqrDq7NZFcPOWtnYZWCVkcDstvv7wzTTcybzDINVk
-         XN96yw2sc8iqg==
+        b=bGntK3lCHqz1nJ7ZzSgHOTMMKbEgJ4ZcuSP4iXMk3EFW9dMcfGbhvJNwTt6kazig3
+         9Jqwohl5DrEn3ctm8S/US3XPfXPCw5Rj2Ilf2ct83YRtEbNewm/A3e/Du+E/riAooa
+         513+PprW0KwPBXS/twWEIZxunP8OLxm3oraz7gHpA8Ruo5MDp1HJHNRgA7grBKPimx
+         rsCgg+JgSlvtvLOB2+JS82cyZTJiEVr9w+4CbUBsDuOnhNNhREfRAz2ZZMBVP0CjTZ
+         UFnddSvV9Tvjhy46t9VmySIznIRaDGb4uXXX8z5DvFAce/86bFY7AZbIWsTtQUhbGR
+         KyuqMHLgMPwoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sanjay R Mehta <sanju.mehta@amd.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 134/252] thunderbolt: Fix port linking by checking all adapters
-Date:   Thu,  9 Sep 2021 07:39:08 -0400
-Message-Id: <20210909114106.141462-134-sashal@kernel.org>
+Cc:     Roy Chan <roy.chan@amd.com>, Anson Jacob <Anson.Jacob@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.14 135/252] drm/amd/display: fix missing writeback disablement if plane is removed
+Date:   Thu,  9 Sep 2021 07:39:09 -0400
+Message-Id: <20210909114106.141462-135-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -43,41 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sanjay R Mehta <sanju.mehta@amd.com>
+From: Roy Chan <roy.chan@amd.com>
 
-[ Upstream commit 42716425ad7e1b6529ec61c260c11176841f4b5f ]
+[ Upstream commit 82367e7f22d085092728f45fd5fbb15e3fb997c0 ]
 
-In tb_switch_default_link_ports(), while linking of ports,
-only odd-numbered ports (1,3,5..) are considered and even-numbered
-ports are not considered.
+[Why]
+If the plane has been removed, the writeback disablement logic
+doesn't run
 
-AMD host router has lane adapters at 2 and 3 and link ports at adapter 2
-is not considered due to which lane bonding gets disabled.
+[How]
+fix the logic order
 
-Hence added a fix such that all ports are considered during
-linking of ports.
-
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Sanjay R Mehta <sanju.mehta@amd.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Signed-off-by: Roy Chan <roy.chan@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/switch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 14 ++++++++------
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c | 12 +++++++++++-
+ 2 files changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/thunderbolt/switch.c b/drivers/thunderbolt/switch.c
-index 10d6b228cc94..eec59030c3a7 100644
---- a/drivers/thunderbolt/switch.c
-+++ b/drivers/thunderbolt/switch.c
-@@ -2443,7 +2443,7 @@ static void tb_switch_default_link_ports(struct tb_switch *sw)
- {
- 	int i;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+index 5c2853654cca..a47ba1d45be9 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+@@ -1723,13 +1723,15 @@ void dcn20_program_front_end_for_ctx(
  
--	for (i = 1; i <= sw->config.max_port_number; i += 2) {
-+	for (i = 1; i <= sw->config.max_port_number; i++) {
- 		struct tb_port *port = &sw->ports[i];
- 		struct tb_port *subordinate;
+ 				pipe = pipe->bottom_pipe;
+ 			}
+-			/* Program secondary blending tree and writeback pipes */
+-			pipe = &context->res_ctx.pipe_ctx[i];
+-			if (!pipe->prev_odm_pipe && pipe->stream->num_wb_info > 0
+-					&& (pipe->update_flags.raw || pipe->plane_state->update_flags.raw || pipe->stream->update_flags.raw)
+-					&& hws->funcs.program_all_writeback_pipes_in_tree)
+-				hws->funcs.program_all_writeback_pipes_in_tree(dc, pipe->stream, context);
+ 		}
++		/* Program secondary blending tree and writeback pipes */
++		pipe = &context->res_ctx.pipe_ctx[i];
++		if (!pipe->top_pipe && !pipe->prev_odm_pipe
++				&& pipe->stream && pipe->stream->num_wb_info > 0
++				&& (pipe->update_flags.raw || (pipe->plane_state && pipe->plane_state->update_flags.raw)
++					|| pipe->stream->update_flags.raw)
++				&& hws->funcs.program_all_writeback_pipes_in_tree)
++			hws->funcs.program_all_writeback_pipes_in_tree(dc, pipe->stream, context);
+ 	}
+ }
  
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+index 2e8ab9775fa3..fafed1e4a998 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+@@ -398,12 +398,22 @@ void dcn30_program_all_writeback_pipes_in_tree(
+ 			for (i_pipe = 0; i_pipe < dc->res_pool->pipe_count; i_pipe++) {
+ 				struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[i_pipe];
+ 
++				if (!pipe_ctx->plane_state)
++					continue;
++
+ 				if (pipe_ctx->plane_state == wb_info.writeback_source_plane) {
+ 					wb_info.mpcc_inst = pipe_ctx->plane_res.mpcc_inst;
+ 					break;
+ 				}
+ 			}
+-			ASSERT(wb_info.mpcc_inst != -1);
++
++			if (wb_info.mpcc_inst == -1) {
++				/* Disable writeback pipe and disconnect from MPCC
++				 * if source plane has been removed
++				 */
++				dc->hwss.disable_writeback(dc, wb_info.dwb_pipe_inst);
++				continue;
++			}
+ 
+ 			ASSERT(wb_info.dwb_pipe_inst < dc->res_pool->res_cap->num_dwb);
+ 			dwb = dc->res_pool->dwbc[wb_info.dwb_pipe_inst];
 -- 
 2.30.2
 
