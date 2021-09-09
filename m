@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F3B404DEE
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:16:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35AE2404DED
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:16:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346541AbhIIMHf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:07:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43172 "EHLO mail.kernel.org"
+        id S237225AbhIIMHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:07:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244249AbhIIMDF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243054AbhIIMDF (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:03:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D5CA61220;
-        Thu,  9 Sep 2021 11:46:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5374961246;
+        Thu,  9 Sep 2021 11:46:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188006;
-        bh=gB9z9wL68N4zA6j+tsmo/QkfIMZQNo6VHD+mttTBms0=;
+        s=k20201202; t=1631188008;
+        bh=XcIrP2j1CH1GVKuWS9cRF+bNGRLvYg1YpeIgxHSn9J8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QjnwDYYqLQFLVT6o/yKm1ZwLxWzGw8qPn9om6PU2YcRntAWFYJgX6lMV3jpsUFkfy
-         MZmhne6yTEgv8ZBC3VuTHA1mCVAiXXPUn9xrHjIDOMMpoik3dsZzADitHlRiFf53Ya
-         kPusZGixYlsDVafPg8UsmSzARVKDlZjEv2LV7WA74m2vs5jNbCya7rtg66htFue1Y8
-         wXlAnh9TGgPU9dGmovgMPYQE3cMKvm6xOGQlWLK0r3fjZtiZGqLTB1Z6lHH35PJc4C
-         MU1rgZT3RFGhaWN2clHTNIjGOKo9RRaHGBQ4ja/i9E+03xclnV/jD7TVmjYLpDd52N
-         GZJ9ftWFJAp5A==
+        b=fPWtj0LgliQCEn8jdkp30/Qi8zQFDLD+i9krcbVEEF/3HfmFlqmiQnv7DNnEQpUgk
+         id8hwfn2q99aXN+HYALziz/jNsL5/877fSjYVEB0vtpKB2IdRszEblt/RJcL69lGbv
+         iQnT1a24adv//S5FbZ4C4vXkjRHLqHF5ZuowUMGQc+439H9BBksWB8mpFyGeUyyHUS
+         wpbBDwLZTqz69yHxDnd2tdhHduUywA7MOl4ucE5u6jRO6qkZk+N1+MDPuLIOuJlji6
+         MO44CG5sphPFYL4vrPfNTiRmMUiVg0jxrDjFWamoqhMPFFan3KAn7X/AAE1PzbkeIg
+         vIBAdrsOC8A2Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+Cc:     Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 008/219] media: dib8000: rewrite the init prbs logic
-Date:   Thu,  9 Sep 2021 07:43:04 -0400
-Message-Id: <20210909114635.143983-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 009/219] media: ti-vpe: cal: fix error handling in cal_camerarx_create
+Date:   Thu,  9 Sep 2021 07:43:05 -0400
+Message-Id: <20210909114635.143983-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -41,137 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 
-[ Upstream commit 8db11aebdb8f93f46a8513c22c9bd52fa23263aa ]
+[ Upstream commit 918d6d120a60c2640263396308eeb2b6afeb0cd6 ]
 
-The logic at dib8000_get_init_prbs() has a few issues:
+cal_camerarx_create() doesn't handle error returned from
+cal_camerarx_sd_init_cfg(). Fix this.
 
-1. the tables used there has an extra unused value at the beginning;
-2. the dprintk() message doesn't write the right value when
-   transmission mode is not 8K;
-3. the array overflow validation is done by the callers.
-
-Rewrite the code to fix such issues.
-
-This should also shut up those smatch warnings:
-
-	drivers/media/dvb-frontends/dib8000.c:2125 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_8k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2129 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_2k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2131 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_4k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2134 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_8k' 14 <= 14
-
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/dib8000.c | 58 +++++++++++++++++++--------
- 1 file changed, 41 insertions(+), 17 deletions(-)
+ drivers/media/platform/ti-vpe/cal-camerarx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/dvb-frontends/dib8000.c b/drivers/media/dvb-frontends/dib8000.c
-index 082796534b0a..bb02354a48b8 100644
---- a/drivers/media/dvb-frontends/dib8000.c
-+++ b/drivers/media/dvb-frontends/dib8000.c
-@@ -2107,32 +2107,55 @@ static void dib8000_load_ana_fe_coefs(struct dib8000_state *state, const s16 *an
- 			dib8000_write_word(state, 117 + mode, ana_fe[mode]);
- }
+diff --git a/drivers/media/platform/ti-vpe/cal-camerarx.c b/drivers/media/platform/ti-vpe/cal-camerarx.c
+index cbe6114908de..63d13bcc83b4 100644
+--- a/drivers/media/platform/ti-vpe/cal-camerarx.c
++++ b/drivers/media/platform/ti-vpe/cal-camerarx.c
+@@ -842,7 +842,9 @@ struct cal_camerarx *cal_camerarx_create(struct cal_dev *cal,
+ 	if (ret)
+ 		goto error;
  
--static const u16 lut_prbs_2k[14] = {
--	0, 0x423, 0x009, 0x5C7, 0x7A6, 0x3D8, 0x527, 0x7FF, 0x79B, 0x3D6, 0x3A2, 0x53B, 0x2F4, 0x213
-+static const u16 lut_prbs_2k[13] = {
-+	0x423, 0x009, 0x5C7,
-+	0x7A6, 0x3D8, 0x527,
-+	0x7FF, 0x79B, 0x3D6,
-+	0x3A2, 0x53B, 0x2F4,
-+	0x213
- };
--static const u16 lut_prbs_4k[14] = {
--	0, 0x208, 0x0C3, 0x7B9, 0x423, 0x5C7, 0x3D8, 0x7FF, 0x3D6, 0x53B, 0x213, 0x029, 0x0D0, 0x48E
-+
-+static const u16 lut_prbs_4k[13] = {
-+	0x208, 0x0C3, 0x7B9,
-+	0x423, 0x5C7, 0x3D8,
-+	0x7FF, 0x3D6, 0x53B,
-+	0x213, 0x029, 0x0D0,
-+	0x48E
- };
--static const u16 lut_prbs_8k[14] = {
--	0, 0x740, 0x069, 0x7DD, 0x208, 0x7B9, 0x5C7, 0x7FF, 0x53B, 0x029, 0x48E, 0x4C4, 0x367, 0x684
-+
-+static const u16 lut_prbs_8k[13] = {
-+	0x740, 0x069, 0x7DD,
-+	0x208, 0x7B9, 0x5C7,
-+	0x7FF, 0x53B, 0x029,
-+	0x48E, 0x4C4, 0x367,
-+	0x684
- };
+-	cal_camerarx_sd_init_cfg(sd, NULL);
++	ret = cal_camerarx_sd_init_cfg(sd, NULL);
++	if (ret)
++		goto error;
  
- static u16 dib8000_get_init_prbs(struct dib8000_state *state, u16 subchannel)
- {
- 	int sub_channel_prbs_group = 0;
-+	int prbs_group;
- 
--	sub_channel_prbs_group = (subchannel / 3) + 1;
--	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n", sub_channel_prbs_group, subchannel, lut_prbs_8k[sub_channel_prbs_group]);
-+	sub_channel_prbs_group = subchannel / 3;
-+	if (sub_channel_prbs_group >= ARRAY_SIZE(lut_prbs_2k))
-+		return 0;
- 
- 	switch (state->fe[0]->dtv_property_cache.transmission_mode) {
- 	case TRANSMISSION_MODE_2K:
--			return lut_prbs_2k[sub_channel_prbs_group];
-+		prbs_group = lut_prbs_2k[sub_channel_prbs_group];
-+		break;
- 	case TRANSMISSION_MODE_4K:
--			return lut_prbs_4k[sub_channel_prbs_group];
-+		prbs_group =  lut_prbs_4k[sub_channel_prbs_group];
-+		break;
- 	default:
- 	case TRANSMISSION_MODE_8K:
--			return lut_prbs_8k[sub_channel_prbs_group];
-+		prbs_group = lut_prbs_8k[sub_channel_prbs_group];
- 	}
-+
-+	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n",
-+		sub_channel_prbs_group, subchannel, prbs_group);
-+
-+	return prbs_group;
- }
- 
- static void dib8000_set_13seg_channel(struct dib8000_state *state)
-@@ -2409,10 +2432,8 @@ static void dib8000_set_isdbt_common_channel(struct dib8000_state *state, u8 seq
- 	/* TSB or ISDBT ? apply it now */
- 	if (c->isdbt_sb_mode) {
- 		dib8000_set_sb_channel(state);
--		if (c->isdbt_sb_subchannel < 14)
--			init_prbs = dib8000_get_init_prbs(state, c->isdbt_sb_subchannel);
--		else
--			init_prbs = 0;
-+		init_prbs = dib8000_get_init_prbs(state,
-+						  c->isdbt_sb_subchannel);
- 	} else {
- 		dib8000_set_13seg_channel(state);
- 		init_prbs = 0xfff;
-@@ -3004,6 +3025,7 @@ static int dib8000_tune(struct dvb_frontend *fe)
- 
- 	unsigned long *timeout = &state->timeout;
- 	unsigned long now = jiffies;
-+	u16 init_prbs;
- #ifdef DIB8000_AGC_FREEZE
- 	u16 agc1, agc2;
- #endif
-@@ -3302,8 +3324,10 @@ static int dib8000_tune(struct dvb_frontend *fe)
- 		break;
- 
- 	case CT_DEMOD_STEP_11:  /* 41 : init prbs autosearch */
--		if (state->subchannel <= 41) {
--			dib8000_set_subchannel_prbs(state, dib8000_get_init_prbs(state, state->subchannel));
-+		init_prbs = dib8000_get_init_prbs(state, state->subchannel);
-+
-+		if (init_prbs) {
-+			dib8000_set_subchannel_prbs(state, init_prbs);
- 			*tune_state = CT_DEMOD_STEP_9;
- 		} else {
- 			*tune_state = CT_DEMOD_STOP;
+ 	ret = v4l2_device_register_subdev(&cal->v4l2_dev, sd);
+ 	if (ret)
 -- 
 2.30.2
 
