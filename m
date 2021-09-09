@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB94405E91
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 23:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C205405E92
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 23:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347899AbhIIVHa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 17:07:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57228 "EHLO mail.kernel.org"
+        id S1348501AbhIIVHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 17:07:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348198AbhIIVHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 17:07:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2BF2611B0;
-        Thu,  9 Sep 2021 21:06:08 +0000 (UTC)
+        id S1348301AbhIIVHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 17:07:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96B9A6109F;
+        Thu,  9 Sep 2021 21:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1631221569;
-        bh=ka/9eF4fzUIX9dx2sNmtez63Jqit37Qtafw6kzzRrcM=;
+        s=korg; t=1631221571;
+        bh=82C2QbFYSOZ/IYcjkBxd1eEpaUudBiDxc7r17NPP32U=;
         h=Date:From:To:Subject:From;
-        b=ADuld4ZRSeCkkdxeGwpOGLLWHILh+ARHoBaL0k3MiYn/jEwXd07m/2w8DPy52C5JL
-         mUC9rwIhJ1SrLao2wTZBpD8+SqL8I50N5TvGAqYbJV77kwubCSHRGSk96EueixkEx2
-         uM692Sld7JCW+WovUKDAO3cPKjLZ98eOQfPa9L0U=
-Date:   Thu, 09 Sep 2021 14:06:08 -0700
+        b=kqrdWIMEwGo0Y5c5u/9CvqW+6j76cK2E8kIclhy8RjyJv2sBwoqfXubc/JuearEUo
+         Q3WSgDRac1OsgNscpVRrkEoZlhNdUf/Nef8NR7kGrcrDRspZkmAoBv8d9Ir+kvgmr6
+         JdrrPSaGIJfkYSyISZRshn07Vttxi/w9Sh+5ToT4=
+Date:   Thu, 09 Sep 2021 14:06:11 -0700
 From:   akpm@linux-foundation.org
-To:     liuzixian4@huawei.com, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, naoya.horiguchi@nec.com,
+To:     chris@chrisdown.name, guro@fb.com, hannes@cmpxchg.org,
+        mhocko@suse.com, mm-commits@vger.kernel.org, riel@surriel.com,
         stable@vger.kernel.org
 Subject:  [merged]
- mm-hugetlb-initialize-hugetlb_usage-in-mm_init.patch removed from -mm tree
-Message-ID: <20210909210608.t5RrxBIjm%akpm@linux-foundation.org>
+ mmvmscan-fix-divide-by-zero-in-get_scan_count.patch removed from -mm tree
+Message-ID: <20210909210611.MPmhnhuu6%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -35,81 +35,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/hugetlb: initialize hugetlb_usage in mm_init
+     Subject: mm,vmscan: fix divide by zero in get_scan_count
 has been removed from the -mm tree.  Its filename was
-     mm-hugetlb-initialize-hugetlb_usage-in-mm_init.patch
+     mmvmscan-fix-divide-by-zero-in-get_scan_count.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Liu Zixian <liuzixian4@huawei.com>
-Subject: mm/hugetlb: initialize hugetlb_usage in mm_init
+From: Rik van Riel <riel@surriel.com>
+Subject: mm,vmscan: fix divide by zero in get_scan_count
 
-After fork, the child process will get incorrect (2x) hugetlb_usage.
-If a process uses 5 2MB hugetlb pages in an anonymous mapping,
+Changeset f56ce412a59d ("mm: memcontrol: fix occasional OOMs due to
+proportional memory.low reclaim") introduced a divide by zero corner case
+when oomd is being used in combination with cgroup memory.low protection.
 
-	HugetlbPages:	   10240 kB
+When oomd decides to kill a cgroup, it will force the cgroup memory to be
+reclaimed after killing the tasks, by writing to the memory.max file for
+that cgroup, forcing the remaining page cache and reclaimable slab to be
+reclaimed down to zero.
 
-and then forks, the child will show,
+Previously, on cgroups with some memory.low protection that would result
+in the memory being reclaimed down to the memory.low limit, or likely not
+at all, having the page cache reclaimed asynchronously later.
 
-	HugetlbPages:	   20480 kB
+With f56ce412a59d the oomd write to memory.max tries to reclaim all the
+way down to zero, which may race with another reclaimer, to the point of
+ending up with the divide by zero below.
 
-The reason for double the amount is because hugetlb_usage will be copied
-from the parent and then increased when we copy page tables from parent to
-child.  Child will have 2x actual usage.
+This patch implements the obvious fix.
 
-Fix this by adding hugetlb_count_init in mm_init.
-
-Link: https://lkml.kernel.org/r/20210826071742.877-1-liuzixian4@huawei.com
-Fixes: 5d317b2b6536 ("mm: hugetlb: proc: add HugetlbPages field to /proc/PID/status")
-Signed-off-by: Liu Zixian <liuzixian4@huawei.com>
-Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Link: https://lkml.kernel.org/r/20210826220149.058089c6@imladris.surriel.com
+Fixes: f56ce412a59d ("mm: memcontrol: fix occasional OOMs due to proportional memory.low reclaim")
+Signed-off-by: Rik van Riel <riel@surriel.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Chris Down <chris@chrisdown.name>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/hugetlb.h |    9 +++++++++
- kernel/fork.c           |    1 +
- 2 files changed, 10 insertions(+)
+ mm/vmscan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/hugetlb.h~mm-hugetlb-initialize-hugetlb_usage-in-mm_init
-+++ a/include/linux/hugetlb.h
-@@ -858,6 +858,11 @@ static inline spinlock_t *huge_pte_lockp
+--- a/mm/vmscan.c~mmvmscan-fix-divide-by-zero-in-get_scan_count
++++ a/mm/vmscan.c
+@@ -2715,7 +2715,7 @@ out:
+ 			cgroup_size = max(cgroup_size, protection);
  
- void hugetlb_report_usage(struct seq_file *m, struct mm_struct *mm);
+ 			scan = lruvec_size - lruvec_size * protection /
+-				cgroup_size;
++				(cgroup_size + 1);
  
-+static inline void hugetlb_count_init(struct mm_struct *mm)
-+{
-+	atomic_long_set(&mm->hugetlb_usage, 0);
-+}
-+
- static inline void hugetlb_count_add(long l, struct mm_struct *mm)
- {
- 	atomic_long_add(l, &mm->hugetlb_usage);
-@@ -1042,6 +1047,10 @@ static inline spinlock_t *huge_pte_lockp
- 	return &mm->page_table_lock;
- }
- 
-+static inline void hugetlb_count_init(struct mm_struct *mm)
-+{
-+}
-+
- static inline void hugetlb_report_usage(struct seq_file *f, struct mm_struct *m)
- {
- }
---- a/kernel/fork.c~mm-hugetlb-initialize-hugetlb_usage-in-mm_init
-+++ a/kernel/fork.c
-@@ -1063,6 +1063,7 @@ static struct mm_struct *mm_init(struct
- 	mm->pmd_huge_pte = NULL;
- #endif
- 	mm_init_uprobes_state(mm);
-+	hugetlb_count_init(mm);
- 
- 	if (current->mm) {
- 		mm->flags = current->mm->flags & MMF_INIT_MASK;
+ 			/*
+ 			 * Minimally target SWAP_CLUSTER_MAX pages to keep
 _
 
-Patches currently in -mm which might be from liuzixian4@huawei.com are
+Patches currently in -mm which might be from riel@surriel.com are
 
 
