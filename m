@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8A0140540C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:27:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CC54405413
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:28:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353790AbhIIM4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40990 "EHLO mail.kernel.org"
+        id S1353572AbhIIM46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:56:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353476AbhIIMtJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353497AbhIIMtJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:49:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0AB461A88;
-        Thu,  9 Sep 2021 11:56:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2D0661CF3;
+        Thu,  9 Sep 2021 11:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188605;
-        bh=K/PGg6kLoihHZ8O6+cHlmGT+jLvgPdnTCFTMk7Bxex0=;
+        s=k20201202; t=1631188606;
+        bh=VfSF8ywJgus035S93IX3ZGmVlbPmqAAUHaLROvHLsII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKEUZbopeVmJuteChhkbYXOX6LLMN4Lw9i4FBXXE5zeYtDNfRSZAR49YGqICCl4wc
-         uFEz1CrJiZFQE+2mfFGfQ13TA44FedrG7UpjhBtZ0mPVngdIEPHrNo4Wa1iP8/fRJp
-         upLPE1jGzLPIpe2lwluWE40RVGU5V/mmJUXA1UinQ2Vk+N12mABYCOxaJnmvzSrvOb
-         iQkJ2OrOZy/9l0doltl4FYviJtHYBu3fk6Zv3obvCwx3ZaKYNSWIthFu6ulV0QRWig
-         NaLoJPMRlnCcDA6X/pmJfAkYLn7CAPAI/p8SyIc8HtTYhrnWJ98t/wDbT4F0e5xdQc
-         7Vl8IaAJjOkiQ==
+        b=n8AgAS6YdVtwd/DTNU7DnzU63B9i4AcaNUN5U2n28M/QNThNlIU4ZIjj+nbd+hgpY
+         3DfBAlUwn3t+Vcphf1ITvDOrjZRC7nCSosdMYZfcLOSRYuChAMFhZkSLTplCkhKhwN
+         ncTgfeKMSyFtooSkBJ+xDML0d2FgLL/MIW5nBbwJTaVjhOW4sBGLojdfCMUaeiUZyU
+         o/Mxufcd+Gtf2PWWtCctuYoU1EcKaSFbl7mH7DzvhgqNlYYqoNuiT5HQXMDLHKdwPq
+         stzCTaGVG5s2TtP2juSBMzyvtxfHYDc9mwzj0yjLh3luqRp81LTZmeZgUga10fwsY0
+         9Vj4tLqi+vmMg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li Jun <jun.li@nxp.com>, Zhipeng Wang <zhipeng.wang_1@nxp.com>,
-        Peter Chen <peter.chen@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 077/109] usb: chipidea: host: fix port index underflow and UBSAN complains
-Date:   Thu,  9 Sep 2021 07:54:34 -0400
-Message-Id: <20210909115507.147917-77-sashal@kernel.org>
+Cc:     "J. Bruce Fields" <bfields@redhat.com>,
+        Daire Byrne <daire@dneg.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 078/109] lockd: lockd server-side shouldn't set fl_ops
+Date:   Thu,  9 Sep 2021 07:54:35 -0400
+Message-Id: <20210909115507.147917-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -42,66 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: "J. Bruce Fields" <bfields@redhat.com>
 
-[ Upstream commit e5d6a7c6cfae9e714a0e8ff64facd1ac68a784c6 ]
+[ Upstream commit 7de875b231edb807387a81cde288aa9e1015ef9e ]
 
-If wIndex is 0 (and it often is), these calculations underflow and
-UBSAN complains, here resolve this by not decrementing the index when
-it is equal to 0, this copies the solution from commit 85e3990bea49
-("USB: EHCI: avoid undefined pointer arithmetic and placate UBSAN")
+Locks have two sets of op arrays, fl_lmops for the lock manager (lockd
+or nfsd), fl_ops for the filesystem.  The server-side lockd code has
+been setting its own fl_ops, which leads to confusion (and crashes) in
+the reexport case, where the filesystem expects to be the only one
+setting fl_ops.
 
-Reported-by: Zhipeng Wang <zhipeng.wang_1@nxp.com>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Link: https://lore.kernel.org/r/1624004938-2399-1-git-send-email-jun.li@nxp.com
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
+And there's no reason for it that I can see-the lm_get/put_owner ops do
+the same job.
+
+Reported-by: Daire Byrne <daire@dneg.com>
+Tested-by: Daire Byrne <daire@dneg.com>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/host.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/lockd/svclock.c | 30 ++++++++++++------------------
+ 1 file changed, 12 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/usb/chipidea/host.c b/drivers/usb/chipidea/host.c
-index 48e4a5ca1835..f5f56ee07729 100644
---- a/drivers/usb/chipidea/host.c
-+++ b/drivers/usb/chipidea/host.c
-@@ -233,18 +233,26 @@ static int ci_ehci_hub_control(
- )
+diff --git a/fs/lockd/svclock.c b/fs/lockd/svclock.c
+index 61d3cc2283dc..1781fc5e9091 100644
+--- a/fs/lockd/svclock.c
++++ b/fs/lockd/svclock.c
+@@ -395,28 +395,10 @@ nlmsvc_release_lockowner(struct nlm_lock *lock)
+ 		nlmsvc_put_lockowner(lock->fl.fl_owner);
+ }
+ 
+-static void nlmsvc_locks_copy_lock(struct file_lock *new, struct file_lock *fl)
+-{
+-	struct nlm_lockowner *nlm_lo = (struct nlm_lockowner *)fl->fl_owner;
+-	new->fl_owner = nlmsvc_get_lockowner(nlm_lo);
+-}
+-
+-static void nlmsvc_locks_release_private(struct file_lock *fl)
+-{
+-	nlmsvc_put_lockowner((struct nlm_lockowner *)fl->fl_owner);
+-}
+-
+-static const struct file_lock_operations nlmsvc_lock_ops = {
+-	.fl_copy_lock = nlmsvc_locks_copy_lock,
+-	.fl_release_private = nlmsvc_locks_release_private,
+-};
+-
+ void nlmsvc_locks_init_private(struct file_lock *fl, struct nlm_host *host,
+ 						pid_t pid)
  {
- 	struct ehci_hcd	*ehci = hcd_to_ehci(hcd);
-+	unsigned int	ports = HCS_N_PORTS(ehci->hcs_params);
- 	u32 __iomem	*status_reg;
--	u32		temp;
-+	u32		temp, port_index;
- 	unsigned long	flags;
- 	int		retval = 0;
- 	struct device *dev = hcd->self.controller;
- 	struct ci_hdrc *ci = dev_get_drvdata(dev);
+ 	fl->fl_owner = nlmsvc_find_lockowner(host, pid);
+-	if (fl->fl_owner != NULL)
+-		fl->fl_ops = &nlmsvc_lock_ops;
+ }
  
--	status_reg = &ehci->regs->port_status[(wIndex & 0xff) - 1];
-+	port_index = wIndex & 0xff;
-+	port_index -= (port_index > 0);
-+	status_reg = &ehci->regs->port_status[port_index];
+ /*
+@@ -788,9 +770,21 @@ nlmsvc_notify_blocked(struct file_lock *fl)
+ 	printk(KERN_WARNING "lockd: notification for unknown block!\n");
+ }
  
- 	spin_lock_irqsave(&ehci->lock, flags);
- 
- 	if (typeReq == SetPortFeature && wValue == USB_PORT_FEAT_SUSPEND) {
-+		if (!wIndex || wIndex > ports) {
-+			retval = -EPIPE;
-+			goto done;
-+		}
++static fl_owner_t nlmsvc_get_owner(fl_owner_t owner)
++{
++	return nlmsvc_get_lockowner(owner);
++}
 +
- 		temp = ehci_readl(ehci, status_reg);
- 		if ((temp & PORT_PE) == 0 || (temp & PORT_RESET) != 0) {
- 			retval = -EPIPE;
-@@ -273,7 +281,7 @@ static int ci_ehci_hub_control(
- 			ehci_writel(ehci, temp, status_reg);
- 		}
++static void nlmsvc_put_owner(fl_owner_t owner)
++{
++	nlmsvc_put_lockowner(owner);
++}
++
+ const struct lock_manager_operations nlmsvc_lock_operations = {
+ 	.lm_notify = nlmsvc_notify_blocked,
+ 	.lm_grant = nlmsvc_grant_deferred,
++	.lm_get_owner = nlmsvc_get_owner,
++	.lm_put_owner = nlmsvc_put_owner,
+ };
  
--		set_bit((wIndex & 0xff) - 1, &ehci->suspended_ports);
-+		set_bit(port_index, &ehci->suspended_ports);
- 		goto done;
- 	}
- 
+ /*
 -- 
 2.30.2
 
