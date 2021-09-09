@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 045E24051F4
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43BEE40526E
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354674AbhIIMjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:39:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46164 "EHLO mail.kernel.org"
+        id S1348586AbhIIMnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:43:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353524AbhIIMfh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:35:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C73CF61B7E;
-        Thu,  9 Sep 2021 11:54:00 +0000 (UTC)
+        id S1345658AbhIIMgr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:36:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EB9661B94;
+        Thu,  9 Sep 2021 11:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188441;
-        bh=n94kMwFHUMe+HkJMYWMwz/mNrdLxyfQDhWM2x1S7TPk=;
+        s=k20201202; t=1631188442;
+        bh=+fvd5OzYrWN5OOWbb3QENra4Vd4JtouksqyN195Z6wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e4rIVat1jUdSAfcbznFhU4iaQpLTNzNmyuy0MgwsCIrhZuaZormEhvsNI2w41IXeP
-         WqVRBeycErFpAh/qWKKP6uAzOQ4Beyljq4Wf2TvW/kw8k3OdJx4m36Iqxsm3wE9w5N
-         3FHIGe8JAYJqFwaJD6R3GbO+nhoyymQyZROQ8Q6V2YexTQjH6k/vWtfn59yHW1TpgR
-         3euZxCcVKtMFXdgdnG9WNJ+wq/MG/hvMQY8tv/mGgMzWu6BZ1ooZicG8PrXM0ZMNU5
-         pe4LHdW2U5VGt3Nky0YyjHQumd5FNjALX/EOhS5FLJ0UfpLuXQcujKLUnbap2nnHOI
-         zltDOxR9weQnw==
+        b=pr2+15kEwIYnDOOJTYQzqMl9gffUl71xZC4ZCXbqixPxFdScIbERXLohTN64L15Z0
+         Uf/FuJ6cqzOq+DXzZoSiVIWmSlnr4iSKW34Oq5XApHlplPjGjEN5kpuBwN7QDjDphs
+         QShVwz2k60SgZ4iaQV58HkelYzR3BIgQYX0Fiq110I8pdtpoY2aTKm0tq8k5tgGWxk
+         2ozzDp3FxuDJkehPZ4tlpKbvYmdYOFqLoj8yHpoUT4S5DsPdUqsi9Zlky6mT+YMkvL
+         vAnWPZVTFAJjEQRqfOLMPD74ZVxU/of/F+ynxs4wovJ9721MevertKK9rxxibPqDfO
+         XLMlOcTsPTR8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 126/176] kselftest/arm64: pac: Fix skipping of tests on systems without PAC
-Date:   Thu,  9 Sep 2021 07:50:28 -0400
-Message-Id: <20210909115118.146181-126-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.10 127/176] gfs2: Don't call dlm after protocol is unmounted
+Date:   Thu,  9 Sep 2021 07:50:29 -0400
+Message-Id: <20210909115118.146181-127-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -44,62 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 0c69bd2ca6ee20064dde7853cd749284e053a874 ]
+[ Upstream commit d1340f80f0b8066321b499a376780da00560e857 ]
 
-The PAC tests check to see if the system supports the relevant PAC features
-but instead of skipping the tests if they can't be executed they fail the
-tests which makes things look like they're not working when they are.
+In the gfs2 withdraw sequence, the dlm protocol is unmounted with a call
+to lm_unmount. After a withdraw, users are allowed to unmount the
+withdrawn file system. But at that point we may still have glocks left
+over that we need to free via unmount's call to gfs2_gl_hash_clear.
+These glocks may have never been completed because of whatever problem
+caused the withdraw (IO errors or whatever).
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210819165723.43903-1-broonie@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Before this patch, function gdlm_put_lock would still try to call into
+dlm to unlock these leftover glocks, which resulted in dlm returning
+-EINVAL because the lock space was abandoned. These glocks were never
+freed because there was no mechanism after that to free them.
+
+This patch adds a check to gdlm_put_lock to see if the locking protocol
+was inactive (DFL_UNMOUNT flag) and if so, free the glock and not
+make the invalid call into dlm.
+
+I could have combined this "if" with the one that follows, related to
+leftover glock LVBs, but I felt the code was more readable with its own
+if clause.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/arm64/pauth/pac.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/gfs2/lock_dlm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/testing/selftests/arm64/pauth/pac.c b/tools/testing/selftests/arm64/pauth/pac.c
-index 592fe538506e..b743daa772f5 100644
---- a/tools/testing/selftests/arm64/pauth/pac.c
-+++ b/tools/testing/selftests/arm64/pauth/pac.c
-@@ -25,13 +25,15 @@
- do { \
- 	unsigned long hwcaps = getauxval(AT_HWCAP); \
- 	/* data key instructions are not in NOP space. This prevents a SIGILL */ \
--	ASSERT_NE(0, hwcaps & HWCAP_PACA) TH_LOG("PAUTH not enabled"); \
-+	if (!(hwcaps & HWCAP_PACA))					\
-+		SKIP(return, "PAUTH not enabled"); \
- } while (0)
- #define ASSERT_GENERIC_PAUTH_ENABLED() \
- do { \
- 	unsigned long hwcaps = getauxval(AT_HWCAP); \
- 	/* generic key instructions are not in NOP space. This prevents a SIGILL */ \
--	ASSERT_NE(0, hwcaps & HWCAP_PACG) TH_LOG("Generic PAUTH not enabled"); \
-+	if (!(hwcaps & HWCAP_PACG)) \
-+		SKIP(return, "Generic PAUTH not enabled");	\
- } while (0)
+diff --git a/fs/gfs2/lock_dlm.c b/fs/gfs2/lock_dlm.c
+index 153272f82984..5564aa8b4592 100644
+--- a/fs/gfs2/lock_dlm.c
++++ b/fs/gfs2/lock_dlm.c
+@@ -296,6 +296,11 @@ static void gdlm_put_lock(struct gfs2_glock *gl)
+ 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
+ 	gfs2_update_request_times(gl);
  
- void sign_specific(struct signatures *sign, size_t val)
-@@ -256,7 +258,7 @@ TEST(single_thread_different_keys)
- 	unsigned long hwcaps = getauxval(AT_HWCAP);
++	/* don't want to call dlm if we've unmounted the lock protocol */
++	if (test_bit(DFL_UNMOUNT, &ls->ls_recover_flags)) {
++		gfs2_glock_free(gl);
++		return;
++	}
+ 	/* don't want to skip dlm_unlock writing the lvb when lock has one */
  
- 	/* generic and data key instructions are not in NOP space. This prevents a SIGILL */
--	ASSERT_NE(0, hwcaps & HWCAP_PACA) TH_LOG("PAUTH not enabled");
-+	ASSERT_PAUTH_ENABLED();
- 	if (!(hwcaps & HWCAP_PACG)) {
- 		TH_LOG("WARNING: Generic PAUTH not enabled. Skipping generic key checks");
- 		nkeys = NKEYS - 1;
-@@ -299,7 +301,7 @@ TEST(exec_changed_keys)
- 	unsigned long hwcaps = getauxval(AT_HWCAP);
- 
- 	/* generic and data key instructions are not in NOP space. This prevents a SIGILL */
--	ASSERT_NE(0, hwcaps & HWCAP_PACA) TH_LOG("PAUTH not enabled");
-+	ASSERT_PAUTH_ENABLED();
- 	if (!(hwcaps & HWCAP_PACG)) {
- 		TH_LOG("WARNING: Generic PAUTH not enabled. Skipping generic key checks");
- 		nkeys = NKEYS - 1;
+ 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
 -- 
 2.30.2
 
