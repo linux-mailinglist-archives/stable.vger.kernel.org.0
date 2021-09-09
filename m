@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5909B405316
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 254C940531C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:51:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355727AbhIIMtx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:49:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55860 "EHLO mail.kernel.org"
+        id S1355853AbhIIMt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:49:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355288AbhIIMpF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:45:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 989A4630EF;
-        Thu,  9 Sep 2021 11:55:59 +0000 (UTC)
+        id S1355348AbhIIMpT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:45:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3928613AC;
+        Thu,  9 Sep 2021 11:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188560;
-        bh=EQDvWcBd9tVsriQeK+dTVMgqWTuR1Gn/6oSqmXHsnH4=;
+        s=k20201202; t=1631188561;
+        bh=9OHCdoC2zS+9x1XGxywbtw+tpN9NjKwHyk7WhAEKvX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f4U5ovBgYS95QthoZBsmTer8TsV3+59hPC7xFv1db0da9xlRCAZMYoOXJGWX1bWIP
-         4C1x9s0GRj+BUOFTmwnXhDCIbEcl59BLvrMpcxP5WfR6TC+NP9bK/Vl3lJ90sKUngY
-         TzwlAs6jLbk9rvgk2S/hw8NJEqvnxs3UxGmKma8uob6CZKlWO/zj0NpdNm8zFb9V0M
-         k4AtB1oOPHM0Ge6S3nH//ATI0yg0JhomHtm1+SetcPTBLQ1Kh9bktmEuWqtkU8qrpq
-         QE3V6QR5l1WsRSabQXsUVmvOZA6FPhmbU6FIsFbwKitZ2x76rFkVFqoZJWdpMsBFro
-         0jrbzINyJKzuw==
+        b=rk9kexFUpftqxn6H64T5UR93WUH1bi8SexK7SyRgnOs09auqo44Ed9MZX3AmCcnQG
+         ubr5ih9JaMrtgV432lc5Qc7Rynjl685FmnADro8r87P2c0wzWJ6D3ikfGZJT5IfqBa
+         I60fgb0aJSdNKe7yAK6aTn3BbUR+v9IEdilduOlPniEWJt5Nqu9pTyt48UcRdneOby
+         ADMDroW3SqzRMZ4BJZA95wxAuqmaMglgXZCdkmkHgZ1RZzztyG++S9P0ofJnWyE1Dq
+         tf8zv7ftTvOJ613vbX1UCgo1WKTJ7uHAM2KoFZYpuA0EoeJDJUn3fNLTHbMPSX4AW1
+         3Zhmec96qJHEw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 042/109] i2c: i801: Fix handling SMBHSTCNT_PEC_EN
-Date:   Thu,  9 Sep 2021 07:53:59 -0400
-Message-Id: <20210909115507.147917-42-sashal@kernel.org>
+Cc:     Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 043/109] Bluetooth: skip invalid hci_sync_conn_complete_evt
+Date:   Thu,  9 Sep 2021 07:54:00 -0400
+Message-Id: <20210909115507.147917-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -42,116 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit a6b8bb6a813a6621c75ceacd1fa604c0229e9624 ]
+[ Upstream commit 92fe24a7db751b80925214ede43f8d2be792ea7b ]
 
-Bit SMBHSTCNT_PEC_EN is used only if software calculates the CRC and
-uses register SMBPEC. This is not supported by the driver, it supports
-hw-calculation of CRC only (using bit SMBAUXSTS_CRCE). The chip spec
-states the following, therefore never set bit SMBHSTCNT_PEC_EN.
+Syzbot reported a corrupted list in kobject_add_internal [1]. This
+happens when multiple HCI_EV_SYNC_CONN_COMPLETE event packets with
+status 0 are sent for the same HCI connection. This causes us to
+register the device more than once which corrupts the kset list.
 
-Chapter SMBus CRC Generation and Checking
-If the AAC bit is set in the Auxiliary Control register, the PCH
-automatically calculates and drives CRC at the end of the transmitted
-packet for write cycles, and will check the CRC for read cycles. It will
-not transmit the contents of the PEC register for CRC. The PEC bit must
-not be set in the Host Control register. If this bit is set, unspecified
-behavior will result.
+As this is forbidden behavior, we add a check for whether we're
+trying to process the same HCI_EV_SYNC_CONN_COMPLETE event multiple
+times for one connection. If that's the case, the event is invalid, so
+we report an error that the device is misbehaving, and ignore the
+packet.
 
-This patch is based solely on the specification and compile-tested only,
-because I have no PEC-capable devices.
-
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Tested-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Link: https://syzkaller.appspot.com/bug?extid=66264bf2fd0476be7e6c [1]
+Reported-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
+Tested-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-i801.c | 27 +++++++++++----------------
- 1 file changed, 11 insertions(+), 16 deletions(-)
+ net/bluetooth/hci_event.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index a959062ded4f..4da3b58aa505 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -510,19 +510,16 @@ static int i801_transaction(struct i801_priv *priv, int xact)
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index e8e7f108b016..82e42d8e2ea0 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -4202,6 +4202,21 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
  
- static int i801_block_transaction_by_block(struct i801_priv *priv,
- 					   union i2c_smbus_data *data,
--					   char read_write, int command,
--					   int hwpec)
-+					   char read_write, int command)
- {
--	int i, len;
--	int status;
--	int xact = hwpec ? SMBHSTCNT_PEC_EN : 0;
-+	int i, len, status, xact;
- 
- 	switch (command) {
- 	case I2C_SMBUS_BLOCK_PROC_CALL:
--		xact |= I801_BLOCK_PROC_CALL;
-+		xact = I801_BLOCK_PROC_CALL;
- 		break;
- 	case I2C_SMBUS_BLOCK_DATA:
--		xact |= I801_BLOCK_DATA;
-+		xact = I801_BLOCK_DATA;
- 		break;
- 	default:
- 		return -EOPNOTSUPP;
-@@ -672,8 +669,7 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
-  */
- static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
- 					       union i2c_smbus_data *data,
--					       char read_write, int command,
--					       int hwpec)
-+					       char read_write, int command)
- {
- 	int i, len;
- 	int smbcmd;
-@@ -778,9 +774,8 @@ static int i801_set_block_buffer_mode(struct i801_priv *priv)
- }
- 
- /* Block transaction function */
--static int i801_block_transaction(struct i801_priv *priv,
--				  union i2c_smbus_data *data, char read_write,
--				  int command, int hwpec)
-+static int i801_block_transaction(struct i801_priv *priv, union i2c_smbus_data *data,
-+				  char read_write, int command)
- {
- 	int result = 0;
- 	unsigned char hostc;
-@@ -816,11 +811,11 @@ static int i801_block_transaction(struct i801_priv *priv,
- 	 && i801_set_block_buffer_mode(priv) == 0)
- 		result = i801_block_transaction_by_block(priv, data,
- 							 read_write,
--							 command, hwpec);
-+							 command);
- 	else
- 		result = i801_block_transaction_byte_by_byte(priv, data,
- 							     read_write,
--							     command, hwpec);
-+							     command);
- 
- 	if (command == I2C_SMBUS_I2C_BLOCK_DATA
- 	 && read_write == I2C_SMBUS_WRITE) {
-@@ -931,8 +926,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 		       SMBAUXCTL(priv));
- 
- 	if (block)
--		ret = i801_block_transaction(priv, data, read_write, size,
--					     hwpec);
-+		ret = i801_block_transaction(priv, data, read_write, size);
- 	else
- 		ret = i801_transaction(priv, xact);
- 
-@@ -1691,6 +1685,7 @@ static unsigned char i801_setup_hstcfg(struct i801_priv *priv)
- 	unsigned char hstcfg = priv->original_hstcfg;
- 
- 	hstcfg &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
-+	hstcfg &= ~SMBHSTCNT_PEC_EN;	/* Disable software PEC */
- 	hstcfg |= SMBHSTCFG_HST_EN;
- 	pci_write_config_byte(priv->pci_dev, SMBHSTCFG, hstcfg);
- 	return hstcfg;
+ 	switch (ev->status) {
+ 	case 0x00:
++		/* The synchronous connection complete event should only be
++		 * sent once per new connection. Receiving a successful
++		 * complete event when the connection status is already
++		 * BT_CONNECTED means that the device is misbehaving and sent
++		 * multiple complete event packets for the same new connection.
++		 *
++		 * Registering the device more than once can corrupt kernel
++		 * memory, hence upon detecting this invalid event, we report
++		 * an error and ignore the packet.
++		 */
++		if (conn->state == BT_CONNECTED) {
++			bt_dev_err(hdev, "Ignoring connect complete event for existing connection");
++			goto unlock;
++		}
++
+ 		conn->handle = __le16_to_cpu(ev->handle);
+ 		conn->state  = BT_CONNECTED;
+ 		conn->type   = ev->link_type;
 -- 
 2.30.2
 
