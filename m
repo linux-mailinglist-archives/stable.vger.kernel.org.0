@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE234404DDD
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:16:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 431C0404DDF
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344386AbhIIMHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:07:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42000 "EHLO mail.kernel.org"
+        id S1345429AbhIIMHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:07:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344551AbhIIMCU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344659AbhIIMCU (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:02:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABA746142A;
-        Thu,  9 Sep 2021 11:46:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8C4A61875;
+        Thu,  9 Sep 2021 11:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187993;
-        bh=p+dPIwG9V9V2zwpdYIFOMjTOYuq6U/cMiuAugfdolhE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkJsnltyG1pvlHvAjcb3yuSIydpRBt3jGiVBb7EqTHomoDd5ecY3pvbApBqknM+tj
-         KCfh7j4qPqav0wrtvLimJ8/q8Pmfc0Zy/n+Z1ymQDpKQ0RaEjTPP7nqe7EAR9PhUmn
-         WN1PrufqpsYSCTxgDc69jhx7MXkwgQtk3mIYyTMn9L6Kq6apiye77VjAM4MVN4BbaX
-         b5S7dq+dTxWnG/HG5YjPmH3CRR3rJSwzaJsk9VJkdMZhc+kkmWGvA2um80eRaiN4Ev
-         7P3H9nl4qGUNH5CLJxGwwgOTuIHXdr3jhtFfT/EXzBEiWbDQLBFeELgHO8lmtSobUi
-         hYK3KRgIUEH7w==
+        s=k20201202; t=1631187997;
+        bh=X2q7Z1zfpLOSvHYiWSiDtyxDNg4a9cAdNOuSsmS1TqM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=N1t1zxU4wr0wl9bJQLnnD9vOPbx6AzGLg1Mitn3o5j0+8WddOFCCKKlOxKbgbgryM
+         21K7Gql4cR4V9zK3T5MYN2LDTLd3dI1tqhW5ttCnVJ3Q8CbGYYnqzVgN7hebkIZ+LC
+         nM2ygNmsG2mkKiHr/sBLboILU74urylKSyva/1f9BsrT1Bdku8gu3mgdMQEj2SQmlS
+         bgcxEYjjv1kiBpDKirKvaRwcq6wuFysslRrJXtmT1IAkwSiMJXjpMIeQNS2mDE0eUr
+         aP8vCoR0ex74/hIqR5aXXn+ruZV6bXo4VtR7TuVd7ro7zut0soXw1i+lI47YyfftKG
+         xudH+L6wDogLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guojia Liao <liaoguojia@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 252/252] net: hns3: clean up a type mismatch warning
-Date:   Thu,  9 Sep 2021 07:41:06 -0400
-Message-Id: <20210909114106.141462-252-sashal@kernel.org>
+Cc:     Zack Rusin <zackr@vmware.com>,
+        Roland Scheidegger <sroland@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.13 001/219] drm/vmwgfx: Fix subresource updates with new contexts
+Date:   Thu,  9 Sep 2021 07:42:57 -0400
+Message-Id: <20210909114635.143983-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
-References: <20210909114106.141462-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,43 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guojia Liao <liaoguojia@huawei.com>
+From: Zack Rusin <zackr@vmware.com>
 
-[ Upstream commit e79c0e324b011b0288cd411a5b53870a7730f163 ]
+[ Upstream commit a12be0277316ed923411c9c80b2899ee74d2b033 ]
 
-abs() returns signed long, which could not convert the type
-as unsigned, and it may cause a mismatch type warning from
-static tools. To fix it, this patch uses an variable to save
-the abs()'s result and does a explicit conversion.
+The has_dx variable was only set during the initialization which
+meant that UPDATE_SUBRESOURCE was never used. We were emulating it
+with UPDATE_GB_IMAGE but that's always been a stop-gap. Instead
+of has_dx which has been deprecated a long time ago we need to check
+for whether shader model 4.0 or newer is available to the device.
 
-Signed-off-by: Guojia Liao <liaoguojia@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Reviewed-by: Roland Scheidegger <sroland@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210609172307.131929-4-zackr@vmware.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-index c0a478ae9583..0dbed35645ed 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-@@ -10,7 +10,14 @@
- 
- static u16 hclge_errno_to_resp(int errno)
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+index beab3e19d8e2..5ff88f8c2382 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+@@ -1883,7 +1883,6 @@ static void vmw_surface_dirty_range_add(struct vmw_resource *res, size_t start,
+ static int vmw_surface_dirty_sync(struct vmw_resource *res)
  {
--	return abs(errno);
-+	int resp = abs(errno);
-+
-+	/* The status for pf to vf msg cmd is u16, constrainted by HW.
-+	 * We need to keep the same type with it.
-+	 * The intput errno is the stander error code, it's safely to
-+	 * use a u16 to store the abs(errno).
-+	 */
-+	return (u16)resp;
- }
+ 	struct vmw_private *dev_priv = res->dev_priv;
+-	bool has_dx = 0;
+ 	u32 i, num_dirty;
+ 	struct vmw_surface_dirty *dirty =
+ 		(struct vmw_surface_dirty *) res->dirty;
+@@ -1910,7 +1909,7 @@ static int vmw_surface_dirty_sync(struct vmw_resource *res)
+ 	if (!num_dirty)
+ 		goto out;
  
- /* hclge_gen_resp_to_vf: used to generate a synchronous response to VF when PF
+-	alloc_size = num_dirty * ((has_dx) ? sizeof(*cmd1) : sizeof(*cmd2));
++	alloc_size = num_dirty * ((has_sm4_context(dev_priv)) ? sizeof(*cmd1) : sizeof(*cmd2));
+ 	cmd = VMW_CMD_RESERVE(dev_priv, alloc_size);
+ 	if (!cmd)
+ 		return -ENOMEM;
+@@ -1928,7 +1927,7 @@ static int vmw_surface_dirty_sync(struct vmw_resource *res)
+ 		 * DX_UPDATE_SUBRESOURCE is aware of array surfaces.
+ 		 * UPDATE_GB_IMAGE is not.
+ 		 */
+-		if (has_dx) {
++		if (has_sm4_context(dev_priv)) {
+ 			cmd1->header.id = SVGA_3D_CMD_DX_UPDATE_SUBRESOURCE;
+ 			cmd1->header.size = sizeof(cmd1->body);
+ 			cmd1->body.sid = res->id;
 -- 
 2.30.2
 
