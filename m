@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8E4A40557C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DB7640557D
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:33:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354353AbhIINKV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:10:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54042 "EHLO mail.kernel.org"
+        id S1354403AbhIINKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:10:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358573AbhIINHm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358575AbhIINHm (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 09:07:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08628632B5;
-        Thu,  9 Sep 2021 12:00:43 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 232A3632BD;
+        Thu,  9 Sep 2021 12:00:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188844;
-        bh=3nBlNC0oa4+ec5C6EVkNiBlmrpmCOdwiQ3UX1CZGy/c=;
+        s=k20201202; t=1631188845;
+        bh=/0NdX8uBjdpZ7jBf9ecriPIc61rzk1eloMcOr1RCPak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEHVUPwyBGZT7B1LiGtVg36141S9QwDNd0p29jQ3xJzx/d1SRytHT/7ejUICpdnGM
-         hb8wmdKgUYzlTu+AanpGQAvKRCEa34+MSfDwriNCrU0swqslvMjJ/KwA/HnwnKpPjP
-         tjPd0Y+bNwOjGePMOafFYbqgzTVJ4A24SGbfMy9+Ia1xZ5OBJQ7uP2m0KeMrzn5z6U
-         aQNbY1xc3FnD3lsVtYTSXMhMiTMbnyGqZlbGLdVIzFvpVUTqCTON10FGDKdwGNeIiL
-         tu6sNKReNjYTACN70jleGPAhHkZwRC88YIVFZ7clwpQhf7Q/B8NrJkXmPMtOSJboUp
-         DYg/UIYTFG/IA==
+        b=fBf2Pj9Gnyzu1cGtqFLOsdH016eJg4pVR/qD+2htUuxyDmyEtCMaP1Jkj2pgi4H3T
+         y1665P1L//yDBBZ9qHmuc8exruhh9fvuCOARhHclU69U8fMWh0FrBM1n6HVaFcfgjB
+         bGRIjW4rCNVY0AhFDEnkt+yj9HB4hTmMHegiv5vQSWrOfEvufr6E2nbArSGiFJrBV6
+         CqR29dhY84WVe9IETNheR0ZvaQ92B0RcMvBVJ2wk812W1D99mTAXeZGo4WK7QpPkbT
+         O8QfsL4t45vKkA1Mn142OV2vzRPMvG0oJxShKpxv/skMP35f7BnATJ7fHXyDl8WR7a
+         uAyD9kLGkPkUw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Slaby <jslaby@suse.cz>, linuxppc-dev@lists.ozlabs.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 23/48] hvsi: don't panic on tty_register_driver failure
-Date:   Thu,  9 Sep 2021 07:59:50 -0400
-Message-Id: <20210909120015.150411-23-sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Jordy Zomer <jordy@pwning.systems>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 24/48] serial: 8250_pci: make setup_port() parameters explicitly unsigned
+Date:   Thu,  9 Sep 2021 07:59:51 -0400
+Message-Id: <20210909120015.150411-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909120015.150411-1-sashal@kernel.org>
 References: <20210909120015.150411-1-sashal@kernel.org>
@@ -42,70 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 7ccbdcc4d08a6d7041e4849219bbb12ffa45db4c ]
+[ Upstream commit 3a96e97ab4e835078e6f27b7e1c0947814df3841 ]
 
-The alloc_tty_driver failure is handled gracefully in hvsi_init. But
-tty_register_driver is not. panic is called if that one fails.
+The bar and offset parameters to setup_port() are used in pointer math,
+and while it would be very difficult to get them to wrap as a negative
+number, just be "safe" and make them unsigned so that static checkers do
+not trip over them unintentionally.
 
-So handle the failure of tty_register_driver gracefully too. This will
-keep at least the console functional as it was enabled earlier by
-console_initcall in hvsi_console_init. Instead of shooting down the
-whole system.
-
-This means, we disable interrupts and restore hvsi_wait back to
-poll_for_state().
-
-Cc: linuxppc-dev@lists.ozlabs.org
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20210723074317.32690-3-jslaby@suse.cz
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Reported-by: Jordy Zomer <jordy@pwning.systems>
+Link: https://lore.kernel.org/r/20210726130717.2052096-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/hvc/hvsi.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/hvc/hvsi.c b/drivers/tty/hvc/hvsi.c
-index 96ce6bd1cc6f..4b6f93067ae4 100644
---- a/drivers/tty/hvc/hvsi.c
-+++ b/drivers/tty/hvc/hvsi.c
-@@ -1051,7 +1051,7 @@ static const struct tty_operations hvsi_ops = {
+diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
+index a9c46e10d204..550f2f0523d8 100644
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -73,7 +73,7 @@ static void moan_device(const char *str, struct pci_dev *dev)
  
- static int __init hvsi_init(void)
+ static int
+ setup_port(struct serial_private *priv, struct uart_8250_port *port,
+-	   int bar, int offset, int regshift)
++	   u8 bar, unsigned int offset, int regshift)
  {
--	int i;
-+	int i, ret;
- 
- 	hvsi_driver = alloc_tty_driver(hvsi_count);
- 	if (!hvsi_driver)
-@@ -1082,12 +1082,25 @@ static int __init hvsi_init(void)
- 	}
- 	hvsi_wait = wait_for_state; /* irqs active now */
- 
--	if (tty_register_driver(hvsi_driver))
--		panic("Couldn't register hvsi console driver\n");
-+	ret = tty_register_driver(hvsi_driver);
-+	if (ret) {
-+		pr_err("Couldn't register hvsi console driver\n");
-+		goto err_free_irq;
-+	}
- 
- 	printk(KERN_DEBUG "HVSI: registered %i devices\n", hvsi_count);
- 
- 	return 0;
-+err_free_irq:
-+	hvsi_wait = poll_for_state;
-+	for (i = 0; i < hvsi_count; i++) {
-+		struct hvsi_struct *hp = &hvsi_ports[i];
-+
-+		free_irq(hp->virq, hp);
-+	}
-+	tty_driver_kref_put(hvsi_driver);
-+
-+	return ret;
- }
- device_initcall(hvsi_init);
+ 	struct pci_dev *dev = priv->dev;
  
 -- 
 2.30.2
