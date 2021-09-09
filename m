@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC2F7404E29
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 375F4404E2C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242835AbhIIMKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:10:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47664 "EHLO mail.kernel.org"
+        id S239526AbhIIMKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:10:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344145AbhIIMG1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:06:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1E7D615E2;
-        Thu,  9 Sep 2021 11:47:28 +0000 (UTC)
+        id S1344436AbhIIMG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:06:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D765E6124F;
+        Thu,  9 Sep 2021 11:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188049;
-        bh=hXTmkclbLkPq43POKeL3I734PIXlNy0QX0S35lmmUX0=;
+        s=k20201202; t=1631188050;
+        bh=2K+jeZhi6NWGxwSm3736qe8/WFfuxqbpxEPeczVvA9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f7tUcVNO0dVQzW9HfiU8u37kH58dudE87dVDGvAaOp5qd8BrJRgwOdFVR6S6sg+1Z
-         WIXAp/Qo98ryrb12OsGwF8LT5XDkI4R8P6nvK4ezIrA6KtHSXliNe+6OzvRASLRZPi
-         /9EsrqdGBp803IpFw2OKEzvhOog1dDUmuxyquQVaCGiQazAVRiwauTp4TChUe+Gx+B
-         DsH9d8lVV6HikeMHXy6JOcTRTXZLFHyMYNo42QzGeGqgULzEfUuHYFV76tkDTTeEhX
-         njjxQcTCB6MKh0pbyavN3LNfRPrLuNCovmx/ATsEK5/xQK8tCW0u/VQXgtHotFiMGN
-         NltgsxbgjO7YA==
+        b=Z0EpBVsYYj0wtdVDrHaxTcqz81wKc3I2jpp/kw+6VmNavE4bAAorE/8xCPWnfbVfg
+         CXNEPPb2UAw4ZXPbOB++TphW5xhP+0GTu5AhspU8bMnrnESTnqDrpKLIfrFM8Ic5nD
+         uSeSWwJ/JwIiASIVtKdlYzzaQkmNZEqEGXxRaf9Q5ykP/5b18Li8ICfx8QwdWURqiG
+         4Kr1GjbNRl798uzbgIYV4U4gtlF1cd8my5uhtQpefswkCnpxXzwqojye2QaT6M5r5p
+         LmIH0Uf0u08X0KmajB0ukbw+BNwfN49fQM7ks6KMXcj4LLMD+ZTISsgZpkdECExt4Y
+         I+oImYWg6fBtw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Auger <eric.auger@redhat.com>,
+Cc:     Shuah Khan <skhan@linuxfoundation.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.13 042/219] misc/pvpanic-pci: Allow automatic loading
-Date:   Thu,  9 Sep 2021 07:43:38 -0400
-Message-Id: <20210909114635.143983-42-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 043/219] selftests: firmware: Fix ignored return val of asprintf() warn
+Date:   Thu,  9 Sep 2021 07:43:39 -0400
+Message-Id: <20210909114635.143983-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,40 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Auger <eric.auger@redhat.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 28b6a003bcdfa1fc4603b9185b247ecca7af9bef ]
+[ Upstream commit fe968ca2cac91888310b143a483123c84906e3fc ]
 
-The virtual machine monitor (QEMU) exposes the pvpanic-pci
-device to the guest. On guest side the module exists but
-currently isn't loaded automatically. So the driver fails
-to be probed and does not its job of handling guest panic
-events.
+Fix the following ingonred return val of asprintf() warn during
+build:
 
-Instead of requiring manual modprobe, let's include a device
-database using the MODULE_DEVICE_TABLE macro and let the
-module auto-load when the guest gets exposed with such a
-pvpanic-pci device.
+cc -Wall -O2    fw_namespace.c  -o ../tools/testing/selftests/firmware/fw_namespace
+fw_namespace.c: In function ‘main’:
+fw_namespace.c:132:2: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
+  132 |  asprintf(&fw_path, "/lib/firmware/%s", fw_name);
+      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Signed-off-by: Eric Auger <eric.auger@redhat.com>
-Link: https://lore.kernel.org/r/20210629072214.901004-1-eric.auger@redhat.com
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210708031827.51293-1-skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/pvpanic/pvpanic-pci.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/firmware/fw_namespace.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/pvpanic/pvpanic-pci.c b/drivers/misc/pvpanic/pvpanic-pci.c
-index 046ce4ecc195..4a3250564442 100644
---- a/drivers/misc/pvpanic/pvpanic-pci.c
-+++ b/drivers/misc/pvpanic/pvpanic-pci.c
-@@ -119,4 +119,6 @@ static struct pci_driver pvpanic_pci_driver = {
- 	},
- };
+diff --git a/tools/testing/selftests/firmware/fw_namespace.c b/tools/testing/selftests/firmware/fw_namespace.c
+index 0e393cb5f42d..4c6f0cd83c5b 100644
+--- a/tools/testing/selftests/firmware/fw_namespace.c
++++ b/tools/testing/selftests/firmware/fw_namespace.c
+@@ -129,7 +129,8 @@ int main(int argc, char **argv)
+ 		die("mounting tmpfs to /lib/firmware failed\n");
  
-+MODULE_DEVICE_TABLE(pci, pvpanic_pci_id_tbl);
-+
- module_pci_driver(pvpanic_pci_driver);
+ 	sys_path = argv[1];
+-	asprintf(&fw_path, "/lib/firmware/%s", fw_name);
++	if (asprintf(&fw_path, "/lib/firmware/%s", fw_name) < 0)
++		die("error: failed to build full fw_path\n");
+ 
+ 	setup_fw(fw_path);
+ 
 -- 
 2.30.2
 
