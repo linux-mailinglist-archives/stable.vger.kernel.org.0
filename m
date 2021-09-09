@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A12214050D2
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B00444050D5
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351271AbhIIMcM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:32:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34716 "EHLO mail.kernel.org"
+        id S1351356AbhIIMcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:32:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353768AbhIIMYt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:24:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD99D61ABF;
-        Thu,  9 Sep 2021 11:51:30 +0000 (UTC)
+        id S1353779AbhIIMYv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:24:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12D8661AEF;
+        Thu,  9 Sep 2021 11:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188291;
-        bh=oEucGP7KA0TVuE98wc3+iLQVouHdB1vVi2pdgYZ5p3g=;
+        s=k20201202; t=1631188292;
+        bh=l5v/rb/8ioYC6MGBYgVUaNFI8j0ENAXTj6L18sSOvjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLTJhmGEeuMZb7KdTz+C81nFGoZYPQkF1UbfKEC/3B/ybnyJPYznPA6dx3uyhlWN7
-         OABEHAD4Gs0uObt0JtII/RvLYOweFI69hhMCun/xDVyxj8plxPdDLgzIFgkbry2vVC
-         EHRkOxPoUuVDIThlhV4HIhkQewkXyY2rSqVtvZ1LJ67etkLa0AYOfLvHtXRoePKs/Y
-         9bZka33oN+tunna+k1nnzfeTJW77rw7/bX5/PpGmKXl9GYIBDx+RjS2WwQDIi8KkbY
-         3LtFV3NouWv9Q+3lLDsbwhg8CAjSVtS8zAmSWijw8sxvAhwgO83e9btFy5AOL64Gro
-         MgLthg1kgT/bA==
+        b=T4agyw3CpKpGrWtXpTn3CCqmU995X3flz+o6xzUW13NQReHxQd+RXKQ3u5b2lnL7T
+         3cxH+TCYDKtHTeIkCyY8v9jb+d9QlKOn1JOA48bjhNpD6vEzy45Z4OjNyZERXSxXSP
+         2uGuZ8fem785/fYtBnvHLda1GjkQSSOP0zIFKZZevdEJB1TEPKnJrXdLmi1y+YPSzl
+         TCDVwlD0ATvGkTfrc/TQCxvmD5gVCUvTfvcG4sTOrloHfiqY3gIgtIGYyw49CGfNjP
+         q0iIk4Xd+Pb/+Phbh50YYymw2XRQPm1zU+FaI6tdfgnJGrhb8jXoBEwEqcj4/NDeq6
+         c9E582RvYXcFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>, Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 010/176] net: phy: Fix data type in DP83822 dp8382x_disable_wol()
-Date:   Thu,  9 Sep 2021 07:48:32 -0400
-Message-Id: <20210909115118.146181-10-sashal@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        kernel test robot <lkp@intel.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 011/176] iio: dac: ad5624r: Fix incorrect handling of an optional regulator.
+Date:   Thu,  9 Sep 2021 07:48:33 -0400
+Message-Id: <20210909115118.146181-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,46 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 0d6835ffe50c9c1f098b5704394331710b67af48 ]
+[ Upstream commit 97683c851f9cdbd3ea55697cbe2dcb6af4287bbd ]
 
-The last argument of phy_clear_bits_mmd(..., u16 val); is u16 and not
-int, just inline the value into the function call arguments.
+The naming of the regulator is problematic.  VCC is usually a supply
+voltage whereas these devices have a separate VREF pin.
 
-No functional change.
+Secondly, the regulator core might have provided a stub regulator if
+a real regulator wasn't provided. That would in turn have failed to
+provide a voltage when queried. So reality was that there was no way
+to use the internal reference.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In order to avoid breaking any dts out in the wild, make sure to fallback
+to the original vcc naming if vref is not available.
+
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Acked-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210627163244.1090296-9-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83822.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/iio/dac/ad5624r_spi.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/dp83822.c b/drivers/net/phy/dp83822.c
-index a9b058bb1be8..7bf43031cea8 100644
---- a/drivers/net/phy/dp83822.c
-+++ b/drivers/net/phy/dp83822.c
-@@ -305,11 +305,9 @@ static int dp83822_config_intr(struct phy_device *phydev)
+diff --git a/drivers/iio/dac/ad5624r_spi.c b/drivers/iio/dac/ad5624r_spi.c
+index 2b2b8edfd258..ab4997bfd6d4 100644
+--- a/drivers/iio/dac/ad5624r_spi.c
++++ b/drivers/iio/dac/ad5624r_spi.c
+@@ -229,7 +229,7 @@ static int ad5624r_probe(struct spi_device *spi)
+ 	if (!indio_dev)
+ 		return -ENOMEM;
+ 	st = iio_priv(indio_dev);
+-	st->reg = devm_regulator_get(&spi->dev, "vcc");
++	st->reg = devm_regulator_get_optional(&spi->dev, "vref");
+ 	if (!IS_ERR(st->reg)) {
+ 		ret = regulator_enable(st->reg);
+ 		if (ret)
+@@ -240,6 +240,22 @@ static int ad5624r_probe(struct spi_device *spi)
+ 			goto error_disable_reg;
  
- static int dp8382x_disable_wol(struct phy_device *phydev)
- {
--	int value = DP83822_WOL_EN | DP83822_WOL_MAGIC_EN |
--		    DP83822_WOL_SECURE_ON;
--
--	return phy_clear_bits_mmd(phydev, DP83822_DEVADDR,
--				  MII_DP83822_WOL_CFG, value);
-+	return phy_clear_bits_mmd(phydev, DP83822_DEVADDR, MII_DP83822_WOL_CFG,
-+				  DP83822_WOL_EN | DP83822_WOL_MAGIC_EN |
-+				  DP83822_WOL_SECURE_ON);
- }
+ 		voltage_uv = ret;
++	} else {
++		if (PTR_ERR(st->reg) != -ENODEV)
++			return PTR_ERR(st->reg);
++		/* Backwards compatibility. This naming is not correct */
++		st->reg = devm_regulator_get_optional(&spi->dev, "vcc");
++		if (!IS_ERR(st->reg)) {
++			ret = regulator_enable(st->reg);
++			if (ret)
++				return ret;
++
++			ret = regulator_get_voltage(st->reg);
++			if (ret < 0)
++				goto error_disable_reg;
++
++			voltage_uv = ret;
++		}
+ 	}
  
- static int dp83822_read_status(struct phy_device *phydev)
+ 	spi_set_drvdata(spi, indio_dev);
 -- 
 2.30.2
 
