@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3CD44051EB
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE3A4051EA
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354647AbhIIMjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1354651AbhIIMjN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 08:39:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354564AbhIIMfe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1354562AbhIIMfe (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:35:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88BA16138D;
-        Thu,  9 Sep 2021 11:53:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADD206137F;
+        Thu,  9 Sep 2021 11:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188436;
-        bh=tJx5Me14Up6H331wYl0tEsLU0NwA6R6MkytkCBcxx38=;
+        s=k20201202; t=1631188437;
+        bh=wT3iu+1KsIblfmC2Xxu1rpoOWJc5iroPFIXC6zv3PRM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kt7ajq/E25s4RTzaTTidyeBQGenVZUPt2eGOv/18hp4/araqn+KAvC7wg+o1zMUnf
-         SEFYpCRCNHnJObjXF+eVDRKfsoCJ0j9oREdCRQAswhmzIm2wnf3jXDNBA7Lq4EFV0i
-         /ijhcvmmhcR9lK41aghHjynim100PNfBKvEejRfZTShcX5AB2hZQeZSKylHQG/dhHa
-         V/aXabqeksnRdRbw1v3HKjW5it9myYp709bpzgQ+MsmZ96ir+821pDXwQCD3k1LHCI
-         PZ9ERQBnNBsDcajWGYqnKqX/MaRm00CB4nciVE4VWLjBK/YVd9slz9VQU984+1mBIh
-         9KELMZR+UOGYQ==
+        b=L2fQQBi/jr1ww8iWwEN1qh715J79G/FkBw7zhP5T9kY0yVLaPznK/MWBG6dnsOYw1
+         IXAph24upajzLSkTUI6wUOxtqX/Cm9O830pc4vMU0VguXzejxslzWZKoImGg8RUT8v
+         lONF608Aq9ctTdVev0o8wCVyR6GkrZ2C6CV626FwIcQrDM7qaLWwTtwyUghHujAfPL
+         +4Q9ELKJVqXXbNNuZPG5GNncHFcMxIWMSye+W0++JuLMv77h0oRJCFVTfVTA3igh26
+         6HG47KC8z2L4naJoxxWHB0mtlZd87drFSya7u64+wLK1Lc0FcmQmZP9UobYcm1uTVd
+         A3gXBjgZqVe8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brandon Wyman <bjwyman@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 122/176] hwmon: (pmbus/ibm-cffps) Fix write bits for LED control
-Date:   Thu,  9 Sep 2021 07:50:24 -0400
-Message-Id: <20210909115118.146181-122-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-staging@lists.linux.dev, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 123/176] staging: rts5208: Fix get_ms_information() heap buffer size
+Date:   Thu,  9 Sep 2021 07:50:25 -0400
+Message-Id: <20210909115118.146181-123-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -42,40 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brandon Wyman <bjwyman@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 76b72736f574ec38b3e94603ea5f74b1853f26b0 ]
+[ Upstream commit cbe34165cc1b7d1110b268ba8b9f30843c941639 ]
 
-When doing a PMBus write for the LED control on the IBM Common Form
-Factor Power Supplies (ibm-cffps), the DAh command requires that bit 7
-be low and bit 6 be high in order to indicate that you are truly
-attempting to do a write.
+Fix buf allocation size (it needs to be 2 bytes larger). Found when
+__alloc_size() annotations were added to kmalloc() interfaces.
 
-Signed-off-by: Brandon Wyman <bjwyman@gmail.com>
-Link: https://lore.kernel.org/r/20210806225131.1808759-1-bjwyman@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+In file included from ./include/linux/string.h:253,
+                 from ./include/linux/bitmap.h:10,
+                 from ./include/linux/cpumask.h:12,
+                 from ./arch/x86/include/asm/paravirt.h:17,
+                 from ./arch/x86/include/asm/irqflags.h:63,
+                 from ./include/linux/irqflags.h:16,
+                 from ./include/linux/rcupdate.h:26,
+                 from ./include/linux/rculist.h:11,
+                 from ./include/linux/pid.h:5,
+                 from ./include/linux/sched.h:14,
+                 from ./include/linux/blkdev.h:5,
+                 from drivers/staging/rts5208/rtsx_scsi.c:12:
+In function 'get_ms_information',
+    inlined from 'ms_sp_cmnd' at drivers/staging/rts5208/rtsx_scsi.c:2877:12,
+    inlined from 'rtsx_scsi_handler' at drivers/staging/rts5208/rtsx_scsi.c:3247:12:
+./include/linux/fortify-string.h:54:29: warning: '__builtin_memcpy' forming offset [106, 107] is out
+ of the bounds [0, 106] [-Warray-bounds]
+   54 | #define __underlying_memcpy __builtin_memcpy
+      |                             ^
+./include/linux/fortify-string.h:417:2: note: in expansion of macro '__underlying_memcpy'
+  417 |  __underlying_##op(p, q, __fortify_size);   \
+      |  ^~~~~~~~~~~~~
+./include/linux/fortify-string.h:463:26: note: in expansion of macro '__fortify_memcpy_chk'
+  463 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,   \
+      |                          ^~~~~~~~~~~~~~~~~~~~
+drivers/staging/rts5208/rtsx_scsi.c:2851:3: note: in expansion of macro 'memcpy'
+ 2851 |   memcpy(buf + i, ms_card->raw_sys_info, 96);
+      |   ^~~~~~
+
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-staging@lists.linux.dev
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210818044252.1533634-1-keescook@chromium.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/ibm-cffps.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/rts5208/rtsx_scsi.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hwmon/pmbus/ibm-cffps.c b/drivers/hwmon/pmbus/ibm-cffps.c
-index 2fb7540ee952..79bc2032dcb2 100644
---- a/drivers/hwmon/pmbus/ibm-cffps.c
-+++ b/drivers/hwmon/pmbus/ibm-cffps.c
-@@ -50,9 +50,9 @@
- #define CFFPS_MFR_VAUX_FAULT			BIT(6)
- #define CFFPS_MFR_CURRENT_SHARE_WARNING		BIT(7)
+diff --git a/drivers/staging/rts5208/rtsx_scsi.c b/drivers/staging/rts5208/rtsx_scsi.c
+index 1deb74112ad4..11d9d9155eef 100644
+--- a/drivers/staging/rts5208/rtsx_scsi.c
++++ b/drivers/staging/rts5208/rtsx_scsi.c
+@@ -2802,10 +2802,10 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
+ 	}
  
--#define CFFPS_LED_BLINK				BIT(0)
--#define CFFPS_LED_ON				BIT(1)
--#define CFFPS_LED_OFF				BIT(2)
-+#define CFFPS_LED_BLINK				(BIT(0) | BIT(6))
-+#define CFFPS_LED_ON				(BIT(1) | BIT(6))
-+#define CFFPS_LED_OFF				(BIT(2) | BIT(6))
- #define CFFPS_BLINK_RATE_MS			250
+ 	if (dev_info_id == 0x15) {
+-		buf_len = 0x3A;
++		buf_len = 0x3C;
+ 		data_len = 0x3A;
+ 	} else {
+-		buf_len = 0x6A;
++		buf_len = 0x6C;
+ 		data_len = 0x6A;
+ 	}
  
- enum {
+@@ -2855,11 +2855,7 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
+ 	}
+ 
+ 	rtsx_stor_set_xfer_buf(buf, buf_len, srb);
+-
+-	if (dev_info_id == 0x15)
+-		scsi_set_resid(srb, scsi_bufflen(srb) - 0x3C);
+-	else
+-		scsi_set_resid(srb, scsi_bufflen(srb) - 0x6C);
++	scsi_set_resid(srb, scsi_bufflen(srb) - buf_len);
+ 
+ 	kfree(buf);
+ 	return STATUS_SUCCESS;
 -- 
 2.30.2
 
