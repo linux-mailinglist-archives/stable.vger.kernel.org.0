@@ -2,105 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9F140569C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:37:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B3AE40575B
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352472AbhIINUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:20:47 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:54084 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356944AbhIINPA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 09:15:00 -0400
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 938501FDEE;
-        Thu,  9 Sep 2021 13:13:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1631193227; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=pFMRfoyR43hfi0VWujmUi6zgOxK+wVXStaOWAPl9ihk=;
-        b=jwKuuIPjmKLoBl9qRZBKB49VW4UfAudv/rGnMyjKgBqPkpmrFqAOXvMM1+HsncTPIFyjLG
-        UiDZJT/R9vrZyXHupExniDumvyGKGJvCfCBpsa80aGmMpDEj3K4weQaS47ndkZeu/EiaZN
-        TRUZCzHzOZZcl2h+4MwOhVbdwy0qYR8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1631193227;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=pFMRfoyR43hfi0VWujmUi6zgOxK+wVXStaOWAPl9ihk=;
-        b=baFrK6w72S8VISeLlLZ1TZebCQin7lJIg4i8J+4B6Hlg2+qdOH9YOKCCx4rUfiZHL1MTLm
-        pR13G4mWYUcgyqCw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3A5B513B36;
-        Thu,  9 Sep 2021 13:13:47 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id KFuqC4sIOmFKDwAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Thu, 09 Sep 2021 13:13:47 +0000
-Date:   Thu, 9 Sep 2021 15:13:20 +0200
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.14 088/252] i2c: i801: Fix handling
- SMBHSTCNT_PEC_EN
-Message-ID: <20210909151320.7bddd134@endymion>
-In-Reply-To: <20210909114106.141462-88-sashal@kernel.org>
-References: <20210909114106.141462-1-sashal@kernel.org>
-        <20210909114106.141462-88-sashal@kernel.org>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; x86_64-suse-linux-gnu)
+        id S1357638AbhIINdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:33:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40718 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1358060AbhIINbv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 09:31:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66ED360555;
+        Thu,  9 Sep 2021 13:30:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631194241;
+        bh=TwE5ieLltQT1dAuj4+qxelD1xElQNJNdGPiXzXPxTtc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OkVimI2MX61gciZOGFagbIvRicVWt2kjUC3pBlGR6Thu8KIKMZUuc6lt6umQLcnhN
+         CPolFhE+gHMNMNElNUlmG87gH2rJc3YnXdO4RrLeLMSCtSbWSUAj/qXEiPD0W8TvfG
+         UfzOmR8BvpPPagcO7xjHJnR1TmANlewHTahS+pxU=
+Date:   Thu, 9 Sep 2021 15:30:39 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Haakon Bugge <haakon.bugge@oracle.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Linux-Net <netdev@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Doug Ledford <dledford@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        OFED mailing list <linux-rdma@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Guillaume Nault <gnault@redhat.com>
+Subject: Re: Please add 2dce224f469f ("netns: protect netns ID lookups with
+ RCU") to LTS
+Message-ID: <YToMf8zUVNVDCAKX@kroah.com>
+References: <7F058034-8A2B-4C19-A39E-12B0DB117328@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7F058034-8A2B-4C19-A39E-12B0DB117328@oracle.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sascha,
+On Thu, Sep 09, 2021 at 01:10:05PM +0000, Haakon Bugge wrote:
+> Hi Greg & Sasha,
+> 
+> 
+> tl;dr: Please add 2dce224f469f ("netns: protect netns ID lookups with
+> RCU") to the stable releases from v5.4 and older. It fixes a
+> spin_unlock_bh() in peernet2id() called with IRQs off. I think this
+> neat side-effect of commit 2dce224f469f was quite un-intentional,
+> hence no Fixes: tag or CC: stable.
 
-On Thu,  9 Sep 2021 07:38:22 -0400, Sasha Levin wrote:
-> From: Heiner Kallweit <hkallweit1@gmail.com>
-> 
-> [ Upstream commit a6b8bb6a813a6621c75ceacd1fa604c0229e9624 ]
-> 
-> Bit SMBHSTCNT_PEC_EN is used only if software calculates the CRC and
-> uses register SMBPEC. This is not supported by the driver, it supports
-> hw-calculation of CRC only (using bit SMBAUXSTS_CRCE). The chip spec
-> states the following, therefore never set bit SMBHSTCNT_PEC_EN.
-> 
-> Chapter SMBus CRC Generation and Checking
-> If the AAC bit is set in the Auxiliary Control register, the PCH
-> automatically calculates and drives CRC at the end of the transmitted
-> packet for write cycles, and will check the CRC for read cycles. It will
-> not transmit the contents of the PEC register for CRC. The PEC bit must
-> not be set in the Host Control register. If this bit is set, unspecified
-> behavior will result.
-> 
-> This patch is based solely on the specification and compile-tested only,
-> because I have no PEC-capable devices.
-> 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-> Tested-by: Jean Delvare <jdelvare@suse.de>
-> Signed-off-by: Wolfram Sang <wsa@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/i2c/busses/i2c-i801.c | 27 +++++++++++----------------
->  1 file changed, 11 insertions(+), 16 deletions(-)
+Please provide a working backport for all of the relevant kernel
+verisons, as it does not apply cleanly on it's own.
 
-This patch fixes a theoretical problem nobody has ever complained
-about. I don't think it makes sense to backport it to stable kernel
-branches.
+thanks,
 
--- 
-Jean Delvare
-SUSE L3 Support
+greg k-h
