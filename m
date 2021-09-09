@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 048264051C4
+	by mail.lfdr.de (Postfix) with ESMTP id C069D4051C6
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350026AbhIIMid (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:38:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38684 "EHLO mail.kernel.org"
+        id S1352690AbhIIMie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:38:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352577AbhIIMdC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:33:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 863F26121F;
-        Thu,  9 Sep 2021 11:53:17 +0000 (UTC)
+        id S1352572AbhIIMdD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:33:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E955661B4E;
+        Thu,  9 Sep 2021 11:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188398;
-        bh=OI88V02O3GL5gnQ2QJxBzWTWFq16QC+HazGDLHHH7YI=;
+        s=k20201202; t=1631188399;
+        bh=OYyROW1PCq+7mdbfs6tCayDgsBg4hoE91IZ4MGRMzWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUfi3ix9ohkNu31J0Ma7WzOt6f5jiVDnFaXG61ZRK7VDKTjrFxaGdWAj+oYia4TdK
-         +ln2r24PvzZf0xE4agvTWmLU2InzWaCpzWZnHh5FpdatJfZo8eX3awOav1fIPwl3UT
-         yNiUaeMxhU+YJSOfxfvqMZPdigRbpiRF04zS4ALN798IUJUvtyKLYdLvTx25hLEIDt
-         U2uA3waw8DPKPmfFM/XilGUVq5+PxAKWy7iraXetaX5TlUcHcE9k1Oi48/GyN7lfj6
-         GCl4BgVCVeR0InJczbEMiC2pZ0sbFsb2TpPVHjoccU3JxRmSEWQ/BYSmMalDIZc7Je
-         YHyJPr0u1E6yA==
+        b=WTuJrfd48St1OxtPb6/R16FoOY7EfOqnaAAg97Yfy8+YBt2fJOJdSZxQfAUjRNRlk
+         k4RwuJLxSGBCrOfPgLevTaik9i+dcOgDi3Hs9/7P4FIXc/nNjEVgKf9GYkJx/sqNFP
+         rBcN0BYVZrUSTeRw2q/Fb1AEJJfC0dXw2q+JsjN4P2mL2BjyHyr6zpdY17TC52gSOt
+         iBpXHcFhugjSJ1jxBRewv5MzfemDBjVOxMCuOArINBMo8szegyTlHhe3ZUESfSAn3k
+         HxFkqKU0LiUUmDIATKVInqRI7UijYDKMMOmCvLEEt2y13eudSHebMoqxceLf7tLIJd
+         uCMiWFXCHRScQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 093/176] drm/msm/dsi: Fix DSI and DSI PHY regulator config from SDM660
-Date:   Thu,  9 Sep 2021 07:49:55 -0400
-Message-Id: <20210909115118.146181-93-sashal@kernel.org>
+Cc:     Quanyang Wang <quanyang.wang@windriver.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 094/176] drm: xlnx: zynqmp_dpsub: Call pm_runtime_get_sync before setting pixel clock
+Date:   Thu,  9 Sep 2021 07:49:56 -0400
+Message-Id: <20210909115118.146181-94-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -44,48 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ Upstream commit 462f7017a6918d152870bfb8852f3c70fd74b296 ]
+[ Upstream commit a19effb6dbe5bd1be77a6d68eba04dba8993ffeb ]
 
-VDDA is not present and the specified load value is wrong. Fix it.
+The Runtime PM subsystem will force the device "fd4a0000.zynqmp-display"
+to enter suspend state while booting if the following conditions are met:
+- the usage counter is zero (pm_runtime_get_sync hasn't been called yet)
+- no 'active' children (no zynqmp-dp-snd-xx node under dpsub node)
+- no other device in the same power domain (dpdma node has no
+		"power-domains = <&zynqmp_firmware PD_DP>" property)
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Link: https://lore.kernel.org/r/20210728222057.52641-1-konrad.dybcio@somainline.org
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+So there is a scenario as below:
+1) DP device enters suspend state   <- call zynqmp_gpd_power_off
+2) zynqmp_disp_crtc_setup_clock	    <- configurate register VPLL_FRAC_CFG
+3) pm_runtime_get_sync		    <- call zynqmp_gpd_power_on and clear previous
+				       VPLL_FRAC_CFG configuration
+4) clk_prepare_enable(disp->pclk)   <- enable failed since VPLL_FRAC_CFG
+				       configuration is corrupted
+
+From above, we can see that pm_runtime_get_sync may clear register
+VPLL_FRAC_CFG configuration and result the failure of clk enabling.
+Putting pm_runtime_get_sync at the very beginning of the function
+zynqmp_disp_crtc_atomic_enable can resolve this issue.
+
+Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_cfg.c          | 1 -
- drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c | 2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/xlnx/zynqmp_disp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_cfg.c b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-index b2ff68a15791..d255bea87ca4 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-@@ -158,7 +158,6 @@ static const struct msm_dsi_config sdm660_dsi_cfg = {
- 	.reg_cfg = {
- 		.num = 2,
- 		.regs = {
--			{"vdd", 73400, 32 },	/* 0.9 V */
- 			{"vdda", 12560, 4 },	/* 1.2 V */
- 		},
- 	},
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-index 519400501bcd..1ca9e73c6e07 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-@@ -168,7 +168,7 @@ const struct msm_dsi_phy_cfg dsi_phy_14nm_660_cfgs = {
- 	.reg_cfg = {
- 		.num = 1,
- 		.regs = {
--			{"vcca", 17000, 32},
-+			{"vcca", 73400, 32},
- 		},
- 	},
- 	.ops = {
+diff --git a/drivers/gpu/drm/xlnx/zynqmp_disp.c b/drivers/gpu/drm/xlnx/zynqmp_disp.c
+index 8cd8af35cfaa..205c72a249b7 100644
+--- a/drivers/gpu/drm/xlnx/zynqmp_disp.c
++++ b/drivers/gpu/drm/xlnx/zynqmp_disp.c
+@@ -1447,9 +1447,10 @@ zynqmp_disp_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	struct drm_display_mode *adjusted_mode = &crtc->state->adjusted_mode;
+ 	int ret, vrefresh;
+ 
++	pm_runtime_get_sync(disp->dev);
++
+ 	zynqmp_disp_crtc_setup_clock(crtc, adjusted_mode);
+ 
+-	pm_runtime_get_sync(disp->dev);
+ 	ret = clk_prepare_enable(disp->pclk);
+ 	if (ret) {
+ 		dev_err(disp->dev, "failed to enable a pixel clock\n");
 -- 
 2.30.2
 
