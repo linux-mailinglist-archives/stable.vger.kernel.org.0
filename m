@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B5E540507E
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0B76405081
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353169AbhIIM2C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:28:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34530 "EHLO mail.kernel.org"
+        id S1353216AbhIIM2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:28:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346102AbhIIMYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346048AbhIIMYO (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:24:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFC9161AFB;
-        Thu,  9 Sep 2021 11:51:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35B5061AEE;
+        Thu,  9 Sep 2021 11:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188281;
-        bh=66PsxHGFF27Jtkv9Tx0NBeYhrP2C21IWHYups0lC3cM=;
+        s=k20201202; t=1631188283;
+        bh=9apz7idIxDy+44QrOdSGvr+lOz8rYBuGfzSTpeH8J1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzeErnJQGc6ApPTB2vJeajUp5fRjdyRui1eC6DWvPoKYVwKFD/FyL5Vv4IDIFIl3u
-         Q0cMBfkhlUYkQWN2t6cTLRKTWYfC3dSWIG43ma+1rUR2nw2PL6Ejrz6R/jo6ck8n7Q
-         /wvd5eR8JjyTDJxG/x6wCnHaMVhs/ic+4QTuqmFVGIsKkmjz/vw2kaacYqpvHoltAZ
-         cutnonBbKtDYbi8pkdHQNi67IIqSjHoTzhpHh2QKRbcx2wQ89mMeSiV/eFpWHoMeS5
-         7s9l0IUeMGN4NuJSiKTRvwWCGVUTOQzUYanhqXa2le9Ksh3ETS1BThzsIVhZmpdj1x
-         xccX9RA4EOwYA==
+        b=sXOARs8cqZlKAVBteE5rE4IyxCZqyIbvWIQe5YVg8/CZBnnU4JCvnZqZYoN/bq2Qm
+         8kt5tuZl7pFaBnjazkbewlQliPJ1wU2S1jS/gAtc9osdcfXZ2cEgrxF7r2StxJcB1F
+         tbuB1zTFP8TOSkj+hH1WfGoTmfnZwrRUzy55DTeaUft/QAYeRwqgPJR215Z8SHQhgJ
+         RcSXDUi90CicI/Mx21Vqrtv8e3lZo/s4YQAlopkBpAofqwzL93OV5jm+qhKc9aYASw
+         jNJEZgx0wKQ1/vEDWoJcMHZKtkmyRyfX5Vp7fyrgxso1bcFSqlK1yBCU7eWduMpXRH
+         SZuuw8baVo8kw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luben Tuikov <luben.tuikov@amd.com>,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        Alexander Deucher <Alexander.Deucher@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 002/176] drm/amdgpu: Fix amdgpu_ras_eeprom_init()
-Date:   Thu,  9 Sep 2021 07:48:24 -0400
-Message-Id: <20210909115118.146181-2-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 003/176] ASoC: atmel: ATMEL drivers don't need HAS_DMA
+Date:   Thu,  9 Sep 2021 07:48:25 -0400
+Message-Id: <20210909115118.146181-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -45,37 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luben Tuikov <luben.tuikov@amd.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit dce4400e6516d18313d23de45b5be8a18980b00e ]
+[ Upstream commit 6c5c659dfe3f02e08054a6c20019e3886618b512 ]
 
-No need to account for the 2 bytes of EEPROM
-address--this is now well abstracted away by
-the fixes the the lower layers.
+On a config (such as arch/sh/) which does not set HAS_DMA when MMU
+is not set, several ATMEL ASoC drivers select symbols that cause
+kconfig warnings. There is one "depends on HAS_DMA" which is no longer
+needed. Dropping it eliminates the kconfig warnings and still builds
+with no problems reported.
 
-Cc: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Cc: Alexander Deucher <Alexander.Deucher@amd.com>
-Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
-Acked-by: Alexander Deucher <Alexander.Deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fix the following kconfig warnings:
+
+WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_PDC
+  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && HAS_DMA [=n]
+  Selected by [m]:
+  - SND_ATMEL_SOC_SSC [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m]
+  - SND_ATMEL_SOC_SSC_PDC [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m]
+
+WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_SSC_PDC
+  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m] && HAS_DMA [=n]
+  Selected by [m]:
+  - SND_AT91_SOC_SAM9G20_WM8731 [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && (ARCH_AT91 || COMPILE_TEST [=y]) && ATMEL_SSC [=m] && SND_SOC_I2C_AND_SPI [=m]
+
+WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_SSC
+  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && HAS_DMA [=n]
+  Selected by [m]:
+  - SND_ATMEL_SOC_SSC_DMA [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m]
+
+WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_SSC_DMA
+  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m] && HAS_DMA [=n]
+  Selected by [m]:
+  - SND_ATMEL_SOC_WM8904 [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && (ARCH_AT91 || COMPILE_TEST [=y]) && ATMEL_SSC [=m] && I2C [=m]
+  - SND_AT91_SOC_SAM9X5_WM8731 [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && (ARCH_AT91 || COMPILE_TEST [=y]) && ATMEL_SSC [=m] && SND_SOC_I2C_AND_SPI [=m]
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210707214752.3831-1-rdunlap@infradead.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/atmel/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-index 0e64c39a2372..7c3efc5f1be0 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-@@ -305,7 +305,7 @@ int amdgpu_ras_eeprom_init(struct amdgpu_ras_eeprom_control *control,
- 		return ret;
- 	}
+diff --git a/sound/soc/atmel/Kconfig b/sound/soc/atmel/Kconfig
+index 142373ec411a..89210048e6c2 100644
+--- a/sound/soc/atmel/Kconfig
++++ b/sound/soc/atmel/Kconfig
+@@ -11,7 +11,6 @@ if SND_ATMEL_SOC
  
--	__decode_table_header_from_buff(hdr, &buff[2]);
-+	__decode_table_header_from_buff(hdr, buff);
+ config SND_ATMEL_SOC_PDC
+ 	bool
+-	depends on HAS_DMA
  
- 	if (hdr->header == EEPROM_TABLE_HDR_VAL) {
- 		control->num_recs = (hdr->tbl_size - EEPROM_TABLE_HEADER_SIZE) /
+ config SND_ATMEL_SOC_DMA
+ 	bool
 -- 
 2.30.2
 
