@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC49940512B
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE851405129
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:43:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352791AbhIIMdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:33:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39870 "EHLO mail.kernel.org"
+        id S1352765AbhIIMdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:33:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354450AbhIIMa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1354452AbhIIMa7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:30:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0B6B61B25;
-        Thu,  9 Sep 2021 11:52:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43D6A61B52;
+        Thu,  9 Sep 2021 11:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188369;
-        bh=opPQvsaqq05YFp1N638z2xloNORdfxIv4P6L3HMaW9Q=;
+        s=k20201202; t=1631188371;
+        bh=GZ/gu4APEh9rZOKYqejC3pLIFSjaRRfjmwKlj7WFA9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G7klsRTYCZCB2SjnJLDlLmFP2TVb6E4alECdYryHePA9YG5bPDOGEyfsuCJuANZwa
-         X6k4DDyV2CZ+kX74MpCm/W9D0iKthBOWBUg2aWV/Cx6LEs1BgRCTFddwY7CL55vdD4
-         mD6Siv8LYJsIlPAKW97JntRNtAcVoNH8xmINuhySIBMKYWWQzt94mnwsawCakvr6Ms
-         bR8IrcLXJOKUXvT7zVH9VCT360zUqIkEq+Bo9RoUUCw5VxfnuyQzyuKvE0N4lTq25y
-         QW+Ddt023LkE4nwwYdOh37TSvzXd0x5QSq8Jo46Uc6Qw20lKmmL2kGJ8Z6r8zgmq46
-         hQh5HdSKH8DDg==
+        b=YCx73X4DHqt6ezn/0IKtrEEKzuMSg3eOtZAyJ/XXJQLLINiqM9+SqmiCKhV4/jHJR
+         nQbxLM5eB4kjQFkEsIAkzzwJOxQrJxKELsth65DXijhJvhdDYN3hPP3H0mTObhSCvY
+         OTFsqOVk3gYhOJfwYMJbq/QIFuVNUu3mX4GiFKCL8P2Gjjkmfhew6fKmEnyeNV1Zz2
+         MbizhGAaohDu4Kf6fu7TTxedQig2hHSuX6LQvznEgSsBiSxvn3yymya2h2SloGkWfS
+         jo3/hupgP8dzpOnJ5x+I3BoBmeuRQTZqdD36yfbzm84TJcDcWpxHeQMMWd30uFkd0/
+         52MVntT779C2A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 071/176] bpf: Fix off-by-one in tail call count limiting
-Date:   Thu,  9 Sep 2021 07:49:33 -0400
-Message-Id: <20210909115118.146181-71-sashal@kernel.org>
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.10 072/176] ASoC: Intel: update sof_pcm512x quirks
+Date:   Thu,  9 Sep 2021 07:49:34 -0400
+Message-Id: <20210909115118.146181-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -43,36 +43,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit b61a28cf11d61f512172e673b8f8c4a6c789b425 ]
+[ Upstream commit 22414cade8dfec25ab94df52b3a4f7aa8edb6120 ]
 
-Before, the interpreter allowed up to MAX_TAIL_CALL_CNT + 1 tail calls.
-Now precisely MAX_TAIL_CALL_CNT is allowed, which is in line with the
-behavior of the x86 JITs.
+The default SOF topology enables SSP capture and DMICs, even though
+both of these hardware capabilities are not always available in
+hardware (specific versions of HiFiberry and DMIC kit needed).
 
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210728164741.350370-1-johan.almbladh@anyfinetworks.com
+For the SSP capture, this leads to annoying "SP5-Codec: ASoC: no
+backend capture" and "streamSSP5-Codec: ASoC: no users capture at
+close - state 0" errors.
+
+Update the quirks to match what the topology needs, which also allows
+for the ability to remove SSP capture and DMIC support.
+
+BugLink: https://github.com/thesofproject/linux/issues/3061
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Link: https://lore.kernel.org/r/20210802152151.15832-4-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/boards/sof_pcm512x.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index d12efb2550d3..f25b23fddbee 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -1565,7 +1565,7 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
+diff --git a/sound/soc/intel/boards/sof_pcm512x.c b/sound/soc/intel/boards/sof_pcm512x.c
+index d2b0456236c7..bdd671f07659 100644
+--- a/sound/soc/intel/boards/sof_pcm512x.c
++++ b/sound/soc/intel/boards/sof_pcm512x.c
+@@ -26,11 +26,16 @@
  
- 		if (unlikely(index >= array->map.max_entries))
- 			goto out;
--		if (unlikely(tail_call_cnt > MAX_TAIL_CALL_CNT))
-+		if (unlikely(tail_call_cnt >= MAX_TAIL_CALL_CNT))
- 			goto out;
+ #define SOF_PCM512X_SSP_CODEC(quirk)		((quirk) & GENMASK(3, 0))
+ #define SOF_PCM512X_SSP_CODEC_MASK			(GENMASK(3, 0))
++#define SOF_PCM512X_ENABLE_SSP_CAPTURE		BIT(4)
++#define SOF_PCM512X_ENABLE_DMIC			BIT(5)
  
- 		tail_call_cnt++;
+ #define IDISP_CODEC_MASK	0x4
+ 
+ /* Default: SSP5 */
+-static unsigned long sof_pcm512x_quirk = SOF_PCM512X_SSP_CODEC(5);
++static unsigned long sof_pcm512x_quirk =
++	SOF_PCM512X_SSP_CODEC(5) |
++	SOF_PCM512X_ENABLE_SSP_CAPTURE |
++	SOF_PCM512X_ENABLE_DMIC;
+ 
+ static bool is_legacy_cpu;
+ 
+@@ -245,8 +250,9 @@ static struct snd_soc_dai_link *sof_card_dai_links_create(struct device *dev,
+ 	links[id].dpcm_playback = 1;
+ 	/*
+ 	 * capture only supported with specific versions of the Hifiberry DAC+
+-	 * links[id].dpcm_capture = 1;
+ 	 */
++	if (sof_pcm512x_quirk & SOF_PCM512X_ENABLE_SSP_CAPTURE)
++		links[id].dpcm_capture = 1;
+ 	links[id].no_pcm = 1;
+ 	links[id].cpus = &cpus[id];
+ 	links[id].num_cpus = 1;
+@@ -381,6 +387,9 @@ static int sof_audio_probe(struct platform_device *pdev)
+ 
+ 	ssp_codec = sof_pcm512x_quirk & SOF_PCM512X_SSP_CODEC_MASK;
+ 
++	if (!(sof_pcm512x_quirk & SOF_PCM512X_ENABLE_DMIC))
++		dmic_be_num = 0;
++
+ 	/* compute number of dai links */
+ 	sof_audio_card_pcm512x.num_links = 1 + dmic_be_num + hdmi_num;
+ 
 -- 
 2.30.2
 
