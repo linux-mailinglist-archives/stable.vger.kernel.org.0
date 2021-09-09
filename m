@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C2A405565
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D5D9405567
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:33:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358853AbhIINJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:09:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43556 "EHLO mail.kernel.org"
+        id S1358863AbhIINJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:09:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357525AbhIINBk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1357523AbhIINBk (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 09:01:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BDAC63287;
-        Thu,  9 Sep 2021 11:59:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F49063285;
+        Thu,  9 Sep 2021 11:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188768;
-        bh=7Wns3l9gX+H590DCvppk6lTmRGB+Hss0HwLW9cHwN+0=;
+        s=k20201202; t=1631188770;
+        bh=Sen3VESj6Px/2robRFgre7iwCu/+5nbXyuniCVSJ6GY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LbjS3rNzN2YCMQ2j9j7OZ6HuKM4Mxw+8scrbcU9BnIY7+5SjrAhmTVAPv31XvZyIZ
-         ihCcN5ly3ng2GaxpuaBHi27qMTX1Bp9QAJkciB4yz9EoOwohf0nQ0PziiIhmDuRzQP
-         lU9FOyVBgOLJE4Up5NCGReVC1Us0VS9SH6D8rJXB58IuM5m/YSjJobW2yhmClAEyUB
-         IDl7jGo/lK0LQd3bPM/oLWMTGn4y51KHPC0FaNeOxGOeSI0+qn3qrNPL4TDsvXMQeE
-         yIMF7WCUzntccVJGXHT3dy160I2zB4jr9rUnPiojkjpiSNfkfmzVq/tHMMO0LyGhaM
-         Z3z5eCD4Fn0fA==
+        b=ewrK79SDSEBIAg2/tb/3pOo8h2yV64EXADaKiMm5L4l4NUhIj1zvcAC/PmUZNNsWx
+         jsoKYBB9UGexhvcfMYR6EJnTJiYNM0hEmZziSFMyIycdwfQ/50Mg5bC8Ucku1n2D+m
+         PzOY4CeMOJ1did6NAEIpxX0rWednWf9PB0tNNVRH9dE923w2KaT8RkLh/mvyu0K2J3
+         Q/Aq9svsfyJHOLFb5yu2nxTgYb0nrmEolL8RDb8OoAv9H9AbcVOxMmFLhOSzHQAtaM
+         METNvfcdCrh7kgNOUg1nYIIj8WGE2broFucftK0/2ySwDdDmCWoNsEYa9F5MulXgbf
+         SDBDQ61fYmVag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 22/59] s390/jump_label: print real address in a case of a jump label bug
-Date:   Thu,  9 Sep 2021 07:58:23 -0400
-Message-Id: <20210909115900.149795-22-sashal@kernel.org>
+Cc:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 23/59] serial: 8250: Define RX trigger levels for OxSemi 950 devices
+Date:   Thu,  9 Sep 2021 07:58:24 -0400
+Message-Id: <20210909115900.149795-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115900.149795-1-sashal@kernel.org>
 References: <20210909115900.149795-1-sashal@kernel.org>
@@ -41,33 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
 
-[ Upstream commit 5492886c14744d239e87f1b0b774b5a341e755cc ]
+[ Upstream commit d7aff291d069c4418285f3c8ee27b0ff67ce5998 ]
 
-In case of a jump label print the real address of the piece of code
-where a mismatch was detected. This is right before the system panics,
-so there is nothing revealed.
+Oxford Semiconductor 950 serial port devices have a 128-byte FIFO and in
+the enhanced (650) mode, which we select in `autoconfig_has_efr' with
+the ECB bit set in the EFR register, they support the receive interrupt
+trigger level selectable with FCR bits 7:6 from the set of 16, 32, 112,
+120.  This applies to the original OX16C950 discrete UART[1] as well as
+950 cores embedded into more complex devices.
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+For these devices we set the default to 112, which sets an excessively
+high level of 112 or 7/8 of the FIFO capacity, unlike with other port
+types where we choose at most 1/2 of their respective FIFO capacities.
+Additionally we don't make the trigger level configurable.  Consequently
+frequent input overruns happen with high bit rates where hardware flow
+control cannot be used (e.g. terminal applications) even with otherwise
+highly-performant systems.
+
+Lower the default receive interrupt trigger level to 32 then, and make
+it configurable.  Document the trigger levels along with other port
+types, including the set of 16, 32, 64, 112 for the transmit interrupt
+as well[2].
+
+References:
+
+[1] "OX16C950 rev B High Performance UART with 128 byte FIFOs", Oxford
+    Semiconductor, Inc., DS-0031, Sep 05, Table 10: "Receiver Trigger
+    Levels", p. 22
+
+[2] same, Table 9: "Transmit Interrupt Trigger Levels", p. 22
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260608480.37803@angie.orcam.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/jump_label.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_port.c | 3 ++-
+ include/uapi/linux/serial_reg.h     | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/jump_label.c b/arch/s390/kernel/jump_label.c
-index 43f8430fb67d..608b363cd35b 100644
---- a/arch/s390/kernel/jump_label.c
-+++ b/arch/s390/kernel/jump_label.c
-@@ -43,7 +43,7 @@ static void jump_label_bug(struct jump_entry *entry, struct insn *expected,
- 	unsigned char *ipe = (unsigned char *)expected;
- 	unsigned char *ipn = (unsigned char *)new;
- 
--	pr_emerg("Jump label code mismatch at %pS [%p]\n", ipc, ipc);
-+	pr_emerg("Jump label code mismatch at %pS [%px]\n", ipc, ipc);
- 	pr_emerg("Found:    %6ph\n", ipc);
- 	pr_emerg("Expected: %6ph\n", ipe);
- 	pr_emerg("New:      %6ph\n", ipn);
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 20f58e9da2fb..7ac6bb38948f 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -136,7 +136,8 @@ static const struct serial8250_config uart_config[] = {
+ 		.name		= "16C950/954",
+ 		.fifo_size	= 128,
+ 		.tx_loadsz	= 128,
+-		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
++		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_01,
++		.rxtrig_bytes	= {16, 32, 112, 120},
+ 		/* UART_CAP_EFR breaks billionon CF bluetooth card. */
+ 		.flags		= UART_CAP_FIFO | UART_CAP_SLEEP,
+ 	},
+diff --git a/include/uapi/linux/serial_reg.h b/include/uapi/linux/serial_reg.h
+index 619fe6111dc9..a31ae32161f3 100644
+--- a/include/uapi/linux/serial_reg.h
++++ b/include/uapi/linux/serial_reg.h
+@@ -62,6 +62,7 @@
+  * ST16C654:	 8  16  56  60		 8  16  32  56	PORT_16654
+  * TI16C750:	 1  16  32  56		xx  xx  xx  xx	PORT_16750
+  * TI16C752:	 8  16  56  60		 8  16  32  56
++ * OX16C950:	16  32 112 120		16  32  64 112	PORT_16C950
+  * Tegra:	 1   4   8  14		16   8   4   1	PORT_TEGRA
+  */
+ #define UART_FCR_R_TRIG_00	0x00
 -- 
 2.30.2
 
