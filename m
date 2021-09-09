@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DF08404E3B
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0CE3404E58
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241727AbhIIMKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:10:42 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:36056 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343618AbhIIMIG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 08:08:06 -0400
+        id S1346130AbhIIMLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:11:14 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:43980 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245054AbhIIMIP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 08:08:15 -0400
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 9C05022382;
-        Thu,  9 Sep 2021 12:06:55 +0000 (UTC)
+        by smtp-out2.suse.de (Postfix) with ESMTP id 9949B1FDEB;
+        Thu,  9 Sep 2021 12:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1631189215; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1631189224; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=hnm11EKhpGMLOlc0r2/u9K9z4r12Re/A0gq45TaCE4Y=;
-        b=QfL3bhBECQwLJmp0s5HACjiNks/nFDFwTkusNn/oauwajzUOyTB9ACL7oBjdGD5G3iR2St
-        Tw8p6n1YUMg1LvZUFxNNUzvb7GM7GEd6l6DOsq5v1JNl9RdRlN3tIkylIBdK5CRyvIrqaA
-        dK4GgkEarQ5lhTSWvn9sZScfHZgLEPg=
+        bh=pua4ePSVbOwS7IG6R8/7ytblw6rExltaAmxKlUIJjqo=;
+        b=U6MWQWAkySlcw4Bvj3uf12i5ks7eCMLnHc+ovzQX9u0FcDuEJ2hAmGUQUXL8PKKihF3ZOP
+        UVdnr6DwXpWruar6uPxkpU3AWxqClf6cn/6nJqkACLN+kxXGtydo/pcP63Watac0MAcMkA
+        sZbUJSo71CqCqy0YXwAUi1OIyE3C130=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1631189215;
+        s=susede2_ed25519; t=1631189224;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=hnm11EKhpGMLOlc0r2/u9K9z4r12Re/A0gq45TaCE4Y=;
-        b=I0Pz+nrzBMDj8jd7WfCdEIVKI8Nm5ZT5YConMy3qpn23lG8H7D1H0dP8MNxhvnPwCVuxyY
-        cxy8FvBBGH7RDVBw==
+        bh=pua4ePSVbOwS7IG6R8/7ytblw6rExltaAmxKlUIJjqo=;
+        b=yKQ8tc+VS+OAiE803BVBhNEhgzeTtyrRouCW4m2Zuqnj+JeoDcmh00NSScqKgB20x51fTT
+        klaoC7ydEHKAWTCQ==
 Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
-        by relay2.suse.de (Postfix) with ESMTP id 9538AA3C01;
-        Thu,  9 Sep 2021 12:06:55 +0000 (UTC)
-Date:   Thu, 09 Sep 2021 14:06:55 +0200
-Message-ID: <s5hy286osv4.wl-tiwai@suse.de>
+        by relay2.suse.de (Postfix) with ESMTP id 92805A3CED;
+        Thu,  9 Sep 2021 12:07:04 +0000 (UTC)
+Date:   Thu, 09 Sep 2021 14:07:04 +0200
+Message-ID: <s5hwnnqosuv.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         alsa-devel@alsa-project.org
-Subject: Re: [PATCH AUTOSEL 4.14 44/59] ASoC: intel: atom: Revert PCM buffer address setup workaround again
-In-Reply-To: <20210909115900.149795-44-sashal@kernel.org>
-References: <20210909115900.149795-1-sashal@kernel.org>
-        <20210909115900.149795-44-sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 4.9 39/48] ASoC: intel: atom: Revert PCM buffer address setup workaround again
+In-Reply-To: <20210909120015.150411-39-sashal@kernel.org>
+References: <20210909120015.150411-1-sashal@kernel.org>
+        <20210909120015.150411-39-sashal@kernel.org>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -52,7 +52,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 09 Sep 2021 13:58:45 +0200,
+On Thu, 09 Sep 2021 14:00:06 +0200,
 Sasha Levin wrote:
 > 
 > From: Takashi Iwai <tiwai@suse.de>
