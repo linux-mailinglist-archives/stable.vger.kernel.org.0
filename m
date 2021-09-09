@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70866404985
+	by mail.lfdr.de (Postfix) with ESMTP id BA3C6404986
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236169AbhIILme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:42:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45760 "EHLO mail.kernel.org"
+        id S236106AbhIILmf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:42:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236303AbhIILm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:42:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 920C361186;
-        Thu,  9 Sep 2021 11:41:19 +0000 (UTC)
+        id S236025AbhIILmb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:42:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E760061131;
+        Thu,  9 Sep 2021 11:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187680;
-        bh=sQlpCIQOIZc/1gWnMmczeaTUI9JHZ8cwU8Uv5hxetBk=;
+        s=k20201202; t=1631187681;
+        bh=NU5ZOx0naDK85oG0/HUbMQFEYp7Zrotfi5JaGSGDnmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YCS3GE+/i3ZMLCH/8H6Pu8OXrp/U6Bk86aMJ+Mw+q0xj6UeUurpsAxT9GCTaWqywN
-         JOH25THMcnqHISenY8eJmt/7aKj48sxzusMbnHUjA31oVK8gVyoZbskXlyDNN6WKjU
-         O5OqCZHVVWVCLhsgXhkYcDiGOYxjB1lBKqByaU+YoguIJoUMywQniOSyr+JBkryMrH
-         jeAJBVGivRelE93h+fH7e2G5lVNNBAZeZCK8mbJF+Kq5Pyj+aCvRQoFS6tWN+yDL/i
-         TYhpIRGkLjQdxzaLe4jz08N28t+ZNLzbHG40wCcXLZcehxmMICKmw35u7eHvYwasHr
-         Gna7XmHxTzHHA==
+        b=NK7glzoOZz5PcZSES4DjswDgtISXFkynbYRLM++GWZe80pp202TRCko1M0oVqd1u2
+         BDXOsQ8M6sl57pSqjj5qeVO2F8bszYLdSzoAq/ed3grHZG8yuW9xgNmdTt563HyWvv
+         7cGGojphDWfvk4IXr7iH9lklP0s0Q2AttynCkkbOTkdPwNx6sXcXo28d/kwQg9TGMd
+         ulZKEDLDsQ/5dCFaJ8Sz26fjU+5wxn5/8Ln437aIVsUBilWf/HhRoz+ubW4s9ZQQ9Q
+         Zc1pmCrPWyC1cdhxOtB4FmnYmOJrFA8Obkv1Q7ZnSU2F4ysut81LUBdHfo82nRnX3O
+         eYX1dyJxh/rzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org
-Subject: [PATCH AUTOSEL 5.14 010/252] dma-buf: fix dma_resv_test_signaled test_all handling v2
-Date:   Thu,  9 Sep 2021 07:37:04 -0400
-Message-Id: <20210909114106.141462-10-sashal@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        devicetree@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.14 011/252] drm/panel: Fix up DT bindings for Samsung lms397kf04
+Date:   Thu,  9 Sep 2021 07:37:05 -0400
+Message-Id: <20210909114106.141462-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -44,91 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 9d38814d1e346ea37a51cbf31f4424c9d059459e ]
+[ Upstream commit 710fa9aa16321f2ffdd8383f6f780c9cc1e5a197 ]
 
-As the name implies if testing all fences is requested we
-should indeed test all fences and not skip the exclusive
-one because we see shared ones.
+Improve the bindings and make them more usable:
 
-v2: fix logic once more
+- Pick in spi-cpha and spi-cpol from the SPI node parent,
+  this will specify that we are "type 3" in the device tree
+  rather than hardcoding it in the operating system.
+- Drop the u32 ref from the SPI frequency: comes in from
+  the SPI host bindings.
+- Make spi-cpha, spi-cpol and port compulsory.
+- Update the example with a real-world SPI controller,
+  spi-gpio.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210702111642.17259-3-christian.koenig@amd.com
+Cc: Noralf Trønnes <noralf@tronnes.org>
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210701213618.3818821-1-linus.walleij@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma-buf/dma-resv.c | 33 ++++++++++++---------------------
- 1 file changed, 12 insertions(+), 21 deletions(-)
+ .../display/panel/samsung,lms397kf04.yaml      | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma-buf/dma-resv.c b/drivers/dma-buf/dma-resv.c
-index f26c71747d43..e744fd87c63c 100644
---- a/drivers/dma-buf/dma-resv.c
-+++ b/drivers/dma-buf/dma-resv.c
-@@ -615,25 +615,21 @@ static inline int dma_resv_test_signaled_single(struct dma_fence *passed_fence)
-  */
- bool dma_resv_test_signaled(struct dma_resv *obj, bool test_all)
- {
--	unsigned int seq, shared_count;
-+	struct dma_fence *fence;
-+	unsigned int seq;
- 	int ret;
+diff --git a/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml b/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml
+index 4cb75a5f2e3a..cd62968426fb 100644
+--- a/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml
++++ b/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml
+@@ -33,8 +33,11 @@ properties:
  
- 	rcu_read_lock();
- retry:
- 	ret = true;
--	shared_count = 0;
- 	seq = read_seqcount_begin(&obj->seq);
+   backlight: true
  
- 	if (test_all) {
- 		struct dma_resv_list *fobj = dma_resv_shared_list(obj);
--		unsigned int i;
--
--		if (fobj)
--			shared_count = fobj->shared_count;
-+		unsigned int i, shared_count;
- 
-+		shared_count = fobj ? fobj->shared_count : 0;
- 		for (i = 0; i < shared_count; ++i) {
--			struct dma_fence *fence;
--
- 			fence = rcu_dereference(fobj->shared[i]);
- 			ret = dma_resv_test_signaled_single(fence);
- 			if (ret < 0)
-@@ -641,24 +637,19 @@ bool dma_resv_test_signaled(struct dma_resv *obj, bool test_all)
- 			else if (!ret)
- 				break;
- 		}
--
--		if (read_seqcount_retry(&obj->seq, seq))
--			goto retry;
- 	}
- 
--	if (!shared_count) {
--		struct dma_fence *fence_excl = dma_resv_excl_fence(obj);
--
--		if (fence_excl) {
--			ret = dma_resv_test_signaled_single(fence_excl);
--			if (ret < 0)
--				goto retry;
-+	fence = dma_resv_excl_fence(obj);
-+	if (ret && fence) {
-+		ret = dma_resv_test_signaled_single(fence);
-+		if (ret < 0)
-+			goto retry;
- 
--			if (read_seqcount_retry(&obj->seq, seq))
--				goto retry;
--		}
- 	}
- 
-+	if (read_seqcount_retry(&obj->seq, seq))
-+		goto retry;
++  spi-cpha: true
 +
- 	rcu_read_unlock();
- 	return ret;
- }
++  spi-cpol: true
++
+   spi-max-frequency:
+-    $ref: /schemas/types.yaml#/definitions/uint32
+     description: inherited as a SPI client node, the datasheet specifies
+       maximum 300 ns minimum cycle which gives around 3 MHz max frequency
+     maximum: 3000000
+@@ -44,6 +47,9 @@ properties:
+ required:
+   - compatible
+   - reg
++  - spi-cpha
++  - spi-cpol
++  - port
+ 
+ additionalProperties: false
+ 
+@@ -52,15 +58,23 @@ examples:
+     #include <dt-bindings/gpio/gpio.h>
+ 
+     spi {
++      compatible = "spi-gpio";
++      sck-gpios = <&gpio 0 GPIO_ACTIVE_HIGH>;
++      miso-gpios = <&gpio 1 GPIO_ACTIVE_HIGH>;
++      mosi-gpios = <&gpio 2 GPIO_ACTIVE_HIGH>;
++      cs-gpios = <&gpio 3 GPIO_ACTIVE_HIGH>;
++      num-chipselects = <1>;
+       #address-cells = <1>;
+       #size-cells = <0>;
+       panel@0 {
+         compatible = "samsung,lms397kf04";
+         spi-max-frequency = <3000000>;
++        spi-cpha;
++        spi-cpol;
+         reg = <0>;
+         vci-supply = <&lcd_3v0_reg>;
+         vccio-supply = <&lcd_1v8_reg>;
+-        reset-gpios = <&gpio 1 GPIO_ACTIVE_LOW>;
++        reset-gpios = <&gpio 4 GPIO_ACTIVE_LOW>;
+         backlight = <&ktd259>;
+ 
+         port {
 -- 
 2.30.2
 
