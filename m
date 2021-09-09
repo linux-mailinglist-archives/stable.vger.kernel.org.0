@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98FAC40496B
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D23040496D
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:41:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235499AbhIILmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:42:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45492 "EHLO mail.kernel.org"
+        id S235674AbhIILmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:42:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235448AbhIILmR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:42:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2C4661100;
-        Thu,  9 Sep 2021 11:41:07 +0000 (UTC)
+        id S235646AbhIILmT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:42:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05BD2611AD;
+        Thu,  9 Sep 2021 11:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187668;
-        bh=84vvJMs9BQP/RnsgF6DIVjbTghk68ob7G2Kt8qsDxRc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BBUBwCFhZn2WuFf45v+A5/brjj24qbG/qRN6sLAcFoJycNGyjlAKWwJCgtIaK28xp
-         UZulA/X66t/f2v4pb/P20LbFx2MW6aECCsX9HAqYinQzyJWYTw31ZRAKu2VbMFUged
-         uEHbvaABmN12dNSHXeBz12v4w/xT7brdSnE9g1qMHnk3WJtEPa0xBBTPcBtm5RbWbl
-         QBZCm9TThARbrSp8coh518z/nlxcP7esGug7T5NGWK0c4ZHpNVeKJ/dfG139/Z+opC
-         Z4ymOgSDR9YtdIIkX+ckU8l6WYZ1QfSwFuUksV3IrQBLoydhTqz3o1nc1E6iuneFkv
-         VvEOQp9P1a5fQ==
+        s=k20201202; t=1631187669;
+        bh=kc1FYvBpSgEy2QFyFkir9/64Xk8FZ8y5oackNASlSTc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=qBrWEgifJkeg8mXc5TG2xTj9qoyzGSA9u7z2hgCMlgl/Y7jiKyZXNMESheKee9A5U
+         LBvxipafY6ckhOkTlA34sZr/8/CBs9apcXbitS3yFqhoBuOrc+DyCel7SPj22kWX89
+         +J4ofksoZ0S3/w0pNpZOrf1Kt5l6AAczjcBje/ttcLX0coDfpEKz7Sl2RV2ohtfgUg
+         bkbhPD4Z2DJRW7hwHIRUcyOfQFhRluW+di8gW6Xko1VT4xnaOfBXrbqgXNrbB278y5
+         ZaRD97rHvdviBxWqw3sf/HOkYm3SqL9VWN0HVGQCi1KowT9HjLK1KIFqcJF2tOEAme
+         9/EUqZ+YPT1eA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Douglas Anderson <dianders@chromium.org>,
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+Cc:     Zack Rusin <zackr@vmware.com>,
+        Roland Scheidegger <sroland@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.14 001/252] drm/bridge: ti-sn65dsi86: Don't read EDID blob over DDC
-Date:   Thu,  9 Sep 2021 07:36:55 -0400
-Message-Id: <20210909114106.141462-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 002/252] drm/vmwgfx: Fix subresource updates with new contexts
+Date:   Thu,  9 Sep 2021 07:36:56 -0400
+Message-Id: <20210909114106.141462-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
+References: <20210909114106.141462-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,113 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Zack Rusin <zackr@vmware.com>
 
-[ Upstream commit a70e558c151043ce46a5e5999f4310e0b3551f57 ]
+[ Upstream commit a12be0277316ed923411c9c80b2899ee74d2b033 ]
 
-This is really just a revert of commit 58074b08c04a ("drm/bridge:
-ti-sn65dsi86: Read EDID blob over DDC"), resolving conflicts.
+The has_dx variable was only set during the initialization which
+meant that UPDATE_SUBRESOURCE was never used. We were emulating it
+with UPDATE_GB_IMAGE but that's always been a stop-gap. Instead
+of has_dx which has been deprecated a long time ago we need to check
+for whether shader model 4.0 or newer is available to the device.
 
-The old code failed to read the EDID properly in a very important
-case: before the bridge's pre_enable() was called. The way things need
-to work:
-1. Read the EDID.
-2. Based on the EDID, decide on video settings and pixel clock.
-3. Enable the bridge w/ the desired settings.
-
-The way things were working:
-1. Try to read the EDID but fail; fall back to hardcoded values.
-2. Based on hardcoded values, decide on video settings and pixel clock.
-3. Enable the bridge w/ the desired settings.
-4. Try again to read the EDID, it works now!
-5. Realize that the hardcoded settings weren't quite right.
-6. Disable / reenable the bridge w/ the right settings.
-
-The reasons for the failures were twofold:
-a) Since we never ran the bridge chip's pre-enable then we never set
-   the bit to ignore HPD. This meant the bridge chip didn't even _try_
-   to go out on the bus and communicate with the panel.
-b) Even if we fixed things to ignore HPD, the EDID still wouldn't read
-   if the panel wasn't on.
-
-Instead of reverting the code, we could fix it to set the HPD bit and
-also power on the panel. However, it also works nicely to just let the
-panel code read the EDID. Now that we've split the driver up we can
-expose the DDC AUX channel bus to the panel node. The panel can take
-charge of reading the EDID.
-
-NOTE: in order for things to work, anyone that needs to read the EDID
-will need to instantiate their panel using the new DP AUX bus (AKA by
-listing their panel under the "aux-bus" node of the bridge chip in the
-device tree).
-
-In the future if we want to use the bridge chip to provide a full
-external DP port (which won't have a panel) then we will have to
-conditinally add EDID reading back in.
-
-Suggested-by: Andrzej Hajda <a.hajda@samsung.com>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210611101711.v10.9.I9330684c25f65bb318eff57f0616500f83eac3cc@changeid
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Reviewed-by: Roland Scheidegger <sroland@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210609172307.131929-4-zackr@vmware.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ti-sn65dsi86.c | 22 ----------------------
- 1 file changed, 22 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-index 45a2969afb2b..aef850296756 100644
---- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-+++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-@@ -124,7 +124,6 @@
-  * @connector:    Our connector.
-  * @host_node:    Remote DSI node.
-  * @dsi:          Our MIPI DSI source.
-- * @edid:         Detected EDID of eDP panel.
-  * @refclk:       Our reference clock.
-  * @panel:        Our panel.
-  * @enable_gpio:  The GPIO we toggle to enable the bridge.
-@@ -154,7 +153,6 @@ struct ti_sn65dsi86 {
- 	struct drm_dp_aux		aux;
- 	struct drm_bridge		bridge;
- 	struct drm_connector		connector;
--	struct edid			*edid;
- 	struct device_node		*host_node;
- 	struct mipi_dsi_device		*dsi;
- 	struct clk			*refclk;
-@@ -403,24 +401,6 @@ connector_to_ti_sn65dsi86(struct drm_connector *connector)
- static int ti_sn_bridge_connector_get_modes(struct drm_connector *connector)
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+index 0835468bb2ee..47c03a276515 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+@@ -1872,7 +1872,6 @@ static void vmw_surface_dirty_range_add(struct vmw_resource *res, size_t start,
+ static int vmw_surface_dirty_sync(struct vmw_resource *res)
  {
- 	struct ti_sn65dsi86 *pdata = connector_to_ti_sn65dsi86(connector);
--	struct edid *edid = pdata->edid;
--	int num, ret;
--
--	if (!edid) {
--		pm_runtime_get_sync(pdata->dev);
--		edid = pdata->edid = drm_get_edid(connector, &pdata->aux.ddc);
--		pm_runtime_put_autosuspend(pdata->dev);
--	}
--
--	if (edid && drm_edid_is_valid(edid)) {
--		ret = drm_connector_update_edid_property(connector, edid);
--		if (!ret) {
--			num = drm_add_edid_modes(connector, edid);
--			if (num)
--				return num;
--		}
--	}
--
- 	return drm_panel_get_modes(pdata->panel, connector);
- }
+ 	struct vmw_private *dev_priv = res->dev_priv;
+-	bool has_dx = 0;
+ 	u32 i, num_dirty;
+ 	struct vmw_surface_dirty *dirty =
+ 		(struct vmw_surface_dirty *) res->dirty;
+@@ -1899,7 +1898,7 @@ static int vmw_surface_dirty_sync(struct vmw_resource *res)
+ 	if (!num_dirty)
+ 		goto out;
  
-@@ -1358,8 +1338,6 @@ static void ti_sn_bridge_remove(struct auxiliary_device *adev)
- 		mipi_dsi_device_unregister(pdata->dsi);
- 	}
- 
--	kfree(pdata->edid);
--
- 	drm_bridge_remove(&pdata->bridge);
- 
- 	of_node_put(pdata->host_node);
+-	alloc_size = num_dirty * ((has_dx) ? sizeof(*cmd1) : sizeof(*cmd2));
++	alloc_size = num_dirty * ((has_sm4_context(dev_priv)) ? sizeof(*cmd1) : sizeof(*cmd2));
+ 	cmd = VMW_CMD_RESERVE(dev_priv, alloc_size);
+ 	if (!cmd)
+ 		return -ENOMEM;
+@@ -1917,7 +1916,7 @@ static int vmw_surface_dirty_sync(struct vmw_resource *res)
+ 		 * DX_UPDATE_SUBRESOURCE is aware of array surfaces.
+ 		 * UPDATE_GB_IMAGE is not.
+ 		 */
+-		if (has_dx) {
++		if (has_sm4_context(dev_priv)) {
+ 			cmd1->header.id = SVGA_3D_CMD_DX_UPDATE_SUBRESOURCE;
+ 			cmd1->header.size = sizeof(cmd1->body);
+ 			cmd1->body.sid = res->id;
 -- 
 2.30.2
 
