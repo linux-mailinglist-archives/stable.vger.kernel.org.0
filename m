@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E1D94051B2
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9D1B4051B4
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353344AbhIIMiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:38:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39526 "EHLO mail.kernel.org"
+        id S1353508AbhIIMiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:38:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242942AbhIIMb5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1350046AbhIIMb5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:31:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F40761B4D;
-        Thu,  9 Sep 2021 11:53:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9046561B45;
+        Thu,  9 Sep 2021 11:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188384;
-        bh=HVvKxqPS8rU9yOzp1wJgm9OCAmPEnHndi0UR/vCAWoU=;
+        s=k20201202; t=1631188385;
+        bh=0sRjAYb+0qs4QnC1cjMiOdZudBqfkjzC6vfJ9zbTIDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IhILP+D6GAU2cTLEc2np4vyqqyWK3T7aCbiJAk3VXZYL6I+XL9JHFtc+kA5HCKes0
-         cyKSfdOdFrNcv103N+slhNRjw9L1z9oifSDndAWOxNo74H3JgKJdlOhNH1TnIK2EOZ
-         oJuYcQc9DGASDAmjyfv8mAW7ethuD1fEOUMM47id7iyM6UITN5j2RihG5Mpc32oCci
-         v0O4gx2ZOrgEVDjUspV0ACft+LPysaNtwOS8sWy1OFhzrP/O88XYpNx8Y1bb0OcpYp
-         BsX3MV0X3nZcXzsPhMDmdiAr8+0pE5VKbn7RiLrXSVhsh9lwmOFyFdlBvgHsTGkDsL
-         i/RTR5V+9p6EA==
+        b=hCvbKWeUouaml2QmFCVVrf3+HXKnQBBbDsZ62jXPf32nVQixfS/GVpwCUXYhRvQ+j
+         B/sr6w+Ok2fczqMGO6ZqHgVdSxzs8JxT4oqM3+E4CHrefJI2FYWsdB8mxJJBGfcBWS
+         C84BBCy2iDqmezTKBqBqtFa6KqpuoJvpC9OLEXwr+q/ZreJT45qDRY2407Fz/9R4v5
+         PkEJrfyMibZHxeJnKq397m8E0kkVAiIRVjEWkm2D/z1jppFck25Wiq8EY2z8avqQTb
+         HdfS1i/QeihOa4VCNPiZ/ZKvrkyPTBHISfuxTqY/jdUaFZwwoNagE5dcSRQKluGJwx
+         g7pIbmn46UUCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 082/176] ARM: dts: imx53-ppd: Fix ACHC entry
-Date:   Thu,  9 Sep 2021 07:49:44 -0400
-Message-Id: <20210909115118.146181-82-sashal@kernel.org>
+Cc:     Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 083/176] arm64: dts: qcom: ipq8074: fix pci node reg property
+Date:   Thu,  9 Sep 2021 07:49:45 -0400
+Message-Id: <20210909115118.146181-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -43,65 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit cd7cd5b716d594e27a933c12f026d4f2426d7bf4 ]
+[ Upstream commit 52c9887fba71fc8f12d343833fc595c762aac8c7 ]
 
-PPD has only one ACHC device, which effectively is a Kinetis
-microcontroller. It has one SPI interface used for normal
-communication. Additionally it's possible to flash the device
-firmware using NXP's EzPort protocol by correctly driving a
-second chip select pin and the device reset pin.
+reg property should be array of values, here it is a single array,
+leading to below warning:
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Link: https://lore.kernel.org/r/20210802172309.164365-3-sebastian.reichel@collabora.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:reg:0: [268435456, 3869, 268439328, 168, 557056, 8192, 269484032, 4096] is too long
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
+[[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488]] is not of type 'null'
+[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488] is too long
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:reg:0: [536870912, 3869, 536874784, 168, 524288, 8192, 537919488, 4096] is too long
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
+[[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488]] is not of type 'null'
+[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488] is too long
+
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210308060826.3074234-17-vkoul@kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx53-ppd.dts | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/qcom/ipq8074.dtsi | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx53-ppd.dts b/arch/arm/boot/dts/imx53-ppd.dts
-index f7dcdf96e5c0..6d9a5ede94aa 100644
---- a/arch/arm/boot/dts/imx53-ppd.dts
-+++ b/arch/arm/boot/dts/imx53-ppd.dts
-@@ -70,6 +70,12 @@ cko2_11M: sgtl-clock-cko2 {
- 		clock-frequency = <11289600>;
- 	};
+diff --git a/arch/arm64/boot/dts/qcom/ipq8074.dtsi b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
+index 829e37ac82f6..776a6b0f61a6 100644
+--- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
++++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
+@@ -567,10 +567,10 @@ frame@b128000 {
  
-+	achc_24M: achc-clock {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <24000000>;
-+	};
-+
- 	sgtlsound: sound {
- 		compatible = "fsl,imx53-cpuvo-sgtl5000",
- 			     "fsl,imx-audio-sgtl5000";
-@@ -313,16 +319,13 @@ &gpio4 11 GPIO_ACTIVE_LOW
- 		    &gpio4 12 GPIO_ACTIVE_LOW>;
- 	status = "okay";
+ 		pcie1: pci@10000000 {
+ 			compatible = "qcom,pcie-ipq8074";
+-			reg =  <0x10000000 0xf1d
+-				0x10000f20 0xa8
+-				0x00088000 0x2000
+-				0x10100000 0x1000>;
++			reg =  <0x10000000 0xf1d>,
++			       <0x10000f20 0xa8>,
++			       <0x00088000 0x2000>,
++			       <0x10100000 0x1000>;
+ 			reg-names = "dbi", "elbi", "parf", "config";
+ 			device_type = "pci";
+ 			linux,pci-domain = <1>;
+@@ -629,10 +629,10 @@ IRQ_TYPE_LEVEL_HIGH>, /* int_c */
  
--	spidev0: spi@0 {
--		compatible = "ge,achc";
--		reg = <0>;
--		spi-max-frequency = <1000000>;
--	};
--
--	spidev1: spi@1 {
--		compatible = "ge,achc";
--		reg = <1>;
--		spi-max-frequency = <1000000>;
-+	spidev0: spi@1 {
-+		compatible = "ge,achc", "nxp,kinetis-k20";
-+		reg = <1>, <0>;
-+		vdd-supply = <&reg_3v3>;
-+		vdda-supply = <&reg_3v3>;
-+		clocks = <&achc_24M>;
-+		reset-gpios = <&gpio3 6 GPIO_ACTIVE_LOW>;
- 	};
- 
- 	gpioxra0: gpio@2 {
+ 		pcie0: pci@20000000 {
+ 			compatible = "qcom,pcie-ipq8074";
+-			reg =  <0x20000000 0xf1d
+-				0x20000f20 0xa8
+-				0x00080000 0x2000
+-				0x20100000 0x1000>;
++			reg = <0x20000000 0xf1d>,
++			      <0x20000f20 0xa8>,
++			      <0x00080000 0x2000>,
++			      <0x20100000 0x1000>;
+ 			reg-names = "dbi", "elbi", "parf", "config";
+ 			device_type = "pci";
+ 			linux,pci-domain = <0>;
 -- 
 2.30.2
 
