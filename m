@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E04074051B9
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBED74051BC
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353265AbhIIMiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:38:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38594 "EHLO mail.kernel.org"
+        id S1353232AbhIIMiV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:38:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242833AbhIIMc6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245240AbhIIMc6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:32:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF25061288;
-        Thu,  9 Sep 2021 11:53:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F1E261100;
+        Thu,  9 Sep 2021 11:53:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188392;
-        bh=cj1E/3jxxxjm2EaPG/Ardk8d0+9n+bk7iseNTTE6mq4=;
+        s=k20201202; t=1631188394;
+        bh=YziwLkAfydv1tS8/Dicy+PmFihYoCdapStHJ1MXiFp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JLNoJnickGB8e3wZEbUbSbrRph58bUnN81l24/6Ylm1CPSMzG+ICPUyJ4dPumCYrU
-         L1rg5osY53i1raEXJFL5xM0EGkPH6t8HngnkiC48+Iwpi7ea51DhiwLlOxnsfliU1/
-         hu7Z4FQrdt9ja/l8iyHHAq1ccP1eNt6zyjnU++n3IgdZLYztK/Zs+sunO1PCmOen+H
-         e42OLxCm6HUAtpUxz2gHwO6FZCJMpsMeePGYrVmWEY+1oAjsbKn74efc6ymSVc4lCJ
-         K1scysQ0+d1J+JJn2UKg/2zj+tySzRsZekBjLzM+tqVttRWNVvAiSsRj+5pRrOoSo+
-         ZxkGKP3GP7NoQ==
+        b=lwWqxFVICdx18HyYRLN4Tv2zEk+iUgpSDQfV5egEzrAgz4lJqPe0cXae8dpQpzxKJ
+         TV4dJyXVgwLSugnPc0pvR4CF78Vl6gu1NTlzoVsvQrUNVVDG/7oF+zVS3kDKG2S3fk
+         3TGSaZ2UvY/liNy8roOqwxlb1NebtIn9rIvnXyOVMU/LrafUnpRuBmXR2Ox5TOItYz
+         jtSPrV2eEzUbPPOy+qXX3hoaMYVLVccfC6pzUdSBnZCKmaJRQ7uZMkmtCmWzqCXlZ0
+         DXMUcltEza2D4IIunHv49srnS/9HhysJRu2HqDGjR0Wt7s2Idbb/5LkMFjP48zNESx
+         fnNGUKvu6V4DA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Georgi Djakov <georgi.djakov@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 089/176] arm64: dts: qcom: sm8250: Fix epss_l3 unit address
-Date:   Thu,  9 Sep 2021 07:49:51 -0400
-Message-Id: <20210909115118.146181-89-sashal@kernel.org>
+Cc:     Rajendra Nayak <rnayak@codeaurora.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 090/176] nvmem: qfprom: Fix up qfprom_disable_fuse_blowing() ordering
+Date:   Thu,  9 Sep 2021 07:49:52 -0400
+Message-Id: <20210909115118.146181-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -45,36 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Georgi Djakov <georgi.djakov@linaro.org>
+From: Rajendra Nayak <rnayak@codeaurora.org>
 
-[ Upstream commit 77b53d65dc1e54321ec841912f06bcb558a079c0 ]
+[ Upstream commit 11c4b3e264d68ba6dcd52d12dbcfd3f564f2f137 ]
 
-The unit address of the epss_l3 node is incorrect and does not match
-the address of its "reg" property. Let's fix it.
+qfprom_disable_fuse_blowing() disables a bunch of resources,
+and then does a few register writes in the 'conf' address
+space.
+It works perhaps because the resources are needed only for the
+'raw' register space writes, and that the 'conf' space allows
+read/writes regardless.
+However that makes the code look confusing, so just move the
+register writes before turning off the resources in the
+function.
 
-Signed-off-by: Georgi Djakov <georgi.djakov@linaro.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Sibi Sankar <sibis@codeaurora.org>
-Link: https://lore.kernel.org/r/20210211193637.9737-1-georgi.djakov@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210806085947.22682-3-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvmem/qfprom.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-index d4547a192748..ec356fe07ac8 100644
---- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-@@ -2346,7 +2346,7 @@ apps_bcm_voter: bcm_voter {
- 			};
- 		};
+diff --git a/drivers/nvmem/qfprom.c b/drivers/nvmem/qfprom.c
+index 955b8b8c8238..8ef772ccfb36 100644
+--- a/drivers/nvmem/qfprom.c
++++ b/drivers/nvmem/qfprom.c
+@@ -104,6 +104,9 @@ static void qfprom_disable_fuse_blowing(const struct qfprom_priv *priv,
+ {
+ 	int ret;
  
--		epss_l3: interconnect@18591000 {
-+		epss_l3: interconnect@18590000 {
- 			compatible = "qcom,sm8250-epss-l3";
- 			reg = <0 0x18590000 0 0x1000>;
++	writel(old->timer_val, priv->qfpconf + QFPROM_BLOW_TIMER_OFFSET);
++	writel(old->accel_val, priv->qfpconf + QFPROM_ACCEL_OFFSET);
++
+ 	/*
+ 	 * This may be a shared rail and may be able to run at a lower rate
+ 	 * when we're not blowing fuses.  At the moment, the regulator framework
+@@ -124,9 +127,6 @@ static void qfprom_disable_fuse_blowing(const struct qfprom_priv *priv,
+ 			 "Failed to set clock rate for disable (ignoring)\n");
  
+ 	clk_disable_unprepare(priv->secclk);
+-
+-	writel(old->timer_val, priv->qfpconf + QFPROM_BLOW_TIMER_OFFSET);
+-	writel(old->accel_val, priv->qfpconf + QFPROM_ACCEL_OFFSET);
+ }
+ 
+ /**
 -- 
 2.30.2
 
