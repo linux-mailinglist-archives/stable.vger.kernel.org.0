@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E4C404B38
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3D27404B3A
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:50:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239196AbhIILvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241525AbhIILvA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 07:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55122 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239687AbhIILs6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239991AbhIILs6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 07:48:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2828D61268;
-        Thu,  9 Sep 2021 11:43:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 073D46128C;
+        Thu,  9 Sep 2021 11:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187815;
-        bh=Bssx5ZbEaCre/TweHxP/RvtlxoCykNbf0SQAZ4MT+ac=;
+        s=k20201202; t=1631187816;
+        bh=PnYxjrbgltERqg7UPAvISCB0M4sb2EXeLVbFFERB1xY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JCNC2O1NSFx6j+eXraVBFqsPerFI3zbuol6RR3bFqfIIUyJaj7PWsCW60U6wBAZQs
-         +Sd7m0AzHqN67H/DXL4DsicLecvTrbGHkMdj3q7UN70oq83g7X8gluqSq8ayt638tO
-         32iKLckEzWXHzi3HODGl+Wy/JT14JOzX4jiuTy+I/SbF4lQ3uV1zwHW2+E9YJWLM94
-         LxMVRnK7Jbz5eciDH+BaYy7MYdRWsuSiLe81vbJDUD96SaX+870Bls/dFinHHThISs
-         ZEw4gYfBSbS+vh1cd9TEQ4N6OCZJgau+K+76ZDfy0VVbCZ9DJWBkiQ+j5mK13XYQDY
-         S5j09aG6c5aCA==
+        b=YjRhElXZFFnhlvoy/D3q8NCU3PbB3aREKwAVjIuv82ORfTEYWILoR2jwIKfQbsysx
+         gZLswFYzO4h9y5oBMXwpi8L2aIdHfkG5Nq5D9omHThXrAAJ7t2iR/gmLaM9sfTci18
+         HKNDP0Y3wLBoAvVqK8wN7eJE+8m0FRmMMfFNgSfgP+malbDCTxBTadXSbcrzWoALc0
+         /lmNV6thzhT1tBs0XzSlbeMgfzW6Uobjb6ng+FEzDL869aY4LtunstiwPfKI7d9HuA
+         dTIKBDIGC7SRamsLe9cXU484644wj+S0F0/vFqS+1rjZMLrdKN9ESITA4TJ6HUKg6t
+         X2MsV2ZInt9UQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tony Lindgren <tony@atomide.com>,
-        Carl Philipp Klemm <philipp@uvos.xyz>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
+Cc:     Mikko Perttunen <mperttunen@nvidia.com>,
+        Mian Yousaf Kaukab <ykaukab@suse.de>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 115/252] serial: 8250_omap: Handle optional overrun-throttle-ms property
-Date:   Thu,  9 Sep 2021 07:38:49 -0400
-Message-Id: <20210909114106.141462-115-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 116/252] misc: sram: Only map reserved areas in Tegra SYSRAM
+Date:   Thu,  9 Sep 2021 07:38:50 -0400
+Message-Id: <20210909114106.141462-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -47,95 +43,245 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Mikko Perttunen <mperttunen@nvidia.com>
 
-[ Upstream commit 1fe0e1fa3209ad8e9124147775bd27b1d9f04bd4 ]
+[ Upstream commit fec29bf04994b478a43a7e60e6dd5ac1f7cb53ae ]
 
-Handle optional overrun-throttle-ms property as done for 8250_fsl in commit
-6d7f677a2afa ("serial: 8250: Rate limit serial port rx interrupts during
-input overruns"). This can be used to rate limit the UART interrupts on
-noisy lines that end up producing messages like the following:
+On Tegra186 and later, a portion of the SYSRAM may be reserved for use
+by TZ. Non-TZ memory accesses to this portion, including speculative
+accesses, trigger SErrors that bring down the system. This does also
+happen in practice occasionally (due to speculative accesses).
 
-ttyS ttyS2: 4 input overrun(s)
+To fix the issue, add a flag to the SRAM driver to only map the
+device tree-specified reserved areas depending on a flag set
+based on the compatibility string. This would not affect non-Tegra
+systems that rely on the entire thing being memory mapped.
 
-At least on droid4, the multiplexed USB and UART port is left to UART mode
-by the bootloader for a debug console, and if a USB charger is connected
-on boot, we get noise on the UART until the PMIC related drivers for PHY
-and charger are loaded.
+If 64K pages are being used, we cannot exactly map the 4K regions
+that are placed in SYSRAM - ioremap code instead aligns to closest
+64K pages. However, since in practice the non-accessible memory area
+is 64K aligned, these mappings do not overlap with the non-accessible
+memory area and things work out.
 
-With this patch and overrun-throttle-ms = <500> we avoid the extra rx
-interrupts.
-
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210727103533.51547-2-tony@atomide.com
+Reviewed-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
+Link: https://lore.kernel.org/r/20210715103423.1811101-1-mperttunen@nvidia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ drivers/misc/sram.c | 103 +++++++++++++++++++++++++++++++-------------
+ drivers/misc/sram.h |   9 ++++
+ 2 files changed, 82 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 79418d4beb48..b6c731a267d2 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -617,7 +617,7 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- 	struct uart_port *port = dev_id;
- 	struct omap8250_priv *priv = port->private_data;
- 	struct uart_8250_port *up = up_to_u8250p(port);
--	unsigned int iir;
-+	unsigned int iir, lsr;
- 	int ret;
+diff --git a/drivers/misc/sram.c b/drivers/misc/sram.c
+index 93638ae2753a..4c26b19f5154 100644
+--- a/drivers/misc/sram.c
++++ b/drivers/misc/sram.c
+@@ -97,7 +97,24 @@ static int sram_add_partition(struct sram_dev *sram, struct sram_reserve *block,
+ 	struct sram_partition *part = &sram->partition[sram->partitions];
  
- #ifdef CONFIG_SERIAL_8250_DMA
-@@ -628,6 +628,7 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- #endif
- 
- 	serial8250_rpm_get(up);
-+	lsr = serial_port_in(port, UART_LSR);
- 	iir = serial_port_in(port, UART_IIR);
- 	ret = serial8250_handle_irq(port, iir);
- 
-@@ -642,6 +643,24 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- 		serial_port_in(port, UART_RX);
- 	}
- 
-+	/* Stop processing interrupts on input overrun */
-+	if ((lsr & UART_LSR_OE) && up->overrun_backoff_time_ms > 0) {
-+		unsigned long delay;
+ 	mutex_init(&part->lock);
+-	part->base = sram->virt_base + block->start;
 +
-+		up->ier = port->serial_in(port, UART_IER);
-+		if (up->ier & (UART_IER_RLSI | UART_IER_RDI)) {
-+			port->ops->stop_rx(port);
-+		} else {
-+			/* Keep restarting the timer until
-+			 * the input overrun subsides.
-+			 */
-+			cancel_delayed_work(&up->overrun_backoff);
++	if (sram->config && sram->config->map_only_reserved) {
++		void __iomem *virt_base;
++
++		if (sram->no_memory_wc)
++			virt_base = devm_ioremap_resource(sram->dev, &block->res);
++		else
++			virt_base = devm_ioremap_resource_wc(sram->dev, &block->res);
++
++		if (IS_ERR(virt_base)) {
++			dev_err(sram->dev, "could not map SRAM at %pr\n", &block->res);
++			return PTR_ERR(virt_base);
 +		}
 +
-+		delay = msecs_to_jiffies(up->overrun_backoff_time_ms);
-+		schedule_delayed_work(&up->overrun_backoff, delay);
++		part->base = virt_base;
++	} else {
++		part->base = sram->virt_base + block->start;
 +	}
-+
- 	serial8250_rpm_put(up);
  
- 	return IRQ_RETVAL(ret);
-@@ -1353,6 +1372,10 @@ static int omap8250_probe(struct platform_device *pdev)
+ 	if (block->pool) {
+ 		ret = sram_add_pool(sram, block, start, part);
+@@ -198,6 +215,7 @@ static int sram_reserve_regions(struct sram_dev *sram, struct resource *res)
+ 
+ 		block->start = child_res.start - res->start;
+ 		block->size = resource_size(&child_res);
++		block->res = child_res;
+ 		list_add_tail(&block->list, &reserve_list);
+ 
+ 		if (of_find_property(child, "export", NULL))
+@@ -295,15 +313,17 @@ static int sram_reserve_regions(struct sram_dev *sram, struct resource *res)
+ 		 */
+ 		cur_size = block->start - cur_start;
+ 
+-		dev_dbg(sram->dev, "adding chunk 0x%lx-0x%lx\n",
+-			cur_start, cur_start + cur_size);
++		if (sram->pool) {
++			dev_dbg(sram->dev, "adding chunk 0x%lx-0x%lx\n",
++				cur_start, cur_start + cur_size);
+ 
+-		ret = gen_pool_add_virt(sram->pool,
+-				(unsigned long)sram->virt_base + cur_start,
+-				res->start + cur_start, cur_size, -1);
+-		if (ret < 0) {
+-			sram_free_partitions(sram);
+-			goto err_chunks;
++			ret = gen_pool_add_virt(sram->pool,
++					(unsigned long)sram->virt_base + cur_start,
++					res->start + cur_start, cur_size, -1);
++			if (ret < 0) {
++				sram_free_partitions(sram);
++				goto err_chunks;
++			}
  		}
+ 
+ 		/* next allocation after this reserved block */
+@@ -331,40 +351,63 @@ static int atmel_securam_wait(void)
+ 					10000, 500000);
+ }
+ 
++static const struct sram_config atmel_securam_config = {
++	.init = atmel_securam_wait,
++};
++
++/*
++ * SYSRAM contains areas that are not accessible by the
++ * kernel, such as the first 256K that is reserved for TZ.
++ * Accesses to those areas (including speculative accesses)
++ * trigger SErrors. As such we must map only the areas of
++ * SYSRAM specified in the device tree.
++ */
++static const struct sram_config tegra_sysram_config = {
++	.map_only_reserved = true,
++};
++
+ static const struct of_device_id sram_dt_ids[] = {
+ 	{ .compatible = "mmio-sram" },
+-	{ .compatible = "atmel,sama5d2-securam", .data = atmel_securam_wait },
++	{ .compatible = "atmel,sama5d2-securam", .data = &atmel_securam_config },
++	{ .compatible = "nvidia,tegra186-sysram", .data = &tegra_sysram_config },
++	{ .compatible = "nvidia,tegra194-sysram", .data = &tegra_sysram_config },
+ 	{}
+ };
+ 
+ static int sram_probe(struct platform_device *pdev)
+ {
++	const struct sram_config *config;
+ 	struct sram_dev *sram;
+ 	int ret;
+ 	struct resource *res;
+-	int (*init_func)(void);
++
++	config = of_device_get_match_data(&pdev->dev);
+ 
+ 	sram = devm_kzalloc(&pdev->dev, sizeof(*sram), GFP_KERNEL);
+ 	if (!sram)
+ 		return -ENOMEM;
+ 
+ 	sram->dev = &pdev->dev;
++	sram->no_memory_wc = of_property_read_bool(pdev->dev.of_node, "no-memory-wc");
++	sram->config = config;
++
++	if (!config || !config->map_only_reserved) {
++		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++		if (sram->no_memory_wc)
++			sram->virt_base = devm_ioremap_resource(&pdev->dev, res);
++		else
++			sram->virt_base = devm_ioremap_resource_wc(&pdev->dev, res);
++		if (IS_ERR(sram->virt_base)) {
++			dev_err(&pdev->dev, "could not map SRAM registers\n");
++			return PTR_ERR(sram->virt_base);
++		}
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (of_property_read_bool(pdev->dev.of_node, "no-memory-wc"))
+-		sram->virt_base = devm_ioremap_resource(&pdev->dev, res);
+-	else
+-		sram->virt_base = devm_ioremap_resource_wc(&pdev->dev, res);
+-	if (IS_ERR(sram->virt_base)) {
+-		dev_err(&pdev->dev, "could not map SRAM registers\n");
+-		return PTR_ERR(sram->virt_base);
++		sram->pool = devm_gen_pool_create(sram->dev, ilog2(SRAM_GRANULARITY),
++						  NUMA_NO_NODE, NULL);
++		if (IS_ERR(sram->pool))
++			return PTR_ERR(sram->pool);
  	}
  
-+	if (of_property_read_u32(np, "overrun-throttle-ms",
-+				 &up.overrun_backoff_time_ms) != 0)
-+		up.overrun_backoff_time_ms = 0;
-+
- 	priv->wakeirq = irq_of_parse_and_map(np, 1);
+-	sram->pool = devm_gen_pool_create(sram->dev, ilog2(SRAM_GRANULARITY),
+-					  NUMA_NO_NODE, NULL);
+-	if (IS_ERR(sram->pool))
+-		return PTR_ERR(sram->pool);
+-
+ 	sram->clk = devm_clk_get(sram->dev, NULL);
+ 	if (IS_ERR(sram->clk))
+ 		sram->clk = NULL;
+@@ -378,15 +421,15 @@ static int sram_probe(struct platform_device *pdev)
  
- 	pdata = of_device_get_match_data(&pdev->dev);
+ 	platform_set_drvdata(pdev, sram);
+ 
+-	init_func = of_device_get_match_data(&pdev->dev);
+-	if (init_func) {
+-		ret = init_func();
++	if (config && config->init) {
++		ret = config->init();
+ 		if (ret)
+ 			goto err_free_partitions;
+ 	}
+ 
+-	dev_dbg(sram->dev, "SRAM pool: %zu KiB @ 0x%p\n",
+-		gen_pool_size(sram->pool) / 1024, sram->virt_base);
++	if (sram->pool)
++		dev_dbg(sram->dev, "SRAM pool: %zu KiB @ 0x%p\n",
++			gen_pool_size(sram->pool) / 1024, sram->virt_base);
+ 
+ 	return 0;
+ 
+@@ -405,7 +448,7 @@ static int sram_remove(struct platform_device *pdev)
+ 
+ 	sram_free_partitions(sram);
+ 
+-	if (gen_pool_avail(sram->pool) < gen_pool_size(sram->pool))
++	if (sram->pool && gen_pool_avail(sram->pool) < gen_pool_size(sram->pool))
+ 		dev_err(sram->dev, "removed while SRAM allocated\n");
+ 
+ 	if (sram->clk)
+diff --git a/drivers/misc/sram.h b/drivers/misc/sram.h
+index 9c1d21ff7347..d2058d8c8f1d 100644
+--- a/drivers/misc/sram.h
++++ b/drivers/misc/sram.h
+@@ -5,6 +5,11 @@
+ #ifndef __SRAM_H
+ #define __SRAM_H
+ 
++struct sram_config {
++	int (*init)(void);
++	bool map_only_reserved;
++};
++
+ struct sram_partition {
+ 	void __iomem *base;
+ 
+@@ -15,8 +20,11 @@ struct sram_partition {
+ };
+ 
+ struct sram_dev {
++	const struct sram_config *config;
++
+ 	struct device *dev;
+ 	void __iomem *virt_base;
++	bool no_memory_wc;
+ 
+ 	struct gen_pool *pool;
+ 	struct clk *clk;
+@@ -29,6 +37,7 @@ struct sram_reserve {
+ 	struct list_head list;
+ 	u32 start;
+ 	u32 size;
++	struct resource res;
+ 	bool export;
+ 	bool pool;
+ 	bool protect_exec;
 -- 
 2.30.2
 
