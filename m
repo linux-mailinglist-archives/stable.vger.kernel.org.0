@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99C79405082
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:41:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D59C4050CF
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349787AbhIIM2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:28:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34532 "EHLO mail.kernel.org"
+        id S1351150AbhIIMcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346005AbhIIMYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345793AbhIIMYO (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:24:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACDF361371;
-        Thu,  9 Sep 2021 11:51:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C1106121E;
+        Thu,  9 Sep 2021 11:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188276;
-        bh=nMfTGbcyNEWLGDa5SeipsmZJGiZsvo5JM3wuNC1ZhG0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/z/zrKC7Sh7FEOjyLtuE2REWgeqzpc1psx+D4lMM0SfB/Lpk6DR+HTghPx1KFAWm
-         FTA9REUSecl3tfNr0Ol+9D+rBlA35jsGaCMxUTradaNU5b6xgUhdMqoWr47UMlQQhv
-         fmFr9Fx/lFYQlw5UA93Ono+kygAaQ5HoZUAaF5gwU3O8abueP5tNwLnWNr6JEP3kAe
-         mZzFPWxS8iUcner1M12fXaxor7z4cYY8hLBVQbELLgc3buLvXpHOjr5TmhtDYMuw25
-         nvPobgd54rFKYAfNxzTS+AGJPMuiWEuqZbOSIrKR+UeZLcHja7nN85AdfNwH9mTsNj
-         cjY10opI61aYQ==
+        s=k20201202; t=1631188280;
+        bh=l6otXLWJKbzqWhRfS+K84WrcdbPANIzdtDGgV0fqRvo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=u9pyV3EACFswVQNUlJwsKFJ9gjHThlH5cx8hFGhJ9ZItsneo8Fm9MIXDsdAl+nwmS
+         tuAqA96a1CTiEd5dGSmqZRmql/Aij3dHbSON9bdvXVp0HYuAoT4ozC4oMS5QuqYqCZ
+         gLyP2r3wX4gDLMxDzAfoBL8/DbRU1ZOvL/jU2B0ewMzWYACR95/4kfCZNSGzEMJwl+
+         56Ny1ienETgKrryWQ7jqKrgzEqkGDbVZjl/WC0FF10Lw08Eti28C4t644vS9qlkxt+
+         p5da5qn0UqOFGDAOlUx0qtBtifDAKiv9cApVSb64yTw9gXr9cvNlJ4OfBDeIRHPJ0E
+         5pUFHa1E3q2Vw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guojia Liao <liaoguojia@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 219/219] net: hns3: clean up a type mismatch warning
-Date:   Thu,  9 Sep 2021 07:46:35 -0400
-Message-Id: <20210909114635.143983-219-sashal@kernel.org>
+Cc:     Dom Cobley <popcornmix@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 001/176] drm/vc4: hdmi: Set HD_CTL_WHOLSMP and HD_CTL_CHALIGN_SET
+Date:   Thu,  9 Sep 2021 07:48:23 -0400
+Message-Id: <20210909115118.146181-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
-References: <20210909114635.143983-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,43 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guojia Liao <liaoguojia@huawei.com>
+From: Dom Cobley <popcornmix@gmail.com>
 
-[ Upstream commit e79c0e324b011b0288cd411a5b53870a7730f163 ]
+[ Upstream commit 1698ecb218eb82587dbfc71a2e26ded66e5ecf59 ]
 
-abs() returns signed long, which could not convert the type
-as unsigned, and it may cause a mismatch type warning from
-static tools. To fix it, this patch uses an variable to save
-the abs()'s result and does a explicit conversion.
+Symptom is random switching of speakers when using multichannel.
 
-Signed-off-by: Guojia Liao <liaoguojia@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Repeatedly running speakertest -c8 occasionally starts with
+channels jumbled. This is fixed with HD_CTL_WHOLSMP.
+
+The other bit looks beneficial and apears harmless in testing so
+I'd suggest adding it too.
+
+Documentation says: HD_CTL_WHILSMP_SET
+Wait for whole sample. When this bit is set MAI transmit will start
+only when there is at least one whole sample available in the fifo.
+
+Documentation says: HD_CTL_CHALIGN_SET
+Channel Align When Overflow. This bit is used to realign the audio
+channels in case of an overflow.
+If this bit is set, after the detection of an overflow, equal
+amount of dummy words to the missing words will be written to fifo,
+filling up the broken sample and maintaining alignment.
+
+Signed-off-by: Dom Cobley <popcornmix@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210525132354.297468-7-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-index 38b601031db4..95343f6d15e1 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-@@ -10,7 +10,14 @@
- 
- static u16 hclge_errno_to_resp(int errno)
- {
--	return abs(errno);
-+	int resp = abs(errno);
-+
-+	/* The status for pf to vf msg cmd is u16, constrainted by HW.
-+	 * We need to keep the same type with it.
-+	 * The intput errno is the stander error code, it's safely to
-+	 * use a u16 to store the abs(errno).
-+	 */
-+	return (u16)resp;
- }
- 
- /* hclge_gen_resp_to_vf: used to generate a synchronous response to VF when PF
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index c58b8840090a..ee293f061f0a 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1074,7 +1074,9 @@ static int vc4_hdmi_audio_trigger(struct snd_pcm_substream *substream, int cmd,
+ 		HDMI_WRITE(HDMI_MAI_CTL,
+ 			   VC4_SET_FIELD(vc4_hdmi->audio.channels,
+ 					 VC4_HD_MAI_CTL_CHNUM) |
+-			   VC4_HD_MAI_CTL_ENABLE);
++					 VC4_HD_MAI_CTL_WHOLSMP |
++					 VC4_HD_MAI_CTL_CHALIGN |
++					 VC4_HD_MAI_CTL_ENABLE);
+ 		break;
+ 	case SNDRV_PCM_TRIGGER_STOP:
+ 		HDMI_WRITE(HDMI_MAI_CTL,
 -- 
 2.30.2
 
