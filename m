@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B8EE404F07
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:20:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37338404EA6
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:18:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245295AbhIIMQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:16:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47688 "EHLO mail.kernel.org"
+        id S241473AbhIIMNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:13:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351793AbhIIMKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:10:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F88D619F7;
-        Thu,  9 Sep 2021 11:48:19 +0000 (UTC)
+        id S1351792AbhIIMKM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:10:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1DA7619EB;
+        Thu,  9 Sep 2021 11:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188100;
-        bh=FT1WNIhf/t1k+WrTQhN5g0QjMZtSCFbXIR7DRyrzoX0=;
+        s=k20201202; t=1631188101;
+        bh=ZSD/t6GBczhauPcf8YTa/40vg1sr0JwCZIBauU0hziI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8v2CBir2fLTBTtGqgc81R9VBzs1Ug+VCplHOCwLgn91zbuvasj/i5KFIO0FKshdp
-         BkGNqhQNHY6iD+6OKYc/SCd97oXGA5+SvN2dMM1TPlbAYbYvCyK/XoON3K4X8YGaFy
-         pXQDeFa/I915ScxAfGNe4HCF6MQ2nGsKl4+MUQJImGnxsh4O/kW/ueJfHaXq33DKg6
-         vxRXIVybYkb/QzX5H+45xlbx46TqTmVLMJIOWVfBt171AGN85fHwvlXhLvsY5X7VH6
-         0Y3g2JFcxYj/9s3NuK3PPh8AEZeD2XukGRnp5xeMv+G1C50v7FvxcdPUPzQ72ebHST
-         Hd8uE8qeeIj8Q==
+        b=GVSf8xUgXJ0KeZT4rMHMCGdaa0HIC1i7+rtviHV3bvucrdmuEikMH5JrRxFMiLidO
+         pU27E8qX8R7qude9jcV5VJsLllHYMhzfPr2smVbmL56Nm4kR9RClCV20LwWmG04J21
+         jPWYSh0s4ytfSPoflzq/488EUJT40Bq4QGfJwYMTm/M3a8xAMQs58VyamWkkojPlaN
+         qI0aUAlRy+xJAntIWtFHapOutnfuYckX4GdL9PPIUwVYdkMv+WzIMW8EdVqfPCkpcx
+         8MTMdFY/u5yVQynEVhOfPjArAo2Uc+f5C66g0ab8/pwYg5LqrgaGVBL2fdt5j+7TNc
+         RlbQB7lu8Gu7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Patrick Delaunay <patrick.delaunay@foss.st.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 081/219] ARM: dts: stm32: Update AV96 adv7513 node per dtbs_check
-Date:   Thu,  9 Sep 2021 07:44:17 -0400
-Message-Id: <20210909114635.143983-81-sashal@kernel.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Yajun Deng <yajun.deng@linux.dev>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 082/219] netfilter: nft_compat: use nfnetlink_unicast()
+Date:   Thu,  9 Sep 2021 07:44:18 -0400
+Message-Id: <20210909114635.143983-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -46,53 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 1e6bc5987a5252948e3411e5a2dbb434fd1ea107 ]
+[ Upstream commit 241d1af4c11a75d4c17ecc0193a6ab60553efbfc ]
 
-Swap reg and reg-names order and drop adi,input-justification
-and adi,input-style to fix the following dtbs_check warnings:
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: adi,input-justification: False schema does not allow ['evenly']
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: adi,input-style: False schema does not allow [[1]]
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: reg-names:1: 'edid' was expected
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: reg-names:2: 'cec' was expected
+Use nfnetlink_unicast() which already translates EAGAIN to ENOBUFS,
+since EAGAIN is reserved to report missing module dependencies to the
+nfnetlink core.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Patrice Chotard <patrice.chotard@foss.st.com>
-Cc: Patrick Delaunay <patrick.delaunay@foss.st.com>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+e0241ae6ac59 ("netfilter: use nfnetlink_unicast() forgot to update
+this spot.
+
+Reported-by: Yajun Deng <yajun.deng@linux.dev>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ net/netfilter/nft_compat.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-index 64dca5b7f748..6885948f3024 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-@@ -220,8 +220,8 @@ &i2c2 {	/* X6 I2C2 */
- &i2c4 {
- 	hdmi-transmitter@3d {
- 		compatible = "adi,adv7513";
--		reg = <0x3d>, <0x2d>, <0x4d>, <0x5d>;
--		reg-names = "main", "cec", "edid", "packet";
-+		reg = <0x3d>, <0x4d>, <0x2d>, <0x5d>;
-+		reg-names = "main", "edid", "cec", "packet";
- 		clocks = <&cec_clock>;
- 		clock-names = "cec";
+diff --git a/net/netfilter/nft_compat.c b/net/netfilter/nft_compat.c
+index 5415ab14400d..31e6da30da5f 100644
+--- a/net/netfilter/nft_compat.c
++++ b/net/netfilter/nft_compat.c
+@@ -680,14 +680,12 @@ static int nfnl_compat_get_rcu(struct sk_buff *skb,
+ 		goto out_put;
+ 	}
  
-@@ -239,8 +239,6 @@ hdmi-transmitter@3d {
- 		adi,input-depth = <8>;
- 		adi,input-colorspace = "rgb";
- 		adi,input-clock = "1x";
--		adi,input-style = <1>;
--		adi,input-justification = "evenly";
+-	ret = netlink_unicast(info->sk, skb2, NETLINK_CB(skb).portid,
+-			      MSG_DONTWAIT);
+-	if (ret > 0)
+-		ret = 0;
++	ret = nfnetlink_unicast(skb2, info->net, NETLINK_CB(skb).portid);
+ out_put:
+ 	rcu_read_lock();
+ 	module_put(THIS_MODULE);
+-	return ret == -EAGAIN ? -ENOBUFS : ret;
++
++	return ret;
+ }
  
- 		ports {
- 			#address-cells = <1>;
+ static const struct nla_policy nfnl_compat_policy_get[NFTA_COMPAT_MAX+1] = {
 -- 
 2.30.2
 
