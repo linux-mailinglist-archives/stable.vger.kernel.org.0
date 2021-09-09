@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C52404EB8
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:18:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43305404EBB
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:18:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243957AbhIIMNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:13:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51720 "EHLO mail.kernel.org"
+        id S243275AbhIIMNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:13:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346048AbhIIMLO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346005AbhIIMLO (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:11:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48000619E9;
-        Thu,  9 Sep 2021 11:48:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 689E66121D;
+        Thu,  9 Sep 2021 11:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188112;
-        bh=3O0lqPPUH/2D2pVU3SgtAvx6ACObZxJzsIqXDUgcDLA=;
+        s=k20201202; t=1631188113;
+        bh=oraHnGZFm1q6kF2RehNTcm+Sqn9GnMrRvzl+imUiu7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYpdqB2qPIt+yrUqwBG/U3pJe08lYQ8YK7gEgtqAGgjrnAPg3sqTkjXklZZWcAlHO
-         ZnatxEITrNRR77TJ1gitYDvNkSIduJMNYsBZ4a9hfziH7iHlY7RQvQ1p7lUPEyNxx3
-         1mHK3o5Gj/cL7LVHqOO88J8uzX787nlPksMz8ojLQS5tm8c/F6vaGoPy5/cYd3e1Ik
-         3dWsqQAiApKI9yTXJkS+2eRAWbTRi6Mdo75G3ZNA2oNkNMKmsPngvnwfl3nXHaOBqd
-         fl28zT/KZAQMx/U5hKt9oZxRimwPRDHGYJXey5mBDfGm0Ges0kvpoVFRxfXvp1wm/o
-         8XDDk59SV+D4Q==
+        b=DoQD5+C7nPx6YVb1w3TWtt3r2qmeVQsH0ZwhyX56nfs9YeWZ75zDrlBIcjJfD2KiI
+         EKggo/vSkYn+j/tFqjdPG4crLuqY3OZBSTqXxNp1Wh+t3sQwrSnXU/WpgpYDP8AVSV
+         w8MPz0FWrCxY+iksy9dWKqXzrcsRZ2f0DwkuH9by9v3NZ7V2St1kGgfgULzyW7x7AO
+         sYBP5NtS3UxPOyJ3gexhCE+m8ueW+W9ZE6I5fAjOe3NI3/EIKslgRf2wb/AFGinVmg
+         LW02574VT0sqyDUKYLc1r8BdC1a4xp/KEOP3EDSJWWdAOUpoUK0M0h+tz4OB5qfQZz
+         g9+wuCKi7WtjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ioana Ciornei <ioana.ciornei@nxp.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 090/219] dpaa2-switch: do not enable the DPSW at probe time
-Date:   Thu,  9 Sep 2021 07:44:26 -0400
-Message-Id: <20210909114635.143983-90-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Umang Jain <umang.jain@ideasonboard.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 091/219] media: imx258: Rectify mismatch of VTS value
+Date:   Thu,  9 Sep 2021 07:44:27 -0400
+Message-Id: <20210909114635.143983-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -42,38 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ioana Ciornei <ioana.ciornei@nxp.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 042ad90ca7ce70f35dc5efd5b2043d2f8aceb12a ]
+[ Upstream commit 51f93add3669f1b1f540de1cf397815afbd4c756 ]
 
-We should not enable the switch interfaces at probe time since this is
-trigged by the open callback. Remove the call dpsw_enable() which does
-exactly this.
+The frame_length_lines (0x0340) registers are hard-coded as follows:
 
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+- 4208x3118
+  frame_length_lines = 0x0c50
+
+- 2104x1560
+  frame_length_lines = 0x0638
+
+- 1048x780
+  frame_length_lines = 0x034c
+
+The driver exposes the V4L2_CID_VBLANK control in read-only mode and
+sets its value to vts_def - height, where vts_def is a mode-dependent
+value coming from the supported_modes array. It is set using one of
+the following macros defined in the driver:
+
+  #define IMX258_VTS_30FPS                0x0c98
+  #define IMX258_VTS_30FPS_2K             0x0638
+  #define IMX258_VTS_30FPS_VGA            0x034c
+
+There's a clear mismatch in the value for the full resolution mode i.e.
+IMX258_VTS_30FPS. Fix it by rectifying the macro with the value set for
+the frame_length_lines register as stated above.
+
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Umang Jain <umang.jain@ideasonboard.com>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/media/i2c/imx258.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
-index 58964d22cb17..e3a3499ba7a2 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
-@@ -3231,12 +3231,6 @@ static int dpaa2_switch_probe(struct fsl_mc_device *sw_dev)
- 			       &ethsw->fq[i].napi, dpaa2_switch_poll,
- 			       NAPI_POLL_WEIGHT);
+diff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c
+index a017ec4e0f50..b3fa28d05fa6 100644
+--- a/drivers/media/i2c/imx258.c
++++ b/drivers/media/i2c/imx258.c
+@@ -23,7 +23,7 @@
+ #define IMX258_CHIP_ID			0x0258
  
--	err = dpsw_enable(ethsw->mc_io, 0, ethsw->dpsw_handle);
--	if (err) {
--		dev_err(ethsw->dev, "dpsw_enable err %d\n", err);
--		goto err_free_netdev;
--	}
--
- 	/* Setup IRQs */
- 	err = dpaa2_switch_setup_irqs(sw_dev);
- 	if (err)
+ /* V_TIMING internal */
+-#define IMX258_VTS_30FPS		0x0c98
++#define IMX258_VTS_30FPS		0x0c50
+ #define IMX258_VTS_30FPS_2K		0x0638
+ #define IMX258_VTS_30FPS_VGA		0x034c
+ #define IMX258_VTS_MAX			0xffff
 -- 
 2.30.2
 
