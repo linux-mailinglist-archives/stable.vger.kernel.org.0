@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 972FB405648
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:36:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F107F405644
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:36:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359188AbhIINTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:19:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53470 "EHLO mail.kernel.org"
+        id S1354259AbhIINTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:19:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1358650AbhIINJN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1358653AbhIINJN (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 09:09:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7593E61452;
-        Thu,  9 Sep 2021 12:00:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF0A2632C2;
+        Thu,  9 Sep 2021 12:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188856;
-        bh=UmH3tyQhlZMb5iouAeSw2MzsrySdnZUzxrI6Fv6GO2E=;
+        s=k20201202; t=1631188857;
+        bh=Fu6AtivubNfjB5qEBuEjYVKCXg6JBi7tagMajJtLjaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j3UkJ2AwKYi8nQG1vrVFzLMsDbhfbAc7Hi0J8d+M3G0cqOB7Ga9s0+1Ehmzm890zb
-         vSyWrmkOtAB/gbd6N8CWcnlUsWtuPjksVMrClJqjlA/Grwno+2JMRmEb6sThTUNRfN
-         Jrd6l+ByTgwr6gwI4OvflGupGO3Uw0jqOMkYUpaW9E7enbgtnu8fAFTZQXVmKyIwZV
-         vfczDA1W2zKzs8PrI5djNtsjzu73yIzXjXUFhNrVNNet92GBL3XIk5Eu9kVXQNtZpU
-         vwinyxKyE3UVRzEnw1kYnq4hISKW15Q5Rxi30iEufgiuNd500t45oBEGxY/Vz82tOk
-         RMQPTboPqdB7Q==
+        b=lyLimCsui4n2/Fa2PTexoaAWoQEl+O17O3NpKuFeBvhMfrY5FPdX1wpRvqCVBcR7C
+         cOJ9z8ic5/CPWkYBSscYzA1tyXvzjIaSm8VwekbidB/Er5l12kMJMWPWUp8XPPlvwN
+         TXjSpBMIiOVWKwVaZtP0tz8Vbh46W4UoEMg4sbUUuqyPrCZpEWrlaaKWJ9AVHBROC+
+         MktJ+i9x63ZzfPafS5VUUZqzFqzfXu8zaUvaMVtpLSHD62cBVknKGuPK5+vYjuFtOg
+         C3KyNDFMugbKVSZS27SIiWG00+iH4i8Vd5FJCBI+evxSh2+U6VBulBc+Dw1OWdvUU6
+         UTJ0V7FH8KabA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tuo Li <islituo@gmail.com>, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 32/48] gpu: drm: amd: amdgpu: amdgpu_i2c: fix possible uninitialized-variable access in amdgpu_i2c_router_select_ddc_port()
-Date:   Thu,  9 Sep 2021 07:59:59 -0400
-Message-Id: <20210909120015.150411-32-sashal@kernel.org>
+Cc:     Andreas Obergschwandtner <andreas.obergschwandtner@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 33/48] ARM: tegra: tamonten: Fix UART pad setting
+Date:   Thu,  9 Sep 2021 08:00:00 -0400
+Message-Id: <20210909120015.150411-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909120015.150411-1-sashal@kernel.org>
 References: <20210909120015.150411-1-sashal@kernel.org>
@@ -43,44 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Andreas Obergschwandtner <andreas.obergschwandtner@gmail.com>
 
-[ Upstream commit a211260c34cfadc6068fece8c9e99e0fe1e2a2b6 ]
+[ Upstream commit 2270ad2f4e123336af685ecedd1618701cb4ca1e ]
 
-The variable val is declared without initialization, and its address is
-passed to amdgpu_i2c_get_byte(). In this function, the value of val is
-accessed in:
-  DRM_DEBUG("i2c 0x%02x 0x%02x read failed\n",
-       addr, *val);
+This patch fixes the tristate and pullup configuration for UART 1 to 3
+on the Tamonten SOM.
 
-Also, when amdgpu_i2c_get_byte() returns, val may remain uninitialized,
-but it is accessed in:
-  val &= ~amdgpu_connector->router.ddc_mux_control_pin;
-
-To fix this possible uninitialized-variable access, initialize val to 0 in
-amdgpu_i2c_router_select_ddc_port().
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Andreas Obergschwandtner <andreas.obergschwandtner@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/tegra20-tamonten.dtsi | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-index 91d367399956..a334eb7dbff4 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-@@ -339,7 +339,7 @@ static void amdgpu_i2c_put_byte(struct amdgpu_i2c_chan *i2c_bus,
- void
- amdgpu_i2c_router_select_ddc_port(const struct amdgpu_connector *amdgpu_connector)
- {
--	u8 val;
-+	u8 val = 0;
- 
- 	if (!amdgpu_connector->router.ddc_valid)
- 		return;
+diff --git a/arch/arm/boot/dts/tegra20-tamonten.dtsi b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+index 27d2bbbf1eae..a613e3b85b45 100644
+--- a/arch/arm/boot/dts/tegra20-tamonten.dtsi
++++ b/arch/arm/boot/dts/tegra20-tamonten.dtsi
+@@ -184,8 +184,9 @@ conf_ata {
+ 				nvidia,pins = "ata", "atb", "atc", "atd", "ate",
+ 					"cdev1", "cdev2", "dap1", "dtb", "gma",
+ 					"gmb", "gmc", "gmd", "gme", "gpu7",
+-					"gpv", "i2cp", "pta", "rm", "slxa",
+-					"slxk", "spia", "spib", "uac";
++					"gpv", "i2cp", "irrx", "irtx", "pta",
++					"rm", "slxa", "slxk", "spia", "spib",
++					"uac";
+ 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
+ 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+ 			};
+@@ -210,7 +211,7 @@ conf_crtp {
+ 			conf_ddc {
+ 				nvidia,pins = "ddc", "dta", "dtd", "kbca",
+ 					"kbcb", "kbcc", "kbcd", "kbce", "kbcf",
+-					"sdc";
++					"sdc", "uad", "uca";
+ 				nvidia,pull = <TEGRA_PIN_PULL_UP>;
+ 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
+ 			};
+@@ -220,10 +221,9 @@ conf_hdint {
+ 					"lvp0", "owc", "sdb";
+ 				nvidia,tristate = <TEGRA_PIN_ENABLE>;
+ 			};
+-			conf_irrx {
+-				nvidia,pins = "irrx", "irtx", "sdd", "spic",
+-					"spie", "spih", "uaa", "uab", "uad",
+-					"uca", "ucb";
++			conf_sdd {
++				nvidia,pins = "sdd", "spic", "spie", "spih",
++					"uaa", "uab", "ucb";
+ 				nvidia,pull = <TEGRA_PIN_PULL_UP>;
+ 				nvidia,tristate = <TEGRA_PIN_ENABLE>;
+ 			};
 -- 
 2.30.2
 
