@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A01404C6A
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:56:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F914404C6C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:56:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245609AbhIIL47 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:56:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34892 "EHLO mail.kernel.org"
+        id S240527AbhIIL5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:57:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245240AbhIILy6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:54:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B9F7613A7;
-        Thu,  9 Sep 2021 11:44:59 +0000 (UTC)
+        id S245395AbhIILzB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:55:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEED4613AC;
+        Thu,  9 Sep 2021 11:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187900;
-        bh=AV9wRD9lEMp2Qb/zjeTJnb2M22/TDCzs8tAi3oi+/+Q=;
+        s=k20201202; t=1631187901;
+        bh=aaidjrucUKnmG5VQ3F5mQ4dXhXB0XltpnQ3cCWjebso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nBNnfYx74BMsC9aStgnCqbnoRWlxitjegf1CLbwOp0mwn+PxFVsSRJ0nVqOXo/Y7Y
-         RPSS8FaR2RznpAnEXrlp+0ak4376f4sws36iHYq07SU/53imA9EK5/8HDn7ooyUZFK
-         av4feSlSTMXNlTG/5RlBFwQNJMm7nVcRv/zhqS/1LWAb4Mro06rSDqAuTuDXx/v5VD
-         6V4v4GMsThw/hrLKW6mfOw6Paicr2Tb7CCU1ypIzfluBPsdhj2womyiQa0AbQnjJw2
-         /TqHFCp5CUQ5AsPSUJiwL9GuKsnQzVDXDr7Zpbcpsb6AAGf9En9g4casx+zXDzAlEc
-         dUfLCmoSPFZSw==
+        b=rfNqHeCuhK/TmTNp9aR3ZPvnlW+TNwwejoHNxgh1P6kgDFnToJ/LQ1C3JVqPzEsEP
+         4mKZGWD+7vbc6TAXUCdesX22xKpB08WCBg63akUnCSqkVkBSEUm+KaYXdttCKT5+0u
+         S1OJbFAiSJ7w5FOyDmrIV68U9SojI4QrJnISxYJ6fONbZEYK2ivkWL+oZtOzpCwZPl
+         Huuwe9h862tYwOi3/mSUETDqaM/SmhnMIslSIl0/8wDFwYDrvEnKiCxHEFCP9LtFhX
+         oXRwV1jkLnHVDsdNJPPy8RZyVUIVMLwG908Xp8ZLG/nmzVpGhI5qx+WgkNuNAlmRLz
+         0NY7QUpNspPXw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 179/252] ASoC: rsnd: adg: clearly handle clock error / NULL case
-Date:   Thu,  9 Sep 2021 07:39:53 -0400
-Message-Id: <20210909114106.141462-179-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.14 180/252] gfs2: Don't call dlm after protocol is unmounted
+Date:   Thu,  9 Sep 2021 07:39:54 -0400
+Message-Id: <20210909114106.141462-180-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -43,90 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit cc64c390b215b404524725a94857d6fb58d9a62a ]
+[ Upstream commit d1340f80f0b8066321b499a376780da00560e857 ]
 
-This driver is assuming that all adg->clk[i] is not NULL.
-Because of this prerequisites, for_each_rsnd_clk() is possible to work
-for all clk without checking NULL. In other words, all adg->clk[i]
-should not NULL.
+In the gfs2 withdraw sequence, the dlm protocol is unmounted with a call
+to lm_unmount. After a withdraw, users are allowed to unmount the
+withdrawn file system. But at that point we may still have glocks left
+over that we need to free via unmount's call to gfs2_gl_hash_clear.
+These glocks may have never been completed because of whatever problem
+caused the withdraw (IO errors or whatever).
 
-Some SoC might doesn't have clk_a/b/c/i. devm_clk_get() returns error in
-such case. This driver calls rsnd_adg_null_clk_get() and use null_clk
-instead of NULL in such cases.
+Before this patch, function gdlm_put_lock would still try to call into
+dlm to unlock these leftover glocks, which resulted in dlm returning
+-EINVAL because the lock space was abandoned. These glocks were never
+freed because there was no mechanism after that to free them.
 
-But devm_clk_get() might returns NULL even though such clocks exist, but
-it doesn't mean error (user deliberately chose to disable the feature).
-NULL clk itself is not error from clk point of view, but is error from
-this driver point of view because it is not assuming such case.
+This patch adds a check to gdlm_put_lock to see if the locking protocol
+was inactive (DFL_UNMOUNT flag) and if so, free the glock and not
+make the invalid call into dlm.
 
-But current code is using IS_ERR() which doesn't care NULL.
-This driver uses IS_ERR_OR_NULL() instead of IS_ERR() for clk check.
-And it uses ERR_CAST() to clarify null_clk error.
+I could have combined this "if" with the one that follows, related to
+leftover glock LVBs, but I felt the code was more readable with its own
+if clause.
 
-One concern here is that it unconditionally uses null_clk if clk_a/b/c/i
-was error. It is correct if it doesn't exist, but is not correct if it
-returns error even though it exist.
-It needs to check "clock-names" from DT before calling devm_clk_get() to
-handling such case. But let's assume it is overkill so far.
-
-Link: https://lore.kernel.org/r/YMCmhfQUimHCSH/n@mwanda
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87v940wyf9.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/adg.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/gfs2/lock_dlm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/sh/rcar/adg.c b/sound/soc/sh/rcar/adg.c
-index 0ebee1ed06a9..5f1e72edfee0 100644
---- a/sound/soc/sh/rcar/adg.c
-+++ b/sound/soc/sh/rcar/adg.c
-@@ -391,9 +391,9 @@ static struct clk *rsnd_adg_create_null_clk(struct rsnd_priv *priv,
- 	struct clk *clk;
+diff --git a/fs/gfs2/lock_dlm.c b/fs/gfs2/lock_dlm.c
+index dac040162ecc..50578f881e6d 100644
+--- a/fs/gfs2/lock_dlm.c
++++ b/fs/gfs2/lock_dlm.c
+@@ -299,6 +299,11 @@ static void gdlm_put_lock(struct gfs2_glock *gl)
+ 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
+ 	gfs2_update_request_times(gl);
  
- 	clk = clk_register_fixed_rate(dev, name, parent, 0, 0);
--	if (IS_ERR(clk)) {
-+	if (IS_ERR_OR_NULL(clk)) {
- 		dev_err(dev, "create null clk error\n");
--		return NULL;
-+		return ERR_CAST(clk);
- 	}
++	/* don't want to call dlm if we've unmounted the lock protocol */
++	if (test_bit(DFL_UNMOUNT, &ls->ls_recover_flags)) {
++		gfs2_glock_free(gl);
++		return;
++	}
+ 	/* don't want to skip dlm_unlock writing the lvb when lock has one */
  
- 	return clk;
-@@ -430,9 +430,9 @@ static int rsnd_adg_get_clkin(struct rsnd_priv *priv)
- 	for (i = 0; i < CLKMAX; i++) {
- 		clk = devm_clk_get(dev, clk_name[i]);
- 
--		if (IS_ERR(clk))
-+		if (IS_ERR_OR_NULL(clk))
- 			clk = rsnd_adg_null_clk_get(priv);
--		if (IS_ERR(clk))
-+		if (IS_ERR_OR_NULL(clk))
- 			goto err;
- 
- 		adg->clk[i] = clk;
-@@ -582,7 +582,7 @@ static int rsnd_adg_get_clkout(struct rsnd_priv *priv)
- 	if (!count) {
- 		clk = clk_register_fixed_rate(dev, clkout_name[CLKOUT],
- 					      parent_clk_name, 0, req_rate[0]);
--		if (IS_ERR(clk))
-+		if (IS_ERR_OR_NULL(clk))
- 			goto err;
- 
- 		adg->clkout[CLKOUT] = clk;
-@@ -596,7 +596,7 @@ static int rsnd_adg_get_clkout(struct rsnd_priv *priv)
- 			clk = clk_register_fixed_rate(dev, clkout_name[i],
- 						      parent_clk_name, 0,
- 						      req_rate[0]);
--			if (IS_ERR(clk))
-+			if (IS_ERR_OR_NULL(clk))
- 				goto err;
- 
- 			adg->clkout[i] = clk;
+ 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
 -- 
 2.30.2
 
