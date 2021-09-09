@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF105404E71
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:18:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BED7B404EEC
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:19:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347512AbhIIMLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:11:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47324 "EHLO mail.kernel.org"
+        id S238495AbhIIMQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:16:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351154AbhIIMJj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:09:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11316619E0;
-        Thu,  9 Sep 2021 11:48:09 +0000 (UTC)
+        id S1351213AbhIIMJn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:09:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BD45619F6;
+        Thu,  9 Sep 2021 11:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188090;
-        bh=0SQO3dsOesV/b1l38s4e7bxFqHBn1nCeqqbt7vgjWlU=;
+        s=k20201202; t=1631188092;
+        bh=2aOYZBwGulLAxu4C5TU1qGMWvZtIhLPtvSeTuXUZAGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fzgbQUoGt3VX34m+kE04ap6mrhUYmf26Mg3dxyYSenXSxwr9YfRzyiVqkVLjJrLLh
-         OuHjiY8/GEYFQnU1kSiQCuCwIp9xxrkt6jmp9FlXSJKgnXWbedFzvpPLOFAYewyS2p
-         utMCqYWNHlTA99cJg8CPJ6n0T4Jr6DQbvl6M94jfa94zHiTTiQqLm2uwMaKHBnDSx+
-         dRWNGjcKJANlC20jz3tQub81R2kZ4HNquy2sR56vg0kZ+/ahbWfI1B4LpUaPd/W+lz
-         7XORhK0pBAnqV//diQ2tdhIb9N8X/WBBTyQei7XuvkCR3fXDpbpR2DsEzSYF8M1LZi
-         aSCQXkeUoC8HQ==
+        b=Aaf0JlOACdkL3BAgK469dnLZ8ZVrB2b402bLdtflTHtN1ZPym5/8fLdPQ1XtRoUEi
+         4FKl1eHW8HsresmHqxh3o3tDXOPaL85PmK0DSXzAH7pdL3EA5Fcptw/xJAKJadX5yF
+         KLcaEdSYG1kNsgeWr3j/IblQ/ENOEa1+LY2pJI8cNBG5Fkair5XYJv6kGLUizvVHN7
+         ODWcd5k27MD1sTCcWZw/odW+38BbQxatWcEIKlkrMHSFxwEG2+kQ09mP6sdqEIKSn2
+         B5rU5Id7RfXmMPRzM/CrAXIGLLlNTZ42OxFaw2Sb1hU5mfuaskc+meUG9WY11Iqoql
+         /TzfPBx35QS8A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 074/219] ata: sata_dwc_460ex: No need to call phy_exit() befre phy_init()
-Date:   Thu,  9 Sep 2021 07:44:10 -0400
-Message-Id: <20210909114635.143983-74-sashal@kernel.org>
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 075/219] i2c: i801: Fix handling SMBHSTCNT_PEC_EN
+Date:   Thu,  9 Sep 2021 07:44:11 -0400
+Message-Id: <20210909114635.143983-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -42,56 +42,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 3ad4a31620355358316fa08fcfab37b9d6c33347 ]
+[ Upstream commit a6b8bb6a813a6621c75ceacd1fa604c0229e9624 ]
 
-Last change to device managed APIs cleaned up error path to simple phy_exit()
-call, which in some cases has been executed with NULL parameter. This per se
-is not a problem, but rather logical misconception: no need to free resource
-when it's for sure has not been allocated yet. Fix the driver accordingly.
+Bit SMBHSTCNT_PEC_EN is used only if software calculates the CRC and
+uses register SMBPEC. This is not supported by the driver, it supports
+hw-calculation of CRC only (using bit SMBAUXSTS_CRCE). The chip spec
+states the following, therefore never set bit SMBHSTCNT_PEC_EN.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210727125130.19977-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Chapter SMBus CRC Generation and Checking
+If the AAC bit is set in the Auxiliary Control register, the PCH
+automatically calculates and drives CRC at the end of the transmitted
+packet for write cycles, and will check the CRC for read cycles. It will
+not transmit the contents of the PEC register for CRC. The PEC bit must
+not be set in the Host Control register. If this bit is set, unspecified
+behavior will result.
+
+This patch is based solely on the specification and compile-tested only,
+because I have no PEC-capable devices.
+
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Tested-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/sata_dwc_460ex.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 27 +++++++++++----------------
+ 1 file changed, 11 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/ata/sata_dwc_460ex.c b/drivers/ata/sata_dwc_460ex.c
-index f0ef844428bb..338c2e50f759 100644
---- a/drivers/ata/sata_dwc_460ex.c
-+++ b/drivers/ata/sata_dwc_460ex.c
-@@ -1259,24 +1259,20 @@ static int sata_dwc_probe(struct platform_device *ofdev)
- 	irq = irq_of_parse_and_map(np, 0);
- 	if (irq == NO_IRQ) {
- 		dev_err(&ofdev->dev, "no SATA DMA irq\n");
--		err = -ENODEV;
--		goto error_out;
-+		return -ENODEV;
- 	}
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 04a1e38f2a6f..3619805447ce 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -526,19 +526,16 @@ static int i801_transaction(struct i801_priv *priv, int xact)
  
- #ifdef CONFIG_SATA_DWC_OLD_DMA
- 	if (!of_find_property(np, "dmas", NULL)) {
- 		err = sata_dwc_dma_init_old(ofdev, hsdev);
- 		if (err)
--			goto error_out;
-+			return err;
- 	}
- #endif
+ static int i801_block_transaction_by_block(struct i801_priv *priv,
+ 					   union i2c_smbus_data *data,
+-					   char read_write, int command,
+-					   int hwpec)
++					   char read_write, int command)
+ {
+-	int i, len;
+-	int status;
+-	int xact = hwpec ? SMBHSTCNT_PEC_EN : 0;
++	int i, len, status, xact;
  
- 	hsdev->phy = devm_phy_optional_get(hsdev->dev, "sata-phy");
--	if (IS_ERR(hsdev->phy)) {
--		err = PTR_ERR(hsdev->phy);
--		hsdev->phy = NULL;
--		goto error_out;
--	}
-+	if (IS_ERR(hsdev->phy))
-+		return PTR_ERR(hsdev->phy);
+ 	switch (command) {
+ 	case I2C_SMBUS_BLOCK_PROC_CALL:
+-		xact |= I801_BLOCK_PROC_CALL;
++		xact = I801_BLOCK_PROC_CALL;
+ 		break;
+ 	case I2C_SMBUS_BLOCK_DATA:
+-		xact |= I801_BLOCK_DATA;
++		xact = I801_BLOCK_DATA;
+ 		break;
+ 	default:
+ 		return -EOPNOTSUPP;
+@@ -688,8 +685,7 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
+  */
+ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+ 					       union i2c_smbus_data *data,
+-					       char read_write, int command,
+-					       int hwpec)
++					       char read_write, int command)
+ {
+ 	int i, len;
+ 	int smbcmd;
+@@ -794,9 +790,8 @@ static int i801_set_block_buffer_mode(struct i801_priv *priv)
+ }
  
- 	err = phy_init(hsdev->phy);
- 	if (err)
+ /* Block transaction function */
+-static int i801_block_transaction(struct i801_priv *priv,
+-				  union i2c_smbus_data *data, char read_write,
+-				  int command, int hwpec)
++static int i801_block_transaction(struct i801_priv *priv, union i2c_smbus_data *data,
++				  char read_write, int command)
+ {
+ 	int result = 0;
+ 	unsigned char hostc;
+@@ -832,11 +827,11 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 	 && i801_set_block_buffer_mode(priv) == 0)
+ 		result = i801_block_transaction_by_block(priv, data,
+ 							 read_write,
+-							 command, hwpec);
++							 command);
+ 	else
+ 		result = i801_block_transaction_byte_by_byte(priv, data,
+ 							     read_write,
+-							     command, hwpec);
++							     command);
+ 
+ 	if (command == I2C_SMBUS_I2C_BLOCK_DATA
+ 	 && read_write == I2C_SMBUS_WRITE) {
+@@ -947,8 +942,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 		       SMBAUXCTL(priv));
+ 
+ 	if (block)
+-		ret = i801_block_transaction(priv, data, read_write, size,
+-					     hwpec);
++		ret = i801_block_transaction(priv, data, read_write, size);
+ 	else
+ 		ret = i801_transaction(priv, xact);
+ 
+@@ -1720,6 +1714,7 @@ static unsigned char i801_setup_hstcfg(struct i801_priv *priv)
+ 	unsigned char hstcfg = priv->original_hstcfg;
+ 
+ 	hstcfg &= ~SMBHSTCFG_I2C_EN;	/* SMBus timing */
++	hstcfg &= ~SMBHSTCNT_PEC_EN;	/* Disable software PEC */
+ 	hstcfg |= SMBHSTCFG_HST_EN;
+ 	pci_write_config_byte(priv->pci_dev, SMBHSTCFG, hstcfg);
+ 	return hstcfg;
 -- 
 2.30.2
 
