@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F79404F19
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:20:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2D71404F1C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:20:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345878AbhIIMQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:16:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52712 "EHLO mail.kernel.org"
+        id S1346443AbhIIMRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:17:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350883AbhIIMOO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:14:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A4C961A54;
-        Thu,  9 Sep 2021 11:49:10 +0000 (UTC)
+        id S1350915AbhIIMOQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:14:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEF8461A65;
+        Thu,  9 Sep 2021 11:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188151;
-        bh=35mbzRvU6JfJ7yvh2CXrenvC6BWUwLp9YJcEV3nMwhw=;
+        s=k20201202; t=1631188152;
+        bh=VK4cR/Kme6NffHumA+SnASBM6WDsCiW7w2C6aNEn0NE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e53XPLNa4zM/0aIsg7RalaLPEUTJnn78SQ1L4uWeL6Y+kaGNtSjUkQPv6GLYaJ/Vt
-         ySuPu9XW0H2q4HP0nPhgq8/XF1NkipIt6HUXuK0mCjTcLffBKnv31O5FagyDQDX92c
-         iT61BM2xRHt2SJz0Gp2gkp0JdGgguycOEFQNNaPJeFESk+DjRE/YkgG0lgnq9dFFaA
-         MWPc9BwB1WEaPZpMZNrN4Fp3AUlq+u6IT+n4Z6xA+/cvrZgAGIKP6Ii3K6TFflnz/Y
-         fn3uz4YFfX1y7vwRlm7fiYoFxqSptDrINip0eqBFLzgrSPatYM4Ec9xNvZo/9OKjj6
-         SBk6jO/YnEE4w==
+        b=aZ61KqUyNyPJD1Wqs1DEmh9s796FAAWSa5Wx1Zv4kiSiHVUxy4Sir1sTopAJLGUSO
+         67BXHqj5HhQbYe7Be3BEwIvc8RJSdwylSTiRQaGWSGwV6jLVx2y7JjHbRLaKt8E5LV
+         3rynVwjqKaQula4Zd4V5tNKJnLbuHpPmVBdvi90/jxLM+Lvy3BKN/ZW/9ixhOU7MKs
+         7e1xT3E+98W9EY8Wjr5Yodjw9GtED6q/Xq+FCO2s4j0JOnj0cXfzzJSV6AaP3SFRaR
+         LGA/8/Fe7GxIDEgp4JJXB57zrjO2NW10oZ+Bgh/W8/HZHA7Oxi4LSJMaNVaqzpIkJh
+         9UgzUkqyEBMzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jussi Maki <joamaki@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 120/219] selftests/bpf: Fix xdp_tx.c prog section name
-Date:   Thu,  9 Sep 2021 07:44:56 -0400
-Message-Id: <20210909114635.143983-120-sashal@kernel.org>
+Cc:     Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.13 121/219] drm/vmwgfx: fix potential UAF in vmwgfx_surface.c
+Date:   Thu,  9 Sep 2021 07:44:57 -0400
+Message-Id: <20210909114635.143983-121-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -44,50 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jussi Maki <joamaki@gmail.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 95413846cca37f20000dd095cf6d91f8777129d7 ]
+[ Upstream commit 2bc5da528dd570c5ecabc107e6fbdbc55974276f ]
 
-The program type cannot be deduced from 'tx' which causes an invalid
-argument error when trying to load xdp_tx.o using the skeleton.
-Rename the section name to "xdp" so that libbpf can deduce the type.
+drm_file.master should be protected by either drm_device.master_mutex
+or drm_file.master_lookup_lock when being dereferenced. However,
+drm_master_get is called on unprotected file_priv->master pointers in
+vmw_surface_define_ioctl and vmw_gb_surface_define_internal.
 
-Signed-off-by: Jussi Maki <joamaki@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210731055738.16820-7-joamaki@gmail.com
+This is fixed by replacing drm_master_get with drm_file_get_master.
+
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Zack Rusin <zackr@vmware.com>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210724111824.59266-4-desmondcheongzx@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/xdp_tx.c   | 2 +-
- tools/testing/selftests/bpf/test_xdp_veth.sh | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/xdp_tx.c b/tools/testing/selftests/bpf/progs/xdp_tx.c
-index 94e6c2b281cb..5f725c720e00 100644
---- a/tools/testing/selftests/bpf/progs/xdp_tx.c
-+++ b/tools/testing/selftests/bpf/progs/xdp_tx.c
-@@ -3,7 +3,7 @@
- #include <linux/bpf.h>
- #include <bpf/bpf_helpers.h>
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+index 5ff88f8c2382..0c62cd400b64 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+@@ -869,7 +869,7 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
+ 	user_srf->prime.base.shareable = false;
+ 	user_srf->prime.base.tfile = NULL;
+ 	if (drm_is_primary_client(file_priv))
+-		user_srf->master = drm_master_get(file_priv->master);
++		user_srf->master = drm_file_get_master(file_priv);
  
--SEC("tx")
-+SEC("xdp")
- int xdp_tx(struct xdp_md *xdp)
- {
- 	return XDP_TX;
-diff --git a/tools/testing/selftests/bpf/test_xdp_veth.sh b/tools/testing/selftests/bpf/test_xdp_veth.sh
-index ba8ffcdaac30..995278e684b6 100755
---- a/tools/testing/selftests/bpf/test_xdp_veth.sh
-+++ b/tools/testing/selftests/bpf/test_xdp_veth.sh
-@@ -108,7 +108,7 @@ ip link set dev veth2 xdp pinned $BPF_DIR/progs/redirect_map_1
- ip link set dev veth3 xdp pinned $BPF_DIR/progs/redirect_map_2
+ 	/**
+ 	 * From this point, the generic resource management functions
+@@ -1540,7 +1540,7 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
  
- ip -n ns1 link set dev veth11 xdp obj xdp_dummy.o sec xdp_dummy
--ip -n ns2 link set dev veth22 xdp obj xdp_tx.o sec tx
-+ip -n ns2 link set dev veth22 xdp obj xdp_tx.o sec xdp
- ip -n ns3 link set dev veth33 xdp obj xdp_dummy.o sec xdp_dummy
+ 	user_srf = container_of(srf, struct vmw_user_surface, srf);
+ 	if (drm_is_primary_client(file_priv))
+-		user_srf->master = drm_master_get(file_priv->master);
++		user_srf->master = drm_file_get_master(file_priv);
  
- trap cleanup EXIT
+ 	ret = ttm_read_lock(&dev_priv->reservation_sem, true);
+ 	if (unlikely(ret != 0))
 -- 
 2.30.2
 
