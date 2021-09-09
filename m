@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ED9E405102
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2162405100
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344917AbhIIMdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:33:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34530 "EHLO mail.kernel.org"
+        id S1343563AbhIIMdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:33:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347004AbhIIM2R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:28:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8547561B22;
-        Thu,  9 Sep 2021 11:52:09 +0000 (UTC)
+        id S1346899AbhIIM2Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:28:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFE0961B2C;
+        Thu,  9 Sep 2021 11:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188330;
-        bh=QoClUXnsgUsdkKIUK3S7YihV40s5FkTGnHPGa3PGaME=;
+        s=k20201202; t=1631188331;
+        bh=NFrGmOjQVLMvV/HpF5LMSqtHkHIDEbEEUZZB9yULr2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQmX5TZCtUbfJFe3LdVpTBY8NESCVuH0tQUQF3i+S38cUbK5B564jJpycxE112bLY
-         dj5xILdjHK4oXyAi4Aqbi7y/htcu1kS+kAdkruOVxpK2FYwaFt5xGEvzJJVXptfq/Z
-         sKrqfibo+yHD0zsMk+mJ8PqTa4hK1/kYVwZ/KzcN0k2T8aiY5EN8lq7YWLEYtEJ9Bf
-         W8NegKL4XMXPzkFCnA7QuZQTtBOYA1SM5rBRYiRLh8N4d+AwMnq8dYsQxFPbXUZLca
-         NTEzbx8g4jfGIeERI2h3MQNEEfYLxd2+xrNwPpZKOPakyiwnZmEgjtDkjwVX8xYv4S
-         EaMoJj/rt7kDA==
+        b=XFuiyUEa8Tgw0/Y5l+MMC6j0/UhxIEWQUsinYyAyIp/Ki9VKAEV3fzgAHvMidp+XL
+         aPk1AdlUbGVHhW/1eEzIekgHr3BwFVf+74VLAmpon9TeCjH7sGU/lloZ84mELPECk9
+         CCnskyOJgMoRckZfZDW4D0GgrbdvJ/5+StyrWvsGhGRgdonUdGoMDRAMODBmL2UdyV
+         VlLKrp49CKezDGHG245xP1eCx9Ey7f8x1oGRQ2jzuVTXr03pFFXZR/MNMKWcub87tk
+         H/hiuW7m9qGClhNc0z2E+zsW7TIqCqKAZnQ2yhsL3iqRlR6E/0dhtqJP32oXOOdA6x
+         +AuDtGhlXJs0w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oak Zeng <Oak.Zeng@amd.com>,
-        Christian Konig <christian.koenig@amd.com>,
+Cc:     Anson Jacob <Anson.Jacob@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 040/176] drm/amdgpu: Fix a printing message
-Date:   Thu,  9 Sep 2021 07:49:02 -0400
-Message-Id: <20210909115118.146181-40-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 041/176] drm/amd/amdgpu: Update debugfs link_settings output link_rate field in hex
+Date:   Thu,  9 Sep 2021 07:49:03 -0400
+Message-Id: <20210909115118.146181-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -44,79 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oak Zeng <Oak.Zeng@amd.com>
+From: Anson Jacob <Anson.Jacob@amd.com>
 
-[ Upstream commit 95f71f12aa45d65b7f2ccab95569795edffd379a ]
+[ Upstream commit 1a394b3c3de2577f200cb623c52a5c2b82805cec ]
 
-The printing message "PSP loading VCN firmware" is mis-leading because
-people might think driver is loading VCN firmware. Actually when this
-message is printed, driver is just preparing some VCN ucode, not loading
-VCN firmware yet. The actual VCN firmware loading will be in the PSP block
-hw_init. Fix the printing message
+link_rate is updated via debugfs using hex values, set it to output
+in hex as well.
 
-Signed-off-by: Oak Zeng <Oak.Zeng@amd.com>
-Reviewed-by: Christian Konig <christian.koenig@amd.com>
+eg: Resolution: 1920x1080@144Hz
+cat /sys/kernel/debug/dri/0/DP-1/link_settings
+Current:  4  0x14  0  Verified:  4  0x1e  0  Reported:  4  0x1e  16  Preferred:  0  0x0  0
+
+echo "4 0x1e" > /sys/kernel/debug/dri/0/DP-1/link_settings
+
+cat /sys/kernel/debug/dri/0/DP-1/link_settings
+Current:  4  0x1e  0  Verified:  4  0x1e  0  Reported:  4  0x1e  16  Preferred:  4  0x1e  0
+
+Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c | 2 +-
- drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c | 2 +-
- drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c | 2 +-
- drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ .../amd/display/amdgpu_dm/amdgpu_dm_debugfs.c    | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
-index aa8ae0ca62f9..e8737fa438f0 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
-@@ -120,7 +120,7 @@ static int vcn_v1_0_sw_init(void *handle)
- 		adev->firmware.ucode[AMDGPU_UCODE_ID_VCN].fw = adev->vcn.fw;
- 		adev->firmware.fw_size +=
- 			ALIGN(le32_to_cpu(hdr->ucode_size_bytes), PAGE_SIZE);
--		DRM_INFO("PSP loading VCN firmware\n");
-+		dev_info(adev->dev, "Will use PSP to load VCN firmware\n");
- 	}
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+index e02a55fc1382..fbb65c95464b 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+@@ -197,29 +197,29 @@ static ssize_t dp_link_settings_read(struct file *f, char __user *buf,
  
- 	r = amdgpu_vcn_resume(adev);
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-index fc939d4f4841..f493b5c3d382 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-@@ -122,7 +122,7 @@ static int vcn_v2_0_sw_init(void *handle)
- 		adev->firmware.ucode[AMDGPU_UCODE_ID_VCN].fw = adev->vcn.fw;
- 		adev->firmware.fw_size +=
- 			ALIGN(le32_to_cpu(hdr->ucode_size_bytes), PAGE_SIZE);
--		DRM_INFO("PSP loading VCN firmware\n");
-+		dev_info(adev->dev, "Will use PSP to load VCN firmware\n");
- 	}
+ 	rd_buf_ptr = rd_buf;
  
- 	r = amdgpu_vcn_resume(adev);
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-index 2c328362eee3..ce64d4016f90 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-@@ -152,7 +152,7 @@ static int vcn_v2_5_sw_init(void *handle)
- 			adev->firmware.fw_size +=
- 				ALIGN(le32_to_cpu(hdr->ucode_size_bytes), PAGE_SIZE);
- 		}
--		DRM_INFO("PSP loading VCN firmware\n");
-+		dev_info(adev->dev, "Will use PSP to load VCN firmware\n");
- 	}
+-	str_len = strlen("Current:  %d  %d  %d  ");
+-	snprintf(rd_buf_ptr, str_len, "Current:  %d  %d  %d  ",
++	str_len = strlen("Current:  %d  0x%x  %d  ");
++	snprintf(rd_buf_ptr, str_len, "Current:  %d  0x%x  %d  ",
+ 			link->cur_link_settings.lane_count,
+ 			link->cur_link_settings.link_rate,
+ 			link->cur_link_settings.link_spread);
+ 	rd_buf_ptr += str_len;
  
- 	r = amdgpu_vcn_resume(adev);
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-index c9c888be1228..2099f6ebd833 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-@@ -148,7 +148,7 @@ static int vcn_v3_0_sw_init(void *handle)
- 			adev->firmware.fw_size +=
- 				ALIGN(le32_to_cpu(hdr->ucode_size_bytes), PAGE_SIZE);
- 		}
--		DRM_INFO("PSP loading VCN firmware\n");
-+		dev_info(adev->dev, "Will use PSP to load VCN firmware\n");
- 	}
+-	str_len = strlen("Verified:  %d  %d  %d  ");
+-	snprintf(rd_buf_ptr, str_len, "Verified:  %d  %d  %d  ",
++	str_len = strlen("Verified:  %d  0x%x  %d  ");
++	snprintf(rd_buf_ptr, str_len, "Verified:  %d  0x%x  %d  ",
+ 			link->verified_link_cap.lane_count,
+ 			link->verified_link_cap.link_rate,
+ 			link->verified_link_cap.link_spread);
+ 	rd_buf_ptr += str_len;
  
- 	r = amdgpu_vcn_resume(adev);
+-	str_len = strlen("Reported:  %d  %d  %d  ");
+-	snprintf(rd_buf_ptr, str_len, "Reported:  %d  %d  %d  ",
++	str_len = strlen("Reported:  %d  0x%x  %d  ");
++	snprintf(rd_buf_ptr, str_len, "Reported:  %d  0x%x  %d  ",
+ 			link->reported_link_cap.lane_count,
+ 			link->reported_link_cap.link_rate,
+ 			link->reported_link_cap.link_spread);
+ 	rd_buf_ptr += str_len;
+ 
+-	str_len = strlen("Preferred:  %d  %d  %d  ");
+-	snprintf(rd_buf_ptr, str_len, "Preferred:  %d  %d  %d\n",
++	str_len = strlen("Preferred:  %d  0x%x  %d  ");
++	snprintf(rd_buf_ptr, str_len, "Preferred:  %d  0x%x  %d\n",
+ 			link->preferred_link_setting.lane_count,
+ 			link->preferred_link_setting.link_rate,
+ 			link->preferred_link_setting.link_spread);
 -- 
 2.30.2
 
