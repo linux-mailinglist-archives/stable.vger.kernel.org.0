@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F9FF404B20
+	by mail.lfdr.de (Postfix) with ESMTP id AA57B404B21
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:49:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241321AbhIILup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237893AbhIILup (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 07:50:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54738 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242204AbhIILsi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:48:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7334F61208;
-        Thu,  9 Sep 2021 11:43:23 +0000 (UTC)
+        id S242219AbhIILse (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:48:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 115826120D;
+        Thu,  9 Sep 2021 11:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187804;
-        bh=4YGcCdxw4MTG0LbsryXAkz2ES/z/GJ0yp39prEeTR7o=;
+        s=k20201202; t=1631187805;
+        bh=kqaF2kdpyKuBuKaT20mI9yFo8DzOL4OTh5ZkI/2DHyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGH9F5L/tx777rcVnLDnrkpr2MIdwVCGgYC6ugL2I9Pe1hAyAQK3qMAkHVPPXMt7O
-         0JQmKhJmoajFJoTfyMzLkDSV3+6+yWC58sVNdQHPVjsurnSQdd1GR4qcLh6CahFqlP
-         aLzSxcv3+0DnfqMNcraPpAxl6hJYwasatrILmgeUB6cL+D/gqTMDxCaufXg55vMLVY
-         wFhC3aE7YBmc8dutG0Zz+w710OdlvGwaNb9M9a1Yl0bdk5ogj4c6jjOD4YRpQ5IgBB
-         eKvhF+BkUhiYzsrUygxhtkGo0JTre4dNP+qUvV5cSliedfLfPAO4oKknhWMTCoKNJO
-         wx/Qpfwe0jNfw==
+        b=PWi01FPL5iUniKp5ZGawxzXGroSgA75ofqdErL1W7YFjMlFe5lzpHvb+VKphP/ux0
+         bsXAWxw8IPfAUrxS2cgsvD3zfmDkBUUmgZwjNo0yOhQlWBrmiluz7M/94fO/v9QpLz
+         qVZmAMVC+1Om5E5phKzKl0hfXZHOqusx3pRVfPJVPerVaE3v/C101X91QJqbkVa6F9
+         jWzsOV2GLCooWyY1lwYfbq2K+38Lj+FUpoBxA59CS/GpNkaz5kbnqgCHwCSqr3FqbE
+         h/CbVFC10L9VUbde+XYUTXt01IQuTdXvexf2F8P/Dd83agNZCfeLzw3OyNm7jrAz+d
+         N2E8Gq70cDKng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-staging@lists.linux.dev, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.14 107/252] media: imx: imx7-media-csi: Fix buffer return upon stream start failure
-Date:   Thu,  9 Sep 2021 07:38:41 -0400
-Message-Id: <20210909114106.141462-107-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 108/252] media: v4l2-dv-timings.c: fix wrong condition in two for-loops
+Date:   Thu,  9 Sep 2021 07:38:42 -0400
+Message-Id: <20210909114106.141462-108-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,82 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 0ada1697ed4256b38225319c9896661142a3572d ]
+[ Upstream commit 4108b3e6db31acc4c68133290bbcc87d4db905c9 ]
 
-When the stream fails to start, the first two buffers in the queue have
-been moved to the active_vb2_buf array and are returned to vb2 by
-imx7_csi_dma_unsetup_vb2_buf(). The function is called with the buffer
-state set to VB2_BUF_STATE_ERROR unconditionally, which is correct when
-stopping the stream, but not when the start operation fails. In that
-case, the state should be set to VB2_BUF_STATE_QUEUED. Fix it.
+These for-loops should test against v4l2_dv_timings_presets[i].bt.width,
+not if i < v4l2_dv_timings_presets[i].bt.width. Luckily nothing ever broke,
+since the smallest width is still a lot higher than the total number of
+presets, but it is wrong.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Tested-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
+The last item in the presets array is all 0, so the for-loop must stop
+when it reaches that sentinel.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: Krzysztof Hałasa <khalasa@piap.pl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx7-media-csi.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/media/v4l2-core/v4l2-dv-timings.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
-index 894c4de31790..2882964b8513 100644
---- a/drivers/staging/media/imx/imx7-media-csi.c
-+++ b/drivers/staging/media/imx/imx7-media-csi.c
-@@ -361,6 +361,7 @@ static void imx7_csi_dma_unsetup_vb2_buf(struct imx7_csi *csi,
+diff --git a/drivers/media/v4l2-core/v4l2-dv-timings.c b/drivers/media/v4l2-core/v4l2-dv-timings.c
+index 230d65a64217..af48705c704f 100644
+--- a/drivers/media/v4l2-core/v4l2-dv-timings.c
++++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
+@@ -196,7 +196,7 @@ bool v4l2_find_dv_timings_cap(struct v4l2_dv_timings *t,
+ 	if (!v4l2_valid_dv_timings(t, cap, fnc, fnc_handle))
+ 		return false;
  
- 			vb->timestamp = ktime_get_ns();
- 			vb2_buffer_done(vb, return_status);
-+			csi->active_vb2_buf[i] = NULL;
- 		}
- 	}
- }
-@@ -386,9 +387,10 @@ static int imx7_csi_dma_setup(struct imx7_csi *csi)
- 	return 0;
- }
- 
--static void imx7_csi_dma_cleanup(struct imx7_csi *csi)
-+static void imx7_csi_dma_cleanup(struct imx7_csi *csi,
-+				 enum vb2_buffer_state return_status)
+-	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
++	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
+ 		if (v4l2_valid_dv_timings(v4l2_dv_timings_presets + i, cap,
+ 					  fnc, fnc_handle) &&
+ 		    v4l2_match_dv_timings(t, v4l2_dv_timings_presets + i,
+@@ -218,7 +218,7 @@ bool v4l2_find_dv_timings_cea861_vic(struct v4l2_dv_timings *t, u8 vic)
  {
--	imx7_csi_dma_unsetup_vb2_buf(csi, VB2_BUF_STATE_ERROR);
-+	imx7_csi_dma_unsetup_vb2_buf(csi, return_status);
- 	imx_media_free_dma_buf(csi->dev, &csi->underrun_buf);
- }
+ 	unsigned int i;
  
-@@ -537,9 +539,10 @@ static int imx7_csi_init(struct imx7_csi *csi)
- 	return 0;
- }
+-	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
++	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
+ 		const struct v4l2_bt_timings *bt =
+ 			&v4l2_dv_timings_presets[i].bt;
  
--static void imx7_csi_deinit(struct imx7_csi *csi)
-+static void imx7_csi_deinit(struct imx7_csi *csi,
-+			    enum vb2_buffer_state return_status)
- {
--	imx7_csi_dma_cleanup(csi);
-+	imx7_csi_dma_cleanup(csi, return_status);
- 	imx7_csi_init_default(csi);
- 	imx7_csi_dmareq_rff_disable(csi);
- 	clk_disable_unprepare(csi->mclk);
-@@ -702,7 +705,7 @@ static int imx7_csi_s_stream(struct v4l2_subdev *sd, int enable)
- 
- 		ret = v4l2_subdev_call(csi->src_sd, video, s_stream, 1);
- 		if (ret < 0) {
--			imx7_csi_deinit(csi);
-+			imx7_csi_deinit(csi, VB2_BUF_STATE_QUEUED);
- 			goto out_unlock;
- 		}
- 
-@@ -712,7 +715,7 @@ static int imx7_csi_s_stream(struct v4l2_subdev *sd, int enable)
- 
- 		v4l2_subdev_call(csi->src_sd, video, s_stream, 0);
- 
--		imx7_csi_deinit(csi);
-+		imx7_csi_deinit(csi, VB2_BUF_STATE_ERROR);
- 	}
- 
- 	csi->is_streaming = !!enable;
 -- 
 2.30.2
 
