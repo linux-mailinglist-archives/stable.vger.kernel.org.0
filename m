@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D97405306
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:50:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D48A6405309
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355124AbhIIMta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:49:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55940 "EHLO mail.kernel.org"
+        id S1355294AbhIIMtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:49:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352116AbhIIMnF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:43:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B741F61BF4;
-        Thu,  9 Sep 2021 11:55:34 +0000 (UTC)
+        id S1354475AbhIIMnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:43:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9E9161C32;
+        Thu,  9 Sep 2021 11:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188535;
-        bh=YSGUJuDHSnZzOzXmBsKZOAT80LCOSLiqvtDEwYmOCJs=;
+        s=k20201202; t=1631188536;
+        bh=gAQDgdF+VfAYYWMmqd7ls1HckRlxPjXt21JAmq2sVr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WgpS07qa0KCs2YbVhwpwRiF7gBe30pH/yUysXURq2wVWGw5rjxo/k8e/XkPeDYHjH
-         4t6E/9M7E0UbBHjxO1utY8Obl5gkaLXRyobHF+OI3+y985uql2SCbuyFjY5bUtrf0a
-         ZwhnC9fuImJ6wkIlTXt9K+XSWe0W7ODuXBxKLcRpyik1zqi5VD0arxAY46wun7eK8f
-         nJOWq6alPWxz6ANAWtpL2pDpE5ZA9hRGbz737162LciXkUh5rAubFh8gSuGi8ub9eo
-         T35NBNHaJ19j9BmTF2PhTAILR5tvvCQbvexQ2bkABCCbfHCdZjohSdoFT7ZJ5fAFZG
-         rlc82puH57+TA==
+        b=MJ2+zYfhJMAi/FTlRR4JEJqfE8TnB/nRP0gvb8epghmiX/MFSDX0L6xBhtZYbW8WI
+         lx1w9CVMVnHHLQ1K2nUaqosl+14TF50ymk9l9JyQB90n9Yp53KyBjnSKcDTjRq56bm
+         PvlkTY4GHg5r39L+3uk8GNkp5IqS6zJPcnFubEAo5cmG1UMQiosZQZtmyr+tzbtJ2l
+         pjFQGQaxxdsyWiFLyy2+AST+wEXPGbke/m8xAlR1+8f0L4SLPKlb2XSxalQcWoGwKW
+         acyNthG4O4dSU/4dWUl3uic1f/MDPo52fza3AE4F+N/+uUNkE3e5mU/ISNDFaxwcir
+         84fVXhIpEVPwQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 022/109] tty: serial: jsm: hold port lock when reporting modem line changes
-Date:   Thu,  9 Sep 2021 07:53:39 -0400
-Message-Id: <20210909115507.147917-22-sashal@kernel.org>
+Cc:     Oliver Logush <oliver.logush@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 023/109] drm/amd/display: Fix timer_per_pixel unit error
+Date:   Thu,  9 Sep 2021 07:53:40 -0400
+Message-Id: <20210909115507.147917-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -42,84 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Oliver Logush <oliver.logush@amd.com>
 
-[ Upstream commit 240e126c28df084222f0b661321e8e3ecb0d232e ]
+[ Upstream commit 23e55639b87fb16a9f0f66032ecb57060df6c46c ]
 
-uart_handle_dcd_change() requires a port lock to be held and will emit a
-warning when lockdep is enabled.
+[why]
+The units of the time_per_pixel variable were incorrect, this had to be
+changed for the code to properly function.
 
-Held corresponding lock to fix the following warnings.
+[how]
+The change was very straightforward, only required one line of code to
+be changed where the calculation was done.
 
-[  132.528648] WARNING: CPU: 5 PID: 11600 at drivers/tty/serial/serial_core.c:3046 uart_handle_dcd_change+0xf4/0x120
-[  132.530482] Modules linked in:
-[  132.531050] CPU: 5 PID: 11600 Comm: jsm Not tainted 5.14.0-rc1-00003-g7fef2edf7cc7-dirty #31
-[  132.535268] RIP: 0010:uart_handle_dcd_change+0xf4/0x120
-[  132.557100] Call Trace:
-[  132.557562]  ? __free_pages+0x83/0xb0
-[  132.558213]  neo_parse_modem+0x156/0x220
-[  132.558897]  neo_param+0x399/0x840
-[  132.559495]  jsm_tty_open+0x12f/0x2d0
-[  132.560131]  uart_startup.part.18+0x153/0x340
-[  132.560888]  ? lock_is_held_type+0xe9/0x140
-[  132.561660]  uart_port_activate+0x7f/0xe0
-[  132.562351]  ? uart_startup.part.18+0x340/0x340
-[  132.563003]  tty_port_open+0x8d/0xf0
-[  132.563523]  ? uart_set_options+0x1e0/0x1e0
-[  132.564125]  uart_open+0x24/0x40
-[  132.564604]  tty_open+0x15c/0x630
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1626242003-3809-1-git-send-email-zheyuma97@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Oliver Logush <oliver.logush@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/jsm/jsm_neo.c | 2 ++
- drivers/tty/serial/jsm/jsm_tty.c | 3 +++
- 2 files changed, 5 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/jsm/jsm_neo.c b/drivers/tty/serial/jsm/jsm_neo.c
-index bf0e2a4cb0ce..c6f927a76c3b 100644
---- a/drivers/tty/serial/jsm/jsm_neo.c
-+++ b/drivers/tty/serial/jsm/jsm_neo.c
-@@ -815,7 +815,9 @@ static void neo_parse_isr(struct jsm_board *brd, u32 port)
- 		/* Parse any modem signal changes */
- 		jsm_dbg(INTR, &ch->ch_bd->pci_dev,
- 			"MOD_STAT: sending to parse_modem_sigs\n");
-+		spin_lock_irqsave(&ch->uart_port.lock, lock_flags);
- 		neo_parse_modem(ch, readb(&ch->ch_neo_uart->msr));
-+		spin_unlock_irqrestore(&ch->uart_port.lock, lock_flags);
- 	}
- }
- 
-diff --git a/drivers/tty/serial/jsm/jsm_tty.c b/drivers/tty/serial/jsm/jsm_tty.c
-index 689774c073ca..8438454ca653 100644
---- a/drivers/tty/serial/jsm/jsm_tty.c
-+++ b/drivers/tty/serial/jsm/jsm_tty.c
-@@ -187,6 +187,7 @@ static void jsm_tty_break(struct uart_port *port, int break_state)
- 
- static int jsm_tty_open(struct uart_port *port)
- {
-+	unsigned long lock_flags;
- 	struct jsm_board *brd;
- 	struct jsm_channel *channel =
- 		container_of(port, struct jsm_channel, uart_port);
-@@ -240,6 +241,7 @@ static int jsm_tty_open(struct uart_port *port)
- 	channel->ch_cached_lsr = 0;
- 	channel->ch_stops_sent = 0;
- 
-+	spin_lock_irqsave(&port->lock, lock_flags);
- 	termios = &port->state->port.tty->termios;
- 	channel->ch_c_cflag	= termios->c_cflag;
- 	channel->ch_c_iflag	= termios->c_iflag;
-@@ -259,6 +261,7 @@ static int jsm_tty_open(struct uart_port *port)
- 	jsm_carrier(channel);
- 
- 	channel->ch_open_count++;
-+	spin_unlock_irqrestore(&port->lock, lock_flags);
- 
- 	jsm_dbg(OPEN, &channel->ch_bd->pci_dev, "finish\n");
- 	return 0;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+index 2b1175bb2dae..d2ea4c003d44 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -2232,7 +2232,7 @@ void dcn20_set_mcif_arb_params(
+ 				wb_arb_params->cli_watermark[k] = get_wm_writeback_urgent(&context->bw_ctx.dml, pipes, pipe_cnt) * 1000;
+ 				wb_arb_params->pstate_watermark[k] = get_wm_writeback_dram_clock_change(&context->bw_ctx.dml, pipes, pipe_cnt) * 1000;
+ 			}
+-			wb_arb_params->time_per_pixel = 16.0 / context->res_ctx.pipe_ctx[i].stream->phy_pix_clk; /* 4 bit fraction, ms */
++			wb_arb_params->time_per_pixel = 16.0 * 1000 / (context->res_ctx.pipe_ctx[i].stream->phy_pix_clk / 1000); /* 4 bit fraction, ms */
+ 			wb_arb_params->slice_lines = 32;
+ 			wb_arb_params->arbitration_slice = 2;
+ 			wb_arb_params->max_scaled_time = dcn20_calc_max_scaled_time(wb_arb_params->time_per_pixel,
 -- 
 2.30.2
 
