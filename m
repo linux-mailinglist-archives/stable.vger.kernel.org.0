@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA3C6404986
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1998440498C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236106AbhIILmf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:42:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45620 "EHLO mail.kernel.org"
+        id S236361AbhIILml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:42:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236025AbhIILmb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:42:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E760061131;
-        Thu,  9 Sep 2021 11:41:20 +0000 (UTC)
+        id S236092AbhIILmc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:42:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E8F9611AF;
+        Thu,  9 Sep 2021 11:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187681;
-        bh=NU5ZOx0naDK85oG0/HUbMQFEYp7Zrotfi5JaGSGDnmc=;
+        s=k20201202; t=1631187683;
+        bh=KWXi/bG13E00WPGwLYGbyx6ICfm24Stm0S1cfPD5zuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NK7glzoOZz5PcZSES4DjswDgtISXFkynbYRLM++GWZe80pp202TRCko1M0oVqd1u2
-         BDXOsQ8M6sl57pSqjj5qeVO2F8bszYLdSzoAq/ed3grHZG8yuW9xgNmdTt563HyWvv
-         7cGGojphDWfvk4IXr7iH9lklP0s0Q2AttynCkkbOTkdPwNx6sXcXo28d/kwQg9TGMd
-         ulZKEDLDsQ/5dCFaJ8Sz26fjU+5wxn5/8Ln437aIVsUBilWf/HhRoz+ubW4s9ZQQ9Q
-         Zc1pmCrPWyC1cdhxOtB4FmnYmOJrFA8Obkv1Q7ZnSU2F4ysut81LUBdHfo82nRnX3O
-         eYX1dyJxh/rzw==
+        b=hDbO0RWsYcTfgb9Tj/hmrcH68RgIxzsr1r9gl8NyFwgN0xFt04rA/x3z1gKJPLDHU
+         4jkttk3DiU0WXiSnM/iLAbti0L/86qzmU2T/C4ix15VMZhQoXO4flVgOWp4rWnmpE3
+         QapxtBOx5hmhqKJ3NoTFfe59+9hYLeaJzsNxW4LPBAyYNisaWuyoVoV6+Y3m67uTbg
+         0U6oE1cj/QQ/YvKGhkJFZrA8EVqMdLCmrXq/y8kQODLphw+b+UJU0h3rgSGLHbMHBs
+         UH8xDtOLMGZsjwJnDKIJOQyRvP8qId/PjwXqn5UfwViBgV/iZfPY7P2Tf74bMnhKxX
+         /zaNAZlUB45ag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        devicetree@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.14 011/252] drm/panel: Fix up DT bindings for Samsung lms397kf04
-Date:   Thu,  9 Sep 2021 07:37:05 -0400
-Message-Id: <20210909114106.141462-11-sashal@kernel.org>
+Cc:     Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.14 012/252] ASoC: ti: davinci-mcasp: Fix DIT mode support
+Date:   Thu,  9 Sep 2021 07:37:06 -0400
+Message-Id: <20210909114106.141462-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,84 +42,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Peter Ujfalusi <peter.ujfalusi@gmail.com>
 
-[ Upstream commit 710fa9aa16321f2ffdd8383f6f780c9cc1e5a197 ]
+[ Upstream commit bbdd3f4dbe81e19b9123bc54e23ed54517615524 ]
 
-Improve the bindings and make them more usable:
+The DIT mode support has not been tested due to lack of platform where it
+can be tested.
+To be able to use the McASP on OMAP4/5 (only supporting DIT mode) we need
+to have DIT mode working in the McASP driver on a know platform.
+After hacking around (on BBW, mcasp1.axr1 can be routed out for this) it
+appeared that DIT mode is broken.
 
-- Pick in spi-cpha and spi-cpol from the SPI node parent,
-  this will specify that we are "type 3" in the device tree
-  rather than hardcoding it in the operating system.
-- Drop the u32 ref from the SPI frequency: comes in from
-  the SPI host bindings.
-- Make spi-cpha, spi-cpol and port compulsory.
-- Update the example with a real-world SPI controller,
-  spi-gpio.
+This patch fixes it up and 16/24 bit audio works along with passthrough,
+but I have only tested with DTS example and test files.
 
-Cc: Noralf Trønnes <noralf@tronnes.org>
-Cc: devicetree@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210701213618.3818821-1-linus.walleij@linaro.org
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20210705194249.2385-2-peter.ujfalusi@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../display/panel/samsung,lms397kf04.yaml      | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ sound/soc/ti/davinci-mcasp.c | 150 ++++++++++++++++++++++++++++++-----
+ 1 file changed, 129 insertions(+), 21 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml b/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml
-index 4cb75a5f2e3a..cd62968426fb 100644
---- a/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml
-+++ b/Documentation/devicetree/bindings/display/panel/samsung,lms397kf04.yaml
-@@ -33,8 +33,11 @@ properties:
+diff --git a/sound/soc/ti/davinci-mcasp.c b/sound/soc/ti/davinci-mcasp.c
+index 017a5a5e56cd..64ec6d485834 100644
+--- a/sound/soc/ti/davinci-mcasp.c
++++ b/sound/soc/ti/davinci-mcasp.c
+@@ -83,6 +83,8 @@ struct davinci_mcasp {
+ 	struct snd_pcm_substream *substreams[2];
+ 	unsigned int dai_fmt;
  
-   backlight: true
- 
-+  spi-cpha: true
++	u32 iec958_status;
 +
-+  spi-cpol: true
+ 	/* Audio can not be enabled due to missing parameter(s) */
+ 	bool	missing_audio_param;
+ 
+@@ -757,6 +759,9 @@ static int davinci_mcasp_set_tdm_slot(struct snd_soc_dai *dai,
+ {
+ 	struct davinci_mcasp *mcasp = snd_soc_dai_get_drvdata(dai);
+ 
++	if (mcasp->op_mode == DAVINCI_MCASP_DIT_MODE)
++		return 0;
 +
-   spi-max-frequency:
--    $ref: /schemas/types.yaml#/definitions/uint32
-     description: inherited as a SPI client node, the datasheet specifies
-       maximum 300 ns minimum cycle which gives around 3 MHz max frequency
-     maximum: 3000000
-@@ -44,6 +47,9 @@ properties:
- required:
-   - compatible
-   - reg
-+  - spi-cpha
-+  - spi-cpol
-+  - port
+ 	dev_dbg(mcasp->dev,
+ 		 "%s() tx_mask 0x%08x rx_mask 0x%08x slots %d width %d\n",
+ 		 __func__, tx_mask, rx_mask, slots, slot_width);
+@@ -827,6 +832,20 @@ static int davinci_config_channel_size(struct davinci_mcasp *mcasp,
+ 		mcasp_mod_bits(mcasp, DAVINCI_MCASP_RXFMT_REG, RXROT(rx_rotate),
+ 			       RXROT(7));
+ 		mcasp_set_reg(mcasp, DAVINCI_MCASP_RXMASK_REG, mask);
++	} else {
++		/*
++		 * according to the TRM it should be TXROT=0, this one works:
++		 * 16 bit to 23-8 (TXROT=6, rotate 24 bits)
++		 * 24 bit to 23-0 (TXROT=0, rotate 0 bits)
++		 *
++		 * TXROT = 0 only works with 24bit samples
++		 */
++		tx_rotate = (sample_width / 4 + 2) & 0x7;
++
++		mcasp_mod_bits(mcasp, DAVINCI_MCASP_TXFMT_REG, TXROT(tx_rotate),
++			       TXROT(7));
++		mcasp_mod_bits(mcasp, DAVINCI_MCASP_TXFMT_REG, TXSSZ(15),
++			       TXSSZ(0x0F));
+ 	}
  
- additionalProperties: false
+ 	mcasp_set_reg(mcasp, DAVINCI_MCASP_TXMASK_REG, mask);
+@@ -842,10 +861,16 @@ static int mcasp_common_hw_param(struct davinci_mcasp *mcasp, int stream,
+ 	u8 tx_ser = 0;
+ 	u8 rx_ser = 0;
+ 	u8 slots = mcasp->tdm_slots;
+-	u8 max_active_serializers = (channels + slots - 1) / slots;
+-	u8 max_rx_serializers, max_tx_serializers;
++	u8 max_active_serializers, max_rx_serializers, max_tx_serializers;
+ 	int active_serializers, numevt;
+ 	u32 reg;
++
++	/* In DIT mode we only allow maximum of one serializers for now */
++	if (mcasp->op_mode == DAVINCI_MCASP_DIT_MODE)
++		max_active_serializers = 1;
++	else
++		max_active_serializers = (channels + slots - 1) / slots;
++
+ 	/* Default configuration */
+ 	if (mcasp->version < MCASP_VERSION_3)
+ 		mcasp_set_bits(mcasp, DAVINCI_MCASP_PWREMUMGT_REG, MCASP_SOFT);
+@@ -1031,16 +1056,18 @@ static int mcasp_i2s_hw_param(struct davinci_mcasp *mcasp, int stream,
+ static int mcasp_dit_hw_param(struct davinci_mcasp *mcasp,
+ 			      unsigned int rate)
+ {
+-	u32 cs_value = 0;
+-	u8 *cs_bytes = (u8*) &cs_value;
++	u8 *cs_bytes = (u8 *)&mcasp->iec958_status;
  
-@@ -52,15 +58,23 @@ examples:
-     #include <dt-bindings/gpio/gpio.h>
+-	/* Set the TX format : 24 bit right rotation, 32 bit slot, Pad 0
+-	   and LSB first */
+-	mcasp_set_bits(mcasp, DAVINCI_MCASP_TXFMT_REG, TXROT(6) | TXSSZ(15));
++	if (!mcasp->dat_port)
++		mcasp_set_bits(mcasp, DAVINCI_MCASP_TXFMT_REG, TXSEL);
++	else
++		mcasp_clr_bits(mcasp, DAVINCI_MCASP_TXFMT_REG, TXSEL);
  
-     spi {
-+      compatible = "spi-gpio";
-+      sck-gpios = <&gpio 0 GPIO_ACTIVE_HIGH>;
-+      miso-gpios = <&gpio 1 GPIO_ACTIVE_HIGH>;
-+      mosi-gpios = <&gpio 2 GPIO_ACTIVE_HIGH>;
-+      cs-gpios = <&gpio 3 GPIO_ACTIVE_HIGH>;
-+      num-chipselects = <1>;
-       #address-cells = <1>;
-       #size-cells = <0>;
-       panel@0 {
-         compatible = "samsung,lms397kf04";
-         spi-max-frequency = <3000000>;
-+        spi-cpha;
-+        spi-cpol;
-         reg = <0>;
-         vci-supply = <&lcd_3v0_reg>;
-         vccio-supply = <&lcd_1v8_reg>;
--        reset-gpios = <&gpio 1 GPIO_ACTIVE_LOW>;
-+        reset-gpios = <&gpio 4 GPIO_ACTIVE_LOW>;
-         backlight = <&ktd259>;
+ 	/* Set TX frame synch : DIT Mode, 1 bit width, internal, rising edge */
+ 	mcasp_set_reg(mcasp, DAVINCI_MCASP_TXFMCTL_REG, AFSXE | FSXMOD(0x180));
  
-         port {
++	mcasp_set_reg(mcasp, DAVINCI_MCASP_TXMASK_REG, 0xFFFF);
++
+ 	/* Set the TX tdm : for all the slots */
+ 	mcasp_set_reg(mcasp, DAVINCI_MCASP_TXTDM_REG, 0xFFFFFFFF);
+ 
+@@ -1049,16 +1076,8 @@ static int mcasp_dit_hw_param(struct davinci_mcasp *mcasp,
+ 
+ 	mcasp_clr_bits(mcasp, DAVINCI_MCASP_XEVTCTL_REG, TXDATADMADIS);
+ 
+-	/* Only 44100 and 48000 are valid, both have the same setting */
+-	mcasp_set_bits(mcasp, DAVINCI_MCASP_AHCLKXCTL_REG, AHCLKXDIV(3));
+-
+-	/* Enable the DIT */
+-	mcasp_set_bits(mcasp, DAVINCI_MCASP_TXDITCTL_REG, DITEN);
+-
+ 	/* Set S/PDIF channel status bits */
+-	cs_bytes[0] = IEC958_AES0_CON_NOT_COPYRIGHT;
+-	cs_bytes[1] = IEC958_AES1_CON_PCM_CODER;
+-
++	cs_bytes[3] &= ~IEC958_AES3_CON_FS;
+ 	switch (rate) {
+ 	case 22050:
+ 		cs_bytes[3] |= IEC958_AES3_CON_FS_22050;
+@@ -1088,12 +1107,15 @@ static int mcasp_dit_hw_param(struct davinci_mcasp *mcasp,
+ 		cs_bytes[3] |= IEC958_AES3_CON_FS_192000;
+ 		break;
+ 	default:
+-		printk(KERN_WARNING "unsupported sampling rate: %d\n", rate);
++		dev_err(mcasp->dev, "unsupported sampling rate: %d\n", rate);
+ 		return -EINVAL;
+ 	}
+ 
+-	mcasp_set_reg(mcasp, DAVINCI_MCASP_DITCSRA_REG, cs_value);
+-	mcasp_set_reg(mcasp, DAVINCI_MCASP_DITCSRB_REG, cs_value);
++	mcasp_set_reg(mcasp, DAVINCI_MCASP_DITCSRA_REG, mcasp->iec958_status);
++	mcasp_set_reg(mcasp, DAVINCI_MCASP_DITCSRB_REG, mcasp->iec958_status);
++
++	/* Enable the DIT */
++	mcasp_set_bits(mcasp, DAVINCI_MCASP_TXDITCTL_REG, DITEN);
+ 
+ 	return 0;
+ }
+@@ -1237,12 +1259,18 @@ static int davinci_mcasp_hw_params(struct snd_pcm_substream *substream,
+ 		int slots = mcasp->tdm_slots;
+ 		int rate = params_rate(params);
+ 		int sbits = params_width(params);
++		unsigned int bclk_target;
+ 
+ 		if (mcasp->slot_width)
+ 			sbits = mcasp->slot_width;
+ 
++		if (mcasp->op_mode == DAVINCI_MCASP_IIS_MODE)
++			bclk_target = rate * sbits * slots;
++		else
++			bclk_target = rate * 128;
++
+ 		davinci_mcasp_calc_clk_div(mcasp, mcasp->sysclk_freq,
+-					   rate * sbits * slots, true);
++					   bclk_target, true);
+ 	}
+ 
+ 	ret = mcasp_common_hw_param(mcasp, substream->stream,
+@@ -1598,6 +1626,77 @@ static const struct snd_soc_dai_ops davinci_mcasp_dai_ops = {
+ 	.set_tdm_slot	= davinci_mcasp_set_tdm_slot,
+ };
+ 
++static int davinci_mcasp_iec958_info(struct snd_kcontrol *kcontrol,
++				     struct snd_ctl_elem_info *uinfo)
++{
++	uinfo->type = SNDRV_CTL_ELEM_TYPE_IEC958;
++	uinfo->count = 1;
++
++	return 0;
++}
++
++static int davinci_mcasp_iec958_get(struct snd_kcontrol *kcontrol,
++				    struct snd_ctl_elem_value *uctl)
++{
++	struct snd_soc_dai *cpu_dai = snd_kcontrol_chip(kcontrol);
++	struct davinci_mcasp *mcasp = snd_soc_dai_get_drvdata(cpu_dai);
++
++	memcpy(uctl->value.iec958.status, &mcasp->iec958_status,
++	       sizeof(mcasp->iec958_status));
++
++	return 0;
++}
++
++static int davinci_mcasp_iec958_put(struct snd_kcontrol *kcontrol,
++				    struct snd_ctl_elem_value *uctl)
++{
++	struct snd_soc_dai *cpu_dai = snd_kcontrol_chip(kcontrol);
++	struct davinci_mcasp *mcasp = snd_soc_dai_get_drvdata(cpu_dai);
++
++	memcpy(&mcasp->iec958_status, uctl->value.iec958.status,
++	       sizeof(mcasp->iec958_status));
++
++	return 0;
++}
++
++static int davinci_mcasp_iec958_con_mask_get(struct snd_kcontrol *kcontrol,
++					     struct snd_ctl_elem_value *ucontrol)
++{
++	struct snd_soc_dai *cpu_dai = snd_kcontrol_chip(kcontrol);
++	struct davinci_mcasp *mcasp = snd_soc_dai_get_drvdata(cpu_dai);
++
++	memset(ucontrol->value.iec958.status, 0xff, sizeof(mcasp->iec958_status));
++	return 0;
++}
++
++static const struct snd_kcontrol_new davinci_mcasp_iec958_ctls[] = {
++	{
++		.access = (SNDRV_CTL_ELEM_ACCESS_READWRITE |
++			   SNDRV_CTL_ELEM_ACCESS_VOLATILE),
++		.iface = SNDRV_CTL_ELEM_IFACE_PCM,
++		.name = SNDRV_CTL_NAME_IEC958("", PLAYBACK, DEFAULT),
++		.info = davinci_mcasp_iec958_info,
++		.get = davinci_mcasp_iec958_get,
++		.put = davinci_mcasp_iec958_put,
++	}, {
++		.access = SNDRV_CTL_ELEM_ACCESS_READ,
++		.iface = SNDRV_CTL_ELEM_IFACE_MIXER,
++		.name = SNDRV_CTL_NAME_IEC958("", PLAYBACK, CON_MASK),
++		.info = davinci_mcasp_iec958_info,
++		.get = davinci_mcasp_iec958_con_mask_get,
++	},
++};
++
++static void davinci_mcasp_init_iec958_status(struct davinci_mcasp *mcasp)
++{
++	unsigned char *cs = (u8 *)&mcasp->iec958_status;
++
++	cs[0] = IEC958_AES0_CON_NOT_COPYRIGHT | IEC958_AES0_CON_EMPHASIS_NONE;
++	cs[1] = IEC958_AES1_CON_PCM_CODER;
++	cs[2] = IEC958_AES2_CON_SOURCE_UNSPEC | IEC958_AES2_CON_CHANNEL_UNSPEC;
++	cs[3] = IEC958_AES3_CON_CLOCK_1000PPM;
++}
++
+ static int davinci_mcasp_dai_probe(struct snd_soc_dai *dai)
+ {
+ 	struct davinci_mcasp *mcasp = snd_soc_dai_get_drvdata(dai);
+@@ -1605,6 +1704,12 @@ static int davinci_mcasp_dai_probe(struct snd_soc_dai *dai)
+ 	dai->playback_dma_data = &mcasp->dma_data[SNDRV_PCM_STREAM_PLAYBACK];
+ 	dai->capture_dma_data = &mcasp->dma_data[SNDRV_PCM_STREAM_CAPTURE];
+ 
++	if (mcasp->op_mode == DAVINCI_MCASP_DIT_MODE) {
++		davinci_mcasp_init_iec958_status(mcasp);
++		snd_soc_add_dai_controls(dai, davinci_mcasp_iec958_ctls,
++					 ARRAY_SIZE(davinci_mcasp_iec958_ctls));
++	}
++
+ 	return 0;
+ }
+ 
+@@ -1651,7 +1756,8 @@ static struct snd_soc_dai_driver davinci_mcasp_dai[] = {
+ 			.channels_min	= 1,
+ 			.channels_max	= 384,
+ 			.rates		= DAVINCI_MCASP_RATES,
+-			.formats	= DAVINCI_MCASP_PCM_FMTS,
++			.formats	= SNDRV_PCM_FMTBIT_S16_LE |
++					  SNDRV_PCM_FMTBIT_S24_LE,
+ 		},
+ 		.ops 		= &davinci_mcasp_dai_ops,
+ 	},
+@@ -1871,6 +1977,8 @@ static int davinci_mcasp_get_config(struct davinci_mcasp *mcasp,
+ 		} else {
+ 			mcasp->tdm_slots = pdata->tdm_slots;
+ 		}
++	} else {
++		mcasp->tdm_slots = 32;
+ 	}
+ 
+ 	mcasp->num_serializer = pdata->num_serializer;
 -- 
 2.30.2
 
