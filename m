@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0AAA4057B8
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69C1C4057BC
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351391AbhIINlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:41:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41082 "EHLO mail.kernel.org"
+        id S1353062AbhIINlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:41:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353736AbhIIMrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:47:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3390630EE;
-        Thu,  9 Sep 2021 11:56:25 +0000 (UTC)
+        id S1354613AbhIIMrU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:47:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 302A26320F;
+        Thu,  9 Sep 2021 11:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188586;
-        bh=+UA7cOAeOBiOkWjQPLj3hBk6pksEt7VW9MrjfqOBPX0=;
+        s=k20201202; t=1631188588;
+        bh=YnPxrhg1s49V4lWDuTNR+ipJ7ngFuFI9dD3b1ucm4Hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kElG4SBj/6i8IkJHJUskRsped9jLdZLqpZWsJ1gJHfJa5CTYSUdrS6qFUMWe6ZAhm
-         4bcNpHZw4chuuHciXT4PuK9qFd+n32V1H9HCJeAkiatsx3lfWw7rwkF2PtYCTMNWVU
-         gyaDGzybXmoxioEbCZEIRcPup6EOITLst8daVJxWGin9oOcizenVSYC0S/Pxl1fKyM
-         YMT7ndq9HsZCo9sLlrp1U7vsNJvOS3exrfGwa5O8VtQKxZY+eM5R9Z+oCp3oqr+ZkR
-         HRzBFituTkpfNNwBXJojw68D51Lmjknuz2Ruumv1e64h8KA8UewO9wZWrWmriUZlis
-         lH6gmA4dCaZYw==
+        b=hlinMPMc4Rx/HCSndH3dy2rDmge8l3Saox46aYshFwMpRBTEcGP0CDwQSTtVB+PXB
+         wQLzY6FVTtP4b7kJpN/T6HMI+qt6cS20qfWTzcJ0qxjcOtjTNztLr11oE71XcE9XNN
+         J8Inu84vbTAOMsFZyxEj/DcE83owx+K0CZaH2H4EeqvsJ8ZSMHvHY3w/rd+TpDqQ1D
+         NBROvU3ahEQ5YgNHgpHOZfWI09j7MfRK5E93VsuSdOm279W1znK4jye0sDJmeGqKq3
+         AlfkMFdDLuweu8eX8XOwgPyA+RQ9k5m8VjpZV3+xr7bWDIzID6LnXfQlvsYfodX+TF
+         NFGlKsz/qFTWQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Tuo Li <islituo@gmail.com>, TOTE Robot <oslab@tsinghua.edu.cn>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 062/109] gpu: drm: amd: amdgpu: amdgpu_i2c: fix possible uninitialized-variable access in amdgpu_i2c_router_select_ddc_port()
-Date:   Thu,  9 Sep 2021 07:54:19 -0400
-Message-Id: <20210909115507.147917-62-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 063/109] drm/display: fix possible null-pointer dereference in dcn10_set_clock()
+Date:   Thu,  9 Sep 2021 07:54:20 -0400
+Message-Id: <20210909115507.147917-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -45,42 +45,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tuo Li <islituo@gmail.com>
 
-[ Upstream commit a211260c34cfadc6068fece8c9e99e0fe1e2a2b6 ]
+[ Upstream commit 554594567b1fa3da74f88ec7b2dc83d000c58e98 ]
 
-The variable val is declared without initialization, and its address is
-passed to amdgpu_i2c_get_byte(). In this function, the value of val is
-accessed in:
-  DRM_DEBUG("i2c 0x%02x 0x%02x read failed\n",
-       addr, *val);
+The variable dc->clk_mgr is checked in:
+  if (dc->clk_mgr && dc->clk_mgr->funcs->get_clock)
 
-Also, when amdgpu_i2c_get_byte() returns, val may remain uninitialized,
-but it is accessed in:
-  val &= ~amdgpu_connector->router.ddc_mux_control_pin;
+This indicates dc->clk_mgr can be NULL.
+However, it is dereferenced in:
+    if (!dc->clk_mgr->funcs->get_clock)
 
-To fix this possible uninitialized-variable access, initialize val to 0 in
-amdgpu_i2c_router_select_ddc_port().
+To fix this null-pointer dereference, check dc->clk_mgr and the function
+pointer dc->clk_mgr->funcs->get_clock earlier, and return if one of them
+is NULL.
 
 Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
 Signed-off-by: Tuo Li <islituo@gmail.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-index 70dbe343f51d..89cecdba81ac 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-@@ -339,7 +339,7 @@ static void amdgpu_i2c_put_byte(struct amdgpu_i2c_chan *i2c_bus,
- void
- amdgpu_i2c_router_select_ddc_port(const struct amdgpu_connector *amdgpu_connector)
- {
--	u8 val;
-+	u8 val = 0;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index 60123db7ba02..bc5ebea1abed 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -3264,13 +3264,12 @@ static enum dc_status dcn10_set_clock(struct dc *dc,
+ 	struct dc_clock_config clock_cfg = {0};
+ 	struct dc_clocks *current_clocks = &context->bw_ctx.bw.dcn.clk;
  
- 	if (!amdgpu_connector->router.ddc_valid)
- 		return;
+-	if (dc->clk_mgr && dc->clk_mgr->funcs->get_clock)
+-				dc->clk_mgr->funcs->get_clock(dc->clk_mgr,
+-						context, clock_type, &clock_cfg);
+-
+-	if (!dc->clk_mgr->funcs->get_clock)
++	if (!dc->clk_mgr || !dc->clk_mgr->funcs->get_clock)
+ 		return DC_FAIL_UNSUPPORTED_1;
+ 
++	dc->clk_mgr->funcs->get_clock(dc->clk_mgr,
++		context, clock_type, &clock_cfg);
++
+ 	if (clk_khz > clock_cfg.max_clock_khz)
+ 		return DC_FAIL_CLK_EXCEED_MAX;
+ 
+@@ -3288,7 +3287,7 @@ static enum dc_status dcn10_set_clock(struct dc *dc,
+ 	else
+ 		return DC_ERROR_UNEXPECTED;
+ 
+-	if (dc->clk_mgr && dc->clk_mgr->funcs->update_clocks)
++	if (dc->clk_mgr->funcs->update_clocks)
+ 				dc->clk_mgr->funcs->update_clocks(dc->clk_mgr,
+ 				context, true);
+ 	return DC_OK;
 -- 
 2.30.2
 
