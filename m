@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 623F3404B42
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:50:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A66404B52
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241621AbhIILvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:51:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55522 "EHLO mail.kernel.org"
+        id S242185AbhIILv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:51:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242709AbhIILtT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:49:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D33B61247;
-        Thu,  9 Sep 2021 11:43:38 +0000 (UTC)
+        id S237093AbhIILt0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:49:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2ACD6127B;
+        Thu,  9 Sep 2021 11:43:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187819;
-        bh=kLf66jFdqBpM2bbtixzKlTJYnN7XhiRt1aGl/Zbn6r8=;
+        s=k20201202; t=1631187820;
+        bh=4hIy8UnwQrH4j2ngGlzjY5U9vxLNhjopSfaM/eeqlH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AYy2TEbRIyFviW710TjsWg8x3/MTy+pcmyi77qLqKyvQulOMHtnG661ZDXOz45jb1
-         F7WuefvtizhgblG5a4gs7axoavAUW0ELqRbE+1x6iELeUljMTSKb/VQ+Y/r4OOy5RY
-         Qr94S+ReEzGXub7J0rdjjh9amPh54+M6zbj8YCiXmzN6gh2YZw+NPSEUz7CP5upASw
-         HruBGooKkYTkwcou00A8x8M/X2JulJqpf5oCnrcJFBXe9fnOMGMgN49QJd5unm2tNq
-         vrXTjjudZmm6nihRWVNWmbkSBsAz/MJxLJC3s8NBTYERodoLAXUfNlkhNIFf8FML+r
-         AzGXzpvOY14Og==
+        b=Wp766NH7k1IapoltLkL51UlWcWHds3BWXbI2vi4oOzrqdX3s8wGJIuzp55gpe8d0Q
+         hCqeOeKWnZKeQHOnrJQc+0SKB1asq5CuTP36jNAhuvybSe9iVz8Oawmkaso3Krcxrb
+         F1zjLGgiQCC18f/o35zWoRXTiaA/cW74mPqCEbKwKrWwaYOTuMHfUy8zYvci+ttkkw
+         npQ0tdtd6THkEFkcnnb6DjY9UOda+SCpzESFKnr3JWGA/B6B9Ss/fLkFpEht3jLHS1
+         SqVs8HwZFAvTyQ1tVPvPjJhwisWA+7hO0GhmkVr11juNpcEgsbRVVrdIbNLFRA6MiR
+         A4NIsrxIUb4Sw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vinod Koul <vkoul@kernel.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
         devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 118/252] arm64: dts: qcom: ipq8074: fix pci node reg property
-Date:   Thu,  9 Sep 2021 07:38:52 -0400
-Message-Id: <20210909114106.141462-118-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 119/252] arm64: dts: qcom: sdm660: use reg value for memory node
+Date:   Thu,  9 Sep 2021 07:38:53 -0400
+Message-Id: <20210909114106.141462-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -45,64 +45,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 52c9887fba71fc8f12d343833fc595c762aac8c7 ]
+[ Upstream commit c81210e38966cfa1c784364e4035081c3227cf5b ]
 
-reg property should be array of values, here it is a single array,
-leading to below warning:
+memory node like other node should be node@reg, which is missing in this
+case, so fix it up
 
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:reg:0: [268435456, 3869, 268439328, 168, 557056, 8192, 269484032, 4096] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
-[[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488]] is not of type 'null'
-[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:reg:0: [536870912, 3869, 536874784, 168, 524288, 8192, 537919488, 4096] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
-[[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488]] is not of type 'null'
-[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488] is too long
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 1073741824, 0, 536870912]]}
 
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210308060826.3074234-17-vkoul@kernel.org
+Link: https://lore.kernel.org/r/20210308060826.3074234-18-vkoul@kernel.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074.dtsi | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/arm64/boot/dts/qcom/ipq8074-hk01.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074.dtsi b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-index f39bc10cc5bd..d64a6e81d1a5 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-@@ -583,10 +583,10 @@ frame@b128000 {
+diff --git a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
+index e8c37a1693d3..cc08dc4eb56a 100644
+--- a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
++++ b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
+@@ -20,7 +20,7 @@ chosen {
+ 		stdout-path = "serial0";
+ 	};
  
- 		pcie1: pci@10000000 {
- 			compatible = "qcom,pcie-ipq8074";
--			reg =  <0x10000000 0xf1d
--				0x10000f20 0xa8
--				0x00088000 0x2000
--				0x10100000 0x1000>;
-+			reg =  <0x10000000 0xf1d>,
-+			       <0x10000f20 0xa8>,
-+			       <0x00088000 0x2000>,
-+			       <0x10100000 0x1000>;
- 			reg-names = "dbi", "elbi", "parf", "config";
- 			device_type = "pci";
- 			linux,pci-domain = <1>;
-@@ -645,10 +645,10 @@ IRQ_TYPE_LEVEL_HIGH>, /* int_c */
- 
- 		pcie0: pci@20000000 {
- 			compatible = "qcom,pcie-ipq8074";
--			reg =  <0x20000000 0xf1d
--				0x20000f20 0xa8
--				0x00080000 0x2000
--				0x20100000 0x1000>;
-+			reg = <0x20000000 0xf1d>,
-+			      <0x20000f20 0xa8>,
-+			      <0x00080000 0x2000>,
-+			      <0x20100000 0x1000>;
- 			reg-names = "dbi", "elbi", "parf", "config";
- 			device_type = "pci";
- 			linux,pci-domain = <0>;
+-	memory {
++	memory@40000000 {
+ 		device_type = "memory";
+ 		reg = <0x0 0x40000000 0x0 0x20000000>;
+ 	};
 -- 
 2.30.2
 
