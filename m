@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB3D40545D
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:29:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D235405459
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:29:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354045AbhIIM6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:58:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57768 "EHLO mail.kernel.org"
+        id S1356079AbhIIM6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:58:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356151AbhIIMxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1356150AbhIIMxL (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:53:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 824D761186;
-        Thu,  9 Sep 2021 11:57:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC827600AA;
+        Thu,  9 Sep 2021 11:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188653;
-        bh=ys93JIkJor0XQfcdfHsBQ3ju1Zsl222TxIT0neTqpJQ=;
+        s=k20201202; t=1631188654;
+        bh=jy87Hs9DjEstU082RReFi1SFX5hfII05KU1e+UcXikQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qs9bjolR7kMZ5yZ51dg6WaDjtmF3UxRgGDfp1SsvzO6Zs6lgRN/laCQWeiXkOTqgl
-         hL/Y+C1Os283F+LZ6i5yByLFiJuGHgyhU3ojWSaw7a6Bq3UfhRGq6SHovqUX5TQmyO
-         bKJNiEmWhTtSSk/ahTew8O0wyKmL8Q/xZ6BssJ+7cLzTpB2oAh3+/KuIBA7DkoH/5s
-         vJvK6lJnLLBUlFjl0yk6bMpljftdW7OVtyjR/Qhm/cNW1o+6F+mJD8/L4xTNwBXo1Z
-         pXoHlt5AcMBQftJo4MrOMWXfjhonLZqIlj41WWtCNSn6Gk9nsyivEcx452vE6N8tpS
-         URj7uHTdDP5gg==
+        b=FuJn/WlItLezQ4ciaC+Q/ltJ8U/y2ha6VHiOzWdgZBaGzEN8ruw8gA6r3qyumNLqM
+         /BM/r6EF0F93iI+R2raqTJ4laKjL4+F5kNp/rQ0/eB6N09nsTe1E/FS7m2SyqWqFTh
+         0yzXthwfZ2uTeU0NUyvVl46mfK8yeTI6wwgjNX/HjneW2NIVT209Efa4LyezmunDe9
+         hGJaUYd7ATQ2X41bRocIQQyaxOu+tJFYS0dQhmbAbWbXoeWkDBz3zX88fxh+K8rtAd
+         Sppectf8telxUgAd2zJ5b0mWhGh9EQiPLsd4JL/3mkIWYRZjWDSjiXN20qjSFeu8ZE
+         SP8tHjVa1liuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        kernel test robot <lkp@intel.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Sasha Levin <sashal@kernel.org>, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 05/74] iio: dac: ad5624r: Fix incorrect handling of an optional regulator.
-Date:   Thu,  9 Sep 2021 07:56:17 -0400
-Message-Id: <20210909115726.149004-5-sashal@kernel.org>
+Cc:     David Heidelberg <david@ixit.cz>,
+        Brian Masney <masneyb@onstation.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 06/74] ARM: dts: qcom: apq8064: correct clock names
+Date:   Thu,  9 Sep 2021 07:56:18 -0400
+Message-Id: <20210909115726.149004-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115726.149004-1-sashal@kernel.org>
 References: <20210909115726.149004-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,66 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit 97683c851f9cdbd3ea55697cbe2dcb6af4287bbd ]
+[ Upstream commit 0dc6c59892ead17a9febd11202c9f6794aac1895 ]
 
-The naming of the regulator is problematic.  VCC is usually a supply
-voltage whereas these devices have a separate VREF pin.
+Since new code doesn't take old clk names in account, it does fixes
+error:
 
-Secondly, the regulator core might have provided a stub regulator if
-a real regulator wasn't provided. That would in turn have failed to
-provide a voltage when queried. So reality was that there was no way
-to use the internal reference.
+msm_dsi 4700000.mdss_dsi: dev_pm_opp_set_clkname: Couldn't find clock: -2
 
-In order to avoid breaking any dts out in the wild, make sure to fallback
-to the original vcc naming if vref is not available.
+and following kernel oops introduced by
+b0530eb1191 ("drm/msm/dpu: Use OPP API to set clk/perf state").
 
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Acked-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210627163244.1090296-9-jic23@kernel.org
+Also removes warning about deprecated clock names.
+
+Tested against linux-5.10.y LTS on Nexus 7 2013.
+
+Reviewed-by: Brian Masney <masneyb@onstation.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210707131453.24041-1-david@ixit.cz
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/dac/ad5624r_spi.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom-apq8064.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/dac/ad5624r_spi.c b/drivers/iio/dac/ad5624r_spi.c
-index 13fdb4dfe356..cc3a24c43e57 100644
---- a/drivers/iio/dac/ad5624r_spi.c
-+++ b/drivers/iio/dac/ad5624r_spi.c
-@@ -230,7 +230,7 @@ static int ad5624r_probe(struct spi_device *spi)
- 	if (!indio_dev)
- 		return -ENOMEM;
- 	st = iio_priv(indio_dev);
--	st->reg = devm_regulator_get(&spi->dev, "vcc");
-+	st->reg = devm_regulator_get_optional(&spi->dev, "vref");
- 	if (!IS_ERR(st->reg)) {
- 		ret = regulator_enable(st->reg);
- 		if (ret)
-@@ -241,6 +241,22 @@ static int ad5624r_probe(struct spi_device *spi)
- 			goto error_disable_reg;
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index 4a99c9255104..d0153bbbdbeb 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1296,9 +1296,9 @@ dsi0: mdss_dsi@4700000 {
+ 				<&mmcc DSI1_BYTE_CLK>,
+ 				<&mmcc DSI_PIXEL_CLK>,
+ 				<&mmcc DSI1_ESC_CLK>;
+-			clock-names = "iface_clk", "bus_clk", "core_mmss_clk",
+-					"src_clk", "byte_clk", "pixel_clk",
+-					"core_clk";
++			clock-names = "iface", "bus", "core_mmss",
++					"src", "byte", "pixel",
++					"core";
  
- 		voltage_uv = ret;
-+	} else {
-+		if (PTR_ERR(st->reg) != -ENODEV)
-+			return PTR_ERR(st->reg);
-+		/* Backwards compatibility. This naming is not correct */
-+		st->reg = devm_regulator_get_optional(&spi->dev, "vcc");
-+		if (!IS_ERR(st->reg)) {
-+			ret = regulator_enable(st->reg);
-+			if (ret)
-+				return ret;
-+
-+			ret = regulator_get_voltage(st->reg);
-+			if (ret < 0)
-+				goto error_disable_reg;
-+
-+			voltage_uv = ret;
-+		}
- 	}
- 
- 	spi_set_drvdata(spi, indio_dev);
+ 			assigned-clocks = <&mmcc DSI1_BYTE_SRC>,
+ 					<&mmcc DSI1_ESC_SRC>,
 -- 
 2.30.2
 
