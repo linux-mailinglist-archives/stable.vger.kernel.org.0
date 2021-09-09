@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6367F4050ED
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E2D4050EF
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352087AbhIIMcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:32:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33216 "EHLO mail.kernel.org"
+        id S1345707AbhIIMcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:32:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350570AbhIIM1N (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353503AbhIIM1N (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:27:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 956F46127A;
-        Thu,  9 Sep 2021 11:51:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F49661B3B;
+        Thu,  9 Sep 2021 11:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188320;
-        bh=L0rHw5ZGotj/gnqKYNSK1Xc/T0+CJetbfYu7bTcQweI=;
+        s=k20201202; t=1631188322;
+        bh=cuOdGNw7f1QnFZNVV4eoDeQrIqRmu4KsyB2G/6dTrig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Epi7VoHbO7ebOaOS7MhjvyRu8s+Y1N/6BNhjV0qcK+YJKnnU/3Wq8SFTYc7uRYI3M
-         vobNaYLCpXawb0S1wtHjXPREm+A18eKqV01fW55V6pkmBRzJ40R6UAZ6dHcvYMsZQf
-         Qp8mPhzs36n+ZwwoEbttiZPGOlksN9R2kg0ebPxIRlXglKJ2vQWKGcKJwKO5avM7O9
-         PHQP+E4mqIbzgMOaEnLEFXLj1YHjPvrwp580Fd0p8lEhMuW0jx7taGwBu4/fHLbYzW
-         S6ZkcuWYpMdRuLWSqenz4fxrXkNouMqTvEuI4DxAhEfSONd6cM1fSs2AbH+uyaB4pW
-         cCf5+mz87a0Zg==
+        b=qQzIMEwYWgZ/Ov4w0eRSeSNSf3Pz9def3FKb05PPXNoon/zKBQ/K0q9oFdcPYzj9x
+         FdHRAYYSDDp+SgXnXXdEdqhHLhjG0NtsX8Vpqe2JHytbf0zZwB0a7zxp+CC075U6H/
+         hV0O9b1gapcqRkExMcvhumQcq8QqPcLJ3bPDlQ5p4lXE27Gf4HCs+6r2tdUQ4H+P9h
+         GF8gXdTb8XkH+U6dLFMpu3aeXcoWxf4Yk5/V0GL2/sAMHM8ZNZgFDFlxEXpHoymS/Q
+         w0RW6fT4mi2rJLAJ1ZC8BbEkOwXlCELa7iZ+w/4DmtwJuzbMZPt4tp3kEXJ1h7HCM1
+         lCyfkvvqsYreA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
-        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
-        Alex Bee <knaerzche@gmail.com>,
+Cc:     Evgeny Novikov <novikov@ispras.ru>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-rockchip@lists.infradead.org, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.10 033/176] media: hantro: vp8: Move noisy WARN_ON to vpu_debug
-Date:   Thu,  9 Sep 2021 07:48:55 -0400
-Message-Id: <20210909115118.146181-33-sashal@kernel.org>
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 034/176] media: platform: stm32: unprepare clocks at handling errors in probe
+Date:   Thu,  9 Sep 2021 07:48:56 -0400
+Message-Id: <20210909115118.146181-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -46,98 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 6ad61a7847da09b6261824accb539d05bcdfef65 ]
+[ Upstream commit 055d2db28ec2fa3ab5c527c5604f1b32b89fa13a ]
 
-When the VP8 decoders can't find a reference frame,
-the driver falls back to the current output frame.
+stm32_cec_probe() did not unprepare clocks on error handling paths. The
+patch fixes that.
 
-This will probably produce some undesirable results,
-leading to frame corruption, but shouldn't cause
-noisy warnings.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Acked-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
-Tested-by: Alex Bee <knaerzche@gmail.com>
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/hantro_g1_vp8_dec.c    | 13 ++++++++++---
- .../staging/media/hantro/rk3399_vpu_hw_vp8_dec.c    | 13 ++++++++++---
- 2 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/media/cec/platform/stm32/stm32-cec.c | 26 ++++++++++++++------
+ 1 file changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/media/hantro/hantro_g1_vp8_dec.c b/drivers/staging/media/hantro/hantro_g1_vp8_dec.c
-index a5cdf150cd16..d30bdc678cc2 100644
---- a/drivers/staging/media/hantro/hantro_g1_vp8_dec.c
-+++ b/drivers/staging/media/hantro/hantro_g1_vp8_dec.c
-@@ -377,12 +377,17 @@ static void cfg_ref(struct hantro_ctx *ctx,
- 	vb2_dst = hantro_get_dst_buf(ctx);
+diff --git a/drivers/media/cec/platform/stm32/stm32-cec.c b/drivers/media/cec/platform/stm32/stm32-cec.c
+index ea4b1ebfca99..0ffd89712536 100644
+--- a/drivers/media/cec/platform/stm32/stm32-cec.c
++++ b/drivers/media/cec/platform/stm32/stm32-cec.c
+@@ -305,14 +305,16 @@ static int stm32_cec_probe(struct platform_device *pdev)
  
- 	ref = hantro_get_ref(ctx, hdr->last_frame_ts);
--	if (!ref)
-+	if (!ref) {
-+		vpu_debug(0, "failed to find last frame ts=%llu\n",
-+			  hdr->last_frame_ts);
- 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
+ 	cec->clk_hdmi_cec = devm_clk_get(&pdev->dev, "hdmi-cec");
+ 	if (IS_ERR(cec->clk_hdmi_cec) &&
+-	    PTR_ERR(cec->clk_hdmi_cec) == -EPROBE_DEFER)
+-		return -EPROBE_DEFER;
++	    PTR_ERR(cec->clk_hdmi_cec) == -EPROBE_DEFER) {
++		ret = -EPROBE_DEFER;
++		goto err_unprepare_cec_clk;
 +	}
- 	vdpu_write_relaxed(vpu, ref, G1_REG_ADDR_REF(0));
  
- 	ref = hantro_get_ref(ctx, hdr->golden_frame_ts);
--	WARN_ON(!ref && hdr->golden_frame_ts);
-+	if (!ref && hdr->golden_frame_ts)
-+		vpu_debug(0, "failed to find golden frame ts=%llu\n",
-+			  hdr->golden_frame_ts);
- 	if (!ref)
- 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
- 	if (hdr->flags & V4L2_VP8_FRAME_HEADER_FLAG_SIGN_BIAS_GOLDEN)
-@@ -390,7 +395,9 @@ static void cfg_ref(struct hantro_ctx *ctx,
- 	vdpu_write_relaxed(vpu, ref, G1_REG_ADDR_REF(4));
+ 	if (!IS_ERR(cec->clk_hdmi_cec)) {
+ 		ret = clk_prepare(cec->clk_hdmi_cec);
+ 		if (ret) {
+ 			dev_err(&pdev->dev, "Can't prepare hdmi-cec clock\n");
+-			return ret;
++			goto err_unprepare_cec_clk;
+ 		}
+ 	}
  
- 	ref = hantro_get_ref(ctx, hdr->alt_frame_ts);
--	WARN_ON(!ref && hdr->alt_frame_ts);
-+	if (!ref && hdr->alt_frame_ts)
-+		vpu_debug(0, "failed to find alt frame ts=%llu\n",
-+			  hdr->alt_frame_ts);
- 	if (!ref)
- 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
- 	if (hdr->flags & V4L2_VP8_FRAME_HEADER_FLAG_SIGN_BIAS_ALT)
-diff --git a/drivers/staging/media/hantro/rk3399_vpu_hw_vp8_dec.c b/drivers/staging/media/hantro/rk3399_vpu_hw_vp8_dec.c
-index a4a792f00b11..5b8c8fc49cce 100644
---- a/drivers/staging/media/hantro/rk3399_vpu_hw_vp8_dec.c
-+++ b/drivers/staging/media/hantro/rk3399_vpu_hw_vp8_dec.c
-@@ -454,12 +454,17 @@ static void cfg_ref(struct hantro_ctx *ctx,
- 	vb2_dst = hantro_get_dst_buf(ctx);
+@@ -324,19 +326,27 @@ static int stm32_cec_probe(struct platform_device *pdev)
+ 			CEC_NAME, caps,	CEC_MAX_LOG_ADDRS);
+ 	ret = PTR_ERR_OR_ZERO(cec->adap);
+ 	if (ret)
+-		return ret;
++		goto err_unprepare_hdmi_cec_clk;
  
- 	ref = hantro_get_ref(ctx, hdr->last_frame_ts);
--	if (!ref)
-+	if (!ref) {
-+		vpu_debug(0, "failed to find last frame ts=%llu\n",
-+			  hdr->last_frame_ts);
- 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
-+	}
- 	vdpu_write_relaxed(vpu, ref, VDPU_REG_VP8_ADDR_REF0);
+ 	ret = cec_register_adapter(cec->adap, &pdev->dev);
+-	if (ret) {
+-		cec_delete_adapter(cec->adap);
+-		return ret;
+-	}
++	if (ret)
++		goto err_delete_adapter;
  
- 	ref = hantro_get_ref(ctx, hdr->golden_frame_ts);
--	WARN_ON(!ref && hdr->golden_frame_ts);
-+	if (!ref && hdr->golden_frame_ts)
-+		vpu_debug(0, "failed to find golden frame ts=%llu\n",
-+			  hdr->golden_frame_ts);
- 	if (!ref)
- 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
- 	if (hdr->flags & V4L2_VP8_FRAME_HEADER_FLAG_SIGN_BIAS_GOLDEN)
-@@ -467,7 +472,9 @@ static void cfg_ref(struct hantro_ctx *ctx,
- 	vdpu_write_relaxed(vpu, ref, VDPU_REG_VP8_ADDR_REF2_5(2));
+ 	cec_hw_init(cec);
  
- 	ref = hantro_get_ref(ctx, hdr->alt_frame_ts);
--	WARN_ON(!ref && hdr->alt_frame_ts);
-+	if (!ref && hdr->alt_frame_ts)
-+		vpu_debug(0, "failed to find alt frame ts=%llu\n",
-+			  hdr->alt_frame_ts);
- 	if (!ref)
- 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
- 	if (hdr->flags & V4L2_VP8_FRAME_HEADER_FLAG_SIGN_BIAS_ALT)
+ 	platform_set_drvdata(pdev, cec);
+ 
+ 	return 0;
++
++err_delete_adapter:
++	cec_delete_adapter(cec->adap);
++
++err_unprepare_hdmi_cec_clk:
++	clk_unprepare(cec->clk_hdmi_cec);
++
++err_unprepare_cec_clk:
++	clk_unprepare(cec->clk_cec);
++	return ret;
+ }
+ 
+ static int stm32_cec_remove(struct platform_device *pdev)
 -- 
 2.30.2
 
