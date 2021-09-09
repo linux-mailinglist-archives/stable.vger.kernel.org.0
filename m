@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A174405300
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:50:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42915405307
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354993AbhIIMtU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:49:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55852 "EHLO mail.kernel.org"
+        id S1355153AbhIIMtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:49:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351988AbhIIMnF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1352472AbhIIMnF (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:43:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25BC4613A4;
-        Thu,  9 Sep 2021 11:55:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7270D61C14;
+        Thu,  9 Sep 2021 11:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188533;
-        bh=vxYXa9Leus3NvqPJ59jcRrMbh7Hry0lK08bfF28n4Z8=;
+        s=k20201202; t=1631188534;
+        bh=JU4iJc6oY871eBLmLglTyk8lAnK2nHC5KV9FVXhDFpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yz37rhltw6luBkWgFeMra7ZtOn2q+e5yPgXKZdSerHW/SR3eKU98reiuZfuJhKaGj
-         S442hnzwO2AG0wliAIDcBV2zv1S21mwAGTZJCeUyOxhg/XnnX/w6TdYAHN4Mxo/JPV
-         uMpAB0RaENYJ//aT9vQlVHWzTl6aqnyQa+LuV55A8qXC8enJTdnFTp3UwEuqVWtTi5
-         C3kPunywnAKSEScmV7McBUqr8e9668wbyvihJ859zocNcadzyzX7pefQt9+75dLKBS
-         Kq096zrAt/MeDkCfb8zga7VBsXbOc3zS74LN+VuJEWfqlvJUEvaT84Bhda88vtssL6
-         wfHiZiNLy4GzQ==
+        b=bzC9zm4MIJPETwgbJbm7kFrjUIEwJY/nyCUTsls4aVd3dsen+fhqwgaHpy2y3gHvz
+         JI5r3UBdB+h78bg2h43AO3asTIiFWOIqZek1N7uRLHDiYr9I3l4IPYhbJDBBOl+Kuc
+         Qasql/wufuA4uinTdTfcHlcVzkbUUUd6JB29y/+X5FxFW7+WtI0Ft6NWrQ5T1qmoZt
+         GsVoy7Hx0BPma9ZZEsgE/PJylPqOlMHhGocTwqPUgkshSQT3/Xf6LxzxQH7trzsDp3
+         3C+l9yPKY5kWYuZoEDPlum7K5HBpGhwXoPoeZw2pGJrPE6sMREWu5hVenJcf9z5Z8n
+         SSmUylGvNu8GA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jack Pham <jackp@codeaurora.org>,
-        Ronak Vijay Raheja <rraheja@codeaurora.org>,
-        Felipe Balbi <balbi@kernel.org>,
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 020/109] usb: gadget: composite: Allow bMaxPower=0 if self-powered
-Date:   Thu,  9 Sep 2021 07:53:37 -0400
-Message-Id: <20210909115507.147917-20-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.4 021/109] staging: board: Fix uninitialized spinlock when attaching genpd
+Date:   Thu,  9 Sep 2021 07:53:38 -0400
+Message-Id: <20210909115507.147917-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -44,67 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Pham <jackp@codeaurora.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit bcacbf06c891374e7fdd7b72d11cda03b0269b43 ]
+[ Upstream commit df00609821bf17f50a75a446266d19adb8339d84 ]
 
-Currently the composite driver encodes the MaxPower field of
-the configuration descriptor by reading the c->MaxPower of the
-usb_configuration only if it is non-zero, otherwise it falls back
-to using the value hard-coded in CONFIG_USB_GADGET_VBUS_DRAW.
-However, there are cases when a configuration must explicitly set
-bMaxPower to 0, particularly if its bmAttributes also has the
-Self-Powered bit set, which is a valid combination.
+On Armadillo-800-EVA with CONFIG_DEBUG_SPINLOCK=y:
 
-This is specifically called out in the USB PD specification section
-9.1, in which a PDUSB device "shall report zero in the bMaxPower
-field after negotiating a mutually agreeable Contract", and also
-verified by the USB Type-C Functional Test TD.4.10.2 Sink Power
-Precedence Test.
+    BUG: spinlock bad magic on CPU#0, swapper/1
+     lock: lcdc0_device+0x10c/0x308, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    CPU: 0 PID: 1 Comm: swapper Not tainted 5.11.0-rc5-armadillo-00036-gbbca04be7a80-dirty #287
+    Hardware name: Generic R8A7740 (Flattened Device Tree)
+    [<c010c3c8>] (unwind_backtrace) from [<c010a49c>] (show_stack+0x10/0x14)
+    [<c010a49c>] (show_stack) from [<c0159534>] (do_raw_spin_lock+0x20/0x94)
+    [<c0159534>] (do_raw_spin_lock) from [<c040858c>] (dev_pm_get_subsys_data+0x8c/0x11c)
+    [<c040858c>] (dev_pm_get_subsys_data) from [<c05fbcac>] (genpd_add_device+0x78/0x2b8)
+    [<c05fbcac>] (genpd_add_device) from [<c0412db4>] (of_genpd_add_device+0x34/0x4c)
+    [<c0412db4>] (of_genpd_add_device) from [<c0a1ea74>] (board_staging_register_device+0x11c/0x148)
+    [<c0a1ea74>] (board_staging_register_device) from [<c0a1eac4>] (board_staging_register_devices+0x24/0x28)
 
-The fix allows the c->MaxPower to be used for encoding the bMaxPower
-even if it is 0, if the self-powered bit is also set.  An example
-usage of this would be for a ConfigFS gadget to be dynamically
-updated by userspace when the Type-C connection is determined to be
-operating in Power Delivery mode.
+of_genpd_add_device() is called before platform_device_register(), as it
+needs to attach the genpd before the device is probed.  But the spinlock
+is only initialized when the device is registered.
 
-Co-developed-by: Ronak Vijay Raheja <rraheja@codeaurora.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Ronak Vijay Raheja <rraheja@codeaurora.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Link: https://lore.kernel.org/r/20210720080907.30292-1-jackp@codeaurora.org
+Fix this by open-coding the spinlock initialization, cfr.
+device_pm_init_common() in the internal drivers/base code, and in the
+SuperH early platform code.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/57783ece7ddae55f2bda2f59f452180bff744ea0.1626257398.git.geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/composite.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/staging/board/board.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
-index 24dad1d78d1e..6bd3fdb925cd 100644
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -481,7 +481,7 @@ static u8 encode_bMaxPower(enum usb_device_speed speed,
+diff --git a/drivers/staging/board/board.c b/drivers/staging/board/board.c
+index cb6feb34dd40..f980af037345 100644
+--- a/drivers/staging/board/board.c
++++ b/drivers/staging/board/board.c
+@@ -136,6 +136,7 @@ int __init board_staging_register_clock(const struct board_staging_clk *bsc)
+ static int board_staging_add_dev_domain(struct platform_device *pdev,
+ 					const char *domain)
  {
- 	unsigned val;
++	struct device *dev = &pdev->dev;
+ 	struct of_phandle_args pd_args;
+ 	struct device_node *np;
  
--	if (c->MaxPower)
-+	if (c->MaxPower || (c->bmAttributes & USB_CONFIG_ATT_SELFPOWER))
- 		val = c->MaxPower;
- 	else
- 		val = CONFIG_USB_GADGET_VBUS_DRAW;
-@@ -905,7 +905,11 @@ static int set_config(struct usb_composite_dev *cdev,
- 	}
+@@ -148,7 +149,11 @@ static int board_staging_add_dev_domain(struct platform_device *pdev,
+ 	pd_args.np = np;
+ 	pd_args.args_count = 0;
  
- 	/* when we return, be sure our power usage is valid */
--	power = c->MaxPower ? c->MaxPower : CONFIG_USB_GADGET_VBUS_DRAW;
-+	if (c->MaxPower || (c->bmAttributes & USB_CONFIG_ATT_SELFPOWER))
-+		power = c->MaxPower;
-+	else
-+		power = CONFIG_USB_GADGET_VBUS_DRAW;
+-	return of_genpd_add_device(&pd_args, &pdev->dev);
++	/* Initialization similar to device_pm_init_common() */
++	spin_lock_init(&dev->power.lock);
++	dev->power.early_init = true;
 +
- 	if (gadget->speed < USB_SPEED_SUPER)
- 		power = min(power, 500U);
- 	else
++	return of_genpd_add_device(&pd_args, dev);
+ }
+ #else
+ static inline int board_staging_add_dev_domain(struct platform_device *pdev,
 -- 
 2.30.2
 
