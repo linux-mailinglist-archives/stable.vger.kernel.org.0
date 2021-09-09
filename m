@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 236DB404F9C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:21:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 931FC404F9B
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:21:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347756AbhIIMV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:21:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53568 "EHLO mail.kernel.org"
+        id S1345087AbhIIMV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:21:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53562 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346627AbhIIMRI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346619AbhIIMRI (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:17:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A5C961A57;
-        Thu,  9 Sep 2021 11:49:43 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C9206137E;
+        Thu,  9 Sep 2021 11:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188185;
-        bh=yqZajeSzuZRjAZq/e6DFxJmN7kiugX54XlOTrOdtcWY=;
+        s=k20201202; t=1631188186;
+        bh=7+34lJuA8T+mx98Ol2bt76efZapjIJYr/sKnp1rvVO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EJPusS6jKm0oQCvKslBd3be2cDYAVX0ZFaReCXy0J0DnUsUnXXVt5M2mAQ+kWPoGx
-         fJGQNhKvjVr8eP7jsOxhUALdb/K3eelhW3cc2vYpE6CEFhky4T4zmNa+1putD8jVwm
-         ZbiJnmcchD0TvEizeS+vvJewDsBldYw3ZveEXex2YLAO8gv/ftBcBe3LapIHN0Nqsb
-         AEKWAs1WmLsJNZtMqki7fdH3TMG1GrDh/5x2IoEyPmel3D5nZzUvemm06NSGKiaVYU
-         xL7YDPzsoOcvtaWhNcFE2yBLkwpmVjBkJ2zhfvNDvCkHAJbcnJZQ4UVoUGytvjbsdZ
-         9h1pBvG6D8AyA==
+        b=g561AikKxEpgUquP3bgPO1ACko40k/9Pfdzo522YzMsMulEu54lu1lJNnku1SWq8/
+         rXZ4LzWy9X99jD+hI5SfShBIuFfihcKSnUkbYLl1p3JIiJOjcXEaK2J/ZZk3RsLCWa
+         DDRNOQW+EtmTXMOt0JOVfw/j2qscAT6qGu9UvguW/+UR18GNkM4NGmZ5CPq4Bs59FZ
+         IQagQBAXt2Rg1CrZi5q2qVY0syTChmmFFRCgsf30m1ekaS0nMMAG4pq/4W/A4A56lg
+         L93OU52IG6V8gT0stW0T+sHeSEqTJ2TwYkbiK53rHEqIbkOIyFrVs2+IzgoIPv8GiE
+         fMXZ83t5wzVbg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luke Hsiao <lukehsiao@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 146/219] tcp: enable data-less, empty-cookie SYN with TFO_SERVER_COOKIE_NOT_REQD
-Date:   Thu,  9 Sep 2021 07:45:22 -0400
-Message-Id: <20210909114635.143983-146-sashal@kernel.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 147/219] locking/rtmutex: Set proper wait context for lockdep
+Date:   Thu,  9 Sep 2021 07:45:23 -0400
+Message-Id: <20210909114635.143983-147-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -45,56 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke Hsiao <lukehsiao@google.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit e3faa49bcecdfcc80e94dd75709d6acb1a5d89f6 ]
+[ Upstream commit b41cda03765580caf7723b8c1b672d191c71013f ]
 
-Since the original TFO server code was implemented in commit
-168a8f58059a22feb9e9a2dcc1b8053dbbbc12ef ("tcp: TCP Fast Open Server -
-main code path") the TFO server code has supported the sysctl bit flag
-TFO_SERVER_COOKIE_NOT_REQD. Currently, when the TFO_SERVER_ENABLE and
-TFO_SERVER_COOKIE_NOT_REQD sysctl bit flags are set, a server connection
-will accept a SYN with N bytes of data (N > 0) that has no TFO cookie,
-create a new fast open connection, process the incoming data in the SYN,
-and make the connection ready for accepting. After accepting, the
-connection is ready for read()/recvmsg() to read the N bytes of data in
-the SYN, ready for write()/sendmsg() calls and data transmissions to
-transmit data.
+RT mutexes belong to the LD_WAIT_SLEEP class. Make them so.
 
-This commit changes an edge case in this feature by changing this
-behavior to apply to (N >= 0) bytes of data in the SYN rather than only
-(N > 0) bytes of data in the SYN. Now, a server will accept a data-less
-SYN without a TFO cookie if TFO_SERVER_COOKIE_NOT_REQD is set.
-
-Caveat! While this enables a new kind of TFO (data-less empty-cookie
-SYN), some firewall rules setup may not work if they assume such packets
-are not legit TFOs and will filter them.
-
-Signed-off-by: Luke Hsiao <lukehsiao@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20210816205105.2533289-1-luke.w.hsiao@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210815211302.031014562@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_fastopen.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/linux/rtmutex.h  | 19 ++++++++++++-------
+ kernel/locking/rtmutex.c |  2 +-
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
-index d49709ba8e16..107111984384 100644
---- a/net/ipv4/tcp_fastopen.c
-+++ b/net/ipv4/tcp_fastopen.c
-@@ -379,8 +379,7 @@ struct sock *tcp_try_fastopen(struct sock *sk, struct sk_buff *skb,
- 		return NULL;
- 	}
+diff --git a/include/linux/rtmutex.h b/include/linux/rtmutex.h
+index d1672de9ca89..87b325aec508 100644
+--- a/include/linux/rtmutex.h
++++ b/include/linux/rtmutex.h
+@@ -52,17 +52,22 @@ do { \
+ } while (0)
  
--	if (syn_data &&
--	    tcp_fastopen_no_cookie(sk, dst, TFO_SERVER_COOKIE_NOT_REQD))
-+	if (tcp_fastopen_no_cookie(sk, dst, TFO_SERVER_COOKIE_NOT_REQD))
- 		goto fastopen;
+ #ifdef CONFIG_DEBUG_LOCK_ALLOC
+-#define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname) \
+-	, .dep_map = { .name = #mutexname }
++#define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)	\
++	.dep_map = {					\
++		.name = #mutexname,			\
++		.wait_type_inner = LD_WAIT_SLEEP,	\
++	}
+ #else
+ #define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)
+ #endif
  
- 	if (foc->len == 0) {
+-#define __RT_MUTEX_INITIALIZER(mutexname) \
+-	{ .wait_lock = __RAW_SPIN_LOCK_UNLOCKED(mutexname.wait_lock) \
+-	, .waiters = RB_ROOT_CACHED \
+-	, .owner = NULL \
+-	__DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)}
++#define __RT_MUTEX_INITIALIZER(mutexname)				\
++{									\
++	.wait_lock = __RAW_SPIN_LOCK_UNLOCKED(mutexname.wait_lock),	\
++	.waiters = RB_ROOT_CACHED,					\
++	.owner = NULL,							\
++	__DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)			\
++}
+ 
+ #define DEFINE_RT_MUTEX(mutexname) \
+ 	struct rt_mutex mutexname = __RT_MUTEX_INITIALIZER(mutexname)
+diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
+index 3c20afbc19e1..ae5afba2162b 100644
+--- a/kernel/locking/rtmutex.c
++++ b/kernel/locking/rtmutex.c
+@@ -1556,7 +1556,7 @@ void __sched __rt_mutex_init(struct rt_mutex *lock, const char *name,
+ 		     struct lock_class_key *key)
+ {
+ 	debug_check_no_locks_freed((void *)lock, sizeof(*lock));
+-	lockdep_init_map(&lock->dep_map, name, key, 0);
++	lockdep_init_map_wait(&lock->dep_map, name, key, 0, LD_WAIT_SLEEP);
+ 
+ 	__rt_mutex_basic_init(lock);
+ }
 -- 
 2.30.2
 
