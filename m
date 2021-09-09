@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AECCB4050F6
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70CCE4050F8
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352440AbhIIMc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:32:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33498 "EHLO mail.kernel.org"
+        id S244907AbhIIMdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350144AbhIIM1Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:27:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A17CF61B30;
-        Thu,  9 Sep 2021 11:52:06 +0000 (UTC)
+        id S1347693AbhIIM1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:27:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3337A61B1C;
+        Thu,  9 Sep 2021 11:52:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188327;
-        bh=jx3iPFxkRDrPIG54QGHiyXX9r1sllxvnwVHKPI+4HlE=;
+        s=k20201202; t=1631188329;
+        bh=wzqbQFTeNf7I3h29JvYO9tQN2CvEx3tkOCodfiblsng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tI+tgAPTis0uKBWcyCp/744nnOXINiMIBmk7tLPZDhagYrNG+Ev5A58JXRnzsMSMq
-         orowA3YfoLOOLUYL3waaAB4w/cv25KJVKjZNWMyP2VU8oXcOts0etnwsS1avbAulhO
-         TY+XUJYJk4xMqmAqD8dYlziWqtOsXKJ7kwXxuXdG5+M9JaiRBuldk1Bfd+H8oyOD8Z
-         QicOKS7cAsm56xHTxRG/G1YG6s8N0LKJ0h3gYnLIMS+GcPOIFpW3Z6p7bcVZuAhiKf
-         wc78J3EKnKP89NOfkzaZp+mVrh0UXD8eJPUH4BWbnw+iCIKguHun1Ghel4pVfosxHW
-         kyBt47qYHjfxw==
+        b=q9lgNe6aATO3SNPcv6VREmpJztoeSlfMz+PHHg6Ootfc/tShogjKzLgsnHTxbVhCk
+         UE6hV8RcrunXWBH2DMnAKLKu62zuwhxc5dKwGtBiLGQHMwxYeUAfx9nrns0Mqk3J30
+         xO+SjEjSh7VJ1SbvkbL0Gr77BnThlzUPiToXOKVE0GwNmBCzLIiBkC0N8h0NQMi1mH
+         ZRGhqv6W8F4NTi9TrKD8TnR4JcKM39G5WiLJX0ud/ZSl2/46Y94Eu3PWITPtvD3w89
+         9VcpEwi7M/ijEnqzkWRJQSO0uaRqLG5HKxX8TQRCT88O5qdxjluKwWxEppPob+DxW7
+         6W+JQprd+zwRA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Gong <yibin.gong@nxp.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Mark Brown <broonie@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 038/176] spi: imx: fix ERR009165
-Date:   Thu,  9 Sep 2021 07:49:00 -0400
-Message-Id: <20210909115118.146181-38-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 039/176] ethtool: improve compat ioctl handling
+Date:   Thu,  9 Sep 2021 07:49:01 -0400
+Message-Id: <20210909115118.146181-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -45,58 +42,405 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 980f884866eed4dda2a18de888c5a67dde67d640 ]
+[ Upstream commit dd98d2895de6485c884a9cb42de69fed02826fa4 ]
 
-Change to XCH  mode even in dma mode, please refer to the below
-errata:
-https://www.nxp.com/docs/en/errata/IMX6DQCE.pdf
+The ethtool compat ioctl handling is hidden away in net/socket.c,
+which introduces a couple of minor oddities:
 
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Acked-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+- The implementation may end up diverging, as seen in the RXNFC
+  extension in commit 84a1d9c48200 ("net: ethtool: extend RXNFC
+  API to support RSS spreading of filter matches") that does not work
+  in compat mode.
+
+- Most architectures do not need the compat handling at all
+  because u64 and compat_u64 have the same alignment.
+
+- On x86, the conversion is done for both x32 and i386 user space,
+  but it's actually wrong to do it for x32 and cannot work there.
+
+- On 32-bit Arm, it never worked for compat oabi user space, since
+  that needs to do the same conversion but does not.
+
+- It would be nice to get rid of both compat_alloc_user_space()
+  and copy_in_user() throughout the kernel.
+
+None of these actually seems to be a serious problem that real
+users are likely to encounter, but fixing all of them actually
+leads to code that is both shorter and more readable.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-imx.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ include/linux/ethtool.h |   4 --
+ net/ethtool/ioctl.c     | 136 +++++++++++++++++++++++++++++++++++-----
+ net/socket.c            | 125 +-----------------------------------
+ 3 files changed, 121 insertions(+), 144 deletions(-)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 0e3bc0b0a526..2652130eda6a 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -622,8 +622,8 @@ static int mx51_ecspi_prepare_transfer(struct spi_imx_data *spi_imx,
- 	ctrl |= mx51_ecspi_clkdiv(spi_imx, spi_imx->spi_bus_clk, &clk);
- 	spi_imx->spi_bus_clk = clk;
+diff --git a/include/linux/ethtool.h b/include/linux/ethtool.h
+index 6408b446051f..b98291d391f3 100644
+--- a/include/linux/ethtool.h
++++ b/include/linux/ethtool.h
+@@ -17,8 +17,6 @@
+ #include <linux/compat.h>
+ #include <uapi/linux/ethtool.h>
  
--	if (spi_imx->usedma)
--		ctrl |= MX51_ECSPI_CTRL_SMC;
-+	/* ERR009165: work in XHC mode as PIO */
-+	ctrl &= ~MX51_ECSPI_CTRL_SMC;
- 
- 	writel(ctrl, spi_imx->base + MX51_ECSPI_CTRL);
- 
-@@ -637,7 +637,7 @@ static void mx51_setup_wml(struct spi_imx_data *spi_imx)
- 	 * and enable DMA request.
- 	 */
- 	writel(MX51_ECSPI_DMA_RX_WML(spi_imx->wml - 1) |
--		MX51_ECSPI_DMA_TX_WML(spi_imx->wml) |
-+		MX51_ECSPI_DMA_TX_WML(0) |
- 		MX51_ECSPI_DMA_RXT_WML(spi_imx->wml) |
- 		MX51_ECSPI_DMA_TEDEN | MX51_ECSPI_DMA_RXDEN |
- 		MX51_ECSPI_DMA_RXTDEN, spi_imx->base + MX51_ECSPI_DMA);
-@@ -1280,10 +1280,6 @@ static int spi_imx_sdma_init(struct device *dev, struct spi_imx_data *spi_imx,
- {
- 	int ret;
- 
--	/* use pio mode for i.mx6dl chip TKT238285 */
--	if (of_machine_is_compatible("fsl,imx6dl"))
--		return 0;
+-#ifdef CONFIG_COMPAT
 -
- 	spi_imx->wml = spi_imx->devtype_data->fifo_size / 2;
+ struct compat_ethtool_rx_flow_spec {
+ 	u32		flow_type;
+ 	union ethtool_flow_union h_u;
+@@ -38,8 +36,6 @@ struct compat_ethtool_rxnfc {
+ 	u32				rule_locs[];
+ };
  
- 	/* Prepare for TX DMA: */
+-#endif /* CONFIG_COMPAT */
+-
+ #include <linux/rculist.h>
+ 
+ /**
+diff --git a/net/ethtool/ioctl.c b/net/ethtool/ioctl.c
+index 68ff19af195c..97b402b2d6fb 100644
+--- a/net/ethtool/ioctl.c
++++ b/net/ethtool/ioctl.c
+@@ -7,6 +7,7 @@
+  * the information ethtool needs.
+  */
+ 
++#include <linux/compat.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/capability.h>
+@@ -807,6 +808,120 @@ static noinline_for_stack int ethtool_get_sset_info(struct net_device *dev,
+ 	return ret;
+ }
+ 
++static noinline_for_stack int
++ethtool_rxnfc_copy_from_compat(struct ethtool_rxnfc *rxnfc,
++			       const struct compat_ethtool_rxnfc __user *useraddr,
++			       size_t size)
++{
++	struct compat_ethtool_rxnfc crxnfc = {};
++
++	/* We expect there to be holes between fs.m_ext and
++	 * fs.ring_cookie and at the end of fs, but nowhere else.
++	 * On non-x86, no conversion should be needed.
++	 */
++	BUILD_BUG_ON(!IS_ENABLED(CONFIG_X86_64) &&
++		     sizeof(struct compat_ethtool_rxnfc) !=
++		     sizeof(struct ethtool_rxnfc));
++	BUILD_BUG_ON(offsetof(struct compat_ethtool_rxnfc, fs.m_ext) +
++		     sizeof(useraddr->fs.m_ext) !=
++		     offsetof(struct ethtool_rxnfc, fs.m_ext) +
++		     sizeof(rxnfc->fs.m_ext));
++	BUILD_BUG_ON(offsetof(struct compat_ethtool_rxnfc, fs.location) -
++		     offsetof(struct compat_ethtool_rxnfc, fs.ring_cookie) !=
++		     offsetof(struct ethtool_rxnfc, fs.location) -
++		     offsetof(struct ethtool_rxnfc, fs.ring_cookie));
++
++	if (copy_from_user(&crxnfc, useraddr, min(size, sizeof(crxnfc))))
++		return -EFAULT;
++
++	*rxnfc = (struct ethtool_rxnfc) {
++		.cmd		= crxnfc.cmd,
++		.flow_type	= crxnfc.flow_type,
++		.data		= crxnfc.data,
++		.fs		= {
++			.flow_type	= crxnfc.fs.flow_type,
++			.h_u		= crxnfc.fs.h_u,
++			.h_ext		= crxnfc.fs.h_ext,
++			.m_u		= crxnfc.fs.m_u,
++			.m_ext		= crxnfc.fs.m_ext,
++			.ring_cookie	= crxnfc.fs.ring_cookie,
++			.location	= crxnfc.fs.location,
++		},
++		.rule_cnt	= crxnfc.rule_cnt,
++	};
++
++	return 0;
++}
++
++static int ethtool_rxnfc_copy_from_user(struct ethtool_rxnfc *rxnfc,
++					const void __user *useraddr,
++					size_t size)
++{
++	if (compat_need_64bit_alignment_fixup())
++		return ethtool_rxnfc_copy_from_compat(rxnfc, useraddr, size);
++
++	if (copy_from_user(rxnfc, useraddr, size))
++		return -EFAULT;
++
++	return 0;
++}
++
++static int ethtool_rxnfc_copy_to_compat(void __user *useraddr,
++					const struct ethtool_rxnfc *rxnfc,
++					size_t size, const u32 *rule_buf)
++{
++	struct compat_ethtool_rxnfc crxnfc;
++
++	memset(&crxnfc, 0, sizeof(crxnfc));
++	crxnfc = (struct compat_ethtool_rxnfc) {
++		.cmd		= rxnfc->cmd,
++		.flow_type	= rxnfc->flow_type,
++		.data		= rxnfc->data,
++		.fs		= {
++			.flow_type	= rxnfc->fs.flow_type,
++			.h_u		= rxnfc->fs.h_u,
++			.h_ext		= rxnfc->fs.h_ext,
++			.m_u		= rxnfc->fs.m_u,
++			.m_ext		= rxnfc->fs.m_ext,
++			.ring_cookie	= rxnfc->fs.ring_cookie,
++			.location	= rxnfc->fs.location,
++		},
++		.rule_cnt	= rxnfc->rule_cnt,
++	};
++
++	if (copy_to_user(useraddr, &crxnfc, min(size, sizeof(crxnfc))))
++		return -EFAULT;
++
++	return 0;
++}
++
++static int ethtool_rxnfc_copy_to_user(void __user *useraddr,
++				      const struct ethtool_rxnfc *rxnfc,
++				      size_t size, const u32 *rule_buf)
++{
++	int ret;
++
++	if (compat_need_64bit_alignment_fixup()) {
++		ret = ethtool_rxnfc_copy_to_compat(useraddr, rxnfc, size,
++						   rule_buf);
++		useraddr += offsetof(struct compat_ethtool_rxnfc, rule_locs);
++	} else {
++		ret = copy_to_user(useraddr, &rxnfc, size);
++		useraddr += offsetof(struct ethtool_rxnfc, rule_locs);
++	}
++
++	if (ret)
++		return -EFAULT;
++
++	if (rule_buf) {
++		if (copy_to_user(useraddr, rule_buf,
++				 rxnfc->rule_cnt * sizeof(u32)))
++			return -EFAULT;
++	}
++
++	return 0;
++}
++
+ static noinline_for_stack int ethtool_set_rxnfc(struct net_device *dev,
+ 						u32 cmd, void __user *useraddr)
+ {
+@@ -825,7 +940,7 @@ static noinline_for_stack int ethtool_set_rxnfc(struct net_device *dev,
+ 		info_size = (offsetof(struct ethtool_rxnfc, data) +
+ 			     sizeof(info.data));
+ 
+-	if (copy_from_user(&info, useraddr, info_size))
++	if (ethtool_rxnfc_copy_from_user(&info, useraddr, info_size))
+ 		return -EFAULT;
+ 
+ 	rc = dev->ethtool_ops->set_rxnfc(dev, &info);
+@@ -833,7 +948,7 @@ static noinline_for_stack int ethtool_set_rxnfc(struct net_device *dev,
+ 		return rc;
+ 
+ 	if (cmd == ETHTOOL_SRXCLSRLINS &&
+-	    copy_to_user(useraddr, &info, info_size))
++	    ethtool_rxnfc_copy_to_user(useraddr, &info, info_size, NULL))
+ 		return -EFAULT;
+ 
+ 	return 0;
+@@ -859,7 +974,7 @@ static noinline_for_stack int ethtool_get_rxnfc(struct net_device *dev,
+ 		info_size = (offsetof(struct ethtool_rxnfc, data) +
+ 			     sizeof(info.data));
+ 
+-	if (copy_from_user(&info, useraddr, info_size))
++	if (ethtool_rxnfc_copy_from_user(&info, useraddr, info_size))
+ 		return -EFAULT;
+ 
+ 	/* If FLOW_RSS was requested then user-space must be using the
+@@ -867,7 +982,7 @@ static noinline_for_stack int ethtool_get_rxnfc(struct net_device *dev,
+ 	 */
+ 	if (cmd == ETHTOOL_GRXFH && info.flow_type & FLOW_RSS) {
+ 		info_size = sizeof(info);
+-		if (copy_from_user(&info, useraddr, info_size))
++		if (ethtool_rxnfc_copy_from_user(&info, useraddr, info_size))
+ 			return -EFAULT;
+ 		/* Since malicious users may modify the original data,
+ 		 * we need to check whether FLOW_RSS is still requested.
+@@ -893,18 +1008,7 @@ static noinline_for_stack int ethtool_get_rxnfc(struct net_device *dev,
+ 	if (ret < 0)
+ 		goto err_out;
+ 
+-	ret = -EFAULT;
+-	if (copy_to_user(useraddr, &info, info_size))
+-		goto err_out;
+-
+-	if (rule_buf) {
+-		useraddr += offsetof(struct ethtool_rxnfc, rule_locs);
+-		if (copy_to_user(useraddr, rule_buf,
+-				 info.rule_cnt * sizeof(u32)))
+-			goto err_out;
+-	}
+-	ret = 0;
+-
++	ret = ethtool_rxnfc_copy_to_user(useraddr, &info, info_size, rule_buf);
+ err_out:
+ 	kfree(rule_buf);
+ 
+diff --git a/net/socket.c b/net/socket.c
+index dd5da07bc1ff..d52c265ad449 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -3112,128 +3112,6 @@ static int compat_dev_ifconf(struct net *net, struct compat_ifconf __user *uifc3
+ 	return 0;
+ }
+ 
+-static int ethtool_ioctl(struct net *net, struct compat_ifreq __user *ifr32)
+-{
+-	struct compat_ethtool_rxnfc __user *compat_rxnfc;
+-	bool convert_in = false, convert_out = false;
+-	size_t buf_size = 0;
+-	struct ethtool_rxnfc __user *rxnfc = NULL;
+-	struct ifreq ifr;
+-	u32 rule_cnt = 0, actual_rule_cnt;
+-	u32 ethcmd;
+-	u32 data;
+-	int ret;
+-
+-	if (get_user(data, &ifr32->ifr_ifru.ifru_data))
+-		return -EFAULT;
+-
+-	compat_rxnfc = compat_ptr(data);
+-
+-	if (get_user(ethcmd, &compat_rxnfc->cmd))
+-		return -EFAULT;
+-
+-	/* Most ethtool structures are defined without padding.
+-	 * Unfortunately struct ethtool_rxnfc is an exception.
+-	 */
+-	switch (ethcmd) {
+-	default:
+-		break;
+-	case ETHTOOL_GRXCLSRLALL:
+-		/* Buffer size is variable */
+-		if (get_user(rule_cnt, &compat_rxnfc->rule_cnt))
+-			return -EFAULT;
+-		if (rule_cnt > KMALLOC_MAX_SIZE / sizeof(u32))
+-			return -ENOMEM;
+-		buf_size += rule_cnt * sizeof(u32);
+-		fallthrough;
+-	case ETHTOOL_GRXRINGS:
+-	case ETHTOOL_GRXCLSRLCNT:
+-	case ETHTOOL_GRXCLSRULE:
+-	case ETHTOOL_SRXCLSRLINS:
+-		convert_out = true;
+-		fallthrough;
+-	case ETHTOOL_SRXCLSRLDEL:
+-		buf_size += sizeof(struct ethtool_rxnfc);
+-		convert_in = true;
+-		rxnfc = compat_alloc_user_space(buf_size);
+-		break;
+-	}
+-
+-	if (copy_from_user(&ifr.ifr_name, &ifr32->ifr_name, IFNAMSIZ))
+-		return -EFAULT;
+-
+-	ifr.ifr_data = convert_in ? rxnfc : (void __user *)compat_rxnfc;
+-
+-	if (convert_in) {
+-		/* We expect there to be holes between fs.m_ext and
+-		 * fs.ring_cookie and at the end of fs, but nowhere else.
+-		 */
+-		BUILD_BUG_ON(offsetof(struct compat_ethtool_rxnfc, fs.m_ext) +
+-			     sizeof(compat_rxnfc->fs.m_ext) !=
+-			     offsetof(struct ethtool_rxnfc, fs.m_ext) +
+-			     sizeof(rxnfc->fs.m_ext));
+-		BUILD_BUG_ON(
+-			offsetof(struct compat_ethtool_rxnfc, fs.location) -
+-			offsetof(struct compat_ethtool_rxnfc, fs.ring_cookie) !=
+-			offsetof(struct ethtool_rxnfc, fs.location) -
+-			offsetof(struct ethtool_rxnfc, fs.ring_cookie));
+-
+-		if (copy_in_user(rxnfc, compat_rxnfc,
+-				 (void __user *)(&rxnfc->fs.m_ext + 1) -
+-				 (void __user *)rxnfc) ||
+-		    copy_in_user(&rxnfc->fs.ring_cookie,
+-				 &compat_rxnfc->fs.ring_cookie,
+-				 (void __user *)(&rxnfc->fs.location + 1) -
+-				 (void __user *)&rxnfc->fs.ring_cookie))
+-			return -EFAULT;
+-		if (ethcmd == ETHTOOL_GRXCLSRLALL) {
+-			if (put_user(rule_cnt, &rxnfc->rule_cnt))
+-				return -EFAULT;
+-		} else if (copy_in_user(&rxnfc->rule_cnt,
+-					&compat_rxnfc->rule_cnt,
+-					sizeof(rxnfc->rule_cnt)))
+-			return -EFAULT;
+-	}
+-
+-	ret = dev_ioctl(net, SIOCETHTOOL, &ifr, NULL);
+-	if (ret)
+-		return ret;
+-
+-	if (convert_out) {
+-		if (copy_in_user(compat_rxnfc, rxnfc,
+-				 (const void __user *)(&rxnfc->fs.m_ext + 1) -
+-				 (const void __user *)rxnfc) ||
+-		    copy_in_user(&compat_rxnfc->fs.ring_cookie,
+-				 &rxnfc->fs.ring_cookie,
+-				 (const void __user *)(&rxnfc->fs.location + 1) -
+-				 (const void __user *)&rxnfc->fs.ring_cookie) ||
+-		    copy_in_user(&compat_rxnfc->rule_cnt, &rxnfc->rule_cnt,
+-				 sizeof(rxnfc->rule_cnt)))
+-			return -EFAULT;
+-
+-		if (ethcmd == ETHTOOL_GRXCLSRLALL) {
+-			/* As an optimisation, we only copy the actual
+-			 * number of rules that the underlying
+-			 * function returned.  Since Mallory might
+-			 * change the rule count in user memory, we
+-			 * check that it is less than the rule count
+-			 * originally given (as the user buffer size),
+-			 * which has been range-checked.
+-			 */
+-			if (get_user(actual_rule_cnt, &rxnfc->rule_cnt))
+-				return -EFAULT;
+-			if (actual_rule_cnt < rule_cnt)
+-				rule_cnt = actual_rule_cnt;
+-			if (copy_in_user(&compat_rxnfc->rule_locs[0],
+-					 &rxnfc->rule_locs[0],
+-					 rule_cnt * sizeof(u32)))
+-				return -EFAULT;
+-		}
+-	}
+-
+-	return 0;
+-}
+-
+ static int compat_siocwandev(struct net *net, struct compat_ifreq __user *uifr32)
+ {
+ 	compat_uptr_t uptr32;
+@@ -3390,8 +3268,6 @@ static int compat_sock_ioctl_trans(struct file *file, struct socket *sock,
+ 		return old_bridge_ioctl(argp);
+ 	case SIOCGIFCONF:
+ 		return compat_dev_ifconf(net, argp);
+-	case SIOCETHTOOL:
+-		return ethtool_ioctl(net, argp);
+ 	case SIOCWANDEV:
+ 		return compat_siocwandev(net, argp);
+ 	case SIOCGIFMAP:
+@@ -3404,6 +3280,7 @@ static int compat_sock_ioctl_trans(struct file *file, struct socket *sock,
+ 		return sock->ops->gettstamp(sock, argp, cmd == SIOCGSTAMP_OLD,
+ 					    !COMPAT_USE_64BIT_TIME);
+ 
++	case SIOCETHTOOL:
+ 	case SIOCBONDSLAVEINFOQUERY:
+ 	case SIOCBONDINFOQUERY:
+ 	case SIOCSHWTSTAMP:
 -- 
 2.30.2
 
