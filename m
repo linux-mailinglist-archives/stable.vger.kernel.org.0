@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0AE404EC4
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2E6404EC8
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:18:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349053AbhIIMOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:14:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52262 "EHLO mail.kernel.org"
+        id S244412AbhIIMOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:14:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347750AbhIIMLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:11:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2853861A10;
-        Thu,  9 Sep 2021 11:48:39 +0000 (UTC)
+        id S1345785AbhIIMLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:11:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76C5A619F5;
+        Thu,  9 Sep 2021 11:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188120;
-        bh=Mgk6zcJV3cp/1FnKDc4HTUGsqHEyT0cD/bodCBNyz7k=;
+        s=k20201202; t=1631188121;
+        bh=hBMpEcqTLqk1Iuuh/VqFCCsSi3SUvQ2kusH5coJhz90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dwBxedil7rElwXcglHXS6UMObIEBKrzR53sSahsc5lgtf/TIviMZuu8CCmQ0YKat3
-         xUm1pbJio4tVC3SHCJ/HufG4C6kI3RR6K2OhTY2L4JkjC879/Q47HSMHbkg8zzGHaa
-         WIeLygSIiYF414U1UqRdJ3+Aqd/CZJfGv6zczoDkeQl/vgRDtjKfj+4OBDyBqxRDbp
-         ULaHkrJHGCVPpspOn0b8JRBROExemY5G4NVJTwBeuzDiJYqKEyij9BjbBkxsR9JPXM
-         0pyPuss52+wGfI9xrJ/NC3+ArIsRNrmUPx55XpT1PFKidrWCDjvsNnjVzwA3LaiHVm
-         /VE/Brs4y1vjQ==
+        b=bgbBSDbC+cWT12qEwqWN4sDjUw91z/BSfi42+gJHUguR1bzRd9XoNJOiNfvX3RrG+
+         WfieFHKWpCUz+2fhMbAx2AB6ksJMKiOwTgG4jOTaSY9W9HaXosUNjky2qdToCBBpwq
+         PiBzW7QDGcpVZcWtLKdIx4TB5KVjHe5ABmQHaJwD+DWSwNoOxClUH8KD816dXa5x/e
+         Xn1KVs4/lVZ7/LlNn+wO8tY+DtsSdWi2WNM9zQnSSouHKtkY0mgQOEaHpA/Eg4diHj
+         CKp3pSNmE3XAgsWtbWUwCRhpRVFK3kjB8A3Cxc6CWDXrwBSMAPEs+MshjMScaFbrhS
+         2GnAZjvmGINsQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evgeny Novikov <novikov@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 096/219] media: tegra-cec: Handle errors of clk_prepare_enable()
-Date:   Thu,  9 Sep 2021 07:44:32 -0400
-Message-Id: <20210909114635.143983-96-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.13 097/219] gfs2: Fix glock recursion in freeze_go_xmote_bh
+Date:   Thu,  9 Sep 2021 07:44:33 -0400
+Message-Id: <20210909114635.143983-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -44,51 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 38367073c796a37a61549b1f66a71b3adb03802d ]
+[ Upstream commit 9d9b16054b7d357afde69a027514c695092b0d22 ]
 
-tegra_cec_probe() and tegra_cec_resume() ignored possible errors of
-clk_prepare_enable(). The patch fixes this.
+We must not call gfs2_consist (which does a file system withdraw) from
+the freeze glock's freeze_go_xmote_bh function because the withdraw
+will try to use the freeze glock, thus causing a glock recursion error.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+This patch changes freeze_go_xmote_bh to call function
+gfs2_assert_withdraw_delayed instead of gfs2_consist to avoid recursion.
 
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/platform/tegra/tegra_cec.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/gfs2/glops.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/media/cec/platform/tegra/tegra_cec.c b/drivers/media/cec/platform/tegra/tegra_cec.c
-index 1ac0c70a5981..5e907395ca2e 100644
---- a/drivers/media/cec/platform/tegra/tegra_cec.c
-+++ b/drivers/media/cec/platform/tegra/tegra_cec.c
-@@ -366,7 +366,11 @@ static int tegra_cec_probe(struct platform_device *pdev)
- 		return -ENOENT;
- 	}
+diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
+index 54d3fbeb3002..384565d63eea 100644
+--- a/fs/gfs2/glops.c
++++ b/fs/gfs2/glops.c
+@@ -610,16 +610,13 @@ static int freeze_go_xmote_bh(struct gfs2_glock *gl)
+ 		j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
  
--	clk_prepare_enable(cec->clk);
-+	ret = clk_prepare_enable(cec->clk);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Unable to prepare clock for CEC\n");
-+		return ret;
-+	}
- 
- 	/* set context info. */
- 	cec->dev = &pdev->dev;
-@@ -446,9 +450,7 @@ static int tegra_cec_resume(struct platform_device *pdev)
- 
- 	dev_notice(&pdev->dev, "Resuming\n");
- 
--	clk_prepare_enable(cec->clk);
+ 		error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
+-		if (error)
+-			gfs2_consist(sdp);
+-		if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT))
+-			gfs2_consist(sdp);
 -
--	return 0;
-+	return clk_prepare_enable(cec->clk);
+-		/*  Initialize some head of the log stuff  */
+-		if (!gfs2_withdrawn(sdp)) {
+-			sdp->sd_log_sequence = head.lh_sequence + 1;
+-			gfs2_log_pointers_init(sdp, head.lh_blkno);
+-		}
++		if (gfs2_assert_withdraw_delayed(sdp, !error))
++			return error;
++		if (gfs2_assert_withdraw_delayed(sdp, head.lh_flags &
++						 GFS2_LOG_HEAD_UNMOUNT))
++			return -EIO;
++		sdp->sd_log_sequence = head.lh_sequence + 1;
++		gfs2_log_pointers_init(sdp, head.lh_blkno);
+ 	}
+ 	return 0;
  }
- #endif
- 
 -- 
 2.30.2
 
