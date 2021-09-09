@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11EA8404B90
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:52:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E42BC404BCE
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:54:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240131AbhIILw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:52:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55048 "EHLO mail.kernel.org"
+        id S238199AbhIILxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:53:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240935AbhIILux (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:50:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 025E461269;
-        Thu,  9 Sep 2021 11:43:57 +0000 (UTC)
+        id S241447AbhIILu7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:50:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5092C6135E;
+        Thu,  9 Sep 2021 11:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187838;
-        bh=e4DRZx/VtfqC41DV1FiYS0p26W6OqaMolJo8boE3nZU=;
+        s=k20201202; t=1631187840;
+        bh=6+FigFe1JfRp3EsUrqy4XkTFd6p4WNxKygRAKeaCjxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8GadA162D80QEQ3n6e4wZmwjLNQQM0T8vqn+6bfpGM8baknHcL5M9xQDg2aj7LJW
-         3GzZpIupJCrGfBxae0uQuuzUN/Oc7VLe6KwhUI7xf1vPtZpeh0lDMN1fDguVqtRahz
-         uEwx6r244KlYua4px2dga4T2vLFGnrl3o2p9Gz5JZG0nLqGkG4kp59WM5P7kZfusMe
-         A85X/g0Ovh+K3Lc6CIQRqh7YEzYalOtBJV8lCGICY8yiyKao1z/ZNof7DBDoAMhGqC
-         NMJuQ8tYKJOL2B+YL8xLCD6UymylG/tMCmMnVtJfe8XnkJ43QY6VqgIXXWOfn3WdxY
-         0vy0e/g2o9uYQ==
+        b=LiizHbSSrEO9pcSVyKt+0gJj9EBSUIxEt7HKK1VnOA6MYwtTk7/xSE5BdxwnWASDO
+         Nolo1VA7IIJQWmaMADuwX5XmRKl6O06K+VM9MZWDtKIYn1FKnUmFQ7L+LqXDmd5Wj7
+         o5HRftaQnmJpTPKiRYVRaXDR3wSpeCDrtmGQmnqq0+jblmHEUZ4CV1scQd8mvzTNq0
+         P9VdQl/iLEDbW1HygGnuEffPo/c5nfKUB4YhtUdTqfq66PK+TLRjGP9+u34Zg+hy6s
+         oZ7yIg5V1EE2xIxInU2SU4cjhdqrDq7NZFcPOWtnYZWCVkcDstvv7wzTTcybzDINVk
+         XN96yw2sc8iqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 133/252] spi: tegra20-slink: Improve runtime PM usage
-Date:   Thu,  9 Sep 2021 07:39:07 -0400
-Message-Id: <20210909114106.141462-133-sashal@kernel.org>
+Cc:     Sanjay R Mehta <sanju.mehta@amd.com>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 134/252] thunderbolt: Fix port linking by checking all adapters
+Date:   Thu,  9 Sep 2021 07:39:08 -0400
+Message-Id: <20210909114106.141462-134-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -43,166 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Sanjay R Mehta <sanju.mehta@amd.com>
 
-[ Upstream commit e4bb903fda0e9bbafa1338dcd2ee5e4d3ccc50da ]
+[ Upstream commit 42716425ad7e1b6529ec61c260c11176841f4b5f ]
 
-The Tegra SPI driver supports runtime PM, which controls the clock
-enable state, but the clk is also enabled separately from the RPM
-at the driver probe time, and thus, stays always on. Fix it.
+In tb_switch_default_link_ports(), while linking of ports,
+only odd-numbered ports (1,3,5..) are considered and even-numbered
+ports are not considered.
 
-Runtime PM now is always available on Tegra, hence there is no need to
-check the RPM presence in the driver anymore. Remove these checks.
+AMD host router has lane adapters at 2 and 3 and link ports at adapter 2
+is not considered due to which lane bonding gets disabled.
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210731192731.5869-1-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Hence added a fix such that all ports are considered during
+linking of ports.
+
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Sanjay R Mehta <sanju.mehta@amd.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra20-slink.c | 73 +++++++++++----------------------
- 1 file changed, 25 insertions(+), 48 deletions(-)
+ drivers/thunderbolt/switch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
-index 6a726c95ac7a..501eca1d0f89 100644
---- a/drivers/spi/spi-tegra20-slink.c
-+++ b/drivers/spi/spi-tegra20-slink.c
-@@ -1061,33 +1061,12 @@ static int tegra_slink_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "Can not get clock %d\n", ret);
- 		goto exit_free_master;
- 	}
--	ret = clk_prepare(tspi->clk);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "Clock prepare failed %d\n", ret);
--		goto exit_free_master;
--	}
--	ret = clk_enable(tspi->clk);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "Clock enable failed %d\n", ret);
--		goto exit_clk_unprepare;
--	}
--
--	spi_irq = platform_get_irq(pdev, 0);
--	tspi->irq = spi_irq;
--	ret = request_threaded_irq(tspi->irq, tegra_slink_isr,
--			tegra_slink_isr_thread, IRQF_ONESHOT,
--			dev_name(&pdev->dev), tspi);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
--					tspi->irq);
--		goto exit_clk_disable;
--	}
+diff --git a/drivers/thunderbolt/switch.c b/drivers/thunderbolt/switch.c
+index 10d6b228cc94..eec59030c3a7 100644
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -2443,7 +2443,7 @@ static void tb_switch_default_link_ports(struct tb_switch *sw)
+ {
+ 	int i;
  
- 	tspi->rst = devm_reset_control_get_exclusive(&pdev->dev, "spi");
- 	if (IS_ERR(tspi->rst)) {
- 		dev_err(&pdev->dev, "can not get reset\n");
- 		ret = PTR_ERR(tspi->rst);
--		goto exit_free_irq;
-+		goto exit_free_master;
- 	}
- 
- 	tspi->max_buf_size = SLINK_FIFO_DEPTH << 2;
-@@ -1095,7 +1074,7 @@ static int tegra_slink_probe(struct platform_device *pdev)
- 
- 	ret = tegra_slink_init_dma_param(tspi, true);
- 	if (ret < 0)
--		goto exit_free_irq;
-+		goto exit_free_master;
- 	ret = tegra_slink_init_dma_param(tspi, false);
- 	if (ret < 0)
- 		goto exit_rx_dma_free;
-@@ -1106,16 +1085,9 @@ static int tegra_slink_probe(struct platform_device *pdev)
- 	init_completion(&tspi->xfer_completion);
- 
- 	pm_runtime_enable(&pdev->dev);
--	if (!pm_runtime_enabled(&pdev->dev)) {
--		ret = tegra_slink_runtime_resume(&pdev->dev);
--		if (ret)
--			goto exit_pm_disable;
--	}
--
--	ret = pm_runtime_get_sync(&pdev->dev);
--	if (ret < 0) {
-+	ret = pm_runtime_resume_and_get(&pdev->dev);
-+	if (ret) {
- 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
--		pm_runtime_put_noidle(&pdev->dev);
- 		goto exit_pm_disable;
- 	}
- 
-@@ -1123,33 +1095,43 @@ static int tegra_slink_probe(struct platform_device *pdev)
- 	udelay(2);
- 	reset_control_deassert(tspi->rst);
- 
-+	spi_irq = platform_get_irq(pdev, 0);
-+	tspi->irq = spi_irq;
-+	ret = request_threaded_irq(tspi->irq, tegra_slink_isr,
-+				   tegra_slink_isr_thread, IRQF_ONESHOT,
-+				   dev_name(&pdev->dev), tspi);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
-+			tspi->irq);
-+		goto exit_pm_put;
-+	}
-+
- 	tspi->def_command_reg  = SLINK_M_S;
- 	tspi->def_command2_reg = SLINK_CS_ACTIVE_BETWEEN;
- 	tegra_slink_writel(tspi, tspi->def_command_reg, SLINK_COMMAND);
- 	tegra_slink_writel(tspi, tspi->def_command2_reg, SLINK_COMMAND2);
--	pm_runtime_put(&pdev->dev);
- 
- 	master->dev.of_node = pdev->dev.of_node;
- 	ret = devm_spi_register_master(&pdev->dev, master);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "can not register to master err %d\n", ret);
--		goto exit_pm_disable;
-+		goto exit_free_irq;
- 	}
-+
-+	pm_runtime_put(&pdev->dev);
-+
- 	return ret;
- 
-+exit_free_irq:
-+	free_irq(spi_irq, tspi);
-+exit_pm_put:
-+	pm_runtime_put(&pdev->dev);
- exit_pm_disable:
- 	pm_runtime_disable(&pdev->dev);
--	if (!pm_runtime_status_suspended(&pdev->dev))
--		tegra_slink_runtime_suspend(&pdev->dev);
-+
- 	tegra_slink_deinit_dma_param(tspi, false);
- exit_rx_dma_free:
- 	tegra_slink_deinit_dma_param(tspi, true);
--exit_free_irq:
--	free_irq(spi_irq, tspi);
--exit_clk_disable:
--	clk_disable(tspi->clk);
--exit_clk_unprepare:
--	clk_unprepare(tspi->clk);
- exit_free_master:
- 	spi_master_put(master);
- 	return ret;
-@@ -1162,8 +1144,7 @@ static int tegra_slink_remove(struct platform_device *pdev)
- 
- 	free_irq(tspi->irq, tspi);
- 
--	clk_disable(tspi->clk);
--	clk_unprepare(tspi->clk);
-+	pm_runtime_disable(&pdev->dev);
- 
- 	if (tspi->tx_dma_chan)
- 		tegra_slink_deinit_dma_param(tspi, false);
-@@ -1171,10 +1152,6 @@ static int tegra_slink_remove(struct platform_device *pdev)
- 	if (tspi->rx_dma_chan)
- 		tegra_slink_deinit_dma_param(tspi, true);
- 
--	pm_runtime_disable(&pdev->dev);
--	if (!pm_runtime_status_suspended(&pdev->dev))
--		tegra_slink_runtime_suspend(&pdev->dev);
--
- 	return 0;
- }
+-	for (i = 1; i <= sw->config.max_port_number; i += 2) {
++	for (i = 1; i <= sw->config.max_port_number; i++) {
+ 		struct tb_port *port = &sw->ports[i];
+ 		struct tb_port *subordinate;
  
 -- 
 2.30.2
