@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA3BC404D38
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3687404D3C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244996AbhIIMBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:01:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34496 "EHLO mail.kernel.org"
+        id S238377AbhIIMBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:01:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243466AbhIIL6m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:58:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F31E613DB;
-        Thu,  9 Sep 2021 11:45:44 +0000 (UTC)
+        id S242607AbhIIL6n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:58:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E3BE61409;
+        Thu,  9 Sep 2021 11:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187945;
-        bh=iI3Nf3pgp84K2U+TapAd91phHv3h5a6aFXdCgxuUWqo=;
+        s=k20201202; t=1631187946;
+        bh=U7nfynJ0s4aemPNqIE8YG6GThwovfwBxwov3Lc9Llms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qA5w2UJab4gw4Oqq50eMmiDM1ZURrvzXlj8aqZEZN8RegWlSU/ZRpHJLoXlYcfJtG
-         dOvAMUbWZBeyLaIfkz30M7mVtuLmOSBFyB6XLp6xuOmIXQYBtvCeBaBFjUZpcs911e
-         0uR9TZU9o2ZEH/x9eOSwQf//xzW+/d/Jx4MzbHclOGxU1sse/i4/upRndvp9GV0QQ8
-         XDSf8BalTqQN+PZWJ94/yhyBof3iVzd3SFGDUrsjD+XlYVe369FhPxFVqjzoKddZMJ
-         Kd5cjPhvx2OeQGWK8plNe04/bObOmsmGl+5iNi44Ko3twOtc9EL7NsrZl54dC+urvi
-         hwFHyEDqvp4ng==
+        b=AYJxDLW8hfkXV3n0zTc4CVic0oT7ogRIEQ42YLV4pLUaX69h7IulZGnQiBUZYehZf
+         yhiMMNOvOBmJShQUTp3P6c+3ELYkxXnpO8wnUYfRLFdfWJUK+P2kPfgrISD+GX+voL
+         I1QTQkcOAeK826Yg/wF2R8ZYoHB0JB2nJEESuxGPY3ShOHcEYrfVyvI1UfCi+SKVVM
+         ESu7+jZrH5hSa9IGE/NeRQ2YbX3wP2XHdNpD0VOch6OUJkMv01uCvuA157WsEYfc05
+         qaLhMm8jXjs3titXs+D9/dBr+rYHLPmsk3G95HvHm5qRTgiJZFnFf1wSoNE3wx6Hiu
+         X2294wvv5XCmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ding Hui <dinghui@sangfor.com.cn>, Paulo Alcantara <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.14 214/252] cifs: fix wrong release in sess_alloc_buffer() failed path
-Date:   Thu,  9 Sep 2021 07:40:28 -0400
-Message-Id: <20210909114106.141462-214-sashal@kernel.org>
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 215/252] Revert "USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set"
+Date:   Thu,  9 Sep 2021 07:40:29 -0400
+Message-Id: <20210909114106.141462-215-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -43,35 +42,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Hui <dinghui@sangfor.com.cn>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit d72c74197b70bc3c95152f351a568007bffa3e11 ]
+[ Upstream commit 2847c46c61486fd8bca9136a6e27177212e78c69 ]
 
-smb_buf is allocated by small_smb_init_no_tc(), and buf type is
-CIFS_SMALL_BUFFER, so we should use cifs_small_buf_release() to
-release it in failed path.
+This reverts commit 5d5323a6f3625f101dbfa94ba3ef7706cce38760.
 
-Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+That commit effectively disabled Intel host initiated U1/U2 lpm for devices
+with periodic endpoints.
+
+Before that commit we disabled host initiated U1/U2 lpm if the exit latency
+was larger than any periodic endpoint service interval, this is according
+to xhci spec xhci 1.1 specification section 4.23.5.2
+
+After that commit we incorrectly checked that service interval was smaller
+than U1/U2 inactivity timeout. This is not relevant, and can't happen for
+Intel hosts as previously set U1/U2 timeout = 105% * service interval.
+
+Patch claimed it solved cases where devices can't be enumerated because of
+bandwidth issues. This might be true but it's a side effect of accidentally
+turning off lpm.
+
+exit latency calculations have been revised since then
+
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210820123503.2605901-5-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/sess.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/fs/cifs/sess.c b/fs/cifs/sess.c
-index c5785fd3f52e..606fd7d6cb71 100644
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -877,7 +877,7 @@ sess_alloc_buffer(struct sess_data *sess_data, int wct)
- 	return 0;
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 3618070eba78..18a203c9011e 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4705,19 +4705,19 @@ static u16 xhci_calculate_u1_timeout(struct xhci_hcd *xhci,
+ {
+ 	unsigned long long timeout_ns;
  
- out_free_smb_buf:
--	kfree(smb_buf);
-+	cifs_small_buf_release(smb_buf);
- 	sess_data->iov[0].iov_base = NULL;
- 	sess_data->iov[0].iov_len = 0;
- 	sess_data->buf0_type = CIFS_NO_BUFFER;
+-	if (xhci->quirks & XHCI_INTEL_HOST)
+-		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
+-	else
+-		timeout_ns = udev->u1_params.sel;
+-
+ 	/* Prevent U1 if service interval is shorter than U1 exit latency */
+ 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+-		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
++		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
+ 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
+ 			return USB3_LPM_DISABLED;
+ 		}
+ 	}
+ 
++	if (xhci->quirks & XHCI_INTEL_HOST)
++		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
++	else
++		timeout_ns = udev->u1_params.sel;
++
+ 	/* The U1 timeout is encoded in 1us intervals.
+ 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
+ 	 */
+@@ -4769,19 +4769,19 @@ static u16 xhci_calculate_u2_timeout(struct xhci_hcd *xhci,
+ {
+ 	unsigned long long timeout_ns;
+ 
+-	if (xhci->quirks & XHCI_INTEL_HOST)
+-		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
+-	else
+-		timeout_ns = udev->u2_params.sel;
+-
+ 	/* Prevent U2 if service interval is shorter than U2 exit latency */
+ 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
+-		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
++		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
+ 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
+ 			return USB3_LPM_DISABLED;
+ 		}
+ 	}
+ 
++	if (xhci->quirks & XHCI_INTEL_HOST)
++		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
++	else
++		timeout_ns = udev->u2_params.sel;
++
+ 	/* The U2 timeout is encoded in 256us intervals */
+ 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
+ 	/* If the necessary timeout value is bigger than what we can set in the
 -- 
 2.30.2
 
