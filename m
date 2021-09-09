@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B3BF40507C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BCBE405083
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237872AbhIIM14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:27:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34536 "EHLO mail.kernel.org"
+        id S1353298AbhIIM2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:28:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347245AbhIIMYO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:24:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A357361B04;
-        Thu,  9 Sep 2021 11:51:24 +0000 (UTC)
+        id S1349230AbhIIMYS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:24:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E724F61B06;
+        Thu,  9 Sep 2021 11:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188285;
-        bh=syssOq1j2yQRRM8P5ht0TXo62YuE27FA3gWG9IInyWU=;
+        s=k20201202; t=1631188286;
+        bh=UWOSj+0dV3ODPeSKP/0a/hFg/2YrWllal63cm9OEM6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8rpGf6xCASPi4QX4QBclXu5XT+wU2rFZVemRsYcv//z7qHRaWk/MWCl5HMs2T2Jn
-         0tw+m6mXgVwT2ssN6X7uUl4i4AjHSDHXNlXVl8/yJuqgWAuhZQ4ir712yPGhsTfPdS
-         y/Og+I1peRbun9zawCYW68VWAgxjetWbhEHcvgrdpieNIi+h6HCJV8xmiNk26OER5G
-         TLSosy4QYHzX24em2DWh2HwFVHbuIU20cwZfxqqc1O7jTpcPGpcI0xceaAD8Ac8ryE
-         W9mB3yTY4N76WM9Ru5hLGrmogZLkVOWBNpf29hdVrSVYKtNQY5oNIPsBOoCb4aN0Hy
-         dUr4R1Jv52Asw==
+        b=UDvXPuoWpYK/zm3zWMrVDPmfsyQyWQxlbRybwo+3ae7HutaXoCF2tzkyb6/H5TPbD
+         43NSGhctye/rUFCZtJJtFw6LmY7pXib0GnpZey/nmMxCQRQGSdnjeD2CRFOm+1TIwD
+         BdQ3ugBPswbdkKrz9Ly98+45d9pn6vUT0m4MWNm2GXFqqKivyL0hRu5LJqWBA2l7aH
+         X/cUQBX7mCPSaWYEnXcyjMZ14mhI+jwIgTFA7qTeUaux9AP40FYlqK1+oYAEI7jzeW
+         itvZOZlHBqB5ItVQqX0anlO1TNLK4MmbadhVPiw/9ZVx0+1LrNiIHCdrPIUJW8fqci
+         BmA4HPpQelbkw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martynas Pumputis <m@lambda.lt>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 005/176] libbpf: Fix reuse of pinned map on older kernel
-Date:   Thu,  9 Sep 2021 07:48:27 -0400
-Message-Id: <20210909115118.146181-5-sashal@kernel.org>
+Cc:     Ani Sinha <ani@anisinha.ca>,
+        Michael Kelley <mikelley@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-hyperv@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 006/176] x86/hyperv: fix for unwanted manipulation of sched_clock when TSC marked unstable
+Date:   Thu,  9 Sep 2021 07:48:28 -0400
+Message-Id: <20210909115118.146181-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -44,117 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martynas Pumputis <m@lambda.lt>
+From: Ani Sinha <ani@anisinha.ca>
 
-[ Upstream commit 97eb31384af943d6b97eb5947262cee4ef25cb87 ]
+[ Upstream commit c445535c3efbfb8cb42d098e624d46ab149664b7 ]
 
-When loading a BPF program with a pinned map, the loader checks whether
-the pinned map can be reused, i.e. their properties match. To derive
-such of the pinned map, the loader invokes BPF_OBJ_GET_INFO_BY_FD and
-then does the comparison.
+Marking TSC as unstable has a side effect of marking sched_clock as
+unstable when TSC is still being used as the sched_clock. This is not
+desirable. Hyper-V ultimately uses a paravirtualized clock source that
+provides a stable scheduler clock even on systems without TscInvariant
+CPU capability. Hence, mark_tsc_unstable() call should be called _after_
+scheduler clock has been changed to the paravirtualized clocksource. This
+will prevent any unwanted manipulation of the sched_clock. Only TSC will
+be correctly marked as unstable.
 
-Unfortunately, on < 4.12 kernels the BPF_OBJ_GET_INFO_BY_FD is not
-available, so loading the program fails with the following error:
-
-	libbpf: failed to get map info for map FD 5: Invalid argument
-	libbpf: couldn't reuse pinned map at
-		'/sys/fs/bpf/tc/globals/cilium_call_policy': parameter
-		mismatch"
-	libbpf: map 'cilium_call_policy': error reusing pinned map
-	libbpf: map 'cilium_call_policy': failed to create:
-		Invalid argument(-22)
-	libbpf: failed to load object 'bpf_overlay.o'
-
-To fix this, fallback to derivation of the map properties via
-/proc/$PID/fdinfo/$MAP_FD if BPF_OBJ_GET_INFO_BY_FD fails with EINVAL,
-which can be used as an indicator that the kernel doesn't support
-the latter.
-
-Signed-off-by: Martynas Pumputis <m@lambda.lt>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20210712125552.58705-1-m@lambda.lt
+Signed-off-by: Ani Sinha <ani@anisinha.ca>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+Tested-by: Michael Kelley <mikelley@microsoft.com>
+Link: https://lore.kernel.org/r/20210713030522.1714803-1-ani@anisinha.ca
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 48 +++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 45 insertions(+), 3 deletions(-)
+ arch/x86/kernel/cpu/mshyperv.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 95eef7ebdac5..a4e61dd5d8b3 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -3613,6 +3613,42 @@ static int bpf_map_find_btf_info(struct bpf_object *obj, struct bpf_map *map)
- 	return 0;
- }
- 
-+static int bpf_get_map_info_from_fdinfo(int fd, struct bpf_map_info *info)
-+{
-+	char file[PATH_MAX], buff[4096];
-+	FILE *fp;
-+	__u32 val;
-+	int err;
-+
-+	snprintf(file, sizeof(file), "/proc/%d/fdinfo/%d", getpid(), fd);
-+	memset(info, 0, sizeof(*info));
-+
-+	fp = fopen(file, "r");
-+	if (!fp) {
-+		err = -errno;
-+		pr_warn("failed to open %s: %d. No procfs support?\n", file,
-+			err);
-+		return err;
-+	}
-+
-+	while (fgets(buff, sizeof(buff), fp)) {
-+		if (sscanf(buff, "map_type:\t%u", &val) == 1)
-+			info->type = val;
-+		else if (sscanf(buff, "key_size:\t%u", &val) == 1)
-+			info->key_size = val;
-+		else if (sscanf(buff, "value_size:\t%u", &val) == 1)
-+			info->value_size = val;
-+		else if (sscanf(buff, "max_entries:\t%u", &val) == 1)
-+			info->max_entries = val;
-+		else if (sscanf(buff, "map_flags:\t%i", &val) == 1)
-+			info->map_flags = val;
-+	}
-+
-+	fclose(fp);
-+
-+	return 0;
-+}
-+
- int bpf_map__reuse_fd(struct bpf_map *map, int fd)
- {
- 	struct bpf_map_info info = {};
-@@ -3621,6 +3657,8 @@ int bpf_map__reuse_fd(struct bpf_map *map, int fd)
- 	char *new_name;
- 
- 	err = bpf_obj_get_info_by_fd(fd, &info, &len);
-+	if (err && errno == EINVAL)
-+		err = bpf_get_map_info_from_fdinfo(fd, &info);
- 	if (err)
- 		return err;
- 
-@@ -4032,12 +4070,16 @@ static bool map_is_reuse_compat(const struct bpf_map *map, int map_fd)
- 	struct bpf_map_info map_info = {};
- 	char msg[STRERR_BUFSIZE];
- 	__u32 map_info_len;
-+	int err;
- 
- 	map_info_len = sizeof(map_info);
- 
--	if (bpf_obj_get_info_by_fd(map_fd, &map_info, &map_info_len)) {
--		pr_warn("failed to get map info for map FD %d: %s\n",
--			map_fd, libbpf_strerror_r(errno, msg, sizeof(msg)));
-+	err = bpf_obj_get_info_by_fd(map_fd, &map_info, &map_info_len);
-+	if (err && errno == EINVAL)
-+		err = bpf_get_map_info_from_fdinfo(map_fd, &map_info);
-+	if (err) {
-+		pr_warn("failed to get map info for map FD %d: %s\n", map_fd,
-+			libbpf_strerror_r(errno, msg, sizeof(msg)));
- 		return false;
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index 6cc50ab07bde..65d11711cd7b 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -322,8 +322,6 @@ static void __init ms_hyperv_init_platform(void)
+ 	if (ms_hyperv.features & HV_ACCESS_TSC_INVARIANT) {
+ 		wrmsrl(HV_X64_MSR_TSC_INVARIANT_CONTROL, 0x1);
+ 		setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
+-	} else {
+-		mark_tsc_unstable("running on Hyper-V");
  	}
  
+ 	/*
+@@ -382,6 +380,13 @@ static void __init ms_hyperv_init_platform(void)
+ 	/* Register Hyper-V specific clocksource */
+ 	hv_init_clocksource();
+ #endif
++	/*
++	 * TSC should be marked as unstable only after Hyper-V
++	 * clocksource has been initialized. This ensures that the
++	 * stability of the sched_clock is not altered.
++	 */
++	if (!(ms_hyperv.features & HV_ACCESS_TSC_INVARIANT))
++		mark_tsc_unstable("running on Hyper-V");
+ }
+ 
+ const __initconst struct hypervisor_x86 x86_hyper_ms_hyperv = {
 -- 
 2.30.2
 
