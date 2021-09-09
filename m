@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 294A64057CF
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FE824057D3
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352592AbhIINmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:42:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57772 "EHLO mail.kernel.org"
+        id S1351386AbhIINmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:42:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356449AbhIIMzM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:55:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD1876322D;
-        Thu,  9 Sep 2021 11:58:06 +0000 (UTC)
+        id S1356556AbhIIMz0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:55:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 135DA6324D;
+        Thu,  9 Sep 2021 11:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188687;
-        bh=idyDFC2+HeruMcqKUqpotWuIe9YhVI1CIW7aQEnqD8M=;
+        s=k20201202; t=1631188688;
+        bh=PWLvZFVngULD41a0RLIMQjtTU8091EiKcOcAhOZ/YdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4k1JIQgsWNuUmklj7lVtYW2MtzI3pGJWUF3vTpo71Tdde+p0CCyNr0SBqaaMJRSd
-         Ci9iT8g+nc/Kf1Syw76yAN68CEgbtyUOw7xNFC+aDNfehhxtuzXH3MGG66Je4fa/7s
-         TxIEPkR58S7LVnHGKpBWMagXAagf7bGcqpfXq1ESDfnoQ1NKlk92ITP9YGMt1hdxUe
-         IasjSd/+NuJTQcvU3LIRuLsFwRvPjQmFggye2Ue8xH3ayx/2uUfZZG4onSJoakY2pB
-         6TenYc/Ku/oD7cqrEKrUrivcD+moMiOoXGCQUP2sPa5IwEDCQIUV6F3z+e9IEZObjz
-         tOcqvfmCClBpA==
+        b=GW5xD9GXyEcLWsLAcEYSqFQNstPy4Bli9MAxGbvuGaDSUvexmz6fVbkV49YqWoQn8
+         xo+BW9kw5NDtFRl1L8youq5XvtRiNZlKYR7C78FoLZzP6KfyrX3cAxQvsNBUlLjFIp
+         LMTtg7U2zCjLjxV2KqQ2bFpDKgGSQMFN6t63jOEDlS5rAaetEIqDSmDMKXRi4Uy7nS
+         x1RKTkYevTh08jQQZXj34Mt2KS1uFr8gqbTzGHRbvR/xSaLAppdSOwxiKYYp+vdjij
+         A1i+q2V2wqDDATViTVNBDzKALBpEBu9elwhg3V4jr3suuOFAqmHRTym23Fl9L2Dm9v
+         6oYCuo+cVanng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yufeng Mo <moyufeng@huawei.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 33/74] bonding: 3ad: fix the concurrency between __bond_release_one() and bond_3ad_state_machine_handler()
-Date:   Thu,  9 Sep 2021 07:56:45 -0400
-Message-Id: <20210909115726.149004-33-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 34/74] ASoC: Intel: bytcr_rt5640: Move "Platform Clock" routes to the maps for the matching in-/output
+Date:   Thu,  9 Sep 2021 07:56:46 -0400
+Message-Id: <20210909115726.149004-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115726.149004-1-sashal@kernel.org>
 References: <20210909115726.149004-1-sashal@kernel.org>
@@ -43,97 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufeng Mo <moyufeng@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 220ade77452c15ecb1ab94c3f8aaeb6d033c3582 ]
+[ Upstream commit dccd1dfd0770bfd494b68d1135b4547b2c602c42 ]
 
-Some time ago, I reported a calltrace issue
-"did not find a suitable aggregator", please see[1].
-After a period of analysis and reproduction, I find
-that this problem is caused by concurrency.
+Move the "Platform Clock" routes for the "Internal Mic" and "Speaker"
+routes to the intmic_*_map[] / *_spk_map[] arrays.
 
-Before the problem occurs, the bond structure is like follows:
+This ensures that these "Platform Clock" routes do not get added when the
+BYT_RT5640_NO_INTERNAL_MIC_MAP / BYT_RT5640_NO_SPEAKERS quirks are used.
 
-bond0 - slaver0(eth0) - agg0.lag_ports -> port0 - port1
-                      \
-                        port0
-      \
-        slaver1(eth1) - agg1.lag_ports -> NULL
-                      \
-                        port1
-
-If we run 'ifenslave bond0 -d eth1', the process is like below:
-
-excuting __bond_release_one()
-|
-bond_upper_dev_unlink()[step1]
-|                       |                       |
-|                       |                       bond_3ad_lacpdu_recv()
-|                       |                       ->bond_3ad_rx_indication()
-|                       |                       spin_lock_bh()
-|                       |                       ->ad_rx_machine()
-|                       |                       ->__record_pdu()[step2]
-|                       |                       spin_unlock_bh()
-|                       |                       |
-|                       bond_3ad_state_machine_handler()
-|                       spin_lock_bh()
-|                       ->ad_port_selection_logic()
-|                       ->try to find free aggregator[step3]
-|                       ->try to find suitable aggregator[step4]
-|                       ->did not find a suitable aggregator[step5]
-|                       spin_unlock_bh()
-|                       |
-|                       |
-bond_3ad_unbind_slave() |
-spin_lock_bh()
-spin_unlock_bh()
-
-step1: already removed slaver1(eth1) from list, but port1 remains
-step2: receive a lacpdu and update port0
-step3: port0 will be removed from agg0.lag_ports. The struct is
-       "agg0.lag_ports -> port1" now, and agg0 is not free. At the
-	   same time, slaver1/agg1 has been removed from the list by step1.
-	   So we can't find a free aggregator now.
-step4: can't find suitable aggregator because of step2
-step5: cause a calltrace since port->aggregator is NULL
-
-To solve this concurrency problem, put bond_upper_dev_unlink()
-after bond_3ad_unbind_slave(). In this way, we can invalid the port
-first and skip this port in bond_3ad_state_machine_handler(). This
-eliminates the situation that the slaver has been removed from the
-list but the port is still valid.
-
-[1]https://lore.kernel.org/netdev/10374.1611947473@famine/
-
-Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210802142501.991985-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index c814b266af79..d6c5f41b17f7 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -1912,7 +1912,6 @@ static int __bond_release_one(struct net_device *bond_dev,
- 	/* recompute stats just before removing the slave */
- 	bond_get_stats(bond->dev, &bond->bond_stats);
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 186c0ee059da..c4d19b88d17d 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -293,9 +293,6 @@ static const struct snd_soc_dapm_widget byt_rt5640_widgets[] = {
+ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
+ 	{"Headphone", NULL, "Platform Clock"},
+ 	{"Headset Mic", NULL, "Platform Clock"},
+-	{"Internal Mic", NULL, "Platform Clock"},
+-	{"Speaker", NULL, "Platform Clock"},
+-
+ 	{"Headset Mic", NULL, "MICBIAS1"},
+ 	{"IN2P", NULL, "Headset Mic"},
+ 	{"Headphone", NULL, "HPOL"},
+@@ -303,19 +300,23 @@ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
+ };
  
--	bond_upper_dev_unlink(bond, slave);
- 	/* unregister rx_handler early so bond_handle_frame wouldn't be called
- 	 * for this slave anymore.
- 	 */
-@@ -1921,6 +1920,8 @@ static int __bond_release_one(struct net_device *bond_dev,
- 	if (BOND_MODE(bond) == BOND_MODE_8023AD)
- 		bond_3ad_unbind_slave(slave);
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic1_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"DMIC1", NULL, "Internal Mic"},
+ };
  
-+	bond_upper_dev_unlink(bond, slave);
-+
- 	if (bond_mode_can_use_xmit_hash(bond))
- 		bond_update_slave_arr(bond, slave);
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic2_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"DMIC2", NULL, "Internal Mic"},
+ };
  
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_in1_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"Internal Mic", NULL, "MICBIAS1"},
+ 	{"IN1P", NULL, "Internal Mic"},
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_in3_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"Internal Mic", NULL, "MICBIAS1"},
+ 	{"IN3P", NULL, "Internal Mic"},
+ };
+@@ -357,6 +358,7 @@ static const struct snd_soc_dapm_route byt_rt5640_ssp0_aif2_map[] = {
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
++	{"Speaker", NULL, "Platform Clock"},
+ 	{"Speaker", NULL, "SPOLP"},
+ 	{"Speaker", NULL, "SPOLN"},
+ 	{"Speaker", NULL, "SPORP"},
+@@ -364,6 +366,7 @@ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_mono_spk_map[] = {
++	{"Speaker", NULL, "Platform Clock"},
+ 	{"Speaker", NULL, "SPOLP"},
+ 	{"Speaker", NULL, "SPOLN"},
+ };
 -- 
 2.30.2
 
