@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8A04405455
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:29:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5F9405450
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:29:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355261AbhIIM6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:58:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57782 "EHLO mail.kernel.org"
+        id S1356005AbhIIM6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:58:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356154AbhIIMxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1354797AbhIIMxL (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:53:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00FE16137B;
-        Thu,  9 Sep 2021 11:57:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7724F63248;
+        Thu,  9 Sep 2021 11:57:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188662;
-        bh=7ogRByi+HrVU9OAaW3OXKVjyZ76yXdlPY3Ky+LKYRHY=;
+        s=k20201202; t=1631188663;
+        bh=ptQjnL0kBIp8Ti1DizB+0MUMdyYYKhAhFSwz+ynAHDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SdKBL25t3OR/jLWKXeBnsiRKn3b26gJqwQgKnG1LOxXMtN/zCll56Qcexv96M2Pue
-         FSJbzhGYlPU3H/+TkxZzT1+stcDpToCQBt7EGadw77jmBoiiaFWHnAAqC+uwQblIGh
-         uZU13S43IODjNCg4Z3kJISCdtZQjDAGslK1NBgILJz8QyhlDCR507mg+72KoTmYwvS
-         K3u2j2GJ7Q6bq8krMdkfUCVUsdfZkDFD2ufw4zqaL3Ake1bU2H0t0Alt9oId9vSH3p
-         ngiFm8sRTQhkXT7KT5VcFz1Wt7g7cKBgPTSZAMqVZvQ//URIybq52aCj5PehlZblsu
-         VipJ0YiuLYDmQ==
+        b=LMaPK4nMSRwoNd2MC1Z8lyxpmhpz2vD4kw0qmrCs3VyDQnZpCD+w+r+GhgRivhiQO
+         0X008j3jHBI3h+54atYCttmTjoNbNLVwQnSRTn5WqDvNCqpgM2ZNyj6Tj8Z6g5nnO3
+         pvSUPgmhQJqatpKd4uYNe50Ien9YVDr0a9TeZ7JspTpm8MA1zMpbO4qdKGOAJTLQ9f
+         7cF+fEvtXy1A5q5WWb0uXP3Dckd+sVmoKR0MrGfbSvKUuybG7gzvOz8qwPWgisoroh
+         J7Vmw/dh4WfJXbXiWAzIBQh36OefBL9ukKPj93B8jocmlNlhfV3JvqfwpQwW+5L2nD
+         kv40mvz+CtvnA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Brooke Basile <brookebasile@gmail.com>,
-        "Bryan O'Donoghue" <bryan.odonoghue@linaro.org>,
+Cc:     Jack Pham <jackp@codeaurora.org>,
+        Ronak Vijay Raheja <rraheja@codeaurora.org>,
         Felipe Balbi <balbi@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
         Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/74] usb: gadget: u_ether: fix a potential null pointer dereference
-Date:   Thu,  9 Sep 2021 07:56:24 -0400
-Message-Id: <20210909115726.149004-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 13/74] usb: gadget: composite: Allow bMaxPower=0 if self-powered
+Date:   Thu,  9 Sep 2021 07:56:25 -0400
+Message-Id: <20210909115726.149004-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115726.149004-1-sashal@kernel.org>
 References: <20210909115726.149004-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,52 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Jack Pham <jackp@codeaurora.org>
 
-[ Upstream commit 8ae01239609b29ec2eff55967c8e0fe3650cfa09 ]
+[ Upstream commit bcacbf06c891374e7fdd7b72d11cda03b0269b43 ]
 
-f_ncm tx timeout can call us with null skb to flush
-a pending frame.  In this case skb is NULL to begin
-with but ceases to be null after dev->wrap() completes.
+Currently the composite driver encodes the MaxPower field of
+the configuration descriptor by reading the c->MaxPower of the
+usb_configuration only if it is non-zero, otherwise it falls back
+to using the value hard-coded in CONFIG_USB_GADGET_VBUS_DRAW.
+However, there are cases when a configuration must explicitly set
+bMaxPower to 0, particularly if its bmAttributes also has the
+Self-Powered bit set, which is a valid combination.
 
-In such a case in->maxpacket will be read, even though
-we've failed to check that 'in' is not NULL.
+This is specifically called out in the USB PD specification section
+9.1, in which a PDUSB device "shall report zero in the bMaxPower
+field after negotiating a mutually agreeable Contract", and also
+verified by the USB Type-C Functional Test TD.4.10.2 Sink Power
+Precedence Test.
 
-Though I've never observed this fail in practice,
-however the 'flush operation' simply does not make sense with
-a null usb IN endpoint - there's nowhere to flush to...
-(note that we're the gadget/device, and IN is from the point
- of view of the host, so here IN actually means outbound...)
+The fix allows the c->MaxPower to be used for encoding the bMaxPower
+even if it is 0, if the self-powered bit is also set.  An example
+usage of this would be for a ConfigFS gadget to be dynamically
+updated by userspace when the Type-C connection is determined to be
+operating in Power Delivery mode.
 
-Cc: Brooke Basile <brookebasile@gmail.com>
-Cc: "Bryan O'Donoghue" <bryan.odonoghue@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20210701114834.884597-6-zenczykowski@gmail.com
+Co-developed-by: Ronak Vijay Raheja <rraheja@codeaurora.org>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Ronak Vijay Raheja <rraheja@codeaurora.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210720080907.30292-1-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_ether.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/composite.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index 156651df6b4d..d7a12161e553 100644
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -491,8 +491,9 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
- 	}
- 	spin_unlock_irqrestore(&dev->lock, flags);
+diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
+index d85bb3ba8263..a76ed4acb570 100644
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -481,7 +481,7 @@ static u8 encode_bMaxPower(enum usb_device_speed speed,
+ {
+ 	unsigned val;
  
--	if (skb && !in) {
--		dev_kfree_skb_any(skb);
-+	if (!in) {
-+		if (skb)
-+			dev_kfree_skb_any(skb);
- 		return NETDEV_TX_OK;
+-	if (c->MaxPower)
++	if (c->MaxPower || (c->bmAttributes & USB_CONFIG_ATT_SELFPOWER))
+ 		val = c->MaxPower;
+ 	else
+ 		val = CONFIG_USB_GADGET_VBUS_DRAW;
+@@ -891,7 +891,11 @@ static int set_config(struct usb_composite_dev *cdev,
  	}
  
+ 	/* when we return, be sure our power usage is valid */
+-	power = c->MaxPower ? c->MaxPower : CONFIG_USB_GADGET_VBUS_DRAW;
++	if (c->MaxPower || (c->bmAttributes & USB_CONFIG_ATT_SELFPOWER))
++		power = c->MaxPower;
++	else
++		power = CONFIG_USB_GADGET_VBUS_DRAW;
++
+ 	if (gadget->speed < USB_SPEED_SUPER)
+ 		power = min(power, 500U);
+ 	else
 -- 
 2.30.2
 
