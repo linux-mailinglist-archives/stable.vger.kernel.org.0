@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F1D34050C9
+	by mail.lfdr.de (Postfix) with ESMTP id 9DC364050CA
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350671AbhIIMcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:32:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56842 "EHLO mail.kernel.org"
+        id S245729AbhIIMcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:32:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353471AbhIIMUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:20:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8616061ACD;
-        Thu,  9 Sep 2021 11:50:44 +0000 (UTC)
+        id S1353474AbhIIMU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:20:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E078461ACF;
+        Thu,  9 Sep 2021 11:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188245;
-        bh=CMCz4wgfopq1siqVPDI2lcL9DaVBit26X5lA7lAwMnU=;
+        s=k20201202; t=1631188246;
+        bh=xfZs/7ynIYTGki5V/fp9QGYXgml9cT/LfLPmmf32TFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zqf6OaAT0x3j/G+5vKUomXlWuMls6lYdQpmqBnPtYWzvL5zqmgSVfTLRwLqVgdFhV
-         t9J8H8H6uIwKvpXvLji/gftPZ4/Maomm3XhxE7avuVSq8PoDGB3RmaSJrxyOmaj1X6
-         oMfqZpADY33i4IiJR7P6ds1wJN5hwLdhntjByIypFqp4MOyaZ5t2pqToYc69d2Cte4
-         R2FoCantXYJRMzb/ju5EPQU5cFSXZfGNcCR11Ea8y7QM0wAzkUPHmTaBMqZbfg++va
-         yvyuVNT2NXOolaeJz82DQX1691DqFyvLh8D9tjOd1etMRqJB9aXMmglZ7pOew1darN
-         Zcao8NEzJs8yA==
+        b=HNvew5+oevVkIhEiA2cORn2xyIWhBQ6FgKCwiHXuavwYXLQ69OtABt5NXZpszoqDm
+         xox6R/AQSm1zNp2xYAq0wQ7xGUh3wqNYZF1gLWRy9jNS2JKOIClDtSZHRyg4nlK92x
+         N5RN9vlrkhHb8rIzZcbwcJJxyvfKAxBbHfopM+mrlEA7kGP3HAJInNo3RsHGp48ift
+         CABvm9wpvA3g/idbK7QtAFuk/+8wKCNwExA0Xgo2wMB5+ryvOsLnQtB/8b4/Y1sdRg
+         4zq1aerPvuTc7dyjXAKZ/IB8YxBQ/i5bKCCbaWYbtp2rsM3xV01pTRuS8Hipyr+U/w
+         VfD6YGt3M0xFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Pi Hsun <pihsun@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+Cc:     Sugar Zhang <sugar.zhang@rock-chips.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
         linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 194/219] usb: xhci-mtk: fix use-after-free of mtk->hcd
-Date:   Thu,  9 Sep 2021 07:46:10 -0400
-Message-Id: <20210909114635.143983-194-sashal@kernel.org>
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.13 195/219] ASoC: rockchip: i2s: Fix regmap_ops hang
+Date:   Thu,  9 Sep 2021 07:46:11 -0400
+Message-Id: <20210909114635.143983-195-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -45,52 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Sugar Zhang <sugar.zhang@rock-chips.com>
 
-[ Upstream commit 7f85c16f40d8be5656fb3476909db5c3a5a9c6ea ]
+[ Upstream commit 53ca9b9777b95cdd689181d7c547e38dc79adad0 ]
 
- BUG: KASAN: use-after-free in usb_hcd_is_primary_hcd+0x38/0x60
- Call trace:
-  dump_backtrace+0x0/0x3dc
-  show_stack+0x20/0x2c
-  dump_stack+0x15c/0x1d4
-  print_address_description+0x7c/0x510
-  kasan_report+0x164/0x1ac
-  __asan_report_load8_noabort+0x44/0x50
-  usb_hcd_is_primary_hcd+0x38/0x60
-  xhci_mtk_runtime_suspend+0x68/0x148
-  pm_generic_runtime_suspend+0x90/0xac
-  __rpm_callback+0xb8/0x1f4
-  rpm_callback+0x54/0x1d0
-  rpm_suspend+0x4e0/0xc84
-  __pm_runtime_suspend+0xc4/0x114
-  xhci_mtk_probe+0xa58/0xd00
+API 'set_fmt' maybe called when PD is off, in the situation,
+any register access will hang the system. so, enable PD
+before r/w register.
 
-This may happen when probe fails, needn't suspend it synchronously,
-fix it by using pm_runtime_put_noidle().
-
-Reported-by: Pi Hsun <pihsun@google.com>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1629189389-18779-3-git-send-email-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
+Link: https://lore.kernel.org/r/1629950520-14190-4-git-send-email-sugar.zhang@rock-chips.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-mtk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/rockchip/rockchip_i2s.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-mtk.c b/drivers/usb/host/xhci-mtk.c
-index b2058b3bc834..86e5710a5307 100644
---- a/drivers/usb/host/xhci-mtk.c
-+++ b/drivers/usb/host/xhci-mtk.c
-@@ -571,7 +571,7 @@ static int xhci_mtk_probe(struct platform_device *pdev)
- 	xhci_mtk_ldos_disable(mtk);
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 0740764e7f71..d020cb2bdbc4 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -186,7 +186,9 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ {
+ 	struct rk_i2s_dev *i2s = to_info(cpu_dai);
+ 	unsigned int mask = 0, val = 0;
++	int ret = 0;
  
- disable_pm:
--	pm_runtime_put_sync_autosuspend(dev);
-+	pm_runtime_put_noidle(dev);
- 	pm_runtime_disable(dev);
- 	return ret;
++	pm_runtime_get_sync(cpu_dai->dev);
+ 	mask = I2S_CKR_MSS_MASK;
+ 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
+ 	case SND_SOC_DAIFMT_CBS_CFS:
+@@ -199,7 +201,8 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ 		i2s->is_master_mode = false;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_pm_put;
+ 	}
+ 
+ 	regmap_update_bits(i2s->regmap, I2S_CKR, mask, val);
+@@ -213,7 +216,8 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ 		val = I2S_CKR_CKP_POS;
+ 		break;
+ 	default:
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_pm_put;
+ 	}
+ 
+ 	regmap_update_bits(i2s->regmap, I2S_CKR, mask, val);
+@@ -236,7 +240,8 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ 		val = I2S_TXCR_TFS_PCM | I2S_TXCR_PBM_MODE(1);
+ 		break;
+ 	default:
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_pm_put;
+ 	}
+ 
+ 	regmap_update_bits(i2s->regmap, I2S_TXCR, mask, val);
+@@ -259,12 +264,16 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
+ 		val = I2S_RXCR_TFS_PCM | I2S_RXCR_PBM_MODE(1);
+ 		break;
+ 	default:
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_pm_put;
+ 	}
+ 
+ 	regmap_update_bits(i2s->regmap, I2S_RXCR, mask, val);
+ 
+-	return 0;
++err_pm_put:
++	pm_runtime_put(cpu_dai->dev);
++
++	return ret;
  }
+ 
+ static int rockchip_i2s_hw_params(struct snd_pcm_substream *substream,
 -- 
 2.30.2
 
