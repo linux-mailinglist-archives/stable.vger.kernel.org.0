@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 779CF404D2B
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12200404D2F
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244076AbhIIMBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:01:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34210 "EHLO mail.kernel.org"
+        id S244381AbhIIMBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:01:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240710AbhIIL54 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:57:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F7C9613E8;
-        Thu,  9 Sep 2021 11:45:36 +0000 (UTC)
+        id S244637AbhIIL6K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:58:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3A7261401;
+        Thu,  9 Sep 2021 11:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187937;
-        bh=YK12GWAxZTbr0JzIwxzmGeiwWHiDJ0ouZj/3THpaviI=;
+        s=k20201202; t=1631187938;
+        bh=I/M4pNGONIV9TaA3hI99k3VsD8Y6fqB+aAbLwvsHbM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZjmLzSU6Noc+dsXcHLW/SBnATtbYJeGF5bjpNYvuXjF7NgdW/3EKF/Kjt/+W0+mz
-         Gze+CP9KUoGJhv1rxEiJKXQjL0mLStqPCaSEVTGzq2xoFvvATcigQ1PcCpmpN6IPkb
-         SNLQbkHx27DZQB+ai/6MU8V5UdHEuDgWnyYEEVaajWEZ/2cqx6jKEw1GCOISX1fElL
-         v9cWRMqmH3McUpmUSc2v1GqbnQsqpZszOruwolVbeePQyIXYuu/vmkDCrJfT0M8Nwx
-         EH622anoC1rZ9WJXEaiFBlLy9/W4U5zXBPhQhxAH8D6PCk6qUa1I6YBM8R0dXvZ9my
-         BKjtz8FTmBNMg==
+        b=BIVZNbKzikd5eZU/X0Wk/Q2zE1zyhhbxeF2wFwgrTGe3Zvb9qMQ4Rvb2j6HHSxTi5
+         lUjR6ey9R+scQ+2z9Fr5rOLlCTnwdigDcpO7w/me1sRkj+zcvu9pr20Qz87AQIwQJA
+         Us2sfle0X9CDYgD4p166L6swJ4xbSS+dFjrVXMzHbum7MqDZsPpCAIemzDfg3JXQYs
+         18Ltd914dU1dgNn++uRBQrmkvxUFrlSmNLT9aIzfdU3GIKux1Hjpk0y0UTxTNBHwt9
+         1Zc7R9Q4GUdUYqyOxtUHNS1mJKVlpDMbdhKBLEaLa4LBk6FuFGJFuOtUm40j9jlVlO
+         c9M4icJkXfCXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Hebb <tommyhebb@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 208/252] mmc: rtsx_pci: Fix long reads when clock is prescaled
-Date:   Thu,  9 Sep 2021 07:40:22 -0400
-Message-Id: <20210909114106.141462-208-sashal@kernel.org>
+Cc:     Yonglong Li <liyonglong@chinatelecom.cn>,
+        Geliang Tang <geliangtang@gmail.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        mptcp@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.14 209/252] mptcp: fix ADD_ADDR and RM_ADDR maybe flush addr_signal each other
+Date:   Thu,  9 Sep 2021 07:40:23 -0400
+Message-Id: <20210909114106.141462-209-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -42,104 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Yonglong Li <liyonglong@chinatelecom.cn>
 
-[ Upstream commit 3ac5e45291f3f0d699a721357380d4593bc2dcb3 ]
+[ Upstream commit 119c022096f5805680c79dfa74e15044c289856d ]
 
-For unexplained reasons, the prescaler register for this device needs to
-be cleared (set to 1) while performing a data read or else the command
-will hang. This does not appear to affect the real clock rate sent out
-on the bus, so I assume it's purely to work around a hardware bug.
+ADD_ADDR shares pm.addr_signal with RM_ADDR, so after RM_ADDR/ADD_ADDR
+has done, we should not clean ADD_ADDR/RM_ADDR's addr_signal.
 
-During normal operation, the prescaler is already set to 1, so nothing
-needs to be done. However, in "initial mode" (which is used for sub-MHz
-clock speeds, like the core sets while enumerating cards), it's set to
-128 and so we need to reset it during data reads. We currently fail to
-do this for long reads.
-
-This has no functional affect on the driver's operation currently
-written, as the MMC core always sets a clock above 1MHz before
-attempting any long reads. However, the core could conceivably set any
-clock speed at any time and the driver should still work, so I think
-this fix is worthwhile.
-
-I personally encountered this issue while performing data recovery on an
-external chip. My connections had poor signal integrity, so I modified
-the core code to reduce the clock speed. Without this change, I saw the
-card enumerate but was unable to actually read any data.
-
-Writes don't seem to work in the situation described above even with
-this change (and even if the workaround is extended to encompass data
-write commands). I was not able to find a way to get them working.
-
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Link: https://lore.kernel.org/r/2fef280d8409ab0100c26c6ac7050227defd098d.1627818365.git.tommyhebb@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Co-developed-by: Geliang Tang <geliangtang@gmail.com>
+Signed-off-by: Geliang Tang <geliangtang@gmail.com>
+Signed-off-by: Yonglong Li <liyonglong@chinatelecom.cn>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/rtsx_pci_sdmmc.c | 36 ++++++++++++++++++++-----------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ net/mptcp/pm.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/host/rtsx_pci_sdmmc.c b/drivers/mmc/host/rtsx_pci_sdmmc.c
-index 4ca937415734..58cfaffa3c2d 100644
---- a/drivers/mmc/host/rtsx_pci_sdmmc.c
-+++ b/drivers/mmc/host/rtsx_pci_sdmmc.c
-@@ -542,9 +542,22 @@ static int sd_write_long_data(struct realtek_pci_sdmmc *host,
- 	return 0;
- }
- 
-+static inline void sd_enable_initial_mode(struct realtek_pci_sdmmc *host)
-+{
-+	rtsx_pci_write_register(host->pcr, SD_CFG1,
-+			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_128);
-+}
-+
-+static inline void sd_disable_initial_mode(struct realtek_pci_sdmmc *host)
-+{
-+	rtsx_pci_write_register(host->pcr, SD_CFG1,
-+			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_0);
-+}
-+
- static int sd_rw_multi(struct realtek_pci_sdmmc *host, struct mmc_request *mrq)
+diff --git a/net/mptcp/pm.c b/net/mptcp/pm.c
+index 639271e09604..f47b71a21b7e 100644
+--- a/net/mptcp/pm.c
++++ b/net/mptcp/pm.c
+@@ -253,6 +253,7 @@ bool mptcp_pm_add_addr_signal(struct mptcp_sock *msk, unsigned int remaining,
+ 			      struct mptcp_addr_info *saddr, bool *echo, bool *port)
  {
- 	struct mmc_data *data = mrq->data;
-+	int err;
+ 	int ret = false;
++	u8 add_addr;
  
- 	if (host->sg_count < 0) {
- 		data->error = host->sg_count;
-@@ -553,22 +566,19 @@ static int sd_rw_multi(struct realtek_pci_sdmmc *host, struct mmc_request *mrq)
- 		return data->error;
+ 	spin_lock_bh(&msk->pm.lock);
+ 
+@@ -267,7 +268,11 @@ bool mptcp_pm_add_addr_signal(struct mptcp_sock *msk, unsigned int remaining,
+ 		goto out_unlock;
+ 
+ 	*saddr = msk->pm.local;
+-	WRITE_ONCE(msk->pm.addr_signal, 0);
++	if (*echo)
++		add_addr = msk->pm.addr_signal & ~BIT(MPTCP_ADD_ADDR_ECHO);
++	else
++		add_addr = msk->pm.addr_signal & ~BIT(MPTCP_ADD_ADDR_SIGNAL);
++	WRITE_ONCE(msk->pm.addr_signal, add_addr);
+ 	ret = true;
+ 
+ out_unlock:
+@@ -279,6 +284,7 @@ bool mptcp_pm_rm_addr_signal(struct mptcp_sock *msk, unsigned int remaining,
+ 			     struct mptcp_rm_list *rm_list)
+ {
+ 	int ret = false, len;
++	u8 rm_addr;
+ 
+ 	spin_lock_bh(&msk->pm.lock);
+ 
+@@ -286,16 +292,17 @@ bool mptcp_pm_rm_addr_signal(struct mptcp_sock *msk, unsigned int remaining,
+ 	if (!mptcp_pm_should_rm_signal(msk))
+ 		goto out_unlock;
+ 
++	rm_addr = msk->pm.addr_signal & ~BIT(MPTCP_RM_ADDR_SIGNAL);
+ 	len = mptcp_rm_addr_len(&msk->pm.rm_list_tx);
+ 	if (len < 0) {
+-		WRITE_ONCE(msk->pm.addr_signal, 0);
++		WRITE_ONCE(msk->pm.addr_signal, rm_addr);
+ 		goto out_unlock;
  	}
+ 	if (remaining < len)
+ 		goto out_unlock;
  
--	if (data->flags & MMC_DATA_READ)
--		return sd_read_long_data(host, mrq);
-+	if (data->flags & MMC_DATA_READ) {
-+		if (host->initial_mode)
-+			sd_disable_initial_mode(host);
+ 	*rm_list = msk->pm.rm_list_tx;
+-	WRITE_ONCE(msk->pm.addr_signal, 0);
++	WRITE_ONCE(msk->pm.addr_signal, rm_addr);
+ 	ret = true;
  
--	return sd_write_long_data(host, mrq);
--}
-+		err = sd_read_long_data(host, mrq);
- 
--static inline void sd_enable_initial_mode(struct realtek_pci_sdmmc *host)
--{
--	rtsx_pci_write_register(host->pcr, SD_CFG1,
--			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_128);
--}
-+		if (host->initial_mode)
-+			sd_enable_initial_mode(host);
- 
--static inline void sd_disable_initial_mode(struct realtek_pci_sdmmc *host)
--{
--	rtsx_pci_write_register(host->pcr, SD_CFG1,
--			SD_CLK_DIVIDE_MASK, SD_CLK_DIVIDE_0);
-+		return err;
-+	}
-+
-+	return sd_write_long_data(host, mrq);
- }
- 
- static void sd_normal_rw(struct realtek_pci_sdmmc *host,
+ out_unlock:
 -- 
 2.30.2
 
