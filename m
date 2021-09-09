@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51E4240506C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A53AC405068
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:41:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351252AbhIIM1i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:27:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33230 "EHLO mail.kernel.org"
+        id S1351120AbhIIM1f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:27:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352839AbhIIMWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:22:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E24861AF7;
-        Thu,  9 Sep 2021 11:51:04 +0000 (UTC)
+        id S1351119AbhIIMWs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:22:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3B3F61AF8;
+        Thu,  9 Sep 2021 11:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188265;
-        bh=20N7xoLr4PRRg/0ghZb/xVzS0Tot4rz49UzpNxcUcFM=;
+        s=k20201202; t=1631188266;
+        bh=6GYGAVk2gYlgVH3/XQYaDlJTce6H+5zqR3EON9Hy2B4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N5Z/AO4e58/lN35L6nUnuSLZlqVV2b4sK5NmG9qv+HFraMZce2RpYWZC4c3q3E07g
-         1VhQ4Z54GbHcQrrx68spJavW9NlmOmKm3XnAqCmRBwoNn2N/HP6VoYdE18Z7p86Zky
-         C9irFtKf7T5Es7yeFhUNBnBgCz8glZuo3eaPgAVPJQYsJcKlTne81F7qlMWkQp3Xdp
-         nwNY6tosJRam/YqmsFstSPSCtEpgcZL68i2kElnIfvBBR28oNiUKgowikdc3lnYCg1
-         QhEzw1z+X2ZWoIUoE9XqU7hET1OkeEi24o1TNYRmN8gWWz6gNm4HSsnzJxbXbYQdHA
-         W/05nALv/zY+Q==
+        b=PQ99mw22qUUyiUTTiCeJbmPoZ6MAUY6//724oEGbbY1y15UMbXICrNE1TE0YwRsZW
+         zbGgAQNsvW37WYTHo7hSax81YvayeL+qUFJ7ZhDarqgWQVvZBAmaXBuoqtbnB4geHt
+         QqM4Qcpkca+DeEkuP15353NEMkQ+WZ3K7cXa0WBGhKwOGRT4OB6i9Q14g1h43lTugn
+         KUn3fGF4JLBQXpdLnKG+Q09FrkruEYArRiyshOJ0NGtbwMn70Gv3Tt3blgajg9KneU
+         S/4jvbZ8v+Soml22bJw92X9YrnxpUbXVeqzj/3w+EypD4jXuKwoOkv7nCF+6Kn8Jcs
+         ajYfwbWT4CDrw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yevgeny Kliteynik <kliteyn@nvidia.com>,
-        Alex Vesker <valex@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 210/219] net/mlx5: DR, Enable QP retransmission
-Date:   Thu,  9 Sep 2021 07:46:26 -0400
-Message-Id: <20210909114635.143983-210-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 211/219] parport: remove non-zero check on count
+Date:   Thu,  9 Sep 2021 07:46:27 -0400
+Message-Id: <20210909114635.143983-211-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -44,36 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yevgeny Kliteynik <kliteyn@nvidia.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit ec449ed8230cd30769de3cb70ee0fce293047372 ]
+[ Upstream commit 0be883a0d795d9146f5325de582584147dd0dcdc ]
 
-Under high stress, SW steering might get stuck on polling for completion
-that never comes.
-For such cases QP needs to have protocol retransmission mechanism enabled.
-Currently the retransmission timeout is defined as 0 (unlimited). Fix this
-by defining a real timeout.
+The check for count appears to be incorrect since a non-zero count
+check occurs a couple of statements earlier. Currently the check is
+always false and the dev->port->irq != PARPORT_IRQ_NONE part of the
+check is never tested and the if statement is dead-code. Fix this
+by removing the check on count.
 
-Signed-off-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
-Reviewed-by: Alex Vesker <valex@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Note that this code is pre-git history, so I can't find a sha for
+it.
+
+Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Addresses-Coverity: ("Logically dead code")
+Link: https://lore.kernel.org/r/20210730100710.27405-1-colin.king@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/parport/ieee1284_ops.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-index 9df0e73d1c35..69b49deb66b2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_send.c
-@@ -620,6 +620,7 @@ static int dr_cmd_modify_qp_rtr2rts(struct mlx5_core_dev *mdev,
+diff --git a/drivers/parport/ieee1284_ops.c b/drivers/parport/ieee1284_ops.c
+index 2c11bd3fe1fd..17061f1df0f4 100644
+--- a/drivers/parport/ieee1284_ops.c
++++ b/drivers/parport/ieee1284_ops.c
+@@ -518,7 +518,7 @@ size_t parport_ieee1284_ecp_read_data (struct parport *port,
+ 				goto out;
  
- 	MLX5_SET(qpc, qpc, retry_count, attr->retry_cnt);
- 	MLX5_SET(qpc, qpc, rnr_retry, attr->rnr_retry);
-+	MLX5_SET(qpc, qpc, primary_address_path.ack_timeout, 0x8); /* ~1ms */
- 
- 	MLX5_SET(rtr2rts_qp_in, in, opcode, MLX5_CMD_OP_RTR2RTS_QP);
- 	MLX5_SET(rtr2rts_qp_in, in, qpn, dr_qp->qpn);
+ 			/* Yield the port for a while. */
+-			if (count && dev->port->irq != PARPORT_IRQ_NONE) {
++			if (dev->port->irq != PARPORT_IRQ_NONE) {
+ 				parport_release (dev);
+ 				schedule_timeout_interruptible(msecs_to_jiffies(40));
+ 				parport_claim_or_block (dev);
 -- 
 2.30.2
 
