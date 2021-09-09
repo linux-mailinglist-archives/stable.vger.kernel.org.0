@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48CEB404FA4
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:21:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C190404FA5
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:21:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348673AbhIIMVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:21:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56974 "EHLO mail.kernel.org"
+        id S245175AbhIIMVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:21:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346781AbhIIMRd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348186AbhIIMRd (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:17:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D17C061AA9;
-        Thu,  9 Sep 2021 11:49:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39B6661A84;
+        Thu,  9 Sep 2021 11:49:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188197;
-        bh=2G3zIusuZom7k+klAprj8Kx4qWozJiy8cRpox8eK5FQ=;
+        s=k20201202; t=1631188199;
+        bh=AfyNKaF0xtWhgKji+tagvSCdhOnS9R1W6yf+rMj9Wis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cn6cTQTSWnTGTcU2vE5M3BVYwmw8DpoOfgC3m9DkbXNWFrJdfOFrPidJeJMCZ2eTb
-         dplfHBymajaGVdxJEEDNGrbENmG58wp9Wv9p92iY6nS/CJST7XUpE9eW8P0bOxsr8n
-         ZGxQngppujw6+w/GNvK+ic69E3AJu7ak7APJLx0dvk8D/FLCV9y9mbQ9HYIcq5kO7C
-         Ql92xwLF7bdtpWRv0eEqb9XHoD2wUPtDgMeQu4M/6k6d9+KmbsZXH6H8uMreoUt9Mn
-         cgGkfDZg6XZ6JSTcvl72ChmQEDvgJMNiCtpfccPTOW6jSaOTjXq8Exj4myBWEUA5le
-         jHsyCvEmVRV3g==
+        b=uCAu2qwrHygfxXjmLQJ6h2aMe0l4xUm+1LbSlFoK6T9O+46xGOcJW/StDyqO+NbEM
+         xi73h+5mRx6/FBGMWz7HLtfs2qOhNyqVbnLyAm3ts5TGCZEevJGsaNl4iaCUOdgCIb
+         1As29oUtmT9ZIWZG6d/JhkBgTKRBLcvYzgSzouabQVAEHOyJf3RtyxbU+tWz6QdgFj
+         jdYL+RInNotMKkzegefJbUNzwZWd2i/g2wygQgL2YHlD+5fP1KcGTYRndvhtfQlOHu
+         BA0YUqrrTEepLODvVp9tYZBWVjVlLjOUSkRd/gyFyHXYX5faWAsjskWShDChJObbm+
+         sfKYHE/CeBmCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eli Cohen <elic@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org
-Subject: [PATCH AUTOSEL 5.13 156/219] net: Fix offloading indirect devices dependency on qdisc order creation
-Date:   Thu,  9 Sep 2021 07:45:32 -0400
-Message-Id: <20210909114635.143983-156-sashal@kernel.org>
+Cc:     Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 157/219] kselftest/arm64: mte: Fix misleading output when skipping tests
+Date:   Thu,  9 Sep 2021 07:45:33 -0400
+Message-Id: <20210909114635.143983-157-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -43,208 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 74fc4f828769cca1c3be89ea92cb88feaa27ef52 ]
+[ Upstream commit 83e5dcbece4ea67ec3ad94b897e2844184802fd7 ]
 
-Currently, when creating an ingress qdisc on an indirect device before
-the driver registered for callbacks, the driver will not have a chance
-to register its filter configuration callbacks.
+When skipping the tests due to a lack of system support for MTE we
+currently print a message saying FAIL which makes it look like the test
+failed even though the test did actually report KSFT_SKIP, creating some
+confusion. Change the error message to say SKIP instead so things are
+clearer.
 
-To fix that, modify the code such that it keeps track of all the ingress
-qdiscs that call flow_indr_dev_setup_offload(). When a driver calls
-flow_indr_dev_register(),  go through the list of tracked ingress qdiscs
-and call the driver callback entry point so as to give it a chance to
-register its callback.
-
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210819172902.56211-1-broonie@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/flow_offload.h            |  1 +
- net/core/flow_offload.c               | 89 ++++++++++++++++++++++++++-
- net/netfilter/nf_flow_table_offload.c |  1 +
- net/netfilter/nf_tables_offload.c     |  1 +
- net/sched/cls_api.c                   |  1 +
- 5 files changed, 92 insertions(+), 1 deletion(-)
+ tools/testing/selftests/arm64/mte/mte_common_util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/flow_offload.h b/include/net/flow_offload.h
-index dc5c1e69cd9f..26788244d75b 100644
---- a/include/net/flow_offload.h
-+++ b/include/net/flow_offload.h
-@@ -451,6 +451,7 @@ struct flow_block_offload {
- 	struct list_head *driver_block_list;
- 	struct netlink_ext_ack *extack;
- 	struct Qdisc *sch;
-+	struct list_head *cb_list_head;
- };
+diff --git a/tools/testing/selftests/arm64/mte/mte_common_util.c b/tools/testing/selftests/arm64/mte/mte_common_util.c
+index f50ac31920d1..0328a1e08f65 100644
+--- a/tools/testing/selftests/arm64/mte/mte_common_util.c
++++ b/tools/testing/selftests/arm64/mte/mte_common_util.c
+@@ -298,7 +298,7 @@ int mte_default_setup(void)
+ 	int ret;
  
- enum tc_setup_type;
-diff --git a/net/core/flow_offload.c b/net/core/flow_offload.c
-index 715b67f6c62f..e3f0d5906811 100644
---- a/net/core/flow_offload.c
-+++ b/net/core/flow_offload.c
-@@ -321,6 +321,7 @@ EXPORT_SYMBOL(flow_block_cb_setup_simple);
- static DEFINE_MUTEX(flow_indr_block_lock);
- static LIST_HEAD(flow_block_indr_list);
- static LIST_HEAD(flow_block_indr_dev_list);
-+static LIST_HEAD(flow_indir_dev_list);
- 
- struct flow_indr_dev {
- 	struct list_head		list;
-@@ -346,6 +347,33 @@ static struct flow_indr_dev *flow_indr_dev_alloc(flow_indr_block_bind_cb_t *cb,
- 	return indr_dev;
- }
- 
-+struct flow_indir_dev_info {
-+	void *data;
-+	struct net_device *dev;
-+	struct Qdisc *sch;
-+	enum tc_setup_type type;
-+	void (*cleanup)(struct flow_block_cb *block_cb);
-+	struct list_head list;
-+	enum flow_block_command command;
-+	enum flow_block_binder_type binder_type;
-+	struct list_head *cb_list;
-+};
-+
-+static void existing_qdiscs_register(flow_indr_block_bind_cb_t *cb, void *cb_priv)
-+{
-+	struct flow_block_offload bo;
-+	struct flow_indir_dev_info *cur;
-+
-+	list_for_each_entry(cur, &flow_indir_dev_list, list) {
-+		memset(&bo, 0, sizeof(bo));
-+		bo.command = cur->command;
-+		bo.binder_type = cur->binder_type;
-+		INIT_LIST_HEAD(&bo.cb_list);
-+		cb(cur->dev, cur->sch, cb_priv, cur->type, &bo, cur->data, cur->cleanup);
-+		list_splice(&bo.cb_list, cur->cb_list);
-+	}
-+}
-+
- int flow_indr_dev_register(flow_indr_block_bind_cb_t *cb, void *cb_priv)
- {
- 	struct flow_indr_dev *indr_dev;
-@@ -367,6 +395,7 @@ int flow_indr_dev_register(flow_indr_block_bind_cb_t *cb, void *cb_priv)
+ 	if (!(hwcaps2 & HWCAP2_MTE)) {
+-		ksft_print_msg("FAIL: MTE features unavailable\n");
++		ksft_print_msg("SKIP: MTE features unavailable\n");
+ 		return KSFT_SKIP;
  	}
- 
- 	list_add(&indr_dev->list, &flow_block_indr_dev_list);
-+	existing_qdiscs_register(cb, cb_priv);
- 	mutex_unlock(&flow_indr_block_lock);
- 
- 	return 0;
-@@ -463,7 +492,59 @@ struct flow_block_cb *flow_indr_block_cb_alloc(flow_setup_cb_t *cb,
- }
- EXPORT_SYMBOL(flow_indr_block_cb_alloc);
- 
--int flow_indr_dev_setup_offload(struct net_device *dev, struct Qdisc *sch,
-+static struct flow_indir_dev_info *find_indir_dev(void *data)
-+{
-+	struct flow_indir_dev_info *cur;
-+
-+	list_for_each_entry(cur, &flow_indir_dev_list, list) {
-+		if (cur->data == data)
-+			return cur;
-+	}
-+	return NULL;
-+}
-+
-+static int indir_dev_add(void *data, struct net_device *dev, struct Qdisc *sch,
-+			 enum tc_setup_type type, void (*cleanup)(struct flow_block_cb *block_cb),
-+			 struct flow_block_offload *bo)
-+{
-+	struct flow_indir_dev_info *info;
-+
-+	info = find_indir_dev(data);
-+	if (info)
-+		return -EEXIST;
-+
-+	info = kzalloc(sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+
-+	info->data = data;
-+	info->dev = dev;
-+	info->sch = sch;
-+	info->type = type;
-+	info->cleanup = cleanup;
-+	info->command = bo->command;
-+	info->binder_type = bo->binder_type;
-+	info->cb_list = bo->cb_list_head;
-+
-+	list_add(&info->list, &flow_indir_dev_list);
-+	return 0;
-+}
-+
-+static int indir_dev_remove(void *data)
-+{
-+	struct flow_indir_dev_info *info;
-+
-+	info = find_indir_dev(data);
-+	if (!info)
-+		return -ENOENT;
-+
-+	list_del(&info->list);
-+
-+	kfree(info);
-+	return 0;
-+}
-+
-+int flow_indr_dev_setup_offload(struct net_device *dev,	struct Qdisc *sch,
- 				enum tc_setup_type type, void *data,
- 				struct flow_block_offload *bo,
- 				void (*cleanup)(struct flow_block_cb *block_cb))
-@@ -471,6 +552,12 @@ int flow_indr_dev_setup_offload(struct net_device *dev, struct Qdisc *sch,
- 	struct flow_indr_dev *this;
- 
- 	mutex_lock(&flow_indr_block_lock);
-+
-+	if (bo->command == FLOW_BLOCK_BIND)
-+		indir_dev_add(data, dev, sch, type, cleanup, bo);
-+	else if (bo->command == FLOW_BLOCK_UNBIND)
-+		indir_dev_remove(data);
-+
- 	list_for_each_entry(this, &flow_block_indr_dev_list, list)
- 		this->cb(dev, sch, this->cb_priv, type, bo, data, cleanup);
- 
-diff --git a/net/netfilter/nf_flow_table_offload.c b/net/netfilter/nf_flow_table_offload.c
-index 528b2f172684..0587f071e504 100644
---- a/net/netfilter/nf_flow_table_offload.c
-+++ b/net/netfilter/nf_flow_table_offload.c
-@@ -1097,6 +1097,7 @@ static void nf_flow_table_block_offload_init(struct flow_block_offload *bo,
- 	bo->command	= cmd;
- 	bo->binder_type	= FLOW_BLOCK_BINDER_TYPE_CLSACT_INGRESS;
- 	bo->extack	= extack;
-+	bo->cb_list_head = &flowtable->flow_block.cb_list;
- 	INIT_LIST_HEAD(&bo->cb_list);
- }
- 
-diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
-index b58d73a96523..9656c1646222 100644
---- a/net/netfilter/nf_tables_offload.c
-+++ b/net/netfilter/nf_tables_offload.c
-@@ -353,6 +353,7 @@ static void nft_flow_block_offload_init(struct flow_block_offload *bo,
- 	bo->command	= cmd;
- 	bo->binder_type	= FLOW_BLOCK_BINDER_TYPE_CLSACT_INGRESS;
- 	bo->extack	= extack;
-+	bo->cb_list_head = &basechain->flow_block.cb_list;
- 	INIT_LIST_HEAD(&bo->cb_list);
- }
- 
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index e3e79e9bd706..9b276d14be4c 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -634,6 +634,7 @@ static void tcf_block_offload_init(struct flow_block_offload *bo,
- 	bo->block_shared = shared;
- 	bo->extack = extack;
- 	bo->sch = sch;
-+	bo->cb_list_head = &flow_block->cb_list;
- 	INIT_LIST_HEAD(&bo->cb_list);
- }
- 
+ 	/* Get current mte mode */
 -- 
 2.30.2
 
