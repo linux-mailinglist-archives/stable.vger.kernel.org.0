@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1367D404D52
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 412DD404D55
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245585AbhIIMBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:01:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41684 "EHLO mail.kernel.org"
+        id S242857AbhIIMBy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:01:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345658AbhIIL7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345651AbhIIL7v (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 07:59:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 766B361452;
-        Thu,  9 Sep 2021 11:46:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A259C6141B;
+        Thu,  9 Sep 2021 11:46:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187962;
-        bh=ji6FOxvP5bsC3vVdy9kIsBWYiGVsOWqbyx9E7qjHCiA=;
+        s=k20201202; t=1631187963;
+        bh=P9ZjK+o2s9regC1QoJWaKrnsuGmcJw2S4q1Z0fD9Cko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jr9TJDKbs85z8ZJj3fPs+afAhsSAYeu4ZWfTpUwi/wzub2uscuhjN1imNikBAeoQI
-         ixgk+izmlZvcJwhR0CNbm5G62L1T6lex1FC6KtdnHE31mNcp5wUb+mkNy5sezcAKGZ
-         h4Gt3zO3pdFWAiCNikP9cftmebtGrMVP8CtSv4Etlkj/o7nzWysK2vo0QAzIdEvMCu
-         LqIQnOyILgWdyJ9dwnB0H1JtCYMZCfuQH1Zzu5v0H8/6KoNqWgJelUT5XpYkXVfFX2
-         iMzbmelM30b//iyo4oAJPmnzz7nn67w8Lq1kcgNIxbcICzEFXS5wWBDvRWXX8uxVcP
-         LrbYhiAKCchkg==
+        b=YGNH3Nxs5+gZ4DA7ifjEUB/RawJsszF6Swa5z0laKEukhR8Yp1PxyGlwQpefOxVZd
+         /bcp786lFyFtWPtGNVOtUjjXXAwW75NF7QAgPSCJioznG2o6nTnldmsTtQhT/X/BmL
+         v1YC+X6yqGXgUjL/4nHOLsSkzv60PNXxqKyjvSWeBD5eBK30S0FDKZeNEVCh1fuwQz
+         +r9yXHwMtnQ1ZAX5THMdsWsokZT5YXo5dr0XUQCMHdmYtBRNw2qWDJeanVEwnlpqf/
+         OXQ3ych9xPEkqncsiQZDCsMxmpQi5ofAjnGMSF4RkcYMdojK/+TTDLFry1Lr97L7Ng
+         oTtWY8qdEgXBQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 227/252] nfsd: fix crash on LOCKT on reexported NFSv3
-Date:   Thu,  9 Sep 2021 07:40:41 -0400
-Message-Id: <20210909114106.141462-227-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 228/252] iwlwifi: pcie: free RBs during configure
+Date:   Thu,  9 Sep 2021 07:40:42 -0400
+Message-Id: <20210909114106.141462-228-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -42,43 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "J. Bruce Fields" <bfields@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 0bcc7ca40bd823193224e9f38bafbd8325aaf566 ]
+[ Upstream commit 6ac5720086c8b176794eb74c5cc09f8b79017f38 ]
 
-Unlike other filesystems, NFSv3 tries to use fl_file in the GETLK case.
+When switching op-modes, or more generally when reconfiguring,
+we might switch the RB size. In _iwl_pcie_rx_init() we have a
+comment saying we must free all RBs since we might switch the
+size, but this is actually too late: the switch has been done
+and we'll free the buffers with the wrong size.
 
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fix this by always freeing the buffers, if any, at the start
+of configure, instead of only after the size may have changed.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210802170640.42d7c93279c4.I07f74e65aab0e3d965a81206fcb289dc92d74878@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/rx.c    | 5 ++++-
+ drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 3 +++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index bebe86cce7c7..cde6b81aa22c 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -7040,8 +7040,7 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
- /*
-  * The NFSv4 spec allows a client to do a LOCKT without holding an OPEN,
-  * so we do a temporary open here just to get an open file to pass to
-- * vfs_test_lock.  (Arguably perhaps test_lock should be done with an
-- * inode operation.)
-+ * vfs_test_lock.
-  */
- static __be32 nfsd_test_lock(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file_lock *lock)
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+index 4f6f4b2720f0..ff7ca3c57f34 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+@@ -487,6 +487,9 @@ void iwl_pcie_free_rbs_pool(struct iwl_trans *trans)
+ 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+ 	int i;
+ 
++	if (!trans_pcie->rx_pool)
++		return;
++
+ 	for (i = 0; i < RX_POOL_SIZE(trans_pcie->num_rx_bufs); i++) {
+ 		if (!trans_pcie->rx_pool[i].page)
+ 			continue;
+@@ -1062,7 +1065,7 @@ static int _iwl_pcie_rx_init(struct iwl_trans *trans)
+ 	INIT_LIST_HEAD(&rba->rbd_empty);
+ 	spin_unlock_bh(&rba->lock);
+ 
+-	/* free all first - we might be reconfigured for a different size */
++	/* free all first - we overwrite everything here */
+ 	iwl_pcie_free_rbs_pool(trans);
+ 
+ 	for (i = 0; i < RX_QUEUE_SIZE; i++)
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+index bee6b4574226..65cc25cbb9ec 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+@@ -1866,6 +1866,9 @@ static void iwl_trans_pcie_configure(struct iwl_trans *trans,
  {
-@@ -7056,7 +7055,9 @@ static __be32 nfsd_test_lock(struct svc_rqst *rqstp, struct svc_fh *fhp, struct
- 							NFSD_MAY_READ));
- 	if (err)
- 		goto out;
-+	lock->fl_file = nf->nf_file;
- 	err = nfserrno(vfs_test_lock(nf->nf_file, lock));
-+	lock->fl_file = NULL;
- out:
- 	fh_unlock(fhp);
- 	nfsd_file_put(nf);
+ 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+ 
++	/* free all first - we might be reconfigured for a different size */
++	iwl_pcie_free_rbs_pool(trans);
++
+ 	trans->txqs.cmd.q_id = trans_cfg->cmd_queue;
+ 	trans->txqs.cmd.fifo = trans_cfg->cmd_fifo;
+ 	trans->txqs.cmd.wdg_timeout = trans_cfg->cmd_q_wdg_timeout;
 -- 
 2.30.2
 
