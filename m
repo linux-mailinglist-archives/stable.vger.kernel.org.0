@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE0A40533E
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:51:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F63C40546C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:29:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350090AbhIIMus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:50:48 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:43318 "EHLO
+        id S1356142AbhIIM6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:58:42 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:43370 "EHLO
         smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245671AbhIIMse (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 08:48:34 -0400
+        with ESMTP id S1353180AbhIIMtG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 08:49:06 -0400
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 4CC17222ED;
-        Thu,  9 Sep 2021 12:47:24 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTP id 9701D22054;
+        Thu,  9 Sep 2021 12:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1631191644; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1631191675; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=HEXL1eIlARZ7rhgQ1Exsy7EoATiiUWbEPg2N4xiuepU=;
-        b=QY5uvBvgewfEcSLewsAIBmqgfTko+U9pOOrDFk5hMFlmGQt6YWlgHZnRJfAvQ6bM1/06tl
-        lk5kdY/7ldzG2JdacI40JApTX0jc716e+LzfoqW4BbZ3eBOPigcJjeh2L8PbK6A832PlqT
-        OZMEIAJMeOx3u5XepXXLLsbUUIG00NE=
+        bh=Wkily+1vLn7vXAYfVa3N/qP35GWfNys6KZWgeX58UU8=;
+        b=pzyr9FAj8spcLJKKywTT0Vag1rQORDh/Bo3XJEOjlvyeEw7cIfFJ86eABRP0NKlFnA1TeF
+        U6lXx7jb/gjaF3qTC55/nIOaAkGDiiCouEFpEwVSdwve1TStGqkhIOrvfoj5/QM+1ruutq
+        6xElEDSUK8gfNtNhcSPFy6idNgxpv6s=
 Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
-        by relay2.suse.de (Postfix) with ESMTP id 4713BA3F05;
-        Thu,  9 Sep 2021 12:47:24 +0000 (UTC)
+        by relay2.suse.de (Postfix) with ESMTP id 915D6A3F7D;
+        Thu,  9 Sep 2021 12:47:55 +0000 (UTC)
 Received: by ds.suse.cz (Postfix, from userid 10065)
-        id 3C93DDA7A9; Thu,  9 Sep 2021 14:47:19 +0200 (CEST)
+        id 8BE77DA7A9; Thu,  9 Sep 2021 14:47:50 +0200 (CEST)
 From:   David Sterba <dsterba@suse.com>
 To:     stable@vger.kernel.org
 Cc:     dsterba@suse.com
-Subject: [PATCH stable 4.9, 4.4] Revert "btrfs: compression: don't try to compress if we don't have enough pages"
-Date:   Thu,  9 Sep 2021 14:47:19 +0200
-Message-Id: <20210909124719.28974-1-dsterba@suse.com>
+Subject: [PATCH stable 5.4, 4.19, 4.14] Revert "btrfs: compression: don't try to compress if we don't have enough pages"
+Date:   Thu,  9 Sep 2021 14:47:50 +0200
+Message-Id: <20210909124750.29238-1-dsterba@suse.com>
 X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -84,15 +84,15 @@ Signed-off-by: David Sterba <dsterba@suse.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index b744e7d33d87..26866785e1c7 100644
+index 29552d4f6845..33b8fedab6c6 100644
 --- a/fs/btrfs/inode.c
 +++ b/fs/btrfs/inode.c
-@@ -484,7 +484,7 @@ static noinline void compress_file_range(struct inode *inode,
+@@ -543,7 +543,7 @@ static noinline int compress_file_range(struct async_chunk *async_chunk)
  	 * inode has not been flagged as nocompress.  This flag can
  	 * change at any time if we discover bad compression ratios.
  	 */
--	if (nr_pages > 1 && inode_need_compress(inode)) {
-+	if (inode_need_compress(inode)) {
+-	if (nr_pages > 1 && inode_need_compress(inode, start, end)) {
++	if (inode_need_compress(inode, start, end)) {
  		WARN_ON(pages);
  		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
  		if (!pages) {
