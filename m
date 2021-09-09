@@ -2,118 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 493F2404292
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 03:10:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0416404317
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 03:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349086AbhIIBLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 21:11:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60728 "EHLO mail.kernel.org"
+        id S235874AbhIIBre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 21:47:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349033AbhIIBL3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Sep 2021 21:11:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0AD261167;
-        Thu,  9 Sep 2021 01:10:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1631149821;
-        bh=hQV3I7izmMCYun39hvLMYFdMjP18vrfosOb34WJ/O54=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=LtsZXf55SheMRiWr7peh4Gk0+FrR/YsG5PCq9J1Qwv9Mxqn/2XCEMx2W7Mq1n/DAa
-         GKyY5PpadS4RbFJ79MXmFinIxCldvAoF4sUEJRM5/UV/FOpnfnK8qa9gR8STORxhNN
-         SFLCjamnMwhQFJIUafwVTbJoFhXbV1jBVJNhZ0y4=
-Date:   Wed, 08 Sep 2021 18:10:20 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, songmuchun@bytedance.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        yanghui.def@bytedance.com
-Subject:  [patch 7/8] mm/mempolicy: fix a race between
- offset_il_node and mpol_rebind_task
-Message-ID: <20210909011020.5uPjbdM2T%akpm@linux-foundation.org>
-In-Reply-To: <20210908180859.d523d4bb4ad8eec11c61500d@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S230457AbhIIBrd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Sep 2021 21:47:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E85A60187;
+        Thu,  9 Sep 2021 01:46:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631151985;
+        bh=84vvJMs9BQP/RnsgF6DIVjbTghk68ob7G2Kt8qsDxRc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=J4YsGcIo18Ss34d7EiPTa8joXBPgUdRP/fb5RzSK40P0fMdFIFL5yOiplSWjRxIvf
+         qSTBANYAZMUHStwUR0VAEUeukHDLu3q8ZH1tvx1htpqBdY49vlcrN3O8l2Fo3nRk3N
+         FLtb9MoIbb/Ok+VVcYocQ52RUe7ARIR4Teks81XNMbrqWmUi4OLO1j+bKdoGEBuvf3
+         uR0q5xg8b3a+PTS/7BGKLAEHj1E4Vhv3ZHWfvzRTzteuIoiKxCdChJwn5QgQG6FzNU
+         UsSz1si24mdV6XXaJXpnUXqrb2ARzywGrvPJiq57N3ANlixlAq1AxLcflKpkU3eblN
+         hqE6zvt0kQ8Ig==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Douglas Anderson <dianders@chromium.org>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.14 001/252] drm/bridge: ti-sn65dsi86: Don't read EDID blob over DDC
+Date:   Wed,  8 Sep 2021 21:42:11 -0400
+Message-Id: <20210909014623.128976-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
+MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yanghui <yanghui.def@bytedance.com>
-Subject: mm/mempolicy: fix a race between offset_il_node and mpol_rebind_task
+From: Douglas Anderson <dianders@chromium.org>
 
-Servers happened below panic:
-Kernel version:5.4.56
-BUG: unable to handle page fault for address: 0000000000002c48
-RIP: 0010:__next_zones_zonelist+0x1d/0x40
-[264003.977696] RAX: 0000000000002c40 RBX: 0000000000100dca RCX: 0000000000000014
-[264003.977872] Call Trace:
-[264003.977888]  __alloc_pages_nodemask+0x277/0x310
-[264003.977908]  alloc_page_interleave+0x13/0x70
-[264003.977926]  handle_mm_fault+0xf99/0x1390
-[264003.977951]  __do_page_fault+0x288/0x500
-[264003.977979]  ? schedule+0x39/0xa0
-[264003.977994]  do_page_fault+0x30/0x110
-[264003.978010]  page_fault+0x3e/0x50
+[ Upstream commit a70e558c151043ce46a5e5999f4310e0b3551f57 ]
 
-The reason for the panic is that MAX_NUMNODES is passed in the third
-parameter in __alloc_pages_nodemask(preferred_nid).  So access to
-zonelist->zoneref->zone_idx in __next_zones_zonelist will cause a panic.
+This is really just a revert of commit 58074b08c04a ("drm/bridge:
+ti-sn65dsi86: Read EDID blob over DDC"), resolving conflicts.
 
-In offset_il_node(), first_node() returns nid from pol->v.nodes, after
-this other threads may chang pol->v.nodes before next_node().  This race
-condition will let next_node return MAX_NUMNODES.  So put pol->nodes in a
-local variable.
+The old code failed to read the EDID properly in a very important
+case: before the bridge's pre_enable() was called. The way things need
+to work:
+1. Read the EDID.
+2. Based on the EDID, decide on video settings and pixel clock.
+3. Enable the bridge w/ the desired settings.
 
-The race condition is between offset_il_node and cpuset_change_task_nodemask:
-CPU0:                                     CPU1:
-alloc_pages_vma()
-  interleave_nid(pol,)
-    offset_il_node(pol,)
-      first_node(pol->v.nodes)            cpuset_change_task_nodemask
-                      //nodes==0xc          mpol_rebind_task
-                                              mpol_rebind_policy
-                                                mpol_rebind_nodemask(pol,nodes)
-                      //nodes==0x3
-      next_node(nid, pol->v.nodes)//return MAX_NUMNODES
+The way things were working:
+1. Try to read the EDID but fail; fall back to hardcoded values.
+2. Based on hardcoded values, decide on video settings and pixel clock.
+3. Enable the bridge w/ the desired settings.
+4. Try again to read the EDID, it works now!
+5. Realize that the hardcoded settings weren't quite right.
+6. Disable / reenable the bridge w/ the right settings.
 
-Link: https://lkml.kernel.org/r/20210906034658.48721-1-yanghui.def@bytedance.com
-Signed-off-by: yanghui <yanghui.def@bytedance.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+The reasons for the failures were twofold:
+a) Since we never ran the bridge chip's pre-enable then we never set
+   the bit to ignore HPD. This meant the bridge chip didn't even _try_
+   to go out on the bus and communicate with the panel.
+b) Even if we fixed things to ignore HPD, the EDID still wouldn't read
+   if the panel wasn't on.
+
+Instead of reverting the code, we could fix it to set the HPD bit and
+also power on the panel. However, it also works nicely to just let the
+panel code read the EDID. Now that we've split the driver up we can
+expose the DDC AUX channel bus to the panel node. The panel can take
+charge of reading the EDID.
+
+NOTE: in order for things to work, anyone that needs to read the EDID
+will need to instantiate their panel using the new DP AUX bus (AKA by
+listing their panel under the "aux-bus" node of the bridge chip in the
+device tree).
+
+In the future if we want to use the bridge chip to provide a full
+external DP port (which won't have a panel) then we will have to
+conditinally add EDID reading back in.
+
+Suggested-by: Andrzej Hajda <a.hajda@samsung.com>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210611101711.v10.9.I9330684c25f65bb318eff57f0616500f83eac3cc@changeid
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ drivers/gpu/drm/bridge/ti-sn65dsi86.c | 22 ----------------------
+ 1 file changed, 22 deletions(-)
 
- mm/mempolicy.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
-
---- a/mm/mempolicy.c~mm-mempolicy-fix-a-race-between-offset_il_node-and-mpol_rebind_task
-+++ a/mm/mempolicy.c
-@@ -1876,17 +1876,26 @@ unsigned int mempolicy_slab_node(void)
-  */
- static unsigned offset_il_node(struct mempolicy *pol, unsigned long n)
+diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
+index 45a2969afb2b..aef850296756 100644
+--- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
++++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
+@@ -124,7 +124,6 @@
+  * @connector:    Our connector.
+  * @host_node:    Remote DSI node.
+  * @dsi:          Our MIPI DSI source.
+- * @edid:         Detected EDID of eDP panel.
+  * @refclk:       Our reference clock.
+  * @panel:        Our panel.
+  * @enable_gpio:  The GPIO we toggle to enable the bridge.
+@@ -154,7 +153,6 @@ struct ti_sn65dsi86 {
+ 	struct drm_dp_aux		aux;
+ 	struct drm_bridge		bridge;
+ 	struct drm_connector		connector;
+-	struct edid			*edid;
+ 	struct device_node		*host_node;
+ 	struct mipi_dsi_device		*dsi;
+ 	struct clk			*refclk;
+@@ -403,24 +401,6 @@ connector_to_ti_sn65dsi86(struct drm_connector *connector)
+ static int ti_sn_bridge_connector_get_modes(struct drm_connector *connector)
  {
--	unsigned nnodes = nodes_weight(pol->nodes);
--	unsigned target;
-+	nodemask_t nodemask = pol->nodes;
-+	unsigned int target, nnodes;
- 	int i;
- 	int nid;
-+	/*
-+	 * The barrier will stabilize the nodemask in a register or on
-+	 * the stack so that it will stop changing under the code.
-+	 *
-+	 * Between first_node() and next_node(), pol->nodes could be changed
-+	 * by other threads. So we put pol->nodes in a local stack.
-+	 */
-+	barrier();
- 
-+	nnodes = nodes_weight(nodemask);
- 	if (!nnodes)
- 		return numa_node_id();
- 	target = (unsigned int)n % nnodes;
--	nid = first_node(pol->nodes);
-+	nid = first_node(nodemask);
- 	for (i = 0; i < target; i++)
--		nid = next_node(nid, pol->nodes);
-+		nid = next_node(nid, nodemask);
- 	return nid;
+ 	struct ti_sn65dsi86 *pdata = connector_to_ti_sn65dsi86(connector);
+-	struct edid *edid = pdata->edid;
+-	int num, ret;
+-
+-	if (!edid) {
+-		pm_runtime_get_sync(pdata->dev);
+-		edid = pdata->edid = drm_get_edid(connector, &pdata->aux.ddc);
+-		pm_runtime_put_autosuspend(pdata->dev);
+-	}
+-
+-	if (edid && drm_edid_is_valid(edid)) {
+-		ret = drm_connector_update_edid_property(connector, edid);
+-		if (!ret) {
+-			num = drm_add_edid_modes(connector, edid);
+-			if (num)
+-				return num;
+-		}
+-	}
+-
+ 	return drm_panel_get_modes(pdata->panel, connector);
  }
  
-_
+@@ -1358,8 +1338,6 @@ static void ti_sn_bridge_remove(struct auxiliary_device *adev)
+ 		mipi_dsi_device_unregister(pdata->dsi);
+ 	}
+ 
+-	kfree(pdata->edid);
+-
+ 	drm_bridge_remove(&pdata->bridge);
+ 
+ 	of_node_put(pdata->host_node);
+-- 
+2.30.2
+
