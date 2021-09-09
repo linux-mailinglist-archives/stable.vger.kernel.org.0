@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F4DC404E35
+	by mail.lfdr.de (Postfix) with ESMTP id 5A265404E36
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239625AbhIIMKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:10:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47324 "EHLO mail.kernel.org"
+        id S241823AbhIIMKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:10:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346623AbhIIMHg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:07:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FB306187A;
-        Thu,  9 Sep 2021 11:47:45 +0000 (UTC)
+        id S1348033AbhIIMHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:07:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0B7F61260;
+        Thu,  9 Sep 2021 11:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188066;
-        bh=UZo5Yy7QTYhzHVk71euLtpgz+jm8v+bFd92XXXXGbD8=;
+        s=k20201202; t=1631188067;
+        bh=AYQhEn4gMZmcLoNT07wc57M/nDMYkBJk57pULHZv7/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E2HST6E6gybMTq4wv6o7ftbC0q+sOFbce3FNkDtC2j0HNvEQxqJ+qsZPamkiwUYVT
-         eoWVlJPI6659czRu/C4Xw6R8rC1f302FZFto/hZNj4SO9cD6MZwY5dL/+awcn3B97l
-         qW+FVw++e1k21GXE4/j/d/AThH5kpoSAd1xRQZmrGm9fES9A09YwgcjK7s4wvoBSJH
-         RQ53h8vIxbI72pA5NOBEeKU1Uacbs3ddppZ1onHrJbNRJaeV7P8ecRHPyjGntS+8zi
-         GoZ03i3+XyXrpubZksl30q3sEoL0p2UGGpBQOObyd40Qwss5ed/H0dJi34fZ1+8JD3
-         6YHCUpZbYjYKA==
+        b=Zt8a0LawfqtI1zOqiRXllHKRy1bWvwOSaMJ2T17iapI4b8QOjinrQ5rjHArNiPKSz
+         I2uWkU3QtU50SH0oE9FaqFcUG4/5kKcqae+YPj/DeqX05FQL1+VdgXEPKWj2zVs1c/
+         XRBjwJLX/ZaIOIANyNdYXfZm1OrNIMVjIM0FNFBXaDuYSUl3Y1TIssFzrGvhR3jTrn
+         qMtJO3UVZD5EWl+wtdAcmNSjV9yzekmCFs5fGD7HQDl+9tmOtYYZ/oRIssLZCTQwXX
+         Q7Fxdlj+PpaMkWF4shqzBN5Twchmj7Z2O8TYX5dUMVC3RT1df/CqCmpwanidwsCr79
+         ik6+Vu2IQrsyA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anson Jacob <Anson.Jacob@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.13 054/219] drm/amd/amdgpu: Update debugfs link_settings output link_rate field in hex
-Date:   Thu,  9 Sep 2021 07:43:50 -0400
-Message-Id: <20210909114635.143983-54-sashal@kernel.org>
+Cc:     Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 055/219] bpf/tests: Fix copy-and-paste error in double word test
+Date:   Thu,  9 Sep 2021 07:43:51 -0400
+Message-Id: <20210909114635.143983-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -44,72 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Jacob <Anson.Jacob@amd.com>
+From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 
-[ Upstream commit 1a394b3c3de2577f200cb623c52a5c2b82805cec ]
+[ Upstream commit ae7f47041d928b1a2f28717d095b4153c63cbf6a ]
 
-link_rate is updated via debugfs using hex values, set it to output
-in hex as well.
+This test now operates on DW as stated instead of W, which was
+already covered by another test.
 
-eg: Resolution: 1920x1080@144Hz
-cat /sys/kernel/debug/dri/0/DP-1/link_settings
-Current:  4  0x14  0  Verified:  4  0x1e  0  Reported:  4  0x1e  16  Preferred:  0  0x0  0
-
-echo "4 0x1e" > /sys/kernel/debug/dri/0/DP-1/link_settings
-
-cat /sys/kernel/debug/dri/0/DP-1/link_settings
-Current:  4  0x1e  0  Verified:  4  0x1e  0  Reported:  4  0x1e  16  Preferred:  4  0x1e  0
-
-Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210721104058.3755254-1-johan.almbladh@anyfinetworks.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/display/amdgpu_dm/amdgpu_dm_debugfs.c    | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ lib/test_bpf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
-index 1b6b15708b96..08ff1166ffc8 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
-@@ -197,29 +197,29 @@ static ssize_t dp_link_settings_read(struct file *f, char __user *buf,
- 
- 	rd_buf_ptr = rd_buf;
- 
--	str_len = strlen("Current:  %d  %d  %d  ");
--	snprintf(rd_buf_ptr, str_len, "Current:  %d  %d  %d  ",
-+	str_len = strlen("Current:  %d  0x%x  %d  ");
-+	snprintf(rd_buf_ptr, str_len, "Current:  %d  0x%x  %d  ",
- 			link->cur_link_settings.lane_count,
- 			link->cur_link_settings.link_rate,
- 			link->cur_link_settings.link_spread);
- 	rd_buf_ptr += str_len;
- 
--	str_len = strlen("Verified:  %d  %d  %d  ");
--	snprintf(rd_buf_ptr, str_len, "Verified:  %d  %d  %d  ",
-+	str_len = strlen("Verified:  %d  0x%x  %d  ");
-+	snprintf(rd_buf_ptr, str_len, "Verified:  %d  0x%x  %d  ",
- 			link->verified_link_cap.lane_count,
- 			link->verified_link_cap.link_rate,
- 			link->verified_link_cap.link_spread);
- 	rd_buf_ptr += str_len;
- 
--	str_len = strlen("Reported:  %d  %d  %d  ");
--	snprintf(rd_buf_ptr, str_len, "Reported:  %d  %d  %d  ",
-+	str_len = strlen("Reported:  %d  0x%x  %d  ");
-+	snprintf(rd_buf_ptr, str_len, "Reported:  %d  0x%x  %d  ",
- 			link->reported_link_cap.lane_count,
- 			link->reported_link_cap.link_rate,
- 			link->reported_link_cap.link_spread);
- 	rd_buf_ptr += str_len;
- 
--	str_len = strlen("Preferred:  %d  %d  %d  ");
--	snprintf(rd_buf_ptr, str_len, "Preferred:  %d  %d  %d\n",
-+	str_len = strlen("Preferred:  %d  0x%x  %d  ");
-+	snprintf(rd_buf_ptr, str_len, "Preferred:  %d  0x%x  %d\n",
- 			link->preferred_link_setting.lane_count,
- 			link->preferred_link_setting.link_rate,
- 			link->preferred_link_setting.link_spread);
+diff --git a/lib/test_bpf.c b/lib/test_bpf.c
+index 4dc4dcbecd12..f826df50355b 100644
+--- a/lib/test_bpf.c
++++ b/lib/test_bpf.c
+@@ -4286,8 +4286,8 @@ static struct bpf_test tests[] = {
+ 		.u.insns_int = {
+ 			BPF_LD_IMM64(R0, 0),
+ 			BPF_LD_IMM64(R1, 0xffffffffffffffffLL),
+-			BPF_STX_MEM(BPF_W, R10, R1, -40),
+-			BPF_LDX_MEM(BPF_W, R0, R10, -40),
++			BPF_STX_MEM(BPF_DW, R10, R1, -40),
++			BPF_LDX_MEM(BPF_DW, R0, R10, -40),
+ 			BPF_EXIT_INSN(),
+ 		},
+ 		INTERNAL,
 -- 
 2.30.2
 
