@@ -2,51 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4565405E69
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 23:02:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA534405E90
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 23:06:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346695AbhIIVCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 17:02:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51218 "EHLO mail.kernel.org"
+        id S1348075AbhIIVH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 17:07:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346067AbhIIVCm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 17:02:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFE6161026;
-        Thu,  9 Sep 2021 21:01:30 +0000 (UTC)
+        id S1347720AbhIIVHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 17:07:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F3CD611C1;
+        Thu,  9 Sep 2021 21:06:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1631221292;
-        bh=zfMklQ8zZqXpj1dmRHWK3jOjq/RPHeS1q9XUJgvZqeg=;
+        s=korg; t=1631221566;
+        bh=6OznrfSU8CgvppHSBKHoQeb/Tp2FUsfTE/w9TN4Dld4=;
         h=Date:From:To:Subject:From;
-        b=jBCwcvzuQOm2aPT1veUusnemyScsT8DOnviANODNe1775OUZ+J102Woar0Ty9qI72
-         SP9pUhWqWHCB+wCwAxFfZ+jK2hR47WqRfHTou3ivtOxkPhX8ycs2eReUmqf9sFEzVj
-         ShfCeGfqntTnQsYQ2R5+6ylBx2kCVqL6W21lfsJU=
-Date:   Thu, 09 Sep 2021 14:01:30 -0700
+        b=kOjoXiw7hTSsCfd5TTxfmUWabvBpvviHikZTThZ3brJVKqrnQKPS0zhYP8dv1bbRc
+         ryxRViqERVjN2xuHMHZjOsou8BqElOtWjmm2jyumFwEB3+Qmu9AdnXbbx33I8aI9a/
+         cHxRvnscFnmPMV9quTakT4gbe5avHZLgL2yfKMCk=
+Date:   Thu, 09 Sep 2021 14:06:06 -0700
 From:   akpm@linux-foundation.org
-To:     aneesh.kumar@linux.ibm.com, anshuman.khandual@arm.com,
-        anton@ozlabs.org, ardb@kernel.org, bauerman@linux.ibm.com,
-        benh@kernel.crashing.org, bhe@redhat.com, borntraeger@de.ibm.com,
-        bp@alien8.de, catalin.marinas@arm.com, cheloha@linux.ibm.com,
-        christophe.leroy@c-s.fr, dalias@libc.org, dan.j.williams@intel.com,
-        dave.hansen@linux.intel.com, dave.jiang@intel.com,
-        david@redhat.com, gor@linux.ibm.com, hca@linux.ibm.com,
-        hpa@zytor.com, jasowang@redhat.com, joe@perches.com,
-        justin.he@arm.com, ldufour@linux.ibm.com, lenb@kernel.org,
-        luto@kernel.org, mhocko@kernel.org, michel@lespinasse.org,
-        mingo@redhat.com, mm-commits@vger.kernel.org, mpe@ellerman.id.au,
-        mst@redhat.com, nathanl@linux.ibm.com, npiggin@gmail.com,
-        osalvador@suse.de, pankaj.gupta.linux@gmail.com,
-        pankaj.gupta@ionos.com, pasha.tatashin@soleen.com,
-        paulus@samba.org, peterz@infradead.org, pmorel@linux.ibm.com,
-        rafael.j.wysocki@intel.com, richard.weiyang@linux.alibaba.com,
-        rjw@rjwysocki.net, rppt@kernel.org, slyfox@gentoo.org,
-        songmuchun@bytedance.com, stable@vger.kernel.org,
-        tglx@linutronix.de, vbabka@suse.cz, vishal.l.verma@intel.com,
-        vkuznets@redhat.com, wangkefeng.wang@huawei.com, will@kernel.org,
-        ysato@users.sourceforge.jp
+To:     hch@lst.de, jgg@nvidia.com, lizhijian@cn.fujitsu.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org
 Subject:  [merged]
- mm-memory_hotplug-use-unsigned-long-for-pfn-in-zone_for_pfn_range.patch
+ mm-hmm-bypass-devmap-pte-when-all-pfn-requested-flags-are-fulfilled.patch
  removed from -mm tree
-Message-ID: <20210909210130.r6YFvLxkb%akpm@linux-foundation.org>
+Message-ID: <20210909210606.XTkF9krFI%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -54,136 +35,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
+     Subject: mm/hmm: bypass devmap pte when all pfn requested flags are fulfilled
 has been removed from the -mm tree.  Its filename was
-     mm-memory_hotplug-use-unsigned-long-for-pfn-in-zone_for_pfn_range.patch
+     mm-hmm-bypass-devmap-pte-when-all-pfn-requested-flags-are-fulfilled.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: David Hildenbrand <david@redhat.com>
-Subject: mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
+From: Li Zhijian <lizhijian@cn.fujitsu.com>
+Subject: mm/hmm: bypass devmap pte when all pfn requested flags are fulfilled
 
-Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
+Previously, we noticed the one rpma example was failed[1] since
+36f30e486d, where it will use ODP feature to do RDMA WRITE between fsdax
+files.
 
-These are all cleanups and one fix previously sent as part of [1]:
-[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
-groups.
+After digging into the code, we found hmm_vma_handle_pte() will still
+return EFAULT even though all the its requesting flags has been fulfilled.
+That's because a DAX page will be marked as (_PAGE_SPECIAL | PAGE_DEVMAP)
+by pte_mkdevmap().
 
-These patches make sense even without the other series, therefore I pulled
-them out to make the other series easier to digest.
+[1]: https://github.com/pmem/rpma/issues/1142
 
-[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com 
-
-
-
-This patch (of 4):
-
-Checkpatch complained on a follow-up patch that we are using "unsigned"
-here, which defaults to "unsigned int" and checkpatch is correct.
-
-As we will search for a fitting zone using the wrong pfn, we might end 
-up onlining memory to one of the special kernel zones, such as ZONE_DMA, 
-which can end badly as the onlined memory does not satisfy properties of 
-these zones.
-
-Use "unsigned long" instead, just as we do in other places when handling
-PFNs.  This can bite us once we have physical addresses in the range of
-multiple TB.
-
-Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
-Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jia He <justin.he@arm.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Laurent Dufour <ldufour@linux.ibm.com>
-Cc: Michel Lespinasse <michel@lespinasse.org>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Morel <pmorel@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Scott Cheloha <cheloha@linux.ibm.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Link: https://lkml.kernel.org/r/20210830094232.203029-1-lizhijian@cn.fujitsu.com
+Fixes: 405506274922 ("mm/hmm: add missing call to hmm_pte_need_fault in HMM_PFN_SPECIAL handling")
+Signed-off-by: Li Zhijian <lizhijian@cn.fujitsu.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/memory_hotplug.h |    4 ++--
- mm/memory_hotplug.c            |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ mm/hmm.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/linux/memory_hotplug.h~mm-memory_hotplug-use-unsigned-long-for-pfn-in-zone_for_pfn_range
-+++ a/include/linux/memory_hotplug.h
-@@ -339,8 +339,8 @@ extern void sparse_remove_section(struct
- 		unsigned long map_offset, struct vmem_altmap *altmap);
- extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
- 					  unsigned long pnum);
--extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages);
-+extern struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages);
- extern int arch_create_linear_mapping(int nid, u64 start, u64 size,
- 				      struct mhp_params *params);
- void arch_remove_linear_mapping(u64 start, u64 size);
---- a/mm/memory_hotplug.c~mm-memory_hotplug-use-unsigned-long-for-pfn-in-zone_for_pfn_range
-+++ a/mm/memory_hotplug.c
-@@ -708,8 +708,8 @@ static inline struct zone *default_zone_
- 	return movable_node_enabled ? movable_zone : kernel_zone;
- }
+--- a/mm/hmm.c~mm-hmm-bypass-devmap-pte-when-all-pfn-requested-flags-are-fulfilled
++++ a/mm/hmm.c
+@@ -295,10 +295,13 @@ static int hmm_vma_handle_pte(struct mm_
+ 		goto fault;
  
--struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages)
-+struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages)
- {
- 	if (online_type == MMOP_ONLINE_KERNEL)
- 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
+ 	/*
++	 * Bypass devmap pte such as DAX page when all pfn requested
++	 * flags(pfn_req_flags) are fulfilled.
+ 	 * Since each architecture defines a struct page for the zero page, just
+ 	 * fall through and treat it like a normal page.
+ 	 */
+-	if (pte_special(pte) && !is_zero_pfn(pte_pfn(pte))) {
++	if (pte_special(pte) && !pte_devmap(pte) &&
++	    !is_zero_pfn(pte_pfn(pte))) {
+ 		if (hmm_pte_need_fault(hmm_vma_walk, pfn_req_flags, 0)) {
+ 			pte_unmap(ptep);
+ 			return -EFAULT;
 _
 
-Patches currently in -mm which might be from david@redhat.com are
+Patches currently in -mm which might be from lizhijian@cn.fujitsu.com are
 
 
