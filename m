@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03E65404A5E
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E47C3404A67
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240841AbhIILqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:46:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46380 "EHLO mail.kernel.org"
+        id S237756AbhIILqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:46:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240077AbhIILo2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:44:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB601600AA;
-        Thu,  9 Sep 2021 11:42:29 +0000 (UTC)
+        id S240096AbhIILo3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:44:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E605F611BD;
+        Thu,  9 Sep 2021 11:42:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187750;
-        bh=qg26jiuTtdoiJ3RenuggGw8K55QTJlmz12NTT/iEnWc=;
+        s=k20201202; t=1631187751;
+        bh=UZWytWGmXwex4+/1vb6H6PHBd6Zm9qo4AOXiHRecuTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQVag7DSFgDOVewDnYIpcSg5RDz4wZib9MnpkPggSlFySxmZRS649H/2Bl/LXilAz
-         06ygaiSIhvBCu+WmK7HqKfTIDEQeZgaaTp+M/C1NvYsuzOx/yH7U6N/cfWyML9JdFQ
-         L9TM6jbA2Dm8r0O+sNmstFsHi45iEmUFKb0IWfMP7qpLNS8f3phiOIelopLZGq1pHp
-         4nse6uTVBL7jRIgpP10HYB1WegW06Y4mqmQYHxRNEP9hsZxYPa7UdJDAiYS/uxSIuc
-         PzbcG7cSxAcI3KECi1mHg7Wv3fedejb61ZnIX0+r5ixEfqCBvNmIVDE35ado6owUda
-         FlBo+hNaJ/3mA==
+        b=eMGmPaUjg9Zrn+I63BEkTcfasCFlFL2lFEfc5T0SPv/8XrHiv2eJITmNkjjmJ6pCh
+         BE8sB/ybN81HdGU5mkm5VP8ERvS+URvCwCwYIotsmvEcCEu9y4BMSFDURMAJmIc8Wi
+         PzVq5FntYtY3xecUZBEgZKSybOTQ+Cyql08EwWhgzlXvl9o8OQuc1hdvtFgri7usPv
+         20fzt4LCZwZKCWQ02+L1oyT2Ssbg+cO1oCs/rreUhTx0TocfBw5XwoxuVgVOKTH7/z
+         trcTcWowwGEXnOUIcq8j/yZ0E+9dzu5tJX3riNgAAVmho4JqxQbd8b/x28oDXm/PSn
+         BN9z55bXeGlpQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 065/252] bpf/tests: Do not PASS tests without actually testing the result
-Date:   Thu,  9 Sep 2021 07:37:59 -0400
-Message-Id: <20210909114106.141462-65-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Fabio Estevam <festevam@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.14 066/252] drm/bridge: nwl-dsi: Avoid potential multiplication overflow on 32-bit
+Date:   Thu,  9 Sep 2021 07:38:00 -0400
+Message-Id: <20210909114106.141462-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -43,53 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 2b7e9f25e590726cca76700ebdb10e92a7a72ca1 ]
+[ Upstream commit 47956bc86ee4e8530cac386a04f62a6095f7afbe ]
 
-Each test case can have a set of sub-tests, where each sub-test can
-run the cBPF/eBPF test snippet with its own data_size and expected
-result. Before, the end of the sub-test array was indicated by both
-data_size and result being zero. However, most or all of the internal
-eBPF tests has a data_size of zero already. When such a test also had
-an expected value of zero, the test was never run but reported as
-PASS anyway.
+As nwl_dsi.lanes is u32, and NSEC_PER_SEC is 1000000000L, the second
+multiplication in
 
-Now the test runner always runs the first sub-test, regardless of the
-data_size and result values. The sub-test array zero-termination only
-applies for any additional sub-tests.
+    dsi->lanes * 8 * NSEC_PER_SEC
 
-There are other ways fix it of course, but this solution at least
-removes the surprise of eBPF tests with a zero result always succeeding.
+will overflow on a 32-bit platform.  Fix this by making the constant
+unsigned long long, forcing 64-bit arithmetic.
 
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210721103822.3755111-1-johan.almbladh@anyfinetworks.com
+As iMX8 is arm64, this driver is currently used on 64-bit platforms
+only, where long is 64-bit, so this cannot happen.  But the issue will
+start to happen when the driver is reused for a 32-bit SoC (e.g.
+i.MX7ULP), or when code is copied for a new driver.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/ebb82941a86b4e35c4fcfb1ef5a5cfad7c1fceab.1626255956.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_bpf.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/nwl-dsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/test_bpf.c b/lib/test_bpf.c
-index 1c5299cb3f19..f6d5d30d01bf 100644
---- a/lib/test_bpf.c
-+++ b/lib/test_bpf.c
-@@ -6659,7 +6659,14 @@ static int run_one(const struct bpf_prog *fp, struct bpf_test *test)
- 		u64 duration;
- 		u32 ret;
+diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
+index 873995f0a741..6002404ffcb9 100644
+--- a/drivers/gpu/drm/bridge/nwl-dsi.c
++++ b/drivers/gpu/drm/bridge/nwl-dsi.c
+@@ -196,7 +196,7 @@ static u32 ps2bc(struct nwl_dsi *dsi, unsigned long long ps)
+ 	u32 bpp = mipi_dsi_pixel_format_to_bpp(dsi->format);
  
--		if (test->test[i].data_size == 0 &&
-+		/*
-+		 * NOTE: Several sub-tests may be present, in which case
-+		 * a zero {data_size, result} tuple indicates the end of
-+		 * the sub-test array. The first test is always run,
-+		 * even if both data_size and result happen to be zero.
-+		 */
-+		if (i > 0 &&
-+		    test->test[i].data_size == 0 &&
- 		    test->test[i].result == 0)
- 			break;
+ 	return DIV64_U64_ROUND_UP(ps * dsi->mode.clock * bpp,
+-				  dsi->lanes * 8 * NSEC_PER_SEC);
++				  dsi->lanes * 8ULL * NSEC_PER_SEC);
+ }
  
+ /*
 -- 
 2.30.2
 
