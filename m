@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 931FC404F9B
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:21:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31241404F98
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:21:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345087AbhIIMV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:21:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53562 "EHLO mail.kernel.org"
+        id S240562AbhIIMVV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:21:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346619AbhIIMRI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:17:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C9206137E;
-        Thu,  9 Sep 2021 11:49:45 +0000 (UTC)
+        id S1346629AbhIIMRH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:17:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A5EE61A7F;
+        Thu,  9 Sep 2021 11:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188186;
-        bh=7+34lJuA8T+mx98Ol2bt76efZapjIJYr/sKnp1rvVO4=;
+        s=k20201202; t=1631188187;
+        bh=41UfQEK4ce4MZ7sHLRplv66BOBkYxe3i9+V1wNuOllM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g561AikKxEpgUquP3bgPO1ACko40k/9Pfdzo522YzMsMulEu54lu1lJNnku1SWq8/
-         rXZ4LzWy9X99jD+hI5SfShBIuFfihcKSnUkbYLl1p3JIiJOjcXEaK2J/ZZk3RsLCWa
-         DDRNOQW+EtmTXMOt0JOVfw/j2qscAT6qGu9UvguW/+UR18GNkM4NGmZ5CPq4Bs59FZ
-         IQagQBAXt2Rg1CrZi5q2qVY0syTChmmFFRCgsf30m1ekaS0nMMAG4pq/4W/A4A56lg
-         L93OU52IG6V8gT0stW0T+sHeSEqTJ2TwYkbiK53rHEqIbkOIyFrVs2+IzgoIPv8GiE
-         fMXZ83t5wzVbg==
+        b=FWuXcEZSdS36SKM0TLvxeIIEl9/1l8PwtweKQoxdvGP3Cc471dOvrcNBVgLtdAZyO
+         AsvjCZ0PqaCkSex9f+QLRTVO1bIflLPjIEEpL6B4/zFKoCKQkmW2IyjGd7F/XT8y6Y
+         4MDCXhgfnA78rgLOjtRdT4NWUc89Vke4YUgRdosW5Q32iDiPHhLjlyELeSArXhP77P
+         uEzCtD7aXeYY9oVMkbUWO96H4SEFq9jH+eXdbL4qBQS7lrhEoppOCFR1TNtXtlj3rc
+         rYxl/mKq/6Q1AjMdq8E1TSyz18cgSFjzsZGjGijQv6Lc4Ztk507Pp7eF70c2coJgbQ
+         Ks1+KqI1GixBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.13 147/219] locking/rtmutex: Set proper wait context for lockdep
-Date:   Thu,  9 Sep 2021 07:45:23 -0400
-Message-Id: <20210909114635.143983-147-sashal@kernel.org>
+Cc:     "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 148/219] rpc: fix gss_svc_init cleanup on failure
+Date:   Thu,  9 Sep 2021 07:45:24 -0400
+Message-Id: <20210909114635.143983-148-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -42,69 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: "J. Bruce Fields" <bfields@redhat.com>
 
-[ Upstream commit b41cda03765580caf7723b8c1b672d191c71013f ]
+[ Upstream commit 5a4753446253a427c0ff1e433b9c4933e5af207c ]
 
-RT mutexes belong to the LD_WAIT_SLEEP class. Make them so.
+The failure case here should be rare, but it's obviously wrong.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20210815211302.031014562@linutronix.de
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rtmutex.h  | 19 ++++++++++++-------
- kernel/locking/rtmutex.c |  2 +-
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ net/sunrpc/auth_gss/svcauth_gss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/rtmutex.h b/include/linux/rtmutex.h
-index d1672de9ca89..87b325aec508 100644
---- a/include/linux/rtmutex.h
-+++ b/include/linux/rtmutex.h
-@@ -52,17 +52,22 @@ do { \
- } while (0)
- 
- #ifdef CONFIG_DEBUG_LOCK_ALLOC
--#define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname) \
--	, .dep_map = { .name = #mutexname }
-+#define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)	\
-+	.dep_map = {					\
-+		.name = #mutexname,			\
-+		.wait_type_inner = LD_WAIT_SLEEP,	\
-+	}
- #else
- #define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)
- #endif
- 
--#define __RT_MUTEX_INITIALIZER(mutexname) \
--	{ .wait_lock = __RAW_SPIN_LOCK_UNLOCKED(mutexname.wait_lock) \
--	, .waiters = RB_ROOT_CACHED \
--	, .owner = NULL \
--	__DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)}
-+#define __RT_MUTEX_INITIALIZER(mutexname)				\
-+{									\
-+	.wait_lock = __RAW_SPIN_LOCK_UNLOCKED(mutexname.wait_lock),	\
-+	.waiters = RB_ROOT_CACHED,					\
-+	.owner = NULL,							\
-+	__DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)			\
-+}
- 
- #define DEFINE_RT_MUTEX(mutexname) \
- 	struct rt_mutex mutexname = __RT_MUTEX_INITIALIZER(mutexname)
-diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
-index 3c20afbc19e1..ae5afba2162b 100644
---- a/kernel/locking/rtmutex.c
-+++ b/kernel/locking/rtmutex.c
-@@ -1556,7 +1556,7 @@ void __sched __rt_mutex_init(struct rt_mutex *lock, const char *name,
- 		     struct lock_class_key *key)
- {
- 	debug_check_no_locks_freed((void *)lock, sizeof(*lock));
--	lockdep_init_map(&lock->dep_map, name, key, 0);
-+	lockdep_init_map_wait(&lock->dep_map, name, key, 0, LD_WAIT_SLEEP);
- 
- 	__rt_mutex_basic_init(lock);
- }
+diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
+index 6dff64374bfe..e22f2d65457d 100644
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1980,7 +1980,7 @@ gss_svc_init_net(struct net *net)
+ 		goto out2;
+ 	return 0;
+ out2:
+-	destroy_use_gss_proxy_proc_entry(net);
++	rsi_cache_destroy_net(net);
+ out1:
+ 	rsc_cache_destroy_net(net);
+ 	return rv;
 -- 
 2.30.2
 
