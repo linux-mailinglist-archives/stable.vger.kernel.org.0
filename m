@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0B76405081
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:41:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1264240507D
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353216AbhIIM2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:28:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34528 "EHLO mail.kernel.org"
+        id S1352746AbhIIM15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:27:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346048AbhIIMYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346703AbhIIMYO (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:24:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35B5061AEE;
-        Thu,  9 Sep 2021 11:51:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9709561AE0;
+        Thu,  9 Sep 2021 11:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188283;
-        bh=9apz7idIxDy+44QrOdSGvr+lOz8rYBuGfzSTpeH8J1o=;
+        s=k20201202; t=1631188284;
+        bh=gB9z9wL68N4zA6j+tsmo/QkfIMZQNo6VHD+mttTBms0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sXOARs8cqZlKAVBteE5rE4IyxCZqyIbvWIQe5YVg8/CZBnnU4JCvnZqZYoN/bq2Qm
-         8kt5tuZl7pFaBnjazkbewlQliPJ1wU2S1jS/gAtc9osdcfXZ2cEgrxF7r2StxJcB1F
-         tbuB1zTFP8TOSkj+hH1WfGoTmfnZwrRUzy55DTeaUft/QAYeRwqgPJR215Z8SHQhgJ
-         RcSXDUi90CicI/Mx21Vqrtv8e3lZo/s4YQAlopkBpAofqwzL93OV5jm+qhKc9aYASw
-         jNJEZgx0wKQ1/vEDWoJcMHZKtkmyRyfX5Vp7fyrgxso1bcFSqlK1yBCU7eWduMpXRH
-         SZuuw8baVo8kw==
+        b=YE0xMIuM6UBdv36KXQilt0NxkcL/hmfFdxwfuPCAE5KapoO/EZygFnstMvMky0Ys1
+         2MbLHJwiea2Toa3qCwyEQGzgKOJR2GZYuBy36h1JNUQHDF2zzsCyMK5oddJn9FMkZa
+         0m1FOFtutk0yQ/tIPcnpy5n38Rj9cqmmamRfxNPZnCEYzaF8NHquAjC6FfRnkyPsvI
+         UEw4T3+kyd5c+6um/8SXMo/LnNpVUn43RjpZtxPZ1nO3h3TUNgBi49ZP3iGsyuMHzO
+         XNAEcM/Shmn4M6XLY9U7oWa9IyLDKeD6CKJYAv86KzYu8KNOMfOBMaoNGAyGV0tspk
+         G8sdfNK3SPLJw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 003/176] ASoC: atmel: ATMEL drivers don't need HAS_DMA
-Date:   Thu,  9 Sep 2021 07:48:25 -0400
-Message-Id: <20210909115118.146181-3-sashal@kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 004/176] media: dib8000: rewrite the init prbs logic
+Date:   Thu,  9 Sep 2021 07:48:26 -0400
+Message-Id: <20210909115118.146181-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -45,62 +41,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 6c5c659dfe3f02e08054a6c20019e3886618b512 ]
+[ Upstream commit 8db11aebdb8f93f46a8513c22c9bd52fa23263aa ]
 
-On a config (such as arch/sh/) which does not set HAS_DMA when MMU
-is not set, several ATMEL ASoC drivers select symbols that cause
-kconfig warnings. There is one "depends on HAS_DMA" which is no longer
-needed. Dropping it eliminates the kconfig warnings and still builds
-with no problems reported.
+The logic at dib8000_get_init_prbs() has a few issues:
 
-Fix the following kconfig warnings:
+1. the tables used there has an extra unused value at the beginning;
+2. the dprintk() message doesn't write the right value when
+   transmission mode is not 8K;
+3. the array overflow validation is done by the callers.
 
-WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_PDC
-  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && HAS_DMA [=n]
-  Selected by [m]:
-  - SND_ATMEL_SOC_SSC [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m]
-  - SND_ATMEL_SOC_SSC_PDC [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m]
+Rewrite the code to fix such issues.
 
-WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_SSC_PDC
-  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m] && HAS_DMA [=n]
-  Selected by [m]:
-  - SND_AT91_SOC_SAM9G20_WM8731 [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && (ARCH_AT91 || COMPILE_TEST [=y]) && ATMEL_SSC [=m] && SND_SOC_I2C_AND_SPI [=m]
+This should also shut up those smatch warnings:
 
-WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_SSC
-  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && HAS_DMA [=n]
-  Selected by [m]:
-  - SND_ATMEL_SOC_SSC_DMA [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m]
+	drivers/media/dvb-frontends/dib8000.c:2125 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_8k' 14 <= 14
+	drivers/media/dvb-frontends/dib8000.c:2129 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_2k' 14 <= 14
+	drivers/media/dvb-frontends/dib8000.c:2131 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_4k' 14 <= 14
+	drivers/media/dvb-frontends/dib8000.c:2134 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_8k' 14 <= 14
 
-WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_SSC_DMA
-  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m] && HAS_DMA [=n]
-  Selected by [m]:
-  - SND_ATMEL_SOC_WM8904 [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && (ARCH_AT91 || COMPILE_TEST [=y]) && ATMEL_SSC [=m] && I2C [=m]
-  - SND_AT91_SOC_SAM9X5_WM8731 [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && (ARCH_AT91 || COMPILE_TEST [=y]) && ATMEL_SSC [=m] && SND_SOC_I2C_AND_SPI [=m]
-
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210707214752.3831-1-rdunlap@infradead.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/atmel/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/media/dvb-frontends/dib8000.c | 58 +++++++++++++++++++--------
+ 1 file changed, 41 insertions(+), 17 deletions(-)
 
-diff --git a/sound/soc/atmel/Kconfig b/sound/soc/atmel/Kconfig
-index 142373ec411a..89210048e6c2 100644
---- a/sound/soc/atmel/Kconfig
-+++ b/sound/soc/atmel/Kconfig
-@@ -11,7 +11,6 @@ if SND_ATMEL_SOC
+diff --git a/drivers/media/dvb-frontends/dib8000.c b/drivers/media/dvb-frontends/dib8000.c
+index 082796534b0a..bb02354a48b8 100644
+--- a/drivers/media/dvb-frontends/dib8000.c
++++ b/drivers/media/dvb-frontends/dib8000.c
+@@ -2107,32 +2107,55 @@ static void dib8000_load_ana_fe_coefs(struct dib8000_state *state, const s16 *an
+ 			dib8000_write_word(state, 117 + mode, ana_fe[mode]);
+ }
  
- config SND_ATMEL_SOC_PDC
- 	bool
--	depends on HAS_DMA
+-static const u16 lut_prbs_2k[14] = {
+-	0, 0x423, 0x009, 0x5C7, 0x7A6, 0x3D8, 0x527, 0x7FF, 0x79B, 0x3D6, 0x3A2, 0x53B, 0x2F4, 0x213
++static const u16 lut_prbs_2k[13] = {
++	0x423, 0x009, 0x5C7,
++	0x7A6, 0x3D8, 0x527,
++	0x7FF, 0x79B, 0x3D6,
++	0x3A2, 0x53B, 0x2F4,
++	0x213
+ };
+-static const u16 lut_prbs_4k[14] = {
+-	0, 0x208, 0x0C3, 0x7B9, 0x423, 0x5C7, 0x3D8, 0x7FF, 0x3D6, 0x53B, 0x213, 0x029, 0x0D0, 0x48E
++
++static const u16 lut_prbs_4k[13] = {
++	0x208, 0x0C3, 0x7B9,
++	0x423, 0x5C7, 0x3D8,
++	0x7FF, 0x3D6, 0x53B,
++	0x213, 0x029, 0x0D0,
++	0x48E
+ };
+-static const u16 lut_prbs_8k[14] = {
+-	0, 0x740, 0x069, 0x7DD, 0x208, 0x7B9, 0x5C7, 0x7FF, 0x53B, 0x029, 0x48E, 0x4C4, 0x367, 0x684
++
++static const u16 lut_prbs_8k[13] = {
++	0x740, 0x069, 0x7DD,
++	0x208, 0x7B9, 0x5C7,
++	0x7FF, 0x53B, 0x029,
++	0x48E, 0x4C4, 0x367,
++	0x684
+ };
  
- config SND_ATMEL_SOC_DMA
- 	bool
+ static u16 dib8000_get_init_prbs(struct dib8000_state *state, u16 subchannel)
+ {
+ 	int sub_channel_prbs_group = 0;
++	int prbs_group;
+ 
+-	sub_channel_prbs_group = (subchannel / 3) + 1;
+-	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n", sub_channel_prbs_group, subchannel, lut_prbs_8k[sub_channel_prbs_group]);
++	sub_channel_prbs_group = subchannel / 3;
++	if (sub_channel_prbs_group >= ARRAY_SIZE(lut_prbs_2k))
++		return 0;
+ 
+ 	switch (state->fe[0]->dtv_property_cache.transmission_mode) {
+ 	case TRANSMISSION_MODE_2K:
+-			return lut_prbs_2k[sub_channel_prbs_group];
++		prbs_group = lut_prbs_2k[sub_channel_prbs_group];
++		break;
+ 	case TRANSMISSION_MODE_4K:
+-			return lut_prbs_4k[sub_channel_prbs_group];
++		prbs_group =  lut_prbs_4k[sub_channel_prbs_group];
++		break;
+ 	default:
+ 	case TRANSMISSION_MODE_8K:
+-			return lut_prbs_8k[sub_channel_prbs_group];
++		prbs_group = lut_prbs_8k[sub_channel_prbs_group];
+ 	}
++
++	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n",
++		sub_channel_prbs_group, subchannel, prbs_group);
++
++	return prbs_group;
+ }
+ 
+ static void dib8000_set_13seg_channel(struct dib8000_state *state)
+@@ -2409,10 +2432,8 @@ static void dib8000_set_isdbt_common_channel(struct dib8000_state *state, u8 seq
+ 	/* TSB or ISDBT ? apply it now */
+ 	if (c->isdbt_sb_mode) {
+ 		dib8000_set_sb_channel(state);
+-		if (c->isdbt_sb_subchannel < 14)
+-			init_prbs = dib8000_get_init_prbs(state, c->isdbt_sb_subchannel);
+-		else
+-			init_prbs = 0;
++		init_prbs = dib8000_get_init_prbs(state,
++						  c->isdbt_sb_subchannel);
+ 	} else {
+ 		dib8000_set_13seg_channel(state);
+ 		init_prbs = 0xfff;
+@@ -3004,6 +3025,7 @@ static int dib8000_tune(struct dvb_frontend *fe)
+ 
+ 	unsigned long *timeout = &state->timeout;
+ 	unsigned long now = jiffies;
++	u16 init_prbs;
+ #ifdef DIB8000_AGC_FREEZE
+ 	u16 agc1, agc2;
+ #endif
+@@ -3302,8 +3324,10 @@ static int dib8000_tune(struct dvb_frontend *fe)
+ 		break;
+ 
+ 	case CT_DEMOD_STEP_11:  /* 41 : init prbs autosearch */
+-		if (state->subchannel <= 41) {
+-			dib8000_set_subchannel_prbs(state, dib8000_get_init_prbs(state, state->subchannel));
++		init_prbs = dib8000_get_init_prbs(state, state->subchannel);
++
++		if (init_prbs) {
++			dib8000_set_subchannel_prbs(state, init_prbs);
+ 			*tune_state = CT_DEMOD_STEP_9;
+ 		} else {
+ 			*tune_state = CT_DEMOD_STOP;
 -- 
 2.30.2
 
