@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A57AD405513
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:32:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 476B3405533
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351078AbhIINHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:07:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42490 "EHLO mail.kernel.org"
+        id S1357008AbhIINIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:08:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357670AbhIINDP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1357662AbhIINDP (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 09:03:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BBF563277;
-        Thu,  9 Sep 2021 11:59:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AB366328F;
+        Thu,  9 Sep 2021 11:59:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188775;
-        bh=eXULAlZ7qapbLcZqOTCZhks1KXeuN+HBLgGlB1Ea9fA=;
+        s=k20201202; t=1631188777;
+        bh=9OsgcUcU6CeRPqG5bL4ROrMvmMSpM/tU+23LLjiTJOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R6AgFV9XvX64SV7Ey4Bg02K8WxEgEHLsbhE4ual5xaIV3/WKO4EOuASzBU4zkUJKl
-         e6NaImYsHltTrF6yPivYFyGVnJRgNEa6HPVT9g4PcRnFEV140xeRwRzaKFz7bFRyco
-         3A9MMZIrgOpH5YDLJ7a8oMSA8q9v+AuRNR+nVp4bN5yGMatgFSV2pHHPK2q2t07KTm
-         R5GP7grDwWaX5wTraigvTWtiM+MqshXWiw2sT2fJx0yg8keViY4hOuok0GF7HCNPmy
-         h1SeR5oXZ8qiJa9uQu8kIrCcB2xqMlixzIzSb01bTl3MogNlwkUqEldpDVBuBH6shw
-         391sReolLyFdQ==
+        b=ZkBXYNETYj8+hg7I7mX6cXyf43EOz21NxHrPD84BiAjWM8lVjDw94M8JJHu9PUu4o
+         AxR3ewMiYKmqvXjeoQ8c6wxAyhxcVsvbHxpOgZ1G23FDTHQMKwj/hnpU75Dr0CE9gd
+         9xepuKLqM37Rv7Hxc/0/688+MV/PhreVOTn45O4bWBTimHiG8UXFvTHCa2NssqXj6L
+         28NtfnqLO+QJuvwJ/saGnzEz8/gKmM0olygZzNNXLtIc0GCJqTIzuQWWnFxTbu2Rsz
+         zmmUajN4Jnhtyx+oGnqctSvIZMhFF87VNunRlUkcuRB9dEKIhlXL/aIi57il9p3qsH
+         tMWCjMnri1wVg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-ide@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 28/59] ata: sata_dwc_460ex: No need to call phy_exit() befre phy_init()
-Date:   Thu,  9 Sep 2021 07:58:29 -0400
-Message-Id: <20210909115900.149795-28-sashal@kernel.org>
+Cc:     Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 29/59] Bluetooth: skip invalid hci_sync_conn_complete_evt
+Date:   Thu,  9 Sep 2021 07:58:30 -0400
+Message-Id: <20210909115900.149795-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115900.149795-1-sashal@kernel.org>
 References: <20210909115900.149795-1-sashal@kernel.org>
@@ -42,56 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 3ad4a31620355358316fa08fcfab37b9d6c33347 ]
+[ Upstream commit 92fe24a7db751b80925214ede43f8d2be792ea7b ]
 
-Last change to device managed APIs cleaned up error path to simple phy_exit()
-call, which in some cases has been executed with NULL parameter. This per se
-is not a problem, but rather logical misconception: no need to free resource
-when it's for sure has not been allocated yet. Fix the driver accordingly.
+Syzbot reported a corrupted list in kobject_add_internal [1]. This
+happens when multiple HCI_EV_SYNC_CONN_COMPLETE event packets with
+status 0 are sent for the same HCI connection. This causes us to
+register the device more than once which corrupts the kset list.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210727125130.19977-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+As this is forbidden behavior, we add a check for whether we're
+trying to process the same HCI_EV_SYNC_CONN_COMPLETE event multiple
+times for one connection. If that's the case, the event is invalid, so
+we report an error that the device is misbehaving, and ignore the
+packet.
+
+Link: https://syzkaller.appspot.com/bug?extid=66264bf2fd0476be7e6c [1]
+Reported-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
+Tested-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/sata_dwc_460ex.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ net/bluetooth/hci_event.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/ata/sata_dwc_460ex.c b/drivers/ata/sata_dwc_460ex.c
-index ce128d5a6ded..ed301dee200d 100644
---- a/drivers/ata/sata_dwc_460ex.c
-+++ b/drivers/ata/sata_dwc_460ex.c
-@@ -1253,24 +1253,20 @@ static int sata_dwc_probe(struct platform_device *ofdev)
- 	irq = irq_of_parse_and_map(np, 0);
- 	if (irq == NO_IRQ) {
- 		dev_err(&ofdev->dev, "no SATA DMA irq\n");
--		err = -ENODEV;
--		goto error_out;
-+		return -ENODEV;
- 	}
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index b3253f2e11af..5186f199d892 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -3761,6 +3761,21 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
  
- #ifdef CONFIG_SATA_DWC_OLD_DMA
- 	if (!of_find_property(np, "dmas", NULL)) {
- 		err = sata_dwc_dma_init_old(ofdev, hsdev);
- 		if (err)
--			goto error_out;
-+			return err;
- 	}
- #endif
- 
- 	hsdev->phy = devm_phy_optional_get(hsdev->dev, "sata-phy");
--	if (IS_ERR(hsdev->phy)) {
--		err = PTR_ERR(hsdev->phy);
--		hsdev->phy = NULL;
--		goto error_out;
--	}
-+	if (IS_ERR(hsdev->phy))
-+		return PTR_ERR(hsdev->phy);
- 
- 	err = phy_init(hsdev->phy);
- 	if (err)
+ 	switch (ev->status) {
+ 	case 0x00:
++		/* The synchronous connection complete event should only be
++		 * sent once per new connection. Receiving a successful
++		 * complete event when the connection status is already
++		 * BT_CONNECTED means that the device is misbehaving and sent
++		 * multiple complete event packets for the same new connection.
++		 *
++		 * Registering the device more than once can corrupt kernel
++		 * memory, hence upon detecting this invalid event, we report
++		 * an error and ignore the packet.
++		 */
++		if (conn->state == BT_CONNECTED) {
++			bt_dev_err(hdev, "Ignoring connect complete event for existing connection");
++			goto unlock;
++		}
++
+ 		conn->handle = __le16_to_cpu(ev->handle);
+ 		conn->state  = BT_CONNECTED;
+ 		conn->type   = ev->link_type;
 -- 
 2.30.2
 
