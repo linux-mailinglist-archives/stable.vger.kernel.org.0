@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD20F405470
+	by mail.lfdr.de (Postfix) with ESMTP id 14D5D40546E
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232566AbhIIM6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:58:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46028 "EHLO mail.kernel.org"
+        id S1354941AbhIIM6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:58:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351554AbhIIMtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353172AbhIIMtG (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:49:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A649F61051;
-        Thu,  9 Sep 2021 11:56:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC672611C1;
+        Thu,  9 Sep 2021 11:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188599;
-        bh=31chLHWe85bUi+JEnDwBmhCPpyPFPd0LQK87sK9/VtM=;
+        s=k20201202; t=1631188600;
+        bh=VulqvxBtUQTNH3d86yDvRtC5+CUk148V7vQLKRn6wXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j2DzPeDprY+MCLSVE/T5AaD8uUPJJw36oqW0KacpnbrX4Q1QYNDtwxMwZ8opOX5FJ
-         yMjlJXw9td7zlm8PbZGICTbbmjIZI/H69d06JW4g468yQCJRUQKdImCiWQKXtd9jPH
-         qTDdqIoLdsE+WUB3r5w516aIzQCmGEz4KGbY9FttO9G7cpFTYFR0K5SxFRpDxPl0gm
-         iIiZ7LTN0NKL7rWK51i8WOQqJPbxaZGJXXMnoJox2pIC+8FFLMr9D4JKUHBpz7FtzC
-         7EvZx4UAXjhn52kECAQeQV9D0Y9K5TKYJHe6t7rXpn/Z06Sz9yvELxuIWcNwV0EdvI
-         JRc9fLSgjC4gA==
+        b=RkwfQ1p7eP37UIioJpW3sewG3Mo3g0kA1g1ZJF47CBrskldzUcovlgVDH3KRnVFTq
+         mDNoGxo5kONQxa4lMRvjdlRKnzFot8N8Z5FuclBRiyfykEcPRa2eqLItZ5d4Q+nTcJ
+         LMpu75DcVjapxhRc2eYzngvztQ5yOgdBDa207uQTlJsoc4MbK6ZygTfOREQmOPTJOG
+         j3qoxHSX1RfnRbbzzc0/IR1p6KqjvL9O93cOVWvixYLsEiIWA6voL2DWj2AYs8B/SS
+         AqbjLOdkoKGyZp1F62AP9shzD5SM4q3glMBAUWMqvt1UFrtWE60Ilbijrt8xBSlsAX
+         zJU9e9LUyfBRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ulrich Hecht <uli+renesas@fpond.eu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 072/109] serial: sh-sci: fix break handling for sysrq
-Date:   Thu,  9 Sep 2021 07:54:29 -0400
-Message-Id: <20210909115507.147917-72-sashal@kernel.org>
+Cc:     Luke Hsiao <lukehsiao@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 073/109] tcp: enable data-less, empty-cookie SYN with TFO_SERVER_COOKIE_NOT_REQD
+Date:   Thu,  9 Sep 2021 07:54:30 -0400
+Message-Id: <20210909115507.147917-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -42,51 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulrich Hecht <uli+renesas@fpond.eu>
+From: Luke Hsiao <lukehsiao@google.com>
 
-[ Upstream commit 87b8061bad9bd4b549b2daf36ffbaa57be2789a2 ]
+[ Upstream commit e3faa49bcecdfcc80e94dd75709d6acb1a5d89f6 ]
 
-This fixes two issues that cause the sysrq sequence to be inadvertently
-aborted on SCIF serial consoles:
+Since the original TFO server code was implemented in commit
+168a8f58059a22feb9e9a2dcc1b8053dbbbc12ef ("tcp: TCP Fast Open Server -
+main code path") the TFO server code has supported the sysctl bit flag
+TFO_SERVER_COOKIE_NOT_REQD. Currently, when the TFO_SERVER_ENABLE and
+TFO_SERVER_COOKIE_NOT_REQD sysctl bit flags are set, a server connection
+will accept a SYN with N bytes of data (N > 0) that has no TFO cookie,
+create a new fast open connection, process the incoming data in the SYN,
+and make the connection ready for accepting. After accepting, the
+connection is ready for read()/recvmsg() to read the N bytes of data in
+the SYN, ready for write()/sendmsg() calls and data transmissions to
+transmit data.
 
-- a NUL character remains in the RX queue after a break has been detected,
-  which is then passed on to uart_handle_sysrq_char()
-- the break interrupt is handled twice on controllers with multiplexed ERI
-  and BRI interrupts
+This commit changes an edge case in this feature by changing this
+behavior to apply to (N >= 0) bytes of data in the SYN rather than only
+(N > 0) bytes of data in the SYN. Now, a server will accept a data-less
+SYN without a TFO cookie if TFO_SERVER_COOKIE_NOT_REQD is set.
 
-Signed-off-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Link: https://lore.kernel.org/r/20210816162201.28801-1-uli+renesas@fpond.eu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Caveat! While this enables a new kind of TFO (data-less empty-cookie
+SYN), some firewall rules setup may not work if they assume such packets
+are not legit TFOs and will filter them.
+
+Signed-off-by: Luke Hsiao <lukehsiao@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210816205105.2533289-1-luke.w.hsiao@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sh-sci.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/ipv4/tcp_fastopen.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
-index 97ee1fc1cd24..ecff9b208808 100644
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -1763,6 +1763,10 @@ static irqreturn_t sci_br_interrupt(int irq, void *ptr)
+diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
+index 8af4fefe371f..a5ec77a5ad6f 100644
+--- a/net/ipv4/tcp_fastopen.c
++++ b/net/ipv4/tcp_fastopen.c
+@@ -379,8 +379,7 @@ struct sock *tcp_try_fastopen(struct sock *sk, struct sk_buff *skb,
+ 		return NULL;
+ 	}
  
- 	/* Handle BREAKs */
- 	sci_handle_breaks(port);
-+
-+	/* drop invalid character received before break was detected */
-+	serial_port_in(port, SCxRDR);
-+
- 	sci_clear_SCxSR(port, SCxSR_BREAK_CLEAR(port));
+-	if (syn_data &&
+-	    tcp_fastopen_no_cookie(sk, dst, TFO_SERVER_COOKIE_NOT_REQD))
++	if (tcp_fastopen_no_cookie(sk, dst, TFO_SERVER_COOKIE_NOT_REQD))
+ 		goto fastopen;
  
- 	return IRQ_HANDLED;
-@@ -1842,7 +1846,8 @@ static irqreturn_t sci_mpxed_interrupt(int irq, void *ptr)
- 		ret = sci_er_interrupt(irq, ptr);
- 
- 	/* Break Interrupt */
--	if ((ssr_status & SCxSR_BRK(port)) && err_enabled)
-+	if (s->irqs[SCIx_ERI_IRQ] != s->irqs[SCIx_BRI_IRQ] &&
-+	    (ssr_status & SCxSR_BRK(port)) && err_enabled)
- 		ret = sci_br_interrupt(irq, ptr);
- 
- 	/* Overrun Interrupt */
+ 	if (foc->len == 0) {
 -- 
 2.30.2
 
