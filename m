@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DAC84050F0
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 108FD4050E9
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347730AbhIIMcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:32:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34716 "EHLO mail.kernel.org"
+        id S1350255AbhIIMco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:32:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346871AbhIIM1N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:27:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F12E561356;
-        Thu,  9 Sep 2021 11:51:54 +0000 (UTC)
+        id S1353187AbhIIM1G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:27:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C3176135E;
+        Thu,  9 Sep 2021 11:51:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188315;
-        bh=YSGUJuDHSnZzOzXmBsKZOAT80LCOSLiqvtDEwYmOCJs=;
+        s=k20201202; t=1631188316;
+        bh=CprO/CsqZviOI+h8Tjvfuxh1ImMiZiWVKrMB/8yCSUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vBKNBlUR9tagxYEL7cc4Et5VkxuoKg0KP9fhYDhotX1cl/qKuBVWC3WZhi/meog6g
-         +nKhQk8WDxo+qhjvuwttgdXiMAV5De0ynyCopBGte9MF1w8Wl+k+B/bItqj1R5Mgq/
-         Z/JUDYenccjkbhJDNGmXR+VgvvUzHmBrTsinHt0UnpDGG7xVCXO1IfdTqWZ8k0mjBk
-         uw1J7aTCd2RCXedSDJtCkCalMDhLYWFudoKNu0vtVGxO168N4mRCh1pz745xyF/HKa
-         nbZVC2k1ymM8ykyw0EwTAfv+sHymM8QZMk53zQ7kXPwPtCxP1r/HJ6r0vmjJGmyzCy
-         BHklj+5wpNJ2g==
+        b=pLbbzfL1IkqPaGqX5kqd6Lxwv6Zs+I7N8MTHCEqWWDIKQDUdRH+z8cYG3YUfqBI+u
+         YtONofwrRdZo3sVOj26Nhuuue+/sZpeP3Jwd42htkzJx7MuZ3OgQEhQR0nO1EYfSpb
+         LbIsLtt3vZ4m7qfEJFHcEFNkTxmpAizDsCLFyTgRWlcTNe1a9R3g9NteLa8yJvUnjN
+         jmumJAUg8DSbbywkmh2WX5EkZQGx7rkqn+et28tOdMUf69YR+P16O7QV9wi5BK9ya3
+         uPA2QRlMSJUTeRUSerX2o+v3NZ0xvdTaqixMxb4Op+SWgpUhEdvWCLiljqVye+kkfu
+         3MvyUhLBmW8KQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>,
+Cc:     Laurentiu Tudor <laurentiu.tudor@nxp.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 029/176] tty: serial: jsm: hold port lock when reporting modem line changes
-Date:   Thu,  9 Sep 2021 07:48:51 -0400
-Message-Id: <20210909115118.146181-29-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 030/176] bus: fsl-mc: fix mmio base address for child DPRCs
+Date:   Thu,  9 Sep 2021 07:48:52 -0400
+Message-Id: <20210909115118.146181-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -42,84 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-[ Upstream commit 240e126c28df084222f0b661321e8e3ecb0d232e ]
+[ Upstream commit 8990f96a012f42543005b07d9e482694192e9309 ]
 
-uart_handle_dcd_change() requires a port lock to be held and will emit a
-warning when lockdep is enabled.
+Some versions of the MC firmware wrongly report 0 for register base
+address of the DPMCP associated with child DPRC objects thus rendering
+them unusable. This is particularly troublesome in ACPI boot scenarios
+where the legacy way of extracting this base address from the device
+tree does not apply.
+Given that DPMCPs share the same base address, workaround this by using
+the base address extracted from the root DPRC container.
 
-Held corresponding lock to fix the following warnings.
-
-[  132.528648] WARNING: CPU: 5 PID: 11600 at drivers/tty/serial/serial_core.c:3046 uart_handle_dcd_change+0xf4/0x120
-[  132.530482] Modules linked in:
-[  132.531050] CPU: 5 PID: 11600 Comm: jsm Not tainted 5.14.0-rc1-00003-g7fef2edf7cc7-dirty #31
-[  132.535268] RIP: 0010:uart_handle_dcd_change+0xf4/0x120
-[  132.557100] Call Trace:
-[  132.557562]  ? __free_pages+0x83/0xb0
-[  132.558213]  neo_parse_modem+0x156/0x220
-[  132.558897]  neo_param+0x399/0x840
-[  132.559495]  jsm_tty_open+0x12f/0x2d0
-[  132.560131]  uart_startup.part.18+0x153/0x340
-[  132.560888]  ? lock_is_held_type+0xe9/0x140
-[  132.561660]  uart_port_activate+0x7f/0xe0
-[  132.562351]  ? uart_startup.part.18+0x340/0x340
-[  132.563003]  tty_port_open+0x8d/0xf0
-[  132.563523]  ? uart_set_options+0x1e0/0x1e0
-[  132.564125]  uart_open+0x24/0x40
-[  132.564604]  tty_open+0x15c/0x630
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1626242003-3809-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Link: https://lore.kernel.org/r/20210715140718.8513-8-laurentiu.tudor@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/jsm/jsm_neo.c | 2 ++
- drivers/tty/serial/jsm/jsm_tty.c | 3 +++
- 2 files changed, 5 insertions(+)
+ drivers/bus/fsl-mc/fsl-mc-bus.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/jsm/jsm_neo.c b/drivers/tty/serial/jsm/jsm_neo.c
-index bf0e2a4cb0ce..c6f927a76c3b 100644
---- a/drivers/tty/serial/jsm/jsm_neo.c
-+++ b/drivers/tty/serial/jsm/jsm_neo.c
-@@ -815,7 +815,9 @@ static void neo_parse_isr(struct jsm_board *brd, u32 port)
- 		/* Parse any modem signal changes */
- 		jsm_dbg(INTR, &ch->ch_bd->pci_dev,
- 			"MOD_STAT: sending to parse_modem_sigs\n");
-+		spin_lock_irqsave(&ch->uart_port.lock, lock_flags);
- 		neo_parse_modem(ch, readb(&ch->ch_neo_uart->msr));
-+		spin_unlock_irqrestore(&ch->uart_port.lock, lock_flags);
- 	}
- }
+diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
+index 806766b1b45f..e329cdd7156c 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-bus.c
++++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
+@@ -64,6 +64,8 @@ struct fsl_mc_addr_translation_range {
+ #define MC_FAPR_PL	BIT(18)
+ #define MC_FAPR_BMT	BIT(17)
  
-diff --git a/drivers/tty/serial/jsm/jsm_tty.c b/drivers/tty/serial/jsm/jsm_tty.c
-index 689774c073ca..8438454ca653 100644
---- a/drivers/tty/serial/jsm/jsm_tty.c
-+++ b/drivers/tty/serial/jsm/jsm_tty.c
-@@ -187,6 +187,7 @@ static void jsm_tty_break(struct uart_port *port, int break_state)
++static phys_addr_t mc_portal_base_phys_addr;
++
+ /**
+  * fsl_mc_bus_match - device to driver matching callback
+  * @dev: the fsl-mc device to match against
+@@ -597,14 +599,30 @@ static int fsl_mc_device_get_mmio_regions(struct fsl_mc_device *mc_dev,
+ 		 * If base address is in the region_desc use it otherwise
+ 		 * revert to old mechanism
+ 		 */
+-		if (region_desc.base_address)
++		if (region_desc.base_address) {
+ 			regions[i].start = region_desc.base_address +
+ 						region_desc.base_offset;
+-		else
++		} else {
+ 			error = translate_mc_addr(mc_dev, mc_region_type,
+ 					  region_desc.base_offset,
+ 					  &regions[i].start);
  
- static int jsm_tty_open(struct uart_port *port)
- {
-+	unsigned long lock_flags;
- 	struct jsm_board *brd;
- 	struct jsm_channel *channel =
- 		container_of(port, struct jsm_channel, uart_port);
-@@ -240,6 +241,7 @@ static int jsm_tty_open(struct uart_port *port)
- 	channel->ch_cached_lsr = 0;
- 	channel->ch_stops_sent = 0;
- 
-+	spin_lock_irqsave(&port->lock, lock_flags);
- 	termios = &port->state->port.tty->termios;
- 	channel->ch_c_cflag	= termios->c_cflag;
- 	channel->ch_c_iflag	= termios->c_iflag;
-@@ -259,6 +261,7 @@ static int jsm_tty_open(struct uart_port *port)
- 	jsm_carrier(channel);
- 
- 	channel->ch_open_count++;
-+	spin_unlock_irqrestore(&port->lock, lock_flags);
- 
- 	jsm_dbg(OPEN, &channel->ch_bd->pci_dev, "finish\n");
- 	return 0;
++			/*
++			 * Some versions of the MC firmware wrongly report
++			 * 0 for register base address of the DPMCP associated
++			 * with child DPRC objects thus rendering them unusable.
++			 * This is particularly troublesome in ACPI boot
++			 * scenarios where the legacy way of extracting this
++			 * base address from the device tree does not apply.
++			 * Given that DPMCPs share the same base address,
++			 * workaround this by using the base address extracted
++			 * from the root DPRC container.
++			 */
++			if (is_fsl_mc_bus_dprc(mc_dev) &&
++			    regions[i].start == region_desc.base_offset)
++				regions[i].start += mc_portal_base_phys_addr;
++		}
++
+ 		if (error < 0) {
+ 			dev_err(parent_dev,
+ 				"Invalid MC offset: %#x (for %s.%d\'s region %d)\n",
+@@ -996,6 +1014,8 @@ static int fsl_mc_bus_probe(struct platform_device *pdev)
+ 	plat_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	mc_portal_phys_addr = plat_res->start;
+ 	mc_portal_size = resource_size(plat_res);
++	mc_portal_base_phys_addr = mc_portal_phys_addr & ~0x3ffffff;
++
+ 	error = fsl_create_mc_io(&pdev->dev, mc_portal_phys_addr,
+ 				 mc_portal_size, NULL,
+ 				 FSL_MC_IO_ATOMIC_CONTEXT_PORTAL, &mc_io);
 -- 
 2.30.2
 
