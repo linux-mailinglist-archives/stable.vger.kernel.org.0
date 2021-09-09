@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD71140431C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 03:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 996EB40431E
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 03:46:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349249AbhIIBri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 21:47:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39604 "EHLO mail.kernel.org"
+        id S1349126AbhIIBrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 21:47:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348921AbhIIBrh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Sep 2021 21:47:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75BFF60187;
-        Thu,  9 Sep 2021 01:46:28 +0000 (UTC)
+        id S1349279AbhIIBrj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Sep 2021 21:47:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACF166117A;
+        Thu,  9 Sep 2021 01:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631151989;
-        bh=Cf5iJfPCfnqcbMi2dOm33gudUTASml1cZBfmccBtGLM=;
+        s=k20201202; t=1631151990;
+        bh=G8dpfV2PElFHwAWhg2+m5dwGxUJR7xrvlAx2BMa7kq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S98u4TOtY28UB8L4vBkae49h3dxhfLTjbeLPAnC1nRkU3S851RUG1jgagG37waExr
-         T52DI7a35Q6v2BhVgQcnQ24a9gr9bCcQgmFdIkJvKTVegCbGFGT4F4kYmrJZ+VDnH8
-         Ct5ifgvQe38redfMmjktzlGydA/hhBfLbCE6QRetJ0eUBZqqqiMkoTAhTDYoILMHNU
-         Xwa0UrtGp3ybjLLqZO0TMKcm17MGSJPysP1aaMk33B0oBGpKanvd16IyowI4RLFsDJ
-         ACTYMWnPO6V2Npv8vYrGw+IGD+oVvnOOxzXoWLTwUhGN3bdXvfMktocVZ09jpLzMic
-         0b1J2WuLBOWBA==
+        b=cD7n9cqTgxASXcb4/vH/+95+HJoRHA9vxHLNkraX3NXC2Po8dxVAjH490YwiyjNDx
+         fo8tF21OJc82DpbqIeCVS0A3+YwSRxmjSCQs8H7w+hAiAYn870vqrbwITYOh9TDXLJ
+         6T3PoUj27cX8a5p/OhC6KpE4XhzJCG2L2rJQtMbGwPZq0WRvafr4XsMsDHcHJTdBKd
+         MjbLDxR1wGI9MbMxr6EUX/W4d09FGfhjf7kkyULJfBxT4ptb0Y1LVCAfgBPmeQ6t1k
+         3jMp4h3QOQCZmiRGsLsgFpQe2d0RlKuHQ2mC0zF2CyQozYD9pVw6jcFxyMEkEEMveW
+         QfsrCCZ+AkNPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dom Cobley <popcornmix@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+Cc:     Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.14 004/252] drm/vc4: hdmi: Set HD_CTL_WHOLSMP and HD_CTL_CHALIGN_SET
-Date:   Wed,  8 Sep 2021 21:42:14 -0400
-Message-Id: <20210909014623.128976-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 005/252] drm/ttm: Fix multihop assert on eviction.
+Date:   Wed,  8 Sep 2021 21:42:15 -0400
+Message-Id: <20210909014623.128976-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909014623.128976-1-sashal@kernel.org>
 References: <20210909014623.128976-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,53 +44,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dom Cobley <popcornmix@gmail.com>
+From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
 
-[ Upstream commit 1698ecb218eb82587dbfc71a2e26ded66e5ecf59 ]
+[ Upstream commit 403797925768d9fa870f5b1ebcd20016b397083b ]
 
-Symptom is random switching of speakers when using multichannel.
+Problem:
+Under memory pressure when GTT domain is almost full multihop assert
+will come up when trying to evict LRU BO from VRAM to SYSTEM.
 
-Repeatedly running speakertest -c8 occasionally starts with
-channels jumbled. This is fixed with HD_CTL_WHOLSMP.
+Fix:
+Don't assert on multihop error in evict code but rather do a retry
+as we do in ttm_bo_move_buffer
 
-The other bit looks beneficial and apears harmless in testing so
-I'd suggest adding it too.
-
-Documentation says: HD_CTL_WHILSMP_SET
-Wait for whole sample. When this bit is set MAI transmit will start
-only when there is at least one whole sample available in the fifo.
-
-Documentation says: HD_CTL_CHALIGN_SET
-Channel Align When Overflow. This bit is used to realign the audio
-channels in case of an overflow.
-If this bit is set, after the detection of an overflow, equal
-amount of dummy words to the missing words will be written to fifo,
-filling up the broken sample and maintaining alignment.
-
-Signed-off-by: Dom Cobley <popcornmix@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210525132354.297468-7-maxime@cerno.tech
+Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210622162339.761651-6-andrey.grodzovsky@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/ttm/ttm_bo.c | 63 +++++++++++++++++++-----------------
+ 1 file changed, 34 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index c2876731ee2d..ad92dbb128b3 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -1372,7 +1372,9 @@ static int vc4_hdmi_audio_trigger(struct snd_pcm_substream *substream, int cmd,
- 		HDMI_WRITE(HDMI_MAI_CTL,
- 			   VC4_SET_FIELD(vc4_hdmi->audio.channels,
- 					 VC4_HD_MAI_CTL_CHNUM) |
--			   VC4_HD_MAI_CTL_ENABLE);
-+					 VC4_HD_MAI_CTL_WHOLSMP |
-+					 VC4_HD_MAI_CTL_CHALIGN |
-+					 VC4_HD_MAI_CTL_ENABLE);
- 		break;
- 	case SNDRV_PCM_TRIGGER_STOP:
- 		HDMI_WRITE(HDMI_MAI_CTL,
+diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
+index 8d7fd65ccced..32202385073a 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -488,6 +488,31 @@ void ttm_bo_unlock_delayed_workqueue(struct ttm_device *bdev, int resched)
+ }
+ EXPORT_SYMBOL(ttm_bo_unlock_delayed_workqueue);
+ 
++static int ttm_bo_bounce_temp_buffer(struct ttm_buffer_object *bo,
++				     struct ttm_resource **mem,
++				     struct ttm_operation_ctx *ctx,
++				     struct ttm_place *hop)
++{
++	struct ttm_placement hop_placement;
++	struct ttm_resource *hop_mem;
++	int ret;
++
++	hop_placement.num_placement = hop_placement.num_busy_placement = 1;
++	hop_placement.placement = hop_placement.busy_placement = hop;
++
++	/* find space in the bounce domain */
++	ret = ttm_bo_mem_space(bo, &hop_placement, &hop_mem, ctx);
++	if (ret)
++		return ret;
++	/* move to the bounce domain */
++	ret = ttm_bo_handle_move_mem(bo, hop_mem, false, ctx, NULL);
++	if (ret) {
++		ttm_resource_free(bo, &hop_mem);
++		return ret;
++	}
++	return 0;
++}
++
+ static int ttm_bo_evict(struct ttm_buffer_object *bo,
+ 			struct ttm_operation_ctx *ctx)
+ {
+@@ -527,12 +552,17 @@ static int ttm_bo_evict(struct ttm_buffer_object *bo,
+ 		goto out;
+ 	}
+ 
++bounce:
+ 	ret = ttm_bo_handle_move_mem(bo, evict_mem, true, ctx, &hop);
+-	if (unlikely(ret)) {
+-		WARN(ret == -EMULTIHOP, "Unexpected multihop in eviction - likely driver bug\n");
+-		if (ret != -ERESTARTSYS)
++	if (ret == -EMULTIHOP) {
++		ret = ttm_bo_bounce_temp_buffer(bo, &evict_mem, ctx, &hop);
++		if (ret) {
+ 			pr_err("Buffer eviction failed\n");
+-		ttm_resource_free(bo, &evict_mem);
++			ttm_resource_free(bo, &evict_mem);
++			goto out;
++		}
++		/* try and move to final place now. */
++		goto bounce;
+ 	}
+ out:
+ 	return ret;
+@@ -847,31 +877,6 @@ int ttm_bo_mem_space(struct ttm_buffer_object *bo,
+ }
+ EXPORT_SYMBOL(ttm_bo_mem_space);
+ 
+-static int ttm_bo_bounce_temp_buffer(struct ttm_buffer_object *bo,
+-				     struct ttm_resource **mem,
+-				     struct ttm_operation_ctx *ctx,
+-				     struct ttm_place *hop)
+-{
+-	struct ttm_placement hop_placement;
+-	struct ttm_resource *hop_mem;
+-	int ret;
+-
+-	hop_placement.num_placement = hop_placement.num_busy_placement = 1;
+-	hop_placement.placement = hop_placement.busy_placement = hop;
+-
+-	/* find space in the bounce domain */
+-	ret = ttm_bo_mem_space(bo, &hop_placement, &hop_mem, ctx);
+-	if (ret)
+-		return ret;
+-	/* move to the bounce domain */
+-	ret = ttm_bo_handle_move_mem(bo, hop_mem, false, ctx, NULL);
+-	if (ret) {
+-		ttm_resource_free(bo, &hop_mem);
+-		return ret;
+-	}
+-	return 0;
+-}
+-
+ static int ttm_bo_move_buffer(struct ttm_buffer_object *bo,
+ 			      struct ttm_placement *placement,
+ 			      struct ttm_operation_ctx *ctx)
 -- 
 2.30.2
 
