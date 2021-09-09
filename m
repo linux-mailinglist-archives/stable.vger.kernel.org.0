@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4EA040432F
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 03:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20189404330
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 03:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349279AbhIIBro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Sep 2021 21:47:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39686 "EHLO mail.kernel.org"
+        id S1349402AbhIIBrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Sep 2021 21:47:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349304AbhIIBrk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 8 Sep 2021 21:47:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFDCB61167;
-        Thu,  9 Sep 2021 01:46:30 +0000 (UTC)
+        id S1349375AbhIIBrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 8 Sep 2021 21:47:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 236F7611CC;
+        Thu,  9 Sep 2021 01:46:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631151991;
-        bh=h7WoPbhk4P1tddmUKXsOWaZI7zGyW1QsZZxFbB4hm/E=;
+        s=k20201202; t=1631151993;
+        bh=JMuvoOMn0WXbrk8IZIC+V8mXCbi5cEU69e4oQiPf2E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gDfTdktCPhFNy4SSh9nE6a7SCjhZLyZNYV6hQWuReZus7e5TWfmC39YMEWyq9bKw5
-         meL/9EnJORqF0rU1wIcCG9waH0rvfejnnQRSiRH4BKoE/G+QtxSEynX5iuiSV0e3p6
-         OWyoCzH7e+0rTJfno8hsmVREplRABX6/RQrRiBgUPsl6GDxqIGeQJbODm6rf2gtoIO
-         NzfYPYj0eZVDG+bpWvKowzkYwBbnC9Mh3XlK3k3BAe/MCrhxg3EC/lt9FWtQoWreqi
-         LsXHpIPZI7tE0a11aVNg9Ntg7Gyckp6q3dmI34lW80kFJxVtgcojyp7Kp+8QQ+lVob
-         6HlCyg+z1KeIA==
+        b=Jc5kNw5N8oJJDTATfbCHDxQ1KkWP4fq0Y5/x4VDcum74qZ7MBzcXuStEGTnndhx4Y
+         sqrHpmQm68ZmALf3PyyQUOl4cjQVJX8kiddF/8avHLVFidJGYSA/O1CYhf9FW1W5yB
+         DxpKEL2mphjhEqSQGnWIRhGtCSSVBqIn+43yHDNxQPxrixZZxL44QLCQEvDbwqD/zL
+         LReLjMBKTBuweYdZrTvAPvr2e9M9wW7aRsiUsOGs1zL7lzchTlJx37P+uR7TFyTby3
+         PrHclCLuwKTlmH1yr2YLsSuyIyKO1maG5g3ml4hM2sZCkhQvsFMTJGldPJelY2yeZ2
+         GTRljqXHXXydQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Tomi Valkeinen <tomba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
+Cc:     Luben Tuikov <luben.tuikov@amd.com>,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        Alexander Deucher <Alexander.Deucher@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.14 006/252] drm/omap: Follow implicit fencing in prepare_fb
-Date:   Wed,  8 Sep 2021 21:42:16 -0400
-Message-Id: <20210909014623.128976-6-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 007/252] drm/amdgpu: Fix amdgpu_ras_eeprom_init()
+Date:   Wed,  8 Sep 2021 21:42:17 -0400
+Message-Id: <20210909014623.128976-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909014623.128976-1-sashal@kernel.org>
 References: <20210909014623.128976-1-sashal@kernel.org>
@@ -45,43 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Luben Tuikov <luben.tuikov@amd.com>
 
-[ Upstream commit 942d8344d5f14b9ea2ae43756f319b9f44216ba4 ]
+[ Upstream commit dce4400e6516d18313d23de45b5be8a18980b00e ]
 
-I guess no one ever tried running omap together with lima or panfrost,
-not even sure that's possible. Anyway for consistency, fix this.
+No need to account for the 2 bytes of EEPROM
+address--this is now well abstracted away by
+the fixes the the lower layers.
 
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Tomi Valkeinen <tomba@kernel.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210622165511.3169559-12-daniel.vetter@ffwll.ch
+Cc: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Cc: Alexander Deucher <Alexander.Deucher@amd.com>
+Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
+Acked-by: Alexander Deucher <Alexander.Deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/omap_plane.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/omapdrm/omap_plane.c b/drivers/gpu/drm/omapdrm/omap_plane.c
-index 801da917507d..512af976b7e9 100644
---- a/drivers/gpu/drm/omapdrm/omap_plane.c
-+++ b/drivers/gpu/drm/omapdrm/omap_plane.c
-@@ -6,6 +6,7 @@
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
+index 38222de921d1..8dd151c9e459 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
+@@ -325,7 +325,7 @@ int amdgpu_ras_eeprom_init(struct amdgpu_ras_eeprom_control *control,
+ 		return ret;
+ 	}
  
- #include <drm/drm_atomic.h>
- #include <drm/drm_atomic_helper.h>
-+#include <drm/drm_gem_atomic_helper.h>
- #include <drm/drm_plane_helper.h>
+-	__decode_table_header_from_buff(hdr, &buff[2]);
++	__decode_table_header_from_buff(hdr, buff);
  
- #include "omap_dmm_tiler.h"
-@@ -29,6 +30,8 @@ static int omap_plane_prepare_fb(struct drm_plane *plane,
- 	if (!new_state->fb)
- 		return 0;
- 
-+	drm_gem_plane_helper_prepare_fb(plane, new_state);
-+
- 	return omap_framebuffer_pin(new_state->fb);
- }
- 
+ 	if (hdr->header == EEPROM_TABLE_HDR_VAL) {
+ 		control->num_recs = (hdr->tbl_size - EEPROM_TABLE_HEADER_SIZE) /
 -- 
 2.30.2
 
