@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1475404FC8
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:22:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACE85404FD2
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:22:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348917AbhIIMWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:22:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57712 "EHLO mail.kernel.org"
+        id S1353300AbhIIMWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:22:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353056AbhIIMUL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353054AbhIIMUL (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:20:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97D1461AAA;
-        Thu,  9 Sep 2021 11:50:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E302C61ABC;
+        Thu,  9 Sep 2021 11:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188226;
-        bh=9foygNpkQDwOr2qCWW90C35W1j1hFTBdaVPZhzHL2Es=;
+        s=k20201202; t=1631188227;
+        bh=C56UGu/jYrwM6Jfi/51pH9IQNP0Jn9eLUHEN3yNrW1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d4FZqy1OdHmARXNpZu+RInk2Es2SzzEo82KQB+Q4ple6Wq7zLNS1w2onvWZatwTJQ
-         PXWpyAKztWcRBCqYT1t0PX2l22LjVzwB94y5jYdtmocbQj89v0DBArVrJT2cHd7wgc
-         p4h6SlRbUbBe0q1k5sd74F73UqGl579jA+J3YIh613uJ0JXxwOTuNh8HJuVYqt2slG
-         pWvsG5kbIUEujIcgIDKqSlg+MuXXEGQrHVokPmGH4zC2OpPEm3/8j85PAL3eQqWPDA
-         zf50ROAD+qTV08cwGL3gnIdWcEhVgKnnmDP5nUBfSN/TN2D7HGmNVA2JkOzur3mGo5
-         5ZFpoPMDKGiqg==
+        b=E8hHM0F0xFKFdQ6S3seSHZFM9VlrSvFZ+gHD68GAhipl0xSxEHDh8f78i3fzyeuCH
+         P0pnxRYb4fp3uHhYwp2Q+QF8m6X5Ih6UNIQsqrNpjYl7oQ8+i/GpbemkS0V6+4Duvf
+         HEb8SWkOtUbk52HhcRB0nPNHHXDRpl9+OSObd67vLbm8K2tBF2h2AH+C0Y4GhxZjTj
+         I39ZaVhPQRq4JiwA73KoleQIw7MaB1ecFKiCQ88jmtpDs2TUk5ubx76w4TlGEncuxk
+         gm6SKHin2A+1zcaHS4LeoIX2jzTXolAmjrM0NWITcrxWaprjmi/M5W/mC4T2oHR0MU
+         n0qHB++P2vBHw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Lukasz Majczak <lma@semihalf.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.13 179/219] ASoC: Intel: Skylake: Fix passing loadable flag for module
-Date:   Thu,  9 Sep 2021 07:45:55 -0400
-Message-Id: <20210909114635.143983-179-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>, Rob Herring <robh@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 180/219] of: Don't allow __of_attached_node_sysfs() without CONFIG_SYSFS
+Date:   Thu,  9 Sep 2021 07:45:56 -0400
+Message-Id: <20210909114635.143983-180-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -44,78 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit c5ed9c547cba1dc1238c6e8a0c290fd62ee6e127 ]
+[ Upstream commit 6211e9cb2f8faf7faae0b6caf844bfe9527cc607 ]
 
-skl_get_module_info() tries to set mconfig->module->loadable before
-mconfig->module has been assigned thus flag was always set to false
-and driver did not try to load module binaries.
+Trying to boot without SYSFS, but with OF_DYNAMIC quickly
+results in a crash:
 
-Signed-off-by: Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Tested-by: Lukasz Majczak <lma@semihalf.com>
-Link: https://lore.kernel.org/r/20210818075742.1515155-7-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[    0.088460] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000070
+[...]
+[    0.103927] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.14.0-rc3 #4179
+[    0.105810] Hardware name: linux,dummy-virt (DT)
+[    0.107147] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
+[    0.108876] pc : kernfs_find_and_get_ns+0x3c/0x7c
+[    0.110244] lr : kernfs_find_and_get_ns+0x3c/0x7c
+[...]
+[    0.134087] Call trace:
+[    0.134800]  kernfs_find_and_get_ns+0x3c/0x7c
+[    0.136054]  safe_name+0x4c/0xd0
+[    0.136994]  __of_attach_node_sysfs+0xf8/0x124
+[    0.138287]  of_core_init+0x90/0xfc
+[    0.139296]  driver_init+0x30/0x4c
+[    0.140283]  kernel_init_freeable+0x160/0x1b8
+[    0.141543]  kernel_init+0x30/0x140
+[    0.142561]  ret_from_fork+0x10/0x18
+
+While not having sysfs isn't a very common option these days,
+it is still expected that such configuration would work.
+
+Paper over it by bailing out from __of_attach_node_sysfs() if
+CONFIG_SYSFS isn't enabled.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210820144722.169226-1-maz@kernel.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/skylake/skl-pcm.c | 25 +++++++++----------------
- 1 file changed, 9 insertions(+), 16 deletions(-)
+ drivers/of/kobj.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/skylake/skl-pcm.c b/sound/soc/intel/skylake/skl-pcm.c
-index b1ca64d2f7ea..031d5dc7e660 100644
---- a/sound/soc/intel/skylake/skl-pcm.c
-+++ b/sound/soc/intel/skylake/skl-pcm.c
-@@ -1317,21 +1317,6 @@ static int skl_get_module_info(struct skl_dev *skl,
- 		return -EIO;
- 	}
+diff --git a/drivers/of/kobj.c b/drivers/of/kobj.c
+index a32e60b024b8..6675b5e56960 100644
+--- a/drivers/of/kobj.c
++++ b/drivers/of/kobj.c
+@@ -119,7 +119,7 @@ int __of_attach_node_sysfs(struct device_node *np)
+ 	struct property *pp;
+ 	int rc;
  
--	list_for_each_entry(module, &skl->uuid_list, list) {
--		if (guid_equal(uuid_mod, &module->uuid)) {
--			mconfig->id.module_id = module->id;
--			if (mconfig->module)
--				mconfig->module->loadable = module->is_loadable;
--			ret = 0;
--			break;
--		}
--	}
--
--	if (ret)
--		return ret;
--
--	uuid_mod = &module->uuid;
--	ret = -EIO;
- 	for (i = 0; i < skl->nr_modules; i++) {
- 		skl_module = skl->modules[i];
- 		uuid_tplg = &skl_module->uuid;
-@@ -1341,10 +1326,18 @@ static int skl_get_module_info(struct skl_dev *skl,
- 			break;
- 		}
- 	}
-+
- 	if (skl->nr_modules && ret)
- 		return ret;
+-	if (!of_kset)
++	if (!IS_ENABLED(CONFIG_SYSFS) || !of_kset)
+ 		return 0;
  
-+	ret = -EIO;
- 	list_for_each_entry(module, &skl->uuid_list, list) {
-+		if (guid_equal(uuid_mod, &module->uuid)) {
-+			mconfig->id.module_id = module->id;
-+			mconfig->module->loadable = module->is_loadable;
-+			ret = 0;
-+		}
-+
- 		for (i = 0; i < MAX_IN_QUEUE; i++) {
- 			pin_id = &mconfig->m_in_pin[i].id;
- 			if (guid_equal(&pin_id->mod_uuid, &module->uuid))
-@@ -1358,7 +1351,7 @@ static int skl_get_module_info(struct skl_dev *skl,
- 		}
- 	}
- 
--	return 0;
-+	return ret;
- }
- 
- static int skl_populate_modules(struct skl_dev *skl)
+ 	np->kobj.kset = of_kset;
 -- 
 2.30.2
 
