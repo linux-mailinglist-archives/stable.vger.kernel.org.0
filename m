@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9966404974
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:41:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D36C404975
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236336AbhIILma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:42:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45620 "EHLO mail.kernel.org"
+        id S235448AbhIILmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:42:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236019AbhIILmX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:42:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F12D611C1;
-        Thu,  9 Sep 2021 11:41:13 +0000 (UTC)
+        id S235919AbhIILmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:42:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38B1E611AD;
+        Thu,  9 Sep 2021 11:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187673;
-        bh=G8dpfV2PElFHwAWhg2+m5dwGxUJR7xrvlAx2BMa7kq0=;
+        s=k20201202; t=1631187675;
+        bh=h7WoPbhk4P1tddmUKXsOWaZI7zGyW1QsZZxFbB4hm/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RIJYWQEKm4QZ+xteS9cudH95WdP7Lpcueh1XGSYJzqvMGRagkQnNOyrZwRXw5+Zma
-         bGVtwuHxiAlfFVcBeXWqxh/uj5waAttnpBnCe0z66x5xhMFvnmsaYJ3RtksfvKk1p3
-         OMFLCNRSxh2WzB+2DGPySitSxOnbWxwDZvBPGgMaojzUu+WLc/ZJXjdi9mDXMIqhmC
-         dI9HsWxMlv/Pdl7HgU1EU2eU3TpA//QySJvO3QFe6vG0bC8Ej3/Uwh/eGK90sccnji
-         xTaSwBY+YOKElCD+QyirPLfFSGKDslxoEgmKi0Z7WKjWE+WHqtmunzWtPfm+2vTOzs
-         YIhrD8leS3hVQ==
+        b=gnftX7RVztAoncKgTlFHIQHUNienSlmll9W5Q4TDSUMffPezKBykcWoOZchjmfldy
+         84TQyHGEUBS2/1tMxKxoVlME6E+FLIv1jI4GoH6j5VXOE8gVhAqp0BhKYP7a6lZDnm
+         bMdaziE6/zc7fS1b4kv5tko/SL8sLdlSpwkWZtKGny9XNY2nqkg5YciObfGTxaJ0bW
+         vu5d4bMv7Iu5tz9e+t+bu9e1HBuAV/LjiHk7pdKwfJGPhxXTUinLkcpJkS/cEuKGw/
+         jjJIeHBa5Nn5M0ORMwcArZiKMiszzKjSdR2Bcs6DE9DoRi3aaFzPX1NeUJzF4YWh+/
+         SRoCXC7z9RkxA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Tomi Valkeinen <tomba@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.14 005/252] drm/ttm: Fix multihop assert on eviction.
-Date:   Thu,  9 Sep 2021 07:36:59 -0400
-Message-Id: <20210909114106.141462-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 006/252] drm/omap: Follow implicit fencing in prepare_fb
+Date:   Thu,  9 Sep 2021 07:37:00 -0400
+Message-Id: <20210909114106.141462-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,116 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-[ Upstream commit 403797925768d9fa870f5b1ebcd20016b397083b ]
+[ Upstream commit 942d8344d5f14b9ea2ae43756f319b9f44216ba4 ]
 
-Problem:
-Under memory pressure when GTT domain is almost full multihop assert
-will come up when trying to evict LRU BO from VRAM to SYSTEM.
+I guess no one ever tried running omap together with lima or panfrost,
+not even sure that's possible. Anyway for consistency, fix this.
 
-Fix:
-Don't assert on multihop error in evict code but rather do a retry
-as we do in ttm_bo_move_buffer
-
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210622162339.761651-6-andrey.grodzovsky@amd.com
+Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Tomi Valkeinen <tomba@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210622165511.3169559-12-daniel.vetter@ffwll.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/ttm/ttm_bo.c | 63 +++++++++++++++++++-----------------
- 1 file changed, 34 insertions(+), 29 deletions(-)
+ drivers/gpu/drm/omapdrm/omap_plane.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
-index 8d7fd65ccced..32202385073a 100644
---- a/drivers/gpu/drm/ttm/ttm_bo.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo.c
-@@ -488,6 +488,31 @@ void ttm_bo_unlock_delayed_workqueue(struct ttm_device *bdev, int resched)
+diff --git a/drivers/gpu/drm/omapdrm/omap_plane.c b/drivers/gpu/drm/omapdrm/omap_plane.c
+index 801da917507d..512af976b7e9 100644
+--- a/drivers/gpu/drm/omapdrm/omap_plane.c
++++ b/drivers/gpu/drm/omapdrm/omap_plane.c
+@@ -6,6 +6,7 @@
+ 
+ #include <drm/drm_atomic.h>
+ #include <drm/drm_atomic_helper.h>
++#include <drm/drm_gem_atomic_helper.h>
+ #include <drm/drm_plane_helper.h>
+ 
+ #include "omap_dmm_tiler.h"
+@@ -29,6 +30,8 @@ static int omap_plane_prepare_fb(struct drm_plane *plane,
+ 	if (!new_state->fb)
+ 		return 0;
+ 
++	drm_gem_plane_helper_prepare_fb(plane, new_state);
++
+ 	return omap_framebuffer_pin(new_state->fb);
  }
- EXPORT_SYMBOL(ttm_bo_unlock_delayed_workqueue);
  
-+static int ttm_bo_bounce_temp_buffer(struct ttm_buffer_object *bo,
-+				     struct ttm_resource **mem,
-+				     struct ttm_operation_ctx *ctx,
-+				     struct ttm_place *hop)
-+{
-+	struct ttm_placement hop_placement;
-+	struct ttm_resource *hop_mem;
-+	int ret;
-+
-+	hop_placement.num_placement = hop_placement.num_busy_placement = 1;
-+	hop_placement.placement = hop_placement.busy_placement = hop;
-+
-+	/* find space in the bounce domain */
-+	ret = ttm_bo_mem_space(bo, &hop_placement, &hop_mem, ctx);
-+	if (ret)
-+		return ret;
-+	/* move to the bounce domain */
-+	ret = ttm_bo_handle_move_mem(bo, hop_mem, false, ctx, NULL);
-+	if (ret) {
-+		ttm_resource_free(bo, &hop_mem);
-+		return ret;
-+	}
-+	return 0;
-+}
-+
- static int ttm_bo_evict(struct ttm_buffer_object *bo,
- 			struct ttm_operation_ctx *ctx)
- {
-@@ -527,12 +552,17 @@ static int ttm_bo_evict(struct ttm_buffer_object *bo,
- 		goto out;
- 	}
- 
-+bounce:
- 	ret = ttm_bo_handle_move_mem(bo, evict_mem, true, ctx, &hop);
--	if (unlikely(ret)) {
--		WARN(ret == -EMULTIHOP, "Unexpected multihop in eviction - likely driver bug\n");
--		if (ret != -ERESTARTSYS)
-+	if (ret == -EMULTIHOP) {
-+		ret = ttm_bo_bounce_temp_buffer(bo, &evict_mem, ctx, &hop);
-+		if (ret) {
- 			pr_err("Buffer eviction failed\n");
--		ttm_resource_free(bo, &evict_mem);
-+			ttm_resource_free(bo, &evict_mem);
-+			goto out;
-+		}
-+		/* try and move to final place now. */
-+		goto bounce;
- 	}
- out:
- 	return ret;
-@@ -847,31 +877,6 @@ int ttm_bo_mem_space(struct ttm_buffer_object *bo,
- }
- EXPORT_SYMBOL(ttm_bo_mem_space);
- 
--static int ttm_bo_bounce_temp_buffer(struct ttm_buffer_object *bo,
--				     struct ttm_resource **mem,
--				     struct ttm_operation_ctx *ctx,
--				     struct ttm_place *hop)
--{
--	struct ttm_placement hop_placement;
--	struct ttm_resource *hop_mem;
--	int ret;
--
--	hop_placement.num_placement = hop_placement.num_busy_placement = 1;
--	hop_placement.placement = hop_placement.busy_placement = hop;
--
--	/* find space in the bounce domain */
--	ret = ttm_bo_mem_space(bo, &hop_placement, &hop_mem, ctx);
--	if (ret)
--		return ret;
--	/* move to the bounce domain */
--	ret = ttm_bo_handle_move_mem(bo, hop_mem, false, ctx, NULL);
--	if (ret) {
--		ttm_resource_free(bo, &hop_mem);
--		return ret;
--	}
--	return 0;
--}
--
- static int ttm_bo_move_buffer(struct ttm_buffer_object *bo,
- 			      struct ttm_placement *placement,
- 			      struct ttm_operation_ctx *ctx)
 -- 
 2.30.2
 
