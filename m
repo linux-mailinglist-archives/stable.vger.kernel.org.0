@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15BAE405528
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8449405526
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:32:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355875AbhIINIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:08:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43480 "EHLO mail.kernel.org"
+        id S1355831AbhIINIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:08:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355398AbhIINDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 09:03:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BA946329C;
-        Thu,  9 Sep 2021 11:59:50 +0000 (UTC)
+        id S1355762AbhIINDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 09:03:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D2E063291;
+        Thu,  9 Sep 2021 11:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188791;
-        bh=GRhJGOE30nH8bfCQst7rI7i6KlEzDKNJgdHyLz+qXcc=;
+        s=k20201202; t=1631188792;
+        bh=xhdoKSDHXdB+lWBA6Jjeu+jRei9dyhtrZCbnqD4y+DE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YjI1kk8/vnpazE1FdIi2n4kIDCrBTUkTnyarez3hihIUuoMnC4NLCBYqae/r46l5H
-         yHNEx5lJFrHvii35jq+vtiKuV+zT5gk/WCE1yLb0vgGxdsJBlCk8flchAzEV9oKBz8
-         cw3SWBmtyGqu0c61jeeFm4Qx0JNvF0+cgNiT2JsrLYJ7vqI7Pl5vZFScX/Y1cunuYw
-         tKLCLeB2iKdYVlU1TP07ZiI5/EmWoW3CgrMqKaiMIzoT1Mc1r/AoVFhhWYvEYBZB1+
-         Qe14h3hqt1Xk9peDh3h3G88WJlKrgwtop+cf2srHZ43s6CfR2HowgsrzGWhf6GdAZm
-         YPGV9hxuTm1cw==
+        b=pXCD4QS62lbDz+XxWp7ineUv3KNg9gumyTFiCJvBUelvpFX51J180ofTLlL2s8iwl
+         SpVcrTkjcsrvSOliHFyHRqrBBzzod0q79K/V+ZKQC7bIdq0gPDA9sjO8SUkEseShLP
+         OgGNf0FfpunkcRwhdE15zAQUbeSdTfetnTBTke41Z6wEPom5eACwLwpHxdZmnuf/kP
+         2Z3G2QmiDIUPTp96Xy8mJGl5vrKuqAZEMOtxA3CmO2Dj3KrIXIrgwP3hzKc1IgUMJM
+         N5fMumlH4QLDwyAYxbYdzI6GG2tl86NEqEFiWn9Qw/Zslm8vYWy5aT97dpCWzhUO/N
+         7PJrye+EBa4aA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-staging@lists.linux.dev, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 40/59] staging: rts5208: Fix get_ms_information() heap buffer size
-Date:   Thu,  9 Sep 2021 07:58:41 -0400
-Message-Id: <20210909115900.149795-40-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.14 41/59] gfs2: Don't call dlm after protocol is unmounted
+Date:   Thu,  9 Sep 2021 07:58:42 -0400
+Message-Id: <20210909115900.149795-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115900.149795-1-sashal@kernel.org>
 References: <20210909115900.149795-1-sashal@kernel.org>
@@ -42,82 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit cbe34165cc1b7d1110b268ba8b9f30843c941639 ]
+[ Upstream commit d1340f80f0b8066321b499a376780da00560e857 ]
 
-Fix buf allocation size (it needs to be 2 bytes larger). Found when
-__alloc_size() annotations were added to kmalloc() interfaces.
+In the gfs2 withdraw sequence, the dlm protocol is unmounted with a call
+to lm_unmount. After a withdraw, users are allowed to unmount the
+withdrawn file system. But at that point we may still have glocks left
+over that we need to free via unmount's call to gfs2_gl_hash_clear.
+These glocks may have never been completed because of whatever problem
+caused the withdraw (IO errors or whatever).
 
-In file included from ./include/linux/string.h:253,
-                 from ./include/linux/bitmap.h:10,
-                 from ./include/linux/cpumask.h:12,
-                 from ./arch/x86/include/asm/paravirt.h:17,
-                 from ./arch/x86/include/asm/irqflags.h:63,
-                 from ./include/linux/irqflags.h:16,
-                 from ./include/linux/rcupdate.h:26,
-                 from ./include/linux/rculist.h:11,
-                 from ./include/linux/pid.h:5,
-                 from ./include/linux/sched.h:14,
-                 from ./include/linux/blkdev.h:5,
-                 from drivers/staging/rts5208/rtsx_scsi.c:12:
-In function 'get_ms_information',
-    inlined from 'ms_sp_cmnd' at drivers/staging/rts5208/rtsx_scsi.c:2877:12,
-    inlined from 'rtsx_scsi_handler' at drivers/staging/rts5208/rtsx_scsi.c:3247:12:
-./include/linux/fortify-string.h:54:29: warning: '__builtin_memcpy' forming offset [106, 107] is out
- of the bounds [0, 106] [-Warray-bounds]
-   54 | #define __underlying_memcpy __builtin_memcpy
-      |                             ^
-./include/linux/fortify-string.h:417:2: note: in expansion of macro '__underlying_memcpy'
-  417 |  __underlying_##op(p, q, __fortify_size);   \
-      |  ^~~~~~~~~~~~~
-./include/linux/fortify-string.h:463:26: note: in expansion of macro '__fortify_memcpy_chk'
-  463 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,   \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/staging/rts5208/rtsx_scsi.c:2851:3: note: in expansion of macro 'memcpy'
- 2851 |   memcpy(buf + i, ms_card->raw_sys_info, 96);
-      |   ^~~~~~
+Before this patch, function gdlm_put_lock would still try to call into
+dlm to unlock these leftover glocks, which resulted in dlm returning
+-EINVAL because the lock space was abandoned. These glocks were never
+freed because there was no mechanism after that to free them.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-staging@lists.linux.dev
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210818044252.1533634-1-keescook@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch adds a check to gdlm_put_lock to see if the locking protocol
+was inactive (DFL_UNMOUNT flag) and if so, free the glock and not
+make the invalid call into dlm.
+
+I could have combined this "if" with the one that follows, related to
+leftover glock LVBs, but I felt the code was more readable with its own
+if clause.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rts5208/rtsx_scsi.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ fs/gfs2/lock_dlm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/staging/rts5208/rtsx_scsi.c b/drivers/staging/rts5208/rtsx_scsi.c
-index a401b13f5f5e..c46ac0e5e852 100644
---- a/drivers/staging/rts5208/rtsx_scsi.c
-+++ b/drivers/staging/rts5208/rtsx_scsi.c
-@@ -3026,10 +3026,10 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
- 	}
+diff --git a/fs/gfs2/lock_dlm.c b/fs/gfs2/lock_dlm.c
+index de733a6c30bb..f3c16a504c8d 100644
+--- a/fs/gfs2/lock_dlm.c
++++ b/fs/gfs2/lock_dlm.c
+@@ -295,6 +295,11 @@ static void gdlm_put_lock(struct gfs2_glock *gl)
+ 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
+ 	gfs2_update_request_times(gl);
  
- 	if (dev_info_id == 0x15) {
--		buf_len = 0x3A;
-+		buf_len = 0x3C;
- 		data_len = 0x3A;
- 	} else {
--		buf_len = 0x6A;
-+		buf_len = 0x6C;
- 		data_len = 0x6A;
- 	}
++	/* don't want to call dlm if we've unmounted the lock protocol */
++	if (test_bit(DFL_UNMOUNT, &ls->ls_recover_flags)) {
++		gfs2_glock_free(gl);
++		return;
++	}
+ 	/* don't want to skip dlm_unlock writing the lvb when lock has one */
  
-@@ -3081,11 +3081,7 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
- 	}
- 
- 	rtsx_stor_set_xfer_buf(buf, buf_len, srb);
--
--	if (dev_info_id == 0x15)
--		scsi_set_resid(srb, scsi_bufflen(srb) - 0x3C);
--	else
--		scsi_set_resid(srb, scsi_bufflen(srb) - 0x6C);
-+	scsi_set_resid(srb, scsi_bufflen(srb) - buf_len);
- 
- 	kfree(buf);
- 	return STATUS_SUCCESS;
+ 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
 -- 
 2.30.2
 
