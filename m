@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D8BF404A6C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDEC2404A70
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:45:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241150AbhIILqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:46:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46600 "EHLO mail.kernel.org"
+        id S236039AbhIILqs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:46:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240138AbhIILob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:44:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00F6861216;
-        Thu,  9 Sep 2021 11:42:35 +0000 (UTC)
+        id S237351AbhIILor (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:44:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B1A4611C4;
+        Thu,  9 Sep 2021 11:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187756;
-        bh=L6dGz8/J8+Yzbn3xmkmqNCDjXg+BWLDTee5jp1EzVqE=;
+        s=k20201202; t=1631187758;
+        bh=uKKv48X/rwTXchpUk/HynlKWdL8cvr6NSDQypKRjBG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOkcNb2uOwtZZm9MkZgxifg//Vz6lCyStCA1dlNYku2w66Z5RfO5/EyIz24SoDukH
-         nvKk4Zcn9LJ4DHrRNVcdEQ6GLVLBcKWDNKGVfsHX3QmsOAZID9n075sQqrYFDVIK0x
-         VesBPEFJKnb3fWSkRVgmE/I1Cc1MQZ7HTHGSqsRin3N2EBqi2ZNI5xpPRld1y13pB8
-         lM9RHbCOYnJSvJbPem9Wta8xwhCyt5uJk226/ILzYHYhDe2X20oPgso2zSbaezUlPI
-         dRGrAY2r6SPYSx2hjXuW2/QFrQ+7Ktql6hp6OYSpQxhDZGuOse9VticArOAyFsYeh7
-         h0Hz16TJ4VxlA==
+        b=l8Fx9/ISC20RcCQ6YmFcXEBwzkMImN1kiazUktac10oxV6oCSLWiRmtDvcAszZgcG
+         lEjQlb8Prld13WlLKCqaFfxcXTfuM79wWF8IQ84k6YbdVmMn1sGynHhY+4ij1HvS0S
+         z0OfXgEVSFcllJlsnEfIQqNYjjD9OCjldUTeeP8dI3EBfQR8W33MsEkFwDIX5rDbFz
+         ISHwUc7e50DdwX2vpp7sJgHfYP9wsd68oOTnrCU50IgX7FoTZTkWU7Ey6psPsbIjcP
+         HZuoy0Sb8dqry6a++4tFppeJPHIGMTQpB1YaXQocEpJQyeuNYlukcvt1kB2a+qrbJL
+         F9n2qGp933b6w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>, Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.14 070/252] video: fbdev: riva: Error out if 'pixclock' equals zero
-Date:   Thu,  9 Sep 2021 07:38:04 -0400
-Message-Id: <20210909114106.141462-70-sashal@kernel.org>
+Cc:     Alex Elder <elder@linaro.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 071/252] net: ipa: fix ipa_cmd_table_valid()
+Date:   Thu,  9 Sep 2021 07:38:05 -0400
+Message-Id: <20210909114106.141462-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -42,69 +42,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Alex Elder <elder@linaro.org>
 
-[ Upstream commit f92763cb0feba247e0939ed137b495601fd072a5 ]
+[ Upstream commit f2c1dac0abcfa93e8b20065b8d6b4b2b6f9990aa ]
 
-The userspace program could pass any values to the driver through
-ioctl() interface. If the driver doesn't check the value of 'pixclock',
-it may cause divide error.
+Stop supporting different sizes for hashed and non-hashed filter or
+route tables.  Add BUILD_BUG_ON() calls to verify the sizes of the
+fields in the filter/route table initialization immediate command
+are the same.
 
-Fix this by checking whether 'pixclock' is zero first.
+Add a check to ipa_cmd_table_valid() to ensure the size of the
+memory region being checked fits within the immediate command field
+that must hold it.
 
-The following log reveals it:
+Remove two Boolean parameters used only for error reporting.  This
+actually fixes a bug that would only show up if IPA_VALIDATE were
+defined.  Define ipa_cmd_table_valid() unconditionally (no longer
+dependent on IPA_VALIDATE).
 
-[   33.396850] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
-[   33.396864] CPU: 5 PID: 11754 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #222
-[   33.396883] RIP: 0010:riva_load_video_mode+0x417/0xf70
-[   33.396969] Call Trace:
-[   33.396973]  ? debug_smp_processor_id+0x1c/0x20
-[   33.396984]  ? tick_nohz_tick_stopped+0x1a/0x90
-[   33.396996]  ? rivafb_copyarea+0x3c0/0x3c0
-[   33.397003]  ? wake_up_klogd.part.0+0x99/0xd0
-[   33.397014]  ? vprintk_emit+0x110/0x4b0
-[   33.397024]  ? vprintk_default+0x26/0x30
-[   33.397033]  ? vprintk+0x9c/0x1f0
-[   33.397041]  ? printk+0xba/0xed
-[   33.397054]  ? record_print_text.cold+0x16/0x16
-[   33.397063]  ? __kasan_check_read+0x11/0x20
-[   33.397074]  ? profile_tick+0xc0/0x100
-[   33.397084]  ? __sanitizer_cov_trace_const_cmp4+0x24/0x80
-[   33.397094]  ? riva_set_rop_solid+0x2a0/0x2a0
-[   33.397102]  rivafb_set_par+0xbe/0x610
-[   33.397111]  ? riva_set_rop_solid+0x2a0/0x2a0
-[   33.397119]  fb_set_var+0x5bf/0xeb0
-[   33.397127]  ? fb_blank+0x1a0/0x1a0
-[   33.397134]  ? lock_acquire+0x1ef/0x530
-[   33.397143]  ? lock_release+0x810/0x810
-[   33.397151]  ? lock_is_held_type+0x100/0x140
-[   33.397159]  ? ___might_sleep+0x1ee/0x2d0
-[   33.397170]  ? __mutex_lock+0x620/0x1190
-[   33.397180]  ? trace_hardirqs_on+0x6a/0x1c0
-[   33.397190]  do_fb_ioctl+0x31e/0x700
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-4-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Alex Elder <elder@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/riva/fbdev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ipa/ipa_cmd.c   | 38 ++++++++++++++++++++++++-------------
+ drivers/net/ipa/ipa_cmd.h   | 15 +++------------
+ drivers/net/ipa/ipa_table.c |  2 +-
+ 3 files changed, 29 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/video/fbdev/riva/fbdev.c b/drivers/video/fbdev/riva/fbdev.c
-index 55554b0433cb..84d5e23ad7d3 100644
---- a/drivers/video/fbdev/riva/fbdev.c
-+++ b/drivers/video/fbdev/riva/fbdev.c
-@@ -1084,6 +1084,9 @@ static int rivafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
- 	int mode_valid = 0;
- 	
- 	NVTRACE_ENTER();
-+	if (!var->pixclock)
-+		return -EINVAL;
+diff --git a/drivers/net/ipa/ipa_cmd.c b/drivers/net/ipa/ipa_cmd.c
+index af44ca41189e..bda8677eae88 100644
+--- a/drivers/net/ipa/ipa_cmd.c
++++ b/drivers/net/ipa/ipa_cmd.c
+@@ -159,35 +159,45 @@ static void ipa_cmd_validate_build(void)
+ 	BUILD_BUG_ON(TABLE_SIZE > field_max(IP_FLTRT_FLAGS_NHASH_SIZE_FMASK));
+ #undef TABLE_COUNT_MAX
+ #undef TABLE_SIZE
+-}
+ 
+-#ifdef IPA_VALIDATE
++	/* Hashed and non-hashed fields are assumed to be the same size */
++	BUILD_BUG_ON(field_max(IP_FLTRT_FLAGS_HASH_SIZE_FMASK) !=
++		     field_max(IP_FLTRT_FLAGS_NHASH_SIZE_FMASK));
++	BUILD_BUG_ON(field_max(IP_FLTRT_FLAGS_HASH_ADDR_FMASK) !=
++		     field_max(IP_FLTRT_FLAGS_NHASH_ADDR_FMASK));
++}
+ 
+ /* Validate a memory region holding a table */
+-bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem,
+-			 bool route, bool ipv6, bool hashed)
++bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem, bool route)
+ {
++	u32 offset_max = field_max(IP_FLTRT_FLAGS_NHASH_ADDR_FMASK);
++	u32 size_max = field_max(IP_FLTRT_FLAGS_NHASH_SIZE_FMASK);
++	const char *table = route ? "route" : "filter";
+ 	struct device *dev = &ipa->pdev->dev;
+-	u32 offset_max;
+ 
+-	offset_max = hashed ? field_max(IP_FLTRT_FLAGS_HASH_ADDR_FMASK)
+-			    : field_max(IP_FLTRT_FLAGS_NHASH_ADDR_FMASK);
++	/* Size must fit in the immediate command field that holds it */
++	if (mem->size > size_max) {
++		dev_err(dev, "%s table region size too large\n", table);
++		dev_err(dev, "    (0x%04x > 0x%04x)\n",
++			mem->size, size_max);
 +
- 	switch (var->bits_per_pixel) {
- 	case 1 ... 8:
- 		var->red.offset = var->green.offset = var->blue.offset = 0;
++		return false;
++	}
++
++	/* Offset must fit in the immediate command field that holds it */
+ 	if (mem->offset > offset_max ||
+ 	    ipa->mem_offset > offset_max - mem->offset) {
+-		dev_err(dev, "IPv%c %s%s table region offset too large\n",
+-			ipv6 ? '6' : '4', hashed ? "hashed " : "",
+-			route ? "route" : "filter");
++		dev_err(dev, "%s table region offset too large\n", table);
+ 		dev_err(dev, "    (0x%04x + 0x%04x > 0x%04x)\n",
+ 			ipa->mem_offset, mem->offset, offset_max);
+ 
+ 		return false;
+ 	}
+ 
++	/* Entire memory range must fit within IPA-local memory */
+ 	if (mem->offset > ipa->mem_size ||
+ 	    mem->size > ipa->mem_size - mem->offset) {
+-		dev_err(dev, "IPv%c %s%s table region out of range\n",
+-			ipv6 ? '6' : '4', hashed ? "hashed " : "",
+-			route ? "route" : "filter");
++		dev_err(dev, "%s table region out of range\n", table);
+ 		dev_err(dev, "    (0x%04x + 0x%04x > 0x%04x)\n",
+ 			mem->offset, mem->size, ipa->mem_size);
+ 
+@@ -197,6 +207,8 @@ bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem,
+ 	return true;
+ }
+ 
++#ifdef IPA_VALIDATE
++
+ /* Validate the memory region that holds headers */
+ static bool ipa_cmd_header_valid(struct ipa *ipa)
+ {
+diff --git a/drivers/net/ipa/ipa_cmd.h b/drivers/net/ipa/ipa_cmd.h
+index b99262281f41..ea723419c826 100644
+--- a/drivers/net/ipa/ipa_cmd.h
++++ b/drivers/net/ipa/ipa_cmd.h
+@@ -57,20 +57,18 @@ struct ipa_cmd_info {
+ 	enum dma_data_direction direction;
+ };
+ 
+-#ifdef IPA_VALIDATE
+-
+ /**
+  * ipa_cmd_table_valid() - Validate a memory region holding a table
+  * @ipa:	- IPA pointer
+  * @mem:	- IPA memory region descriptor
+  * @route:	- Whether the region holds a route or filter table
+- * @ipv6:	- Whether the table is for IPv6 or IPv4
+- * @hashed:	- Whether the table is hashed or non-hashed
+  *
+  * Return:	true if region is valid, false otherwise
+  */
+ bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem,
+-			    bool route, bool ipv6, bool hashed);
++			    bool route);
++
++#ifdef IPA_VALIDATE
+ 
+ /**
+  * ipa_cmd_data_valid() - Validate command-realted configuration is valid
+@@ -82,13 +80,6 @@ bool ipa_cmd_data_valid(struct ipa *ipa);
+ 
+ #else /* !IPA_VALIDATE */
+ 
+-static inline bool ipa_cmd_table_valid(struct ipa *ipa,
+-				       const struct ipa_mem *mem, bool route,
+-				       bool ipv6, bool hashed)
+-{
+-	return true;
+-}
+-
+ static inline bool ipa_cmd_data_valid(struct ipa *ipa)
+ {
+ 	return true;
+diff --git a/drivers/net/ipa/ipa_table.c b/drivers/net/ipa/ipa_table.c
+index c617a9156f26..4f5b6749f6aa 100644
+--- a/drivers/net/ipa/ipa_table.c
++++ b/drivers/net/ipa/ipa_table.c
+@@ -161,7 +161,7 @@ ipa_table_valid_one(struct ipa *ipa, enum ipa_mem_id mem_id, bool route)
+ 	else
+ 		size = (1 + IPA_FILTER_COUNT_MAX) * sizeof(__le64);
+ 
+-	if (!ipa_cmd_table_valid(ipa, mem, route, ipv6, hashed))
++	if (!ipa_cmd_table_valid(ipa, mem, route))
+ 		return false;
+ 
+ 	/* mem->size >= size is sufficient, but we'll demand more */
 -- 
 2.30.2
 
