@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD7E1404C11
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:55:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3535A404C05
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:54:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238021AbhIILz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55124 "EHLO mail.kernel.org"
+        id S242337AbhIILz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:55:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242964AbhIILw7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242959AbhIILw7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 07:52:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BD5261390;
-        Thu,  9 Sep 2021 11:44:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5506861359;
+        Thu,  9 Sep 2021 11:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187867;
-        bh=COzna+AUvS9AjH9VMQTRotAp6F8lPQK/nnKVsWvii1s=;
+        s=k20201202; t=1631187869;
+        bh=ZvSQ1OUU86gLrsEgQH4jnCOte73nf4mNFHcHdG57YMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e3YwAiPMR2tRz/HjvMj7fcu3nsM64Z6tAtw3ys3m6C9YB2H3GKlpx+nyeNDbxHn8o
-         IWcf3F/8uVm6ok4PZFmp5SYckJB+0VCVpbL2Ed7sgjfNCgT0p4JpeCIlhLmZqY0KkS
-         dmkSZrPeKEjyFJ424COhK8YwPTb3gTEh7NuaW9ikoU4/pvtULPBDZpXlA+xwE4o1N/
-         GHEQNHVUn+FyQsr/5Sezd6nC8K5E3eHRGuDp2tuxh4B997PrJndUlAwB9TeO0NmM1w
-         3a993ublTFHdLhIYGutY8RKuYmHHOxY9puBJvkTam2CJGjUq52acIgFCgm6qtha6+w
-         vnqG7XKSdXNJg==
+        b=Wd4Oig6A7r2Vk9zSnnRWFf8RHc5J28xgLKXcg8wN4z5vS4oBhm2m8Jipwu/Rf81L9
+         zx8i/XgagAdMH+PasDMYTjY4h0gSvSMAsE+8+MPIK6JqNYvvKxnWWiesQ/jfyAaaGo
+         mFL6ooDy1jijmZbJvtOpGjI/uwXZm6wjv54MwSaEKjfZOFLsJAJPYEXKQ7fqJMz+8l
+         tkKw4gdO2qeZ/gAAvXWkw9UNgmxyaGV001Y90mSKiItZKocUAoEMPF7IN5sdpPJILA
+         MkSXRqh8MNch0ZsrIC3vutlG0eK2gsJefj+Xy6Oq+tYlxZ1CtpHQB/2a5gs8nKVVAs
+         CqxxKBsfsMX7Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Tim Harvey <tharvey@gateworks.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.14 154/252] arm64: dts: imx8mm-venice-gw700x: fix invalid pmic pin config
-Date:   Thu,  9 Sep 2021 07:39:28 -0400
-Message-Id: <20210909114106.141462-154-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 155/252] arm64: dts: imx8mm-venice-gw71xx: fix USB OTG VBUS
+Date:   Thu,  9 Sep 2021 07:39:29 -0400
+Message-Id: <20210909114106.141462-155-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -45,44 +45,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tim Harvey <tharvey@gateworks.com>
 
-[ Upstream commit 500659f3b401fe6ffd1d63f2449d16d8a4204db7 ]
+[ Upstream commit bd306fdb4e60bcb1d7ea5431a74092803d3784a6 ]
 
-The GW700x PMIC does not have an interrupt. Remove the invalid pin
-config.
+The GW71xx has a USB Type-C connector with USB 2.0 signaling. GPIO1_12
+is the power-enable to the TPS25821 Source controller and power switch
+responsible for monitoring the CC pins and enabling VBUS. Therefore
+GPIO1_12 must always be enabled and the vbus output enable from the
+IMX8MM can be ignored.
+
+To fix USB OTG VBUS enable a pull-up on GPIO1_12 to always power the
+TPS25821 and change the regulator output to GPIO1_10 which is
+unconnected.
 
 Signed-off-by: Tim Harvey <tharvey@gateworks.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi | 8 --------
- 1 file changed, 8 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
-index 11dda79cc46b..00f86cada30d 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
-@@ -278,8 +278,6 @@ rtc@68 {
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
+index 905b68a3daa5..8e4a0ce99790 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
+@@ -46,7 +46,7 @@ reg_usb_otg1_vbus: regulator-usb-otg1 {
+ 		pinctrl-0 = <&pinctrl_reg_usb1_en>;
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "usb_otg1_vbus";
+-		gpio = <&gpio1 12 GPIO_ACTIVE_HIGH>;
++		gpio = <&gpio1 10 GPIO_ACTIVE_HIGH>;
+ 		enable-active-high;
+ 		regulator-min-microvolt = <5000000>;
+ 		regulator-max-microvolt = <5000000>;
+@@ -156,7 +156,8 @@ MX8MM_IOMUXC_GPIO1_IO15_GPIO1_IO15	0x41
  
- 	pmic@69 {
- 		compatible = "mps,mp5416";
--		pinctrl-names = "default";
--		pinctrl-0 = <&pinctrl_pmic>;
- 		reg = <0x69>;
- 
- 		regulators {
-@@ -444,12 +442,6 @@ MX8MM_IOMUXC_I2C2_SDA_I2C2_SDA		0x400001c3
+ 	pinctrl_reg_usb1_en: regusb1grp {
+ 		fsl,pins = <
+-			MX8MM_IOMUXC_GPIO1_IO12_GPIO1_IO12	0x41
++			MX8MM_IOMUXC_GPIO1_IO10_GPIO1_IO10	0x41
++			MX8MM_IOMUXC_GPIO1_IO12_GPIO1_IO12	0x141
+ 			MX8MM_IOMUXC_GPIO1_IO13_USB1_OTG_OC	0x41
  		>;
  	};
- 
--	pinctrl_pmic: pmicgrp {
--		fsl,pins = <
--			MX8MM_IOMUXC_GPIO1_IO03_GPIO1_IO3	0x41
--		>;
--	};
--
- 	pinctrl_uart2: uart2grp {
- 		fsl,pins = <
- 			MX8MM_IOMUXC_UART2_RXD_UART2_DCE_RX	0x140
 -- 
 2.30.2
 
