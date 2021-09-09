@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77EBB404D1E
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8D2D404CFD
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243284AbhIIMAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:00:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33084 "EHLO mail.kernel.org"
+        id S241908AbhIIL7J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:59:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243180AbhIIL5B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:57:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D947613CF;
-        Thu,  9 Sep 2021 11:45:26 +0000 (UTC)
+        id S245626AbhIIL5C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:57:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8111613AB;
+        Thu,  9 Sep 2021 11:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187927;
-        bh=KyrPSSFkkaFfgTa331w9So5Bp9nfhgXOj9h8Ox5YpWU=;
+        s=k20201202; t=1631187928;
+        bh=9foygNpkQDwOr2qCWW90C35W1j1hFTBdaVPZhzHL2Es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ureXNHZMWLhDDjKlks9RXwlKsO/o9Pyk2X+HbBiPQUOhIKlzjJ2+vk8RrMY7sKaPv
-         VrHNTm4LhLlBx/EMp/4BuU/5x8f8Jri/T8CMNQH09gL2QMuVO9cebNdjKAIg8bRYe1
-         8nGy7SJKwFHJ6YwxMw+r6OtYHAnQR8gXJuzMQW6SzrO3/hIPiB6l4F87m8v10N2Lo9
-         gSfIYu7dQmcnJz8G4Mijvzy5IaBQV6UjhOLcxlvrszVY7rExzVDUqVCMPFmWiSQ3co
-         DCZ1twVSSRbQEC/xoFgCzJfONg0sjbMKJITgXxv9bkuD2zsZvbYIRcKlVaLOQ585hT
-         IkN9WKKzCQitg==
+        b=QOAUrWWn4wp3bpgrybbgUKkgAP9bCjYqwemN9l3srp5BRhc2lj+U+h8qjJrKihXiA
+         uTm9xu5NLfr5LyQknNVew2frLVps3QD9x7T2jOzEoJwSTe/Yljwtv4HLJ2XLFMgO8w
+         F7PX31DMcmQBdakM9SJXnzssxtxndCms36bm25I16+AHiZY7TaAaUwrea6HavZx3Y8
+         aYjJTYdYZvCeZXaKf7kgkVZ7BQeyVvwbM435FSDhyVDfpnh9SqO/4IfFEeYZcVjRpz
+         TZmeHYmv8w9r2ePb/SKLOz3SWW6NoqLG4vYg99X/2D35UUoWImqI9FJm7DTuUGUo+D
+         GOACj5aAz06vg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
+Cc:     Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
         Lukasz Majczak <lma@semihalf.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 200/252] ASoC: Intel: Skylake: Fix module configuration for KPB and MIXER
-Date:   Thu,  9 Sep 2021 07:40:14 -0400
-Message-Id: <20210909114106.141462-200-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 201/252] ASoC: Intel: Skylake: Fix passing loadable flag for module
+Date:   Thu,  9 Sep 2021 07:40:15 -0400
+Message-Id: <20210909114106.141462-201-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -43,58 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>
 
-[ Upstream commit e4e0633bcadc950b4b4af06c7f1bb7f7e3e86321 ]
+[ Upstream commit c5ed9c547cba1dc1238c6e8a0c290fd62ee6e127 ]
 
-KeyPhrasebuffer, Mixin and Mixout modules configuration is described by
-firmware's basic module configuration structure. There are no extended
-parameters required. Update functions taking part in building
-INIT_INSTANCE IPC payload to reflect that.
+skl_get_module_info() tries to set mconfig->module->loadable before
+mconfig->module has been assigned thus flag was always set to false
+and driver did not try to load module binaries.
 
+Signed-off-by: Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>
 Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
 Tested-by: Lukasz Majczak <lma@semihalf.com>
-Link: https://lore.kernel.org/r/20210818075742.1515155-6-cezary.rojewski@intel.com
+Link: https://lore.kernel.org/r/20210818075742.1515155-7-cezary.rojewski@intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/skylake/skl-messages.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ sound/soc/intel/skylake/skl-pcm.c | 25 +++++++++----------------
+ 1 file changed, 9 insertions(+), 16 deletions(-)
 
-diff --git a/sound/soc/intel/skylake/skl-messages.c b/sound/soc/intel/skylake/skl-messages.c
-index 476ef1897961..79c6cf2c14bf 100644
---- a/sound/soc/intel/skylake/skl-messages.c
-+++ b/sound/soc/intel/skylake/skl-messages.c
-@@ -802,9 +802,12 @@ static u16 skl_get_module_param_size(struct skl_dev *skl,
+diff --git a/sound/soc/intel/skylake/skl-pcm.c b/sound/soc/intel/skylake/skl-pcm.c
+index b1ca64d2f7ea..031d5dc7e660 100644
+--- a/sound/soc/intel/skylake/skl-pcm.c
++++ b/sound/soc/intel/skylake/skl-pcm.c
+@@ -1317,21 +1317,6 @@ static int skl_get_module_info(struct skl_dev *skl,
+ 		return -EIO;
+ 	}
  
- 	case SKL_MODULE_TYPE_BASE_OUTFMT:
- 	case SKL_MODULE_TYPE_MIC_SELECT:
--	case SKL_MODULE_TYPE_KPB:
- 		return sizeof(struct skl_base_outfmt_cfg);
- 
-+	case SKL_MODULE_TYPE_MIXER:
-+	case SKL_MODULE_TYPE_KPB:
-+		return sizeof(struct skl_base_cfg);
+-	list_for_each_entry(module, &skl->uuid_list, list) {
+-		if (guid_equal(uuid_mod, &module->uuid)) {
+-			mconfig->id.module_id = module->id;
+-			if (mconfig->module)
+-				mconfig->module->loadable = module->is_loadable;
+-			ret = 0;
+-			break;
+-		}
+-	}
+-
+-	if (ret)
+-		return ret;
+-
+-	uuid_mod = &module->uuid;
+-	ret = -EIO;
+ 	for (i = 0; i < skl->nr_modules; i++) {
+ 		skl_module = skl->modules[i];
+ 		uuid_tplg = &skl_module->uuid;
+@@ -1341,10 +1326,18 @@ static int skl_get_module_info(struct skl_dev *skl,
+ 			break;
+ 		}
+ 	}
 +
- 	default:
- 		/*
- 		 * return only base cfg when no specific module type is
-@@ -857,10 +860,14 @@ static int skl_set_module_format(struct skl_dev *skl,
+ 	if (skl->nr_modules && ret)
+ 		return ret;
  
- 	case SKL_MODULE_TYPE_BASE_OUTFMT:
- 	case SKL_MODULE_TYPE_MIC_SELECT:
--	case SKL_MODULE_TYPE_KPB:
- 		skl_set_base_outfmt_format(skl, module_config, *param_data);
- 		break;
- 
-+	case SKL_MODULE_TYPE_MIXER:
-+	case SKL_MODULE_TYPE_KPB:
-+		skl_set_base_module_format(skl, module_config, *param_data);
-+		break;
++	ret = -EIO;
+ 	list_for_each_entry(module, &skl->uuid_list, list) {
++		if (guid_equal(uuid_mod, &module->uuid)) {
++			mconfig->id.module_id = module->id;
++			mconfig->module->loadable = module->is_loadable;
++			ret = 0;
++		}
 +
- 	default:
- 		skl_set_base_module_format(skl, module_config, *param_data);
- 		break;
+ 		for (i = 0; i < MAX_IN_QUEUE; i++) {
+ 			pin_id = &mconfig->m_in_pin[i].id;
+ 			if (guid_equal(&pin_id->mod_uuid, &module->uuid))
+@@ -1358,7 +1351,7 @@ static int skl_get_module_info(struct skl_dev *skl,
+ 		}
+ 	}
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int skl_populate_modules(struct skl_dev *skl)
 -- 
 2.30.2
 
