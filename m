@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F196E40532E
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CC3A4057B4
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348249AbhIIMuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:50:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40918 "EHLO mail.kernel.org"
+        id S238504AbhIINli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:41:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345613AbhIIMrG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:47:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C52763215;
-        Thu,  9 Sep 2021 11:56:14 +0000 (UTC)
+        id S1352828AbhIIMrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:47:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41C7463219;
+        Thu,  9 Sep 2021 11:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188575;
-        bh=IH2bqORCcfiRGXYybGqC3vEwO/2EBO1dREiMH6gGzv8=;
+        s=k20201202; t=1631188577;
+        bh=VWA7NHbf1w0hEdSW9ID9USH1LNKqF5N+aY34kK5m2BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2RMlq/xnPui9SChVq+ElSi5r9/rRoeIP0yhlh/fEdz9ofPCCZORduNurumGj+UOR
-         YHMpfVgtOJpoHDsuTJsmOnrDmtE2TL8KnO06WTlXQRSG4QAtWeSCxUUqx9z9krSC17
-         uz5PYxV3VEWrQJJ681VK6N6l/GsvIpL1U2cRuqAMMbWKnanP9H7wC+qkNigK7E+xOt
-         /zpPSIMUR4aHwkz9BIzINn2FJG4MwtuPKjkuJIjG0clI/W9i1kgc4iMM3l/Ok3PI1N
-         U9PV1UI9b1W1RT7AFYaxxa0dUu3EbpwWzedzioV8hH1/M9IwAXA03b3aUsypbXYFgR
-         dfviIrsW0f6HA==
+        b=IYEBXu4TZo+8vtrouzoDKA9rsTdECYyOYEeu4l3U1g4kp8hBYDr72Yiu5fkZ+3EuQ
+         Sq6r1b/GYa4eNbMs0pp+Y5EFgBxTi2q1bql9Pj7KyOOh5IIZs88YeQQRaL07g39Y8q
+         une8K2utFjj27ubwwt89BXNGJPCuatHE05Pyye0mbImARVZfT7oczmWV5eht5WDH+z
+         7hTWlyJG0PoHT8yomGZbKCXRGbfCK8dwZf65D3UfYfw3q2/QPQS2yhyADWDDzRVReC
+         Bl36FJqY7MNPGvuakl5FZSqj+x2iovZe2imM9UrDRaP2xVRexy+puBtFUztdijkbX8
+         S2XqNTBaIXANw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 054/109] ARM: dts: imx53-ppd: Fix ACHC entry
-Date:   Thu,  9 Sep 2021 07:54:11 -0400
-Message-Id: <20210909115507.147917-54-sashal@kernel.org>
+Cc:     Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 055/109] arm64: dts: qcom: sdm660: use reg value for memory node
+Date:   Thu,  9 Sep 2021 07:54:12 -0400
+Message-Id: <20210909115507.147917-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115507.147917-1-sashal@kernel.org>
 References: <20210909115507.147917-1-sashal@kernel.org>
@@ -43,65 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit cd7cd5b716d594e27a933c12f026d4f2426d7bf4 ]
+[ Upstream commit c81210e38966cfa1c784364e4035081c3227cf5b ]
 
-PPD has only one ACHC device, which effectively is a Kinetis
-microcontroller. It has one SPI interface used for normal
-communication. Additionally it's possible to flash the device
-firmware using NXP's EzPort protocol by correctly driving a
-second chip select pin and the device reset pin.
+memory node like other node should be node@reg, which is missing in this
+case, so fix it up
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Link: https://lore.kernel.org/r/20210802172309.164365-3-sebastian.reichel@collabora.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 1073741824, 0, 536870912]]}
+
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210308060826.3074234-18-vkoul@kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx53-ppd.dts | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/qcom/ipq8074-hk01.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx53-ppd.dts b/arch/arm/boot/dts/imx53-ppd.dts
-index 5ff9a179c83c..c80d1700e094 100644
---- a/arch/arm/boot/dts/imx53-ppd.dts
-+++ b/arch/arm/boot/dts/imx53-ppd.dts
-@@ -70,6 +70,12 @@ cko2_11M: sgtl-clock-cko2 {
- 		clock-frequency = <11289600>;
+diff --git a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
+index 70be3f95209b..830d9f2c1e5f 100644
+--- a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
++++ b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
+@@ -20,7 +20,7 @@ chosen {
+ 		stdout-path = "serial0";
  	};
  
-+	achc_24M: achc-clock {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <24000000>;
-+	};
-+
- 	sgtlsound: sound {
- 		compatible = "fsl,imx53-cpuvo-sgtl5000",
- 			     "fsl,imx-audio-sgtl5000";
-@@ -287,16 +293,13 @@ &gpio4 11 GPIO_ACTIVE_LOW
- 		    &gpio4 12 GPIO_ACTIVE_LOW>;
- 	status = "okay";
- 
--	spidev0: spi@0 {
--		compatible = "ge,achc";
--		reg = <0>;
--		spi-max-frequency = <1000000>;
--	};
--
--	spidev1: spi@1 {
--		compatible = "ge,achc";
--		reg = <1>;
--		spi-max-frequency = <1000000>;
-+	spidev0: spi@1 {
-+		compatible = "ge,achc", "nxp,kinetis-k20";
-+		reg = <1>, <0>;
-+		vdd-supply = <&reg_3v3>;
-+		vdda-supply = <&reg_3v3>;
-+		clocks = <&achc_24M>;
-+		reset-gpios = <&gpio3 6 GPIO_ACTIVE_LOW>;
+-	memory {
++	memory@40000000 {
+ 		device_type = "memory";
+ 		reg = <0x0 0x40000000 0x0 0x20000000>;
  	};
- 
- 	gpioxra0: gpio@2 {
 -- 
 2.30.2
 
