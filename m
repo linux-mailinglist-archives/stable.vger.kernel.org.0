@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C22404F5E
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2864D404F62
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351115AbhIIMSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:18:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52680 "EHLO mail.kernel.org"
+        id S245566AbhIIMSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:18:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347409AbhIIMP6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:15:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CB5561263;
-        Thu,  9 Sep 2021 11:49:33 +0000 (UTC)
+        id S1348697AbhIIMQJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:16:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E601761A78;
+        Thu,  9 Sep 2021 11:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188174;
-        bh=aqB/eixK9h34x4z7TYFN5+h1bz4ed0d3NHrCqDZ7MxE=;
+        s=k20201202; t=1631188175;
+        bh=D+fNpbBRsy+p+4OJWse+q6C+i8sxBGrhAZALZOCYt5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=krUatQmaPhyx34uQ2PMUs+i7h9zo6jqplAxOzZWKmNIzKEnRr1I3bjBBMtVuLXfzC
-         n78bLtW38KdPzyUf/sYKxDO9S0NIh9+AjCHN+oeNx/caq7GCLP4pWvuXB21mP17Yy8
-         Z7ZiRo6vcQ7OJBBEMRNj/NbSyTmwroJPTFwQkBbD4OGzZAgsYo/gLhjWWF+BlQPdjB
-         AYImgX+wMG07keivSGki1UVz64e4W5AiJR4P8XJLHJvUV+XXXaQ9VTq5JiAfokWl6m
-         hHX8j5sioM7KW4Z+5Jq0IdEa4nUPq7ccn2V5zyiVIz3Icpbfk+YIuZwMi/nOL9BKVN
-         LxvGS84uugtfA==
+        b=LYHKTlktFgpYMiqz2m0WiVn8mCUeO+AaBRrLopsfi6fcVUhFeUK1s5HyqfYvppJwN
+         x4nfL9lqf5jS2S8N+jUJ4+9KKR8bncMvsURJVddglXviqFQHihJ4RVpoGHmd7Wg17f
+         CX34HdbH7UPrM1wjEjQNoFzev2DvWTDWaUugZPvyr2hctqIIHAPozM/7rpLOI8ITAM
+         FtyNJzDxiDLzv3/ZWpekuXAMfzbx5nMHB/89uBY3atgdyr9HVapI0MB7N3YQKaL13F
+         2wDcYhfK0C1djhYTnBgXxD1pMN1K2syNTRkxsqIsY0eArU7/vJLaVhluSulcG+i5WQ
+         baE03Bc/UbneA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Raag Jadav <raagjadav@gmail.com>, Li Yang <leoyang.li@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 138/219] arm64: dts: ls1046a: fix eeprom entries
-Date:   Thu,  9 Sep 2021 07:45:14 -0400
-Message-Id: <20210909114635.143983-138-sashal@kernel.org>
+Cc:     Sagi Grimberg <sagi@grimberg.me>, Hannes Reinecke <hare@suse.de>,
+        Daniel Wagner <dwagner@suse.de>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.13 139/219] nvme-tcp: don't check blk_mq_tag_to_rq when receiving pdu data
+Date:   Thu,  9 Sep 2021 07:45:15 -0400
+Message-Id: <20210909114635.143983-139-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -43,69 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raag Jadav <raagjadav@gmail.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit c1a6018d1839c9cb8f807dc863a50102a1a5c412 ]
+[ Upstream commit 3b01a9d0caa8276d9ce314e09610f7fb70f49a00 ]
 
-ls1046afrwy and ls1046ardb boards have CAT24C04[1] and CAT24C05[2]
-eeproms respectively. Both are 4Kb (512 bytes) in size,
-and compatible with AT24C04[3].
-Remove multi-address entries, as both the boards have a single chip each.
+We already validate it when receiving the c2hdata pdu header
+and this is not changing so this is a redundant check.
 
-[1] https://www.onsemi.com/pdf/datasheet/cat24c01-d.pdf
-[2] https://www.onsemi.com/pdf/datasheet/cat24c03-d.pdf
-[3] https://ww1.microchip.com/downloads/en/DeviceDoc/doc0180.pdf
-
-Signed-off-by: Raag Jadav <raagjadav@gmail.com>
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts | 8 +-------
- arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts  | 7 +------
- 2 files changed, 2 insertions(+), 13 deletions(-)
+ drivers/nvme/host/tcp.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts
-index db3d303093f6..6d22efbd645c 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-frwy.dts
-@@ -83,15 +83,9 @@ rtc@51 {
- 			};
- 
- 			eeprom@52 {
--				compatible = "atmel,24c512";
-+				compatible = "onnn,cat24c04", "atmel,24c04";
- 				reg = <0x52>;
- 			};
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 79a463090dd3..7a949f6d5aea 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -702,17 +702,9 @@ static int nvme_tcp_recv_data(struct nvme_tcp_queue *queue, struct sk_buff *skb,
+ 			      unsigned int *offset, size_t *len)
+ {
+ 	struct nvme_tcp_data_pdu *pdu = (void *)queue->pdu;
+-	struct nvme_tcp_request *req;
+-	struct request *rq;
 -
--			eeprom@53 {
--				compatible = "atmel,24c512";
--				reg = <0x53>;
--			};
--
- 		};
- 	};
- };
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-index 60acdf0b689e..7025aad8ae89 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-@@ -59,14 +59,9 @@ temp-sensor@4c {
- 	};
+-	rq = blk_mq_tag_to_rq(nvme_tcp_tagset(queue), pdu->command_id);
+-	if (!rq) {
+-		dev_err(queue->ctrl->ctrl.device,
+-			"queue %d tag %#x not found\n",
+-			nvme_tcp_queue_id(queue), pdu->command_id);
+-		return -ENOENT;
+-	}
+-	req = blk_mq_rq_to_pdu(rq);
++	struct request *rq =
++		blk_mq_tag_to_rq(nvme_tcp_tagset(queue), pdu->command_id);
++	struct nvme_tcp_request *req = blk_mq_rq_to_pdu(rq);
  
- 	eeprom@52 {
--		compatible = "atmel,24c512";
-+		compatible = "onnn,cat24c05", "atmel,24c04";
- 		reg = <0x52>;
- 	};
--
--	eeprom@53 {
--		compatible = "atmel,24c512";
--		reg = <0x53>;
--	};
- };
- 
- &i2c3 {
+ 	while (true) {
+ 		int recv_len, ret;
 -- 
 2.30.2
 
