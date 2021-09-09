@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6357E404B93
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:52:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11EA8404B90
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:52:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243020AbhIILxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:53:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55050 "EHLO mail.kernel.org"
+        id S240131AbhIILw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:52:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239669AbhIILux (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240935AbhIILux (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 07:50:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E658361355;
-        Thu,  9 Sep 2021 11:43:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 025E461269;
+        Thu,  9 Sep 2021 11:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187837;
-        bh=5dJO6w+5dh4dsYlnWN7LmnTtcZk0Tkos3wR4UE4Nr4g=;
+        s=k20201202; t=1631187838;
+        bh=e4DRZx/VtfqC41DV1FiYS0p26W6OqaMolJo8boE3nZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkXHEmRpD2RBh84Ld4yMo0KUcrQ0j/Br2dcbRR5n/l+1e3ESECBp8J1oWsUsY+M19
-         ztZyVgATFOvraWkcUZu8LVAM0ufmWFIKZA/aFzMXtK+U5HqGJ6ge7+ief/+HVv5b5u
-         IY3CLtjNHg/WNnhUfcEwYRwPnZPwfrkP0YEhbdPKSjTDAoImOKMnJnRcGLRGaZMCMt
-         KThgdCCkDxj1CEkzkRbX2e+IC6ZjZWHYOy6Hzy3yw/sj3hv82Bv2Fhx+yfbjkkO3ER
-         4cHgMAy7Bp2HCmopmafh4cat+hkcOYwV9IkqgQkPiRDRRsso98Cqx255qa+MDlm7Nh
-         0UXfeKXqGsuCA==
+        b=B8GadA162D80QEQ3n6e4wZmwjLNQQM0T8vqn+6bfpGM8baknHcL5M9xQDg2aj7LJW
+         3GzZpIupJCrGfBxae0uQuuzUN/Oc7VLe6KwhUI7xf1vPtZpeh0lDMN1fDguVqtRahz
+         uEwx6r244KlYua4px2dga4T2vLFGnrl3o2p9Gz5JZG0nLqGkG4kp59WM5P7kZfusMe
+         A85X/g0Ovh+K3Lc6CIQRqh7YEzYalOtBJV8lCGICY8yiyKao1z/ZNof7DBDoAMhGqC
+         NMJuQ8tYKJOL2B+YL8xLCD6UymylG/tMCmMnVtJfe8XnkJ43QY6VqgIXXWOfn3WdxY
+         0vy0e/g2o9uYQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 132/252] ALSA: pci: cs46xx: Fix set up buffer type properly
-Date:   Thu,  9 Sep 2021 07:39:06 -0400
-Message-Id: <20210909114106.141462-132-sashal@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 133/252] spi: tegra20-slink: Improve runtime PM usage
+Date:   Thu,  9 Sep 2021 07:39:07 -0400
+Message-Id: <20210909114106.141462-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -41,98 +43,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 4d9e9153f1c64d91a125c6967bc0bfb0bb653ea0 ]
+[ Upstream commit e4bb903fda0e9bbafa1338dcd2ee5e4d3ccc50da ]
 
-CS46xx driver switches the buffer depending on the number of periods,
-and in some cases it switches to the own buffer without updating the
-buffer type properly.  This may cause a problem with the mmap on
-exotic architectures that require the own mmap call for the coherent
-DMA buffer.
+The Tegra SPI driver supports runtime PM, which controls the clock
+enable state, but the clk is also enabled separately from the RPM
+at the driver probe time, and thus, stays always on. Fix it.
 
-This patch addresses the potential breakage by replacing the buffer
-setup with the proper macro.  It also simplifies the source code,
-too.
+Runtime PM now is always available on Tegra, hence there is no need to
+check the RPM presence in the driver anymore. Remove these checks.
 
-Link: https://lore.kernel.org/r/20210809071829.22238-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20210731192731.5869-1-digetx@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/cs46xx/cs46xx_lib.c | 30 ++++++++----------------------
- 1 file changed, 8 insertions(+), 22 deletions(-)
+ drivers/spi/spi-tegra20-slink.c | 73 +++++++++++----------------------
+ 1 file changed, 25 insertions(+), 48 deletions(-)
 
-diff --git a/sound/pci/cs46xx/cs46xx_lib.c b/sound/pci/cs46xx/cs46xx_lib.c
-index 1e1eb17f8e07..d43927dcd61e 100644
---- a/sound/pci/cs46xx/cs46xx_lib.c
-+++ b/sound/pci/cs46xx/cs46xx_lib.c
-@@ -1121,9 +1121,7 @@ static int snd_cs46xx_playback_hw_params(struct snd_pcm_substream *substream,
- 	if (params_periods(hw_params) == CS46XX_FRAGS) {
- 		if (runtime->dma_area != cpcm->hw_buf.area)
- 			snd_pcm_lib_free_pages(substream);
--		runtime->dma_area = cpcm->hw_buf.area;
--		runtime->dma_addr = cpcm->hw_buf.addr;
--		runtime->dma_bytes = cpcm->hw_buf.bytes;
-+		snd_pcm_set_runtime_buffer(substream, &cpcm->hw_buf);
+diff --git a/drivers/spi/spi-tegra20-slink.c b/drivers/spi/spi-tegra20-slink.c
+index 6a726c95ac7a..501eca1d0f89 100644
+--- a/drivers/spi/spi-tegra20-slink.c
++++ b/drivers/spi/spi-tegra20-slink.c
+@@ -1061,33 +1061,12 @@ static int tegra_slink_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "Can not get clock %d\n", ret);
+ 		goto exit_free_master;
+ 	}
+-	ret = clk_prepare(tspi->clk);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "Clock prepare failed %d\n", ret);
+-		goto exit_free_master;
+-	}
+-	ret = clk_enable(tspi->clk);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "Clock enable failed %d\n", ret);
+-		goto exit_clk_unprepare;
+-	}
+-
+-	spi_irq = platform_get_irq(pdev, 0);
+-	tspi->irq = spi_irq;
+-	ret = request_threaded_irq(tspi->irq, tegra_slink_isr,
+-			tegra_slink_isr_thread, IRQF_ONESHOT,
+-			dev_name(&pdev->dev), tspi);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
+-					tspi->irq);
+-		goto exit_clk_disable;
+-	}
  
+ 	tspi->rst = devm_reset_control_get_exclusive(&pdev->dev, "spi");
+ 	if (IS_ERR(tspi->rst)) {
+ 		dev_err(&pdev->dev, "can not get reset\n");
+ 		ret = PTR_ERR(tspi->rst);
+-		goto exit_free_irq;
++		goto exit_free_master;
+ 	}
  
- #ifdef CONFIG_SND_CS46XX_NEW_DSP
-@@ -1143,11 +1141,8 @@ static int snd_cs46xx_playback_hw_params(struct snd_pcm_substream *substream,
- #endif
+ 	tspi->max_buf_size = SLINK_FIFO_DEPTH << 2;
+@@ -1095,7 +1074,7 @@ static int tegra_slink_probe(struct platform_device *pdev)
  
- 	} else {
--		if (runtime->dma_area == cpcm->hw_buf.area) {
--			runtime->dma_area = NULL;
--			runtime->dma_addr = 0;
--			runtime->dma_bytes = 0;
--		}
-+		if (runtime->dma_area == cpcm->hw_buf.area)
-+			snd_pcm_set_runtime_buffer(substream, NULL);
- 		err = snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params));
- 		if (err < 0) {
- #ifdef CONFIG_SND_CS46XX_NEW_DSP
-@@ -1196,9 +1191,7 @@ static int snd_cs46xx_playback_hw_free(struct snd_pcm_substream *substream)
- 	if (runtime->dma_area != cpcm->hw_buf.area)
- 		snd_pcm_lib_free_pages(substream);
-     
--	runtime->dma_area = NULL;
--	runtime->dma_addr = 0;
--	runtime->dma_bytes = 0;
-+	snd_pcm_set_runtime_buffer(substream, NULL);
+ 	ret = tegra_slink_init_dma_param(tspi, true);
+ 	if (ret < 0)
+-		goto exit_free_irq;
++		goto exit_free_master;
+ 	ret = tegra_slink_init_dma_param(tspi, false);
+ 	if (ret < 0)
+ 		goto exit_rx_dma_free;
+@@ -1106,16 +1085,9 @@ static int tegra_slink_probe(struct platform_device *pdev)
+ 	init_completion(&tspi->xfer_completion);
  
+ 	pm_runtime_enable(&pdev->dev);
+-	if (!pm_runtime_enabled(&pdev->dev)) {
+-		ret = tegra_slink_runtime_resume(&pdev->dev);
+-		if (ret)
+-			goto exit_pm_disable;
+-	}
+-
+-	ret = pm_runtime_get_sync(&pdev->dev);
+-	if (ret < 0) {
++	ret = pm_runtime_resume_and_get(&pdev->dev);
++	if (ret) {
+ 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
+-		pm_runtime_put_noidle(&pdev->dev);
+ 		goto exit_pm_disable;
+ 	}
+ 
+@@ -1123,33 +1095,43 @@ static int tegra_slink_probe(struct platform_device *pdev)
+ 	udelay(2);
+ 	reset_control_deassert(tspi->rst);
+ 
++	spi_irq = platform_get_irq(pdev, 0);
++	tspi->irq = spi_irq;
++	ret = request_threaded_irq(tspi->irq, tegra_slink_isr,
++				   tegra_slink_isr_thread, IRQF_ONESHOT,
++				   dev_name(&pdev->dev), tspi);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
++			tspi->irq);
++		goto exit_pm_put;
++	}
++
+ 	tspi->def_command_reg  = SLINK_M_S;
+ 	tspi->def_command2_reg = SLINK_CS_ACTIVE_BETWEEN;
+ 	tegra_slink_writel(tspi, tspi->def_command_reg, SLINK_COMMAND);
+ 	tegra_slink_writel(tspi, tspi->def_command2_reg, SLINK_COMMAND2);
+-	pm_runtime_put(&pdev->dev);
+ 
+ 	master->dev.of_node = pdev->dev.of_node;
+ 	ret = devm_spi_register_master(&pdev->dev, master);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "can not register to master err %d\n", ret);
+-		goto exit_pm_disable;
++		goto exit_free_irq;
+ 	}
++
++	pm_runtime_put(&pdev->dev);
++
+ 	return ret;
+ 
++exit_free_irq:
++	free_irq(spi_irq, tspi);
++exit_pm_put:
++	pm_runtime_put(&pdev->dev);
+ exit_pm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+-	if (!pm_runtime_status_suspended(&pdev->dev))
+-		tegra_slink_runtime_suspend(&pdev->dev);
++
+ 	tegra_slink_deinit_dma_param(tspi, false);
+ exit_rx_dma_free:
+ 	tegra_slink_deinit_dma_param(tspi, true);
+-exit_free_irq:
+-	free_irq(spi_irq, tspi);
+-exit_clk_disable:
+-	clk_disable(tspi->clk);
+-exit_clk_unprepare:
+-	clk_unprepare(tspi->clk);
+ exit_free_master:
+ 	spi_master_put(master);
+ 	return ret;
+@@ -1162,8 +1144,7 @@ static int tegra_slink_remove(struct platform_device *pdev)
+ 
+ 	free_irq(tspi->irq, tspi);
+ 
+-	clk_disable(tspi->clk);
+-	clk_unprepare(tspi->clk);
++	pm_runtime_disable(&pdev->dev);
+ 
+ 	if (tspi->tx_dma_chan)
+ 		tegra_slink_deinit_dma_param(tspi, false);
+@@ -1171,10 +1152,6 @@ static int tegra_slink_remove(struct platform_device *pdev)
+ 	if (tspi->rx_dma_chan)
+ 		tegra_slink_deinit_dma_param(tspi, true);
+ 
+-	pm_runtime_disable(&pdev->dev);
+-	if (!pm_runtime_status_suspended(&pdev->dev))
+-		tegra_slink_runtime_suspend(&pdev->dev);
+-
  	return 0;
  }
-@@ -1287,16 +1280,11 @@ static int snd_cs46xx_capture_hw_params(struct snd_pcm_substream *substream,
- 	if (runtime->periods == CS46XX_FRAGS) {
- 		if (runtime->dma_area != chip->capt.hw_buf.area)
- 			snd_pcm_lib_free_pages(substream);
--		runtime->dma_area = chip->capt.hw_buf.area;
--		runtime->dma_addr = chip->capt.hw_buf.addr;
--		runtime->dma_bytes = chip->capt.hw_buf.bytes;
-+		snd_pcm_set_runtime_buffer(substream, &chip->capt.hw_buf);
- 		substream->ops = &snd_cs46xx_capture_ops;
- 	} else {
--		if (runtime->dma_area == chip->capt.hw_buf.area) {
--			runtime->dma_area = NULL;
--			runtime->dma_addr = 0;
--			runtime->dma_bytes = 0;
--		}
-+		if (runtime->dma_area == chip->capt.hw_buf.area)
-+			snd_pcm_set_runtime_buffer(substream, NULL);
- 		err = snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params));
- 		if (err < 0)
- 			return err;
-@@ -1313,9 +1301,7 @@ static int snd_cs46xx_capture_hw_free(struct snd_pcm_substream *substream)
  
- 	if (runtime->dma_area != chip->capt.hw_buf.area)
- 		snd_pcm_lib_free_pages(substream);
--	runtime->dma_area = NULL;
--	runtime->dma_addr = 0;
--	runtime->dma_bytes = 0;
-+	snd_pcm_set_runtime_buffer(substream, NULL);
- 
- 	return 0;
- }
 -- 
 2.30.2
 
