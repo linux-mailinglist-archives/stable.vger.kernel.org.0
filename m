@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E75C404C0D
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE000404C28
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:55:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242426AbhIILzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:55:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33846 "EHLO mail.kernel.org"
+        id S236545AbhIIL4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:56:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239664AbhIILyB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:54:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E3916138F;
-        Thu,  9 Sep 2021 11:44:41 +0000 (UTC)
+        id S239892AbhIILyK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:54:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C846138E;
+        Thu,  9 Sep 2021 11:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187882;
-        bh=nmZlJjMfVm8UXxDXZfpM14Y9C+so6nIKPHyHfBjxfQ0=;
+        s=k20201202; t=1631187883;
+        bh=gMzlS6eZ1f/ByV3KBZmIrkiSw6UxTcu2UVXACyjKUw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6T9pUpu2zE4ZKGfvDhAGQ2ybYN8sjxL7eXfethF0mRzYfRcj2c2gDzxoow28gTWy
-         Aj0kiLhHpf2+2iYqplHO0LuVLZTRnf3jC2A9ceJ6IUD8grqqLkt9EsIgL4WWluqiLa
-         1HWWiWO8bEdgzaczlD5/8UfDMRqsAUvUxTxDeDBRr6t+iRVn/XAA7dQdEh8TxZhzg9
-         rj99Cs2VtrpGo34CSlKWTuNfgDH0Cnvg4BBwpMby+xjq3oMA/Ul7PpYE2ZneEU/o7n
-         7Uc8hccpsSuA0JhQ0raqDZmHUi3MOirihLod3Eh2KtG+hPWbve2CXfDAkFMlxoBP3Y
-         arNTRiXPqJAHg==
+        b=Wesw0w6tM8cQIj/SM+2L1+lcs8ODNqvh+eWS3qsHUb79uuup9MOJ+swzm9jdXnk9m
+         cs2RFFkHI1ID4Y0hnaTea3lzymd3JZzLPopIu3PB5um6xDT6+qJDLlYxGeyULlz/lb
+         ypInvHyZFaqOsFfgZlZ4D9KyPToviAIsLVRZVqQVx9933fSux0toxaBX9uz/cQKEbV
+         vAJ25UrvIPzi8Z/+CYCnPl4dnjE8j/MAlwP0YAMbQd7QWC/GGqOysRuCDbMhUZz1/s
+         Tp7JGxPn1KiaHFIG0QH7yL/gfJH+IEPU0fgKbDK16WCQGMedjDq4g/tJcsvC5q+DBy
+         KVZkRybgyFVaA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luke Hsiao <lukehsiao@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Yuchung Cheng <ycheng@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 165/252] tcp: enable data-less, empty-cookie SYN with TFO_SERVER_COOKIE_NOT_REQD
-Date:   Thu,  9 Sep 2021 07:39:39 -0400
-Message-Id: <20210909114106.141462-165-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.14 166/252] ALSA: hda: Drop workaround for a hang at shutdown again
+Date:   Thu,  9 Sep 2021 07:39:40 -0400
+Message-Id: <20210909114106.141462-166-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -45,56 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke Hsiao <lukehsiao@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit e3faa49bcecdfcc80e94dd75709d6acb1a5d89f6 ]
+[ Upstream commit 8fc8e903156f42c66245838441d03607e9067381 ]
 
-Since the original TFO server code was implemented in commit
-168a8f58059a22feb9e9a2dcc1b8053dbbbc12ef ("tcp: TCP Fast Open Server -
-main code path") the TFO server code has supported the sysctl bit flag
-TFO_SERVER_COOKIE_NOT_REQD. Currently, when the TFO_SERVER_ENABLE and
-TFO_SERVER_COOKIE_NOT_REQD sysctl bit flags are set, a server connection
-will accept a SYN with N bytes of data (N > 0) that has no TFO cookie,
-create a new fast open connection, process the incoming data in the SYN,
-and make the connection ready for accepting. After accepting, the
-connection is ready for read()/recvmsg() to read the N bytes of data in
-the SYN, ready for write()/sendmsg() calls and data transmissions to
-transmit data.
+The commit 0165c4e19f6e ("ALSA: hda: Fix hang during shutdown due to
+link reset") modified the shutdown callback of the HD-audio controller
+for working around a hang.  Meanwhile, the actual culprit of the hang
+was identified to be the leftover active codecs that may interfere
+with the powered down controller somehow, but we took a minimal fix
+approach for 5.14, and that was the commit above.
 
-This commit changes an edge case in this feature by changing this
-behavior to apply to (N >= 0) bytes of data in the SYN rather than only
-(N > 0) bytes of data in the SYN. Now, a server will accept a data-less
-SYN without a TFO cookie if TFO_SERVER_COOKIE_NOT_REQD is set.
+Now, since the codec drivers go runtime-suspend at shutdown for 5.15,
+we can revert the change and make sure that the full runtime-suspend
+is performed at shutdown of HD-audio controller again.  This patch
+essentially reverts the commit above to restore the behavior.
 
-Caveat! While this enables a new kind of TFO (data-less empty-cookie
-SYN), some firewall rules setup may not work if they assume such packets
-are not legit TFOs and will filter them.
-
-Signed-off-by: Luke Hsiao <lukehsiao@google.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Acked-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20210816205105.2533289-1-luke.w.hsiao@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214045
+Link: https://lore.kernel.org/r/20210817075630.7115-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_fastopen.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/pci/hda/hda_intel.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
-index 25fa4c01a17f..f1e90fc1cd18 100644
---- a/net/ipv4/tcp_fastopen.c
-+++ b/net/ipv4/tcp_fastopen.c
-@@ -379,8 +379,7 @@ struct sock *tcp_try_fastopen(struct sock *sk, struct sk_buff *skb,
- 		return NULL;
- 	}
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 0062c18b646a..0322b289505e 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -883,11 +883,10 @@ static unsigned int azx_get_pos_skl(struct azx *chip, struct azx_dev *azx_dev)
+ 	return azx_get_pos_posbuf(chip, azx_dev);
+ }
  
--	if (syn_data &&
--	    tcp_fastopen_no_cookie(sk, dst, TFO_SERVER_COOKIE_NOT_REQD))
-+	if (tcp_fastopen_no_cookie(sk, dst, TFO_SERVER_COOKIE_NOT_REQD))
- 		goto fastopen;
+-static void __azx_shutdown_chip(struct azx *chip, bool skip_link_reset)
++static void azx_shutdown_chip(struct azx *chip)
+ {
+ 	azx_stop_chip(chip);
+-	if (!skip_link_reset)
+-		azx_enter_link_reset(chip);
++	azx_enter_link_reset(chip);
+ 	azx_clear_irq_pending(chip);
+ 	display_power(chip, false);
+ }
+@@ -896,11 +895,6 @@ static void __azx_shutdown_chip(struct azx *chip, bool skip_link_reset)
+ static DEFINE_MUTEX(card_list_lock);
+ static LIST_HEAD(card_list);
  
- 	if (foc->len == 0) {
+-static void azx_shutdown_chip(struct azx *chip)
+-{
+-	__azx_shutdown_chip(chip, false);
+-}
+-
+ static void azx_add_card_list(struct azx *chip)
+ {
+ 	struct hda_intel *hda = container_of(chip, struct hda_intel, chip);
+@@ -2391,7 +2385,7 @@ static void azx_shutdown(struct pci_dev *pci)
+ 		return;
+ 	chip = card->private_data;
+ 	if (chip && chip->running)
+-		__azx_shutdown_chip(chip, true);
++		azx_shutdown_chip(chip);
+ }
+ 
+ /* PCI IDs */
 -- 
 2.30.2
 
