@@ -2,118 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF5A6404837
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 12:07:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 777994048BA
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 12:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230404AbhIIKIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 06:08:55 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:55757 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229980AbhIIKIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 06:08:54 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 1D5023200922;
-        Thu,  9 Sep 2021 06:07:45 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Thu, 09 Sep 2021 06:07:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=1K0/ZBiegBz77RDKugnz5oOr1bJ
-        GQ2coLljxrhEuL/w=; b=xqsSUI87cW3U5oPZeCHQc90SI3l07gfGR/XF64WAiZV
-        oV13IC/rmAGNP+OOGe1Vp0vosCJW9YPuG9L3SnjYXYUKGklzgr7KatWplSKtEWYT
-        BPluid8QRjfboTRnetKpLl3ui966q4U02o3EvBWNUtgpYcdqqVQL/AmD8AVIgUnU
-        S9u9+T+UTbXgJF+SOmyH8Qr1fx6tgUq1F9/m5a4+9BrvzhfbWltVWx8EVRolNwWq
-        r5TaUHitsUN4cWuKrBEQYUFQR7pEuzMffOq5VJzTkr6cUjJe1O3Z0lXEZFtiQkIs
-        Q/eDJQCSP/DsTcoQVoINQsHCJ36CdEOY+flZbmpeHLg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=1K0/ZB
-        iegBz77RDKugnz5oOr1bJGQ2coLljxrhEuL/w=; b=uCGD0nQAUoVY8GtWlrAMdv
-        tG0IR3A4/26sVNPQUsK5AQ7kbzvke+KURQVZ0Rlz2yaRdhD3Rwwv1xQYFbGKB9bi
-        5cNYTzVZtQygQd2BhPzussuW6SloW6LF1919AaECkE84oa3ALnAaViRsOyB7XENm
-        dnOVBE+8U3kwHUwmLeL8l5Vv05sVXtOOmsPXGhslU/yLemRozU1Q8XDx7wUDRsLH
-        fkLJS/Z4pLsgXIbp6VJQYEEP5b8M3jqW9uoQUmfhEU4QuJLSy4VZcZAsz4E6uNKJ
-        mjI+z3KqOXR6fOdpGaw6o0EfzwMGJXdajFcx5rGSkDoktX9n36USn20XH2NU+lbA
-        ==
-X-ME-Sender: <xms:8Nw5YfqO07PxOBBEWjRIUMc5QgV6GhtvU71G6ovMFuzqiLD5UVn4iQ>
-    <xme:8Nw5YZqY9oUS_9gd1imrO6cZAQr1LgqNOHrhJUfsuedwO7pJnxp3vrBYi1aNKyCA3
-    cwesscdUqAPVw>
-X-ME-Received: <xmr:8Nw5YcOtccggEbkIwkSzz92aDu7sVlDLkLFWRKXXIpD2BrAbnTQ6m7A9iMzejScDlnN18ZFSaq7krtXi7DGwoTRcUCAQCctO>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudefledgvdegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
-    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:8Nw5YS6aKwmQ7-B-4QXHy7in7Oq7hK5EIazLh5qhEca5lKLD7nuo2g>
-    <xmx:8Nw5Ye69wVZWsj8d6IIoxPf8WYgV01zZ_6Rm3aWZhvMv5cuKB1bcUw>
-    <xmx:8Nw5YahOcP1PfUMEv7QY70c--wj82Y4NMlfaaL0ijQkX-r_K22xTPw>
-    <xmx:8Nw5YbumioQwMdUoNvOAj4wkVxfoRSuSAzc_pcW23NjA3AsARt2efg>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 9 Sep 2021 06:07:43 -0400 (EDT)
-Date:   Thu, 9 Sep 2021 12:07:32 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     Yi Zhang <yi.zhang@redhat.com>,
-        linux-block <linux-block@vger.kernel.org>, stable@vger.kernel.org
-Subject: Re: [bug report] NULL pointer at blk_mq_put_rq_ref+0x20/0xb4
- observed with blktests on 5.13.15
-Message-ID: <YTnc5Ja/DKR30Euy@kroah.com>
-References: <CAHj4cs-noupgFn3QjB96Z20hv-BhFLHOyFZFEtrhGpESkeoRSA@mail.gmail.com>
- <CAFj5m9J4sxRwQb7+nHzYOurX9QRpEgsEMCqdx4SHA4THnsJXBA@mail.gmail.com>
+        id S234464AbhIIKyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 06:54:38 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7472 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234473AbhIIKyi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 06:54:38 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 189AXltD134381
+        for <stable@vger.kernel.org>; Thu, 9 Sep 2021 06:53:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=v+C0UKv0L4yjE/EjUzeD9nkeHDPPDnJabBOUpr0b4UU=;
+ b=kp2a1QTE7UQuS3P1Q2jOOw3l/MEeA1SrSTKFrjaE+8wGryMnfQqLtizN40oashD3Mq5p
+ 0FdptcfSGT9VN2vCnlbnGbVGTT3b2i1Vdgn7M3K9/aUhCrtaAPz4pJu0VVjGG7ehz3XK
+ uq07fotFeUlD/NmMvy1zunvI8sutyVsEU4ATAao++II2fVrLf8lftO8TcvVjc5uHSyR8
+ qMa0bAbEQ/usv5KtTqZSq7uAQNKJ2vurVxyE8rz+IvskKwDkYFiEzEfw2wdPxuDzXc7w
+ +kcZ/hnVV4Lg3j+5ZbHSS0gAWKUUm8qTcmQVCrZTUPV2MV1Vo9RYKpsSPaGX7M8qiStR AA== 
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3axp75ns8q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 09 Sep 2021 06:53:28 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 189AfWPM014203
+        for <stable@vger.kernel.org>; Thu, 9 Sep 2021 10:53:26 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 3axcnpkp6p-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 09 Sep 2021 10:53:26 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 189ArM6O54067660
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 9 Sep 2021 10:53:22 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5B01A11CC0E;
+        Thu,  9 Sep 2021 10:53:22 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D760C11CC0A;
+        Thu,  9 Sep 2021 10:53:21 +0000 (GMT)
+Received: from oc8242746057.ibm.com.com (unknown [9.171.34.55])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  9 Sep 2021 10:53:21 +0000 (GMT)
+From:   Alexander Egorenkov <egorenar@linux.ibm.com>
+To:     hca@linux.ibm.com, borntraeger@de.ibm.com
+Cc:     oberpar@linux.ibm.com,
+        linux390-list@tuxmaker.boeblingen.de.ibm.com,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/1] s390/sclp: fix Secure-IPL facility detection
+Date:   Thu,  9 Sep 2021 12:53:18 +0200
+Message-Id: <20210909105318.187592-1-egorenar@linux.ibm.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAFj5m9J4sxRwQb7+nHzYOurX9QRpEgsEMCqdx4SHA4THnsJXBA@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: rR62lFkpg0nlB8UDdsJUoQNYrx7d-NUo
+X-Proofpoint-ORIG-GUID: rR62lFkpg0nlB8UDdsJUoQNYrx7d-NUo
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-09-09_03:2021-09-09,2021-09-09 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 phishscore=0
+ adultscore=0 priorityscore=1501 suspectscore=0 mlxlogscore=779 mlxscore=0
+ spamscore=0 lowpriorityscore=0 bulkscore=0 malwarescore=0 impostorscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109030001
+ definitions=main-2109090064
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 09, 2021 at 05:14:18PM +0800, Ming Lei wrote:
-> On Thu, Sep 9, 2021 at 4:47 PM Yi Zhang <yi.zhang@redhat.com> wrote:
-> >
-> > Hello
-> >
-> > I found this issue with blktests on[1], did we miss some patch on stable?
-> > [1]
-> > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> > queue/5.13
-> >
-> > [   68.989907] run blktests block/006 at 2021-09-09 04:34:35
-> > [   69.085724] null_blk: module loaded
-> > [   74.271624] Unable to handle kernel NULL pointer dereference at
-> > virtual address 00000000000002b8
-> > [   74.280414] Mem abort info:
-> > [   74.283195]   ESR = 0x96000004
-> > [   74.286245]   EC = 0x25: DABT (current EL), IL = 32 bits
-> > [   74.291545]   SET = 0, FnV = 0
-> > [   74.294587]   EA = 0, S1PTW = 0
-> > [   74.297720] Data abort info:
-> > [   74.300588]   ISV = 0, ISS = 0x00000004
-> > [   74.304411]   CM = 0, WnR = 0
-> > [   74.307368] user pgtable: 4k pages, 48-bit VAs, pgdp=000008004366e000
-> > [   74.313796] [00000000000002b8] pgd=0000000000000000, p4d=0000000000000000
-> > [   74.320577] Internal error: Oops: 96000004 [#1] SMP
-> > [   74.325443] Modules linked in: null_blk mlx5_ib ib_uverbs ib_core
-> > rfkill sunrpc vfat fat joydev acpi_ipmi ipmi_ssif cdc_ether usbnet mii
-> > mlx5_core psample ipmi_devintf mlxfw tls ipmi_msghandler arm_cmn
-> > cppc_cpufreq arm_dsu_pmu acpi_tad fuse zram ip_tables xfs ast
-> > i2c_algo_bit drm_vram_helper drm_kms_helper crct10dif_ce syscopyarea
-> > ghash_ce sysfillrect uas sysimgblt sbsa_gwdt fb_sys_fops cec
-> > drm_ttm_helper ttm nvme usb_storage nvme_core drm xgene_hwmon
-> > aes_neon_bs
-> > [   74.366458] CPU: 31 PID: 2511 Comm: fio Not tainted 5.13.15+ #1
-> 
-> Looks the fixes haven't land on linux-5.13.y:
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a9ed27a764156929efe714033edb3e9023c5f321
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c2da19ed50554ce52ecbad3655c98371fe58599f
+Prevent out-of-range access if the returned SCLP SCCB response is smaller
+in size than the address of the Secure-IPL flag.
 
-Now queued up.  Someone could have told us they were needed :)
+Fixes: c9896acc7851 ("s390/ipl: Provide has_secure sysfs attribute")
+Cc: stable@vger.kernel.org # 5.2+
+Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+---
+ drivers/s390/char/sclp_early.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-thanks,
+diff --git a/drivers/s390/char/sclp_early.c b/drivers/s390/char/sclp_early.c
+index 2f3515fa242a..f3d5c7f4c13d 100644
+--- a/drivers/s390/char/sclp_early.c
++++ b/drivers/s390/char/sclp_early.c
+@@ -45,13 +45,14 @@ static void __init sclp_early_facilities_detect(void)
+ 	sclp.has_gisaf = !!(sccb->fac118 & 0x08);
+ 	sclp.has_hvs = !!(sccb->fac119 & 0x80);
+ 	sclp.has_kss = !!(sccb->fac98 & 0x01);
+-	sclp.has_sipl = !!(sccb->cbl & 0x4000);
+ 	if (sccb->fac85 & 0x02)
+ 		S390_lowcore.machine_flags |= MACHINE_FLAG_ESOP;
+ 	if (sccb->fac91 & 0x40)
+ 		S390_lowcore.machine_flags |= MACHINE_FLAG_TLB_GUEST;
+ 	if (sccb->cpuoff > 134)
+ 		sclp.has_diag318 = !!(sccb->byte_134 & 0x80);
++	if (sccb->cpuoff > 137)
++		sclp.has_sipl = !!(sccb->cbl & 0x4000);
+ 	sclp.rnmax = sccb->rnmax ? sccb->rnmax : sccb->rnmax2;
+ 	sclp.rzm = sccb->rnsize ? sccb->rnsize : sccb->rnsize2;
+ 	sclp.rzm <<= 20;
+-- 
+2.31.1
 
-greg k-h
