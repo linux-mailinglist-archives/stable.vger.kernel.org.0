@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20AA14050DB
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB8E64050DA
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244119AbhIIMcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:32:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33430 "EHLO mail.kernel.org"
+        id S1351400AbhIIMcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:32:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353832AbhIIMY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353833AbhIIMY5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:24:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37F27611C8;
-        Thu,  9 Sep 2021 11:51:37 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 714A861B08;
+        Thu,  9 Sep 2021 11:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188298;
-        bh=35atDnHr5kKPvD7ZRVCpmrxJQhwkKsyZnBkWc0xcL9g=;
+        s=k20201202; t=1631188299;
+        bh=37TMLUSfMQCXfG0l7cchb1QLoKsWRbJKjTCLzDqEFk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fm7AQmayuqZZ218/3Ncq5GOAAoUqzwU71F/NWXDQNwzg9tALe4M4YmYXzQOeK6SJ0
-         2+FY24yGVQj3Y6t/XfgcB6Xgp7f0UvD0hKOr6P7CtCn11ls+o2VcmN1CRRZy2hFWbe
-         I1FPWWB6RBSHQ603qQKyoz2/UTonDXMZp8ocHe3OCnWPiXZ29j0VZh6wXl4iVbxS7v
-         P04x6Ig+V3QXg3RSMZe9g7ugfrtzpMrkT7zW1f6k9XwP7Qy7MKBmvUIZuT/ErZX7+s
-         vQORmIC7Ug8WGjoN/FIC3d9W32E2HDMFLDSIYCjUHvv6QWXsQzWiwt2Z0YC0A1dtJ3
-         BPfCZ51N3iacw==
+        b=Tv8zAHkzBq06qsWrrbSqNezTc2CudnUQuhTzQb9dTBP8JDfa+NnJpOR5ko460Ba9d
+         N9dKwXl75whp3Y7NmjDsicarQSKazq1AjLgPj9PiJm+th1zV3i23iTLd2F93RmmGMV
+         n/W/n+KT3/HdTB563iL2IF9XfSHXiOynf7tizn7g/cQjCtOFyl8Wj9rzOMcrn8uVYN
+         fDWl/XVW/9iy1BlZfTo6oC5y8BAwBEekYwfeIMljK0UB7/9PVcx7ZGdsafwAnP6pRU
+         HdQIFYQ9JcTvHBLwvz95UT74MibU2qzm/KLRHLp6mDjNdJ6qfUttKAsRFjO1zXckb7
+         gHyyhwM1/mR7Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>, Sam Ravnborg <sam@ravnborg.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 015/176] video: fbdev: kyro: fix a DoS bug by restricting user input
-Date:   Thu,  9 Sep 2021 07:48:37 -0400
-Message-Id: <20210909115118.146181-15-sashal@kernel.org>
+Cc:     Yajun Deng <yajun.deng@linux.dev>, Yonghong Song <yhs@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 016/176] netlink: Deal with ESRCH error in nlmsg_notify()
+Date:   Thu,  9 Sep 2021 07:48:38 -0400
+Message-Id: <20210909115118.146181-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -42,52 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Yajun Deng <yajun.deng@linux.dev>
 
-[ Upstream commit 98a65439172dc69cb16834e62e852afc2adb83ed ]
+[ Upstream commit fef773fc8110d8124c73a5e6610f89e52814637d ]
 
-The user can pass in any value to the driver through the 'ioctl'
-interface. The driver dost not check, which may cause DoS bugs.
+Yonghong Song report:
+The bpf selftest tc_bpf failed with latest bpf-next.
+The following is the command to run and the result:
+$ ./test_progs -n 132
+[   40.947571] bpf_testmod: loading out-of-tree module taints kernel.
+test_tc_bpf:PASS:test_tc_bpf__open_and_load 0 nsec
+test_tc_bpf:PASS:bpf_tc_hook_create(BPF_TC_INGRESS) 0 nsec
+test_tc_bpf:PASS:bpf_tc_hook_create invalid hook.attach_point 0 nsec
+test_tc_bpf_basic:PASS:bpf_obj_get_info_by_fd 0 nsec
+test_tc_bpf_basic:PASS:bpf_tc_attach 0 nsec
+test_tc_bpf_basic:PASS:handle set 0 nsec
+test_tc_bpf_basic:PASS:priority set 0 nsec
+test_tc_bpf_basic:PASS:prog_id set 0 nsec
+test_tc_bpf_basic:PASS:bpf_tc_attach replace mode 0 nsec
+test_tc_bpf_basic:PASS:bpf_tc_query 0 nsec
+test_tc_bpf_basic:PASS:handle set 0 nsec
+test_tc_bpf_basic:PASS:priority set 0 nsec
+test_tc_bpf_basic:PASS:prog_id set 0 nsec
+libbpf: Kernel error message: Failed to send filter delete notification
+test_tc_bpf_basic:FAIL:bpf_tc_detach unexpected error: -3 (errno 3)
+test_tc_bpf:FAIL:test_tc_internal ingress unexpected error: -3 (errno 3)
 
-The following log reveals it:
+The failure seems due to the commit
+    cfdf0d9ae75b ("rtnetlink: use nlmsg_notify() in rtnetlink_send()")
 
-divide error: 0000 [#1] PREEMPT SMP KASAN PTI
-RIP: 0010:SetOverlayViewPort+0x133/0x5f0 drivers/video/fbdev/kyro/STG4000OverlayDevice.c:476
-Call Trace:
- kyro_dev_overlay_viewport_set drivers/video/fbdev/kyro/fbdev.c:378 [inline]
- kyrofb_ioctl+0x2eb/0x330 drivers/video/fbdev/kyro/fbdev.c:603
- do_fb_ioctl+0x1f3/0x700 drivers/video/fbdev/core/fbmem.c:1171
- fb_ioctl+0xeb/0x130 drivers/video/fbdev/core/fbmem.c:1185
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl fs/ioctl.c:739 [inline]
- __x64_sys_ioctl+0x19b/0x220 fs/ioctl.c:739
- do_syscall_64+0x32/0x80 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+Deal with ESRCH error in nlmsg_notify() even the report variable is zero.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1626235762-2590-1-git-send-email-zheyuma97@gmail.com
+Reported-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
+Link: https://lore.kernel.org/r/20210719051816.11762-1-yajun.deng@linux.dev
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/kyro/fbdev.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/netlink/af_netlink.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/kyro/fbdev.c b/drivers/video/fbdev/kyro/fbdev.c
-index 8fbde92ae8b9..4b8c7c16b1df 100644
---- a/drivers/video/fbdev/kyro/fbdev.c
-+++ b/drivers/video/fbdev/kyro/fbdev.c
-@@ -372,6 +372,11 @@ static int kyro_dev_overlay_viewport_set(u32 x, u32 y, u32 ulWidth, u32 ulHeight
- 		/* probably haven't called CreateOverlay yet */
- 		return -EINVAL;
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index e527f5686e2b..8434da3c0487 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -2537,13 +2537,15 @@ int nlmsg_notify(struct sock *sk, struct sk_buff *skb, u32 portid,
+ 		/* errors reported via destination sk->sk_err, but propagate
+ 		 * delivery errors if NETLINK_BROADCAST_ERROR flag is set */
+ 		err = nlmsg_multicast(sk, skb, exclude_portid, group, flags);
++		if (err == -ESRCH)
++			err = 0;
+ 	}
  
-+	if (ulWidth == 0 || ulWidth == 0xffffffff ||
-+	    ulHeight == 0 || ulHeight == 0xffffffff ||
-+	    (x < 2 && ulWidth + 2 == 0))
-+		return -EINVAL;
-+
- 	/* Stop Ramdac Output */
- 	DisableRamdacOutput(deviceInfo.pSTGReg);
+ 	if (report) {
+ 		int err2;
+ 
+ 		err2 = nlmsg_unicast(sk, skb, portid);
+-		if (!err || err == -ESRCH)
++		if (!err)
+ 			err = err2;
+ 	}
  
 -- 
 2.30.2
