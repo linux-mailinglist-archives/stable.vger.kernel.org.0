@@ -2,71 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE7B405520
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:32:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB03840569D
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354996AbhIINIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:08:25 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:44910 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353709AbhIINDl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 09:03:41 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id B4A4422367;
-        Thu,  9 Sep 2021 13:02:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1631192529;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=r5lfdoUKeH0kmo/VAVCjyEyeBxk1DucjJPKK50iG0W8=;
-        b=kHLnbPNiNr5u1ZwG5eUSdXan3c4Sf4Qhflbg9DzWfEiMwnJ1UZfZ0IMQx8GE2OGIhV2PVJ
-        Y+Lf5LzlFQw/ogrqncnsgYhkGG8WemXPtZrH0XEytMcMoLr+06xZZLTa8oNFHrk1zPuz9R
-        AWtLTBjeF7lcrWWpoAuI3uHvnIrHrhA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1631192529;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=r5lfdoUKeH0kmo/VAVCjyEyeBxk1DucjJPKK50iG0W8=;
-        b=eVgQonJBNAJg1DEcOsOZpX2ReZCbE4Y2fHxZvDewVneULyY6YTDEJv/xRHAw5rEbHoSTvg
-        fWANgVfHaRCNYpBQ==
-Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
-        by relay2.suse.de (Postfix) with ESMTP id AB395A437D;
-        Thu,  9 Sep 2021 13:02:09 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id ACA1FDA7A9; Thu,  9 Sep 2021 15:02:04 +0200 (CEST)
-Date:   Thu, 9 Sep 2021 15:02:04 +0200
-From:   David Sterba <dsterba@suse.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qu Wenruo <wqu@suse.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.4 28/35] btrfs: subpage: fix race between
- prepare_pages() and btrfs_releasepage()
-Message-ID: <20210909130204.GX15306@suse.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qu Wenruo <wqu@suse.com>, Ritesh Harjani <riteshh@linux.ibm.com>,
-        Filipe Manana <fdmanana@suse.com>, David Sterba <dsterba@suse.com>,
-        linux-btrfs@vger.kernel.org
-References: <20210909120116.150912-1-sashal@kernel.org>
- <20210909120116.150912-28-sashal@kernel.org>
+        id S1352884AbhIINUt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:20:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38868 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1357723AbhIINPZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 09:15:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C472F61051;
+        Thu,  9 Sep 2021 13:05:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631192727;
+        bh=nzbSQqsPS5FcwzRSALz3d74l1Nj0HIR4mATqTsW+N68=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=PFOpPWYY9dyEvy3fwZeTSNhsetGczhzX8WirNeICmuj3QyY0hQe3oq6njlMJr4sJv
+         rngIuwSqLv5IisBtMjsbmdG9EYpptVO1y6g/r/Ql68xaZwIT3l8HrsaYpkWzp0p/Zq
+         BQ3eYjfvmU7c2TEY142j1a09uAmBnj4EG0SfqWtlDkoDpvgd17d4Bb0kviH6N8Fsrv
+         2WHQ09JixxBWO/YrwJGJtusBjXsp4rDPcKj/UGlXjLCe1G2tH6n4HWoRlTqRLTO3Yx
+         oN+GuKnawQjYmhYtBGDjpZGA3VnXGdwGdUpC4u4ZlEctbfDHqZ828ZIF4q1o4zZdiM
+         49X4cHTDUQQ9g==
+Date:   Thu, 9 Sep 2021 14:04:50 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Dmitry Osipenko <digetx@gmail.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.14 133/252] spi: tegra20-slink: Improve runtime
+ PM usage
+Message-ID: <20210909130450.GB5176@sirena.org.uk>
+References: <20210909114106.141462-1-sashal@kernel.org>
+ <20210909114106.141462-133-sashal@kernel.org>
+ <20210909123751.GA5176@sirena.org.uk>
+ <f75c5c9c-8430-f650-5d0a-3490ac6aa3de@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
 Content-Disposition: inline
-In-Reply-To: <20210909120116.150912-28-sashal@kernel.org>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+In-Reply-To: <f75c5c9c-8430-f650-5d0a-3490ac6aa3de@gmail.com>
+X-Cookie: I have become me without my consent.
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 09, 2021 at 08:01:09AM -0400, Sasha Levin wrote:
-> From: Qu Wenruo <wqu@suse.com>
-> 
-> [ Upstream commit e0467866198f7f536806f39e5d0d91ae8018de08 ]
 
-Please drop this patch from stable queue, thanks.
+--QTprm0S8XgL7H0Dt
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Sep 09, 2021 at 03:45:45PM +0300, Dmitry Osipenko wrote:
+> 09.09.2021 15:37, Mark Brown =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+
+> > This feels new featureish to me - it'll give you runtime PM where
+> > previously there was none.
+
+> Apparently all patches which have a word 'fix' in commit message are
+> auto-selected. I agree that it's better not to port this patch.
+
+Yeah, it's a fairly common source of false positives :/
+
+--QTprm0S8XgL7H0Dt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmE6BnEACgkQJNaLcl1U
+h9Cdrgf9E78HM3YH3HOA9i4ZNOnPUQjItYOxxsBBBniZXXz5oIpT9MVSFkNL9mXD
+4440XtsdeGNpdZyoiFPmkUQzUvpLymgvRbcEkh+aTODZvb6ZeLhU+GJBs2Ua0Q0w
+yNfV29Kp7sfi9rKLE7s+8Xm1N3ODy11i4zn2LmmWFsH+ImB5+CWdw2wXqYJLo0c8
+yhSqpszFYf/OhkUt16wR72lGVUPymHEGao8sd42X8tPf2dLH3rHZxdc1zSWhdcjT
+W53YcSMcPIqanpGa23LKQS2Ut6TtCoUlfvsR3x6bTVCRSS1+a0xlc8xdD4GikFHp
+w1JOxc50IcCGugd55WOrqdnsf9t6DA==
+=6meK
+-----END PGP SIGNATURE-----
+
+--QTprm0S8XgL7H0Dt--
