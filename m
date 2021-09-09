@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 558FB4057C3
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA6904057C8
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353197AbhIINmD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:42:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33698 "EHLO mail.kernel.org"
+        id S1354709AbhIINmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:42:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356448AbhIIMzM (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1356436AbhIIMzM (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:55:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02D676324E;
-        Thu,  9 Sep 2021 11:58:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 566006324C;
+        Thu,  9 Sep 2021 11:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188683;
-        bh=9yQVsBKhkMPV/1QFKagHMGFQ/CidzBP1nHpUmOc3MUg=;
+        s=k20201202; t=1631188685;
+        bh=PsY7ktnYAxpVXAlPenEeg0jBUhml0Zf7q5eBZJDIkrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XXu58rGFgvtlFfbnifwwBKjaVZh7QpcIqOrS/6tEMcp7iTMsz+EklAvztEjsC5iBq
-         XuViTQJFuvZWApZxlNT2iwp8Efmyl/EsPG8y6Z0PoAvYGGgluTcDhuSKpnBl0LJWaq
-         VsOIqG5JENF/Du0sB4JbsvDuABuRULGoU2rEeNAvv1mxbXkOFaufuIQaSuFr7QxMXS
-         kAYmjdZ8MRfncL6krJZswUmYhEscPt23EeAK+tuc0Nn4uPMPbMRxZbTpQGtCGZUcEg
-         bvuut8ACAKCiXp7qlYZRK0mZVUHeyiWp2X6idu+hlh8Rr1jbkNTirNUevpmbQ7HUjq
-         iV4Pki191O9zw==
+        b=ml10uKZ+bvAx/7DPbdoDCeUiX2U4y09Gng5sVcFgAbPRVy4Fl4fAYaXy6WMisw9OM
+         eq1esWy9WMew2mYhRd78QHQ/SdqTKtBNtz+aBhrJAO3cHobFlO1VmOxbSOiZIz5v+z
+         MHM2k4C9AtHAFgGdDJZUkpETBNIEMNFajkvEV0Ww9LId60dzh0eqxC+QhFc+6CpycI
+         RbaffDShWoRZbseKt3zkoEPOyArusw5Bl/sKU7ejNneh3MkNMJduoUKwEsR71Blhxn
+         kUrdBKjuv4N31Da1HL7N44bvvZCE6YF8xyhk54JpmCP/4yUFto4Ktd7WESDC5/ktxn
+         ctGtiJwSzSn2w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juhee Kang <claudiajkang@gmail.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 30/74] samples: bpf: Fix tracex7 error raised on the missing argument
-Date:   Thu,  9 Sep 2021 07:56:42 -0400
-Message-Id: <20210909115726.149004-30-sashal@kernel.org>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-ide@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 31/74] ata: sata_dwc_460ex: No need to call phy_exit() befre phy_init()
+Date:   Thu,  9 Sep 2021 07:56:43 -0400
+Message-Id: <20210909115726.149004-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115726.149004-1-sashal@kernel.org>
 References: <20210909115726.149004-1-sashal@kernel.org>
@@ -43,71 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juhee Kang <claudiajkang@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 7d07006f05922b95518be403f08ef8437b67aa32 ]
+[ Upstream commit 3ad4a31620355358316fa08fcfab37b9d6c33347 ]
 
-The current behavior of 'tracex7' doesn't consist with other bpf samples
-tracex{1..6}. Other samples do not require any argument to run with, but
-tracex7 should be run with btrfs device argument. (it should be executed
-with test_override_return.sh)
+Last change to device managed APIs cleaned up error path to simple phy_exit()
+call, which in some cases has been executed with NULL parameter. This per se
+is not a problem, but rather logical misconception: no need to free resource
+when it's for sure has not been allocated yet. Fix the driver accordingly.
 
-Currently, tracex7 doesn't have any description about how to run this
-program and raises an unexpected error. And this result might be
-confusing since users might not have a hunch about how to run this
-program.
-
-    // Current behavior
-    # ./tracex7
-    sh: 1: Syntax error: word unexpected (expecting ")")
-    // Fixed behavior
-    # ./tracex7
-    ERROR: Run with the btrfs device argument!
-
-In order to fix this error, this commit adds logic to report a message
-and exit when running this program with a missing argument.
-
-Additionally in test_override_return.sh, there is a problem with
-multiple directory(tmpmnt) creation. So in this commit adds a line with
-removing the directory with every execution.
-
-Signed-off-by: Juhee Kang <claudiajkang@gmail.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210727041056.23455-1-claudiajkang@gmail.com
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210727125130.19977-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/test_override_return.sh | 1 +
- samples/bpf/tracex7_user.c          | 5 +++++
- 2 files changed, 6 insertions(+)
+ drivers/ata/sata_dwc_460ex.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/samples/bpf/test_override_return.sh b/samples/bpf/test_override_return.sh
-index e68b9ee6814b..35db26f736b9 100755
---- a/samples/bpf/test_override_return.sh
-+++ b/samples/bpf/test_override_return.sh
-@@ -1,5 +1,6 @@
- #!/bin/bash
+diff --git a/drivers/ata/sata_dwc_460ex.c b/drivers/ata/sata_dwc_460ex.c
+index 6f142aa54f5f..8487048c5ec9 100644
+--- a/drivers/ata/sata_dwc_460ex.c
++++ b/drivers/ata/sata_dwc_460ex.c
+@@ -1253,24 +1253,20 @@ static int sata_dwc_probe(struct platform_device *ofdev)
+ 	irq = irq_of_parse_and_map(np, 0);
+ 	if (irq == NO_IRQ) {
+ 		dev_err(&ofdev->dev, "no SATA DMA irq\n");
+-		err = -ENODEV;
+-		goto error_out;
++		return -ENODEV;
+ 	}
  
-+rm -r tmpmnt
- rm -f testfile.img
- dd if=/dev/zero of=testfile.img bs=1M seek=1000 count=1
- DEVICE=$(losetup --show -f testfile.img)
-diff --git a/samples/bpf/tracex7_user.c b/samples/bpf/tracex7_user.c
-index ea6dae78f0df..2ed13e9f3fcb 100644
---- a/samples/bpf/tracex7_user.c
-+++ b/samples/bpf/tracex7_user.c
-@@ -13,6 +13,11 @@ int main(int argc, char **argv)
- 	char command[256];
- 	int ret;
+ #ifdef CONFIG_SATA_DWC_OLD_DMA
+ 	if (!of_find_property(np, "dmas", NULL)) {
+ 		err = sata_dwc_dma_init_old(ofdev, hsdev);
+ 		if (err)
+-			goto error_out;
++			return err;
+ 	}
+ #endif
  
-+	if (!argv[1]) {
-+		fprintf(stderr, "ERROR: Run with the btrfs device argument!\n");
-+		return 0;
-+	}
-+
- 	snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
+ 	hsdev->phy = devm_phy_optional_get(hsdev->dev, "sata-phy");
+-	if (IS_ERR(hsdev->phy)) {
+-		err = PTR_ERR(hsdev->phy);
+-		hsdev->phy = NULL;
+-		goto error_out;
+-	}
++	if (IS_ERR(hsdev->phy))
++		return PTR_ERR(hsdev->phy);
  
- 	if (load_bpf_file(filename)) {
+ 	err = phy_init(hsdev->phy);
+ 	if (err)
 -- 
 2.30.2
 
