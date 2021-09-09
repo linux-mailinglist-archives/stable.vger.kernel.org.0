@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC84405112
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 620B6405114
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353011AbhIIMdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:33:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38732 "EHLO mail.kernel.org"
+        id S243823AbhIIMdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:33:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353732AbhIIM3R (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353735AbhIIM3R (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:29:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55FFC61B3C;
-        Thu,  9 Sep 2021 11:52:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86BF061357;
+        Thu,  9 Sep 2021 11:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188350;
-        bh=EHZMCFSHyOO1L7w81BhKWJw0Y/4adHCWEe+UnisaJIg=;
+        s=k20201202; t=1631188351;
+        bh=bkivChkdpLFO1TZYQV/g8jfevgN1DLu5GcAyvQybj68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tX6mTsVarT7TkdXSrc1tuj3lKg0JLYkj53V0M8nZKI1CMWcBZrXJaGD6NF++XHLBL
-         YkI0kebIOo2GXFQksqisOqAEynlpBQfu6OtP2WLcF2b1V52SVqJ8Kb9wzdlHRQvk1o
-         uwAC9JgY0xQy2By/vgUQ6DUFXu0VxCMhOVTrH9AxF3ycSsuB+DMrVtXO0y6lmGJ5kg
-         Q39Prc8SIR+bZB/kDZl03DkegQy0aIw8oK9SEkQ1CxYvzu5doWCIO0Kf2ERbbs8vDk
-         PINsyYu0obuaA1FrC95CxSR6W0F8OySMpM9Y7U4QaBOU5ZjhtY5x+qwpkmFe0kvZOe
-         6gJiE6tkE1ZJw==
+        b=oxh47qqYG0FmUb39zlSXrA08Sa/4KbLm4eQPg05V49sLlip57r3uT3pdKqsrlZmzg
+         fn69PKEppE3Op5HHAzahQwnbabr5aSxqKy9a3tvjms+CT5WBB6MK6n1mx97RqXRYWY
+         +tr3oWK38XXUlb/tr6eOS8b6wnp3qkiBD+zOlrORNM+lOoH1vKvT36yjkhwmnlOkL7
+         W2alab2p9yXhgtftjIwgmSFzVNP2nXW8P2zYXjSNF6WCetLK1LaWMvhmXf6Gk5x1w0
+         C8dIeZVDwkxTcJAnL6YREdIvBwYK8K6RQnip6toqEwuHFVBq67Yic8vqJTCowOfPAM
+         laYbUecFIb0Gg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Jordy Zomer <jordy@pwning.systems>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 056/176] serial: 8250_pci: make setup_port() parameters explicitly unsigned
-Date:   Thu,  9 Sep 2021 07:49:18 -0400
-Message-Id: <20210909115118.146181-56-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.10 057/176] staging: ks7010: Fix the initialization of the 'sleep_status' structure
+Date:   Thu,  9 Sep 2021 07:49:19 -0400
+Message-Id: <20210909115118.146181-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -43,37 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 3a96e97ab4e835078e6f27b7e1c0947814df3841 ]
+[ Upstream commit 56315e55119c0ea57e142b6efb7c31208628ad86 ]
 
-The bar and offset parameters to setup_port() are used in pointer math,
-and while it would be very difficult to get them to wrap as a negative
-number, just be "safe" and make them unsigned so that static checkers do
-not trip over them unintentionally.
+'sleep_status' has 3 atomic_t members. Initialize the 3 of them instead of
+initializing only 2 of them and setting 0 twice to the same variable.
 
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Reported-by: Jordy Zomer <jordy@pwning.systems>
-Link: https://lore.kernel.org/r/20210726130717.2052096-1-gregkh@linuxfoundation.org
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/d2e52a33a9beab41879551d0ae2fdfc99970adab.1626856991.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_pci.c | 2 +-
+ drivers/staging/ks7010/ks7010_sdio.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index 39f9ea24e316..58f718ed1bb9 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -87,7 +87,7 @@ static void moan_device(const char *str, struct pci_dev *dev)
+diff --git a/drivers/staging/ks7010/ks7010_sdio.c b/drivers/staging/ks7010/ks7010_sdio.c
+index 78dc8beeae98..8c740c771f50 100644
+--- a/drivers/staging/ks7010/ks7010_sdio.c
++++ b/drivers/staging/ks7010/ks7010_sdio.c
+@@ -939,9 +939,9 @@ static void ks7010_private_init(struct ks_wlan_private *priv,
+ 	memset(&priv->wstats, 0, sizeof(priv->wstats));
  
- static int
- setup_port(struct serial_private *priv, struct uart_8250_port *port,
--	   int bar, int offset, int regshift)
-+	   u8 bar, unsigned int offset, int regshift)
- {
- 	struct pci_dev *dev = priv->dev;
+ 	/* sleep mode */
++	atomic_set(&priv->sleepstatus.status, 0);
+ 	atomic_set(&priv->sleepstatus.doze_request, 0);
+ 	atomic_set(&priv->sleepstatus.wakeup_request, 0);
+-	atomic_set(&priv->sleepstatus.wakeup_request, 0);
  
+ 	trx_device_init(priv);
+ 	hostif_init(priv);
 -- 
 2.30.2
 
