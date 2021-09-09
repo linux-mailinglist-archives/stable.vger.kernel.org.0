@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CABA6404A1B
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:44:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69BAD404A1C
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236489AbhIILoq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:44:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46486 "EHLO mail.kernel.org"
+        id S237632AbhIILor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:44:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236695AbhIILnb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:43:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58DE56120D;
-        Thu,  9 Sep 2021 11:42:06 +0000 (UTC)
+        id S238374AbhIILnc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:43:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7846F61208;
+        Thu,  9 Sep 2021 11:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187727;
-        bh=7UCtEtr/QStiFxeem2PIB4IzGccfSnnMDlxg8E1GFug=;
+        s=k20201202; t=1631187728;
+        bh=FwX7FN7wCZQNTgYk6lhZ1YOTC7+64UlCreJtVCO1vOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pFwBGcpab5zC4ADnOqs8kAbmLYzgPY4sEyQr26GnCsUHpBXF+S+K3+LCoi83AMzzV
-         7PmdfkZps8ni84BGDT/EtSSVqPcJZkpKcF4amGQ+Vr3fBjbH6rU2JrZRYn9tnlkFii
-         hyXxiiiZ982/LtW81wbj2HAsoq+fP3PjxjEz4Roq7Teaf1Xjm4IcNYpgh2/38FMLWo
-         WEyDiEoDB6KuEA+so1we27nU0OCVNggfojQ/qpN3jiYKcktldS60eZMsI7ufuW07ko
-         eZEVqTQqIKzaYTpkCS93FoPvZ4rpLLElwpqg20ov49Rn4izT4S34yHOgqgsd1JyCA8
-         mMGKKNJa+4Giw==
+        b=IpYi3sBmzpQeU7JVaiIdDIr9psOuZGKg6+AMRmJ2K+hG5AYOYncgtYuEU2Oji0CV2
+         TJZy53Tzz//iquD0JBPzlPhZLxLzr5ktTdL2t2Tpm6SZUtobVDJSUGTGOe7YSe9RmH
+         ldBGJkZZJOKhfuUAP5+QHhhgTNPas/aQx434rNWw5qOWQ5ZE+L3GG0mA0YO108P1zq
+         6TphcBJC/kvwDm3XBQ8LlV1KHt5cMcgUzYnNSUt5lXDyAJpb6aMyAuEumkBrKlc441
+         0+aQAi0iIoBMuvTqCc0hSHXyjc4Wy5LZmYy7szv8uKYgCY+TpBN38AUl09FWS+IMf5
+         55IRxv1OOTIog==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>,
+Cc:     Laurentiu Tudor <laurentiu.tudor@nxp.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 047/252] tty: serial: jsm: hold port lock when reporting modem line changes
-Date:   Thu,  9 Sep 2021 07:37:41 -0400
-Message-Id: <20210909114106.141462-47-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 048/252] bus: fsl-mc: fix arg in call to dprc_scan_objects()
+Date:   Thu,  9 Sep 2021 07:37:42 -0400
+Message-Id: <20210909114106.141462-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -42,84 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-[ Upstream commit 240e126c28df084222f0b661321e8e3ecb0d232e ]
+[ Upstream commit aa0a1ae020e2d24749e9f8085f12ca6d46899c94 ]
 
-uart_handle_dcd_change() requires a port lock to be held and will emit a
-warning when lockdep is enabled.
+Second parameter of dprc_scan_objects() is a bool not a pointer
+so change from NULL to false.
 
-Held corresponding lock to fix the following warnings.
-
-[  132.528648] WARNING: CPU: 5 PID: 11600 at drivers/tty/serial/serial_core.c:3046 uart_handle_dcd_change+0xf4/0x120
-[  132.530482] Modules linked in:
-[  132.531050] CPU: 5 PID: 11600 Comm: jsm Not tainted 5.14.0-rc1-00003-g7fef2edf7cc7-dirty #31
-[  132.535268] RIP: 0010:uart_handle_dcd_change+0xf4/0x120
-[  132.557100] Call Trace:
-[  132.557562]  ? __free_pages+0x83/0xb0
-[  132.558213]  neo_parse_modem+0x156/0x220
-[  132.558897]  neo_param+0x399/0x840
-[  132.559495]  jsm_tty_open+0x12f/0x2d0
-[  132.560131]  uart_startup.part.18+0x153/0x340
-[  132.560888]  ? lock_is_held_type+0xe9/0x140
-[  132.561660]  uart_port_activate+0x7f/0xe0
-[  132.562351]  ? uart_startup.part.18+0x340/0x340
-[  132.563003]  tty_port_open+0x8d/0xf0
-[  132.563523]  ? uart_set_options+0x1e0/0x1e0
-[  132.564125]  uart_open+0x24/0x40
-[  132.564604]  tty_open+0x15c/0x630
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1626242003-3809-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Link: https://lore.kernel.org/r/20210715140718.8513-1-laurentiu.tudor@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/jsm/jsm_neo.c | 2 ++
- drivers/tty/serial/jsm/jsm_tty.c | 3 +++
- 2 files changed, 5 insertions(+)
+ drivers/bus/fsl-mc/fsl-mc-bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/jsm/jsm_neo.c b/drivers/tty/serial/jsm/jsm_neo.c
-index bf0e2a4cb0ce..c6f927a76c3b 100644
---- a/drivers/tty/serial/jsm/jsm_neo.c
-+++ b/drivers/tty/serial/jsm/jsm_neo.c
-@@ -815,7 +815,9 @@ static void neo_parse_isr(struct jsm_board *brd, u32 port)
- 		/* Parse any modem signal changes */
- 		jsm_dbg(INTR, &ch->ch_bd->pci_dev,
- 			"MOD_STAT: sending to parse_modem_sigs\n");
-+		spin_lock_irqsave(&ch->uart_port.lock, lock_flags);
- 		neo_parse_modem(ch, readb(&ch->ch_neo_uart->msr));
-+		spin_unlock_irqrestore(&ch->uart_port.lock, lock_flags);
- 	}
- }
+diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
+index 09c8ab5e0959..ffec838450f3 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-bus.c
++++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
+@@ -220,7 +220,7 @@ static int scan_fsl_mc_bus(struct device *dev, void *data)
+ 	root_mc_dev = to_fsl_mc_device(dev);
+ 	root_mc_bus = to_fsl_mc_bus(root_mc_dev);
+ 	mutex_lock(&root_mc_bus->scan_mutex);
+-	dprc_scan_objects(root_mc_dev, NULL);
++	dprc_scan_objects(root_mc_dev, false);
+ 	mutex_unlock(&root_mc_bus->scan_mutex);
  
-diff --git a/drivers/tty/serial/jsm/jsm_tty.c b/drivers/tty/serial/jsm/jsm_tty.c
-index 8e42a7682c63..d74cbbbf33c6 100644
---- a/drivers/tty/serial/jsm/jsm_tty.c
-+++ b/drivers/tty/serial/jsm/jsm_tty.c
-@@ -187,6 +187,7 @@ static void jsm_tty_break(struct uart_port *port, int break_state)
- 
- static int jsm_tty_open(struct uart_port *port)
- {
-+	unsigned long lock_flags;
- 	struct jsm_board *brd;
- 	struct jsm_channel *channel =
- 		container_of(port, struct jsm_channel, uart_port);
-@@ -240,6 +241,7 @@ static int jsm_tty_open(struct uart_port *port)
- 	channel->ch_cached_lsr = 0;
- 	channel->ch_stops_sent = 0;
- 
-+	spin_lock_irqsave(&port->lock, lock_flags);
- 	termios = &port->state->port.tty->termios;
- 	channel->ch_c_cflag	= termios->c_cflag;
- 	channel->ch_c_iflag	= termios->c_iflag;
-@@ -259,6 +261,7 @@ static int jsm_tty_open(struct uart_port *port)
- 	jsm_carrier(channel);
- 
- 	channel->ch_open_count++;
-+	spin_unlock_irqrestore(&port->lock, lock_flags);
- 
- 	jsm_dbg(OPEN, &channel->ch_bd->pci_dev, "finish\n");
- 	return 0;
+ exit:
 -- 
 2.30.2
 
