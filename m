@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5A19404E4E
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82835404E51
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343815AbhIIMLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:11:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47678 "EHLO mail.kernel.org"
+        id S243336AbhIIMLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:11:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344558AbhIIMG3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344593AbhIIMG3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:06:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08DA561555;
-        Thu,  9 Sep 2021 11:47:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7093A61215;
+        Thu,  9 Sep 2021 11:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188051;
-        bh=5S9rxJwANp0e3k9J5kE6LC6lNjzHJmACQK9MxwK4GO8=;
+        s=k20201202; t=1631188053;
+        bh=Y9yifLqTMAhtK6J/aU0Oho44D67037QoREffN/4CvcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbn2ncKAzMznNLS4Zau+F0wtyIEZv4mDqEJV/+2oV3PUVsnnkv2TZe43YtlYyqwc1
-         n6ek8CP/ri0c34GWcX828DaiAGjo03qbMFYke5o+ReHjjyN2IESDmixxsg+i2VbCLn
-         utxX2lE99lwLac1H5LT5shgwi7s6btaScE0qB5A1e9i5JjuXAddfj/EdYThv/710At
-         m/OkxGz5gEhZFO76p551Qp0YylN58hztkq1ZU2S7jo5vSamachKhgS7UTY9nJfXrjH
-         gd8MB9fUnHWpOIpxZhQqsaL4JBxjH50LKKVk4c5jz85jh288AGpfIZBJZWghFiqajh
-         Nwm5lHN5Pz0bg==
+        b=MBEROKbdK71gAUjgLUOmHuI1sT7qc9SPQEnTKSiWbGiyQgM+UD43oQ1gs4g6x4hUs
+         WEF1u+2EumOyvmS6P/armJxbb2HzE/nyYMwbf2v4maMOmYZg31cOesWDuGpIZK/lrs
+         qQpLf9pi5mJbPnm94cOiGT8WVFojfJShYfUfFx+e5wlB+e2nDYx8b54cgv+bl+irzm
+         xU1LPvjPCaJ87P3DCXyhKYaV4c1lAiLwVd3BRsWVKo6vjomSPymclthVOJFGHB+TEB
+         dCHNmCZ0lTsXuwSYHs3WmwtsMqz2nuQJDLRixi6VEAF8iUvMUuX7tguu8BeCKof10b
+         oMQdh038S4ciA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Logush <oliver.logush@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.13 044/219] drm/amd/display: Fix timer_per_pixel unit error
-Date:   Thu,  9 Sep 2021 07:43:40 -0400
-Message-Id: <20210909114635.143983-44-sashal@kernel.org>
+Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
+        Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Alex Bee <knaerzche@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        linux-rockchip@lists.infradead.org, linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.13 045/219] media: hantro: vp8: Move noisy WARN_ON to vpu_debug
+Date:   Thu,  9 Sep 2021 07:43:41 -0400
+Message-Id: <20210909114635.143983-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
@@ -44,39 +46,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Logush <oliver.logush@amd.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit 23e55639b87fb16a9f0f66032ecb57060df6c46c ]
+[ Upstream commit 6ad61a7847da09b6261824accb539d05bcdfef65 ]
 
-[why]
-The units of the time_per_pixel variable were incorrect, this had to be
-changed for the code to properly function.
+When the VP8 decoders can't find a reference frame,
+the driver falls back to the current output frame.
 
-[how]
-The change was very straightforward, only required one line of code to
-be changed where the calculation was done.
+This will probably produce some undesirable results,
+leading to frame corruption, but shouldn't cause
+noisy warnings.
 
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Oliver Logush <oliver.logush@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Acked-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Tested-by: Alex Bee <knaerzche@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/media/hantro/hantro_g1_vp8_dec.c    | 13 ++++++++++---
+ .../staging/media/hantro/rk3399_vpu_hw_vp8_dec.c    | 13 ++++++++++---
+ 2 files changed, 20 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-index 81f583733fa8..12e92f620483 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-@@ -2461,7 +2461,7 @@ void dcn20_set_mcif_arb_params(
- 				wb_arb_params->cli_watermark[k] = get_wm_writeback_urgent(&context->bw_ctx.dml, pipes, pipe_cnt) * 1000;
- 				wb_arb_params->pstate_watermark[k] = get_wm_writeback_dram_clock_change(&context->bw_ctx.dml, pipes, pipe_cnt) * 1000;
- 			}
--			wb_arb_params->time_per_pixel = 16.0 / context->res_ctx.pipe_ctx[i].stream->phy_pix_clk; /* 4 bit fraction, ms */
-+			wb_arb_params->time_per_pixel = 16.0 * 1000 / (context->res_ctx.pipe_ctx[i].stream->phy_pix_clk / 1000); /* 4 bit fraction, ms */
- 			wb_arb_params->slice_lines = 32;
- 			wb_arb_params->arbitration_slice = 2;
- 			wb_arb_params->max_scaled_time = dcn20_calc_max_scaled_time(wb_arb_params->time_per_pixel,
+diff --git a/drivers/staging/media/hantro/hantro_g1_vp8_dec.c b/drivers/staging/media/hantro/hantro_g1_vp8_dec.c
+index 57002ba70176..3cd90637ac63 100644
+--- a/drivers/staging/media/hantro/hantro_g1_vp8_dec.c
++++ b/drivers/staging/media/hantro/hantro_g1_vp8_dec.c
+@@ -376,12 +376,17 @@ static void cfg_ref(struct hantro_ctx *ctx,
+ 	vb2_dst = hantro_get_dst_buf(ctx);
+ 
+ 	ref = hantro_get_ref(ctx, hdr->last_frame_ts);
+-	if (!ref)
++	if (!ref) {
++		vpu_debug(0, "failed to find last frame ts=%llu\n",
++			  hdr->last_frame_ts);
+ 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
++	}
+ 	vdpu_write_relaxed(vpu, ref, G1_REG_ADDR_REF(0));
+ 
+ 	ref = hantro_get_ref(ctx, hdr->golden_frame_ts);
+-	WARN_ON(!ref && hdr->golden_frame_ts);
++	if (!ref && hdr->golden_frame_ts)
++		vpu_debug(0, "failed to find golden frame ts=%llu\n",
++			  hdr->golden_frame_ts);
+ 	if (!ref)
+ 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
+ 	if (hdr->flags & V4L2_VP8_FRAME_FLAG_SIGN_BIAS_GOLDEN)
+@@ -389,7 +394,9 @@ static void cfg_ref(struct hantro_ctx *ctx,
+ 	vdpu_write_relaxed(vpu, ref, G1_REG_ADDR_REF(4));
+ 
+ 	ref = hantro_get_ref(ctx, hdr->alt_frame_ts);
+-	WARN_ON(!ref && hdr->alt_frame_ts);
++	if (!ref && hdr->alt_frame_ts)
++		vpu_debug(0, "failed to find alt frame ts=%llu\n",
++			  hdr->alt_frame_ts);
+ 	if (!ref)
+ 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
+ 	if (hdr->flags & V4L2_VP8_FRAME_FLAG_SIGN_BIAS_ALT)
+diff --git a/drivers/staging/media/hantro/rk3399_vpu_hw_vp8_dec.c b/drivers/staging/media/hantro/rk3399_vpu_hw_vp8_dec.c
+index 8661a3cc1e6b..361619201605 100644
+--- a/drivers/staging/media/hantro/rk3399_vpu_hw_vp8_dec.c
++++ b/drivers/staging/media/hantro/rk3399_vpu_hw_vp8_dec.c
+@@ -453,12 +453,17 @@ static void cfg_ref(struct hantro_ctx *ctx,
+ 	vb2_dst = hantro_get_dst_buf(ctx);
+ 
+ 	ref = hantro_get_ref(ctx, hdr->last_frame_ts);
+-	if (!ref)
++	if (!ref) {
++		vpu_debug(0, "failed to find last frame ts=%llu\n",
++			  hdr->last_frame_ts);
+ 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
++	}
+ 	vdpu_write_relaxed(vpu, ref, VDPU_REG_VP8_ADDR_REF0);
+ 
+ 	ref = hantro_get_ref(ctx, hdr->golden_frame_ts);
+-	WARN_ON(!ref && hdr->golden_frame_ts);
++	if (!ref && hdr->golden_frame_ts)
++		vpu_debug(0, "failed to find golden frame ts=%llu\n",
++			  hdr->golden_frame_ts);
+ 	if (!ref)
+ 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
+ 	if (hdr->flags & V4L2_VP8_FRAME_FLAG_SIGN_BIAS_GOLDEN)
+@@ -466,7 +471,9 @@ static void cfg_ref(struct hantro_ctx *ctx,
+ 	vdpu_write_relaxed(vpu, ref, VDPU_REG_VP8_ADDR_REF2_5(2));
+ 
+ 	ref = hantro_get_ref(ctx, hdr->alt_frame_ts);
+-	WARN_ON(!ref && hdr->alt_frame_ts);
++	if (!ref && hdr->alt_frame_ts)
++		vpu_debug(0, "failed to find alt frame ts=%llu\n",
++			  hdr->alt_frame_ts);
+ 	if (!ref)
+ 		ref = vb2_dma_contig_plane_dma_addr(&vb2_dst->vb2_buf, 0);
+ 	if (hdr->flags & V4L2_VP8_FRAME_FLAG_SIGN_BIAS_ALT)
 -- 
 2.30.2
 
