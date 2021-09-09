@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01DD24057D7
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8942E4057D6
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356493AbhIINmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 09:42:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58618 "EHLO mail.kernel.org"
+        id S1356317AbhIINmf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:42:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356614AbhIIMzd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1356618AbhIIMzd (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:55:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49BED613D2;
-        Thu,  9 Sep 2021 11:58:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E58D63246;
+        Thu,  9 Sep 2021 11:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188690;
-        bh=BZvm1toZ3Z9QlyIH9RMnJNT1diE06Fi3/45GUdOHi9k=;
+        s=k20201202; t=1631188691;
+        bh=1a5y8LiFONH2ffe+Lg7p+xIrgh8MKkOsFNyV/nOJ6tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xk0/nyqvCn1QfSLE8Woty1BbZfxXsFBnQaNYiTiTyf6VMVMhhrILhoIoZvU2Xu5OK
-         7qxIZgBiDwdHgJhu5laH+WjDAr49RPh0Aa31qFmW7pdoUbcUjeZ4+aDbxwexPDPIsM
-         QPJxFSsxJIAMvvn2JKSMjO/leeUA0av30TFEDtyJFMbw2TgmNmC9RH9Re1mCy7gHKL
-         /deKQX46l3pqElg78JoTCIFGd73WbvLSWbwsP1ee9OmuQAnD95jDy67KX9YC/XQlTU
-         1aiuJve5npcTtEFYDgp/DPGAKuMHsUG07kPpSBaRIyjuCOmfYcQ8GTg9SujxofB6aR
-         EtFeswrivXhnQ==
+        b=oaoAcT1oHBC97ZzHURAgWk6JDC7iAyJ6JW5QAjwOIoNp5U7gH0YlS4J55g5xO/aYu
+         0RlSPpgZUZeQpgSWOi/8xgHj11wVZkEL8X9+CW0O9Ukhi1e9xyAA8ZBBWNlchvSXrF
+         wFyXUlbBL9y/fh+TQNFlkAPB6gvXb4T8ERMpEO5/6WrgZhC4cxrTSAsrFXLjuWbGSw
+         JXLFmjHHP1bPdA0BPevS/j5XBwqS5zxfwgr4AH3sFnF0EvmIuUn0cXEtkE4q5UXzsY
+         9FTtkuisvZ/XP8Wu/0RREVWqiTFHuk8ldVRHwSZR4Uyc54gfsH1n/Mgccmx+fNHS7D
+         6I8fYA3wQ7BSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Almbladh <johan.almbladh@anyfinetworks.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 35/74] bpf: Fix off-by-one in tail call count limiting
-Date:   Thu,  9 Sep 2021 07:56:47 -0400
-Message-Id: <20210909115726.149004-35-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Umang Jain <umang.jain@ideasonboard.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 36/74] media: imx258: Rectify mismatch of VTS value
+Date:   Thu,  9 Sep 2021 07:56:48 -0400
+Message-Id: <20210909115726.149004-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115726.149004-1-sashal@kernel.org>
 References: <20210909115726.149004-1-sashal@kernel.org>
@@ -43,36 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit b61a28cf11d61f512172e673b8f8c4a6c789b425 ]
+[ Upstream commit 51f93add3669f1b1f540de1cf397815afbd4c756 ]
 
-Before, the interpreter allowed up to MAX_TAIL_CALL_CNT + 1 tail calls.
-Now precisely MAX_TAIL_CALL_CNT is allowed, which is in line with the
-behavior of the x86 JITs.
+The frame_length_lines (0x0340) registers are hard-coded as follows:
 
-Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210728164741.350370-1-johan.almbladh@anyfinetworks.com
+- 4208x3118
+  frame_length_lines = 0x0c50
+
+- 2104x1560
+  frame_length_lines = 0x0638
+
+- 1048x780
+  frame_length_lines = 0x034c
+
+The driver exposes the V4L2_CID_VBLANK control in read-only mode and
+sets its value to vts_def - height, where vts_def is a mode-dependent
+value coming from the supported_modes array. It is set using one of
+the following macros defined in the driver:
+
+  #define IMX258_VTS_30FPS                0x0c98
+  #define IMX258_VTS_30FPS_2K             0x0638
+  #define IMX258_VTS_30FPS_VGA            0x034c
+
+There's a clear mismatch in the value for the full resolution mode i.e.
+IMX258_VTS_30FPS. Fix it by rectifying the macro with the value set for
+the frame_length_lines register as stated above.
+
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Umang Jain <umang.jain@ideasonboard.com>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/core.c | 2 +-
+ drivers/media/i2c/imx258.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index d2b6d2459aad..b4a35c11bc92 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -1198,7 +1198,7 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
+diff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c
+index 31a1e2294843..68ce63333744 100644
+--- a/drivers/media/i2c/imx258.c
++++ b/drivers/media/i2c/imx258.c
+@@ -22,7 +22,7 @@
+ #define IMX258_CHIP_ID			0x0258
  
- 		if (unlikely(index >= array->map.max_entries))
- 			goto out;
--		if (unlikely(tail_call_cnt > MAX_TAIL_CALL_CNT))
-+		if (unlikely(tail_call_cnt >= MAX_TAIL_CALL_CNT))
- 			goto out;
- 
- 		tail_call_cnt++;
+ /* V_TIMING internal */
+-#define IMX258_VTS_30FPS		0x0c98
++#define IMX258_VTS_30FPS		0x0c50
+ #define IMX258_VTS_30FPS_2K		0x0638
+ #define IMX258_VTS_30FPS_VGA		0x034c
+ #define IMX258_VTS_MAX			0xffff
 -- 
 2.30.2
 
