@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D7E404D30
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00EA9404D36
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244330AbhIIMBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:01:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34380 "EHLO mail.kernel.org"
+        id S244774AbhIIMBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:01:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235604AbhIIL6c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:58:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93745611C4;
-        Thu,  9 Sep 2021 11:45:40 +0000 (UTC)
+        id S1343998AbhIIL6e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:58:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF36F613D1;
+        Thu,  9 Sep 2021 11:45:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187941;
-        bh=2KRvm6aTvUu4pu1QHXu6z4YnVYGYLqDrbklMn0PN8Vg=;
+        s=k20201202; t=1631187942;
+        bh=FJDEMwktXn6qoOVuuZ3UsTrU/a8iOrq0C9h8bgYPG6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NkIQo9qvxiQEImbnsAGSP4FInYJmkwgMi19rTrr37Pfqqb/uNd3JSn1jpDQ9tSMfu
-         FQlr6tXENX8h2Xo9EDe836FQz3GfdTqlSKbxVM/JCrXlDbCIc2+RdbkzxH0kQRBF3p
-         v4SXNOAXYT/6VEqd02Fj7RU/UCZ2+MNlnEYaV1vwOT+4JTbhEsgUXV750HS/ShV96o
-         lUMmNYz7VkBVvM+t6C8pNflPQhHIw7vvDLdGZJodDYkmf1b1jZKDZ//hIGWnXhxktC
-         sv+6vBN+P23iOZTBKGYmOaurMiKE38imfa71VoBblgw7P1Y//pm+akyBTtL4RPQPlI
-         fo5fEVXU17yiA==
+        b=agnM9wyK991SiTKcGukADw7WlRFbjYkIUwuxXboMZMpjtsunOcZsXMQMTAMqwaslM
+         AR+DeSUzb2GEbAnarUQyK5y9nXu7zzzJJmvpM/4eqsknn96ZFmi865ZzfJKstFEwn0
+         tjjlHkdteK60W/spUQQKAdxb6Vm449x8KtiTjb5JIRkjD3vOwLyKT+pgTTMP6gQdXQ
+         r8O/5qD2V2zUGov7Bm1SiqbI22unQ78MnNqKBdDmaycTfxNOzOTAdsAADR/cWsguLr
+         1J5IlrqW098i+rOy/RP+SjA4cK1g0OVz7hUdwIAbQ4sD9m98wqDiXA5FRiwz9qty27
+         jBZAVETV1NmiQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nishad Kamdar <nishadkamdar@gmail.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 211/252] mmc: core: Return correct emmc response in case of ioctl error
-Date:   Thu,  9 Sep 2021 07:40:25 -0400
-Message-Id: <20210909114106.141462-211-sashal@kernel.org>
+Cc:     Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 212/252] octeontx2-pf: cleanup transmit link deriving logic
+Date:   Thu,  9 Sep 2021 07:40:26 -0400
+Message-Id: <20210909114106.141462-212-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -43,111 +43,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishad Kamdar <nishadkamdar@gmail.com>
+From: Subbaraya Sundeep <sbhatta@marvell.com>
 
-[ Upstream commit e72a55f2e5ddcfb3dce0701caf925ce435b87682 ]
+[ Upstream commit 039190bb353a16657b44c5833bcad57e029c6934 ]
 
-When a read/write command is sent via ioctl to the kernel,
-and the command fails, the actual error response of the emmc
-is not sent to the user.
+Unlike OcteonTx2, the channel numbers used by CGX/RPM
+and LBK on CN10K silicons aren't fixed in HW. They are
+SW programmable, hence we cannot derive transmit link
+from static channel numbers anymore. Get the same from
+admin function via mailbox.
 
-IOCTL read/write tests are carried out using commands
-17 (Single BLock Read), 24 (Single Block Write),
-18 (Multi Block Read), 25 (Multi Block Write)
-
-The tests are carried out on a 64Gb emmc device. All of these
-tests try to access an "out of range" sector address (0x09B2FFFF).
-
-It is seen that without the patch the response received by the user
-is not OUT_OF_RANGE error (R1 response 31st bit is not set) as per
-JEDEC specification. After applying the patch proper response is seen.
-This is because the function returns without copying the response to
-the user in case of failure. This patch fixes the issue.
-
-Hence, this memcpy is required whether we get an error response or not.
-Therefor it is moved up from the current position up to immediately
-after we have called mmc_wait_for_req().
-
-The test code and the output of only the CMD17 is included in the
-commit to limit the message length.
-
-CMD17 (Test Code Snippet):
-==========================
-        printf("Forming CMD%d\n", opt_idx);
-        /*  single block read */
-        cmd.blksz = 512;
-        cmd.blocks = 1;
-        cmd.write_flag = 0;
-        cmd.opcode = 17;
-        //cmd.arg = atoi(argv[3]);
-        cmd.arg = 0x09B2FFFF;
-        /* Expecting response R1B */
-        cmd.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_ADTC;
-
-        memset(data, 0, sizeof(__u8) * 512);
-        mmc_ioc_cmd_set_data(cmd, data);
-
-        printf("Sending CMD%d: ARG[0x%08x]\n", opt_idx, cmd.arg);
-        if(ioctl(fd, MMC_IOC_CMD, &cmd))
-                perror("Error");
-
-        printf("\nResponse: %08x\n", cmd.response[0]);
-
-CMD17 (Output without patch):
-=============================
-test@test-LIVA-Z:~$ sudo ./mmc cmd_test /dev/mmcblk0 17
-Entering the do_mmc_commands:Device: /dev/mmcblk0 nargs:4
-Entering the do_mmc_commands:Device: /dev/mmcblk0 options[17, 0x09B2FFF]
-Forming CMD17
-Sending CMD17: ARG[0x09b2ffff]
-Error: Connection timed out
-
-Response: 00000000
-(Incorrect response)
-
-CMD17 (Output with patch):
-==========================
-test@test-LIVA-Z:~$ sudo ./mmc cmd_test /dev/mmcblk0 17
-[sudo] password for test:
-Entering the do_mmc_commands:Device: /dev/mmcblk0 nargs:4
-Entering the do_mmc_commands:Device: /dev/mmcblk0 options[17, 09B2FFFF]
-Forming CMD17
-Sending CMD17: ARG[0x09b2ffff]
-Error: Connection timed out
-
-Response: 80000900
-(Correct OUT_OF_ERROR response as per JEDEC specification)
-
-Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Link: https://lore.kernel.org/r/20210824191726.8296-1-nishadkamdar@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/block.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ .../net/ethernet/marvell/octeontx2/af/mbox.h  |  1 +
+ .../ethernet/marvell/octeontx2/af/rvu_nix.c   |  9 ++++++--
+ .../marvell/octeontx2/nic/otx2_common.c       | 23 ++-----------------
+ .../marvell/octeontx2/nic/otx2_common.h       |  1 +
+ 4 files changed, 11 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
-index a9ad9f5fa949..c3ecec3f6ddc 100644
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -518,6 +518,7 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
- 		return mmc_sanitize(card, idata->ic.cmd_timeout_ms);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/mbox.h b/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
+index f5ec39de026a..05f4334700e9 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
+@@ -717,6 +717,7 @@ struct nix_lf_alloc_rsp {
+ 	u8	cgx_links;  /* No. of CGX links present in HW */
+ 	u8	lbk_links;  /* No. of LBK links present in HW */
+ 	u8	sdp_links;  /* No. of SDP links present in HW */
++	u8	tx_link;    /* Transmit channel link number */
+ };
  
- 	mmc_wait_for_req(card->host, &mrq);
-+	memcpy(&idata->ic.response, cmd.resp, sizeof(cmd.resp));
+ struct nix_lf_free_req {
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+index 4bfbbdf38770..592230c3e171 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+@@ -249,9 +249,11 @@ static bool is_valid_txschq(struct rvu *rvu, int blkaddr,
+ 	return true;
+ }
  
- 	if (cmd.error) {
- 		dev_err(mmc_dev(card->host), "%s: cmd error %d\n",
-@@ -567,8 +568,6 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
- 	if (idata->ic.postsleep_min_us)
- 		usleep_range(idata->ic.postsleep_min_us, idata->ic.postsleep_max_us);
+-static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
++static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf,
++			      struct nix_lf_alloc_rsp *rsp)
+ {
+ 	struct rvu_pfvf *pfvf = rvu_get_pfvf(rvu, pcifunc);
++	struct rvu_hwinfo *hw = rvu->hw;
+ 	struct mac_ops *mac_ops;
+ 	int pkind, pf, vf, lbkid;
+ 	u8 cgx_id, lmac_id;
+@@ -276,6 +278,8 @@ static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
+ 		pfvf->tx_chan_base = pfvf->rx_chan_base;
+ 		pfvf->rx_chan_cnt = 1;
+ 		pfvf->tx_chan_cnt = 1;
++		rsp->tx_link = cgx_id * hw->lmac_per_cgx + lmac_id;
++
+ 		cgx_set_pkind(rvu_cgx_pdata(cgx_id, rvu), lmac_id, pkind);
+ 		rvu_npc_set_pkind(rvu, pkind, pfvf);
  
--	memcpy(&(idata->ic.response), cmd.resp, sizeof(cmd.resp));
+@@ -309,6 +313,7 @@ static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
+ 					rvu_nix_chan_lbk(rvu, lbkid, vf + 1);
+ 		pfvf->rx_chan_cnt = 1;
+ 		pfvf->tx_chan_cnt = 1;
++		rsp->tx_link = hw->cgx_links + lbkid;
+ 		rvu_npc_set_pkind(rvu, NPC_RX_LBK_PKIND, pfvf);
+ 		rvu_npc_install_promisc_entry(rvu, pcifunc, nixlf,
+ 					      pfvf->rx_chan_base,
+@@ -1258,7 +1263,7 @@ int rvu_mbox_handler_nix_lf_alloc(struct rvu *rvu,
+ 	rvu_write64(rvu, blkaddr, NIX_AF_LFX_TX_PARSE_CFG(nixlf), cfg);
+ 
+ 	intf = is_afvf(pcifunc) ? NIX_INTF_TYPE_LBK : NIX_INTF_TYPE_CGX;
+-	err = nix_interface_init(rvu, pcifunc, intf, nixlf);
++	err = nix_interface_init(rvu, pcifunc, intf, nixlf, rsp);
+ 	if (err)
+ 		goto free_mem;
+ 
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+index 211200879b3e..791046eb9604 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+@@ -572,25 +572,6 @@ void otx2_get_mac_from_af(struct net_device *netdev)
+ }
+ EXPORT_SYMBOL(otx2_get_mac_from_af);
+ 
+-static int otx2_get_link(struct otx2_nic *pfvf)
+-{
+-	int link = 0;
+-	u16 map;
 -
- 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
- 		/*
- 		 * Ensure RPMB/R1B command has completed by polling CMD13
+-	/* cgx lmac link */
+-	if (pfvf->hw.tx_chan_base >= CGX_CHAN_BASE) {
+-		map = pfvf->hw.tx_chan_base & 0x7FF;
+-		link = 4 * ((map >> 8) & 0xF) + ((map >> 4) & 0xF);
+-	}
+-	/* LBK channel */
+-	if (pfvf->hw.tx_chan_base < SDP_CHAN_BASE) {
+-		map = pfvf->hw.tx_chan_base & 0x7FF;
+-		link = pfvf->hw.cgx_links | ((map >> 8) & 0xF);
+-	}
+-
+-	return link;
+-}
+-
+ int otx2_txschq_config(struct otx2_nic *pfvf, int lvl)
+ {
+ 	struct otx2_hw *hw = &pfvf->hw;
+@@ -646,8 +627,7 @@ int otx2_txschq_config(struct otx2_nic *pfvf, int lvl)
+ 		req->regval[1] = TXSCH_TL1_DFLT_RR_PRIO << 24 | DFLT_RR_QTM;
+ 
+ 		req->num_regs++;
+-		req->reg[2] = NIX_AF_TL3_TL2X_LINKX_CFG(schq,
+-							otx2_get_link(pfvf));
++		req->reg[2] = NIX_AF_TL3_TL2X_LINKX_CFG(schq, hw->tx_link);
+ 		/* Enable this queue and backpressure */
+ 		req->regval[2] = BIT_ULL(13) | BIT_ULL(12);
+ 
+@@ -1592,6 +1572,7 @@ void mbox_handler_nix_lf_alloc(struct otx2_nic *pfvf,
+ 	pfvf->hw.lso_tsov6_idx = rsp->lso_tsov6_idx;
+ 	pfvf->hw.cgx_links = rsp->cgx_links;
+ 	pfvf->hw.lbk_links = rsp->lbk_links;
++	pfvf->hw.tx_link = rsp->tx_link;
+ }
+ EXPORT_SYMBOL(mbox_handler_nix_lf_alloc);
+ 
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+index 8fd58cd07f50..93b17bbb9b44 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+@@ -212,6 +212,7 @@ struct otx2_hw {
+ 	u64			cgx_fec_uncorr_blks;
+ 	u8			cgx_links;  /* No. of CGX links present in HW */
+ 	u8			lbk_links;  /* No. of LBK links present in HW */
++	u8			tx_link;    /* Transmit channel link number */
+ #define HW_TSO			0
+ #define CN10K_MBOX		1
+ #define CN10K_LMTST		2
 -- 
 2.30.2
 
