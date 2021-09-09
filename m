@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D503405122
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:42:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A06405124
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347029AbhIIMdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:33:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39608 "EHLO mail.kernel.org"
+        id S244684AbhIIMdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:33:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354275AbhIIMaY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 08:30:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B6FF61B40;
-        Thu,  9 Sep 2021 11:52:42 +0000 (UTC)
+        id S1354378AbhIIMap (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 08:30:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A26D61B4A;
+        Thu,  9 Sep 2021 11:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188363;
-        bh=WO6ADGGSO99avQrDWRk0pqj7iOZKqfl96hWXBYYzfcE=;
+        s=k20201202; t=1631188364;
+        bh=IycIb4iHAww5XLlbsPdZL2lbQwL0O3Vf4/pxEhQhe9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SyCXJZ/V0vbcDoYM+nDFOqitDaKRpJE4oP5i6HngzVV/TzcVuvym5qQnH7lvVgjs5
-         3vdzIaLKgf1DeePEMIYl7QqIu0Cp+/QL6wXKxXhlA3qlN4QXqiZWO/ik6AtxgBP1BG
-         WK7dmrqCYcZDsO79wxevZhJoQhr2dCmRSB5gxbZsrfVL8E9SekeI4NsuFLgzeg9GBe
-         i9vkLQBU8NmGa/3D9FO+PUJFJ/EHAwSbhMw0fblxAp9QlqIZa8nbquJGa01jgTRil1
-         MhG4gqDmbLoraH3PEsUSTvP4ZSb+6BaNWk6KeGhGvSoG86Rb7cku4T2LtAqCTRc+3h
-         6d6Ts+5smf9Fw==
+        b=ksG0ww0324mVHkEpw9N457WXYnji1rSNs5zrSrLFJyWCyWbe/912k4J0Nkd7D1SiN
+         pTcHcW74wes4SHvJYsjYqA4FuenjWfUWVriv4a8QUJnBRuDoXFFKsiSS3I9NrRCrQz
+         TKRb6ToAi4DIWBwj/R/lzlezjRZ73DZUI3HWJ9IswvfmSGM/BsBKdZxVC2rZ0L/H39
+         qINiqYpWV6hSZwQAwLnKh3V8gNqZ41frUA1W27ixjcQuawmVoO8YonAzi7TZkiA1ZR
+         +hJ7+HQitAfjLKEs8mjLUidK5C9VoVnkkV+7c+JozbvslHzTHz8MY/IbHnGMj+KmNp
+         FUjI7sVu0bICQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Patrick Delaunay <patrick.delaunay@foss.st.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 066/176] ARM: dts: stm32: Update AV96 adv7513 node per dtbs_check
-Date:   Thu,  9 Sep 2021 07:49:28 -0400
-Message-Id: <20210909115118.146181-66-sashal@kernel.org>
+Cc:     Yufeng Mo <moyufeng@huawei.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 067/176] bonding: 3ad: fix the concurrency between __bond_release_one() and bond_3ad_state_machine_handler()
+Date:   Thu,  9 Sep 2021 07:49:29 -0400
+Message-Id: <20210909115118.146181-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -46,53 +43,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Yufeng Mo <moyufeng@huawei.com>
 
-[ Upstream commit 1e6bc5987a5252948e3411e5a2dbb434fd1ea107 ]
+[ Upstream commit 220ade77452c15ecb1ab94c3f8aaeb6d033c3582 ]
 
-Swap reg and reg-names order and drop adi,input-justification
-and adi,input-style to fix the following dtbs_check warnings:
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: adi,input-justification: False schema does not allow ['evenly']
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: adi,input-style: False schema does not allow [[1]]
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: reg-names:1: 'edid' was expected
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: reg-names:2: 'cec' was expected
+Some time ago, I reported a calltrace issue
+"did not find a suitable aggregator", please see[1].
+After a period of analysis and reproduction, I find
+that this problem is caused by concurrency.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Patrice Chotard <patrice.chotard@foss.st.com>
-Cc: Patrick Delaunay <patrick.delaunay@foss.st.com>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Before the problem occurs, the bond structure is like follows:
+
+bond0 - slaver0(eth0) - agg0.lag_ports -> port0 - port1
+                      \
+                        port0
+      \
+        slaver1(eth1) - agg1.lag_ports -> NULL
+                      \
+                        port1
+
+If we run 'ifenslave bond0 -d eth1', the process is like below:
+
+excuting __bond_release_one()
+|
+bond_upper_dev_unlink()[step1]
+|                       |                       |
+|                       |                       bond_3ad_lacpdu_recv()
+|                       |                       ->bond_3ad_rx_indication()
+|                       |                       spin_lock_bh()
+|                       |                       ->ad_rx_machine()
+|                       |                       ->__record_pdu()[step2]
+|                       |                       spin_unlock_bh()
+|                       |                       |
+|                       bond_3ad_state_machine_handler()
+|                       spin_lock_bh()
+|                       ->ad_port_selection_logic()
+|                       ->try to find free aggregator[step3]
+|                       ->try to find suitable aggregator[step4]
+|                       ->did not find a suitable aggregator[step5]
+|                       spin_unlock_bh()
+|                       |
+|                       |
+bond_3ad_unbind_slave() |
+spin_lock_bh()
+spin_unlock_bh()
+
+step1: already removed slaver1(eth1) from list, but port1 remains
+step2: receive a lacpdu and update port0
+step3: port0 will be removed from agg0.lag_ports. The struct is
+       "agg0.lag_ports -> port1" now, and agg0 is not free. At the
+	   same time, slaver1/agg1 has been removed from the list by step1.
+	   So we can't find a free aggregator now.
+step4: can't find suitable aggregator because of step2
+step5: cause a calltrace since port->aggregator is NULL
+
+To solve this concurrency problem, put bond_upper_dev_unlink()
+after bond_3ad_unbind_slave(). In this way, we can invalid the port
+first and skip this port in bond_3ad_state_machine_handler(). This
+eliminates the situation that the slaver has been removed from the
+list but the port is still valid.
+
+[1]https://lore.kernel.org/netdev/10374.1611947473@famine/
+
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/bonding/bond_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-index ec02cee1dd9b..944d38b85eef 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-@@ -185,8 +185,8 @@ &i2c2 {	/* X6 I2C2 */
- &i2c4 {
- 	hdmi-transmitter@3d {
- 		compatible = "adi,adv7513";
--		reg = <0x3d>, <0x2d>, <0x4d>, <0x5d>;
--		reg-names = "main", "cec", "edid", "packet";
-+		reg = <0x3d>, <0x4d>, <0x2d>, <0x5d>;
-+		reg-names = "main", "edid", "cec", "packet";
- 		clocks = <&cec_clock>;
- 		clock-names = "cec";
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 018af1e38eb9..645c7cabcbe4 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2219,7 +2219,6 @@ static int __bond_release_one(struct net_device *bond_dev,
+ 	/* recompute stats just before removing the slave */
+ 	bond_get_stats(bond->dev, &bond->bond_stats);
  
-@@ -204,8 +204,6 @@ hdmi-transmitter@3d {
- 		adi,input-depth = <8>;
- 		adi,input-colorspace = "rgb";
- 		adi,input-clock = "1x";
--		adi,input-style = <1>;
--		adi,input-justification = "evenly";
+-	bond_upper_dev_unlink(bond, slave);
+ 	/* unregister rx_handler early so bond_handle_frame wouldn't be called
+ 	 * for this slave anymore.
+ 	 */
+@@ -2228,6 +2227,8 @@ static int __bond_release_one(struct net_device *bond_dev,
+ 	if (BOND_MODE(bond) == BOND_MODE_8023AD)
+ 		bond_3ad_unbind_slave(slave);
  
- 		ports {
- 			#address-cells = <1>;
++	bond_upper_dev_unlink(bond, slave);
++
+ 	if (bond_mode_can_use_xmit_hash(bond))
+ 		bond_update_slave_arr(bond, slave);
+ 
 -- 
 2.30.2
 
