@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F427404BE4
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:54:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB24E404BE8
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 13:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241392AbhIILxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 07:53:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55692 "EHLO mail.kernel.org"
+        id S238657AbhIILx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:53:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238827AbhIILvh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241973AbhIILvh (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 07:51:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4364161351;
-        Thu,  9 Sep 2021 11:44:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85C9B61241;
+        Thu,  9 Sep 2021 11:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187850;
-        bh=MtvcbB5FvWICPnNGPZMPta3vENPeoqbfdlGGEylaOJQ=;
+        s=k20201202; t=1631187851;
+        bh=CZhCsYV64HFBu6T5AKowOg0gIzBsvW8706diNRTk8YU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9FjYUY2iFG/DXYmthuFB7mzIfJ5HQWG4Qk3wTo9CXvOb/TsxD2Qz+R7VhoeY24NF
-         ApagCNXC3/QaAp2qsYA5hSTdU2QXbZBpw81N2eDKCFwXKoNIgXiL8qGrlJdHbY0XZR
-         4150mc1fuQNTeDepvAxhmGwFFvwbgeidjOp+SJkkfhlNjYlzINe/68ZMQ1gGopX7tn
-         ymtmz0G0cPuSIvhNzF1JGEvKonXjsGRfkF6r53g3XOctFmRGKjB6O7Sjxawf9naqH4
-         y+4GzA4dcTasP/AbOX0VqsZwykIHxRxOOcTMz+VbNwdz4a64jriS+qfovmWuauwDgI
-         dK12JkGdNDiag==
+        b=ZE/+44s3hCrFUM6oDeMtH2X87olSVz6tXh8ED1wOftthq10rqD2DUu6ybKaliSMjP
+         SGmC6iYDl1SUZQl17zJedbNEuIxQ48CoyAZyqqUsznmqs0CZdBiXDPIcUBx0Pr1IbQ
+         f3VbGNF/V54hFvhKuCuU18fl9RENqY9jJ3LXNlnMsvisGvPKfI8DNZXC/Whp5Ux/p6
+         JJujJMySgBaapTdoPxHPeJH6zGGeZtQ60wzcKk8Cuu9tCXl1Xa29rJI9T2AT9mDsWi
+         jt05xY8yX8A/BWV2KWLaZz4jfERqCcQMGl76IBCC1H+73V7EhAoDKiqGjoE5BNlLGo
+         0IXEBgICQO/Ng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 141/252] Bluetooth: avoid circular locks in sco_sock_connect
-Date:   Thu,  9 Sep 2021 07:39:15 -0400
-Message-Id: <20210909114106.141462-141-sashal@kernel.org>
+Cc:     Kuogee Hsieh <khsieh@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.14 142/252] drm/msm/dp: reduce link rate if failed at link training 1
+Date:   Thu,  9 Sep 2021 07:39:16 -0400
+Message-Id: <20210909114106.141462-142-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -43,235 +44,245 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Kuogee Hsieh <khsieh@codeaurora.org>
 
-[ Upstream commit 734bc5ff783115aa3164f4e9dd5967ae78e0a8ab ]
+[ Upstream commit 4b85d405cfe938ae7ad61656484ae88dee289e3b ]
 
-In a future patch, calls to bh_lock_sock in sco.c should be replaced
-by lock_sock now that none of the functions are run in IRQ context.
+Reduce link rate and re start link training if link training 1
+failed due to loss of clock recovery done to fix Link Layer
+CTS case 4.3.1.7.  Also only update voltage and pre-emphasis
+swing level after link training started to fix Link Layer CTS
+case 4.3.1.6.
 
-However, doing so results in a circular locking dependency:
+Changes in V2:
+-- replaced cr_status with link_status[DP_LINK_STATUS_SIZE]
+-- replaced dp_ctrl_any_lane_cr_done() with dp_ctrl_colco_recovery_any_ok()
+-- replaced dp_ctrl_any_ane_cr_lose() with !drm_dp_clock_recovery_ok()
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.14.0-rc4-syzkaller #0 Not tainted
-------------------------------------------------------
-syz-executor.2/14867 is trying to acquire lock:
-ffff88803e3c1120 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}, at:
-lock_sock include/net/sock.h:1613 [inline]
-ffff88803e3c1120 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}, at:
-sco_conn_del+0x12a/0x2a0 net/bluetooth/sco.c:191
+Changes in V3:
+-- return failed if lane_count <= 1
 
-but task is already holding lock:
-ffffffff8d2dc7c8 (hci_cb_list_lock){+.+.}-{3:3}, at:
-hci_disconn_cfm include/net/bluetooth/hci_core.h:1497 [inline]
-ffffffff8d2dc7c8 (hci_cb_list_lock){+.+.}-{3:3}, at:
-hci_conn_hash_flush+0xda/0x260 net/bluetooth/hci_conn.c:1608
-
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
--> #2 (hci_cb_list_lock){+.+.}-{3:3}:
-       __mutex_lock_common kernel/locking/mutex.c:959 [inline]
-       __mutex_lock+0x12a/0x10a0 kernel/locking/mutex.c:1104
-       hci_connect_cfm include/net/bluetooth/hci_core.h:1482 [inline]
-       hci_remote_features_evt net/bluetooth/hci_event.c:3263 [inline]
-       hci_event_packet+0x2f4d/0x7c50 net/bluetooth/hci_event.c:6240
-       hci_rx_work+0x4f8/0xd30 net/bluetooth/hci_core.c:5122
-       process_one_work+0x98d/0x1630 kernel/workqueue.c:2276
-       worker_thread+0x658/0x11f0 kernel/workqueue.c:2422
-       kthread+0x3e5/0x4d0 kernel/kthread.c:319
-       ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
-
--> #1 (&hdev->lock){+.+.}-{3:3}:
-       __mutex_lock_common kernel/locking/mutex.c:959 [inline]
-       __mutex_lock+0x12a/0x10a0 kernel/locking/mutex.c:1104
-       sco_connect net/bluetooth/sco.c:245 [inline]
-       sco_sock_connect+0x227/0xa10 net/bluetooth/sco.c:601
-       __sys_connect_file+0x155/0x1a0 net/socket.c:1879
-       __sys_connect+0x161/0x190 net/socket.c:1896
-       __do_sys_connect net/socket.c:1906 [inline]
-       __se_sys_connect net/socket.c:1903 [inline]
-       __x64_sys_connect+0x6f/0xb0 net/socket.c:1903
-       do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-       do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
-
--> #0 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}:
-       check_prev_add kernel/locking/lockdep.c:3051 [inline]
-       check_prevs_add kernel/locking/lockdep.c:3174 [inline]
-       validate_chain kernel/locking/lockdep.c:3789 [inline]
-       __lock_acquire+0x2a07/0x54a0 kernel/locking/lockdep.c:5015
-       lock_acquire kernel/locking/lockdep.c:5625 [inline]
-       lock_acquire+0x1ab/0x510 kernel/locking/lockdep.c:5590
-       lock_sock_nested+0xca/0x120 net/core/sock.c:3170
-       lock_sock include/net/sock.h:1613 [inline]
-       sco_conn_del+0x12a/0x2a0 net/bluetooth/sco.c:191
-       sco_disconn_cfm+0x71/0xb0 net/bluetooth/sco.c:1202
-       hci_disconn_cfm include/net/bluetooth/hci_core.h:1500 [inline]
-       hci_conn_hash_flush+0x127/0x260 net/bluetooth/hci_conn.c:1608
-       hci_dev_do_close+0x528/0x1130 net/bluetooth/hci_core.c:1778
-       hci_unregister_dev+0x1c0/0x5a0 net/bluetooth/hci_core.c:4015
-       vhci_release+0x70/0xe0 drivers/bluetooth/hci_vhci.c:340
-       __fput+0x288/0x920 fs/file_table.c:280
-       task_work_run+0xdd/0x1a0 kernel/task_work.c:164
-       exit_task_work include/linux/task_work.h:32 [inline]
-       do_exit+0xbd4/0x2a60 kernel/exit.c:825
-       do_group_exit+0x125/0x310 kernel/exit.c:922
-       get_signal+0x47f/0x2160 kernel/signal.c:2808
-       arch_do_signal_or_restart+0x2a9/0x1c40 arch/x86/kernel/signal.c:865
-       handle_signal_work kernel/entry/common.c:148 [inline]
-       exit_to_user_mode_loop kernel/entry/common.c:172 [inline]
-       exit_to_user_mode_prepare+0x17d/0x290 kernel/entry/common.c:209
-       __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
-       syscall_exit_to_user_mode+0x19/0x60 kernel/entry/common.c:302
-       ret_from_fork+0x15/0x30 arch/x86/entry/entry_64.S:288
-
-other info that might help us debug this:
-
-Chain exists of:
-  sk_lock-AF_BLUETOOTH-BTPROTO_SCO --> &hdev->lock --> hci_cb_list_lock
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(hci_cb_list_lock);
-                               lock(&hdev->lock);
-                               lock(hci_cb_list_lock);
-  lock(sk_lock-AF_BLUETOOTH-BTPROTO_SCO);
-
- *** DEADLOCK ***
-
-The issue is that the lock hierarchy should go from &hdev->lock -->
-hci_cb_list_lock --> sk_lock-AF_BLUETOOTH-BTPROTO_SCO. For example,
-one such call trace is:
-
-  hci_dev_do_close():
-    hci_dev_lock();
-    hci_conn_hash_flush():
-      hci_disconn_cfm():
-        mutex_lock(&hci_cb_list_lock);
-        sco_disconn_cfm():
-        sco_conn_del():
-          lock_sock(sk);
-
-However, in sco_sock_connect, we call lock_sock before calling
-hci_dev_lock inside sco_connect, thus inverting the lock hierarchy.
-
-We fix this by pulling the call to hci_dev_lock out from sco_connect.
-
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1628196295-7382-3-git-send-email-khsieh@codeaurora.org
+[remove unused cr_status variable]
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 39 ++++++++++++++++-----------------------
- 1 file changed, 16 insertions(+), 23 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_ctrl.c | 78 ++++++++++++++++++--------------
+ 1 file changed, 44 insertions(+), 34 deletions(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 706254af952e..cd25d54142bc 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -237,44 +237,32 @@ static int sco_chan_add(struct sco_conn *conn, struct sock *sk,
- 	return err;
+diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+index eaddfd739885..30d20e3beb29 100644
+--- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
++++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+@@ -81,13 +81,6 @@ struct dp_ctrl_private {
+ 	struct completion video_comp;
+ };
+ 
+-struct dp_cr_status {
+-	u8 lane_0_1;
+-	u8 lane_2_3;
+-};
+-
+-#define DP_LANE0_1_CR_DONE	0x11
+-
+ static int dp_aux_link_configure(struct drm_dp_aux *aux,
+ 					struct dp_link_info *link)
+ {
+@@ -1078,7 +1071,7 @@ static int dp_ctrl_read_link_status(struct dp_ctrl_private *ctrl,
  }
  
--static int sco_connect(struct sock *sk)
-+static int sco_connect(struct hci_dev *hdev, struct sock *sk)
+ static int dp_ctrl_link_train_1(struct dp_ctrl_private *ctrl,
+-		struct dp_cr_status *cr, int *training_step)
++			int *training_step)
  {
- 	struct sco_conn *conn;
- 	struct hci_conn *hcon;
--	struct hci_dev  *hdev;
- 	int err, type;
+ 	int tries, old_v_level, ret = 0;
+ 	u8 link_status[DP_LINK_STATUS_SIZE];
+@@ -1107,9 +1100,6 @@ static int dp_ctrl_link_train_1(struct dp_ctrl_private *ctrl,
+ 		if (ret)
+ 			return ret;
  
- 	BT_DBG("%pMR -> %pMR", &sco_pi(sk)->src, &sco_pi(sk)->dst);
+-		cr->lane_0_1 = link_status[0];
+-		cr->lane_2_3 = link_status[1];
+-
+ 		if (drm_dp_clock_recovery_ok(link_status,
+ 			ctrl->link->link_params.num_lanes)) {
+ 			return 0;
+@@ -1186,7 +1176,7 @@ static void dp_ctrl_clear_training_pattern(struct dp_ctrl_private *ctrl)
+ }
  
--	hdev = hci_get_route(&sco_pi(sk)->dst, &sco_pi(sk)->src, BDADDR_BREDR);
--	if (!hdev)
--		return -EHOSTUNREACH;
--
--	hci_dev_lock(hdev);
--
- 	if (lmp_esco_capable(hdev) && !disable_esco)
- 		type = ESCO_LINK;
+ static int dp_ctrl_link_train_2(struct dp_ctrl_private *ctrl,
+-		struct dp_cr_status *cr, int *training_step)
++			int *training_step)
+ {
+ 	int tries = 0, ret = 0;
+ 	char pattern;
+@@ -1202,10 +1192,6 @@ static int dp_ctrl_link_train_2(struct dp_ctrl_private *ctrl,
  	else
- 		type = SCO_LINK;
+ 		pattern = DP_TRAINING_PATTERN_2;
  
- 	if (sco_pi(sk)->setting == BT_VOICE_TRANSPARENT &&
--	    (!lmp_transp_capable(hdev) || !lmp_esco_capable(hdev))) {
--		err = -EOPNOTSUPP;
--		goto done;
--	}
-+	    (!lmp_transp_capable(hdev) || !lmp_esco_capable(hdev)))
-+		return -EOPNOTSUPP;
+-	ret = dp_ctrl_update_vx_px(ctrl);
+-	if (ret)
+-		return ret;
+-
+ 	ret = dp_catalog_ctrl_set_pattern(ctrl->catalog, pattern);
+ 	if (ret)
+ 		return ret;
+@@ -1218,8 +1204,6 @@ static int dp_ctrl_link_train_2(struct dp_ctrl_private *ctrl,
+ 		ret = dp_ctrl_read_link_status(ctrl, link_status);
+ 		if (ret)
+ 			return ret;
+-		cr->lane_0_1 = link_status[0];
+-		cr->lane_2_3 = link_status[1];
  
- 	hcon = hci_connect_sco(hdev, type, &sco_pi(sk)->dst,
- 			       sco_pi(sk)->setting);
--	if (IS_ERR(hcon)) {
--		err = PTR_ERR(hcon);
--		goto done;
--	}
-+	if (IS_ERR(hcon))
-+		return PTR_ERR(hcon);
+ 		if (drm_dp_channel_eq_ok(link_status,
+ 			ctrl->link->link_params.num_lanes)) {
+@@ -1239,7 +1223,7 @@ static int dp_ctrl_link_train_2(struct dp_ctrl_private *ctrl,
+ static int dp_ctrl_reinitialize_mainlink(struct dp_ctrl_private *ctrl);
  
- 	conn = sco_conn_add(hcon);
- 	if (!conn) {
- 		hci_conn_drop(hcon);
--		err = -ENOMEM;
--		goto done;
-+		return -ENOMEM;
- 	}
+ static int dp_ctrl_link_train(struct dp_ctrl_private *ctrl,
+-		struct dp_cr_status *cr, int *training_step)
++			int *training_step)
+ {
+ 	int ret = 0;
+ 	u8 encoding = DP_SET_ANSI_8B10B;
+@@ -1255,7 +1239,7 @@ static int dp_ctrl_link_train(struct dp_ctrl_private *ctrl,
+ 	drm_dp_dpcd_write(ctrl->aux, DP_MAIN_LINK_CHANNEL_CODING_SET,
+ 				&encoding, 1);
  
- 	/* Update source addr of the socket */
-@@ -282,7 +270,7 @@ static int sco_connect(struct sock *sk)
+-	ret = dp_ctrl_link_train_1(ctrl, cr, training_step);
++	ret = dp_ctrl_link_train_1(ctrl, training_step);
+ 	if (ret) {
+ 		DRM_ERROR("link training #1 failed. ret=%d\n", ret);
+ 		goto end;
+@@ -1264,7 +1248,7 @@ static int dp_ctrl_link_train(struct dp_ctrl_private *ctrl,
+ 	/* print success info as this is a result of user initiated action */
+ 	DRM_DEBUG_DP("link training #1 successful\n");
  
- 	err = sco_chan_add(conn, sk, NULL);
- 	if (err)
--		goto done;
-+		return err;
- 
- 	if (hcon->state == BT_CONNECTED) {
- 		sco_sock_clear_timer(sk);
-@@ -292,9 +280,6 @@ static int sco_connect(struct sock *sk)
- 		sco_sock_set_timer(sk, sk->sk_sndtimeo);
- 	}
- 
--done:
--	hci_dev_unlock(hdev);
--	hci_dev_put(hdev);
- 	return err;
+-	ret = dp_ctrl_link_train_2(ctrl, cr, training_step);
++	ret = dp_ctrl_link_train_2(ctrl, training_step);
+ 	if (ret) {
+ 		DRM_ERROR("link training #2 failed. ret=%d\n", ret);
+ 		goto end;
+@@ -1280,7 +1264,7 @@ static int dp_ctrl_link_train(struct dp_ctrl_private *ctrl,
  }
  
-@@ -589,6 +574,7 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
+ static int dp_ctrl_setup_main_link(struct dp_ctrl_private *ctrl,
+-		struct dp_cr_status *cr, int *training_step)
++			int *training_step)
  {
- 	struct sockaddr_sco *sa = (struct sockaddr_sco *) addr;
- 	struct sock *sk = sock->sk;
-+	struct hci_dev  *hdev;
- 	int err;
+ 	int ret = 0;
  
- 	BT_DBG("sk %p", sk);
-@@ -603,12 +589,19 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
- 	if (sk->sk_type != SOCK_SEQPACKET)
- 		return -EINVAL;
+@@ -1295,7 +1279,7 @@ static int dp_ctrl_setup_main_link(struct dp_ctrl_private *ctrl,
+ 	 * a link training pattern, we have to first do soft reset.
+ 	 */
  
-+	hdev = hci_get_route(&sa->sco_bdaddr, &sco_pi(sk)->src, BDADDR_BREDR);
-+	if (!hdev)
-+		return -EHOSTUNREACH;
-+	hci_dev_lock(hdev);
+-	ret = dp_ctrl_link_train(ctrl, cr, training_step);
++	ret = dp_ctrl_link_train(ctrl, training_step);
+ 
+ 	return ret;
+ }
+@@ -1492,14 +1476,13 @@ static int dp_ctrl_deinitialize_mainlink(struct dp_ctrl_private *ctrl)
+ static int dp_ctrl_link_maintenance(struct dp_ctrl_private *ctrl)
+ {
+ 	int ret = 0;
+-	struct dp_cr_status cr;
+ 	int training_step = DP_TRAINING_NONE;
+ 
+ 	dp_ctrl_push_idle(&ctrl->dp_ctrl);
+ 
+ 	ctrl->dp_ctrl.pixel_rate = ctrl->panel->dp_mode.drm_mode.clock;
+ 
+-	ret = dp_ctrl_setup_main_link(ctrl, &cr, &training_step);
++	ret = dp_ctrl_setup_main_link(ctrl, &training_step);
+ 	if (ret)
+ 		goto end;
+ 
+@@ -1630,6 +1613,25 @@ void dp_ctrl_handle_sink_request(struct dp_ctrl *dp_ctrl)
+ 	}
+ }
+ 
++static bool dp_ctrl_clock_recovery_any_ok(
++			const u8 link_status[DP_LINK_STATUS_SIZE],
++			int lane_count)
++{
++	int reduced_cnt;
 +
- 	lock_sock(sk);
++	if (lane_count <= 1)
++		return false;
++
++	/*
++	 * only interested in the lane number after reduced
++	 * lane_count = 4, then only interested in 2 lanes
++	 * lane_count = 2, then only interested in 1 lane
++	 */
++	reduced_cnt = lane_count >> 1;
++
++	return drm_dp_clock_recovery_ok(link_status, reduced_cnt);
++}
++
+ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
+ {
+ 	int rc = 0;
+@@ -1637,7 +1639,7 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
+ 	u32 rate = 0;
+ 	int link_train_max_retries = 5;
+ 	u32 const phy_cts_pixel_clk_khz = 148500;
+-	struct dp_cr_status cr;
++	u8 link_status[DP_LINK_STATUS_SIZE];
+ 	unsigned int training_step;
  
- 	/* Set destination address and psm */
- 	bacpy(&sco_pi(sk)->dst, &sa->sco_bdaddr);
+ 	if (!dp_ctrl)
+@@ -1677,19 +1679,21 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
+ 		}
  
--	err = sco_connect(sk);
-+	err = sco_connect(hdev, sk);
-+	hci_dev_unlock(hdev);
-+	hci_dev_put(hdev);
- 	if (err)
- 		goto done;
+ 		training_step = DP_TRAINING_NONE;
+-		rc = dp_ctrl_setup_main_link(ctrl, &cr, &training_step);
++		rc = dp_ctrl_setup_main_link(ctrl, &training_step);
+ 		if (rc == 0) {
+ 			/* training completed successfully */
+ 			break;
+ 		} else if (training_step == DP_TRAINING_1) {
+ 			/* link train_1 failed */
+-			if (!dp_catalog_link_is_connected(ctrl->catalog)) {
++			if (!dp_catalog_link_is_connected(ctrl->catalog))
+ 				break;
+-			}
++
++			dp_ctrl_read_link_status(ctrl, link_status);
  
+ 			rc = dp_ctrl_link_rate_down_shift(ctrl);
+ 			if (rc < 0) { /* already in RBR = 1.6G */
+-				if (cr.lane_0_1 & DP_LANE0_1_CR_DONE) {
++				if (dp_ctrl_clock_recovery_any_ok(link_status,
++					ctrl->link->link_params.num_lanes)) {
+ 					/*
+ 					 * some lanes are ready,
+ 					 * reduce lane number
+@@ -1705,12 +1709,18 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
+ 				}
+ 			}
+ 		} else if (training_step == DP_TRAINING_2) {
+-			/* link train_2 failed, lower lane rate */
+-			if (!dp_catalog_link_is_connected(ctrl->catalog)) {
++			/* link train_2 failed */
++			if (!dp_catalog_link_is_connected(ctrl->catalog))
+ 				break;
+-			}
+ 
+-			rc = dp_ctrl_link_lane_down_shift(ctrl);
++			dp_ctrl_read_link_status(ctrl, link_status);
++
++			if (!drm_dp_clock_recovery_ok(link_status,
++					ctrl->link->link_params.num_lanes))
++				rc = dp_ctrl_link_rate_down_shift(ctrl);
++			else
++				rc = dp_ctrl_link_lane_down_shift(ctrl);
++
+ 			if (rc < 0) {
+ 				/* end with failure */
+ 				break; /* lane == 1 already */
 -- 
 2.30.2
 
