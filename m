@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA129404E34
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D77F404E39
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242091AbhIIMKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:10:34 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:35888 "EHLO
+        id S244883AbhIIMKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:10:38 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:35946 "EHLO
         smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244039AbhIIMHg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 08:07:36 -0400
+        with ESMTP id S1348229AbhIIMHp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 08:07:45 -0400
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 553562232F;
-        Thu,  9 Sep 2021 12:06:19 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTP id B4C872237C;
+        Thu,  9 Sep 2021 12:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1631189179; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1631189194; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=yOmWulbn7GVmz4de94sZX1nlnZKrqKEUyfrUcvYHNOE=;
-        b=XzqeTkfkk6Z2SmdcGqQHFZ34bGHZqKEY2P9Y6cQzFXjJAzay1U5SD73kuQlUvW/U+PwQpJ
-        aFQ2McwBnodG76gp1EbNQqTs1/5b3LDDkU1Qgpt/kTIl72A7WAJhtvSKBL7zK3IesUCYxA
-        oXZ+H1XOfl6bZzm6FZ77WiamfldOJ8Y=
+        bh=c/khgQTAUSoOHR1XUsK7Ur5i4C/m/GoNAYWgAXgJ+u4=;
+        b=TgUaz1ybYkRPkPHRr8PyP6+V8+fOn7IAadIQikrM90zkw/kEgeOsy61vDUcI4PYa5KKcZ8
+        lyi7w/y/n67LEpVdnlUqlMIICZbPYfAjZb3fuL3fWOWLV73Yfr/NH/Y/JGLBeORE11MKuh
+        9SNiZKA4bpw3aayM3I+mjLAgFR9TBME=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1631189179;
+        s=susede2_ed25519; t=1631189194;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=yOmWulbn7GVmz4de94sZX1nlnZKrqKEUyfrUcvYHNOE=;
-        b=yNr3FxWUVRknUQ5Dgc+sMIDKRrY3H+gGl5BDOCLQCGE36lcGLTvpnuI0Yq7cjC7nqocLBl
-        e74hyOBS5Cw3F7AQ==
+        bh=c/khgQTAUSoOHR1XUsK7Ur5i4C/m/GoNAYWgAXgJ+u4=;
+        b=vHPt/qY0ZVeb6NPC3xqoVcXPrP+n3X5lrX2LX9GZC7sr+ADDwosX3ZInRImOf1mjGfm7Ad
+        yHnz/TQG7SMiKDAg==
 Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
-        by relay2.suse.de (Postfix) with ESMTP id 4EFD0A3BFD;
-        Thu,  9 Sep 2021 12:06:19 +0000 (UTC)
-Date:   Thu, 09 Sep 2021 14:06:19 +0200
-Message-ID: <s5h35qeq7gk.wl-tiwai@suse.de>
+        by relay2.suse.de (Postfix) with ESMTP id ADE1FA3C95;
+        Thu,  9 Sep 2021 12:06:34 +0000 (UTC)
+Date:   Thu, 09 Sep 2021 14:06:34 +0200
+Message-ID: <s5h1r5yq7g5.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         alsa-devel@alsa-project.org
-Subject: Re: [PATCH AUTOSEL 5.10 141/176] ASoC: intel: atom: Revert PCM buffer address setup workaround again
-In-Reply-To: <20210909115118.146181-141-sashal@kernel.org>
-References: <20210909115118.146181-1-sashal@kernel.org>
-        <20210909115118.146181-141-sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.4 084/109] ASoC: intel: atom: Revert PCM buffer address setup workaround again
+In-Reply-To: <20210909115507.147917-84-sashal@kernel.org>
+References: <20210909115507.147917-1-sashal@kernel.org>
+        <20210909115507.147917-84-sashal@kernel.org>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -52,7 +52,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 09 Sep 2021 13:50:43 +0200,
+On Thu, 09 Sep 2021 13:54:41 +0200,
 Sasha Levin wrote:
 > 
 > From: Takashi Iwai <tiwai@suse.de>
@@ -69,7 +69,6 @@ Sasha Levin wrote:
 > Link: https://lore.kernel.org/r/20210822072127.9786-1-tiwai@suse.de
 > Signed-off-by: Takashi Iwai <tiwai@suse.de>
 > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
 
 Please drop this.
 
