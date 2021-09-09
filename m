@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2863404E4C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9E36404E2F
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:17:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344730AbhIIMK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:10:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48310 "EHLO mail.kernel.org"
+        id S245296AbhIIMKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:10:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345252AbhIIMHF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345229AbhIIMHF (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:07:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C47D261994;
-        Thu,  9 Sep 2021 11:47:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23CCE61980;
+        Thu,  9 Sep 2021 11:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188057;
-        bh=vJf/hOLRbSjBB5md0JjqiGgNpfTuhUqJ4jPhXj65f/0=;
+        s=k20201202; t=1631188059;
+        bh=CCqSZBrjoqhbOd+VZEKVATTkTGbF+yGwyIWlC/YNMf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sj5CLv192c2vSJG3G2pk5+OG2KMjpZvWbpo1S7P+T7w3J+Hyrk6ykuJfuZYRtKPBm
-         1SZXsF3T8EofG7RCGGxLE66VP7Brv/uJO5z+rPc7AWMS0AQdZP8pN5B+UuzaL+xPiq
-         ydX+mWxQjdlh6I7O6J+uSFmja8sV9MSdVhqh5iQbUhFx4cb3yj+ly52spewCrg4bMj
-         LndA8TfL5hC/rB4FUGhkBAD/iyuQtQh4ucEBvYJlRGJU0OpqAYZp0xos8IbdA2JaZZ
-         d5HKkEpDdw9NOL0pqZcapYlm41HnER5ddT5r/YvTV71aPkP8zmCu9p8FWeDRDrFndb
-         YrJcb7QcxzBUw==
+        b=XxlsHaFbBfEsbA2PyvSjho02a4es2g9zvClbejdIGYmffJ+i6kuuWvx0omqtHj4pY
+         E7na6+/lvtlZgsF3D/5KsFRtIO7ReiwNJ9Axwo+He1nwtCeGzT6dnVEC6c7nGheIr2
+         5TpKlp6HvzMPBW02cYx2fFBQzNAhk78UVvFzMoF9KvbzDCVF6C9VnouLKWnQjc1/wH
+         6MAQ9zFL93kMj0QhVg4uL9+lMHkSltZElSrrkscUq+x1kjv8X5cUVYOosxxx330QaF
+         M+vuF/E0dpIZq6i7lSGyic37PegmPuiGmcjtS6bzdbB9Fq9E3VB7IUvUQHZOraBELp
+         2sqmYcKWoHwGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.13 048/219] media: atomisp: pci: fix error return code in atomisp_pci_probe()
-Date:   Thu,  9 Sep 2021 07:43:44 -0400
-Message-Id: <20210909114635.143983-48-sashal@kernel.org>
+Cc:     =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@corigine.com>,
+        Louis Peens <louis.peens@corigine.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, oss-drivers@corigine.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 049/219] nfp: fix return statement in nfp_net_parse_meta()
+Date:   Thu,  9 Sep 2021 07:43:45 -0400
+Message-Id: <20210909114635.143983-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114635.143983-1-sashal@kernel.org>
 References: <20210909114635.143983-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,36 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Niklas Söderlund <niklas.soderlund@corigine.com>
 
-[ Upstream commit d14e272958bdfdc40dcafb827d24ba6fdafa9d52 ]
+[ Upstream commit 4431531c482a2c05126caaa9fcc5053a4a5c495b ]
 
-If init_atomisp_wdts() fails, atomisp_pci_probe() need return
-error code.
+The return type of the function is bool and while NULL do evaluate to
+false it's not very nice, fix this by explicitly returning false. There
+is no functional change.
 
-Link: https://lore.kernel.org/linux-media/20210617072329.1233662-1-yangyingliang@huawei.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Niklas Söderlund <niklas.soderlund@corigine.com>
+Signed-off-by: Louis Peens <louis.peens@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/atomisp/pci/atomisp_v4l2.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/netronome/nfp/nfp_net_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
-index 02f774ed80c8..fa1bd99cd6f1 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
-@@ -1763,7 +1763,8 @@ static int atomisp_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
- 	if (err < 0)
- 		goto register_entities_fail;
- 	/* init atomisp wdts */
--	if (init_atomisp_wdts(isp) != 0)
-+	err = init_atomisp_wdts(isp);
-+	if (err != 0)
- 		goto wdt_work_queue_fail;
- 
- 	/* save the iunit context only once after all the values are init'ed. */
+diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
+index eeb30680b4dc..0a0a26376bea 100644
+--- a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
+@@ -1697,7 +1697,7 @@ nfp_net_parse_meta(struct net_device *netdev, struct nfp_meta_parsed *meta,
+ 		case NFP_NET_META_RESYNC_INFO:
+ 			if (nfp_net_tls_rx_resync_req(netdev, data, pkt,
+ 						      pkt_len))
+-				return NULL;
++				return false;
+ 			data += sizeof(struct nfp_net_tls_resync_req);
+ 			break;
+ 		default:
 -- 
 2.30.2
 
