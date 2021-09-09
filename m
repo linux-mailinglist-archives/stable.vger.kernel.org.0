@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EDDB4051BD
+	by mail.lfdr.de (Postfix) with ESMTP id B7F194051BE
 	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238041AbhIIMi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:38:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39870 "EHLO mail.kernel.org"
+        id S240716AbhIIMi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:38:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343998AbhIIMdA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348521AbhIIMdA (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:33:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9931961B48;
-        Thu,  9 Sep 2021 11:53:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A5C661372;
+        Thu,  9 Sep 2021 11:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188395;
-        bh=zTMNA5NBdOawUk6Fq2WAD72GWPifnUA5KvOd9+Mmb4Q=;
+        s=k20201202; t=1631188397;
+        bh=3Vy7/M5mIyhzA+A/04/ihekB3kBig3WcfRZfZinvzpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pBG1QKnYyECmgTzGwmMZUDI7RTQeMvcgXNnyfOQEnk5prAtvoxHljyzsF1I8zvZey
-         v9T30VgJlfbAlO1MtB1loEEVMLYxCOmq8WlK8EGvQkuMLfruQRXO8hmnVr98n+xBc3
-         L2sFfn224WApCjBvH7rN9aoGQOliF65QeTuNBo9PBSZSXiau0WiTiC0LT6LVYZoQ2A
-         BlzrC6IJt4SmfNlySnP0h88b2IepsAx+Yb8C2Hgddq07eoOwBm7CIyzqoAOmUzTg1I
-         E51Undz3UxsClHzQyQq9n7yR/hfYKs6TOI+VIQUmpV1G2Uj5z8TaFdCX5FoR7onX8l
-         SRTFtWrNODRgQ==
+        b=sfwivGifuZM0DWGn4mlWx5wUXA43weMoKVUtHFVfeM+XVDvj01jV3MtmEOmF/GPAj
+         37ZzHaWpi4PW7wKqCil5Y9420COFkNnauAndGDdIzM7+o7ZF9wpLzY7D6vOdjaUdGD
+         Dm45DTsrf7/bUII6G4KnTHaATgsJ+04g5noWpUATDHOBw8ht26bD8TWhu1aaeIwPom
+         jyXW/UKcHICrPeDItcJBEGHV1dhJ+blH8V3XrJrT6jWOLviiP8LF8jwINu2h294Df8
+         bWyjXLQS4JNA6tLCBcLrWcrid3coZjOSmse6ABcXUVdy5RS8MOCad1HyvPuSmqWup9
+         fYuT0H9tW5mSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.10 091/176] net: ethernet: stmmac: Do not use unreachable() in ipq806x_gmac_probe()
-Date:   Thu,  9 Sep 2021 07:49:53 -0400
-Message-Id: <20210909115118.146181-91-sashal@kernel.org>
+Cc:     David Heidelberg <david@ixit.cz>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 092/176] drm/msm: mdp4: drop vblank get/put from prepare/complete_commit
+Date:   Thu,  9 Sep 2021 07:49:54 -0400
+Message-Id: <20210909115118.146181-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115118.146181-1-sashal@kernel.org>
 References: <20210909115118.146181-1-sashal@kernel.org>
@@ -46,86 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit 4367355dd90942a71641c98c40c74589c9bddf90 ]
+[ Upstream commit 56bd931ae506730c9ab1e4cc4bfefa43fc2d18fa ]
 
-When compiling with clang in certain configurations, an objtool warning
-appears:
+msm_atomic is doing vblank get/put's already,
+currently there no need to duplicate the effort in MDP4
 
-drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.o: warning: objtool:
-ipq806x_gmac_probe() falls through to next function phy_modes()
+Fix warning:
+...
+WARNING: CPU: 3 PID: 79 at drivers/gpu/drm/drm_vblank.c:1194 drm_vblank_put+0x1cc/0x1d4
+...
+and multiple vblank time-outs:
+...
+msm 5100000.mdp: vblank time out, crtc=1
+...
 
-This happens because the unreachable annotation in the third switch
-statement is not eliminated. The compiler should know that the first
-default case would prevent the second and third from being reached as
-the comment notes but sanitizer options can make it harder for the
-compiler to reason this out.
+Tested on Nexus 7 2013 (deb), LTS 5.10.50.
 
-Help the compiler out by eliminating the unreachable() annotation and
-unifying the default case error handling so that there is no objtool
-warning, the meaning of the code stays the same, and there is less
-duplication.
+Introduced by: 119ecb7fd3b5 ("drm/msm/mdp4: request vblank during modeset")
 
-Reported-by: Sami Tolvanen <samitolvanen@google.com>
-Tested-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210715060925.7880-1-david@ixit.cz
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/stmicro/stmmac/dwmac-ipq806x.c    | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-index 749585fe6fc9..90f69f43770a 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-@@ -289,10 +289,7 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 		val &= ~NSS_COMMON_GMAC_CTL_PHY_IFACE_SEL;
- 		break;
- 	default:
--		dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
--			phy_modes(gmac->phy_mode));
--		err = -EINVAL;
--		goto err_remove_config_dt;
-+		goto err_unsupported_phy;
- 	}
- 	regmap_write(gmac->nss_common, NSS_COMMON_GMAC_CTL(gmac->id), val);
+diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+index 2f75e3905202..dfc67c947ad8 100644
+--- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+@@ -108,13 +108,6 @@ static void mdp4_disable_commit(struct msm_kms *kms)
  
-@@ -309,10 +306,7 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 			NSS_COMMON_CLK_SRC_CTRL_OFFSET(gmac->id);
- 		break;
- 	default:
--		dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
--			phy_modes(gmac->phy_mode));
--		err = -EINVAL;
--		goto err_remove_config_dt;
-+		goto err_unsupported_phy;
- 	}
- 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_SRC_CTRL, val);
+ static void mdp4_prepare_commit(struct msm_kms *kms, struct drm_atomic_state *state)
+ {
+-	int i;
+-	struct drm_crtc *crtc;
+-	struct drm_crtc_state *crtc_state;
+-
+-	/* see 119ecb7fd */
+-	for_each_new_crtc_in_state(state, crtc, crtc_state, i)
+-		drm_crtc_vblank_get(crtc);
+ }
  
-@@ -329,8 +323,7 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 				NSS_COMMON_CLK_GATE_GMII_TX_EN(gmac->id);
- 		break;
- 	default:
--		/* We don't get here; the switch above will have errored out */
--		unreachable();
-+		goto err_unsupported_phy;
- 	}
- 	regmap_write(gmac->nss_common, NSS_COMMON_CLK_GATE, val);
+ static void mdp4_flush_commit(struct msm_kms *kms, unsigned crtc_mask)
+@@ -133,12 +126,6 @@ static void mdp4_wait_flush(struct msm_kms *kms, unsigned crtc_mask)
  
-@@ -361,6 +354,11 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
+ static void mdp4_complete_commit(struct msm_kms *kms, unsigned crtc_mask)
+ {
+-	struct mdp4_kms *mdp4_kms = to_mdp4_kms(to_mdp_kms(kms));
+-	struct drm_crtc *crtc;
+-
+-	/* see 119ecb7fd */
+-	for_each_crtc_mask(mdp4_kms->dev, crtc, crtc_mask)
+-		drm_crtc_vblank_put(crtc);
+ }
  
- 	return 0;
- 
-+err_unsupported_phy:
-+	dev_err(&pdev->dev, "Unsupported PHY mode: \"%s\"\n",
-+		phy_modes(gmac->phy_mode));
-+	err = -EINVAL;
-+
- err_remove_config_dt:
- 	stmmac_remove_config_dt(pdev, plat_dat);
- 
+ static long mdp4_round_pixclk(struct msm_kms *kms, unsigned long rate,
 -- 
 2.30.2
 
