@@ -2,68 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F05404D4E
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4CD9405538
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:32:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244867AbhIIMBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:01:33 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:34680 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345089AbhIIL7f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Sep 2021 07:59:35 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 226232237B;
-        Thu,  9 Sep 2021 11:58:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1631188705;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=pruN5hWifbYMlRtAyhOCyVp+chQU+hTNuDbEIgsZYFA=;
-        b=0canCd3xyLhjU4t0eRDdI2LTkGCVVKtdyAfcX2JOTu494YUAh0GoU2AWd+/2WQt+SIkJUt
-        Y8yND0jTt/eQpGvbxVMm2h6KssI1HMmF2qlcDj/iNX5JkHnDZq/VQTe5wH0Q5gP+/zAtuN
-        sUa0hYkaNEB7J+ViepRYsVp31w3EtjA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1631188705;
-        h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-         cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=pruN5hWifbYMlRtAyhOCyVp+chQU+hTNuDbEIgsZYFA=;
-        b=hB9ACBwq+/sBw2S1lsTYHaSLYm21XDIOsWx8hyBSbi6zQd8aXIq3axGVo8vWLREoYCWu6b
-        w3piknbdjmYhR6DQ==
-Received: from ds.suse.cz (ds.suse.cz [10.100.12.205])
-        by relay2.suse.de (Postfix) with ESMTP id 18604A3CA9;
-        Thu,  9 Sep 2021 11:58:25 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id 1F65DDA7A9; Thu,  9 Sep 2021 13:58:20 +0200 (CEST)
-Date:   Thu, 9 Sep 2021 13:58:20 +0200
-From:   David Sterba <dsterba@suse.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.13 174/219] btrfs: subpage: fix false alert
- when relocating partial preallocated data extents
-Message-ID: <20210909115820.GJ15306@suse.cz>
-Reply-To: dsterba@suse.cz
-Mail-Followup-To: dsterba@suse.cz, Sasha Levin <sashal@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
-        linux-btrfs@vger.kernel.org
-References: <20210909114635.143983-1-sashal@kernel.org>
- <20210909114635.143983-174-sashal@kernel.org>
+        id S1346067AbhIINI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 09:08:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43480 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1357506AbhIINBk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 09:01:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDB13611F0;
+        Thu,  9 Sep 2021 11:59:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631188766;
+        bh=YWql1/hGmDWuBN9K5x1CFPzECfRMeufyjqHsuuUMpLQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=uK9Hfo9crw+PK4MDewm303+eHYV6gu8s2J5CjQ0Ers4TTkrLdtZYLHtURcs0IoRw2
+         9IvkEp/D1K8ZjcDog3bTx+/pADn2/pcQ7QoxgsofwzUz7vTeA0zFmvBioPUrDetSC5
+         akIa9Iow0aFtPl66U8lcN4ioC++cMCCDGAaZaTmyZz5GszKHqtL7w1x/ncN+v6Wkvv
+         Hf0AZwL+C7uUug1x+cor8VuarAlnN6ph9PsGsNS9o2pTFnkuvXJQ1p1eLub5kMEn1J
+         lRr53aohzFXGPNjSwHahSeNpUoFpKpPnbCC8D8mLJghg6onsjtyIYUOOWxRog/3WEy
+         T7LxTI5fZHTQw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 20/59] ipv4: ip_output.c: Fix out-of-bounds warning in ip_copy_addrs()
+Date:   Thu,  9 Sep 2021 07:58:21 -0400
+Message-Id: <20210909115900.149795-20-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210909115900.149795-1-sashal@kernel.org>
+References: <20210909115900.149795-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210909114635.143983-174-sashal@kernel.org>
-User-Agent: Mutt/1.5.23.1-rc1 (2014-03-12)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 09, 2021 at 07:45:50AM -0400, Sasha Levin wrote:
-> From: Qu Wenruo <wqu@suse.com>
-> 
-> [ Upstream commit e3c62324e470c0a89df966603156b34fccd01708 ]
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 
-Please drop this patch from stable queue, thanks.
+[ Upstream commit 6321c7acb82872ef6576c520b0e178eaad3a25c0 ]
+
+Fix the following out-of-bounds warning:
+
+    In function 'ip_copy_addrs',
+        inlined from '__ip_queue_xmit' at net/ipv4/ip_output.c:517:2:
+net/ipv4/ip_output.c:449:2: warning: 'memcpy' offset [40, 43] from the object at 'fl' is out of the bounds of referenced subobject 'saddr' with type 'unsigned int' at offset 36 [-Warray-bounds]
+      449 |  memcpy(&iph->saddr, &fl4->saddr,
+          |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      450 |         sizeof(fl4->saddr) + sizeof(fl4->daddr));
+          |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The problem is that the original code is trying to copy data into a
+couple of struct members adjacent to each other in a single call to
+memcpy(). This causes a legitimate compiler warning because memcpy()
+overruns the length of &iph->saddr and &fl4->saddr. As these are just
+a couple of struct members, fix this by using direct assignments,
+instead of memcpy().
+
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
+
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/d5ae2e65-1f18-2577-246f-bada7eee6ccd@intel.com/
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/ipv4/ip_output.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index 5ec185a9dcab..c9f82525bfa4 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -419,8 +419,9 @@ static void ip_copy_addrs(struct iphdr *iph, const struct flowi4 *fl4)
+ {
+ 	BUILD_BUG_ON(offsetof(typeof(*fl4), daddr) !=
+ 		     offsetof(typeof(*fl4), saddr) + sizeof(fl4->saddr));
+-	memcpy(&iph->saddr, &fl4->saddr,
+-	       sizeof(fl4->saddr) + sizeof(fl4->daddr));
++
++	iph->saddr = fl4->saddr;
++	iph->daddr = fl4->daddr;
+ }
+ 
+ /* Note: skb->sk can be different from sk, in case of tunnels */
+-- 
+2.30.2
+
