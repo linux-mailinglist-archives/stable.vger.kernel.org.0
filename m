@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D235405459
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:29:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F32D405460
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 15:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356079AbhIIM6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:58:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57770 "EHLO mail.kernel.org"
+        id S1355631AbhIIM6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 08:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1356150AbhIIMxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355203AbhIIMxL (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 08:53:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC827600AA;
-        Thu,  9 Sep 2021 11:57:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11044611BD;
+        Thu,  9 Sep 2021 11:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631188654;
-        bh=jy87Hs9DjEstU082RReFi1SFX5hfII05KU1e+UcXikQ=;
+        s=k20201202; t=1631188655;
+        bh=9sqIlj1TMlzStrSfKyBBB4xXAtrh/JOARt+Z0euvc/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FuJn/WlItLezQ4ciaC+Q/ltJ8U/y2ha6VHiOzWdgZBaGzEN8ruw8gA6r3qyumNLqM
-         /BM/r6EF0F93iI+R2raqTJ4laKjL4+F5kNp/rQ0/eB6N09nsTe1E/FS7m2SyqWqFTh
-         0yzXthwfZ2uTeU0NUyvVl46mfK8yeTI6wwgjNX/HjneW2NIVT209Efa4LyezmunDe9
-         hGJaUYd7ATQ2X41bRocIQQyaxOu+tJFYS0dQhmbAbWbXoeWkDBz3zX88fxh+K8rtAd
-         Sppectf8telxUgAd2zJ5b0mWhGh9EQiPLsd4JL/3mkIWYRZjWDSjiXN20qjSFeu8ZE
-         SP8tHjVa1liuA==
+        b=bG06cgFwMG3cMoSAEzzqfCLzk9rzoG8p91YipWLEolS5KW/0NzfJXdUVxg/zMLGeR
+         CP6Xyt3pHM7pQgwV0+vfhXOsUNgkUdGyMIcJbexBiSJrU9fNz4tRuwrinPXyDRI/gj
+         S4U2TYQUpcfkqhRUSBejLoXxyse/+OuJ3eTP9FreYeO1BHyEI/QnU0dkl5I8bXd0ba
+         XtYlxEIahaHOdCTfNLwBBKiiQyt56V1C1ofewM7Wgi+uQFtHEQh/k39w37ppmmkpU0
+         A1nfreTDEN+fGK1eCIl4cyqi7bHipCeyd+y6cl6VfwsPoZZqYlLfx23hAyXojqwRBG
+         1P1CHLf9xwA1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Heidelberg <david@ixit.cz>,
-        Brian Masney <masneyb@onstation.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 06/74] ARM: dts: qcom: apq8064: correct clock names
-Date:   Thu,  9 Sep 2021 07:56:18 -0400
-Message-Id: <20210909115726.149004-6-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>, Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 07/74] video: fbdev: kyro: fix a DoS bug by restricting user input
+Date:   Thu,  9 Sep 2021 07:56:19 -0400
+Message-Id: <20210909115726.149004-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909115726.149004-1-sashal@kernel.org>
 References: <20210909115726.149004-1-sashal@kernel.org>
@@ -44,48 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 0dc6c59892ead17a9febd11202c9f6794aac1895 ]
+[ Upstream commit 98a65439172dc69cb16834e62e852afc2adb83ed ]
 
-Since new code doesn't take old clk names in account, it does fixes
-error:
+The user can pass in any value to the driver through the 'ioctl'
+interface. The driver dost not check, which may cause DoS bugs.
 
-msm_dsi 4700000.mdss_dsi: dev_pm_opp_set_clkname: Couldn't find clock: -2
+The following log reveals it:
 
-and following kernel oops introduced by
-b0530eb1191 ("drm/msm/dpu: Use OPP API to set clk/perf state").
+divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+RIP: 0010:SetOverlayViewPort+0x133/0x5f0 drivers/video/fbdev/kyro/STG4000OverlayDevice.c:476
+Call Trace:
+ kyro_dev_overlay_viewport_set drivers/video/fbdev/kyro/fbdev.c:378 [inline]
+ kyrofb_ioctl+0x2eb/0x330 drivers/video/fbdev/kyro/fbdev.c:603
+ do_fb_ioctl+0x1f3/0x700 drivers/video/fbdev/core/fbmem.c:1171
+ fb_ioctl+0xeb/0x130 drivers/video/fbdev/core/fbmem.c:1185
+ vfs_ioctl fs/ioctl.c:48 [inline]
+ __do_sys_ioctl fs/ioctl.c:753 [inline]
+ __se_sys_ioctl fs/ioctl.c:739 [inline]
+ __x64_sys_ioctl+0x19b/0x220 fs/ioctl.c:739
+ do_syscall_64+0x32/0x80 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Also removes warning about deprecated clock names.
-
-Tested against linux-5.10.y LTS on Nexus 7 2013.
-
-Reviewed-by: Brian Masney <masneyb@onstation.org>
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Link: https://lore.kernel.org/r/20210707131453.24041-1-david@ixit.cz
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1626235762-2590-1-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-apq8064.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/video/fbdev/kyro/fbdev.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
-index 4a99c9255104..d0153bbbdbeb 100644
---- a/arch/arm/boot/dts/qcom-apq8064.dtsi
-+++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
-@@ -1296,9 +1296,9 @@ dsi0: mdss_dsi@4700000 {
- 				<&mmcc DSI1_BYTE_CLK>,
- 				<&mmcc DSI_PIXEL_CLK>,
- 				<&mmcc DSI1_ESC_CLK>;
--			clock-names = "iface_clk", "bus_clk", "core_mmss_clk",
--					"src_clk", "byte_clk", "pixel_clk",
--					"core_clk";
-+			clock-names = "iface", "bus", "core_mmss",
-+					"src", "byte", "pixel",
-+					"core";
+diff --git a/drivers/video/fbdev/kyro/fbdev.c b/drivers/video/fbdev/kyro/fbdev.c
+index a7bd9f25911b..d7aa431e6846 100644
+--- a/drivers/video/fbdev/kyro/fbdev.c
++++ b/drivers/video/fbdev/kyro/fbdev.c
+@@ -372,6 +372,11 @@ static int kyro_dev_overlay_viewport_set(u32 x, u32 y, u32 ulWidth, u32 ulHeight
+ 		/* probably haven't called CreateOverlay yet */
+ 		return -EINVAL;
  
- 			assigned-clocks = <&mmcc DSI1_BYTE_SRC>,
- 					<&mmcc DSI1_ESC_SRC>,
++	if (ulWidth == 0 || ulWidth == 0xffffffff ||
++	    ulHeight == 0 || ulHeight == 0xffffffff ||
++	    (x < 2 && ulWidth + 2 == 0))
++		return -EINVAL;
++
+ 	/* Stop Ramdac Output */
+ 	DisableRamdacOutput(deviceInfo.pSTGReg);
+ 
 -- 
 2.30.2
 
