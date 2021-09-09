@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9098404D1C
-	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:02:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9826404CF4
+	for <lists+stable@lfdr.de>; Thu,  9 Sep 2021 14:01:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242862AbhIIMAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 08:00:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34544 "EHLO mail.kernel.org"
+        id S239777AbhIIL7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 07:59:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245104AbhIIL4k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 07:56:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D7A6611BD;
-        Thu,  9 Sep 2021 11:45:24 +0000 (UTC)
+        id S237690AbhIIL47 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 07:56:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24E3F61216;
+        Thu,  9 Sep 2021 11:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631187924;
-        bh=sQYVfnoL0J/WnRQewf8hj4OQQlqQpZwChqsObkIN0ic=;
+        s=k20201202; t=1631187926;
+        bh=v8vGB+3mWBq+luhinJRW757yoV4KKwTtTnholGUTLsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0spWyzsnzlqE6CwfdgvHpD6JxM7AFilaZ0f47Td+Z8UvLXAkFlXG6scTDgrz/I1/
-         TvynlwE//HDlX12k4tAIqhuX/isgo2nn7dlO7ap0CpF0fmfqyCOJPSamh8x7lr3+kP
-         tq60uBt9L1RdAn3Pb8VgH+RL64Zgpp9bEZpodZvrN6vhkapqh1MT3Oj0IgDr3Q9NiW
-         QvGevLb0xjjHqVB0A1hwvIP/A/3oSfC0JTjpotMN3VlVRxtYgvQT1/O2Fy3eCV4QWA
-         GPni86uWuCLq4gNuFcXpvZlMKYbvXPzFyUuEtyzRhQUhMEnvQzwhDBTHko/3+441qu
-         6AljE/XKjokqg==
+        b=VbKscrxZlvRZCzjJ+Ie5IqlrKKn1T3+PwpCt4617zEhBP1MykaEEWBy+hurgjOQih
+         AwNKAL8Inwz0T8UOr032mhe5lrxX/l5W/8SQ8HiGX0NCNtc/WZtrRnZlqlL5Nj1ECS
+         5qbUfU/HcB0DhbdXZTs4uL31BwT94SWtf2UswmU7vnJq1vv30ZuiIkWJoEyx1ayabj
+         uxjHYKOSmLD/434djfbsRBx/R/m6sAqDAgIlvXA8DJ2TldkA27RYoXAXccqUloaKNK
+         XJVMkYSOohDO6qQ66b60APYi3U6i7V+S140NqI2n1lu9mX98DtPLADw6nkyyRTUaS+
+         RIJCZeVUid19Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 198/252] ASoC: intel: atom: Revert PCM buffer address setup workaround again
-Date:   Thu,  9 Sep 2021 07:40:12 -0400
-Message-Id: <20210909114106.141462-198-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 199/252] soundwire: intel: fix potential race condition during power down
+Date:   Thu,  9 Sep 2021 07:40:13 -0400
+Message-Id: <20210909114106.141462-199-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210909114106.141462-1-sashal@kernel.org>
 References: <20210909114106.141462-1-sashal@kernel.org>
@@ -41,37 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit e28ac04a705e946eddc5e7d2fc712dea3f20fe9e ]
+[ Upstream commit ea6942dad4b2a7e1735aa0f10f3d0b04b847750f ]
 
-We worked around the breakage of PCM buffer setup by the commit
-65ca89c2b12c ("ASoC: intel: atom: Fix breakage for PCM buffer address
-setup"), but this isn't necessary since the CONTINUOUS buffer type
-also sets runtime->dma_addr since commit f84ba106a018 ("ALSA:
-memalloc: Store snd_dma_buffer.addr for continuous pages, too").
-Let's revert the change again.
+The power down sequence sets the link_up flag as false outside of the
+mutex_lock. This is potentially unsafe.
 
-Link: https://lore.kernel.org/r/20210822072127.9786-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+In additional the flow in that sequence can be improved by first
+testing if the link was powered, setting the link_up flag as false and
+proceeding with the power down. In case the CPA bits cannot be
+cleared, we only flag an error since we cannot deal with interrupts
+any longer.
+
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20210818024954.16873-2-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/atom/sst-mfld-platform-pcm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soundwire/intel.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/intel/atom/sst-mfld-platform-pcm.c b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-index 905c7965f653..5db2f4865bbb 100644
---- a/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-+++ b/sound/soc/intel/atom/sst-mfld-platform-pcm.c
-@@ -127,7 +127,7 @@ static void sst_fill_alloc_params(struct snd_pcm_substream *substream,
- 	snd_pcm_uframes_t period_size;
- 	ssize_t periodbytes;
- 	ssize_t buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
--	u32 buffer_addr = virt_to_phys(substream->runtime->dma_area);
-+	u32 buffer_addr = substream->runtime->dma_addr;
+diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
+index c11e3d8cd308..f156de765c68 100644
+--- a/drivers/soundwire/intel.c
++++ b/drivers/soundwire/intel.c
+@@ -537,12 +537,14 @@ static int intel_link_power_down(struct sdw_intel *sdw)
  
- 	channels = substream->runtime->channels;
- 	period_size = substream->runtime->period_size;
+ 	mutex_lock(sdw->link_res->shim_lock);
+ 
+-	intel_shim_master_ip_to_glue(sdw);
+-
+ 	if (!(*shim_mask & BIT(link_id)))
+ 		dev_err(sdw->cdns.dev,
+ 			"%s: Unbalanced power-up/down calls\n", __func__);
+ 
++	sdw->cdns.link_up = false;
++
++	intel_shim_master_ip_to_glue(sdw);
++
+ 	*shim_mask &= ~BIT(link_id);
+ 
+ 	if (!*shim_mask) {
+@@ -559,18 +561,19 @@ static int intel_link_power_down(struct sdw_intel *sdw)
+ 		link_control &=  spa_mask;
+ 
+ 		ret = intel_clear_bit(shim, SDW_SHIM_LCTL, link_control, cpa_mask);
++		if (ret < 0) {
++			dev_err(sdw->cdns.dev, "%s: could not power down link\n", __func__);
++
++			/*
++			 * we leave the sdw->cdns.link_up flag as false since we've disabled
++			 * the link at this point and cannot handle interrupts any longer.
++			 */
++		}
+ 	}
+ 
+ 	mutex_unlock(sdw->link_res->shim_lock);
+ 
+-	if (ret < 0) {
+-		dev_err(sdw->cdns.dev, "%s: could not power down link\n", __func__);
+-
+-		return ret;
+-	}
+-
+-	sdw->cdns.link_up = false;
+-	return 0;
++	return ret;
+ }
+ 
+ static void intel_shim_sync_arm(struct sdw_intel *sdw)
 -- 
 2.30.2
 
