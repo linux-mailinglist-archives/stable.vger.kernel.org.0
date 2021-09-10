@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 673F7406319
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA7240631D
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242344AbhIJAqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:46:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48566 "EHLO mail.kernel.org"
+        id S242365AbhIJAqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:46:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234190AbhIJAXA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:23:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 848EA60F24;
-        Fri, 10 Sep 2021 00:21:49 +0000 (UTC)
+        id S234205AbhIJAXC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:23:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E11B604DC;
+        Fri, 10 Sep 2021 00:21:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233310;
-        bh=zE/zs8pjurMpZbAT0rpUZiaXHYIwRvJkegYn8d7RSJs=;
+        s=k20201202; t=1631233311;
+        bh=dUIRa5DBhjsGy5Ucna1pQyzRuHBitYblONlWaX1sxmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PfEC84bDNihD2EuYDZThl7bY5QzrIRvK++N5DiXsrNymql+Kj/eBmlJccnin5Zer3
-         REK1dpuId5x47wqwez/gTdLNe7Zxw7M2nixVbdtxY+q3zw20H/5iwjjmg1CrAurAAL
-         0xj9PLUWG/x+BczNRw1gPj4SZXtoIQcOhow8/6YKNTdrYnIDViKCTwwk2gq4EVJ+CE
-         ORA6KgcyGbAI6hIaxZ0Raw9eDroOQmYsv4IqbwVhiEdwNJ2DtdcpINqkqwIZgXBGgo
-         /Mzjfuf25UtNl3uSGS5cdnl4wkUA4kSQIv8jrqMwce9pLweS+Ya8mRsOYyhR4z64DM
-         aU63THRLR9LXQ==
+        b=a838hDHxOuso4vFU4X0OPmwrgzmdRt/bo4oll1naNxFCcDeaK89syoigvn6tsEWRY
+         7LhR12dnmCd9eFkKNcC2DV17PlAsf32QMlaWq9v/NA4MTMm7dKGw6llk4qzpEqyxqQ
+         4fYwNa5l98jgsq2Gp8Ijku5H+x1OELUTyKhF5DItzu0ogekYwS6DNVRJgVa+RJ2ibg
+         ZbTE+W+D0ONS/f4XLflA017SFJ5h7Qs7MzXsnIiioF5ResteH3vcTU8n2pfEIpq8EE
+         hQIJJmsa9Fh08K1dQVKiA4rB/kwVabheOz3GBdkj8adzPw/xk4UAMq6T5EJFfXu37r
+         uS6aWZXvms+Vw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike McGowen <mike.mcgowen@microchip.com>,
-        Kevin Barnett <kevin.barnett@microchip.com>,
-        Scott Benesh <scott.benesh@microchip.com>,
-        Scott Teel <scott.teel@microchip.com>,
-        Don Brace <don.brace@microchip.com>,
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, storagedev@microchip.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 05/37] scsi: smartpqi: Fix ISR accessing uninitialized data
-Date:   Thu,  9 Sep 2021 20:21:10 -0400
-Message-Id: <20210910002143.175731-5-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 06/37] scsi: lpfc: Fix cq_id truncation in rq create
+Date:   Thu,  9 Sep 2021 20:21:11 -0400
+Message-Id: <20210910002143.175731-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002143.175731-1-sashal@kernel.org>
 References: <20210910002143.175731-1-sashal@kernel.org>
@@ -47,47 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike McGowen <mike.mcgowen@microchip.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 0777a3fb98f0ea546561d04db4fd325248c39961 ]
+[ Upstream commit df3d78c3eb4eba13b3ef9740a8c664508ee644ae ]
 
-Correct driver's ISR accessing a data structure member that has not been
-fully initialized during driver initialization.
+On the newer hardware, CQ_ID values can be larger than seen on previous
+generations. This exposed an issue in the driver where its definition of
+cq_id in the RQ Create mailbox cmd was too small, thus the cq_id was
+truncated, causing the command to fail.
 
-The pqi queue groups can have uninitialized members when an interrupt
-fires. This has not resulted in any driver crashes. This was found during
-our own internal testing. No bugs were ever filed.
+Revise the RQ_CREATE CQ_ID field to its proper size (16 bits).
 
-Link: https://lore.kernel.org/r/20210714182847.50360-9-don.brace@microchip.com
-Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
-Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
-Reviewed-by: Scott Teel <scott.teel@microchip.com>
-Signed-off-by: Mike McGowen <mike.mcgowen@microchip.com>
-Signed-off-by: Don Brace <don.brace@microchip.com>
+Link: https://lore.kernel.org/r/20210722221721.74388-3-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_hw4.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index 9bc451004184..824f19475b27 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -7208,11 +7208,11 @@ static int pqi_ctrl_init(struct pqi_ctrl_info *ctrl_info)
- 
- 	pqi_init_operational_queues(ctrl_info);
- 
--	rc = pqi_request_irqs(ctrl_info);
-+	rc = pqi_create_queues(ctrl_info);
- 	if (rc)
- 		return rc;
- 
--	rc = pqi_create_queues(ctrl_info);
-+	rc = pqi_request_irqs(ctrl_info);
- 	if (rc)
- 		return rc;
- 
+diff --git a/drivers/scsi/lpfc/lpfc_hw4.h b/drivers/scsi/lpfc/lpfc_hw4.h
+index b8a772f80d6c..b4bb82308d7b 100644
+--- a/drivers/scsi/lpfc/lpfc_hw4.h
++++ b/drivers/scsi/lpfc/lpfc_hw4.h
+@@ -1548,7 +1548,7 @@ struct rq_context {
+ #define lpfc_rq_context_hdr_size_WORD	word1
+ 	uint32_t word2;
+ #define lpfc_rq_context_cq_id_SHIFT	16
+-#define lpfc_rq_context_cq_id_MASK	0x000003FF
++#define lpfc_rq_context_cq_id_MASK	0x0000FFFF
+ #define lpfc_rq_context_cq_id_WORD	word2
+ #define lpfc_rq_context_buf_size_SHIFT	0
+ #define lpfc_rq_context_buf_size_MASK	0x0000FFFF
 -- 
 2.30.2
 
