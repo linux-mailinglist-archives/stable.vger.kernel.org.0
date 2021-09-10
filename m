@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E742406BAF
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87452406BFF
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233804AbhIJMdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:33:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51002 "EHLO mail.kernel.org"
+        id S233551AbhIJMgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:36:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233692AbhIJMdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:33:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77037611CE;
-        Fri, 10 Sep 2021 12:32:06 +0000 (UTC)
+        id S234280AbhIJMfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:35:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9A9C61207;
+        Fri, 10 Sep 2021 12:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277127;
-        bh=24WADtF1nlCF5+DsbBKx77QjJcAUjTpmnx8sRSvWoek=;
+        s=korg; t=1631277248;
+        bh=bu47G0dhHchfHPxY/aEfeAtfJ3toOPvO2T/CaQ1t1BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AH0V6+yd07xvvmvhIqgmv7TmOJYJvzJB0OFO9mXBEQkhaKJVRrE1stBMwawMfFJzK
-         7x1FciKmRZF1ydhwG9+wXRMUYNwuTR8QN3PYHCUjJFtT3hLaXIUnN09cgwPSi48IYY
-         WAQ5xPs7nDJgajcvUSKANTsqUusbiFv3BqhM9d9I=
+        b=uvH/12JIzdOvsx5vnP8aguOSBSZHDN//t/czAEbRR4Pbv6/Z7zuQ/3GDHZ0zZ2GuZ
+         hTnAIRyQaVhRC2Ejt7VkYUzPEcigu3L0t2a3b9GUDzD3T0xkdIleePwhG7ehWbS8G4
+         bYB072+VsrE9ROtFshnQ4j7R7lOu5MDxrwLLC+90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.13 13/22] usb: cdnsp: fix the wrong mult value for HS isoc or intr
-Date:   Fri, 10 Sep 2021 14:30:12 +0200
-Message-Id: <20210910122916.365208009@linuxfoundation.org>
+        stable@vger.kernel.org, Hayes Wang <hayeswang@realtek.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 09/26] Revert "r8169: avoid link-up interrupt issue on RTL8106e if user enables ASPM"
+Date:   Fri, 10 Sep 2021 14:30:13 +0200
+Message-Id: <20210910122916.559335856@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122915.942645251@linuxfoundation.org>
-References: <20210910122915.942645251@linuxfoundation.org>
+In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
+References: <20210910122916.253646001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +39,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Hayes Wang <hayeswang@realtek.com>
 
-commit e9ab75f26eb9354dfc03aea3401b8cfb42cd6718 upstream.
+commit 2115d3d482656ea702f7cf308c0ded3500282903 upstream.
 
-usb_endpoint_maxp() only returns the bit[10:0] of wMaxPacketSize
-of endpoint descriptor, not include bit[12:11] anymore, so use
-usb_endpoint_maxp_mult() instead.
+This reverts commit 1ee8856de82faec9bc8bd0f2308a7f27e30ba207.
 
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Cc: stable@vger.kernel.org
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1628836253-7432-4-git-send-email-chunfeng.yun@mediatek.com
+This is used to re-enable ASPM on RTL8106e, if it is possible.
+
+Signed-off-by: Hayes Wang <hayeswang@realtek.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdnsp-mem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/cdns3/cdnsp-mem.c
-+++ b/drivers/usb/cdns3/cdnsp-mem.c
-@@ -882,7 +882,7 @@ static u32 cdnsp_get_endpoint_max_burst(
- 	if (g->speed == USB_SPEED_HIGH &&
- 	    (usb_endpoint_xfer_isoc(pep->endpoint.desc) ||
- 	     usb_endpoint_xfer_int(pep->endpoint.desc)))
--		return (usb_endpoint_maxp(pep->endpoint.desc) & 0x1800) >> 11;
-+		return usb_endpoint_maxp_mult(pep->endpoint.desc) - 1;
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -3547,6 +3547,7 @@ static void rtl_hw_start_8106(struct rtl
+ 	rtl_eri_write(tp, 0x1b0, ERIAR_MASK_0011, 0x0000);
  
- 	return 0;
+ 	rtl_pcie_state_l2l3_disable(tp);
++	rtl_hw_aspm_clkreq_enable(tp, true);
  }
+ 
+ DECLARE_RTL_COND(rtl_mac_ocp_e00e_cond)
 
 
