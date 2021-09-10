@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB30B406338
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D938406329
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242423AbhIJAq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:46:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48616 "EHLO mail.kernel.org"
+        id S242439AbhIJAq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:46:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234266AbhIJAXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:23:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D16026058D;
-        Fri, 10 Sep 2021 00:21:53 +0000 (UTC)
+        id S229990AbhIJAXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:23:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DB2060F24;
+        Fri, 10 Sep 2021 00:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233314;
-        bh=qm+zJIDqg6LmllmM+B/hpGId9tdsJP52WsSqQ+S+tKg=;
+        s=k20201202; t=1631233315;
+        bh=HUjSc51v8Q/VSajJJxCN9AZhLPCBhX+xYJx2+V+j7iY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jD595yWX8Hiqr5Fx+RKBZ7JKvEKAg104AYGPEiyVCj0E3+Whp0DpstjeFxywU32Vw
-         8nbLCuGla+EAnUVP6NS5GOdr+5xw2zJCbDnheEaYNbbA3zmOvQ5Z/cxjr0Xj3ZDW4y
-         bR8XAe3JqMMsW/rvIgRDAviKL9to2MY/HQScNioW/HL8T89b1sFPvIRmXO7Kaezlmm
-         Epk9kCa9G9I2xX/1QgcCKzDWsXcXXYWhgl/xVgZ6q7L4TL4XSVPupweGTr1IG+T/Hb
-         8KSHQ7VQrGBtdWPavWUNFtMYFZhQv4MRaubDCkcPJepK4BfWmoi8+QZrVcW/kEG+a7
-         ulb+mx9JWcOnA==
+        b=TdD1sa2zsKvLwLZoVw7ODh+WTY6NT0yD+DmTeCYGGviwJQ8kcvWlaRuSCcGuHJFNt
+         gzSwk3TqH3zNkuLAnk4Uq6RrtyGzmNT7gmRmi8QtBFZq01c1QRRytbG8wNWDkDiCgV
+         6fi1AwQVMlykRcT354s0KOp482jZNdZSQ8EyY8pn865284fnr1Cd77YWcE92OwfriU
+         NxP+t7AX7hThizwQ10Ags0vnqBUGi1KdCMVx1BXNnOK88bdq7X5/g84RjkZMiD5ERh
+         Zyl6NPRRzSJtEjWy+LUOPhSrsJw1pAFM//nzE37T1JGW1ourXowq9gYZf3duuiaCFt
+         V083GuYvRw4Ew==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
-        syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/37] HID: usbhid: free raw_report buffers in usbhid_stop
-Date:   Thu,  9 Sep 2021 20:21:13 -0400
-Message-Id: <20210910002143.175731-8-sashal@kernel.org>
+Cc:     Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.4 09/37] f2fs: fix to force keeping write barrier for strict fsync mode
+Date:   Thu,  9 Sep 2021 20:21:14 -0400
+Message-Id: <20210910002143.175731-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002143.175731-1-sashal@kernel.org>
 References: <20210910002143.175731-1-sashal@kernel.org>
@@ -43,58 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit f7744fa16b96da57187dc8e5634152d3b63d72de ]
+[ Upstream commit 2787991516468bfafafb9bf2b45a848e6b202e7c ]
 
-Free the unsent raw_report buffers when the device is removed.
+[1] https://www.mail-archive.com/linux-f2fs-devel@lists.sourceforge.net/msg15126.html
 
-Fixes a memory leak reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=7b4fa7cb1a7c2d3342a2a8a6c53371c8c418ab47
+As [1] reported, if lower device doesn't support write barrier, in below
+case:
 
-Reported-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Tested-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+- write page #0; persist
+- overwrite page #0
+- fsync
+ - write data page #0 OPU into device's cache
+ - write inode page into device's cache
+ - issue flush
+
+If SPO is triggered during flush command, inode page can be persisted
+before data page #0, so that after recovery, inode page can be recovered
+with new physical block address of data page #0, however there may
+contains dummy data in new physical block address.
+
+Then what user will see is: after overwrite & fsync + SPO, old data in
+file was corrupted, if any user do care about such case, we can suggest
+user to use STRICT fsync mode, in this mode, we will force to use atomic
+write sematics to keep write order in between data/node and last node,
+so that it avoids potential data corruption during fsync().
+
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/usbhid/hid-core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ fs/f2fs/file.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 1cfbbaf6901d..8537fcdb456d 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -503,7 +503,7 @@ static void hid_ctrl(struct urb *urb)
- 
- 	if (unplug) {
- 		usbhid->ctrltail = usbhid->ctrlhead;
--	} else {
-+	} else if (usbhid->ctrlhead != usbhid->ctrltail) {
- 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
- 
- 		if (usbhid->ctrlhead != usbhid->ctrltail &&
-@@ -1221,9 +1221,20 @@ static void usbhid_stop(struct hid_device *hid)
- 	mutex_lock(&usbhid->mutex);
- 
- 	clear_bit(HID_STARTED, &usbhid->iofl);
-+
- 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
- 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
-+	while (usbhid->ctrltail != usbhid->ctrlhead) {
-+		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_OUT) {
-+			kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
-+			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
-+		}
-+
-+		usbhid->ctrltail = (usbhid->ctrltail + 1) &
-+			(HID_CONTROL_FIFO_SIZE - 1);
-+	}
- 	spin_unlock_irq(&usbhid->lock);
-+
- 	usb_kill_urb(usbhid->urbin);
- 	usb_kill_urb(usbhid->urbout);
- 	usb_kill_urb(usbhid->urbctrl);
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 6e58b2e62b18..4fc0e62a5ef3 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -259,6 +259,18 @@ static int f2fs_do_sync_file(struct file *file, loff_t start, loff_t end,
+ 				f2fs_exist_written_data(sbi, ino, UPDATE_INO))
+ 			goto flush_out;
+ 		goto out;
++	} else {
++		/*
++		 * for OPU case, during fsync(), node can be persisted before
++		 * data when lower device doesn't support write barrier, result
++		 * in data corruption after SPO.
++		 * So for strict fsync mode, force to use atomic write sematics
++		 * to keep write order in between data/node and last node to
++		 * avoid potential data corruption.
++		 */
++		if (F2FS_OPTION(sbi).fsync_mode ==
++				FSYNC_MODE_STRICT && !atomic)
++			atomic = true;
+ 	}
+ go_write:
+ 	/*
 -- 
 2.30.2
 
