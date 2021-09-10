@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FFE6406217
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1954A406218
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232662AbhIJAon (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:44:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46636 "EHLO mail.kernel.org"
+        id S233587AbhIJAoo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:44:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233634AbhIJAUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:20:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08D2D610A3;
-        Fri, 10 Sep 2021 00:19:19 +0000 (UTC)
+        id S233641AbhIJAUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:20:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E25761101;
+        Fri, 10 Sep 2021 00:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233160;
-        bh=6CfwjVaR4AreFF15nKRjmwLM/H6Zw16p/K0HTzsauCA=;
+        s=k20201202; t=1631233162;
+        bh=IDQFCtoyLckoFTCR2vpRmp21F1qYhxGe8k2EAQuWfPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YbZfPkchOC84pDG8SAROA+0VIv8L8fFloWDoN9fqmA2SEWkII1KvX7Vfhf7KKZKxg
-         /5lTh36gIHTCLdUSErSOZ2nEOvtvEIUrEsZNfAwEzsLIrUTvgyw4XVWqrgxotSIWhu
-         erExjI6XdtZfs6z97cWygjBry9pBVhG1ztfz86En79xa9cIy7IjeBHo/J6ZEDFrwSu
-         qNu2PF94x/NBRLdFQowcstvrC+ix5j8UIMzbXQG3WLXLpsqhfYwLIDa2z/8NuxXAlD
-         1MWbrClGFbYMSq0Rr1KMO6BcLMEuH5mj7oNUIGSVCLWr7X8Zk5Kp4CBXX06UIe8s4B
-         182bUlYJRpcyQ==
+        b=k7paJ9TKePyAQPblPbSGjXcWGkMX28saI5YK+mZUCBkme7Pzvtd7CHg8er70pavaX
+         5/TJvntWEmIPH/eSBoCenyhfOjqaz2+4XUTUSLAjEvIqVZ34iGoN5P+kWHIxX84W6V
+         +6mZII+iHWlZ2lo6EcVsCEdL6cnYeZfrs3fsHSZjiufFbq17GOWC9t6El4f25pgEyO
+         ahsVNfZAdrkTDlK86fshpu1qb3cFZF5W7yw1fxN9xcTlh+GcSuxQ7UgVezBRigEKL9
+         b6VlFPtCXbdMNs5Zye5wbUOAPaH71b1v8jHTEw73nxRKgWuwuyXfgof3sK+MLmkv7O
+         W76QZDfPe7OmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "David E. Box" <david.e.box@linux.intel.com>,
-        Evgeny Novikov <novikov@ispras.ru>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 42/88] platform/x86: intel_pmc_core: Prevent possibile overflow
-Date:   Thu,  9 Sep 2021 20:17:34 -0400
-Message-Id: <20210910001820.174272-42-sashal@kernel.org>
+Cc:     Tuo Li <islituo@gmail.com>, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Bodo Stroesser <bostroesser@gmail.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 43/88] scsi: target: pscsi: Fix possible null-pointer dereference in pscsi_complete_cmd()
+Date:   Thu,  9 Sep 2021 20:17:35 -0400
+Message-Id: <20210910001820.174272-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
@@ -45,141 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "David E. Box" <david.e.box@linux.intel.com>
+From: Tuo Li <islituo@gmail.com>
 
-[ Upstream commit 45b6f75eab6aabf9d88933830f41f532d39f38d2 ]
+[ Upstream commit 0f99792c01d1d6d35b86e850e9ccadd98d6f3e0c ]
 
-Substate priority levels are encoded in 4 bits in the LPM_PRI register.
-This value was used as an index to an array whose element size was less
-than 16, leading to the possibility of overflow should we read a larger
-than expected priority.  In addition to the overflow, bad values could lead
-to incorrect state reporting.  So rework the priority code to prevent the
-overflow and perform some validation of the register. Use the priority
-register values if they give an ordering of unique numbers between 0 and
-the maximum number of states.  Otherwise, use a default ordering instead.
+The return value of transport_kmap_data_sg() is assigned to the variable
+buf:
 
-Reported-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: David E. Box <david.e.box@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210814014728.520856-1-david.e.box@linux.intel.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+  buf = transport_kmap_data_sg(cmd);
+
+And then it is checked:
+
+  if (!buf) {
+
+This indicates that buf can be NULL. However, it is dereferenced in the
+following statements:
+
+  if (!(buf[3] & 0x80))
+    buf[3] |= 0x80;
+  if (!(buf[2] & 0x80))
+    buf[2] |= 0x80;
+
+To fix these possible null-pointer dereferences, dereference buf and call
+transport_kunmap_data_sg() only when buf is not NULL.
+
+Link: https://lore.kernel.org/r/20210810040414.248167-1-islituo@gmail.com
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
+Signed-off-by: Tuo Li <islituo@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_pmc_core.c | 65 +++++++++++++++++++++------
- drivers/platform/x86/intel_pmc_core.h |  2 +
- 2 files changed, 53 insertions(+), 14 deletions(-)
+ drivers/target/target_core_pscsi.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_pmc_core.c b/drivers/platform/x86/intel_pmc_core.c
-index b0e486a6bdfb..ae410a358ffe 100644
---- a/drivers/platform/x86/intel_pmc_core.c
-+++ b/drivers/platform/x86/intel_pmc_core.c
-@@ -1449,9 +1449,42 @@ static int pmc_core_pkgc_show(struct seq_file *s, void *unused)
- }
- DEFINE_SHOW_ATTRIBUTE(pmc_core_pkgc);
+diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
+index f2a11414366d..da5de58bd3bb 100644
+--- a/drivers/target/target_core_pscsi.c
++++ b/drivers/target/target_core_pscsi.c
+@@ -620,17 +620,17 @@ static void pscsi_complete_cmd(struct se_cmd *cmd, u8 scsi_status,
+ 			buf = transport_kmap_data_sg(cmd);
+ 			if (!buf) {
+ 				; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
+-			}
+-
+-			if (cdb[0] == MODE_SENSE_10) {
+-				if (!(buf[3] & 0x80))
+-					buf[3] |= 0x80;
+ 			} else {
+-				if (!(buf[2] & 0x80))
+-					buf[2] |= 0x80;
+-			}
++				if (cdb[0] == MODE_SENSE_10) {
++					if (!(buf[3] & 0x80))
++						buf[3] |= 0x80;
++				} else {
++					if (!(buf[2] & 0x80))
++						buf[2] |= 0x80;
++				}
  
--static void pmc_core_get_low_power_modes(struct pmc_dev *pmcdev)
-+static bool pmc_core_pri_verify(u32 lpm_pri, u8 *mode_order)
- {
--	u8 lpm_priority[LPM_MAX_NUM_MODES];
-+	int i, j;
-+
-+	if (!lpm_pri)
-+		return false;
-+	/*
-+	 * Each byte contains the priority level for 2 modes (7:4 and 3:0).
-+	 * In a 32 bit register this allows for describing 8 modes. Store the
-+	 * levels and look for values out of range.
-+	 */
-+	for (i = 0; i < 8; i++) {
-+		int level = lpm_pri & GENMASK(3, 0);
-+
-+		if (level >= LPM_MAX_NUM_MODES)
-+			return false;
-+
-+		mode_order[i] = level;
-+		lpm_pri >>= 4;
-+	}
-+
-+	/* Check that we have unique values */
-+	for (i = 0; i < LPM_MAX_NUM_MODES - 1; i++)
-+		for (j = i + 1; j < LPM_MAX_NUM_MODES; j++)
-+			if (mode_order[i] == mode_order[j])
-+				return false;
-+
-+	return true;
-+}
-+
-+static void pmc_core_get_low_power_modes(struct platform_device *pdev)
-+{
-+	struct pmc_dev *pmcdev = platform_get_drvdata(pdev);
-+	u8 pri_order[LPM_MAX_NUM_MODES] = LPM_DEFAULT_PRI;
-+	u8 mode_order[LPM_MAX_NUM_MODES];
-+	u32 lpm_pri;
- 	u32 lpm_en;
- 	int mode, i, p;
- 
-@@ -1462,24 +1495,28 @@ static void pmc_core_get_low_power_modes(struct pmc_dev *pmcdev)
- 	lpm_en = pmc_core_reg_read(pmcdev, pmcdev->map->lpm_en_offset);
- 	pmcdev->num_lpm_modes = hweight32(lpm_en);
- 
--	/* Each byte contains information for 2 modes (7:4 and 3:0) */
--	for (mode = 0; mode < LPM_MAX_NUM_MODES; mode += 2) {
--		u8 priority = pmc_core_reg_read_byte(pmcdev,
--				pmcdev->map->lpm_priority_offset + (mode / 2));
--		int pri0 = GENMASK(3, 0) & priority;
--		int pri1 = (GENMASK(7, 4) & priority) >> 4;
-+	/* Read 32 bit LPM_PRI register */
-+	lpm_pri = pmc_core_reg_read(pmcdev, pmcdev->map->lpm_priority_offset);
- 
--		lpm_priority[pri0] = mode;
--		lpm_priority[pri1] = mode + 1;
--	}
- 
- 	/*
--	 * Loop though all modes from lowest to highest priority,
-+	 * If lpm_pri value passes verification, then override the default
-+	 * modes here. Otherwise stick with the default.
-+	 */
-+	if (pmc_core_pri_verify(lpm_pri, mode_order))
-+		/* Get list of modes in priority order */
-+		for (mode = 0; mode < LPM_MAX_NUM_MODES; mode++)
-+			pri_order[mode_order[mode]] = mode;
-+	else
-+		dev_warn(&pdev->dev, "Assuming a default substate order for this platform\n");
-+
-+	/*
-+	 * Loop through all modes from lowest to highest priority,
- 	 * and capture all enabled modes in order
- 	 */
- 	i = 0;
- 	for (p = LPM_MAX_NUM_MODES - 1; p >= 0; p--) {
--		int mode = lpm_priority[p];
-+		int mode = pri_order[p];
- 
- 		if (!(BIT(mode) & lpm_en))
- 			continue;
-@@ -1675,7 +1712,7 @@ static int pmc_core_probe(struct platform_device *pdev)
- 	mutex_init(&pmcdev->lock);
- 
- 	pmcdev->pmc_xram_read_bit = pmc_core_check_read_lock_bit(pmcdev);
--	pmc_core_get_low_power_modes(pmcdev);
-+	pmc_core_get_low_power_modes(pdev);
- 	pmc_core_do_dmi_quirks(pmcdev);
- 
- 	if (pmcdev->map == &tgl_reg_map)
-diff --git a/drivers/platform/x86/intel_pmc_core.h b/drivers/platform/x86/intel_pmc_core.h
-index e8dae9c6c45f..b9bf3d3d6f7a 100644
---- a/drivers/platform/x86/intel_pmc_core.h
-+++ b/drivers/platform/x86/intel_pmc_core.h
-@@ -188,6 +188,8 @@ enum ppfear_regs {
- #define ICL_PMC_SLP_S0_RES_COUNTER_STEP		0x64
- 
- #define LPM_MAX_NUM_MODES			8
-+#define LPM_DEFAULT_PRI				{ 7, 6, 2, 5, 4, 1, 3, 0 }
-+
- #define GET_X2_COUNTER(v)			((v) >> 1)
- #define LPM_STS_LATCH_MODE			BIT(31)
- 
+-			transport_kunmap_data_sg(cmd);
++				transport_kunmap_data_sg(cmd);
++			}
+ 		}
+ 	}
+ after_mode_sense:
 -- 
 2.30.2
 
