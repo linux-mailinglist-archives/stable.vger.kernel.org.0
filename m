@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5792406BF1
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D400F406BF4
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233857AbhIJMfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:35:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53226 "EHLO mail.kernel.org"
+        id S234405AbhIJMfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:35:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233901AbhIJMez (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:34:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EF366120C;
-        Fri, 10 Sep 2021 12:33:43 +0000 (UTC)
+        id S234095AbhIJMe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:34:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E06C761214;
+        Fri, 10 Sep 2021 12:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277224;
-        bh=/O7Zj8aPiDLhuQAwXIrcIaBMUytpBfGyDXpsSA8AIow=;
+        s=korg; t=1631277226;
+        bh=ScMyRx5hzzycEeIp806gQ990mz42kGL2xozFShREGxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mhKuNoSa5UPHB5KFWAqgMTQk9xjI+yKaMi2T42uOZq3eRAESIpINvhWiUh/WrKoAI
-         +2sSRKpY/teBLvBLMDILx27N6DYfl/b/P4n2Bt22rbe9nMj4Baw9cSKD53606UlG1i
-         un3N22D/Rbt3b6z2LqYTdLBSvPYQs0puR66xVQDU=
+        b=mByoA/vmDPMYDYueRiKmaQN3O9hcge562QIjnp6ScCXC7NiVqnOxebaCcySDpQmCR
+         budBYi046i0TxQRkyBRKOMFGs1Iv7mKXbOB+LJNEl4xl3tYmy7kZL6V9XxI9wtQekR
+         DvZy+C6pyGU5fRNYyGmv/PuihGnAkr1Q0nF+yW2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 24/26] xhci: fix unsafe memory usage in xhci tracing
-Date:   Fri, 10 Sep 2021 14:30:28 +0200
-Message-Id: <20210910122917.035422376@linuxfoundation.org>
+        Paul Gortmaker <paul.gortmaker@windriver.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 25/26] x86/reboot: Limit Dell Optiplex 990 quirk to early BIOS versions
+Date:   Fri, 10 Sep 2021 14:30:29 +0200
+Message-Id: <20210910122917.065287917@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
 References: <20210910122916.253646001@linuxfoundation.org>
@@ -39,307 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
 
-commit cbf286e8ef8337308c259ff5b9ce2e74d403be5a upstream.
+commit a729691b541f6e63043beae72e635635abe5dc09 upstream.
 
-Removes static char buffer usage in the following decode functions:
-	xhci_decode_trb()
-	xhci_decode_ptortsc()
+When this platform was relatively new in November 2011, with early BIOS
+revisions, a reboot quirk was added in commit 6be30bb7d750 ("x86/reboot:
+Blacklist Dell OptiPlex 990 known to require PCI reboot")
 
-Caller must provide a buffer to use.
-In tracing use __get_str() as recommended to pass buffer.
+However, this quirk (and several others) are open-ended to all BIOS
+versions and left no automatic expiry if/when the system BIOS fixed the
+issue, meaning that nobody is likely to come along and re-test.
 
-Minor chanes are needed in xhci debugfs code as these functions are also
-used there. Changes include moving XHCI_MSG_MAX definititon from
-xhci-trace.h to xhci.h
+What is really problematic with using PCI reboot as this quirk does, is
+that it causes this platform to do a full power down, wait one second,
+and then power back on.  This is less than ideal if one is using it for
+boot testing and/or bisecting kernels when legacy rotating hard disks
+are installed.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210820123503.2605901-2-mathias.nyman@linux.intel.com
+It was only by chance that the quirk was noticed in dmesg - and when
+disabled it turned out that it wasn't required anymore (BIOS A24), and a
+default reboot would work fine without the "harshness" of power cycling the
+machine (and disks) down and up like the PCI reboot does.
+
+Doing a bit more research, it seems that the "newest" BIOS for which the
+issue was reported[1] was version A06, however Dell[2] seemed to suggest
+only up to and including version A05, with the A06 having a large number of
+fixes[3] listed.
+
+As is typical with a new platform, the initial BIOS updates come frequently
+and then taper off (and in this case, with a revival for CPU CVEs); a
+search for O990-A<ver>.exe reveals the following dates:
+
+        A02     16 Mar 2011
+        A03     11 May 2011
+        A06     14 Sep 2011
+        A07     24 Oct 2011
+        A10     08 Dec 2011
+        A14     06 Sep 2012
+        A16     15 Oct 2012
+        A18     30 Sep 2013
+        A19     23 Sep 2015
+        A20     02 Jun 2017
+        A23     07 Mar 2018
+        A24     21 Aug 2018
+
+While it's overkill to flash and test each of the above, it would seem
+likely that the issue was contained within A0x BIOS versions, given the
+dates above and the dates of issue reports[4] from distros.  So rather than
+just throw out the quirk entirely, limit the scope to just those early BIOS
+versions, in case people are still running systems from 2011 with the
+original as-shipped early A0x BIOS versions.
+
+[1] https://lore.kernel.org/lkml/1320373471-3942-1-git-send-email-trenn@suse.de/
+[2] https://www.dell.com/support/kbdoc/en-ca/000131908/linux-based-operating-systems-stall-upon-reboot-on-optiplex-390-790-990-systems
+[3] https://www.dell.com/support/home/en-ca/drivers/driversdetails?driverid=85j10
+[4] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/768039
+
+Fixes: 6be30bb7d750 ("x86/reboot: Blacklist Dell OptiPlex 990 known to require PCI reboot")
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210530162447.996461-4-paul.gortmaker@windriver.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-debugfs.c |    6 +++-
- drivers/usb/host/xhci-trace.h   |    8 +++---
- drivers/usb/host/xhci.h         |   52 +++++++++++++++++++++-------------------
- 3 files changed, 36 insertions(+), 30 deletions(-)
+ arch/x86/kernel/reboot.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-debugfs.c
-+++ b/drivers/usb/host/xhci-debugfs.c
-@@ -198,12 +198,13 @@ static void xhci_ring_dump_segment(struc
- 	int			i;
- 	dma_addr_t		dma;
- 	union xhci_trb		*trb;
-+	char			str[XHCI_MSG_MAX];
- 
- 	for (i = 0; i < TRBS_PER_SEGMENT; i++) {
- 		trb = &seg->trbs[i];
- 		dma = seg->dma + i * sizeof(*trb);
- 		seq_printf(s, "%pad: %s\n", &dma,
--			   xhci_decode_trb(le32_to_cpu(trb->generic.field[0]),
-+			   xhci_decode_trb(str, XHCI_MSG_MAX, le32_to_cpu(trb->generic.field[0]),
- 					   le32_to_cpu(trb->generic.field[1]),
- 					   le32_to_cpu(trb->generic.field[2]),
- 					   le32_to_cpu(trb->generic.field[3])));
-@@ -345,9 +346,10 @@ static int xhci_portsc_show(struct seq_f
- {
- 	struct xhci_port	*port = s->private;
- 	u32			portsc;
-+	char			str[XHCI_MSG_MAX];
- 
- 	portsc = readl(port->addr);
--	seq_printf(s, "%s\n", xhci_decode_portsc(portsc));
-+	seq_printf(s, "%s\n", xhci_decode_portsc(str, portsc));
- 
- 	return 0;
- }
---- a/drivers/usb/host/xhci-trace.h
-+++ b/drivers/usb/host/xhci-trace.h
-@@ -25,8 +25,6 @@
- #include "xhci.h"
- #include "xhci-dbgcap.h"
- 
--#define XHCI_MSG_MAX	500
--
- DECLARE_EVENT_CLASS(xhci_log_msg,
- 	TP_PROTO(struct va_format *vaf),
- 	TP_ARGS(vaf),
-@@ -122,6 +120,7 @@ DECLARE_EVENT_CLASS(xhci_log_trb,
- 		__field(u32, field1)
- 		__field(u32, field2)
- 		__field(u32, field3)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->type = ring->type;
-@@ -131,7 +130,7 @@ DECLARE_EVENT_CLASS(xhci_log_trb,
- 		__entry->field3 = le32_to_cpu(trb->field[3]);
- 	),
- 	TP_printk("%s: %s", xhci_ring_type_string(__entry->type),
--			xhci_decode_trb(__entry->field0, __entry->field1,
-+		  xhci_decode_trb(__get_str(str), XHCI_MSG_MAX, __entry->field0, __entry->field1,
- 					__entry->field2, __entry->field3)
- 	)
- );
-@@ -526,6 +525,7 @@ DECLARE_EVENT_CLASS(xhci_log_portsc,
- 		    TP_STRUCT__entry(
- 				     __field(u32, portnum)
- 				     __field(u32, portsc)
-+				     __dynamic_array(char, str, XHCI_MSG_MAX)
- 				     ),
- 		    TP_fast_assign(
- 				   __entry->portnum = portnum;
-@@ -533,7 +533,7 @@ DECLARE_EVENT_CLASS(xhci_log_portsc,
- 				   ),
- 		    TP_printk("port-%d: %s",
- 			      __entry->portnum,
--			      xhci_decode_portsc(__entry->portsc)
-+			      xhci_decode_portsc(__get_str(str), __entry->portsc)
- 			      )
- );
- 
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -22,6 +22,9 @@
- #include	"xhci-ext-caps.h"
- #include "pci-quirks.h"
- 
-+/* max buffer size for trace and debug messages */
-+#define XHCI_MSG_MAX		500
-+
- /* xHCI PCI Configuration Registers */
- #define XHCI_SBRN_OFFSET	(0x60)
- 
-@@ -2223,15 +2226,14 @@ static inline char *xhci_slot_state_stri
- 	}
- }
- 
--static inline const char *xhci_decode_trb(u32 field0, u32 field1, u32 field2,
--		u32 field3)
-+static inline const char *xhci_decode_trb(char *str, size_t size,
-+					  u32 field0, u32 field1, u32 field2, u32 field3)
- {
--	static char str[256];
- 	int type = TRB_FIELD_TO_TYPE(field3);
- 
- 	switch (type) {
- 	case TRB_LINK:
--		sprintf(str,
-+		snprintf(str, size,
- 			"LINK %08x%08x intr %d type '%s' flags %c:%c:%c:%c",
- 			field1, field0, GET_INTR_TARGET(field2),
- 			xhci_trb_type_string(type),
-@@ -2248,7 +2250,7 @@ static inline const char *xhci_decode_tr
- 	case TRB_HC_EVENT:
- 	case TRB_DEV_NOTE:
- 	case TRB_MFINDEX_WRAP:
--		sprintf(str,
-+		snprintf(str, size,
- 			"TRB %08x%08x status '%s' len %d slot %d ep %d type '%s' flags %c:%c",
- 			field1, field0,
- 			xhci_trb_comp_code_string(GET_COMP_CODE(field2)),
-@@ -2261,7 +2263,8 @@ static inline const char *xhci_decode_tr
- 
- 		break;
- 	case TRB_SETUP:
--		sprintf(str, "bRequestType %02x bRequest %02x wValue %02x%02x wIndex %02x%02x wLength %d length %d TD size %d intr %d type '%s' flags %c:%c:%c",
-+		snprintf(str, size,
-+			"bRequestType %02x bRequest %02x wValue %02x%02x wIndex %02x%02x wLength %d length %d TD size %d intr %d type '%s' flags %c:%c:%c",
- 				field0 & 0xff,
- 				(field0 & 0xff00) >> 8,
- 				(field0 & 0xff000000) >> 24,
-@@ -2278,7 +2281,8 @@ static inline const char *xhci_decode_tr
- 				field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_DATA:
--		sprintf(str, "Buffer %08x%08x length %d TD size %d intr %d type '%s' flags %c:%c:%c:%c:%c:%c:%c",
-+		snprintf(str, size,
-+			 "Buffer %08x%08x length %d TD size %d intr %d type '%s' flags %c:%c:%c:%c:%c:%c:%c",
- 				field1, field0, TRB_LEN(field2), GET_TD_SIZE(field2),
- 				GET_INTR_TARGET(field2),
- 				xhci_trb_type_string(type),
-@@ -2291,7 +2295,8 @@ static inline const char *xhci_decode_tr
- 				field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_STATUS:
--		sprintf(str, "Buffer %08x%08x length %d TD size %d intr %d type '%s' flags %c:%c:%c:%c",
-+		snprintf(str, size,
-+			 "Buffer %08x%08x length %d TD size %d intr %d type '%s' flags %c:%c:%c:%c",
- 				field1, field0, TRB_LEN(field2), GET_TD_SIZE(field2),
- 				GET_INTR_TARGET(field2),
- 				xhci_trb_type_string(type),
-@@ -2304,7 +2309,7 @@ static inline const char *xhci_decode_tr
- 	case TRB_ISOC:
- 	case TRB_EVENT_DATA:
- 	case TRB_TR_NOOP:
--		sprintf(str,
-+		snprintf(str, size,
- 			"Buffer %08x%08x length %d TD size %d intr %d type '%s' flags %c:%c:%c:%c:%c:%c:%c:%c",
- 			field1, field0, TRB_LEN(field2), GET_TD_SIZE(field2),
- 			GET_INTR_TARGET(field2),
-@@ -2321,21 +2326,21 @@ static inline const char *xhci_decode_tr
- 
- 	case TRB_CMD_NOOP:
- 	case TRB_ENABLE_SLOT:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: flags %c",
- 			xhci_trb_type_string(type),
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_DISABLE_SLOT:
- 	case TRB_NEG_BANDWIDTH:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: slot %d flags %c",
- 			xhci_trb_type_string(type),
- 			TRB_TO_SLOT_ID(field3),
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_ADDR_DEV:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: ctx %08x%08x slot %d flags %c:%c",
- 			xhci_trb_type_string(type),
- 			field1, field0,
-@@ -2344,7 +2349,7 @@ static inline const char *xhci_decode_tr
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_CONFIG_EP:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: ctx %08x%08x slot %d flags %c:%c",
- 			xhci_trb_type_string(type),
- 			field1, field0,
-@@ -2353,7 +2358,7 @@ static inline const char *xhci_decode_tr
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_EVAL_CONTEXT:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: ctx %08x%08x slot %d flags %c",
- 			xhci_trb_type_string(type),
- 			field1, field0,
-@@ -2361,7 +2366,7 @@ static inline const char *xhci_decode_tr
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_RESET_EP:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: ctx %08x%08x slot %d ep %d flags %c:%c",
- 			xhci_trb_type_string(type),
- 			field1, field0,
-@@ -2382,7 +2387,7 @@ static inline const char *xhci_decode_tr
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_SET_DEQ:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: deq %08x%08x stream %d slot %d ep %d flags %c",
- 			xhci_trb_type_string(type),
- 			field1, field0,
-@@ -2393,14 +2398,14 @@ static inline const char *xhci_decode_tr
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_RESET_DEV:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: slot %d flags %c",
- 			xhci_trb_type_string(type),
- 			TRB_TO_SLOT_ID(field3),
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_FORCE_EVENT:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: event %08x%08x vf intr %d vf id %d flags %c",
- 			xhci_trb_type_string(type),
- 			field1, field0,
-@@ -2409,14 +2414,14 @@ static inline const char *xhci_decode_tr
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_SET_LT:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: belt %d flags %c",
- 			xhci_trb_type_string(type),
- 			TRB_TO_BELT(field3),
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_GET_BW:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: ctx %08x%08x slot %d speed %d flags %c",
- 			xhci_trb_type_string(type),
- 			field1, field0,
-@@ -2425,7 +2430,7 @@ static inline const char *xhci_decode_tr
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	case TRB_FORCE_HEADER:
--		sprintf(str,
-+		snprintf(str, size,
- 			"%s: info %08x%08x%08x pkt type %d roothub port %d flags %c",
- 			xhci_trb_type_string(type),
- 			field2, field1, field0 & 0xffffffe0,
-@@ -2434,7 +2439,7 @@ static inline const char *xhci_decode_tr
- 			field3 & TRB_CYCLE ? 'C' : 'c');
- 		break;
- 	default:
--		sprintf(str,
-+		snprintf(str, size,
- 			"type '%s' -> raw %08x %08x %08x %08x",
- 			xhci_trb_type_string(type),
- 			field0, field1, field2, field3);
-@@ -2557,9 +2562,8 @@ static inline const char *xhci_portsc_li
- 	return "Unknown";
- }
- 
--static inline const char *xhci_decode_portsc(u32 portsc)
-+static inline const char *xhci_decode_portsc(char *str, u32 portsc)
- {
--	static char str[256];
- 	int ret;
- 
- 	ret = sprintf(str, "%s %s %s Link:%s PortSpeed:%d ",
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -388,10 +388,11 @@ static const struct dmi_system_id reboot
+ 	},
+ 	{	/* Handle problems with rebooting on the OptiPlex 990. */
+ 		.callback = set_pci_reboot,
+-		.ident = "Dell OptiPlex 990",
++		.ident = "Dell OptiPlex 990 BIOS A0x",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "OptiPlex 990"),
++			DMI_MATCH(DMI_BIOS_VERSION, "A0"),
+ 		},
+ 	},
+ 	{	/* Handle problems with rebooting on Dell 300's */
 
 
