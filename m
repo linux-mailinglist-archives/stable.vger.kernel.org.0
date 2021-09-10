@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 132D040625A
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C39E406263
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232395AbhIJApr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:45:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47460 "EHLO mail.kernel.org"
+        id S231635AbhIJAps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:45:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233801AbhIJAVm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:21:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EABE610E9;
-        Fri, 10 Sep 2021 00:20:31 +0000 (UTC)
+        id S233806AbhIJAVn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:21:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB709611AF;
+        Fri, 10 Sep 2021 00:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233232;
-        bh=r65yJxLB/9+Eod/TUlzX1mMI3fhUye0EbqrWE6LoAPg=;
+        s=k20201202; t=1631233233;
+        bh=1LUZstzBU6lnrvq0z0vjZ3RlSGsKHummG+10tM0IJL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lm3LzQ726zjD1YP8+ZU0dKnXtb8P/HEUWvYDtiyi4CE1Axm8ve+H46kqDFtftlCp4
-         P3bDyePIFosL9cvDqBN+HRTFR7JFJciqQvGw4PfZvvQL4UVqxx0/ki2C1XaMurOqeM
-         +7zRIzcjwT+7XYEA97kwCsy7WklE7tmVSgBy4IYS0UiCqZrG7J22Y69v5IpcNhsuPp
-         anpkTqY/SpGH6PdJKxBOd2QPxSEvq+rImEjyKA5Ub7D+EFEqsySyc83yR71aeFCPIQ
-         3i9F9fGePKu1wYezdOPWXb+wiUkpDrnuuI5SsE7F2XEQXqM5aMo5wCUCNqCZffpPxk
-         nybcoQc5EEQ7g==
+        b=rk3hnWZh7rLK58h67I3mZjRSBIw2lQ1uLJWtppfJpzh8dJKCYXbb5kKZkFE+qppEo
+         nNOckkGPE+rpQy2ZYOHumDWE/rsNpY9XaonB5+lPxZyiKfA5p1lRXOc1N40WnUk/Og
+         E+0/YeGTVTIeqF0Kc+12S6U+Q2lTeRJrfvf55K1TVQO9Bjmzn3jJ/0YvUbDUQCWwlf
+         9AXmYwCrxeDp+bvI4LPunXjlgqBaGE9LTwyjK/6dy/KnSRAbRWTkAyi0ec9GjF42zY
+         u65oIBN+qb+8PA+Bgw8pqzug9EhatTVzgDWr+AySqq+RTgbmrS4I14bTp0bmxkMF8G
+         F/20cA2R+or/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Christie <michael.christie@oracle.com>,
-        Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 02/53] scsi: be2iscsi: Fix use-after-free during IP updates
-Date:   Thu,  9 Sep 2021 20:19:37 -0400
-Message-Id: <20210910002028.175174-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 03/53] scsi: lpfc: Fix NVMe support reporting in log message
+Date:   Thu,  9 Sep 2021 20:19:38 -0400
+Message-Id: <20210910002028.175174-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
@@ -43,214 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 7b0ddc1346089b62b45e688e350c9e1c3f7a3ab2 ]
+[ Upstream commit ae463b60235e7a5decffbb0bd7209952ccda78eb ]
 
-This fixes a bug found by Lv Yunlong where, because beiscsi_exec_nemb_cmd()
-frees memory for the be_dma_mem cmd(), we can access freed memory when
-beiscsi_if_clr_ip()/beiscsi_if_set_ip()'s call to beiscsi_exec_nemb_cmd()
-fails and we access the freed req. This fixes the issue by having the
-caller free the cmd's memory.
+The NVMe support indicator in log message 6422 is displaying a field that
+was initialized but never set to indicate NVMe support.  Remove obsolete
+nvme_support element from the lpfc_hba structure and change log message to
+display NVMe support status as reported in SLI4 Config Parameters mailbox
+command.
 
-Link: https://lore.kernel.org/r/20210701190840.175120-1-michael.christie@oracle.com
-Reported-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Link: https://lore.kernel.org/r/20210707184351.67872-2-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/be2iscsi/be_mgmt.c | 84 ++++++++++++++++++---------------
- 1 file changed, 45 insertions(+), 39 deletions(-)
+ drivers/scsi/lpfc/lpfc.h      | 1 -
+ drivers/scsi/lpfc/lpfc_init.c | 3 +--
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/be2iscsi/be_mgmt.c b/drivers/scsi/be2iscsi/be_mgmt.c
-index 96d6e384b2b2..c1f79125cd0c 100644
---- a/drivers/scsi/be2iscsi/be_mgmt.c
-+++ b/drivers/scsi/be2iscsi/be_mgmt.c
-@@ -235,8 +235,7 @@ static int beiscsi_exec_nemb_cmd(struct beiscsi_hba *phba,
- 	wrb = alloc_mcc_wrb(phba, &tag);
- 	if (!wrb) {
- 		mutex_unlock(&ctrl->mbox_lock);
--		rc = -ENOMEM;
--		goto free_cmd;
-+		return -ENOMEM;
- 	}
+diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
+index 93e507677bdc..86996c72f213 100644
+--- a/drivers/scsi/lpfc/lpfc.h
++++ b/drivers/scsi/lpfc/lpfc.h
+@@ -819,7 +819,6 @@ struct lpfc_hba {
+ 	uint8_t  wwpn[8];
+ 	uint32_t RandomData[7];
+ 	uint8_t  fcp_embed_io;
+-	uint8_t  nvme_support;	/* Firmware supports NVME */
+ 	uint8_t  nvmet_support;	/* driver supports NVMET */
+ #define LPFC_NVMET_MAX_PORTS	32
+ 	uint8_t  mds_diags_support;
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index 37612299a34a..003648661f3b 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -12126,7 +12126,6 @@ lpfc_get_sli4_parameters(struct lpfc_hba *phba, LPFC_MBOXQ_t *mboxq)
+ 					bf_get(cfg_xib, mbx_sli4_parameters),
+ 					phba->cfg_enable_fc4_type);
+ fcponly:
+-			phba->nvme_support = 0;
+ 			phba->nvmet_support = 0;
+ 			phba->cfg_nvmet_mrq = 0;
+ 			phba->cfg_nvme_seg_cnt = 0;
+@@ -12184,7 +12183,7 @@ lpfc_get_sli4_parameters(struct lpfc_hba *phba, LPFC_MBOXQ_t *mboxq)
+ 			"6422 XIB %d PBDE %d: FCP %d NVME %d %d %d\n",
+ 			bf_get(cfg_xib, mbx_sli4_parameters),
+ 			phba->cfg_enable_pbde,
+-			phba->fcp_embed_io, phba->nvme_support,
++			phba->fcp_embed_io, sli4_params->nvme,
+ 			phba->cfg_nvme_embed_cmd, phba->cfg_suppress_rsp);
  
- 	sge = nonembedded_sgl(wrb);
-@@ -269,24 +268,6 @@ static int beiscsi_exec_nemb_cmd(struct beiscsi_hba *phba,
- 	/* copy the response, if any */
- 	if (resp_buf)
- 		memcpy(resp_buf, nonemb_cmd->va, resp_buf_len);
--	/**
--	 * This is special case of NTWK_GET_IF_INFO where the size of
--	 * response is not known. beiscsi_if_get_info checks the return
--	 * value to free DMA buffer.
--	 */
--	if (rc == -EAGAIN)
--		return rc;
--
--	/**
--	 * If FW is busy that is driver timed out, DMA buffer is saved with
--	 * the tag, only when the cmd completes this buffer is freed.
--	 */
--	if (rc == -EBUSY)
--		return rc;
--
--free_cmd:
--	dma_free_coherent(&ctrl->pdev->dev, nonemb_cmd->size,
--			    nonemb_cmd->va, nonemb_cmd->dma);
- 	return rc;
- }
- 
-@@ -309,6 +290,19 @@ static int beiscsi_prep_nemb_cmd(struct beiscsi_hba *phba,
- 	return 0;
- }
- 
-+static void beiscsi_free_nemb_cmd(struct beiscsi_hba *phba,
-+				  struct be_dma_mem *cmd, int rc)
-+{
-+	/*
-+	 * If FW is busy the DMA buffer is saved with the tag. When the cmd
-+	 * completes this buffer is freed.
-+	 */
-+	if (rc == -EBUSY)
-+		return;
-+
-+	dma_free_coherent(&phba->ctrl.pdev->dev, cmd->size, cmd->va, cmd->dma);
-+}
-+
- static void __beiscsi_eq_delay_compl(struct beiscsi_hba *phba, unsigned int tag)
- {
- 	struct be_dma_mem *tag_mem;
-@@ -344,8 +338,16 @@ int beiscsi_modify_eq_delay(struct beiscsi_hba *phba,
- 				cpu_to_le32(set_eqd[i].delay_multiplier);
- 	}
- 
--	return beiscsi_exec_nemb_cmd(phba, &nonemb_cmd,
--				     __beiscsi_eq_delay_compl, NULL, 0);
-+	rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, __beiscsi_eq_delay_compl,
-+				   NULL, 0);
-+	if (rc) {
-+		/*
-+		 * Only free on failure. Async cmds are handled like -EBUSY
-+		 * where it's handled for us.
-+		 */
-+		beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
-+	}
-+	return rc;
- }
- 
- /**
-@@ -372,6 +374,7 @@ int beiscsi_get_initiator_name(struct beiscsi_hba *phba, char *name, bool cfg)
- 		req->hdr.version = 1;
- 	rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL,
- 				   &resp, sizeof(resp));
-+	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
- 	if (rc) {
- 		beiscsi_log(phba, KERN_ERR,
- 			    BEISCSI_LOG_CONFIG | BEISCSI_LOG_MBOX,
-@@ -449,7 +452,9 @@ static int beiscsi_if_mod_gw(struct beiscsi_hba *phba,
- 	req->ip_addr.ip_type = ip_type;
- 	memcpy(req->ip_addr.addr, gw,
- 	       (ip_type < BEISCSI_IP_TYPE_V6) ? IP_V4_LEN : IP_V6_LEN);
--	return beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, NULL, 0);
-+	rt_val = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, NULL, 0);
-+	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rt_val);
-+	return rt_val;
- }
- 
- int beiscsi_if_set_gw(struct beiscsi_hba *phba, u32 ip_type, u8 *gw)
-@@ -499,8 +504,10 @@ int beiscsi_if_get_gw(struct beiscsi_hba *phba, u32 ip_type,
- 	req = nonemb_cmd.va;
- 	req->ip_type = ip_type;
- 
--	return beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL,
--				     resp, sizeof(*resp));
-+	rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, resp,
-+				   sizeof(*resp));
-+	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
-+	return rc;
- }
- 
- static int
-@@ -537,6 +544,7 @@ beiscsi_if_clr_ip(struct beiscsi_hba *phba,
- 			    "BG_%d : failed to clear IP: rc %d status %d\n",
- 			    rc, req->ip_params.ip_record.status);
- 	}
-+	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
- 	return rc;
- }
- 
-@@ -581,6 +589,7 @@ beiscsi_if_set_ip(struct beiscsi_hba *phba, u8 *ip,
- 		if (req->ip_params.ip_record.status)
- 			rc = -EINVAL;
- 	}
-+	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
- 	return rc;
- }
- 
-@@ -608,6 +617,7 @@ int beiscsi_if_en_static(struct beiscsi_hba *phba, u32 ip_type,
- 		reldhcp->interface_hndl = phba->interface_handle;
- 		reldhcp->ip_type = ip_type;
- 		rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, NULL, 0);
-+		beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
- 		if (rc < 0) {
- 			beiscsi_log(phba, KERN_WARNING, BEISCSI_LOG_CONFIG,
- 				    "BG_%d : failed to release existing DHCP: %d\n",
-@@ -689,7 +699,7 @@ int beiscsi_if_en_dhcp(struct beiscsi_hba *phba, u32 ip_type)
- 	dhcpreq->interface_hndl = phba->interface_handle;
- 	dhcpreq->ip_type = ip_type;
- 	rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, NULL, 0);
--
-+	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
- exit:
- 	kfree(if_info);
- 	return rc;
-@@ -762,11 +772,8 @@ int beiscsi_if_get_info(struct beiscsi_hba *phba, int ip_type,
- 				    BEISCSI_LOG_INIT | BEISCSI_LOG_CONFIG,
- 				    "BG_%d : Memory Allocation Failure\n");
- 
--				/* Free the DMA memory for the IOCTL issuing */
--				dma_free_coherent(&phba->ctrl.pdev->dev,
--						    nonemb_cmd.size,
--						    nonemb_cmd.va,
--						    nonemb_cmd.dma);
-+				beiscsi_free_nemb_cmd(phba, &nonemb_cmd,
-+						      -ENOMEM);
- 				return -ENOMEM;
- 		}
- 
-@@ -781,15 +788,13 @@ int beiscsi_if_get_info(struct beiscsi_hba *phba, int ip_type,
- 				      nonemb_cmd.va)->actual_resp_len;
- 			ioctl_size += sizeof(struct be_cmd_req_hdr);
- 
--			/* Free the previous allocated DMA memory */
--			dma_free_coherent(&phba->ctrl.pdev->dev, nonemb_cmd.size,
--					    nonemb_cmd.va,
--					    nonemb_cmd.dma);
--
-+			beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
- 			/* Free the virtual memory */
- 			kfree(*if_info);
--		} else
-+		} else {
-+			beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
- 			break;
-+		}
- 	} while (true);
- 	return rc;
- }
-@@ -806,8 +811,9 @@ int mgmt_get_nic_conf(struct beiscsi_hba *phba,
- 	if (rc)
- 		return rc;
- 
--	return beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL,
--				     nic, sizeof(*nic));
-+	rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, nic, sizeof(*nic));
-+	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
-+	return rc;
- }
- 
- static void beiscsi_boot_process_compl(struct beiscsi_hba *phba,
+ 	if ((bf_get(lpfc_sli_intf_if_type, &phba->sli4_hba.sli_intf) ==
 -- 
 2.30.2
 
