@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CD724062ED
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CACD04062F0
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233126AbhIJAqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:46:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48164 "EHLO mail.kernel.org"
+        id S232512AbhIJAqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:46:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232193AbhIJAWe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:22:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36F0261101;
-        Fri, 10 Sep 2021 00:21:24 +0000 (UTC)
+        id S234068AbhIJAWg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:22:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64B866023D;
+        Fri, 10 Sep 2021 00:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233284;
-        bh=sCrOixLBrggAy8UuwUOsH3dCzA0RrFFnX++Bn6WdxiU=;
+        s=k20201202; t=1631233286;
+        bh=RlZw90XY9G6njygefb+zNxz90JJFSXonM1BLS1TirNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoAbE1XJyZ5GPsC8dfK2L4TSX8xUmnIqmgwdapIL+W24r9ZDgkSstyEH29VgQkkBR
-         ureUAHo+tTe03PA+qwp5Nd++PPRtFiREuheLQFblsbbj0nKNF2vXYrjGrbffeIos19
-         Vtc/uf96bqrQFjEa39oFXHIgWTXjomc/AczBzQBHxAKUuyANZVYYghrhgElUgyjDj7
-         5cRM8JmAtsTEggqkMSQyYAE7LVBStv7YZUwEcDbaEsdyevGwPnFWpzf7ayY5yDlLKP
-         r/RK9rAbRYMgwmLgKI42AyRNUp1+NMPWqeaegFHcc8kz9N+YDdnaFFYheAaYztL5fK
-         T/Dnxhwmj3f3g==
+        b=EIEiaY83HDQBVkXpCXJ89giGDT+ki1NyY1OKhdloAPh1eDv15cVyMCcoj9TCUWgCf
+         kg93cAvgIZx911cxwqe290A5UxHNj2IQswjke0JWsPZNWhcnMnSEcrq3lCWxYE8G8p
+         Xr2GjVSh0GFZ1VLvyjXL3BVa4HLMDZhrgz5J2oLF3EzpNxDlNp2YClZTxATU8ZzByb
+         b+Hik33IXFJ4v7JwM43CgjEvKNj9Uv5qj0ZTDayem8daOsd2EXH+dzXa8g7uHNQcbU
+         kKq7ya9HPm1BIsiCntoC/95R6HSU1wpAwz3ZICL4jdTJSkVfTmcoXktvezUdFvhuee
+         s1ScaS9ForrUw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 41/53] RDMA/core/sa_query: Retry SA queries
-Date:   Thu,  9 Sep 2021 20:20:16 -0400
-Message-Id: <20210910002028.175174-41-sashal@kernel.org>
+Cc:     Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 42/53] selftests: openat2: Fix testing failure for O_LARGEFILE flag
+Date:   Thu,  9 Sep 2021 20:20:17 -0400
+Message-Id: <20210910002028.175174-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,87 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Baolin Wang <baolin.wang@linux.alibaba.com>
 
-[ Upstream commit 5f5a650999d5718af766fc70a120230b04235a6f ]
+[ Upstream commit d538ddb97e066571e4fc58b832f40739621b42bb ]
 
-A MAD packet is sent as an unreliable datagram (UD). SA requests are sent
-as MAD packets. As such, SA requests or responses may be silently dropped.
+The openat2 test suite fails on ARM64 because the definition of
+O_LARGEFILE is different on ARM64. Fix the problem by defining
+the correct O_LARGEFILE definition on ARM64.
 
-IB Core's MAD layer has a timeout and retry mechanism, which amongst
-other, is used by RDMA CM. But it is not used by SA queries. The lack of
-retries of SA queries leads to long specified timeout, and error being
-returned in case of packet loss. The ULP or user-land process has to
-perform the retry.
+"openat2 unexpectedly returned # 3['.../tools/testing/selftests/openat2']
+with 208000 (!= 208000)
+not ok 102 openat2 with incompatible flags (O_PATH | O_LARGEFILE) fails
+with -22 (Invalid argument)"
 
-Fix this by taking advantage of the MAD layer's retry mechanism.
+Fixed change log to improve formatting and clarity:
+Shuah Khan <skhan@linuxfoundation.org>
 
-First, a check against a zero timeout is added in rdma_resolve_route(). In
-send_mad(), we set the MAD layer timeout to one tenth of the specified
-timeout and the number of retries to 10. The special case when timeout is
-less than 10 is handled.
-
-With this fix:
-
- # ucmatose -c 1000 -S 1024 -C 1
-
-runs stable on an Infiniband fabric. Without this fix, we see an
-intermittent behavior and it errors out with:
-
-cmatose: event: RDMA_CM_EVENT_ROUTE_ERROR, error: -110
-
-(110 is ETIMEDOUT)
-
-Link: https://lore.kernel.org/r/1628784755-28316-1-git-send-email-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+Reviewed-by: Aleksa Sarai <cyphar@cyphar.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c      | 3 +++
- drivers/infiniband/core/sa_query.c | 9 ++++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ tools/testing/selftests/openat2/openat2_test.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 34b94e525390..3fef344df3a5 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -3096,6 +3096,9 @@ int rdma_resolve_route(struct rdma_cm_id *id, unsigned long timeout_ms)
- 	struct rdma_id_private *id_priv;
- 	int ret;
+diff --git a/tools/testing/selftests/openat2/openat2_test.c b/tools/testing/selftests/openat2/openat2_test.c
+index b386367c606b..5354cef55c6c 100644
+--- a/tools/testing/selftests/openat2/openat2_test.c
++++ b/tools/testing/selftests/openat2/openat2_test.c
+@@ -22,7 +22,11 @@
+  * XXX: This is wrong on {mips, parisc, powerpc, sparc}.
+  */
+ #undef	O_LARGEFILE
++#ifdef __aarch64__
++#define	O_LARGEFILE 0x20000
++#else
+ #define	O_LARGEFILE 0x8000
++#endif
  
-+	if (!timeout_ms)
-+		return -EINVAL;
-+
- 	id_priv = container_of(id, struct rdma_id_private, id);
- 	if (!cma_comp_exch(id_priv, RDMA_CM_ADDR_RESOLVED, RDMA_CM_ROUTE_QUERY))
- 		return -EINVAL;
-diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
-index 8c930bf1df89..9f263642e845 100644
---- a/drivers/infiniband/core/sa_query.c
-+++ b/drivers/infiniband/core/sa_query.c
-@@ -1360,6 +1360,7 @@ static int send_mad(struct ib_sa_query *query, unsigned long timeout_ms,
- {
- 	unsigned long flags;
- 	int ret, id;
-+	const int nmbr_sa_query_retries = 10;
- 
- 	xa_lock_irqsave(&queries, flags);
- 	ret = __xa_alloc(&queries, &id, query, xa_limit_32b, gfp_mask);
-@@ -1367,7 +1368,13 @@ static int send_mad(struct ib_sa_query *query, unsigned long timeout_ms,
- 	if (ret < 0)
- 		return ret;
- 
--	query->mad_buf->timeout_ms  = timeout_ms;
-+	query->mad_buf->timeout_ms  = timeout_ms / nmbr_sa_query_retries;
-+	query->mad_buf->retries = nmbr_sa_query_retries;
-+	if (!query->mad_buf->timeout_ms) {
-+		/* Special case, very small timeout_ms */
-+		query->mad_buf->timeout_ms = 1;
-+		query->mad_buf->retries = timeout_ms;
-+	}
- 	query->mad_buf->context[0] = query;
- 	query->id = id;
- 
+ struct open_how_ext {
+ 	struct open_how inner;
 -- 
 2.30.2
 
