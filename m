@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5511040637D
+	by mail.lfdr.de (Postfix) with ESMTP id C1A4F40637E
 	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233703AbhIJAr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:47:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49450 "EHLO mail.kernel.org"
+        id S240270AbhIJAr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:47:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234756AbhIJAYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:24:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A43F5611BF;
-        Fri, 10 Sep 2021 00:23:01 +0000 (UTC)
+        id S234763AbhIJAYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:24:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2057611BD;
+        Fri, 10 Sep 2021 00:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233382;
-        bh=iEQHz9eYJEBOjCQk1tKTL1C82rRhyVDp0P7KFx5xU2w=;
+        s=k20201202; t=1631233383;
+        bh=ISzSvm4C6f8lHwgz+pYqhFqWZ8I8lIYQVNbzl6VCqi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HjIIZyum/IpptpeeHy33PPLCmiEUC06OgtDfXCJu0HLv7QMsMN4x9sx+Jfw3JerI3
-         u7Jb+sUxRdHjgRO4sHScSeMYYjsGe+6DSxnvHbktsU2W0IgyJDwaUkPVzbf6WKWKSG
-         zVTOckZk/50jnDwR/pGqsKxjvFyDSjMHENauplwPIya7SXMOacKofDLyI6+SEKjDLa
-         ZUbceRaFZgq0CiUtcFTH7+twhT4IuTQU8p5oQ+a0+8Fk01ABhbatfi0Pha8JJn2aEb
-         m9jHUzgh+BJgird+ZiHZ1NplxQGxecdtTpSuv4i4z+GstD/gMBxgng3OpfyuuVmo/M
-         1u4p4QZY4snjw==
+        b=a5MczqkOv12YbXLfY+4UES3v7pDgRRD1dU8G94Qd7iHMhMSSSq8cmGwT+rXcnRt8m
+         /Mc5s268pWlkd4bq/VhK/PT4cHc6Dwo8ij7i3AjMTp9pA7ak+OKVDc6lo8YwQdVEGG
+         SXzdnBzR4qHIbj0mmYPkiBqRnjFTdqblDnis4MdC9yTyX+tkSDKHCeVBeekwsJKqcZ
+         c/OCy7kpOFXYakCa3kchfeiujZE+xS8+oa/y7aZfAPpxb/FCay3TBPYBBG8gDranT1
+         D9gGC0CIMdD1WlhldaPoPg9/h6oG9vWZgjPW7j2M8bKPBvhhDX2gYas3mVI8MIe7Or
+         biPeLnvF+4N8w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 21/25] ext4: Make sure quota files are not grabbed accidentally
-Date:   Thu,  9 Sep 2021 20:22:29 -0400
-Message-Id: <20210910002234.176125-21-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>,
+        xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 4.19 22/25] xen: remove stray preempt_disable() from PV AP startup code
+Date:   Thu,  9 Sep 2021 20:22:30 -0400
+Message-Id: <20210910002234.176125-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002234.176125-1-sashal@kernel.org>
 References: <20210910002234.176125-1-sashal@kernel.org>
@@ -41,50 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit bd2c38cf1726ea913024393a0d11f2e2a3f4c180 ]
+[ Upstream commit 58e636039b512697554b579c2bb23774061877f5 ]
 
-If ext4 filesystem is corrupted so that quota files are linked from
-directory hirerarchy, bad things can happen. E.g. quota files can get
-corrupted or deleted. Make sure we are not grabbing quota file inodes
-when we expect normal inodes.
+In cpu_bringup() there is a call of preempt_disable() without a paired
+preempt_enable(). This is not needed as interrupts are off initially.
+Additionally this will result in early boot messages like:
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Link: https://lore.kernel.org/r/20210812133122.26360-1-jack@suse.cz
+BUG: scheduling while atomic: swapper/1/0/0x00000002
+
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20210825113158.11716-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/xen/smp_pv.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 7959aae4857e..e81662dee1f0 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4848,6 +4848,7 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
- 	struct ext4_iloc iloc;
- 	struct ext4_inode *raw_inode;
- 	struct ext4_inode_info *ei;
-+	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
- 	struct inode *inode;
- 	journal_t *journal = EXT4_SB(sb)->s_journal;
- 	long ret;
-@@ -4858,9 +4859,12 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
- 	projid_t i_projid;
+diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
+index 41fd4c123165..7b6e56703bb9 100644
+--- a/arch/x86/xen/smp_pv.c
++++ b/arch/x86/xen/smp_pv.c
+@@ -59,7 +59,6 @@ static void cpu_bringup(void)
  
- 	if ((!(flags & EXT4_IGET_SPECIAL) &&
--	     (ino < EXT4_FIRST_INO(sb) && ino != EXT4_ROOT_INO)) ||
-+	     ((ino < EXT4_FIRST_INO(sb) && ino != EXT4_ROOT_INO) ||
-+	      ino == le32_to_cpu(es->s_usr_quota_inum) ||
-+	      ino == le32_to_cpu(es->s_grp_quota_inum) ||
-+	      ino == le32_to_cpu(es->s_prj_quota_inum))) ||
- 	    (ino < EXT4_ROOT_INO) ||
--	    (ino > le32_to_cpu(EXT4_SB(sb)->s_es->s_inodes_count))) {
-+	    (ino > le32_to_cpu(es->s_inodes_count))) {
- 		if (flags & EXT4_IGET_HANDLE)
- 			return ERR_PTR(-ESTALE);
- 		__ext4_error(sb, function, line,
+ 	cpu_init();
+ 	touch_softlockup_watchdog();
+-	preempt_disable();
+ 
+ 	/* PVH runs in ring 0 and allows us to do native syscalls. Yay! */
+ 	if (!xen_feature(XENFEAT_supervisor_mode_kernel)) {
 -- 
 2.30.2
 
