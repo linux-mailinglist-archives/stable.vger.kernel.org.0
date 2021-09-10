@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 649714061C3
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3288B4061C5
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241153AbhIJAnm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:43:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45700 "EHLO mail.kernel.org"
+        id S241166AbhIJAnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:43:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233050AbhIJATV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:19:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2D5F611BD;
-        Fri, 10 Sep 2021 00:18:10 +0000 (UTC)
+        id S233080AbhIJATX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:19:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82719610A3;
+        Fri, 10 Sep 2021 00:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233091;
-        bh=Ddztd30ZUMQsyz/emjykwQldkXhLFFf2lAO+EQwkeYY=;
+        s=k20201202; t=1631233093;
+        bh=qLMh2ILhuB7N7DzYi1DOB591d0xmf7CbQLqtx0HG6hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LY/SnYnMvhxvwSNq2Iezahp+riNdKvWDbGIHrpQ6mrPC8FdSoc5LsN7td0MlUohef
-         boR697szwAdWnve02oWQbjnwv8rj0pj8MLkX6XUFJusz5ulIBu0P2sWjXfzT+FA+RW
-         pO/45/3kvIrG/Zp2WneTgyJdoLsBwdI6BN6MxOZcAzOMYB23OCDEQSIDkjDeUbT7GE
-         ImKzGS9Yk6yBjFZ3DyhgZ//fqVtG73zDGLGYwGfGbh/Akqfey/RF4OQJi2WnlMqxg6
-         57MkVun9oJufd1uMYNjLU/0V1HArZlYYHatghRHyjwYtYOhROcqaZbOx8ooApwe6tP
-         QQMJsEBl5IjQg==
+        b=J3qnWjPs6b/vf8+EQOLqTTNkckB2fVJ49TxRb4Ryq3N3CjYvhTnRh3SuAJAzhAbUE
+         GwDmIV9pYE95sLZ/42pt6Er7UJhCEHrKaKqxOkoV0A0do+ojqZSeynNQ9BRq6MMAUl
+         hYSL54Vaiy/kdSXJaMOpQ5CYVsM1YuE7Ycjddb0uxQHo2r68Xy9yg1ZNCHw/GxHkok
+         DORVDTHawXOgVIRa0e+MwGYKvgeryRk/0ekIrmBsx3SL/CCQdhStEjllvC2K3q5pkL
+         E9GM/kFL2tFWdkxB9CS22HzdeopkxHzppHZG8jPqAM3uKnKgITWIw8c15n62LaPk+x
+         /Jlq4/xbsZUmg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
@@ -33,9 +33,9 @@ Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.14 95/99] kasan: test: disable kmalloc_memmove_invalid_size for HW_TAGS
-Date:   Thu,  9 Sep 2021 20:15:54 -0400
-Message-Id: <20210910001558.173296-95-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 96/99] kasan: test: only do kmalloc_uaf_memset for generic mode
+Date:   Thu,  9 Sep 2021 20:15:55 -0400
+Message-Id: <20210910001558.173296-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -49,15 +49,15 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andrey Konovalov <andreyknvl@gmail.com>
 
-[ Upstream commit 1b0668be62cfa394903bb368641c80533bf42d5a ]
+[ Upstream commit 25b12a58e848459ae2dbf2e7d318ef168bd1c5e2 ]
 
-The HW_TAGS mode doesn't check memmove for negative size.  As a result,
-the kmalloc_memmove_invalid_size test corrupts memory, which can result in
-a crash.
+kmalloc_uaf_memset() writes to freed memory, which is only safe with the
+GENERIC mode (as it uses quarantine).  For other modes, this test corrupts
+kernel memory, which might result in a crash.
 
-Disable this test with HW_TAGS KASAN.
+Only enable kmalloc_uaf_memset() for the GENERIC mode.
 
-Link: https://lkml.kernel.org/r/088733a06ac21eba29aa85b6f769d2abd74f9638.1628779805.git.andreyknvl@gmail.com
+Link: https://lkml.kernel.org/r/2e1c87b607b1292556cde3cab2764f108542b60c.1628779805.git.andreyknvl@gmail.com
 Signed-off-by: Andrey Konovalov <andreyknvl@gmail.com>
 Reviewed-by: Marco Elver <elver@google.com>
 Cc: Alexander Potapenko <glider@google.com>
@@ -67,32 +67,26 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_kasan.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ lib/test_kasan.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/lib/test_kasan.c b/lib/test_kasan.c
-index b298edb325ab..c149675300bd 100644
+index c149675300bd..65adde0757a3 100644
 --- a/lib/test_kasan.c
 +++ b/lib/test_kasan.c
-@@ -485,11 +485,17 @@ static void kmalloc_memmove_invalid_size(struct kunit *test)
- 	size_t size = 64;
- 	volatile size_t invalid_size = -2;
+@@ -518,6 +518,12 @@ static void kmalloc_uaf_memset(struct kunit *test)
+ 	char *ptr;
+ 	size_t size = 33;
  
 +	/*
-+	 * Hardware tag-based mode doesn't check memmove for negative size.
-+	 * As a result, this test introduces a side-effect memory corruption,
-+	 * which can result in a crash.
++	 * Only generic KASAN uses quarantine, which is required to avoid a
++	 * kernel memory corruption this test causes.
 +	 */
-+	KASAN_TEST_NEEDS_CONFIG_OFF(test, CONFIG_KASAN_HW_TAGS);
++	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
 +
  	ptr = kmalloc(size, GFP_KERNEL);
  	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
  
- 	memset((char *)ptr, 0, 64);
--
- 	KUNIT_EXPECT_KASAN_FAIL(test,
- 		memmove((char *)ptr, (char *)ptr + 4, invalid_size));
- 	kfree(ptr);
 -- 
 2.30.2
 
