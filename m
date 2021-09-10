@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86468406C20
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EBCA406BCD
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234364AbhIJMhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:37:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54742 "EHLO mail.kernel.org"
+        id S233226AbhIJMeq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:34:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233676AbhIJMfz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:35:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8A6361211;
-        Fri, 10 Sep 2021 12:34:43 +0000 (UTC)
+        id S234009AbhIJMeL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:34:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2848360E94;
+        Fri, 10 Sep 2021 12:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277284;
-        bh=c2eehZyxdpCfZd+L/JgDAN2SCfxNGwa95SwIPzCVOT4=;
+        s=korg; t=1631277180;
+        bh=/yC7W9LN4mYejE5LbVaxqYQGFtSqa66F/TYC9rkSmgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4P7OX9jg9jt6u+9kFTpit2Zd/v01vnvpgmekdoBr8ISyiOrMwfAUrYLKwNdZD9cd
-         5fQXpoMbkx3k8RnicNvfB6U6+S9wyUInXIWKXu7wOpPtROBHQaey96SH8Npf3ZgHtt
-         tM9ZejRGTOGBJHTa7fh7Q6PulP8+00wrRK12RkNg=
+        b=oc/JoVICZQUfF9dfU6Y081NdDy4WcJIcwrI4cH5vQxyX1bf9Q2rhWvNXQZlwCCsxw
+         0A0eePOXCOYbXRrgOwAAuRh93l0SDcwpWKjwB5QlosvuZzOS4qJSP4FPR1AXNbjygS
+         qx4GSryhspLkllX3NVuhOR8s2Ypwz7ao7ZeSWTUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.4 02/37] fscrypt: add fscrypt_symlink_getattr() for computing st_size
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.10 01/26] igmp: Add ip_mc_list lock in ip_check_mc_rcu
 Date:   Fri, 10 Sep 2021 14:30:05 +0200
-Message-Id: <20210910122917.228125255@linuxfoundation.org>
+Message-Id: <20210910122916.300325741@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
-References: <20210910122917.149278545@linuxfoundation.org>
+In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
+References: <20210910122916.253646001@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -38,145 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Liu Jian <liujian56@huawei.com>
 
-commit d18760560593e5af921f51a8c9b64b6109d634c2 upstream.
+commit 23d2b94043ca8835bd1e67749020e839f396a1c2 upstream.
 
-Add a helper function fscrypt_symlink_getattr() which will be called
-from the various filesystems' ->getattr() methods to read and decrypt
-the target of encrypted symlinks in order to report the correct st_size.
+I got below panic when doing fuzz test:
 
-Detailed explanation:
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 0 PID: 4056 Comm: syz-executor.3 Tainted: G    B             5.14.0-rc1-00195-gcff5c4254439-dirty #2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+Call Trace:
+dump_stack_lvl+0x7a/0x9b
+panic+0x2cd/0x5af
+end_report.cold+0x5a/0x5a
+kasan_report+0xec/0x110
+ip_check_mc_rcu+0x556/0x5d0
+__mkroute_output+0x895/0x1740
+ip_route_output_key_hash_rcu+0x2d0/0x1050
+ip_route_output_key_hash+0x182/0x2e0
+ip_route_output_flow+0x28/0x130
+udp_sendmsg+0x165d/0x2280
+udpv6_sendmsg+0x121e/0x24f0
+inet6_sendmsg+0xf7/0x140
+sock_sendmsg+0xe9/0x180
+____sys_sendmsg+0x2b8/0x7a0
+___sys_sendmsg+0xf0/0x160
+__sys_sendmmsg+0x17e/0x3c0
+__x64_sys_sendmmsg+0x9e/0x100
+do_syscall_64+0x3b/0x90
+entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x462eb9
+Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8
+ 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48>
+ 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f3df5af1c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
+RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462eb9
+RDX: 0000000000000312 RSI: 0000000020001700 RDI: 0000000000000007
+RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f3df5af26bc
+R13: 00000000004c372d R14: 0000000000700b10 R15: 00000000ffffffff
 
-As required by POSIX and as documented in various man pages, st_size for
-a symlink is supposed to be the length of the symlink target.
-Unfortunately, st_size has always been wrong for encrypted symlinks
-because st_size is populated from i_size from disk, which intentionally
-contains the length of the encrypted symlink target.  That's slightly
-greater than the length of the decrypted symlink target (which is the
-symlink target that userspace usually sees), and usually won't match the
-length of the no-key encoded symlink target either.
+It is one use-after-free in ip_check_mc_rcu.
+In ip_mc_del_src, the ip_sf_list of pmc has been freed under pmc->lock protection.
+But access to ip_sf_list in ip_check_mc_rcu is not protected by the lock.
 
-This hadn't been fixed yet because reporting the correct st_size would
-require reading the symlink target from disk and decrypting or encoding
-it, which historically has been considered too heavyweight to do in
-->getattr().  Also historically, the wrong st_size had only broken a
-test (LTP lstat03) and there were no known complaints from real users.
-(This is probably because the st_size of symlinks isn't used too often,
-and when it is, typically it's for a hint for what buffer size to pass
-to readlink() -- which a slightly-too-large size still works for.)
-
-However, a couple things have changed now.  First, there have recently
-been complaints about the current behavior from real users:
-
-- Breakage in rpmbuild:
-  https://github.com/rpm-software-management/rpm/issues/1682
-  https://github.com/google/fscrypt/issues/305
-
-- Breakage in toybox cpio:
-  https://www.mail-archive.com/toybox@lists.landley.net/msg07193.html
-
-- Breakage in libgit2: https://issuetracker.google.com/issues/189629152
-  (on Android public issue tracker, requires login)
-
-Second, we now cache decrypted symlink targets in ->i_link.  Therefore,
-taking the performance hit of reading and decrypting the symlink target
-in ->getattr() wouldn't be as big a deal as it used to be, since usually
-it will just save having to do the same thing later.
-
-Also note that eCryptfs ended up having to read and decrypt symlink
-targets in ->getattr() as well, to fix this same issue; see
-commit 3a60a1686f0d ("eCryptfs: Decrypt symlink target for stat size").
-
-So, let's just bite the bullet, and read and decrypt the symlink target
-in ->getattr() in order to report the correct st_size.  Add a function
-fscrypt_symlink_getattr() which the filesystems will call to do this.
-
-(Alternatively, we could store the decrypted size of symlinks on-disk.
-But there isn't a great place to do so, and encryption is meant to hide
-the original size to some extent; that property would be lost.)
-
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210702065350.209646-2-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/crypto/hooks.c       |   44 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/fscrypt.h |    7 +++++++
- 2 files changed, 51 insertions(+)
+ net/ipv4/igmp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/crypto/hooks.c
-+++ b/fs/crypto/hooks.c
-@@ -305,3 +305,47 @@ err_kfree:
- 	return ERR_PTR(err);
- }
- EXPORT_SYMBOL_GPL(fscrypt_get_symlink);
-+
-+/**
-+ * fscrypt_symlink_getattr() - set the correct st_size for encrypted symlinks
-+ * @path: the path for the encrypted symlink being queried
-+ * @stat: the struct being filled with the symlink's attributes
-+ *
-+ * Override st_size of encrypted symlinks to be the length of the decrypted
-+ * symlink target (or the no-key encoded symlink target, if the key is
-+ * unavailable) rather than the length of the encrypted symlink target.  This is
-+ * necessary for st_size to match the symlink target that userspace actually
-+ * sees.  POSIX requires this, and some userspace programs depend on it.
-+ *
-+ * This requires reading the symlink target from disk if needed, setting up the
-+ * inode's encryption key if possible, and then decrypting or encoding the
-+ * symlink target.  This makes lstat() more heavyweight than is normally the
-+ * case.  However, decrypted symlink targets will be cached in ->i_link, so
-+ * usually the symlink won't have to be read and decrypted again later if/when
-+ * it is actually followed, readlink() is called, or lstat() is called again.
-+ *
-+ * Return: 0 on success, -errno on failure
-+ */
-+int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat)
-+{
-+	struct dentry *dentry = path->dentry;
-+	struct inode *inode = d_inode(dentry);
-+	const char *link;
-+	DEFINE_DELAYED_CALL(done);
-+
-+	/*
-+	 * To get the symlink target that userspace will see (whether it's the
-+	 * decrypted target or the no-key encoded target), we can just get it in
-+	 * the same way the VFS does during path resolution and readlink().
-+	 */
-+	link = READ_ONCE(inode->i_link);
-+	if (!link) {
-+		link = inode->i_op->get_link(dentry, inode, &done);
-+		if (IS_ERR(link))
-+			return PTR_ERR(link);
-+	}
-+	stat->size = strlen(link);
-+	do_delayed_call(&done);
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(fscrypt_symlink_getattr);
---- a/include/linux/fscrypt.h
-+++ b/include/linux/fscrypt.h
-@@ -298,6 +298,7 @@ extern int __fscrypt_encrypt_symlink(str
- extern const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
- 				       unsigned int max_size,
- 				       struct delayed_call *done);
-+int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat);
- static inline void fscrypt_set_ops(struct super_block *sb,
- 				   const struct fscrypt_operations *s_cop)
- {
-@@ -585,6 +586,12 @@ static inline const char *fscrypt_get_sy
- 	return ERR_PTR(-EOPNOTSUPP);
- }
- 
-+static inline int fscrypt_symlink_getattr(const struct path *path,
-+					  struct kstat *stat)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
- static inline void fscrypt_set_ops(struct super_block *sb,
- 				   const struct fscrypt_operations *s_cop)
- {
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -2720,6 +2720,7 @@ int ip_check_mc_rcu(struct in_device *in
+ 		rv = 1;
+ 	} else if (im) {
+ 		if (src_addr) {
++			spin_lock_bh(&im->lock);
+ 			for (psf = im->sources; psf; psf = psf->sf_next) {
+ 				if (psf->sf_inaddr == src_addr)
+ 					break;
+@@ -2730,6 +2731,7 @@ int ip_check_mc_rcu(struct in_device *in
+ 					im->sfcount[MCAST_EXCLUDE];
+ 			else
+ 				rv = im->sfcount[MCAST_EXCLUDE] != 0;
++			spin_unlock_bh(&im->lock);
+ 		} else
+ 			rv = 1; /* unspecified source; tentatively allow */
+ 	}
 
 
