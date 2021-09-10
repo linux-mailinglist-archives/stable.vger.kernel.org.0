@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91C484063A1
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:50:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36E614063A2
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:50:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242015AbhIJAsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:48:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49740 "EHLO mail.kernel.org"
+        id S231795AbhIJAsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:48:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234837AbhIJAYh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:24:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34A516103E;
-        Fri, 10 Sep 2021 00:23:26 +0000 (UTC)
+        id S232384AbhIJAYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:24:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFDF360FDA;
+        Fri, 10 Sep 2021 00:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233407;
-        bh=OKN9nBIt8sP7ZjXyu9TrVJz2Ewb9xOqIY1Cc+94KNWU=;
+        s=k20201202; t=1631233408;
+        bh=hmPdXWQdjJ7t9i+b1t1VbZGTbupkTG59mkZ7I3f8PwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pym2bJioxK0ZbmADZpPb4TLRYkk3PuI7rFLIHfpR6wQCGsGv+Iwn2Hppfmyxcesbo
-         3pF5pC+ziSvOvBzMHWTsMJ0oxRzUHPmKgL95a2bno+k6EjX7/05WGuiA8SjHBfCH69
-         lQR2eL3sbo6ENg1UuL+k7yd7sLVISwoNbsESZ7QLWEUXTHD7dSApg1HWFBDJ9dbY/S
-         a6UTrpRWIAHNFKtqBaPWZ7+9dVfBorsK0soO8xYrCtCtDQxrjrv9Ql75naXmj8wm81
-         XILK8JRqFGSWe3/+28dOsViBcAlaDmOK/6tkdHn4wlNEoQZOy7nfISQ3up9h6jzxJ7
-         DYkIZckxoIDww==
+        b=oOaM0sX01rXL+c2Ep/8S86/eT1KTKTZ+HLDnSQ+gcHTf3IpxuY70hLcyQ0YIGxItV
+         1/K/aR0cwMTjY8lqnjrDTzyVGjqb0fpuvLlROoqK7a/IyDPXGCBgLT7Ebu3i3JM2L9
+         fF04yTVjW9T3PuXLL8f79IUisweeQBrtSLc5/aBVYVyc7+Tpx6XjknLn7uxfBieDjg
+         PS068rS2juDAL8hRW8Ug//4AcckLNV7Vwe5j+Xp1YcM1dSeO78DnZLAFGKPpVOO1fI
+         /tWfq7kXCSbyDe6HrcBzIe7xrjX3ZmJhCOKO7mLD8cvnzJXrvJAp1Og3o0xl6mBZKr
+         I0LTQo74EKjOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 12/19] KVM: PPC: Book3S HV: Initialise vcpu MSR with MSR_ME
-Date:   Thu,  9 Sep 2021 20:23:02 -0400
-Message-Id: <20210910002309.176412-12-sashal@kernel.org>
+Cc:     =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 13/19] RDMA/core/sa_query: Retry SA queries
+Date:   Thu,  9 Sep 2021 20:23:03 -0400
+Message-Id: <20210910002309.176412-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002309.176412-1-sashal@kernel.org>
 References: <20210910002309.176412-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,38 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Håkon Bugge <haakon.bugge@oracle.com>
 
-[ Upstream commit fd42b7b09c602c904452c0c3e5955ca21d8e387a ]
+[ Upstream commit 5f5a650999d5718af766fc70a120230b04235a6f ]
 
-It is possible to create a VCPU without setting the MSR before running
-it, which results in a warning in kvmhv_vcpu_entry_p9() that MSR_ME is
-not set. This is pretty harmless because the MSR_ME bit is added to
-HSRR1 before HRFID to guest, and a normal qemu guest doesn't hit it.
+A MAD packet is sent as an unreliable datagram (UD). SA requests are sent
+as MAD packets. As such, SA requests or responses may be silently dropped.
 
-Initialise the vcpu MSR with MSR_ME set.
+IB Core's MAD layer has a timeout and retry mechanism, which amongst
+other, is used by RDMA CM. But it is not used by SA queries. The lack of
+retries of SA queries leads to long specified timeout, and error being
+returned in case of packet loss. The ULP or user-land process has to
+perform the retry.
 
-Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210811160134.904987-2-npiggin@gmail.com
+Fix this by taking advantage of the MAD layer's retry mechanism.
+
+First, a check against a zero timeout is added in rdma_resolve_route(). In
+send_mad(), we set the MAD layer timeout to one tenth of the specified
+timeout and the number of retries to 10. The special case when timeout is
+less than 10 is handled.
+
+With this fix:
+
+ # ucmatose -c 1000 -S 1024 -C 1
+
+runs stable on an Infiniband fabric. Without this fix, we see an
+intermittent behavior and it errors out with:
+
+cmatose: event: RDMA_CM_EVENT_ROUTE_ERROR, error: -110
+
+(110 is ETIMEDOUT)
+
+Link: https://lore.kernel.org/r/1628784755-28316-1-git-send-email-haakon.bugge@oracle.com
+Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/core/cma.c      | 3 +++
+ drivers/infiniband/core/sa_query.c | 9 ++++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index e4f81f014206..2996d41f5df0 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -1959,6 +1959,7 @@ static struct kvm_vcpu *kvmppc_core_vcpu_create_hv(struct kvm *kvm,
- 	spin_lock_init(&vcpu->arch.vpa_update_lock);
- 	spin_lock_init(&vcpu->arch.tbacct_lock);
- 	vcpu->arch.busy_preempt = TB_NIL;
-+	vcpu->arch.shregs.msr = MSR_ME;
- 	vcpu->arch.intr_msr = MSR_SF | MSR_ME;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index dd00530675d0..124ac10214f6 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -2679,6 +2679,9 @@ int rdma_resolve_route(struct rdma_cm_id *id, int timeout_ms)
+ 	struct rdma_id_private *id_priv;
+ 	int ret;
  
- 	/*
++	if (!timeout_ms)
++		return -EINVAL;
++
+ 	id_priv = container_of(id, struct rdma_id_private, id);
+ 	if (!cma_comp_exch(id_priv, RDMA_CM_ADDR_RESOLVED, RDMA_CM_ROUTE_QUERY))
+ 		return -EINVAL;
+diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
+index 83dad5401c93..b2b8f0a0597c 100644
+--- a/drivers/infiniband/core/sa_query.c
++++ b/drivers/infiniband/core/sa_query.c
+@@ -1404,6 +1404,7 @@ static int send_mad(struct ib_sa_query *query, int timeout_ms, gfp_t gfp_mask)
+ 	bool preload = gfpflags_allow_blocking(gfp_mask);
+ 	unsigned long flags;
+ 	int ret, id;
++	const int nmbr_sa_query_retries = 10;
+ 
+ 	if (preload)
+ 		idr_preload(gfp_mask);
+@@ -1417,7 +1418,13 @@ static int send_mad(struct ib_sa_query *query, int timeout_ms, gfp_t gfp_mask)
+ 	if (id < 0)
+ 		return id;
+ 
+-	query->mad_buf->timeout_ms  = timeout_ms;
++	query->mad_buf->timeout_ms  = timeout_ms / nmbr_sa_query_retries;
++	query->mad_buf->retries = nmbr_sa_query_retries;
++	if (!query->mad_buf->timeout_ms) {
++		/* Special case, very small timeout_ms */
++		query->mad_buf->timeout_ms = 1;
++		query->mad_buf->retries = timeout_ms;
++	}
+ 	query->mad_buf->context[0] = query;
+ 	query->id = id;
+ 
 -- 
 2.30.2
 
