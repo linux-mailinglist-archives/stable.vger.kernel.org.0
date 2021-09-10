@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69AC34062E0
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D37C4062B5
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242063AbhIJAqP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:46:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47960 "EHLO mail.kernel.org"
+        id S242131AbhIJAqU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:46:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233981AbhIJAWQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:22:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 797906023D;
-        Fri, 10 Sep 2021 00:21:05 +0000 (UTC)
+        id S233988AbhIJAWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:22:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBA32610E9;
+        Fri, 10 Sep 2021 00:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233266;
-        bh=7FOxNf5YMak7zbZhc0MqOflrvjvMfHs+ogfjcMnl1Wo=;
+        s=k20201202; t=1631233267;
+        bh=+B4JkrMS2L78zRsN9xvJXy82LMuqMkITncHyKOAruPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A2KWjTrUTsIvYnt4FTUNoN2uJUx90s1LSNaem0slgoMxH9tHLB3vOvGWsUhAmji0G
-         V5PQMnmzdFq6oi+iP6ldyDB0o0CzHrTFd8Tn56s2DYRBOigrlvwmwKf2bOX8nFE0R5
-         Ha+8y3ShFaUb6VdU7nZplbetUdc1Xk56DmljBq01QjSZ6CQKpSpvng1vgSNZjVgBP1
-         xhRh8p0Zn4hOMFl5bPhi+OD51NFh3b/PQ5RzZk+gc9nBGI1GHdsHSpEvo3sd8/e9xG
-         kC+wUKP0F7toVkUst9y5df2+NZw9AFoW7koyPz8gDLgPGE0Zbgo2l0HQwUhRrQxp2k
-         7HfVRooURVcmg==
+        b=Kr+8fRmKi2+68ljVZU3OOo0i+A161mQtXHFe9qr/VtBA3/YO7FT2y9OKSgswWfm+0
+         lJPY3561cuGrd5v4y94vzCO9b0N5i4AzVLLd5UNDsmb9+P6DFEslfLdn8EsqRHrplF
+         M+cYWwUETzk1ax99IQVLUGtnVpd5WRI9Jk+nPW17bcuGtPtO6jFeYIDClee+3VXynX
+         i0Oh0RoXgmwJtM7pmMy1E5c6GmFRGcvqXeMwvIvfY/MkPRDUrnFjS7PJdFHjierSoC
+         uxaFjueZiiCAqAESQT8FPV1AWr+K7t66uFgYiOnvEqbwc31PHhEsi3lTjo5R+dqTN/
+         1ovw/VqhmzuGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Liu Yi L <yi.l.liu@intel.com>, Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.10 27/53] iommu/vt-d: Add present bit check in pasid entry setup helpers
-Date:   Thu,  9 Sep 2021 20:20:02 -0400
-Message-Id: <20210910002028.175174-27-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        Bob Peterson <rpeterso@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.10 28/53] fs: dlm: fix return -EINTR on recovery stopped
+Date:   Thu,  9 Sep 2021 20:20:03 -0400
+Message-Id: <20210910002028.175174-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
@@ -43,71 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Yi L <yi.l.liu@intel.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 423d39d8518c1bba12e0889a92beeddbb1502392 ]
+[ Upstream commit aee742c9928ab4f5f4e0b00f41fb2d2cffae179e ]
 
-The helper functions should not modify the pasid entries which are still
-in use. Add a check against present bit.
+This patch will return -EINTR instead of 1 if recovery is stopped. In
+case of ping_members() the return value will be checked if the error is
+-EINTR for signaling another recovery was triggered and the whole
+recovery process will come to a clean end to process the next one.
+Returning 1 will abort the recovery process and can leave the recovery
+in a broken state.
 
-Signed-off-by: Liu Yi L <yi.l.liu@intel.com>
-Link: https://lore.kernel.org/r/20210817042425.1784279-1-yi.l.liu@intel.com
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210818134852.1847070-10-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+It was reported with the following kernel log message attached and a gfs2
+mount stopped working:
+
+"dlm: bobvirt1: dlm_recover_members error 1"
+
+whereas 1 was returned because of a conversion of "dlm_recovery_stopped()"
+to an errno was missing which this patch will introduce. While on it all
+other possible missing errno conversions at other places were added as
+they are done as in other places.
+
+It might be worth to check the error case at this recovery level,
+because some of the functionality also returns -ENOBUFS and check why
+recovery ends in a broken state. However this will fix the issue if
+another recovery was triggered at some points of recovery handling.
+
+Reported-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/pasid.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ fs/dlm/dir.c      | 4 +++-
+ fs/dlm/member.c   | 4 +++-
+ fs/dlm/recoverd.c | 4 +++-
+ 3 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
-index fb911b6c418f..6db3400df484 100644
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -523,6 +523,10 @@ void intel_pasid_tear_down_entry(struct intel_iommu *iommu, struct device *dev,
- 		devtlb_invalidation_with_pasid(iommu, dev, pasid);
- }
+diff --git a/fs/dlm/dir.c b/fs/dlm/dir.c
+index 10c36ae1a8f9..45ebbe602bbf 100644
+--- a/fs/dlm/dir.c
++++ b/fs/dlm/dir.c
+@@ -85,8 +85,10 @@ int dlm_recover_directory(struct dlm_ls *ls)
+ 		for (;;) {
+ 			int left;
+ 			error = dlm_recovery_stopped(ls);
+-			if (error)
++			if (error) {
++				error = -EINTR;
+ 				goto out_free;
++			}
  
-+/*
-+ * This function flushes cache for a newly setup pasid table entry.
-+ * Caller of it should not modify the in-use pasid table entries.
-+ */
- static void pasid_flush_caches(struct intel_iommu *iommu,
- 				struct pasid_entry *pte,
- 			       u32 pasid, u16 did)
-@@ -558,6 +562,10 @@ int intel_pasid_setup_first_level(struct intel_iommu *iommu,
- 	if (WARN_ON(!pte))
- 		return -EINVAL;
+ 			error = dlm_rcom_names(ls, memb->nodeid,
+ 					       last_name, last_len);
+diff --git a/fs/dlm/member.c b/fs/dlm/member.c
+index 7ad83deb4505..bbb048a03e3e 100644
+--- a/fs/dlm/member.c
++++ b/fs/dlm/member.c
+@@ -433,8 +433,10 @@ static int ping_members(struct dlm_ls *ls)
  
-+	/* Caller must ensure PASID entry is not in use. */
-+	if (pasid_pte_is_present(pte))
-+		return -EBUSY;
-+
- 	pasid_clear_entry(pte);
+ 	list_for_each_entry(memb, &ls->ls_nodes, list) {
+ 		error = dlm_recovery_stopped(ls);
+-		if (error)
++		if (error) {
++			error = -EINTR;
+ 			break;
++		}
+ 		error = dlm_rcom_status(ls, memb->nodeid, 0);
+ 		if (error)
+ 			break;
+diff --git a/fs/dlm/recoverd.c b/fs/dlm/recoverd.c
+index 85e245392715..97d052cea5a9 100644
+--- a/fs/dlm/recoverd.c
++++ b/fs/dlm/recoverd.c
+@@ -125,8 +125,10 @@ static int ls_recover(struct dlm_ls *ls, struct dlm_recover *rv)
+ 	dlm_recover_waiters_pre(ls);
  
- 	/* Setup the first level page table pointer: */
-@@ -654,6 +662,10 @@ int intel_pasid_setup_second_level(struct intel_iommu *iommu,
- 		return -ENODEV;
- 	}
+ 	error = dlm_recovery_stopped(ls);
+-	if (error)
++	if (error) {
++		error = -EINTR;
+ 		goto fail;
++	}
  
-+	/* Caller must ensure PASID entry is not in use. */
-+	if (pasid_pte_is_present(pte))
-+		return -EBUSY;
-+
- 	pasid_clear_entry(pte);
- 	pasid_set_domain_id(pte, did);
- 	pasid_set_slptr(pte, pgd_val);
-@@ -693,6 +705,10 @@ int intel_pasid_setup_pass_through(struct intel_iommu *iommu,
- 		return -ENODEV;
- 	}
- 
-+	/* Caller must ensure PASID entry is not in use. */
-+	if (pasid_pte_is_present(pte))
-+		return -EBUSY;
-+
- 	pasid_clear_entry(pte);
- 	pasid_set_domain_id(pte, did);
- 	pasid_set_address_width(pte, iommu->agaw);
+ 	if (neg || dlm_no_directory(ls)) {
+ 		/*
 -- 
 2.30.2
 
