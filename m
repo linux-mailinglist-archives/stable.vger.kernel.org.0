@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA6440608A
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:16:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C08406098
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:16:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230146AbhIJARs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:17:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43688 "EHLO mail.kernel.org"
+        id S230060AbhIJASD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:18:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230157AbhIJARd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:17:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7080A611BD;
-        Fri, 10 Sep 2021 00:16:22 +0000 (UTC)
+        id S229980AbhIJARf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:17:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16D21611C4;
+        Fri, 10 Sep 2021 00:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631232983;
-        bh=/L7TVXhJPrqI39wxokn0yrpBgxTFMJie2vE23Fr5SSc=;
+        s=k20201202; t=1631232984;
+        bh=VaBm2al3Cu8b16XZ/MgCLZBRF+tZW045Gp6rlB+4fMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WpHe3IbJchW/r1iZ9LJAQXdV5vQEqnAMjI8btDdt+LBHwyeuQ/yp3x08sDw7OFpYD
-         pgSFQAxvYacCRN2D8WHUL2HmmW0g4udQew5eIIcFX5YGbiDAV/os5VZwkWddkdckGK
-         dqOC970gdFYZ4Fd1pHt9xmSMfmzv0vOVtbOlhOVoCSC/u9iGcf+R9s0vXE2+AAdHCh
-         mOwApD6W3K5um2Y6ycOBTabxIPiuhbnkpsZxqqhonePS8qznF6iLr/YN0S6WGu3K9X
-         CtJ+Hq2piJ3ayTWcxBW24y00yJrOjCzp29nZ0Ms2qapvEpMrUdx2BrvlLEYZPvJjQl
-         Yt2TWjAZwvfoQ==
+        b=Xt25bApc8tH7bS9kgLJRILqMk9JnqJL/j4UELNNao+qSAoxFH9wiOHhAFJu7tXIUG
+         C9swJCtFdxuc9NyNV2krjdEfrqqCvk8pBmAXjbpSGEWSBbEyNGnmisOAoLjqO9zyWX
+         GqWJ/hXt884g0Qxh4qv6UfBr76/TO3zGW45/Pef5cB8KkbiIvHYj6zEYjPjd3XZEk+
+         HfHBUhyzrYxRfGe/PktHaNAoymbNmfwxGsUnzzNuZaNgY9yBH2g7W8ZGlI7pMx2tfw
+         ZX26lkgiSbnksKzzh0GxwTLHJCc33wP2/tFNBd3Bz5b9zwNAThUD/Wgjaz+C9kBIMw
+         JdlmVEsMkC5bg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike McGowen <mike.mcgowen@microchip.com>,
-        Kevin Barnett <kevin.barnett@microchip.com>,
-        Scott Benesh <scott.benesh@microchip.com>,
-        Scott Teel <scott.teel@microchip.com>,
-        Don Brace <don.brace@microchip.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, storagedev@microchip.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 18/99] scsi: smartpqi: Fix ISR accessing uninitialized data
-Date:   Thu,  9 Sep 2021 20:14:37 -0400
-Message-Id: <20210910001558.173296-18-sashal@kernel.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>,
+        Daeho Jeong <daehojeong@google.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.14 19/99] f2fs: don't sleep while grabing nat_tree_lock
+Date:   Thu,  9 Sep 2021 20:14:38 -0400
+Message-Id: <20210910001558.173296-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -47,47 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike McGowen <mike.mcgowen@microchip.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 0777a3fb98f0ea546561d04db4fd325248c39961 ]
+[ Upstream commit 2eeb0dce728a7eac3e4dfe355d98af40d61f7a26 ]
 
-Correct driver's ISR accessing a data structure member that has not been
-fully initialized during driver initialization.
+This tries to fix priority inversion in the below condition resulting in
+long checkpoint delay.
 
-The pqi queue groups can have uninitialized members when an interrupt
-fires. This has not resulted in any driver crashes. This was found during
-our own internal testing. No bugs were ever filed.
+f2fs_get_node_info()
+ - nat_tree_lock
+  -> sleep to grab journal_rwsem by contention
 
-Link: https://lore.kernel.org/r/20210714182847.50360-9-don.brace@microchip.com
-Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
-Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
-Reviewed-by: Scott Teel <scott.teel@microchip.com>
-Signed-off-by: Mike McGowen <mike.mcgowen@microchip.com>
-Signed-off-by: Don Brace <don.brace@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+                                     checkpoint
+                                     - waiting for nat_tree_lock
+
+In order to let checkpoint go, let's release nat_tree_lock, if there's a
+journal_rwsem contention.
+
+Signed-off-by: Daeho Jeong <daehojeong@google.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/f2fs/node.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index dcc0b9618a64..1bda105f7892 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -7758,11 +7758,11 @@ static int pqi_ctrl_init(struct pqi_ctrl_info *ctrl_info)
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index 0be9e2d7120e..c945a9730f3c 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -552,7 +552,7 @@ int f2fs_get_node_info(struct f2fs_sb_info *sbi, nid_t nid,
+ 	int i;
  
- 	pqi_init_operational_queues(ctrl_info);
+ 	ni->nid = nid;
+-
++retry:
+ 	/* Check nat cache */
+ 	down_read(&nm_i->nat_tree_lock);
+ 	e = __lookup_nat_cache(nm_i, nid);
+@@ -564,10 +564,19 @@ int f2fs_get_node_info(struct f2fs_sb_info *sbi, nid_t nid,
+ 		return 0;
+ 	}
  
--	rc = pqi_request_irqs(ctrl_info);
-+	rc = pqi_create_queues(ctrl_info);
- 	if (rc)
- 		return rc;
+-	memset(&ne, 0, sizeof(struct f2fs_nat_entry));
++	/*
++	 * Check current segment summary by trying to grab journal_rwsem first.
++	 * This sem is on the critical path on the checkpoint requiring the above
++	 * nat_tree_lock. Therefore, we should retry, if we failed to grab here
++	 * while not bothering checkpoint.
++	 */
++	if (!rwsem_is_locked(&sbi->cp_global_sem)) {
++		down_read(&curseg->journal_rwsem);
++	} else if (!down_read_trylock(&curseg->journal_rwsem)) {
++		up_read(&nm_i->nat_tree_lock);
++		goto retry;
++	}
  
--	rc = pqi_create_queues(ctrl_info);
-+	rc = pqi_request_irqs(ctrl_info);
- 	if (rc)
- 		return rc;
- 
+-	/* Check current segment summary */
+-	down_read(&curseg->journal_rwsem);
+ 	i = f2fs_lookup_journal_in_cursum(journal, NAT_JOURNAL, nid, 0);
+ 	if (i >= 0) {
+ 		ne = nat_in_journal(journal, i);
 -- 
 2.30.2
 
