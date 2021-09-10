@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F89406209
+	by mail.lfdr.de (Postfix) with ESMTP id 39610406208
 	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233434AbhIJAo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:44:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46512 "EHLO mail.kernel.org"
+        id S230505AbhIJAo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:44:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231445AbhIJAUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233553AbhIJAUT (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 20:20:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C009610A3;
-        Fri, 10 Sep 2021 00:19:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A92D4611C2;
+        Fri, 10 Sep 2021 00:19:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233146;
-        bh=gwRwG4G4N8PGqxgHm684roFXH4gnD9B5AOdGvL2KIko=;
+        s=k20201202; t=1631233147;
+        bh=EzVc4+9z8jJm3006a4PiHOFkM6wMDw2uoZJqKWC7Rz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgYLWlFfKY/o77DA50WpYKvJLUXmmoy9AenRFkLJzTOhHQecTYx1/ti00JP1hx33F
-         f1qLGPQ8DBn4DZUQ32qRqLeL3OjwIEOAWeM7VG3FVegU2XEgmUao7dkmn8ux3IIUkq
-         0OpJ2hYZ6qKqD6sBT9cRJM3PirazDK+ZcPKir9EP6hJTYTl/Hj4FQb2oMP8+POMEf9
-         s7WL0pTP4FGHCypNSLYVoU+1u2nYW+Sc4VGTE/AjV5ztQpZQ521bSKxULWSXPLcuqT
-         hxE7EUB6vw9xmGQmn9Mhz8OmAF8LxjRx4pE4dnnsc3l7mBPD7OA9fXz4SzQD20+f9Z
-         ysVWyeEY5OEnA==
+        b=JjK8XoY61T71LIr3dIYYdc01p6UJMuamzPA6uha8dgRoRgcp3vanJrY3HKnegvV/C
+         ngLva2mWvFNYmfuuL8PIcgCVgIywlocDI0a8Lt1ihT+UU/9wyeY57e4iMNuPnuwP3d
+         oqToHElSyqnHkmajCHnDDybvP1QuI+aDRRM26urT8yClQEuloNwnrAaOOxxdC+ZAGs
+         EZFr4WkFB+OYYk7xhX4CLKJbNyJq7eK3TQ/uxhPNB314Yhz9FLdcvVbToSx+R0abn2
+         EEYcqGKGDuCKOXA/WZuyDsBzZpmYt1agm4qruW1BusJRbU8RyI+lrYTD8ZQ8hrK03Z
+         F/JAQ0y6JkKQA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 31/88] xprtrdma: Disconnect after an ib_post_send() immediate error
-Date:   Thu,  9 Sep 2021 20:17:23 -0400
-Message-Id: <20210910001820.174272-31-sashal@kernel.org>
+Cc:     =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.13 32/88] KVM: PPC: Book3S HV: XICS: Fix mapping of passthrough interrupts
+Date:   Thu,  9 Sep 2021 20:17:24 -0400
+Message-Id: <20210910001820.174272-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,75 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Cédric Le Goater <clg@kaod.org>
 
-[ Upstream commit 1143129e4d0d27740ce680d2fb0161ad4f27aa7e ]
+[ Upstream commit 1753081f2d445f9157550692fcc4221cd3ff0958 ]
 
-ib_post_send() does not disconnect the QP when it returns an
-immediate error. Thus, the code that posts LocalInv has to
-explicitly disconnect after an immediate error. This is just
-like the frwr_send() callers handle it.
+PCI MSIs now live in an MSI domain but the underlying calls, which
+will EOI the interrupt in real mode, need an HW IRQ number mapped in
+the XICS IRQ domain. Grab it there.
 
-If a disconnect isn't done here, the transport deadlocks.
-
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210701132750.1475580-31-clg@kaod.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/frwr_ops.c  | 8 ++++++++
- net/sunrpc/xprtrdma/verbs.c     | 2 +-
- net/sunrpc/xprtrdma/xprt_rdma.h | 1 +
- 3 files changed, 10 insertions(+), 1 deletion(-)
+ arch/powerpc/kvm/book3s_hv.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/xprtrdma/frwr_ops.c b/net/sunrpc/xprtrdma/frwr_ops.c
-index 229fcc9a9064..754c5dffe127 100644
---- a/net/sunrpc/xprtrdma/frwr_ops.c
-+++ b/net/sunrpc/xprtrdma/frwr_ops.c
-@@ -557,6 +557,10 @@ void frwr_unmap_sync(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req)
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 395f98158e81..a284999a3171 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -5170,6 +5170,7 @@ static int kvmppc_set_passthru_irq(struct kvm *kvm, int host_irq, int guest_gsi)
+ 	struct kvmppc_passthru_irqmap *pimap;
+ 	struct irq_chip *chip;
+ 	int i, rc = 0;
++	struct irq_data *host_data;
  
- 	/* On error, the MRs get destroyed once the QP has drained. */
- 	trace_xprtrdma_post_linv_err(req, rc);
-+
-+	/* Force a connection loss to ensure complete recovery.
-+	 */
-+	rpcrdma_force_disconnect(ep);
- }
- 
- /**
-@@ -653,4 +657,8 @@ void frwr_unmap_async(struct rpcrdma_xprt *r_xprt, struct rpcrdma_req *req)
- 	 * retransmission.
+ 	if (!kvm_irq_bypass)
+ 		return 1;
+@@ -5234,7 +5235,14 @@ static int kvmppc_set_passthru_irq(struct kvm *kvm, int host_irq, int guest_gsi)
+ 	 * the KVM real mode handler.
  	 */
- 	rpcrdma_unpin_rqst(req->rl_reply);
+ 	smp_wmb();
+-	irq_map->r_hwirq = desc->irq_data.hwirq;
 +
-+	/* Force a connection loss to ensure complete recovery.
++	/*
++	 * The 'host_irq' number is mapped in the PCI-MSI domain but
++	 * the underlying calls, which will EOI the interrupt in real
++	 * mode, need an HW IRQ number mapped in the XICS IRQ domain.
 +	 */
-+	rpcrdma_force_disconnect(ep);
- }
-diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-index 649c23518ec0..c1797ea19418 100644
---- a/net/sunrpc/xprtrdma/verbs.c
-+++ b/net/sunrpc/xprtrdma/verbs.c
-@@ -124,7 +124,7 @@ static void rpcrdma_xprt_drain(struct rpcrdma_xprt *r_xprt)
-  * connection is closed or lost. (The important thing is it needs
-  * to be invoked "at least" once).
-  */
--static void rpcrdma_force_disconnect(struct rpcrdma_ep *ep)
-+void rpcrdma_force_disconnect(struct rpcrdma_ep *ep)
- {
- 	if (atomic_add_unless(&ep->re_force_disconnect, 1, 1))
- 		xprt_force_disconnect(ep->re_xprt);
-diff --git a/net/sunrpc/xprtrdma/xprt_rdma.h b/net/sunrpc/xprtrdma/xprt_rdma.h
-index 5d231d94e944..927e20a2c04e 100644
---- a/net/sunrpc/xprtrdma/xprt_rdma.h
-+++ b/net/sunrpc/xprtrdma/xprt_rdma.h
-@@ -454,6 +454,7 @@ extern unsigned int xprt_rdma_memreg_strategy;
- /*
-  * Endpoint calls - xprtrdma/verbs.c
-  */
-+void rpcrdma_force_disconnect(struct rpcrdma_ep *ep);
- void rpcrdma_flush_disconnect(struct rpcrdma_xprt *r_xprt, struct ib_wc *wc);
- int rpcrdma_xprt_connect(struct rpcrdma_xprt *r_xprt);
- void rpcrdma_xprt_disconnect(struct rpcrdma_xprt *r_xprt);
++	host_data = irq_domain_get_irq_data(irq_get_default_host(), host_irq);
++	irq_map->r_hwirq = (unsigned int)irqd_to_hwirq(host_data);
+ 
+ 	if (i == pimap->n_mapped)
+ 		pimap->n_mapped++;
+@@ -5242,7 +5250,7 @@ static int kvmppc_set_passthru_irq(struct kvm *kvm, int host_irq, int guest_gsi)
+ 	if (xics_on_xive())
+ 		rc = kvmppc_xive_set_mapped(kvm, guest_gsi, desc);
+ 	else
+-		kvmppc_xics_set_mapped(kvm, guest_gsi, desc->irq_data.hwirq);
++		kvmppc_xics_set_mapped(kvm, guest_gsi, irq_map->r_hwirq);
+ 	if (rc)
+ 		irq_map->r_hwirq = 0;
+ 
 -- 
 2.30.2
 
