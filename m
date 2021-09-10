@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6269C40630C
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA13840630E
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233463AbhIJAqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232027AbhIJAqt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 20:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48500 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234129AbhIJAWz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:22:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AF0360F6C;
-        Fri, 10 Sep 2021 00:21:44 +0000 (UTC)
+        id S234136AbhIJAW4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:22:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAB1C6058D;
+        Fri, 10 Sep 2021 00:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233305;
-        bh=zUwheBrgiTwOErnoc8EJwk/XxzAdHk58Wtva3bRQ2a4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=FGJHptyUWzMnG9ay86gtvN+e9VSyEx91bbAalKDKgNF+vWfJAmHsWyQelp0M5lKMf
-         DNxx2fNTvX3bR73QBM7WspR3IaoR5n6lhe2qXf6dUTKziHYsWQvLJpbK9tWX3xiOZW
-         EfmcQVuGGM+A7rpo+IU937lhSHHa4muTnM1wNJ41od9i4I6jR9qYaM4FaH5HfKB0ao
-         FnfIlUH1YqixZY0yGjaHWjjczlq+QP0YeG0kZHTECRUUCtFVjm9nzOOWTAZ0GUYD5U
-         e+wjBdWfR6GHn+pobtQAHOnDSIUP2bB8Ody5PApuaWS7pTvOzFXlJJnn5CCdjydFGn
-         xE5v/Hdm9ETyg==
+        s=k20201202; t=1631233306;
+        bh=zhAubDwpff9cjkyOQ6LZMMGdN6DEe0ffwY2+pq9Ef04=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=t3Ijpj+twD57dBowz+dqS6iOtJaJpAm1PJHROrIX70kcz0cFzGH4qzzHfbQKdo+k2
+         dvdxQ89HaKJ5fY1tSx43UclkOILOdIvx+PWfJZ0r2njJ6aUIlicQoa4dC5e/DaSH90
+         bZI+3UPktT0X6Z3nJY/n9ZnOctqXibLbLTaZGtrFrZCBuQQMu8PBN2UykjrLn4hrv3
+         8LovbVC4cJnLaxKBj4rNMJdaQf4bSF9mBBxVqeHYvXL1c0O6dnFRR6cqJq9X4m+U6P
+         HFpbpVoZ70YLc3zdUj8kAiNTa2tBftyUZhBcpFy1ooAgYZmIv9LbkBVJxHeheAF2xs
+         54ZBbmHgSw1yg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jon Lin <jon.lin@rock-chips.com>,
-        Elaine Zhang <zhangqing@rock-chips.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 01/37] clk: rockchip: rk3036: fix up the sclk_sfc parent error
-Date:   Thu,  9 Sep 2021 20:21:06 -0400
-Message-Id: <20210910002143.175731-1-sashal@kernel.org>
+Cc:     Mike Christie <michael.christie@oracle.com>,
+        Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 02/37] scsi: be2iscsi: Fix use-after-free during IP updates
+Date:   Thu,  9 Sep 2021 20:21:07 -0400
+Message-Id: <20210910002143.175731-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210910002143.175731-1-sashal@kernel.org>
+References: <20210910002143.175731-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,43 +43,214 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Lin <jon.lin@rock-chips.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 0be3df186f870cbde56b223c1ad7892109c9c440 ]
+[ Upstream commit 7b0ddc1346089b62b45e688e350c9e1c3f7a3ab2 ]
 
-Choose the correct pll
+This fixes a bug found by Lv Yunlong where, because beiscsi_exec_nemb_cmd()
+frees memory for the be_dma_mem cmd(), we can access freed memory when
+beiscsi_if_clr_ip()/beiscsi_if_set_ip()'s call to beiscsi_exec_nemb_cmd()
+fails and we access the freed req. This fixes the issue by having the
+caller free the cmd's memory.
 
-Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
-Signed-off-by: Jon Lin <jon.lin@rock-chips.com>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lore.kernel.org/r/20210713094456.23288-5-jon.lin@rock-chips.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20210701190840.175120-1-michael.christie@oracle.com
+Reported-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/rockchip/clk-rk3036.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/be2iscsi/be_mgmt.c | 84 ++++++++++++++++++---------------
+ 1 file changed, 45 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/clk/rockchip/clk-rk3036.c b/drivers/clk/rockchip/clk-rk3036.c
-index 6a46f85ad837..1814be5ef574 100644
---- a/drivers/clk/rockchip/clk-rk3036.c
-+++ b/drivers/clk/rockchip/clk-rk3036.c
-@@ -120,6 +120,7 @@ PNAME(mux_pll_src_3plls_p)	= { "apll", "dpll", "gpll" };
- PNAME(mux_timer_p)		= { "xin24m", "pclk_peri_src" };
+diff --git a/drivers/scsi/be2iscsi/be_mgmt.c b/drivers/scsi/be2iscsi/be_mgmt.c
+index d4febaadfaa3..6797ff249588 100644
+--- a/drivers/scsi/be2iscsi/be_mgmt.c
++++ b/drivers/scsi/be2iscsi/be_mgmt.c
+@@ -234,8 +234,7 @@ static int beiscsi_exec_nemb_cmd(struct beiscsi_hba *phba,
+ 	wrb = alloc_mcc_wrb(phba, &tag);
+ 	if (!wrb) {
+ 		mutex_unlock(&ctrl->mbox_lock);
+-		rc = -ENOMEM;
+-		goto free_cmd;
++		return -ENOMEM;
+ 	}
  
- PNAME(mux_pll_src_apll_dpll_gpll_usb480m_p)	= { "apll", "dpll", "gpll", "usb480m" };
-+PNAME(mux_pll_src_dmyapll_dpll_gpll_xin24_p)   = { "dummy_apll", "dpll", "gpll", "xin24m" };
+ 	sge = nonembedded_sgl(wrb);
+@@ -268,24 +267,6 @@ static int beiscsi_exec_nemb_cmd(struct beiscsi_hba *phba,
+ 	/* copy the response, if any */
+ 	if (resp_buf)
+ 		memcpy(resp_buf, nonemb_cmd->va, resp_buf_len);
+-	/**
+-	 * This is special case of NTWK_GET_IF_INFO where the size of
+-	 * response is not known. beiscsi_if_get_info checks the return
+-	 * value to free DMA buffer.
+-	 */
+-	if (rc == -EAGAIN)
+-		return rc;
+-
+-	/**
+-	 * If FW is busy that is driver timed out, DMA buffer is saved with
+-	 * the tag, only when the cmd completes this buffer is freed.
+-	 */
+-	if (rc == -EBUSY)
+-		return rc;
+-
+-free_cmd:
+-	dma_free_coherent(&ctrl->pdev->dev, nonemb_cmd->size,
+-			    nonemb_cmd->va, nonemb_cmd->dma);
+ 	return rc;
+ }
  
- PNAME(mux_mmc_src_p)	= { "apll", "dpll", "gpll", "xin24m" };
- PNAME(mux_i2s_pre_p)	= { "i2s_src", "i2s_frac", "ext_i2s", "xin12m" };
-@@ -339,7 +340,7 @@ static struct rockchip_clk_branch rk3036_clk_branches[] __initdata = {
- 			RK2928_CLKSEL_CON(16), 8, 2, MFLAGS, 10, 5, DFLAGS,
- 			RK2928_CLKGATE_CON(10), 4, GFLAGS),
+@@ -308,6 +289,19 @@ static int beiscsi_prep_nemb_cmd(struct beiscsi_hba *phba,
+ 	return 0;
+ }
  
--	COMPOSITE(SCLK_SFC, "sclk_sfc", mux_pll_src_apll_dpll_gpll_usb480m_p, 0,
-+	COMPOSITE(SCLK_SFC, "sclk_sfc", mux_pll_src_dmyapll_dpll_gpll_xin24_p, 0,
- 			RK2928_CLKSEL_CON(16), 0, 2, MFLAGS, 2, 5, DFLAGS,
- 			RK2928_CLKGATE_CON(10), 5, GFLAGS),
++static void beiscsi_free_nemb_cmd(struct beiscsi_hba *phba,
++				  struct be_dma_mem *cmd, int rc)
++{
++	/*
++	 * If FW is busy the DMA buffer is saved with the tag. When the cmd
++	 * completes this buffer is freed.
++	 */
++	if (rc == -EBUSY)
++		return;
++
++	dma_free_coherent(&phba->ctrl.pdev->dev, cmd->size, cmd->va, cmd->dma);
++}
++
+ static void __beiscsi_eq_delay_compl(struct beiscsi_hba *phba, unsigned int tag)
+ {
+ 	struct be_dma_mem *tag_mem;
+@@ -343,8 +337,16 @@ int beiscsi_modify_eq_delay(struct beiscsi_hba *phba,
+ 				cpu_to_le32(set_eqd[i].delay_multiplier);
+ 	}
  
+-	return beiscsi_exec_nemb_cmd(phba, &nonemb_cmd,
+-				     __beiscsi_eq_delay_compl, NULL, 0);
++	rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, __beiscsi_eq_delay_compl,
++				   NULL, 0);
++	if (rc) {
++		/*
++		 * Only free on failure. Async cmds are handled like -EBUSY
++		 * where it's handled for us.
++		 */
++		beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
++	}
++	return rc;
+ }
+ 
+ /**
+@@ -371,6 +373,7 @@ int beiscsi_get_initiator_name(struct beiscsi_hba *phba, char *name, bool cfg)
+ 		req->hdr.version = 1;
+ 	rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL,
+ 				   &resp, sizeof(resp));
++	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
+ 	if (rc) {
+ 		beiscsi_log(phba, KERN_ERR,
+ 			    BEISCSI_LOG_CONFIG | BEISCSI_LOG_MBOX,
+@@ -448,7 +451,9 @@ static int beiscsi_if_mod_gw(struct beiscsi_hba *phba,
+ 	req->ip_addr.ip_type = ip_type;
+ 	memcpy(req->ip_addr.addr, gw,
+ 	       (ip_type < BEISCSI_IP_TYPE_V6) ? IP_V4_LEN : IP_V6_LEN);
+-	return beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, NULL, 0);
++	rt_val = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, NULL, 0);
++	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rt_val);
++	return rt_val;
+ }
+ 
+ int beiscsi_if_set_gw(struct beiscsi_hba *phba, u32 ip_type, u8 *gw)
+@@ -498,8 +503,10 @@ int beiscsi_if_get_gw(struct beiscsi_hba *phba, u32 ip_type,
+ 	req = nonemb_cmd.va;
+ 	req->ip_type = ip_type;
+ 
+-	return beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL,
+-				     resp, sizeof(*resp));
++	rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, resp,
++				   sizeof(*resp));
++	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
++	return rc;
+ }
+ 
+ static int
+@@ -536,6 +543,7 @@ beiscsi_if_clr_ip(struct beiscsi_hba *phba,
+ 			    "BG_%d : failed to clear IP: rc %d status %d\n",
+ 			    rc, req->ip_params.ip_record.status);
+ 	}
++	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
+ 	return rc;
+ }
+ 
+@@ -580,6 +588,7 @@ beiscsi_if_set_ip(struct beiscsi_hba *phba, u8 *ip,
+ 		if (req->ip_params.ip_record.status)
+ 			rc = -EINVAL;
+ 	}
++	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
+ 	return rc;
+ }
+ 
+@@ -607,6 +616,7 @@ int beiscsi_if_en_static(struct beiscsi_hba *phba, u32 ip_type,
+ 		reldhcp->interface_hndl = phba->interface_handle;
+ 		reldhcp->ip_type = ip_type;
+ 		rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, NULL, 0);
++		beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
+ 		if (rc < 0) {
+ 			beiscsi_log(phba, KERN_WARNING, BEISCSI_LOG_CONFIG,
+ 				    "BG_%d : failed to release existing DHCP: %d\n",
+@@ -688,7 +698,7 @@ int beiscsi_if_en_dhcp(struct beiscsi_hba *phba, u32 ip_type)
+ 	dhcpreq->interface_hndl = phba->interface_handle;
+ 	dhcpreq->ip_type = ip_type;
+ 	rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, NULL, 0);
+-
++	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
+ exit:
+ 	kfree(if_info);
+ 	return rc;
+@@ -761,11 +771,8 @@ int beiscsi_if_get_info(struct beiscsi_hba *phba, int ip_type,
+ 				    BEISCSI_LOG_INIT | BEISCSI_LOG_CONFIG,
+ 				    "BG_%d : Memory Allocation Failure\n");
+ 
+-				/* Free the DMA memory for the IOCTL issuing */
+-				dma_free_coherent(&phba->ctrl.pdev->dev,
+-						    nonemb_cmd.size,
+-						    nonemb_cmd.va,
+-						    nonemb_cmd.dma);
++				beiscsi_free_nemb_cmd(phba, &nonemb_cmd,
++						      -ENOMEM);
+ 				return -ENOMEM;
+ 		}
+ 
+@@ -780,15 +787,13 @@ int beiscsi_if_get_info(struct beiscsi_hba *phba, int ip_type,
+ 				      nonemb_cmd.va)->actual_resp_len;
+ 			ioctl_size += sizeof(struct be_cmd_req_hdr);
+ 
+-			/* Free the previous allocated DMA memory */
+-			dma_free_coherent(&phba->ctrl.pdev->dev, nonemb_cmd.size,
+-					    nonemb_cmd.va,
+-					    nonemb_cmd.dma);
+-
++			beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
+ 			/* Free the virtual memory */
+ 			kfree(*if_info);
+-		} else
++		} else {
++			beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
+ 			break;
++		}
+ 	} while (true);
+ 	return rc;
+ }
+@@ -805,8 +810,9 @@ int mgmt_get_nic_conf(struct beiscsi_hba *phba,
+ 	if (rc)
+ 		return rc;
+ 
+-	return beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL,
+-				     nic, sizeof(*nic));
++	rc = beiscsi_exec_nemb_cmd(phba, &nonemb_cmd, NULL, nic, sizeof(*nic));
++	beiscsi_free_nemb_cmd(phba, &nonemb_cmd, rc);
++	return rc;
+ }
+ 
+ static void beiscsi_boot_process_compl(struct beiscsi_hba *phba,
 -- 
 2.30.2
 
