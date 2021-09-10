@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BF024063C5
+	by mail.lfdr.de (Postfix) with ESMTP id A9F984063C6
 	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230482AbhIJAsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:48:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50282 "EHLO mail.kernel.org"
+        id S231444AbhIJAsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:48:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234861AbhIJAZU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:25:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D967860FC0;
-        Fri, 10 Sep 2021 00:24:09 +0000 (UTC)
+        id S234917AbhIJAZW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:25:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 386886103E;
+        Fri, 10 Sep 2021 00:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233450;
-        bh=KtkkD8wOTOEtIAaS/aUe7hyiWul1nYvZi0wwuwfrhh0=;
+        s=k20201202; t=1631233452;
+        bh=HQcsxpOhfILNKX5K14Lx+eaIpDq6SrN8K7iz295SsA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NjZRmZV19+ITU0r6LeHPP6YcO+EguHkzFNgSA06rs/atG6eKH0ZsNW3RyuDvkxIir
-         sN06Ek6h82oOvCWyvCGpU1rFqOewv0DwWRI3M2Uix3Wc6v/8RPoF5FCTJcTLTYtUNs
-         W1Z3WJYpmYgVsSUqyB/wjTiNBM+4ub4rNwkHTqmdEV+iXWs6rFYRojwASGbObXbonf
-         R734koj6axenLaKcb3PijKfY6YrT2ezPFqxB2qISyOKVxxqsL0eCDuHyvPdgSQngk6
-         Dys7Ffke4J3uc8YJgP/FTAlaGBG0c9AhrAJ3LfUVRBHzWqNOIAU6kTWD8GsKnwe+u9
-         kBcY++5luiZbw==
+        b=K4VUCuMPsKRRPidtR/qRuTW9iynRMMp+MkNp5FXY9v5S7vQ0qV/V0LzA1WsAVHdY9
+         AV/UaWukbIdaxB1Z77FogzZkRzOqBkiqRIBUPUh+DiYE84wrg1WgYgrdra1GLrSjWS
+         xx1FWzCuKS4APnrUtSHAlurAtlxWyM21Ick2ljEeswuwiG8qgQupYmca3F1cuyln94
+         XCRQfE79wfYwKBWdnXQmriKGNDszgJDXOEGECUlZEZVS5HTHZk8g2Hofkkvi5uTeBt
+         PzxzL7mPAOXZPPOvG8MikY9qg58yvXNZSHT3DHf1dD2Kt5kuYBCTLWH7XH7WFYSNy3
+         +/KDmnw2o9x4w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Nilesh Javali <njavali@marvell.com>,
+Cc:     Tuo Li <islituo@gmail.com>, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Bodo Stroesser <bostroesser@gmail.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 05/14] scsi: qla2xxx: Fix NPIV create erroneous error
-Date:   Thu,  9 Sep 2021 20:23:54 -0400
-Message-Id: <20210910002403.176887-5-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 06/14] scsi: target: pscsi: Fix possible null-pointer dereference in pscsi_complete_cmd()
+Date:   Thu,  9 Sep 2021 20:23:55 -0400
+Message-Id: <20210910002403.176887-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002403.176887-1-sashal@kernel.org>
 References: <20210910002403.176887-1-sashal@kernel.org>
@@ -44,57 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Tuo Li <islituo@gmail.com>
 
-[ Upstream commit a57214443f0f85639a0d9bbb8bd658d82dbf0927 ]
+[ Upstream commit 0f99792c01d1d6d35b86e850e9ccadd98d6f3e0c ]
 
-When user creates multiple NPIVs, the switch capabilities field is checked
-before a vport is allowed to be created. This field is being toggled if a
-switch scan is in progress. This creates erroneous reject of vport create.
+The return value of transport_kmap_data_sg() is assigned to the variable
+buf:
 
-Link: https://lore.kernel.org/r/20210810043720.1137-10-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
+  buf = transport_kmap_data_sg(cmd);
+
+And then it is checked:
+
+  if (!buf) {
+
+This indicates that buf can be NULL. However, it is dereferenced in the
+following statements:
+
+  if (!(buf[3] & 0x80))
+    buf[3] |= 0x80;
+  if (!(buf[2] & 0x80))
+    buf[2] |= 0x80;
+
+To fix these possible null-pointer dereferences, dereference buf and call
+transport_kunmap_data_sg() only when buf is not NULL.
+
+Link: https://lore.kernel.org/r/20210810040414.248167-1-islituo@gmail.com
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
+Signed-off-by: Tuo Li <islituo@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/target/target_core_pscsi.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index 0772804dbc27..9f1e4c05cd4d 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -2468,11 +2468,11 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
- 	/* initialize */
- 	ha->min_external_loopid = SNS_FIRST_LOOP_ID;
- 	ha->operating_mode = LOOP;
--	ha->switch_cap = 0;
- 
- 	switch (topo) {
- 	case 0:
- 		ql_dbg(ql_dbg_disc, vha, 0x200b, "HBA in NL topology.\n");
-+		ha->switch_cap = 0;
- 		ha->current_topology = ISP_CFG_NL;
- 		strcpy(connect_type, "(Loop)");
- 		break;
-@@ -2486,6 +2486,7 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
- 
- 	case 2:
- 		ql_dbg(ql_dbg_disc, vha, 0x200d, "HBA in N P2P topology.\n");
-+		ha->switch_cap = 0;
- 		ha->operating_mode = P2P;
- 		ha->current_topology = ISP_CFG_N;
- 		strcpy(connect_type, "(N_Port-to-N_Port)");
-@@ -2502,6 +2503,7 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
- 	default:
- 		ql_dbg(ql_dbg_disc, vha, 0x200f,
- 		    "HBA in unknown topology %x, using NL.\n", topo);
-+		ha->switch_cap = 0;
- 		ha->current_topology = ISP_CFG_NL;
- 		strcpy(connect_type, "(Loop)");
- 		break;
+diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
+index 0ce3697ecbd7..cca8404648ba 100644
+--- a/drivers/target/target_core_pscsi.c
++++ b/drivers/target/target_core_pscsi.c
+@@ -631,17 +631,17 @@ static void pscsi_transport_complete(struct se_cmd *cmd, struct scatterlist *sg,
+ 			buf = transport_kmap_data_sg(cmd);
+ 			if (!buf) {
+ 				; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
+-			}
+-
+-			if (cdb[0] == MODE_SENSE_10) {
+-				if (!(buf[3] & 0x80))
+-					buf[3] |= 0x80;
+ 			} else {
+-				if (!(buf[2] & 0x80))
+-					buf[2] |= 0x80;
++				if (cdb[0] == MODE_SENSE_10) {
++					if (!(buf[3] & 0x80))
++						buf[3] |= 0x80;
++				} else {
++					if (!(buf[2] & 0x80))
++						buf[2] |= 0x80;
++				}
++
++				transport_kunmap_data_sg(cmd);
+ 			}
+-
+-			transport_kunmap_data_sg(cmd);
+ 		}
+ 	}
+ after_mode_sense:
 -- 
 2.30.2
 
