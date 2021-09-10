@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD467406BEB
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8665A406C56
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234107AbhIJMfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:35:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52884 "EHLO mail.kernel.org"
+        id S234398AbhIJMjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:39:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234221AbhIJMen (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:34:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03370611C0;
-        Fri, 10 Sep 2021 12:33:31 +0000 (UTC)
+        id S233730AbhIJMhQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:37:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 235E76120A;
+        Fri, 10 Sep 2021 12:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277212;
-        bh=3UyNhzUiclm1A1daHkGsEO0SLMHNHt/riauCPLOASlM=;
+        s=korg; t=1631277354;
+        bh=u9zluEWB18JkYxp3OuvxqEPeLfuUjRgiLvaU6qfkzmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQfH+VD9x592bj68POLZQriDEBUv196G5XGCbDmj9wThSniMywPQDC6ML7APrZ4Mm
-         urDgApNZNIla22+wDFInvS0K9eYlQjY60kGmh3HmoyUt9G6pVWSfCCAIwjwWhmaTVb
-         InCXrzcZc0qibmRphbWH5IIWUL97zSTEq80weIaI=
+        b=s3Fc+rAdo3auBt1AMAveYLMMb09xWrOO/0bxp0cBoi1U0pfz33AaxVB0ZlFvirIuq
+         qTfNfK/cZDuhXAQvtoxmfZXy1JYmqxNZEzLuEhXjWgI/PpgExYW6KoOTcbFWVRduvw
+         qkdo/t8UEqniSdof/1H214GcsprxXY8eNJ+StTFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.10 20/26] usb: mtu3: restore HS function when set SS/SSP
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 21/37] media: stkwebcam: fix memory leak in stk_camera_probe
 Date:   Fri, 10 Sep 2021 14:30:24 +0200
-Message-Id: <20210910122916.905283104@linuxfoundation.org>
+Message-Id: <20210910122917.862680130@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
-References: <20210910122916.253646001@linuxfoundation.org>
+In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
+References: <20210910122917.149278545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,38 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit e88f28514065a6c48aadc367efb0ef6378a01543 upstream.
+commit 514e97674400462cc09c459a1ddfb9bf39017223 upstream.
 
-Due to HS function is disabled when set as FS, need restore
-it when set as SS/SSP.
+My local syzbot instance hit memory leak in usb_set_configuration().
+The problem was in unputted usb interface. In case of errors after
+usb_get_intf() the reference should be putted to correclty free memory
+allocated for this interface.
 
-Fixes: dc4c1aa7eae9 ("usb: mtu3: add ->udc_set_speed()")
+Fixes: ec16dae5453e ("V4L/DVB (7019): V4L: add support for Syntek DC1125 webcams")
 Cc: stable@vger.kernel.org
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1628836253-7432-1-git-send-email-chunfeng.yun@mediatek.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/mtu3/mtu3_core.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/usb/stkwebcam/stk-webcam.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/mtu3/mtu3_core.c
-+++ b/drivers/usb/mtu3/mtu3_core.c
-@@ -227,11 +227,13 @@ void mtu3_set_speed(struct mtu3 *mtu, en
- 		mtu3_setbits(mbase, U3D_POWER_MANAGEMENT, HS_ENABLE);
- 		break;
- 	case USB_SPEED_SUPER:
-+		mtu3_setbits(mbase, U3D_POWER_MANAGEMENT, HS_ENABLE);
- 		mtu3_clrbits(mtu->ippc_base, SSUSB_U3_CTRL(0),
- 			     SSUSB_U3_PORT_SSP_SPEED);
- 		break;
- 	case USB_SPEED_SUPER_PLUS:
--			mtu3_setbits(mtu->ippc_base, SSUSB_U3_CTRL(0),
-+		mtu3_setbits(mbase, U3D_POWER_MANAGEMENT, HS_ENABLE);
-+		mtu3_setbits(mtu->ippc_base, SSUSB_U3_CTRL(0),
- 			     SSUSB_U3_PORT_SSP_SPEED);
- 		break;
- 	default:
+--- a/drivers/media/usb/stkwebcam/stk-webcam.c
++++ b/drivers/media/usb/stkwebcam/stk-webcam.c
+@@ -1346,7 +1346,7 @@ static int stk_camera_probe(struct usb_i
+ 	if (!dev->isoc_ep) {
+ 		pr_err("Could not find isoc-in endpoint\n");
+ 		err = -ENODEV;
+-		goto error;
++		goto error_put;
+ 	}
+ 	dev->vsettings.palette = V4L2_PIX_FMT_RGB565;
+ 	dev->vsettings.mode = MODE_VGA;
+@@ -1359,10 +1359,12 @@ static int stk_camera_probe(struct usb_i
+ 
+ 	err = stk_register_video_device(dev);
+ 	if (err)
+-		goto error;
++		goto error_put;
+ 
+ 	return 0;
+ 
++error_put:
++	usb_put_intf(interface);
+ error:
+ 	v4l2_ctrl_handler_free(hdl);
+ 	v4l2_device_unregister(&dev->v4l2_dev);
 
 
