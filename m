@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F4C40639D
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:50:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6986840639E
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:50:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229902AbhIJAsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:48:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49690 "EHLO mail.kernel.org"
+        id S230318AbhIJAsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:48:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229548AbhIJAYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:24:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B73D604DC;
-        Fri, 10 Sep 2021 00:23:21 +0000 (UTC)
+        id S230132AbhIJAYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:24:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67D5D60FDA;
+        Fri, 10 Sep 2021 00:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233402;
-        bh=/V5jojsyoL4A35v1c6UNigDRv6INtC87CW1+XJ1DYAc=;
+        s=k20201202; t=1631233404;
+        bh=lZkivQP3DofMjGxIe08apnirKRtBtazACpanOtt5U3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJApwqGCCgQDuRxw9Nz21HdHVTW12Loh1eUg29ZxNfvruIG/+T9vW4bb5GZ4sD5kz
-         s5tl/CHaWO2S11/BYuQiSQDPpaicnquW0yHLS/IPH9PcgZo9+0hfGBAbBP7ClatEV3
-         10k8u2gg5wOe7Cm27syDogqyKZU1M0NKYplJQ/4/M0cFsto9DprIwB9LYNGmFhsjEI
-         rcXRMS0tiyXKaBgl4nBUKo+Tsy1a/+alQMnI7urZL7LY8qEQpWfQK/B+iL8C+OzFPi
-         WZQCzxD+ADDwzx+HTYUHQ+FFHKolPlra9qKBq4uHsFRILHT8fozcjpuljWGwdb9S19
-         s0KVnUHuujbtg==
+        b=t8tKRqY7wX14GIZLP6o+linu0jCKEvJwTA1EOafPMSS461RogyBbf8NL1ZUMHeJ6i
+         fFXy0ypOpkG7kMw9ism84p3Cy0+gUXSOC3wElLqf7X5jC6krEgVYmoklUCYyeHJLoy
+         VwFJFrmeOm0RKlkAcrXXQLQ/NlP4niVHUrsJ+H1vEYzhLWeka1lm4vxIHzx2AufkZF
+         aDODOkJIQoBCXpWythi1qDZLE2H7iQVj3xzZoKrBZuj/DB4El2YH38J5AScqXJR//o
+         vMaHk+8Fb2JSitqEBEYAD3EE6XymTF/K6elyy/u3/F1Ax5EW4AtS0EcLxxiSQ2XN3J
+         G8bbkB6rfsEWw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Aring <aahringo@redhat.com>,
-        Bob Peterson <rpeterso@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.14 09/19] fs: dlm: fix return -EINTR on recovery stopped
-Date:   Thu,  9 Sep 2021 20:22:59 -0400
-Message-Id: <20210910002309.176412-9-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 10/19] powerpc/32: indirect function call use bctrl rather than blrl in ret_from_kernel_thread
+Date:   Thu,  9 Sep 2021 20:23:00 -0400
+Message-Id: <20210910002309.176412-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002309.176412-1-sashal@kernel.org>
 References: <20210910002309.176412-1-sashal@kernel.org>
@@ -43,90 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit aee742c9928ab4f5f4e0b00f41fb2d2cffae179e ]
+[ Upstream commit 113ec9ccc8049c3772f0eab46b62c5d6654c09f7 ]
 
-This patch will return -EINTR instead of 1 if recovery is stopped. In
-case of ping_members() the return value will be checked if the error is
--EINTR for signaling another recovery was triggered and the whole
-recovery process will come to a clean end to process the next one.
-Returning 1 will abort the recovery process and can leave the recovery
-in a broken state.
+Copied from commit 89bbe4c798bc ("powerpc/64: indirect function call
+use bctrl rather than blrl in ret_from_kernel_thread")
 
-It was reported with the following kernel log message attached and a gfs2
-mount stopped working:
+blrl is not recommended to use as an indirect function call, as it may
+corrupt the link stack predictor.
 
-"dlm: bobvirt1: dlm_recover_members error 1"
+This is not a performance critical path but this should be fixed for
+consistency.
 
-whereas 1 was returned because of a conversion of "dlm_recovery_stopped()"
-to an errno was missing which this patch will introduce. While on it all
-other possible missing errno conversions at other places were added as
-they are done as in other places.
-
-It might be worth to check the error case at this recovery level,
-because some of the functionality also returns -ENOBUFS and check why
-recovery ends in a broken state. However this will fix the issue if
-another recovery was triggered at some points of recovery handling.
-
-Reported-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/91b1d242525307ceceec7ef6e832bfbacdd4501b.1629436472.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/dir.c      | 4 +++-
- fs/dlm/member.c   | 4 +++-
- fs/dlm/recoverd.c | 4 +++-
- 3 files changed, 9 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/entry_32.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/dlm/dir.c b/fs/dlm/dir.c
-index d975851a7e1e..c4de04ef8b01 100644
---- a/fs/dlm/dir.c
-+++ b/fs/dlm/dir.c
-@@ -87,8 +87,10 @@ int dlm_recover_directory(struct dlm_ls *ls)
- 		for (;;) {
- 			int left;
- 			error = dlm_recovery_stopped(ls);
--			if (error)
-+			if (error) {
-+				error = -EINTR;
- 				goto out_free;
-+			}
+diff --git a/arch/powerpc/kernel/entry_32.S b/arch/powerpc/kernel/entry_32.S
+index a2999cd73a82..ea1c00bc6ced 100644
+--- a/arch/powerpc/kernel/entry_32.S
++++ b/arch/powerpc/kernel/entry_32.S
+@@ -468,10 +468,10 @@ ret_from_fork:
+ ret_from_kernel_thread:
+ 	REST_NVGPRS(r1)
+ 	bl	schedule_tail
+-	mtlr	r14
++	mtctr	r14
+ 	mr	r3,r15
+ 	PPC440EP_ERR42
+-	blrl
++	bctrl
+ 	li	r3,0
+ 	b	ret_from_syscall
  
- 			error = dlm_rcom_names(ls, memb->nodeid,
- 					       last_name, last_len);
-diff --git a/fs/dlm/member.c b/fs/dlm/member.c
-index 0bc43b35d2c5..30f73cea20cc 100644
---- a/fs/dlm/member.c
-+++ b/fs/dlm/member.c
-@@ -435,8 +435,10 @@ static int ping_members(struct dlm_ls *ls)
- 
- 	list_for_each_entry(memb, &ls->ls_nodes, list) {
- 		error = dlm_recovery_stopped(ls);
--		if (error)
-+		if (error) {
-+			error = -EINTR;
- 			break;
-+		}
- 		error = dlm_rcom_status(ls, memb->nodeid, 0);
- 		if (error)
- 			break;
-diff --git a/fs/dlm/recoverd.c b/fs/dlm/recoverd.c
-index 6859b4bf971e..206c8b29429a 100644
---- a/fs/dlm/recoverd.c
-+++ b/fs/dlm/recoverd.c
-@@ -127,8 +127,10 @@ static int ls_recover(struct dlm_ls *ls, struct dlm_recover *rv)
- 	dlm_recover_waiters_pre(ls);
- 
- 	error = dlm_recovery_stopped(ls);
--	if (error)
-+	if (error) {
-+		error = -EINTR;
- 		goto fail;
-+	}
- 
- 	if (neg || dlm_no_directory(ls)) {
- 		/*
 -- 
 2.30.2
 
