@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9DDB406BB6
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22EA4406C15
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233738AbhIJMdo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:33:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51290 "EHLO mail.kernel.org"
+        id S234707AbhIJMgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:36:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233763AbhIJMdc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:33:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8336F61026;
-        Fri, 10 Sep 2021 12:32:20 +0000 (UTC)
+        id S234132AbhIJMfl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:35:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED03B61208;
+        Fri, 10 Sep 2021 12:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277141;
-        bh=oGn6b8TTbbzCafZgHK+NymXrEkOk/MXxNEJIqNRA49s=;
+        s=korg; t=1631277270;
+        bh=X3bhiUlAufGCTM6lTGf8Zx8nIqp8Pnl4bDwRLSOpxMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9cXvmiHThe5UJuMds9mdsUg3HfNX7jJ9VJNcm/ExL/4wO38Z93MbZyKFWbfe1F22
-         wfyrXwyF6gplx0ENswf7nodsF1owMmDDgMparyVN5h5kSb/OHxaNR5JGkfn9vcnaEl
-         cmUSRMzdqG23fn06T9x3e8E9Fz2lCl+IbT3FvjQ8=
+        b=ARR8coVbCRljF211MmiDcAahxHnfaF4vA4azv3wpu3ycsNUjp0W5E74BZ1GfMufSz
+         gMPHXTfZPHIh5LbRi4nluCwYROyZHqRjzHjP9CE9KQGIuGgAX6zolZS+ExKU7KBolt
+         e9wOoBm7LlGev2zKuzgQy/hdGjgH2jQpeNuPy80A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.13 18/22] xhci: fix even more unsafe memory usage in xhci tracing
-Date:   Fri, 10 Sep 2021 14:30:17 +0200
-Message-Id: <20210910122916.543013192@linuxfoundation.org>
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/37] perf/x86/amd/power: Assign pmu.module
+Date:   Fri, 10 Sep 2021 14:30:18 +0200
+Message-Id: <20210910122917.674323795@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122915.942645251@linuxfoundation.org>
-References: <20210910122915.942645251@linuxfoundation.org>
+In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
+References: <20210910122917.149278545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,223 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 4843b4b5ec64b875a5e334f280508f1f75e7d3e4 upstream.
+[ Upstream commit ccf26483416a339c114409f6e7cd02abdeaf8052 ]
 
-Removes static char buffer usage in the following decode functions:
-	xhci_decode_ctrl_ctx()
-	xhci_decode_slot_context()
-	xhci_decode_usbsts()
-	xhci_decode_doorbell()
-	xhci_decode_ep_context()
+Assign pmu.module so the driver can't be unloaded whilst in use.
 
-Caller must provide a buffer to use.
-In tracing use __get_str() as recommended to pass buffer.
-
-Minor changes are needed in other xhci code as these functions are also
-used elsewhere
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210820123503.2605901-3-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210817221048.88063-4-kim.phillips@amd.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-debugfs.c |    8 ++++++--
- drivers/usb/host/xhci-ring.c    |    3 ++-
- drivers/usb/host/xhci-trace.h   |   18 +++++++++++-------
- drivers/usb/host/xhci.h         |   21 ++++++++-------------
- 4 files changed, 27 insertions(+), 23 deletions(-)
+ arch/x86/events/amd/power.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/host/xhci-debugfs.c
-+++ b/drivers/usb/host/xhci-debugfs.c
-@@ -260,11 +260,13 @@ static int xhci_slot_context_show(struct
- 	struct xhci_slot_ctx	*slot_ctx;
- 	struct xhci_slot_priv	*priv = s->private;
- 	struct xhci_virt_device	*dev = priv->dev;
-+	char			str[XHCI_MSG_MAX];
+diff --git a/arch/x86/events/amd/power.c b/arch/x86/events/amd/power.c
+index abef51320e3a..c4892b7d0c36 100644
+--- a/arch/x86/events/amd/power.c
++++ b/arch/x86/events/amd/power.c
+@@ -217,6 +217,7 @@ static struct pmu pmu_class = {
+ 	.stop		= pmu_event_stop,
+ 	.read		= pmu_event_read,
+ 	.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
++	.module		= THIS_MODULE,
+ };
  
- 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
- 	slot_ctx = xhci_get_slot_ctx(xhci, dev->out_ctx);
- 	seq_printf(s, "%pad: %s\n", &dev->out_ctx->dma,
--		   xhci_decode_slot_context(le32_to_cpu(slot_ctx->dev_info),
-+		   xhci_decode_slot_context(str,
-+					    le32_to_cpu(slot_ctx->dev_info),
- 					    le32_to_cpu(slot_ctx->dev_info2),
- 					    le32_to_cpu(slot_ctx->tt_info),
- 					    le32_to_cpu(slot_ctx->dev_state)));
-@@ -280,6 +282,7 @@ static int xhci_endpoint_context_show(st
- 	struct xhci_ep_ctx	*ep_ctx;
- 	struct xhci_slot_priv	*priv = s->private;
- 	struct xhci_virt_device	*dev = priv->dev;
-+	char			str[XHCI_MSG_MAX];
- 
- 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
- 
-@@ -287,7 +290,8 @@ static int xhci_endpoint_context_show(st
- 		ep_ctx = xhci_get_ep_ctx(xhci, dev->out_ctx, ep_index);
- 		dma = dev->out_ctx->dma + (ep_index + 1) * CTX_SIZE(xhci->hcc_params);
- 		seq_printf(s, "%pad: %s\n", &dma,
--			   xhci_decode_ep_context(le32_to_cpu(ep_ctx->ep_info),
-+			   xhci_decode_ep_context(str,
-+						  le32_to_cpu(ep_ctx->ep_info),
- 						  le32_to_cpu(ep_ctx->ep_info2),
- 						  le64_to_cpu(ep_ctx->deq),
- 						  le32_to_cpu(ep_ctx->tx_info)));
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -1212,6 +1212,7 @@ void xhci_stop_endpoint_command_watchdog
- 	struct xhci_hcd *xhci = ep->xhci;
- 	unsigned long flags;
- 	u32 usbsts;
-+	char str[XHCI_MSG_MAX];
- 
- 	spin_lock_irqsave(&xhci->lock, flags);
- 
-@@ -1225,7 +1226,7 @@ void xhci_stop_endpoint_command_watchdog
- 	usbsts = readl(&xhci->op_regs->status);
- 
- 	xhci_warn(xhci, "xHCI host not responding to stop endpoint command.\n");
--	xhci_warn(xhci, "USBSTS:%s\n", xhci_decode_usbsts(usbsts));
-+	xhci_warn(xhci, "USBSTS:%s\n", xhci_decode_usbsts(str, usbsts));
- 
- 	ep->ep_state &= ~EP_STOP_CMD_PENDING;
- 
---- a/drivers/usb/host/xhci-trace.h
-+++ b/drivers/usb/host/xhci-trace.h
-@@ -323,6 +323,7 @@ DECLARE_EVENT_CLASS(xhci_log_ep_ctx,
- 		__field(u32, info2)
- 		__field(u64, deq)
- 		__field(u32, tx_info)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->info = le32_to_cpu(ctx->ep_info);
-@@ -330,8 +331,8 @@ DECLARE_EVENT_CLASS(xhci_log_ep_ctx,
- 		__entry->deq = le64_to_cpu(ctx->deq);
- 		__entry->tx_info = le32_to_cpu(ctx->tx_info);
- 	),
--	TP_printk("%s", xhci_decode_ep_context(__entry->info,
--		__entry->info2, __entry->deq, __entry->tx_info)
-+	TP_printk("%s", xhci_decode_ep_context(__get_str(str),
-+		__entry->info, __entry->info2, __entry->deq, __entry->tx_info)
- 	)
- );
- 
-@@ -368,6 +369,7 @@ DECLARE_EVENT_CLASS(xhci_log_slot_ctx,
- 		__field(u32, info2)
- 		__field(u32, tt_info)
- 		__field(u32, state)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->info = le32_to_cpu(ctx->dev_info);
-@@ -375,9 +377,9 @@ DECLARE_EVENT_CLASS(xhci_log_slot_ctx,
- 		__entry->tt_info = le64_to_cpu(ctx->tt_info);
- 		__entry->state = le32_to_cpu(ctx->dev_state);
- 	),
--	TP_printk("%s", xhci_decode_slot_context(__entry->info,
--			__entry->info2, __entry->tt_info,
--			__entry->state)
-+	TP_printk("%s", xhci_decode_slot_context(__get_str(str),
-+			__entry->info, __entry->info2,
-+			__entry->tt_info, __entry->state)
- 	)
- );
- 
-@@ -432,12 +434,13 @@ DECLARE_EVENT_CLASS(xhci_log_ctrl_ctx,
- 	TP_STRUCT__entry(
- 		__field(u32, drop)
- 		__field(u32, add)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->drop = le32_to_cpu(ctrl_ctx->drop_flags);
- 		__entry->add = le32_to_cpu(ctrl_ctx->add_flags);
- 	),
--	TP_printk("%s", xhci_decode_ctrl_ctx(__entry->drop, __entry->add)
-+	TP_printk("%s", xhci_decode_ctrl_ctx(__get_str(str), __entry->drop, __entry->add)
- 	)
- );
- 
-@@ -555,13 +558,14 @@ DECLARE_EVENT_CLASS(xhci_log_doorbell,
- 	TP_STRUCT__entry(
- 		__field(u32, slot)
- 		__field(u32, doorbell)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->slot = slot;
- 		__entry->doorbell = doorbell;
- 	),
- 	TP_printk("Ring doorbell for %s",
--		xhci_decode_doorbell(__entry->slot, __entry->doorbell)
-+		  xhci_decode_doorbell(__get_str(str), __entry->slot, __entry->doorbell)
- 	)
- );
- 
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -2452,10 +2452,9 @@ static inline const char *xhci_decode_tr
- 	return str;
- }
- 
--static inline const char *xhci_decode_ctrl_ctx(unsigned long drop,
--					       unsigned long add)
-+static inline const char *xhci_decode_ctrl_ctx(char *str,
-+		unsigned long drop, unsigned long add)
- {
--	static char	str[1024];
- 	unsigned int	bit;
- 	int		ret = 0;
- 
-@@ -2481,10 +2480,9 @@ static inline const char *xhci_decode_ct
- 	return str;
- }
- 
--static inline const char *xhci_decode_slot_context(u32 info, u32 info2,
--		u32 tt_info, u32 state)
-+static inline const char *xhci_decode_slot_context(char *str,
-+		u32 info, u32 info2, u32 tt_info, u32 state)
- {
--	static char str[1024];
- 	u32 speed;
- 	u32 hub;
- 	u32 mtt;
-@@ -2614,9 +2612,8 @@ static inline const char *xhci_decode_po
- 	return str;
- }
- 
--static inline const char *xhci_decode_usbsts(u32 usbsts)
-+static inline const char *xhci_decode_usbsts(char *str, u32 usbsts)
- {
--	static char str[256];
- 	int ret = 0;
- 
- 	if (usbsts == ~(u32)0)
-@@ -2643,9 +2640,8 @@ static inline const char *xhci_decode_us
- 	return str;
- }
- 
--static inline const char *xhci_decode_doorbell(u32 slot, u32 doorbell)
-+static inline const char *xhci_decode_doorbell(char *str, u32 slot, u32 doorbell)
- {
--	static char str[256];
- 	u8 ep;
- 	u16 stream;
- 	int ret;
-@@ -2712,10 +2708,9 @@ static inline const char *xhci_ep_type_s
- 	}
- }
- 
--static inline const char *xhci_decode_ep_context(u32 info, u32 info2, u64 deq,
--		u32 tx_info)
-+static inline const char *xhci_decode_ep_context(char *str, u32 info,
-+		u32 info2, u64 deq, u32 tx_info)
- {
--	static char str[1024];
- 	int ret;
- 
- 	u32 esit;
+ static int power_cpu_exit(unsigned int cpu)
+-- 
+2.30.2
+
 
 
