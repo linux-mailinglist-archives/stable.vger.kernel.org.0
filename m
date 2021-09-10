@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC6704063BA
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:50:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5543D4063BB
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233188AbhIJAsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:48:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50102 "EHLO mail.kernel.org"
+        id S240425AbhIJAsj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:48:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234889AbhIJAZG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:25:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6F5760FC0;
-        Fri, 10 Sep 2021 00:23:55 +0000 (UTC)
+        id S234891AbhIJAZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:25:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2921760FDA;
+        Fri, 10 Sep 2021 00:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233436;
-        bh=B/gfCXziB9pEf3nb2sZ8lOxHyY1nlyIoomA72MHUC1o=;
+        s=k20201202; t=1631233437;
+        bh=YflWQ2DiH934J2wSRzzClV17e6S+MKhSPtKAJU5jRls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N2NZcwqw+PpBzN7dLSf8lYhymsCUgS3W/6caIRWAcklAPSAU7TNxK6AW4mwZ4CIsC
-         IMWuD9MQPbU0Y8f3BgBNEt6v6EsaW1xS25VZPnuAtvYkko0Mx/2PHRBBh6ydIfT99I
-         eSuCDr1+0BSTmFFGeIO+mk9lEc7Yzy+hpT5fgeRrDTu0p3c/bVMBva4napFb2I/ntV
-         1vWLj4TkPNbZwgmAHjosInbKyvChYPm62g+nX7K2ocvtC75i6JWhqRjnsjjcOKXZom
-         FygsorjLQIFQEzvy9JZ3N6br62TR1mufC6lDAmG+3BVaK68IEoPcTV4Cq6LfPrajSF
-         w6pEy4t/rkPcw==
+        b=S6sdCV4IdHgxf0jdCutgcKYeJn9LavB86Wym8OEwoY5rBvvuyDFFV2Nv4Kg79P+yN
+         XX6ogCmVSYphBTfaQ3EFPEJvNRlnPZV4x6jt0ah3o3SR6RMWwexS8jSzU/Gq/uu60J
+         8hexmy9HcVIGsxwgMWWMqj6hrCd0De1f7SnI50F4B2XtTiT4/7moKwONhhqJcqadBd
+         m+iB7hYHFmuNiHYsvbu0h/z4ltZ6I9Hj7Aj1xTXATED99YHOG772NJRCkfW1e58SJq
+         bYcxTHlTIe1NaMS6rcyDpknpgQB6e6iPGs6kvsdp86APDvcXO0aJuz7wUDoev4I1+F
+         IBNgFexTIn2tQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>, yangerkun <yangerkun@huawei.com>,
+Cc:     Jan Kara <jack@suse.cz>, Theodore Ts'o <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 13/17] ext4: if zeroout fails fall back to splitting the extent node
-Date:   Thu,  9 Sep 2021 20:23:34 -0400
-Message-Id: <20210910002338.176677-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 14/17] ext4: Make sure quota files are not grabbed accidentally
+Date:   Thu,  9 Sep 2021 20:23:35 -0400
+Message-Id: <20210910002338.176677-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002338.176677-1-sashal@kernel.org>
 References: <20210910002338.176677-1-sashal@kernel.org>
@@ -41,59 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 308c57ccf4318236be75dfa251c84713e694457b ]
+[ Upstream commit bd2c38cf1726ea913024393a0d11f2e2a3f4c180 ]
 
-If the underlying storage device is using thin-provisioning, it's
-possible for a zeroout operation to return ENOSPC.
+If ext4 filesystem is corrupted so that quota files are linked from
+directory hirerarchy, bad things can happen. E.g. quota files can get
+corrupted or deleted. Make sure we are not grabbing quota file inodes
+when we expect normal inodes.
 
-Commit df22291ff0fd ("ext4: Retry block allocation if we have free blocks
-left") added logic to retry block allocation since we might get free block
-after we commit a transaction. But the ENOSPC from thin-provisioning
-will confuse ext4, and lead to an infinite loop.
-
-Since using zeroout instead of splitting the extent node is an
-optimization, if it fails, we might as well fall back to splitting the
-extent node.
-
-Reported-by: yangerkun <yangerkun@huawei.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210812133122.26360-1-jack@suse.cz
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/extents.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/ext4/inode.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-index d195f41071d8..851ccbc01138 100644
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -3636,7 +3636,7 @@ static int ext4_ext_convert_to_initialized(handle_t *handle,
- 				split_map.m_len - ee_block);
- 			err = ext4_ext_zeroout(inode, &zero_ex1);
- 			if (err)
--				goto out;
-+				goto fallback;
- 			split_map.m_len = allocated;
- 		}
- 		if (split_map.m_lblk - ee_block + split_map.m_len <
-@@ -3650,7 +3650,7 @@ static int ext4_ext_convert_to_initialized(handle_t *handle,
- 						      ext4_ext_pblock(ex));
- 				err = ext4_ext_zeroout(inode, &zero_ex2);
- 				if (err)
--					goto out;
-+					goto fallback;
- 			}
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index 79c067f74253..6459bdbbc3f2 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4489,6 +4489,7 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
+ 	struct ext4_iloc iloc;
+ 	struct ext4_inode *raw_inode;
+ 	struct ext4_inode_info *ei;
++	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
+ 	struct inode *inode;
+ 	journal_t *journal = EXT4_SB(sb)->s_journal;
+ 	long ret;
+@@ -4499,9 +4500,12 @@ struct inode *__ext4_iget(struct super_block *sb, unsigned long ino,
+ 	projid_t i_projid;
  
- 			split_map.m_len += split_map.m_lblk - ee_block;
-@@ -3659,6 +3659,7 @@ static int ext4_ext_convert_to_initialized(handle_t *handle,
- 		}
- 	}
- 
-+fallback:
- 	err = ext4_split_extent(handle, inode, ppath, &split_map, split_flag,
- 				flags);
- 	if (err > 0)
+ 	if ((!(flags & EXT4_IGET_SPECIAL) &&
+-	     (ino < EXT4_FIRST_INO(sb) && ino != EXT4_ROOT_INO)) ||
++	     ((ino < EXT4_FIRST_INO(sb) && ino != EXT4_ROOT_INO) ||
++	      ino == le32_to_cpu(es->s_usr_quota_inum) ||
++	      ino == le32_to_cpu(es->s_grp_quota_inum) ||
++	      ino == le32_to_cpu(es->s_prj_quota_inum))) ||
+ 	    (ino < EXT4_ROOT_INO) ||
+-	    (ino > le32_to_cpu(EXT4_SB(sb)->s_es->s_inodes_count))) {
++	    (ino > le32_to_cpu(es->s_inodes_count))) {
+ 		if (flags & EXT4_IGET_HANDLE)
+ 			return ERR_PTR(-ESTALE);
+ 		__ext4_error(sb, function, line,
 -- 
 2.30.2
 
