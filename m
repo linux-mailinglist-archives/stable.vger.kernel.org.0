@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AECE94061C6
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAEE44061CA
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241189AbhIJAno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:43:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45750 "EHLO mail.kernel.org"
+        id S241210AbhIJAns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:43:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233102AbhIJATZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:19:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26F7A6023D;
-        Fri, 10 Sep 2021 00:18:14 +0000 (UTC)
+        id S233116AbhIJAT0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:19:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9A54610E9;
+        Fri, 10 Sep 2021 00:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233095;
-        bh=wos19fGOVa+dBPIMD4N+xn+iAzasPeFp9znejCE5SCE=;
+        s=k20201202; t=1631233096;
+        bh=5Rq0uPWP29yTnFLexqsHV7ygosfeX4vdW5JBglWZdr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iS3fSNBCjY0LQ/JXXWO3PBGaDXMWu9oVBfvm5Xx0a8A9ohoTSinsq4Tj1lkZpxaxR
-         div1v+TuPd6jyIdS08+ocdrnqOWJo6HlheBqlhsxhQt6FHmHtCtEwm7YC+f9jkMmhv
-         zss9qcbaCtcsfelLiPy2b5/5g8m+76EviOPckMdsDTNO76Iy1zQmkRzvwlBtreawoX
-         c7KhwSVAz7mBKJbobOct6iC3gtMLR9Yzmt5TpuMKjIHR0GjMQ3eyDMLE71jo3y0bnu
-         U76Rsb02RoKZXNFTSD69XFc3LYAvMjD2H32dy02l8xgvT18+hhLuHcMVRmKnwkob9x
-         KawV9VtI9aXKw==
+        b=rSG/0NYOv8MDLn5ATnT0aWGqbm+P37pWMBZmwlTGb4FJH6Lyeiout9YTkOvOs2jj5
+         UNHocmmna6+bM9OgMSzFUECT06l82R/6D7X3B4vSYfflawtaMibWNMLRcHy1Ly5Vl1
+         /Ef3ED4Qgwax7T4jvDlrllDi+WIl1KBI6ziidUwq48747cm00MTHQkoeKYOjqPmJRR
+         7nMG73TrAybYHnjC+XIhDnDHwPsgk0b56IhiPL/gd80luMflyaiMaSm0960Sj+MQsd
+         bLNWf7LsxGm3TP6WYV11p39SS4W+v9EESpAqXR++FgB6MLwVlEq27yL8YfuOPjEzIY
+         4AjZsHOs7vDyw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
@@ -33,9 +33,9 @@ Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.14 97/99] kasan: test: clean up ksize_uaf
-Date:   Thu,  9 Sep 2021 20:15:56 -0400
-Message-Id: <20210910001558.173296-97-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 98/99] kasan: test: avoid corrupting memory in copy_user_test
+Date:   Thu,  9 Sep 2021 20:15:57 -0400
+Message-Id: <20210910001558.173296-98-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -49,16 +49,18 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andrey Konovalov <andreyknvl@gmail.com>
 
-[ Upstream commit b38fcca339dbcf680c9e43054502608fabc81508 ]
+[ Upstream commit 756e5a47a5ddf0caa3708f922385a92af9d330b5 ]
 
-Some KASAN tests use global variables to store function returns values so
-that the compiler doesn't optimize away these functions.
+copy_user_test() does writes past the allocated object.  As the result, it
+corrupts kernel memory, which might lead to crashes with the HW_TAGS mode,
+as it neither uses quarantine nor redzones.
 
-ksize_uaf() doesn't call any functions, so it doesn't need to use
-kasan_int_result.  Use volatile accesses instead, to be consistent with
-other similar tests.
+(Technically, this test can't yet be enabled with the HW_TAGS mode, but
+this will be implemented in the future.)
 
-Link: https://lkml.kernel.org/r/a1fc34faca4650f4a6e4dfb3f8d8d82c82eb953a.1628779805.git.andreyknvl@gmail.com
+Adjust the test to only write memory within the aligned kmalloc object.
+
+Link: https://lkml.kernel.org/r/19bf3a5112ee65b7db88dc731643b657b816c5e8.1628779805.git.andreyknvl@gmail.com
 Signed-off-by: Andrey Konovalov <andreyknvl@gmail.com>
 Reviewed-by: Marco Elver <elver@google.com>
 Cc: Alexander Potapenko <glider@google.com>
@@ -68,24 +70,61 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_kasan.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/test_kasan_module.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/lib/test_kasan.c b/lib/test_kasan.c
-index 65adde0757a3..564bee50cfa8 100644
---- a/lib/test_kasan.c
-+++ b/lib/test_kasan.c
-@@ -721,8 +721,8 @@ static void ksize_uaf(struct kunit *test)
- 	kfree(ptr);
+diff --git a/lib/test_kasan_module.c b/lib/test_kasan_module.c
+index f1017f345d6c..fa73b9df0be4 100644
+--- a/lib/test_kasan_module.c
++++ b/lib/test_kasan_module.c
+@@ -15,13 +15,11 @@
  
- 	KUNIT_EXPECT_KASAN_FAIL(test, ksize(ptr));
--	KUNIT_EXPECT_KASAN_FAIL(test, kasan_int_result = *ptr);
--	KUNIT_EXPECT_KASAN_FAIL(test, kasan_int_result = *(ptr + size));
-+	KUNIT_EXPECT_KASAN_FAIL(test, ((volatile char *)ptr)[0]);
-+	KUNIT_EXPECT_KASAN_FAIL(test, ((volatile char *)ptr)[size]);
- }
+ #include "../mm/kasan/kasan.h"
  
- static void kasan_stack_oob(struct kunit *test)
+-#define OOB_TAG_OFF (IS_ENABLED(CONFIG_KASAN_GENERIC) ? 0 : KASAN_GRANULE_SIZE)
+-
+ static noinline void __init copy_user_test(void)
+ {
+ 	char *kmem;
+ 	char __user *usermem;
+-	size_t size = 10;
++	size_t size = 128 - KASAN_GRANULE_SIZE;
+ 	int __maybe_unused unused;
+ 
+ 	kmem = kmalloc(size, GFP_KERNEL);
+@@ -38,25 +36,25 @@ static noinline void __init copy_user_test(void)
+ 	}
+ 
+ 	pr_info("out-of-bounds in copy_from_user()\n");
+-	unused = copy_from_user(kmem, usermem, size + 1 + OOB_TAG_OFF);
++	unused = copy_from_user(kmem, usermem, size + 1);
+ 
+ 	pr_info("out-of-bounds in copy_to_user()\n");
+-	unused = copy_to_user(usermem, kmem, size + 1 + OOB_TAG_OFF);
++	unused = copy_to_user(usermem, kmem, size + 1);
+ 
+ 	pr_info("out-of-bounds in __copy_from_user()\n");
+-	unused = __copy_from_user(kmem, usermem, size + 1 + OOB_TAG_OFF);
++	unused = __copy_from_user(kmem, usermem, size + 1);
+ 
+ 	pr_info("out-of-bounds in __copy_to_user()\n");
+-	unused = __copy_to_user(usermem, kmem, size + 1 + OOB_TAG_OFF);
++	unused = __copy_to_user(usermem, kmem, size + 1);
+ 
+ 	pr_info("out-of-bounds in __copy_from_user_inatomic()\n");
+-	unused = __copy_from_user_inatomic(kmem, usermem, size + 1 + OOB_TAG_OFF);
++	unused = __copy_from_user_inatomic(kmem, usermem, size + 1);
+ 
+ 	pr_info("out-of-bounds in __copy_to_user_inatomic()\n");
+-	unused = __copy_to_user_inatomic(usermem, kmem, size + 1 + OOB_TAG_OFF);
++	unused = __copy_to_user_inatomic(usermem, kmem, size + 1);
+ 
+ 	pr_info("out-of-bounds in strncpy_from_user()\n");
+-	unused = strncpy_from_user(kmem, usermem, size + 1 + OOB_TAG_OFF);
++	unused = strncpy_from_user(kmem, usermem, size + 1);
+ 
+ 	vm_munmap((unsigned long)usermem, PAGE_SIZE);
+ 	kfree(kmem);
 -- 
 2.30.2
 
