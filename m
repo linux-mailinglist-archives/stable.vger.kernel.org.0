@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 135D4406BAC
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE63406C28
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233775AbhIJMdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:33:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50564 "EHLO mail.kernel.org"
+        id S234418AbhIJMhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:37:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233185AbhIJMdM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:33:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD142611C0;
-        Fri, 10 Sep 2021 12:32:00 +0000 (UTC)
+        id S234523AbhIJMgN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:36:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7D70611CC;
+        Fri, 10 Sep 2021 12:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277121;
-        bh=a4Lzupioy6saCybQPAd+d5Cp1xeBmgR+k/sKPmm0DZg=;
+        s=korg; t=1631277302;
+        bh=Fp9iHK9qg8iuvvWGDvZmfJn8RZX3hd+AzMlZ/QaJh9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w46ZFNTDLJodXeYAEB0AX7ZAgM4V1Q0oq7nxi9YJnki/caHyfR+HncAc07u/xjyJj
-         2shHcq46v3UkbzLMCkLZdkI+Rg0g22Vm6mddIctW0Q7Ng4f+wyJHepdP/3Qw+kXOQz
-         3bskt0a53lX/wxjRJL1dMJqlprI4BZlGXuNtx1fs=
+        b=h3Zf/eaLj0pKEPvr6IhTzFpVXZDl0a6lRz7uEPQ7L4/UkcLnLTpcI6T3kLARhxXud
+         HTdgTNVJQ++KEiSHQ4eWaLTpcI04wUX7xwLM+Vq1DTukA4MccqiBfdqoFVbeGhCE7n
+         IsMXmOeSa0Jjx1otdFnJLDfvB8bLBd7i6BfK2Z7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 5.13 11/22] usb: host: xhci-rcar: Dont reload firmware after the completion
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Chris Zankel <chris@zankel.net>, linux-xtensa@linux-xtensa.org
+Subject: [PATCH 5.4 07/37] xtensa: fix kconfig unmet dependency warning for HAVE_FUTEX_CMPXCHG
 Date:   Fri, 10 Sep 2021 14:30:10 +0200
-Message-Id: <20210910122916.306772117@linuxfoundation.org>
+Message-Id: <20210910122917.417589971@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122915.942645251@linuxfoundation.org>
-References: <20210910122915.942645251@linuxfoundation.org>
+In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
+References: <20210910122917.149278545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 57f3ffdc11143f56f1314972fe86fe17a0dcde85 upstream.
+commit ed5aacc81cd41efc4d561e14af408d1003f7b855 upstream.
 
-According to the datasheet, "Upon the completion of FW Download,
-there is no need to write or reload FW.". Otherwise, it's possible
-to cause unexpected behaviors. So, adds such a condition.
+XTENSA should only select HAVE_FUTEX_CMPXCHG when FUTEX is
+set/enabled. This prevents a kconfig warning.
 
-Fixes: 4ac8918f3a73 ("usb: host: xhci-plat: add support for the R-Car H2 and M2 xHCI controllers")
-Cc: stable@vger.kernel.org # v3.17+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210827063227.81990-1-yoshihiro.shimoda.uh@renesas.com
+WARNING: unmet direct dependencies detected for HAVE_FUTEX_CMPXCHG
+  Depends on [n]: FUTEX [=n]
+  Selected by [y]:
+  - XTENSA [=y] && !MMU [=n]
+
+Fixes: d951ba21b959 ("xtensa: nommu: select HAVE_FUTEX_CMPXCHG")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Max Filippov <jcmvbkbc@gmail.com>
+Cc: Chris Zankel <chris@zankel.net>
+Cc: linux-xtensa@linux-xtensa.org
+Message-Id: <20210526070337.28130-1-rdunlap@infradead.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-rcar.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/xtensa/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-rcar.c
-+++ b/drivers/usb/host/xhci-rcar.c
-@@ -134,6 +134,13 @@ static int xhci_rcar_download_firmware(s
- 	const struct soc_device_attribute *attr;
- 	const char *firmware_name;
- 
-+	/*
-+	 * According to the datasheet, "Upon the completion of FW Download,
-+	 * there is no need to write or reload FW".
-+	 */
-+	if (readl(regs + RCAR_USB3_DL_CTRL) & RCAR_USB3_DL_CTRL_FW_SUCCESS)
-+		return 0;
-+
- 	attr = soc_device_match(rcar_quirks_match);
- 	if (attr)
- 		quirks = (uintptr_t)attr->data;
+--- a/arch/xtensa/Kconfig
++++ b/arch/xtensa/Kconfig
+@@ -27,7 +27,7 @@ config XTENSA
+ 	select HAVE_DMA_CONTIGUOUS
+ 	select HAVE_EXIT_THREAD
+ 	select HAVE_FUNCTION_TRACER
+-	select HAVE_FUTEX_CMPXCHG if !MMU
++	select HAVE_FUTEX_CMPXCHG if !MMU && FUTEX
+ 	select HAVE_HW_BREAKPOINT if PERF_EVENTS
+ 	select HAVE_IRQ_TIME_ACCOUNTING
+ 	select HAVE_OPROFILE
 
 
