@@ -2,72 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B3D407397
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 00:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C157A4073C0
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 01:17:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231742AbhIJWwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 18:52:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57644 "EHLO
+        id S233561AbhIJXSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 19:18:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231340AbhIJWwS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Sep 2021 18:52:18 -0400
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FEF0C061574;
-        Fri, 10 Sep 2021 15:51:04 -0700 (PDT)
-Received: by mail-pg1-x52e.google.com with SMTP id r2so3135570pgl.10;
-        Fri, 10 Sep 2021 15:51:04 -0700 (PDT)
+        with ESMTP id S231742AbhIJXSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Sep 2021 19:18:04 -0400
+Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A9FC061574
+        for <stable@vger.kernel.org>; Fri, 10 Sep 2021 16:16:49 -0700 (PDT)
+Received: by mail-il1-x134.google.com with SMTP id q14so3701733ils.5
+        for <stable@vger.kernel.org>; Fri, 10 Sep 2021 16:16:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=3mpqjN68QQFaPBGCnbSwv0HNK+T3hlBJN58L+ECUVr0=;
-        b=AIHCKtGx6AnCmJWHYqbnECRPR8apQ7rwIO1IC7n7SD+bk8SYSW1tF4zP5LIYqqqU3k
-         VWsxzSPsrRrboEBoXq3IGkZWWxuVj89m/BLVR5P3HVd6zswtqFUoTqvaf6YstwWRmAmD
-         Hh2pWYPHsCYgKiDHnW9BPql5MjL8P/hsCAWDLjAN/xxo8TjREVNQpU4XiwQuP+86fjie
-         pOLZDadxTF6sehqQjiffk/YtH6MW4sD5klcDqege6wbiA559phw4V45LiC0se5gCKD72
-         ocv8Pdb59InxkiWnnV77W5OOWtfqVeY7oaB8GXw9OX+93S2GNQ4PQtSDXMWMlPJEbM7W
-         QWuw==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=teoGGDJrwMDSnzkbropRrs5KZGfhxx7HoDMmN5AKHk4=;
+        b=gmdpn48pKAGhKTUuSPSxmMilIrXDAoVX8BNaQlQCMSCdPOaXGbAwg1hJsPSOfzo5uo
+         JKHNxiFBHxgD0gTN5lLLR+w4tiR4wPVNizMqPm18PN4zmqBTAE88Z7YbhNc6Q/KZffNj
+         yGJ8f6esOfxYCV8A2y1t5Y6b7GcMSvYIIfsqs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=3mpqjN68QQFaPBGCnbSwv0HNK+T3hlBJN58L+ECUVr0=;
-        b=AsXqnVPgBwqbY54ekEiFV0Y6a2R1AcsTYuK93AZYxAqKibt9TT3uQpIzqukn0ny1t5
-         L4UBkuYTaM+khcUaq0teGrkVarvsDU3phbdLNKLVajRQNsQFDL75/Mv2eRnCU51Mt+GM
-         uxuuHtXI68x4XpSG3X96Ta0r0YSIavkXDOoI2AyPQ3jc956DsrNIhaA6dQhA0HGhFzvy
-         ywxRwAOVvyE1ficnHMkCw1aA65xIC8IAobJ04SW0FCHLongKBY21o3YKv+pJnpSBg8Kc
-         jhEulHrFYDyzkdqDnwz94c20pvR47WiCGkOGGtBKX/N8uTlkKZx0ZOa7QgSNRKU7y1EI
-         GGyw==
-X-Gm-Message-State: AOAM532rixcyKUsuJMJ36wZL+tRC698zH9ayu0vvT7nA8MTk1cE0nKeh
-        uy5ybbOrv3pGkODisblpadSwCWv4jCqf/5CQkZg=
-X-Google-Smtp-Source: ABdhPJxKaRf6KpYLjK3cs6GqM/vNcnZ38KzPV2AYnzurXdiok0wxY1oO6TNJSWgOCd86jUIB3pX+0A==
-X-Received: by 2002:a63:4606:: with SMTP id t6mr42200pga.388.1631314262764;
-        Fri, 10 Sep 2021 15:51:02 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
-        by smtp.gmail.com with ESMTPSA id g4sm6147055pgs.42.2021.09.10.15.50.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Sep 2021 15:51:01 -0700 (PDT)
-Message-ID: <613be155.1c69fb81.3bb88.364b@mx.google.com>
-Date:   Fri, 10 Sep 2021 15:51:01 -0700 (PDT)
-X-Google-Original-Date: Fri, 10 Sep 2021 22:50:54 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 00/26] 5.10.64-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        bh=teoGGDJrwMDSnzkbropRrs5KZGfhxx7HoDMmN5AKHk4=;
+        b=vBJOl5jL+SAFp42dsDRh0TFAY6dKM/6AfA/k/rdV1T6l8sBpMz/GFJx2J1fzt69n8Q
+         Sy57Kxsixq8tPvjpEWE16BLJkqDDFUll5Wf/QXXF2fQROVNO0fgRDuAJDD60yXLATF8J
+         7KbP/uL2LvIBO7Xu6wIH1eStn4Dxp5HXIGQuLnYhpA+LljI3b3uXqC/72svWzvVmqSdA
+         fp7OYezyYVP8C7zn3MgQYGRxRUCwyrcJhUrmMMOKJ3A8X2BSMQ5NNQpsjMv4JSLneyRS
+         kOZ8hGz1E6rfH3uFHyvmc8A7zF9NazJ+KPMdQc08JS8A9rMSw7xVyqHB1Mx0zeWFzgq+
+         pkEw==
+X-Gm-Message-State: AOAM532zgHp+ApbYQZJYwdvfLpohGC0PXwJNprU9KMHOiGDU8IXl3AC2
+        zfFNEyJFUpKNDenC2guGfuvHTQ==
+X-Google-Smtp-Source: ABdhPJx4A035kdxg7SY+cHdwiUAekQkFI8rnRSnKPDW1gktHHkg9gVkUiHITAJRNZfL+Bz/huyKzFg==
+X-Received: by 2002:a92:6a02:: with SMTP id f2mr78938ilc.19.1631315809251;
+        Fri, 10 Sep 2021 16:16:49 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id 3sm14198iln.79.2021.09.10.16.16.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 10 Sep 2021 16:16:48 -0700 (PDT)
+Subject: Re: [PATCH 5.14 00/23] 5.14.3-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210910122916.022815161@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <c51e5e48-2af2-f167-9850-2bed102b1585@linuxfoundation.org>
+Date:   Fri, 10 Sep 2021 17:16:48 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
+MIME-Version: 1.0
+In-Reply-To: <20210910122916.022815161@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 10 Sep 2021 14:30:04 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.64 release.
-> There are 26 patches in this series, all will be posted as a response
+On 9/10/21 6:29 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.14.3 release.
+> There are 23 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -75,9 +78,9 @@ On Fri, 10 Sep 2021 14:30:04 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.o
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.64-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.3-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
 > and the diffstat can be found below.
 > 
 > thanks,
@@ -85,7 +88,10 @@ On Fri, 10 Sep 2021 14:30:04 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.o
 > greg k-h
 > 
 
-5.10.64-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+Compiled and booted on my test system. No dmesg regressions.
+
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+
+thanks,
+-- Shuah
 
