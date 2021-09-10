@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18C62406BFE
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 135D4406BAC
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233702AbhIJMgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:36:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53706 "EHLO mail.kernel.org"
+        id S233775AbhIJMdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:33:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234055AbhIJMfL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:35:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD77D61221;
-        Fri, 10 Sep 2021 12:33:59 +0000 (UTC)
+        id S233185AbhIJMdM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:33:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD142611C0;
+        Fri, 10 Sep 2021 12:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277240;
-        bh=Tffiqs3obAKlBqzPkwEMJ6xzyjDYXefTcDPZLUQYFnE=;
+        s=korg; t=1631277121;
+        bh=a4Lzupioy6saCybQPAd+d5Cp1xeBmgR+k/sKPmm0DZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zMDvRh7TcSH3QetdgI2+T1VpJ4u7meqOz2ss+HoNBNN4rveObM3/w+/VD1eZyNb56
-         TRd+AyyJpFJRcIVIlKhSVs/zdgHtgg9IH+6zws1Ko6Ro9IdqrTNgkdlqzhYe61Zetd
-         7f6tB3k7a53SLA/eqZ+vFV84cx5O4L0HQxtXG1rY=
+        b=w46ZFNTDLJodXeYAEB0AX7ZAgM4V1Q0oq7nxi9YJnki/caHyfR+HncAc07u/xjyJj
+         2shHcq46v3UkbzLMCkLZdkI+Rg0g22Vm6mddIctW0Q7Ng4f+wyJHepdP/3Qw+kXOQz
+         3bskt0a53lX/wxjRJL1dMJqlprI4BZlGXuNtx1fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>
-Subject: [PATCH 5.10 06/26] serial: 8250: 8250_omap: Fix unused variable warning
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 5.13 11/22] usb: host: xhci-rcar: Dont reload firmware after the completion
 Date:   Fri, 10 Sep 2021 14:30:10 +0200
-Message-Id: <20210910122916.470710157@linuxfoundation.org>
+Message-Id: <20210910122916.306772117@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
-References: <20210910122916.253646001@linuxfoundation.org>
+In-Reply-To: <20210910122915.942645251@linuxfoundation.org>
+References: <20210910122915.942645251@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,83 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Raghavendra <vigneshr@ti.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 6f991850412963381017cfb0d691cbd4d6a551dc upstream.
+commit 57f3ffdc11143f56f1314972fe86fe17a0dcde85 upstream.
 
-With commit 439c7183e5b9 ("serial: 8250: 8250_omap: Disable RX interrupt after DMA enable"),
-below warning is seen with W=1 and CONFIG_SERIAL_8250_DMA is disabled:
+According to the datasheet, "Upon the completion of FW Download,
+there is no need to write or reload FW.". Otherwise, it's possible
+to cause unexpected behaviors. So, adds such a condition.
 
-   drivers/tty/serial/8250/8250_omap.c:1199:42: warning: unused variable 'k3_soc_devices' [-Wunused-const-variable]
-
-Fix this by moving the code using k3_soc_devices array to
-omap_serial_fill_features_erratas() that handles other errata flags as
-well.
-
-Fixes: 439c7183e5b9 ("serial: 8250: 8250_omap: Disable RX interrupt after DMA enable")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Link: https://lore.kernel.org/r/20201111112653.2710-2-vigneshr@ti.com
+Fixes: 4ac8918f3a73 ("usb: host: xhci-plat: add support for the R-Car H2 and M2 xHCI controllers")
+Cc: stable@vger.kernel.org # v3.17+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20210827063227.81990-1-yoshihiro.shimoda.uh@renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_omap.c |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ drivers/usb/host/xhci-rcar.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -538,6 +538,11 @@ static void omap_8250_pm(struct uart_por
- static void omap_serial_fill_features_erratas(struct uart_8250_port *up,
- 					      struct omap8250_priv *priv)
- {
-+	const struct soc_device_attribute k3_soc_devices[] = {
-+		{ .family = "AM65X",  },
-+		{ .family = "J721E", .revision = "SR1.0" },
-+		{ /* sentinel */ }
-+	};
- 	u32 mvr, scheme;
- 	u16 revision, major, minor;
+--- a/drivers/usb/host/xhci-rcar.c
++++ b/drivers/usb/host/xhci-rcar.c
+@@ -134,6 +134,13 @@ static int xhci_rcar_download_firmware(s
+ 	const struct soc_device_attribute *attr;
+ 	const char *firmware_name;
  
-@@ -585,6 +590,14 @@ static void omap_serial_fill_features_er
- 	default:
- 		break;
- 	}
-+
 +	/*
-+	 * AM65x SR1.0, AM65x SR2.0 and J721e SR1.0 don't
-+	 * don't have RHR_IT_DIS bit in IER2 register. So drop to flag
-+	 * to enable errata workaround.
++	 * According to the datasheet, "Upon the completion of FW Download,
++	 * there is no need to write or reload FW".
 +	 */
-+	if (soc_device_match(k3_soc_devices))
-+		priv->habit &= ~UART_HAS_RHR_IT_DIS;
- }
- 
- static void omap8250_uart_qos_work(struct work_struct *work)
-@@ -1208,12 +1221,6 @@ static int omap8250_no_handle_irq(struct
- 	return 0;
- }
- 
--static const struct soc_device_attribute k3_soc_devices[] = {
--	{ .family = "AM65X",  },
--	{ .family = "J721E", .revision = "SR1.0" },
--	{ /* sentinel */ }
--};
--
- static struct omap8250_dma_params am654_dma = {
- 	.rx_size = SZ_2K,
- 	.rx_trigger = 1,
-@@ -1419,13 +1426,6 @@ static int omap8250_probe(struct platfor
- 			up.dma->rxconf.src_maxburst = RX_TRIGGER;
- 			up.dma->txconf.dst_maxburst = TX_TRIGGER;
- 		}
--
--		/*
--		 * AM65x SR1.0, AM65x SR2.0 and J721e SR1.0 don't
--		 * don't have RHR_IT_DIS bit in IER2 register
--		 */
--		if (soc_device_match(k3_soc_devices))
--			priv->habit &= ~UART_HAS_RHR_IT_DIS;
- 	}
- #endif
- 	ret = serial8250_register_8250_port(&up);
++	if (readl(regs + RCAR_USB3_DL_CTRL) & RCAR_USB3_DL_CTRL_FW_SUCCESS)
++		return 0;
++
+ 	attr = soc_device_match(rcar_quirks_match);
+ 	if (attr)
+ 		quirks = (uintptr_t)attr->data;
 
 
