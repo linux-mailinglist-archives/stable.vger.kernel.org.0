@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80630406C12
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9DDB406BB6
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233707AbhIJMgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:36:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53226 "EHLO mail.kernel.org"
+        id S233738AbhIJMdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:33:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234118AbhIJMfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:35:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95A1A611C0;
-        Fri, 10 Sep 2021 12:34:27 +0000 (UTC)
+        id S233763AbhIJMdc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:33:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8336F61026;
+        Fri, 10 Sep 2021 12:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277268;
-        bh=R+pFxqUfFaswkHSpX4l232ejy8W9LWJkctYPypdexeQ=;
+        s=korg; t=1631277141;
+        bh=oGn6b8TTbbzCafZgHK+NymXrEkOk/MXxNEJIqNRA49s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6ijUnPufRElixe7AgtVGjXaalpieGWPQyefrUjNhO8X4LoJ02DbYVoI1d30ItS3f
-         10hdJpCNLha77Y1/f5XmUiQzHkQGqKQpbZWoqFdDl4kVQRXPxk8acVef0+U23CYBk1
-         LMOdU1T0Gj9bQsHPeKldb4Wxhas0yMxWsAhAV5/o=
+        b=d9cXvmiHThe5UJuMds9mdsUg3HfNX7jJ9VJNcm/ExL/4wO38Z93MbZyKFWbfe1F22
+         wfyrXwyF6gplx0ENswf7nodsF1owMmDDgMparyVN5h5kSb/OHxaNR5JGkfn9vcnaEl
+         cmUSRMzdqG23fn06T9x3e8E9Fz2lCl+IbT3FvjQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 14/37] perf/x86/amd/ibs: Work around erratum #1197
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.13 18/22] xhci: fix even more unsafe memory usage in xhci tracing
 Date:   Fri, 10 Sep 2021 14:30:17 +0200
-Message-Id: <20210910122917.642099145@linuxfoundation.org>
+Message-Id: <20210910122916.543013192@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
-References: <20210910122917.149278545@linuxfoundation.org>
+In-Reply-To: <20210910122915.942645251@linuxfoundation.org>
+References: <20210910122915.942645251@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +39,223 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit 26db2e0c51fe83e1dd852c1321407835b481806e ]
+commit 4843b4b5ec64b875a5e334f280508f1f75e7d3e4 upstream.
 
-Erratum #1197 "IBS (Instruction Based Sampling) Register State May be
-Incorrect After Restore From CC6" is published in a document:
+Removes static char buffer usage in the following decode functions:
+	xhci_decode_ctrl_ctx()
+	xhci_decode_slot_context()
+	xhci_decode_usbsts()
+	xhci_decode_doorbell()
+	xhci_decode_ep_context()
 
-  "Revision Guide for AMD Family 19h Models 00h-0Fh Processors" 56683 Rev. 1.04 July 2021
+Caller must provide a buffer to use.
+In tracing use __get_str() as recommended to pass buffer.
 
-  https://bugzilla.kernel.org/show_bug.cgi?id=206537
+Minor changes are needed in other xhci code as these functions are also
+used elsewhere
 
-Implement the erratum's suggested workaround and ignore IBS samples if
-MSRC001_1031 == 0.
-
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20210817221048.88063-3-kim.phillips@amd.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210820123503.2605901-3-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/amd/ibs.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/host/xhci-debugfs.c |    8 ++++++--
+ drivers/usb/host/xhci-ring.c    |    3 ++-
+ drivers/usb/host/xhci-trace.h   |   18 +++++++++++-------
+ drivers/usb/host/xhci.h         |   21 ++++++++-------------
+ 4 files changed, 27 insertions(+), 23 deletions(-)
 
-diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
-index 39169885adfa..ff07040287c4 100644
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -90,6 +90,7 @@ struct perf_ibs {
- 	unsigned long			offset_mask[1];
- 	int				offset_max;
- 	unsigned int			fetch_count_reset_broken : 1;
-+	unsigned int			fetch_ignore_if_zero_rip : 1;
- 	struct cpu_perf_ibs __percpu	*pcpu;
+--- a/drivers/usb/host/xhci-debugfs.c
++++ b/drivers/usb/host/xhci-debugfs.c
+@@ -260,11 +260,13 @@ static int xhci_slot_context_show(struct
+ 	struct xhci_slot_ctx	*slot_ctx;
+ 	struct xhci_slot_priv	*priv = s->private;
+ 	struct xhci_virt_device	*dev = priv->dev;
++	char			str[XHCI_MSG_MAX];
  
- 	struct attribute		**format_attrs;
-@@ -663,6 +664,10 @@ fail:
- 	if (check_rip && (ibs_data.regs[2] & IBS_RIP_INVALID)) {
- 		regs.flags &= ~PERF_EFLAGS_EXACT;
- 	} else {
-+		/* Workaround for erratum #1197 */
-+		if (perf_ibs->fetch_ignore_if_zero_rip && !(ibs_data.regs[1]))
-+			goto out;
-+
- 		set_linear_ip(&regs, ibs_data.regs[1]);
- 		regs.flags |= PERF_EFLAGS_EXACT;
+ 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
+ 	slot_ctx = xhci_get_slot_ctx(xhci, dev->out_ctx);
+ 	seq_printf(s, "%pad: %s\n", &dev->out_ctx->dma,
+-		   xhci_decode_slot_context(le32_to_cpu(slot_ctx->dev_info),
++		   xhci_decode_slot_context(str,
++					    le32_to_cpu(slot_ctx->dev_info),
+ 					    le32_to_cpu(slot_ctx->dev_info2),
+ 					    le32_to_cpu(slot_ctx->tt_info),
+ 					    le32_to_cpu(slot_ctx->dev_state)));
+@@ -280,6 +282,7 @@ static int xhci_endpoint_context_show(st
+ 	struct xhci_ep_ctx	*ep_ctx;
+ 	struct xhci_slot_priv	*priv = s->private;
+ 	struct xhci_virt_device	*dev = priv->dev;
++	char			str[XHCI_MSG_MAX];
+ 
+ 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
+ 
+@@ -287,7 +290,8 @@ static int xhci_endpoint_context_show(st
+ 		ep_ctx = xhci_get_ep_ctx(xhci, dev->out_ctx, ep_index);
+ 		dma = dev->out_ctx->dma + (ep_index + 1) * CTX_SIZE(xhci->hcc_params);
+ 		seq_printf(s, "%pad: %s\n", &dma,
+-			   xhci_decode_ep_context(le32_to_cpu(ep_ctx->ep_info),
++			   xhci_decode_ep_context(str,
++						  le32_to_cpu(ep_ctx->ep_info),
+ 						  le32_to_cpu(ep_ctx->ep_info2),
+ 						  le64_to_cpu(ep_ctx->deq),
+ 						  le32_to_cpu(ep_ctx->tx_info)));
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -1212,6 +1212,7 @@ void xhci_stop_endpoint_command_watchdog
+ 	struct xhci_hcd *xhci = ep->xhci;
+ 	unsigned long flags;
+ 	u32 usbsts;
++	char str[XHCI_MSG_MAX];
+ 
+ 	spin_lock_irqsave(&xhci->lock, flags);
+ 
+@@ -1225,7 +1226,7 @@ void xhci_stop_endpoint_command_watchdog
+ 	usbsts = readl(&xhci->op_regs->status);
+ 
+ 	xhci_warn(xhci, "xHCI host not responding to stop endpoint command.\n");
+-	xhci_warn(xhci, "USBSTS:%s\n", xhci_decode_usbsts(usbsts));
++	xhci_warn(xhci, "USBSTS:%s\n", xhci_decode_usbsts(str, usbsts));
+ 
+ 	ep->ep_state &= ~EP_STOP_CMD_PENDING;
+ 
+--- a/drivers/usb/host/xhci-trace.h
++++ b/drivers/usb/host/xhci-trace.h
+@@ -323,6 +323,7 @@ DECLARE_EVENT_CLASS(xhci_log_ep_ctx,
+ 		__field(u32, info2)
+ 		__field(u64, deq)
+ 		__field(u32, tx_info)
++		__dynamic_array(char, str, XHCI_MSG_MAX)
+ 	),
+ 	TP_fast_assign(
+ 		__entry->info = le32_to_cpu(ctx->ep_info);
+@@ -330,8 +331,8 @@ DECLARE_EVENT_CLASS(xhci_log_ep_ctx,
+ 		__entry->deq = le64_to_cpu(ctx->deq);
+ 		__entry->tx_info = le32_to_cpu(ctx->tx_info);
+ 	),
+-	TP_printk("%s", xhci_decode_ep_context(__entry->info,
+-		__entry->info2, __entry->deq, __entry->tx_info)
++	TP_printk("%s", xhci_decode_ep_context(__get_str(str),
++		__entry->info, __entry->info2, __entry->deq, __entry->tx_info)
+ 	)
+ );
+ 
+@@ -368,6 +369,7 @@ DECLARE_EVENT_CLASS(xhci_log_slot_ctx,
+ 		__field(u32, info2)
+ 		__field(u32, tt_info)
+ 		__field(u32, state)
++		__dynamic_array(char, str, XHCI_MSG_MAX)
+ 	),
+ 	TP_fast_assign(
+ 		__entry->info = le32_to_cpu(ctx->dev_info);
+@@ -375,9 +377,9 @@ DECLARE_EVENT_CLASS(xhci_log_slot_ctx,
+ 		__entry->tt_info = le64_to_cpu(ctx->tt_info);
+ 		__entry->state = le32_to_cpu(ctx->dev_state);
+ 	),
+-	TP_printk("%s", xhci_decode_slot_context(__entry->info,
+-			__entry->info2, __entry->tt_info,
+-			__entry->state)
++	TP_printk("%s", xhci_decode_slot_context(__get_str(str),
++			__entry->info, __entry->info2,
++			__entry->tt_info, __entry->state)
+ 	)
+ );
+ 
+@@ -432,12 +434,13 @@ DECLARE_EVENT_CLASS(xhci_log_ctrl_ctx,
+ 	TP_STRUCT__entry(
+ 		__field(u32, drop)
+ 		__field(u32, add)
++		__dynamic_array(char, str, XHCI_MSG_MAX)
+ 	),
+ 	TP_fast_assign(
+ 		__entry->drop = le32_to_cpu(ctrl_ctx->drop_flags);
+ 		__entry->add = le32_to_cpu(ctrl_ctx->add_flags);
+ 	),
+-	TP_printk("%s", xhci_decode_ctrl_ctx(__entry->drop, __entry->add)
++	TP_printk("%s", xhci_decode_ctrl_ctx(__get_str(str), __entry->drop, __entry->add)
+ 	)
+ );
+ 
+@@ -555,13 +558,14 @@ DECLARE_EVENT_CLASS(xhci_log_doorbell,
+ 	TP_STRUCT__entry(
+ 		__field(u32, slot)
+ 		__field(u32, doorbell)
++		__dynamic_array(char, str, XHCI_MSG_MAX)
+ 	),
+ 	TP_fast_assign(
+ 		__entry->slot = slot;
+ 		__entry->doorbell = doorbell;
+ 	),
+ 	TP_printk("Ring doorbell for %s",
+-		xhci_decode_doorbell(__entry->slot, __entry->doorbell)
++		  xhci_decode_doorbell(__get_str(str), __entry->slot, __entry->doorbell)
+ 	)
+ );
+ 
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -2452,10 +2452,9 @@ static inline const char *xhci_decode_tr
+ 	return str;
+ }
+ 
+-static inline const char *xhci_decode_ctrl_ctx(unsigned long drop,
+-					       unsigned long add)
++static inline const char *xhci_decode_ctrl_ctx(char *str,
++		unsigned long drop, unsigned long add)
+ {
+-	static char	str[1024];
+ 	unsigned int	bit;
+ 	int		ret = 0;
+ 
+@@ -2481,10 +2480,9 @@ static inline const char *xhci_decode_ct
+ 	return str;
+ }
+ 
+-static inline const char *xhci_decode_slot_context(u32 info, u32 info2,
+-		u32 tt_info, u32 state)
++static inline const char *xhci_decode_slot_context(char *str,
++		u32 info, u32 info2, u32 tt_info, u32 state)
+ {
+-	static char str[1024];
+ 	u32 speed;
+ 	u32 hub;
+ 	u32 mtt;
+@@ -2614,9 +2612,8 @@ static inline const char *xhci_decode_po
+ 	return str;
+ }
+ 
+-static inline const char *xhci_decode_usbsts(u32 usbsts)
++static inline const char *xhci_decode_usbsts(char *str, u32 usbsts)
+ {
+-	static char str[256];
+ 	int ret = 0;
+ 
+ 	if (usbsts == ~(u32)0)
+@@ -2643,9 +2640,8 @@ static inline const char *xhci_decode_us
+ 	return str;
+ }
+ 
+-static inline const char *xhci_decode_doorbell(u32 slot, u32 doorbell)
++static inline const char *xhci_decode_doorbell(char *str, u32 slot, u32 doorbell)
+ {
+-	static char str[256];
+ 	u8 ep;
+ 	u16 stream;
+ 	int ret;
+@@ -2712,10 +2708,9 @@ static inline const char *xhci_ep_type_s
  	}
-@@ -756,6 +761,9 @@ static __init void perf_event_ibs_init(void)
- 	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
- 		perf_ibs_fetch.fetch_count_reset_broken = 1;
+ }
  
-+	if (boot_cpu_data.x86 == 0x19 && boot_cpu_data.x86_model < 0x10)
-+		perf_ibs_fetch.fetch_ignore_if_zero_rip = 1;
-+
- 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
+-static inline const char *xhci_decode_ep_context(u32 info, u32 info2, u64 deq,
+-		u32 tx_info)
++static inline const char *xhci_decode_ep_context(char *str, u32 info,
++		u32 info2, u64 deq, u32 tx_info)
+ {
+-	static char str[1024];
+ 	int ret;
  
- 	if (ibs_caps & IBS_CAPS_OPCNT) {
--- 
-2.30.2
-
+ 	u32 esit;
 
 
