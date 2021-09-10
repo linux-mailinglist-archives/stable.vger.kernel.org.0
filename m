@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F141940608D
+	by mail.lfdr.de (Postfix) with ESMTP id A61DC40608C
 	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:16:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231206AbhIJARv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229492AbhIJARv (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 20:17:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43496 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229938AbhIJARa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:17:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D145F611AD;
-        Fri, 10 Sep 2021 00:16:19 +0000 (UTC)
+        id S230060AbhIJARc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:17:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 335CD6023D;
+        Fri, 10 Sep 2021 00:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631232980;
-        bh=9B0qvwXOkMfmmzRZ/C3JHuzLjLIcXh41PevnronS+fI=;
+        s=k20201202; t=1631232982;
+        bh=9pN1/NsmF03j7sOApejhS8iz5KaF6E+5LzIyiCpZzlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CRHVOTYnH4qUlrA4SCZ/3WKnVnjCJpLQvONa02OjYbeArTUhPjKJtk4AdJdinzebz
-         JR5D+J9FVSG6nhmPAbrxx+PU3qEXJdf5LckJLyQdkWWYJ2mRqRmD7QVYsDECHVqlsY
-         BM3XXDShigD+RwgbdvMbYU2cPSWKWgm+v01t2NZcpZGxjsjUNiOwwBVwlBuVV0aFNz
-         Iz5qua9q1G9flxa3UGtTiXUNh7u06h3MvPkQnzSgW7TQAfYVaQL8708Lujx3n1rZsI
-         UJqiZa1Z6Oru+1S0WCTnzio5vf5uQg9awvR5IEonfpnnyhAVCsWCksHQ0mp5hfG0Ko
-         wGDrsHrtTwAvQ==
+        b=sCxzfxuR3/Qgxotr4O8R1lbn4Aje7UuwMF5oIeIUgHKOESgtvLDmsP75ub2Ww2plm
+         fch/kMLq5V/33JX3yw+Dytju1yhawUdEQT2J8VagMIunbT+Ujv7TodHpsD8KQY7B6c
+         syiebLIdEbdEhqobXhozIH9QVZgswGpkaAR4QxrrukD8lWwo3hko/acRPfv70k8K9S
+         3c5JyoYIcylBVjsfvJ7952Akf/NkzBlNpivyLrdjzP0el+1V+J0XO66mKpZ5Tay/Lj
+         Y2t3Or04Co4FdDCgpmjhQSmkCqj+QJzWJ/031pS1NgV01Qcps39zy1iYL5XOo9Sepg
+         Nz/dp27GHdIfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Li <yang.lee@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+Cc:     Jia Yang <jiayang5@huawei.com>, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 16/99] clk: renesas: rzg2l: Fix return value and unused assignment
-Date:   Thu,  9 Sep 2021 20:14:35 -0400
-Message-Id: <20210910001558.173296-16-sashal@kernel.org>
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.14 17/99] f2fs: Revert "f2fs: Fix indefinite loop in f2fs_gc() v1"
+Date:   Thu,  9 Sep 2021 20:14:36 -0400
+Message-Id: <20210910001558.173296-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -44,41 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Jia Yang <jiayang5@huawei.com>
 
-[ Upstream commit 97c29755598f98c6c91f68f12bdd3f517e457890 ]
+[ Upstream commit 10d0786b39b3b91c4fbf8c2926e97ab456a4eea1 ]
 
-Currently the function returns NULL on error, so exact error code is
-lost.  This patch changes return convention of the function to use
-ERR_PTR() on error instead.
+This reverts commit 957fa47823dfe449c5a15a944e4e7a299a6601db.
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Link: https://lore.kernel.org/r/1623896524-102058-1-git-send-email-yang.lee@linux.alibaba.com
-[geert: Drop curly braces]
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+The patch "f2fs: Fix indefinite loop in f2fs_gc()" v1 and v4 are all
+merged. Patch v4 is test info for patch v1. Patch v1 doesn't work and
+may cause that sbi->cur_victim_sec can't be resetted to NULL_SEGNO,
+which makes SSR unable to get segment of sbi->cur_victim_sec.
+So it should be reverted.
+
+The mails record:
+[1] https://lore.kernel.org/linux-f2fs-devel/7288dcd4-b168-7656-d1af-7e2cafa4f720@huawei.com/T/
+[2] https://lore.kernel.org/linux-f2fs-devel/20190809153653.GD93481@jaegeuk-macbookpro.roam.corp.google.com/T/
+
+Signed-off-by: Jia Yang <jiayang5@huawei.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/renesas-rzg2l-cpg.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/f2fs/gc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/renesas/renesas-rzg2l-cpg.c b/drivers/clk/renesas/renesas-rzg2l-cpg.c
-index e7c59af2a1d8..5fe73225ece2 100644
---- a/drivers/clk/renesas/renesas-rzg2l-cpg.c
-+++ b/drivers/clk/renesas/renesas-rzg2l-cpg.c
-@@ -182,10 +182,8 @@ rzg2l_cpg_pll_clk_register(const struct cpg_core_clk *core,
- 		return ERR_CAST(parent);
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index 0e42ee5f7770..396b6f55ec24 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1747,7 +1747,7 @@ int f2fs_gc(struct f2fs_sb_info *sbi, bool sync,
+ 		round++;
+ 	}
  
- 	pll_clk = devm_kzalloc(dev, sizeof(*pll_clk), GFP_KERNEL);
--	if (!pll_clk) {
--		clk = ERR_PTR(-ENOMEM);
--		return NULL;
--	}
-+	if (!pll_clk)
-+		return ERR_PTR(-ENOMEM);
+-	if (gc_type == FG_GC && seg_freed)
++	if (gc_type == FG_GC)
+ 		sbi->cur_victim_sec = NULL_SEGNO;
  
- 	parent_name = __clk_get_name(parent);
- 	init.name = core->name;
+ 	if (sync)
 -- 
 2.30.2
 
