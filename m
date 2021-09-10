@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD1E406084
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:16:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F141940608D
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:16:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230297AbhIJARi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:17:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43538 "EHLO mail.kernel.org"
+        id S231206AbhIJARv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:17:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230000AbhIJAR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:17:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 771DD610E9;
-        Fri, 10 Sep 2021 00:16:18 +0000 (UTC)
+        id S229938AbhIJARa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:17:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D145F611AD;
+        Fri, 10 Sep 2021 00:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631232979;
-        bh=MHSWBHZ5sTKsnxFhhFk13s9hqc3d9v5kQ9jSmDAnuX4=;
+        s=k20201202; t=1631232980;
+        bh=9B0qvwXOkMfmmzRZ/C3JHuzLjLIcXh41PevnronS+fI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mgRrw6ZGUjJm+bqchGDXPn/IoNQoxhntaeXZiabQ7xmMDU2JBtZ7o0fTAHtLPeKCS
-         Nj9ohXENvaOadRzVn5Fen9TGmo7eT6teMn7afiwI8XiELXzOg8xZI/S9jvJ3PMBB1W
-         vOYfgGWO4d5TQ8PnyeuIgey39na4SC11FtQMgzLOObjqqGB+m8ZCJmjjVHPa5vm1kv
-         y8bJgM6Lv0pJWvbyyo6Uc8RzbYqqLqbRxFptCvnVa5iBtFEGDI9qRxbi0URaqBCcOL
-         rfADeXgejLF4tx2ebmXNdDUA4YP8uxlEJ4CDip191cgKKbI+rcPY+AZpGyfCUnlCmY
-         rs9JEn/fhf/2Q==
+        b=CRHVOTYnH4qUlrA4SCZ/3WKnVnjCJpLQvONa02OjYbeArTUhPjKJtk4AdJdinzebz
+         JR5D+J9FVSG6nhmPAbrxx+PU3qEXJdf5LckJLyQdkWWYJ2mRqRmD7QVYsDECHVqlsY
+         BM3XXDShigD+RwgbdvMbYU2cPSWKWgm+v01t2NZcpZGxjsjUNiOwwBVwlBuVV0aFNz
+         Iz5qua9q1G9flxa3UGtTiXUNh7u06h3MvPkQnzSgW7TQAfYVaQL8708Lujx3n1rZsI
+         UJqiZa1Z6Oru+1S0WCTnzio5vf5uQg9awvR5IEonfpnnyhAVCsWCksHQ0mp5hfG0Ko
+         wGDrsHrtTwAvQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Justin Tee <justin.tee@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 15/99] scsi: lpfc: Skip issuing ADISC when node is in NPR state
-Date:   Thu,  9 Sep 2021 20:14:34 -0400
-Message-Id: <20210910001558.173296-15-sashal@kernel.org>
+Cc:     Yang Li <yang.lee@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-renesas-soc@vger.kernel.org, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 16/99] clk: renesas: rzg2l: Fix return value and unused assignment
+Date:   Thu,  9 Sep 2021 20:14:35 -0400
+Message-Id: <20210910001558.173296-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -43,95 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit ab803860882514ddbf97713b143b861b524e8476 ]
+[ Upstream commit 97c29755598f98c6c91f68f12bdd3f517e457890 ]
 
-When a node moves to NPR state due to a device recovery event, the
-nlp_fc4_types in the node are cleared. An ADISC received for a node in the
-NPR state triggers an ADISC. Without fc4 types being known, the calls to
-register with the transport are no-op'd, thus no additional references are
-placed on the node by transport re-registrations. A subsequent RSCN could
-trigger another unregister request, which will decrement the reference
-counts, leading to the ref count hitting zero and the node being freed
-while futher discovery on the node is being attempted by the RSCN event
-handling.
+Currently the function returns NULL on error, so exact error code is
+lost.  This patch changes return convention of the function to use
+ERR_PTR() on error instead.
 
-Fix by skipping the trigger of an ADISC when in NPR state. The normal ADISC
-process will kick off in the regular discovery path after receiving a
-response from name server.
-
-Link: https://lore.kernel.org/r/20210707184351.67872-19-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Link: https://lore.kernel.org/r/1623896524-102058-1-git-send-email-yang.lee@linux.alibaba.com
+[geert: Drop curly braces]
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nportdisc.c | 34 +++++++++++++++++-------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
+ drivers/clk/renesas/renesas-rzg2l-cpg.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
-index e12f83fb795c..6b06e5808e14 100644
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -736,9 +736,13 @@ lpfc_rcv_padisc(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- 		 * is already in MAPPED or UNMAPPED state.  Catch this
- 		 * condition and don't set the nlp_state again because
- 		 * it causes an unnecessary transport unregister/register.
-+		 *
-+		 * Nodes marked for ADISC will move MAPPED or UNMAPPED state
-+		 * after issuing ADISC
- 		 */
- 		if (ndlp->nlp_type & (NLP_FCP_TARGET | NLP_NVME_TARGET)) {
--			if (ndlp->nlp_state != NLP_STE_MAPPED_NODE)
-+			if ((ndlp->nlp_state != NLP_STE_MAPPED_NODE) &&
-+			    !(ndlp->nlp_flag & NLP_NPR_ADISC))
- 				lpfc_nlp_set_state(vport, ndlp,
- 						   NLP_STE_MAPPED_NODE);
- 		}
-@@ -2645,14 +2649,13 @@ lpfc_rcv_prli_npr_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- 	lpfc_els_rsp_reject(vport, stat.un.lsRjtError, cmdiocb, ndlp, NULL);
+diff --git a/drivers/clk/renesas/renesas-rzg2l-cpg.c b/drivers/clk/renesas/renesas-rzg2l-cpg.c
+index e7c59af2a1d8..5fe73225ece2 100644
+--- a/drivers/clk/renesas/renesas-rzg2l-cpg.c
++++ b/drivers/clk/renesas/renesas-rzg2l-cpg.c
+@@ -182,10 +182,8 @@ rzg2l_cpg_pll_clk_register(const struct cpg_core_clk *core,
+ 		return ERR_CAST(parent);
  
- 	if (!(ndlp->nlp_flag & NLP_DELAY_TMO)) {
--		if (ndlp->nlp_flag & NLP_NPR_ADISC) {
--			spin_lock_irq(&ndlp->lock);
--			ndlp->nlp_flag &= ~NLP_NPR_ADISC;
--			ndlp->nlp_prev_state = NLP_STE_NPR_NODE;
--			spin_unlock_irq(&ndlp->lock);
--			lpfc_nlp_set_state(vport, ndlp, NLP_STE_ADISC_ISSUE);
--			lpfc_issue_els_adisc(vport, ndlp, 0);
--		} else {
-+		/*
-+		 * ADISC nodes will be handled in regular discovery path after
-+		 * receiving response from NS.
-+		 *
-+		 * For other nodes, Send PLOGI to trigger an implicit LOGO.
-+		 */
-+		if (!(ndlp->nlp_flag & NLP_NPR_ADISC)) {
- 			ndlp->nlp_prev_state = NLP_STE_NPR_NODE;
- 			lpfc_nlp_set_state(vport, ndlp, NLP_STE_PLOGI_ISSUE);
- 			lpfc_issue_els_plogi(vport, ndlp->nlp_DID, 0);
-@@ -2685,12 +2688,13 @@ lpfc_rcv_padisc_npr_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- 	 */
- 	if (!(ndlp->nlp_flag & NLP_DELAY_TMO) &&
- 	    !(ndlp->nlp_flag & NLP_NPR_2B_DISC)) {
--		if (ndlp->nlp_flag & NLP_NPR_ADISC) {
--			ndlp->nlp_flag &= ~NLP_NPR_ADISC;
--			ndlp->nlp_prev_state = NLP_STE_NPR_NODE;
--			lpfc_nlp_set_state(vport, ndlp, NLP_STE_ADISC_ISSUE);
--			lpfc_issue_els_adisc(vport, ndlp, 0);
--		} else {
-+		/*
-+		 * ADISC nodes will be handled in regular discovery path after
-+		 * receiving response from NS.
-+		 *
-+		 * For other nodes, Send PLOGI to trigger an implicit LOGO.
-+		 */
-+		if (!(ndlp->nlp_flag & NLP_NPR_ADISC)) {
- 			ndlp->nlp_prev_state = NLP_STE_NPR_NODE;
- 			lpfc_nlp_set_state(vport, ndlp, NLP_STE_PLOGI_ISSUE);
- 			lpfc_issue_els_plogi(vport, ndlp->nlp_DID, 0);
+ 	pll_clk = devm_kzalloc(dev, sizeof(*pll_clk), GFP_KERNEL);
+-	if (!pll_clk) {
+-		clk = ERR_PTR(-ENOMEM);
+-		return NULL;
+-	}
++	if (!pll_clk)
++		return ERR_PTR(-ENOMEM);
+ 
+ 	parent_name = __clk_get_name(parent);
+ 	init.name = core->name;
 -- 
 2.30.2
 
