@@ -2,272 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 867F7406DD1
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 16:57:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 349B0406E0A
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 17:17:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233539AbhIJO6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 10:58:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35378 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229749AbhIJO6n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Sep 2021 10:58:43 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17F86C061574
-        for <stable@vger.kernel.org>; Fri, 10 Sep 2021 07:57:32 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id n18so1310939plp.7
-        for <stable@vger.kernel.org>; Fri, 10 Sep 2021 07:57:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=9I9kBRxWSVgZtRODTV1jltfwRPWsTcty2VzEOUqHh9Y=;
-        b=Vpb6KLKGW8nkcifORZGVkvA/StUnkjDT7dkR43PWkN0wyHZnfBfUE0E6bmVbVIuOKK
-         a884FX7WL0SXKu4kfJgOU5q3PfQukmVe1ECvfiqknYHBgG0TaZx047rObPVT1zMl0mmU
-         VpKh5HTVhh7iBzqJMCTs/16vXGjr6YPUrfIHppIFAZGm6d8qDtU+6kFkq5hTOOMsLzVB
-         Jrag9+XA+VSXvGB4dWKpzdiWc74bGrdqKgdNcpN+51I54Q9Qp0IWe2OEf1KARoYXH+kX
-         2gVyfPItgnLN7CqVWrvcp8efprKEm4T92CyhgqDbENW9gIACAo4EIu5zscyMdJJPBsLG
-         PFUw==
+        id S234247AbhIJPSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 11:18:15 -0400
+Received: from mail-vs1-f47.google.com ([209.85.217.47]:35451 "EHLO
+        mail-vs1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229749AbhIJPSL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Sep 2021 11:18:11 -0400
+Received: by mail-vs1-f47.google.com with SMTP id p14so1902136vsm.2;
+        Fri, 10 Sep 2021 08:17:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=9I9kBRxWSVgZtRODTV1jltfwRPWsTcty2VzEOUqHh9Y=;
-        b=WTMOCozotuywLo+bsUL+ESxZVF+b1wbHkTzCKbNJJ0V6MCwyvT0ss0hEQr3auIoWn2
-         Eeb/1Q4OOqsg4z+P8OhVnlFTO7bb03HNUbVZWSvRJI3VeAGZ0t/+Fu18UJ7fULL/6VhD
-         xNkkGuaNIvrH7vob9KoLwepcJj/bbbgO9ySaKY1jHBYYNM1gDenGsNY9oGIjdiHDXhQU
-         buvt1Cx//1dhp7g6uvzi/OPvzz/0+ketLaUzne+qhRAXY+y1mB/D+hitXSmuI7W4ubXp
-         J6a2FjHVEHqZcfWvkzAzqb4ZAwAeVPBbKTNn2IbO5wpJFnzYTgy6ZDbvs6fNO0bdxnkw
-         qfgA==
-X-Gm-Message-State: AOAM531uMFaqIM9vHnCjyE1WJU900EntB9YCEyGgp8cEUO3G6gvYl9Pb
-        extP4yjrG7Us+NpI0V7TyxFJze5V3MJylIiG
-X-Google-Smtp-Source: ABdhPJzV4SWlOBl3/ujxMeU38tkMhRMzWt9GJj5uK+dkT7AjQi0nqLLuybz+VkfxZboBoUtFzMbs0w==
-X-Received: by 2002:a17:90a:ec0a:: with SMTP id l10mr9792813pjy.26.1631285851351;
-        Fri, 10 Sep 2021 07:57:31 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l127sm5426207pfl.99.2021.09.10.07.57.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Sep 2021 07:57:31 -0700 (PDT)
-Message-ID: <613b725b.1c69fb81.5bece.0019@mx.google.com>
-Date:   Fri, 10 Sep 2021 07:57:31 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3BcYGTvP/p5y9awC2x3olztEkOI5xebLT4gUcpSRmlY=;
+        b=pqQ+zh0YZrJP4UysuUgUS9lgK3fmzB22dBzqELerFuUHATe/4lNXZmB9ocUo9qDzop
+         7DG1uaJgC2dxXq4H6vPKBReyLCKjceDckzYt2PiJ3Vgn7M+Kx2zfA2FYA469rXWdlufy
+         pIYv6evzhgwQDsSreNnavPy8BIUK2c+C53dOHB+uMrLrRpB2HLu3P1PzunhlUR0nasGo
+         SIu5dce0Dr7mzkYGuJphLwAFXg2Ldp6WaoA21kGRMR3OqXamxlT92ysHRV4OfGx6ieVH
+         TLNLVMqPcapfpk1h+7cmLuQA4HpRduoBPmAJcT/M6WHlbLzjGoaFsO6NeK/G9h4/GgWn
+         CkSg==
+X-Gm-Message-State: AOAM5327560HWZmsEC1l4YL8bjglxe8Rwkd5y0BkQS144uVyFihWRzdQ
+        tHCJISVqXcxkUIa0laiMeS/AAdH7Rgt2yLTfpjkIfjhQ
+X-Google-Smtp-Source: ABdhPJwT5ETyKLWcQ5k7xuhcbA0yvTD3jh/UbJMdE4jvWnM+tTSMk70pO5NvxTo6u5XWka0X6xtHA4gmLbXeWevGZoo=
+X-Received: by 2002:a05:6102:b10:: with SMTP id b16mr5775448vst.41.1631287016565;
+ Fri, 10 Sep 2021 08:16:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.282-35-g6816688535be
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y baseline: 127 runs,
- 5 regressions (v4.9.282-35-g6816688535be)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <1627293835-17441-1-git-send-email-zheyuma97@gmail.com> <1627293835-17441-2-git-send-email-zheyuma97@gmail.com>
+In-Reply-To: <1627293835-17441-2-git-send-email-zheyuma97@gmail.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Fri, 10 Sep 2021 17:16:44 +0200
+Message-ID: <CAMuHMdXB_HHgi1iPSnjusQvgdUYJDBwQc=+f+5vpmEjXBKArng@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] video: fbdev: asiliantfb: Error out if 'pixclock'
+ equals zero
+To:     Zheyu Ma <zheyuma97@gmail.com>
+Cc:     "Antonino A. Daplas" <adaplas@gmail.com>,
+        DRI Development <dri-devel@lists.freedesktop.org>,
+        Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 127 runs, 5 regressions (v4.9.282-35-g68166=
-88535be)
+Hi Zheyu,
 
-Regressions Summary
--------------------
+On Mon, Jul 26, 2021 at 12:04 PM Zheyu Ma <zheyuma97@gmail.com> wrote:
+> The userspace program could pass any values to the driver through
+> ioctl() interface. If the driver doesn't check the value of 'pixclock',
+> it may cause divide error.
+>
+> Fix this by checking whether 'pixclock' is zero first.
+>
+> The following log reveals it:
+>
+> [   43.861711] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+> [   43.861737] CPU: 2 PID: 11764 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #224
+> [   43.861756] RIP: 0010:asiliantfb_check_var+0x4e/0x730
+> [   43.861843] Call Trace:
+> [   43.861848]  ? asiliantfb_remove+0x190/0x190
+> [   43.861858]  fb_set_var+0x2e4/0xeb0
+> [   43.861866]  ? fb_blank+0x1a0/0x1a0
+> [   43.861873]  ? lock_acquire+0x1ef/0x530
+> [   43.861884]  ? lock_release+0x810/0x810
+> [   43.861892]  ? lock_is_held_type+0x100/0x140
+> [   43.861903]  ? ___might_sleep+0x1ee/0x2d0
+> [   43.861914]  ? __mutex_lock+0x620/0x1190
+> [   43.861921]  ? do_fb_ioctl+0x313/0x700
+> [   43.861929]  ? mutex_lock_io_nested+0xfa0/0xfa0
+> [   43.861936]  ? __this_cpu_preempt_check+0x1d/0x30
+> [   43.861944]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+> [   43.861952]  ? lockdep_hardirqs_on+0x59/0x100
+> [   43.861959]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+> [   43.861967]  ? trace_hardirqs_on+0x6a/0x1c0
+> [   43.861978]  do_fb_ioctl+0x31e/0x700
+>
+> Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
+Thanks for your patch!
 
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
+> ---
+> Changes in v2:
+>     - Make commit log more descriptive
+> ---
+>  drivers/video/fbdev/asiliantfb.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/video/fbdev/asiliantfb.c b/drivers/video/fbdev/asiliantfb.c
+> index 3e006da47752..84c56f525889 100644
+> --- a/drivers/video/fbdev/asiliantfb.c
+> +++ b/drivers/video/fbdev/asiliantfb.c
+> @@ -227,6 +227,9 @@ static int asiliantfb_check_var(struct fb_var_screeninfo *var,
+>  {
+>         unsigned long Ftarget, ratio, remainder;
+>
+> +       if (!var->pixclock)
+> +               return -EINVAL;
 
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
+While this fixes the crash, it is not correct: according to the
+fbdev API, invalid values must be rounded up to a supported value,
+if possible.  -EINVAL should only be returned if rounding up values
+in fb_var_screeninfo cannot give a valid mode.
 
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
+The same comment applies to the other patches in this series:
+[PATCH v2 2/3] video: fbdev: kyro: Error out if 'pixclock' equals zero
+[PATCH v2 3/3] video: fbdev: riva: Error out if 'pixclock' equals zero
 
-r8a7795-salvator-x   | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
+> +
+>         ratio = 1000000 / var->pixclock;
+>         remainder = 1000000 % var->pixclock;
+>         Ftarget = 1000000 * ratio + (1000000 * remainder) / var->pixclock;
 
+Gr{oetje,eeting}s,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.282-35-g6816688535be/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.282-35-g6816688535be
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6816688535be2bd5567271fae52944b4cace94ac =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613b3d454a7b9ca77fd596d9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.282=
--35-g6816688535be/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.282=
--35-g6816688535be/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613b3d454a7b9ca77fd59=
-6da
-        failing since 299 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
+                        Geert
 
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613b430802ff18222dd59670
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.282=
--35-g6816688535be/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.282=
--35-g6816688535be/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613b430802ff18222dd59=
-671
-        failing since 299 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613b3d14f906f5c12bd596df
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.282=
--35-g6816688535be/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.282=
--35-g6816688535be/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613b3d14f906f5c12bd59=
-6e0
-        failing since 299 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613b3cd96430af73cdd596aa
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.282=
--35-g6816688535be/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.282=
--35-g6816688535be/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613b3cd96430af73cdd59=
-6ab
-        failing since 299 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-26-g7b603f689c1c) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-r8a7795-salvator-x   | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613b4db64c94205562d5966a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.282=
--35-g6816688535be/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salva=
-tor-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.282=
--35-g6816688535be/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salva=
-tor-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613b4db64c94205562d59=
-66b
-        failing since 296 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-79-gd3e70b39d31a) =
-
- =20
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
