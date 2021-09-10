@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03429406254
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80A09406257
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241649AbhIJApW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:45:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47046 "EHLO mail.kernel.org"
+        id S241666AbhIJApX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:45:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231937AbhIJAVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:21:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BB7D6023D;
-        Fri, 10 Sep 2021 00:19:55 +0000 (UTC)
+        id S232124AbhIJAVI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:21:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 452B761167;
+        Fri, 10 Sep 2021 00:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233196;
-        bh=R7ov86etid4d199Hqd8/9xnm8bRV4UfwtJEkzTFOiz8=;
+        s=k20201202; t=1631233198;
+        bh=ac9haFRwlHr4dwDpv/Fc7KPXXzgxLu7bcOOyKuDZCiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B2NQrotBAEDg4OLx1xatcENh1VaAhtHe1BgRSYeETxqyvb3ROw36KTVELeHLIHZJV
-         5fQ28mM5rT9H9JA2Dnt1DQnGiJ4fg1QTBF9nBvD7cwlbUwzwzRAPELvSPo08tJXExW
-         57ymRVFkJmIdLoCZnZxkv+r3fUyTfEODzv0jQiypk64+NGiYzYmFh0egyobDVCeWXM
-         gZTCvpP2WlZNPXL6tWeFDW0OWTpz6drqtg91HkC4U/9ZlX1Fcu5Ca47QdDQoxzDRTB
-         kaVPMwcCpZUtEowSEDGOCCrXp2kyK3mIxFMirCzo+5snYckhVqi9LpTSxkP1OJnFLk
-         B85L9z2gT4z6g==
+        b=q7q9TuFqvASWO5CtaiECE6+YOU7EkGDw3MxVeQ1J/veUNDNdEt+YYfrcPTcbMQMJo
+         wI+LUooTceteNKiUqx4GHxqQzbidy8crbf+pIdSQhWrpnDnfP4BCLMRhARfDhk9Mw2
+         ayix5qHlMP24xtiXQQY6mhIpJLfD2LGzB9WKpyuf7QZPkeGbuvITzorTMSXtlMJ4li
+         oluap/7xu5ahoOhyMQuFWvgeyBd4tKx4ASRJspkvZ96KQUgPSm20I0NOyE0vYZwNFi
+         BITY0bvvywncxXCSP0r2CC0tET9swQcEVHbIbcrklWDY/ANpaembrNlGeUfmuq6kCv
+         5jNRYvQvuNfsA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jun Miao <jun.miao@windriver.com>,
-        Jianwei Hu <jianwei.hu@windriver.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 68/88] selftests/x86: Fix error: variably modified 'altstack_data' at file scope
-Date:   Thu,  9 Sep 2021 20:18:00 -0400
-Message-Id: <20210910001820.174272-68-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Dell.Client.Kernel@dell.com,
+        platform-driver-x86@vger.kernel.org,
+        Andy Lavr <andy.lavr@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 69/88] platform/x86: dell-smbios-wmi: Avoid false-positive memcpy() warning
+Date:   Thu,  9 Sep 2021 20:18:01 -0400
+Message-Id: <20210910001820.174272-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,188 +51,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun Miao <jun.miao@windriver.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit a051b2e56f2aa287b37ab0134a8af852f84e3f8e ]
+[ Upstream commit fb49d9946f96081f9a05d8f305b3f40285afe4a9 ]
 
-A glibc 2.34 feature adds support for variable MINSIGSTKSZ and SIGSTKSZ.
-When _DYNAMIC_STACK_SIZE_SOURCE or _GNU_SOURCE are defined, MINSIGSTKSZ
-and SIGSTKSZ are no longer constant on Linux. glibc 2.34 flags code paths
-assuming MINSIGSTKSZ or SIGSTKSZ are constant. Fix these error in x86 test.
+In preparation for FORTIFY_SOURCE performing compile-time and run-time
+field bounds checking for memcpy(), memmove(), and memset(), avoid
+intentionally writing across neighboring fields.
 
-Feature description and build error:
+Since all the size checking has already happened, use input.pointer
+(void *) so memcpy() doesn't get confused about how much is being
+written.
 
-NEWS for version 2.34
-=====================
-Major new features:
- * Add _SC_MINSIGSTKSZ and _SC_SIGSTKSZ.  When _DYNAMIC_STACK_SIZE_SOURCE
-   or _GNU_SOURCE are defined, MINSIGSTKSZ and SIGSTKSZ are no longer
-   constant on Linux.  MINSIGSTKSZ is redefined to sysconf(_SC_MINSIGSTKSZ)
-   and SIGSTKSZ is redefined to sysconf (_SC_SIGSTKSZ).  This supports
-   dynamic sized register sets for modern architectural features like
-   Arm SVE.
-=====================
+Avoids this false-positive warning when run-time memcpy() strict
+bounds checking is enabled:
 
-If _SC_SIGSTKSZ_SOURCE or _GNU_SOURCE are defined, MINSIGSTKSZ and SIGSTKSZ
-are redefined as:
+memcpy: detected field-spanning write (size 4096) of single field (size 36)
+WARNING: CPU: 0 PID: 357 at drivers/platform/x86/dell/dell-smbios-wmi.c:74 run_smbios_call+0x110/0x1e0 [dell_smbios]
 
-/* Default stack size for a signal handler: sysconf (SC_SIGSTKSZ).  */
- # undef SIGSTKSZ
- # define SIGSTKSZ sysconf (_SC_SIGSTKSZ)
-
-/* Minimum stack size for a signal handler: SIGSTKSZ.  */
- # undef MINSIGSTKSZ
- # define MINSIGSTKSZ SIGSTKSZ
-
-Compilation will fail if the source assumes constant MINSIGSTKSZ or
-SIGSTKSZ.
-
-Build error with the GNU C Library 2.34:
-DEBUG:	| sigreturn.c:150:13: error: variably modified 'altstack_data' at file scope
-| sigreturn.c:150:13: error: variably modified 'altstack_data' at file scope
-DEBUG:	|   150 | static char altstack_data[SIGSTKSZ];
-|   150 | static char altstack_data[SIGSTKSZ];
-DEBUG:	|       |             ^~~~~~~~~~~~~
-
-DEBUG:  | single_step_syscall.c:60:22: error: variably modified 'altstack_data' at file scope
-DEBUG:  |   60 | static unsigned char altstack_data[SIGSTKSZ];
-DEBUG:  |      |                      ^~~~~~~~~~~~~
-
-Fixed commit log to improve formatting and clarity:
-Shuah Khan <skhan@linuxfoundation.org>
-
-Link: https://sourceware.org/pipermail/libc-alpha/2021-January/121996.html
-Link: https://sourceware.org/pipermail/libc-alpha/2021-August/129718.html
-Suggested-by: Jianwei Hu <jianwei.hu@windriver.com>
-Signed-off-by: Jun Miao <jun.miao@windriver.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Mark Gross <mgross@linux.intel.com>
+Cc: Mario Limonciello <mario.limonciello@dell.com>
+Cc: "Pali Rohár" <pali@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: "Uwe Kleine-König" <u.kleine-koenig@pengutronix.de>
+Cc: Dell.Client.Kernel@dell.com
+Cc: platform-driver-x86@vger.kernel.org
+Reported-by: Andy Lavr <andy.lavr@gmail.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210825160749.3891090-1-keescook@chromium.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/x86/mov_ss_trap.c         | 4 ++--
- tools/testing/selftests/x86/sigreturn.c           | 7 +++----
- tools/testing/selftests/x86/single_step_syscall.c | 4 ++--
- tools/testing/selftests/x86/syscall_arg_fault.c   | 7 +++----
- 4 files changed, 10 insertions(+), 12 deletions(-)
+ drivers/platform/x86/dell/dell-smbios-wmi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/x86/mov_ss_trap.c b/tools/testing/selftests/x86/mov_ss_trap.c
-index 6da0ac3f0135..cc3de6ff9fba 100644
---- a/tools/testing/selftests/x86/mov_ss_trap.c
-+++ b/tools/testing/selftests/x86/mov_ss_trap.c
-@@ -47,7 +47,6 @@
- unsigned short ss;
- extern unsigned char breakpoint_insn[];
- sigjmp_buf jmpbuf;
--static unsigned char altstack_data[SIGSTKSZ];
- 
- static void enable_watchpoint(void)
- {
-@@ -250,13 +249,14 @@ int main()
- 	if (sigsetjmp(jmpbuf, 1) == 0) {
- 		printf("[RUN]\tMOV SS; SYSENTER\n");
- 		stack_t stack = {
--			.ss_sp = altstack_data,
-+			.ss_sp = malloc(sizeof(char) * SIGSTKSZ),
- 			.ss_size = SIGSTKSZ,
- 		};
- 		if (sigaltstack(&stack, NULL) != 0)
- 			err(1, "sigaltstack");
- 		sethandler(SIGSEGV, handle_and_longjmp, SA_RESETHAND | SA_ONSTACK);
- 		nr = SYS_getpid;
-+		free(stack.ss_sp);
- 		/* Clear EBP first to make sure we segfault cleanly. */
- 		asm volatile ("xorl %%ebp, %%ebp; mov %[ss], %%ss; SYSENTER" : "+a" (nr)
- 			      : [ss] "m" (ss) : "flags", "rcx"
-diff --git a/tools/testing/selftests/x86/sigreturn.c b/tools/testing/selftests/x86/sigreturn.c
-index 57c4f67f16ef..5d7961a5f7f6 100644
---- a/tools/testing/selftests/x86/sigreturn.c
-+++ b/tools/testing/selftests/x86/sigreturn.c
-@@ -138,9 +138,6 @@ static unsigned short LDT3(int idx)
- 	return (idx << 3) | 7;
- }
- 
--/* Our sigaltstack scratch space. */
--static char altstack_data[SIGSTKSZ];
--
- static void sethandler(int sig, void (*handler)(int, siginfo_t *, void *),
- 		       int flags)
- {
-@@ -771,7 +768,8 @@ int main()
- 	setup_ldt();
- 
- 	stack_t stack = {
--		.ss_sp = altstack_data,
-+		/* Our sigaltstack scratch space. */
-+		.ss_sp = malloc(sizeof(char) * SIGSTKSZ),
- 		.ss_size = SIGSTKSZ,
- 	};
- 	if (sigaltstack(&stack, NULL) != 0)
-@@ -872,5 +870,6 @@ int main()
- 	total_nerrs += test_nonstrict_ss();
- #endif
- 
-+	free(stack.ss_sp);
- 	return total_nerrs ? 1 : 0;
- }
-diff --git a/tools/testing/selftests/x86/single_step_syscall.c b/tools/testing/selftests/x86/single_step_syscall.c
-index 120ac741fe44..9a30f443e928 100644
---- a/tools/testing/selftests/x86/single_step_syscall.c
-+++ b/tools/testing/selftests/x86/single_step_syscall.c
-@@ -57,7 +57,6 @@ static void clearhandler(int sig)
- 
- static volatile sig_atomic_t sig_traps, sig_eflags;
- sigjmp_buf jmpbuf;
--static unsigned char altstack_data[SIGSTKSZ];
- 
- #ifdef __x86_64__
- # define REG_IP REG_RIP
-@@ -210,7 +209,7 @@ int main()
- 		unsigned long nr = SYS_getpid;
- 		printf("[RUN]\tSet TF and check SYSENTER\n");
- 		stack_t stack = {
--			.ss_sp = altstack_data,
-+			.ss_sp = malloc(sizeof(char) * SIGSTKSZ),
- 			.ss_size = SIGSTKSZ,
- 		};
- 		if (sigaltstack(&stack, NULL) != 0)
-@@ -219,6 +218,7 @@ int main()
- 			   SA_RESETHAND | SA_ONSTACK);
- 		sethandler(SIGILL, print_and_longjmp, SA_RESETHAND);
- 		set_eflags(get_eflags() | X86_EFLAGS_TF);
-+		free(stack.ss_sp);
- 		/* Clear EBP first to make sure we segfault cleanly. */
- 		asm volatile ("xorl %%ebp, %%ebp; SYSENTER" : "+a" (nr) :: "flags", "rcx"
- #ifdef __x86_64__
-diff --git a/tools/testing/selftests/x86/syscall_arg_fault.c b/tools/testing/selftests/x86/syscall_arg_fault.c
-index bff474b5efc6..461fa41a4d02 100644
---- a/tools/testing/selftests/x86/syscall_arg_fault.c
-+++ b/tools/testing/selftests/x86/syscall_arg_fault.c
-@@ -17,9 +17,6 @@
- 
- #include "helpers.h"
- 
--/* Our sigaltstack scratch space. */
--static unsigned char altstack_data[SIGSTKSZ];
--
- static void sethandler(int sig, void (*handler)(int, siginfo_t *, void *),
- 		       int flags)
- {
-@@ -104,7 +101,8 @@ static void sigill(int sig, siginfo_t *info, void *ctx_void)
- int main()
- {
- 	stack_t stack = {
--		.ss_sp = altstack_data,
-+		/* Our sigaltstack scratch space. */
-+		.ss_sp = malloc(sizeof(char) * SIGSTKSZ),
- 		.ss_size = SIGSTKSZ,
- 	};
- 	if (sigaltstack(&stack, NULL) != 0)
-@@ -233,5 +231,6 @@ int main()
- 	set_eflags(get_eflags() & ~X86_EFLAGS_TF);
- #endif
- 
-+	free(stack.ss_sp);
- 	return 0;
- }
+diff --git a/drivers/platform/x86/dell/dell-smbios-wmi.c b/drivers/platform/x86/dell/dell-smbios-wmi.c
+index 33f823772733..01ea4bb958af 100644
+--- a/drivers/platform/x86/dell/dell-smbios-wmi.c
++++ b/drivers/platform/x86/dell/dell-smbios-wmi.c
+@@ -71,7 +71,7 @@ static int run_smbios_call(struct wmi_device *wdev)
+ 				obj->integer.value);
+ 		return -EIO;
+ 	}
+-	memcpy(&priv->buf->std, obj->buffer.pointer, obj->buffer.length);
++	memcpy(input.pointer, obj->buffer.pointer, obj->buffer.length);
+ 	dev_dbg(&wdev->dev, "result: [%08x,%08x,%08x,%08x]\n",
+ 		priv->buf->std.output[0], priv->buf->std.output[1],
+ 		priv->buf->std.output[2], priv->buf->std.output[3]);
 -- 
 2.30.2
 
