@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 481704061A9
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C478F4061AC
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240987AbhIJAnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:43:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44094 "EHLO mail.kernel.org"
+        id S232582AbhIJAn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:43:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232694AbhIJATG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:19:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4099611BF;
-        Fri, 10 Sep 2021 00:17:55 +0000 (UTC)
+        id S232701AbhIJATI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:19:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01DD1611C5;
+        Fri, 10 Sep 2021 00:17:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233076;
-        bh=L1NascCO+RqV2EXe7WgTVOgru+3jDwh0a4LVdwaZR/I=;
+        s=k20201202; t=1631233077;
+        bh=u+flZvOYWGNKFD+suWRBjayVX7zt509XcX5zvOGHEC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arFFHtckENB/uaxPUEVv7ZUYqMWFts/MhT7jppWwPMHuIbxB74zrMtB87W0Ghq9ft
-         ioBgf5/NtxpeX0JpCEJwCqr0B2oHqC8G+0qV1px9BWYrX9qjx+/uvO+5wA/1PKoEEt
-         Jfy9T0Ur7fqA+1Z3lDyM49Hwi5epZNQDckSf7SzW1ofg2qfqzHw/Ts2V1TwXhkrHcN
-         SkHx/4itK+7zPdE0VP2Qx/4Mu0tNhyef9H6LzL6+EfMiKrJe+VdtaHeUHbjxJdfi8f
-         v1vjyiRG8+mijL7rP7ClsUnnapzz+yItaqq6zqAdZu0iWK37SWqkiLPl45BTwMHg4L
-         ENRKxc5nK3AZQ==
+        b=U0B98daE5V/MAC9HTFcQyMKvC2fwox0bMfEbhE517tihUQV9wPMbSVW65Gof6fMyY
+         DiI36iBe+tbkz5tZHIdH1t9bcjKyxOLVwYIBF6o9Hqy1lVm+Tnyxua/IbKimSP8hFT
+         yyd1/UDqgPFUfoW35ASpRhbTlIst6ABlzRVj2wKmOTpGuTyWC0rDViqfZBgn0mxqzA
+         9HC9C/BKqtOr/8K6rN5uh91PfXPDs61RJKH2/yp+6S/xx/Ka2IPMWmQcwrndS3g2Fg
+         Nq+yWV6Z7Dzd5Y7mPiHnahoDg30HENoVAM5MU7zlZlGHh7fwgIcufLpMFSXWWtjaRn
+         YXfcyk+HfzH+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>,
-        xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.14 85/99] xen: remove stray preempt_disable() from PV AP startup code
-Date:   Thu,  9 Sep 2021 20:15:44 -0400
-Message-Id: <20210910001558.173296-85-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        Chris Mackowski <cmackows@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.14 86/99] fs: dlm: avoid comms shutdown delay in release_lockspace
+Date:   Thu,  9 Sep 2021 20:15:45 -0400
+Message-Id: <20210910001558.173296-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -41,36 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 58e636039b512697554b579c2bb23774061877f5 ]
+[ Upstream commit ecd95673142ef80169a6c003b569b8a86d1e6329 ]
 
-In cpu_bringup() there is a call of preempt_disable() without a paired
-preempt_enable(). This is not needed as interrupts are off initially.
-Additionally this will result in early boot messages like:
+When dlm_release_lockspace does active shutdown on connections to
+other nodes, the active shutdown will wait for any exisitng passive
+shutdowns to be resolved.  But, the sequence of operations during
+dlm_release_lockspace can prevent the normal resolution of passive
+shutdowns (processed normally by way of lockspace recovery.)
+This disruption of passive shutdown handling can cause the active
+shutdown to wait for a full timeout period, delaying the completion
+of dlm_release_lockspace.
 
-BUG: scheduling while atomic: swapper/1/0/0x00000002
+To fix this, make dlm_release_lockspace resolve existing passive
+shutdowns (by calling dlm_clear_members earlier), before it does
+active shutdowns.  The active shutdowns will not find any passive
+shutdowns to wait for, and will not be delayed.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20210825113158.11716-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Reported-by: Chris Mackowski <cmackows@redhat.com>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/smp_pv.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/dlm/lockspace.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
-index c2ac319f11a4..96afadf9878e 100644
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -64,7 +64,6 @@ static void cpu_bringup(void)
- 	cr4_init();
- 	cpu_init();
- 	touch_softlockup_watchdog();
--	preempt_disable();
+diff --git a/fs/dlm/lockspace.c b/fs/dlm/lockspace.c
+index d71aba8c3e64..e51ae83fc5b4 100644
+--- a/fs/dlm/lockspace.c
++++ b/fs/dlm/lockspace.c
+@@ -793,6 +793,7 @@ static int release_lockspace(struct dlm_ls *ls, int force)
  
- 	/* PVH runs in ring 0 and allows us to do native syscalls. Yay! */
- 	if (!xen_feature(XENFEAT_supervisor_mode_kernel)) {
+ 	if (ls_count == 1) {
+ 		dlm_scand_stop();
++		dlm_clear_members(ls);
+ 		dlm_midcomms_shutdown();
+ 	}
+ 
 -- 
 2.30.2
 
