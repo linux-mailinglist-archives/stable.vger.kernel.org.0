@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4369A406210
+	by mail.lfdr.de (Postfix) with ESMTP id B47D1406211
 	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229779AbhIJAoh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:44:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46540 "EHLO mail.kernel.org"
+        id S231808AbhIJAoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:44:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233578AbhIJAUW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:20:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8971061167;
-        Fri, 10 Sep 2021 00:19:11 +0000 (UTC)
+        id S233589AbhIJAUX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:20:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8E5C61101;
+        Fri, 10 Sep 2021 00:19:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233152;
-        bh=cwsJNauNbuHbFGHrMlendi+VQYdVQon0xwi961peTX8=;
+        s=k20201202; t=1631233153;
+        bh=RbpI+L4ARcnT+0jWMh0/xtaUcmedBI1wx8lu169hb1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLffUEN82rlNXpUyB2M16DfBw6q0G0FzsMymEnG1vEQwSgSCL+0HHTRMsBouzNnX/
-         RC01ZUkvX5viMShpQZcIqteZ2C5TLpz/6uVvd/RnDftabzzlCvHeQUKVfA8aHdlq0t
-         YhQT+H4AeW6s2E4OXxyRF3hkvoW29rqMdpCeiN4uqD66f937bp7iazZHqiq0BUOV0J
-         1+iI/guijWnriw+L2GN9iMUCKFdbuM97jt9pCo0yYkpW+I57bBoYyQvWSr4LJiKees
-         VK/0SBC0bm6E7Mrn60VYCdIkDKTy/6lUs/DvPmb1cSi+xWp6n9k5zkM5H/z9TjEL2R
-         X0aTnM84kaqgg==
+        b=pMa0QhpTV3iUL2KYvmYuKhEUseudUpkkjQ6ykx+UOREnVFOl3k48M3PcoYxbtGK8S
+         sCQ4L4UCiOkg5tCIPYi/e3HkoHaYt08CIdnol1pGosPh0TA0NfaPFNl4y7GZ2JKzqP
+         UNhNJBG7FOqb13xsb2NYF88hsPVOrVVDTrXteMHPfMnGIhbXdOQT3QxwnPyU12vyEU
+         HF4Orj5aH3Q31Y2HfANp93xAi+lnxaQmWgE1a19uGxxFaoStdp9oY3dvr2oFLciTpe
+         iewT6+BXeBo8zRXqOveX6ietT5jswaHcSHsGHVvs9ObgCPqQxgz+mCXFBIcfSw7gaX
+         Xcgy/rlS+OAuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krishna Reddy <vdumpa@nvidia.com>,
-        Ashish Mhetre <amhetre@nvidia.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.13 36/88] iommu/arm-smmu: Fix race condition during iommu_group creation
-Date:   Thu,  9 Sep 2021 20:17:28 -0400
-Message-Id: <20210910001820.174272-36-sashal@kernel.org>
+Cc:     Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 37/88] scsi: qla2xxx: Fix port type info
+Date:   Thu,  9 Sep 2021 20:17:29 -0400
+Message-Id: <20210910001820.174272-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
@@ -44,61 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krishna Reddy <vdumpa@nvidia.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit b1a1347912a742a4e1fcdc9df6302dd9dd2c3405 ]
+[ Upstream commit 01c97f2dd8fb4d2188c779a975031c0fe1ec061d ]
 
-When two devices with same SID are getting probed concurrently through
-iommu_probe_device(), the iommu_group sometimes is getting allocated more
-than once as call to arm_smmu_device_group() is not protected for
-concurrency. Furthermore, it leads to each device holding a different
-iommu_group and domain pointer, separate IOVA space and only one of the
-devices' domain is used for translations from IOMMU. This causes accesses
-from other device to fault or see incorrect translations.
-Fix this by protecting iommu_group allocation from concurrency in
-arm_smmu_device_group().
+Over time, fcport->port_type became a flag field. The flags within this
+field were not defined properly. This caused external tools to read wrong
+info.
 
-Signed-off-by: Krishna Reddy <vdumpa@nvidia.com>
-Signed-off-by: Ashish Mhetre <amhetre@nvidia.com>
-Link: https://lore.kernel.org/r/1628570641-9127-3-git-send-email-amhetre@nvidia.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20210810043720.1137-8-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm/arm-smmu/arm-smmu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_def.h | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-index 1a647e0ea3eb..5b82a08ef4b4 100644
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -1462,6 +1462,7 @@ static struct iommu_group *arm_smmu_device_group(struct device *dev)
- 	struct iommu_group *group = NULL;
- 	int i, idx;
- 
-+	mutex_lock(&smmu->stream_map_mutex);
- 	for_each_cfg_sme(cfg, fwspec, i, idx) {
- 		if (group && smmu->s2crs[idx].group &&
- 		    group != smmu->s2crs[idx].group)
-@@ -1470,8 +1471,10 @@ static struct iommu_group *arm_smmu_device_group(struct device *dev)
- 		group = smmu->s2crs[idx].group;
- 	}
- 
--	if (group)
-+	if (group) {
-+		mutex_unlock(&smmu->stream_map_mutex);
- 		return iommu_group_ref_get(group);
-+	}
- 
- 	if (dev_is_pci(dev))
- 		group = pci_device_group(dev);
-@@ -1485,6 +1488,7 @@ static struct iommu_group *arm_smmu_device_group(struct device *dev)
- 		for_each_cfg_sme(cfg, fwspec, i, idx)
- 			smmu->s2crs[idx].group = group;
- 
-+	mutex_unlock(&smmu->stream_map_mutex);
- 	return group;
- }
- 
+diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
+index def4d99f80e9..0cd1f820b111 100644
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -2377,11 +2377,9 @@ struct mbx_24xx_entry {
+  */
+ typedef enum {
+ 	FCT_UNKNOWN,
+-	FCT_RSCN,
+-	FCT_SWITCH,
+-	FCT_BROADCAST,
+-	FCT_INITIATOR,
+-	FCT_TARGET,
++	FCT_BROADCAST = 0x01,
++	FCT_INITIATOR = 0x02,
++	FCT_TARGET    = 0x04,
+ 	FCT_NVME_INITIATOR = 0x10,
+ 	FCT_NVME_TARGET = 0x20,
+ 	FCT_NVME_DISCOVERY = 0x40,
 -- 
 2.30.2
 
