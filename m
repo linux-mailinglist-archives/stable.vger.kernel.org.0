@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD271406216
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FFE6406217
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232120AbhIJAon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232662AbhIJAon (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 20:44:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46624 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233626AbhIJAU3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:20:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C0F46023D;
-        Fri, 10 Sep 2021 00:19:18 +0000 (UTC)
+        id S233634AbhIJAUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:20:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08D2D610A3;
+        Fri, 10 Sep 2021 00:19:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233159;
-        bh=E4c3HQ78lDsQLlQX3N/Djo6I8196nom3UukxgmiwP3Y=;
+        s=k20201202; t=1631233160;
+        bh=6CfwjVaR4AreFF15nKRjmwLM/H6Zw16p/K0HTzsauCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cd+BQc925qGXZ3NeN9ZtZJzTxLrcOKqzuQ+gAliR4Uu/n0l6qd1e5TmCgRvmpm5ps
-         1+hHTYD7zS4TziOf2TI93awuhcOSJSxtLycYjBGS8zzkKq82R46RsSni/bMvZG05JX
-         yQsv9lpBWXBdSPFV8RLvm8Dv1uXsdmNJhvYd334ZfRQK/T7bBkaZV1GiO0wz6cwt5H
-         iO0hdML+Y+gRYtAqLLtAzsbj9z4j0UuLfZww69y1ddUcFIuafKk0ySz31dC+9u4ie1
-         603AAxLJROGegFKa+suhRPl8UIt0BSADFkjFhD2s0FmqsckcdpMeSQgYqq89uH0038
-         G4K6TLiG8nnmw==
+        b=YbZfPkchOC84pDG8SAROA+0VIv8L8fFloWDoN9fqmA2SEWkII1KvX7Vfhf7KKZKxg
+         /5lTh36gIHTCLdUSErSOZ2nEOvtvEIUrEsZNfAwEzsLIrUTvgyw4XVWqrgxotSIWhu
+         erExjI6XdtZfs6z97cWygjBry9pBVhG1ztfz86En79xa9cIy7IjeBHo/J6ZEDFrwSu
+         qNu2PF94x/NBRLdFQowcstvrC+ix5j8UIMzbXQG3WLXLpsqhfYwLIDa2z/8NuxXAlD
+         1MWbrClGFbYMSq0Rr1KMO6BcLMEuH5mj7oNUIGSVCLWr7X8Zk5Kp4CBXX06UIe8s4B
+         182bUlYJRpcyQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengguang Xu <cgxu519@mykernel.net>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 41/88] ovl: skip checking lower file's i_writecount on truncate
-Date:   Thu,  9 Sep 2021 20:17:33 -0400
-Message-Id: <20210910001820.174272-41-sashal@kernel.org>
+Cc:     "David E. Box" <david.e.box@linux.intel.com>,
+        Evgeny Novikov <novikov@ispras.ru>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 42/88] platform/x86: intel_pmc_core: Prevent possibile overflow
+Date:   Thu,  9 Sep 2021 20:17:34 -0400
+Message-Id: <20210910001820.174272-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
@@ -43,68 +45,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: "David E. Box" <david.e.box@linux.intel.com>
 
-[ Upstream commit b71759ef1e1730db81dab98e9dab9455e8c7f5a2 ]
+[ Upstream commit 45b6f75eab6aabf9d88933830f41f532d39f38d2 ]
 
-It is possible that a directory tree is shared between multiple overlay
-instances as a lower layer.  In this case when one instance executes a file
-residing on the lower layer, the other instance denies a truncate(2) call
-on this file.
+Substate priority levels are encoded in 4 bits in the LPM_PRI register.
+This value was used as an index to an array whose element size was less
+than 16, leading to the possibility of overflow should we read a larger
+than expected priority.  In addition to the overflow, bad values could lead
+to incorrect state reporting.  So rework the priority code to prevent the
+overflow and perform some validation of the register. Use the priority
+register values if they give an ordering of unique numbers between 0 and
+the maximum number of states.  Otherwise, use a default ordering instead.
 
-This only happens for truncate(2) and not for open(2) with the O_TRUNC
-flag.
-
-Fix this interference and inconsistency by removing the preliminary
-i_writecount check before copy-up.
-
-This means that unlike on normal filesystems truncate(argv[0]) will now
-succeed.  If this ever causes a regression in a real world use case this
-needs to be revisited.
-
-One way to fix this properly would be to keep a correct i_writecount in the
-overlay inode, but that is difficult due to memory mapping code only
-dealing with the real file/inode.
-
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Reported-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: David E. Box <david.e.box@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210814014728.520856-1-david.e.box@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/filesystems/overlayfs.rst | 3 +++
- fs/overlayfs/inode.c                    | 6 ------
- 2 files changed, 3 insertions(+), 6 deletions(-)
+ drivers/platform/x86/intel_pmc_core.c | 65 +++++++++++++++++++++------
+ drivers/platform/x86/intel_pmc_core.h |  2 +
+ 2 files changed, 53 insertions(+), 14 deletions(-)
 
-diff --git a/Documentation/filesystems/overlayfs.rst b/Documentation/filesystems/overlayfs.rst
-index 455ca86eb4fc..7da6c30ed596 100644
---- a/Documentation/filesystems/overlayfs.rst
-+++ b/Documentation/filesystems/overlayfs.rst
-@@ -427,6 +427,9 @@ b) If a file residing on a lower layer is opened for read-only and then
- memory mapped with MAP_SHARED, then subsequent changes to the file are not
- reflected in the memory mapping.
+diff --git a/drivers/platform/x86/intel_pmc_core.c b/drivers/platform/x86/intel_pmc_core.c
+index b0e486a6bdfb..ae410a358ffe 100644
+--- a/drivers/platform/x86/intel_pmc_core.c
++++ b/drivers/platform/x86/intel_pmc_core.c
+@@ -1449,9 +1449,42 @@ static int pmc_core_pkgc_show(struct seq_file *s, void *unused)
+ }
+ DEFINE_SHOW_ATTRIBUTE(pmc_core_pkgc);
  
-+c) If a file residing on a lower layer is being executed, then opening that
-+file for write or truncating the file will not be denied with ETXTBSY.
+-static void pmc_core_get_low_power_modes(struct pmc_dev *pmcdev)
++static bool pmc_core_pri_verify(u32 lpm_pri, u8 *mode_order)
+ {
+-	u8 lpm_priority[LPM_MAX_NUM_MODES];
++	int i, j;
 +
- The following options allow overlayfs to act more like a standards
- compliant filesystem:
++	if (!lpm_pri)
++		return false;
++	/*
++	 * Each byte contains the priority level for 2 modes (7:4 and 3:0).
++	 * In a 32 bit register this allows for describing 8 modes. Store the
++	 * levels and look for values out of range.
++	 */
++	for (i = 0; i < 8; i++) {
++		int level = lpm_pri & GENMASK(3, 0);
++
++		if (level >= LPM_MAX_NUM_MODES)
++			return false;
++
++		mode_order[i] = level;
++		lpm_pri >>= 4;
++	}
++
++	/* Check that we have unique values */
++	for (i = 0; i < LPM_MAX_NUM_MODES - 1; i++)
++		for (j = i + 1; j < LPM_MAX_NUM_MODES; j++)
++			if (mode_order[i] == mode_order[j])
++				return false;
++
++	return true;
++}
++
++static void pmc_core_get_low_power_modes(struct platform_device *pdev)
++{
++	struct pmc_dev *pmcdev = platform_get_drvdata(pdev);
++	u8 pri_order[LPM_MAX_NUM_MODES] = LPM_DEFAULT_PRI;
++	u8 mode_order[LPM_MAX_NUM_MODES];
++	u32 lpm_pri;
+ 	u32 lpm_en;
+ 	int mode, i, p;
  
-diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-index b288843e6b42..6566294c5fd6 100644
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -33,12 +33,6 @@ int ovl_setattr(struct user_namespace *mnt_userns, struct dentry *dentry,
- 		goto out;
+@@ -1462,24 +1495,28 @@ static void pmc_core_get_low_power_modes(struct pmc_dev *pmcdev)
+ 	lpm_en = pmc_core_reg_read(pmcdev, pmcdev->map->lpm_en_offset);
+ 	pmcdev->num_lpm_modes = hweight32(lpm_en);
  
- 	if (attr->ia_valid & ATTR_SIZE) {
--		struct inode *realinode = d_inode(ovl_dentry_real(dentry));
--
--		err = -ETXTBSY;
--		if (atomic_read(&realinode->i_writecount) < 0)
--			goto out_drop_write;
--
- 		/* Truncate should trigger data copy up as well */
- 		full_copy_up = true;
- 	}
+-	/* Each byte contains information for 2 modes (7:4 and 3:0) */
+-	for (mode = 0; mode < LPM_MAX_NUM_MODES; mode += 2) {
+-		u8 priority = pmc_core_reg_read_byte(pmcdev,
+-				pmcdev->map->lpm_priority_offset + (mode / 2));
+-		int pri0 = GENMASK(3, 0) & priority;
+-		int pri1 = (GENMASK(7, 4) & priority) >> 4;
++	/* Read 32 bit LPM_PRI register */
++	lpm_pri = pmc_core_reg_read(pmcdev, pmcdev->map->lpm_priority_offset);
+ 
+-		lpm_priority[pri0] = mode;
+-		lpm_priority[pri1] = mode + 1;
+-	}
+ 
+ 	/*
+-	 * Loop though all modes from lowest to highest priority,
++	 * If lpm_pri value passes verification, then override the default
++	 * modes here. Otherwise stick with the default.
++	 */
++	if (pmc_core_pri_verify(lpm_pri, mode_order))
++		/* Get list of modes in priority order */
++		for (mode = 0; mode < LPM_MAX_NUM_MODES; mode++)
++			pri_order[mode_order[mode]] = mode;
++	else
++		dev_warn(&pdev->dev, "Assuming a default substate order for this platform\n");
++
++	/*
++	 * Loop through all modes from lowest to highest priority,
+ 	 * and capture all enabled modes in order
+ 	 */
+ 	i = 0;
+ 	for (p = LPM_MAX_NUM_MODES - 1; p >= 0; p--) {
+-		int mode = lpm_priority[p];
++		int mode = pri_order[p];
+ 
+ 		if (!(BIT(mode) & lpm_en))
+ 			continue;
+@@ -1675,7 +1712,7 @@ static int pmc_core_probe(struct platform_device *pdev)
+ 	mutex_init(&pmcdev->lock);
+ 
+ 	pmcdev->pmc_xram_read_bit = pmc_core_check_read_lock_bit(pmcdev);
+-	pmc_core_get_low_power_modes(pmcdev);
++	pmc_core_get_low_power_modes(pdev);
+ 	pmc_core_do_dmi_quirks(pmcdev);
+ 
+ 	if (pmcdev->map == &tgl_reg_map)
+diff --git a/drivers/platform/x86/intel_pmc_core.h b/drivers/platform/x86/intel_pmc_core.h
+index e8dae9c6c45f..b9bf3d3d6f7a 100644
+--- a/drivers/platform/x86/intel_pmc_core.h
++++ b/drivers/platform/x86/intel_pmc_core.h
+@@ -188,6 +188,8 @@ enum ppfear_regs {
+ #define ICL_PMC_SLP_S0_RES_COUNTER_STEP		0x64
+ 
+ #define LPM_MAX_NUM_MODES			8
++#define LPM_DEFAULT_PRI				{ 7, 6, 2, 5, 4, 1, 3, 0 }
++
+ #define GET_X2_COUNTER(v)			((v) >> 1)
+ #define LPM_STS_LATCH_MODE			BIT(31)
+ 
 -- 
 2.30.2
 
