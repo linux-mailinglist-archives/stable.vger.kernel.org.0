@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A40F406BC0
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92043406C16
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233945AbhIJMeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:34:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51508 "EHLO mail.kernel.org"
+        id S233658AbhIJMgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:36:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233629AbhIJMdl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:33:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86293611C0;
-        Fri, 10 Sep 2021 12:32:29 +0000 (UTC)
+        id S234379AbhIJMfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:35:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B315961205;
+        Fri, 10 Sep 2021 12:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277150;
-        bh=zyqoNqZppJPK1gv9y9sHtdwlchOr1PMS2idfI9KuZsw=;
+        s=korg; t=1631277273;
+        bh=OBUJ/1McE9fHUIdKsOYpeaQiu0q8A0By/0mG5jaZVqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ui+A5b7tRQUmqcCIWrVAITL3/t5DrTRM5so9R5Tb46BM21maOBuDC6EPHUmkd6Y07
-         ZLeko1Ni/kMKFYMmfuFgThHo7+dMSlF/BfnP4ehwR45Q8VwBDk9Gspdh1EMV2NUdWD
-         BKPRVYjCEX/OR3yRRJfX1lF9CLWuFoJmenXawY08=
+        b=a6ZXPUeXE/lCwQmcMrQJbwbOKw4moKDV1XEjRKB3VcEq2y9h2ox5XjR5fdNpHhHVT
+         aon/XUtycZ372k6Z5QNcC7H6kJKR1Xs/N6q3DfY8S4vfOHQ56PeSUqT/kGiOjHUK52
+         NrX37QT8Z6VbhRON/B+JPfOViqNpife4+9prTlEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tao Wang <wat@codeaurora.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.13 20/22] xhci: Fix failure to give back some cached cancelled URBs.
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 16/37] cryptoloop: add a deprecation warning
 Date:   Fri, 10 Sep 2021 14:30:19 +0200
-Message-Id: <20210910122916.600202484@linuxfoundation.org>
+Message-Id: <20210910122917.706490236@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122915.942645251@linuxfoundation.org>
-References: <20210910122915.942645251@linuxfoundation.org>
+In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
+References: <20210910122917.149278545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,105 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 94f339147fc3eb9edef7ee4ef6e39c569c073753 upstream.
+[ Upstream commit 222013f9ac30b9cec44301daa8dbd0aae38abffb ]
 
-Only TDs with status TD_CLEARING_CACHE will be given back after
-cache is cleared with a set TR deq command.
+Support for cryptoloop has been officially marked broken and deprecated
+in favor of dm-crypt (which supports the same broken algorithms if
+needed) in Linux 2.6.4 (released in March 2004), and support for it has
+been entirely removed from losetup in util-linux 2.23 (released in April
+2013).  Add a warning and a deprecation schedule.
 
-xhci_invalidate_cached_td() failed to set the TD_CLEARING_CACHE status
-for some cancelled TDs as it assumed an endpoint only needs to clear the
-TD it stopped on.
-
-This isn't always true. For example with streams enabled an endpoint may
-have several stream rings, each stopping on a different TDs.
-
-Note that if an endpoint has several stream rings, the current code
-will still only clear the cache of the stream pointed to by the last
-cancelled TD in the cancel list.
-
-This patch only focus on making sure all canceled TDs are given back,
-avoiding hung task after device removal.
-Another fix to solve clearing the caches of all stream rings with
-cancelled TDs is needed, but not as urgent.
-
-This issue was simultanously discovered and debugged by
-by Tao Wang, with a slightly different fix proposal.
-
-Fixes: 674f8438c121 ("xhci: split handling halted endpoints into two steps")
-Cc: <stable@vger.kernel.org> #5.12
-Reported-by: Tao Wang <wat@codeaurora.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210820123503.2605901-4-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20210827163250.255325-1-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-ring.c |   40 +++++++++++++++++++++++++---------------
- 1 file changed, 25 insertions(+), 15 deletions(-)
+ drivers/block/Kconfig      | 4 ++--
+ drivers/block/cryptoloop.c | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -942,17 +942,21 @@ static int xhci_invalidate_cancelled_tds
- 					 td->urb->stream_id);
- 		hw_deq &= ~0xf;
+diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
+index 0fc27ac14f29..9f6782329a23 100644
+--- a/drivers/block/Kconfig
++++ b/drivers/block/Kconfig
+@@ -230,7 +230,7 @@ config BLK_DEV_LOOP_MIN_COUNT
+ 	  dynamically allocated with the /dev/loop-control interface.
  
--		if (td->cancel_status == TD_HALTED) {
--			cached_td = td;
--		} else if (trb_in_td(xhci, td->start_seg, td->first_trb,
--			      td->last_trb, hw_deq, false)) {
-+		if (td->cancel_status == TD_HALTED ||
-+		    trb_in_td(xhci, td->start_seg, td->first_trb, td->last_trb, hw_deq, false)) {
- 			switch (td->cancel_status) {
- 			case TD_CLEARED: /* TD is already no-op */
- 			case TD_CLEARING_CACHE: /* set TR deq command already queued */
- 				break;
- 			case TD_DIRTY: /* TD is cached, clear it */
- 			case TD_HALTED:
--				/* FIXME  stream case, several stopped rings */
-+				td->cancel_status = TD_CLEARING_CACHE;
-+				if (cached_td)
-+					/* FIXME  stream case, several stopped rings */
-+					xhci_dbg(xhci,
-+						 "Move dq past stream %u URB %p instead of stream %u URB %p\n",
-+						 td->urb->stream_id, td->urb,
-+						 cached_td->urb->stream_id, cached_td->urb);
- 				cached_td = td;
- 				break;
- 			}
-@@ -961,18 +965,24 @@ static int xhci_invalidate_cancelled_tds
- 			td->cancel_status = TD_CLEARED;
- 		}
- 	}
--	if (cached_td) {
--		cached_td->cancel_status = TD_CLEARING_CACHE;
+ config BLK_DEV_CRYPTOLOOP
+-	tristate "Cryptoloop Support"
++	tristate "Cryptoloop Support (DEPRECATED)"
+ 	select CRYPTO
+ 	select CRYPTO_CBC
+ 	depends on BLK_DEV_LOOP
+@@ -242,7 +242,7 @@ config BLK_DEV_CRYPTOLOOP
+ 	  WARNING: This device is not safe for journaled file systems like
+ 	  ext3 or Reiserfs. Please use the Device Mapper crypto module
+ 	  instead, which can be configured to be on-disk compatible with the
+-	  cryptoloop device.
++	  cryptoloop device.  cryptoloop support will be removed in Linux 5.16.
  
--		err = xhci_move_dequeue_past_td(xhci, slot_id, ep->ep_index,
--						cached_td->urb->stream_id,
--						cached_td);
--		/* Failed to move past cached td, try just setting it noop */
--		if (err) {
--			td_to_noop(xhci, ring, cached_td, false);
--			cached_td->cancel_status = TD_CLEARED;
-+	/* If there's no need to move the dequeue pointer then we're done */
-+	if (!cached_td)
-+		return 0;
-+
-+	err = xhci_move_dequeue_past_td(xhci, slot_id, ep->ep_index,
-+					cached_td->urb->stream_id,
-+					cached_td);
-+	if (err) {
-+		/* Failed to move past cached td, just set cached TDs to no-op */
-+		list_for_each_entry_safe(td, tmp_td, &ep->cancelled_td_list, cancelled_td_list) {
-+			if (td->cancel_status != TD_CLEARING_CACHE)
-+				continue;
-+			xhci_dbg(xhci, "Failed to clear cancelled cached URB %p, mark clear anyway\n",
-+				 td->urb);
-+			td_to_noop(xhci, ring, td, false);
-+			td->cancel_status = TD_CLEARED;
- 		}
--		cached_td = NULL;
- 	}
- 	return 0;
+ source "drivers/block/drbd/Kconfig"
+ 
+diff --git a/drivers/block/cryptoloop.c b/drivers/block/cryptoloop.c
+index 3cabc335ae74..f0a91faa43a8 100644
+--- a/drivers/block/cryptoloop.c
++++ b/drivers/block/cryptoloop.c
+@@ -189,6 +189,8 @@ init_cryptoloop(void)
+ 
+ 	if (rc)
+ 		printk(KERN_ERR "cryptoloop: loop_register_transfer failed\n");
++	else
++		pr_warn("the cryptoloop driver has been deprecated and will be removed in in Linux 5.16\n");
+ 	return rc;
  }
+ 
+-- 
+2.30.2
+
 
 
