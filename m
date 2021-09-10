@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0345406C21
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30C78406BE9
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234798AbhIJMhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:37:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53524 "EHLO mail.kernel.org"
+        id S233777AbhIJMfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:35:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234178AbhIJMgD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:36:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4C556120E;
-        Fri, 10 Sep 2021 12:34:49 +0000 (UTC)
+        id S234210AbhIJMek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:34:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14C52611CE;
+        Fri, 10 Sep 2021 12:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277290;
-        bh=OgYCzNSAmHAJIMchHWHi3CWoRBsZ0US8dQMiggFdiMU=;
+        s=korg; t=1631277209;
+        bh=HRYt+w4rh3mflXhyz3JiNRj8hMqLQ2bq6430B8eWofc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=liNkLoWF0i3TUbeX6m2KseBcy0Y1R7R3kVXKdFSPf0AdC0jzsipF4adjvTEeCs957
-         9BoGPV0VvyZAs24rmLiDoUpKe51PtJqSJjdMPJe181oD8ra78wDa0LmNMkbAME1yAP
-         VzcnGgwl2Pu3K67WNuVjYEQ0woD8O/9dStZuJA5M=
+        b=Gdu80Unb6jm+E8FFoIoTUdMg/rxpDj4ZcBULvQW2FcHlZUqDsj+Qyaysk45j17US0
+         MmbrMNLhRB4dbseV7zfQ6szNBXMDXr3rDvQYE7tAFB+v2IcdEScdIGxaWZFB9lwDoi
+         ozkIL2t+Pa7Ky3Tq/HpNYOjbZRUBDeLKI+vdE1rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.4 03/37] ext4: report correct st_size for encrypted symlinks
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 02/26] USB: serial: mos7720: improve OOM-handling in read_mos_reg()
 Date:   Fri, 10 Sep 2021 14:30:06 +0200
-Message-Id: <20210910122917.267981972@linuxfoundation.org>
+Message-Id: <20210910122916.329139631@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
-References: <20210910122917.149278545@linuxfoundation.org>
+In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
+References: <20210910122916.253646001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,50 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Tom Rix <trix@redhat.com>
 
-commit 8c4bca10ceafc43b1ca0a9fab5fa27e13cbce99e upstream.
+commit 161a582bd1d8681095f158d11bc679a58f1d026b upstream.
 
-The stat() family of syscalls report the wrong size for encrypted
-symlinks, which has caused breakage in several userspace programs.
+clang static analysis reports this problem
 
-Fix this by calling fscrypt_symlink_getattr() after ext4_getattr() for
-encrypted symlinks.  This function computes the correct size by reading
-and decrypting the symlink target (if it's not already cached).
+mos7720.c:352:2: warning: Undefined or garbage value returned to caller
+        return d;
+        ^~~~~~~~
 
-For more details, see the commit which added fscrypt_symlink_getattr().
+In the parport_mos7715_read_data()'s call to read_mos_reg(), 'd' is
+only set after the alloc block.
 
-Fixes: f348c252320b ("ext4 crypto: add symlink encryption")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210702065350.209646-3-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+	buf = kmalloc(1, GFP_KERNEL);
+	if (!buf)
+		return -ENOMEM;
+
+Although the problem is reported in parport_most7715_read_data(),
+none of the callee's of read_mos_reg() check the return status.
+
+Make sure to clear the return-value buffer also on allocation failures.
+
+Fixes: 0d130367abf5 ("USB: serial: mos7720: fix control-message error handling")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Link: https://lore.kernel.org/r/20210111220904.1035957-1-trix@redhat.com
+[ johan: only clear the buffer on errors, amend commit message ]
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/symlink.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/usb/serial/mos7720.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/symlink.c
-+++ b/fs/ext4/symlink.c
-@@ -52,10 +52,19 @@ static const char *ext4_encrypted_get_li
- 	return paddr;
- }
+--- a/drivers/usb/serial/mos7720.c
++++ b/drivers/usb/serial/mos7720.c
+@@ -226,8 +226,10 @@ static int read_mos_reg(struct usb_seria
+ 	int status;
  
-+static int ext4_encrypted_symlink_getattr(const struct path *path,
-+					  struct kstat *stat, u32 request_mask,
-+					  unsigned int query_flags)
-+{
-+	ext4_getattr(path, stat, request_mask, query_flags);
-+
-+	return fscrypt_symlink_getattr(path, stat);
-+}
-+
- const struct inode_operations ext4_encrypted_symlink_inode_operations = {
- 	.get_link	= ext4_encrypted_get_link,
- 	.setattr	= ext4_setattr,
--	.getattr	= ext4_getattr,
-+	.getattr	= ext4_encrypted_symlink_getattr,
- 	.listxattr	= ext4_listxattr,
- };
+ 	buf = kmalloc(1, GFP_KERNEL);
+-	if (!buf)
++	if (!buf) {
++		*data = 0;
+ 		return -ENOMEM;
++	}
  
+ 	status = usb_control_msg(usbdev, pipe, request, requesttype, value,
+ 				     index, buf, 1, MOS_WDR_TIMEOUT);
 
 
