@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4CBA406154
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE416406152
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231594AbhIJAmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:42:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43636 "EHLO mail.kernel.org"
+        id S231497AbhIJAmf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:42:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231751AbhIJASU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231754AbhIJASU (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 20:18:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78582611F2;
-        Fri, 10 Sep 2021 00:16:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87F7C611C4;
+        Fri, 10 Sep 2021 00:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233013;
-        bh=rQ1yDeHV+X4An5M1J5eMNbx8BfZ5b1ajquIcRCMKf+k=;
+        s=k20201202; t=1631233014;
+        bh=57vFTcOJ+yFREvKnkKYBx44O4OYEhdto7aRuTkiK8wg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QKzxZEnm60rPXR7FrFlFP1JLIMXLqkhqIz3oIjxNfCG6j97hK1//m4QowaURSkRhn
-         H9DutCyEmmTd5qVr99hlbPODOPfCBTRTLGLzIsOA8IRTZKDM5ESvrOTJFkGFablw/K
-         ZftANSWAThIRkbQJJyO4Q32vqd3HzaDlhLuhguyerNdVwiwsMaETbJ/S0TyfdbIH1h
-         hN1A4rRMU5N1UATfEXCGeLQ9yfwWQscP0/s1emSwOBooTX8kF1p0Ww4iVP3CefFAdU
-         rvrvPu0Cz+pqrTQ6L01J16RUwSjTQgV/aXmycABchDl7fHlQO75np7gcxtrqUsUkHQ
-         BEkOr2HRn9w9A==
+        b=kxasgW6oI59/yloZgM/aD1OlSJE9DfAa+xLWY5YGWONq7UCT7DvFBVaJFOPAFe2CN
+         tNndzXn8e0lX51DxaClPFZ+15tGbp8lKIK0YVfxa85/QKp1ARN0Toca2aj/o2kiQVm
+         +KClQHaP7SidLOeMXd5W1TtFAC1vcTQlSZE2CWACijSUXrkn1akEtHNPgpVihlg4Uz
+         nRKFZq3Skrl4oCpnliXD121FeGU6PWWPmkQKebYKQFhKJjPU7UCKWG5HUUH9wF6rVg
+         kI736CuvPHOt5U7AguslKWqjM8QTtvdPJFWGp7BNkhNCMcU7D85I/bt43o3fYZmZnu
+         WQ5F+yW0SmBEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 39/99] jbd2: fix portability problems caused by unaligned accesses
-Date:   Thu,  9 Sep 2021 20:14:58 -0400
-Message-Id: <20210910001558.173296-39-sashal@kernel.org>
+Cc:     Theodore Ts'o <tytso@mit.edu>, Lukas Czerner <lczerner@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 5.14 40/99] jbd2: fix clang warning in recovery.c
+Date:   Thu,  9 Sep 2021 20:14:59 -0400
+Message-Id: <20210910001558.173296-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -43,105 +44,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit a20d1cebb98bba75f2e34fddc768dd8712c1bded ]
+[ Upstream commit 390add0cc9f4d7fda89cf3db7651717e82cf0afc ]
 
-This commit applies the e2fsck/recovery.c portions of commit
-1e0c8ca7c08a ("e2fsck: fix portability problems caused by unaligned
-accesses) from the e2fsprogs git tree.
+Remove unused variable store which was never used.
 
-The on-disk format for the ext4 journal can have unaigned 32-bit
-integers.  This can happen when replaying a journal using a obsolete
-checksum format (which was never popularly used, since the v3 format
-replaced v2 while the metadata checksum feature was being stablized).
+This fix is also in e2fsprogs commit 99a2294f85f0 ("e2fsck: value
+stored to err is never read").
 
+Signed-off-by: Lukas Czerner <lczerner@redhat.com>
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/recovery.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ fs/jbd2/recovery.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/fs/jbd2/recovery.c b/fs/jbd2/recovery.c
-index d47a0d96bf30..4c4209262437 100644
+index 4c4209262437..ba979fcf1cd3 100644
 --- a/fs/jbd2/recovery.c
 +++ b/fs/jbd2/recovery.c
-@@ -196,7 +196,7 @@ static int jbd2_descriptor_block_csum_verify(journal_t *j, void *buf)
- static int count_tags(journal_t *journal, struct buffer_head *bh)
- {
- 	char *			tagp;
--	journal_block_tag_t *	tag;
-+	journal_block_tag_t	tag;
- 	int			nr = 0, size = journal->j_blocksize;
- 	int			tag_bytes = journal_tag_bytes(journal);
- 
-@@ -206,14 +206,14 @@ static int count_tags(journal_t *journal, struct buffer_head *bh)
- 	tagp = &bh->b_data[sizeof(journal_header_t)];
- 
- 	while ((tagp - bh->b_data + tag_bytes) <= size) {
--		tag = (journal_block_tag_t *) tagp;
-+		memcpy(&tag, tagp, sizeof(tag));
- 
- 		nr++;
- 		tagp += tag_bytes;
--		if (!(tag->t_flags & cpu_to_be16(JBD2_FLAG_SAME_UUID)))
-+		if (!(tag.t_flags & cpu_to_be16(JBD2_FLAG_SAME_UUID)))
- 			tagp += 16;
- 
--		if (tag->t_flags & cpu_to_be16(JBD2_FLAG_LAST_TAG))
-+		if (tag.t_flags & cpu_to_be16(JBD2_FLAG_LAST_TAG))
- 			break;
- 	}
- 
-@@ -433,9 +433,9 @@ static int jbd2_commit_block_csum_verify(journal_t *j, void *buf)
- }
- 
- static int jbd2_block_tag_csum_verify(journal_t *j, journal_block_tag_t *tag,
-+				      journal_block_tag3_t *tag3,
- 				      void *buf, __u32 sequence)
- {
--	journal_block_tag3_t *tag3 = (journal_block_tag3_t *)tag;
- 	__u32 csum32;
- 	__be32 seq;
- 
-@@ -496,7 +496,7 @@ static int do_one_pass(journal_t *journal,
- 	while (1) {
- 		int			flags;
- 		char *			tagp;
--		journal_block_tag_t *	tag;
-+		journal_block_tag_t	tag;
- 		struct buffer_head *	obh;
- 		struct buffer_head *	nbh;
- 
-@@ -613,8 +613,8 @@ static int do_one_pass(journal_t *journal,
- 			       <= journal->j_blocksize - descr_csum_size) {
- 				unsigned long io_block;
- 
--				tag = (journal_block_tag_t *) tagp;
--				flags = be16_to_cpu(tag->t_flags);
-+				memcpy(&tag, tagp, sizeof(tag));
-+				flags = be16_to_cpu(tag.t_flags);
- 
- 				io_block = next_log_block++;
- 				wrap(journal, next_log_block);
-@@ -632,7 +632,7 @@ static int do_one_pass(journal_t *journal,
- 
- 					J_ASSERT(obh != NULL);
- 					blocknr = read_tag_block(journal,
--								 tag);
-+								 &tag);
- 
- 					/* If the block has been
- 					 * revoked, then we're all done
-@@ -647,8 +647,8 @@ static int do_one_pass(journal_t *journal,
- 
- 					/* Look for block corruption */
- 					if (!jbd2_block_tag_csum_verify(
--						journal, tag, obh->b_data,
--						be32_to_cpu(tmp->h_sequence))) {
-+			journal, &tag, (journal_block_tag3_t *)tagp,
-+			obh->b_data, be32_to_cpu(tmp->h_sequence))) {
- 						brelse(obh);
- 						success = -EFSBADCRC;
- 						printk(KERN_ERR "JBD2: Invalid "
+@@ -760,7 +760,6 @@ static int do_one_pass(journal_t *journal,
+ 				 */
+ 				jbd_debug(1, "JBD2: Invalid checksum ignored in transaction %u, likely stale data\n",
+ 					  next_commit_ID);
+-				err = 0;
+ 				brelse(bh);
+ 				goto done;
+ 			}
 -- 
 2.30.2
 
