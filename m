@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39610406208
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DE4F40620A
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230505AbhIJAo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:44:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46516 "EHLO mail.kernel.org"
+        id S230120AbhIJAod (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:44:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233553AbhIJAUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233546AbhIJAUT (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 20:20:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A92D4611C2;
-        Fri, 10 Sep 2021 00:19:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8589611CE;
+        Fri, 10 Sep 2021 00:19:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233147;
-        bh=EzVc4+9z8jJm3006a4PiHOFkM6wMDw2uoZJqKWC7Rz8=;
+        s=k20201202; t=1631233148;
+        bh=rQ1yDeHV+X4An5M1J5eMNbx8BfZ5b1ajquIcRCMKf+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JjK8XoY61T71LIr3dIYYdc01p6UJMuamzPA6uha8dgRoRgcp3vanJrY3HKnegvV/C
-         ngLva2mWvFNYmfuuL8PIcgCVgIywlocDI0a8Lt1ihT+UU/9wyeY57e4iMNuPnuwP3d
-         oqToHElSyqnHkmajCHnDDybvP1QuI+aDRRM26urT8yClQEuloNwnrAaOOxxdC+ZAGs
-         EZFr4WkFB+OYYk7xhX4CLKJbNyJq7eK3TQ/uxhPNB314Yhz9FLdcvVbToSx+R0abn2
-         EEYcqGKGDuCKOXA/WZuyDsBzZpmYt1agm4qruW1BusJRbU8RyI+lrYTD8ZQ8hrK03Z
-         F/JAQ0y6JkKQA==
+        b=IHk7l6k+QNyPWhMOrA4P7Qvuj+qVi/f80UImUwEr35S1I2iZ+xbG4ZoorG3+yYwQG
+         Vxej+BATZm4ndSpItgyfapZ+QTSPXYkg9we9eQvy1FqHBw8jyMumsTDCCrD2+c0kY4
+         jlEipe39iGm3im+wOZUk83rV/+JvBM/dOE77vnYkd44CFiZAkVgEBb2ewybiNHdP8x
+         6i1rte9v3cE0pI8ysH4u1x2ummpZs5A4N2zyIHRN5OWPzbUiA9kwxI/w6dj4VS+Ar8
+         GpGpGr8FpL9wCjXW/aa8I3wofSeyGEOyU8h1LXOyXk578/jeVirgqEnSUBlgvLF9mf
+         CpDHUDxxzb+fw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.13 32/88] KVM: PPC: Book3S HV: XICS: Fix mapping of passthrough interrupts
-Date:   Thu,  9 Sep 2021 20:17:24 -0400
-Message-Id: <20210910001820.174272-32-sashal@kernel.org>
+Cc:     Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 33/88] jbd2: fix portability problems caused by unaligned accesses
+Date:   Thu,  9 Sep 2021 20:17:25 -0400
+Message-Id: <20210910001820.174272-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,59 +41,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 1753081f2d445f9157550692fcc4221cd3ff0958 ]
+[ Upstream commit a20d1cebb98bba75f2e34fddc768dd8712c1bded ]
 
-PCI MSIs now live in an MSI domain but the underlying calls, which
-will EOI the interrupt in real mode, need an HW IRQ number mapped in
-the XICS IRQ domain. Grab it there.
+This commit applies the e2fsck/recovery.c portions of commit
+1e0c8ca7c08a ("e2fsck: fix portability problems caused by unaligned
+accesses) from the e2fsprogs git tree.
 
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210701132750.1475580-31-clg@kaod.org
+The on-disk format for the ext4 journal can have unaigned 32-bit
+integers.  This can happen when replaying a journal using a obsolete
+checksum format (which was never popularly used, since the v3 format
+replaced v2 while the metadata checksum feature was being stablized).
+
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ fs/jbd2/recovery.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 395f98158e81..a284999a3171 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -5170,6 +5170,7 @@ static int kvmppc_set_passthru_irq(struct kvm *kvm, int host_irq, int guest_gsi)
- 	struct kvmppc_passthru_irqmap *pimap;
- 	struct irq_chip *chip;
- 	int i, rc = 0;
-+	struct irq_data *host_data;
+diff --git a/fs/jbd2/recovery.c b/fs/jbd2/recovery.c
+index d47a0d96bf30..4c4209262437 100644
+--- a/fs/jbd2/recovery.c
++++ b/fs/jbd2/recovery.c
+@@ -196,7 +196,7 @@ static int jbd2_descriptor_block_csum_verify(journal_t *j, void *buf)
+ static int count_tags(journal_t *journal, struct buffer_head *bh)
+ {
+ 	char *			tagp;
+-	journal_block_tag_t *	tag;
++	journal_block_tag_t	tag;
+ 	int			nr = 0, size = journal->j_blocksize;
+ 	int			tag_bytes = journal_tag_bytes(journal);
  
- 	if (!kvm_irq_bypass)
- 		return 1;
-@@ -5234,7 +5235,14 @@ static int kvmppc_set_passthru_irq(struct kvm *kvm, int host_irq, int guest_gsi)
- 	 * the KVM real mode handler.
- 	 */
- 	smp_wmb();
--	irq_map->r_hwirq = desc->irq_data.hwirq;
-+
-+	/*
-+	 * The 'host_irq' number is mapped in the PCI-MSI domain but
-+	 * the underlying calls, which will EOI the interrupt in real
-+	 * mode, need an HW IRQ number mapped in the XICS IRQ domain.
-+	 */
-+	host_data = irq_domain_get_irq_data(irq_get_default_host(), host_irq);
-+	irq_map->r_hwirq = (unsigned int)irqd_to_hwirq(host_data);
+@@ -206,14 +206,14 @@ static int count_tags(journal_t *journal, struct buffer_head *bh)
+ 	tagp = &bh->b_data[sizeof(journal_header_t)];
  
- 	if (i == pimap->n_mapped)
- 		pimap->n_mapped++;
-@@ -5242,7 +5250,7 @@ static int kvmppc_set_passthru_irq(struct kvm *kvm, int host_irq, int guest_gsi)
- 	if (xics_on_xive())
- 		rc = kvmppc_xive_set_mapped(kvm, guest_gsi, desc);
- 	else
--		kvmppc_xics_set_mapped(kvm, guest_gsi, desc->irq_data.hwirq);
-+		kvmppc_xics_set_mapped(kvm, guest_gsi, irq_map->r_hwirq);
- 	if (rc)
- 		irq_map->r_hwirq = 0;
+ 	while ((tagp - bh->b_data + tag_bytes) <= size) {
+-		tag = (journal_block_tag_t *) tagp;
++		memcpy(&tag, tagp, sizeof(tag));
  
+ 		nr++;
+ 		tagp += tag_bytes;
+-		if (!(tag->t_flags & cpu_to_be16(JBD2_FLAG_SAME_UUID)))
++		if (!(tag.t_flags & cpu_to_be16(JBD2_FLAG_SAME_UUID)))
+ 			tagp += 16;
+ 
+-		if (tag->t_flags & cpu_to_be16(JBD2_FLAG_LAST_TAG))
++		if (tag.t_flags & cpu_to_be16(JBD2_FLAG_LAST_TAG))
+ 			break;
+ 	}
+ 
+@@ -433,9 +433,9 @@ static int jbd2_commit_block_csum_verify(journal_t *j, void *buf)
+ }
+ 
+ static int jbd2_block_tag_csum_verify(journal_t *j, journal_block_tag_t *tag,
++				      journal_block_tag3_t *tag3,
+ 				      void *buf, __u32 sequence)
+ {
+-	journal_block_tag3_t *tag3 = (journal_block_tag3_t *)tag;
+ 	__u32 csum32;
+ 	__be32 seq;
+ 
+@@ -496,7 +496,7 @@ static int do_one_pass(journal_t *journal,
+ 	while (1) {
+ 		int			flags;
+ 		char *			tagp;
+-		journal_block_tag_t *	tag;
++		journal_block_tag_t	tag;
+ 		struct buffer_head *	obh;
+ 		struct buffer_head *	nbh;
+ 
+@@ -613,8 +613,8 @@ static int do_one_pass(journal_t *journal,
+ 			       <= journal->j_blocksize - descr_csum_size) {
+ 				unsigned long io_block;
+ 
+-				tag = (journal_block_tag_t *) tagp;
+-				flags = be16_to_cpu(tag->t_flags);
++				memcpy(&tag, tagp, sizeof(tag));
++				flags = be16_to_cpu(tag.t_flags);
+ 
+ 				io_block = next_log_block++;
+ 				wrap(journal, next_log_block);
+@@ -632,7 +632,7 @@ static int do_one_pass(journal_t *journal,
+ 
+ 					J_ASSERT(obh != NULL);
+ 					blocknr = read_tag_block(journal,
+-								 tag);
++								 &tag);
+ 
+ 					/* If the block has been
+ 					 * revoked, then we're all done
+@@ -647,8 +647,8 @@ static int do_one_pass(journal_t *journal,
+ 
+ 					/* Look for block corruption */
+ 					if (!jbd2_block_tag_csum_verify(
+-						journal, tag, obh->b_data,
+-						be32_to_cpu(tmp->h_sequence))) {
++			journal, &tag, (journal_block_tag3_t *)tagp,
++			obh->b_data, be32_to_cpu(tmp->h_sequence))) {
+ 						brelse(obh);
+ 						success = -EFSBADCRC;
+ 						printk(KERN_ERR "JBD2: Invalid "
 -- 
 2.30.2
 
