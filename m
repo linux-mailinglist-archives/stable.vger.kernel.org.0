@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CA3A406B7A
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:31:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86468406C20
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233253AbhIJMcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:32:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49378 "EHLO mail.kernel.org"
+        id S234364AbhIJMhC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:37:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233247AbhIJMcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:32:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F0EC611C0;
-        Fri, 10 Sep 2021 12:31:08 +0000 (UTC)
+        id S233676AbhIJMfz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:35:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8A6361211;
+        Fri, 10 Sep 2021 12:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277068;
-        bh=ONAWLcanIXUKfwK2NSOna53PGx2zrD0zQnlDo3Fd87k=;
+        s=korg; t=1631277284;
+        bh=c2eehZyxdpCfZd+L/JgDAN2SCfxNGwa95SwIPzCVOT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gweW2Kdep0nQegY4PurgnkfSTra9DhDmt61ITD8yCpLY45X09Artvm9LaitJ5XnPh
-         11m++vGBXEs/hOj70XkDrbdhoT6pO1FpajfbMAO0Y+y205ATExUvih222ZFMTHbKYt
-         DBGWUUbzOjgaw/5Mdi0eZFQznVB6Pd9RmuvVVHvg=
+        b=t4P7OX9jg9jt6u+9kFTpit2Zd/v01vnvpgmekdoBr8ISyiOrMwfAUrYLKwNdZD9cd
+         5fQXpoMbkx3k8RnicNvfB6U6+S9wyUInXIWKXu7wOpPtROBHQaey96SH8Npf3ZgHtt
+         tM9ZejRGTOGBJHTa7fh7Q6PulP8+00wrRK12RkNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.14 15/23] xhci: fix even more unsafe memory usage in xhci tracing
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.4 02/37] fscrypt: add fscrypt_symlink_getattr() for computing st_size
 Date:   Fri, 10 Sep 2021 14:30:05 +0200
-Message-Id: <20210910122916.493064730@linuxfoundation.org>
+Message-Id: <20210910122917.228125255@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122916.022815161@linuxfoundation.org>
-References: <20210910122916.022815161@linuxfoundation.org>
+In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
+References: <20210910122917.149278545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,223 +38,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 4843b4b5ec64b875a5e334f280508f1f75e7d3e4 upstream.
+commit d18760560593e5af921f51a8c9b64b6109d634c2 upstream.
 
-Removes static char buffer usage in the following decode functions:
-	xhci_decode_ctrl_ctx()
-	xhci_decode_slot_context()
-	xhci_decode_usbsts()
-	xhci_decode_doorbell()
-	xhci_decode_ep_context()
+Add a helper function fscrypt_symlink_getattr() which will be called
+from the various filesystems' ->getattr() methods to read and decrypt
+the target of encrypted symlinks in order to report the correct st_size.
 
-Caller must provide a buffer to use.
-In tracing use __get_str() as recommended to pass buffer.
+Detailed explanation:
 
-Minor changes are needed in other xhci code as these functions are also
-used elsewhere
+As required by POSIX and as documented in various man pages, st_size for
+a symlink is supposed to be the length of the symlink target.
+Unfortunately, st_size has always been wrong for encrypted symlinks
+because st_size is populated from i_size from disk, which intentionally
+contains the length of the encrypted symlink target.  That's slightly
+greater than the length of the decrypted symlink target (which is the
+symlink target that userspace usually sees), and usually won't match the
+length of the no-key encoded symlink target either.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210820123503.2605901-3-mathias.nyman@linux.intel.com
+This hadn't been fixed yet because reporting the correct st_size would
+require reading the symlink target from disk and decrypting or encoding
+it, which historically has been considered too heavyweight to do in
+->getattr().  Also historically, the wrong st_size had only broken a
+test (LTP lstat03) and there were no known complaints from real users.
+(This is probably because the st_size of symlinks isn't used too often,
+and when it is, typically it's for a hint for what buffer size to pass
+to readlink() -- which a slightly-too-large size still works for.)
+
+However, a couple things have changed now.  First, there have recently
+been complaints about the current behavior from real users:
+
+- Breakage in rpmbuild:
+  https://github.com/rpm-software-management/rpm/issues/1682
+  https://github.com/google/fscrypt/issues/305
+
+- Breakage in toybox cpio:
+  https://www.mail-archive.com/toybox@lists.landley.net/msg07193.html
+
+- Breakage in libgit2: https://issuetracker.google.com/issues/189629152
+  (on Android public issue tracker, requires login)
+
+Second, we now cache decrypted symlink targets in ->i_link.  Therefore,
+taking the performance hit of reading and decrypting the symlink target
+in ->getattr() wouldn't be as big a deal as it used to be, since usually
+it will just save having to do the same thing later.
+
+Also note that eCryptfs ended up having to read and decrypt symlink
+targets in ->getattr() as well, to fix this same issue; see
+commit 3a60a1686f0d ("eCryptfs: Decrypt symlink target for stat size").
+
+So, let's just bite the bullet, and read and decrypt the symlink target
+in ->getattr() in order to report the correct st_size.  Add a function
+fscrypt_symlink_getattr() which the filesystems will call to do this.
+
+(Alternatively, we could store the decrypted size of symlinks on-disk.
+But there isn't a great place to do so, and encryption is meant to hide
+the original size to some extent; that property would be lost.)
+
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210702065350.209646-2-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-debugfs.c |    8 ++++++--
- drivers/usb/host/xhci-ring.c    |    3 ++-
- drivers/usb/host/xhci-trace.h   |   18 +++++++++++-------
- drivers/usb/host/xhci.h         |   21 ++++++++-------------
- 4 files changed, 27 insertions(+), 23 deletions(-)
+ fs/crypto/hooks.c       |   44 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/fscrypt.h |    7 +++++++
+ 2 files changed, 51 insertions(+)
 
---- a/drivers/usb/host/xhci-debugfs.c
-+++ b/drivers/usb/host/xhci-debugfs.c
-@@ -260,11 +260,13 @@ static int xhci_slot_context_show(struct
- 	struct xhci_slot_ctx	*slot_ctx;
- 	struct xhci_slot_priv	*priv = s->private;
- 	struct xhci_virt_device	*dev = priv->dev;
-+	char			str[XHCI_MSG_MAX];
- 
- 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
- 	slot_ctx = xhci_get_slot_ctx(xhci, dev->out_ctx);
- 	seq_printf(s, "%pad: %s\n", &dev->out_ctx->dma,
--		   xhci_decode_slot_context(le32_to_cpu(slot_ctx->dev_info),
-+		   xhci_decode_slot_context(str,
-+					    le32_to_cpu(slot_ctx->dev_info),
- 					    le32_to_cpu(slot_ctx->dev_info2),
- 					    le32_to_cpu(slot_ctx->tt_info),
- 					    le32_to_cpu(slot_ctx->dev_state)));
-@@ -280,6 +282,7 @@ static int xhci_endpoint_context_show(st
- 	struct xhci_ep_ctx	*ep_ctx;
- 	struct xhci_slot_priv	*priv = s->private;
- 	struct xhci_virt_device	*dev = priv->dev;
-+	char			str[XHCI_MSG_MAX];
- 
- 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
- 
-@@ -287,7 +290,8 @@ static int xhci_endpoint_context_show(st
- 		ep_ctx = xhci_get_ep_ctx(xhci, dev->out_ctx, ep_index);
- 		dma = dev->out_ctx->dma + (ep_index + 1) * CTX_SIZE(xhci->hcc_params);
- 		seq_printf(s, "%pad: %s\n", &dma,
--			   xhci_decode_ep_context(le32_to_cpu(ep_ctx->ep_info),
-+			   xhci_decode_ep_context(str,
-+						  le32_to_cpu(ep_ctx->ep_info),
- 						  le32_to_cpu(ep_ctx->ep_info2),
- 						  le64_to_cpu(ep_ctx->deq),
- 						  le32_to_cpu(ep_ctx->tx_info)));
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -1212,6 +1212,7 @@ void xhci_stop_endpoint_command_watchdog
- 	struct xhci_hcd *xhci = ep->xhci;
- 	unsigned long flags;
- 	u32 usbsts;
-+	char str[XHCI_MSG_MAX];
- 
- 	spin_lock_irqsave(&xhci->lock, flags);
- 
-@@ -1225,7 +1226,7 @@ void xhci_stop_endpoint_command_watchdog
- 	usbsts = readl(&xhci->op_regs->status);
- 
- 	xhci_warn(xhci, "xHCI host not responding to stop endpoint command.\n");
--	xhci_warn(xhci, "USBSTS:%s\n", xhci_decode_usbsts(usbsts));
-+	xhci_warn(xhci, "USBSTS:%s\n", xhci_decode_usbsts(str, usbsts));
- 
- 	ep->ep_state &= ~EP_STOP_CMD_PENDING;
- 
---- a/drivers/usb/host/xhci-trace.h
-+++ b/drivers/usb/host/xhci-trace.h
-@@ -323,6 +323,7 @@ DECLARE_EVENT_CLASS(xhci_log_ep_ctx,
- 		__field(u32, info2)
- 		__field(u64, deq)
- 		__field(u32, tx_info)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->info = le32_to_cpu(ctx->ep_info);
-@@ -330,8 +331,8 @@ DECLARE_EVENT_CLASS(xhci_log_ep_ctx,
- 		__entry->deq = le64_to_cpu(ctx->deq);
- 		__entry->tx_info = le32_to_cpu(ctx->tx_info);
- 	),
--	TP_printk("%s", xhci_decode_ep_context(__entry->info,
--		__entry->info2, __entry->deq, __entry->tx_info)
-+	TP_printk("%s", xhci_decode_ep_context(__get_str(str),
-+		__entry->info, __entry->info2, __entry->deq, __entry->tx_info)
- 	)
- );
- 
-@@ -368,6 +369,7 @@ DECLARE_EVENT_CLASS(xhci_log_slot_ctx,
- 		__field(u32, info2)
- 		__field(u32, tt_info)
- 		__field(u32, state)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->info = le32_to_cpu(ctx->dev_info);
-@@ -375,9 +377,9 @@ DECLARE_EVENT_CLASS(xhci_log_slot_ctx,
- 		__entry->tt_info = le64_to_cpu(ctx->tt_info);
- 		__entry->state = le32_to_cpu(ctx->dev_state);
- 	),
--	TP_printk("%s", xhci_decode_slot_context(__entry->info,
--			__entry->info2, __entry->tt_info,
--			__entry->state)
-+	TP_printk("%s", xhci_decode_slot_context(__get_str(str),
-+			__entry->info, __entry->info2,
-+			__entry->tt_info, __entry->state)
- 	)
- );
- 
-@@ -432,12 +434,13 @@ DECLARE_EVENT_CLASS(xhci_log_ctrl_ctx,
- 	TP_STRUCT__entry(
- 		__field(u32, drop)
- 		__field(u32, add)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->drop = le32_to_cpu(ctrl_ctx->drop_flags);
- 		__entry->add = le32_to_cpu(ctrl_ctx->add_flags);
- 	),
--	TP_printk("%s", xhci_decode_ctrl_ctx(__entry->drop, __entry->add)
-+	TP_printk("%s", xhci_decode_ctrl_ctx(__get_str(str), __entry->drop, __entry->add)
- 	)
- );
- 
-@@ -555,13 +558,14 @@ DECLARE_EVENT_CLASS(xhci_log_doorbell,
- 	TP_STRUCT__entry(
- 		__field(u32, slot)
- 		__field(u32, doorbell)
-+		__dynamic_array(char, str, XHCI_MSG_MAX)
- 	),
- 	TP_fast_assign(
- 		__entry->slot = slot;
- 		__entry->doorbell = doorbell;
- 	),
- 	TP_printk("Ring doorbell for %s",
--		xhci_decode_doorbell(__entry->slot, __entry->doorbell)
-+		  xhci_decode_doorbell(__get_str(str), __entry->slot, __entry->doorbell)
- 	)
- );
- 
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -2455,10 +2455,9 @@ static inline const char *xhci_decode_tr
- 	return str;
+--- a/fs/crypto/hooks.c
++++ b/fs/crypto/hooks.c
+@@ -305,3 +305,47 @@ err_kfree:
+ 	return ERR_PTR(err);
+ }
+ EXPORT_SYMBOL_GPL(fscrypt_get_symlink);
++
++/**
++ * fscrypt_symlink_getattr() - set the correct st_size for encrypted symlinks
++ * @path: the path for the encrypted symlink being queried
++ * @stat: the struct being filled with the symlink's attributes
++ *
++ * Override st_size of encrypted symlinks to be the length of the decrypted
++ * symlink target (or the no-key encoded symlink target, if the key is
++ * unavailable) rather than the length of the encrypted symlink target.  This is
++ * necessary for st_size to match the symlink target that userspace actually
++ * sees.  POSIX requires this, and some userspace programs depend on it.
++ *
++ * This requires reading the symlink target from disk if needed, setting up the
++ * inode's encryption key if possible, and then decrypting or encoding the
++ * symlink target.  This makes lstat() more heavyweight than is normally the
++ * case.  However, decrypted symlink targets will be cached in ->i_link, so
++ * usually the symlink won't have to be read and decrypted again later if/when
++ * it is actually followed, readlink() is called, or lstat() is called again.
++ *
++ * Return: 0 on success, -errno on failure
++ */
++int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat)
++{
++	struct dentry *dentry = path->dentry;
++	struct inode *inode = d_inode(dentry);
++	const char *link;
++	DEFINE_DELAYED_CALL(done);
++
++	/*
++	 * To get the symlink target that userspace will see (whether it's the
++	 * decrypted target or the no-key encoded target), we can just get it in
++	 * the same way the VFS does during path resolution and readlink().
++	 */
++	link = READ_ONCE(inode->i_link);
++	if (!link) {
++		link = inode->i_op->get_link(dentry, inode, &done);
++		if (IS_ERR(link))
++			return PTR_ERR(link);
++	}
++	stat->size = strlen(link);
++	do_delayed_call(&done);
++	return 0;
++}
++EXPORT_SYMBOL_GPL(fscrypt_symlink_getattr);
+--- a/include/linux/fscrypt.h
++++ b/include/linux/fscrypt.h
+@@ -298,6 +298,7 @@ extern int __fscrypt_encrypt_symlink(str
+ extern const char *fscrypt_get_symlink(struct inode *inode, const void *caddr,
+ 				       unsigned int max_size,
+ 				       struct delayed_call *done);
++int fscrypt_symlink_getattr(const struct path *path, struct kstat *stat);
+ static inline void fscrypt_set_ops(struct super_block *sb,
+ 				   const struct fscrypt_operations *s_cop)
+ {
+@@ -585,6 +586,12 @@ static inline const char *fscrypt_get_sy
+ 	return ERR_PTR(-EOPNOTSUPP);
  }
  
--static inline const char *xhci_decode_ctrl_ctx(unsigned long drop,
--					       unsigned long add)
-+static inline const char *xhci_decode_ctrl_ctx(char *str,
-+		unsigned long drop, unsigned long add)
++static inline int fscrypt_symlink_getattr(const struct path *path,
++					  struct kstat *stat)
++{
++	return -EOPNOTSUPP;
++}
++
+ static inline void fscrypt_set_ops(struct super_block *sb,
+ 				   const struct fscrypt_operations *s_cop)
  {
--	static char	str[1024];
- 	unsigned int	bit;
- 	int		ret = 0;
- 
-@@ -2484,10 +2483,9 @@ static inline const char *xhci_decode_ct
- 	return str;
- }
- 
--static inline const char *xhci_decode_slot_context(u32 info, u32 info2,
--		u32 tt_info, u32 state)
-+static inline const char *xhci_decode_slot_context(char *str,
-+		u32 info, u32 info2, u32 tt_info, u32 state)
- {
--	static char str[1024];
- 	u32 speed;
- 	u32 hub;
- 	u32 mtt;
-@@ -2617,9 +2615,8 @@ static inline const char *xhci_decode_po
- 	return str;
- }
- 
--static inline const char *xhci_decode_usbsts(u32 usbsts)
-+static inline const char *xhci_decode_usbsts(char *str, u32 usbsts)
- {
--	static char str[256];
- 	int ret = 0;
- 
- 	if (usbsts == ~(u32)0)
-@@ -2646,9 +2643,8 @@ static inline const char *xhci_decode_us
- 	return str;
- }
- 
--static inline const char *xhci_decode_doorbell(u32 slot, u32 doorbell)
-+static inline const char *xhci_decode_doorbell(char *str, u32 slot, u32 doorbell)
- {
--	static char str[256];
- 	u8 ep;
- 	u16 stream;
- 	int ret;
-@@ -2715,10 +2711,9 @@ static inline const char *xhci_ep_type_s
- 	}
- }
- 
--static inline const char *xhci_decode_ep_context(u32 info, u32 info2, u64 deq,
--		u32 tx_info)
-+static inline const char *xhci_decode_ep_context(char *str, u32 info,
-+		u32 info2, u64 deq, u32 tx_info)
- {
--	static char str[1024];
- 	int ret;
- 
- 	u32 esit;
 
 
