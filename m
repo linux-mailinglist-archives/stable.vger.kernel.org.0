@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D85EB406418
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:55:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64062406134
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229980AbhIJAmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:42:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43688 "EHLO mail.kernel.org"
+        id S231250AbhIJAmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230486AbhIJARm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:17:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1B22610E9;
-        Fri, 10 Sep 2021 00:16:31 +0000 (UTC)
+        id S230503AbhIJARo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:17:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D4D6611EE;
+        Fri, 10 Sep 2021 00:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631232992;
-        bh=TGw4njp5IaZc78R/uUB/LijXLUHq5fkfuYINOfxXf0g=;
+        s=k20201202; t=1631232994;
+        bh=pO3cZk/qu+va4WOknDmg62hwhItUv5OQI6cSR4L3bA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwRD27Oe3vInMWnMAGDEn9zFdli1V2UEPsYcxD2Sj7YBRoKsk/SUxHgJXtcOz1s/5
-         lN9D6lGt0hRXQ4dSDeiCEoU8hLbOGXbWeFi/Tt0PQfbX3zLOXul3NCZ8tAfy+ooFEh
-         d05PaQrv8Z7yj0Sk0TTb9f/8nTZmI8bqyKdjWo787ZOz23hOh6RVXLOihw0wMz4w3R
-         xVlxcHdlGQFUOjk9YvOkru7NlKDvHmDn+b9bbjeDrUMQvYBsclJdCN31IIqTmLxMhd
-         /BPtxfVQ2ToMHonWgskuxpxCKJsh+3lGmhwCeKano2ONbb8jB8rgNDVXPnYs77IwVM
-         Iu2jUs6ssWyTQ==
+        b=BfLqT8JOnyZxQ6JIEho2d1y4P2vsx036z6+Bh3+XlPnCp+cSrzbPN1m629R4duuDv
+         UymSYmH0raa6fRCHFxI8W1BibqLlF47NkU07VaofwPSmTIA6p2Cx6wqpMNaOeQvTvQ
+         itSmMLmcOXdafwh2XzR6whsLftGi+Zip/60FOHEKt10y510NvZ91Sc63PlgaRXWSU6
+         JyNOegRYR2Yw1BdESyql4uhOJUXf3a4/lMHXMp52jE+s31cbqz7cWJD3q5Z9UtQIZx
+         D3DQewlRdBz8c4x+gWRUHBwSJq9GO95EUYp5dUPiHssWxla/kcj31lwKJ9zL3RcXIq
+         IcQTlWje05EAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 25/99] scsi: lpfc: Fix possible ABBA deadlock in nvmet_xri_aborted()
-Date:   Thu,  9 Sep 2021 20:14:44 -0400
-Message-Id: <20210910001558.173296-25-sashal@kernel.org>
+Cc:     Nadav Amit <namit@vmware.com>, Joerg Roedel <joro@8bytes.org>,
+        Will Deacon <will@kernel.org>,
+        Jiajun Cao <caojiajun@vmware.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        iommu@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 26/99] iommu/amd: Sync once for scatter-gather operations
+Date:   Thu,  9 Sep 2021 20:14:45 -0400
+Message-Id: <20210910001558.173296-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -43,62 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Nadav Amit <namit@vmware.com>
 
-[ Upstream commit 7740b615b6665e47f162e261d805f1bbbac15876 ]
+[ Upstream commit 3b122a5666cb7c0bb9a439fba0c9a6cf59f999c3 ]
 
-The lpfc_sli4_nvmet_xri_aborted() routine takes out the abts_buf_list_lock
-and traverses the buffer contexts to match the xri. Upon match, it then
-takes the context lock before potentially removing the context from the
-associated buffer list. This violates the lock hierarchy used elsewhere in
-the driver of locking context, then the abts_buf_list_lock - thus a
-possible deadlock.
+On virtual machines, software must flush the IOTLB after each page table
+entry update.
 
-Resolve by: after matching, release the abts_buf_list_lock, then take the
-context lock, and if to be deleted from the list, retake the
-abts_buf_list_lock, maintaining lock hierarchy. This matches same list lock
-hierarchy as elsewhere in the driver
+The iommu_map_sg() code iterates through the given scatter-gather list
+and invokes iommu_map() for each element in the scatter-gather list,
+which calls into the vendor IOMMU driver through iommu_ops callback. As
+the result, a single sg mapping may lead to multiple IOTLB flushes.
 
-Link: https://lore.kernel.org/r/20210730163309.25809-1-jsmart2021@gmail.com
-Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix this by adding amd_iotlb_sync_map() callback and flushing at this
+point after all sg mappings we set.
+
+This commit is followed and inspired by commit 933fcd01e97e2
+("iommu/vt-d: Add iotlb_sync_map callback").
+
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Jiajun Cao <caojiajun@vmware.com>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: iommu@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Link: https://lore.kernel.org/r/20210723093209.714328-7-namit@vmware.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nvmet.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/iommu/amd/iommu.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
-index f2d9a3580887..6e3dd0b9bcfa 100644
---- a/drivers/scsi/lpfc/lpfc_nvmet.c
-+++ b/drivers/scsi/lpfc/lpfc_nvmet.c
-@@ -1797,19 +1797,22 @@ lpfc_sli4_nvmet_xri_aborted(struct lpfc_hba *phba,
- 		if (ctxp->ctxbuf->sglq->sli4_xritag != xri)
- 			continue;
+diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+index a7d6d78147b7..e0cd6e42d349 100644
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -2028,6 +2028,16 @@ static int amd_iommu_attach_device(struct iommu_domain *dom,
+ 	return ret;
+ }
  
--		spin_lock(&ctxp->ctxlock);
-+		spin_unlock_irqrestore(&phba->sli4_hba.abts_nvmet_buf_list_lock,
-+				       iflag);
++static void amd_iommu_iotlb_sync_map(struct iommu_domain *dom,
++				     unsigned long iova, size_t size)
++{
++	struct protection_domain *domain = to_pdomain(dom);
++	struct io_pgtable_ops *ops = &domain->iop.iop.ops;
 +
-+		spin_lock_irqsave(&ctxp->ctxlock, iflag);
- 		/* Check if we already received a free context call
- 		 * and we have completed processing an abort situation.
- 		 */
- 		if (ctxp->flag & LPFC_NVME_CTX_RLS &&
- 		    !(ctxp->flag & LPFC_NVME_ABORT_OP)) {
-+			spin_lock(&phba->sli4_hba.abts_nvmet_buf_list_lock);
- 			list_del_init(&ctxp->list);
-+			spin_unlock(&phba->sli4_hba.abts_nvmet_buf_list_lock);
- 			released = true;
- 		}
- 		ctxp->flag &= ~LPFC_NVME_XBUSY;
--		spin_unlock(&ctxp->ctxlock);
--		spin_unlock_irqrestore(&phba->sli4_hba.abts_nvmet_buf_list_lock,
--				       iflag);
-+		spin_unlock_irqrestore(&ctxp->ctxlock, iflag);
++	if (ops->map)
++		domain_flush_np_cache(domain, iova, size);
++}
++
+ static int amd_iommu_map(struct iommu_domain *dom, unsigned long iova,
+ 			 phys_addr_t paddr, size_t page_size, int iommu_prot,
+ 			 gfp_t gfp)
+@@ -2046,10 +2056,8 @@ static int amd_iommu_map(struct iommu_domain *dom, unsigned long iova,
+ 	if (iommu_prot & IOMMU_WRITE)
+ 		prot |= IOMMU_PROT_IW;
  
- 		rrq_empty = list_empty(&phba->active_rrq_list);
- 		ndlp = lpfc_findnode_did(phba->pport, ctxp->sid);
+-	if (ops->map) {
++	if (ops->map)
+ 		ret = ops->map(ops, iova, paddr, page_size, prot, gfp);
+-		domain_flush_np_cache(domain, iova, page_size);
+-	}
+ 
+ 	return ret;
+ }
+@@ -2197,6 +2205,7 @@ const struct iommu_ops amd_iommu_ops = {
+ 	.attach_dev = amd_iommu_attach_device,
+ 	.detach_dev = amd_iommu_detach_device,
+ 	.map = amd_iommu_map,
++	.iotlb_sync_map	= amd_iommu_iotlb_sync_map,
+ 	.unmap = amd_iommu_unmap,
+ 	.iova_to_phys = amd_iommu_iova_to_phys,
+ 	.probe_device = amd_iommu_probe_device,
 -- 
 2.30.2
 
