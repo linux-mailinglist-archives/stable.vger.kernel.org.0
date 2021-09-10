@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B21BF4063BC
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC3D94063BF
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:51:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240932AbhIJAsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:48:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50120 "EHLO mail.kernel.org"
+        id S240942AbhIJAsk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:48:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234894AbhIJAZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:25:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49C57610A3;
-        Fri, 10 Sep 2021 00:23:58 +0000 (UTC)
+        id S233729AbhIJAZL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:25:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70E56611BD;
+        Fri, 10 Sep 2021 00:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233438;
-        bh=F/vdYu+oIWHBTO+yH/g4urvXQK6J/vpTTGtTQqwMvd8=;
+        s=k20201202; t=1631233441;
+        bh=8PHs1mZBoWsnG2c1XBmJqtLuj5LWEIGyllyFDiwG3Jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dFTAwOu2T1qGB6QKnnLIjJCHK2HSRFTLfDPNZDdkRoOp+eltYnVEnNb87zo112BcH
-         W2KBPq0WYCK4UA+NMFCCKgzd5kvTNEbGL1vv9O9G9x/QQJyLdmJI37GlIZJBlDVNrl
-         tc/5AXrN9NPqk4158kYwudWC5eBD45+rgc9jHXe4UM5jjlLdWvwl+JqH9HLe5kLrsq
-         B7rixUtqkybJ2yUOjT3naWwHQrt1CqjL+PcoH1Us6+/femjVQZtm0fj5aPz5ZeT4ti
-         S12u+vkBt3z2dRnDfX0YQENIWmX1hkLtrzu7lnlKOcQMtZPBMPwGSMrqOogCoY/zNw
-         URFToS94gAy2g==
+        b=q5IssMQ8/jIDSK0lghhr5ugng5AMgzPmbwuatuEyMMiPTubzLvbgqcCw/vkJedUAq
+         0cO1wCOYgjSEzv79cDzP20I3Puo81zl2uWV53lnUMcelUlmDuRQ3a9Zzb2eCSPrgii
+         gS7zjDxOTU/3R87drj6dRz3hiorC28r/TONuhOy+QrBJgNZFBALQu4iGwwMRbpQB90
+         H1/18t5+O043WiOoVwPHISrSYnsbU/CHimEbxZ05JDWGIoG1QG5reSkOgjb1TKTEv+
+         NJIg+9PeH351PZy46BlxMRYjkweO5JGs4tv4QWg3yqERBG98NFHwTUnRLNhdNGTEIv
+         /cUfnIu86MS+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ariel Marcovitch <arielmarcovitch@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 15/17] checkkconfigsymbols.py: Fix the '--ignore' option
-Date:   Thu,  9 Sep 2021 20:23:36 -0400
-Message-Id: <20210910002338.176677-15-sashal@kernel.org>
+Cc:     Tuo Li <islituo@gmail.com>, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
+Subject: [PATCH AUTOSEL 4.9 16/17] ocfs2: quota_local: fix possible uninitialized-variable access in ocfs2_local_read_info()
+Date:   Thu,  9 Sep 2021 20:23:37 -0400
+Message-Id: <20210910002338.176677-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002338.176677-1-sashal@kernel.org>
 References: <20210910002338.176677-1-sashal@kernel.org>
@@ -42,42 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ariel Marcovitch <arielmarcovitch@gmail.com>
+From: Tuo Li <islituo@gmail.com>
 
-[ Upstream commit 1439ebd2ce77242400518d4e6a1e85bebcd8084f ]
+[ Upstream commit 6c85c2c728193d19d6a908ae9fb312d0325e65ca ]
 
-It seems like the implementation of the --ignore option is broken.
+A memory block is allocated through kmalloc(), and its return value is
+assigned to the pointer oinfo. However, oinfo->dqi_gqinode is not
+initialized but it is accessed in:
+  iput(oinfo->dqi_gqinode);
 
-In check_symbols_helper, when going through the list of files, a file is
-added to the list of source files to check if it matches the ignore
-pattern. Instead, as stated in the comment below this condition, the
-file should be added if it doesn't match the pattern.
+To fix this possible uninitialized-variable access, assign NULL to
+oinfo->dqi_gqinode, and add ocfs2_qinfo_lock_res_init() behind the
+assignment in ocfs2_local_read_info().  Remove ocfs2_qinfo_lock_res_init()
+in ocfs2_global_read_info().
 
-This means that when providing an ignore pattern, the only files that
-will be checked will be the ones we want the ignore, in addition to the
-Kconfig files that don't match the pattern (the check in
-parse_kconfig_files is done right)
-
-Signed-off-by: Ariel Marcovitch <arielmarcovitch@gmail.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://lkml.kernel.org/r/20210804031832.57154-1-islituo@gmail.com
+Signed-off-by: Tuo Li <islituo@gmail.com>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/checkkconfigsymbols.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/quota_global.c | 1 -
+ fs/ocfs2/quota_local.c  | 2 ++
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/scripts/checkkconfigsymbols.py b/scripts/checkkconfigsymbols.py
-index a32e4da4c117..d96ea8ded18a 100755
---- a/scripts/checkkconfigsymbols.py
-+++ b/scripts/checkkconfigsymbols.py
-@@ -329,7 +329,7 @@ def check_symbols_helper(pool, ignore):
-         if REGEX_FILE_KCONFIG.match(gitfile):
-             kconfig_files.append(gitfile)
-         else:
--            if ignore and not re.match(ignore, gitfile):
-+            if ignore and re.match(ignore, gitfile):
-                 continue
-             # add source files that do not match the ignore pattern
-             source_files.append(gitfile)
+diff --git a/fs/ocfs2/quota_global.c b/fs/ocfs2/quota_global.c
+index 542fa21aeaa9..b80c28962a01 100644
+--- a/fs/ocfs2/quota_global.c
++++ b/fs/ocfs2/quota_global.c
+@@ -355,7 +355,6 @@ int ocfs2_global_read_info(struct super_block *sb, int type)
+ 	}
+ 	oinfo->dqi_gi.dqi_sb = sb;
+ 	oinfo->dqi_gi.dqi_type = type;
+-	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
+ 	oinfo->dqi_gi.dqi_entry_size = sizeof(struct ocfs2_global_disk_dqblk);
+ 	oinfo->dqi_gi.dqi_ops = &ocfs2_global_ops;
+ 	oinfo->dqi_gqi_bh = NULL;
+diff --git a/fs/ocfs2/quota_local.c b/fs/ocfs2/quota_local.c
+index 8a54fd8a4fa5..188182984ccb 100644
+--- a/fs/ocfs2/quota_local.c
++++ b/fs/ocfs2/quota_local.c
+@@ -705,6 +705,8 @@ static int ocfs2_local_read_info(struct super_block *sb, int type)
+ 	info->dqi_priv = oinfo;
+ 	oinfo->dqi_type = type;
+ 	INIT_LIST_HEAD(&oinfo->dqi_chunk);
++	oinfo->dqi_gqinode = NULL;
++	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
+ 	oinfo->dqi_rec = NULL;
+ 	oinfo->dqi_lqi_bh = NULL;
+ 	oinfo->dqi_libh = NULL;
 -- 
 2.30.2
 
