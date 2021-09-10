@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49648406BC3
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D98EA406C1C
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233999AbhIJMeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:34:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51666 "EHLO mail.kernel.org"
+        id S234444AbhIJMg6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:36:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233300AbhIJMdq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:33:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED3AE61026;
-        Fri, 10 Sep 2021 12:32:34 +0000 (UTC)
+        id S234434AbhIJMfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:35:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F314D61206;
+        Fri, 10 Sep 2021 12:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277155;
-        bh=X/sqA20iPz91bU3VUhdOFV01p3e6fAPvhJ9G63FgFHA=;
+        s=korg; t=1631277278;
+        bh=WSnMHjzypwQ7Fjbes+Eoz5ZjFsK+4pYENgGUMoTuVxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xUcsBIgEc82WkmjiZ56aSR8Bi/G1lLONhSfaxqvqL5nTc8jKt3Bdx9esMvWVr67f8
-         8ops4J4T5TkmGMFhIZlSdZTR1soyHyZDK/xJ/DITYjLJ6VnrzcdBANx9uiN746wcGV
-         qw88lzQ7mwfCUrT2pNfrOHbJ46MwNVmOvNLKXLJs=
+        b=o8w7uOGw9fakfG/ZwQ3UZD01dGQB6I6fsk3xr37vfc4+q03vBT5YxurVKjuu84msC
+         Mtj1OWk7fuqMSBVr+EeGMz8jUTYEKUgRthNCf9jKM7zSGv3LDOIzAgCd3F71D79k0b
+         Er9bjuyQcN+fjkbhJgPo5tWA5kR1Rgr8h5Wsox/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.13 22/22] PCI: Call Max Payload Size-related fixup quirks early
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 18/37] ALSA: hda/realtek: Workaround for conflicting SSID on ASUS ROG Strix G17
 Date:   Fri, 10 Sep 2021 14:30:21 +0200
-Message-Id: <20210910122916.659407589@linuxfoundation.org>
+Message-Id: <20210910122917.767802823@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122915.942645251@linuxfoundation.org>
-References: <20210910122915.942645251@linuxfoundation.org>
+In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
+References: <20210910122917.149278545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +38,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit b8da302e2955fe4d41eb9d48199242674d77dbe0 upstream.
+commit 13d9c6b998aaa76fd098133277a28a21f2cc2264 upstream.
 
-pci_device_add() calls HEADER fixups after pci_configure_device(), which
-configures Max Payload Size.
+ASUS ROG Strix G17 has the very same PCI and codec SSID (1043:103f) as
+ASUS TX300, and unfortunately, the existing quirk for TX300 is broken
+on ASUS ROG.  Actually the device works without the quirk, so we'll
+need to clear the quirk before applying for this device.
+Since ASUS ROG has a different codec (ALC294 - while TX300 has
+ALC282), this patch adds a workaround for the device, just clearing
+the codec->fixup_id by checking the codec vendor_id.
 
-Convert MPS-related fixups to EARLY fixups so pci_configure_mps() takes
-them into account.
+It's a bit ugly to add such a workaround there, but it seems to be the
+simplest way.
 
-Fixes: 27d868b5e6cfa ("PCI: Set MPS to match upstream bridge")
-Link: https://lore.kernel.org/r/20210624171418.27194-1-kabel@kernel.org
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=214101
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210820143214.3654-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ sound/pci/hda/patch_realtek.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -3235,12 +3235,12 @@ static void fixup_mpss_256(struct pci_de
- {
- 	dev->pcie_mpss = 1; /* 256 bytes */
- }
--DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
--			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_0, fixup_mpss_256);
--DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
--			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
--DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
--			 PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
-+			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_0, fixup_mpss_256);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
-+			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
-+			PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9160,6 +9160,16 @@ static int patch_alc269(struct hda_codec
  
- /*
-  * Intel 5000 and 5100 Memory controllers have an erratum with read completion
+ 	snd_hda_pick_fixup(codec, alc269_fixup_models,
+ 		       alc269_fixup_tbl, alc269_fixups);
++	/* FIXME: both TX300 and ROG Strix G17 have the same SSID, and
++	 * the quirk breaks the latter (bko#214101).
++	 * Clear the wrong entry.
++	 */
++	if (codec->fixup_id == ALC282_FIXUP_ASUS_TX300 &&
++	    codec->core.vendor_id == 0x10ec0294) {
++		codec_dbg(codec, "Clear wrong fixup for ASUS ROG Strix G17\n");
++		codec->fixup_id = HDA_FIXUP_ID_NOT_SET;
++	}
++
+ 	snd_hda_pick_pin_fixup(codec, alc269_pin_fixup_tbl, alc269_fixups, true);
+ 	snd_hda_pick_pin_fixup(codec, alc269_fallback_pin_fixup_tbl, alc269_fixups, false);
+ 	snd_hda_pick_fixup(codec, NULL,	alc269_fixup_vendor_tbl,
 
 
