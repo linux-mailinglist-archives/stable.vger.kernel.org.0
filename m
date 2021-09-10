@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 553B340618F
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6394E406196
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231694AbhIJAnI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:43:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44534 "EHLO mail.kernel.org"
+        id S232312AbhIJAnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:43:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232487AbhIJAS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:18:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AB4261241;
-        Fri, 10 Sep 2021 00:17:36 +0000 (UTC)
+        id S232509AbhIJAS6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:18:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98998611CC;
+        Fri, 10 Sep 2021 00:17:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233057;
-        bh=fQ60DlwU9mgGkgdD9aBG6nkHA2lsa66bW7yWfee+r/Y=;
+        s=k20201202; t=1631233058;
+        bh=ZCjjhDPW4hbvxCl8WPvpItKvzm7Kyi1xKV2fbxD9wyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUAEMb1d2DZ2rJTa3d9XDMZm76NVt8U2QqFx6y36NBQBCd6GfCA0cVk8ln0HYJVCb
-         K8Tgzh+GCEFyrVU3mkXMAnJsdbb9I/8SeTvRz4Ilg8EZK7Qcnt6iY0KMVvFoymniNS
-         lWpRQ5Oy/mKIprUo/2ZA1N0NBP/bx15RyVFgsO5/hITGMtMG6tJWlIQVtNh8TdYhy5
-         Vo746d8LFQphLcW9Yy5Jl1iC5IlNzF/gR2V21+9/Ea0VIDSDZCDRCNOzhmKrruncsh
-         shfOWltWo3LmH6RVwEPSXUDQIZ+QATsSYKaoVdiC+AHo98Bzpu1lXKjJWHewzO7/so
-         W+QksdWSXW23g==
+        b=CM3LQ2fSUXEfzQgZQzSuylt+9FkEWB4DvJB/lny5TMUCRHhxafY/E5Tmr4590cjmX
+         KTdIjgaLuuCSAMDrQIWOgQE1ALRPSLK4OMSb4NHlMW6bMWXwgqHissMKJcQaTRjcHi
+         3mL0JnCsqNSm5ausAfPVTO/UrzysfCIhDgT0AUTBHXJ1/yY8QhsOOBCnSmlyHG4DBb
+         ZqgB/CC4UMHzYEu7RnZEXarcOLBXUgk/AZ4Zgtc1r6EvwAaI/5zOYhBGWjKt4rJIeH
+         T1KPAqeoFzBM3aHtOcl9K1UmZibaS1PqA0IK15lkbg9G2CAeAF8uQsNuXmyIkZDD4A
+         1zzmh2G37LMuQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        Alexey Kardashevskiy <aik@ozlabs.ru>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.14 71/99] KVM: PPC: Book3S HV: Initialise vcpu MSR with MSR_ME
-Date:   Thu,  9 Sep 2021 20:15:30 -0400
-Message-Id: <20210910001558.173296-71-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 72/99] KVM: PPC: Book3S HV P9: Fixes for TM softpatch interrupt NIP
+Date:   Thu,  9 Sep 2021 20:15:31 -0400
+Message-Id: <20210910001558.173296-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -46,36 +45,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit fd42b7b09c602c904452c0c3e5955ca21d8e387a ]
+[ Upstream commit 4782e0cd0d184d727ad3b0cfe20d1d44d9f98239 ]
 
-It is possible to create a VCPU without setting the MSR before running
-it, which results in a warning in kvmhv_vcpu_entry_p9() that MSR_ME is
-not set. This is pretty harmless because the MSR_ME bit is added to
-HSRR1 before HRFID to guest, and a normal qemu guest doesn't hit it.
+The softpatch interrupt sets HSRR0 to the faulting instruction +4, so
+it should subtract 4 for the faulting instruction address in the case
+it is a TM softpatch interrupt (the instruction was not executed) and
+it was not emulated.
 
-Initialise the vcpu MSR with MSR_ME set.
-
-Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
 Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210811160134.904987-2-npiggin@gmail.com
+Link: https://lore.kernel.org/r/20210811160134.904987-4-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kvm/book3s_hv_tm.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 1ca0a4f760bc..18453aba86c4 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2684,6 +2684,7 @@ static int kvmppc_core_vcpu_create_hv(struct kvm_vcpu *vcpu)
- 	spin_lock_init(&vcpu->arch.vpa_update_lock);
- 	spin_lock_init(&vcpu->arch.tbacct_lock);
- 	vcpu->arch.busy_preempt = TB_NIL;
-+	vcpu->arch.shregs.msr = MSR_ME;
- 	vcpu->arch.intr_msr = MSR_SF | MSR_ME;
+diff --git a/arch/powerpc/kvm/book3s_hv_tm.c b/arch/powerpc/kvm/book3s_hv_tm.c
+index cc90b8b82329..e7c36f8bf205 100644
+--- a/arch/powerpc/kvm/book3s_hv_tm.c
++++ b/arch/powerpc/kvm/book3s_hv_tm.c
+@@ -46,6 +46,15 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 	u64 newmsr, bescr;
+ 	int ra, rs;
  
++	/*
++	 * The TM softpatch interrupt sets NIP to the instruction following
++	 * the faulting instruction, which is not executed. Rewind nip to the
++	 * faulting instruction so it looks like a normal synchronous
++	 * interrupt, then update nip in the places where the instruction is
++	 * emulated.
++	 */
++	vcpu->arch.regs.nip -= 4;
++
  	/*
+ 	 * rfid, rfebb, and mtmsrd encode bit 31 = 0 since it's a reserved bit
+ 	 * in these instructions, so masking bit 31 out doesn't change these
+@@ -67,7 +76,7 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 			       (newmsr & MSR_TM)));
+ 		newmsr = sanitize_msr(newmsr);
+ 		vcpu->arch.shregs.msr = newmsr;
+-		vcpu->arch.cfar = vcpu->arch.regs.nip - 4;
++		vcpu->arch.cfar = vcpu->arch.regs.nip;
+ 		vcpu->arch.regs.nip = vcpu->arch.shregs.srr0;
+ 		return RESUME_GUEST;
+ 
+@@ -100,7 +109,7 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.bescr = bescr;
+ 		msr = (msr & ~MSR_TS_MASK) | MSR_TS_T;
+ 		vcpu->arch.shregs.msr = msr;
+-		vcpu->arch.cfar = vcpu->arch.regs.nip - 4;
++		vcpu->arch.cfar = vcpu->arch.regs.nip;
+ 		vcpu->arch.regs.nip = vcpu->arch.ebbrr;
+ 		return RESUME_GUEST;
+ 
+@@ -116,6 +125,7 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 		newmsr = (newmsr & ~MSR_LE) | (msr & MSR_LE);
+ 		newmsr = sanitize_msr(newmsr);
+ 		vcpu->arch.shregs.msr = newmsr;
++		vcpu->arch.regs.nip += 4;
+ 		return RESUME_GUEST;
+ 
+ 	/* ignore bit 31, see comment above */
+@@ -152,6 +162,7 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 				msr = (msr & ~MSR_TS_MASK) | MSR_TS_S;
+ 		}
+ 		vcpu->arch.shregs.msr = msr;
++		vcpu->arch.regs.nip += 4;
+ 		return RESUME_GUEST;
+ 
+ 	/* ignore bit 31, see comment above */
+@@ -189,6 +200,7 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.regs.ccr = (vcpu->arch.regs.ccr & 0x0fffffff) |
+ 			(((msr & MSR_TS_MASK) >> MSR_TS_S_LG) << 29);
+ 		vcpu->arch.shregs.msr &= ~MSR_TS_MASK;
++		vcpu->arch.regs.nip += 4;
+ 		return RESUME_GUEST;
+ 
+ 	/* ignore bit 31, see comment above */
+@@ -220,6 +232,7 @@ int kvmhv_p9_tm_emulation(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.regs.ccr = (vcpu->arch.regs.ccr & 0x0fffffff) |
+ 			(((msr & MSR_TS_MASK) >> MSR_TS_S_LG) << 29);
+ 		vcpu->arch.shregs.msr = msr | MSR_TS_S;
++		vcpu->arch.regs.nip += 4;
+ 		return RESUME_GUEST;
+ 	}
+ 
 -- 
 2.30.2
 
