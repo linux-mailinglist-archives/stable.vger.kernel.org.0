@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1A4F40637E
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 590F8406390
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240270AbhIJAr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:47:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49468 "EHLO mail.kernel.org"
+        id S240464AbhIJAr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:47:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234763AbhIJAYN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:24:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2057611BD;
-        Fri, 10 Sep 2021 00:23:02 +0000 (UTC)
+        id S234775AbhIJAYO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:24:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E63C060FC0;
+        Fri, 10 Sep 2021 00:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233383;
-        bh=ISzSvm4C6f8lHwgz+pYqhFqWZ8I8lIYQVNbzl6VCqi8=;
+        s=k20201202; t=1631233384;
+        bh=Wq+KxzoJaZWcB5H0ty7GAaFpACHkgEoqy/aaFZr/dUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a5MczqkOv12YbXLfY+4UES3v7pDgRRD1dU8G94Qd7iHMhMSSSq8cmGwT+rXcnRt8m
-         /Mc5s268pWlkd4bq/VhK/PT4cHc6Dwo8ij7i3AjMTp9pA7ak+OKVDc6lo8YwQdVEGG
-         SXzdnBzR4qHIbj0mmYPkiBqRnjFTdqblDnis4MdC9yTyX+tkSDKHCeVBeekwsJKqcZ
-         c/OCy7kpOFXYakCa3kchfeiujZE+xS8+oa/y7aZfAPpxb/FCay3TBPYBBG8gDranT1
-         D9gGC0CIMdD1WlhldaPoPg9/h6oG9vWZgjPW7j2M8bKPBvhhDX2gYas3mVI8MIe7Or
-         biPeLnvF+4N8w==
+        b=GVX495EHsa9LphHCmj3h9EqFyTiFdDLk+cZZob4ANhxHjDwej5Bjd4SihshY7a1M6
+         zh/3XkYYRYB5ANNBg7iR2JBsaGb6ZP2tkPGvMm0YdE1TMWLha7YgZpFFBEM3nouBzM
+         DGTGidrbCsn8ZUiYm/oOCdiRSIfFWE9mb1ovtkZu4GIEg23oQCVuyyi0WVBsKJdr8S
+         Ii3d+ErLCrpaHFzWfnKda8ClVE1IWUHdy4T/CXF2aZeN6KFRPso9BTOv/hDib2snaM
+         ZAFazqrH/nc3GixEUTKGvt1zH4URor/vTagFuMAP5jcRrBmWMWg91cn6rbQawNzXb9
+         TsHW82gZcRJOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>,
-        xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 4.19 22/25] xen: remove stray preempt_disable() from PV AP startup code
-Date:   Thu,  9 Sep 2021 20:22:30 -0400
-Message-Id: <20210910002234.176125-22-sashal@kernel.org>
+Cc:     Ariel Marcovitch <arielmarcovitch@gmail.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 23/25] checkkconfigsymbols.py: Fix the '--ignore' option
+Date:   Thu,  9 Sep 2021 20:22:31 -0400
+Message-Id: <20210910002234.176125-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002234.176125-1-sashal@kernel.org>
 References: <20210910002234.176125-1-sashal@kernel.org>
@@ -41,36 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Ariel Marcovitch <arielmarcovitch@gmail.com>
 
-[ Upstream commit 58e636039b512697554b579c2bb23774061877f5 ]
+[ Upstream commit 1439ebd2ce77242400518d4e6a1e85bebcd8084f ]
 
-In cpu_bringup() there is a call of preempt_disable() without a paired
-preempt_enable(). This is not needed as interrupts are off initially.
-Additionally this will result in early boot messages like:
+It seems like the implementation of the --ignore option is broken.
 
-BUG: scheduling while atomic: swapper/1/0/0x00000002
+In check_symbols_helper, when going through the list of files, a file is
+added to the list of source files to check if it matches the ignore
+pattern. Instead, as stated in the comment below this condition, the
+file should be added if it doesn't match the pattern.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/20210825113158.11716-1-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+This means that when providing an ignore pattern, the only files that
+will be checked will be the ones we want the ignore, in addition to the
+Kconfig files that don't match the pattern (the check in
+parse_kconfig_files is done right)
+
+Signed-off-by: Ariel Marcovitch <arielmarcovitch@gmail.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/smp_pv.c | 1 -
- 1 file changed, 1 deletion(-)
+ scripts/checkkconfigsymbols.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
-index 41fd4c123165..7b6e56703bb9 100644
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -59,7 +59,6 @@ static void cpu_bringup(void)
- 
- 	cpu_init();
- 	touch_softlockup_watchdog();
--	preempt_disable();
- 
- 	/* PVH runs in ring 0 and allows us to do native syscalls. Yay! */
- 	if (!xen_feature(XENFEAT_supervisor_mode_kernel)) {
+diff --git a/scripts/checkkconfigsymbols.py b/scripts/checkkconfigsymbols.py
+index 8cd16c65d3c5..bbf5fc30472c 100755
+--- a/scripts/checkkconfigsymbols.py
++++ b/scripts/checkkconfigsymbols.py
+@@ -329,7 +329,7 @@ def check_symbols_helper(pool, ignore):
+         if REGEX_FILE_KCONFIG.match(gitfile):
+             kconfig_files.append(gitfile)
+         else:
+-            if ignore and not re.match(ignore, gitfile):
++            if ignore and re.match(ignore, gitfile):
+                 continue
+             # add source files that do not match the ignore pattern
+             source_files.append(gitfile)
 -- 
 2.30.2
 
