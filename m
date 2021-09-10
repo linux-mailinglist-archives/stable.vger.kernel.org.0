@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6DF540627E
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A932406285
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241768AbhIJApd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:45:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47206 "EHLO mail.kernel.org"
+        id S241778AbhIJApe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:45:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232762AbhIJAVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:21:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 721126023D;
-        Fri, 10 Sep 2021 00:20:10 +0000 (UTC)
+        id S233777AbhIJAVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:21:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A184610E9;
+        Fri, 10 Sep 2021 00:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233211;
-        bh=FyZy43GHK7jIYNL7e0FXP+TeGrf6xbmOHOWhZy9F/FA=;
+        s=k20201202; t=1631233213;
+        bh=ZfP09m5w4LGh1ZGZG+EzEbW+bLxlL9P5Fvsc5CaZiW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Di57oMCf/LXE9TTf1Gr/QnknRHpdWLN4P+cHr44GyNEvpMIIxSxcX6mAXmwAUW1QH
-         o25UmjRZ/bKKBD/7eARLNzTcczFOGERFeaVwWT1CcPCoKBNVJZSpw5z/3oG0/j3g7B
-         jiTZJIC0yGj6tDnayKHi+M1B63iUV5NzD8dAzTgmOvBjq4tApl6gX/uOYN2qqvuK+R
-         znpnt9qkX4xkoXLnWke/grcjQiBZgRvJF608NrhXvYBFUUP6dcj2xN/yM1yCAYo9rf
-         ew10ZevVGSmDvM9PDFJyy/YGjsgdxNMP1/i+Aiqqf2HjyInKZjW1vioEE5DVL0EarJ
-         ZJIMIXb/qgvSQ==
+        b=gkerlsG+bUNRsYAHpZCN6V0Z9H5SuFGA2sQm+D1w5hGKkJuzVM5PaxRvYs8dytfvM
+         RsYpCeQMekAvhh1ctCUVOsINaHf1d5rlXtE/cAfyyObBn+QNy6pCer/UY4z5syvtzS
+         dI5Irz7+3SqDvMG5OeWsvSWwmdKUOAEjYvs+khPl8C28gUxSMnufklgSiPgw4d6Bch
+         nl9iIlmuxtjBUwE/Rumug2x0/dE+XDcTR6JNI3X3mEmvarr00c7gocHo1Y2MpU018H
+         EkAYIDHAvgf/skBGCWX0xpkj0rrrUV6I6Wnz0sTw/TbWNCI6b4PR0oK4orKTvDu7Ft
+         WJWhmJ4FsWvRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tuo Li <islituo@gmail.com>, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
+Cc:     Gang He <ghe@suse.com>, Joseph Qi <joseph.qi@linux.alibaba.com>,
         Mark Fasheh <mark@fasheh.com>,
         Joel Becker <jlbec@evilplan.org>,
         Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Changwei Ge <gechangwei@live.cn>,
         Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
-Subject: [PATCH AUTOSEL 5.13 79/88] ocfs2: quota_local: fix possible uninitialized-variable access in ocfs2_local_read_info()
-Date:   Thu,  9 Sep 2021 20:18:11 -0400
-Message-Id: <20210910001820.174272-79-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 80/88] ocfs2: ocfs2_downconvert_lock failure results in deadlock
+Date:   Thu,  9 Sep 2021 20:18:12 -0400
+Message-Id: <20210910001820.174272-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
@@ -49,23 +48,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Gang He <ghe@suse.com>
 
-[ Upstream commit 6c85c2c728193d19d6a908ae9fb312d0325e65ca ]
+[ Upstream commit 9673e0050c39b0534d0e2ca431223f52089f4959 ]
 
-A memory block is allocated through kmalloc(), and its return value is
-assigned to the pointer oinfo. However, oinfo->dqi_gqinode is not
-initialized but it is accessed in:
-  iput(oinfo->dqi_gqinode);
+Usually, ocfs2_downconvert_lock() function always downconverts dlm lock to
+the expected level for satisfy dlm bast requests from the other nodes.
 
-To fix this possible uninitialized-variable access, assign NULL to
-oinfo->dqi_gqinode, and add ocfs2_qinfo_lock_res_init() behind the
-assignment in ocfs2_local_read_info().  Remove ocfs2_qinfo_lock_res_init()
-in ocfs2_global_read_info().
+But there is a rare situation.  When dlm lock conversion is being
+canceled, ocfs2_downconvert_lock() function will return -EBUSY.  You need
+to be aware that ocfs2_cancel_convert() function is asynchronous in fsdlm
+implementation.
 
-Link: https://lkml.kernel.org/r/20210804031832.57154-1-islituo@gmail.com
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+If we does not requeue this lockres entry, ocfs2 downconvert thread no
+longer handles this dlm lock bast request.  Then, the other nodes will not
+get the dlm lock again, the current node's process will be blocked when
+acquire this dlm lock again.
+
+Link: https://lkml.kernel.org/r/20210830044621.12544-1-ghe@suse.com
+Signed-off-by: Gang He <ghe@suse.com>
 Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
 Cc: Mark Fasheh <mark@fasheh.com>
 Cc: Joel Becker <jlbec@evilplan.org>
@@ -77,35 +78,39 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/quota_global.c | 1 -
- fs/ocfs2/quota_local.c  | 2 ++
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ fs/ocfs2/dlmglue.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/fs/ocfs2/quota_global.c b/fs/ocfs2/quota_global.c
-index eda83487c9ec..f033de733adb 100644
---- a/fs/ocfs2/quota_global.c
-+++ b/fs/ocfs2/quota_global.c
-@@ -357,7 +357,6 @@ int ocfs2_global_read_info(struct super_block *sb, int type)
- 	}
- 	oinfo->dqi_gi.dqi_sb = sb;
- 	oinfo->dqi_gi.dqi_type = type;
--	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
- 	oinfo->dqi_gi.dqi_entry_size = sizeof(struct ocfs2_global_disk_dqblk);
- 	oinfo->dqi_gi.dqi_ops = &ocfs2_global_ops;
- 	oinfo->dqi_gqi_bh = NULL;
-diff --git a/fs/ocfs2/quota_local.c b/fs/ocfs2/quota_local.c
-index b1a8b046f4c2..0e4b16d4c037 100644
---- a/fs/ocfs2/quota_local.c
-+++ b/fs/ocfs2/quota_local.c
-@@ -702,6 +702,8 @@ static int ocfs2_local_read_info(struct super_block *sb, int type)
- 	info->dqi_priv = oinfo;
- 	oinfo->dqi_type = type;
- 	INIT_LIST_HEAD(&oinfo->dqi_chunk);
-+	oinfo->dqi_gqinode = NULL;
-+	ocfs2_qinfo_lock_res_init(&oinfo->dqi_gqlock, oinfo);
- 	oinfo->dqi_rec = NULL;
- 	oinfo->dqi_lqi_bh = NULL;
- 	oinfo->dqi_libh = NULL;
+diff --git a/fs/ocfs2/dlmglue.c b/fs/ocfs2/dlmglue.c
+index 48fd369c29a4..f8f561850470 100644
+--- a/fs/ocfs2/dlmglue.c
++++ b/fs/ocfs2/dlmglue.c
+@@ -16,6 +16,7 @@
+ #include <linux/debugfs.h>
+ #include <linux/seq_file.h>
+ #include <linux/time.h>
++#include <linux/delay.h>
+ #include <linux/quotaops.h>
+ #include <linux/sched/signal.h>
+ 
+@@ -3912,6 +3913,17 @@ static int ocfs2_unblock_lock(struct ocfs2_super *osb,
+ 	spin_unlock_irqrestore(&lockres->l_lock, flags);
+ 	ret = ocfs2_downconvert_lock(osb, lockres, new_level, set_lvb,
+ 				     gen);
++	/* The dlm lock convert is being cancelled in background,
++	 * ocfs2_cancel_convert() is asynchronous in fs/dlm,
++	 * requeue it, try again later.
++	 */
++	if (ret == -EBUSY) {
++		ctl->requeue = 1;
++		mlog(ML_BASTS, "lockres %s, ReQ: Downconvert busy\n",
++		     lockres->l_name);
++		ret = 0;
++		msleep(20);
++	}
+ 
+ leave:
+ 	if (ret)
 -- 
 2.30.2
 
