@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7A0D406BDA
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80630406C12
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234000AbhIJMfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:35:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52456 "EHLO mail.kernel.org"
+        id S233707AbhIJMgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:36:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233737AbhIJMeV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:34:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD2C7611EF;
-        Fri, 10 Sep 2021 12:33:09 +0000 (UTC)
+        id S234118AbhIJMfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:35:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95A1A611C0;
+        Fri, 10 Sep 2021 12:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277190;
-        bh=Bkk1cmLGO+RFsmedEvWb0IG08er6IeUWhxQfQo5c388=;
+        s=korg; t=1631277268;
+        bh=R+pFxqUfFaswkHSpX4l232ejy8W9LWJkctYPypdexeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqOjWMrO5TMYvgbZG9N5O/V25TpKtTCrVoXbJLiIZN79M8BtRqdAmIL6eL+8rnScb
-         zYDSfY0XjtNp9H8hvWSFK06dw/jm7UGCUDf0JaY/FZ/uTJ/1q5WpBVNUkAl4sRLLhQ
-         YRjCMttCOtPyguhyjzrS6HwXjswZWQNIqK/YVb1U=
+        b=i6ijUnPufRElixe7AgtVGjXaalpieGWPQyefrUjNhO8X4LoJ02DbYVoI1d30ItS3f
+         10hdJpCNLha77Y1/f5XmUiQzHkQGqKQpbZWoqFdDl4kVQRXPxk8acVef0+U23CYBk1
+         LMOdU1T0Gj9bQsHPeKldb4Wxhas0yMxWsAhAV5/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>
-Subject: [PATCH 5.10 13/26] netfilter: nftables: avoid potential overflows on 32bit arches
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 14/37] perf/x86/amd/ibs: Work around erratum #1197
 Date:   Fri, 10 Sep 2021 14:30:17 +0200
-Message-Id: <20210910122916.682588706@linuxfoundation.org>
+Message-Id: <20210910122917.642099145@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
-References: <20210910122916.253646001@linuxfoundation.org>
+In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
+References: <20210910122917.149278545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-commit 6c8774a94e6ad26f29ef103c8671f55c255c6201 upstream.
+[ Upstream commit 26db2e0c51fe83e1dd852c1321407835b481806e ]
 
-User space could ask for very large hash tables, we need to make sure
-our size computations wont overflow.
+Erratum #1197 "IBS (Instruction Based Sampling) Register State May be
+Incorrect After Restore From CC6" is published in a document:
 
-nf_tables_newset() needs to double check the u64 size
-will fit into size_t field.
+  "Revision Guide for AMD Family 19h Models 00h-0Fh Processors" 56683 Rev. 1.04 July 2021
 
-Fixes: 0ed6389c483d ("netfilter: nf_tables: rename set implementations")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  https://bugzilla.kernel.org/show_bug.cgi?id=206537
+
+Implement the erratum's suggested workaround and ignore IBS samples if
+MSRC001_1031 == 0.
+
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20210817221048.88063-3-kim.phillips@amd.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c |    7 +++++--
- net/netfilter/nft_set_hash.c  |   10 +++++-----
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ arch/x86/events/amd/ibs.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -4115,6 +4115,7 @@ static int nf_tables_newset(struct net *
- 	struct nft_table *table;
- 	struct nft_set *set;
- 	struct nft_ctx ctx;
-+	size_t alloc_size;
- 	char *name;
- 	u64 size;
- 	u64 timeout;
-@@ -4263,8 +4264,10 @@ static int nf_tables_newset(struct net *
- 	size = 0;
- 	if (ops->privsize != NULL)
- 		size = ops->privsize(nla, &desc);
--
--	set = kvzalloc(sizeof(*set) + size + udlen, GFP_KERNEL);
-+	alloc_size = sizeof(*set) + size + udlen;
-+	if (alloc_size < size)
-+		return -ENOMEM;
-+	set = kvzalloc(alloc_size, GFP_KERNEL);
- 	if (!set)
- 		return -ENOMEM;
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index 39169885adfa..ff07040287c4 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -90,6 +90,7 @@ struct perf_ibs {
+ 	unsigned long			offset_mask[1];
+ 	int				offset_max;
+ 	unsigned int			fetch_count_reset_broken : 1;
++	unsigned int			fetch_ignore_if_zero_rip : 1;
+ 	struct cpu_perf_ibs __percpu	*pcpu;
  
---- a/net/netfilter/nft_set_hash.c
-+++ b/net/netfilter/nft_set_hash.c
-@@ -604,7 +604,7 @@ static u64 nft_hash_privsize(const struc
- 			     const struct nft_set_desc *desc)
- {
- 	return sizeof(struct nft_hash) +
--	       nft_hash_buckets(desc->size) * sizeof(struct hlist_head);
-+	       (u64)nft_hash_buckets(desc->size) * sizeof(struct hlist_head);
- }
+ 	struct attribute		**format_attrs;
+@@ -663,6 +664,10 @@ fail:
+ 	if (check_rip && (ibs_data.regs[2] & IBS_RIP_INVALID)) {
+ 		regs.flags &= ~PERF_EFLAGS_EXACT;
+ 	} else {
++		/* Workaround for erratum #1197 */
++		if (perf_ibs->fetch_ignore_if_zero_rip && !(ibs_data.regs[1]))
++			goto out;
++
+ 		set_linear_ip(&regs, ibs_data.regs[1]);
+ 		regs.flags |= PERF_EFLAGS_EXACT;
+ 	}
+@@ -756,6 +761,9 @@ static __init void perf_event_ibs_init(void)
+ 	if (boot_cpu_data.x86 >= 0x16 && boot_cpu_data.x86 <= 0x18)
+ 		perf_ibs_fetch.fetch_count_reset_broken = 1;
  
- static int nft_hash_init(const struct nft_set *set,
-@@ -644,8 +644,8 @@ static bool nft_hash_estimate(const stru
- 		return false;
++	if (boot_cpu_data.x86 == 0x19 && boot_cpu_data.x86_model < 0x10)
++		perf_ibs_fetch.fetch_ignore_if_zero_rip = 1;
++
+ 	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
  
- 	est->size   = sizeof(struct nft_hash) +
--		      nft_hash_buckets(desc->size) * sizeof(struct hlist_head) +
--		      desc->size * sizeof(struct nft_hash_elem);
-+		      (u64)nft_hash_buckets(desc->size) * sizeof(struct hlist_head) +
-+		      (u64)desc->size * sizeof(struct nft_hash_elem);
- 	est->lookup = NFT_SET_CLASS_O_1;
- 	est->space  = NFT_SET_CLASS_O_N;
- 
-@@ -662,8 +662,8 @@ static bool nft_hash_fast_estimate(const
- 		return false;
- 
- 	est->size   = sizeof(struct nft_hash) +
--		      nft_hash_buckets(desc->size) * sizeof(struct hlist_head) +
--		      desc->size * sizeof(struct nft_hash_elem);
-+		      (u64)nft_hash_buckets(desc->size) * sizeof(struct hlist_head) +
-+		      (u64)desc->size * sizeof(struct nft_hash_elem);
- 	est->lookup = NFT_SET_CLASS_O_1;
- 	est->space  = NFT_SET_CLASS_O_N;
- 
+ 	if (ibs_caps & IBS_CAPS_OPCNT) {
+-- 
+2.30.2
+
 
 
