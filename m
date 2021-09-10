@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FC5A406C1B
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB353406BE8
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234152AbhIJMg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:36:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54670 "EHLO mail.kernel.org"
+        id S233769AbhIJMfc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:35:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234449AbhIJMfw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:35:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C110C6120A;
-        Fri, 10 Sep 2021 12:34:40 +0000 (UTC)
+        id S234192AbhIJMei (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:34:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C949560E94;
+        Fri, 10 Sep 2021 12:33:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277281;
-        bh=F24TdFUH5CQsnKq46FZSuduUQiyheaZt3lDooekJxnY=;
+        s=korg; t=1631277207;
+        bh=WqSVZqc8W+0qcj8G9jPcDiTahB3uUNnrxTIuy542Qzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LN2tqWyLIhRdXB607ZZwWgFD5GZQtsU+c8wj5YzZdAoNeq5y+vTBstdisP1NF1OcA
-         O5jmVedxJPeJJV0Q9HnD5rHIUyq+MOCIFnEpizXroMI5sifRSUimeOCKbFQa+y6h8i
-         cHxil1oFlbncqmO55A4bzGtZYomkVT2/vnllNicE=
+        b=Q3EIaicDSV+Un2WbVEPbRmKftqrlMJ66zulD5v5oBwBgGeiqSV1alrD0GKvX8VLBS
+         6gZATp0BUI6eqY/LaN7FsikGbGHQxWumWEKPYXTOrG5oMDwIePzneTpNrd3OTyWi4b
+         +4Ar61t5YhKB8D4nF9dCr+Yy0Qt3ktFPIjVrEhT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zubin Mithra <zsm@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 19/37] ALSA: pcm: fix divide error in snd_pcm_lib_ioctl
-Date:   Fri, 10 Sep 2021 14:30:22 +0200
-Message-Id: <20210910122917.800179513@linuxfoundation.org>
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.10 19/26] usb: gadget: tegra-xudc: fix the wrong mult value for HS isoc or intr
+Date:   Fri, 10 Sep 2021 14:30:23 +0200
+Message-Id: <20210910122916.875884800@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
-References: <20210910122917.149278545@linuxfoundation.org>
+In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
+References: <20210910122916.253646001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zubin Mithra <zsm@chromium.org>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit f3eef46f0518a2b32ca1244015820c35a22cfe4a upstream.
+commit eeb0cfb6b2b6b731902e68af641e30bd31be3c7b upstream.
 
-Syzkaller reported a divide error in snd_pcm_lib_ioctl. fifo_size
-is of type snd_pcm_uframes_t(unsigned long). If frame_size
-is 0x100000000, the error occurs.
+usb_endpoint_maxp() only returns the bit[10:0] of wMaxPacketSize
+of endpoint descriptor, not includes bit[12:11] anymore, so use
+usb_endpoint_maxp_mult() instead.
+Meanwhile no need AND 0x7ff when get maxp, remove it.
 
-Fixes: a9960e6a293e ("ALSA: pcm: fix fifo_size frame calculation")
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210827153735.789452-1-zsm@chromium.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 49db427232fe ("usb: gadget: Add UDC driver for tegra XUSB device mode controller")
+Cc: stable@vger.kernel.org
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1628836253-7432-5-git-send-email-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/pcm_lib.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/tegra-xudc.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -1736,7 +1736,7 @@ static int snd_pcm_lib_ioctl_fifo_size(s
- 		channels = params_channels(params);
- 		frame_size = snd_pcm_format_size(format, channels);
- 		if (frame_size > 0)
--			params->fifo_size /= (unsigned)frame_size;
-+			params->fifo_size /= frame_size;
- 	}
- 	return 0;
- }
+--- a/drivers/usb/gadget/udc/tegra-xudc.c
++++ b/drivers/usb/gadget/udc/tegra-xudc.c
+@@ -1610,7 +1610,7 @@ static void tegra_xudc_ep_context_setup(
+ 	u16 maxpacket, maxburst = 0, esit = 0;
+ 	u32 val;
+ 
+-	maxpacket = usb_endpoint_maxp(desc) & 0x7ff;
++	maxpacket = usb_endpoint_maxp(desc);
+ 	if (xudc->gadget.speed == USB_SPEED_SUPER) {
+ 		if (!usb_endpoint_xfer_control(desc))
+ 			maxburst = comp_desc->bMaxBurst;
+@@ -1621,7 +1621,7 @@ static void tegra_xudc_ep_context_setup(
+ 		   (usb_endpoint_xfer_int(desc) ||
+ 		    usb_endpoint_xfer_isoc(desc))) {
+ 		if (xudc->gadget.speed == USB_SPEED_HIGH) {
+-			maxburst = (usb_endpoint_maxp(desc) >> 11) & 0x3;
++			maxburst = usb_endpoint_maxp_mult(desc) - 1;
+ 			if (maxburst == 0x3) {
+ 				dev_warn(xudc->dev,
+ 					 "invalid endpoint maxburst\n");
 
 
