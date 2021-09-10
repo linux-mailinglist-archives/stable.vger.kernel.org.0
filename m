@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD1E4062CF
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5884062D9
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242052AbhIJAqN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:46:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
+        id S232043AbhIJAqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:46:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233964AbhIJAWN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:22:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B385D610E9;
-        Fri, 10 Sep 2021 00:21:02 +0000 (UTC)
+        id S232478AbhIJAWP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:22:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB2D3610A3;
+        Fri, 10 Sep 2021 00:21:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233263;
-        bh=9hbZSs7CGi5rrgcREuH1wow82wBAcaBkn6tOl9HQ2co=;
+        s=k20201202; t=1631233264;
+        bh=ebCxuVkY3vt1j9HDB2HYnEtlQkFkVTLOAQ4SCVdRC1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6btt/U2YdV0Pine77e0ulcyVJySUGtFLm9Z/hcF1O45cPeJ/tDH4GSxY5MUQXHZ2
-         g78t85f7+Ef2DP5lufdbRH3woFK2nMx7jl3lO3au3Nv7QIlTzm9vfLRJsSEOgdlkhC
-         rdx2ibZwm+53K1dtNTt859ZAJPFqS0XY1bYc7FzuwXiUjpUdESWZhhYFCBPQ/zILOw
-         e2brDfUcrTB9t0drp9QeCRN3mWW232x4FUpYBrzXPKVF2xYTRyh0ArcSjm8+NfOxAK
-         dbfggC3YZo1nz973ivF2QgbR77iD3nxtuIp4xu1K4tKkz8FUo5Qg3dxb7URqIMTDtL
-         PEnnH+UrP0WAA==
+        b=HFUdt8h5C3ZzTCwYSYY2XvU6Oo80dWAj7OfXSzOydIvWTdG1S21fWHNvRZXkkc9dK
+         Skyr3xAR6bR+eoLJTZmln4CT7j8RB/cg4aQFqdQcqX4kmIN+AAc5UIUsajSif10DiD
+         6tIhAr4NGXVQxY7NzhXUxUJVhctexooaxmVKQGha/146DG44AhLg2BY/R+nHPCyaam
+         eIcmPJhbnnvTcfFADXtg84TurmTKImtzSc2041UcaQBnPyzDuRK11JVB/34/DBdTCc
+         lwmupW9iOD4f/I0VTGM2FhKHIGgogeyvHCAbLDoOpVRCDGayD+nVZc833ixbq4hk/z
+         mjgd4zE0ML+tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengguang Xu <cgxu519@mykernel.net>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org,
-        linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 25/53] ovl: skip checking lower file's i_writecount on truncate
-Date:   Thu,  9 Sep 2021 20:20:00 -0400
-Message-Id: <20210910002028.175174-25-sashal@kernel.org>
+Cc:     Tuo Li <islituo@gmail.com>, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Bodo Stroesser <bostroesser@gmail.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 26/53] scsi: target: pscsi: Fix possible null-pointer dereference in pscsi_complete_cmd()
+Date:   Thu,  9 Sep 2021 20:20:01 -0400
+Message-Id: <20210910002028.175174-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
@@ -43,68 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@mykernel.net>
+From: Tuo Li <islituo@gmail.com>
 
-[ Upstream commit b71759ef1e1730db81dab98e9dab9455e8c7f5a2 ]
+[ Upstream commit 0f99792c01d1d6d35b86e850e9ccadd98d6f3e0c ]
 
-It is possible that a directory tree is shared between multiple overlay
-instances as a lower layer.  In this case when one instance executes a file
-residing on the lower layer, the other instance denies a truncate(2) call
-on this file.
+The return value of transport_kmap_data_sg() is assigned to the variable
+buf:
 
-This only happens for truncate(2) and not for open(2) with the O_TRUNC
-flag.
+  buf = transport_kmap_data_sg(cmd);
 
-Fix this interference and inconsistency by removing the preliminary
-i_writecount check before copy-up.
+And then it is checked:
 
-This means that unlike on normal filesystems truncate(argv[0]) will now
-succeed.  If this ever causes a regression in a real world use case this
-needs to be revisited.
+  if (!buf) {
 
-One way to fix this properly would be to keep a correct i_writecount in the
-overlay inode, but that is difficult due to memory mapping code only
-dealing with the real file/inode.
+This indicates that buf can be NULL. However, it is dereferenced in the
+following statements:
 
-Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+  if (!(buf[3] & 0x80))
+    buf[3] |= 0x80;
+  if (!(buf[2] & 0x80))
+    buf[2] |= 0x80;
+
+To fix these possible null-pointer dereferences, dereference buf and call
+transport_kunmap_data_sg() only when buf is not NULL.
+
+Link: https://lore.kernel.org/r/20210810040414.248167-1-islituo@gmail.com
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
+Signed-off-by: Tuo Li <islituo@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/filesystems/overlayfs.rst | 3 +++
- fs/overlayfs/inode.c                    | 6 ------
- 2 files changed, 3 insertions(+), 6 deletions(-)
+ drivers/target/target_core_pscsi.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/filesystems/overlayfs.rst b/Documentation/filesystems/overlayfs.rst
-index 137afeb3f581..7c40a135a919 100644
---- a/Documentation/filesystems/overlayfs.rst
-+++ b/Documentation/filesystems/overlayfs.rst
-@@ -427,6 +427,9 @@ b) If a file residing on a lower layer is opened for read-only and then
- memory mapped with MAP_SHARED, then subsequent changes to the file are not
- reflected in the memory mapping.
- 
-+c) If a file residing on a lower layer is being executed, then opening that
-+file for write or truncating the file will not be denied with ETXTBSY.
-+
- The following options allow overlayfs to act more like a standards
- compliant filesystem:
- 
-diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-index 4fadafd8bdc1..6ee183e523c5 100644
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -30,12 +30,6 @@ int ovl_setattr(struct dentry *dentry, struct iattr *attr)
- 		goto out;
- 
- 	if (attr->ia_valid & ATTR_SIZE) {
--		struct inode *realinode = d_inode(ovl_dentry_real(dentry));
+diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
+index f10f0aa6cd37..19adf5812de5 100644
+--- a/drivers/target/target_core_pscsi.c
++++ b/drivers/target/target_core_pscsi.c
+@@ -622,17 +622,17 @@ static void pscsi_complete_cmd(struct se_cmd *cmd, u8 scsi_status,
+ 			buf = transport_kmap_data_sg(cmd);
+ 			if (!buf) {
+ 				; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
+-			}
 -
--		err = -ETXTBSY;
--		if (atomic_read(&realinode->i_writecount) < 0)
--			goto out_drop_write;
--
- 		/* Truncate should trigger data copy up as well */
- 		full_copy_up = true;
+-			if (cdb[0] == MODE_SENSE_10) {
+-				if (!(buf[3] & 0x80))
+-					buf[3] |= 0x80;
+ 			} else {
+-				if (!(buf[2] & 0x80))
+-					buf[2] |= 0x80;
+-			}
++				if (cdb[0] == MODE_SENSE_10) {
++					if (!(buf[3] & 0x80))
++						buf[3] |= 0x80;
++				} else {
++					if (!(buf[2] & 0x80))
++						buf[2] |= 0x80;
++				}
+ 
+-			transport_kunmap_data_sg(cmd);
++				transport_kunmap_data_sg(cmd);
++			}
+ 		}
  	}
+ after_mode_sense:
 -- 
 2.30.2
 
