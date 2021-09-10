@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DE63406C28
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C4B6406B90
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234418AbhIJMhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:37:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55194 "EHLO mail.kernel.org"
+        id S233372AbhIJMcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:32:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234523AbhIJMgN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:36:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7D70611CC;
-        Fri, 10 Sep 2021 12:35:01 +0000 (UTC)
+        id S233321AbhIJMcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:32:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A48F1611C9;
+        Fri, 10 Sep 2021 12:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277302;
-        bh=Fp9iHK9qg8iuvvWGDvZmfJn8RZX3hd+AzMlZ/QaJh9k=;
+        s=korg; t=1631277084;
+        bh=X/sqA20iPz91bU3VUhdOFV01p3e6fAPvhJ9G63FgFHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3Zf/eaLj0pKEPvr6IhTzFpVXZDl0a6lRz7uEPQ7L4/UkcLnLTpcI6T3kLARhxXud
-         HTdgTNVJQ++KEiSHQ4eWaLTpcI04wUX7xwLM+Vq1DTukA4MccqiBfdqoFVbeGhCE7n
-         IsMXmOeSa0Jjx1otdFnJLDfvB8bLBd7i6BfK2Z7o=
+        b=SoMJ10Gvko61C2D0uI6DAnIFZDsvkxyKygkXtcE2OFrjvp5scsjnUgyHgIzYkOby9
+         GHI1IzL/h4ux3qEORsxoP8ST/9n6xLDCodI0dZz3c82q5aJzmk8TCkKUx+c1WFKmoa
+         xvsUqRewQFzrNgwAS3JpFJ+RcJ/WIvuZYWjbbq50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Chris Zankel <chris@zankel.net>, linux-xtensa@linux-xtensa.org
-Subject: [PATCH 5.4 07/37] xtensa: fix kconfig unmet dependency warning for HAVE_FUTEX_CMPXCHG
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.14 20/23] PCI: Call Max Payload Size-related fixup quirks early
 Date:   Fri, 10 Sep 2021 14:30:10 +0200
-Message-Id: <20210910122917.417589971@linuxfoundation.org>
+Message-Id: <20210910122916.649894989@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
-References: <20210910122917.149278545@linuxfoundation.org>
+In-Reply-To: <20210910122916.022815161@linuxfoundation.org>
+References: <20210910122916.022815161@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Marek Behún <kabel@kernel.org>
 
-commit ed5aacc81cd41efc4d561e14af408d1003f7b855 upstream.
+commit b8da302e2955fe4d41eb9d48199242674d77dbe0 upstream.
 
-XTENSA should only select HAVE_FUTEX_CMPXCHG when FUTEX is
-set/enabled. This prevents a kconfig warning.
+pci_device_add() calls HEADER fixups after pci_configure_device(), which
+configures Max Payload Size.
 
-WARNING: unmet direct dependencies detected for HAVE_FUTEX_CMPXCHG
-  Depends on [n]: FUTEX [=n]
-  Selected by [y]:
-  - XTENSA [=y] && !MMU [=n]
+Convert MPS-related fixups to EARLY fixups so pci_configure_mps() takes
+them into account.
 
-Fixes: d951ba21b959 ("xtensa: nommu: select HAVE_FUTEX_CMPXCHG")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: Chris Zankel <chris@zankel.net>
-Cc: linux-xtensa@linux-xtensa.org
-Message-Id: <20210526070337.28130-1-rdunlap@infradead.org>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Fixes: 27d868b5e6cfa ("PCI: Set MPS to match upstream bridge")
+Link: https://lore.kernel.org/r/20210624171418.27194-1-kabel@kernel.org
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/xtensa/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/quirks.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/xtensa/Kconfig
-+++ b/arch/xtensa/Kconfig
-@@ -27,7 +27,7 @@ config XTENSA
- 	select HAVE_DMA_CONTIGUOUS
- 	select HAVE_EXIT_THREAD
- 	select HAVE_FUNCTION_TRACER
--	select HAVE_FUTEX_CMPXCHG if !MMU
-+	select HAVE_FUTEX_CMPXCHG if !MMU && FUTEX
- 	select HAVE_HW_BREAKPOINT if PERF_EVENTS
- 	select HAVE_IRQ_TIME_ACCOUNTING
- 	select HAVE_OPROFILE
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3235,12 +3235,12 @@ static void fixup_mpss_256(struct pci_de
+ {
+ 	dev->pcie_mpss = 1; /* 256 bytes */
+ }
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_0, fixup_mpss_256);
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_0, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
+ 
+ /*
+  * Intel 5000 and 5100 Memory controllers have an erratum with read completion
 
 
