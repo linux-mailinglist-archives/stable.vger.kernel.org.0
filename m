@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20791406782
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 09:10:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB42C406781
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 09:10:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231350AbhIJHLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 03:11:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52124 "EHLO mail.kernel.org"
+        id S231340AbhIJHL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 03:11:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231281AbhIJHLb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 03:11:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61C9B610A3;
-        Fri, 10 Sep 2021 07:10:20 +0000 (UTC)
+        id S231281AbhIJHL2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 03:11:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D3CB611AF;
+        Fri, 10 Sep 2021 07:10:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631257821;
-        bh=JcaXNd5pGYeW0pf6hpeNtETGnkQieRvJ5GLEUIAt6t4=;
+        s=korg; t=1631257818;
+        bh=Fq/J3XIaReGRmvgDW2OEnRQl6A1ZKZQkOX7ls/RW+c4=;
         h=Subject:To:Cc:From:Date:From;
-        b=MbN0tKW388R7YnX7VJrSa5l8v4KQgaQx8MziK86OjEFZ9twqrZTkoT+ooQu1PWB6a
-         wHTUswRiwI+QInqf2XXCiBtM5oioxxF5fkRmCMur5t0s3F2FGyIG0OcryxFDpbkUUV
-         OZJ1afPTYlDC+4q/Hoq6RJBBdSJKoZkDFe1joJWo=
-Subject: FAILED: patch "[PATCH] xhci: fix even more unsafe memory usage in xhci tracing" failed to apply to 4.19-stable tree
+        b=2GhXfJyG0Jlb7RQtrF3F37Ib82XhtZlOn+VeI9BGNIy3H7jC9XQVwxGL/suJy4eJy
+         J24b2+fivgR/1AQaDdyTh26jcRnHJde6diswzP5DEhn9l5O3ZP7KdEcNVK7rDkDJwq
+         XcEEm62Ka714XuW92ChcrDVEg+goIKcQcQQrhAu8=
+Subject: FAILED: patch "[PATCH] xhci: fix even more unsafe memory usage in xhci tracing" failed to apply to 4.14-stable tree
 To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 10 Sep 2021 09:10:14 +0200
-Message-ID: <163125781461248@kroah.com>
+Message-ID: <1631257814106213@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
