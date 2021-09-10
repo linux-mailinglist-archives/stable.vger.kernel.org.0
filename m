@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 352E0406FEE
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 18:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE11407039
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 19:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229573AbhIJQst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 12:48:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60342 "EHLO
+        id S230328AbhIJRGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 13:06:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbhIJQst (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Sep 2021 12:48:49 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D419C061574
-        for <stable@vger.kernel.org>; Fri, 10 Sep 2021 09:47:38 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id h3so2351188pgb.7
-        for <stable@vger.kernel.org>; Fri, 10 Sep 2021 09:47:38 -0700 (PDT)
+        with ESMTP id S229664AbhIJRGw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Sep 2021 13:06:52 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CFECC061574
+        for <stable@vger.kernel.org>; Fri, 10 Sep 2021 10:05:41 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id v123so2397991pfb.11
+        for <stable@vger.kernel.org>; Fri, 10 Sep 2021 10:05:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=6dXHBZBbV0VkhcP04Twcxq7EpvHXKoW2iHeFLJDIME4=;
-        b=Zh9C76yKnWKjXgkDXCqHxiDdF9zAlDRw0Vm+2SlO7eyMbiYkud9DS1lXPMd7bPjeR6
-         ewhNe9iTU+RWVtiUzQu8Tzye+8fRt7AYzlg9E1HK0W6ZJqSfVrJLkZdJfGj4xTzNERco
-         pwvYhwjV3MXvKHaFhqJdUiaR/CWA4T1Wutydn2FZlLIj0HqLMlab56czqz/faTr02FeU
-         ZI/55H4D1B9y8/sRBRUxTgUBlSPrL/F9HS1pL30ked73hWZhTnOQbDVcPyORbUVGSbci
-         JoapR1TfmfHK+jhCUEA3sNtgqgV5RYK+dv//dA6BJYpiZtlwtm4Oz8WclQgREi7YPcTF
-         C/QQ==
+        bh=z0CMfiulG8n2BTWPRhNKBytbXDZ/VZivuRxjJj9CAFU=;
+        b=MZZJ108ubzX0YYASo8MWHpbWotk0DrKE7l1PTGcX/mMfMtRINPdEr94JXz73ege8fs
+         Kgm2CpHg082oDrqRqV1JqTfgWFI3wFmmM9InYvXewx3DrCXhNO/9Qq9ybUPeUZZ262bQ
+         SBo+H1uFlGjm8O/LsJxND82YaBiaaLFNvRlD+zeqj27GvZ8W3M4Vpx2k5XprGj84IbQF
+         RdYSxoK84/4EWWYQVAJWVZNXav5FfFmdH/9D3xv2s8n5kEeeLusVa6mpVeoM1ZwaShoq
+         abTIXLsHX/a4FMr8pANc376b/ftTgVkcIfBA8ZCPksdqZvd/WTCASIta7wZBsXsPxTxL
+         8nbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=6dXHBZBbV0VkhcP04Twcxq7EpvHXKoW2iHeFLJDIME4=;
-        b=VbkLwHm32SnWwLaBeFHAJoeWFEb1ISW6364D68AXbZKewHbsWhiJgVpbUHPK044HIH
-         /I11kJVqt64psHSXSVSkXb1dWd7GwUwGQS73K8I0JzCPR7HqhaCszIhJZxpTjqB7MPKH
-         PUCGqY25/uVhGzXhfX8NCU3S/KufWIv/3D/kARakf8KxErzylc1CpGu3I//f81owsWgP
-         H7EjTKDV6/KZf3KMTZmVEQDPP0y61wGmWMdtEaafU/3ADSV376sQEshlCE10ekJgmonr
-         8hiwXZYpCx1kpzO++3r42BLtu9/dQK1rbBSCfwra2Y1uSCkz39vukXCrTh3mLQ4OOdHH
-         YqGQ==
-X-Gm-Message-State: AOAM5326zGjhtiWcLNcuKJCk+e5NwCZ5SXRAyH4KL4ExDfFiw8UVmnP3
-        DbMCTvyyaaG4nmV5RAVq727c0lKGz7u0Sq3E
-X-Google-Smtp-Source: ABdhPJzuKc3ftwbWYiKRio8FH0nnzreQpTHs58Pw4Y5zF9j/hBOLEsW3pwgXCgjNqJ9jnLcpCw7AYQ==
-X-Received: by 2002:a63:d017:: with SMTP id z23mr8093201pgf.108.1631292457544;
-        Fri, 10 Sep 2021 09:47:37 -0700 (PDT)
+        bh=z0CMfiulG8n2BTWPRhNKBytbXDZ/VZivuRxjJj9CAFU=;
+        b=XIKi2io3RyqIx2H9ognPs6gQADMHekLfoHeGmxGoY2fhQK4xolkxiUElY/tlsdNH4y
+         czvWT4YDDvhsKEug39290f4+6MBldKBnw9anUGAJ/izl3dM5SRNPfK+gm9Ksa/HteziW
+         YyJxvSRYVTowJWbsA8aGD3sdA6MuHeR9a5Z7XWYCVE6QKB3DfWnowBb0A3o+ILZQsTvd
+         6ZDKQ9hKG0oFl9F9YeMhT2dJZCOcIbloLkMK2PGujDe//q0V4UV+FjYClptuAJOlTvOY
+         27dyYeHzctlCE1LfqZUOWROzcnGnbnWht4Ppwu/R+TFpFd2/OuIMiQjuX6ZLbeXxQ/AZ
+         ds7w==
+X-Gm-Message-State: AOAM532xTZp/Jx8Cg325T4iyzXGtctk6ledjOJyG+dt63PyKRQ2lfGPl
+        fyCS96otZ7tAE44mtC3qpXCYnGmbJL9mMTZB
+X-Google-Smtp-Source: ABdhPJzWepymvilOjkSOESIMkR0KZMZb4iJT4rWPNIYYgHoBjsJj2IgwfNc3ML5mxd9EHieH9Zi9LA==
+X-Received: by 2002:aa7:9688:0:b0:411:b9cb:df61 with SMTP id f8-20020aa79688000000b00411b9cbdf61mr9090751pfk.19.1631293540310;
+        Fri, 10 Sep 2021 10:05:40 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s5sm6362433pgp.81.2021.09.10.09.47.37
+        by smtp.gmail.com with ESMTPSA id h24sm5587096pfn.180.2021.09.10.10.05.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Sep 2021 09:47:37 -0700 (PDT)
-Message-ID: <613b8c29.1c69fb81.a2b29.2c20@mx.google.com>
-Date:   Fri, 10 Sep 2021 09:47:37 -0700 (PDT)
+        Fri, 10 Sep 2021 10:05:40 -0700 (PDT)
+Message-ID: <613b9064.1c69fb81.be694.fff6@mx.google.com>
+Date:   Fri, 10 Sep 2021 10:05:40 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.13.15-22-g9744a6357aac
+X-Kernelci-Kernel: v5.14.2-24-g08d4da79178d
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.13
-Subject: stable-rc/queue/5.13 baseline: 56 runs,
- 1 regressions (v5.13.15-22-g9744a6357aac)
+X-Kernelci-Branch: linux-5.14.y
+Subject: stable-rc/linux-5.14.y baseline: 188 runs,
+ 3 regressions (v5.14.2-24-g08d4da79178d)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,30 +65,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.13 baseline: 56 runs, 1 regressions (v5.13.15-22-g9744a63=
-57aac)
+stable-rc/linux-5.14.y baseline: 188 runs, 3 regressions (v5.14.2-24-g08d4d=
+a79178d)
 
 Regressions Summary
 -------------------
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
-   =
+platform                | arch  | lab          | compiler | defconfig | reg=
+ressions
+------------------------+-------+--------------+----------+-----------+----=
+--------
+imx8mp-evk              | arm64 | lab-nxp      | gcc-8    | defconfig | 1  =
+        =
+
+r8a77950-salvator-x     | arm64 | lab-baylibre | gcc-8    | defconfig | 1  =
+        =
+
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig | 1  =
+        =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
-nel/v5.13.15-22-g9744a6357aac/plan/baseline/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.14.y/ker=
+nel/v5.14.2-24-g08d4da79178d/plan/baseline/
 
   Test:     baseline
   Tree:     stable-rc
-  Branch:   queue/5.13
-  Describe: v5.13.15-22-g9744a6357aac
+  Branch:   linux-5.14.y
+  Describe: v5.14.2-24-g08d4da79178d
   URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able-rc.git
-  SHA:      9744a6357aac08c7509e57d83ca1010a774b7389 =
+  SHA:      08d4da79178d3d352115625b6aaa4eb58e173f0e =
 
 
 
@@ -97,33 +103,95 @@ Test Regressions
 
 
 
-platform  | arch | lab          | compiler | defconfig           | regressi=
-ons
-----------+------+--------------+----------+---------------------+---------=
----
-beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
-   =
+platform                | arch  | lab          | compiler | defconfig | reg=
+ressions
+------------------------+-------+--------------+----------+-----------+----=
+--------
+imx8mp-evk              | arm64 | lab-nxp      | gcc-8    | defconfig | 1  =
+        =
 
 
-  Details:     https://kernelci.org/test/plan/id/613b5c320277e39de1d596b0
+  Details:     https://kernelci.org/test/plan/id/613b5fff81b3c3af41d5967d
 
   Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.15-=
-22-g9744a6357aac/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.15-=
-22-g9744a6357aac/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.html
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.2=
+-24-g08d4da79178d/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.2=
+-24-g08d4da79178d/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
 
 
 
-  * baseline.login: https://kernelci.org/test/case/id/613b5c320277e39de1d59=
-6b1
-        failing since 0 day (last pass: v5.13.15-4-g89710d87b229, first fai=
-l: v5.13.15-6-gd33967f7a055) =
+  * baseline.login: https://kernelci.org/test/case/id/613b600081b3c3af41d59=
+67e
+        new failure (last pass: v5.14.1-15-gafbaa4bb4e04) =
+
+ =
+
+
+
+platform                | arch  | lab          | compiler | defconfig | reg=
+ressions
+------------------------+-------+--------------+----------+-----------+----=
+--------
+r8a77950-salvator-x     | arm64 | lab-baylibre | gcc-8    | defconfig | 1  =
+        =
+
+
+  Details:     https://kernelci.org/test/plan/id/613b5ec14d621351dad596a0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.2=
+-24-g08d4da79178d/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a77950-salv=
+ator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.2=
+-24-g08d4da79178d/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a77950-salv=
+ator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613b5ec14d621351dad59=
+6a1
+        new failure (last pass: v5.14.1-15-gafbaa4bb4e04) =
+
+ =
+
+
+
+platform                | arch  | lab          | compiler | defconfig | reg=
+ressions
+------------------------+-------+--------------+----------+-----------+----=
+--------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe   | gcc-8    | defconfig | 1  =
+        =
+
+
+  Details:     https://kernelci.org/test/plan/id/613b5eeff0a6eee790d59666
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.2=
+-24-g08d4da79178d/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.14.y/v5.14.2=
+-24-g08d4da79178d/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613b5eeff0a6eee790d59=
+667
+        failing since 3 days (last pass: v5.14-12-g95dc72bb9c03, first fail=
+: v5.14.1-15-gafbaa4bb4e04) =
 
  =20
