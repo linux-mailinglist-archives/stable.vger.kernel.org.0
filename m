@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C19D406C4A
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B3D406BF5
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235109AbhIJMin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:38:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54780 "EHLO mail.kernel.org"
+        id S233523AbhIJMfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:35:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234747AbhIJMg7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:36:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CD29611F2;
-        Fri, 10 Sep 2021 12:35:39 +0000 (UTC)
+        id S234009AbhIJMfA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:35:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA80D61026;
+        Fri, 10 Sep 2021 12:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277340;
-        bh=dwBWVZu+lrrk2i9bHIXLLcXCr6utd3u5CEnnQMf9ays=;
+        s=korg; t=1631277229;
+        bh=yNeSV/+GvOhN4sGBzmArfpkfRCnC8Sxs6NJWjqbipQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JOchcXP1iwcjC12iHHY/RM+tS83PxLubWoH8YLbYbA03TTI7qwToxxfM2IaGzBKQs
-         LuqpHiUzA8uhQRn9U/gNO1OpGKoScLRZUSJrtlAE01uClvTaQB5DEs8Saf/NIjNfH7
-         CAa3ySIyNeRMAssCLANzfDaedRXONa3oh913GhZg=
+        b=LHZFyb2EUBk7BAxkofj426PI4XOj4TL52V3v2la2OBS61V5rMVs/IG+dm/ZO5Lb4o
+         EX37UUkSZynKfWMm6GqzVMnFSk/WGEhHLppTRsAj1KPZ4k7AYacZU2r8GPBp98Maex
+         ck2WLeDZicYD5VlTRTe4oXpd/YwTTiYlXmdHZVK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 26/37] net: ll_temac: Remove left-over debug message
-Date:   Fri, 10 Sep 2021 14:30:29 +0200
-Message-Id: <20210910122918.017739504@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.10 26/26] PCI: Call Max Payload Size-related fixup quirks early
+Date:   Fri, 10 Sep 2021 14:30:30 +0200
+Message-Id: <20210910122917.104729046@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
-References: <20210910122917.149278545@linuxfoundation.org>
+In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
+References: <20210910122916.253646001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,31 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Esben Haabendal <esben@geanix.com>
+From: Marek Behún <kabel@kernel.org>
 
-commit ce03b94ba682a67e8233c9ee3066071656ded58f upstream.
+commit b8da302e2955fe4d41eb9d48199242674d77dbe0 upstream.
 
-Fixes: f63963411942 ("net: ll_temac: Avoid ndo_start_xmit returning NETDEV_TX_BUSY")
-Signed-off-by: Esben Haabendal <esben@geanix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+pci_device_add() calls HEADER fixups after pci_configure_device(), which
+configures Max Payload Size.
+
+Convert MPS-related fixups to EARLY fixups so pci_configure_mps() takes
+them into account.
+
+Fixes: 27d868b5e6cfa ("PCI: Set MPS to match upstream bridge")
+Link: https://lore.kernel.org/r/20210624171418.27194-1-kabel@kernel.org
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/ll_temac_main.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/pci/quirks.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/xilinx/ll_temac_main.c
-+++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
-@@ -939,10 +939,8 @@ temac_start_xmit(struct sk_buff *skb, st
- 	wmb();
- 	lp->dma_out(lp, TX_TAILDESC_PTR, tail_p); /* DMA start */
- 
--	if (temac_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1)) {
--		netdev_info(ndev, "%s -> netif_stop_queue\n", __func__);
-+	if (temac_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1))
- 		netif_stop_queue(ndev);
--	}
- 
- 	return NETDEV_TX_OK;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3246,12 +3246,12 @@ static void fixup_mpss_256(struct pci_de
+ {
+ 	dev->pcie_mpss = 1; /* 256 bytes */
  }
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_0, fixup_mpss_256);
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+-			 PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_0, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
++			PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
+ 
+ /*
+  * Intel 5000 and 5100 Memory controllers have an erratum with read completion
 
 
