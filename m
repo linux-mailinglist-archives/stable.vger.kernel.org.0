@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A0A040615B
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A17D406162
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231781AbhIJAmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:42:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44942 "EHLO mail.kernel.org"
+        id S240485AbhIJAmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:42:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231848AbhIJASW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:18:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1764610A3;
-        Fri, 10 Sep 2021 00:16:58 +0000 (UTC)
+        id S231989AbhIJASg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:18:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A4E9611CB;
+        Fri, 10 Sep 2021 00:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233019;
-        bh=gf874krQ7ZbHGflPjSAn20JwKalmyjqFOyE8v2mSGF8=;
+        s=k20201202; t=1631233021;
+        bh=Wo1K2tNsnfaZPUZR0kB9UhXR6EgakdoPxE+HH/j31IY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ngugffhCnnud+3hurCn7ZrPzYaSGuSiid4nVnuQekI5noHnkokE+K4zxAJF5AGT1t
-         2hv2fHtqYb2cQcK36XCVLZa4vOyr1cELfA5AqMasv85qSsRxr560m7cQQ988Xtm/FT
-         3a687lpSlx6tXIOcP+DFHAfJql6ijm9sCWdBvAxLSunjN1HRLqixQOvy0IhwmoMWl4
-         Buf/6wRrpUY7f/qASB4PyYF8fZ5PabMvL3NEj4Sb4x1Zl21cD2lff4wwtYpy15bg0y
-         c+K2Cnvb7tco9w1RESVPKtSNqYe8WPZaEw2QeCzepZieelIqKtDyA0QdC+VayK4t5M
-         4jG8BygHJicoQ==
+        b=kZTRRlC3d8nHjNlbx8CBFIauVleEBKOXZHnvyuz/GCSVEJA89AtRi3D03cDMiLxlJ
+         B9PyUijehBd8y+xf6ItUMgFVPO/u7a3EyDCp1NC+PzMe34KOaa6wIig1jnB/uJUb5v
+         mNpVio0rleSxuHEZ7l8owd7exGGKkdpVEmUZO90NIaq2H4aYQnYBurm2PtOhV47TGN
+         /EcG42T0tEDUt5Yo+rJwrcHj71qzt2NWPYfkT4X+7+I6M2SEGfmBIjim6Fu43Ufue1
+         qg6BeeQ0vMDJZHLTvr6XtxF80TIuLnS+Eis8XgJxBiVKd5CGxZL/0jzMyLCnnj+OSK
+         xFOU0+/hxfwDg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Quinn Tran <qutran@marvell.com>,
@@ -30,9 +30,9 @@ Cc:     Quinn Tran <qutran@marvell.com>,
         Nilesh Javali <njavali@marvell.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 44/99] scsi: qla2xxx: Fix unsafe removal from linked list
-Date:   Thu,  9 Sep 2021 20:15:03 -0400
-Message-Id: <20210910001558.173296-44-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 45/99] scsi: qla2xxx: Fix NPIV create erroneous error
+Date:   Thu,  9 Sep 2021 20:15:04 -0400
+Message-Id: <20210910001558.173296-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -46,279 +46,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 0c9a5f3e42f75dbad5966aa59db935b694ab00d1 ]
+[ Upstream commit a57214443f0f85639a0d9bbb8bd658d82dbf0927 ]
 
-On NPIV delete, the VPort is taken off a linked list in an unsafe manner.
-The check for VPort refcount should be done behind lock before taking off
-the element.
+When user creates multiple NPIVs, the switch capabilities field is checked
+before a vport is allowed to be created. This field is being toggled if a
+switch scan is in progress. This creates erroneous reject of vport create.
 
-[ 2733.016907] general protection fault: 0000 [#1] SMP NOPTI
-[ 2733.016908] qla2xxx [0000:22:00.1]-7088:27: VP[4] deleted.
-[ 2733.016912] CPU: 22 PID: 23481 Comm: qla2xxx_15_dpc Kdump: loaded Tainted:
-G           OE KX    5.3.18-47-default #1 SLE15-SP3
-[ 2733.016914] Hardware name: Dell Inc. PowerEdge R7525/0PYVT1, BIOS 2.1.4 02/17/2021
-[ 2733.016929] RIP: 0010:qla2x00_abort_isp+0x90/0x850 [qla2xxx]
-[ 2733.016933] RSP: 0018:ffffb9cfc91efe98 EFLAGS: 00010087
-[ 2733.016935] RAX: 0000000000000292 RBX: dead000000000100 RCX: 0000000000000000
-[ 2733.016936] RDX: 0000000000000001 RSI: ffff944bfeb99558 RDI: ffff944bfc4b4488
-[ 2733.016937] RBP: ffff944bfc4b2868 R08: 00000000000187a2 R09: 0000000000000001
-[ 2733.016937] R10: ffffb9cfc91efcc8 R11: 0000000000000001 R12: ffff944bfc4b4000
-[ 2733.016938] R13: ffff944bfc4b4870 R14: ffff944bfc4b4488 R15: ffff944bda895c80
-[ 2733.016939] FS:  0000000000000000(0000) GS:ffff944bfeb80000(0000) knlGS:0000000000000000
-[ 2733.016940] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 2733.016940] CR2: 00007fc173e74458 CR3: 0000001ff57de000 CR4: 0000000000350ee0
-[ 2733.016941] Call Trace:
-[ 2733.016951]   qla2xxx_pci_error_detected+0x190/0x190 [qla2xxx]
-[ 2733.016957]   qla2x00_do_dpc+0x560/0xa10 [qla2xxx]
-[ 2733.016962]   kthread+0x10d/0x130
-[ 2733.016963]   kthread_park+0xa0/0xa0
-[ 2733.016966]   ret_from_fork+0x22/0x40
-
-Link: https://lore.kernel.org/r/20210810043720.1137-9-njavali@marvell.com
+Link: https://lore.kernel.org/r/20210810043720.1137-10-njavali@marvell.com
 Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
 Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c | 33 +++++++++++++++++---------
- drivers/scsi/qla2xxx/qla_mid.c  | 42 ++++++++++++++++++++-------------
- drivers/scsi/qla2xxx/qla_os.c   |  6 ++---
- 3 files changed, 50 insertions(+), 31 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index f8f471157109..f40e233c8ce5 100644
+index f40e233c8ce5..27d10524ec3e 100644
 --- a/drivers/scsi/qla2xxx/qla_init.c
 +++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -6459,13 +6459,13 @@ void
- qla2x00_update_fcports(scsi_qla_host_t *base_vha)
- {
- 	fc_port_t *fcport;
--	struct scsi_qla_host *vha;
-+	struct scsi_qla_host *vha, *tvp;
- 	struct qla_hw_data *ha = base_vha->hw;
- 	unsigned long flags;
+@@ -4531,11 +4531,11 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
+ 	/* initialize */
+ 	ha->min_external_loopid = SNS_FIRST_LOOP_ID;
+ 	ha->operating_mode = LOOP;
+-	ha->switch_cap = 0;
  
- 	spin_lock_irqsave(&ha->vport_slock, flags);
- 	/* Go with deferred removal of rport references. */
--	list_for_each_entry(vha, &base_vha->hw->vp_list, list) {
-+	list_for_each_entry_safe(vha, tvp, &base_vha->hw->vp_list, list) {
- 		atomic_inc(&vha->vref_count);
- 		list_for_each_entry(fcport, &vha->vp_fcports, list) {
- 			if (fcport->drport &&
-@@ -6810,7 +6810,8 @@ void
- qla2x00_quiesce_io(scsi_qla_host_t *vha)
- {
- 	struct qla_hw_data *ha = vha->hw;
--	struct scsi_qla_host *vp;
-+	struct scsi_qla_host *vp, *tvp;
-+	unsigned long flags;
+ 	switch (topo) {
+ 	case 0:
+ 		ql_dbg(ql_dbg_disc, vha, 0x200b, "HBA in NL topology.\n");
++		ha->switch_cap = 0;
+ 		ha->current_topology = ISP_CFG_NL;
+ 		strcpy(connect_type, "(Loop)");
+ 		break;
+@@ -4549,6 +4549,7 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
  
- 	ql_dbg(ql_dbg_dpc, vha, 0x401d,
- 	    "Quiescing I/O - ha=%p.\n", ha);
-@@ -6819,8 +6820,18 @@ qla2x00_quiesce_io(scsi_qla_host_t *vha)
- 	if (atomic_read(&vha->loop_state) != LOOP_DOWN) {
- 		atomic_set(&vha->loop_state, LOOP_DOWN);
- 		qla2x00_mark_all_devices_lost(vha);
--		list_for_each_entry(vp, &ha->vp_list, list)
-+
-+		spin_lock_irqsave(&ha->vport_slock, flags);
-+		list_for_each_entry_safe(vp, tvp, &ha->vp_list, list) {
-+			atomic_inc(&vp->vref_count);
-+			spin_unlock_irqrestore(&ha->vport_slock, flags);
-+
- 			qla2x00_mark_all_devices_lost(vp);
-+
-+			spin_lock_irqsave(&ha->vport_slock, flags);
-+			atomic_dec(&vp->vref_count);
-+		}
-+		spin_unlock_irqrestore(&ha->vport_slock, flags);
- 	} else {
- 		if (!atomic_read(&vha->loop_down_timer))
- 			atomic_set(&vha->loop_down_timer,
-@@ -6835,7 +6846,7 @@ void
- qla2x00_abort_isp_cleanup(scsi_qla_host_t *vha)
- {
- 	struct qla_hw_data *ha = vha->hw;
--	struct scsi_qla_host *vp;
-+	struct scsi_qla_host *vp, *tvp;
- 	unsigned long flags;
- 	fc_port_t *fcport;
- 	u16 i;
-@@ -6903,7 +6914,7 @@ qla2x00_abort_isp_cleanup(scsi_qla_host_t *vha)
- 		qla2x00_mark_all_devices_lost(vha);
- 
- 		spin_lock_irqsave(&ha->vport_slock, flags);
--		list_for_each_entry(vp, &ha->vp_list, list) {
-+		list_for_each_entry_safe(vp, tvp, &ha->vp_list, list) {
- 			atomic_inc(&vp->vref_count);
- 			spin_unlock_irqrestore(&ha->vport_slock, flags);
- 
-@@ -6925,7 +6936,7 @@ qla2x00_abort_isp_cleanup(scsi_qla_host_t *vha)
- 		fcport->scan_state = 0;
- 	}
- 	spin_lock_irqsave(&ha->vport_slock, flags);
--	list_for_each_entry(vp, &ha->vp_list, list) {
-+	list_for_each_entry_safe(vp, tvp, &ha->vp_list, list) {
- 		atomic_inc(&vp->vref_count);
- 		spin_unlock_irqrestore(&ha->vport_slock, flags);
- 
-@@ -6969,7 +6980,7 @@ qla2x00_abort_isp(scsi_qla_host_t *vha)
- 	int rval;
- 	uint8_t        status = 0;
- 	struct qla_hw_data *ha = vha->hw;
--	struct scsi_qla_host *vp;
-+	struct scsi_qla_host *vp, *tvp;
- 	struct req_que *req = ha->req_q_map[0];
- 	unsigned long flags;
- 
-@@ -7125,7 +7136,7 @@ qla2x00_abort_isp(scsi_qla_host_t *vha)
- 		ql_dbg(ql_dbg_taskm, vha, 0x8022, "%s succeeded.\n", __func__);
- 		qla2x00_configure_hba(vha);
- 		spin_lock_irqsave(&ha->vport_slock, flags);
--		list_for_each_entry(vp, &ha->vp_list, list) {
-+		list_for_each_entry_safe(vp, tvp, &ha->vp_list, list) {
- 			if (vp->vp_idx) {
- 				atomic_inc(&vp->vref_count);
- 				spin_unlock_irqrestore(&ha->vport_slock, flags);
-@@ -8810,7 +8821,7 @@ qla82xx_restart_isp(scsi_qla_host_t *vha)
- {
- 	int status, rval;
- 	struct qla_hw_data *ha = vha->hw;
--	struct scsi_qla_host *vp;
-+	struct scsi_qla_host *vp, *tvp;
- 	unsigned long flags;
- 
- 	status = qla2x00_init_rings(vha);
-@@ -8882,7 +8893,7 @@ qla82xx_restart_isp(scsi_qla_host_t *vha)
- 		    "qla82xx_restart_isp succeeded.\n");
- 
- 		spin_lock_irqsave(&ha->vport_slock, flags);
--		list_for_each_entry(vp, &ha->vp_list, list) {
-+		list_for_each_entry_safe(vp, tvp, &ha->vp_list, list) {
- 			if (vp->vp_idx) {
- 				atomic_inc(&vp->vref_count);
- 				spin_unlock_irqrestore(&ha->vport_slock, flags);
-diff --git a/drivers/scsi/qla2xxx/qla_mid.c b/drivers/scsi/qla2xxx/qla_mid.c
-index c7caf322f445..787e0c0446a6 100644
---- a/drivers/scsi/qla2xxx/qla_mid.c
-+++ b/drivers/scsi/qla2xxx/qla_mid.c
-@@ -65,7 +65,7 @@ qla24xx_deallocate_vp_id(scsi_qla_host_t *vha)
- 	uint16_t vp_id;
- 	struct qla_hw_data *ha = vha->hw;
- 	unsigned long flags = 0;
--	u8 i;
-+	u32 i, bailout;
- 
- 	mutex_lock(&ha->vport_lock);
- 	/*
-@@ -75,21 +75,29 @@ qla24xx_deallocate_vp_id(scsi_qla_host_t *vha)
- 	 * ensures no active vp_list traversal while the vport is removed
- 	 * from the queue)
- 	 */
--	for (i = 0; i < 10; i++) {
--		if (wait_event_timeout(vha->vref_waitq,
--		    !atomic_read(&vha->vref_count), HZ) > 0)
-+	bailout = 0;
-+	for (i = 0; i < 500; i++) {
-+		spin_lock_irqsave(&ha->vport_slock, flags);
-+		if (atomic_read(&vha->vref_count) == 0) {
-+			list_del(&vha->list);
-+			qlt_update_vp_map(vha, RESET_VP_IDX);
-+			bailout = 1;
-+		}
-+		spin_unlock_irqrestore(&ha->vport_slock, flags);
-+
-+		if (bailout)
- 			break;
-+		else
-+			msleep(20);
- 	}
--
--	spin_lock_irqsave(&ha->vport_slock, flags);
--	if (atomic_read(&vha->vref_count)) {
--		ql_dbg(ql_dbg_vport, vha, 0xfffa,
--		    "vha->vref_count=%u timeout\n", vha->vref_count.counter);
--		vha->vref_count = (atomic_t)ATOMIC_INIT(0);
-+	if (!bailout) {
-+		ql_log(ql_log_info, vha, 0xfffa,
-+			"vha->vref_count=%u timeout\n", vha->vref_count.counter);
-+		spin_lock_irqsave(&ha->vport_slock, flags);
-+		list_del(&vha->list);
-+		qlt_update_vp_map(vha, RESET_VP_IDX);
-+		spin_unlock_irqrestore(&ha->vport_slock, flags);
- 	}
--	list_del(&vha->list);
--	qlt_update_vp_map(vha, RESET_VP_IDX);
--	spin_unlock_irqrestore(&ha->vport_slock, flags);
- 
- 	vp_id = vha->vp_idx;
- 	ha->num_vhosts--;
-@@ -257,13 +265,13 @@ qla24xx_configure_vp(scsi_qla_host_t *vha)
- void
- qla2x00_alert_all_vps(struct rsp_que *rsp, uint16_t *mb)
- {
--	scsi_qla_host_t *vha;
-+	scsi_qla_host_t *vha, *tvp;
- 	struct qla_hw_data *ha = rsp->hw;
- 	int i = 0;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&ha->vport_slock, flags);
--	list_for_each_entry(vha, &ha->vp_list, list) {
-+	list_for_each_entry_safe(vha, tvp, &ha->vp_list, list) {
- 		if (vha->vp_idx) {
- 			if (test_bit(VPORT_DELETE, &vha->dpc_flags))
- 				continue;
-@@ -416,7 +424,7 @@ void
- qla2x00_do_dpc_all_vps(scsi_qla_host_t *vha)
- {
- 	struct qla_hw_data *ha = vha->hw;
--	scsi_qla_host_t *vp;
-+	scsi_qla_host_t *vp, *tvp;
- 	unsigned long flags = 0;
- 
- 	if (vha->vp_idx)
-@@ -430,7 +438,7 @@ qla2x00_do_dpc_all_vps(scsi_qla_host_t *vha)
- 		return;
- 
- 	spin_lock_irqsave(&ha->vport_slock, flags);
--	list_for_each_entry(vp, &ha->vp_list, list) {
-+	list_for_each_entry_safe(vp, tvp, &ha->vp_list, list) {
- 		if (vp->vp_idx) {
- 			atomic_inc(&vp->vref_count);
- 			spin_unlock_irqrestore(&ha->vport_slock, flags);
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index cedd558f65eb..47f15c0e4277 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -7430,7 +7430,7 @@ static void qla_pci_error_cleanup(scsi_qla_host_t *vha)
- 	struct qla_hw_data *ha = vha->hw;
- 	scsi_qla_host_t *base_vha = pci_get_drvdata(ha->pdev);
- 	struct qla_qpair *qpair = NULL;
--	struct scsi_qla_host *vp;
-+	struct scsi_qla_host *vp, *tvp;
- 	fc_port_t *fcport;
- 	int i;
- 	unsigned long flags;
-@@ -7461,7 +7461,7 @@ static void qla_pci_error_cleanup(scsi_qla_host_t *vha)
- 	qla2x00_mark_all_devices_lost(vha);
- 
- 	spin_lock_irqsave(&ha->vport_slock, flags);
--	list_for_each_entry(vp, &ha->vp_list, list) {
-+	list_for_each_entry_safe(vp, tvp, &ha->vp_list, list) {
- 		atomic_inc(&vp->vref_count);
- 		spin_unlock_irqrestore(&ha->vport_slock, flags);
- 		qla2x00_mark_all_devices_lost(vp);
-@@ -7475,7 +7475,7 @@ static void qla_pci_error_cleanup(scsi_qla_host_t *vha)
- 		fcport->flags &= ~(FCF_LOGIN_NEEDED | FCF_ASYNC_SENT);
- 
- 	spin_lock_irqsave(&ha->vport_slock, flags);
--	list_for_each_entry(vp, &ha->vp_list, list) {
-+	list_for_each_entry_safe(vp, tvp, &ha->vp_list, list) {
- 		atomic_inc(&vp->vref_count);
- 		spin_unlock_irqrestore(&ha->vport_slock, flags);
- 		list_for_each_entry(fcport, &vp->vp_fcports, list)
+ 	case 2:
+ 		ql_dbg(ql_dbg_disc, vha, 0x200d, "HBA in N P2P topology.\n");
++		ha->switch_cap = 0;
+ 		ha->operating_mode = P2P;
+ 		ha->current_topology = ISP_CFG_N;
+ 		strcpy(connect_type, "(N_Port-to-N_Port)");
+@@ -4565,6 +4566,7 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
+ 	default:
+ 		ql_dbg(ql_dbg_disc, vha, 0x200f,
+ 		    "HBA in unknown topology %x, using NL.\n", topo);
++		ha->switch_cap = 0;
+ 		ha->current_topology = ISP_CFG_NL;
+ 		strcpy(connect_type, "(Loop)");
+ 		break;
 -- 
 2.30.2
 
