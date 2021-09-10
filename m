@@ -2,35 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 494B6406350
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECF6E406354
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242618AbhIJArV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:47:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48960 "EHLO mail.kernel.org"
+        id S233869AbhIJArW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:47:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234515AbhIJAXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:23:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 337B360FDA;
-        Fri, 10 Sep 2021 00:22:21 +0000 (UTC)
+        id S234518AbhIJAXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:23:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 625A4604DC;
+        Fri, 10 Sep 2021 00:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233341;
-        bh=CwhQ68CEcb5Xp6duDNuoiPXaTXRQUvHQERNLQ17GpNE=;
+        s=k20201202; t=1631233343;
+        bh=OOlkE/5wn5cX1UCFaQILnONAsv24eb8TbOKobIjrxkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bOuk0d3hIupZMuQERms1qhw0qx+I2UqxMHmbGd7ElXL9Amaigkswr6qnPZfUuxfah
-         T5XBQWDzwUVnyLYCXTTXdaZjB47t7NhETPa5wAIgOCNh1JyYLtDsswqh4NW6V351E0
-         LI17YkkBcx1q7uQb7rcvAR6cxrco32KRbmzyYo6Fkkg3IIFZu4s4RIRc3SOuWJ+uKP
-         HhvHi0bRi5FOFv3gdOPh3UlcrkmdTxSEGkLY5oZnPBsiOW78Kwn5v16gPpkqcNl44q
-         xM8O53d+U/5Y9nu/GJAlS/5ll6aBkNfTisArbcpFlYq/XOFKAAATigShm6v7AIBLRy
-         63Gj+50cOlXTA==
+        b=qQjCprsuPxDCFN0vl2ji1PSmwPWqJB/DXIQTLMD8tE1nTsVZ9YX6wKMUAAMoz62TA
+         ltgPNoDe72oIt2k3nYqPn2T8UwtIxwvlBH2rpfFuI4BeLFelVyQKVSkbRslmbuTH6Y
+         XV8j1dqnfQSWFtM2E4TQDpHSERU1cqJTmf0BBPY2/JvHefbvu0OHM9pkIQFjgQDRzF
+         JmI8sMyTCLvEzgjN7szCDSDDFT3W4BLS3hdIGChtgJIxudRrqExl4JcDRZoiVKnVWs
+         RaVut8J/UE+FcijWnqfAPtllSV+aAJoQ6R/FU6Rd0WIguh4LhOLYexFq2SrDMTYc6J
+         jj+FBKm7cIu1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 29/37] RDMA/core/sa_query: Retry SA queries
-Date:   Thu,  9 Sep 2021 20:21:34 -0400
-Message-Id: <20210910002143.175731-29-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <mgross@linux.intel.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Dell.Client.Kernel@dell.com,
+        platform-driver-x86@vger.kernel.org,
+        Andy Lavr <andy.lavr@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 30/37] platform/x86: dell-smbios-wmi: Avoid false-positive memcpy() warning
+Date:   Thu,  9 Sep 2021 20:21:35 -0400
+Message-Id: <20210910002143.175731-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002143.175731-1-sashal@kernel.org>
 References: <20210910002143.175731-1-sashal@kernel.org>
@@ -43,87 +51,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 5f5a650999d5718af766fc70a120230b04235a6f ]
+[ Upstream commit fb49d9946f96081f9a05d8f305b3f40285afe4a9 ]
 
-A MAD packet is sent as an unreliable datagram (UD). SA requests are sent
-as MAD packets. As such, SA requests or responses may be silently dropped.
+In preparation for FORTIFY_SOURCE performing compile-time and run-time
+field bounds checking for memcpy(), memmove(), and memset(), avoid
+intentionally writing across neighboring fields.
 
-IB Core's MAD layer has a timeout and retry mechanism, which amongst
-other, is used by RDMA CM. But it is not used by SA queries. The lack of
-retries of SA queries leads to long specified timeout, and error being
-returned in case of packet loss. The ULP or user-land process has to
-perform the retry.
+Since all the size checking has already happened, use input.pointer
+(void *) so memcpy() doesn't get confused about how much is being
+written.
 
-Fix this by taking advantage of the MAD layer's retry mechanism.
+Avoids this false-positive warning when run-time memcpy() strict
+bounds checking is enabled:
 
-First, a check against a zero timeout is added in rdma_resolve_route(). In
-send_mad(), we set the MAD layer timeout to one tenth of the specified
-timeout and the number of retries to 10. The special case when timeout is
-less than 10 is handled.
+memcpy: detected field-spanning write (size 4096) of single field (size 36)
+WARNING: CPU: 0 PID: 357 at drivers/platform/x86/dell/dell-smbios-wmi.c:74 run_smbios_call+0x110/0x1e0 [dell_smbios]
 
-With this fix:
-
- # ucmatose -c 1000 -S 1024 -C 1
-
-runs stable on an Infiniband fabric. Without this fix, we see an
-intermittent behavior and it errors out with:
-
-cmatose: event: RDMA_CM_EVENT_ROUTE_ERROR, error: -110
-
-(110 is ETIMEDOUT)
-
-Link: https://lore.kernel.org/r/1628784755-28316-1-git-send-email-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Mark Gross <mgross@linux.intel.com>
+Cc: Mario Limonciello <mario.limonciello@dell.com>
+Cc: "Pali Rohár" <pali@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: "Uwe Kleine-König" <u.kleine-koenig@pengutronix.de>
+Cc: Dell.Client.Kernel@dell.com
+Cc: platform-driver-x86@vger.kernel.org
+Reported-by: Andy Lavr <andy.lavr@gmail.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210825160749.3891090-1-keescook@chromium.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c      | 3 +++
- drivers/infiniband/core/sa_query.c | 9 ++++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ drivers/platform/x86/dell-smbios-wmi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index ec9e9598894f..261d284e5ff3 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2937,6 +2937,9 @@ int rdma_resolve_route(struct rdma_cm_id *id, unsigned long timeout_ms)
- 	struct rdma_id_private *id_priv;
- 	int ret;
- 
-+	if (!timeout_ms)
-+		return -EINVAL;
-+
- 	id_priv = container_of(id, struct rdma_id_private, id);
- 	if (!cma_comp_exch(id_priv, RDMA_CM_ADDR_RESOLVED, RDMA_CM_ROUTE_QUERY))
- 		return -EINVAL;
-diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
-index d2d70c89193f..8c0ff50cbcfc 100644
---- a/drivers/infiniband/core/sa_query.c
-+++ b/drivers/infiniband/core/sa_query.c
-@@ -1360,6 +1360,7 @@ static int send_mad(struct ib_sa_query *query, unsigned long timeout_ms,
- {
- 	unsigned long flags;
- 	int ret, id;
-+	const int nmbr_sa_query_retries = 10;
- 
- 	xa_lock_irqsave(&queries, flags);
- 	ret = __xa_alloc(&queries, &id, query, xa_limit_32b, gfp_mask);
-@@ -1367,7 +1368,13 @@ static int send_mad(struct ib_sa_query *query, unsigned long timeout_ms,
- 	if (ret < 0)
- 		return ret;
- 
--	query->mad_buf->timeout_ms  = timeout_ms;
-+	query->mad_buf->timeout_ms  = timeout_ms / nmbr_sa_query_retries;
-+	query->mad_buf->retries = nmbr_sa_query_retries;
-+	if (!query->mad_buf->timeout_ms) {
-+		/* Special case, very small timeout_ms */
-+		query->mad_buf->timeout_ms = 1;
-+		query->mad_buf->retries = timeout_ms;
-+	}
- 	query->mad_buf->context[0] = query;
- 	query->id = id;
- 
+diff --git a/drivers/platform/x86/dell-smbios-wmi.c b/drivers/platform/x86/dell-smbios-wmi.c
+index c97bd4a45242..32e8c4715d53 100644
+--- a/drivers/platform/x86/dell-smbios-wmi.c
++++ b/drivers/platform/x86/dell-smbios-wmi.c
+@@ -71,7 +71,7 @@ static int run_smbios_call(struct wmi_device *wdev)
+ 				obj->integer.value);
+ 		return -EIO;
+ 	}
+-	memcpy(&priv->buf->std, obj->buffer.pointer, obj->buffer.length);
++	memcpy(input.pointer, obj->buffer.pointer, obj->buffer.length);
+ 	dev_dbg(&wdev->dev, "result: [%08x,%08x,%08x,%08x]\n",
+ 		priv->buf->std.output[0], priv->buf->std.output[1],
+ 		priv->buf->std.output[2], priv->buf->std.output[3]);
 -- 
 2.30.2
 
