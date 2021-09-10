@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A74A34061EF
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D04D4061FD
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233253AbhIJAoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:44:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46184 "EHLO mail.kernel.org"
+        id S231961AbhIJAoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:44:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233481AbhIJAT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:19:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94AF7610A3;
-        Fri, 10 Sep 2021 00:18:48 +0000 (UTC)
+        id S233493AbhIJAUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:20:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AF23610E9;
+        Fri, 10 Sep 2021 00:18:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233129;
-        bh=S2kBUEestuULlMUO4FoWwB67zsAW7zLe4FdjdnFH428=;
+        s=k20201202; t=1631233130;
+        bh=TGw4njp5IaZc78R/uUB/LijXLUHq5fkfuYINOfxXf0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GkjB80vqXZvzaBcnQx+mOnkih9zwT0HJhiTfVTYxxeKHwLljfn9ZE8gLZj8aVMApG
-         XEmKhAfINP1Snznu2uSpBWCr2P/b5a68OtSrKeaqlJ1HTGRv+//zPjtQ29btyuxNTc
-         hCT9s1g6rlR0139DTjavvchJM1GtoAgYzNyL/4kQdBrrfRf+prFag+6IIrUWCcIP6i
-         bw6AJbh4/j9L/SLV9Kr4ETAmV7Z+yZFsqW8ZY/lWecWwrRP0lR7uLziWmcxEeqgBmE
-         0kjYkqJVWC8SQphh32KZ1IJuifxi1P3h8N7V8sGykbrv5fUuueXzd5lyNmqyY+2Oth
-         mVCYY0IVn2WDA==
+        b=je9ABs+d34/+nTU+2qmEXsRDwpNyB2fBpZ7d/drnUFMeBWHvmCBzOlGQ20m7OoOko
+         PtwuuodxCzT4hgUIumgrjehaM1+FVPkrNT5e6ZqjErMRfvKDwkvZ51cqfPwPNKfoL0
+         xDBb8+f0gHUKIM1y1bFAwuhNbPo41MyLTQ0I/fypUGDWxWcYKiVlflAnJExs/RRGE0
+         o3NVPfvWWdFW2wxGWxC/9WNTtuEd94HUEXG1SSSE2q/A0HXykRW4ujh/HpGUBRq+mi
+         TcC9PIfz1X09ES1uiVX41roCKL3lBKTxOFhWRhXDiqzay0da0xUqhbDiVe1jUFPm5O
+         s3oC8kvaJxRHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
-        syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 20/88] HID: usbhid: free raw_report buffers in usbhid_stop
-Date:   Thu,  9 Sep 2021 20:17:12 -0400
-Message-Id: <20210910001820.174272-20-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 21/88] scsi: lpfc: Fix possible ABBA deadlock in nvmet_xri_aborted()
+Date:   Thu,  9 Sep 2021 20:17:13 -0400
+Message-Id: <20210910001820.174272-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
@@ -43,58 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit f7744fa16b96da57187dc8e5634152d3b63d72de ]
+[ Upstream commit 7740b615b6665e47f162e261d805f1bbbac15876 ]
 
-Free the unsent raw_report buffers when the device is removed.
+The lpfc_sli4_nvmet_xri_aborted() routine takes out the abts_buf_list_lock
+and traverses the buffer contexts to match the xri. Upon match, it then
+takes the context lock before potentially removing the context from the
+associated buffer list. This violates the lock hierarchy used elsewhere in
+the driver of locking context, then the abts_buf_list_lock - thus a
+possible deadlock.
 
-Fixes a memory leak reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=7b4fa7cb1a7c2d3342a2a8a6c53371c8c418ab47
+Resolve by: after matching, release the abts_buf_list_lock, then take the
+context lock, and if to be deleted from the list, retake the
+abts_buf_list_lock, maintaining lock hierarchy. This matches same list lock
+hierarchy as elsewhere in the driver
 
-Reported-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Tested-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Link: https://lore.kernel.org/r/20210730163309.25809-1-jsmart2021@gmail.com
+Reported-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/usbhid/hid-core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_nvmet.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 4e9077363c96..9c970e63670e 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -505,7 +505,7 @@ static void hid_ctrl(struct urb *urb)
+diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
+index f2d9a3580887..6e3dd0b9bcfa 100644
+--- a/drivers/scsi/lpfc/lpfc_nvmet.c
++++ b/drivers/scsi/lpfc/lpfc_nvmet.c
+@@ -1797,19 +1797,22 @@ lpfc_sli4_nvmet_xri_aborted(struct lpfc_hba *phba,
+ 		if (ctxp->ctxbuf->sglq->sli4_xritag != xri)
+ 			continue;
  
- 	if (unplug) {
- 		usbhid->ctrltail = usbhid->ctrlhead;
--	} else {
-+	} else if (usbhid->ctrlhead != usbhid->ctrltail) {
- 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
+-		spin_lock(&ctxp->ctxlock);
++		spin_unlock_irqrestore(&phba->sli4_hba.abts_nvmet_buf_list_lock,
++				       iflag);
++
++		spin_lock_irqsave(&ctxp->ctxlock, iflag);
+ 		/* Check if we already received a free context call
+ 		 * and we have completed processing an abort situation.
+ 		 */
+ 		if (ctxp->flag & LPFC_NVME_CTX_RLS &&
+ 		    !(ctxp->flag & LPFC_NVME_ABORT_OP)) {
++			spin_lock(&phba->sli4_hba.abts_nvmet_buf_list_lock);
+ 			list_del_init(&ctxp->list);
++			spin_unlock(&phba->sli4_hba.abts_nvmet_buf_list_lock);
+ 			released = true;
+ 		}
+ 		ctxp->flag &= ~LPFC_NVME_XBUSY;
+-		spin_unlock(&ctxp->ctxlock);
+-		spin_unlock_irqrestore(&phba->sli4_hba.abts_nvmet_buf_list_lock,
+-				       iflag);
++		spin_unlock_irqrestore(&ctxp->ctxlock, iflag);
  
- 		if (usbhid->ctrlhead != usbhid->ctrltail &&
-@@ -1223,9 +1223,20 @@ static void usbhid_stop(struct hid_device *hid)
- 	mutex_lock(&usbhid->mutex);
- 
- 	clear_bit(HID_STARTED, &usbhid->iofl);
-+
- 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
- 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
-+	while (usbhid->ctrltail != usbhid->ctrlhead) {
-+		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_OUT) {
-+			kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
-+			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
-+		}
-+
-+		usbhid->ctrltail = (usbhid->ctrltail + 1) &
-+			(HID_CONTROL_FIFO_SIZE - 1);
-+	}
- 	spin_unlock_irq(&usbhid->lock);
-+
- 	usb_kill_urb(usbhid->urbin);
- 	usb_kill_urb(usbhid->urbout);
- 	usb_kill_urb(usbhid->urbctrl);
+ 		rrq_empty = list_empty(&phba->active_rrq_list);
+ 		ndlp = lpfc_findnode_did(phba->pport, ctxp->sid);
 -- 
 2.30.2
 
