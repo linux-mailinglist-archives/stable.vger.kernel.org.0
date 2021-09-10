@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C39E406263
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C804406270
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231635AbhIJAps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232435AbhIJAps (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 20:45:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47500 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233806AbhIJAVn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:21:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB709611AF;
-        Fri, 10 Sep 2021 00:20:32 +0000 (UTC)
+        id S233810AbhIJAVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:21:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FF6610A3;
+        Fri, 10 Sep 2021 00:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233233;
-        bh=1LUZstzBU6lnrvq0z0vjZ3RlSGsKHummG+10tM0IJL4=;
+        s=k20201202; t=1631233234;
+        bh=fTcZ3cYtTT+hrBpIaRoONPfiCMU7LCbwOJh9LibM75A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rk3hnWZh7rLK58h67I3mZjRSBIw2lQ1uLJWtppfJpzh8dJKCYXbb5kKZkFE+qppEo
-         nNOckkGPE+rpQy2ZYOHumDWE/rsNpY9XaonB5+lPxZyiKfA5p1lRXOc1N40WnUk/Og
-         E+0/YeGTVTIeqF0Kc+12S6U+Q2lTeRJrfvf55K1TVQO9Bjmzn3jJ/0YvUbDUQCWwlf
-         9AXmYwCrxeDp+bvI4LPunXjlgqBaGE9LTwyjK/6dy/KnSRAbRWTkAyi0ec9GjF42zY
-         u65oIBN+qb+8PA+Bgw8pqzug9EhatTVzgDWr+AySqq+RTgbmrS4I14bTp0bmxkMF8G
-         F/20cA2R+or/g==
+        b=OsU3vSSlKErm+a3GxToor/YiOr2UIkQ0eay7hHt/Y+Tsrr0yFd7rysjxUowDU+GGs
+         GCbjeIkW+Qi7AfiEUQo42N/C8lUskPg1JbT3dJ6xBYNKmdDNrMJuG1/Ey0ct+0ai3L
+         jn6cPYHtScAprVpkuIkaUKsZGml+T/U7NJ6oIe85xmBCzWPlpgtiPI9eW2pyUVF6PR
+         Vdy2hGR5flRTnaMKgLoPhysi7KIaBqpfJyRZ1AaPjrV/89z1ZRlJ5cYO7kXK/o0INP
+         bVg2YHdhMLl/KW9Wb60LW/ksoQQ6WTzOHAf1tmkd3NQqlht4rhnjo/R7YmdDM/hAMf
+         h5+AERD2QTXaw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Justin Tee <justin.tee@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/53] scsi: lpfc: Fix NVMe support reporting in log message
-Date:   Thu,  9 Sep 2021 20:19:38 -0400
-Message-Id: <20210910002028.175174-3-sashal@kernel.org>
+Cc:     Jia Yang <jiayang5@huawei.com>, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.10 04/53] f2fs: Revert "f2fs: Fix indefinite loop in f2fs_gc() v1"
+Date:   Thu,  9 Sep 2021 20:19:39 -0400
+Message-Id: <20210910002028.175174-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
@@ -43,60 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Jia Yang <jiayang5@huawei.com>
 
-[ Upstream commit ae463b60235e7a5decffbb0bd7209952ccda78eb ]
+[ Upstream commit 10d0786b39b3b91c4fbf8c2926e97ab456a4eea1 ]
 
-The NVMe support indicator in log message 6422 is displaying a field that
-was initialized but never set to indicate NVMe support.  Remove obsolete
-nvme_support element from the lpfc_hba structure and change log message to
-display NVMe support status as reported in SLI4 Config Parameters mailbox
-command.
+This reverts commit 957fa47823dfe449c5a15a944e4e7a299a6601db.
 
-Link: https://lore.kernel.org/r/20210707184351.67872-2-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The patch "f2fs: Fix indefinite loop in f2fs_gc()" v1 and v4 are all
+merged. Patch v4 is test info for patch v1. Patch v1 doesn't work and
+may cause that sbi->cur_victim_sec can't be resetted to NULL_SEGNO,
+which makes SSR unable to get segment of sbi->cur_victim_sec.
+So it should be reverted.
+
+The mails record:
+[1] https://lore.kernel.org/linux-f2fs-devel/7288dcd4-b168-7656-d1af-7e2cafa4f720@huawei.com/T/
+[2] https://lore.kernel.org/linux-f2fs-devel/20190809153653.GD93481@jaegeuk-macbookpro.roam.corp.google.com/T/
+
+Signed-off-by: Jia Yang <jiayang5@huawei.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc.h      | 1 -
- drivers/scsi/lpfc/lpfc_init.c | 3 +--
- 2 files changed, 1 insertion(+), 3 deletions(-)
+ fs/f2fs/gc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
-index 93e507677bdc..86996c72f213 100644
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -819,7 +819,6 @@ struct lpfc_hba {
- 	uint8_t  wwpn[8];
- 	uint32_t RandomData[7];
- 	uint8_t  fcp_embed_io;
--	uint8_t  nvme_support;	/* Firmware supports NVME */
- 	uint8_t  nvmet_support;	/* driver supports NVMET */
- #define LPFC_NVMET_MAX_PORTS	32
- 	uint8_t  mds_diags_support;
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index 37612299a34a..003648661f3b 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -12126,7 +12126,6 @@ lpfc_get_sli4_parameters(struct lpfc_hba *phba, LPFC_MBOXQ_t *mboxq)
- 					bf_get(cfg_xib, mbx_sli4_parameters),
- 					phba->cfg_enable_fc4_type);
- fcponly:
--			phba->nvme_support = 0;
- 			phba->nvmet_support = 0;
- 			phba->cfg_nvmet_mrq = 0;
- 			phba->cfg_nvme_seg_cnt = 0;
-@@ -12184,7 +12183,7 @@ lpfc_get_sli4_parameters(struct lpfc_hba *phba, LPFC_MBOXQ_t *mboxq)
- 			"6422 XIB %d PBDE %d: FCP %d NVME %d %d %d\n",
- 			bf_get(cfg_xib, mbx_sli4_parameters),
- 			phba->cfg_enable_pbde,
--			phba->fcp_embed_io, phba->nvme_support,
-+			phba->fcp_embed_io, sli4_params->nvme,
- 			phba->cfg_nvme_embed_cmd, phba->cfg_suppress_rsp);
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index e02affb5c0e7..343b9baf0d08 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1727,7 +1727,7 @@ int f2fs_gc(struct f2fs_sb_info *sbi, bool sync,
+ 		round++;
+ 	}
  
- 	if ((bf_get(lpfc_sli_intf_if_type, &phba->sli4_hba.sli_intf) ==
+-	if (gc_type == FG_GC && seg_freed)
++	if (gc_type == FG_GC)
+ 		sbi->cur_victim_sec = NULL_SEGNO;
+ 
+ 	if (sync)
 -- 
 2.30.2
 
