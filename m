@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0F324061C9
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 710944061CB
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241222AbhIJAnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:43:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
+        id S241228AbhIJAnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:43:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233130AbhIJAT2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:19:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68F7E610A3;
-        Fri, 10 Sep 2021 00:18:17 +0000 (UTC)
+        id S233158AbhIJATd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:19:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 349676023D;
+        Fri, 10 Sep 2021 00:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233098;
-        bh=dcMN18hCQ+HoYY7mN0kEg/7owgCb7/zijP7JEOL6MuU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SMICO8jKDABAbQp+wiiLcwDXlQWM+dQEOAhkR38OOIppRqANQ20WNKLWVSBaBg4gr
-         M/j554nGTpWCD2d2Y5zIyvlq+JiQ2nx5IXi9G9rGg32QBBKLRTrOHrncJP00XJe/Yt
-         qdC7DRVlCPl+ZlO3h0ivuKBurkwD84JHeoifwCcq+kO89KjBwoCeQW12ere8q2i5AA
-         Co61wH/HQotRh99JJT5TlvsHpV2jv0DG25c1HOSU3ooUnUG27l9vOuhWNU++o9+u/t
-         w7dAlXMwyHyNQOOzRymzuIv1sY1402i2jAMj+FnHOL7BJgxeHcOundq0D1TNxPNRhA
-         5QQoAkY55SLhw==
+        s=k20201202; t=1631233103;
+        bh=CCPc2KEfzyYjN6SZpmpoAA91vT3aw1WWkavUzpxYK28=;
+        h=From:To:Cc:Subject:Date:From;
+        b=FpugKfpfF57vYlpXUwGI6PFs9Ny87ntuVIf2VWrW0u8uaxvkamQDev+USNZRsiZBu
+         QEn8kG7aSiGWb1DoCGsCN2f3DGT9jIKgB5EOOUlMgDz4llydzBi+VOgYit4AZLAdhf
+         31v3ufxCrf5CfLLbiAXvPK4XEpe+0xD67jmCy/veK2UmSE1z+Ssjz848Dqei7KbevR
+         vOZqE/UUFlhFlG8YcqkBgDEs8/N+oIENM3OD9Olf/kohup2vESotbuTNYNXjNLYNdN
+         b83HPFzQEEQMzAPDs02NP8kXJKTIOB0CyYw/gqgv18XuziyBmw2P+7CmavG0QUEzvC
+         1tmWuwv+OX4qA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
-        Marco Elver <elver@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.14 99/99] kasan: test: avoid corrupting memory in kasan_rcu_uaf
-Date:   Thu,  9 Sep 2021 20:15:58 -0400
-Message-Id: <20210910001558.173296-99-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 01/88] pinctrl: renesas: rcar: Avoid changing PUDn when disabling bias
+Date:   Thu,  9 Sep 2021 20:16:53 -0400
+Message-Id: <20210910001820.174272-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
-References: <20210910001558.173296-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,42 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit f16de0bcdb55bf18e2533ca625f3e4b4952f254c ]
+[ Upstream commit 7ebaa41047738d46fca6376b3f1765ef69c463c5 ]
 
-kasan_rcu_uaf() writes to freed memory via kasan_rcu_reclaim(), which is
-only safe with the GENERIC mode (as it uses quarantine).  For other modes,
-this test corrupts kernel memory, which might result in a crash.
+When disabling pin bias, there is no need to touch the LSI pin
+pull-up/down control register (PUDn), which selects between pull-up and
+pull-down.  Just disabling the pull-up/down function through the LSI pin
+pull-enable register (PUENn) is sufficient.
 
-Turn the write into a read.
-
-Link: https://lkml.kernel.org/r/b6f2c3bf712d2457c783fa59498225b66a634f62.1628779805.git.andreyknvl@gmail.com
-Signed-off-by: Andrey Konovalov <andreyknvl@gmail.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Link: https://lore.kernel.org/r/071ec644de2555da593a4531ef5d3e4d79cf997d.1625064076.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_kasan_module.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/renesas/pinctrl.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/lib/test_kasan_module.c b/lib/test_kasan_module.c
-index fa73b9df0be4..7ebf433edef3 100644
---- a/lib/test_kasan_module.c
-+++ b/lib/test_kasan_module.c
-@@ -71,7 +71,7 @@ static noinline void __init kasan_rcu_reclaim(struct rcu_head *rp)
- 						struct kasan_rcu_info, rcu);
+diff --git a/drivers/pinctrl/renesas/pinctrl.c b/drivers/pinctrl/renesas/pinctrl.c
+index bb488af29862..85cb78cfcfa6 100644
+--- a/drivers/pinctrl/renesas/pinctrl.c
++++ b/drivers/pinctrl/renesas/pinctrl.c
+@@ -898,17 +898,17 @@ void rcar_pinmux_set_bias(struct sh_pfc *pfc, unsigned int pin,
  
- 	kfree(fp);
--	fp->i = 1;
-+	((volatile struct kasan_rcu_info *)fp)->i;
- }
+ 	if (reg->puen) {
+ 		enable = sh_pfc_read(pfc, reg->puen) & ~BIT(bit);
+-		if (bias != PIN_CONFIG_BIAS_DISABLE)
++		if (bias != PIN_CONFIG_BIAS_DISABLE) {
+ 			enable |= BIT(bit);
  
- static noinline void __init kasan_rcu_uaf(void)
+-		if (reg->pud) {
+-			updown = sh_pfc_read(pfc, reg->pud) & ~BIT(bit);
+-			if (bias == PIN_CONFIG_BIAS_PULL_UP)
+-				updown |= BIT(bit);
++			if (reg->pud) {
++				updown = sh_pfc_read(pfc, reg->pud) & ~BIT(bit);
++				if (bias == PIN_CONFIG_BIAS_PULL_UP)
++					updown |= BIT(bit);
+ 
+-			sh_pfc_write(pfc, reg->pud, updown);
++				sh_pfc_write(pfc, reg->pud, updown);
++			}
+ 		}
+-
+ 		sh_pfc_write(pfc, reg->puen, enable);
+ 	} else {
+ 		enable = sh_pfc_read(pfc, reg->pud) & ~BIT(bit);
 -- 
 2.30.2
 
