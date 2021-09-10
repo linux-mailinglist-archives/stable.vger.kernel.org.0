@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F8F2406778
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 09:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2976B406779
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 09:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231281AbhIJHIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 03:08:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50404 "EHLO mail.kernel.org"
+        id S231290AbhIJHII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 03:08:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231223AbhIJHH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 03:07:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF9D5610A3;
-        Fri, 10 Sep 2021 07:06:48 +0000 (UTC)
+        id S231223AbhIJHII (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 03:08:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22ABA610A3;
+        Fri, 10 Sep 2021 07:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631257609;
-        bh=H7u+IYveVFJjsSjjPSWU0zPWfsdzgNOeHJDR3TvGOuo=;
+        s=korg; t=1631257617;
+        bh=Sd2GkVBxcL8tSIe/C3dmztdLdmwt0CQeXbJpNZnGmAU=;
         h=Subject:To:Cc:From:Date:From;
-        b=cemQAND+1B61HUJz6ZPVNE8ijloZ09NWyfCaVQqRh5ixARQoYIF4Uin2e1rOYYQnt
-         6GIzwvtsPlj0gJMnosAclWDW/AYmRlIVkQjQscUZ2IWe1Uqpikp5IMy0WN8pIYKyCt
-         o/8lkXiYCifi/4/1wP9t+KIlR38hQCmGYgGUDmTM=
-Subject: FAILED: patch "[PATCH] usb: host: xhci-rcar: Don't reload firmware after the" failed to apply to 4.4-stable tree
+        b=t+r6m3eo7QHMyvcBOvnuHgm9tSFQXynMHjzl0jnrEtGlgMjfLOVev2czCEew+cwFm
+         5+Zm/BDBxIz1VJqti5r3To0CPKvFwNl/uSDoFZWGcCyrIKIhx8ZArIxxXTaT1q/k4O
+         mqDfOVOAywOHmAetV0XSNUTQ8ASYepbQDW/fgMCg=
+Subject: FAILED: patch "[PATCH] usb: host: xhci-rcar: Don't reload firmware after the" failed to apply to 4.9-stable tree
 To:     yoshihiro.shimoda.uh@renesas.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 10 Sep 2021 09:06:47 +0200
-Message-ID: <16312576074216@kroah.com>
+Message-ID: <163125760760139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
