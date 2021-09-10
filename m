@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4BC406BD4
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC3AD406C10
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233981AbhIJMex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:34:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51934 "EHLO mail.kernel.org"
+        id S234674AbhIJMgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:36:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234089AbhIJMeQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:34:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1217B611CC;
-        Fri, 10 Sep 2021 12:33:04 +0000 (UTC)
+        id S233466AbhIJMfd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:35:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EADB60E94;
+        Fri, 10 Sep 2021 12:34:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277185;
-        bh=vDMNfXKcEpvZWh9QXgp98GoQ3gV53ERvyl94vM74WCQ=;
+        s=korg; t=1631277262;
+        bh=EWlAHoPb3doGGBjlC3rxknodtu/d/Dmix/quZJ8/u2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C8vfWDOmZtPMTu8Af2Xvyia1gcbJtC68sGlqLAm+tNmbblQSgLOZ+gTEIx3GZrusn
-         08Bq0vuryWTqpvnB0LiECzzZpUNV+DTHrQsiuvi18Wyj4/G0ZBJ5wtmfU6QnqgUGJT
-         jsEeL8yVr7vPL5f1dOMS9WId0woNvTJQRIe1zZeU=
+        b=EhHiJT5NEJC48ep5U92/RNXiu8RfWgbgmUoZ9A5+zTxR5iNVEl5QlECDHhuqAu8xA
+         BOIStql0NajcXsVWSiRg2zBRIubnYDouwfcFMxhgjaB/juyQSkLCHcXrpn6AU0rWQD
+         42emlH9jaPaG8hiUyKLfdvKrMK9pX01r/k31HGMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Blank-Burian, Markus, Dr." <blankburian@uni-muenster.de>,
-        Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        John Garry <john.garry@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Yi Zhang <yi.zhang@redhat.com>
-Subject: [PATCH 5.10 11/26] blk-mq: fix kernel panic during iterating over flush request
+        stable@vger.kernel.org, Prabhakar Kushwaha <pkushwaha@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Shai Malin <smalin@marvell.com>,
+        Kees Cook <keescook@chromium.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 12/37] qede: Fix memset corruption
 Date:   Fri, 10 Sep 2021 14:30:15 +0200
-Message-Id: <20210910122916.618186764@linuxfoundation.org>
+Message-Id: <20210910122917.580399550@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
-References: <20210910122916.253646001@linuxfoundation.org>
+In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
+References: <20210910122917.149278545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Shai Malin <smalin@marvell.com>
 
-commit c2da19ed50554ce52ecbad3655c98371fe58599f upstream.
+[ Upstream commit e543468869e2532f5d7926e8f417782b48eca3dc ]
 
-For fixing use-after-free during iterating over requests, we grabbed
-request's refcount before calling ->fn in commit 2e315dc07df0 ("blk-mq:
-grab rq->refcount before calling ->fn in blk_mq_tagset_busy_iter").
-Turns out this way may cause kernel panic when iterating over one flush
-request:
+Thanks to Kees Cook who detected the problem of memset that starting
+from not the first member, but sized for the whole struct.
+The better change will be to remove the redundant memset and to clear
+only the msix_cnt member.
 
-1) old flush request's tag is just released, and this tag is reused by
-one new request, but ->rqs[] isn't updated yet
-
-2) the flush request can be re-used for submitting one new flush command,
-so blk_rq_init() is called at the same time
-
-3) meantime blk_mq_queue_tag_busy_iter() is called, and old flush request
-is retrieved from ->rqs[tag]; when blk_mq_put_rq_ref() is called,
-flush_rq->end_io may not be updated yet, so NULL pointer dereference
-is triggered in blk_mq_put_rq_ref().
-
-Fix the issue by calling refcount_set(&flush_rq->ref, 1) after
-flush_rq->end_io is set. So far the only other caller of blk_rq_init() is
-scsi_ioctl_reset() in which the request doesn't enter block IO stack and
-the request reference count isn't used, so the change is safe.
-
-Fixes: 2e315dc07df0 ("blk-mq: grab rq->refcount before calling ->fn in blk_mq_tagset_busy_iter")
-Reported-by: "Blank-Burian, Markus, Dr." <blankburian@uni-muenster.de>
-Tested-by: "Blank-Burian, Markus, Dr." <blankburian@uni-muenster.de>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Link: https://lore.kernel.org/r/20210811142624.618598-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Yi Zhang <yi.zhang@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Shai Malin <smalin@marvell.com>
+Reported-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c  |    1 -
- block/blk-flush.c |    8 ++++++++
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/qlogic/qede/qede_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -121,7 +121,6 @@ void blk_rq_init(struct request_queue *q
- 	rq->internal_tag = BLK_MQ_NO_TAG;
- 	rq->start_time_ns = ktime_get_ns();
- 	rq->part = NULL;
--	refcount_set(&rq->ref, 1);
- 	blk_crypto_rq_set_defaults(rq);
- }
- EXPORT_SYMBOL(blk_rq_init);
---- a/block/blk-flush.c
-+++ b/block/blk-flush.c
-@@ -330,6 +330,14 @@ static void blk_kick_flush(struct reques
- 	flush_rq->rq_flags |= RQF_FLUSH_SEQ;
- 	flush_rq->rq_disk = first_rq->rq_disk;
- 	flush_rq->end_io = flush_end_io;
-+	/*
-+	 * Order WRITE ->end_io and WRITE rq->ref, and its pair is the one
-+	 * implied in refcount_inc_not_zero() called from
-+	 * blk_mq_find_and_get_req(), which orders WRITE/READ flush_rq->ref
-+	 * and READ flush_rq->end_io
-+	 */
-+	smp_wmb();
-+	refcount_set(&flush_rq->ref, 1);
+diff --git a/drivers/net/ethernet/qlogic/qede/qede_main.c b/drivers/net/ethernet/qlogic/qede/qede_main.c
+index ce3e62e73e4c..1133f6fe21a0 100644
+--- a/drivers/net/ethernet/qlogic/qede/qede_main.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
+@@ -1773,6 +1773,7 @@ static void qede_sync_free_irqs(struct qede_dev *edev)
+ 	}
  
- 	blk_flush_queue_rq(flush_rq, false);
+ 	edev->int_info.used_cnt = 0;
++	edev->int_info.msix_cnt = 0;
  }
+ 
+ static int qede_req_msix_irqs(struct qede_dev *edev)
+@@ -2317,7 +2318,6 @@ static int qede_load(struct qede_dev *edev, enum qede_load_mode mode,
+ 	goto out;
+ err4:
+ 	qede_sync_free_irqs(edev);
+-	memset(&edev->int_info.msix_cnt, 0, sizeof(struct qed_int_info));
+ err3:
+ 	qede_napi_disable_remove(edev);
+ err2:
+-- 
+2.30.2
+
 
 
