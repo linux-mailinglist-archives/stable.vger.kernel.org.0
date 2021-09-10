@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 930D5406234
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C41F406236
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229756AbhIJAo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233193AbhIJAo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 20:44:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46934 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233728AbhIJAUz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:20:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D07A61101;
-        Fri, 10 Sep 2021 00:19:44 +0000 (UTC)
+        id S231358AbhIJAU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:20:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EAD7610A3;
+        Fri, 10 Sep 2021 00:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233185;
-        bh=HmqB+qH72XGDU9O7s5aiYB8gYxyGZHG6dlXlJyxEEe8=;
+        s=k20201202; t=1631233186;
+        bh=HFF/u+5vqUJxDmQK9u8xC6Ui2jsxkYOcF3T4gs0A8x4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZzKzbfNFfUapU6dWXZMtY87LJQJOjyY/l5dpIwrncBw7NLFBWNPl3TdQHJxE5/l6d
-         a/46VC5ibXrXkdVzsATi8ftSNf7tHgCcQRQNajraDheim8MHwc6WHWN91lyqLruSzD
-         L+xfwucIu/Pwq/p/5jtjyiLLpe0z5Feco5EsI9LwaH8GzWu0DFcTNPRIpi0JGozYlm
-         VTiviP1OJi3ehdJXLkl2TdN8FlUKEDyMq95kbA9BgKeXQF7FkwzULJFlVv5na+yzV1
-         eSmOT46g7pi0xoiHliTNMsdohMvM0aVMJvK0wHjB2naeM62YUwETsk9VKs0szeqGPL
-         1T6z8fAL1BPnw==
+        b=WxvzDXhzbMFO1kBFAoRuwyFeEK46eFTuqHOVjF0opuNaoB5FrbnaJP0W4x6jrVs68
+         Dp0V9CapnsYcuJe4pQGYS4CyUc+qQkoBjOuJOiiHFli6dLBhfE17rdZRoghzgZIAx8
+         uq5dvqqy9bQKxrQTMHrf2e7eoX/zqzd2T0/vg42gJUju1BzJ6N8JzYjVAkU7/kr+AP
+         ognjv0pqHjY+koIMmGVRJcitsvyo8rF+QwBlC18fIx5kA93/pisDvxxp/goTUlwfI6
+         ClTz8R7cCLhB2bLWjjRuodM4Sv0a8S5PutrAfNDQxCrHLYJcWjKqUPViCZGSs+nJjv
+         saxw7yVnnKo7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.13 60/88] powerpc/32: indirect function call use bctrl rather than blrl in ret_from_kernel_thread
-Date:   Thu,  9 Sep 2021 20:17:52 -0400
-Message-Id: <20210910001820.174272-60-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 61/88] powerpc/booke: Avoid link stack corruption in several places
+Date:   Thu,  9 Sep 2021 20:17:53 -0400
+Message-Id: <20210910001820.174272-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
@@ -44,42 +44,194 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 113ec9ccc8049c3772f0eab46b62c5d6654c09f7 ]
+[ Upstream commit f5007dbf4da729baa850b33a64dc3cc53757bdf8 ]
 
-Copied from commit 89bbe4c798bc ("powerpc/64: indirect function call
-use bctrl rather than blrl in ret_from_kernel_thread")
+Use bcl 20,31,+4 instead of bl in order to preserve link stack.
 
-blrl is not recommended to use as an indirect function call, as it may
-corrupt the link stack predictor.
-
-This is not a performance critical path but this should be fixed for
-consistency.
+See commit c974809a26a1 ("powerpc/vdso: Avoid link stack corruption
+in __get_datapage()") for details.
 
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/91b1d242525307ceceec7ef6e832bfbacdd4501b.1629436472.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/e9fbc285eceb720e6c0e032ef47fe8b05f669b48.1629791751.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/entry_32.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/ppc_asm.h            | 2 +-
+ arch/powerpc/kernel/exceptions-64e.S          | 6 +++---
+ arch/powerpc/kernel/fsl_booke_entry_mapping.S | 8 ++++----
+ arch/powerpc/kernel/head_44x.S                | 6 +++---
+ arch/powerpc/kernel/head_fsl_booke.S          | 6 +++---
+ arch/powerpc/mm/nohash/tlb_low.S              | 4 ++--
+ 6 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/arch/powerpc/kernel/entry_32.S b/arch/powerpc/kernel/entry_32.S
-index 9160285cb2f4..01531906291a 100644
---- a/arch/powerpc/kernel/entry_32.S
-+++ b/arch/powerpc/kernel/entry_32.S
-@@ -142,10 +142,10 @@ ret_from_fork:
- ret_from_kernel_thread:
- 	REST_NVGPRS(r1)
- 	bl	schedule_tail
--	mtlr	r14
-+	mtctr	r14
- 	mr	r3,r15
- 	PPC440EP_ERR42
--	blrl
-+	bctrl
- 	li	r3,0
- 	b	ret_from_syscall
+diff --git a/arch/powerpc/include/asm/ppc_asm.h b/arch/powerpc/include/asm/ppc_asm.h
+index d6739d700f0a..0891204c2bdb 100644
+--- a/arch/powerpc/include/asm/ppc_asm.h
++++ b/arch/powerpc/include/asm/ppc_asm.h
+@@ -259,7 +259,7 @@ GLUE(.,name):
  
+ /* Be careful, this will clobber the lr register. */
+ #define LOAD_REG_ADDR_PIC(reg, name)		\
+-	bl	0f;				\
++	bcl	20,31,$+4;			\
+ 0:	mflr	reg;				\
+ 	addis	reg,reg,(name - 0b)@ha;		\
+ 	addi	reg,reg,(name - 0b)@l;
+diff --git a/arch/powerpc/kernel/exceptions-64e.S b/arch/powerpc/kernel/exceptions-64e.S
+index f1ae710274bc..5a7056471d86 100644
+--- a/arch/powerpc/kernel/exceptions-64e.S
++++ b/arch/powerpc/kernel/exceptions-64e.S
+@@ -1084,7 +1084,7 @@ found_iprot:
+  * r3 = MAS0_TLBSEL (for the iprot array)
+  * r4 = SPRN_TLBnCFG
+  */
+-	bl	invstr				/* Find our address */
++	bcl	20,31,$+4			/* Find our address */
+ invstr:	mflr	r6				/* Make it accessible */
+ 	mfmsr	r7
+ 	rlwinm	r5,r7,27,31,31			/* extract MSR[IS] */
+@@ -1153,7 +1153,7 @@ skpinv:	addi	r6,r6,1				/* Increment */
+ 	mfmsr	r6
+ 	xori	r6,r6,MSR_IS
+ 	mtspr	SPRN_SRR1,r6
+-	bl	1f		/* Find our address */
++	bcl	20,31,$+4	/* Find our address */
+ 1:	mflr	r6
+ 	addi	r6,r6,(2f - 1b)
+ 	mtspr	SPRN_SRR0,r6
+@@ -1213,7 +1213,7 @@ skpinv:	addi	r6,r6,1				/* Increment */
+  * r4 = MAS0 w/TLBSEL & ESEL for the temp mapping
+  */
+ 	/* Now we branch the new virtual address mapped by this entry */
+-	bl	1f		/* Find our address */
++	bcl	20,31,$+4	/* Find our address */
+ 1:	mflr	r6
+ 	addi	r6,r6,(2f - 1b)
+ 	tovirt(r6,r6)
+diff --git a/arch/powerpc/kernel/fsl_booke_entry_mapping.S b/arch/powerpc/kernel/fsl_booke_entry_mapping.S
+index 8bccce6544b5..dedc17fac8f8 100644
+--- a/arch/powerpc/kernel/fsl_booke_entry_mapping.S
++++ b/arch/powerpc/kernel/fsl_booke_entry_mapping.S
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ 
+ /* 1. Find the index of the entry we're executing in */
+-	bl	invstr				/* Find our address */
++	bcl	20,31,$+4				/* Find our address */
+ invstr:	mflr	r6				/* Make it accessible */
+ 	mfmsr	r7
+ 	rlwinm	r4,r7,27,31,31			/* extract MSR[IS] */
+@@ -85,7 +85,7 @@ skpinv:	addi	r6,r6,1				/* Increment */
+ 	addi	r6,r6,10
+ 	slw	r6,r8,r6	/* convert to mask */
+ 
+-	bl	1f		/* Find our address */
++	bcl	20,31,$+4	/* Find our address */
+ 1:	mflr	r7
+ 
+ 	mfspr	r8,SPRN_MAS3
+@@ -117,7 +117,7 @@ skpinv:	addi	r6,r6,1				/* Increment */
+ 
+ 	xori	r6,r4,1
+ 	slwi	r6,r6,5		/* setup new context with other address space */
+-	bl	1f		/* Find our address */
++	bcl	20,31,$+4	/* Find our address */
+ 1:	mflr	r9
+ 	rlwimi	r7,r9,0,20,31
+ 	addi	r7,r7,(2f - 1b)
+@@ -207,7 +207,7 @@ next_tlb_setup:
+ 
+ 	lis	r7,MSR_KERNEL@h
+ 	ori	r7,r7,MSR_KERNEL@l
+-	bl	1f			/* Find our address */
++	bcl	20,31,$+4		/* Find our address */
+ 1:	mflr	r9
+ 	rlwimi	r6,r9,0,20,31
+ 	addi	r6,r6,(2f - 1b)
+diff --git a/arch/powerpc/kernel/head_44x.S b/arch/powerpc/kernel/head_44x.S
+index 5c106ac36626..923f4e2020a0 100644
+--- a/arch/powerpc/kernel/head_44x.S
++++ b/arch/powerpc/kernel/head_44x.S
+@@ -70,7 +70,7 @@ _ENTRY(_start);
+  * address.
+  * r21 will be loaded with the physical runtime address of _stext
+  */
+-	bl	0f				/* Get our runtime address */
++	bcl	20,31,$+4			/* Get our runtime address */
+ 0:	mflr	r21				/* Make it accessible */
+ 	addis	r21,r21,(_stext - 0b)@ha
+ 	addi	r21,r21,(_stext - 0b)@l 	/* Get our current runtime base */
+@@ -859,7 +859,7 @@ _GLOBAL(init_cpu_state)
+ wmmucr:	mtspr	SPRN_MMUCR,r3			/* Put MMUCR */
+ 	sync
+ 
+-	bl	invstr				/* Find our address */
++	bcl	20,31,$+4			/* Find our address */
+ invstr:	mflr	r5				/* Make it accessible */
+ 	tlbsx	r23,0,r5			/* Find entry we are in */
+ 	li	r4,0				/* Start at TLB entry 0 */
+@@ -1051,7 +1051,7 @@ head_start_47x:
+ 	sync
+ 
+ 	/* Find the entry we are running from */
+-	bl	1f
++	bcl	20,31,$+4
+ 1:	mflr	r23
+ 	tlbsx	r23,0,r23
+ 	tlbre	r24,r23,0
+diff --git a/arch/powerpc/kernel/head_fsl_booke.S b/arch/powerpc/kernel/head_fsl_booke.S
+index a1a5c3f10dc4..dede9a72615a 100644
+--- a/arch/powerpc/kernel/head_fsl_booke.S
++++ b/arch/powerpc/kernel/head_fsl_booke.S
+@@ -79,7 +79,7 @@ _ENTRY(_start);
+ 	mr	r23,r3
+ 	mr	r25,r4
+ 
+-	bl	0f
++	bcl	20,31,$+4
+ 0:	mflr	r8
+ 	addis	r3,r8,(is_second_reloc - 0b)@ha
+ 	lwz	r19,(is_second_reloc - 0b)@l(r3)
+@@ -1146,7 +1146,7 @@ _GLOBAL(switch_to_as1)
+ 	bne	1b
+ 
+ 	/* Get the tlb entry used by the current running code */
+-	bl	0f
++	bcl	20,31,$+4
+ 0:	mflr	r4
+ 	tlbsx	0,r4
+ 
+@@ -1180,7 +1180,7 @@ _GLOBAL(switch_to_as1)
+ _GLOBAL(restore_to_as0)
+ 	mflr	r0
+ 
+-	bl	0f
++	bcl	20,31,$+4
+ 0:	mflr	r9
+ 	addi	r9,r9,1f - 0b
+ 
+diff --git a/arch/powerpc/mm/nohash/tlb_low.S b/arch/powerpc/mm/nohash/tlb_low.S
+index 68797e072f55..d640673b9e52 100644
+--- a/arch/powerpc/mm/nohash/tlb_low.S
++++ b/arch/powerpc/mm/nohash/tlb_low.S
+@@ -199,7 +199,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_476_DD2)
+  * Touch enough instruction cache lines to ensure cache hits
+  */
+ 1:	mflr	r9
+-	bl	2f
++	bcl	20,31,$+4
+ 2:	mflr	r6
+ 	li	r7,32
+ 	PPC_ICBT(0,R6,R7)		/* touch next cache line */
+@@ -427,7 +427,7 @@ _GLOBAL(loadcam_multi)
+ 	 * Set up temporary TLB entry that is the same as what we're
+ 	 * running from, but in AS=1.
+ 	 */
+-	bl	1f
++	bcl	20,31,$+4
+ 1:	mflr	r6
+ 	tlbsx	0,r8
+ 	mfspr	r6,SPRN_MAS1
 -- 
 2.30.2
 
