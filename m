@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5249C4062F7
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 648984062F5
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232960AbhIJAqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242277AbhIJAqi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 20:46:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48230 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234081AbhIJAWk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:22:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3B9B610E9;
-        Fri, 10 Sep 2021 00:21:29 +0000 (UTC)
+        id S234083AbhIJAWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:22:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FC6E611BF;
+        Fri, 10 Sep 2021 00:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233290;
-        bh=GqfxCRn+EqCHU/WfjFhL1kK8yG6xvyHgBKiAiq6smuA=;
+        s=k20201202; t=1631233291;
+        bh=qGLb3QTiSCz8SrUkiu5OPBBspFGjPc7B2rXYIOOeTyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aB4TMjcAZJycmWMV8r64F5Pev7AKruAYNq2DwwckSKsqTGyhkYLEDPpbyG3ue6fZi
-         TLc7ZML8kCRV8UJiv4UOBgUiospf2uQ8+XePFJxgiQT1GyMmIH5PvVfsSHS+06NJCn
-         rzEtKsq1K/PKGAy48ifbVUZQZxGXnZqyZjcYkRVD1SmDXwj4i3aJOhW0AS3s5nkpPG
-         UTb/et/ITk0Psyy7C8j8DsSaQSmwT3/6/2MPAKg+4J6BMVTXiL3PBINuvoU7oaSSUA
-         vzsVxPz0VAysJOsIhC9vP3mBwKAufGKtaWNDsYNw/ZgfcoodJMad06GoCGlQ7SUDED
-         aKDvKWEMyVBQQ==
+        b=l+xkhsZJTbUkXmN1I/6W6DYz9xSA42sEAF2+uLvR8eDKWQl1ZgH9Zex3S8Adk6aew
+         L94/9C5eOTxq7pPO/3/2xsLzkNfbzV756lPOIeJq5Y7I3l/Lw/jeuSkCuJxBsurJlr
+         lPYrS1lpe1yiV6dzLX8JokQHxBJf+EKQWHsE2fIe4UAWAVbiWGofSbw50aQyjIDGEE
+         ZWHjOq1q5xn2cdLNVPdTSme0vE4jIFGq/JvH4aCWuOR2eoKY84r1dnVWcU7BnRpUI6
+         VWmAPbPR4GG8h9cqKDx169Xy/daF4Aou8AwOmrH+GRrDYBaSUZfuUaPRo5/y9//YHe
+         h43iKZhgmu2BA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 45/53] clk: zynqmp: Fix a memory leak
-Date:   Thu,  9 Sep 2021 20:20:20 -0400
-Message-Id: <20210910002028.175174-45-sashal@kernel.org>
+Cc:     Paul Cercueil <paul@crapouillou.net>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 46/53] MIPS: ingenic: Unconditionally enable clock of CPU #0
+Date:   Thu,  9 Sep 2021 20:20:21 -0400
+Message-Id: <20210910002028.175174-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
@@ -43,33 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit e7296d16ef7be11a6001be9bd89906ef55ab2405 ]
+[ Upstream commit 71f8817c28e2e1e5549138e2aef68c2fd784e162 ]
 
-Fix a memory leak of mux.
+Make sure that the PLL that feeds the CPU won't be stopped while the
+kernel is running.
 
-Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
-Link: https://lore.kernel.org/r/20210818065929.12835-3-shubhrajyoti.datta@xilinx.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+This fixes a problem on JZ4760 (and probably others) where under very
+specific conditions, the main PLL would be turned OFF when the kernel
+was shutting down, causing the shutdown process to fail.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/zynqmp/clk-mux-zynqmp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/generic/board-ingenic.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/drivers/clk/zynqmp/clk-mux-zynqmp.c b/drivers/clk/zynqmp/clk-mux-zynqmp.c
-index 06194149be83..d3b88384b2ff 100644
---- a/drivers/clk/zynqmp/clk-mux-zynqmp.c
-+++ b/drivers/clk/zynqmp/clk-mux-zynqmp.c
-@@ -130,7 +130,7 @@ struct clk_hw *zynqmp_clk_register_mux(const char *name, u32 clk_id,
- 	hw = &mux->hw;
- 	ret = clk_hw_register(NULL, hw);
- 	if (ret) {
--		kfree(hw);
-+		kfree(mux);
- 		hw = ERR_PTR(ret);
+diff --git a/arch/mips/generic/board-ingenic.c b/arch/mips/generic/board-ingenic.c
+index 0cec0bea13d6..11387a93867b 100644
+--- a/arch/mips/generic/board-ingenic.c
++++ b/arch/mips/generic/board-ingenic.c
+@@ -7,6 +7,8 @@
+  * Copyright (C) 2020 Paul Cercueil <paul@crapouillou.net>
+  */
+ 
++#include <linux/clk.h>
++#include <linux/of.h>
+ #include <linux/of_address.h>
+ #include <linux/of_fdt.h>
+ #include <linux/pm.h>
+@@ -108,10 +110,36 @@ static const struct platform_suspend_ops ingenic_pm_ops __maybe_unused = {
+ 
+ static int __init ingenic_pm_init(void)
+ {
++	struct device_node *cpu_node;
++	struct clk *cpu0_clk;
++	int ret;
++
+ 	if (boot_cpu_type() == CPU_XBURST) {
+ 		if (IS_ENABLED(CONFIG_PM_SLEEP))
+ 			suspend_set_ops(&ingenic_pm_ops);
+ 		_machine_halt = ingenic_halt;
++
++		/*
++		 * Unconditionally enable the clock for the first CPU.
++		 * This makes sure that the PLL that feeds the CPU won't be
++		 * stopped while the kernel is running.
++		 */
++		cpu_node = of_get_cpu_node(0, NULL);
++		if (!cpu_node) {
++			pr_err("Unable to get CPU node\n");
++		} else {
++			cpu0_clk = of_clk_get(cpu_node, 0);
++			if (IS_ERR(cpu0_clk)) {
++				pr_err("Unable to get CPU0 clock\n");
++				return PTR_ERR(cpu0_clk);
++			}
++
++			ret = clk_prepare_enable(cpu0_clk);
++			if (ret) {
++				pr_err("Unable to enable CPU0 clock\n");
++				return ret;
++			}
++		}
  	}
  
+ 	return 0;
 -- 
 2.30.2
 
