@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E92B940619A
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC11406199
 	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:42:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232414AbhIJAnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:43:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44872 "EHLO mail.kernel.org"
+        id S240881AbhIJAnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:43:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232602AbhIJATB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232603AbhIJATB (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 20:19:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C067611F2;
-        Fri, 10 Sep 2021 00:17:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88458611C1;
+        Fri, 10 Sep 2021 00:17:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233061;
-        bh=6oBto96Th+BkbM66z6AN4ZhGG1ClsajUHmrosdJqLl4=;
+        s=k20201202; t=1631233062;
+        bh=jDLUIqhUySRT60VoYyyhUFSxMrnREFvtTvBQAlbctco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSmlItrQDeAjjLmT+zIWlI18AT24GVT+ZFEbHkG+2zBMrr/W6h/6u7k5rSwCsv6TH
-         1otf/I/0pz2S1mspuqRim11zkQqLxBZ4Nuxk79DS0TwtBMvYiC8Rld1a/IynlsvKt+
-         F4HwG/nVj9Y+hZT/+BfNM7iFUnHxSq8Da4UhfUVYtgczeDsJ2rOk24hY0EGs2fLZoB
-         g3UFz6y4gLlgOYYR2I4q2dNRNkHV7vXPUCqhpJvGRsQyrSbzlnkCIzMZkqLCHWjfqO
-         PQHiBlijecEd3BkLlUcQOMcy0+tpZgjDIC5jz4AJe2GaImG/IWIPYbUTzyTZb5+r/F
-         4RWTZ9zg+PoFg==
+        b=sWQ+6HnubmlS/2lPRAsbiAwMKgucaJRdw9lYYD5rPdSyvhA6U1JxblyX47dOCgkN4
+         XWW1FXINFfDk1AqxYRPrQ4n94HrWfaWsKQWSJDLkywnHCIk0L4CAoOZZqpv6zImwRt
+         Ouuvx5c1cM7YZHR2eO0HAriWSY2F3lB+fdQAJRbJKW0+XuMRmX+2ZAitIipWKA5S6j
+         uhY3lFF1YWIX0Nu+Cv7OEKfTKzLZqTkdNqV7f8lyk5AvGu7lD2Mh9muF3cU98wg7Nq
+         HxGPetrqqwU3GcsASl16tHWJ1WA+EkHHlJdrxKKyurRseM40kLm/asNkL7sdWHjwNc
+         YXLNCh2go/FdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 74/99] RDMA/core/sa_query: Retry SA queries
-Date:   Thu,  9 Sep 2021 20:15:33 -0400
-Message-Id: <20210910001558.173296-74-sashal@kernel.org>
+Cc:     Baolin Wang <baolin.wang@linux.alibaba.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 75/99] selftests: openat2: Fix testing failure for O_LARGEFILE flag
+Date:   Thu,  9 Sep 2021 20:15:34 -0400
+Message-Id: <20210910001558.173296-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,87 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Baolin Wang <baolin.wang@linux.alibaba.com>
 
-[ Upstream commit 5f5a650999d5718af766fc70a120230b04235a6f ]
+[ Upstream commit d538ddb97e066571e4fc58b832f40739621b42bb ]
 
-A MAD packet is sent as an unreliable datagram (UD). SA requests are sent
-as MAD packets. As such, SA requests or responses may be silently dropped.
+The openat2 test suite fails on ARM64 because the definition of
+O_LARGEFILE is different on ARM64. Fix the problem by defining
+the correct O_LARGEFILE definition on ARM64.
 
-IB Core's MAD layer has a timeout and retry mechanism, which amongst
-other, is used by RDMA CM. But it is not used by SA queries. The lack of
-retries of SA queries leads to long specified timeout, and error being
-returned in case of packet loss. The ULP or user-land process has to
-perform the retry.
+"openat2 unexpectedly returned # 3['.../tools/testing/selftests/openat2']
+with 208000 (!= 208000)
+not ok 102 openat2 with incompatible flags (O_PATH | O_LARGEFILE) fails
+with -22 (Invalid argument)"
 
-Fix this by taking advantage of the MAD layer's retry mechanism.
+Fixed change log to improve formatting and clarity:
+Shuah Khan <skhan@linuxfoundation.org>
 
-First, a check against a zero timeout is added in rdma_resolve_route(). In
-send_mad(), we set the MAD layer timeout to one tenth of the specified
-timeout and the number of retries to 10. The special case when timeout is
-less than 10 is handled.
-
-With this fix:
-
- # ucmatose -c 1000 -S 1024 -C 1
-
-runs stable on an Infiniband fabric. Without this fix, we see an
-intermittent behavior and it errors out with:
-
-cmatose: event: RDMA_CM_EVENT_ROUTE_ERROR, error: -110
-
-(110 is ETIMEDOUT)
-
-Link: https://lore.kernel.org/r/1628784755-28316-1-git-send-email-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Baolin Wang <baolin.wang@linux.alibaba.com>
+Reviewed-by: Aleksa Sarai <cyphar@cyphar.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c      | 3 +++
- drivers/infiniband/core/sa_query.c | 9 ++++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ tools/testing/selftests/openat2/openat2_test.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 5d3b8b8d163d..c40791baced5 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -3132,6 +3132,9 @@ int rdma_resolve_route(struct rdma_cm_id *id, unsigned long timeout_ms)
- 	struct rdma_id_private *id_priv;
- 	int ret;
+diff --git a/tools/testing/selftests/openat2/openat2_test.c b/tools/testing/selftests/openat2/openat2_test.c
+index d7ec1e7da0d0..1bddbe934204 100644
+--- a/tools/testing/selftests/openat2/openat2_test.c
++++ b/tools/testing/selftests/openat2/openat2_test.c
+@@ -22,7 +22,11 @@
+  * XXX: This is wrong on {mips, parisc, powerpc, sparc}.
+  */
+ #undef	O_LARGEFILE
++#ifdef __aarch64__
++#define	O_LARGEFILE 0x20000
++#else
+ #define	O_LARGEFILE 0x8000
++#endif
  
-+	if (!timeout_ms)
-+		return -EINVAL;
-+
- 	id_priv = container_of(id, struct rdma_id_private, id);
- 	if (!cma_comp_exch(id_priv, RDMA_CM_ADDR_RESOLVED, RDMA_CM_ROUTE_QUERY))
- 		return -EINVAL;
-diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
-index b61576f702b8..5a560820f6e0 100644
---- a/drivers/infiniband/core/sa_query.c
-+++ b/drivers/infiniband/core/sa_query.c
-@@ -1358,6 +1358,7 @@ static int send_mad(struct ib_sa_query *query, unsigned long timeout_ms,
- {
- 	unsigned long flags;
- 	int ret, id;
-+	const int nmbr_sa_query_retries = 10;
- 
- 	xa_lock_irqsave(&queries, flags);
- 	ret = __xa_alloc(&queries, &id, query, xa_limit_32b, gfp_mask);
-@@ -1365,7 +1366,13 @@ static int send_mad(struct ib_sa_query *query, unsigned long timeout_ms,
- 	if (ret < 0)
- 		return ret;
- 
--	query->mad_buf->timeout_ms  = timeout_ms;
-+	query->mad_buf->timeout_ms  = timeout_ms / nmbr_sa_query_retries;
-+	query->mad_buf->retries = nmbr_sa_query_retries;
-+	if (!query->mad_buf->timeout_ms) {
-+		/* Special case, very small timeout_ms */
-+		query->mad_buf->timeout_ms = 1;
-+		query->mad_buf->retries = timeout_ms;
-+	}
- 	query->mad_buf->context[0] = query;
- 	query->id = id;
- 
+ struct open_how_ext {
+ 	struct open_how inner;
 -- 
 2.30.2
 
