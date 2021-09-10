@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C297406B96
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2DE6406BB1
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233425AbhIJMco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:32:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50088 "EHLO mail.kernel.org"
+        id S233808AbhIJMdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233416AbhIJMcm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:32:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46140611C8;
-        Fri, 10 Sep 2021 12:31:31 +0000 (UTC)
+        id S233706AbhIJMdU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:33:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5EB8611CB;
+        Fri, 10 Sep 2021 12:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277091;
-        bh=iGBWs8eZx6iMBITm5sk4wbZ5cYOTzTSsVuetQpDVX+E=;
+        s=korg; t=1631277129;
+        bh=WqSVZqc8W+0qcj8G9jPcDiTahB3uUNnrxTIuy542Qzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6Mh4W2VA8gbnudxyLWUEjuI/dQGwfYqDSbT+EKBeTRxMI1yQYFs7pn8fckhEfKpI
-         n2LxbfYMJlnECPyhbRy/m5y74iTPikEdB4+/kZS5WJ9W6IseZU6UVrEoFskRPL6qF9
-         FFJeyzIJ9w8girniaUjHesKrJxfDKQ3RYzai6suw=
+        b=FuBMrHrX1YQr0rpn5mmNeblR/zGu77872tioGNfcEaCU46Qwmlxgav3gpNAh9zKN/
+         SA1GOOlQKQUc+m0WTSb8+LcHXI4I7pHG9+zaX87hY/Uv97Ig0hVoI1tqlaTmwSiR32
+         4vVX5KthG8FvcTmMpeqwA7bW+gxDt0VoCucGfBU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Alison Schofield <alison.schofield@intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.14 23/23] cxl/acpi: Do not add DSDT disabled ACPI0016 host bridge ports
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.13 14/22] usb: gadget: tegra-xudc: fix the wrong mult value for HS isoc or intr
 Date:   Fri, 10 Sep 2021 14:30:13 +0200
-Message-Id: <20210910122916.744559067@linuxfoundation.org>
+Message-Id: <20210910122916.394268486@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122916.022815161@linuxfoundation.org>
-References: <20210910122916.022815161@linuxfoundation.org>
+In-Reply-To: <20210910122915.942645251@linuxfoundation.org>
+References: <20210910122915.942645251@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alison Schofield <alison.schofield@intel.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit a7bfaad54b8b9cf06041528988d6b75b4b921546 upstream.
+commit eeb0cfb6b2b6b731902e68af641e30bd31be3c7b upstream.
 
-During CXL ACPI probe, host bridge ports are discovered by scanning
-the ACPI0017 root port for ACPI0016 host bridge devices. The scan
-matches on the hardware id of "ACPI0016". An issue occurs when an
-ACPI0016 device is defined in the DSDT yet disabled on the platform.
-Attempts by the cxl_acpi driver to add host bridge ports using a
-disabled device fails, and the entire cxl_acpi probe fails.
+usb_endpoint_maxp() only returns the bit[10:0] of wMaxPacketSize
+of endpoint descriptor, not includes bit[12:11] anymore, so use
+usb_endpoint_maxp_mult() instead.
+Meanwhile no need AND 0x7ff when get maxp, remove it.
 
-The DSDT table includes an _STA method that sets the status and the
-ACPI subsystem has checks available to examine it. One such check is
-in the acpi_pci_find_root() path. Move the call to acpi_pci_find_root()
-to the matching function to prevent this issue when adding either
-upstream or downstream ports.
-
-Suggested-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Alison Schofield <alison.schofield@intel.com>
-Fixes: 7d4b5ca2e2cb ("cxl/acpi: Add downstream port data to cxl_port instances")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Link: https://lore.kernel.org/r/163072203957.2250120.2178685721061002124.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Fixes: 49db427232fe ("usb: gadget: Add UDC driver for tegra XUSB device mode controller")
+Cc: stable@vger.kernel.org
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1628836253-7432-5-git-send-email-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cxl/acpi.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/udc/tegra-xudc.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/cxl/acpi.c
-+++ b/drivers/cxl/acpi.c
-@@ -243,6 +243,9 @@ static struct acpi_device *to_cxl_host_b
- {
- 	struct acpi_device *adev = to_acpi_device(dev);
+--- a/drivers/usb/gadget/udc/tegra-xudc.c
++++ b/drivers/usb/gadget/udc/tegra-xudc.c
+@@ -1610,7 +1610,7 @@ static void tegra_xudc_ep_context_setup(
+ 	u16 maxpacket, maxburst = 0, esit = 0;
+ 	u32 val;
  
-+	if (!acpi_pci_find_root(adev->handle))
-+		return NULL;
-+
- 	if (strcmp(acpi_device_hid(adev), "ACPI0016") == 0)
- 		return adev;
- 	return NULL;
-@@ -266,10 +269,6 @@ static int add_host_bridge_uport(struct
- 	if (!bridge)
- 		return 0;
- 
--	pci_root = acpi_pci_find_root(bridge->handle);
--	if (!pci_root)
--		return -ENXIO;
--
- 	dport = find_dport_by_dev(root_port, match);
- 	if (!dport) {
- 		dev_dbg(host, "host bridge expected and not found\n");
-@@ -282,6 +281,11 @@ static int add_host_bridge_uport(struct
- 		return PTR_ERR(port);
- 	dev_dbg(host, "%s: add: %s\n", dev_name(match), dev_name(&port->dev));
- 
-+	/*
-+	 * Note that this lookup already succeeded in
-+	 * to_cxl_host_bridge(), so no need to check for failure here
-+	 */
-+	pci_root = acpi_pci_find_root(bridge->handle);
- 	ctx = (struct cxl_walk_context){
- 		.dev = host,
- 		.root = pci_root->bus,
+-	maxpacket = usb_endpoint_maxp(desc) & 0x7ff;
++	maxpacket = usb_endpoint_maxp(desc);
+ 	if (xudc->gadget.speed == USB_SPEED_SUPER) {
+ 		if (!usb_endpoint_xfer_control(desc))
+ 			maxburst = comp_desc->bMaxBurst;
+@@ -1621,7 +1621,7 @@ static void tegra_xudc_ep_context_setup(
+ 		   (usb_endpoint_xfer_int(desc) ||
+ 		    usb_endpoint_xfer_isoc(desc))) {
+ 		if (xudc->gadget.speed == USB_SPEED_HIGH) {
+-			maxburst = (usb_endpoint_maxp(desc) >> 11) & 0x3;
++			maxburst = usb_endpoint_maxp_mult(desc) - 1;
+ 			if (maxburst == 0x3) {
+ 				dev_warn(xudc->dev,
+ 					 "invalid endpoint maxburst\n");
 
 
