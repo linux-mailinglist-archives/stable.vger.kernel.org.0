@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8133F4061F3
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB5144061F1
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241455AbhIJAoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:44:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46338 "EHLO mail.kernel.org"
+        id S235680AbhIJAoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:44:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233522AbhIJAUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233536AbhIJAUS (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 20:20:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 929B5611CB;
-        Fri, 10 Sep 2021 00:18:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92469611BD;
+        Fri, 10 Sep 2021 00:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233137;
-        bh=pwmbAZbmdzCyX8Mdx4iS9MfYJs7fLCdWt9roV3wMaA8=;
+        s=k20201202; t=1631233139;
+        bh=NS44uFGRA29WqPoF5FZLcPOiN6tldwDQo+OPx4WmLws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b9Fn//Kf22k3T5tMdGRgcUqjb/u9GQyK1czHaGadZYoaKI19gHUkh5HGQvlU86dhz
-         doOpzDcQnDQV28FpILu8e4YhpRsVRsvS+VurxeAAvrmaYYy4/kIwfveD5vCK31ydsm
-         ZPwf8SB91Z36jhW8BR0+tKGFr+C1U+QhZAIh7pShCW88zAQ95/KxXXoBTuXWZqoQML
-         EdjTnCaIqooamNBO9u6kYJpAtoxIJeHCBjt6fbfLm8r7bgR5gFtsGR+jaKNqkF7ylR
-         GzwVJguAtzjXIoN6WdCTbgk1ZZFA8kXel0mWycNNxg0qFs2Kc65wvn7xC2CzODOhuF
-         bTOBuKSz15rSQ==
+        b=pTnmPIxypprPG9eCuPvdaZT/MbGnpWz/0HEFY6rVeGRVEbvHLIRP0g0N/+HN4hI6+
+         1DrOzGnWk7SwkNCTaxixU8XgU2Cu5qkGcP0Q9Ga+MSjG9tnYnkw6zwSUk/TfhhHoSZ
+         P4AwdmLMdwR6QYgfJPSb1/JEIWn408rCsgvIGKURBcCBenToSS4qZEjyYW32rHFoAy
+         dtgxi+YgwGvS5AxWwq51ACAf/4nI30ueCDMoiPHWlveZfYxei9vALkZpenT3ohPihH
+         NiBTQOwCooD60eTbbOrZoFiYb41HnTNbQS4aNkAKe5Ajs7djNlV/tT1jK9e4+DDzZs
+         L8s5ek/VI00XQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bart Van Assche <bvanassche@acm.org>,
@@ -32,14 +32,13 @@ Cc:     Bart Van Assche <bvanassche@acm.org>,
         Asutosh Das <asutoshd@codeaurora.org>,
         Avri Altman <avri.altman@wdc.com>,
         Bean Huo <beanhuo@micron.com>,
-        Daejun Park <daejun7.park@samsung.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 25/88] scsi: ufs: Verify UIC locking requirements at runtime
-Date:   Thu,  9 Sep 2021 20:17:17 -0400
-Message-Id: <20210910001820.174272-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 26/88] scsi: ufs: Request sense data asynchronously
+Date:   Thu,  9 Sep 2021 20:17:18 -0400
+Message-Id: <20210910001820.174272-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
@@ -53,104 +52,129 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 35c7d874f5993db04ce3aa310ae088f14b801eda ]
+[ Upstream commit ac1bc2ba060f9609972fb486073ebd9eab1ef3b6 ]
 
-Instead of documenting the locking requirements of the UIC code as
-comments, use lockdep_assert_held() such that lockdep verifies the lockdep
-requirements at runtime if lockdep is enabled.
+Clearing a unit attention synchronously from inside the UFS error handler
+may trigger the following deadlock:
 
-Link: https://lore.kernel.org/r/20210722033439.26550-8-bvanassche@acm.org
+ - ufshcd_err_handler() calls ufshcd_err_handling_unprepare() and the
+   latter function calls ufshcd_clear_ua_wluns().
+
+ - ufshcd_clear_ua_wluns() submits a REQUEST SENSE command and that command
+   activates the SCSI error handler.
+
+ - The SCSI error handler calls ufshcd_host_reset_and_restore().
+
+ - ufshcd_host_reset_and_restore() executes the following code:
+   ufshcd_schedule_eh_work(hba); flush_work(&hba->eh_work);
+
+This sequence results in a deadlock (circular wait). Fix this by requesting
+sense data asynchronously.
+
+Link: https://lore.kernel.org/r/20210722033439.26550-16-bvanassche@acm.org
 Cc: Adrian Hunter <adrian.hunter@intel.com>
 Cc: Stanley Chu <stanley.chu@mediatek.com>
 Cc: Can Guo <cang@codeaurora.org>
 Cc: Asutosh Das <asutoshd@codeaurora.org>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Cc: Avri Altman <avri.altman@wdc.com>
 Reviewed-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Daejun Park <daejun7.park@samsung.com>
 Signed-off-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 16 +++++++++-------
- drivers/scsi/ufs/ufshcd.h |  2 +-
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 64 ++++++++++++++++++++-------------------
+ 1 file changed, 33 insertions(+), 31 deletions(-)
 
 diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 72fd41bfbd54..469a7be270d6 100644
+index 469a7be270d6..1f0980a70e3f 100644
 --- a/drivers/scsi/ufs/ufshcd.c
 +++ b/drivers/scsi/ufs/ufshcd.c
-@@ -2152,15 +2152,15 @@ static inline u8 ufshcd_get_upmcrs(struct ufs_hba *hba)
+@@ -7784,8 +7784,39 @@ static int ufshcd_add_lus(struct ufs_hba *hba)
+ 	return ret;
  }
  
- /**
-- * ufshcd_dispatch_uic_cmd - Dispatch UIC commands to unipro layers
-+ * ufshcd_dispatch_uic_cmd - Dispatch an UIC command to the Unipro layer
-  * @hba: per adapter instance
-  * @uic_cmd: UIC command
-- *
-- * Mutex must be held.
-  */
- static inline void
- ufshcd_dispatch_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd)
- {
-+	lockdep_assert_held(&hba->uic_cmd_mutex);
++static void ufshcd_request_sense_done(struct request *rq, blk_status_t error)
++{
++	if (error != BLK_STS_OK)
++		pr_err("%s: REQUEST SENSE failed (%d)", __func__, error);
++	blk_put_request(rq);
++}
 +
- 	WARN_ON(hba->active_uic_cmd);
+ static int
+-ufshcd_send_request_sense(struct ufs_hba *hba, struct scsi_device *sdp);
++ufshcd_request_sense_async(struct ufs_hba *hba, struct scsi_device *sdev)
++{
++	/*
++	 * From SPC-6: the REQUEST SENSE command with any allocation length
++	 * clears the sense data.
++	 */
++	static const u8 cmd[6] = {REQUEST_SENSE, 0, 0, 0, 0, 0};
++	struct scsi_request *rq;
++	struct request *req;
++
++	req = blk_get_request(sdev->request_queue, REQ_OP_DRV_IN, /*flags=*/0);
++	if (IS_ERR(req))
++		return PTR_ERR(req);
++
++	rq = scsi_req(req);
++	rq->cmd_len = ARRAY_SIZE(cmd);
++	memcpy(rq->cmd, cmd, rq->cmd_len);
++	rq->retries = 3;
++	req->timeout = 1 * HZ;
++	req->rq_flags |= RQF_PM | RQF_QUIET;
++
++	blk_execute_rq_nowait(/*bd_disk=*/NULL, req, /*at_head=*/true,
++			      ufshcd_request_sense_done);
++	return 0;
++}
  
- 	hba->active_uic_cmd = uic_cmd;
-@@ -2178,11 +2178,10 @@ ufshcd_dispatch_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd)
+ static int ufshcd_clear_ua_wlun(struct ufs_hba *hba, u8 wlun)
+ {
+@@ -7813,7 +7844,7 @@ static int ufshcd_clear_ua_wlun(struct ufs_hba *hba, u8 wlun)
+ 	if (ret)
+ 		goto out_err;
+ 
+-	ret = ufshcd_send_request_sense(hba, sdp);
++	ret = ufshcd_request_sense_async(hba, sdp);
+ 	scsi_device_put(sdp);
+ out_err:
+ 	if (ret)
+@@ -8407,35 +8438,6 @@ static void ufshcd_hba_exit(struct ufs_hba *hba)
+ 	}
  }
  
+-static int
+-ufshcd_send_request_sense(struct ufs_hba *hba, struct scsi_device *sdp)
+-{
+-	unsigned char cmd[6] = {REQUEST_SENSE,
+-				0,
+-				0,
+-				0,
+-				UFS_SENSE_SIZE,
+-				0};
+-	char *buffer;
+-	int ret;
+-
+-	buffer = kzalloc(UFS_SENSE_SIZE, GFP_KERNEL);
+-	if (!buffer) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
+-
+-	ret = scsi_execute(sdp, cmd, DMA_FROM_DEVICE, buffer,
+-			UFS_SENSE_SIZE, NULL, NULL,
+-			msecs_to_jiffies(1000), 3, 0, RQF_PM, NULL);
+-	if (ret)
+-		pr_err("%s: failed with err %d\n", __func__, ret);
+-
+-	kfree(buffer);
+-out:
+-	return ret;
+-}
+-
  /**
-- * ufshcd_wait_for_uic_cmd - Wait complectioin of UIC command
-+ * ufshcd_wait_for_uic_cmd - Wait for completion of an UIC command
-  * @hba: per adapter instance
-  * @uic_cmd: UIC command
-  *
-- * Must be called with mutex held.
-  * Returns 0 only if success.
-  */
- static int
-@@ -2191,6 +2190,8 @@ ufshcd_wait_for_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd)
- 	int ret;
- 	unsigned long flags;
- 
-+	lockdep_assert_held(&hba->uic_cmd_mutex);
-+
- 	if (wait_for_completion_timeout(&uic_cmd->done,
- 					msecs_to_jiffies(UIC_CMD_TIMEOUT))) {
- 		ret = uic_cmd->argument2 & MASK_UIC_COMMAND_RESULT;
-@@ -2220,14 +2221,15 @@ ufshcd_wait_for_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd)
-  * @uic_cmd: UIC command
-  * @completion: initialize the completion only if this is set to true
-  *
-- * Identical to ufshcd_send_uic_cmd() expect mutex. Must be called
-- * with mutex held and host_lock locked.
-  * Returns 0 only if success.
-  */
- static int
- __ufshcd_send_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd,
- 		      bool completion)
- {
-+	lockdep_assert_held(&hba->uic_cmd_mutex);
-+	lockdep_assert_held(hba->host->host_lock);
-+
- 	if (!ufshcd_ready_for_uic_cmd(hba)) {
- 		dev_err(hba->dev,
- 			"Controller not ready to accept UIC commands\n");
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 5eb66a8debc7..589cf7d3031d 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -668,7 +668,7 @@ struct ufs_hba_variant_params {
-  * @priv: pointer to variant specific private data
-  * @irq: Irq number of the controller
-  * @active_uic_cmd: handle of active UIC command
-- * @uic_cmd_mutex: mutex for uic command
-+ * @uic_cmd_mutex: mutex for UIC command
-  * @tmf_tag_set: TMF tag set.
-  * @tmf_queue: Used to allocate TMF tags.
-  * @pwr_done: completion for power mode change
+  * ufshcd_set_dev_pwr_mode - sends START STOP UNIT command to set device
+  *			     power mode
 -- 
 2.30.2
 
