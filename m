@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2976B406779
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 09:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2473540677B
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 09:08:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231290AbhIJHII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 03:08:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50512 "EHLO mail.kernel.org"
+        id S231314AbhIJHJz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 03:09:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231223AbhIJHII (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 03:08:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22ABA610A3;
-        Fri, 10 Sep 2021 07:06:56 +0000 (UTC)
+        id S231223AbhIJHJz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 03:09:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A311610A3;
+        Fri, 10 Sep 2021 07:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631257617;
-        bh=Sd2GkVBxcL8tSIe/C3dmztdLdmwt0CQeXbJpNZnGmAU=;
+        s=korg; t=1631257725;
+        bh=ggmRSlHkCf7unR5afcCIn9DYAQ6rtApOYK1/Rrn5Iow=;
         h=Subject:To:Cc:From:Date:From;
-        b=t+r6m3eo7QHMyvcBOvnuHgm9tSFQXynMHjzl0jnrEtGlgMjfLOVev2czCEew+cwFm
-         5+Zm/BDBxIz1VJqti5r3To0CPKvFwNl/uSDoFZWGcCyrIKIhx8ZArIxxXTaT1q/k4O
-         mqDfOVOAywOHmAetV0XSNUTQ8ASYepbQDW/fgMCg=
-Subject: FAILED: patch "[PATCH] usb: host: xhci-rcar: Don't reload firmware after the" failed to apply to 4.9-stable tree
-To:     yoshihiro.shimoda.uh@renesas.com, gregkh@linuxfoundation.org
+        b=DcyuoHtZ94ax4YsqG+p9Nk4nlJrmLwAkzHlwli+a5M4rM/udXgRgvBNkf4n+L6TS2
+         V7HCRMXZrfVTJM/xxmDA0/ZZG+ixiLWLFPp8FUpgTlH18OWbJOIH6uzzWeS+7yoOU5
+         9oh/TnKkUerhCOOwDzoxzJfIX+TaBg5jzvF3oUGE=
+Subject: FAILED: patch "[PATCH] usb: mtu3: fix random remote wakeup" failed to apply to 5.14-stable tree
+To:     chunfeng.yun@mediatek.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 10 Sep 2021 09:06:47 +0200
-Message-ID: <163125760760139@kroah.com>
+Date:   Fri, 10 Sep 2021 09:08:34 +0200
+Message-ID: <1631257714220236@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,38 +45,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 57f3ffdc11143f56f1314972fe86fe17a0dcde85 Mon Sep 17 00:00:00 2001
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Date: Fri, 27 Aug 2021 15:32:27 +0900
-Subject: [PATCH] usb: host: xhci-rcar: Don't reload firmware after the
- completion
+From d98a30ccdc839947c9233369744341d1fa54439c Mon Sep 17 00:00:00 2001
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Date: Thu, 26 Aug 2021 16:36:37 +0800
+Subject: [PATCH] usb: mtu3: fix random remote wakeup
 
-According to the datasheet, "Upon the completion of FW Download,
-there is no need to write or reload FW.". Otherwise, it's possible
-to cause unexpected behaviors. So, adds such a condition.
+Some platforms, e.g. 8183/8192, use low level latch way to keep
+wakeup signal, it may latch a wrong signal if debounce more time,
+and enable wakeup earlier.
+                   ____________________
+ip_sleep      ____/                    \__________
+                           ___________________
+wakeup_signal ____________/                   \______
+                      _______________________________
+wakeup_en     _______/
+                      ^     ^
+                      |(1)  |(2)
+latch wakeup_signal mistakenly at (1), should latch it at (2);
 
-Fixes: 4ac8918f3a73 ("usb: host: xhci-plat: add support for the R-Car H2 and M2 xHCI controllers")
-Cc: stable@vger.kernel.org # v3.17+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210827063227.81990-1-yoshihiro.shimoda.uh@renesas.com
+Workaround: delay about 100us to enable wakeup, meanwhile decrease
+debounce time.
+
+Fixes: b1a344589eea ("usb: mtu3: support ip-sleep wakeup for MT8183")
+Cc: stable@vger.kernel.org
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20210826083637.33237-2-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/host/xhci-rcar.c b/drivers/usb/host/xhci-rcar.c
-index 1bc4fe7b8c75..9888ba7d85b6 100644
---- a/drivers/usb/host/xhci-rcar.c
-+++ b/drivers/usb/host/xhci-rcar.c
-@@ -134,6 +134,13 @@ static int xhci_rcar_download_firmware(struct usb_hcd *hcd)
- 	const struct soc_device_attribute *attr;
- 	const char *firmware_name;
+diff --git a/drivers/usb/mtu3/mtu3_host.c b/drivers/usb/mtu3/mtu3_host.c
+index 7d528f3c2482..f3903367a6a0 100644
+--- a/drivers/usb/mtu3/mtu3_host.c
++++ b/drivers/usb/mtu3/mtu3_host.c
+@@ -62,7 +62,7 @@ static void ssusb_wakeup_ip_sleep_set(struct ssusb_mtk *ssusb, bool enable)
+ 	case SSUSB_UWK_V1_1:
+ 		reg = ssusb->uwk_reg_base + PERI_WK_CTRL0;
+ 		msk = WC0_IS_EN | WC0_IS_C(0xf) | WC0_IS_P;
+-		val = enable ? (WC0_IS_EN | WC0_IS_C(0x8)) : 0;
++		val = enable ? (WC0_IS_EN | WC0_IS_C(0x1)) : 0;
+ 		break;
+ 	case SSUSB_UWK_V1_2:
+ 		reg = ssusb->uwk_reg_base + PERI_WK_CTRL0;
+diff --git a/drivers/usb/mtu3/mtu3_plat.c b/drivers/usb/mtu3/mtu3_plat.c
+index 5b3f7f73cb40..f13531022f4a 100644
+--- a/drivers/usb/mtu3/mtu3_plat.c
++++ b/drivers/usb/mtu3/mtu3_plat.c
+@@ -63,6 +63,9 @@ static int wait_for_ip_sleep(struct ssusb_mtk *ssusb)
+ 	if (ret) {
+ 		dev_err(ssusb->dev, "ip sleep failed!!!\n");
+ 		ret = -EBUSY;
++	} else {
++		/* workaround: avoid wrong wakeup signal latch for some soc */
++		usleep_range(100, 200);
+ 	}
  
-+	/*
-+	 * According to the datasheet, "Upon the completion of FW Download,
-+	 * there is no need to write or reload FW".
-+	 */
-+	if (readl(regs + RCAR_USB3_DL_CTRL) & RCAR_USB3_DL_CTRL_FW_SUCCESS)
-+		return 0;
-+
- 	attr = soc_device_match(rcar_quirks_match);
- 	if (attr)
- 		quirks = (uintptr_t)attr->data;
+ 	return ret;
 
