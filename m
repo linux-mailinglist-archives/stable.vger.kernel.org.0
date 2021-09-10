@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1624063B9
+	by mail.lfdr.de (Postfix) with ESMTP id BC6704063BA
 	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231751AbhIJAsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:48:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50084 "EHLO mail.kernel.org"
+        id S233188AbhIJAsi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:48:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234888AbhIJAZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:25:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEDA160FDA;
-        Fri, 10 Sep 2021 00:23:54 +0000 (UTC)
+        id S234889AbhIJAZG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:25:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6F5760FC0;
+        Fri, 10 Sep 2021 00:23:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233435;
-        bh=zX8ccth7cdh1jMEabccqhWrDi2S6TfLeO1fIqGPTdWw=;
+        s=k20201202; t=1631233436;
+        bh=B/gfCXziB9pEf3nb2sZ8lOxHyY1nlyIoomA72MHUC1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LsWNwePf3Nu4AeaLpatTNbjIUUUMtwaiaBHcoQ15Sca4AOoHL6N0Fx5fm81oKb3EP
-         W1o6pEpEwmU6tS4QmbimnGr3lZbgxAtOhfUvcbDcEeW0u8jLAFTd5s4gN7D3yXV5is
-         h8dIJanW+ELLks9p2aoJ5NXYUEl77DZFCq3XD02Iyi5eA/Vbe6PQvw97VBj1R8f7Si
-         LY9gbVMYi9QZUjRvC1ABafnvrjNmALD80hutzmW97004mDU4Qg4oBBdYOHl6W92dTl
-         fZdH+aW7quKugOR+Nx5KGtHHoaXGcJm/MU3Y6MW+y9byfcF9FMPJ59A9MaXblULb7E
-         o5Z6ULVjyVJQg==
+        b=N2NZcwqw+PpBzN7dLSf8lYhymsCUgS3W/6caIRWAcklAPSAU7TNxK6AW4mwZ4CIsC
+         IMWuD9MQPbU0Y8f3BgBNEt6v6EsaW1xS25VZPnuAtvYkko0Mx/2PHRBBh6ydIfT99I
+         eSuCDr1+0BSTmFFGeIO+mk9lEc7Yzy+hpT5fgeRrDTu0p3c/bVMBva4napFb2I/ntV
+         1vWLj4TkPNbZwgmAHjosInbKyvChYPm62g+nX7K2ocvtC75i6JWhqRjnsjjcOKXZom
+         FygsorjLQIFQEzvy9JZ3N6br62TR1mufC6lDAmG+3BVaK68IEoPcTV4Cq6LfPrajSF
+         w6pEy4t/rkPcw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 12/17] RDMA/core/sa_query: Retry SA queries
-Date:   Thu,  9 Sep 2021 20:23:33 -0400
-Message-Id: <20210910002338.176677-12-sashal@kernel.org>
+Cc:     Theodore Ts'o <tytso@mit.edu>, yangerkun <yangerkun@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 13/17] ext4: if zeroout fails fall back to splitting the extent node
+Date:   Thu,  9 Sep 2021 20:23:34 -0400
+Message-Id: <20210910002338.176677-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002338.176677-1-sashal@kernel.org>
 References: <20210910002338.176677-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,87 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 5f5a650999d5718af766fc70a120230b04235a6f ]
+[ Upstream commit 308c57ccf4318236be75dfa251c84713e694457b ]
 
-A MAD packet is sent as an unreliable datagram (UD). SA requests are sent
-as MAD packets. As such, SA requests or responses may be silently dropped.
+If the underlying storage device is using thin-provisioning, it's
+possible for a zeroout operation to return ENOSPC.
 
-IB Core's MAD layer has a timeout and retry mechanism, which amongst
-other, is used by RDMA CM. But it is not used by SA queries. The lack of
-retries of SA queries leads to long specified timeout, and error being
-returned in case of packet loss. The ULP or user-land process has to
-perform the retry.
+Commit df22291ff0fd ("ext4: Retry block allocation if we have free blocks
+left") added logic to retry block allocation since we might get free block
+after we commit a transaction. But the ENOSPC from thin-provisioning
+will confuse ext4, and lead to an infinite loop.
 
-Fix this by taking advantage of the MAD layer's retry mechanism.
+Since using zeroout instead of splitting the extent node is an
+optimization, if it fails, we might as well fall back to splitting the
+extent node.
 
-First, a check against a zero timeout is added in rdma_resolve_route(). In
-send_mad(), we set the MAD layer timeout to one tenth of the specified
-timeout and the number of retries to 10. The special case when timeout is
-less than 10 is handled.
-
-With this fix:
-
- # ucmatose -c 1000 -S 1024 -C 1
-
-runs stable on an Infiniband fabric. Without this fix, we see an
-intermittent behavior and it errors out with:
-
-cmatose: event: RDMA_CM_EVENT_ROUTE_ERROR, error: -110
-
-(110 is ETIMEDOUT)
-
-Link: https://lore.kernel.org/r/1628784755-28316-1-git-send-email-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reported-by: yangerkun <yangerkun@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c      | 3 +++
- drivers/infiniband/core/sa_query.c | 9 ++++++++-
- 2 files changed, 11 insertions(+), 1 deletion(-)
+ fs/ext4/extents.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 149d210c68ab..9f8b58bb5fb8 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2580,6 +2580,9 @@ int rdma_resolve_route(struct rdma_cm_id *id, int timeout_ms)
- 	struct rdma_id_private *id_priv;
- 	int ret;
+diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
+index d195f41071d8..851ccbc01138 100644
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -3636,7 +3636,7 @@ static int ext4_ext_convert_to_initialized(handle_t *handle,
+ 				split_map.m_len - ee_block);
+ 			err = ext4_ext_zeroout(inode, &zero_ex1);
+ 			if (err)
+-				goto out;
++				goto fallback;
+ 			split_map.m_len = allocated;
+ 		}
+ 		if (split_map.m_lblk - ee_block + split_map.m_len <
+@@ -3650,7 +3650,7 @@ static int ext4_ext_convert_to_initialized(handle_t *handle,
+ 						      ext4_ext_pblock(ex));
+ 				err = ext4_ext_zeroout(inode, &zero_ex2);
+ 				if (err)
+-					goto out;
++					goto fallback;
+ 			}
  
-+	if (!timeout_ms)
-+		return -EINVAL;
-+
- 	id_priv = container_of(id, struct rdma_id_private, id);
- 	if (!cma_comp_exch(id_priv, RDMA_CM_ADDR_RESOLVED, RDMA_CM_ROUTE_QUERY))
- 		return -EINVAL;
-diff --git a/drivers/infiniband/core/sa_query.c b/drivers/infiniband/core/sa_query.c
-index 1c459725d64e..5b4d1b7d9bad 100644
---- a/drivers/infiniband/core/sa_query.c
-+++ b/drivers/infiniband/core/sa_query.c
-@@ -1240,6 +1240,7 @@ static int send_mad(struct ib_sa_query *query, int timeout_ms, gfp_t gfp_mask)
- 	bool preload = gfpflags_allow_blocking(gfp_mask);
- 	unsigned long flags;
- 	int ret, id;
-+	const int nmbr_sa_query_retries = 10;
+ 			split_map.m_len += split_map.m_lblk - ee_block;
+@@ -3659,6 +3659,7 @@ static int ext4_ext_convert_to_initialized(handle_t *handle,
+ 		}
+ 	}
  
- 	if (preload)
- 		idr_preload(gfp_mask);
-@@ -1253,7 +1254,13 @@ static int send_mad(struct ib_sa_query *query, int timeout_ms, gfp_t gfp_mask)
- 	if (id < 0)
- 		return id;
- 
--	query->mad_buf->timeout_ms  = timeout_ms;
-+	query->mad_buf->timeout_ms  = timeout_ms / nmbr_sa_query_retries;
-+	query->mad_buf->retries = nmbr_sa_query_retries;
-+	if (!query->mad_buf->timeout_ms) {
-+		/* Special case, very small timeout_ms */
-+		query->mad_buf->timeout_ms = 1;
-+		query->mad_buf->retries = timeout_ms;
-+	}
- 	query->mad_buf->context[0] = query;
- 	query->id = id;
- 
++fallback:
+ 	err = ext4_split_extent(handle, inode, ppath, &split_map, split_flag,
+ 				flags);
+ 	if (err > 0)
 -- 
 2.30.2
 
