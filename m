@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF09406BAA
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B3A6406B8C
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233743AbhIJMda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:33:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50524 "EHLO mail.kernel.org"
+        id S233266AbhIJMca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:32:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233475AbhIJMdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:33:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02452611CC;
-        Fri, 10 Sep 2021 12:31:57 +0000 (UTC)
+        id S233321AbhIJMca (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:32:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76283611C9;
+        Fri, 10 Sep 2021 12:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277118;
-        bh=i+u2g7nOiWg5zUwv7ug3DWjGn8OF2V3wgpYxlhYoHlQ=;
+        s=korg; t=1631277079;
+        bh=ScMyRx5hzzycEeIp806gQ990mz42kGL2xozFShREGxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r8Pc5D6YC+xswPGHB1C+s6Yzea3ZX99NriiFN79lYqRO1+KAevn+RZTO3ILFusV67
-         1SE+kAd33TdBKs39RIoot6WbpkvPvgqwhpHRmM9PCTvJX+EOqPmSpUyiRr8dS6Yltk
-         aMglxCgVjsV+ngn1BY4iWRFC/2m9q4iAPNg/eL9Y=
+        b=sGfIkIHO8mEZfsp+KUH9oKduQblQrPaNjz/v5HtkDtcwsHyBWWUHwvIOYlS7Yi0oJ
+         HxzPUCCMx5RUbEKVEQd7ixdGQGAUslplcQIjp5tHvIX6NJbFadECtA+3Jlv3rTQoTg
+         FdckakzQY7FwgvLwYovel/NIIu2JEuzHQhBkhx+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Ismael Ferreras Morezuelas <swyterzone@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.13 10/22] Bluetooth: btusb: Make the CSR clone chip force-suspend workaround more generic
+        stable@vger.kernel.org,
+        Paul Gortmaker <paul.gortmaker@windriver.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.14 19/23] x86/reboot: Limit Dell Optiplex 990 quirk to early BIOS versions
 Date:   Fri, 10 Sep 2021 14:30:09 +0200
-Message-Id: <20210910122916.273789753@linuxfoundation.org>
+Message-Id: <20210910122916.620958761@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122915.942645251@linuxfoundation.org>
-References: <20210910122915.942645251@linuxfoundation.org>
+In-Reply-To: <20210910122916.022815161@linuxfoundation.org>
+References: <20210910122916.022815161@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,125 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ismael Ferreras Morezuelas <swyterzone@gmail.com>
+From: Paul Gortmaker <paul.gortmaker@windriver.com>
 
-commit f4292e2faf522f899b642d2040a2edbcbd455b9f upstream.
+commit a729691b541f6e63043beae72e635635abe5dc09 upstream.
 
-Turns out Hans de Goede completed the work I started last year trying to
-improve Chinese-clone detection of CSR controller chips. Quirk after quirk
-these Bluetooth dongles are more usable now.
+When this platform was relatively new in November 2011, with early BIOS
+revisions, a reboot quirk was added in commit 6be30bb7d750 ("x86/reboot:
+Blacklist Dell OptiPlex 990 known to require PCI reboot")
 
-Even after a few BlueZ regressions; these clones are so fickle that some
-days they stop working altogether. Except on Windows, they work fine.
+However, this quirk (and several others) are open-ended to all BIOS
+versions and left no automatic expiry if/when the system BIOS fixed the
+issue, meaning that nobody is likely to come along and re-test.
 
-But this force-suspend initialization quirk seems to mostly do the trick,
-after a lot of testing Bluetooth now seems to work *all* the time.
+What is really problematic with using PCI reboot as this quirk does, is
+that it causes this platform to do a full power down, wait one second,
+and then power back on.  This is less than ideal if one is using it for
+boot testing and/or bisecting kernels when legacy rotating hard disks
+are installed.
 
-The only problem is that the solution ended up being masked under a very
-stringent check; when there are probably hundreds of fake dongle
-models out there that benefit from a good reset. Make it so.
+It was only by chance that the quirk was noticed in dmesg - and when
+disabled it turned out that it wasn't required anymore (BIOS A24), and a
+default reboot would work fine without the "harshness" of power cycling the
+machine (and disks) down and up like the PCI reboot does.
 
-Fixes: 81cac64ba258a ("Bluetooth: Deal with USB devices that are faking CSR vendor")
-Fixes: cde1a8a992875 ("Bluetooth: btusb: Fix and detect most of the Chinese Bluetooth controllers")
-Fixes: d74e0ae7e0303 ("Bluetooth: btusb: Fix detection of some fake CSR controllers with a bcdDevice val of 0x0134")
-Fixes: 0671c0662383e ("Bluetooth: btusb: Add workaround for remote-wakeup issues with Barrot 8041a02 fake CSR controllers")
+Doing a bit more research, it seems that the "newest" BIOS for which the
+issue was reported[1] was version A06, however Dell[2] seemed to suggest
+only up to and including version A05, with the A06 having a large number of
+fixes[3] listed.
 
+As is typical with a new platform, the initial BIOS updates come frequently
+and then taper off (and in this case, with a revival for CPU CVEs); a
+search for O990-A<ver>.exe reveals the following dates:
+
+        A02     16 Mar 2011
+        A03     11 May 2011
+        A06     14 Sep 2011
+        A07     24 Oct 2011
+        A10     08 Dec 2011
+        A14     06 Sep 2012
+        A16     15 Oct 2012
+        A18     30 Sep 2013
+        A19     23 Sep 2015
+        A20     02 Jun 2017
+        A23     07 Mar 2018
+        A24     21 Aug 2018
+
+While it's overkill to flash and test each of the above, it would seem
+likely that the issue was contained within A0x BIOS versions, given the
+dates above and the dates of issue reports[4] from distros.  So rather than
+just throw out the quirk entirely, limit the scope to just those early BIOS
+versions, in case people are still running systems from 2011 with the
+original as-shipped early A0x BIOS versions.
+
+[1] https://lore.kernel.org/lkml/1320373471-3942-1-git-send-email-trenn@suse.de/
+[2] https://www.dell.com/support/kbdoc/en-ca/000131908/linux-based-operating-systems-stall-upon-reboot-on-optiplex-390-790-990-systems
+[3] https://www.dell.com/support/home/en-ca/drivers/driversdetails?driverid=85j10
+[4] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/768039
+
+Fixes: 6be30bb7d750 ("x86/reboot: Blacklist Dell OptiPlex 990 known to require PCI reboot")
+Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Cc: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Ismael Ferreras Morezuelas <swyterzone@gmail.com>
-Signed-off-by: Ismael Ferreras Morezuelas <swyterzone@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Link: https://lore.kernel.org/r/20210530162447.996461-4-paul.gortmaker@windriver.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c |   63 ++++++++++++++++++++++++----------------------
- 1 file changed, 34 insertions(+), 29 deletions(-)
+ arch/x86/kernel/reboot.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -1890,7 +1890,7 @@ static int btusb_setup_csr(struct hci_de
- 		is_fake = true;
- 
- 	if (is_fake) {
--		bt_dev_warn(hdev, "CSR: Unbranded CSR clone detected; adding workarounds...");
-+		bt_dev_warn(hdev, "CSR: Unbranded CSR clone detected; adding workarounds and force-suspending once...");
- 
- 		/* Generally these clones have big discrepancies between
- 		 * advertised features and what's actually supported.
-@@ -1907,41 +1907,46 @@ static int btusb_setup_csr(struct hci_de
- 		clear_bit(HCI_QUIRK_SIMULTANEOUS_DISCOVERY, &hdev->quirks);
- 
- 		/*
--		 * Special workaround for clones with a Barrot 8041a02 chip,
--		 * these clones are really messed-up:
--		 * 1. Their bulk rx endpoint will never report any data unless
--		 * the device was suspended at least once (yes really).
-+		 * Special workaround for these BT 4.0 chip clones, and potentially more:
-+		 *
-+		 * - 0x0134: a Barrot 8041a02                 (HCI rev: 0x1012 sub: 0x0810)
-+		 * - 0x7558: IC markings FR3191AHAL 749H15143 (HCI rev/sub-version: 0x0709)
-+		 *
-+		 * These controllers are really messed-up.
-+		 *
-+		 * 1. Their bulk RX endpoint will never report any data unless
-+		 * the device was suspended at least once (yes, really).
- 		 * 2. They will not wakeup when autosuspended and receiving data
--		 * on their bulk rx endpoint from e.g. a keyboard or mouse
-+		 * on their bulk RX endpoint from e.g. a keyboard or mouse
- 		 * (IOW remote-wakeup support is broken for the bulk endpoint).
- 		 *
- 		 * To fix 1. enable runtime-suspend, force-suspend the
--		 * hci and then wake-it up by disabling runtime-suspend.
-+		 * HCI and then wake-it up by disabling runtime-suspend.
- 		 *
--		 * To fix 2. clear the hci's can_wake flag, this way the hci
-+		 * To fix 2. clear the HCI's can_wake flag, this way the HCI
- 		 * will still be autosuspended when it is not open.
-+		 *
-+		 * --
-+		 *
-+		 * Because these are widespread problems we prefer generic solutions; so
-+		 * apply this initialization quirk to every controller that gets here,
-+		 * it should be harmless. The alternative is to not work at all.
- 		 */
--		if (bcdDevice == 0x8891 &&
--		    le16_to_cpu(rp->lmp_subver) == 0x1012 &&
--		    le16_to_cpu(rp->hci_rev) == 0x0810 &&
--		    le16_to_cpu(rp->hci_ver) == BLUETOOTH_VER_4_0) {
--			bt_dev_warn(hdev, "CSR: detected a fake CSR dongle using a Barrot 8041a02 chip, this chip is very buggy and may have issues");
--
--			pm_runtime_allow(&data->udev->dev);
--
--			ret = pm_runtime_suspend(&data->udev->dev);
--			if (ret >= 0)
--				msleep(200);
--			else
--				bt_dev_err(hdev, "Failed to suspend the device for Barrot 8041a02 receive-issue workaround");
--
--			pm_runtime_forbid(&data->udev->dev);
--
--			device_set_wakeup_capable(&data->udev->dev, false);
--			/* Re-enable autosuspend if this was requested */
--			if (enable_autosuspend)
--				usb_enable_autosuspend(data->udev);
--		}
-+		pm_runtime_allow(&data->udev->dev);
-+
-+		ret = pm_runtime_suspend(&data->udev->dev);
-+		if (ret >= 0)
-+			msleep(200);
-+		else
-+			bt_dev_err(hdev, "CSR: Failed to suspend the device for our Barrot 8041a02 receive-issue workaround");
-+
-+		pm_runtime_forbid(&data->udev->dev);
-+
-+		device_set_wakeup_capable(&data->udev->dev, false);
-+
-+		/* Re-enable autosuspend if this was requested */
-+		if (enable_autosuspend)
-+			usb_enable_autosuspend(data->udev);
- 	}
- 
- 	kfree_skb(skb);
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -388,10 +388,11 @@ static const struct dmi_system_id reboot
+ 	},
+ 	{	/* Handle problems with rebooting on the OptiPlex 990. */
+ 		.callback = set_pci_reboot,
+-		.ident = "Dell OptiPlex 990",
++		.ident = "Dell OptiPlex 990 BIOS A0x",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "OptiPlex 990"),
++			DMI_MATCH(DMI_BIOS_VERSION, "A0"),
+ 		},
+ 	},
+ 	{	/* Handle problems with rebooting on Dell 300's */
 
 
