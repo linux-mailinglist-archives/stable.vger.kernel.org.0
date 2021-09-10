@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7777406B9A
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8658406B9C
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233444AbhIJMct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:32:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50318 "EHLO mail.kernel.org"
+        id S233569AbhIJMc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:32:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233445AbhIJMcs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:32:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C944B604DA;
-        Fri, 10 Sep 2021 12:31:36 +0000 (UTC)
+        id S233459AbhIJMcu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:32:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AE7D60F92;
+        Fri, 10 Sep 2021 12:31:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277097;
-        bh=1eyGnNXy3I5oAG/eMA5HTQVipfqWe/iyJY3oltcElOQ=;
+        s=korg; t=1631277099;
+        bh=NnBThtsUlofoMRkF6c6qIv4NZ/0AwNwdDL+G7lDxfpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ue1lLc+pM+QrnaBKYa06Mn2XThFlB/RzYZ0A8nb8B58ftuMh5aU5njG1ysfRfkk47
-         m3tZxUqaLDxVqgcEylNH/UmL+NSfM/QmBfCUWCS5zbwTbWNcBRLCHelv98akhQsnpe
-         EPof5jYeK2TcOr8yHtSjiJde9kj/syKNwIts5HcY=
+        b=gsFZXH7aY7ONOamjA/cDmWUWEEi+pYbbGjfbj5D3/0HLiun0Wt95kQTpuqaMKa0LT
+         JrZt68kqfbGZcH4N1O6RPuV3YP7li5Ba4yGwS2k3b4iWO5xctFT/qg/NZBQWG8Oaml
+         y6CGFNKBCpK6uDsryfU42T/tQQk/UJvZo5sT4wpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hayes Wang <hayeswang@realtek.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 04/23] Revert "r8169: avoid link-up interrupt issue on RTL8106e if user enables ASPM"
-Date:   Fri, 10 Sep 2021 14:29:54 +0200
-Message-Id: <20210910122916.165465149@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Tsoy <alexander@tsoy.me>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.14 05/23] ALSA: usb-audio: Add registration quirk for JBL Quantum 800
+Date:   Fri, 10 Sep 2021 14:29:55 +0200
+Message-Id: <20210910122916.195334949@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210910122916.022815161@linuxfoundation.org>
 References: <20210910122916.022815161@linuxfoundation.org>
@@ -39,30 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hayes Wang <hayeswang@realtek.com>
+From: Alexander Tsoy <alexander@tsoy.me>
 
-commit 2115d3d482656ea702f7cf308c0ded3500282903 upstream.
+commit c8b177b6e3a005bd8fb0395a4bc5db3470301c28 upstream.
 
-This reverts commit 1ee8856de82faec9bc8bd0f2308a7f27e30ba207.
+Add another device ID for JBL Quantum 800. It requires the same quirk as
+other JBL Quantum devices.
 
-This is used to re-enable ASPM on RTL8106e, if it is possible.
-
-Signed-off-by: Hayes Wang <hayeswang@realtek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210831002531.116957-1-alexander@tsoy.me
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c |    1 +
+ sound/usb/quirks.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -3489,6 +3489,7 @@ static void rtl_hw_start_8402(struct rtl
- 	rtl_eri_write(tp, 0x1b0, ERIAR_MASK_0011, 0x0000);
- 
- 	rtl_pcie_state_l2l3_disable(tp);
-+	rtl_hw_aspm_clkreq_enable(tp, true);
- }
- 
- static void rtl_hw_start_8106(struct rtl8169_private *tp)
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1898,6 +1898,7 @@ static const struct registration_quirk r
+ 	REG_QUIRK_ENTRY(0x0951, 0x16ed, 2),	/* Kingston HyperX Cloud Alpha S */
+ 	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x1f46, 2),	/* JBL Quantum 600 */
++	REG_QUIRK_ENTRY(0x0ecb, 0x1f47, 2),	/* JBL Quantum 800 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x2039, 2),	/* JBL Quantum 400 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x203c, 2),	/* JBL Quantum 600 */
+ 	REG_QUIRK_ENTRY(0x0ecb, 0x203e, 2),	/* JBL Quantum 800 */
 
 
