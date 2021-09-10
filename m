@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62242406175
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2172A406179
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240680AbhIJAm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44872 "EHLO mail.kernel.org"
+        id S240741AbhIJAm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:42:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232303AbhIJASt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:18:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5ECA361101;
-        Fri, 10 Sep 2021 00:17:18 +0000 (UTC)
+        id S232320AbhIJASu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:18:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B89DE611AF;
+        Fri, 10 Sep 2021 00:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233039;
-        bh=VLjAvUgxy44qM8GoKgrF9Lm6uZ0W/hWCW00zYMDFXNQ=;
+        s=k20201202; t=1631233040;
+        bh=Xc80m41CTa4kaBCal91WGgV5kDYT3pZpVk6WxXUeaDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mFLJ3p0XUF0T2TeUGtMNOB7kZgHloEB6WTtxfeMvmiwP6DIe9U8fHPWxgs6LuYvac
-         kHK0KgJKN0Jng4Do2CKclQby6cswliwZiZUIzrhs3UNhWfaVi8Jat45cZKzthUKnDq
-         IRARACSfQ8jP6p4bymB0OX9xpaHRiPlMiT+51Mnh445zAWRCZV35ElvDp33YUCwYKR
-         TU+8d8+j0nIUIFJhFY5uzonQvZG4mpKU91hwS65C5zZw8PNazsMa8rTDxeLY5rLPNB
-         n8sxdUwDG9n9qn5L5CRCGycglMqGdGsiIP7GPaivrZOFFilRGeupC2qDnfoyoLVXiQ
-         HDvB43lpJoOEw==
+        b=aBKHcvxnuXEQid7tZItr2WlZ0NIRvmlr5a5R5cRmeFwBmHfhUr9oImZlgge2dlXj2
+         TbC4s3hNQq+xxDzlDmSMC74v4C5QXiZ14F8SzFXqbZUp7CDcIaLjwHj241uxGHiCO2
+         LHM10GmY3h/VcrRPU7Wgjm9kh8Gb9RBTc4LJvVncynsikRYLJQSZ/tXdL2FsEry6T8
+         ObeYrpw/JDBSP+2f3G2nKJtK1HAbi9JdKbjHEwxboWEKnOfhIJFihPUttCiFyoegQJ
+         GINvM1YI8dL80DHtL31VtGQL7r2ZWg411Bj4uFql4TYbZe8JwthWtNQ3wxaNTWcRWn
+         XiHyxTjuBswuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 58/99] MIPS: mscc: ocelot: mark the phy-mode for internal PHY ports
-Date:   Thu,  9 Sep 2021 20:15:17 -0400
-Message-Id: <20210910001558.173296-58-sashal@kernel.org>
+Cc:     Gioh Kim <gi-oh.kim@ionos.com>, Jack Wang <jinpu.wang@ionos.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Md Haris Iqbal <haris.iqbal@ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 59/99] RDMA/rtrs-clt: Fix counting inflight IO
+Date:   Thu,  9 Sep 2021 20:15:18 -0400
+Message-Id: <20210910001558.173296-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -43,84 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Gioh Kim <gi-oh.kim@ionos.com>
 
-[ Upstream commit eba54cbb92d28b4f6dc1ed5f73f5187b09d82c08 ]
+[ Upstream commit 0d8f2cfa23f04ca01f6d4bba09933cb6310193aa ]
 
-The ocelot driver was converted to phylink, and that expects a valid
-phy_interface_t. Without a phy-mode, of_get_phy_mode returns
-PHY_INTERFACE_MODE_NA, which is not ideal because phylink rejects that.
+There are mis-match at counting inflight IO after changing the multipath
+policy.
 
-The ocelot driver was patched to treat PHY_INTERFACE_MODE_NA as
-PHY_INTERFACE_MODE_INTERNAL to work with the broken DT blobs, but we
-should fix the device trees and specify the phy-mode too.
+For example, we started fio test with round-robin policy and then we
+changed the policy to min-inflight. IOs created under the RR policy is
+finished under the min-inflight policy and inflight counter only
+decreased. So the counter would be negative value.  And also we started
+fio test with min-inflight policy and changed the policy to the
+round-robin. IOs created under the min-inflight policy increased the
+inflight IO counter but the inflight IO counter was not decreased because
+the policy was the round-robin when IO was finished.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+So it should count IOs only if the IO is created under the min-inflight
+policy. It should not care the policy when the IO is finished.
+
+This patch adds a field mp_policy in struct rtrs_clt_io_req and stores the
+multipath policy when an object of rtrs_clt_io_req is created. Then
+rtrs-clt checks the mp_policy of only struct rtrs_clt_io_req instead of
+the struct rtrs_clt.
+
+Link: https://lore.kernel.org/r/20210806112112.124313-6-haris.iqbal@ionos.com
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/dts/mscc/ocelot_pcb120.dts | 4 ++++
- arch/mips/boot/dts/mscc/ocelot_pcb123.dts | 4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/infiniband/ulp/rtrs/rtrs-clt-stats.c | 2 +-
+ drivers/infiniband/ulp/rtrs/rtrs-clt.c       | 7 ++++---
+ drivers/infiniband/ulp/rtrs/rtrs-clt.h       | 1 +
+ 3 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/boot/dts/mscc/ocelot_pcb120.dts b/arch/mips/boot/dts/mscc/ocelot_pcb120.dts
-index d2dc6b3d923c..bd240690cb37 100644
---- a/arch/mips/boot/dts/mscc/ocelot_pcb120.dts
-+++ b/arch/mips/boot/dts/mscc/ocelot_pcb120.dts
-@@ -71,21 +71,25 @@ phy4: ethernet-phy@3 {
- &port0 {
- 	status = "okay";
- 	phy-handle = <&phy0>;
-+	phy-mode = "internal";
- };
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt-stats.c b/drivers/infiniband/ulp/rtrs/rtrs-clt-stats.c
+index 26bbe5d6dff5..553e173975fb 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt-stats.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt-stats.c
+@@ -180,7 +180,7 @@ void rtrs_clt_update_all_stats(struct rtrs_clt_io_req *req, int dir)
  
- &port1 {
- 	status = "okay";
- 	phy-handle = <&phy1>;
-+	phy-mode = "internal";
- };
+ 	len = req->usr_len + req->data_len;
+ 	rtrs_clt_update_rdma_stats(stats, len, dir);
+-	if (sess->clt->mp_policy == MP_POLICY_MIN_INFLIGHT)
++	if (req->mp_policy == MP_POLICY_MIN_INFLIGHT)
+ 		atomic_inc(&stats->inflight);
+ }
  
- &port2 {
- 	status = "okay";
- 	phy-handle = <&phy2>;
-+	phy-mode = "internal";
- };
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+index f2c40e50f25e..3b3bc77d02cc 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+@@ -438,7 +438,7 @@ static void complete_rdma_req(struct rtrs_clt_io_req *req, int errno,
+ 	}
+ 	if (!refcount_dec_and_test(&req->ref))
+ 		return;
+-	if (sess->clt->mp_policy == MP_POLICY_MIN_INFLIGHT)
++	if (req->mp_policy == MP_POLICY_MIN_INFLIGHT)
+ 		atomic_dec(&sess->stats->inflight);
  
- &port3 {
- 	status = "okay";
- 	phy-handle = <&phy3>;
-+	phy-mode = "internal";
- };
+ 	req->in_use = false;
+@@ -963,6 +963,7 @@ static void rtrs_clt_init_req(struct rtrs_clt_io_req *req,
+ 	req->need_inv_comp = false;
+ 	req->inv_errno = 0;
+ 	refcount_set(&req->ref, 1);
++	req->mp_policy = sess->clt->mp_policy;
  
- &port4 {
-diff --git a/arch/mips/boot/dts/mscc/ocelot_pcb123.dts b/arch/mips/boot/dts/mscc/ocelot_pcb123.dts
-index 7d7e638791dd..0185045c7630 100644
---- a/arch/mips/boot/dts/mscc/ocelot_pcb123.dts
-+++ b/arch/mips/boot/dts/mscc/ocelot_pcb123.dts
-@@ -49,19 +49,23 @@ &mdio0 {
- &port0 {
- 	status = "okay";
- 	phy-handle = <&phy0>;
-+	phy-mode = "internal";
- };
- 
- &port1 {
- 	status = "okay";
- 	phy-handle = <&phy1>;
-+	phy-mode = "internal";
- };
- 
- &port2 {
- 	status = "okay";
- 	phy-handle = <&phy2>;
-+	phy-mode = "internal";
- };
- 
- &port3 {
- 	status = "okay";
- 	phy-handle = <&phy3>;
-+	phy-mode = "internal";
- };
+ 	iov_iter_kvec(&iter, READ, vec, 1, usr_len);
+ 	len = _copy_from_iter(req->iu->buf, usr_len, &iter);
+@@ -1153,7 +1154,7 @@ static int rtrs_clt_write_req(struct rtrs_clt_io_req *req)
+ 			    "Write request failed: error=%d path=%s [%s:%u]\n",
+ 			    ret, kobject_name(&sess->kobj), sess->hca_name,
+ 			    sess->hca_port);
+-		if (sess->clt->mp_policy == MP_POLICY_MIN_INFLIGHT)
++		if (req->mp_policy == MP_POLICY_MIN_INFLIGHT)
+ 			atomic_dec(&sess->stats->inflight);
+ 		if (req->sg_cnt)
+ 			ib_dma_unmap_sg(sess->s.dev->ib_dev, req->sglist,
+@@ -1259,7 +1260,7 @@ static int rtrs_clt_read_req(struct rtrs_clt_io_req *req)
+ 			    "Read request failed: error=%d path=%s [%s:%u]\n",
+ 			    ret, kobject_name(&sess->kobj), sess->hca_name,
+ 			    sess->hca_port);
+-		if (sess->clt->mp_policy == MP_POLICY_MIN_INFLIGHT)
++		if (req->mp_policy == MP_POLICY_MIN_INFLIGHT)
+ 			atomic_dec(&sess->stats->inflight);
+ 		req->need_inv = false;
+ 		if (req->sg_cnt)
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.h b/drivers/infiniband/ulp/rtrs/rtrs-clt.h
+index e276a2dfcf7c..12eaea44c1f9 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.h
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.h
+@@ -102,6 +102,7 @@ struct rtrs_clt_io_req {
+ 	unsigned int		usr_len;
+ 	void			*priv;
+ 	bool			in_use;
++	enum rtrs_mp_policy     mp_policy;
+ 	struct rtrs_clt_con	*con;
+ 	struct rtrs_sg_desc	*desc;
+ 	struct ib_sge		*sge;
 -- 
 2.30.2
 
