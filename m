@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0056406C45
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 232AC406BEC
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233710AbhIJMih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:38:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54634 "EHLO mail.kernel.org"
+        id S233455AbhIJMfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:35:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233741AbhIJMg4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:36:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2AD86121F;
-        Fri, 10 Sep 2021 12:35:32 +0000 (UTC)
+        id S233576AbhIJMet (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:34:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 934D661208;
+        Fri, 10 Sep 2021 12:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277333;
-        bh=HRYt+w4rh3mflXhyz3JiNRj8hMqLQ2bq6430B8eWofc=;
+        s=korg; t=1631277218;
+        bh=4PNFQT0sWdvPFPLHHfWaQiXxNzDhxFvvX3ryFhHiK8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l9BaUI5Gq88Bc0lklUir+My0Dx6v0IOxkwoN1mugSTlolhqZ621y3ZWiVyYfgCs2G
-         SjAqTKEyR96A2TsoPPTVLK8vdl1v8pLutDDPw2UMA6uJKKx9m3wR6aXBJoC9w89Zho
-         +t1EaOoi8xFiJFkFqs8kqDbfBaePP25zWTn1U6SU=
+        b=RDTR++qyLsAKYj2Uon1h4IRIr5Qx5eETZSoPiQD3pdHSpT7xFmm1Ox3UtjNjfR8sQ
+         Te5zdb6nseIz0UMcd1B/exY4xRQ1/w30zHdr3y6zq2En1RsTODk3TEci6YNfBNkgG3
+         jZaV6rPhS6EXoYrDJY1mqOu2vOsCAP/I0OR7L1dI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 23/37] USB: serial: mos7720: improve OOM-handling in read_mos_reg()
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.10 22/26] usb: mtu3: fix the wrong HS mult value
 Date:   Fri, 10 Sep 2021 14:30:26 +0200
-Message-Id: <20210910122917.926396667@linuxfoundation.org>
+Message-Id: <20210910122916.963594596@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
-References: <20210910122917.149278545@linuxfoundation.org>
+In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
+References: <20210910122916.253646001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +38,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit 161a582bd1d8681095f158d11bc679a58f1d026b upstream.
+commit 44e4439d8f9f8d0e9da767d1f31e7c211081feca upstream.
 
-clang static analysis reports this problem
+usb_endpoint_maxp() returns actual max packet size, @mult will
+always be zero, fix it by using usb_endpoint_maxp_mult() instead
+to get mult.
 
-mos7720.c:352:2: warning: Undefined or garbage value returned to caller
-        return d;
-        ^~~~~~~~
-
-In the parport_mos7715_read_data()'s call to read_mos_reg(), 'd' is
-only set after the alloc block.
-
-	buf = kmalloc(1, GFP_KERNEL);
-	if (!buf)
-		return -ENOMEM;
-
-Although the problem is reported in parport_most7715_read_data(),
-none of the callee's of read_mos_reg() check the return status.
-
-Make sure to clear the return-value buffer also on allocation failures.
-
-Fixes: 0d130367abf5 ("USB: serial: mos7720: fix control-message error handling")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Link: https://lore.kernel.org/r/20210111220904.1035957-1-trix@redhat.com
-[ johan: only clear the buffer on errors, amend commit message ]
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 4d79e042ed8b ("usb: mtu3: add support for usb3.1 IP")
+Cc: stable@vger.kernel.org
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1628836253-7432-3-git-send-email-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/mos7720.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/mtu3/mtu3_gadget.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/mos7720.c
-+++ b/drivers/usb/serial/mos7720.c
-@@ -226,8 +226,10 @@ static int read_mos_reg(struct usb_seria
- 	int status;
+--- a/drivers/usb/mtu3/mtu3_gadget.c
++++ b/drivers/usb/mtu3/mtu3_gadget.c
+@@ -64,14 +64,12 @@ static int mtu3_ep_enable(struct mtu3_ep
+ 	u32 interval = 0;
+ 	u32 mult = 0;
+ 	u32 burst = 0;
+-	int max_packet;
+ 	int ret;
  
- 	buf = kmalloc(1, GFP_KERNEL);
--	if (!buf)
-+	if (!buf) {
-+		*data = 0;
- 		return -ENOMEM;
-+	}
+ 	desc = mep->desc;
+ 	comp_desc = mep->comp_desc;
+ 	mep->type = usb_endpoint_type(desc);
+-	max_packet = usb_endpoint_maxp(desc);
+-	mep->maxp = max_packet & GENMASK(10, 0);
++	mep->maxp = usb_endpoint_maxp(desc);
  
- 	status = usb_control_msg(usbdev, pipe, request, requesttype, value,
- 				     index, buf, 1, MOS_WDR_TIMEOUT);
+ 	switch (mtu->g.speed) {
+ 	case USB_SPEED_SUPER:
+@@ -92,7 +90,7 @@ static int mtu3_ep_enable(struct mtu3_ep
+ 				usb_endpoint_xfer_int(desc)) {
+ 			interval = desc->bInterval;
+ 			interval = clamp_val(interval, 1, 16) - 1;
+-			mult = (max_packet & GENMASK(12, 11)) >> 11;
++			mult = usb_endpoint_maxp_mult(desc) - 1;
+ 		}
+ 		break;
+ 	default:
 
 
