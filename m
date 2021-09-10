@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E95540629F
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B574062A6
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241903AbhIJAqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47722 "EHLO mail.kernel.org"
+        id S241910AbhIJAqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:46:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233876AbhIJAV6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:21:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1817D611BF;
-        Fri, 10 Sep 2021 00:20:48 +0000 (UTC)
+        id S233895AbhIJAWA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:22:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62E0A6023D;
+        Fri, 10 Sep 2021 00:20:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233248;
-        bh=bFudKSCOtqCJSbzerv9YL80dTH1IVwrlA8bgY8TI2qs=;
+        s=k20201202; t=1631233250;
+        bh=LXeKdL2a5ZXF2pvbIpMZzpHy41hxFBUlAEZQukn+jCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FrieefCADGWs7dKCpmXIkMyg0HVrcB0qyO6uI8PYR7gNc/13eAmK9wHPF51FQHHPD
-         ANCYzGpso+DLL+XJSKPyWEELQNbBWJLgxONBgDQbiVw1OMK03I3t3UshyMZ9fqs+9v
-         GCTMBbj6Bx333/ln0cHUSdOZXSAnGm2yxYZhI4xt1V3tsltlpwQ38qj+T/jFt23EWx
-         Yesd3ZLSJoi5j44H1PVh7dYatg+T/BASO9Ii1f3q5DAJpxH05DFTO5iU5xJLs4H8ft
-         ZCN3rgO/0nlT5n1vuEhEAIbHlHffhtgsa1KBKRVa7dSAEPEuSDFMsGQFi7ChGdUzmB
-         QJEentlR9qtvw==
+        b=OxNINsGHDAqXLGg5UcuQM8St3sONdJ5RKDPLvd9J27snkBUtYa62EvKTyX+2uiOOx
+         FU7Nqp9qMKFYxvVIfiZL1UtJsRb+6gN1QZAMDf6yRP9GC7Y2rNCxRGoX/MmYyVWWOq
+         fO7Ebm/Eos8XdE4NueyblFHKfsN0mgQDZ5LE2q+PRIpbh+zhqsMafBy+WaqtptmBya
+         lmUzT1x3qTUplz3HrCWzC3TPPb7MS59XJqWZFBZAOCpSe1cX2qmmqjNc+s8qGrBVJN
+         DVmk2YeNggr3by8M3MLS3lJlC4c3UQWXgBLjEnYJ2mXJ4Tedb/ThuEVJHj/bISizY1
+         8kE7JxaR2MqGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 14/53] cpuidle: pseries: Do not cap the CEDE0 latency in fixup_cede0_latency()
-Date:   Thu,  9 Sep 2021 20:19:49 -0400
-Message-Id: <20210910002028.175174-14-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.10 15/53] powerpc: make the install target not depend on any build artifact
+Date:   Thu,  9 Sep 2021 20:19:50 -0400
+Message-Id: <20210910002028.175174-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
@@ -43,119 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 71737a6c2a8f801622d2b71567d1ec1e4c5b40b8 ]
+[ Upstream commit 9bef456b20581e630ef9a13555ca04fed65a859d ]
 
-Currently in fixup_cede0_latency() code, we perform the fixup the
-CEDE(0) exit latency value only if minimum advertized extended CEDE
-latency values are less than 10us. This was done so as to not break
-the expected behaviour on POWER8 platforms where the advertised
-latency was higher than the default 10us, which would delay the SMT
-folding on the core.
+The install target should not depend on any build artifact.
 
-However, after the earlier patch "cpuidle/pseries: Fixup CEDE0 latency
-only for POWER10 onwards", we can be sure that the fixup of CEDE0
-latency is going to happen only from POWER10 onwards. Hence
-unconditionally use the minimum exit latency provided by the platform.
+The reason is explained in commit 19514fc665ff ("arm, kbuild: make
+"make install" not depend on vmlinux").
 
-Signed-off-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Change the PowerPC installation code in a similar way.
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1626676399-15975-3-git-send-email-ego@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/20210729141937.445051-2-masahiroy@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/cpuidle-pseries.c | 59 ++++++++++++++++---------------
- 1 file changed, 30 insertions(+), 29 deletions(-)
+ arch/powerpc/boot/Makefile   |  2 +-
+ arch/powerpc/boot/install.sh | 14 ++++++++++++++
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpuidle/cpuidle-pseries.c b/drivers/cpuidle/cpuidle-pseries.c
-index a2b5c6f60cf0..18747e5287c8 100644
---- a/drivers/cpuidle/cpuidle-pseries.c
-+++ b/drivers/cpuidle/cpuidle-pseries.c
-@@ -346,11 +346,9 @@ static int pseries_cpuidle_driver_init(void)
- static void __init fixup_cede0_latency(void)
- {
- 	struct xcede_latency_payload *payload;
--	u64 min_latency_us;
-+	u64 min_xcede_latency_us = UINT_MAX;
- 	int i;
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index e4b364b5da9e..de18b4df3866 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -436,7 +436,7 @@ $(obj)/zImage.initrd:	$(addprefix $(obj)/, $(initrd-y))
+ 	$(Q)rm -f $@; ln $< $@
  
--	min_latency_us = dedicated_states[1].exit_latency; // CEDE latency
--
- 	if (parse_cede_parameters())
- 		return;
+ # Only install the vmlinux
+-install: $(CONFIGURE) $(addprefix $(obj)/, $(image-y))
++install:
+ 	sh -x $(srctree)/$(src)/install.sh "$(KERNELRELEASE)" vmlinux System.map "$(INSTALL_PATH)"
  
-@@ -358,42 +356,45 @@ static void __init fixup_cede0_latency(void)
- 		nr_xcede_records);
+ # Install the vmlinux and other built boot targets.
+diff --git a/arch/powerpc/boot/install.sh b/arch/powerpc/boot/install.sh
+index b6a256bc96ee..8d669cf1ccda 100644
+--- a/arch/powerpc/boot/install.sh
++++ b/arch/powerpc/boot/install.sh
+@@ -21,6 +21,20 @@
+ # Bail with error code if anything goes wrong
+ set -e
  
- 	payload = &xcede_latency_parameter.payload;
++verify () {
++	if [ ! -f "$1" ]; then
++		echo ""                                                   1>&2
++		echo " *** Missing file: $1"                              1>&2
++		echo ' *** You need to run "make" before "make install".' 1>&2
++		echo ""                                                   1>&2
++		exit 1
++	fi
++}
 +
-+	/*
-+	 * The CEDE idle state maps to CEDE(0). While the hypervisor
-+	 * does not advertise CEDE(0) exit latency values, it does
-+	 * advertise the latency values of the extended CEDE states.
-+	 * We use the lowest advertised exit latency value as a proxy
-+	 * for the exit latency of CEDE(0).
-+	 */
- 	for (i = 0; i < nr_xcede_records; i++) {
- 		struct xcede_latency_record *record = &payload->records[i];
-+		u8 hint = record->hint;
- 		u64 latency_tb = be64_to_cpu(record->latency_ticks);
- 		u64 latency_us = DIV_ROUND_UP_ULL(tb_to_ns(latency_tb), NSEC_PER_USEC);
++# Make sure the files actually exist
++verify "$2"
++verify "$3"
++
+ # User may have a custom install script
  
--		if (latency_us == 0)
--			pr_warn("cpuidle: xcede record %d has an unrealistic latency of 0us.\n", i);
--
--		if (latency_us < min_latency_us)
--			min_latency_us = latency_us;
--	}
--
--	/*
--	 * By default, we assume that CEDE(0) has exit latency 10us,
--	 * since there is no way for us to query from the platform.
--	 *
--	 * However, if the wakeup latency of an Extended CEDE state is
--	 * smaller than 10us, then we can be sure that CEDE(0)
--	 * requires no more than that.
--	 *
--	 * Perform the fix-up.
--	 */
--	if (min_latency_us < dedicated_states[1].exit_latency) {
- 		/*
--		 * We set a minimum of 1us wakeup latency for cede0 to
--		 * distinguish it from snooze
-+		 * We expect the exit latency of an extended CEDE
-+		 * state to be non-zero, it to since it takes at least
-+		 * a few nanoseconds to wakeup the idle CPU and
-+		 * dispatch the virtual processor into the Linux
-+		 * Guest.
-+		 *
-+		 * So we consider only non-zero value for performing
-+		 * the fixup of CEDE(0) latency.
- 		 */
--		u64 cede0_latency = 1;
-+		if (latency_us == 0) {
-+			pr_warn("cpuidle: Skipping xcede record %d [hint=%d]. Exit latency = 0us\n",
-+				i, hint);
-+			continue;
-+		}
- 
--		if (min_latency_us > cede0_latency)
--			cede0_latency = min_latency_us - 1;
-+		if (latency_us < min_xcede_latency_us)
-+			min_xcede_latency_us = latency_us;
-+	}
- 
--		dedicated_states[1].exit_latency = cede0_latency;
--		dedicated_states[1].target_residency = 10 * (cede0_latency);
-+	if (min_xcede_latency_us != UINT_MAX) {
-+		dedicated_states[1].exit_latency = min_xcede_latency_us;
-+		dedicated_states[1].target_residency = 10 * (min_xcede_latency_us);
- 		pr_info("cpuidle: Fixed up CEDE exit latency to %llu us\n",
--			cede0_latency);
-+			min_xcede_latency_us);
- 	}
- 
- }
+ if [ -x ~/bin/${INSTALLKERNEL} ]; then exec ~/bin/${INSTALLKERNEL} "$@"; fi
 -- 
 2.30.2
 
