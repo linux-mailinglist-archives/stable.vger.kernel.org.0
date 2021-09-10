@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8665A406C56
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94293406C33
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234398AbhIJMjB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:39:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55194 "EHLO mail.kernel.org"
+        id S233723AbhIJMhm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:37:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233730AbhIJMhQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:37:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 235E76120A;
-        Fri, 10 Sep 2021 12:35:53 +0000 (UTC)
+        id S234032AbhIJMgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:36:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5333F61209;
+        Fri, 10 Sep 2021 12:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277354;
-        bh=u9zluEWB18JkYxp3OuvxqEPeLfuUjRgiLvaU6qfkzmI=;
+        s=korg; t=1631277311;
+        bh=/mxhlj9bAGDApe25lknaTLaU1AYEJqivuXTuRtv0OL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3Fc+rAdo3auBt1AMAveYLMMb09xWrOO/0bxp0cBoi1U0pfz33AaxVB0ZlFvirIuq
-         qTfNfK/cZDuhXAQvtoxmfZXy1JYmqxNZEzLuEhXjWgI/PpgExYW6KoOTcbFWVRduvw
-         qkdo/t8UEqniSdof/1H214GcsprxXY8eNJ+StTFU=
+        b=V8B0/njDPtr/qw0UXd4Dk69tLWXtUyETvMOp9lazqsUVK+ttCLhIUjY4oAMPJoRwE
+         XpRNpAIg0M3ksN/iZ6hpjr9OKCUMCnETrhqTnf6KfMMo/jfWAIs3z0Qc9/WHgM00cF
+         yNetEDiCIK20g8vMfBapBaN6ZrDbHLg3qERcAV98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 21/37] media: stkwebcam: fix memory leak in stk_camera_probe
-Date:   Fri, 10 Sep 2021 14:30:24 +0200
-Message-Id: <20210910122917.862680130@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.4 22/37] igmp: Add ip_mc_list lock in ip_check_mc_rcu
+Date:   Fri, 10 Sep 2021 14:30:25 +0200
+Message-Id: <20210910122917.893921909@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
 References: <20210910122917.149278545@linuxfoundation.org>
@@ -40,49 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Liu Jian <liujian56@huawei.com>
 
-commit 514e97674400462cc09c459a1ddfb9bf39017223 upstream.
+commit 23d2b94043ca8835bd1e67749020e839f396a1c2 upstream.
 
-My local syzbot instance hit memory leak in usb_set_configuration().
-The problem was in unputted usb interface. In case of errors after
-usb_get_intf() the reference should be putted to correclty free memory
-allocated for this interface.
+I got below panic when doing fuzz test:
 
-Fixes: ec16dae5453e ("V4L/DVB (7019): V4L: add support for Syntek DC1125 webcams")
-Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 0 PID: 4056 Comm: syz-executor.3 Tainted: G    B             5.14.0-rc1-00195-gcff5c4254439-dirty #2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+Call Trace:
+dump_stack_lvl+0x7a/0x9b
+panic+0x2cd/0x5af
+end_report.cold+0x5a/0x5a
+kasan_report+0xec/0x110
+ip_check_mc_rcu+0x556/0x5d0
+__mkroute_output+0x895/0x1740
+ip_route_output_key_hash_rcu+0x2d0/0x1050
+ip_route_output_key_hash+0x182/0x2e0
+ip_route_output_flow+0x28/0x130
+udp_sendmsg+0x165d/0x2280
+udpv6_sendmsg+0x121e/0x24f0
+inet6_sendmsg+0xf7/0x140
+sock_sendmsg+0xe9/0x180
+____sys_sendmsg+0x2b8/0x7a0
+___sys_sendmsg+0xf0/0x160
+__sys_sendmmsg+0x17e/0x3c0
+__x64_sys_sendmmsg+0x9e/0x100
+do_syscall_64+0x3b/0x90
+entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x462eb9
+Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8
+ 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48>
+ 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f3df5af1c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
+RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462eb9
+RDX: 0000000000000312 RSI: 0000000020001700 RDI: 0000000000000007
+RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f3df5af26bc
+R13: 00000000004c372d R14: 0000000000700b10 R15: 00000000ffffffff
+
+It is one use-after-free in ip_check_mc_rcu.
+In ip_mc_del_src, the ip_sf_list of pmc has been freed under pmc->lock protection.
+But access to ip_sf_list in ip_check_mc_rcu is not protected by the lock.
+
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/stkwebcam/stk-webcam.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/ipv4/igmp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/media/usb/stkwebcam/stk-webcam.c
-+++ b/drivers/media/usb/stkwebcam/stk-webcam.c
-@@ -1346,7 +1346,7 @@ static int stk_camera_probe(struct usb_i
- 	if (!dev->isoc_ep) {
- 		pr_err("Could not find isoc-in endpoint\n");
- 		err = -ENODEV;
--		goto error;
-+		goto error_put;
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -2730,6 +2730,7 @@ int ip_check_mc_rcu(struct in_device *in
+ 		rv = 1;
+ 	} else if (im) {
+ 		if (src_addr) {
++			spin_lock_bh(&im->lock);
+ 			for (psf = im->sources; psf; psf = psf->sf_next) {
+ 				if (psf->sf_inaddr == src_addr)
+ 					break;
+@@ -2740,6 +2741,7 @@ int ip_check_mc_rcu(struct in_device *in
+ 					im->sfcount[MCAST_EXCLUDE];
+ 			else
+ 				rv = im->sfcount[MCAST_EXCLUDE] != 0;
++			spin_unlock_bh(&im->lock);
+ 		} else
+ 			rv = 1; /* unspecified source; tentatively allow */
  	}
- 	dev->vsettings.palette = V4L2_PIX_FMT_RGB565;
- 	dev->vsettings.mode = MODE_VGA;
-@@ -1359,10 +1359,12 @@ static int stk_camera_probe(struct usb_i
- 
- 	err = stk_register_video_device(dev);
- 	if (err)
--		goto error;
-+		goto error_put;
- 
- 	return 0;
- 
-+error_put:
-+	usb_put_intf(interface);
- error:
- 	v4l2_ctrl_handler_free(hdl);
- 	v4l2_device_unregister(&dev->v4l2_dev);
 
 
