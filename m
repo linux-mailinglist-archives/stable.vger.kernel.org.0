@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA3C2406225
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23959406226
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232941AbhIJAox (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:44:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46834 "EHLO mail.kernel.org"
+        id S230438AbhIJAoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:44:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233713AbhIJAUq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:20:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AE3661167;
-        Fri, 10 Sep 2021 00:19:35 +0000 (UTC)
+        id S233714AbhIJAUr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:20:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7C276023D;
+        Fri, 10 Sep 2021 00:19:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233176;
-        bh=2qQNOgnNyxzf0vkIICdlP+LKDnOnLdrCGNML7DqDb7I=;
+        s=k20201202; t=1631233177;
+        bh=cJmoLDW+FeQvvnwfsFnptMQFLO6o/YXr/fMCpA/IybI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GjuQZJRgwRnBIT6HDvIquAS62sQ9wMEL7B1+sIRBl01dNjyhzwUNdeejfDpziojm7
-         wKuesAAY8LwCz9FCNB4jT9Y+MZPbfjjzFLGkKSQ06pD2s5zVvyk1cHnsHieW+7FLpz
-         UfSJ06Sr8Hn9Bb084WfSCh0W/yTvfBp3g3qt3vYJ/74aB0g/F2V8zP9C6v+ztX4KqY
-         HtLvn8BRyFYH7lq4wWeiK6VSH3jpY93EHa9WC2ON7Qv2QpwZgBUKNv5C6Wh/syGbE8
-         ZTbAfrbQ31DJQait2pGSxypVT8UanjKqfsALsnJ5k7c4SnMDkmYeh7UaAGSeW6GDP2
-         1wlUKTLmOXc1g==
+        b=pMcf8Irbd7ZYUMzy+NkHpI5fCD4Om1HVmJL1P/6xHuyW2PWZJ2nudiE1slSJlwhPF
+         NlOq6mVij+bfb31Nvv3oADAxI/0R7mzRSvyYO9kgBAtBMLh4NpmXwKgWu/Tw05DB8J
+         aPnS3R0fVJuIoPRKdcTkSc1xiWicXLZnGL4fhD/Q/gyi92FEVI2oDNF8qLdXT3b/lE
+         /E83Aw7WnZspLZow/WxmxV18QKbnD5hOqaI1qjazfBMNcb4avRZmoI81par9nw+z3C
+         mblZlsJpLsvRJMSy4V8QY2p0mM4B0+j4OpDfuOpeiimtq+hgrDlBVna01mVg5r71AB
+         jI5rJV/psXtKA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arun Easi <aeasi@marvell.com>, Nilesh Javali <njavali@marvell.com>,
+Cc:     Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 53/88] scsi: qla2xxx: Fix hang during NVMe session tear down
-Date:   Thu,  9 Sep 2021 20:17:45 -0400
-Message-Id: <20210910001820.174272-53-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 54/88] scsi: qla2xxx: Fix NVMe | FCP personality change
+Date:   Thu,  9 Sep 2021 20:17:46 -0400
+Message-Id: <20210910001820.174272-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
@@ -42,60 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arun Easi <aeasi@marvell.com>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit 310e69edfbd57995868a428eeddea09a7b5d2749 ]
+[ Upstream commit f6e327fc09e48271c103efb3b69fc4ccda3f408b ]
 
-The following hung task call trace was seen:
+Currently driver saves the personality type (FCP|NVMe) at the start of
+first discovery of the remote device. If the remote device personality do
+change over time, then qla driver needs to present that to user to decide.
 
-    [ 1230.183294] INFO: task qla2xxx_wq:523 blocked for more than 120 seconds.
-    [ 1230.197749] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-    [ 1230.205585] qla2xxx_wq      D    0   523      2 0x80004000
-    [ 1230.205636] Workqueue: qla2xxx_wq qlt_free_session_done [qla2xxx]
-    [ 1230.205639] Call Trace:
-    [ 1230.208100]  __schedule+0x2c4/0x700
-    [ 1230.211607]  schedule+0x38/0xa0
-    [ 1230.214769]  schedule_timeout+0x246/0x2f0
-    [ 1230.222651]  wait_for_completion+0x97/0x100
-    [ 1230.226921]  qlt_free_session_done+0x6a0/0x6f0 [qla2xxx]
-    [ 1230.232254]  process_one_work+0x1a7/0x360
-
-...when device side port resets were done.
-
-Abort threads were getting out without processing due to the "deleted"
-flag check. The delete thread, meanwhile, could not proceed with a
-logout (that would have cleared out pending requests) as the logout IOCB
-work was not progressing. It appears like the hung qlt_free_session_done()
-thread is causing the ha->wq works on hold. The qlt_free_session_done()
-was hung waiting for nvme_fc_unregister_remoteport() + localport_delete cb
-to be complete, which would only happen when all I/Os are released.
-
-Fix this by allowing abort to progress until device delete is completely
-done. This should make the qlt_free_session_done() proceed without hang and
-thus clear up the deadlock.
-
-Link: https://lore.kernel.org/r/20210817051315.2477-5-njavali@marvell.com
-Signed-off-by: Arun Easi <aeasi@marvell.com>
+Link: https://lore.kernel.org/r/20210817051315.2477-8-njavali@marvell.com
+Signed-off-by: Quinn Tran <qutran@marvell.com>
 Signed-off-by: Nilesh Javali <njavali@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_nvme.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_gs.c   | 1 +
+ drivers/scsi/qla2xxx/qla_init.c | 5 +++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
-index 0cacb667a88b..955af14e948a 100644
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -227,7 +227,7 @@ static void qla_nvme_abort_work(struct work_struct *work)
- 	       "%s called for sp=%p, hndl=%x on fcport=%p deleted=%d\n",
- 	       __func__, sp, sp->handle, fcport, fcport->deleted);
+diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
+index 5b6e04a91a18..f6ed1d62e16b 100644
+--- a/drivers/scsi/qla2xxx/qla_gs.c
++++ b/drivers/scsi/qla2xxx/qla_gs.c
+@@ -3498,6 +3498,7 @@ void qla24xx_async_gnnft_done(scsi_qla_host_t *vha, srb_t *sp)
+ 				continue;
+ 			fcport->scan_state = QLA_FCPORT_FOUND;
+ 			fcport->last_rscn_gen = fcport->rscn_gen;
++			fcport->fc4_type = rp->fc4type;
+ 			found = true;
+ 			/*
+ 			 * If device was not a fabric device before.
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index dc2ddb8c9dd8..bd74ec862832 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -1538,11 +1538,12 @@ int qla24xx_fcport_handle_login(struct scsi_qla_host *vha, fc_port_t *fcport)
+ 	u16 sec;
  
--	if (!ha->flags.fw_started || fcport->deleted)
-+	if (!ha->flags.fw_started || fcport->deleted == QLA_SESS_DELETED)
- 		goto out;
+ 	ql_dbg(ql_dbg_disc, vha, 0x20d8,
+-	    "%s %8phC DS %d LS %d P %d fl %x confl %p rscn %d|%d login %d lid %d scan %d\n",
++	    "%s %8phC DS %d LS %d P %d fl %x confl %p rscn %d|%d login %d lid %d scan %d fc4type %x\n",
+ 	    __func__, fcport->port_name, fcport->disc_state,
+ 	    fcport->fw_login_state, fcport->login_pause, fcport->flags,
+ 	    fcport->conflict, fcport->last_rscn_gen, fcport->rscn_gen,
+-	    fcport->login_gen, fcport->loop_id, fcport->scan_state);
++	    fcport->login_gen, fcport->loop_id, fcport->scan_state,
++	    fcport->fc4_type);
  
- 	if (ha->flags.host_shutting_down) {
+ 	if (fcport->scan_state != QLA_FCPORT_FOUND)
+ 		return 0;
 -- 
 2.30.2
 
