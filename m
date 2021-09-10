@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AEA2406B8E
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F1A4406B98
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233354AbhIJMcd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:32:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49772 "EHLO mail.kernel.org"
+        id S233434AbhIJMcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:32:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233321AbhIJMcc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:32:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AB3A611C8;
-        Fri, 10 Sep 2021 12:31:20 +0000 (UTC)
+        id S233416AbhIJMcp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:32:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D25361026;
+        Fri, 10 Sep 2021 12:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277081;
-        bh=OXeVcmaZRuTUKGVrk8moUGby6DPKz9eLaKg/d1Gshq0=;
+        s=korg; t=1631277094;
+        bh=/yC7W9LN4mYejE5LbVaxqYQGFtSqa66F/TYC9rkSmgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RuDkWs520/DV7wovb28dQrhV7bXdTMGue3WMZNgNAoKMyy7YhDwuuy9ovzmao4sk8
-         YH47P6xPO6LCf5Xobg0JHX92WeMIttFLtHEodB5IIzecvMgf/OZp/kFs6InJOWBaSY
-         BDfEDJj7IHqxkGQz7i11Tgk1cU717x7Pp7wUR9IQ=
+        b=K3F3keMH9Cn0YOC0k2g1U/86jR2iWkH+NpgszUCE16RUVsALGBPVqoDRRCzITQDhl
+         VJvbrQ28oXZcStfblKar6K9xsIpUNbaUfAIlAzYMhmm1PQndFF2arj00PHJnJoD5gD
+         s9GMzz+ZJEHiAswS5+NcWuxD3Wz9JPV7EyRKluZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.14 02/23] can: c_can: fix null-ptr-deref on ioctl()
-Date:   Fri, 10 Sep 2021 14:29:52 +0200
-Message-Id: <20210910122916.099047884@linuxfoundation.org>
+        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.14 03/23] igmp: Add ip_mc_list lock in ip_check_mc_rcu
+Date:   Fri, 10 Sep 2021 14:29:53 +0200
+Message-Id: <20210910122916.136931707@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210910122916.022815161@linuxfoundation.org>
 References: <20210910122916.022815161@linuxfoundation.org>
@@ -39,46 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Liu Jian <liujian56@huawei.com>
 
-commit 644d0a5bcc3361170d84fb8d0b13943c354119db upstream.
+commit 23d2b94043ca8835bd1e67749020e839f396a1c2 upstream.
 
-The pdev maybe not a platform device, e.g. c_can_pci device, in this
-case, calling to_platform_device() would not make sense. Also, per the
-comment in drivers/net/can/c_can/c_can_ethtool.c, @bus_info should
-match dev_name() string, so I am replacing this with dev_name() to fix
-this issue.
+I got below panic when doing fuzz test:
 
-[    1.458583] BUG: unable to handle page fault for address: 0000000100000000
-[    1.460921] RIP: 0010:strnlen+0x1a/0x30
-[    1.466336]  ? c_can_get_drvinfo+0x65/0xb0 [c_can]
-[    1.466597]  ethtool_get_drvinfo+0xae/0x360
-[    1.466826]  dev_ethtool+0x10f8/0x2970
-[    1.467880]  sock_ioctl+0xef/0x300
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 0 PID: 4056 Comm: syz-executor.3 Tainted: G    B             5.14.0-rc1-00195-gcff5c4254439-dirty #2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+Call Trace:
+dump_stack_lvl+0x7a/0x9b
+panic+0x2cd/0x5af
+end_report.cold+0x5a/0x5a
+kasan_report+0xec/0x110
+ip_check_mc_rcu+0x556/0x5d0
+__mkroute_output+0x895/0x1740
+ip_route_output_key_hash_rcu+0x2d0/0x1050
+ip_route_output_key_hash+0x182/0x2e0
+ip_route_output_flow+0x28/0x130
+udp_sendmsg+0x165d/0x2280
+udpv6_sendmsg+0x121e/0x24f0
+inet6_sendmsg+0xf7/0x140
+sock_sendmsg+0xe9/0x180
+____sys_sendmsg+0x2b8/0x7a0
+___sys_sendmsg+0xf0/0x160
+__sys_sendmmsg+0x17e/0x3c0
+__x64_sys_sendmmsg+0x9e/0x100
+do_syscall_64+0x3b/0x90
+entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x462eb9
+Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8
+ 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48>
+ 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f3df5af1c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
+RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462eb9
+RDX: 0000000000000312 RSI: 0000000020001700 RDI: 0000000000000007
+RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f3df5af26bc
+R13: 00000000004c372d R14: 0000000000700b10 R15: 00000000ffffffff
 
-Fixes: 2722ac986e93 ("can: c_can: add ethtool support")
-Link: https://lore.kernel.org/r/20210906233704.1162666-1-ztong0001@gmail.com
-Cc: stable@vger.kernel.org # 5.14+
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+It is one use-after-free in ip_check_mc_rcu.
+In ip_mc_del_src, the ip_sf_list of pmc has been freed under pmc->lock protection.
+But access to ip_sf_list in ip_check_mc_rcu is not protected by the lock.
+
+Signed-off-by: Liu Jian <liujian56@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/c_can/c_can_ethtool.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/ipv4/igmp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/can/c_can/c_can_ethtool.c
-+++ b/drivers/net/can/c_can/c_can_ethtool.c
-@@ -15,10 +15,8 @@ static void c_can_get_drvinfo(struct net
- 			      struct ethtool_drvinfo *info)
- {
- 	struct c_can_priv *priv = netdev_priv(netdev);
--	struct platform_device *pdev = to_platform_device(priv->device);
--
- 	strscpy(info->driver, "c_can", sizeof(info->driver));
--	strscpy(info->bus_info, pdev->name, sizeof(info->bus_info));
-+	strscpy(info->bus_info, dev_name(priv->device), sizeof(info->bus_info));
- }
- 
- static void c_can_get_ringparam(struct net_device *netdev,
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -2720,6 +2720,7 @@ int ip_check_mc_rcu(struct in_device *in
+ 		rv = 1;
+ 	} else if (im) {
+ 		if (src_addr) {
++			spin_lock_bh(&im->lock);
+ 			for (psf = im->sources; psf; psf = psf->sf_next) {
+ 				if (psf->sf_inaddr == src_addr)
+ 					break;
+@@ -2730,6 +2731,7 @@ int ip_check_mc_rcu(struct in_device *in
+ 					im->sfcount[MCAST_EXCLUDE];
+ 			else
+ 				rv = im->sfcount[MCAST_EXCLUDE] != 0;
++			spin_unlock_bh(&im->lock);
+ 		} else
+ 			rv = 1; /* unspecified source; tentatively allow */
+ 	}
 
 
