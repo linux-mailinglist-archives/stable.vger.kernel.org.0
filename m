@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C08406098
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:16:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DB840609B
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:17:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230060AbhIJASD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:18:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43748 "EHLO mail.kernel.org"
+        id S231411AbhIJASF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:18:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229980AbhIJARf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:17:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16D21611C4;
-        Fri, 10 Sep 2021 00:16:24 +0000 (UTC)
+        id S229989AbhIJARg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:17:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 474E1611B0;
+        Fri, 10 Sep 2021 00:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631232984;
-        bh=VaBm2al3Cu8b16XZ/MgCLZBRF+tZW045Gp6rlB+4fMI=;
+        s=k20201202; t=1631232986;
+        bh=VT3I4lupzkHsOJYsvD3Sy5frXfh5VuNC6wWll3vS5Vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xt25bApc8tH7bS9kgLJRILqMk9JnqJL/j4UELNNao+qSAoxFH9wiOHhAFJu7tXIUG
-         C9swJCtFdxuc9NyNV2krjdEfrqqCvk8pBmAXjbpSGEWSBbEyNGnmisOAoLjqO9zyWX
-         GqWJ/hXt884g0Qxh4qv6UfBr76/TO3zGW45/Pef5cB8KkbiIvHYj6zEYjPjd3XZEk+
-         HfHBUhyzrYxRfGe/PktHaNAoymbNmfwxGsUnzzNuZaNgY9yBH2g7W8ZGlI7pMx2tfw
-         ZX26lkgiSbnksKzzh0GxwTLHJCc33wP2/tFNBd3Bz5b9zwNAThUD/Wgjaz+C9kBIMw
-         JdlmVEsMkC5bg==
+        b=hf2dTum7WBKRRN3b+gUyKMxVdW6Td/77pr2xtOXmdAOgWLDHNdXu/pn16Qlpc/juJ
+         jtjNR8c8JoPMHbJWRKHn4/+Lgbwd1s9Qf+C0RZdIu47XIbescLPvq12awrD5XYj67L
+         mUOhqsRiM/usTrZhBkI9iQrp3AtX3lhoHOh86BNvgrciRsXWsESuunX66FNZnFJOaJ
+         lLLmw95ETLqXBDPsCuUR0ERkLjqIbfP6Tfbg4S78M5C0WkSbcrEB4iJZB56E7agaGm
+         mTeZ0ayOo+eQFByVKKTIqfqphXBjAwAz4wOKEiqUxxLskDz2RwqwjJzLs+8oNyBSoy
+         eaK3nsAt2aJZw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>,
-        Daeho Jeong <daehojeong@google.com>,
+Cc:     Lennert Buytenhek <buytenh@wantstofly.org>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
         Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.14 19/99] f2fs: don't sleep while grabing nat_tree_lock
-Date:   Thu,  9 Sep 2021 20:14:38 -0400
-Message-Id: <20210910001558.173296-19-sashal@kernel.org>
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.14 20/99] iommu/amd: Fix printing of IOMMU events when rate limiting kicks in
+Date:   Thu,  9 Sep 2021 20:14:39 -0400
+Message-Id: <20210910001558.173296-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -43,66 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Lennert Buytenhek <buytenh@wantstofly.org>
 
-[ Upstream commit 2eeb0dce728a7eac3e4dfe355d98af40d61f7a26 ]
+[ Upstream commit ee974d9625c405977ef5d9aedc476be1d0362ebf ]
 
-This tries to fix priority inversion in the below condition resulting in
-long checkpoint delay.
+For the printing of RMP_HW_ERROR / RMP_PAGE_FAULT / IO_PAGE_FAULT
+events, the AMD IOMMU code uses such logic:
 
-f2fs_get_node_info()
- - nat_tree_lock
-  -> sleep to grab journal_rwsem by contention
+	if (pdev)
+		dev_data = dev_iommu_priv_get(&pdev->dev);
 
-                                     checkpoint
-                                     - waiting for nat_tree_lock
+	if (dev_data && __ratelimit(&dev_data->rs)) {
+		pci_err(pdev, ...
+	} else {
+		printk_ratelimit() / pr_err{,_ratelimited}(...
+	}
 
-In order to let checkpoint go, let's release nat_tree_lock, if there's a
-journal_rwsem contention.
+This means that if we receive an event for a PCI devid which actually
+does have a struct pci_dev and an attached struct iommu_dev_data, but
+rate limiting kicks in, we'll fall back to the non-PCI branch of the
+test, and print the event in a different format.
 
-Signed-off-by: Daeho Jeong <daehojeong@google.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fix this by changing the logic to:
+
+	if (dev_data) {
+		if (__ratelimit(&dev_data->rs)) {
+			pci_err(pdev, ...
+		}
+	} else {
+		pr_err_ratelimited(...
+	}
+
+Suggested-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Signed-off-by: Lennert Buytenhek <buytenh@wantstofly.org>
+Reviewed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/YPgk1dD1gPMhJXgY@wantstofly.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/node.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/iommu/amd/iommu.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 0be9e2d7120e..c945a9730f3c 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -552,7 +552,7 @@ int f2fs_get_node_info(struct f2fs_sb_info *sbi, nid_t nid,
- 	int i;
+diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+index 811a49a95d04..a7d6d78147b7 100644
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -425,9 +425,11 @@ static void amd_iommu_report_rmp_hw_error(volatile u32 *event)
+ 	if (pdev)
+ 		dev_data = dev_iommu_priv_get(&pdev->dev);
  
- 	ni->nid = nid;
--
-+retry:
- 	/* Check nat cache */
- 	down_read(&nm_i->nat_tree_lock);
- 	e = __lookup_nat_cache(nm_i, nid);
-@@ -564,10 +564,19 @@ int f2fs_get_node_info(struct f2fs_sb_info *sbi, nid_t nid,
- 		return 0;
+-	if (dev_data && __ratelimit(&dev_data->rs)) {
+-		pci_err(pdev, "Event logged [RMP_HW_ERROR vmg_tag=0x%04x, spa=0x%llx, flags=0x%04x]\n",
+-			vmg_tag, spa, flags);
++	if (dev_data) {
++		if (__ratelimit(&dev_data->rs)) {
++			pci_err(pdev, "Event logged [RMP_HW_ERROR vmg_tag=0x%04x, spa=0x%llx, flags=0x%04x]\n",
++				vmg_tag, spa, flags);
++		}
+ 	} else {
+ 		pr_err_ratelimited("Event logged [RMP_HW_ERROR device=%02x:%02x.%x, vmg_tag=0x%04x, spa=0x%llx, flags=0x%04x]\n",
+ 			PCI_BUS_NUM(devid), PCI_SLOT(devid), PCI_FUNC(devid),
+@@ -456,9 +458,11 @@ static void amd_iommu_report_rmp_fault(volatile u32 *event)
+ 	if (pdev)
+ 		dev_data = dev_iommu_priv_get(&pdev->dev);
+ 
+-	if (dev_data && __ratelimit(&dev_data->rs)) {
+-		pci_err(pdev, "Event logged [RMP_PAGE_FAULT vmg_tag=0x%04x, gpa=0x%llx, flags_rmp=0x%04x, flags=0x%04x]\n",
+-			vmg_tag, gpa, flags_rmp, flags);
++	if (dev_data) {
++		if (__ratelimit(&dev_data->rs)) {
++			pci_err(pdev, "Event logged [RMP_PAGE_FAULT vmg_tag=0x%04x, gpa=0x%llx, flags_rmp=0x%04x, flags=0x%04x]\n",
++				vmg_tag, gpa, flags_rmp, flags);
++		}
+ 	} else {
+ 		pr_err_ratelimited("Event logged [RMP_PAGE_FAULT device=%02x:%02x.%x, vmg_tag=0x%04x, gpa=0x%llx, flags_rmp=0x%04x, flags=0x%04x]\n",
+ 			PCI_BUS_NUM(devid), PCI_SLOT(devid), PCI_FUNC(devid),
+@@ -480,11 +484,13 @@ static void amd_iommu_report_page_fault(u16 devid, u16 domain_id,
+ 	if (pdev)
+ 		dev_data = dev_iommu_priv_get(&pdev->dev);
+ 
+-	if (dev_data && __ratelimit(&dev_data->rs)) {
+-		pci_err(pdev, "Event logged [IO_PAGE_FAULT domain=0x%04x address=0x%llx flags=0x%04x]\n",
+-			domain_id, address, flags);
+-	} else if (printk_ratelimit()) {
+-		pr_err("Event logged [IO_PAGE_FAULT device=%02x:%02x.%x domain=0x%04x address=0x%llx flags=0x%04x]\n",
++	if (dev_data) {
++		if (__ratelimit(&dev_data->rs)) {
++			pci_err(pdev, "Event logged [IO_PAGE_FAULT domain=0x%04x address=0x%llx flags=0x%04x]\n",
++				domain_id, address, flags);
++		}
++	} else {
++		pr_err_ratelimited("Event logged [IO_PAGE_FAULT device=%02x:%02x.%x domain=0x%04x address=0x%llx flags=0x%04x]\n",
+ 			PCI_BUS_NUM(devid), PCI_SLOT(devid), PCI_FUNC(devid),
+ 			domain_id, address, flags);
  	}
- 
--	memset(&ne, 0, sizeof(struct f2fs_nat_entry));
-+	/*
-+	 * Check current segment summary by trying to grab journal_rwsem first.
-+	 * This sem is on the critical path on the checkpoint requiring the above
-+	 * nat_tree_lock. Therefore, we should retry, if we failed to grab here
-+	 * while not bothering checkpoint.
-+	 */
-+	if (!rwsem_is_locked(&sbi->cp_global_sem)) {
-+		down_read(&curseg->journal_rwsem);
-+	} else if (!down_read_trylock(&curseg->journal_rwsem)) {
-+		up_read(&nm_i->nat_tree_lock);
-+		goto retry;
-+	}
- 
--	/* Check current segment summary */
--	down_read(&curseg->journal_rwsem);
- 	i = f2fs_lookup_journal_in_cursum(journal, NAT_JOURNAL, nid, 0);
- 	if (i >= 0) {
- 		ne = nat_in_journal(journal, i);
 -- 
 2.30.2
 
