@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76E99406284
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B381E406289
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231331AbhIJAp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:45:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47622 "EHLO mail.kernel.org"
+        id S232365AbhIJAqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:46:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233831AbhIJAVw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:21:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9D6E610A3;
-        Fri, 10 Sep 2021 00:20:40 +0000 (UTC)
+        id S233762AbhIJAVx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:21:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CF36611BD;
+        Fri, 10 Sep 2021 00:20:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233241;
-        bh=UeNb57tKzwWRAwXejt0MpMewHQPDGOuLS/1eXFaB9G0=;
+        s=k20201202; t=1631233243;
+        bh=H+ZS6URVqshbe67tMYbujqbNaZJOG0n/G60DEpRrJkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SsX+qOKPynB4VpqK+8lJpwyUc7EDDgutRshu1AjE3COPg6tv3ftejwXipQBA+x2vE
-         6j/qsGG/m5ILTnhGgBwe8E5g7KtPbNejaWXF5R8C5a4b4W+mYjkcbCR1m0GWyi0TlO
-         ciNIfdL2oD59YTSNoqbvznECKCA3AK8DzHHG5RtEYFhPw9/wMnKJsxdf9c53uF8126
-         MrXfDFN82E58Az3Lsu5fUMznTZAAIryPeBN9rDI/UBMV6My5viFrldD9cvL246iVqD
-         uN8cpQDgTbXAbXhEdWjPh4h7yVPjsQENp0b50v5cPRkHzprk3eSNdLKsGyv6osQJd4
-         U5cTd+Qaj1zIA==
+        b=u7aCHkzptyqwd9FfYE4A+sjjPmdFDXhzvMYEjBSm2U11GwR6YkIqpfVb4lhNpu2yI
+         qgEKMVuGHgIOFFenKvf6cGylqdyooFgzebOTBkF2/fw9j1Ab1Fc+x2LWlFvC2+85l0
+         R8ONFhFk4uFYQ4LiTYkQ3mKbcUVdu3aJLGaIpGJLGh2x56Xn8RjG7oWDfYOdxPBbtf
+         DRIybmECLrt7s3tHd7oXhkaVz+aO388U44Dh/H8wvqG6WoqZJ8P9IMjxOnmPWYFQXG
+         A6pccSuTtWBP0oVpX9FHpVOFvAU27DwxUkaVTHa7tFYnZ15811/8bp0F1FWNwFcv8m
+         Tj8++OFwlyKDg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chun-Jie Chen <chun-jie.chen@mediatek.com>,
-        Ikjoon Jang <ikjn@chromium.org>,
-        Weiyi Lu <weiyi.lu@mediatek.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 09/53] clk: mediatek: Fix asymmetrical PLL enable and disable control
-Date:   Thu,  9 Sep 2021 20:19:44 -0400
-Message-Id: <20210910002028.175174-9-sashal@kernel.org>
+Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
+        syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 10/53] HID: usbhid: free raw_report buffers in usbhid_stop
+Date:   Thu,  9 Sep 2021 20:19:45 -0400
+Message-Id: <20210910002028.175174-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
@@ -46,86 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chun-Jie Chen <chun-jie.chen@mediatek.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-[ Upstream commit 7cc4e1bbe300c5cf610ece8eca6c6751b8bc74db ]
+[ Upstream commit f7744fa16b96da57187dc8e5634152d3b63d72de ]
 
-In fact, the en_mask is a combination of divider enable mask
-and pll enable bit(bit0).
-Before this patch, we enabled both divider mask and bit0 in prepare(),
-but only cleared the bit0 in unprepare().
-In the future, we hope en_mask will only be used as divider enable mask.
-The enable register(CON0) will be set in 2 steps:
-first is divider mask, and then bit0 during prepare(), and vice versa.
-But considering backward compatibility, at this stage we allow en_mask
-to be a combination or a pure divider enable mask.
-And then we will make en_mask a pure divider enable mask in another
-following patch series.
+Free the unsent raw_report buffers when the device is removed.
 
-Reviewed-by: Ikjoon Jang <ikjn@chromium.org>
-Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
-Signed-off-by: Chun-Jie Chen <chun-jie.chen@mediatek.com>
-Link: https://lore.kernel.org/r/20210726105719.15793-7-chun-jie.chen@mediatek.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes a memory leak reported by syzbot at:
+https://syzkaller.appspot.com/bug?id=7b4fa7cb1a7c2d3342a2a8a6c53371c8c418ab47
+
+Reported-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
+Tested-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mediatek/clk-pll.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/hid/usbhid/hid-core.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/mediatek/clk-pll.c b/drivers/clk/mediatek/clk-pll.c
-index f440f2cd0b69..11ed5d1d1c36 100644
---- a/drivers/clk/mediatek/clk-pll.c
-+++ b/drivers/clk/mediatek/clk-pll.c
-@@ -238,6 +238,7 @@ static int mtk_pll_prepare(struct clk_hw *hw)
- {
- 	struct mtk_clk_pll *pll = to_mtk_clk_pll(hw);
- 	u32 r;
-+	u32 div_en_mask;
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 8d4ac4b9fb9d..009a0469d54f 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -503,7 +503,7 @@ static void hid_ctrl(struct urb *urb)
  
- 	r = readl(pll->pwr_addr) | CON0_PWR_ON;
- 	writel(r, pll->pwr_addr);
-@@ -247,10 +248,15 @@ static int mtk_pll_prepare(struct clk_hw *hw)
- 	writel(r, pll->pwr_addr);
- 	udelay(1);
+ 	if (unplug) {
+ 		usbhid->ctrltail = usbhid->ctrlhead;
+-	} else {
++	} else if (usbhid->ctrlhead != usbhid->ctrltail) {
+ 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
  
--	r = readl(pll->base_addr + REG_CON0);
--	r |= pll->data->en_mask;
-+	r = readl(pll->base_addr + REG_CON0) | CON0_BASE_EN;
- 	writel(r, pll->base_addr + REG_CON0);
+ 		if (usbhid->ctrlhead != usbhid->ctrltail &&
+@@ -1221,9 +1221,20 @@ static void usbhid_stop(struct hid_device *hid)
+ 	mutex_lock(&usbhid->mutex);
  
-+	div_en_mask = pll->data->en_mask & ~CON0_BASE_EN;
-+	if (div_en_mask) {
-+		r = readl(pll->base_addr + REG_CON0) | div_en_mask;
-+		writel(r, pll->base_addr + REG_CON0);
-+	}
+ 	clear_bit(HID_STARTED, &usbhid->iofl);
 +
- 	__mtk_pll_tuner_enable(pll);
- 
- 	udelay(20);
-@@ -268,6 +274,7 @@ static void mtk_pll_unprepare(struct clk_hw *hw)
- {
- 	struct mtk_clk_pll *pll = to_mtk_clk_pll(hw);
- 	u32 r;
-+	u32 div_en_mask;
- 
- 	if (pll->data->flags & HAVE_RST_BAR) {
- 		r = readl(pll->base_addr + REG_CON0);
-@@ -277,8 +284,13 @@ static void mtk_pll_unprepare(struct clk_hw *hw)
- 
- 	__mtk_pll_tuner_disable(pll);
- 
--	r = readl(pll->base_addr + REG_CON0);
--	r &= ~CON0_BASE_EN;
-+	div_en_mask = pll->data->en_mask & ~CON0_BASE_EN;
-+	if (div_en_mask) {
-+		r = readl(pll->base_addr + REG_CON0) & ~div_en_mask;
-+		writel(r, pll->base_addr + REG_CON0);
-+	}
+ 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
+ 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
++	while (usbhid->ctrltail != usbhid->ctrlhead) {
++		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_OUT) {
++			kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
++			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
++		}
 +
-+	r = readl(pll->base_addr + REG_CON0) & ~CON0_BASE_EN;
- 	writel(r, pll->base_addr + REG_CON0);
- 
- 	r = readl(pll->pwr_addr) | CON0_ISO_EN;
++		usbhid->ctrltail = (usbhid->ctrltail + 1) &
++			(HID_CONTROL_FIFO_SIZE - 1);
++	}
+ 	spin_unlock_irq(&usbhid->lock);
++
+ 	usb_kill_urb(usbhid->urbin);
+ 	usb_kill_urb(usbhid->urbout);
+ 	usb_kill_urb(usbhid->urbctrl);
 -- 
 2.30.2
 
