@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EBCA406BCD
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C30F406B86
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233226AbhIJMeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:34:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51716 "EHLO mail.kernel.org"
+        id S233273AbhIJMcW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:32:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234009AbhIJMeL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:34:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2848360E94;
-        Fri, 10 Sep 2021 12:32:59 +0000 (UTC)
+        id S233266AbhIJMcV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:32:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F6AA611C8;
+        Fri, 10 Sep 2021 12:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277180;
-        bh=/yC7W9LN4mYejE5LbVaxqYQGFtSqa66F/TYC9rkSmgo=;
+        s=korg; t=1631277070;
+        bh=s/UFb7XOH4cMjNBvud4ghB6pIwduk2heYFi0KpOeEMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oc/JoVICZQUfF9dfU6Y081NdDy4WcJIcwrI4cH5vQxyX1bf9Q2rhWvNXQZlwCCsxw
-         0A0eePOXCOYbXRrgOwAAuRh93l0SDcwpWKjwB5QlosvuZzOS4qJSP4FPR1AXNbjygS
-         qx4GSryhspLkllX3NVuhOR8s2Ypwz7ao7ZeSWTUc=
+        b=jKvi6qBmoTnXvXlGGNbzcN2jMmWTy8WzsVyWH4zS1MYpZo1osQ1yCeZ2g85W3OrGZ
+         KCA6HVJuF/lJLHFzNPw05veKGgMMokLrPLceMRXb1fV8XZzxmkeT4JxzcClvtvT7/4
+         AmTiM3jtr6DUDdGGpnA3atnokfK7MeIeiCTmBD+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Jian <liujian56@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.10 01/26] igmp: Add ip_mc_list lock in ip_check_mc_rcu
-Date:   Fri, 10 Sep 2021 14:30:05 +0200
-Message-Id: <20210910122916.300325741@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.14 16/23] xhci: fix unsafe memory usage in xhci tracing
+Date:   Fri, 10 Sep 2021 14:30:06 +0200
+Message-Id: <20210910122916.531420769@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
-References: <20210910122916.253646001@linuxfoundation.org>
+In-Reply-To: <20210910122916.022815161@linuxfoundation.org>
+References: <20210910122916.022815161@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,75 +39,307 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Jian <liujian56@huawei.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 23d2b94043ca8835bd1e67749020e839f396a1c2 upstream.
+commit cbf286e8ef8337308c259ff5b9ce2e74d403be5a upstream.
 
-I got below panic when doing fuzz test:
+Removes static char buffer usage in the following decode functions:
+	xhci_decode_trb()
+	xhci_decode_ptortsc()
 
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 0 PID: 4056 Comm: syz-executor.3 Tainted: G    B             5.14.0-rc1-00195-gcff5c4254439-dirty #2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-Call Trace:
-dump_stack_lvl+0x7a/0x9b
-panic+0x2cd/0x5af
-end_report.cold+0x5a/0x5a
-kasan_report+0xec/0x110
-ip_check_mc_rcu+0x556/0x5d0
-__mkroute_output+0x895/0x1740
-ip_route_output_key_hash_rcu+0x2d0/0x1050
-ip_route_output_key_hash+0x182/0x2e0
-ip_route_output_flow+0x28/0x130
-udp_sendmsg+0x165d/0x2280
-udpv6_sendmsg+0x121e/0x24f0
-inet6_sendmsg+0xf7/0x140
-sock_sendmsg+0xe9/0x180
-____sys_sendmsg+0x2b8/0x7a0
-___sys_sendmsg+0xf0/0x160
-__sys_sendmmsg+0x17e/0x3c0
-__x64_sys_sendmmsg+0x9e/0x100
-do_syscall_64+0x3b/0x90
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x462eb9
-Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8
- 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48>
- 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f3df5af1c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
-RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462eb9
-RDX: 0000000000000312 RSI: 0000000020001700 RDI: 0000000000000007
-RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f3df5af26bc
-R13: 00000000004c372d R14: 0000000000700b10 R15: 00000000ffffffff
+Caller must provide a buffer to use.
+In tracing use __get_str() as recommended to pass buffer.
 
-It is one use-after-free in ip_check_mc_rcu.
-In ip_mc_del_src, the ip_sf_list of pmc has been freed under pmc->lock protection.
-But access to ip_sf_list in ip_check_mc_rcu is not protected by the lock.
+Minor chanes are needed in xhci debugfs code as these functions are also
+used there. Changes include moving XHCI_MSG_MAX definititon from
+xhci-trace.h to xhci.h
 
-Signed-off-by: Liu Jian <liujian56@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210820123503.2605901-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/igmp.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/host/xhci-debugfs.c |    6 +++-
+ drivers/usb/host/xhci-trace.h   |    8 +++---
+ drivers/usb/host/xhci.h         |   52 +++++++++++++++++++++-------------------
+ 3 files changed, 36 insertions(+), 30 deletions(-)
 
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -2720,6 +2720,7 @@ int ip_check_mc_rcu(struct in_device *in
- 		rv = 1;
- 	} else if (im) {
- 		if (src_addr) {
-+			spin_lock_bh(&im->lock);
- 			for (psf = im->sources; psf; psf = psf->sf_next) {
- 				if (psf->sf_inaddr == src_addr)
- 					break;
-@@ -2730,6 +2731,7 @@ int ip_check_mc_rcu(struct in_device *in
- 					im->sfcount[MCAST_EXCLUDE];
- 			else
- 				rv = im->sfcount[MCAST_EXCLUDE] != 0;
-+			spin_unlock_bh(&im->lock);
- 		} else
- 			rv = 1; /* unspecified source; tentatively allow */
+--- a/drivers/usb/host/xhci-debugfs.c
++++ b/drivers/usb/host/xhci-debugfs.c
+@@ -198,12 +198,13 @@ static void xhci_ring_dump_segment(struc
+ 	int			i;
+ 	dma_addr_t		dma;
+ 	union xhci_trb		*trb;
++	char			str[XHCI_MSG_MAX];
+ 
+ 	for (i = 0; i < TRBS_PER_SEGMENT; i++) {
+ 		trb = &seg->trbs[i];
+ 		dma = seg->dma + i * sizeof(*trb);
+ 		seq_printf(s, "%pad: %s\n", &dma,
+-			   xhci_decode_trb(le32_to_cpu(trb->generic.field[0]),
++			   xhci_decode_trb(str, XHCI_MSG_MAX, le32_to_cpu(trb->generic.field[0]),
+ 					   le32_to_cpu(trb->generic.field[1]),
+ 					   le32_to_cpu(trb->generic.field[2]),
+ 					   le32_to_cpu(trb->generic.field[3])));
+@@ -345,9 +346,10 @@ static int xhci_portsc_show(struct seq_f
+ {
+ 	struct xhci_port	*port = s->private;
+ 	u32			portsc;
++	char			str[XHCI_MSG_MAX];
+ 
+ 	portsc = readl(port->addr);
+-	seq_printf(s, "%s\n", xhci_decode_portsc(portsc));
++	seq_printf(s, "%s\n", xhci_decode_portsc(str, portsc));
+ 
+ 	return 0;
+ }
+--- a/drivers/usb/host/xhci-trace.h
++++ b/drivers/usb/host/xhci-trace.h
+@@ -25,8 +25,6 @@
+ #include "xhci.h"
+ #include "xhci-dbgcap.h"
+ 
+-#define XHCI_MSG_MAX	500
+-
+ DECLARE_EVENT_CLASS(xhci_log_msg,
+ 	TP_PROTO(struct va_format *vaf),
+ 	TP_ARGS(vaf),
+@@ -122,6 +120,7 @@ DECLARE_EVENT_CLASS(xhci_log_trb,
+ 		__field(u32, field1)
+ 		__field(u32, field2)
+ 		__field(u32, field3)
++		__dynamic_array(char, str, XHCI_MSG_MAX)
+ 	),
+ 	TP_fast_assign(
+ 		__entry->type = ring->type;
+@@ -131,7 +130,7 @@ DECLARE_EVENT_CLASS(xhci_log_trb,
+ 		__entry->field3 = le32_to_cpu(trb->field[3]);
+ 	),
+ 	TP_printk("%s: %s", xhci_ring_type_string(__entry->type),
+-			xhci_decode_trb(__entry->field0, __entry->field1,
++		  xhci_decode_trb(__get_str(str), XHCI_MSG_MAX, __entry->field0, __entry->field1,
+ 					__entry->field2, __entry->field3)
+ 	)
+ );
+@@ -526,6 +525,7 @@ DECLARE_EVENT_CLASS(xhci_log_portsc,
+ 		    TP_STRUCT__entry(
+ 				     __field(u32, portnum)
+ 				     __field(u32, portsc)
++				     __dynamic_array(char, str, XHCI_MSG_MAX)
+ 				     ),
+ 		    TP_fast_assign(
+ 				   __entry->portnum = portnum;
+@@ -533,7 +533,7 @@ DECLARE_EVENT_CLASS(xhci_log_portsc,
+ 				   ),
+ 		    TP_printk("port-%d: %s",
+ 			      __entry->portnum,
+-			      xhci_decode_portsc(__entry->portsc)
++			      xhci_decode_portsc(__get_str(str), __entry->portsc)
+ 			      )
+ );
+ 
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -22,6 +22,9 @@
+ #include	"xhci-ext-caps.h"
+ #include "pci-quirks.h"
+ 
++/* max buffer size for trace and debug messages */
++#define XHCI_MSG_MAX		500
++
+ /* xHCI PCI Configuration Registers */
+ #define XHCI_SBRN_OFFSET	(0x60)
+ 
+@@ -2235,15 +2238,14 @@ static inline char *xhci_slot_state_stri
  	}
+ }
+ 
+-static inline const char *xhci_decode_trb(u32 field0, u32 field1, u32 field2,
+-		u32 field3)
++static inline const char *xhci_decode_trb(char *str, size_t size,
++					  u32 field0, u32 field1, u32 field2, u32 field3)
+ {
+-	static char str[256];
+ 	int type = TRB_FIELD_TO_TYPE(field3);
+ 
+ 	switch (type) {
+ 	case TRB_LINK:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"LINK %08x%08x intr %d type '%s' flags %c:%c:%c:%c",
+ 			field1, field0, GET_INTR_TARGET(field2),
+ 			xhci_trb_type_string(type),
+@@ -2260,7 +2262,7 @@ static inline const char *xhci_decode_tr
+ 	case TRB_HC_EVENT:
+ 	case TRB_DEV_NOTE:
+ 	case TRB_MFINDEX_WRAP:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"TRB %08x%08x status '%s' len %d slot %d ep %d type '%s' flags %c:%c",
+ 			field1, field0,
+ 			xhci_trb_comp_code_string(GET_COMP_CODE(field2)),
+@@ -2273,7 +2275,8 @@ static inline const char *xhci_decode_tr
+ 
+ 		break;
+ 	case TRB_SETUP:
+-		sprintf(str, "bRequestType %02x bRequest %02x wValue %02x%02x wIndex %02x%02x wLength %d length %d TD size %d intr %d type '%s' flags %c:%c:%c",
++		snprintf(str, size,
++			"bRequestType %02x bRequest %02x wValue %02x%02x wIndex %02x%02x wLength %d length %d TD size %d intr %d type '%s' flags %c:%c:%c",
+ 				field0 & 0xff,
+ 				(field0 & 0xff00) >> 8,
+ 				(field0 & 0xff000000) >> 24,
+@@ -2290,7 +2293,8 @@ static inline const char *xhci_decode_tr
+ 				field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_DATA:
+-		sprintf(str, "Buffer %08x%08x length %d TD size %d intr %d type '%s' flags %c:%c:%c:%c:%c:%c:%c",
++		snprintf(str, size,
++			 "Buffer %08x%08x length %d TD size %d intr %d type '%s' flags %c:%c:%c:%c:%c:%c:%c",
+ 				field1, field0, TRB_LEN(field2), GET_TD_SIZE(field2),
+ 				GET_INTR_TARGET(field2),
+ 				xhci_trb_type_string(type),
+@@ -2303,7 +2307,8 @@ static inline const char *xhci_decode_tr
+ 				field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_STATUS:
+-		sprintf(str, "Buffer %08x%08x length %d TD size %d intr %d type '%s' flags %c:%c:%c:%c",
++		snprintf(str, size,
++			 "Buffer %08x%08x length %d TD size %d intr %d type '%s' flags %c:%c:%c:%c",
+ 				field1, field0, TRB_LEN(field2), GET_TD_SIZE(field2),
+ 				GET_INTR_TARGET(field2),
+ 				xhci_trb_type_string(type),
+@@ -2316,7 +2321,7 @@ static inline const char *xhci_decode_tr
+ 	case TRB_ISOC:
+ 	case TRB_EVENT_DATA:
+ 	case TRB_TR_NOOP:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"Buffer %08x%08x length %d TD size %d intr %d type '%s' flags %c:%c:%c:%c:%c:%c:%c:%c",
+ 			field1, field0, TRB_LEN(field2), GET_TD_SIZE(field2),
+ 			GET_INTR_TARGET(field2),
+@@ -2333,21 +2338,21 @@ static inline const char *xhci_decode_tr
+ 
+ 	case TRB_CMD_NOOP:
+ 	case TRB_ENABLE_SLOT:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: flags %c",
+ 			xhci_trb_type_string(type),
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_DISABLE_SLOT:
+ 	case TRB_NEG_BANDWIDTH:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: slot %d flags %c",
+ 			xhci_trb_type_string(type),
+ 			TRB_TO_SLOT_ID(field3),
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_ADDR_DEV:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: ctx %08x%08x slot %d flags %c:%c",
+ 			xhci_trb_type_string(type),
+ 			field1, field0,
+@@ -2356,7 +2361,7 @@ static inline const char *xhci_decode_tr
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_CONFIG_EP:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: ctx %08x%08x slot %d flags %c:%c",
+ 			xhci_trb_type_string(type),
+ 			field1, field0,
+@@ -2365,7 +2370,7 @@ static inline const char *xhci_decode_tr
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_EVAL_CONTEXT:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: ctx %08x%08x slot %d flags %c",
+ 			xhci_trb_type_string(type),
+ 			field1, field0,
+@@ -2373,7 +2378,7 @@ static inline const char *xhci_decode_tr
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_RESET_EP:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: ctx %08x%08x slot %d ep %d flags %c:%c",
+ 			xhci_trb_type_string(type),
+ 			field1, field0,
+@@ -2394,7 +2399,7 @@ static inline const char *xhci_decode_tr
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_SET_DEQ:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: deq %08x%08x stream %d slot %d ep %d flags %c",
+ 			xhci_trb_type_string(type),
+ 			field1, field0,
+@@ -2405,14 +2410,14 @@ static inline const char *xhci_decode_tr
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_RESET_DEV:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: slot %d flags %c",
+ 			xhci_trb_type_string(type),
+ 			TRB_TO_SLOT_ID(field3),
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_FORCE_EVENT:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: event %08x%08x vf intr %d vf id %d flags %c",
+ 			xhci_trb_type_string(type),
+ 			field1, field0,
+@@ -2421,14 +2426,14 @@ static inline const char *xhci_decode_tr
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_SET_LT:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: belt %d flags %c",
+ 			xhci_trb_type_string(type),
+ 			TRB_TO_BELT(field3),
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_GET_BW:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: ctx %08x%08x slot %d speed %d flags %c",
+ 			xhci_trb_type_string(type),
+ 			field1, field0,
+@@ -2437,7 +2442,7 @@ static inline const char *xhci_decode_tr
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	case TRB_FORCE_HEADER:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"%s: info %08x%08x%08x pkt type %d roothub port %d flags %c",
+ 			xhci_trb_type_string(type),
+ 			field2, field1, field0 & 0xffffffe0,
+@@ -2446,7 +2451,7 @@ static inline const char *xhci_decode_tr
+ 			field3 & TRB_CYCLE ? 'C' : 'c');
+ 		break;
+ 	default:
+-		sprintf(str,
++		snprintf(str, size,
+ 			"type '%s' -> raw %08x %08x %08x %08x",
+ 			xhci_trb_type_string(type),
+ 			field0, field1, field2, field3);
+@@ -2569,9 +2574,8 @@ static inline const char *xhci_portsc_li
+ 	return "Unknown";
+ }
+ 
+-static inline const char *xhci_decode_portsc(u32 portsc)
++static inline const char *xhci_decode_portsc(char *str, u32 portsc)
+ {
+-	static char str[256];
+ 	int ret;
+ 
+ 	ret = sprintf(str, "%s %s %s Link:%s PortSpeed:%d ",
 
 
