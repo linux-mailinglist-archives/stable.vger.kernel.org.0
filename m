@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D37C4062B5
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC9C34062B3
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242131AbhIJAqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:46:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47978 "EHLO mail.kernel.org"
+        id S240918AbhIJAqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:46:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233988AbhIJAWR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:22:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBA32610E9;
-        Fri, 10 Sep 2021 00:21:06 +0000 (UTC)
+        id S233990AbhIJAWS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:22:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 153BC6023D;
+        Fri, 10 Sep 2021 00:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233267;
-        bh=+B4JkrMS2L78zRsN9xvJXy82LMuqMkITncHyKOAruPw=;
+        s=k20201202; t=1631233268;
+        bh=oKM4h4sSszh3tyXPxlVi2ZB8z/da0OOGWRHqYDw1HZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kr+8fRmKi2+68ljVZU3OOo0i+A161mQtXHFe9qr/VtBA3/YO7FT2y9OKSgswWfm+0
-         lJPY3561cuGrd5v4y94vzCO9b0N5i4AzVLLd5UNDsmb9+P6DFEslfLdn8EsqRHrplF
-         M+cYWwUETzk1ax99IQVLUGtnVpd5WRI9Jk+nPW17bcuGtPtO6jFeYIDClee+3VXynX
-         i0Oh0RoXgmwJtM7pmMy1E5c6GmFRGcvqXeMwvIvfY/MkPRDUrnFjS7PJdFHjierSoC
-         uxaFjueZiiCAqAESQT8FPV1AWr+K7t66uFgYiOnvEqbwc31PHhEsi3lTjo5R+dqTN/
-         1ovw/VqhmzuGg==
+        b=G/OWVaGAmTGivWm5qk/WMvkc8z1Ir9Twr2NKxv7jqBaEXJZLcUQc4fBVOsP93AZG4
+         FOC7Vsmi5mz3OsnvC0IeFKeVCnv+UUajSE5eRIpCb1A/OOtxOHRW3wW2MhkEQyEl6M
+         VXGlMTW+NrOEE+70qhXlsrHcy9qKL3X26HQ96bjkw4EMfr9nG/XYd6BTmHPyXD9Nd9
+         BlbR2bGRuNOPO2x7db4ZpiURzoAVCPQOpXgwqJA07zwuRyYpgc524KXjpy0D9mxgns
+         cWskovW29KFdMOwrOBSh0aQIjE4PqJo4JzJlTZoyL7Tqfy/qpNFI3CuJUYnSbE0Pcp
+         rCv2nF/vtk5jA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexander Aring <aahringo@redhat.com>,
-        Bob Peterson <rpeterso@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.10 28/53] fs: dlm: fix return -EINTR on recovery stopped
-Date:   Thu,  9 Sep 2021 20:20:03 -0400
-Message-Id: <20210910002028.175174-28-sashal@kernel.org>
+Cc:     =?UTF-8?q?Ulrich=20Sp=C3=B6rlein?= <uqs@FreeBSD.org>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 29/53] HID: sony: Fix more ShanWan clone gamepads to not rumble when plugged in.
+Date:   Thu,  9 Sep 2021 20:20:04 -0400
+Message-Id: <20210910002028.175174-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,90 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Ulrich Spörlein <uqs@FreeBSD.org>
 
-[ Upstream commit aee742c9928ab4f5f4e0b00f41fb2d2cffae179e ]
+[ Upstream commit bab94e97323baefe0afccad66e776f9c78b4f521 ]
 
-This patch will return -EINTR instead of 1 if recovery is stopped. In
-case of ping_members() the return value will be checked if the error is
--EINTR for signaling another recovery was triggered and the whole
-recovery process will come to a clean end to process the next one.
-Returning 1 will abort the recovery process and can leave the recovery
-in a broken state.
+The device string on these can differ, apparently, including typos. I've
+bought 2 of these in 2012 and googling shows many folks out there with
+that broken spelling in their dmesg.
 
-It was reported with the following kernel log message attached and a gfs2
-mount stopped working:
-
-"dlm: bobvirt1: dlm_recover_members error 1"
-
-whereas 1 was returned because of a conversion of "dlm_recovery_stopped()"
-to an errno was missing which this patch will introduce. While on it all
-other possible missing errno conversions at other places were added as
-they are done as in other places.
-
-It might be worth to check the error case at this recovery level,
-because some of the functionality also returns -ENOBUFS and check why
-recovery ends in a broken state. However this will fix the issue if
-another recovery was triggered at some points of recovery handling.
-
-Reported-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Ulrich Spörlein <uqs@FreeBSD.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/dir.c      | 4 +++-
- fs/dlm/member.c   | 4 +++-
- fs/dlm/recoverd.c | 4 +++-
- 3 files changed, 9 insertions(+), 3 deletions(-)
+ drivers/hid/hid-sony.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/dlm/dir.c b/fs/dlm/dir.c
-index 10c36ae1a8f9..45ebbe602bbf 100644
---- a/fs/dlm/dir.c
-+++ b/fs/dlm/dir.c
-@@ -85,8 +85,10 @@ int dlm_recover_directory(struct dlm_ls *ls)
- 		for (;;) {
- 			int left;
- 			error = dlm_recovery_stopped(ls);
--			if (error)
-+			if (error) {
-+				error = -EINTR;
- 				goto out_free;
-+			}
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 2f073f536070..cdff43defe88 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2847,7 +2847,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (!strcmp(hdev->name, "FutureMax Dance Mat"))
+ 		quirks |= FUTUREMAX_DANCE_MAT;
  
- 			error = dlm_rcom_names(ls, memb->nodeid,
- 					       last_name, last_len);
-diff --git a/fs/dlm/member.c b/fs/dlm/member.c
-index 7ad83deb4505..bbb048a03e3e 100644
---- a/fs/dlm/member.c
-+++ b/fs/dlm/member.c
-@@ -433,8 +433,10 @@ static int ping_members(struct dlm_ls *ls)
+-	if (!strcmp(hdev->name, "SHANWAN PS3 GamePad"))
++	if (!strcmp(hdev->name, "SHANWAN PS3 GamePad") ||
++	    !strcmp(hdev->name, "ShanWan PS(R) Ga`epad"))
+ 		quirks |= SHANWAN_GAMEPAD;
  
- 	list_for_each_entry(memb, &ls->ls_nodes, list) {
- 		error = dlm_recovery_stopped(ls);
--		if (error)
-+		if (error) {
-+			error = -EINTR;
- 			break;
-+		}
- 		error = dlm_rcom_status(ls, memb->nodeid, 0);
- 		if (error)
- 			break;
-diff --git a/fs/dlm/recoverd.c b/fs/dlm/recoverd.c
-index 85e245392715..97d052cea5a9 100644
---- a/fs/dlm/recoverd.c
-+++ b/fs/dlm/recoverd.c
-@@ -125,8 +125,10 @@ static int ls_recover(struct dlm_ls *ls, struct dlm_recover *rv)
- 	dlm_recover_waiters_pre(ls);
- 
- 	error = dlm_recovery_stopped(ls);
--	if (error)
-+	if (error) {
-+		error = -EINTR;
- 		goto fail;
-+	}
- 
- 	if (neg || dlm_no_directory(ls)) {
- 		/*
+ 	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
 -- 
 2.30.2
 
