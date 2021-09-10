@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BFE1406364
+	by mail.lfdr.de (Postfix) with ESMTP id 9A3F4406365
 	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233970AbhIJArd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:47:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49162 "EHLO mail.kernel.org"
+        id S242715AbhIJAre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:47:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234607AbhIJAXt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:23:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FF2D60FDA;
-        Fri, 10 Sep 2021 00:22:38 +0000 (UTC)
+        id S234614AbhIJAXu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:23:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69762611BF;
+        Fri, 10 Sep 2021 00:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233359;
-        bh=PBpAdgHpvpy7vDTCB6pfGoZCaECYA5p3hIXlzYHsxTE=;
+        s=k20201202; t=1631233360;
+        bh=U47agCgVb/nZQrvpnQrv8IvethYNANv3FBnfjKo0iaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nkDeOpdjg3YB93qPqqJs58In8JIbvAmsXgazEVAfm1c0MfMHIwVSoTaJqB7WWTxTt
-         ScgMKW7l6ykgj6qk4IpPs2F78B7KdFSA6a6Rv6H5LP7LUd0bdpnEDoi2kPkTMx6wbO
-         m0CzxQBV3dbxGtahAckIr++iQYAMO6ALFyLmhm2k3xAzJCR/9i0bTGJsiSQVwUjdkm
-         8pU/p1lvWfMbbYVPmdX3jEHv1bgrDX6jGU8+sQzIocWNrT/9uH1/RGRhdad1qV3uox
-         7jktIpiIGWp70sPjiK84onufJpjbeQ5CqqFeQOfm+aN+r5hA8hfiqUdad2JhpWiLIl
-         1TBqu7tdAzMlg==
+        b=Fh4EpVw2MDs1etp4jFr6a3NqGSAwFbd7v4jEH0FdF25L96aaCz9oET2X+9dDdQ6HW
+         xS5cYQmeCeW6STFacB7a1mqgakKUPQW13kbxz669ngOL/A2TYcOUSKg/ZdINHADaPO
+         mhig1rhFa/tOU7UkPvB6WH1M+DyymJOp5iNmHFlhuUg9BdVqlGQrrvR6H8mh6ovu1C
+         BRFrmUA3ki3xD1WDeSiNw+LnTZMpBj1WZujEcFdrV20/v1zambxF7TP95nhVXv61b1
+         bmPbSOf4NLb5dOdJft5m4bdDcoW79eatA51u+uRFrSDDX+8VvHEY28pUsg/mkTkDZg
+         BuZyH4ix6ZjUw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Smart <jsmart2021@gmail.com>,
-        Justin Tee <justin.tee@broadcom.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 03/25] scsi: lpfc: Fix cq_id truncation in rq create
-Date:   Thu,  9 Sep 2021 20:22:11 -0400
-Message-Id: <20210910002234.176125-3-sashal@kernel.org>
+Cc:     Chun-Jie Chen <chun-jie.chen@mediatek.com>,
+        Ikjoon Jang <ikjn@chromium.org>,
+        Weiyi Lu <weiyi.lu@mediatek.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 04/25] clk: mediatek: Fix asymmetrical PLL enable and disable control
+Date:   Thu,  9 Sep 2021 20:22:12 -0400
+Message-Id: <20210910002234.176125-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002234.176125-1-sashal@kernel.org>
 References: <20210910002234.176125-1-sashal@kernel.org>
@@ -43,40 +46,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Chun-Jie Chen <chun-jie.chen@mediatek.com>
 
-[ Upstream commit df3d78c3eb4eba13b3ef9740a8c664508ee644ae ]
+[ Upstream commit 7cc4e1bbe300c5cf610ece8eca6c6751b8bc74db ]
 
-On the newer hardware, CQ_ID values can be larger than seen on previous
-generations. This exposed an issue in the driver where its definition of
-cq_id in the RQ Create mailbox cmd was too small, thus the cq_id was
-truncated, causing the command to fail.
+In fact, the en_mask is a combination of divider enable mask
+and pll enable bit(bit0).
+Before this patch, we enabled both divider mask and bit0 in prepare(),
+but only cleared the bit0 in unprepare().
+In the future, we hope en_mask will only be used as divider enable mask.
+The enable register(CON0) will be set in 2 steps:
+first is divider mask, and then bit0 during prepare(), and vice versa.
+But considering backward compatibility, at this stage we allow en_mask
+to be a combination or a pure divider enable mask.
+And then we will make en_mask a pure divider enable mask in another
+following patch series.
 
-Revise the RQ_CREATE CQ_ID field to its proper size (16 bits).
-
-Link: https://lore.kernel.org/r/20210722221721.74388-3-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Ikjoon Jang <ikjn@chromium.org>
+Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
+Signed-off-by: Chun-Jie Chen <chun-jie.chen@mediatek.com>
+Link: https://lore.kernel.org/r/20210726105719.15793-7-chun-jie.chen@mediatek.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_hw4.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/mediatek/clk-pll.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_hw4.h b/drivers/scsi/lpfc/lpfc_hw4.h
-index a9bd12bfc15e..d5619aa290b9 100644
---- a/drivers/scsi/lpfc/lpfc_hw4.h
-+++ b/drivers/scsi/lpfc/lpfc_hw4.h
-@@ -1493,7 +1493,7 @@ struct rq_context {
- #define lpfc_rq_context_hdr_size_WORD	word1
- 	uint32_t word2;
- #define lpfc_rq_context_cq_id_SHIFT	16
--#define lpfc_rq_context_cq_id_MASK	0x000003FF
-+#define lpfc_rq_context_cq_id_MASK	0x0000FFFF
- #define lpfc_rq_context_cq_id_WORD	word2
- #define lpfc_rq_context_buf_size_SHIFT	0
- #define lpfc_rq_context_buf_size_MASK	0x0000FFFF
+diff --git a/drivers/clk/mediatek/clk-pll.c b/drivers/clk/mediatek/clk-pll.c
+index 18842d660317..5ad68205d17d 100644
+--- a/drivers/clk/mediatek/clk-pll.c
++++ b/drivers/clk/mediatek/clk-pll.c
+@@ -247,6 +247,7 @@ static int mtk_pll_prepare(struct clk_hw *hw)
+ {
+ 	struct mtk_clk_pll *pll = to_mtk_clk_pll(hw);
+ 	u32 r;
++	u32 div_en_mask;
+ 
+ 	r = readl(pll->pwr_addr) | CON0_PWR_ON;
+ 	writel(r, pll->pwr_addr);
+@@ -256,10 +257,15 @@ static int mtk_pll_prepare(struct clk_hw *hw)
+ 	writel(r, pll->pwr_addr);
+ 	udelay(1);
+ 
+-	r = readl(pll->base_addr + REG_CON0);
+-	r |= pll->data->en_mask;
++	r = readl(pll->base_addr + REG_CON0) | CON0_BASE_EN;
+ 	writel(r, pll->base_addr + REG_CON0);
+ 
++	div_en_mask = pll->data->en_mask & ~CON0_BASE_EN;
++	if (div_en_mask) {
++		r = readl(pll->base_addr + REG_CON0) | div_en_mask;
++		writel(r, pll->base_addr + REG_CON0);
++	}
++
+ 	__mtk_pll_tuner_enable(pll);
+ 
+ 	udelay(20);
+@@ -277,6 +283,7 @@ static void mtk_pll_unprepare(struct clk_hw *hw)
+ {
+ 	struct mtk_clk_pll *pll = to_mtk_clk_pll(hw);
+ 	u32 r;
++	u32 div_en_mask;
+ 
+ 	if (pll->data->flags & HAVE_RST_BAR) {
+ 		r = readl(pll->base_addr + REG_CON0);
+@@ -286,8 +293,13 @@ static void mtk_pll_unprepare(struct clk_hw *hw)
+ 
+ 	__mtk_pll_tuner_disable(pll);
+ 
+-	r = readl(pll->base_addr + REG_CON0);
+-	r &= ~CON0_BASE_EN;
++	div_en_mask = pll->data->en_mask & ~CON0_BASE_EN;
++	if (div_en_mask) {
++		r = readl(pll->base_addr + REG_CON0) & ~div_en_mask;
++		writel(r, pll->base_addr + REG_CON0);
++	}
++
++	r = readl(pll->base_addr + REG_CON0) & ~CON0_BASE_EN;
+ 	writel(r, pll->base_addr + REG_CON0);
+ 
+ 	r = readl(pll->pwr_addr) | CON0_ISO_EN;
 -- 
 2.30.2
 
