@@ -2,44 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2ADE406336
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EC08406333
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232207AbhIJAq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:46:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48678 "EHLO mail.kernel.org"
+        id S233572AbhIJArA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234299AbhIJAXJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:23:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DFE360F6C;
-        Fri, 10 Sep 2021 00:21:57 +0000 (UTC)
+        id S234326AbhIJAXK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:23:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95A0960FE3;
+        Fri, 10 Sep 2021 00:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233319;
-        bh=dtQE6qpxahyt6p2yznUbHA//kAq5UXiIVqJAS7BSAmc=;
+        s=k20201202; t=1631233320;
+        bh=D+QLyve1cn3xfj7bjTeGK+jKkdbDavOOIzQB1Q9hzLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ALbpLLYUtg/dbyv+PxAgDercLO6B2xRSKQSqOHxQMuT44ij09ejHWZfNUHb3n+UEb
-         hckfJd840rwD0gVY6la0c/7NwEcGZju/VFyr+sXL6p8MexbZevPMZwA5WjHH8ULOK6
-         AgmYAgZYQPjad1uG15srlcji5uXtOXJ4Qbtql7UljTkPTdpvdaBJVstUOIVJX8+m9S
-         uGi1UCMbfs1k/W5OdYQCoFMsFugsTgOXalYTSXnCzrKTpaNQe74P1ZfMgO6lAK52+5
-         uRlM9ce/3vNkKYw2luyJhKancSId1RTJpi4voA0fAGARoEMurvIgYw0JR0K23EoBtQ
-         E966SSXTcCPUA==
+        b=GlWMi+BKcRNNq025ZXj7RP/0dio86ZlncrTn7gvrMiDJdUTQjKGA2MDjnq4lT+BC8
+         M6f5ap2h63JuS3kAwHVP7murcP+kQInIC0Z3Jp+ewKSC0ZnvITPO37ZaeEKFYg86yl
+         E1rhK/dRCT6I7xzqU3fDjklPeWLj7LTHu2POdjvn+BYgSfVsCwiauZR9/3/TGfAoWB
+         7bAQBOwlAktbS8QXY/xv6B+OuXKF21qJ6RpeXN1mKRJ7JxG4vQNp8unRuuh7tV33H2
+         wL4JhYTPMbL0KAkLEjd/hepLWCFcRgv5x/g1lduKKD1WVQcijYoPqOgXoYujvfvzBj
+         ZjZjkZudM+h9g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Can Guo <cang@codeaurora.org>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Bean Huo <beanhuo@micron.com>,
-        Daejun Park <daejun7.park@samsung.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 11/37] scsi: ufs: Verify UIC locking requirements at runtime
-Date:   Thu,  9 Sep 2021 20:21:16 -0400
-Message-Id: <20210910002143.175731-11-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 12/37] powerpc: make the install target not depend on any build artifact
+Date:   Thu,  9 Sep 2021 20:21:17 -0400
+Message-Id: <20210910002143.175731-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002143.175731-1-sashal@kernel.org>
 References: <20210910002143.175731-1-sashal@kernel.org>
@@ -51,106 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 35c7d874f5993db04ce3aa310ae088f14b801eda ]
+[ Upstream commit 9bef456b20581e630ef9a13555ca04fed65a859d ]
 
-Instead of documenting the locking requirements of the UIC code as
-comments, use lockdep_assert_held() such that lockdep verifies the lockdep
-requirements at runtime if lockdep is enabled.
+The install target should not depend on any build artifact.
 
-Link: https://lore.kernel.org/r/20210722033439.26550-8-bvanassche@acm.org
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Stanley Chu <stanley.chu@mediatek.com>
-Cc: Can Guo <cang@codeaurora.org>
-Cc: Asutosh Das <asutoshd@codeaurora.org>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Daejun Park <daejun7.park@samsung.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+The reason is explained in commit 19514fc665ff ("arm, kbuild: make
+"make install" not depend on vmlinux").
+
+Change the PowerPC installation code in a similar way.
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210729141937.445051-2-masahiroy@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 16 +++++++++-------
- drivers/scsi/ufs/ufshcd.h |  2 +-
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ arch/powerpc/boot/Makefile   |  2 +-
+ arch/powerpc/boot/install.sh | 14 ++++++++++++++
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 0429ba5d7d23..f8d0fe6cb09d 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1986,15 +1986,15 @@ static inline u8 ufshcd_get_upmcrs(struct ufs_hba *hba)
- }
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index 8c69bd07ada6..459ef5c780f7 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -438,7 +438,7 @@ $(obj)/zImage.initrd:	$(addprefix $(obj)/, $(initrd-y))
+ 	$(Q)rm -f $@; ln $< $@
  
- /**
-- * ufshcd_dispatch_uic_cmd - Dispatch UIC commands to unipro layers
-+ * ufshcd_dispatch_uic_cmd - Dispatch an UIC command to the Unipro layer
-  * @hba: per adapter instance
-  * @uic_cmd: UIC command
-- *
-- * Mutex must be held.
-  */
- static inline void
- ufshcd_dispatch_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd)
- {
-+	lockdep_assert_held(&hba->uic_cmd_mutex);
+ # Only install the vmlinux
+-install: $(CONFIGURE) $(addprefix $(obj)/, $(image-y))
++install:
+ 	sh -x $(srctree)/$(src)/install.sh "$(KERNELRELEASE)" vmlinux System.map "$(INSTALL_PATH)"
+ 
+ # Install the vmlinux and other built boot targets.
+diff --git a/arch/powerpc/boot/install.sh b/arch/powerpc/boot/install.sh
+index b6a256bc96ee..8d669cf1ccda 100644
+--- a/arch/powerpc/boot/install.sh
++++ b/arch/powerpc/boot/install.sh
+@@ -21,6 +21,20 @@
+ # Bail with error code if anything goes wrong
+ set -e
+ 
++verify () {
++	if [ ! -f "$1" ]; then
++		echo ""                                                   1>&2
++		echo " *** Missing file: $1"                              1>&2
++		echo ' *** You need to run "make" before "make install".' 1>&2
++		echo ""                                                   1>&2
++		exit 1
++	fi
++}
 +
- 	WARN_ON(hba->active_uic_cmd);
- 
- 	hba->active_uic_cmd = uic_cmd;
-@@ -2010,11 +2010,10 @@ ufshcd_dispatch_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd)
- }
- 
- /**
-- * ufshcd_wait_for_uic_cmd - Wait complectioin of UIC command
-+ * ufshcd_wait_for_uic_cmd - Wait for completion of an UIC command
-  * @hba: per adapter instance
-  * @uic_cmd: UIC command
-  *
-- * Must be called with mutex held.
-  * Returns 0 only if success.
-  */
- static int
-@@ -2023,6 +2022,8 @@ ufshcd_wait_for_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd)
- 	int ret;
- 	unsigned long flags;
- 
-+	lockdep_assert_held(&hba->uic_cmd_mutex);
++# Make sure the files actually exist
++verify "$2"
++verify "$3"
 +
- 	if (wait_for_completion_timeout(&uic_cmd->done,
- 					msecs_to_jiffies(UIC_CMD_TIMEOUT)))
- 		ret = uic_cmd->argument2 & MASK_UIC_COMMAND_RESULT;
-@@ -2042,14 +2043,15 @@ ufshcd_wait_for_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd)
-  * @uic_cmd: UIC command
-  * @completion: initialize the completion only if this is set to true
-  *
-- * Identical to ufshcd_send_uic_cmd() expect mutex. Must be called
-- * with mutex held and host_lock locked.
-  * Returns 0 only if success.
-  */
- static int
- __ufshcd_send_uic_cmd(struct ufs_hba *hba, struct uic_command *uic_cmd,
- 		      bool completion)
- {
-+	lockdep_assert_held(&hba->uic_cmd_mutex);
-+	lockdep_assert_held(hba->host->host_lock);
-+
- 	if (!ufshcd_ready_for_uic_cmd(hba)) {
- 		dev_err(hba->dev,
- 			"Controller not ready to accept UIC commands\n");
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 92ef6e6a3e51..803a2a37875b 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -493,7 +493,7 @@ struct ufs_stats {
-  * @priv: pointer to variant specific private data
-  * @irq: Irq number of the controller
-  * @active_uic_cmd: handle of active UIC command
-- * @uic_cmd_mutex: mutex for uic command
-+ * @uic_cmd_mutex: mutex for UIC command
-  * @tmf_tag_set: TMF tag set.
-  * @tmf_queue: Used to allocate TMF tags.
-  * @pwr_done: completion for power mode change
+ # User may have a custom install script
+ 
+ if [ -x ~/bin/${INSTALLKERNEL} ]; then exec ~/bin/${INSTALLKERNEL} "$@"; fi
 -- 
 2.30.2
 
