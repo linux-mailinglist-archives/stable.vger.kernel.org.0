@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C81BD406C37
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5878406C3A
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234515AbhIJMhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:37:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54176 "EHLO mail.kernel.org"
+        id S234529AbhIJMiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:38:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234304AbhIJMgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:36:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26641611C8;
-        Fri, 10 Sep 2021 12:35:14 +0000 (UTC)
+        id S234665AbhIJMgg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:36:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC7ED6124B;
+        Fri, 10 Sep 2021 12:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277314;
-        bh=3gBW5ARvd2QKQfF/xarhrVHr7oN9ItzpAAh4MozBVFg=;
+        s=korg; t=1631277317;
+        bh=a4Lzupioy6saCybQPAd+d5Cp1xeBmgR+k/sKPmm0DZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITt+hNjENVBbiDgE2IijtHStltMpA/M0ZZHV/HrVN54SGPqYfUFa3N/74Biw/Z6Ro
-         LIB1qTu64oJA323REs0h6UJv+/0FlD/AMxQqrLgeSXJKZUMjNMNqMHQQhL2S2yh2IO
-         yjD7SIr7eF5SZbNieQe/ewYLR/Cp4RSZkfUg7RUQ=
+        b=pyd0Jcp1+TwRNuTQOUGEkmvDvT1qmXWkyOl+FnGHZIWbMVSXlhnZhJUV96//te/cO
+         E7kXVwpyCnz0rJGQxSxEJaNHb7ym5O1IJCySrnM5GjSDWJ0NirZwxJxpqw52ef9oSq
+         ZlwXdYs6UX2zvWkC6/x64GgyCklUDTy/9iv8OmUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Tsoy <alexander@tsoy.me>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 31/37] ALSA: usb-audio: Add registration quirk for JBL Quantum 800
-Date:   Fri, 10 Sep 2021 14:30:34 +0200
-Message-Id: <20210910122918.190330011@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 5.4 32/37] usb: host: xhci-rcar: Dont reload firmware after the completion
+Date:   Fri, 10 Sep 2021 14:30:35 +0200
+Message-Id: <20210910122918.220329770@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
 References: <20210910122917.149278545@linuxfoundation.org>
@@ -39,31 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Tsoy <alexander@tsoy.me>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit c8b177b6e3a005bd8fb0395a4bc5db3470301c28 upstream.
+commit 57f3ffdc11143f56f1314972fe86fe17a0dcde85 upstream.
 
-Add another device ID for JBL Quantum 800. It requires the same quirk as
-other JBL Quantum devices.
+According to the datasheet, "Upon the completion of FW Download,
+there is no need to write or reload FW.". Otherwise, it's possible
+to cause unexpected behaviors. So, adds such a condition.
 
-Signed-off-by: Alexander Tsoy <alexander@tsoy.me>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210831002531.116957-1-alexander@tsoy.me
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 4ac8918f3a73 ("usb: host: xhci-plat: add support for the R-Car H2 and M2 xHCI controllers")
+Cc: stable@vger.kernel.org # v3.17+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20210827063227.81990-1-yoshihiro.shimoda.uh@renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci-rcar.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1841,6 +1841,7 @@ static const struct registration_quirk r
- 	REG_QUIRK_ENTRY(0x0951, 0x16ed, 2),	/* Kingston HyperX Cloud Alpha S */
- 	REG_QUIRK_ENTRY(0x0951, 0x16ea, 2),	/* Kingston HyperX Cloud Flight S */
- 	REG_QUIRK_ENTRY(0x0ecb, 0x1f46, 2),	/* JBL Quantum 600 */
-+	REG_QUIRK_ENTRY(0x0ecb, 0x1f47, 2),	/* JBL Quantum 800 */
- 	REG_QUIRK_ENTRY(0x0ecb, 0x2039, 2),	/* JBL Quantum 400 */
- 	REG_QUIRK_ENTRY(0x0ecb, 0x203c, 2),	/* JBL Quantum 600 */
- 	REG_QUIRK_ENTRY(0x0ecb, 0x203e, 2),	/* JBL Quantum 800 */
+--- a/drivers/usb/host/xhci-rcar.c
++++ b/drivers/usb/host/xhci-rcar.c
+@@ -134,6 +134,13 @@ static int xhci_rcar_download_firmware(s
+ 	const struct soc_device_attribute *attr;
+ 	const char *firmware_name;
+ 
++	/*
++	 * According to the datasheet, "Upon the completion of FW Download,
++	 * there is no need to write or reload FW".
++	 */
++	if (readl(regs + RCAR_USB3_DL_CTRL) & RCAR_USB3_DL_CTRL_FW_SUCCESS)
++		return 0;
++
+ 	attr = soc_device_match(rcar_quirks_match);
+ 	if (attr)
+ 		quirks = (uintptr_t)attr->data;
 
 
