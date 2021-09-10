@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB7B04062F3
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5249C4062F7
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242265AbhIJAqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:46:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48198 "EHLO mail.kernel.org"
+        id S232960AbhIJAqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:46:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232088AbhIJAWj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:22:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 337FB61167;
-        Fri, 10 Sep 2021 00:21:28 +0000 (UTC)
+        id S234081AbhIJAWk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:22:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3B9B610E9;
+        Fri, 10 Sep 2021 00:21:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233289;
-        bh=OOlkE/5wn5cX1UCFaQILnONAsv24eb8TbOKobIjrxkc=;
+        s=k20201202; t=1631233290;
+        bh=GqfxCRn+EqCHU/WfjFhL1kK8yG6xvyHgBKiAiq6smuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Az1thXH7qdW0YwA3zwdx8BDLaZIFKrSmat7NK01vXtswG6W9FI2/UmHz5CNNy6e4g
-         JZjcVp60x6w+h3lZ9VH7amnjIBfTDBYhRmgQ1Dx23VqyRByqLgbVvwnslBLEQNL66B
-         1VGZWfeayfM/dL62iRilnRZYK7xjFlpukQnWB97+8Khh/wgr4SyUumX0Y6yLPQPWOo
-         mY8fyx+gWPEZO46oGX2Izw79otUTmkhFX7FwnB0QhyvsvKwG3pK+axRIPazC1bxVFA
-         QOE01thDY4Pt7r7Ac1cNn5OnldEmMg2OZ/79lob45Uskzq1fsY+l90uom6uYE9jXyf
-         Xu82GawEBxAqg==
+        b=aB4TMjcAZJycmWMV8r64F5Pev7AKruAYNq2DwwckSKsqTGyhkYLEDPpbyG3ue6fZi
+         TLc7ZML8kCRV8UJiv4UOBgUiospf2uQ8+XePFJxgiQT1GyMmIH5PvVfsSHS+06NJCn
+         rzEtKsq1K/PKGAy48ifbVUZQZxGXnZqyZjcYkRVD1SmDXwj4i3aJOhW0AS3s5nkpPG
+         UTb/et/ITk0Psyy7C8j8DsSaQSmwT3/6/2MPAKg+4J6BMVTXiL3PBINuvoU7oaSSUA
+         vzsVxPz0VAysJOsIhC9vP3mBwKAufGKtaWNDsYNw/ZgfcoodJMad06GoCGlQ7SUDED
+         aKDvKWEMyVBQQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <mgross@linux.intel.com>,
-        Mario Limonciello <mario.limonciello@dell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Dell.Client.Kernel@dell.com,
-        platform-driver-x86@vger.kernel.org,
-        Andy Lavr <andy.lavr@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 44/53] platform/x86: dell-smbios-wmi: Avoid false-positive memcpy() warning
-Date:   Thu,  9 Sep 2021 20:20:19 -0400
-Message-Id: <20210910002028.175174-44-sashal@kernel.org>
+Cc:     Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 45/53] clk: zynqmp: Fix a memory leak
+Date:   Thu,  9 Sep 2021 20:20:20 -0400
+Message-Id: <20210910002028.175174-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,55 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
 
-[ Upstream commit fb49d9946f96081f9a05d8f305b3f40285afe4a9 ]
+[ Upstream commit e7296d16ef7be11a6001be9bd89906ef55ab2405 ]
 
-In preparation for FORTIFY_SOURCE performing compile-time and run-time
-field bounds checking for memcpy(), memmove(), and memset(), avoid
-intentionally writing across neighboring fields.
+Fix a memory leak of mux.
 
-Since all the size checking has already happened, use input.pointer
-(void *) so memcpy() doesn't get confused about how much is being
-written.
-
-Avoids this false-positive warning when run-time memcpy() strict
-bounds checking is enabled:
-
-memcpy: detected field-spanning write (size 4096) of single field (size 36)
-WARNING: CPU: 0 PID: 357 at drivers/platform/x86/dell/dell-smbios-wmi.c:74 run_smbios_call+0x110/0x1e0 [dell_smbios]
-
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Mark Gross <mgross@linux.intel.com>
-Cc: Mario Limonciello <mario.limonciello@dell.com>
-Cc: "Pali Rohár" <pali@kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: "Uwe Kleine-König" <u.kleine-koenig@pengutronix.de>
-Cc: Dell.Client.Kernel@dell.com
-Cc: platform-driver-x86@vger.kernel.org
-Reported-by: Andy Lavr <andy.lavr@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210825160749.3891090-1-keescook@chromium.org
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Link: https://lore.kernel.org/r/20210818065929.12835-3-shubhrajyoti.datta@xilinx.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/dell-smbios-wmi.c | 2 +-
+ drivers/clk/zynqmp/clk-mux-zynqmp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/dell-smbios-wmi.c b/drivers/platform/x86/dell-smbios-wmi.c
-index c97bd4a45242..32e8c4715d53 100644
---- a/drivers/platform/x86/dell-smbios-wmi.c
-+++ b/drivers/platform/x86/dell-smbios-wmi.c
-@@ -71,7 +71,7 @@ static int run_smbios_call(struct wmi_device *wdev)
- 				obj->integer.value);
- 		return -EIO;
+diff --git a/drivers/clk/zynqmp/clk-mux-zynqmp.c b/drivers/clk/zynqmp/clk-mux-zynqmp.c
+index 06194149be83..d3b88384b2ff 100644
+--- a/drivers/clk/zynqmp/clk-mux-zynqmp.c
++++ b/drivers/clk/zynqmp/clk-mux-zynqmp.c
+@@ -130,7 +130,7 @@ struct clk_hw *zynqmp_clk_register_mux(const char *name, u32 clk_id,
+ 	hw = &mux->hw;
+ 	ret = clk_hw_register(NULL, hw);
+ 	if (ret) {
+-		kfree(hw);
++		kfree(mux);
+ 		hw = ERR_PTR(ret);
  	}
--	memcpy(&priv->buf->std, obj->buffer.pointer, obj->buffer.length);
-+	memcpy(input.pointer, obj->buffer.pointer, obj->buffer.length);
- 	dev_dbg(&wdev->dev, "result: [%08x,%08x,%08x,%08x]\n",
- 		priv->buf->std.output[0], priv->buf->std.output[1],
- 		priv->buf->std.output[2], priv->buf->std.output[3]);
+ 
 -- 
 2.30.2
 
