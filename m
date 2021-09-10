@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 627374062D1
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBD1E4062CF
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242040AbhIJAqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242052AbhIJAqN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 9 Sep 2021 20:46:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47918 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233954AbhIJAWM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:22:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F2B96023D;
-        Fri, 10 Sep 2021 00:21:01 +0000 (UTC)
+        id S233964AbhIJAWN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:22:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B385D610E9;
+        Fri, 10 Sep 2021 00:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233262;
-        bh=bBPuX4Gg1vj9lwi2W8J8a7apFXvMHK0kpyLKw4EHlA4=;
+        s=k20201202; t=1631233263;
+        bh=9hbZSs7CGi5rrgcREuH1wow82wBAcaBkn6tOl9HQ2co=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lEuawZ+I08q/sX8ssXcieK+fKYJ4vEt07yZg5d/DAzJwS6ct6bTC1HFYIvFniqBJr
-         bRk1kDah1DFzQbRK9TuzTXDwcbTNGYsyZNgXx16kEvenbc6RtuIxqp+MSjtSRPDysZ
-         dvZcNPFsj0fBYXHSy5qomvt4V7nvixCOf5FUMnmVIpuiALwmlTBvcIF9Hop2vaMxeK
-         UncfdzRbWK9uIV53MCe1FfG95ocfj+w+4rN/EQJ5bUDQoFgTXC4YD3/W9OTF3tgsHZ
-         ZaUxtkX2jKMeB9LUanth6ukKcIei1WZ7RObnYk/WPH8TsybnNPFH2XFf+KwX4JNLgL
-         nvbajBd7/P0wA==
+        b=a6btt/U2YdV0Pine77e0ulcyVJySUGtFLm9Z/hcF1O45cPeJ/tDH4GSxY5MUQXHZ2
+         g78t85f7+Ef2DP5lufdbRH3woFK2nMx7jl3lO3au3Nv7QIlTzm9vfLRJsSEOgdlkhC
+         rdx2ibZwm+53K1dtNTt859ZAJPFqS0XY1bYc7FzuwXiUjpUdESWZhhYFCBPQ/zILOw
+         e2brDfUcrTB9t0drp9QeCRN3mWW232x4FUpYBrzXPKVF2xYTRyh0ArcSjm8+NfOxAK
+         dbfggC3YZo1nz973ivF2QgbR77iD3nxtuIp4xu1K4tKkz8FUo5Qg3dxb7URqIMTDtL
+         PEnnH+UrP0WAA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 24/53] scsi: qla2xxx: Fix NPIV create erroneous error
-Date:   Thu,  9 Sep 2021 20:19:59 -0400
-Message-Id: <20210910002028.175174-24-sashal@kernel.org>
+Cc:     Chengguang Xu <cgxu519@mykernel.net>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 25/53] ovl: skip checking lower file's i_writecount on truncate
+Date:   Thu,  9 Sep 2021 20:20:00 -0400
+Message-Id: <20210910002028.175174-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
@@ -44,57 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Chengguang Xu <cgxu519@mykernel.net>
 
-[ Upstream commit a57214443f0f85639a0d9bbb8bd658d82dbf0927 ]
+[ Upstream commit b71759ef1e1730db81dab98e9dab9455e8c7f5a2 ]
 
-When user creates multiple NPIVs, the switch capabilities field is checked
-before a vport is allowed to be created. This field is being toggled if a
-switch scan is in progress. This creates erroneous reject of vport create.
+It is possible that a directory tree is shared between multiple overlay
+instances as a lower layer.  In this case when one instance executes a file
+residing on the lower layer, the other instance denies a truncate(2) call
+on this file.
 
-Link: https://lore.kernel.org/r/20210810043720.1137-10-njavali@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This only happens for truncate(2) and not for open(2) with the O_TRUNC
+flag.
+
+Fix this interference and inconsistency by removing the preliminary
+i_writecount check before copy-up.
+
+This means that unlike on normal filesystems truncate(argv[0]) will now
+succeed.  If this ever causes a regression in a real world use case this
+needs to be revisited.
+
+One way to fix this properly would be to keep a correct i_writecount in the
+overlay inode, but that is difficult due to memory mapping code only
+dealing with the real file/inode.
+
+Signed-off-by: Chengguang Xu <cgxu519@mykernel.net>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_init.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Documentation/filesystems/overlayfs.rst | 3 +++
+ fs/overlayfs/inode.c                    | 6 ------
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
-index 9d51ef4eae3f..d3526a247841 100644
---- a/drivers/scsi/qla2xxx/qla_init.c
-+++ b/drivers/scsi/qla2xxx/qla_init.c
-@@ -4476,11 +4476,11 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
- 	/* initialize */
- 	ha->min_external_loopid = SNS_FIRST_LOOP_ID;
- 	ha->operating_mode = LOOP;
--	ha->switch_cap = 0;
+diff --git a/Documentation/filesystems/overlayfs.rst b/Documentation/filesystems/overlayfs.rst
+index 137afeb3f581..7c40a135a919 100644
+--- a/Documentation/filesystems/overlayfs.rst
++++ b/Documentation/filesystems/overlayfs.rst
+@@ -427,6 +427,9 @@ b) If a file residing on a lower layer is opened for read-only and then
+ memory mapped with MAP_SHARED, then subsequent changes to the file are not
+ reflected in the memory mapping.
  
- 	switch (topo) {
- 	case 0:
- 		ql_dbg(ql_dbg_disc, vha, 0x200b, "HBA in NL topology.\n");
-+		ha->switch_cap = 0;
- 		ha->current_topology = ISP_CFG_NL;
- 		strcpy(connect_type, "(Loop)");
- 		break;
-@@ -4494,6 +4494,7 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
++c) If a file residing on a lower layer is being executed, then opening that
++file for write or truncating the file will not be denied with ETXTBSY.
++
+ The following options allow overlayfs to act more like a standards
+ compliant filesystem:
  
- 	case 2:
- 		ql_dbg(ql_dbg_disc, vha, 0x200d, "HBA in N P2P topology.\n");
-+		ha->switch_cap = 0;
- 		ha->operating_mode = P2P;
- 		ha->current_topology = ISP_CFG_N;
- 		strcpy(connect_type, "(N_Port-to-N_Port)");
-@@ -4510,6 +4511,7 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
- 	default:
- 		ql_dbg(ql_dbg_disc, vha, 0x200f,
- 		    "HBA in unknown topology %x, using NL.\n", topo);
-+		ha->switch_cap = 0;
- 		ha->current_topology = ISP_CFG_NL;
- 		strcpy(connect_type, "(Loop)");
- 		break;
+diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
+index 4fadafd8bdc1..6ee183e523c5 100644
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -30,12 +30,6 @@ int ovl_setattr(struct dentry *dentry, struct iattr *attr)
+ 		goto out;
+ 
+ 	if (attr->ia_valid & ATTR_SIZE) {
+-		struct inode *realinode = d_inode(ovl_dentry_real(dentry));
+-
+-		err = -ETXTBSY;
+-		if (atomic_read(&realinode->i_writecount) < 0)
+-			goto out_drop_write;
+-
+ 		/* Truncate should trigger data copy up as well */
+ 		full_copy_up = true;
+ 	}
 -- 
 2.30.2
 
