@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D400F406BF4
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C19D406C4A
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 14:42:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234405AbhIJMfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 08:35:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52126 "EHLO mail.kernel.org"
+        id S235109AbhIJMin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 08:38:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234095AbhIJMe5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 08:34:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E06C761214;
-        Fri, 10 Sep 2021 12:33:45 +0000 (UTC)
+        id S234747AbhIJMg7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 08:36:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CD29611F2;
+        Fri, 10 Sep 2021 12:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631277226;
-        bh=ScMyRx5hzzycEeIp806gQ990mz42kGL2xozFShREGxM=;
+        s=korg; t=1631277340;
+        bh=dwBWVZu+lrrk2i9bHIXLLcXCr6utd3u5CEnnQMf9ays=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mByoA/vmDPMYDYueRiKmaQN3O9hcge562QIjnp6ScCXC7NiVqnOxebaCcySDpQmCR
-         budBYi046i0TxQRkyBRKOMFGs1Iv7mKXbOB+LJNEl4xl3tYmy7kZL6V9XxI9wtQekR
-         DvZy+C6pyGU5fRNYyGmv/PuihGnAkr1Q0nF+yW2s=
+        b=JOchcXP1iwcjC12iHHY/RM+tS83PxLubWoH8YLbYbA03TTI7qwToxxfM2IaGzBKQs
+         LuqpHiUzA8uhQRn9U/gNO1OpGKoScLRZUSJrtlAE01uClvTaQB5DEs8Saf/NIjNfH7
+         CAa3ySIyNeRMAssCLANzfDaedRXONa3oh913GhZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul Gortmaker <paul.gortmaker@windriver.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.10 25/26] x86/reboot: Limit Dell Optiplex 990 quirk to early BIOS versions
+        stable@vger.kernel.org, Esben Haabendal <esben@geanix.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 26/37] net: ll_temac: Remove left-over debug message
 Date:   Fri, 10 Sep 2021 14:30:29 +0200
-Message-Id: <20210910122917.065287917@linuxfoundation.org>
+Message-Id: <20210910122918.017739504@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
-References: <20210910122916.253646001@linuxfoundation.org>
+In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
+References: <20210910122917.149278545@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,87 +39,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Gortmaker <paul.gortmaker@windriver.com>
+From: Esben Haabendal <esben@geanix.com>
 
-commit a729691b541f6e63043beae72e635635abe5dc09 upstream.
+commit ce03b94ba682a67e8233c9ee3066071656ded58f upstream.
 
-When this platform was relatively new in November 2011, with early BIOS
-revisions, a reboot quirk was added in commit 6be30bb7d750 ("x86/reboot:
-Blacklist Dell OptiPlex 990 known to require PCI reboot")
-
-However, this quirk (and several others) are open-ended to all BIOS
-versions and left no automatic expiry if/when the system BIOS fixed the
-issue, meaning that nobody is likely to come along and re-test.
-
-What is really problematic with using PCI reboot as this quirk does, is
-that it causes this platform to do a full power down, wait one second,
-and then power back on.  This is less than ideal if one is using it for
-boot testing and/or bisecting kernels when legacy rotating hard disks
-are installed.
-
-It was only by chance that the quirk was noticed in dmesg - and when
-disabled it turned out that it wasn't required anymore (BIOS A24), and a
-default reboot would work fine without the "harshness" of power cycling the
-machine (and disks) down and up like the PCI reboot does.
-
-Doing a bit more research, it seems that the "newest" BIOS for which the
-issue was reported[1] was version A06, however Dell[2] seemed to suggest
-only up to and including version A05, with the A06 having a large number of
-fixes[3] listed.
-
-As is typical with a new platform, the initial BIOS updates come frequently
-and then taper off (and in this case, with a revival for CPU CVEs); a
-search for O990-A<ver>.exe reveals the following dates:
-
-        A02     16 Mar 2011
-        A03     11 May 2011
-        A06     14 Sep 2011
-        A07     24 Oct 2011
-        A10     08 Dec 2011
-        A14     06 Sep 2012
-        A16     15 Oct 2012
-        A18     30 Sep 2013
-        A19     23 Sep 2015
-        A20     02 Jun 2017
-        A23     07 Mar 2018
-        A24     21 Aug 2018
-
-While it's overkill to flash and test each of the above, it would seem
-likely that the issue was contained within A0x BIOS versions, given the
-dates above and the dates of issue reports[4] from distros.  So rather than
-just throw out the quirk entirely, limit the scope to just those early BIOS
-versions, in case people are still running systems from 2011 with the
-original as-shipped early A0x BIOS versions.
-
-[1] https://lore.kernel.org/lkml/1320373471-3942-1-git-send-email-trenn@suse.de/
-[2] https://www.dell.com/support/kbdoc/en-ca/000131908/linux-based-operating-systems-stall-upon-reboot-on-optiplex-390-790-990-systems
-[3] https://www.dell.com/support/home/en-ca/drivers/driversdetails?driverid=85j10
-[4] https://bugs.launchpad.net/ubuntu/+source/linux/+bug/768039
-
-Fixes: 6be30bb7d750 ("x86/reboot: Blacklist Dell OptiPlex 990 known to require PCI reboot")
-Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210530162447.996461-4-paul.gortmaker@windriver.com
+Fixes: f63963411942 ("net: ll_temac: Avoid ndo_start_xmit returning NETDEV_TX_BUSY")
+Signed-off-by: Esben Haabendal <esben@geanix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/reboot.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/ll_temac_main.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -388,10 +388,11 @@ static const struct dmi_system_id reboot
- 	},
- 	{	/* Handle problems with rebooting on the OptiPlex 990. */
- 		.callback = set_pci_reboot,
--		.ident = "Dell OptiPlex 990",
-+		.ident = "Dell OptiPlex 990 BIOS A0x",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "OptiPlex 990"),
-+			DMI_MATCH(DMI_BIOS_VERSION, "A0"),
- 		},
- 	},
- 	{	/* Handle problems with rebooting on Dell 300's */
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -939,10 +939,8 @@ temac_start_xmit(struct sk_buff *skb, st
+ 	wmb();
+ 	lp->dma_out(lp, TX_TAILDESC_PTR, tail_p); /* DMA start */
+ 
+-	if (temac_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1)) {
+-		netdev_info(ndev, "%s -> netif_stop_queue\n", __func__);
++	if (temac_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1))
+ 		netif_stop_queue(ndev);
+-	}
+ 
+ 	return NETDEV_TX_OK;
+ }
 
 
