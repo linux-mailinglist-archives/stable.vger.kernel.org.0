@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C804406270
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EAD240626E
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232435AbhIJAps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:45:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47522 "EHLO mail.kernel.org"
+        id S232426AbhIJApu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:45:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233810AbhIJAVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:21:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FF6610A3;
-        Fri, 10 Sep 2021 00:20:34 +0000 (UTC)
+        id S233670AbhIJAVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:21:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CA8561167;
+        Fri, 10 Sep 2021 00:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233234;
-        bh=fTcZ3cYtTT+hrBpIaRoONPfiCMU7LCbwOJh9LibM75A=;
+        s=k20201202; t=1631233236;
+        bh=0wd6VW1FHoDQCTCP7Ipnexg/Q5HQrr0fWXzdXUc42DE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OsU3vSSlKErm+a3GxToor/YiOr2UIkQ0eay7hHt/Y+Tsrr0yFd7rysjxUowDU+GGs
-         GCbjeIkW+Qi7AfiEUQo42N/C8lUskPg1JbT3dJ6xBYNKmdDNrMJuG1/Ey0ct+0ai3L
-         jn6cPYHtScAprVpkuIkaUKsZGml+T/U7NJ6oIe85xmBCzWPlpgtiPI9eW2pyUVF6PR
-         Vdy2hGR5flRTnaMKgLoPhysi7KIaBqpfJyRZ1AaPjrV/89z1ZRlJ5cYO7kXK/o0INP
-         bVg2YHdhMLl/KW9Wb60LW/ksoQQ6WTzOHAf1tmkd3NQqlht4rhnjo/R7YmdDM/hAMf
-         h5+AERD2QTXaw==
+        b=BysapOG9lBIthLFuMDQBsO759uZnrnxHwwxLdQ0gYPcxBrT771VxzDztlT251jTyo
+         5ayR3qlrflDpx9iW0IibZ7f2nq0vmrCI6JuYZHTbDT5dEGYL5XjZRLV9X1F2g00E6m
+         LAKg7WjsZ45xYJABjVVVLAcYupgIxS5wMLw0ZKkJz/eSfEYHNB/LKsiwlACGdS07t7
+         k22zVc3LamKjpMqYqLlsfvLVo/0jy5WP4BNo1X9m0wBOqz3XPcxWJ355tAKySFiYnn
+         Cv0sTLy4MlSEvOWrAiiN3sFd1seEoEaOhOnYPnwHNbExDSg9SfnFMBu2wBH3/dUdXG
+         cy5y7Q0Ha8xFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia Yang <jiayang5@huawei.com>, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.10 04/53] f2fs: Revert "f2fs: Fix indefinite loop in f2fs_gc() v1"
-Date:   Thu,  9 Sep 2021 20:19:39 -0400
-Message-Id: <20210910002028.175174-4-sashal@kernel.org>
+Cc:     Mike McGowen <mike.mcgowen@microchip.com>,
+        Kevin Barnett <kevin.barnett@microchip.com>,
+        Scott Benesh <scott.benesh@microchip.com>,
+        Scott Teel <scott.teel@microchip.com>,
+        Don Brace <don.brace@microchip.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, storagedev@microchip.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 05/53] scsi: smartpqi: Fix ISR accessing uninitialized data
+Date:   Thu,  9 Sep 2021 20:19:40 -0400
+Message-Id: <20210910002028.175174-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
@@ -43,43 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia Yang <jiayang5@huawei.com>
+From: Mike McGowen <mike.mcgowen@microchip.com>
 
-[ Upstream commit 10d0786b39b3b91c4fbf8c2926e97ab456a4eea1 ]
+[ Upstream commit 0777a3fb98f0ea546561d04db4fd325248c39961 ]
 
-This reverts commit 957fa47823dfe449c5a15a944e4e7a299a6601db.
+Correct driver's ISR accessing a data structure member that has not been
+fully initialized during driver initialization.
 
-The patch "f2fs: Fix indefinite loop in f2fs_gc()" v1 and v4 are all
-merged. Patch v4 is test info for patch v1. Patch v1 doesn't work and
-may cause that sbi->cur_victim_sec can't be resetted to NULL_SEGNO,
-which makes SSR unable to get segment of sbi->cur_victim_sec.
-So it should be reverted.
+The pqi queue groups can have uninitialized members when an interrupt
+fires. This has not resulted in any driver crashes. This was found during
+our own internal testing. No bugs were ever filed.
 
-The mails record:
-[1] https://lore.kernel.org/linux-f2fs-devel/7288dcd4-b168-7656-d1af-7e2cafa4f720@huawei.com/T/
-[2] https://lore.kernel.org/linux-f2fs-devel/20190809153653.GD93481@jaegeuk-macbookpro.roam.corp.google.com/T/
-
-Signed-off-by: Jia Yang <jiayang5@huawei.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: https://lore.kernel.org/r/20210714182847.50360-9-don.brace@microchip.com
+Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
+Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
+Reviewed-by: Scott Teel <scott.teel@microchip.com>
+Signed-off-by: Mike McGowen <mike.mcgowen@microchip.com>
+Signed-off-by: Don Brace <don.brace@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/smartpqi/smartpqi_init.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index e02affb5c0e7..343b9baf0d08 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1727,7 +1727,7 @@ int f2fs_gc(struct f2fs_sb_info *sbi, bool sync,
- 		round++;
- 	}
+diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
+index 5083e5d2b467..8d6c26e6251b 100644
+--- a/drivers/scsi/smartpqi/smartpqi_init.c
++++ b/drivers/scsi/smartpqi/smartpqi_init.c
+@@ -7284,11 +7284,11 @@ static int pqi_ctrl_init(struct pqi_ctrl_info *ctrl_info)
  
--	if (gc_type == FG_GC && seg_freed)
-+	if (gc_type == FG_GC)
- 		sbi->cur_victim_sec = NULL_SEGNO;
+ 	pqi_init_operational_queues(ctrl_info);
  
- 	if (sync)
+-	rc = pqi_request_irqs(ctrl_info);
++	rc = pqi_create_queues(ctrl_info);
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = pqi_create_queues(ctrl_info);
++	rc = pqi_request_irqs(ctrl_info);
+ 	if (rc)
+ 		return rc;
+ 
 -- 
 2.30.2
 
