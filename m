@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EAD240626E
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97C66406268
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232426AbhIJApu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:45:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47550 "EHLO mail.kernel.org"
+        id S241899AbhIJApt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:45:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233670AbhIJAVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233812AbhIJAVr (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 20:21:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CA8561167;
-        Fri, 10 Sep 2021 00:20:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0F91611AF;
+        Fri, 10 Sep 2021 00:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233236;
-        bh=0wd6VW1FHoDQCTCP7Ipnexg/Q5HQrr0fWXzdXUc42DE=;
+        s=k20201202; t=1631233237;
+        bh=TNeNuau0moeDepANayCoJV//GuLUT65NteR36ZD76H8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BysapOG9lBIthLFuMDQBsO759uZnrnxHwwxLdQ0gYPcxBrT771VxzDztlT251jTyo
-         5ayR3qlrflDpx9iW0IibZ7f2nq0vmrCI6JuYZHTbDT5dEGYL5XjZRLV9X1F2g00E6m
-         LAKg7WjsZ45xYJABjVVVLAcYupgIxS5wMLw0ZKkJz/eSfEYHNB/LKsiwlACGdS07t7
-         k22zVc3LamKjpMqYqLlsfvLVo/0jy5WP4BNo1X9m0wBOqz3XPcxWJ355tAKySFiYnn
-         Cv0sTLy4MlSEvOWrAiiN3sFd1seEoEaOhOnYPnwHNbExDSg9SfnFMBu2wBH3/dUdXG
-         cy5y7Q0Ha8xFw==
+        b=a4AFMlWB7zGElZUKHZ8cdSxj8BoY25AIngkoqsaVylF81TnYIKoIiWKmBYUJHkeO4
+         a8SNUpobwNlUF9sry4LeMeeL9PZTj4S3y2zr4WiesU7mbNY66aRsdWUZXya4Wur4Ru
+         yi7HyRswm6BgroDI6c0kx5yw296HNvNqHUy5Cm1fxwOWYu+ouMMQh6dntgY45Jakhu
+         ukGUqRTyPLD0pet3kUQovXYtOO0zQ8FsO3JG6JkvqdgraR70+bxRqTCg0eOd/oB2TK
+         vuHCkO4YxNJsyldCdt5wDyb2pnlHmgL4soBl/lc1e4unt3IWB2mWtYtyQtLwei5ObD
+         nBqi7Xr+HlDlg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike McGowen <mike.mcgowen@microchip.com>,
-        Kevin Barnett <kevin.barnett@microchip.com>,
-        Scott Benesh <scott.benesh@microchip.com>,
-        Scott Teel <scott.teel@microchip.com>,
-        Don Brace <don.brace@microchip.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, storagedev@microchip.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 05/53] scsi: smartpqi: Fix ISR accessing uninitialized data
-Date:   Thu,  9 Sep 2021 20:19:40 -0400
-Message-Id: <20210910002028.175174-5-sashal@kernel.org>
+Cc:     Lennert Buytenhek <buytenh@wantstofly.org>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.10 06/53] iommu/amd: Fix printing of IOMMU events when rate limiting kicks in
+Date:   Thu,  9 Sep 2021 20:19:41 -0400
+Message-Id: <20210910002028.175174-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002028.175174-1-sashal@kernel.org>
 References: <20210910002028.175174-1-sashal@kernel.org>
@@ -47,47 +44,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike McGowen <mike.mcgowen@microchip.com>
+From: Lennert Buytenhek <buytenh@wantstofly.org>
 
-[ Upstream commit 0777a3fb98f0ea546561d04db4fd325248c39961 ]
+[ Upstream commit ee974d9625c405977ef5d9aedc476be1d0362ebf ]
 
-Correct driver's ISR accessing a data structure member that has not been
-fully initialized during driver initialization.
+For the printing of RMP_HW_ERROR / RMP_PAGE_FAULT / IO_PAGE_FAULT
+events, the AMD IOMMU code uses such logic:
 
-The pqi queue groups can have uninitialized members when an interrupt
-fires. This has not resulted in any driver crashes. This was found during
-our own internal testing. No bugs were ever filed.
+	if (pdev)
+		dev_data = dev_iommu_priv_get(&pdev->dev);
 
-Link: https://lore.kernel.org/r/20210714182847.50360-9-don.brace@microchip.com
-Reviewed-by: Kevin Barnett <kevin.barnett@microchip.com>
-Reviewed-by: Scott Benesh <scott.benesh@microchip.com>
-Reviewed-by: Scott Teel <scott.teel@microchip.com>
-Signed-off-by: Mike McGowen <mike.mcgowen@microchip.com>
-Signed-off-by: Don Brace <don.brace@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+	if (dev_data && __ratelimit(&dev_data->rs)) {
+		pci_err(pdev, ...
+	} else {
+		printk_ratelimit() / pr_err{,_ratelimited}(...
+	}
+
+This means that if we receive an event for a PCI devid which actually
+does have a struct pci_dev and an attached struct iommu_dev_data, but
+rate limiting kicks in, we'll fall back to the non-PCI branch of the
+test, and print the event in a different format.
+
+Fix this by changing the logic to:
+
+	if (dev_data) {
+		if (__ratelimit(&dev_data->rs)) {
+			pci_err(pdev, ...
+		}
+	} else {
+		pr_err_ratelimited(...
+	}
+
+Suggested-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Signed-off-by: Lennert Buytenhek <buytenh@wantstofly.org>
+Reviewed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/YPgk1dD1gPMhJXgY@wantstofly.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/smartpqi/smartpqi_init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/amd/iommu.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/scsi/smartpqi/smartpqi_init.c b/drivers/scsi/smartpqi/smartpqi_init.c
-index 5083e5d2b467..8d6c26e6251b 100644
---- a/drivers/scsi/smartpqi/smartpqi_init.c
-+++ b/drivers/scsi/smartpqi/smartpqi_init.c
-@@ -7284,11 +7284,11 @@ static int pqi_ctrl_init(struct pqi_ctrl_info *ctrl_info)
+diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+index 5f1195791cb1..4c97aa81b836 100644
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -502,9 +502,11 @@ static void amd_iommu_report_rmp_hw_error(volatile u32 *event)
+ 	if (pdev)
+ 		dev_data = dev_iommu_priv_get(&pdev->dev);
  
- 	pqi_init_operational_queues(ctrl_info);
+-	if (dev_data && __ratelimit(&dev_data->rs)) {
+-		pci_err(pdev, "Event logged [RMP_HW_ERROR vmg_tag=0x%04x, spa=0x%llx, flags=0x%04x]\n",
+-			vmg_tag, spa, flags);
++	if (dev_data) {
++		if (__ratelimit(&dev_data->rs)) {
++			pci_err(pdev, "Event logged [RMP_HW_ERROR vmg_tag=0x%04x, spa=0x%llx, flags=0x%04x]\n",
++				vmg_tag, spa, flags);
++		}
+ 	} else {
+ 		pr_err_ratelimited("Event logged [RMP_HW_ERROR device=%02x:%02x.%x, vmg_tag=0x%04x, spa=0x%llx, flags=0x%04x]\n",
+ 			PCI_BUS_NUM(devid), PCI_SLOT(devid), PCI_FUNC(devid),
+@@ -533,9 +535,11 @@ static void amd_iommu_report_rmp_fault(volatile u32 *event)
+ 	if (pdev)
+ 		dev_data = dev_iommu_priv_get(&pdev->dev);
  
--	rc = pqi_request_irqs(ctrl_info);
-+	rc = pqi_create_queues(ctrl_info);
- 	if (rc)
- 		return rc;
+-	if (dev_data && __ratelimit(&dev_data->rs)) {
+-		pci_err(pdev, "Event logged [RMP_PAGE_FAULT vmg_tag=0x%04x, gpa=0x%llx, flags_rmp=0x%04x, flags=0x%04x]\n",
+-			vmg_tag, gpa, flags_rmp, flags);
++	if (dev_data) {
++		if (__ratelimit(&dev_data->rs)) {
++			pci_err(pdev, "Event logged [RMP_PAGE_FAULT vmg_tag=0x%04x, gpa=0x%llx, flags_rmp=0x%04x, flags=0x%04x]\n",
++				vmg_tag, gpa, flags_rmp, flags);
++		}
+ 	} else {
+ 		pr_err_ratelimited("Event logged [RMP_PAGE_FAULT device=%02x:%02x.%x, vmg_tag=0x%04x, gpa=0x%llx, flags_rmp=0x%04x, flags=0x%04x]\n",
+ 			PCI_BUS_NUM(devid), PCI_SLOT(devid), PCI_FUNC(devid),
+@@ -557,11 +561,13 @@ static void amd_iommu_report_page_fault(u16 devid, u16 domain_id,
+ 	if (pdev)
+ 		dev_data = dev_iommu_priv_get(&pdev->dev);
  
--	rc = pqi_create_queues(ctrl_info);
-+	rc = pqi_request_irqs(ctrl_info);
- 	if (rc)
- 		return rc;
- 
+-	if (dev_data && __ratelimit(&dev_data->rs)) {
+-		pci_err(pdev, "Event logged [IO_PAGE_FAULT domain=0x%04x address=0x%llx flags=0x%04x]\n",
+-			domain_id, address, flags);
+-	} else if (printk_ratelimit()) {
+-		pr_err("Event logged [IO_PAGE_FAULT device=%02x:%02x.%x domain=0x%04x address=0x%llx flags=0x%04x]\n",
++	if (dev_data) {
++		if (__ratelimit(&dev_data->rs)) {
++			pci_err(pdev, "Event logged [IO_PAGE_FAULT domain=0x%04x address=0x%llx flags=0x%04x]\n",
++				domain_id, address, flags);
++		}
++	} else {
++		pr_err_ratelimited("Event logged [IO_PAGE_FAULT device=%02x:%02x.%x domain=0x%04x address=0x%llx flags=0x%04x]\n",
+ 			PCI_BUS_NUM(devid), PCI_SLOT(devid), PCI_FUNC(devid),
+ 			domain_id, address, flags);
+ 	}
 -- 
 2.30.2
 
