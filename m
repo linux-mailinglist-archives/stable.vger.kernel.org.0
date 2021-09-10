@@ -2,104 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFB1A406766
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 08:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F8F2406778
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 09:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231232AbhIJGvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 02:51:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40592 "EHLO mail.kernel.org"
+        id S231281AbhIJHIA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 03:08:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231223AbhIJGvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 02:51:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC13F60F9C;
-        Fri, 10 Sep 2021 06:50:36 +0000 (UTC)
+        id S231223AbhIJHH7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 03:07:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF9D5610A3;
+        Fri, 10 Sep 2021 07:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631256637;
-        bh=JmXKbuN8Nd1iPptW4uq9nfAmi+t1fzNup71N0W0sBqQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xjMEyol4EaF4x1VFpGpXgcJGDP9E7ajSXD2gWtagaRRO6+jyKjNpPp3ep/MuxSVA6
-         q0pudu9z82pv6aqR37GMvXre6TgWPIrScPeyb4pQGaSdP+uLKfR7IDae9WIoXAacLr
-         8qUxKdpW6JIad0V88Xg6+61hu9uqI/jUOFhUSFHU=
-Date:   Fri, 10 Sep 2021 08:50:34 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     Yi Zhang <yi.zhang@redhat.com>,
-        linux-block <linux-block@vger.kernel.org>, stable@vger.kernel.org
-Subject: Re: [bug report] NULL pointer at blk_mq_put_rq_ref+0x20/0xb4
- observed with blktests on 5.13.15
-Message-ID: <YTsAOtychCR8m3WA@kroah.com>
-References: <CAHj4cs-noupgFn3QjB96Z20hv-BhFLHOyFZFEtrhGpESkeoRSA@mail.gmail.com>
- <CAFj5m9J4sxRwQb7+nHzYOurX9QRpEgsEMCqdx4SHA4THnsJXBA@mail.gmail.com>
- <YTnc5Ja/DKR30Euy@kroah.com>
- <YTq4QFWexPF9aQvG@T590>
+        s=korg; t=1631257609;
+        bh=H7u+IYveVFJjsSjjPSWU0zPWfsdzgNOeHJDR3TvGOuo=;
+        h=Subject:To:Cc:From:Date:From;
+        b=cemQAND+1B61HUJz6ZPVNE8ijloZ09NWyfCaVQqRh5ixARQoYIF4Uin2e1rOYYQnt
+         6GIzwvtsPlj0gJMnosAclWDW/AYmRlIVkQjQscUZ2IWe1Uqpikp5IMy0WN8pIYKyCt
+         o/8lkXiYCifi/4/1wP9t+KIlR38hQCmGYgGUDmTM=
+Subject: FAILED: patch "[PATCH] usb: host: xhci-rcar: Don't reload firmware after the" failed to apply to 4.4-stable tree
+To:     yoshihiro.shimoda.uh@renesas.com, gregkh@linuxfoundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 10 Sep 2021 09:06:47 +0200
+Message-ID: <16312576074216@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YTq4QFWexPF9aQvG@T590>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 10, 2021 at 09:43:28AM +0800, Ming Lei wrote:
-> On Thu, Sep 09, 2021 at 12:07:32PM +0200, Greg KH wrote:
-> > On Thu, Sep 09, 2021 at 05:14:18PM +0800, Ming Lei wrote:
-> > > On Thu, Sep 9, 2021 at 4:47 PM Yi Zhang <yi.zhang@redhat.com> wrote:
-> > > >
-> > > > Hello
-> > > >
-> > > > I found this issue with blktests on[1], did we miss some patch on stable?
-> > > > [1]
-> > > > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> > > > queue/5.13
-> > > >
-> > > > [   68.989907] run blktests block/006 at 2021-09-09 04:34:35
-> > > > [   69.085724] null_blk: module loaded
-> > > > [   74.271624] Unable to handle kernel NULL pointer dereference at
-> > > > virtual address 00000000000002b8
-> > > > [   74.280414] Mem abort info:
-> > > > [   74.283195]   ESR = 0x96000004
-> > > > [   74.286245]   EC = 0x25: DABT (current EL), IL = 32 bits
-> > > > [   74.291545]   SET = 0, FnV = 0
-> > > > [   74.294587]   EA = 0, S1PTW = 0
-> > > > [   74.297720] Data abort info:
-> > > > [   74.300588]   ISV = 0, ISS = 0x00000004
-> > > > [   74.304411]   CM = 0, WnR = 0
-> > > > [   74.307368] user pgtable: 4k pages, 48-bit VAs, pgdp=000008004366e000
-> > > > [   74.313796] [00000000000002b8] pgd=0000000000000000, p4d=0000000000000000
-> > > > [   74.320577] Internal error: Oops: 96000004 [#1] SMP
-> > > > [   74.325443] Modules linked in: null_blk mlx5_ib ib_uverbs ib_core
-> > > > rfkill sunrpc vfat fat joydev acpi_ipmi ipmi_ssif cdc_ether usbnet mii
-> > > > mlx5_core psample ipmi_devintf mlxfw tls ipmi_msghandler arm_cmn
-> > > > cppc_cpufreq arm_dsu_pmu acpi_tad fuse zram ip_tables xfs ast
-> > > > i2c_algo_bit drm_vram_helper drm_kms_helper crct10dif_ce syscopyarea
-> > > > ghash_ce sysfillrect uas sysimgblt sbsa_gwdt fb_sys_fops cec
-> > > > drm_ttm_helper ttm nvme usb_storage nvme_core drm xgene_hwmon
-> > > > aes_neon_bs
-> > > > [   74.366458] CPU: 31 PID: 2511 Comm: fio Not tainted 5.13.15+ #1
-> > > 
-> > > Looks the fixes haven't land on linux-5.13.y:
-> > > 
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a9ed27a764156929efe714033edb3e9023c5f321
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=c2da19ed50554ce52ecbad3655c98371fe58599f
-> > 
-> > Now queued up.  Someone could have told us they were needed :)
-> 
-> Thanks for queuing it up, sorry for not Cc stable.
-> 
-> BTW, the following two patches are missed too in linux-5.13-y:
-> 
-> 364b61818f65 blk-mq: clearing flush request reference in tags->rqs[]
 
-This one applies, but,
-
-> bd63141d585b blk-mq: clear stale request in tags->rq[] before freeing one request pool
-
-This one does not.
-
-Please provide working backports for both of these if you want to see
-them merged into the stable trees.  And what about 5.10 for them as
-well?
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
 thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 57f3ffdc11143f56f1314972fe86fe17a0dcde85 Mon Sep 17 00:00:00 2001
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Date: Fri, 27 Aug 2021 15:32:27 +0900
+Subject: [PATCH] usb: host: xhci-rcar: Don't reload firmware after the
+ completion
+
+According to the datasheet, "Upon the completion of FW Download,
+there is no need to write or reload FW.". Otherwise, it's possible
+to cause unexpected behaviors. So, adds such a condition.
+
+Fixes: 4ac8918f3a73 ("usb: host: xhci-plat: add support for the R-Car H2 and M2 xHCI controllers")
+Cc: stable@vger.kernel.org # v3.17+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20210827063227.81990-1-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/usb/host/xhci-rcar.c b/drivers/usb/host/xhci-rcar.c
+index 1bc4fe7b8c75..9888ba7d85b6 100644
+--- a/drivers/usb/host/xhci-rcar.c
++++ b/drivers/usb/host/xhci-rcar.c
+@@ -134,6 +134,13 @@ static int xhci_rcar_download_firmware(struct usb_hcd *hcd)
+ 	const struct soc_device_attribute *attr;
+ 	const char *firmware_name;
+ 
++	/*
++	 * According to the datasheet, "Upon the completion of FW Download,
++	 * there is no need to write or reload FW".
++	 */
++	if (readl(regs + RCAR_USB3_DL_CTRL) & RCAR_USB3_DL_CTRL_FW_SUCCESS)
++		return 0;
++
+ 	attr = soc_device_match(rcar_quirks_match);
+ 	if (attr)
+ 		quirks = (uintptr_t)attr->data;
+
