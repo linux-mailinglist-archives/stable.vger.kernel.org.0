@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F2934062A0
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58D3B40624E
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232100AbhIJApl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:45:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47332 "EHLO mail.kernel.org"
+        id S241824AbhIJApn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:45:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233793AbhIJAVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:21:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 954A6610E9;
-        Fri, 10 Sep 2021 00:20:20 +0000 (UTC)
+        id S231169AbhIJAVd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:21:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32A26611BD;
+        Fri, 10 Sep 2021 00:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233221;
-        bh=lp3bMKc7ltMLGpiQkCruQ4lRADisdiY261mLg71PxM4=;
+        s=k20201202; t=1631233223;
+        bh=LfZfD7/CVxwnxr+xGrMtrciMRtiSh31lqfu9H5B3X20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sgRq1KEdhe+iyxt/uhvZ+AquLJl/qV7tbF0WAKm+RwvE+2/BU8Me6GQiTmO4K8vZZ
-         e0FvUtPYpAVSD7X3GJsXRMIYGF7PyQNz3Y9/4GVGlhcxF2rOlRmU43auwlxvqzUprc
-         Br4bhLQtLYWi07ta3NHn167PaOi1/r2mTgNixs+RTxNM3ekz3/KTfbommPw5o2ENkR
-         eKg7rBVAF8OkrGWaQ+Yhet6ZpAN2giPL5l5llMVLLAVg0fxDtje1bUbSZVw3zebpSC
-         mbTnpMdcwwrmGzmZLSZ6apnxpvH2XgjH6R2puxzbHPc2XetCEflcq7W94qLQLZPpRq
-         ezGt46mAiDXqQ==
+        b=Qt4XGzAP+xojdWI8NKJkutFqupKviXcavQvWKdTFF57lrcdXBU+WVChn7JeUHvgev
+         aHiLZxpw4iWPrwQ3K4HNwYDuKo+04mCZnrHNRUJLit4QyuhyyWkEQJhrDahBRmg+S5
+         h2Pd4T0+0VHV9pyh33UX9tkd4ee8Iwhkj7uNm83QDTjgHhvHc2FSQY02WnzN34oaR4
+         5Kza/Gsh/weFaKlLh10o7LMg5ZgzAHWindCCNQRThWROXlLF9Hk5ORzxHkBjIe7S99
+         mmuGWJfDqedqcMidqh6wMRqc2Zpvzol+VbK4lJqOEpXsVTjRNOh23JUFTCnc8J5rUz
+         QBqs1LpKyTiqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
@@ -33,9 +33,9 @@ Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, kasan-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.13 85/88] kasan: test: only do kmalloc_uaf_memset for generic mode
-Date:   Thu,  9 Sep 2021 20:18:17 -0400
-Message-Id: <20210910001820.174272-85-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 86/88] kasan: test: clean up ksize_uaf
+Date:   Thu,  9 Sep 2021 20:18:18 -0400
+Message-Id: <20210910001820.174272-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
@@ -49,15 +49,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andrey Konovalov <andreyknvl@gmail.com>
 
-[ Upstream commit 25b12a58e848459ae2dbf2e7d318ef168bd1c5e2 ]
+[ Upstream commit b38fcca339dbcf680c9e43054502608fabc81508 ]
 
-kmalloc_uaf_memset() writes to freed memory, which is only safe with the
-GENERIC mode (as it uses quarantine).  For other modes, this test corrupts
-kernel memory, which might result in a crash.
+Some KASAN tests use global variables to store function returns values so
+that the compiler doesn't optimize away these functions.
 
-Only enable kmalloc_uaf_memset() for the GENERIC mode.
+ksize_uaf() doesn't call any functions, so it doesn't need to use
+kasan_int_result.  Use volatile accesses instead, to be consistent with
+other similar tests.
 
-Link: https://lkml.kernel.org/r/2e1c87b607b1292556cde3cab2764f108542b60c.1628779805.git.andreyknvl@gmail.com
+Link: https://lkml.kernel.org/r/a1fc34faca4650f4a6e4dfb3f8d8d82c82eb953a.1628779805.git.andreyknvl@gmail.com
 Signed-off-by: Andrey Konovalov <andreyknvl@gmail.com>
 Reviewed-by: Marco Elver <elver@google.com>
 Cc: Alexander Potapenko <glider@google.com>
@@ -67,26 +68,24 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/test_kasan.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ lib/test_kasan.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/lib/test_kasan.c b/lib/test_kasan.c
-index 00b7061edf59..c8ca85fd5e16 100644
+index c8ca85fd5e16..7a02ecc63b7b 100644
 --- a/lib/test_kasan.c
 +++ b/lib/test_kasan.c
-@@ -523,6 +523,12 @@ static void kmalloc_uaf_memset(struct kunit *test)
- 	char *ptr;
- 	size_t size = 33;
+@@ -726,8 +726,8 @@ static void ksize_uaf(struct kunit *test)
+ 	kfree(ptr);
  
-+	/*
-+	 * Only generic KASAN uses quarantine, which is required to avoid a
-+	 * kernel memory corruption this test causes.
-+	 */
-+	KASAN_TEST_NEEDS_CONFIG_ON(test, CONFIG_KASAN_GENERIC);
-+
- 	ptr = kmalloc(size, GFP_KERNEL);
- 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, ptr);
+ 	KUNIT_EXPECT_KASAN_FAIL(test, ksize(ptr));
+-	KUNIT_EXPECT_KASAN_FAIL(test, kasan_int_result = *ptr);
+-	KUNIT_EXPECT_KASAN_FAIL(test, kasan_int_result = *(ptr + size));
++	KUNIT_EXPECT_KASAN_FAIL(test, ((volatile char *)ptr)[0]);
++	KUNIT_EXPECT_KASAN_FAIL(test, ((volatile char *)ptr)[size]);
+ }
  
+ static void kasan_stack_oob(struct kunit *test)
 -- 
 2.30.2
 
