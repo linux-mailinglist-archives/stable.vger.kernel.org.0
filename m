@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2172A406179
+	by mail.lfdr.de (Postfix) with ESMTP id 6DE3F40617A
 	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240741AbhIJAm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:42:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43636 "EHLO mail.kernel.org"
+        id S232036AbhIJAm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:42:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232320AbhIJASu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232334AbhIJASu (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 9 Sep 2021 20:18:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B89DE611AF;
-        Fri, 10 Sep 2021 00:17:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32DC3611C8;
+        Fri, 10 Sep 2021 00:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233040;
-        bh=Xc80m41CTa4kaBCal91WGgV5kDYT3pZpVk6WxXUeaDQ=;
+        s=k20201202; t=1631233042;
+        bh=h+Uzma+hZONJfq10oK9MrXnsnU4yu+HCaFhcGa/r6sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aBKHcvxnuXEQid7tZItr2WlZ0NIRvmlr5a5R5cRmeFwBmHfhUr9oImZlgge2dlXj2
-         TbC4s3hNQq+xxDzlDmSMC74v4C5QXiZ14F8SzFXqbZUp7CDcIaLjwHj241uxGHiCO2
-         LHM10GmY3h/VcrRPU7Wgjm9kh8Gb9RBTc4LJvVncynsikRYLJQSZ/tXdL2FsEry6T8
-         ObeYrpw/JDBSP+2f3G2nKJtK1HAbi9JdKbjHEwxboWEKnOfhIJFihPUttCiFyoegQJ
-         GINvM1YI8dL80DHtL31VtGQL7r2ZWg411Bj4uFql4TYbZe8JwthWtNQ3wxaNTWcRWn
-         XiHyxTjuBswuA==
+        b=qEGjLiZxKKKt8rb42vJpYYM7gANMVty0twYm0DAhFP2t8M2VQK23xD9tghCY04arU
+         vMKIu4jHg5cyn47kFgNa6G5kkh68gdcbWmrnwxHMPWilCr4/DzN9/P+Mk1IkMTF3cM
+         gyT690otYCKZlSvq6XQxsrVnSE9UZ42Cm0BNOWxdYSUdr7PxkEwuZLmuOX5XT1Jc3p
+         JKcniSwYvdR77W+/oEUVuqHdtHFK59EhNsl73VfjnRrzBk6D6td5g3iDS2IRJ670Tr
+         Ma/4IHzhg6Tlz0n6XDArtdRvtz0TbN+gQO0vC2Xf2BjR0OVyM3l8KuH39Z4pLt7n4F
+         zi+NWJRbxhFlg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gioh Kim <gi-oh.kim@ionos.com>, Jack Wang <jinpu.wang@ionos.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Md Haris Iqbal <haris.iqbal@ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 59/99] RDMA/rtrs-clt: Fix counting inflight IO
-Date:   Thu,  9 Sep 2021 20:15:18 -0400
-Message-Id: <20210910001558.173296-59-sashal@kernel.org>
+Cc:     Arun Easi <aeasi@marvell.com>, Nilesh Javali <njavali@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 60/99] scsi: qla2xxx: Fix hang during NVMe session tear down
+Date:   Thu,  9 Sep 2021 20:15:19 -0400
+Message-Id: <20210910001558.173296-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -44,107 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gioh Kim <gi-oh.kim@ionos.com>
+From: Arun Easi <aeasi@marvell.com>
 
-[ Upstream commit 0d8f2cfa23f04ca01f6d4bba09933cb6310193aa ]
+[ Upstream commit 310e69edfbd57995868a428eeddea09a7b5d2749 ]
 
-There are mis-match at counting inflight IO after changing the multipath
-policy.
+The following hung task call trace was seen:
 
-For example, we started fio test with round-robin policy and then we
-changed the policy to min-inflight. IOs created under the RR policy is
-finished under the min-inflight policy and inflight counter only
-decreased. So the counter would be negative value.  And also we started
-fio test with min-inflight policy and changed the policy to the
-round-robin. IOs created under the min-inflight policy increased the
-inflight IO counter but the inflight IO counter was not decreased because
-the policy was the round-robin when IO was finished.
+    [ 1230.183294] INFO: task qla2xxx_wq:523 blocked for more than 120 seconds.
+    [ 1230.197749] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+    [ 1230.205585] qla2xxx_wq      D    0   523      2 0x80004000
+    [ 1230.205636] Workqueue: qla2xxx_wq qlt_free_session_done [qla2xxx]
+    [ 1230.205639] Call Trace:
+    [ 1230.208100]  __schedule+0x2c4/0x700
+    [ 1230.211607]  schedule+0x38/0xa0
+    [ 1230.214769]  schedule_timeout+0x246/0x2f0
+    [ 1230.222651]  wait_for_completion+0x97/0x100
+    [ 1230.226921]  qlt_free_session_done+0x6a0/0x6f0 [qla2xxx]
+    [ 1230.232254]  process_one_work+0x1a7/0x360
 
-So it should count IOs only if the IO is created under the min-inflight
-policy. It should not care the policy when the IO is finished.
+...when device side port resets were done.
 
-This patch adds a field mp_policy in struct rtrs_clt_io_req and stores the
-multipath policy when an object of rtrs_clt_io_req is created. Then
-rtrs-clt checks the mp_policy of only struct rtrs_clt_io_req instead of
-the struct rtrs_clt.
+Abort threads were getting out without processing due to the "deleted"
+flag check. The delete thread, meanwhile, could not proceed with a
+logout (that would have cleared out pending requests) as the logout IOCB
+work was not progressing. It appears like the hung qlt_free_session_done()
+thread is causing the ha->wq works on hold. The qlt_free_session_done()
+was hung waiting for nvme_fc_unregister_remoteport() + localport_delete cb
+to be complete, which would only happen when all I/Os are released.
 
-Link: https://lore.kernel.org/r/20210806112112.124313-6-haris.iqbal@ionos.com
-Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fix this by allowing abort to progress until device delete is completely
+done. This should make the qlt_free_session_done() proceed without hang and
+thus clear up the deadlock.
+
+Link: https://lore.kernel.org/r/20210817051315.2477-5-njavali@marvell.com
+Signed-off-by: Arun Easi <aeasi@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-clt-stats.c | 2 +-
- drivers/infiniband/ulp/rtrs/rtrs-clt.c       | 7 ++++---
- drivers/infiniband/ulp/rtrs/rtrs-clt.h       | 1 +
- 3 files changed, 6 insertions(+), 4 deletions(-)
+ drivers/scsi/qla2xxx/qla_nvme.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt-stats.c b/drivers/infiniband/ulp/rtrs/rtrs-clt-stats.c
-index 26bbe5d6dff5..553e173975fb 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-clt-stats.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-clt-stats.c
-@@ -180,7 +180,7 @@ void rtrs_clt_update_all_stats(struct rtrs_clt_io_req *req, int dir)
+diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
+index 3e5c70a1d969..6e1abfc1be41 100644
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -227,7 +227,7 @@ static void qla_nvme_abort_work(struct work_struct *work)
+ 	       "%s called for sp=%p, hndl=%x on fcport=%p deleted=%d\n",
+ 	       __func__, sp, sp->handle, fcport, fcport->deleted);
  
- 	len = req->usr_len + req->data_len;
- 	rtrs_clt_update_rdma_stats(stats, len, dir);
--	if (sess->clt->mp_policy == MP_POLICY_MIN_INFLIGHT)
-+	if (req->mp_policy == MP_POLICY_MIN_INFLIGHT)
- 		atomic_inc(&stats->inflight);
- }
+-	if (!ha->flags.fw_started || fcport->deleted)
++	if (!ha->flags.fw_started || fcport->deleted == QLA_SESS_DELETED)
+ 		goto out;
  
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-index f2c40e50f25e..3b3bc77d02cc 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-@@ -438,7 +438,7 @@ static void complete_rdma_req(struct rtrs_clt_io_req *req, int errno,
- 	}
- 	if (!refcount_dec_and_test(&req->ref))
- 		return;
--	if (sess->clt->mp_policy == MP_POLICY_MIN_INFLIGHT)
-+	if (req->mp_policy == MP_POLICY_MIN_INFLIGHT)
- 		atomic_dec(&sess->stats->inflight);
- 
- 	req->in_use = false;
-@@ -963,6 +963,7 @@ static void rtrs_clt_init_req(struct rtrs_clt_io_req *req,
- 	req->need_inv_comp = false;
- 	req->inv_errno = 0;
- 	refcount_set(&req->ref, 1);
-+	req->mp_policy = sess->clt->mp_policy;
- 
- 	iov_iter_kvec(&iter, READ, vec, 1, usr_len);
- 	len = _copy_from_iter(req->iu->buf, usr_len, &iter);
-@@ -1153,7 +1154,7 @@ static int rtrs_clt_write_req(struct rtrs_clt_io_req *req)
- 			    "Write request failed: error=%d path=%s [%s:%u]\n",
- 			    ret, kobject_name(&sess->kobj), sess->hca_name,
- 			    sess->hca_port);
--		if (sess->clt->mp_policy == MP_POLICY_MIN_INFLIGHT)
-+		if (req->mp_policy == MP_POLICY_MIN_INFLIGHT)
- 			atomic_dec(&sess->stats->inflight);
- 		if (req->sg_cnt)
- 			ib_dma_unmap_sg(sess->s.dev->ib_dev, req->sglist,
-@@ -1259,7 +1260,7 @@ static int rtrs_clt_read_req(struct rtrs_clt_io_req *req)
- 			    "Read request failed: error=%d path=%s [%s:%u]\n",
- 			    ret, kobject_name(&sess->kobj), sess->hca_name,
- 			    sess->hca_port);
--		if (sess->clt->mp_policy == MP_POLICY_MIN_INFLIGHT)
-+		if (req->mp_policy == MP_POLICY_MIN_INFLIGHT)
- 			atomic_dec(&sess->stats->inflight);
- 		req->need_inv = false;
- 		if (req->sg_cnt)
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.h b/drivers/infiniband/ulp/rtrs/rtrs-clt.h
-index e276a2dfcf7c..12eaea44c1f9 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-clt.h
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.h
-@@ -102,6 +102,7 @@ struct rtrs_clt_io_req {
- 	unsigned int		usr_len;
- 	void			*priv;
- 	bool			in_use;
-+	enum rtrs_mp_policy     mp_policy;
- 	struct rtrs_clt_con	*con;
- 	struct rtrs_sg_desc	*desc;
- 	struct ib_sge		*sge;
+ 	if (ha->flags.host_shutting_down) {
 -- 
 2.30.2
 
