@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE416406152
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 261C0406155
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231497AbhIJAmf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:42:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44882 "EHLO mail.kernel.org"
+        id S231767AbhIJAmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:42:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231754AbhIJASU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:18:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87F7C611C4;
-        Fri, 10 Sep 2021 00:16:53 +0000 (UTC)
+        id S230434AbhIJASV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:18:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0FBF61208;
+        Fri, 10 Sep 2021 00:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233014;
-        bh=57vFTcOJ+yFREvKnkKYBx44O4OYEhdto7aRuTkiK8wg=;
+        s=k20201202; t=1631233015;
+        bh=RNf9vEr2uufGpxXa4wgnVK85ccOPTtxswSIhBYi6TL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxasgW6oI59/yloZgM/aD1OlSJE9DfAa+xLWY5YGWONq7UCT7DvFBVaJFOPAFe2CN
-         tNndzXn8e0lX51DxaClPFZ+15tGbp8lKIK0YVfxa85/QKp1ARN0Toca2aj/o2kiQVm
-         +KClQHaP7SidLOeMXd5W1TtFAC1vcTQlSZE2CWACijSUXrkn1akEtHNPgpVihlg4Uz
-         nRKFZq3Skrl4oCpnliXD121FeGU6PWWPmkQKebYKQFhKJjPU7UCKWG5HUUH9wF6rVg
-         kI736CuvPHOt5U7AguslKWqjM8QTtvdPJFWGp7BNkhNCMcU7D85I/bt43o3fYZmZnu
-         WQ5F+yW0SmBEg==
+        b=MGEfuDDFD1woLTNlTMd9HuJZCEv2cEHDtmoHWSNeNgTvNcO+CneKyr9iYoTrXYDKu
+         uTMIKbTVPieY/UW8tC68CyHVtVvFFPGyvflR36NRcyNJ5p0hPNGWUR05Ih10yAIj0D
+         hcha768wtoJ9egEhnJO+YnlXwT1fyWZ/5g+1yHxi2fWTA+bAXWdX0KPXclZDAMQxZW
+         3dRjqzBajWZ9huOimjpUZ9UK1eJFIJhYA9/BjOBufGhj1Hoooz852Hcwx+0bvB2iIY
+         5y6Z2+9pcWK6mqthF5r2MqeZO7kRKTDQrpkP3Okrq8msW/tZZuQ8Iy9FOmDCMtftlh
+         13+lt7v78uquA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>, Lukas Czerner <lczerner@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.14 40/99] jbd2: fix clang warning in recovery.c
-Date:   Thu,  9 Sep 2021 20:14:59 -0400
-Message-Id: <20210910001558.173296-40-sashal@kernel.org>
+Cc:     Ashish Mhetre <amhetre@nvidia.com>, Will Deacon <will@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.14 41/99] iommu: Fix race condition during default domain allocation
+Date:   Thu,  9 Sep 2021 20:15:00 -0400
+Message-Id: <20210910001558.173296-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -42,34 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Ashish Mhetre <amhetre@nvidia.com>
 
-[ Upstream commit 390add0cc9f4d7fda89cf3db7651717e82cf0afc ]
+[ Upstream commit 211ff31b3d33b56aa12937e898c9280d07daf0d9 ]
 
-Remove unused variable store which was never used.
+When two devices with same SID are getting probed concurrently through
+iommu_probe_device(), the iommu_domain sometimes is getting allocated more
+than once as call to iommu_alloc_default_domain() is not protected for
+concurrency. Furthermore, it leads to each device holding a different
+iommu_domain pointer, separate IOVA space and only one of the devices'
+domain is used for translations from IOMMU. This causes accesses from other
+device to fault or see incorrect translations.
+Fix this by protecting iommu_alloc_default_domain() call with group->mutex
+and let all devices with same SID share same iommu_domain.
 
-This fix is also in e2fsprogs commit 99a2294f85f0 ("e2fsck: value
-stored to err is never read").
-
-Signed-off-by: Lukas Czerner <lczerner@redhat.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Ashish Mhetre <amhetre@nvidia.com>
+Link: https://lore.kernel.org/r/1628570641-9127-2-git-send-email-amhetre@nvidia.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/recovery.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/iommu/iommu.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/jbd2/recovery.c b/fs/jbd2/recovery.c
-index 4c4209262437..ba979fcf1cd3 100644
---- a/fs/jbd2/recovery.c
-+++ b/fs/jbd2/recovery.c
-@@ -760,7 +760,6 @@ static int do_one_pass(journal_t *journal,
- 				 */
- 				jbd_debug(1, "JBD2: Invalid checksum ignored in transaction %u, likely stale data\n",
- 					  next_commit_ID);
--				err = 0;
- 				brelse(bh);
- 				goto done;
- 			}
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 63f0af10c403..3050cc4b02bc 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -273,7 +273,9 @@ int iommu_probe_device(struct device *dev)
+ 	 * support default domains, so the return value is not yet
+ 	 * checked.
+ 	 */
++	mutex_lock(&group->mutex);
+ 	iommu_alloc_default_domain(group, dev);
++	mutex_unlock(&group->mutex);
+ 
+ 	if (group->default_domain) {
+ 		ret = __iommu_attach_device(group->default_domain, dev);
 -- 
 2.30.2
 
