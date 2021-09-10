@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEAB5406396
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6570D406398
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:50:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241188AbhIJAsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:48:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49606 "EHLO mail.kernel.org"
+        id S230410AbhIJAsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:48:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234810AbhIJAY0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:24:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EB95604DC;
-        Fri, 10 Sep 2021 00:23:15 +0000 (UTC)
+        id S234814AbhIJAY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:24:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CCDD60FDA;
+        Fri, 10 Sep 2021 00:23:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233396;
-        bh=EK++ixYfiqnXOKcJD9GSa90URCRf3a+cG+LeYwpf0XQ=;
+        s=k20201202; t=1631233397;
+        bh=Skk1y91WJSa/AERaoFTESdAFmZcXOU/Cr8bE+QgJAf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nj31/ZKRN8iWMmJbv8I2yjvN31WxjdxV0zBvfjNc5vBht0aRmbl6/a8I/lfT1WUtM
-         hJo4ipagU/XNKoSjKBivcnm3XOsb3R2m+Tov56XQnDeE0dGVqAgspbNu/TQy4/y4dY
-         DiIDgiMHCEsvIy4JbHiVtUMSnotB6xxHsUdgEtwYvb/qCtyN1QkFCaG/z8tTpQ2y+d
-         ZG54XrOdyq80zoQ0tURKrxm8i3XmULVHBpqSyC1Gtg/cNnt+C2uRVbFJGDYjwXC+mc
-         YPe5lCoIBrO7dznX2dfswPGmiMt1pPz3UCkFms4fAulybj3j5SfM5On438yKPCkMIF
-         krmIqtnsGfX9g==
+        b=csvxWu3gTowsYOoPrGwFQJi5aA7+PcKO/bLQGDNpBC876VXtcxrIDXcnUzMT7sbbk
+         DPbbuoMCk2VtJAuI3K8ou5rmdbKkqHMjFUhr7botmTTD2e2zm4BsLnBPT2MxTXLm1U
+         L8nKaCkqCzQfe6kgQvvk7vaOYFv5k7d0YyKoODhLWgrn8I48NTJKIPyYjLT8eCMpCv
+         vDZVfLQ1hwZO+iyecVpAao8ZhiwfKEyZPcaecCGca3/9A8MckNCKTAznlznwRSiHND
+         p/BE7/SToTtlUN3IQJO3ad1c4gXA/G+hGCRtwKppvkdOsOm8NBBYh8QhdiGYGYSyEg
+         skkZLP8qSJe7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
-        syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 04/19] HID: usbhid: free raw_report buffers in usbhid_stop
-Date:   Thu,  9 Sep 2021 20:22:54 -0400
-Message-Id: <20210910002309.176412-4-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 05/19] powerpc: make the install target not depend on any build artifact
+Date:   Thu,  9 Sep 2021 20:22:55 -0400
+Message-Id: <20210910002309.176412-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002309.176412-1-sashal@kernel.org>
 References: <20210910002309.176412-1-sashal@kernel.org>
@@ -43,58 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit f7744fa16b96da57187dc8e5634152d3b63d72de ]
+[ Upstream commit 9bef456b20581e630ef9a13555ca04fed65a859d ]
 
-Free the unsent raw_report buffers when the device is removed.
+The install target should not depend on any build artifact.
 
-Fixes a memory leak reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=7b4fa7cb1a7c2d3342a2a8a6c53371c8c418ab47
+The reason is explained in commit 19514fc665ff ("arm, kbuild: make
+"make install" not depend on vmlinux").
 
-Reported-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Tested-by: syzbot+47b26cd837ececfc666d@syzkaller.appspotmail.com
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Change the PowerPC installation code in a similar way.
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210729141937.445051-2-masahiroy@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/usbhid/hid-core.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ arch/powerpc/boot/Makefile   |  2 +-
+ arch/powerpc/boot/install.sh | 14 ++++++++++++++
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 46b8f4c353de..404e367fb8ab 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -501,7 +501,7 @@ static void hid_ctrl(struct urb *urb)
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index 5807c9d8e56d..a74573b4e027 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -435,7 +435,7 @@ $(obj)/zImage.initrd:	$(addprefix $(obj)/, $(initrd-y))
+ 	$(Q)rm -f $@; ln $< $@
  
- 	if (unplug) {
- 		usbhid->ctrltail = usbhid->ctrlhead;
--	} else {
-+	} else if (usbhid->ctrlhead != usbhid->ctrltail) {
- 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
+ # Only install the vmlinux
+-install: $(CONFIGURE) $(addprefix $(obj)/, $(image-y))
++install:
+ 	sh -x $(srctree)/$(src)/install.sh "$(KERNELRELEASE)" vmlinux System.map "$(INSTALL_PATH)"
  
- 		if (usbhid->ctrlhead != usbhid->ctrltail &&
-@@ -1214,9 +1214,20 @@ static void usbhid_stop(struct hid_device *hid)
- 	mutex_lock(&usbhid->mutex);
+ # Install the vmlinux and other built boot targets.
+diff --git a/arch/powerpc/boot/install.sh b/arch/powerpc/boot/install.sh
+index b6a256bc96ee..8d669cf1ccda 100644
+--- a/arch/powerpc/boot/install.sh
++++ b/arch/powerpc/boot/install.sh
+@@ -21,6 +21,20 @@
+ # Bail with error code if anything goes wrong
+ set -e
  
- 	clear_bit(HID_STARTED, &usbhid->iofl);
++verify () {
++	if [ ! -f "$1" ]; then
++		echo ""                                                   1>&2
++		echo " *** Missing file: $1"                              1>&2
++		echo ' *** You need to run "make" before "make install".' 1>&2
++		echo ""                                                   1>&2
++		exit 1
++	fi
++}
 +
- 	spin_lock_irq(&usbhid->lock);	/* Sync with error and led handlers */
- 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
-+	while (usbhid->ctrltail != usbhid->ctrlhead) {
-+		if (usbhid->ctrl[usbhid->ctrltail].dir == USB_DIR_OUT) {
-+			kfree(usbhid->ctrl[usbhid->ctrltail].raw_report);
-+			usbhid->ctrl[usbhid->ctrltail].raw_report = NULL;
-+		}
++# Make sure the files actually exist
++verify "$2"
++verify "$3"
 +
-+		usbhid->ctrltail = (usbhid->ctrltail + 1) &
-+			(HID_CONTROL_FIFO_SIZE - 1);
-+	}
- 	spin_unlock_irq(&usbhid->lock);
-+
- 	usb_kill_urb(usbhid->urbin);
- 	usb_kill_urb(usbhid->urbout);
- 	usb_kill_urb(usbhid->urbctrl);
+ # User may have a custom install script
+ 
+ if [ -x ~/bin/${INSTALLKERNEL} ]; then exec ~/bin/${INSTALLKERNEL} "$@"; fi
 -- 
 2.30.2
 
