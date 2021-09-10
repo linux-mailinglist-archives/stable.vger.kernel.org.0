@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B096A406269
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 074E3406273
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:44:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231488AbhIJAp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:45:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47146 "EHLO mail.kernel.org"
+        id S241753AbhIJAp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:45:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233768AbhIJAVQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:21:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4793610A3;
-        Fri, 10 Sep 2021 00:20:05 +0000 (UTC)
+        id S232642AbhIJAVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:21:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C9E96023D;
+        Fri, 10 Sep 2021 00:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233206;
-        bh=FH42Cj8hp9vOAOm1KJf4fwyxF9sp7FzFqw3MwuzImA0=;
+        s=k20201202; t=1631233207;
+        bh=L1NascCO+RqV2EXe7WgTVOgru+3jDwh0a4LVdwaZR/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gwsgqNjWx/zW1KNcZu+CVO+OLSAqfQ5ZI8JtD2ZqNZfm4XB5ZWD0yXGL2V+6OmZwz
-         R/1nN6SkPYz5L7BRZQghpxW0dKyyypCgHhAW2pMAAotks5QzM7INGjgJXNfm3pufts
-         fqc/gPEpEdSHZnqpzqpyUe5k+qRN5C8NfNgjE/nAuqa7UcLlf18kON6HyD386dR11E
-         SJTcu24XNsvyw5PfF6gycB3n7dR+ynanlnVlid90KPcg5vKSFXdG0qCJn+JeNm1Uz2
-         QHPjmTPXn0kWKL/9oIG3JF1QvZjRGlvM9KWU9y5Pu0hxC/xk65+btQ875XORzpNfe6
-         EJNfCb+cZxjtw==
+        b=l05YtZEfvVFThD13KAlYDT9vch5IiHqQgo5ekDYHAAyZTJpeN2mX3amqS3vQM2dYL
+         8/+dZf3v1Kppe5voLzSR5kjcnrlgfa5xJNUD7vhVHXlKs+bfZGInzFblBHKD7rMvXH
+         HAIQmtbLQF0vZD6q/9u9onfMwSgc8NU/GR1G5LiBy6Sgz1JzYKqpZqdyfDmKN+fbyx
+         luVvS0+vMQSLbK5yV9BOBQ15tNFu65LmkGAlrPTVlVDm4q1nlJdjQ9HK86Eum8Di0Y
+         IYHIW/OXj32oRnCrvLz4SsmwWyRD7VCsKZh2apHqUI2q8XaJrN6G97CHBkklmwqGtk
+         /d+f3cBDrjasw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 75/88] ext4: make the updating inode data procedure atomic
-Date:   Thu,  9 Sep 2021 20:18:07 -0400
-Message-Id: <20210910001820.174272-75-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>, Sasha Levin <sashal@kernel.org>,
+        xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 5.13 76/88] xen: remove stray preempt_disable() from PV AP startup code
+Date:   Thu,  9 Sep 2021 20:18:08 -0400
+Message-Id: <20210910001820.174272-76-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001820.174272-1-sashal@kernel.org>
 References: <20210910001820.174272-1-sashal@kernel.org>
@@ -42,142 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit baaae979b112642a41b71c71c599d875c067d257 ]
+[ Upstream commit 58e636039b512697554b579c2bb23774061877f5 ]
 
-Now that ext4_do_update_inode() return error before filling the whole
-inode data if we fail to set inode blocks in ext4_inode_blocks_set().
-This error should never happen in theory since sb->s_maxbytes should not
-have allowed this, we have already init sb->s_maxbytes according to this
-feature in ext4_fill_super(). So even through that could only happen due
-to the filesystem corruption, we'd better to return after we finish
-updating the inode because it may left an uninitialized buffer and we
-could read this buffer later in "errors=continue" mode.
+In cpu_bringup() there is a call of preempt_disable() without a paired
+preempt_enable(). This is not needed as interrupts are off initially.
+Additionally this will result in early boot messages like:
 
-This patch make the updating inode data procedure atomic, call
-EXT4_ERROR_INODE() after we dropping i_raw_lock after something bad
-happened, make sure that the inode is integrated, and also drop a BUG_ON
-and do some small cleanups.
+BUG: scheduling while atomic: swapper/1/0/0x00000002
 
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210826130412.3921207-4-yi.zhang@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20210825113158.11716-1-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c | 44 ++++++++++++++++++++++++++++----------------
- 1 file changed, 28 insertions(+), 16 deletions(-)
+ arch/x86/xen/smp_pv.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 4e150fbf5c6b..b61b3838ee7b 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4932,8 +4932,14 @@ static int ext4_inode_blocks_set(handle_t *handle,
- 		ext4_clear_inode_flag(inode, EXT4_INODE_HUGE_FILE);
- 		return 0;
- 	}
-+
-+	/*
-+	 * This should never happen since sb->s_maxbytes should not have
-+	 * allowed this, sb->s_maxbytes was set according to the huge_file
-+	 * feature in ext4_fill_super().
-+	 */
- 	if (!ext4_has_feature_huge_file(sb))
--		return -EFBIG;
-+		return -EFSCORRUPTED;
+diff --git a/arch/x86/xen/smp_pv.c b/arch/x86/xen/smp_pv.c
+index c2ac319f11a4..96afadf9878e 100644
+--- a/arch/x86/xen/smp_pv.c
++++ b/arch/x86/xen/smp_pv.c
+@@ -64,7 +64,6 @@ static void cpu_bringup(void)
+ 	cr4_init();
+ 	cpu_init();
+ 	touch_softlockup_watchdog();
+-	preempt_disable();
  
- 	if (i_blocks <= 0xffffffffffffULL) {
- 		/*
-@@ -5036,16 +5042,14 @@ static int ext4_do_update_inode(handle_t *handle,
- 
- 	spin_lock(&ei->i_raw_lock);
- 
--	/* For fields not tracked in the in-memory inode,
--	 * initialise them to zero for new inodes. */
-+	/*
-+	 * For fields not tracked in the in-memory inode, initialise them
-+	 * to zero for new inodes.
-+	 */
- 	if (ext4_test_inode_state(inode, EXT4_STATE_NEW))
- 		memset(raw_inode, 0, EXT4_SB(inode->i_sb)->s_inode_size);
- 
- 	err = ext4_inode_blocks_set(handle, raw_inode, ei);
--	if (err) {
--		spin_unlock(&ei->i_raw_lock);
--		goto out_brelse;
--	}
- 
- 	raw_inode->i_mode = cpu_to_le16(inode->i_mode);
- 	i_uid = i_uid_read(inode);
-@@ -5054,10 +5058,11 @@ static int ext4_do_update_inode(handle_t *handle,
- 	if (!(test_opt(inode->i_sb, NO_UID32))) {
- 		raw_inode->i_uid_low = cpu_to_le16(low_16_bits(i_uid));
- 		raw_inode->i_gid_low = cpu_to_le16(low_16_bits(i_gid));
--/*
-- * Fix up interoperability with old kernels. Otherwise, old inodes get
-- * re-used with the upper 16 bits of the uid/gid intact
-- */
-+		/*
-+		 * Fix up interoperability with old kernels. Otherwise,
-+		 * old inodes get re-used with the upper 16 bits of the
-+		 * uid/gid intact.
-+		 */
- 		if (ei->i_dtime && list_empty(&ei->i_orphan)) {
- 			raw_inode->i_uid_high = 0;
- 			raw_inode->i_gid_high = 0;
-@@ -5126,8 +5131,9 @@ static int ext4_do_update_inode(handle_t *handle,
- 		}
- 	}
- 
--	BUG_ON(!ext4_has_feature_project(inode->i_sb) &&
--	       i_projid != EXT4_DEF_PROJID);
-+	if (i_projid != EXT4_DEF_PROJID &&
-+	    !ext4_has_feature_project(inode->i_sb))
-+		err = err ?: -EFSCORRUPTED;
- 
- 	if (EXT4_INODE_SIZE(inode->i_sb) > EXT4_GOOD_OLD_INODE_SIZE &&
- 	    EXT4_FITS_IN_INODE(raw_inode, ei, i_projid))
-@@ -5135,6 +5141,11 @@ static int ext4_do_update_inode(handle_t *handle,
- 
- 	ext4_inode_csum_set(inode, raw_inode, ei);
- 	spin_unlock(&ei->i_raw_lock);
-+	if (err) {
-+		EXT4_ERROR_INODE(inode, "corrupted inode contents");
-+		goto out_brelse;
-+	}
-+
- 	if (inode->i_sb->s_flags & SB_LAZYTIME)
- 		ext4_update_other_inodes_time(inode->i_sb, inode->i_ino,
- 					      bh->b_data);
-@@ -5142,13 +5153,13 @@ static int ext4_do_update_inode(handle_t *handle,
- 	BUFFER_TRACE(bh, "call ext4_handle_dirty_metadata");
- 	err = ext4_handle_dirty_metadata(handle, NULL, bh);
- 	if (err)
--		goto out_brelse;
-+		goto out_error;
- 	ext4_clear_inode_state(inode, EXT4_STATE_NEW);
- 	if (set_large_file) {
- 		BUFFER_TRACE(EXT4_SB(sb)->s_sbh, "get write access");
- 		err = ext4_journal_get_write_access(handle, EXT4_SB(sb)->s_sbh);
- 		if (err)
--			goto out_brelse;
-+			goto out_error;
- 		lock_buffer(EXT4_SB(sb)->s_sbh);
- 		ext4_set_feature_large_file(sb);
- 		ext4_superblock_csum_set(sb);
-@@ -5158,9 +5169,10 @@ static int ext4_do_update_inode(handle_t *handle,
- 						 EXT4_SB(sb)->s_sbh);
- 	}
- 	ext4_update_inode_fsync_trans(handle, inode, need_datasync);
-+out_error:
-+	ext4_std_error(inode->i_sb, err);
- out_brelse:
- 	brelse(bh);
--	ext4_std_error(inode->i_sb, err);
- 	return err;
- }
- 
+ 	/* PVH runs in ring 0 and allows us to do native syscalls. Yay! */
+ 	if (!xen_feature(XENFEAT_supervisor_mode_kernel)) {
 -- 
 2.30.2
 
