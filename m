@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03B1040636D
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1D740636C
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242746AbhIJArn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:47:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49268 "EHLO mail.kernel.org"
+        id S230039AbhIJArp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:47:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234656AbhIJAX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:23:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4A04611C1;
-        Fri, 10 Sep 2021 00:22:45 +0000 (UTC)
+        id S232038AbhIJAX5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:23:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E71DF611BD;
+        Fri, 10 Sep 2021 00:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233366;
-        bh=JdRDfY18ehTsvl/VAtGRvK38ZhZQiJ20PRZ7QzYlQaE=;
+        s=k20201202; t=1631233367;
+        bh=t7/ELGK6D0FuWkNv8+hF9qKpaWyFbFxslKiIqkF7WFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ouTGXnjTSnaS4Pg6i/oSBFz1iFL9MI4Lx6l50G8wo8hKEBBSAzMU+x4JE5RbVCwG5
-         ZY9zc+LTVlPYZHdDxlin5VSsxHaVrIIWFpDM205jMjoH1MJgmJwMZleSnZU6aWhj3f
-         eXp+3E+ybMcwcyQSIVy3hsqXRV8m7346CF8AIjIlmXe8zHGA4jNcJTEhQ8WQ73Rpqw
-         HL71OVOk965cuWTqWBHCoK4vIUfGcVlu+hmn+nm9OcYOWYkofQZQhuEPwYqj9TeZ+W
-         GD3ro5gnYChIMZUNVsZGK8B3eSDjaMpwY6DPjgxdVofS2jKmZcI0HjmsohNHwnekM+
-         pg+unPGME23HA==
+        b=qBbcnvIhzJEZDE5moFF8hWFe6MB3qhL8YNBTMR8Ox8UzgSdFXdEAKvRCsvk2tKaJc
+         IlMt7LL5KQlVTFVqP8wuFktF0Rv2lb85ylmrwk/8dTk5JRwpu2eGoC8tgwHwzM7gdl
+         cLQN0rsOtF8hZZ/Zcv4054OM3nUJT2jMXOW8p5LRcAmIPd+a8AR7VrH0deXEs3kbJj
+         12Pcf4DIbscI4xyBuXd3kGPzwNFTLOmSCAznz1MBx+uOEVYWfEuQKpB3lgfFRTaZ7P
+         S8SioLnYNpq4MP08KrIkyOHHG9c50Np2UfQdcF3Dyynm2staEVJIZbvv2/awGU1D+5
+         5YN32JksRPu1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 09/25] jbd2: fix portability problems caused by unaligned accesses
-Date:   Thu,  9 Sep 2021 20:22:17 -0400
-Message-Id: <20210910002234.176125-9-sashal@kernel.org>
+Cc:     Quinn Tran <qutran@marvell.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 10/25] scsi: qla2xxx: Fix NPIV create erroneous error
+Date:   Thu,  9 Sep 2021 20:22:18 -0400
+Message-Id: <20210910002234.176125-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910002234.176125-1-sashal@kernel.org>
 References: <20210910002234.176125-1-sashal@kernel.org>
@@ -41,107 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Quinn Tran <qutran@marvell.com>
 
-[ Upstream commit a20d1cebb98bba75f2e34fddc768dd8712c1bded ]
+[ Upstream commit a57214443f0f85639a0d9bbb8bd658d82dbf0927 ]
 
-This commit applies the e2fsck/recovery.c portions of commit
-1e0c8ca7c08a ("e2fsck: fix portability problems caused by unaligned
-accesses) from the e2fsprogs git tree.
+When user creates multiple NPIVs, the switch capabilities field is checked
+before a vport is allowed to be created. This field is being toggled if a
+switch scan is in progress. This creates erroneous reject of vport create.
 
-The on-disk format for the ext4 journal can have unaigned 32-bit
-integers.  This can happen when replaying a journal using a obsolete
-checksum format (which was never popularly used, since the v3 format
-replaced v2 while the metadata checksum feature was being stablized).
-
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210810043720.1137-10-njavali@marvell.com
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jbd2/recovery.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/scsi/qla2xxx/qla_init.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/jbd2/recovery.c b/fs/jbd2/recovery.c
-index a4967b27ffb6..a8bb963b9573 100644
---- a/fs/jbd2/recovery.c
-+++ b/fs/jbd2/recovery.c
-@@ -197,7 +197,7 @@ static int jbd2_descriptor_block_csum_verify(journal_t *j, void *buf)
- static int count_tags(journal_t *journal, struct buffer_head *bh)
- {
- 	char *			tagp;
--	journal_block_tag_t *	tag;
-+	journal_block_tag_t	tag;
- 	int			nr = 0, size = journal->j_blocksize;
- 	int			tag_bytes = journal_tag_bytes(journal);
+diff --git a/drivers/scsi/qla2xxx/qla_init.c b/drivers/scsi/qla2xxx/qla_init.c
+index 2ebf4e4e0234..cadd67adec20 100644
+--- a/drivers/scsi/qla2xxx/qla_init.c
++++ b/drivers/scsi/qla2xxx/qla_init.c
+@@ -4244,11 +4244,11 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
+ 	/* initialize */
+ 	ha->min_external_loopid = SNS_FIRST_LOOP_ID;
+ 	ha->operating_mode = LOOP;
+-	ha->switch_cap = 0;
  
-@@ -207,14 +207,14 @@ static int count_tags(journal_t *journal, struct buffer_head *bh)
- 	tagp = &bh->b_data[sizeof(journal_header_t)];
+ 	switch (topo) {
+ 	case 0:
+ 		ql_dbg(ql_dbg_disc, vha, 0x200b, "HBA in NL topology.\n");
++		ha->switch_cap = 0;
+ 		ha->current_topology = ISP_CFG_NL;
+ 		strcpy(connect_type, "(Loop)");
+ 		break;
+@@ -4262,6 +4262,7 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
  
- 	while ((tagp - bh->b_data + tag_bytes) <= size) {
--		tag = (journal_block_tag_t *) tagp;
-+		memcpy(&tag, tagp, sizeof(tag));
- 
- 		nr++;
- 		tagp += tag_bytes;
--		if (!(tag->t_flags & cpu_to_be16(JBD2_FLAG_SAME_UUID)))
-+		if (!(tag.t_flags & cpu_to_be16(JBD2_FLAG_SAME_UUID)))
- 			tagp += 16;
- 
--		if (tag->t_flags & cpu_to_be16(JBD2_FLAG_LAST_TAG))
-+		if (tag.t_flags & cpu_to_be16(JBD2_FLAG_LAST_TAG))
- 			break;
- 	}
- 
-@@ -394,9 +394,9 @@ static int jbd2_commit_block_csum_verify(journal_t *j, void *buf)
- }
- 
- static int jbd2_block_tag_csum_verify(journal_t *j, journal_block_tag_t *tag,
-+				      journal_block_tag3_t *tag3,
- 				      void *buf, __u32 sequence)
- {
--	journal_block_tag3_t *tag3 = (journal_block_tag3_t *)tag;
- 	__u32 csum32;
- 	__be32 seq;
- 
-@@ -455,7 +455,7 @@ static int do_one_pass(journal_t *journal,
- 	while (1) {
- 		int			flags;
- 		char *			tagp;
--		journal_block_tag_t *	tag;
-+		journal_block_tag_t	tag;
- 		struct buffer_head *	obh;
- 		struct buffer_head *	nbh;
- 
-@@ -560,8 +560,8 @@ static int do_one_pass(journal_t *journal,
- 			       <= journal->j_blocksize - descr_csum_size) {
- 				unsigned long io_block;
- 
--				tag = (journal_block_tag_t *) tagp;
--				flags = be16_to_cpu(tag->t_flags);
-+				memcpy(&tag, tagp, sizeof(tag));
-+				flags = be16_to_cpu(tag.t_flags);
- 
- 				io_block = next_log_block++;
- 				wrap(journal, next_log_block);
-@@ -579,7 +579,7 @@ static int do_one_pass(journal_t *journal,
- 
- 					J_ASSERT(obh != NULL);
- 					blocknr = read_tag_block(journal,
--								 tag);
-+								 &tag);
- 
- 					/* If the block has been
- 					 * revoked, then we're all done
-@@ -594,8 +594,8 @@ static int do_one_pass(journal_t *journal,
- 
- 					/* Look for block corruption */
- 					if (!jbd2_block_tag_csum_verify(
--						journal, tag, obh->b_data,
--						be32_to_cpu(tmp->h_sequence))) {
-+			journal, &tag, (journal_block_tag3_t *)tagp,
-+			obh->b_data, be32_to_cpu(tmp->h_sequence))) {
- 						brelse(obh);
- 						success = -EFSBADCRC;
- 						printk(KERN_ERR "JBD2: Invalid "
+ 	case 2:
+ 		ql_dbg(ql_dbg_disc, vha, 0x200d, "HBA in N P2P topology.\n");
++		ha->switch_cap = 0;
+ 		ha->operating_mode = P2P;
+ 		ha->current_topology = ISP_CFG_N;
+ 		strcpy(connect_type, "(N_Port-to-N_Port)");
+@@ -4278,6 +4279,7 @@ qla2x00_configure_hba(scsi_qla_host_t *vha)
+ 	default:
+ 		ql_dbg(ql_dbg_disc, vha, 0x200f,
+ 		    "HBA in unknown topology %x, using NL.\n", topo);
++		ha->switch_cap = 0;
+ 		ha->current_topology = ISP_CFG_NL;
+ 		strcpy(connect_type, "(Loop)");
+ 		break;
 -- 
 2.30.2
 
