@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2473540677B
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 09:08:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B85040677A
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 09:08:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231314AbhIJHJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Sep 2021 03:09:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51324 "EHLO mail.kernel.org"
+        id S231312AbhIJHJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Sep 2021 03:09:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231223AbhIJHJz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 10 Sep 2021 03:09:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A311610A3;
-        Fri, 10 Sep 2021 07:08:44 +0000 (UTC)
+        id S231223AbhIJHJr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 10 Sep 2021 03:09:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F231611BF;
+        Fri, 10 Sep 2021 07:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631257725;
-        bh=ggmRSlHkCf7unR5afcCIn9DYAQ6rtApOYK1/Rrn5Iow=;
+        s=korg; t=1631257716;
+        bh=WYD2T9XVAHmwSRy4vY1ph6KadwQ0Da8RA+qG7bWSuqE=;
         h=Subject:To:Cc:From:Date:From;
-        b=DcyuoHtZ94ax4YsqG+p9Nk4nlJrmLwAkzHlwli+a5M4rM/udXgRgvBNkf4n+L6TS2
-         V7HCRMXZrfVTJM/xxmDA0/ZZG+ixiLWLFPp8FUpgTlH18OWbJOIH6uzzWeS+7yoOU5
-         9oh/TnKkUerhCOOwDzoxzJfIX+TaBg5jzvF3oUGE=
-Subject: FAILED: patch "[PATCH] usb: mtu3: fix random remote wakeup" failed to apply to 5.14-stable tree
+        b=OyDKiI54GVqV5IGOmi/YM99kJTBL1GhOYUVIh4jg0lLX7CNwX1s7Ym7WtCEH/goTS
+         Y4vo5fUxbdSGp7W3B9tDT+0fXKCg3VUQU3LPwD3VqB4ylv/ADY8gQ+ny7Kl4LUUpsQ
+         HDO2AojBSPBRp71Ra3cNcRIRedrsnP0l/FPUh7wY=
+Subject: FAILED: patch "[PATCH] usb: mtu3: fix random remote wakeup" failed to apply to 5.13-stable tree
 To:     chunfeng.yun@mediatek.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 10 Sep 2021 09:08:34 +0200
-Message-ID: <1631257714220236@kroah.com>
+Message-ID: <1631257714183235@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
