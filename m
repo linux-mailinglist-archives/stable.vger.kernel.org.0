@@ -2,43 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9285840613F
-	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7102406143
+	for <lists+stable@lfdr.de>; Fri, 10 Sep 2021 02:41:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231633AbhIJAmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Sep 2021 20:42:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44188 "EHLO mail.kernel.org"
+        id S240273AbhIJAmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Sep 2021 20:42:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229812AbhIJARv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 9 Sep 2021 20:17:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9DA2611C3;
-        Fri, 10 Sep 2021 00:16:39 +0000 (UTC)
+        id S231374AbhIJASD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 9 Sep 2021 20:18:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2790611CC;
+        Fri, 10 Sep 2021 00:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631233001;
-        bh=JQ3M0VmSzNeZYdd0bN97o/E8ZQit8PGdocEvTNuEi6k=;
+        s=k20201202; t=1631233002;
+        bh=bFudKSCOtqCJSbzerv9YL80dTH1IVwrlA8bgY8TI2qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uYSdTSJpKUtDLEq5GEyRm7K0ae1nWVTI6a8bq69Z+coZv/KZLuwH0VV+LS8PPhaQP
-         w+ctinxexhBCjEI46/VGh1FlKvKsgn9NXEisfRxpP4b4PS+4yMOuEFK3VOW2gRcbsz
-         F+oo9ubKhofZY37HV8Q6Mhq3txPHWeWTucjKaSTpmyxy9PsQ/36qwBofTwsxOO6ZZk
-         Xdz4SxOBS6x8pXUhUtgDJ4QAWwYQlc0HN4ZCcAGeUZBapYOZNUo0gPqplaRVN5o+xQ
-         R7BnXNsuB3YyMRnHhZ9of2kB0D7PwjKL3hW/PGARyPsJfvWUgLcFPo3ztBw4emEEaY
-         yOOxpShYBbOqw==
+        b=Kf5ZmtzKnNNAfOkrH40cAPuU28NoJKEbK5H2O+Hqd0Rt5y0QHH7ZAxhuMy9p/47w1
+         To7lSby4asKtpSGOOQiaaqVnXq12B0eCnlghEAXrjaicD9RaG0p8fH0QGwUz4LbAw7
+         JjY4umt+v/5SpRi81NPZqXWUX8ypOnJ4JPPPzOMFR2r0SU7lvTB+1Pm34Nzp84/zKQ
+         I+2srZcodOCA4NWaqjdX50Ees2c5bkUW6kBAqsreJjamC5AlGArLafk09mFMkCdalr
+         l8HskieXtEBhNk4NIaC4yeqzbXKP7t64UCxogzw8jzRyT2VDsGZgq81iky3ETrMarg
+         hkV8HHvdt8PVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bart Van Assche <bvanassche@acm.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Can Guo <cang@codeaurora.org>,
-        Asutosh Das <asutoshd@codeaurora.org>,
-        Avri Altman <avri.altman@wdc.com>,
-        Bean Huo <beanhuo@micron.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.14 30/99] scsi: ufs: Request sense data asynchronously
-Date:   Thu,  9 Sep 2021 20:14:49 -0400
-Message-Id: <20210910001558.173296-30-sashal@kernel.org>
+Cc:     "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.14 31/99] cpuidle: pseries: Do not cap the CEDE0 latency in fixup_cede0_latency()
+Date:   Thu,  9 Sep 2021 20:14:50 -0400
+Message-Id: <20210910001558.173296-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210910001558.173296-1-sashal@kernel.org>
 References: <20210910001558.173296-1-sashal@kernel.org>
@@ -50,131 +43,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>
 
-[ Upstream commit ac1bc2ba060f9609972fb486073ebd9eab1ef3b6 ]
+[ Upstream commit 71737a6c2a8f801622d2b71567d1ec1e4c5b40b8 ]
 
-Clearing a unit attention synchronously from inside the UFS error handler
-may trigger the following deadlock:
+Currently in fixup_cede0_latency() code, we perform the fixup the
+CEDE(0) exit latency value only if minimum advertized extended CEDE
+latency values are less than 10us. This was done so as to not break
+the expected behaviour on POWER8 platforms where the advertised
+latency was higher than the default 10us, which would delay the SMT
+folding on the core.
 
- - ufshcd_err_handler() calls ufshcd_err_handling_unprepare() and the
-   latter function calls ufshcd_clear_ua_wluns().
+However, after the earlier patch "cpuidle/pseries: Fixup CEDE0 latency
+only for POWER10 onwards", we can be sure that the fixup of CEDE0
+latency is going to happen only from POWER10 onwards. Hence
+unconditionally use the minimum exit latency provided by the platform.
 
- - ufshcd_clear_ua_wluns() submits a REQUEST SENSE command and that command
-   activates the SCSI error handler.
-
- - The SCSI error handler calls ufshcd_host_reset_and_restore().
-
- - ufshcd_host_reset_and_restore() executes the following code:
-   ufshcd_schedule_eh_work(hba); flush_work(&hba->eh_work);
-
-This sequence results in a deadlock (circular wait). Fix this by requesting
-sense data asynchronously.
-
-Link: https://lore.kernel.org/r/20210722033439.26550-16-bvanassche@acm.org
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Stanley Chu <stanley.chu@mediatek.com>
-Cc: Can Guo <cang@codeaurora.org>
-Cc: Asutosh Das <asutoshd@codeaurora.org>
-Cc: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1626676399-15975-3-git-send-email-ego@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 64 ++++++++++++++++++++-------------------
- 1 file changed, 33 insertions(+), 31 deletions(-)
+ drivers/cpuidle/cpuidle-pseries.c | 59 ++++++++++++++++---------------
+ 1 file changed, 30 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 3350b0cff9ef..52731dffa624 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -7911,8 +7911,39 @@ static int ufshcd_add_lus(struct ufs_hba *hba)
- 	return ret;
- }
- 
-+static void ufshcd_request_sense_done(struct request *rq, blk_status_t error)
-+{
-+	if (error != BLK_STS_OK)
-+		pr_err("%s: REQUEST SENSE failed (%d)", __func__, error);
-+	blk_put_request(rq);
-+}
-+
- static int
--ufshcd_send_request_sense(struct ufs_hba *hba, struct scsi_device *sdp);
-+ufshcd_request_sense_async(struct ufs_hba *hba, struct scsi_device *sdev)
-+{
-+	/*
-+	 * From SPC-6: the REQUEST SENSE command with any allocation length
-+	 * clears the sense data.
-+	 */
-+	static const u8 cmd[6] = {REQUEST_SENSE, 0, 0, 0, 0, 0};
-+	struct scsi_request *rq;
-+	struct request *req;
-+
-+	req = blk_get_request(sdev->request_queue, REQ_OP_DRV_IN, /*flags=*/0);
-+	if (IS_ERR(req))
-+		return PTR_ERR(req);
-+
-+	rq = scsi_req(req);
-+	rq->cmd_len = ARRAY_SIZE(cmd);
-+	memcpy(rq->cmd, cmd, rq->cmd_len);
-+	rq->retries = 3;
-+	req->timeout = 1 * HZ;
-+	req->rq_flags |= RQF_PM | RQF_QUIET;
-+
-+	blk_execute_rq_nowait(/*bd_disk=*/NULL, req, /*at_head=*/true,
-+			      ufshcd_request_sense_done);
-+	return 0;
-+}
- 
- static int ufshcd_clear_ua_wlun(struct ufs_hba *hba, u8 wlun)
+diff --git a/drivers/cpuidle/cpuidle-pseries.c b/drivers/cpuidle/cpuidle-pseries.c
+index a2b5c6f60cf0..18747e5287c8 100644
+--- a/drivers/cpuidle/cpuidle-pseries.c
++++ b/drivers/cpuidle/cpuidle-pseries.c
+@@ -346,11 +346,9 @@ static int pseries_cpuidle_driver_init(void)
+ static void __init fixup_cede0_latency(void)
  {
-@@ -7940,7 +7971,7 @@ static int ufshcd_clear_ua_wlun(struct ufs_hba *hba, u8 wlun)
- 	if (ret)
- 		goto out_err;
+ 	struct xcede_latency_payload *payload;
+-	u64 min_latency_us;
++	u64 min_xcede_latency_us = UINT_MAX;
+ 	int i;
  
--	ret = ufshcd_send_request_sense(hba, sdp);
-+	ret = ufshcd_request_sense_async(hba, sdp);
- 	scsi_device_put(sdp);
- out_err:
- 	if (ret)
-@@ -8535,35 +8566,6 @@ static void ufshcd_hba_exit(struct ufs_hba *hba)
- 	}
- }
- 
--static int
--ufshcd_send_request_sense(struct ufs_hba *hba, struct scsi_device *sdp)
--{
--	unsigned char cmd[6] = {REQUEST_SENSE,
--				0,
--				0,
--				0,
--				UFS_SENSE_SIZE,
--				0};
--	char *buffer;
--	int ret;
+-	min_latency_us = dedicated_states[1].exit_latency; // CEDE latency
 -
--	buffer = kzalloc(UFS_SENSE_SIZE, GFP_KERNEL);
--	if (!buffer) {
--		ret = -ENOMEM;
--		goto out;
+ 	if (parse_cede_parameters())
+ 		return;
+ 
+@@ -358,42 +356,45 @@ static void __init fixup_cede0_latency(void)
+ 		nr_xcede_records);
+ 
+ 	payload = &xcede_latency_parameter.payload;
++
++	/*
++	 * The CEDE idle state maps to CEDE(0). While the hypervisor
++	 * does not advertise CEDE(0) exit latency values, it does
++	 * advertise the latency values of the extended CEDE states.
++	 * We use the lowest advertised exit latency value as a proxy
++	 * for the exit latency of CEDE(0).
++	 */
+ 	for (i = 0; i < nr_xcede_records; i++) {
+ 		struct xcede_latency_record *record = &payload->records[i];
++		u8 hint = record->hint;
+ 		u64 latency_tb = be64_to_cpu(record->latency_ticks);
+ 		u64 latency_us = DIV_ROUND_UP_ULL(tb_to_ns(latency_tb), NSEC_PER_USEC);
+ 
+-		if (latency_us == 0)
+-			pr_warn("cpuidle: xcede record %d has an unrealistic latency of 0us.\n", i);
+-
+-		if (latency_us < min_latency_us)
+-			min_latency_us = latency_us;
 -	}
 -
--	ret = scsi_execute(sdp, cmd, DMA_FROM_DEVICE, buffer,
--			UFS_SENSE_SIZE, NULL, NULL,
--			msecs_to_jiffies(1000), 3, 0, RQF_PM, NULL);
--	if (ret)
--		pr_err("%s: failed with err %d\n", __func__, ret);
--
--	kfree(buffer);
--out:
--	return ret;
--}
--
- /**
-  * ufshcd_set_dev_pwr_mode - sends START STOP UNIT command to set device
-  *			     power mode
+-	/*
+-	 * By default, we assume that CEDE(0) has exit latency 10us,
+-	 * since there is no way for us to query from the platform.
+-	 *
+-	 * However, if the wakeup latency of an Extended CEDE state is
+-	 * smaller than 10us, then we can be sure that CEDE(0)
+-	 * requires no more than that.
+-	 *
+-	 * Perform the fix-up.
+-	 */
+-	if (min_latency_us < dedicated_states[1].exit_latency) {
+ 		/*
+-		 * We set a minimum of 1us wakeup latency for cede0 to
+-		 * distinguish it from snooze
++		 * We expect the exit latency of an extended CEDE
++		 * state to be non-zero, it to since it takes at least
++		 * a few nanoseconds to wakeup the idle CPU and
++		 * dispatch the virtual processor into the Linux
++		 * Guest.
++		 *
++		 * So we consider only non-zero value for performing
++		 * the fixup of CEDE(0) latency.
+ 		 */
+-		u64 cede0_latency = 1;
++		if (latency_us == 0) {
++			pr_warn("cpuidle: Skipping xcede record %d [hint=%d]. Exit latency = 0us\n",
++				i, hint);
++			continue;
++		}
+ 
+-		if (min_latency_us > cede0_latency)
+-			cede0_latency = min_latency_us - 1;
++		if (latency_us < min_xcede_latency_us)
++			min_xcede_latency_us = latency_us;
++	}
+ 
+-		dedicated_states[1].exit_latency = cede0_latency;
+-		dedicated_states[1].target_residency = 10 * (cede0_latency);
++	if (min_xcede_latency_us != UINT_MAX) {
++		dedicated_states[1].exit_latency = min_xcede_latency_us;
++		dedicated_states[1].target_residency = 10 * (min_xcede_latency_us);
+ 		pr_info("cpuidle: Fixed up CEDE exit latency to %llu us\n",
+-			cede0_latency);
++			min_xcede_latency_us);
+ 	}
+ 
+ }
 -- 
 2.30.2
 
