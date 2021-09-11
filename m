@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFA6F40776F
+	by mail.lfdr.de (Postfix) with ESMTP id 3DC1B40776E
 	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237330AbhIKNRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:17:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
+        id S237323AbhIKNRT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:17:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236380AbhIKNPS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236903AbhIKNPS (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 11 Sep 2021 09:15:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD8F761221;
-        Sat, 11 Sep 2021 13:13:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB52A611F2;
+        Sat, 11 Sep 2021 13:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365987;
-        bh=Sc7IrYUdW9e7DN014nitCZ8pyHwS29QuWqPj45AfNos=;
+        s=k20201202; t=1631365988;
+        bh=W067M9YuUs/H/l/wOW2OpgBb+e2lq9U28N6uJgw6CEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9cBeQOzd5Y8WbtSR0AjCC2w9TAi+c4KG2VvTXWCASWQuroJyQppOhTVLFdip5eTt
-         LltJsqzTi3/U9iqD/nfAjDzaDg+AdBRedBLiemnXL/inSNQt0POeQc6wF2nHytprR2
-         AWibwrkYpRGYZqZabGOsGd/FuEjRrpbtlgz4E0IxT9TUsUKtJ1i7B/RCh/dnUCCfW6
-         Plhc7JgtG2C4ycgcHF1mr1luJQLp/0CcV3JcMFxfUGZV52M4nRr8N5gZX2kYq5dA5X
-         pP0+a2B2tulLAv4u1H6EIf84IP5vwrRfEDijYmsn7xw+0osB0nDaG3u+G2FkcD6jB9
-         Xx85tgFYIGFRg==
+        b=ktdDM1anb6SJ3/jkl6QFzgkG36DsytpLR5wY28JKyY7GfI7eZs8wI6U9QtO4KTZQP
+         YVq8e3VgFg8PkqMLCAYWbnDyfdtaCBjwEvWf7Ju+GKhfL9/pvAa+F21907WFENaE1j
+         ZMH/aixwPqSo9laQ1O05yyKsdlav7gId5h0dt6rkc4H2zx+GuOTAV02Gs5cUzbvEO0
+         DR99SR4L/QJTc8kMjDMfT5xLB/7WcSruxmDVob55/jdO5mg7Eg/eSvD1y1MAW+m/oi
+         2dxlb63kxY3odh/d9AzuN4OY2kgcgp7F9SX3JbpcxYW8xxlxm3SLqZDaRwxdGWrJS2
+         qG28IKhWMF97w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Yang Li <yang.lee@linux.alibaba.com>,
         Abaci Robot <abaci@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 26/29] ethtool: Fix an error code in cxgb2.c
-Date:   Sat, 11 Sep 2021 09:12:30 -0400
-Message-Id: <20210911131233.284800-26-sashal@kernel.org>
+        Logan Gunthorpe <logang@deltatee.com>,
+        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>,
+        linux-ntb@googlegroups.com
+Subject: [PATCH AUTOSEL 5.13 27/29] NTB: Fix an error code in ntb_msit_probe()
+Date:   Sat, 11 Sep 2021 09:12:31 -0400
+Message-Id: <20210911131233.284800-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131233.284800-1-sashal@kernel.org>
 References: <20210911131233.284800-1-sashal@kernel.org>
@@ -45,34 +46,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit 7db8263a12155c7ae4ad97e850f1e499c73765fc ]
+[ Upstream commit 319f83ac98d7afaabab84ce5281a819a358b9895 ]
 
-When adapter->registered_device_map is NULL, the value of err is
-uncertain, we set err to -EINVAL to avoid ambiguity.
+When the value of nm->isr_ctx is false, the value of ret is 0.
+So, we set ret to -ENOMEM to indicate this error.
 
 Clean up smatch warning:
-drivers/net/ethernet/chelsio/cxgb/cxgb2.c:1114 init_one() warn: missing
-error code 'err'
+drivers/ntb/test/ntb_msi_test.c:373 ntb_msit_probe() warn: missing
+error code 'ret'.
 
 Reported-by: Abaci Robot <abaci@linux.alibaba.com>
 Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb/cxgb2.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/ntb/test/ntb_msi_test.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb/cxgb2.c b/drivers/net/ethernet/chelsio/cxgb/cxgb2.c
-index 512da98019c6..2a28a38da036 100644
---- a/drivers/net/ethernet/chelsio/cxgb/cxgb2.c
-+++ b/drivers/net/ethernet/chelsio/cxgb/cxgb2.c
-@@ -1107,6 +1107,7 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	if (!adapter->registered_device_map) {
- 		pr_err("%s: could not register any net devices\n",
- 		       pci_name(pdev));
-+		err = -EINVAL;
- 		goto out_release_adapter_res;
- 	}
+diff --git a/drivers/ntb/test/ntb_msi_test.c b/drivers/ntb/test/ntb_msi_test.c
+index 7095ecd6223a..4e18e08776c9 100644
+--- a/drivers/ntb/test/ntb_msi_test.c
++++ b/drivers/ntb/test/ntb_msi_test.c
+@@ -369,8 +369,10 @@ static int ntb_msit_probe(struct ntb_client *client, struct ntb_dev *ntb)
+ 	if (ret)
+ 		goto remove_dbgfs;
+ 
+-	if (!nm->isr_ctx)
++	if (!nm->isr_ctx) {
++		ret = -ENOMEM;
+ 		goto remove_dbgfs;
++	}
+ 
+ 	ntb_link_enable(ntb, NTB_SPEED_AUTO, NTB_WIDTH_AUTO);
  
 -- 
 2.30.2
