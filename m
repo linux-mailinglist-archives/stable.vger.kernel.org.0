@@ -2,85 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33976407A4C
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 21:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0A08407A69
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 22:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232353AbhIKTjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 15:39:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46498 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229977AbhIKTjN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Sep 2021 15:39:13 -0400
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 579ECC061574;
-        Sat, 11 Sep 2021 12:38:00 -0700 (PDT)
-Received: by mail-ot1-x32a.google.com with SMTP id x10-20020a056830408a00b004f26cead745so7281898ott.10;
-        Sat, 11 Sep 2021 12:38:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=syjmbfPPh1/6zebrhHEEQXHQ94zDPjRhHwoaSoqgWWA=;
-        b=a5oPb0rRvSuxGyGjxfOYQVPdvO7yTZ+CSBLvUMrtMDGU7ga67Ueg1X9YL0QIeaEh9E
-         O/bFHWi4xQJpTGeTEgQuTYddHrEN28UBx/mfdDmOTNa/GDbNCVs66TUajQuttCOsGExs
-         vDK3GjrcQHrCFkOkO09fJTnxyDnL5hFtDQTXTi2qcX8zzKuRvtSe3SxVuTkZKeasf6P5
-         //T/9bUMbwoEp02XvvmxcfccQYICCZm956qcJrL3MDekkPLxtE5cLBEKlC/NEQNjZzzz
-         NDjWxBKEytQVw22VkU4Si7vQAmcq0S34QXB8WfAScx5kVrXh7NfLM49/DzWUXFC2kL5Q
-         W8uw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=syjmbfPPh1/6zebrhHEEQXHQ94zDPjRhHwoaSoqgWWA=;
-        b=QEa1A4cDWZ6DFowvUdtfOBVNnPR+gTDnomXIGRAU5KQDnSWTXJbKoA1LlOhaRdN19n
-         mKgWN4QqP/U2Kc7OzCAR+/4vHsOct24vzkomvfODaYFx9AFJomi1SagnrbsnGprAiM9X
-         ZkHRZ8hWgezLvuvm1HmxJVxIbHNWMXcJ9T9bvMmsk2GeP8s7kV/fPxYDe1HKG5JBGr0b
-         FJMWJHhNEkuqsG4mLdvPzB3Ms8+yCnPokLz9c/ZP6gShgwIPQ5iq2Ec1dhIhRPPeDJmd
-         Dj5c8o1LZN0FS4rN7l97dbXDdyq51kJ31ODzm6mozNpOnCy0ASKQ+bxzNzR9TayuhkXF
-         b7iQ==
-X-Gm-Message-State: AOAM530HeyRAoEwW9wPheoMGOIB89/Vj1FvY5sRUQKBf6aWVEr9Tx5co
-        qga4R5zHGnpvyzVLq4I81AAp+qxvgCI=
-X-Google-Smtp-Source: ABdhPJxNYAxaAiJ3Ph8IYuuVNLHSNPDSWWHYEdiLSQLEwfituV47fko0CV5O3f9EZm1nNJ5p5NoFrg==
-X-Received: by 2002:a05:6830:70d:: with SMTP id y13mr3461104ots.278.1631389079768;
-        Sat, 11 Sep 2021 12:37:59 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id bh25sm586140oib.40.2021.09.11.12.37.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Sep 2021 12:37:59 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Sat, 11 Sep 2021 12:37:58 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 00/37] 5.4.145-rc1 review
-Message-ID: <20210911193758.GD2502558@roeck-us.net>
-References: <20210910122917.149278545@linuxfoundation.org>
+        id S229977AbhIKUtB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 16:49:01 -0400
+Received: from x127130.tudelft.net ([131.180.127.130]:58246 "EHLO
+        djo.tudelft.nl" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S229487AbhIKUtB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Sep 2021 16:49:01 -0400
+Received: by djo.tudelft.nl (Postfix, from userid 2001)
+        id 81AA71C42C2; Sat, 11 Sep 2021 22:49:05 +0200 (CEST)
+Date:   Sat, 11 Sep 2021 22:49:05 +0200
+From:   wim <wim@djo.tudelft.nl>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        wim <wim@djo.tudelft.nl>
+Subject: Re: kernel-4.9.270 crash
+Message-ID: <20210911204905.GA18345@djo.tudelft.nl>
+Reply-To: wim@djo.tudelft.nl
+References: <20210904235231.GA31607@djo.tudelft.nl>
+ <20210905190045.GA10991@djo.tudelft.nl>
+ <YTWgKo4idyocDuCD@kroah.com>
+ <20210906093611.GA20123@djo.tudelft.nl>
+ <YTXy5BmzQpY0SprA@kroah.com>
+ <20210908015139.GA26272@djo.tudelft.nl>
+ <YThKidnH3d1fb18g@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210910122917.149278545@linuxfoundation.org>
+In-Reply-To: <YThKidnH3d1fb18g@kroah.com>
+User-Agent: Mutt/1.11.2 (2019-01-07)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 10, 2021 at 02:30:03PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.145 release.
-> There are 37 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, Sep 08, 2021 at 07:30:49AM +0200, Greg KH wrote:
 > 
-> Responses should be made by Sun, 12 Sep 2021 12:29:07 +0000.
-> Anything received after that time might be too late.
+> That is a vt change that handles an issue with a console driver, so this
+> feels like a false failure.
 > 
+> If you revert this change on a newer kernel release, does it work?
 
-Build results:
-	total: 157 pass: 157 fail: 0
-Qemu test results:
-	total: 443 pass: 443 fail: 0
+Oh, you mean a higher version number (which wasn't directly obvious to me).
+Make oldconfig gives an awful lot of output which I'm not going to read.
+Just keep pressing the return key for all the defaults.
+Kernel-5.10.10 runs into a black screen, I can perform a blind login and
+play an audio file. I then tried to revert the patch, but git couldn't
+complete it. The closest uplevel version is 4.14.246 which I then tried.
+It runs into a black screen, but I can login and play audio, but no reaction
+on modprobe fbcon. Git revert ran fine, but that also gave me a black
+screen. It appeared that there was no fbcon.ko, even worse, the option to
+modularize it was gone! Insane.
+Since that option was now invalid, make oldconfig chose for a default no,
+which I didn't know. In-kernel fbcon gives no problems, I guess.
+This led to the discovery that the hard crash in 4.9.270(-282) did NOT occur
+when fbcon.ko was not loaded. Modprobe fbcon after i915 went fine.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+So here you have another reason to not wanting to run a kernel version above 4.9.
+I need fbcon.ko as a diagnostics tool. In many machines with i915 I loose
+sound when i915.ko gets loaded. I need to fiddle with the rc scripts to make
+sure that the snd modules got loaded first. And because the changing fonts and
+layout drives me nuts while looking at the progress, I need to put fbcon/i915
+the very last (in rc.local).
 
-Guenter
+Regards, Wim.
