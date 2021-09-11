@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 848C2407793
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 775914077A2
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:17:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236621AbhIKNSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:18:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
+        id S236847AbhIKNS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:18:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235887AbhIKNQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236297AbhIKNQr (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 11 Sep 2021 09:16:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99FE061250;
-        Sat, 11 Sep 2021 13:13:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1D2161264;
+        Sat, 11 Sep 2021 13:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631366006;
-        bh=rOTzTcNYPTA7tyKriTUDSjBvU62Fa1QWmJLMjowZgF4=;
+        s=k20201202; t=1631366007;
+        bh=3yos3JvVPLcMvFsxovYx1mLu68HlfZthsxXRfdeKGhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i17WaCn5kc/vycA1MLojnK+O7G1a06y8jHI9oNofvLRCzC/rokzdOEYQLQK4uGd1p
-         g76rjV3QVC7D+GZsxZ+lCyE+mJew0LvHFNr9BWWydSvWK4ljnRcQSeaYlk+iusD14o
-         1iNGK6Z+MRGLBShO/sNF+hK9qk3dtVga1nGx5X+5gtYeQ1Ai9CIpXlsnB0vHfkTFAH
-         l33ZKNG31P6AIwe/cIIcnh/QhIHfTJtzIMFUGzBbqI9cBP7SEOji4PSgwtfIPkSWjx
-         CiH7Y9bTMNdV+Ew4zDxAKzOqxDYtWGCe8kj94IKoj0BPYM3S3KxdkdQ54K7kmGu1+7
-         E3Cc0uURtZw9w==
+        b=PXCwbUvFC9hHvoNJG1/28GTSaN36eNsQlQF7GQjOAjxGi0wdvTln5sJO+bidZUv/N
+         QZYt5nowPZjFthvnK95LkDl5zY+yGra32HJFy40EO2ACEq0VHlWZlbqdsRkcFvhVMr
+         bn4xRCwCSt4bAPh9s6BvhhddprDmXJBHJnLKuGmsoEh0Tkg3niahmcev8TiZKF9S74
+         U7NkCskhRjV7BZoRDzgM/QRKlN9rO0Jw/xzxOl829lyXPTdBc6whQDhdtRABNP74lm
+         PpN9DiYVUvsLqQPLAzM08j/7CJO0M8ldyxEinYxqy4Bh+/0XAPYIVF3dB4oFV4CCFY
+         7wFszID15/bzg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 10/25] tracing/probes: Reject events which have the same name of existing one
-Date:   Sat, 11 Sep 2021 09:12:57 -0400
-Message-Id: <20210911131312.285225-10-sashal@kernel.org>
+Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 11/25] PCI: cadence: Use bitfield for *quirk_retrain_flag* instead of bool
+Date:   Sat, 11 Sep 2021 09:12:58 -0400
+Message-Id: <20210911131312.285225-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131312.285225-1-sashal@kernel.org>
 References: <20210911131312.285225-1-sashal@kernel.org>
@@ -42,126 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit 8e242060c6a4947e8ae7d29794af6a581db08841 ]
+[ Upstream commit f4455748b2126a9ba2bcc9cfb2fbcaa08de29bb2 ]
 
-Since kprobe_events and uprobe_events only check whether the
-other same-type probe event has the same name or not, if the
-user gives the same name of the existing tracepoint event (or
-the other type of probe events), it silently fails to create
-the tracefs entry (but registered.) as below.
+No functional change. As we are intending to add additional 1-bit
+members in struct j721e_pcie_data/struct cdns_pcie_rc, use bitfields
+instead of bool since it takes less space. As discussed in [1],
+the preference is to use bitfileds instead of bool inside structures.
 
-/sys/kernel/tracing # ls events/task/task_rename
-enable   filter   format   hist     id       trigger
-/sys/kernel/tracing # echo p:task/task_rename vfs_read >> kprobe_events
-[  113.048508] Could not create tracefs 'task_rename' directory
-/sys/kernel/tracing # cat kprobe_events
-p:task/task_rename vfs_read
+[1] -> https://lore.kernel.org/linux-fsdevel/CA+55aFzKQ6Pj18TB8p4Yr0M4t+S+BsiHH=BJNmn=76-NcjTj-g@mail.gmail.com/
 
-To fix this issue, check whether the existing events have the
-same name or not in trace_probe_register_event_call(). If exists,
-it rejects to register the new event.
-
-Link: https://lkml.kernel.org/r/162936876189.187130.17558311387542061930.stgit@devnote2
-
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Suggested-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/20210811123336.31357-2-kishon@ti.com
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_kprobe.c |  6 +++++-
- kernel/trace/trace_probe.c  | 25 +++++++++++++++++++++++++
- kernel/trace/trace_probe.h  |  1 +
- kernel/trace/trace_uprobe.c |  6 +++++-
- 4 files changed, 36 insertions(+), 2 deletions(-)
+ drivers/pci/controller/cadence/pci-j721e.c    | 2 +-
+ drivers/pci/controller/cadence/pcie-cadence.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
-index 68150b9cbde9..552dbc9d5226 100644
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -647,7 +647,11 @@ static int register_trace_kprobe(struct trace_kprobe *tk)
- 	/* Register new event */
- 	ret = register_kprobe_event(tk);
- 	if (ret) {
--		pr_warn("Failed to register probe event(%d)\n", ret);
-+		if (ret == -EEXIST) {
-+			trace_probe_log_set_index(0);
-+			trace_probe_log_err(0, EVENT_EXIST);
-+		} else
-+			pr_warn("Failed to register probe event(%d)\n", ret);
- 		goto end;
- 	}
+diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
+index d34ca0fda0f6..973b309ac9ba 100644
+--- a/drivers/pci/controller/cadence/pci-j721e.c
++++ b/drivers/pci/controller/cadence/pci-j721e.c
+@@ -63,7 +63,7 @@ enum j721e_pcie_mode {
  
-diff --git a/kernel/trace/trace_probe.c b/kernel/trace/trace_probe.c
-index d2867ccc6aca..1d31bc4acf7a 100644
---- a/kernel/trace/trace_probe.c
-+++ b/kernel/trace/trace_probe.c
-@@ -1029,11 +1029,36 @@ int trace_probe_init(struct trace_probe *tp, const char *event,
- 	return ret;
- }
+ struct j721e_pcie_data {
+ 	enum j721e_pcie_mode	mode;
+-	bool quirk_retrain_flag;
++	unsigned int		quirk_retrain_flag:1;
+ };
  
-+static struct trace_event_call *
-+find_trace_event_call(const char *system, const char *event_name)
-+{
-+	struct trace_event_call *tp_event;
-+	const char *name;
-+
-+	list_for_each_entry(tp_event, &ftrace_events, list) {
-+		if (!tp_event->class->system ||
-+		    strcmp(system, tp_event->class->system))
-+			continue;
-+		name = trace_event_name(tp_event);
-+		if (!name || strcmp(event_name, name))
-+			continue;
-+		return tp_event;
-+	}
-+
-+	return NULL;
-+}
-+
- int trace_probe_register_event_call(struct trace_probe *tp)
- {
- 	struct trace_event_call *call = trace_probe_event_call(tp);
- 	int ret;
+ static inline u32 j721e_pcie_user_readl(struct j721e_pcie *pcie, u32 offset)
+diff --git a/drivers/pci/controller/cadence/pcie-cadence.h b/drivers/pci/controller/cadence/pcie-cadence.h
+index 6705a5fedfbb..60981877f65b 100644
+--- a/drivers/pci/controller/cadence/pcie-cadence.h
++++ b/drivers/pci/controller/cadence/pcie-cadence.h
+@@ -299,7 +299,7 @@ struct cdns_pcie_rc {
+ 	u32			vendor_id;
+ 	u32			device_id;
+ 	bool			avail_ib_bar[CDNS_PCIE_RP_MAX_IB];
+-	bool                    quirk_retrain_flag;
++	unsigned int		quirk_retrain_flag:1;
+ };
  
-+	lockdep_assert_held(&event_mutex);
-+
-+	if (find_trace_event_call(trace_probe_group_name(tp),
-+				  trace_probe_name(tp)))
-+		return -EEXIST;
-+
- 	ret = register_trace_event(&call->event);
- 	if (!ret)
- 		return -ENODEV;
-diff --git a/kernel/trace/trace_probe.h b/kernel/trace/trace_probe.h
-index 2f703a20c724..6d41e20c47ce 100644
---- a/kernel/trace/trace_probe.h
-+++ b/kernel/trace/trace_probe.h
-@@ -398,6 +398,7 @@ extern int traceprobe_define_arg_fields(struct trace_event_call *event_call,
- 	C(NO_EVENT_NAME,	"Event name is not specified"),		\
- 	C(EVENT_TOO_LONG,	"Event name is too long"),		\
- 	C(BAD_EVENT_NAME,	"Event name must follow the same rules as C identifiers"), \
-+	C(EVENT_EXIST,		"Given group/event name is already used by another event"), \
- 	C(RETVAL_ON_PROBE,	"$retval is not available on probe"),	\
- 	C(BAD_STACK_NUM,	"Invalid stack number"),		\
- 	C(BAD_ARG_NUM,		"Invalid argument number"),		\
-diff --git a/kernel/trace/trace_uprobe.c b/kernel/trace/trace_uprobe.c
-index 3cf7128e1ad3..0dd6e286e519 100644
---- a/kernel/trace/trace_uprobe.c
-+++ b/kernel/trace/trace_uprobe.c
-@@ -514,7 +514,11 @@ static int register_trace_uprobe(struct trace_uprobe *tu)
- 
- 	ret = register_uprobe_event(tu);
- 	if (ret) {
--		pr_warn("Failed to register probe event(%d)\n", ret);
-+		if (ret == -EEXIST) {
-+			trace_probe_log_set_index(0);
-+			trace_probe_log_err(0, EVENT_EXIST);
-+		} else
-+			pr_warn("Failed to register probe event(%d)\n", ret);
- 		goto end;
- 	}
- 
+ /**
 -- 
 2.30.2
 
