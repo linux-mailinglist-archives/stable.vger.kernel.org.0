@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 241434076EF
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:13:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58D474076C4
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236119AbhIKNN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:13:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37246 "EHLO mail.kernel.org"
+        id S236138AbhIKNN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:13:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236022AbhIKNNU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 09:13:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E03D61205;
-        Sat, 11 Sep 2021 13:12:07 +0000 (UTC)
+        id S236033AbhIKNNW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 09:13:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED005611C3;
+        Sat, 11 Sep 2021 13:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365928;
-        bh=BvUepuoep7XTWaVhs83x1LXOtgm9K1UWGy0biRI2gO4=;
+        s=k20201202; t=1631365929;
+        bh=EAp12dZdHKtoOUPLP560wfusEhL821UnbrDchRuszKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6WJG379Oebp2jZvOHCPoW3E6rsvz/rzxrLPI061XzuOR71/4i9V2QYVEElpvcPIB
-         n0CGum/BcQGQ7BFHmFBd1uulwA//eVHBkQvpceOj+oqLT9c+BIEt0mkWh03nNNIq/1
-         pJxiQ+itEcLLJDT/b2QFdNghFgk6yAOgCwjyZppVSoA57aNpCuWD4ctMIeTCJN7+vP
-         kmk8EAzOPt1aF8DDqLBPRL72XCdTyNztmkH2OPIXK7YjMBjzGkteiQ3IZuWyQfwToa
-         bVpxeDjpPozMEsh8DZzZDeRdoIYhUM9vPQZGPDrt2QGBGDOsLoPLn9C8OHL7ElqZS6
-         6jZM1bwnjHRKA==
+        b=HJklAisaCcDY3pq8c4mvMfJyoCpX3C1aks3f0izoqb65RAufPNw7mRIysSC5kimyG
+         d9hEqVPP05ZWsZis/NyOTptD1hhYR/Q6KZ9oEY0hIOgHmRuWBilP+JXydTg++NxcY/
+         4ivfIjrIBZeOPhfDCXAMIgOaxzrN+aEUXA3CbzpSYDrfnDTLgvTyRDqX4x9Ft4DPBx
+         cc78QeAsOVqQF8vpsdlnZfm1rY+QxdhxwhFZiUYthQsbdYTLO5vu8vWbSrxjsNopoj
+         Veti7MkK7AUdAow0uZL5dmD7W+6Lm0EqM6bVlZX3CH1dcdXRS8g/d2ASyWggPriAV9
+         76Edt8nuw+0fg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Will Deacon <will@kernel.org>, Andrew Scull <ascull@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
-Subject: [PATCH AUTOSEL 5.14 13/32] KVM: arm64: Make hyp_panic() more robust when protected mode is enabled
-Date:   Sat, 11 Sep 2021 09:11:30 -0400
-Message-Id: <20210911131149.284397-13-sashal@kernel.org>
+Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 14/32] tracing/probes: Reject events which have the same name of existing one
+Date:   Sat, 11 Sep 2021 09:11:31 -0400
+Message-Id: <20210911131149.284397-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131149.284397-1-sashal@kernel.org>
 References: <20210911131149.284397-1-sashal@kernel.org>
@@ -43,133 +42,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit ccac96977243d7916053550f62e6489760ad0adc ]
+[ Upstream commit 8e242060c6a4947e8ae7d29794af6a581db08841 ]
 
-When protected mode is enabled, the host is unable to access most parts
-of the EL2 hypervisor image, including 'hyp_physvirt_offset' and the
-contents of the hypervisor's '.rodata.str' section. Unfortunately,
-nvhe_hyp_panic_handler() tries to read from both of these locations when
-handling a BUG() triggered at EL2; the former for converting the ELR to
-a physical address and the latter for displaying the name of the source
-file where the BUG() occurred.
+Since kprobe_events and uprobe_events only check whether the
+other same-type probe event has the same name or not, if the
+user gives the same name of the existing tracepoint event (or
+the other type of probe events), it silently fails to create
+the tracefs entry (but registered.) as below.
 
-Hack the EL2 panic asm to pass both physical and virtual ELR values to
-the host and utilise the newly introduced CONFIG_NVHE_EL2_DEBUG so that
-we disable stage-2 protection for the host before returning to the EL1
-panic handler. If the debug option is not enabled, display the address
-instead of the source file:line information.
+/sys/kernel/tracing # ls events/task/task_rename
+enable   filter   format   hist     id       trigger
+/sys/kernel/tracing # echo p:task/task_rename vfs_read >> kprobe_events
+[  113.048508] Could not create tracefs 'task_rename' directory
+/sys/kernel/tracing # cat kprobe_events
+p:task/task_rename vfs_read
 
-Cc: Andrew Scull <ascull@google.com>
-Cc: Quentin Perret <qperret@google.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210813130336.8139-1-will@kernel.org
+To fix this issue, check whether the existing events have the
+same name or not in trace_probe_register_event_call(). If exists,
+it rejects to register the new event.
+
+Link: https://lkml.kernel.org/r/162936876189.187130.17558311387542061930.stgit@devnote2
+
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/handle_exit.c   | 23 ++++++++++++++---------
- arch/arm64/kvm/hyp/nvhe/host.S | 21 +++++++++++++++++----
- 2 files changed, 31 insertions(+), 13 deletions(-)
+ kernel/trace/trace_kprobe.c |  6 +++++-
+ kernel/trace/trace_probe.c  | 25 +++++++++++++++++++++++++
+ kernel/trace/trace_probe.h  |  1 +
+ kernel/trace/trace_uprobe.c |  6 +++++-
+ 4 files changed, 36 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/kvm/handle_exit.c b/arch/arm64/kvm/handle_exit.c
-index 6f48336b1d86..04ebab299aa4 100644
---- a/arch/arm64/kvm/handle_exit.c
-+++ b/arch/arm64/kvm/handle_exit.c
-@@ -292,11 +292,12 @@ void handle_exit_early(struct kvm_vcpu *vcpu, int exception_index)
- 		kvm_handle_guest_serror(vcpu, kvm_vcpu_get_esr(vcpu));
- }
- 
--void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
-+void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr,
-+					      u64 elr_virt, u64 elr_phys,
- 					      u64 par, uintptr_t vcpu,
- 					      u64 far, u64 hpfar) {
--	u64 elr_in_kimg = __phys_to_kimg(__hyp_pa(elr));
--	u64 hyp_offset = elr_in_kimg - kaslr_offset() - elr;
-+	u64 elr_in_kimg = __phys_to_kimg(elr_phys);
-+	u64 hyp_offset = elr_in_kimg - kaslr_offset() - elr_virt;
- 	u64 mode = spsr & PSR_MODE_MASK;
- 
- 	/*
-@@ -309,20 +310,24 @@ void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
- 		kvm_err("Invalid host exception to nVHE hyp!\n");
- 	} else if (ESR_ELx_EC(esr) == ESR_ELx_EC_BRK64 &&
- 		   (esr & ESR_ELx_BRK64_ISS_COMMENT_MASK) == BUG_BRK_IMM) {
--		struct bug_entry *bug = find_bug(elr_in_kimg);
- 		const char *file = NULL;
- 		unsigned int line = 0;
- 
- 		/* All hyp bugs, including warnings, are treated as fatal. */
--		if (bug)
--			bug_get_file_line(bug, &file, &line);
-+		if (!is_protected_kvm_enabled() ||
-+		    IS_ENABLED(CONFIG_NVHE_EL2_DEBUG)) {
-+			struct bug_entry *bug = find_bug(elr_in_kimg);
-+
-+			if (bug)
-+				bug_get_file_line(bug, &file, &line);
-+		}
- 
- 		if (file)
- 			kvm_err("nVHE hyp BUG at: %s:%u!\n", file, line);
- 		else
--			kvm_err("nVHE hyp BUG at: %016llx!\n", elr + hyp_offset);
-+			kvm_err("nVHE hyp BUG at: %016llx!\n", elr_virt + hyp_offset);
- 	} else {
--		kvm_err("nVHE hyp panic at: %016llx!\n", elr + hyp_offset);
-+		kvm_err("nVHE hyp panic at: %016llx!\n", elr_virt + hyp_offset);
+diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+index ea6178cb5e33..032191977e34 100644
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -647,7 +647,11 @@ static int register_trace_kprobe(struct trace_kprobe *tk)
+ 	/* Register new event */
+ 	ret = register_kprobe_event(tk);
+ 	if (ret) {
+-		pr_warn("Failed to register probe event(%d)\n", ret);
++		if (ret == -EEXIST) {
++			trace_probe_log_set_index(0);
++			trace_probe_log_err(0, EVENT_EXIST);
++		} else
++			pr_warn("Failed to register probe event(%d)\n", ret);
+ 		goto end;
  	}
  
- 	/*
-@@ -334,5 +339,5 @@ void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
- 	kvm_err("Hyp Offset: 0x%llx\n", hyp_offset);
- 
- 	panic("HYP panic:\nPS:%08llx PC:%016llx ESR:%08llx\nFAR:%016llx HPFAR:%016llx PAR:%016llx\nVCPU:%016lx\n",
--	      spsr, elr, esr, far, hpfar, par, vcpu);
-+	      spsr, elr_virt, esr, far, hpfar, par, vcpu);
+diff --git a/kernel/trace/trace_probe.c b/kernel/trace/trace_probe.c
+index 15413ad7cef2..0e29bb14fc8b 100644
+--- a/kernel/trace/trace_probe.c
++++ b/kernel/trace/trace_probe.c
+@@ -1029,11 +1029,36 @@ int trace_probe_init(struct trace_probe *tp, const char *event,
+ 	return ret;
  }
-diff --git a/arch/arm64/kvm/hyp/nvhe/host.S b/arch/arm64/kvm/hyp/nvhe/host.S
-index 2b23400e0fb3..4b652ffb591d 100644
---- a/arch/arm64/kvm/hyp/nvhe/host.S
-+++ b/arch/arm64/kvm/hyp/nvhe/host.S
-@@ -7,6 +7,7 @@
- #include <linux/linkage.h>
  
- #include <asm/assembler.h>
-+#include <asm/kvm_arm.h>
- #include <asm/kvm_asm.h>
- #include <asm/kvm_mmu.h>
- 
-@@ -85,12 +86,24 @@ SYM_FUNC_START(__hyp_do_panic)
- 
- 	mov	x29, x0
- 
-+#ifdef CONFIG_NVHE_EL2_DEBUG
-+	/* Ensure host stage-2 is disabled */
-+	mrs	x0, hcr_el2
-+	bic	x0, x0, #HCR_VM
-+	msr	hcr_el2, x0
-+	isb
-+	tlbi	vmalls12e1
-+	dsb	nsh
-+#endif
++static struct trace_event_call *
++find_trace_event_call(const char *system, const char *event_name)
++{
++	struct trace_event_call *tp_event;
++	const char *name;
 +
- 	/* Load the panic arguments into x0-7 */
- 	mrs	x0, esr_el2
--	get_vcpu_ptr x4, x5
--	mrs	x5, far_el2
--	mrs	x6, hpfar_el2
--	mov	x7, xzr			// Unused argument
-+	mov	x4, x3
-+	mov	x3, x2
-+	hyp_pa	x3, x6
-+	get_vcpu_ptr x5, x6
-+	mrs	x6, far_el2
-+	mrs	x7, hpfar_el2
++	list_for_each_entry(tp_event, &ftrace_events, list) {
++		if (!tp_event->class->system ||
++		    strcmp(system, tp_event->class->system))
++			continue;
++		name = trace_event_name(tp_event);
++		if (!name || strcmp(event_name, name))
++			continue;
++		return tp_event;
++	}
++
++	return NULL;
++}
++
+ int trace_probe_register_event_call(struct trace_probe *tp)
+ {
+ 	struct trace_event_call *call = trace_probe_event_call(tp);
+ 	int ret;
  
- 	/* Enter the host, conditionally restoring the host context. */
- 	cbz	x29, __host_enter_without_restoring
++	lockdep_assert_held(&event_mutex);
++
++	if (find_trace_event_call(trace_probe_group_name(tp),
++				  trace_probe_name(tp)))
++		return -EEXIST;
++
+ 	ret = register_trace_event(&call->event);
+ 	if (!ret)
+ 		return -ENODEV;
+diff --git a/kernel/trace/trace_probe.h b/kernel/trace/trace_probe.h
+index 227d518e5ba5..9f14186d132e 100644
+--- a/kernel/trace/trace_probe.h
++++ b/kernel/trace/trace_probe.h
+@@ -399,6 +399,7 @@ extern int traceprobe_define_arg_fields(struct trace_event_call *event_call,
+ 	C(NO_EVENT_NAME,	"Event name is not specified"),		\
+ 	C(EVENT_TOO_LONG,	"Event name is too long"),		\
+ 	C(BAD_EVENT_NAME,	"Event name must follow the same rules as C identifiers"), \
++	C(EVENT_EXIST,		"Given group/event name is already used by another event"), \
+ 	C(RETVAL_ON_PROBE,	"$retval is not available on probe"),	\
+ 	C(BAD_STACK_NUM,	"Invalid stack number"),		\
+ 	C(BAD_ARG_NUM,		"Invalid argument number"),		\
+diff --git a/kernel/trace/trace_uprobe.c b/kernel/trace/trace_uprobe.c
+index 9b50869a5ddb..957244ee07c8 100644
+--- a/kernel/trace/trace_uprobe.c
++++ b/kernel/trace/trace_uprobe.c
+@@ -514,7 +514,11 @@ static int register_trace_uprobe(struct trace_uprobe *tu)
+ 
+ 	ret = register_uprobe_event(tu);
+ 	if (ret) {
+-		pr_warn("Failed to register probe event(%d)\n", ret);
++		if (ret == -EEXIST) {
++			trace_probe_log_set_index(0);
++			trace_probe_log_err(0, EVENT_EXIST);
++		} else
++			pr_warn("Failed to register probe event(%d)\n", ret);
+ 		goto end;
+ 	}
+ 
 -- 
 2.30.2
 
