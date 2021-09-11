@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8E9407781
+	by mail.lfdr.de (Postfix) with ESMTP id DAA1E407782
 	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236134AbhIKNRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:17:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38304 "EHLO mail.kernel.org"
+        id S236991AbhIKNRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:17:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237056AbhIKNPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237058AbhIKNPr (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 11 Sep 2021 09:15:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31BD561268;
-        Sat, 11 Sep 2021 13:13:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF9446124E;
+        Sat, 11 Sep 2021 13:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631366002;
-        bh=KzrJ81mWKnjw/4GM+UnXKoRBrHQtG01lpAJSOH1umeo=;
+        s=k20201202; t=1631366003;
+        bh=z2Y4h46IZL/+vRzsN5ynixlRwSeoPikMd59LsON7va4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bp9TXSxUIYj+mJfq0XABRZWwS93kksHj/gnekS3MO8UqO2adW6A+SDCRjxzBja8w+
-         bwFFwzfoljNSAZye6DNGEVSB/0cPYADTplkUuKQrq1NAtRlHOCSBZc2OVHw5pOJBXh
-         gfln826h/sI1pWJrsTmYso1l5YhRIxDix0LZptrSDWE2r22odWpLfXaLGcBtbtAwUP
-         2nap/Q2zElS3jBBmXHpdcvK+cd4bsfC98L7E+eoOlVtoOzHP+M1HFm3YuiH3qYGJ36
-         YyUvWDYT9lBzhVddHEiBgHL8x5KRjNBboOSVnNItjvUKOKBeccYR7tCUM4gJCFQ4gi
-         OIpNNH9ZhBH4Q==
+        b=d9xpS/aaWZSyn8d/NDq+3ZN0Ef439W/rNd4KOElQeP6eBuolfsJbjI0Hd/YgGs9Fb
+         P8WhieyCs/zUkWhrfQxuJv85VNrUhFzMVBSe6VHJylJmeJa8Lv0ej+ukzWlx5YcSGf
+         HUcXi9RLCY3kN8LZxxZvi6f/7C2e8fW/rNcZiecRLTCk8pcki09elJk9BwTQRGXZ2y
+         wX1SvnL8BYFBwBdSgzHfz6d0d6t1AJhFBsdfBc8LGG9YenczDp1jl7BewhBx1POh6T
+         3NdqkAUt/foKUJ97GKY0qu37tL46ORi7vMKJb0b1zlgyLUSryMMTM/QXC4bLrcq5SM
+         zdmLgeQlIaMNg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 07/25] PCI: tegra: Fix OF node reference leak
-Date:   Sat, 11 Sep 2021 09:12:54 -0400
-Message-Id: <20210911131312.285225-7-sashal@kernel.org>
+Cc:     Marc Zyngier <maz@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        patches@opensource.cirrus.com
+Subject: [PATCH AUTOSEL 5.10 08/25] mfd: Don't use irq_create_mapping() to resolve a mapping
+Date:   Sat, 11 Sep 2021 09:12:55 -0400
+Message-Id: <20210911131312.285225-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131312.285225-1-sashal@kernel.org>
 References: <20210911131312.285225-1-sashal@kernel.org>
@@ -44,61 +48,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit eff21f5da308265678e7e59821795e606f3e560f ]
+[ Upstream commit 9ff80e2de36d0554e3a6da18a171719fe8663c17 ]
 
-Commit 9e38e690ace3 ("PCI: tegra: Fix OF node reference leak") has fixed
-some node reference leaks in this function but missed some of them.
+Although irq_create_mapping() is able to deal with duplicate
+mappings, it really isn't supposed to be a substitute for
+irq_find_mapping(), and can result in allocations that take place
+in atomic context if the mapping didn't exist.
 
-In fact, having 'port' referenced in the 'rp' structure is not enough to
-prevent the leak, until 'rp' is actually added in the 'pcie->ports' list.
+Fix the handful of MFD drivers that use irq_create_mapping() in
+interrupt context by using irq_find_mapping() instead.
 
-Add the missing 'goto err_node_put' accordingly.
-
-Link: https://lore.kernel.org/r/55b11e9a7fa2987fbc0869d68ae59888954d65e2.1620148539.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Vidya Sagar <vidyas@nvidia.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-tegra.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/mfd/ab8500-core.c | 2 +-
+ drivers/mfd/stmpe.c       | 4 ++--
+ drivers/mfd/tc3589x.c     | 2 +-
+ drivers/mfd/wm8994-irq.c  | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-tegra.c b/drivers/pci/controller/pci-tegra.c
-index 1a2af963599c..b4eb75f25906 100644
---- a/drivers/pci/controller/pci-tegra.c
-+++ b/drivers/pci/controller/pci-tegra.c
-@@ -2160,13 +2160,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
- 		rp->np = port;
+diff --git a/drivers/mfd/ab8500-core.c b/drivers/mfd/ab8500-core.c
+index a3bac9da8cbb..4cea63a4cab7 100644
+--- a/drivers/mfd/ab8500-core.c
++++ b/drivers/mfd/ab8500-core.c
+@@ -493,7 +493,7 @@ static int ab8500_handle_hierarchical_line(struct ab8500 *ab8500,
+ 		if (line == AB8540_INT_GPIO43F || line == AB8540_INT_GPIO44F)
+ 			line += 1;
  
- 		rp->base = devm_pci_remap_cfg_resource(dev, &rp->regs);
--		if (IS_ERR(rp->base))
--			return PTR_ERR(rp->base);
-+		if (IS_ERR(rp->base)) {
-+			err = PTR_ERR(rp->base);
-+			goto err_node_put;
-+		}
+-		handle_nested_irq(irq_create_mapping(ab8500->domain, line));
++		handle_nested_irq(irq_find_mapping(ab8500->domain, line));
+ 	}
  
- 		label = devm_kasprintf(dev, GFP_KERNEL, "pex-reset-%u", index);
- 		if (!label) {
--			dev_err(dev, "failed to create reset GPIO label\n");
--			return -ENOMEM;
-+			err = -ENOMEM;
-+			goto err_node_put;
- 		}
+ 	return 0;
+diff --git a/drivers/mfd/stmpe.c b/drivers/mfd/stmpe.c
+index 1aee3b3253fc..508349399f8a 100644
+--- a/drivers/mfd/stmpe.c
++++ b/drivers/mfd/stmpe.c
+@@ -1091,7 +1091,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
  
- 		/*
-@@ -2184,7 +2186,8 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
- 			} else {
- 				dev_err(dev, "failed to get reset GPIO: %ld\n",
- 					PTR_ERR(rp->reset_gpio));
--				return PTR_ERR(rp->reset_gpio);
-+				err = PTR_ERR(rp->reset_gpio);
-+				goto err_node_put;
- 			}
- 		}
+ 	if (variant->id_val == STMPE801_ID ||
+ 	    variant->id_val == STMPE1600_ID) {
+-		int base = irq_create_mapping(stmpe->domain, 0);
++		int base = irq_find_mapping(stmpe->domain, 0);
  
+ 		handle_nested_irq(base);
+ 		return IRQ_HANDLED;
+@@ -1119,7 +1119,7 @@ static irqreturn_t stmpe_irq(int irq, void *data)
+ 		while (status) {
+ 			int bit = __ffs(status);
+ 			int line = bank * 8 + bit;
+-			int nestedirq = irq_create_mapping(stmpe->domain, line);
++			int nestedirq = irq_find_mapping(stmpe->domain, line);
+ 
+ 			handle_nested_irq(nestedirq);
+ 			status &= ~(1 << bit);
+diff --git a/drivers/mfd/tc3589x.c b/drivers/mfd/tc3589x.c
+index 7882a37ffc35..5c2d5a6a6da9 100644
+--- a/drivers/mfd/tc3589x.c
++++ b/drivers/mfd/tc3589x.c
+@@ -187,7 +187,7 @@ static irqreturn_t tc3589x_irq(int irq, void *data)
+ 
+ 	while (status) {
+ 		int bit = __ffs(status);
+-		int virq = irq_create_mapping(tc3589x->domain, bit);
++		int virq = irq_find_mapping(tc3589x->domain, bit);
+ 
+ 		handle_nested_irq(virq);
+ 		status &= ~(1 << bit);
+diff --git a/drivers/mfd/wm8994-irq.c b/drivers/mfd/wm8994-irq.c
+index 6c3a619e2628..651a028bc519 100644
+--- a/drivers/mfd/wm8994-irq.c
++++ b/drivers/mfd/wm8994-irq.c
+@@ -154,7 +154,7 @@ static irqreturn_t wm8994_edge_irq(int irq, void *data)
+ 	struct wm8994 *wm8994 = data;
+ 
+ 	while (gpio_get_value_cansleep(wm8994->pdata.irq_gpio))
+-		handle_nested_irq(irq_create_mapping(wm8994->edge_irq, 0));
++		handle_nested_irq(irq_find_mapping(wm8994->edge_irq, 0));
+ 
+ 	return IRQ_HANDLED;
+ }
 -- 
 2.30.2
 
