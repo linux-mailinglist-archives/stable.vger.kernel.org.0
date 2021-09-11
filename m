@@ -2,87 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26836407986
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 18:20:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 493B5407A20
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 20:40:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229633AbhIKQWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 12:22:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60040 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbhIKQWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Sep 2021 12:22:00 -0400
-Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A06C4C061574
-        for <stable@vger.kernel.org>; Sat, 11 Sep 2021 09:20:47 -0700 (PDT)
-Received: by mail-oi1-x236.google.com with SMTP id p2so7781111oif.1
-        for <stable@vger.kernel.org>; Sat, 11 Sep 2021 09:20:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=qWhmD424iTI+VKh1oKjSSQA8JxWsQIPJXiM//dl78vs=;
-        b=YkYHIYyMrEOK1tn8kKwMsDoo9TEPcnMvUv2o/l2dJgete4PLlVCSzcAVqjWuv+wn27
-         WO5HZnDM3NAg8u+XfQP3HHOvBVh8NutGFaPP8U4yaTtT8GK36s4I3LWQDfeI0THRw8GG
-         b00rlNXxCt+sS6f8g57S56sqTGf3ZQZfs+MHM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=qWhmD424iTI+VKh1oKjSSQA8JxWsQIPJXiM//dl78vs=;
-        b=i54xWY5o4R+O1xFycyR8R0+qBfqvzW8ONJtFVSLkp+F2EsdSFdNmx2a2qQW1Wrqiat
-         JY64jtmUNnAqTKope2ml/d3GoqZ/K8g+TPcTweiToZfgCG6JWDqcDHicIW20ImhfNLjU
-         yxceFG+/3Hz8Cjn/Rk82onkKmPhi8VvXQMN92mcSnlExMfGR9i6JzrpWDZkuKWBl6udY
-         CeCUUbYEun7ymSMq/2NcDYci5GM0vVHAgCJq2BkIjT9+DGfxH2dULVIdGObgjJffwlNx
-         4ZquBWuvqSg9MWKYKSIk8+tSgF4B02Chjn9UL45lbg7obuTgPiIFXHUJonXF2oeAmtld
-         pmnw==
-X-Gm-Message-State: AOAM5306wcQ733DURs6cNB266e0M3RMUxdgXLFyarOBtZrV1ZmzCfA+9
-        6DGHLFGCAlPWg1oIMp2zAAIl4Q==
-X-Google-Smtp-Source: ABdhPJwTX6mKitabG/JImHVGG0SgAeeDjwnDg931pv2VIexrM0W3JNKejxyBPs3/TxD1nPP7gUoFCw==
-X-Received: by 2002:aca:2206:: with SMTP id b6mr2176401oic.88.1631377245887;
-        Sat, 11 Sep 2021 09:20:45 -0700 (PDT)
-Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
-        by smtp.gmail.com with ESMTPSA id v19sm490764oic.31.2021.09.11.09.20.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Sep 2021 09:20:45 -0700 (PDT)
-Date:   Sat, 11 Sep 2021 11:20:43 -0500
-From:   Justin Forbes <jmforbes@linuxtx.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.13 00/22] 5.13.16-rc1 review
-Message-ID: <YTzXW4k57AsWDI9r@fedora64.linuxtx.org>
-References: <20210910122915.942645251@linuxfoundation.org>
+        id S233563AbhIKSmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 14:42:10 -0400
+Received: from phobos.denx.de ([85.214.62.61]:52972 "EHLO phobos.denx.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233408AbhIKSmK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 14:42:10 -0400
+Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: marex@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id 6B53A83853;
+        Sat, 11 Sep 2021 20:40:55 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1631385656;
+        bh=UECCOBS7xX1FRbQ2hWV9VfO2PrYzdXOlf9p/yOxKoqA=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=PKUGuT4v30Ga2ZnsM3HuornSwmZR0uD849ENjdhS9oL74SCUD4szxVHRS8l61OY43
+         /SIRrsRx00lPP6h0tJGisQvVRlaExXM8r5ZI6g5zbZlKdVzx+3q5bLLcMc5DftEoeQ
+         zKyEkJbQ7601Fjv46JcwYgQSkPo02PjfwObEYOmzAtMI95nu89YMIdDyky/15lH3uz
+         MYbSY+oa1UIWvzoZZzTqLK6JU8ZRQye9GhCCdjpDAFAbptyFRTFJy03IWqwTV2KEOT
+         w7rSB9ew0C1TiKhk/DPQvu0czOSGgMerYKYzig+5kGGD7uDN9/EDHzh76Z8pF0qUuA
+         79nfaUwVBysdw==
+Subject: Re: [PATCH V2] video: backlight: Drop maximum brightness override for
+ brightness zero
+To:     dri-devel@lists.freedesktop.org
+Cc:     linux-fbdev@vger.kernel.org,
+        =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org,
+        Meghana Madhyastha <meghana.madhyastha@gmail.com>,
+        Sean Paul <seanpaul@chromium.org>,
+        Thierry Reding <treding@nvidia.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Lee Jones <lee.jones@linaro.org>
+References: <20210713191633.121317-1-marex@denx.de>
+From:   Marek Vasut <marex@denx.de>
+Message-ID: <072e01b7-8554-de4f-046a-da11af3958d6@denx.de>
+Date:   Sat, 11 Sep 2021 20:40:54 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210910122915.942645251@linuxfoundation.org>
+In-Reply-To: <20210713191633.121317-1-marex@denx.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 10, 2021 at 02:29:59PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.13.16 release.
-> There are 22 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 7/13/21 9:16 PM, Marek Vasut wrote:
+> The note in c2adda27d202f ("video: backlight: Add of_find_backlight helper
+> in backlight.c") says that gpio-backlight uses brightness as power state.
+> This has been fixed since in ec665b756e6f7 ("backlight: gpio-backlight:
+> Correct initial power state handling") and other backlight drivers do not
+> require this workaround. Drop the workaround.
 > 
-> Responses should be made by Sun, 12 Sep 2021 12:29:07 +0000.
-> Anything received after that time might be too late.
+> This fixes the case where e.g. pwm-backlight can perfectly well be set to
+> brightness 0 on boot in DT, which without this patch leads to the display
+> brightness to be max instead of off.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.16-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
-> and the diffstat can be found below.
+> Fixes: c2adda27d202f ("video: backlight: Add of_find_backlight helper in backlight.c")
+> Acked-by: Noralf Trønnes <noralf@tronnes.org>
+> Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+> Cc: <stable@vger.kernel.org> # 5.4+
+> Cc: <stable@vger.kernel.org> # 4.19.x: ec665b756e6f7: backlight: gpio-backlight: Correct initial power state handling
+> Signed-off-by: Marek Vasut <marex@denx.de>
+> Cc: Daniel Thompson <daniel.thompson@linaro.org>
+> Cc: Meghana Madhyastha <meghana.madhyastha@gmail.com>
+> Cc: Noralf Trønnes <noralf@tronnes.org>
+> Cc: Sean Paul <seanpaul@chromium.org>
+> Cc: Thierry Reding <treding@nvidia.com>
+> ---
+> V2: Add AB/RB, CC stable
+> ---
+>   drivers/video/backlight/backlight.c | 6 ------
+>   1 file changed, 6 deletions(-)
 > 
-> thanks,
-> 
-> greg k-h
+> diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
+> index 537fe1b376ad7..fc990e576340b 100644
+> --- a/drivers/video/backlight/backlight.c
+> +++ b/drivers/video/backlight/backlight.c
+> @@ -688,12 +688,6 @@ static struct backlight_device *of_find_backlight(struct device *dev)
+>   			of_node_put(np);
+>   			if (!bd)
+>   				return ERR_PTR(-EPROBE_DEFER);
+> -			/*
+> -			 * Note: gpio_backlight uses brightness as
+> -			 * power state during probe
+> -			 */
+> -			if (!bd->props.brightness)
+> -				bd->props.brightness = bd->props.max_brightness;
+>   		}
+>   	}
+>   
 > 
 
-Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
-s390x, x86_64), and boot tested x86_64. No regressions noted.
+Any news on this ?
 
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+Expanding CC list.
