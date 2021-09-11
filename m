@@ -2,56 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3D454078D8
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 16:37:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 613CC4078DB
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 16:37:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229643AbhIKOix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 10:38:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43766 "EHLO mail.kernel.org"
+        id S230447AbhIKOjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 10:39:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229633AbhIKOiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 10:38:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF02F6109F;
-        Sat, 11 Sep 2021 14:37:39 +0000 (UTC)
+        id S229633AbhIKOjJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 10:39:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5737260FDC;
+        Sat, 11 Sep 2021 14:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631371060;
-        bh=84Cd2vOP9REiG2aS/zAnKdQoXRWMqJxSobDAiNggsa4=;
-        h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=FQfw082n5Us1doOLjpG0rHeAEKLIqPk3d4fvgy2WHWY9ZYSQQLQ7fzCXkne1w4S3g
-         1eEoosqFk/X4d2CnTUrDVv/X72rsRjI9gXVT5yuOJBU4U+Qj7yKBmXQZTW4v+tCFoQ
-         tAzhV8Lj2aZqBtR1fN5x+IQxw7r6+LRJwhl4AzqxYgsuVsrwrFZWN60GzS/RnnlrGD
-         pU7Q1jzmGXHlEy6AGDvnrApouBowtXmFi443HZmfYvu2gFNaBSdT7R5pNo4AcVfNK8
-         ZR8nxx4UK0aG378EzKP4YwZ0gjGvg8Fq2jpoWeoJPRCApO5ojsgZ8phlQ9AI6IMP10
-         /J6N+9BH63Dyw==
-Date:   Sat, 11 Sep 2021 10:37:38 -0400
+        s=k20201202; t=1631371076;
+        bh=ZssWQoic4PisY8fQmXOLRjIwa7pajjw3kzIi0Ufi/3k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=A7u4Ht1KPQGsvmyBYLrHZUIUcnqWdXIB10/19PcnoUpbQk5yQEgPZRe805dJgcRSl
+         J8PVFTJL4YY4m6rd9Q/SGu6hdFFxiAxxKodv0hoxNxAmW9G0H4EuHzCyf8PlUGfTm8
+         zcVifwyPzNBhpatuJxLI1CqFONiUqw7zh5PS39nPPnFYzVAAKxVDTjFO0zw18dff81
+         1rCa7i7ExmXsNBQaWbd2lVr/7klFPWIGZSmPc7ns6rT5/H6Rd4bRPi5ebzM5R6uYi9
+         Waxcks05SQEbu42/Wc77Gkqx2TbiDKHUZJlDXFkZoP9Zh0bFrXf8kuVsITS43wYb8d
+         WAoKDQzDNceng==
+Date:   Sat, 11 Sep 2021 10:37:55 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     dsterba@suse.cz, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.14 191/252] btrfs: reset this_bio_flag to avoid
- inheriting old flags
-Message-ID: <YTy/MgvEZLaVC5Q3@sashalap>
+To:     Mat Martineau <mathew.j.martineau@linux.intel.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Yonglong Li <liyonglong@chinatelecom.cn>,
+        Geliang Tang <geliangtang@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+        mptcp@lists.linux.dev
+Subject: Re: [PATCH AUTOSEL 5.14 209/252] mptcp: fix ADD_ADDR and RM_ADDR
+ maybe flush addr_signal each other
+Message-ID: <YTy/Q//PQjz6c4Ip@sashalap>
 References: <20210909114106.141462-1-sashal@kernel.org>
- <20210909114106.141462-191-sashal@kernel.org>
- <20210909115504.GA15306@suse.cz>
+ <20210909114106.141462-209-sashal@kernel.org>
+ <3a6c39db-8aca-b64b-51db-cd1544daf9dc@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20210909115504.GA15306@suse.cz>
+In-Reply-To: <3a6c39db-8aca-b64b-51db-cd1544daf9dc@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 09, 2021 at 01:55:04PM +0200, David Sterba wrote:
->On Thu, Sep 09, 2021 at 07:40:05AM -0400, Sasha Levin wrote:
->> From: Qu Wenruo <wqu@suse.com>
->>
->> [ Upstream commit 4c37a7938496756649096a7ec26320eb8b0d90fb ]
+On Thu, Sep 09, 2021 at 03:33:02PM -0700, Mat Martineau wrote:
 >
->Please drop this patch from stable queue, thanks.
+>On Thu, 9 Sep 2021, Sasha Levin wrote:
+>
+>>From: Yonglong Li <liyonglong@chinatelecom.cn>
+>>
+>>[ Upstream commit 119c022096f5805680c79dfa74e15044c289856d ]
+>>
+>>ADD_ADDR shares pm.addr_signal with RM_ADDR, so after RM_ADDR/ADD_ADDR
+>>has done, we should not clean ADD_ADDR/RM_ADDR's addr_signal.
+>>
+>>Co-developed-by: Geliang Tang <geliangtang@gmail.com>
+>>Signed-off-by: Geliang Tang <geliangtang@gmail.com>
+>>Signed-off-by: Yonglong Li <liyonglong@chinatelecom.cn>
+>>Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+>>Signed-off-by: David S. Miller <davem@davemloft.net>
+>>Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>---
+>>net/mptcp/pm.c | 13 ++++++++++---
+>>1 file changed, 10 insertions(+), 3 deletions(-)
+>
+>Hi Sasha,
+>
+>This patch is part of a 5-patch series, and was not intended for 
+>backporting. Please drop the patch from all stable branches.
 
-I've dropped all the patches you've pointed out, thanks!
+Dropped, thanks!
 
 -- 
 Thanks,
