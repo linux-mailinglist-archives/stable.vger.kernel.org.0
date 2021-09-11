@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 033844076F7
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:13:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BAAB4076F4
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:13:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236568AbhIKNON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:14:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37760 "EHLO mail.kernel.org"
+        id S236217AbhIKNOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:14:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236302AbhIKNNi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 09:13:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E32F8611CC;
-        Sat, 11 Sep 2021 13:12:24 +0000 (UTC)
+        id S236320AbhIKNNj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 09:13:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 461EE61205;
+        Sat, 11 Sep 2021 13:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365945;
-        bh=reP2nw3f/wq9zc5LUNGRzm1dBvkE3dZ1Ok0yArTwbO8=;
+        s=k20201202; t=1631365947;
+        bh=Sc7IrYUdW9e7DN014nitCZ8pyHwS29QuWqPj45AfNos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WWwU1rJ3d2fdLsIVRhv5faWT6wrkqxHGoJ9SAW2bHkzmszg5fJ/uDrClUE+GUOLOT
-         ynSrIzqSOw89KNrzXsjaskxwTy11rwTnpLRF5N3KFylNwOj7T+N+YxRrfSuUse87o2
-         ohtfSBW375Y32ZZw3Q5nQ2RYEuj3sS1zwxVe7rY5D1m80QcesRcnD4JchPtszzV3dH
-         L3ccnPFYeIhR9ULCGg43DPytyA2/M2TXIwvy06jsGUdew0rbfLAR0W4nwhvY/Yw1kE
-         j/gVLYHkNSeSVrOSmrWbxNv9Z0gF6CHg7zvtQ4qC6rCrcRxlr77d/AEw4QosrlQex+
-         0FYbrYBRnfQiA==
+        b=GMFYQmu7sptqu5OLHCMSV0yMSGQbPN2jDEelHwKXymzupdKsrDk53lXFt2xaIPTKt
+         Yrn8JOKxkU2rTeRLK/vDMtDiNPuGqrzMu5mzNkMjw/McSpivYViSUIZqhtK5qBcST7
+         lIU3DlFR2jXFR+6sIwE9OlkKKnpqM/Q/IUzAe0IVcXB+JHkYneFqurueczHRVlP44s
+         P/Bc3NpeuPyntbbM+PN/Bvy9zPXFE7FwLUkaqy2z2Mys5STHf1aTjIH5o1jIfQLNkq
+         CHLPQ8P6zVlCnpe/jFFqcPsH1W4VGe85nOTU7oznt7FJY/A42L2kR3EaoDQ1XISplE
+         bqm49yjm7J4WA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        syzbot <syzbot+f61766d5763f9e7a118f@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 27/32] loop: reduce the loop_ctl_mutex scope
-Date:   Sat, 11 Sep 2021 09:11:44 -0400
-Message-Id: <20210911131149.284397-27-sashal@kernel.org>
+Cc:     Yang Li <yang.lee@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 28/32] ethtool: Fix an error code in cxgb2.c
+Date:   Sat, 11 Sep 2021 09:11:45 -0400
+Message-Id: <20210911131149.284397-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131149.284397-1-sashal@kernel.org>
 References: <20210911131149.284397-1-sashal@kernel.org>
@@ -44,228 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit 1c500ad706383f1a6609e63d0b5d1723fd84dab9 ]
+[ Upstream commit 7db8263a12155c7ae4ad97e850f1e499c73765fc ]
 
-syzbot is reporting circular locking problem at __loop_clr_fd() [1], for
-commit a160c6159d4a0cf8 ("block: add an optional probe callback to
-major_names") is calling the module's probe function with major_names_lock
-held.
+When adapter->registered_device_map is NULL, the value of err is
+uncertain, we set err to -EINVAL to avoid ambiguity.
 
-Fortunately, since commit 990e78116d38059c ("block: loop: fix deadlock
-between open and remove") stopped holding loop_ctl_mutex in lo_open(),
-current role of loop_ctl_mutex is to serialize access to loop_index_idr
-and loop_add()/loop_remove(); in other words, management of id for IDR.
-To avoid holding loop_ctl_mutex during whole add/remove operation, use
-a bool flag to indicate whether the loop device is ready for use.
+Clean up smatch warning:
+drivers/net/ethernet/chelsio/cxgb/cxgb2.c:1114 init_one() warn: missing
+error code 'err'
 
-loop_unregister_transfer() which is called from cleanup_cryptoloop()
-currently has possibility of use-after-free problem due to lack of
-serialization between kfree() from loop_remove() from loop_control_remove()
-and mutex_lock() from unregister_transfer_cb(). But since lo->lo_encryption
-should be already NULL when this function is called due to module unload,
-and commit 222013f9ac30b9ce ("cryptoloop: add a deprecation warning")
-indicates that we will remove this function shortly, this patch updates
-this function to emit warning instead of checking lo->lo_encryption.
-
-Holding loop_ctl_mutex in loop_exit() is pointless, for all users must
-close /dev/loop-control and /dev/loop$num (in order to drop module's
-refcount to 0) before loop_exit() starts, and nobody can open
-/dev/loop-control or /dev/loop$num afterwards.
-
-Link: https://syzkaller.appspot.com/bug?id=7bb10e8b62f83e4d445cdf4c13d69e407e629558 [1]
-Reported-by: syzbot <syzbot+f61766d5763f9e7a118f@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/adb1e792-fc0e-ee81-7ea0-0906fc36419d@i-love.sakura.ne.jp
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/loop.c | 75 +++++++++++++++++++++++++++++---------------
- drivers/block/loop.h |  1 +
- 2 files changed, 50 insertions(+), 26 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb/cxgb2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index f0cdff0c5fbf..1f91bd41a29b 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -2113,18 +2113,6 @@ int loop_register_transfer(struct loop_func_table *funcs)
- 	return 0;
- }
- 
--static int unregister_transfer_cb(int id, void *ptr, void *data)
--{
--	struct loop_device *lo = ptr;
--	struct loop_func_table *xfer = data;
--
--	mutex_lock(&lo->lo_mutex);
--	if (lo->lo_encryption == xfer)
--		loop_release_xfer(lo);
--	mutex_unlock(&lo->lo_mutex);
--	return 0;
--}
--
- int loop_unregister_transfer(int number)
- {
- 	unsigned int n = number;
-@@ -2132,9 +2120,20 @@ int loop_unregister_transfer(int number)
- 
- 	if (n == 0 || n >= MAX_LO_CRYPT || (xfer = xfer_funcs[n]) == NULL)
- 		return -EINVAL;
-+	/*
-+	 * This function is called from only cleanup_cryptoloop().
-+	 * Given that each loop device that has a transfer enabled holds a
-+	 * reference to the module implementing it we should never get here
-+	 * with a transfer that is set (unless forced module unloading is
-+	 * requested). Thus, check module's refcount and warn if this is
-+	 * not a clean unloading.
-+	 */
-+#ifdef CONFIG_MODULE_UNLOAD
-+	if (xfer->owner && module_refcount(xfer->owner) != -1)
-+		pr_err("Danger! Unregistering an in use transfer function.\n");
-+#endif
- 
- 	xfer_funcs[n] = NULL;
--	idr_for_each(&loop_index_idr, &unregister_transfer_cb, xfer);
- 	return 0;
- }
- 
-@@ -2325,8 +2324,9 @@ static int loop_add(int i)
- 	} else {
- 		err = idr_alloc(&loop_index_idr, lo, 0, 0, GFP_KERNEL);
+diff --git a/drivers/net/ethernet/chelsio/cxgb/cxgb2.c b/drivers/net/ethernet/chelsio/cxgb/cxgb2.c
+index 512da98019c6..2a28a38da036 100644
+--- a/drivers/net/ethernet/chelsio/cxgb/cxgb2.c
++++ b/drivers/net/ethernet/chelsio/cxgb/cxgb2.c
+@@ -1107,6 +1107,7 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (!adapter->registered_device_map) {
+ 		pr_err("%s: could not register any net devices\n",
+ 		       pci_name(pdev));
++		err = -EINVAL;
+ 		goto out_release_adapter_res;
  	}
-+	mutex_unlock(&loop_ctl_mutex);
- 	if (err < 0)
--		goto out_unlock;
-+		goto out_free_dev;
- 	i = err;
  
- 	err = -ENOMEM;
-@@ -2392,15 +2392,19 @@ static int loop_add(int i)
- 	disk->private_data	= lo;
- 	disk->queue		= lo->lo_queue;
- 	sprintf(disk->disk_name, "loop%d", i);
-+	/* Make this loop device reachable from pathname. */
- 	add_disk(disk);
-+	/* Show this loop device. */
-+	mutex_lock(&loop_ctl_mutex);
-+	lo->idr_visible = true;
- 	mutex_unlock(&loop_ctl_mutex);
- 	return i;
- 
- out_cleanup_tags:
- 	blk_mq_free_tag_set(&lo->tag_set);
- out_free_idr:
-+	mutex_lock(&loop_ctl_mutex);
- 	idr_remove(&loop_index_idr, i);
--out_unlock:
- 	mutex_unlock(&loop_ctl_mutex);
- out_free_dev:
- 	kfree(lo);
-@@ -2410,9 +2414,14 @@ static int loop_add(int i)
- 
- static void loop_remove(struct loop_device *lo)
- {
-+	/* Make this loop device unreachable from pathname. */
- 	del_gendisk(lo->lo_disk);
- 	blk_cleanup_disk(lo->lo_disk);
- 	blk_mq_free_tag_set(&lo->tag_set);
-+	mutex_lock(&loop_ctl_mutex);
-+	idr_remove(&loop_index_idr, lo->lo_number);
-+	mutex_unlock(&loop_ctl_mutex);
-+	/* There is no route which can find this loop device. */
- 	mutex_destroy(&lo->lo_mutex);
- 	kfree(lo);
- }
-@@ -2436,31 +2445,40 @@ static int loop_control_remove(int idx)
- 		return -EINVAL;
- 	}
- 		
-+	/* Hide this loop device for serialization. */
- 	ret = mutex_lock_killable(&loop_ctl_mutex);
- 	if (ret)
- 		return ret;
--
- 	lo = idr_find(&loop_index_idr, idx);
--	if (!lo) {
-+	if (!lo || !lo->idr_visible)
- 		ret = -ENODEV;
--		goto out_unlock_ctrl;
--	}
-+	else
-+		lo->idr_visible = false;
-+	mutex_unlock(&loop_ctl_mutex);
-+	if (ret)
-+		return ret;
- 
-+	/* Check whether this loop device can be removed. */
- 	ret = mutex_lock_killable(&lo->lo_mutex);
- 	if (ret)
--		goto out_unlock_ctrl;
-+		goto mark_visible;
- 	if (lo->lo_state != Lo_unbound ||
- 	    atomic_read(&lo->lo_refcnt) > 0) {
- 		mutex_unlock(&lo->lo_mutex);
- 		ret = -EBUSY;
--		goto out_unlock_ctrl;
-+		goto mark_visible;
- 	}
-+	/* Mark this loop device no longer open()-able. */
- 	lo->lo_state = Lo_deleting;
- 	mutex_unlock(&lo->lo_mutex);
- 
--	idr_remove(&loop_index_idr, lo->lo_number);
- 	loop_remove(lo);
--out_unlock_ctrl:
-+	return 0;
-+
-+mark_visible:
-+	/* Show this loop device again. */
-+	mutex_lock(&loop_ctl_mutex);
-+	lo->idr_visible = true;
- 	mutex_unlock(&loop_ctl_mutex);
- 	return ret;
- }
-@@ -2474,7 +2492,8 @@ static int loop_control_get_free(int idx)
- 	if (ret)
- 		return ret;
- 	idr_for_each_entry(&loop_index_idr, lo, id) {
--		if (lo->lo_state == Lo_unbound)
-+		/* Hitting a race results in creating a new loop device which is harmless. */
-+		if (lo->idr_visible && data_race(lo->lo_state) == Lo_unbound)
- 			goto found;
- 	}
- 	mutex_unlock(&loop_ctl_mutex);
-@@ -2590,10 +2609,14 @@ static void __exit loop_exit(void)
- 	unregister_blkdev(LOOP_MAJOR, "loop");
- 	misc_deregister(&loop_misc);
- 
--	mutex_lock(&loop_ctl_mutex);
-+	/*
-+	 * There is no need to use loop_ctl_mutex here, for nobody else can
-+	 * access loop_index_idr when this module is unloading (unless forced
-+	 * module unloading is requested). If this is not a clean unloading,
-+	 * we have no means to avoid kernel crash.
-+	 */
- 	idr_for_each_entry(&loop_index_idr, lo, id)
- 		loop_remove(lo);
--	mutex_unlock(&loop_ctl_mutex);
- 
- 	idr_destroy(&loop_index_idr);
- }
-diff --git a/drivers/block/loop.h b/drivers/block/loop.h
-index 1988899db63a..04c88dd6eabd 100644
---- a/drivers/block/loop.h
-+++ b/drivers/block/loop.h
-@@ -68,6 +68,7 @@ struct loop_device {
- 	struct blk_mq_tag_set	tag_set;
- 	struct gendisk		*lo_disk;
- 	struct mutex		lo_mutex;
-+	bool			idr_visible;
- };
- 
- struct loop_cmd {
 -- 
 2.30.2
 
