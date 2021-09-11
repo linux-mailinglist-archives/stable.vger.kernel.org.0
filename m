@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D3C407761
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:15:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A592A40776B
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236777AbhIKNRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:17:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41100 "EHLO mail.kernel.org"
+        id S237279AbhIKNRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:17:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236095AbhIKNPJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 09:15:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39BA761153;
-        Sat, 11 Sep 2021 13:13:03 +0000 (UTC)
+        id S236857AbhIKNPM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 09:15:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C40B6124A;
+        Sat, 11 Sep 2021 13:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365983;
-        bh=BP4d9d4bjOOYFK7CSlAnWJ5oSIt8LhI/0CCz34oz1K8=;
+        s=k20201202; t=1631365985;
+        bh=EdOowTMDK6KYkUWNBVX3pQIwugrogLTj8E40fPxyfHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JYwncPe2l7VA/zk7BnyoVRqHWgTdj301BNfEz1q7G6+iaA+GWHIMVuuhPlYMCYzGm
-         6SiThh+x4iOozkKz5kRUPOxUZe7UYJaqMDqs5EFPIIarvok3Rdqgo1wJKFzIxwFAUK
-         631llq2LiL3qpXVa4LKr6yI+poJP7j8RIgGVSWnVMv+o+2J0PXYKPvnOzvLuanB6pe
-         vreDHJkOYTmVkEzygcxGOTqKS3qp7i31jU1PfZCejmS4e23yIgGYfHKatxUWWOVefT
-         cEHqy1s6CDCJjkL70O4EP9hk8gdtT26vfgWcArPYvCDD2NTpkYGglx4/2TgFm7jep7
-         lcTmPuzsjEpmA==
+        b=NcN05oIGrDhBwtD1E9yPoNAe2XvzHffPuT2qQCn+pyJLzLQASy4jKLvNShi3yEJFx
+         W/+Czzb2gB9Ixmo+OrCyoaFSwP0LUP0vooXSN6acI6Mx/oC4ok5wcAaP9WYEIroQWJ
+         Eq7qlb94XwHSIVl9k4+87S0CIO27Z43gA4ndymBV7c9zeHm+GMJOLhvgJsNNEqiJhe
+         ybHt47MBgaEvpKcyWb3CfNyr5VDABaPqMnwft+qr8zwewLSBSNRg9Veis1VglQr5r3
+         ilr7rRd3Hqw/6q0zJajyCPx9SlTYBGo1GV/VgCLrhzLwOvd/gk+qPP2x3lLLgeAeo9
+         CEervMxVzUbgg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniele Palmas <dnlplm@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 23/29] net: usb: cdc_mbim: avoid altsetting toggling for Telit LN920
-Date:   Sat, 11 Sep 2021 09:12:27 -0400
-Message-Id: <20210911131233.284800-23-sashal@kernel.org>
+Cc:     Paolo Valente <paolo.valente@linaro.org>,
+        Davide Zini <davidezini2@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 24/29] block, bfq: honor already-setup queue merges
+Date:   Sat, 11 Sep 2021 09:12:28 -0400
+Message-Id: <20210911131233.284800-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131233.284800-1-sashal@kernel.org>
 References: <20210911131233.284800-1-sashal@kernel.org>
@@ -43,36 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Paolo Valente <paolo.valente@linaro.org>
 
-[ Upstream commit aabbdc67f3485b5db27ab4eba01e5fbf1ffea62c ]
+[ Upstream commit 2d52c58b9c9bdae0ca3df6a1eab5745ab3f7d80b ]
 
-Add quirk CDC_MBIM_FLAG_AVOID_ALTSETTING_TOGGLE for Telit LN920
-0x1061 composition in order to avoid bind error.
+The function bfq_setup_merge prepares the merging between two
+bfq_queues, say bfqq and new_bfqq. To this goal, it assigns
+bfqq->new_bfqq = new_bfqq. Then, each time some I/O for bfqq arrives,
+the process that generated that I/O is disassociated from bfqq and
+associated with new_bfqq (merging is actually a redirection). In this
+respect, bfq_setup_merge increases new_bfqq->ref in advance, adding
+the number of processes that are expected to be associated with
+new_bfqq.
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Unfortunately, the stable-merging mechanism interferes with this
+setup. After bfqq->new_bfqq has been set by bfq_setup_merge, and
+before all the expected processes have been associated with
+bfqq->new_bfqq, bfqq may happen to be stably merged with a different
+queue than the current bfqq->new_bfqq. In this case, bfqq->new_bfqq
+gets changed. So, some of the processes that have been already
+accounted for in the ref counter of the previous new_bfqq will not be
+associated with that queue.  This creates an unbalance, because those
+references will never be decremented.
+
+This commit fixes this issue by reestablishing the previous, natural
+behaviour: once bfqq->new_bfqq has been set, it will not be changed
+until all expected redirections have occurred.
+
+Signed-off-by: Davide Zini <davidezini2@gmail.com>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Link: https://lore.kernel.org/r/20210802141352.74353-2-paolo.valente@linaro.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_mbim.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ block/bfq-iosched.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
-index 5db66272fc82..ec3a97e079fc 100644
---- a/drivers/net/usb/cdc_mbim.c
-+++ b/drivers/net/usb/cdc_mbim.c
-@@ -653,6 +653,11 @@ static const struct usb_device_id mbim_devs[] = {
- 	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
- 	},
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index eccbe2aed7c3..f9638c77dac2 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2623,6 +2623,15 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
+ 	 * are likely to increase the throughput.
+ 	 */
+ 	bfqq->new_bfqq = new_bfqq;
++	/*
++	 * The above assignment schedules the following redirections:
++	 * each time some I/O for bfqq arrives, the process that
++	 * generated that I/O is disassociated from bfqq and
++	 * associated with new_bfqq. Here we increases new_bfqq->ref
++	 * in advance, adding the number of processes that are
++	 * expected to be associated with new_bfqq as they happen to
++	 * issue I/O.
++	 */
+ 	new_bfqq->ref += process_refs;
+ 	return new_bfqq;
+ }
+@@ -2685,6 +2694,10 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ {
+ 	struct bfq_queue *in_service_bfqq, *new_bfqq;
  
-+	/* Telit LN920 */
-+	{ USB_DEVICE_AND_INTERFACE_INFO(0x1bc7, 0x1061, USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
-+	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
-+	},
++	/* if a merge has already been setup, then proceed with that first */
++	if (bfqq->new_bfqq)
++		return bfqq->new_bfqq;
 +
- 	/* default entry */
- 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
- 	  .driver_info = (unsigned long)&cdc_mbim_info_zlp,
+ 	/*
+ 	 * Check delayed stable merge for rotational or non-queueing
+ 	 * devs. For this branch to be executed, bfqq must not be
+@@ -2784,9 +2797,6 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 	if (bfq_too_late_for_merging(bfqq))
+ 		return NULL;
+ 
+-	if (bfqq->new_bfqq)
+-		return bfqq->new_bfqq;
+-
+ 	if (!io_struct || unlikely(bfqq == &bfqd->oom_bfqq))
+ 		return NULL;
+ 
 -- 
 2.30.2
 
