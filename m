@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 286F840770C
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:13:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 033844076F7
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:13:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236408AbhIKNOj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:14:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37788 "EHLO mail.kernel.org"
+        id S236568AbhIKNON (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:14:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236266AbhIKNNg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 09:13:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B3EDB6108B;
-        Sat, 11 Sep 2021 13:12:23 +0000 (UTC)
+        id S236302AbhIKNNi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 09:13:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E32F8611CC;
+        Sat, 11 Sep 2021 13:12:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365944;
-        bh=MznIBEeT4uqOL6YVdEqOi56t+PHKc+D+hfPTw/tzeNA=;
+        s=k20201202; t=1631365945;
+        bh=reP2nw3f/wq9zc5LUNGRzm1dBvkE3dZ1Ok0yArTwbO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEGGEkg9qGP6emT6Ge73TDTO93/R9Eh6QDvtLCtYdpuaFrubSBmh3Ctrap4o+8i2h
-         Gt5js7y3RNCZi/Ap9alOEcMSJm9r2aAaLAWL8vAx0V3QGLOkRFbFUhl/L282MSCjkV
-         xvH3g1MU5Dose88wkSSqZYoQ3hvFyAEv7WJuta5txk9ME7c03I8rrqn9X33/AV2TQ2
-         VSH8c7Erz79kCNh5dLzfn92tM1kBueQbCqxRl299XOGt7eBZG+TD29v+hXv7OiBZo/
-         v2xj3AuVgCaeVM6WDCnMTm/BsxHJZQcdt8oELjUbJBlWU1FKaHidk48cmEa95lR59D
-         ESXvjMbDKCmeA==
+        b=WWwU1rJ3d2fdLsIVRhv5faWT6wrkqxHGoJ9SAW2bHkzmszg5fJ/uDrClUE+GUOLOT
+         ynSrIzqSOw89KNrzXsjaskxwTy11rwTnpLRF5N3KFylNwOj7T+N+YxRrfSuUse87o2
+         ohtfSBW375Y32ZZw3Q5nQ2RYEuj3sS1zwxVe7rY5D1m80QcesRcnD4JchPtszzV3dH
+         L3ccnPFYeIhR9ULCGg43DPytyA2/M2TXIwvy06jsGUdew0rbfLAR0W4nwhvY/Yw1kE
+         j/gVLYHkNSeSVrOSmrWbxNv9Z0gF6CHg7zvtQ4qC6rCrcRxlr77d/AEw4QosrlQex+
+         0FYbrYBRnfQiA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vishal Aslot <os.vaslot@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 26/32] PCI: ibmphp: Fix double unmap of io_mem
-Date:   Sat, 11 Sep 2021 09:11:43 -0400
-Message-Id: <20210911131149.284397-26-sashal@kernel.org>
+Cc:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        syzbot <syzbot+f61766d5763f9e7a118f@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 27/32] loop: reduce the loop_ctl_mutex scope
+Date:   Sat, 11 Sep 2021 09:11:44 -0400
+Message-Id: <20210911131149.284397-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131149.284397-1-sashal@kernel.org>
 References: <20210911131149.284397-1-sashal@kernel.org>
@@ -42,62 +44,228 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Aslot <os.vaslot@gmail.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit faa2e05ad0dccf37f995bcfbb8d1980d66c02c11 ]
+[ Upstream commit 1c500ad706383f1a6609e63d0b5d1723fd84dab9 ]
 
-ebda_rsrc_controller() calls iounmap(io_mem) on the error path. Its caller,
-ibmphp_access_ebda(), also calls iounmap(io_mem) on good and error paths.
+syzbot is reporting circular locking problem at __loop_clr_fd() [1], for
+commit a160c6159d4a0cf8 ("block: add an optional probe callback to
+major_names") is calling the module's probe function with major_names_lock
+held.
 
-Remove the iounmap(io_mem) invocation from ebda_rsrc_controller().
+Fortunately, since commit 990e78116d38059c ("block: loop: fix deadlock
+between open and remove") stopped holding loop_ctl_mutex in lo_open(),
+current role of loop_ctl_mutex is to serialize access to loop_index_idr
+and loop_add()/loop_remove(); in other words, management of id for IDR.
+To avoid holding loop_ctl_mutex during whole add/remove operation, use
+a bool flag to indicate whether the loop device is ready for use.
 
-[bhelgaas: remove item from TODO]
-Link: https://lore.kernel.org/r/20210818165751.591185-1-os.vaslot@gmail.com
-Signed-off-by: Vishal Aslot <os.vaslot@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+loop_unregister_transfer() which is called from cleanup_cryptoloop()
+currently has possibility of use-after-free problem due to lack of
+serialization between kfree() from loop_remove() from loop_control_remove()
+and mutex_lock() from unregister_transfer_cb(). But since lo->lo_encryption
+should be already NULL when this function is called due to module unload,
+and commit 222013f9ac30b9ce ("cryptoloop: add a deprecation warning")
+indicates that we will remove this function shortly, this patch updates
+this function to emit warning instead of checking lo->lo_encryption.
+
+Holding loop_ctl_mutex in loop_exit() is pointless, for all users must
+close /dev/loop-control and /dev/loop$num (in order to drop module's
+refcount to 0) before loop_exit() starts, and nobody can open
+/dev/loop-control or /dev/loop$num afterwards.
+
+Link: https://syzkaller.appspot.com/bug?id=7bb10e8b62f83e4d445cdf4c13d69e407e629558 [1]
+Reported-by: syzbot <syzbot+f61766d5763f9e7a118f@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/adb1e792-fc0e-ee81-7ea0-0906fc36419d@i-love.sakura.ne.jp
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/TODO          | 3 ---
- drivers/pci/hotplug/ibmphp_ebda.c | 5 +----
- 2 files changed, 1 insertion(+), 7 deletions(-)
+ drivers/block/loop.c | 75 +++++++++++++++++++++++++++++---------------
+ drivers/block/loop.h |  1 +
+ 2 files changed, 50 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/pci/hotplug/TODO b/drivers/pci/hotplug/TODO
-index a32070be5adf..cc6194aa24c1 100644
---- a/drivers/pci/hotplug/TODO
-+++ b/drivers/pci/hotplug/TODO
-@@ -40,9 +40,6 @@ ibmphp:
- 
- * The return value of pci_hp_register() is not checked.
- 
--* iounmap(io_mem) is called in the error path of ebda_rsrc_controller()
--  and once more in the error path of its caller ibmphp_access_ebda().
--
- * The various slot data structures are difficult to follow and need to be
-   simplified.  A lot of functions are too large and too complex, they need
-   to be broken up into smaller, manageable pieces.  Negative examples are
-diff --git a/drivers/pci/hotplug/ibmphp_ebda.c b/drivers/pci/hotplug/ibmphp_ebda.c
-index 11a2661dc062..7fb75401ad8a 100644
---- a/drivers/pci/hotplug/ibmphp_ebda.c
-+++ b/drivers/pci/hotplug/ibmphp_ebda.c
-@@ -714,8 +714,7 @@ static int __init ebda_rsrc_controller(void)
- 		/* init hpc structure */
- 		hpc_ptr = alloc_ebda_hpc(slot_num, bus_num);
- 		if (!hpc_ptr) {
--			rc = -ENOMEM;
--			goto error_no_hpc;
-+			return -ENOMEM;
- 		}
- 		hpc_ptr->ctlr_id = ctlr_id;
- 		hpc_ptr->ctlr_relative_id = ctlr;
-@@ -910,8 +909,6 @@ static int __init ebda_rsrc_controller(void)
- 	kfree(tmp_slot);
- error_no_slot:
- 	free_ebda_hpc(hpc_ptr);
--error_no_hpc:
--	iounmap(io_mem);
- 	return rc;
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index f0cdff0c5fbf..1f91bd41a29b 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -2113,18 +2113,6 @@ int loop_register_transfer(struct loop_func_table *funcs)
+ 	return 0;
  }
  
+-static int unregister_transfer_cb(int id, void *ptr, void *data)
+-{
+-	struct loop_device *lo = ptr;
+-	struct loop_func_table *xfer = data;
+-
+-	mutex_lock(&lo->lo_mutex);
+-	if (lo->lo_encryption == xfer)
+-		loop_release_xfer(lo);
+-	mutex_unlock(&lo->lo_mutex);
+-	return 0;
+-}
+-
+ int loop_unregister_transfer(int number)
+ {
+ 	unsigned int n = number;
+@@ -2132,9 +2120,20 @@ int loop_unregister_transfer(int number)
+ 
+ 	if (n == 0 || n >= MAX_LO_CRYPT || (xfer = xfer_funcs[n]) == NULL)
+ 		return -EINVAL;
++	/*
++	 * This function is called from only cleanup_cryptoloop().
++	 * Given that each loop device that has a transfer enabled holds a
++	 * reference to the module implementing it we should never get here
++	 * with a transfer that is set (unless forced module unloading is
++	 * requested). Thus, check module's refcount and warn if this is
++	 * not a clean unloading.
++	 */
++#ifdef CONFIG_MODULE_UNLOAD
++	if (xfer->owner && module_refcount(xfer->owner) != -1)
++		pr_err("Danger! Unregistering an in use transfer function.\n");
++#endif
+ 
+ 	xfer_funcs[n] = NULL;
+-	idr_for_each(&loop_index_idr, &unregister_transfer_cb, xfer);
+ 	return 0;
+ }
+ 
+@@ -2325,8 +2324,9 @@ static int loop_add(int i)
+ 	} else {
+ 		err = idr_alloc(&loop_index_idr, lo, 0, 0, GFP_KERNEL);
+ 	}
++	mutex_unlock(&loop_ctl_mutex);
+ 	if (err < 0)
+-		goto out_unlock;
++		goto out_free_dev;
+ 	i = err;
+ 
+ 	err = -ENOMEM;
+@@ -2392,15 +2392,19 @@ static int loop_add(int i)
+ 	disk->private_data	= lo;
+ 	disk->queue		= lo->lo_queue;
+ 	sprintf(disk->disk_name, "loop%d", i);
++	/* Make this loop device reachable from pathname. */
+ 	add_disk(disk);
++	/* Show this loop device. */
++	mutex_lock(&loop_ctl_mutex);
++	lo->idr_visible = true;
+ 	mutex_unlock(&loop_ctl_mutex);
+ 	return i;
+ 
+ out_cleanup_tags:
+ 	blk_mq_free_tag_set(&lo->tag_set);
+ out_free_idr:
++	mutex_lock(&loop_ctl_mutex);
+ 	idr_remove(&loop_index_idr, i);
+-out_unlock:
+ 	mutex_unlock(&loop_ctl_mutex);
+ out_free_dev:
+ 	kfree(lo);
+@@ -2410,9 +2414,14 @@ static int loop_add(int i)
+ 
+ static void loop_remove(struct loop_device *lo)
+ {
++	/* Make this loop device unreachable from pathname. */
+ 	del_gendisk(lo->lo_disk);
+ 	blk_cleanup_disk(lo->lo_disk);
+ 	blk_mq_free_tag_set(&lo->tag_set);
++	mutex_lock(&loop_ctl_mutex);
++	idr_remove(&loop_index_idr, lo->lo_number);
++	mutex_unlock(&loop_ctl_mutex);
++	/* There is no route which can find this loop device. */
+ 	mutex_destroy(&lo->lo_mutex);
+ 	kfree(lo);
+ }
+@@ -2436,31 +2445,40 @@ static int loop_control_remove(int idx)
+ 		return -EINVAL;
+ 	}
+ 		
++	/* Hide this loop device for serialization. */
+ 	ret = mutex_lock_killable(&loop_ctl_mutex);
+ 	if (ret)
+ 		return ret;
+-
+ 	lo = idr_find(&loop_index_idr, idx);
+-	if (!lo) {
++	if (!lo || !lo->idr_visible)
+ 		ret = -ENODEV;
+-		goto out_unlock_ctrl;
+-	}
++	else
++		lo->idr_visible = false;
++	mutex_unlock(&loop_ctl_mutex);
++	if (ret)
++		return ret;
+ 
++	/* Check whether this loop device can be removed. */
+ 	ret = mutex_lock_killable(&lo->lo_mutex);
+ 	if (ret)
+-		goto out_unlock_ctrl;
++		goto mark_visible;
+ 	if (lo->lo_state != Lo_unbound ||
+ 	    atomic_read(&lo->lo_refcnt) > 0) {
+ 		mutex_unlock(&lo->lo_mutex);
+ 		ret = -EBUSY;
+-		goto out_unlock_ctrl;
++		goto mark_visible;
+ 	}
++	/* Mark this loop device no longer open()-able. */
+ 	lo->lo_state = Lo_deleting;
+ 	mutex_unlock(&lo->lo_mutex);
+ 
+-	idr_remove(&loop_index_idr, lo->lo_number);
+ 	loop_remove(lo);
+-out_unlock_ctrl:
++	return 0;
++
++mark_visible:
++	/* Show this loop device again. */
++	mutex_lock(&loop_ctl_mutex);
++	lo->idr_visible = true;
+ 	mutex_unlock(&loop_ctl_mutex);
+ 	return ret;
+ }
+@@ -2474,7 +2492,8 @@ static int loop_control_get_free(int idx)
+ 	if (ret)
+ 		return ret;
+ 	idr_for_each_entry(&loop_index_idr, lo, id) {
+-		if (lo->lo_state == Lo_unbound)
++		/* Hitting a race results in creating a new loop device which is harmless. */
++		if (lo->idr_visible && data_race(lo->lo_state) == Lo_unbound)
+ 			goto found;
+ 	}
+ 	mutex_unlock(&loop_ctl_mutex);
+@@ -2590,10 +2609,14 @@ static void __exit loop_exit(void)
+ 	unregister_blkdev(LOOP_MAJOR, "loop");
+ 	misc_deregister(&loop_misc);
+ 
+-	mutex_lock(&loop_ctl_mutex);
++	/*
++	 * There is no need to use loop_ctl_mutex here, for nobody else can
++	 * access loop_index_idr when this module is unloading (unless forced
++	 * module unloading is requested). If this is not a clean unloading,
++	 * we have no means to avoid kernel crash.
++	 */
+ 	idr_for_each_entry(&loop_index_idr, lo, id)
+ 		loop_remove(lo);
+-	mutex_unlock(&loop_ctl_mutex);
+ 
+ 	idr_destroy(&loop_index_idr);
+ }
+diff --git a/drivers/block/loop.h b/drivers/block/loop.h
+index 1988899db63a..04c88dd6eabd 100644
+--- a/drivers/block/loop.h
++++ b/drivers/block/loop.h
+@@ -68,6 +68,7 @@ struct loop_device {
+ 	struct blk_mq_tag_set	tag_set;
+ 	struct gendisk		*lo_disk;
+ 	struct mutex		lo_mutex;
++	bool			idr_visible;
+ };
+ 
+ struct loop_cmd {
 -- 
 2.30.2
 
