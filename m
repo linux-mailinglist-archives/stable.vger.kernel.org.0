@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EF6D4076FB
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:13:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48CA1407703
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:13:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236331AbhIKNOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:14:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38090 "EHLO mail.kernel.org"
+        id S236654AbhIKNOY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:14:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236327AbhIKNNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 09:13:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AA67611C3;
-        Sat, 11 Sep 2021 13:12:27 +0000 (UTC)
+        id S236337AbhIKNNm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 09:13:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD63961206;
+        Sat, 11 Sep 2021 13:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365948;
-        bh=W067M9YuUs/H/l/wOW2OpgBb+e2lq9U28N6uJgw6CEw=;
+        s=k20201202; t=1631365949;
+        bh=P8tuf+tDy2pcR8mAryvwRZSmAXGTiQWLnb3UXVnShc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RlYKeFDpf0rqGqrD+RDd+g3RZ7TTgFL0jcvWvg+o/RaOvbyhV29vOXCbVe9tiUubc
-         dS7P2zKgCzb5ru+Kryr0Tu2utxoWkkgumDOH/ynsf6U5G/TxOYwjU4w2MVonUISDPS
-         ACDh4QTMTIKoeCQN3k+9Ews/fGZArRDNuhl1M0mCtT4vwSrvpRmc0umvueGCSmKD9G
-         B51heaO2CrU+K+Bg4y420+vsw9Kwuc1fjMkAhYC9eQon1So8LCkfZh1x3u6QaCLJfP
-         ZADmsp7JQjOh4AdBDxUQcA3kXoRR42Pz6+FUzofpE03QJ8khFOzWDGmdprszYv7swB
-         mthwFX9gf3igQ==
+        b=AkJCGrkHLMgiBDFbqP6BPYucp96LVnWi7QWE00NDT6jbf0594HfwGr034sqLNtS6L
+         +Egk+1h2jBo+uhH2vwU4JKYsAb53Mc2gPuFKFG3VyOyXg0XJ7Hw9Sa1WT4/FUtJpgB
+         5jSvBiDJLbMseuGJ42+YcWf2p5CEb1mi2WFDGeFVwbJuh4C7BLre/IK0hxbN+ha1QU
+         KQhe9+bA4MEIC8rQbuWOnx/IiWhfwryreuzniBYUP+QqL0UZAQLqv4tCrxelshzWps
+         wcs6qY+Zg2VpfT/vbsmPyo9MuSdPvj+JzBsprl9KrChwb5vesp16NDZhMVBHIAy7Rs
+         1d2bjsNKdy5iA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Yang Li <yang.lee@linux.alibaba.com>,
         Abaci Robot <abaci@linux.alibaba.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
+        Serge Semin <fancer.lancer@gmail.com>,
         Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>,
         linux-ntb@googlegroups.com
-Subject: [PATCH AUTOSEL 5.14 29/32] NTB: Fix an error code in ntb_msit_probe()
-Date:   Sat, 11 Sep 2021 09:11:46 -0400
-Message-Id: <20210911131149.284397-29-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 30/32] NTB: perf: Fix an error code in perf_setup_inbuf()
+Date:   Sat, 11 Sep 2021 09:11:47 -0400
+Message-Id: <20210911131149.284397-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131149.284397-1-sashal@kernel.org>
 References: <20210911131149.284397-1-sashal@kernel.org>
@@ -46,40 +46,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit 319f83ac98d7afaabab84ce5281a819a358b9895 ]
+[ Upstream commit 0097ae5f7af5684f961a5f803ff7ad3e6f933668 ]
 
-When the value of nm->isr_ctx is false, the value of ret is 0.
-So, we set ret to -ENOMEM to indicate this error.
+When the function IS_ALIGNED() returns false, the value of ret is 0.
+So, we set ret to -EINVAL to indicate this error.
 
 Clean up smatch warning:
-drivers/ntb/test/ntb_msi_test.c:373 ntb_msit_probe() warn: missing
-error code 'ret'.
+drivers/ntb/test/ntb_perf.c:602 perf_setup_inbuf() warn: missing error
+code 'ret'.
 
 Reported-by: Abaci Robot <abaci@linux.alibaba.com>
 Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
 Signed-off-by: Jon Mason <jdmason@kudzu.us>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/test/ntb_msi_test.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/ntb/test/ntb_perf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ntb/test/ntb_msi_test.c b/drivers/ntb/test/ntb_msi_test.c
-index 7095ecd6223a..4e18e08776c9 100644
---- a/drivers/ntb/test/ntb_msi_test.c
-+++ b/drivers/ntb/test/ntb_msi_test.c
-@@ -369,8 +369,10 @@ static int ntb_msit_probe(struct ntb_client *client, struct ntb_dev *ntb)
- 	if (ret)
- 		goto remove_dbgfs;
- 
--	if (!nm->isr_ctx)
-+	if (!nm->isr_ctx) {
-+		ret = -ENOMEM;
- 		goto remove_dbgfs;
-+	}
- 
- 	ntb_link_enable(ntb, NTB_SPEED_AUTO, NTB_WIDTH_AUTO);
- 
+diff --git a/drivers/ntb/test/ntb_perf.c b/drivers/ntb/test/ntb_perf.c
+index 89df1350fefd..65e1e5cf1b29 100644
+--- a/drivers/ntb/test/ntb_perf.c
++++ b/drivers/ntb/test/ntb_perf.c
+@@ -598,6 +598,7 @@ static int perf_setup_inbuf(struct perf_peer *peer)
+ 		return -ENOMEM;
+ 	}
+ 	if (!IS_ALIGNED(peer->inbuf_xlat, xlat_align)) {
++		ret = -EINVAL;
+ 		dev_err(&perf->ntb->dev, "Unaligned inbuf allocated\n");
+ 		goto err_free_inbuf;
+ 	}
 -- 
 2.30.2
 
