@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5B440770B
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:13:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C044076E0
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:12:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236035AbhIKNOh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:14:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
+        id S235993AbhIKNNz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:13:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236152AbhIKNN3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 09:13:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ECD961153;
-        Sat, 11 Sep 2021 13:12:16 +0000 (UTC)
+        id S236040AbhIKNNb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 09:13:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A074461209;
+        Sat, 11 Sep 2021 13:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365937;
-        bh=a2GYrwtribkspGkRHkt0yQ2etdjNv4Afdw4PoYL+LCA=;
+        s=k20201202; t=1631365938;
+        bh=IXbWypt5As8UY7h6vkc1duviLi7E8JcPnBivbbjE2ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgYNEbkLz93d95vbXGI8ID/WvF8F5XoqbZRtpY/FaeFQdgok8deJtL6zsOWu0sfSH
-         Z8dbLOnopXOtmnsOnipJQTFtuauCAghByWiDKtwp1zSQ0vvQRa9A4SoIPhb93tKM7M
-         N9SSBCCfuM6f035tVyAC2oti+HsFRBQRO6xxy3bp0TDLJdq0z6EceQ/fBNTCTZZJew
-         mOc+bL9f5QRo1j6g7/mJzG6eRwuUkwfrwYrt37Vjdf4F3Mkb3DkfE4+W5noaTVR8u9
-         lNq4knVscBmyR4lUsZEYFGwSR6D4k1ahSrAARx2Y7C60+IKsOEcUf1wRxwetZk62fy
-         MWKkd06XBWywQ==
+        b=Xgd9QekaEyKA+3lkgLKxkpBVArQYpkJi4puqf/i/8P7jQUCfKWU2WP2jDIYMfgUaF
+         mkw9aFT6iFDNOLCYHiidfb0iolQd89+A6MrzM4EF9rnQA8t1FK5BczGJ0pZz4JBtch
+         OJECbN2sEOBUnNPI85hRTn3l0SewyjW5eG+Xaj3MyLsAlcjS4xh/g/6lg4OeBZNr+I
+         1y0kj78lBX4cU3RUD3g4pj7NteB0q4uq8eL4tWWTSfWWssbYirEQGDLU+uK8JxGv3d
+         WLV6Vn+AN4hU08ZXPozHL2rfAl8tJB0aYeyp4YNlXRVfOyCosVJqYo+uzwKH0aWBsa
+         TpJ6iy88+CjMg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kiszka <jan.kiszka@siemens.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 20/32] watchdog: Start watchdog in watchdog_set_last_hw_keepalive only if appropriate
-Date:   Sat, 11 Sep 2021 09:11:37 -0400
-Message-Id: <20210911131149.284397-20-sashal@kernel.org>
+Cc:     Smadar Fuks <smadarf@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 21/32] octeontx2-af: Add additional register check to rvu_poll_reg()
+Date:   Sat, 11 Sep 2021 09:11:38 -0400
+Message-Id: <20210911131149.284397-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131149.284397-1-sashal@kernel.org>
 References: <20210911131149.284397-1-sashal@kernel.org>
@@ -43,42 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+From: Smadar Fuks <smadarf@marvell.com>
 
-[ Upstream commit dbe80cf471f940db3063197b7adb1169f89be9ed ]
+[ Upstream commit 21274aa1781941884599a97ab59be7f8f36af98c ]
 
-We must not pet a running watchdog when handle_boot_enabled is off
-because this will kick off automatic triggering before userland is
-running, defeating the purpose of the handle_boot_enabled control.
-Furthermore, don't ping in case watchdog_set_last_hw_keepalive was
-called incorrectly when the hardware watchdog is actually not running.
+Check one more time before exiting the API with an error.
+Fix API to poll at least twice, in case there are other high priority
+tasks and this API doesn't get CPU cycles for multiple jiffies update.
 
-Fixed: cef9572e9af3 ("watchdog: add support for adjusting last known HW keepalive time")
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/93d56386-6e37-060b-55ce-84de8cde535f@web.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+In addition, increase timeout from usecs_to_jiffies(10000) to
+usecs_to_jiffies(20000), to prevent the case that for CONFIG_100HZ
+timeout will be a single jiffies.
+A single jiffies results actual timeout that can be any time between
+1usec and 10msec. To solve this, a value of usecs_to_jiffies(20000)
+ensures that timeout is 2 jiffies.
+
+Signed-off-by: Smadar Fuks <smadarf@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/watchdog_dev.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
-index 3bab32485273..6c73160386b9 100644
---- a/drivers/watchdog/watchdog_dev.c
-+++ b/drivers/watchdog/watchdog_dev.c
-@@ -1172,7 +1172,10 @@ int watchdog_set_last_hw_keepalive(struct watchdog_device *wdd,
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
+index 5fe277e354f7..c10cae78e79f 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu.c
+@@ -92,7 +92,8 @@ static void rvu_setup_hw_capabilities(struct rvu *rvu)
+  */
+ int rvu_poll_reg(struct rvu *rvu, u64 block, u64 offset, u64 mask, bool zero)
+ {
+-	unsigned long timeout = jiffies + usecs_to_jiffies(10000);
++	unsigned long timeout = jiffies + usecs_to_jiffies(20000);
++	bool twice = false;
+ 	void __iomem *reg;
+ 	u64 reg_val;
  
- 	wd_data->last_hw_keepalive = ktime_sub(now, ms_to_ktime(last_ping_ms));
- 
--	return __watchdog_ping(wdd);
-+	if (watchdog_hw_running(wdd) && handle_boot_enabled)
-+		return __watchdog_ping(wdd);
-+
-+	return 0;
+@@ -107,6 +108,15 @@ int rvu_poll_reg(struct rvu *rvu, u64 block, u64 offset, u64 mask, bool zero)
+ 		usleep_range(1, 5);
+ 		goto again;
+ 	}
++	/* In scenarios where CPU is scheduled out before checking
++	 * 'time_before' (above) and gets scheduled in such that
++	 * jiffies are beyond timeout value, then check again if HW is
++	 * done with the operation in the meantime.
++	 */
++	if (!twice) {
++		twice = true;
++		goto again;
++	}
+ 	return -EBUSY;
  }
- EXPORT_SYMBOL_GPL(watchdog_set_last_hw_keepalive);
  
 -- 
 2.30.2
