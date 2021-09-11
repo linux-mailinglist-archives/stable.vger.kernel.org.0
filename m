@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6110407774
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB8BE407790
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236499AbhIKNRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:17:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38202 "EHLO mail.kernel.org"
+        id S236513AbhIKNSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:18:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236536AbhIKNPn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 09:15:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EACE61260;
-        Sat, 11 Sep 2021 13:13:18 +0000 (UTC)
+        id S236135AbhIKNPp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 09:15:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D47D961261;
+        Sat, 11 Sep 2021 13:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365999;
-        bh=O12ORUh350U1nDoSDlnv7lBP/4Stol3K7FbNOpeVNss=;
+        s=k20201202; t=1631366000;
+        bh=tSld2HOwibPSCdTrA5wJUDFuSG0AdJmTLSluveSg8WU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CLdDHVRwKubj9ywdAhguB8pUang05w6SSt6OXKK4KyDjGB6XbG5C8lFG7bsviCdYA
-         VavJyfGWdUVlj3xamyLM42OGqMp1y4WpKOE5SCVTCXv+gPLp9DJId4fafAD7cCunEr
-         mKT66G6IbuCy6e1kFDC7j9AJF5zX6NWH+4mflQRPm9TeHQODJqp2wX7Z/tyVA+yyB+
-         mrOv06hqEC/mRVRUu8pjWMlb8+qhkEoQcicnyKLzWqzuVnacQoVJ69xlQO91/asOwi
-         ied6tatxmBwCpHgcF6FYKDjg1v2dNhhEKHM6x4UYX4kvDrVBdvsI00+0qaSkAoBuK2
-         95dtJlp8H0SmA==
+        b=bW8yLhPiglpg40E61Y9FAdvYTH2s3LSuYmQLIfKuKO3A1v0wzjeQaoV7ZFiO+KQuV
+         nSE9tUNNyTvn1clIUC4DtlfQx65V7VCVEkVaTAru/TaT95G1A0+x6w5WRMdU2XW61S
+         6iAwRS6Ano/N+BPYT0qROBFS3Nj2CNb9yH/eVkLtQU2aZgO9xoswOhh0MAnKWLtQj9
+         IiO0aNmT0JJgb3jmYx2jpgDbugRvKYGFnbE1JVfXboq47DnnaVrhXwyZD7c+b3bewX
+         RNqmwhbAgUkYjhLHfVeMNp182RSysFXSeQJNj4xpKAiVMxoVyca31eNMH2FZleBydO
+         k/sA8g4UhLkpA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Om Prakash Singh <omp@nvidia.com>,
@@ -31,9 +31,9 @@ Cc:     Om Prakash Singh <omp@nvidia.com>,
         Vidya Sagar <vidyas@nvidia.com>,
         Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
         linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 05/25] PCI: tegra194: Fix handling BME_CHGED event
-Date:   Sat, 11 Sep 2021 09:12:52 -0400
-Message-Id: <20210911131312.285225-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 06/25] PCI: tegra194: Fix MSI-X programming
+Date:   Sat, 11 Sep 2021 09:12:53 -0400
+Message-Id: <20210911131312.285225-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131312.285225-1-sashal@kernel.org>
 References: <20210911131312.285225-1-sashal@kernel.org>
@@ -47,82 +47,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Om Prakash Singh <omp@nvidia.com>
 
-[ Upstream commit ceb1412c1c8ca5b28c4252bdb15f2f1f17b4a1b0 ]
+[ Upstream commit 43537cf7e351264a1f05ed42ad402942bfc9140e ]
 
-In tegra_pcie_ep_hard_irq(), APPL_INTR_STATUS_L0 is stored in val and again
-APPL_INTR_STATUS_L1_0_0 is also stored in val. So when execution reaches
-"if (val & APPL_INTR_STATUS_L0_PCI_CMD_EN_INT)", val is not correct.
+Lower order MSI-X address is programmed in MSIX_ADDR_MATCH_HIGH_OFF
+DBI register instead of higher order address. This patch fixes this
+programming mistake.
 
-Link: https://lore.kernel.org/r/20210623100525.19944-2-omp@nvidia.com
+Link: https://lore.kernel.org/r/20210623100525.19944-3-omp@nvidia.com
 Signed-off-by: Om Prakash Singh <omp@nvidia.com>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
 Acked-by: Vidya Sagar <vidyas@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-tegra194.c | 30 +++++++++++-----------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
-index 506f6a294eac..c2827a8d208f 100644
+index c2827a8d208f..a5b677ec0769 100644
 --- a/drivers/pci/controller/dwc/pcie-tegra194.c
 +++ b/drivers/pci/controller/dwc/pcie-tegra194.c
-@@ -515,19 +515,19 @@ static irqreturn_t tegra_pcie_ep_hard_irq(int irq, void *arg)
- 	struct tegra_pcie_dw *pcie = arg;
- 	struct dw_pcie_ep *ep = &pcie->pci.ep;
- 	int spurious = 1;
--	u32 val, tmp;
-+	u32 status_l0, status_l1, link_status;
+@@ -1778,7 +1778,7 @@ static void pex_ep_event_pex_rst_deassert(struct tegra_pcie_dw *pcie)
+ 	val = (ep->msi_mem_phys & MSIX_ADDR_MATCH_LOW_OFF_MASK);
+ 	val |= MSIX_ADDR_MATCH_LOW_OFF_EN;
+ 	dw_pcie_writel_dbi(pci, MSIX_ADDR_MATCH_LOW_OFF, val);
+-	val = (lower_32_bits(ep->msi_mem_phys) & MSIX_ADDR_MATCH_HIGH_OFF_MASK);
++	val = (upper_32_bits(ep->msi_mem_phys) & MSIX_ADDR_MATCH_HIGH_OFF_MASK);
+ 	dw_pcie_writel_dbi(pci, MSIX_ADDR_MATCH_HIGH_OFF, val);
  
--	val = appl_readl(pcie, APPL_INTR_STATUS_L0);
--	if (val & APPL_INTR_STATUS_L0_LINK_STATE_INT) {
--		val = appl_readl(pcie, APPL_INTR_STATUS_L1_0_0);
--		appl_writel(pcie, val, APPL_INTR_STATUS_L1_0_0);
-+	status_l0 = appl_readl(pcie, APPL_INTR_STATUS_L0);
-+	if (status_l0 & APPL_INTR_STATUS_L0_LINK_STATE_INT) {
-+		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_0_0);
-+		appl_writel(pcie, status_l1, APPL_INTR_STATUS_L1_0_0);
- 
--		if (val & APPL_INTR_STATUS_L1_0_0_HOT_RESET_DONE)
-+		if (status_l1 & APPL_INTR_STATUS_L1_0_0_HOT_RESET_DONE)
- 			pex_ep_event_hot_rst_done(pcie);
- 
--		if (val & APPL_INTR_STATUS_L1_0_0_RDLH_LINK_UP_CHGED) {
--			tmp = appl_readl(pcie, APPL_LINK_STATUS);
--			if (tmp & APPL_LINK_STATUS_RDLH_LINK_UP) {
-+		if (status_l1 & APPL_INTR_STATUS_L1_0_0_RDLH_LINK_UP_CHGED) {
-+			link_status = appl_readl(pcie, APPL_LINK_STATUS);
-+			if (link_status & APPL_LINK_STATUS_RDLH_LINK_UP) {
- 				dev_dbg(pcie->dev, "Link is up with Host\n");
- 				dw_pcie_ep_linkup(ep);
- 			}
-@@ -536,11 +536,11 @@ static irqreturn_t tegra_pcie_ep_hard_irq(int irq, void *arg)
- 		spurious = 0;
- 	}
- 
--	if (val & APPL_INTR_STATUS_L0_PCI_CMD_EN_INT) {
--		val = appl_readl(pcie, APPL_INTR_STATUS_L1_15);
--		appl_writel(pcie, val, APPL_INTR_STATUS_L1_15);
-+	if (status_l0 & APPL_INTR_STATUS_L0_PCI_CMD_EN_INT) {
-+		status_l1 = appl_readl(pcie, APPL_INTR_STATUS_L1_15);
-+		appl_writel(pcie, status_l1, APPL_INTR_STATUS_L1_15);
- 
--		if (val & APPL_INTR_STATUS_L1_15_CFG_BME_CHGED)
-+		if (status_l1 & APPL_INTR_STATUS_L1_15_CFG_BME_CHGED)
- 			return IRQ_WAKE_THREAD;
- 
- 		spurious = 0;
-@@ -548,8 +548,8 @@ static irqreturn_t tegra_pcie_ep_hard_irq(int irq, void *arg)
- 
- 	if (spurious) {
- 		dev_warn(pcie->dev, "Random interrupt (STATUS = 0x%08X)\n",
--			 val);
--		appl_writel(pcie, val, APPL_INTR_STATUS_L0);
-+			 status_l0);
-+		appl_writel(pcie, status_l0, APPL_INTR_STATUS_L0);
- 	}
- 
- 	return IRQ_HANDLED;
+ 	ret = dw_pcie_ep_init_complete(ep);
 -- 
 2.30.2
 
