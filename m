@@ -2,74 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 613CC4078DB
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 16:37:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA7174078DE
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 16:38:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230447AbhIKOjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 10:39:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44214 "EHLO mail.kernel.org"
+        id S229633AbhIKOj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 10:39:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229633AbhIKOjJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 10:39:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5737260FDC;
-        Sat, 11 Sep 2021 14:37:56 +0000 (UTC)
+        id S229950AbhIKOj0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 10:39:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9ABA60FDC;
+        Sat, 11 Sep 2021 14:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631371076;
-        bh=ZssWQoic4PisY8fQmXOLRjIwa7pajjw3kzIi0Ufi/3k=;
+        s=k20201202; t=1631371094;
+        bh=YBIF5J36ij9usGPWBSbRlHUOMTdFl+Nmw41emmyuPD8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=A7u4Ht1KPQGsvmyBYLrHZUIUcnqWdXIB10/19PcnoUpbQk5yQEgPZRe805dJgcRSl
-         J8PVFTJL4YY4m6rd9Q/SGu6hdFFxiAxxKodv0hoxNxAmW9G0H4EuHzCyf8PlUGfTm8
-         zcVifwyPzNBhpatuJxLI1CqFONiUqw7zh5PS39nPPnFYzVAAKxVDTjFO0zw18dff81
-         1rCa7i7ExmXsNBQaWbd2lVr/7klFPWIGZSmPc7ns6rT5/H6Rd4bRPi5ebzM5R6uYi9
-         Waxcks05SQEbu42/Wc77Gkqx2TbiDKHUZJlDXFkZoP9Zh0bFrXf8kuVsITS43wYb8d
-         WAoKDQzDNceng==
-Date:   Sat, 11 Sep 2021 10:37:55 -0400
+        b=YSRXYdid9WF1FS3P6uX3QK970zK80deaRUyrE/VadNYI3HkO/CRozr0ytsLBTQpXU
+         bY93JsNMfuv/wJ57SORREkJ7EldrWK+FXVdwuU1RgZxHvdf7cfcQs2rpaoO6Bnvt5z
+         BdKJ6p1YuWkf12LvDW3VHF6rtgnJm/NEhVgEQo0KaviltIX2NryKcupZuz9A3zHx16
+         QtLLicV4Ap15FhDUJgjplsRLwutHoRZMzW4ATtPanW5e1BqyDYgoum/qiDpj5hN2X/
+         KiD81dmOw4mebaehNiSH535uP44ooHoHfXL9Uek2fDZLRI2EOKBFcDypDi0lhp4dRk
+         OXIPSLV2IRC3g==
+Date:   Sat, 11 Sep 2021 10:38:13 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Mat Martineau <mathew.j.martineau@linux.intel.com>
+To:     Takashi Iwai <tiwai@suse.de>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Yonglong Li <liyonglong@chinatelecom.cn>,
-        Geliang Tang <geliangtang@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        mptcp@lists.linux.dev
-Subject: Re: [PATCH AUTOSEL 5.14 209/252] mptcp: fix ADD_ADDR and RM_ADDR
- maybe flush addr_signal each other
-Message-ID: <YTy/Q//PQjz6c4Ip@sashalap>
-References: <20210909114106.141462-1-sashal@kernel.org>
- <20210909114106.141462-209-sashal@kernel.org>
- <3a6c39db-8aca-b64b-51db-cd1544daf9dc@linux.intel.com>
+        alsa-devel@alsa-project.org
+Subject: Re: [PATCH AUTOSEL 5.13 176/219] ASoC: intel: atom: Revert PCM
+ buffer address setup workaround again
+Message-ID: <YTy/VWNFechDAFMB@sashalap>
+References: <20210909114635.143983-1-sashal@kernel.org>
+ <20210909114635.143983-176-sashal@kernel.org>
+ <s5h5yvaq80i.wl-tiwai@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <3a6c39db-8aca-b64b-51db-cd1544daf9dc@linux.intel.com>
+In-Reply-To: <s5h5yvaq80i.wl-tiwai@suse.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 09, 2021 at 03:33:02PM -0700, Mat Martineau wrote:
->
->On Thu, 9 Sep 2021, Sasha Levin wrote:
->
->>From: Yonglong Li <liyonglong@chinatelecom.cn>
+On Thu, Sep 09, 2021 at 01:54:21PM +0200, Takashi Iwai wrote:
+>On Thu, 09 Sep 2021 13:45:52 +0200,
+>Sasha Levin wrote:
 >>
->>[ Upstream commit 119c022096f5805680c79dfa74e15044c289856d ]
+>> From: Takashi Iwai <tiwai@suse.de>
 >>
->>ADD_ADDR shares pm.addr_signal with RM_ADDR, so after RM_ADDR/ADD_ADDR
->>has done, we should not clean ADD_ADDR/RM_ADDR's addr_signal.
+>> [ Upstream commit e28ac04a705e946eddc5e7d2fc712dea3f20fe9e ]
 >>
->>Co-developed-by: Geliang Tang <geliangtang@gmail.com>
->>Signed-off-by: Geliang Tang <geliangtang@gmail.com>
->>Signed-off-by: Yonglong Li <liyonglong@chinatelecom.cn>
->>Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
->>Signed-off-by: David S. Miller <davem@davemloft.net>
->>Signed-off-by: Sasha Levin <sashal@kernel.org>
->>---
->>net/mptcp/pm.c | 13 ++++++++++---
->>1 file changed, 10 insertions(+), 3 deletions(-)
+>> We worked around the breakage of PCM buffer setup by the commit
+>> 65ca89c2b12c ("ASoC: intel: atom: Fix breakage for PCM buffer address
+>> setup"), but this isn't necessary since the CONTINUOUS buffer type
+>> also sets runtime->dma_addr since commit f84ba106a018 ("ALSA:
+>> memalloc: Store snd_dma_buffer.addr for continuous pages, too").
+>> Let's revert the change again.
+>>
+>> Link: https://lore.kernel.org/r/20210822072127.9786-1-tiwai@suse.de
+>> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
 >
->Hi Sasha,
->
->This patch is part of a 5-patch series, and was not intended for 
->backporting. Please drop the patch from all stable branches.
+>Please drop.  It's only for 5.15.
 
 Dropped, thanks!
 
