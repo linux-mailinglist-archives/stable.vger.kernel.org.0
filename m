@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5031E4077E0
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C30664077E2
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:20:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236944AbhIKNVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:21:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38942 "EHLO mail.kernel.org"
+        id S237187AbhIKNVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:21:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236639AbhIKNSz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237145AbhIKNSz (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 11 Sep 2021 09:18:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4ECB6136A;
-        Sat, 11 Sep 2021 13:13:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F2806121D;
+        Sat, 11 Sep 2021 13:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631366038;
-        bh=Yu0Lev839zlQOINVo/zXvKNhf+YMYZWs6EN5crSXk9g=;
+        s=k20201202; t=1631366039;
+        bh=MznIBEeT4uqOL6YVdEqOi56t+PHKc+D+hfPTw/tzeNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rwtCs8TsWHcYJn5F5RgbVArBIwFDi1gzMvHk/fOZTdPrZOf2sZPd4MyBnpY7ttJ33
-         /yGVxsnR4kMQPdQxx7GZfFT6D2q0ZsXDEu4UlsW0y5R/Nw8Zvc1m2hu74/NIL5/4to
-         7SOAE1p7IVM6Q6dAiHTd1crjjFPiySIQPXZRQSHBun8SMpUuL10GYao/iuIPwn3kgq
-         7jjZ55rdG0pIuSwUzCOkX2OZOZuTSq53aaPn7wb18Su6OdOnVp2D0ToTOlwPp7kBl1
-         KwbJQdG6PTOHJuatm/b5ljqAUIY65hZH4yKvfQ4lq96/4ucBDE8jGM8MEkUYcGQywg
-         L/KQkVRCDMdzA==
+        b=qtVFGXVREsBChh0GcBl/b/37t1JopjJ/OTouaqEK31pK/aqD97SennqeCuX//rmcs
+         Ioi9t9KaIEM6E1upoFLTgsjWsF+W1AxIWToTqsFN4LkBdv9jf7zQlGWvEOtt7yPYEy
+         Z9w6hN4cNiknCdJSXJrWXVeadOmgI1qJWm1XxDtKL/xlBQmyH36m8fSxD0DfAOWLqE
+         t/z52LxVCCkMaKDq8fihajg0zmbuliGdI45VViKAs7N/3uW3IqF9s9oOgf/3BcQDdh
+         BMYLVAF8JfCj5kPzvcCZ1rkpU79PB6Jpr4KuIUhuwfQ4A7Qzsyh7ooWx33Agr3XpY9
+         dGVRp3FqlmHAA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Valente <paolo.valente@linaro.org>,
-        Davide Zini <davidezini2@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 10/14] block, bfq: honor already-setup queue merges
-Date:   Sat, 11 Sep 2021 09:13:41 -0400
-Message-Id: <20210911131345.285564-10-sashal@kernel.org>
+Cc:     Vishal Aslot <os.vaslot@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 11/14] PCI: ibmphp: Fix double unmap of io_mem
+Date:   Sat, 11 Sep 2021 09:13:42 -0400
+Message-Id: <20210911131345.285564-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131345.285564-1-sashal@kernel.org>
 References: <20210911131345.285564-1-sashal@kernel.org>
@@ -43,82 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valente <paolo.valente@linaro.org>
+From: Vishal Aslot <os.vaslot@gmail.com>
 
-[ Upstream commit 2d52c58b9c9bdae0ca3df6a1eab5745ab3f7d80b ]
+[ Upstream commit faa2e05ad0dccf37f995bcfbb8d1980d66c02c11 ]
 
-The function bfq_setup_merge prepares the merging between two
-bfq_queues, say bfqq and new_bfqq. To this goal, it assigns
-bfqq->new_bfqq = new_bfqq. Then, each time some I/O for bfqq arrives,
-the process that generated that I/O is disassociated from bfqq and
-associated with new_bfqq (merging is actually a redirection). In this
-respect, bfq_setup_merge increases new_bfqq->ref in advance, adding
-the number of processes that are expected to be associated with
-new_bfqq.
+ebda_rsrc_controller() calls iounmap(io_mem) on the error path. Its caller,
+ibmphp_access_ebda(), also calls iounmap(io_mem) on good and error paths.
 
-Unfortunately, the stable-merging mechanism interferes with this
-setup. After bfqq->new_bfqq has been set by bfq_setup_merge, and
-before all the expected processes have been associated with
-bfqq->new_bfqq, bfqq may happen to be stably merged with a different
-queue than the current bfqq->new_bfqq. In this case, bfqq->new_bfqq
-gets changed. So, some of the processes that have been already
-accounted for in the ref counter of the previous new_bfqq will not be
-associated with that queue.  This creates an unbalance, because those
-references will never be decremented.
+Remove the iounmap(io_mem) invocation from ebda_rsrc_controller().
 
-This commit fixes this issue by reestablishing the previous, natural
-behaviour: once bfqq->new_bfqq has been set, it will not be changed
-until all expected redirections have occurred.
-
-Signed-off-by: Davide Zini <davidezini2@gmail.com>
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Link: https://lore.kernel.org/r/20210802141352.74353-2-paolo.valente@linaro.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[bhelgaas: remove item from TODO]
+Link: https://lore.kernel.org/r/20210818165751.591185-1-os.vaslot@gmail.com
+Signed-off-by: Vishal Aslot <os.vaslot@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/pci/hotplug/TODO          | 3 ---
+ drivers/pci/hotplug/ibmphp_ebda.c | 5 +----
+ 2 files changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 136232a01f71..3942855569e8 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2523,6 +2523,15 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
- 	 * are likely to increase the throughput.
- 	 */
- 	bfqq->new_bfqq = new_bfqq;
-+	/*
-+	 * The above assignment schedules the following redirections:
-+	 * each time some I/O for bfqq arrives, the process that
-+	 * generated that I/O is disassociated from bfqq and
-+	 * associated with new_bfqq. Here we increases new_bfqq->ref
-+	 * in advance, adding the number of processes that are
-+	 * expected to be associated with new_bfqq as they happen to
-+	 * issue I/O.
-+	 */
- 	new_bfqq->ref += process_refs;
- 	return new_bfqq;
- }
-@@ -2582,6 +2591,10 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- {
- 	struct bfq_queue *in_service_bfqq, *new_bfqq;
+diff --git a/drivers/pci/hotplug/TODO b/drivers/pci/hotplug/TODO
+index a32070be5adf..cc6194aa24c1 100644
+--- a/drivers/pci/hotplug/TODO
++++ b/drivers/pci/hotplug/TODO
+@@ -40,9 +40,6 @@ ibmphp:
  
-+	/* if a merge has already been setup, then proceed with that first */
-+	if (bfqq->new_bfqq)
-+		return bfqq->new_bfqq;
-+
- 	/*
- 	 * Do not perform queue merging if the device is non
- 	 * rotational and performs internal queueing. In fact, such a
-@@ -2636,9 +2649,6 @@ bfq_setup_cooperator(struct bfq_data *bfqd, struct bfq_queue *bfqq,
- 	if (bfq_too_late_for_merging(bfqq))
- 		return NULL;
+ * The return value of pci_hp_register() is not checked.
  
--	if (bfqq->new_bfqq)
--		return bfqq->new_bfqq;
+-* iounmap(io_mem) is called in the error path of ebda_rsrc_controller()
+-  and once more in the error path of its caller ibmphp_access_ebda().
 -
- 	if (!io_struct || unlikely(bfqq == &bfqd->oom_bfqq))
- 		return NULL;
+ * The various slot data structures are difficult to follow and need to be
+   simplified.  A lot of functions are too large and too complex, they need
+   to be broken up into smaller, manageable pieces.  Negative examples are
+diff --git a/drivers/pci/hotplug/ibmphp_ebda.c b/drivers/pci/hotplug/ibmphp_ebda.c
+index 11a2661dc062..7fb75401ad8a 100644
+--- a/drivers/pci/hotplug/ibmphp_ebda.c
++++ b/drivers/pci/hotplug/ibmphp_ebda.c
+@@ -714,8 +714,7 @@ static int __init ebda_rsrc_controller(void)
+ 		/* init hpc structure */
+ 		hpc_ptr = alloc_ebda_hpc(slot_num, bus_num);
+ 		if (!hpc_ptr) {
+-			rc = -ENOMEM;
+-			goto error_no_hpc;
++			return -ENOMEM;
+ 		}
+ 		hpc_ptr->ctlr_id = ctlr_id;
+ 		hpc_ptr->ctlr_relative_id = ctlr;
+@@ -910,8 +909,6 @@ static int __init ebda_rsrc_controller(void)
+ 	kfree(tmp_slot);
+ error_no_slot:
+ 	free_ebda_hpc(hpc_ptr);
+-error_no_hpc:
+-	iounmap(io_mem);
+ 	return rc;
+ }
  
 -- 
 2.30.2
