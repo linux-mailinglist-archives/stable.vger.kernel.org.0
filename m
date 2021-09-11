@@ -2,107 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 493B5407A20
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 20:40:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A731407A42
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 21:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233563AbhIKSmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 14:42:10 -0400
-Received: from phobos.denx.de ([85.214.62.61]:52972 "EHLO phobos.denx.de"
+        id S233567AbhIKTdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 15:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233408AbhIKSmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 14:42:10 -0400
-Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
+        id S230347AbhIKTdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 15:33:36 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 6B53A83853;
-        Sat, 11 Sep 2021 20:40:55 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1631385656;
-        bh=UECCOBS7xX1FRbQ2hWV9VfO2PrYzdXOlf9p/yOxKoqA=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=PKUGuT4v30Ga2ZnsM3HuornSwmZR0uD849ENjdhS9oL74SCUD4szxVHRS8l61OY43
-         /SIRrsRx00lPP6h0tJGisQvVRlaExXM8r5ZI6g5zbZlKdVzx+3q5bLLcMc5DftEoeQ
-         zKyEkJbQ7601Fjv46JcwYgQSkPo02PjfwObEYOmzAtMI95nu89YMIdDyky/15lH3uz
-         MYbSY+oa1UIWvzoZZzTqLK6JU8ZRQye9GhCCdjpDAFAbptyFRTFJy03IWqwTV2KEOT
-         w7rSB9ew0C1TiKhk/DPQvu0czOSGgMerYKYzig+5kGGD7uDN9/EDHzh76Z8pF0qUuA
-         79nfaUwVBysdw==
-Subject: Re: [PATCH V2] video: backlight: Drop maximum brightness override for
- brightness zero
-To:     dri-devel@lists.freedesktop.org
-Cc:     linux-fbdev@vger.kernel.org,
-        =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        stable@vger.kernel.org,
-        Meghana Madhyastha <meghana.madhyastha@gmail.com>,
-        Sean Paul <seanpaul@chromium.org>,
-        Thierry Reding <treding@nvidia.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Lee Jones <lee.jones@linaro.org>
-References: <20210713191633.121317-1-marex@denx.de>
-From:   Marek Vasut <marex@denx.de>
-Message-ID: <072e01b7-8554-de4f-046a-da11af3958d6@denx.de>
-Date:   Sat, 11 Sep 2021 20:40:54 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
-MIME-Version: 1.0
-In-Reply-To: <20210713191633.121317-1-marex@denx.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
-X-Virus-Status: Clean
+        by mail.kernel.org (Postfix) with ESMTPSA id 86DD960EE9;
+        Sat, 11 Sep 2021 19:32:23 +0000 (UTC)
+Received: from [198.52.44.129] (helo=wait-a-minute.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1mP8jd-00ADZF-G8; Sat, 11 Sep 2021 20:32:21 +0100
+Date:   Sat, 11 Sep 2021 20:32:04 +0100
+Message-ID: <874kaqdi2z.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Magnus Damm <magnus.damm@gmail.com>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Russell King <linux@arm.linux.org.uk>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Sumit Garg <sumit.garg@linaro.org>,
+        Valentin Schneider <Valentin.Schneider@arm.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Gregory Clement <gregory.clement@bootlin.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Android Kernel Team <kernel-team@android.com>,
+        stable <stable@vger.kernel.org>,
+        Magnus Damm <damm+renesas@opensource.se>,
+        Niklas =?UTF-8?B?U8O2ZGVybHVuZA==?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
+Subject: Re: [PATCH v2 07/17] irqchip/gic: Atomically update affinity
+In-Reply-To: <CANqRtoTqV8sOpL=hdxeZ03tqr+5oeMcfwz+9ERqXv+hze_6Fsw@mail.gmail.com>
+References: <20200624195811.435857-1-maz@kernel.org>
+        <20200624195811.435857-8-maz@kernel.org>
+        <CAMuHMdV+Ev47K5NO8XHsanSq5YRMCHn2gWAQyV-q2LpJVy9HiQ@mail.gmail.com>
+        <875yv8d91b.wl-maz@kernel.org>
+        <CAMuHMdV+ydPaXbGf1_O0S-juaPWk1gwBUOK+GeLZukZeoqtMGQ@mail.gmail.com>
+        <CANqRtoTqV8sOpL=hdxeZ03tqr+5oeMcfwz+9ERqXv+hze_6Fsw@mail.gmail.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 198.52.44.129
+X-SA-Exim-Rcpt-To: magnus.damm@gmail.com, geert@linux-m68k.org, linux@arm.linux.org.uk, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, will@kernel.org, catalin.marinas@arm.com, tglx@linutronix.de, jason@lakedaemon.net, sumit.garg@linaro.org, Valentin.Schneider@arm.com, f.fainelli@gmail.com, gregory.clement@bootlin.com, andrew@lunn.ch, kernel-team@android.com, stable@vger.kernel.org, damm+renesas@opensource.se, niklas.soderlund+renesas@ragnatech.se, linux-renesas-soc@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/13/21 9:16 PM, Marek Vasut wrote:
-> The note in c2adda27d202f ("video: backlight: Add of_find_backlight helper
-> in backlight.c") says that gpio-backlight uses brightness as power state.
-> This has been fixed since in ec665b756e6f7 ("backlight: gpio-backlight:
-> Correct initial power state handling") and other backlight drivers do not
-> require this workaround. Drop the workaround.
-> 
-> This fixes the case where e.g. pwm-backlight can perfectly well be set to
-> brightness 0 on boot in DT, which without this patch leads to the display
-> brightness to be max instead of off.
-> 
-> Fixes: c2adda27d202f ("video: backlight: Add of_find_backlight helper in backlight.c")
-> Acked-by: Noralf Trønnes <noralf@tronnes.org>
-> Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-> Cc: <stable@vger.kernel.org> # 5.4+
-> Cc: <stable@vger.kernel.org> # 4.19.x: ec665b756e6f7: backlight: gpio-backlight: Correct initial power state handling
-> Signed-off-by: Marek Vasut <marex@denx.de>
-> Cc: Daniel Thompson <daniel.thompson@linaro.org>
-> Cc: Meghana Madhyastha <meghana.madhyastha@gmail.com>
-> Cc: Noralf Trønnes <noralf@tronnes.org>
-> Cc: Sean Paul <seanpaul@chromium.org>
-> Cc: Thierry Reding <treding@nvidia.com>
-> ---
-> V2: Add AB/RB, CC stable
-> ---
->   drivers/video/backlight/backlight.c | 6 ------
->   1 file changed, 6 deletions(-)
-> 
-> diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
-> index 537fe1b376ad7..fc990e576340b 100644
-> --- a/drivers/video/backlight/backlight.c
-> +++ b/drivers/video/backlight/backlight.c
-> @@ -688,12 +688,6 @@ static struct backlight_device *of_find_backlight(struct device *dev)
->   			of_node_put(np);
->   			if (!bd)
->   				return ERR_PTR(-EPROBE_DEFER);
-> -			/*
-> -			 * Note: gpio_backlight uses brightness as
-> -			 * power state during probe
-> -			 */
-> -			if (!bd->props.brightness)
-> -				bd->props.brightness = bd->props.max_brightness;
->   		}
->   	}
->   
-> 
+Hi Magnus,
 
-Any news on this ?
+On Sat, 11 Sep 2021 03:49:20 +0100,
+Magnus Damm <magnus.damm@gmail.com> wrote:
+> 
+> Hi Geert, Mark, RMK, everyone,
+> 
+> Thanks for your efforts. Let me just chime in with a few details and a question.
+> 
+> On Fri, Sep 10, 2021 at 10:19 PM Geert Uytterhoeven
+> <geert@linux-m68k.org> wrote:
+> > On Fri, Sep 10, 2021 at 12:23 PM Marc Zyngier <maz@kernel.org> wrote:
+> > > On Thu, 09 Sep 2021 16:22:01 +0100,
+> > > Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> >     GIC: enabling workaround for broken byte access
+> 
+> Indeed, byte access is unsupported according to the EMEV2 documentation.
+> 
+> The EMEV2 documentation R19UH0036EJ0600 Chapter 7 Interrupt Control on
+> page 97 says:
+> "Interrupt registers can be accessed via the APB bus, in 32-bit units"
+> "For details about register functions, see ARM Generic Interrupt
+> Controller Architecture Specification Architecture version 1.0"
+> The file  "R19UH0036EJ0600_1Chip.pdf" is the 6th edition version
+> published in 2010 and is not marked as confidential.
 
-Expanding CC list.
+This is as bad as it gets. Do you know if any other Renesas platform
+is affected by the same issue?
+
+> 
+> From my basic research, "ARM Generic Interrupt Controller Architecture
+> Specification Architecture version 1.0" is documented in ARM IHI 0048A
+> from 2008 (Non-Confidential) which contains:
+> "All GIC registers are 32-bit wide." and "All registers support 32-bit
+> word access..."
+> "In addition, the following registers support byte accesses:"
+> "ICDIPR"
+
+Renamed to GICD_IPRIORITYRn in IHI0048B.
+
+> "ICDIPTR"
+
+Renamed to GICD_ITARGETRn in IHI0048B.
+
+See IHI0048B_b ("B.1 Alternative register names" and specifically
+table B-1) for the translation table between GICv1 and GICv2 names.
+
+> So the GICv1 documentation says byte access is partially supported
+> however EMEV2 documentation says 32-bit access is required.
+
+Which is definitely an integration bug. Both set of registers *must*
+support byte accesses. This isn't optional and left to the
+appreciation of the integrator. This breaks the programming model
+badly, and prevents standard software from running unmodified.
+
+One of the few things the GIC architecture got right is the absence of
+locking requirements, as all the registers can be accessed
+concurrently by multiple CPUs as long as they operate on distinct
+interrupts. This is why the enable and pending registers have both set
+and clear accessors, that the priority and target registers are byte
+accessible, and that everything else happens in CPU-private registers
+(the CPU interface).
+
+This requirement has been there from day-1. Even the good old DIC (the
+GIC's ancestor) that was included with the 11MP-Core says: "All
+Interrupt Distributor Registers are byte accessible.", which is more
+than actually necessary for the GIC. See DDI 0360F for details. And
+yes, SW written for the GIC does work on the DIC.
+
+> 
+> > > +               .compatible     = "arm,pl390",
+> > > +               .init           = gic_enable_rmw_access,
+> > > +       },
+> 
+> May I ask about a clarification about the EMEV2 DTS and DT binding
+> documentation in:
+> arch/arm/boot/dts/emev2.dts
+> Documentation/devicetree/bindings/interrupt-controller/arm,gic.yaml
+> 
+> On EMEV2 the DT compatible string currently seems to be the rather
+> generic "arm,pl390". In the DT binding documentation GICv1 is listed
+> in an example as "arm,cortex-a9-gic". Is there any reason for not
+> using the GICv1 compatible string (and 32-bit access) for EMEV2? Just
+> curious.
+
+GICv1 is an architecture specification. PL390 is an implementation of
+GICv1. The so called "Cortex-A9 GIC" doesn't really exist. It is
+simply the amalgamation of the CPU interface implemented by the A9
+(with the prototype of the GICv2 virtualisation extensions) with a
+distributor (usually a PL390, but not necessarily). All of them
+require that the priority and target registers are byte accessible.
+
+As for changing the compatibility string, I don't see the point. This
+will break existing setups, and doesn't change the core of the
+issue. As far as I can see, the EMEV2 DT is correct in the sense that
+it describes the actual implementation of the GIC used.
+
+Thanks,
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
