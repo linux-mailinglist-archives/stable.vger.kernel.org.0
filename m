@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81AE24076EA
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:13:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 241434076EF
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:13:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235944AbhIKNN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:13:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37206 "EHLO mail.kernel.org"
+        id S236119AbhIKNN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:13:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236001AbhIKNNT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 09:13:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B92A6611BF;
-        Sat, 11 Sep 2021 13:12:05 +0000 (UTC)
+        id S236022AbhIKNNU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 09:13:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E03D61205;
+        Sat, 11 Sep 2021 13:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365926;
-        bh=2++X2B/yiaUbM2dzTHy03CmMwNl4sfW4HXCcQwfTfNA=;
+        s=k20201202; t=1631365928;
+        bh=BvUepuoep7XTWaVhs83x1LXOtgm9K1UWGy0biRI2gO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OA6ektcPGUUkv+NM1PIKorVc1aiOz9N0TDwmmuL2c12D6KthSe3jjYEOCXW9Inu7y
-         99xn1ADCO8BpdEH+BqRcHenZNkNK8I4Q0bNcgRzl9djvtvC9H2ykX4bp6qDWYnkqbD
-         4+/4G2uS2xFMjbOVEZrKE+/8fhsAtHv5CiUPZCat5CgvC1zmEnAhlp72o8LAtgdDFi
-         tkzSncvLFA0qspL19CXlXkOBEJNTGce2MIB5YlnuNyr2mpSRIxyrMjEFisEvW1etxr
-         lL3YsernSSO+Q5e0sbKL4pCSXx/fc2KrRfQ5Y4RuUWl95tLAlV8SUvlNKy8KkcYcRP
-         /nWihtQ4A/hiQ==
+        b=c6WJG379Oebp2jZvOHCPoW3E6rsvz/rzxrLPI061XzuOR71/4i9V2QYVEElpvcPIB
+         n0CGum/BcQGQ7BFHmFBd1uulwA//eVHBkQvpceOj+oqLT9c+BIEt0mkWh03nNNIq/1
+         pJxiQ+itEcLLJDT/b2QFdNghFgk6yAOgCwjyZppVSoA57aNpCuWD4ctMIeTCJN7+vP
+         kmk8EAzOPt1aF8DDqLBPRL72XCdTyNztmkH2OPIXK7YjMBjzGkteiQ3IZuWyQfwToa
+         bVpxeDjpPozMEsh8DZzZDeRdoIYhUM9vPQZGPDrt2QGBGDOsLoPLn9C8OHL7ElqZS6
+         6jZM1bwnjHRKA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        linux-renesas-soc@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 12/32] PCI: rcar: Add L1 link state fix into data abort hook
-Date:   Sat, 11 Sep 2021 09:11:29 -0400
-Message-Id: <20210911131149.284397-12-sashal@kernel.org>
+Cc:     Will Deacon <will@kernel.org>, Andrew Scull <ascull@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
+Subject: [PATCH AUTOSEL 5.14 13/32] KVM: arm64: Make hyp_panic() more robust when protected mode is enabled
+Date:   Sat, 11 Sep 2021 09:11:30 -0400
+Message-Id: <20210911131149.284397-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131149.284397-1-sashal@kernel.org>
 References: <20210911131149.284397-1-sashal@kernel.org>
@@ -47,186 +43,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marek.vasut+renesas@gmail.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit a115b1bd3af0c2963e72f6e47143724c59251be6 ]
+[ Upstream commit ccac96977243d7916053550f62e6489760ad0adc ]
 
-When the link is in L1, hardware should return it to L0
-automatically whenever a transaction targets a component on the
-other end of the link (PCIe r5.0, sec 5.2).
+When protected mode is enabled, the host is unable to access most parts
+of the EL2 hypervisor image, including 'hyp_physvirt_offset' and the
+contents of the hypervisor's '.rodata.str' section. Unfortunately,
+nvhe_hyp_panic_handler() tries to read from both of these locations when
+handling a BUG() triggered at EL2; the former for converting the ELR to
+a physical address and the latter for displaying the name of the source
+file where the BUG() occurred.
 
-The R-Car PCIe controller doesn't handle this transition correctly.
-If the link is not in L0, an MMIO transaction targeting a downstream
-device fails, and the controller reports an ARM imprecise external
-abort.
+Hack the EL2 panic asm to pass both physical and virtual ELR values to
+the host and utilise the newly introduced CONFIG_NVHE_EL2_DEBUG so that
+we disable stage-2 protection for the host before returning to the EL1
+panic handler. If the debug option is not enabled, display the address
+instead of the source file:line information.
 
-Work around this by hooking the abort handler so the driver can
-detect this situation and help the hardware complete the link state
-transition.
-
-When the R-Car controller receives a PM_ENTER_L1 DLLP from the
-downstream component, it sets PMEL1RX bit in PMSR register, but then
-the controller enters some sort of in-between state.  A subsequent
-MMIO transaction will fail, resulting in the external abort.  The
-abort handler detects this condition and completes the link state
-transition by setting the L1IATN bit in PMCTLR and waiting for the
-link state transition to complete.
-
-Link: https://lore.kernel.org/r/20210815181650.132579-1-marek.vasut@gmail.com
-Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc: linux-renesas-soc@vger.kernel.org
+Cc: Andrew Scull <ascull@google.com>
+Cc: Quentin Perret <qperret@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210813130336.8139-1-will@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-rcar-host.c | 86 +++++++++++++++++++++++++
- drivers/pci/controller/pcie-rcar.h      |  7 ++
- 2 files changed, 93 insertions(+)
+ arch/arm64/kvm/handle_exit.c   | 23 ++++++++++++++---------
+ arch/arm64/kvm/hyp/nvhe/host.S | 21 +++++++++++++++++----
+ 2 files changed, 31 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-rcar-host.c b/drivers/pci/controller/pcie-rcar-host.c
-index 765cf2b45e24..11fcaa54c169 100644
---- a/drivers/pci/controller/pcie-rcar-host.c
-+++ b/drivers/pci/controller/pcie-rcar-host.c
-@@ -13,12 +13,14 @@
+diff --git a/arch/arm64/kvm/handle_exit.c b/arch/arm64/kvm/handle_exit.c
+index 6f48336b1d86..04ebab299aa4 100644
+--- a/arch/arm64/kvm/handle_exit.c
++++ b/arch/arm64/kvm/handle_exit.c
+@@ -292,11 +292,12 @@ void handle_exit_early(struct kvm_vcpu *vcpu, int exception_index)
+ 		kvm_handle_guest_serror(vcpu, kvm_vcpu_get_esr(vcpu));
+ }
  
- #include <linux/bitops.h>
- #include <linux/clk.h>
-+#include <linux/clk-provider.h>
- #include <linux/delay.h>
- #include <linux/interrupt.h>
- #include <linux/irq.h>
- #include <linux/irqdomain.h>
- #include <linux/kernel.h>
- #include <linux/init.h>
-+#include <linux/iopoll.h>
- #include <linux/msi.h>
- #include <linux/of_address.h>
- #include <linux/of_irq.h>
-@@ -41,6 +43,21 @@ struct rcar_msi {
- 	int irq2;
- };
+-void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
++void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr,
++					      u64 elr_virt, u64 elr_phys,
+ 					      u64 par, uintptr_t vcpu,
+ 					      u64 far, u64 hpfar) {
+-	u64 elr_in_kimg = __phys_to_kimg(__hyp_pa(elr));
+-	u64 hyp_offset = elr_in_kimg - kaslr_offset() - elr;
++	u64 elr_in_kimg = __phys_to_kimg(elr_phys);
++	u64 hyp_offset = elr_in_kimg - kaslr_offset() - elr_virt;
+ 	u64 mode = spsr & PSR_MODE_MASK;
  
-+#ifdef CONFIG_ARM
-+/*
-+ * Here we keep a static copy of the remapped PCIe controller address.
-+ * This is only used on aarch32 systems, all of which have one single
-+ * PCIe controller, to provide quick access to the PCIe controller in
-+ * the L1 link state fixup function, called from the ARM fault handler.
-+ */
-+static void __iomem *pcie_base;
-+/*
-+ * Static copy of bus clock pointer, so we can check whether the clock
-+ * is enabled or not.
-+ */
-+static struct clk *pcie_bus_clk;
-+#endif
+ 	/*
+@@ -309,20 +310,24 @@ void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
+ 		kvm_err("Invalid host exception to nVHE hyp!\n");
+ 	} else if (ESR_ELx_EC(esr) == ESR_ELx_EC_BRK64 &&
+ 		   (esr & ESR_ELx_BRK64_ISS_COMMENT_MASK) == BUG_BRK_IMM) {
+-		struct bug_entry *bug = find_bug(elr_in_kimg);
+ 		const char *file = NULL;
+ 		unsigned int line = 0;
+ 
+ 		/* All hyp bugs, including warnings, are treated as fatal. */
+-		if (bug)
+-			bug_get_file_line(bug, &file, &line);
++		if (!is_protected_kvm_enabled() ||
++		    IS_ENABLED(CONFIG_NVHE_EL2_DEBUG)) {
++			struct bug_entry *bug = find_bug(elr_in_kimg);
 +
- /* Structure representing the PCIe interface */
- struct rcar_pcie_host {
- 	struct rcar_pcie	pcie;
-@@ -776,6 +793,12 @@ static int rcar_pcie_get_resources(struct rcar_pcie_host *host)
++			if (bug)
++				bug_get_file_line(bug, &file, &line);
++		}
+ 
+ 		if (file)
+ 			kvm_err("nVHE hyp BUG at: %s:%u!\n", file, line);
+ 		else
+-			kvm_err("nVHE hyp BUG at: %016llx!\n", elr + hyp_offset);
++			kvm_err("nVHE hyp BUG at: %016llx!\n", elr_virt + hyp_offset);
+ 	} else {
+-		kvm_err("nVHE hyp panic at: %016llx!\n", elr + hyp_offset);
++		kvm_err("nVHE hyp panic at: %016llx!\n", elr_virt + hyp_offset);
  	}
- 	host->msi.irq2 = i;
  
-+#ifdef CONFIG_ARM
-+	/* Cache static copy for L1 link state fixup hook on aarch32 */
-+	pcie_base = pcie->base;
-+	pcie_bus_clk = host->bus_clk;
-+#endif
-+
- 	return 0;
+ 	/*
+@@ -334,5 +339,5 @@ void __noreturn __cold nvhe_hyp_panic_handler(u64 esr, u64 spsr, u64 elr,
+ 	kvm_err("Hyp Offset: 0x%llx\n", hyp_offset);
  
- err_irq2:
-@@ -1031,4 +1054,67 @@ static struct platform_driver rcar_pcie_driver = {
- 	},
- 	.probe = rcar_pcie_probe,
- };
-+
-+#ifdef CONFIG_ARM
-+static DEFINE_SPINLOCK(pmsr_lock);
-+static int rcar_pcie_aarch32_abort_handler(unsigned long addr,
-+		unsigned int fsr, struct pt_regs *regs)
-+{
-+	unsigned long flags;
-+	u32 pmsr, val;
-+	int ret = 0;
-+
-+	spin_lock_irqsave(&pmsr_lock, flags);
-+
-+	if (!pcie_base || !__clk_is_enabled(pcie_bus_clk)) {
-+		ret = 1;
-+		goto unlock_exit;
-+	}
-+
-+	pmsr = readl(pcie_base + PMSR);
-+
-+	/*
-+	 * Test if the PCIe controller received PM_ENTER_L1 DLLP and
-+	 * the PCIe controller is not in L1 link state. If true, apply
-+	 * fix, which will put the controller into L1 link state, from
-+	 * which it can return to L0s/L0 on its own.
-+	 */
-+	if ((pmsr & PMEL1RX) && ((pmsr & PMSTATE) != PMSTATE_L1)) {
-+		writel(L1IATN, pcie_base + PMCTLR);
-+		ret = readl_poll_timeout_atomic(pcie_base + PMSR, val,
-+						val & L1FAEG, 10, 1000);
-+		WARN(ret, "Timeout waiting for L1 link state, ret=%d\n", ret);
-+		writel(L1FAEG | PMEL1RX, pcie_base + PMSR);
-+	}
-+
-+unlock_exit:
-+	spin_unlock_irqrestore(&pmsr_lock, flags);
-+	return ret;
-+}
-+
-+static const struct of_device_id rcar_pcie_abort_handler_of_match[] __initconst = {
-+	{ .compatible = "renesas,pcie-r8a7779" },
-+	{ .compatible = "renesas,pcie-r8a7790" },
-+	{ .compatible = "renesas,pcie-r8a7791" },
-+	{ .compatible = "renesas,pcie-rcar-gen2" },
-+	{},
-+};
-+
-+static int __init rcar_pcie_init(void)
-+{
-+	if (of_find_matching_node(NULL, rcar_pcie_abort_handler_of_match)) {
-+#ifdef CONFIG_ARM_LPAE
-+		hook_fault_code(17, rcar_pcie_aarch32_abort_handler, SIGBUS, 0,
-+				"asynchronous external abort");
-+#else
-+		hook_fault_code(22, rcar_pcie_aarch32_abort_handler, SIGBUS, 0,
-+				"imprecise external abort");
+ 	panic("HYP panic:\nPS:%08llx PC:%016llx ESR:%08llx\nFAR:%016llx HPFAR:%016llx PAR:%016llx\nVCPU:%016lx\n",
+-	      spsr, elr, esr, far, hpfar, par, vcpu);
++	      spsr, elr_virt, esr, far, hpfar, par, vcpu);
+ }
+diff --git a/arch/arm64/kvm/hyp/nvhe/host.S b/arch/arm64/kvm/hyp/nvhe/host.S
+index 2b23400e0fb3..4b652ffb591d 100644
+--- a/arch/arm64/kvm/hyp/nvhe/host.S
++++ b/arch/arm64/kvm/hyp/nvhe/host.S
+@@ -7,6 +7,7 @@
+ #include <linux/linkage.h>
+ 
+ #include <asm/assembler.h>
++#include <asm/kvm_arm.h>
+ #include <asm/kvm_asm.h>
+ #include <asm/kvm_mmu.h>
+ 
+@@ -85,12 +86,24 @@ SYM_FUNC_START(__hyp_do_panic)
+ 
+ 	mov	x29, x0
+ 
++#ifdef CONFIG_NVHE_EL2_DEBUG
++	/* Ensure host stage-2 is disabled */
++	mrs	x0, hcr_el2
++	bic	x0, x0, #HCR_VM
++	msr	hcr_el2, x0
++	isb
++	tlbi	vmalls12e1
++	dsb	nsh
 +#endif
-+	}
 +
-+	return platform_driver_register(&rcar_pcie_driver);
-+}
-+device_initcall(rcar_pcie_init);
-+#else
- builtin_platform_driver(rcar_pcie_driver);
-+#endif
-diff --git a/drivers/pci/controller/pcie-rcar.h b/drivers/pci/controller/pcie-rcar.h
-index d4c698b5f821..9bb125db85c6 100644
---- a/drivers/pci/controller/pcie-rcar.h
-+++ b/drivers/pci/controller/pcie-rcar.h
-@@ -85,6 +85,13 @@
- #define  LTSMDIS		BIT(31)
- #define  MACCTLR_INIT_VAL	(LTSMDIS | MACCTLR_NFTS_MASK)
- #define PMSR			0x01105c
-+#define  L1FAEG			BIT(31)
-+#define  PMEL1RX		BIT(23)
-+#define  PMSTATE		GENMASK(18, 16)
-+#define  PMSTATE_L1		(3 << 16)
-+#define PMCTLR			0x011060
-+#define  L1IATN			BIT(31)
-+
- #define MACS2R			0x011078
- #define MACCGSPSETR		0x011084
- #define  SPCNGRSN		BIT(31)
+ 	/* Load the panic arguments into x0-7 */
+ 	mrs	x0, esr_el2
+-	get_vcpu_ptr x4, x5
+-	mrs	x5, far_el2
+-	mrs	x6, hpfar_el2
+-	mov	x7, xzr			// Unused argument
++	mov	x4, x3
++	mov	x3, x2
++	hyp_pa	x3, x6
++	get_vcpu_ptr x5, x6
++	mrs	x6, far_el2
++	mrs	x7, hpfar_el2
+ 
+ 	/* Enter the host, conditionally restoring the host context. */
+ 	cbz	x29, __host_enter_without_restoring
 -- 
 2.30.2
 
