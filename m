@@ -2,112 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D87454075F2
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 11:39:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 885B640763E
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 13:21:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235481AbhIKJkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 05:40:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56696 "EHLO
+        id S231749AbhIKLWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 07:22:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235473AbhIKJkk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Sep 2021 05:40:40 -0400
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF279C061574;
-        Sat, 11 Sep 2021 02:39:27 -0700 (PDT)
-Received: by mail-wm1-x330.google.com with SMTP id z9-20020a7bc149000000b002e8861aff59so3189874wmi.0;
-        Sat, 11 Sep 2021 02:39:27 -0700 (PDT)
+        with ESMTP id S230249AbhIKLWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Sep 2021 07:22:37 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 708B7C061574
+        for <stable@vger.kernel.org>; Sat, 11 Sep 2021 04:21:25 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id j1so3073950pjv.3
+        for <stable@vger.kernel.org>; Sat, 11 Sep 2021 04:21:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=RhpeDqVjLaXMHu4ZIDl1daKWSTzCEUPkicrz4d8qE58=;
-        b=ikIq/ug1WTOgBNkte4NHptkk+6jK0mosru9sw1Uqza9UIJ3rmNTV9t/eEedF1+MNrN
-         vpBJTYzB+sXHq4fSnfaiupDArWQp0D1xvzrJFF7qbQrAAwezVGFeGOVa91xFOQsJzYKF
-         qE/ocHyujZwX2isMywG+2l/AtlVanU0Yj+STrQl2Lu8DamiIq6kokzX4RhLhI9cJh+m/
-         MjDFm0qc3WI2RZdhjayndhj2yAVXM0QsbGUU+DqShrorX3SmX1h935lHjoloPp7FzPts
-         iXhBjowarz1gW9T1isruG713zWIpskw97djz4idS5zNG0gfHhlL1YERmDL6EnxykxNku
-         37jQ==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=kJJwtO9lB/Xezb44Hovfs3VS8ns8msbsl33JR663TRw=;
+        b=kFt+rNpsHh6vcDhYnI5L0HfAVrfZNNXVYNwKzBkga2NIwZBltLslp1Q8ZRUxh5Tn3D
+         Dz8MruNhp5KGpwwYwIsBQB/OKZ8GS6d99d2U9D0Ke5PUMkhmzMd+gm1aOwaNGBbe8HHI
+         q8d0Iou94kajVTq/N8DGYGT37jYpRHvQ9YezpX6GINO1v9MzHLoFmeetZ7r/YKaxQgVQ
+         3rqJiQYde6GLSSL+TZriypz7s0Q0OTczKOdIkZH3Etzt7TfgLRm8pPbVarjFZV5/UAgq
+         B593h9aKOzWaF3U4xWxAmiucD3WwAXPIhwcLA119qWUiJflE+roHUyitjzu6NmSqAdkr
+         s/Nw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=RhpeDqVjLaXMHu4ZIDl1daKWSTzCEUPkicrz4d8qE58=;
-        b=1JPvS/lWx49Iq9U62E2WTM3/ndlJS3ohKl5YEgRRgJtV/ehnCRiAO3aDh+Bs+jyxoG
-         KEoZi8vOvt84eI2oCoXV1Ik9kF9qcIpVNWP2FX0QTxPKP/aG/L1KvpNI21R37exQfSF3
-         nCy9866glOHP0Xl4xLebdcXj3+rP+L0X/u6ez747Kc9HJE+ngVjPM7/eXkW//II5AbrB
-         rVoh32VfY6VsE/ZNGMja7JZKUvQk/xiP8JaAu9/ajg7K0kVJKbkp93cd6gs0QlMV9muN
-         dHmyQ6LguOB45pKn+5PcqskYYUNrO2FbmitvHRz/RMBw2j0s0BuWRJAyyw8lPnDEvjrJ
-         6GCQ==
-X-Gm-Message-State: AOAM5332nbvKUSKKCu5cveajz9p5AvoxJ3i5K/6N4G9LF9FJ/upatqLF
-        5k55HQsD96Hw9Dm9pn+XRndoEib1Xo0ONg==
-X-Google-Smtp-Source: ABdhPJym+/ESfDLYNcbFYq69FSf+Uv8zxtd1vjWQXhEwbpqUQSTI+7s6aIqIvvl9Txnw/xf0dhas8Q==
-X-Received: by 2002:a1c:a512:: with SMTP id o18mr1996101wme.162.1631353166448;
-        Sat, 11 Sep 2021 02:39:26 -0700 (PDT)
-Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id p17sm1177598wmi.30.2021.09.11.02.39.25
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=kJJwtO9lB/Xezb44Hovfs3VS8ns8msbsl33JR663TRw=;
+        b=MrOfXEkBc2YOaqCwRdX0Jxcrw6HRyfoBHyAZb7PCMMSTqXqykzR8TS7Ncnwy+QCZTa
+         pBo0X8SEDlkrBsPrIt/+MQiYWEs4/kFMUki/eYa+dGt/VKo1reGBSAxzgmC5QtT1dwez
+         uvo4VdzmTYDdiYbsje199LLWQpFJSFAZBD6GmIufX0LyqrEG19EaY2ykmRLl/m+RGbDF
+         XL0Hg3n4hUz8yNZi6tmPUXG1RRvaw5536Uvc1wB8EXH3/+dXppB8dsLkiCpH7JeD7pEc
+         kkQH65G6IHF+ZojGziY6UW44xXQ0jZotoEslBdlApSzIfBVLRrj0c2PpOYhwYVt3k3k1
+         kIEw==
+X-Gm-Message-State: AOAM5327oRo3Wgs7wTJCn3tdiBshO2qV7PhLEjOVu/523/y0auhM7DX4
+        wG7j7wH0HT2TSM1U51GXfeI=
+X-Google-Smtp-Source: ABdhPJzVIFoi2nSdhCT/vFkJAyOitLLkhq9MHE9JCUc572licN0EMOMfUa0KbyChkJ4Gtt/IfqLpIA==
+X-Received: by 2002:a17:90a:1282:: with SMTP id g2mr2490917pja.230.1631359284923;
+        Sat, 11 Sep 2021 04:21:24 -0700 (PDT)
+Received: from localhost.localdomain ([119.8.124.150])
+        by smtp.gmail.com with ESMTPSA id g13sm1702101pfi.176.2021.09.11.04.21.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Sep 2021 02:39:25 -0700 (PDT)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Date:   Sat, 11 Sep 2021 11:39:25 +0200
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Florian Westphal <fw@strlen.de>, stable@vger.kernel.org,
-        netfilter-devel@vger.kernel.org
-Subject: Re: [PATCH 5.10.y 0/3] netfilter: nf_tables fixes for 5.10.y
-Message-ID: <YTx5TXJ+M1Khn8uH@eldamar.lan>
-References: <20210909140337.29707-1-fw@strlen.de>
- <YTofmaFaPAtGLFs8@kroah.com>
+        Sat, 11 Sep 2021 04:21:24 -0700 (PDT)
+From:   Cheng Chao <cs.os.kernel@gmail.com>
+To:     labbott@redhat.com, sumit.semwal@linaro.org,
+        gregkh@linuxfoundation.org, arve@android.com,
+        riandrews@android.com, devel@driverdev.osuosl.org
+Cc:     stable@vger.kernel.org, Cheng Chao <cs.os.kernel@gmail.com>
+Subject: [PATCH] [PATCH 4.9] staging: android: ion: fix page is NULL
+Date:   Sat, 11 Sep 2021 19:21:15 +0800
+Message-Id: <20210911112115.47202-1-cs.os.kernel@gmail.com>
+X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YTofmaFaPAtGLFs8@kroah.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+kernel panic is here:
 
-On Thu, Sep 09, 2021 at 04:52:09PM +0200, Greg KH wrote:
-> On Thu, Sep 09, 2021 at 04:03:34PM +0200, Florian Westphal wrote:
-> > Hello,
-> > 
-> > please consider applying these nf_tables fixes to the 5.10.y tree.
-> > These patches had to mangled to make them apply to 5.10.y.
-> > 
-> > I've done the follwoing tests in a kasan/kmemleak enabled vm:
-> > 1. run upstream nft python/shell tests.
-> >    Without patch 2 and 3 doing so results in kernel crash.
-> >    Some tests fail but afaics those are expected to
-> >    fail on 5.10 due to lack of feature being tested.
-> > 2. Tested the 'conncount' feature (its affected by last patch).
-> >    Worked as designed.
-> > 3. ran nftables related kernel self tests.
-> > 
-> > No kmemleak or kasan splats were seen.
-> > 
-> > Eric Dumazet (1):
-> >   netfilter: nftables: avoid potential overflows on 32bit arches
-> > 
-> > Pablo Neira Ayuso (2):
-> >   netfilter: nf_tables: initialize set before expression setup
-> >   netfilter: nftables: clone set element expression template
-> > 
-> >  net/netfilter/nf_tables_api.c | 89 ++++++++++++++++++++++-------------
-> >  net/netfilter/nft_set_hash.c  | 10 ++--
-> >  2 files changed, 62 insertions(+), 37 deletions(-)
-> > 
-> > -- 
-> > 2.32.0
-> > 
-> 
-> All now queued up, thanks!
+Unable to handle kernel paging request at virtual address b0380000
+pgd = d9d94000
+[b0380000] *pgd=00000000
+Internal error: Oops: 2805 [#1] PREEMPT SMP ARM
+...
+task: daa2dd00 task.stack: da194000
+PC is at v7_dma_clean_range+0x1c/0x34
+LR is at arm_dma_sync_single_for_device+0x44/0x58
+pc : [<c011aa0c>]    lr : [<c011645c>]    psr: 200f0013
+sp : da195da0  ip : dc1f9000  fp : c1043dc4
+r10: 00000000  r9 : c16f1f58  r8 : 00000001
+r7 : c1621f94  r6 : c0116418  r5 : 00000000  r4 : c011aa58
+r3 : 0000003f  r2 : 00000040  r1 : b0480000  r0 : b0380000
+Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+Control: 10c5383d  Table: 19d9406a  DAC: 00000051
+...
+[<c011aa0c>] (v7_dma_clean_range) from [<c011645c>] (arm_dma_sync_single_for_device+0x44/0x58)
+[<c011645c>] (arm_dma_sync_single_for_device) from [<c0117088>] (arm_dma_sync_sg_for_device+0x50/0x7c)
+[<c0117088>] (arm_dma_sync_sg_for_device) from [<c0c033c4>] (ion_pages_sync_for_device+0xb0/0xec)
+[<c0c033c4>] (ion_pages_sync_for_device) from [<c0c054ac>] (ion_system_heap_allocate+0x2a0/0x2e0)
+[<c0c054ac>] (ion_system_heap_allocate) from [<c0c02c78>] (ion_alloc+0x12c/0x494)
+[<c0c02c78>] (ion_alloc) from [<c0c03eac>] (ion_ioctl+0x510/0x63c)
+[<c0c03eac>] (ion_ioctl) from [<c027c4b0>] (do_vfs_ioctl+0xa8/0x9b4)
+[<c027c4b0>] (do_vfs_ioctl) from [<c027ce28>] (SyS_ioctl+0x6c/0x7c)
+[<c027ce28>] (SyS_ioctl) from [<c0108a40>] (ret_fast_syscall+0x0/0x48)
+Code: e3a02004 e1a02312 e2423001 e1c00003 (ee070f3a)
+---[ end trace 89278304932c0e87 ]---
+Kernel panic - not syncing: Fatal exception
 
-Florian, thank you! My query originated from a bugreport in Debian
-triggering the issue with the 5.10.y kernels used.
+Signed-off-by: Cheng Chao <cs.os.kernel@gmail.com>
+---
+ drivers/staging/android/ion/ion_system_heap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Not really needed here as Greg already queued up but:
+diff --git a/drivers/staging/android/ion/ion_system_heap.c b/drivers/staging/android/ion/ion_system_heap.c
+index 22c481f2ae4f..2a35b99cf628 100644
+--- a/drivers/staging/android/ion/ion_system_heap.c
++++ b/drivers/staging/android/ion/ion_system_heap.c
+@@ -75,7 +75,7 @@ static struct page *alloc_buffer_page(struct ion_system_heap *heap,
+ 
+ 	page = ion_page_pool_alloc(pool);
+ 
+-	if (cached)
++	if (page && cached)
+ 		ion_pages_sync_for_device(NULL, page, PAGE_SIZE << order,
+ 					  DMA_BIDIRECTIONAL);
+ 	return page;
+-- 
+2.26.3
 
-Tested-by: Salvatore Bonaccorso <carnil@debian.org>
-
-Regards,
-Salvatore
