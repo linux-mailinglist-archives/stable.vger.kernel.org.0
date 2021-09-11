@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 564624077F1
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBF304077ED
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:20:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237106AbhIKNV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:21:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49228 "EHLO mail.kernel.org"
+        id S237386AbhIKNVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:21:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237551AbhIKNTZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237554AbhIKNTZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 11 Sep 2021 09:19:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 838DC61368;
-        Sat, 11 Sep 2021 13:14:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3396B61350;
+        Sat, 11 Sep 2021 13:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631366054;
-        bh=ikK+fCwpVJ0I4ssjiaeu6ehHoLneq/XFSaeWYe3coCo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ir6ZEMSx5VKfguIOzfA7dzNeFzXLT0n2k+QcCuBmVNH4Ln3D0bfyGCOaUA+Bgn50x
-         Um0bk1myzYXAcJ/37ptd5hX27ENS0RxkeT9ChIOJfiYY9guuWHToDTYw0ANCCQLG/b
-         0ZL5m3bueqTEc7FPNH2YWe0fRGuqotpdO9lJYzU/UvKMA+agIx0zD7O5uHCSIyoQES
-         HzgYQwaQ+wPAKD0wthcYifqzVSXtWYnayXnmbz12jS07MqjVwdxJNX8iZ+6/F9u3Q4
-         TG/Q7emqVr+2c2CCqwNgrKFGe8/6r0FYCm3tfp5iN0hFBlkds1Rpva2DdXwPyJou4T
-         +AxmikucAM4hw==
+        s=k20201202; t=1631366057;
+        bh=mdToDSP4iZ2cukpJ3ZT/GEREaE+0G5rXlJ0MG9HZdX0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GxCb8nUTLte0vV6uoc/laehKE8uVtBoWfQSF9ZlLbnol7pUjs5q5XNNVw9+3u9r/y
+         +/03R2D6KCccKm8hCkOnnsIPodoWGptcRhSRa1brD2L8hgplzrbSUcq1BroReKjrOj
+         g8B5u0EIKpxVXSLo4Cn+Zbctf2qgGfHVkMcMEaIb29+Al9LKBYJsd35LXloYLg6xcy
+         RDI1HTAhkvfQ1TIV03fTvm+ATBW1vSZBV6huj+9TS0d7wLYNTyIG4/NkV3yozcxP8H
+         ygm0n1m9/9Sr1nPgRoHIpTfKR4udICArCbTLIAlgrvkn5EXSbZLI08WcDzKbqjGnHn
+         uxX1TWoF0losQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Li <yang.lee@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>,
-        linux-ntb@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 7/7] NTB: perf: Fix an error code in perf_setup_inbuf()
-Date:   Sat, 11 Sep 2021 09:14:04 -0400
-Message-Id: <20210911131404.286005-7-sashal@kernel.org>
+Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
+        "Ryan J . Barnett" <ryan.barnett@collins.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-mtd@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 1/5] dt-bindings: mtd: gpmc: Fix the ECC bytes vs. OOB bytes equation
+Date:   Sat, 11 Sep 2021 09:14:10 -0400
+Message-Id: <20210911131415.286125-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210911131404.286005-1-sashal@kernel.org>
-References: <20210911131404.286005-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,38 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 0097ae5f7af5684f961a5f803ff7ad3e6f933668 ]
+[ Upstream commit 778cb8e39f6ec252be50fc3850d66f3dcbd5dd5a ]
 
-When the function IS_ALIGNED() returns false, the value of ret is 0.
-So, we set ret to -EINVAL to indicate this error.
+"PAGESIZE / 512" is the number of ECC chunks.
+"ECC_BYTES" is the number of bytes needed to store a single ECC code.
+"2" is the space reserved by the bad block marker.
 
-Clean up smatch warning:
-drivers/ntb/test/ntb_perf.c:602 perf_setup_inbuf() warn: missing error
-code 'ret'.
+"2 + (PAGESIZE / 512) * ECC_BYTES" should of course be lower or equal
+than the total number of OOB bytes, otherwise it won't fit.
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Fix the equation by substituting s/>=/<=/.
+
+Suggested-by: Ryan J. Barnett <ryan.barnett@collins.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/linux-mtd/20210610143945.3504781-1-miquel.raynal@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/test/ntb_perf.c | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/devicetree/bindings/mtd/gpmc-nand.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/ntb/test/ntb_perf.c b/drivers/ntb/test/ntb_perf.c
-index ad5d3919435c..87a41d0ededc 100644
---- a/drivers/ntb/test/ntb_perf.c
-+++ b/drivers/ntb/test/ntb_perf.c
-@@ -600,6 +600,7 @@ static int perf_setup_inbuf(struct perf_peer *peer)
- 		return -ENOMEM;
- 	}
- 	if (!IS_ALIGNED(peer->inbuf_xlat, xlat_align)) {
-+		ret = -EINVAL;
- 		dev_err(&perf->ntb->dev, "Unaligned inbuf allocated\n");
- 		goto err_free_inbuf;
- 	}
+diff --git a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
+index dd559045593d..d2d1bae63a36 100644
+--- a/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
++++ b/Documentation/devicetree/bindings/mtd/gpmc-nand.txt
+@@ -123,7 +123,7 @@ on various other factors also like;
+ 	so the device should have enough free bytes available its OOB/Spare
+ 	area to accommodate ECC for entire page. In general following expression
+ 	helps in determining if given device can accommodate ECC syndrome:
+-	"2 + (PAGESIZE / 512) * ECC_BYTES" >= OOBSIZE"
++	"2 + (PAGESIZE / 512) * ECC_BYTES" <= OOBSIZE"
+ 	where
+ 		OOBSIZE		number of bytes in OOB/spare area
+ 		PAGESIZE	number of bytes in main-area of device page
 -- 
 2.30.2
 
