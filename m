@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 434654076B4
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:12:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C55594076B3
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:12:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235974AbhIKNNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235963AbhIKNNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 11 Sep 2021 09:13:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36908 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235924AbhIKNNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 11 Sep 2021 09:13:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AF69611CC;
-        Sat, 11 Sep 2021 13:11:58 +0000 (UTC)
+        id S235934AbhIKNNN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 09:13:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17404611C3;
+        Sat, 11 Sep 2021 13:12:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631365919;
-        bh=lbAZdGQWMdcvQ07c2MocX2Vj5WvDkupCf8fah3snmpE=;
+        s=k20201202; t=1631365920;
+        bh=mv/mgaHOnkOGkztlyC9ZkuUY8ikq0GtV8Y8kFRFjK9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sk8ROQwV1tKFCOQEo7i82Q5hO1lwVP/H9x70lf9Zw4MMy56XqOQGtqRSCPjw14ijF
-         kR6ohvQQ/ivx4M4zz6kYuAtCEBjpcJyhezaPpW6UTgVajEVhOjZ4UFHhlX3qWFU5SU
-         B9uhlsZEyV+fZH/eycXqoPJ/pdNGgwywC9lXQNeqWY1vQakNNVJe5LqQovWgPrWo5t
-         N3bfS5csP28+BM/0dmBB5S/8ZM5A2fBZFXzMtMxw0AsepUkHEJ3Iy/AlhGmFAqxZvf
-         YppKHkuJwoVO3GI5HBuYJi20XQqO9s6oneqrdfBBL5d4Ch1ERhOSBnTKpJqfH1RddK
-         dkdx7+Oy/MHHA==
+        b=ln+F5Qq6bsKUFO2CZ1TIUztKQ2gPBgKG6nPvAji88Kz2kXTaMjC4Ldiipaxf5o1qo
+         X0kGp1cOTVjcWxjbxI5YKRLO9zgTnFZgXqkiifhJXnukmia+JfxtlqPRAeQ0Sb9dbB
+         okxHMdyDa1JUHrH7RBUjF+SGSCeSgUtTFlfcNvYpQ8FXSWia7edoHQFAaaSnAwbuB7
+         wKnzmBzm+Z53yYdFssRiQp4WgdSZcKiNIQn0HnBkP2+WQOPFyugigo2+R66ARDg1Hm
+         u5OpK9LA9ZLO7o+8S52Z45N7bRMWrOWoemUzwW8AV5DMJpUlsSZ0aNmdVj6NqP02R2
+         O8qJUmgmlf8Dw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Om Prakash Singh <omp@nvidia.com>,
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
         Vidya Sagar <vidyas@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 07/32] PCI: tegra194: Fix MSI-X programming
-Date:   Sat, 11 Sep 2021 09:11:24 -0400
-Message-Id: <20210911131149.284397-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org,
+        linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 08/32] PCI: tegra: Fix OF node reference leak
+Date:   Sat, 11 Sep 2021 09:11:25 -0400
+Message-Id: <20210911131149.284397-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131149.284397-1-sashal@kernel.org>
 References: <20210911131149.284397-1-sashal@kernel.org>
@@ -45,37 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Om Prakash Singh <omp@nvidia.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 43537cf7e351264a1f05ed42ad402942bfc9140e ]
+[ Upstream commit eff21f5da308265678e7e59821795e606f3e560f ]
 
-Lower order MSI-X address is programmed in MSIX_ADDR_MATCH_HIGH_OFF
-DBI register instead of higher order address. This patch fixes this
-programming mistake.
+Commit 9e38e690ace3 ("PCI: tegra: Fix OF node reference leak") has fixed
+some node reference leaks in this function but missed some of them.
 
-Link: https://lore.kernel.org/r/20210623100525.19944-3-omp@nvidia.com
-Signed-off-by: Om Prakash Singh <omp@nvidia.com>
+In fact, having 'port' referenced in the 'rp' structure is not enough to
+prevent the leak, until 'rp' is actually added in the 'pcie->ports' list.
+
+Add the missing 'goto err_node_put' accordingly.
+
+Link: https://lore.kernel.org/r/55b11e9a7fa2987fbc0869d68ae59888954d65e2.1620148539.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Vidya Sagar <vidyas@nvidia.com>
+Reviewed-by: Vidya Sagar <vidyas@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-tegra.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
-index fd14e2f45bba..55c8afb9a899 100644
---- a/drivers/pci/controller/dwc/pcie-tegra194.c
-+++ b/drivers/pci/controller/dwc/pcie-tegra194.c
-@@ -1763,7 +1763,7 @@ static void pex_ep_event_pex_rst_deassert(struct tegra_pcie_dw *pcie)
- 	val = (ep->msi_mem_phys & MSIX_ADDR_MATCH_LOW_OFF_MASK);
- 	val |= MSIX_ADDR_MATCH_LOW_OFF_EN;
- 	dw_pcie_writel_dbi(pci, MSIX_ADDR_MATCH_LOW_OFF, val);
--	val = (lower_32_bits(ep->msi_mem_phys) & MSIX_ADDR_MATCH_HIGH_OFF_MASK);
-+	val = (upper_32_bits(ep->msi_mem_phys) & MSIX_ADDR_MATCH_HIGH_OFF_MASK);
- 	dw_pcie_writel_dbi(pci, MSIX_ADDR_MATCH_HIGH_OFF, val);
+diff --git a/drivers/pci/controller/pci-tegra.c b/drivers/pci/controller/pci-tegra.c
+index c979229a6d0d..b358212d71ab 100644
+--- a/drivers/pci/controller/pci-tegra.c
++++ b/drivers/pci/controller/pci-tegra.c
+@@ -2193,13 +2193,15 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 		rp->np = port;
  
- 	ret = dw_pcie_ep_init_complete(ep);
+ 		rp->base = devm_pci_remap_cfg_resource(dev, &rp->regs);
+-		if (IS_ERR(rp->base))
+-			return PTR_ERR(rp->base);
++		if (IS_ERR(rp->base)) {
++			err = PTR_ERR(rp->base);
++			goto err_node_put;
++		}
+ 
+ 		label = devm_kasprintf(dev, GFP_KERNEL, "pex-reset-%u", index);
+ 		if (!label) {
+-			dev_err(dev, "failed to create reset GPIO label\n");
+-			return -ENOMEM;
++			err = -ENOMEM;
++			goto err_node_put;
+ 		}
+ 
+ 		/*
+@@ -2217,7 +2219,8 @@ static int tegra_pcie_parse_dt(struct tegra_pcie *pcie)
+ 			} else {
+ 				dev_err(dev, "failed to get reset GPIO: %ld\n",
+ 					PTR_ERR(rp->reset_gpio));
+-				return PTR_ERR(rp->reset_gpio);
++				err = PTR_ERR(rp->reset_gpio);
++				goto err_node_put;
+ 			}
+ 		}
+ 
 -- 
 2.30.2
 
