@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C36814077F8
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:21:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 824F04077F4
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 15:20:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236050AbhIKNWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 09:22:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49198 "EHLO mail.kernel.org"
+        id S237081AbhIKNWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 09:22:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237530AbhIKNTY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237531AbhIKNTY (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 11 Sep 2021 09:19:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96B8561371;
-        Sat, 11 Sep 2021 13:14:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA4AF61373;
+        Sat, 11 Sep 2021 13:14:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631366049;
-        bh=YuPs1qG3NAqXGIttNQ59JcF4gFWM2yrH0SpE9zrUhc4=;
+        s=k20201202; t=1631366050;
+        bh=hy3UwUA+8vvNry4bzehpyJHT56yOSvMuXzICl7nOmF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XaUploT3LUL8bMNMn2uXDWo3JIto7hyLFSm7bJ2n6e0qZIMF/Hi67Fp5E3JGpMmUE
-         cPImZez6TrNBDGqNWfXW+FpcFZVI5N9pEEHgN/M4JoLWv0UdHULlrbcAm5hsbjRtOw
-         daDm8rDme1OS/vNHQ2TMjjw6VMRjBcsIsibcAZIxcgfQ2s2/z7JpNQr4b4N174P7t/
-         ejTlVUXs2VSZT32pGPI2QEmccR05sSPcF791HelDcxSsxFxJe2H5QmldMOqxK9i9Pl
-         sjBf32hXx9+FfQAFToit8vT8quZmuiYCd74qkcQAbFjMvI/eufEA88IfEeVb/jKfIy
-         I54vnCAFJKwRw==
+        b=DwghbapR+uWbzjY06S7KpUQ3QkCAsbaCoFlIvjc46K3q62GXAukALKBy7W+MCeu6c
+         QCVYr/oIU42TnT+QvnGbAzFiyrlnF9w1zWjpvtu/73STKMvvENzjvys7s0/fLDnmt4
+         a2vQ3foAUl6N07IU8IxlewcKvLoOVnEOf0kl5Ii1WPTGuym/CRbVWn76u6gGeV/HE9
+         l9sb+E38pj2B28HCYiWBAOACjYNwJ6qQRAPOAVsJ3iDbNPEh0Ci8LO456Vv8IhLOjG
+         voDlP5jiEACT8Wf3gLBrRo7NvRVB9LM6QqREQKkiejAjL8RSqGsMoesvWEajeqSNtc
+         XwiZBtCB+UpGQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     George Cherian <george.cherian@marvell.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 3/7] PCI: Add ACS quirks for Cavium multi-function devices
-Date:   Sat, 11 Sep 2021 09:14:00 -0400
-Message-Id: <20210911131404.286005-3-sashal@kernel.org>
+Cc:     Daniele Palmas <dnlplm@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 4/7] net: usb: cdc_mbim: avoid altsetting toggling for Telit LN920
+Date:   Sat, 11 Sep 2021 09:14:01 -0400
+Message-Id: <20210911131404.286005-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210911131404.286005-1-sashal@kernel.org>
 References: <20210911131404.286005-1-sashal@kernel.org>
@@ -42,42 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Cherian <george.cherian@marvell.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 32837d8a8f63eb95dcb9cd005524a27f06478832 ]
+[ Upstream commit aabbdc67f3485b5db27ab4eba01e5fbf1ffea62c ]
 
-Some Cavium endpoints are implemented as multi-function devices without ACS
-capability, but they actually don't support peer-to-peer transactions.
+Add quirk CDC_MBIM_FLAG_AVOID_ALTSETTING_TOGGLE for Telit LN920
+0x1061 composition in order to avoid bind error.
 
-Add ACS quirks to declare DMA isolation for the following devices:
-
-  - BGX device found on Octeon-TX (8xxx)
-  - CGX device found on Octeon-TX2 (9xxx)
-  - RPM device found on Octeon-TX3 (10xxx)
-
-Link: https://lore.kernel.org/r/20210810122425.1115156-1-george.cherian@marvell.com
-Signed-off-by: George Cherian <george.cherian@marvell.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/usb/cdc_mbim.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 7e873b6b7d55..10348d754313 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -4777,6 +4777,10 @@ static const struct pci_dev_acs_enabled {
- 	{ 0x10df, 0x720, pci_quirk_mf_endpoint_acs }, /* Emulex Skyhawk-R */
- 	/* Cavium ThunderX */
- 	{ PCI_VENDOR_ID_CAVIUM, PCI_ANY_ID, pci_quirk_cavium_acs },
-+	/* Cavium multi-function devices */
-+	{ PCI_VENDOR_ID_CAVIUM, 0xA026, pci_quirk_mf_endpoint_acs },
-+	{ PCI_VENDOR_ID_CAVIUM, 0xA059, pci_quirk_mf_endpoint_acs },
-+	{ PCI_VENDOR_ID_CAVIUM, 0xA060, pci_quirk_mf_endpoint_acs },
- 	/* APM X-Gene */
- 	{ PCI_VENDOR_ID_AMCC, 0xE004, pci_quirk_xgene_acs },
- 	/* Ampere Computing */
+diff --git a/drivers/net/usb/cdc_mbim.c b/drivers/net/usb/cdc_mbim.c
+index 0362acd5cdca..cdd1b193fd4f 100644
+--- a/drivers/net/usb/cdc_mbim.c
++++ b/drivers/net/usb/cdc_mbim.c
+@@ -655,6 +655,11 @@ static const struct usb_device_id mbim_devs[] = {
+ 	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
+ 	},
+ 
++	/* Telit LN920 */
++	{ USB_DEVICE_AND_INTERFACE_INFO(0x1bc7, 0x1061, USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
++	  .driver_info = (unsigned long)&cdc_mbim_info_avoid_altsetting_toggle,
++	},
++
+ 	/* default entry */
+ 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_MBIM, USB_CDC_PROTO_NONE),
+ 	  .driver_info = (unsigned long)&cdc_mbim_info_zlp,
 -- 
 2.30.2
 
