@@ -2,100 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C95AB40754D
-	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 08:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B62B407554
+	for <lists+stable@lfdr.de>; Sat, 11 Sep 2021 08:27:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231536AbhIKGQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Sep 2021 02:16:07 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:16188 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbhIKGQH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Sep 2021 02:16:07 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4H62W96c2Cz1DGsC;
-        Sat, 11 Sep 2021 14:13:57 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2308.8; Sat, 11 Sep 2021 14:14:53 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.8; Sat, 11 Sep 2021 14:14:51 +0800
-Subject: Re: [PATCH 5.10 00/26] 5.10.64-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210910122916.253646001@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <ec4726d0-0ecb-b83d-7670-f825a2662297@huawei.com>
-Date:   Sat, 11 Sep 2021 14:14:51 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S235266AbhIKG2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Sep 2021 02:28:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54952 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229487AbhIKG2I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 11 Sep 2021 02:28:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F1E161041;
+        Sat, 11 Sep 2021 06:26:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631341615;
+        bh=NeUYiVhOQwpZm3ExnBCh7KWs6RR3b4ruKESX10oOK0s=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tkG8GIbo1nkVYp2Vk9AaMVoHxyzGvY/2TvaXMeh6XE3uVR6JN46tMcZCYA4evTayk
+         DUEOg4D7w0VrqpcnHF9+bDXnL5xqsoilJWseDSC2vLV4A4YuHLbukYvJRz5FbKgrSm
+         SBqBkovZT8iv5plH3j7BgArGsYBCYes8gxeOgyOY=
+Date:   Sat, 11 Sep 2021 08:26:34 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Justin M. Forbes" <jforbes@fedoraproject.org>
+Cc:     stable@vger.kernel.org, Jaehoon Chung <jh80.chung@samsung.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: Re: [PATCH] iwlwifi Add support for ax201 in Samsung Galaxy Book
+ Flex2 Alpha
+Message-ID: <YTxMGjwtCvH/ANfk@kroah.com>
+References: <20210910153735.2791941-1-jforbes@fedoraproject.org>
 MIME-Version: 1.0
-In-Reply-To: <20210910122916.253646001@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210910153735.2791941-1-jforbes@fedoraproject.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/9/10 20:30, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.64 release.
-> There are 26 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Fri, Sep 10, 2021 at 10:37:35AM -0500, Justin M. Forbes wrote:
+> The Samsung Galaxy Book Flex2 Alpha uses an ax201 with the ID a0f0/6074.
+> This works fine with the existing driver once it knows to claim it.
+> Simple patch to add the device.
 > 
-> Responses should be made by Sun, 12 Sep 2021 12:29:07 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.64-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> Signed-off-by: Justin M. Forbes <jforbes@fedoraproject.org>
+> Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+> Link: https://lore.kernel.org/r/20210702223155.1981510-1-jforbes@fedoraproject.org
+> ---
+>  drivers/net/wireless/intel/iwlwifi/pcie/drv.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-Tested on arm64 and x86 for 5.10.64-rc1,
+<formletter>
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.64-rc1
-Commit: 750f802d275892bf81c140338d6820d725399edc
-Compiler: gcc version 7.3.0 (GCC)
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8907
-passed: 8907
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8907
-passed: 8907
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+</formletter>
