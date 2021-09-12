@@ -2,154 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34610407D8F
-	for <lists+stable@lfdr.de>; Sun, 12 Sep 2021 15:19:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE1D4407D95
+	for <lists+stable@lfdr.de>; Sun, 12 Sep 2021 15:26:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235483AbhILNVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Sep 2021 09:21:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49090 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235488AbhILNVG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Sep 2021 09:21:06 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC005C06175F
-        for <stable@vger.kernel.org>; Sun, 12 Sep 2021 06:19:51 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id k23so4468132pji.0
-        for <stable@vger.kernel.org>; Sun, 12 Sep 2021 06:19:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ieYvePUoed2dsnVMhtBnlF/gHcVEInvbjhK84g2Buhs=;
-        b=gaDvcRpUdMM1DTxty5Y6h3+eeYCW2NSXnvQ1RUgz3IG5V4xJlwivcdJLCTqoQacagw
-         89D4UJlxIXoBKSziyr79IN901OcDnYT/yZW25T9oYFA9joOQw/1TKyAek79eNPTeyoGE
-         KD+pexuW80WFWhaK+aF1vtQpHbxOpN+UqOz5nMyvdLL6wRNYuYuX/9UJD1qCaQR8NEYg
-         P2213NLaLfbRZYhvkxcDrmgqe1aoYmTlwn/Wau3IevKcOxQwMawFBLSo1WIHLi+Fl/gr
-         vKfMlxH72o/Qs/rtp6tv/vaamqVMFzWpOD8/DaWg2xGtHnLRe917tvebrg7wYoa+z1K+
-         Ftbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ieYvePUoed2dsnVMhtBnlF/gHcVEInvbjhK84g2Buhs=;
-        b=WTh0kukLbLq/xGuKBod6zRA6pjVzMVgsZcN2T3DFcEXrfSEkmtoL3wNoExw+Hh/BDF
-         AH6izqT9Ab0A9e8143DyvfIwm+XVfOeORdNvDHRdGhoI9QUAs1/k2H1B9SF05YL5TEBL
-         +cY+gtLUO6UGt92F7kWb66WWJI7aLSoX+u+uDULqGngEo7CmLXRYZHhj1qMrCzTJz0k0
-         pCrJK2bCaXBPmtXUIuv7gn0qhU8LP+GJVK0fr4W1rNNJJOCak/wEbz3ijHoTfynfKiVx
-         nsS4eJn6NljoIAOIiOPOfYLxLC9ySyUKomX/7YYJBihrVbFpKA6GwfEAwM8r2oFWC1MD
-         BkYA==
-X-Gm-Message-State: AOAM5306vIE1lPKmoMLhCb5H2ci2Ek4UnsB1cr3q3BE0hYQ6xkrzaxk1
-        jZemS41JQKr0H6Ww6J6xTTePNpEdpxUIuM4W
-X-Google-Smtp-Source: ABdhPJyqqcuB+Adjw8smaOWP3h0cy7juSln8/w9TL0jB+eOHYFZAee80aUt3frF0YeKtdm/c3rtLBw==
-X-Received: by 2002:a17:90a:e41:: with SMTP id p1mr7719894pja.137.1631452791143;
-        Sun, 12 Sep 2021 06:19:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id k3sm3868398pjs.11.2021.09.12.06.19.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Sep 2021 06:19:50 -0700 (PDT)
-Message-ID: <613dfe76.1c69fb81.c8689.a130@mx.google.com>
-Date:   Sun, 12 Sep 2021 06:19:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S235203AbhILN1c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 12 Sep 2021 09:27:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57998 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235178AbhILN1c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 12 Sep 2021 09:27:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83949610CE;
+        Sun, 12 Sep 2021 13:26:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631453178;
+        bh=3SB+poM9OiAmrtr0AEtTGh2Z4fGDTi1R2K4An9Y5GF8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=XIS131TskZ8az+w6BRadhLr7dsLM/8las4WZ6rfcwdEUPqkGWLi95jggdzbbnmPIS
+         JIRuPrxDg76nnH3uaic6sgDrNzteEWWKO9jptmXr98x34BK3Fs55v9XUsEh/er812i
+         HHG3Bbtp2zWGOYIBdlV0jaNyPab/DbjLOhbkcKV0=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.4.145
+Date:   Sun, 12 Sep 2021 15:26:14 +0200
+Message-Id: <163145317415133@kroah.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.246-28-g798a88ed9b8d
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 158 runs,
- 3 regressions (v4.14.246-28-g798a88ed9b8d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 158 runs, 3 regressions (v4.14.246-28-g798a8=
-8ed9b8d)
+I'm announcing the release of the 5.4.145 kernel.
 
-Regressions Summary
--------------------
+All users of the 5.4 kernel series must upgrade.
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
+The updated 5.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
+thanks,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.246-28-g798a88ed9b8d/plan/baseline/
+greg k-h
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.246-28-g798a88ed9b8d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      798a88ed9b8d73285c5e94d324ab638330aa6914 =
+------------
 
+ Makefile                                     |    2 -
+ arch/arc/Kconfig                             |    1 
+ arch/arc/include/asm/syscalls.h              |    1 
+ arch/arc/include/uapi/asm/unistd.h           |    1 
+ arch/arc/kernel/entry.S                      |   12 ++++++
+ arch/arc/kernel/process.c                    |    7 +--
+ arch/arc/kernel/sys.c                        |    1 
+ arch/arm/kernel/Makefile                     |    6 ++-
+ arch/arm/kernel/return_address.c             |    4 --
+ arch/powerpc/boot/crt0.S                     |    3 -
+ arch/x86/events/amd/ibs.c                    |    8 ++++
+ arch/x86/events/amd/iommu.c                  |   47 +++++++++++++-----------
+ arch/x86/events/amd/power.c                  |    1 
+ arch/x86/events/intel/pt.c                   |    2 -
+ arch/x86/kernel/reboot.c                     |    3 +
+ arch/xtensa/Kconfig                          |    2 -
+ drivers/block/Kconfig                        |    4 +-
+ drivers/block/cryptoloop.c                   |    2 +
+ drivers/gpu/ipu-v3/ipu-cpmem.c               |   30 +++++++--------
+ drivers/media/usb/stkwebcam/stk-webcam.c     |    6 ++-
+ drivers/net/ethernet/cadence/macb_ptp.c      |   11 +++++
+ drivers/net/ethernet/qlogic/qed/qed_main.c   |    7 +++
+ drivers/net/ethernet/qlogic/qede/qede_main.c |    2 -
+ drivers/net/ethernet/realtek/r8169_main.c    |    1 
+ drivers/net/ethernet/xilinx/ll_temac_main.c  |    4 --
+ drivers/pci/quirks.c                         |   12 +++---
+ drivers/reset/reset-zynqmp.c                 |    3 +
+ drivers/usb/host/xhci-debugfs.c              |    6 ++-
+ drivers/usb/host/xhci-rcar.c                 |    7 +++
+ drivers/usb/host/xhci-trace.h                |    8 ++--
+ drivers/usb/host/xhci.h                      |   52 ++++++++++++++-------------
+ drivers/usb/mtu3/mtu3_gadget.c               |    6 +--
+ drivers/usb/serial/mos7720.c                 |    4 +-
+ fs/btrfs/inode.c                             |    2 -
+ fs/crypto/hooks.c                            |   44 ++++++++++++++++++++++
+ fs/ext4/inline.c                             |    6 +++
+ fs/ext4/symlink.c                            |   11 +++++
+ fs/f2fs/namei.c                              |   11 +++++
+ fs/ubifs/file.c                              |   12 +++++-
+ include/linux/fscrypt.h                      |    7 +++
+ kernel/kthread.c                             |   43 +++++++++++++++-------
+ kernel/sched/fair.c                          |    2 -
+ mm/page_alloc.c                              |    8 ++--
+ net/ipv4/icmp.c                              |   23 ++++++++++-
+ net/ipv4/igmp.c                              |    2 +
+ sound/core/pcm_lib.c                         |    2 -
+ sound/pci/hda/patch_realtek.c                |   10 +++++
+ sound/usb/quirks.c                           |    1 
+ 48 files changed, 320 insertions(+), 130 deletions(-)
 
+Alexander Tsoy (1):
+      ALSA: usb-audio: Add registration quirk for JBL Quantum 800
 
-Test Regressions
----------------- =
+Ben Dooks (1):
+      ARM: 8918/2: only build return_address() if needed
 
+Christoph Hellwig (1):
+      cryptoloop: add a deprecation warning
 
+Chunfeng Yun (2):
+      usb: mtu3: use @mult for HS isoc or intr
+      usb: mtu3: fix the wrong HS mult value
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
-3          =
+Eric Biggers (4):
+      fscrypt: add fscrypt_symlink_getattr() for computing st_size
+      ext4: report correct st_size for encrypted symlinks
+      f2fs: report correct st_size for encrypted symlinks
+      ubifs: report correct st_size for encrypted symlinks
 
+Esben Haabendal (1):
+      net: ll_temac: Remove left-over debug message
 
-  Details:     https://kernelci.org/test/plan/id/613de130136f73b1d8d5969d
+Fangrui Song (1):
+      powerpc/boot: Delete unneeded .globl _zimage_start
 
-  Results:     63 PASS, 6 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.246=
--28-g798a88ed9b8d/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.246=
--28-g798a88ed9b8d/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+Greg Kroah-Hartman (1):
+      Linux 5.4.145
 
+Harini Katakam (1):
+      net: macb: Add a NULL check on desc_ptp
 
+Hayes Wang (1):
+      Revert "r8169: avoid link-up interrupt issue on RTL8106e if user enables ASPM"
 
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/613de130136f73b1d8d596b1
-        failing since 89 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583)
+Kim Phillips (2):
+      perf/x86/amd/ibs: Work around erratum #1197
+      perf/x86/amd/power: Assign pmu.module
 
-    2021-09-12T11:14:44.750180  /lava-4500960/1/../bin/lava-test-case
-    2021-09-12T11:14:44.766948  [   16.653667] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-09-12T11:14:44.767333  /lava-4500960/1/../bin/lava-test-case   =
+Krzysztof Hałasa (1):
+      gpu: ipu-v3: Fix i.MX IPU-v3 offset calculations for (semi)planar U/V formats
 
+Liu Jian (1):
+      igmp: Add ip_mc_list lock in ip_check_mc_rcu
 
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/613de130136f73b1d8d596c9
-        failing since 89 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583)
+Marek Behún (1):
+      PCI: Call Max Payload Size-related fixup quirks early
 
-    2021-09-12T11:14:42.320859  /lava-4500960/1/../bin/lava-test-case[   14=
-.223112] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probed R=
-ESULT=3Dfail>
-    2021-09-12T11:14:42.321388     =
+Mathias Nyman (1):
+      xhci: fix unsafe memory usage in xhci tracing
 
+Mathieu Desnoyers (1):
+      ipv4/icmp: l3mdev: Perform icmp error route lookup on source device routing table (v2)
 
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/613de130136f73b1d8d596ca
-        failing since 89 days (last pass: v4.14.236-20-gdb14655bb4bf, first=
- fail: v4.14.236-49-gfd4c319f2583)
+Muchun Song (1):
+      mm/page_alloc: speed up the iteration of max_order
 
-    2021-09-12T11:14:41.299649  /lava-4500960/1/../bin/lava-test-case
-    2021-09-12T11:14:41.305916  [   13.204158] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+Paul Gortmaker (1):
+      x86/reboot: Limit Dell Optiplex 990 quirk to early BIOS versions
 
- =20
+Pavel Skripkin (1):
+      media: stkwebcam: fix memory leak in stk_camera_probe
+
+Peter Zijlstra (1):
+      kthread: Fix PF_KTHREAD vs to_kthread() race
+
+Qu Wenruo (1):
+      Revert "btrfs: compression: don't try to compress if we don't have enough pages"
+
+Randy Dunlap (1):
+      xtensa: fix kconfig unmet dependency warning for HAVE_FUTEX_CMPXCHG
+
+Sai Krishna Potthuri (1):
+      reset: reset-zynqmp: Fixed the argument data type
+
+Shai Malin (2):
+      qed: Fix the VF msix vectors flow
+      qede: Fix memset corruption
+
+Suravee Suthikulpanit (1):
+      x86/events/amd/iommu: Fix invalid Perf result due to IOMMU PMC power-gating
+
+Takashi Iwai (1):
+      ALSA: hda/realtek: Workaround for conflicting SSID on ASUS ROG Strix G17
+
+Theodore Ts'o (1):
+      ext4: fix race writing to an inline_data file while its xattrs are changing
+
+Tom Rix (1):
+      USB: serial: mos7720: improve OOM-handling in read_mos_reg()
+
+Vineet Gupta (1):
+      ARC: wireup clone3 syscall
+
+Xiaoyao Li (1):
+      perf/x86/intel/pt: Fix mask of num_address_ranges
+
+Yoshihiro Shimoda (1):
+      usb: host: xhci-rcar: Don't reload firmware after the completion
+
+Zubin Mithra (1):
+      ALSA: pcm: fix divide error in snd_pcm_lib_ioctl
+
