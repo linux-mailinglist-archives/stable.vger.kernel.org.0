@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95BD4408EF1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A808409176
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243123AbhIMNiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:38:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32892 "EHLO mail.kernel.org"
+        id S1343955AbhIMOBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:01:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242005AbhIMNgR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:36:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D13C61373;
-        Mon, 13 Sep 2021 13:27:25 +0000 (UTC)
+        id S245734AbhIMN71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:59:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D53A60FA0;
+        Mon, 13 Sep 2021 13:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539645;
-        bh=Dj0oXM8LCAxqhjKn3UcUE+1OU4mFu/cC0JVlL2RvwQo=;
+        s=korg; t=1631540227;
+        bh=WBjrp/IZ+q/vDEwt9idlzOc4t7Eba1314Ar2ALVZ7Tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfVl2burSAA43WNdZKm8fVkmJjl0Bxbu3BYv7T2WhkSKasSZgKptodD/QIfEDFNsm
-         2Hitxj9xHRVm6Dx3HoryedkkO1QMYUhzqjA4Kp7y/Ar/V0atomcGwtajX2dCfxBb9w
-         nMTLYoFPxA0W3pq/N688vfM2j9UgR6M9NS/VbP8c=
+        b=Q3KNIlL2e+WS+ZKOOLSAneFpuSvnnZo9dy17QAbMpGZs4lZ7kMkwm+CUa73G53lTv
+         1dLV8AX0sYFRxs6ETTlDlqGGus39NKhBe23FmtU/emc9XxeH0nn6w0NMg9zK1i0FWo
+         2jddBcZYGtGtB/s+NkCdTF53nooDs6dp64Bxq7+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumanth Kamatala <skamatala@juniper.net>,
-        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Moshe Shemesh <moshe@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Shannon Nelson <snelson@pensando.io>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/236] x86/mce: Defer processing of early errors
-Date:   Mon, 13 Sep 2021 15:12:46 +0200
-Message-Id: <20210913131102.444635157@linuxfoundation.org>
+Subject: [PATCH 5.13 106/300] ionic: cleanly release devlink instance
+Date:   Mon, 13 Sep 2021 15:12:47 +0200
+Message-Id: <20210913131112.953290516@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@alien8.de>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 3bff147b187d5dfccfca1ee231b0761a89f1eff5 ]
+[ Upstream commit c2255ff47768c94a0ebc3968f007928bb47ea43b ]
 
-When a fatal machine check results in a system reset, Linux does not
-clear the error(s) from machine check bank(s) - hardware preserves the
-machine check banks across a warm reset.
+The failure to register devlink will leave the system with dangled
+devlink resource, which is not cleaned if devlink_port_register() fails.
 
-During initialization of the kernel after the reboot, Linux reads, logs,
-and clears all machine check banks.
+In order to remove access to ".registered" field of struct devlink_port,
+require both devlink_register and devlink_port_register to success and
+check it through device pointer.
 
-But there is a problem. In:
-
-  5de97c9f6d85 ("x86/mce: Factor out and deprecate the /dev/mcelog driver")
-
-the call to mce_register_decode_chain() moved later in the boot
-sequence. This means that /dev/mcelog doesn't see those early error
-logs.
-
-This was partially fixed by:
-
-  cd9c57cad3fe ("x86/MCE: Dump MCE to dmesg if no consumers")
-
-which made sure that the logs were not lost completely by printing
-to the console. But parsing console logs is error prone. Users of
-/dev/mcelog should expect to find any early errors logged to standard
-places.
-
-Add a new flag MCP_QUEUE_LOG to machine_check_poll() to be used in early
-machine check initialization to indicate that any errors found should
-just be queued to genpool. When mcheck_late_init() is called it will
-call mce_schedule_work() to actually log and flush any errors queued in
-the genpool.
-
- [ Based on an original patch, commit message by and completely
-   productized by Tony Luck. ]
-
-Fixes: 5de97c9f6d85 ("x86/mce: Factor out and deprecate the /dev/mcelog driver")
-Reported-by: Sumanth Kamatala <skamatala@juniper.net>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210824003129.GA1642753@agluck-desk2.amr.corp.intel.com
+Fixes: fbfb8031533c ("ionic: Add hardware init and device commands")
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Acked-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/mce.h     |  1 +
- arch/x86/kernel/cpu/mce/core.c | 11 ++++++++---
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ .../net/ethernet/pensando/ionic/ionic_devlink.c    | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/include/asm/mce.h b/arch/x86/include/asm/mce.h
-index fc25c88c7ff2..9b5ff423e939 100644
---- a/arch/x86/include/asm/mce.h
-+++ b/arch/x86/include/asm/mce.h
-@@ -259,6 +259,7 @@ enum mcp_flags {
- 	MCP_TIMESTAMP	= BIT(0),	/* log time stamp */
- 	MCP_UC		= BIT(1),	/* log uncorrected errors */
- 	MCP_DONTLOG	= BIT(2),	/* only clear, don't log */
-+	MCP_QUEUE_LOG	= BIT(3),	/* only queue to genpool */
- };
- bool machine_check_poll(enum mcp_flags flags, mce_banks_t *b);
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_devlink.c b/drivers/net/ethernet/pensando/ionic/ionic_devlink.c
+index b41301a5b0df..cd520e4c5522 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_devlink.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_devlink.c
+@@ -91,20 +91,20 @@ int ionic_devlink_register(struct ionic *ionic)
+ 	attrs.flavour = DEVLINK_PORT_FLAVOUR_PHYSICAL;
+ 	devlink_port_attrs_set(&ionic->dl_port, &attrs);
+ 	err = devlink_port_register(dl, &ionic->dl_port, 0);
+-	if (err)
++	if (err) {
+ 		dev_err(ionic->dev, "devlink_port_register failed: %d\n", err);
+-	else
+-		devlink_port_type_eth_set(&ionic->dl_port,
+-					  ionic->lif->netdev);
++		devlink_unregister(dl);
++		return err;
++	}
  
-diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
-index b7a27589dfa0..056d0367864e 100644
---- a/arch/x86/kernel/cpu/mce/core.c
-+++ b/arch/x86/kernel/cpu/mce/core.c
-@@ -817,7 +817,10 @@ log_it:
- 		if (mca_cfg.dont_log_ce && !mce_usable_address(&m))
- 			goto clear_it;
+-	return err;
++	devlink_port_type_eth_set(&ionic->dl_port, ionic->lif->netdev);
++	return 0;
+ }
  
--		mce_log(&m);
-+		if (flags & MCP_QUEUE_LOG)
-+			mce_gen_pool_add(&m);
-+		else
-+			mce_log(&m);
+ void ionic_devlink_unregister(struct ionic *ionic)
+ {
+ 	struct devlink *dl = priv_to_devlink(ionic);
  
- clear_it:
- 		/*
-@@ -1628,10 +1631,12 @@ static void __mcheck_cpu_init_generic(void)
- 		m_fl = MCP_DONTLOG;
- 
- 	/*
--	 * Log the machine checks left over from the previous reset.
-+	 * Log the machine checks left over from the previous reset. Log them
-+	 * only, do not start processing them. That will happen in mcheck_late_init()
-+	 * when all consumers have been registered on the notifier chain.
- 	 */
- 	bitmap_fill(all_banks, MAX_NR_BANKS);
--	machine_check_poll(MCP_UC | m_fl, &all_banks);
-+	machine_check_poll(MCP_UC | MCP_QUEUE_LOG | m_fl, &all_banks);
- 
- 	cr4_set_bits(X86_CR4_MCE);
- 
+-	if (ionic->dl_port.registered)
+-		devlink_port_unregister(&ionic->dl_port);
++	devlink_port_unregister(&ionic->dl_port);
+ 	devlink_unregister(dl);
+ }
 -- 
 2.30.2
 
