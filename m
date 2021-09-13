@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6E52409FBE
+	by mail.lfdr.de (Postfix) with ESMTP id 5CB68409FBD
 	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245553AbhIMWfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 18:35:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50154 "EHLO mail.kernel.org"
+        id S1343625AbhIMWfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 18:35:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245581AbhIMWfC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 18:35:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F619610FB;
-        Mon, 13 Sep 2021 22:33:45 +0000 (UTC)
+        id S245674AbhIMWfD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 18:35:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EB036112E;
+        Mon, 13 Sep 2021 22:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631572426;
-        bh=Vbu8GoHws7kTSdOjXcFaQxIFUun8efnlHvM7tlmrpf4=;
+        s=k20201202; t=1631572427;
+        bh=zZOv9c0hDXozICSiYrxi1nEvEJ4mookKp3h0i39ylNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTCTgXeeBM2+kdnSq1STGCHrEC1KGoViqQ/3Gy96KD/g0hyRLp+KvHfYGm397Ka/H
-         VEN9OyWXqi0NHxEGUdRfgdKtQdW3Q+kRhQuu/I4udckLN2by82+dCFinPPfD9uA3Rw
-         lFWtIONMRuqez4EVDjyljhiMBEeOjz9GZ4vz0Rr/jOicMaIQhI90MC0+YRvbX2eHkS
-         sLjMIGO24Tp34v955rseoAu+yPzjBpFMsZv2Cnc0kE1nztzOwfQ2xUEpSx+E6NlUKE
-         laVGYXpK9JSMv01Nm7IHtt2npB6TH5tRfaea65mbixit/MNUS/eTqRwRuRKeI5CjxN
-         btU4mgPAmHbYQ==
+        b=gaTJeREaE/eawI2JiLyDkwW1ICchQGeQfXxSZblWHGlGj0dvHR66IJ6SckczHS7IL
+         OUyhkGQ34pOYbCvyq8YVzbI/9+tjN1rNmNaJMUCRL6N0C8OPSwAnUuLcdd80xjYxWQ
+         QDcLLUoKdFDx8cliTrbSdodl93w84hVM3hpDlpMIujZlgY01qOqMb5D9BNISeyIlnT
+         MwlvTJcw3XgODJqWccYGCbIvQuY+XyowxJbpsFso8xyzBPO2Dy+TBpPRHxxAuQVK+z
+         vAcS/iHu+gud9quPlG3I/OGWk2mSvNnM7/9/GiNE1oxRP76dbfL9bljKAXSXnAotlu
+         v6oGud9+S0L7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Williams <dan.j.williams@intel.com>,
-        Ben Widawsky <ben.widawsky@intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cxl@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 04/25] cxl/pci: Introduce cdevm_file_operations
-Date:   Mon, 13 Sep 2021 18:33:18 -0400
-Message-Id: <20210913223339.435347-4-sashal@kernel.org>
+Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+        Bob Peterson <rpeterso@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.14 05/25] gfs2: Switch to may_setattr in gfs2_setattr
+Date:   Mon, 13 Sep 2021 18:33:19 -0400
+Message-Id: <20210913223339.435347-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210913223339.435347-1-sashal@kernel.org>
 References: <20210913223339.435347-1-sashal@kernel.org>
@@ -43,195 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 9cc238c7a526dba9ee8c210fa2828886fc65db66 ]
+[ Upstream commit d75b9fa053e4cd278281386d860c26fdbfbe9d03 ]
 
-In preparation for moving cxl_memdev allocation to the core, introduce
-cdevm_file_operations to coordinate file operations shutdown relative to
-driver data release.
+The permission check in gfs2_setattr is an old and outdated version of
+may_setattr().  Switch to the updated version.
 
-The motivation for moving cxl_memdev allocation to the core (beyond
-better file organization of sysfs attributes in core/ and drivers in
-cxl/), is that device lifetime is longer than module lifetime. The cxl_pci
-module should be free to come and go without needing to coordinate with
-devices that need the text associated with cxl_memdev_release() to stay
-resident. The move will fix a use after free bug when looping driver
-load / unload with CONFIG_DEBUG_KOBJECT_RELEASE=y.
+Fixes fstest generic/079.
 
-Another motivation for passing in file_operations to the core cxl_memdev
-creation flow is to allow for alternate drivers, like unit test code, to
-define their own ioctl backends.
-
-Signed-off-by: Ben Widawsky <ben.widawsky@intel.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Link: https://lore.kernel.org/r/162792539962.368511.2962268954245340288.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cxl/cxlmem.h | 15 ++++++++++
- drivers/cxl/pci.c    | 65 ++++++++++++++++++++++++++------------------
- 2 files changed, 53 insertions(+), 27 deletions(-)
+ fs/gfs2/inode.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cxl/cxlmem.h b/drivers/cxl/cxlmem.h
-index 8f02d02b26b4..0cd463de1342 100644
---- a/drivers/cxl/cxlmem.h
-+++ b/drivers/cxl/cxlmem.h
-@@ -34,6 +34,21 @@
-  */
- #define CXL_MEM_MAX_DEVS 65536
+diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
+index 6e15434b23ac..3130f85d2b3f 100644
+--- a/fs/gfs2/inode.c
++++ b/fs/gfs2/inode.c
+@@ -1985,8 +1985,8 @@ static int gfs2_setattr(struct user_namespace *mnt_userns,
+ 	if (error)
+ 		goto out;
  
-+/**
-+ * struct cdevm_file_operations - devm coordinated cdev file operations
-+ * @fops: file operations that are synchronized against @shutdown
-+ * @shutdown: disconnect driver data
-+ *
-+ * @shutdown is invoked in the devres release path to disconnect any
-+ * driver instance data from @dev. It assumes synchronization with any
-+ * fops operation that requires driver data. After @shutdown an
-+ * operation may only reference @device data.
-+ */
-+struct cdevm_file_operations {
-+	struct file_operations fops;
-+	void (*shutdown)(struct device *dev);
-+};
-+
- /**
-  * struct cxl_memdev - CXL bus object representing a Type-3 Memory Device
-  * @dev: driver core device object
-diff --git a/drivers/cxl/pci.c b/drivers/cxl/pci.c
-index a945c5fda292..f7a5ad5e1f4a 100644
---- a/drivers/cxl/pci.c
-+++ b/drivers/cxl/pci.c
-@@ -806,13 +806,30 @@ static int cxl_memdev_release_file(struct inode *inode, struct file *file)
- 	return 0;
- }
+-	error = -EPERM;
+-	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
++	error = may_setattr(&init_user_ns, inode, attr->ia_valid);
++	if (error)
+ 		goto error;
  
--static const struct file_operations cxl_memdev_fops = {
--	.owner = THIS_MODULE,
--	.unlocked_ioctl = cxl_memdev_ioctl,
--	.open = cxl_memdev_open,
--	.release = cxl_memdev_release_file,
--	.compat_ioctl = compat_ptr_ioctl,
--	.llseek = noop_llseek,
-+static struct cxl_memdev *to_cxl_memdev(struct device *dev)
-+{
-+	return container_of(dev, struct cxl_memdev, dev);
-+}
-+
-+static void cxl_memdev_shutdown(struct device *dev)
-+{
-+	struct cxl_memdev *cxlmd = to_cxl_memdev(dev);
-+
-+	down_write(&cxl_memdev_rwsem);
-+	cxlmd->cxlm = NULL;
-+	up_write(&cxl_memdev_rwsem);
-+}
-+
-+static const struct cdevm_file_operations cxl_memdev_fops = {
-+	.fops = {
-+		.owner = THIS_MODULE,
-+		.unlocked_ioctl = cxl_memdev_ioctl,
-+		.open = cxl_memdev_open,
-+		.release = cxl_memdev_release_file,
-+		.compat_ioctl = compat_ptr_ioctl,
-+		.llseek = noop_llseek,
-+	},
-+	.shutdown = cxl_memdev_shutdown,
- };
- 
- static inline struct cxl_mem_command *cxl_mem_find_command(u16 opcode)
-@@ -1161,11 +1178,6 @@ static int cxl_mem_setup_regs(struct cxl_mem *cxlm)
- 	return ret;
- }
- 
--static struct cxl_memdev *to_cxl_memdev(struct device *dev)
--{
--	return container_of(dev, struct cxl_memdev, dev);
--}
--
- static void cxl_memdev_release(struct device *dev)
- {
- 	struct cxl_memdev *cxlmd = to_cxl_memdev(dev);
-@@ -1281,24 +1293,22 @@ static const struct device_type cxl_memdev_type = {
- 	.groups = cxl_memdev_attribute_groups,
- };
- 
--static void cxl_memdev_shutdown(struct cxl_memdev *cxlmd)
--{
--	down_write(&cxl_memdev_rwsem);
--	cxlmd->cxlm = NULL;
--	up_write(&cxl_memdev_rwsem);
--}
--
- static void cxl_memdev_unregister(void *_cxlmd)
- {
- 	struct cxl_memdev *cxlmd = _cxlmd;
- 	struct device *dev = &cxlmd->dev;
-+	struct cdev *cdev = &cxlmd->cdev;
-+	const struct cdevm_file_operations *cdevm_fops;
-+
-+	cdevm_fops = container_of(cdev->ops, typeof(*cdevm_fops), fops);
-+	cdevm_fops->shutdown(dev);
- 
- 	cdev_device_del(&cxlmd->cdev, dev);
--	cxl_memdev_shutdown(cxlmd);
- 	put_device(dev);
- }
- 
--static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm)
-+static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm,
-+					   const struct file_operations *fops)
- {
- 	struct pci_dev *pdev = cxlm->pdev;
- 	struct cxl_memdev *cxlmd;
-@@ -1324,7 +1334,7 @@ static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm)
- 	device_set_pm_not_required(dev);
- 
- 	cdev = &cxlmd->cdev;
--	cdev_init(cdev, &cxl_memdev_fops);
-+	cdev_init(cdev, fops);
- 	return cxlmd;
- 
- err:
-@@ -1332,15 +1342,16 @@ static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm)
- 	return ERR_PTR(rc);
- }
- 
--static struct cxl_memdev *devm_cxl_add_memdev(struct device *host,
--					      struct cxl_mem *cxlm)
-+static struct cxl_memdev *
-+devm_cxl_add_memdev(struct device *host, struct cxl_mem *cxlm,
-+		    const struct cdevm_file_operations *cdevm_fops)
- {
- 	struct cxl_memdev *cxlmd;
- 	struct device *dev;
- 	struct cdev *cdev;
- 	int rc;
- 
--	cxlmd = cxl_memdev_alloc(cxlm);
-+	cxlmd = cxl_memdev_alloc(cxlm, &cdevm_fops->fops);
- 	if (IS_ERR(cxlmd))
- 		return cxlmd;
- 
-@@ -1370,7 +1381,7 @@ static struct cxl_memdev *devm_cxl_add_memdev(struct device *host,
- 	 * The cdev was briefly live, shutdown any ioctl operations that
- 	 * saw that state.
- 	 */
--	cxl_memdev_shutdown(cxlmd);
-+	cdevm_fops->shutdown(dev);
- 	put_device(dev);
- 	return ERR_PTR(rc);
- }
-@@ -1611,7 +1622,7 @@ static int cxl_mem_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	if (rc)
- 		return rc;
- 
--	cxlmd = devm_cxl_add_memdev(&pdev->dev, cxlm);
-+	cxlmd = devm_cxl_add_memdev(&pdev->dev, cxlm, &cxl_memdev_fops);
- 	if (IS_ERR(cxlmd))
- 		return PTR_ERR(cxlmd);
- 
+ 	error = setattr_prepare(&init_user_ns, dentry, attr);
 -- 
 2.30.2
 
