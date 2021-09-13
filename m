@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1108B408F75
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:44:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D064408CFC
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241882AbhIMNnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:43:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41644 "EHLO mail.kernel.org"
+        id S240542AbhIMNW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:22:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236180AbhIMNk6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:40:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 111346124D;
-        Mon, 13 Sep 2021 13:29:35 +0000 (UTC)
+        id S240635AbhIMNVW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:21:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 192046112D;
+        Mon, 13 Sep 2021 13:20:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539776;
-        bh=oN6mONBcZeGP2JszXEKGJI6AJngr/ZrWPvIY7ZuL394=;
+        s=korg; t=1631539204;
+        bh=OPddaRiK+9M+Rx4KrOe4SDXtMoeMPsr7BQV8MVDSbAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VniFun8WJbBdkp9q8Z4TwEbDNcpXKThLDmnEz1jnxNSe5rOObxEfTH6EYjdPdFEtR
-         rd3kFIVnQwnpPqnFZYeIZi8sar9EHgGOPOkA/uPW29ei4YOAM9d5DT6h5CeiMR+YXf
-         Q6mIpNe6bPWRJOPqMfLWEXy/tSx/zK/F0oHpsA8s=
+        b=bxVWZZ+gN6+WBEAssQi4m21sDgE0UBjOhIUTyb4KjvHB46qhmJdlVK7ssL38mr7Nn
+         yuR1vUwcMNQJnTB/8gVJskxUd0y9HRdhQOGBK8VOZIoNy+bOkt0rjOElqHhJfBX197
+         CpRr7jVOlrJa2FA2Wtp4w5YVpwNSMgQzM6mBjEnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juhee Kang <claudiajkang@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        =?UTF-8?q?M=C3=A1rio=20Lopes?= <ml@simonwunderlich.de>,
+        Sven Eckelmann <sven@narfation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 156/236] samples: pktgen: add missing IPv6 option to pktgen scripts
+Subject: [PATCH 5.4 080/144] debugfs: Return error during {full/open}_proxy_open() on rmmod
 Date:   Mon, 13 Sep 2021 15:14:21 +0200
-Message-Id: <20210913131105.687797459@linuxfoundation.org>
+Message-Id: <20210913131050.641470610@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,97 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juhee Kang <claudiajkang@gmail.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 0f0c4f1b72e090b23131700bb155944cc28b2a7b ]
+[ Upstream commit 112cedc8e600b668688eb809bf11817adec58ddc ]
 
-Currently, "sample04" and "sample05" are not working properly when
-running with an IPv6 option("-6"). The commit 0f06a6787e05 ("samples:
-Add an IPv6 "-6" option to the pktgen scripts") has omitted the addition
-of this option at "sample04" and "sample05".
+If a kernel module gets unloaded then it printed report about a leak before
+commit 275678e7a9be ("debugfs: Check module state before warning in
+{full/open}_proxy_open()"). An additional check was added in this commit to
+avoid this printing. But it was forgotten that the function must return an
+error in this case because it was not actually opened.
 
-In order to support IPv6 option, this commit adds logic related to IPv6
-option.
+As result, the systems started to crash or to hang when a module was
+unloaded while something was trying to open a file.
 
-Fixes: 0f06a6787e05 ("samples: Add an IPv6 "-6" option to the pktgen scripts")
-
-Signed-off-by: Juhee Kang <claudiajkang@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 275678e7a9be ("debugfs: Check module state before warning in {full/open}_proxy_open()")
+Cc: Taehee Yoo <ap420073@gmail.com>
+Reported-by: Mário Lopes <ml@simonwunderlich.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Link: https://lore.kernel.org/r/20210802162444.7848-1-sven@narfation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/pktgen/pktgen_sample04_many_flows.sh      | 12 +++++++-----
- samples/pktgen/pktgen_sample05_flow_per_thread.sh | 12 +++++++-----
- 2 files changed, 14 insertions(+), 10 deletions(-)
+ fs/debugfs/file.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/samples/pktgen/pktgen_sample04_many_flows.sh b/samples/pktgen/pktgen_sample04_many_flows.sh
-index 2cd6b701400d..9db1ecf8de8b 100755
---- a/samples/pktgen/pktgen_sample04_many_flows.sh
-+++ b/samples/pktgen/pktgen_sample04_many_flows.sh
-@@ -13,13 +13,15 @@ root_check_run_with_sudo "$@"
- # Parameter parsing via include
- source ${basedir}/parameters.sh
- # Set some default params, if they didn't get set
--[ -z "$DEST_IP" ]   && DEST_IP="198.18.0.42"
-+if [ -z "$DEST_IP" ]; then
-+    [ -z "$IP6" ] && DEST_IP="198.18.0.42" || DEST_IP="FD00::1"
-+fi
- [ -z "$DST_MAC" ]   && DST_MAC="90:e2:ba:ff:ff:ff"
- [ -z "$CLONE_SKB" ] && CLONE_SKB="0"
- [ -z "$COUNT" ]     && COUNT="0" # Zero means indefinitely
- if [ -n "$DEST_IP" ]; then
--    validate_addr $DEST_IP
--    read -r DST_MIN DST_MAX <<< $(parse_addr $DEST_IP)
-+    validate_addr${IP6} $DEST_IP
-+    read -r DST_MIN DST_MAX <<< $(parse_addr${IP6} $DEST_IP)
- fi
- if [ -n "$DST_PORT" ]; then
-     read -r UDP_DST_MIN UDP_DST_MAX <<< $(parse_ports $DST_PORT)
-@@ -65,8 +67,8 @@ for ((thread = $F_THREAD; thread <= $L_THREAD; thread++)); do
+diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
+index 943637298f65..a32c5c7dcfd8 100644
+--- a/fs/debugfs/file.c
++++ b/fs/debugfs/file.c
+@@ -178,8 +178,10 @@ static int open_proxy_open(struct inode *inode, struct file *filp)
+ 	if (!fops_get(real_fops)) {
+ #ifdef CONFIG_MODULES
+ 		if (real_fops->owner &&
+-		    real_fops->owner->state == MODULE_STATE_GOING)
++		    real_fops->owner->state == MODULE_STATE_GOING) {
++			r = -ENXIO;
+ 			goto out;
++		}
+ #endif
  
-     # Single destination
-     pg_set $dev "dst_mac $DST_MAC"
--    pg_set $dev "dst_min $DST_MIN"
--    pg_set $dev "dst_max $DST_MAX"
-+    pg_set $dev "dst${IP6}_min $DST_MIN"
-+    pg_set $dev "dst${IP6}_max $DST_MAX"
+ 		/* Huh? Module did not clean up after itself at exit? */
+@@ -313,8 +315,10 @@ static int full_proxy_open(struct inode *inode, struct file *filp)
+ 	if (!fops_get(real_fops)) {
+ #ifdef CONFIG_MODULES
+ 		if (real_fops->owner &&
+-		    real_fops->owner->state == MODULE_STATE_GOING)
++		    real_fops->owner->state == MODULE_STATE_GOING) {
++			r = -ENXIO;
+ 			goto out;
++		}
+ #endif
  
-     if [ -n "$DST_PORT" ]; then
- 	# Single destination port or random port range
-diff --git a/samples/pktgen/pktgen_sample05_flow_per_thread.sh b/samples/pktgen/pktgen_sample05_flow_per_thread.sh
-index 4cb6252ade39..9fc6c6da028a 100755
---- a/samples/pktgen/pktgen_sample05_flow_per_thread.sh
-+++ b/samples/pktgen/pktgen_sample05_flow_per_thread.sh
-@@ -17,14 +17,16 @@ root_check_run_with_sudo "$@"
- # Parameter parsing via include
- source ${basedir}/parameters.sh
- # Set some default params, if they didn't get set
--[ -z "$DEST_IP" ]   && DEST_IP="198.18.0.42"
-+if [ -z "$DEST_IP" ]; then
-+    [ -z "$IP6" ] && DEST_IP="198.18.0.42" || DEST_IP="FD00::1"
-+fi
- [ -z "$DST_MAC" ]   && DST_MAC="90:e2:ba:ff:ff:ff"
- [ -z "$CLONE_SKB" ] && CLONE_SKB="0"
- [ -z "$BURST" ]     && BURST=32
- [ -z "$COUNT" ]     && COUNT="0" # Zero means indefinitely
- if [ -n "$DEST_IP" ]; then
--    validate_addr $DEST_IP
--    read -r DST_MIN DST_MAX <<< $(parse_addr $DEST_IP)
-+    validate_addr${IP6} $DEST_IP
-+    read -r DST_MIN DST_MAX <<< $(parse_addr${IP6} $DEST_IP)
- fi
- if [ -n "$DST_PORT" ]; then
-     read -r UDP_DST_MIN UDP_DST_MAX <<< $(parse_ports $DST_PORT)
-@@ -55,8 +57,8 @@ for ((thread = $F_THREAD; thread <= $L_THREAD; thread++)); do
- 
-     # Single destination
-     pg_set $dev "dst_mac $DST_MAC"
--    pg_set $dev "dst_min $DST_MIN"
--    pg_set $dev "dst_max $DST_MAX"
-+    pg_set $dev "dst${IP6}_min $DST_MIN"
-+    pg_set $dev "dst${IP6}_max $DST_MAX"
- 
-     if [ -n "$DST_PORT" ]; then
- 	# Single destination port or random port range
+ 		/* Huh? Module did not cleanup after itself at exit? */
 -- 
 2.30.2
 
