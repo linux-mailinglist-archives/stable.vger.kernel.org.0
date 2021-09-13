@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C26F9409601
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93F23409605
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345342AbhIMOrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:47:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60204 "EHLO mail.kernel.org"
+        id S1346931AbhIMOrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:47:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348299AbhIMOpH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:45:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91E0763226;
-        Mon, 13 Sep 2021 13:58:03 +0000 (UTC)
+        id S1344647AbhIMOpQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:45:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BB7663225;
+        Mon, 13 Sep 2021 13:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541484;
-        bh=lLyRquFGoi3tfA7vBHxudAkqITHw5IE3d1c2ikUzxis=;
+        s=korg; t=1631541486;
+        bh=LutDRff0aD9e1FFhOZ0SBAGlxCTHiB/d0aPEr85B8jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fqQJEXT3LK/uv+ox1nYgEakxghGCk/vIgLO1A5d6UF9JDVZU0EdxmwULg1Dt+A4hF
-         Cxg93SUOJufUC4qgnjDN2SX3uBavORhXt06g7bAO1PiGnFDi0NVcSX/7zC0BdctQIi
-         EciBZDyqM5NngLXFAfFO+DqONuKRB6tg6YAaVkr0=
+        b=uK+izeUq45NhgbBTAVgaoxM2TyZ5lSsVKH/eet5Ztp5Hom4rJ0LuPGOaiyHp+0oxE
+         LqKqJ9fxmjSozB1SaCkNJPggpOjjIPwS93nXdtaR8DpYkzaDz4Rktwp7jwoGxXWlEh
+         c2rIOtxFlfij/UH77JmjNVMK2Tusuz9cn550C2o4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.14 316/334] KVM: nVMX: Unconditionally clear nested.pi_pending on nested VM-Enter
-Date:   Mon, 13 Sep 2021 15:16:10 +0200
-Message-Id: <20210913131124.117806401@linuxfoundation.org>
+        stable@vger.kernel.org, Quentin Perret <qperret@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.14 317/334] KVM: arm64: Unregister HYP sections from kmemleak in protected mode
+Date:   Mon, 13 Sep 2021 15:16:11 +0200
+Message-Id: <20210913131124.149730853@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -40,60 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit f7782bb8d818d8f47c26b22079db10599922787a upstream.
+commit 47e6223c841e029bfc23c3ce594dac5525cebaf8 upstream.
 
-Clear nested.pi_pending on nested VM-Enter even if L2 will run without
-posted interrupts enabled.  If nested.pi_pending is left set from a
-previous L2, vmx_complete_nested_posted_interrupt() will pick up the
-stale flag and exit to userspace with an "internal emulation error" due
-the new L2 not having a valid nested.pi_desc.
+Booting a KVM host in protected mode with kmemleak quickly results
+in a pretty bad crash, as kmemleak doesn't know that the HYP sections
+have been taken away. This is specially true for the BSS section,
+which is part of the kernel BSS section and registered at boot time
+by kmemleak itself.
 
-Arguably, vmx_complete_nested_posted_interrupt() should first check for
-posted interrupts being enabled, but it's also completely reasonable that
-KVM wouldn't screw up a fundamental flag.  Not to mention that the mere
-existence of nested.pi_pending is a long-standing bug as KVM shouldn't
-move the posted interrupt out of the IRR until it's actually processed,
-e.g. KVM effectively drops an interrupt when it performs a nested VM-Exit
-with a "pending" posted interrupt.  Fixing the mess is a future problem.
+Unregister the HYP part of the BSS before making that section
+HYP-private. The rest of the HYP-specific data is obtained via
+the page allocator or lives in other sections, none of which is
+subjected to kmemleak.
 
-Prior to vmx_complete_nested_posted_interrupt() interpreting a null PI
-descriptor as an error, this was a benign bug as the null PI descriptor
-effectively served as a check on PI not being enabled.  Even then, the
-new flow did not become problematic until KVM started checking the result
-of kvm_check_nested_events().
-
-Fixes: 705699a13994 ("KVM: nVMX: Enable nested posted interrupt processing")
-Fixes: 966eefb89657 ("KVM: nVMX: Disable vmcs02 posted interrupts if vmcs12 PID isn't mappable")
-Fixes: 47d3530f86c0 ("KVM: x86: Exit to userspace when kvm_check_nested_events fails")
-Cc: stable@vger.kernel.org
-Cc: Jim Mattson <jmattson@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210810144526.2662272-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 90134ac9cabb ("KVM: arm64: Protect the .hyp sections from the host")
+Reviewed-by: Quentin Perret <qperret@google.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org # 5.13
+Link: https://lore.kernel.org/r/20210802123830.2195174-3-maz@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/arm64/kvm/arm.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2223,12 +2223,11 @@ static void prepare_vmcs02_early(struct
- 			 ~PIN_BASED_VMX_PREEMPTION_TIMER);
+--- a/arch/arm64/kvm/arm.c
++++ b/arch/arm64/kvm/arm.c
+@@ -15,6 +15,7 @@
+ #include <linux/fs.h>
+ #include <linux/mman.h>
+ #include <linux/sched.h>
++#include <linux/kmemleak.h>
+ #include <linux/kvm.h>
+ #include <linux/kvm_irqfd.h>
+ #include <linux/irqbypass.h>
+@@ -1986,6 +1987,12 @@ static int finalize_hyp_mode(void)
+ 	if (ret)
+ 		return ret;
  
- 	/* Posted interrupts setting is only taken from vmcs12.  */
--	if (nested_cpu_has_posted_intr(vmcs12)) {
-+	vmx->nested.pi_pending = false;
-+	if (nested_cpu_has_posted_intr(vmcs12))
- 		vmx->nested.posted_intr_nv = vmcs12->posted_intr_nv;
--		vmx->nested.pi_pending = false;
--	} else {
-+	else
- 		exec_control &= ~PIN_BASED_POSTED_INTR;
--	}
- 	pin_controls_set(vmx, exec_control);
- 
- 	/*
++	/*
++	 * Exclude HYP BSS from kmemleak so that it doesn't get peeked
++	 * at, which would end badly once the section is inaccessible.
++	 * None of other sections should ever be introspected.
++	 */
++	kmemleak_free_part(__hyp_bss_start, __hyp_bss_end - __hyp_bss_start);
+ 	ret = pkvm_mark_hyp_section(__hyp_bss);
+ 	if (ret)
+ 		return ret;
 
 
