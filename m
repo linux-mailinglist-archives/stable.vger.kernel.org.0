@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D7F74091D0
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C39C54091E8
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:05:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244495AbhIMOFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:05:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50892 "EHLO mail.kernel.org"
+        id S245524AbhIMOGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:06:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343690AbhIMOD3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:03:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC71661A52;
-        Mon, 13 Sep 2021 13:38:39 +0000 (UTC)
+        id S1343793AbhIMODa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:03:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C77261A53;
+        Mon, 13 Sep 2021 13:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540320;
-        bh=AUAOhTPFuebkOjhrDueU01s6CvNvMJpixVeNc8usw/c=;
+        s=korg; t=1631540322;
+        bh=Ny8wVJn4A9i6ipl3UIAXM88BcEFMhX2inpmHcX3ehGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b177O5OSamiBA5JQyc63y9RcIJtaVRF8L6eY2nh0miWbkyuJOCSigilI8ggbCP/B+
-         zGlhn8kTWZvwoeS8d9CeNZUoFPV1lnaAXv5VEwZkAd4JthkJu26ZQpeE0G1J1xBST3
-         A5T77O9DK+Dv48ANSIDLVbptMMZmWDnprtUPiOQA=
+        b=2Ki+eZu9m/gzBh7RNS+dNSRPCdhuFzt6HcJTUMGg9u6HfWD46KeeKet9GDr8a9JBi
+         AEkcBQvM2G0uheEa/nqlTs/mP9COD1VhuJxub/hCoNTmsfojj31XwrU2PlPg1Nx+E3
+         aGxFIBmnssbvgE/iTSvHhWyegeWXHehJuX4UbLqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 144/300] leds: trigger: audio: Add an activate callback to ensure the initial brightness is set
-Date:   Mon, 13 Sep 2021 15:13:25 +0200
-Message-Id: <20210913131114.259756912@linuxfoundation.org>
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 145/300] media: em28xx-input: fix refcount bug in em28xx_usb_disconnect
+Date:   Mon, 13 Sep 2021 15:13:26 +0200
+Message-Id: <20210913131114.298951027@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -41,121 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 64f67b5240db79eceb0bd57dae8e591fd3103ba0 ]
+[ Upstream commit 6fa54bc713c262e1cfbc5613377ef52280d7311f ]
 
-Some 2-in-1s with a detachable (USB) keyboard(dock) have mute-LEDs in
-the speaker- and/or mic-mute keys on the keyboard.
+If em28xx_ir_init fails, it would decrease the refcount of dev. However,
+in the em28xx_ir_fini, when ir is NULL, it goes to ref_put and decrease
+the refcount of dev. This will lead to a refcount bug.
 
-Examples of this are the Lenovo Thinkpad10 tablet (with its USB kbd-dock)
-and the HP x2 10 series.
+Fix this bug by removing the kref_put in the error handling code
+of em28xx_ir_init.
 
-The detachable nature of these keyboards means that the keyboard and
-thus the mute LEDs may show up after the user (or userspace restoring
-old mixer settings) has muted the speaker and/or mic.
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 0 PID: 7 at lib/refcount.c:28 refcount_warn_saturate+0x18e/0x1a0 lib/refcount.c:28
+Modules linked in:
+CPU: 0 PID: 7 Comm: kworker/0:1 Not tainted 5.13.0 #3
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:refcount_warn_saturate+0x18e/0x1a0 lib/refcount.c:28
+Call Trace:
+  kref_put.constprop.0+0x60/0x85 include/linux/kref.h:69
+  em28xx_usb_disconnect.cold+0xd7/0xdc drivers/media/usb/em28xx/em28xx-cards.c:4150
+  usb_unbind_interface+0xbf/0x3a0 drivers/usb/core/driver.c:458
+  __device_release_driver drivers/base/dd.c:1201 [inline]
+  device_release_driver_internal+0x22a/0x230 drivers/base/dd.c:1232
+  bus_remove_device+0x108/0x160 drivers/base/bus.c:529
+  device_del+0x1fe/0x510 drivers/base/core.c:3540
+  usb_disable_device+0xd1/0x1d0 drivers/usb/core/message.c:1419
+  usb_disconnect+0x109/0x330 drivers/usb/core/hub.c:2221
+  hub_port_connect drivers/usb/core/hub.c:5151 [inline]
+  hub_port_connect_change drivers/usb/core/hub.c:5440 [inline]
+  port_event drivers/usb/core/hub.c:5586 [inline]
+  hub_event+0xf81/0x1d40 drivers/usb/core/hub.c:5668
+  process_one_work+0x2c9/0x610 kernel/workqueue.c:2276
+  process_scheduled_works kernel/workqueue.c:2338 [inline]
+  worker_thread+0x333/0x5b0 kernel/workqueue.c:2424
+  kthread+0x188/0x1d0 kernel/kthread.c:319
+  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
 
-Current LED-class devices with a default_trigger of "audio-mute" or
-"audio-micmute" initialize the brightness member of led_classdev with
-ledtrig_audio_get() before registering the LED.
-
-This makes the software state after attaching the keyboard match the
-actual audio mute state, e.g. cat /sys/class/leds/foo/brightness will
-show the right value.
-
-But before this commit nothing was actually calling the led_classdev's
-brightness_set[_blocking] callback so the value returned by
-ledtrig_audio_get() was never actually being sent to the hw, leading
-to the mute LEDs staying in their default power-on state, after
-attaching the keyboard, even if ledtrig_audio_get() returned a different
-state.
-
-This could be fixed by having the individual LED drivers call
-brightness_set[_blocking] themselves after registering the LED,
-but this really is something which should be done by a led-trigger
-activate callback.
-
-Add an activate callback for this, fixing the issue of the
-mute LEDs being out of sync after (re)attaching the keyboard.
-
-Cc: Takashi Iwai <tiwai@suse.de>
-Fixes: faa2541f5b1a ("leds: trigger: Introduce audio mute LED trigger")
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Fixes: ac5688637144 ("media: em28xx: Fix possible memory leak of em28xx struct")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/trigger/ledtrig-audio.c | 37 ++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 8 deletions(-)
+ drivers/media/usb/em28xx/em28xx-input.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/leds/trigger/ledtrig-audio.c b/drivers/leds/trigger/ledtrig-audio.c
-index f76621e88482..c6b437e6369b 100644
---- a/drivers/leds/trigger/ledtrig-audio.c
-+++ b/drivers/leds/trigger/ledtrig-audio.c
-@@ -6,10 +6,33 @@
- #include <linux/kernel.h>
- #include <linux/leds.h>
- #include <linux/module.h>
-+#include "../leds.h"
- 
--static struct led_trigger *ledtrig_audio[NUM_AUDIO_LEDS];
- static enum led_brightness audio_state[NUM_AUDIO_LEDS];
- 
-+static int ledtrig_audio_mute_activate(struct led_classdev *led_cdev)
-+{
-+	led_set_brightness_nosleep(led_cdev, audio_state[LED_AUDIO_MUTE]);
-+	return 0;
-+}
-+
-+static int ledtrig_audio_micmute_activate(struct led_classdev *led_cdev)
-+{
-+	led_set_brightness_nosleep(led_cdev, audio_state[LED_AUDIO_MICMUTE]);
-+	return 0;
-+}
-+
-+static struct led_trigger ledtrig_audio[NUM_AUDIO_LEDS] = {
-+	[LED_AUDIO_MUTE] = {
-+		.name     = "audio-mute",
-+		.activate = ledtrig_audio_mute_activate,
-+	},
-+	[LED_AUDIO_MICMUTE] = {
-+		.name     = "audio-micmute",
-+		.activate = ledtrig_audio_micmute_activate,
-+	},
-+};
-+
- enum led_brightness ledtrig_audio_get(enum led_audio type)
- {
- 	return audio_state[type];
-@@ -19,24 +42,22 @@ EXPORT_SYMBOL_GPL(ledtrig_audio_get);
- void ledtrig_audio_set(enum led_audio type, enum led_brightness state)
- {
- 	audio_state[type] = state;
--	led_trigger_event(ledtrig_audio[type], state);
-+	led_trigger_event(&ledtrig_audio[type], state);
+diff --git a/drivers/media/usb/em28xx/em28xx-input.c b/drivers/media/usb/em28xx/em28xx-input.c
+index 59529cbf9cd0..0b6d77c3bec8 100644
+--- a/drivers/media/usb/em28xx/em28xx-input.c
++++ b/drivers/media/usb/em28xx/em28xx-input.c
+@@ -842,7 +842,6 @@ error:
+ 	kfree(ir);
+ ref_put:
+ 	em28xx_shutdown_buttons(dev);
+-	kref_put(&dev->ref, em28xx_free_device);
+ 	return err;
  }
- EXPORT_SYMBOL_GPL(ledtrig_audio_set);
- 
- static int __init ledtrig_audio_init(void)
- {
--	led_trigger_register_simple("audio-mute",
--				    &ledtrig_audio[LED_AUDIO_MUTE]);
--	led_trigger_register_simple("audio-micmute",
--				    &ledtrig_audio[LED_AUDIO_MICMUTE]);
-+	led_trigger_register(&ledtrig_audio[LED_AUDIO_MUTE]);
-+	led_trigger_register(&ledtrig_audio[LED_AUDIO_MICMUTE]);
- 	return 0;
- }
- module_init(ledtrig_audio_init);
- 
- static void __exit ledtrig_audio_exit(void)
- {
--	led_trigger_unregister_simple(ledtrig_audio[LED_AUDIO_MUTE]);
--	led_trigger_unregister_simple(ledtrig_audio[LED_AUDIO_MICMUTE]);
-+	led_trigger_unregister(&ledtrig_audio[LED_AUDIO_MUTE]);
-+	led_trigger_unregister(&ledtrig_audio[LED_AUDIO_MICMUTE]);
- }
- module_exit(ledtrig_audio_exit);
  
 -- 
 2.30.2
