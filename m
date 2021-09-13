@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 594ED40913F
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D72BA408E88
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244443AbhIMOAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:00:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42350 "EHLO mail.kernel.org"
+        id S242151AbhIMNfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:35:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343684AbhIMN4o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:56:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FBBD6197A;
-        Mon, 13 Sep 2021 13:36:04 +0000 (UTC)
+        id S242657AbhIMNcg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:32:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7623461371;
+        Mon, 13 Sep 2021 13:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540165;
-        bh=nP78YhW5egISnhxIC3ox67pxakh0FxRWK5AJa/va5pk=;
+        s=korg; t=1631539547;
+        bh=K4uaTHapmH3U6xH9ucIb0nunIP0v4qwcdxnoKEqCHMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h8Yuh4lTcuZPhMvt8IruYCD7tM/JQm0ywEIDPNbB2xe6x5eFc3KFVWt2rHv3hw8Tw
-         Y7agcoXjHU0OtOyg5ZYkxCfo74COtgwQM/rKsC2stddcfJf3gC1xZOFJpdi2odA62r
-         sF8xH757E60Q7fvuTkma107wPeQblxGenBlj8leg=
+        b=E8ISyucbLqiHBB5kgERP4fcuUu+MmlAe0wqD5bYdqb+PuFViQHkHX1jk8G2HfNXt9
+         TLule9q87E4C+optiVPvkjMhQKvq6P6NBbGngcsWB9pczH9KuwAlS6vmaXLaY2c7TJ
+         hzHZ9pUXYZO47Aq4JsHL72PgGQ0C9z06C/e9M/TU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Quanyang Wang <quanyang.wang@windriver.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 078/300] spi: spi-zynq-qspi: use wait_for_completion_timeout to make zynq_qspi_exec_mem_op not interruptible
+        Stian Skjelstad <stian.skjelstad@gmail.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 034/236] udf_get_extendedattr() had no boundary checks.
 Date:   Mon, 13 Sep 2021 15:12:19 +0200
-Message-Id: <20210913131112.000106352@linuxfoundation.org>
+Message-Id: <20210913131101.500259577@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quanyang Wang <quanyang.wang@windriver.com>
+From: Stian Skjelstad <stian.skjelstad@gmail.com>
 
-[ Upstream commit 26cfc0dbe43aae60dc03af27077775244f26c167 ]
+[ Upstream commit 58bc6d1be2f3b0ceecb6027dfa17513ec6aa2abb ]
 
-The function wait_for_completion_interruptible_timeout will return
--ERESTARTSYS immediately when receiving SIGKILL signal which is sent
-by "jffs2_gcd_mtd" during umounting jffs2. This will break the SPI memory
-operation because the data transmitting may begin before the command or
-address transmitting completes. Use wait_for_completion_timeout to prevent
-the process from being interruptible.
+When parsing the ExtendedAttr data, malicous or corrupt attribute length
+could cause kernel hangs and buffer overruns in some special cases.
 
-Fixes: 67dca5e580f1 ("spi: spi-mem: Add support for Zynq QSPI controller")
-Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
-Link: https://lore.kernel.org/r/20210826005930.20572-1-quanyang.wang@windriver.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210822093332.25234-1-stian.skjelstad@gmail.com
+Signed-off-by: Stian Skjelstad <stian.skjelstad@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-zynq-qspi.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/udf/misc.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-zynq-qspi.c b/drivers/spi/spi-zynq-qspi.c
-index 9262c6418463..cfa222c9bd5e 100644
---- a/drivers/spi/spi-zynq-qspi.c
-+++ b/drivers/spi/spi-zynq-qspi.c
-@@ -545,7 +545,7 @@ static int zynq_qspi_exec_mem_op(struct spi_mem *mem,
- 		zynq_qspi_write_op(xqspi, ZYNQ_QSPI_FIFO_DEPTH, true);
- 		zynq_qspi_write(xqspi, ZYNQ_QSPI_IEN_OFFSET,
- 				ZYNQ_QSPI_IXR_RXTX_MASK);
--		if (!wait_for_completion_interruptible_timeout(&xqspi->data_completion,
-+		if (!wait_for_completion_timeout(&xqspi->data_completion,
- 							       msecs_to_jiffies(1000)))
- 			err = -ETIMEDOUT;
- 	}
-@@ -563,7 +563,7 @@ static int zynq_qspi_exec_mem_op(struct spi_mem *mem,
- 		zynq_qspi_write_op(xqspi, ZYNQ_QSPI_FIFO_DEPTH, true);
- 		zynq_qspi_write(xqspi, ZYNQ_QSPI_IEN_OFFSET,
- 				ZYNQ_QSPI_IXR_RXTX_MASK);
--		if (!wait_for_completion_interruptible_timeout(&xqspi->data_completion,
-+		if (!wait_for_completion_timeout(&xqspi->data_completion,
- 							       msecs_to_jiffies(1000)))
- 			err = -ETIMEDOUT;
- 	}
-@@ -579,7 +579,7 @@ static int zynq_qspi_exec_mem_op(struct spi_mem *mem,
- 		zynq_qspi_write_op(xqspi, ZYNQ_QSPI_FIFO_DEPTH, true);
- 		zynq_qspi_write(xqspi, ZYNQ_QSPI_IEN_OFFSET,
- 				ZYNQ_QSPI_IXR_RXTX_MASK);
--		if (!wait_for_completion_interruptible_timeout(&xqspi->data_completion,
-+		if (!wait_for_completion_timeout(&xqspi->data_completion,
- 							       msecs_to_jiffies(1000)))
- 			err = -ETIMEDOUT;
+diff --git a/fs/udf/misc.c b/fs/udf/misc.c
+index eab94527340d..1614d308d0f0 100644
+--- a/fs/udf/misc.c
++++ b/fs/udf/misc.c
+@@ -173,13 +173,22 @@ struct genericFormat *udf_get_extendedattr(struct inode *inode, uint32_t type,
+ 		else
+ 			offset = le32_to_cpu(eahd->appAttrLocation);
  
-@@ -603,7 +603,7 @@ static int zynq_qspi_exec_mem_op(struct spi_mem *mem,
- 		zynq_qspi_write_op(xqspi, ZYNQ_QSPI_FIFO_DEPTH, true);
- 		zynq_qspi_write(xqspi, ZYNQ_QSPI_IEN_OFFSET,
- 				ZYNQ_QSPI_IXR_RXTX_MASK);
--		if (!wait_for_completion_interruptible_timeout(&xqspi->data_completion,
-+		if (!wait_for_completion_timeout(&xqspi->data_completion,
- 							       msecs_to_jiffies(1000)))
- 			err = -ETIMEDOUT;
+-		while (offset < iinfo->i_lenEAttr) {
++		while (offset + sizeof(*gaf) < iinfo->i_lenEAttr) {
++			uint32_t attrLength;
++
+ 			gaf = (struct genericFormat *)&ea[offset];
++			attrLength = le32_to_cpu(gaf->attrLength);
++
++			/* Detect undersized elements and buffer overflows */
++			if ((attrLength < sizeof(*gaf)) ||
++			    (attrLength > (iinfo->i_lenEAttr - offset)))
++				break;
++
+ 			if (le32_to_cpu(gaf->attrType) == type &&
+ 					gaf->attrSubtype == subtype)
+ 				return gaf;
+ 			else
+-				offset += le32_to_cpu(gaf->attrLength);
++				offset += attrLength;
+ 		}
  	}
+ 
 -- 
 2.30.2
 
