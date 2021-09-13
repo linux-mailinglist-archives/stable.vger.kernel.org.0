@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84CD3408FA2
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92C37408D59
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241833AbhIMNpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:45:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41184 "EHLO mail.kernel.org"
+        id S240189AbhIMNZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:25:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242989AbhIMNmi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:42:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96B05610CB;
-        Mon, 13 Sep 2021 13:30:18 +0000 (UTC)
+        id S240567AbhIMNWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:22:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBF5461159;
+        Mon, 13 Sep 2021 13:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539819;
-        bh=JnOYUCM/odPvFwMJ+pBKcmqXkWsfvgjZzfpdbCAT2NU=;
+        s=korg; t=1631539246;
+        bh=xCLWryCJ5SZE9fvXRVPIiVQjE4zis4KoslvYXRyheEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VprX1tWV4JhljgBQ5GrA8rkNdLs8234Ddbxr4At3Obc0w20wp1oMJDHTNQpuOs+ve
-         C5KUipS/eY6iIui+wLfG5X5tbViNt2h5ius2j+L+wVt6pkMEI1whsKLwLiNT/xmzHF
-         rlGeKR650zOxZS/p+GWmp2Cvx8aQQmHSuqCsBVMc=
+        b=KnKk/H2k5SKLjYs/CUN2imOc09WPxXCMJ5hsNPdHgOhAGUVwAfze86vRmElGHBK9N
+         dYyh1AZXRfcrfqes1b+Bl6Qxzl28kCaMBqqz7OTESBoYIrm1CmrLwlpupQVlzf0gsv
+         g9K+mjBkkm25w8Se8f66uXGeCCEL47BkSpitKxbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Curtis Malainey <cujomalainey@chromium.org>,
-        Matt Davis <mattedavis@google.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        Demetris Ierokipides <ierokipides.dem@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 140/236] ASoC: Intel: Fix platform ID matching
-Date:   Mon, 13 Sep 2021 15:14:05 +0200
-Message-Id: <20210913131105.122905815@linuxfoundation.org>
+Subject: [PATCH 5.4 065/144] ARM: dts: meson8: Use a higher default GPU clock frequency
+Date:   Mon, 13 Sep 2021 15:14:06 +0200
+Message-Id: <20210913131050.141913889@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Curtis Malainey <cujomalainey@chromium.org>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit f4eeaed04e861b95f1f2c911263f2fcaa959c078 ]
+[ Upstream commit 44cf630bcb8c5ec78125805c9447dd5766792224 ]
 
-Sparse warnings triggered truncating the IDs of some platform device
-tables. Unfortunately some of the IDs in the match tables were missed
-which breaks audio. The KBL change has been verified to fix audio, the
-CML change was not tested as it was found through grepping the broken
-changes and found to match the same situation in anticipation that it
-should also be fixed.
+We are seeing "imprecise external abort (0x1406)" errors during boot
+(which then cause the whole board to hang) on Meson8 (but not Meson8m2).
+These are observed while trying to access the GPU's registers when the
+MALI clock is running at it's default setting of 24MHz. The 3.10 vendor
+kernel uses 318.75MHz as "default" GPU frequency. Using that makes the
+"imprecise external aborts" go away.
+Add the assigned-clocks and assigned-clock-rates properties to also bump
+the MALI clock to 318.75MHz before accessing any of it's registers.
 
-Fixes: 94efd726b947 ("ASoC: Intel: kbl_da7219_max98357a: shrink platform_id below 20 characters")
-Fixes: 24e46fb811e9 ("ASoC: Intel: bxt_da7219_max98357a: shrink platform_id below 20 characters")
-Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
-Tested-by: Matt Davis <mattedavis@google.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210809213544.1682444-1-cujomalainey@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 7d3f6b536e72c9 ("ARM: dts: meson8: add the Mali-450 MP6 GPU")
+Reported-by: Demetris Ierokipides <ierokipides.dem@gmail.com>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20210711214023.2163565-1-martin.blumenstingl@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/common/soc-acpi-intel-cml-match.c | 2 +-
- sound/soc/intel/common/soc-acpi-intel-kbl-match.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/meson8.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/intel/common/soc-acpi-intel-cml-match.c b/sound/soc/intel/common/soc-acpi-intel-cml-match.c
-index 26dde88bb227..9b85811ffd51 100644
---- a/sound/soc/intel/common/soc-acpi-intel-cml-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-cml-match.c
-@@ -62,7 +62,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_cml_machines[] = {
- 	},
- 	{
- 		.id = "DLGS7219",
--		.drv_name = "cml_da7219_max98357a",
-+		.drv_name = "cml_da7219_mx98357a",
- 		.machine_quirk = snd_soc_acpi_codec_list,
- 		.quirk_data = &max98390_spk_codecs,
- 		.sof_fw_filename = "sof-cml.ri",
-diff --git a/sound/soc/intel/common/soc-acpi-intel-kbl-match.c b/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
-index 4ed1349affc4..20f2132a9cd6 100644
---- a/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
-@@ -87,7 +87,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_kbl_machines[] = {
- 	},
- 	{
- 		.id = "DLGS7219",
--		.drv_name = "kbl_da7219_max98357a",
-+		.drv_name = "kbl_da7219_mx98357a",
- 		.fw_filename = "intel/dsp_fw_kbl.bin",
- 		.machine_quirk = snd_soc_acpi_codec_list,
- 		.quirk_data = &kbl_7219_98357_codecs,
+diff --git a/arch/arm/boot/dts/meson8.dtsi b/arch/arm/boot/dts/meson8.dtsi
+index 3efe9d41c2bb..d7c9dbee0f01 100644
+--- a/arch/arm/boot/dts/meson8.dtsi
++++ b/arch/arm/boot/dts/meson8.dtsi
+@@ -241,8 +241,13 @@
+ 					  "pp2", "ppmmu2", "pp4", "ppmmu4",
+ 					  "pp5", "ppmmu5", "pp6", "ppmmu6";
+ 			resets = <&reset RESET_MALI>;
++
+ 			clocks = <&clkc CLKID_CLK81>, <&clkc CLKID_MALI>;
+ 			clock-names = "bus", "core";
++
++			assigned-clocks = <&clkc CLKID_MALI>;
++			assigned-clock-rates = <318750000>;
++
+ 			operating-points-v2 = <&gpu_opp_table>;
+ 		};
+ 	};
 -- 
 2.30.2
 
