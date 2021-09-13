@@ -2,116 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C518408BD1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:05:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2078408BC1
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239085AbhIMNGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:06:16 -0400
-Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:56874
-        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238863AbhIMNDy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 09:03:54 -0400
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com [209.85.128.72])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 4A20C40257
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 13:02:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1631538157;
-        bh=iu9zMq7VH8HxvbrRseM1CzfWgZBkbaUNi4Cw0YJuwM0=;
-        h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-         In-Reply-To:Content-Type;
-        b=DeUzJQnhw3HWhI8avkzbh9+8sgSdCEj1OPZVftEgWlPyObRmUlt/MOUnCHM+nxxXb
-         AplHEKmS5phtJw4gPtZ8uzfMaF4ouTVShTcIdKNsNEi2CyWtAECwITEDgCb8W3UyOv
-         O+Pq7QShzLR7hgLmWDsklwWrFiY4eiW0WIgRvcvhnRZOYoYmv+BEWjBSP3d314Z3jK
-         moqIb11pUVZKKmOsu5RJ364gU8wNX+8vMuD5WQ9dYExBM7sWLC0iAxNYyvDT2zzTfS
-         mGrLPyFe4aY/9KDypYTi5xpS1CF8Q4cORE8OhJtANJYbJdMvin6ZrAsS3jXj+A5vP5
-         txckIRJ/6jsbQ==
-Received: by mail-wm1-f72.google.com with SMTP id 5-20020a1c00050000b02902e67111d9f0so4891024wma.4
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 06:02:37 -0700 (PDT)
+        id S236138AbhIMNF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:05:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54796 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240176AbhIMNE4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 09:04:56 -0400
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F5CC0613CF;
+        Mon, 13 Sep 2021 06:03:39 -0700 (PDT)
+Received: by mail-lf1-x12a.google.com with SMTP id n2so21037074lfk.0;
+        Mon, 13 Sep 2021 06:03:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=9sTLBz67v50uxjPLGpmhcnOPvRMUIhtkAWqB/GTMNGI=;
+        b=SNqyq33VjffTGxubIW/LVFzPl1THnHS0OjXILWJlGHhs3uOPKtGPlG+cnXP+YAnbwg
+         BIdtfwwWXkRAwENahNcuRhu96N2IkmlxCLKKjVUq39lf3jWb6FZ1803OksGuXuYfdxWj
+         rwM6eDfauAsUaGST3r5DUVwV8Fm3qyQ6k3n+VTzTvcf3He+J3CXwcqyIi3Ig6yUzb8BG
+         pJmhSV9JKmk9QuRUfKzh4bNehnhhZDNOb9ytRrxLf8ekFaAbNfhbj3rlV/3ooo+4EHON
+         EfeS8d453noCzt25XSSARXvv1Cnx3WJ6PqzK9KqKzIx1lpV1vjyZuyKAdHNkBYyApJuy
+         KouA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=iu9zMq7VH8HxvbrRseM1CzfWgZBkbaUNi4Cw0YJuwM0=;
-        b=KMXDLL4xv9rduoKco7uASN/uuhepSYNIoD72S6eKYQPMaS3r8TIgtOktmjtfkSfs7C
-         wV11sG4grH4RpooLpUkGtAoJBvk7QO6myvm64O+SNqxFzYG4J4mmteJQmaUzJM4dRxF+
-         nkcCNVfTlmQ5o2DCyI4mXo754PeX+3nr38fw0ZO9qcFKEBnjK9RNHE0do4fEz3OBfj8G
-         kxT2ZdmGwmD2sQuEy4pi4dN3A1PLbpJPrKLGGWxr86n/+dWLzQYhCrSqiiGSRZo0jqfa
-         RmQ0hTVb5VmJ6BC2C+c/mu9T2XHnNrd0CY0F0ryTqLtO+q7ltI8CJmLQGpjsmNUJVF07
-         e7Hg==
-X-Gm-Message-State: AOAM5315vStI7ocfp5+lJUi/tntgaFXzQy6fjXkA+JE+R5gsPVu4RTVI
-        n+U6nf9ajiBBIohZ00IXhQEBrtSPZfMGUhrBh+YvYxFhgMDcoe7RVRrvL1zdtVLhqIRdGZsnNCY
-        dCKA4v6NmWycNCfHDmx829OYqwRnFJjmwBw==
-X-Received: by 2002:adf:ce03:: with SMTP id p3mr12573869wrn.261.1631538156475;
-        Mon, 13 Sep 2021 06:02:36 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyyaSKSMIX4A+QSHz2WtdORfG6b/MogxIP65fow2RNuWACKEFXZ5iZ+P8QZMy4+VzDS4hEY9Q==
-X-Received: by 2002:adf:ce03:: with SMTP id p3mr12573843wrn.261.1631538156267;
-        Mon, 13 Sep 2021 06:02:36 -0700 (PDT)
-Received: from [192.168.3.211] (lk.84.20.244.219.dc.cable.static.lj-kabel.net. [84.20.244.219])
-        by smtp.gmail.com with ESMTPSA id o2sm7876376wrh.13.2021.09.13.06.02.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Sep 2021 06:02:35 -0700 (PDT)
-Subject: Re: [PATCH 1/2] power: supply: max17042_battery: Clear status bits in
- interrupt handler
-To:     Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Anton Vorontsov <anton.vorontsov@linaro.org>,
-        Ramakrishna Pallala <ramakrishna.pallala@intel.com>,
-        Dirk Brandewie <dirk.brandewie@gmail.com>,
-        stable@vger.kernel.org
-References: <20210912205402.160939-1-sebastian.krzyszkowiak@puri.sm>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Message-ID: <0123524d-b767-5b5b-8b14-60d8cea3c429@canonical.com>
-Date:   Mon, 13 Sep 2021 15:02:34 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=9sTLBz67v50uxjPLGpmhcnOPvRMUIhtkAWqB/GTMNGI=;
+        b=MXyUHO9DchFKB5UZ3BkApHf7/k5KrFzKV9ngq5Nd+zIk+JkZp0X3V5IzDQJjtr08wH
+         nTQtLN+mz9LYDMWgYqA+ElSP82qC2H2x65tPDzX9cV4XJ4MWlpTNebLDI79Gm4xzemaA
+         4bi6ti5VDV+B5PyIPxhsk6Z9Ck2l6OAyzLcnmq1hZ3owaMwtr4NXrccp2diBPWg1IHnL
+         j8FTpvBM8+06w94OAZCQnaz6PkPIVcnYs6SyY/5LlnbjEvPckmwJph9giCCVqBT2AHTB
+         8HC2IyDUwfpvzsTQD9mDmcw8VUZD2tP08drodM2d/7GlPQdNCYbw98E8RcqyjOAqPJy3
+         Jvqg==
+X-Gm-Message-State: AOAM531uGBcrm9yXPUt3mePmi91xYcm5tlyzBnKKxiGPytEr8hy0GPF2
+        NeYRRIvEMWo42fGLBYHtsQSKqhN6nmflZeuZnjE=
+X-Google-Smtp-Source: ABdhPJz98Iy3VQAyl6qYBfputzhJiJ/oqeAlSmgwWwR0nmZWXPhHu2AvEn65dsd71VopVkjo1fi+DYZFawZc1oQRStc=
+X-Received: by 2002:ac2:5f1b:: with SMTP id 27mr9222856lfq.79.1631538218197;
+ Mon, 13 Sep 2021 06:03:38 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210912205402.160939-1-sebastian.krzyszkowiak@puri.sm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210818070209.1540451-1-michal.vokac@ysoft.com>
+In-Reply-To: <20210818070209.1540451-1-michal.vokac@ysoft.com>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Mon, 13 Sep 2021 10:03:27 -0300
+Message-ID: <CAOMZO5DgMN8OptVAs0JMkFC51WoD7t8rE3rPqzZGXBcT+5x9wA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] ARM: dts: imx6dl-yapp4: Fix lp5562 LED driver probe
+To:     =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>
+Cc:     Shawn Guo <shawnguo@kernel.org>, Rob Herring <robh+dt@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Linux LED Subsystem <linux-leds@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 12/09/2021 22:54, Sebastian Krzyszkowiak wrote:
-> The gauge requires us to clear the status bits manually for some alerts
-> to be properly dismissed. Previously the IRQ was configured to react only
-> on falling edge, which wasn't technically correct (the ALRT line is active
-> low), but it had a happy side-effect of preventing interrupt storms
-> on uncleared alerts from happening.
-> 
-> Fixes: 7fbf6b731bca ("power: supply: max17042: Do not enforce (incorrect) interrupt trigger type")
+Hi Michal,
+
+On Wed, Aug 18, 2021 at 4:02 AM Michal Vok=C3=A1=C4=8D <michal.vokac@ysoft.=
+com> wrote:
+>
+> Since the LED multicolor framework support was added in commit
+> 92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
+> LEDs on this platform stopped working.
+>
+> Author of the framework attempted to accommodate this DT to the
+> framework in commit b86d3d21cd4c ("ARM: dts: imx6dl-yapp4: Add reg proper=
+ty
+> to the lp5562 channel node") but that is not sufficient. A color property
+> is now required even if the multicolor framework is not used, otherwise
+> the driver probe fails:
+>
+>   lp5562: probe of 1-0030 failed with error -22
+>
+> Add the color property to fix this.
+>
+> Fixes: 92a81562e695 ("leds: lp55xx: Add multicolor framework support to l=
+p55xx")
 > Cc: <stable@vger.kernel.org>
-> Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-> ---
->  drivers/power/supply/max17042_battery.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
-> index 8dffae76b6a3..c53980c8432a 100644
-> --- a/drivers/power/supply/max17042_battery.c
-> +++ b/drivers/power/supply/max17042_battery.c
-> @@ -876,6 +876,9 @@ static irqreturn_t max17042_thread_handler(int id, void *dev)
->  		max17042_set_soc_threshold(chip, 1);
->  	}
->  
-> +	regmap_clear_bits(chip->regmap, MAX17042_STATUS,
-> +			  0xFFFF & ~(STATUS_POR_BIT | STATUS_BST_BIT));
-> +
+> Cc: linux-leds@vger.kernel.org
+> Signed-off-by: Michal Vok=C3=A1=C4=8D <michal.vokac@ysoft.com>
 
-Are you sure that this was the reason of interrupt storm? Not incorrect
-SoC value (read from register for ModelGauge m3 while not configuring
-fuel gauge model).
-
-You should only clear bits which you are awaken for... Have in mind that
-in DT-configuration the fuel gauge is most likely broken by missing
-configuration. With alert enabled, several other config fields should be
-cleared.
-
-Best regards,
-Krzysztof
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
