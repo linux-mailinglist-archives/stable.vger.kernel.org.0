@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF33E409424
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:31:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3F94093E9
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346142AbhIMO2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:28:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46956 "EHLO mail.kernel.org"
+        id S1345124AbhIMOZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:25:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345457AbhIMO0c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:26:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC06F61B60;
-        Mon, 13 Sep 2021 13:49:10 +0000 (UTC)
+        id S1345491AbhIMOW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:22:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B868F61B3D;
+        Mon, 13 Sep 2021 13:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540951;
-        bh=4UHNuSkMeA8KmfNWRcJjQ6Tx/i6I7dh/214UPs+qAOM=;
+        s=korg; t=1631540873;
+        bh=N/kBMNMc89UjZ1rYFYPHugE5EWUilALer50Wm74LmXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cnaF7oUtqtH+tcO2WK5rIJ/GErXYVZC4s+QO7iYpwNFo39UE6vJU2psT3BiBmlrQg
-         HXCNGCAN5v1JwJkypsbWaJNZIeWCDskX2SpCVQ0qdONZWpBTPxzfbY9Mafd8rRhwxq
-         A35EBhsauKf973fPngslczJOhGZpYwEdVEy8sVIQ=
+        b=cEx+vKg1kwrgGoH1h3mXsojbUPnd2ONChun0Q/ATXp4brC5f3JWS9fuoX8ndNzM8e
+         h/jAHEfe0vbUoekp4Ay8PRHHkXiXcPnKbP+mbktT1MbBLkLAwJfWZjyaJI5sGWj9KR
+         hNm3BIEXhsoGu4Gpa8rQooXLnkleb3t9uuqkGOAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 069/334] irqchip/gic-v3: Fix priority comparison when non-secure priorities are used
-Date:   Mon, 13 Sep 2021 15:12:03 +0200
-Message-Id: <20210913131115.738885140@linuxfoundation.org>
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Fiona Trahe <fiona.trahe@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 070/334] crypto: qat - use proper type for vf_mask
+Date:   Mon, 13 Sep 2021 15:12:04 +0200
+Message-Id: <20210913131115.770042601@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,73 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit 8d474deaba2c4dd33a5e2f5be82e6798ffa6b8a5 ]
+[ Upstream commit 462354d986b6a89c6449b85f17aaacf44e455216 ]
 
-When non-secure priorities are used, compared to the raw priority set,
-the value read back from RPR is also right-shifted by one and the
-highest bit set.
+Replace vf_mask type with unsigned long to avoid a stack-out-of-bound.
 
-Add a macro to do the modifications to the raw priority when doing the
-comparison against the RPR value. This corrects the pseudo-NMI behavior
-when non-secure priorities in the GIC are used. Tested on 5.10 with
-the "IPI as pseudo-NMI" series [1] applied on MT8195.
+This is to fix the following warning reported by KASAN the first time
+adf_msix_isr_ae() gets called.
 
-[1] https://lore.kernel.org/linux-arm-kernel/1604317487-14543-1-git-send-email-sumit.garg@linaro.org/
+    [  692.091987] BUG: KASAN: stack-out-of-bounds in find_first_bit+0x28/0x50
+    [  692.092017] Read of size 8 at addr ffff88afdf789e60 by task swapper/32/0
+    [  692.092076] Call Trace:
+    [  692.092089]  <IRQ>
+    [  692.092101]  dump_stack+0x9c/0xcf
+    [  692.092132]  print_address_description.constprop.0+0x18/0x130
+    [  692.092164]  ? find_first_bit+0x28/0x50
+    [  692.092185]  kasan_report.cold+0x7f/0x111
+    [  692.092213]  ? static_obj+0x10/0x80
+    [  692.092234]  ? find_first_bit+0x28/0x50
+    [  692.092262]  find_first_bit+0x28/0x50
+    [  692.092288]  adf_msix_isr_ae+0x16e/0x230 [intel_qat]
 
-Fixes: 336780590990 ("irqchip/gic-v3: Support pseudo-NMIs when SCR_EL3.FIQ == 0")
-Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-[maz: Added comment contributed by Alex]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210811171505.1502090-1-wenst@chromium.org
+Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/adf_isr.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
-index e0f4debe64e1..3e61210da04b 100644
---- a/drivers/irqchip/irq-gic-v3.c
-+++ b/drivers/irqchip/irq-gic-v3.c
-@@ -100,6 +100,27 @@ EXPORT_SYMBOL(gic_pmr_sync);
- DEFINE_STATIC_KEY_FALSE(gic_nonsecure_priorities);
- EXPORT_SYMBOL(gic_nonsecure_priorities);
+diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
+index e3ad5587be49..daab02011717 100644
+--- a/drivers/crypto/qat/qat_common/adf_isr.c
++++ b/drivers/crypto/qat/qat_common/adf_isr.c
+@@ -15,6 +15,8 @@
+ #include "adf_transport_access_macros.h"
+ #include "adf_transport_internal.h"
  
-+/*
-+ * When the Non-secure world has access to group 0 interrupts (as a
-+ * consequence of SCR_EL3.FIQ == 0), reading the ICC_RPR_EL1 register will
-+ * return the Distributor's view of the interrupt priority.
-+ *
-+ * When GIC security is enabled (GICD_CTLR.DS == 0), the interrupt priority
-+ * written by software is moved to the Non-secure range by the Distributor.
-+ *
-+ * If both are true (which is when gic_nonsecure_priorities gets enabled),
-+ * we need to shift down the priority programmed by software to match it
-+ * against the value returned by ICC_RPR_EL1.
-+ */
-+#define GICD_INT_RPR_PRI(priority)					\
-+	({								\
-+		u32 __priority = (priority);				\
-+		if (static_branch_unlikely(&gic_nonsecure_priorities))	\
-+			__priority = 0x80 | (__priority >> 1);		\
-+									\
-+		__priority;						\
-+	})
++#define ADF_MAX_NUM_VFS	32
 +
- /* ppi_nmi_refs[n] == number of cpus having ppi[n + 16] set as NMI */
- static refcount_t *ppi_nmi_refs;
+ static int adf_enable_msix(struct adf_accel_dev *accel_dev)
+ {
+ 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
+@@ -72,7 +74,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
+ 		struct adf_bar *pmisc =
+ 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
+ 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
+-		u32 vf_mask;
++		unsigned long vf_mask;
  
-@@ -687,7 +708,7 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
- 		return;
+ 		/* Get the interrupt sources triggered by VFs */
+ 		vf_mask = ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU5) &
+@@ -93,8 +95,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
+ 			 * unless the VF is malicious and is attempting to
+ 			 * flood the host OS with VF2PF interrupts.
+ 			 */
+-			for_each_set_bit(i, (const unsigned long *)&vf_mask,
+-					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
++			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
+ 				vf_info = accel_dev->pf.vf_info + i;
  
- 	if (gic_supports_nmi() &&
--	    unlikely(gic_read_rpr() == GICD_INT_NMI_PRI)) {
-+	    unlikely(gic_read_rpr() == GICD_INT_RPR_PRI(GICD_INT_NMI_PRI))) {
- 		gic_handle_nmi(irqnr, regs);
- 		return;
- 	}
+ 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
 -- 
 2.30.2
 
