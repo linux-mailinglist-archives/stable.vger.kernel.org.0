@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D69B408FFF
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E2C408DB8
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242882AbhIMNsp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:48:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55342 "EHLO mail.kernel.org"
+        id S241867AbhIMN2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:28:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242994AbhIMNqq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:46:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 623E4610CF;
-        Mon, 13 Sep 2021 13:32:00 +0000 (UTC)
+        id S241873AbhIMN0I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:26:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDD886124A;
+        Mon, 13 Sep 2021 13:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539921;
-        bh=4y0BWiAPuG5WjVF9EqcZpo9VKbgVNnrNoSR9nsvPPBk=;
+        s=korg; t=1631539358;
+        bh=iunw2Io+LwlzTrWZu9n0ONV4qgrSwhf3yZfN3wpLAek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gFn0AGBB69Jru05i4lAEIEDa1+qNWKPtWVTAV+NTJB6P0qoaT9/hscnJsO0s0hiI8
-         J4lJbS/q7qoP4cpBkizDB3GESb6F6QXUcWT6j0JeFwxKAJfVIUaRXP6PEdR3P83Vr6
-         BHktWJVldYZhNGdvNLpJxBaKwRC3mKwZbNKJQAj0=
+        b=ARiSKB7NqPiwmxVpE6rmrdAvpNiQ6kk1P321bjvNSP7UTaac3a31QwX8AccjAUx2/
+         twsTISseFLFrE3mRDRcKcaXJ1z+67fIgYFG36pSOSO5PHKHgj/RhnSadG6L5u4lfqm
+         lzRo7UrMvrJW2DfopPgPrrHrPLIhshunt/fSCs7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Douglas Anderson <dianders@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 215/236] ASoC: rt5682: Remove unused variable in rt5682_i2c_remove()
-Date:   Mon, 13 Sep 2021 15:15:20 +0200
-Message-Id: <20210913131107.681509215@linuxfoundation.org>
+        stable@vger.kernel.org, Austin Kim <austin.kim@lge.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.4 140/144] IMA: remove -Wmissing-prototypes warning
+Date:   Mon, 13 Sep 2021 15:15:21 +0200
+Message-Id: <20210913131052.613345488@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Douglas Anderson <dianders@chromium.org>
+From: Austin Kim <austin.kim@lge.com>
 
-commit a1ea05723c27a6f77894a60038a7b2b12fcec9a7 upstream.
+commit a32ad90426a9c8eb3915eed26e08ce133bd9e0da upstream.
 
-In commit 772d44526e20 ("ASoC: rt5682: Properly turn off regulators if
-wrong device ID") I deleted code but forgot to delete a variable
-that's now unused. Delete it.
+With W=1 build, the compiler throws warning message as below:
 
-Fixes: 772d44526e20 ("ASoC: rt5682: Properly turn off regulators if wrong device ID")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20210813073402.1.Iaa9425cfab80f5233afa78b32d02b6dc23256eb3@changeid
-Signed-off-by: Mark Brown <broonie@kernel.org>
+   security/integrity/ima/ima_mok.c:24:12: warning:
+   no previous prototype for ‘ima_mok_init’ [-Wmissing-prototypes]
+       __init int ima_mok_init(void)
+
+Silence the warning by adding static keyword to ima_mok_init().
+
+Signed-off-by: Austin Kim <austin.kim@lge.com>
+Fixes: 41c89b64d718 ("IMA: create machine owner and blacklist keyrings")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt5682-i2c.c |    2 --
- 1 file changed, 2 deletions(-)
+ security/integrity/ima/ima_mok.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/codecs/rt5682-i2c.c
-+++ b/sound/soc/codecs/rt5682-i2c.c
-@@ -289,8 +289,6 @@ static void rt5682_i2c_shutdown(struct i
- 
- static int rt5682_i2c_remove(struct i2c_client *client)
+--- a/security/integrity/ima/ima_mok.c
++++ b/security/integrity/ima/ima_mok.c
+@@ -21,7 +21,7 @@ struct key *ima_blacklist_keyring;
+ /*
+  * Allocate the IMA blacklist keyring
+  */
+-__init int ima_mok_init(void)
++static __init int ima_mok_init(void)
  {
--	struct rt5682_priv *rt5682 = i2c_get_clientdata(client);
--
- 	rt5682_i2c_shutdown(client);
+ 	struct key_restriction *restriction;
  
- 	return 0;
 
 
