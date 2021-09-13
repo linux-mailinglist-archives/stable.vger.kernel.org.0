@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA0A440930C
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA56B4095EE
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344416AbhIMORO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:17:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35260 "EHLO mail.kernel.org"
+        id S1345501AbhIMOq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:46:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236260AbhIMOPL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:15:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B1FF61AF8;
-        Mon, 13 Sep 2021 13:44:04 +0000 (UTC)
+        id S1346429AbhIMOmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:42:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE73360FC0;
+        Mon, 13 Sep 2021 13:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540644;
-        bh=5hD6q1pzoGrR6xKPjQolXDNYdii5N34BwihUufb8VPI=;
+        s=korg; t=1631541404;
+        bh=ADpUUaGWT4rDmZtP+JGSTn9crAueMULCxVt0q+bOqj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oynlCXoiUoWhZ+Nb2vQqa3yrMesesiUPrziXw2L+2lNn/r3YQFYjoxCbun6JfCDVm
-         MQypyn7ndzj0o+jjpNcB+KUh2YiJfayzPVB3cx8yyZWNi2KbzNAbAwXgSdK6XQrixF
-         5BdZYc9hfRB9Se1yJFkQBeAPCm5PmxLcN8Brb3nU=
+        b=ZQN/i7mJ0JD1vUVQ0QEyGTnscLpqxvPFQsEDes1yRXOAg4erQ4+T+oX8vAzOUCQxu
+         JP0gIl6iBz0KaznETPXuByKnetAY+rXQl91uJmUTmjvlbHFvDwlWKQzS6iui/q4qLr
+         5Ji9hmsIbsykWY+iSi4QUbuZ+GxG4zQtltnnclM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.13 278/300] perf/x86/amd/ibs: Extend PERF_PMU_CAP_NO_EXCLUDE to IBS Op
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Keyu Man <kman001@ucr.edu>, Willy Tarreau <w@1wt.eu>,
+        "David S. Miller" <davem@davemloft.net>,
+        David Ahern <dsahern@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 285/334] ipv4: make exception cache less predictible
 Date:   Mon, 13 Sep 2021 15:15:39 +0200
-Message-Id: <20210913131118.729192049@linuxfoundation.org>
+Message-Id: <20210913131123.057726452@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +42,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit f11dd0d80555cdc8eaf5cfc9e19c9e198217f9f1 upstream.
+[ Upstream commit 67d6d681e15b578c1725bad8ad079e05d1c48a8e ]
 
-Commit:
+Even after commit 6457378fe796 ("ipv4: use siphash instead of Jenkins in
+fnhe_hashfun()"), an attacker can still use brute force to learn
+some secrets from a victim linux host.
 
-   2ff40250691e ("perf/core, arch/x86: Use PERF_PMU_CAP_NO_EXCLUDE for exclusion incapable PMUs")
+One way to defeat these attacks is to make the max depth of the hash
+table bucket a random value.
 
-neglected to do so.
+Before this patch, each bucket of the hash table used to store exceptions
+could contain 6 items under attack.
 
-Fixes: 2ff40250691e ("perf/core, arch/x86: Use PERF_PMU_CAP_NO_EXCLUDE for exclusion incapable PMUs")
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210817221048.88063-2-kim.phillips@amd.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After the patch, each bucket would contains a random number of items,
+between 6 and 10. The attacker can no longer infer secrets.
+
+This is slightly increasing memory size used by the hash table,
+by 50% in average, we do not expect this to be a problem.
+
+This patch is more complex than the prior one (IPv6 equivalent),
+because IPv4 was reusing the oldest entry.
+Since we need to be able to evict more than one entry per
+update_or_create_fnhe() call, I had to replace
+fnhe_oldest() with fnhe_remove_oldest().
+
+Also note that we will queue extra kfree_rcu() calls under stress,
+which hopefully wont be a too big issue.
+
+Fixes: 4895c771c7f0 ("ipv4: Add FIB nexthop exceptions.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
+Cc: Willy Tarreau <w@1wt.eu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Tested-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/ibs.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/route.c | 46 ++++++++++++++++++++++++++++++----------------
+ 1 file changed, 30 insertions(+), 16 deletions(-)
 
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -571,6 +571,7 @@ static struct perf_ibs perf_ibs_op = {
- 		.start		= perf_ibs_start,
- 		.stop		= perf_ibs_stop,
- 		.read		= perf_ibs_read,
-+		.capabilities	= PERF_PMU_CAP_NO_EXCLUDE,
- 	},
- 	.msr			= MSR_AMD64_IBSOPCTL,
- 	.config_mask		= IBS_OP_CONFIG_MASK,
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index a6f20ee35335..225714b5efc0 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -586,18 +586,25 @@ static void fnhe_flush_routes(struct fib_nh_exception *fnhe)
+ 	}
+ }
+ 
+-static struct fib_nh_exception *fnhe_oldest(struct fnhe_hash_bucket *hash)
++static void fnhe_remove_oldest(struct fnhe_hash_bucket *hash)
+ {
+-	struct fib_nh_exception *fnhe, *oldest;
++	struct fib_nh_exception __rcu **fnhe_p, **oldest_p;
++	struct fib_nh_exception *fnhe, *oldest = NULL;
+ 
+-	oldest = rcu_dereference(hash->chain);
+-	for (fnhe = rcu_dereference(oldest->fnhe_next); fnhe;
+-	     fnhe = rcu_dereference(fnhe->fnhe_next)) {
+-		if (time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp))
++	for (fnhe_p = &hash->chain; ; fnhe_p = &fnhe->fnhe_next) {
++		fnhe = rcu_dereference_protected(*fnhe_p,
++						 lockdep_is_held(&fnhe_lock));
++		if (!fnhe)
++			break;
++		if (!oldest ||
++		    time_before(fnhe->fnhe_stamp, oldest->fnhe_stamp)) {
+ 			oldest = fnhe;
++			oldest_p = fnhe_p;
++		}
+ 	}
+ 	fnhe_flush_routes(oldest);
+-	return oldest;
++	*oldest_p = oldest->fnhe_next;
++	kfree_rcu(oldest, rcu);
+ }
+ 
+ static u32 fnhe_hashfun(__be32 daddr)
+@@ -676,16 +683,21 @@ static void update_or_create_fnhe(struct fib_nh_common *nhc, __be32 daddr,
+ 		if (rt)
+ 			fill_route_from_fnhe(rt, fnhe);
+ 	} else {
+-		if (depth > FNHE_RECLAIM_DEPTH)
+-			fnhe = fnhe_oldest(hash);
+-		else {
+-			fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
+-			if (!fnhe)
+-				goto out_unlock;
+-
+-			fnhe->fnhe_next = hash->chain;
+-			rcu_assign_pointer(hash->chain, fnhe);
++		/* Randomize max depth to avoid some side channels attacks. */
++		int max_depth = FNHE_RECLAIM_DEPTH +
++				prandom_u32_max(FNHE_RECLAIM_DEPTH);
++
++		while (depth > max_depth) {
++			fnhe_remove_oldest(hash);
++			depth--;
+ 		}
++
++		fnhe = kzalloc(sizeof(*fnhe), GFP_ATOMIC);
++		if (!fnhe)
++			goto out_unlock;
++
++		fnhe->fnhe_next = hash->chain;
++
+ 		fnhe->fnhe_genid = genid;
+ 		fnhe->fnhe_daddr = daddr;
+ 		fnhe->fnhe_gw = gw;
+@@ -693,6 +705,8 @@ static void update_or_create_fnhe(struct fib_nh_common *nhc, __be32 daddr,
+ 		fnhe->fnhe_mtu_locked = lock;
+ 		fnhe->fnhe_expires = max(1UL, expires);
+ 
++		rcu_assign_pointer(hash->chain, fnhe);
++
+ 		/* Exception created; mark the cached routes for the nexthop
+ 		 * stale, so anyone caching it rechecks if this exception
+ 		 * applies to them.
+-- 
+2.30.2
+
 
 
