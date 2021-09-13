@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05A42408FAB
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1947408D46
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243066AbhIMNpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:45:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46524 "EHLO mail.kernel.org"
+        id S240779AbhIMNYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:24:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240679AbhIMNoC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:44:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D838F61056;
-        Mon, 13 Sep 2021 13:30:41 +0000 (UTC)
+        id S240707AbhIMNW5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:22:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7ADC161103;
+        Mon, 13 Sep 2021 13:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539842;
-        bh=xlzaQ63qPP3CdJ3GL2Ubx9ZSY1M296yogSSYhZHsCOw=;
+        s=korg; t=1631539272;
+        bh=ZzfoJ3kti0Lyj7gkDDduFov6L1QV30voTZFtBH4N8Ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1z6QUBWo7vquz5IMb0Jv9CZjjrnmB7wl+Zslx6AXUhRixIKx2q5oa11buUVOX9/I
-         ll8ErEubIQtZMU7Q4ok+e9c9Xx7FDfxFq3WmnWjgcwKkW0IsZ7Q7PaI2SMjrpHkMKO
-         7r+bqNE+bYTTkgZ6fZGPacHBvLyeUDaTZapY8KTA=
+        b=XJ6Rb8ZD0kL2zwCkc/vmmCiKA99vz93ZztTloOpclxn4eLJ/BxhtF54g4gOA7HQzi
+         l7j+JTDOrjMyMe95KFqmOS7gaBwHaDdtclJmuRMAkm4StnhRIvdze8j7sihrl4ANbY
+         W7V31NgxACH7MSZ3YYJ2yv78dSlRMnMsDVL58Wm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Lukasz Majczak <lma@semihalf.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
+        Jaehoon Chung <jh80.chung@samsung.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 183/236] ASoC: Intel: kbl_da7219_max98927: Fix format selection for max98373
+Subject: [PATCH 5.4 107/144] mmc: dw_mmc: Fix issue with uninitialized dma_slave_config
 Date:   Mon, 13 Sep 2021 15:14:48 +0200
-Message-Id: <20210913131106.597922970@linuxfoundation.org>
+Message-Id: <20210913131051.518763476@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,136 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 6d41bbf2fd3615c56dbf2b67f6cbf9e83d14a2e2 ]
+[ Upstream commit c3ff0189d3bc9c03845fe37472c140f0fefd0c79 ]
 
-Contrary to what is said in board's file, topology targeting
-kbl_da7219_max98373 expects format 16b, not 24/32b. Partially revert
-changes added in 'ASoC: Intel: Boards: Add Maxim98373 support' to bring
-old behavior back, aligning with topology expectations.
+Depending on the DMA driver being used, the struct dma_slave_config may
+need to be initialized to zero for the unused data.
 
-Fixes: 716d53cc7837 ("ASoC: Intel: Boards: Add Maxim98373 support")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Tested-by: Lukasz Majczak <lma@semihalf.com>
-Link: https://lore.kernel.org/r/20210818075742.1515155-2-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+For example, we have three DMA drivers using src_port_window_size and
+dst_port_window_size. If these are left uninitialized, it can cause DMA
+failures.
+
+For dw_mmc, this is probably not currently an issue but is still good to
+fix though.
+
+Fixes: 3fc7eaef44db ("mmc: dw_mmc: Add external dma interface support")
+Cc: Shawn Lin <shawn.lin@rock-chips.com>
+Cc: Jaehoon Chung <jh80.chung@samsung.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210810081644.19353-2-tony@atomide.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/kbl_da7219_max98927.c | 55 +++-----------------
- 1 file changed, 7 insertions(+), 48 deletions(-)
+ drivers/mmc/host/dw_mmc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/intel/boards/kbl_da7219_max98927.c b/sound/soc/intel/boards/kbl_da7219_max98927.c
-index e0149cf6127d..884741aa4833 100644
---- a/sound/soc/intel/boards/kbl_da7219_max98927.c
-+++ b/sound/soc/intel/boards/kbl_da7219_max98927.c
-@@ -197,7 +197,7 @@ static int kabylake_ssp0_hw_params(struct snd_pcm_substream *substream,
- 		}
- 		if (!strcmp(codec_dai->component->name, MAX98373_DEV0_NAME)) {
- 			ret = snd_soc_dai_set_tdm_slot(codec_dai,
--							0x03, 3, 8, 24);
-+							0x30, 3, 8, 16);
- 			if (ret < 0) {
- 				dev_err(runtime->dev,
- 						"DEV0 TDM slot err:%d\n", ret);
-@@ -206,10 +206,10 @@ static int kabylake_ssp0_hw_params(struct snd_pcm_substream *substream,
- 		}
- 		if (!strcmp(codec_dai->component->name, MAX98373_DEV1_NAME)) {
- 			ret = snd_soc_dai_set_tdm_slot(codec_dai,
--							0x0C, 3, 8, 24);
-+							0xC0, 3, 8, 16);
- 			if (ret < 0) {
- 				dev_err(runtime->dev,
--						"DEV0 TDM slot err:%d\n", ret);
-+						"DEV1 TDM slot err:%d\n", ret);
- 				return ret;
- 			}
- 		}
-@@ -309,24 +309,6 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
- 	 * The above 2 loops are mutually exclusive based on the stream direction,
- 	 * thus rtd_dpcm variable will never be overwritten
- 	 */
--	/*
--	 * Topology for kblda7219m98373 & kblmax98373 supports only S24_LE,
--	 * where as kblda7219m98927 & kblmax98927 supports S16_LE by default.
--	 * Skipping the port wise FE and BE configuration for kblda7219m98373 &
--	 * kblmax98373 as the topology (FE & BE) supports S24_LE only.
--	 */
--
--	if (!strcmp(rtd->card->name, "kblda7219m98373") ||
--		!strcmp(rtd->card->name, "kblmax98373")) {
--		/* The ADSP will convert the FE rate to 48k, stereo */
--		rate->min = rate->max = 48000;
--		chan->min = chan->max = DUAL_CHANNEL;
--
--		/* set SSP to 24 bit */
--		snd_mask_none(fmt);
--		snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S24_LE);
--		return 0;
--	}
+diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
+index 6ace82028667..7b280cb36327 100644
+--- a/drivers/mmc/host/dw_mmc.c
++++ b/drivers/mmc/host/dw_mmc.c
+@@ -782,6 +782,7 @@ static int dw_mci_edmac_start_dma(struct dw_mci *host,
+ 	int ret = 0;
  
- 	/*
- 	 * The ADSP will convert the FE rate to 48k, stereo, 24 bit
-@@ -477,31 +459,20 @@ static struct snd_pcm_hw_constraint_list constraints_channels_quad = {
- static int kbl_fe_startup(struct snd_pcm_substream *substream)
- {
- 	struct snd_pcm_runtime *runtime = substream->runtime;
--	struct snd_soc_pcm_runtime *soc_rt = asoc_substream_to_rtd(substream);
- 
- 	/*
- 	 * On this platform for PCM device we support,
- 	 * 48Khz
- 	 * stereo
-+	 * 16 bit audio
- 	 */
- 
- 	runtime->hw.channels_max = DUAL_CHANNEL;
- 	snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
- 					   &constraints_channels);
--	/*
--	 * Setup S24_LE (32 bit container and 24 bit valid data) for
--	 * kblda7219m98373 & kblmax98373. For kblda7219m98927 &
--	 * kblmax98927 keeping it as 16/16 due to topology FW dependency.
--	 */
--	if (!strcmp(soc_rt->card->name, "kblda7219m98373") ||
--		!strcmp(soc_rt->card->name, "kblmax98373")) {
--		runtime->hw.formats = SNDRV_PCM_FMTBIT_S24_LE;
--		snd_pcm_hw_constraint_msbits(runtime, 0, 32, 24);
--
--	} else {
--		runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
--		snd_pcm_hw_constraint_msbits(runtime, 0, 16, 16);
--	}
-+
-+	runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
-+	snd_pcm_hw_constraint_msbits(runtime, 0, 16, 16);
- 
- 	snd_pcm_hw_constraint_list(runtime, 0,
- 				SNDRV_PCM_HW_PARAM_RATE, &constraints_rates);
-@@ -534,23 +505,11 @@ static int kabylake_dmic_fixup(struct snd_soc_pcm_runtime *rtd,
- static int kabylake_dmic_startup(struct snd_pcm_substream *substream)
- {
- 	struct snd_pcm_runtime *runtime = substream->runtime;
--	struct snd_soc_pcm_runtime *soc_rt = asoc_substream_to_rtd(substream);
- 
- 	runtime->hw.channels_min = runtime->hw.channels_max = QUAD_CHANNEL;
- 	snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
- 			&constraints_channels_quad);
- 
--	/*
--	 * Topology for kblda7219m98373 & kblmax98373 supports only S24_LE.
--	 * The DMIC also configured for S24_LE. Forcing the DMIC format to
--	 * S24_LE due to the topology FW dependency.
--	 */
--	if (!strcmp(soc_rt->card->name, "kblda7219m98373") ||
--		!strcmp(soc_rt->card->name, "kblmax98373")) {
--		runtime->hw.formats = SNDRV_PCM_FMTBIT_S24_LE;
--		snd_pcm_hw_constraint_msbits(runtime, 0, 32, 24);
--	}
--
- 	return snd_pcm_hw_constraint_list(substream->runtime, 0,
- 			SNDRV_PCM_HW_PARAM_RATE, &constraints_rates);
- }
+ 	/* Set external dma config: burst size, burst width */
++	memset(&cfg, 0, sizeof(cfg));
+ 	cfg.dst_addr = host->phy_regs + fifo_offset;
+ 	cfg.src_addr = cfg.dst_addr;
+ 	cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
 -- 
 2.30.2
 
