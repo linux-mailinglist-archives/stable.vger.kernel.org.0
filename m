@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2ED5409122
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:58:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E9940912F
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:58:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244971AbhIMN6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46226 "EHLO mail.kernel.org"
+        id S242623AbhIMN7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:59:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343688AbhIMN4o (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343698AbhIMN4o (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:56:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E6B061252;
-        Mon, 13 Sep 2021 13:36:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E749261980;
+        Mon, 13 Sep 2021 13:36:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540170;
-        bh=pFePtBldSYTnQ7NFMd9MKqLtrH421DrCfA14diGFJJk=;
+        s=korg; t=1631540172;
+        bh=B6CnmDKNiz/YeE4W4DuU3Bd7xg2Uamg9jbmgauASUws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1LBXq+9ZHVlC4nTNGc9WvJ6iIYA1Ikf1Og3f523utlJ+VofU5qh/u8gW22eLqoZMj
-         19n3HT93D95jxCMc30F1FtHz5o7TyopEpMlY/WR5QuSrXVcd5RBiuSX8XqdJQQ9lnD
-         ZTL+aeOUzBd1Aw+gS29oI25HyZ8FyTvabG0NhT3U=
+        b=HFUv6UsJKVyqqjZIrOokl/rd6+MJ0C0r3HL/0EryNvhpZlArOH54XDDKHTwzZwp9n
+         cFzov9eXSs6YZA/9/edN8PAeLvJ8b7GWucDdnz82j8r5mo42w+1NzkMoXLvkpYwt1u
+         5ADRaIKmzLsw0N8FtOFq4uUNawvidAU6byUzrgc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fan Du <fan.du@intel.com>,
-        Wen Jin <wen.jin@intel.com>, Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Steven Price <steven.price@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 080/300] EDAC/i10nm: Fix NVDIMM detection
-Date:   Mon, 13 Sep 2021 15:12:21 +0200
-Message-Id: <20210913131112.072875092@linuxfoundation.org>
+Subject: [PATCH 5.13 081/300] drm/panfrost: Fix missing clk_disable_unprepare() on error in panfrost_clk_init()
+Date:   Mon, 13 Sep 2021 15:12:22 +0200
+Message-Id: <20210913131112.109245217@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -41,56 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 2294a7299f5e51667b841f63c6d69474491753fb ]
+[ Upstream commit f42498705965bd4b026953c1892c686d8b1138e4 ]
 
-MCDDRCFG is a per-channel register and uses bit{0,1} to indicate
-the NVDIMM presence on DIMM slot{0,1}. Current i10nm_edac driver
-wrongly uses MCDDRCFG as per-DIMM register and fails to detect
-the NVDIMM.
+Fix the missing clk_disable_unprepare() before return
+from panfrost_clk_init() in the error handling case.
 
-Fix it by reading MCDDRCFG as per-channel register and using its
-bit{0,1} to check whether the NVDIMM is populated on DIMM slot{0,1}.
-
-Fixes: d4dc89d069aa ("EDAC, i10nm: Add a driver for Intel 10nm server processors")
-Reported-by: Fan Du <fan.du@intel.com>
-Tested-by: Wen Jin <wen.jin@intel.com>
-Signed-off-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Link: https://lore.kernel.org/r/20210818175701.1611513-2-tony.luck@intel.com
+Fixes: b681af0bc1cc ("drm: panfrost: add optional bus_clock")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210608143856.4154766-1-weiyongjun1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/i10nm_base.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_device.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/edac/i10nm_base.c b/drivers/edac/i10nm_base.c
-index 37b4e875420e..1cea5d8fa434 100644
---- a/drivers/edac/i10nm_base.c
-+++ b/drivers/edac/i10nm_base.c
-@@ -26,8 +26,8 @@
- 	pci_read_config_dword((d)->uracu, 0xd8 + (i) * 4, &(reg))
- #define I10NM_GET_DIMMMTR(m, i, j)	\
- 	readl((m)->mbase + 0x2080c + (i) * (m)->chan_mmio_sz + (j) * 4)
--#define I10NM_GET_MCDDRTCFG(m, i, j)	\
--	readl((m)->mbase + 0x20970 + (i) * (m)->chan_mmio_sz + (j) * 4)
-+#define I10NM_GET_MCDDRTCFG(m, i)	\
-+	readl((m)->mbase + 0x20970 + (i) * (m)->chan_mmio_sz)
- #define I10NM_GET_MCMTR(m, i)		\
- 	readl((m)->mbase + 0x20ef8 + (i) * (m)->chan_mmio_sz)
- #define I10NM_GET_AMAP(m, i)		\
-@@ -185,10 +185,10 @@ static int i10nm_get_dimm_config(struct mem_ctl_info *mci,
+diff --git a/drivers/gpu/drm/panfrost/panfrost_device.c b/drivers/gpu/drm/panfrost/panfrost_device.c
+index fbcf5edbe367..9275cd0b2793 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_device.c
++++ b/drivers/gpu/drm/panfrost/panfrost_device.c
+@@ -54,7 +54,8 @@ static int panfrost_clk_init(struct panfrost_device *pfdev)
+ 	if (IS_ERR(pfdev->bus_clock)) {
+ 		dev_err(pfdev->dev, "get bus_clock failed %ld\n",
+ 			PTR_ERR(pfdev->bus_clock));
+-		return PTR_ERR(pfdev->bus_clock);
++		err = PTR_ERR(pfdev->bus_clock);
++		goto disable_clock;
+ 	}
  
- 		ndimms = 0;
- 		amap = I10NM_GET_AMAP(imc, i);
-+		mcddrtcfg = I10NM_GET_MCDDRTCFG(imc, i);
- 		for (j = 0; j < I10NM_NUM_DIMMS; j++) {
- 			dimm = edac_get_dimm(mci, i, j, 0);
- 			mtr = I10NM_GET_DIMMMTR(imc, i, j);
--			mcddrtcfg = I10NM_GET_MCDDRTCFG(imc, i, j);
- 			edac_dbg(1, "dimmmtr 0x%x mcddrtcfg 0x%x (mc%d ch%d dimm%d)\n",
- 				 mtr, mcddrtcfg, imc->mc, i, j);
- 
+ 	if (pfdev->bus_clock) {
 -- 
 2.30.2
 
