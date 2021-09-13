@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2F0F4092F6
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 459164095CD
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345241AbhIMOQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:16:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34312 "EHLO mail.kernel.org"
+        id S243827AbhIMOpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:45:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344876AbhIMOOo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:14:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69356610E6;
-        Mon, 13 Sep 2021 13:43:44 +0000 (UTC)
+        id S1344312AbhIMOmK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:42:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D018F61C57;
+        Mon, 13 Sep 2021 13:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540625;
-        bh=g5bvzzsZ30AzMLtzWBmROfQKl3rddEjPsLLezYEkHdw=;
+        s=korg; t=1631541386;
+        bh=0uLshB3PkEcYCRLyqV5NulY2a0EyeGq/9A+aSJeZvmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1MSJaY244PuEXWdGlo5GTE31yR/9MWeZBDrlCIGwtGlChDPGc/KLcw9CSMQKaDy9p
-         wBH6bxyqEr7yK2+DjaV1HoXZUT2wVFttj1OfjpnWEgdblCXRTKwlfe9kqKl6kCRRrA
-         3I5hIOjMKTx2B0dbShnai7NLZZzzNNVt3Upcr2CA=
+        b=Fc2srba3mGfv5qlDIctmExuUj2OMoEKW8gR2kO1wmUEg6t4QfsXghvzYzMiwInPl+
+         bvU7u2dCC6JOJ6olfH5WDCZWmGbnMxXASntP/Dn5fo5SYdtVCUoKis6hr+3h2P3jXV
+         3SBuccqcTKuGj/Xz5XCAUKuRdCfMnHKNLvxBxH4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Sunil Goutham <sgoutham@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 236/300] usb: bdc: Fix a resource leak in the error handling path of bdc_probe()
-Date:   Mon, 13 Sep 2021 15:14:57 +0200
-Message-Id: <20210913131117.328610897@linuxfoundation.org>
+Subject: [PATCH 5.14 244/334] octeontx2-pf: Fix algorithm index in MCAM rules with RSS action
+Date:   Mon, 13 Sep 2021 15:14:58 +0200
+Message-Id: <20210913131121.654552657@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,95 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sunil Goutham <sgoutham@marvell.com>
 
-[ Upstream commit 6f15a2a09cecb7a2faba4a75bbd101f6f962294b ]
+[ Upstream commit e7938365459f3a6d4edf212f435c4ad635621450 ]
 
-If an error occurs after a successful 'clk_prepare_enable()' call, it must
-be undone by a corresponding 'clk_disable_unprepare()' call.
-This call is already present in the remove function.
+Otherthan setting action as RSS in NPC MCAM entry, RSS flowkey
+algorithm index also needs to be set. Otherwise whatever algorithm
+is defined at flowkey index '0' will be considered by HW and pkt
+flows will be distributed as such.
 
-Add this call in the error handling path and reorder the code so that the
-'clk_prepare_enable()' call happens later in the function.
-The goal is to have as much managed resources functions as possible
-before the 'clk_prepare_enable()' call in order to keep the error handling
-path simple.
+Fix this by saving the flowkey index sent by admin function while
+initializing RSS and then use it when framing MCAM rules.
 
-While at it, remove the now unneeded 'clk' variable.
-
-Fixes: c87dca047849 ("usb: bdc: Add clock enable for new chips with a separate BDC clock")
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/f8a4a6897deb0c8cb2e576580790303550f15fcd.1629314734.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 81a4362016e7 ("octeontx2-pf: Add RSS multi group support")
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/bdc/bdc_core.c | 27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ .../net/ethernet/marvell/octeontx2/nic/otx2_common.c  | 11 +++++++++++
+ .../net/ethernet/marvell/octeontx2/nic/otx2_common.h  |  3 +++
+ .../net/ethernet/marvell/octeontx2/nic/otx2_flows.c   |  1 +
+ 3 files changed, 15 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
-index 251db57e51fa..fa1a3908ec3b 100644
---- a/drivers/usb/gadget/udc/bdc/bdc_core.c
-+++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
-@@ -488,27 +488,14 @@ static int bdc_probe(struct platform_device *pdev)
- 	int irq;
- 	u32 temp;
- 	struct device *dev = &pdev->dev;
--	struct clk *clk;
- 	int phy_num;
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+index 692099793005..a6210b020a57 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+@@ -269,6 +269,7 @@ unlock:
+ int otx2_set_flowkey_cfg(struct otx2_nic *pfvf)
+ {
+ 	struct otx2_rss_info *rss = &pfvf->hw.rss_info;
++	struct nix_rss_flowkey_cfg_rsp *rsp;
+ 	struct nix_rss_flowkey_cfg *req;
+ 	int err;
  
- 	dev_dbg(dev, "%s()\n", __func__);
+@@ -283,6 +284,16 @@ int otx2_set_flowkey_cfg(struct otx2_nic *pfvf)
+ 	req->group = DEFAULT_RSS_CONTEXT_GROUP;
  
--	clk = devm_clk_get_optional(dev, "sw_usbd");
--	if (IS_ERR(clk))
--		return PTR_ERR(clk);
--
--	ret = clk_prepare_enable(clk);
--	if (ret) {
--		dev_err(dev, "could not enable clock\n");
--		return ret;
--	}
--
- 	bdc = devm_kzalloc(dev, sizeof(*bdc), GFP_KERNEL);
- 	if (!bdc)
- 		return -ENOMEM;
- 
--	bdc->clk = clk;
--
- 	bdc->regs = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(bdc->regs))
- 		return PTR_ERR(bdc->regs);
-@@ -545,10 +532,20 @@ static int bdc_probe(struct platform_device *pdev)
- 		}
- 	}
- 
-+	bdc->clk = devm_clk_get_optional(dev, "sw_usbd");
-+	if (IS_ERR(bdc->clk))
-+		return PTR_ERR(bdc->clk);
+ 	err = otx2_sync_mbox_msg(&pfvf->mbox);
++	if (err)
++		goto fail;
 +
-+	ret = clk_prepare_enable(bdc->clk);
-+	if (ret) {
-+		dev_err(dev, "could not enable clock\n");
-+		return ret;
-+	}
++	rsp = (struct nix_rss_flowkey_cfg_rsp *)
++			otx2_mbox_get_rsp(&pfvf->mbox.mbox, 0, &req->hdr);
++	if (IS_ERR(rsp))
++		goto fail;
 +
- 	ret = bdc_phy_init(bdc);
- 	if (ret) {
- 		dev_err(bdc->dev, "BDC phy init failure:%d\n", ret);
--		return ret;
-+		goto disable_clk;
- 	}
- 
- 	temp = bdc_readl(bdc->regs, BDC_BDCCAP1);
-@@ -581,6 +578,8 @@ cleanup:
- 	bdc_hw_exit(bdc);
- phycleanup:
- 	bdc_phy_exit(bdc);
-+disable_clk:
-+	clk_disable_unprepare(bdc->clk);
- 	return ret;
++	pfvf->hw.flowkey_alg_idx = rsp->alg_idx;
++fail:
+ 	mutex_unlock(&pfvf->mbox.lock);
+ 	return err;
  }
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+index 8fd58cd07f50..8c602d27108a 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+@@ -196,6 +196,9 @@ struct otx2_hw {
+ 	u8			lso_udpv4_idx;
+ 	u8			lso_udpv6_idx;
  
++	/* RSS */
++	u8			flowkey_alg_idx;
++
+ 	/* MSI-X */
+ 	u8			cint_cnt; /* CQ interrupt count */
+ 	u16			npa_msixoff; /* Offset of NPA vectors */
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c
+index 4d9de525802d..fdd27c4fea86 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c
+@@ -858,6 +858,7 @@ static int otx2_add_flow_msg(struct otx2_nic *pfvf, struct otx2_flow *flow)
+ 		if (flow->flow_spec.flow_type & FLOW_RSS) {
+ 			req->op = NIX_RX_ACTIONOP_RSS;
+ 			req->index = flow->rss_ctx_id;
++			req->flow_key_alg = pfvf->hw.flowkey_alg_idx;
+ 		} else {
+ 			req->op = NIX_RX_ACTIONOP_UCAST;
+ 			req->index = ethtool_get_flow_spec_ring(ring_cookie);
 -- 
 2.30.2
 
