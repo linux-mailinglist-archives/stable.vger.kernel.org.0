@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58E1B40939C
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 760D84093A3
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343712AbhIMOWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:22:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40122 "EHLO mail.kernel.org"
+        id S240821AbhIMOWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:22:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345926AbhIMOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345928AbhIMOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:20:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8450260555;
-        Mon, 13 Sep 2021 13:46:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF4B560F9B;
+        Mon, 13 Sep 2021 13:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540795;
-        bh=62YYar+mdw0Dk2wJcjESavjQkmC+SW+ycjRjxCHh2Rw=;
+        s=korg; t=1631540797;
+        bh=fA/rs68FTcfev33SrJhl3zvvvGXmHpxNmGz+nusDxsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyqjDZlKN6tzPxAaCPlLhH30XRhfZyQemSSjVhWdKclOcoT4T9Hd2sAxrKFZ3Sbwq
-         lzSM5kpJnTiBxwb+7jAA513N2Oc6eDiJyY3br6bEtuRJLeWdGErUPE0XmJcI0ITrCG
-         bb29lgojJ56EgK4/+c8KI2zOwVK3V3JTlkYhXLkY=
+        b=NU9MqI3Ld9wYo5XMA1PlYW9E0cqhycQROEIJvBQzrOMnAB5QoDSKHz8+xTju6FcYO
+         hcG4g89OWDG2HaHbmgVxgzuQ+rTKbbDXpUvhPJi8IcVxkPA+UPIbUM6NluzQtrdd5f
+         xZmB1G9Te1nYd/FMfOj+4Ssf17bFO/nizRdeIWw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
         Jeff Layton <jlayton@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+e6d5398a02c516ce5e70@syzkaller.appspotmail.com
-Subject: [PATCH 5.14 038/334] fcntl: fix potential deadlocks for &fown_struct.lock
-Date:   Mon, 13 Sep 2021 15:11:32 +0200
-Message-Id: <20210913131114.720248866@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 039/334] fcntl: fix potential deadlock for &fasync_struct.fa_lock
+Date:   Mon, 13 Sep 2021 15:11:33 +0200
+Message-Id: <20210913131114.762149353@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -44,41 +43,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit f671a691e299f58835d4660d642582bf0e8f6fda ]
+[ Upstream commit 2f488f698fda820f8e6fa0407630154eceb145d6 ]
 
-Syzbot reports a potential deadlock in do_fcntl:
-
-========================================================
-WARNING: possible irq lock inversion dependency detected
-5.12.0-syzkaller #0 Not tainted
---------------------------------------------------------
-syz-executor132/8391 just changed the state of lock:
-ffff888015967bf8 (&f->f_owner.lock){.+..}-{2:2}, at: f_getown_ex fs/fcntl.c:211 [inline]
-ffff888015967bf8 (&f->f_owner.lock){.+..}-{2:2}, at: do_fcntl+0x8b4/0x1200 fs/fcntl.c:395
-but this lock was taken by another, HARDIRQ-safe lock in the past:
- (&dev->event_lock){-...}-{2:2}
-
-and interrupts could create inverse lock ordering between them.
-
-other info that might help us debug this:
-Chain exists of:
-  &dev->event_lock --> &new->fa_lock --> &f->f_owner.lock
-
- Possible interrupt unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&f->f_owner.lock);
-                               local_irq_disable();
-                               lock(&dev->event_lock);
-                               lock(&new->fa_lock);
-  <Interrupt>
-    lock(&dev->event_lock);
-
- *** DEADLOCK ***
-
-This happens because there is a lock hierarchy of
-&dev->event_lock --> &new->fa_lock --> &f->f_owner.lock
+There is an existing lock hierarchy of
+&dev->event_lock --> &fasync_struct.fa_lock --> &f->f_owner.lock
 from the following call chain:
 
   input_inject_event():
@@ -96,75 +64,53 @@ from the following call chain:
                     send_sigio():
                       read_lock_irqsave(&fown->lock,...);
 
-However, since &dev->event_lock is HARDIRQ-safe, interrupts have to be
-disabled while grabbing &f->f_owner.lock, otherwise we invert the lock
-hierarchy.
+&dev->event_lock is HARDIRQ-safe, so interrupts have to be disabled
+while grabbing &fasync_struct.fa_lock, otherwise we invert the lock
+hierarchy. However, since kill_fasync which calls kill_fasync_rcu is
+an exported symbol, it may not necessarily be called with interrupts
+disabled.
 
-Hence, we replace calls to read_lock/read_unlock on &f->f_owner.lock,
-with read_lock_irq/read_unlock_irq.
+As kill_fasync_rcu may be called with interrupts disabled (for
+example, in the call chain above), we replace calls to
+read_lock/read_unlock on &fasync_struct.fa_lock in kill_fasync_rcu
+with read_lock_irqsave/read_unlock_irqrestore.
 
-Reported-and-tested-by: syzbot+e6d5398a02c516ce5e70@syzkaller.appspotmail.com
 Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fcntl.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ fs/fcntl.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/fs/fcntl.c b/fs/fcntl.c
-index f946bec8f1f1..932ec1e9f5bf 100644
+index 932ec1e9f5bf..68added37c15 100644
 --- a/fs/fcntl.c
 +++ b/fs/fcntl.c
-@@ -150,7 +150,8 @@ void f_delown(struct file *filp)
- pid_t f_getown(struct file *filp)
+@@ -1004,13 +1004,14 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
  {
- 	pid_t pid = 0;
--	read_lock(&filp->f_owner.lock);
-+
-+	read_lock_irq(&filp->f_owner.lock);
- 	rcu_read_lock();
- 	if (pid_task(filp->f_owner.pid, filp->f_owner.pid_type)) {
- 		pid = pid_vnr(filp->f_owner.pid);
-@@ -158,7 +159,7 @@ pid_t f_getown(struct file *filp)
- 			pid = -pid;
+ 	while (fa) {
+ 		struct fown_struct *fown;
++		unsigned long flags;
+ 
+ 		if (fa->magic != FASYNC_MAGIC) {
+ 			printk(KERN_ERR "kill_fasync: bad magic number in "
+ 			       "fasync_struct!\n");
+ 			return;
+ 		}
+-		read_lock(&fa->fa_lock);
++		read_lock_irqsave(&fa->fa_lock, flags);
+ 		if (fa->fa_file) {
+ 			fown = &fa->fa_file->f_owner;
+ 			/* Don't send SIGURG to processes which have not set a
+@@ -1019,7 +1020,7 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
+ 			if (!(sig == SIGURG && fown->signum == 0))
+ 				send_sigio(fown, fa->fa_fd, band);
+ 		}
+-		read_unlock(&fa->fa_lock);
++		read_unlock_irqrestore(&fa->fa_lock, flags);
+ 		fa = rcu_dereference(fa->fa_next);
  	}
- 	rcu_read_unlock();
--	read_unlock(&filp->f_owner.lock);
-+	read_unlock_irq(&filp->f_owner.lock);
- 	return pid;
  }
- 
-@@ -208,7 +209,7 @@ static int f_getown_ex(struct file *filp, unsigned long arg)
- 	struct f_owner_ex owner = {};
- 	int ret = 0;
- 
--	read_lock(&filp->f_owner.lock);
-+	read_lock_irq(&filp->f_owner.lock);
- 	rcu_read_lock();
- 	if (pid_task(filp->f_owner.pid, filp->f_owner.pid_type))
- 		owner.pid = pid_vnr(filp->f_owner.pid);
-@@ -231,7 +232,7 @@ static int f_getown_ex(struct file *filp, unsigned long arg)
- 		ret = -EINVAL;
- 		break;
- 	}
--	read_unlock(&filp->f_owner.lock);
-+	read_unlock_irq(&filp->f_owner.lock);
- 
- 	if (!ret) {
- 		ret = copy_to_user(owner_p, &owner, sizeof(owner));
-@@ -249,10 +250,10 @@ static int f_getowner_uids(struct file *filp, unsigned long arg)
- 	uid_t src[2];
- 	int err;
- 
--	read_lock(&filp->f_owner.lock);
-+	read_lock_irq(&filp->f_owner.lock);
- 	src[0] = from_kuid(user_ns, filp->f_owner.uid);
- 	src[1] = from_kuid(user_ns, filp->f_owner.euid);
--	read_unlock(&filp->f_owner.lock);
-+	read_unlock_irq(&filp->f_owner.lock);
- 
- 	err  = put_user(src[0], &dst[0]);
- 	err |= put_user(src[1], &dst[1]);
 -- 
 2.30.2
 
