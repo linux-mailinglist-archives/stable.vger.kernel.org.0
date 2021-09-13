@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA3BC409525
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B610E40926E
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344495AbhIMOiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:38:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56370 "EHLO mail.kernel.org"
+        id S244272AbhIMOL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:11:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345510AbhIMOgK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:36:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB6E861BE5;
-        Mon, 13 Sep 2021 13:53:59 +0000 (UTC)
+        id S1344800AbhIMOJW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:09:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3A98613BD;
+        Mon, 13 Sep 2021 13:41:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541240;
-        bh=J9nSCunNcPRlP9Gws56Z40ZXNHV4WfbCUZj9hv9QqAk=;
+        s=korg; t=1631540487;
+        bh=YL5lHgV7BlQITrn9EiI518hspeZX/mS836cuX6nZloM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D24ZGvVZRx1do6QAAXmAJkVHHXaos31j6ZcpV0blmoKpCy9UNd6E/ncGFeqcpZvKe
-         /xiXOxXY/1ngPEQbsGF8GsG9XxAw+yc1N5eCsZTPzY9pYTyL/zUhAnod3u3ovW7QP8
-         eJSG3YzJN7ivQr9EgGuaq5dE69bt06nAM6sZq+Yw=
+        b=tTk8k45lEBp85JYI4ODMGJqQJI3zyfm9jOimBk7q2Li7GzJBW9n4nF5wYvwyOQzfP
+         pk2/k+MWh/i3tDlwSDDMTApgBCplKfAZTa0FSbcV9I44Qo4ePv6bml1WlO4jp86XQC
+         ze+7cissVRbkdWoD22W+Kkt32NHUA3Ctn+hga3Y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 220/334] SUNRPC: Fix a NULL pointer deref in trace_svc_stats_latency()
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 213/300] i2c: s3c2410: fix IRQ check
 Date:   Mon, 13 Sep 2021 15:14:34 +0200
-Message-Id: <20210913131120.858854060@linuxfoundation.org>
+Message-Id: <20210913131116.555380905@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,100 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 5c11720767f70d34357d00a15ba5a0ad052c40fe ]
+[ Upstream commit d6840a5e370b7ea4fde16ce2caf431bcc87f9a75 ]
 
-Some paths through svc_process() leave rqst->rq_procinfo set to
-NULL, which triggers a crash if tracing happens to be enabled.
+Iff platform_get_irq() returns 0, the driver's probe() method will return 0
+early (as if the method's call was successful).  Let's consider IRQ0 valid
+for simplicity -- devm_request_irq() can always override that decision...
 
-Fixes: 89ff87494c6e ("SUNRPC: Display RPC procedure names instead of proc numbers")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: e0d1ec97853f ("i2c-s3c2410: Change IRQ to be plain integer.")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sunrpc/svc.h    |  1 +
- include/trace/events/sunrpc.h |  8 ++++----
- net/sunrpc/svc.c              | 15 +++++++++++++++
- 3 files changed, 20 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-s3c2410.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/sunrpc/svc.h b/include/linux/sunrpc/svc.h
-index e91d51ea028b..65185d1e07ea 100644
---- a/include/linux/sunrpc/svc.h
-+++ b/include/linux/sunrpc/svc.h
-@@ -523,6 +523,7 @@ void		   svc_wake_up(struct svc_serv *);
- void		   svc_reserve(struct svc_rqst *rqstp, int space);
- struct svc_pool *  svc_pool_for_cpu(struct svc_serv *serv, int cpu);
- char *		   svc_print_addr(struct svc_rqst *, char *, size_t);
-+const char *	   svc_proc_name(const struct svc_rqst *rqstp);
- int		   svc_encode_result_payload(struct svc_rqst *rqstp,
- 					     unsigned int offset,
- 					     unsigned int length);
-diff --git a/include/trace/events/sunrpc.h b/include/trace/events/sunrpc.h
-index 861f199896c6..d323f5a049c8 100644
---- a/include/trace/events/sunrpc.h
-+++ b/include/trace/events/sunrpc.h
-@@ -1642,7 +1642,7 @@ TRACE_EVENT(svc_process,
- 		__field(u32, vers)
- 		__field(u32, proc)
- 		__string(service, name)
--		__string(procedure, rqst->rq_procinfo->pc_name)
-+		__string(procedure, svc_proc_name(rqst))
- 		__string(addr, rqst->rq_xprt ?
- 			 rqst->rq_xprt->xpt_remotebuf : "(null)")
- 	),
-@@ -1652,7 +1652,7 @@ TRACE_EVENT(svc_process,
- 		__entry->vers = rqst->rq_vers;
- 		__entry->proc = rqst->rq_proc;
- 		__assign_str(service, name);
--		__assign_str(procedure, rqst->rq_procinfo->pc_name);
-+		__assign_str(procedure, svc_proc_name(rqst));
- 		__assign_str(addr, rqst->rq_xprt ?
- 			     rqst->rq_xprt->xpt_remotebuf : "(null)");
- 	),
-@@ -1918,7 +1918,7 @@ TRACE_EVENT(svc_stats_latency,
- 	TP_STRUCT__entry(
- 		__field(u32, xid)
- 		__field(unsigned long, execute)
--		__string(procedure, rqst->rq_procinfo->pc_name)
-+		__string(procedure, svc_proc_name(rqst))
- 		__string(addr, rqst->rq_xprt->xpt_remotebuf)
- 	),
- 
-@@ -1926,7 +1926,7 @@ TRACE_EVENT(svc_stats_latency,
- 		__entry->xid = be32_to_cpu(rqst->rq_xid);
- 		__entry->execute = ktime_to_us(ktime_sub(ktime_get(),
- 							 rqst->rq_stime));
--		__assign_str(procedure, rqst->rq_procinfo->pc_name);
-+		__assign_str(procedure, svc_proc_name(rqst));
- 		__assign_str(addr, rqst->rq_xprt->xpt_remotebuf);
- 	),
- 
-diff --git a/net/sunrpc/svc.c b/net/sunrpc/svc.c
-index 0de918cb3d90..a47e290b0668 100644
---- a/net/sunrpc/svc.c
-+++ b/net/sunrpc/svc.c
-@@ -1629,6 +1629,21 @@ u32 svc_max_payload(const struct svc_rqst *rqstp)
- }
- EXPORT_SYMBOL_GPL(svc_max_payload);
- 
-+/**
-+ * svc_proc_name - Return RPC procedure name in string form
-+ * @rqstp: svc_rqst to operate on
-+ *
-+ * Return value:
-+ *   Pointer to a NUL-terminated string
-+ */
-+const char *svc_proc_name(const struct svc_rqst *rqstp)
-+{
-+	if (rqstp && rqstp->rq_procinfo)
-+		return rqstp->rq_procinfo->pc_name;
-+	return "unknown";
-+}
-+
-+
- /**
-  * svc_encode_result_payload - mark a range of bytes as a result payload
-  * @rqstp: svc_rqst to operate on
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 4d82761e1585..b49a1b170bb2 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1137,7 +1137,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	 */
+ 	if (!(i2c->quirks & QUIRK_POLL)) {
+ 		i2c->irq = ret = platform_get_irq(pdev, 0);
+-		if (ret <= 0) {
++		if (ret < 0) {
+ 			dev_err(&pdev->dev, "cannot find IRQ\n");
+ 			clk_unprepare(i2c->clk);
+ 			return ret;
 -- 
 2.30.2
 
