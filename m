@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39C614095E5
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A335F409334
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:19:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346127AbhIMOqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:46:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58814 "EHLO mail.kernel.org"
+        id S1344401AbhIMOTH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:19:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347635AbhIMOoY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:44:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12DEB63218;
-        Mon, 13 Sep 2021 13:57:32 +0000 (UTC)
+        id S245401AbhIMORF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:17:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C58FD61452;
+        Mon, 13 Sep 2021 13:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541453;
-        bh=13A01LPjfB4eZPKnfQC7GBgeot9w4T5Qi5wyGWRiV/4=;
+        s=korg; t=1631540691;
+        bh=iunw2Io+LwlzTrWZu9n0ONV4qgrSwhf3yZfN3wpLAek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tz+d404ZeSfU2CWtbSOyxOK055Lf0wKiKPwIDBrSKpCBFnHk5UimzAA/qwaqtgvR7
-         vGx319CT1a9Bv+HIC7hi0vNlu+ypvRoLomaLtx8D/h0Swn0Fa1fLzR4cTSuyZWSZ6I
-         vpKNNALQpAmWYc0FlCfcVYTqGtFcJj2VWbWf7y+I=
+        b=AhQfZlgbzUxkP4GLlHcCbh9Sn7P8AQtsfqUoXLWD1yV+CXGdwv7nCeLeZRuuy7VbT
+         8yVojamS7ira04hN/NNXI22Ccwl5rhUMqX3U9Ju/8n7qZEwySYIOXzCu2CviZ7STbp
+         haaeoykgEiM6L0ASwe1OpmDNGsqloYSM2JH+bIC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.14 302/334] io_uring: io_uring_complete() trace should take an integer
+        stable@vger.kernel.org, Austin Kim <austin.kim@lge.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.13 295/300] IMA: remove -Wmissing-prototypes warning
 Date:   Mon, 13 Sep 2021 15:15:56 +0200
-Message-Id: <20210913131123.628995207@linuxfoundation.org>
+Message-Id: <20210913131119.324402535@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,56 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Austin Kim <austin.kim@lge.com>
 
-commit 2fc2a7a62eb58650e71b4550cf6fa6cc0a75b2d2 upstream.
+commit a32ad90426a9c8eb3915eed26e08ce133bd9e0da upstream.
 
-It currently takes a long, and while that's normally OK, the io_uring
-limit is an int. Internally in io_uring it's an int, but sometimes it's
-passed as a long. That can yield confusing results where a completions
-seems to generate a huge result:
+With W=1 build, the compiler throws warning message as below:
 
-ou-sqp-1297-1298    [001] ...1   788.056371: io_uring_complete: ring 000000000e98e046, user_data 0x0, result 4294967171, cflags 0
+   security/integrity/ima/ima_mok.c:24:12: warning:
+   no previous prototype for ‘ima_mok_init’ [-Wmissing-prototypes]
+       __init int ima_mok_init(void)
 
-which is due to -ECANCELED being stored in an unsigned, and then passed
-in as a long. Using the right int type, the trace looks correct:
+Silence the warning by adding static keyword to ima_mok_init().
 
-iou-sqp-338-339     [002] ...1    15.633098: io_uring_complete: ring 00000000e0ac60cf, user_data 0x0, result -125, cflags 0
-
+Signed-off-by: Austin Kim <austin.kim@lge.com>
+Fixes: 41c89b64d718 ("IMA: create machine owner and blacklist keyrings")
 Cc: stable@vger.kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/io_uring.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ security/integrity/ima/ima_mok.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/trace/events/io_uring.h
-+++ b/include/trace/events/io_uring.h
-@@ -295,14 +295,14 @@ TRACE_EVENT(io_uring_fail_link,
+--- a/security/integrity/ima/ima_mok.c
++++ b/security/integrity/ima/ima_mok.c
+@@ -21,7 +21,7 @@ struct key *ima_blacklist_keyring;
+ /*
+  * Allocate the IMA blacklist keyring
   */
- TRACE_EVENT(io_uring_complete,
+-__init int ima_mok_init(void)
++static __init int ima_mok_init(void)
+ {
+ 	struct key_restriction *restriction;
  
--	TP_PROTO(void *ctx, u64 user_data, long res, unsigned cflags),
-+	TP_PROTO(void *ctx, u64 user_data, int res, unsigned cflags),
- 
- 	TP_ARGS(ctx, user_data, res, cflags),
- 
- 	TP_STRUCT__entry (
- 		__field(  void *,	ctx		)
- 		__field(  u64,		user_data	)
--		__field(  long,		res		)
-+		__field(  int,		res		)
- 		__field(  unsigned,	cflags		)
- 	),
- 
-@@ -313,7 +313,7 @@ TRACE_EVENT(io_uring_complete,
- 		__entry->cflags		= cflags;
- 	),
- 
--	TP_printk("ring %p, user_data 0x%llx, result %ld, cflags %x",
-+	TP_printk("ring %p, user_data 0x%llx, result %d, cflags %x",
- 			  __entry->ctx, (unsigned long long)__entry->user_data,
- 			  __entry->res, __entry->cflags)
- );
 
 
