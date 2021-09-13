@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7105E4090EC
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:57:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B123A40910A
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:57:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240236AbhIMN4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:56:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34740 "EHLO mail.kernel.org"
+        id S245153AbhIMN5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:57:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245507AbhIMNyn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:54:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4E3A6124F;
-        Mon, 13 Sep 2021 13:35:26 +0000 (UTC)
+        id S1343608AbhIMNzr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:55:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC2A961881;
+        Mon, 13 Sep 2021 13:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540127;
-        bh=jgOIDr5IeFUVpjWtco33yuanNhwwD/tQC0IdBtSBabQ=;
+        s=korg; t=1631540153;
+        bh=M9TyqKf147UjgYaUzTNPsRL9EOOPe/XQokuRChA1r5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHwKSxSuzjJD+pEUqQ9j0hf/eE6mmyaFkj8sBx56AiykyUp15QyLv9+xWyn3DWKaJ
-         fiIx9IRcYUxPUn1UozriZJbeQa15cFRWLorl6TS3a4Zu0NiZIM4vptsfOD2Ne2A0wF
-         qiNMTQe4Z7iawgtJortPlNwBfbHw6EDNy2zpj70M=
+        b=fv0FGPXjMw7JzWMbUFRlGN5R5S4pgHM1YrzRDsQOoMn11uOxoHn1LbCsGXJfNUd5L
+         ZS0A5cIcMr6mmF8q5oQR5WaXrQ8d136vssDFv6Djav/886VDOcEpO+CZDBs2P442fb
+         QXvQ73CFeF8GF7MeQSbplMxuWUk2CePX9yafYD9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
-        Yanfei Xu <yanfei.xu@windriver.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 055/300] rcu: Fix stall-warning deadlock due to non-release of rcu_node ->lock
-Date:   Mon, 13 Sep 2021 15:11:56 +0200
-Message-Id: <20210913131111.219104675@linuxfoundation.org>
+Subject: [PATCH 5.13 056/300] m68k: Fix invalid RMW_INSNS on CPUs that lack CAS
+Date:   Mon, 13 Sep 2021 15:11:57 +0200
+Message-Id: <20210913131111.249870408@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -41,54 +41,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@windriver.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit dc87740c8a6806bd2162bfb441770e4e53be5601 ]
+[ Upstream commit 2189e928b62e91d8efbc9826ae7c0968f0d55790 ]
 
-If rcu_print_task_stall() is invoked on an rcu_node structure that does
-not contain any tasks blocking the current grace period, it takes an
-early exit that fails to release that rcu_node structure's lock.  This
-results in a self-deadlock, which is detected by lockdep.
+When enabling CONFIG_RMW_INSNS in e.g. a Coldfire build:
 
-To reproduce this bug:
+    {standard input}:3068: Error: invalid instruction for this architecture; needs 68020 or higher (68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060]) -- statement `casl %d4,%d0,(%a6)' ignored
 
-tools/testing/selftests/rcutorture/bin/kvm.sh --allcpus --duration 3 --trust-make --configs "TREE03" --kconfig "CONFIG_PROVE_LOCKING=y" --bootargs "rcutorture.stall_cpu=30 rcutorture.stall_cpu_block=1 rcutorture.fwd_progress=0 rcutorture.test_boost=0"
+Fix this by (a) adding a new config symbol to track if support for any
+CPU that lacks the CAS instruction is enabled, and (b) making
+CONFIG_RMW_INSNS depend on the new symbol not being set.
 
-This will also result in other complaints, including RCU's scheduler
-hook complaining about blocking rather than preemption and an rcutorture
-writer stall.
-
-Only a partial RCU CPU stall warning message will be printed because of
-the self-deadlock.
-
-This commit therefore releases the lock on the rcu_print_task_stall()
-function's early exit path.
-
-Fixes: c583bcb8f5ed ("rcu: Don't invoke try_invoke_on_locked_down_task() with irqs disabled")
-Tested-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 0e152d80507b75c0 ("m68k: reorganize Kconfig options to improve mmu/non-mmu selections")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210725104413.318932-1-geert@linux-m68k.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_stall.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/m68k/Kconfig.cpu | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
-index f1e011d4a899..c615fd153cb2 100644
---- a/kernel/rcu/tree_stall.h
-+++ b/kernel/rcu/tree_stall.h
-@@ -269,8 +269,10 @@ static int rcu_print_task_stall(struct rcu_node *rnp, unsigned long flags)
- 	struct task_struct *ts[8];
+diff --git a/arch/m68k/Kconfig.cpu b/arch/m68k/Kconfig.cpu
+index f4d23977d2a5..1127d64b6c1d 100644
+--- a/arch/m68k/Kconfig.cpu
++++ b/arch/m68k/Kconfig.cpu
+@@ -26,6 +26,7 @@ config COLDFIRE
+ 	bool "Coldfire CPU family support"
+ 	select ARCH_HAVE_CUSTOM_GPIO_H
+ 	select CPU_HAS_NO_BITFIELDS
++	select CPU_HAS_NO_CAS
+ 	select CPU_HAS_NO_MULDIV64
+ 	select GENERIC_CSUM
+ 	select GPIOLIB
+@@ -39,6 +40,7 @@ config M68000
+ 	bool
+ 	depends on !MMU
+ 	select CPU_HAS_NO_BITFIELDS
++	select CPU_HAS_NO_CAS
+ 	select CPU_HAS_NO_MULDIV64
+ 	select CPU_HAS_NO_UNALIGNED
+ 	select GENERIC_CSUM
+@@ -54,6 +56,7 @@ config M68000
+ config MCPU32
+ 	bool
+ 	select CPU_HAS_NO_BITFIELDS
++	select CPU_HAS_NO_CAS
+ 	select CPU_HAS_NO_UNALIGNED
+ 	select CPU_NO_EFFICIENT_FFS
+ 	help
+@@ -383,7 +386,7 @@ config ADVANCED
  
- 	lockdep_assert_irqs_disabled();
--	if (!rcu_preempt_blocked_readers_cgp(rnp))
-+	if (!rcu_preempt_blocked_readers_cgp(rnp)) {
-+		raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
- 		return 0;
-+	}
- 	pr_err("\tTasks blocked on level-%d rcu_node (CPUs %d-%d):",
- 	       rnp->level, rnp->grplo, rnp->grphi);
- 	t = list_entry(rnp->gp_tasks->prev,
+ config RMW_INSNS
+ 	bool "Use read-modify-write instructions"
+-	depends on ADVANCED
++	depends on ADVANCED && !CPU_HAS_NO_CAS
+ 	help
+ 	  This allows to use certain instructions that work with indivisible
+ 	  read-modify-write bus cycles. While this is faster than the
+@@ -459,6 +462,9 @@ config NODES_SHIFT
+ config CPU_HAS_NO_BITFIELDS
+ 	bool
+ 
++config CPU_HAS_NO_CAS
++	bool
++
+ config CPU_HAS_NO_MULDIV64
+ 	bool
+ 
 -- 
 2.30.2
 
