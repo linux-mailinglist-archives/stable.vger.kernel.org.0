@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B07384091B3
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 997DA40947E
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343856AbhIMOD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:03:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48182 "EHLO mail.kernel.org"
+        id S1345785AbhIMObb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:31:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344015AbhIMOBq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:01:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E44061A38;
-        Mon, 13 Sep 2021 13:38:15 +0000 (UTC)
+        id S1346887AbhIMO3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:29:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C032615A7;
+        Mon, 13 Sep 2021 13:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540296;
-        bh=ZXauSCTpwYPulSdlr4QkFP9UZG4JTRhMG+rUoiz/kSY=;
+        s=korg; t=1631541048;
+        bh=qQ8jGAPDTJUFuzuBdGRvDqaxOg8Q2tXTxaqa0Oocntc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TzT72C9vuBYFjZMnKm5z+LEtk354fb240ISxffPy70UWCNpt2lTzbbOi5pC1nyj/O
-         K7G7XsKJwGFnBCnHcvrBSQiSQJ3G9fp87U6CTyyE+n60yPihVFKnpCFo3Sl6XV2C/k
-         5hRcTVsflCt4NqMFdhHs8Dqiuuf8aEM/9dwJiLtE=
+        b=dpICZtoBRwxJKY5lv7KSSd/RjTyfHoZWO5M7FW2bzNgqpNC9DE5HcSXDMw3IcLbbA
+         lOIxjGSyarNskWHWT+0kpiJbN3B8SDSK5bBHLrqeZg73qn84gSBmSRshoBIolcMqj5
+         TtCII80DdhRkMDG3yIgSlOYK84fEYE4WzD9Us36o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 135/300] tools: Free BTF objects at various locations
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 142/334] lib/test_scanf: Handle n_bits == 0 in random tests
 Date:   Mon, 13 Sep 2021 15:13:16 +0200
-Message-Id: <20210913131113.958081946@linuxfoundation.org>
+Message-Id: <20210913131118.151910188@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,120 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Monnet <quentin@isovalent.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 369e955b3d1c12f6ec2e51a95911bb80ada55d79 ]
+[ Upstream commit fe8e3ee0d588566c1f44f28a555042ef50eba491 ]
 
-Make sure to call btf__free() (and not simply free(), which does not
-free all pointers stored in the struct) on pointers to struct btf
-objects retrieved at various locations.
+UBSAN reported (via LKP)
 
-These were found while updating the calls to btf__get_from_id().
+[   11.021349][    T1] UBSAN: shift-out-of-bounds in lib/test_scanf.c:275:51
+[   11.022782][    T1] shift exponent 32 is too large for 32-bit type 'unsigned int'
 
-Fixes: 999d82cbc044 ("tools/bpf: enhance test_btf file testing to test func info")
-Fixes: 254471e57a86 ("tools/bpf: bpftool: add support for func types")
-Fixes: 7b612e291a5a ("perf tools: Synthesize PERF_RECORD_* for loaded BPF programs")
-Fixes: d56354dc4909 ("perf tools: Save bpf_prog_info and BTF of new BPF programs")
-Fixes: 47c09d6a9f67 ("bpftool: Introduce "prog profile" command")
-Fixes: fa853c4b839e ("perf stat: Enable counting events for BPF programs")
-Signed-off-by: Quentin Monnet <quentin@isovalent.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210729162028.29512-5-quentin@isovalent.com
+When n_bits == 0, the shift is out of range. Switch code to use GENMASK
+to handle this case.
+
+Fixes: 50f530e176ea ("lib: test_scanf: Add tests for sscanf number conversion")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20210727150132.28920-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/prog.c                     | 5 ++++-
- tools/perf/util/bpf-event.c                  | 4 ++--
- tools/perf/util/bpf_counter.c                | 3 ++-
- tools/testing/selftests/bpf/prog_tests/btf.c | 1 +
- 4 files changed, 9 insertions(+), 4 deletions(-)
+ lib/test_scanf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/bpf/bpftool/prog.c b/tools/bpf/bpftool/prog.c
-index da4846c9856a..a51bf4c69879 100644
---- a/tools/bpf/bpftool/prog.c
-+++ b/tools/bpf/bpftool/prog.c
-@@ -778,6 +778,8 @@ prog_dump(struct bpf_prog_info *info, enum dump_mode mode,
- 		kernel_syms_destroy(&dd);
- 	}
+diff --git a/lib/test_scanf.c b/lib/test_scanf.c
+index 84fe09eaf55e..abae88848972 100644
+--- a/lib/test_scanf.c
++++ b/lib/test_scanf.c
+@@ -271,7 +271,7 @@ static u32 __init next_test_random(u32 max_bits)
+ {
+ 	u32 n_bits = hweight32(prandom_u32_state(&rnd_state)) % (max_bits + 1);
  
-+	btf__free(btf);
-+
- 	return 0;
+-	return prandom_u32_state(&rnd_state) & (UINT_MAX >> (32 - n_bits));
++	return prandom_u32_state(&rnd_state) & GENMASK(n_bits, 0);
  }
  
-@@ -1897,8 +1899,8 @@ static char *profile_target_name(int tgt_fd)
- 	struct bpf_prog_info_linear *info_linear;
- 	struct bpf_func_info *func_info;
- 	const struct btf_type *t;
-+	struct btf *btf = NULL;
- 	char *name = NULL;
--	struct btf *btf;
+ static unsigned long long __init next_test_random_ull(void)
+@@ -280,7 +280,7 @@ static unsigned long long __init next_test_random_ull(void)
+ 	u32 n_bits = (hweight32(rand1) * 3) % 64;
+ 	u64 val = (u64)prandom_u32_state(&rnd_state) * rand1;
  
- 	info_linear = bpf_program__get_prog_info_linear(
- 		tgt_fd, 1UL << BPF_PROG_INFO_FUNC_INFO);
-@@ -1922,6 +1924,7 @@ static char *profile_target_name(int tgt_fd)
- 	}
- 	name = strdup(btf__name_by_offset(btf, t->name_off));
- out:
-+	btf__free(btf);
- 	free(info_linear);
- 	return name;
- }
-diff --git a/tools/perf/util/bpf-event.c b/tools/perf/util/bpf-event.c
-index cdecda1ddd36..17a9844e4fbf 100644
---- a/tools/perf/util/bpf-event.c
-+++ b/tools/perf/util/bpf-event.c
-@@ -296,7 +296,7 @@ static int perf_event__synthesize_one_bpf_prog(struct perf_session *session,
- 
- out:
- 	free(info_linear);
--	free(btf);
-+	btf__free(btf);
- 	return err ? -1 : 0;
+-	return val & (ULLONG_MAX >> (64 - n_bits));
++	return val & GENMASK_ULL(n_bits, 0);
  }
  
-@@ -486,7 +486,7 @@ static void perf_env__add_bpf_info(struct perf_env *env, u32 id)
- 	perf_env__fetch_btf(env, btf_id, btf);
- 
- out:
--	free(btf);
-+	btf__free(btf);
- 	close(fd);
- }
- 
-diff --git a/tools/perf/util/bpf_counter.c b/tools/perf/util/bpf_counter.c
-index 5ed674a2f55e..a14f0098b343 100644
---- a/tools/perf/util/bpf_counter.c
-+++ b/tools/perf/util/bpf_counter.c
-@@ -74,8 +74,8 @@ static char *bpf_target_prog_name(int tgt_fd)
- 	struct bpf_prog_info_linear *info_linear;
- 	struct bpf_func_info *func_info;
- 	const struct btf_type *t;
-+	struct btf *btf = NULL;
- 	char *name = NULL;
--	struct btf *btf;
- 
- 	info_linear = bpf_program__get_prog_info_linear(
- 		tgt_fd, 1UL << BPF_PROG_INFO_FUNC_INFO);
-@@ -99,6 +99,7 @@ static char *bpf_target_prog_name(int tgt_fd)
- 	}
- 	name = strdup(btf__name_by_offset(btf, t->name_off));
- out:
-+	btf__free(btf);
- 	free(info_linear);
- 	return name;
- }
-diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
-index 0457ae32b270..5b7dd3227b78 100644
---- a/tools/testing/selftests/bpf/prog_tests/btf.c
-+++ b/tools/testing/selftests/bpf/prog_tests/btf.c
-@@ -4384,6 +4384,7 @@ skip:
- 	fprintf(stderr, "OK");
- 
- done:
-+	btf__free(btf);
- 	free(func_info);
- 	bpf_object__close(obj);
- }
+ #define random_for_type(T)				\
 -- 
 2.30.2
 
