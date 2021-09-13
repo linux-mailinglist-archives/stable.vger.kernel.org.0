@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 166E640939E
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A488540939D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344911AbhIMOWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:22:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41890 "EHLO mail.kernel.org"
+        id S243969AbhIMOWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:22:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345941AbhIMOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345940AbhIMOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:20:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4397B6121D;
-        Mon, 13 Sep 2021 13:46:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA70061242;
+        Mon, 13 Sep 2021 13:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540804;
-        bh=fUdaK+VTkRrihQCD1mPgnPxVsL3VfZ4s3NaOmxqcnZ8=;
+        s=korg; t=1631540807;
+        bh=nxQOD2cSaX5Eq3Hfl2thhKveroqfSWH++lJ0x1IcsRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bLBYTVd+aSwjgy744+PKar5rPMUDFLMg3GNezq41JxoKSW0C0TVGHAaBa0v6ToAGN
-         MZbJ6et9nnsQKIHeOu3l3yWdrpK8SKw+Qe3uUVFP0wWLpHq5VlnYcQSioQGzYYHFpZ
-         1ey8Bpfk/XloTdY35edXfJM0DvBXmvYHw3IjhyD4=
+        b=NGxwRkdPPBYE7+MZQxhqMrdz/vYSbXzC8qshcGQlOacNSk78tkR6eXQ01Q7extgsG
+         IbP658GkL7dBUn6ZZ2qntlt2AA90d9LRmajSZiLDJAjfYRMpCTJNqZwjA7MckkjlqU
+         R5XD2Cui6X0lPsgLMwpEl24ELwbpcR1IMjgn9hqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 042/334] s390/kasan: fix large PMD pages address alignment check
-Date:   Mon, 13 Sep 2021 15:11:36 +0200
-Message-Id: <20210913131114.866124072@linuxfoundation.org>
+Subject: [PATCH 5.14 043/334] s390/pci: fix misleading rc in clp_set_pci_fn()
+Date:   Mon, 13 Sep 2021 15:11:37 +0200
+Message-Id: <20210913131114.897572129@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,84 +41,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit ddd63c85ef67ea9ea7282ad35eafb6568047126e ]
+[ Upstream commit f7addcdd527a6dddfebe20c358b87bdb95624612 ]
 
-It is currently possible to initialize a large PMD page when
-the address is not aligned on page boundary.
+Currently clp_set_pci_fn() always returns 0 as long as the CLP request
+itself succeeds even if the operation itself returns a response code
+other than CLP_RC_OK or CLP_RC_SETPCIFN_ALRDY. This is highly misleading
+because calling code assumes that a zero rc means that the operation was
+successful.
 
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fix this by returning the response code or cc on failure with the
+exception of the special handling for CLP_RC_SETPCIFN_ALRDY. Also let's
+not assume that the returned function handle for CLP_RC_SETPCIFN_ALRDY
+is 0, we don't need it anyway.
+
+Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/kasan_init.c | 41 +++++++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 21 deletions(-)
+ arch/s390/pci/pci.c     |  7 ++++---
+ arch/s390/pci/pci_clp.c | 33 ++++++++++++++++-----------------
+ 2 files changed, 20 insertions(+), 20 deletions(-)
 
-diff --git a/arch/s390/mm/kasan_init.c b/arch/s390/mm/kasan_init.c
-index a0fdc6dc5f9d..cc3af046c14e 100644
---- a/arch/s390/mm/kasan_init.c
-+++ b/arch/s390/mm/kasan_init.c
-@@ -107,6 +107,9 @@ static void __init kasan_early_pgtable_populate(unsigned long address,
- 		sgt_prot &= ~_SEGMENT_ENTRY_NOEXEC;
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 8fcb7ecb7225..77cd965cffef 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -661,9 +661,10 @@ int zpci_enable_device(struct zpci_dev *zdev)
+ {
+ 	int rc;
+ 
+-	rc = clp_enable_fh(zdev, ZPCI_NR_DMA_SPACES);
+-	if (rc)
++	if (clp_enable_fh(zdev, ZPCI_NR_DMA_SPACES)) {
++		rc = -EIO;
+ 		goto out;
++	}
+ 
+ 	rc = zpci_dma_init_device(zdev);
+ 	if (rc)
+@@ -684,7 +685,7 @@ int zpci_disable_device(struct zpci_dev *zdev)
+ 	 * The zPCI function may already be disabled by the platform, this is
+ 	 * detected in clp_disable_fh() which becomes a no-op.
+ 	 */
+-	return clp_disable_fh(zdev);
++	return clp_disable_fh(zdev) ? -EIO : 0;
+ }
+ 
+ /**
+diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+index d3331596ddbe..0a0e8b8293be 100644
+--- a/arch/s390/pci/pci_clp.c
++++ b/arch/s390/pci/pci_clp.c
+@@ -213,15 +213,19 @@ out:
+ }
+ 
+ static int clp_refresh_fh(u32 fid);
+-/*
+- * Enable/Disable a given PCI function and update its function handle if
+- * necessary
++/**
++ * clp_set_pci_fn() - Execute a command on a PCI function
++ * @zdev: Function that will be affected
++ * @nr_dma_as: DMA address space number
++ * @command: The command code to execute
++ *
++ * Returns: 0 on success, < 0 for Linux errors (e.g. -ENOMEM), and
++ * > 0 for non-success platform responses
+  */
+ static int clp_set_pci_fn(struct zpci_dev *zdev, u8 nr_dma_as, u8 command)
+ {
+ 	struct clp_req_rsp_set_pci *rrb;
+ 	int rc, retries = 100;
+-	u32 fid = zdev->fid;
+ 
+ 	rrb = clp_alloc_block(GFP_KERNEL);
+ 	if (!rrb)
+@@ -245,17 +249,16 @@ static int clp_set_pci_fn(struct zpci_dev *zdev, u8 nr_dma_as, u8 command)
+ 		}
+ 	} while (rrb->response.hdr.rsp == CLP_RC_SETPCIFN_BUSY);
+ 
+-	if (rc || rrb->response.hdr.rsp != CLP_RC_OK) {
+-		zpci_err("Set PCI FN:\n");
+-		zpci_err_clp(rrb->response.hdr.rsp, rc);
+-	}
+-
+ 	if (!rc && rrb->response.hdr.rsp == CLP_RC_OK) {
+ 		zdev->fh = rrb->response.fh;
+-	} else if (!rc && rrb->response.hdr.rsp == CLP_RC_SETPCIFN_ALRDY &&
+-			rrb->response.fh == 0) {
++	} else if (!rc && rrb->response.hdr.rsp == CLP_RC_SETPCIFN_ALRDY) {
+ 		/* Function is already in desired state - update handle */
+-		rc = clp_refresh_fh(fid);
++		rc = clp_refresh_fh(zdev->fid);
++	} else {
++		zpci_err("Set PCI FN:\n");
++		zpci_err_clp(rrb->response.hdr.rsp, rc);
++		if (!rc)
++			rc = rrb->response.hdr.rsp;
  	}
+ 	clp_free_block(rrb);
+ 	return rc;
+@@ -301,17 +304,13 @@ int clp_enable_fh(struct zpci_dev *zdev, u8 nr_dma_as)
  
-+	/*
-+	 * The first 1MB of 1:1 mapping is mapped with 4KB pages
-+	 */
- 	while (address < end) {
- 		pg_dir = pgd_offset_k(address);
- 		if (pgd_none(*pg_dir)) {
-@@ -157,30 +160,26 @@ static void __init kasan_early_pgtable_populate(unsigned long address,
+ 	rc = clp_set_pci_fn(zdev, nr_dma_as, CLP_SET_ENABLE_PCI_FN);
+ 	zpci_dbg(3, "ena fid:%x, fh:%x, rc:%d\n", zdev->fid, zdev->fh, rc);
+-	if (rc)
+-		goto out;
+-
+-	if (zpci_use_mio(zdev)) {
++	if (!rc && zpci_use_mio(zdev)) {
+ 		rc = clp_set_pci_fn(zdev, nr_dma_as, CLP_SET_ENABLE_MIO);
+ 		zpci_dbg(3, "ena mio fid:%x, fh:%x, rc:%d\n",
+ 				zdev->fid, zdev->fh, rc);
+ 		if (rc)
+ 			clp_disable_fh(zdev);
+ 	}
+-out:
+ 	return rc;
+ }
  
- 		pm_dir = pmd_offset(pu_dir, address);
- 		if (pmd_none(*pm_dir)) {
--			if (mode == POPULATE_ZERO_SHADOW &&
--			    IS_ALIGNED(address, PMD_SIZE) &&
-+			if (IS_ALIGNED(address, PMD_SIZE) &&
- 			    end - address >= PMD_SIZE) {
--				pmd_populate(&init_mm, pm_dir,
--						kasan_early_shadow_pte);
--				address = (address + PMD_SIZE) & PMD_MASK;
--				continue;
--			}
--			/* the first megabyte of 1:1 is mapped with 4k pages */
--			if (has_edat && address && end - address >= PMD_SIZE &&
--			    mode != POPULATE_ZERO_SHADOW) {
--				void *page;
--
--				if (mode == POPULATE_ONE2ONE) {
--					page = (void *)address;
--				} else {
--					page = kasan_early_alloc_segment();
--					memset(page, 0, _SEGMENT_SIZE);
-+				if (mode == POPULATE_ZERO_SHADOW) {
-+					pmd_populate(&init_mm, pm_dir, kasan_early_shadow_pte);
-+					address = (address + PMD_SIZE) & PMD_MASK;
-+					continue;
-+				} else if (has_edat && address) {
-+					void *page;
-+
-+					if (mode == POPULATE_ONE2ONE) {
-+						page = (void *)address;
-+					} else {
-+						page = kasan_early_alloc_segment();
-+						memset(page, 0, _SEGMENT_SIZE);
-+					}
-+					pmd_val(*pm_dir) = __pa(page) | sgt_prot;
-+					address = (address + PMD_SIZE) & PMD_MASK;
-+					continue;
- 				}
--				pmd_val(*pm_dir) = __pa(page) | sgt_prot;
--				address = (address + PMD_SIZE) & PMD_MASK;
--				continue;
- 			}
--
- 			pt_dir = kasan_early_pte_alloc();
- 			pmd_populate(&init_mm, pm_dir, pt_dir);
- 		} else if (pmd_large(*pm_dir)) {
 -- 
 2.30.2
 
