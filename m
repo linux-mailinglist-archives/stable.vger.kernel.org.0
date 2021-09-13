@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A00B24094E6
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F95409253
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345644AbhIMOgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:36:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54212 "EHLO mail.kernel.org"
+        id S245481AbhIMOKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:10:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347415AbhIMOe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:34:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F17C615E4;
-        Mon, 13 Sep 2021 13:52:56 +0000 (UTC)
+        id S244603AbhIMOHN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:07:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE8C661A80;
+        Mon, 13 Sep 2021 13:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541177;
-        bh=W37cmAp0BHodLE8g9kVNOnciBbSlzHICnpb+4rbV3Sg=;
+        s=korg; t=1631540428;
+        bh=1TmjPFWzP7rpVCua5cfpuecarH08NjizhvN5yZtrNh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iyKDT7+LUa8tVcKjIcrwf/ZY8wiUdS5WNJUwrJtBrs8h5E6JEYLXh3duUGovFqnTN
-         xCmTC9KQACmQtRtSiGNKvt/grN2K2MU/OoS6RoAzQb1pbENdEtZ7oiIzfJYm1212GP
-         irH1IEBsB5cNMLe3PV7Ib0Ka9AWN9r3obixXHW3s=
+        b=bc9SiK7oZjqlr2ZBpqggyCV0rkcsqkSEWatzeoTTOMr4zt+1/THSOW/0Hi5Z1LlT2
+         +l/HjBjxKWA9UOsJ+PtKFdIIxUuGeWFiWWzLXELGxivVBC+zRvcrADxGhRy3k3UlOW
+         PiNg2G2pN8G5LS6ZExsSr33LSgK4aRDO9wA5jzlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 194/334] drm/msm/dsi: Fix some reference counted resource leaks
-Date:   Mon, 13 Sep 2021 15:14:08 +0200
-Message-Id: <20210913131119.944851520@linuxfoundation.org>
+Subject: [PATCH 5.13 188/300] devlink: Clear whole devlink_flash_notify struct
+Date:   Mon, 13 Sep 2021 15:14:09 +0200
+Message-Id: <20210913131115.738586762@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 6977cc89c87506ff17e6c05f0e37f46752256e82 ]
+[ Upstream commit ed43fbac717882165a2a4bd64f7b1f56f7467bb7 ]
 
-'of_find_device_by_node()' takes a reference that must be released when
-not needed anymore.
-This is expected to be done in 'dsi_destroy()'.
+The { 0 } doesn't clear all fields in the struct, but tells to the
+compiler to set all fields to zero and doesn't touch any sub-fields
+if they exists.
 
-However, there are 2 issues in 'dsi_get_phy()'.
+The {} is an empty initialiser that instructs to fully initialize whole
+struct including sub-fields, which is error-prone for future
+devlink_flash_notify extensions.
 
-First, if 'of_find_device_by_node()' succeeds but 'platform_get_drvdata()'
-returns NULL, 'msm_dsi->phy_dev' will still be NULL, and the reference
-won't be released in 'dsi_destroy()'.
-
-Secondly, as 'of_find_device_by_node()' already takes a reference, there is
-no need for an additional 'get_device()'.
-
-Move the assignment to 'msm_dsi->phy_dev' a few lines above and remove the
-unneeded 'get_device()' to solve both issues.
-
-Fixes: ec31abf6684e ("drm/msm/dsi: Separate PHY to another platform device")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/f15bc57648a00e7c99f943903468a04639d50596.1628241097.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: 6700acc5f1fe ("devlink: collect flash notify params into a struct")
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/core/devlink.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi.c b/drivers/gpu/drm/msm/dsi/dsi.c
-index 75afc12a7b25..29d11f1cb79b 100644
---- a/drivers/gpu/drm/msm/dsi/dsi.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi.c
-@@ -26,8 +26,10 @@ static int dsi_get_phy(struct msm_dsi *msm_dsi)
- 	}
+diff --git a/net/core/devlink.c b/net/core/devlink.c
+index 170e44f5e7df..5d01bebffaca 100644
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -3607,7 +3607,7 @@ out_free_msg:
  
- 	phy_pdev = of_find_device_by_node(phy_node);
--	if (phy_pdev)
-+	if (phy_pdev) {
- 		msm_dsi->phy = platform_get_drvdata(phy_pdev);
-+		msm_dsi->phy_dev = &phy_pdev->dev;
-+	}
+ static void devlink_flash_update_begin_notify(struct devlink *devlink)
+ {
+-	struct devlink_flash_notify params = { 0 };
++	struct devlink_flash_notify params = {};
  
- 	of_node_put(phy_node);
+ 	__devlink_flash_update_notify(devlink,
+ 				      DEVLINK_CMD_FLASH_UPDATE,
+@@ -3616,7 +3616,7 @@ static void devlink_flash_update_begin_notify(struct devlink *devlink)
  
-@@ -36,8 +38,6 @@ static int dsi_get_phy(struct msm_dsi *msm_dsi)
- 		return -EPROBE_DEFER;
- 	}
+ static void devlink_flash_update_end_notify(struct devlink *devlink)
+ {
+-	struct devlink_flash_notify params = { 0 };
++	struct devlink_flash_notify params = {};
  
--	msm_dsi->phy_dev = get_device(&phy_pdev->dev);
--
- 	return 0;
- }
- 
+ 	__devlink_flash_update_notify(devlink,
+ 				      DEVLINK_CMD_FLASH_UPDATE_END,
 -- 
 2.30.2
 
