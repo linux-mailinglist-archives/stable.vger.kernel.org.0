@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EE6D4094BC
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:34:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB54A4091F7
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:05:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344068AbhIMOd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:33:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52002 "EHLO mail.kernel.org"
+        id S1343736AbhIMOGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346534AbhIMObv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:31:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AA2261B9F;
-        Mon, 13 Sep 2021 13:52:00 +0000 (UTC)
+        id S1344326AbhIMOEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:04:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7EBA61A65;
+        Mon, 13 Sep 2021 13:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541120;
-        bh=4kCv7o3DyBpw7GqvoIMxTDt9C8B3zSsa+dFEur62VKU=;
+        s=korg; t=1631540365;
+        bh=wEGxYt0NRMm/HmyEG2GpPfJ1BKVhbutcfRASDllrfoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YyRwpPG3MOBs7BbBuGZ+Gb9m5trmeB721dIQe2lKOEjD6zzMV8cMPkzLPmwtyeJLc
-         ZBumxYzeXfyQS9mn5l59M4zBJ6DXDhM6Eeenzx4/MonJMd/oOvTGXnKpP/6ETckymT
-         yopgRC7j8KvKeBlUqFrrpX7P36kxJwIwbba0F+ZA=
+        b=GvNiksvVcoEGeOOfWKLCFadJqIRG5RAxKRF4KhD9zmx80w2qpWAuEHKsYVQDAGJwd
+         9PrEq1x9GO+1zMgjQ8KbZ6TGW2Ojh6VTOa/A5ni4HJeJ9jj05IxYD5/crDgeR+SVrd
+         rePw+me/uFMYmqZ6b2Tp88RAlmhthMIWkliNuABs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 139/334] drm: rcar-du: Dont put reference to drm_device in rcar_du_remove()
+Subject: [PATCH 5.13 132/300] net: ti: am65-cpsw-nuss: fix wrong devlink release order
 Date:   Mon, 13 Sep 2021 15:13:13 +0200
-Message-Id: <20210913131118.059528344@linuxfoundation.org>
+Message-Id: <20210913131113.850740100@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +40,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit c29b6b0b126e9ee69a5d6339475e831a149295bd ]
+[ Upstream commit acf34954efd17d4f65c7bb3e614381e6afc33222 ]
 
-The reference to the drm_device that was acquired by
-devm_drm_dev_alloc() is released automatically by the devres
-infrastructure. It must not be released manually, as that causes a
-reference underflow..
+The commit that introduced devlink support released devlink resources in
+wrong order, that made an unwind flow to be asymmetrical. In addition,
+the am65-cpsw-nuss used internal to devlink core field - registered.
 
-Fixes: ea6aae151887 ("drm: rcar-du: Embed drm_device in rcar_du_device")
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+In order to fix the unwind flow and remove such access to the
+registered field, rewrite the code to call devlink_port_unregister only
+on registered ports.
+
+Fixes: 58356eb31d60 ("net: ti: am65-cpsw-nuss: Add devlink support")
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_du_drv.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c | 34 ++++++++++++------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-index bfbff90588cb..c22551c2facb 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
-@@ -556,8 +556,6 @@ static int rcar_du_remove(struct platform_device *pdev)
+diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+index 67a08cbba859..fb58fc470773 100644
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -2388,21 +2388,6 @@ static const struct devlink_param am65_cpsw_devlink_params[] = {
+ 			     am65_cpsw_dl_switch_mode_set, NULL),
+ };
  
- 	drm_kms_helper_poll_fini(ddev);
- 
--	drm_dev_put(ddev);
+-static void am65_cpsw_unregister_devlink_ports(struct am65_cpsw_common *common)
+-{
+-	struct devlink_port *dl_port;
+-	struct am65_cpsw_port *port;
+-	int i;
 -
- 	return 0;
- }
+-	for (i = 1; i <= common->port_num; i++) {
+-		port = am65_common_get_port(common, i);
+-		dl_port = &port->devlink_port;
+-
+-		if (dl_port->registered)
+-			devlink_port_unregister(dl_port);
+-	}
+-}
+-
+ static int am65_cpsw_nuss_register_devlink(struct am65_cpsw_common *common)
+ {
+ 	struct devlink_port_attrs attrs = {};
+@@ -2464,7 +2449,12 @@ static int am65_cpsw_nuss_register_devlink(struct am65_cpsw_common *common)
+ 	return ret;
  
+ dl_port_unreg:
+-	am65_cpsw_unregister_devlink_ports(common);
++	for (i = i - 1; i >= 1; i--) {
++		port = am65_common_get_port(common, i);
++		dl_port = &port->devlink_port;
++
++		devlink_port_unregister(dl_port);
++	}
+ dl_unreg:
+ 	devlink_unregister(common->devlink);
+ dl_free:
+@@ -2475,6 +2465,17 @@ dl_free:
+ 
+ static void am65_cpsw_unregister_devlink(struct am65_cpsw_common *common)
+ {
++	struct devlink_port *dl_port;
++	struct am65_cpsw_port *port;
++	int i;
++
++	for (i = 1; i <= common->port_num; i++) {
++		port = am65_common_get_port(common, i);
++		dl_port = &port->devlink_port;
++
++		devlink_port_unregister(dl_port);
++	}
++
+ 	if (!AM65_CPSW_IS_CPSW2G(common) &&
+ 	    IS_ENABLED(CONFIG_TI_K3_AM65_CPSW_SWITCHDEV)) {
+ 		devlink_params_unpublish(common->devlink);
+@@ -2482,7 +2483,6 @@ static void am65_cpsw_unregister_devlink(struct am65_cpsw_common *common)
+ 					  ARRAY_SIZE(am65_cpsw_devlink_params));
+ 	}
+ 
+-	am65_cpsw_unregister_devlink_ports(common);
+ 	devlink_unregister(common->devlink);
+ 	devlink_free(common->devlink);
+ }
 -- 
 2.30.2
 
