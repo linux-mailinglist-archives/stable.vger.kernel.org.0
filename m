@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC0E4095F8
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31B0F409302
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346906AbhIMOqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:46:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60784 "EHLO mail.kernel.org"
+        id S1343512AbhIMOQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:16:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347914AbhIMOof (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:44:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 110A463222;
-        Mon, 13 Sep 2021 13:57:55 +0000 (UTC)
+        id S1345030AbhIMOOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:14:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 605FE61414;
+        Mon, 13 Sep 2021 13:43:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541476;
-        bh=XF0uZ/NJuhtO93oLxSrCmNBUZFUFZrktfskP+lMO9hw=;
+        s=korg; t=1631540634;
+        bh=zmLb3zZasJWMktiL2sQcWc9wmYJF4uFDv5WFh/069H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IOWXqd1Q5vEbfzEoTNnMEFT6mjXO0YNtpqUQtKE2t7P6bH5iznD4fsLDXRA4AYm+n
-         xv45F+j3Y3+k7wmkMxrILViNJQUP8V/WpykKbhon0mrwdg5DY6GeGb00fgGV6BCKPU
-         OLVrIiFaz1ub8YLA+nfvBRD4szJx3a4RrQyu/bWM=
+        b=okTVUmS1nmjbN2o7sYgQVSR1n0MUrHaTd3UTFa3F18Dg6YaCQRCAcLyApvcYPrVmW
+         oFKAeUsBka4wNNAdF8NqDmHTwKCiTMFHGlA6eS1qs9tK/32fIh46p4ymmK9UzKAA9Z
+         Rof5Zcoz4VbO5jPVh9Ji8jyY7YhUAzBeTDlpabAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 281/334] atlantic: Fix driver resume flow.
+        stable@vger.kernel.org, Xiaoli Feng <xifeng@redhat.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.13 274/300] cifs: Do not leak EDEADLK to dgetents64 for STATUS_USER_SESSION_DELETED
 Date:   Mon, 13 Sep 2021 15:15:35 +0200
-Message-Id: <20210913131122.930027092@linuxfoundation.org>
+Message-Id: <20210913131118.590524008@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 57f780f1c43362b86fd23d20bd940e2468237716 ]
+commit 3998f0b8bc49ec784990971dc1f16bf367b19078 upstream.
 
-Driver crashes when restoring from the Hibernate. In the resume flow,
-driver need to clean up the older nic/vec objects and re-initialize them.
+RHBZ: 1994393
 
-Fixes: 8aaa112a57c1d ("net: atlantic: refactoring pm logic")
-Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If we hit a STATUS_USER_SESSION_DELETED for the Create part in the
+Create/QueryDirectory compound that starts a directory scan
+we will leak EDEADLK back to userspace and surprise glibc and the application.
+
+Pick this up initiate_cifs_search() and retry a small number of tries before we
+return an error to userspace.
+
+Cc: stable@vger.kernel.org
+Reported-by: Xiaoli Feng <xifeng@redhat.com>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/cifs/readdir.c |   23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-index 59253846e885..f26d03735619 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-@@ -417,6 +417,9 @@ static int atl_resume_common(struct device *dev, bool deep)
- 	pci_restore_state(pdev);
+--- a/fs/cifs/readdir.c
++++ b/fs/cifs/readdir.c
+@@ -381,7 +381,7 @@ int get_symlink_reparse_path(char *full_
+  */
  
- 	if (deep) {
-+		/* Reinitialize Nic/Vecs objects */
-+		aq_nic_deinit(nic, !nic->aq_hw->aq_nic_cfg->wol);
+ static int
+-initiate_cifs_search(const unsigned int xid, struct file *file,
++_initiate_cifs_search(const unsigned int xid, struct file *file,
+ 		     const char *full_path)
+ {
+ 	__u16 search_flags;
+@@ -463,6 +463,27 @@ error_exit:
+ 	return rc;
+ }
+ 
++static int
++initiate_cifs_search(const unsigned int xid, struct file *file,
++		     const char *full_path)
++{
++	int rc, retry_count = 0;
 +
- 		ret = aq_nic_init(nic);
- 		if (ret)
- 			goto err_exit;
--- 
-2.30.2
-
++	do {
++		rc = _initiate_cifs_search(xid, file, full_path);
++		/*
++		 * If we don't have enough credits to start reading the
++		 * directory just try again after short wait.
++		 */
++		if (rc != -EDEADLK)
++			break;
++
++		usleep_range(512, 2048);
++	} while (retry_count++ < 5);
++
++	return rc;
++}
++
+ /* return length of unicode string in bytes */
+ static int cifs_unicode_bytelen(const char *str)
+ {
 
 
