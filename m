@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77B834091C3
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 993EE409484
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244389AbhIMOFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:05:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49604 "EHLO mail.kernel.org"
+        id S1345530AbhIMObi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:31:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244770AbhIMOCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:02:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68DA661A3A;
-        Mon, 13 Sep 2021 13:38:23 +0000 (UTC)
+        id S1347035AbhIMOaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:30:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB0C361B7F;
+        Mon, 13 Sep 2021 13:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540304;
-        bh=6scZ+5zeyipWK3utQXmJ1QAWnXjylgomP4Y7+G7TQ9Q=;
+        s=korg; t=1631541056;
+        bh=neG9+V7kBLXXADzbNuhl5BYEGqzNe5F6hzZ9xdcCcdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=llYIbVaeBopG4hGEtTQ90nQAB3BupCafF4TYRO/rZsFfapFJo7PxIAZEcC3tQe8q1
-         yfNjcMgACK+X4X00v9HOgSa07MydL91D0eTEUvgGEI3T9s76SXhCHYNyo8pRtEwlGI
-         D8EYatLlcQpS7veTXm/SKFDgq6vIih0eqzD2lz6E=
+        b=FOQMFinH8x9I3MMBgOnMeAwvM9HJGEZ8Ot0UU6BXeQnC6stFpMz4rm6+35cEYoVEv
+         dbVLTqD7TzDu6EZwFGBJU77GhBkb4FXdmOX6q1frOXy+j6RV9/WRqsREeZZpwVhPfj
+         XqJMYInub+jElPHvC0EVmZiVVSZGJn5EuMcgqoQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 138/300] net/mlx5: Fix missing return value in mlx5_devlink_eswitch_inline_mode_set()
+Subject: [PATCH 5.14 145/334] arm64: dts: renesas: hihope-rzg2-ex: Add EtherAVB internal rx delay
 Date:   Mon, 13 Sep 2021 15:13:19 +0200
-Message-Id: <20210913131114.059907079@linuxfoundation.org>
+Message-Id: <20210913131118.261135018@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit bcd68c04c7692416206414dc8971730aa140eba7 ]
+[ Upstream commit c96ca5604a889a142d6b60889cc6da48498806e9 ]
 
-The return value is missing in this code scenario, add the return value
-'0' to the return value 'err'.
+Hihope boards use Realtek PHY. From the very beginning it use only
+tx delays. However the phy driver commit bbc4d71d63549bcd003
+("net: phy: realtek: fix rtl8211e rx/tx delay config") introduced
+NFS mount failure. Now it needs rx delay inaddition to tx delay
+for NFS mount to work. This patch fixes NFS mount failure issue
+by adding MAC internal rx delay.
 
-Eliminate the follow smatch warning:
-
-drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c:3083
-mlx5_devlink_eswitch_inline_mode_set() warn: missing error code 'err'.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Fixes: 8e0aa4bc959c ("net/mlx5: E-switch, Protect eswitch mode changes")
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Fixes: bbc4d71d63549bcd ("net: phy: realtek: fix rtl8211e rx/tx delay config")
+Link: https://lore.kernel.org/r/20210721180632.15080-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/renesas/hihope-rzg2-ex.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-index d0e4daa55a4a..c6d3348d759e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-@@ -3074,8 +3074,11 @@ int mlx5_devlink_eswitch_inline_mode_set(struct devlink *devlink, u8 mode,
+diff --git a/arch/arm64/boot/dts/renesas/hihope-rzg2-ex.dtsi b/arch/arm64/boot/dts/renesas/hihope-rzg2-ex.dtsi
+index 202c4fc88bd5..dde3a07bc417 100644
+--- a/arch/arm64/boot/dts/renesas/hihope-rzg2-ex.dtsi
++++ b/arch/arm64/boot/dts/renesas/hihope-rzg2-ex.dtsi
+@@ -20,6 +20,7 @@
+ 	pinctrl-names = "default";
+ 	phy-handle = <&phy0>;
+ 	tx-internal-delay-ps = <2000>;
++	rx-internal-delay-ps = <1800>;
+ 	status = "okay";
  
- 	switch (MLX5_CAP_ETH(dev, wqe_inline_mode)) {
- 	case MLX5_CAP_INLINE_MODE_NOT_REQUIRED:
--		if (mode == DEVLINK_ESWITCH_INLINE_MODE_NONE)
-+		if (mode == DEVLINK_ESWITCH_INLINE_MODE_NONE) {
-+			err = 0;
- 			goto out;
-+		}
-+
- 		fallthrough;
- 	case MLX5_CAP_INLINE_MODE_L2:
- 		NL_SET_ERR_MSG_MOD(extack, "Inline mode can't be set");
+ 	phy0: ethernet-phy@0 {
 -- 
 2.30.2
 
