@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7955D4090D3
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 550D2408EAC
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244876AbhIMNzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:55:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
+        id S242171AbhIMNgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:36:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242393AbhIMNxq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:53:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6E9A6112E;
-        Mon, 13 Sep 2021 13:35:07 +0000 (UTC)
+        id S242495AbhIMN3g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:29:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A21A61359;
+        Mon, 13 Sep 2021 13:24:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540108;
-        bh=uN5CR+OJnxeovHmH8+k1UfXVk3zkafDXS4D4RHTAj18=;
+        s=korg; t=1631539458;
+        bh=J0/QKOVQrV6NaD2AEvL3Fp1y0K2MAjINakCwnaEoKV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mFpkrJMvbM6HnxWdblyBCvKwt2UjCY9ax9E+miVJ/iyrJK53X+gXhKhcYi8qrzQYc
-         aFeNN6xe5C4uTmLqTq1NHQanWYC46mQZA6p4v6PB7rDXWIA3H7qxC5ye0vS6ePQLpB
-         nfN0Z6oCu2jb4MnGKj3wBRtxDC837PFaqy7inYTs=
+        b=wkPqMb3xHbvGRP6lFs2L0VZp4f954XX0CfjD6bYXMMTIiK+ba5gWFX3kLL3ua13Y4
+         lPuL1C69bNvIY7cHj5FqQ5p3mi/1TyAJm03BqI+AVMU1E/gZXAkln3iK2Zm82ewwj6
+         mBgJ2xNaDhIOqqg2maUdw+aKRi/8KdvKUiwcIeuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Qais Yousef <qais.yousef@arm.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        stable@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        "Signed-off-by: Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 053/300] sched: Fix UCLAMP_FLAG_IDLE setting
+Subject: [PATCH 5.10 009/236] rcu/tree: Handle VM stoppage in stall detection
 Date:   Mon, 13 Sep 2021 15:11:54 +0200
-Message-Id: <20210913131111.150048708@linuxfoundation.org>
+Message-Id: <20210913131100.644206555@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Perret <qperret@google.com>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-[ Upstream commit ca4984a7dd863f3e1c0df775ae3e744bff24c303 ]
+[ Upstream commit ccfc9dd6914feaa9a81f10f9cce56eb0f7712264 ]
 
-The UCLAMP_FLAG_IDLE flag is set on a runqueue when dequeueing the last
-uclamp active task (that is, when buckets.tasks reaches 0 for all
-buckets) to maintain the last uclamp.max and prevent blocked util from
-suddenly becoming visible.
+The soft watchdog timer function checks if a virtual machine
+was suspended and hence what looks like a lockup in fact
+is a false positive.
 
-However, there is an asymmetry in how the flag is set and cleared which
-can lead to having the flag set whilst there are active tasks on the rq.
-Specifically, the flag is cleared in the uclamp_rq_inc() path, which is
-called at enqueue time, but set in uclamp_rq_dec_id() which is called
-both when dequeueing a task _and_ in the update_uclamp_active() path. As
-a result, when both uclamp_rq_{dec,ind}_id() are called from
-update_uclamp_active(), the flag ends up being set but not cleared,
-hence leaving the runqueue in a broken state.
+This is what kvm_check_and_clear_guest_paused() does: it
+tests guest PVCLOCK_GUEST_STOPPED (which is set by the host)
+and if it's set then we need to touch all watchdogs and bail
+out.
 
-Fix this by clearing the flag in update_uclamp_active() as well.
+Watchdog timer function runs from IRQ, so PVCLOCK_GUEST_STOPPED
+check works fine.
 
-Fixes: e496187da710 ("sched/uclamp: Enforce last task's UCLAMP_MAX")
-Reported-by: Rick Yiu <rickyiu@google.com>
-Signed-off-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Qais Yousef <qais.yousef@arm.com>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Link: https://lore.kernel.org/r/20210805102154.590709-2-qperret@google.com
+There is, however, one more watchdog that runs from IRQ, so
+watchdog timer fn races with it, and that watchdog is not aware
+of PVCLOCK_GUEST_STOPPED - RCU stall detector.
+
+apic_timer_interrupt()
+ smp_apic_timer_interrupt()
+  hrtimer_interrupt()
+   __hrtimer_run_queues()
+    tick_sched_timer()
+     tick_sched_handle()
+      update_process_times()
+       rcu_sched_clock_irq()
+
+This triggers RCU stalls on our devices during VM resume.
+
+If tick_sched_handle()->rcu_sched_clock_irq() runs on a VCPU
+before watchdog_timer_fn()->kvm_check_and_clear_guest_paused()
+then there is nothing on this VCPU that touches watchdogs and
+RCU reads stale gp stall timestamp and new jiffies value, which
+makes it think that RCU has stalled.
+
+Make RCU stall watchdog aware of PVCLOCK_GUEST_STOPPED and
+don't report RCU stalls when we resume the VM.
+
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ kernel/rcu/tree_stall.h | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 15b4d2fb6be3..1e9672d609f7 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1281,6 +1281,23 @@ static inline void uclamp_rq_dec(struct rq *rq, struct task_struct *p)
- 		uclamp_rq_dec_id(rq, p, clamp_id);
- }
+diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
+index ca21d28a0f98..0435e5e716a8 100644
+--- a/kernel/rcu/tree_stall.h
++++ b/kernel/rcu/tree_stall.h
+@@ -7,6 +7,8 @@
+  * Author: Paul E. McKenney <paulmck@linux.ibm.com>
+  */
  
-+static inline void uclamp_rq_reinc_id(struct rq *rq, struct task_struct *p,
-+				      enum uclamp_id clamp_id)
-+{
-+	if (!p->uclamp[clamp_id].active)
-+		return;
++#include <linux/kvm_para.h>
 +
-+	uclamp_rq_dec_id(rq, p, clamp_id);
-+	uclamp_rq_inc_id(rq, p, clamp_id);
-+
-+	/*
-+	 * Make sure to clear the idle flag if we've transiently reached 0
-+	 * active tasks on rq.
-+	 */
-+	if (clamp_id == UCLAMP_MAX && (rq->uclamp_flags & UCLAMP_FLAG_IDLE))
-+		rq->uclamp_flags &= ~UCLAMP_FLAG_IDLE;
-+}
-+
- static inline void
- uclamp_update_active(struct task_struct *p)
- {
-@@ -1304,12 +1321,8 @@ uclamp_update_active(struct task_struct *p)
- 	 * affecting a valid clamp bucket, the next time it's enqueued,
- 	 * it will already see the updated clamp bucket value.
- 	 */
--	for_each_clamp_id(clamp_id) {
--		if (p->uclamp[clamp_id].active) {
--			uclamp_rq_dec_id(rq, p, clamp_id);
--			uclamp_rq_inc_id(rq, p, clamp_id);
--		}
--	}
-+	for_each_clamp_id(clamp_id)
-+		uclamp_rq_reinc_id(rq, p, clamp_id);
+ //////////////////////////////////////////////////////////////////////////////
+ //
+ // Controlling CPU stall warnings, including delay calculation.
+@@ -633,6 +635,14 @@ static void check_cpu_stall(struct rcu_data *rdp)
+ 	    (READ_ONCE(rnp->qsmask) & rdp->grpmask) &&
+ 	    cmpxchg(&rcu_state.jiffies_stall, js, jn) == js) {
  
- 	task_rq_unlock(rq, p, &rf);
- }
++		/*
++		 * If a virtual machine is stopped by the host it can look to
++		 * the watchdog like an RCU stall. Check to see if the host
++		 * stopped the vm.
++		 */
++		if (kvm_check_and_clear_guest_paused())
++			return;
++
+ 		/* We haven't checked in, so go dump stack. */
+ 		print_cpu_stall(gps);
+ 		if (READ_ONCE(rcu_cpu_stall_ftrace_dump))
+@@ -642,6 +652,14 @@ static void check_cpu_stall(struct rcu_data *rdp)
+ 		   ULONG_CMP_GE(j, js + RCU_STALL_RAT_DELAY) &&
+ 		   cmpxchg(&rcu_state.jiffies_stall, js, jn) == js) {
+ 
++		/*
++		 * If a virtual machine is stopped by the host it can look to
++		 * the watchdog like an RCU stall. Check to see if the host
++		 * stopped the vm.
++		 */
++		if (kvm_check_and_clear_guest_paused())
++			return;
++
+ 		/* They had a few time units to dump stack, so complain. */
+ 		print_other_cpu_stall(gs2, gps);
+ 		if (READ_ONCE(rcu_cpu_stall_ftrace_dump))
 -- 
 2.30.2
 
