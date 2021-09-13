@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E47AE408DE9
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB5E5408FCD
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241310AbhIMNah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:30:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35046 "EHLO mail.kernel.org"
+        id S244296AbhIMNqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:46:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241358AbhIMNX4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:23:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E697610CE;
-        Mon, 13 Sep 2021 13:21:43 +0000 (UTC)
+        id S243649AbhIMNou (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:44:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF79561527;
+        Mon, 13 Sep 2021 13:31:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539304;
-        bh=RU8S49y9RZJ3yRrZ4s7MBNustncI3PBe2pimAyGOKjs=;
+        s=korg; t=1631539872;
+        bh=3BRQKf+4m4hF8xbhI2zJqChxuqd8U0J5T0pyXXtX8bc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xNABp3B/X5r5z2hZSO5Lp1LeASUM2Ekkki5FrcUgU8nf9JlwBtsUvx5Q550A8VDGb
-         4/b29hpHfBs1q0IqKfM3RF1FTx+jqZTF/mKTMxpHolZSpRRsXT5MdmVE8x8WTtee1Z
-         4olH5yfwuODE03MnKLe1Z0Il51NPKwPCyBJi27Vc=
+        b=OCl8rVFFy/d9Fc6RRBX7lnIF5VoNWmi+HRikhgd6V61FfIBw2fJg3iNBuQ7Jumwz4
+         6Hbl5H1/iIsYjxExuVsvW4cBeGUujWI80hJNTKo75eYCErxQD8vcoknctSSu/hx9/l
+         lYKHgEbIiykXeNm+puk7XOXQJ4KLwimNvMKonXZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 118/144] ath6kl: wmi: fix an error code in ath6kl_wmi_sync_point()
+Subject: [PATCH 5.10 194/236] usb: bdc: Fix an error handling path in bdc_probe() when no suitable DMA config is available
 Date:   Mon, 13 Sep 2021 15:14:59 +0200
-Message-Id: <20210913131051.875371346@linuxfoundation.org>
+Message-Id: <20210913131106.980621809@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit fd6729ec534cffbbeb3917761e6d1fe6a412d3fe ]
+[ Upstream commit d2f42e09393c774ab79088d8e3afcc62b3328fc9 ]
 
-This error path is unlikely because of it checked for NULL and
-returned -ENOMEM earlier in the function.  But it should return
-an error code here as well if we ever do hit it because of a
-race condition or something.
+If no suitable DMA configuration is available, a previous 'bdc_phy_init()'
+call must be undone by a corresponding 'bdc_phy_exit()' call.
 
-Fixes: bdcd81707973 ("Add ath6kl cleaned up driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210813113438.GB30697@kili
+Branch to the existing error handling path instead of returning
+directly.
+
+Fixes: cc29d4f67757 ("usb: bdc: Add support for USB phy")
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/0c5910979f39225d5d8fe68c9ab1c147c68ddee1.1629314734.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath6kl/wmi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/bdc/bdc_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
-index c610fe21c85c..31ffec3a5972 100644
---- a/drivers/net/wireless/ath/ath6kl/wmi.c
-+++ b/drivers/net/wireless/ath/ath6kl/wmi.c
-@@ -2510,8 +2510,10 @@ static int ath6kl_wmi_sync_point(struct wmi *wmi, u8 if_idx)
- 		goto free_data_skb;
- 
- 	for (index = 0; index < num_pri_streams; index++) {
--		if (WARN_ON(!data_sync_bufs[index].skb))
-+		if (WARN_ON(!data_sync_bufs[index].skb)) {
-+			ret = -ENOMEM;
- 			goto free_data_skb;
-+		}
- 
- 		ep_id = ath6kl_ac2_endpoint_id(wmi->parent_dev,
- 					       data_sync_bufs[index].
+diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
+index 0bef6b3f049b..251db57e51fa 100644
+--- a/drivers/usb/gadget/udc/bdc/bdc_core.c
++++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
+@@ -560,7 +560,8 @@ static int bdc_probe(struct platform_device *pdev)
+ 		if (ret) {
+ 			dev_err(dev,
+ 				"No suitable DMA config available, abort\n");
+-			return -ENOTSUPP;
++			ret = -ENOTSUPP;
++			goto phycleanup;
+ 		}
+ 		dev_dbg(dev, "Using 32-bit address\n");
+ 	}
 -- 
 2.30.2
 
