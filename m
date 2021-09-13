@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BD4D409377
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55F324095DC
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241248AbhIMOVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:21:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39566 "EHLO mail.kernel.org"
+        id S1344114AbhIMOpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:45:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344841AbhIMOQo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:16:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B49F61AFC;
-        Mon, 13 Sep 2021 13:44:33 +0000 (UTC)
+        id S1345210AbhIMOoI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:44:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A901619F8;
+        Mon, 13 Sep 2021 13:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540673;
-        bh=kl9KLjkQAlCTLw4tFE2mdHaVWrauryOV7wn3sR/c7YI=;
+        s=korg; t=1631541436;
+        bh=ANSZm/YMwfk0poU72HLtVbd0e0As2YxubIEnQqmiRCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qatr9eySOXATLGUAQcNmGc66SCqzXV4JHl/ZYswiUDPhIMIDMVYxQmPI3VSsqCgpm
-         b2zyw4KrkKGpQBaC7MnRn9bhIjYE3nb66S49+btaLBIHvjqrmNnBMC+asEDFDEusaq
-         mPwLptFojMj8eu59yTe1i7b23iaEqHSWBwNyUDK8=
+        b=DPc9oQDe+aC18YVzOJf+hlt+WjO8tXaVgJqfEjzRTRuQkAKTi2m8MreDPt5u19uLD
+         ZkgMza1G2jM005+8ZNYGP/ENs7VNAQ4PeGJlD3kRS0asr2+VnYUG78nOJjD1TPhaIj
+         X4fnGCmDoW6avsZLW7N2O3OQcJ4jAH5/MUSIc3cA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Lundberg <johalun0@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 289/300] io-wq: check max_worker limits if a worker transitions bound state
+        stable@vger.kernel.org,
+        "Justin M. Forbes" <jforbes@fedoraproject.org>,
+        Jaehoon Chung <jh80.chung@samsung.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.14 296/334] iwlwifi Add support for ax201 in Samsung Galaxy Book Flex2 Alpha
 Date:   Mon, 13 Sep 2021 15:15:50 +0200
-Message-Id: <20210913131119.115555510@linuxfoundation.org>
+Message-Id: <20210913131123.432947970@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,104 +41,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Justin M. Forbes <jforbes@fedoraproject.org>
 
-commit ecc53c48c13d995e6fe5559e30ffee48d92784fd upstream.
+commit 2f32c147a3816d789722c0bd242a9431332ec3ed upstream.
 
-For the two places where new workers are created, we diligently check if
-we are allowed to create a new worker. If we're currently at the limit
-of how many workers of a given type we can have, then we don't create
-any new ones.
+The Samsung Galaxy Book Flex2 Alpha uses an ax201 with the ID a0f0/6074.
+This works fine with the existing driver once it knows to claim it.
+Simple patch to add the device.
 
-If you have a mixed workload with various types of bound and unbounded
-work, then it can happen that a worker finishes one type of work and
-is then transitioned to the other type. For this case, we don't check
-if we are actually allowed to do so. This can cause io-wq to temporarily
-exceed the allowed number of workers for a given type.
-
-When retrieving work, check that the types match. If they don't, check
-if we are allowed to transition to the other type. If not, then don't
-handle the new work.
-
-Cc: stable@vger.kernel.org
-Reported-by: Johannes Lundberg <johalun0@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Justin M. Forbes <jforbes@fedoraproject.org>
+Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210702223155.1981510-1-jforbes@fedoraproject.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io-wq.c |   33 ++++++++++++++++++++++++++++++---
- 1 file changed, 30 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/drv.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -424,7 +424,28 @@ static void io_wait_on_hash(struct io_wq
- 	spin_unlock(&wq->hash->wait.lock);
- }
- 
--static struct io_wq_work *io_get_next_work(struct io_wqe *wqe)
-+/*
-+ * We can always run the work if the worker is currently the same type as
-+ * the work (eg both are bound, or both are unbound). If they are not the
-+ * same, only allow it if incrementing the worker count would be allowed.
-+ */
-+static bool io_worker_can_run_work(struct io_worker *worker,
-+				   struct io_wq_work *work)
-+{
-+	struct io_wqe_acct *acct;
-+
-+	if (!(worker->flags & IO_WORKER_F_BOUND) !=
-+	    !(work->flags & IO_WQ_WORK_UNBOUND))
-+		return true;
-+
-+	/* not the same type, check if we'd go over the limit */
-+	acct = io_work_get_acct(worker->wqe, work);
-+	return acct->nr_workers < acct->max_workers;
-+}
-+
-+static struct io_wq_work *io_get_next_work(struct io_wqe *wqe,
-+					   struct io_worker *worker,
-+					   bool *stalled)
- 	__must_hold(wqe->lock)
- {
- 	struct io_wq_work_node *node, *prev;
-@@ -436,6 +457,9 @@ static struct io_wq_work *io_get_next_wo
- 
- 		work = container_of(node, struct io_wq_work, list);
- 
-+		if (!io_worker_can_run_work(worker, work))
-+			break;
-+
- 		/* not hashed, can run anytime */
- 		if (!io_wq_is_hashed(work)) {
- 			wq_list_del(&wqe->work_list, node, prev);
-@@ -462,6 +486,7 @@ static struct io_wq_work *io_get_next_wo
- 		raw_spin_unlock(&wqe->lock);
- 		io_wait_on_hash(wqe, stall_hash);
- 		raw_spin_lock(&wqe->lock);
-+		*stalled = true;
- 	}
- 
- 	return NULL;
-@@ -501,6 +526,7 @@ static void io_worker_handle_work(struct
- 
- 	do {
- 		struct io_wq_work *work;
-+		bool stalled;
- get_next:
- 		/*
- 		 * If we got some work, mark us as busy. If we didn't, but
-@@ -509,10 +535,11 @@ get_next:
- 		 * can't make progress, any work completion or insertion will
- 		 * clear the stalled flag.
- 		 */
--		work = io_get_next_work(wqe);
-+		stalled = false;
-+		work = io_get_next_work(wqe, worker, &stalled);
- 		if (work)
- 			__io_worker_busy(wqe, worker, work);
--		else if (!wq_list_empty(&wqe->work_list))
-+		else if (stalled)
- 			wqe->flags |= IO_WQE_FLAG_STALLED;
- 
- 		raw_spin_unlock_irq(&wqe->lock);
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
+@@ -558,6 +558,7 @@ static const struct iwl_dev_info iwl_dev
+ 	IWL_DEV_INFO(0xA0F0, 0x1652, killer1650i_2ax_cfg_qu_b0_hr_b0, NULL),
+ 	IWL_DEV_INFO(0xA0F0, 0x2074, iwl_ax201_cfg_qu_hr, NULL),
+ 	IWL_DEV_INFO(0xA0F0, 0x4070, iwl_ax201_cfg_qu_hr, NULL),
++	IWL_DEV_INFO(0xA0F0, 0x6074, iwl_ax201_cfg_qu_hr, NULL),
+ 	IWL_DEV_INFO(0x02F0, 0x0070, iwl_ax201_cfg_quz_hr, NULL),
+ 	IWL_DEV_INFO(0x02F0, 0x0074, iwl_ax201_cfg_quz_hr, NULL),
+ 	IWL_DEV_INFO(0x02F0, 0x6074, iwl_ax201_cfg_quz_hr, NULL),
 
 
