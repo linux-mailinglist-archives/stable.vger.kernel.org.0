@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD90B408ECB
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEE80408E05
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:30:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241409AbhIMNgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:36:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32892 "EHLO mail.kernel.org"
+        id S241154AbhIMNbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:31:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242944AbhIMNeg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:34:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F8EA61209;
-        Mon, 13 Sep 2021 13:26:33 +0000 (UTC)
+        id S240128AbhIMNT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:19:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27AE2610F7;
+        Mon, 13 Sep 2021 13:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539594;
-        bh=uKrNE2LSeeJMdBjhDw/gA4UAWVuBNAGvWIlywK0v8aY=;
+        s=korg; t=1631539059;
+        bh=BjhENQxqVTskBNpm5ddGaa50+zZRbEYuT0YBPNjWtJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZXJazo8rTZ6goqoGiyxcyFHngzR0SMZ8oTiXbdV4tq39WJcz5Wm1izIpyPweM/s0
-         1XxsOGUoiCn44yrgtX01LA9BvpVxWZiCN/7GgkXc3EZ7GY+QC0hqu0CobVO+TnURsy
-         7OfQkF0qdPmCsUNpmhFMqMo0rAeoPejdDKduPhTw=
+        b=uMehIvXVBKkUwVPmPlvEEH0nowYv8FWHcj/fadr/t67uvawXIN2N0hT5KdOw65xSG
+         3DKj72swpwJAe4+aJBc/JeBV5PShDtx3vo7AGGR3Pl1uTGv/9UPjbp5LzBEbfrEZSD
+         uIrpys7mL3RNfQFVWzRp/ZmBIr68vx9HOHN0jSp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.10 084/236] i40e: improve locking of mac_filter_hash
+        stable@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        "Signed-off-by: Paul E. McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 008/144] rcu/tree: Handle VM stoppage in stall detection
 Date:   Mon, 13 Sep 2021 15:13:09 +0200
-Message-Id: <20210913131103.214694704@linuxfoundation.org>
+Message-Id: <20210913131048.247694521@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,84 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Assmann <sassmann@kpanic.de>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-[ Upstream commit 8b4b06919fd66caf49fdf4fe59f9d6312cf7956d ]
+[ Upstream commit ccfc9dd6914feaa9a81f10f9cce56eb0f7712264 ]
 
-i40e_config_vf_promiscuous_mode() calls
-i40e_getnum_vf_vsi_vlan_filters() without acquiring the
-mac_filter_hash_lock spinlock.
+The soft watchdog timer function checks if a virtual machine
+was suspended and hence what looks like a lockup in fact
+is a false positive.
 
-This is unsafe because mac_filter_hash may get altered in another thread
-while i40e_getnum_vf_vsi_vlan_filters() traverses the hashes.
+This is what kvm_check_and_clear_guest_paused() does: it
+tests guest PVCLOCK_GUEST_STOPPED (which is set by the host)
+and if it's set then we need to touch all watchdogs and bail
+out.
 
-Simply adding the spinlock in i40e_getnum_vf_vsi_vlan_filters() is not
-possible as it already gets called in i40e_get_vlan_list_sync() with the
-spinlock held. Therefore adding a wrapper that acquires the spinlock and
-call the correct function where appropriate.
+Watchdog timer function runs from IRQ, so PVCLOCK_GUEST_STOPPED
+check works fine.
 
-Fixes: 37d318d7805f ("i40e: Remove scheduling while atomic possibility")
-Fix-suggested-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+There is, however, one more watchdog that runs from IRQ, so
+watchdog timer fn races with it, and that watchdog is not aware
+of PVCLOCK_GUEST_STOPPED - RCU stall detector.
+
+apic_timer_interrupt()
+ smp_apic_timer_interrupt()
+  hrtimer_interrupt()
+   __hrtimer_run_queues()
+    tick_sched_timer()
+     tick_sched_handle()
+      update_process_times()
+       rcu_sched_clock_irq()
+
+This triggers RCU stalls on our devices during VM resume.
+
+If tick_sched_handle()->rcu_sched_clock_irq() runs on a VCPU
+before watchdog_timer_fn()->kvm_check_and_clear_guest_paused()
+then there is nothing on this VCPU that touches watchdogs and
+RCU reads stale gp stall timestamp and new jiffies value, which
+makes it think that RCU has stalled.
+
+Make RCU stall watchdog aware of PVCLOCK_GUEST_STOPPED and
+don't report RCU stalls when we resume the VM.
+
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 23 ++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
+ kernel/rcu/tree_stall.h | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index e4f13a49c3df..a02167cce81e 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -1107,12 +1107,12 @@ static int i40e_quiesce_vf_pci(struct i40e_vf *vf)
- }
+diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
+index c0b8c458d8a6..b8c9744ad595 100644
+--- a/kernel/rcu/tree_stall.h
++++ b/kernel/rcu/tree_stall.h
+@@ -7,6 +7,8 @@
+  * Author: Paul E. McKenney <paulmck@linux.ibm.com>
+  */
  
- /**
-- * i40e_getnum_vf_vsi_vlan_filters
-+ * __i40e_getnum_vf_vsi_vlan_filters
-  * @vsi: pointer to the vsi
-  *
-  * called to get the number of VLANs offloaded on this VF
-  **/
--static int i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
-+static int __i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
- {
- 	struct i40e_mac_filter *f;
- 	u16 num_vlans = 0, bkt;
-@@ -1125,6 +1125,23 @@ static int i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
- 	return num_vlans;
- }
++#include <linux/kvm_para.h>
++
+ //////////////////////////////////////////////////////////////////////////////
+ //
+ // Controlling CPU stall warnings, including delay calculation.
+@@ -525,6 +527,14 @@ static void check_cpu_stall(struct rcu_data *rdp)
+ 	    (READ_ONCE(rnp->qsmask) & rdp->grpmask) &&
+ 	    cmpxchg(&rcu_state.jiffies_stall, js, jn) == js) {
  
-+/**
-+ * i40e_getnum_vf_vsi_vlan_filters
-+ * @vsi: pointer to the vsi
-+ *
-+ * wrapper for __i40e_getnum_vf_vsi_vlan_filters() with spinlock held
-+ **/
-+static int i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
-+{
-+	int num_vlans;
++		/*
++		 * If a virtual machine is stopped by the host it can look to
++		 * the watchdog like an RCU stall. Check to see if the host
++		 * stopped the vm.
++		 */
++		if (kvm_check_and_clear_guest_paused())
++			return;
 +
-+	spin_lock_bh(&vsi->mac_filter_hash_lock);
-+	num_vlans = __i40e_getnum_vf_vsi_vlan_filters(vsi);
-+	spin_unlock_bh(&vsi->mac_filter_hash_lock);
-+
-+	return num_vlans;
-+}
-+
- /**
-  * i40e_get_vlan_list_sync
-  * @vsi: pointer to the VSI
-@@ -1142,7 +1159,7 @@ static void i40e_get_vlan_list_sync(struct i40e_vsi *vsi, u16 *num_vlans,
- 	int bkt;
+ 		/* We haven't checked in, so go dump stack. */
+ 		print_cpu_stall();
+ 		if (rcu_cpu_stall_ftrace_dump)
+@@ -534,6 +544,14 @@ static void check_cpu_stall(struct rcu_data *rdp)
+ 		   ULONG_CMP_GE(j, js + RCU_STALL_RAT_DELAY) &&
+ 		   cmpxchg(&rcu_state.jiffies_stall, js, jn) == js) {
  
- 	spin_lock_bh(&vsi->mac_filter_hash_lock);
--	*num_vlans = i40e_getnum_vf_vsi_vlan_filters(vsi);
-+	*num_vlans = __i40e_getnum_vf_vsi_vlan_filters(vsi);
- 	*vlan_list = kcalloc(*num_vlans, sizeof(**vlan_list), GFP_ATOMIC);
- 	if (!(*vlan_list))
- 		goto err;
++		/*
++		 * If a virtual machine is stopped by the host it can look to
++		 * the watchdog like an RCU stall. Check to see if the host
++		 * stopped the vm.
++		 */
++		if (kvm_check_and_clear_guest_paused())
++			return;
++
+ 		/* They had a few time units to dump stack, so complain. */
+ 		print_other_cpu_stall(gs2);
+ 		if (rcu_cpu_stall_ftrace_dump)
 -- 
 2.30.2
 
