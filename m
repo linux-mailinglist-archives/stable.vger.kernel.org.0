@@ -2,72 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E773408AF2
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 14:20:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E6CF408B56
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 14:51:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237538AbhIMMWL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 08:22:11 -0400
-Received: from mail-oi1-f177.google.com ([209.85.167.177]:38856 "EHLO
-        mail-oi1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239954AbhIMMWH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 08:22:07 -0400
-Received: by mail-oi1-f177.google.com with SMTP id bd1so13741686oib.5;
-        Mon, 13 Sep 2021 05:20:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6LkH8BDThjwDkIUVEv4G7HiQl/Op2m1UQzXKeVLvZVY=;
-        b=ma69WOLkKY3N/lvfdKwQt+0BdJu/LcwtM/OlgQ4/XX++Id9tDEqc+1iWd+4WFdmUm4
-         V8azZRY6GziVJ/fw+dDqt6NPsbMZHidNfurtxDoB/RbY00jH/ZIlD82gj+xIs7ULW1qL
-         1DTTYsjssn1UONNlCdpoXy/TDB5+tZNv308+iNxlBiHWMM9JpVPexWvHtxTfvY9ylueq
-         h8kfQJR7149stKgtllG1ojjx5zSnpG1csBNATS+kS3nsnq2BhHqTJizwyXkv2JUPojjL
-         vgILFqxI6z4oNDK1ddR+Yc7SEJ0yV5dtnY49VH5NdJmAYALb4TYg7FW+K7m3acS3rG3z
-         goYw==
-X-Gm-Message-State: AOAM532ScLd47GzjMmkCi0tScxMUgxTyAjI2nyqiDi2KrRZjorqBUIxs
-        cEJQOR6FEx0JG4lXCxio3DpXySooOtYWoGHSYZabRmdf
-X-Google-Smtp-Source: ABdhPJx/9hiTq1jXolVCkmhHWNiQy0NxIAlRexLuKACbIOgNqoBUilaDDEqAUxmlsrQtCOTDiFmH1XeeM81nR7ywEYk=
-X-Received: by 2002:aca:afcd:: with SMTP id y196mr7489386oie.71.1631535651501;
- Mon, 13 Sep 2021 05:20:51 -0700 (PDT)
+        id S235255AbhIMMuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 08:50:21 -0400
+Received: from mail.blitar.go.id ([103.148.208.194]:45348 "EHLO
+        mail.blitarkota.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234945AbhIMMuQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 08:50:16 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.blitarkota.go.id (Postfix) with ESMTP id CAE318591D5;
+        Mon, 13 Sep 2021 19:32:15 +0700 (WIB)
+Received: from mail.blitarkota.go.id ([127.0.0.1])
+        by localhost (mail.blitarkota.go.id [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id otiYGP3hO6_V; Mon, 13 Sep 2021 19:32:15 +0700 (WIB)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.blitarkota.go.id (Postfix) with ESMTP id 5DCB3853ABC;
+        Mon, 13 Sep 2021 19:32:15 +0700 (WIB)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.blitarkota.go.id 5DCB3853ABC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=blitarkota.go.id;
+        s=9A007E36-2400-11EA-BC1D-4C7ACDE6EBEB; t=1631536335;
+        bh=yCqIc8Wqj5erpiRqGGVVZzNaNqVXASgtO8p5GTw+Euo=;
+        h=Date:From:Message-ID:MIME-Version;
+        b=l3kBepuEa4FTRqDSwnLIyq2CGx2a1Lzmjj82DW9eo+mJBBIkGMoDPRVRN/dcFr5Qn
+         4PqJVJEYbtNIkWdz66SC/5IfkzoJNQsJ+IseY5u06XZRWkL/HHO4utgrYJn3D5VuD6
+         Uy+uGijcm5kSLdh/9wMNKAjoCD/UITB7hwBdOwisLLqclyAUMrDJMHah2OtVuTHspR
+         3vrYAmvHxp2gbO05ZvL5h7B1Jjv46C+TuPFF0oponiGFpVKwtobGdDRzBLVqonTGiK
+         kS1YnTfspkoLXVkc/nCXcihpvnFsye6qObRFF0I0gwRBiTZ5iFhzmUdtIp6cm8SKAS
+         tBx7s/mIVZqtA==
+X-Virus-Scanned: amavisd-new at mail.blitarkota.go.id
+Received: from mail.blitarkota.go.id ([127.0.0.1])
+        by localhost (mail.blitarkota.go.id [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id OV1lfavCgpR9; Mon, 13 Sep 2021 19:32:15 +0700 (WIB)
+Received: from mail.blitarkota.go.id (mx1.blitar.go.id [192.168.99.194])
+        by mail.blitarkota.go.id (Postfix) with ESMTP id 360808591D3;
+        Mon, 13 Sep 2021 19:32:14 +0700 (WIB)
+Date:   Mon, 13 Sep 2021 19:32:14 +0700 (WIB)
+From:   Ford Foundation <tkn-rembang1@blitarkota.go.id>
+Reply-To: fordfoundation21@gmail.com
+Message-ID: <1697958415.761336.1631536334209.JavaMail.zimbra@blitarkota.go.id>
+Subject: Att
 MIME-Version: 1.0
-References: <20210909120116.150912-1-sashal@kernel.org> <20210909120116.150912-24-sashal@kernel.org>
- <20210910074535.GA454@amd> <YTy/etsK39d/+Zhh@sashalap>
-In-Reply-To: <YTy/etsK39d/+Zhh@sashalap>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Mon, 13 Sep 2021 14:20:35 +0200
-Message-ID: <CAJZ5v0hze08S1ORK7Pwa3N5TBX5Jj=jeKqye=wv7dpzDArss3Q@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 4.4 24/35] ACPICA: iASL: Fix for WPBT table with
- no command-line arguments
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        "open list:ACPI COMPONENT ARCHITECTURE (ACPICA)" <devel@acpica.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [192.168.99.194]
+X-Mailer: Zimbra 8.8.12_GA_3866 (zclient/8.8.12_GA_3866)
+Thread-Index: QHIpetrzLAl57t4tz8r5gcCJqj44mg==
+Thread-Topic: Att
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Sep 11, 2021 at 4:38 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> On Fri, Sep 10, 2021 at 09:45:36AM +0200, Pavel Machek wrote:
-> >Hi!
-> >
-> >> Handle the case where the Command-line Arguments table field
-> >> does not exist.
-> >>
-> >> ACPICA commit d6487164497fda170a1b1453c5d58f2be7c873d6
-> >
-> >I'm not sure what is going on here, but adding unused definition will
-> >not make any difference for 4.4 users, so we don't need this in
-> >-stable...?
->
-> Ugh, dropped, thanks!
->
-> I wonder what this patch actually does upstream.
 
-There are AML compiler changes in it, but the compiler is not included
-into the Linux kernel.
+
+Congratulations, you are one of our lucky beneficiaries to receive a $12 Million US Dollars Covid-19 donation relief fund from the United Nation/IMF. For more details, get back to us.
