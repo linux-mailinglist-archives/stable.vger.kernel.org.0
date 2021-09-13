@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B123A40910A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:57:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC214408DCC
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245153AbhIMN5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:57:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36596 "EHLO mail.kernel.org"
+        id S241533AbhIMNaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:30:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343608AbhIMNzr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:55:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC2A961881;
-        Mon, 13 Sep 2021 13:35:52 +0000 (UTC)
+        id S242202AbhIMN14 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:27:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2B1961268;
+        Mon, 13 Sep 2021 13:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540153;
-        bh=M9TyqKf147UjgYaUzTNPsRL9EOOPe/XQokuRChA1r5A=;
+        s=korg; t=1631539403;
+        bh=j2wWzr1eDgTrxra18QxHg/25fZq3ieTvB0wPK+JE32o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fv0FGPXjMw7JzWMbUFRlGN5R5S4pgHM1YrzRDsQOoMn11uOxoHn1LbCsGXJfNUd5L
-         ZS0A5cIcMr6mmF8q5oQR5WaXrQ8d136vssDFv6Djav/886VDOcEpO+CZDBs2P442fb
-         QXvQ73CFeF8GF7MeQSbplMxuWUk2CePX9yafYD9g=
+        b=qsbWPPpv+rZIQCIyByynMlI7cQaB9RodHvJ8K7pfPRGYV2qkGfk9WvWwLkm5P+aWI
+         6C8zG21qZ82yB6QP23B/of7Xes/+Jv0mnxdUkGzL+Tg9tdzqgvh47wNYJgYNksvlmk
+         h++I3te4RJw+2lVnW1Jsk07h3HvmXWqFhzWvIf3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 056/300] m68k: Fix invalid RMW_INSNS on CPUs that lack CAS
+Subject: [PATCH 5.10 012/236] hrtimer: Avoid double reprogramming in __hrtimer_start_range_ns()
 Date:   Mon, 13 Sep 2021 15:11:57 +0200
-Message-Id: <20210913131111.249870408@linuxfoundation.org>
+Message-Id: <20210913131100.749391015@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,75 +40,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 2189e928b62e91d8efbc9826ae7c0968f0d55790 ]
+[ Upstream commit 627ef5ae2df8eeccb20d5af0e4cfa4df9e61ed28 ]
 
-When enabling CONFIG_RMW_INSNS in e.g. a Coldfire build:
+If __hrtimer_start_range_ns() is invoked with an already armed hrtimer then
+the timer has to be canceled first and then added back. If the timer is the
+first expiring timer then on removal the clockevent device is reprogrammed
+to the next expiring timer to avoid that the pending expiry fires needlessly.
 
-    {standard input}:3068: Error: invalid instruction for this architecture; needs 68020 or higher (68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060]) -- statement `casl %d4,%d0,(%a6)' ignored
+If the new expiry time ends up to be the first expiry again then the clock
+event device has to reprogrammed again.
 
-Fix this by (a) adding a new config symbol to track if support for any
-CPU that lacks the CAS instruction is enabled, and (b) making
-CONFIG_RMW_INSNS depend on the new symbol not being set.
+Avoid this by checking whether the timer is the first to expire and in that
+case, keep the timer on the current CPU and delay the reprogramming up to
+the point where the timer has been enqueued again.
 
-Fixes: 0e152d80507b75c0 ("m68k: reorganize Kconfig options to improve mmu/non-mmu selections")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210725104413.318932-1-geert@linux-m68k.org
+Reported-by: Lorenzo Colitti <lorenzo@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20210713135157.873137732@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.cpu | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ kernel/time/hrtimer.c | 60 ++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 53 insertions(+), 7 deletions(-)
 
-diff --git a/arch/m68k/Kconfig.cpu b/arch/m68k/Kconfig.cpu
-index f4d23977d2a5..1127d64b6c1d 100644
---- a/arch/m68k/Kconfig.cpu
-+++ b/arch/m68k/Kconfig.cpu
-@@ -26,6 +26,7 @@ config COLDFIRE
- 	bool "Coldfire CPU family support"
- 	select ARCH_HAVE_CUSTOM_GPIO_H
- 	select CPU_HAS_NO_BITFIELDS
-+	select CPU_HAS_NO_CAS
- 	select CPU_HAS_NO_MULDIV64
- 	select GENERIC_CSUM
- 	select GPIOLIB
-@@ -39,6 +40,7 @@ config M68000
- 	bool
- 	depends on !MMU
- 	select CPU_HAS_NO_BITFIELDS
-+	select CPU_HAS_NO_CAS
- 	select CPU_HAS_NO_MULDIV64
- 	select CPU_HAS_NO_UNALIGNED
- 	select GENERIC_CSUM
-@@ -54,6 +56,7 @@ config M68000
- config MCPU32
- 	bool
- 	select CPU_HAS_NO_BITFIELDS
-+	select CPU_HAS_NO_CAS
- 	select CPU_HAS_NO_UNALIGNED
- 	select CPU_NO_EFFICIENT_FFS
- 	help
-@@ -383,7 +386,7 @@ config ADVANCED
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index 9505b1f21cdf..4bdceb1ff069 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -1030,12 +1030,13 @@ static void __remove_hrtimer(struct hrtimer *timer,
+  * remove hrtimer, called with base lock held
+  */
+ static inline int
+-remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base, bool restart)
++remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base,
++	       bool restart, bool keep_local)
+ {
+ 	u8 state = timer->state;
  
- config RMW_INSNS
- 	bool "Use read-modify-write instructions"
--	depends on ADVANCED
-+	depends on ADVANCED && !CPU_HAS_NO_CAS
- 	help
- 	  This allows to use certain instructions that work with indivisible
- 	  read-modify-write bus cycles. While this is faster than the
-@@ -459,6 +462,9 @@ config NODES_SHIFT
- config CPU_HAS_NO_BITFIELDS
- 	bool
+ 	if (state & HRTIMER_STATE_ENQUEUED) {
+-		int reprogram;
++		bool reprogram;
  
-+config CPU_HAS_NO_CAS
-+	bool
+ 		/*
+ 		 * Remove the timer and force reprogramming when high
+@@ -1048,8 +1049,16 @@ remove_hrtimer(struct hrtimer *timer, struct hrtimer_clock_base *base, bool rest
+ 		debug_deactivate(timer);
+ 		reprogram = base->cpu_base == this_cpu_ptr(&hrtimer_bases);
+ 
++		/*
++		 * If the timer is not restarted then reprogramming is
++		 * required if the timer is local. If it is local and about
++		 * to be restarted, avoid programming it twice (on removal
++		 * and a moment later when it's requeued).
++		 */
+ 		if (!restart)
+ 			state = HRTIMER_STATE_INACTIVE;
++		else
++			reprogram &= !keep_local;
+ 
+ 		__remove_hrtimer(timer, base, state, reprogram);
+ 		return 1;
+@@ -1103,9 +1112,31 @@ static int __hrtimer_start_range_ns(struct hrtimer *timer, ktime_t tim,
+ 				    struct hrtimer_clock_base *base)
+ {
+ 	struct hrtimer_clock_base *new_base;
++	bool force_local, first;
+ 
+-	/* Remove an active timer from the queue: */
+-	remove_hrtimer(timer, base, true);
++	/*
++	 * If the timer is on the local cpu base and is the first expiring
++	 * timer then this might end up reprogramming the hardware twice
++	 * (on removal and on enqueue). To avoid that by prevent the
++	 * reprogram on removal, keep the timer local to the current CPU
++	 * and enforce reprogramming after it is queued no matter whether
++	 * it is the new first expiring timer again or not.
++	 */
++	force_local = base->cpu_base == this_cpu_ptr(&hrtimer_bases);
++	force_local &= base->cpu_base->next_timer == timer;
 +
- config CPU_HAS_NO_MULDIV64
- 	bool
++	/*
++	 * Remove an active timer from the queue. In case it is not queued
++	 * on the current CPU, make sure that remove_hrtimer() updates the
++	 * remote data correctly.
++	 *
++	 * If it's on the current CPU and the first expiring timer, then
++	 * skip reprogramming, keep the timer local and enforce
++	 * reprogramming later if it was the first expiring timer.  This
++	 * avoids programming the underlying clock event twice (once at
++	 * removal and once after enqueue).
++	 */
++	remove_hrtimer(timer, base, true, force_local);
+ 
+ 	if (mode & HRTIMER_MODE_REL)
+ 		tim = ktime_add_safe(tim, base->get_time());
+@@ -1115,9 +1146,24 @@ static int __hrtimer_start_range_ns(struct hrtimer *timer, ktime_t tim,
+ 	hrtimer_set_expires_range_ns(timer, tim, delta_ns);
+ 
+ 	/* Switch the timer base, if necessary: */
+-	new_base = switch_hrtimer_base(timer, base, mode & HRTIMER_MODE_PINNED);
++	if (!force_local) {
++		new_base = switch_hrtimer_base(timer, base,
++					       mode & HRTIMER_MODE_PINNED);
++	} else {
++		new_base = base;
++	}
++
++	first = enqueue_hrtimer(timer, new_base, mode);
++	if (!force_local)
++		return first;
+ 
+-	return enqueue_hrtimer(timer, new_base, mode);
++	/*
++	 * Timer was forced to stay on the current CPU to avoid
++	 * reprogramming on removal and enqueue. Force reprogram the
++	 * hardware by evaluating the new first expiring timer.
++	 */
++	hrtimer_force_reprogram(new_base->cpu_base, 1);
++	return 0;
+ }
+ 
+ /**
+@@ -1183,7 +1229,7 @@ int hrtimer_try_to_cancel(struct hrtimer *timer)
+ 	base = lock_hrtimer_base(timer, &flags);
+ 
+ 	if (!hrtimer_callback_running(timer))
+-		ret = remove_hrtimer(timer, base, false);
++		ret = remove_hrtimer(timer, base, false, false);
+ 
+ 	unlock_hrtimer_base(timer, &flags);
  
 -- 
 2.30.2
