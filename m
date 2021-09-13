@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 517AC4094E7
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B410409241
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245206AbhIMOgT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:36:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51890 "EHLO mail.kernel.org"
+        id S235467AbhIMOKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:10:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347481AbhIMOed (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:34:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5893261BBE;
-        Mon, 13 Sep 2021 13:52:59 +0000 (UTC)
+        id S1344233AbhIMOHQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:07:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62FEF61A86;
+        Mon, 13 Sep 2021 13:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541179;
-        bh=05UkK0ig2uvtmKKXkG6BBmNtU1LU6hu1Oy8xHBzwNqI=;
+        s=korg; t=1631540430;
+        bh=d6Yzb7A+pcDBNq4OXFFHr6q/+jUdHInhJyJh/qMEhGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LCxok4uFqYmw8OrGDegtTtlBexuxY5OsbmSQNWgqsSfvwAZGX8y4daEa0R7xPQkER
-         3dtnZG9EOJmR+vBVRhmYRfUDn+3VLB11yHuGEln1A3Irk5Jf9GLTGbvCmOi/FAQwd6
-         emP4BiUR86GOOl2mHN7p0NJdlwcFHdkeT697AWu0=
+        b=BpgGaY3vAoEIDGhOpcVBywYNenxNRI4c5yDk/gxE4HLP96GKRjMeA3wOz1ImD4f4k
+         6/mRDyIaXmzAQQU+MwXm6lNVSTbMHdngfgrYOOLhEHPyqDimFT76YilgC/FnBO4Bfz
+         i1tXCdkzDfbQ3xqKjnirJaR1zVEcKYlTbc+oiIaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <khsieh@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Juhee Kang <claudiajkang@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 195/334] drm/msm/dp: replug event is converted into an unplug followed by an plug events
-Date:   Mon, 13 Sep 2021 15:14:09 +0200
-Message-Id: <20210913131119.977252231@linuxfoundation.org>
+Subject: [PATCH 5.13 189/300] samples: pktgen: add missing IPv6 option to pktgen scripts
+Date:   Mon, 13 Sep 2021 15:14:10 +0200
+Message-Id: <20210913131115.768948008@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,78 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <khsieh@codeaurora.org>
+From: Juhee Kang <claudiajkang@gmail.com>
 
-[ Upstream commit 7e10bf427850f2d7133fd091999abd5fc1755cdb ]
+[ Upstream commit 0f0c4f1b72e090b23131700bb155944cc28b2a7b ]
 
-Remove special handling of replug interrupt and instead treat replug event
-as a sequential unplug followed by a plugin event. This is needed to meet
-the requirements of DP Link Layer CTS test case 4.2.1.3.
+Currently, "sample04" and "sample05" are not working properly when
+running with an IPv6 option("-6"). The commit 0f06a6787e05 ("samples:
+Add an IPv6 "-6" option to the pktgen scripts") has omitted the addition
+of this option at "sample04" and "sample05".
 
-Changes in V2:
--- add fixes statement
+In order to support IPv6 option, this commit adds logic related to IPv6
+option.
 
-Changes in V3:
--- delete EV_HPD_REPLUG_INT
+Fixes: 0f06a6787e05 ("samples: Add an IPv6 "-6" option to the pktgen scripts")
 
-Fixes: f21c8a276c2d ("drm/msm/dp: handle irq_hpd with sink_count = 0 correctly")
-
-Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1628196295-7382-5-git-send-email-khsieh@codeaurora.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Juhee Kang <claudiajkang@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ samples/pktgen/pktgen_sample04_many_flows.sh      | 12 +++++++-----
+ samples/pktgen/pktgen_sample05_flow_per_thread.sh | 12 +++++++-----
+ 2 files changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index 8aca93309c1c..997fd67f7379 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -55,7 +55,6 @@ enum {
- 	EV_HPD_INIT_SETUP,
- 	EV_HPD_PLUG_INT,
- 	EV_IRQ_HPD_INT,
--	EV_HPD_REPLUG_INT,
- 	EV_HPD_UNPLUG_INT,
- 	EV_USER_NOTIFICATION,
- 	EV_CONNECT_PENDING_TIMEOUT,
-@@ -1119,9 +1118,6 @@ static int hpd_event_thread(void *data)
- 		case EV_IRQ_HPD_INT:
- 			dp_irq_hpd_handle(dp_priv, todo->data);
- 			break;
--		case EV_HPD_REPLUG_INT:
--			/* do nothing */
--			break;
- 		case EV_USER_NOTIFICATION:
- 			dp_display_send_hpd_notification(dp_priv,
- 						todo->data);
-@@ -1165,10 +1161,8 @@ static irqreturn_t dp_display_irq_handler(int irq, void *dev_id)
+diff --git a/samples/pktgen/pktgen_sample04_many_flows.sh b/samples/pktgen/pktgen_sample04_many_flows.sh
+index ddce876635aa..507c1143eb96 100755
+--- a/samples/pktgen/pktgen_sample04_many_flows.sh
++++ b/samples/pktgen/pktgen_sample04_many_flows.sh
+@@ -13,13 +13,15 @@ root_check_run_with_sudo "$@"
+ # Parameter parsing via include
+ source ${basedir}/parameters.sh
+ # Set some default params, if they didn't get set
+-[ -z "$DEST_IP" ]   && DEST_IP="198.18.0.42"
++if [ -z "$DEST_IP" ]; then
++    [ -z "$IP6" ] && DEST_IP="198.18.0.42" || DEST_IP="FD00::1"
++fi
+ [ -z "$DST_MAC" ]   && DST_MAC="90:e2:ba:ff:ff:ff"
+ [ -z "$CLONE_SKB" ] && CLONE_SKB="0"
+ [ -z "$COUNT" ]     && COUNT="0" # Zero means indefinitely
+ if [ -n "$DEST_IP" ]; then
+-    validate_addr $DEST_IP
+-    read -r DST_MIN DST_MAX <<< $(parse_addr $DEST_IP)
++    validate_addr${IP6} $DEST_IP
++    read -r DST_MIN DST_MAX <<< $(parse_addr${IP6} $DEST_IP)
+ fi
+ if [ -n "$DST_PORT" ]; then
+     read -r UDP_DST_MIN UDP_DST_MAX <<< $(parse_ports $DST_PORT)
+@@ -62,8 +64,8 @@ for ((thread = $F_THREAD; thread <= $L_THREAD; thread++)); do
  
- 	if (hpd_isr_status & 0x0F) {
- 		/* hpd related interrupts */
--		if (hpd_isr_status & DP_DP_HPD_PLUG_INT_MASK ||
--			hpd_isr_status & DP_DP_HPD_REPLUG_INT_MASK) {
-+		if (hpd_isr_status & DP_DP_HPD_PLUG_INT_MASK)
- 			dp_add_event(dp, EV_HPD_PLUG_INT, 0, 0);
--		}
+     # Single destination
+     pg_set $dev "dst_mac $DST_MAC"
+-    pg_set $dev "dst_min $DST_MIN"
+-    pg_set $dev "dst_max $DST_MAX"
++    pg_set $dev "dst${IP6}_min $DST_MIN"
++    pg_set $dev "dst${IP6}_max $DST_MAX"
  
- 		if (hpd_isr_status & DP_DP_IRQ_HPD_INT_MASK) {
- 			/* stop sentinel connect pending checking */
-@@ -1176,8 +1170,10 @@ static irqreturn_t dp_display_irq_handler(int irq, void *dev_id)
- 			dp_add_event(dp, EV_IRQ_HPD_INT, 0, 0);
- 		}
+     if [ -n "$DST_PORT" ]; then
+ 	# Single destination port or random port range
+diff --git a/samples/pktgen/pktgen_sample05_flow_per_thread.sh b/samples/pktgen/pktgen_sample05_flow_per_thread.sh
+index 4a65fe2fcee9..160143ebcdd0 100755
+--- a/samples/pktgen/pktgen_sample05_flow_per_thread.sh
++++ b/samples/pktgen/pktgen_sample05_flow_per_thread.sh
+@@ -17,14 +17,16 @@ root_check_run_with_sudo "$@"
+ # Parameter parsing via include
+ source ${basedir}/parameters.sh
+ # Set some default params, if they didn't get set
+-[ -z "$DEST_IP" ]   && DEST_IP="198.18.0.42"
++if [ -z "$DEST_IP" ]; then
++    [ -z "$IP6" ] && DEST_IP="198.18.0.42" || DEST_IP="FD00::1"
++fi
+ [ -z "$DST_MAC" ]   && DST_MAC="90:e2:ba:ff:ff:ff"
+ [ -z "$CLONE_SKB" ] && CLONE_SKB="0"
+ [ -z "$BURST" ]     && BURST=32
+ [ -z "$COUNT" ]     && COUNT="0" # Zero means indefinitely
+ if [ -n "$DEST_IP" ]; then
+-    validate_addr $DEST_IP
+-    read -r DST_MIN DST_MAX <<< $(parse_addr $DEST_IP)
++    validate_addr${IP6} $DEST_IP
++    read -r DST_MIN DST_MAX <<< $(parse_addr${IP6} $DEST_IP)
+ fi
+ if [ -n "$DST_PORT" ]; then
+     read -r UDP_DST_MIN UDP_DST_MAX <<< $(parse_ports $DST_PORT)
+@@ -52,8 +54,8 @@ for ((thread = $F_THREAD; thread <= $L_THREAD; thread++)); do
  
--		if (hpd_isr_status & DP_DP_HPD_REPLUG_INT_MASK)
--			dp_add_event(dp, EV_HPD_REPLUG_INT, 0, 0);
-+		if (hpd_isr_status & DP_DP_HPD_REPLUG_INT_MASK) {
-+			dp_add_event(dp, EV_HPD_UNPLUG_INT, 0, 0);
-+			dp_add_event(dp, EV_HPD_PLUG_INT, 0, 3);
-+		}
+     # Single destination
+     pg_set $dev "dst_mac $DST_MAC"
+-    pg_set $dev "dst_min $DST_MIN"
+-    pg_set $dev "dst_max $DST_MAX"
++    pg_set $dev "dst${IP6}_min $DST_MIN"
++    pg_set $dev "dst${IP6}_max $DST_MAX"
  
- 		if (hpd_isr_status & DP_DP_HPD_UNPLUG_INT_MASK)
- 			dp_add_event(dp, EV_HPD_UNPLUG_INT, 0, 0);
+     if [ -n "$DST_PORT" ]; then
+ 	# Single destination port or random port range
 -- 
 2.30.2
 
