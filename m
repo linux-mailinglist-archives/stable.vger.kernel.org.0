@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28029409504
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:40:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C44C40921D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344571AbhIMOg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:36:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51902 "EHLO mail.kernel.org"
+        id S1343529AbhIMOIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:08:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346311AbhIMOco (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:32:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 091CD6138E;
-        Mon, 13 Sep 2021 13:52:27 +0000 (UTC)
+        id S244090AbhIMOGV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:06:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 136C361A7B;
+        Mon, 13 Sep 2021 13:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541148;
-        bh=Ldj1SLwndHIjnKF0qvU9F06ohzlde54h5E1UUZ80w8U=;
+        s=korg; t=1631540395;
+        bh=jB4fAYwVb+zmMgGrVACNJ7TvNKDY2o01HUgun9n2NrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wUKJvihdQ10jirBuIlMFY5KO136gxE7+Kzud+EODOahp3094b+6eRb6s01BIWk+8
-         /Kdvi0PiEtoE7/VFSiR9SJppdb7ggpR1AHLIIOzjFcsbkbT9WdG2Vr1btWsHofpE3Y
-         m450cGomaRiFLUYmm11Ccr+ZNX/k6S2QKuvCEpec=
+        b=MxZLp1HNYGYzefVi3cblIH4VR4RJzzulvbBNe+F9NQORfbrglLobObG/R55MapMr5
+         riauuFExHVMSPBx59Qp0CBxPC9zM4ke679PtJW+gni1Gln6IoaA81FhhZm9MWFSv+a
+         ScW4qMR71xPUrkXIjoFDRXMsNHdv4zMn90xXhVVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Li <liwei391@huawei.com>,
-        Abhinav Kumar <abhinavk@codeaurora.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 183/334] drm/msm: Fix error return code in msm_drm_init()
+Subject: [PATCH 5.13 176/300] net/mlx5: Fix unpublish devlink parameters
 Date:   Mon, 13 Sep 2021 15:13:57 +0200
-Message-Id: <20210913131119.533213401@linuxfoundation.org>
+Message-Id: <20210913131115.341518284@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit bfddcfe155a2fe448fee0169c5cbc82c7fa73491 ]
+[ Upstream commit 6f35723864b42ec9e9bb95a503449633395c4975 ]
 
-When it fail to create crtc_event kthread, it just jump to err_msm_uninit,
-while the 'ret' is not updated. So assign the return code before that.
+Cleanup routine missed to unpublish the parameters. Add it.
 
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Reviewed-by: Abhinav Kumar <abhinavk@codeaurora.org>
-Link: https://lore.kernel.org/r/20210705134302.315813-1-liwei391@huawei.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: e890acd5ff18 ("net/mlx5: Add devlink flow_steering_mode parameter")
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_drv.c | 1 +
+ drivers/net/ethernet/mellanox/mlx5/core/devlink.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
-index 9b8fa2ad0d84..729ab68d0203 100644
---- a/drivers/gpu/drm/msm/msm_drv.c
-+++ b/drivers/gpu/drm/msm/msm_drv.c
-@@ -539,6 +539,7 @@ static int msm_drm_init(struct device *dev, const struct drm_driver *drv)
- 		if (IS_ERR(priv->event_thread[i].worker)) {
- 			ret = PTR_ERR(priv->event_thread[i].worker);
- 			DRM_DEV_ERROR(dev, "failed to create crtc_event kthread\n");
-+			ret = PTR_ERR(priv->event_thread[i].worker);
- 			goto err_msm_uninit;
- 		}
- 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
+index 44c458443428..4794173f8fdb 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
+@@ -664,6 +664,7 @@ params_reg_err:
+ void mlx5_devlink_unregister(struct devlink *devlink)
+ {
+ 	mlx5_devlink_traps_unregister(devlink);
++	devlink_params_unpublish(devlink);
+ 	devlink_params_unregister(devlink, mlx5_devlink_params,
+ 				  ARRAY_SIZE(mlx5_devlink_params));
+ 	devlink_unregister(devlink);
 -- 
 2.30.2
 
