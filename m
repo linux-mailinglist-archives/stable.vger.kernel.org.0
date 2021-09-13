@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3927B408ECC
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD90B408ECB
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241402AbhIMNg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:36:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58176 "EHLO mail.kernel.org"
+        id S241409AbhIMNgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:36:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242941AbhIMNeg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242944AbhIMNeg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:34:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11B1461245;
-        Mon, 13 Sep 2021 13:26:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F8EA61209;
+        Mon, 13 Sep 2021 13:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539591;
-        bh=B1ASkud8RwYvamw1oap2UXOK22AsA3T7VFzUvynsnZ0=;
+        s=korg; t=1631539594;
+        bh=uKrNE2LSeeJMdBjhDw/gA4UAWVuBNAGvWIlywK0v8aY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KeDueW45JKM8e5kfXeC5XljVAiCZ72woH7jxfnDMFijef02gnLR3Cyad1NcUvIsMw
-         xMynUKNBxDZhrkpt4ca0Eg2DvOsvOMQgtmCe1p3N5pmXB7ipKChJV6h0TmbAlstzlB
-         RP4M0O9t4ZbfRzRJtEtvd1oyXrGEWaW+iyOUNqdc=
+        b=nZXJazo8rTZ6goqoGiyxcyFHngzR0SMZ8oTiXbdV4tq39WJcz5Wm1izIpyPweM/s0
+         1XxsOGUoiCn44yrgtX01LA9BvpVxWZiCN/7GgkXc3EZ7GY+QC0hqu0CobVO+TnURsy
+         7OfQkF0qdPmCsUNpmhFMqMo0rAeoPejdDKduPhTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Ulrich Hecht <uli+renesas@fpond.eu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/236] arm64: dts: renesas: r8a77995: draak: Remove bogus adv7511w properties
-Date:   Mon, 13 Sep 2021 15:13:08 +0200
-Message-Id: <20210913131103.181755633@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.10 084/236] i40e: improve locking of mac_filter_hash
+Date:   Mon, 13 Sep 2021 15:13:09 +0200
+Message-Id: <20210913131103.214694704@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -41,40 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit 4ec82a7bb3db8c6005e715c63224c32d458917a2 ]
+[ Upstream commit 8b4b06919fd66caf49fdf4fe59f9d6312cf7956d ]
 
-The "max-clock" and "min-vrefresh" properties fail to validate with
-commit cfe34bb7a770c5d8 ("dt-bindings: drm: bridge: adi,adv7511.txt:
-convert to yaml").  Drop them, as they are parts of an out-of-tree
-workaround that is not needed upstream.
+i40e_config_vf_promiscuous_mode() calls
+i40e_getnum_vf_vsi_vlan_filters() without acquiring the
+mac_filter_hash_lock spinlock.
 
-Fixes: bcf3003438ea4645 ("arm64: dts: renesas: r8a77995: draak: Enable HDMI display output")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Link: https://lore.kernel.org/r/975b6686bc423421b147d367fe7fb9a0db99c5af.1625134398.git.geert+renesas@glider.be
+This is unsafe because mac_filter_hash may get altered in another thread
+while i40e_getnum_vf_vsi_vlan_filters() traverses the hashes.
+
+Simply adding the spinlock in i40e_getnum_vf_vsi_vlan_filters() is not
+possible as it already gets called in i40e_get_vlan_list_sync() with the
+spinlock held. Therefore adding a wrapper that acquires the spinlock and
+call the correct function where appropriate.
+
+Fixes: 37d318d7805f ("i40e: Remove scheduling while atomic possibility")
+Fix-suggested-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a77995-draak.dts | 4 ----
- 1 file changed, 4 deletions(-)
+ .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 23 ++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
-index 8f471881b7a3..2e4bb7ecd5bd 100644
---- a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
-@@ -277,10 +277,6 @@
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <28 IRQ_TYPE_LEVEL_LOW>;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index e4f13a49c3df..a02167cce81e 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1107,12 +1107,12 @@ static int i40e_quiesce_vf_pci(struct i40e_vf *vf)
+ }
  
--		/* Depends on LVDS */
--		max-clock = <135000000>;
--		min-vrefresh = <50>;
--
- 		adi,input-depth = <8>;
- 		adi,input-colorspace = "rgb";
- 		adi,input-clock = "1x";
+ /**
+- * i40e_getnum_vf_vsi_vlan_filters
++ * __i40e_getnum_vf_vsi_vlan_filters
+  * @vsi: pointer to the vsi
+  *
+  * called to get the number of VLANs offloaded on this VF
+  **/
+-static int i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
++static int __i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
+ {
+ 	struct i40e_mac_filter *f;
+ 	u16 num_vlans = 0, bkt;
+@@ -1125,6 +1125,23 @@ static int i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
+ 	return num_vlans;
+ }
+ 
++/**
++ * i40e_getnum_vf_vsi_vlan_filters
++ * @vsi: pointer to the vsi
++ *
++ * wrapper for __i40e_getnum_vf_vsi_vlan_filters() with spinlock held
++ **/
++static int i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
++{
++	int num_vlans;
++
++	spin_lock_bh(&vsi->mac_filter_hash_lock);
++	num_vlans = __i40e_getnum_vf_vsi_vlan_filters(vsi);
++	spin_unlock_bh(&vsi->mac_filter_hash_lock);
++
++	return num_vlans;
++}
++
+ /**
+  * i40e_get_vlan_list_sync
+  * @vsi: pointer to the VSI
+@@ -1142,7 +1159,7 @@ static void i40e_get_vlan_list_sync(struct i40e_vsi *vsi, u16 *num_vlans,
+ 	int bkt;
+ 
+ 	spin_lock_bh(&vsi->mac_filter_hash_lock);
+-	*num_vlans = i40e_getnum_vf_vsi_vlan_filters(vsi);
++	*num_vlans = __i40e_getnum_vf_vsi_vlan_filters(vsi);
+ 	*vlan_list = kcalloc(*num_vlans, sizeof(**vlan_list), GFP_ATOMIC);
+ 	if (!(*vlan_list))
+ 		goto err;
 -- 
 2.30.2
 
