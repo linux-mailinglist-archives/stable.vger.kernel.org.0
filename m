@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C691D4094F0
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5E8E40922A
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:09:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344059AbhIMOge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:36:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53786 "EHLO mail.kernel.org"
+        id S1344078AbhIMOIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:08:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344574AbhIMOdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:33:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C1B661BB1;
-        Mon, 13 Sep 2021 13:52:44 +0000 (UTC)
+        id S242662AbhIMOGr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:06:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E49661A6C;
+        Mon, 13 Sep 2021 13:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541165;
-        bh=x0NJmNBpyU3laTS5E8kyiwcrKoQ/viyrT+AH9vqMvzI=;
+        s=korg; t=1631540411;
+        bh=x73VeGWG/wCftAU+sqyya83+jbHEp6i30b7fFTCFvcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WPpzahhJFOiiZd9grtevEk2CQgj1KmmIXpPf/AiCGR+RTEE9a+aOHByPry8LGYK3D
-         n/HOmwMeX02+2X6nHNsitMTuV48mrcRs3P/2Pc4zf0s3cIbH/4bEfrE1m0mtdzryCr
-         4YjAKgwUlm98PR7+n6E4hJnxdZAul7vpX0Vva9NE=
+        b=a0OtNno9Gl/X+igHIbLJgR5L31Q2hIZWVwyyHOscW1elU29XNWBY2kuzmJSoRzTmT
+         DKVsRthIWca5bhAvJ6xoCQbnpM68sqnKumiWiGt41NmGqHIi41U4f+xdmk3DZlOUZ6
+         hlBMtwLAdSDwtA5m+sL1OIqMO8ii2eQSR8TGASJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Syed Nayyar Waris <syednwaris@gmail.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 189/334] counter: 104-quad-8: Return error when invalid mode during ceiling_write
+Subject: [PATCH 5.13 182/300] usb: gadget: udc: s3c2410: add IRQ check
 Date:   Mon, 13 Sep 2021 15:14:03 +0200
-Message-Id: <20210913131119.743797713@linuxfoundation.org>
+Message-Id: <20210913131115.541383083@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Breathitt Gray <vilhelm.gray@gmail.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 728246e8f7269ecd35a2c6e6795323e6d8f48db7 ]
+[ Upstream commit ecff88e819e31081d41cd05bb199b9bd10e13e90 ]
 
-The 104-QUAD-8 only has two count modes where a ceiling value makes
-sense: Range Limit and Modulo-N. Outside of these two modes, setting a
-ceiling value is an invalid operation -- so let's report it as such by
-returning -EINVAL.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to request_irq() (which takes
+*unsigned* IRQ #), causing it to fail with -EINVAL, overriding an original
+error code. Stop calling request_irq() with the invalid IRQ #s.
 
-Fixes: fc069262261c ("counter: 104-quad-8: Add lock guards - generic interface")
-Acked-by: Syed Nayyar Waris <syednwaris@gmail.com>
-Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-Link: https://lore.kernel.org/r/a2147f022829b66839a1db5530a7fada47856847.1627990337.git.vilhelm.gray@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 188db4435ac6 ("usb: gadget: s3c: use platform resources")
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/bd69b22c-b484-5a1f-c798-78d4b78405f2@omp.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/counter/104-quad-8.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/s3c2410_udc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
-index 09a9a77cce06..81f9642777fb 100644
---- a/drivers/counter/104-quad-8.c
-+++ b/drivers/counter/104-quad-8.c
-@@ -715,12 +715,13 @@ static ssize_t quad8_count_ceiling_write(struct counter_device *counter,
- 	case 1:
- 	case 3:
- 		quad8_preset_register_set(priv, count->id, ceiling);
--		break;
-+		mutex_unlock(&priv->lock);
-+		return len;
- 	}
+diff --git a/drivers/usb/gadget/udc/s3c2410_udc.c b/drivers/usb/gadget/udc/s3c2410_udc.c
+index b154b62abefa..82c4f3fb2dae 100644
+--- a/drivers/usb/gadget/udc/s3c2410_udc.c
++++ b/drivers/usb/gadget/udc/s3c2410_udc.c
+@@ -1784,6 +1784,10 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
+ 	s3c2410_udc_reinit(udc);
  
- 	mutex_unlock(&priv->lock);
+ 	irq_usbd = platform_get_irq(pdev, 0);
++	if (irq_usbd < 0) {
++		retval = irq_usbd;
++		goto err_udc_clk;
++	}
  
--	return len;
-+	return -EINVAL;
- }
- 
- static ssize_t quad8_count_preset_enable_read(struct counter_device *counter,
+ 	/* irq setup after old hardware state is cleaned up */
+ 	retval = request_irq(irq_usbd, s3c2410_udc_irq,
 -- 
 2.30.2
 
