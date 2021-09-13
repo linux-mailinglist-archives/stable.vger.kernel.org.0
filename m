@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EA04408DF2
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7248A409047
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:52:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241138AbhIMNao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:30:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46826 "EHLO mail.kernel.org"
+        id S240606AbhIMNvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:51:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242170AbhIMN1p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:27:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF36461247;
-        Mon, 13 Sep 2021 13:23:09 +0000 (UTC)
+        id S244526AbhIMNtd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:49:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF5FD6152B;
+        Mon, 13 Sep 2021 13:33:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539390;
-        bh=GcRdpxCbhQM1LFLuEiN/IJzFuauGp4BaPUK7J/TDJ70=;
+        s=korg; t=1631539993;
+        bh=lzVwAXKN3WGnht6ENogvCiF5d2VbewTF7MCfwouzSps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R3YsVWv+or3m5MLON/w6nkgjLScKHYqbIQRRNoAakC0WcfL3Qzd6LBHDRW2FyatWH
-         dBLJmsnztFW6SZBdKZMPHc66yuUDWIvJMRmxqCGVQ/wT4tK/wT0Oh9yX9QoUZMfaf8
-         xMLvlXAxYBuWXE0k20y8+A2LsnaWgMcRPnuFVdCw=
+        b=2DPscJqfEupnJGbE6QRTUEnazo9gPy4CWgsI3iJIcqNwG/HwXJMzfWMkfINqwFBuP
+         MgP+j4GaMBPZgXdl0zYYa9gIrtvqrwZRoOXsv6psdRQ7UVZu+Tm9Qn3neScMBGeVKJ
+         hifngnmBKi3weNrvFPicuc/evH3uYsAldVFqGaO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH 5.4 135/144] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
-Date:   Mon, 13 Sep 2021 15:15:16 +0200
-Message-Id: <20210913131052.449148261@linuxfoundation.org>
+        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 212/236] octeontx2-af: Fix static code analyzer reported issues
+Date:   Mon, 13 Sep 2021 15:15:17 +0200
+Message-Id: <20210913131107.587604223@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,119 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Subbaraya Sundeep <sbhatta@marvell.com>
 
-commit a3e03bc1368c1bc16e19b001fc96dc7430573cc8 upstream.
+[ Upstream commit 698a82ebfb4b2f2014baf31b7324b328a2a6366e ]
 
-While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true, it may
-not always be, and we must not rely on this. Reason is that KVM decides
-the vcpu_idx, userspace decides the vcpu_id, thus the two might not
-match.
+This patch fixes the static code analyzer reported issues
+in rvu_npc.c. The reported errors are different sizes of
+operands in bitops and returning uninitialized values.
 
-Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
-that code like
-for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
-                vcpu = kvm_get_vcpu(kvm, vcpu_id);
-		do_stuff(vcpu);
-}
-is not legit. Reason is that kvm_get_vcpu expects an vcpu_idx, not an
-vcpu_id.  The trouble is, we do actually use kvm->arch.idle_mask like
-this. To fix this problem we have two options. Either use
-kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
-or switch to indexing via vcpu_idx. The latter is preferable for obvious
-reasons.
-
-Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
-indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
-same index as idle_mask lets make the same change for it as well.
-
-Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Christian Bornträger <borntraeger@de.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # 3.15+
-Link: https://lore.kernel.org/r/20210827125429.1912577-1-pasic@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 651cd2652339 ("octeontx2-af: MCAM entry installation support")
+Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/kvm_host.h |    1 +
- arch/s390/kvm/interrupt.c        |   12 ++++++------
- arch/s390/kvm/kvm-s390.c         |    2 +-
- arch/s390/kvm/kvm-s390.h         |    2 +-
- 4 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -873,6 +873,7 @@ struct kvm_arch{
- 	atomic64_t cmma_dirty_pages;
- 	/* subset of available cpu features enabled by user space */
- 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
-+	/* indexed by vcpu_idx */
- 	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
- 	struct kvm_s390_gisa_interrupt gisa_int;
- };
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -408,13 +408,13 @@ static unsigned long deliverable_irqs(st
- static void __set_cpu_idle(struct kvm_vcpu *vcpu)
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
+index 7767b1111944..a8a515ba1700 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
+@@ -27,7 +27,7 @@
+ #define NIXLF_PROMISC_ENTRY	2
+ 
+ #define NPC_PARSE_RESULT_DMAC_OFFSET	8
+-#define NPC_HW_TSTAMP_OFFSET		8
++#define NPC_HW_TSTAMP_OFFSET		8ULL
+ 
+ static const char def_pfl_name[] = "default";
+ 
+@@ -1318,7 +1318,7 @@ static void npc_unmap_mcam_entry_and_cntr(struct rvu *rvu,
+ 					  int blkaddr, u16 entry, u16 cntr)
  {
- 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
--	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
+ 	u16 index = entry & (mcam->banksize - 1);
+-	u16 bank = npc_get_bank(mcam, entry);
++	u32 bank = npc_get_bank(mcam, entry);
  
- static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
--	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
+ 	/* Remove mapping and reduce counter's refcnt */
+ 	mcam->entry2cntr_map[entry] = NPC_MCAM_INVALID_MAP;
+@@ -1879,8 +1879,8 @@ int rvu_mbox_handler_npc_mcam_shift_entry(struct rvu *rvu,
+ 	struct npc_mcam *mcam = &rvu->hw->mcam;
+ 	u16 pcifunc = req->hdr.pcifunc;
+ 	u16 old_entry, new_entry;
++	int blkaddr, rc = 0;
+ 	u16 index, cntr;
+-	int blkaddr, rc;
  
- static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
-@@ -2984,18 +2984,18 @@ int kvm_s390_get_irq_state(struct kvm_vc
- 
- static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
- {
--	int vcpu_id, online_vcpus = atomic_read(&kvm->online_vcpus);
-+	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
- 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
- 	struct kvm_vcpu *vcpu;
- 
--	for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
--		vcpu = kvm_get_vcpu(kvm, vcpu_id);
-+	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
-+		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
- 		if (psw_ioint_disabled(vcpu))
- 			continue;
- 		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
- 		if (deliverable_mask) {
- 			/* lately kicked but not yet running */
--			if (test_and_set_bit(vcpu_id, gi->kicked_mask))
-+			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
- 				return;
- 			kvm_s390_vcpu_wakeup(vcpu);
- 			return;
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3726,7 +3726,7 @@ static int vcpu_pre_run(struct kvm_vcpu
- 		kvm_s390_patch_guest_per_regs(vcpu);
- 	}
- 
--	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.gisa_int.kicked_mask);
-+	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.gisa_int.kicked_mask);
- 
- 	vcpu->arch.sie_block->icptcode = 0;
- 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -67,7 +67,7 @@ static inline int is_vcpu_stopped(struct
- 
- static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
- {
--	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
- 
- static inline int kvm_is_ucontrol(struct kvm *kvm)
+ 	blkaddr = rvu_get_blkaddr(rvu, BLKTYPE_NPC, 0);
+ 	if (blkaddr < 0)
+-- 
+2.30.2
+
 
 
