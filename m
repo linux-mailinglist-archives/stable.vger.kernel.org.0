@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16492408F60
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E91B408CC5
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:20:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243377AbhIMNmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:42:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39122 "EHLO mail.kernel.org"
+        id S240721AbhIMNVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:21:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241424AbhIMNjM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:39:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27A1A61279;
-        Mon, 13 Sep 2021 13:28:52 +0000 (UTC)
+        id S239380AbhIMNU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:20:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE637610E6;
+        Mon, 13 Sep 2021 13:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539733;
-        bh=0eVmFigmvePfK0NtKm7EzbzuJ3ya/9SnuQww5F3AvfQ=;
+        s=korg; t=1631539162;
+        bh=6UmB6ykUfxJtqzo3qnDcVnv31GjeZXUQrxUoahVRJAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iCJUxSVldPC4b5PaUkWzH9gxcRRzwHgX8x0p9uNUnV4KCBqRI429E4uJgwP0j0ifg
-         d9Vx08/shStdmDGNYbCVxEp1zddkCeE23Up+c80MCdc+8Pva1hSLujf976Irtp+C7c
-         mSbgXVS+n4qNSG2i2xvSj+l4EvWlP2vm/fvetyCQ=
+        b=QnOAfT6ehjxxCVKrA+75vCaMFJHuf3wbL6qavFUPz34ViKYAa1rhih+zr78cBQekx
+         yA5+SXgXNAkIr8aRKArNlj6jVuYatnWUq6BnBSsKAuYghKGn6zBNPwSKeFBEzmbora
+         DyTUvcdDvv+/wmtyiEI6iJCz7CbytOr832KYwHUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Fiona Trahe <fiona.trahe@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 097/236] media: rockchip/rga: fix error handling in probe
-Date:   Mon, 13 Sep 2021 15:13:22 +0200
-Message-Id: <20210913131103.653472896@linuxfoundation.org>
+Subject: [PATCH 5.4 022/144] crypto: qat - do not ignore errors from enable_vf2pf_comms()
+Date:   Mon, 13 Sep 2021 15:13:23 +0200
+Message-Id: <20210913131048.694443816@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,97 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit e58430e1d4fd01b74475d2fbe2e25b5817b729a9 ]
+[ Upstream commit 5147f0906d50a9d26f2b8698cd06b5680e9867ff ]
 
-There are a few bugs in this code.  1)  No checks for whether
-dma_alloc_attrs() or __get_free_pages() failed.  2)  If
-video_register_device() fails it doesn't clean up the dma attrs or the
-free pages.  3)  The video_device_release() function frees "vfd" which
-leads to a use after free on the next line.  The call to
-video_unregister_device() is not required so I have just removed that.
+The function adf_dev_init() ignores the error code reported by
+enable_vf2pf_comms(). If the latter fails, e.g. the VF is not compatible
+with the pf, then the load of the VF driver progresses.
+This patch changes adf_dev_init() so that the error code from
+enable_vf2pf_comms() is returned to the caller.
 
-Fixes: f7e7b48e6d79 ("[media] rockchip/rga: v4l2 m2m support")
-Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rockchip/rga/rga.c | 27 ++++++++++++++++++-----
- 1 file changed, 22 insertions(+), 5 deletions(-)
+ drivers/crypto/qat/qat_common/adf_init.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/rockchip/rga/rga.c b/drivers/media/platform/rockchip/rga/rga.c
-index bf3fd71ec3af..6759091b15e0 100644
---- a/drivers/media/platform/rockchip/rga/rga.c
-+++ b/drivers/media/platform/rockchip/rga/rga.c
-@@ -863,12 +863,12 @@ static int rga_probe(struct platform_device *pdev)
- 	if (IS_ERR(rga->m2m_dev)) {
- 		v4l2_err(&rga->v4l2_dev, "Failed to init mem2mem device\n");
- 		ret = PTR_ERR(rga->m2m_dev);
--		goto unreg_video_dev;
-+		goto rel_vdev;
+diff --git a/drivers/crypto/qat/qat_common/adf_init.c b/drivers/crypto/qat/qat_common/adf_init.c
+index 26556c713049..7a7d43c47534 100644
+--- a/drivers/crypto/qat/qat_common/adf_init.c
++++ b/drivers/crypto/qat/qat_common/adf_init.c
+@@ -105,6 +105,7 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
+ 	struct service_hndl *service;
+ 	struct list_head *list_itr;
+ 	struct adf_hw_device_data *hw_data = accel_dev->hw_device;
++	int ret;
+ 
+ 	if (!hw_data) {
+ 		dev_err(&GET_DEV(accel_dev),
+@@ -171,9 +172,9 @@ int adf_dev_init(struct adf_accel_dev *accel_dev)
  	}
  
- 	ret = pm_runtime_resume_and_get(rga->dev);
- 	if (ret < 0)
--		goto unreg_video_dev;
-+		goto rel_vdev;
+ 	hw_data->enable_error_correction(accel_dev);
+-	hw_data->enable_vf2pf_comms(accel_dev);
++	ret = hw_data->enable_vf2pf_comms(accel_dev);
  
- 	rga->version.major = (rga_read(rga, RGA_VERSION_INFO) >> 24) & 0xFF;
- 	rga->version.minor = (rga_read(rga, RGA_VERSION_INFO) >> 20) & 0x0F;
-@@ -882,11 +882,23 @@ static int rga_probe(struct platform_device *pdev)
- 	rga->cmdbuf_virt = dma_alloc_attrs(rga->dev, RGA_CMDBUF_SIZE,
- 					   &rga->cmdbuf_phy, GFP_KERNEL,
- 					   DMA_ATTR_WRITE_COMBINE);
-+	if (!rga->cmdbuf_virt) {
-+		ret = -ENOMEM;
-+		goto rel_vdev;
-+	}
+-	return 0;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(adf_dev_init);
  
- 	rga->src_mmu_pages =
- 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
-+	if (!rga->src_mmu_pages) {
-+		ret = -ENOMEM;
-+		goto free_dma;
-+	}
- 	rga->dst_mmu_pages =
- 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
-+	if (rga->dst_mmu_pages) {
-+		ret = -ENOMEM;
-+		goto free_src_pages;
-+	}
- 
- 	def_frame.stride = (def_frame.width * def_frame.fmt->depth) >> 3;
- 	def_frame.size = def_frame.stride * def_frame.height;
-@@ -894,7 +906,7 @@ static int rga_probe(struct platform_device *pdev)
- 	ret = video_register_device(vfd, VFL_TYPE_VIDEO, -1);
- 	if (ret) {
- 		v4l2_err(&rga->v4l2_dev, "Failed to register video device\n");
--		goto rel_vdev;
-+		goto free_dst_pages;
- 	}
- 
- 	v4l2_info(&rga->v4l2_dev, "Registered %s as /dev/%s\n",
-@@ -902,10 +914,15 @@ static int rga_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
-+free_dst_pages:
-+	free_pages((unsigned long)rga->dst_mmu_pages, 3);
-+free_src_pages:
-+	free_pages((unsigned long)rga->src_mmu_pages, 3);
-+free_dma:
-+	dma_free_attrs(rga->dev, RGA_CMDBUF_SIZE, rga->cmdbuf_virt,
-+		       rga->cmdbuf_phy, DMA_ATTR_WRITE_COMBINE);
- rel_vdev:
- 	video_device_release(vfd);
--unreg_video_dev:
--	video_unregister_device(rga->vfd);
- unreg_v4l2_dev:
- 	v4l2_device_unregister(&rga->v4l2_dev);
- err_put_clk:
 -- 
 2.30.2
 
