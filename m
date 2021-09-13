@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DE4540930D
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E09E4095F1
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344612AbhIMORS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:17:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37124 "EHLO mail.kernel.org"
+        id S1346273AbhIMOq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:46:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242459AbhIMOPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:15:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E78461AFA;
-        Mon, 13 Sep 2021 13:44:11 +0000 (UTC)
+        id S1347761AbhIMOm3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:42:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 686F5619A6;
+        Mon, 13 Sep 2021 13:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540652;
-        bh=V9Z12daDq69BGaXOIG3sTgmjZulZoOY41ZxurHdYqm8=;
+        s=korg; t=1631541411;
+        bh=bF/ve4sBxRDM5n+vpRj1UJwgWtF09dYEUpq9sD7a2W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CGKiidDkIXcXExP8ymAWoJwd4/u72YSAlQs2dNVPXRbFIVp3MD8qJJQHIh0wau3Gb
-         52HV3L1l3r7C1VkWmrwC6oKeY4Sg0o0fHDon6LSQmCxLkLU06+5fWt2gA/cauZnWmc
-         fnIsTCELmvnQE9w9UzzrqXvF6x2MkVhk537xT79Y=
+        b=rzbCcYk14vFjVLGEfbT3lygGrqyaCZYRvYRSUlQCg080BQpC5ALxkBY6yaWWEz10I
+         /KY5Yf6qa460kst/7iYEA9eOiJ0NLgrzXaSvxMALZgnrewP/aTqQPZ8re/BM6DaI0O
+         +7ol+1wUTId0cTobyDSvuUJuCC2xjVNUPJ+wNXIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH 5.13 281/300] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 288/334] net: sched: Fix qdisc_rate_table refcount leak when get tcf_block failed
 Date:   Mon, 13 Sep 2021 15:15:42 +0200
-Message-Id: <20210913131118.837826474@linuxfoundation.org>
+Message-Id: <20210913131123.171163811@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,119 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-commit a3e03bc1368c1bc16e19b001fc96dc7430573cc8 upstream.
+[ Upstream commit c66070125837900163b81a03063ddd657a7e9bfb ]
 
-While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true, it may
-not always be, and we must not rely on this. Reason is that KVM decides
-the vcpu_idx, userspace decides the vcpu_id, thus the two might not
-match.
+The reference counting issue happens in one exception handling path of
+cbq_change_class(). When failing to get tcf_block, the function forgets
+to decrease the refcount of "rtab" increased by qdisc_put_rtab(),
+causing a refcount leak.
 
-Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
-that code like
-for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
-                vcpu = kvm_get_vcpu(kvm, vcpu_id);
-		do_stuff(vcpu);
-}
-is not legit. Reason is that kvm_get_vcpu expects an vcpu_idx, not an
-vcpu_id.  The trouble is, we do actually use kvm->arch.idle_mask like
-this. To fix this problem we have two options. Either use
-kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
-or switch to indexing via vcpu_idx. The latter is preferable for obvious
-reasons.
+Fix this issue by jumping to "failure" label when get tcf_block failed.
 
-Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
-indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
-same index as idle_mask lets make the same change for it as well.
-
-Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Christian Bornträger <borntraeger@de.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # 3.15+
-Link: https://lore.kernel.org/r/20210827125429.1912577-1-pasic@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6529eaba33f0 ("net: sched: introduce tcf block infractructure")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/1630252681-71588-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/kvm_host.h |    1 +
- arch/s390/kvm/interrupt.c        |   12 ++++++------
- arch/s390/kvm/kvm-s390.c         |    2 +-
- arch/s390/kvm/kvm-s390.h         |    2 +-
- 4 files changed, 9 insertions(+), 8 deletions(-)
+ net/sched/sch_cbq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -962,6 +962,7 @@ struct kvm_arch{
- 	atomic64_t cmma_dirty_pages;
- 	/* subset of available cpu features enabled by user space */
- 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
-+	/* indexed by vcpu_idx */
- 	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
- 	struct kvm_s390_gisa_interrupt gisa_int;
- 	struct kvm_s390_pv pv;
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -419,13 +419,13 @@ static unsigned long deliverable_irqs(st
- static void __set_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
--	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
- 
- static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
--	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
- 
- static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
-@@ -3050,18 +3050,18 @@ int kvm_s390_get_irq_state(struct kvm_vc
- 
- static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
- {
--	int vcpu_id, online_vcpus = atomic_read(&kvm->online_vcpus);
-+	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
- 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
- 	struct kvm_vcpu *vcpu;
- 
--	for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
--		vcpu = kvm_get_vcpu(kvm, vcpu_id);
-+	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
-+		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
- 		if (psw_ioint_disabled(vcpu))
- 			continue;
- 		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
- 		if (deliverable_mask) {
- 			/* lately kicked but not yet running */
--			if (test_and_set_bit(vcpu_id, gi->kicked_mask))
-+			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
- 				return;
- 			kvm_s390_vcpu_wakeup(vcpu);
- 			return;
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4020,7 +4020,7 @@ static int vcpu_pre_run(struct kvm_vcpu
- 		kvm_s390_patch_guest_per_regs(vcpu);
+diff --git a/net/sched/sch_cbq.c b/net/sched/sch_cbq.c
+index b79a7e27bb31..38a3a8394bbd 100644
+--- a/net/sched/sch_cbq.c
++++ b/net/sched/sch_cbq.c
+@@ -1614,7 +1614,7 @@ cbq_change_class(struct Qdisc *sch, u32 classid, u32 parentid, struct nlattr **t
+ 	err = tcf_block_get(&cl->block, &cl->filter_list, sch, extack);
+ 	if (err) {
+ 		kfree(cl);
+-		return err;
++		goto failure;
  	}
  
--	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.gisa_int.kicked_mask);
-+	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.gisa_int.kicked_mask);
- 
- 	vcpu->arch.sie_block->icptcode = 0;
- 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -79,7 +79,7 @@ static inline int is_vcpu_stopped(struct
- 
- static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
- {
--	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
- 
- static inline int kvm_is_ucontrol(struct kvm *kvm)
+ 	if (tca[TCA_RATE]) {
+-- 
+2.30.2
+
 
 
