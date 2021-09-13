@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C489408D04
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82680408F8D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240742AbhIMNWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:22:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37818 "EHLO mail.kernel.org"
+        id S242481AbhIMNoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:44:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240802AbhIMNVi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:21:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 821D8610E6;
-        Mon, 13 Sep 2021 13:20:22 +0000 (UTC)
+        id S243176AbhIMNmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:42:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D5F96140B;
+        Mon, 13 Sep 2021 13:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539223;
-        bh=31iWokU5YgI53j4AyT/g0+V+sQt5CtOrfxglvAlH6qo=;
+        s=korg; t=1631539810;
+        bh=KAQpmT0z2puzJF5fTnzpPyJmC3yvyfc0JnE7SLhq3hM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Px88F4aB3BTulqhiCMcmy2PskVDY4Yx1YI4/2KA2D6ZRRqguJF/sKLwe9JWqDC4DN
-         DRE86BN6ENKDXLausSkjowCDm4fobeTtJC76LzWihkhI5/V06tyUwbu5APdsBAoxru
-         cBXDEWK4ce//eX3uC7Wv3YOlEpHfsAq9qhoxvlmw=
+        b=NCd1Zv+uMqBw3u7CEnoVEEwRZqyg2qED/QIGndeZiXCw6Qj6cDEW2p21ymbzBQ46y
+         cNPvQ9ccjswB3KOVCJEB6dclHzvnA1Htbq40t+MBkK0lEwH4BmWktXKYrfpOmwX+6K
+         MGYxNeAt0To4Ufm2n/h/6ffWBRC0mv6pligGz0X0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 060/144] Bluetooth: sco: prevent information leak in sco_conn_defer_accept()
+Subject: [PATCH 5.10 136/236] arm64: dts: exynos: correct GIC CPU interfaces address range on Exynos7
 Date:   Mon, 13 Sep 2021 15:14:01 +0200
-Message-Id: <20210913131049.980269753@linuxfoundation.org>
+Message-Id: <20210913131104.989107709@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 59da0b38bc2ea570ede23a3332ecb3e7574ce6b2 ]
+[ Upstream commit 01c72cad790cb6cd3ccbe4c1402b6cb6c6bbffd0 ]
 
-Smatch complains that some of these struct members are not initialized
-leading to a stack information disclosure:
+The GIC-400 CPU interfaces address range is defined as 0x2000-0x3FFF (by
+ARM).
 
-    net/bluetooth/sco.c:778 sco_conn_defer_accept() warn:
-    check that 'cp.retrans_effort' doesn't leak information
-
-This seems like a valid warning.  I've added a default case to fix
-this issue.
-
-Fixes: 2f69a82acf6f ("Bluetooth: Use voice setting in deferred SCO connection request")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reported-by: Sam Protsenko <semen.protsenko@linaro.org>
+Reported-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Fixes: b9024cbc937d ("arm64: dts: Add initial device tree support for exynos7")
+Link: https://lore.kernel.org/r/20210805072110.4730-1-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm64/boot/dts/exynos/exynos7.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index b91d6b440fdf..335264706aae 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -761,6 +761,11 @@ static void sco_conn_defer_accept(struct hci_conn *conn, u16 setting)
- 			cp.max_latency = cpu_to_le16(0xffff);
- 			cp.retrans_effort = 0xff;
- 			break;
-+		default:
-+			/* use CVSD settings as fallback */
-+			cp.max_latency = cpu_to_le16(0xffff);
-+			cp.retrans_effort = 0xff;
-+			break;
- 		}
- 
- 		hci_send_cmd(hdev, HCI_OP_ACCEPT_SYNC_CONN_REQ,
+diff --git a/arch/arm64/boot/dts/exynos/exynos7.dtsi b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+index 7599e1a00ff5..48952a556648 100644
+--- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
++++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
+@@ -102,7 +102,7 @@
+ 			#address-cells = <0>;
+ 			interrupt-controller;
+ 			reg =	<0x11001000 0x1000>,
+-				<0x11002000 0x1000>,
++				<0x11002000 0x2000>,
+ 				<0x11004000 0x2000>,
+ 				<0x11006000 0x2000>;
+ 		};
 -- 
 2.30.2
 
