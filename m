@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E191E4090ED
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:57:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C91B84090F8
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:57:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243539AbhIMN4s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:56:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34858 "EHLO mail.kernel.org"
+        id S244551AbhIMN5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:57:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245543AbhIMNyo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:54:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF8ED6187C;
-        Mon, 13 Sep 2021 13:35:28 +0000 (UTC)
+        id S244082AbhIMNzg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:55:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FBC561880;
+        Mon, 13 Sep 2021 13:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540129;
-        bh=PmU9JiZJWZF1+yTQKdNZ88tHgihe9sus8PJaBFDSmbY=;
+        s=korg; t=1631540131;
+        bh=HSHrTQXN2KzLKUEw5TjHr0WGyk7B6dL5F3It8eBIkxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LgBw/YdT15fd35/lrD1jrXAsZJanBHkHlU/fqm6XkPFqLuryPCrZ7qRqVJyK58Koe
-         76hzSTO/xEwYniPyrq4g60Xskj/CxuaFySZsaKgk8Fg25Lcm/gUmn8wciKWxb0DeCo
-         fPiOZ4RSHCNgUE7hJLub4mh8CHSIs4m+AMgw5YXc=
+        b=pqdEvvPJ9kEDcDZxm56JdHMIjze6huefMhxEP+zYD5BIZfUiAHLZ4+LIB2B4/ePeO
+         /wJTSMp9+j5kDqY2zBs27SH2dmmktelPk7ZtH1lX+/haSGUTjVPeleKTtKpa48UZ6e
+         p5KZk8UXD6F0mXrzU1i9SRZeVtV/2ogBSYdMWEIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+9937dc42271cd87d4b98@syzkaller.appspotmail.com,
-        Christoph Hellwig <hch@lst.de>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 064/300] block: nbd: add sanity check for first_minor
-Date:   Mon, 13 Sep 2021 15:12:05 +0200
-Message-Id: <20210913131111.524091503@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 065/300] spi: coldfire-qspi: Use clk_disable_unprepare in the remove function
+Date:   Mon, 13 Sep 2021 15:12:06 +0200
+Message-Id: <20210913131111.555525871@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -42,60 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit b1a811633f7321cf1ae2bb76a66805b7720e44c9 ]
+[ Upstream commit d68f4c73d729245a47e70eb216fa24bc174ed2e2 ]
 
-Syzbot hit WARNING in internal_create_group(). The problem was in
-too big disk->first_minor.
+'clk_prepare_enable()' is used in the probe, so 'clk_disable_unprepare()'
+should be used in the remove function to be consistent.
 
-disk->first_minor is initialized by value, which comes from userspace
-and there wasn't any sanity checks about value correctness. It can cause
-duplicate creation of sysfs files/links, because disk->first_minor will
-be passed to MKDEV() which causes truncation to byte. Since maximum
-minor value is 0xff, let's check if first_minor is correct minor number.
-
-NOTE: the root case of the reported warning was in wrong error handling
-in register_disk(), but we can avoid passing knowingly wrong values to
-sysfs API, because sysfs error messages can confuse users. For example:
-user passed 1048576 as index, but sysfs complains about duplicate
-creation of /dev/block/43:0. It's not obvious how 1048576 becomes 0.
-Log and reproducer for above example can be found on syzkaller bug
-report page.
-
-Link: https://syzkaller.appspot.com/bug?id=03c2ae9146416edf811958d5fd7acfab75b143d1
-Fixes: b0d9111a2d53 ("nbd: use an idr to keep track of nbd devices")
-Reported-by: syzbot+9937dc42271cd87d4b98@syzkaller.appspotmail.com
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 499de01c5c0b ("spi: coldfire-qspi: Use clk_prepare_enable and clk_disable_unprepare")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/ee91792ddba61342b0d3284cd4558a2b0016c4e7.1629319838.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/spi/spi-coldfire-qspi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 7384058c24d0..4acf5c6cb80d 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1717,7 +1717,17 @@ static int nbd_dev_add(int index)
- 	refcount_set(&nbd->refs, 1);
- 	INIT_LIST_HEAD(&nbd->list);
- 	disk->major = NBD_MAJOR;
-+
-+	/* Too big first_minor can cause duplicate creation of
-+	 * sysfs files/links, since first_minor will be truncated to
-+	 * byte in __device_add_disk().
-+	 */
- 	disk->first_minor = index << part_shift;
-+	if (disk->first_minor > 0xff) {
-+		err = -EINVAL;
-+		goto out_free_idr;
-+	}
-+
- 	disk->fops = &nbd_fops;
- 	disk->private_data = nbd;
- 	sprintf(disk->disk_name, "nbd%d", index);
+diff --git a/drivers/spi/spi-coldfire-qspi.c b/drivers/spi/spi-coldfire-qspi.c
+index 8996115ce736..263ce9047327 100644
+--- a/drivers/spi/spi-coldfire-qspi.c
++++ b/drivers/spi/spi-coldfire-qspi.c
+@@ -444,7 +444,7 @@ static int mcfqspi_remove(struct platform_device *pdev)
+ 	mcfqspi_wr_qmr(mcfqspi, MCFQSPI_QMR_MSTR);
+ 
+ 	mcfqspi_cs_teardown(mcfqspi);
+-	clk_disable(mcfqspi->clk);
++	clk_disable_unprepare(mcfqspi->clk);
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
