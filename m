@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44501408A29
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB52408A2A
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239080AbhIML25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 07:28:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32946 "EHLO mail.kernel.org"
+        id S238516AbhIML3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 07:29:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238710AbhIML25 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 07:28:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 448C660F44;
-        Mon, 13 Sep 2021 11:27:41 +0000 (UTC)
+        id S238490AbhIML3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 07:29:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE60460F44;
+        Mon, 13 Sep 2021 11:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631532461;
-        bh=tFJOjiwe30XDT7jV2TPt0m6Tz6GqyOKI4bNEhDMME/g=;
+        s=korg; t=1631532489;
+        bh=kVIhJ/WE4wMC/pny1iBF1D5l9dETUfaiD9L9NPjeULw=;
         h=Subject:To:Cc:From:Date:From;
-        b=tCVwDuIodL0zXxSY1BJNEogEqk0Qp6Uz/N+Y3dr6MMQwEw7Shz2gBsx8SUhu8r9j2
-         8P8TAGlWEbb68yau3I2rSZCHXtsTLPj6ElRkj/ym1wFec4tgbQK1ulO4ubBHPZQUgV
-         aFw+amZPKh9JehH5mONk5CQqqREjt4Z9jRAeWvUA=
-Subject: FAILED: patch "[PATCH] KVM: x86: clamp host mapping level to max_level in" failed to apply to 5.10-stable tree
-To:     pbonzini@redhat.com
+        b=dH2lOz6Cb0xiz8c7RngKjDsvtQLsCt4/pyJ2p5iWrXT2YDu9cF4vd/JJqyqzylV9c
+         HKKkLAImEIOrgosI2PaWUy5oak5sg1TRPi+8UNPOe3QcHvGjNK9PSkVWefzyw2SrT9
+         2vjEbqF6yAa52red/hKgghkUJcsz/n++6MhifkX0=
+Subject: FAILED: patch "[PATCH] KVM: VMX: avoid running vmx_handle_exit_irqoff in case of" failed to apply to 5.4-stable tree
+To:     mlevitsk@redhat.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 13:27:39 +0200
-Message-ID: <1631532459169223@kroah.com>
+Date:   Mon, 13 Sep 2021 13:28:07 +0200
+Message-ID: <16315324877261@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,73 +45,33 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ec607a564f70519b340f7eb4cfc0f4a6b55285ac Mon Sep 17 00:00:00 2001
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Fri, 6 Aug 2021 07:05:58 -0400
-Subject: [PATCH] KVM: x86: clamp host mapping level to max_level in
- kvm_mmu_max_mapping_level
+From 81b4b56d4f8130bbb99cf4e2b48082e5b4cfccb9 Mon Sep 17 00:00:00 2001
+From: Maxim Levitsky <mlevitsk@redhat.com>
+Date: Thu, 26 Aug 2021 12:57:49 +0300
+Subject: [PATCH] KVM: VMX: avoid running vmx_handle_exit_irqoff in case of
+ emulation
 
-This change started as a way to make kvm_mmu_hugepage_adjust a bit simpler,
-but it does fix two bugs as well.
+If we are emulating an invalid guest state, we don't have a correct
+exit reason, and thus we shouldn't do anything in this function.
 
-One bug is in zapping collapsible PTEs.  If a large page size is
-disallowed but not all of them, kvm_mmu_max_mapping_level will return the
-host mapping level and the small PTEs will be zapped up to that level.
-However, if e.g. 1GB are prohibited, we can still zap 4KB mapping and
-preserve the 2MB ones. This can happen for example when NX huge pages
-are in use.
-
-The second would happen when userspace backs guest memory
-with a 1gb hugepage but only assign a subset of the page to
-the guest.  1gb pages would be disallowed by the memslot, but
-not 2mb.  kvm_mmu_max_mapping_level() would fall through to the
-host_pfn_mapping_level() logic, see the 1gb hugepage, and map the whole
-thing into the guest.
-
-Fixes: 2f57b7051fe8 ("KVM: x86/mmu: Persist gfn_lpage_is_disallowed() to max_level")
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20210826095750.1650467-2-mlevitsk@redhat.com>
 Cc: stable@vger.kernel.org
+Fixes: 95b5a48c4f2b ("KVM: VMX: Handle NMIs, #MCs and async #PFs in common irqs-disabled fn", 2019-06-18)
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 54cb15e4b550..bfd2705a7291 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -2910,6 +2910,7 @@ int kvm_mmu_max_mapping_level(struct kvm *kvm,
- 			      kvm_pfn_t pfn, int max_level)
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index fada1055f325..0c2c0d5ae873 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -6382,6 +6382,9 @@ static void vmx_handle_exit_irqoff(struct kvm_vcpu *vcpu)
  {
- 	struct kvm_lpage_info *linfo;
-+	int host_level;
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
  
- 	max_level = min(max_level, max_huge_page_level);
- 	for ( ; max_level > PG_LEVEL_4K; max_level--) {
-@@ -2921,7 +2922,8 @@ int kvm_mmu_max_mapping_level(struct kvm *kvm,
- 	if (max_level == PG_LEVEL_4K)
- 		return PG_LEVEL_4K;
- 
--	return host_pfn_mapping_level(kvm, gfn, pfn, slot);
-+	host_level = host_pfn_mapping_level(kvm, gfn, pfn, slot);
-+	return min(host_level, max_level);
- }
- 
- int kvm_mmu_hugepage_adjust(struct kvm_vcpu *vcpu, gfn_t gfn,
-@@ -2945,17 +2947,12 @@ int kvm_mmu_hugepage_adjust(struct kvm_vcpu *vcpu, gfn_t gfn,
- 	if (!slot)
- 		return PG_LEVEL_4K;
- 
--	level = kvm_mmu_max_mapping_level(vcpu->kvm, slot, gfn, pfn, max_level);
--	if (level == PG_LEVEL_4K)
--		return level;
--
--	*req_level = level = min(level, max_level);
--
- 	/*
- 	 * Enforce the iTLB multihit workaround after capturing the requested
- 	 * level, which will be used to do precise, accurate accounting.
- 	 */
--	if (huge_page_disallowed)
-+	*req_level = level = kvm_mmu_max_mapping_level(vcpu->kvm, slot, gfn, pfn, max_level);
-+	if (level == PG_LEVEL_4K || huge_page_disallowed)
- 		return PG_LEVEL_4K;
- 
- 	/*
++	if (vmx->emulation_required)
++		return;
++
+ 	if (vmx->exit_reason.basic == EXIT_REASON_EXTERNAL_INTERRUPT)
+ 		handle_external_interrupt_irqoff(vcpu);
+ 	else if (vmx->exit_reason.basic == EXIT_REASON_EXCEPTION_NMI)
 
