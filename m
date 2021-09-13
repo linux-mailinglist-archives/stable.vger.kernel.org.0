@@ -2,161 +2,264 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAA7B409C53
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 20:33:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9829409C60
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 20:38:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240000AbhIMSeu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 14:34:50 -0400
-Received: from comms.puri.sm ([159.203.221.185]:56034 "EHLO comms.puri.sm"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236549AbhIMSet (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 14:34:49 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by comms.puri.sm (Postfix) with ESMTP id 95AF4DFA1F;
-        Mon, 13 Sep 2021 11:33:01 -0700 (PDT)
-Received: from comms.puri.sm ([127.0.0.1])
-        by localhost (comms.puri.sm [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id chX-iOGg-ZNZ; Mon, 13 Sep 2021 11:33:00 -0700 (PDT)
-From:   Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-To:     Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     linux-kernel@vger.kernel.org,
-        Anton Vorontsov <anton.vorontsov@linaro.org>,
-        Ramakrishna Pallala <ramakrishna.pallala@intel.com>,
-        Dirk Brandewie <dirk.brandewie@gmail.com>,
-        stable@vger.kernel.org, kernel@puri.sm
-Subject: Re: [PATCH 1/2] power: supply: max17042_battery: Clear status bits in interrupt handler
-Date:   Mon, 13 Sep 2021 20:32:52 +0200
-Message-ID: <5702731.UytLkSCjyO@pliszka>
-In-Reply-To: <0123524d-b767-5b5b-8b14-60d8cea3c429@canonical.com>
-References: <20210912205402.160939-1-sebastian.krzyszkowiak@puri.sm> <0123524d-b767-5b5b-8b14-60d8cea3c429@canonical.com>
-Content-Type: multipart/signed; boundary="nextPart89881716.T3fe8mzVK5"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+        id S238614AbhIMSjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 14:39:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47526 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238241AbhIMSjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 14:39:19 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3520C061574
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 11:38:03 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id k23so7031334pji.0
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 11:38:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tO6NBSI1ExqHCwCzVwTLfxkonr7MAS8hELg9oAjc1Aw=;
+        b=iZh+eSD8BSX4qdc5ISjhZSAEXsVudJK1I3kRuETX+5lAjuToz/jNkoFTzQWDYl/ziA
+         S0D3O23uXRfoa0XJxRTwCjgg3eUy/EqCA3JkdENQXM/wMWQLSuWfeAfFGP9+8V1SfWsI
+         0zcfjrIdd6VHuT4O15rmV/M0wPCxqwRgq8Y9VJpvOsFMsD8qd38zFf236aDzAO3SWa+Y
+         US+9Jc/KQRbxkZ3DlYimbBTo7S+8UtBz3kHiB4WBJkQ6N+18PRMIUo+YnUsmWToo2ldA
+         1NPm1Pd20JpdvWBxWAleW3GFGePfmHsQS4wI+yfpOrL/bVqLBjWypQX7XbcafSc0fK1G
+         W3aA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tO6NBSI1ExqHCwCzVwTLfxkonr7MAS8hELg9oAjc1Aw=;
+        b=UZLROZ8SOUN/JmbUOrBMZ8oDfdZluwxBNUA/Uyw99/daRetUWOczzc5LPKyPYvyyzx
+         Yq4O3XNxf+adeGRIUPLE7J2iThFiBR9/9yNaeLz9GgK+zq5g8hl8X7EVSZ7qj64xBLsL
+         QeQhffHI4VqPdLc3VFsb6FGyD2eNnW4pKL1tNZmpOaYadxy6zsd73z0XTS6+Puzs8sQT
+         B5+tzWv3c+cj8xks2NRcY6EgyxWZied3Oq8dj8ZEZe/aJDETFtFEVZEvbzFQZrz/MqZ9
+         C1ZPjf0wTgXYBNSRu6moYpTz3VHgalcZw3UKOP1kDjhD+LzWhvUfWYmotyuSJ2y/YPCk
+         580A==
+X-Gm-Message-State: AOAM531OTtUkuGIO1vwHIyDI9jJ1alUWlg2waCsQQPmT0zklilxxTdkO
+        Nex8Ql5gRmB5+t7EVxpLbo//qvIBUBV/BLRV
+X-Google-Smtp-Source: ABdhPJyd1nJIyT9TcQD73t1mN2Le65Gh2OhaPdQWzxsLcFyD5CMPHvPZVTWurSr/7Cl2W2qBB5qRAA==
+X-Received: by 2002:a17:90a:ea0a:: with SMTP id w10mr977112pjy.32.1631558283182;
+        Mon, 13 Sep 2021 11:38:03 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a26sm9135203pgm.87.2021.09.13.11.38.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Sep 2021 11:38:02 -0700 (PDT)
+Message-ID: <613f9a8a.1c69fb81.a530e.a122@mx.google.com>
+Date:   Mon, 13 Sep 2021 11:38:02 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.206-120-gf2cc6960ceb9
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 151 runs,
+ 6 regressions (v4.19.206-120-gf2cc6960ceb9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---nextPart89881716.T3fe8mzVK5
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"; protected-headers="v1"
-From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-To: Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org, Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc: linux-kernel@vger.kernel.org, Anton Vorontsov <anton.vorontsov@linaro.org>, Ramakrishna Pallala <ramakrishna.pallala@intel.com>, Dirk Brandewie <dirk.brandewie@gmail.com>, stable@vger.kernel.org, kernel@puri.sm
-Subject: Re: [PATCH 1/2] power: supply: max17042_battery: Clear status bits in interrupt handler
-Date: Mon, 13 Sep 2021 20:32:52 +0200
-Message-ID: <5702731.UytLkSCjyO@pliszka>
-In-Reply-To: <0123524d-b767-5b5b-8b14-60d8cea3c429@canonical.com>
-References: <20210912205402.160939-1-sebastian.krzyszkowiak@puri.sm> <0123524d-b767-5b5b-8b14-60d8cea3c429@canonical.com>
+stable-rc/queue/4.19 baseline: 151 runs, 6 regressions (v4.19.206-120-gf2cc=
+6960ceb9)
 
-On poniedzia=C5=82ek, 13 wrze=C5=9Bnia 2021 15:02:34 CEST Krzysztof Kozlows=
-ki wrote:
-> On 12/09/2021 22:54, Sebastian Krzyszkowiak wrote:
-> > The gauge requires us to clear the status bits manually for some alerts
-> > to be properly dismissed. Previously the IRQ was configured to react on=
-ly
-> > on falling edge, which wasn't technically correct (the ALRT line is act=
-ive
-> > low), but it had a happy side-effect of preventing interrupt storms
-> > on uncleared alerts from happening.
-> >=20
-> > Fixes: 7fbf6b731bca ("power: supply: max17042: Do not enforce (incorrec=
-t)
-> > interrupt trigger type") Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-> > ---
-> >=20
-> >  drivers/power/supply/max17042_battery.c | 3 +++
-> >  1 file changed, 3 insertions(+)
-> >=20
-> > diff --git a/drivers/power/supply/max17042_battery.c
-> > b/drivers/power/supply/max17042_battery.c index
-> > 8dffae76b6a3..c53980c8432a 100644
-> > --- a/drivers/power/supply/max17042_battery.c
-> > +++ b/drivers/power/supply/max17042_battery.c
-> > @@ -876,6 +876,9 @@ static irqreturn_t max17042_thread_handler(int id,
-> > void *dev)>=20
-> >  		max17042_set_soc_threshold(chip, 1);
-> >  =09
-> >  	}
-> >=20
-> > +	regmap_clear_bits(chip->regmap, MAX17042_STATUS,
-> > +			  0xFFFF & ~(STATUS_POR_BIT |=20
-STATUS_BST_BIT));
-> > +
->=20
-> Are you sure that this was the reason of interrupt storm? Not incorrect
-> SoC value (read from register for ModelGauge m3 while not configuring
-> fuel gauge model).
+Regressions Summary
+-------------------
 
-Yes, I am sure. I have observed this on a fully configured max17055 with=20
-ModelGauge m5. It also makes sense to me based on what I read in the code a=
-nd=20
-datasheets.
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-There were two kinds of storms - the short ones happening on each SOC chang=
-e=20
-caused by SOC threshold alerts set by max17042_set_soc_threshold which=20
-eventually got cleared by reconfiguring the thresholds; and a huge one=20
-happening when SOC got down to 0% that did not get away until the battery g=
-ot=20
-charged to at least 1% at which point the thresholds got reconfigured again=
-=20
-(which is how I noticed the underflow fixed by the second patch).
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Besides, I also have patches for configuring m5 gauge via DT that I'll send=
-=20
-once I clean them up.
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-> You should only clear bits which you are awaken for... Have in mind that
-> in DT-configuration the fuel gauge is most likely broken by missing
-> configuration. With alert enabled, several other config fields should be
-> cleared.
+rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
+  | 3          =
 
-I have checked all the bits in the Status register and aside of Bst, POR an=
-d=20
-bunch of "don't-care" bits they're all alert indicators that we either hand=
-le=20
-explicitly in the interrupt handler (Smn/Smx) or implicitly via=20
-power_supply_changed (Imn/Imx, Vmn/Vmx, Tmn/Tmx, dSOCi, Bi/Br). The driver=
-=20
-unconditionally enables alerts for SOC thresholds and all the rest stays=20
-effectively disabled at POR; however, a bootloader or firmware may configur=
-e it=20
-differently, which may be wanted for things like resuming from suspend when=
- a=20
-bad condition happens. Therefore we need to clear all the bits anyway and I=
-'m=20
-not sure whether iterating through them in a "if set then clear" loop gains=
- us=20
-anything aside of additional lines of code.
 
-> Best regards,
-> Krzysztof
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.206-120-gf2cc6960ceb9/plan/baseline/
 
-Cheers,
-Sebastian
---nextPart89881716.T3fe8mzVK5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEIt2frgBqEUNYNmF86PI1zzvbw/8FAmE/mVQACgkQ6PI1zzvb
-w/+Grw//R2Lf0O3clBJBYHfOdbwZS/SSetxXxps9CzCOu6GZ9NYUvaBe9TwPUrJP
-lXhAjPG9pCUyRMWIIAX72KdjLS5I8YHm7JxeqGyNJjr9vrdoT7GEirTIJN7AoyZN
-kAepbOND3DE6DpzX/McQq8vNsvtJc5lco3oMr8KEzYrKaP+HBe7tN5ZnJ3IJ4Vcy
-5XyYdDglP1wZceiKe8Qb1PwEn/xhYDMbgCyHGQzYcB7gEP8E6OgkOV1jk4bJk2fa
-XivbylCTqljKAmALJ1DBv1mwJ8XO5WqJLmwphRXSc4hxgiodyx3K94cxHnYcg3Al
-ycazR5wF2gT0BKuTH44Uz4ZdxoLgi6uSZqoy/LQ7XhdboJr2+FRRlyakO3d1DYqT
-1VIkECYeyWZtJOudhr+m2yIxTZRd3EUmYMV+l1AKoQk0ZJrMMxTnbYjI0h+CYYvL
-WLcuM9lcoWgNANkFVA4N9EK8edKxHeHtVAfoL/++6VMfmqdOyEZG0K6MwpOQt/U7
-R8ECgYfwIodTTLD/P3gbet8TJwvu19E/ldls23CRpbWi9XOu9rzMztCMwUc6LWx4
-Cnu0XJNso3J5pG3RHl6Nwgu9bgHpTbM10lz/pokOYfroDdO7mv6KmwN/OWnFrBxE
-s7HjT1N//3tiBWdwP68y4P3aPfSEXK4zTN0xCxgYZqIEvs+rbDg=
-=W1i9
------END PGP SIGNATURE-----
-
---nextPart89881716.T3fe8mzVK5--
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.206-120-gf2cc6960ceb9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f2cc6960ceb92d5c814d530d85c19b332e62fff2 =
 
 
 
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613f669bd88b8a3d9199a31b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-120-gf2cc6960ceb9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-120-gf2cc6960ceb9/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613f669bd88b8a3d9199a=
+31c
+        failing since 303 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613f66c788fc564e8899a2de
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-120-gf2cc6960ceb9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-120-gf2cc6960ceb9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613f66c788fc564e8899a=
+2df
+        failing since 303 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613f670ba1e8c74c4e99a2f7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-120-gf2cc6960ceb9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-120-gf2cc6960ceb9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613f670ba1e8c74c4e99a=
+2f8
+        failing since 303 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
+  | 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613f7f77bb35b8df2e99a2ee
+
+  Results:     64 PASS, 6 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-120-gf2cc6960ceb9/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
+88-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-120-gf2cc6960ceb9/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
+88-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/613f7f78bb35b8df2e99a302
+        failing since 90 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-09-13T16:42:20.343858  /lava-4510435/1/../bin/lava-test-case
+    2021-09-13T16:42:20.361209  <8>[   18.065928] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-09-13T16:42:20.361657  /lava-4510435/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/613f7f78bb35b8df2e99a31b
+        failing since 90 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-09-13T16:42:17.922348  /lava-4510435/1/../bin/lava-test-case<8>[  =
+ 15.624242] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-09-13T16:42:17.922706  =
+
+    2021-09-13T16:42:17.922901  /lava-4510435/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/613f7f78bb35b8df2e99a31c
+        failing since 90 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-09-13T16:42:16.883889  /lava-4510435/1/../bin/lava-test-case
+    2021-09-13T16:42:16.892710  <8>[   14.604752] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
