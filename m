@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF3DD4094E2
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66AC740922B
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:09:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345358AbhIMOgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:36:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51242 "EHLO mail.kernel.org"
+        id S1344230AbhIMOIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:08:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346498AbhIMOdQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:33:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A887D615E5;
-        Mon, 13 Sep 2021 13:52:32 +0000 (UTC)
+        id S1343708AbhIMOGp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:06:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EB716127B;
+        Mon, 13 Sep 2021 13:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541153;
-        bh=2EFdkkmMJmy5JK8+meykr/qQReVA3QlFHBzl8v3VHlU=;
+        s=korg; t=1631540402;
+        bh=rRx3NDe80nk8bVQz81/OKq3+2X6WDqoLCmczXwRbQBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yk21kuy1rCdDJkrL0AN1gEH5hmZS0Kj+mdSfiYHbTQj6aSc6DKtIDx18TrMch7s7b
-         tz5oA6fK+G+NHIhYr6S6zb0+WgHkGApXZLbwd2Q+vEAl3LPthD1ohUPBiuueoyAlz9
-         dVwGBsgcEeP6OWEFwgQPKbbuHpKOCjr279hDAlUA=
+        b=2M4INBKXC4uSdlkIz/tvQLblOKXr1OusDmx/6EYb/rZASUq5/b+C2p0Ltio6y4gi8
+         0BbgltqDbDgRXw9TPZxgK9WcScj0gbWKTiUrC+9ASuSHMN0pXtTWEttWLezzgwsGM5
+         6kBu0VKZS9D7zCMgnzONffbOwAcUGVybKiyTisG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 185/334] drm/msm/mdp4: move HW revision detection to earlier phase
+Subject: [PATCH 5.13 178/300] ASoC: rt5682: Properly turn off regulators if wrong device ID
 Date:   Mon, 13 Sep 2021 15:13:59 +0200
-Message-Id: <20210913131119.606091266@linuxfoundation.org>
+Message-Id: <20210913131115.406282797@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,115 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 4af4fc92939dc811ef291c0673946555aa4fb71f ]
+[ Upstream commit 772d44526e203c062171786e514373f129616278 ]
 
-Fixes if condition, which never worked inside mdp4_kms_init, since
-HW detection has been done later in mdp4_hw_init.
+When I booted up on a board that had a slightly different codec
+stuffed on it, I got this message at bootup:
 
-Fixes: eb2b47bb9a03 ("drm/msm/mdp4: only use lut_clk on mdp4.2+")
+  rt5682 9-001a: Device with ID register 6749 is not rt5682
 
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Link: https://lore.kernel.org/r/20210705231641.315804-2-david@ixit.cz
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+That's normal/expected, but what wasn't normal was the splat that I
+got after:
+
+  WARNING: CPU: 7 PID: 176 at drivers/regulator/core.c:2151 _regulator_put+0x150/0x158
+  pc : _regulator_put+0x150/0x158
+  ...
+  Call trace:
+   _regulator_put+0x150/0x158
+   regulator_bulk_free+0x48/0x70
+   devm_regulator_bulk_release+0x20/0x2c
+   release_nodes+0x1cc/0x244
+   devres_release_all+0x44/0x60
+   really_probe+0x17c/0x378
+   ...
+
+This is because the error paths don't turn off the regulator. Let's
+fix that.
+
+Fixes: 0ddce71c21f0 ("ASoC: rt5682: add rt5682 codec driver")
+Fixes: 87b42abae99d ("ASoC: rt5682: Implement remove callback")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210811081751.v2.1.I4a1d9aa5d99e05aeee15c2768db600158d76cab8@changeid
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c | 45 ++++++++++++------------
- 1 file changed, 22 insertions(+), 23 deletions(-)
+ sound/soc/codecs/rt5682-i2c.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-index 3a7a01d801aa..0712752742f4 100644
---- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-@@ -19,23 +19,12 @@ static int mdp4_hw_init(struct msm_kms *kms)
+diff --git a/sound/soc/codecs/rt5682-i2c.c b/sound/soc/codecs/rt5682-i2c.c
+index 4a56a52adab5..e559b965a0a6 100644
+--- a/sound/soc/codecs/rt5682-i2c.c
++++ b/sound/soc/codecs/rt5682-i2c.c
+@@ -117,6 +117,13 @@ static struct snd_soc_dai_driver rt5682_dai[] = {
+ 	},
+ };
+ 
++static void rt5682_i2c_disable_regulators(void *data)
++{
++	struct rt5682_priv *rt5682 = data;
++
++	regulator_bulk_disable(ARRAY_SIZE(rt5682->supplies), rt5682->supplies);
++}
++
+ static int rt5682_i2c_probe(struct i2c_client *i2c,
+ 		const struct i2c_device_id *id)
  {
- 	struct mdp4_kms *mdp4_kms = to_mdp4_kms(to_mdp_kms(kms));
- 	struct drm_device *dev = mdp4_kms->dev;
--	u32 major, minor, dmap_cfg, vg_cfg;
-+	u32 dmap_cfg, vg_cfg;
- 	unsigned long clk;
- 	int ret = 0;
- 
- 	pm_runtime_get_sync(dev->dev);
- 
--	read_mdp_hw_revision(mdp4_kms, &major, &minor);
--
--	if (major != 4) {
--		DRM_DEV_ERROR(dev->dev, "unexpected MDP version: v%d.%d\n",
--				major, minor);
--		ret = -ENXIO;
--		goto out;
--	}
--
--	mdp4_kms->rev = minor;
--
- 	if (mdp4_kms->rev > 1) {
- 		mdp4_write(mdp4_kms, REG_MDP4_CS_CONTROLLER0, 0x0707ffff);
- 		mdp4_write(mdp4_kms, REG_MDP4_CS_CONTROLLER1, 0x03073f3f);
-@@ -81,7 +70,6 @@ static int mdp4_hw_init(struct msm_kms *kms)
- 	if (mdp4_kms->rev > 1)
- 		mdp4_write(mdp4_kms, REG_MDP4_RESET_STATUS, 1);
- 
--out:
- 	pm_runtime_put_sync(dev->dev);
- 
- 	return ret;
-@@ -428,6 +416,7 @@ struct msm_kms *mdp4_kms_init(struct drm_device *dev)
- 	struct msm_kms *kms = NULL;
- 	struct msm_gem_address_space *aspace;
- 	int irq, ret;
-+	u32 major, minor;
- 
- 	mdp4_kms = kzalloc(sizeof(*mdp4_kms), GFP_KERNEL);
- 	if (!mdp4_kms) {
-@@ -488,15 +477,6 @@ struct msm_kms *mdp4_kms_init(struct drm_device *dev)
- 	if (IS_ERR(mdp4_kms->pclk))
- 		mdp4_kms->pclk = NULL;
- 
--	if (mdp4_kms->rev >= 2) {
--		mdp4_kms->lut_clk = devm_clk_get(&pdev->dev, "lut_clk");
--		if (IS_ERR(mdp4_kms->lut_clk)) {
--			DRM_DEV_ERROR(dev->dev, "failed to get lut_clk\n");
--			ret = PTR_ERR(mdp4_kms->lut_clk);
--			goto fail;
--		}
--	}
--
- 	mdp4_kms->axi_clk = devm_clk_get(&pdev->dev, "bus_clk");
- 	if (IS_ERR(mdp4_kms->axi_clk)) {
- 		DRM_DEV_ERROR(dev->dev, "failed to get axi_clk\n");
-@@ -505,8 +485,27 @@ struct msm_kms *mdp4_kms_init(struct drm_device *dev)
+@@ -157,6 +164,11 @@ static int rt5682_i2c_probe(struct i2c_client *i2c,
+ 		return ret;
  	}
  
- 	clk_set_rate(mdp4_kms->clk, config->max_clk);
--	if (mdp4_kms->lut_clk)
++	ret = devm_add_action_or_reset(&i2c->dev, rt5682_i2c_disable_regulators,
++				       rt5682);
++	if (ret)
++		return ret;
 +
-+	read_mdp_hw_revision(mdp4_kms, &major, &minor);
-+
-+	if (major != 4) {
-+		DRM_DEV_ERROR(dev->dev, "unexpected MDP version: v%d.%d\n",
-+			      major, minor);
-+		ret = -ENXIO;
-+		goto fail;
-+	}
-+
-+	mdp4_kms->rev = minor;
-+
-+	if (mdp4_kms->rev >= 2) {
-+		mdp4_kms->lut_clk = devm_clk_get(&pdev->dev, "lut_clk");
-+		if (IS_ERR(mdp4_kms->lut_clk)) {
-+			DRM_DEV_ERROR(dev->dev, "failed to get lut_clk\n");
-+			ret = PTR_ERR(mdp4_kms->lut_clk);
-+			goto fail;
-+		}
- 		clk_set_rate(mdp4_kms->lut_clk, config->max_clk);
-+	}
+ 	ret = regulator_bulk_enable(ARRAY_SIZE(rt5682->supplies),
+ 				    rt5682->supplies);
+ 	if (ret) {
+@@ -285,7 +297,6 @@ static int rt5682_i2c_remove(struct i2c_client *client)
+ 	struct rt5682_priv *rt5682 = i2c_get_clientdata(client);
  
- 	pm_runtime_enable(dev->dev);
- 	mdp4_kms->rpm_enabled = true;
+ 	rt5682_i2c_shutdown(client);
+-	regulator_bulk_disable(ARRAY_SIZE(rt5682->supplies), rt5682->supplies);
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
