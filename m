@@ -2,308 +2,484 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 470134097E4
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 17:52:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE414097E6
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 17:52:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343594AbhIMPxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 11:53:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34366 "EHLO
+        id S235334AbhIMPx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 11:53:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343617AbhIMPxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 11:53:12 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D67EFC03D405
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 08:47:05 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id n30so6555847pfq.5
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 08:47:05 -0700 (PDT)
+        with ESMTP id S245530AbhIMPxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 11:53:18 -0400
+Received: from mail-il1-x132.google.com (mail-il1-x132.google.com [IPv6:2607:f8b0:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B548C06121D
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 08:49:08 -0700 (PDT)
+Received: by mail-il1-x132.google.com with SMTP id i13so10585525ilm.4
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 08:49:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=9s1IOqkDiSU6zaJDBXYtlg+/4QUJhlCpM7vSc/UpCZo=;
-        b=03Xd6vo5w730/mDMm15Ufap4t9wDWKMQmi7+cd8gJO6NcH60GBBO01lab3M4CS5C8L
-         EoaIHsUrJ1BicBneeOFaG6VXcOz5ghl6dv6/6pFGiiVcveGriHaFrRGj8NnTfB+HUvxO
-         kp5f7krjSbtzHP8AnlSu9SOnQmC6Gj2Fa9OR7U2X3ewXmgjzQQmSyRa0KV4rwShSkqE9
-         UYgnMtbfL2t4S0aqxkGga69/WgqhIkPV9OpdJm3qwKC9MtlAaGnBZg+BVxmRen+9KBVD
-         3FrGMYyMvVUJMdowSd1zyhNfOX+gDpe9FMFOnycklRcYlhAYyDa2+OMZySpDPxP9GMDn
-         BUzQ==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language;
+        bh=C2byiOCKk/5GsaJzAKK9Vv7lHUIwoAfVPt6VmG45Zms=;
+        b=mNC1PJpW1bJfOQHi0Jw/+iwnl3Vfa0a3efotx/2SZjLW2Saxr4o6yDY1HoI+LEjW3H
+         F7rviy5KOGI3IAgdbQgaBxssEHFzTwH7iaPVLxCqF782u12HBNSg44Z7zRge2QLKYKuk
+         A3bHT0kpLnoGExBrjIOpJOU+4+T3IFheyhlqIteugSVMcNrCLb9ogD6Wqae7hxKfMXK2
+         CPB5KoD/8vvBQ1ccedjJEiod6HGmpbHyLDTCP3MqqFLd0MHDdJ0Kt6nN+vRQy6xpwIgt
+         D5vLjeyz5pjJjvMPZCMuqzYbVvz+GRy+GyF2UjXVaAVV8P2tSoV8IZzw8dUDIIAjtdbJ
+         6spQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=9s1IOqkDiSU6zaJDBXYtlg+/4QUJhlCpM7vSc/UpCZo=;
-        b=Y50wsMmjYa4XBLc6ILn9iV/GaZDwte0YTivZi3YWfc+YUkKNa3JjSdQysd05Dptwl6
-         l+/fMaDjnrB6jWuO7wXTMsLPjZ+YfVgtIbqo3tOZWTHvTsD3uC60eH2EqJL7GJ3GYmsE
-         pEr1BX+XwfMxXTj/pQfhbGKgMdTsiA04oeK6AtehSAgDAJO4R21Ii+G2DcLeqeXPH1mD
-         7UylKzVyE2jajODorehVWdeG2yCyoIrlcDBUstWaPhPktsRj0OYXeVAqbBsFxtbE5vF5
-         Fe8ASuQM1n5LPofLmAR3kaFErwregU2+YbDMa/Tmxc9l8AbFuU4M44TxKUnZiDTsgjzw
-         yFyg==
-X-Gm-Message-State: AOAM533M8SZCBOHijl99e/Rf514wy2P11aeGk6kKEsFCOGbZwHK05BdJ
-        n55iYlOR17gzXbw/g0XfntDnBEQNRr964vPT
-X-Google-Smtp-Source: ABdhPJyDaeBKMHQBdlfQHawll1rXU6l1bK0R9pQN1/3dtXLSzYc7b1A1ZvnRt8HEDp+8A8BF1X0q0Q==
-X-Received: by 2002:a62:2f47:0:b0:43c:11:69ce with SMTP id v68-20020a622f47000000b0043c001169cemr224679pfv.24.1631548025032;
-        Mon, 13 Sep 2021 08:47:05 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l9sm7309039pjz.55.2021.09.13.08.47.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Sep 2021 08:47:04 -0700 (PDT)
-Message-ID: <613f7278.1c69fb81.2a625.47bc@mx.google.com>
-Date:   Mon, 13 Sep 2021 08:47:04 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language;
+        bh=C2byiOCKk/5GsaJzAKK9Vv7lHUIwoAfVPt6VmG45Zms=;
+        b=fzcTa/GtEetoMhcSsoPsPWQcSGigOVqH4CEfXtGXegtDEjtCnntIKxUtgBZplFXG/Y
+         VPjUiC9496CQI5BBhoyYjwFr7Nku55lcNodZs7fRa5CbbcKCLlzmqk6pcXu7M2lGxdHM
+         C0CVbxQYBL2lS/kPg1W1YilMQcqmlY5yqtL89rQAbpHh7Vp1s/F/Sh11bol8G4AdWWQ1
+         eYmHchz95ON6ubrjp/ypdmmkb7l/e9ZtAE/bCTtk4Sybn9wmabY7lYN81DJrRWv0tJ9r
+         yQ4cfsTr9OOJmGLLqNLce1GDTm16H4RxTUXMJA1jz0jpFRjppcajwOizjQaFh5VFtUZT
+         ZAbQ==
+X-Gm-Message-State: AOAM532fjkIHTxcZk2vfYK1h4G1XGd1/8dJX3zyCEAPdG8jDAdjd+y4w
+        X1p7EYib8G6sB5qSETgkJBsHhQ==
+X-Google-Smtp-Source: ABdhPJxEOJvClAxxHatG/O2/fU5X2kbzd6ZGUG7PcacQxKv2FO3Hd65schaIQfMLq8Qrr7gsgvv3AA==
+X-Received: by 2002:a92:d382:: with SMTP id o2mr226958ilo.67.1631548147889;
+        Mon, 13 Sep 2021 08:49:07 -0700 (PDT)
+Received: from [192.168.1.30] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id a14sm4753164iol.24.2021.09.13.08.49.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 13 Sep 2021 08:49:06 -0700 (PDT)
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: 5.10 stable backports
+Message-ID: <81a1f0ea-d875-8cce-6ac1-3307a656bb92@kernel.dk>
+Date:   Mon, 13 Sep 2021 09:49:05 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.246-92-g408bfc1b57fe
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y baseline: 136 runs,
- 7 regressions (v4.14.246-92-g408bfc1b57fe)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/mixed;
+ boundary="------------B9A62DF32A5A8E8C1327DE5F"
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 136 runs, 7 regressions (v4.14.246-92-g408=
-bfc1b57fe)
-
-Regressions Summary
--------------------
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-rk3288-veyron-jaq    | arm   | lab-collabora | gcc-8    | multi_v7_defconfi=
-g  | 3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.246-92-g408bfc1b57fe/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.246-92-g408bfc1b57fe
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      408bfc1b57fe540ddd618ad1ee6a238363dfd8e9 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613f4270aa19ee058199a2f2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-46-92-g408bfc1b57fe/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-46-92-g408bfc1b57fe/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-=
-p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613f4270aa19ee058199a=
-2f3
-        failing since 531 days (last pass: v4.14.172-114-g734382e2d26e, fir=
-st fail: v4.14.174-131-g234ce78cac23) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613f3f952b2ffbcbd299a2db
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-46-92-g408bfc1b57fe/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-46-92-g408bfc1b57fe/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613f3f952b2ffbcbd299a=
-2dc
-        failing since 302 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613f409f50daa0533199a303
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-46-92-g408bfc1b57fe/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-46-92-g408bfc1b57fe/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613f409f50daa0533199a=
-304
-        failing since 302 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613f41c6dd6b62541f99a2db
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-46-92-g408bfc1b57fe/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-46-92-g408bfc1b57fe/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613f41c6dd6b62541f99a=
-2dc
-        failing since 302 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-rk3288-veyron-jaq    | arm   | lab-collabora | gcc-8    | multi_v7_defconfi=
-g  | 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/613f51bc654085bd0999a2e7
-
-  Results:     63 PASS, 6 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-46-92-g408bfc1b57fe/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3=
-288-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-46-92-g408bfc1b57fe/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3=
-288-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/613f51bc654085bd0999a2fb
-        failing since 90 days (last pass: v4.14.236, first fail: v4.14.236-=
-50-g2e03cf25d5d0)
-
-    2021-09-13T13:27:17.935414  [   16.959919] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-09-13T13:27:17.935589  /lava-4509153/1/../bin/lava-test-case
-    2021-09-13T13:27:17.935756  [   16.976938] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Drockchip-pm-domain-driver-present RESULT=3Dpass>
-    2021-09-13T13:27:17.935950  /lava-4509153/1/../bin/lava-test-case[   16=
-.994649] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-pm-domain-pmu-probed=
- RESULT=3Dpass>
-    2021-09-13T13:27:17.936117  =
-
-    2021-09-13T13:27:17.936284  /lava-4509153/1/../bin/lava-test-case
-    2021-09-13T13:27:17.936450  [   17.011645] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Drockchip-pwm-driver-present RESULT=3Dpass>
-    2021-09-13T13:27:17.936629  /lava-4509153/1/../bin/lava-test-case
-    2021-09-13T13:27:17.936792  [   17.028870] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Drockchip-pwm0-probed RESULT=3Dpass>
-    2021-09-13T13:27:17.936956  /lava-4509153/1/../bin/lava-test-case =
-
-    ... (1 line(s) more)  =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/613f51bc654085bd0999a313
-        failing since 90 days (last pass: v4.14.236, first fail: v4.14.236-=
-50-g2e03cf25d5d0) =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/613f51bc654085bd0999a314
-        failing since 90 days (last pass: v4.14.236, first fail: v4.14.236-=
-50-g2e03cf25d5d0)
-
-    2021-09-13T13:27:14.387451  /lava-4509153/1/../bin/lava-test-case
-    2021-09-13T13:27:14.392936  [   13.509523] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
+This is a multi-part message in MIME format.
+--------------B9A62DF32A5A8E8C1327DE5F
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Hi Greg,
+
+Looked over the 5.10/13/14 stable failures, and here's the queue for
+5.10. I'll be sending 5.13 and 5.14 after this.
+
+-- 
+Jens Axboe
+
+
+--------------B9A62DF32A5A8E8C1327DE5F
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0005-io-wq-fix-wakeup-race-when-adding-new-work.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="0005-io-wq-fix-wakeup-race-when-adding-new-work.patch"
+
+From ae58d41926480c2d1ab4be66821f5b87342ce2be Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Mon, 13 Sep 2021 09:20:44 -0600
+Subject: [PATCH 5/5] io-wq: fix wakeup race when adding new work
+
+commit 87df7fb922d18e96992aa5e824aa34b2065fef59 upstream.
+
+When new work is added, io_wqe_enqueue() checks if we need to wake or
+create a new worker. But that check is done outside the lock that
+otherwise synchronizes us with a worker going to sleep, so we can end
+up in the following situation:
+
+CPU0				CPU1
+lock
+insert work
+unlock
+atomic_read(nr_running) != 0
+				lock
+				atomic_dec(nr_running)
+no wakeup needed
+
+Hold the wqe lock around the "need to wakeup" check. Then we can also get
+rid of the temporary work_flags variable, as we know the work will remain
+valid as long as we hold the lock.
+
+Cc: stable@vger.kernel.org
+Reported-by: Andres Freund <andres@anarazel.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io-wq.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/fs/io-wq.c b/fs/io-wq.c
+index 8bb17b6d4de3..3d5fc76b92d0 100644
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -895,7 +895,7 @@ static void io_wqe_insert_work(struct io_wqe *wqe, struct io_wq_work *work)
+ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
+ {
+ 	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
+-	int work_flags;
++	bool do_wake;
+ 	unsigned long flags;
+ 
+ 	/*
+@@ -909,14 +909,14 @@ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
+ 		return;
+ 	}
+ 
+-	work_flags = work->flags;
+ 	raw_spin_lock_irqsave(&wqe->lock, flags);
+ 	io_wqe_insert_work(wqe, work);
+ 	wqe->flags &= ~IO_WQE_FLAG_STALLED;
++	do_wake = (work->flags & IO_WQ_WORK_CONCURRENT) ||
++			!atomic_read(&acct->nr_running);
+ 	raw_spin_unlock_irqrestore(&wqe->lock, flags);
+ 
+-	if ((work_flags & IO_WQ_WORK_CONCURRENT) ||
+-	    !atomic_read(&acct->nr_running))
++	if (do_wake)
+ 		io_wqe_wake_worker(wqe, acct);
+ }
+ 
+-- 
+2.33.0
+
+
+--------------B9A62DF32A5A8E8C1327DE5F
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0004-io_uring-fail-links-of-cancelled-timeouts.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="0004-io_uring-fail-links-of-cancelled-timeouts.patch"
+
+From a1159e56c3cc4ff006b948f112d348e288b5d150 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Mon, 13 Sep 2021 09:45:41 -0600
+Subject: [PATCH 4/5] io_uring: fail links of cancelled timeouts
+
+commit 2ae2eb9dde18979b40629dd413b9adbd6c894cdf upstream.
+
+When we cancel a timeout we should mark it with REQ_F_FAIL, so
+linked requests are cancelled as well, but not queued for further
+execution.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/fff625b44eeced3a5cae79f60e6acf3fbdf8f990.1631192135.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index dd847d8e79e6..6978a42fa39b 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1498,6 +1498,8 @@ static void io_kill_timeout(struct io_kiocb *req, int status)
+ 
+ 	ret = hrtimer_try_to_cancel(&io->timer);
+ 	if (ret != -1) {
++		if (status)
++			req_set_fail_links(req);
+ 		atomic_set(&req->ctx->cq_timeouts,
+ 			atomic_read(&req->ctx->cq_timeouts) + 1);
+ 		list_del_init(&req->timeout.list);
+-- 
+2.33.0
+
+
+--------------B9A62DF32A5A8E8C1327DE5F
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0003-io_uring-add-splice_fd_in-checks.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="0003-io_uring-add-splice_fd_in-checks.patch"
+
+From fc5457ea3350543334960bfc4d0d45563d6e6f7d Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Mon, 13 Sep 2021 09:42:47 -0600
+Subject: [PATCH 3/5] io_uring: add ->splice_fd_in checks
+
+commit 26578cda3db983b17cabe4e577af26306beb9987 upstream.
+
+->splice_fd_in is used only by splice/tee, but no other request checks
+it for validity. Add the check for most of request types excluding
+reads/writes/sends/recvs, we don't want overhead for them and can leave
+them be as is until the field is actually used.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/f44bc2acd6777d932de3d71a5692235b5b2b7397.1629451684.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 195e26a78597..dd847d8e79e6 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3746,7 +3746,8 @@ static int io_prep_fsync(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 
+ 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index))
++	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index ||
++		     sqe->splice_fd_in))
+ 		return -EINVAL;
+ 
+ 	req->sync.flags = READ_ONCE(sqe->fsync_flags);
+@@ -3779,7 +3780,8 @@ static int io_fsync(struct io_kiocb *req, bool force_nonblock)
+ static int io_fallocate_prep(struct io_kiocb *req,
+ 			     const struct io_uring_sqe *sqe)
+ {
+-	if (sqe->ioprio || sqe->buf_index || sqe->rw_flags)
++	if (sqe->ioprio || sqe->buf_index || sqe->rw_flags ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+@@ -3810,7 +3812,7 @@ static int __io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
+ 	const char __user *fname;
+ 	int ret;
+ 
+-	if (unlikely(sqe->ioprio || sqe->buf_index))
++	if (unlikely(sqe->ioprio || sqe->buf_index || sqe->splice_fd_in))
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
+ 		return -EBADF;
+@@ -3926,7 +3928,8 @@ static int io_remove_buffers_prep(struct io_kiocb *req,
+ 	struct io_provide_buf *p = &req->pbuf;
+ 	u64 tmp;
+ 
+-	if (sqe->ioprio || sqe->rw_flags || sqe->addr || sqe->len || sqe->off)
++	if (sqe->ioprio || sqe->rw_flags || sqe->addr || sqe->len || sqe->off ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	tmp = READ_ONCE(sqe->fd);
+@@ -4002,7 +4005,7 @@ static int io_provide_buffers_prep(struct io_kiocb *req,
+ 	struct io_provide_buf *p = &req->pbuf;
+ 	u64 tmp;
+ 
+-	if (sqe->ioprio || sqe->rw_flags)
++	if (sqe->ioprio || sqe->rw_flags || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	tmp = READ_ONCE(sqe->fd);
+@@ -4095,7 +4098,7 @@ static int io_epoll_ctl_prep(struct io_kiocb *req,
+ 			     const struct io_uring_sqe *sqe)
+ {
+ #if defined(CONFIG_EPOLL)
+-	if (sqe->ioprio || sqe->buf_index)
++	if (sqe->ioprio || sqe->buf_index || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL)))
+ 		return -EINVAL;
+@@ -4141,7 +4144,7 @@ static int io_epoll_ctl(struct io_kiocb *req, bool force_nonblock,
+ static int io_madvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ #if defined(CONFIG_ADVISE_SYSCALLS) && defined(CONFIG_MMU)
+-	if (sqe->ioprio || sqe->buf_index || sqe->off)
++	if (sqe->ioprio || sqe->buf_index || sqe->off || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+@@ -4176,7 +4179,7 @@ static int io_madvise(struct io_kiocb *req, bool force_nonblock)
+ 
+ static int io_fadvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+-	if (sqe->ioprio || sqe->buf_index || sqe->addr)
++	if (sqe->ioprio || sqe->buf_index || sqe->addr || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+@@ -4214,7 +4217,7 @@ static int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ 	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL | IORING_SETUP_SQPOLL)))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->buf_index)
++	if (sqe->ioprio || sqe->buf_index || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (req->flags & REQ_F_FIXED_FILE)
+ 		return -EBADF;
+@@ -4261,7 +4264,7 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
+ 		return -EINVAL;
+ 	if (sqe->ioprio || sqe->off || sqe->addr || sqe->len ||
+-	    sqe->rw_flags || sqe->buf_index)
++	    sqe->rw_flags || sqe->buf_index || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (req->flags & REQ_F_FIXED_FILE)
+ 		return -EBADF;
+@@ -4317,7 +4320,8 @@ static int io_prep_sfr(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 
+ 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index))
++	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index ||
++		     sqe->splice_fd_in))
+ 		return -EINVAL;
+ 
+ 	req->sync.off = READ_ONCE(sqe->off);
+@@ -4760,7 +4764,7 @@ static int io_accept_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 
+ 	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->len || sqe->buf_index)
++	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	accept->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
+@@ -4801,7 +4805,8 @@ static int io_connect_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 
+ 	if (unlikely(req->ctx->flags & (IORING_SETUP_IOPOLL|IORING_SETUP_SQPOLL)))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->rw_flags)
++	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->rw_flags ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	conn->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
+@@ -5553,7 +5558,8 @@ static int io_timeout_remove_prep(struct io_kiocb *req,
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->buf_index || sqe->len || sqe->timeout_flags)
++	if (sqe->ioprio || sqe->buf_index || sqe->len || sqe->timeout_flags |
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	req->timeout_rem.addr = READ_ONCE(sqe->addr);
+@@ -5590,7 +5596,8 @@ static int io_timeout_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
+ 
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->buf_index || sqe->len != 1)
++	if (sqe->ioprio || sqe->buf_index || sqe->len != 1 ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (off && is_timeout_link)
+ 		return -EINVAL;
+@@ -5734,7 +5741,8 @@ static int io_async_cancel_prep(struct io_kiocb *req,
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->off || sqe->len || sqe->cancel_flags)
++	if (sqe->ioprio || sqe->off || sqe->len || sqe->cancel_flags ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	req->cancel.addr = READ_ONCE(sqe->addr);
+-- 
+2.33.0
+
+
+--------------B9A62DF32A5A8E8C1327DE5F
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-io_uring-limit-fixed-table-size-by-RLIMIT_NOFILE.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0001-io_uring-limit-fixed-table-size-by-RLIMIT_NOFILE.patch"
+
+From b04cf18255722339e4d1f51389bd842991322b73 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Mon, 13 Sep 2021 09:35:35 -0600
+Subject: [PATCH 1/5] io_uring: limit fixed table size by RLIMIT_NOFILE
+
+Limit the number of files in io_uring fixed tables by RLIMIT_NOFILE,
+that's the first and the simpliest restriction that we should impose.
+
+Cc: stable@vger.kernel.org
+Suggested-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/b2756c340aed7d6c0b302c26dab50c6c5907f4ce.1629451684.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 2009d1cda606..0db463599b00 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7579,6 +7579,8 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 		return -EINVAL;
+ 	if (nr_args > IORING_MAX_FIXED_FILES)
+ 		return -EMFILE;
++	if (nr_args > rlimit(RLIMIT_NOFILE))
++		return -EMFILE;
+ 
+ 	file_data = kzalloc(sizeof(*ctx->file_data), GFP_KERNEL);
+ 	if (!file_data)
+-- 
+2.33.0
+
+
+--------------B9A62DF32A5A8E8C1327DE5F
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0002-io_uring-place-fixed-tables-under-memcg-limits.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0="0002-io_uring-place-fixed-tables-under-memcg-limits.patch"
+
+From c9601223060822df70df4014e339faff21b20eb6 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Mon, 13 Sep 2021 09:37:00 -0600
+Subject: [PATCH 2/5] io_uring: place fixed tables under memcg limits
+
+commit 0bea96f59ba40e63c0ae93ad6a02417b95f22f4d upstream.
+
+Fixed tables may be large enough, place all of them together with
+allocated tags under memcg limits.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/b3ac9f5da9821bb59837b5fe25e8ef4be982218c.1629451684.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 0db463599b00..195e26a78597 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7383,7 +7383,7 @@ static int io_sqe_alloc_file_tables(struct fixed_file_data *file_data,
+ 
+ 		this_files = min(nr_files, IORING_MAX_FILES_TABLE);
+ 		table->files = kcalloc(this_files, sizeof(struct file *),
+-					GFP_KERNEL);
++					GFP_KERNEL_ACCOUNT);
+ 		if (!table->files)
+ 			break;
+ 		nr_files -= this_files;
+@@ -7582,7 +7582,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 	if (nr_args > rlimit(RLIMIT_NOFILE))
+ 		return -EMFILE;
+ 
+-	file_data = kzalloc(sizeof(*ctx->file_data), GFP_KERNEL);
++	file_data = kzalloc(sizeof(*ctx->file_data), GFP_KERNEL_ACCOUNT);
+ 	if (!file_data)
+ 		return -ENOMEM;
+ 	file_data->ctx = ctx;
+@@ -7592,7 +7592,7 @@ static int io_sqe_files_register(struct io_ring_ctx *ctx, void __user *arg,
+ 
+ 	nr_tables = DIV_ROUND_UP(nr_args, IORING_MAX_FILES_TABLE);
+ 	file_data->table = kcalloc(nr_tables, sizeof(*file_data->table),
+-				   GFP_KERNEL);
++				   GFP_KERNEL_ACCOUNT);
+ 	if (!file_data->table)
+ 		goto out_free;
+ 
+-- 
+2.33.0
+
+
+--------------B9A62DF32A5A8E8C1327DE5F--
