@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE553408CFD
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 532C9408F68
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:44:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240577AbhIMNWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:22:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35056 "EHLO mail.kernel.org"
+        id S243308AbhIMNmW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:42:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240431AbhIMNU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:20:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B494E610E7;
-        Mon, 13 Sep 2021 13:19:24 +0000 (UTC)
+        id S241737AbhIMNkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:40:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3412E613DB;
+        Mon, 13 Sep 2021 13:29:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539165;
-        bh=I0wYY4ttfS3dnJn5UM3ZkfaJayMzLgJRSj4gCb3aB5E=;
+        s=korg; t=1631539763;
+        bh=VnAj9P3cej2pcKGGmXvcafGjL0xi4tKmJhucbnaHBqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6Pu4AB1UhTorSsqAxr3nGvrnKdbGcYwo/L66XvZg3a1wVyiFe9NCLyDDG0d5x8fH
-         jK2jNUkfmlqP8mZemrVPIoTTJ/3bJOsWbpqhWqUOMUtwiqxT8/zS/zTHFTnLS0HjfK
-         BzcakMu6b1x4YN7jvZKdxJJhUEu/v2dfyu/IvlOs=
+        b=KX4KlwWzpOF6z/m1yvbj5/Ze/q+3Oiye6MjOI0OArOeNyRD7QykQXUXIjgjbcZtlQ
+         advp2NwY6U9VG4Bf2WuWoiGUQXxuUjzXVqyXgUuIvY0oEHJMKpXxglZjGi/QCJRMS1
+         zLfrcYcQq8eFOPpx3vqhJa/5/am7K+ntIVz4yTnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/144] media: go7007: remove redundant initialization
+Subject: [PATCH 5.10 134/236] drm/msm/mdp4: move HW revision detection to earlier phase
 Date:   Mon, 13 Sep 2021 15:13:59 +0200
-Message-Id: <20210913131049.907169044@linuxfoundation.org>
+Message-Id: <20210913131104.919333814@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +41,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit 6f5885a7750545973bf1a942d2f0f129aef0aa06 ]
+[ Upstream commit 4af4fc92939dc811ef291c0673946555aa4fb71f ]
 
-In go7007_alloc() kzalloc() is used for struct go7007
-allocation. It means that there is no need in zeroing
-any members, because kzalloc will take care of it.
+Fixes if condition, which never worked inside mdp4_kms_init, since
+HW detection has been done later in mdp4_hw_init.
 
-Removing these reduntant initialization steps increases
-execution speed a lot:
+Fixes: eb2b47bb9a03 ("drm/msm/mdp4: only use lut_clk on mdp4.2+")
 
-	Before:
-		+ 86.802 us   |    go7007_alloc();
-	After:
-		+ 29.595 us   |    go7007_alloc();
-
-Fixes: 866b8695d67e8 ("Staging: add the go7007 video driver")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210705231641.315804-2-david@ixit.cz
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/go7007/go7007-driver.c | 26 ------------------------
- 1 file changed, 26 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c | 45 ++++++++++++------------
+ 1 file changed, 22 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/media/usb/go7007/go7007-driver.c b/drivers/media/usb/go7007/go7007-driver.c
-index 153a0c3e3da6..b9302d77d6c8 100644
---- a/drivers/media/usb/go7007/go7007-driver.c
-+++ b/drivers/media/usb/go7007/go7007-driver.c
-@@ -691,49 +691,23 @@ struct go7007 *go7007_alloc(const struct go7007_board_info *board,
- 						struct device *dev)
+diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+index b73af9ddcf72..c1c152e39918 100644
+--- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+@@ -19,23 +19,12 @@ static int mdp4_hw_init(struct msm_kms *kms)
  {
- 	struct go7007 *go;
--	int i;
+ 	struct mdp4_kms *mdp4_kms = to_mdp4_kms(to_mdp_kms(kms));
+ 	struct drm_device *dev = mdp4_kms->dev;
+-	u32 major, minor, dmap_cfg, vg_cfg;
++	u32 dmap_cfg, vg_cfg;
+ 	unsigned long clk;
+ 	int ret = 0;
  
- 	go = kzalloc(sizeof(struct go7007), GFP_KERNEL);
- 	if (go == NULL)
- 		return NULL;
- 	go->dev = dev;
- 	go->board_info = board;
--	go->board_id = 0;
- 	go->tuner_type = -1;
--	go->channel_number = 0;
--	go->name[0] = 0;
- 	mutex_init(&go->hw_lock);
- 	init_waitqueue_head(&go->frame_waitq);
- 	spin_lock_init(&go->spinlock);
- 	go->status = STATUS_INIT;
--	memset(&go->i2c_adapter, 0, sizeof(go->i2c_adapter));
--	go->i2c_adapter_online = 0;
--	go->interrupt_available = 0;
- 	init_waitqueue_head(&go->interrupt_waitq);
--	go->input = 0;
- 	go7007_update_board(go);
--	go->encoder_h_halve = 0;
--	go->encoder_v_halve = 0;
--	go->encoder_subsample = 0;
- 	go->format = V4L2_PIX_FMT_MJPEG;
- 	go->bitrate = 1500000;
- 	go->fps_scale = 1;
--	go->pali = 0;
- 	go->aspect_ratio = GO7007_RATIO_1_1;
--	go->gop_size = 0;
--	go->ipb = 0;
--	go->closed_gop = 0;
--	go->repeat_seqhead = 0;
--	go->seq_header_enable = 0;
--	go->gop_header_enable = 0;
--	go->dvd_mode = 0;
--	go->interlace_coding = 0;
--	for (i = 0; i < 4; ++i)
--		go->modet[i].enable = 0;
--	for (i = 0; i < 1624; ++i)
--		go->modet_map[i] = 0;
--	go->audio_deliver = NULL;
--	go->audio_enabled = 0;
+ 	pm_runtime_get_sync(dev->dev);
  
- 	return go;
- }
+-	read_mdp_hw_revision(mdp4_kms, &major, &minor);
+-
+-	if (major != 4) {
+-		DRM_DEV_ERROR(dev->dev, "unexpected MDP version: v%d.%d\n",
+-				major, minor);
+-		ret = -ENXIO;
+-		goto out;
+-	}
+-
+-	mdp4_kms->rev = minor;
+-
+ 	if (mdp4_kms->rev > 1) {
+ 		mdp4_write(mdp4_kms, REG_MDP4_CS_CONTROLLER0, 0x0707ffff);
+ 		mdp4_write(mdp4_kms, REG_MDP4_CS_CONTROLLER1, 0x03073f3f);
+@@ -81,7 +70,6 @@ static int mdp4_hw_init(struct msm_kms *kms)
+ 	if (mdp4_kms->rev > 1)
+ 		mdp4_write(mdp4_kms, REG_MDP4_RESET_STATUS, 1);
+ 
+-out:
+ 	pm_runtime_put_sync(dev->dev);
+ 
+ 	return ret;
+@@ -426,6 +414,7 @@ struct msm_kms *mdp4_kms_init(struct drm_device *dev)
+ 	struct msm_kms *kms = NULL;
+ 	struct msm_gem_address_space *aspace;
+ 	int irq, ret;
++	u32 major, minor;
+ 
+ 	mdp4_kms = kzalloc(sizeof(*mdp4_kms), GFP_KERNEL);
+ 	if (!mdp4_kms) {
+@@ -482,15 +471,6 @@ struct msm_kms *mdp4_kms_init(struct drm_device *dev)
+ 	if (IS_ERR(mdp4_kms->pclk))
+ 		mdp4_kms->pclk = NULL;
+ 
+-	if (mdp4_kms->rev >= 2) {
+-		mdp4_kms->lut_clk = devm_clk_get(&pdev->dev, "lut_clk");
+-		if (IS_ERR(mdp4_kms->lut_clk)) {
+-			DRM_DEV_ERROR(dev->dev, "failed to get lut_clk\n");
+-			ret = PTR_ERR(mdp4_kms->lut_clk);
+-			goto fail;
+-		}
+-	}
+-
+ 	mdp4_kms->axi_clk = devm_clk_get(&pdev->dev, "bus_clk");
+ 	if (IS_ERR(mdp4_kms->axi_clk)) {
+ 		DRM_DEV_ERROR(dev->dev, "failed to get axi_clk\n");
+@@ -499,8 +479,27 @@ struct msm_kms *mdp4_kms_init(struct drm_device *dev)
+ 	}
+ 
+ 	clk_set_rate(mdp4_kms->clk, config->max_clk);
+-	if (mdp4_kms->lut_clk)
++
++	read_mdp_hw_revision(mdp4_kms, &major, &minor);
++
++	if (major != 4) {
++		DRM_DEV_ERROR(dev->dev, "unexpected MDP version: v%d.%d\n",
++			      major, minor);
++		ret = -ENXIO;
++		goto fail;
++	}
++
++	mdp4_kms->rev = minor;
++
++	if (mdp4_kms->rev >= 2) {
++		mdp4_kms->lut_clk = devm_clk_get(&pdev->dev, "lut_clk");
++		if (IS_ERR(mdp4_kms->lut_clk)) {
++			DRM_DEV_ERROR(dev->dev, "failed to get lut_clk\n");
++			ret = PTR_ERR(mdp4_kms->lut_clk);
++			goto fail;
++		}
+ 		clk_set_rate(mdp4_kms->lut_clk, config->max_clk);
++	}
+ 
+ 	pm_runtime_enable(dev->dev);
+ 	mdp4_kms->rpm_enabled = true;
 -- 
 2.30.2
 
