@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB54A4091F7
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:05:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6338A4094BF
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:34:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343736AbhIMOGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:06:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54798 "EHLO mail.kernel.org"
+        id S1344183AbhIMOeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:34:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344326AbhIMOEq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:04:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7EBA61A65;
-        Mon, 13 Sep 2021 13:39:24 +0000 (UTC)
+        id S1346522AbhIMObv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:31:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85B9B61BA9;
+        Mon, 13 Sep 2021 13:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540365;
-        bh=wEGxYt0NRMm/HmyEG2GpPfJ1BKVhbutcfRASDllrfoc=;
+        s=korg; t=1631541123;
+        bh=+96fkkbZQsma8OSwkTE3iaeZ3NjW2TCk6+HNUL2M4I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GvNiksvVcoEGeOOfWKLCFadJqIRG5RAxKRF4KhD9zmx80w2qpWAuEHKsYVQDAGJwd
-         9PrEq1x9GO+1zMgjQ8KbZ6TGW2Ojh6VTOa/A5ni4HJeJ9jj05IxYD5/crDgeR+SVrd
-         rePw+me/uFMYmqZ6b2Tp88RAlmhthMIWkliNuABs=
+        b=0fvpQIwm7XXOGv+hjCconlWfi7u9la/nB12F9ecXs2YHeLATpKQK+n1fffUmp3FeZ
+         Cpoza3yK8vNtiy95lDhNofLUjnChYHat5l5SDktvRweBQ0xoYVS6xwhAyoZLE1DuW0
+         Bz0/wuPuxZklYUTiVoWbkSEqlGluHM48R0twQVLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tedd Ho-Jeong An <tedd.an@intel.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 132/300] net: ti: am65-cpsw-nuss: fix wrong devlink release order
-Date:   Mon, 13 Sep 2021 15:13:13 +0200
-Message-Id: <20210913131113.850740100@linuxfoundation.org>
+Subject: [PATCH 5.14 140/334] Bluetooth: mgmt: Fix wrong opcode in the response for add_adv cmd
+Date:   Mon, 13 Sep 2021 15:13:14 +0200
+Message-Id: <20210913131118.089920148@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,92 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Tedd Ho-Jeong An <tedd.an@intel.com>
 
-[ Upstream commit acf34954efd17d4f65c7bb3e614381e6afc33222 ]
+[ Upstream commit a25fca4d3c18766b6f7a3c95fa8faec23ef464c5 ]
 
-The commit that introduced devlink support released devlink resources in
-wrong order, that made an unwind flow to be asymmetrical. In addition,
-the am65-cpsw-nuss used internal to devlink core field - registered.
+This patch fixes the MGMT add_advertising command repsones with the
+wrong opcode when it is trying to return the not supported error.
 
-In order to fix the unwind flow and remove such access to the
-registered field, rewrite the code to call devlink_port_unregister only
-on registered ports.
-
-Fixes: 58356eb31d60 ("net: ti: am65-cpsw-nuss: Add devlink support")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: cbbdfa6f33198 ("Bluetooth: Enable controller RPA resolution using Experimental feature")
+Signed-off-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c | 34 ++++++++++++------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ net/bluetooth/mgmt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index 67a08cbba859..fb58fc470773 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -2388,21 +2388,6 @@ static const struct devlink_param am65_cpsw_devlink_params[] = {
- 			     am65_cpsw_dl_switch_mode_set, NULL),
- };
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index 3663f880df11..1e21e014efd2 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -7725,7 +7725,7 @@ static int add_advertising(struct sock *sk, struct hci_dev *hdev,
+ 	 * advertising.
+ 	 */
+ 	if (hci_dev_test_flag(hdev, HCI_ENABLE_LL_PRIVACY))
+-		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_ADVERTISING,
++		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_ADD_ADVERTISING,
+ 				       MGMT_STATUS_NOT_SUPPORTED);
  
--static void am65_cpsw_unregister_devlink_ports(struct am65_cpsw_common *common)
--{
--	struct devlink_port *dl_port;
--	struct am65_cpsw_port *port;
--	int i;
--
--	for (i = 1; i <= common->port_num; i++) {
--		port = am65_common_get_port(common, i);
--		dl_port = &port->devlink_port;
--
--		if (dl_port->registered)
--			devlink_port_unregister(dl_port);
--	}
--}
--
- static int am65_cpsw_nuss_register_devlink(struct am65_cpsw_common *common)
- {
- 	struct devlink_port_attrs attrs = {};
-@@ -2464,7 +2449,12 @@ static int am65_cpsw_nuss_register_devlink(struct am65_cpsw_common *common)
- 	return ret;
- 
- dl_port_unreg:
--	am65_cpsw_unregister_devlink_ports(common);
-+	for (i = i - 1; i >= 1; i--) {
-+		port = am65_common_get_port(common, i);
-+		dl_port = &port->devlink_port;
-+
-+		devlink_port_unregister(dl_port);
-+	}
- dl_unreg:
- 	devlink_unregister(common->devlink);
- dl_free:
-@@ -2475,6 +2465,17 @@ dl_free:
- 
- static void am65_cpsw_unregister_devlink(struct am65_cpsw_common *common)
- {
-+	struct devlink_port *dl_port;
-+	struct am65_cpsw_port *port;
-+	int i;
-+
-+	for (i = 1; i <= common->port_num; i++) {
-+		port = am65_common_get_port(common, i);
-+		dl_port = &port->devlink_port;
-+
-+		devlink_port_unregister(dl_port);
-+	}
-+
- 	if (!AM65_CPSW_IS_CPSW2G(common) &&
- 	    IS_ENABLED(CONFIG_TI_K3_AM65_CPSW_SWITCHDEV)) {
- 		devlink_params_unpublish(common->devlink);
-@@ -2482,7 +2483,6 @@ static void am65_cpsw_unregister_devlink(struct am65_cpsw_common *common)
- 					  ARRAY_SIZE(am65_cpsw_devlink_params));
- 	}
- 
--	am65_cpsw_unregister_devlink_ports(common);
- 	devlink_unregister(common->devlink);
- 	devlink_free(common->devlink);
- }
+ 	if (cp->instance < 1 || cp->instance > hdev->le_num_of_adv_sets)
 -- 
 2.30.2
 
