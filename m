@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8605F4094DE
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B30B24094FD
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:40:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345345AbhIMOgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:36:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51240 "EHLO mail.kernel.org"
+        id S242170AbhIMOgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:36:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345904AbhIMOdQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:33:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9D1C6137C;
-        Mon, 13 Sep 2021 13:52:34 +0000 (UTC)
+        id S1347507AbhIMOel (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:34:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA7CF61BCF;
+        Mon, 13 Sep 2021 13:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541155;
-        bh=92VlfVONk7XtZ4VLYb1V6TBE5RSZxNPQllZl6+L+/kE=;
+        s=korg; t=1631541182;
+        bh=6nmA9n4kK62ghSGdCzVMvQVavRXk0YcfciuHa7ei03A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WWO5yTp82I0v/41kv4OpmeU2yPkl+fk6ubsCRqBTMdHFKX2ouPFw7iFYRhalX2RNC
-         cnalVCqw+chT/da1kUMMcvMuOgxob9IwAyOrZmu8pa9CRlHvbnvLFST+CVsXKBbNkD
-         jeuNSYxB5oHtOWyASkY4DeNXGxF+u7kY1dM6KtKg=
+        b=anVSt+7PVX/eX10jr9fjmTvzhN2YZzMGHFPrX+g+ssZC+3BHhfR4r8j44PuI/AlcE
+         IKJR6en6vU3ClAbutD5Id0HPKb4oXAhkh8CWClIqS2PYKZf9wnMB8RpzeE61purH7f
+         2iDg1kxRmnQFNrXv1+x/epcorfDKTO/XLGv3ml8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 168/334] soc: qcom: smsm: Fix missed interrupts if state changes while masked
-Date:   Mon, 13 Sep 2021 15:13:42 +0200
-Message-Id: <20210913131119.021142341@linuxfoundation.org>
+Subject: [PATCH 5.14 169/334] net: dsa: build tag_8021q.c as part of DSA core
+Date:   Mon, 13 Sep 2021 15:13:43 +0200
+Message-Id: <20210913131119.054037398@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -40,76 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit e3d4571955050736bbf3eda0a9538a09d9fcfce8 ]
+[ Upstream commit 8b6e638b4be2ad77f61fb93b4e1776c6ccc2edab ]
 
-The SMSM driver detects interrupt edges by tracking the last state
-it has seen (and has triggered the interrupt handler for). This works
-fine, but only if the interrupt does not change state while masked.
+Upcoming patches will add tag_8021q related logic to switch.c and
+port.c, in order to allow it to make use of cross-chip notifiers.
+In addition, a struct dsa_8021q_context *ctx pointer will be added to
+struct dsa_switch.
 
-For example, if an interrupt is unmasked while the state is HIGH,
-the stored last_value for that interrupt might still be LOW. Then,
-when the remote processor triggers smsm_intr() we assume that nothing
-has changed, even though the state might have changed from HIGH to LOW.
+It seems fairly low-reward to #ifdef the *ctx from struct dsa_switch and
+to provide shim implementations of the entire tag_8021q.c calling
+surface (not even clear what to do about the tag_8021q cross-chip
+notifiers to avoid compiling them). The runtime overhead for switches
+which don't use tag_8021q is fairly small because all helpers will check
+for ds->tag_8021q_ctx being a NULL pointer and stop there.
 
-Attempt to fix this by checking the current remote state before
-unmasking an IRQ. Use atomic operations to avoid the interrupt handler
-from interfering with the unmask function.
+So let's make it part of dsa_core.o.
 
-This fixes modem crashes in some edge cases with the BAM-DMUX driver.
-Specifically, the BAM-DMUX interrupt handler is not called for the
-HIGH -> LOW smsm state transition if the BAM-DMUX driver is loaded
-(and therefore unmasks the interrupt) after the modem was already started:
-
-qcom-q6v5-mss 4080000.remoteproc: fatal error received: a2_task.c:3188:
-  Assert FALSE failed: A2 DL PER deadlock timer expired waiting for Apps ACK
-
-Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Link: https://lore.kernel.org/r/20210712135703.324748-2-stephan@gerhold.net
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/smsm.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ net/dsa/Kconfig     | 12 ------------
+ net/dsa/Makefile    |  3 +--
+ net/dsa/tag_8021q.c |  2 --
+ 3 files changed, 1 insertion(+), 16 deletions(-)
 
-diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
-index 1d3d5e3ec2b0..6e9a9cd28b17 100644
---- a/drivers/soc/qcom/smsm.c
-+++ b/drivers/soc/qcom/smsm.c
-@@ -109,7 +109,7 @@ struct smsm_entry {
- 	DECLARE_BITMAP(irq_enabled, 32);
- 	DECLARE_BITMAP(irq_rising, 32);
- 	DECLARE_BITMAP(irq_falling, 32);
--	u32 last_value;
-+	unsigned long last_value;
+diff --git a/net/dsa/Kconfig b/net/dsa/Kconfig
+index 00bb89b2d86f..bca1b5d66df2 100644
+--- a/net/dsa/Kconfig
++++ b/net/dsa/Kconfig
+@@ -18,16 +18,6 @@ if NET_DSA
  
- 	u32 *remote_state;
- 	u32 *subscription;
-@@ -204,8 +204,7 @@ static irqreturn_t smsm_intr(int irq, void *data)
- 	u32 val;
+ # Drivers must select the appropriate tagging format(s)
  
- 	val = readl(entry->remote_state);
--	changed = val ^ entry->last_value;
--	entry->last_value = val;
-+	changed = val ^ xchg(&entry->last_value, val);
+-config NET_DSA_TAG_8021Q
+-	tristate
+-	select VLAN_8021Q
+-	help
+-	  Unlike the other tagging protocols, the 802.1Q config option simply
+-	  provides helpers for other tagging implementations that might rely on
+-	  VLAN in one way or another. It is not a complete solution.
+-
+-	  Drivers which use these helpers should select this as dependency.
+-
+ config NET_DSA_TAG_AR9331
+ 	tristate "Tag driver for Atheros AR9331 SoC with built-in switch"
+ 	help
+@@ -126,7 +116,6 @@ config NET_DSA_TAG_OCELOT_8021Q
+ 	tristate "Tag driver for Ocelot family of switches, using VLAN"
+ 	depends on MSCC_OCELOT_SWITCH_LIB || \
+ 	          (MSCC_OCELOT_SWITCH_LIB=n && COMPILE_TEST)
+-	select NET_DSA_TAG_8021Q
+ 	help
+ 	  Say Y or M if you want to enable support for tagging frames with a
+ 	  custom VLAN-based header. Frames that require timestamping, such as
+@@ -149,7 +138,6 @@ config NET_DSA_TAG_LAN9303
  
- 	for_each_set_bit(i, entry->irq_enabled, 32) {
- 		if (!(changed & BIT(i)))
-@@ -264,6 +263,12 @@ static void smsm_unmask_irq(struct irq_data *irqd)
- 	struct qcom_smsm *smsm = entry->smsm;
- 	u32 val;
+ config NET_DSA_TAG_SJA1105
+ 	tristate "Tag driver for NXP SJA1105 switches"
+-	select NET_DSA_TAG_8021Q
+ 	select PACKING
+ 	help
+ 	  Say Y or M if you want to enable support for tagging frames with the
+diff --git a/net/dsa/Makefile b/net/dsa/Makefile
+index 44bc79952b8b..67ea009f242c 100644
+--- a/net/dsa/Makefile
++++ b/net/dsa/Makefile
+@@ -1,10 +1,9 @@
+ # SPDX-License-Identifier: GPL-2.0
+ # the core
+ obj-$(CONFIG_NET_DSA) += dsa_core.o
+-dsa_core-y += dsa.o dsa2.o master.o port.o slave.o switch.o
++dsa_core-y += dsa.o dsa2.o master.o port.o slave.o switch.o tag_8021q.o
  
-+	/* Make sure our last cached state is up-to-date */
-+	if (readl(entry->remote_state) & BIT(irq))
-+		set_bit(irq, &entry->last_value);
-+	else
-+		clear_bit(irq, &entry->last_value);
-+
- 	set_bit(irq, entry->irq_enabled);
- 
- 	if (entry->subscription) {
+ # tagging formats
+-obj-$(CONFIG_NET_DSA_TAG_8021Q) += tag_8021q.o
+ obj-$(CONFIG_NET_DSA_TAG_AR9331) += tag_ar9331.o
+ obj-$(CONFIG_NET_DSA_TAG_BRCM_COMMON) += tag_brcm.o
+ obj-$(CONFIG_NET_DSA_TAG_DSA_COMMON) += tag_dsa.o
+diff --git a/net/dsa/tag_8021q.c b/net/dsa/tag_8021q.c
+index 4aa29f90ecea..0d1db3e37668 100644
+--- a/net/dsa/tag_8021q.c
++++ b/net/dsa/tag_8021q.c
+@@ -493,5 +493,3 @@ void dsa_8021q_rcv(struct sk_buff *skb, int *source_port, int *switch_id,
+ 	skb->priority = (tci & VLAN_PRIO_MASK) >> VLAN_PRIO_SHIFT;
+ }
+ EXPORT_SYMBOL_GPL(dsa_8021q_rcv);
+-
+-MODULE_LICENSE("GPL v2");
 -- 
 2.30.2
 
