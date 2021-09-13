@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8B4840920A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 061AE409500
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:40:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344766AbhIMOH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:07:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56012 "EHLO mail.kernel.org"
+        id S236639AbhIMOgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:36:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344610AbhIMOFQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:05:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D565861269;
-        Mon, 13 Sep 2021 13:39:47 +0000 (UTC)
+        id S1346300AbhIMOco (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:32:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A5796138B;
+        Mon, 13 Sep 2021 13:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540388;
-        bh=ovj2dHtuEL0E6nt/2T8arqcn3LibHZn3l4vSyNwBUP0=;
+        s=korg; t=1631541140;
+        bh=e6IaxkjKAezcCR2vJvLNT6auUq5zbXXXF2R0oLmuMVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w8Gy7fGdr+OVeTR9Fd+7Z5hK8NeeG4RjG3TjCK+MSdsAzzVsAGUGNtv2zdLTL+CUb
-         jJV7VBCYYappJu+NoamADr9Af79ge3u28OuHJCU8PM7wyuSvLp4ZcLOAbUdNpeIzk6
-         p9DUc8StEj2w8H/EbUSxAhyd5fom7yxAnUChsjVc=
+        b=KhrGfpzSxdPRPvEPtncgxp/9hTK69H0H6ZoofeycdIVVfBvrnyb03xZWnrarP+hqs
+         CrMPNHYU6s+iS47gI4tpB6AgH6aRlP5aCoY5NB16+HYeozD4hUmsi4sBKrMF1mUt81
+         Ne7WHIJga4A8W7tv/eLoMDkauqRQ7YgeVCgNOrXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, CCJ Yeh <CCj.Yeh@mediatek.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Lukasz Luba <lukasz.luba@arm.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 173/300] Bluetooth: fix repeated calls to sco_sock_kill
+Subject: [PATCH 5.14 180/334] PM: EM: Increase energy calculation precision
 Date:   Mon, 13 Sep 2021 15:13:54 +0200
-Message-Id: <20210913131115.244683276@linuxfoundation.org>
+Message-Id: <20210913131119.437380020@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +42,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Lukasz Luba <lukasz.luba@arm.com>
 
-[ Upstream commit e1dee2c1de2b4dd00eb44004a4bda6326ed07b59 ]
+[ Upstream commit 7fcc17d0cb12938d2b3507973a6f93fc9ed2c7a1 ]
 
-In commit 4e1a720d0312 ("Bluetooth: avoid killing an already killed
-socket"), a check was added to sco_sock_kill to skip killing a socket
-if the SOCK_DEAD flag was set.
+The Energy Model (EM) provides useful information about device power in
+each performance state to other subsystems like: Energy Aware Scheduler
+(EAS). The energy calculation in EAS does arithmetic operation based on
+the EM em_cpu_energy(). Current implementation of that function uses
+em_perf_state::cost as a pre-computed cost coefficient equal to:
+cost = power * max_frequency / frequency.
+The 'power' is expressed in milli-Watts (or in abstract scale).
 
-This was done after a trace for a use-after-free bug showed that the
-same sock pointer was being killed twice.
+There are corner cases when the EAS energy calculation for two Performance
+Domains (PDs) return the same value. The EAS compares these values to
+choose smaller one. It might happen that this values are equal due to
+rounding error. In such scenario, we need better resolution, e.g. 1000
+times better. To provide this possibility increase the resolution in the
+em_perf_state::cost for 64-bit architectures. The cost of increasing
+resolution on 32-bit is pretty high (64-bit division) and is not justified
+since there are no new 32bit big.LITTLE EAS systems expected which would
+benefit from this higher resolution.
 
-Unfortunately, this check prevents sco_sock_kill from running on any
-socket. sco_sock_kill kills a socket only if it's zapped and orphaned,
-however sock_orphan announces that the socket is dead before detaching
-it. i.e., orphaned sockets have the SOCK_DEAD flag set.
+This patch allows to avoid the rounding to milli-Watt errors, which might
+occur in EAS energy estimation for each PD. The rounding error is common
+for small tasks which have small utilization value.
 
-To fix this, we remove the check for SOCK_DEAD, and avoid repeated
-calls to sco_sock_kill by removing incorrect calls in:
+There are two places in the code where it makes a difference:
+1. In the find_energy_efficient_cpu() where we are searching for
+best_delta. We might suffer there when two PDs return the same result,
+like in the example below.
 
-1. sco_sock_timeout. The socket should not be killed on timeout as
-further processing is expected to be done. For example,
-sco_sock_connect sets the timer then waits for the socket to be
-connected or for an error to be returned.
+Scenario:
+Low utilized system e.g. ~200 sum_util for PD0 and ~220 for PD1. There
+are quite a few small tasks ~10-15 util. These tasks would suffer for
+the rounding error. These utilization values are typical when running games
+on Android. One of our partners has reported 5..10mA less battery drain
+when running with increased resolution.
 
-2. sco_conn_del. This function should clean up resources for the
-connection, but the socket itself should be cleaned up in
-sco_sock_release.
+Some details:
+We have two PDs: PD0 (big) and PD1 (little)
+Let's compare w/o patch set ('old') and w/ patch set ('new')
+We are comparing energy w/ task and w/o task placed in the PDs
 
-3. sco_sock_close. Calls to sco_sock_close in sco_sock_cleanup_listen
-and sco_sock_release are followed by sco_sock_kill. Hence the
-duplicated call should be removed.
+a) 'old' w/o patch set, PD0
+task_util = 13
+cost = 480
+sum_util_w/o_task = 215
+sum_util_w_task = 228
+scale_cpu = 1024
+energy_w/o_task = 480 * 215 / 1024 = 100.78 => 100
+energy_w_task = 480 * 228 / 1024 = 106.87 => 106
+energy_diff = 106 - 100 = 6
+(this is equal to 'old' PD1's energy_diff in 'c)')
 
-Fixes: 4e1a720d0312 ("Bluetooth: avoid killing an already killed socket")
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+b) 'new' w/ patch set, PD0
+task_util = 13
+cost = 480 * 1000 = 480000
+sum_util_w/o_task = 215
+sum_util_w_task = 228
+energy_w/o_task = 480000 * 215 / 1024 = 100781
+energy_w_task = 480000 * 228 / 1024  = 106875
+energy_diff = 106875 - 100781 = 6094
+(this is not equal to 'new' PD1's energy_diff in 'd)')
+
+c) 'old' w/o patch set, PD1
+task_util = 13
+cost = 160
+sum_util_w/o_task = 283
+sum_util_w_task = 293
+scale_cpu = 355
+energy_w/o_task = 160 * 283 / 355 = 127.55 => 127
+energy_w_task = 160 * 296 / 355 = 133.41 => 133
+energy_diff = 133 - 127 = 6
+(this is equal to 'old' PD0's energy_diff in 'a)')
+
+d) 'new' w/ patch set, PD1
+task_util = 13
+cost = 160 * 1000 = 160000
+sum_util_w/o_task = 283
+sum_util_w_task = 293
+scale_cpu = 355
+energy_w/o_task = 160000 * 283 / 355 = 127549
+energy_w_task = 160000 * 296 / 355 =   133408
+energy_diff = 133408 - 127549 = 5859
+(this is not equal to 'new' PD0's energy_diff in 'b)')
+
+2. Difference in the 6% energy margin filter at the end of
+find_energy_efficient_cpu(). With this patch the margin comparison also
+has better resolution, so it's possible to have better task placement
+thanks to that.
+
+Fixes: 27871f7a8a341ef ("PM: Introduce an Energy Model management framework")
+Reported-by: CCJ Yeh <CCj.Yeh@mediatek.com>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ include/linux/energy_model.h | 16 ++++++++++++++++
+ kernel/power/energy_model.c  |  4 +++-
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index a7b4555f312f..9769a7ceb689 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -85,7 +85,6 @@ static void sco_sock_timeout(struct timer_list *t)
- 	sk->sk_state_change(sk);
- 	bh_unlock_sock(sk);
+diff --git a/include/linux/energy_model.h b/include/linux/energy_model.h
+index 3f221dbf5f95..1834752c5617 100644
+--- a/include/linux/energy_model.h
++++ b/include/linux/energy_model.h
+@@ -53,6 +53,22 @@ struct em_perf_domain {
+ #ifdef CONFIG_ENERGY_MODEL
+ #define EM_MAX_POWER 0xFFFF
  
--	sco_sock_kill(sk);
- 	sock_put(sk);
- }
- 
-@@ -177,7 +176,6 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
- 		sco_sock_clear_timer(sk);
- 		sco_chan_del(sk, err);
- 		bh_unlock_sock(sk);
--		sco_sock_kill(sk);
- 		sock_put(sk);
++/*
++ * Increase resolution of energy estimation calculations for 64-bit
++ * architectures. The extra resolution improves decision made by EAS for the
++ * task placement when two Performance Domains might provide similar energy
++ * estimation values (w/o better resolution the values could be equal).
++ *
++ * We increase resolution only if we have enough bits to allow this increased
++ * resolution (i.e. 64-bit). The costs for increasing resolution when 32-bit
++ * are pretty high and the returns do not justify the increased costs.
++ */
++#ifdef CONFIG_64BIT
++#define em_scale_power(p) ((p) * 1000)
++#else
++#define em_scale_power(p) (p)
++#endif
++
+ struct em_data_callback {
+ 	/**
+ 	 * active_power() - Provide power at the next performance state of
+diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
+index 0f4530b3a8cd..a332ccd829e2 100644
+--- a/kernel/power/energy_model.c
++++ b/kernel/power/energy_model.c
+@@ -170,7 +170,9 @@ static int em_create_perf_table(struct device *dev, struct em_perf_domain *pd,
+ 	/* Compute the cost of each performance state. */
+ 	fmax = (u64) table[nr_states - 1].frequency;
+ 	for (i = 0; i < nr_states; i++) {
+-		table[i].cost = div64_u64(fmax * table[i].power,
++		unsigned long power_res = em_scale_power(table[i].power);
++
++		table[i].cost = div64_u64(fmax * power_res,
+ 					  table[i].frequency);
  	}
  
-@@ -394,8 +392,7 @@ static void sco_sock_cleanup_listen(struct sock *parent)
-  */
- static void sco_sock_kill(struct sock *sk)
- {
--	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket ||
--	    sock_flag(sk, SOCK_DEAD))
-+	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket)
- 		return;
- 
- 	BT_DBG("sk %p state %d", sk, sk->sk_state);
-@@ -447,7 +444,6 @@ static void sco_sock_close(struct sock *sk)
- 	lock_sock(sk);
- 	__sco_sock_close(sk);
- 	release_sock(sk);
--	sco_sock_kill(sk);
- }
- 
- static void sco_skb_put_cmsg(struct sk_buff *skb, struct msghdr *msg,
 -- 
 2.30.2
 
