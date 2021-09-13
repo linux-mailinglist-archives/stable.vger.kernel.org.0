@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9565E409172
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:00:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95BD4408EF1
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343944AbhIMOBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:01:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50892 "EHLO mail.kernel.org"
+        id S243123AbhIMNiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:38:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245730AbhIMN71 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:59:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00C73610FE;
-        Mon, 13 Sep 2021 13:37:04 +0000 (UTC)
+        id S242005AbhIMNgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:36:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D13C61373;
+        Mon, 13 Sep 2021 13:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540225;
-        bh=IFq5a1R/bvoW7J5KJC/aQ63k1a7K0dBrSifk+UHnhCM=;
+        s=korg; t=1631539645;
+        bh=Dj0oXM8LCAxqhjKn3UcUE+1OU4mFu/cC0JVlL2RvwQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1CoEEOKAKAv3oQW8DTJzKg9Fzi4yrOwMAgEkDqBwCud80FgdmNPBIC+sA6EcvHyP
-         oLjGLbNgXsIdeb3TVE6MeueGbwYw3VQSF9KfZdBe36/LO5oa4JJjdv3K9o0Z1XAqzF
-         F/aeAUrv/2Gkjw6KhENUHmfZnOCUodC6FHqm5K5A=
+        b=QfVl2burSAA43WNdZKm8fVkmJjl0Bxbu3BYv7T2WhkSKasSZgKptodD/QIfEDFNsm
+         2Hitxj9xHRVm6Dx3HoryedkkO1QMYUhzqjA4Kp7y/Ar/V0atomcGwtajX2dCfxBb9w
+         nMTLYoFPxA0W3pq/N688vfM2j9UgR6M9NS/VbP8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
+        stable@vger.kernel.org, Sumanth Kamatala <skamatala@juniper.net>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 105/300] driver core: Fix error return code in really_probe()
+Subject: [PATCH 5.10 061/236] x86/mce: Defer processing of early errors
 Date:   Mon, 13 Sep 2021 15:12:46 +0200
-Message-Id: <20210913131112.920112329@linuxfoundation.org>
+Message-Id: <20210913131102.444635157@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Borislav Petkov <bp@alien8.de>
 
-[ Upstream commit f04948dea236b000da09c466a7ec931ecd8d7867 ]
+[ Upstream commit 3bff147b187d5dfccfca1ee231b0761a89f1eff5 ]
 
-In the case of error handling, the error code returned by the subfunction
-should be propagated instead of 0.
+When a fatal machine check results in a system reset, Linux does not
+clear the error(s) from machine check bank(s) - hardware preserves the
+machine check banks across a warm reset.
 
-Fixes: 1901fb2604fb ("Driver core: fix "driver" symlink timing")
-Fixes: 23b6904442d0 ("driver core: add dev_groups to all drivers")
-Fixes: 8fd456ec0cf0 ("driver core: Add state_synced sysfs file for devices that support it")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210707074301.2722-1-thunder.leizhen@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+During initialization of the kernel after the reboot, Linux reads, logs,
+and clears all machine check banks.
+
+But there is a problem. In:
+
+  5de97c9f6d85 ("x86/mce: Factor out and deprecate the /dev/mcelog driver")
+
+the call to mce_register_decode_chain() moved later in the boot
+sequence. This means that /dev/mcelog doesn't see those early error
+logs.
+
+This was partially fixed by:
+
+  cd9c57cad3fe ("x86/MCE: Dump MCE to dmesg if no consumers")
+
+which made sure that the logs were not lost completely by printing
+to the console. But parsing console logs is error prone. Users of
+/dev/mcelog should expect to find any early errors logged to standard
+places.
+
+Add a new flag MCP_QUEUE_LOG to machine_check_poll() to be used in early
+machine check initialization to indicate that any errors found should
+just be queued to genpool. When mcheck_late_init() is called it will
+call mce_schedule_work() to actually log and flush any errors queued in
+the genpool.
+
+ [ Based on an original patch, commit message by and completely
+   productized by Tony Luck. ]
+
+Fixes: 5de97c9f6d85 ("x86/mce: Factor out and deprecate the /dev/mcelog driver")
+Reported-by: Sumanth Kamatala <skamatala@juniper.net>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20210824003129.GA1642753@agluck-desk2.amr.corp.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/mce.h     |  1 +
+ arch/x86/kernel/cpu/mce/core.c | 11 ++++++++---
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 592b3955abe2..a421da0c9c01 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -560,7 +560,8 @@ re_probe:
- 			goto probe_failed;
- 	}
+diff --git a/arch/x86/include/asm/mce.h b/arch/x86/include/asm/mce.h
+index fc25c88c7ff2..9b5ff423e939 100644
+--- a/arch/x86/include/asm/mce.h
++++ b/arch/x86/include/asm/mce.h
+@@ -259,6 +259,7 @@ enum mcp_flags {
+ 	MCP_TIMESTAMP	= BIT(0),	/* log time stamp */
+ 	MCP_UC		= BIT(1),	/* log uncorrected errors */
+ 	MCP_DONTLOG	= BIT(2),	/* only clear, don't log */
++	MCP_QUEUE_LOG	= BIT(3),	/* only queue to genpool */
+ };
+ bool machine_check_poll(enum mcp_flags flags, mce_banks_t *b);
  
--	if (driver_sysfs_add(dev)) {
-+	ret = driver_sysfs_add(dev);
-+	if (ret) {
- 		pr_err("%s: driver_sysfs_add(%s) failed\n",
- 		       __func__, dev_name(dev));
- 		goto probe_failed;
-@@ -582,15 +583,18 @@ re_probe:
- 			goto probe_failed;
- 	}
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index b7a27589dfa0..056d0367864e 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -817,7 +817,10 @@ log_it:
+ 		if (mca_cfg.dont_log_ce && !mce_usable_address(&m))
+ 			goto clear_it;
  
--	if (device_add_groups(dev, drv->dev_groups)) {
-+	ret = device_add_groups(dev, drv->dev_groups);
-+	if (ret) {
- 		dev_err(dev, "device_add_groups() failed\n");
- 		goto dev_groups_failed;
- 	}
+-		mce_log(&m);
++		if (flags & MCP_QUEUE_LOG)
++			mce_gen_pool_add(&m);
++		else
++			mce_log(&m);
  
--	if (dev_has_sync_state(dev) &&
--	    device_create_file(dev, &dev_attr_state_synced)) {
--		dev_err(dev, "state_synced sysfs add failed\n");
--		goto dev_sysfs_state_synced_failed;
-+	if (dev_has_sync_state(dev)) {
-+		ret = device_create_file(dev, &dev_attr_state_synced);
-+		if (ret) {
-+			dev_err(dev, "state_synced sysfs add failed\n");
-+			goto dev_sysfs_state_synced_failed;
-+		}
- 	}
+ clear_it:
+ 		/*
+@@ -1628,10 +1631,12 @@ static void __mcheck_cpu_init_generic(void)
+ 		m_fl = MCP_DONTLOG;
  
- 	if (test_remove) {
+ 	/*
+-	 * Log the machine checks left over from the previous reset.
++	 * Log the machine checks left over from the previous reset. Log them
++	 * only, do not start processing them. That will happen in mcheck_late_init()
++	 * when all consumers have been registered on the notifier chain.
+ 	 */
+ 	bitmap_fill(all_banks, MAX_NR_BANKS);
+-	machine_check_poll(MCP_UC | m_fl, &all_banks);
++	machine_check_poll(MCP_UC | MCP_QUEUE_LOG | m_fl, &all_banks);
+ 
+ 	cr4_set_bits(X86_CR4_MCE);
+ 
 -- 
 2.30.2
 
