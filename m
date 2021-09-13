@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDD6D408DCE
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1629408EFB
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242315AbhIMNaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:30:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35056 "EHLO mail.kernel.org"
+        id S240533AbhIMNi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:38:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240150AbhIMNT4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:19:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 360056113B;
-        Mon, 13 Sep 2021 13:18:02 +0000 (UTC)
+        id S241817AbhIMNgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:36:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D458560FA0;
+        Mon, 13 Sep 2021 13:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539082;
-        bh=ubLnOvhDD9HBiRyDL6wXMzREZ3bw2QB2Sm1N1wWnrIk=;
+        s=korg; t=1631539661;
+        bh=UTg58yr1QNRkoeBcyKqln22wI3QoaO6OYoASTEwXInE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wtFdzsRfJ6MG4y+HUtM2nQjcQ9tvWve+8NgQzl5smeJUY9RkTy2n8F/u6vcjMBPbM
-         7cM6GRJ21Q7WHmg8U7dPsXzQ05e2ybV8DxrFe0ju2KIup1n04+YCut+KLf8ShyRtxr
-         BsLBfaxRW721b25T2vRm/ijvY6HbooEVEJMNRa50=
+        b=2CV6bRGoOpJ5mq7V1kCDcaveLFcoUj4mMyLHoCEcLypjHl7scTyeUwFQKd/9EOex5
+         V9yaeuDoPQXSUJkJzQE82hyrIV3d5ltp8fwp0rMRzgKZ1qMJiXdN9YpY1QLYdSsSy9
+         p8XPQoBK/sbCw2pCQjuia90wCzjOPBE5/pnWsWO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Daniel Abrecht <public@danielabrecht.ch>,
+        Emil Velikov <emil.l.velikov@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Stefan Agner <stefan@agner.ch>,
+        Jagan Teki <jagan@amarulasolutions.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 035/144] genirq/timings: Fix error return code in irq_timings_test_irqs()
+Subject: [PATCH 5.10 111/236] drm: mxsfb: Enable recovery on underflow
 Date:   Mon, 13 Sep 2021 15:13:36 +0200
-Message-Id: <20210913131049.126722025@linuxfoundation.org>
+Message-Id: <20210913131104.116192538@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +46,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 290fdc4b7ef14e33d0e30058042b0e9bfd02b89b ]
+[ Upstream commit 0c9856e4edcdcac22d65618e8ceff9eb41447880 ]
 
-Return a negative error code from the error handling case instead of 0, as
-done elsewhere in this function.
+There is some sort of corner case behavior of the controller,
+which could rarely be triggered at least on i.MX6SX connected
+to 800x480 DPI panel and i.MX8MM connected to DPI->DSI->LVDS
+bridged 1920x1080 panel (and likely on other setups too), where
+the image on the panel shifts to the right and wraps around.
+This happens either when the controller is enabled on boot or
+even later during run time. The condition does not correct
+itself automatically, i.e. the display image remains shifted.
 
-Fixes: f52da98d900e ("genirq/timings: Add selftest for irqs circular buffer")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20210811093333.2376-1-thunder.leizhen@huawei.com
+It seems this problem is known and is due to sporadic underflows
+of the LCDIF FIFO. While the LCDIF IP does have underflow/overflow
+IRQs, neither of the IRQs trigger and neither IRQ status bit is
+asserted when this condition occurs.
+
+All known revisions of the LCDIF IP have CTRL1 RECOVER_ON_UNDERFLOW
+bit, which is described in the reference manual since i.MX23 as
+"
+  Set this bit to enable the LCDIF block to recover in the next
+  field/frame if there was an underflow in the current field/frame.
+"
+Enable this bit to mitigate the sporadic underflows.
+
+Fixes: 45d59d704080 ("drm: Add new driver for MXSFB controller")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Daniel Abrecht <public@danielabrecht.ch>
+Cc: Emil Velikov <emil.l.velikov@gmail.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Stefan Agner <stefan@agner.ch>
+Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Jagan Teki <jagan@amarulasolutions.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210620224701.189289-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/timings.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/mxsfb/mxsfb_kms.c  | 29 +++++++++++++++++++++++++++++
+ drivers/gpu/drm/mxsfb/mxsfb_regs.h |  1 +
+ 2 files changed, 30 insertions(+)
 
-diff --git a/kernel/irq/timings.c b/kernel/irq/timings.c
-index b5985da80acf..7ccc8edce46d 100644
---- a/kernel/irq/timings.c
-+++ b/kernel/irq/timings.c
-@@ -799,12 +799,14 @@ static int __init irq_timings_test_irqs(struct timings_intervals *ti)
+diff --git a/drivers/gpu/drm/mxsfb/mxsfb_kms.c b/drivers/gpu/drm/mxsfb/mxsfb_kms.c
+index 9e1224d54729..bc6d19d999ac 100644
+--- a/drivers/gpu/drm/mxsfb/mxsfb_kms.c
++++ b/drivers/gpu/drm/mxsfb/mxsfb_kms.c
+@@ -115,6 +115,35 @@ static void mxsfb_enable_controller(struct mxsfb_drm_private *mxsfb)
+ 	reg |= VDCTRL4_SYNC_SIGNALS_ON;
+ 	writel(reg, mxsfb->base + LCDC_VDCTRL4);
  
- 		__irq_timings_store(irq, irqs, ti->intervals[i]);
- 		if (irqs->circ_timings[i & IRQ_TIMINGS_MASK] != index) {
-+			ret = -EBADSLT;
- 			pr_err("Failed to store in the circular buffer\n");
- 			goto out;
- 		}
- 	}
++	/*
++	 * Enable recovery on underflow.
++	 *
++	 * There is some sort of corner case behavior of the controller,
++	 * which could rarely be triggered at least on i.MX6SX connected
++	 * to 800x480 DPI panel and i.MX8MM connected to DPI->DSI->LVDS
++	 * bridged 1920x1080 panel (and likely on other setups too), where
++	 * the image on the panel shifts to the right and wraps around.
++	 * This happens either when the controller is enabled on boot or
++	 * even later during run time. The condition does not correct
++	 * itself automatically, i.e. the display image remains shifted.
++	 *
++	 * It seems this problem is known and is due to sporadic underflows
++	 * of the LCDIF FIFO. While the LCDIF IP does have underflow/overflow
++	 * IRQs, neither of the IRQs trigger and neither IRQ status bit is
++	 * asserted when this condition occurs.
++	 *
++	 * All known revisions of the LCDIF IP have CTRL1 RECOVER_ON_UNDERFLOW
++	 * bit, which is described in the reference manual since i.MX23 as
++	 * "
++	 *   Set this bit to enable the LCDIF block to recover in the next
++	 *   field/frame if there was an underflow in the current field/frame.
++	 * "
++	 * Enable this bit to mitigate the sporadic underflows.
++	 */
++	reg = readl(mxsfb->base + LCDC_CTRL1);
++	reg |= CTRL1_RECOVER_ON_UNDERFLOW;
++	writel(reg, mxsfb->base + LCDC_CTRL1);
++
+ 	writel(CTRL_RUN, mxsfb->base + LCDC_CTRL + REG_SET);
+ }
  
- 	if (irqs->count != ti->count) {
-+		ret = -ERANGE;
- 		pr_err("Count differs\n");
- 		goto out;
- 	}
+diff --git a/drivers/gpu/drm/mxsfb/mxsfb_regs.h b/drivers/gpu/drm/mxsfb/mxsfb_regs.h
+index 55d28a27f912..df90e960f495 100644
+--- a/drivers/gpu/drm/mxsfb/mxsfb_regs.h
++++ b/drivers/gpu/drm/mxsfb/mxsfb_regs.h
+@@ -54,6 +54,7 @@
+ #define CTRL_DF24			BIT(1)
+ #define CTRL_RUN			BIT(0)
+ 
++#define CTRL1_RECOVER_ON_UNDERFLOW	BIT(24)
+ #define CTRL1_FIFO_CLEAR		BIT(21)
+ #define CTRL1_SET_BYTE_PACKAGING(x)	(((x) & 0xf) << 16)
+ #define CTRL1_GET_BYTE_PACKAGING(x)	(((x) >> 16) & 0xf)
 -- 
 2.30.2
 
