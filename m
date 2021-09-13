@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9703140936D
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFBF540937C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346191AbhIMOVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:21:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41886 "EHLO mail.kernel.org"
+        id S242612AbhIMOVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:21:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344460AbhIMOTN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344463AbhIMOTN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:19:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D298161501;
-        Mon, 13 Sep 2021 13:45:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A9A661B29;
+        Mon, 13 Sep 2021 13:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540753;
-        bh=fdSGnyx4gstkhSKuoXc7lYXqj42Gf2IBpghzFdPw4/w=;
+        s=korg; t=1631540755;
+        bh=7UXhvwV17TS7uuj2NJ+LuBnsDws1SO9NmhxxkzElCjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZVrtCGLIffyXZSMq6nFpSiLuAny6zNWuAPAp/RakoSSbfNSG4iY1mb52TKwag+Wxm
-         7DvRRFmrO8v5xP9dxGZBeybK7SAgIlwCpnaSsYBiFT7H25kO0BMFotyDBmxnMMQHzd
-         oXCr5stWIJYsXefE9o1jSM8M9vHrKKzjM7wohLz4=
+        b=F7Hq6bPOsgDfyHQeF3Z+NMVlNcp5qKCPtxJnHsc+n02IgKUqvPlUQ+2TS7ZJi8Ymw
+         od2mHz+aaA3XufwnxAWclE8KDCP7gs930Kiwfw7ohmfH92+DbEHMEydudwDFpbqzsC
+         93KRjvtwKrf2k9EXUbRRj5HmqUQJPDLhFAZf20kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ruozhu Li <liruozhu@huawei.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 020/334] nvme-tcp: dont update queue count when failing to set io queues
-Date:   Mon, 13 Sep 2021 15:11:14 +0200
-Message-Id: <20210913131114.091927454@linuxfoundation.org>
+Subject: [PATCH 5.14 021/334] nvme-rdma: dont update queue count when failing to set io queues
+Date:   Mon, 13 Sep 2021 15:11:15 +0200
+Message-Id: <20210913131114.122829885@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,7 +42,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ruozhu Li <liruozhu@huawei.com>
 
-[ Upstream commit 664227fde63844d69e9ec9e90a8a7801e6ff072d ]
+[ Upstream commit 85032874f80ba17bf187de1d14d9603bf3f582b8 ]
 
 We update ctrl->queue_count and schedule another reconnect when io queue
 count is zero.But we will never try to create any io queue in next reco-
@@ -51,30 +52,31 @@ to avoid in the original patch.
 Update ctrl->queue_count after queue_count zero checking to fix it.
 
 Signed-off-by: Ruozhu Li <liruozhu@huawei.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/tcp.c | 4 ++--
+ drivers/nvme/host/rdma.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 8cb15ee5b249..18bd68b82d78 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1769,13 +1769,13 @@ static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index 7f6b3a991501..3bd9cbc80246 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -735,13 +735,13 @@ static int nvme_rdma_alloc_io_queues(struct nvme_rdma_ctrl *ctrl)
  	if (ret)
  		return ret;
  
--	ctrl->queue_count = nr_io_queues + 1;
--	if (ctrl->queue_count < 2) {
+-	ctrl->ctrl.queue_count = nr_io_queues + 1;
+-	if (ctrl->ctrl.queue_count < 2) {
 +	if (nr_io_queues == 0) {
- 		dev_err(ctrl->device,
+ 		dev_err(ctrl->ctrl.device,
  			"unable to set any I/O queues\n");
  		return -ENOMEM;
  	}
  
-+	ctrl->queue_count = nr_io_queues + 1;
- 	dev_info(ctrl->device,
++	ctrl->ctrl.queue_count = nr_io_queues + 1;
+ 	dev_info(ctrl->ctrl.device,
  		"creating %d I/O queues.\n", nr_io_queues);
  
 -- 
