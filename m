@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6302740917E
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:00:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EC17408EB3
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343733AbhIMOBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48182 "EHLO mail.kernel.org"
+        id S241838AbhIMNgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:36:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343814AbhIMN7n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:59:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03A65613A9;
-        Mon, 13 Sep 2021 13:37:27 +0000 (UTC)
+        id S240909AbhIMNci (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:32:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C45B6137D;
+        Mon, 13 Sep 2021 13:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540248;
-        bh=6XK9ezonN+Cv5y/XbpLEd8r12K4ExVw7ZkyHY5uStW8=;
+        s=korg; t=1631539557;
+        bh=XiDtveJprzscL9tlffUBoV5vcZn/VTSikhdAvGKho7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wPonaivas2fueZdVXxtbiw3mKIgjgSk0o2do5PKhSpjTw32ayDxX9dqVQjjDPjEJi
-         3nIa38nnfsIR8igwvxVsXYgW885mLKbnJcFV02SDjyuIhgclZZDOLgJIFnfQl+ziDD
-         /qWDhALo2C9dy+gpbG94EAc8R5Doa8IrY1e7mE/Q=
+        b=gACi336WTz3yNnwZdfItVNz+O7JfyIsG0g7ibNsJBNsChyC9XeNP9tsp8DaW5dy5a
+         WI3fIxOwsQorLShTRfBl4d2uaS/+YoJgL4Ilrn1yiShoaOc87bIe8mXrIW9aAFONAj
+         wcoqbMzhjBGiCDQhsWzrOdZy36scB0AXsWASJN1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrej Picej <andrej.picej@norik.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 114/300] media: coda: fix frame_mem_ctrl for YUV420 and YVU420 formats
-Date:   Mon, 13 Sep 2021 15:12:55 +0200
-Message-Id: <20210913131113.244387615@linuxfoundation.org>
+Subject: [PATCH 5.10 071/236] ASoC: mediatek: mt8183: Fix Unbalanced pm_runtime_enable in mt8183_afe_pcm_dev_probe
+Date:   Mon, 13 Sep 2021 15:12:56 +0200
+Message-Id: <20210913131102.774008372@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +40,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit 44693d74f5653f82cd7ca0fe730eed0f6b83306a ]
+[ Upstream commit 19f479c37f76e926a6c0bec974a4d09826e32fc6 ]
 
-The frame memory control register value is currently determined
-before userspace selects the final capture format and never corrected.
-Update ctx->frame_mem_ctrl in __coda_start_decoding() to fix decoding
-into YUV420 or YVU420 capture buffers.
+Add missing pm_runtime_disable() when probe error out. It could
+avoid pm_runtime implementation complains when removing and probing
+again the driver.
 
-Reported-by: Andrej Picej <andrej.picej@norik.com>
-Fixes: 497e6b8559a6 ("media: coda: add sequence initialization work")
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes:a94aec035a122 ("ASoC: mediatek: mt8183: add platform driver")
+
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20210618141104.105047-3-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ sound/soc/mediatek/mt8183/mt8183-afe-pcm.c | 43 ++++++++++++++--------
+ 1 file changed, 27 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 2f42808c43a4..c484c008ab02 100644
---- a/drivers/media/platform/coda/coda-bit.c
-+++ b/drivers/media/platform/coda/coda-bit.c
-@@ -2053,17 +2053,25 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
- 	u32 src_fourcc, dst_fourcc;
- 	int ret;
- 
-+	q_data_src = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT);
-+	q_data_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-+	src_fourcc = q_data_src->fourcc;
-+	dst_fourcc = q_data_dst->fourcc;
-+
- 	if (!ctx->initialized) {
- 		ret = __coda_decoder_seq_init(ctx);
- 		if (ret < 0)
- 			return ret;
-+	} else {
-+		ctx->frame_mem_ctrl &= ~(CODA_FRAME_CHROMA_INTERLEAVE | (0x3 << 9) |
-+					 CODA9_FRAME_TILED2LINEAR);
-+		if (dst_fourcc == V4L2_PIX_FMT_NV12 || dst_fourcc == V4L2_PIX_FMT_YUYV)
-+			ctx->frame_mem_ctrl |= CODA_FRAME_CHROMA_INTERLEAVE;
-+		if (ctx->tiled_map_type == GDI_TILED_FRAME_MB_RASTER_MAP)
-+			ctx->frame_mem_ctrl |= (0x3 << 9) |
-+				((ctx->use_vdoa) ? 0 : CODA9_FRAME_TILED2LINEAR);
+diff --git a/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c b/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c
+index c4a598cbbdaa..14e77df06b01 100644
+--- a/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c
++++ b/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c
+@@ -1119,25 +1119,26 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	afe->regmap = syscon_node_to_regmap(dev->parent->of_node);
+ 	if (IS_ERR(afe->regmap)) {
+ 		dev_err(dev, "could not get regmap from parent\n");
+-		return PTR_ERR(afe->regmap);
++		ret = PTR_ERR(afe->regmap);
++		goto err_pm_disable;
+ 	}
+ 	ret = regmap_attach_dev(dev, afe->regmap, &mt8183_afe_regmap_config);
+ 	if (ret) {
+ 		dev_warn(dev, "regmap_attach_dev fail, ret %d\n", ret);
+-		return ret;
++		goto err_pm_disable;
  	}
  
--	q_data_src = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT);
--	q_data_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
--	src_fourcc = q_data_src->fourcc;
--	dst_fourcc = q_data_dst->fourcc;
--
- 	coda_write(dev, ctx->parabuf.paddr, CODA_REG_BIT_PARA_BUF_ADDR);
+ 	rstc = devm_reset_control_get(dev, "audiosys");
+ 	if (IS_ERR(rstc)) {
+ 		ret = PTR_ERR(rstc);
+ 		dev_err(dev, "could not get audiosys reset:%d\n", ret);
+-		return ret;
++		goto err_pm_disable;
+ 	}
  
- 	ret = coda_alloc_framebuffers(ctx, q_data_dst, src_fourcc);
+ 	ret = reset_control_reset(rstc);
+ 	if (ret) {
+ 		dev_err(dev, "failed to trigger audio reset:%d\n", ret);
+-		return ret;
++		goto err_pm_disable;
+ 	}
+ 
+ 	/* enable clock for regcache get default value from hw */
+@@ -1147,7 +1148,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	ret = regmap_reinit_cache(afe->regmap, &mt8183_afe_regmap_config);
+ 	if (ret) {
+ 		dev_err(dev, "regmap_reinit_cache fail, ret %d\n", ret);
+-		return ret;
++		goto err_pm_disable;
+ 	}
+ 
+ 	pm_runtime_put_sync(&pdev->dev);
+@@ -1160,8 +1161,10 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	afe->memif_size = MT8183_MEMIF_NUM;
+ 	afe->memif = devm_kcalloc(dev, afe->memif_size, sizeof(*afe->memif),
+ 				  GFP_KERNEL);
+-	if (!afe->memif)
+-		return -ENOMEM;
++	if (!afe->memif) {
++		ret = -ENOMEM;
++		goto err_pm_disable;
++	}
+ 
+ 	for (i = 0; i < afe->memif_size; i++) {
+ 		afe->memif[i].data = &memif_data[i];
+@@ -1178,22 +1181,26 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	afe->irqs_size = MT8183_IRQ_NUM;
+ 	afe->irqs = devm_kcalloc(dev, afe->irqs_size, sizeof(*afe->irqs),
+ 				 GFP_KERNEL);
+-	if (!afe->irqs)
+-		return -ENOMEM;
++	if (!afe->irqs) {
++		ret = -ENOMEM;
++		goto err_pm_disable;
++	}
+ 
+ 	for (i = 0; i < afe->irqs_size; i++)
+ 		afe->irqs[i].irq_data = &irq_data[i];
+ 
+ 	/* request irq */
+ 	irq_id = platform_get_irq(pdev, 0);
+-	if (irq_id < 0)
+-		return irq_id;
++	if (irq_id < 0) {
++		ret = irq_id;
++		goto err_pm_disable;
++	}
+ 
+ 	ret = devm_request_irq(dev, irq_id, mt8183_afe_irq_handler,
+ 			       IRQF_TRIGGER_NONE, "asys-isr", (void *)afe);
+ 	if (ret) {
+ 		dev_err(dev, "could not request_irq for asys-isr\n");
+-		return ret;
++		goto err_pm_disable;
+ 	}
+ 
+ 	/* init sub_dais */
+@@ -1204,7 +1211,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
+ 		if (ret) {
+ 			dev_warn(afe->dev, "dai register i %d fail, ret %d\n",
+ 				 i, ret);
+-			return ret;
++			goto err_pm_disable;
+ 		}
+ 	}
+ 
+@@ -1213,7 +1220,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	if (ret) {
+ 		dev_warn(afe->dev, "mtk_afe_combine_sub_dai fail, ret %d\n",
+ 			 ret);
+-		return ret;
++		goto err_pm_disable;
+ 	}
+ 
+ 	afe->mtk_afe_hardware = &mt8183_afe_hardware;
+@@ -1229,7 +1236,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
+ 					      NULL, 0);
+ 	if (ret) {
+ 		dev_warn(dev, "err_platform\n");
+-		return ret;
++		goto err_pm_disable;
+ 	}
+ 
+ 	ret = devm_snd_soc_register_component(afe->dev,
+@@ -1238,10 +1245,14 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
+ 					      afe->num_dai_drivers);
+ 	if (ret) {
+ 		dev_warn(dev, "err_dai_component\n");
+-		return ret;
++		goto err_pm_disable;
+ 	}
+ 
+ 	return ret;
++
++err_pm_disable:
++	pm_runtime_disable(&pdev->dev);
++	return ret;
+ }
+ 
+ static int mt8183_afe_pcm_dev_remove(struct platform_device *pdev)
 -- 
 2.30.2
 
