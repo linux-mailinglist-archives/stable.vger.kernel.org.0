@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6338A4094BF
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:34:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDFE7409205
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:06:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344183AbhIMOeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:34:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51516 "EHLO mail.kernel.org"
+        id S1343564AbhIMOHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:07:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346522AbhIMObv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:31:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85B9B61BA9;
-        Mon, 13 Sep 2021 13:52:02 +0000 (UTC)
+        id S1344551AbhIMOFJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:05:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 874F061A59;
+        Mon, 13 Sep 2021 13:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541123;
-        bh=+96fkkbZQsma8OSwkTE3iaeZ3NjW2TCk6+HNUL2M4I0=;
+        s=korg; t=1631540368;
+        bh=4kCv7o3DyBpw7GqvoIMxTDt9C8B3zSsa+dFEur62VKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0fvpQIwm7XXOGv+hjCconlWfi7u9la/nB12F9ecXs2YHeLATpKQK+n1fffUmp3FeZ
-         Cpoza3yK8vNtiy95lDhNofLUjnChYHat5l5SDktvRweBQ0xoYVS6xwhAyoZLE1DuW0
-         Bz0/wuPuxZklYUTiVoWbkSEqlGluHM48R0twQVLM=
+        b=Eb+7NBO4bpDl4yc80JXsGnXHdLtO5Wgpg827wzRpIpmGiFyQp9BqQyrsytj0s9a5W
+         CMaI53CV8//barowbsdSL0Heg1tsI8wlS0PvV4rkv/0o4/AdZYcB9VpnxtAxHYtPxY
+         Y6hbcyGNjA394BR+XfqWYxGmMUl65tjsVjNFnR/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tedd Ho-Jeong An <tedd.an@intel.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 140/334] Bluetooth: mgmt: Fix wrong opcode in the response for add_adv cmd
+Subject: [PATCH 5.13 133/300] drm: rcar-du: Dont put reference to drm_device in rcar_du_remove()
 Date:   Mon, 13 Sep 2021 15:13:14 +0200
-Message-Id: <20210913131118.089920148@linuxfoundation.org>
+Message-Id: <20210913131113.884016854@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tedd Ho-Jeong An <tedd.an@intel.com>
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
-[ Upstream commit a25fca4d3c18766b6f7a3c95fa8faec23ef464c5 ]
+[ Upstream commit c29b6b0b126e9ee69a5d6339475e831a149295bd ]
 
-This patch fixes the MGMT add_advertising command repsones with the
-wrong opcode when it is trying to return the not supported error.
+The reference to the drm_device that was acquired by
+devm_drm_dev_alloc() is released automatically by the devres
+infrastructure. It must not be released manually, as that causes a
+reference underflow..
 
-Fixes: cbbdfa6f33198 ("Bluetooth: Enable controller RPA resolution using Experimental feature")
-Signed-off-by: Tedd Ho-Jeong An <tedd.an@intel.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Fixes: ea6aae151887 ("drm: rcar-du: Embed drm_device in rcar_du_device")
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/mgmt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/rcar-du/rcar_du_drv.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index 3663f880df11..1e21e014efd2 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -7725,7 +7725,7 @@ static int add_advertising(struct sock *sk, struct hci_dev *hdev,
- 	 * advertising.
- 	 */
- 	if (hci_dev_test_flag(hdev, HCI_ENABLE_LL_PRIVACY))
--		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_ADVERTISING,
-+		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_ADD_ADVERTISING,
- 				       MGMT_STATUS_NOT_SUPPORTED);
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.c b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
+index bfbff90588cb..c22551c2facb 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_drv.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.c
+@@ -556,8 +556,6 @@ static int rcar_du_remove(struct platform_device *pdev)
  
- 	if (cp->instance < 1 || cp->instance > hdev->le_num_of_adv_sets)
+ 	drm_kms_helper_poll_fini(ddev);
+ 
+-	drm_dev_put(ddev);
+-
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
