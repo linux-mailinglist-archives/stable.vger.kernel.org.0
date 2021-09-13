@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D06D740917F
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:00:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49224408EF0
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344039AbhIMOBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:01:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48144 "EHLO mail.kernel.org"
+        id S240766AbhIMNiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:38:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343801AbhIMN7n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:59:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE02F613AC;
-        Mon, 13 Sep 2021 13:37:25 +0000 (UTC)
+        id S241299AbhIMNgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:36:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E67E8610FE;
+        Mon, 13 Sep 2021 13:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540246;
-        bh=0eVmFigmvePfK0NtKm7EzbzuJ3ya/9SnuQww5F3AvfQ=;
+        s=korg; t=1631539643;
+        bh=7IiXsDjGteExINZcndnmgC91TIRkv8xhMZey/zp+I2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlLaGsRzTgRqVKY+GH59tzs5nUoSk4FkqDQFB04gKRfO/XDRh8WfTk5IZZlCzbXhR
-         HHhplN/WTS1dMNUzgLAcf3bLZE43TzF0PaKtNffEiWU4hWV8IM/HG5OPYcFkyr2Zbb
-         uc3XTXcOY2Ea3VJiF9AP3JWQn+GkdCrldWw/kods=
+        b=yiNo3BZkgCSWauSulQ62apqbg3djEX9F2zmbyz9rxQl1r1dv2OwERhJhzOU1h4jCK
+         z6yDDtx9b07i554RggSaX0x6wDPcz4oNpS8424uxX0igDUVx7Z3P27XAGgeembRdbh
+         yPDVVkfmoot9dz3OGAxwY+tsE1gBFVNAj4P5NW7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Harshvardhan Jha <harshvardhan.jha@oracle.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 113/300] media: rockchip/rga: fix error handling in probe
-Date:   Mon, 13 Sep 2021 15:12:54 +0200
-Message-Id: <20210913131113.206669149@linuxfoundation.org>
+Subject: [PATCH 5.10 070/236] drm/gma500: Fix end of loop tests for list_for_each_entry
+Date:   Mon, 13 Sep 2021 15:12:55 +0200
+Message-Id: <20210913131102.738844806@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,97 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
 
-[ Upstream commit e58430e1d4fd01b74475d2fbe2e25b5817b729a9 ]
+[ Upstream commit ea9a897b8affa0f7b4c90182b785dded74e434aa ]
 
-There are a few bugs in this code.  1)  No checks for whether
-dma_alloc_attrs() or __get_free_pages() failed.  2)  If
-video_register_device() fails it doesn't clean up the dma attrs or the
-free pages.  3)  The video_device_release() function frees "vfd" which
-leads to a use after free on the next line.  The call to
-video_unregister_device() is not required so I have just removed that.
+The list_for_each_entry() iterator, "connector" in this code, can never be
+NULL.  If we exit the loop without finding the correct  connector then
+"connector" points invalid memory that is an offset from the list head.
+This will eventually lead to memory corruption and presumably a kernel
+crash.
 
-Fixes: f7e7b48e6d79 ("[media] rockchip/rga: v4l2 m2m support")
-Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 9bd81acdb648 ("gma500: Convert Oaktrail to work with new output handling")
+Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210709073959.11443-1-harshvardhan.jha@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rockchip/rga/rga.c | 27 ++++++++++++++++++-----
- 1 file changed, 22 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/gma500/oaktrail_lvds.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/rockchip/rga/rga.c b/drivers/media/platform/rockchip/rga/rga.c
-index bf3fd71ec3af..6759091b15e0 100644
---- a/drivers/media/platform/rockchip/rga/rga.c
-+++ b/drivers/media/platform/rockchip/rga/rga.c
-@@ -863,12 +863,12 @@ static int rga_probe(struct platform_device *pdev)
- 	if (IS_ERR(rga->m2m_dev)) {
- 		v4l2_err(&rga->v4l2_dev, "Failed to init mem2mem device\n");
- 		ret = PTR_ERR(rga->m2m_dev);
--		goto unreg_video_dev;
-+		goto rel_vdev;
+diff --git a/drivers/gpu/drm/gma500/oaktrail_lvds.c b/drivers/gpu/drm/gma500/oaktrail_lvds.c
+index 2828360153d1..30b949d6856c 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_lvds.c
++++ b/drivers/gpu/drm/gma500/oaktrail_lvds.c
+@@ -117,7 +117,7 @@ static void oaktrail_lvds_mode_set(struct drm_encoder *encoder,
+ 			continue;
  	}
  
- 	ret = pm_runtime_resume_and_get(rga->dev);
- 	if (ret < 0)
--		goto unreg_video_dev;
-+		goto rel_vdev;
- 
- 	rga->version.major = (rga_read(rga, RGA_VERSION_INFO) >> 24) & 0xFF;
- 	rga->version.minor = (rga_read(rga, RGA_VERSION_INFO) >> 20) & 0x0F;
-@@ -882,11 +882,23 @@ static int rga_probe(struct platform_device *pdev)
- 	rga->cmdbuf_virt = dma_alloc_attrs(rga->dev, RGA_CMDBUF_SIZE,
- 					   &rga->cmdbuf_phy, GFP_KERNEL,
- 					   DMA_ATTR_WRITE_COMBINE);
-+	if (!rga->cmdbuf_virt) {
-+		ret = -ENOMEM;
-+		goto rel_vdev;
-+	}
- 
- 	rga->src_mmu_pages =
- 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
-+	if (!rga->src_mmu_pages) {
-+		ret = -ENOMEM;
-+		goto free_dma;
-+	}
- 	rga->dst_mmu_pages =
- 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
-+	if (rga->dst_mmu_pages) {
-+		ret = -ENOMEM;
-+		goto free_src_pages;
-+	}
- 
- 	def_frame.stride = (def_frame.width * def_frame.fmt->depth) >> 3;
- 	def_frame.size = def_frame.stride * def_frame.height;
-@@ -894,7 +906,7 @@ static int rga_probe(struct platform_device *pdev)
- 	ret = video_register_device(vfd, VFL_TYPE_VIDEO, -1);
- 	if (ret) {
- 		v4l2_err(&rga->v4l2_dev, "Failed to register video device\n");
--		goto rel_vdev;
-+		goto free_dst_pages;
- 	}
- 
- 	v4l2_info(&rga->v4l2_dev, "Registered %s as /dev/%s\n",
-@@ -902,10 +914,15 @@ static int rga_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
-+free_dst_pages:
-+	free_pages((unsigned long)rga->dst_mmu_pages, 3);
-+free_src_pages:
-+	free_pages((unsigned long)rga->src_mmu_pages, 3);
-+free_dma:
-+	dma_free_attrs(rga->dev, RGA_CMDBUF_SIZE, rga->cmdbuf_virt,
-+		       rga->cmdbuf_phy, DMA_ATTR_WRITE_COMBINE);
- rel_vdev:
- 	video_device_release(vfd);
--unreg_video_dev:
--	video_unregister_device(rga->vfd);
- unreg_v4l2_dev:
- 	v4l2_device_unregister(&rga->v4l2_dev);
- err_put_clk:
+-	if (!connector) {
++	if (list_entry_is_head(connector, &mode_config->connector_list, head)) {
+ 		DRM_ERROR("Couldn't find connector when setting mode");
+ 		gma_power_end(dev);
+ 		return;
 -- 
 2.30.2
 
