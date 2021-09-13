@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 455B0408DCD
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D65C4408EF6
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241153AbhIMNaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:30:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35052 "EHLO mail.kernel.org"
+        id S240145AbhIMNiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:38:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240159AbhIMNT4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:19:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E09B361106;
-        Mon, 13 Sep 2021 13:17:56 +0000 (UTC)
+        id S242250AbhIMNgT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:36:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DB28613AC;
+        Mon, 13 Sep 2021 13:27:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539077;
-        bh=IrqOjYHkBcqU1RZSEmWyaofhIMPcg/Z7xkyUUUTP1ho=;
+        s=korg; t=1631539656;
+        bh=Xw2Wt6X/rzdPEGy4bOISnM3fwO99gSGxHky3mCEX4CI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vTNbOHJj35bOWrW4qoFltLoII8uBqk9K9I53MGkNZQ3OI92c9eFxe5bEFzKHn3oCU
-         YuQxrp+xxWQ6zMmmfC5dSAQsuyXKDq5qJRQHq09QhlFen619c1mjS/O7EwZMr7SN8C
-         Hax8Y6flQdM3y2jCQDBBqfO4zI/CsvkBD0DrzFdI=
+        b=aKBCLAQOLLCQ5eG85c3aHo0KSP4Nz4SqJ7VAb53I1vgyUC/4J4+wp+zWdwPKErch3
+         uKQnYr+r2YYOsCCm1DoGDtbYhbJ8bgrj6vgCTQzDvjKC/geR5GPoPoBfxb+Xn4N5HX
+         bN3fYRXPukVoaHsHHgi/lZpee/2NhUfvB1t/7SuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sanchayan Maity <maitysanchayan@gmail.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Tony Lindgren <tony@atomide.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 033/144] spi: spi-fsl-dspi: Fix issue with uninitialized dma_slave_config
+Subject: [PATCH 5.10 109/236] net/mlx5e: Block LRO if firmware asks for tunneled LRO
 Date:   Mon, 13 Sep 2021 15:13:34 +0200
-Message-Id: <20210913131049.061021509@linuxfoundation.org>
+Message-Id: <20210913131104.047840925@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +40,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-[ Upstream commit 209ab223ad5b18e437289235e3bde12593b94ac4 ]
+[ Upstream commit 26ab7b384525ccfa678c518577f7f0d841209c8b ]
 
-Depending on the DMA driver being used, the struct dma_slave_config may
-need to be initialized to zero for the unused data.
+This commit does a cleanup in LRO configuration.
 
-For example, we have three DMA drivers using src_port_window_size and
-dst_port_window_size. If these are left uninitialized, it can cause DMA
-failures.
+LRO is a parameter of an RQ, but its state is changed by modifying a TIR
+related to the RQ.
 
-For spi-fsl-dspi, this is probably not currently an issue but is still
-good to fix though.
+The current status: LRO for tunneled packets is not supported in the
+driver, inner TIRs may enable LRO on creation, but LRO status of inner
+TIRs isn't changed in mlx5e_modify_tirs_lro(). This is inconsistent, but
+as long as the firmware doesn't declare support for tunneled LRO, it
+works, because the same RQs are shared between the inner and outer TIRs.
 
-Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
-Cc: Sanchayan Maity <maitysanchayan@gmail.com>
-Cc: Vladimir Oltean <vladimir.oltean@nxp.com>
-Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
-Cc: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20210810081727.19491-1-tony@atomide.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This commit does two fixes:
+
+1. If the firmware has the tunneled LRO capability, LRO is blocked
+altogether, because it's not possible to block it for inner TIRs only,
+when the same RQs are shared between inner and outer TIRs, and the
+driver won't be able to handle tunneled LRO traffic.
+
+2. mlx5e_modify_tirs_lro() is patched to modify LRO state for all TIRs,
+including inner ones, because all TIRs related to an RQ should agree on
+their LRO state.
+
+Fixes: 7b3722fa9ef6 ("net/mlx5e: Support RSS for GRE tunneled packets")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-dspi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 15 +++++++++++++++
+ include/linux/mlx5/mlx5_ifc.h                     |  3 ++-
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index 40dccc580e86..3e0200618af3 100644
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -423,6 +423,7 @@ static int dspi_request_dma(struct fsl_dspi *dspi, phys_addr_t phy_addr)
- 		goto err_rx_dma_buf;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 6b4a3d90c9f7..6974090a7efa 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -2803,6 +2803,14 @@ static int mlx5e_modify_tirs_lro(struct mlx5e_priv *priv)
+ 		err = mlx5_core_modify_tir(mdev, priv->indir_tir[tt].tirn, in);
+ 		if (err)
+ 			goto free_in;
++
++		/* Verify inner tirs resources allocated */
++		if (!priv->inner_indir_tir[0].tirn)
++			continue;
++
++		err = mlx5_core_modify_tir(mdev, priv->inner_indir_tir[tt].tirn, in);
++		if (err)
++			goto free_in;
  	}
  
-+	memset(&cfg, 0, sizeof(cfg));
- 	cfg.src_addr = phy_addr + SPI_POPR;
- 	cfg.dst_addr = phy_addr + SPI_PUSHR;
- 	cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+ 	for (ix = 0; ix < priv->max_nch; ix++) {
+@@ -4928,7 +4936,14 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
+ 	netdev->hw_enc_features  |= NETIF_F_HW_VLAN_CTAG_TX;
+ 	netdev->hw_enc_features  |= NETIF_F_HW_VLAN_CTAG_RX;
+ 
++	/* Tunneled LRO is not supported in the driver, and the same RQs are
++	 * shared between inner and outer TIRs, so the driver can't disable LRO
++	 * for inner TIRs while having it enabled for outer TIRs. Due to this,
++	 * block LRO altogether if the firmware declares tunneled LRO support.
++	 */
+ 	if (!!MLX5_CAP_ETH(mdev, lro_cap) &&
++	    !MLX5_CAP_ETH(mdev, tunnel_lro_vxlan) &&
++	    !MLX5_CAP_ETH(mdev, tunnel_lro_gre) &&
+ 	    mlx5e_check_fragmented_striding_rq_cap(mdev))
+ 		netdev->vlan_features    |= NETIF_F_LRO;
+ 
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index af8f4e2cf21d..70a3664785f8 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -876,7 +876,8 @@ struct mlx5_ifc_per_protocol_networking_offload_caps_bits {
+ 	u8         scatter_fcs[0x1];
+ 	u8         enhanced_multi_pkt_send_wqe[0x1];
+ 	u8         tunnel_lso_const_out_ip_id[0x1];
+-	u8         reserved_at_1c[0x2];
++	u8         tunnel_lro_gre[0x1];
++	u8         tunnel_lro_vxlan[0x1];
+ 	u8         tunnel_stateless_gre[0x1];
+ 	u8         tunnel_stateless_vxlan[0x1];
+ 
 -- 
 2.30.2
 
