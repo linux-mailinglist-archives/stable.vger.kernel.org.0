@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D6A4095E0
+	by mail.lfdr.de (Postfix) with ESMTP id 63DE44095DF
 	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344170AbhIMOqA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:46:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60460 "EHLO mail.kernel.org"
+        id S1344444AbhIMOp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:45:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345635AbhIMOoK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345641AbhIMOoK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:44:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F34A861151;
-        Mon, 13 Sep 2021 13:57:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 941DA63212;
+        Mon, 13 Sep 2021 13:57:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541443;
-        bh=9Y0OFOHCezxPl7N3Kt31p5suLdAPHG/POeu+xZp/3vs=;
+        s=korg; t=1631541446;
+        bh=9gf2gwK8tz+up98EQlGpMp4JIki2UzwEz2uUd0fADaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QAU4VR3+4dPfnAoNqzHuA9iea9fZIowcLh84tc/k59B2ZhjZmFYt0mDGxpcAcOyHk
-         1lbumBxDV2VapFawjpoBGpWrgT6BfZM17zLWr2YgkYI5vg+lK63kHcAC7JpdT2ofem
-         9a1th49VUqLikJI5BzvVY7IdscSVOdbqEDkxXS7M=
+        b=pA4Szq1WeNsQdG82YovL/Bt4NgkgCpv+1hkycU3HuAxSMaJP31jTGeqvMtL2TZzii
+         e+SIHPblXhadkPwEYTCJ2WKoabl/IM0cTUFkprwCE0iNqFFfORx6jQwA0XOpwb75OW
+         P/lm55SzWuOxwl91dOrR8+VI4F4v1R5KK7+6vILg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Lars Poeschel <poeschel@lemonage.de>,
-        Miguel Ojeda <ojeda@kernel.org>
-Subject: [PATCH 5.14 299/334] auxdisplay: hd44780: Fix oops on module unloading
-Date:   Mon, 13 Sep 2021 15:15:53 +0200
-Message-Id: <20210913131123.533104379@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Pavel Begunkov <asml.silence@gmail.com>
+Subject: [PATCH 5.14 300/334] io_uring: limit fixed table size by RLIMIT_NOFILE
+Date:   Mon, 13 Sep 2021 15:15:54 +0200
+Message-Id: <20210913131123.566192063@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,34 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars Poeschel <poeschel@lemonage.de>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 333ff32d54cdefc2e479892e7f15ac91e026b57d upstream.
+commit 3a1b8a4e843f96b636431450d8d79061605cf74b upstream.
 
-Fixes: 718e05ed92ec ("auxdisplay: Introduce hd44780_common.[ch]")
+Limit the number of files in io_uring fixed tables by RLIMIT_NOFILE,
+that's the first and the simpliest restriction that we should impose.
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/lkml/CAHp75VfKyqy+vM0XkP9Yb+znGOTVT4zYCRY3A3nQ7C3WNUVN0g@mail.gmail.com/
-Reported-By: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Lars Poeschel <poeschel@lemonage.de>
-Tested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-[added Link, Fixes, Cc stable tags, edited message]
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Suggested-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/b2756c340aed7d6c0b302c26dab50c6c5907f4ce.1629451684.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/auxdisplay/hd44780.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/auxdisplay/hd44780.c
-+++ b/drivers/auxdisplay/hd44780.c
-@@ -323,8 +323,8 @@ static int hd44780_remove(struct platfor
- {
- 	struct charlcd *lcd = platform_get_drvdata(pdev);
- 
--	kfree(lcd->drvdata);
- 	charlcd_unregister(lcd);
-+	kfree(lcd->drvdata);
- 
- 	kfree(lcd);
- 	return 0;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7722,6 +7722,8 @@ static int io_sqe_files_register(struct
+ 		return -EINVAL;
+ 	if (nr_args > IORING_MAX_FIXED_FILES)
+ 		return -EMFILE;
++	if (nr_args > rlimit(RLIMIT_NOFILE))
++		return -EMFILE;
+ 	ret = io_rsrc_node_switch_start(ctx);
+ 	if (ret)
+ 		return ret;
 
 
