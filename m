@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54E22408EF7
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBFBC408DFB
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:30:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242593AbhIMNi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:38:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37748 "EHLO mail.kernel.org"
+        id S241296AbhIMNaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:30:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242326AbhIMNgU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:36:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 255C1613A5;
-        Mon, 13 Sep 2021 13:27:38 +0000 (UTC)
+        id S240157AbhIMNT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:19:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BD6461108;
+        Mon, 13 Sep 2021 13:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539658;
-        bh=9s60/hmGtUabFvqryUmJCN2nkfZaoBKAEfL5FNuBKkg=;
+        s=korg; t=1631539080;
+        bh=nUi2SU24IgDI0jOvXOKBdoCybzUVBKItTMq6ypGANq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b69BQFQDPpVJpJrCkqhQvEFswhXoFUgXSF9U6Ch5BOmNba7bP+6B+IzuhmsGWVH6I
-         Qwz8FKQK7PY/NQzosuMVug5U71oeVfuq/CyPhBWcR03acgnefnyTeuW5CWjdXsZANc
-         fktlvBZMaD0nYCdEhGnb/GoZDDxEbnPZrN7T6gvY=
+        b=s5J+AFY4DffPHjtQukqUNgGHAtCuqDWJZyBumD8NiMhJ131K23um/2oJAEpGbS5y+
+         WZrs1/EFwRTcGPQRrhBt3DwkeBrvoAf+NBYSx6lWSCUbxvRItT6SeHB0nBdspnYZZi
+         Dz6ASIy3TJ2vVTzrLYaJ7mAizcqih0dtNELe8mfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 110/236] cgroup/cpuset: Fix a partition bug with hotplug
+        stable@vger.kernel.org,
+        Purna Chandra Mandal <purna.mandal@microchip.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 034/144] spi: spi-pic32: Fix issue with uninitialized dma_slave_config
 Date:   Mon, 13 Sep 2021 15:13:35 +0200
-Message-Id: <20210913131104.082308864@linuxfoundation.org>
+Message-Id: <20210913131049.094235580@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 15d428e6fe77fffc3f4fff923336036f5496ef17 ]
+[ Upstream commit 976c1de1de147bb7f4e0d87482f375221c05aeaf ]
 
-In cpuset_hotplug_workfn(), the detection of whether the cpu list
-has been changed is done by comparing the effective cpus of the top
-cpuset with the cpu_active_mask. However, in the rare case that just
-all the CPUs in the subparts_cpus are offlined, the detection fails
-and the partition states are not updated correctly. Fix it by forcing
-the cpus_updated flag to true in this particular case.
+Depending on the DMA driver being used, the struct dma_slave_config may
+need to be initialized to zero for the unused data.
 
-Fixes: 4b842da276a8 ("cpuset: Make CPU hotplug work with partition")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+For example, we have three DMA drivers using src_port_window_size and
+dst_port_window_size. If these are left uninitialized, it can cause DMA
+failures.
+
+For spi-pic32, this is probably not currently an issue but is still good to
+fix though.
+
+Fixes: 1bcb9f8ceb67 ("spi: spi-pic32: Add PIC32 SPI master driver")
+Cc: Purna Chandra Mandal <purna.mandal@microchip.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210810081727.19491-2-tony@atomide.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cpuset.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/spi/spi-pic32.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index 53c70c470a38..e1601d8dac29 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -3168,6 +3168,13 @@ static void cpuset_hotplug_workfn(struct work_struct *work)
- 	cpus_updated = !cpumask_equal(top_cpuset.effective_cpus, &new_cpus);
- 	mems_updated = !nodes_equal(top_cpuset.effective_mems, new_mems);
+diff --git a/drivers/spi/spi-pic32.c b/drivers/spi/spi-pic32.c
+index 8272bde5d706..b5268b0d7b4c 100644
+--- a/drivers/spi/spi-pic32.c
++++ b/drivers/spi/spi-pic32.c
+@@ -361,6 +361,7 @@ static int pic32_spi_dma_config(struct pic32_spi *pic32s, u32 dma_width)
+ 	struct dma_slave_config cfg;
+ 	int ret;
  
-+	/*
-+	 * In the rare case that hotplug removes all the cpus in subparts_cpus,
-+	 * we assumed that cpus are updated.
-+	 */
-+	if (!cpus_updated && top_cpuset.nr_subparts_cpus)
-+		cpus_updated = true;
-+
- 	/* synchronize cpus_allowed to cpu_active_mask */
- 	if (cpus_updated) {
- 		spin_lock_irq(&callback_lock);
++	memset(&cfg, 0, sizeof(cfg));
+ 	cfg.device_fc = true;
+ 	cfg.src_addr = pic32s->dma_base + buf_offset;
+ 	cfg.dst_addr = pic32s->dma_base + buf_offset;
 -- 
 2.30.2
 
