@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74DC14093B8
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A714093BD
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241525AbhIMOXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:23:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39640 "EHLO mail.kernel.org"
+        id S1345282AbhIMOXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:23:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245091AbhIMOVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:21:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C43D61B30;
-        Mon, 13 Sep 2021 13:47:04 +0000 (UTC)
+        id S1343855AbhIMOVE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:21:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A987861B2C;
+        Mon, 13 Sep 2021 13:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540824;
-        bh=kcinne14G5IndLRIRNUaom7LEpancf9khhgZghhw1YY=;
+        s=korg; t=1631540827;
+        bh=00q+aJlOKlzwhXjSi7vS+gsscWfTNQA5VQShj7MZak8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=12TN5ddhkgFP5w7A56I3dICi+s4M6JbENzk/OFcVWxsUoZABChO672Qp1OB0JI6PN
-         Co34PiveHsnkC41vVSzXS5d/B2Hw3gWXuRlHaUR18B1+hcG39xhCV0d9ywG7WtIbAl
-         7ceP3uKX/zR0/sBR0CtWXg2lnkjdiL+vAXVHf6pw=
+        b=mPwbiC5KxKVnlP8DUae847G0A7WUqt1Yy1uT92KPqWT/yw7vDv7tTzii4NM83fcD3
+         9yEP77D6jOeOMyfgspYsV3wNFfdcP6a2+CiZVZesDj8QZ5kqT2elWx+LlD2SBW+FNY
+         w1Iengr7L075LSMWg0Uy89n7pAG/vD4Vr2E3oOSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 049/334] power: supply: cw2015: use dev_err_probe to allow deferred probe
-Date:   Mon, 13 Sep 2021 15:11:43 +0200
-Message-Id: <20210913131115.090249449@linuxfoundation.org>
+Subject: [PATCH 5.14 050/334] m68k: emu: Fix invalid free in nfeth_cleanup()
+Date:   Mon, 13 Sep 2021 15:11:44 +0200
+Message-Id: <20210913131115.122460603@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,40 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Robinson <pbrobinson@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit ad1abe476995d97bfe7546ea91bb4f3dcdfbf3ab ]
+[ Upstream commit 761608f5cf70e8876c2f0e39ca54b516bdcb7c12 ]
 
-Deal with deferred probe using dev_err_probe so the error is handled
-and avoid logging lots probe defer information like the following:
+In the for loop all nfeth_dev array members should be freed, not only
+the first one.  Freeing only the first array member can cause
+double-free bugs and memory leaks.
 
-[    9.125121] cw2015 4-0062: Failed to register power supply
-[    9.211131] cw2015 4-0062: Failed to register power supply
-
-Fixes: b4c7715c10c1 ("power: supply: add CellWise cw2015 fuel gauge driver")
-Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 9cd7b148312f ("m68k/atari: ARAnyM - Add support for network access")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Link: https://lore.kernel.org/r/20210705204727.10743-1-paskripkin@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/cw2015_battery.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/m68k/emu/nfeth.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/cw2015_battery.c b/drivers/power/supply/cw2015_battery.c
-index d110597746b0..091868e9e9e8 100644
---- a/drivers/power/supply/cw2015_battery.c
-+++ b/drivers/power/supply/cw2015_battery.c
-@@ -679,7 +679,9 @@ static int cw_bat_probe(struct i2c_client *client)
- 						    &cw2015_bat_desc,
- 						    &psy_cfg);
- 	if (IS_ERR(cw_bat->rk_bat)) {
--		dev_err(cw_bat->dev, "Failed to register power supply\n");
-+		/* try again if this happens */
-+		dev_err_probe(&client->dev, PTR_ERR(cw_bat->rk_bat),
-+			"Failed to register power supply\n");
- 		return PTR_ERR(cw_bat->rk_bat);
- 	}
+diff --git a/arch/m68k/emu/nfeth.c b/arch/m68k/emu/nfeth.c
+index d2875e32abfc..79e55421cfb1 100644
+--- a/arch/m68k/emu/nfeth.c
++++ b/arch/m68k/emu/nfeth.c
+@@ -254,8 +254,8 @@ static void __exit nfeth_cleanup(void)
  
+ 	for (i = 0; i < MAX_UNIT; i++) {
+ 		if (nfeth_dev[i]) {
+-			unregister_netdev(nfeth_dev[0]);
+-			free_netdev(nfeth_dev[0]);
++			unregister_netdev(nfeth_dev[i]);
++			free_netdev(nfeth_dev[i]);
+ 		}
+ 	}
+ 	free_irq(nfEtherIRQ, nfeth_interrupt);
 -- 
 2.30.2
 
