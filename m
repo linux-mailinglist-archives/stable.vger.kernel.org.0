@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF694408F07
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA670408CA4
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:19:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242404AbhIMNjG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:39:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34490 "EHLO mail.kernel.org"
+        id S240549AbhIMNU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:20:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242587AbhIMNhE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:37:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C082613B5;
-        Mon, 13 Sep 2021 13:28:03 +0000 (UTC)
+        id S240343AbhIMNU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:20:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E2CE61155;
+        Mon, 13 Sep 2021 13:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539684;
-        bh=8ZFq0P4uSnbs5pO61q0/HA9FfOLY+VQJhwTIpNcgcyM=;
+        s=korg; t=1631539106;
+        bh=pQCcKEtyMuQ+ld+xVzU85auQGQHEXfqEPmZTRgdAY0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIooDe4kc4zebaJyKGlC/fzhLnKmLOzuEy1QNCP0fyqne6/Q7EOlqqDGEudLUkcUu
-         2vuXK2ifybAiQF9vCCzxfQoBI6x6Q07R8SIjNTcjQiIMHfea1cWK/OFBPMThYrjIZ+
-         mLS5DvnAnkkfx29cgBVp3bkXF9OeD5DLRsbJWyCo=
+        b=1+ltcnvFejEzd5NPwMIukv+/2IcQCg5hcORacpLJIJe1zNphyMgJwI//nXmRMBDyx
+         aizSN6PT7oPHD/J0/jVKVhiknjUMeHQw/nAKseWO9Ou2zB0IIreuHl6fJXd8OvjSNB
+         dbDEnALKXXfIScyNZ5Fj80gaPAvUc7JiJEatM+c0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 119/236] net/mlx5: Fix missing return value in mlx5_devlink_eswitch_inline_mode_set()
+Subject: [PATCH 5.4 043/144] spi: sprd: Fix the wrong WDG_LOAD_VAL
 Date:   Mon, 13 Sep 2021 15:13:44 +0200
-Message-Id: <20210913131104.405640066@linuxfoundation.org>
+Message-Id: <20210913131049.383656807@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Chunyan Zhang <chunyan.zhang@unisoc.com>
 
-[ Upstream commit bcd68c04c7692416206414dc8971730aa140eba7 ]
+[ Upstream commit 245ca2cc212bb2a078332ec99afbfbb202f44c2d ]
 
-The return value is missing in this code scenario, add the return value
-'0' to the return value 'err'.
+Use 50ms as default timeout value and the time clock is 32768HZ.
+The original value of WDG_LOAD_VAL is not correct, so this patch
+fixes it.
 
-Eliminate the follow smatch warning:
-
-drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c:3083
-mlx5_devlink_eswitch_inline_mode_set() warn: missing error code 'err'.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Fixes: 8e0aa4bc959c ("net/mlx5: E-switch, Protect eswitch mode changes")
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: ac1775012058 ("spi: sprd: Add the support of restarting the system")
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Link: https://lore.kernel.org/r/20210826091549.2138125-2-zhang.lyra@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/spi/spi-sprd-adi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-index c9c2962ad49f..5801f55ff077 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
-@@ -2564,8 +2564,11 @@ int mlx5_devlink_eswitch_inline_mode_set(struct devlink *devlink, u8 mode,
+diff --git a/drivers/spi/spi-sprd-adi.c b/drivers/spi/spi-sprd-adi.c
+index 09f983524d51..e804a3854c35 100644
+--- a/drivers/spi/spi-sprd-adi.c
++++ b/drivers/spi/spi-sprd-adi.c
+@@ -102,7 +102,7 @@
+ #define HWRST_STATUS_WATCHDOG		0xf0
  
- 	switch (MLX5_CAP_ETH(dev, wqe_inline_mode)) {
- 	case MLX5_CAP_INLINE_MODE_NOT_REQUIRED:
--		if (mode == DEVLINK_ESWITCH_INLINE_MODE_NONE)
-+		if (mode == DEVLINK_ESWITCH_INLINE_MODE_NONE) {
-+			err = 0;
- 			goto out;
-+		}
-+
- 		fallthrough;
- 	case MLX5_CAP_INLINE_MODE_L2:
- 		NL_SET_ERR_MSG_MOD(extack, "Inline mode can't be set");
+ /* Use default timeout 50 ms that converts to watchdog values */
+-#define WDG_LOAD_VAL			((50 * 1000) / 32768)
++#define WDG_LOAD_VAL			((50 * 32768) / 1000)
+ #define WDG_LOAD_MASK			GENMASK(15, 0)
+ #define WDG_UNLOCK_KEY			0xe551
+ 
 -- 
 2.30.2
 
