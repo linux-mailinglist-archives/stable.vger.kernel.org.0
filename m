@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5D0E409281
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D69409282
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344665AbhIMOLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344298AbhIMOLp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 13 Sep 2021 10:11:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60400 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345063AbhIMOJo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:09:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B89E61A89;
-        Mon, 13 Sep 2021 13:41:31 +0000 (UTC)
+        id S1345079AbhIMOJq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:09:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6C2D60F3A;
+        Mon, 13 Sep 2021 13:41:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540491;
-        bh=kBsgrVDe7zt/GZ0Pd3XptA/5U+L9g86/TTGBqjTSM3w=;
+        s=korg; t=1631540494;
+        bh=DOzj4Ygmi+FMjr4Fa28O+JHTZ8km7wUXPJlgxXwdLso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlEOh/JS++eyoviYT/D+BEgi4X31ySL0bAxX9327Vbe3Udmvvwc0x1Lei0CaqaBSZ
-         4WGrF4N4592o9CFZktuKoWewR7b2cwbGUhL13rryMzApR1UpmOR2GXaqYdd+1LP2/J
-         Ej+ThuonNYMVCGfWWz1uRxI1rSeBRj4OOl+A8Ubk=
+        b=c5mse4+f+65iU7Ki2oHlWBLz65CFt8rDcrCqjeW1wx4cby5EWwAxQjGCyz7LXjhas
+         K4j14vQbhhqnpk7KNRrmkDO58qhVwyQbKx57HdMF/wuxDsmnx1X81sSr8wYw3f6kjP
+         XojHQX7PMqYKHZuN6ONT9l3380ufBTb30rkoJajM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 215/300] gfs2: init system threads before freeze lock
-Date:   Mon, 13 Sep 2021 15:14:36 +0200
-Message-Id: <20210913131116.620449785@linuxfoundation.org>
+Subject: [PATCH 5.13 216/300] rsi: fix error code in rsi_load_9116_firmware()
+Date:   Mon, 13 Sep 2021 15:14:37 +0200
+Message-Id: <20210913131116.660031118@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -39,200 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a28dc123fa66ba7f3eca7cffc4b01d96bfd35c27 ]
+[ Upstream commit d0f8430332a16c7baa80ce2886339182c5d85f37 ]
 
-Patch 96b1454f2e ("gfs2: move freeze glock outside the make_fs_rw and _ro
-functions") changed the gfs2 mount sequence so that it holds the freeze
-lock before calling gfs2_make_fs_rw. Before this patch, gfs2_make_fs_rw
-called init_threads to initialize the quotad and logd threads. That is a
-problem if the system needs to withdraw due to IO errors early in the
-mount sequence, for example, while initializing the system statfs inode:
+This code returns success if the kmemdup() fails, but obviously it
+should return -ENOMEM instead.
 
-1. An IO error causes the statfs glock to not sync properly after
-   recovery, and leaves items on the ail list.
-2. The leftover items on the ail list causes its do_xmote call to fail,
-   which makes it want to withdraw. But since the glock code cannot
-   withdraw (because the withdraw sequence uses glocks) it relies upon
-   the logd daemon to initiate the withdraw.
-3. The withdraw can never be performed by the logd daemon because all
-   this takes place before the logd daemon is started.
-
-This patch moves function init_threads from super.c to ops_fstype.c
-and it changes gfs2_fill_super to start its threads before holding the
-freeze lock, and if there's an error, stop its threads after releasing
-it. This allows the logd to run unblocked by the freeze lock. Thus,
-the logd daemon can perform its withdraw sequence properly.
-
-Fixes: 96b1454f2e8e ("gfs2: move freeze glock outside the make_fs_rw and _ro functions")
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Fixes: e5a1ecc97e5f ("rsi: add firmware loading for 9116 device")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210805103746.GA26417@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/ops_fstype.c | 42 ++++++++++++++++++++++++++++++
- fs/gfs2/super.c      | 61 +++++---------------------------------------
- 2 files changed, 48 insertions(+), 55 deletions(-)
+ drivers/net/wireless/rsi/rsi_91x_hal.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index bd3b3be1a473..ca76e3b8792c 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -1089,6 +1089,34 @@ void gfs2_online_uevent(struct gfs2_sbd *sdp)
- 	kobject_uevent_env(&sdp->sd_kobj, KOBJ_ONLINE, envp);
- }
- 
-+static int init_threads(struct gfs2_sbd *sdp)
-+{
-+	struct task_struct *p;
-+	int error = 0;
-+
-+	p = kthread_run(gfs2_logd, sdp, "gfs2_logd");
-+	if (IS_ERR(p)) {
-+		error = PTR_ERR(p);
-+		fs_err(sdp, "can't start logd thread: %d\n", error);
-+		return error;
-+	}
-+	sdp->sd_logd_process = p;
-+
-+	p = kthread_run(gfs2_quotad, sdp, "gfs2_quotad");
-+	if (IS_ERR(p)) {
-+		error = PTR_ERR(p);
-+		fs_err(sdp, "can't start quotad thread: %d\n", error);
-+		goto fail;
-+	}
-+	sdp->sd_quotad_process = p;
-+	return 0;
-+
-+fail:
-+	kthread_stop(sdp->sd_logd_process);
-+	sdp->sd_logd_process = NULL;
-+	return error;
-+}
-+
- /**
-  * gfs2_fill_super - Read in superblock
-  * @sb: The VFS superblock
-@@ -1217,6 +1245,14 @@ static int gfs2_fill_super(struct super_block *sb, struct fs_context *fc)
- 		goto fail_per_node;
+diff --git a/drivers/net/wireless/rsi/rsi_91x_hal.c b/drivers/net/wireless/rsi/rsi_91x_hal.c
+index 99b21a2c8386..f4a26f16f00f 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_hal.c
++++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
+@@ -1038,8 +1038,10 @@ static int rsi_load_9116_firmware(struct rsi_hw *adapter)
  	}
  
-+	if (!sb_rdonly(sb)) {
-+		error = init_threads(sdp);
-+		if (error) {
-+			gfs2_withdraw_delayed(sdp);
-+			goto fail_per_node;
-+		}
+ 	ta_firmware = kmemdup(fw_entry->data, fw_entry->size, GFP_KERNEL);
+-	if (!ta_firmware)
++	if (!ta_firmware) {
++		status = -ENOMEM;
+ 		goto fail_release_fw;
 +	}
-+
- 	error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
- 	if (error)
- 		goto fail_per_node;
-@@ -1226,6 +1262,12 @@ static int gfs2_fill_super(struct super_block *sb, struct fs_context *fc)
- 
- 	gfs2_freeze_unlock(&freeze_gh);
- 	if (error) {
-+		if (sdp->sd_quotad_process)
-+			kthread_stop(sdp->sd_quotad_process);
-+		sdp->sd_quotad_process = NULL;
-+		if (sdp->sd_logd_process)
-+			kthread_stop(sdp->sd_logd_process);
-+		sdp->sd_logd_process = NULL;
- 		fs_err(sdp, "can't make FS RW: %d\n", error);
- 		goto fail_per_node;
- 	}
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 4d4ceb0b6903..2bdbba5ea8d7 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -119,34 +119,6 @@ int gfs2_jdesc_check(struct gfs2_jdesc *jd)
- 	return 0;
- }
- 
--static int init_threads(struct gfs2_sbd *sdp)
--{
--	struct task_struct *p;
--	int error = 0;
--
--	p = kthread_run(gfs2_logd, sdp, "gfs2_logd");
--	if (IS_ERR(p)) {
--		error = PTR_ERR(p);
--		fs_err(sdp, "can't start logd thread: %d\n", error);
--		return error;
--	}
--	sdp->sd_logd_process = p;
--
--	p = kthread_run(gfs2_quotad, sdp, "gfs2_quotad");
--	if (IS_ERR(p)) {
--		error = PTR_ERR(p);
--		fs_err(sdp, "can't start quotad thread: %d\n", error);
--		goto fail;
--	}
--	sdp->sd_quotad_process = p;
--	return 0;
--
--fail:
--	kthread_stop(sdp->sd_logd_process);
--	sdp->sd_logd_process = NULL;
--	return error;
--}
--
- /**
-  * gfs2_make_fs_rw - Turn a Read-Only FS into a Read-Write one
-  * @sdp: the filesystem
-@@ -161,26 +133,17 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
- 	struct gfs2_log_header_host head;
- 	int error;
- 
--	error = init_threads(sdp);
--	if (error) {
--		gfs2_withdraw_delayed(sdp);
--		return error;
--	}
--
- 	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
--	if (gfs2_withdrawn(sdp)) {
--		error = -EIO;
--		goto fail;
--	}
-+	if (gfs2_withdrawn(sdp))
-+		return -EIO;
- 
- 	error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
- 	if (error || gfs2_withdrawn(sdp))
--		goto fail;
-+		return error;
- 
- 	if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT)) {
- 		gfs2_consist(sdp);
--		error = -EIO;
--		goto fail;
-+		return -EIO;
- 	}
- 
- 	/*  Initialize some head of the log stuff  */
-@@ -188,20 +151,8 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
- 	gfs2_log_pointers_init(sdp, head.lh_blkno);
- 
- 	error = gfs2_quota_init(sdp);
--	if (error || gfs2_withdrawn(sdp))
--		goto fail;
--
--	set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
--
--	return 0;
--
--fail:
--	if (sdp->sd_quotad_process)
--		kthread_stop(sdp->sd_quotad_process);
--	sdp->sd_quotad_process = NULL;
--	if (sdp->sd_logd_process)
--		kthread_stop(sdp->sd_logd_process);
--	sdp->sd_logd_process = NULL;
-+	if (!error && !gfs2_withdrawn(sdp))
-+		set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
- 	return error;
- }
- 
+ 	fw_p = ta_firmware;
+ 	instructions_sz = fw_entry->size;
+ 	rsi_dbg(INFO_ZONE, "FW Length = %d bytes\n", instructions_sz);
 -- 
 2.30.2
 
