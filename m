@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6715408EFF
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D24E4408D21
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:22:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240113AbhIMNip (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:38:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33822 "EHLO mail.kernel.org"
+        id S241156AbhIMNXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242391AbhIMNgi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:36:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B518613AB;
-        Mon, 13 Sep 2021 13:27:51 +0000 (UTC)
+        id S240226AbhIMNUD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:20:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 371C361107;
+        Mon, 13 Sep 2021 13:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539671;
-        bh=DncR3jmiGhFTrbVDB5+N3uR1rgjhud+qBu1f4jxdqaE=;
+        s=korg; t=1631539095;
+        bh=lTcWL6k9v8Y1UvkuwcRBbvwnQaH85q3/wR3KiDcyRdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YI83SMcaE9m4wZC93+r2Sge3hXSgCjfsX+lVFSu6jI09eliM23uRLDLTQjTXQGfkk
-         jHHVo/OXvyoCii9gqW11gVH5kVIyTM+iBo2w+AqpAbHj5Sh7fUxHS62oyPZH9C88MZ
-         44KuCsR1FdeXEFUKHJi0Z1LM25F7GaecfAymmHdA=
+        b=xT8JkZ4WmPWJUKSSpjv68Ujko/eEhPdaC7vtSqz9i68mOhUT/xO2Aecu4jHJS+o75
+         A9gyE2QMaQR5gVT/yhC9L+s8zHr+CYhTm7AP3S0a4w4QWjvzhuAglibExnpt7bCvF0
+         fMAxYQT4geM+YzmAbWHj4Cg+4BC1jqcv44aFicc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tedd Ho-Jeong An <tedd.an@intel.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 115/236] Bluetooth: mgmt: Fix wrong opcode in the response for add_adv cmd
-Date:   Mon, 13 Sep 2021 15:13:40 +0200
-Message-Id: <20210913131104.263649144@linuxfoundation.org>
+Subject: [PATCH 5.4 040/144] certs: Trigger creation of RSA module signing key if its not an RSA key
+Date:   Mon, 13 Sep 2021 15:13:41 +0200
+Message-Id: <20210913131049.286580985@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tedd Ho-Jeong An <tedd.an@intel.com>
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-[ Upstream commit a25fca4d3c18766b6f7a3c95fa8faec23ef464c5 ]
+[ Upstream commit ea35e0d5df6c92fa2e124bb1b91d09b2240715ba ]
 
-This patch fixes the MGMT add_advertising command repsones with the
-wrong opcode when it is trying to return the not supported error.
+Address a kbuild issue where a developer created an ECDSA key for signing
+kernel modules and then builds an older version of the kernel, when bi-
+secting the kernel for example, that does not support ECDSA keys.
 
-Fixes: cbbdfa6f33198 ("Bluetooth: Enable controller RPA resolution using Experimental feature")
-Signed-off-by: Tedd Ho-Jeong An <tedd.an@intel.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+If openssl is installed, trigger the creation of an RSA module signing
+key if it is not an RSA key.
+
+Fixes: cfc411e7fff3 ("Move certificate handling to its own directory")
+Cc: David Howells <dhowells@redhat.com>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/mgmt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ certs/Makefile | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index 31a585fe0c7c..08f67f91d427 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -7464,7 +7464,7 @@ static int add_advertising(struct sock *sk, struct hci_dev *hdev,
- 	 * advertising.
- 	 */
- 	if (hci_dev_test_flag(hdev, HCI_ENABLE_LL_PRIVACY))
--		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_ADVERTISING,
-+		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_ADD_ADVERTISING,
- 				       MGMT_STATUS_NOT_SUPPORTED);
+diff --git a/certs/Makefile b/certs/Makefile
+index f4b90bad8690..2baef6fba029 100644
+--- a/certs/Makefile
++++ b/certs/Makefile
+@@ -46,11 +46,19 @@ endif
+ redirect_openssl	= 2>&1
+ quiet_redirect_openssl	= 2>&1
+ silent_redirect_openssl = 2>/dev/null
++openssl_available       = $(shell openssl help 2>/dev/null && echo yes)
  
- 	if (cp->instance < 1 || cp->instance > hdev->le_num_of_adv_sets)
+ # We do it this way rather than having a boolean option for enabling an
+ # external private key, because 'make randconfig' might enable such a
+ # boolean option and we unfortunately can't make it depend on !RANDCONFIG.
+ ifeq ($(CONFIG_MODULE_SIG_KEY),"certs/signing_key.pem")
++
++ifeq ($(openssl_available),yes)
++X509TEXT=$(shell openssl x509 -in "certs/signing_key.pem" -text 2>/dev/null)
++
++$(if $(findstring rsaEncryption,$(X509TEXT)),,$(shell rm -f "certs/signing_key.pem"))
++endif
++
+ $(obj)/signing_key.pem: $(obj)/x509.genkey
+ 	@$(kecho) "###"
+ 	@$(kecho) "### Now generating an X.509 key pair to be used for signing modules."
 -- 
 2.30.2
 
