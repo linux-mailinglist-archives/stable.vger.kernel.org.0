@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 838414092FE
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE044092FA
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243944AbhIMOQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:16:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33826 "EHLO mail.kernel.org"
+        id S244081AbhIMOQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:16:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344753AbhIMOOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:14:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 665F961AE2;
-        Mon, 13 Sep 2021 13:43:34 +0000 (UTC)
+        id S1344781AbhIMOOl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:14:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E386461407;
+        Mon, 13 Sep 2021 13:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540614;
-        bh=lnBHHFRuLJzQHrYQ4bLpSlqqObR463nOfp12ypBvfNM=;
+        s=korg; t=1631540617;
+        bh=4tF9IjJY9YncUcD7vJWy/zhfzoF/ywSY1A/tB1XiNLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r6qhtrFdloNFnB2r4OCN/q0UTzPvxqUGnyMSNf9Xq6yJX5hFwWoOtFz4aPzqDNETb
-         XWe0SquiBR7cAmLVp8oYsXXnP8nI39jGte5rgVF123ziQxQSPTorwxZcrHkeJc86AC
-         SQPouT2HZI+8iBVRZjpFxGy8GZYHEwJcoDnmeByE=
+        b=Jt1Jl9/DBbCt8/rUJRn0N8EpuOUiDK4D1FkX4qLG94MAcxNNj5JAoqKDVvO8ociiw
+         C4GTqTIPOqeRmqI6ISZw3Wgh+HTBwM98XfqjGTv3s4uSAQbazCmGRh9ffLyeuonPMZ
+         XQR2hOsr7yaIPLplyCnyDjOCNqytYJwnEhqAqpsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        George Cherian <george.cherian@marvell.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 232/300] i2c: xlp9xx: fix main IRQ check
-Date:   Mon, 13 Sep 2021 15:14:53 +0200
-Message-Id: <20210913131117.193655511@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 233/300] octeontx2-pf: cn10k: Fix error return code in otx2_set_flowkey_cfg()
+Date:   Mon, 13 Sep 2021 15:14:54 +0200
+Message-Id: <20210913131117.232313829@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -40,37 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 661e8a88e8317eb9ffe69c69d6cb4876370fe7e2 ]
+[ Upstream commit 5e8243e66b4d80eeaf9ed8cb0235ff133630a014 ]
 
-Iff platform_get_irq() returns 0 for the main IRQ, the driver's probe()
-method will return 0 early (as if the method's call was successful).
-Let's consider IRQ0 valid for simplicity -- devm_request_irq() can always
-override that decision...
+If otx2_mbox_get_rsp() fails, otx2_set_flowkey_cfg() need return an
+error code.
 
-Fixes: 2bbd681ba2b ("i2c: xlp9xx: Driver for Netlogic XLP9XX/5XX I2C controller")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Reviewed-by: George Cherian <george.cherian@marvell.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: e7938365459f ("octeontx2-pf: Fix algorithm index in MCAM rules with RSS action")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-xlp9xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
-index f2241cedf5d3..6d24dc385522 100644
---- a/drivers/i2c/busses/i2c-xlp9xx.c
-+++ b/drivers/i2c/busses/i2c-xlp9xx.c
-@@ -517,7 +517,7 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(priv->base);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+index 25f84ad50dba..e0d1af9e7770 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+@@ -286,8 +286,10 @@ int otx2_set_flowkey_cfg(struct otx2_nic *pfvf)
  
- 	priv->irq = platform_get_irq(pdev, 0);
--	if (priv->irq <= 0)
-+	if (priv->irq < 0)
- 		return priv->irq;
- 	/* SMBAlert irq */
- 	priv->alert_data.irq = platform_get_irq(pdev, 1);
+ 	rsp = (struct nix_rss_flowkey_cfg_rsp *)
+ 			otx2_mbox_get_rsp(&pfvf->mbox.mbox, 0, &req->hdr);
+-	if (IS_ERR(rsp))
++	if (IS_ERR(rsp)) {
++		err = PTR_ERR(rsp);
+ 		goto fail;
++	}
+ 
+ 	pfvf->hw.flowkey_alg_idx = rsp->alg_idx;
+ fail:
 -- 
 2.30.2
 
