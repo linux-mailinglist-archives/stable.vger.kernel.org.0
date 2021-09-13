@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EC17408EB3
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBF6440918F
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:01:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241838AbhIMNgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:36:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58362 "EHLO mail.kernel.org"
+        id S244760AbhIMOCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:02:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240909AbhIMNci (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:32:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C45B6137D;
-        Mon, 13 Sep 2021 13:25:57 +0000 (UTC)
+        id S245228AbhIMOAj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:00:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 759B6610A2;
+        Mon, 13 Sep 2021 13:37:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539557;
-        bh=XiDtveJprzscL9tlffUBoV5vcZn/VTSikhdAvGKho7Q=;
+        s=korg; t=1631540251;
+        bh=VXE0TY40WKo3a6aWGZjd72SExSfJt/UYR8dPRxbWiTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gACi336WTz3yNnwZdfItVNz+O7JfyIsG0g7ibNsJBNsChyC9XeNP9tsp8DaW5dy5a
-         WI3fIxOwsQorLShTRfBl4d2uaS/+YoJgL4Ilrn1yiShoaOc87bIe8mXrIW9aAFONAj
-         wcoqbMzhjBGiCDQhsWzrOdZy36scB0AXsWASJN1E=
+        b=x1hfxv7UEkRyTAtCoU4EczeKrDvugT5sSDVvrAy9MpizkvR2AYqkZvEoAfbEf/8un
+         BJm7aHmxjsAd7QalSMYcEJ64DF860GzMlsG0Y7xSfRTmiZuqRguUGYOgO2wekVu8/t
+         oWTRqFcRRiWr6DzIEArVmhB6CT0ImQkbm6F4CPbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Yizhuo <yzhai003@ucr.edu>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 071/236] ASoC: mediatek: mt8183: Fix Unbalanced pm_runtime_enable in mt8183_afe_pcm_dev_probe
+Subject: [PATCH 5.13 115/300] media: atomisp: fix the uninitialized use and rename "retvalue"
 Date:   Mon, 13 Sep 2021 15:12:56 +0200
-Message-Id: <20210913131102.774008372@linuxfoundation.org>
+Message-Id: <20210913131113.278268747@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,156 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Yizhuo <yzhai003@ucr.edu>
 
-[ Upstream commit 19f479c37f76e926a6c0bec974a4d09826e32fc6 ]
+[ Upstream commit c275e5d349b0d2b1143607d28b9c7c14a8a0a9b4 ]
 
-Add missing pm_runtime_disable() when probe error out. It could
-avoid pm_runtime implementation complains when removing and probing
-again the driver.
+Inside function mt9m114_detect(), variable "retvalue" could
+be uninitialized if mt9m114_read_reg() returns error, however, it
+is used in the later if statement, which is potentially unsafe.
 
-Fixes:a94aec035a122 ("ASoC: mediatek: mt8183: add platform driver")
+The local variable "retvalue" is renamed to "model" to avoid
+confusion.
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20210618141104.105047-3-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/linux-media/20210625053858.3862-1-yzhai003@ucr.edu
+Fixes: ad85094 (media / atomisp: fix the uninitialized use of model ID)
+Signed-off-by: Yizhuo <yzhai003@ucr.edu>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8183/mt8183-afe-pcm.c | 43 ++++++++++++++--------
- 1 file changed, 27 insertions(+), 16 deletions(-)
+ drivers/staging/media/atomisp/i2c/atomisp-mt9m114.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c b/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c
-index c4a598cbbdaa..14e77df06b01 100644
---- a/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c
-+++ b/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c
-@@ -1119,25 +1119,26 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 	afe->regmap = syscon_node_to_regmap(dev->parent->of_node);
- 	if (IS_ERR(afe->regmap)) {
- 		dev_err(dev, "could not get regmap from parent\n");
--		return PTR_ERR(afe->regmap);
-+		ret = PTR_ERR(afe->regmap);
-+		goto err_pm_disable;
+diff --git a/drivers/staging/media/atomisp/i2c/atomisp-mt9m114.c b/drivers/staging/media/atomisp/i2c/atomisp-mt9m114.c
+index f5de81132177..77293579a134 100644
+--- a/drivers/staging/media/atomisp/i2c/atomisp-mt9m114.c
++++ b/drivers/staging/media/atomisp/i2c/atomisp-mt9m114.c
+@@ -1533,16 +1533,19 @@ static struct v4l2_ctrl_config mt9m114_controls[] = {
+ static int mt9m114_detect(struct mt9m114_device *dev, struct i2c_client *client)
+ {
+ 	struct i2c_adapter *adapter = client->adapter;
+-	u32 retvalue;
++	u32 model;
++	int ret;
+ 
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
+ 		dev_err(&client->dev, "%s: i2c error", __func__);
+ 		return -ENODEV;
  	}
- 	ret = regmap_attach_dev(dev, afe->regmap, &mt8183_afe_regmap_config);
- 	if (ret) {
- 		dev_warn(dev, "regmap_attach_dev fail, ret %d\n", ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
+-	mt9m114_read_reg(client, MISENSOR_16BIT, (u32)MT9M114_PID, &retvalue);
+-	dev->real_model_id = retvalue;
++	ret = mt9m114_read_reg(client, MISENSOR_16BIT, MT9M114_PID, &model);
++	if (ret)
++		return ret;
++	dev->real_model_id = model;
  
- 	rstc = devm_reset_control_get(dev, "audiosys");
- 	if (IS_ERR(rstc)) {
- 		ret = PTR_ERR(rstc);
- 		dev_err(dev, "could not get audiosys reset:%d\n", ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	ret = reset_control_reset(rstc);
- 	if (ret) {
- 		dev_err(dev, "failed to trigger audio reset:%d\n", ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	/* enable clock for regcache get default value from hw */
-@@ -1147,7 +1148,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 	ret = regmap_reinit_cache(afe->regmap, &mt8183_afe_regmap_config);
- 	if (ret) {
- 		dev_err(dev, "regmap_reinit_cache fail, ret %d\n", ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	pm_runtime_put_sync(&pdev->dev);
-@@ -1160,8 +1161,10 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 	afe->memif_size = MT8183_MEMIF_NUM;
- 	afe->memif = devm_kcalloc(dev, afe->memif_size, sizeof(*afe->memif),
- 				  GFP_KERNEL);
--	if (!afe->memif)
--		return -ENOMEM;
-+	if (!afe->memif) {
-+		ret = -ENOMEM;
-+		goto err_pm_disable;
-+	}
- 
- 	for (i = 0; i < afe->memif_size; i++) {
- 		afe->memif[i].data = &memif_data[i];
-@@ -1178,22 +1181,26 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 	afe->irqs_size = MT8183_IRQ_NUM;
- 	afe->irqs = devm_kcalloc(dev, afe->irqs_size, sizeof(*afe->irqs),
- 				 GFP_KERNEL);
--	if (!afe->irqs)
--		return -ENOMEM;
-+	if (!afe->irqs) {
-+		ret = -ENOMEM;
-+		goto err_pm_disable;
-+	}
- 
- 	for (i = 0; i < afe->irqs_size; i++)
- 		afe->irqs[i].irq_data = &irq_data[i];
- 
- 	/* request irq */
- 	irq_id = platform_get_irq(pdev, 0);
--	if (irq_id < 0)
--		return irq_id;
-+	if (irq_id < 0) {
-+		ret = irq_id;
-+		goto err_pm_disable;
-+	}
- 
- 	ret = devm_request_irq(dev, irq_id, mt8183_afe_irq_handler,
- 			       IRQF_TRIGGER_NONE, "asys-isr", (void *)afe);
- 	if (ret) {
- 		dev_err(dev, "could not request_irq for asys-isr\n");
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	/* init sub_dais */
-@@ -1204,7 +1211,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 		if (ret) {
- 			dev_warn(afe->dev, "dai register i %d fail, ret %d\n",
- 				 i, ret);
--			return ret;
-+			goto err_pm_disable;
- 		}
- 	}
- 
-@@ -1213,7 +1220,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_warn(afe->dev, "mtk_afe_combine_sub_dai fail, ret %d\n",
- 			 ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	afe->mtk_afe_hardware = &mt8183_afe_hardware;
-@@ -1229,7 +1236,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 					      NULL, 0);
- 	if (ret) {
- 		dev_warn(dev, "err_platform\n");
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	ret = devm_snd_soc_register_component(afe->dev,
-@@ -1238,10 +1245,14 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 					      afe->num_dai_drivers);
- 	if (ret) {
- 		dev_warn(dev, "err_dai_component\n");
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	return ret;
-+
-+err_pm_disable:
-+	pm_runtime_disable(&pdev->dev);
-+	return ret;
- }
- 
- static int mt8183_afe_pcm_dev_remove(struct platform_device *pdev)
+-	if (retvalue != MT9M114_MOD_ID) {
++	if (model != MT9M114_MOD_ID) {
+ 		dev_err(&client->dev, "%s: failed: client->addr = %x\n",
+ 			__func__, client->addr);
+ 		return -ENODEV;
 -- 
 2.30.2
 
