@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5358A408DE4
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F22D408FB8
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240470AbhIMNad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:30:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34830 "EHLO mail.kernel.org"
+        id S243425AbhIMNqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:46:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241269AbhIMNXy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:23:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 230CC604DA;
-        Mon, 13 Sep 2021 13:21:32 +0000 (UTC)
+        id S242320AbhIMNoM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:44:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DDD961452;
+        Mon, 13 Sep 2021 13:31:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539293;
-        bh=2Yu2URnTwuahz5+Qhb1hOD8ZAuqv3NuPCXnogSxZdUE=;
+        s=korg; t=1631539862;
+        bh=/Q+nGGbuRQCEf4nJ+zVUPSAiTbJskpr6+hRJit8n4qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UdkKDU0HEtA7KtGZhOgjttG44wr2gDL95KUdpQsmGHSa2F3/p6lb89R877yOx52YO
-         38w3Wi9VhSpfmLL7Hty6kRpZ45tO1T03c8e6lTAlTF8Bbuafw65WIEW/qPN5g/S+5q
-         41C4URst0BTx5GmhGP1GM5uujOLuuim6SEuJmFfM=
+        b=YWlZvZCaED0rHuFbhUGKXz/pDK5arLyDqlI9KI0CJRrMEySxUsqdPyhRSHlHVNw2n
+         EA2enTuwyi3/aCUUrAQ12o5ERyRsKvRs6G25CvT0b2G5BTcrrzIyiBHmeVUns0EZZg
+         22raBKbEC0l46wQLP7djj/ID9R7Bs++CDSNKqt2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
-        Adriana Reus <adriana.reus@nxp.com>,
-        Sherry Sun <sherry.sun@nxp.com>,
-        Andy Duan <fugang.duan@nxp.com>,
+        stable@vger.kernel.org, Len Baker <len.baker@gmx.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Jeff Layton <jlayton@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 114/144] tty: serial: fsl_lpuart: fix the wrong mapbase value
+Subject: [PATCH 5.10 190/236] CIFS: Fix a potencially linear read overflow
 Date:   Mon, 13 Sep 2021 15:14:55 +0200
-Message-Id: <20210913131051.746782973@linuxfoundation.org>
+Message-Id: <20210913131106.848147726@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Duan <fugang.duan@nxp.com>
+From: Len Baker <len.baker@gmx.com>
 
-[ Upstream commit d5c38948448abc2bb6b36dbf85a554bf4748885e ]
+[ Upstream commit f980d055a0f858d73d9467bb0b570721bbfcdfb8 ]
 
-Register offset needs to be applied on mapbase also.
-dma_tx/rx_request use the physical address of UARTDATA.
-Register offset is currently only applied to membase (the
-corresponding virtual addr) but not on mapbase.
+strlcpy() reads the entire source buffer first. This read may exceed the
+destination size limit. This is both inefficient and can lead to linear
+read overflows if a source string is not NUL-terminated.
 
-Fixes: 24b1e5f0e83c ("tty: serial: lpuart: add imx7ulp support")
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Adriana Reus <adriana.reus@nxp.com>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Signed-off-by: Andy Duan <fugang.duan@nxp.com>
-Link: https://lore.kernel.org/r/20210819021033.32606-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also, the strnlen() call does not avoid the read overflow in the strlcpy
+function when a not NUL-terminated string is passed.
+
+So, replace this block by a call to kstrndup() that avoids this type of
+overflow and does the same.
+
+Fixes: 066ce6899484d ("cifs: rename cifs_strlcpy_to_host and make it use new functions")
+Signed-off-by: Len Baker <len.baker@gmx.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/cifs_unicode.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index b053345dfd1a..13e705b53217 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -2414,7 +2414,7 @@ static int lpuart_probe(struct platform_device *pdev)
- 		return PTR_ERR(sport->port.membase);
+diff --git a/fs/cifs/cifs_unicode.c b/fs/cifs/cifs_unicode.c
+index 9bd03a231032..171ad8b42107 100644
+--- a/fs/cifs/cifs_unicode.c
++++ b/fs/cifs/cifs_unicode.c
+@@ -358,14 +358,9 @@ cifs_strndup_from_utf16(const char *src, const int maxlen,
+ 		if (!dst)
+ 			return NULL;
+ 		cifs_from_utf16(dst, (__le16 *) src, len, maxlen, codepage,
+-			       NO_MAP_UNI_RSVD);
++				NO_MAP_UNI_RSVD);
+ 	} else {
+-		len = strnlen(src, maxlen);
+-		len++;
+-		dst = kmalloc(len, GFP_KERNEL);
+-		if (!dst)
+-			return NULL;
+-		strlcpy(dst, src, len);
++		dst = kstrndup(src, maxlen, GFP_KERNEL);
+ 	}
  
- 	sport->port.membase += sdata->reg_off;
--	sport->port.mapbase = res->start;
-+	sport->port.mapbase = res->start + sdata->reg_off;
- 	sport->port.dev = &pdev->dev;
- 	sport->port.type = PORT_LPUART;
- 	sport->devtype = sdata->devtype;
+ 	return dst;
 -- 
 2.30.2
 
