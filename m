@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CD77409100
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:57:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4EB3408EB0
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244229AbhIMN5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:57:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
+        id S241618AbhIMNgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:36:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244834AbhIMNzk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:55:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2D9461A10;
-        Mon, 13 Sep 2021 13:35:38 +0000 (UTC)
+        id S242427AbhIMN3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:29:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B21BC6124D;
+        Mon, 13 Sep 2021 13:23:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540139;
-        bh=N/kBMNMc89UjZ1rYFYPHugE5EWUilALer50Wm74LmXQ=;
+        s=korg; t=1631539440;
+        bh=Cz1d3nehDoogkLHm8LYFCfX8k+Pf330baoN+ih7Qsh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I6Sq54lxPlY2+y+svVnWp4W7safpoPma4QSy7PKWMVv3rxuI9eZR5SjxY5f3Py5ur
-         o/KOjOf93gpoCzAegbvk5afHo+wb1G/e/N+8G10JguZZm6B7VGTzOltzuoimYdidK0
-         S51usre3IfGSfzA2EvfArmAQNw4meDbO7GG+C9ng=
+        b=XtHRWMjoWs/EVSSO/tB6/n4PG13Cr8TCmBYYYoGwoVyaY1N4soyv1zemy1Nu13lTY
+         BAN+dCpfcMV30CH7ln3pkudKgFdACVEVPGh9npZHsbfL/OwjByZ2E5WSoqF+mPCQfU
+         ecwjRjEbL6bImY4hLWY2xj13z9yDEGbCIe+dGeps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 068/300] crypto: qat - use proper type for vf_mask
-Date:   Mon, 13 Sep 2021 15:12:09 +0200
-Message-Id: <20210913131111.658059482@linuxfoundation.org>
+Subject: [PATCH 5.10 025/236] s390/zcrypt: fix wrong offset index for APKA master key valid state
+Date:   Mon, 13 Sep 2021 15:12:10 +0200
+Message-Id: <20210913131101.207592666@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,70 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit 462354d986b6a89c6449b85f17aaacf44e455216 ]
+[ Upstream commit 8617bb74006252cb2286008afe7d6575a6425857 ]
 
-Replace vf_mask type with unsigned long to avoid a stack-out-of-bound.
+Tests showed a mismatch between what the CCA tool reports about
+the APKA master key state and what's displayed by the zcrypt dd
+in sysfs. After some investigation, we found out that the
+documentation which was the source for the zcrypt dd implementation
+lacks the listing of 3 fields. So this patch now moves the
+evaluation of the APKA master key state to the correct offset.
 
-This is to fix the following warning reported by KASAN the first time
-adf_msix_isr_ae() gets called.
-
-    [  692.091987] BUG: KASAN: stack-out-of-bounds in find_first_bit+0x28/0x50
-    [  692.092017] Read of size 8 at addr ffff88afdf789e60 by task swapper/32/0
-    [  692.092076] Call Trace:
-    [  692.092089]  <IRQ>
-    [  692.092101]  dump_stack+0x9c/0xcf
-    [  692.092132]  print_address_description.constprop.0+0x18/0x130
-    [  692.092164]  ? find_first_bit+0x28/0x50
-    [  692.092185]  kasan_report.cold+0x7f/0x111
-    [  692.092213]  ? static_obj+0x10/0x80
-    [  692.092234]  ? find_first_bit+0x28/0x50
-    [  692.092262]  find_first_bit+0x28/0x50
-    [  692.092288]  adf_msix_isr_ae+0x16e/0x230 [intel_qat]
-
-Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_isr.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/s390/crypto/zcrypt_ccamisc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
-index e3ad5587be49..daab02011717 100644
---- a/drivers/crypto/qat/qat_common/adf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_isr.c
-@@ -15,6 +15,8 @@
- #include "adf_transport_access_macros.h"
- #include "adf_transport_internal.h"
- 
-+#define ADF_MAX_NUM_VFS	32
-+
- static int adf_enable_msix(struct adf_accel_dev *accel_dev)
- {
- 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
-@@ -72,7 +74,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 		struct adf_bar *pmisc =
- 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
- 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
--		u32 vf_mask;
-+		unsigned long vf_mask;
- 
- 		/* Get the interrupt sources triggered by VFs */
- 		vf_mask = ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU5) &
-@@ -93,8 +95,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 			 * unless the VF is malicious and is attempting to
- 			 * flood the host OS with VF2PF interrupts.
- 			 */
--			for_each_set_bit(i, (const unsigned long *)&vf_mask,
--					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
-+			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
- 				vf_info = accel_dev->pf.vf_info + i;
- 
- 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
+diff --git a/drivers/s390/crypto/zcrypt_ccamisc.c b/drivers/s390/crypto/zcrypt_ccamisc.c
+index b1046811450f..ffab935ddd95 100644
+--- a/drivers/s390/crypto/zcrypt_ccamisc.c
++++ b/drivers/s390/crypto/zcrypt_ccamisc.c
+@@ -1715,10 +1715,10 @@ static int fetch_cca_info(u16 cardnr, u16 domain, struct cca_info *ci)
+ 	rlen = vlen = PAGE_SIZE/2;
+ 	rc = cca_query_crypto_facility(cardnr, domain, "STATICSB",
+ 				       rarray, &rlen, varray, &vlen);
+-	if (rc == 0 && rlen >= 10*8 && vlen >= 240) {
+-		ci->new_apka_mk_state = (char) rarray[7*8];
+-		ci->cur_apka_mk_state = (char) rarray[8*8];
+-		ci->old_apka_mk_state = (char) rarray[9*8];
++	if (rc == 0 && rlen >= 13*8 && vlen >= 240) {
++		ci->new_apka_mk_state = (char) rarray[10*8];
++		ci->cur_apka_mk_state = (char) rarray[11*8];
++		ci->old_apka_mk_state = (char) rarray[12*8];
+ 		if (ci->old_apka_mk_state == '2')
+ 			memcpy(&ci->old_apka_mkvp, varray + 208, 8);
+ 		if (ci->cur_apka_mk_state == '2')
 -- 
 2.30.2
 
