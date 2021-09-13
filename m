@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCE2440946E
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 938E140946C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345266AbhIMObO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:31:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46960 "EHLO mail.kernel.org"
+        id S1345095AbhIMObM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:31:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346137AbhIMO2a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:28:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5C0561507;
-        Mon, 13 Sep 2021 13:49:54 +0000 (UTC)
+        id S1346140AbhIMO2b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:28:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E08E61B52;
+        Mon, 13 Sep 2021 13:49:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540995;
-        bh=6XK9ezonN+Cv5y/XbpLEd8r12K4ExVw7ZkyHY5uStW8=;
+        s=korg; t=1631540997;
+        bh=YU+JQN/6if8F3VskjqbuP9xkWCOPyjOnZZMlyHkbHyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n+UPgLIHo+6Jom5Cqc60FRSNJM15IxG5pBjrQBqBOCu6LcktpPkIuD9ofsRB29OQ0
-         77bjQsc7+PyTpTLqE3RbgpkAPpd9Wa0VQp0uww5uzQH33fkdl3M97dl1DT1pVEzq7E
-         coZZrrsdWGr3QFpmc8+ZpmdECS9iEkEf24CgBlEE=
+        b=kwFipBLVCxWqMUu1lPgDC0OWoBSVBkQE2FDkhDWx9vne18k2dmbYh8/yiocMXjX7J
+         +5cqtpYFYAU4Zl379i/6qCwH5tRe7Efd2yIBzCfckh1FC+CDuG8KGv346PQLkTaLar
+         X16tWnlsk14Ak1hnGgPApOCtdxMqxSVLZloymqTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrej Picej <andrej.picej@norik.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Yizhuo <yzhai003@ucr.edu>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 119/334] media: coda: fix frame_mem_ctrl for YUV420 and YVU420 formats
-Date:   Mon, 13 Sep 2021 15:12:53 +0200
-Message-Id: <20210913131117.389877533@linuxfoundation.org>
+Subject: [PATCH 5.14 120/334] media: atomisp: fix the uninitialized use and rename "retvalue"
+Date:   Mon, 13 Sep 2021 15:12:54 +0200
+Message-Id: <20210913131117.428968599@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -42,60 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Yizhuo <yzhai003@ucr.edu>
 
-[ Upstream commit 44693d74f5653f82cd7ca0fe730eed0f6b83306a ]
+[ Upstream commit c275e5d349b0d2b1143607d28b9c7c14a8a0a9b4 ]
 
-The frame memory control register value is currently determined
-before userspace selects the final capture format and never corrected.
-Update ctx->frame_mem_ctrl in __coda_start_decoding() to fix decoding
-into YUV420 or YVU420 capture buffers.
+Inside function mt9m114_detect(), variable "retvalue" could
+be uninitialized if mt9m114_read_reg() returns error, however, it
+is used in the later if statement, which is potentially unsafe.
 
-Reported-by: Andrej Picej <andrej.picej@norik.com>
-Fixes: 497e6b8559a6 ("media: coda: add sequence initialization work")
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+The local variable "retvalue" is renamed to "model" to avoid
+confusion.
+
+Link: https://lore.kernel.org/linux-media/20210625053858.3862-1-yzhai003@ucr.edu
+Fixes: ad85094 (media / atomisp: fix the uninitialized use of model ID)
+Signed-off-by: Yizhuo <yzhai003@ucr.edu>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/staging/media/atomisp/i2c/atomisp-mt9m114.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 2f42808c43a4..c484c008ab02 100644
---- a/drivers/media/platform/coda/coda-bit.c
-+++ b/drivers/media/platform/coda/coda-bit.c
-@@ -2053,17 +2053,25 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
- 	u32 src_fourcc, dst_fourcc;
- 	int ret;
+diff --git a/drivers/staging/media/atomisp/i2c/atomisp-mt9m114.c b/drivers/staging/media/atomisp/i2c/atomisp-mt9m114.c
+index 11196180a206..34bf92de2f29 100644
+--- a/drivers/staging/media/atomisp/i2c/atomisp-mt9m114.c
++++ b/drivers/staging/media/atomisp/i2c/atomisp-mt9m114.c
+@@ -1545,16 +1545,19 @@ static struct v4l2_ctrl_config mt9m114_controls[] = {
+ static int mt9m114_detect(struct mt9m114_device *dev, struct i2c_client *client)
+ {
+ 	struct i2c_adapter *adapter = client->adapter;
+-	u32 retvalue;
++	u32 model;
++	int ret;
  
-+	q_data_src = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT);
-+	q_data_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-+	src_fourcc = q_data_src->fourcc;
-+	dst_fourcc = q_data_dst->fourcc;
-+
- 	if (!ctx->initialized) {
- 		ret = __coda_decoder_seq_init(ctx);
- 		if (ret < 0)
- 			return ret;
-+	} else {
-+		ctx->frame_mem_ctrl &= ~(CODA_FRAME_CHROMA_INTERLEAVE | (0x3 << 9) |
-+					 CODA9_FRAME_TILED2LINEAR);
-+		if (dst_fourcc == V4L2_PIX_FMT_NV12 || dst_fourcc == V4L2_PIX_FMT_YUYV)
-+			ctx->frame_mem_ctrl |= CODA_FRAME_CHROMA_INTERLEAVE;
-+		if (ctx->tiled_map_type == GDI_TILED_FRAME_MB_RASTER_MAP)
-+			ctx->frame_mem_ctrl |= (0x3 << 9) |
-+				((ctx->use_vdoa) ? 0 : CODA9_FRAME_TILED2LINEAR);
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_I2C)) {
+ 		dev_err(&client->dev, "%s: i2c error", __func__);
+ 		return -ENODEV;
  	}
+-	mt9m114_read_reg(client, MISENSOR_16BIT, (u32)MT9M114_PID, &retvalue);
+-	dev->real_model_id = retvalue;
++	ret = mt9m114_read_reg(client, MISENSOR_16BIT, MT9M114_PID, &model);
++	if (ret)
++		return ret;
++	dev->real_model_id = model;
  
--	q_data_src = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT);
--	q_data_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
--	src_fourcc = q_data_src->fourcc;
--	dst_fourcc = q_data_dst->fourcc;
--
- 	coda_write(dev, ctx->parabuf.paddr, CODA_REG_BIT_PARA_BUF_ADDR);
- 
- 	ret = coda_alloc_framebuffers(ctx, q_data_dst, src_fourcc);
+-	if (retvalue != MT9M114_MOD_ID) {
++	if (model != MT9M114_MOD_ID) {
+ 		dev_err(&client->dev, "%s: failed: client->addr = %x\n",
+ 			__func__, client->addr);
+ 		return -ENODEV;
 -- 
 2.30.2
 
