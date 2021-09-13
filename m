@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92184408E91
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06B19408E00
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:30:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242316AbhIMNfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:35:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33598 "EHLO mail.kernel.org"
+        id S242208AbhIMNa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:30:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241583AbhIMNdB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:33:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D129A6137C;
-        Mon, 13 Sep 2021 13:26:09 +0000 (UTC)
+        id S240144AbhIMNT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:19:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAFE261103;
+        Mon, 13 Sep 2021 13:17:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539570;
-        bh=lVDVoa1sP9R2MLoIob+fd5qtkGB87avFrZ2575JGRtQ=;
+        s=korg; t=1631539068;
+        bh=8GMfLaMzTij4R1fqr5DnHUDWQf97gN4MxHWyK995UkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YvPd4k+3FJxz6/WnF3v0hfpUaY7LSC/mSaNvudQsONJIqF+4hyzNervknrh1ukqcz
-         c7RA2zbDP0ee4WEyxD3ClTUsdBLW3bytq6nZWbFWk0rnmYctXNKKRlwbVhAtwz4zPp
-         /jtm8JmtXoZB2rjql2Tma7+5aDeZTfXKgFbLM5WQ=
+        b=YfKnLdYDrB2swM3eqLkI0IjQdLzGgLJixZ5pMlmDa2V4QJ56tu7IBpzh2vIeYjNgK
+         dcWhvSQcz3hpFttWfbPRUIEcGdlvVpcKu4+GX1brELyONH2JrbGssCn8afaxXXfkQ0
+         ZBHduBmZ9+9KhNQe0uFUso7wUy+j+OUQ5FbP1k/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Waiman Long <longman@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 076/236] drm/of: free the right object
-Date:   Mon, 13 Sep 2021 15:13:01 +0200
-Message-Id: <20210913131102.949560582@linuxfoundation.org>
+Subject: [PATCH 5.4 001/144] locking/mutex: Fix HANDOFF condition
+Date:   Mon, 13 Sep 2021 15:13:02 +0200
+Message-Id: <20210913131048.024763675@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,51 +43,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@inria.fr>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit b557a5f8da5798d27370ed6b73e673aae33efd55 ]
+[ Upstream commit 048661a1f963e9517630f080687d48af79ed784c ]
 
-There is no need to free a NULL value.  Instead, free the object
-that is leaking due to the iterator.
+Yanfei reported that setting HANDOFF should not depend on recomputing
+@first, only on @first state. Which would then give:
 
-The semantic patch that finds this problem is as follows:
+  if (ww_ctx || !first)
+    first = __mutex_waiter_is_first(lock, &waiter);
+  if (first)
+    __mutex_set_flag(lock, MUTEX_FLAG_HANDOFF);
 
-// <smpl>
-@@
-expression x,e;
-identifier f;
-@@
- x = f(...);
- if (x == NULL) {
-	... when any
-	    when != x = e
-*	of_node_put(x);
-	...
- }
-// </smpl>
+But because 'ww_ctx || !first' is basically 'always' and the test for
+first is relatively cheap, omit that first branch entirely.
 
-Fixes: 6529007522de ("drm: of: Add drm_of_lvds_get_dual_link_pixel_order")
-Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210709200717.3676376-1-Julia.Lawall@inria.fr
+Reported-by: Yanfei Xu <yanfei.xu@windriver.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Waiman Long <longman@redhat.com>
+Reviewed-by: Yanfei Xu <yanfei.xu@windriver.com>
+Link: https://lore.kernel.org/r/20210630154114.896786297@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_of.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/locking/mutex.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_of.c b/drivers/gpu/drm/drm_of.c
-index ca04c34e8251..197c57477344 100644
---- a/drivers/gpu/drm/drm_of.c
-+++ b/drivers/gpu/drm/drm_of.c
-@@ -315,7 +315,7 @@ static int drm_of_lvds_get_remote_pixels_type(
+diff --git a/kernel/locking/mutex.c b/kernel/locking/mutex.c
+index c0c7784f074b..b02fff28221f 100644
+--- a/kernel/locking/mutex.c
++++ b/kernel/locking/mutex.c
+@@ -938,7 +938,6 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 		    struct ww_acquire_ctx *ww_ctx, const bool use_ww_ctx)
+ {
+ 	struct mutex_waiter waiter;
+-	bool first = false;
+ 	struct ww_mutex *ww;
+ 	int ret;
  
- 		remote_port = of_graph_get_remote_port(endpoint);
- 		if (!remote_port) {
--			of_node_put(remote_port);
-+			of_node_put(endpoint);
- 			return -EPIPE;
- 		}
+@@ -1017,6 +1016,8 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
  
+ 	set_current_state(state);
+ 	for (;;) {
++		bool first;
++
+ 		/*
+ 		 * Once we hold wait_lock, we're serialized against
+ 		 * mutex_unlock() handing the lock off to us, do a trylock
+@@ -1045,15 +1046,9 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 		spin_unlock(&lock->wait_lock);
+ 		schedule_preempt_disabled();
+ 
+-		/*
+-		 * ww_mutex needs to always recheck its position since its waiter
+-		 * list is not FIFO ordered.
+-		 */
+-		if (ww_ctx || !first) {
+-			first = __mutex_waiter_is_first(lock, &waiter);
+-			if (first)
+-				__mutex_set_flag(lock, MUTEX_FLAG_HANDOFF);
+-		}
++		first = __mutex_waiter_is_first(lock, &waiter);
++		if (first)
++			__mutex_set_flag(lock, MUTEX_FLAG_HANDOFF);
+ 
+ 		set_current_state(state);
+ 		/*
 -- 
 2.30.2
 
