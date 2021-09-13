@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A07F4084E7
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 08:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 136EA4084E8
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 08:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237357AbhIMGpo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237451AbhIMGpo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 13 Sep 2021 02:45:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51350 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237451AbhIMGpo (ORCPT
+        with ESMTP id S237453AbhIMGpo (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 02:45:44 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC74C061574
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334A3C061760
         for <stable@vger.kernel.org>; Sun, 12 Sep 2021 23:44:29 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id k23-20020a17090a591700b001976d2db364so5754968pji.2
+Received: by mail-pf1-x432.google.com with SMTP id 18so7854548pfh.9
         for <stable@vger.kernel.org>; Sun, 12 Sep 2021 23:44:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=gHA6QAXRItMu+mpTEa66/1DYAZF7W88gphbYfHKTDcw=;
-        b=NJVYiVG4Jnmk/YqdUo7HbvG34glbhsSKZGhwxExfl0OVuYvTqdSGDQ8GfIXVNdgMCy
-         6Yfvs0Nluk9cQYxxR8hvTi2oCBW/MJLvtvfYIk6jhd4zqij1SNOYp9NckZQ4NOcLqnmi
-         iiXwCOsITiPw5DV9MakBWIjy1Flne2srAXszDca+jWGmAyPq46KAHlHVFWx0aQ9C9Q02
-         +uBJCg0qdN9v2ZFEZqQQOtRKlILIKsNyIdqRdSmt5uuWcdKnnNRWDPNFGcvCm1IEk/ei
-         7PB4EmYrpUylxAdGFqkdqAWPYploSZsC1u5TZPK2eFGHj57pXIMi+DDWPsruBxnvcNbj
-         HG/A==
+        bh=9IpmOP/1M8JI5L1vsWo0xGZqwo0COQctKcjOR3ZG7Mo=;
+        b=SUkODHsvQVfcq6p7MYz88BgAdfg9UqZLZ+uv8p0Hcj9S6FpN7TWmlgRkCtHF/3lAUg
+         YyLaeOdCc65V5VvHY5g3r8590u7Cp8wA2FGBAmQfsaIp2xW2PXBRHMqoympqUdYGJHfu
+         i9Zv1p9E9Ju8hDhDMRFj2r9laBCjG+4Ny/u92oTAej21HfrMJff6jot+FpPbRoczYkAh
+         4lZZqogfZFo+ULphX61VYZcKISglJuYtXfjGIFmKi2aYsYXsJ5VEOuHfhFzoymNRRvYc
+         A0ZZEQsWk/yR7tq7+T/L28Fl58wOsm+zFmBSYc9VUQz/3pPSo04qWGHBoUchtw3pfKvm
+         d5bQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=gHA6QAXRItMu+mpTEa66/1DYAZF7W88gphbYfHKTDcw=;
-        b=izqWmkRImNNUWgrEFn9u9ubfp2F0A8lIHziqR24XoiecG/ZhBep0G7PlNrPILHSrZj
-         SuaRG3Ube1v8n89OroNc1JUurMTFEghvfY02P0gc4AoHvCesSVurQ1emwIVlAjVwxUxm
-         1MsMc74JKrugVu66eIXC0qDn6uKgwb6Wdc/jLbjmI9QPPW9+Y/TaHjtUz/qqITgkJyAk
-         HFshN6DvUasH5feRhd9o3UrwpwxiYyj99+8boc4hKWsUDY9NcYXWpvo8avk4O9tcBuqs
-         faQuwrOlrNqX0SJNvuqaPXtQqBsXDU3PSa6Ptw7fAkYFP4qrB2I6K5QHr7EEkbbv97e7
-         IZiQ==
-X-Gm-Message-State: AOAM533evXcuSDVjt6xcZjaI1CQyiQofHZJUGgLCRqMIAzgOYAhBMFmE
-        TqymH/F4XVvLFUWvMfuATXkO8XEmFS1s0LJR
-X-Google-Smtp-Source: ABdhPJx2+TvKksuJ5UfT8e706pMPO4zqsd0wImQZnnRYG/Sd1N5IQzlrFJSuFSk7Kkj5sSqH9PYrrQ==
-X-Received: by 2002:a17:90a:718c:: with SMTP id i12mr11359923pjk.182.1631515467917;
-        Sun, 12 Sep 2021 23:44:27 -0700 (PDT)
+        bh=9IpmOP/1M8JI5L1vsWo0xGZqwo0COQctKcjOR3ZG7Mo=;
+        b=1slroVPO2PCZpWJYrg52W4nlI5CZENRwazMyUvY6Qs4yOxP0x0QHYpPTD4S1gbXoPO
+         AR7kf81XLoJzwoh8kYYPEve+Yz94+dtLUPhB2CMjNKFaG0tnqYadCwMKzNjUoG8BmIbW
+         f19ZpMiPLA0rvoXnz8xX8IaGLNuHbOZzmjAX0t8vjJiSEaSeTGrlNbLfqJcuEj10U3B9
+         9Ci4g3GCj1/stfeQpgPDOwZCyOzy3YjJ1kS6l7dJOlv+ksdMzD9qqzyvxl0C9+Xxiw23
+         y765gR9CiW/7jyH1XeRKxAbCEWotqq1XWCbuMG9xN9JLul/veJPtP4eHxhMqQ7uRE3pq
+         K5KQ==
+X-Gm-Message-State: AOAM530osK/BcQwy1uNlDbgPoBwpTWRivxpQ7Wqcju+22TSmxqJfgh6Q
+        gvNlb9GsWtqfiKYxA2ewl4ciJigwZgFihJeA
+X-Google-Smtp-Source: ABdhPJz8hg4H3X9EdbFkVXSkZLGMH8svecqwwgrC1WoRWz/3x312VlbtoCbXbkeidbf5EGjOm1e41Q==
+X-Received: by 2002:a63:cf44:: with SMTP id b4mr9938028pgj.215.1631515468059;
+        Sun, 12 Sep 2021 23:44:28 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p3sm5698229pfw.71.2021.09.12.23.44.27
+        by smtp.gmail.com with ESMTPSA id t23sm5457101pjs.16.2021.09.12.23.44.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Sun, 12 Sep 2021 23:44:27 -0700 (PDT)
-Message-ID: <613ef34b.1c69fb81.5d386.fc45@mx.google.com>
+Message-ID: <613ef34b.1c69fb81.d3188.f4e1@mx.google.com>
 Date:   Sun, 12 Sep 2021 23:44:27 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.14.246-25-g9e3604a94b93
+X-Kernelci-Kernel: v4.19.206-106-gd5a3197936bf
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 build: 193 builds: 0 failed, 193 passed,
- 5 warnings (v4.14.246-25-g9e3604a94b93)
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 build: 192 builds: 0 failed, 192 passed,
+ 4 warnings (v4.19.206-106-gd5a3197936bf)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,16 +65,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 build: 193 builds: 0 failed, 193 passed, 5 warnings (v=
-4.14.246-25-g9e3604a94b93)
+stable-rc/queue/4.19 build: 192 builds: 0 failed, 192 passed, 4 warnings (v=
+4.19.206-106-gd5a3197936bf)
 
 Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-4/kernel/v4.14.246-25-g9e3604a94b93/
+9/kernel/v4.19.206-106-gd5a3197936bf/
 
 Tree: stable-rc
-Branch: queue/4.14
-Git Describe: v4.14.246-25-g9e3604a94b93
-Git Commit: 9e3604a94b93041b5c0175f9e9b76ba5050cf228
+Branch: queue/4.19
+Git Describe: v4.19.206-106-gd5a3197936bf
+Git Commit: d5a3197936bf72d8bc5fb7c9383cbdbdcdda2531
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -90,21 +90,20 @@ arm:
 i386:
 
 mips:
+    lemote2f_defconfig (gcc-8): 1 warning
+    loongson3_defconfig (gcc-8): 1 warning
     malta_qemu_32r6_defconfig (gcc-8): 1 warning
+    nlm_xlp_defconfig (gcc-8): 1 warning
 
 x86_64:
-    allnoconfig (gcc-8): 1 warning
-    tinyconfig (gcc-8): 1 warning
-    x86_64_defconfig (gcc-8): 1 warning
-    x86_64_defconfig+x86-chromebook (gcc-8): 1 warning
 
 
 Warnings summary:
 
-    4    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
-' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
-    1    {standard input}:29: Warning: macro instruction expanded into mult=
-iple instructions
+    4    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes=
+ is larger than 1024 bytes [-Wframe-larger-than=3D]
+    2    {standard input}:131: Warning: macro instruction expanded into mul=
+tiple instructions
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -130,12 +129,8 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -144,13 +139,8 @@ ismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -374,6 +364,11 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
 gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
@@ -509,8 +504,12 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -524,8 +523,12 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -578,8 +581,8 @@ malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
 , 0 section mismatches
 
 Warnings:
-    {standard input}:29: Warning: macro instruction expanded into multiple =
-instructions
+    {standard input}:131: Warning: macro instruction expanded into multiple=
+ instructions
 
 ---------------------------------------------------------------------------=
 -----
@@ -703,8 +706,12 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
 
 ---------------------------------------------------------------------------=
 -----
@@ -765,6 +772,11 @@ tion mismatches
 -----
 orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -988,17 +1000,8 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1037,6 +1040,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
@@ -1057,31 +1065,18 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig+x86-chromebook (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1=
- warning, 0 section mismatches
-
-Warnings:
-    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
-fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+x86_64_defconfig+x86-chromebook (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0=
+ warnings, 0 section mismatches
 
 ---------------------------------------------------------------------------=
 -----
 xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
  mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
