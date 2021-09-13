@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B4A2408F32
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 153B9408CB0
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:20:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242520AbhIMNkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:40:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37818 "EHLO mail.kernel.org"
+        id S238630AbhIMNVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243167AbhIMNiW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:38:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AB6661263;
-        Mon, 13 Sep 2021 13:28:30 +0000 (UTC)
+        id S239614AbhIMNUe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:20:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2EB2610A3;
+        Mon, 13 Sep 2021 13:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539711;
-        bh=27IrT8vsW4e8GkIYRRNTNr2+Lx8YE0AXCSgSjVcfQLQ=;
+        s=korg; t=1631539139;
+        bh=PKMhz0ebKCsIG/+kx1GjqvcY4PBBlBtlCPpFstCHtSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJdGbDK3hfVJ5vgL+Cb2RLdooyhDRDbNqNJUDs6sgq9ZKtWLSX5YFH7bZZlzCSiS+
-         lk+8aS1QPe8sgMQkUBzEc4q4d2NdbuvioOyzUAVnXsLeDb47DDSQxMwqS3LPAGJ1eu
-         A4CUc/VrZT2XiUlK1bwNyaRV9oC5mNd9Q8KvPn9o=
+        b=Ds8gj8FegKb33PpljeFQcFbEaOYL3p+3xcnJigBI71TRddYtfU9qAvMJggEJ/SzLr
+         tbgljFWlEYZ009tO7Jmvq26cQIatrFMOcFo8XnuTOiSK2f6hvg5YhzGaQUSp3X8IO3
+         zaTuKBN3lw9ufXcSLxfWQZmfIdjn8YNlR7K86UdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        =?UTF-8?q?M=C3=A1rio=20Lopes?= <ml@simonwunderlich.de>,
-        Sven Eckelmann <sven@narfation.org>,
+        stable@vger.kernel.org, Rajendra Nayak <rnayak@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 129/236] debugfs: Return error during {full/open}_proxy_open() on rmmod
-Date:   Mon, 13 Sep 2021 15:13:54 +0200
-Message-Id: <20210913131104.753295134@linuxfoundation.org>
+Subject: [PATCH 5.4 054/144] soc: qcom: rpmhpd: Use corner in power_off
+Date:   Mon, 13 Sep 2021 15:13:55 +0200
+Message-Id: <20210913131049.746780199@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,58 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 112cedc8e600b668688eb809bf11817adec58ddc ]
+[ Upstream commit d43b3a989bc8c06fd4bbb69a7500d180db2d68e8 ]
 
-If a kernel module gets unloaded then it printed report about a leak before
-commit 275678e7a9be ("debugfs: Check module state before warning in
-{full/open}_proxy_open()"). An additional check was added in this commit to
-avoid this printing. But it was forgotten that the function must return an
-error in this case because it was not actually opened.
+rpmhpd_aggregate_corner() takes a corner as parameter, but in
+rpmhpd_power_off() the code requests the level of the first corner
+instead.
 
-As result, the systems started to crash or to hang when a module was
-unloaded while something was trying to open a file.
+In all (known) current cases the first corner has level 0, so this
+change should be a nop, but in case that there's a power domain with a
+non-zero lowest level this makes sure that rpmhpd_power_off() actually
+requests the lowest level - which is the closest to "power off" we can
+get.
 
-Fixes: 275678e7a9be ("debugfs: Check module state before warning in {full/open}_proxy_open()")
-Cc: Taehee Yoo <ap420073@gmail.com>
-Reported-by: Mário Lopes <ml@simonwunderlich.de>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Link: https://lore.kernel.org/r/20210802162444.7848-1-sven@narfation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+While touching the code, also skip the unnecessary zero-initialization
+of "ret".
+
+Fixes: 279b7e8a62cc ("soc: qcom: rpmhpd: Add RPMh power domain driver")
+Reviewed-by: Rajendra Nayak <rnayak@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Sibi Sankar <sibis@codeaurora.org>
+Tested-by: Sibi Sankar <sibis@codeaurora.org>
+Link: https://lore.kernel.org/r/20210703005416.2668319-2-bjorn.andersson@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/debugfs/file.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/soc/qcom/rpmhpd.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
-index 686e0ad28788..3aa5eb9ce498 100644
---- a/fs/debugfs/file.c
-+++ b/fs/debugfs/file.c
-@@ -179,8 +179,10 @@ static int open_proxy_open(struct inode *inode, struct file *filp)
- 	if (!fops_get(real_fops)) {
- #ifdef CONFIG_MODULES
- 		if (real_fops->owner &&
--		    real_fops->owner->state == MODULE_STATE_GOING)
-+		    real_fops->owner->state == MODULE_STATE_GOING) {
-+			r = -ENXIO;
- 			goto out;
-+		}
- #endif
+diff --git a/drivers/soc/qcom/rpmhpd.c b/drivers/soc/qcom/rpmhpd.c
+index 51850cc68b70..aa24237a7840 100644
+--- a/drivers/soc/qcom/rpmhpd.c
++++ b/drivers/soc/qcom/rpmhpd.c
+@@ -235,12 +235,11 @@ static int rpmhpd_power_on(struct generic_pm_domain *domain)
+ static int rpmhpd_power_off(struct generic_pm_domain *domain)
+ {
+ 	struct rpmhpd *pd = domain_to_rpmhpd(domain);
+-	int ret = 0;
++	int ret;
  
- 		/* Huh? Module did not clean up after itself at exit? */
-@@ -314,8 +316,10 @@ static int full_proxy_open(struct inode *inode, struct file *filp)
- 	if (!fops_get(real_fops)) {
- #ifdef CONFIG_MODULES
- 		if (real_fops->owner &&
--		    real_fops->owner->state == MODULE_STATE_GOING)
-+		    real_fops->owner->state == MODULE_STATE_GOING) {
-+			r = -ENXIO;
- 			goto out;
-+		}
- #endif
+ 	mutex_lock(&rpmhpd_lock);
  
- 		/* Huh? Module did not cleanup after itself at exit? */
+-	ret = rpmhpd_aggregate_corner(pd, pd->level[0]);
+-
++	ret = rpmhpd_aggregate_corner(pd, 0);
+ 	if (!ret)
+ 		pd->enabled = false;
+ 
 -- 
 2.30.2
 
