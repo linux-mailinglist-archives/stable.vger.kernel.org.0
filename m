@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C5D408D1B
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:22:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF694408F07
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238064AbhIMNXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:23:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35312 "EHLO mail.kernel.org"
+        id S242404AbhIMNjG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:39:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240230AbhIMNUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:20:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3748061165;
-        Mon, 13 Sep 2021 13:18:23 +0000 (UTC)
+        id S242587AbhIMNhE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:37:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C082613B5;
+        Mon, 13 Sep 2021 13:28:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539104;
-        bh=eG1rJS6uOFVEJCJS1KzwNDy/+TJGHwvXdpa98VSkd4s=;
+        s=korg; t=1631539684;
+        bh=8ZFq0P4uSnbs5pO61q0/HA9FfOLY+VQJhwTIpNcgcyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8cSNmct3tt1hslyL+deqM1vhinunTsJ3xkaf5uZMcYr7/rtaBA1jorTCAtXwPsGa
-         bxeVdIAun8dvJZmdxZJJmKpOLXZHrOuL6Vb5k3k1XMpXcAExpbXlQ9QWFoewL0g+9M
-         yPQE+yB6NVnu7/UZ6LIkquFORkZOVNSPtbS3ICpY=
+        b=ZIooDe4kc4zebaJyKGlC/fzhLnKmLOzuEy1QNCP0fyqne6/Q7EOlqqDGEudLUkcUu
+         2vuXK2ifybAiQF9vCCzxfQoBI6x6Q07R8SIjNTcjQiIMHfea1cWK/OFBPMThYrjIZ+
+         mLS5DvnAnkkfx29cgBVp3bkXF9OeD5DLRsbJWyCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/144] regulator: vctrl: Avoid lockdep warning in enable/disable ops
-Date:   Mon, 13 Sep 2021 15:13:43 +0200
-Message-Id: <20210913131049.351066211@linuxfoundation.org>
+Subject: [PATCH 5.10 119/236] net/mlx5: Fix missing return value in mlx5_devlink_eswitch_inline_mode_set()
+Date:   Mon, 13 Sep 2021 15:13:44 +0200
+Message-Id: <20210913131104.405640066@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,414 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit 21e39809fd7c4b8ff3662f23e0168e87594c8ca8 ]
+[ Upstream commit bcd68c04c7692416206414dc8971730aa140eba7 ]
 
-vctrl_enable() and vctrl_disable() call regulator_enable() and
-regulator_disable(), respectively. However, vctrl_* are regulator ops
-and should not be calling the locked regulator APIs. Doing so results in
-a lockdep warning.
+The return value is missing in this code scenario, add the return value
+'0' to the return value 'err'.
 
-Instead of exporting more internal regulator ops, model the ctrl supply
-as an actual supply to vctrl-regulator. At probe time this driver still
-needs to use the consumer API to fetch its constraints, but otherwise
-lets the regulator core handle the upstream supply for it.
+Eliminate the follow smatch warning:
 
-The enable/disable/is_enabled ops are not removed, but now only track
-state internally. This preserves the original behavior with the ops
-being available, but one could argue that the original behavior was
-already incorrect: the internal state would not match the upstream
-supply if that supply had another consumer that enabled the supply,
-while vctrl-regulator was not enabled.
+drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c:3083
+mlx5_devlink_eswitch_inline_mode_set() warn: missing error code 'err'.
 
-The lockdep warning is as follows:
-
-	WARNING: possible circular locking dependency detected
-	5.14.0-rc6 #2 Not tainted
-	------------------------------------------------------
-	swapper/0/1 is trying to acquire lock:
-	ffffffc011306d00 (regulator_list_mutex){+.+.}-{3:3}, at:
-		regulator_lock_dependent (arch/arm64/include/asm/current.h:19
-					  include/linux/ww_mutex.h:111
-					  drivers/regulator/core.c:329)
-
-	but task is already holding lock:
-	ffffff8004a77160 (regulator_ww_class_mutex){+.+.}-{3:3}, at:
-		regulator_lock_recursive (drivers/regulator/core.c:156
-					  drivers/regulator/core.c:263)
-
-	which lock already depends on the new lock.
-
-	the existing dependency chain (in reverse order) is:
-
-	-> #2 (regulator_ww_class_mutex){+.+.}-{3:3}:
-	__mutex_lock_common (include/asm-generic/atomic-instrumented.h:606
-			     include/asm-generic/atomic-long.h:29
-			     kernel/locking/mutex.c:103
-			     kernel/locking/mutex.c:144
-			     kernel/locking/mutex.c:963)
-	ww_mutex_lock (kernel/locking/mutex.c:1199)
-	regulator_lock_recursive (drivers/regulator/core.c:156
-				  drivers/regulator/core.c:263)
-	regulator_lock_dependent (drivers/regulator/core.c:343)
-	regulator_enable (drivers/regulator/core.c:2808)
-	set_machine_constraints (drivers/regulator/core.c:1536)
-	regulator_register (drivers/regulator/core.c:5486)
-	devm_regulator_register (drivers/regulator/devres.c:196)
-	reg_fixed_voltage_probe (drivers/regulator/fixed.c:289)
-	platform_probe (drivers/base/platform.c:1427)
-	[...]
-
-	-> #1 (regulator_ww_class_acquire){+.+.}-{0:0}:
-	regulator_lock_dependent (include/linux/ww_mutex.h:129
-				  drivers/regulator/core.c:329)
-	regulator_enable (drivers/regulator/core.c:2808)
-	set_machine_constraints (drivers/regulator/core.c:1536)
-	regulator_register (drivers/regulator/core.c:5486)
-	devm_regulator_register (drivers/regulator/devres.c:196)
-	reg_fixed_voltage_probe (drivers/regulator/fixed.c:289)
-	[...]
-
-	-> #0 (regulator_list_mutex){+.+.}-{3:3}:
-	__lock_acquire (kernel/locking/lockdep.c:3052 (discriminator 4)
-			kernel/locking/lockdep.c:3174 (discriminator 4)
-			kernel/locking/lockdep.c:3789 (discriminator 4)
-			kernel/locking/lockdep.c:5015 (discriminator 4))
-	lock_acquire (arch/arm64/include/asm/percpu.h:39
-		      kernel/locking/lockdep.c:438
-		      kernel/locking/lockdep.c:5627)
-	__mutex_lock_common (include/asm-generic/atomic-instrumented.h:606
-			     include/asm-generic/atomic-long.h:29
-			     kernel/locking/mutex.c:103
-			     kernel/locking/mutex.c:144
-			     kernel/locking/mutex.c:963)
-	mutex_lock_nested (kernel/locking/mutex.c:1125)
-	regulator_lock_dependent (arch/arm64/include/asm/current.h:19
-				  include/linux/ww_mutex.h:111
-				  drivers/regulator/core.c:329)
-	regulator_enable (drivers/regulator/core.c:2808)
-	vctrl_enable (drivers/regulator/vctrl-regulator.c:400)
-	_regulator_do_enable (drivers/regulator/core.c:2617)
-	_regulator_enable (drivers/regulator/core.c:2764)
-	regulator_enable (drivers/regulator/core.c:308
-			  drivers/regulator/core.c:2809)
-	_set_opp (drivers/opp/core.c:819 drivers/opp/core.c:1072)
-	dev_pm_opp_set_rate (drivers/opp/core.c:1164)
-	set_target (drivers/cpufreq/cpufreq-dt.c:62)
-	__cpufreq_driver_target (drivers/cpufreq/cpufreq.c:2216
-				 drivers/cpufreq/cpufreq.c:2271)
-	cpufreq_online (drivers/cpufreq/cpufreq.c:1488 (discriminator 2))
-	cpufreq_add_dev (drivers/cpufreq/cpufreq.c:1563)
-	subsys_interface_register (drivers/base/bus.c:?)
-	cpufreq_register_driver (drivers/cpufreq/cpufreq.c:2819)
-	dt_cpufreq_probe (drivers/cpufreq/cpufreq-dt.c:344)
-	[...]
-
-	other info that might help us debug this:
-
-	Chain exists of:
-	  regulator_list_mutex --> regulator_ww_class_acquire --> regulator_ww_class_mutex
-
-	 Possible unsafe locking scenario:
-
-	       CPU0                    CPU1
-	       ----                    ----
-	  lock(regulator_ww_class_mutex);
-				       lock(regulator_ww_class_acquire);
-				       lock(regulator_ww_class_mutex);
-	  lock(regulator_list_mutex);
-
-	 *** DEADLOCK ***
-
-	6 locks held by swapper/0/1:
-	#0: ffffff8002d32188 (&dev->mutex){....}-{3:3}, at:
-		__device_driver_lock (drivers/base/dd.c:1030)
-	#1: ffffffc0111a0520 (cpu_hotplug_lock){++++}-{0:0}, at:
-		cpufreq_register_driver (drivers/cpufreq/cpufreq.c:2792 (discriminator 2))
-	#2: ffffff8002a8d918 (subsys mutex#9){+.+.}-{3:3}, at:
-		subsys_interface_register (drivers/base/bus.c:1033)
-	#3: ffffff800341bb90 (&policy->rwsem){+.+.}-{3:3}, at:
-		cpufreq_online (include/linux/bitmap.h:285
-				include/linux/cpumask.h:405
-				drivers/cpufreq/cpufreq.c:1399)
-	#4: ffffffc011f0b7b8 (regulator_ww_class_acquire){+.+.}-{0:0}, at:
-		regulator_enable (drivers/regulator/core.c:2808)
-	#5: ffffff8004a77160 (regulator_ww_class_mutex){+.+.}-{3:3}, at:
-		regulator_lock_recursive (drivers/regulator/core.c:156
-		drivers/regulator/core.c:263)
-
-	stack backtrace:
-	CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.14.0-rc6 #2 7c8f8996d021ed0f65271e6aeebf7999de74a9fa
-	Hardware name: Google Scarlet (DT)
-	Call trace:
-	dump_backtrace (arch/arm64/kernel/stacktrace.c:161)
-	show_stack (arch/arm64/kernel/stacktrace.c:218)
-	dump_stack_lvl (lib/dump_stack.c:106 (discriminator 2))
-	dump_stack (lib/dump_stack.c:113)
-	print_circular_bug (kernel/locking/lockdep.c:?)
-	check_noncircular (kernel/locking/lockdep.c:?)
-	__lock_acquire (kernel/locking/lockdep.c:3052 (discriminator 4)
-			kernel/locking/lockdep.c:3174 (discriminator 4)
-			kernel/locking/lockdep.c:3789 (discriminator 4)
-			kernel/locking/lockdep.c:5015 (discriminator 4))
-	lock_acquire (arch/arm64/include/asm/percpu.h:39
-		      kernel/locking/lockdep.c:438
-		      kernel/locking/lockdep.c:5627)
-	__mutex_lock_common (include/asm-generic/atomic-instrumented.h:606
-			     include/asm-generic/atomic-long.h:29
-			     kernel/locking/mutex.c:103
-			     kernel/locking/mutex.c:144
-			     kernel/locking/mutex.c:963)
-	mutex_lock_nested (kernel/locking/mutex.c:1125)
-	regulator_lock_dependent (arch/arm64/include/asm/current.h:19
-				  include/linux/ww_mutex.h:111
-				  drivers/regulator/core.c:329)
-	regulator_enable (drivers/regulator/core.c:2808)
-	vctrl_enable (drivers/regulator/vctrl-regulator.c:400)
-	_regulator_do_enable (drivers/regulator/core.c:2617)
-	_regulator_enable (drivers/regulator/core.c:2764)
-	regulator_enable (drivers/regulator/core.c:308
-			  drivers/regulator/core.c:2809)
-	_set_opp (drivers/opp/core.c:819 drivers/opp/core.c:1072)
-	dev_pm_opp_set_rate (drivers/opp/core.c:1164)
-	set_target (drivers/cpufreq/cpufreq-dt.c:62)
-	__cpufreq_driver_target (drivers/cpufreq/cpufreq.c:2216
-				 drivers/cpufreq/cpufreq.c:2271)
-	cpufreq_online (drivers/cpufreq/cpufreq.c:1488 (discriminator 2))
-	cpufreq_add_dev (drivers/cpufreq/cpufreq.c:1563)
-	subsys_interface_register (drivers/base/bus.c:?)
-	cpufreq_register_driver (drivers/cpufreq/cpufreq.c:2819)
-	dt_cpufreq_probe (drivers/cpufreq/cpufreq-dt.c:344)
-	[...]
-
-Reported-by: Brian Norris <briannorris@chromium.org>
-Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
-Fixes: e9153311491d ("regulator: vctrl-regulator: Avoid deadlock getting and setting the voltage")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Link: https://lore.kernel.org/r/20210825033704.3307263-3-wenst@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Fixes: 8e0aa4bc959c ("net/mlx5: E-switch, Protect eswitch mode changes")
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/vctrl-regulator.c | 72 +++++++++++++++++------------
- 1 file changed, 42 insertions(+), 30 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/vctrl-regulator.c b/drivers/regulator/vctrl-regulator.c
-index 93d33201ffe0..d2a37978fc3a 100644
---- a/drivers/regulator/vctrl-regulator.c
-+++ b/drivers/regulator/vctrl-regulator.c
-@@ -37,7 +37,6 @@ struct vctrl_voltage_table {
- struct vctrl_data {
- 	struct regulator_dev *rdev;
- 	struct regulator_desc desc;
--	struct regulator *ctrl_reg;
- 	bool enabled;
- 	unsigned int min_slew_down_rate;
- 	unsigned int ovp_threshold;
-@@ -82,7 +81,12 @@ static int vctrl_calc_output_voltage(struct vctrl_data *vctrl, int ctrl_uV)
- static int vctrl_get_voltage(struct regulator_dev *rdev)
- {
- 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
--	int ctrl_uV = regulator_get_voltage_rdev(vctrl->ctrl_reg->rdev);
-+	int ctrl_uV;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index c9c2962ad49f..5801f55ff077 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -2564,8 +2564,11 @@ int mlx5_devlink_eswitch_inline_mode_set(struct devlink *devlink, u8 mode,
+ 
+ 	switch (MLX5_CAP_ETH(dev, wqe_inline_mode)) {
+ 	case MLX5_CAP_INLINE_MODE_NOT_REQUIRED:
+-		if (mode == DEVLINK_ESWITCH_INLINE_MODE_NONE)
++		if (mode == DEVLINK_ESWITCH_INLINE_MODE_NONE) {
++			err = 0;
+ 			goto out;
++		}
 +
-+	if (!rdev->supply)
-+		return -EPROBE_DEFER;
-+
-+	ctrl_uV = regulator_get_voltage_rdev(rdev->supply->rdev);
- 
- 	return vctrl_calc_output_voltage(vctrl, ctrl_uV);
- }
-@@ -92,14 +96,19 @@ static int vctrl_set_voltage(struct regulator_dev *rdev,
- 			     unsigned int *selector)
- {
- 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
--	struct regulator *ctrl_reg = vctrl->ctrl_reg;
--	int orig_ctrl_uV = regulator_get_voltage_rdev(ctrl_reg->rdev);
--	int uV = vctrl_calc_output_voltage(vctrl, orig_ctrl_uV);
-+	int orig_ctrl_uV;
-+	int uV;
- 	int ret;
- 
-+	if (!rdev->supply)
-+		return -EPROBE_DEFER;
-+
-+	orig_ctrl_uV = regulator_get_voltage_rdev(rdev->supply->rdev);
-+	uV = vctrl_calc_output_voltage(vctrl, orig_ctrl_uV);
-+
- 	if (req_min_uV >= uV || !vctrl->ovp_threshold)
- 		/* voltage rising or no OVP */
--		return regulator_set_voltage_rdev(ctrl_reg->rdev,
-+		return regulator_set_voltage_rdev(rdev->supply->rdev,
- 			vctrl_calc_ctrl_voltage(vctrl, req_min_uV),
- 			vctrl_calc_ctrl_voltage(vctrl, req_max_uV),
- 			PM_SUSPEND_ON);
-@@ -117,7 +126,7 @@ static int vctrl_set_voltage(struct regulator_dev *rdev,
- 		next_uV = max_t(int, req_min_uV, uV - max_drop_uV);
- 		next_ctrl_uV = vctrl_calc_ctrl_voltage(vctrl, next_uV);
- 
--		ret = regulator_set_voltage_rdev(ctrl_reg->rdev,
-+		ret = regulator_set_voltage_rdev(rdev->supply->rdev,
- 					    next_ctrl_uV,
- 					    next_ctrl_uV,
- 					    PM_SUSPEND_ON);
-@@ -134,7 +143,7 @@ static int vctrl_set_voltage(struct regulator_dev *rdev,
- 
- err:
- 	/* Try to go back to original voltage */
--	regulator_set_voltage_rdev(ctrl_reg->rdev, orig_ctrl_uV, orig_ctrl_uV,
-+	regulator_set_voltage_rdev(rdev->supply->rdev, orig_ctrl_uV, orig_ctrl_uV,
- 				   PM_SUSPEND_ON);
- 
- 	return ret;
-@@ -151,16 +160,18 @@ static int vctrl_set_voltage_sel(struct regulator_dev *rdev,
- 				 unsigned int selector)
- {
- 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
--	struct regulator *ctrl_reg = vctrl->ctrl_reg;
- 	unsigned int orig_sel = vctrl->sel;
- 	int ret;
- 
-+	if (!rdev->supply)
-+		return -EPROBE_DEFER;
-+
- 	if (selector >= rdev->desc->n_voltages)
- 		return -EINVAL;
- 
- 	if (selector >= vctrl->sel || !vctrl->ovp_threshold) {
- 		/* voltage rising or no OVP */
--		ret = regulator_set_voltage_rdev(ctrl_reg->rdev,
-+		ret = regulator_set_voltage_rdev(rdev->supply->rdev,
- 					    vctrl->vtable[selector].ctrl,
- 					    vctrl->vtable[selector].ctrl,
- 					    PM_SUSPEND_ON);
-@@ -179,7 +190,7 @@ static int vctrl_set_voltage_sel(struct regulator_dev *rdev,
- 		else
- 			next_sel = vctrl->vtable[vctrl->sel].ovp_min_sel;
- 
--		ret = regulator_set_voltage_rdev(ctrl_reg->rdev,
-+		ret = regulator_set_voltage_rdev(rdev->supply->rdev,
- 					    vctrl->vtable[next_sel].ctrl,
- 					    vctrl->vtable[next_sel].ctrl,
- 					    PM_SUSPEND_ON);
-@@ -202,7 +213,7 @@ static int vctrl_set_voltage_sel(struct regulator_dev *rdev,
- err:
- 	if (vctrl->sel != orig_sel) {
- 		/* Try to go back to original voltage */
--		if (!regulator_set_voltage_rdev(ctrl_reg->rdev,
-+		if (!regulator_set_voltage_rdev(rdev->supply->rdev,
- 					   vctrl->vtable[orig_sel].ctrl,
- 					   vctrl->vtable[orig_sel].ctrl,
- 					   PM_SUSPEND_ON))
-@@ -234,10 +245,6 @@ static int vctrl_parse_dt(struct platform_device *pdev,
- 	u32 pval;
- 	u32 vrange_ctrl[2];
- 
--	vctrl->ctrl_reg = devm_regulator_get(&pdev->dev, "ctrl");
--	if (IS_ERR(vctrl->ctrl_reg))
--		return PTR_ERR(vctrl->ctrl_reg);
--
- 	ret = of_property_read_u32(np, "ovp-threshold-percent", &pval);
- 	if (!ret) {
- 		vctrl->ovp_threshold = pval;
-@@ -315,11 +322,11 @@ static int vctrl_cmp_ctrl_uV(const void *a, const void *b)
- 	return at->ctrl - bt->ctrl;
- }
- 
--static int vctrl_init_vtable(struct platform_device *pdev)
-+static int vctrl_init_vtable(struct platform_device *pdev,
-+			     struct regulator *ctrl_reg)
- {
- 	struct vctrl_data *vctrl = platform_get_drvdata(pdev);
- 	struct regulator_desc *rdesc = &vctrl->desc;
--	struct regulator *ctrl_reg = vctrl->ctrl_reg;
- 	struct vctrl_voltage_range *vrange_ctrl = &vctrl->vrange.ctrl;
- 	int n_voltages;
- 	int ctrl_uV;
-@@ -395,23 +402,19 @@ static int vctrl_init_vtable(struct platform_device *pdev)
- static int vctrl_enable(struct regulator_dev *rdev)
- {
- 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
--	int ret = regulator_enable(vctrl->ctrl_reg);
- 
--	if (!ret)
--		vctrl->enabled = true;
-+	vctrl->enabled = true;
- 
--	return ret;
-+	return 0;
- }
- 
- static int vctrl_disable(struct regulator_dev *rdev)
- {
- 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
--	int ret = regulator_disable(vctrl->ctrl_reg);
- 
--	if (!ret)
--		vctrl->enabled = false;
-+	vctrl->enabled = false;
- 
--	return ret;
-+	return 0;
- }
- 
- static int vctrl_is_enabled(struct regulator_dev *rdev)
-@@ -447,6 +450,7 @@ static int vctrl_probe(struct platform_device *pdev)
- 	struct regulator_desc *rdesc;
- 	struct regulator_config cfg = { };
- 	struct vctrl_voltage_range *vrange_ctrl;
-+	struct regulator *ctrl_reg;
- 	int ctrl_uV;
- 	int ret;
- 
-@@ -461,15 +465,20 @@ static int vctrl_probe(struct platform_device *pdev)
- 	if (ret)
- 		return ret;
- 
-+	ctrl_reg = devm_regulator_get(&pdev->dev, "ctrl");
-+	if (IS_ERR(ctrl_reg))
-+		return PTR_ERR(ctrl_reg);
-+
- 	vrange_ctrl = &vctrl->vrange.ctrl;
- 
- 	rdesc = &vctrl->desc;
- 	rdesc->name = "vctrl";
- 	rdesc->type = REGULATOR_VOLTAGE;
- 	rdesc->owner = THIS_MODULE;
-+	rdesc->supply_name = "ctrl";
- 
--	if ((regulator_get_linear_step(vctrl->ctrl_reg) == 1) ||
--	    (regulator_count_voltages(vctrl->ctrl_reg) == -EINVAL)) {
-+	if ((regulator_get_linear_step(ctrl_reg) == 1) ||
-+	    (regulator_count_voltages(ctrl_reg) == -EINVAL)) {
- 		rdesc->continuous_voltage_range = true;
- 		rdesc->ops = &vctrl_ops_cont;
- 	} else {
-@@ -486,12 +495,12 @@ static int vctrl_probe(struct platform_device *pdev)
- 	cfg.init_data = init_data;
- 
- 	if (!rdesc->continuous_voltage_range) {
--		ret = vctrl_init_vtable(pdev);
-+		ret = vctrl_init_vtable(pdev, ctrl_reg);
- 		if (ret)
- 			return ret;
- 
- 		/* Use locked consumer API when not in regulator framework */
--		ctrl_uV = regulator_get_voltage(vctrl->ctrl_reg);
-+		ctrl_uV = regulator_get_voltage(ctrl_reg);
- 		if (ctrl_uV < 0) {
- 			dev_err(&pdev->dev, "failed to get control voltage\n");
- 			return ctrl_uV;
-@@ -514,6 +523,9 @@ static int vctrl_probe(struct platform_device *pdev)
- 		}
- 	}
- 
-+	/* Drop ctrl-supply here in favor of regulator core managed supply */
-+	devm_regulator_put(ctrl_reg);
-+
- 	vctrl->rdev = devm_regulator_register(&pdev->dev, rdesc, &cfg);
- 	if (IS_ERR(vctrl->rdev)) {
- 		ret = PTR_ERR(vctrl->rdev);
+ 		fallthrough;
+ 	case MLX5_CAP_INLINE_MODE_L2:
+ 		NL_SET_ERR_MSG_MOD(extack, "Inline mode can't be set");
 -- 
 2.30.2
 
