@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F6CA4093F0
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C0874093F2
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:26:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241846AbhIMO0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:26:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42230 "EHLO mail.kernel.org"
+        id S1344407AbhIMO0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:26:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344695AbhIMOXW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344686AbhIMOXW (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:23:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DFBE61B41;
-        Mon, 13 Sep 2021 13:47:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74FED61B3F;
+        Mon, 13 Sep 2021 13:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540877;
-        bh=uPKHFJqu3rTSPQzxnPEi0qkx4KPNse7MlsqU42wUxWk=;
+        s=korg; t=1631540879;
+        bh=MCmmZzKIb1SVr3uB1RR1VG1U5yuv75ou2xI1Lo7vArQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SEYGVo3yBj7/BpQP6m5VLXhJZA2OoLOUmoAMKKDK9vBz6E0pt27HYL3DH7QKCGpA7
-         r9KYwZubDNOYfZ1MzII/MPUzwYau3akNdE/6gF58QFKLy4mS3YcTDAR6ViZ94Pd2sG
-         7VJgv1mY25i1ZJAHyN1xC1Qc9fV/ak9oe2TL/yKs=
+        b=cE0ygdT18WuXXjtGVYAJvq5a8StuUhy8ygArg47zpTrwT1A/ih4Xz7fKAb4JdhBw7
+         tj8F81WhcR9FijBxaLXDTYlutRFH0kJA9PSEf1txegk8r1/lduLJVM03Mo19I8OByR
+         bdlqrIqUF+eMF0apVQW2fA5aE1ljlKwUkTVAGqJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        David Woodhouse <dwmw2@infradead.org>,
+        stable@vger.kernel.org, Nayna Jain <nayna@linux.ibm.com>,
+        George Wilson <gcwilson@linux.ibm.com>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
         Stefan Berger <stefanb@linux.ibm.com>,
         Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 072/334] certs: Trigger creation of RSA module signing key if its not an RSA key
-Date:   Mon, 13 Sep 2021 15:12:06 +0200
-Message-Id: <20210913131115.835591507@linuxfoundation.org>
+Subject: [PATCH 5.14 073/334] tpm: ibmvtpm: Avoid error message when process gets signal while waiting
+Date:   Mon, 13 Sep 2021 15:12:07 +0200
+Message-Id: <20210913131115.866857777@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -44,51 +45,147 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stefan Berger <stefanb@linux.ibm.com>
 
-[ Upstream commit ea35e0d5df6c92fa2e124bb1b91d09b2240715ba ]
+[ Upstream commit 047d4226b0bca1cda5267dc68bc8291cce5364ac ]
 
-Address a kbuild issue where a developer created an ECDSA key for signing
-kernel modules and then builds an older version of the kernel, when bi-
-secting the kernel for example, that does not support ECDSA keys.
+When rngd is run as root then lots of these types of message will appear
+in the kernel log if the TPM has been configured to provide random bytes:
 
-If openssl is installed, trigger the creation of an RSA module signing
-key if it is not an RSA key.
+[ 7406.275163] tpm tpm0: tpm_transmit: tpm_recv: error -4
 
-Fixes: cfc411e7fff3 ("Move certificate handling to its own directory")
-Cc: David Howells <dhowells@redhat.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
+The issue is caused by the following call that is interrupted while
+waiting for the TPM's response.
+
+sig = wait_event_interruptible(ibmvtpm->wq, !ibmvtpm->tpm_processing_cmd);
+
+Rather than waiting for the response in the low level driver, have it use
+the polling loop in tpm_try_transmit() that uses a command's duration to
+poll until a result has been returned by the TPM, thus ending when the
+timeout has occurred but not responding to signals and ctrl-c anymore. To
+stay in this polling loop extend tpm_ibmvtpm_status() to return
+'true' for as long as the vTPM is indicated as being busy in
+tpm_processing_cmd. Since the loop requires the TPM's timeouts, get them
+now using tpm_get_timeouts() after setting the TPM2 version flag on the
+chip.
+
+To recreat the resolved issue start rngd like this:
+
+sudo rngd -r /dev/hwrng -t
+sudo rngd -r /dev/tpm0 -t
+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1981473
+Fixes: 6674ff145eef ("tpm_ibmvtpm: properly handle interrupted packet receptions")
+Cc: Nayna Jain <nayna@linux.ibm.com>
+Cc: George Wilson <gcwilson@linux.ibm.com>
+Reported-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
 Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
 Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- certs/Makefile | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/char/tpm/tpm_ibmvtpm.c | 26 +++++++++++++++-----------
+ drivers/char/tpm/tpm_ibmvtpm.h |  2 +-
+ 2 files changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/certs/Makefile b/certs/Makefile
-index 359239a0ee9e..f9344e52ecda 100644
---- a/certs/Makefile
-+++ b/certs/Makefile
-@@ -57,11 +57,19 @@ endif
- redirect_openssl	= 2>&1
- quiet_redirect_openssl	= 2>&1
- silent_redirect_openssl = 2>/dev/null
-+openssl_available       = $(shell openssl help 2>/dev/null && echo yes)
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
+index 903604769de9..3af4c07a9342 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.c
++++ b/drivers/char/tpm/tpm_ibmvtpm.c
+@@ -106,17 +106,12 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
+ {
+ 	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
+ 	u16 len;
+-	int sig;
  
- # We do it this way rather than having a boolean option for enabling an
- # external private key, because 'make randconfig' might enable such a
- # boolean option and we unfortunately can't make it depend on !RANDCONFIG.
- ifeq ($(CONFIG_MODULE_SIG_KEY),"certs/signing_key.pem")
+ 	if (!ibmvtpm->rtce_buf) {
+ 		dev_err(ibmvtpm->dev, "ibmvtpm device is not ready\n");
+ 		return 0;
+ 	}
+ 
+-	sig = wait_event_interruptible(ibmvtpm->wq, !ibmvtpm->tpm_processing_cmd);
+-	if (sig)
+-		return -EINTR;
+-
+ 	len = ibmvtpm->res_len;
+ 
+ 	if (count < len) {
+@@ -237,7 +232,7 @@ static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
+ 	 * set the processing flag before the Hcall, since we may get the
+ 	 * result (interrupt) before even being able to check rc.
+ 	 */
+-	ibmvtpm->tpm_processing_cmd = true;
++	ibmvtpm->tpm_processing_cmd = 1;
+ 
+ again:
+ 	rc = ibmvtpm_send_crq(ibmvtpm->vdev,
+@@ -255,7 +250,7 @@ again:
+ 			goto again;
+ 		}
+ 		dev_err(ibmvtpm->dev, "tpm_ibmvtpm_send failed rc=%d\n", rc);
+-		ibmvtpm->tpm_processing_cmd = false;
++		ibmvtpm->tpm_processing_cmd = 0;
+ 	}
+ 
+ 	spin_unlock(&ibmvtpm->rtce_lock);
+@@ -269,7 +264,9 @@ static void tpm_ibmvtpm_cancel(struct tpm_chip *chip)
+ 
+ static u8 tpm_ibmvtpm_status(struct tpm_chip *chip)
+ {
+-	return 0;
++	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
 +
-+ifeq ($(openssl_available),yes)
-+X509TEXT=$(shell openssl x509 -in "certs/signing_key.pem" -text 2>/dev/null)
++	return ibmvtpm->tpm_processing_cmd;
+ }
+ 
+ /**
+@@ -457,7 +454,7 @@ static const struct tpm_class_ops tpm_ibmvtpm = {
+ 	.send = tpm_ibmvtpm_send,
+ 	.cancel = tpm_ibmvtpm_cancel,
+ 	.status = tpm_ibmvtpm_status,
+-	.req_complete_mask = 0,
++	.req_complete_mask = 1,
+ 	.req_complete_val = 0,
+ 	.req_canceled = tpm_ibmvtpm_req_canceled,
+ };
+@@ -550,7 +547,7 @@ static void ibmvtpm_crq_process(struct ibmvtpm_crq *crq,
+ 		case VTPM_TPM_COMMAND_RES:
+ 			/* len of the data in rtce buffer */
+ 			ibmvtpm->res_len = be16_to_cpu(crq->len);
+-			ibmvtpm->tpm_processing_cmd = false;
++			ibmvtpm->tpm_processing_cmd = 0;
+ 			wake_up_interruptible(&ibmvtpm->wq);
+ 			return;
+ 		default:
+@@ -688,8 +685,15 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
+ 		goto init_irq_cleanup;
+ 	}
+ 
+-	if (!strcmp(id->compat, "IBM,vtpm20")) {
 +
-+$(if $(findstring rsaEncryption,$(X509TEXT)),,$(shell rm -f "certs/signing_key.pem"))
-+endif
++	if (!strcmp(id->compat, "IBM,vtpm20"))
+ 		chip->flags |= TPM_CHIP_FLAG_TPM2;
 +
- $(obj)/signing_key.pem: $(obj)/x509.genkey
- 	@$(kecho) "###"
- 	@$(kecho) "### Now generating an X.509 key pair to be used for signing modules."
++	rc = tpm_get_timeouts(chip);
++	if (rc)
++		goto init_irq_cleanup;
++
++	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+ 		rc = tpm2_get_cc_attrs_tbl(chip);
+ 		if (rc)
+ 			goto init_irq_cleanup;
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
+index b92aa7d3e93e..51198b137461 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.h
++++ b/drivers/char/tpm/tpm_ibmvtpm.h
+@@ -41,7 +41,7 @@ struct ibmvtpm_dev {
+ 	wait_queue_head_t wq;
+ 	u16 res_len;
+ 	u32 vtpm_version;
+-	bool tpm_processing_cmd;
++	u8 tpm_processing_cmd;
+ };
+ 
+ #define CRQ_RES_BUF_SIZE	PAGE_SIZE
 -- 
 2.30.2
 
