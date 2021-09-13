@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A098C409080
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:52:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CD97409052
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241713AbhIMNxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:53:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56742 "EHLO mail.kernel.org"
+        id S242637AbhIMNvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:51:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243305AbhIMNvd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:51:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44D9361246;
-        Mon, 13 Sep 2021 13:33:59 +0000 (UTC)
+        id S244539AbhIMNte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:49:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA220615E3;
+        Mon, 13 Sep 2021 13:33:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540039;
-        bh=Vi8VJ8Zz3ZITM3PfnCulQbj26EPeL8gM/cM4IdtU9Gs=;
+        s=korg; t=1631540000;
+        bh=DFCKCt68zrCYytvMVBUKstE764z7KYylps4wylWcADI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T6okkQIf83vhj+3u4BzCB5oL21jAMzKWtcYTF14q2hlDSkgD8kx/21hpKBfl9OQuf
-         OpQv9QoD06Czq4SAjslUXG901tmliL/n+Hg736F4AvwVw0ijq6dsvQV8brb13snLxt
-         mBz9THSrYful14zsZTiVjdxkxHCV5DfpU6rh7Mo8=
+        b=Q2/qloFqBSgHRysg7Cmjzf0Z7xGLtHwigr82oydquFL4jRudE6D3wfZkMXbYNcaJY
+         fU1kTvbg49rie2VybpUT8PEpKEfL/PXJQ6Y/mpaFjugy7trtGrDeNFsd7oCgdo63sE
+         4ZXLWVXJbC8TRsrnXH6oJb/D9QnqhF51ZUfBuCu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        "Signed-off-by: Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Smita Koralahalli <Smita.KoralahalliChannabasappa@amd.com>,
+        Yazen Ghannam <yazen.ghannam@amd.com>,
+        Kim Phillips <kim.phillips@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 009/300] rcu/tree: Handle VM stoppage in stall detection
-Date:   Mon, 13 Sep 2021 15:11:10 +0200
-Message-Id: <20210913131109.606942674@linuxfoundation.org>
+Subject: [PATCH 5.13 010/300] EDAC/mce_amd: Do not load edac_mce_amd module on guests
+Date:   Mon, 13 Sep 2021 15:11:11 +0200
+Message-Id: <20210913131109.639210277@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -41,96 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
+From: Smita Koralahalli <Smita.KoralahalliChannabasappa@amd.com>
 
-[ Upstream commit ccfc9dd6914feaa9a81f10f9cce56eb0f7712264 ]
+[ Upstream commit 767f4b620edadac579c9b8b6660761d4285fa6f9 ]
 
-The soft watchdog timer function checks if a virtual machine
-was suspended and hence what looks like a lockup in fact
-is a false positive.
+Hypervisors likely do not expose the SMCA feature to the guest and
+loading this module leads to false warnings. This module should not be
+loaded in guests to begin with, but people tend to do so, especially
+when testing kernels in VMs. And then they complain about those false
+warnings.
 
-This is what kvm_check_and_clear_guest_paused() does: it
-tests guest PVCLOCK_GUEST_STOPPED (which is set by the host)
-and if it's set then we need to touch all watchdogs and bail
-out.
+Do the practical thing and do not load this module when running as a
+guest to avoid all that complaining.
 
-Watchdog timer function runs from IRQ, so PVCLOCK_GUEST_STOPPED
-check works fine.
+ [ bp: Rewrite commit message. ]
 
-There is, however, one more watchdog that runs from IRQ, so
-watchdog timer fn races with it, and that watchdog is not aware
-of PVCLOCK_GUEST_STOPPED - RCU stall detector.
-
-apic_timer_interrupt()
- smp_apic_timer_interrupt()
-  hrtimer_interrupt()
-   __hrtimer_run_queues()
-    tick_sched_timer()
-     tick_sched_handle()
-      update_process_times()
-       rcu_sched_clock_irq()
-
-This triggers RCU stalls on our devices during VM resume.
-
-If tick_sched_handle()->rcu_sched_clock_irq() runs on a VCPU
-before watchdog_timer_fn()->kvm_check_and_clear_guest_paused()
-then there is nothing on this VCPU that touches watchdogs and
-RCU reads stale gp stall timestamp and new jiffies value, which
-makes it think that RCU has stalled.
-
-Make RCU stall watchdog aware of PVCLOCK_GUEST_STOPPED and
-don't report RCU stalls when we resume the VM.
-
-Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Suggested-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Smita Koralahalli <Smita.KoralahalliChannabasappa@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Tested-by: Kim Phillips <kim.phillips@amd.com>
+Link: https://lkml.kernel.org/r/20210628172740.245689-1-Smita.KoralahalliChannabasappa@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_stall.h | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/edac/mce_amd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
-index 59b95cc5cbdf..4aaa4a12e95f 100644
---- a/kernel/rcu/tree_stall.h
-+++ b/kernel/rcu/tree_stall.h
-@@ -7,6 +7,8 @@
-  * Author: Paul E. McKenney <paulmck@linux.ibm.com>
-  */
+diff --git a/drivers/edac/mce_amd.c b/drivers/edac/mce_amd.c
+index 5dd905a3f30c..1a1629166aa3 100644
+--- a/drivers/edac/mce_amd.c
++++ b/drivers/edac/mce_amd.c
+@@ -1176,6 +1176,9 @@ static int __init mce_amd_init(void)
+ 	    c->x86_vendor != X86_VENDOR_HYGON)
+ 		return -ENODEV;
  
-+#include <linux/kvm_para.h>
++	if (cpu_feature_enabled(X86_FEATURE_HYPERVISOR))
++		return -ENODEV;
 +
- //////////////////////////////////////////////////////////////////////////////
- //
- // Controlling CPU stall warnings, including delay calculation.
-@@ -695,6 +697,14 @@ static void check_cpu_stall(struct rcu_data *rdp)
- 	    (READ_ONCE(rnp->qsmask) & rdp->grpmask) &&
- 	    cmpxchg(&rcu_state.jiffies_stall, js, jn) == js) {
- 
-+		/*
-+		 * If a virtual machine is stopped by the host it can look to
-+		 * the watchdog like an RCU stall. Check to see if the host
-+		 * stopped the vm.
-+		 */
-+		if (kvm_check_and_clear_guest_paused())
-+			return;
-+
- 		/* We haven't checked in, so go dump stack. */
- 		print_cpu_stall(gps);
- 		if (READ_ONCE(rcu_cpu_stall_ftrace_dump))
-@@ -704,6 +714,14 @@ static void check_cpu_stall(struct rcu_data *rdp)
- 		   ULONG_CMP_GE(j, js + RCU_STALL_RAT_DELAY) &&
- 		   cmpxchg(&rcu_state.jiffies_stall, js, jn) == js) {
- 
-+		/*
-+		 * If a virtual machine is stopped by the host it can look to
-+		 * the watchdog like an RCU stall. Check to see if the host
-+		 * stopped the vm.
-+		 */
-+		if (kvm_check_and_clear_guest_paused())
-+			return;
-+
- 		/* They had a few time units to dump stack, so complain. */
- 		print_other_cpu_stall(gs2, gps);
- 		if (READ_ONCE(rcu_cpu_stall_ftrace_dump))
+ 	if (boot_cpu_has(X86_FEATURE_SMCA)) {
+ 		xec_mask = 0x3f;
+ 		goto out;
 -- 
 2.30.2
 
