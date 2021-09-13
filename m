@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B05C4092E1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C19140955C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343821AbhIMOQT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:16:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35260 "EHLO mail.kernel.org"
+        id S1345470AbhIMOkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:40:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344262AbhIMOLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:11:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D57561ABE;
-        Mon, 13 Sep 2021 13:42:27 +0000 (UTC)
+        id S1344077AbhIMOjJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:39:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C00061CF1;
+        Mon, 13 Sep 2021 13:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540547;
-        bh=1b4fiQW4iHip8NCQtY7EijYtiIGCgeHDYDcgrGIcoJA=;
+        s=korg; t=1631541309;
+        bh=EZ+CZFoGzSjpPsBwcFI2wgksjl7mixvoksj+VuZfj2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2otH/eLIrZuxRExuzRLEcBErQ64Wwa948ZQd/LTkKSF1RvHELRG5Utydb/WEDVTKU
-         fD5hsW9vMa4OWe0Mr5CnK3d9TFBXg4N0jt2zPTdJFHvRg7+O5Qy322nrbb6LOaTHKl
-         vdUvx2ciDVSwbk4mps9NSarto33VJhbesgH7Cfhs=
+        b=ugSWlbnNQCROy7FGHzdLUGRQMo6F5a0M2MUOgymoB1LulXgpj710kjrTx3ETRwuoP
+         iLo7theYlbX7AqVfnfQFkO/48PLrTg1HyN8mvdEsj6hY0zI4MEvZtkzzwNUMmAZGnn
+         nGZlYGlM/2mihy9OESBoNHeeGKJaZWI6yTk3U/Ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Lukasz Majczak <lma@semihalf.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 239/300] ASoC: wcd9335: Fix a memory leak in the error handling path of the probe function
-Date:   Mon, 13 Sep 2021 15:15:00 +0200
-Message-Id: <20210913131117.429373896@linuxfoundation.org>
+Subject: [PATCH 5.14 247/334] ASoC: Intel: kbl_da7219_max98927: Fix format selection for max98373
+Date:   Mon, 13 Sep 2021 15:15:01 +0200
+Message-Id: <20210913131121.746452184@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +42,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit fc6fc81caa63900cef9ebb8b2e365c3ed5a9effb ]
+[ Upstream commit 6d41bbf2fd3615c56dbf2b67f6cbf9e83d14a2e2 ]
 
-If 'wcd9335_setup_irqs()' fails, me must release the memory allocated in
-'wcd_clsh_ctrl_alloc()', as already done in the remove function.
+Contrary to what is said in board's file, topology targeting
+kbl_da7219_max98373 expects format 16b, not 24/32b. Partially revert
+changes added in 'ASoC: Intel: Boards: Add Maxim98373 support' to bring
+old behavior back, aligning with topology expectations.
 
-Add an error handling path and the missing 'wcd_clsh_ctrl_free()' call.
-
-Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Message-Id: <6dc12372f09fabb70bf05941dbe6a1382dc93e43.1629091028.git.christophe.jaillet@wanadoo.fr>
+Fixes: 716d53cc7837 ("ASoC: Intel: Boards: Add Maxim98373 support")
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Tested-by: Lukasz Majczak <lma@semihalf.com>
+Link: https://lore.kernel.org/r/20210818075742.1515155-2-cezary.rojewski@intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd9335.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ sound/soc/intel/boards/kbl_da7219_max98927.c | 55 +++-----------------
+ 1 file changed, 7 insertions(+), 48 deletions(-)
 
-diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
-index 933f59e4e56f..47fe68edea3a 100644
---- a/sound/soc/codecs/wcd9335.c
-+++ b/sound/soc/codecs/wcd9335.c
-@@ -4844,6 +4844,7 @@ static void wcd9335_codec_init(struct snd_soc_component *component)
- static int wcd9335_codec_probe(struct snd_soc_component *component)
+diff --git a/sound/soc/intel/boards/kbl_da7219_max98927.c b/sound/soc/intel/boards/kbl_da7219_max98927.c
+index a31a7a7bbf66..2b43459adc33 100644
+--- a/sound/soc/intel/boards/kbl_da7219_max98927.c
++++ b/sound/soc/intel/boards/kbl_da7219_max98927.c
+@@ -199,7 +199,7 @@ static int kabylake_ssp0_hw_params(struct snd_pcm_substream *substream,
+ 		}
+ 		if (!strcmp(codec_dai->component->name, MAX98373_DEV0_NAME)) {
+ 			ret = snd_soc_dai_set_tdm_slot(codec_dai,
+-							0x03, 3, 8, 24);
++							0x30, 3, 8, 16);
+ 			if (ret < 0) {
+ 				dev_err(runtime->dev,
+ 						"DEV0 TDM slot err:%d\n", ret);
+@@ -208,10 +208,10 @@ static int kabylake_ssp0_hw_params(struct snd_pcm_substream *substream,
+ 		}
+ 		if (!strcmp(codec_dai->component->name, MAX98373_DEV1_NAME)) {
+ 			ret = snd_soc_dai_set_tdm_slot(codec_dai,
+-							0x0C, 3, 8, 24);
++							0xC0, 3, 8, 16);
+ 			if (ret < 0) {
+ 				dev_err(runtime->dev,
+-						"DEV0 TDM slot err:%d\n", ret);
++						"DEV1 TDM slot err:%d\n", ret);
+ 				return ret;
+ 			}
+ 		}
+@@ -311,24 +311,6 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
+ 	 * The above 2 loops are mutually exclusive based on the stream direction,
+ 	 * thus rtd_dpcm variable will never be overwritten
+ 	 */
+-	/*
+-	 * Topology for kblda7219m98373 & kblmax98373 supports only S24_LE,
+-	 * where as kblda7219m98927 & kblmax98927 supports S16_LE by default.
+-	 * Skipping the port wise FE and BE configuration for kblda7219m98373 &
+-	 * kblmax98373 as the topology (FE & BE) supports S24_LE only.
+-	 */
+-
+-	if (!strcmp(rtd->card->name, "kblda7219m98373") ||
+-		!strcmp(rtd->card->name, "kblmax98373")) {
+-		/* The ADSP will convert the FE rate to 48k, stereo */
+-		rate->min = rate->max = 48000;
+-		chan->min = chan->max = DUAL_CHANNEL;
+-
+-		/* set SSP to 24 bit */
+-		snd_mask_none(fmt);
+-		snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S24_LE);
+-		return 0;
+-	}
+ 
+ 	/*
+ 	 * The ADSP will convert the FE rate to 48k, stereo, 24 bit
+@@ -479,31 +461,20 @@ static struct snd_pcm_hw_constraint_list constraints_channels_quad = {
+ static int kbl_fe_startup(struct snd_pcm_substream *substream)
  {
- 	struct wcd9335_codec *wcd = dev_get_drvdata(component->dev);
-+	int ret;
- 	int i;
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+-	struct snd_soc_pcm_runtime *soc_rt = asoc_substream_to_rtd(substream);
  
- 	snd_soc_component_init_regmap(component, wcd->regmap);
-@@ -4861,7 +4862,15 @@ static int wcd9335_codec_probe(struct snd_soc_component *component)
- 	for (i = 0; i < NUM_CODEC_DAIS; i++)
- 		INIT_LIST_HEAD(&wcd->dai[i].slim_ch_list);
+ 	/*
+ 	 * On this platform for PCM device we support,
+ 	 * 48Khz
+ 	 * stereo
++	 * 16 bit audio
+ 	 */
  
--	return wcd9335_setup_irqs(wcd);
-+	ret = wcd9335_setup_irqs(wcd);
-+	if (ret)
-+		goto free_clsh_ctrl;
+ 	runtime->hw.channels_max = DUAL_CHANNEL;
+ 	snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
+ 					   &constraints_channels);
+-	/*
+-	 * Setup S24_LE (32 bit container and 24 bit valid data) for
+-	 * kblda7219m98373 & kblmax98373. For kblda7219m98927 &
+-	 * kblmax98927 keeping it as 16/16 due to topology FW dependency.
+-	 */
+-	if (!strcmp(soc_rt->card->name, "kblda7219m98373") ||
+-		!strcmp(soc_rt->card->name, "kblmax98373")) {
+-		runtime->hw.formats = SNDRV_PCM_FMTBIT_S24_LE;
+-		snd_pcm_hw_constraint_msbits(runtime, 0, 32, 24);
+-
+-	} else {
+-		runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
+-		snd_pcm_hw_constraint_msbits(runtime, 0, 16, 16);
+-	}
 +
-+	return 0;
-+
-+free_clsh_ctrl:
-+	wcd_clsh_ctrl_free(wcd->clsh_ctrl);
-+	return ret;
++	runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
++	snd_pcm_hw_constraint_msbits(runtime, 0, 16, 16);
+ 
+ 	snd_pcm_hw_constraint_list(runtime, 0,
+ 				SNDRV_PCM_HW_PARAM_RATE, &constraints_rates);
+@@ -536,23 +507,11 @@ static int kabylake_dmic_fixup(struct snd_soc_pcm_runtime *rtd,
+ static int kabylake_dmic_startup(struct snd_pcm_substream *substream)
+ {
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+-	struct snd_soc_pcm_runtime *soc_rt = asoc_substream_to_rtd(substream);
+ 
+ 	runtime->hw.channels_min = runtime->hw.channels_max = QUAD_CHANNEL;
+ 	snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
+ 			&constraints_channels_quad);
+ 
+-	/*
+-	 * Topology for kblda7219m98373 & kblmax98373 supports only S24_LE.
+-	 * The DMIC also configured for S24_LE. Forcing the DMIC format to
+-	 * S24_LE due to the topology FW dependency.
+-	 */
+-	if (!strcmp(soc_rt->card->name, "kblda7219m98373") ||
+-		!strcmp(soc_rt->card->name, "kblmax98373")) {
+-		runtime->hw.formats = SNDRV_PCM_FMTBIT_S24_LE;
+-		snd_pcm_hw_constraint_msbits(runtime, 0, 32, 24);
+-	}
+-
+ 	return snd_pcm_hw_constraint_list(substream->runtime, 0,
+ 			SNDRV_PCM_HW_PARAM_RATE, &constraints_rates);
  }
- 
- static void wcd9335_codec_remove(struct snd_soc_component *comp)
 -- 
 2.30.2
 
