@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC682409218
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E30EF409214
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244920AbhIMOHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:07:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54738 "EHLO mail.kernel.org"
+        id S244964AbhIMOHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:07:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344302AbhIMOEo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344301AbhIMOEo (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:04:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D1F261A7A;
-        Mon, 13 Sep 2021 13:39:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2F8B61A57;
+        Mon, 13 Sep 2021 13:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540355;
-        bh=IadMZ0pUGcyaAMKR50sje3LsncERJJKFmuooJ5ChcpI=;
+        s=korg; t=1631540358;
+        bh=pyy8q8caTEBVtMulRO5jgxfmBBL852cVJ3x3bjtFNsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ym6wIGfDL8Jlv53F84M5/tOA12q5/2Rqzhte46660uFzVKnSkEJ1izeGw1rlXDqns
-         1Luuq6T6R8S/8FiSQyG8YQh/isCvO2yDXJT2Za2bxW56z5N1ebE6xyzRrZQqQlOPb7
-         zNRE+CVhJpO2erh1WwHmnZW2o1di/BcggzLtQYfw=
+        b=m+bPlOhKjCeZPFilOpWZBNGFcvWfVWBC05gZ4sHxLiScHElkiVWdnVPK8iCn/iyV2
+         c02O2t6DeJva1keoF4DOPOw/PhcbXllyh0c6uOS9A8FQMUk7XDQNz4tnmr1PYTLzyO
+         T7ImBIwM3K70ko9hiVFUYyqfwIT1yWiKEMrpjbV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,12 +29,11 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Lucas Stach <l.stach@pengutronix.de>,
         Stefan Agner <stefan@agner.ch>,
-        Jagan Teki <jagan@amarulasolutions.com>,
         Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 128/300] drm: mxsfb: Enable recovery on underflow
-Date:   Mon, 13 Sep 2021 15:13:09 +0200
-Message-Id: <20210913131113.719397585@linuxfoundation.org>
+Subject: [PATCH 5.13 129/300] drm: mxsfb: Increase number of outstanding requests on V4 and newer HW
+Date:   Mon, 13 Sep 2021 15:13:10 +0200
+Message-Id: <20210913131113.751853855@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -48,29 +47,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 0c9856e4edcdcac22d65618e8ceff9eb41447880 ]
+[ Upstream commit 9891cb54445bc65bf156bda416b6215048c7f617 ]
 
-There is some sort of corner case behavior of the controller,
-which could rarely be triggered at least on i.MX6SX connected
-to 800x480 DPI panel and i.MX8MM connected to DPI->DSI->LVDS
-bridged 1920x1080 panel (and likely on other setups too), where
-the image on the panel shifts to the right and wraps around.
-This happens either when the controller is enabled on boot or
-even later during run time. The condition does not correct
-itself automatically, i.e. the display image remains shifted.
+In case the DRAM is under high load, the MXSFB FIFO might underflow
+and that causes visible artifacts. This could be triggered on i.MX8MM
+using e.g. "$ memtester 128M" on a device with 1920x1080 panel. The
+first "Stuck Address" test of the memtester will completely corrupt
+the image on the panel and leave the MXSFB FIFO in odd state.
 
-It seems this problem is known and is due to sporadic underflows
-of the LCDIF FIFO. While the LCDIF IP does have underflow/overflow
-IRQs, neither of the IRQs trigger and neither IRQ status bit is
-asserted when this condition occurs.
-
-All known revisions of the LCDIF IP have CTRL1 RECOVER_ON_UNDERFLOW
-bit, which is described in the reference manual since i.MX23 as
-"
-  Set this bit to enable the LCDIF block to recover in the next
-  field/frame if there was an underflow in the current field/frame.
-"
-Enable this bit to mitigate the sporadic underflows.
+To avoid this underflow, increase number of outstanding requests to
+DRAM from 2 to 16, which is the maximum. This mitigates the issue
+and it can no longer be triggered.
 
 Fixes: 45d59d704080 ("drm: Add new driver for MXSFB controller")
 Signed-off-by: Marek Vasut <marex@denx.de>
@@ -80,68 +67,101 @@ Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Cc: Lucas Stach <l.stach@pengutronix.de>
 Cc: Stefan Agner <stefan@agner.ch>
 Reviewed-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Jagan Teki <jagan@amarulasolutions.com>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210620224701.189289-1-marex@denx.de
+Link: https://patchwork.freedesktop.org/patch/msgid/20210620224759.189351-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mxsfb/mxsfb_kms.c  | 29 +++++++++++++++++++++++++++++
- drivers/gpu/drm/mxsfb/mxsfb_regs.h |  1 +
- 2 files changed, 30 insertions(+)
+ drivers/gpu/drm/mxsfb/mxsfb_drv.c  | 3 +++
+ drivers/gpu/drm/mxsfb/mxsfb_drv.h  | 1 +
+ drivers/gpu/drm/mxsfb/mxsfb_kms.c  | 8 ++++++++
+ drivers/gpu/drm/mxsfb/mxsfb_regs.h | 8 ++++++++
+ 4 files changed, 20 insertions(+)
 
+diff --git a/drivers/gpu/drm/mxsfb/mxsfb_drv.c b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
+index 6da93551e2e5..c277d3f61a5e 100644
+--- a/drivers/gpu/drm/mxsfb/mxsfb_drv.c
++++ b/drivers/gpu/drm/mxsfb/mxsfb_drv.c
+@@ -51,6 +51,7 @@ static const struct mxsfb_devdata mxsfb_devdata[] = {
+ 		.hs_wdth_mask	= 0xff,
+ 		.hs_wdth_shift	= 24,
+ 		.has_overlay	= false,
++		.has_ctrl2	= false,
+ 	},
+ 	[MXSFB_V4] = {
+ 		.transfer_count	= LCDC_V4_TRANSFER_COUNT,
+@@ -59,6 +60,7 @@ static const struct mxsfb_devdata mxsfb_devdata[] = {
+ 		.hs_wdth_mask	= 0x3fff,
+ 		.hs_wdth_shift	= 18,
+ 		.has_overlay	= false,
++		.has_ctrl2	= true,
+ 	},
+ 	[MXSFB_V6] = {
+ 		.transfer_count	= LCDC_V4_TRANSFER_COUNT,
+@@ -67,6 +69,7 @@ static const struct mxsfb_devdata mxsfb_devdata[] = {
+ 		.hs_wdth_mask	= 0x3fff,
+ 		.hs_wdth_shift	= 18,
+ 		.has_overlay	= true,
++		.has_ctrl2	= true,
+ 	},
+ };
+ 
+diff --git a/drivers/gpu/drm/mxsfb/mxsfb_drv.h b/drivers/gpu/drm/mxsfb/mxsfb_drv.h
+index 399d23e91ed1..7c720e226fdf 100644
+--- a/drivers/gpu/drm/mxsfb/mxsfb_drv.h
++++ b/drivers/gpu/drm/mxsfb/mxsfb_drv.h
+@@ -22,6 +22,7 @@ struct mxsfb_devdata {
+ 	unsigned int	hs_wdth_mask;
+ 	unsigned int	hs_wdth_shift;
+ 	bool		has_overlay;
++	bool		has_ctrl2;
+ };
+ 
+ struct mxsfb_drm_private {
 diff --git a/drivers/gpu/drm/mxsfb/mxsfb_kms.c b/drivers/gpu/drm/mxsfb/mxsfb_kms.c
-index 300e7bab0f43..01e0f525360f 100644
+index 01e0f525360f..5bcc06c1ac0b 100644
 --- a/drivers/gpu/drm/mxsfb/mxsfb_kms.c
 +++ b/drivers/gpu/drm/mxsfb/mxsfb_kms.c
-@@ -115,6 +115,35 @@ static void mxsfb_enable_controller(struct mxsfb_drm_private *mxsfb)
- 	reg |= VDCTRL4_SYNC_SIGNALS_ON;
- 	writel(reg, mxsfb->base + LCDC_VDCTRL4);
+@@ -107,6 +107,14 @@ static void mxsfb_enable_controller(struct mxsfb_drm_private *mxsfb)
+ 		clk_prepare_enable(mxsfb->clk_disp_axi);
+ 	clk_prepare_enable(mxsfb->clk);
  
-+	/*
-+	 * Enable recovery on underflow.
-+	 *
-+	 * There is some sort of corner case behavior of the controller,
-+	 * which could rarely be triggered at least on i.MX6SX connected
-+	 * to 800x480 DPI panel and i.MX8MM connected to DPI->DSI->LVDS
-+	 * bridged 1920x1080 panel (and likely on other setups too), where
-+	 * the image on the panel shifts to the right and wraps around.
-+	 * This happens either when the controller is enabled on boot or
-+	 * even later during run time. The condition does not correct
-+	 * itself automatically, i.e. the display image remains shifted.
-+	 *
-+	 * It seems this problem is known and is due to sporadic underflows
-+	 * of the LCDIF FIFO. While the LCDIF IP does have underflow/overflow
-+	 * IRQs, neither of the IRQs trigger and neither IRQ status bit is
-+	 * asserted when this condition occurs.
-+	 *
-+	 * All known revisions of the LCDIF IP have CTRL1 RECOVER_ON_UNDERFLOW
-+	 * bit, which is described in the reference manual since i.MX23 as
-+	 * "
-+	 *   Set this bit to enable the LCDIF block to recover in the next
-+	 *   field/frame if there was an underflow in the current field/frame.
-+	 * "
-+	 * Enable this bit to mitigate the sporadic underflows.
-+	 */
-+	reg = readl(mxsfb->base + LCDC_CTRL1);
-+	reg |= CTRL1_RECOVER_ON_UNDERFLOW;
-+	writel(reg, mxsfb->base + LCDC_CTRL1);
++	/* Increase number of outstanding requests on all supported IPs */
++	if (mxsfb->devdata->has_ctrl2) {
++		reg = readl(mxsfb->base + LCDC_V4_CTRL2);
++		reg &= ~CTRL2_SET_OUTSTANDING_REQS_MASK;
++		reg |= CTRL2_SET_OUTSTANDING_REQS_16;
++		writel(reg, mxsfb->base + LCDC_V4_CTRL2);
++	}
 +
- 	writel(CTRL_RUN, mxsfb->base + LCDC_CTRL + REG_SET);
- }
+ 	/* If it was disabled, re-enable the mode again */
+ 	writel(CTRL_DOTCLK_MODE, mxsfb->base + LCDC_CTRL + REG_SET);
  
 diff --git a/drivers/gpu/drm/mxsfb/mxsfb_regs.h b/drivers/gpu/drm/mxsfb/mxsfb_regs.h
-index 55d28a27f912..df90e960f495 100644
+index df90e960f495..694fea13e893 100644
 --- a/drivers/gpu/drm/mxsfb/mxsfb_regs.h
 +++ b/drivers/gpu/drm/mxsfb/mxsfb_regs.h
-@@ -54,6 +54,7 @@
- #define CTRL_DF24			BIT(1)
- #define CTRL_RUN			BIT(0)
+@@ -15,6 +15,7 @@
+ #define LCDC_CTRL			0x00
+ #define LCDC_CTRL1			0x10
+ #define LCDC_V3_TRANSFER_COUNT		0x20
++#define LCDC_V4_CTRL2			0x20
+ #define LCDC_V4_TRANSFER_COUNT		0x30
+ #define LCDC_V4_CUR_BUF			0x40
+ #define LCDC_V4_NEXT_BUF		0x50
+@@ -61,6 +62,13 @@
+ #define CTRL1_CUR_FRAME_DONE_IRQ_EN	BIT(13)
+ #define CTRL1_CUR_FRAME_DONE_IRQ	BIT(9)
  
-+#define CTRL1_RECOVER_ON_UNDERFLOW	BIT(24)
- #define CTRL1_FIFO_CLEAR		BIT(21)
- #define CTRL1_SET_BYTE_PACKAGING(x)	(((x) & 0xf) << 16)
- #define CTRL1_GET_BYTE_PACKAGING(x)	(((x) >> 16) & 0xf)
++#define CTRL2_SET_OUTSTANDING_REQS_1	0
++#define CTRL2_SET_OUTSTANDING_REQS_2	(0x1 << 21)
++#define CTRL2_SET_OUTSTANDING_REQS_4	(0x2 << 21)
++#define CTRL2_SET_OUTSTANDING_REQS_8	(0x3 << 21)
++#define CTRL2_SET_OUTSTANDING_REQS_16	(0x4 << 21)
++#define CTRL2_SET_OUTSTANDING_REQS_MASK	(0x7 << 21)
++
+ #define TRANSFER_COUNT_SET_VCOUNT(x)	(((x) & 0xffff) << 16)
+ #define TRANSFER_COUNT_GET_VCOUNT(x)	(((x) >> 16) & 0xffff)
+ #define TRANSFER_COUNT_SET_HCOUNT(x)	((x) & 0xffff)
 -- 
 2.30.2
 
