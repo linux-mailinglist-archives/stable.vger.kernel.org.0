@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE37409023
+	by mail.lfdr.de (Postfix) with ESMTP id 9C07C409024
 	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:49:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243004AbhIMNuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:50:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56780 "EHLO mail.kernel.org"
+        id S244809AbhIMNue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:50:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243266AbhIMNrd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243260AbhIMNrd (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:47:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43013610F7;
-        Mon, 13 Sep 2021 13:32:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5A906121F;
+        Mon, 13 Sep 2021 13:32:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539945;
-        bh=F4i1mJonU6zm6wETwto0yf/xl4rP4xC6cyqdmxZFf2U=;
+        s=korg; t=1631539948;
+        bh=vwtUtH1pMRO2sj7kArmkxmRpVAGzS/ZsP0M5Phra04c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x49qJHtwSd4VHZ3yT9xU7Zt7Le64p6rxrIIUMqbQYqEd1vCPayCqlBLKVOMdrabEL
-         4HaLwv7QWrd6B5m1ulq3tKxW108LxdJturINusjh92lrs1f2LI9Q0kQsxU6+jN1r81
-         ZWPHOdBgUChsNCNuvFGNEPrmYNCh5LnHqOXLYCRk=
+        b=VYX/bK7lbedvAXDgI/kpsNWI8O8XI65EROK+0xKZZuVAfBeTy5yqRvR84cozYHhdm
+         1m+mGTovYuNaXd7LHUpCYBBK3sfxJWQNsHBbU1pxCzROVpdcn1e01mOhCHMupmNDlK
+         cwwVnDfXsHoyp0HXg6EWkNUH9UlIqN93r9MQEvgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+200c08e88ae818f849ce@syzkaller.appspotmail.com,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 224/236] Revert "KVM: x86: mmu: Add guest physical address check in translate_gpa()"
-Date:   Mon, 13 Sep 2021 15:15:29 +0200
-Message-Id: <20210913131107.975809274@linuxfoundation.org>
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@de.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [PATCH 5.10 225/236] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+Date:   Mon, 13 Sep 2021 15:15:30 +0200
+Message-Id: <20210913131108.007976938@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -42,72 +40,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-commit e7177339d7b5f9594b316842122b5fda9513d5e2 upstream.
+commit a3e03bc1368c1bc16e19b001fc96dc7430573cc8 upstream.
 
-Revert a misguided illegal GPA check when "translating" a non-nested GPA.
-The check is woefully incomplete as it does not fill in @exception as
-expected by all callers, which leads to KVM attempting to inject a bogus
-exception, potentially exposing kernel stack information in the process.
+While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true, it may
+not always be, and we must not rely on this. Reason is that KVM decides
+the vcpu_idx, userspace decides the vcpu_id, thus the two might not
+match.
 
- WARNING: CPU: 0 PID: 8469 at arch/x86/kvm/x86.c:525 exception_type+0x98/0xb0 arch/x86/kvm/x86.c:525
- CPU: 1 PID: 8469 Comm: syz-executor531 Not tainted 5.14.0-rc7-syzkaller #0
- RIP: 0010:exception_type+0x98/0xb0 arch/x86/kvm/x86.c:525
- Call Trace:
-  x86_emulate_instruction+0xef6/0x1460 arch/x86/kvm/x86.c:7853
-  kvm_mmu_page_fault+0x2f0/0x1810 arch/x86/kvm/mmu/mmu.c:5199
-  handle_ept_misconfig+0xdf/0x3e0 arch/x86/kvm/vmx/vmx.c:5336
-  __vmx_handle_exit arch/x86/kvm/vmx/vmx.c:6021 [inline]
-  vmx_handle_exit+0x336/0x1800 arch/x86/kvm/vmx/vmx.c:6038
-  vcpu_enter_guest+0x2a1c/0x4430 arch/x86/kvm/x86.c:9712
-  vcpu_run arch/x86/kvm/x86.c:9779 [inline]
-  kvm_arch_vcpu_ioctl_run+0x47d/0x1b20 arch/x86/kvm/x86.c:10010
-  kvm_vcpu_ioctl+0x49e/0xe50 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3652
+Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
+that code like
+for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
+                vcpu = kvm_get_vcpu(kvm, vcpu_id);
+		do_stuff(vcpu);
+}
+is not legit. Reason is that kvm_get_vcpu expects an vcpu_idx, not an
+vcpu_id.  The trouble is, we do actually use kvm->arch.idle_mask like
+this. To fix this problem we have two options. Either use
+kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
+or switch to indexing via vcpu_idx. The latter is preferable for obvious
+reasons.
 
-The bug has escaped notice because practically speaking the GPA check is
-useless.  The GPA check in question only comes into play when KVM is
-walking guest page tables (or "translating" CR3), and KVM already handles
-illegal GPA checks by setting reserved bits in rsvd_bits_mask for each
-PxE, or in the case of CR3 for loading PTDPTRs, manually checks for an
-illegal CR3.  This particular failure doesn't hit the existing reserved
-bits checks because syzbot sets guest.MAXPHYADDR=1, and IA32 architecture
-simply doesn't allow for such an absurd MAXPHYADDR, e.g. 32-bit paging
-doesn't define any reserved PA bits checks, which KVM emulates by only
-incorporating the reserved PA bits into the "high" bits, i.e. bits 63:32.
+Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
+indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
+same index as idle_mask lets make the same change for it as well.
 
-Simply remove the bogus check.  There is zero meaningful value and no
-architectural justification for supporting guest.MAXPHYADDR < 32, and
-properly filling the exception would introduce non-trivial complexity.
-
-This reverts commit ec7771ab471ba6a945350353617e2e3385d0e013.
-
-Fixes: ec7771ab471b ("KVM: x86: mmu: Add guest physical address check in translate_gpa()")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+200c08e88ae818f849ce@syzkaller.appspotmail.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210831164224.1119728-2-seanjc@google.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Christian Bornträger <borntraeger@de.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: <stable@vger.kernel.org> # 3.15+
+Link: https://lore.kernel.org/r/20210827125429.1912577-1-pasic@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c |    6 ------
- 1 file changed, 6 deletions(-)
+ arch/s390/include/asm/kvm_host.h |    1 +
+ arch/s390/kvm/interrupt.c        |   12 ++++++------
+ arch/s390/kvm/kvm-s390.c         |    2 +-
+ arch/s390/kvm/kvm-s390.h         |    2 +-
+ 4 files changed, 9 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -267,12 +267,6 @@ static bool check_mmio_spte(struct kvm_v
- static gpa_t translate_gpa(struct kvm_vcpu *vcpu, gpa_t gpa, u32 access,
-                                   struct x86_exception *exception)
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -957,6 +957,7 @@ struct kvm_arch{
+ 	atomic64_t cmma_dirty_pages;
+ 	/* subset of available cpu features enabled by user space */
+ 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
++	/* indexed by vcpu_idx */
+ 	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
+ 	struct kvm_s390_gisa_interrupt gisa_int;
+ 	struct kvm_s390_pv pv;
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -419,13 +419,13 @@ static unsigned long deliverable_irqs(st
+ static void __set_cpu_idle(struct kvm_vcpu *vcpu)
  {
--	/* Check if guest physical address doesn't exceed guest maximum */
--	if (kvm_vcpu_is_illegal_gpa(vcpu, gpa)) {
--		exception->error_code |= PFERR_RSVD_MASK;
--		return UNMAPPED_GVA;
--	}
--
-         return gpa;
+ 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
+-	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
++	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
  }
  
+ static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
+ {
+ 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
+-	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
++	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
+ }
+ 
+ static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
+@@ -3050,18 +3050,18 @@ int kvm_s390_get_irq_state(struct kvm_vc
+ 
+ static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
+ {
+-	int vcpu_id, online_vcpus = atomic_read(&kvm->online_vcpus);
++	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
+ 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+ 	struct kvm_vcpu *vcpu;
+ 
+-	for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
+-		vcpu = kvm_get_vcpu(kvm, vcpu_id);
++	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
++		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
+ 		if (psw_ioint_disabled(vcpu))
+ 			continue;
+ 		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
+ 		if (deliverable_mask) {
+ 			/* lately kicked but not yet running */
+-			if (test_and_set_bit(vcpu_id, gi->kicked_mask))
++			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
+ 				return;
+ 			kvm_s390_vcpu_wakeup(vcpu);
+ 			return;
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4015,7 +4015,7 @@ static int vcpu_pre_run(struct kvm_vcpu
+ 		kvm_s390_patch_guest_per_regs(vcpu);
+ 	}
+ 
+-	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.gisa_int.kicked_mask);
++	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.gisa_int.kicked_mask);
+ 
+ 	vcpu->arch.sie_block->icptcode = 0;
+ 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -79,7 +79,7 @@ static inline int is_vcpu_stopped(struct
+ 
+ static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
+ {
+-	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
++	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
+ }
+ 
+ static inline int kvm_is_ucontrol(struct kvm *kvm)
 
 
