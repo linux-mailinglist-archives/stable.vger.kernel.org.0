@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D2F40A003
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6AC040A006
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:35:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348411AbhIMWgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 18:36:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50872 "EHLO mail.kernel.org"
+        id S1348737AbhIMWgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 18:36:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348588AbhIMWfl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 18:35:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E54861163;
-        Mon, 13 Sep 2021 22:34:24 +0000 (UTC)
+        id S1348433AbhIMWfm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 18:35:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2CC16121D;
+        Mon, 13 Sep 2021 22:34:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631572465;
-        bh=ecIaMXb+m7FDhBfUMgGoGyY9OZ2Pm2kgMizHBu5cn38=;
+        s=k20201202; t=1631572466;
+        bh=VQHzzcsKDeqNmNlB9vD+z2pcM8LHOx2zKrDDfuWKKMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJYUSf5f9S0bay/cp04CV77OdAYtBkiAXDqCk0gh7Cz/RWJNolHoD4sOSgPk1L8qx
-         Zz7P3QKJormmfdNi1I16ddyCvWRVrZXuJ3Y4RbEC3mh0q5ujZBvC0Hlh5QEfPOSFsC
-         fw9h2/N4HRcC5AmJjpKF9SBMkUWQTj80nSRcdcCy0vi2QRYjTbH8H7q5G8kuzQXkum
-         w5fUMQVGqUsLB8Gy2uV9BxLG/I/3i8QaEFTSK4bcWh0FddBOLKKvaVFn6SKIeNJmAC
-         PeDYxqf0xqC+/g+N2tAy4Bqk9nmsOzVFz/A4Lezz/dn3w7f5LvzjyKkR5Bvy5KnF7m
-         sOhLEReuFx6Zg==
+        b=qQgBALPNBdH1pH7uT61R1cXN7lWqaTyOF8wPqmsOTr4altY/lzpLD77ozs927O5qg
+         rFFRMVrcmjXhwOlDQjDGV/b1MjQH2h9xMCD3MYvFctqVoyFTmZ8fB6sUJDH7fbdFaX
+         +umF/yyjM8J6LDFk5ORE45PE7KKRAFd6eIkSp96GcUlO+b7bYoY5GTN/Cjt7hWNqbd
+         LNPhbofE9YrxmCuWU07j00SSGqTW1xB0+eHKhgUBjBpVza/z0NOA2lC+V4oD+B24xu
+         K6rKi5j4rBpNlva16/aiXSmXGOLn8IReWAV0fBWiZsE3wlUcRE8XTYwvwNyJlynvag
+         4/L3YTEsWMuiA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Olivier MOYSAN <olivier.moysan@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.13 07/19] ASoC: audio-graph: respawn Platform Support
-Date:   Mon, 13 Sep 2021 18:34:03 -0400
-Message-Id: <20210913223415.435654-7-sashal@kernel.org>
+Cc:     Jeff Layton <jlayton@kernel.org>,
+        =?UTF-8?q?Jozef=20Kov=C3=A1=C4=8D?= <kovac@firma.zoznam.sk>,
+        Xiubo Li <xiubli@redhat.com>,
+        Luis Henriques <lhenriques@suse.de>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 08/19] ceph: request Fw caps before updating the mtime in ceph_write_iter
+Date:   Mon, 13 Sep 2021 18:34:04 -0400
+Message-Id: <20210913223415.435654-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210913223415.435654-1-sashal@kernel.org>
 References: <20210913223415.435654-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,83 +46,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 5f939f49771002f347039edf984aca42f30fc31a ]
+[ Upstream commit b11ed50346683a749632ea664959b28d524d7395 ]
 
-commit 63f2f9cceb09f8 ("ASoC: audio-graph: remove Platform support")
-removed Platform support from audio-graph, because it doesn't have
-"plat" support on DT (simple-card has).
-But, Platform support is needed if user is using
-snd_dmaengine_pcm_register() which adds generic DMA as Platform.
-And this Platform dev is using CPU dev.
+The current code will update the mtime and then try to get caps to
+handle the write. If we end up having to request caps from the MDS, then
+the mtime in the cap grant will clobber the updated mtime and it'll be
+lost.
 
-Without this patch, at least STM32MP15 audio sound card is no more
-functional (v5.13 or later). This patch respawn Platform Support on
-audio-graph again.
+This is most noticable when two clients are alternately writing to the
+same file. Fw caps are continually being granted and revoked, and the
+mtime ends up stuck because the updated mtimes are always being
+overwritten with the old one.
 
-Reported-by: Olivier MOYSAN <olivier.moysan@foss.st.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Tested-by: Olivier MOYSAN <olivier.moysan@foss.st.com>
-Link: https://lore.kernel.org/r/878s0jzrpf.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix this by changing the order of operations in ceph_write_iter to get
+the caps before updating the times. Also, make sure we check the pool
+full conditions before even getting any caps or uninlining.
+
+URL: https://tracker.ceph.com/issues/46574
+Reported-by: Jozef Kováč <kovac@firma.zoznam.sk>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Luis Henriques <lhenriques@suse.de>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/audio-graph-card.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ceph/file.c | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-diff --git a/sound/soc/generic/audio-graph-card.c b/sound/soc/generic/audio-graph-card.c
-index 5e71382467e8..546f6fd0609e 100644
---- a/sound/soc/generic/audio-graph-card.c
-+++ b/sound/soc/generic/audio-graph-card.c
-@@ -285,6 +285,7 @@ static int graph_dai_link_of_dpcm(struct asoc_simple_priv *priv,
- 	if (li->cpu) {
- 		struct snd_soc_card *card = simple_priv_to_card(priv);
- 		struct snd_soc_dai_link_component *cpus = asoc_link_to_cpu(dai_link, 0);
-+		struct snd_soc_dai_link_component *platforms = asoc_link_to_platform(dai_link, 0);
- 		int is_single_links = 0;
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index d51af3698032..732412920291 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -1722,32 +1722,26 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 		goto out;
+ 	}
  
- 		/* Codec is dummy */
-@@ -313,6 +314,7 @@ static int graph_dai_link_of_dpcm(struct asoc_simple_priv *priv,
- 			dai_link->no_pcm = 1;
+-	err = file_remove_privs(file);
+-	if (err)
++	down_read(&osdc->lock);
++	map_flags = osdc->osdmap->flags;
++	pool_flags = ceph_pg_pool_flags(osdc->osdmap, ci->i_layout.pool_id);
++	up_read(&osdc->lock);
++	if ((map_flags & CEPH_OSDMAP_FULL) ||
++	    (pool_flags & CEPH_POOL_FLAG_FULL)) {
++		err = -ENOSPC;
+ 		goto out;
++	}
  
- 		asoc_simple_canonicalize_cpu(cpus, is_single_links);
-+		asoc_simple_canonicalize_platform(platforms, cpus);
- 	} else {
- 		struct snd_soc_codec_conf *cconf = simple_props_to_codec_conf(dai_props, 0);
- 		struct snd_soc_dai_link_component *codecs = asoc_link_to_codec(dai_link, 0);
-@@ -366,6 +368,7 @@ static int graph_dai_link_of(struct asoc_simple_priv *priv,
- 	struct snd_soc_dai_link *dai_link = simple_priv_to_link(priv, li->link);
- 	struct snd_soc_dai_link_component *cpus = asoc_link_to_cpu(dai_link, 0);
- 	struct snd_soc_dai_link_component *codecs = asoc_link_to_codec(dai_link, 0);
-+	struct snd_soc_dai_link_component *platforms = asoc_link_to_platform(dai_link, 0);
- 	char dai_name[64];
- 	int ret, is_single_links = 0;
+-	err = file_update_time(file);
++	err = file_remove_privs(file);
+ 	if (err)
+ 		goto out;
  
-@@ -383,6 +386,7 @@ static int graph_dai_link_of(struct asoc_simple_priv *priv,
- 		 "%s-%s", cpus->dai_name, codecs->dai_name);
+-	inode_inc_iversion_raw(inode);
+-
+ 	if (ci->i_inline_version != CEPH_INLINE_NONE) {
+ 		err = ceph_uninline_data(file, NULL);
+ 		if (err < 0)
+ 			goto out;
+ 	}
  
- 	asoc_simple_canonicalize_cpu(cpus, is_single_links);
-+	asoc_simple_canonicalize_platform(platforms, cpus);
+-	down_read(&osdc->lock);
+-	map_flags = osdc->osdmap->flags;
+-	pool_flags = ceph_pg_pool_flags(osdc->osdmap, ci->i_layout.pool_id);
+-	up_read(&osdc->lock);
+-	if ((map_flags & CEPH_OSDMAP_FULL) ||
+-	    (pool_flags & CEPH_POOL_FLAG_FULL)) {
+-		err = -ENOSPC;
+-		goto out;
+-	}
+-
+ 	dout("aio_write %p %llx.%llx %llu~%zd getting caps. i_size %llu\n",
+ 	     inode, ceph_vinop(inode), pos, count, i_size_read(inode));
+ 	if (fi->fmode & CEPH_FILE_MODE_LAZY)
+@@ -1759,6 +1753,12 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	if (err < 0)
+ 		goto out;
  
- 	ret = graph_link_init(priv, cpu_ep, codec_ep, li, dai_name);
- 	if (ret < 0)
-@@ -608,6 +612,7 @@ static int graph_count_noml(struct asoc_simple_priv *priv,
++	err = file_update_time(file);
++	if (err)
++		goto out_caps;
++
++	inode_inc_iversion_raw(inode);
++
+ 	dout("aio_write %p %llx.%llx %llu~%zd got cap refs on %s\n",
+ 	     inode, ceph_vinop(inode), pos, count, ceph_cap_string(got));
  
- 	li->num[li->link].cpus		= 1;
- 	li->num[li->link].codecs	= 1;
-+	li->num[li->link].platforms     = 1;
+@@ -1842,6 +1842,8 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	}
  
- 	li->link += 1; /* 1xCPU-Codec */
- 
-@@ -630,6 +635,7 @@ static int graph_count_dpcm(struct asoc_simple_priv *priv,
- 
- 	if (li->cpu) {
- 		li->num[li->link].cpus		= 1;
-+		li->num[li->link].platforms     = 1;
- 
- 		li->link++; /* 1xCPU-dummy */
- 	} else {
+ 	goto out_unlocked;
++out_caps:
++	ceph_put_cap_refs(ci, got);
+ out:
+ 	if (direct_lock)
+ 		ceph_end_io_direct(inode);
 -- 
 2.30.2
 
