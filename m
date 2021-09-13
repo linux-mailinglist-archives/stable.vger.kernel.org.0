@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9469408CE7
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E918F408F59
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:44:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239474AbhIMNWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:22:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
+        id S243183AbhIMNmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:42:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240572AbhIMNVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:21:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2174610D2;
-        Mon, 13 Sep 2021 13:19:32 +0000 (UTC)
+        id S243776AbhIMNkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:40:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 756BF614C8;
+        Mon, 13 Sep 2021 13:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539173;
-        bh=JaMMFRZ4MAB1YyJtid1lGEEjS6zt4whJ24Z4pq2nfx0=;
+        s=korg; t=1631539746;
+        bh=deuDyUC7ukFY9Dx4K5QWJ5oIG8ywpuqET6D2sF01QNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AWGNCz5Ehb4LPQteufIfruloFw68o4BPmj11spBW271qEGE960tA7aztZnQWigG3
-         tlxla6bFU/Eig5ruBu8otYcaiaa4X5WbLyEU3zVdRLK0VQKl78sBkLn6OQ9WkVITRC
-         SG1UxgiVJU/+aH59wdqKwlXXvyCa0HS+AutF3F6M=
+        b=ErbGmJX5aqbQh0p+MCIpJpTH/a0LsBbBT4Evg1LGNpdD3YpeIIX9VZ1KTG7/Mrh0M
+         M93Cz9srA1t/AFPZJhyPLN0fFzx66LeD1cpbkVNmQgr05u8BpZri6Z/wEaKKthU4zK
+         UdxAMk82lku+7zYpNJnhW5xZ9Aqozqm0E22HSf+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Jairaj Arava <jairaj.arava@intel.com>,
+        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@intel.com>,
+        Shuming Fan <shumingf@realtek.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/144] net/mlx5e: Prohibit inner indir TIRs in IPoIB
+Subject: [PATCH 5.10 145/236] ASoC: rt5682: Implement remove callback
 Date:   Mon, 13 Sep 2021 15:14:10 +0200
-Message-Id: <20210913131050.271607285@linuxfoundation.org>
+Message-Id: <20210913131105.300916075@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,150 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit 9c43f3865c2a03be104f1c1d5e9129c2a2bdba88 ]
+[ Upstream commit 87b42abae99d3d851aec64cd4d0f7def8113950e ]
 
-TIR's rx_hash_field_selector_inner can be enabled only when
-tunneled_offload_en = 1. tunneled_offload_en is filled according to the
-tunneled_offload_en field in struct mlx5e_params, which is false in the
-IPoIB profile. On the other hand, the IPoIB profile passes inner_ttc =
-true to mlx5e_create_indirect_tirs, which potentially allows the latter
-function to attempt to create inner indirect TIRs without having
-tunneled_offload_en set.
+Let's implement a remove callback for this driver that's similar to the
+shutdown hook, but also disables the regulators before they're put by
+devm code.
 
-This commit prohibits this behavior by passing inner_ttc = false to
-mlx5e_create_indirect_tirs. The latter function won't attempt to create
-inner indirect TIRs.
-
-As inner indirect TIRs are not created in the IPoIB profile (this commit
-blocks it explicitly, and even before they would have failed to be
-created), the call to mlx5e_create_inner_ttc_table in
-mlx5i_create_flow_steering is a no-op and can be removed.
-
-Fixes: 46dc933cee82 ("net/mlx5e: Provide explicit directive if to create inner indirect tirs")
-Fixes: 458821c72bd0 ("net/mlx5e: IPoIB, Add inner TTC table to IPoIB flow steering")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Cc: Jairaj Arava <jairaj.arava@intel.com>
+Cc: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
+Cc: Pierre-Louis Bossart <pierre-louis.bossart@intel.com>
+Cc: Shuming Fan <shumingf@realtek.com>
+Cc: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210508075151.1626903-2-swboyd@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en/fs.h    |  6 ------
- .../net/ethernet/mellanox/mlx5/core/en_fs.c    | 10 +++++-----
- .../ethernet/mellanox/mlx5/core/ipoib/ipoib.c  | 18 ++----------------
- 3 files changed, 7 insertions(+), 27 deletions(-)
+ sound/soc/codecs/rt5682-i2c.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h b/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
-index d48292ccda29..9239d767443f 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
-@@ -234,18 +234,12 @@ struct ttc_params {
- 
- void mlx5e_set_ttc_basic_params(struct mlx5e_priv *priv, struct ttc_params *ttc_params);
- void mlx5e_set_ttc_ft_params(struct ttc_params *ttc_params);
--void mlx5e_set_inner_ttc_ft_params(struct ttc_params *ttc_params);
- 
- int mlx5e_create_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
- 			   struct mlx5e_ttc_table *ttc);
- void mlx5e_destroy_ttc_table(struct mlx5e_priv *priv,
- 			     struct mlx5e_ttc_table *ttc);
- 
--int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
--				 struct mlx5e_ttc_table *ttc);
--void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv,
--				   struct mlx5e_ttc_table *ttc);
--
- void mlx5e_destroy_flow_table(struct mlx5e_flow_table *ft);
- 
- void mlx5e_enable_cvlan_filter(struct mlx5e_priv *priv);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-index c4ac7a9968d1..c3b9278486a1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-@@ -1123,7 +1123,7 @@ void mlx5e_set_ttc_basic_params(struct mlx5e_priv *priv,
- 	ttc_params->inner_ttc = &priv->fs.inner_ttc;
+diff --git a/sound/soc/codecs/rt5682-i2c.c b/sound/soc/codecs/rt5682-i2c.c
+index 547445d1e3c6..e2b4b10e679a 100644
+--- a/sound/soc/codecs/rt5682-i2c.c
++++ b/sound/soc/codecs/rt5682-i2c.c
+@@ -275,6 +275,16 @@ static void rt5682_i2c_shutdown(struct i2c_client *client)
+ 	rt5682_reset(rt5682);
  }
  
--void mlx5e_set_inner_ttc_ft_params(struct ttc_params *ttc_params)
-+static void mlx5e_set_inner_ttc_ft_params(struct ttc_params *ttc_params)
- {
- 	struct mlx5_flow_table_attr *ft_attr = &ttc_params->ft_attr;
- 
-@@ -1142,8 +1142,8 @@ void mlx5e_set_ttc_ft_params(struct ttc_params *ttc_params)
- 	ft_attr->prio = MLX5E_NIC_PRIO;
- }
- 
--int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
--				 struct mlx5e_ttc_table *ttc)
-+static int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
-+					struct mlx5e_ttc_table *ttc)
- {
- 	struct mlx5e_flow_table *ft = &ttc->ft;
- 	int err;
-@@ -1173,8 +1173,8 @@ err:
- 	return err;
- }
- 
--void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv,
--				   struct mlx5e_ttc_table *ttc)
-+static void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv,
-+					  struct mlx5e_ttc_table *ttc)
- {
- 	if (!mlx5e_tunnel_inner_ft_supported(priv->mdev))
- 		return;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-index 0fed2419623d..1f3d12faa2a5 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-@@ -319,17 +319,6 @@ static int mlx5i_create_flow_steering(struct mlx5e_priv *priv)
- 	}
- 
- 	mlx5e_set_ttc_basic_params(priv, &ttc_params);
--	mlx5e_set_inner_ttc_ft_params(&ttc_params);
--	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++)
--		ttc_params.indir_tirn[tt] = priv->inner_indir_tir[tt].tirn;
--
--	err = mlx5e_create_inner_ttc_table(priv, &ttc_params, &priv->fs.inner_ttc);
--	if (err) {
--		netdev_err(priv->netdev, "Failed to create inner ttc table, err=%d\n",
--			   err);
--		goto err_destroy_arfs_tables;
--	}
--
- 	mlx5e_set_ttc_ft_params(&ttc_params);
- 	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++)
- 		ttc_params.indir_tirn[tt] = priv->indir_tir[tt].tirn;
-@@ -338,13 +327,11 @@ static int mlx5i_create_flow_steering(struct mlx5e_priv *priv)
- 	if (err) {
- 		netdev_err(priv->netdev, "Failed to create ttc table, err=%d\n",
- 			   err);
--		goto err_destroy_inner_ttc_table;
-+		goto err_destroy_arfs_tables;
- 	}
- 
- 	return 0;
- 
--err_destroy_inner_ttc_table:
--	mlx5e_destroy_inner_ttc_table(priv, &priv->fs.inner_ttc);
- err_destroy_arfs_tables:
- 	mlx5e_arfs_destroy_tables(priv);
- 
-@@ -354,7 +341,6 @@ err_destroy_arfs_tables:
- static void mlx5i_destroy_flow_steering(struct mlx5e_priv *priv)
- {
- 	mlx5e_destroy_ttc_table(priv, &priv->fs.ttc);
--	mlx5e_destroy_inner_ttc_table(priv, &priv->fs.inner_ttc);
- 	mlx5e_arfs_destroy_tables(priv);
- }
- 
-@@ -379,7 +365,7 @@ static int mlx5i_init_rx(struct mlx5e_priv *priv)
- 	if (err)
- 		goto err_destroy_indirect_rqts;
- 
--	err = mlx5e_create_indirect_tirs(priv, true);
-+	err = mlx5e_create_indirect_tirs(priv, false);
- 	if (err)
- 		goto err_destroy_direct_rqts;
- 
++static int rt5682_i2c_remove(struct i2c_client *client)
++{
++	struct rt5682_priv *rt5682 = i2c_get_clientdata(client);
++
++	rt5682_i2c_shutdown(client);
++	regulator_bulk_disable(ARRAY_SIZE(rt5682->supplies), rt5682->supplies);
++
++	return 0;
++}
++
+ static const struct of_device_id rt5682_of_match[] = {
+ 	{.compatible = "realtek,rt5682i"},
+ 	{},
+@@ -301,6 +311,7 @@ static struct i2c_driver rt5682_i2c_driver = {
+ 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+ 	},
+ 	.probe = rt5682_i2c_probe,
++	.remove = rt5682_i2c_remove,
+ 	.shutdown = rt5682_i2c_shutdown,
+ 	.id_table = rt5682_i2c_id,
+ };
 -- 
 2.30.2
 
