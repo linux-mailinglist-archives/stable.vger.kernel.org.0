@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 756AF408EB1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD77409100
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:57:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241589AbhIMNgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46794 "EHLO mail.kernel.org"
+        id S244229AbhIMN5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:57:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242392AbhIMN3W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:29:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F283161283;
-        Mon, 13 Sep 2021 13:23:56 +0000 (UTC)
+        id S244834AbhIMNzk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:55:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2D9461A10;
+        Mon, 13 Sep 2021 13:35:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539437;
-        bh=5rleiisEq+XyVmQ7RxgaVx7q1iFSXMHn9eJxCAABnI4=;
+        s=korg; t=1631540139;
+        bh=N/kBMNMc89UjZ1rYFYPHugE5EWUilALer50Wm74LmXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/Lw0mUn/NzKyFb7mJFfkPdx4QKuoeRZ1DhYRkPSNT8cG6E9yDK0HgKEVtVDVwvkE
-         YHsoR3idXi6NZ7q1xhAutZ3SLB/60KCuc5Pm5heDHJ/2DCkGttO25ash4cmnquFNeh
-         3dJqYsdcb9dyOeM64BRoszCk+UwvVT/miVy5JE8s=
+        b=I6Sq54lxPlY2+y+svVnWp4W7safpoPma4QSy7PKWMVv3rxuI9eZR5SjxY5f3Py5ur
+         o/KOjOf93gpoCzAegbvk5afHo+wb1G/e/N+8G10JguZZm6B7VGTzOltzuoimYdidK0
+         S51usre3IfGSfzA2EvfArmAQNw4meDbO7GG+C9ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Fiona Trahe <fiona.trahe@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/236] s390/cio: add dev_busid sysfs entry for each subchannel
+Subject: [PATCH 5.13 068/300] crypto: qat - use proper type for vf_mask
 Date:   Mon, 13 Sep 2021 15:12:09 +0200
-Message-Id: <20210913131101.167807071@linuxfoundation.org>
+Message-Id: <20210913131111.658059482@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit d3683c055212bf910d4e318f7944910ce10dbee6 ]
+[ Upstream commit 462354d986b6a89c6449b85f17aaacf44e455216 ]
 
-Introduce dev_busid, which exports the device-id associated with the
-io-subchannel (and message-subchannel). The dev_busid indicates that of
-the device which may be physically installed on the corrosponding
-subchannel. The dev_busid value "none" indicates that the subchannel
-is not valid, there is no I/O device currently associated with the
-subchannel.
+Replace vf_mask type with unsigned long to avoid a stack-out-of-bound.
 
-The dev_busid information would be helpful to write device-specific
-udev-rules associated with the subchannel. The dev_busid interface would
-be available even when the sch is not bound to any driver or if there is
-no operational device connected on it. Hence this attribute can be used to
-write udev-rules which are specific to the device associated with the
-subchannel.
+This is to fix the following warning reported by KASAN the first time
+adf_msix_isr_ae() gets called.
 
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+    [  692.091987] BUG: KASAN: stack-out-of-bounds in find_first_bit+0x28/0x50
+    [  692.092017] Read of size 8 at addr ffff88afdf789e60 by task swapper/32/0
+    [  692.092076] Call Trace:
+    [  692.092089]  <IRQ>
+    [  692.092101]  dump_stack+0x9c/0xcf
+    [  692.092132]  print_address_description.constprop.0+0x18/0x130
+    [  692.092164]  ? find_first_bit+0x28/0x50
+    [  692.092185]  kasan_report.cold+0x7f/0x111
+    [  692.092213]  ? static_obj+0x10/0x80
+    [  692.092234]  ? find_first_bit+0x28/0x50
+    [  692.092262]  find_first_bit+0x28/0x50
+    [  692.092288]  adf_msix_isr_ae+0x16e/0x230 [intel_qat]
+
+Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/css.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/crypto/qat/qat_common/adf_isr.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index cca1a7c4bb33..305db4173dcf 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -426,9 +426,26 @@ static ssize_t pimpampom_show(struct device *dev,
- }
- static DEVICE_ATTR_RO(pimpampom);
+diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
+index e3ad5587be49..daab02011717 100644
+--- a/drivers/crypto/qat/qat_common/adf_isr.c
++++ b/drivers/crypto/qat/qat_common/adf_isr.c
+@@ -15,6 +15,8 @@
+ #include "adf_transport_access_macros.h"
+ #include "adf_transport_internal.h"
  
-+static ssize_t dev_busid_show(struct device *dev,
-+			      struct device_attribute *attr,
-+			      char *buf)
-+{
-+	struct subchannel *sch = to_subchannel(dev);
-+	struct pmcw *pmcw = &sch->schib.pmcw;
++#define ADF_MAX_NUM_VFS	32
 +
-+	if ((pmcw->st == SUBCHANNEL_TYPE_IO ||
-+	     pmcw->st == SUBCHANNEL_TYPE_MSG) && pmcw->dnv)
-+		return sysfs_emit(buf, "0.%x.%04x\n", sch->schid.ssid,
-+				  pmcw->dev);
-+	else
-+		return sysfs_emit(buf, "none\n");
-+}
-+static DEVICE_ATTR_RO(dev_busid);
-+
- static struct attribute *io_subchannel_type_attrs[] = {
- 	&dev_attr_chpids.attr,
- 	&dev_attr_pimpampom.attr,
-+	&dev_attr_dev_busid.attr,
- 	NULL,
- };
- ATTRIBUTE_GROUPS(io_subchannel_type);
+ static int adf_enable_msix(struct adf_accel_dev *accel_dev)
+ {
+ 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
+@@ -72,7 +74,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
+ 		struct adf_bar *pmisc =
+ 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
+ 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
+-		u32 vf_mask;
++		unsigned long vf_mask;
+ 
+ 		/* Get the interrupt sources triggered by VFs */
+ 		vf_mask = ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU5) &
+@@ -93,8 +95,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
+ 			 * unless the VF is malicious and is attempting to
+ 			 * flood the host OS with VF2PF interrupts.
+ 			 */
+-			for_each_set_bit(i, (const unsigned long *)&vf_mask,
+-					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
++			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
+ 				vf_info = accel_dev->pf.vf_info + i;
+ 
+ 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
 -- 
 2.30.2
 
