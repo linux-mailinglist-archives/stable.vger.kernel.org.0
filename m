@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7806D409467
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F7704091BD
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344800AbhIMObI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:31:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51894 "EHLO mail.kernel.org"
+        id S1344732AbhIMOF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:05:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346865AbhIMO3x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:29:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5327961371;
-        Mon, 13 Sep 2021 13:50:36 +0000 (UTC)
+        id S244423AbhIMOBf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:01:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0690613CD;
+        Mon, 13 Sep 2021 13:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541036;
-        bh=0ym9c6vMbmiFjOfck6JuikI7DmF8QGx8Hvf0IB0e6Qo=;
+        s=korg; t=1631540284;
+        bh=tvAYll6S3yFcBQZWiU3XvFXaCtGmkSUeThnCmg2wkBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PvqgD9TUULR0Xpu04xMgUIqZLH25DwcY7aFlkG3cSIryv536eFxQp+W8LM0834Mg8
-         LwGwpxY0RsFtakem7QCDDm6yA+4iopGyeMqdVR5SPujGDLyqrNXGjGLCf0+9zM1Erl
-         SKCuD4SvS1ldIU+UNLZIHFVW3yraV3FMUHc5I1Lc=
+        b=WJLb3Mu0qaz8bF55ITEvY0NB7j+Ue0hcrIasja8lKMYw1CODdC9DcLukyyT1KWGGy
+         me9UNdRBVQmbjFOXgBAAl4zbhALVxtgoRE1fV5+yGkC6ZmFNvJLS2+orHHj0D5mM1O
+         s1Wn7BuP5WP5VRglbIzuphFdmdWO4XysCo+Bc7v8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajendra Nayak <rnayak@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 103/334] soc: qcom: rpmhpd: Use corner in power_off
-Date:   Mon, 13 Sep 2021 15:12:37 +0200
-Message-Id: <20210913131116.856452169@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.13 097/300] i40e: improve locking of mac_filter_hash
+Date:   Mon, 13 Sep 2021 15:12:38 +0200
+Message-Id: <20210913131112.650079077@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +42,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit d43b3a989bc8c06fd4bbb69a7500d180db2d68e8 ]
+[ Upstream commit 8b4b06919fd66caf49fdf4fe59f9d6312cf7956d ]
 
-rpmhpd_aggregate_corner() takes a corner as parameter, but in
-rpmhpd_power_off() the code requests the level of the first corner
-instead.
+i40e_config_vf_promiscuous_mode() calls
+i40e_getnum_vf_vsi_vlan_filters() without acquiring the
+mac_filter_hash_lock spinlock.
 
-In all (known) current cases the first corner has level 0, so this
-change should be a nop, but in case that there's a power domain with a
-non-zero lowest level this makes sure that rpmhpd_power_off() actually
-requests the lowest level - which is the closest to "power off" we can
-get.
+This is unsafe because mac_filter_hash may get altered in another thread
+while i40e_getnum_vf_vsi_vlan_filters() traverses the hashes.
 
-While touching the code, also skip the unnecessary zero-initialization
-of "ret".
+Simply adding the spinlock in i40e_getnum_vf_vsi_vlan_filters() is not
+possible as it already gets called in i40e_get_vlan_list_sync() with the
+spinlock held. Therefore adding a wrapper that acquires the spinlock and
+call the correct function where appropriate.
 
-Fixes: 279b7e8a62cc ("soc: qcom: rpmhpd: Add RPMh power domain driver")
-Reviewed-by: Rajendra Nayak <rnayak@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Sibi Sankar <sibis@codeaurora.org>
-Tested-by: Sibi Sankar <sibis@codeaurora.org>
-Link: https://lore.kernel.org/r/20210703005416.2668319-2-bjorn.andersson@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 37d318d7805f ("i40e: Remove scheduling while atomic possibility")
+Fix-suggested-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/rpmhpd.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ .../ethernet/intel/i40e/i40e_virtchnl_pf.c    | 23 ++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soc/qcom/rpmhpd.c b/drivers/soc/qcom/rpmhpd.c
-index 2daa17ba54a3..fa209b479ab3 100644
---- a/drivers/soc/qcom/rpmhpd.c
-+++ b/drivers/soc/qcom/rpmhpd.c
-@@ -403,12 +403,11 @@ static int rpmhpd_power_on(struct generic_pm_domain *domain)
- static int rpmhpd_power_off(struct generic_pm_domain *domain)
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index eff0a30790dd..472f56b360b8 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1160,12 +1160,12 @@ static int i40e_quiesce_vf_pci(struct i40e_vf *vf)
+ }
+ 
+ /**
+- * i40e_getnum_vf_vsi_vlan_filters
++ * __i40e_getnum_vf_vsi_vlan_filters
+  * @vsi: pointer to the vsi
+  *
+  * called to get the number of VLANs offloaded on this VF
+  **/
+-static int i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
++static int __i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
  {
- 	struct rpmhpd *pd = domain_to_rpmhpd(domain);
--	int ret = 0;
-+	int ret;
+ 	struct i40e_mac_filter *f;
+ 	u16 num_vlans = 0, bkt;
+@@ -1178,6 +1178,23 @@ static int i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
+ 	return num_vlans;
+ }
  
- 	mutex_lock(&rpmhpd_lock);
++/**
++ * i40e_getnum_vf_vsi_vlan_filters
++ * @vsi: pointer to the vsi
++ *
++ * wrapper for __i40e_getnum_vf_vsi_vlan_filters() with spinlock held
++ **/
++static int i40e_getnum_vf_vsi_vlan_filters(struct i40e_vsi *vsi)
++{
++	int num_vlans;
++
++	spin_lock_bh(&vsi->mac_filter_hash_lock);
++	num_vlans = __i40e_getnum_vf_vsi_vlan_filters(vsi);
++	spin_unlock_bh(&vsi->mac_filter_hash_lock);
++
++	return num_vlans;
++}
++
+ /**
+  * i40e_get_vlan_list_sync
+  * @vsi: pointer to the VSI
+@@ -1195,7 +1212,7 @@ static void i40e_get_vlan_list_sync(struct i40e_vsi *vsi, u16 *num_vlans,
+ 	int bkt;
  
--	ret = rpmhpd_aggregate_corner(pd, pd->level[0]);
--
-+	ret = rpmhpd_aggregate_corner(pd, 0);
- 	if (!ret)
- 		pd->enabled = false;
- 
+ 	spin_lock_bh(&vsi->mac_filter_hash_lock);
+-	*num_vlans = i40e_getnum_vf_vsi_vlan_filters(vsi);
++	*num_vlans = __i40e_getnum_vf_vsi_vlan_filters(vsi);
+ 	*vlan_list = kcalloc(*num_vlans, sizeof(**vlan_list), GFP_ATOMIC);
+ 	if (!(*vlan_list))
+ 		goto err;
 -- 
 2.30.2
 
