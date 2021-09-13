@@ -2,31 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E298840966D
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:55:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF204409653
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345413AbhIMOvX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:51:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39094 "EHLO mail.kernel.org"
+        id S244096AbhIMOvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:51:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346945AbhIMOrS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346941AbhIMOrS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:47:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B002B63233;
-        Mon, 13 Sep 2021 13:59:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 289686323F;
+        Mon, 13 Sep 2021 13:59:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541547;
-        bh=UFT6MBapqXV9h9DMkaVCdmLDjLLWejZRghtRFrPmvsE=;
+        s=korg; t=1631541549;
+        bh=1kUv6FJq2LCm8QC51e9vkQj9SjRPO+CsrYQ5T4WX41Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LyUn/IrZg61vAoC9bfcjd/td25j5K5t59+Ovw4euwYrw1CL3RjwLmyDQIJLYVc13+
-         r8mpISvUFNzg9hl2IJQysyzCeWS4A29olJirc7rhqV5EvSEvK8QewyOe+vfw6MuVC2
-         27r8cOhFb4z4XkFlxjeAU8rsn0KWYRXh3Z1LksWQ=
+        b=fReo01tOeiKbKj4CTkLPxwIBrRTeVI0b86m2dwW9xc5hQeuTF0NhLf3sNjzeTTZdO
+         1aij+utz/LTBcIfgN9o0Pc7OqpweGtZ0NzAf1Osvb6+9ksthpVp6Maof1CroYJ8z89
+         vMRKg548sfXywv3pSLmMBEPXtZnd07HFxuf6BHGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.14 313/334] KVM: x86: clamp host mapping level to max_level in kvm_mmu_max_mapping_level
-Date:   Mon, 13 Sep 2021 15:16:07 +0200
-Message-Id: <20210913131124.007245104@linuxfoundation.org>
+        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
+        Ben Gardon <bgardon@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Mingwei Zhang <mizhang@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 314/334] KVM: x86/mmu: Avoid collision with !PRESENT SPTEs in TDP MMU lpage stats
+Date:   Mon, 13 Sep 2021 15:16:08 +0200
+Message-Id: <20210913131124.047835996@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -38,74 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit ec607a564f70519b340f7eb4cfc0f4a6b55285ac upstream.
+commit 088acd23526647844aec1c39db4ad02552c86c7b upstream.
 
-This change started as a way to make kvm_mmu_hugepage_adjust a bit simpler,
-but it does fix two bugs as well.
+Factor in whether or not the old/new SPTEs are shadow-present when
+adjusting the large page stats in the TDP MMU.  A modified MMIO SPTE can
+toggle the page size bit, as bit 7 is used to store the MMIO generation,
+i.e. is_large_pte() can get a false positive when called on a MMIO SPTE.
+Ditto for nuking SPTEs with REMOVED_SPTE, which sets bit 7 in its magic
+value.
 
-One bug is in zapping collapsible PTEs.  If a large page size is
-disallowed but not all of them, kvm_mmu_max_mapping_level will return the
-host mapping level and the small PTEs will be zapped up to that level.
-However, if e.g. 1GB are prohibited, we can still zap 4KB mapping and
-preserve the 2MB ones. This can happen for example when NX huge pages
-are in use.
+Opportunistically move the logic below the check to verify at least one
+of the old/new SPTEs is shadow present.
 
-The second would happen when userspace backs guest memory
-with a 1gb hugepage but only assign a subset of the page to
-the guest.  1gb pages would be disallowed by the memslot, but
-not 2mb.  kvm_mmu_max_mapping_level() would fall through to the
-host_pfn_mapping_level() logic, see the 1gb hugepage, and map the whole
-thing into the guest.
+Use is/was_leaf even though is/was_present would suffice.  The code
+generation is roughly equivalent since all flags need to be computed
+prior to the code in question, and using the *_leaf flags will minimize
+the diff in a future enhancement to account all pages, i.e. will change
+the check to "is_leaf != was_leaf".
 
-Fixes: 2f57b7051fe8 ("KVM: x86/mmu: Persist gfn_lpage_is_disallowed() to max_level")
+Reviewed-by: David Matlack <dmatlack@google.com>
+Reviewed-by: Ben Gardon <bgardon@google.com>
+
+Fixes: 1699f65c8b65 ("kvm/x86: Fix 'lpages' kvm stat for TDM MMU")
 Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Mingwei Zhang <mizhang@google.com>
+Message-Id: <20210803044607.599629-3-mizhang@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c |   13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ arch/x86/kvm/mmu/tdp_mmu.c |   20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -2846,6 +2846,7 @@ int kvm_mmu_max_mapping_level(struct kvm
- 			      kvm_pfn_t pfn, int max_level)
- {
- 	struct kvm_lpage_info *linfo;
-+	int host_level;
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -412,6 +412,7 @@ static void __handle_changed_spte(struct
+ 	bool was_leaf = was_present && is_last_spte(old_spte, level);
+ 	bool is_leaf = is_present && is_last_spte(new_spte, level);
+ 	bool pfn_changed = spte_to_pfn(old_spte) != spte_to_pfn(new_spte);
++	bool was_large, is_large;
  
- 	max_level = min(max_level, max_huge_page_level);
- 	for ( ; max_level > PG_LEVEL_4K; max_level--) {
-@@ -2857,7 +2858,8 @@ int kvm_mmu_max_mapping_level(struct kvm
- 	if (max_level == PG_LEVEL_4K)
- 		return PG_LEVEL_4K;
+ 	WARN_ON(level > PT64_ROOT_MAX_LEVEL);
+ 	WARN_ON(level < PG_LEVEL_4K);
+@@ -445,13 +446,6 @@ static void __handle_changed_spte(struct
  
--	return host_pfn_mapping_level(kvm, gfn, pfn, slot);
-+	host_level = host_pfn_mapping_level(kvm, gfn, pfn, slot);
-+	return min(host_level, max_level);
- }
+ 	trace_kvm_tdp_mmu_spte_changed(as_id, gfn, level, old_spte, new_spte);
  
- int kvm_mmu_hugepage_adjust(struct kvm_vcpu *vcpu, gfn_t gfn,
-@@ -2881,17 +2883,12 @@ int kvm_mmu_hugepage_adjust(struct kvm_v
- 	if (!slot)
- 		return PG_LEVEL_4K;
- 
--	level = kvm_mmu_max_mapping_level(vcpu->kvm, slot, gfn, pfn, max_level);
--	if (level == PG_LEVEL_4K)
--		return level;
--
--	*req_level = level = min(level, max_level);
+-	if (is_large_pte(old_spte) != is_large_pte(new_spte)) {
+-		if (is_large_pte(old_spte))
+-			atomic64_sub(1, (atomic64_t*)&kvm->stat.lpages);
+-		else
+-			atomic64_add(1, (atomic64_t*)&kvm->stat.lpages);
+-	}
 -
  	/*
- 	 * Enforce the iTLB multihit workaround after capturing the requested
- 	 * level, which will be used to do precise, accurate accounting.
- 	 */
--	if (huge_page_disallowed)
-+	*req_level = level = kvm_mmu_max_mapping_level(vcpu->kvm, slot, gfn, pfn, max_level);
-+	if (level == PG_LEVEL_4K || huge_page_disallowed)
- 		return PG_LEVEL_4K;
+ 	 * The only times a SPTE should be changed from a non-present to
+ 	 * non-present state is when an MMIO entry is installed/modified/
+@@ -477,6 +471,18 @@ static void __handle_changed_spte(struct
+ 		return;
+ 	}
  
- 	/*
++	/*
++	 * Update large page stats if a large page is being zapped, created, or
++	 * is replacing an existing shadow page.
++	 */
++	was_large = was_leaf && is_large_pte(old_spte);
++	is_large = is_leaf && is_large_pte(new_spte);
++	if (was_large != is_large) {
++		if (was_large)
++			atomic64_sub(1, (atomic64_t *)&kvm->stat.lpages);
++		else
++			atomic64_add(1, (atomic64_t *)&kvm->stat.lpages);
++	}
+ 
+ 	if (was_leaf && is_dirty_spte(old_spte) &&
+ 	    (!is_present || !is_dirty_spte(new_spte) || pfn_changed))
 
 
