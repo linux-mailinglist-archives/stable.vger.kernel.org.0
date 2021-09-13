@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 999D0409234
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:09:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB2814094E4
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244417AbhIMOJL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:09:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
+        id S1345629AbhIMOgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:36:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343979AbhIMOHJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:07:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42EAF61A82;
-        Mon, 13 Sep 2021 13:40:18 +0000 (UTC)
+        id S1346869AbhIMOdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:33:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC26961BBD;
+        Mon, 13 Sep 2021 13:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540418;
-        bh=HVmiHrBeFNiqaH8sduhcxvABJ2yP4wydtgEcHmO945o=;
+        s=korg; t=1631541172;
+        bh=NVm5CNrj1Fp8DkxQAHdIquWA/5DDbSxf6tUp8X80vZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VIBBizvgW207SSLmHygibgyxxMlsKwptqZO6jhnAoIRIIWtbd/qrGFTZmwJOqdGpc
-         PgtM7vqULB1cE46Qefo9LODcuWiusYFclu3xKhmoZBQ07HFjjSadhkOPpjimLQAx5w
-         v0YSgcsBjdEUBUs7nbE5GvSSMx+pBNk5UNRrcE/M=
+        b=LOV+rh3V0uYPBNoeewjBiqTPtOq7gxH1x4zIKJ+6TjzFc1fnkYHV0YlLPHJAXud54
+         I9lII5vf/eULiLKnnC0gDO3Zjuil+KzrGnLYQYVmyH0zEw42lOiehozC/AKZ1cJENm
+         9dCQl+gz3JuK9/+1H0HA0FIukonzIjlpcCuvtdxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        stable@vger.kernel.org,
+        Curtis Malainey <cujomalainey@chromium.org>,
+        Matt Davis <mattedavis@google.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 185/300] usb: phy: twl6030: add IRQ checks
+Subject: [PATCH 5.14 192/334] ASoC: Intel: Fix platform ID matching
 Date:   Mon, 13 Sep 2021 15:14:06 +0200
-Message-Id: <20210913131115.641811586@linuxfoundation.org>
+Message-Id: <20210913131119.861802613@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Curtis Malainey <cujomalainey@chromium.org>
 
-[ Upstream commit 0881e22c06e66af0b64773c91c8868ead3d01aa1 ]
+[ Upstream commit f4eeaed04e861b95f1f2c911263f2fcaa959c078 ]
 
-The driver neglects to check the result of platform_get_irq()'s calls and
-blithely passes the negative error codes to request_threaded_irq() (which
-takes *unsigned* IRQ #), causing them both to fail with -EINVAL, overriding
-an original error code.  Stop calling request_threaded_irq() with the
-invalid IRQ #s.
+Sparse warnings triggered truncating the IDs of some platform device
+tables. Unfortunately some of the IDs in the match tables were missed
+which breaks audio. The KBL change has been verified to fix audio, the
+CML change was not tested as it was found through grepping the broken
+changes and found to match the same situation in anticipation that it
+should also be fixed.
 
-Fixes: c33fad0c3748 ("usb: otg: Adding twl6030-usb transceiver driver for OMAP4430")
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/9507f50b-50f1-6dc4-f57c-3ed4e53a1c25@omp.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 94efd726b947 ("ASoC: Intel: kbl_da7219_max98357a: shrink platform_id below 20 characters")
+Fixes: 24e46fb811e9 ("ASoC: Intel: bxt_da7219_max98357a: shrink platform_id below 20 characters")
+Signed-off-by: Curtis Malainey <cujomalainey@chromium.org>
+Tested-by: Matt Davis <mattedavis@google.com>
+Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210809213544.1682444-1-cujomalainey@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/phy/phy-twl6030-usb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/intel/common/soc-acpi-intel-cml-match.c | 2 +-
+ sound/soc/intel/common/soc-acpi-intel-kbl-match.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
-index 8ba6c5a91557..ab3c38a7d8ac 100644
---- a/drivers/usb/phy/phy-twl6030-usb.c
-+++ b/drivers/usb/phy/phy-twl6030-usb.c
-@@ -348,6 +348,11 @@ static int twl6030_usb_probe(struct platform_device *pdev)
- 	twl->irq2		= platform_get_irq(pdev, 1);
- 	twl->linkstat		= MUSB_UNKNOWN;
- 
-+	if (twl->irq1 < 0)
-+		return twl->irq1;
-+	if (twl->irq2 < 0)
-+		return twl->irq2;
-+
- 	twl->comparator.set_vbus	= twl6030_set_vbus;
- 	twl->comparator.start_srp	= twl6030_start_srp;
- 
+diff --git a/sound/soc/intel/common/soc-acpi-intel-cml-match.c b/sound/soc/intel/common/soc-acpi-intel-cml-match.c
+index 42ef51c3fb4f..b591c6fd13fd 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-cml-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-cml-match.c
+@@ -75,7 +75,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_cml_machines[] = {
+ 	},
+ 	{
+ 		.id = "DLGS7219",
+-		.drv_name = "cml_da7219_max98357a",
++		.drv_name = "cml_da7219_mx98357a",
+ 		.machine_quirk = snd_soc_acpi_codec_list,
+ 		.quirk_data = &max98390_spk_codecs,
+ 		.sof_fw_filename = "sof-cml.ri",
+diff --git a/sound/soc/intel/common/soc-acpi-intel-kbl-match.c b/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
+index ba5ff468c265..741bf2f9e081 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-kbl-match.c
+@@ -87,7 +87,7 @@ struct snd_soc_acpi_mach snd_soc_acpi_intel_kbl_machines[] = {
+ 	},
+ 	{
+ 		.id = "DLGS7219",
+-		.drv_name = "kbl_da7219_max98357a",
++		.drv_name = "kbl_da7219_mx98357a",
+ 		.fw_filename = "intel/dsp_fw_kbl.bin",
+ 		.machine_quirk = snd_soc_acpi_codec_list,
+ 		.quirk_data = &kbl_7219_98357_codecs,
 -- 
 2.30.2
 
