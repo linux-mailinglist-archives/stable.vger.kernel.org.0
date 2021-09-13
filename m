@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4470E408F7D
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03BA7408F89
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242575AbhIMNnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:43:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41960 "EHLO mail.kernel.org"
+        id S241934AbhIMNoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:44:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242980AbhIMNlP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:41:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5D9F6134F;
-        Mon, 13 Sep 2021 13:29:48 +0000 (UTC)
+        id S243161AbhIMNmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:42:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47C9F61356;
+        Mon, 13 Sep 2021 13:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539789;
-        bh=uiKeTbmRF95U4LLFHxQAHG5XWouIQW7bQH0cUQ036h0=;
+        s=korg; t=1631539794;
+        bh=STBeG+o71Ug78FNlxlQGz9BreD5lnwxXa0QtuceS2l4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h41ba1VgrOSVh2JQawOPdHYZxosbwiIGANsf2ENNdgaWcCAJtSb8wkspO2xgckjZC
-         VE32xP1FFtFslE1AoWSs+KCjh2xACC9pNsZWLltLtQWqNLVBLTZs7TacDnHe7fkQfH
-         OhPrkDMbfG3okt7ClZ/XoPi8AF91JV2W+ZHj9Kc0=
+        b=Z46tD3lqG9v1/g+OU8OY/pfIuElanXaHBMARwGd9++qNFdXhQs1YmyPn7dl9l7FyC
+         zkkFMtm684Z7N0bc7VXzUifPi3vcYYml9bA4Ov2tBSrKaPjQ9os6erh8zptEm/sTDX
+         vLjF693/drkkz6c/EF+k1+HQkD5CdbAr7VKmZjf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 161/236] libbpf: Re-build libbpf.so when libbpf.map changes
-Date:   Mon, 13 Sep 2021 15:14:26 +0200
-Message-Id: <20210913131105.861387748@linuxfoundation.org>
+        stable@vger.kernel.org, Chih-Kang Chang <gary.chang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 162/236] mac80211: Fix insufficient headroom issue for AMSDU
+Date:   Mon, 13 Sep 2021 15:14:27 +0200
+Message-Id: <20210913131105.894213559@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -40,70 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Chih-Kang Chang <gary.chang@realtek.com>
 
-[ Upstream commit 61c7aa5020e98ac2fdcf07d07eec1baf2e9f0a08 ]
+[ Upstream commit f50d2ff8f016b79a2ff4acd5943a1eda40c545d4 ]
 
-Ensure libbpf.so is re-built whenever libbpf.map is modified.  Without this,
-changes to libbpf.map are not detected and versioned symbols mismatch error
-will be reported until `make clean && make` is used, which is a suboptimal
-developer experience.
+ieee80211_amsdu_realloc_pad() fails to account for extra_tx_headroom,
+the original reserved headroom might be eaten. Add the necessary
+extra_tx_headroom.
 
-Fixes: 306b267cb3c4 ("libbpf: Verify versioned symbols")
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210815070609.987780-8-andrii@kernel.org
+Fixes: 6e0456b54545 ("mac80211: add A-MSDU tx support")
+Signed-off-by: Chih-Kang Chang <gary.chang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Link: https://lore.kernel.org/r/20210816085128.10931-2-pkshih@realtek.com
+[fix indentation]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/Makefile | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/mac80211/tx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/Makefile b/tools/lib/bpf/Makefile
-index 310f647c2d5b..154b75fc1373 100644
---- a/tools/lib/bpf/Makefile
-+++ b/tools/lib/bpf/Makefile
-@@ -4,8 +4,9 @@
- RM ?= rm
- srctree = $(abs_srctree)
+diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
+index 20b3581a1c43..673ad3cf2c3a 100644
+--- a/net/mac80211/tx.c
++++ b/net/mac80211/tx.c
+@@ -3229,7 +3229,9 @@ static bool ieee80211_amsdu_prepare_head(struct ieee80211_sub_if_data *sdata,
+ 	if (info->control.flags & IEEE80211_TX_CTRL_AMSDU)
+ 		return true;
  
-+VERSION_SCRIPT := libbpf.map
- LIBBPF_VERSION := $(shell \
--	grep -oE '^LIBBPF_([0-9.]+)' libbpf.map | \
-+	grep -oE '^LIBBPF_([0-9.]+)' $(VERSION_SCRIPT) | \
- 	sort -rV | head -n1 | cut -d'_' -f2)
- LIBBPF_MAJOR_VERSION := $(firstword $(subst ., ,$(LIBBPF_VERSION)))
+-	if (!ieee80211_amsdu_realloc_pad(local, skb, sizeof(*amsdu_hdr)))
++	if (!ieee80211_amsdu_realloc_pad(local, skb,
++					 sizeof(*amsdu_hdr) +
++					 local->hw.extra_tx_headroom))
+ 		return false;
  
-@@ -131,7 +132,6 @@ SHARED_OBJDIR	:= $(OUTPUT)sharedobjs/
- STATIC_OBJDIR	:= $(OUTPUT)staticobjs/
- BPF_IN_SHARED	:= $(SHARED_OBJDIR)libbpf-in.o
- BPF_IN_STATIC	:= $(STATIC_OBJDIR)libbpf-in.o
--VERSION_SCRIPT	:= libbpf.map
- BPF_HELPER_DEFS	:= $(OUTPUT)bpf_helper_defs.h
- 
- LIB_TARGET	:= $(addprefix $(OUTPUT),$(LIB_TARGET))
-@@ -184,10 +184,10 @@ $(BPF_HELPER_DEFS): $(srctree)/tools/include/uapi/linux/bpf.h
- 
- $(OUTPUT)libbpf.so: $(OUTPUT)libbpf.so.$(LIBBPF_VERSION)
- 
--$(OUTPUT)libbpf.so.$(LIBBPF_VERSION): $(BPF_IN_SHARED)
-+$(OUTPUT)libbpf.so.$(LIBBPF_VERSION): $(BPF_IN_SHARED) $(VERSION_SCRIPT)
- 	$(QUIET_LINK)$(CC) $(LDFLAGS) \
- 		--shared -Wl,-soname,libbpf.so.$(LIBBPF_MAJOR_VERSION) \
--		-Wl,--version-script=$(VERSION_SCRIPT) $^ -lelf -lz -o $@
-+		-Wl,--version-script=$(VERSION_SCRIPT) $< -lelf -lz -o $@
- 	@ln -sf $(@F) $(OUTPUT)libbpf.so
- 	@ln -sf $(@F) $(OUTPUT)libbpf.so.$(LIBBPF_MAJOR_VERSION)
- 
-@@ -202,7 +202,7 @@ $(OUTPUT)libbpf.pc:
- 
- check: check_abi
- 
--check_abi: $(OUTPUT)libbpf.so
-+check_abi: $(OUTPUT)libbpf.so $(VERSION_SCRIPT)
- 	@if [ "$(GLOBAL_SYM_COUNT)" != "$(VERSIONED_SYM_COUNT)" ]; then	 \
- 		echo "Warning: Num of global symbols in $(BPF_IN_SHARED)"	 \
- 		     "($(GLOBAL_SYM_COUNT)) does NOT match with num of"	 \
+ 	data = skb_push(skb, sizeof(*amsdu_hdr));
 -- 
 2.30.2
 
