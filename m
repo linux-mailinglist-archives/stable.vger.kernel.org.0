@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A98F408FD2
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81373408DE0
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242997AbhIMNqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:46:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51782 "EHLO mail.kernel.org"
+        id S241617AbhIMNa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:30:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243677AbhIMNov (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:44:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FD5E61440;
-        Mon, 13 Sep 2021 13:31:14 +0000 (UTC)
+        id S241415AbhIMNYM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:24:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E738610D1;
+        Mon, 13 Sep 2021 13:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539874;
-        bh=g5bvzzsZ30AzMLtzWBmROfQKl3rddEjPsLLezYEkHdw=;
+        s=korg; t=1631539309;
+        bh=jvto1BW8c4m+rCzIAmrjQpwTrZWMq1rifNIwG7vScDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZ4fsa89q9RMdBjnl97PdjD/WcyayN1vxk1AAhLFj7DSvGRXmtS1yevWJT/2Sqdw1
-         fbqh0SEpdUyo33dyKk52jw1mRgSCu1vHjkzWrNFLlT1d0XHNXvb277akYKb8fT4Ofn
-         iG2EKxMNPFaVYgnTVYGTGh5w7ryeXapy2b5mb784=
+        b=ST/bcLXouIBpzZSUBstbNkx+xeyBT0Hb7zNGcT0f4IZ2eZMtBb9xzqnUwP8qZR/jr
+         Tr5tqJa8o4MiI06chxCvaY1NQRTKhTte046VZaPPngVagyfN7xQVeaFx/4REfSWqfz
+         Etsl8MKs6XEkZ4EdJLziNrxNOEwuZiRC4L4Shjas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 195/236] usb: bdc: Fix a resource leak in the error handling path of bdc_probe()
-Date:   Mon, 13 Sep 2021 15:15:00 +0200
-Message-Id: <20210913131107.010324831@linuxfoundation.org>
+Subject: [PATCH 5.4 120/144] brcmfmac: pcie: fix oops on failure to resume and reprobe
+Date:   Mon, 13 Sep 2021 15:15:01 +0200
+Message-Id: <20210913131051.937311398@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,95 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-[ Upstream commit 6f15a2a09cecb7a2faba4a75bbd101f6f962294b ]
+[ Upstream commit d745ca4f2c4ae9f1bd8cf7d8ac6e22d739bffd19 ]
 
-If an error occurs after a successful 'clk_prepare_enable()' call, it must
-be undone by a corresponding 'clk_disable_unprepare()' call.
-This call is already present in the remove function.
+When resuming from suspend, brcmf_pcie_pm_leave_D3 will first attempt a
+hot resume and then fall back to removing the PCI device and then
+reprobing. If this probe fails, the kernel will oops, because brcmf_err,
+which is called to report the failure will dereference the stale bus
+pointer. Open code and use the default bus-less brcmf_err to avoid this.
 
-Add this call in the error handling path and reorder the code so that the
-'clk_prepare_enable()' call happens later in the function.
-The goal is to have as much managed resources functions as possible
-before the 'clk_prepare_enable()' call in order to keep the error handling
-path simple.
-
-While at it, remove the now unneeded 'clk' variable.
-
-Fixes: c87dca047849 ("usb: bdc: Add clock enable for new chips with a separate BDC clock")
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/f8a4a6897deb0c8cb2e576580790303550f15fcd.1629314734.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8602e62441ab ("brcmfmac: pass bus to the __brcmf_err() in pcie.c")
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210817063521.22450-1-a.fatoum@pengutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/bdc/bdc_core.c | 27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
-index 251db57e51fa..fa1a3908ec3b 100644
---- a/drivers/usb/gadget/udc/bdc/bdc_core.c
-+++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
-@@ -488,27 +488,14 @@ static int bdc_probe(struct platform_device *pdev)
- 	int irq;
- 	u32 temp;
- 	struct device *dev = &pdev->dev;
--	struct clk *clk;
- 	int phy_num;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index bda042138e96..e6001f0a81a3 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -2073,7 +2073,7 @@ cleanup:
  
- 	dev_dbg(dev, "%s()\n", __func__);
+ 	err = brcmf_pcie_probe(pdev, NULL);
+ 	if (err)
+-		brcmf_err(bus, "probe after resume failed, err=%d\n", err);
++		__brcmf_err(NULL, __func__, "probe after resume failed, err=%d\n", err);
  
--	clk = devm_clk_get_optional(dev, "sw_usbd");
--	if (IS_ERR(clk))
--		return PTR_ERR(clk);
--
--	ret = clk_prepare_enable(clk);
--	if (ret) {
--		dev_err(dev, "could not enable clock\n");
--		return ret;
--	}
--
- 	bdc = devm_kzalloc(dev, sizeof(*bdc), GFP_KERNEL);
- 	if (!bdc)
- 		return -ENOMEM;
- 
--	bdc->clk = clk;
--
- 	bdc->regs = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(bdc->regs))
- 		return PTR_ERR(bdc->regs);
-@@ -545,10 +532,20 @@ static int bdc_probe(struct platform_device *pdev)
- 		}
- 	}
- 
-+	bdc->clk = devm_clk_get_optional(dev, "sw_usbd");
-+	if (IS_ERR(bdc->clk))
-+		return PTR_ERR(bdc->clk);
-+
-+	ret = clk_prepare_enable(bdc->clk);
-+	if (ret) {
-+		dev_err(dev, "could not enable clock\n");
-+		return ret;
-+	}
-+
- 	ret = bdc_phy_init(bdc);
- 	if (ret) {
- 		dev_err(bdc->dev, "BDC phy init failure:%d\n", ret);
--		return ret;
-+		goto disable_clk;
- 	}
- 
- 	temp = bdc_readl(bdc->regs, BDC_BDCCAP1);
-@@ -581,6 +578,8 @@ cleanup:
- 	bdc_hw_exit(bdc);
- phycleanup:
- 	bdc_phy_exit(bdc);
-+disable_clk:
-+	clk_disable_unprepare(bdc->clk);
- 	return ret;
+ 	return err;
  }
- 
 -- 
 2.30.2
 
