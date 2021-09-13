@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFF87409BA0
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 20:00:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE46B409BA5
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 20:02:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345985AbhIMSCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 14:02:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38640 "EHLO
+        id S1346178AbhIMSDY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 14:03:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345961AbhIMSCD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 14:02:03 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09829C061574
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 11:00:47 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id c22so14240310edn.12
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 11:00:46 -0700 (PDT)
+        with ESMTP id S1346243AbhIMSDY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 14:03:24 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E26AAC061760
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 11:02:05 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id g8so15644841edt.7
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 11:02:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=DHniLUit0TO1fpRb8u2zaQ03tSwIk8vmaFLMCJHl5Cc=;
-        b=KvMorzevM9iFkGuwdH3TXkYjG6oxzPm7EjhikWixq8iOmn27OImseEWW7A+gVnZM2y
-         n+Br/+bPNqoZABjxljng1+EwPC5UMUTURMHtVON/cqbjPFISAeLuxa36A7tuCWuNAD8I
-         XwUUhXeudKpJBAFwiIv8Ln6Zc1zqbvXfMQ2XTJEDHJAMdHZzNY8CvCz+ZlN/FWTKJCu3
-         eoV9gUZuOUhyv/2NCcLURxTL76FFVvrE0H8cclCQmcAIwqSQliS6gMnWOi4isuj/r3wW
-         DUnGPGy80YKuKlIy2McojLu1vtII2+7iud88cqdx98Hc7n462orClCSViNb+4u0HQOuJ
-         C4+A==
+        bh=5Qkth7woyLAVIJdWp+l8uz/eF+3cl4KMIagT6yeHJcs=;
+        b=MinFidCnrduDGXC5mBb+NPraRLlqsfI93t+fXxh+y6N8rd5/K0E9dCbG3uPEvo/082
+         MDOc7fv4v0jfyxuOs9yWH30VaV0kdU9/QcwetUalRgD7YtKHUgfUIp4ELNAnI4PO/Shz
+         vgOHB26JzTKIjDYug0X3DNXr7p5e+9K4NmnWQ3qwUh9fEbN8U3ltnImWJLhyAjF0GsXI
+         ABvaPbIDdzjjmrwD+q9yppJRrKEPKbiAPnSsJdDPdiUfsEHYznF5piBISZ6sciRh/itM
+         0xvUbYt5pDNCROZxNUh9WvisFk8JHQ/iP0P0D4wv8v+utv2BR2uLaO7fHhZ41OwCAy8k
+         B5Wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=DHniLUit0TO1fpRb8u2zaQ03tSwIk8vmaFLMCJHl5Cc=;
-        b=zYmi1O7A9+yFOMc3iStEJ7oX+GOgs3f4o0TfppNnSSevGa0bdDdPrbQmCMKCSGzPG9
-         tM0ayKIC/b1KSyJ0cuh/wdOhdZkLcyXVgOIASIHBWCTecHh+/iaOqzsxjfYB1LfJRjjR
-         m9CrP148mL4SLsEDT9Glb58e5PEmhEMUlu0XuNe5se3yZJ/nUzbWzL6axAMAhTN6uoj/
-         /QVExpdJvrIGthONdHCE06PnqjFZGmRYWM/dhrntaTrgpo1AoM6FuFnksstwJ0s2h4Qr
-         KG3Mldq5aB+lpWp6yQD2di2WDflXs/3E/a0F2hDMND0J2XLCI/Qsk+MGAROn/t0hBE9p
-         wPRQ==
-X-Gm-Message-State: AOAM532UBABdR+ReuXeK61vPwzi59nsJPq6n1U68knL3dsgQrRwy49Bs
-        YDhsDFeMaYT2+O+t90WUC8Q+EUvXeREyuWlyWJIKarPeXRALOw==
-X-Google-Smtp-Source: ABdhPJx5nH/HEHzRtp0MK/myEqTSYmPy/C9zI1z8EKFCO0HlLcLly/dbEMpI49W1i/rpeDNRIm0lxgKtGl6BbYvX7C8=
-X-Received: by 2002:aa7:c617:: with SMTP id h23mr13036515edq.357.1631556045428;
- Mon, 13 Sep 2021 11:00:45 -0700 (PDT)
+        bh=5Qkth7woyLAVIJdWp+l8uz/eF+3cl4KMIagT6yeHJcs=;
+        b=Eir6hrXRoFI1qSZj9H6FtEleHxIpSEnbQFO1cf5+mN78MzMNbMPoheadNre+apNK8M
+         rpDZZbsIlj+rR3nr8S4Nl0LvE3tdjBorVNd4PklQeeSgChOlayaNf6CpOS7wghOK0rSk
+         2sjDKASWftodpGUWaaCKQl5JYCqCqytSNzItO59EqXSfq49IEdb3hZnd95oG29DyLFo0
+         q4vy7gDk+A9EMFhhWGOcAIlrBQZ1yLXeV5jCBnxZCN8eCNjSpT+G/seQC5xegOjWpGqP
+         KZ1ZxAtkAA1pv94/KCcNze0na29eEjD9FZG4KDzkg7FYiDLJ3sZLU4hL4rAHKrGkhQ8o
+         pJiA==
+X-Gm-Message-State: AOAM533q5zUNJidzPW01/er1IvAQXX60SFlVez5ojwhYjwyjr5foRFXT
+        9FhPFX/HLYIRMwcIAbfVfs77OwIfpqRhdQj9/1EUDg==
+X-Google-Smtp-Source: ABdhPJyLWma6j5HJ2oNefPP9FqgeO0QHxx6F012Rn57fMjXDf02G3TY8321grWfexwEtUaVC7ICAvi0xc2L12iQcFa8=
+X-Received: by 2002:a05:6402:2695:: with SMTP id w21mr14486313edd.182.1631556124338;
+ Mon, 13 Sep 2021 11:02:04 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210913131113.390368911@linuxfoundation.org>
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 13 Sep 2021 23:30:32 +0530
-Message-ID: <CA+G9fYsPUuJFiY92VEqvdMYMA9rNFXAftZNsHka0QZSJngh1sQ@mail.gmail.com>
-Subject: Re: [PATCH 5.14 000/334] 5.14.4-rc1 review
+Date:   Mon, 13 Sep 2021 23:31:52 +0530
+Message-ID: <CA+G9fYuhgknV+hEpeyEN8xCEbY_dspFsTU=-XpH4vKEMqMiRmg@mail.gmail.com>
+Subject: Re: [PATCH 5.13 000/300] 5.13.17-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, shuah@kernel.org,
         f.fainelli@gmail.com, patches@kernelci.org,
@@ -61,11 +61,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 13 Sept 2021 at 19:16, Greg Kroah-Hartman
+On Mon, 13 Sept 2021 at 19:04, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.14.4 release.
-> There are 334 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.13.17 release.
+> There are 300 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -73,19 +73,18 @@ On Mon, 13 Sept 2021 at 19:16, Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.4-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.17-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
 > and the diffstat can be found below.
 >
 > thanks,
 >
 > greg k-h
 
-FYI,
 
 arm clang-10, clang-11, clang-12 and clang-13 builds failed.
-due to this commit on 5.14 and 5.13 on following configs,
+on 5.14 and 5.13 on following configs,
   - footbridge_defconfig
   - mini2440_defconfig
   - s3c2410_defconfig
@@ -103,7 +102,6 @@ https://lore.kernel.org/all/20210909182525.372ee687@canb.auug.org.au/
 
 Full build log,
 https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1585407346#L1111
-
 
 --
 Linaro LKFT
