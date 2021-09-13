@@ -2,207 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09D5F409B57
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 19:57:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93D11409B60
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 19:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238773AbhIMR6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 13:58:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37704 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239959AbhIMR6Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 13:58:16 -0400
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D0DC061762
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 10:57:00 -0700 (PDT)
-Received: by mail-pg1-x531.google.com with SMTP id q68so10162246pga.9
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 10:57:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=MWRcu8o0r3JAIG15sobbHEIC3Ton70iLZtcBgmSb1f0=;
-        b=fXVuVmAyrIFhHvWEcYtBvfY1Ck0/TVVpw60BbxY72CYBcPbi0ujAgyGdTh/fNgM63/
-         6HFf0oo/vBMAA1Gl+CnKUBa/OtwbQftyQw81a6rYyI30Y927HLyZ371/npZk3yvOFd1O
-         55vgRFon8io6HkPabDfjcy5LKBusqfhIa2JDf7gdBfSB061OaUOjB0S5gR+EDlVdPhcr
-         Q9Eah3vS/dwuBzo/f/E1Q6G6YINfI5AZzWTq1NNGVpsw2lTXePSxwbKPC8jm5lLJdAVc
-         lremZD5hr2BejzRlU96YC4FG3S95lILTV8CX/EarJBgSHOetUmkRrfx2Kl/lGdMamVth
-         xelw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=MWRcu8o0r3JAIG15sobbHEIC3Ton70iLZtcBgmSb1f0=;
-        b=WfcgWM1GgiJ/DqL038w6OnZkrmKCEjGk2zFsfbTiynqsJA26tukCJYEU8r350VahDm
-         LZhoxsKqahfvXFEjCFlM29mVaXnHAn6v/EeKqJsxE4iFJBPDODdKt1KVuAmaKCPl59pw
-         K5pF4XjgUUtvEtjZLw8mDMLUnXXn6RyyZzYrfW0MGnVFWIIqf5aBxo20znHoqqxSRFC2
-         DZDoPSfvzW57DHuJrta5EGoaa+XQYMa7vKhxZbipmYAAeSmSHNetZ46xDBaj+WF7r/2a
-         IRa7IN3cgY4ReVYAkCBlGONM0QB5JZGkPVsp3PKlp3f/r9MRexudsr2EQ/MLa7HCBHA/
-         f9Ug==
-X-Gm-Message-State: AOAM533EMC1f/7S2eOmWzPoR0fS0ifc44S6ixLb/vIpWXRVbfCVW00Nz
-        MzSTdH+Z/Vd7Vr1IZv3VAyEEE/H2QZGh1SX9
-X-Google-Smtp-Source: ABdhPJz8mHI5w7ib++8zKODoyAEBKBGc261Rm1Tj7pI49IXCWq6aBRGdD5NG8os5ADoBH3G1Pb2OGA==
-X-Received: by 2002:a63:b505:: with SMTP id y5mr12064921pge.91.1631555819630;
-        Mon, 13 Sep 2021 10:56:59 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a27sm7880521pfk.192.2021.09.13.10.56.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Sep 2021 10:56:59 -0700 (PDT)
-Message-ID: <613f90eb.1c69fb81.7e0b5.6440@mx.google.com>
-Date:   Mon, 13 Sep 2021 10:56:59 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1343745AbhIMR7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 13:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48868 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239541AbhIMR7T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 13:59:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4789B60F25;
+        Mon, 13 Sep 2021 17:58:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631555883;
+        bh=wKCgWwoggfMMEuOXBW33VvCRW6LZGGnafN7FiiDq0po=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GVc7OI7qomibj+raAPEjY0UE8y/XsG3CJBeVKxT/5I+pml7HfSZatFAoBHdmO8hMf
+         B4sF/hEfbMZvKo0GdiqrKxq/puFzbu+1iClo7Rim1tTKQyW4lCLGYZiPPs3o8aeLRB
+         4i776bLcYny/wE3eRkpN79oS/jmeNQpx24V+/hvQ=
+Date:   Mon, 13 Sep 2021 19:58:01 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Hulk Robot <hulkci@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        lkft-triage@lists.linaro.org, llvm@lists.linux.dev
+Subject: Re: [PATCH 5.14 018/334] nbd: add the check to prevent overflow in
+ __nbd_ioctl()
+Message-ID: <YT+RKemKfg6GFq0S@kroah.com>
+References: <20210913131113.390368911@linuxfoundation.org>
+ <20210913131114.028340332@linuxfoundation.org>
+ <CA+G9fYtdPnwf+fi4Oyxng65pWjW9ujZ7dd2Z-EEEHyJimNHN6g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.13.16-300-gcec7fe49ccd1
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.13
-Subject: stable-rc/queue/5.13 baseline: 175 runs,
- 3 regressions (v5.13.16-300-gcec7fe49ccd1)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYtdPnwf+fi4Oyxng65pWjW9ujZ7dd2Z-EEEHyJimNHN6g@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.13 baseline: 175 runs, 3 regressions (v5.13.16-300-gcec7f=
-e49ccd1)
+On Mon, Sep 13, 2021 at 09:52:33PM +0530, Naresh Kamboju wrote:
+> On Mon, 13 Sept 2021 at 19:51, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > From: Baokun Li <libaokun1@huawei.com>
+> >
+> > [ Upstream commit fad7cd3310db3099f95dd34312c77740fbc455e5 ]
+> >
+> > If user specify a large enough value of NBD blocks option, it may trigger
+> > signed integer overflow which may lead to nbd->config->bytesize becomes a
+> > large or small value, zero in particular.
+> >
+> > UBSAN: Undefined behaviour in drivers/block/nbd.c:325:31
+> > signed integer overflow:
+> > 1024 * 4611686155866341414 cannot be represented in type 'long long int'
+> > [...]
+> > Call trace:
+> > [...]
+> >  handle_overflow+0x188/0x1dc lib/ubsan.c:192
+> >  __ubsan_handle_mul_overflow+0x34/0x44 lib/ubsan.c:213
+> >  nbd_size_set drivers/block/nbd.c:325 [inline]
+> >  __nbd_ioctl drivers/block/nbd.c:1342 [inline]
+> >  nbd_ioctl+0x998/0xa10 drivers/block/nbd.c:1395
+> >  __blkdev_driver_ioctl block/ioctl.c:311 [inline]
+> > [...]
+> >
+> > Although it is not a big deal, still silence the UBSAN by limit
+> > the input value.
+> >
+> > Reported-by: Hulk Robot <hulkci@huawei.com>
+> > Signed-off-by: Baokun Li <libaokun1@huawei.com>
+> > Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+> > Link: https://lore.kernel.org/r/20210804021212.990223-1-libaokun1@huawei.com
+> > [axboe: dropped unlikely()]
+> > Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  drivers/block/nbd.c | 6 ++++--
+> >  1 file changed, 4 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+> > index 19f5d5a8b16a..acf3f85bf3c7 100644
+> > --- a/drivers/block/nbd.c
+> > +++ b/drivers/block/nbd.c
+> > @@ -1388,6 +1388,7 @@ static int __nbd_ioctl(struct block_device *bdev, struct nbd_device *nbd,
+> >                        unsigned int cmd, unsigned long arg)
+> >  {
+> >         struct nbd_config *config = nbd->config;
+> > +       loff_t bytesize;
+> >
+> >         switch (cmd) {
+> >         case NBD_DISCONNECT:
+> > @@ -1402,8 +1403,9 @@ static int __nbd_ioctl(struct block_device *bdev, struct nbd_device *nbd,
+> >         case NBD_SET_SIZE:
+> >                 return nbd_set_size(nbd, arg, config->blksize);
+> >         case NBD_SET_SIZE_BLOCKS:
+> > -               return nbd_set_size(nbd, arg * config->blksize,
+> > -                                   config->blksize);
+> > +               if (check_mul_overflow((loff_t)arg, config->blksize, &bytesize))
+> > +                       return -EINVAL;
+> > +               return nbd_set_size(nbd, bytesize, config->blksize);
+> >         case NBD_SET_TIMEOUT:
+> >                 nbd_set_cmd_timeout(nbd, arg);
+> >                 return 0;
+> 
+> arm clang-10, clang-11, clang-12 and clang-13 builds failed.
+> due to this commit on 5.14 and 5.13 on following configs,
+>   - footbridge_defconfig
+>   - mini2440_defconfig
+>   - s3c2410_defconfig
+> 
+> This was already reported on the mailing list.
+> 
+> ERROR: modpost: "__mulodi4" [drivers/block/nbd.ko] undefined! #1438
+> https://github.com/ClangBuiltLinux/linux/issues/1438
+> 
+> [PATCH 00/10] raise minimum GCC version to 5.1
+> https://lore.kernel.org/lkml/20210910234047.1019925-1-ndesaulniers@google.com/
+> 
+> linux-next: build failure while building Linus' tree
+> https://lore.kernel.org/all/20210909182525.372ee687@canb.auug.org.au/
+> 
+> Full build log,
+> https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1585407346#L1111
 
-Regressions Summary
--------------------
-
-platform                | arch  | lab         | compiler | defconfig | regr=
-essions
-------------------------+-------+-------------+----------+-----------+-----=
--------
-imx8mp-evk              | arm64 | lab-nxp     | gcc-8    | defconfig | 1   =
-       =
-
-kontron-kbox-a-230-ls   | arm64 | lab-kontron | gcc-8    | defconfig | 1   =
-       =
-
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe  | gcc-8    | defconfig | 1   =
-       =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
-nel/v5.13.16-300-gcec7fe49ccd1/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.13
-  Describe: v5.13.16-300-gcec7fe49ccd1
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      cec7fe49ccd1ea87d08216eae08b7c7622f5f30f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab         | compiler | defconfig | regr=
-essions
-------------------------+-------+-------------+----------+-----------+-----=
--------
-imx8mp-evk              | arm64 | lab-nxp     | gcc-8    | defconfig | 1   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/613f5ef0c3c261883a99a331
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.16-=
-300-gcec7fe49ccd1/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.16-=
-300-gcec7fe49ccd1/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613f5ef0c3c261883a99a=
-332
-        failing since 0 day (last pass: v5.13.15-22-gd9f9fc203cf9, first fa=
-il: v5.13.16-263-g6cdb0b2e1c97) =
-
- =
-
-
-
-platform                | arch  | lab         | compiler | defconfig | regr=
-essions
-------------------------+-------+-------------+----------+-----------+-----=
--------
-kontron-kbox-a-230-ls   | arm64 | lab-kontron | gcc-8    | defconfig | 1   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/613f5d492ea3ee0d9499a307
-
-  Results:     92 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.16-=
-300-gcec7fe49ccd1/arm64/defconfig/gcc-8/lab-kontron/baseline-kontron-kbox-a=
--230-ls.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.16-=
-300-gcec7fe49ccd1/arm64/defconfig/gcc-8/lab-kontron/baseline-kontron-kbox-a=
--230-ls.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.leds-gpio-probed: https://kernelci.org/test/case/id/613=
-f5d492ea3ee0d9499a311
-        new failure (last pass: v5.13.16-263-g6cdb0b2e1c97)
-
-    2021-09-13T14:16:25.551202  /lava-44712/1/../bin/lava-test-case
-    2021-09-13T14:16:25.551732  <8>[   15.798171] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dleds-gpio-probed RESULT=3Dfail>
-    2021-09-13T14:16:25.551894  /lava-44712/1/../bin/lava-test-case
-    2021-09-13T14:16:25.552044  <8>[   15.815739] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dat24-driver-present RESULT=3Dpass>
-    2021-09-13T14:16:25.552192  /lava-44712/1/../bin/lava-test-case
-    2021-09-13T14:16:25.552335  <8>[   15.832527] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dat24-probed RESULT=3Dpass>
-    2021-09-13T14:16:25.552478  /lava-44712/1/../bin/lava-test-case   =
-
- =
-
-
-
-platform                | arch  | lab         | compiler | defconfig | regr=
-essions
-------------------------+-------+-------------+----------+-----------+-----=
--------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe  | gcc-8    | defconfig | 1   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/613f5e4e12a053cc3f99a2db
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.16-=
-300-gcec7fe49ccd1/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bana=
-napi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.16-=
-300-gcec7fe49ccd1/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bana=
-napi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/613f5e4e12a053cc3f99a=
-2dc
-        new failure (last pass: v5.13.16-263-g6cdb0b2e1c97) =
-
- =20
+Has anyone submitted a fix for this upstream yet?  I can't seem to find
+one :(
