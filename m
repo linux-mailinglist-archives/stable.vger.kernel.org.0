@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 353CE4092C7
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D093C409586
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344862AbhIMOPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:15:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37126 "EHLO mail.kernel.org"
+        id S1346509AbhIMOmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:42:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243944AbhIMOOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:14:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7880B6140D;
-        Mon, 13 Sep 2021 13:43:19 +0000 (UTC)
+        id S1347172AbhIMOkV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:40:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BBCA61C19;
+        Mon, 13 Sep 2021 13:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540600;
-        bh=bF1kSNWdgEWd+b9+KRnjYqdWrfx+deOW6qC9Jl1vvxE=;
+        s=korg; t=1631541356;
+        bh=1b4fiQW4iHip8NCQtY7EijYtiIGCgeHDYDcgrGIcoJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMHzi/Sx9fGQfyTPIcOAN2eMhyc1BbmFTxiV02O2MHoHTLynmDvB5JhHvz6ejkPAk
-         gFzmrkZRS9j96f/xo6XBNhJvEpDzOQ4i/HgSz5G0t/XMw/PBShgxNt+hcEUvS25g3b
-         c8OZp4fhZESnnu7DaHfttYjddAHINgjSyDEEIQ8U=
+        b=qv7ERLwRWzVKrMyEyiD1jeCeItaRBeNiU/Ze080vF6LTTw7xhxKtk2cMhkCOAEpQ0
+         wXih5O1SyRB+hKfzwAb4syNKfehsgelIfglYvNh+Kbo5nwBuKk38X/bhztr11OHFmw
+         yDywwm4TzFFJ9f+9d//IcUIMuu8l5yQmcp3DXpp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 258/300] octeontx2-af: Fix loop in free and unmap counter
+Subject: [PATCH 5.14 265/334] ASoC: wcd9335: Fix a memory leak in the error handling path of the probe function
 Date:   Mon, 13 Sep 2021 15:15:19 +0200
-Message-Id: <20210913131118.057330178@linuxfoundation.org>
+Message-Id: <20210913131122.373372214@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 6537e96d743b89294b397b4865c6c061abae31b0 ]
+[ Upstream commit fc6fc81caa63900cef9ebb8b2e365c3ed5a9effb ]
 
-When the given counter does not belong to the entry
-then code ends up in infinite loop because the loop
-cursor, entry is not getting updated further. This
-patch fixes that by updating entry for every iteration.
+If 'wcd9335_setup_irqs()' fails, me must release the memory allocated in
+'wcd_clsh_ctrl_alloc()', as already done in the remove function.
 
-Fixes: a958dd59f9ce ("octeontx2-af: Map or unmap NPC MCAM entry and counter")
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Add an error handling path and the missing 'wcd_clsh_ctrl_free()' call.
+
+Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Message-Id: <6dc12372f09fabb70bf05941dbe6a1382dc93e43.1629091028.git.christophe.jaillet@wanadoo.fr>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/wcd9335.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-index 0bc4529691ec..53ee1785c931 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-@@ -2567,10 +2567,11 @@ int rvu_mbox_handler_npc_mcam_unmap_counter(struct rvu *rvu,
- 		index = find_next_bit(mcam->bmap, mcam->bmap_entries, entry);
- 		if (index >= mcam->bmap_entries)
- 			break;
-+		entry = index + 1;
-+
- 		if (mcam->entry2cntr_map[index] != req->cntr)
- 			continue;
+diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
+index 933f59e4e56f..47fe68edea3a 100644
+--- a/sound/soc/codecs/wcd9335.c
++++ b/sound/soc/codecs/wcd9335.c
+@@ -4844,6 +4844,7 @@ static void wcd9335_codec_init(struct snd_soc_component *component)
+ static int wcd9335_codec_probe(struct snd_soc_component *component)
+ {
+ 	struct wcd9335_codec *wcd = dev_get_drvdata(component->dev);
++	int ret;
+ 	int i;
  
--		entry = index + 1;
- 		npc_unmap_mcam_entry_and_cntr(rvu, mcam, blkaddr,
- 					      index, req->cntr);
- 	}
+ 	snd_soc_component_init_regmap(component, wcd->regmap);
+@@ -4861,7 +4862,15 @@ static int wcd9335_codec_probe(struct snd_soc_component *component)
+ 	for (i = 0; i < NUM_CODEC_DAIS; i++)
+ 		INIT_LIST_HEAD(&wcd->dai[i].slim_ch_list);
+ 
+-	return wcd9335_setup_irqs(wcd);
++	ret = wcd9335_setup_irqs(wcd);
++	if (ret)
++		goto free_clsh_ctrl;
++
++	return 0;
++
++free_clsh_ctrl:
++	wcd_clsh_ctrl_free(wcd->clsh_ctrl);
++	return ret;
+ }
+ 
+ static void wcd9335_codec_remove(struct snd_soc_component *comp)
 -- 
 2.30.2
 
