@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43ABE4091B8
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15369409450
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245391AbhIMOEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:04:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50992 "EHLO mail.kernel.org"
+        id S1346540AbhIMOa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:30:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245612AbhIMOBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:01:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7269761A0C;
-        Mon, 13 Sep 2021 13:38:08 +0000 (UTC)
+        id S1343617AbhIMO2L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:28:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86E8661555;
+        Mon, 13 Sep 2021 13:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540288;
-        bh=lVDVoa1sP9R2MLoIob+fd5qtkGB87avFrZ2575JGRtQ=;
+        s=korg; t=1631540983;
+        bh=dgGFn3u2j2PvLcAOQXu14us5nKFVIt7byqQ4zl8zAQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3eGh7BnCFctQ3Xmt913TXl33rsWjPmeVGuzAcurFxcvcmiZ2Uk0sN0NgUoo16wJo
-         Nlkg4+PW9JlUdL7z9R7Hy/bQVINlMJ0C3986zLJ9oFD+/lPrQdVPPYsZzYTXsjOESi
-         yqVn05S2Z3B2wlmld0rZAS5kn+cuWY/eUo8FYgak=
+        b=u7R7f89gGz2sozs/R3Aw0N2Un5ZQAQCNbGO7koOGtTyd4jx9GW/R0sKfZ3L1fTQpQ
+         9oem4icOpQ7dOYW91RjTXR7eqxdhH1crjyXdslaL/FmXhImlXDbYhwxcaSaF6MecKU
+         QSvOopaa8Nrj1JUc5HVE61F3mjTjo9s3eH0euVvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Shuyi Cheng <chengshuyi@linux.alibaba.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 089/300] drm/of: free the right object
-Date:   Mon, 13 Sep 2021 15:12:30 +0200
-Message-Id: <20210913131112.388603657@linuxfoundation.org>
+Subject: [PATCH 5.14 097/334] libbpf: Fix the possible memory leak on error
+Date:   Mon, 13 Sep 2021 15:12:31 +0200
+Message-Id: <20210913131116.653663271@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@inria.fr>
+From: Shuyi Cheng <chengshuyi@linux.alibaba.com>
 
-[ Upstream commit b557a5f8da5798d27370ed6b73e673aae33efd55 ]
+[ Upstream commit 18353c87e0e0440d4c7c746ed740738bbc1b538e ]
 
-There is no need to free a NULL value.  Instead, free the object
-that is leaking due to the iterator.
+If the strdup() fails then we need to call bpf_object__close(obj) to
+avoid a resource leak.
 
-The semantic patch that finds this problem is as follows:
-
-// <smpl>
-@@
-expression x,e;
-identifier f;
-@@
- x = f(...);
- if (x == NULL) {
-	... when any
-	    when != x = e
-*	of_node_put(x);
-	...
- }
-// </smpl>
-
-Fixes: 6529007522de ("drm: of: Add drm_of_lvds_get_dual_link_pixel_order")
-Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210709200717.3676376-1-Julia.Lawall@inria.fr
+Fixes: 166750bc1dd2 ("libbpf: Support libbpf-provided extern variables")
+Signed-off-by: Shuyi Cheng <chengshuyi@linux.alibaba.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/1626180159-112996-3-git-send-email-chengshuyi@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_of.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/lib/bpf/libbpf.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_of.c b/drivers/gpu/drm/drm_of.c
-index ca04c34e8251..197c57477344 100644
---- a/drivers/gpu/drm/drm_of.c
-+++ b/drivers/gpu/drm/drm_of.c
-@@ -315,7 +315,7 @@ static int drm_of_lvds_get_remote_pixels_type(
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index 6f5e2757bb3c..1bfd11de9be6 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -7588,8 +7588,10 @@ __bpf_object__open(const char *path, const void *obj_buf, size_t obj_buf_sz,
+ 	kconfig = OPTS_GET(opts, kconfig, NULL);
+ 	if (kconfig) {
+ 		obj->kconfig = strdup(kconfig);
+-		if (!obj->kconfig)
+-			return ERR_PTR(-ENOMEM);
++		if (!obj->kconfig) {
++			err = -ENOMEM;
++			goto out;
++		}
+ 	}
  
- 		remote_port = of_graph_get_remote_port(endpoint);
- 		if (!remote_port) {
--			of_node_put(remote_port);
-+			of_node_put(endpoint);
- 			return -EPIPE;
- 		}
- 
+ 	err = bpf_object__elf_init(obj);
 -- 
 2.30.2
 
