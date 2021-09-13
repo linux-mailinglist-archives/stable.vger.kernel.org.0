@@ -2,119 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81B12409E90
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 22:53:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A11C409E9A
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 22:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244340AbhIMUxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 16:53:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50100 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244848AbhIMUxN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 16:53:13 -0400
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 151A4C0613BC
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 13:50:30 -0700 (PDT)
-Received: by mail-lj1-x233.google.com with SMTP id y6so19642594lje.2
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 13:50:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=8TVqbn8thZCqMP/VrYd9m008Vn/d1QsljDuZZA3Cj3U=;
-        b=Kx+QXs7/Gqu+0fT01IBf7AvtFuuKzukMCBr8Uj8Tlirfgy3sBlDb/0dgxW8i2fm4ki
-         Cr2wjOBudyMAbTz6hMk9v40PhWKj9nMcIvmb30kyKFZB5RsdvaSnLonYQoWCJky9Fn/q
-         rvmHHz1xfT6sAANA+Cql145bvCNIa1CwpBa7ThFjKt5zw9vKElWhqhFhEUwiaxOgfZ8Z
-         mc6ZDYEM+0S6oMqPrZMSE/Xi4nZl2oaQoisz2wKEDinJKmadJxfu8MSthUEwUNPCWeqH
-         fluefePE4KH12STgQsgozYhaHaImiPkP9T36zeeUIgpXLdwXCdryY+34zNJ9CWrttP02
-         lFrQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=8TVqbn8thZCqMP/VrYd9m008Vn/d1QsljDuZZA3Cj3U=;
-        b=TDFyjyDPPCmSP1YgmVw0VPCrG7LMNU+UO/qP3x57LWC6rRyO5GRP8h9EHEf3CX2Pt3
-         Oj0Mu/MiUJ3veeVdbtE0nYbtecKW7jZgTWAYIesMcd8/MG8tLkt3EWiM8cutLDYdF7Ee
-         BWBSNpF5jqP2aZRPeVPZEGbpuzyx9Vidh2ZI1g6/PDTfDGOCBLffqR0kTl3XVvx/8Keo
-         JtrBC5uHNPecuUiIsXcRWPqBvSgQivzKyyStuBvX7gnYQlPhuTB3Jby5/kPDyqTDgPqk
-         bG/h5kTQnoFX0pAhTWjw6tdjCFPL307DOJTT0hRmv8TwhMzD8LACmydhRuzPVkbvKnEX
-         RVdg==
-X-Gm-Message-State: AOAM5339t7H0sYYz6RmOPpi0Ep8IBPSPB13Q+qvnyYWO4vCK3om4OR7n
-        rbS3uH6704gP52JB3+0ZeusM5vXofgj+3CHkEmMi4g==
-X-Google-Smtp-Source: ABdhPJy0QpA58fznBHhrAEHivK9kgUxh+cUT8ejPHdCeOcbTpFXS2375qe5rVNCNeV1nKlpokjSe4FcWCpoMJsDrm+0=
-X-Received: by 2002:a05:651c:54d:: with SMTP id q13mr12530242ljp.526.1631566228215;
- Mon, 13 Sep 2021 13:50:28 -0700 (PDT)
+        id S243696AbhIMUzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 16:55:16 -0400
+Received: from mout.gmx.net ([212.227.15.18]:55017 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S244584AbhIMUzN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 16:55:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1631566431;
+        bh=8LyRUmRax3hCQti0YfuqbJX2nczTd/Squcie9S85a+8=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=g7nFy/z0PY4tvbyJWJLup+J0g1wGQ8/DMV5IbHxxDkgGzguTsNoUbl+UbsY4zdqGl
+         6rtV3oO2qWPQ7CzTj/g7KwjrFsw1Jjjs8mkV9hTy1K8vdDAGeAp3qNRMbtkXGIpz1Z
+         wRKg6q8i33JE5mOKh/tZaKkbT3dT71P0mh7fF/d0=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [46.223.119.124] ([46.223.119.124]) by web-mail.gmx.net
+ (3c-app-gmx-bs69.server.lan [172.19.170.214]) (via HTTP); Mon, 13 Sep 2021
+ 22:53:50 +0200
 MIME-Version: 1.0
-References: <20210913131113.390368911@linuxfoundation.org> <20210913131114.028340332@linuxfoundation.org>
- <CA+G9fYtdPnwf+fi4Oyxng65pWjW9ujZ7dd2Z-EEEHyJimNHN6g@mail.gmail.com>
- <YT+RKemKfg6GFq0S@kroah.com> <CAKwvOdmOAKTkgFK4Oke1SFGR_NxNqXe-buj1uyDgwZ4JdnP2Vg@mail.gmail.com>
- <CAKwvOdmCS5Q7AzUL5nziYVU7RrtRjoE9JjOXfVBWagO1Bzbsew@mail.gmail.com>
- <CA+icZUVuRaMs=bx775gDF88_xzy8LFkBA5xaK21hFDeYvgo12A@mail.gmail.com>
- <CAKwvOdmN3nQe8aL=jUwi0nGXzYQGic=NA2o40Q=yeHeafSsS3g@mail.gmail.com>
- <CAHk-=whwREzjT7=OSi5=qqOkQsvMkCOYVhyKQ5t8Rdq4bBEzuw@mail.gmail.com>
- <CAKwvOdkf3B41RRe8FDkw1H-0hBt1_PhZtZxBZ5pj0pyh7vDLmA@mail.gmail.com> <CAHk-=wjP2ijctPt2Hw3DagSZ-KgdRsO6zWTTKQNnSk0MajtJgA@mail.gmail.com>
-In-Reply-To: <CAHk-=wjP2ijctPt2Hw3DagSZ-KgdRsO6zWTTKQNnSk0MajtJgA@mail.gmail.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 13 Sep 2021 13:50:17 -0700
-Message-ID: <CAKwvOd=ZG8sf1ZOkuidX_49VGkQE+BJDa19_vR4gh2FNQ2F_9Q@mail.gmail.com>
-Subject: Re: [PATCH 5.14 018/334] nbd: add the check to prevent overflow in __nbd_ioctl()
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     Arnd Bergmann <arnd@kernel.org>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Hulk Robot <hulkci@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        lkft-triage@lists.linaro.org, llvm@lists.linux.dev,
-        Kees Cook <keescook@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <trinity-27f56ffd-504a-4c34-9cda-0953ccc459a3-1631566430623@3c-app-gmx-bs69>
+From:   Lino Sanfilippo <LinoSanfilippo@gmx.de>
+To:     Jarkko Sakkinen <jarkko@kernel.org>
+Cc:     peterhuewe@gmx.de, jgg@ziepe.ca, p.rosenberger@kunbus.com,
+        linux-integrity@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Aw: Re: [PATCH] tpm: fix potential NULL pointer access in
+ tpm_del_char_device()
+Content-Type: text/plain; charset=UTF-8
+Date:   Mon, 13 Sep 2021 22:53:50 +0200
+Importance: normal
+Sensitivity: Normal
+In-Reply-To: <204a438b6db54060d03689389d6663b0d4ca815d.camel@kernel.org>
+References: <20210910180451.19314-1-LinoSanfilippo@gmx.de>
+ <204a438b6db54060d03689389d6663b0d4ca815d.camel@kernel.org>
+X-UI-Message-Type: mail
+X-Priority: 3
+X-Provags-ID: V03:K1:mRkR/BryvYpdOREPVnSkv4q0GMCGed0FmfaW+Ko5NshPxZKEfu7va6u5xiYPB+DIck60l
+ aOczt6/VhN5Jfg+sGpER8I+Hfqz+XmNyIa5AY8MSk1UfOo8UPaM6k6a/BS9HliCW0rmRWGE40Gv4
+ BkKGFAdup4fQyXsMaGZRGWIQv5zlc3OidRSIREpuCmjPZYXUR/6BBwb+2UU2zwGN7W4nvbK5/YYJ
+ 4qQyjuEetyu9FChhkyF5TlZKansz2utakOO8YjkbrHhS3y9mN1vzuZ6lsOBogWaMMvY+ywsvkFc+
+ O0=
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:uYuHfN1JriI=:DtBZSOURbchsaDSgWzW7Ft
+ ZZm2cxBJMVEcr3QvMPfDI4v/RcUvDnLYOfBN7a51Bcoc0HgJNHTZlf8KVYoPcn/hFFDCqmfBP
+ I3Lpd0YPn20QvyhQdJ79OqozjJspVp0oEbWYKJHGgp8NurvSn4sJqdTl6clcrsRbigpOBJtP3
+ j0ForO/Y5/hQRiz24DNFT5x/0mHuAdPfBwx2l0pki92pf4FNfTxA7LoUxgwBXQNaqWt55tUg0
+ RHk1w+03EVofwjKTD/xaZMVYsz91RmCfvsZnn3gNVV1gG5fG7eZcwX6Mg2/xHFUiR4CdPrAnh
+ 3r0eHecwbsowgUxVbX99fx40t2+cNkxPLpcLvA6bs/F0PQVcoXnK+9J2UloCS3VoBz770RXjb
+ SMgghoWUcIyNT2QgKjcffVr0IGBDDFURdtkWq2A/qVL3PzkOw4FUu3dad+/pvrYBlPMknP39Q
+ zt0trDwTJ2YltPwVUEIuMBYcS1KRHNDrPtYNYnAo2Kg4PL0A0OLlhvaTnL4bfsS7JYleLBkDj
+ Fg0DBU+zNjUtdi6uNh6qqAx28xNvy8EB5nIykIAEzZK3zsu0TI9PFfDPsW2eD1JnrnS2nCC29
+ j8LdpEtvQ1LHCi+JXH/xYtbNg9zuRMpO2R8i+9g6TRrOOZi9PsDDsaFwVZyJWCdRixhB6FYrX
+ wkPS0/xq7ipPgWfP8VdYNaJhtnr5iC/UGH+Krt3eUBtaFdHl1IjdR48xx0ceoCJsmtYcsHhi1
+ 9ZXGbvq2bcz3mk7Miom/eOT7nGWgMKf9OKD5gcsASiMlT5QwHEcA/eWduF6X6PZJBxYowvPKl
+ yYPKKiv
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 13, 2021 at 1:42 PM Linus Torvalds
-<torvalds@linux-foundation.org> wrote:
+
+Hi,
+
+> Gesendet: Montag, 13. September 2021 um 22:25 Uhr
+> Von: "Jarkko Sakkinen" <jarkko@kernel.org>
+> An: "Lino Sanfilippo" <LinoSanfilippo@gmx.de>, peterhuewe@gmx.de, jgg@zi=
+epe.ca
+> Cc: p.rosenberger@kunbus.com, linux-integrity@vger.kernel.org, linux-ker=
+nel@vger.kernel.org, stable@vger.kernel.org
+> Betreff: Re: [PATCH] tpm: fix potential NULL pointer access in tpm_del_c=
+har_device()
 >
-> On Mon, Sep 13, 2021 at 1:16 PM Nick Desaulniers
-> <ndesaulniers@google.com> wrote:
+> On Fri, 2021-09-10 at 20:04 +0200, Lino Sanfilippo wrote:
+> > In tpm_del_char_device() make sure that chip->ops is still valid.
+> > This check is needed since in case of a system shutdown
+> > tpm_class_shutdown() has already been called and set chip->ops to NULL=
+.
+> > This leads to a NULL pointer access as soon as tpm_del_char_device()
+> > tries to access chip->ops in case of TPM 2.
 > >
-> > Do we have access to _Generic in GCC 4.9?
+> > Fixes: dcbeab1946454 ("tpm: fix crash in tpm_tis deinitialization")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+> > ---
 >
-> We've ended up using it unconditionally since last year, so yes.
+> Have you been able to reproduce this in some environment?
+>
+> /Jarkko
+>
+>
 
-Sorry, grepping would have taken < 1s. I'm very lazy.
-http://threevirtues.com/
+Yes, this bug is reproducable on my system that is running a 5.10 raspberr=
+y kernel.
+I use a SLB 9670 which is connected via SPI.
 
->
-> In fact, the compiler version tests got removed when we raised the gcc
-> version requirement to 4.9 in commit 6ec4476ac825 ("Raise gcc version
-> requirement to 4.9"):
->
->    "In particular, raising the minimum to 4.9 means that we can now just
->     assume _Generic() exists, which is likely the much better replacement
->     for a lot of very convoluted built-time magic with conditionals on
->     sizeof and/or __builtin_choose_expr() with same_type() etc"
->
-> but we haven't used it much since.
->
-> The "seqprop" code for picking the right lock for seqlock is perhaps
-> the main example, and staring at that code will make you go blind, so
-> look away.
-
-Looking at my patch:
-https://lore.kernel.org/stable/20210913203201.1844253-1-ndesaulniers@google.com/
-I don't think _Generic helps us in the case of dispatching based on
-the result of is_signed_type() (the operands could undergo type
-promotion, so we'd need lots of cases that are more concisely covered
-by is_signed_type()). It could replace the nested checks in div_64
-with nested _Generics, I think. Not sure it's a huge win for
-readability.  Maybe cut the number of expansions of the parameters in
-half though. Let me give it a try just to see what it looks like.
--- 
-Thanks,
-~Nick Desaulniers
+Regards,
+Lino
