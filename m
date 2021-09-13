@@ -2,131 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC53C408611
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 10:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6193408727
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 10:38:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237722AbhIMIGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 04:06:39 -0400
-Received: from mail-vs1-f47.google.com ([209.85.217.47]:37610 "EHLO
-        mail-vs1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237797AbhIMIGi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 04:06:38 -0400
-Received: by mail-vs1-f47.google.com with SMTP id i23so7629360vsj.4;
-        Mon, 13 Sep 2021 01:05:23 -0700 (PDT)
+        id S238143AbhIMIjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 04:39:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48558 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238781AbhIMIjW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 04:39:22 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71984C061155
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 01:35:34 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id r2so8755129pgl.10
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 01:35:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yf8sVeflu7klc2zsulzdsENhIwVjdQOXSdPwT2ygwj8=;
+        b=IFKYjfImTOKalYH9AW6mP1aIXqit2SZkJGRU7hThN8ERQ7BHz/Q6ejSMS+EormF+Mw
+         8YdKVBy590rqu31NBTQjsEnNSW1wIXxcoM9o8hWaLU9RuIIpL5VAO5qe6jkJvNCH8sFH
+         50A2gxYEFcvYWj9Cde9LXrLoyCwNT6yWx5XRpsqAmkauO4dKYrMlvHdG8lkuJ6qJLqty
+         ccrlw/w0u8WtbCous6z+uJK3h8rHjY2i5VaAvIJsQsu8yTn7Djt9XCDGGMhJEomugX2X
+         QTEPajF0PPAOWM0wRe0qRDj4vI8TVtzPjl+ABhHNxzjLGrnhtuy17QF1uGZKqYRKOidN
+         N9DQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=hIy/WF41WnhInRxQvOeLA91NgtT/ad5oPS0o2VKCwNg=;
-        b=H1wPdid9exSg992pPXhiMALn/wP/WluGxrpodaX1dXaLk5agS9mbY2yNT/LkDIvVP/
-         UZq0eLqXKW7eiJTLtNyHs2ag19/bQH+yVAxbR29EcWipIPoPzZG9ElYun+7fXCnXnwX5
-         IGPlyOI1hteTd1Pdfrzj0zi1d8CVrpkEIIcydKhybo/8re/g1YBa1SZegn9cDo3pcGb6
-         AVzZZFG749rmuw0sgd3vELdS7+mOoNgCQA0dPXnvsC6y1CtZEhCnYgi235Wka8tiOG7a
-         VEgvxC3ecjIHdzth723jUqYenqYkfyv1FM9ow6wP+cSm5Yn66Sb0ZpZfy1gQyjdErZxb
-         Rsqg==
-X-Gm-Message-State: AOAM530VG9N7DxeRHM1vO5J8LwqJ9TG+eb6JgvYQbfSapGTk4gsb3BEi
-        pWWWWr86mWYNoTuhl4l6qTo2eWsii/w249BGYUiJYdoi7/w=
-X-Google-Smtp-Source: ABdhPJy5qS7cAHC3Wj9WuuKOmYXH4sq8/3ktX7gWNSl8zk/qKzaCAAZqM9h3ouNfCut0fUdqY/dAAiCGCBBDbPtKIvo=
-X-Received: by 2002:a05:6102:3112:: with SMTP id e18mr2487715vsh.50.1631520322815;
- Mon, 13 Sep 2021 01:05:22 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yf8sVeflu7klc2zsulzdsENhIwVjdQOXSdPwT2ygwj8=;
+        b=MFCfh51+7RsR7BS4pim7NrsBloS1vUuTo2V0sFyaMcjCB0PuY0wp7VkRKZtQMd08ma
+         8t5nnIJqh69dlQex8+75DME2ugfcy3vKzrBCPEQNLB5JI/fKb5VUAn1q1z1KIevpvU9g
+         yG0QKTQtUsFRQykJY62nCUTfkQ/V/cIMIod2EFjKLh6r7kDbclTJNM6qQaLfxB6U75/x
+         mzCDJNpsgVSfVtLMeWbYhPTAAyHL8zl5pFsF3vjad4tzvbqcGIrco/6fdPxrASo0obZX
+         TlshkG3+mtss6mmi3RKVp/P08k/P7YyObKlsOetc0UY+1RCgURGMLo+y5hcyi+LUHZI6
+         csUg==
+X-Gm-Message-State: AOAM532/Sd/NLz9LA80LWfbqpDyZY4wWtNhtjN6EA8vHnPhVUcYZKlzN
+        yT+W0VKGDB6QVHvcPT1lSxxBJOyeB+/pBTkt
+X-Google-Smtp-Source: ABdhPJw6hg4y+MK3bwc68xG5+vikeREitzQy3pgq2zJew7Bf9OyqIC5JoPeZMXISRbwMgGp1vBuujg==
+X-Received: by 2002:a63:e24b:: with SMTP id y11mr10092923pgj.452.1631522133844;
+        Mon, 13 Sep 2021 01:35:33 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w67sm4116550pfb.99.2021.09.13.01.35.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Sep 2021 01:35:33 -0700 (PDT)
+Message-ID: <613f0d55.1c69fb81.de5d9.ba62@mx.google.com>
+Date:   Mon, 13 Sep 2021 01:35:33 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20200624195811.435857-1-maz@kernel.org> <20200624195811.435857-8-maz@kernel.org>
- <CAMuHMdV+Ev47K5NO8XHsanSq5YRMCHn2gWAQyV-q2LpJVy9HiQ@mail.gmail.com>
- <875yv8d91b.wl-maz@kernel.org> <CAMuHMdV+ydPaXbGf1_O0S-juaPWk1gwBUOK+GeLZukZeoqtMGQ@mail.gmail.com>
- <CANqRtoTqV8sOpL=hdxeZ03tqr+5oeMcfwz+9ERqXv+hze_6Fsw@mail.gmail.com>
- <874kaqdi2z.wl-maz@kernel.org> <CANqRtoTa8g2sw_DoD8+34HR0mcHc_tOWt+4R9KzDT2Eu3d7TTg@mail.gmail.com>
-In-Reply-To: <CANqRtoTa8g2sw_DoD8+34HR0mcHc_tOWt+4R9KzDT2Eu3d7TTg@mail.gmail.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Mon, 13 Sep 2021 10:05:11 +0200
-Message-ID: <CAMuHMdX3Vf8Mxuz3=Aoi1hwMS7BtyYCH178QvVS-GAHDpeMvxg@mail.gmail.com>
-Subject: Re: [PATCH v2 07/17] irqchip/gic: Atomically update affinity
-To:     Magnus Damm <magnus.damm@gmail.com>
-Cc:     Marc Zyngier <maz@kernel.org>,
-        Russell King <linux@arm.linux.org.uk>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jason Cooper <jason@lakedaemon.net>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Valentin Schneider <Valentin.Schneider@arm.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Gregory Clement <gregory.clement@bootlin.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Android Kernel Team <kernel-team@android.com>,
-        stable <stable@vger.kernel.org>,
-        Magnus Damm <damm+renesas@opensource.se>,
-        =?UTF-8?Q?Niklas_S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.14.3-294-g9d35f37c1067
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.14
+Subject: stable-rc/queue/5.14 baseline: 161 runs,
+ 2 regressions (v5.14.3-294-g9d35f37c1067)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Magnus,
+stable-rc/queue/5.14 baseline: 161 runs, 2 regressions (v5.14.3-294-g9d35f3=
+7c1067)
 
-On Sun, Sep 12, 2021 at 7:40 AM Magnus Damm <magnus.damm@gmail.com> wrote:
-> On Sun, Sep 12, 2021 at 4:32 AM Marc Zyngier <maz@kernel.org> wrote:
-> > On Sat, 11 Sep 2021 03:49:20 +0100,
-> > Magnus Damm <magnus.damm@gmail.com> wrote:
-> > > On Fri, Sep 10, 2021 at 10:19 PM Geert Uytterhoeven
-> > > <geert@linux-m68k.org> wrote:
-> > > > On Fri, Sep 10, 2021 at 12:23 PM Marc Zyngier <maz@kernel.org> wrote:
-> > > > > On Thu, 09 Sep 2021 16:22:01 +0100,
-> > > > > Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > > >     GIC: enabling workaround for broken byte access
-> > >
-> > > Indeed, byte access is unsupported according to the EMEV2 documentation.
-> > >
-> > > The EMEV2 documentation R19UH0036EJ0600 Chapter 7 Interrupt Control on
-> > > page 97 says:
-> > > "Interrupt registers can be accessed via the APB bus, in 32-bit units"
-> > > "For details about register functions, see ARM Generic Interrupt
-> > > Controller Architecture Specification Architecture version 1.0"
-> > > The file  "R19UH0036EJ0600_1Chip.pdf" is the 6th edition version
-> > > published in 2010 and is not marked as confidential.
-> >
-> > This is as bad as it gets. Do you know if any other Renesas platform
-> > is affected by the same issue?
->
-> Next time we have a beer together I would be happy to show you some
-> legacy interrupt controller code. =)
->
-> EMEV2 and the Emma Mobile product line came from the NEC Electronics
-> side that got merged into Renesas Electronics in 2010. Historically
-> NEC Electronics mainly used MIPS I've been told, and the Emma Mobile
-> SoCs were one of the earlier Cortex-A9 adopters. That might have
-> something to do with the rather loose interpretation of the spec.
+Regressions Summary
+-------------------
 
-Indeed.  I used to work on products using EMMA1 and EMMA2, and they
-were MIPS-based (vr4120A for EMMA2, IIRC).  Later variants (EMMA2H
-and EMMA3?) did include a small ARM core for standby control.
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  | 1       =
+   =
 
-> Renesas SoCs from a similar era:
-> AP4 (sh7372) AP4EVB (Cortex-A8 + INTCA/INTCS)
+beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
-This is no longer supported upstream (and not affected, as no GIC).
 
-> R-Mobile A1 (r8a7740) Armadillo-800-EVA (Cortex-A9 + INTCA/INTCS)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
+nel/v5.14.3-294-g9d35f37c1067/plan/baseline/
 
-R-Mobile A1 has GIC (PL390), too, and is not affected.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.14
+  Describe: v5.14.3-294-g9d35f37c1067
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9d35f37c10676c19b63338f3027df31d12a1618d =
 
-> R-Car M1A (r8a7778) Bock-W (Cortex-A9 + GIC)
-> R-Car H1 (r8a7779) Marzen (4 x Cortex-A9 + GIC)
-> Emma Mobile EMEV2 KZM9D (2 x Cortex-A9 + GIC)
-> SH-Mobile AG5 (sh73a0) KZM9G (2 x Cortex-A9 + GIC)
 
-All of these (except for EMEV2) are fine, too.
 
-Gr{oetje,eeting}s,
+Test Regressions
+---------------- =
 
-                        Geert
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig  | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/613edd78e3783d832dd5968a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.3-2=
+94-g9d35f37c1067/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.3-2=
+94-g9d35f37c1067/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613edd78e3783d832dd59=
+68b
+        new failure (last pass: v5.14.2-23-g3e6e24d4af82) =
+
+ =
+
+
+
+platform  | arch | lab          | compiler | defconfig           | regressi=
+ons
+----------+------+--------------+----------+---------------------+---------=
+---
+beagle-xm | arm  | lab-baylibre | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/613ede05dab6c97135d59679
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.3-2=
+94-g9d35f37c1067/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
+-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.3-2=
+94-g9d35f37c1067/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
+-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613ede05dab6c97135d59=
+67a
+        failing since 2 days (last pass: v5.14.2-23-g1a3d3f4a63ad, first fa=
+il: v5.14.2-23-ge6845034189d) =
+
+ =20
