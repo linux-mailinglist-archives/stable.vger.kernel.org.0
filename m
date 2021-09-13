@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34DF34091B4
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2ED440947C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343780AbhIMOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:03:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
+        id S241058AbhIMOba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:31:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343988AbhIMOBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:01:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA9C261A2F;
-        Mon, 13 Sep 2021 13:38:10 +0000 (UTC)
+        id S1346883AbhIMO3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:29:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58E8E61B73;
+        Mon, 13 Sep 2021 13:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540291;
-        bh=PI/J8S3faVJxntKJaL4ApG7L0MfybHsspJ+xD/4/008=;
+        s=korg; t=1631541043;
+        bh=+Zu1pgGVllMnvRvGzW5ASeV95Xu79FmbpBM3//tfPnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhwiDuFODVQY4oCtdZrjOZhD2IuEcKRTAMtE9h1EIV6Xt81R8cBHI/PVCEDZjZu/k
-         77KURkS0X5KAvqTq2AgoQb/egBc0Mqqsf0px3Tsry5SqI99lR80SxJPTPoBBUtu5PT
-         NSPZElFNIWvYX2we14tNM24fpGMkX6t5gGqbDQ+M=
+        b=aXs5+p62qhlxv04nAwDqWjYVKoSrxxII92+OEMSlFCMgeN98BFooJmoc3FHboFIZS
+         Xm1ZEZcVrfiC5MAGKS6tflh837q9OUUUgn4z0IF/Oi5SFfDLdPnOg6HPByqXrX50RV
+         dxrlxePUpGxbqQkGupwGF9l1yavYx8tRpcYvFDSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 125/300] net/mlx5e: Prohibit inner indir TIRs in IPoIB
+Subject: [PATCH 5.14 132/334] net/mlx5e: Block LRO if firmware asks for tunneled LRO
 Date:   Mon, 13 Sep 2021 15:13:06 +0200
-Message-Id: <20210913131113.624568182@linuxfoundation.org>
+Message-Id: <20210913131117.831653275@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,147 +42,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-[ Upstream commit 9c43f3865c2a03be104f1c1d5e9129c2a2bdba88 ]
+[ Upstream commit 26ab7b384525ccfa678c518577f7f0d841209c8b ]
 
-TIR's rx_hash_field_selector_inner can be enabled only when
-tunneled_offload_en = 1. tunneled_offload_en is filled according to the
-tunneled_offload_en field in struct mlx5e_params, which is false in the
-IPoIB profile. On the other hand, the IPoIB profile passes inner_ttc =
-true to mlx5e_create_indirect_tirs, which potentially allows the latter
-function to attempt to create inner indirect TIRs without having
-tunneled_offload_en set.
+This commit does a cleanup in LRO configuration.
 
-This commit prohibits this behavior by passing inner_ttc = false to
-mlx5e_create_indirect_tirs. The latter function won't attempt to create
-inner indirect TIRs.
+LRO is a parameter of an RQ, but its state is changed by modifying a TIR
+related to the RQ.
 
-As inner indirect TIRs are not created in the IPoIB profile (this commit
-blocks it explicitly, and even before they would have failed to be
-created), the call to mlx5e_create_inner_ttc_table in
-mlx5i_create_flow_steering is a no-op and can be removed.
+The current status: LRO for tunneled packets is not supported in the
+driver, inner TIRs may enable LRO on creation, but LRO status of inner
+TIRs isn't changed in mlx5e_modify_tirs_lro(). This is inconsistent, but
+as long as the firmware doesn't declare support for tunneled LRO, it
+works, because the same RQs are shared between the inner and outer TIRs.
 
-Fixes: 46dc933cee82 ("net/mlx5e: Provide explicit directive if to create inner indirect tirs")
-Fixes: 458821c72bd0 ("net/mlx5e: IPoIB, Add inner TTC table to IPoIB flow steering")
+This commit does two fixes:
+
+1. If the firmware has the tunneled LRO capability, LRO is blocked
+altogether, because it's not possible to block it for inner TIRs only,
+when the same RQs are shared between inner and outer TIRs, and the
+driver won't be able to handle tunneled LRO traffic.
+
+2. mlx5e_modify_tirs_lro() is patched to modify LRO state for all TIRs,
+including inner ones, because all TIRs related to an RQ should agree on
+their LRO state.
+
+Fixes: 7b3722fa9ef6 ("net/mlx5e: Support RSS for GRE tunneled packets")
 Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en/fs.h    |  6 ------
- .../net/ethernet/mellanox/mlx5/core/en_fs.c    | 10 +++++-----
- .../ethernet/mellanox/mlx5/core/ipoib/ipoib.c  | 18 ++----------------
- 3 files changed, 7 insertions(+), 27 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 15 +++++++++++++++
+ include/linux/mlx5/mlx5_ifc.h                     |  3 ++-
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h b/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
-index 1d5ce07b83f4..43b092f5565a 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
-@@ -248,18 +248,12 @@ struct ttc_params {
- 
- void mlx5e_set_ttc_basic_params(struct mlx5e_priv *priv, struct ttc_params *ttc_params);
- void mlx5e_set_ttc_ft_params(struct ttc_params *ttc_params);
--void mlx5e_set_inner_ttc_ft_params(struct ttc_params *ttc_params);
- 
- int mlx5e_create_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
- 			   struct mlx5e_ttc_table *ttc);
- void mlx5e_destroy_ttc_table(struct mlx5e_priv *priv,
- 			     struct mlx5e_ttc_table *ttc);
- 
--int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
--				 struct mlx5e_ttc_table *ttc);
--void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv,
--				   struct mlx5e_ttc_table *ttc);
--
- void mlx5e_destroy_flow_table(struct mlx5e_flow_table *ft);
- int mlx5e_ttc_fwd_dest(struct mlx5e_priv *priv, enum mlx5e_traffic_types type,
- 		       struct mlx5_flow_destination *new_dest);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-index 0b75fab41ae8..6464ac3f294e 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
-@@ -1324,7 +1324,7 @@ void mlx5e_set_ttc_basic_params(struct mlx5e_priv *priv,
- 	ttc_params->inner_ttc = &priv->fs.inner_ttc;
- }
- 
--void mlx5e_set_inner_ttc_ft_params(struct ttc_params *ttc_params)
-+static void mlx5e_set_inner_ttc_ft_params(struct ttc_params *ttc_params)
- {
- 	struct mlx5_flow_table_attr *ft_attr = &ttc_params->ft_attr;
- 
-@@ -1343,8 +1343,8 @@ void mlx5e_set_ttc_ft_params(struct ttc_params *ttc_params)
- 	ft_attr->prio = MLX5E_NIC_PRIO;
- }
- 
--int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
--				 struct mlx5e_ttc_table *ttc)
-+static int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
-+					struct mlx5e_ttc_table *ttc)
- {
- 	struct mlx5e_flow_table *ft = &ttc->ft;
- 	int err;
-@@ -1374,8 +1374,8 @@ err:
- 	return err;
- }
- 
--void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv,
--				   struct mlx5e_ttc_table *ttc)
-+static void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv,
-+					  struct mlx5e_ttc_table *ttc)
- {
- 	if (!mlx5e_tunnel_inner_ft_supported(priv->mdev))
- 		return;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-index 7d7ed025db0d..620d638e1e8f 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
-@@ -331,17 +331,6 @@ static int mlx5i_create_flow_steering(struct mlx5e_priv *priv)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 24f919ef9b8e..b7be1ef4cbb2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -2567,6 +2567,14 @@ static int mlx5e_modify_tirs_lro(struct mlx5e_priv *priv)
+ 		err = mlx5_core_modify_tir(mdev, priv->indir_tir[tt].tirn, in);
+ 		if (err)
+ 			goto free_in;
++
++		/* Verify inner tirs resources allocated */
++		if (!priv->inner_indir_tir[0].tirn)
++			continue;
++
++		err = mlx5_core_modify_tir(mdev, priv->inner_indir_tir[tt].tirn, in);
++		if (err)
++			goto free_in;
  	}
  
- 	mlx5e_set_ttc_basic_params(priv, &ttc_params);
--	mlx5e_set_inner_ttc_ft_params(&ttc_params);
--	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++)
--		ttc_params.indir_tirn[tt] = priv->inner_indir_tir[tt].tirn;
--
--	err = mlx5e_create_inner_ttc_table(priv, &ttc_params, &priv->fs.inner_ttc);
--	if (err) {
--		netdev_err(priv->netdev, "Failed to create inner ttc table, err=%d\n",
--			   err);
--		goto err_destroy_arfs_tables;
--	}
--
- 	mlx5e_set_ttc_ft_params(&ttc_params);
- 	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++)
- 		ttc_params.indir_tirn[tt] = priv->indir_tir[tt].tirn;
-@@ -350,13 +339,11 @@ static int mlx5i_create_flow_steering(struct mlx5e_priv *priv)
- 	if (err) {
- 		netdev_err(priv->netdev, "Failed to create ttc table, err=%d\n",
- 			   err);
--		goto err_destroy_inner_ttc_table;
-+		goto err_destroy_arfs_tables;
- 	}
+ 	for (ix = 0; ix < priv->max_nch; ix++) {
+@@ -4812,7 +4820,14 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
+ 	netdev->hw_enc_features  |= NETIF_F_HW_VLAN_CTAG_TX;
+ 	netdev->hw_enc_features  |= NETIF_F_HW_VLAN_CTAG_RX;
  
- 	return 0;
++	/* Tunneled LRO is not supported in the driver, and the same RQs are
++	 * shared between inner and outer TIRs, so the driver can't disable LRO
++	 * for inner TIRs while having it enabled for outer TIRs. Due to this,
++	 * block LRO altogether if the firmware declares tunneled LRO support.
++	 */
+ 	if (!!MLX5_CAP_ETH(mdev, lro_cap) &&
++	    !MLX5_CAP_ETH(mdev, tunnel_lro_vxlan) &&
++	    !MLX5_CAP_ETH(mdev, tunnel_lro_gre) &&
+ 	    mlx5e_check_fragmented_striding_rq_cap(mdev))
+ 		netdev->vlan_features    |= NETIF_F_LRO;
  
--err_destroy_inner_ttc_table:
--	mlx5e_destroy_inner_ttc_table(priv, &priv->fs.inner_ttc);
- err_destroy_arfs_tables:
- 	mlx5e_arfs_destroy_tables(priv);
- 
-@@ -366,7 +353,6 @@ err_destroy_arfs_tables:
- static void mlx5i_destroy_flow_steering(struct mlx5e_priv *priv)
- {
- 	mlx5e_destroy_ttc_table(priv, &priv->fs.ttc);
--	mlx5e_destroy_inner_ttc_table(priv, &priv->fs.inner_ttc);
- 	mlx5e_arfs_destroy_tables(priv);
- }
- 
-@@ -392,7 +378,7 @@ static int mlx5i_init_rx(struct mlx5e_priv *priv)
- 	if (err)
- 		goto err_destroy_indirect_rqts;
- 
--	err = mlx5e_create_indirect_tirs(priv, true);
-+	err = mlx5e_create_indirect_tirs(priv, false);
- 	if (err)
- 		goto err_destroy_direct_rqts;
+diff --git a/include/linux/mlx5/mlx5_ifc.h b/include/linux/mlx5/mlx5_ifc.h
+index b0009aa3647f..6bbae0c3bc0b 100644
+--- a/include/linux/mlx5/mlx5_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc.h
+@@ -921,7 +921,8 @@ struct mlx5_ifc_per_protocol_networking_offload_caps_bits {
+ 	u8         scatter_fcs[0x1];
+ 	u8         enhanced_multi_pkt_send_wqe[0x1];
+ 	u8         tunnel_lso_const_out_ip_id[0x1];
+-	u8         reserved_at_1c[0x2];
++	u8         tunnel_lro_gre[0x1];
++	u8         tunnel_lro_vxlan[0x1];
+ 	u8         tunnel_stateless_gre[0x1];
+ 	u8         tunnel_stateless_vxlan[0x1];
  
 -- 
 2.30.2
