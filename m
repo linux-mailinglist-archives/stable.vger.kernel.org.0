@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5488409363
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A25C4095F9
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343939AbhIMOVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:21:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39368 "EHLO mail.kernel.org"
+        id S1347010AbhIMOqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:46:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343742AbhIMOSf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:18:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAC1A61B03;
-        Mon, 13 Sep 2021 13:45:10 +0000 (UTC)
+        id S1347918AbhIMOof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:44:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 544BF6321F;
+        Mon, 13 Sep 2021 13:57:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540711;
-        bh=I5NO4vbOtc+RqNT1FsktWqoBMD/ekz/C/KDVI5jjs7Y=;
+        s=korg; t=1631541473;
+        bh=gkbd6KZwY2GXH6dZuCRcGA3iVHbbJaEbEHDTVkIl0l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H9sLYAU2rifNFQEybgd3wleIz23B8GByOkI5T8WgAMATdzqBGI4HIjPNsHNPZ1uDP
-         NLrLGJ9Z13Rks6kcXnzcfX+fhuoyPCIuT/vUbTozkjoLh7PrwXW/8gObZaPr083+9W
-         4R1XVInqNST4e6k050h0Caeul0dhI8LPLzUV50wk=
+        b=gflkU40IG6gnwmBQE5e7Ew7LZ1a5BLxiry4ljCVdvqF/8v5Xp+lFNyZX+Y6BlAn3D
+         wsiguaK/ejl2rHILNY9/Psslbh9w2tKrHSxCaaycDm1R/mS2j+pzDqYz9oRMhyUH4J
+         80wxwY4uN/gvK8e0NWhzGu1Re419gkieJSjZnAxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 272/300] bio: fix page leak bio_add_hw_page failure
-Date:   Mon, 13 Sep 2021 15:15:33 +0200
-Message-Id: <20210913131118.522241130@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 280/334] ALSA: usb-audio: Add lowlatency module option
+Date:   Mon, 13 Sep 2021 15:15:34 +0200
+Message-Id: <20210913131122.894905589@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +39,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d9cf3bd531844ffbfe94b16e417037a16efc988d upstream.
+[ Upstream commit 4801bee7d5a36c199b734a28cde5259183aff822 ]
 
-__bio_iov_append_get_pages() doesn't put not appended pages on
-bio_add_hw_page() failure, so potentially leaking them, fix it. Also, do
-the same for __bio_iov_iter_get_pages(), even though it looks like it
-can't be triggered by userspace in this case.
+For making user to switch back to the old playback mode, this patch
+adds a new module option 'lowlatency' to snd-usb-audio driver.
+When user face a regression due to the recent low-latency playback
+support, they can test easily by passing lowlatency=0 option without
+rebuilding the kernel.
 
-Fixes: 0512a75b98f8 ("block: Introduce REQ_OP_ZONE_APPEND")
-Cc: stable@vger.kernel.org # 5.8+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/1edfa6a2ffd66d55e6345a477df5387d2c1415d0.1626653825.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 307cc9baac5c ("ALSA: usb-audio: Reduce latency at playback start, take#2")
+Link: https://lore.kernel.org/r/20210829073830.22686-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ sound/usb/card.c     | 4 ++++
+ sound/usb/pcm.c      | 3 ++-
+ sound/usb/usbaudio.h | 1 +
+ 3 files changed, 7 insertions(+), 1 deletion(-)
 
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -979,6 +979,14 @@ static int bio_iov_bvec_set_append(struc
- 	return 0;
- }
+diff --git a/sound/usb/card.c b/sound/usb/card.c
+index a1f8c3a026f5..6abfc9d079e7 100644
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -68,6 +68,7 @@ static int pid[SNDRV_CARDS] = { [0 ... (SNDRV_CARDS-1)] = -1 };
+ static int device_setup[SNDRV_CARDS]; /* device parameter for this card */
+ static bool ignore_ctl_error;
+ static bool autoclock = true;
++static bool lowlatency = true;
+ static char *quirk_alias[SNDRV_CARDS];
+ static char *delayed_register[SNDRV_CARDS];
+ static bool implicit_fb[SNDRV_CARDS];
+@@ -92,6 +93,8 @@ MODULE_PARM_DESC(ignore_ctl_error,
+ 		 "Ignore errors from USB controller for mixer interfaces.");
+ module_param(autoclock, bool, 0444);
+ MODULE_PARM_DESC(autoclock, "Enable auto-clock selection for UAC2 devices (default: yes).");
++module_param(lowlatency, bool, 0444);
++MODULE_PARM_DESC(lowlatency, "Enable low latency playback (default: yes).");
+ module_param_array(quirk_alias, charp, NULL, 0444);
+ MODULE_PARM_DESC(quirk_alias, "Quirk aliases, e.g. 0123abcd:5678beef.");
+ module_param_array(delayed_register, charp, NULL, 0444);
+@@ -599,6 +602,7 @@ static int snd_usb_audio_create(struct usb_interface *intf,
+ 	chip->setup = device_setup[idx];
+ 	chip->generic_implicit_fb = implicit_fb[idx];
+ 	chip->autoclock = autoclock;
++	chip->lowlatency = lowlatency;
+ 	atomic_set(&chip->active, 1); /* avoid autopm during probing */
+ 	atomic_set(&chip->usage_count, 0);
+ 	atomic_set(&chip->shutdown, 0);
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index f5cbf61ac366..5dc9266180e3 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -617,7 +617,8 @@ static int snd_usb_pcm_prepare(struct snd_pcm_substream *substream)
+ 	/* check whether early start is needed for playback stream */
+ 	subs->early_playback_start =
+ 		subs->direction == SNDRV_PCM_STREAM_PLAYBACK &&
+-		subs->data_endpoint->nominal_queue_size >= subs->buffer_bytes;
++		(!chip->lowlatency ||
++		 (subs->data_endpoint->nominal_queue_size >= subs->buffer_bytes));
  
-+static void bio_put_pages(struct page **pages, size_t size, size_t off)
-+{
-+	size_t i, nr = DIV_ROUND_UP(size + (off & ~PAGE_MASK), PAGE_SIZE);
-+
-+	for (i = 0; i < nr; i++)
-+		put_page(pages[i]);
-+}
-+
- #define PAGE_PTRS_PER_BVEC     (sizeof(struct bio_vec) / sizeof(struct page *))
+ 	if (subs->early_playback_start)
+ 		ret = start_endpoints(subs);
+diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
+index 538831cbd925..8b70c9ea91b9 100644
+--- a/sound/usb/usbaudio.h
++++ b/sound/usb/usbaudio.h
+@@ -57,6 +57,7 @@ struct snd_usb_audio {
+ 	bool generic_implicit_fb;	/* from the 'implicit_fb' module param */
+ 	bool autoclock;			/* from the 'autoclock' module param */
  
- /**
-@@ -1023,8 +1031,10 @@ static int __bio_iov_iter_get_pages(stru
- 			if (same_page)
- 				put_page(page);
- 		} else {
--			if (WARN_ON_ONCE(bio_full(bio, len)))
--                                return -EINVAL;
-+			if (WARN_ON_ONCE(bio_full(bio, len))) {
-+				bio_put_pages(pages + i, left, offset);
-+				return -EINVAL;
-+			}
- 			__bio_add_page(bio, page, len, offset);
- 		}
- 		offset = 0;
-@@ -1069,6 +1079,7 @@ static int __bio_iov_append_get_pages(st
- 		len = min_t(size_t, PAGE_SIZE - offset, left);
- 		if (bio_add_hw_page(q, bio, page, len, offset,
- 				max_append_sectors, &same_page) != len) {
-+			bio_put_pages(pages + i, left, offset);
- 			ret = -EINVAL;
- 			break;
- 		}
++	bool lowlatency;		/* from the 'lowlatency' module param */
+ 	struct usb_host_interface *ctrl_intf;	/* the audio control interface */
+ 	struct media_device *media_dev;
+ 	struct media_intf_devnode *ctl_intf_media_devnode;
+-- 
+2.30.2
+
 
 
