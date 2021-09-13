@@ -2,270 +2,483 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 294F540945E
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A049F409470
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244669AbhIMObA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:31:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51240 "EHLO mail.kernel.org"
+        id S244360AbhIMObP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:31:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346301AbhIMO2p (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346302AbhIMO2p (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:28:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10BEF61B54;
-        Mon, 13 Sep 2021 13:50:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5D2161B7C;
+        Mon, 13 Sep 2021 13:50:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541007;
-        bh=AZ0/MzUWNrc4mK6u9alJw5JjXypQq2kK/ska27I9Lz0=;
+        s=korg; t=1631541012;
+        bh=6uz7pYttw/EIsbUE6l0W7XXJvEUL+VNEXc10carbFj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YSr5X8u1h57tRSsvg+uFq/LLETNIXJ+n9Xu7j0vl+CuAhI/UEbn3L1VzI0XkF8Awd
-         kWy4yPLUXTFM6APHyqq/h5SgrOMlXBovmyWegCtE58HJ2ZoGYVCh9BhChD/S0+n+8y
-         xFEbpOFO18muFUnkJNWd5Xz6Y2j2JNI8URVMEHqA=
+        b=E/y/jaOy3ivcb+iT3B0QSpR5UA3YqYdRqZrHj5o3iWUzkH4eLeKuIITI13dVatDIv
+         RqWmVqcbN9FZWYXlcGMgV1oTSmwkvYLy6X71rKIeAChpVMc8ZUVkFmEqNSeL7oS8FH
+         5DvG3p+Xu3r7n08ge4zpQCBgLcbLwOthJvjuUM18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        stable@vger.kernel.org, Alex Deucher <Alexander.Deucher@amd.com>,
+        Evan Quan <evan.quan@amd.com>, Lijo Lazar <Lijo.Lazar@amd.com>,
+        Luben Tuikov <luben.tuikov@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 124/334] drm/amdgpu/acp: Make PM domain really work
-Date:   Mon, 13 Sep 2021 15:12:58 +0200
-Message-Id: <20210913131117.559521595@linuxfoundation.org>
+Subject: [PATCH 5.14 125/334] drm/amd/pm: Fix a bug communicating with the SMU (v5)
+Date:   Mon, 13 Sep 2021 15:12:59 +0200
+Message-Id: <20210913131117.595489063@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Luben Tuikov <luben.tuikov@amd.com>
 
-[ Upstream commit aff890288de2d818e4f83ec40c9315e2d735df07 ]
+[ Upstream commit 5810323ba692895b045e3f1b3e107605c3717dab ]
 
-Devices created by mfd_add_hotplug_devices() don't really increase the
-index of its name, so get_mfd_cell_dev() cannot find any device, hence a
-NULL dev is passed to pm_genpd_add_device():
-[   56.974926] (NULL device *): amdgpu: device acp_audio_dma.0.auto added t=
-o pm domain
-[   56.974933] (NULL device *): amdgpu: Failed to add dev to genpd
-[   56.974941] [drm:amdgpu_device_ip_init [amdgpu]] *ERROR* hw_init of IP b=
-lock <acp_ip> failed -22
-[   56.975810] amdgpu 0000:00:01.0: amdgpu: amdgpu_device_ip_init failed
-[   56.975839] amdgpu 0000:00:01.0: amdgpu: Fatal error during GPU init
-[   56.977136] ------------[ cut here ]------------
-[   56.977143] kernel BUG at mm/slub.c:4206!
-[   56.977158] invalid opcode: 0000 [#1] SMP NOPTI
-[   56.977167] CPU: 1 PID: 1648 Comm: modprobe Not tainted 5.12.0-051200rc8=
--generic #202104182230
-[   56.977175] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M.=
-/FM2A68M-HD+, BIOS P5.20 02/13/2019
-[   56.977180] RIP: 0010:kfree+0x3bf/0x410
-[   56.977195] Code: 89 e7 48 d3 e2 f7 da e8 5f 0d 02 00 80 e7 02 75 3e 44 =
-89 ee 4c 89 e7 e8 ef 5f fd ff e9 fa fe ff ff 49 8b 44 24 08 a8 01 75 b7 <0f=
-> 0b 4c 8b 4d b0 48 8b 4d a8 48 89 da 4c 89 e6 41 b8 01 00 00 00
-[   56.977202] RSP: 0018:ffffa48640ff79f0 EFLAGS: 00010246
-[   56.977210] RAX: 0000000000000000 RBX: ffff9286127d5608 RCX: 00000000000=
-00000
-[   56.977215] RDX: 0000000000000000 RSI: ffffffffc099d0fb RDI: ffff9286127=
-d5608
-[   56.977220] RBP: ffffa48640ff7a48 R08: 0000000000000001 R09: 00000000000=
-00001
-[   56.977224] R10: 0000000000000000 R11: ffff9286087d8458 R12: fffff3ae044=
-9f540
-[   56.977229] R13: 0000000000000000 R14: dead000000000122 R15: dead0000000=
-00100
-[   56.977234] FS:  00007f9de5929540(0000) GS:ffff928612e80000(0000) knlGS:=
-0000000000000000
-[   56.977240] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   56.977245] CR2: 00007f697dd97160 CR3: 00000001110f0000 CR4: 00000000001=
-506e0
-[   56.977251] Call Trace:
-[   56.977261]  amdgpu_dm_encoder_destroy+0x1b/0x30 [amdgpu]
-[   56.978056]  drm_mode_config_cleanup+0x4f/0x2e0 [drm]
-[   56.978147]  ? kfree+0x3dd/0x410
-[   56.978157]  ? drm_managed_release+0xc8/0x100 [drm]
-[   56.978232]  drm_mode_config_init_release+0xe/0x10 [drm]
-[   56.978311]  drm_managed_release+0x9d/0x100 [drm]
-[   56.978388]  devm_drm_dev_init_release+0x4d/0x70 [drm]
-[   56.978450]  devm_action_release+0x15/0x20
-[   56.978459]  release_nodes+0x77/0xc0
-[   56.978469]  devres_release_all+0x3f/0x50
-[   56.978477]  really_probe+0x245/0x460
-[   56.978485]  driver_probe_device+0xe9/0x160
-[   56.978492]  device_driver_attach+0xab/0xb0
-[   56.978499]  __driver_attach+0x8f/0x150
-[   56.978506]  ? device_driver_attach+0xb0/0xb0
-[   56.978513]  bus_for_each_dev+0x7e/0xc0
-[   56.978521]  driver_attach+0x1e/0x20
-[   56.978528]  bus_add_driver+0x135/0x1f0
-[   56.978534]  driver_register+0x91/0xf0
-[   56.978540]  __pci_register_driver+0x54/0x60
-[   56.978549]  amdgpu_init+0x77/0x1000 [amdgpu]
-[   56.979246]  ? 0xffffffffc0dbc000
-[   56.979254]  do_one_initcall+0x48/0x1d0
-[   56.979265]  ? kmem_cache_alloc_trace+0x120/0x230
-[   56.979274]  ? do_init_module+0x28/0x280
-[   56.979282]  do_init_module+0x62/0x280
-[   56.979288]  load_module+0x71c/0x7a0
-[   56.979296]  __do_sys_finit_module+0xc2/0x120
-[   56.979305]  __x64_sys_finit_module+0x1a/0x20
-[   56.979311]  do_syscall_64+0x38/0x90
-[   56.979319]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   56.979328] RIP: 0033:0x7f9de54f989d
-[   56.979335] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 =
-89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48=
-> 3d 01 f0 ff ff 73 01 c3 48 8b 0d c3 f5 0c 00 f7 d8 64 89 01 48
-[   56.979342] RSP: 002b:00007ffe3c395a28 EFLAGS: 00000246 ORIG_RAX: 000000=
-0000000139
-[   56.979350] RAX: ffffffffffffffda RBX: 0000560df3ef4330 RCX: 00007f9de54=
-f989d
-[   56.979355] RDX: 0000000000000000 RSI: 0000560df3a07358 RDI: 00000000000=
-0000f
-[   56.979360] RBP: 0000000000040000 R08: 0000000000000000 R09: 00000000000=
-00000
-[   56.979365] R10: 000000000000000f R11: 0000000000000246 R12: 0000560df3a=
-07358
-[   56.979369] R13: 0000000000000000 R14: 0000560df3ef4460 R15: 0000560df3e=
-f4330
-[   56.979377] Modules linked in: amdgpu(+) iommu_v2 gpu_sched drm_ttm_help=
-er ttm drm_kms_helper cec rc_core i2c_algo_bit fb_sys_fops syscopyarea sysf=
-illrect sysimgblt nft_counter xt_tcpudp ipt_REJECT nf_reject_ipv4 xt_conntr=
-ack iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_m=
-angle iptable_raw iptable_security ip_set nf_tables libcrc32c nfnetlink ip6=
-_tables iptable_filter bpfilter input_leds binfmt_misc edac_mce_amd kvm_amd=
- ccp kvm snd_hda_codec_realtek snd_hda_codec_generic crct10dif_pclmul snd_h=
-da_codec_hdmi ledtrig_audio ghash_clmulni_intel aesni_intel snd_hda_intel s=
-nd_intel_dspcfg snd_seq_midi crypto_simd snd_intel_sdw_acpi cryptd snd_hda_=
-codec snd_seq_midi_event snd_rawmidi snd_hda_core snd_hwdep snd_seq fam15h_=
-power k10temp snd_pcm snd_seq_device snd_timer snd mac_hid soundcore sch_fq=
-_codel nct6775 hwmon_vid drm ip_tables x_tables autofs4 dm_mirror dm_region=
-_hash dm_log hid_generic usbhid hid uas usb_storage r8169 crc32_pclmul real=
-tek ahci xhci_pci i2c_piix4
-[   56.979521]  xhci_pci_renesas libahci video
-[   56.979541] ---[ end trace cb8f6a346f18da7b ]---
+This fixes a bug which if we probe a non-existing
+I2C device, and the SMU returns 0xFF, from then on
+we can never communicate with the SMU, because the
+code before this patch reads and interprets 0xFF
+as a terminal error, and thus we never write 0
+into register 90 to clear the status (and
+subsequently send a new command to the SMU.)
 
-Instead of finding MFD hotplugged device by its name, simply iterate
-over the child devices to avoid the issue.
+It is not an error that the SMU returns status
+0xFF. This means that the SMU executed the last
+command successfully (execution status), but the
+command result is an error of some sort (execution
+result), depending on what the command was.
 
-Squash in unused variable removal (Alex)
+When doing a status check of the SMU, before we
+send a new command, the only status which
+precludes us from sending a new command is 0--the
+SMU hasn't finished executing a previous command,
+and 0xFC--the SMU is busy.
 
-BugLink: https://bugs.launchpad.net/bugs/1920674
-Fixes: 25030321ba28 ("drm/amd: add pm domain for ACP IP sub blocks")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+This bug was seen as the following line in the
+kernel log,
+
+amdgpu: Msg issuing pre-check failed(0xff) and SMU may be not in the right state!
+
+when subsequent SMU commands, not necessarily
+related to I2C, were sent to the SMU.
+
+This patch fixes this bug.
+
+v2: Add a comment to the description of
+__smu_cmn_poll_stat() to explain why we're NOT
+defining the SMU FW return codes as macros, but
+are instead hard-coding them. Such a change, can
+be followed up by a subsequent patch.
+
+v3: The changes are,
+a) Add comments to break labels in
+   __smu_cmn_reg2errno().
+
+b) When an unknown/unspecified/undefined result is
+   returned back from the SMU, map that to
+   -EREMOTEIO, to distinguish failure at the SMU
+   FW.
+
+c) Add kernel-doc to
+   smu_cmn_send_msg_without_waiting(),
+   smu_cmn_wait_for_response(),
+   smu_cmn_send_smc_msg_with_param().
+
+d) In smu_cmn_send_smc_msg_with_param(), since we
+   wait for completion of the command, if the
+   result of the completion is
+   undefined/unknown/unspecified, we print that to
+   the kernel log.
+
+v4: a) Add macros as requested, though redundant, to
+    be removed when SMU consolidates for all
+    ASICs--see comment in code.
+    b) Get out if the SMU code is unknown.
+
+v5: Rename the macro names.
+
+Cc: Alex Deucher <Alexander.Deucher@amd.com>
+Cc: Evan Quan <evan.quan@amd.com>
+Cc: Lijo Lazar <Lijo.Lazar@amd.com>
+Fixes: fcb1fe9c9e0031 ("drm/amd/powerplay: pre-check the SMU state before issuing message")
+Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
+Reviewed-by: Alex Deucher <Alexander.Deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c | 54 ++++++++++++-------------
- 1 file changed, 26 insertions(+), 28 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu_cmn.c | 288 +++++++++++++++++++++----
+ drivers/gpu/drm/amd/pm/swsmu/smu_cmn.h |   3 +-
+ 2 files changed, 244 insertions(+), 47 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c b/drivers/gpu/drm/amd/=
-amdgpu/amdgpu_acp.c
-index b8655ff73a65..cc9c9f8b23b2 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c
-@@ -160,17 +160,28 @@ static int acp_poweron(struct generic_pm_domain *genp=
-d)
- 	return 0;
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu_cmn.c b/drivers/gpu/drm/amd/pm/swsmu/smu_cmn.c
+index e802f9a95f08..a0e2111eb783 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu_cmn.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu_cmn.c
+@@ -55,7 +55,7 @@
+ 
+ #undef __SMU_DUMMY_MAP
+ #define __SMU_DUMMY_MAP(type)	#type
+-static const char* __smu_message_names[] = {
++static const char * const __smu_message_names[] = {
+ 	SMU_MESSAGE_TYPES
+ };
+ 
+@@ -76,55 +76,258 @@ static void smu_cmn_read_arg(struct smu_context *smu,
+ 	*arg = RREG32_SOC15(MP1, 0, mmMP1_SMN_C2PMSG_82);
  }
-=20
--static struct device *get_mfd_cell_dev(const char *device_name, int r)
-+static int acp_genpd_add_device(struct device *dev, void *data)
+ 
+-int smu_cmn_wait_for_response(struct smu_context *smu)
++/* Redefine the SMU error codes here.
++ *
++ * Note that these definitions are redundant and should be removed
++ * when the SMU has exported a unified header file containing these
++ * macros, which header file we can just include and use the SMU's
++ * macros. At the moment, these error codes are defined by the SMU
++ * per-ASIC unfortunately, yet we're a one driver for all ASICs.
++ */
++#define SMU_RESP_NONE           0
++#define SMU_RESP_OK             1
++#define SMU_RESP_CMD_FAIL       0xFF
++#define SMU_RESP_CMD_UNKNOWN    0xFE
++#define SMU_RESP_CMD_BAD_PREREQ 0xFD
++#define SMU_RESP_BUSY_OTHER     0xFC
++#define SMU_RESP_DEBUG_END      0xFB
++
++/**
++ * __smu_cmn_poll_stat -- poll for a status from the SMU
++ * smu: a pointer to SMU context
++ *
++ * Returns the status of the SMU, which could be,
++ *    0, the SMU is busy with your previous command;
++ *    1, execution status: success, execution result: success;
++ * 0xFF, execution status: success, execution result: failure;
++ * 0xFE, unknown command;
++ * 0xFD, valid command, but bad (command) prerequisites;
++ * 0xFC, the command was rejected as the SMU is busy;
++ * 0xFB, "SMC_Result_DebugDataDumpEnd".
++ *
++ * The values here are not defined by macros, because I'd rather we
++ * include a single header file which defines them, which is
++ * maintained by the SMU FW team, so that we're impervious to firmware
++ * changes. At the moment those values are defined in various header
++ * files, one for each ASIC, yet here we're a single ASIC-agnostic
++ * interface. Such a change can be followed-up by a subsequent patch.
++ */
++static u32 __smu_cmn_poll_stat(struct smu_context *smu)
  {
--	char auto_dev_name[25];
--	struct device *dev;
-+	struct generic_pm_domain *gpd =3D data;
-+	int ret;
-=20
--	snprintf(auto_dev_name, sizeof(auto_dev_name),
--		 "%s.%d.auto", device_name, r);
--	dev =3D bus_find_device_by_name(&platform_bus_type, NULL, auto_dev_name);
--	dev_info(dev, "device %s added to pm domain\n", auto_dev_name);
-+	ret =3D pm_genpd_add_device(gpd, dev);
-+	if (ret)
-+		dev_err(dev, "Failed to add dev to genpd %d\n", ret);
-=20
--	return dev;
-+	return ret;
+ 	struct amdgpu_device *adev = smu->adev;
+-	uint32_t cur_value, i, timeout = adev->usec_timeout * 20;
++	int timeout = adev->usec_timeout * 20;
++	u32 reg;
+ 
+-	for (i = 0; i < timeout; i++) {
+-		cur_value = RREG32_SOC15(MP1, 0, mmMP1_SMN_C2PMSG_90);
+-		if ((cur_value & MP1_C2PMSG_90__CONTENT_MASK) != 0)
+-			return cur_value;
++	for ( ; timeout > 0; timeout--) {
++		reg = RREG32_SOC15(MP1, 0, mmMP1_SMN_C2PMSG_90);
++		if ((reg & MP1_C2PMSG_90__CONTENT_MASK) != 0)
++			break;
+ 
+ 		udelay(1);
+ 	}
+ 
+-	/* timeout means wrong logic */
+-	if (i == timeout)
+-		return -ETIME;
+-
+-	return RREG32_SOC15(MP1, 0, mmMP1_SMN_C2PMSG_90);
++	return reg;
+ }
+ 
+-int smu_cmn_send_msg_without_waiting(struct smu_context *smu,
+-				     uint16_t msg, uint32_t param)
++static void __smu_cmn_reg_print_error(struct smu_context *smu,
++				      u32 reg_c2pmsg_90,
++				      int msg_index,
++				      u32 param,
++				      enum smu_message_type msg)
+ {
+ 	struct amdgpu_device *adev = smu->adev;
+-	int ret;
++	const char *message = smu_get_message_name(smu, msg);
+ 
+-	ret = smu_cmn_wait_for_response(smu);
+-	if (ret != 0x1) {
+-		dev_err(adev->dev, "Msg issuing pre-check failed(0x%x) and "
+-		       "SMU may be not in the right state!\n", ret);
+-		if (ret != -ETIME)
+-			ret = -EIO;
+-		return ret;
++	switch (reg_c2pmsg_90) {
++	case SMU_RESP_NONE:
++		dev_err_ratelimited(adev->dev,
++				    "SMU: I'm not done with your previous command!");
++		break;
++	case SMU_RESP_OK:
++		/* The SMU executed the command. It completed with a
++		 * successful result.
++		 */
++		break;
++	case SMU_RESP_CMD_FAIL:
++		/* The SMU executed the command. It completed with an
++		 * unsuccessful result.
++		 */
++		break;
++	case SMU_RESP_CMD_UNKNOWN:
++		dev_err_ratelimited(adev->dev,
++				    "SMU: unknown command: index:%d param:0x%08X message:%s",
++				    msg_index, param, message);
++		break;
++	case SMU_RESP_CMD_BAD_PREREQ:
++		dev_err_ratelimited(adev->dev,
++				    "SMU: valid command, bad prerequisites: index:%d param:0x%08X message:%s",
++				    msg_index, param, message);
++		break;
++	case SMU_RESP_BUSY_OTHER:
++		dev_err_ratelimited(adev->dev,
++				    "SMU: I'm very busy for your command: index:%d param:0x%08X message:%s",
++				    msg_index, param, message);
++		break;
++	case SMU_RESP_DEBUG_END:
++		dev_err_ratelimited(adev->dev,
++				    "SMU: I'm debugging!");
++		break;
++	default:
++		dev_err_ratelimited(adev->dev,
++				    "SMU: response:0x%08X for index:%d param:0x%08X message:%s?",
++				    reg_c2pmsg_90, msg_index, param, message);
++		break;
++	}
 +}
 +
-+static int acp_genpd_remove_device(struct device *dev, void *data)
++static int __smu_cmn_reg2errno(struct smu_context *smu, u32 reg_c2pmsg_90)
 +{
-+	int ret;
++	int res;
 +
-+	ret =3D pm_genpd_remove_device(dev);
-+	if (ret)
-+		dev_err(dev, "Failed to remove dev from genpd %d\n", ret);
-+
-+	/* Continue to remove */
-+	return 0;
- }
-=20
- /**
-@@ -181,11 +192,10 @@ static struct device *get_mfd_cell_dev(const char *de=
-vice_name, int r)
-  */
- static int acp_hw_init(void *handle)
- {
--	int r, i;
-+	int r;
- 	uint64_t acp_base;
- 	u32 val =3D 0;
- 	u32 count =3D 0;
--	struct device *dev;
- 	struct i2s_platform_data *i2s_pdata =3D NULL;
-=20
- 	struct amdgpu_device *adev =3D (struct amdgpu_device *)handle;
-@@ -341,15 +351,10 @@ static int acp_hw_init(void *handle)
- 	if (r)
- 		goto failure;
-=20
--	for (i =3D 0; i < ACP_DEVS ; i++) {
--		dev =3D get_mfd_cell_dev(adev->acp.acp_cell[i].name, i);
--		r =3D pm_genpd_add_device(&adev->acp.acp_genpd->gpd, dev);
--		if (r) {
--			dev_err(dev, "Failed to add dev to genpd\n");
--			goto failure;
--		}
--	}
--
-+	r =3D device_for_each_child(adev->acp.parent, &adev->acp.acp_genpd->gpd,
-+				  acp_genpd_add_device);
-+	if (r)
-+		goto failure;
-=20
- 	/* Assert Soft reset of ACP */
- 	val =3D cgs_read_register(adev->acp.cgs_device, mmACP_SOFT_RESET);
-@@ -410,10 +415,8 @@ failure:
-  */
- static int acp_hw_fini(void *handle)
- {
--	int i, ret;
- 	u32 val =3D 0;
- 	u32 count =3D 0;
--	struct device *dev;
- 	struct amdgpu_device *adev =3D (struct amdgpu_device *)handle;
-=20
- 	/* return early if no ACP */
-@@ -458,13 +461,8 @@ static int acp_hw_fini(void *handle)
- 		udelay(100);
++	switch (reg_c2pmsg_90) {
++	case SMU_RESP_NONE:
++		/* The SMU is busy--still executing your command.
++		 */
++		res = -ETIME;
++		break;
++	case SMU_RESP_OK:
++		res = 0;
++		break;
++	case SMU_RESP_CMD_FAIL:
++		/* Command completed successfully, but the command
++		 * status was failure.
++		 */
++		res = -EIO;
++		break;
++	case SMU_RESP_CMD_UNKNOWN:
++		/* Unknown command--ignored by the SMU.
++		 */
++		res = -EOPNOTSUPP;
++		break;
++	case SMU_RESP_CMD_BAD_PREREQ:
++		/* Valid command--bad prerequisites.
++		 */
++		res = -EINVAL;
++		break;
++	case SMU_RESP_BUSY_OTHER:
++		/* The SMU is busy with other commands. The client
++		 * should retry in 10 us.
++		 */
++		res = -EBUSY;
++		break;
++	default:
++		/* Unknown or debug response from the SMU.
++		 */
++		res = -EREMOTEIO;
++		break;
  	}
-=20
--	for (i =3D 0; i < ACP_DEVS ; i++) {
--		dev =3D get_mfd_cell_dev(adev->acp.acp_cell[i].name, i);
--		ret =3D pm_genpd_remove_device(dev);
--		/* If removal fails, dont giveup and try rest */
--		if (ret)
--			dev_err(dev, "remove dev from genpd failed\n");
--	}
-+	device_for_each_child(adev->acp.parent, NULL,
-+			      acp_genpd_remove_device);
-=20
- 	mfd_remove_devices(adev->acp.parent);
- 	kfree(adev->acp.acp_res);
---=20
+ 
++	return res;
++}
++
++static void __smu_cmn_send_msg(struct smu_context *smu,
++			       u16 msg,
++			       u32 param)
++{
++	struct amdgpu_device *adev = smu->adev;
++
+ 	WREG32_SOC15(MP1, 0, mmMP1_SMN_C2PMSG_90, 0);
+ 	WREG32_SOC15(MP1, 0, mmMP1_SMN_C2PMSG_82, param);
+ 	WREG32_SOC15(MP1, 0, mmMP1_SMN_C2PMSG_66, msg);
++}
+ 
+-	return 0;
++/**
++ * smu_cmn_send_msg_without_waiting -- send the message; don't wait for status
++ * @smu: pointer to an SMU context
++ * @msg_index: message index
++ * @param: message parameter to send to the SMU
++ *
++ * Send a message to the SMU with the parameter passed. Do not wait
++ * for status/result of the message, thus the "without_waiting".
++ *
++ * Return 0 on success, -errno on error if we weren't able to _send_
++ * the message for some reason. See __smu_cmn_reg2errno() for details
++ * of the -errno.
++ */
++int smu_cmn_send_msg_without_waiting(struct smu_context *smu,
++				     uint16_t msg_index,
++				     uint32_t param)
++{
++	u32 reg;
++	int res;
++
++	if (smu->adev->no_hw_access)
++		return 0;
++
++	mutex_lock(&smu->message_lock);
++	reg = __smu_cmn_poll_stat(smu);
++	res = __smu_cmn_reg2errno(smu, reg);
++	if (reg == SMU_RESP_NONE ||
++	    reg == SMU_RESP_BUSY_OTHER ||
++	    res == -EREMOTEIO)
++		goto Out;
++	__smu_cmn_send_msg(smu, msg_index, param);
++	res = 0;
++Out:
++	mutex_unlock(&smu->message_lock);
++	return res;
+ }
+ 
++/**
++ * smu_cmn_wait_for_response -- wait for response from the SMU
++ * @smu: pointer to an SMU context
++ *
++ * Wait for status from the SMU.
++ *
++ * Return 0 on success, -errno on error, indicating the execution
++ * status and result of the message being waited for. See
++ * __smu_cmn_reg2errno() for details of the -errno.
++ */
++int smu_cmn_wait_for_response(struct smu_context *smu)
++{
++	u32 reg;
++
++	reg = __smu_cmn_poll_stat(smu);
++	return __smu_cmn_reg2errno(smu, reg);
++}
++
++/**
++ * smu_cmn_send_smc_msg_with_param -- send a message with parameter
++ * @smu: pointer to an SMU context
++ * @msg: message to send
++ * @param: parameter to send to the SMU
++ * @read_arg: pointer to u32 to return a value from the SMU back
++ *            to the caller
++ *
++ * Send the message @msg with parameter @param to the SMU, wait for
++ * completion of the command, and return back a value from the SMU in
++ * @read_arg pointer.
++ *
++ * Return 0 on success, -errno on error, if we weren't able to send
++ * the message or if the message completed with some kind of
++ * error. See __smu_cmn_reg2errno() for details of the -errno.
++ *
++ * If we weren't able to send the message to the SMU, we also print
++ * the error to the standard log.
++ *
++ * Command completion status is printed only if the -errno is
++ * -EREMOTEIO, indicating that the SMU returned back an
++ * undefined/unknown/unspecified result. All other cases are
++ * well-defined, not printed, but instead given back to the client to
++ * decide what further to do.
++ *
++ * The return value, @read_arg is read back regardless, to give back
++ * more information to the client, which on error would most likely be
++ * @param, but we can't assume that. This also eliminates more
++ * conditionals.
++ */
+ int smu_cmn_send_smc_msg_with_param(struct smu_context *smu,
+ 				    enum smu_message_type msg,
+ 				    uint32_t param,
+ 				    uint32_t *read_arg)
+ {
+-	struct amdgpu_device *adev = smu->adev;
+-	int ret = 0, index = 0;
++	int res, index;
++	u32 reg;
+ 
+ 	if (smu->adev->no_hw_access)
+ 		return 0;
+@@ -136,31 +339,24 @@ int smu_cmn_send_smc_msg_with_param(struct smu_context *smu,
+ 		return index == -EACCES ? 0 : index;
+ 
+ 	mutex_lock(&smu->message_lock);
+-	ret = smu_cmn_send_msg_without_waiting(smu, (uint16_t)index, param);
+-	if (ret)
+-		goto out;
+-
+-	ret = smu_cmn_wait_for_response(smu);
+-	if (ret != 0x1) {
+-		if (ret == -ETIME) {
+-			dev_err(adev->dev, "message: %15s (%d) \tparam: 0x%08x is timeout (no response)\n",
+-				smu_get_message_name(smu, msg), index, param);
+-		} else {
+-			dev_err(adev->dev, "failed send message: %15s (%d) \tparam: 0x%08x response %#x\n",
+-				smu_get_message_name(smu, msg), index, param,
+-				ret);
+-			ret = -EIO;
+-		}
+-		goto out;
++	reg = __smu_cmn_poll_stat(smu);
++	res = __smu_cmn_reg2errno(smu, reg);
++	if (reg == SMU_RESP_NONE ||
++	    reg == SMU_RESP_BUSY_OTHER ||
++	    res == -EREMOTEIO) {
++		__smu_cmn_reg_print_error(smu, reg, index, param, msg);
++		goto Out;
+ 	}
+-
++	__smu_cmn_send_msg(smu, (uint16_t) index, param);
++	reg = __smu_cmn_poll_stat(smu);
++	res = __smu_cmn_reg2errno(smu, reg);
++	if (res == -EREMOTEIO)
++		__smu_cmn_reg_print_error(smu, reg, index, param, msg);
+ 	if (read_arg)
+ 		smu_cmn_read_arg(smu, read_arg);
+-
+-	ret = 0; /* 0 as driver return value */
+-out:
++Out:
+ 	mutex_unlock(&smu->message_lock);
+-	return ret;
++	return res;
+ }
+ 
+ int smu_cmn_send_smc_msg(struct smu_context *smu,
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu_cmn.h b/drivers/gpu/drm/amd/pm/swsmu/smu_cmn.h
+index 9add5f16ff56..16993daa2ae0 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu_cmn.h
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu_cmn.h
+@@ -27,7 +27,8 @@
+ 
+ #if defined(SWSMU_CODE_LAYER_L2) || defined(SWSMU_CODE_LAYER_L3) || defined(SWSMU_CODE_LAYER_L4)
+ int smu_cmn_send_msg_without_waiting(struct smu_context *smu,
+-				     uint16_t msg, uint32_t param);
++				     uint16_t msg_index,
++				     uint32_t param);
+ int smu_cmn_send_smc_msg_with_param(struct smu_context *smu,
+ 				    enum smu_message_type msg,
+ 				    uint32_t param,
+-- 
 2.30.2
 
 
