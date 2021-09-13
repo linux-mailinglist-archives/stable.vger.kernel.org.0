@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E21E540902B
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:49:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE37409023
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:49:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243891AbhIMNuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:50:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56762 "EHLO mail.kernel.org"
+        id S243004AbhIMNuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:50:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243272AbhIMNrd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243266AbhIMNrd (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:47:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB70D61355;
-        Mon, 13 Sep 2021 13:32:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43013610F7;
+        Mon, 13 Sep 2021 13:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539943;
-        bh=ash2koyFeiiGy4hqAHEQZZGvnpjIglcygzj4y4yZKwA=;
+        s=korg; t=1631539945;
+        bh=F4i1mJonU6zm6wETwto0yf/xl4rP4xC6cyqdmxZFf2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0UlJdBEroL1WBgI7Lc3IlPXc3b/qQfMjk1qnF6MdFAnM4u4CJn208gGVRRyowuzE
-         N1PczxvY1kGlN32MEGIvuCVwtJyBTNkw0ygGJzj0yNBV0UBFC1vXFOByI/OP6sQpHV
-         4i37oikIE2K0Lf6Q001E0se65v/YAWUZJN31gZl8=
+        b=x49qJHtwSd4VHZ3yT9xU7Zt7Le64p6rxrIIUMqbQYqEd1vCPayCqlBLKVOMdrabEL
+         4HaLwv7QWrd6B5m1ulq3tKxW108LxdJturINusjh92lrs1f2LI9Q0kQsxU6+jN1r81
+         ZWPHOdBgUChsNCNuvFGNEPrmYNCh5LnHqOXLYCRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Terry Bowman <Terry.Bowman@amd.com>,
-        kernel test robot <lkp@intel.com>,
-        Babu Moger <babu.moger@amd.com>, Borislav Petkov <bp@suse.de>,
-        Reinette Chatre <reinette.chatre@intel.com>
-Subject: [PATCH 5.10 223/236] x86/resctrl: Fix a maybe-uninitialized build warning treated as error
-Date:   Mon, 13 Sep 2021 15:15:28 +0200
-Message-Id: <20210913131107.943271302@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+200c08e88ae818f849ce@syzkaller.appspotmail.com,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 224/236] Revert "KVM: x86: mmu: Add guest physical address check in translate_gpa()"
+Date:   Mon, 13 Sep 2021 15:15:29 +0200
+Message-Id: <20210913131107.975809274@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -41,64 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Babu Moger <babu.moger@amd.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 527f721478bce3f49b513a733bacd19d6f34b08c upstream.
+commit e7177339d7b5f9594b316842122b5fda9513d5e2 upstream.
 
-The recent commit
+Revert a misguided illegal GPA check when "translating" a non-nested GPA.
+The check is woefully incomplete as it does not fill in @exception as
+expected by all callers, which leads to KVM attempting to inject a bogus
+exception, potentially exposing kernel stack information in the process.
 
-  064855a69003 ("x86/resctrl: Fix default monitoring groups reporting")
+ WARNING: CPU: 0 PID: 8469 at arch/x86/kvm/x86.c:525 exception_type+0x98/0xb0 arch/x86/kvm/x86.c:525
+ CPU: 1 PID: 8469 Comm: syz-executor531 Not tainted 5.14.0-rc7-syzkaller #0
+ RIP: 0010:exception_type+0x98/0xb0 arch/x86/kvm/x86.c:525
+ Call Trace:
+  x86_emulate_instruction+0xef6/0x1460 arch/x86/kvm/x86.c:7853
+  kvm_mmu_page_fault+0x2f0/0x1810 arch/x86/kvm/mmu/mmu.c:5199
+  handle_ept_misconfig+0xdf/0x3e0 arch/x86/kvm/vmx/vmx.c:5336
+  __vmx_handle_exit arch/x86/kvm/vmx/vmx.c:6021 [inline]
+  vmx_handle_exit+0x336/0x1800 arch/x86/kvm/vmx/vmx.c:6038
+  vcpu_enter_guest+0x2a1c/0x4430 arch/x86/kvm/x86.c:9712
+  vcpu_run arch/x86/kvm/x86.c:9779 [inline]
+  kvm_arch_vcpu_ioctl_run+0x47d/0x1b20 arch/x86/kvm/x86.c:10010
+  kvm_vcpu_ioctl+0x49e/0xe50 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3652
 
-caused a RHEL build failure with an uninitialized variable warning
-treated as an error because it removed the default case snippet.
+The bug has escaped notice because practically speaking the GPA check is
+useless.  The GPA check in question only comes into play when KVM is
+walking guest page tables (or "translating" CR3), and KVM already handles
+illegal GPA checks by setting reserved bits in rsvd_bits_mask for each
+PxE, or in the case of CR3 for loading PTDPTRs, manually checks for an
+illegal CR3.  This particular failure doesn't hit the existing reserved
+bits checks because syzbot sets guest.MAXPHYADDR=1, and IA32 architecture
+simply doesn't allow for such an absurd MAXPHYADDR, e.g. 32-bit paging
+doesn't define any reserved PA bits checks, which KVM emulates by only
+incorporating the reserved PA bits into the "high" bits, i.e. bits 63:32.
 
-The RHEL Makefile uses '-Werror=maybe-uninitialized' to force possibly
-uninitialized variable warnings to be treated as errors. This is also
-reported by smatch via the 0day robot.
+Simply remove the bogus check.  There is zero meaningful value and no
+architectural justification for supporting guest.MAXPHYADDR < 32, and
+properly filling the exception would introduce non-trivial complexity.
 
-The error from the RHEL build is:
+This reverts commit ec7771ab471ba6a945350353617e2e3385d0e013.
 
-  arch/x86/kernel/cpu/resctrl/monitor.c: In function ‘__mon_event_count’:
-  arch/x86/kernel/cpu/resctrl/monitor.c:261:12: error: ‘m’ may be used
-  uninitialized in this function [-Werror=maybe-uninitialized]
-    m->chunks += chunks;
-              ^~
-
-The upstream Makefile does not build using '-Werror=maybe-uninitialized'.
-So, the problem is not seen there. Fix the problem by putting back the
-default case snippet.
-
- [ bp: note that there's nothing wrong with the code and other compilers
-   do not trigger this warning - this is being done just so the RHEL compiler
-   is happy. ]
-
-Fixes: 064855a69003 ("x86/resctrl: Fix default monitoring groups reporting")
-Reported-by: Terry Bowman <Terry.Bowman@amd.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Babu Moger <babu.moger@amd.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Reinette Chatre <reinette.chatre@intel.com>
+Fixes: ec7771ab471b ("KVM: x86: mmu: Add guest physical address check in translate_gpa()")
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/162949631908.23903.17090272726012848523.stgit@bmoger-ubuntu
+Reported-by: syzbot+200c08e88ae818f849ce@syzkaller.appspotmail.com
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210831164224.1119728-2-seanjc@google.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/resctrl/monitor.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/kvm/mmu/mmu.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/arch/x86/kernel/cpu/resctrl/monitor.c
-+++ b/arch/x86/kernel/cpu/resctrl/monitor.c
-@@ -241,6 +241,12 @@ static u64 __mon_event_count(u32 rmid, s
- 	case QOS_L3_MBM_LOCAL_EVENT_ID:
- 		m = &rr->d->mbm_local[rmid];
- 		break;
-+	default:
-+		/*
-+		 * Code would never reach here because an invalid
-+		 * event id would fail the __rmid_read.
-+		 */
-+		return RMID_VAL_ERROR;
- 	}
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -267,12 +267,6 @@ static bool check_mmio_spte(struct kvm_v
+ static gpa_t translate_gpa(struct kvm_vcpu *vcpu, gpa_t gpa, u32 access,
+                                   struct x86_exception *exception)
+ {
+-	/* Check if guest physical address doesn't exceed guest maximum */
+-	if (kvm_vcpu_is_illegal_gpa(vcpu, gpa)) {
+-		exception->error_code |= PFERR_RSVD_MASK;
+-		return UNMAPPED_GVA;
+-	}
+-
+         return gpa;
+ }
  
- 	if (rr->first) {
 
 
