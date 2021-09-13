@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B12409209
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 141A34094D5
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344752AbhIMOHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:07:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56004 "EHLO mail.kernel.org"
+        id S1345202AbhIMOgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:36:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344591AbhIMOFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:05:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0B9C610E7;
-        Mon, 13 Sep 2021 13:39:40 +0000 (UTC)
+        id S1345863AbhIMOcm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:32:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F58561BB6;
+        Mon, 13 Sep 2021 13:52:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540381;
-        bh=50zYpnkjEY2pTp+vMAnZUQeG2tdydDrCG/kJxt09Po8=;
+        s=korg; t=1631541132;
+        bh=J6CQ7syME1XN+MCyVZO9YTlAz7zN0MOXoa52UE9kjDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rCx10e5PUz+tYmuPYpm2TrYM4Fw+F7akIFfMNoE/p4/ed3aohmbssq7bBAr1v3P/3
-         TkrFpXZKd7R++SGKT08PL0k0sa1m1aDp9JSXCMM5zPnnzydBHu6RIG9u9mTe7kH7+J
-         h3FurMcF99q4ql9r43oIw/yMGZOFALJy063vqFLM=
+        b=Q/OFos994jJlHRZ+yIk5Mg/3sgVlh2cLvB+C/VICAWrAWQ8Aj167U9ZwgVnEjeRcA
+         a+efWDC0+b0JMkqCzA2ATc8BBLQN2jE4S3K1R7a3kRY+7E9UpQreFRRlgJ7Xf7wK5n
+         JYXDy9HXMgJYWOId0Z3g5/qVtweqY4yENcrcT2uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 170/300] cgroup/cpuset: Miscellaneous code cleanup
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 177/334] net: dsa: stop syncing the bridge mcast_router attribute at join time
 Date:   Mon, 13 Sep 2021 15:13:51 +0200
-Message-Id: <20210913131115.150290204@linuxfoundation.org>
+Message-Id: <20210913131119.335833087@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,150 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 0f3adb8a1e5f36e792598c1d77a2cfac9c90a4f9 ]
+[ Upstream commit 7df4e7449489d82cee6813dccbb4ae4f3f26ef7b ]
 
-Use more descriptive variable names for update_prstate(), remove
-unnecessary code and fix some typos. There is no functional change.
+Qingfang points out that when a bridge with the default settings is
+created and a port joins it:
 
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+ip link add br0 type bridge
+ip link set swp0 master br0
+
+DSA calls br_multicast_router() on the bridge to see if the br0 device
+is a multicast router port, and if it is, it enables multicast flooding
+to the CPU port, otherwise it disables it.
+
+If we look through the multicast_router_show() sysfs or at the
+IFLA_BR_MCAST_ROUTER netlink attribute, we see that the default mrouter
+attribute for the bridge device is "1" (MDB_RTR_TYPE_TEMP_QUERY).
+
+However, br_multicast_router() will return "0" (MDB_RTR_TYPE_DISABLED),
+because an mrouter port in the MDB_RTR_TYPE_TEMP_QUERY state may not be
+actually _active_ until it receives an actual IGMP query. So, the
+br_multicast_router() function should really have been called
+br_multicast_router_active() perhaps.
+
+When/if an IGMP query is received, the bridge device will transition via
+br_multicast_mark_router() into the active state until the
+ip4_mc_router_timer expires after an multicast_querier_interval.
+
+Of course, this does not happen if the bridge is created with an
+mcast_router attribute of "2" (MDB_RTR_TYPE_PERM).
+
+The point is that in lack of any IGMP query messages, and in the default
+bridge configuration, unregistered multicast packets will not be able to
+reach the CPU port through flooding, and this breaks many use cases
+(most obviously, IPv6 ND, with its ICMP6 neighbor solicitation multicast
+messages).
+
+Leave the multicast flooding setting towards the CPU port down to a driver
+level decision.
+
+Fixes: 010e269f91be ("net: dsa: sync up switchdev objects and port attributes when joining the bridge")
+Reported-by: DENG Qingfang <dqfext@gmail.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cpuset.c | 40 +++++++++++++++++++---------------------
- 1 file changed, 19 insertions(+), 21 deletions(-)
+ net/dsa/port.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
-index 592e9e37542f..28a784bf64b1 100644
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -1114,7 +1114,7 @@ enum subparts_cmd {
-  * cpus_allowed can be granted or an error code will be returned.
-  *
-  * For partcmd_disable, the cpuset is being transofrmed from a partition
-- * root back to a non-partition root. any CPUs in cpus_allowed that are in
-+ * root back to a non-partition root. Any CPUs in cpus_allowed that are in
-  * parent's subparts_cpus will be taken away from that cpumask and put back
-  * into parent's effective_cpus. 0 should always be returned.
-  *
-@@ -1225,7 +1225,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
- 		/*
- 		 * partcmd_update w/o newmask:
- 		 *
--		 * addmask = cpus_allowed & parent->effectiveb_cpus
-+		 * addmask = cpus_allowed & parent->effective_cpus
- 		 *
- 		 * Note that parent's subparts_cpus may have been
- 		 * pre-shrunk in case there is a change in the cpu list.
-@@ -1365,12 +1365,12 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
- 			case PRS_DISABLED:
- 				/*
- 				 * If parent is not a partition root or an
--				 * invalid partition root, clear the state
--				 * state and the CS_CPU_EXCLUSIVE flag.
-+				 * invalid partition root, clear its state
-+				 * and its CS_CPU_EXCLUSIVE flag.
- 				 */
- 				WARN_ON_ONCE(cp->partition_root_state
- 					     != PRS_ERROR);
--				cp->partition_root_state = 0;
-+				cp->partition_root_state = PRS_DISABLED;
+diff --git a/net/dsa/port.c b/net/dsa/port.c
+index 28b45b7e66df..d9ef2c2fbf88 100644
+--- a/net/dsa/port.c
++++ b/net/dsa/port.c
+@@ -186,10 +186,6 @@ static int dsa_port_switchdev_sync(struct dsa_port *dp,
+ 	if (err && err != -EOPNOTSUPP)
+ 		return err;
  
- 				/*
- 				 * clear_bit() is an atomic operation and
-@@ -1937,30 +1937,28 @@ out:
+-	err = dsa_port_mrouter(dp->cpu_dp, br_multicast_router(br), extack);
+-	if (err && err != -EOPNOTSUPP)
+-		return err;
+-
+ 	err = dsa_port_ageing_time(dp, br_get_ageing_time(br));
+ 	if (err && err != -EOPNOTSUPP)
+ 		return err;
+@@ -272,12 +268,6 @@ static void dsa_port_switchdev_unsync_attrs(struct dsa_port *dp)
  
- /*
-  * update_prstate - update partititon_root_state
-- * cs:	the cpuset to update
-- * val: 0 - disabled, 1 - enabled
-+ * cs: the cpuset to update
-+ * new_prs: new partition root state
-  *
-  * Call with cpuset_mutex held.
-  */
--static int update_prstate(struct cpuset *cs, int val)
-+static int update_prstate(struct cpuset *cs, int new_prs)
- {
- 	int err;
- 	struct cpuset *parent = parent_cs(cs);
--	struct tmpmasks tmp;
-+	struct tmpmasks tmpmask;
+ 	/* VLAN filtering is handled by dsa_switch_bridge_leave */
  
--	if ((val != 0) && (val != 1))
--		return -EINVAL;
--	if (val == cs->partition_root_state)
-+	if (new_prs == cs->partition_root_state)
- 		return 0;
- 
- 	/*
- 	 * Cannot force a partial or invalid partition root to a full
- 	 * partition root.
+-	/* Some drivers treat the notification for having a local multicast
+-	 * router by allowing multicast to be flooded to the CPU, so we should
+-	 * allow this in standalone mode too.
+-	 */
+-	dsa_port_mrouter(dp->cpu_dp, true, NULL);
+-
+ 	/* Ageing time may be global to the switch chip, so don't change it
+ 	 * here because we have no good reason (or value) to change it to.
  	 */
--	if (val && cs->partition_root_state)
-+	if (new_prs && (cs->partition_root_state < 0))
- 		return -EINVAL;
- 
--	if (alloc_cpumasks(NULL, &tmp))
-+	if (alloc_cpumasks(NULL, &tmpmask))
- 		return -ENOMEM;
- 
- 	err = -EINVAL;
-@@ -1978,7 +1976,7 @@ static int update_prstate(struct cpuset *cs, int val)
- 			goto out;
- 
- 		err = update_parent_subparts_cpumask(cs, partcmd_enable,
--						     NULL, &tmp);
-+						     NULL, &tmpmask);
- 		if (err) {
- 			update_flag(CS_CPU_EXCLUSIVE, cs, 0);
- 			goto out;
-@@ -1990,18 +1988,18 @@ static int update_prstate(struct cpuset *cs, int val)
- 		 * CS_CPU_EXCLUSIVE bit.
- 		 */
- 		if (cs->partition_root_state == PRS_ERROR) {
--			cs->partition_root_state = 0;
-+			cs->partition_root_state = PRS_DISABLED;
- 			update_flag(CS_CPU_EXCLUSIVE, cs, 0);
- 			err = 0;
- 			goto out;
- 		}
- 
- 		err = update_parent_subparts_cpumask(cs, partcmd_disable,
--						     NULL, &tmp);
-+						     NULL, &tmpmask);
- 		if (err)
- 			goto out;
- 
--		cs->partition_root_state = 0;
-+		cs->partition_root_state = PRS_DISABLED;
- 
- 		/* Turning off CS_CPU_EXCLUSIVE will not return error */
- 		update_flag(CS_CPU_EXCLUSIVE, cs, 0);
-@@ -2015,11 +2013,11 @@ static int update_prstate(struct cpuset *cs, int val)
- 		update_tasks_cpumask(parent);
- 
- 	if (parent->child_ecpus_count)
--		update_sibling_cpumasks(parent, cs, &tmp);
-+		update_sibling_cpumasks(parent, cs, &tmpmask);
- 
- 	rebuild_sched_domains_locked();
- out:
--	free_cpumasks(NULL, &tmp);
-+	free_cpumasks(NULL, &tmpmask);
- 	return err;
- }
- 
-@@ -3060,7 +3058,7 @@ retry:
- 		goto retry;
- 	}
- 
--	parent =  parent_cs(cs);
-+	parent = parent_cs(cs);
- 	compute_effective_cpumask(&new_cpus, cs, parent);
- 	nodes_and(new_mems, cs->mems_allowed, parent->effective_mems);
- 
 -- 
 2.30.2
 
