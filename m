@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1D79409452
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:31:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9C2A409458
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346545AbhIMOa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:30:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46940 "EHLO mail.kernel.org"
+        id S245594AbhIMOat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:30:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245694AbhIMO21 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:28:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4D6C615A2;
-        Mon, 13 Sep 2021 13:49:44 +0000 (UTC)
+        id S1346129AbhIMO23 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:28:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EAD261B4D;
+        Mon, 13 Sep 2021 13:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540985;
-        bh=+KgFxSgNdFkMVgeqQhxhH1KWHyahO0U7bjcVk1OwuGM=;
+        s=korg; t=1631540988;
+        bh=+6aVZkAa15Bnbpzpec7vES3nQAlUyQpFh+CuuHVxGDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a53m+DfZyhhNoBX/5e1kmEY8rIztaGs2Jt9Gpn5qyeuuF2OLAj/Vz3ZSjvNV2u4ws
-         pkvsqjdh0/DHRheR+xEUXk4u7B9pBKbO3VDQowpVEdT67bIZnyVX52Nj3lBvtX121G
-         uqOhW7LkTn1KknbgrpduoQdNWcoKSgy2BI8kNpUI=
+        b=OxJA8SJ6PaPdaTqfj0bWZ7aY9gFF3uKgwJyXumVtKo5YRarF4WkQxM6KbexSsNtYA
+         95ic83/fNUkF29ynNwdepy1wXZlNcqe9oO0uL3Cm/nw0fHlWRSSf2jlkO2J5zKFxQg
+         9czn2+Ednz1ChHXHeOiq8YPwnZglx3jiGTzagZQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 115/334] media: go7007: fix memory leak in go7007_usb_probe
-Date:   Mon, 13 Sep 2021 15:12:49 +0200
-Message-Id: <20210913131117.264705020@linuxfoundation.org>
+Subject: [PATCH 5.14 116/334] media: go7007: remove redundant initialization
+Date:   Mon, 13 Sep 2021 15:12:50 +0200
+Message-Id: <20210913131117.296577844@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -43,63 +43,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 47d94dad8e64b2fc1d8f66ce7acf714f9462c60f ]
+[ Upstream commit 6f5885a7750545973bf1a942d2f0f129aef0aa06 ]
 
-In commit 137641287eb4 ("go7007: add sanity checking for endpoints")
-endpoint sanity check was introduced, but if check fails it simply
-returns with leaked pointers.
+In go7007_alloc() kzalloc() is used for struct go7007
+allocation. It means that there is no need in zeroing
+any members, because kzalloc will take care of it.
 
-Cutted log from my local syzbot instance:
+Removing these reduntant initialization steps increases
+execution speed a lot:
 
-BUG: memory leak
-unreferenced object 0xffff8880209f0000 (size 8192):
-  comm "kworker/0:4", pid 4916, jiffies 4295263583 (age 29.310s)
-  hex dump (first 32 bytes):
-    30 b0 27 22 80 88 ff ff 75 73 62 2d 64 75 6d 6d  0.'"....usb-dumm
-    79 5f 68 63 64 2e 33 2d 31 00 00 00 00 00 00 00  y_hcd.3-1.......
-  backtrace:
-    [<ffffffff860ca856>] kmalloc include/linux/slab.h:556 [inline]
-    [<ffffffff860ca856>] kzalloc include/linux/slab.h:686 [inline]
-    [<ffffffff860ca856>] go7007_alloc+0x46/0xb40 drivers/media/usb/go7007/go7007-driver.c:696
-    [<ffffffff860de74e>] go7007_usb_probe+0x13e/0x2200 drivers/media/usb/go7007/go7007-usb.c:1114
-    [<ffffffff854a5f74>] usb_probe_interface+0x314/0x7f0 drivers/usb/core/driver.c:396
-    [<ffffffff845a7151>] really_probe+0x291/0xf60 drivers/base/dd.c:576
+	Before:
+		+ 86.802 us   |    go7007_alloc();
+	After:
+		+ 29.595 us   |    go7007_alloc();
 
-BUG: memory leak
-unreferenced object 0xffff88801e2f2800 (size 512):
-  comm "kworker/0:4", pid 4916, jiffies 4295263583 (age 29.310s)
-  hex dump (first 32 bytes):
-    00 87 40 8a ff ff ff ff 00 00 00 00 00 00 00 00  ..@.............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff860de794>] kmalloc include/linux/slab.h:556 [inline]
-    [<ffffffff860de794>] kzalloc include/linux/slab.h:686 [inline]
-    [<ffffffff860de794>] go7007_usb_probe+0x184/0x2200 drivers/media/usb/go7007/go7007-usb.c:1118
-    [<ffffffff854a5f74>] usb_probe_interface+0x314/0x7f0 drivers/usb/core/driver.c:396
-    [<ffffffff845a7151>] really_probe+0x291/0xf60 drivers/base/dd.c:576
-
-Fixes: 137641287eb4 ("go7007: add sanity checking for endpoints")
+Fixes: 866b8695d67e8 ("Staging: add the go7007 video driver")
 Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/go7007/go7007-usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/go7007/go7007-driver.c | 26 ------------------------
+ 1 file changed, 26 deletions(-)
 
-diff --git a/drivers/media/usb/go7007/go7007-usb.c b/drivers/media/usb/go7007/go7007-usb.c
-index dbf0455d5d50..eeb85981e02b 100644
---- a/drivers/media/usb/go7007/go7007-usb.c
-+++ b/drivers/media/usb/go7007/go7007-usb.c
-@@ -1134,7 +1134,7 @@ static int go7007_usb_probe(struct usb_interface *intf,
+diff --git a/drivers/media/usb/go7007/go7007-driver.c b/drivers/media/usb/go7007/go7007-driver.c
+index f1767be9d868..6650eab913d8 100644
+--- a/drivers/media/usb/go7007/go7007-driver.c
++++ b/drivers/media/usb/go7007/go7007-driver.c
+@@ -691,49 +691,23 @@ struct go7007 *go7007_alloc(const struct go7007_board_info *board,
+ 						struct device *dev)
+ {
+ 	struct go7007 *go;
+-	int i;
  
- 	ep = usb->usbdev->ep_in[4];
- 	if (!ep)
--		return -ENODEV;
-+		goto allocfail;
+ 	go = kzalloc(sizeof(struct go7007), GFP_KERNEL);
+ 	if (go == NULL)
+ 		return NULL;
+ 	go->dev = dev;
+ 	go->board_info = board;
+-	go->board_id = 0;
+ 	go->tuner_type = -1;
+-	go->channel_number = 0;
+-	go->name[0] = 0;
+ 	mutex_init(&go->hw_lock);
+ 	init_waitqueue_head(&go->frame_waitq);
+ 	spin_lock_init(&go->spinlock);
+ 	go->status = STATUS_INIT;
+-	memset(&go->i2c_adapter, 0, sizeof(go->i2c_adapter));
+-	go->i2c_adapter_online = 0;
+-	go->interrupt_available = 0;
+ 	init_waitqueue_head(&go->interrupt_waitq);
+-	go->input = 0;
+ 	go7007_update_board(go);
+-	go->encoder_h_halve = 0;
+-	go->encoder_v_halve = 0;
+-	go->encoder_subsample = 0;
+ 	go->format = V4L2_PIX_FMT_MJPEG;
+ 	go->bitrate = 1500000;
+ 	go->fps_scale = 1;
+-	go->pali = 0;
+ 	go->aspect_ratio = GO7007_RATIO_1_1;
+-	go->gop_size = 0;
+-	go->ipb = 0;
+-	go->closed_gop = 0;
+-	go->repeat_seqhead = 0;
+-	go->seq_header_enable = 0;
+-	go->gop_header_enable = 0;
+-	go->dvd_mode = 0;
+-	go->interlace_coding = 0;
+-	for (i = 0; i < 4; ++i)
+-		go->modet[i].enable = 0;
+-	for (i = 0; i < 1624; ++i)
+-		go->modet_map[i] = 0;
+-	go->audio_deliver = NULL;
+-	go->audio_enabled = 0;
  
- 	/* Allocate the URB and buffer for receiving incoming interrupts */
- 	usb->intr_urb = usb_alloc_urb(0, GFP_KERNEL);
+ 	return go;
+ }
 -- 
 2.30.2
 
