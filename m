@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E874340885E
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 11:37:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27CE7408862
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 11:37:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238684AbhIMJiX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 05:38:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49804 "EHLO mail.kernel.org"
+        id S238724AbhIMJil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 05:38:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238444AbhIMJiW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 05:38:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD03660E94;
-        Mon, 13 Sep 2021 09:37:06 +0000 (UTC)
+        id S238692AbhIMJik (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 05:38:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9539D60F24;
+        Mon, 13 Sep 2021 09:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631525827;
-        bh=07Y1YNAY7TLbAthkGIXYXXxvG3eoSTQr8MxQeAdh1Q0=;
+        s=korg; t=1631525845;
+        bh=9Oxb8dnvl0toRBGQEAS9LlQWGASZoAFpQRkSXzmL+1Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=LvOasMrD7qRungyrJh0ZkNiqqrOs3uHASFaoFN8tc75B+A7oatkiCEPhsoKzGBk6K
-         hb11JRzy812scCyHdnjUNQj3o8VcBLXXbBPIkMJFbGLsvB6qXejUAI6SIbIKDQ4WOE
-         Dj6CkqjP4P/5DMuNw7hKV6FmquTE9+r3LU9JqMpw=
-Subject: FAILED: patch "[PATCH] io_uring: add ->splice_fd_in checks" failed to apply to 5.14-stable tree
+        b=qTRJ21Gil4eo1HjMI/bs8w29y3DVLdt77PEkSDSoNAYFNfoaicsTSU3oVM6Px1Fod
+         DI6ZX2dK62KFZI3/az/x5ZPzxAT9KuxvJ2wzyv7YJ0iaqGGHU5M0dsCcpcsvserxPV
+         RQr9kV01fZnlTxu1ggFLd9xEX+Jbs8IGpZce8GFg=
+Subject: FAILED: patch "[PATCH] io_uring: fix io_try_cancel_userdata race for iowq" failed to apply to 5.13-stable tree
 To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 11:37:05 +0200
-Message-ID: <16315258252294@kroah.com>
+Date:   Mon, 13 Sep 2021 11:37:23 +0200
+Message-ID: <1631525843783@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,222 +45,69 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 26578cda3db983b17cabe4e577af26306beb9987 Mon Sep 17 00:00:00 2001
+From dadebc350da2bef62593b1df007a6e0b90baf42a Mon Sep 17 00:00:00 2001
 From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Fri, 20 Aug 2021 10:36:37 +0100
-Subject: [PATCH] io_uring: add ->splice_fd_in checks
+Date: Mon, 23 Aug 2021 13:30:44 +0100
+Subject: [PATCH] io_uring: fix io_try_cancel_userdata race for iowq
 
-->splice_fd_in is used only by splice/tee, but no other request checks
-it for validity. Add the check for most of request types excluding
-reads/writes/sends/recvs, we don't want overhead for them and can leave
-them be as is until the field is actually used.
+WARNING: CPU: 1 PID: 5870 at fs/io_uring.c:5975 io_try_cancel_userdata+0x30f/0x540 fs/io_uring.c:5975
+CPU: 0 PID: 5870 Comm: iou-wrk-5860 Not tainted 5.14.0-rc6-next-20210820-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:io_try_cancel_userdata+0x30f/0x540 fs/io_uring.c:5975
+Call Trace:
+ io_async_cancel fs/io_uring.c:6014 [inline]
+ io_issue_sqe+0x22d5/0x65a0 fs/io_uring.c:6407
+ io_wq_submit_work+0x1dc/0x300 fs/io_uring.c:6511
+ io_worker_handle_work+0xa45/0x1840 fs/io-wq.c:533
+ io_wqe_worker+0x2cc/0xbb0 fs/io-wq.c:582
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
+
+io_try_cancel_userdata() can be called from io_async_cancel() executing
+in the io-wq context, so the warning fires, which is there to alert
+anyone accessing task->io_uring->io_wq in a racy way. However,
+io_wq_put_and_exit() always first waits for all threads to complete,
+so the only detail left is to zero tctx->io_wq after the context is
+removed.
+
+note: one little assumption is that when IO_WQ_WORK_CANCEL, the executor
+won't touch ->io_wq, because io_wq_destroy() might cancel left pending
+requests in such a way.
 
 Cc: stable@vger.kernel.org
+Reported-by: syzbot+b0c9d1588ae92866515f@syzkaller.appspotmail.com
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/f44bc2acd6777d932de3d71a5692235b5b2b7397.1629451684.git.asml.silence@gmail.com
+Link: https://lore.kernel.org/r/dfdd37a80cfa9ffd3e59538929c99cdd55d8699e.1629721757.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8d263209b508..3898f7ab14f6 100644
+index 827e60ae4909..6859438c4e09 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -3511,7 +3511,7 @@ static int io_renameat_prep(struct io_kiocb *req,
+@@ -5863,7 +5863,7 @@ static int io_try_cancel_userdata(struct io_kiocb *req, u64 sqe_addr)
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	int ret;
  
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->buf_index)
-+	if (sqe->ioprio || sqe->buf_index || sqe->splice_fd_in)
- 		return -EINVAL;
- 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
- 		return -EBADF;
-@@ -3562,7 +3562,8 @@ static int io_unlinkat_prep(struct io_kiocb *req,
+-	WARN_ON_ONCE(req->task != current);
++	WARN_ON_ONCE(!io_wq_current_is_worker() && req->task != current);
  
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->off || sqe->len || sqe->buf_index)
-+	if (sqe->ioprio || sqe->off || sqe->len || sqe->buf_index ||
-+	    sqe->splice_fd_in)
- 		return -EINVAL;
- 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
- 		return -EBADF;
-@@ -3608,8 +3609,8 @@ static int io_shutdown_prep(struct io_kiocb *req,
- #if defined(CONFIG_NET)
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->off || sqe->addr || sqe->rw_flags ||
--	    sqe->buf_index)
-+	if (unlikely(sqe->ioprio || sqe->off || sqe->addr || sqe->rw_flags ||
-+		     sqe->buf_index || sqe->splice_fd_in))
- 		return -EINVAL;
+ 	ret = io_async_cancel_one(req->task->io_uring, sqe_addr, ctx);
+ 	if (ret != -ENOENT)
+@@ -6369,6 +6369,7 @@ static void io_wq_submit_work(struct io_wq_work *work)
+ 	if (timeout)
+ 		io_queue_linked_timeout(timeout);
  
- 	req->shutdown.how = READ_ONCE(sqe->len);
-@@ -3757,7 +3758,8 @@ static int io_fsync_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
++	/* either cancelled or io-wq is dying, so don't touch tctx->iowq */
+ 	if (work->flags & IO_WQ_WORK_CANCEL)
+ 		ret = -ECANCELED;
  
- 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index))
-+	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index ||
-+		     sqe->splice_fd_in))
- 		return -EINVAL;
+@@ -9184,8 +9185,8 @@ static void io_uring_clean_tctx(struct io_uring_task *tctx)
+ 		 * Must be after io_uring_del_task_file() (removes nodes under
+ 		 * uring_lock) to avoid race with io_uring_try_cancel_iowq().
+ 		 */
+-		tctx->io_wq = NULL;
+ 		io_wq_put_and_exit(wq);
++		tctx->io_wq = NULL;
+ 	}
+ }
  
- 	req->sync.flags = READ_ONCE(sqe->fsync_flags);
-@@ -3790,7 +3792,8 @@ static int io_fsync(struct io_kiocb *req, unsigned int issue_flags)
- static int io_fallocate_prep(struct io_kiocb *req,
- 			     const struct io_uring_sqe *sqe)
- {
--	if (sqe->ioprio || sqe->buf_index || sqe->rw_flags)
-+	if (sqe->ioprio || sqe->buf_index || sqe->rw_flags ||
-+	    sqe->splice_fd_in)
- 		return -EINVAL;
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
-@@ -3823,7 +3826,7 @@ static int __io_openat_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe
- 
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (unlikely(sqe->ioprio || sqe->buf_index))
-+	if (unlikely(sqe->ioprio || sqe->buf_index || sqe->splice_fd_in))
- 		return -EINVAL;
- 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
- 		return -EBADF;
-@@ -3942,7 +3945,8 @@ static int io_remove_buffers_prep(struct io_kiocb *req,
- 	struct io_provide_buf *p = &req->pbuf;
- 	u64 tmp;
- 
--	if (sqe->ioprio || sqe->rw_flags || sqe->addr || sqe->len || sqe->off)
-+	if (sqe->ioprio || sqe->rw_flags || sqe->addr || sqe->len || sqe->off ||
-+	    sqe->splice_fd_in)
- 		return -EINVAL;
- 
- 	tmp = READ_ONCE(sqe->fd);
-@@ -4013,7 +4017,7 @@ static int io_provide_buffers_prep(struct io_kiocb *req,
- 	struct io_provide_buf *p = &req->pbuf;
- 	u64 tmp;
- 
--	if (sqe->ioprio || sqe->rw_flags)
-+	if (sqe->ioprio || sqe->rw_flags || sqe->splice_fd_in)
- 		return -EINVAL;
- 
- 	tmp = READ_ONCE(sqe->fd);
-@@ -4100,7 +4104,7 @@ static int io_epoll_ctl_prep(struct io_kiocb *req,
- 			     const struct io_uring_sqe *sqe)
- {
- #if defined(CONFIG_EPOLL)
--	if (sqe->ioprio || sqe->buf_index)
-+	if (sqe->ioprio || sqe->buf_index || sqe->splice_fd_in)
- 		return -EINVAL;
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
-@@ -4146,7 +4150,7 @@ static int io_epoll_ctl(struct io_kiocb *req, unsigned int issue_flags)
- static int io_madvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- #if defined(CONFIG_ADVISE_SYSCALLS) && defined(CONFIG_MMU)
--	if (sqe->ioprio || sqe->buf_index || sqe->off)
-+	if (sqe->ioprio || sqe->buf_index || sqe->off || sqe->splice_fd_in)
- 		return -EINVAL;
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
-@@ -4181,7 +4185,7 @@ static int io_madvise(struct io_kiocb *req, unsigned int issue_flags)
- 
- static int io_fadvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
--	if (sqe->ioprio || sqe->buf_index || sqe->addr)
-+	if (sqe->ioprio || sqe->buf_index || sqe->addr || sqe->splice_fd_in)
- 		return -EINVAL;
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
-@@ -4219,7 +4223,7 @@ static int io_statx_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- {
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->buf_index)
-+	if (sqe->ioprio || sqe->buf_index || sqe->splice_fd_in)
- 		return -EINVAL;
- 	if (req->flags & REQ_F_FIXED_FILE)
- 		return -EBADF;
-@@ -4255,7 +4259,7 @@ static int io_close_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
- 	if (sqe->ioprio || sqe->off || sqe->addr || sqe->len ||
--	    sqe->rw_flags || sqe->buf_index)
-+	    sqe->rw_flags || sqe->buf_index || sqe->splice_fd_in)
- 		return -EINVAL;
- 	if (req->flags & REQ_F_FIXED_FILE)
- 		return -EBADF;
-@@ -4316,7 +4320,8 @@ static int io_sfr_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 
- 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index))
-+	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index ||
-+		     sqe->splice_fd_in))
- 		return -EINVAL;
- 
- 	req->sync.off = READ_ONCE(sqe->off);
-@@ -4743,7 +4748,7 @@ static int io_accept_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->len || sqe->buf_index)
-+	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->splice_fd_in)
- 		return -EINVAL;
- 
- 	accept->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
-@@ -4791,7 +4796,8 @@ static int io_connect_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->rw_flags)
-+	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->rw_flags ||
-+	    sqe->splice_fd_in)
- 		return -EINVAL;
- 
- 	conn->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
-@@ -5387,7 +5393,7 @@ static int io_poll_update_prep(struct io_kiocb *req,
- 
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->buf_index)
-+	if (sqe->ioprio || sqe->buf_index || sqe->splice_fd_in)
- 		return -EINVAL;
- 	flags = READ_ONCE(sqe->len);
- 	if (flags & ~(IORING_POLL_UPDATE_EVENTS | IORING_POLL_UPDATE_USER_DATA |
-@@ -5626,7 +5632,7 @@ static int io_timeout_remove_prep(struct io_kiocb *req,
- 		return -EINVAL;
- 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->buf_index || sqe->len)
-+	if (sqe->ioprio || sqe->buf_index || sqe->len || sqe->splice_fd_in)
- 		return -EINVAL;
- 
- 	tr->addr = READ_ONCE(sqe->addr);
-@@ -5687,7 +5693,8 @@ static int io_timeout_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 
- 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->buf_index || sqe->len != 1)
-+	if (sqe->ioprio || sqe->buf_index || sqe->len != 1 ||
-+	    sqe->splice_fd_in)
- 		return -EINVAL;
- 	if (off && is_timeout_link)
- 		return -EINVAL;
-@@ -5843,7 +5850,8 @@ static int io_async_cancel_prep(struct io_kiocb *req,
- 		return -EINVAL;
- 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->off || sqe->len || sqe->cancel_flags)
-+	if (sqe->ioprio || sqe->off || sqe->len || sqe->cancel_flags ||
-+	    sqe->splice_fd_in)
- 		return -EINVAL;
- 
- 	req->cancel.addr = READ_ONCE(sqe->addr);
-@@ -5884,7 +5892,7 @@ static int io_rsrc_update_prep(struct io_kiocb *req,
- {
- 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
- 		return -EINVAL;
--	if (sqe->ioprio || sqe->rw_flags)
-+	if (sqe->ioprio || sqe->rw_flags || sqe->splice_fd_in)
- 		return -EINVAL;
- 
- 	req->rsrc_update.offset = READ_ONCE(sqe->off);
 
