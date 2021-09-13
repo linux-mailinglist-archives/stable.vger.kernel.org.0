@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EC4840959E
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 653CD4092F8
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345506AbhIMOnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:43:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57712 "EHLO mail.kernel.org"
+        id S244850AbhIMOQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:16:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347015AbhIMOlf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:41:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36F5F617E6;
-        Mon, 13 Sep 2021 13:56:18 +0000 (UTC)
+        id S1344794AbhIMOOl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:14:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09CBF61359;
+        Mon, 13 Sep 2021 13:43:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541378;
-        bh=43DmkAoCMLVUXBo3lIa6WD2QcU0t1QfzGVWKCHf/C6Y=;
+        s=korg; t=1631540622;
+        bh=3BRQKf+4m4hF8xbhI2zJqChxuqd8U0J5T0pyXXtX8bc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owfqwySOqWW9jnIVJRroXDqSVtbHADxl8NvktAQebmnSClnF1T83VzzqRRbl4L5WM
-         zYoHx/1CThYvXvgvhj3ixie47YGAtbXUcf0HRA9BFf6ERN0iU0ha61LmWRDI7DPdpU
-         hnAlXbyqcAFaciRw+8ifxEhPSQpSl8pzPW9gUSmU=
+        b=Ov9mzM8KFxjsHvdYXAfQE7PUIHB/2l/CM3nbIKqNRUp4TG10E/WxfaDujbZ18aQpf
+         ODJ6xd6s7ulJUedZkCzHZf+/LE/4dTFaAJgaBbbD6tntVrJDRh5BJi+ugMcm4M57JR
+         3au7igIc4EgL2GcjObX8ra0/6OMu3Ch/wL+ZO1no=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naveen Mamindlapalli <naveenm@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 241/334] octeontx2-pf: send correct vlan priority mask to npc_install_flow_req
-Date:   Mon, 13 Sep 2021 15:14:55 +0200
-Message-Id: <20210913131121.550699453@linuxfoundation.org>
+Subject: [PATCH 5.13 235/300] usb: bdc: Fix an error handling path in bdc_probe() when no suitable DMA config is available
+Date:   Mon, 13 Sep 2021 15:14:56 +0200
+Message-Id: <20210913131117.298552800@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen Mamindlapalli <naveenm@marvell.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 10df5a13ac6785b409ad749c4b10d4b220cc7e71 ]
+[ Upstream commit d2f42e09393c774ab79088d8e3afcc62b3328fc9 ]
 
-This patch corrects the erroneous vlan priority mask field that was
-send to npc_install_flow_req.
+If no suitable DMA configuration is available, a previous 'bdc_phy_init()'
+call must be undone by a corresponding 'bdc_phy_exit()' call.
 
-Fixes: 1d4d9e42c240 ("octeontx2-pf: Add tc flower hardware offload on ingress traffic")
-Signed-off-by: Naveen Mamindlapalli <naveenm@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Branch to the existing error handling path instead of returning
+directly.
+
+Fixes: cc29d4f67757 ("usb: bdc: Add support for USB phy")
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/0c5910979f39225d5d8fe68c9ab1c147c68ddee1.1629314734.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/bdc/bdc_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c
-index 972b202b9884..32d5c623fdfa 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_tc.c
-@@ -485,8 +485,8 @@ static int otx2_tc_prepare_flow(struct otx2_nic *nic, struct otx2_tc_flow *node,
- 				   match.key->vlan_priority << 13;
- 
- 			vlan_tci_mask = match.mask->vlan_id |
--					match.key->vlan_dei << 12 |
--					match.key->vlan_priority << 13;
-+					match.mask->vlan_dei << 12 |
-+					match.mask->vlan_priority << 13;
- 
- 			flow_spec->vlan_tci = htons(vlan_tci);
- 			flow_mask->vlan_tci = htons(vlan_tci_mask);
+diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
+index 0bef6b3f049b..251db57e51fa 100644
+--- a/drivers/usb/gadget/udc/bdc/bdc_core.c
++++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
+@@ -560,7 +560,8 @@ static int bdc_probe(struct platform_device *pdev)
+ 		if (ret) {
+ 			dev_err(dev,
+ 				"No suitable DMA config available, abort\n");
+-			return -ENOTSUPP;
++			ret = -ENOTSUPP;
++			goto phycleanup;
+ 		}
+ 		dev_dbg(dev, "Using 32-bit address\n");
+ 	}
 -- 
 2.30.2
 
