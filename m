@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65E544091D9
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBE544091D5
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244900AbhIMOFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:05:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50992 "EHLO mail.kernel.org"
+        id S244204AbhIMOFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:05:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343863AbhIMODr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343862AbhIMODr (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:03:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5E5161165;
-        Mon, 13 Sep 2021 13:38:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 314CC61247;
+        Mon, 13 Sep 2021 13:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540332;
-        bh=H8RVo4VgN59Q67WAfBwme9TNl4me1vWHNdTWUoXZu4Q=;
+        s=korg; t=1631540334;
+        bh=QGONwceHGfFyctw7tnjzl26AtFPevzcDoqCzUgW9nGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yegKOLMHg5cterVO4OC/FV0iwtYrXOG8Jxh6PkC0wnf8+ogRHgKF5nwv3VgsoAriM
-         8wJikXD4z/OAHQgewVMNQVQ9m0MFBEallPTkLcJ3zssOuxIhs8hQCHs/6qyefKBPu4
-         FuTf1VN+1m2U6KqQGY4dMFUVFJrFknoFO9SB0WNE=
+        b=UiTCffna3oPevGGlxb4txUHVIO//1uI/fHezNh947UOQD6ttn0fpoo9hFir0QNdJ2
+         7mCnxk89ClFMRITtElvtavVBCJ7YxnKeIIcVv+M2tf+8l0y33j6lYEn0TBPFYxJWTF
+         UlUxhbjb47iOc4DrwNF980kjYDdNtiQKJzCBYG2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mansur Alisha Shaik <mansur@codeaurora.org>,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        CK Hu <ck.hu@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 149/300] media: venus: helper: do not set constrained parameters for UBWC
-Date:   Mon, 13 Sep 2021 15:13:30 +0200
-Message-Id: <20210913131114.428575313@linuxfoundation.org>
+Subject: [PATCH 5.13 150/300] soc: mmsys: mediatek: add mask to mmsys routes
+Date:   Mon, 13 Sep 2021 15:13:31 +0200
+Message-Id: <20210913131114.460476437@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -43,40 +43,363 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mansur Alisha Shaik <mansur@codeaurora.org>
+From: CK Hu <ck.hu@mediatek.com>
 
-[ Upstream commit 1ac61faf6ebbce59fccbb53d7faf25576e9897ab ]
+[ Upstream commit 7bdcead7a75e3eab5e711c2da78c2a0360e7f2a4 ]
 
-Plane constraints firmware interface is to override the default
-alignment for a given color format. By default venus hardware has
-alignments as 128x32, but NV12 was defined differently to meet
-various usecases. Compressed NV12 has always been aligned as 128x32,
-hence not needed to override the default alignment.
+SOUT has many bits and need to be cleared before set new value.
+Write only could do the clear, but for MOUT, it clears bits that
+should not be cleared. So use a mask to reset only the needed bits.
 
-Fixes: bc28936bbba9 ("media: venus: helpers, hfi, vdec: Set actual plane constraints to FW")
-Signed-off-by: Mansur Alisha Shaik <mansur@codeaurora.org>
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+this fixes HDMI issues on MT7623/BPI-R2 since 5.13
+
+Fixes: 440147639ac7 ("soc: mediatek: mmsys: Use an array for setting the routing registers")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Reviewed-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Reviewed-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Link: https://lore.kernel.org/r/20210729070549.5514-1-linux@fw-web.de
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/helpers.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/soc/mediatek/mt8183-mmsys.h |  21 +++--
+ drivers/soc/mediatek/mtk-mmsys.c    |   7 +-
+ drivers/soc/mediatek/mtk-mmsys.h    | 133 +++++++++++++++++++---------
+ 3 files changed, 112 insertions(+), 49 deletions(-)
 
-diff --git a/drivers/media/platform/qcom/venus/helpers.c b/drivers/media/platform/qcom/venus/helpers.c
-index b813d6dba481..3a0871f0bea6 100644
---- a/drivers/media/platform/qcom/venus/helpers.c
-+++ b/drivers/media/platform/qcom/venus/helpers.c
-@@ -1138,6 +1138,9 @@ int venus_helper_set_format_constraints(struct venus_inst *inst)
- 	if (!IS_V6(inst->core))
- 		return 0;
+diff --git a/drivers/soc/mediatek/mt8183-mmsys.h b/drivers/soc/mediatek/mt8183-mmsys.h
+index 579dfc8dc8fc..9dee485807c9 100644
+--- a/drivers/soc/mediatek/mt8183-mmsys.h
++++ b/drivers/soc/mediatek/mt8183-mmsys.h
+@@ -28,25 +28,32 @@
+ static const struct mtk_mmsys_routes mmsys_mt8183_routing_table[] = {
+ 	{
+ 		DDP_COMPONENT_OVL0, DDP_COMPONENT_OVL_2L0,
+-		MT8183_DISP_OVL0_MOUT_EN, MT8183_OVL0_MOUT_EN_OVL0_2L
++		MT8183_DISP_OVL0_MOUT_EN, MT8183_OVL0_MOUT_EN_OVL0_2L,
++		MT8183_OVL0_MOUT_EN_OVL0_2L
+ 	}, {
+ 		DDP_COMPONENT_OVL_2L0, DDP_COMPONENT_RDMA0,
+-		MT8183_DISP_OVL0_2L_MOUT_EN, MT8183_OVL0_2L_MOUT_EN_DISP_PATH0
++		MT8183_DISP_OVL0_2L_MOUT_EN, MT8183_OVL0_2L_MOUT_EN_DISP_PATH0,
++		MT8183_OVL0_2L_MOUT_EN_DISP_PATH0
+ 	}, {
+ 		DDP_COMPONENT_OVL_2L1, DDP_COMPONENT_RDMA1,
+-		MT8183_DISP_OVL1_2L_MOUT_EN, MT8183_OVL1_2L_MOUT_EN_RDMA1
++		MT8183_DISP_OVL1_2L_MOUT_EN, MT8183_OVL1_2L_MOUT_EN_RDMA1,
++		MT8183_OVL1_2L_MOUT_EN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_DITHER, DDP_COMPONENT_DSI0,
+-		MT8183_DISP_DITHER0_MOUT_EN, MT8183_DITHER0_MOUT_IN_DSI0
++		MT8183_DISP_DITHER0_MOUT_EN, MT8183_DITHER0_MOUT_IN_DSI0,
++		MT8183_DITHER0_MOUT_IN_DSI0
+ 	}, {
+ 		DDP_COMPONENT_OVL_2L0, DDP_COMPONENT_RDMA0,
+-		MT8183_DISP_PATH0_SEL_IN, MT8183_DISP_PATH0_SEL_IN_OVL0_2L
++		MT8183_DISP_PATH0_SEL_IN, MT8183_DISP_PATH0_SEL_IN_OVL0_2L,
++		MT8183_DISP_PATH0_SEL_IN_OVL0_2L
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DPI0,
+-		MT8183_DISP_DPI0_SEL_IN, MT8183_DPI0_SEL_IN_RDMA1
++		MT8183_DISP_DPI0_SEL_IN, MT8183_DPI0_SEL_IN_RDMA1,
++		MT8183_DPI0_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_COLOR0,
+-		MT8183_DISP_RDMA0_SOUT_SEL_IN, MT8183_RDMA0_SOUT_COLOR0
++		MT8183_DISP_RDMA0_SOUT_SEL_IN, MT8183_RDMA0_SOUT_COLOR0,
++		MT8183_RDMA0_SOUT_COLOR0
+ 	}
+ };
  
-+	if (inst->opb_fmt == HFI_COLOR_FORMAT_NV12_UBWC)
-+		return 0;
-+
- 	pconstraint.buffer_type = HFI_BUFFER_OUTPUT2;
- 	pconstraint.num_planes = 2;
- 	pconstraint.plane_format[0].stride_multiples = 128;
+diff --git a/drivers/soc/mediatek/mtk-mmsys.c b/drivers/soc/mediatek/mtk-mmsys.c
+index 080660ef11bf..0f949896fd06 100644
+--- a/drivers/soc/mediatek/mtk-mmsys.c
++++ b/drivers/soc/mediatek/mtk-mmsys.c
+@@ -68,7 +68,9 @@ void mtk_mmsys_ddp_connect(struct device *dev,
+ 
+ 	for (i = 0; i < mmsys->data->num_routes; i++)
+ 		if (cur == routes[i].from_comp && next == routes[i].to_comp) {
+-			reg = readl_relaxed(mmsys->regs + routes[i].addr) | routes[i].val;
++			reg = readl_relaxed(mmsys->regs + routes[i].addr);
++			reg &= ~routes[i].mask;
++			reg |= routes[i].val;
+ 			writel_relaxed(reg, mmsys->regs + routes[i].addr);
+ 		}
+ }
+@@ -85,7 +87,8 @@ void mtk_mmsys_ddp_disconnect(struct device *dev,
+ 
+ 	for (i = 0; i < mmsys->data->num_routes; i++)
+ 		if (cur == routes[i].from_comp && next == routes[i].to_comp) {
+-			reg = readl_relaxed(mmsys->regs + routes[i].addr) & ~routes[i].val;
++			reg = readl_relaxed(mmsys->regs + routes[i].addr);
++			reg &= ~routes[i].mask;
+ 			writel_relaxed(reg, mmsys->regs + routes[i].addr);
+ 		}
+ }
+diff --git a/drivers/soc/mediatek/mtk-mmsys.h b/drivers/soc/mediatek/mtk-mmsys.h
+index a760a34e6eca..5f3e2bf0c40b 100644
+--- a/drivers/soc/mediatek/mtk-mmsys.h
++++ b/drivers/soc/mediatek/mtk-mmsys.h
+@@ -35,41 +35,54 @@
+ #define RDMA0_SOUT_DSI1				0x1
+ #define RDMA0_SOUT_DSI2				0x4
+ #define RDMA0_SOUT_DSI3				0x5
++#define RDMA0_SOUT_MASK				0x7
+ #define RDMA1_SOUT_DPI0				0x2
+ #define RDMA1_SOUT_DPI1				0x3
+ #define RDMA1_SOUT_DSI1				0x1
+ #define RDMA1_SOUT_DSI2				0x4
+ #define RDMA1_SOUT_DSI3				0x5
++#define RDMA1_SOUT_MASK				0x7
+ #define RDMA2_SOUT_DPI0				0x2
+ #define RDMA2_SOUT_DPI1				0x3
+ #define RDMA2_SOUT_DSI1				0x1
+ #define RDMA2_SOUT_DSI2				0x4
+ #define RDMA2_SOUT_DSI3				0x5
++#define RDMA2_SOUT_MASK				0x7
+ #define DPI0_SEL_IN_RDMA1			0x1
+ #define DPI0_SEL_IN_RDMA2			0x3
++#define DPI0_SEL_IN_MASK			0x3
+ #define DPI1_SEL_IN_RDMA1			(0x1 << 8)
+ #define DPI1_SEL_IN_RDMA2			(0x3 << 8)
++#define DPI1_SEL_IN_MASK			(0x3 << 8)
+ #define DSI0_SEL_IN_RDMA1			0x1
+ #define DSI0_SEL_IN_RDMA2			0x4
++#define DSI0_SEL_IN_MASK			0x7
+ #define DSI1_SEL_IN_RDMA1			0x1
+ #define DSI1_SEL_IN_RDMA2			0x4
++#define DSI1_SEL_IN_MASK			0x7
+ #define DSI2_SEL_IN_RDMA1			(0x1 << 16)
+ #define DSI2_SEL_IN_RDMA2			(0x4 << 16)
++#define DSI2_SEL_IN_MASK			(0x7 << 16)
+ #define DSI3_SEL_IN_RDMA1			(0x1 << 16)
+ #define DSI3_SEL_IN_RDMA2			(0x4 << 16)
++#define DSI3_SEL_IN_MASK			(0x7 << 16)
+ #define COLOR1_SEL_IN_OVL1			0x1
+ 
+ #define OVL_MOUT_EN_RDMA			0x1
+ #define BLS_TO_DSI_RDMA1_TO_DPI1		0x8
+ #define BLS_TO_DPI_RDMA1_TO_DSI			0x2
++#define BLS_RDMA1_DSI_DPI_MASK			0xf
+ #define DSI_SEL_IN_BLS				0x0
+ #define DPI_SEL_IN_BLS				0x0
++#define DPI_SEL_IN_MASK				0x1
+ #define DSI_SEL_IN_RDMA				0x1
++#define DSI_SEL_IN_MASK				0x1
+ 
+ struct mtk_mmsys_routes {
+ 	u32 from_comp;
+ 	u32 to_comp;
+ 	u32 addr;
++	u32 mask;
+ 	u32 val;
+ };
+ 
+@@ -91,124 +104,164 @@ struct mtk_mmsys_driver_data {
+ static const struct mtk_mmsys_routes mmsys_default_routing_table[] = {
+ 	{
+ 		DDP_COMPONENT_BLS, DDP_COMPONENT_DSI0,
+-		DISP_REG_CONFIG_OUT_SEL, BLS_TO_DSI_RDMA1_TO_DPI1
++		DISP_REG_CONFIG_OUT_SEL, BLS_RDMA1_DSI_DPI_MASK,
++		BLS_TO_DSI_RDMA1_TO_DPI1
+ 	}, {
+ 		DDP_COMPONENT_BLS, DDP_COMPONENT_DSI0,
+-		DISP_REG_CONFIG_DSI_SEL, DSI_SEL_IN_BLS
++		DISP_REG_CONFIG_DSI_SEL, DSI_SEL_IN_MASK,
++		DSI_SEL_IN_BLS
+ 	}, {
+ 		DDP_COMPONENT_BLS, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_OUT_SEL, BLS_TO_DPI_RDMA1_TO_DSI
++		DISP_REG_CONFIG_OUT_SEL, BLS_RDMA1_DSI_DPI_MASK,
++		BLS_TO_DPI_RDMA1_TO_DSI
+ 	}, {
+ 		DDP_COMPONENT_BLS, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DSI_SEL, DSI_SEL_IN_RDMA
++		DISP_REG_CONFIG_DSI_SEL, DSI_SEL_IN_MASK,
++		DSI_SEL_IN_RDMA
+ 	}, {
+ 		DDP_COMPONENT_BLS, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DPI_SEL, DPI_SEL_IN_BLS
++		DISP_REG_CONFIG_DPI_SEL, DPI_SEL_IN_MASK,
++		DPI_SEL_IN_BLS
+ 	}, {
+ 		DDP_COMPONENT_GAMMA, DDP_COMPONENT_RDMA1,
+-		DISP_REG_CONFIG_DISP_GAMMA_MOUT_EN, GAMMA_MOUT_EN_RDMA1
++		DISP_REG_CONFIG_DISP_GAMMA_MOUT_EN, GAMMA_MOUT_EN_RDMA1,
++		GAMMA_MOUT_EN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_OD0, DDP_COMPONENT_RDMA0,
+-		DISP_REG_CONFIG_DISP_OD_MOUT_EN, OD_MOUT_EN_RDMA0
++		DISP_REG_CONFIG_DISP_OD_MOUT_EN, OD_MOUT_EN_RDMA0,
++		OD_MOUT_EN_RDMA0
+ 	}, {
+ 		DDP_COMPONENT_OD1, DDP_COMPONENT_RDMA1,
+-		DISP_REG_CONFIG_DISP_OD_MOUT_EN, OD1_MOUT_EN_RDMA1
++		DISP_REG_CONFIG_DISP_OD_MOUT_EN, OD1_MOUT_EN_RDMA1,
++		OD1_MOUT_EN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_OVL0, DDP_COMPONENT_COLOR0,
+-		DISP_REG_CONFIG_DISP_OVL0_MOUT_EN, OVL0_MOUT_EN_COLOR0
++		DISP_REG_CONFIG_DISP_OVL0_MOUT_EN, OVL0_MOUT_EN_COLOR0,
++		OVL0_MOUT_EN_COLOR0
+ 	}, {
+ 		DDP_COMPONENT_OVL0, DDP_COMPONENT_COLOR0,
+-		DISP_REG_CONFIG_DISP_COLOR0_SEL_IN, COLOR0_SEL_IN_OVL0
++		DISP_REG_CONFIG_DISP_COLOR0_SEL_IN, COLOR0_SEL_IN_OVL0,
++		COLOR0_SEL_IN_OVL0
+ 	}, {
+ 		DDP_COMPONENT_OVL0, DDP_COMPONENT_RDMA0,
+-		DISP_REG_CONFIG_DISP_OVL_MOUT_EN, OVL_MOUT_EN_RDMA
++		DISP_REG_CONFIG_DISP_OVL_MOUT_EN, OVL_MOUT_EN_RDMA,
++		OVL_MOUT_EN_RDMA
+ 	}, {
+ 		DDP_COMPONENT_OVL1, DDP_COMPONENT_COLOR1,
+-		DISP_REG_CONFIG_DISP_OVL1_MOUT_EN, OVL1_MOUT_EN_COLOR1
++		DISP_REG_CONFIG_DISP_OVL1_MOUT_EN, OVL1_MOUT_EN_COLOR1,
++		OVL1_MOUT_EN_COLOR1
+ 	}, {
+ 		DDP_COMPONENT_OVL1, DDP_COMPONENT_COLOR1,
+-		DISP_REG_CONFIG_DISP_COLOR1_SEL_IN, COLOR1_SEL_IN_OVL1
++		DISP_REG_CONFIG_DISP_COLOR1_SEL_IN, COLOR1_SEL_IN_OVL1,
++		COLOR1_SEL_IN_OVL1
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_DPI0
++		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_MASK,
++		RDMA0_SOUT_DPI0
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_DPI1,
+-		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_DPI1
++		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_MASK,
++		RDMA0_SOUT_DPI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_DSI1,
+-		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_DSI1
++		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_MASK,
++		RDMA0_SOUT_DSI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_DSI2,
+-		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_DSI2
++		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_MASK,
++		RDMA0_SOUT_DSI2
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_DSI3,
+-		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_DSI3
++		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_MASK,
++		RDMA0_SOUT_DSI3
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_DPI0
++		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_MASK,
++		RDMA1_SOUT_DPI0
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DPI_SEL_IN, DPI0_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DPI_SEL_IN, DPI0_SEL_IN_MASK,
++		DPI0_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DPI1,
+-		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_DPI1
++		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_MASK,
++		RDMA1_SOUT_DPI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DPI1,
+-		DISP_REG_CONFIG_DPI_SEL_IN, DPI1_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DPI_SEL_IN, DPI1_SEL_IN_MASK,
++		DPI1_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI0,
+-		DISP_REG_CONFIG_DSIE_SEL_IN, DSI0_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DSIE_SEL_IN, DSI0_SEL_IN_MASK,
++		DSI0_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI1,
+-		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_DSI1
++		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_MASK,
++		RDMA1_SOUT_DSI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI1,
+-		DISP_REG_CONFIG_DSIO_SEL_IN, DSI1_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DSIO_SEL_IN, DSI1_SEL_IN_MASK,
++		DSI1_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI2,
+-		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_DSI2
++		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_MASK,
++		RDMA1_SOUT_DSI2
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI2,
+-		DISP_REG_CONFIG_DSIE_SEL_IN, DSI2_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DSIE_SEL_IN, DSI2_SEL_IN_MASK,
++		DSI2_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI3,
+-		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_DSI3
++		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_MASK,
++		RDMA1_SOUT_DSI3
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI3,
+-		DISP_REG_CONFIG_DSIO_SEL_IN, DSI3_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DSIO_SEL_IN, DSI3_SEL_IN_MASK,
++		DSI3_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_DPI0
++		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_MASK,
++		RDMA2_SOUT_DPI0
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DPI_SEL_IN, DPI0_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DPI_SEL_IN, DPI0_SEL_IN_MASK,
++		DPI0_SEL_IN_RDMA2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DPI1,
+-		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_DPI1
++		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_MASK,
++		RDMA2_SOUT_DPI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DPI1,
+-		DISP_REG_CONFIG_DPI_SEL_IN, DPI1_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DPI_SEL_IN, DPI1_SEL_IN_MASK,
++		DPI1_SEL_IN_RDMA2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI0,
+-		DISP_REG_CONFIG_DSIE_SEL_IN, DSI0_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DSIE_SEL_IN, DSI0_SEL_IN_MASK,
++		DSI0_SEL_IN_RDMA2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI1,
+-		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_DSI1
++		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_MASK,
++		RDMA2_SOUT_DSI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI1,
+-		DISP_REG_CONFIG_DSIO_SEL_IN, DSI1_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DSIO_SEL_IN, DSI1_SEL_IN_MASK,
++		DSI1_SEL_IN_RDMA2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI2,
+-		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_DSI2
++		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_MASK,
++		RDMA2_SOUT_DSI2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI2,
+-		DISP_REG_CONFIG_DSIE_SEL_IN, DSI2_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DSIE_SEL_IN, DSI2_SEL_IN_MASK,
++		DSI2_SEL_IN_RDMA2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI3,
+-		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_DSI3
++		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_MASK,
++		RDMA2_SOUT_DSI3
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI3,
+-		DISP_REG_CONFIG_DSIO_SEL_IN, DSI3_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DSIO_SEL_IN, DSI3_SEL_IN_MASK,
++		DSI3_SEL_IN_RDMA2
+ 	}
+ };
+ 
 -- 
 2.30.2
 
