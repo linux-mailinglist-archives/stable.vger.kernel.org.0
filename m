@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 826FD4091C8
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C06409485
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244697AbhIMOFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:05:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52692 "EHLO mail.kernel.org"
+        id S1346079AbhIMObj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:31:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244564AbhIMOCq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:02:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8873361A40;
-        Mon, 13 Sep 2021 13:38:30 +0000 (UTC)
+        id S1347047AbhIMOaK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:30:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E45FD61B95;
+        Mon, 13 Sep 2021 13:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540311;
-        bh=2OmvbGZlMhrYilSe7ReisZbrELo8gC59SS7fcTYuZ0k=;
+        s=korg; t=1631541063;
+        bh=vfZsM+zr0L2IzKbM2TwEEm7dOuuK44/DdMz+a7irAHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGYyBUPiV7VdSdFLRtAdEtE+T237PxIrvykih4Zv6DoPsNmuuppg/4AW7n4mHqR8r
-         lHI4q3m40PpEK9GNAMvlYkY9RyG11KyNh1UzIwe0QbqLXsTU2O4Z0aTicJpVBxfvEK
-         0yKBxI2j0aAIyIZh2wVII91RX1rsThy14reqNxz0=
+        b=NMV9tVtVOwj/AB6oZBmcIsEsHbSycsbfoGz1+jTJUElzO2WvgsvXUpE7EMSNSLC0Z
+         I6hG7f9FcHhTdQVKtMa77kZv3LpVJSpceTJ2RIejWrkJNFP6gJtLRqmwoIBkYlOPP9
+         hqcez8Y+OwmzTTpcWSTx1GGfDBJv5qieCz48E4XE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Amireddy Mallikarjuna reddy 
-        <mallikarjunax.reddy@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 141/300] leds: lgm-sso: Dont spam logs when probe is deferred
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 148/334] drm/bridge: ti-sn65dsi86: Improve probe errors with dev_err_probe()
 Date:   Mon, 13 Sep 2021 15:13:22 +0200
-Message-Id: <20210913131114.164328225@linuxfoundation.org>
+Message-Id: <20210913131118.363501165@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 1ed4d05e0a0b23ba15e0affcff4008dd537ae3ee ]
+[ Upstream commit 4c1b3d94bf632c1420a5d4108199f55a5655831d ]
 
-When requesting GPIO line the probe can be deferred.
-In such case don't spam logs with an error message.
-This can be achieved by switching to dev_err_probe().
+As I was testing to make sure that the DEFER path worked well with my
+patch series, I got tired of seeing this scary message in my logs just
+because the panel needed to defer:
+  [drm:ti_sn_bridge_probe] *ERROR* could not find any panel node
 
-Fixes: c3987cd2bca3 ("leds: lgm: Add LED controller driver for LGM SoC")
-Cc: Amireddy Mallikarjuna reddy <mallikarjunax.reddy@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Let's use dev_err_probe() which nicely quiets this error and also
+simplifies the code a tiny bit. We'll also update other places in the
+file which can use dev_err_probe().
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210611101711.v10.10.I24bba069e63b1eea84443eef0c8535fd032a6311@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/blink/leds-lgm-sso.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/ti-sn65dsi86.c | 31 +++++++++++----------------
+ 1 file changed, 13 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/leds/blink/leds-lgm-sso.c b/drivers/leds/blink/leds-lgm-sso.c
-index 2dd285052c6a..6c0ffcaa6b5c 100644
---- a/drivers/leds/blink/leds-lgm-sso.c
-+++ b/drivers/leds/blink/leds-lgm-sso.c
-@@ -643,7 +643,7 @@ __sso_led_dt_parse(struct sso_led_priv *priv, struct fwnode_handle *fw_ssoled)
- 							      fwnode_child,
- 							      GPIOD_ASIS, NULL);
- 		if (IS_ERR(led->gpiod)) {
--			dev_err(dev, "led: get gpio fail!\n");
-+			dev_err_probe(dev, PTR_ERR(led->gpiod), "led: get gpio fail!\n");
- 			goto __dt_err;
- 		}
+diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
+index aef850296756..4d1483cf7b58 100644
+--- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
++++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
+@@ -1302,10 +1302,9 @@ static int ti_sn_bridge_probe(struct auxiliary_device *adev,
+ 	int ret;
  
+ 	ret = drm_of_find_panel_or_bridge(np, 1, 0, &pdata->panel, NULL);
+-	if (ret) {
+-		DRM_ERROR("could not find any panel node\n");
+-		return ret;
+-	}
++	if (ret)
++		return dev_err_probe(&adev->dev, ret,
++				     "could not find any panel node\n");
+ 
+ 	ti_sn_bridge_parse_lanes(pdata, np);
+ 
+@@ -1432,27 +1431,23 @@ static int ti_sn65dsi86_probe(struct i2c_client *client,
+ 
+ 	pdata->regmap = devm_regmap_init_i2c(client,
+ 					     &ti_sn65dsi86_regmap_config);
+-	if (IS_ERR(pdata->regmap)) {
+-		DRM_ERROR("regmap i2c init failed\n");
+-		return PTR_ERR(pdata->regmap);
+-	}
++	if (IS_ERR(pdata->regmap))
++		return dev_err_probe(dev, PTR_ERR(pdata->regmap),
++				     "regmap i2c init failed\n");
+ 
+ 	pdata->enable_gpio = devm_gpiod_get(dev, "enable", GPIOD_OUT_LOW);
+-	if (IS_ERR(pdata->enable_gpio)) {
+-		DRM_ERROR("failed to get enable gpio from DT\n");
+-		ret = PTR_ERR(pdata->enable_gpio);
+-		return ret;
+-	}
++	if (IS_ERR(pdata->enable_gpio))
++		return dev_err_probe(dev, PTR_ERR(pdata->enable_gpio),
++				     "failed to get enable gpio from DT\n");
+ 
+ 	ret = ti_sn65dsi86_parse_regulators(pdata);
+-	if (ret) {
+-		DRM_ERROR("failed to parse regulators\n");
+-		return ret;
+-	}
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to parse regulators\n");
+ 
+ 	pdata->refclk = devm_clk_get_optional(dev, "refclk");
+ 	if (IS_ERR(pdata->refclk))
+-		return PTR_ERR(pdata->refclk);
++		return dev_err_probe(dev, PTR_ERR(pdata->refclk),
++				     "failed to get reference clock\n");
+ 
+ 	pm_runtime_enable(dev);
+ 	ret = devm_add_action_or_reset(dev, ti_sn65dsi86_runtime_disable, dev);
 -- 
 2.30.2
 
