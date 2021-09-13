@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0630E40935E
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8605E4095E6
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245651AbhIMOVC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:21:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37086 "EHLO mail.kernel.org"
+        id S1346188AbhIMOqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:46:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244373AbhIMORM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:17:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC6FD61B31;
-        Mon, 13 Sep 2021 13:44:52 +0000 (UTC)
+        id S1347640AbhIMOoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:44:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73CEF61252;
+        Mon, 13 Sep 2021 13:57:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540693;
-        bh=cBFE0kbMHQvo+MHLoQ0TDQ+UZS2bCFIFjzgl/uXkESg=;
+        s=korg; t=1631541456;
+        bh=ltTlM8kQwC23/C31xh8uLeBVKUew/GJt+6ftzXrcJLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q4+gh7/5EKx5DF0A14U7IKbbM2qs54u7Kh5r8LCdZNRw/z4K2/amTpUT9vVQH1X+j
-         sZ6EwyfrlIWV5jaETOJsadQmF1s3adVJ/Y7P7Y7NHgPulCKq7It7VignafnQwuVcre
-         uO+L1nrmtok1m/8Pl6iEpAaAwLbfVq2JLgZz7Sqo=
+        b=WY7TXF/Bf9HyYnqEKSESSwJonrZPl+96kGGMyktdRisIoxVCAJSo7ze0Ur2SEuady
+         l8AkWoZ3TsGmznDd7yArsdJsDCwBbJxEwSPWjuPXfzwkpFJecvVsRYOUzfmVogaRKf
+         J+qgltIHXSK7O80QBtZ2y6jvJnnqxqXQGrYm6l8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, THOBY Simon <Simon.THOBY@viveris.fr>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.13 296/300] IMA: remove the dependency on CRYPTO_MD5
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.14 303/334] io_uring: fail links of cancelled timeouts
 Date:   Mon, 13 Sep 2021 15:15:57 +0200
-Message-Id: <20210913131119.356968344@linuxfoundation.org>
+Message-Id: <20210913131123.665211460@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: THOBY Simon <Simon.THOBY@viveris.fr>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 8510505d55e194d3f6c9644c9f9d12c4f6b0395a upstream.
+commit 2ae2eb9dde18979b40629dd413b9adbd6c894cdf upstream.
 
-MD5 is a weak digest algorithm that shouldn't be used for cryptographic
-operation. It hinders the efficiency of a patch set that aims to limit
-the digests allowed for the extended file attribute namely security.ima.
-MD5 is no longer a requirement for IMA, nor should it be used there.
+When we cancel a timeout we should mark it with REQ_F_FAIL, so
+linked requests are cancelled as well, but not queued for further
+execution.
 
-The sole place where we still use the MD5 algorithm inside IMA is setting
-the ima_hash algorithm to MD5, if the user supplies 'ima_hash=md5'
-parameter on the command line.  With commit ab60368ab6a4 ("ima: Fallback
-to the builtin hash algorithm"), setting "ima_hash=md5" fails gracefully
-when CRYPTO_MD5 is not set:
-	ima: Can not allocate md5 (reason: -2)
-	ima: Allocating md5 failed, going to use default hash algorithm sha256
-
-Remove the CRYPTO_MD5 dependency for IMA.
-
-Signed-off-by: THOBY Simon <Simon.THOBY@viveris.fr>
-Reviewed-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-[zohar@linux.ibm.com: include commit number in patch description for
-stable.]
-Cc: stable@vger.kernel.org # 4.17
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/fff625b44eeced3a5cae79f60e6acf3fbdf8f990.1631192135.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/integrity/ima/Kconfig |    1 -
- 1 file changed, 1 deletion(-)
+ fs/io_uring.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/security/integrity/ima/Kconfig
-+++ b/security/integrity/ima/Kconfig
-@@ -6,7 +6,6 @@ config IMA
- 	select SECURITYFS
- 	select CRYPTO
- 	select CRYPTO_HMAC
--	select CRYPTO_MD5
- 	select CRYPTO_SHA1
- 	select CRYPTO_HASH_INFO
- 	select TCG_TPM if HAS_IOMEM && !UML
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1329,6 +1329,8 @@ static void io_kill_timeout(struct io_ki
+ 	struct io_timeout_data *io = req->async_data;
+ 
+ 	if (hrtimer_try_to_cancel(&io->timer) != -1) {
++		if (status)
++			req_set_fail(req);
+ 		atomic_set(&req->ctx->cq_timeouts,
+ 			atomic_read(&req->ctx->cq_timeouts) + 1);
+ 		list_del_init(&req->timeout.list);
 
 
