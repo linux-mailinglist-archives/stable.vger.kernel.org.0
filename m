@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB7C840915D
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12844408E63
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244167AbhIMOA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:00:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
+        id S241766AbhIMNdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:33:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244580AbhIMN6o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:58:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53E62619F5;
-        Mon, 13 Sep 2021 13:36:55 +0000 (UTC)
+        id S242453AbhIMNbe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:31:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9EF66121E;
+        Mon, 13 Sep 2021 13:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540215;
-        bh=DpN0gwAy7LbhWQbQzhZCdmWMr/MbbS1yDoc5zKleJww=;
+        s=korg; t=1631539526;
+        bh=hwfcFQGt+j1oFzGL5KVR9/sCTRm6IadwUzw7D15jG0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTPjhBmKGDHaCCwSnNJI+D3J8vMKvuSqUGwYDIsr43wsrkXSARAEmLfnZgNU086Bc
-         kjpMEj52VnUS6Fo1vFvSJQsnGVDuBuTJIeZN3myWCDhnJDVpwKj6FYZvBUIaS0WqvZ
-         AKAkcugjcC0TQhsEO5Gz/DY/C4wdRd0ofvx94azg=
+        b=lqMdu8WLQmj7K84pGtjQrJpdcxHVmkCsl+RBIYYkqrscMACnODiuwXUKBidbvX9CR
+         ZOKSRa2Bs14B7f7HaOo8VTUjv1w432Ph9Bv9RmrRQUErT9cIVsncFh3DUdpiaC9tyc
+         M0+wfjMfCsO2BgvKL6qwBYYtjNk4pa4PokEPKpQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 101/300] gfs2: Fix memory leak of object lsi on error return path
+        stable@vger.kernel.org,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 057/236] irqchip/gic-v3: Fix priority comparison when non-secure priorities are used
 Date:   Mon, 13 Sep 2021 15:12:42 +0200
-Message-Id: <20210913131112.787815130@linuxfoundation.org>
+Message-Id: <20210913131102.299837371@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit a6579cbfd7216b071008db13360c322a6b21400b ]
+[ Upstream commit 8d474deaba2c4dd33a5e2f5be82e6798ffa6b8a5 ]
 
-In the case where IS_ERR(lsi->si_sc_inode) is true the error exit path
-to free_local does not kfree the allocated object lsi leading to a memory
-leak. Fix this by kfree'ing lst before taking the error exit path.
+When non-secure priorities are used, compared to the raw priority set,
+the value read back from RPR is also right-shifted by one and the
+highest bit set.
 
-Addresses-Coverity: ("Resource leak")
-Fixes: 97fd734ba17e ("gfs2: lookup local statfs inodes prior to journal recovery")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Add a macro to do the modifications to the raw priority when doing the
+comparison against the RPR value. This corrects the pseudo-NMI behavior
+when non-secure priorities in the GIC are used. Tested on 5.10 with
+the "IPI as pseudo-NMI" series [1] applied on MT8195.
+
+[1] https://lore.kernel.org/linux-arm-kernel/1604317487-14543-1-git-send-email-sumit.garg@linaro.org/
+
+Fixes: 336780590990 ("irqchip/gic-v3: Support pseudo-NMIs when SCR_EL3.FIQ == 0")
+Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+[maz: Added comment contributed by Alex]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210811171505.1502090-1-wenst@chromium.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/ops_fstype.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/irqchip/irq-gic-v3.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index 5f4504dd0875..bd3b3be1a473 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -677,6 +677,7 @@ static int init_statfs(struct gfs2_sbd *sdp)
- 			error = PTR_ERR(lsi->si_sc_inode);
- 			fs_err(sdp, "can't find local \"sc\" file#%u: %d\n",
- 			       jd->jd_jid, error);
-+			kfree(lsi);
- 			goto free_local;
- 		}
- 		lsi->si_jid = jd->jd_jid;
+diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+index 1005b182bab4..1bdb7acf445f 100644
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -100,6 +100,27 @@ EXPORT_SYMBOL(gic_pmr_sync);
+ DEFINE_STATIC_KEY_FALSE(gic_nonsecure_priorities);
+ EXPORT_SYMBOL(gic_nonsecure_priorities);
+ 
++/*
++ * When the Non-secure world has access to group 0 interrupts (as a
++ * consequence of SCR_EL3.FIQ == 0), reading the ICC_RPR_EL1 register will
++ * return the Distributor's view of the interrupt priority.
++ *
++ * When GIC security is enabled (GICD_CTLR.DS == 0), the interrupt priority
++ * written by software is moved to the Non-secure range by the Distributor.
++ *
++ * If both are true (which is when gic_nonsecure_priorities gets enabled),
++ * we need to shift down the priority programmed by software to match it
++ * against the value returned by ICC_RPR_EL1.
++ */
++#define GICD_INT_RPR_PRI(priority)					\
++	({								\
++		u32 __priority = (priority);				\
++		if (static_branch_unlikely(&gic_nonsecure_priorities))	\
++			__priority = 0x80 | (__priority >> 1);		\
++									\
++		__priority;						\
++	})
++
+ /* ppi_nmi_refs[n] == number of cpus having ppi[n + 16] set as NMI */
+ static refcount_t *ppi_nmi_refs;
+ 
+@@ -687,7 +708,7 @@ static asmlinkage void __exception_irq_entry gic_handle_irq(struct pt_regs *regs
+ 		return;
+ 
+ 	if (gic_supports_nmi() &&
+-	    unlikely(gic_read_rpr() == GICD_INT_NMI_PRI)) {
++	    unlikely(gic_read_rpr() == GICD_INT_RPR_PRI(GICD_INT_NMI_PRI))) {
+ 		gic_handle_nmi(irqnr, regs);
+ 		return;
+ 	}
 -- 
 2.30.2
 
