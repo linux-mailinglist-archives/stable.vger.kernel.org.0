@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC24F408CB9
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:20:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79ADC408F2C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240357AbhIMNVU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:21:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
+        id S242478AbhIMNkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:40:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240358AbhIMNU2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:20:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C0B1610A5;
-        Mon, 13 Sep 2021 13:18:45 +0000 (UTC)
+        id S240553AbhIMNiV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:38:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04FAD61103;
+        Mon, 13 Sep 2021 13:28:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539126;
-        bh=q6fz+FHWwF37jfEGqB5DIKhy9FoX5HIuwWxn9YM3KwM=;
+        s=korg; t=1631539706;
+        bh=EPQOh9AUi631HF9hkHOnIKTLvUSuL/KsF7eC+n6GvEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EBk+3gSGJ9QuiLWLOxzJZkf9fcK7alytvrQaPIBX3IItgekMaGup7PNZaLEj95YEF
-         VRq8DusS25euN2V6iaUtU1WVF6+fjDHKutsePnbiQQlLtLgm14EP1xCwcruqdjOSho
-         miMsvgBwQEiXzp8DjamlnP6b8aA3qu7peXOlH1xE=
+        b=10dOtqS5lYE8+uI2zroZKaOCRNX2+rSPkiCz8H9+J0SGSVZmIj7BAoRC0TkwrAmsS
+         qcUds7tzsgWB+LdywjCGDEOwW9ttwM5moys4Q15eZGyQlZYlYTn+cBiglkmcUMk31M
+         M4qv9gJBImzLFYV88NLUNjIuWXgrmK8dvbHECu4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
+        stable@vger.kernel.org,
+        Matthew Cover <matthew.cover@stackpath.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 050/144] bpf: Fix a typo of reuseport map in bpf.h.
-Date:   Mon, 13 Sep 2021 15:13:51 +0200
-Message-Id: <20210913131049.616694063@linuxfoundation.org>
+Subject: [PATCH 5.10 127/236] bpf, samples: Add missing mprog-disable to xdp_redirect_cpus optstring
+Date:   Mon, 13 Sep 2021 15:13:52 +0200
+Message-Id: <20210913131104.683464740@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+From: Matthew Cover <werekraken@gmail.com>
 
-[ Upstream commit f170acda7ffaf0473d06e1e17c12cd9fd63904f5 ]
+[ Upstream commit 34ad6d9d8c27293e1895b448af7d6cf5d351ad8d ]
 
-Fix s/BPF_MAP_TYPE_REUSEPORT_ARRAY/BPF_MAP_TYPE_REUSEPORT_SOCKARRAY/ typo
-in bpf.h.
+Commit ce4dade7f12a ("samples/bpf: xdp_redirect_cpu: Load a eBPF program
+on cpumap") added the following option, but missed adding it to optstring:
 
-Fixes: 2dbb9b9e6df6 ("bpf: Introduce BPF_PROG_TYPE_SK_REUSEPORT")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20210714124317.67526-1-kuniyu@amazon.co.jp
+  - mprog-disable: disable loading XDP program on cpumap entries
+
+Fix it and add the missing option character.
+
+Fixes: ce4dade7f12a ("samples/bpf: xdp_redirect_cpu: Load a eBPF program on cpumap")
+Signed-off-by: Matthew Cover <matthew.cover@stackpath.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210731005632.13228-1-matthew.cover@stackpath.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/bpf.h       | 2 +-
- tools/include/uapi/linux/bpf.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ samples/bpf/xdp_redirect_cpu_user.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
-index 8649422e760c..63038eb23560 100644
---- a/include/uapi/linux/bpf.h
-+++ b/include/uapi/linux/bpf.h
-@@ -2264,7 +2264,7 @@ union bpf_attr {
-  * int bpf_sk_select_reuseport(struct sk_reuseport_md *reuse, struct bpf_map *map, void *key, u64 flags)
-  *	Description
-  *		Select a **SO_REUSEPORT** socket from a
-- *		**BPF_MAP_TYPE_REUSEPORT_ARRAY** *map*.
-+ *		**BPF_MAP_TYPE_REUSEPORT_SOCKARRAY** *map*.
-  *		It checks the selected socket is matching the incoming
-  *		request in the socket buffer.
-  *	Return
-diff --git a/tools/include/uapi/linux/bpf.h b/tools/include/uapi/linux/bpf.h
-index 8649422e760c..63038eb23560 100644
---- a/tools/include/uapi/linux/bpf.h
-+++ b/tools/include/uapi/linux/bpf.h
-@@ -2264,7 +2264,7 @@ union bpf_attr {
-  * int bpf_sk_select_reuseport(struct sk_reuseport_md *reuse, struct bpf_map *map, void *key, u64 flags)
-  *	Description
-  *		Select a **SO_REUSEPORT** socket from a
-- *		**BPF_MAP_TYPE_REUSEPORT_ARRAY** *map*.
-+ *		**BPF_MAP_TYPE_REUSEPORT_SOCKARRAY** *map*.
-  *		It checks the selected socket is matching the incoming
-  *		request in the socket buffer.
-  *	Return
+diff --git a/samples/bpf/xdp_redirect_cpu_user.c b/samples/bpf/xdp_redirect_cpu_user.c
+index f78cb18319aa..16eb839e71f0 100644
+--- a/samples/bpf/xdp_redirect_cpu_user.c
++++ b/samples/bpf/xdp_redirect_cpu_user.c
+@@ -837,7 +837,7 @@ int main(int argc, char **argv)
+ 	memset(cpu, 0, n_cpus * sizeof(int));
+ 
+ 	/* Parse commands line args */
+-	while ((opt = getopt_long(argc, argv, "hSd:s:p:q:c:xzFf:e:r:m:",
++	while ((opt = getopt_long(argc, argv, "hSd:s:p:q:c:xzFf:e:r:m:n",
+ 				  long_options, &longindex)) != -1) {
+ 		switch (opt) {
+ 		case 'd':
 -- 
 2.30.2
 
