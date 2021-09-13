@@ -2,74 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DFA940895A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 12:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A83408A04
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:20:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239148AbhIMKub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 06:50:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50234 "EHLO mail.kernel.org"
+        id S239526AbhIMLVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 07:21:54 -0400
+Received: from uho.ysoft.cz ([81.19.3.130]:55536 "EHLO uho.ysoft.cz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239098AbhIMKua (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 06:50:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADAD660FF2;
-        Mon, 13 Sep 2021 10:49:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631530155;
-        bh=FlBcJ6vQHarb6+V3mXUs6lixIGzfqddNWEwoVEbzjCs=;
-        h=Subject:To:Cc:From:Date:From;
-        b=qgIsiRuZE1tAwaoGXiEDGkOC22cY94c9DlG/LZFngmp7YSRujaZ/OCOPqI4Nzao16
-         zH69AjS2jAoESftR415Q/83/0NbC7ahcMOJxuoA44ntHiLetvPkFEekyuSo63WUByw
-         dPyh/TX8yjBgPqlYrWr3MYOVhDYjZ4Jsf2RPqbj4=
-Subject: FAILED: patch "[PATCH] io_uring: fail links of cancelled timeouts" failed to apply to 5.13-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 12:49:12 +0200
-Message-ID: <1631530152195251@kroah.com>
+        id S239504AbhIMLVx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 07:21:53 -0400
+Received: from [10.1.22.96] (unknown [10.1.22.96])
+        by uho.ysoft.cz (Postfix) with ESMTP id AFDC3A6393;
+        Mon, 13 Sep 2021 13:20:33 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ysoft.com;
+        s=20160406-ysoft-com; t=1631532033;
+        bh=VTfjBwSA+tm/qkHHH9rdmUMTuQmZ5GRrsz/L/qmkADc=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=kll25NEqXmVe/0eE/fNDEyF7osI3IhaYElCM4xvUT4/phe+dUYWZnSeP3YBDZSMzV
+         wgKMGXobUIsayWFHhb0+Y8kOOBmo53Mc7prcD7GedBphxaKFKIKomjziTyFWn0ZlS0
+         Pzo6h9ORzHh51atSPUKHOsXe3zHhzxoUKr7wOEZ0=
+Subject: Re: [PATCH 1/2] ARM: dts: imx6dl-yapp4: Fix lp5562 LED driver probe
+To:     Shawn Guo <shawnguo@kernel.org>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, linux-leds@vger.kernel.org
+References: <20210818070209.1540451-1-michal.vokac@ysoft.com>
+From:   =?UTF-8?B?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>
+Message-ID: <19c8bb7d-6fe5-3b7d-a8b5-785ba93f7265@ysoft.com>
+Date:   Mon, 13 Sep 2021 13:20:33 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+In-Reply-To: <20210818070209.1540451-1-michal.vokac@ysoft.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 18. 08. 21 9:02, Michal Vokáč wrote:
+> Since the LED multicolor framework support was added in commit
+> 92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
+> LEDs on this platform stopped working.
+> 
+> Author of the framework attempted to accommodate this DT to the
+> framework in commit b86d3d21cd4c ("ARM: dts: imx6dl-yapp4: Add reg property
+> to the lp5562 channel node") but that is not sufficient. A color property
+> is now required even if the multicolor framework is not used, otherwise
+> the driver probe fails:
+> 
+>    lp5562: probe of 1-0030 failed with error -22
+> 
+> Add the color property to fix this.
+> 
+> Fixes: 92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
+> Cc: <stable@vger.kernel.org>
+> Cc: linux-leds@vger.kernel.org
+> Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
 
-The patch below does not apply to the 5.13-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Hi Shawn,
+gentle ping on this little series.
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 2ae2eb9dde18979b40629dd413b9adbd6c894cdf Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Thu, 9 Sep 2021 13:56:27 +0100
-Subject: [PATCH] io_uring: fail links of cancelled timeouts
-
-When we cancel a timeout we should mark it with REQ_F_FAIL, so
-linked requests are cancelled as well, but not queued for further
-execution.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/fff625b44eeced3a5cae79f60e6acf3fbdf8f990.1631192135.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index b21a423a4de8..ffd91844b2e5 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -1482,6 +1482,8 @@ static void io_kill_timeout(struct io_kiocb *req, int status)
- 	struct io_timeout_data *io = req->async_data;
- 
- 	if (hrtimer_try_to_cancel(&io->timer) != -1) {
-+		if (status)
-+			req_set_fail(req);
- 		atomic_set(&req->ctx->cq_timeouts,
- 			atomic_read(&req->ctx->cq_timeouts) + 1);
- 		list_del_init(&req->timeout.list);
-
+Thank you,
+Michal
