@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFD084094AB
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B5964091F3
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344373AbhIMOdW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:33:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S1343614AbhIMOG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:06:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345273AbhIMObO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:31:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34EBF61372;
-        Mon, 13 Sep 2021 13:51:42 +0000 (UTC)
+        id S1344244AbhIMOEl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:04:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95F4861251;
+        Mon, 13 Sep 2021 13:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541102;
-        bh=oC6eQpK01ngWQiNw5ZPtbX52WtUnXX3Y1FnmYATwiE4=;
+        s=korg; t=1631540348;
+        bh=C8eNd1MQTyJsaVplq+bBpnJhdrxZ17E1OuFJjZatXgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aE1bsATVMMQnyxhDMpSBF3/E+yPCmBbPH8E1X/Arnh02WIujAY6fGOyWVnwFex9s/
-         E2FQsYd5E2MziZiXgWvCwsq5XXb1sODjcPYh+8vPkue7Vr+Kfhs/CUf+75PWieCdn7
-         vwE/b3R8DPVnUfd1OSgSvQmEFyAXbOKRaCSZQCHs=
+        b=BDifMeLdMtRdXujYaZ/sFMXksDVzU3i7bL5+LoNB8Y4Jgmb04PO4GxHvjoMuO2Wxm
+         RnhtMj/so2xuJBHtL/CLeqUcwA+H4mIym7QeTfqp6WHeimEXk7Cc1EQygcH7MMGMmq
+         KQHnW6RVYSFwC9Ad6UvjUbzQnEVrumlWQsk6b1lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        =?UTF-8?q?M=C3=A1rio=20Lopes?= <ml@simonwunderlich.de>,
+        Sven Eckelmann <sven@narfation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 162/334] media: venus: venc: Fix potential null pointer dereference on pointer fmt
+Subject: [PATCH 5.13 155/300] debugfs: Return error during {full/open}_proxy_open() on rmmod
 Date:   Mon, 13 Sep 2021 15:13:36 +0200
-Message-Id: <20210913131118.822904045@linuxfoundation.org>
+Message-Id: <20210913131114.642784108@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 09ea9719a423fc675d40dd05407165e161ea0c48 ]
+[ Upstream commit 112cedc8e600b668688eb809bf11817adec58ddc ]
 
-Currently the call to find_format can potentially return a NULL to
-fmt and the nullpointer is later dereferenced on the assignment of
-pixmp->num_planes = fmt->num_planes.  Fix this by adding a NULL pointer
-check and returning NULL for the failure case.
+If a kernel module gets unloaded then it printed report about a leak before
+commit 275678e7a9be ("debugfs: Check module state before warning in
+{full/open}_proxy_open()"). An additional check was added in this commit to
+avoid this printing. But it was forgotten that the function must return an
+error in this case because it was not actually opened.
 
-Addresses-Coverity: ("Dereference null return")
+As result, the systems started to crash or to hang when a module was
+unloaded while something was trying to open a file.
 
-Fixes: aaaa93eda64b ("[media] media: venus: venc: add video encoder files")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 275678e7a9be ("debugfs: Check module state before warning in {full/open}_proxy_open()")
+Cc: Taehee Yoo <ap420073@gmail.com>
+Reported-by: Mário Lopes <ml@simonwunderlich.de>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Link: https://lore.kernel.org/r/20210802162444.7848-1-sven@narfation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/qcom/venus/venc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/debugfs/file.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/qcom/venus/venc.c b/drivers/media/platform/qcom/venus/venc.c
-index 8dd49d4f124c..1d62e38065d6 100644
---- a/drivers/media/platform/qcom/venus/venc.c
-+++ b/drivers/media/platform/qcom/venus/venc.c
-@@ -183,6 +183,8 @@ venc_try_fmt_common(struct venus_inst *inst, struct v4l2_format *f)
- 		else
- 			return NULL;
- 		fmt = find_format(inst, pixmp->pixelformat, f->type);
-+		if (!fmt)
-+			return NULL;
- 	}
+diff --git a/fs/debugfs/file.c b/fs/debugfs/file.c
+index ba7c01cd9a5d..36f2dbe6061f 100644
+--- a/fs/debugfs/file.c
++++ b/fs/debugfs/file.c
+@@ -179,8 +179,10 @@ static int open_proxy_open(struct inode *inode, struct file *filp)
+ 	if (!fops_get(real_fops)) {
+ #ifdef CONFIG_MODULES
+ 		if (real_fops->owner &&
+-		    real_fops->owner->state == MODULE_STATE_GOING)
++		    real_fops->owner->state == MODULE_STATE_GOING) {
++			r = -ENXIO;
+ 			goto out;
++		}
+ #endif
  
- 	pixmp->width = clamp(pixmp->width, frame_width_min(inst),
+ 		/* Huh? Module did not clean up after itself at exit? */
+@@ -314,8 +316,10 @@ static int full_proxy_open(struct inode *inode, struct file *filp)
+ 	if (!fops_get(real_fops)) {
+ #ifdef CONFIG_MODULES
+ 		if (real_fops->owner &&
+-		    real_fops->owner->state == MODULE_STATE_GOING)
++		    real_fops->owner->state == MODULE_STATE_GOING) {
++			r = -ENXIO;
+ 			goto out;
++		}
+ #endif
+ 
+ 		/* Huh? Module did not cleanup after itself at exit? */
 -- 
 2.30.2
 
