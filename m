@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E189409216
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 003E2409252
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245072AbhIMOHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:07:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52692 "EHLO mail.kernel.org"
+        id S245469AbhIMOKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:10:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344299AbhIMOEo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:04:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17740613CE;
-        Mon, 13 Sep 2021 13:39:12 +0000 (UTC)
+        id S1344133AbhIMOIs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:08:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 990D261AA2;
+        Mon, 13 Sep 2021 13:40:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540353;
-        bh=a5AH1LaVXEL52OVqmReiFyNs+0ZJmKc+pEiWPGgv4wM=;
+        s=korg; t=1631540455;
+        bh=UvVF3j4X+xXETbok8u/4s1MDRHDWjHsC09kHp45zvuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pyEVanpjN8TGqvwfH74RzwXXtI7pXZc8NmY50n2HeQu2QNaMMhatLoXHXUOtm171y
-         zsI9bZnPjcTd6AqBqUqt5VMABNta4u1WYnVP5HRkhx937D+QSZDT2AHzSSvex7PAAo
-         fWBeIPhuSbUwo9IQsWL83Ue4Rm/24ye28TWmnS+Y=
+        b=Idrxu0jRin2zNhi6ZT8Q/26wk+TMbxcSvZKbVHm7SNbU7Tj/LPWNlu4f9d4/kVEGx
+         6aCjeD8UZSdl+x/CGu3xXlrOSd7TxTxiExSRQgfkd6mpWA1uD3SRSND0Y0fJhBiWn1
+         7KjCRVaWTy1xZ7Gh+86M9R6AW2U5YjMDYHFUyylA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 157/300] net: ti: am65-cpsw-nuss: fix RX IRQ state after .ndo_stop()
-Date:   Mon, 13 Sep 2021 15:13:38 +0200
-Message-Id: <20210913131114.714503075@linuxfoundation.org>
+Subject: [PATCH 5.13 158/300] net: dsa: stop syncing the bridge mcast_router attribute at join time
+Date:   Mon, 13 Sep 2021 15:13:39 +0200
+Message-Id: <20210913131114.745013188@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -41,110 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Raghavendra <vigneshr@ti.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 47bfc4d128dedd9e828e33b70b87b591a6d59edf ]
+[ Upstream commit 7df4e7449489d82cee6813dccbb4ae4f3f26ef7b ]
 
-On TI K3 am64x platform the issue with RX IRQ is observed - it's become
-disabled forever after .ndo_stop(). The K3 CPSW driver manipulates RX IRQ
-by using standard Linux enable_irq()/disable_irq_nosync() API as there is
-no IRQ enable/disable options in CPSW HW itself, as result during
-.ndo_stop() following sequence happens
+Qingfang points out that when a bridge with the default settings is
+created and a port joins it:
 
-  phy_stop()
-  teardown TX/RX channels
-  wait for TX tdown complete
-  napi_disable(TX)
-  clean up TX channels
+ip link add br0 type bridge
+ip link set swp0 master br0
 
-  (a)
+DSA calls br_multicast_router() on the bridge to see if the br0 device
+is a multicast router port, and if it is, it enables multicast flooding
+to the CPU port, otherwise it disables it.
 
-  napi_disable(RX)
+If we look through the multicast_router_show() sysfs or at the
+IFLA_BR_MCAST_ROUTER netlink attribute, we see that the default mrouter
+attribute for the bridge device is "1" (MDB_RTR_TYPE_TEMP_QUERY).
 
-At point (a) it's not possible to predict if RX IRQ was triggered or not.
-if RX IRQ was triggered then it also not possible to definitely say if RX
-NAPI was run or only scheduled and immediately canceled by
-napi_disable(RX). Actually the last case causes RX IRQ to be permanently
-disabled.
+However, br_multicast_router() will return "0" (MDB_RTR_TYPE_DISABLED),
+because an mrouter port in the MDB_RTR_TYPE_TEMP_QUERY state may not be
+actually _active_ until it receives an actual IGMP query. So, the
+br_multicast_router() function should really have been called
+br_multicast_router_active() perhaps.
 
-Another observed issue is that RX IRQ enable counter become unbalanced if
-(gro_flush_timeout =! 0) while (napi_defer_hard_irqs == 0):
+When/if an IGMP query is received, the bridge device will transition via
+br_multicast_mark_router() into the active state until the
+ip4_mc_router_timer expires after an multicast_querier_interval.
 
-Unbalanced enable for IRQ 44
-WARNING: CPU: 0 PID: 10 at ../kernel/irq/manage.c:776 __enable_irq+0x38/0x80
-__enable_irq+0x38/0x80
-enable_irq+0x54/0xb0
-am65_cpsw_nuss_rx_poll+0x2f4/0x368
-__napi_poll+0x34/0x1b8
-net_rx_action+0xe4/0x220
-_stext+0x11c/0x284
-run_ksoftirqd+0x4c/0x60
+Of course, this does not happen if the bridge is created with an
+mcast_router attribute of "2" (MDB_RTR_TYPE_PERM).
 
-To avoid above issues introduce flag indicating if RX was actually disabled
-before enabling it in am65_cpsw_nuss_rx_poll() and restore RX IRQ state in
-.ndo_open()
+The point is that in lack of any IGMP query messages, and in the default
+bridge configuration, unregistered multicast packets will not be able to
+reach the CPU port through flooding, and this breaks many use cases
+(most obviously, IPv6 ND, with its ICMP6 neighbor solicitation multicast
+messages).
 
-Fixes: 4f7cce272403 ("net: ethernet: ti: am65-cpsw: add support for am64x cpsw3g")
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Leave the multicast flooding setting towards the CPU port down to a driver
+level decision.
+
+Fixes: 010e269f91be ("net: dsa: sync up switchdev objects and port attributes when joining the bridge")
+Reported-by: DENG Qingfang <dqfext@gmail.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c | 13 +++++++++++--
- drivers/net/ethernet/ti/am65-cpsw-nuss.h |  2 ++
- 2 files changed, 13 insertions(+), 2 deletions(-)
+ net/dsa/port.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index fb58fc470773..e967cd1ade36 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -518,6 +518,10 @@ static int am65_cpsw_nuss_common_open(struct am65_cpsw_common *common,
- 	}
+diff --git a/net/dsa/port.c b/net/dsa/port.c
+index 6379d66a6bb3..fad55372e461 100644
+--- a/net/dsa/port.c
++++ b/net/dsa/port.c
+@@ -186,10 +186,6 @@ static int dsa_port_switchdev_sync(struct dsa_port *dp,
+ 	if (err && err != -EOPNOTSUPP)
+ 		return err;
  
- 	napi_enable(&common->napi_rx);
-+	if (common->rx_irq_disabled) {
-+		common->rx_irq_disabled = false;
-+		enable_irq(common->rx_chns.irq);
-+	}
+-	err = dsa_port_mrouter(dp->cpu_dp, br_multicast_router(br), extack);
+-	if (err && err != -EOPNOTSUPP)
+-		return err;
+-
+ 	err = dsa_port_ageing_time(dp, br_get_ageing_time(br));
+ 	if (err && err != -EOPNOTSUPP)
+ 		return err;
+@@ -235,12 +231,6 @@ static void dsa_port_switchdev_unsync(struct dsa_port *dp)
  
- 	dev_dbg(common->dev, "cpsw_nuss started\n");
- 	return 0;
-@@ -871,8 +875,12 @@ static int am65_cpsw_nuss_rx_poll(struct napi_struct *napi_rx, int budget)
+ 	/* VLAN filtering is handled by dsa_switch_bridge_leave */
  
- 	dev_dbg(common->dev, "%s num_rx:%d %d\n", __func__, num_rx, budget);
- 
--	if (num_rx < budget && napi_complete_done(napi_rx, num_rx))
--		enable_irq(common->rx_chns.irq);
-+	if (num_rx < budget && napi_complete_done(napi_rx, num_rx)) {
-+		if (common->rx_irq_disabled) {
-+			common->rx_irq_disabled = false;
-+			enable_irq(common->rx_chns.irq);
-+		}
-+	}
- 
- 	return num_rx;
- }
-@@ -1090,6 +1098,7 @@ static irqreturn_t am65_cpsw_nuss_rx_irq(int irq, void *dev_id)
- {
- 	struct am65_cpsw_common *common = dev_id;
- 
-+	common->rx_irq_disabled = true;
- 	disable_irq_nosync(irq);
- 	napi_schedule(&common->napi_rx);
- 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.h b/drivers/net/ethernet/ti/am65-cpsw-nuss.h
-index 5d93e346f05e..048ed10143c1 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.h
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.h
-@@ -126,6 +126,8 @@ struct am65_cpsw_common {
- 	struct am65_cpsw_rx_chn	rx_chns;
- 	struct napi_struct	napi_rx;
- 
-+	bool			rx_irq_disabled;
-+
- 	u32			nuss_ver;
- 	u32			cpsw_ver;
- 	unsigned long		bus_freq;
+-	/* Some drivers treat the notification for having a local multicast
+-	 * router by allowing multicast to be flooded to the CPU, so we should
+-	 * allow this in standalone mode too.
+-	 */
+-	dsa_port_mrouter(dp->cpu_dp, true, NULL);
+-
+ 	/* Ageing time may be global to the switch chip, so don't change it
+ 	 * here because we have no good reason (or value) to change it to.
+ 	 */
 -- 
 2.30.2
 
