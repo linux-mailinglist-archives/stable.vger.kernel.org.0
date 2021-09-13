@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B15B4092EF
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 717C840957D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344638AbhIMOQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:16:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34432 "EHLO mail.kernel.org"
+        id S1347324AbhIMOmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343893AbhIMONQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:13:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DB296135D;
-        Mon, 13 Sep 2021 13:43:02 +0000 (UTC)
+        id S1347000AbhIMOkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:40:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8AC561BF9;
+        Mon, 13 Sep 2021 13:55:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540583;
-        bh=OQWEYWCNqFz7BJ+Vfj6msjEc1UTjXrWH86R0Qg8m5Zw=;
+        s=korg; t=1631541344;
+        bh=E080KnkcT6EvMHaaLGSmtuIvM6PZcJ0ayg+8hQXC2Tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i3i+3aai6klC5Ei9qVqtMUEQ+VZWhoJxe+ckSYTURdtn6Qgp29ETzu3P5bOneOd7Q
-         az9Y/ZkU81iJvyB5pRhiCbpidACJvOnmgq/H8c2CkuJKClPQPP15uRxezE9Qhs2EZ8
-         oqLKxkFb4dTePAEth+sNAfI0qHTJ+YcgeVQgI3jk=
+        b=iRawgtFZ2zxlOueeDZxmwddVi5+v46tobyg8PyUZs0YPFoDsVOkHheV+hMJ8398zS
+         AAqy7y2AcUI3+s21VnYiWAcGnOFlFVsfkEO0GWDiXN3ix/Ki8cL/4/jsYjM5C01x7v
+         sxCsQaLBug2pW3UKoHPE8a7c1l9GqgI0yO04v8HE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Keyu Man <kman001@ucr.edu>, Wei Wang <weiwan@google.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Evgeny Novikov <novikov@ispras.ru>,
+        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 252/300] ipv6: make exception cache less predictible
-Date:   Mon, 13 Sep 2021 15:15:13 +0200
-Message-Id: <20210913131117.867883730@linuxfoundation.org>
+Subject: [PATCH 5.14 260/334] usb: ehci-orion: Handle errors of clk_prepare_enable() in probe
+Date:   Mon, 13 Sep 2021 15:15:14 +0200
+Message-Id: <20210913131122.194355012@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit a00df2caffed3883c341d5685f830434312e4a43 ]
+[ Upstream commit 4720f1bf4ee4a784d9ece05420ba33c9222a3004 ]
 
-Even after commit 4785305c05b2 ("ipv6: use siphash in rt6_exception_hash()"),
-an attacker can still use brute force to learn some secrets from a victim
-linux host.
+ehci_orion_drv_probe() did not account for possible errors of
+clk_prepare_enable() that in particular could cause invocation of
+clk_disable_unprepare() on clocks that were not prepared/enabled yet,
+e.g. in remove or on handling errors of usb_add_hcd() in probe. Though,
+there were several patches fixing different issues with clocks in this
+driver, they did not solve this problem.
 
-One way to defeat these attacks is to make the max depth of the hash
-table bucket a random value.
+Add handling of errors of clk_prepare_enable() in ehci_orion_drv_probe()
+to avoid calls of clk_disable_unprepare() without previous successful
+invocation of clk_prepare_enable().
 
-Before this patch, each bucket of the hash table used to store exceptions
-could contain 6 items under attack.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-After the patch, each bucket would contains a random number of items,
-between 6 and 10. The attacker can no longer infer secrets.
-
-This is slightly increasing memory size used by the hash table,
-we do not expect this to be a problem.
-
-Following patch is dealing with the same issue in IPv4.
-
-Fixes: 35732d01fe31 ("ipv6: introduce a hash table to store dst cache")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Cc: Wei Wang <weiwan@google.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8c869edaee07 ("ARM: Orion: EHCI: Add support for enabling clocks")
+Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Link: https://lore.kernel.org/r/20210825170902.11234-1-novikov@ispras.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/route.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/host/ehci-orion.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index 67c74469503a..cd99de5b6882 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -1657,6 +1657,7 @@ static int rt6_insert_exception(struct rt6_info *nrt,
- 	struct in6_addr *src_key = NULL;
- 	struct rt6_exception *rt6_ex;
- 	struct fib6_nh *nh = res->nh;
-+	int max_depth;
- 	int err = 0;
+diff --git a/drivers/usb/host/ehci-orion.c b/drivers/usb/host/ehci-orion.c
+index a319b1df3011..3626758b3e2a 100644
+--- a/drivers/usb/host/ehci-orion.c
++++ b/drivers/usb/host/ehci-orion.c
+@@ -264,8 +264,11 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
+ 	 * the clock does not exists.
+ 	 */
+ 	priv->clk = devm_clk_get(&pdev->dev, NULL);
+-	if (!IS_ERR(priv->clk))
+-		clk_prepare_enable(priv->clk);
++	if (!IS_ERR(priv->clk)) {
++		err = clk_prepare_enable(priv->clk);
++		if (err)
++			goto err_put_hcd;
++	}
  
- 	spin_lock_bh(&rt6_exception_lock);
-@@ -1711,7 +1712,9 @@ static int rt6_insert_exception(struct rt6_info *nrt,
- 	bucket->depth++;
- 	net->ipv6.rt6_stats->fib_rt_cache++;
- 
--	if (bucket->depth > FIB6_MAX_DEPTH)
-+	/* Randomize max depth to avoid some side channels attacks. */
-+	max_depth = FIB6_MAX_DEPTH + prandom_u32_max(FIB6_MAX_DEPTH);
-+	while (bucket->depth > max_depth)
- 		rt6_exception_remove_oldest(bucket);
- 
- out:
+ 	priv->phy = devm_phy_optional_get(&pdev->dev, "usb");
+ 	if (IS_ERR(priv->phy)) {
+@@ -311,6 +314,7 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
+ err_dis_clk:
+ 	if (!IS_ERR(priv->clk))
+ 		clk_disable_unprepare(priv->clk);
++err_put_hcd:
+ 	usb_put_hcd(hcd);
+ err:
+ 	dev_err(&pdev->dev, "init %s fail, %d\n",
 -- 
 2.30.2
 
