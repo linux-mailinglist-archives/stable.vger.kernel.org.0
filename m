@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92E66408E8A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7962D409106
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:57:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240718AbhIMNfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58340 "EHLO mail.kernel.org"
+        id S245661AbhIMN5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:57:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240679AbhIMNch (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:32:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD20661368;
-        Mon, 13 Sep 2021 13:25:51 +0000 (UTC)
+        id S1343571AbhIMNzl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:55:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1956619F8;
+        Mon, 13 Sep 2021 13:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539552;
-        bh=E7xl6sl5aXICv+yvtADSMdwGsKCvfw4DCGPr4TIpfMQ=;
+        s=korg; t=1631540144;
+        bh=MCmmZzKIb1SVr3uB1RR1VG1U5yuv75ou2xI1Lo7vArQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKCsGk6W35Y7TMdyz9L2UgvDXvHfYh+d6K4RXJ2EHebKOmTHY6f2xo/yo/fu9on3o
-         bayq7sNsoAoLvtoV6v7HlA7UHhLTzqDeqPZuJGV/aat1eENYf6N0ZS7VQOxFAR1p/n
-         vAUL5oalN1M6pNn4TppwxUWP/qs4lFm/vvzpknw4=
+        b=0Kj8CkaHdn+JQHIv/uz059t8Q67Wg6af3h5SBCek4AXn0uSWXHs2gvB5knTEQo7tA
+         Zbepg6fF1fTkiKrD6i+pOnR80S4hGVuape+Alfu+3iqOhLfmVEBrNVkkn3UBlRKaW7
+         I/RUxVNGw7BNVZorw4nG4KqMnpybdDq5EOZ+c6+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Hannes Reinecke <hare@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Nayna Jain <nayna@linux.ibm.com>,
+        George Wilson <gcwilson@linux.ibm.com>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 026/236] libata: fix ata_host_start()
+Subject: [PATCH 5.13 070/300] tpm: ibmvtpm: Avoid error message when process gets signal while waiting
 Date:   Mon, 13 Sep 2021 15:12:11 +0200
-Message-Id: <20210913131101.239120376@linuxfoundation.org>
+Message-Id: <20210913131111.720666960@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +43,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-[ Upstream commit 355a8031dc174450ccad2a61c513ad7222d87a97 ]
+[ Upstream commit 047d4226b0bca1cda5267dc68bc8291cce5364ac ]
 
-The loop on entry of ata_host_start() may not initialize host->ops to a
-non NULL value. The test on the host_stop field of host->ops must then
-be preceded by a check that host->ops is not NULL.
+When rngd is run as root then lots of these types of message will appear
+in the kernel log if the TPM has been configured to provide random bytes:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Link: https://lore.kernel.org/r/20210816014456.2191776-3-damien.lemoal@wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[ 7406.275163] tpm tpm0: tpm_transmit: tpm_recv: error -4
+
+The issue is caused by the following call that is interrupted while
+waiting for the TPM's response.
+
+sig = wait_event_interruptible(ibmvtpm->wq, !ibmvtpm->tpm_processing_cmd);
+
+Rather than waiting for the response in the low level driver, have it use
+the polling loop in tpm_try_transmit() that uses a command's duration to
+poll until a result has been returned by the TPM, thus ending when the
+timeout has occurred but not responding to signals and ctrl-c anymore. To
+stay in this polling loop extend tpm_ibmvtpm_status() to return
+'true' for as long as the vTPM is indicated as being busy in
+tpm_processing_cmd. Since the loop requires the TPM's timeouts, get them
+now using tpm_get_timeouts() after setting the TPM2 version flag on the
+chip.
+
+To recreat the resolved issue start rngd like this:
+
+sudo rngd -r /dev/hwrng -t
+sudo rngd -r /dev/tpm0 -t
+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1981473
+Fixes: 6674ff145eef ("tpm_ibmvtpm: properly handle interrupted packet receptions")
+Cc: Nayna Jain <nayna@linux.ibm.com>
+Cc: George Wilson <gcwilson@linux.ibm.com>
+Reported-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/tpm/tpm_ibmvtpm.c | 26 +++++++++++++++-----------
+ drivers/char/tpm/tpm_ibmvtpm.h |  2 +-
+ 2 files changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index 61c762961ca8..44f434acfce0 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -5573,7 +5573,7 @@ int ata_host_start(struct ata_host *host)
- 			have_stop = 1;
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
+index 903604769de9..3af4c07a9342 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.c
++++ b/drivers/char/tpm/tpm_ibmvtpm.c
+@@ -106,17 +106,12 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
+ {
+ 	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
+ 	u16 len;
+-	int sig;
+ 
+ 	if (!ibmvtpm->rtce_buf) {
+ 		dev_err(ibmvtpm->dev, "ibmvtpm device is not ready\n");
+ 		return 0;
  	}
  
--	if (host->ops->host_stop)
-+	if (host->ops && host->ops->host_stop)
- 		have_stop = 1;
+-	sig = wait_event_interruptible(ibmvtpm->wq, !ibmvtpm->tpm_processing_cmd);
+-	if (sig)
+-		return -EINTR;
+-
+ 	len = ibmvtpm->res_len;
  
- 	if (have_stop) {
+ 	if (count < len) {
+@@ -237,7 +232,7 @@ static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
+ 	 * set the processing flag before the Hcall, since we may get the
+ 	 * result (interrupt) before even being able to check rc.
+ 	 */
+-	ibmvtpm->tpm_processing_cmd = true;
++	ibmvtpm->tpm_processing_cmd = 1;
+ 
+ again:
+ 	rc = ibmvtpm_send_crq(ibmvtpm->vdev,
+@@ -255,7 +250,7 @@ again:
+ 			goto again;
+ 		}
+ 		dev_err(ibmvtpm->dev, "tpm_ibmvtpm_send failed rc=%d\n", rc);
+-		ibmvtpm->tpm_processing_cmd = false;
++		ibmvtpm->tpm_processing_cmd = 0;
+ 	}
+ 
+ 	spin_unlock(&ibmvtpm->rtce_lock);
+@@ -269,7 +264,9 @@ static void tpm_ibmvtpm_cancel(struct tpm_chip *chip)
+ 
+ static u8 tpm_ibmvtpm_status(struct tpm_chip *chip)
+ {
+-	return 0;
++	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
++
++	return ibmvtpm->tpm_processing_cmd;
+ }
+ 
+ /**
+@@ -457,7 +454,7 @@ static const struct tpm_class_ops tpm_ibmvtpm = {
+ 	.send = tpm_ibmvtpm_send,
+ 	.cancel = tpm_ibmvtpm_cancel,
+ 	.status = tpm_ibmvtpm_status,
+-	.req_complete_mask = 0,
++	.req_complete_mask = 1,
+ 	.req_complete_val = 0,
+ 	.req_canceled = tpm_ibmvtpm_req_canceled,
+ };
+@@ -550,7 +547,7 @@ static void ibmvtpm_crq_process(struct ibmvtpm_crq *crq,
+ 		case VTPM_TPM_COMMAND_RES:
+ 			/* len of the data in rtce buffer */
+ 			ibmvtpm->res_len = be16_to_cpu(crq->len);
+-			ibmvtpm->tpm_processing_cmd = false;
++			ibmvtpm->tpm_processing_cmd = 0;
+ 			wake_up_interruptible(&ibmvtpm->wq);
+ 			return;
+ 		default:
+@@ -688,8 +685,15 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
+ 		goto init_irq_cleanup;
+ 	}
+ 
+-	if (!strcmp(id->compat, "IBM,vtpm20")) {
++
++	if (!strcmp(id->compat, "IBM,vtpm20"))
+ 		chip->flags |= TPM_CHIP_FLAG_TPM2;
++
++	rc = tpm_get_timeouts(chip);
++	if (rc)
++		goto init_irq_cleanup;
++
++	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+ 		rc = tpm2_get_cc_attrs_tbl(chip);
+ 		if (rc)
+ 			goto init_irq_cleanup;
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
+index b92aa7d3e93e..51198b137461 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.h
++++ b/drivers/char/tpm/tpm_ibmvtpm.h
+@@ -41,7 +41,7 @@ struct ibmvtpm_dev {
+ 	wait_queue_head_t wq;
+ 	u16 res_len;
+ 	u32 vtpm_version;
+-	bool tpm_processing_cmd;
++	u8 tpm_processing_cmd;
+ };
+ 
+ #define CRQ_RES_BUF_SIZE	PAGE_SIZE
 -- 
 2.30.2
 
