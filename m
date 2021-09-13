@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B4FC408F63
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:44:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE553408CFD
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241817AbhIMNmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:42:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41932 "EHLO mail.kernel.org"
+        id S240577AbhIMNWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:22:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243006AbhIMNjN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:39:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFB246108B;
-        Mon, 13 Sep 2021 13:28:55 +0000 (UTC)
+        id S240431AbhIMNU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:20:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B494E610E7;
+        Mon, 13 Sep 2021 13:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539736;
-        bh=Een1Y7zEbf8CwDcSUiMBFXt2z8N+XtYrWh68+U90V7k=;
+        s=korg; t=1631539165;
+        bh=I0wYY4ttfS3dnJn5UM3ZkfaJayMzLgJRSj4gCb3aB5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MDsw5/C7f0yeO+JA3D2ysDJC5TfcRckBVLXuUH3ncanMg3z5rCodH19V3uDTY8ljL
-         q00VWgp6rQA66T/8rdjKDAiacYqNATAQNG4dbx3Qu8RCZddpO03kVrnpJPqpZNtOoo
-         urlD8i/scRRgVXtB5SSE7XuMQLcq05y5wUDuP/tU=
+        b=n6Pu4AB1UhTorSsqAxr3nGvrnKdbGcYwo/L66XvZg3a1wVyiFe9NCLyDDG0d5x8fH
+         jK2jNUkfmlqP8mZemrVPIoTTJ/3bJOsWbpqhWqUOMUtwiqxT8/zS/zTHFTnLS0HjfK
+         BzcakMu6b1x4YN7jvZKdxJJhUEu/v2dfyu/IvlOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 133/236] drm/msm/mdp4: refactor HW revision detection into read_mdp_hw_revision
-Date:   Mon, 13 Sep 2021 15:13:58 +0200
-Message-Id: <20210913131104.888041873@linuxfoundation.org>
+Subject: [PATCH 5.4 058/144] media: go7007: remove redundant initialization
+Date:   Mon, 13 Sep 2021 15:13:59 +0200
+Message-Id: <20210913131049.907169044@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,75 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 4d319afe666b0fc9a9855ba9bdf9ae3710ecf431 ]
+[ Upstream commit 6f5885a7750545973bf1a942d2f0f129aef0aa06 ]
 
-Inspired by MDP5 code.
-Also use DRM_DEV_INFO for MDP version as MDP5 does.
+In go7007_alloc() kzalloc() is used for struct go7007
+allocation. It means that there is no need in zeroing
+any members, because kzalloc will take care of it.
 
-Cosmetic change: uint32_t -> u32 - checkpatch suggestion.
+Removing these reduntant initialization steps increases
+execution speed a lot:
 
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Link: https://lore.kernel.org/r/20210705231641.315804-1-david@ixit.cz
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+	Before:
+		+ 86.802 us   |    go7007_alloc();
+	After:
+		+ 29.595 us   |    go7007_alloc();
+
+Fixes: 866b8695d67e8 ("Staging: add the go7007 video driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c | 27 ++++++++++++++++--------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ drivers/media/usb/go7007/go7007-driver.c | 26 ------------------------
+ 1 file changed, 26 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-index 2f75e3905202..b73af9ddcf72 100644
---- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-@@ -19,20 +19,13 @@ static int mdp4_hw_init(struct msm_kms *kms)
+diff --git a/drivers/media/usb/go7007/go7007-driver.c b/drivers/media/usb/go7007/go7007-driver.c
+index 153a0c3e3da6..b9302d77d6c8 100644
+--- a/drivers/media/usb/go7007/go7007-driver.c
++++ b/drivers/media/usb/go7007/go7007-driver.c
+@@ -691,49 +691,23 @@ struct go7007 *go7007_alloc(const struct go7007_board_info *board,
+ 						struct device *dev)
  {
- 	struct mdp4_kms *mdp4_kms = to_mdp4_kms(to_mdp_kms(kms));
- 	struct drm_device *dev = mdp4_kms->dev;
--	uint32_t version, major, minor, dmap_cfg, vg_cfg;
-+	u32 major, minor, dmap_cfg, vg_cfg;
- 	unsigned long clk;
- 	int ret = 0;
+ 	struct go7007 *go;
+-	int i;
  
- 	pm_runtime_get_sync(dev->dev);
+ 	go = kzalloc(sizeof(struct go7007), GFP_KERNEL);
+ 	if (go == NULL)
+ 		return NULL;
+ 	go->dev = dev;
+ 	go->board_info = board;
+-	go->board_id = 0;
+ 	go->tuner_type = -1;
+-	go->channel_number = 0;
+-	go->name[0] = 0;
+ 	mutex_init(&go->hw_lock);
+ 	init_waitqueue_head(&go->frame_waitq);
+ 	spin_lock_init(&go->spinlock);
+ 	go->status = STATUS_INIT;
+-	memset(&go->i2c_adapter, 0, sizeof(go->i2c_adapter));
+-	go->i2c_adapter_online = 0;
+-	go->interrupt_available = 0;
+ 	init_waitqueue_head(&go->interrupt_waitq);
+-	go->input = 0;
+ 	go7007_update_board(go);
+-	go->encoder_h_halve = 0;
+-	go->encoder_v_halve = 0;
+-	go->encoder_subsample = 0;
+ 	go->format = V4L2_PIX_FMT_MJPEG;
+ 	go->bitrate = 1500000;
+ 	go->fps_scale = 1;
+-	go->pali = 0;
+ 	go->aspect_ratio = GO7007_RATIO_1_1;
+-	go->gop_size = 0;
+-	go->ipb = 0;
+-	go->closed_gop = 0;
+-	go->repeat_seqhead = 0;
+-	go->seq_header_enable = 0;
+-	go->gop_header_enable = 0;
+-	go->dvd_mode = 0;
+-	go->interlace_coding = 0;
+-	for (i = 0; i < 4; ++i)
+-		go->modet[i].enable = 0;
+-	for (i = 0; i < 1624; ++i)
+-		go->modet_map[i] = 0;
+-	go->audio_deliver = NULL;
+-	go->audio_enabled = 0;
  
--	mdp4_enable(mdp4_kms);
--	version = mdp4_read(mdp4_kms, REG_MDP4_VERSION);
--	mdp4_disable(mdp4_kms);
--
--	major = FIELD(version, MDP4_VERSION_MAJOR);
--	minor = FIELD(version, MDP4_VERSION_MINOR);
--
--	DBG("found MDP4 version v%d.%d", major, minor);
-+	read_mdp_hw_revision(mdp4_kms, &major, &minor);
- 
- 	if (major != 4) {
- 		DRM_DEV_ERROR(dev->dev, "unexpected MDP version: v%d.%d\n",
-@@ -409,6 +402,22 @@ fail:
- 	return ret;
+ 	return go;
  }
- 
-+static void read_mdp_hw_revision(struct mdp4_kms *mdp4_kms,
-+				 u32 *major, u32 *minor)
-+{
-+	struct drm_device *dev = mdp4_kms->dev;
-+	u32 version;
-+
-+	mdp4_enable(mdp4_kms);
-+	version = mdp4_read(mdp4_kms, REG_MDP4_VERSION);
-+	mdp4_disable(mdp4_kms);
-+
-+	*major = FIELD(version, MDP4_VERSION_MAJOR);
-+	*minor = FIELD(version, MDP4_VERSION_MINOR);
-+
-+	DRM_DEV_INFO(dev->dev, "MDP4 version v%d.%d", *major, *minor);
-+}
-+
- struct msm_kms *mdp4_kms_init(struct drm_device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev->dev);
 -- 
 2.30.2
 
