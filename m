@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A426409621
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4876340962D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:49:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347165AbhIMOsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:48:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35794 "EHLO mail.kernel.org"
+        id S1346645AbhIMOtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:49:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346642AbhIMOqT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:46:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE16263227;
-        Mon, 13 Sep 2021 13:58:49 +0000 (UTC)
+        id S1345151AbhIMOrF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:47:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51C4C6322A;
+        Mon, 13 Sep 2021 13:58:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541530;
-        bh=pUKMgRRhubTv8YlIAIeLAWIfKVKabc8WEZ8bBTka+oM=;
+        s=korg; t=1631541532;
+        bh=jGWAl/K8bG2tdjP2RrtegwZ+kT089noGrVOSSSF+j2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G1FWDRts7AjgM6o0sn+JzYZPZzcs2tzP6pE0hX0hw1gDJbdnIPY1Vz7wV2qYV43V5
-         pkVMq+OGSFFxQFHseBqgQIm5b3CxqjrP6/iVkhKMafW91WAGIO7j4UUO9kSuIP0rVt
-         UbF5+ciS1QsDWqtd86KTm5W+BTY1bv2Z41Nwu4VE=
+        b=KPAkIx8ryFJrWfvryNWKrMPKvvmwZyyk1aYBgSvxfEm5jJYL8/9FSrGyyFxO7u7pD
+         rsnM6LOHmcbz8roRWPYf6rDNtcJtw23F0SYuUbJvs4BSBdPuFu0jo6F9JAiu9yE+uY
+         uTO0fg6wKXYEpJMc4d//kTUpaOwLoAKbT7v9ChqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>,
-        Arnd Bergmann <arnd@kernel.org>,
-        John David Anglin <dave.anglin@bell.net>
-Subject: [PATCH 5.14 333/334] parisc: Fix unaligned-access crash in bootloader
-Date:   Mon, 13 Sep 2021 15:16:27 +0200
-Message-Id: <20210913131124.688441395@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.14 334/334] clk: kirkwood: Fix a clocking boot regression
+Date:   Mon, 13 Sep 2021 15:16:28 +0200
+Message-Id: <20210913131124.721662788@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -40,42 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit c42813b71a06a2ff4a155aa87ac609feeab76cf3 upstream.
+commit aaedb9e00e5400220a8871180d23a83e67f29f63 upstream.
 
-Kernel v5.14 has various changes to optimize unaligned memory accesses,
-e.g. commit 0652035a5794 ("asm-generic: unaligned: remove byteshift helpers").
+Since a few kernel releases the Pogoplug 4 has crashed like this
+during boot:
 
-Those changes triggered an unalignment-exception and thus crashed the
-bootloader on parisc because the unaligned "output_len" variable now suddenly
-was read word-wise while it was read byte-wise in the past.
+Unable to handle kernel NULL pointer dereference at virtual address 00000002
+(...)
+[<c04116ec>] (strlen) from [<c00ead80>] (kstrdup+0x1c/0x4c)
+[<c00ead80>] (kstrdup) from [<c04591d8>] (__clk_register+0x44/0x37c)
+[<c04591d8>] (__clk_register) from [<c04595ec>] (clk_hw_register+0x20/0x44)
+[<c04595ec>] (clk_hw_register) from [<c045bfa8>] (__clk_hw_register_mux+0x198/0x1e4)
+[<c045bfa8>] (__clk_hw_register_mux) from [<c045c050>] (clk_register_mux_table+0x5c/0x6c)
+[<c045c050>] (clk_register_mux_table) from [<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0+0x13c/0x1ac)
+[<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0) from [<c0aceae0>] (of_clk_init+0x12c/0x214)
+[<c0aceae0>] (of_clk_init) from [<c0ab576c>] (time_init+0x20/0x2c)
+[<c0ab576c>] (time_init) from [<c0ab3d18>] (start_kernel+0x3dc/0x56c)
+[<c0ab3d18>] (start_kernel) from [<00000000>] (0x0)
+Code: e3130020 1afffffb e12fff1e c08a1078 (e5d03000)
 
-Fix this issue by declaring the external output_len variable as char which then
-forces the compiler to generate byte-accesses.
+This is because the "powersave" mux clock 0 was provided in an unterminated
+array, which is required by the loop in the driver:
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: Arnd Bergmann <arnd@kernel.org>
-Cc: John David Anglin <dave.anglin@bell.net>
-Bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102162
-Fixes: 8c031ba63f8f ("parisc: Unbreak bootloader due to gcc-7 optimizations")
-Fixes: 0652035a5794 ("asm-generic: unaligned: remove byteshift helpers")
-Cc: <stable@vger.kernel.org> # v5.14+
+        /* Count, allocate, and register clock muxes */
+        for (n = 0; desc[n].name;)
+                n++;
+
+Here n will go out of bounds and then call clk_register_mux() on random
+memory contents after the mux clock.
+
+Fix this by terminating the array with a blank entry.
+
+Fixes: 105299381d87 ("cpufreq: kirkwood: use the powersave multiplexer")
+Cc: stable@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210814235514.403426-1-linus.walleij@linaro.org
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/boot/compressed/misc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/mvebu/kirkwood.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/parisc/boot/compressed/misc.c
-+++ b/arch/parisc/boot/compressed/misc.c
-@@ -26,7 +26,7 @@
- extern char input_data[];
- extern int input_len;
- /* output_len is inserted by the linker possibly at an unaligned address */
--extern __le32 output_len __aligned(1);
-+extern char output_len;
- extern char _text, _end;
- extern char _bss, _ebss;
- extern char _startcode_end;
+--- a/drivers/clk/mvebu/kirkwood.c
++++ b/drivers/clk/mvebu/kirkwood.c
+@@ -265,6 +265,7 @@ static const char *powersave_parents[] =
+ static const struct clk_muxing_soc_desc kirkwood_mux_desc[] __initconst = {
+ 	{ "powersave", powersave_parents, ARRAY_SIZE(powersave_parents),
+ 		11, 1, 0 },
++	{ }
+ };
+ 
+ static struct clk *clk_muxing_get_src(
 
 
