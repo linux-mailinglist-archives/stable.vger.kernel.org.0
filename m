@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8964090D1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 658F7408E80
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244871AbhIMNzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:55:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40480 "EHLO mail.kernel.org"
+        id S241430AbhIMNfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:35:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244729AbhIMNxj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:53:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2C9B619BB;
-        Mon, 13 Sep 2021 13:34:58 +0000 (UTC)
+        id S242483AbhIMN3f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:29:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98F3661354;
+        Mon, 13 Sep 2021 13:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540099;
-        bh=00q+aJlOKlzwhXjSi7vS+gsscWfTNQA5VQShj7MZak8=;
+        s=korg; t=1631539450;
+        bh=jLa9bZIjWiXqboxB1Luym7DLUd9su7iVxlQkiTZxnR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNzl5foGzQ4joZlkCj8jkmifVeRRrmO4bFaIA1+I2B/VeIBcailMjAfHqrb8suK3f
-         E4bEVGZFHK2Q0Ws5Wy1CBL+JLLibf1P4Ur/nZlRfKeZKZDdW2pRJM5Opu/9URDfy6m
-         INo9Y+lxqSLnP2frTx3hpN4IIV1xwDGNsmgAmm1o=
+        b=0kqIBWDs3UM2kCr7V6vws9D0+fZe9onfAicsvEYc5EnxjEp06ecHNXBIXYsYwzWT9
+         04qDgwSFN0aAx9AfRdNc8bVcpEhvdSq3Y5Z7w1hTYChmPmEZWbD4crtOiUwm8LRMUP
+         j5Qv+OG+jW4zVzbE9G+QvSyv/kosS2eh2wSJ4uKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 049/300] m68k: emu: Fix invalid free in nfeth_cleanup()
-Date:   Mon, 13 Sep 2021 15:11:50 +0200
-Message-Id: <20210913131110.993242252@linuxfoundation.org>
+Subject: [PATCH 5.10 006/236] power: supply: axp288_fuel_gauge: Report register-address on readb / writeb errors
+Date:   Mon, 13 Sep 2021 15:11:51 +0200
+Message-Id: <20210913131100.539750159@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 761608f5cf70e8876c2f0e39ca54b516bdcb7c12 ]
+[ Upstream commit caa534c3ba40c6e8352b42cbbbca9ba481814ac8 ]
 
-In the for loop all nfeth_dev array members should be freed, not only
-the first one.  Freeing only the first array member can cause
-double-free bugs and memory leaks.
+When fuel_gauge_reg_readb()/_writeb() fails, report which register we
+were trying to read / write when the error happened.
 
-Fixes: 9cd7b148312f ("m68k/atari: ARAnyM - Add support for network access")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20210705204727.10743-1-paskripkin@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Also reword the message a bit:
+- Drop the axp288 prefix, dev_err() already prints this
+- Switch from telegram / abbreviated style to a normal sentence, aligning
+  the message with those from fuel_gauge_read_*bit_word()
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/emu/nfeth.c | 4 ++--
+ drivers/power/supply/axp288_fuel_gauge.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/m68k/emu/nfeth.c b/arch/m68k/emu/nfeth.c
-index d2875e32abfc..79e55421cfb1 100644
---- a/arch/m68k/emu/nfeth.c
-+++ b/arch/m68k/emu/nfeth.c
-@@ -254,8 +254,8 @@ static void __exit nfeth_cleanup(void)
- 
- 	for (i = 0; i < MAX_UNIT; i++) {
- 		if (nfeth_dev[i]) {
--			unregister_netdev(nfeth_dev[0]);
--			free_netdev(nfeth_dev[0]);
-+			unregister_netdev(nfeth_dev[i]);
-+			free_netdev(nfeth_dev[i]);
- 		}
+diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
+index 148eb8105803..be24529157be 100644
+--- a/drivers/power/supply/axp288_fuel_gauge.c
++++ b/drivers/power/supply/axp288_fuel_gauge.c
+@@ -149,7 +149,7 @@ static int fuel_gauge_reg_readb(struct axp288_fg_info *info, int reg)
  	}
- 	free_irq(nfEtherIRQ, nfeth_interrupt);
+ 
+ 	if (ret < 0) {
+-		dev_err(&info->pdev->dev, "axp288 reg read err:%d\n", ret);
++		dev_err(&info->pdev->dev, "Error reading reg 0x%02x err: %d\n", reg, ret);
+ 		return ret;
+ 	}
+ 
+@@ -163,7 +163,7 @@ static int fuel_gauge_reg_writeb(struct axp288_fg_info *info, int reg, u8 val)
+ 	ret = regmap_write(info->regmap, reg, (unsigned int)val);
+ 
+ 	if (ret < 0)
+-		dev_err(&info->pdev->dev, "axp288 reg write err:%d\n", ret);
++		dev_err(&info->pdev->dev, "Error writing reg 0x%02x err: %d\n", reg, ret);
+ 
+ 	return ret;
+ }
 -- 
 2.30.2
 
