@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B5E4092F9
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1ED4092E5
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344564AbhIMOQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:16:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34374 "EHLO mail.kernel.org"
+        id S1344021AbhIMOQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:16:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344991AbhIMOOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:14:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9E596140F;
-        Mon, 13 Sep 2021 13:43:46 +0000 (UTC)
+        id S1344284AbhIMOLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:11:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05D5661ABC;
+        Mon, 13 Sep 2021 13:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540627;
-        bh=nibPKkH7s7lwEXlvCg+oa6kq6B5U/Up3QxyGtVMvwek=;
+        s=korg; t=1631540545;
+        bh=woE2grbPg3WPqA9HTL1cQBCX9cOnQFmfArs0J8oXWQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nRAxCx7s0b8fxatIPwKGfWHR2N2Lss3szDlHZnYQLEzBgZXQR6KcFQAkMa5SVG9iy
-         qzqS4VJpMXIqJgtB1ORK649e/vutc6KRIjeB6E8dFbAro987h+0SVm0No0QELjT1UQ
-         uDmv6bI9UuYAnzLL/MSbHdNUKOmaINMaGbwvDFSU=
+        b=yA1I1rcvnPfqcDDv2uKCuSFsKtkzpwTRqQ1OhofATM7dr64rYUqHniOL97JXjMp4Y
+         3uAfhrXr7kSQm/MUy7U2xu6gRvA2qKlw5IpgXMdIlVkEFvnSB9KhJMHCwWN/qhH5tH
+         Vl2XU0zfCgcyitTNcglPZ75a3I/Q2kV9groVIiM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
-        Adriana Reus <adriana.reus@nxp.com>,
-        Sherry Sun <sherry.sun@nxp.com>,
-        Andy Duan <fugang.duan@nxp.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 237/300] tty: serial: fsl_lpuart: fix the wrong mapbase value
-Date:   Mon, 13 Sep 2021 15:14:58 +0200
-Message-Id: <20210913131117.362948216@linuxfoundation.org>
+Subject: [PATCH 5.13 238/300] ASoC: wcd9335: Fix a double irq free in the remove function
+Date:   Mon, 13 Sep 2021 15:14:59 +0200
+Message-Id: <20210913131117.395159098@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -42,40 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Duan <fugang.duan@nxp.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d5c38948448abc2bb6b36dbf85a554bf4748885e ]
+[ Upstream commit 7a6a723e98aa45f393e6add18f7309dfffa1b0e2 ]
 
-Register offset needs to be applied on mapbase also.
-dma_tx/rx_request use the physical address of UARTDATA.
-Register offset is currently only applied to membase (the
-corresponding virtual addr) but not on mapbase.
+There is no point in calling 'free_irq()' explicitly for
+'WCD9335_IRQ_SLIMBUS' in the remove function.
 
-Fixes: 24b1e5f0e83c ("tty: serial: lpuart: add imx7ulp support")
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Adriana Reus <adriana.reus@nxp.com>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Signed-off-by: Andy Duan <fugang.duan@nxp.com>
-Link: https://lore.kernel.org/r/20210819021033.32606-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The irqs are requested in 'wcd9335_setup_irqs()' using a resource managed
+function (i.e. 'devm_request_threaded_irq()').
+'wcd9335_setup_irqs()' requests all what is defined in the 'wcd9335_irqs'
+structure.
+This structure has only one entry for 'WCD9335_IRQ_SLIMBUS'.
+
+So 'devm_request...irq()' + explicit 'free_irq()' would lead to a double
+free.
+
+Remove the unneeded 'free_irq()' from the remove function.
+
+Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Message-Id: <0614d63bc00edd7e81dd367504128f3d84f72efa.1629091028.git.christophe.jaillet@wanadoo.fr>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/wcd9335.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 0d7ea144a4a6..1ed4e33cc8cf 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -2595,7 +2595,7 @@ static int lpuart_probe(struct platform_device *pdev)
- 		return PTR_ERR(sport->port.membase);
+diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
+index 86c92e03ea5d..933f59e4e56f 100644
+--- a/sound/soc/codecs/wcd9335.c
++++ b/sound/soc/codecs/wcd9335.c
+@@ -4869,7 +4869,6 @@ static void wcd9335_codec_remove(struct snd_soc_component *comp)
+ 	struct wcd9335_codec *wcd = dev_get_drvdata(comp->dev);
  
- 	sport->port.membase += sdata->reg_off;
--	sport->port.mapbase = res->start;
-+	sport->port.mapbase = res->start + sdata->reg_off;
- 	sport->port.dev = &pdev->dev;
- 	sport->port.type = PORT_LPUART;
- 	sport->devtype = sdata->devtype;
+ 	wcd_clsh_ctrl_free(wcd->clsh_ctrl);
+-	free_irq(regmap_irq_get_virq(wcd->irq_data, WCD9335_IRQ_SLIMBUS), wcd);
+ }
+ 
+ static int wcd9335_codec_set_sysclk(struct snd_soc_component *comp,
 -- 
 2.30.2
 
