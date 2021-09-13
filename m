@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24B61408D16
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:22:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E34A4408D5C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240494AbhIMNXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:23:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38100 "EHLO mail.kernel.org"
+        id S240940AbhIMNZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:25:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240884AbhIMNVv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:21:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4377F61106;
-        Mon, 13 Sep 2021 13:20:35 +0000 (UTC)
+        id S240591AbhIMNWJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:22:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C55FC6113E;
+        Mon, 13 Sep 2021 13:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539235;
-        bh=JkzJl0hAJVRhrvvxcHei82EQ0T772Vh7JhSWg3QvjQQ=;
+        s=korg; t=1631539238;
+        bh=eLJ9Sol2cQltCVDqOhPRp1+wi1Jp3Nz8GOsN49x/vds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mp/7CWpzUmWGCqBWsUL6rmqCKDeeSRMKDWvIVDoSJiec55LGqKErqp1xHrwQnNHMY
-         tA7FbrPdNw1OW7uc60JpAEMNmYhEuKWLJf61vVYyrbf3CBdXqCWWL2WXO0BOO6uJfP
-         JjDknLfc1PBeWBBHVxWmflr+YX76bfJOifrcuUcA=
+        b=vh9RA/suusRowSGVGYiRwyUgugJ4eL9Z20cXoXeG5VKND96toOhzbF7gYcpfwqV5q
+         XGnUSirdX9qGGcgnH2tcdo/zmat94a8vNfL/2qPTszkdEYCKnq5OtL2KThX+mibZPM
+         KuDQZgl5ybmgSO1dQqZpBH4p8dsJxD9qCWXQyupg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 061/144] 6lowpan: iphc: Fix an off-by-one check of array index
-Date:   Mon, 13 Sep 2021 15:14:02 +0200
-Message-Id: <20210913131050.011719736@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>
+Subject: [PATCH 5.4 062/144] netns: protect netns ID lookups with RCU
+Date:   Mon, 13 Sep 2021 15:14:03 +0200
+Message-Id: <20210913131050.045276595@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
 References: <20210913131047.974309396@linuxfoundation.org>
@@ -40,40 +40,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit 9af417610b6142e826fd1ee8ba7ff3e9a2133a5a ]
+commit 2dce224f469f060b9998a5a869151ef83c08ce77 upstream.
 
-The bounds check of id is off-by-one and the comparison should
-be >= rather >. Currently the WARN_ON_ONCE check does not stop
-the out of range indexing of &ldev->ctx.table[id] so also add
-a return path if the bounds are out of range.
+__peernet2id() can be protected by RCU as it only calls idr_for_each(),
+which is RCU-safe, and never modifies the nsid table.
 
-Addresses-Coverity: ("Illegal address computation").
-Fixes: 5609c185f24d ("6lowpan: iphc: add support for stateful compression")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+rtnl_net_dumpid() can also do lockless lookups. It does two nested
+idr_for_each() calls on nsid tables (one direct call and one indirect
+call because of rtnl_net_dumpid_one() calling __peernet2id()). The
+netnsid tables are never updated. Therefore it is safe to not take the
+nsid_lock and run within an RCU-critical section instead.
+
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
+
 ---
- net/6lowpan/debugfs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/core/net_namespace.c |   28 ++++++++++------------------
+ 1 file changed, 10 insertions(+), 18 deletions(-)
 
-diff --git a/net/6lowpan/debugfs.c b/net/6lowpan/debugfs.c
-index 1c140af06d52..600b9563bfc5 100644
---- a/net/6lowpan/debugfs.c
-+++ b/net/6lowpan/debugfs.c
-@@ -170,7 +170,8 @@ static void lowpan_dev_debugfs_ctx_init(struct net_device *dev,
- 	struct dentry *root;
- 	char buf[32];
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -211,9 +211,9 @@ static int net_eq_idr(int id, void *net,
+ 	return 0;
+ }
  
--	WARN_ON_ONCE(id > LOWPAN_IPHC_CTX_TABLE_SIZE);
-+	if (WARN_ON_ONCE(id >= LOWPAN_IPHC_CTX_TABLE_SIZE))
-+		return;
+-/* Should be called with nsid_lock held. If a new id is assigned, the bool alloc
+- * is set to true, thus the caller knows that the new id must be notified via
+- * rtnl.
++/* Must be called from RCU-critical section or with nsid_lock held. If
++ * a new id is assigned, the bool alloc is set to true, thus the
++ * caller knows that the new id must be notified via rtnl.
+  */
+ static int __peernet2id_alloc(struct net *net, struct net *peer, bool *alloc)
+ {
+@@ -237,7 +237,7 @@ static int __peernet2id_alloc(struct net
+ 	return NETNSA_NSID_NOT_ASSIGNED;
+ }
  
- 	sprintf(buf, "%d", id);
+-/* should be called with nsid_lock held */
++/* Must be called from RCU-critical section or with nsid_lock held */
+ static int __peernet2id(struct net *net, struct net *peer)
+ {
+ 	bool no = false;
+@@ -281,9 +281,10 @@ int peernet2id(struct net *net, struct n
+ {
+ 	int id;
  
--- 
-2.30.2
-
+-	spin_lock_bh(&net->nsid_lock);
++	rcu_read_lock();
+ 	id = __peernet2id(net, peer);
+-	spin_unlock_bh(&net->nsid_lock);
++	rcu_read_unlock();
++
+ 	return id;
+ }
+ EXPORT_SYMBOL(peernet2id);
+@@ -962,6 +963,7 @@ struct rtnl_net_dump_cb {
+ 	int s_idx;
+ };
+ 
++/* Runs in RCU-critical section. */
+ static int rtnl_net_dumpid_one(int id, void *peer, void *data)
+ {
+ 	struct rtnl_net_dump_cb *net_cb = (struct rtnl_net_dump_cb *)data;
+@@ -1046,19 +1048,9 @@ static int rtnl_net_dumpid(struct sk_buf
+ 			goto end;
+ 	}
+ 
+-	spin_lock_bh(&net_cb.tgt_net->nsid_lock);
+-	if (net_cb.fillargs.add_ref &&
+-	    !net_eq(net_cb.ref_net, net_cb.tgt_net) &&
+-	    !spin_trylock_bh(&net_cb.ref_net->nsid_lock)) {
+-		spin_unlock_bh(&net_cb.tgt_net->nsid_lock);
+-		err = -EAGAIN;
+-		goto end;
+-	}
++	rcu_read_lock();
+ 	idr_for_each(&net_cb.tgt_net->netns_ids, rtnl_net_dumpid_one, &net_cb);
+-	if (net_cb.fillargs.add_ref &&
+-	    !net_eq(net_cb.ref_net, net_cb.tgt_net))
+-		spin_unlock_bh(&net_cb.ref_net->nsid_lock);
+-	spin_unlock_bh(&net_cb.tgt_net->nsid_lock);
++	rcu_read_unlock();
+ 
+ 	cb->args[0] = net_cb.idx;
+ end:
 
 
