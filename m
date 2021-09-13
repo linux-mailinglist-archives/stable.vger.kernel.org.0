@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C07C409024
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEFA7409029
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244809AbhIMNue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:50:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56778 "EHLO mail.kernel.org"
+        id S241684AbhIMNui (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:50:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243260AbhIMNrd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243276AbhIMNrd (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:47:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5A906121F;
-        Mon, 13 Sep 2021 13:32:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB53D61211;
+        Mon, 13 Sep 2021 13:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539948;
-        bh=vwtUtH1pMRO2sj7kArmkxmRpVAGzS/ZsP0M5Phra04c=;
+        s=korg; t=1631539950;
+        bh=QZzrdQ2cwn4WxiPAJIowrMx9IsdAja4shefopQdmRgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VYX/bK7lbedvAXDgI/kpsNWI8O8XI65EROK+0xKZZuVAfBeTy5yqRvR84cozYHhdm
-         1m+mGTovYuNaXd7LHUpCYBBK3sfxJWQNsHBbU1pxCzROVpdcn1e01mOhCHMupmNDlK
-         cwwVnDfXsHoyp0HXg6EWkNUH9UlIqN93r9MQEvgc=
+        b=pEvUVrXPsrRJ7sBJb0lJAp/cJzL0Dn2ZfgyHSzohCY7NmI4H0ZWOxVCYjy/X9Q/4N
+         D5YcuK6nmlaiXqqT8OQmgxC3gOpXRCZAUFQyXga1zlZtNa8KXLc9xZliWULXLeXBsb
+         rYieixOyJO7pr/7CjoNc1VP5i4tWdBngOPppF9GI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@de.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH 5.10 225/236] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
-Date:   Mon, 13 Sep 2021 15:15:30 +0200
-Message-Id: <20210913131108.007976938@linuxfoundation.org>
+        stable@vger.kernel.org, Zelin Deng <zelin.deng@linux.alibaba.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 226/236] KVM: x86: Update vCPUs hv_clock before back to guest when tsc_offset is adjusted
+Date:   Mon, 13 Sep 2021 15:15:31 +0200
+Message-Id: <20210913131108.039455298@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -40,119 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Zelin Deng <zelin.deng@linux.alibaba.com>
 
-commit a3e03bc1368c1bc16e19b001fc96dc7430573cc8 upstream.
+commit d9130a2dfdd4b21736c91b818f87dbc0ccd1e757 upstream.
 
-While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true, it may
-not always be, and we must not rely on this. Reason is that KVM decides
-the vcpu_idx, userspace decides the vcpu_id, thus the two might not
-match.
+When MSR_IA32_TSC_ADJUST is written by guest due to TSC ADJUST feature
+especially there's a big tsc warp (like a new vCPU is hot-added into VM
+which has been up for a long time), tsc_offset is added by a large value
+then go back to guest. This causes system time jump as tsc_timestamp is
+not adjusted in the meantime and pvclock monotonic character.
+To fix this, just notify kvm to update vCPU's guest time before back to
+guest.
 
-Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
-that code like
-for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
-                vcpu = kvm_get_vcpu(kvm, vcpu_id);
-		do_stuff(vcpu);
-}
-is not legit. Reason is that kvm_get_vcpu expects an vcpu_idx, not an
-vcpu_id.  The trouble is, we do actually use kvm->arch.idle_mask like
-this. To fix this problem we have two options. Either use
-kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
-or switch to indexing via vcpu_idx. The latter is preferable for obvious
-reasons.
-
-Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
-indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
-same index as idle_mask lets make the same change for it as well.
-
-Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Christian Bornträger <borntraeger@de.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # 3.15+
-Link: https://lore.kernel.org/r/20210827125429.1912577-1-pasic@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Zelin Deng <zelin.deng@linux.alibaba.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <1619576521-81399-2-git-send-email-zelin.deng@linux.alibaba.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/kvm_host.h |    1 +
- arch/s390/kvm/interrupt.c        |   12 ++++++------
- arch/s390/kvm/kvm-s390.c         |    2 +-
- arch/s390/kvm/kvm-s390.h         |    2 +-
- 4 files changed, 9 insertions(+), 8 deletions(-)
+ arch/x86/kvm/x86.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -957,6 +957,7 @@ struct kvm_arch{
- 	atomic64_t cmma_dirty_pages;
- 	/* subset of available cpu features enabled by user space */
- 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
-+	/* indexed by vcpu_idx */
- 	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
- 	struct kvm_s390_gisa_interrupt gisa_int;
- 	struct kvm_s390_pv pv;
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -419,13 +419,13 @@ static unsigned long deliverable_irqs(st
- static void __set_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
--	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
- 
- static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
--	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
- 
- static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
-@@ -3050,18 +3050,18 @@ int kvm_s390_get_irq_state(struct kvm_vc
- 
- static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
- {
--	int vcpu_id, online_vcpus = atomic_read(&kvm->online_vcpus);
-+	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
- 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
- 	struct kvm_vcpu *vcpu;
- 
--	for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
--		vcpu = kvm_get_vcpu(kvm, vcpu_id);
-+	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
-+		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
- 		if (psw_ioint_disabled(vcpu))
- 			continue;
- 		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
- 		if (deliverable_mask) {
- 			/* lately kicked but not yet running */
--			if (test_and_set_bit(vcpu_id, gi->kicked_mask))
-+			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
- 				return;
- 			kvm_s390_vcpu_wakeup(vcpu);
- 			return;
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4015,7 +4015,7 @@ static int vcpu_pre_run(struct kvm_vcpu
- 		kvm_s390_patch_guest_per_regs(vcpu);
- 	}
- 
--	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.gisa_int.kicked_mask);
-+	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.gisa_int.kicked_mask);
- 
- 	vcpu->arch.sie_block->icptcode = 0;
- 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -79,7 +79,7 @@ static inline int is_vcpu_stopped(struct
- 
- static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
- {
--	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
- 
- static inline int kvm_is_ucontrol(struct kvm *kvm)
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3116,6 +3116,10 @@ int kvm_set_msr_common(struct kvm_vcpu *
+ 			if (!msr_info->host_initiated) {
+ 				s64 adj = data - vcpu->arch.ia32_tsc_adjust_msr;
+ 				adjust_tsc_offset_guest(vcpu, adj);
++				/* Before back to guest, tsc_timestamp must be adjusted
++				 * as well, otherwise guest's percpu pvclock time could jump.
++				 */
++				kvm_make_request(KVM_REQ_CLOCK_UPDATE, vcpu);
+ 			}
+ 			vcpu->arch.ia32_tsc_adjust_msr = data;
+ 		}
 
 
