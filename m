@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83EF0409469
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49EB840946B
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343864AbhIMObL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1345057AbhIMObL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 13 Sep 2021 10:31:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46952 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344321AbhIMO2a (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344727AbhIMO2a (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:28:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8C8D615A3;
-        Mon, 13 Sep 2021 13:49:49 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 801E6615A4;
+        Mon, 13 Sep 2021 13:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540990;
-        bh=tNweOmfPT6ce2e92V44yvyf7Jg8MztMluPrsKAcB4Mc=;
+        s=korg; t=1631540993;
+        bh=0eVmFigmvePfK0NtKm7EzbzuJ3ya/9SnuQww5F3AvfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6StdobX8EtZCaiRrxDm/ZVaYG7E3CTWYz0q3h6S+Zb0+gcDoQbF5NIFG5DYNDNQ9
-         UJJKOH/kuJKGCuK7UeQ0chu1M91HU0gyKekraqDjZgQfhhihiTdFP1AYzdzxPy2Q2Z
-         /1SDpdSbHZ9lxmEZn0EJQdpK3yOPUbb9vK0erNVc=
+        b=BzRMXypW9gq9lS0my+Ht3rsw5wtpHGUKTS6uW/sHWBtpKhhnCxyzWbSTf+0X9/sOx
+         OtsjaaRGKzqDQmOsXa/ldaytI7PPHtyxzbvFx/T8p17hddq9ZGguVHi91J6pd3cf7u
+         z5EylH7jfP0aD1VbdyjYPNy2q3kFmgRop9t7xB8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 117/334] media: v4l2-subdev: fix some NULL vs IS_ERR() checks
-Date:   Mon, 13 Sep 2021 15:12:51 +0200
-Message-Id: <20210913131117.327547204@linuxfoundation.org>
+Subject: [PATCH 5.14 118/334] media: rockchip/rga: fix error handling in probe
+Date:   Mon, 13 Sep 2021 15:12:52 +0200
+Message-Id: <20210913131117.359127531@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -45,70 +44,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ba7a93e507f88306d7a19a1dcb53b857b790cfb8 ]
+[ Upstream commit e58430e1d4fd01b74475d2fbe2e25b5817b729a9 ]
 
-The v4l2_subdev_alloc_state() function returns error pointers, it
-doesn't return NULL.
+There are a few bugs in this code.  1)  No checks for whether
+dma_alloc_attrs() or __get_free_pages() failed.  2)  If
+video_register_device() fails it doesn't clean up the dma attrs or the
+free pages.  3)  The video_device_release() function frees "vfd" which
+leads to a use after free on the next line.  The call to
+video_unregister_device() is not required so I have just removed that.
 
-Fixes: 0d346d2a6f54 ("media: v4l2-subdev: add subdev-wide state struct")
+Fixes: f7e7b48e6d79 ("[media] rockchip/rga: v4l2 m2m support")
+Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar-vin/rcar-v4l2.c | 4 ++--
- drivers/media/platform/vsp1/vsp1_entity.c   | 4 ++--
- drivers/staging/media/tegra-video/vi.c      | 4 ++--
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/media/platform/rockchip/rga/rga.c | 27 ++++++++++++++++++-----
+ 1 file changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/platform/rcar-vin/rcar-v4l2.c b/drivers/media/platform/rcar-vin/rcar-v4l2.c
-index cca15a10c0b3..0d141155f0e3 100644
---- a/drivers/media/platform/rcar-vin/rcar-v4l2.c
-+++ b/drivers/media/platform/rcar-vin/rcar-v4l2.c
-@@ -253,8 +253,8 @@ static int rvin_try_format(struct rvin_dev *vin, u32 which,
- 	int ret;
- 
- 	sd_state = v4l2_subdev_alloc_state(sd);
--	if (sd_state == NULL)
--		return -ENOMEM;
-+	if (IS_ERR(sd_state))
-+		return PTR_ERR(sd_state);
- 
- 	if (!rvin_format_from_pixel(vin, pix->pixelformat))
- 		pix->pixelformat = RVIN_DEFAULT_FORMAT;
-diff --git a/drivers/media/platform/vsp1/vsp1_entity.c b/drivers/media/platform/vsp1/vsp1_entity.c
-index 6f51e5c75543..823c15facd1b 100644
---- a/drivers/media/platform/vsp1/vsp1_entity.c
-+++ b/drivers/media/platform/vsp1/vsp1_entity.c
-@@ -676,9 +676,9 @@ int vsp1_entity_init(struct vsp1_device *vsp1, struct vsp1_entity *entity,
- 	 * rectangles.
- 	 */
- 	entity->config = v4l2_subdev_alloc_state(&entity->subdev);
--	if (entity->config == NULL) {
-+	if (IS_ERR(entity->config)) {
- 		media_entity_cleanup(&entity->subdev.entity);
--		return -ENOMEM;
-+		return PTR_ERR(entity->config);
+diff --git a/drivers/media/platform/rockchip/rga/rga.c b/drivers/media/platform/rockchip/rga/rga.c
+index bf3fd71ec3af..6759091b15e0 100644
+--- a/drivers/media/platform/rockchip/rga/rga.c
++++ b/drivers/media/platform/rockchip/rga/rga.c
+@@ -863,12 +863,12 @@ static int rga_probe(struct platform_device *pdev)
+ 	if (IS_ERR(rga->m2m_dev)) {
+ 		v4l2_err(&rga->v4l2_dev, "Failed to init mem2mem device\n");
+ 		ret = PTR_ERR(rga->m2m_dev);
+-		goto unreg_video_dev;
++		goto rel_vdev;
  	}
  
- 	return 0;
-diff --git a/drivers/staging/media/tegra-video/vi.c b/drivers/staging/media/tegra-video/vi.c
-index 89709cd06d4d..d321790b07d9 100644
---- a/drivers/staging/media/tegra-video/vi.c
-+++ b/drivers/staging/media/tegra-video/vi.c
-@@ -508,8 +508,8 @@ static int __tegra_channel_try_format(struct tegra_vi_channel *chan,
- 		return -ENODEV;
+ 	ret = pm_runtime_resume_and_get(rga->dev);
+ 	if (ret < 0)
+-		goto unreg_video_dev;
++		goto rel_vdev;
  
- 	sd_state = v4l2_subdev_alloc_state(subdev);
--	if (!sd_state)
--		return -ENOMEM;
-+	if (IS_ERR(sd_state))
-+		return PTR_ERR(sd_state);
- 	/*
- 	 * Retrieve the format information and if requested format isn't
- 	 * supported, keep the current format.
+ 	rga->version.major = (rga_read(rga, RGA_VERSION_INFO) >> 24) & 0xFF;
+ 	rga->version.minor = (rga_read(rga, RGA_VERSION_INFO) >> 20) & 0x0F;
+@@ -882,11 +882,23 @@ static int rga_probe(struct platform_device *pdev)
+ 	rga->cmdbuf_virt = dma_alloc_attrs(rga->dev, RGA_CMDBUF_SIZE,
+ 					   &rga->cmdbuf_phy, GFP_KERNEL,
+ 					   DMA_ATTR_WRITE_COMBINE);
++	if (!rga->cmdbuf_virt) {
++		ret = -ENOMEM;
++		goto rel_vdev;
++	}
+ 
+ 	rga->src_mmu_pages =
+ 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
++	if (!rga->src_mmu_pages) {
++		ret = -ENOMEM;
++		goto free_dma;
++	}
+ 	rga->dst_mmu_pages =
+ 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
++	if (rga->dst_mmu_pages) {
++		ret = -ENOMEM;
++		goto free_src_pages;
++	}
+ 
+ 	def_frame.stride = (def_frame.width * def_frame.fmt->depth) >> 3;
+ 	def_frame.size = def_frame.stride * def_frame.height;
+@@ -894,7 +906,7 @@ static int rga_probe(struct platform_device *pdev)
+ 	ret = video_register_device(vfd, VFL_TYPE_VIDEO, -1);
+ 	if (ret) {
+ 		v4l2_err(&rga->v4l2_dev, "Failed to register video device\n");
+-		goto rel_vdev;
++		goto free_dst_pages;
+ 	}
+ 
+ 	v4l2_info(&rga->v4l2_dev, "Registered %s as /dev/%s\n",
+@@ -902,10 +914,15 @@ static int rga_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
++free_dst_pages:
++	free_pages((unsigned long)rga->dst_mmu_pages, 3);
++free_src_pages:
++	free_pages((unsigned long)rga->src_mmu_pages, 3);
++free_dma:
++	dma_free_attrs(rga->dev, RGA_CMDBUF_SIZE, rga->cmdbuf_virt,
++		       rga->cmdbuf_phy, DMA_ATTR_WRITE_COMBINE);
+ rel_vdev:
+ 	video_device_release(vfd);
+-unreg_video_dev:
+-	video_unregister_device(rga->vfd);
+ unreg_v4l2_dev:
+ 	v4l2_device_unregister(&rga->v4l2_dev);
+ err_put_clk:
 -- 
 2.30.2
 
