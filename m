@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F3F740936C
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03EF740936F
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346183AbhIMOVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:21:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41744 "EHLO mail.kernel.org"
+        id S1346211AbhIMOVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:21:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243754AbhIMOTG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:19:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87136610D1;
-        Mon, 13 Sep 2021 13:45:40 +0000 (UTC)
+        id S1344309AbhIMOTN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:19:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF01861B21;
+        Mon, 13 Sep 2021 13:45:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540741;
-        bh=Uvy48YBSvTNhnWNU58N9edTWbSO+dtb3JbkoEzJbd6Y=;
+        s=korg; t=1631540743;
+        bh=Q78iZj1z+aPDomDiRWa/HraSx72nx4Z0Tki2Fi8AuMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jWjao+MqENVFa0d7QYvQo23fW20sLtH+3lpqBMlw+E+PVpBSWM8h5ZN+Rto+U+yjn
-         Xw1/fF0wXxIXSx3z3OVGd265PBAA8F1B0XZ7lFLWEI0XvVELe0mh0G3kiUtjKxfJKm
-         KiIF58oVkmbmFNZc8i0tSmCyXxtDZojJGCMpKnSU=
+        b=RklieZ2z7Ebzh6mhU540oVbnmCe2LD2kDFpwSKkf2/3WEMLD5IKwANrMH07lBWY2u
+         muwMOpMaRcHCYq8bgS21LWsBzsmSQ5X2B8R7SPW6S5NSXSEiQ1T0xhKvUfOpAm/MOY
+         WgHJIVvC2x9TMvw9fdppauOfQMOHIvRHJgU2Zki4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 016/334] isofs: joliet: Fix iocharset=utf8 mount option
-Date:   Mon, 13 Sep 2021 15:11:10 +0200
-Message-Id: <20210913131113.958647342@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 017/334] bcache: add proper error unwinding in bcache_device_init
+Date:   Mon, 13 Sep 2021 15:11:11 +0200
+Message-Id: <20210913131113.990563667@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -40,148 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 28ce50f8d96ec9035f60c9348294ea26b94db944 ]
+[ Upstream commit 224b0683228c5f332f9cee615d85e75e9a347170 ]
 
-Currently iocharset=utf8 mount option is broken. To use UTF-8 as iocharset,
-it is required to use utf8 mount option.
+Except for the IDA none of the allocations in bcache_device_init is
+unwound on error, fix that.
 
-Fix iocharset=utf8 mount option to use be equivalent to the utf8 mount
-option.
-
-If UTF-8 as iocharset is used then s_nls_iocharset is set to NULL. So
-simplify code around, remove s_utf8 field as to distinguish between UTF-8
-and non-UTF-8 it is needed just to check if s_nls_iocharset is set to NULL
-or not.
-
-Link: https://lore.kernel.org/r/20210808162453.1653-5-pali@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Coly Li <colyli@suse.de>
+Link: https://lore.kernel.org/r/20210809064028.1198327-7-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/isofs/inode.c  | 27 +++++++++++++--------------
- fs/isofs/isofs.h  |  1 -
- fs/isofs/joliet.c |  4 +---
- 3 files changed, 14 insertions(+), 18 deletions(-)
+ drivers/md/bcache/super.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/fs/isofs/inode.c b/fs/isofs/inode.c
-index 21edc423b79f..678e2c51b855 100644
---- a/fs/isofs/inode.c
-+++ b/fs/isofs/inode.c
-@@ -155,7 +155,6 @@ struct iso9660_options{
- 	unsigned int overriderockperm:1;
- 	unsigned int uid_set:1;
- 	unsigned int gid_set:1;
--	unsigned int utf8:1;
- 	unsigned char map;
- 	unsigned char check;
- 	unsigned int blocksize;
-@@ -356,7 +355,6 @@ static int parse_options(char *options, struct iso9660_options *popt)
- 	popt->gid = GLOBAL_ROOT_GID;
- 	popt->uid = GLOBAL_ROOT_UID;
- 	popt->iocharset = NULL;
--	popt->utf8 = 0;
- 	popt->overriderockperm = 0;
- 	popt->session=-1;
- 	popt->sbsector=-1;
-@@ -389,10 +387,13 @@ static int parse_options(char *options, struct iso9660_options *popt)
- 		case Opt_cruft:
- 			popt->cruft = 1;
- 			break;
-+#ifdef CONFIG_JOLIET
- 		case Opt_utf8:
--			popt->utf8 = 1;
-+			kfree(popt->iocharset);
-+			popt->iocharset = kstrdup("utf8", GFP_KERNEL);
-+			if (!popt->iocharset)
-+				return 0;
- 			break;
--#ifdef CONFIG_JOLIET
- 		case Opt_iocharset:
- 			kfree(popt->iocharset);
- 			popt->iocharset = match_strdup(&args[0]);
-@@ -495,7 +496,6 @@ static int isofs_show_options(struct seq_file *m, struct dentry *root)
- 	if (sbi->s_nocompress)		seq_puts(m, ",nocompress");
- 	if (sbi->s_overriderockperm)	seq_puts(m, ",overriderockperm");
- 	if (sbi->s_showassoc)		seq_puts(m, ",showassoc");
--	if (sbi->s_utf8)		seq_puts(m, ",utf8");
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 185246a0d855..d0f08e946453 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -931,20 +931,20 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
+ 	n = BITS_TO_LONGS(d->nr_stripes) * sizeof(unsigned long);
+ 	d->full_dirty_stripes = kvzalloc(n, GFP_KERNEL);
+ 	if (!d->full_dirty_stripes)
+-		return -ENOMEM;
++		goto out_free_stripe_sectors_dirty;
  
- 	if (sbi->s_check)		seq_printf(m, ",check=%c", sbi->s_check);
- 	if (sbi->s_mapping)		seq_printf(m, ",map=%c", sbi->s_mapping);
-@@ -518,9 +518,10 @@ static int isofs_show_options(struct seq_file *m, struct dentry *root)
- 		seq_printf(m, ",fmode=%o", sbi->s_fmode);
+ 	idx = ida_simple_get(&bcache_device_idx, 0,
+ 				BCACHE_DEVICE_IDX_MAX, GFP_KERNEL);
+ 	if (idx < 0)
+-		return idx;
++		goto out_free_full_dirty_stripes;
  
- #ifdef CONFIG_JOLIET
--	if (sbi->s_nls_iocharset &&
--	    strcmp(sbi->s_nls_iocharset->charset, CONFIG_NLS_DEFAULT) != 0)
-+	if (sbi->s_nls_iocharset)
- 		seq_printf(m, ",iocharset=%s", sbi->s_nls_iocharset->charset);
-+	else
-+		seq_puts(m, ",iocharset=utf8");
- #endif
+ 	if (bioset_init(&d->bio_split, 4, offsetof(struct bbio, bio),
+ 			BIOSET_NEED_BVECS|BIOSET_NEED_RESCUER))
+-		goto err;
++		goto out_ida_remove;
+ 
+ 	d->disk = blk_alloc_disk(NUMA_NO_NODE);
+ 	if (!d->disk)
+-		goto err;
++		goto out_bioset_exit;
+ 
+ 	set_capacity(d->disk, sectors);
+ 	snprintf(d->disk->disk_name, DISK_NAME_LEN, "bcache%i", idx);
+@@ -987,8 +987,14 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
+ 
  	return 0;
+ 
+-err:
++out_bioset_exit:
++	bioset_exit(&d->bio_split);
++out_ida_remove:
+ 	ida_simple_remove(&bcache_device_idx, idx);
++out_free_full_dirty_stripes:
++	kvfree(d->full_dirty_stripes);
++out_free_stripe_sectors_dirty:
++	kvfree(d->stripe_sectors_dirty);
+ 	return -ENOMEM;
+ 
  }
-@@ -863,14 +864,13 @@ root_found:
- 	sbi->s_nls_iocharset = NULL;
- 
- #ifdef CONFIG_JOLIET
--	if (joliet_level && opt.utf8 == 0) {
-+	if (joliet_level) {
- 		char *p = opt.iocharset ? opt.iocharset : CONFIG_NLS_DEFAULT;
--		sbi->s_nls_iocharset = load_nls(p);
--		if (! sbi->s_nls_iocharset) {
--			/* Fail only if explicit charset specified */
--			if (opt.iocharset)
-+		if (strcmp(p, "utf8") != 0) {
-+			sbi->s_nls_iocharset = opt.iocharset ?
-+				load_nls(opt.iocharset) : load_nls_default();
-+			if (!sbi->s_nls_iocharset)
- 				goto out_freesbi;
--			sbi->s_nls_iocharset = load_nls_default();
- 		}
- 	}
- #endif
-@@ -886,7 +886,6 @@ root_found:
- 	sbi->s_gid = opt.gid;
- 	sbi->s_uid_set = opt.uid_set;
- 	sbi->s_gid_set = opt.gid_set;
--	sbi->s_utf8 = opt.utf8;
- 	sbi->s_nocompress = opt.nocompress;
- 	sbi->s_overriderockperm = opt.overriderockperm;
- 	/*
-diff --git a/fs/isofs/isofs.h b/fs/isofs/isofs.h
-index 055ec6c586f7..dcdc191ed183 100644
---- a/fs/isofs/isofs.h
-+++ b/fs/isofs/isofs.h
-@@ -44,7 +44,6 @@ struct isofs_sb_info {
- 	unsigned char s_session;
- 	unsigned int  s_high_sierra:1;
- 	unsigned int  s_rock:2;
--	unsigned int  s_utf8:1;
- 	unsigned int  s_cruft:1; /* Broken disks with high byte of length
- 				  * containing junk */
- 	unsigned int  s_nocompress:1;
-diff --git a/fs/isofs/joliet.c b/fs/isofs/joliet.c
-index be8b6a9d0b92..c0f04a1e7f69 100644
---- a/fs/isofs/joliet.c
-+++ b/fs/isofs/joliet.c
-@@ -41,14 +41,12 @@ uni16_to_x8(unsigned char *ascii, __be16 *uni, int len, struct nls_table *nls)
- int
- get_joliet_filename(struct iso_directory_record * de, unsigned char *outname, struct inode * inode)
- {
--	unsigned char utf8;
- 	struct nls_table *nls;
- 	unsigned char len = 0;
- 
--	utf8 = ISOFS_SB(inode->i_sb)->s_utf8;
- 	nls = ISOFS_SB(inode->i_sb)->s_nls_iocharset;
- 
--	if (utf8) {
-+	if (!nls) {
- 		len = utf16s_to_utf8s((const wchar_t *) de->name,
- 				de->name_len[0] >> 1, UTF16_BIG_ENDIAN,
- 				outname, PAGE_SIZE);
 -- 
 2.30.2
 
