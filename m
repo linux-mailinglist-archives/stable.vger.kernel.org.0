@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B3B3408F37
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:40:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 513CA408CAE
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242014AbhIMNkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:40:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35546 "EHLO mail.kernel.org"
+        id S239738AbhIMNVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:21:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242657AbhIMNiY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:38:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AABD61262;
-        Mon, 13 Sep 2021 13:28:33 +0000 (UTC)
+        id S240404AbhIMNUe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:20:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A99406121D;
+        Mon, 13 Sep 2021 13:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539713;
-        bh=uuZMw6J5hMtC9lRbJ1wg88tUyZpGYzYRmpNXWwfNY5U=;
+        s=korg; t=1631539142;
+        bh=UDzhXRPODagu07VzXICT1fkAIzwkG6c1S4KVXA+a4FU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBlnqiFSwnaf+LjmAr2SRTl99WGcRPgwlZcEnibQUipZLre9HozFUcPXgeLy1DECR
-         CSxQ0YlIL1/Xewhon8nVITTu9HdvyAOL6Zy258kSaeWd3GSpZ1aDGxx46rUtMffd+S
-         7ymv1NBuRh0Tio8Ut2b8BjIgLkmlUVa3jPtG99Ew=
+        b=QCA9fZOcxFvTK8pzJL9zez0SQBK4W0NUYzJevSxcXX0EOvb4Gc7nQJ5+1DNMVkTiu
+         kM9Kq6ZLgGIipwtCNnOTklQjCsLruArDRTbl7Oc3w0vb5z0XlMqql111de+0UIhC9w
+         QDvDuiMctcyZVrEp42hu6NMhDU9sgXq0AeCiYM0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 130/236] Bluetooth: increase BTNAMSIZ to 21 chars to fix potential buffer overflow
-Date:   Mon, 13 Sep 2021 15:13:55 +0200
-Message-Id: <20210913131104.789603151@linuxfoundation.org>
+Subject: [PATCH 5.4 055/144] media: dvb-usb: fix uninit-value in dvb_usb_adapter_dvb_init
+Date:   Mon, 13 Sep 2021 15:13:56 +0200
+Message-Id: <20210913131049.810545639@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 713baf3dae8f45dc8ada4ed2f5fdcbf94a5c274d ]
+[ Upstream commit c5453769f77ce19a5b03f1f49946fd3f8a374009 ]
 
-An earlier commit replaced using batostr to using %pMR sprintf for the
-construction of session->name. Static analysis detected that this new
-method can use a total of 21 characters (including the trailing '\0')
-so we need to increase the BTNAMSIZ from 18 to 21 to fix potential
-buffer overflows.
+If dibusb_read_eeprom_byte fails, the mac address is not initialized.
+And nova_t_read_mac_address does not handle this failure, which leads to
+the uninit-value in dvb_usb_adapter_dvb_init.
 
-Addresses-Coverity: ("Out-of-bounds write")
-Fixes: fcb73338ed53 ("Bluetooth: Use %pMR in sprintf/seq_printf instead of batostr")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fix this by handling the failure of dibusb_read_eeprom_byte.
+
+Reported-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
+Fixes: 786baecfe78f ("[media] dvb-usb: move it to drivers/media/usb/dvb-usb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/cmtp/cmtp.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/nova-t-usb2.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/cmtp/cmtp.h b/net/bluetooth/cmtp/cmtp.h
-index c32638dddbf9..f6b9dc4e408f 100644
---- a/net/bluetooth/cmtp/cmtp.h
-+++ b/net/bluetooth/cmtp/cmtp.h
-@@ -26,7 +26,7 @@
- #include <linux/types.h>
- #include <net/bluetooth/bluetooth.h>
+diff --git a/drivers/media/usb/dvb-usb/nova-t-usb2.c b/drivers/media/usb/dvb-usb/nova-t-usb2.c
+index e368935a5089..c16d4f162495 100644
+--- a/drivers/media/usb/dvb-usb/nova-t-usb2.c
++++ b/drivers/media/usb/dvb-usb/nova-t-usb2.c
+@@ -130,7 +130,7 @@ ret:
  
--#define BTNAMSIZ 18
-+#define BTNAMSIZ 21
+ static int nova_t_read_mac_address (struct dvb_usb_device *d, u8 mac[6])
+ {
+-	int i;
++	int i, ret;
+ 	u8 b;
  
- /* CMTP ioctl defines */
- #define CMTPCONNADD	_IOW('C', 200, int)
+ 	mac[0] = 0x00;
+@@ -139,7 +139,9 @@ static int nova_t_read_mac_address (struct dvb_usb_device *d, u8 mac[6])
+ 
+ 	/* this is a complete guess, but works for my box */
+ 	for (i = 136; i < 139; i++) {
+-		dibusb_read_eeprom_byte(d,i, &b);
++		ret = dibusb_read_eeprom_byte(d, i, &b);
++		if (ret)
++			return ret;
+ 
+ 		mac[5 - (i - 136)] = b;
+ 	}
 -- 
 2.30.2
 
