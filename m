@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AC9740960C
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41E9C409610
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346322AbhIMOrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:47:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60498 "EHLO mail.kernel.org"
+        id S1346756AbhIMOrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:47:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346398AbhIMOpS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:45:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97375603E5;
-        Mon, 13 Sep 2021 13:58:21 +0000 (UTC)
+        id S1345961AbhIMOpn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:45:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD253619E8;
+        Mon, 13 Sep 2021 13:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541502;
-        bh=2HqpvZymOdCHaQf2VAqiXp2GlpNsxp2W56uhyfMbyRc=;
+        s=korg; t=1631541507;
+        bh=FrzImUAfsSl9zcnctw+5H0piLjoFkOEJiQjuGprzYpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ErkHyScZek/DDDURfRen4co+bd2LFi1c7Nr3Ibv0MhCpUxlGyE0vrmc5lom1c+Yzq
-         Eexr3SMEua7/asR2Bg0906SC9pSmdv+hbf40GHpUkDdCgLeR89EQ45IlD/3vjrRCD3
-         RfW3IwN7CCTFsy08RHLkVF5XkVPG7MAaMc8arYM8=
+        b=ttflzKwA/+nIm9kVmb6yT4bbjIGshZEzDdAQLCFxeCQ31RUUJ4C5nNcxurzmKsqpP
+         WfryBlDzxh1Xv5pzJLGXeqSBZiMozs1+ywkRKeu1qjUCelSbfpPe3cZVVlhrbqQKSF
+         FnjDXY7qb77eWHv928GTmavyIHz3RxBYDBoAigDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
-Subject: [PATCH 5.14 323/334] fuse: truncate pagecache on atomic_o_trunc
-Date:   Mon, 13 Sep 2021 15:16:17 +0200
-Message-Id: <20210913131124.351841317@linuxfoundation.org>
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.14 325/334] fuse: wait for writepages in syncfs
+Date:   Mon, 13 Sep 2021 15:16:19 +0200
+Message-Id: <20210913131124.424992739@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -42,56 +41,240 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 76224355db7570cbe6b6f75c8929a1558828dd55 upstream.
+commit 660585b56e63ca034ad506ea53c807c5cdca3196 upstream.
 
-fuse_finish_open() will be called with FUSE_NOWRITE in case of atomic
-O_TRUNC.  This can deadlock with fuse_wait_on_page_writeback() in
-fuse_launder_page() triggered by invalidate_inode_pages2().
+In case of fuse the MM subsystem doesn't guarantee that page writeback
+completes by the time ->sync_fs() is called.  This is because fuse
+completes page writeback immediately to prevent DoS of memory reclaim by
+the userspace file server.
 
-Fix by replacing invalidate_inode_pages2() in fuse_finish_open() with a
-truncate_pagecache() call.  This makes sense regardless of FOPEN_KEEP_CACHE
-or fc->writeback cache, so do it unconditionally.
+This means that fuse itself must ensure that writes are synced before
+sending the SYNCFS request to the server.
 
-Reported-by: Xie Yongji <xieyongji@bytedance.com>
-Reported-and-tested-by: syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
-Fixes: e4648309b85a ("fuse: truncate pending writes on O_TRUNC")
-Cc: <stable@vger.kernel.org>
+Introduce sync buckets, that hold a counter for the number of outstanding
+write requests.  On syncfs replace the current bucket with a new one and
+wait until the old bucket's counter goes down to zero.
+
+It is possible to have multiple syncfs calls in parallel, in which case
+there could be more than one waited-on buckets.  Descendant buckets must
+not complete until the parent completes.  Add a count to the child (new)
+bucket until the (parent) old bucket completes.
+
+Use RCU protection to dereference the current bucket and to wake up an
+emptied bucket.  Use fc->lock to protect against parallel assignments to
+the current bucket.
+
+This leaves just the counter to be a possible scalability issue.  The
+fc->num_waiting counter has a similar issue, so both should be addressed at
+the same time.
+
+Reported-by: Amir Goldstein <amir73il@gmail.com>
+Fixes: 2d82ab251ef0 ("virtiofs: propagate sync() to file server")
+Cc: <stable@vger.kernel.org> # v5.14
 Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/file.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/fuse/file.c   |   21 +++++++++++++++++++
+ fs/fuse/fuse_i.h |   19 +++++++++++++++++
+ fs/fuse/inode.c  |   60 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 100 insertions(+)
 
 --- a/fs/fuse/file.c
 +++ b/fs/fuse/file.c
-@@ -198,12 +198,11 @@ void fuse_finish_open(struct inode *inod
- 	struct fuse_file *ff = file->private_data;
- 	struct fuse_conn *fc = get_fuse_conn(inode);
+@@ -392,6 +392,7 @@ struct fuse_writepage_args {
+ 	struct list_head queue_entry;
+ 	struct fuse_writepage_args *next;
+ 	struct inode *inode;
++	struct fuse_sync_bucket *bucket;
+ };
  
--	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
--		invalidate_inode_pages2(inode->i_mapping);
- 	if (ff->open_flags & FOPEN_STREAM)
- 		stream_open(inode, file);
- 	else if (ff->open_flags & FOPEN_NONSEEKABLE)
- 		nonseekable_open(inode, file);
-+
- 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
- 		struct fuse_inode *fi = get_fuse_inode(inode);
+ static struct fuse_writepage_args *fuse_find_writeback(struct fuse_inode *fi,
+@@ -1611,6 +1612,9 @@ static void fuse_writepage_free(struct f
+ 	struct fuse_args_pages *ap = &wpa->ia.ap;
+ 	int i;
  
-@@ -211,10 +210,14 @@ void fuse_finish_open(struct inode *inod
- 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
- 		i_size_write(inode, 0);
- 		spin_unlock(&fi->lock);
-+		truncate_pagecache(inode, 0);
- 		fuse_invalidate_attr(inode);
- 		if (fc->writeback_cache)
- 			file_update_time(file);
-+	} else if (!(ff->open_flags & FOPEN_KEEP_CACHE)) {
-+		invalidate_inode_pages2(inode->i_mapping);
- 	}
++	if (wpa->bucket)
++		fuse_sync_bucket_dec(wpa->bucket);
 +
- 	if ((file->f_mode & FMODE_WRITE) && fc->writeback_cache)
- 		fuse_link_write_file(file);
+ 	for (i = 0; i < ap->num_pages; i++)
+ 		__free_page(ap->pages[i]);
+ 
+@@ -1874,6 +1878,20 @@ static struct fuse_writepage_args *fuse_
+ 
  }
+ 
++static void fuse_writepage_add_to_bucket(struct fuse_conn *fc,
++					 struct fuse_writepage_args *wpa)
++{
++	if (!fc->sync_fs)
++		return;
++
++	rcu_read_lock();
++	/* Prevent resurrection of dead bucket in unlikely race with syncfs */
++	do {
++		wpa->bucket = rcu_dereference(fc->curr_bucket);
++	} while (unlikely(!atomic_inc_not_zero(&wpa->bucket->count)));
++	rcu_read_unlock();
++}
++
+ static int fuse_writepage_locked(struct page *page)
+ {
+ 	struct address_space *mapping = page->mapping;
+@@ -1901,6 +1919,7 @@ static int fuse_writepage_locked(struct
+ 	if (!wpa->ia.ff)
+ 		goto err_nofile;
+ 
++	fuse_writepage_add_to_bucket(fc, wpa);
+ 	fuse_write_args_fill(&wpa->ia, wpa->ia.ff, page_offset(page), 0);
+ 
+ 	copy_highpage(tmp_page, page);
+@@ -2151,6 +2170,8 @@ static int fuse_writepages_fill(struct p
+ 			__free_page(tmp_page);
+ 			goto out_unlock;
+ 		}
++		fuse_writepage_add_to_bucket(fc, wpa);
++
+ 		data->max_pages = 1;
+ 
+ 		ap = &wpa->ia.ap;
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -515,6 +515,13 @@ struct fuse_fs_context {
+ 	void **fudptr;
+ };
+ 
++struct fuse_sync_bucket {
++	/* count is a possible scalability bottleneck */
++	atomic_t count;
++	wait_queue_head_t waitq;
++	struct rcu_head rcu;
++};
++
+ /**
+  * A Fuse connection.
+  *
+@@ -807,6 +814,9 @@ struct fuse_conn {
+ 
+ 	/** List of filesystems using this connection */
+ 	struct list_head mounts;
++
++	/* New writepages go into this bucket */
++	struct fuse_sync_bucket __rcu *curr_bucket;
+ };
+ 
+ /*
+@@ -910,6 +920,15 @@ static inline void fuse_page_descs_lengt
+ 		descs[i].length = PAGE_SIZE - descs[i].offset;
+ }
+ 
++static inline void fuse_sync_bucket_dec(struct fuse_sync_bucket *bucket)
++{
++	/* Need RCU protection to prevent use after free after the decrement */
++	rcu_read_lock();
++	if (atomic_dec_and_test(&bucket->count))
++		wake_up(&bucket->waitq);
++	rcu_read_unlock();
++}
++
+ /** Device operations */
+ extern const struct file_operations fuse_dev_operations;
+ 
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -506,6 +506,57 @@ static int fuse_statfs(struct dentry *de
+ 	return err;
+ }
+ 
++static struct fuse_sync_bucket *fuse_sync_bucket_alloc(void)
++{
++	struct fuse_sync_bucket *bucket;
++
++	bucket = kzalloc(sizeof(*bucket), GFP_KERNEL | __GFP_NOFAIL);
++	if (bucket) {
++		init_waitqueue_head(&bucket->waitq);
++		/* Initial active count */
++		atomic_set(&bucket->count, 1);
++	}
++	return bucket;
++}
++
++static void fuse_sync_fs_writes(struct fuse_conn *fc)
++{
++	struct fuse_sync_bucket *bucket, *new_bucket;
++	int count;
++
++	new_bucket = fuse_sync_bucket_alloc();
++	spin_lock(&fc->lock);
++	bucket = rcu_dereference_protected(fc->curr_bucket, 1);
++	count = atomic_read(&bucket->count);
++	WARN_ON(count < 1);
++	/* No outstanding writes? */
++	if (count == 1) {
++		spin_unlock(&fc->lock);
++		kfree(new_bucket);
++		return;
++	}
++
++	/*
++	 * Completion of new bucket depends on completion of this bucket, so add
++	 * one more count.
++	 */
++	atomic_inc(&new_bucket->count);
++	rcu_assign_pointer(fc->curr_bucket, new_bucket);
++	spin_unlock(&fc->lock);
++	/*
++	 * Drop initial active count.  At this point if all writes in this and
++	 * ancestor buckets complete, the count will go to zero and this task
++	 * will be woken up.
++	 */
++	atomic_dec(&bucket->count);
++
++	wait_event(bucket->waitq, atomic_read(&bucket->count) == 0);
++
++	/* Drop temp count on descendant bucket */
++	fuse_sync_bucket_dec(new_bucket);
++	kfree_rcu(bucket, rcu);
++}
++
+ static int fuse_sync_fs(struct super_block *sb, int wait)
+ {
+ 	struct fuse_mount *fm = get_fuse_mount_super(sb);
+@@ -528,6 +579,8 @@ static int fuse_sync_fs(struct super_blo
+ 	if (!fc->sync_fs)
+ 		return 0;
+ 
++	fuse_sync_fs_writes(fc);
++
+ 	memset(&inarg, 0, sizeof(inarg));
+ 	args.in_numargs = 1;
+ 	args.in_args[0].size = sizeof(inarg);
+@@ -763,6 +816,7 @@ void fuse_conn_put(struct fuse_conn *fc)
+ {
+ 	if (refcount_dec_and_test(&fc->count)) {
+ 		struct fuse_iqueue *fiq = &fc->iq;
++		struct fuse_sync_bucket *bucket;
+ 
+ 		if (IS_ENABLED(CONFIG_FUSE_DAX))
+ 			fuse_dax_conn_free(fc);
+@@ -770,6 +824,11 @@ void fuse_conn_put(struct fuse_conn *fc)
+ 			fiq->ops->release(fiq);
+ 		put_pid_ns(fc->pid_ns);
+ 		put_user_ns(fc->user_ns);
++		bucket = rcu_dereference_protected(fc->curr_bucket, 1);
++		if (bucket) {
++			WARN_ON(atomic_read(&bucket->count) != 1);
++			kfree(bucket);
++		}
+ 		fc->release(fc);
+ 	}
+ }
+@@ -1418,6 +1477,7 @@ int fuse_fill_super_common(struct super_
+ 	if (sb->s_flags & SB_MANDLOCK)
+ 		goto err;
+ 
++	rcu_assign_pointer(fc->curr_bucket, fuse_sync_bucket_alloc());
+ 	fuse_sb_defaults(sb);
+ 
+ 	if (ctx->is_bdev) {
 
 
