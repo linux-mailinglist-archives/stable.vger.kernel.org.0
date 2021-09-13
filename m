@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAF9B40928A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27664409562
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242631AbhIMOMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:12:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59948 "EHLO mail.kernel.org"
+        id S1344269AbhIMOlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:41:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345158AbhIMOKB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:10:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC260613DA;
-        Mon, 13 Sep 2021 13:41:48 +0000 (UTC)
+        id S1346000AbhIMOhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:37:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4446061107;
+        Mon, 13 Sep 2021 13:54:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540509;
-        bh=l/Xpl2qhOTIDjKOxOrGc8J1pvnpinX1zH4ibSLKWbPA=;
+        s=korg; t=1631541265;
+        bh=zpy0RGDunVMKz7EySM2/utbWZzo2lnmXbRiEdgmyvt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZjP73CsDfxo5qZQK1+flQntZTfDgkqXs4aBp4OwX8f4VN/4KBk/GWKoKLtSe+5FX
-         B8zItvp/cLIjc3cdBjZXiHZHBcBfh+wwrXtfZjCkGQsfeziLK6CKdquHV/O7q4DFfi
-         q02pKuK728vHPfs78J04KkBbnb9E5XQttnq79E98=
+        b=C9zK2Weu9bQEfu0iQm65dS55IShCxD+Lky8Dg8IvI7hiCEDh735v5xM2UqzQzUJwD
+         CEbadx5nuxB5Euj8AJRBH+U0u0HTM4QkOIoog4Sw/IEQIq0lThWTf2W/g2zr0+Psjy
+         bCZ2/KIM8kLkSpH4hs3LP3gyoiV4HBP9rsIhFREI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Nadezda Lutovinova <lutovinova@ispras.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 222/300] m68k: coldfire: return success for clk_enable(NULL)
+Subject: [PATCH 5.14 229/334] usb: gadget: mv_u3d: request_irq() after initializing UDC
 Date:   Mon, 13 Sep 2021 15:14:43 +0200
-Message-Id: <20210913131116.856268391@linuxfoundation.org>
+Message-Id: <20210913131121.166797850@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Nadezda Lutovinova <lutovinova@ispras.ru>
 
-[ Upstream commit f6a4f0b424df957d84fa7b9f2d02981234ff5828 ]
+[ Upstream commit 2af0c5ffadaf9d13eca28409d4238b4e672942d3 ]
 
-The clk_enable is supposed work when CONFIG_HAVE_CLK is false, but it
-returns -EINVAL.  That means some drivers fail during probe.
+If IRQ occurs between calling  request_irq() and  mv_u3d_eps_init(),
+then null pointer dereference occurs since u3d->eps[] wasn't
+initialized yet but used in mv_u3d_nuke().
 
-[    1.680000] flexcan: probe of flexcan.0 failed with error -22
+The patch puts registration of the interrupt handler after
+initializing of neccesery data.
 
-Fixes: c1fb1bf64bb6 ("m68k: let clk_enable() return immediately if clk is NULL")
-Fixes: bea8bcb12da0 ("m68knommu: Add support for the Coldfire m5441x.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+Found by Linux Driver Verification project (linuxtesting.org).
+
+Fixes: 90fccb529d24 ("usb: gadget: Gadget directory cleanup - group UDC drivers")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
+Link: https://lore.kernel.org/r/20210818141247.4794-1-lutovinova@ispras.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/coldfire/clk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/mv_u3d_core.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/arch/m68k/coldfire/clk.c b/arch/m68k/coldfire/clk.c
-index 076a9caa9557..c895a189c5ae 100644
---- a/arch/m68k/coldfire/clk.c
-+++ b/arch/m68k/coldfire/clk.c
-@@ -92,7 +92,7 @@ int clk_enable(struct clk *clk)
- 	unsigned long flags;
+diff --git a/drivers/usb/gadget/udc/mv_u3d_core.c b/drivers/usb/gadget/udc/mv_u3d_core.c
+index ce3d7a3eb7e3..a1057ddfbda3 100644
+--- a/drivers/usb/gadget/udc/mv_u3d_core.c
++++ b/drivers/usb/gadget/udc/mv_u3d_core.c
+@@ -1921,14 +1921,6 @@ static int mv_u3d_probe(struct platform_device *dev)
+ 		goto err_get_irq;
+ 	}
+ 	u3d->irq = r->start;
+-	if (request_irq(u3d->irq, mv_u3d_irq,
+-		IRQF_SHARED, driver_name, u3d)) {
+-		u3d->irq = 0;
+-		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
+-			u3d->irq);
+-		retval = -ENODEV;
+-		goto err_request_irq;
+-	}
  
- 	if (!clk)
--		return -EINVAL;
-+		return 0;
+ 	/* initialize gadget structure */
+ 	u3d->gadget.ops = &mv_u3d_ops;	/* usb_gadget_ops */
+@@ -1941,6 +1933,15 @@ static int mv_u3d_probe(struct platform_device *dev)
  
- 	spin_lock_irqsave(&clk_lock, flags);
- 	if ((clk->enabled++ == 0) && clk->clk_ops)
+ 	mv_u3d_eps_init(u3d);
+ 
++	if (request_irq(u3d->irq, mv_u3d_irq,
++		IRQF_SHARED, driver_name, u3d)) {
++		u3d->irq = 0;
++		dev_err(&dev->dev, "Request irq %d for u3d failed\n",
++			u3d->irq);
++		retval = -ENODEV;
++		goto err_request_irq;
++	}
++
+ 	/* external vbus detection */
+ 	if (u3d->vbus) {
+ 		u3d->clock_gating = 1;
+@@ -1964,8 +1965,8 @@ static int mv_u3d_probe(struct platform_device *dev)
+ 
+ err_unregister:
+ 	free_irq(u3d->irq, u3d);
+-err_request_irq:
+ err_get_irq:
++err_request_irq:
+ 	kfree(u3d->status_req);
+ err_alloc_status_req:
+ 	kfree(u3d->eps);
 -- 
 2.30.2
 
