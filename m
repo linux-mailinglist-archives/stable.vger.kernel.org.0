@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42AA140928B
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 958AC409552
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241405AbhIMOMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:12:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59954 "EHLO mail.kernel.org"
+        id S1344450AbhIMOkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:40:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345161AbhIMOKB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:10:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 001BB61A8D;
-        Mon, 13 Sep 2021 13:41:50 +0000 (UTC)
+        id S1346072AbhIMOhV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:37:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6314D619E0;
+        Mon, 13 Sep 2021 13:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540511;
-        bh=5ECr04uMPlpvpBb7Tm9dnkJ4JNKdMuFyxpGers8xvJ4=;
+        s=korg; t=1631541270;
+        bh=jtgoBIX27zlNb/u9W6fYZxseeXTsFRaB5+H2GQJiUMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RzHdJRbU8n2x5PUcujg+Txh0VicqUrhxWSD3+eziG/WPIbli3+9gadhispk9DTGd3
-         oxETVLZQEWZJfLg5i2bU9GNuwpiN+nmj6GsG+BCdBIe2waB9NRHdk5KF4H1ZJDhHXi
-         /PTtKrpN889ASt6RqWrc/bGfok30Ktm5Kp0jkYVo=
+        b=noZUH8Ppa2Gd6fgbjUQWsajArxR/YWXAlTwrpbcGWXKoghnYd2Me731c1dCs1wBHt
+         eDuRpfHixRJcYTIgj0JUxeTs85AV8utnJf2VF5/cW9WsPUlc3kfW7t/exw2fYx97hm
+         gMbYm1iXd07id7Mwu6gu03Dsr1TgcI+WThOT4iSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chih-Kang Chang <gary.chang@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 196/300] mac80211: Fix insufficient headroom issue for AMSDU
-Date:   Mon, 13 Sep 2021 15:14:17 +0200
-Message-Id: <20210913131115.998076811@linuxfoundation.org>
+Subject: [PATCH 5.14 204/334] usb: misc: brcmstb-usb-pinmap: add IRQ check
+Date:   Mon, 13 Sep 2021 15:14:18 +0200
+Message-Id: <20210913131120.309382498@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chih-Kang Chang <gary.chang@realtek.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit f50d2ff8f016b79a2ff4acd5943a1eda40c545d4 ]
+[ Upstream commit 711087f342914e831269438ff42cf59bb0142c71 ]
 
-ieee80211_amsdu_realloc_pad() fails to account for extra_tx_headroom,
-the original reserved headroom might be eaten. Add the necessary
-extra_tx_headroom.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_irq() (which takes
+*unsigned* IRQ #), causing it to fail with -EINVAL, overriding an original
+error code.  Stop calling devm_request_irq() with the invalid IRQ #s.
 
-Fixes: 6e0456b54545 ("mac80211: add A-MSDU tx support")
-Signed-off-by: Chih-Kang Chang <gary.chang@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Link: https://lore.kernel.org/r/20210816085128.10931-2-pkshih@realtek.com
-[fix indentation]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 517c4c44b323 ("usb: Add driver to allow any GPIO to be used for 7211 USB signals")
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/806d0b1a-365b-93d9-3fc1-922105ca5e61@omp.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/tx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/misc/brcmstb-usb-pinmap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/mac80211/tx.c b/net/mac80211/tx.c
-index 2651498d05e8..e61c320974ba 100644
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -3210,7 +3210,9 @@ static bool ieee80211_amsdu_prepare_head(struct ieee80211_sub_if_data *sdata,
- 	if (info->control.flags & IEEE80211_TX_CTRL_AMSDU)
- 		return true;
+diff --git a/drivers/usb/misc/brcmstb-usb-pinmap.c b/drivers/usb/misc/brcmstb-usb-pinmap.c
+index 336653091e3b..2b2019c19cde 100644
+--- a/drivers/usb/misc/brcmstb-usb-pinmap.c
++++ b/drivers/usb/misc/brcmstb-usb-pinmap.c
+@@ -293,6 +293,8 @@ static int __init brcmstb_usb_pinmap_probe(struct platform_device *pdev)
  
--	if (!ieee80211_amsdu_realloc_pad(local, skb, sizeof(*amsdu_hdr)))
-+	if (!ieee80211_amsdu_realloc_pad(local, skb,
-+					 sizeof(*amsdu_hdr) +
-+					 local->hw.extra_tx_headroom))
- 		return false;
- 
- 	data = skb_push(skb, sizeof(*amsdu_hdr));
+ 		/* Enable interrupt for out pins */
+ 		irq = platform_get_irq(pdev, 0);
++		if (irq < 0)
++			return irq;
+ 		err = devm_request_irq(&pdev->dev, irq,
+ 				       brcmstb_usb_pinmap_ovr_isr,
+ 				       IRQF_TRIGGER_RISING,
 -- 
 2.30.2
 
