@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FE3F4092E9
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15C0A40957A
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241402AbhIMOQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:16:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34312 "EHLO mail.kernel.org"
+        id S1344549AbhIMOmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:42:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245733AbhIMONE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:13:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9C0F6128C;
-        Mon, 13 Sep 2021 13:42:54 +0000 (UTC)
+        id S1346987AbhIMOkJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:40:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1CF561221;
+        Mon, 13 Sep 2021 13:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540575;
-        bh=XF0uZ/NJuhtO93oLxSrCmNBUZFUFZrktfskP+lMO9hw=;
+        s=korg; t=1631541334;
+        bh=/Q+nGGbuRQCEf4nJ+zVUPSAiTbJskpr6+hRJit8n4qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h6HXxUBVZaKb1ANWkhOGqhYpjLWUmYL6WXtDjEPuV+2fKKg3uz9ScJ9T0ENOaYJfQ
-         50q74sQqmWAYVxctsFSYAvi2tTM2CLsfTudB+4+juIdjZgZNTwhg6za+FFkxctrXgK
-         xHTzA/lW9C/pB755jFjqxD/AoRnMcpB2mU0CO0TM=
+        b=KGyXJ9WPz488BBr7COphtnlT3egrwnZIxtBpNJOzWmWbbyzTDE837HyhwhlUvL11H
+         eDIy+1yR49N60Ds6TvbDtT28KB3DF8JFVRayyajqqiCI5zoZeyydH0i0Hf0zzCLTBT
+         yyrcBDEjG1YGE28XhCLfv2End5Uwn1AtnRXZqQ/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudarsana Reddy Kalluru <skalluru@marvell.com>,
-        Igor Russkikh <irusskikh@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Len Baker <len.baker@gmx.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Jeff Layton <jlayton@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 249/300] atlantic: Fix driver resume flow.
+Subject: [PATCH 5.14 256/334] CIFS: Fix a potencially linear read overflow
 Date:   Mon, 13 Sep 2021 15:15:10 +0200
-Message-Id: <20210913131117.763001058@linuxfoundation.org>
+Message-Id: <20210913131122.066861338@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudarsana Reddy Kalluru <skalluru@marvell.com>
+From: Len Baker <len.baker@gmx.com>
 
-[ Upstream commit 57f780f1c43362b86fd23d20bd940e2468237716 ]
+[ Upstream commit f980d055a0f858d73d9467bb0b570721bbfcdfb8 ]
 
-Driver crashes when restoring from the Hibernate. In the resume flow,
-driver need to clean up the older nic/vec objects and re-initialize them.
+strlcpy() reads the entire source buffer first. This read may exceed the
+destination size limit. This is both inefficient and can lead to linear
+read overflows if a source string is not NUL-terminated.
 
-Fixes: 8aaa112a57c1d ("net: atlantic: refactoring pm logic")
-Signed-off-by: Sudarsana Reddy Kalluru <skalluru@marvell.com>
-Signed-off-by: Igor Russkikh <irusskikh@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Also, the strnlen() call does not avoid the read overflow in the strlcpy
+function when a not NUL-terminated string is passed.
+
+So, replace this block by a call to kstrndup() that avoids this type of
+overflow and does the same.
+
+Fixes: 066ce6899484d ("cifs: rename cifs_strlcpy_to_host and make it use new functions")
+Signed-off-by: Len Baker <len.baker@gmx.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/cifs/cifs_unicode.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-index 59253846e885..f26d03735619 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-@@ -417,6 +417,9 @@ static int atl_resume_common(struct device *dev, bool deep)
- 	pci_restore_state(pdev);
+diff --git a/fs/cifs/cifs_unicode.c b/fs/cifs/cifs_unicode.c
+index 9bd03a231032..171ad8b42107 100644
+--- a/fs/cifs/cifs_unicode.c
++++ b/fs/cifs/cifs_unicode.c
+@@ -358,14 +358,9 @@ cifs_strndup_from_utf16(const char *src, const int maxlen,
+ 		if (!dst)
+ 			return NULL;
+ 		cifs_from_utf16(dst, (__le16 *) src, len, maxlen, codepage,
+-			       NO_MAP_UNI_RSVD);
++				NO_MAP_UNI_RSVD);
+ 	} else {
+-		len = strnlen(src, maxlen);
+-		len++;
+-		dst = kmalloc(len, GFP_KERNEL);
+-		if (!dst)
+-			return NULL;
+-		strlcpy(dst, src, len);
++		dst = kstrndup(src, maxlen, GFP_KERNEL);
+ 	}
  
- 	if (deep) {
-+		/* Reinitialize Nic/Vecs objects */
-+		aq_nic_deinit(nic, !nic->aq_hw->aq_nic_cfg->wol);
-+
- 		ret = aq_nic_init(nic);
- 		if (ret)
- 			goto err_exit;
+ 	return dst;
 -- 
 2.30.2
 
