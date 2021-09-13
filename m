@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7962D409106
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:57:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D82408EA9
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245661AbhIMN5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:57:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
+        id S241464AbhIMNgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:36:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343571AbhIMNzl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:55:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1956619F8;
-        Mon, 13 Sep 2021 13:35:43 +0000 (UTC)
+        id S242515AbhIMN3i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:29:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6E9C6135D;
+        Mon, 13 Sep 2021 13:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540144;
-        bh=MCmmZzKIb1SVr3uB1RR1VG1U5yuv75ou2xI1Lo7vArQ=;
+        s=korg; t=1631539463;
+        bh=YLhKSZ0JPr9HYlxFpsIuYofNm0A4SrGlvtAQ7ycM1Fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Kj8CkaHdn+JQHIv/uz059t8Q67Wg6af3h5SBCek4AXn0uSWXHs2gvB5knTEQo7tA
-         Zbepg6fF1fTkiKrD6i+pOnR80S4hGVuape+Alfu+3iqOhLfmVEBrNVkkn3UBlRKaW7
-         I/RUxVNGw7BNVZorw4nG4KqMnpybdDq5EOZ+c6+w=
+        b=PSZcW3cShDlUUnHoIySg+H7286hvfy2gAn9uhHcJW8UH0WkKHhRxakLWqZkohy8Sr
+         ZTwTRzyWET35sdxQY7ceaZm880EBzQhKSbimHb9Ge5n5eItf0omvLbNswA2Am33sI0
+         JUTUB9GgGcO9d423NqXvshnJHXrCD8nhz4PeGuO0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nayna Jain <nayna@linux.ibm.com>,
-        George Wilson <gcwilson@linux.ibm.com>,
-        Nageswara R Sastry <rnsastry@linux.ibm.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        stable@vger.kernel.org, Ben Hutchings <ben.hutchings@mind.be>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 070/300] tpm: ibmvtpm: Avoid error message when process gets signal while waiting
-Date:   Mon, 13 Sep 2021 15:12:11 +0200
-Message-Id: <20210913131111.720666960@linuxfoundation.org>
+Subject: [PATCH 5.10 027/236] crypto: omap - Fix inconsistent locking of device lists
+Date:   Mon, 13 Sep 2021 15:12:12 +0200
+Message-Id: <20210913131101.274193933@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,149 +40,201 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Ben Hutchings <ben.hutchings@mind.be>
 
-[ Upstream commit 047d4226b0bca1cda5267dc68bc8291cce5364ac ]
+[ Upstream commit fe4d55773b879c785ae61da9b1c2160f0110f67e ]
 
-When rngd is run as root then lots of these types of message will appear
-in the kernel log if the TPM has been configured to provide random bytes:
+lockdep complains that in omap-aes, the list_lock is taken both with
+softirqs enabled at probe time, and also in softirq context, which
+could lead to a deadlock:
 
-[ 7406.275163] tpm tpm0: tpm_transmit: tpm_recv: error -4
+    ================================
+    WARNING: inconsistent lock state
+    5.14.0-rc1-00035-gc836005b01c5-dirty #69 Not tainted
+    --------------------------------
+    inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
+    ksoftirqd/0/7 [HC0[0]:SC1[3]:HE1:SE0] takes:
+    bf00e014 (list_lock){+.?.}-{2:2}, at: omap_aes_find_dev+0x18/0x54 [omap_aes_driver]
+    {SOFTIRQ-ON-W} state was registered at:
+      _raw_spin_lock+0x40/0x50
+      omap_aes_probe+0x1d4/0x664 [omap_aes_driver]
+      platform_probe+0x58/0xb8
+      really_probe+0xbc/0x314
+      __driver_probe_device+0x80/0xe4
+      driver_probe_device+0x30/0xc8
+      __driver_attach+0x70/0xf4
+      bus_for_each_dev+0x70/0xb4
+      bus_add_driver+0xf0/0x1d4
+      driver_register+0x74/0x108
+      do_one_initcall+0x84/0x2e4
+      do_init_module+0x5c/0x240
+      load_module+0x221c/0x2584
+      sys_finit_module+0xb0/0xec
+      ret_fast_syscall+0x0/0x2c
+      0xbed90b30
+    irq event stamp: 111800
+    hardirqs last  enabled at (111800): [<c02a21e4>] __kmalloc+0x484/0x5ec
+    hardirqs last disabled at (111799): [<c02a21f0>] __kmalloc+0x490/0x5ec
+    softirqs last  enabled at (111776): [<c01015f0>] __do_softirq+0x2b8/0x4d0
+    softirqs last disabled at (111781): [<c0135948>] run_ksoftirqd+0x34/0x50
 
-The issue is caused by the following call that is interrupted while
-waiting for the TPM's response.
+    other info that might help us debug this:
+     Possible unsafe locking scenario:
 
-sig = wait_event_interruptible(ibmvtpm->wq, !ibmvtpm->tpm_processing_cmd);
+           CPU0
+           ----
+      lock(list_lock);
+      <Interrupt>
+        lock(list_lock);
 
-Rather than waiting for the response in the low level driver, have it use
-the polling loop in tpm_try_transmit() that uses a command's duration to
-poll until a result has been returned by the TPM, thus ending when the
-timeout has occurred but not responding to signals and ctrl-c anymore. To
-stay in this polling loop extend tpm_ibmvtpm_status() to return
-'true' for as long as the vTPM is indicated as being busy in
-tpm_processing_cmd. Since the loop requires the TPM's timeouts, get them
-now using tpm_get_timeouts() after setting the TPM2 version flag on the
-chip.
+     *** DEADLOCK ***
 
-To recreat the resolved issue start rngd like this:
+    2 locks held by ksoftirqd/0/7:
+     #0: c0f5e8c8 (rcu_read_lock){....}-{1:2}, at: netif_receive_skb+0x6c/0x260
+     #1: c0f5e8c8 (rcu_read_lock){....}-{1:2}, at: ip_local_deliver_finish+0x2c/0xdc
 
-sudo rngd -r /dev/hwrng -t
-sudo rngd -r /dev/tpm0 -t
+    stack backtrace:
+    CPU: 0 PID: 7 Comm: ksoftirqd/0 Not tainted 5.14.0-rc1-00035-gc836005b01c5-dirty #69
+    Hardware name: Generic AM43 (Flattened Device Tree)
+    [<c010e6e0>] (unwind_backtrace) from [<c010b9d0>] (show_stack+0x10/0x14)
+    [<c010b9d0>] (show_stack) from [<c017c640>] (mark_lock.part.17+0x5bc/0xd04)
+    [<c017c640>] (mark_lock.part.17) from [<c017d9e4>] (__lock_acquire+0x960/0x2fa4)
+    [<c017d9e4>] (__lock_acquire) from [<c0180980>] (lock_acquire+0x10c/0x358)
+    [<c0180980>] (lock_acquire) from [<c093d324>] (_raw_spin_lock_bh+0x44/0x58)
+    [<c093d324>] (_raw_spin_lock_bh) from [<bf00b258>] (omap_aes_find_dev+0x18/0x54 [omap_aes_driver])
+    [<bf00b258>] (omap_aes_find_dev [omap_aes_driver]) from [<bf00b328>] (omap_aes_crypt+0x94/0xd4 [omap_aes_driver])
+    [<bf00b328>] (omap_aes_crypt [omap_aes_driver]) from [<c08ac6d0>] (esp_input+0x1b0/0x2c8)
+    [<c08ac6d0>] (esp_input) from [<c08c9e90>] (xfrm_input+0x410/0x1290)
+    [<c08c9e90>] (xfrm_input) from [<c08b6374>] (xfrm4_esp_rcv+0x54/0x11c)
+    [<c08b6374>] (xfrm4_esp_rcv) from [<c0838840>] (ip_protocol_deliver_rcu+0x48/0x3bc)
+    [<c0838840>] (ip_protocol_deliver_rcu) from [<c0838c50>] (ip_local_deliver_finish+0x9c/0xdc)
+    [<c0838c50>] (ip_local_deliver_finish) from [<c0838dd8>] (ip_local_deliver+0x148/0x1b0)
+    [<c0838dd8>] (ip_local_deliver) from [<c0838f5c>] (ip_rcv+0x11c/0x180)
+    [<c0838f5c>] (ip_rcv) from [<c077e3a4>] (__netif_receive_skb_one_core+0x54/0x74)
+    [<c077e3a4>] (__netif_receive_skb_one_core) from [<c077e588>] (netif_receive_skb+0xa8/0x260)
+    [<c077e588>] (netif_receive_skb) from [<c068d6d4>] (cpsw_rx_handler+0x224/0x2fc)
+    [<c068d6d4>] (cpsw_rx_handler) from [<c0688ccc>] (__cpdma_chan_process+0xf4/0x188)
+    [<c0688ccc>] (__cpdma_chan_process) from [<c068a0c0>] (cpdma_chan_process+0x3c/0x5c)
+    [<c068a0c0>] (cpdma_chan_process) from [<c0690e14>] (cpsw_rx_mq_poll+0x44/0x98)
+    [<c0690e14>] (cpsw_rx_mq_poll) from [<c0780810>] (__napi_poll+0x28/0x268)
+    [<c0780810>] (__napi_poll) from [<c0780c64>] (net_rx_action+0xcc/0x204)
+    [<c0780c64>] (net_rx_action) from [<c0101478>] (__do_softirq+0x140/0x4d0)
+    [<c0101478>] (__do_softirq) from [<c0135948>] (run_ksoftirqd+0x34/0x50)
+    [<c0135948>] (run_ksoftirqd) from [<c01583b8>] (smpboot_thread_fn+0xf4/0x1d8)
+    [<c01583b8>] (smpboot_thread_fn) from [<c01546dc>] (kthread+0x14c/0x174)
+    [<c01546dc>] (kthread) from [<c010013c>] (ret_from_fork+0x14/0x38)
+    ...
 
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1981473
-Fixes: 6674ff145eef ("tpm_ibmvtpm: properly handle interrupted packet receptions")
-Cc: Nayna Jain <nayna@linux.ibm.com>
-Cc: George Wilson <gcwilson@linux.ibm.com>
-Reported-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+The omap-des and omap-sham drivers appear to have a similar issue.
+
+Fix this by using spin_{,un}lock_bh() around device list access in all
+the probe and remove functions.
+
+Signed-off-by: Ben Hutchings <ben.hutchings@mind.be>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c | 26 +++++++++++++++-----------
- drivers/char/tpm/tpm_ibmvtpm.h |  2 +-
- 2 files changed, 16 insertions(+), 12 deletions(-)
+ drivers/crypto/omap-aes.c  |  8 ++++----
+ drivers/crypto/omap-des.c  |  8 ++++----
+ drivers/crypto/omap-sham.c | 12 ++++++------
+ 3 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
-index 903604769de9..3af4c07a9342 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -106,17 +106,12 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
- {
- 	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
- 	u16 len;
--	int sig;
+diff --git a/drivers/crypto/omap-aes.c b/drivers/crypto/omap-aes.c
+index 0dd4c6b157de..9b968ac4ee7b 100644
+--- a/drivers/crypto/omap-aes.c
++++ b/drivers/crypto/omap-aes.c
+@@ -1175,9 +1175,9 @@ static int omap_aes_probe(struct platform_device *pdev)
+ 	spin_lock_init(&dd->lock);
  
- 	if (!ibmvtpm->rtce_buf) {
- 		dev_err(ibmvtpm->dev, "ibmvtpm device is not ready\n");
- 		return 0;
- 	}
+ 	INIT_LIST_HEAD(&dd->list);
+-	spin_lock(&list_lock);
++	spin_lock_bh(&list_lock);
+ 	list_add_tail(&dd->list, &dev_list);
+-	spin_unlock(&list_lock);
++	spin_unlock_bh(&list_lock);
  
--	sig = wait_event_interruptible(ibmvtpm->wq, !ibmvtpm->tpm_processing_cmd);
--	if (sig)
--		return -EINTR;
--
- 	len = ibmvtpm->res_len;
+ 	/* Initialize crypto engine */
+ 	dd->engine = crypto_engine_alloc_init(dev, 1);
+@@ -1264,9 +1264,9 @@ static int omap_aes_remove(struct platform_device *pdev)
+ 	if (!dd)
+ 		return -ENODEV;
  
- 	if (count < len) {
-@@ -237,7 +232,7 @@ static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
- 	 * set the processing flag before the Hcall, since we may get the
- 	 * result (interrupt) before even being able to check rc.
- 	 */
--	ibmvtpm->tpm_processing_cmd = true;
-+	ibmvtpm->tpm_processing_cmd = 1;
+-	spin_lock(&list_lock);
++	spin_lock_bh(&list_lock);
+ 	list_del(&dd->list);
+-	spin_unlock(&list_lock);
++	spin_unlock_bh(&list_lock);
  
- again:
- 	rc = ibmvtpm_send_crq(ibmvtpm->vdev,
-@@ -255,7 +250,7 @@ again:
- 			goto again;
- 		}
- 		dev_err(ibmvtpm->dev, "tpm_ibmvtpm_send failed rc=%d\n", rc);
--		ibmvtpm->tpm_processing_cmd = false;
-+		ibmvtpm->tpm_processing_cmd = 0;
- 	}
+ 	for (i = dd->pdata->algs_info_size - 1; i >= 0; i--)
+ 		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--) {
+diff --git a/drivers/crypto/omap-des.c b/drivers/crypto/omap-des.c
+index c9d38bcfd1c7..7fdf38e07adf 100644
+--- a/drivers/crypto/omap-des.c
++++ b/drivers/crypto/omap-des.c
+@@ -1035,9 +1035,9 @@ static int omap_des_probe(struct platform_device *pdev)
  
- 	spin_unlock(&ibmvtpm->rtce_lock);
-@@ -269,7 +264,9 @@ static void tpm_ibmvtpm_cancel(struct tpm_chip *chip)
  
- static u8 tpm_ibmvtpm_status(struct tpm_chip *chip)
- {
--	return 0;
-+	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
-+
-+	return ibmvtpm->tpm_processing_cmd;
- }
+ 	INIT_LIST_HEAD(&dd->list);
+-	spin_lock(&list_lock);
++	spin_lock_bh(&list_lock);
+ 	list_add_tail(&dd->list, &dev_list);
+-	spin_unlock(&list_lock);
++	spin_unlock_bh(&list_lock);
  
- /**
-@@ -457,7 +454,7 @@ static const struct tpm_class_ops tpm_ibmvtpm = {
- 	.send = tpm_ibmvtpm_send,
- 	.cancel = tpm_ibmvtpm_cancel,
- 	.status = tpm_ibmvtpm_status,
--	.req_complete_mask = 0,
-+	.req_complete_mask = 1,
- 	.req_complete_val = 0,
- 	.req_canceled = tpm_ibmvtpm_req_canceled,
- };
-@@ -550,7 +547,7 @@ static void ibmvtpm_crq_process(struct ibmvtpm_crq *crq,
- 		case VTPM_TPM_COMMAND_RES:
- 			/* len of the data in rtce buffer */
- 			ibmvtpm->res_len = be16_to_cpu(crq->len);
--			ibmvtpm->tpm_processing_cmd = false;
-+			ibmvtpm->tpm_processing_cmd = 0;
- 			wake_up_interruptible(&ibmvtpm->wq);
- 			return;
- 		default:
-@@ -688,8 +685,15 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
- 		goto init_irq_cleanup;
- 	}
+ 	/* Initialize des crypto engine */
+ 	dd->engine = crypto_engine_alloc_init(dev, 1);
+@@ -1096,9 +1096,9 @@ static int omap_des_remove(struct platform_device *pdev)
+ 	if (!dd)
+ 		return -ENODEV;
  
--	if (!strcmp(id->compat, "IBM,vtpm20")) {
-+
-+	if (!strcmp(id->compat, "IBM,vtpm20"))
- 		chip->flags |= TPM_CHIP_FLAG_TPM2;
-+
-+	rc = tpm_get_timeouts(chip);
-+	if (rc)
-+		goto init_irq_cleanup;
-+
-+	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
- 		rc = tpm2_get_cc_attrs_tbl(chip);
- 		if (rc)
- 			goto init_irq_cleanup;
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
-index b92aa7d3e93e..51198b137461 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.h
-+++ b/drivers/char/tpm/tpm_ibmvtpm.h
-@@ -41,7 +41,7 @@ struct ibmvtpm_dev {
- 	wait_queue_head_t wq;
- 	u16 res_len;
- 	u32 vtpm_version;
--	bool tpm_processing_cmd;
-+	u8 tpm_processing_cmd;
- };
+-	spin_lock(&list_lock);
++	spin_lock_bh(&list_lock);
+ 	list_del(&dd->list);
+-	spin_unlock(&list_lock);
++	spin_unlock_bh(&list_lock);
  
- #define CRQ_RES_BUF_SIZE	PAGE_SIZE
+ 	for (i = dd->pdata->algs_info_size - 1; i >= 0; i--)
+ 		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--)
+diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
+index f6a8ae8a18c2..48f78e34cf8d 100644
+--- a/drivers/crypto/omap-sham.c
++++ b/drivers/crypto/omap-sham.c
+@@ -2143,9 +2143,9 @@ static int omap_sham_probe(struct platform_device *pdev)
+ 		(rev & dd->pdata->major_mask) >> dd->pdata->major_shift,
+ 		(rev & dd->pdata->minor_mask) >> dd->pdata->minor_shift);
+ 
+-	spin_lock(&sham.lock);
++	spin_lock_bh(&sham.lock);
+ 	list_add_tail(&dd->list, &sham.dev_list);
+-	spin_unlock(&sham.lock);
++	spin_unlock_bh(&sham.lock);
+ 
+ 	dd->engine = crypto_engine_alloc_init(dev, 1);
+ 	if (!dd->engine) {
+@@ -2193,9 +2193,9 @@ err_algs:
+ err_engine_start:
+ 	crypto_engine_exit(dd->engine);
+ err_engine:
+-	spin_lock(&sham.lock);
++	spin_lock_bh(&sham.lock);
+ 	list_del(&dd->list);
+-	spin_unlock(&sham.lock);
++	spin_unlock_bh(&sham.lock);
+ err_pm:
+ 	pm_runtime_disable(dev);
+ 	if (!dd->polling_mode)
+@@ -2214,9 +2214,9 @@ static int omap_sham_remove(struct platform_device *pdev)
+ 	dd = platform_get_drvdata(pdev);
+ 	if (!dd)
+ 		return -ENODEV;
+-	spin_lock(&sham.lock);
++	spin_lock_bh(&sham.lock);
+ 	list_del(&dd->list);
+-	spin_unlock(&sham.lock);
++	spin_unlock_bh(&sham.lock);
+ 	for (i = dd->pdata->algs_info_size - 1; i >= 0; i--)
+ 		for (j = dd->pdata->algs_info[i].registered - 1; j >= 0; j--) {
+ 			crypto_unregister_ahash(
 -- 
 2.30.2
 
