@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F9EA408F24
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD3F9408CC1
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:20:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241705AbhIMNkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:40:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37648 "EHLO mail.kernel.org"
+        id S240658AbhIMNVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241312AbhIMNiR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:38:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76475610A3;
-        Mon, 13 Sep 2021 13:28:11 +0000 (UTC)
+        id S240351AbhIMNU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:20:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B14F60698;
+        Mon, 13 Sep 2021 13:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539691;
-        bh=AUAOhTPFuebkOjhrDueU01s6CvNvMJpixVeNc8usw/c=;
+        s=korg; t=1631539114;
+        bh=CS8+VcMOYQjXehMLMNKCWfwJBXllx38Yv8JbyfhpRwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qw6P+hhAOxPdfbLKb7yckr0k5KrN2ewXtTDQJwNrmEzjWzf+bg5nmBkYTQoIXWEx+
-         7BnWTdOeWduOX5o/tayuYIOqVtOYVK5ArN5HAEp/sCJ3M8vi25caV3jkAps8yoy2yl
-         JMISfZR8MDBXqY2bo5oC0+DwWAbwOH9wNDKx/w5Q=
+        b=OEC6haAMfWqZWl3GoePUDkqTVxT6hERg6d3u3lVpKnvsOayaDbCvQD0tG0XTRVPFD
+         DG0eMg6KIXduKXjhdnbCEEbHyDYF1ry6kfreRUHAbYNzRmVSgm6WWlDuAaGEmet/3M
+         qt6gnIgjDsv1ycF669SVAkDV2BomYrvB+e0+UMl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 122/236] leds: trigger: audio: Add an activate callback to ensure the initial brightness is set
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Steven Price <steven.price@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 046/144] drm/panfrost: Fix missing clk_disable_unprepare() on error in panfrost_clk_init()
 Date:   Mon, 13 Sep 2021 15:13:47 +0200
-Message-Id: <20210913131104.504756313@linuxfoundation.org>
+Message-Id: <20210913131049.484390574@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,122 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 64f67b5240db79eceb0bd57dae8e591fd3103ba0 ]
+[ Upstream commit f42498705965bd4b026953c1892c686d8b1138e4 ]
 
-Some 2-in-1s with a detachable (USB) keyboard(dock) have mute-LEDs in
-the speaker- and/or mic-mute keys on the keyboard.
+Fix the missing clk_disable_unprepare() before return
+from panfrost_clk_init() in the error handling case.
 
-Examples of this are the Lenovo Thinkpad10 tablet (with its USB kbd-dock)
-and the HP x2 10 series.
-
-The detachable nature of these keyboards means that the keyboard and
-thus the mute LEDs may show up after the user (or userspace restoring
-old mixer settings) has muted the speaker and/or mic.
-
-Current LED-class devices with a default_trigger of "audio-mute" or
-"audio-micmute" initialize the brightness member of led_classdev with
-ledtrig_audio_get() before registering the LED.
-
-This makes the software state after attaching the keyboard match the
-actual audio mute state, e.g. cat /sys/class/leds/foo/brightness will
-show the right value.
-
-But before this commit nothing was actually calling the led_classdev's
-brightness_set[_blocking] callback so the value returned by
-ledtrig_audio_get() was never actually being sent to the hw, leading
-to the mute LEDs staying in their default power-on state, after
-attaching the keyboard, even if ledtrig_audio_get() returned a different
-state.
-
-This could be fixed by having the individual LED drivers call
-brightness_set[_blocking] themselves after registering the LED,
-but this really is something which should be done by a led-trigger
-activate callback.
-
-Add an activate callback for this, fixing the issue of the
-mute LEDs being out of sync after (re)attaching the keyboard.
-
-Cc: Takashi Iwai <tiwai@suse.de>
-Fixes: faa2541f5b1a ("leds: trigger: Introduce audio mute LED trigger")
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: b681af0bc1cc ("drm: panfrost: add optional bus_clock")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210608143856.4154766-1-weiyongjun1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/trigger/ledtrig-audio.c | 37 ++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_device.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/leds/trigger/ledtrig-audio.c b/drivers/leds/trigger/ledtrig-audio.c
-index f76621e88482..c6b437e6369b 100644
---- a/drivers/leds/trigger/ledtrig-audio.c
-+++ b/drivers/leds/trigger/ledtrig-audio.c
-@@ -6,10 +6,33 @@
- #include <linux/kernel.h>
- #include <linux/leds.h>
- #include <linux/module.h>
-+#include "../leds.h"
+diff --git a/drivers/gpu/drm/panfrost/panfrost_device.c b/drivers/gpu/drm/panfrost/panfrost_device.c
+index 238fb6d54df4..413bf314a2bc 100644
+--- a/drivers/gpu/drm/panfrost/panfrost_device.c
++++ b/drivers/gpu/drm/panfrost/panfrost_device.c
+@@ -59,7 +59,8 @@ static int panfrost_clk_init(struct panfrost_device *pfdev)
+ 	if (IS_ERR(pfdev->bus_clock)) {
+ 		dev_err(pfdev->dev, "get bus_clock failed %ld\n",
+ 			PTR_ERR(pfdev->bus_clock));
+-		return PTR_ERR(pfdev->bus_clock);
++		err = PTR_ERR(pfdev->bus_clock);
++		goto disable_clock;
+ 	}
  
--static struct led_trigger *ledtrig_audio[NUM_AUDIO_LEDS];
- static enum led_brightness audio_state[NUM_AUDIO_LEDS];
- 
-+static int ledtrig_audio_mute_activate(struct led_classdev *led_cdev)
-+{
-+	led_set_brightness_nosleep(led_cdev, audio_state[LED_AUDIO_MUTE]);
-+	return 0;
-+}
-+
-+static int ledtrig_audio_micmute_activate(struct led_classdev *led_cdev)
-+{
-+	led_set_brightness_nosleep(led_cdev, audio_state[LED_AUDIO_MICMUTE]);
-+	return 0;
-+}
-+
-+static struct led_trigger ledtrig_audio[NUM_AUDIO_LEDS] = {
-+	[LED_AUDIO_MUTE] = {
-+		.name     = "audio-mute",
-+		.activate = ledtrig_audio_mute_activate,
-+	},
-+	[LED_AUDIO_MICMUTE] = {
-+		.name     = "audio-micmute",
-+		.activate = ledtrig_audio_micmute_activate,
-+	},
-+};
-+
- enum led_brightness ledtrig_audio_get(enum led_audio type)
- {
- 	return audio_state[type];
-@@ -19,24 +42,22 @@ EXPORT_SYMBOL_GPL(ledtrig_audio_get);
- void ledtrig_audio_set(enum led_audio type, enum led_brightness state)
- {
- 	audio_state[type] = state;
--	led_trigger_event(ledtrig_audio[type], state);
-+	led_trigger_event(&ledtrig_audio[type], state);
- }
- EXPORT_SYMBOL_GPL(ledtrig_audio_set);
- 
- static int __init ledtrig_audio_init(void)
- {
--	led_trigger_register_simple("audio-mute",
--				    &ledtrig_audio[LED_AUDIO_MUTE]);
--	led_trigger_register_simple("audio-micmute",
--				    &ledtrig_audio[LED_AUDIO_MICMUTE]);
-+	led_trigger_register(&ledtrig_audio[LED_AUDIO_MUTE]);
-+	led_trigger_register(&ledtrig_audio[LED_AUDIO_MICMUTE]);
- 	return 0;
- }
- module_init(ledtrig_audio_init);
- 
- static void __exit ledtrig_audio_exit(void)
- {
--	led_trigger_unregister_simple(ledtrig_audio[LED_AUDIO_MUTE]);
--	led_trigger_unregister_simple(ledtrig_audio[LED_AUDIO_MICMUTE]);
-+	led_trigger_unregister(&ledtrig_audio[LED_AUDIO_MUTE]);
-+	led_trigger_unregister(&ledtrig_audio[LED_AUDIO_MICMUTE]);
- }
- module_exit(ledtrig_audio_exit);
- 
+ 	if (pfdev->bus_clock) {
 -- 
 2.30.2
 
