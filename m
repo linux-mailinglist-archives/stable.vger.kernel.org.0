@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1B4B408FE5
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:47:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D512F408D9B
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:26:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241594AbhIMNrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:47:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50740 "EHLO mail.kernel.org"
+        id S242172AbhIMN1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:27:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244291AbhIMNpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:45:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F32660F25;
-        Mon, 13 Sep 2021 13:31:41 +0000 (UTC)
+        id S241788AbhIMNZr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:25:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1124961245;
+        Mon, 13 Sep 2021 13:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539902;
-        bh=Fawx4chld2JZpyvMRE7kMDYjf/jNi1OZy/CJ95maXLw=;
+        s=korg; t=1631539337;
+        bh=M7lW8MN/Yk8J8SPE07C8mUaa2zron97xhjwC8Grnxi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcHU9m5TV+hOOl7aakDXmMKyaOZsH8c7l8pqadRbOMl3LGvM1BSuFMDnAaq/11Hpz
-         1UxF3SCJVXTOrDYuAzGSESE0p3vZdkAvDltrR1GwLO6ygKBA+lKmgYOhtGUmV1Plms
-         efpd3hLVXr7/VRBVHU+lDuV2gMWNe5AVGw7Lo6t8=
+        b=qKMILIbS97tewENio1VY9H1dQc8QNu/xDUzkpplMdftBn+aoozVAecfmR62W3W/Dc
+         TjJaQWLaLsfS5yLQaLUf6rbvLXFjka/k3WCbkPP5GzgPoCGDVEwHrq7RA0im5RQgn0
+         hNrW2nSZuBDq5ygqZW7q798ILtfHRpnay1SIgdK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Kevin Mitchell <kevmitch@arista.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 174/236] lkdtm: replace SCSI_DISPATCH_CMD with SCSI_QUEUE_RQ
-Date:   Mon, 13 Sep 2021 15:14:39 +0200
-Message-Id: <20210913131106.292460294@linuxfoundation.org>
+        stable@vger.kernel.org, Gang Deng <gavin.dg@linux.alibaba.com>,
+        Xu Yu <xuyu@linux.alibaba.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 099/144] mm/swap: consider max pages in iomap_swapfile_add_extent
+Date:   Mon, 13 Sep 2021 15:14:40 +0200
+Message-Id: <20210913131051.249700169@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +41,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Mitchell <kevmitch@arista.com>
+From: Xu Yu <xuyu@linux.alibaba.com>
 
-[ Upstream commit d1f278da6b11585f05b2755adfc8851cbf14a1ec ]
+[ Upstream commit 36ca7943ac18aebf8aad4c50829eb2ea5ec847df ]
 
-When scsi_dispatch_cmd was moved to scsi_lib.c and made static, some
-compilers (i.e., at least gcc 8.4.0) decided to compile this
-inline. This is a problem for lkdtm.ko, which inserted a kprobe
-on this function for the SCSI_DISPATCH_CMD crashpoint.
+When the max pages (last_page in the swap header + 1) is smaller than
+the total pages (inode size) of the swapfile, iomap_swapfile_activate
+overwrites sis->max with total pages.
 
-Move this crashpoint one function up the call chain to
-scsi_queue_rq. Though this is also a static function, it should never be
-inlined because it is assigned as a structure entry. Therefore,
-kprobe_register should always be able to find it.
+However, frontswap_map is a swap page state bitmap allocated using the
+initial sis->max page count read from the swap header.  If swapfile
+activation increases sis->max, it's possible for the frontswap code to
+walk off the end of the bitmap, thereby corrupting kernel memory.
 
-Fixes: 82042a2cdb55 ("scsi: move scsi_dispatch_cmd to scsi_lib.c")
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
-Link: https://lore.kernel.org/r/20210819022940.561875-2-kevmitch@arista.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[djwong: modify the description a bit; the original paragraph reads:
+
+"However, frontswap_map is allocated using max pages. When test and clear
+the sis offset, which is larger than max pages, of frontswap_map in
+__frontswap_invalidate_page(), neighbors of frontswap_map may be
+overwritten, i.e., slab is polluted."
+
+Note also that this bug resulted in a behavioral change: activating a
+swap file that was formatted and later extended results in all pages
+being activated, not the number of pages recorded in the swap header.]
+
+This fixes the issue by considering the limitation of max pages of swap
+info in iomap_swapfile_add_extent().
+
+To reproduce the case, compile kernel with slub RED ZONE, then run test:
+$ sudo stress-ng -a 1 -x softlockup,resources -t 72h --metrics --times \
+ --verify -v -Y /root/tmpdir/stress-ng/stress-statistic-12.yaml \
+ --log-file /root/tmpdir/stress-ng/stress-logfile-12.txt \
+ --temp-path /root/tmpdir/stress-ng/
+
+We'll get the error log as below:
+
+[ 1151.015141] =============================================================================
+[ 1151.016489] BUG kmalloc-16 (Not tainted): Right Redzone overwritten
+[ 1151.017486] -----------------------------------------------------------------------------
+[ 1151.017486]
+[ 1151.018997] Disabling lock debugging due to kernel taint
+[ 1151.019873] INFO: 0x0000000084e43932-0x0000000098d17cae @offset=7392. First byte 0x0 instead of 0xcc
+[ 1151.021303] INFO: Allocated in __do_sys_swapon+0xcf6/0x1170 age=43417 cpu=9 pid=3816
+[ 1151.022538]  __slab_alloc+0xe/0x20
+[ 1151.023069]  __kmalloc_node+0xfd/0x4b0
+[ 1151.023704]  __do_sys_swapon+0xcf6/0x1170
+[ 1151.024346]  do_syscall_64+0x33/0x40
+[ 1151.024925]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[ 1151.025749] INFO: Freed in put_cred_rcu+0xa1/0xc0 age=43424 cpu=3 pid=2041
+[ 1151.026889]  kfree+0x276/0x2b0
+[ 1151.027405]  put_cred_rcu+0xa1/0xc0
+[ 1151.027949]  rcu_do_batch+0x17d/0x410
+[ 1151.028566]  rcu_core+0x14e/0x2b0
+[ 1151.029084]  __do_softirq+0x101/0x29e
+[ 1151.029645]  asm_call_irq_on_stack+0x12/0x20
+[ 1151.030381]  do_softirq_own_stack+0x37/0x40
+[ 1151.031037]  do_softirq.part.15+0x2b/0x30
+[ 1151.031710]  __local_bh_enable_ip+0x4b/0x50
+[ 1151.032412]  copy_fpstate_to_sigframe+0x111/0x360
+[ 1151.033197]  __setup_rt_frame+0xce/0x480
+[ 1151.033809]  arch_do_signal+0x1a3/0x250
+[ 1151.034463]  exit_to_user_mode_prepare+0xcf/0x110
+[ 1151.035242]  syscall_exit_to_user_mode+0x27/0x190
+[ 1151.035970]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[ 1151.036795] INFO: Slab 0x000000003b9de4dc objects=44 used=9 fp=0x00000000539e349e flags=0xfffffc0010201
+[ 1151.038323] INFO: Object 0x000000004855ba01 @offset=7376 fp=0x0000000000000000
+[ 1151.038323]
+[ 1151.039683] Redzone  000000008d0afd3d: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
+[ 1151.041180] Object   000000004855ba01: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+[ 1151.042714] Redzone  0000000084e43932: 00 00 00 c0 cc cc cc cc                          ........
+[ 1151.044120] Padding  000000000864c042: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
+[ 1151.045615] CPU: 5 PID: 3816 Comm: stress-ng Tainted: G    B             5.10.50+ #7
+[ 1151.046846] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+[ 1151.048633] Call Trace:
+[ 1151.049072]  dump_stack+0x57/0x6a
+[ 1151.049585]  check_bytes_and_report+0xed/0x110
+[ 1151.050320]  check_object+0x1eb/0x290
+[ 1151.050924]  ? __x64_sys_swapoff+0x39a/0x540
+[ 1151.051646]  free_debug_processing+0x151/0x350
+[ 1151.052333]  __slab_free+0x21a/0x3a0
+[ 1151.052938]  ? _cond_resched+0x2d/0x40
+[ 1151.053529]  ? __vunmap+0x1de/0x220
+[ 1151.054139]  ? __x64_sys_swapoff+0x39a/0x540
+[ 1151.054796]  ? kfree+0x276/0x2b0
+[ 1151.055307]  kfree+0x276/0x2b0
+[ 1151.055832]  __x64_sys_swapoff+0x39a/0x540
+[ 1151.056466]  do_syscall_64+0x33/0x40
+[ 1151.057084]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[ 1151.057866] RIP: 0033:0x150340b0ffb7
+[ 1151.058481] Code: Unable to access opcode bytes at RIP 0x150340b0ff8d.
+[ 1151.059537] RSP: 002b:00007fff7f4ee238 EFLAGS: 00000246 ORIG_RAX: 00000000000000a8
+[ 1151.060768] RAX: ffffffffffffffda RBX: 00007fff7f4ee66c RCX: 0000150340b0ffb7
+[ 1151.061904] RDX: 000000000000000a RSI: 0000000000018094 RDI: 00007fff7f4ee860
+[ 1151.063033] RBP: 00007fff7f4ef980 R08: 0000000000000000 R09: 0000150340a672bd
+[ 1151.064135] R10: 00007fff7f4edca0 R11: 0000000000000246 R12: 0000000000018094
+[ 1151.065253] R13: 0000000000000005 R14: 000000000160d930 R15: 00007fff7f4ee66c
+[ 1151.066413] FIX kmalloc-16: Restoring 0x0000000084e43932-0x0000000098d17cae=0xcc
+[ 1151.066413]
+[ 1151.067890] FIX kmalloc-16: Object at 0x000000004855ba01 not freed
+
+Fixes: 67482129cdab ("iomap: add a swapfile activation function")
+Fixes: a45c0eccc564 ("iomap: move the swapfile code into a separate file")
+Signed-off-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/fault-injection/provoke-crashes.rst | 2 +-
- drivers/misc/lkdtm/core.c                         | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/iomap/swapfile.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/fault-injection/provoke-crashes.rst b/Documentation/fault-injection/provoke-crashes.rst
-index a20ba5d93932..18de17354206 100644
---- a/Documentation/fault-injection/provoke-crashes.rst
-+++ b/Documentation/fault-injection/provoke-crashes.rst
-@@ -29,7 +29,7 @@ recur_count
- cpoint_name
- 	Where in the kernel to trigger the action. It can be
- 	one of INT_HARDWARE_ENTRY, INT_HW_IRQ_EN, INT_TASKLET_ENTRY,
--	FS_DEVRW, MEM_SWAPOUT, TIMERADD, SCSI_DISPATCH_CMD,
-+	FS_DEVRW, MEM_SWAPOUT, TIMERADD, SCSI_QUEUE_RQ,
- 	IDE_CORE_CP, or DIRECT
+diff --git a/fs/iomap/swapfile.c b/fs/iomap/swapfile.c
+index bd0cc3dcc980..2d18246f6726 100644
+--- a/fs/iomap/swapfile.c
++++ b/fs/iomap/swapfile.c
+@@ -30,11 +30,16 @@ static int iomap_swapfile_add_extent(struct iomap_swapfile_info *isi)
+ {
+ 	struct iomap *iomap = &isi->iomap;
+ 	unsigned long nr_pages;
++	unsigned long max_pages;
+ 	uint64_t first_ppage;
+ 	uint64_t first_ppage_reported;
+ 	uint64_t next_ppage;
+ 	int error;
  
- cpoint_type
-diff --git a/drivers/misc/lkdtm/core.c b/drivers/misc/lkdtm/core.c
-index c802db9aaeb0..32b3d77368e3 100644
---- a/drivers/misc/lkdtm/core.c
-+++ b/drivers/misc/lkdtm/core.c
-@@ -81,7 +81,7 @@ static struct crashpoint crashpoints[] = {
- 	CRASHPOINT("FS_DEVRW",		 "ll_rw_block"),
- 	CRASHPOINT("MEM_SWAPOUT",	 "shrink_inactive_list"),
- 	CRASHPOINT("TIMERADD",		 "hrtimer_start"),
--	CRASHPOINT("SCSI_DISPATCH_CMD",	 "scsi_dispatch_cmd"),
-+	CRASHPOINT("SCSI_QUEUE_RQ",	 "scsi_queue_rq"),
- 	CRASHPOINT("IDE_CORE_CP",	 "generic_ide_ioctl"),
- #endif
- };
++	if (unlikely(isi->nr_pages >= isi->sis->max))
++		return 0;
++	max_pages = isi->sis->max - isi->nr_pages;
++
+ 	/*
+ 	 * Round the start up and the end down so that the physical
+ 	 * extent aligns to a page boundary.
+@@ -47,6 +52,7 @@ static int iomap_swapfile_add_extent(struct iomap_swapfile_info *isi)
+ 	if (first_ppage >= next_ppage)
+ 		return 0;
+ 	nr_pages = next_ppage - first_ppage;
++	nr_pages = min(nr_pages, max_pages);
+ 
+ 	/*
+ 	 * Calculate how much swap space we're adding; the first page contains
 -- 
 2.30.2
 
