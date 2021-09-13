@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1907F408EE2
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D06D740917F
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:00:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242066AbhIMNhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:37:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34930 "EHLO mail.kernel.org"
+        id S1344039AbhIMOBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:01:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243300AbhIMNfN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:35:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D8A861252;
-        Mon, 13 Sep 2021 13:27:20 +0000 (UTC)
+        id S1343801AbhIMN7n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:59:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE02F613AC;
+        Mon, 13 Sep 2021 13:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539640;
-        bh=7KiC/1SwSPjzV2bmnZ/FsGG5+kHJ/z4AvoT9m+N1XvU=;
+        s=korg; t=1631540246;
+        bh=0eVmFigmvePfK0NtKm7EzbzuJ3ya/9SnuQww5F3AvfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8IYg/X06+LZIUimVp83eCm1W4oNPlmOVlZ6rC6IrXnsdXT4oot+aD0PW3Ib8vqkO
-         OwWE8jO6mm5Y+xuNt4RIVp4HTyTK9NyrWkmyZbyRhCc0rFz7TlGjwyOQy2NjVz/F0P
-         5hvP0Lm2TM3b/uH6WmhbMbbEvQ7S8+mSMdqB3eiw=
+        b=QlLaGsRzTgRqVKY+GH59tzs5nUoSk4FkqDQFB04gKRfO/XDRh8WfTk5IZZlCzbXhR
+         HHhplN/WTS1dMNUzgLAcf3bLZE43TzF0PaKtNffEiWU4hWV8IM/HG5OPYcFkyr2Zbb
+         uc3XTXcOY2Ea3VJiF9AP3JWQn+GkdCrldWw/kods=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Steven Price <steven.price@arm.com>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 069/236] drm/panfrost: Fix missing clk_disable_unprepare() on error in panfrost_clk_init()
+Subject: [PATCH 5.13 113/300] media: rockchip/rga: fix error handling in probe
 Date:   Mon, 13 Sep 2021 15:12:54 +0200
-Message-Id: <20210913131102.704479245@linuxfoundation.org>
+Message-Id: <20210913131113.206669149@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +42,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit f42498705965bd4b026953c1892c686d8b1138e4 ]
+[ Upstream commit e58430e1d4fd01b74475d2fbe2e25b5817b729a9 ]
 
-Fix the missing clk_disable_unprepare() before return
-from panfrost_clk_init() in the error handling case.
+There are a few bugs in this code.  1)  No checks for whether
+dma_alloc_attrs() or __get_free_pages() failed.  2)  If
+video_register_device() fails it doesn't clean up the dma attrs or the
+free pages.  3)  The video_device_release() function frees "vfd" which
+leads to a use after free on the next line.  The call to
+video_unregister_device() is not required so I have just removed that.
 
-Fixes: b681af0bc1cc ("drm: panfrost: add optional bus_clock")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210608143856.4154766-1-weiyongjun1@huawei.com
+Fixes: f7e7b48e6d79 ("[media] rockchip/rga: v4l2 m2m support")
+Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_device.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/platform/rockchip/rga/rga.c | 27 ++++++++++++++++++-----
+ 1 file changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_device.c b/drivers/gpu/drm/panfrost/panfrost_device.c
-index bf7c34cfb84c..c256929e859b 100644
---- a/drivers/gpu/drm/panfrost/panfrost_device.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_device.c
-@@ -60,7 +60,8 @@ static int panfrost_clk_init(struct panfrost_device *pfdev)
- 	if (IS_ERR(pfdev->bus_clock)) {
- 		dev_err(pfdev->dev, "get bus_clock failed %ld\n",
- 			PTR_ERR(pfdev->bus_clock));
--		return PTR_ERR(pfdev->bus_clock);
-+		err = PTR_ERR(pfdev->bus_clock);
-+		goto disable_clock;
+diff --git a/drivers/media/platform/rockchip/rga/rga.c b/drivers/media/platform/rockchip/rga/rga.c
+index bf3fd71ec3af..6759091b15e0 100644
+--- a/drivers/media/platform/rockchip/rga/rga.c
++++ b/drivers/media/platform/rockchip/rga/rga.c
+@@ -863,12 +863,12 @@ static int rga_probe(struct platform_device *pdev)
+ 	if (IS_ERR(rga->m2m_dev)) {
+ 		v4l2_err(&rga->v4l2_dev, "Failed to init mem2mem device\n");
+ 		ret = PTR_ERR(rga->m2m_dev);
+-		goto unreg_video_dev;
++		goto rel_vdev;
  	}
  
- 	if (pfdev->bus_clock) {
+ 	ret = pm_runtime_resume_and_get(rga->dev);
+ 	if (ret < 0)
+-		goto unreg_video_dev;
++		goto rel_vdev;
+ 
+ 	rga->version.major = (rga_read(rga, RGA_VERSION_INFO) >> 24) & 0xFF;
+ 	rga->version.minor = (rga_read(rga, RGA_VERSION_INFO) >> 20) & 0x0F;
+@@ -882,11 +882,23 @@ static int rga_probe(struct platform_device *pdev)
+ 	rga->cmdbuf_virt = dma_alloc_attrs(rga->dev, RGA_CMDBUF_SIZE,
+ 					   &rga->cmdbuf_phy, GFP_KERNEL,
+ 					   DMA_ATTR_WRITE_COMBINE);
++	if (!rga->cmdbuf_virt) {
++		ret = -ENOMEM;
++		goto rel_vdev;
++	}
+ 
+ 	rga->src_mmu_pages =
+ 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
++	if (!rga->src_mmu_pages) {
++		ret = -ENOMEM;
++		goto free_dma;
++	}
+ 	rga->dst_mmu_pages =
+ 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
++	if (rga->dst_mmu_pages) {
++		ret = -ENOMEM;
++		goto free_src_pages;
++	}
+ 
+ 	def_frame.stride = (def_frame.width * def_frame.fmt->depth) >> 3;
+ 	def_frame.size = def_frame.stride * def_frame.height;
+@@ -894,7 +906,7 @@ static int rga_probe(struct platform_device *pdev)
+ 	ret = video_register_device(vfd, VFL_TYPE_VIDEO, -1);
+ 	if (ret) {
+ 		v4l2_err(&rga->v4l2_dev, "Failed to register video device\n");
+-		goto rel_vdev;
++		goto free_dst_pages;
+ 	}
+ 
+ 	v4l2_info(&rga->v4l2_dev, "Registered %s as /dev/%s\n",
+@@ -902,10 +914,15 @@ static int rga_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
++free_dst_pages:
++	free_pages((unsigned long)rga->dst_mmu_pages, 3);
++free_src_pages:
++	free_pages((unsigned long)rga->src_mmu_pages, 3);
++free_dma:
++	dma_free_attrs(rga->dev, RGA_CMDBUF_SIZE, rga->cmdbuf_virt,
++		       rga->cmdbuf_phy, DMA_ATTR_WRITE_COMBINE);
+ rel_vdev:
+ 	video_device_release(vfd);
+-unreg_video_dev:
+-	video_unregister_device(rga->vfd);
+ unreg_v4l2_dev:
+ 	v4l2_device_unregister(&rga->v4l2_dev);
+ err_put_clk:
 -- 
 2.30.2
 
