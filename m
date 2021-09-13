@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E4C1408DAE
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 811D9409008
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:48:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241988AbhIMN20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:28:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37736 "EHLO mail.kernel.org"
+        id S240256AbhIMNtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:49:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241985AbhIMN0Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:26:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 056E26113B;
-        Mon, 13 Sep 2021 13:22:47 +0000 (UTC)
+        id S243923AbhIMNqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:46:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DA2161390;
+        Mon, 13 Sep 2021 13:32:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539368;
-        bh=jGWAl/K8bG2tdjP2RrtegwZ+kT089noGrVOSSSF+j2k=;
+        s=korg; t=1631539933;
+        bh=E2gaqacbnSvjmZv8/VuoSdvRIMm9/gn2oFPg9AuhrBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=izedSLY6SnmeqUqiWKOvnUHYDI5FINXC34SrRC61me/0y+MdmGTJrUDHZA7c/+yy7
-         /1dDnkC4v1nKGlS4WdnaC9G8rG8Ub/Dl0kFmxEHLjke79UnRPICET3ZAYX7Ejm9Poa
-         ItuwxtX93QA9zg2i5jF9jp15VNX7RzigSg739Mmw=
+        b=QLufXUFtFFjBMezgPSV3IAtSY3gpSAa7W0W3tudBw/izQstvGpHGzt3HNxdkKBJsq
+         SgYv9fF/yWNbBkQYUKnCde7cG11jSFyn6bu70RCyz9AYziBLZkpgu3U/uqmzf/aIwh
+         IS96kHrW+WPcpXxuSig7snTxn5KhvcPPUnRUrfzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.4 144/144] clk: kirkwood: Fix a clocking boot regression
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 220/236] bio: fix page leak bio_add_hw_page failure
 Date:   Mon, 13 Sep 2021 15:15:25 +0200
-Message-Id: <20210913131052.742733455@linuxfoundation.org>
+Message-Id: <20210913131107.845268278@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit aaedb9e00e5400220a8871180d23a83e67f29f63 upstream.
+commit d9cf3bd531844ffbfe94b16e417037a16efc988d upstream.
 
-Since a few kernel releases the Pogoplug 4 has crashed like this
-during boot:
+__bio_iov_append_get_pages() doesn't put not appended pages on
+bio_add_hw_page() failure, so potentially leaking them, fix it. Also, do
+the same for __bio_iov_iter_get_pages(), even though it looks like it
+can't be triggered by userspace in this case.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000002
-(...)
-[<c04116ec>] (strlen) from [<c00ead80>] (kstrdup+0x1c/0x4c)
-[<c00ead80>] (kstrdup) from [<c04591d8>] (__clk_register+0x44/0x37c)
-[<c04591d8>] (__clk_register) from [<c04595ec>] (clk_hw_register+0x20/0x44)
-[<c04595ec>] (clk_hw_register) from [<c045bfa8>] (__clk_hw_register_mux+0x198/0x1e4)
-[<c045bfa8>] (__clk_hw_register_mux) from [<c045c050>] (clk_register_mux_table+0x5c/0x6c)
-[<c045c050>] (clk_register_mux_table) from [<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0+0x13c/0x1ac)
-[<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0) from [<c0aceae0>] (of_clk_init+0x12c/0x214)
-[<c0aceae0>] (of_clk_init) from [<c0ab576c>] (time_init+0x20/0x2c)
-[<c0ab576c>] (time_init) from [<c0ab3d18>] (start_kernel+0x3dc/0x56c)
-[<c0ab3d18>] (start_kernel) from [<00000000>] (0x0)
-Code: e3130020 1afffffb e12fff1e c08a1078 (e5d03000)
-
-This is because the "powersave" mux clock 0 was provided in an unterminated
-array, which is required by the loop in the driver:
-
-        /* Count, allocate, and register clock muxes */
-        for (n = 0; desc[n].name;)
-                n++;
-
-Here n will go out of bounds and then call clk_register_mux() on random
-memory contents after the mux clock.
-
-Fix this by terminating the array with a blank entry.
-
-Fixes: 105299381d87 ("cpufreq: kirkwood: use the powersave multiplexer")
-Cc: stable@vger.kernel.org
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210814235514.403426-1-linus.walleij@linaro.org
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 0512a75b98f8 ("block: Introduce REQ_OP_ZONE_APPEND")
+Cc: stable@vger.kernel.org # 5.8+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/1edfa6a2ffd66d55e6345a477df5387d2c1415d0.1626653825.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/mvebu/kirkwood.c |    1 +
- 1 file changed, 1 insertion(+)
+ block/bio.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/drivers/clk/mvebu/kirkwood.c
-+++ b/drivers/clk/mvebu/kirkwood.c
-@@ -265,6 +265,7 @@ static const char *powersave_parents[] =
- static const struct clk_muxing_soc_desc kirkwood_mux_desc[] __initconst = {
- 	{ "powersave", powersave_parents, ARRAY_SIZE(powersave_parents),
- 		11, 1, 0 },
-+	{ }
- };
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -978,6 +978,14 @@ static int __bio_iov_bvec_add_pages(stru
+ 	return 0;
+ }
  
- static struct clk *clk_muxing_get_src(
++static void bio_put_pages(struct page **pages, size_t size, size_t off)
++{
++	size_t i, nr = DIV_ROUND_UP(size + (off & ~PAGE_MASK), PAGE_SIZE);
++
++	for (i = 0; i < nr; i++)
++		put_page(pages[i]);
++}
++
+ #define PAGE_PTRS_PER_BVEC     (sizeof(struct bio_vec) / sizeof(struct page *))
+ 
+ /**
+@@ -1022,8 +1030,10 @@ static int __bio_iov_iter_get_pages(stru
+ 			if (same_page)
+ 				put_page(page);
+ 		} else {
+-			if (WARN_ON_ONCE(bio_full(bio, len)))
+-                                return -EINVAL;
++			if (WARN_ON_ONCE(bio_full(bio, len))) {
++				bio_put_pages(pages + i, left, offset);
++				return -EINVAL;
++			}
+ 			__bio_add_page(bio, page, len, offset);
+ 		}
+ 		offset = 0;
+@@ -1068,6 +1078,7 @@ static int __bio_iov_append_get_pages(st
+ 		len = min_t(size_t, PAGE_SIZE - offset, left);
+ 		if (bio_add_hw_page(q, bio, page, len, offset,
+ 				max_append_sectors, &same_page) != len) {
++			bio_put_pages(pages + i, left, offset);
+ 			ret = -EINVAL;
+ 			break;
+ 		}
 
 
