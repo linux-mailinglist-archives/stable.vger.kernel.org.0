@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C26F5409466
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:31:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0514091E7
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:05:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344714AbhIMObH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:31:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51890 "EHLO mail.kernel.org"
+        id S244916AbhIMOGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346827AbhIMO3t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:29:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9FFF61B65;
-        Mon, 13 Sep 2021 13:50:33 +0000 (UTC)
+        id S1343769AbhIMOBf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:01:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D4A1613B3;
+        Mon, 13 Sep 2021 13:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541034;
-        bh=iV1IrwF9bBVu1a55ckb6Dx8CMb9V/aM05Kr0IEjzFlU=;
+        s=korg; t=1631540281;
+        bh=IwfoSMhYYqULgo1yTTS7xIM6dxUj5lnP/bFGbafcOT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GCjtF9RRqlf88xR1CHQjp1ZkOi8sBy7WnpMgEbey+XMpWEy6SI1W3KXgrgS+HBndb
-         mwon3txA6A10vLArihixu8/wpv2ACshLdZxsQ8e7w2CNYazbodz5qCBBbUFA+m39ct
-         KJttGy65I0+xgmlZSzb/2XZrRli1ehcMzu9FlGvI=
+        b=EVw1pdTy8QTZ4STqt4U6uryvt1JudoBJWOU/ln2m/GvcMXVZ2Ok0+o0kD35cWaukV
+         8kEv5yy2aaYzWU2oEO8oMrqtBb117xmKtRN9i61Wxa5MaLK7Oednc9cYS/O83D58bq
+         HPKrx+eZ3eSp1fAa9xkIMDei9WOoHbIlzJb7aPvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Judy Hsiao <judyhsiao@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 102/334] arm64: dts: qcom: sc7180: Set adau wakeup delay to 80 ms
-Date:   Mon, 13 Sep 2021 15:12:36 +0200
-Message-Id: <20210913131116.816151432@linuxfoundation.org>
+Subject: [PATCH 5.13 096/300] arm64: dts: renesas: r8a77995: draak: Remove bogus adv7511w properties
+Date:   Mon, 13 Sep 2021 15:12:37 +0200
+Message-Id: <20210913131112.618724998@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Judy Hsiao <judyhsiao@chromium.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit a8c7f3100e708d5f55692f0607ca80c5dcd21ce8 ]
+[ Upstream commit 4ec82a7bb3db8c6005e715c63224c32d458917a2 ]
 
-Set audu wakeup delay to 80 ms for fixing pop noise during capture begin.
+The "max-clock" and "min-vrefresh" properties fail to validate with
+commit cfe34bb7a770c5d8 ("dt-bindings: drm: bridge: adi,adv7511.txt:
+convert to yaml").  Drop them, as they are parts of an out-of-tree
+workaround that is not needed upstream.
 
-Fixes: ba5f9b5d7ff3 ("arm64: dts: qcom: sc7180: Add wakeup delay for adau codec")
-Signed-off-by: Judy Hsiao <judyhsiao@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20210708090810.174767-1-judyhsiao@chromium.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: bcf3003438ea4645 ("arm64: dts: renesas: r8a77995: draak: Enable HDMI display output")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Link: https://lore.kernel.org/r/975b6686bc423421b147d367fe7fb9a0db99c5af.1625134398.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/renesas/r8a77995-draak.dts | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
-index 6f9c07147551..a758e4d22612 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
-@@ -23,7 +23,7 @@ ap_h1_spi: &spi0 {};
- 	adau7002: audio-codec-1 {
- 		compatible = "adi,adau7002";
- 		IOVDD-supply = <&pp1800_l15a>;
--		wakeup-delay-ms = <15>;
-+		wakeup-delay-ms = <80>;
- 		#sound-dai-cells = <0>;
- 	};
+diff --git a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
+index 6783c3ad0856..57784341f39d 100644
+--- a/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
++++ b/arch/arm64/boot/dts/renesas/r8a77995-draak.dts
+@@ -277,10 +277,6 @@
+ 		interrupt-parent = <&gpio1>;
+ 		interrupts = <28 IRQ_TYPE_LEVEL_LOW>;
  
+-		/* Depends on LVDS */
+-		max-clock = <135000000>;
+-		min-vrefresh = <50>;
+-
+ 		adi,input-depth = <8>;
+ 		adi,input-colorspace = "rgb";
+ 		adi,input-clock = "1x";
 -- 
 2.30.2
 
