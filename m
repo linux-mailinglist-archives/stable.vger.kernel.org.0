@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F78408E45
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C978640919A
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:01:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240882AbhIMNcj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:32:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58340 "EHLO mail.kernel.org"
+        id S244995AbhIMOCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:02:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239327AbhIMNa4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:30:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E13BF61351;
-        Mon, 13 Sep 2021 13:24:56 +0000 (UTC)
+        id S1343588AbhIMOAq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:00:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E43261A2E;
+        Mon, 13 Sep 2021 13:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539497;
-        bh=BIpFGWF8YM7OnSCUVmiH5C+8zoWKit9sO6/x30gy4T0=;
+        s=korg; t=1631540260;
+        bh=W/9OyMCIBDkFYitsxHS1MSsc19iKakqmMhUb9EfZU2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SLwLn9lRMt63YI8IYk6eTb5dPeBS7wsmFIbTWITTkzTRh1vg3+HyvYkqtN9ThNsRo
-         YM9397qyDsPXOWf3V4vqlnFJbBSeX7fSGXyTcBf2usMv+w3L/Hc5RUyh4ocSzzpwb6
-         Y5JEpNtlcUZ7ZeOmRODjjQjD9dU9gPIJ47v/lJvg=
+        b=hZ4MZRiuATHFnUJvR6g9tA92ZORArlMEDxqvjztPYUxTv5BcJCaDZhVRs9xDJdbgu
+         +Y/HRMkRGy50old77Bd9MNc1EJInSaGJyF+uf1SKi6nnTuy0CJZg5o4g1K6VdrFe7X
+         rwc94vMbZ4Gt+goTtDaS2U+oox1UXWswI0RFUZsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org, Steven Price <steven.price@arm.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 047/236] m68k: Fix invalid RMW_INSNS on CPUs that lack CAS
-Date:   Mon, 13 Sep 2021 15:12:32 +0200
-Message-Id: <20210913131101.948106276@linuxfoundation.org>
+Subject: [PATCH 5.13 092/300] drm/of: free the iterator object on failure
+Date:   Mon, 13 Sep 2021 15:12:33 +0200
+Message-Id: <20210913131112.493720600@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,76 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Steven Price <steven.price@arm.com>
 
-[ Upstream commit 2189e928b62e91d8efbc9826ae7c0968f0d55790 ]
+[ Upstream commit 6f9223a56fabc840836b49de27dc7b27642c6a32 ]
 
-When enabling CONFIG_RMW_INSNS in e.g. a Coldfire build:
+When bailing out due to the sanity check the iterator value needs to be
+freed because the early return prevents for_each_child_of_node() from
+doing the dereference itself.
 
-    {standard input}:3068: Error: invalid instruction for this architecture; needs 68020 or higher (68020 [68k, 68ec020], 68030 [68ec030], 68040 [68ec040], 68060 [68ec060]) -- statement `casl %d4,%d0,(%a6)' ignored
-
-Fix this by (a) adding a new config symbol to track if support for any
-CPU that lacks the CAS instruction is enabled, and (b) making
-CONFIG_RMW_INSNS depend on the new symbol not being set.
-
-Fixes: 0e152d80507b75c0 ("m68k: reorganize Kconfig options to improve mmu/non-mmu selections")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210725104413.318932-1-geert@linux-m68k.org
+Fixes: 6529007522de ("drm: of: Add drm_of_lvds_get_dual_link_pixel_order")
+Signed-off-by: Steven Price <steven.price@arm.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210714143300.20632-1-steven.price@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.cpu | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_of.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/m68k/Kconfig.cpu b/arch/m68k/Kconfig.cpu
-index 694c4fca9f5d..c17205da47fe 100644
---- a/arch/m68k/Kconfig.cpu
-+++ b/arch/m68k/Kconfig.cpu
-@@ -25,6 +25,7 @@ config COLDFIRE
- 	bool "Coldfire CPU family support"
- 	select ARCH_HAVE_CUSTOM_GPIO_H
- 	select CPU_HAS_NO_BITFIELDS
-+	select CPU_HAS_NO_CAS
- 	select CPU_HAS_NO_MULDIV64
- 	select GENERIC_CSUM
- 	select GPIOLIB
-@@ -38,6 +39,7 @@ config M68000
- 	bool "MC68000"
- 	depends on !MMU
- 	select CPU_HAS_NO_BITFIELDS
-+	select CPU_HAS_NO_CAS
- 	select CPU_HAS_NO_MULDIV64
- 	select CPU_HAS_NO_UNALIGNED
- 	select GENERIC_CSUM
-@@ -53,6 +55,7 @@ config M68000
- config MCPU32
- 	bool
- 	select CPU_HAS_NO_BITFIELDS
-+	select CPU_HAS_NO_CAS
- 	select CPU_HAS_NO_UNALIGNED
- 	select CPU_NO_EFFICIENT_FFS
- 	help
-@@ -357,7 +360,7 @@ config ADVANCED
+diff --git a/drivers/gpu/drm/drm_of.c b/drivers/gpu/drm/drm_of.c
+index 197c57477344..997b8827fed2 100644
+--- a/drivers/gpu/drm/drm_of.c
++++ b/drivers/gpu/drm/drm_of.c
+@@ -331,8 +331,10 @@ static int drm_of_lvds_get_remote_pixels_type(
+ 		 * configurations by passing the endpoints explicitly to
+ 		 * drm_of_lvds_get_dual_link_pixel_order().
+ 		 */
+-		if (!current_pt || pixels_type != current_pt)
++		if (!current_pt || pixels_type != current_pt) {
++			of_node_put(endpoint);
+ 			return -EINVAL;
++		}
+ 	}
  
- config RMW_INSNS
- 	bool "Use read-modify-write instructions"
--	depends on ADVANCED
-+	depends on ADVANCED && !CPU_HAS_NO_CAS
- 	help
- 	  This allows to use certain instructions that work with indivisible
- 	  read-modify-write bus cycles. While this is faster than the
-@@ -411,6 +414,9 @@ config NODES_SHIFT
- config CPU_HAS_NO_BITFIELDS
- 	bool
- 
-+config CPU_HAS_NO_CAS
-+	bool
-+
- config CPU_HAS_NO_MULDIV64
- 	bool
- 
+ 	return pixels_type;
 -- 
 2.30.2
 
