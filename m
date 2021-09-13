@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB12D4095F0
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A5F5409305
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346232AbhIMOq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:46:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58816 "EHLO mail.kernel.org"
+        id S1343572AbhIMORG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:17:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346336AbhIMOmY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:42:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40B6460FE6;
-        Mon, 13 Sep 2021 13:56:41 +0000 (UTC)
+        id S1345298AbhIMOPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:15:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E382161AF0;
+        Mon, 13 Sep 2021 13:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541401;
-        bh=/yp63S3bqh83r8b63gOEtaYlTzPQuqGwjd1TBe9WnB8=;
+        s=korg; t=1631540642;
+        bh=duFxu1ijeIG/AoV8sk4dQIklpP7RvwQV1HF5aYdCs64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N5VV7yRCQJV/4ocJDCi6XhRaVE9TsnBb+Rt6C1tizXYn6y7HDZXeLfDQVdEqazW81
-         dgffEmTX++sFXOFskq/Eu1SRCOibGR8ijWVu+Vg8rRyKxuGERpDhCFJ+BxvPMVUk97
-         OZfHO8JbwPYHHfKVwHbaJOLBbJnj/Yvdyk/LrRjg=
+        b=bteof5PfbWVmrRlaVM2BHrwzy8mN23vYsdx5U4+8FkLDTSPmpHaGNGBeYT1wVw20E
+         HbqjSuQdGJ/c/YMqpW7mOPBwQLQq6maBLQdIJqQoKAkwRuRbskhff8LCuPNZvTm9xn
+         oxhDTDuLhBa9bTcDyWQB9iyTKYPVXndBPa/uljMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Keyu Man <kman001@ucr.edu>, Wei Wang <weiwan@google.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 284/334] ipv6: make exception cache less predictible
+        stable@vger.kernel.org, Fabio Aiuto <fabioaiuto83@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.13 277/300] x86/efi: Restore Firmware IDT before calling ExitBootServices()
 Date:   Mon, 13 Sep 2021 15:15:38 +0200
-Message-Id: <20210913131123.026532625@linuxfoundation.org>
+Message-Id: <20210913131118.697371645@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +40,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit a00df2caffed3883c341d5685f830434312e4a43 ]
+commit 22aa45cb465be474e97666b3f7587ccb06ee411b upstream.
 
-Even after commit 4785305c05b2 ("ipv6: use siphash in rt6_exception_hash()"),
-an attacker can still use brute force to learn some secrets from a victim
-linux host.
+Commit
 
-One way to defeat these attacks is to make the max depth of the hash
-table bucket a random value.
+  79419e13e808 ("x86/boot/compressed/64: Setup IDT in startup_32 boot path")
 
-Before this patch, each bucket of the hash table used to store exceptions
-could contain 6 items under attack.
+introduced an IDT into the 32-bit boot path of the decompressor stub.
+But the IDT is set up before ExitBootServices() is called, and some UEFI
+firmwares rely on their own IDT.
 
-After the patch, each bucket would contains a random number of items,
-between 6 and 10. The attacker can no longer infer secrets.
+Save the firmware IDT on boot and restore it before calling into EFI
+functions to fix boot failures introduced by above commit.
 
-This is slightly increasing memory size used by the hash table,
-we do not expect this to be a problem.
-
-Following patch is dealing with the same issue in IPv4.
-
-Fixes: 35732d01fe31 ("ipv6: introduce a hash table to store dst cache")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Keyu Man <kman001@ucr.edu>
-Cc: Wei Wang <weiwan@google.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 79419e13e808 ("x86/boot/compressed/64: Setup IDT in startup_32 boot path")
+Reported-by: Fabio Aiuto <fabioaiuto83@gmail.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: stable@vger.kernel.org # 5.13+
+Link: https://lkml.kernel.org/r/20210820125703.32410-1-joro@8bytes.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/route.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/boot/compressed/efi_thunk_64.S |   30 +++++++++++++++++++++---------
+ arch/x86/boot/compressed/head_64.S      |    3 +++
+ 2 files changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index c5e8ecb96426..603340302101 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -1657,6 +1657,7 @@ static int rt6_insert_exception(struct rt6_info *nrt,
- 	struct in6_addr *src_key = NULL;
- 	struct rt6_exception *rt6_ex;
- 	struct fib6_nh *nh = res->nh;
-+	int max_depth;
- 	int err = 0;
+--- a/arch/x86/boot/compressed/efi_thunk_64.S
++++ b/arch/x86/boot/compressed/efi_thunk_64.S
+@@ -5,9 +5,8 @@
+  * Early support for invoking 32-bit EFI services from a 64-bit kernel.
+  *
+  * Because this thunking occurs before ExitBootServices() we have to
+- * restore the firmware's 32-bit GDT before we make EFI service calls,
+- * since the firmware's 32-bit IDT is still currently installed and it
+- * needs to be able to service interrupts.
++ * restore the firmware's 32-bit GDT and IDT before we make EFI service
++ * calls.
+  *
+  * On the plus side, we don't have to worry about mangling 64-bit
+  * addresses into 32-bits because we're executing with an identity
+@@ -39,7 +38,7 @@ SYM_FUNC_START(__efi64_thunk)
+ 	/*
+ 	 * Convert x86-64 ABI params to i386 ABI
+ 	 */
+-	subq	$32, %rsp
++	subq	$64, %rsp
+ 	movl	%esi, 0x0(%rsp)
+ 	movl	%edx, 0x4(%rsp)
+ 	movl	%ecx, 0x8(%rsp)
+@@ -49,14 +48,19 @@ SYM_FUNC_START(__efi64_thunk)
+ 	leaq	0x14(%rsp), %rbx
+ 	sgdt	(%rbx)
  
- 	spin_lock_bh(&rt6_exception_lock);
-@@ -1711,7 +1712,9 @@ static int rt6_insert_exception(struct rt6_info *nrt,
- 	bucket->depth++;
- 	net->ipv6.rt6_stats->fib_rt_cache++;
++	addq	$16, %rbx
++	sidt	(%rbx)
++
+ 	/*
+-	 * Switch to gdt with 32-bit segments. This is the firmware GDT
+-	 * that was installed when the kernel started executing. This
+-	 * pointer was saved at the EFI stub entry point in head_64.S.
++	 * Switch to IDT and GDT with 32-bit segments. This is the firmware GDT
++	 * and IDT that was installed when the kernel started executing. The
++	 * pointers were saved at the EFI stub entry point in head_64.S.
+ 	 *
+ 	 * Pass the saved DS selector to the 32-bit code, and use far return to
+ 	 * restore the saved CS selector.
+ 	 */
++	leaq	efi32_boot_idt(%rip), %rax
++	lidt	(%rax)
+ 	leaq	efi32_boot_gdt(%rip), %rax
+ 	lgdt	(%rax)
  
--	if (bucket->depth > FIB6_MAX_DEPTH)
-+	/* Randomize max depth to avoid some side channels attacks. */
-+	max_depth = FIB6_MAX_DEPTH + prandom_u32_max(FIB6_MAX_DEPTH);
-+	while (bucket->depth > max_depth)
- 		rt6_exception_remove_oldest(bucket);
+@@ -67,7 +71,7 @@ SYM_FUNC_START(__efi64_thunk)
+ 	pushq	%rax
+ 	lretq
  
- out:
--- 
-2.30.2
-
+-1:	addq	$32, %rsp
++1:	addq	$64, %rsp
+ 	movq	%rdi, %rax
+ 
+ 	pop	%rbx
+@@ -128,10 +132,13 @@ SYM_FUNC_START_LOCAL(efi_enter32)
+ 
+ 	/*
+ 	 * Some firmware will return with interrupts enabled. Be sure to
+-	 * disable them before we switch GDTs.
++	 * disable them before we switch GDTs and IDTs.
+ 	 */
+ 	cli
+ 
++	lidtl	(%ebx)
++	subl	$16, %ebx
++
+ 	lgdtl	(%ebx)
+ 
+ 	movl	%cr4, %eax
+@@ -166,6 +173,11 @@ SYM_DATA_START(efi32_boot_gdt)
+ 	.quad	0
+ SYM_DATA_END(efi32_boot_gdt)
+ 
++SYM_DATA_START(efi32_boot_idt)
++	.word	0
++	.quad	0
++SYM_DATA_END(efi32_boot_idt)
++
+ SYM_DATA_START(efi32_boot_cs)
+ 	.word	0
+ SYM_DATA_END(efi32_boot_cs)
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -319,6 +319,9 @@ SYM_INNER_LABEL(efi32_pe_stub_entry, SYM
+ 	movw	%cs, rva(efi32_boot_cs)(%ebp)
+ 	movw	%ds, rva(efi32_boot_ds)(%ebp)
+ 
++	/* Store firmware IDT descriptor */
++	sidtl	rva(efi32_boot_idt)(%ebp)
++
+ 	/* Disable paging */
+ 	movl	%cr0, %eax
+ 	btrl	$X86_CR0_PG_BIT, %eax
 
 
