@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FCAA408CDF
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2731D408F57
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:44:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240586AbhIMNWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:22:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35302 "EHLO mail.kernel.org"
+        id S241508AbhIMNmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:42:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240577AbhIMNVC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:21:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACC7860724;
-        Mon, 13 Sep 2021 13:19:40 +0000 (UTC)
+        id S243796AbhIMNkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:40:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF681613E6;
+        Mon, 13 Sep 2021 13:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539181;
-        bh=bVY+hQhJCNipJnM5nmraGGdtxsMn/xqSgATVjH+WMF8=;
+        s=korg; t=1631539754;
+        bh=gq9saXxtRIw3MZSwBY8JRo4yxAZ8lKok2m4Ej0sohjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a7nECYI0bxKt7iRGeOFLkSYxSfUnUrIGS2+B0gGOfarIvbVAFJdzuuUrqE+qHzZ3G
-         yjZ6WB00zNGwTIACRoh3OtegLggdzIJTFt0v+96IZY8ffssvnZVVG6uLBT9XD7+80F
-         R75wIunjCfnepBNaZn0sTy3Dq1qne4kZrq+odz+w=
+        b=S/+A8qLuApsXX97Muj6/bP/iczF9R3d2My8k6JytmaSiD6GLE5Cjk0d2K3PUzxAgV
+         0W49/GY3KNYWnWu6piWt/AJ1G9qG9ZqZJT2lO2gDAYXIfA9hqMEymEexrd1I/YAJGB
+         uJwPXPaY+ICbDGUOoKVWdJvq7RsG1g8q4I1BTKWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/144] i2c: highlander: add IRQ check
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 148/236] usb: dwc3: qcom: add IRQ check
 Date:   Mon, 13 Sep 2021 15:14:13 +0200
-Message-Id: <20210913131050.371657997@linuxfoundation.org>
+Message-Id: <20210913131105.396337827@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +42,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit f16a3bb69aa6baabf8f0aca982c8cf21e2a4f6bc ]
+[ Upstream commit 175006956740f70ca23394c58f8d7804776741bd ]
 
-The driver is written as if platform_get_irq() returns 0 on errors (while
-actually it returns a negative error code), blithely passing these error
-codes to request_irq() (which takes *unsigned* IRQ #) -- which fails with
--EINVAL. Add the necessary error check to the pre-existing *if* statement
-forcing the driver into the polling mode...
+In dwc3_qcom_acpi_register_core(), the driver neglects to check the result
+of platform_get_irq()'s call and blithely assigns the negative error codes
+to the allocated child device's IRQ resource and then passing this resource
+to platform_device_add_resources() and later causing dwc3_otg_get_irq() to
+fail anyway.  Stop calling platform_device_add_resources() with the invalid
+IRQ #s, so that there's less complexity in the IRQ error checking.
 
-Fixes: 4ad48e6ab18c ("i2c: Renesas Highlander FPGA SMBus support")
+Fixes: 2bc02355f8ba ("usb: dwc3: qcom: Add support for booting with ACPI")
+Acked-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Link: https://lore.kernel.org/r/45fec3da-1679-5bfe-5d74-219ca3fb28e7@omp.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-highlander.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/dwc3-qcom.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-highlander.c b/drivers/i2c/busses/i2c-highlander.c
-index ff340d7ae2e5..6a880c262380 100644
---- a/drivers/i2c/busses/i2c-highlander.c
-+++ b/drivers/i2c/busses/i2c-highlander.c
-@@ -379,7 +379,7 @@ static int highlander_i2c_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, dev);
+diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
+index 8bd077fb1190..2a29e2f681fe 100644
+--- a/drivers/usb/dwc3/dwc3-qcom.c
++++ b/drivers/usb/dwc3/dwc3-qcom.c
+@@ -610,6 +610,10 @@ static int dwc3_qcom_acpi_register_core(struct platform_device *pdev)
+ 		qcom->acpi_pdata->dwc3_core_base_size;
  
- 	dev->irq = platform_get_irq(pdev, 0);
--	if (iic_force_poll)
-+	if (dev->irq < 0 || iic_force_poll)
- 		dev->irq = 0;
+ 	irq = platform_get_irq(pdev_irq, 0);
++	if (irq < 0) {
++		ret = irq;
++		goto out;
++	}
+ 	child_res[1].flags = IORESOURCE_IRQ;
+ 	child_res[1].start = child_res[1].end = irq;
  
- 	if (dev->irq) {
 -- 
 2.30.2
 
