@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C280409FF0
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84A79409FEB
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348363AbhIMWf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 18:35:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50674 "EHLO mail.kernel.org"
+        id S1348629AbhIMWf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 18:35:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348382AbhIMWfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 18:35:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70A9B610FB;
-        Mon, 13 Sep 2021 22:34:02 +0000 (UTC)
+        id S1348386AbhIMWfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 18:35:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E9186113D;
+        Mon, 13 Sep 2021 22:34:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631572443;
-        bh=aOQFO5/N0qn4wPH2mWv3fffMMvA7VPfefqpC+HSKsTE=;
+        s=k20201202; t=1631572444;
+        bh=hBZuQUbGL+Rwg2qatYdtPw3r04hodtpSRpFusv36jAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WBUvRzTjER7iWNIF0RyaVAy5USiYheIpF3qMnfoXQGo0YOIThYWZG50jIMps6DUy1
-         dLWABSVGM1/oS5g9Z2uA7BA/Sum81pp9CkDZvIyxVwvi0wb6s6YvbeQsQGXgQzfk5P
-         9gy4bp2M+oCz0pUTj+dItitkTNLGI8dXXD1nWldaZVw7BRjw9Ef6TzDLCk3fh9GHtR
-         1iTQ3epAq08fS4EYHINgSgbzF9U2iUJeVQ9YAfWRKXnYSApNZy7WpAr9VKshyiL1XS
-         AiZn9kKG78FQm4eW3iI/6lRh4EpgMLIFXTYgVM+53VYrQi0K7PhRm1soBWtgFbblDh
-         WttwduHxUPSGA==
+        b=ElgVYhy3wmgGJRXeKWPz5cGGjZ3YrksbFgrpV0fEZ7tkK/ZDMI9HHlHnssIKA0bdY
+         g9fRYgs0ywZbK3L4WEXYvE3j14+AbuhyWnaNq5aTSPvZSqS/4JbGdVKYxN67qoCyOy
+         y787XTiRofeKbCXFSDwrMQNNMSsDOolqxwA3exrMGymQJXDE8scvgE/yBbt9Atxnr+
+         djF9w/UDyYer3Jq9Vv8YYRqhpOD7BQmAJ+X0sQQkg8031bh01i1cV+jXMAggoybNqI
+         WpVqw33fWUypcFQXIDAUkzN5Ew20UND5LkglMRL9+j7kTcfQxj10KQaSJU2KaN5J+Z
+         kZ6zi9F05Cblw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        Anand Jain <anand.jain@oracle.com>,
+Cc:     Anand Jain <anand.jain@oracle.com>, Su Yue <l@damenly.su>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 17/25] btrfs: delay blkdev_put until after the device remove
-Date:   Mon, 13 Sep 2021 18:33:31 -0400
-Message-Id: <20210913223339.435347-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 18/25] btrfs: fix lockdep warning while mounting sprout fs
+Date:   Mon, 13 Sep 2021 18:33:32 -0400
+Message-Id: <20210913223339.435347-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210913223339.435347-1-sashal@kernel.org>
 References: <20210913223339.435347-1-sashal@kernel.org>
@@ -43,257 +42,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit 3fa421dedbc82f985f030c5a6480ea2d784334c3 ]
+[ Upstream commit c124706900c20dee70f921bb3a90492431561a0a ]
 
-When removing the device we call blkdev_put() on the device once we've
-removed it, and because we have an EXCL open we need to take the
-->open_mutex on the block device to clean it up.  Unfortunately during
-device remove we are holding the sb writers lock, which results in the
-following lockdep splat:
+Following test case reproduces lockdep warning.
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.14.0-rc2+ #407 Not tainted
-------------------------------------------------------
-losetup/11595 is trying to acquire lock:
-ffff973ac35dd138 ((wq_completion)loop0){+.+.}-{0:0}, at: flush_workqueue+0x67/0x5e0
+  Test case:
 
-but task is already holding lock:
-ffff973ac9812c68 (&lo->lo_mutex){+.+.}-{3:3}, at: __loop_clr_fd+0x41/0x660 [loop]
+  $ mkfs.btrfs -f <dev1>
+  $ btrfstune -S 1 <dev1>
+  $ mount <dev1> <mnt>
+  $ btrfs device add <dev2> <mnt> -f
+  $ umount <mnt>
+  $ mount <dev2> <mnt>
+  $ umount <mnt>
 
-which lock already depends on the new lock.
+The warning claims a possible ABBA deadlock between the threads
+initiated by [#1] btrfs device add and [#0] the mount.
 
-the existing dependency chain (in reverse order) is:
+  [ 540.743122] WARNING: possible circular locking dependency detected
+  [ 540.743129] 5.11.0-rc7+ #5 Not tainted
+  [ 540.743135] ------------------------------------------------------
+  [ 540.743142] mount/2515 is trying to acquire lock:
+  [ 540.743149] ffffa0c5544c2ce0 (&fs_devs->device_list_mutex){+.+.}-{4:4}, at: clone_fs_devices+0x6d/0x210 [btrfs]
+  [ 540.743458] but task is already holding lock:
+  [ 540.743461] ffffa0c54a7932b8 (btrfs-chunk-00){++++}-{4:4}, at: __btrfs_tree_read_lock+0x32/0x200 [btrfs]
+  [ 540.743541] which lock already depends on the new lock.
+  [ 540.743543] the existing dependency chain (in reverse order) is:
 
--> #4 (&lo->lo_mutex){+.+.}-{3:3}:
-       __mutex_lock+0x7d/0x750
-       lo_open+0x28/0x60 [loop]
-       blkdev_get_whole+0x25/0xf0
-       blkdev_get_by_dev.part.0+0x168/0x3c0
-       blkdev_open+0xd2/0xe0
-       do_dentry_open+0x161/0x390
-       path_openat+0x3cc/0xa20
-       do_filp_open+0x96/0x120
-       do_sys_openat2+0x7b/0x130
-       __x64_sys_openat+0x46/0x70
-       do_syscall_64+0x38/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [ 540.743546] -> #1 (btrfs-chunk-00){++++}-{4:4}:
+  [ 540.743566] down_read_nested+0x48/0x2b0
+  [ 540.743585] __btrfs_tree_read_lock+0x32/0x200 [btrfs]
+  [ 540.743650] btrfs_read_lock_root_node+0x70/0x200 [btrfs]
+  [ 540.743733] btrfs_search_slot+0x6c6/0xe00 [btrfs]
+  [ 540.743785] btrfs_update_device+0x83/0x260 [btrfs]
+  [ 540.743849] btrfs_finish_chunk_alloc+0x13f/0x660 [btrfs] <--- device_list_mutex
+  [ 540.743911] btrfs_create_pending_block_groups+0x18d/0x3f0 [btrfs]
+  [ 540.743982] btrfs_commit_transaction+0x86/0x1260 [btrfs]
+  [ 540.744037] btrfs_init_new_device+0x1600/0x1dd0 [btrfs]
+  [ 540.744101] btrfs_ioctl+0x1c77/0x24c0 [btrfs]
+  [ 540.744166] __x64_sys_ioctl+0xe4/0x140
+  [ 540.744170] do_syscall_64+0x4b/0x80
+  [ 540.744174] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
--> #3 (&disk->open_mutex){+.+.}-{3:3}:
-       __mutex_lock+0x7d/0x750
-       blkdev_put+0x3a/0x220
-       btrfs_rm_device.cold+0x62/0xe5
-       btrfs_ioctl+0x2a31/0x2e70
-       __x64_sys_ioctl+0x80/0xb0
-       do_syscall_64+0x38/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [ 540.744180] -> #0 (&fs_devs->device_list_mutex){+.+.}-{4:4}:
+  [ 540.744184] __lock_acquire+0x155f/0x2360
+  [ 540.744188] lock_acquire+0x10b/0x5c0
+  [ 540.744190] __mutex_lock+0xb1/0xf80
+  [ 540.744193] mutex_lock_nested+0x27/0x30
+  [ 540.744196] clone_fs_devices+0x6d/0x210 [btrfs]
+  [ 540.744270] btrfs_read_chunk_tree+0x3c7/0xbb0 [btrfs]
+  [ 540.744336] open_ctree+0xf6e/0x2074 [btrfs]
+  [ 540.744406] btrfs_mount_root.cold.72+0x16/0x127 [btrfs]
+  [ 540.744472] legacy_get_tree+0x38/0x90
+  [ 540.744475] vfs_get_tree+0x30/0x140
+  [ 540.744478] fc_mount+0x16/0x60
+  [ 540.744482] vfs_kern_mount+0x91/0x100
+  [ 540.744484] btrfs_mount+0x1e6/0x670 [btrfs]
+  [ 540.744536] legacy_get_tree+0x38/0x90
+  [ 540.744537] vfs_get_tree+0x30/0x140
+  [ 540.744539] path_mount+0x8d8/0x1070
+  [ 540.744541] do_mount+0x8d/0xc0
+  [ 540.744543] __x64_sys_mount+0x125/0x160
+  [ 540.744545] do_syscall_64+0x4b/0x80
+  [ 540.744547] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
--> #2 (sb_writers#12){.+.+}-{0:0}:
-       lo_write_bvec+0xc2/0x240 [loop]
-       loop_process_work+0x238/0xd00 [loop]
-       process_one_work+0x26b/0x560
-       worker_thread+0x55/0x3c0
-       kthread+0x140/0x160
-       ret_from_fork+0x1f/0x30
+  [ 540.744551] other info that might help us debug this:
+  [ 540.744552] Possible unsafe locking scenario:
 
--> #1 ((work_completion)(&lo->rootcg_work)){+.+.}-{0:0}:
-       process_one_work+0x245/0x560
-       worker_thread+0x55/0x3c0
-       kthread+0x140/0x160
-       ret_from_fork+0x1f/0x30
+  [ 540.744553] CPU0 				CPU1
+  [ 540.744554] ---- 				----
+  [ 540.744555] lock(btrfs-chunk-00);
+  [ 540.744557] 					lock(&fs_devs->device_list_mutex);
+  [ 540.744560] 					lock(btrfs-chunk-00);
+  [ 540.744562] lock(&fs_devs->device_list_mutex);
+  [ 540.744564]
+   *** DEADLOCK ***
 
--> #0 ((wq_completion)loop0){+.+.}-{0:0}:
-       __lock_acquire+0x10ea/0x1d90
-       lock_acquire+0xb5/0x2b0
-       flush_workqueue+0x91/0x5e0
-       drain_workqueue+0xa0/0x110
-       destroy_workqueue+0x36/0x250
-       __loop_clr_fd+0x9a/0x660 [loop]
-       block_ioctl+0x3f/0x50
-       __x64_sys_ioctl+0x80/0xb0
-       do_syscall_64+0x38/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [ 540.744565] 3 locks held by mount/2515:
+  [ 540.744567] #0: ffffa0c56bf7a0e0 (&type->s_umount_key#42/1){+.+.}-{4:4}, at: alloc_super.isra.16+0xdf/0x450
+  [ 540.744574] #1: ffffffffc05a9628 (uuid_mutex){+.+.}-{4:4}, at: btrfs_read_chunk_tree+0x63/0xbb0 [btrfs]
+  [ 540.744640] #2: ffffa0c54a7932b8 (btrfs-chunk-00){++++}-{4:4}, at: __btrfs_tree_read_lock+0x32/0x200 [btrfs]
+  [ 540.744708]
+   stack backtrace:
+  [ 540.744712] CPU: 2 PID: 2515 Comm: mount Not tainted 5.11.0-rc7+ #5
 
-other info that might help us debug this:
+But the device_list_mutex in clone_fs_devices() is redundant, as
+explained below.  Two threads [1]  and [2] (below) could lead to
+clone_fs_device().
 
-Chain exists of:
-  (wq_completion)loop0 --> &disk->open_mutex --> &lo->lo_mutex
+  [1]
+  open_ctree <== mount sprout fs
+   btrfs_read_chunk_tree()
+    mutex_lock(&uuid_mutex) <== global lock
+    read_one_dev()
+     open_seed_devices()
+      clone_fs_devices() <== seed fs_devices
+       mutex_lock(&orig->device_list_mutex) <== seed fs_devices
 
- Possible unsafe locking scenario:
+  [2]
+  btrfs_init_new_device() <== sprouting
+   mutex_lock(&uuid_mutex); <== global lock
+   btrfs_prepare_sprout()
+     lockdep_assert_held(&uuid_mutex)
+     clone_fs_devices(seed_fs_device) <== seed fs_devices
 
-       CPU0                    CPU1
-       ----                    ----
-  lock(&lo->lo_mutex);
-                               lock(&disk->open_mutex);
-                               lock(&lo->lo_mutex);
-  lock((wq_completion)loop0);
+Both of these threads hold uuid_mutex which is sufficient to protect
+getting the seed device(s) freed while we are trying to clone it for
+sprouting [2] or mounting a sprout [1] (as above). A mounted seed device
+can not free/write/replace because it is read-only. An unmounted seed
+device can be freed by btrfs_free_stale_devices(), but it needs
+uuid_mutex.  So this patch removes the unnecessary device_list_mutex in
+clone_fs_devices().  And adds a lockdep_assert_held(&uuid_mutex) in
+clone_fs_devices().
 
- *** DEADLOCK ***
-
-1 lock held by losetup/11595:
- #0: ffff973ac9812c68 (&lo->lo_mutex){+.+.}-{3:3}, at: __loop_clr_fd+0x41/0x660 [loop]
-
-stack backtrace:
-CPU: 0 PID: 11595 Comm: losetup Not tainted 5.14.0-rc2+ #407
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-Call Trace:
- dump_stack_lvl+0x57/0x72
- check_noncircular+0xcf/0xf0
- ? stack_trace_save+0x3b/0x50
- __lock_acquire+0x10ea/0x1d90
- lock_acquire+0xb5/0x2b0
- ? flush_workqueue+0x67/0x5e0
- ? lockdep_init_map_type+0x47/0x220
- flush_workqueue+0x91/0x5e0
- ? flush_workqueue+0x67/0x5e0
- ? verify_cpu+0xf0/0x100
- drain_workqueue+0xa0/0x110
- destroy_workqueue+0x36/0x250
- __loop_clr_fd+0x9a/0x660 [loop]
- ? blkdev_ioctl+0x8d/0x2a0
- block_ioctl+0x3f/0x50
- __x64_sys_ioctl+0x80/0xb0
- do_syscall_64+0x38/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7fc21255d4cb
-
-So instead save the bdev and do the put once we've dropped the sb
-writers lock in order to avoid the lockdep recursion.
-
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Reported-by: Su Yue <l@damenly.su>
+Tested-by: Su Yue <l@damenly.su>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ioctl.c   | 15 +++++++++++----
- fs/btrfs/volumes.c | 23 +++++++++++++++++------
- fs/btrfs/volumes.h |  3 ++-
- 3 files changed, 30 insertions(+), 11 deletions(-)
+ fs/btrfs/volumes.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 0ba98e08a029..50e12989e84a 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -3205,6 +3205,8 @@ static long btrfs_ioctl_rm_dev_v2(struct file *file, void __user *arg)
- 	struct inode *inode = file_inode(file);
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 	struct btrfs_ioctl_vol_args_v2 *vol_args;
-+	struct block_device *bdev = NULL;
-+	fmode_t mode;
- 	int ret;
- 	bool cancel = false;
- 
-@@ -3237,9 +3239,9 @@ static long btrfs_ioctl_rm_dev_v2(struct file *file, void __user *arg)
- 	/* Exclusive operation is now claimed */
- 
- 	if (vol_args->flags & BTRFS_DEVICE_SPEC_BY_ID)
--		ret = btrfs_rm_device(fs_info, NULL, vol_args->devid);
-+		ret = btrfs_rm_device(fs_info, NULL, vol_args->devid, &bdev, &mode);
- 	else
--		ret = btrfs_rm_device(fs_info, vol_args->name, 0);
-+		ret = btrfs_rm_device(fs_info, vol_args->name, 0, &bdev, &mode);
- 
- 	btrfs_exclop_finish(fs_info);
- 
-@@ -3255,6 +3257,8 @@ static long btrfs_ioctl_rm_dev_v2(struct file *file, void __user *arg)
- 	kfree(vol_args);
- err_drop:
- 	mnt_drop_write_file(file);
-+	if (bdev)
-+		blkdev_put(bdev, mode);
- 	return ret;
- }
- 
-@@ -3263,6 +3267,8 @@ static long btrfs_ioctl_rm_dev(struct file *file, void __user *arg)
- 	struct inode *inode = file_inode(file);
- 	struct btrfs_fs_info *fs_info = btrfs_sb(inode->i_sb);
- 	struct btrfs_ioctl_vol_args *vol_args;
-+	struct block_device *bdev = NULL;
-+	fmode_t mode;
- 	int ret;
- 	bool cancel;
- 
-@@ -3284,7 +3290,7 @@ static long btrfs_ioctl_rm_dev(struct file *file, void __user *arg)
- 	ret = exclop_start_or_cancel_reloc(fs_info, BTRFS_EXCLOP_DEV_REMOVE,
- 					   cancel);
- 	if (ret == 0) {
--		ret = btrfs_rm_device(fs_info, vol_args->name, 0);
-+		ret = btrfs_rm_device(fs_info, vol_args->name, 0, &bdev, &mode);
- 		if (!ret)
- 			btrfs_info(fs_info, "disk deleted %s", vol_args->name);
- 		btrfs_exclop_finish(fs_info);
-@@ -3293,7 +3299,8 @@ static long btrfs_ioctl_rm_dev(struct file *file, void __user *arg)
- 	kfree(vol_args);
- out_drop_write:
- 	mnt_drop_write_file(file);
--
-+	if (bdev)
-+		blkdev_put(bdev, mode);
- 	return ret;
- }
- 
 diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 8dc14985128f..7f38f81f1a92 100644
+index 7f38f81f1a92..51846e582257 100644
 --- a/fs/btrfs/volumes.c
 +++ b/fs/btrfs/volumes.c
-@@ -2119,7 +2119,7 @@ void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
+@@ -570,6 +570,8 @@ static int btrfs_free_stale_devices(const char *path,
+ 	struct btrfs_device *device, *tmp_device;
+ 	int ret = 0;
+ 
++	lockdep_assert_held(&uuid_mutex);
++
+ 	if (path)
+ 		ret = -ENOENT;
+ 
+@@ -1000,11 +1002,12 @@ static struct btrfs_fs_devices *clone_fs_devices(struct btrfs_fs_devices *orig)
+ 	struct btrfs_device *orig_dev;
+ 	int ret = 0;
+ 
++	lockdep_assert_held(&uuid_mutex);
++
+ 	fs_devices = alloc_fs_devices(orig->fsid, NULL);
+ 	if (IS_ERR(fs_devices))
+ 		return fs_devices;
+ 
+-	mutex_lock(&orig->device_list_mutex);
+ 	fs_devices->total_devices = orig->total_devices;
+ 
+ 	list_for_each_entry(orig_dev, &orig->devices, dev_list) {
+@@ -1036,10 +1039,8 @@ static struct btrfs_fs_devices *clone_fs_devices(struct btrfs_fs_devices *orig)
+ 		device->fs_devices = fs_devices;
+ 		fs_devices->num_devices++;
+ 	}
+-	mutex_unlock(&orig->device_list_mutex);
+ 	return fs_devices;
+ error:
+-	mutex_unlock(&orig->device_list_mutex);
+ 	free_fs_devices(fs_devices);
+ 	return ERR_PTR(ret);
  }
- 
- int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
--		    u64 devid)
-+		    u64 devid, struct block_device **bdev, fmode_t *mode)
- {
- 	struct btrfs_device *device;
- 	struct btrfs_fs_devices *cur_devices;
-@@ -2233,15 +2233,26 @@ int btrfs_rm_device(struct btrfs_fs_info *fs_info, const char *device_path,
- 	mutex_unlock(&fs_devices->device_list_mutex);
- 
- 	/*
--	 * at this point, the device is zero sized and detached from
--	 * the devices list.  All that's left is to zero out the old
--	 * supers and free the device.
-+	 * At this point, the device is zero sized and detached from the
-+	 * devices list.  All that's left is to zero out the old supers and
-+	 * free the device.
-+	 *
-+	 * We cannot call btrfs_close_bdev() here because we're holding the sb
-+	 * write lock, and blkdev_put() will pull in the ->open_mutex on the
-+	 * block device and it's dependencies.  Instead just flush the device
-+	 * and let the caller do the final blkdev_put.
- 	 */
--	if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state))
-+	if (test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state)) {
- 		btrfs_scratch_superblocks(fs_info, device->bdev,
- 					  device->name->str);
-+		if (device->bdev) {
-+			sync_blockdev(device->bdev);
-+			invalidate_bdev(device->bdev);
-+		}
-+	}
- 
--	btrfs_close_bdev(device);
-+	*bdev = device->bdev;
-+	*mode = device->mode;
- 	synchronize_rcu();
- 	btrfs_free_device(device);
- 
-diff --git a/fs/btrfs/volumes.h b/fs/btrfs/volumes.h
-index 55a8ba244716..f77f869dfd2c 100644
---- a/fs/btrfs/volumes.h
-+++ b/fs/btrfs/volumes.h
-@@ -472,7 +472,8 @@ struct btrfs_device *btrfs_alloc_device(struct btrfs_fs_info *fs_info,
- 					const u8 *uuid);
- void btrfs_free_device(struct btrfs_device *device);
- int btrfs_rm_device(struct btrfs_fs_info *fs_info,
--		    const char *device_path, u64 devid);
-+		    const char *device_path, u64 devid,
-+		    struct block_device **bdev, fmode_t *mode);
- void __exit btrfs_cleanup_fs_uuids(void);
- int btrfs_num_copies(struct btrfs_fs_info *fs_info, u64 logical, u64 len);
- int btrfs_grow_device(struct btrfs_trans_handle *trans,
 -- 
 2.30.2
 
