@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB042409FBA
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:33:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6E52409FBE
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343596AbhIMWfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 18:35:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50092 "EHLO mail.kernel.org"
+        id S245553AbhIMWfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 18:35:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245355AbhIMWfB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 18:35:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA277610CE;
-        Mon, 13 Sep 2021 22:33:43 +0000 (UTC)
+        id S245581AbhIMWfC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 18:35:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F619610FB;
+        Mon, 13 Sep 2021 22:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631572424;
-        bh=TPisBgC+/AkvYuRI6mVcJsHZlYaY2djoSzgyABiD+hY=;
+        s=k20201202; t=1631572426;
+        bh=Vbu8GoHws7kTSdOjXcFaQxIFUun8efnlHvM7tlmrpf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9xSTxSubTfSDnYrGE7CxOv3izfqaKqDBMisXNsiOvvQknEvw7yhbpvrOrZv7H+mx
-         +soOug156/m0iATJG1dF8XnQ0Jw5KJECEkbukk2lR+HxtaLp7r4wmMm/6lxtR6HcjQ
-         xAN2tg5zTqj6xDYWSgLx1IFxID50lfDD8+vLxQJzbzTzILqqlPL+meeN4jgr9uLm8+
-         8Ju1/gVSXTNnwFwMKj9iclcNhkJU1/5JvjozrlI1E/w9nwbSWAggIgavSmRnhRa/uK
-         0UxQQB4lV9Qf5mRe+zhMNxSJULpu3r97sHT6mv6Gh6KwtK/0eKyrANIHoezVbZ8l9e
-         R/q3l8MNtncoA==
+        b=rTCTgXeeBM2+kdnSq1STGCHrEC1KGoViqQ/3Gy96KD/g0hyRLp+KvHfYGm397Ka/H
+         VEN9OyWXqi0NHxEGUdRfgdKtQdW3Q+kRhQuu/I4udckLN2by82+dCFinPPfD9uA3Rw
+         lFWtIONMRuqez4EVDjyljhiMBEeOjz9GZ4vz0Rr/jOicMaIQhI90MC0+YRvbX2eHkS
+         sLjMIGO24Tp34v955rseoAu+yPzjBpFMsZv2Cnc0kE1nztzOwfQ2xUEpSx+E6NlUKE
+         laVGYXpK9JSMv01Nm7IHtt2npB6TH5tRfaea65mbixit/MNUS/eTqRwRuRKeI5CjxN
+         btU4mgPAmHbYQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Widawsky <ben.widawsky@intel.com>,
-        kernel test robot <lkp@intel.com>,
+Cc:     Dan Williams <dan.j.williams@intel.com>,
+        Ben Widawsky <ben.widawsky@intel.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-doc@vger.kernel.org,
-        linux-cxl@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 03/25] cxl: Move cxl_core to new directory
-Date:   Mon, 13 Sep 2021 18:33:17 -0400
-Message-Id: <20210913223339.435347-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-cxl@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 04/25] cxl/pci: Introduce cdevm_file_operations
+Date:   Mon, 13 Sep 2021 18:33:18 -0400
+Message-Id: <20210913223339.435347-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210913223339.435347-1-sashal@kernel.org>
 References: <20210913223339.435347-1-sashal@kernel.org>
@@ -45,128 +43,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Widawsky <ben.widawsky@intel.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-[ Upstream commit 5161a55c069f53d88da49274cbef6e3c74eadea9 ]
+[ Upstream commit 9cc238c7a526dba9ee8c210fa2828886fc65db66 ]
 
-CXL core is growing, and it's already arguably unmanageable. To support
-future growth, move core functionality to a new directory and rename the
-file to represent just bus support. Future work will remove non-bus
-functionality.
+In preparation for moving cxl_memdev allocation to the core, introduce
+cdevm_file_operations to coordinate file operations shutdown relative to
+driver data release.
 
-Note that mem.h is renamed to cxlmem.h to avoid a namespace collision
-with the global ARCH=um mem.h header.
+The motivation for moving cxl_memdev allocation to the core (beyond
+better file organization of sysfs attributes in core/ and drivers in
+cxl/), is that device lifetime is longer than module lifetime. The cxl_pci
+module should be free to come and go without needing to coordinate with
+devices that need the text associated with cxl_memdev_release() to stay
+resident. The move will fix a use after free bug when looping driver
+load / unload with CONFIG_DEBUG_KOBJECT_RELEASE=y.
 
-Reported-by: kernel test robot <lkp@intel.com>
+Another motivation for passing in file_operations to the core cxl_memdev
+creation flow is to allow for alternate drivers, like unit test code, to
+define their own ioctl backends.
+
 Signed-off-by: Ben Widawsky <ben.widawsky@intel.com>
 Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Link: https://lore.kernel.org/r/162792537866.368511.8915631504621088321.stgit@dwillia2-desk3.amr.corp.intel.com
+Link: https://lore.kernel.org/r/162792539962.368511.2962268954245340288.stgit@dwillia2-desk3.amr.corp.intel.com
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/driver-api/cxl/memory-devices.rst | 2 +-
- drivers/cxl/Makefile                            | 4 +---
- drivers/cxl/core/Makefile                       | 5 +++++
- drivers/cxl/{core.c => core/bus.c}              | 4 ++--
- drivers/cxl/{mem.h => cxlmem.h}                 | 0
- drivers/cxl/pci.c                               | 2 +-
- drivers/cxl/pmem.c                              | 2 +-
- 7 files changed, 11 insertions(+), 8 deletions(-)
- create mode 100644 drivers/cxl/core/Makefile
- rename drivers/cxl/{core.c => core/bus.c} (99%)
- rename drivers/cxl/{mem.h => cxlmem.h} (100%)
+ drivers/cxl/cxlmem.h | 15 ++++++++++
+ drivers/cxl/pci.c    | 65 ++++++++++++++++++++++++++------------------
+ 2 files changed, 53 insertions(+), 27 deletions(-)
 
-diff --git a/Documentation/driver-api/cxl/memory-devices.rst b/Documentation/driver-api/cxl/memory-devices.rst
-index 487ce4f41d77..a86e2c7c551a 100644
---- a/Documentation/driver-api/cxl/memory-devices.rst
-+++ b/Documentation/driver-api/cxl/memory-devices.rst
-@@ -36,7 +36,7 @@ CXL Core
- .. kernel-doc:: drivers/cxl/cxl.h
-    :internal:
+diff --git a/drivers/cxl/cxlmem.h b/drivers/cxl/cxlmem.h
+index 8f02d02b26b4..0cd463de1342 100644
+--- a/drivers/cxl/cxlmem.h
++++ b/drivers/cxl/cxlmem.h
+@@ -34,6 +34,21 @@
+  */
+ #define CXL_MEM_MAX_DEVS 65536
  
--.. kernel-doc:: drivers/cxl/core.c
-+.. kernel-doc:: drivers/cxl/core/bus.c
-    :doc: cxl core
- 
- External Interfaces
-diff --git a/drivers/cxl/Makefile b/drivers/cxl/Makefile
-index 32954059b37b..d1aaabc940f3 100644
---- a/drivers/cxl/Makefile
-+++ b/drivers/cxl/Makefile
-@@ -1,11 +1,9 @@
- # SPDX-License-Identifier: GPL-2.0
--obj-$(CONFIG_CXL_BUS) += cxl_core.o
-+obj-$(CONFIG_CXL_BUS) += core/
- obj-$(CONFIG_CXL_MEM) += cxl_pci.o
- obj-$(CONFIG_CXL_ACPI) += cxl_acpi.o
- obj-$(CONFIG_CXL_PMEM) += cxl_pmem.o
- 
--ccflags-y += -DDEFAULT_SYMBOL_NAMESPACE=CXL
--cxl_core-y := core.o
- cxl_pci-y := pci.o
- cxl_acpi-y := acpi.o
- cxl_pmem-y := pmem.o
-diff --git a/drivers/cxl/core/Makefile b/drivers/cxl/core/Makefile
-new file mode 100644
-index 000000000000..ad137f96e5c8
---- /dev/null
-+++ b/drivers/cxl/core/Makefile
-@@ -0,0 +1,5 @@
-+# SPDX-License-Identifier: GPL-2.0
-+obj-$(CONFIG_CXL_BUS) += cxl_core.o
++/**
++ * struct cdevm_file_operations - devm coordinated cdev file operations
++ * @fops: file operations that are synchronized against @shutdown
++ * @shutdown: disconnect driver data
++ *
++ * @shutdown is invoked in the devres release path to disconnect any
++ * driver instance data from @dev. It assumes synchronization with any
++ * fops operation that requires driver data. After @shutdown an
++ * operation may only reference @device data.
++ */
++struct cdevm_file_operations {
++	struct file_operations fops;
++	void (*shutdown)(struct device *dev);
++};
 +
-+ccflags-y += -DDEFAULT_SYMBOL_NAMESPACE=CXL -I$(srctree)/drivers/cxl
-+cxl_core-y := bus.o
-diff --git a/drivers/cxl/core.c b/drivers/cxl/core/bus.c
-similarity index 99%
-rename from drivers/cxl/core.c
-rename to drivers/cxl/core/bus.c
-index a2e4d54fc7bc..0815eec23944 100644
---- a/drivers/cxl/core.c
-+++ b/drivers/cxl/core/bus.c
-@@ -6,8 +6,8 @@
- #include <linux/pci.h>
- #include <linux/slab.h>
- #include <linux/idr.h>
--#include "cxl.h"
--#include "mem.h"
-+#include <cxlmem.h>
-+#include <cxl.h>
- 
  /**
-  * DOC: cxl core
-diff --git a/drivers/cxl/mem.h b/drivers/cxl/cxlmem.h
-similarity index 100%
-rename from drivers/cxl/mem.h
-rename to drivers/cxl/cxlmem.h
+  * struct cxl_memdev - CXL bus object representing a Type-3 Memory Device
+  * @dev: driver core device object
 diff --git a/drivers/cxl/pci.c b/drivers/cxl/pci.c
-index 4cf351a3cf99..a945c5fda292 100644
+index a945c5fda292..f7a5ad5e1f4a 100644
 --- a/drivers/cxl/pci.c
 +++ b/drivers/cxl/pci.c
-@@ -12,9 +12,9 @@
- #include <linux/pci.h>
- #include <linux/io.h>
- #include <linux/io-64-nonatomic-lo-hi.h>
-+#include "cxlmem.h"
- #include "pci.h"
- #include "cxl.h"
--#include "mem.h"
+@@ -806,13 +806,30 @@ static int cxl_memdev_release_file(struct inode *inode, struct file *file)
+ 	return 0;
+ }
  
- /**
-  * DOC: cxl pci
-diff --git a/drivers/cxl/pmem.c b/drivers/cxl/pmem.c
-index 0088e41dd2f3..9652c3ee41e7 100644
---- a/drivers/cxl/pmem.c
-+++ b/drivers/cxl/pmem.c
-@@ -6,7 +6,7 @@
- #include <linux/ndctl.h>
- #include <linux/async.h>
- #include <linux/slab.h>
--#include "mem.h"
-+#include "cxlmem.h"
- #include "cxl.h"
+-static const struct file_operations cxl_memdev_fops = {
+-	.owner = THIS_MODULE,
+-	.unlocked_ioctl = cxl_memdev_ioctl,
+-	.open = cxl_memdev_open,
+-	.release = cxl_memdev_release_file,
+-	.compat_ioctl = compat_ptr_ioctl,
+-	.llseek = noop_llseek,
++static struct cxl_memdev *to_cxl_memdev(struct device *dev)
++{
++	return container_of(dev, struct cxl_memdev, dev);
++}
++
++static void cxl_memdev_shutdown(struct device *dev)
++{
++	struct cxl_memdev *cxlmd = to_cxl_memdev(dev);
++
++	down_write(&cxl_memdev_rwsem);
++	cxlmd->cxlm = NULL;
++	up_write(&cxl_memdev_rwsem);
++}
++
++static const struct cdevm_file_operations cxl_memdev_fops = {
++	.fops = {
++		.owner = THIS_MODULE,
++		.unlocked_ioctl = cxl_memdev_ioctl,
++		.open = cxl_memdev_open,
++		.release = cxl_memdev_release_file,
++		.compat_ioctl = compat_ptr_ioctl,
++		.llseek = noop_llseek,
++	},
++	.shutdown = cxl_memdev_shutdown,
+ };
  
- /*
+ static inline struct cxl_mem_command *cxl_mem_find_command(u16 opcode)
+@@ -1161,11 +1178,6 @@ static int cxl_mem_setup_regs(struct cxl_mem *cxlm)
+ 	return ret;
+ }
+ 
+-static struct cxl_memdev *to_cxl_memdev(struct device *dev)
+-{
+-	return container_of(dev, struct cxl_memdev, dev);
+-}
+-
+ static void cxl_memdev_release(struct device *dev)
+ {
+ 	struct cxl_memdev *cxlmd = to_cxl_memdev(dev);
+@@ -1281,24 +1293,22 @@ static const struct device_type cxl_memdev_type = {
+ 	.groups = cxl_memdev_attribute_groups,
+ };
+ 
+-static void cxl_memdev_shutdown(struct cxl_memdev *cxlmd)
+-{
+-	down_write(&cxl_memdev_rwsem);
+-	cxlmd->cxlm = NULL;
+-	up_write(&cxl_memdev_rwsem);
+-}
+-
+ static void cxl_memdev_unregister(void *_cxlmd)
+ {
+ 	struct cxl_memdev *cxlmd = _cxlmd;
+ 	struct device *dev = &cxlmd->dev;
++	struct cdev *cdev = &cxlmd->cdev;
++	const struct cdevm_file_operations *cdevm_fops;
++
++	cdevm_fops = container_of(cdev->ops, typeof(*cdevm_fops), fops);
++	cdevm_fops->shutdown(dev);
+ 
+ 	cdev_device_del(&cxlmd->cdev, dev);
+-	cxl_memdev_shutdown(cxlmd);
+ 	put_device(dev);
+ }
+ 
+-static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm)
++static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm,
++					   const struct file_operations *fops)
+ {
+ 	struct pci_dev *pdev = cxlm->pdev;
+ 	struct cxl_memdev *cxlmd;
+@@ -1324,7 +1334,7 @@ static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm)
+ 	device_set_pm_not_required(dev);
+ 
+ 	cdev = &cxlmd->cdev;
+-	cdev_init(cdev, &cxl_memdev_fops);
++	cdev_init(cdev, fops);
+ 	return cxlmd;
+ 
+ err:
+@@ -1332,15 +1342,16 @@ static struct cxl_memdev *cxl_memdev_alloc(struct cxl_mem *cxlm)
+ 	return ERR_PTR(rc);
+ }
+ 
+-static struct cxl_memdev *devm_cxl_add_memdev(struct device *host,
+-					      struct cxl_mem *cxlm)
++static struct cxl_memdev *
++devm_cxl_add_memdev(struct device *host, struct cxl_mem *cxlm,
++		    const struct cdevm_file_operations *cdevm_fops)
+ {
+ 	struct cxl_memdev *cxlmd;
+ 	struct device *dev;
+ 	struct cdev *cdev;
+ 	int rc;
+ 
+-	cxlmd = cxl_memdev_alloc(cxlm);
++	cxlmd = cxl_memdev_alloc(cxlm, &cdevm_fops->fops);
+ 	if (IS_ERR(cxlmd))
+ 		return cxlmd;
+ 
+@@ -1370,7 +1381,7 @@ static struct cxl_memdev *devm_cxl_add_memdev(struct device *host,
+ 	 * The cdev was briefly live, shutdown any ioctl operations that
+ 	 * saw that state.
+ 	 */
+-	cxl_memdev_shutdown(cxlmd);
++	cdevm_fops->shutdown(dev);
+ 	put_device(dev);
+ 	return ERR_PTR(rc);
+ }
+@@ -1611,7 +1622,7 @@ static int cxl_mem_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	if (rc)
+ 		return rc;
+ 
+-	cxlmd = devm_cxl_add_memdev(&pdev->dev, cxlm);
++	cxlmd = devm_cxl_add_memdev(&pdev->dev, cxlm, &cxl_memdev_fops);
+ 	if (IS_ERR(cxlmd))
+ 		return PTR_ERR(cxlmd);
+ 
 -- 
 2.30.2
 
