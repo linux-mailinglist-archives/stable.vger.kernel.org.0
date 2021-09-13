@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD2E408C94
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33376408EBE
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238378AbhIMNUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:20:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34830 "EHLO mail.kernel.org"
+        id S241745AbhIMNgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:36:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239292AbhIMNTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:19:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BE616108B;
-        Mon, 13 Sep 2021 13:17:05 +0000 (UTC)
+        id S243008AbhIMNeq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:34:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74C9461159;
+        Mon, 13 Sep 2021 13:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539026;
-        bh=x0C9rt2yVYfvMsFtVlMyMEYTBQEpGjCvQ2g3nY873dQ=;
+        s=korg; t=1631539615;
+        bh=hjQhBHugbas3U+Bwmf2ThCON0nO041MwaWie5WG/8b8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ic7egVEHCGDTAqCEKytdQo4qHa96jfJzEpKh3NPq9UankMcfrEmBIwAtHRnwo8sbm
-         rvGHMgP9/ebSum/iTWDuH43TEzT+LzwBGL+Mvxtq6NnoL7f1neYmemcbomAJWS1V8S
-         KhKTQefxGUTLD35p7RHvMC2Vht04Mdyrd2gv/NrU=
+        b=ZiZsfG/O+Ht+buOIddJry1S4rFuBwbEVssoamogT/FRfR2IS+Sam19f5h4xN71+jQ
+         E2xgw3vK0j9+lIJXosy9VqZy0zmFo8NsLA1aAw7i3y7iXMVGW8l7qdrTZCpnNyHkNG
+         DS2SpVPR2g3fSPEk4q64uaHto9Quw4LIemcGPch8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 014/144] isofs: joliet: Fix iocharset=utf8 mount option
-Date:   Mon, 13 Sep 2021 15:13:15 +0200
-Message-Id: <20210913131048.443329086@linuxfoundation.org>
+        syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 091/236] media: dvb-usb: fix uninit-value in dvb_usb_adapter_dvb_init
+Date:   Mon, 13 Sep 2021 15:13:16 +0200
+Message-Id: <20210913131103.450371211@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,148 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 28ce50f8d96ec9035f60c9348294ea26b94db944 ]
+[ Upstream commit c5453769f77ce19a5b03f1f49946fd3f8a374009 ]
 
-Currently iocharset=utf8 mount option is broken. To use UTF-8 as iocharset,
-it is required to use utf8 mount option.
+If dibusb_read_eeprom_byte fails, the mac address is not initialized.
+And nova_t_read_mac_address does not handle this failure, which leads to
+the uninit-value in dvb_usb_adapter_dvb_init.
 
-Fix iocharset=utf8 mount option to use be equivalent to the utf8 mount
-option.
+Fix this by handling the failure of dibusb_read_eeprom_byte.
 
-If UTF-8 as iocharset is used then s_nls_iocharset is set to NULL. So
-simplify code around, remove s_utf8 field as to distinguish between UTF-8
-and non-UTF-8 it is needed just to check if s_nls_iocharset is set to NULL
-or not.
-
-Link: https://lore.kernel.org/r/20210808162453.1653-5-pali@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: syzbot+e27b4fd589762b0b9329@syzkaller.appspotmail.com
+Fixes: 786baecfe78f ("[media] dvb-usb: move it to drivers/media/usb/dvb-usb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/isofs/inode.c  | 27 +++++++++++++--------------
- fs/isofs/isofs.h  |  1 -
- fs/isofs/joliet.c |  4 +---
- 3 files changed, 14 insertions(+), 18 deletions(-)
+ drivers/media/usb/dvb-usb/nova-t-usb2.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/isofs/inode.c b/fs/isofs/inode.c
-index 62c0462dc89f..bf30f6ce8dd1 100644
---- a/fs/isofs/inode.c
-+++ b/fs/isofs/inode.c
-@@ -155,7 +155,6 @@ struct iso9660_options{
- 	unsigned int overriderockperm:1;
- 	unsigned int uid_set:1;
- 	unsigned int gid_set:1;
--	unsigned int utf8:1;
- 	unsigned char map;
- 	unsigned char check;
- 	unsigned int blocksize;
-@@ -355,7 +354,6 @@ static int parse_options(char *options, struct iso9660_options *popt)
- 	popt->gid = GLOBAL_ROOT_GID;
- 	popt->uid = GLOBAL_ROOT_UID;
- 	popt->iocharset = NULL;
--	popt->utf8 = 0;
- 	popt->overriderockperm = 0;
- 	popt->session=-1;
- 	popt->sbsector=-1;
-@@ -388,10 +386,13 @@ static int parse_options(char *options, struct iso9660_options *popt)
- 		case Opt_cruft:
- 			popt->cruft = 1;
- 			break;
-+#ifdef CONFIG_JOLIET
- 		case Opt_utf8:
--			popt->utf8 = 1;
-+			kfree(popt->iocharset);
-+			popt->iocharset = kstrdup("utf8", GFP_KERNEL);
-+			if (!popt->iocharset)
-+				return 0;
- 			break;
--#ifdef CONFIG_JOLIET
- 		case Opt_iocharset:
- 			kfree(popt->iocharset);
- 			popt->iocharset = match_strdup(&args[0]);
-@@ -494,7 +495,6 @@ static int isofs_show_options(struct seq_file *m, struct dentry *root)
- 	if (sbi->s_nocompress)		seq_puts(m, ",nocompress");
- 	if (sbi->s_overriderockperm)	seq_puts(m, ",overriderockperm");
- 	if (sbi->s_showassoc)		seq_puts(m, ",showassoc");
--	if (sbi->s_utf8)		seq_puts(m, ",utf8");
+diff --git a/drivers/media/usb/dvb-usb/nova-t-usb2.c b/drivers/media/usb/dvb-usb/nova-t-usb2.c
+index e7b290552b66..9c0eb0d40822 100644
+--- a/drivers/media/usb/dvb-usb/nova-t-usb2.c
++++ b/drivers/media/usb/dvb-usb/nova-t-usb2.c
+@@ -130,7 +130,7 @@ ret:
  
- 	if (sbi->s_check)		seq_printf(m, ",check=%c", sbi->s_check);
- 	if (sbi->s_mapping)		seq_printf(m, ",map=%c", sbi->s_mapping);
-@@ -517,9 +517,10 @@ static int isofs_show_options(struct seq_file *m, struct dentry *root)
- 		seq_printf(m, ",fmode=%o", sbi->s_fmode);
- 
- #ifdef CONFIG_JOLIET
--	if (sbi->s_nls_iocharset &&
--	    strcmp(sbi->s_nls_iocharset->charset, CONFIG_NLS_DEFAULT) != 0)
-+	if (sbi->s_nls_iocharset)
- 		seq_printf(m, ",iocharset=%s", sbi->s_nls_iocharset->charset);
-+	else
-+		seq_puts(m, ",iocharset=utf8");
- #endif
- 	return 0;
- }
-@@ -867,14 +868,13 @@ root_found:
- 	sbi->s_nls_iocharset = NULL;
- 
- #ifdef CONFIG_JOLIET
--	if (joliet_level && opt.utf8 == 0) {
-+	if (joliet_level) {
- 		char *p = opt.iocharset ? opt.iocharset : CONFIG_NLS_DEFAULT;
--		sbi->s_nls_iocharset = load_nls(p);
--		if (! sbi->s_nls_iocharset) {
--			/* Fail only if explicit charset specified */
--			if (opt.iocharset)
-+		if (strcmp(p, "utf8") != 0) {
-+			sbi->s_nls_iocharset = opt.iocharset ?
-+				load_nls(opt.iocharset) : load_nls_default();
-+			if (!sbi->s_nls_iocharset)
- 				goto out_freesbi;
--			sbi->s_nls_iocharset = load_nls_default();
- 		}
- 	}
- #endif
-@@ -890,7 +890,6 @@ root_found:
- 	sbi->s_gid = opt.gid;
- 	sbi->s_uid_set = opt.uid_set;
- 	sbi->s_gid_set = opt.gid_set;
--	sbi->s_utf8 = opt.utf8;
- 	sbi->s_nocompress = opt.nocompress;
- 	sbi->s_overriderockperm = opt.overriderockperm;
- 	/*
-diff --git a/fs/isofs/isofs.h b/fs/isofs/isofs.h
-index 055ec6c586f7..dcdc191ed183 100644
---- a/fs/isofs/isofs.h
-+++ b/fs/isofs/isofs.h
-@@ -44,7 +44,6 @@ struct isofs_sb_info {
- 	unsigned char s_session;
- 	unsigned int  s_high_sierra:1;
- 	unsigned int  s_rock:2;
--	unsigned int  s_utf8:1;
- 	unsigned int  s_cruft:1; /* Broken disks with high byte of length
- 				  * containing junk */
- 	unsigned int  s_nocompress:1;
-diff --git a/fs/isofs/joliet.c b/fs/isofs/joliet.c
-index be8b6a9d0b92..c0f04a1e7f69 100644
---- a/fs/isofs/joliet.c
-+++ b/fs/isofs/joliet.c
-@@ -41,14 +41,12 @@ uni16_to_x8(unsigned char *ascii, __be16 *uni, int len, struct nls_table *nls)
- int
- get_joliet_filename(struct iso_directory_record * de, unsigned char *outname, struct inode * inode)
+ static int nova_t_read_mac_address (struct dvb_usb_device *d, u8 mac[6])
  {
--	unsigned char utf8;
- 	struct nls_table *nls;
- 	unsigned char len = 0;
+-	int i;
++	int i, ret;
+ 	u8 b;
  
--	utf8 = ISOFS_SB(inode->i_sb)->s_utf8;
- 	nls = ISOFS_SB(inode->i_sb)->s_nls_iocharset;
+ 	mac[0] = 0x00;
+@@ -139,7 +139,9 @@ static int nova_t_read_mac_address (struct dvb_usb_device *d, u8 mac[6])
  
--	if (utf8) {
-+	if (!nls) {
- 		len = utf16s_to_utf8s((const wchar_t *) de->name,
- 				de->name_len[0] >> 1, UTF16_BIG_ENDIAN,
- 				outname, PAGE_SIZE);
+ 	/* this is a complete guess, but works for my box */
+ 	for (i = 136; i < 139; i++) {
+-		dibusb_read_eeprom_byte(d,i, &b);
++		ret = dibusb_read_eeprom_byte(d, i, &b);
++		if (ret)
++			return ret;
+ 
+ 		mac[5 - (i - 136)] = b;
+ 	}
 -- 
 2.30.2
 
