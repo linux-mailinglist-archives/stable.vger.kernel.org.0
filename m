@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 578FD408E43
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B2DB408E48
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241181AbhIMNci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:32:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58346 "EHLO mail.kernel.org"
+        id S240856AbhIMNck (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:32:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241743AbhIMNa4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241357AbhIMNa4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:30:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9111961108;
-        Mon, 13 Sep 2021 13:24:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F6C461288;
+        Mon, 13 Sep 2021 13:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539500;
-        bh=wv1Y4mrKh+5yXEcKtaJVPZYqAzJ6UYaNjiylbSyYrnI=;
+        s=korg; t=1631539502;
+        bh=yZD8SegFW9VZXM1gnQs7nsGAbgf53JK5MyEPkIN/eAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHXMG/0ddOe+xa99odVlLSuhz8ealSQWsHenmBJA0qBskMIpAFtqRAOxVHy/mbaTN
-         onlTNQ5dEzefuymw+dXBCcs4SVa9Bmzyn2VZ+vKeh3GZ0rnKFywrW+w3l67B1dzITM
-         dtw/lmlZTXICOBW5xGrBX+UXfaWb/lrupKAs5wjM=
+        b=gtWlKgThWBRcnlgzmddGpWh1OVNjZYXqFGyFNUov4IurYor8PIvYvzJ6AwYm5FDmr
+         PAsGmzP5zm2Hwv/qfh64hOMgDX06W6Ia8yoINLHIOpZ38g8o+s4toerCmsORSl4Wq9
+         AcfL7kcOfevwrk9BdqDARUH2VXBu9GxpbsBtTF2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Sanchayan Maity <maitysanchayan@gmail.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/236] block: return ELEVATOR_DISCARD_MERGE if possible
-Date:   Mon, 13 Sep 2021 15:12:33 +0200
-Message-Id: <20210913131101.987232905@linuxfoundation.org>
+Subject: [PATCH 5.10 049/236] spi: spi-fsl-dspi: Fix issue with uninitialized dma_slave_config
+Date:   Mon, 13 Sep 2021 15:12:34 +0200
+Message-Id: <20210913131102.027523217@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -41,129 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 866663b7b52d2da267b28e12eed89ee781b8fed1 ]
+[ Upstream commit 209ab223ad5b18e437289235e3bde12593b94ac4 ]
 
-When merging one bio to request, if they are discard IO and the queue
-supports multi-range discard, we need to return ELEVATOR_DISCARD_MERGE
-because both block core and related drivers(nvme, virtio-blk) doesn't
-handle mixed discard io merge(traditional IO merge together with
-discard merge) well.
+Depending on the DMA driver being used, the struct dma_slave_config may
+need to be initialized to zero for the unused data.
 
-Fix the issue by returning ELEVATOR_DISCARD_MERGE in this situation,
-so both blk-mq and drivers just need to handle multi-range discard.
+For example, we have three DMA drivers using src_port_window_size and
+dst_port_window_size. If these are left uninitialized, it can cause DMA
+failures.
 
-Reported-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Fixes: 2705dfb20947 ("block: fix discard request merge")
-Link: https://lore.kernel.org/r/20210729034226.1591070-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+For spi-fsl-dspi, this is probably not currently an issue but is still
+good to fix though.
+
+Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
+Cc: Sanchayan Maity <maitysanchayan@gmail.com>
+Cc: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20210810081727.19491-1-tony@atomide.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c    |  3 +++
- block/blk-merge.c      | 16 ----------------
- block/elevator.c       |  3 +++
- block/mq-deadline.c    |  2 ++
- include/linux/blkdev.h | 16 ++++++++++++++++
- 5 files changed, 24 insertions(+), 16 deletions(-)
+ drivers/spi/spi-fsl-dspi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index c91dca641eb4..8ea37328ca84 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2251,6 +2251,9 @@ static int bfq_request_merge(struct request_queue *q, struct request **req,
- 	__rq = bfq_find_rq_fmerge(bfqd, bio, q);
- 	if (__rq && elv_bio_merge_ok(__rq, bio)) {
- 		*req = __rq;
-+
-+		if (blk_discard_mergable(__rq))
-+			return ELEVATOR_DISCARD_MERGE;
- 		return ELEVATOR_FRONT_MERGE;
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index fb45e6af6638..fd004c9db9dc 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -530,6 +530,7 @@ static int dspi_request_dma(struct fsl_dspi *dspi, phys_addr_t phy_addr)
+ 		goto err_rx_dma_buf;
  	}
  
-diff --git a/block/blk-merge.c b/block/blk-merge.c
-index 110db636d230..26f4bcc10de9 100644
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -702,22 +702,6 @@ static void blk_account_io_merge_request(struct request *req)
- 	}
- }
- 
--/*
-- * Two cases of handling DISCARD merge:
-- * If max_discard_segments > 1, the driver takes every bio
-- * as a range and send them to controller together. The ranges
-- * needn't to be contiguous.
-- * Otherwise, the bios/requests will be handled as same as
-- * others which should be contiguous.
-- */
--static inline bool blk_discard_mergable(struct request *req)
--{
--	if (req_op(req) == REQ_OP_DISCARD &&
--	    queue_max_discard_segments(req->q) > 1)
--		return true;
--	return false;
--}
--
- static enum elv_merge blk_try_req_merge(struct request *req,
- 					struct request *next)
- {
-diff --git a/block/elevator.c b/block/elevator.c
-index 293c5c81397a..2a525863d4e9 100644
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -336,6 +336,9 @@ enum elv_merge elv_merge(struct request_queue *q, struct request **req,
- 	__rq = elv_rqhash_find(q, bio->bi_iter.bi_sector);
- 	if (__rq && elv_bio_merge_ok(__rq, bio)) {
- 		*req = __rq;
-+
-+		if (blk_discard_mergable(__rq))
-+			return ELEVATOR_DISCARD_MERGE;
- 		return ELEVATOR_BACK_MERGE;
- 	}
- 
-diff --git a/block/mq-deadline.c b/block/mq-deadline.c
-index 2b9635d0dcba..e4e90761eab3 100644
---- a/block/mq-deadline.c
-+++ b/block/mq-deadline.c
-@@ -454,6 +454,8 @@ static int dd_request_merge(struct request_queue *q, struct request **rq,
- 
- 		if (elv_bio_merge_ok(__rq, bio)) {
- 			*rq = __rq;
-+			if (blk_discard_mergable(__rq))
-+				return ELEVATOR_DISCARD_MERGE;
- 			return ELEVATOR_FRONT_MERGE;
- 		}
- 	}
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 542471b76f41..8aae375864b6 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -1534,6 +1534,22 @@ static inline int queue_limit_discard_alignment(struct queue_limits *lim, sector
- 	return offset << SECTOR_SHIFT;
- }
- 
-+/*
-+ * Two cases of handling DISCARD merge:
-+ * If max_discard_segments > 1, the driver takes every bio
-+ * as a range and send them to controller together. The ranges
-+ * needn't to be contiguous.
-+ * Otherwise, the bios/requests will be handled as same as
-+ * others which should be contiguous.
-+ */
-+static inline bool blk_discard_mergable(struct request *req)
-+{
-+	if (req_op(req) == REQ_OP_DISCARD &&
-+	    queue_max_discard_segments(req->q) > 1)
-+		return true;
-+	return false;
-+}
-+
- static inline int bdev_discard_alignment(struct block_device *bdev)
- {
- 	struct request_queue *q = bdev_get_queue(bdev);
++	memset(&cfg, 0, sizeof(cfg));
+ 	cfg.src_addr = phy_addr + SPI_POPR;
+ 	cfg.dst_addr = phy_addr + SPI_PUSHR;
+ 	cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
 -- 
 2.30.2
 
