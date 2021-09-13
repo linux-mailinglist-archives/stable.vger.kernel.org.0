@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 597664093B3
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24C884093BB
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345620AbhIMO0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:26:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45378 "EHLO mail.kernel.org"
+        id S1345736AbhIMO0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:26:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346537AbhIMOYp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346539AbhIMOYp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:24:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF95B61211;
-        Mon, 13 Sep 2021 13:48:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB1906136F;
+        Mon, 13 Sep 2021 13:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540907;
-        bh=kA1zGDBvO3wCtWRiarIQkJ5Hkrq4acKn0FAZf4D/+c0=;
+        s=korg; t=1631540909;
+        bh=ePwfxyGpLU9S0QVw0tK89DaKY5gG2e4peXMXEgsQBzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XUAcYD72wPD+lket65n+Oxjeu0fjaAjtHyEf7y3GCfF6xibhYGVvnvH2ZCxkX263M
-         iLBNixg2y3UqokoJDcUzaX/Fd5Zvn6l9kWMJV/+DtEAZTlTh1Yd5Y4l6Ad/Oi0H6sX
-         b6mktB97xLbR35pOxBwY2X8NfPkYCo9dtUq1L03U=
+        b=Cs8YGzp7jKUQ/G+wK+8lSR1sEMLbHtFI9q9Tr6jVCL7YKg+B5TyzlURk60T+W2GUR
+         KTOU7uy1ty9Aa03TbgN2pZIEKxE6q0TK/khvKdbWtcu0x7nzMV9hEj+femvU9kBMTF
+         P6MBP8sz64sZrsyEjMMfOzXCs063aMTRcCDcuCDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshvardhan Jha <harshvardhan.jha@oracle.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 083/334] drm/gma500: Fix end of loop tests for list_for_each_entry
-Date:   Mon, 13 Sep 2021 15:12:17 +0200
-Message-Id: <20210913131116.199633598@linuxfoundation.org>
+Subject: [PATCH 5.14 084/334] ASoC: mediatek: mt8192:Fix Unbalanced pm_runtime_enable in mt8192_afe_pcm_dev_probe
+Date:   Mon, 13 Sep 2021 15:12:18 +0200
+Message-Id: <20210913131116.229923784@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,38 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+From: Zhang Qilong <zhangqilong3@huawei.com>
 
-[ Upstream commit ea9a897b8affa0f7b4c90182b785dded74e434aa ]
+[ Upstream commit 2af2f861edd21c1456ef7dbec52122ce1b581568 ]
 
-The list_for_each_entry() iterator, "connector" in this code, can never be
-NULL.  If we exit the loop without finding the correct  connector then
-"connector" points invalid memory that is an offset from the list head.
-This will eventually lead to memory corruption and presumably a kernel
-crash.
+Add missing pm_runtime_disable() when probe error out. It could
+avoid pm_runtime implementation complains when removing and probing
+again the driver.
 
-Fixes: 9bd81acdb648 ("gma500: Convert Oaktrail to work with new output handling")
-Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210709073959.11443-1-harshvardhan.jha@oracle.com
+Fixes:125ab5d588b0b ("ASoC: mediatek: mt8192: add platform driver")
+
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20210618141104.105047-2-zhangqilong3@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/oaktrail_lvds.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/mediatek/mt8192/mt8192-afe-pcm.c | 27 ++++++++++++++--------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/oaktrail_lvds.c b/drivers/gpu/drm/gma500/oaktrail_lvds.c
-index 432bdcc57ac9..a1332878857b 100644
---- a/drivers/gpu/drm/gma500/oaktrail_lvds.c
-+++ b/drivers/gpu/drm/gma500/oaktrail_lvds.c
-@@ -117,7 +117,7 @@ static void oaktrail_lvds_mode_set(struct drm_encoder *encoder,
- 			continue;
+diff --git a/sound/soc/mediatek/mt8192/mt8192-afe-pcm.c b/sound/soc/mediatek/mt8192/mt8192-afe-pcm.c
+index 7a1724f5ff4c..31c280339c50 100644
+--- a/sound/soc/mediatek/mt8192/mt8192-afe-pcm.c
++++ b/sound/soc/mediatek/mt8192/mt8192-afe-pcm.c
+@@ -2229,12 +2229,13 @@ static int mt8192_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	afe->regmap = syscon_node_to_regmap(dev->parent->of_node);
+ 	if (IS_ERR(afe->regmap)) {
+ 		dev_err(dev, "could not get regmap from parent\n");
+-		return PTR_ERR(afe->regmap);
++		ret = PTR_ERR(afe->regmap);
++		goto err_pm_disable;
+ 	}
+ 	ret = regmap_attach_dev(dev, afe->regmap, &mt8192_afe_regmap_config);
+ 	if (ret) {
+ 		dev_warn(dev, "regmap_attach_dev fail, ret %d\n", ret);
+-		return ret;
++		goto err_pm_disable;
  	}
  
--	if (!connector) {
-+	if (list_entry_is_head(connector, &mode_config->connector_list, head)) {
- 		DRM_ERROR("Couldn't find connector when setting mode");
- 		gma_power_end(dev);
- 		return;
+ 	/* enable clock for regcache get default value from hw */
+@@ -2244,7 +2245,7 @@ static int mt8192_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	ret = regmap_reinit_cache(afe->regmap, &mt8192_afe_regmap_config);
+ 	if (ret) {
+ 		dev_err(dev, "regmap_reinit_cache fail, ret %d\n", ret);
+-		return ret;
++		goto err_pm_disable;
+ 	}
+ 
+ 	pm_runtime_put_sync(&pdev->dev);
+@@ -2257,8 +2258,10 @@ static int mt8192_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	afe->memif_size = MT8192_MEMIF_NUM;
+ 	afe->memif = devm_kcalloc(dev, afe->memif_size, sizeof(*afe->memif),
+ 				  GFP_KERNEL);
+-	if (!afe->memif)
+-		return -ENOMEM;
++	if (!afe->memif) {
++		ret = -ENOMEM;
++		goto err_pm_disable;
++	}
+ 
+ 	for (i = 0; i < afe->memif_size; i++) {
+ 		afe->memif[i].data = &memif_data[i];
+@@ -2272,22 +2275,26 @@ static int mt8192_afe_pcm_dev_probe(struct platform_device *pdev)
+ 	afe->irqs_size = MT8192_IRQ_NUM;
+ 	afe->irqs = devm_kcalloc(dev, afe->irqs_size, sizeof(*afe->irqs),
+ 				 GFP_KERNEL);
+-	if (!afe->irqs)
+-		return -ENOMEM;
++	if (!afe->irqs) {
++		ret = -ENOMEM;
++		goto err_pm_disable;
++	}
+ 
+ 	for (i = 0; i < afe->irqs_size; i++)
+ 		afe->irqs[i].irq_data = &irq_data[i];
+ 
+ 	/* request irq */
+ 	irq_id = platform_get_irq(pdev, 0);
+-	if (irq_id < 0)
+-		return irq_id;
++	if (irq_id < 0) {
++		ret = irq_id;
++		goto err_pm_disable;
++	}
+ 
+ 	ret = devm_request_irq(dev, irq_id, mt8192_afe_irq_handler,
+ 			       IRQF_TRIGGER_NONE, "asys-isr", (void *)afe);
+ 	if (ret) {
+ 		dev_err(dev, "could not request_irq for Afe_ISR_Handle\n");
+-		return ret;
++		goto err_pm_disable;
+ 	}
+ 
+ 	/* init sub_dais */
 -- 
 2.30.2
 
