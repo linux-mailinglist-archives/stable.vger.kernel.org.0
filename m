@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B4AC408FCB
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D93D8408E39
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:31:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242917AbhIMNqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:46:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51542 "EHLO mail.kernel.org"
+        id S242117AbhIMNai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:30:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243611AbhIMNok (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:44:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 726F261506;
-        Mon, 13 Sep 2021 13:31:09 +0000 (UTC)
+        id S241355AbhIMNX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:23:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5B99610F9;
+        Mon, 13 Sep 2021 13:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539869;
-        bh=E080KnkcT6EvMHaaLGSmtuIvM6PZcJ0ayg+8hQXC2Tg=;
+        s=korg; t=1631539301;
+        bh=bOvRzoq8iYuF1+SrAaotocRKtSikggHxC12v29IJ35k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OGb7Ez4j2sdBOyXrK5eJekAqisxjVgc6t6z1bwfIOfNT9mosdq9oHHOTiZoK+SUwX
-         wZ3uVnK/Ey7cbunVYf92dV5FuHhyKP4RfHwRiJybTWayNCHSsH+LA4d0eyZz6/9xRt
-         hYxqHGokx71xrWiY/ffny9PdrNUhAC8t8HS+ob0E=
+        b=wHFo698ef0OMbTkW62q5ZEqk5WZX81UnAjjI96MXwAjdkJylBnZXjRUwtWsAKo7Vv
+         gIrDH0KNaGq8Rs50IffjZtGls3XP/U09UiyspKfzOYdmUpaw1tIYi3q89xXnyqGZYG
+         CyhAlADSCno4zlYraUlsimKQuWQNn1rIdfAdAV78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Evgeny Novikov <novikov@ispras.ru>,
-        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 193/236] usb: ehci-orion: Handle errors of clk_prepare_enable() in probe
+Subject: [PATCH 5.4 117/144] ASoC: wcd9335: Disable irq on slave ports in the remove function
 Date:   Mon, 13 Sep 2021 15:14:58 +0200
-Message-Id: <20210913131106.948973221@linuxfoundation.org>
+Message-Id: <20210913131051.842348284@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 4720f1bf4ee4a784d9ece05420ba33c9222a3004 ]
+[ Upstream commit d3efd26af2e044ff2b48d38bb871630282d77e60 ]
 
-ehci_orion_drv_probe() did not account for possible errors of
-clk_prepare_enable() that in particular could cause invocation of
-clk_disable_unprepare() on clocks that were not prepared/enabled yet,
-e.g. in remove or on handling errors of usb_add_hcd() in probe. Though,
-there were several patches fixing different issues with clocks in this
-driver, they did not solve this problem.
+The probe calls 'wcd9335_setup_irqs()' to enable interrupts on all slave
+ports.
+This must be undone in the remove function.
 
-Add handling of errors of clk_prepare_enable() in ehci_orion_drv_probe()
-to avoid calls of clk_disable_unprepare() without previous successful
-invocation of clk_prepare_enable().
+Add a 'wcd9335_teardown_irqs()' function that undoes 'wcd9335_setup_irqs()'
+function, and call it from the remove function.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Fixes: 8c869edaee07 ("ARM: Orion: EHCI: Add support for enabling clocks")
-Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Link: https://lore.kernel.org/r/20210825170902.11234-1-novikov@ispras.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Message-Id: <8f761244d79bd4c098af8a482be9121d3a486d1b.1629091028.git.christophe.jaillet@wanadoo.fr>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ehci-orion.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ sound/soc/codecs/wcd9335.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/usb/host/ehci-orion.c b/drivers/usb/host/ehci-orion.c
-index a319b1df3011..3626758b3e2a 100644
---- a/drivers/usb/host/ehci-orion.c
-+++ b/drivers/usb/host/ehci-orion.c
-@@ -264,8 +264,11 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
- 	 * the clock does not exists.
- 	 */
- 	priv->clk = devm_clk_get(&pdev->dev, NULL);
--	if (!IS_ERR(priv->clk))
--		clk_prepare_enable(priv->clk);
-+	if (!IS_ERR(priv->clk)) {
-+		err = clk_prepare_enable(priv->clk);
-+		if (err)
-+			goto err_put_hcd;
-+	}
+diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
+index 5ec63217ad02..016aff97e2fb 100644
+--- a/sound/soc/codecs/wcd9335.c
++++ b/sound/soc/codecs/wcd9335.c
+@@ -4076,6 +4076,16 @@ static int wcd9335_setup_irqs(struct wcd9335_codec *wcd)
+ 	return ret;
+ }
  
- 	priv->phy = devm_phy_optional_get(&pdev->dev, "usb");
- 	if (IS_ERR(priv->phy)) {
-@@ -311,6 +314,7 @@ static int ehci_orion_drv_probe(struct platform_device *pdev)
- err_dis_clk:
- 	if (!IS_ERR(priv->clk))
- 		clk_disable_unprepare(priv->clk);
-+err_put_hcd:
- 	usb_put_hcd(hcd);
- err:
- 	dev_err(&pdev->dev, "init %s fail, %d\n",
++static void wcd9335_teardown_irqs(struct wcd9335_codec *wcd)
++{
++	int i;
++
++	/* disable interrupts on all slave ports */
++	for (i = 0; i < WCD9335_SLIM_NUM_PORT_REG; i++)
++		regmap_write(wcd->if_regmap, WCD9335_SLIM_PGD_PORT_INT_EN0 + i,
++			     0x00);
++}
++
+ static void wcd9335_cdc_sido_ccl_enable(struct wcd9335_codec *wcd,
+ 					bool ccl_flag)
+ {
+@@ -4878,6 +4888,7 @@ static void wcd9335_codec_remove(struct snd_soc_component *comp)
+ 	struct wcd9335_codec *wcd = dev_get_drvdata(comp->dev);
+ 
+ 	wcd_clsh_ctrl_free(wcd->clsh_ctrl);
++	wcd9335_teardown_irqs(wcd);
+ }
+ 
+ static int wcd9335_codec_set_sysclk(struct snd_soc_component *comp,
 -- 
 2.30.2
 
