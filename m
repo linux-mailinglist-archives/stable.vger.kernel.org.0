@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 623D64092E7
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9291340956A
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344248AbhIMOQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:16:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60400 "EHLO mail.kernel.org"
+        id S1346095AbhIMOlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344226AbhIMOLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:11:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21B8D61AAD;
-        Mon, 13 Sep 2021 13:42:19 +0000 (UTC)
+        id S1346227AbhIMOjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:39:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 251D661C4F;
+        Mon, 13 Sep 2021 13:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540540;
-        bh=oLulRJc2tHhj2i0xsNbP/xF1YZEErCzvRn5Suf+glkA=;
+        s=korg; t=1631541301;
+        bh=V1GOIwFe2wEm60a3E7+/DpJsh1gioHZlFyiudEwq0OM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ixLcX4wOBmmvvCOf3bYYSZ5RF9FJOi/z8skS9JFUfL57iGxN0KrwVrhHCy1ZOV1PC
-         5vwAzQqbJY2xlvMIDFMASl7T6hLEuenr6Uqd2HTcy6X4LW/Bq3guXMA6r/s2qx2NnR
-         FLU7DPUdBsVExHL/dRFRpnzefak+QaZBUXACybEM=
+        b=M8k1YHQVmFfqXOEgHF6dSS/aC/s2OsY1EzTepA/9F3wSqJ+cmDap8eLGNT2nGDG8W
+         TwFloNzwSbAr1RFSz9cQPsfHr1yWEF9qmB/pgpF1j4qqC0E70Sv9atpgMPjRA6yL72
+         T0PapXr6/XcIK2Z6i9DCsSuGMFKT+xQfuDHRxzI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Felipe Balbi <balbi@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 193/300] usb: host: ohci-tmio: add IRQ check
-Date:   Mon, 13 Sep 2021 15:14:14 +0200
-Message-Id: <20210913131115.899616555@linuxfoundation.org>
+Subject: [PATCH 5.14 201/334] usb: gadget: udc: at91: add IRQ check
+Date:   Mon, 13 Sep 2021 15:14:15 +0200
+Message-Id: <20210913131120.202743181@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +42,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 4ac5132e8a4300637a2da8f5d6bc7650db735b8a ]
+[ Upstream commit 50855c31573b02963f0aa2aacfd4ea41c31ae0e0 ]
 
-The driver neglects to check the  result of platform_get_irq()'s call and
-blithely passes the negative error codes to usb_add_hcd() (which takes
-*unsigned* IRQ #), causing request_irq() that it calls to fail with
--EINVAL, overriding an original error code. Stop calling usb_add_hcd()
-with the invalid IRQ #s.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_irq() (which takes
+*unsigned* IRQ #), causing it to fail with -EINVAL, overriding an original
+error code. Stop calling devm_request_irq() with the invalid IRQ #s.
 
-Fixes: 78c73414f4f6 ("USB: ohci: add support for tmio-ohci cell")
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Fixes: 8b2e76687b39 ("USB: AT91 UDC updates, mostly power management")
 Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/402e1a45-a0a4-0e08-566a-7ca1331506b1@omp.ru
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/6654a224-739a-1a80-12f0-76d920f87b6c@omp.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/ohci-tmio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/udc/at91_udc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/ohci-tmio.c b/drivers/usb/host/ohci-tmio.c
-index 7f857bad9e95..08ec2ab0d95a 100644
---- a/drivers/usb/host/ohci-tmio.c
-+++ b/drivers/usb/host/ohci-tmio.c
-@@ -202,6 +202,9 @@ static int ohci_hcd_tmio_drv_probe(struct platform_device *dev)
- 	if (!cell)
- 		return -EINVAL;
+diff --git a/drivers/usb/gadget/udc/at91_udc.c b/drivers/usb/gadget/udc/at91_udc.c
+index eede5cedacb4..d9ad9adf7348 100644
+--- a/drivers/usb/gadget/udc/at91_udc.c
++++ b/drivers/usb/gadget/udc/at91_udc.c
+@@ -1876,7 +1876,9 @@ static int at91udc_probe(struct platform_device *pdev)
+ 	clk_disable(udc->iclk);
  
-+	if (irq < 0)
-+		return irq;
-+
- 	hcd = usb_create_hcd(&ohci_tmio_hc_driver, &dev->dev, dev_name(&dev->dev));
- 	if (!hcd) {
- 		ret = -ENOMEM;
+ 	/* request UDC and maybe VBUS irqs */
+-	udc->udp_irq = platform_get_irq(pdev, 0);
++	udc->udp_irq = retval = platform_get_irq(pdev, 0);
++	if (retval < 0)
++		goto err_unprepare_iclk;
+ 	retval = devm_request_irq(dev, udc->udp_irq, at91_udc_irq, 0,
+ 				  driver_name, udc);
+ 	if (retval) {
 -- 
 2.30.2
 
