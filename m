@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A31A409140
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCCE0408E84
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243912AbhIMOAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:00:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38570 "EHLO mail.kernel.org"
+        id S241593AbhIMNfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:35:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244964AbhIMN4i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:56:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D25F6113B;
-        Mon, 13 Sep 2021 13:36:02 +0000 (UTC)
+        id S242638AbhIMNcg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:32:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3FB96137A;
+        Mon, 13 Sep 2021 13:25:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540162;
-        bh=G0zZKwnJTKyNsjBadEeQ+JAr9fyN0JUr2UF6VXJ677o=;
+        s=korg; t=1631539544;
+        bh=0VqOQdi3MJf18k+TNyXmI1bXyp7rMFeRpUZdG+erPOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+nQo5krSeWOYx3YG9Y+sC4LBySTnnExu+sLA03lehEJAxQvKqeKrINetn8J8sNmk
-         SFkdov+/RLwiFvGRFcGtNi5NroSnDl4qmS3mg3fyp3F1IPlIRTrfcUQ9vl8HijKMZh
-         uFA8gSOt8njsAOzHYCesFpdjyX8sXcyl+UGBSgoM=
+        b=JaWB+qFIZQICEhl6MXcqfqvAc1fchKRVSD6lYHlupHzkqWTaapWMhZOWuD5R9dmut
+         CB0EVyAdugfMy74VFH4/Bb+Jn4LuP84cKRbaSzt0s9ndMI6HZYd/InCLjcHOrVYSBB
+         NK+AF2DX4+DPKrr/Bh/mNgqvhnxLMdXlvVLT+WLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Jeff Layton <jlayton@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 077/300] spi: sprd: Fix the wrong WDG_LOAD_VAL
+Subject: [PATCH 5.10 033/236] fcntl: fix potential deadlock for &fasync_struct.fa_lock
 Date:   Mon, 13 Sep 2021 15:12:18 +0200
-Message-Id: <20210913131111.960741367@linuxfoundation.org>
+Message-Id: <20210913131101.468055752@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunyan Zhang <chunyan.zhang@unisoc.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 245ca2cc212bb2a078332ec99afbfbb202f44c2d ]
+[ Upstream commit 2f488f698fda820f8e6fa0407630154eceb145d6 ]
 
-Use 50ms as default timeout value and the time clock is 32768HZ.
-The original value of WDG_LOAD_VAL is not correct, so this patch
-fixes it.
+There is an existing lock hierarchy of
+&dev->event_lock --> &fasync_struct.fa_lock --> &f->f_owner.lock
+from the following call chain:
 
-Fixes: ac1775012058 ("spi: sprd: Add the support of restarting the system")
-Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Link: https://lore.kernel.org/r/20210826091549.2138125-2-zhang.lyra@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  input_inject_event():
+    spin_lock_irqsave(&dev->event_lock,...);
+    input_handle_event():
+      input_pass_values():
+        input_to_handler():
+          evdev_events():
+            evdev_pass_values():
+              spin_lock(&client->buffer_lock);
+              __pass_event():
+                kill_fasync():
+                  kill_fasync_rcu():
+                    read_lock(&fa->fa_lock);
+                    send_sigio():
+                      read_lock_irqsave(&fown->lock,...);
+
+&dev->event_lock is HARDIRQ-safe, so interrupts have to be disabled
+while grabbing &fasync_struct.fa_lock, otherwise we invert the lock
+hierarchy. However, since kill_fasync which calls kill_fasync_rcu is
+an exported symbol, it may not necessarily be called with interrupts
+disabled.
+
+As kill_fasync_rcu may be called with interrupts disabled (for
+example, in the call chain above), we replace calls to
+read_lock/read_unlock on &fasync_struct.fa_lock in kill_fasync_rcu
+with read_lock_irqsave/read_unlock_irqrestore.
+
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-sprd-adi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fcntl.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-sprd-adi.c b/drivers/spi/spi-sprd-adi.c
-index ab19068be867..98ef17389952 100644
---- a/drivers/spi/spi-sprd-adi.c
-+++ b/drivers/spi/spi-sprd-adi.c
-@@ -103,7 +103,7 @@
- #define HWRST_STATUS_WATCHDOG		0xf0
+diff --git a/fs/fcntl.c b/fs/fcntl.c
+index 05b36b28f2e8..71b43538fa44 100644
+--- a/fs/fcntl.c
++++ b/fs/fcntl.c
+@@ -995,13 +995,14 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
+ {
+ 	while (fa) {
+ 		struct fown_struct *fown;
++		unsigned long flags;
  
- /* Use default timeout 50 ms that converts to watchdog values */
--#define WDG_LOAD_VAL			((50 * 1000) / 32768)
-+#define WDG_LOAD_VAL			((50 * 32768) / 1000)
- #define WDG_LOAD_MASK			GENMASK(15, 0)
- #define WDG_UNLOCK_KEY			0xe551
- 
+ 		if (fa->magic != FASYNC_MAGIC) {
+ 			printk(KERN_ERR "kill_fasync: bad magic number in "
+ 			       "fasync_struct!\n");
+ 			return;
+ 		}
+-		read_lock(&fa->fa_lock);
++		read_lock_irqsave(&fa->fa_lock, flags);
+ 		if (fa->fa_file) {
+ 			fown = &fa->fa_file->f_owner;
+ 			/* Don't send SIGURG to processes which have not set a
+@@ -1010,7 +1011,7 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
+ 			if (!(sig == SIGURG && fown->signum == 0))
+ 				send_sigio(fown, fa->fa_fd, band);
+ 		}
+-		read_unlock(&fa->fa_lock);
++		read_unlock_irqrestore(&fa->fa_lock, flags);
+ 		fa = rcu_dereference(fa->fa_next);
+ 	}
+ }
 -- 
 2.30.2
 
