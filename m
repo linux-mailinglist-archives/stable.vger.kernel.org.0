@@ -2,127 +2,263 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 422A040888F
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 11:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DD304088D1
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 12:13:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237875AbhIMJyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 05:54:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38688 "EHLO
+        id S238950AbhIMKOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 06:14:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234476AbhIMJx7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 05:53:59 -0400
-Received: from theia.8bytes.org (8bytes.org [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB37C061574;
-        Mon, 13 Sep 2021 02:52:43 -0700 (PDT)
-Received: from cap.home.8bytes.org (p549ada98.dip0.t-ipconnect.de [84.154.218.152])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by theia.8bytes.org (Postfix) with ESMTPSA id D045A7F;
-        Mon, 13 Sep 2021 11:52:40 +0200 (CEST)
-From:   Joerg Roedel <joro@8bytes.org>
-To:     x86@kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        hpa@zytor.com, jroedel@suse.de, Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        linux-kernel@vger.kernel.org, joro@8bytes.org,
-        stable@vger.kernel.org
-Subject: [PATCH] x86/64/mm: Map all kernel memory into trampoline_pgd
-Date:   Mon, 13 Sep 2021 11:52:36 +0200
-Message-Id: <20210913095236.24937-1-joro@8bytes.org>
-X-Mailer: git-send-email 2.33.0
+        with ESMTP id S238241AbhIMKOs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 06:14:48 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5FB6C061574
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 03:13:32 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id k24so8980926pgh.8
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 03:13:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ONggBwweYaiR1X7Mvrh0+peUm4HdwMOpW2CIeZKamQ4=;
+        b=cqe/IIY6aCclXgPiihC60mfM0JqExpcUAf4bA7zd9ffCPosbC7V2jctwqV0jGrA6vo
+         Ip7P06pha129pZOrNYkFgGDVMqBAS2aZdotAXkE4lf6D2QE8W+9jsbSEbV52/REGuoIH
+         V8ZwlVh22WFYt8HC8sums+YKiZQkX9uEGSxkf+ED/zqG6Py++igkX+b8d54e0zVE+eqA
+         +9Eb2JHhXYYfIbVc+Z9kX7EIGBzDS6OWmXXP+bpPWWUShbM2n6eN83OJg0bNY996t4po
+         IFLseRC/suXmypmHbzE2LBKCixffqHGe3MOs61J1qz6S131PkPrwpwJW0Lommi9CW2Ic
+         /CzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ONggBwweYaiR1X7Mvrh0+peUm4HdwMOpW2CIeZKamQ4=;
+        b=t7OO/OtQz8tziQqpVX7EiFUs3tk1XuxkrBlji8BXNEAwOZqA10xizmjS0gFTCm7Tjp
+         viJqkpjZ9EiPSSrRzH3I9ilOycqwiTZ+oHifTtKgESgcNJB0V76/qpijJbQ0+o1xXb+c
+         1dXXxAB7fZyXGBTDp+mc3s/rx3yzFvpXQNvqT1SCc8e7APQTAqJpvKj2WNEPeuRRvvTL
+         sq42SeKnhPhXWPBvnNj19ZEwisjIpZzUnGh5+8u3HA24UcuxmEpPMBIOth6Qc7aiOHKP
+         mW87FlKeNk7sFwBYi3B9c5A3SHvqvnp07g49isyF7qc72Hh+EaESwOu5coI8XtyTPE57
+         /9Ng==
+X-Gm-Message-State: AOAM530eIbJ9N1Spm6PO0afG/Sez3YfGpqG/JaIzoU/HnOAgQBEJpxwf
+        KNg6RxFChZbqkm6HrjyJsNwnUQwOkp3Jep8f
+X-Google-Smtp-Source: ABdhPJwOmCALfuPiu2nFuk6Dd++zy8YhrHqPQnLd2KH0EgOXcy13V1asgQtT5xKAc4ZHQjE/n0Ts6A==
+X-Received: by 2002:a63:5413:: with SMTP id i19mr10496311pgb.297.1631528012078;
+        Mon, 13 Sep 2021 03:13:32 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h16sm607830pjt.30.2021.09.13.03.13.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Sep 2021 03:13:31 -0700 (PDT)
+Message-ID: <613f244b.1c69fb81.7cc07.1189@mx.google.com>
+Date:   Mon, 13 Sep 2021 03:13:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.206-106-gd5a3197936bf
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 151 runs,
+ 6 regressions (v4.19.206-106-gd5a3197936bf)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+stable-rc/queue/4.19 baseline: 151 runs, 6 regressions (v4.19.206-106-gd5a3=
+197936bf)
 
-The trampoline_pgd only maps the 0xfffffff000000000-0xffffffffffffffff
-range of kernel memory (with 4-level paging). This range contains the
-kernels text+data+bss mappings and the module mapping space, but not the
-direct mapping and the vmalloc area.
+Regressions Summary
+-------------------
 
-This is enough to get an application processors out of real-mode, but
-for code that switches back to real-mode the trampoline_pgd is missing
-important parts of the address space. For example, consider this code
-from arch/x86/kernel/reboot.c, function machine_real_restart() for a
-64-bit kernel:
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
 
-	#ifdef CONFIG_X86_32
-		load_cr3(initial_page_table);
-	#else
-		write_cr3(real_mode_header->trampoline_pgd);
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-		/* Exiting long mode will fail if CR4.PCIDE is set. */
-		if (boot_cpu_has(X86_FEATURE_PCID))
-			cr4_clear_bits(X86_CR4_PCIDE);
-	#endif
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-		/* Jump to the identity-mapped low memory code */
-	#ifdef CONFIG_X86_32
-		asm volatile("jmpl *%0" : :
-			     "rm" (real_mode_header->machine_real_restart_asm),
-			     "a" (type));
-	#else
-		asm volatile("ljmpl *%0" : :
-			     "m" (real_mode_header->machine_real_restart_asm),
-			     "D" (type));
-	#endif
+rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
+  | 3          =
 
-The code switches to the trampoline_pgd, which unmaps the direct mapping
-and also the kernel stack. The call to cr4_clear_bits() will find no
-stack and crash the machine. The real_mode_header pointer below points
-into the direct mapping, and dereferencing it also causes a crash.
 
-The reason this does not crash always is only that kernel mappings are
-global and the CR3 switch does not flush those mappings. But if theses
-mappings are not in the TLB already, the above code will crash before it
-can jump to the real-mode stub.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.206-106-gd5a3197936bf/plan/baseline/
 
-Extend the trampoline_pgd to contain all kernel mappings to prevent
-these crashes and to make code which runs on this page-table more
-robust.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.206-106-gd5a3197936bf
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d5a3197936bf72d8bc5fb7c9383cbdbdcdda2531 =
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- arch/x86/realmode/init.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index 31b5856010cb..7a08c96cb42a 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -72,6 +72,7 @@ static void __init setup_real_mode(void)
- #ifdef CONFIG_X86_64
- 	u64 *trampoline_pgd;
- 	u64 efer;
-+	int i;
- #endif
- 
- 	base = (unsigned char *)real_mode_header;
-@@ -128,8 +129,17 @@ static void __init setup_real_mode(void)
- 	trampoline_header->flags = 0;
- 
- 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
-+
-+	/*
-+	 * Map all of kernel memory into the trampoline PGD so that it includes
-+	 * the direct mapping and vmalloc space. This is needed to keep the
-+	 * stack and real_mode_header mapped when switching to this page table.
-+	 */
-+	for (i = pgd_index(__PAGE_OFFSET); i < PTRS_PER_PGD; i++)
-+		trampoline_pgd[i] = init_top_pgt[i].pgd;
-+
-+	/* Map the real mode stub as virtual == physical */
- 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
--	trampoline_pgd[511] = init_top_pgt[511].pgd;
- #endif
- 
- 	sme_sev_setup_real_mode(trampoline_header);
--- 
-2.33.0
 
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613ef049ffffc368f8d5966d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-106-gd5a3197936bf/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-106-gd5a3197936bf/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613ef049ffffc368f8d59=
+66e
+        failing since 303 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613ef04ee6ee123c73d59674
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-106-gd5a3197936bf/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-106-gd5a3197936bf/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613ef04ee6ee123c73d59=
+675
+        failing since 303 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613f1c6d6aeba13e1d99a2da
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-106-gd5a3197936bf/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-106-gd5a3197936bf/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613f1c6d6aeba13e1d99a=
+2db
+        failing since 303 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
+  | 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613f1ec19387c2e04d99a2da
+
+  Results:     64 PASS, 6 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-106-gd5a3197936bf/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
+88-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.206=
+-106-gd5a3197936bf/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
+88-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/613f1ec19387c2e04d99a2ee
+        failing since 90 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-09-13T10:10:33.541023  /lava-4507805/1/../bin/lava-test-case<8>[  =
+ 17.569297] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-09-13T10:10:33.541527  =
+
+    2021-09-13T10:10:33.541878  /lava-4507805/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/613f1ec19387c2e04d99a307
+        failing since 90 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-09-13T10:10:31.083496  /lava-4507805/1/../bin/lava-test-case
+    2021-09-13T10:10:31.083967  <8>[   15.128224] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/613f1ec19387c2e04d99a308
+        failing since 90 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-09-13T10:10:30.062535  /lava-4507805/1/../bin/lava-test-case
+    2021-09-13T10:10:30.067507  <8>[   14.108903] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
