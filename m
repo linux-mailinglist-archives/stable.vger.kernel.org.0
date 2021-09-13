@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FF73409256
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC8C4094F4
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245737AbhIMOKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:10:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55954 "EHLO mail.kernel.org"
+        id S1345292AbhIMOgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:36:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244723AbhIMOIW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:08:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9085861A88;
-        Mon, 13 Sep 2021 13:40:42 +0000 (UTC)
+        id S1347540AbhIMOem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:34:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B9CC61BD1;
+        Mon, 13 Sep 2021 13:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540443;
-        bh=vQZ8aBcpON6jrIgp7vnwWUJaWfuLDh0abPyi8fIbhs4=;
+        s=korg; t=1631541197;
+        bh=kdMDeZOAHr7wVMaFI+ckBHlPCR//dK5lxel0Y49RD5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o6lZ+Bs6zG2+tLYqz7Id6HmL4rq4RdxXX/4+QFZmX4pZGDtHg3SFfbwjlhqvBjnga
-         yiqNoISXp5IXZJJmZ2BLnMofr1FzCgPfjnppoq5Jed16HZmRF3hlpZALmazuUu5Rnf
-         P7Qz4b4wTVf+yRxpzAbgFi4I+9vMD3piD0msxBZ0=
+        b=HFwaJHSe+GJRpCmOeoqaQhaZM8Ds9BwV32P4TvcYK/1b2wW22xK34Is738286/Whp
+         BWBD2GZs2BHR0ENF9WJ8YIlbJmDz1DMQQN5vasAh4FXu5HV7HnfpSW3LA35AVVJvoa
+         PIqHq2bSNvdUaRPhXxTGqI/MwpVHX0jdg/82uANg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 163/300] leds: lgm-sso: Propagate error codes from callee to caller
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 170/334] net: dsa: tag_sja1105: optionally build as module when switch driver is module if PTP is enabled
 Date:   Mon, 13 Sep 2021 15:13:44 +0200
-Message-Id: <20210913131114.919165374@linuxfoundation.org>
+Message-Id: <20210913131119.093497499@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 9cbc861095375793a69858f91f3ac4e817f320f0 ]
+[ Upstream commit f8b17a0bd96065e4511858689916bb729dbb881b ]
 
-The one of the latest change to the driver reveals the problem that
-the error codes from callee aren't propagated to the caller of
-__sso_led_dt_parse(). Fix this accordingly.
+TX timestamps are sent by SJA1110 as Ethernet packets containing
+metadata, so they are received by the tagging driver but must be
+processed by the switch driver - the one that is stateful since it
+keeps the TX timestamp queue.
 
-Fixes: 9999908ca1ab ("leds: lgm-sso: Put fwnode in any case during ->probe()")
-Fixes: c3987cd2bca3 ("leds: lgm: Add LED controller driver for LGM SoC")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+This means that there is an sja1110_process_meta_tstamp() symbol
+exported by the switch driver which is called by the tagging driver.
+
+There is a shim definition for that function when the switch driver is
+not compiled, which does nothing, but that shim is not effective when
+the tagging protocol driver is built-in and the switch driver is a
+module, because built-in code cannot call symbols exported by modules.
+
+So add an optional dependency between the tagger and the switch driver,
+if PTP support is enabled in the switch driver. If PTP is not enabled,
+sja1110_process_meta_tstamp() will translate into the shim "do nothing
+with these meta frames" function.
+
+Fixes: 566b18c8b752 ("net: dsa: sja1105: implement TX timestamping for SJA1110")
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/blink/leds-lgm-sso.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/dsa/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/leds/blink/leds-lgm-sso.c b/drivers/leds/blink/leds-lgm-sso.c
-index 6c0ffcaa6b5c..24736f29d363 100644
---- a/drivers/leds/blink/leds-lgm-sso.c
-+++ b/drivers/leds/blink/leds-lgm-sso.c
-@@ -643,7 +643,7 @@ __sso_led_dt_parse(struct sso_led_priv *priv, struct fwnode_handle *fw_ssoled)
- 							      fwnode_child,
- 							      GPIOD_ASIS, NULL);
- 		if (IS_ERR(led->gpiod)) {
--			dev_err_probe(dev, PTR_ERR(led->gpiod), "led: get gpio fail!\n");
-+			ret = dev_err_probe(dev, PTR_ERR(led->gpiod), "led: get gpio fail!\n");
- 			goto __dt_err;
- 		}
+diff --git a/net/dsa/Kconfig b/net/dsa/Kconfig
+index bca1b5d66df2..970906eb5b2c 100644
+--- a/net/dsa/Kconfig
++++ b/net/dsa/Kconfig
+@@ -138,6 +138,7 @@ config NET_DSA_TAG_LAN9303
  
-@@ -663,8 +663,11 @@ __sso_led_dt_parse(struct sso_led_priv *priv, struct fwnode_handle *fw_ssoled)
- 			desc->panic_indicator = 1;
- 
- 		ret = fwnode_property_read_u32(fwnode_child, "reg", &prop);
--		if (ret != 0 || prop >= SSO_LED_MAX_NUM) {
-+		if (ret)
-+			goto __dt_err;
-+		if (prop >= SSO_LED_MAX_NUM) {
- 			dev_err(dev, "invalid LED pin:%u\n", prop);
-+			ret = -EINVAL;
- 			goto __dt_err;
- 		}
- 		desc->pin = prop;
-@@ -700,7 +703,8 @@ __sso_led_dt_parse(struct sso_led_priv *priv, struct fwnode_handle *fw_ssoled)
- 				desc->brightness = LED_FULL;
- 		}
- 
--		if (sso_create_led(priv, led, fwnode_child))
-+		ret = sso_create_led(priv, led, fwnode_child);
-+		if (ret)
- 			goto __dt_err;
- 	}
- 
-@@ -714,7 +718,7 @@ __dt_err:
- 		sso_led_shutdown(led);
- 	}
- 
--	return -EINVAL;
-+	return ret;
- }
- 
- static int sso_led_dt_parse(struct sso_led_priv *priv)
+ config NET_DSA_TAG_SJA1105
+ 	tristate "Tag driver for NXP SJA1105 switches"
++	depends on (NET_DSA_SJA1105 && NET_DSA_SJA1105_PTP) || !NET_DSA_SJA1105 || !NET_DSA_SJA1105_PTP
+ 	select PACKING
+ 	help
+ 	  Say Y or M if you want to enable support for tagging frames with the
 -- 
 2.30.2
 
