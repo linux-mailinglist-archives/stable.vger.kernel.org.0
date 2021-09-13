@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F5C408FA4
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2F09408D11
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:22:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242294AbhIMNpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:45:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
+        id S240675AbhIMNXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:23:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238030AbhIMNmv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:42:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D917461407;
-        Mon, 13 Sep 2021 13:30:23 +0000 (UTC)
+        id S238525AbhIMNUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:20:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D69361214;
+        Mon, 13 Sep 2021 13:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539824;
-        bh=78ojPiQPyowEygpwF1GjuFOvhHMCaKV6fWIha8VPLXU=;
+        s=korg; t=1631539144;
+        bh=lyD0njKJ/aLyKDW2Y7S+vq8Ec95r1GDDF8sSuW+r5gU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2QbPrqpVYN+Ay3qJccBMsq+gjTcxh+3pXO447Dem6j8N5G0o6nRUh7A7mwpOsLGW3
-         XeSzuJF2LSLr2hQhjZbW+HNwQFbLr2vGV48QV5ER+MRHD1QR+UgL0IfGg9NxZdns+M
-         IalLQKW4Hnw1kuA2XG6l2/zbNLBPpc/qNs/9olX4=
+        b=nH+N6kpzyP+eAN/rzJz02LmK4tGiXQXwBScTp5ya6/NTmM56IzGFigY7uGRVT2Ut8
+         XuVpZXIjrxJxAlfUCNqKi3V+gFUADLHNhekE37vcxqMaSr6t75oOMN0/igdVO8hfTV
+         LC91A+Q9P+a/pZQ47AlxelgD+Jmt/x02pzbNWYZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Blanquicet <josebl@microsoft.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 132/236] selftests/bpf: Fix bpf-iter-tcp4 test to print correctly the dest IP
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 056/144] media: dvb-usb: fix uninit-value in vp702x_read_mac_addr
 Date:   Mon, 13 Sep 2021 15:13:57 +0200
-Message-Id: <20210913131104.852555981@linuxfoundation.org>
+Message-Id: <20210913131049.843704032@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Blanquicet <josebl@microsoft.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 277b134057036df8c657079ca92c3e5e7d10aeaf ]
+[ Upstream commit 797c061ad715a9a1480eb73f44b6939fbe3209ed ]
 
-Currently, this test is incorrectly printing the destination port in
-place of the destination IP.
+If vp702x_usb_in_op fails, the mac address is not initialized.
+And vp702x_read_mac_addr does not handle this failure, which leads to
+the uninit-value in dvb_usb_adapter_dvb_init.
 
-Fixes: 2767c97765cb ("selftests/bpf: Implement sample tcp/tcp6 bpf_iter programs")
-Signed-off-by: Jose Blanquicet <josebl@microsoft.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210805164044.527903-1-josebl@microsoft.com
+Fix this by handling the failure of vp702x_usb_in_op.
+
+Fixes: 786baecfe78f ("[media] dvb-usb: move it to drivers/media/usb/dvb-usb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/vp702x.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c b/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c
-index 54380c5e1069..aa96b604b2b3 100644
---- a/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c
-+++ b/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c
-@@ -122,7 +122,7 @@ static int dump_tcp_sock(struct seq_file *seq, struct tcp_sock *tp,
- 	}
+diff --git a/drivers/media/usb/dvb-usb/vp702x.c b/drivers/media/usb/dvb-usb/vp702x.c
+index 381b5c898a07..b7ee972455e5 100644
+--- a/drivers/media/usb/dvb-usb/vp702x.c
++++ b/drivers/media/usb/dvb-usb/vp702x.c
+@@ -291,16 +291,22 @@ static int vp702x_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
+ static int vp702x_read_mac_addr(struct dvb_usb_device *d,u8 mac[6])
+ {
+ 	u8 i, *buf;
++	int ret;
+ 	struct vp702x_device_state *st = d->priv;
  
- 	BPF_SEQ_PRINTF(seq, "%4d: %08X:%04X %08X:%04X ",
--		       seq_num, src, srcp, destp, destp);
-+		       seq_num, src, srcp, dest, destp);
- 	BPF_SEQ_PRINTF(seq, "%02X %08X:%08X %02X:%08lX %08X %5u %8d %lu %d ",
- 		       state,
- 		       tp->write_seq - tp->snd_una, rx_queue,
+ 	mutex_lock(&st->buf_mutex);
+ 	buf = st->buf;
+-	for (i = 6; i < 12; i++)
+-		vp702x_usb_in_op(d, READ_EEPROM_REQ, i, 1, &buf[i - 6], 1);
++	for (i = 6; i < 12; i++) {
++		ret = vp702x_usb_in_op(d, READ_EEPROM_REQ, i, 1,
++				       &buf[i - 6], 1);
++		if (ret < 0)
++			goto err;
++	}
+ 
+ 	memcpy(mac, buf, 6);
++err:
+ 	mutex_unlock(&st->buf_mutex);
+-	return 0;
++	return ret;
+ }
+ 
+ static int vp702x_frontend_attach(struct dvb_usb_adapter *adap)
 -- 
 2.30.2
 
