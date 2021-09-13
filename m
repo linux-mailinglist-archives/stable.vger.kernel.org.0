@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EF9E4095ED
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D516C4092B8
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344992AbhIMOqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:46:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58768 "EHLO mail.kernel.org"
+        id S1343571AbhIMOPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:15:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245425AbhIMOmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:42:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A72761880;
-        Mon, 13 Sep 2021 13:56:31 +0000 (UTC)
+        id S245096AbhIMOMy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:12:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7027861356;
+        Mon, 13 Sep 2021 13:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541391;
-        bh=kBsgrVDe7zt/GZ0Pd3XptA/5U+L9g86/TTGBqjTSM3w=;
+        s=korg; t=1631540570;
+        bh=/Q+nGGbuRQCEf4nJ+zVUPSAiTbJskpr6+hRJit8n4qc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PXeuDSgyroqprUNv/OHTLLmDRJmFFZcD618oOEv+zfsMBSWTniuG0jfmuZ1l2F+B3
-         6fU50XsOKcegiNNBdxLd3Val/FE7O8eFBkrHc0WuDFx7y6OgOAYpZ478L5Syhtuz1Q
-         kzY4+Ms6L4WybMavamLxBWd/6sHJ4aezhn6YuBmA=
+        b=JA4oeoUjmotapt86OySrARgIfXfT+nGcrLHEEQA6m04EI0zPMHLqaFo704qbl1d1f
+         EoOhcnwSpA6XUnNq7WOLaVWCS28QLbhqAoyRWuo4kHvmg9pw8WHl6EB1zbZOAwWQuR
+         nopVGKl07+1UlvwJJs/7IbD8AAX86dItV8ZIQyq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org, Len Baker <len.baker@gmx.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Jeff Layton <jlayton@kernel.org>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 236/334] gfs2: init system threads before freeze lock
-Date:   Mon, 13 Sep 2021 15:14:50 +0200
-Message-Id: <20210913131121.394853002@linuxfoundation.org>
+Subject: [PATCH 5.13 230/300] CIFS: Fix a potencially linear read overflow
+Date:   Mon, 13 Sep 2021 15:14:51 +0200
+Message-Id: <20210913131117.117431895@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,200 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Len Baker <len.baker@gmx.com>
 
-[ Upstream commit a28dc123fa66ba7f3eca7cffc4b01d96bfd35c27 ]
+[ Upstream commit f980d055a0f858d73d9467bb0b570721bbfcdfb8 ]
 
-Patch 96b1454f2e ("gfs2: move freeze glock outside the make_fs_rw and _ro
-functions") changed the gfs2 mount sequence so that it holds the freeze
-lock before calling gfs2_make_fs_rw. Before this patch, gfs2_make_fs_rw
-called init_threads to initialize the quotad and logd threads. That is a
-problem if the system needs to withdraw due to IO errors early in the
-mount sequence, for example, while initializing the system statfs inode:
+strlcpy() reads the entire source buffer first. This read may exceed the
+destination size limit. This is both inefficient and can lead to linear
+read overflows if a source string is not NUL-terminated.
 
-1. An IO error causes the statfs glock to not sync properly after
-   recovery, and leaves items on the ail list.
-2. The leftover items on the ail list causes its do_xmote call to fail,
-   which makes it want to withdraw. But since the glock code cannot
-   withdraw (because the withdraw sequence uses glocks) it relies upon
-   the logd daemon to initiate the withdraw.
-3. The withdraw can never be performed by the logd daemon because all
-   this takes place before the logd daemon is started.
+Also, the strnlen() call does not avoid the read overflow in the strlcpy
+function when a not NUL-terminated string is passed.
 
-This patch moves function init_threads from super.c to ops_fstype.c
-and it changes gfs2_fill_super to start its threads before holding the
-freeze lock, and if there's an error, stop its threads after releasing
-it. This allows the logd to run unblocked by the freeze lock. Thus,
-the logd daemon can perform its withdraw sequence properly.
+So, replace this block by a call to kstrndup() that avoids this type of
+overflow and does the same.
 
-Fixes: 96b1454f2e8e ("gfs2: move freeze glock outside the make_fs_rw and _ro functions")
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Fixes: 066ce6899484d ("cifs: rename cifs_strlcpy_to_host and make it use new functions")
+Signed-off-by: Len Baker <len.baker@gmx.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/ops_fstype.c | 42 ++++++++++++++++++++++++++++++
- fs/gfs2/super.c      | 61 +++++---------------------------------------
- 2 files changed, 48 insertions(+), 55 deletions(-)
+ fs/cifs/cifs_unicode.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
-index bd3b3be1a473..ca76e3b8792c 100644
---- a/fs/gfs2/ops_fstype.c
-+++ b/fs/gfs2/ops_fstype.c
-@@ -1089,6 +1089,34 @@ void gfs2_online_uevent(struct gfs2_sbd *sdp)
- 	kobject_uevent_env(&sdp->sd_kobj, KOBJ_ONLINE, envp);
- }
- 
-+static int init_threads(struct gfs2_sbd *sdp)
-+{
-+	struct task_struct *p;
-+	int error = 0;
-+
-+	p = kthread_run(gfs2_logd, sdp, "gfs2_logd");
-+	if (IS_ERR(p)) {
-+		error = PTR_ERR(p);
-+		fs_err(sdp, "can't start logd thread: %d\n", error);
-+		return error;
-+	}
-+	sdp->sd_logd_process = p;
-+
-+	p = kthread_run(gfs2_quotad, sdp, "gfs2_quotad");
-+	if (IS_ERR(p)) {
-+		error = PTR_ERR(p);
-+		fs_err(sdp, "can't start quotad thread: %d\n", error);
-+		goto fail;
-+	}
-+	sdp->sd_quotad_process = p;
-+	return 0;
-+
-+fail:
-+	kthread_stop(sdp->sd_logd_process);
-+	sdp->sd_logd_process = NULL;
-+	return error;
-+}
-+
- /**
-  * gfs2_fill_super - Read in superblock
-  * @sb: The VFS superblock
-@@ -1217,6 +1245,14 @@ static int gfs2_fill_super(struct super_block *sb, struct fs_context *fc)
- 		goto fail_per_node;
+diff --git a/fs/cifs/cifs_unicode.c b/fs/cifs/cifs_unicode.c
+index 9bd03a231032..171ad8b42107 100644
+--- a/fs/cifs/cifs_unicode.c
++++ b/fs/cifs/cifs_unicode.c
+@@ -358,14 +358,9 @@ cifs_strndup_from_utf16(const char *src, const int maxlen,
+ 		if (!dst)
+ 			return NULL;
+ 		cifs_from_utf16(dst, (__le16 *) src, len, maxlen, codepage,
+-			       NO_MAP_UNI_RSVD);
++				NO_MAP_UNI_RSVD);
+ 	} else {
+-		len = strnlen(src, maxlen);
+-		len++;
+-		dst = kmalloc(len, GFP_KERNEL);
+-		if (!dst)
+-			return NULL;
+-		strlcpy(dst, src, len);
++		dst = kstrndup(src, maxlen, GFP_KERNEL);
  	}
  
-+	if (!sb_rdonly(sb)) {
-+		error = init_threads(sdp);
-+		if (error) {
-+			gfs2_withdraw_delayed(sdp);
-+			goto fail_per_node;
-+		}
-+	}
-+
- 	error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
- 	if (error)
- 		goto fail_per_node;
-@@ -1226,6 +1262,12 @@ static int gfs2_fill_super(struct super_block *sb, struct fs_context *fc)
- 
- 	gfs2_freeze_unlock(&freeze_gh);
- 	if (error) {
-+		if (sdp->sd_quotad_process)
-+			kthread_stop(sdp->sd_quotad_process);
-+		sdp->sd_quotad_process = NULL;
-+		if (sdp->sd_logd_process)
-+			kthread_stop(sdp->sd_logd_process);
-+		sdp->sd_logd_process = NULL;
- 		fs_err(sdp, "can't make FS RW: %d\n", error);
- 		goto fail_per_node;
- 	}
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 4d4ceb0b6903..2bdbba5ea8d7 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -119,34 +119,6 @@ int gfs2_jdesc_check(struct gfs2_jdesc *jd)
- 	return 0;
- }
- 
--static int init_threads(struct gfs2_sbd *sdp)
--{
--	struct task_struct *p;
--	int error = 0;
--
--	p = kthread_run(gfs2_logd, sdp, "gfs2_logd");
--	if (IS_ERR(p)) {
--		error = PTR_ERR(p);
--		fs_err(sdp, "can't start logd thread: %d\n", error);
--		return error;
--	}
--	sdp->sd_logd_process = p;
--
--	p = kthread_run(gfs2_quotad, sdp, "gfs2_quotad");
--	if (IS_ERR(p)) {
--		error = PTR_ERR(p);
--		fs_err(sdp, "can't start quotad thread: %d\n", error);
--		goto fail;
--	}
--	sdp->sd_quotad_process = p;
--	return 0;
--
--fail:
--	kthread_stop(sdp->sd_logd_process);
--	sdp->sd_logd_process = NULL;
--	return error;
--}
--
- /**
-  * gfs2_make_fs_rw - Turn a Read-Only FS into a Read-Write one
-  * @sdp: the filesystem
-@@ -161,26 +133,17 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
- 	struct gfs2_log_header_host head;
- 	int error;
- 
--	error = init_threads(sdp);
--	if (error) {
--		gfs2_withdraw_delayed(sdp);
--		return error;
--	}
--
- 	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
--	if (gfs2_withdrawn(sdp)) {
--		error = -EIO;
--		goto fail;
--	}
-+	if (gfs2_withdrawn(sdp))
-+		return -EIO;
- 
- 	error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
- 	if (error || gfs2_withdrawn(sdp))
--		goto fail;
-+		return error;
- 
- 	if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT)) {
- 		gfs2_consist(sdp);
--		error = -EIO;
--		goto fail;
-+		return -EIO;
- 	}
- 
- 	/*  Initialize some head of the log stuff  */
-@@ -188,20 +151,8 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
- 	gfs2_log_pointers_init(sdp, head.lh_blkno);
- 
- 	error = gfs2_quota_init(sdp);
--	if (error || gfs2_withdrawn(sdp))
--		goto fail;
--
--	set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
--
--	return 0;
--
--fail:
--	if (sdp->sd_quotad_process)
--		kthread_stop(sdp->sd_quotad_process);
--	sdp->sd_quotad_process = NULL;
--	if (sdp->sd_logd_process)
--		kthread_stop(sdp->sd_logd_process);
--	sdp->sd_logd_process = NULL;
-+	if (!error && !gfs2_withdrawn(sdp))
-+		set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
- 	return error;
- }
- 
+ 	return dst;
 -- 
 2.30.2
 
