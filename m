@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B357409299
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFBF0409553
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242193AbhIMOMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:12:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33910 "EHLO mail.kernel.org"
+        id S1345011AbhIMOkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:40:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343964AbhIMOLA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:11:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3844061AAA;
-        Mon, 13 Sep 2021 13:41:58 +0000 (UTC)
+        id S1344907AbhIMOhm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:37:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A678619E3;
+        Mon, 13 Sep 2021 13:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540518;
-        bh=avBuPA/bEjeUC+0OIxFvvbq4eDjlC48TEm/B0pyw63o=;
+        s=korg; t=1631541278;
+        bh=x/mROKq2joeZNE9BFEHNXlD9a+AN47SAkPAv5ayDKiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bwwu8nAfP/Wt5vfTqIQnxosu4iSw4q1ztYl0UBTtgsH6ESGSI9vDnbdsEFLybzIfO
-         rBn/pErgzViomzDg1WruFBsJT+EiAGQSepYDSnLODKKfi72o+BJdyFHCB/cxVEwbFq
-         575nIgT7KwbhCb2T52kOxZtGomrbvJRThnJWf0Ao=
+        b=odwEwnPAU/mDS4zVBPMd0tOdyqWZcRRv+w7dtoluCISmB2WYmwW0VxW1hJinZzl40
+         ZMoxXcpsDRbQnuabiOuvkpL3mihMrf1jkm8Zb7Egltc9pHZx84wy9xsr51Y0aB8AZg
+         ZXTKaT/f4wR+7zy+9d2xO+aqJUN7UtqrwgacgHIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Lukasz Majczak <lma@semihalf.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 225/300] ASoC: Intel: Skylake: Fix module resource and format selection
-Date:   Mon, 13 Sep 2021 15:14:46 +0200
-Message-Id: <20210913131116.954625866@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 233/334] i2c: iop3xx: fix deferred probing
+Date:   Mon, 13 Sep 2021 15:14:47 +0200
+Message-Id: <20210913131121.299882056@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,94 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit e8b374b649afe756c2470e0e6668022e90bf8518 ]
+[ Upstream commit a1299505162ad00def3573260c2c68b9c8e8d697 ]
 
-Module configuration may differ between its instances depending on
-resources required and input and output audio format. Available
-parameters to select from are stored in module resource and interface
-(format) lists. These come from topology, together with description of
-each of pipe's modules.
+When adding the code to handle platform_get_irq*() errors in the commit
+489447380a29 ("handle errors returned by platform_get_irq*()"), the
+actual error code was enforced to be -ENXIO in the driver for some
+strange reason.  This didn't matter much until the deferred probing was
+introduced -- which requires an actual error code to be propagated
+upstream from the failure site.
 
-Ignoring index value provided by topology and relying always on 0th
-entry leads to unexpected module behavior due to under/overbudged
-resources assigned or impropper format selection. Fix by taking entry at
-index specified by topology.
+While fixing this, also stop overriding the errors from request_irq() to
+-EIO (done since the pre-git era).
 
-Fixes: f6fa56e22559 ("ASoC: Intel: Skylake: Parse and update module config structure")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Tested-by: Lukasz Majczak <lma@semihalf.com>
-Link: https://lore.kernel.org/r/20210818075742.1515155-5-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 489447380a29 ("[PATCH] handle errors returned by platform_get_irq*()")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/skylake/skl-topology.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-iop3xx.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/intel/skylake/skl-topology.c b/sound/soc/intel/skylake/skl-topology.c
-index 45b1521e6189..09037d555ec4 100644
---- a/sound/soc/intel/skylake/skl-topology.c
-+++ b/sound/soc/intel/skylake/skl-topology.c
-@@ -113,7 +113,7 @@ static int is_skl_dsp_widget_type(struct snd_soc_dapm_widget *w,
+diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
+index cfecaf18ccbb..4a6ff54d87fe 100644
+--- a/drivers/i2c/busses/i2c-iop3xx.c
++++ b/drivers/i2c/busses/i2c-iop3xx.c
+@@ -469,16 +469,14 @@ iop3xx_i2c_probe(struct platform_device *pdev)
  
- static void skl_dump_mconfig(struct skl_dev *skl, struct skl_module_cfg *mcfg)
- {
--	struct skl_module_iface *iface = &mcfg->module->formats[0];
-+	struct skl_module_iface *iface = &mcfg->module->formats[mcfg->fmt_idx];
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+-		ret = -ENXIO;
++		ret = irq;
+ 		goto unmap;
+ 	}
+ 	ret = request_irq(irq, iop3xx_i2c_irq_handler, 0,
+ 				pdev->name, adapter_data);
  
- 	dev_dbg(skl->dev, "Dumping config\n");
- 	dev_dbg(skl->dev, "Input Format:\n");
-@@ -195,8 +195,8 @@ static void skl_tplg_update_params_fixup(struct skl_module_cfg *m_cfg,
- 	struct skl_module_fmt *in_fmt, *out_fmt;
+-	if (ret) {
+-		ret = -EIO;
++	if (ret)
+ 		goto unmap;
+-	}
  
- 	/* Fixups will be applied to pin 0 only */
--	in_fmt = &m_cfg->module->formats[0].inputs[0].fmt;
--	out_fmt = &m_cfg->module->formats[0].outputs[0].fmt;
-+	in_fmt = &m_cfg->module->formats[m_cfg->fmt_idx].inputs[0].fmt;
-+	out_fmt = &m_cfg->module->formats[m_cfg->fmt_idx].outputs[0].fmt;
- 
- 	if (params->stream == SNDRV_PCM_STREAM_PLAYBACK) {
- 		if (is_fe) {
-@@ -239,9 +239,9 @@ static void skl_tplg_update_buffer_size(struct skl_dev *skl,
- 	/* Since fixups is applied to pin 0 only, ibs, obs needs
- 	 * change for pin 0 only
- 	 */
--	res = &mcfg->module->resources[0];
--	in_fmt = &mcfg->module->formats[0].inputs[0].fmt;
--	out_fmt = &mcfg->module->formats[0].outputs[0].fmt;
-+	res = &mcfg->module->resources[mcfg->res_idx];
-+	in_fmt = &mcfg->module->formats[mcfg->fmt_idx].inputs[0].fmt;
-+	out_fmt = &mcfg->module->formats[mcfg->fmt_idx].outputs[0].fmt;
- 
- 	if (mcfg->m_type == SKL_MODULE_TYPE_SRCINT)
- 		multiplier = 5;
-@@ -1631,11 +1631,12 @@ int skl_tplg_update_pipe_params(struct device *dev,
- 			struct skl_module_cfg *mconfig,
- 			struct skl_pipe_params *params)
- {
--	struct skl_module_res *res = &mconfig->module->resources[0];
-+	struct skl_module_res *res;
- 	struct skl_dev *skl = get_skl_ctx(dev);
- 	struct skl_module_fmt *format = NULL;
- 	u8 cfg_idx = mconfig->pipe->cur_config_idx;
- 
-+	res = &mconfig->module->resources[mconfig->res_idx];
- 	skl_tplg_fill_dma_id(mconfig, params);
- 	mconfig->fmt_idx = mconfig->mod_cfg[cfg_idx].fmt_idx;
- 	mconfig->res_idx = mconfig->mod_cfg[cfg_idx].res_idx;
-@@ -1644,9 +1645,9 @@ int skl_tplg_update_pipe_params(struct device *dev,
- 		return 0;
- 
- 	if (params->stream == SNDRV_PCM_STREAM_PLAYBACK)
--		format = &mconfig->module->formats[0].inputs[0].fmt;
-+		format = &mconfig->module->formats[mconfig->fmt_idx].inputs[0].fmt;
- 	else
--		format = &mconfig->module->formats[0].outputs[0].fmt;
-+		format = &mconfig->module->formats[mconfig->fmt_idx].outputs[0].fmt;
- 
- 	/* set the hw_params */
- 	format->s_freq = params->s_freq;
+ 	memcpy(new_adapter->name, pdev->name, strlen(pdev->name));
+ 	new_adapter->owner = THIS_MODULE;
 -- 
 2.30.2
 
