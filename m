@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D93D8408E39
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:31:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E47AE408DE9
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242117AbhIMNai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:30:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34848 "EHLO mail.kernel.org"
+        id S241310AbhIMNah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241355AbhIMNX4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241358AbhIMNX4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:23:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5B99610F9;
-        Mon, 13 Sep 2021 13:21:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E697610CE;
+        Mon, 13 Sep 2021 13:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539301;
-        bh=bOvRzoq8iYuF1+SrAaotocRKtSikggHxC12v29IJ35k=;
+        s=korg; t=1631539304;
+        bh=RU8S49y9RZJ3yRrZ4s7MBNustncI3PBe2pimAyGOKjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wHFo698ef0OMbTkW62q5ZEqk5WZX81UnAjjI96MXwAjdkJylBnZXjRUwtWsAKo7Vv
-         gIrDH0KNaGq8Rs50IffjZtGls3XP/U09UiyspKfzOYdmUpaw1tIYi3q89xXnyqGZYG
-         CyhAlADSCno4zlYraUlsimKQuWQNn1rIdfAdAV78=
+        b=xNABp3B/X5r5z2hZSO5Lp1LeASUM2Ekkki5FrcUgU8nf9JlwBtsUvx5Q550A8VDGb
+         4/b29hpHfBs1q0IqKfM3RF1FTx+jqZTF/mKTMxpHolZSpRRsXT5MdmVE8x8WTtee1Z
+         4olH5yfwuODE03MnKLe1Z0Il51NPKwPCyBJi27Vc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 117/144] ASoC: wcd9335: Disable irq on slave ports in the remove function
-Date:   Mon, 13 Sep 2021 15:14:58 +0200
-Message-Id: <20210913131051.842348284@linuxfoundation.org>
+Subject: [PATCH 5.4 118/144] ath6kl: wmi: fix an error code in ath6kl_wmi_sync_point()
+Date:   Mon, 13 Sep 2021 15:14:59 +0200
+Message-Id: <20210913131051.875371346@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
 References: <20210913131047.974309396@linuxfoundation.org>
@@ -41,55 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d3efd26af2e044ff2b48d38bb871630282d77e60 ]
+[ Upstream commit fd6729ec534cffbbeb3917761e6d1fe6a412d3fe ]
 
-The probe calls 'wcd9335_setup_irqs()' to enable interrupts on all slave
-ports.
-This must be undone in the remove function.
+This error path is unlikely because of it checked for NULL and
+returned -ENOMEM earlier in the function.  But it should return
+an error code here as well if we ever do hit it because of a
+race condition or something.
 
-Add a 'wcd9335_teardown_irqs()' function that undoes 'wcd9335_setup_irqs()'
-function, and call it from the remove function.
-
-Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Message-Id: <8f761244d79bd4c098af8a482be9121d3a486d1b.1629091028.git.christophe.jaillet@wanadoo.fr>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: bdcd81707973 ("Add ath6kl cleaned up driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210813113438.GB30697@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd9335.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/net/wireless/ath/ath6kl/wmi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
-index 5ec63217ad02..016aff97e2fb 100644
---- a/sound/soc/codecs/wcd9335.c
-+++ b/sound/soc/codecs/wcd9335.c
-@@ -4076,6 +4076,16 @@ static int wcd9335_setup_irqs(struct wcd9335_codec *wcd)
- 	return ret;
- }
+diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
+index c610fe21c85c..31ffec3a5972 100644
+--- a/drivers/net/wireless/ath/ath6kl/wmi.c
++++ b/drivers/net/wireless/ath/ath6kl/wmi.c
+@@ -2510,8 +2510,10 @@ static int ath6kl_wmi_sync_point(struct wmi *wmi, u8 if_idx)
+ 		goto free_data_skb;
  
-+static void wcd9335_teardown_irqs(struct wcd9335_codec *wcd)
-+{
-+	int i;
-+
-+	/* disable interrupts on all slave ports */
-+	for (i = 0; i < WCD9335_SLIM_NUM_PORT_REG; i++)
-+		regmap_write(wcd->if_regmap, WCD9335_SLIM_PGD_PORT_INT_EN0 + i,
-+			     0x00);
-+}
-+
- static void wcd9335_cdc_sido_ccl_enable(struct wcd9335_codec *wcd,
- 					bool ccl_flag)
- {
-@@ -4878,6 +4888,7 @@ static void wcd9335_codec_remove(struct snd_soc_component *comp)
- 	struct wcd9335_codec *wcd = dev_get_drvdata(comp->dev);
+ 	for (index = 0; index < num_pri_streams; index++) {
+-		if (WARN_ON(!data_sync_bufs[index].skb))
++		if (WARN_ON(!data_sync_bufs[index].skb)) {
++			ret = -ENOMEM;
+ 			goto free_data_skb;
++		}
  
- 	wcd_clsh_ctrl_free(wcd->clsh_ctrl);
-+	wcd9335_teardown_irqs(wcd);
- }
- 
- static int wcd9335_codec_set_sysclk(struct snd_soc_component *comp,
+ 		ep_id = ath6kl_ac2_endpoint_id(wmi->parent_dev,
+ 					       data_sync_bufs[index].
 -- 
 2.30.2
 
