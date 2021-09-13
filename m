@@ -2,102 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1D25409C69
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 20:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7927A409C6D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 20:41:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236719AbhIMSkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 14:40:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47904 "EHLO
+        id S229613AbhIMSmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 14:42:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235873AbhIMSkv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 14:40:51 -0400
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7263C061574
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 11:39:35 -0700 (PDT)
-Received: by mail-lj1-x22c.google.com with SMTP id g14so18999704ljk.5
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 11:39:35 -0700 (PDT)
+        with ESMTP id S240888AbhIMSmP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 14:42:15 -0400
+Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9327C061574
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 11:40:59 -0700 (PDT)
+Received: by mail-il1-x135.google.com with SMTP id h20so10244943ilj.13
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 11:40:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Gsr5LZp4mspjysvxu5nUdPKorXySGG+JMQ2KUyjakOE=;
-        b=tcNOwy+hx3G7tDym26NrZiXL2XWVfVOinWzaPRaxtSumdMCEMHyQMS5xN+W+Z2a3Pp
-         Yyjh/Aquz4bS5k72F8kzeTZLT6pSCAwxItpi90F1EBgGsfx0a7X5GHKo9kEfQnIw/K5o
-         7FmsF1N2fJOdGgHBXU9jSs6LZXwz6kp3GvpswTBmJ4XVr+8MLfvY2DnXC45Tf+PJiita
-         sPgwimOij4te8yuQYluDFNeehCU/E13bJ7Z26XkxG5BIjzjHtbrIcJtf/SECJRqEzJoS
-         lGMzeeTXj49IrKVF2TkOEbCd9wb8x356nbZqWE8MShw7jmb6O6C2PkQEEgNqFbtUqPLA
-         Zngg==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=h1NlAiMXeKInXT12Y/7DKFIF5+bOOYYjmUEuht8En4Y=;
+        b=gvWgW1WkYGAMufV6xVZJO5LpAfcwhzCeUs3KUl6nuNSsoOo+nVuw0Vxi2w8XrPyh9S
+         xBser+kV24go9Kpp1vaCWNFxVxSEIwmkAcaXiNVsWoeQ+h2ySwLveWPZRXHLl0QLw2+O
+         vwx+OjM2v6uURNWr8kGo71IV11NqPDNv5VCF1QJFbjpb5v2BvUeJoxB5wu2T6viXnxE+
+         YejbS3hJ0eTJmcjYuakcSbxRHyGK7jifXOguefSG6Qsxf7Os/j310NmFWfs24BuBya+Y
+         /5VmjvDIM/EsZonaNUTSO72JobjPcKioQokcOypGc9uBGmW3LvOAsasH+DWLYMfCSxi2
+         oIdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Gsr5LZp4mspjysvxu5nUdPKorXySGG+JMQ2KUyjakOE=;
-        b=tNrh5vfT5xjCdufRLTaNPt/2liykbmHWoXGzSbNB/rnprWXyS0sdmU4pGuJ5B8AGMu
-         WaiIRIa0DLedMcJwAzcaAa3WDR/m8k0NOJzjDSQwszXyVMcxeoDm6HH6Sa0hySEf9LUE
-         GGxRdlyqq7S5e5kecMYkAzGxLYSkpLUJWk24WZ1D2BuW6fpAmx2OjI6XDwk4t/99tyRp
-         7mnT4pl3MzDjvp8qiT373p8FT4/Xw8BQKtXrFCB5fOJFZNxh209M5/YVBaPvyz+Xm4J9
-         3OXkOlyZ2vwjbWYTZ/ROvRpFFLhoAnP+MyvF4/yNR/u/ktuRT6tarzLXf27ywGZGgrW0
-         /U6g==
-X-Gm-Message-State: AOAM531OruIQHLI0zpMVB1TYUVWdvQdPYeXDPZuk4kVZ5Sth2iIBrSH3
-        gPv+D2UuNxbNTbB5YY0G7cYDcsdahK7TfnryVw2XlVGc525vKA==
-X-Google-Smtp-Source: ABdhPJxr4FCmAlu5SlbIY3KpCOou2NcGaA/MSwV9TxbMuHHx3SyU4FoEmbG/iNG0U1htM5yQCZ0AvH3kwb0F3zNiDOw=
-X-Received: by 2002:a2e:8808:: with SMTP id x8mr12089846ljh.220.1631558373845;
- Mon, 13 Sep 2021 11:39:33 -0700 (PDT)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=h1NlAiMXeKInXT12Y/7DKFIF5+bOOYYjmUEuht8En4Y=;
+        b=R+NuHOTtdXk/Om0XWZWUCF0IOq3dNsvRxA+aFrwXBeijwfbi/+6Rk0Cy9pWnL5axWw
+         g51stRpqbR62zDkJB5/Yjf/04vkW4do23yiCUZd8WiLYz+DIPXKSdQRWiSz1rEGnDspC
+         ThBW9Fyt4xTyhzRqfnlriJdV1MildOQXGvqrOkzXEUaVRpLAwhcUr71cpi9Y/UGGPey0
+         VX6xZdm29ByGuelI1vX6a2Jd11JBnYBuHjABeNdM9T95vuMoZF77okoKt7XtJ+zxk1DB
+         6biwl9yXGxiNNZ+v1rXrLvSo/stO40uN4Zy7t6N+Hb57K5yAmm10YuYXtL+AKn7gd91z
+         bHEA==
+X-Gm-Message-State: AOAM532HB42m+x3ZCDP6D9h9Py6O/Bn+O9Pv+86lIyUv4GtqedUTo1xf
+        4T0zpixSelOZCBJ6TyH/qEEAk2vbYNGttIjCXlA=
+X-Google-Smtp-Source: ABdhPJzZsIIze7fAa9VFpovL97m5LIzAB1Y6ubxh/J1VE5mt5Eg6yG5DSCL8xqRUHiUHuIqAJRAj6LdqxDhRUq/3wnM=
+X-Received: by 2002:a05:6e02:20c7:: with SMTP id 7mr5564009ilq.118.1631558459254;
+ Mon, 13 Sep 2021 11:40:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210913131113.390368911@linuxfoundation.org> <20210913131114.028340332@linuxfoundation.org>
- <CA+G9fYtdPnwf+fi4Oyxng65pWjW9ujZ7dd2Z-EEEHyJimNHN6g@mail.gmail.com> <YT+RKemKfg6GFq0S@kroah.com>
-In-Reply-To: <YT+RKemKfg6GFq0S@kroah.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 13 Sep 2021 11:39:22 -0700
-Message-ID: <CAKwvOdmOAKTkgFK4Oke1SFGR_NxNqXe-buj1uyDgwZ4JdnP2Vg@mail.gmail.com>
-Subject: Re: [PATCH 5.14 018/334] nbd: add the check to prevent overflow in __nbd_ioctl()
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Hulk Robot <hulkci@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        lkft-triage@lists.linaro.org, llvm@lists.linux.dev,
-        Kees Cook <keescook@chromium.org>
+Received: by 2002:a4f:c85:0:0:0:0:0 with HTTP; Mon, 13 Sep 2021 11:40:58 -0700 (PDT)
+Reply-To: yeshlinejof@protonmail.com
+From:   Yeshline Jof <t360915639@gmail.com>
+Date:   Mon, 13 Sep 2021 18:40:58 +0000
+Message-ID: <CAFqgTn7W5KhDERMwp631=QAfdaoVJa=jFq=znWXSR7Ota6UpqQ@mail.gmail.com>
+Subject: From Yeshline
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 13, 2021 at 10:58 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Sep 13, 2021 at 09:52:33PM +0530, Naresh Kamboju wrote:
-> > [PATCH 00/10] raise minimum GCC version to 5.1
-> > https://lore.kernel.org/lkml/20210910234047.1019925-1-ndesaulniers@google.com/
->
-> Has anyone submitted a fix for this upstream yet?  I can't seem to find
-> one :(
+Hello dear,
 
-That lore link has a series to address this, though that's maybe
-something we don't want to backport to stable.
+My name is Madam Yeshline Jof from Philipine. I am a widow with a
+chronic renal insufficiency case, a kidney disease.
 
-I thought about this all weekend; I think I might be able to work
-around the one concern I had with my other approach, using
-__builtin_choose_expr().
+However, I want to intimate you of an urgent project I want you to
+take up, I will like you to receive a certain deposit I inherited from
+my late husband for the use of helping people with renal insufficient
+cases.
 
-There's an issue with my alternative approach
-(https://gist.github.com/nickdesaulniers/2479818f4983bbf2d688cebbab435863)
-with declaring the local variable z in div_64() since either operand
-could be 64b, which result in an unwanted truncation if the dividend
-is 32b (or less, and divisor is 64b). I think (what I realized this
-weekend) is that we might be able to replace the `if` with
-`__builtin_choose_expr`, then have that whole expression be the final
-statement and thus the "return value" of the statement expression.
+My late husband deposited the sum of $ 5.7 million with a bank in
+Europe before his death while in service as a general in the Army in
+my home country, but before his death, he handed me over all the
+documents relating to the deposit in the bank and asked me to leave
+our country.
 
-I need to play with that idea more; maybe that could be a more
-manageable patch for stable.  But I also need to eat lunch, and I've
-been in the Rust for Linux conference, and trying to organize 3 other
-conferences for the next two weeks...
--- 
-Thanks,
-~Nick Desaulniers
+Because of my ill health, I am mostly bedridden in the hospital on
+renal dialysis, this is a system of artificially doing/performing the
+functions of the kidneys. By this, the excess toxic waste products in
+my blood are washed out.
+
+I will like you to reply me immediately so that I can detail you
+concerning this matter and the next step to take, I want you to take
+20% of the money as your own personal money while you use the rest to
+put up a safe hospital to treat and help people with kidney cases.
+
+Hope to hearing from you urgently.
+Regards.
+Madam Yeshline Jof
