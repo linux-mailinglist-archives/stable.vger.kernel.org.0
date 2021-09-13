@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0D5440960B
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC9740960C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344763AbhIMOrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1346322AbhIMOrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 13 Sep 2021 10:47:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60466 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346230AbhIMOpS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346398AbhIMOpS (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:45:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2463619F6;
-        Mon, 13 Sep 2021 13:58:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97375603E5;
+        Mon, 13 Sep 2021 13:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541499;
-        bh=H/ydzq93aeLbVtV02Xop3vluAow9yzIJh75abIg4f0Y=;
+        s=korg; t=1631541502;
+        bh=2HqpvZymOdCHaQf2VAqiXp2GlpNsxp2W56uhyfMbyRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OsSCqlX3jOu5q9UgVP4KsOMUsK3rArLFyIYTQy6IztpYvvp+3y5CI9lCZd+Tj6+AI
-         F43QDNG6jWEDZ3Vy8f2FRy6ge9NZeBvYTGLgQ1BLbYrEgCokW7qq8UVjHie3Q+mIVx
-         h2WtX9Meh4yUXypzNVKdgvTEJ+oyDGBcg2hfV30I=
+        b=ErkHyScZek/DDDURfRen4co+bd2LFi1c7Nr3Ibv0MhCpUxlGyE0vrmc5lom1c+Yzq
+         Eexr3SMEua7/asR2Bg0906SC9pSmdv+hbf40GHpUkDdCgLeR89EQ45IlD/3vjrRCD3
+         RfW3IwN7CCTFsy08RHLkVF5XkVPG7MAaMc8arYM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
-        Adrian Ratiu <adrian.ratiu@collabora.com>
-Subject: [PATCH 5.14 322/334] char: tpm: Kconfig: remove bad i2c cr50 select
-Date:   Mon, 13 Sep 2021 15:16:16 +0200
-Message-Id: <20210913131124.320311581@linuxfoundation.org>
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
+Subject: [PATCH 5.14 323/334] fuse: truncate pagecache on atomic_o_trunc
+Date:   Mon, 13 Sep 2021 15:16:17 +0200
+Message-Id: <20210913131124.351841317@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -39,33 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Ratiu <adrian.ratiu@collabora.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 847fdae1579f4ee930b01f24a7847b8043bf468c upstream.
+commit 76224355db7570cbe6b6f75c8929a1558828dd55 upstream.
 
-This fixes a minor bug which went unnoticed during the initial
-driver upstreaming review: TCG_CR50 does not exist in mainline
-kernels, so remove it.
+fuse_finish_open() will be called with FUSE_NOWRITE in case of atomic
+O_TRUNC.  This can deadlock with fuse_wait_on_page_writeback() in
+fuse_launder_page() triggered by invalidate_inode_pages2().
 
-Fixes: 3a253caaad11 ("char: tpm: add i2c driver for cr50")
-Cc: stable@vger.kernel.org
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Adrian Ratiu <adrian.ratiu@collabora.com>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fix by replacing invalidate_inode_pages2() in fuse_finish_open() with a
+truncate_pagecache() call.  This makes sense regardless of FOPEN_KEEP_CACHE
+or fc->writeback cache, so do it unconditionally.
+
+Reported-by: Xie Yongji <xieyongji@bytedance.com>
+Reported-and-tested-by: syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
+Fixes: e4648309b85a ("fuse: truncate pending writes on O_TRUNC")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/Kconfig |    1 -
- 1 file changed, 1 deletion(-)
+ fs/fuse/file.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/char/tpm/Kconfig
-+++ b/drivers/char/tpm/Kconfig
-@@ -89,7 +89,6 @@ config TCG_TIS_SYNQUACER
- config TCG_TIS_I2C_CR50
- 	tristate "TPM Interface Specification 2.0 Interface (I2C - CR50)"
- 	depends on I2C
--	select TCG_CR50
- 	help
- 	  This is a driver for the Google cr50 I2C TPM interface which is a
- 	  custom microcontroller and requires a custom i2c protocol interface
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -198,12 +198,11 @@ void fuse_finish_open(struct inode *inod
+ 	struct fuse_file *ff = file->private_data;
+ 	struct fuse_conn *fc = get_fuse_conn(inode);
+ 
+-	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
+-		invalidate_inode_pages2(inode->i_mapping);
+ 	if (ff->open_flags & FOPEN_STREAM)
+ 		stream_open(inode, file);
+ 	else if (ff->open_flags & FOPEN_NONSEEKABLE)
+ 		nonseekable_open(inode, file);
++
+ 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
+ 		struct fuse_inode *fi = get_fuse_inode(inode);
+ 
+@@ -211,10 +210,14 @@ void fuse_finish_open(struct inode *inod
+ 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
+ 		i_size_write(inode, 0);
+ 		spin_unlock(&fi->lock);
++		truncate_pagecache(inode, 0);
+ 		fuse_invalidate_attr(inode);
+ 		if (fc->writeback_cache)
+ 			file_update_time(file);
++	} else if (!(ff->open_flags & FOPEN_KEEP_CACHE)) {
++		invalidate_inode_pages2(inode->i_mapping);
+ 	}
++
+ 	if ((file->f_mode & FMODE_WRITE) && fc->writeback_cache)
+ 		fuse_link_write_file(file);
+ }
 
 
