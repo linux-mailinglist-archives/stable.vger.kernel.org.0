@@ -2,101 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA3C1409DA1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 22:02:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D79DC409DE4
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 22:07:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347765AbhIMUEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 16:04:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39002 "EHLO
+        id S243121AbhIMUIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 16:08:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242528AbhIMUEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 16:04:01 -0400
-Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2394C061760
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 13:02:44 -0700 (PDT)
-Received: by mail-lf1-x12e.google.com with SMTP id h16so23527152lfk.10
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 13:02:44 -0700 (PDT)
+        with ESMTP id S243339AbhIMUIE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 16:08:04 -0400
+Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A42C8C0613CF
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 13:06:48 -0700 (PDT)
+Received: by mail-io1-xd2d.google.com with SMTP id m11so13787489ioo.6
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 13:06:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gVlem88uR6+O3AEpNn6Yh2wjkDnIsvdG9SBuzHecDPY=;
-        b=UtwnzoxIKMk4tOfMxxm4CpllD0ShmrKrKQSd8xl/r5+Nf6ZLZtS9/OyvibeXeJRjJm
-         qJb8asXWsxkH8rMGhQmFiAc9zt9A20ouuq77sfZCOcwEBRY3tnwTv8gByYQCor/Quz48
-         og1G2y8Pl9wxe7Gr4qj+V+3W1nEqAaqVtcdiHmee1cHKUsJcv7M1ZOYmo851M7WyJjxB
-         s2cwUJHvcdnzka3/e/fwcF8RA8HvXllV2N/rj5OSMWm+RkgRLLf9Vx78zmfKw/WSWc7j
-         E1acsbtB9KLKrBrScCWd2Unh4K44M/5o+4GJsvBA1ZhCB35t9GyhLHgeM4zk+YAM2EGy
-         Bj6A==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=MU+FvJRJIulfzxHOjUSMBlT/q6DPnOKEzzmpcnq3JZg=;
+        b=ZiSLk7ucFYoAk65tmS29vb6CZPRGheT9xE0xDDT8A7Ox2SyqJ5y/Mu0BXE4hrxDnto
+         dWqJ92lGbidcj5mhQTZXJql/3uaDIaYXsmCNBFYq3xVMCRmne8QOkNQ4it6lB/JwtT9Q
+         oLJqCHHbTZbxTMSn7M3jpjQJgysIWcHzIJgmk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gVlem88uR6+O3AEpNn6Yh2wjkDnIsvdG9SBuzHecDPY=;
-        b=yt1OLeX5RW3bYt8hcmub/xYJ/4b13d5l5J7Y1aKzxK1W/w46HQO7SC0btWgT32I2fn
-         LcBa3M/yLX4r4C86l8DjRr/UKJyco4XIyIS+jR86A/nOwqm4M+Ck/os+EUfj9Uf5/umq
-         S1x/R/6TEAOIsMK6x4tcq80MkhZ6DVCKhFczksX8ax6bKX3bZZciNSR8U2Ng0RQKfanB
-         OPwSmRPzeFuWHeCU9QZSWGMQeiCPGRqTy4k6vpvvVs3W/4Y2vlBAEAyrPjCL+nmuy5j2
-         FX5I2pB+L6qEDaSoTe7Sw/COjMovIk+Vk2YvmEaSlW3+cHnlygx3AYKOjj3qJLLhPAWH
-         Xsag==
-X-Gm-Message-State: AOAM531V1dJ4bhdHqeiFW5Te//VRSg6Occz5cXsfe8dwkp2k0AJ14g4T
-        9YL3VQ8NNY2T5ARsOckpPB4jePk7qLHEewEKVgDaVWbfHUQ=
-X-Google-Smtp-Source: ABdhPJybQilluIHG6i+P60qv7XmPd0cdDddL5AUg5XZKqBiVfw8k7+1hrq7lipQL53Lr2BDFIjLWKWvU6iKbwY7roOA=
-X-Received: by 2002:a05:6512:139c:: with SMTP id p28mr9744729lfa.523.1631563363038;
- Mon, 13 Sep 2021 13:02:43 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=MU+FvJRJIulfzxHOjUSMBlT/q6DPnOKEzzmpcnq3JZg=;
+        b=3yrf+r83ZFqVyvfeimL7Oq/TeCFXRQFysKV/yr0BIQOXRxbF7T+9H8HvSCan6iXLLn
+         V5imKluFkfOeXD74CpMGjmiXZLNJmXzBO8N16lsngRPHIcpDag9R4PyLxB3nKHggT6vZ
+         m9nWxdNqtIciVlCxby1RVB2Nk4vg6hvf1rpTDOLUCAX/yxFr+0NhsZbcx71ZDqJy2/SR
+         sDgJKCDmZOhv4HnkHsh8q7MgrtmucGng0Vx8oFvX4E/XHzEKTYJ7CLeGzdciBd0wlu5y
+         zRIesR9WGR6iL4Hdv569THPhUR3lxcXENc7I8wRGXlp13NoRqJIIS2ABZyit5Ap6D4x6
+         vs/g==
+X-Gm-Message-State: AOAM5334IslN1BXvV+TBUcdFfV6Qra6sPiaZsg5TIPAtAeqIi9/qBnNY
+        oeUaO1qgeDWV2ApZz3yitDRdYA==
+X-Google-Smtp-Source: ABdhPJwwKK3Rd+25SCwnQQfKHvjl7uBtGna5clNkk2d+W6HRzrRAsqfHjxJOGnJpFplsxhvMN04oaQ==
+X-Received: by 2002:a6b:fd1a:: with SMTP id c26mr10227675ioi.57.1631563608071;
+        Mon, 13 Sep 2021 13:06:48 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id e13sm5244154iod.36.2021.09.13.13.06.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 13 Sep 2021 13:06:47 -0700 (PDT)
+Subject: Re: [PATCH 5.14 000/334] 5.14.4-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <777fc79c-0afe-a118-1397-bd9a22c18a3d@linuxfoundation.org>
+Date:   Mon, 13 Sep 2021 14:06:46 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-References: <20210913131113.390368911@linuxfoundation.org> <20210913131114.028340332@linuxfoundation.org>
- <CA+G9fYtdPnwf+fi4Oyxng65pWjW9ujZ7dd2Z-EEEHyJimNHN6g@mail.gmail.com>
- <YT+RKemKfg6GFq0S@kroah.com> <CAKwvOdmOAKTkgFK4Oke1SFGR_NxNqXe-buj1uyDgwZ4JdnP2Vg@mail.gmail.com>
- <CAKwvOdmCS5Q7AzUL5nziYVU7RrtRjoE9JjOXfVBWagO1Bzbsew@mail.gmail.com> <CA+icZUVuRaMs=bx775gDF88_xzy8LFkBA5xaK21hFDeYvgo12A@mail.gmail.com>
-In-Reply-To: <CA+icZUVuRaMs=bx775gDF88_xzy8LFkBA5xaK21hFDeYvgo12A@mail.gmail.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 13 Sep 2021 13:02:32 -0700
-Message-ID: <CAKwvOdmN3nQe8aL=jUwi0nGXzYQGic=NA2o40Q=yeHeafSsS3g@mail.gmail.com>
-Subject: Re: [PATCH 5.14 018/334] nbd: add the check to prevent overflow in __nbd_ioctl()
-To:     sedat.dilek@gmail.com
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Baokun Li <libaokun1@huawei.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Hulk Robot <hulkci@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        lkft-triage@lists.linaro.org, llvm@lists.linux.dev,
-        Kees Cook <keescook@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 13, 2021 at 12:57 PM Sedat Dilek <sedat.dilek@gmail.com> wrote:
->
-> On Mon, Sep 13, 2021 at 9:53 PM 'Nick Desaulniers' via Clang Built
-> Linux <clang-built-linux@googlegroups.com> wrote:
-> >
-> > On Mon, Sep 13, 2021 at 11:39 AM Nick Desaulniers
-> > <ndesaulniers@google.com> wrote:
-> > >
-> > > There's an issue with my alternative approach
-> > > (https://gist.github.com/nickdesaulniers/2479818f4983bbf2d688cebbab435863)
-> > > with declaring the local variable z in div_64() since either operand
-> > > could be 64b, which result in an unwanted truncation if the dividend
-> > > is 32b (or less, and divisor is 64b). I think (what I realized this
-> > > weekend) is that we might be able to replace the `if` with
-> > > `__builtin_choose_expr`, then have that whole expression be the final
-> > > statement and thus the "return value" of the statement expression.
-> >
-> > Christ...that...works? Though, did Linus just merge my patches for gcc 5.1?
-> >
->
-> "Merge branch 'gcc-min-version-5.1' (make gcc-5.1 the minimum version)"
+On 9/13/21 7:10 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.14.4 release.
+> There are 334 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 15 Sep 2021 13:10:21 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.4-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Ha! I pulled+rebased and this code disappeared...I thought I had
-rebased on the wrong branch or committed work to master accidentally.
-Patch to stable-only inbound.
--- 
-Thanks,
-~Nick Desaulniers
+Compiled and booted on my test system. No dmesg regressions.
+
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+
+thanks,
+-- Shuah
