@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 738E1408DF8
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:30:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 028F6409135
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241118AbhIMNax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:30:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52252 "EHLO mail.kernel.org"
+        id S243921AbhIMN77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:59:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242237AbhIMN2D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:28:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5426B61269;
-        Mon, 13 Sep 2021 13:23:28 +0000 (UTC)
+        id S245562AbhIMN5m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:57:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E4E2619F9;
+        Mon, 13 Sep 2021 13:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539408;
-        bh=9svBJYtyCB7g1Z40+beXoklGdSsARdvYqAbE91KTGQw=;
+        s=korg; t=1631540192;
+        bh=yZD8SegFW9VZXM1gnQs7nsGAbgf53JK5MyEPkIN/eAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2qKFtpVRCLMC5FmTBFuG0q8LsmmlQ//xuaxCaWITJ297ALXgsBM9ZK1e0d6AE7RFJ
-         5EoWjqHcw4OxSP4HeEpw9w/qeT0N+vFjbsqQBwHAXq8ktPlcp/z6RJFhlIDbVNyBRQ
-         ghGOWLwF+frFNq6Ci3EUz9ROBxs+VkPT8Ns5eqZQ=
+        b=XsPNjeqJm6sSbfcVKY7m1P/lnzuczN5aqekjSZdG432zllcdlQnBI/oteZbx2m8un
+         FFQStkvLo9mlSqMMzMbMxuOGYNy7bSvSovPRZtDAE8WTjX8YqsqwkWE/EqMpiudJlA
+         BL2tY62JZo88TMhclDsLMqzz2VGingIBrsYbXz6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7fbfe5fed73ebb675748@syzkaller.appspotmail.com,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 014/236] udf: Check LVID earlier
+        stable@vger.kernel.org, Sanchayan Maity <maitysanchayan@gmail.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 058/300] spi: spi-fsl-dspi: Fix issue with uninitialized dma_slave_config
 Date:   Mon, 13 Sep 2021 15:11:59 +0200
-Message-Id: <20210913131100.815010618@linuxfoundation.org>
+Message-Id: <20210913131111.325748437@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,84 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 781d2a9a2fc7d0be53a072794dc03ef6de770f3d ]
+[ Upstream commit 209ab223ad5b18e437289235e3bde12593b94ac4 ]
 
-We were checking validity of LVID entries only when getting
-implementation use information from LVID in udf_sb_lvidiu(). However if
-the LVID is suitably corrupted, it can cause problems also to code such
-as udf_count_free() which doesn't use udf_sb_lvidiu(). So check validity
-of LVID already when loading it from the disk and just disable LVID
-altogether when it is not valid.
+Depending on the DMA driver being used, the struct dma_slave_config may
+need to be initialized to zero for the unused data.
 
-Reported-by: syzbot+7fbfe5fed73ebb675748@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+For example, we have three DMA drivers using src_port_window_size and
+dst_port_window_size. If these are left uninitialized, it can cause DMA
+failures.
+
+For spi-fsl-dspi, this is probably not currently an issue but is still
+good to fix though.
+
+Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
+Cc: Sanchayan Maity <maitysanchayan@gmail.com>
+Cc: Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Cc: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20210810081727.19491-1-tony@atomide.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/super.c | 25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ drivers/spi/spi-fsl-dspi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/udf/super.c b/fs/udf/super.c
-index d0df217f4712..a59bf469dd1c 100644
---- a/fs/udf/super.c
-+++ b/fs/udf/super.c
-@@ -108,16 +108,10 @@ struct logicalVolIntegrityDescImpUse *udf_sb_lvidiu(struct super_block *sb)
- 		return NULL;
- 	lvid = (struct logicalVolIntegrityDesc *)UDF_SB(sb)->s_lvid_bh->b_data;
- 	partnum = le32_to_cpu(lvid->numOfPartitions);
--	if ((sb->s_blocksize - sizeof(struct logicalVolIntegrityDescImpUse) -
--	     offsetof(struct logicalVolIntegrityDesc, impUse)) /
--	     (2 * sizeof(uint32_t)) < partnum) {
--		udf_err(sb, "Logical volume integrity descriptor corrupted "
--			"(numOfPartitions = %u)!\n", partnum);
--		return NULL;
--	}
- 	/* The offset is to skip freeSpaceTable and sizeTable arrays */
- 	offset = partnum * 2 * sizeof(uint32_t);
--	return (struct logicalVolIntegrityDescImpUse *)&(lvid->impUse[offset]);
-+	return (struct logicalVolIntegrityDescImpUse *)
-+					(((uint8_t *)(lvid + 1)) + offset);
- }
- 
- /* UDF filesystem type */
-@@ -1541,6 +1535,7 @@ static void udf_load_logicalvolint(struct super_block *sb, struct kernel_extent_
- 	struct udf_sb_info *sbi = UDF_SB(sb);
- 	struct logicalVolIntegrityDesc *lvid;
- 	int indirections = 0;
-+	u32 parts, impuselen;
- 
- 	while (++indirections <= UDF_MAX_LVID_NESTING) {
- 		final_bh = NULL;
-@@ -1567,15 +1562,27 @@ static void udf_load_logicalvolint(struct super_block *sb, struct kernel_extent_
- 
- 		lvid = (struct logicalVolIntegrityDesc *)final_bh->b_data;
- 		if (lvid->nextIntegrityExt.extLength == 0)
--			return;
-+			goto check;
- 
- 		loc = leea_to_cpu(lvid->nextIntegrityExt);
+diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
+index fb45e6af6638..fd004c9db9dc 100644
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -530,6 +530,7 @@ static int dspi_request_dma(struct fsl_dspi *dspi, phys_addr_t phy_addr)
+ 		goto err_rx_dma_buf;
  	}
  
- 	udf_warn(sb, "Too many LVID indirections (max %u), ignoring.\n",
- 		UDF_MAX_LVID_NESTING);
-+out_err:
- 	brelse(sbi->s_lvid_bh);
- 	sbi->s_lvid_bh = NULL;
-+	return;
-+check:
-+	parts = le32_to_cpu(lvid->numOfPartitions);
-+	impuselen = le32_to_cpu(lvid->lengthOfImpUse);
-+	if (parts >= sb->s_blocksize || impuselen >= sb->s_blocksize ||
-+	    sizeof(struct logicalVolIntegrityDesc) + impuselen +
-+	    2 * parts * sizeof(u32) > sb->s_blocksize) {
-+		udf_warn(sb, "Corrupted LVID (parts=%u, impuselen=%u), "
-+			 "ignoring.\n", parts, impuselen);
-+		goto out_err;
-+	}
- }
- 
- /*
++	memset(&cfg, 0, sizeof(cfg));
+ 	cfg.src_addr = phy_addr + SPI_POPR;
+ 	cfg.dst_addr = phy_addr + SPI_PUSHR;
+ 	cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
 -- 
 2.30.2
 
