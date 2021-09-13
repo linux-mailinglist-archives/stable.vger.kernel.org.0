@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C4B74095D2
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6AFA409306
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346006AbhIMOpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:45:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60498 "EHLO mail.kernel.org"
+        id S243563AbhIMORH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:17:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347648AbhIMOmL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:42:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1D6261881;
-        Mon, 13 Sep 2021 13:56:38 +0000 (UTC)
+        id S1345292AbhIMOPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:15:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8509961AEE;
+        Mon, 13 Sep 2021 13:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541399;
-        bh=ckLLooQf7jTadjrq98ecFDUZ+uE0cPivB1sU8x0Mvco=;
+        s=korg; t=1631540640;
+        bh=iiF34TJGPy6Y5bvuDXIlak6BK7vm9Lv+XVhGqeWdi1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IUhtmaaWimn7p6U7Lgjbf58K0zGVy/s17YFMy++p0qSaSN8MOnW/H9LNUpr/zcMER
-         bZvQq6oh0kWzjQeF87i7oJ5mYgIAX6XQ0UEFHbByQcFm6Q3HQpbwc0dtyv46j5q77V
-         Yut3PuYElhY+TNBZ//WUTqInkV+cbD+iQrNJonhg=
+        b=YQey4ottAYTVRE0JXwmOHo5BIwgJorla6k2SjLw65ifxhHpxekInUvIj65kjQ8PJn
+         23jh9S9rAc8l1NxlFdAeiHhJEtAgmJGH+rQ/NwE71O2xcgsbhPZ5or8/mayURM0Eg3
+         G+VpfjCAdpXyvyA2OBAQ81+kQJWPMSRNKKTinsg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 283/334] brcmfmac: pcie: fix oops on failure to resume and reprobe
+        stable@vger.kernel.org,
+        syzbot+97388eb9d31b997fe1d0@syzkaller.appspotmail.com,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Nguyen Dinh Phi <phind.uet@gmail.com>
+Subject: [PATCH 5.13 276/300] tty: Fix data race between tiocsti() and flush_to_ldisc()
 Date:   Mon, 13 Sep 2021 15:15:37 +0200
-Message-Id: <20210913131122.994468724@linuxfoundation.org>
+Message-Id: <20210913131118.663376135@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
 
-[ Upstream commit d745ca4f2c4ae9f1bd8cf7d8ac6e22d739bffd19 ]
+commit bb2853a6a421a052268eee00fd5d3f6b3504b2b1 upstream.
 
-When resuming from suspend, brcmf_pcie_pm_leave_D3 will first attempt a
-hot resume and then fall back to removing the PCI device and then
-reprobing. If this probe fails, the kernel will oops, because brcmf_err,
-which is called to report the failure will dereference the stale bus
-pointer. Open code and use the default bus-less brcmf_err to avoid this.
+The ops->receive_buf() may be accessed concurrently from these two
+functions.  If the driver flushes data to the line discipline
+receive_buf() method while tiocsti() is waiting for the
+ops->receive_buf() to finish its work, the data race will happen.
 
-Fixes: 8602e62441ab ("brcmfmac: pass bus to the __brcmf_err() in pcie.c")
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210817063521.22450-1-a.fatoum@pengutronix.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For example:
+tty_ioctl			|tty_ldisc_receive_buf
+ ->tioctsi			| ->tty_port_default_receive_buf
+				|  ->tty_ldisc_receive_buf
+   ->hci_uart_tty_receive	|   ->hci_uart_tty_receive
+    ->h4_recv                   |    ->h4_recv
+
+In this case, the h4 receive buffer will be overwritten by the
+latecomer, and we will lost the data.
+
+Hence, change tioctsi() function to use the exclusive lock interface
+from tty_buffer to avoid the data race.
+
+Reported-by: syzbot+97388eb9d31b997fe1d0@syzkaller.appspotmail.com
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Link: https://lore.kernel.org/r/20210823000641.2082292-1-phind.uet@gmail.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/tty_io.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-index c49dd0c36ae4..bbd72c2db088 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-@@ -2075,7 +2075,7 @@ cleanup:
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -2294,8 +2294,6 @@ static int tty_fasync(int fd, struct fil
+  *	Locking:
+  *		Called functions take tty_ldiscs_lock
+  *		current->signal->tty check is safe without locks
+- *
+- *	FIXME: may race normal receive processing
+  */
  
- 	err = brcmf_pcie_probe(pdev, NULL);
- 	if (err)
--		brcmf_err(bus, "probe after resume failed, err=%d\n", err);
-+		__brcmf_err(NULL, __func__, "probe after resume failed, err=%d\n", err);
- 
- 	return err;
+ static int tiocsti(struct tty_struct *tty, char __user *p)
+@@ -2311,8 +2309,10 @@ static int tiocsti(struct tty_struct *tt
+ 	ld = tty_ldisc_ref_wait(tty);
+ 	if (!ld)
+ 		return -EIO;
++	tty_buffer_lock_exclusive(tty->port);
+ 	if (ld->ops->receive_buf)
+ 		ld->ops->receive_buf(tty, &ch, &mbz, 1);
++	tty_buffer_unlock_exclusive(tty->port);
+ 	tty_ldisc_deref(ld);
+ 	return 0;
  }
--- 
-2.30.2
-
 
 
