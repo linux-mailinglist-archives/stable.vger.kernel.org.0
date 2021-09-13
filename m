@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 003E2409252
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F39A4094AA
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245469AbhIMOKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:10:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59950 "EHLO mail.kernel.org"
+        id S1344524AbhIMOdW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:33:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344133AbhIMOIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:08:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 990D261AA2;
-        Mon, 13 Sep 2021 13:40:54 +0000 (UTC)
+        id S1345301AbhIMObQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:31:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6EEE61BB3;
+        Mon, 13 Sep 2021 13:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540455;
-        bh=UvVF3j4X+xXETbok8u/4s1MDRHDWjHsC09kHp45zvuU=;
+        s=korg; t=1631541109;
+        bh=16CFAAOKxWPjXsMJMbgncOT45e9FSjHBloffI6zDXL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Idrxu0jRin2zNhi6ZT8Q/26wk+TMbxcSvZKbVHm7SNbU7Tj/LPWNlu4f9d4/kVEGx
-         6aCjeD8UZSdl+x/CGu3xXlrOSd7TxTxiExSRQgfkd6mpWA1uD3SRSND0Y0fJhBiWn1
-         7KjCRVaWTy1xZ7Gh+86M9R6AW2U5YjMDYHFUyylA=
+        b=rEtKQShCAicNzuFYuxMcp0harL9H2f9lj/qOAMeQe1PFl/VyiTDnRNzURDQAwYojL
+         d6Pg6tNEihTEaKCsZvh9pcvUpdWum2akQgxGfLsz9VnvM/CfyuYZ6XTxxpUhH7TdKC
+         89qW6q3Rjxwt9Vny0oSJlHPTihkV2DVYsPqKi1e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Utkarsh H Patel <utkarsh.h.patel@intel.com>,
+        Koba Ko <koba.ko@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 158/300] net: dsa: stop syncing the bridge mcast_router attribute at join time
+Subject: [PATCH 5.14 165/334] PCI: PM: Avoid forcing PCI_D0 for wakeup reasons inconsistently
 Date:   Mon, 13 Sep 2021 15:13:39 +0200
-Message-Id: <20210913131114.745013188@linuxfoundation.org>
+Message-Id: <20210913131118.918628086@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,83 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 7df4e7449489d82cee6813dccbb4ae4f3f26ef7b ]
+[ Upstream commit da9f2150684ea684a7ddd6d7f0e38b2bdf43dcd8 ]
 
-Qingfang points out that when a bridge with the default settings is
-created and a port joins it:
+It is inconsistent to return PCI_D0 from pci_target_state() instead
+of the original target state if 'wakeup' is true and the device
+cannot signal PME from D0.
 
-ip link add br0 type bridge
-ip link set swp0 master br0
+This only happens when the device cannot signal PME from the original
+target state and any shallower power states (including D0) and that
+case is effectively equivalent to the one in which PME singaling is
+not supported at all.  Since the original target state is returned in
+the latter case, make the function do that in the former one too.
 
-DSA calls br_multicast_router() on the bridge to see if the br0 device
-is a multicast router port, and if it is, it enables multicast flooding
-to the CPU port, otherwise it disables it.
-
-If we look through the multicast_router_show() sysfs or at the
-IFLA_BR_MCAST_ROUTER netlink attribute, we see that the default mrouter
-attribute for the bridge device is "1" (MDB_RTR_TYPE_TEMP_QUERY).
-
-However, br_multicast_router() will return "0" (MDB_RTR_TYPE_DISABLED),
-because an mrouter port in the MDB_RTR_TYPE_TEMP_QUERY state may not be
-actually _active_ until it receives an actual IGMP query. So, the
-br_multicast_router() function should really have been called
-br_multicast_router_active() perhaps.
-
-When/if an IGMP query is received, the bridge device will transition via
-br_multicast_mark_router() into the active state until the
-ip4_mc_router_timer expires after an multicast_querier_interval.
-
-Of course, this does not happen if the bridge is created with an
-mcast_router attribute of "2" (MDB_RTR_TYPE_PERM).
-
-The point is that in lack of any IGMP query messages, and in the default
-bridge configuration, unregistered multicast packets will not be able to
-reach the CPU port through flooding, and this breaks many use cases
-(most obviously, IPv6 ND, with its ICMP6 neighbor solicitation multicast
-messages).
-
-Leave the multicast flooding setting towards the CPU port down to a driver
-level decision.
-
-Fixes: 010e269f91be ("net: dsa: sync up switchdev objects and port attributes when joining the bridge")
-Reported-by: DENG Qingfang <dqfext@gmail.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/linux-pm/3149540.aeNJFYEL58@kreacher/
+Fixes: 666ff6f83e1d ("PCI/PM: Avoid using device_may_wakeup() for runtime PM")
+Reported-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reported-by: Utkarsh H Patel <utkarsh.h.patel@intel.com>
+Reported-by: Koba Ko <koba.ko@canonical.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/port.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/pci/pci.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/net/dsa/port.c b/net/dsa/port.c
-index 6379d66a6bb3..fad55372e461 100644
---- a/net/dsa/port.c
-+++ b/net/dsa/port.c
-@@ -186,10 +186,6 @@ static int dsa_port_switchdev_sync(struct dsa_port *dp,
- 	if (err && err != -EOPNOTSUPP)
- 		return err;
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index aacf575c15cf..28bac63525b2 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -2599,16 +2599,20 @@ static pci_power_t pci_target_state(struct pci_dev *dev, bool wakeup)
+ 	if (dev->current_state == PCI_D3cold)
+ 		target_state = PCI_D3cold;
  
--	err = dsa_port_mrouter(dp->cpu_dp, br_multicast_router(br), extack);
--	if (err && err != -EOPNOTSUPP)
--		return err;
--
- 	err = dsa_port_ageing_time(dp, br_get_ageing_time(br));
- 	if (err && err != -EOPNOTSUPP)
- 		return err;
-@@ -235,12 +231,6 @@ static void dsa_port_switchdev_unsync(struct dsa_port *dp)
+-	if (wakeup) {
++	if (wakeup && dev->pme_support) {
++		pci_power_t state = target_state;
++
+ 		/*
+ 		 * Find the deepest state from which the device can generate
+ 		 * PME#.
+ 		 */
+-		if (dev->pme_support) {
+-			while (target_state
+-			      && !(dev->pme_support & (1 << target_state)))
+-				target_state--;
+-		}
++		while (state && !(dev->pme_support & (1 << state)))
++			state--;
++
++		if (state)
++			return state;
++		else if (dev->pme_support & 1)
++			return PCI_D0;
+ 	}
  
- 	/* VLAN filtering is handled by dsa_switch_bridge_leave */
- 
--	/* Some drivers treat the notification for having a local multicast
--	 * router by allowing multicast to be flooded to the CPU, so we should
--	 * allow this in standalone mode too.
--	 */
--	dsa_port_mrouter(dp->cpu_dp, true, NULL);
--
- 	/* Ageing time may be global to the switch chip, so don't change it
- 	 * here because we have no good reason (or value) to change it to.
- 	 */
+ 	return target_state;
 -- 
 2.30.2
 
