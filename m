@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FE7B409588
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF744092C6
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346530AbhIMOmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:42:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58816 "EHLO mail.kernel.org"
+        id S1344847AbhIMOPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:15:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347168AbhIMOkV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:40:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EDD261C48;
-        Mon, 13 Sep 2021 13:55:53 +0000 (UTC)
+        id S1344141AbhIMOOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:14:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 546DA61AD2;
+        Mon, 13 Sep 2021 13:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541354;
-        bh=woE2grbPg3WPqA9HTL1cQBCX9cOnQFmfArs0J8oXWQU=;
+        s=korg; t=1631540594;
+        bh=FltRV8KHzsOVrWpAWAy6a7ugXJ2SGONGtUiGl0BMM4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JYjpQSgmL21YJSD5iG+QVj/wTWoMCrA4SZ2dRgtXUmZODbfYqGKZazmE/gb2LnK2l
-         fxljDnO3vDNvcRn2TSSmtqD+1iUGNTIV4fG7KWRNaI5/FjrP5V4MLzCcURNzkwWza9
-         Ud7H+iMXskUDqHj+zLUvLKVB3kXcUcMDPGt1DGI4=
+        b=m6hfJRb7G0hd2aXbN8G6gBGUSblezg2CMWINJXawXwFbifsp4F+xEU+yUq4nWdD2c
+         XubVxYf9Jc0Y9eUbRQlfgZWiypSIFNUD9wCyCRUIHugpsNNcE/BX68uTI75pIoHNvT
+         /BOxzA1GVvLP8a47AoM4MX6BMUNJOsoeqvWDzm7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Mark Brown <broonie@kernel.org>,
+        Michael Heimpold <michael.heimpold@in-tech.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 264/334] ASoC: wcd9335: Fix a double irq free in the remove function
+Subject: [PATCH 5.13 257/300] net: qualcomm: fix QCA7000 checksum handling
 Date:   Mon, 13 Sep 2021 15:15:18 +0200
-Message-Id: <20210913131122.335788400@linuxfoundation.org>
+Message-Id: <20210913131118.025473694@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 7a6a723e98aa45f393e6add18f7309dfffa1b0e2 ]
+[ Upstream commit 429205da6c834447a57279af128bdd56ccd5225e ]
 
-There is no point in calling 'free_irq()' explicitly for
-'WCD9335_IRQ_SLIMBUS' in the remove function.
+Based on tests the QCA7000 doesn't support checksum offloading. So assume
+ip_summed is CHECKSUM_NONE and let the kernel take care of the checksum
+handling. This fixes data transfer issues in noisy environments.
 
-The irqs are requested in 'wcd9335_setup_irqs()' using a resource managed
-function (i.e. 'devm_request_threaded_irq()').
-'wcd9335_setup_irqs()' requests all what is defined in the 'wcd9335_irqs'
-structure.
-This structure has only one entry for 'WCD9335_IRQ_SLIMBUS'.
-
-So 'devm_request...irq()' + explicit 'free_irq()' would lead to a double
-free.
-
-Remove the unneeded 'free_irq()' from the remove function.
-
-Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Message-Id: <0614d63bc00edd7e81dd367504128f3d84f72efa.1629091028.git.christophe.jaillet@wanadoo.fr>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Michael Heimpold <michael.heimpold@in-tech.com>
+Fixes: 291ab06ecf67 ("net: qualcomm: new Ethernet over SPI driver for QCA7000")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd9335.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/qualcomm/qca_spi.c  | 2 +-
+ drivers/net/ethernet/qualcomm/qca_uart.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
-index 86c92e03ea5d..933f59e4e56f 100644
---- a/sound/soc/codecs/wcd9335.c
-+++ b/sound/soc/codecs/wcd9335.c
-@@ -4869,7 +4869,6 @@ static void wcd9335_codec_remove(struct snd_soc_component *comp)
- 	struct wcd9335_codec *wcd = dev_get_drvdata(comp->dev);
- 
- 	wcd_clsh_ctrl_free(wcd->clsh_ctrl);
--	free_irq(regmap_irq_get_virq(wcd->irq_data, WCD9335_IRQ_SLIMBUS), wcd);
- }
- 
- static int wcd9335_codec_set_sysclk(struct snd_soc_component *comp,
+diff --git a/drivers/net/ethernet/qualcomm/qca_spi.c b/drivers/net/ethernet/qualcomm/qca_spi.c
+index ab9b02574a15..38018f024823 100644
+--- a/drivers/net/ethernet/qualcomm/qca_spi.c
++++ b/drivers/net/ethernet/qualcomm/qca_spi.c
+@@ -434,7 +434,7 @@ qcaspi_receive(struct qcaspi *qca)
+ 				skb_put(qca->rx_skb, retcode);
+ 				qca->rx_skb->protocol = eth_type_trans(
+ 					qca->rx_skb, qca->rx_skb->dev);
+-				qca->rx_skb->ip_summed = CHECKSUM_UNNECESSARY;
++				skb_checksum_none_assert(qca->rx_skb);
+ 				netif_rx_ni(qca->rx_skb);
+ 				qca->rx_skb = netdev_alloc_skb_ip_align(net_dev,
+ 					net_dev->mtu + VLAN_ETH_HLEN);
+diff --git a/drivers/net/ethernet/qualcomm/qca_uart.c b/drivers/net/ethernet/qualcomm/qca_uart.c
+index bcdeca7b3366..ce3f7ce31adc 100644
+--- a/drivers/net/ethernet/qualcomm/qca_uart.c
++++ b/drivers/net/ethernet/qualcomm/qca_uart.c
+@@ -107,7 +107,7 @@ qca_tty_receive(struct serdev_device *serdev, const unsigned char *data,
+ 			skb_put(qca->rx_skb, retcode);
+ 			qca->rx_skb->protocol = eth_type_trans(
+ 						qca->rx_skb, qca->rx_skb->dev);
+-			qca->rx_skb->ip_summed = CHECKSUM_UNNECESSARY;
++			skb_checksum_none_assert(qca->rx_skb);
+ 			netif_rx_ni(qca->rx_skb);
+ 			qca->rx_skb = netdev_alloc_skb_ip_align(netdev,
+ 								netdev->mtu +
 -- 
 2.30.2
 
