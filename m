@@ -2,90 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B513409A58
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 19:07:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CCBE409A77
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 19:14:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242323AbhIMRJN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 13:09:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54656 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242067AbhIMRJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 13:09:11 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A415BC061574;
-        Mon, 13 Sep 2021 10:07:55 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id d17so6253606plr.12;
-        Mon, 13 Sep 2021 10:07:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=j5joFQfmpuIKYVq4FNGc92u2MbWnEsDplwU4rw1mhjA=;
-        b=fy0vl8AmOj4s3M3DJna3FR5Qme9G9LbD00lIVLAmOdkIEWKrvYWwPtLUyG9m522Eof
-         Jkl5y9a37qDWoFZqUjQay/7ozL3RXJbIRfzzbx1BFsdmyNUjml1OjPmYDX+Hhru9NIUb
-         KzeFQ9Z/pI6Quoxv+XkgFcAS49Pg6Wh8kHUihnBh8pIJntXDdtLDQNKg8kcHqw8mPDaY
-         EX27/6JdMuMpIrgyrms6hoJEBwZ/RW2mmN1cw8y7KJDb+N3ejsgHxlR5j6xF/xPMqd51
-         39FUWYUpEpOpqVqgjdhZBCzjvJT2yZWrn6Ow0VcaaqFcwqVvk1MjaTTJu9rnTOHf8OVx
-         fNUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=j5joFQfmpuIKYVq4FNGc92u2MbWnEsDplwU4rw1mhjA=;
-        b=uxOClq/MGK0mI4YPFokZMxp2Ih9s6PDIuLL2NTWvSzlcK+LTGE5iZkFEwf/tbZekqv
-         /m7dSY1QFK9XRvOsYpEFfO2fUjy7FgkYhmevR5ETaqmCVgMpeVBNX+cq/bOHSpK35+cF
-         FUPTf/9m24EGh1CZRfE2UrUjlIof0z87WT53n9++1NCZ2PafDm+7n9uSs6MQgiFJ5Hox
-         4JIDkoIr1Vb3yC/pPJ5+E8YTn2Fz6qr2BU/ifDLtqM3D3kUZHTOHdtI/TKh2kG8J6ml6
-         lJtdMExxmpz/axev/eEPLwpGwfmfXTtJRcaaWfNbttx0Y9r0XifQw/Uv6l4GgNzUPvtB
-         G/Rg==
-X-Gm-Message-State: AOAM531Qn6RjkRUMZNB84IXhSIMW1qAurc1zSmhENMW//Z/H4PlfUUgV
-        xTsp5uddqIgc4jrAWI+fabBpOmze3KuSycdQzrQ=
-X-Google-Smtp-Source: ABdhPJyJD4cnJNKIDnyl48WnnxBO//vV82c/WWlcbLkyCRau4AbMFH4KzsIPcM5jp7BavzRKlHAktA==
-X-Received: by 2002:a17:902:8647:b0:139:edc9:ed43 with SMTP id y7-20020a170902864700b00139edc9ed43mr11294473plt.23.1631552874571;
-        Mon, 13 Sep 2021 10:07:54 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id v7sm7240512pjg.34.2021.09.13.10.07.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Sep 2021 10:07:54 -0700 (PDT)
-Message-ID: <613f856a.1c69fb81.51a0e.45ff@mx.google.com>
-Date:   Mon, 13 Sep 2021 10:07:54 -0700 (PDT)
-X-Google-Original-Date: Mon, 13 Sep 2021 17:07:52 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 000/236] 5.10.65-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S238180AbhIMRQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 13:16:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54328 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232274AbhIMRQH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 13:16:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C22F661056;
+        Mon, 13 Sep 2021 17:14:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631553291;
+        bh=XQojvyEAY3TweqFlpwWf93IfNTBDHJrZ6nVC+mOHQ4Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YYUY9uk03eynP3EoWHZmKoUYfNna+6aGN0uB5dQvhb92oMW6Xty6pyLfD81/kfSKL
+         Cf+p885cF9rmG0ytk68z8dbKCfab2fOjatXjkDt5vRC1jmuu9ZZqKMUH3/d6k9mueD
+         RfD6Lsl5b5EtcaA+ciKsy5WAIbmAHv1+ASPl7OWduEHBuydvv7uiMvX5Ss1KcNhGh5
+         DRllXAnn3KhIjvNGUjqMjYq5QPuZVyjz1Ec+/DrYix2U6lta4tjXRw5sXHvaGiCENP
+         1WZRyxSYBb5ksHPoEiYiUfsgTjmvhrADuMMgw+92ZLUgiMxHoPsbh+u/64JJZwjk/j
+         y4Fl/XPEKkXFQ==
+Date:   Mon, 13 Sep 2021 13:14:49 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Dmitry Osipenko <digetx@gmail.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.14 133/252] spi: tegra20-slink: Improve runtime
+ PM usage
+Message-ID: <YT+HCdNjfQxQayYH@sashalap>
+References: <20210909114106.141462-1-sashal@kernel.org>
+ <20210909114106.141462-133-sashal@kernel.org>
+ <20210909123751.GA5176@sirena.org.uk>
+ <f75c5c9c-8430-f650-5d0a-3490ac6aa3de@gmail.com>
+ <20210909130450.GB5176@sirena.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210909130450.GB5176@sirena.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 13 Sep 2021 15:11:45 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.65 release.
-> There are 236 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 15 Sep 2021 13:10:21 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.65-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Thu, Sep 09, 2021 at 02:04:50PM +0100, Mark Brown wrote:
+>On Thu, Sep 09, 2021 at 03:45:45PM +0300, Dmitry Osipenko wrote:
+>> 09.09.2021 15:37, Mark Brown пишет:
+>
+>> > This feels new featureish to me - it'll give you runtime PM where
+>> > previously there was none.
+>
+>> Apparently all patches which have a word 'fix' in commit message are
+>> auto-selected. I agree that it's better not to port this patch.
+>
+>Yeah, it's a fairly common source of false positives :/
 
-5.10.65-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+And some of that falls on me: if it's obvious that the "fix" isn't a
+real fix, I won't take it. In cases like this it's not clear to me
+whether it's purely a better behaviour, or whether the devices staying
+on/off/etc causes an actual problem.
 
+-- 
+Thanks,
+Sasha
