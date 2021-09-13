@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8001409126
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB73A408EA6
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245008AbhIMN6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:58:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46240 "EHLO mail.kernel.org"
+        id S240173AbhIMNgN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:36:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343700AbhIMN4o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:56:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97BCF619E7;
-        Mon, 13 Sep 2021 13:36:14 +0000 (UTC)
+        id S242630AbhIMN3r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:29:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 961656128C;
+        Mon, 13 Sep 2021 13:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540174;
-        bh=kA1zGDBvO3wCtWRiarIQkJ5Hkrq4acKn0FAZf4D/+c0=;
+        s=korg; t=1631539471;
+        bh=DncuXUAiCeK3E2hcQb9Xi5jbNByWZIc9g+FaFuSZKos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cQpQe5J3wuP0Vk3VCV+y+hoplISzvIVtxoziTuLAeVi21EpD6UQ1N4Tu7VBiQkD5i
-         I5vKKs74s4vW4FTR2zsRHJfn7onp5OQFSeg+SWU39gFBcQ/8b7unwf0FAs5sNKICxc
-         OZzbwHquC8kkjMJZwhZdYWDTziomNSekqE9fGFGA=
+        b=ZgtuGAuNfPoi4dABW+qM7UbCm2y7QfJv/ks+ydCPS0+UoA2yKezGXlRhyfojON8wi
+         jPRRBiW+OUoNAIB9RdIKO/qNYW4vwFjobSwADTLuUGH0f5LfgMfxdJuWEygGaHS7rE
+         //pZ3ACli+9WhUg4Dh4WoenekEpiaevq/0rw4XEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Harshvardhan Jha <harshvardhan.jha@oracle.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 082/300] drm/gma500: Fix end of loop tests for list_for_each_entry
+Subject: [PATCH 5.10 038/236] s390/debug: fix debug area life cycle
 Date:   Mon, 13 Sep 2021 15:12:23 +0200
-Message-Id: <20210913131112.143898074@linuxfoundation.org>
+Message-Id: <20210913131101.643082796@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+From: Peter Oberparleiter <oberpar@linux.ibm.com>
 
-[ Upstream commit ea9a897b8affa0f7b4c90182b785dded74e434aa ]
+[ Upstream commit 9372a82892c2caa6bccab9a4081166fa769699f8 ]
 
-The list_for_each_entry() iterator, "connector" in this code, can never be
-NULL.  If we exit the loop without finding the correct  connector then
-"connector" points invalid memory that is an offset from the list head.
-This will eventually lead to memory corruption and presumably a kernel
-crash.
+Currently allocation and registration of s390dbf debug areas are tied
+together. As a result, a debug area cannot be unregistered and
+re-registered while any process has an associated debugfs file open.
 
-Fixes: 9bd81acdb648 ("gma500: Convert Oaktrail to work with new output handling")
-Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210709073959.11443-1-harshvardhan.jha@oracle.com
+Fix this by splitting alloc/release from register/unregister.
+
+Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/oaktrail_lvds.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/debug.c | 102 +++++++++++++++++++++------------------
+ 1 file changed, 56 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/oaktrail_lvds.c b/drivers/gpu/drm/gma500/oaktrail_lvds.c
-index 432bdcc57ac9..a1332878857b 100644
---- a/drivers/gpu/drm/gma500/oaktrail_lvds.c
-+++ b/drivers/gpu/drm/gma500/oaktrail_lvds.c
-@@ -117,7 +117,7 @@ static void oaktrail_lvds_mode_set(struct drm_encoder *encoder,
- 			continue;
- 	}
+diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
+index e392d3e42b1d..89fbfb3b1e01 100644
+--- a/arch/s390/kernel/debug.c
++++ b/arch/s390/kernel/debug.c
+@@ -314,24 +314,6 @@ static debug_info_t *debug_info_create(const char *name, int pages_per_area,
+ 		goto out;
  
--	if (!connector) {
-+	if (list_entry_is_head(connector, &mode_config->connector_list, head)) {
- 		DRM_ERROR("Couldn't find connector when setting mode");
- 		gma_power_end(dev);
+ 	rc->mode = mode & ~S_IFMT;
+-
+-	/* create root directory */
+-	rc->debugfs_root_entry = debugfs_create_dir(rc->name,
+-						    debug_debugfs_root_entry);
+-
+-	/* append new element to linked list */
+-	if (!debug_area_first) {
+-		/* first element in list */
+-		debug_area_first = rc;
+-		rc->prev = NULL;
+-	} else {
+-		/* append element to end of list */
+-		debug_area_last->next = rc;
+-		rc->prev = debug_area_last;
+-	}
+-	debug_area_last = rc;
+-	rc->next = NULL;
+-
+ 	refcount_set(&rc->ref_count, 1);
+ out:
+ 	return rc;
+@@ -391,27 +373,10 @@ static void debug_info_get(debug_info_t *db_info)
+  */
+ static void debug_info_put(debug_info_t *db_info)
+ {
+-	int i;
+-
+ 	if (!db_info)
  		return;
+-	if (refcount_dec_and_test(&db_info->ref_count)) {
+-		for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
+-			if (!db_info->views[i])
+-				continue;
+-			debugfs_remove(db_info->debugfs_entries[i]);
+-		}
+-		debugfs_remove(db_info->debugfs_root_entry);
+-		if (db_info == debug_area_first)
+-			debug_area_first = db_info->next;
+-		if (db_info == debug_area_last)
+-			debug_area_last = db_info->prev;
+-		if (db_info->prev)
+-			db_info->prev->next = db_info->next;
+-		if (db_info->next)
+-			db_info->next->prev = db_info->prev;
++	if (refcount_dec_and_test(&db_info->ref_count))
+ 		debug_info_free(db_info);
+-	}
+ }
+ 
+ /*
+@@ -635,6 +600,31 @@ static int debug_close(struct inode *inode, struct file *file)
+ 	return 0; /* success */
+ }
+ 
++/* Create debugfs entries and add to internal list. */
++static void _debug_register(debug_info_t *id)
++{
++	/* create root directory */
++	id->debugfs_root_entry = debugfs_create_dir(id->name,
++						    debug_debugfs_root_entry);
++
++	/* append new element to linked list */
++	if (!debug_area_first) {
++		/* first element in list */
++		debug_area_first = id;
++		id->prev = NULL;
++	} else {
++		/* append element to end of list */
++		debug_area_last->next = id;
++		id->prev = debug_area_last;
++	}
++	debug_area_last = id;
++	id->next = NULL;
++
++	debug_register_view(id, &debug_level_view);
++	debug_register_view(id, &debug_flush_view);
++	debug_register_view(id, &debug_pages_view);
++}
++
+ /**
+  * debug_register_mode() - creates and initializes debug area.
+  *
+@@ -664,19 +654,16 @@ debug_info_t *debug_register_mode(const char *name, int pages_per_area,
+ 	if ((uid != 0) || (gid != 0))
+ 		pr_warn("Root becomes the owner of all s390dbf files in sysfs\n");
+ 	BUG_ON(!initialized);
+-	mutex_lock(&debug_mutex);
+ 
+ 	/* create new debug_info */
+ 	rc = debug_info_create(name, pages_per_area, nr_areas, buf_size, mode);
+-	if (!rc)
+-		goto out;
+-	debug_register_view(rc, &debug_level_view);
+-	debug_register_view(rc, &debug_flush_view);
+-	debug_register_view(rc, &debug_pages_view);
+-out:
+-	if (!rc)
++	if (rc) {
++		mutex_lock(&debug_mutex);
++		_debug_register(rc);
++		mutex_unlock(&debug_mutex);
++	} else {
+ 		pr_err("Registering debug feature %s failed\n", name);
+-	mutex_unlock(&debug_mutex);
++	}
+ 	return rc;
+ }
+ EXPORT_SYMBOL(debug_register_mode);
+@@ -705,6 +692,27 @@ debug_info_t *debug_register(const char *name, int pages_per_area,
+ }
+ EXPORT_SYMBOL(debug_register);
+ 
++/* Remove debugfs entries and remove from internal list. */
++static void _debug_unregister(debug_info_t *id)
++{
++	int i;
++
++	for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
++		if (!id->views[i])
++			continue;
++		debugfs_remove(id->debugfs_entries[i]);
++	}
++	debugfs_remove(id->debugfs_root_entry);
++	if (id == debug_area_first)
++		debug_area_first = id->next;
++	if (id == debug_area_last)
++		debug_area_last = id->prev;
++	if (id->prev)
++		id->prev->next = id->next;
++	if (id->next)
++		id->next->prev = id->prev;
++}
++
+ /**
+  * debug_unregister() - give back debug area.
+  *
+@@ -718,8 +726,10 @@ void debug_unregister(debug_info_t *id)
+ 	if (!id)
+ 		return;
+ 	mutex_lock(&debug_mutex);
+-	debug_info_put(id);
++	_debug_unregister(id);
+ 	mutex_unlock(&debug_mutex);
++
++	debug_info_put(id);
+ }
+ EXPORT_SYMBOL(debug_unregister);
+ 
 -- 
 2.30.2
 
