@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 906EB409192
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:01:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A8BE408EB5
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244002AbhIMOCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:02:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49604 "EHLO mail.kernel.org"
+        id S242009AbhIMNgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:36:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243837AbhIMOAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:00:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F326613AB;
-        Mon, 13 Sep 2021 13:37:35 +0000 (UTC)
+        id S242136AbhIMNcu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:32:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1B2C6137B;
+        Mon, 13 Sep 2021 13:26:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540255;
-        bh=L5THohV6IidN9Kc/xggYUb7EwyTAIEaF9O9yKpIKOhg=;
+        s=korg; t=1631539565;
+        bh=1VXBVvNetuXlJk82OA7vs8pw7noTjRKAtVboEjdwNn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCcG7wWidPz40YwQ/uGaXeaXtL4sjOQC4/iF2fMxxg6JH9Dy92or2SSSUWOdqGSli
-         8IVEl/zdDDK6EjCS9+NpfcFcqO1sNxDu4eZbTOEwxZXDLh2ox8DpfxG8rp5IjaI5fz
-         jV/95zLjO4Twl7lXuB87RNe2sqgPyDdryBcF8cQE=
+        b=wzGz31KKXavtVfmYG7yWlg2v4z+uaBMSOTPfAXh86lms/5H4aEIXOJCFD7Fqb0C78
+         wJcb949uBlp+ds1pLV8QHCWIkerkXKrs40PLOqJUQ1ssmrh3SN4zpx+PDS+tNf5E90
+         tuX0kbRB965D0ydr1/ogCsja8nH6WeQJzkPWLkwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jun Miao <jun.miao@windriver.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 117/300] Bluetooth: btusb: Fix a unspported condition to set available debug features
-Date:   Mon, 13 Sep 2021 15:12:58 +0200
-Message-Id: <20210913131113.349744024@linuxfoundation.org>
+Subject: [PATCH 5.10 074/236] soc: rockchip: ROCKCHIP_GRF should not default to y, unconditionally
+Date:   Mon, 13 Sep 2021 15:12:59 +0200
+Message-Id: <20210913131102.878076888@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun Miao <jun.miao@windriver.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 20a831f04f1526f2c3442efd3dece8630216b5d2 ]
+[ Upstream commit 2a1c55d4762dd34a8b0f2e36fb01b7b16b60735b ]
 
-When reading the support debug features failed, there are not available
-features init. Continue to set the debug features is illogical, we should
-skip btintel_set_debug_features(), even if check it by "if (!features)".
+Merely enabling CONFIG_COMPILE_TEST should not enable additional code.
+To fix this, restrict the automatic enabling of ROCKCHIP_GRF to
+ARCH_ROCKCHIP, and ask the user in case of compile-testing.
 
-Fixes: c453b10c2b28 ("Bluetooth: btusb: Configure Intel debug feature based on available support")
-Signed-off-by: Jun Miao <jun.miao@windriver.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 4c58063d4258f6be ("soc: rockchip: add driver handling grf setup")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20210208143855.418374-1-geert+renesas@glider.be
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/soc/rockchip/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 9122f9cc97cb..ae0cf5e71584 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2912,10 +2912,11 @@ static int btusb_setup_intel_new(struct hci_dev *hdev)
- 	/* Read the Intel supported features and if new exception formats
- 	 * supported, need to load the additional DDC config to enable.
- 	 */
--	btintel_read_debug_features(hdev, &features);
--
--	/* Set DDC mask for available debug features */
--	btintel_set_debug_features(hdev, &features);
-+	err = btintel_read_debug_features(hdev, &features);
-+	if (!err) {
-+		/* Set DDC mask for available debug features */
-+		btintel_set_debug_features(hdev, &features);
-+	}
+diff --git a/drivers/soc/rockchip/Kconfig b/drivers/soc/rockchip/Kconfig
+index 2c13bf4dd5db..25eb2c1e31bb 100644
+--- a/drivers/soc/rockchip/Kconfig
++++ b/drivers/soc/rockchip/Kconfig
+@@ -6,8 +6,8 @@ if ARCH_ROCKCHIP || COMPILE_TEST
+ #
  
- 	/* Read the Intel version information after loading the FW  */
- 	err = btintel_read_version(hdev, &ver);
-@@ -3008,10 +3009,11 @@ static int btusb_setup_intel_newgen(struct hci_dev *hdev)
- 	/* Read the Intel supported features and if new exception formats
- 	 * supported, need to load the additional DDC config to enable.
- 	 */
--	btintel_read_debug_features(hdev, &features);
--
--	/* Set DDC mask for available debug features */
--	btintel_set_debug_features(hdev, &features);
-+	err = btintel_read_debug_features(hdev, &features);
-+	if (!err) {
-+		/* Set DDC mask for available debug features */
-+		btintel_set_debug_features(hdev, &features);
-+	}
- 
- 	/* Read the Intel version information after loading the FW  */
- 	err = btintel_read_version_tlv(hdev, &version);
+ config ROCKCHIP_GRF
+-	bool
+-	default y
++	bool "Rockchip General Register Files support" if COMPILE_TEST
++	default y if ARCH_ROCKCHIP
+ 	help
+ 	  The General Register Files are a central component providing
+ 	  special additional settings registers for a lot of soc-components.
 -- 
 2.30.2
 
