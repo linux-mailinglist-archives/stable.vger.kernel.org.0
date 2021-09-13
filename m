@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E3F94093E9
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0103E4093EC
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345124AbhIMOZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:25:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45776 "EHLO mail.kernel.org"
+        id S1344750AbhIMOZo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:25:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345491AbhIMOW7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:22:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B868F61B3D;
-        Mon, 13 Sep 2021 13:47:52 +0000 (UTC)
+        id S1344708AbhIMOXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:23:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E302761B3C;
+        Mon, 13 Sep 2021 13:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540873;
-        bh=N/kBMNMc89UjZ1rYFYPHugE5EWUilALer50Wm74LmXQ=;
+        s=korg; t=1631540875;
+        bh=4LtRL2sRWfggO6m+Fluzy4qEcpSqdlUJaaiPByFil+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEx+vKg1kwrgGoH1h3mXsojbUPnd2ONChun0Q/ATXp4brC5f3JWS9fuoX8ndNzM8e
-         h/jAHEfe0vbUoekp4Ay8PRHHkXiXcPnKbP+mbktT1MbBLkLAwJfWZjyaJI5sGWj9KR
-         hNm3BIEXhsoGu4Gpa8rQooXLnkleb3t9uuqkGOAA=
+        b=pKhd6n8kHWe6ZlUn8HiO5Ls4STJOVCNuMfSYlqcPWTBfFqs7i7HwG3bdV0RiCBHJK
+         okXZ8+ecFggX/ShxAFwCzztcUKIaKgHTJ4vnVEp03/P9KyuAadxPKPD3SMHtsFGI0E
+         dd/F39aC+XkZSYQQwyuKWsphzIaUqSlaOWmLLIb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 070/334] crypto: qat - use proper type for vf_mask
-Date:   Mon, 13 Sep 2021 15:12:04 +0200
-Message-Id: <20210913131115.770042601@linuxfoundation.org>
+Subject: [PATCH 5.14 071/334] m68k: Fix asm register constraints for atomic ops
+Date:   Mon, 13 Sep 2021 15:12:05 +0200
+Message-Id: <20210913131115.802704940@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -43,70 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit 462354d986b6a89c6449b85f17aaacf44e455216 ]
+[ Upstream commit 87d93029fe83e326d5b906e12e95600b157d2c0d ]
 
-Replace vf_mask type with unsigned long to avoid a stack-out-of-bound.
+Depending on register assignment by the compiler:
 
-This is to fix the following warning reported by KASAN the first time
-adf_msix_isr_ae() gets called.
+    {standard input}:3084: Error: operands mismatch -- statement `andl %a1,%d1' ignored
+    {standard input}:3145: Error: operands mismatch -- statement `orl %a1,%d1' ignored
+    {standard input}:3195: Error: operands mismatch -- statement `eorl %a1,%d1' ignored
 
-    [  692.091987] BUG: KASAN: stack-out-of-bounds in find_first_bit+0x28/0x50
-    [  692.092017] Read of size 8 at addr ffff88afdf789e60 by task swapper/32/0
-    [  692.092076] Call Trace:
-    [  692.092089]  <IRQ>
-    [  692.092101]  dump_stack+0x9c/0xcf
-    [  692.092132]  print_address_description.constprop.0+0x18/0x130
-    [  692.092164]  ? find_first_bit+0x28/0x50
-    [  692.092185]  kasan_report.cold+0x7f/0x111
-    [  692.092213]  ? static_obj+0x10/0x80
-    [  692.092234]  ? find_first_bit+0x28/0x50
-    [  692.092262]  find_first_bit+0x28/0x50
-    [  692.092288]  adf_msix_isr_ae+0x16e/0x230 [intel_qat]
+Indeed, the first operand must not be an address register.  However, it
+can be an immediate value.  Fix this by adjusting the register
+constraint from "g" (general purpose register) to "di" (data register or
+immediate).
 
-Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: e39d88ea3ce4a471 ("locking/atomic, arch/m68k: Implement atomic_fetch_{add,sub,and,or,xor}()")
+Fixes: d839bae4269aea46 ("locking,arch,m68k: Fold atomic_ops")
+Fixes: 1da177e4c3f41524 ("Linux-2.6.12-rc2")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Arnd Bergmann <arnd@arndb.de>
+Reported-by: Alexander Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Tested-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210809112903.3898660-1-geert@linux-m68k.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_isr.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/m68k/include/asm/atomic.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
-index e3ad5587be49..daab02011717 100644
---- a/drivers/crypto/qat/qat_common/adf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_isr.c
-@@ -15,6 +15,8 @@
- #include "adf_transport_access_macros.h"
- #include "adf_transport_internal.h"
+diff --git a/arch/m68k/include/asm/atomic.h b/arch/m68k/include/asm/atomic.h
+index 8637bf8a2f65..cfba83d230fd 100644
+--- a/arch/m68k/include/asm/atomic.h
++++ b/arch/m68k/include/asm/atomic.h
+@@ -48,7 +48,7 @@ static inline int arch_atomic_##op##_return(int i, atomic_t *v)		\
+ 			"	casl %2,%1,%0\n"			\
+ 			"	jne 1b"					\
+ 			: "+m" (*v), "=&d" (t), "=&d" (tmp)		\
+-			: "g" (i), "2" (arch_atomic_read(v)));		\
++			: "di" (i), "2" (arch_atomic_read(v)));		\
+ 	return t;							\
+ }
  
-+#define ADF_MAX_NUM_VFS	32
-+
- static int adf_enable_msix(struct adf_accel_dev *accel_dev)
- {
- 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
-@@ -72,7 +74,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 		struct adf_bar *pmisc =
- 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
- 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
--		u32 vf_mask;
-+		unsigned long vf_mask;
+@@ -63,7 +63,7 @@ static inline int arch_atomic_fetch_##op(int i, atomic_t *v)		\
+ 			"	casl %2,%1,%0\n"			\
+ 			"	jne 1b"					\
+ 			: "+m" (*v), "=&d" (t), "=&d" (tmp)		\
+-			: "g" (i), "2" (arch_atomic_read(v)));		\
++			: "di" (i), "2" (arch_atomic_read(v)));		\
+ 	return tmp;							\
+ }
  
- 		/* Get the interrupt sources triggered by VFs */
- 		vf_mask = ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU5) &
-@@ -93,8 +95,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 			 * unless the VF is malicious and is attempting to
- 			 * flood the host OS with VF2PF interrupts.
- 			 */
--			for_each_set_bit(i, (const unsigned long *)&vf_mask,
--					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
-+			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
- 				vf_info = accel_dev->pf.vf_info + i;
- 
- 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
 -- 
 2.30.2
 
