@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BF37408EC1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F11C2408C86
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:19:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242549AbhIMNgs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:36:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33822 "EHLO mail.kernel.org"
+        id S240262AbhIMNUU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:20:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243069AbhIMNex (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:34:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 593796124F;
-        Mon, 13 Sep 2021 13:27:02 +0000 (UTC)
+        id S236138AbhIMNTt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:19:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EEB2610A2;
+        Mon, 13 Sep 2021 13:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539622;
-        bh=+KgFxSgNdFkMVgeqQhxhH1KWHyahO0U7bjcVk1OwuGM=;
+        s=korg; t=1631539036;
+        bh=LCusNe/AMO3RUFyj6lq33r72Gup2BEzvmGh1RFSV8nM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSJ5yH+2UTsYTGXenrEyPet7Xzbw3uXeGsWo7cuqByWNFQ8FOKpK14di/S1ObIeQ/
-         STNphiHDEHBeBkY7oTzjI+sCgqPhmlPv+cqh/DKYtIKbtVX8IM7O8SVdDn6yT7Ak7f
-         DbuZW/c4QjsCnztyDGGB4Yv8g4aAMKIg+v89tya0=
+        b=GwJV0yVAZTGSgsgpGvHxU+Pm71dWqQL5t0vYymMtlvb7UodqoovD7telhEQ7HRXFK
+         aDFyX63FJ2gwyGBW7dp9m6AcCHSF7sS5eCFl7MO4OGWQKGWoK7GBo+qs9qQHgIEYMw
+         iJR47bd2pUY7oZMs+9VxQFvyrWBQ01idPHOwKrug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 094/236] media: go7007: fix memory leak in go7007_usb_probe
+        stable@vger.kernel.org, Amit Engel <amit.engel@dell.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 018/144] nvmet: pass back cntlid on successful completion
 Date:   Mon, 13 Sep 2021 15:13:19 +0200
-Message-Id: <20210913131103.555056633@linuxfoundation.org>
+Message-Id: <20210913131048.568435634@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Amit Engel <amit.engel@dell.com>
 
-[ Upstream commit 47d94dad8e64b2fc1d8f66ce7acf714f9462c60f ]
+[ Upstream commit e804d5abe2d74cfe23f5f83be580d1cdc9307111 ]
 
-In commit 137641287eb4 ("go7007: add sanity checking for endpoints")
-endpoint sanity check was introduced, but if check fails it simply
-returns with leaked pointers.
+According to the NVMe specification, the response dword 0 value of the
+Connect command is based on status code: return cntlid for successful
+compeltion return IPO and IATTR for connect invalid parameters.  Fix
+a missing error information for a zero sized queue, and return the
+cntlid also for I/O queue Connect commands.
 
-Cutted log from my local syzbot instance:
-
-BUG: memory leak
-unreferenced object 0xffff8880209f0000 (size 8192):
-  comm "kworker/0:4", pid 4916, jiffies 4295263583 (age 29.310s)
-  hex dump (first 32 bytes):
-    30 b0 27 22 80 88 ff ff 75 73 62 2d 64 75 6d 6d  0.'"....usb-dumm
-    79 5f 68 63 64 2e 33 2d 31 00 00 00 00 00 00 00  y_hcd.3-1.......
-  backtrace:
-    [<ffffffff860ca856>] kmalloc include/linux/slab.h:556 [inline]
-    [<ffffffff860ca856>] kzalloc include/linux/slab.h:686 [inline]
-    [<ffffffff860ca856>] go7007_alloc+0x46/0xb40 drivers/media/usb/go7007/go7007-driver.c:696
-    [<ffffffff860de74e>] go7007_usb_probe+0x13e/0x2200 drivers/media/usb/go7007/go7007-usb.c:1114
-    [<ffffffff854a5f74>] usb_probe_interface+0x314/0x7f0 drivers/usb/core/driver.c:396
-    [<ffffffff845a7151>] really_probe+0x291/0xf60 drivers/base/dd.c:576
-
-BUG: memory leak
-unreferenced object 0xffff88801e2f2800 (size 512):
-  comm "kworker/0:4", pid 4916, jiffies 4295263583 (age 29.310s)
-  hex dump (first 32 bytes):
-    00 87 40 8a ff ff ff ff 00 00 00 00 00 00 00 00  ..@.............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff860de794>] kmalloc include/linux/slab.h:556 [inline]
-    [<ffffffff860de794>] kzalloc include/linux/slab.h:686 [inline]
-    [<ffffffff860de794>] go7007_usb_probe+0x184/0x2200 drivers/media/usb/go7007/go7007-usb.c:1118
-    [<ffffffff854a5f74>] usb_probe_interface+0x314/0x7f0 drivers/usb/core/driver.c:396
-    [<ffffffff845a7151>] really_probe+0x291/0xf60 drivers/base/dd.c:576
-
-Fixes: 137641287eb4 ("go7007: add sanity checking for endpoints")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Amit Engel <amit.engel@dell.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/go7007/go7007-usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/target/fabrics-cmd.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/usb/go7007/go7007-usb.c b/drivers/media/usb/go7007/go7007-usb.c
-index dbf0455d5d50..eeb85981e02b 100644
---- a/drivers/media/usb/go7007/go7007-usb.c
-+++ b/drivers/media/usb/go7007/go7007-usb.c
-@@ -1134,7 +1134,7 @@ static int go7007_usb_probe(struct usb_interface *intf,
+diff --git a/drivers/nvme/target/fabrics-cmd.c b/drivers/nvme/target/fabrics-cmd.c
+index 4e9004fe5c6f..5e47395afc1d 100644
+--- a/drivers/nvme/target/fabrics-cmd.c
++++ b/drivers/nvme/target/fabrics-cmd.c
+@@ -116,6 +116,7 @@ static u16 nvmet_install_queue(struct nvmet_ctrl *ctrl, struct nvmet_req *req)
+ 	if (!sqsize) {
+ 		pr_warn("queue size zero!\n");
+ 		req->error_loc = offsetof(struct nvmf_connect_command, sqsize);
++		req->cqe->result.u32 = IPO_IATTR_CONNECT_SQE(sqsize);
+ 		ret = NVME_SC_CONNECT_INVALID_PARAM | NVME_SC_DNR;
+ 		goto err;
+ 	}
+@@ -250,11 +251,11 @@ static void nvmet_execute_io_connect(struct nvmet_req *req)
+ 	}
  
- 	ep = usb->usbdev->ep_in[4];
- 	if (!ep)
--		return -ENODEV;
-+		goto allocfail;
+ 	status = nvmet_install_queue(ctrl, req);
+-	if (status) {
+-		/* pass back cntlid that had the issue of installing queue */
+-		req->cqe->result.u16 = cpu_to_le16(ctrl->cntlid);
++	if (status)
+ 		goto out_ctrl_put;
+-	}
++
++	/* pass back cntlid for successful completion */
++	req->cqe->result.u16 = cpu_to_le16(ctrl->cntlid);
  
- 	/* Allocate the URB and buffer for receiving incoming interrupts */
- 	usb->intr_urb = usb_alloc_urb(0, GFP_KERNEL);
+ 	pr_debug("adding queue %d to ctrl %d.\n", qid, ctrl->cntlid);
+ 
 -- 
 2.30.2
 
