@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFBF1408E60
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA145409133
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:58:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241279AbhIMNd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:33:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49440 "EHLO mail.kernel.org"
+        id S242926AbhIMN75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:59:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242769AbhIMNaB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:30:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 587CB61056;
-        Mon, 13 Sep 2021 13:24:41 +0000 (UTC)
+        id S242975AbhIMN5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:57:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3E68619EC;
+        Mon, 13 Sep 2021 13:36:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539481;
-        bh=xJm/14y2ypvancYZsIrjqdLMdAXw9P1YUbfsY5TqiIc=;
+        s=korg; t=1631540186;
+        bh=LhIFj7V7nIgk1FlbSSAAwYm0Zja+2WrGGJvCfXGJjuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EbuuZa/jrha8R95OI63/wCl6H+iHaVvYdJZPsMni2Byby5+OGKz8lV5bT0LbPFUO5
-         UeTl+RP1KJruk9zRnN425q0eDUYNhMNtIzO6jipzr6IBljw7uQh8CypRTuFH813D3e
-         xu6sgg3IVY5YHDl9KhbV6zuDBKGzYFeuqMxeTTu4=
+        b=kAj5nvsOjA4J2F4hqSmH2nfftClp5SiWPAlFC3B2xdg9AwJPoVdbYhjgTunGaH7W+
+         KTtFIIb6B6edUf2zazrhoAuaOUlBlUPL+KCLgQ8bN8A7I9i2L9icRL9RPfH9jpLaqs
+         72xu0Lf4O3WrQPZaOFOIZoxX+HCCgcnjNN+1lMcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Mika=20Penttil=C3=A4?= <mika.penttila@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Pankaj Gupta <pankaj.gupta@ionos.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 042/236] sched/numa: Fix is_core_idle()
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        David Rivshin <drivshin@allworx.com>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 086/300] leds: is31fl32xx: Fix missing error code in is31fl32xx_parse_dt()
 Date:   Mon, 13 Sep 2021 15:12:27 +0200
-Message-Id: <20210913131101.787942982@linuxfoundation.org>
+Message-Id: <20210913131112.293074730@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Penttilä <mika.penttila@gmail.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit 1c6829cfd3d5124b125e6df41158665aea413b35 ]
+[ Upstream commit e642197562cd9781453f835e1406cfe0feeb917e ]
 
-Use the loop variable instead of the function argument to test the
-other SMT siblings for idle.
+The error code is missing in this code scenario, add the error code
+'-EINVAL' to the return value 'ret'.
 
-Fixes: ff7db0bf24db ("sched/numa: Prefer using an idle CPU as a migration target instead of comparing tasks")
-Signed-off-by: Mika Penttilä <mika.penttila@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Acked-by: Pankaj Gupta <pankaj.gupta@ionos.com>
-Link: https://lkml.kernel.org/r/20210722063946.28951-1-mika.penttila@gmail.com
+Eliminate the follow smatch warning:
+
+drivers/leds/leds-is31fl32xx.c:388 is31fl32xx_parse_dt() warn: missing
+error code 'ret'.
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Fixes: 9d7cffaf99f5 ("leds: Add driver for the ISSI IS31FL32xx family of LED controllers")
+Acked-by: David Rivshin <drivshin@allworx.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/leds/leds-is31fl32xx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index bad97d35684d..c004e3b89c32 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -1533,7 +1533,7 @@ static inline bool is_core_idle(int cpu)
- 		if (cpu == sibling)
- 			continue;
+diff --git a/drivers/leds/leds-is31fl32xx.c b/drivers/leds/leds-is31fl32xx.c
+index 2180255ad339..899ed94b6687 100644
+--- a/drivers/leds/leds-is31fl32xx.c
++++ b/drivers/leds/leds-is31fl32xx.c
+@@ -385,6 +385,7 @@ static int is31fl32xx_parse_dt(struct device *dev,
+ 			dev_err(dev,
+ 				"Node %pOF 'reg' conflicts with another LED\n",
+ 				child);
++			ret = -EINVAL;
+ 			goto err;
+ 		}
  
--		if (!idle_cpu(cpu))
-+		if (!idle_cpu(sibling))
- 			return false;
- 	}
- #endif
 -- 
 2.30.2
 
