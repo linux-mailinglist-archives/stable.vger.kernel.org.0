@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A52C3408DEC
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:30:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35B84408FCA
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242130AbhIMNaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:30:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34836 "EHLO mail.kernel.org"
+        id S243312AbhIMNqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:46:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241340AbhIMNXy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:23:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A193610E6;
-        Mon, 13 Sep 2021 13:21:37 +0000 (UTC)
+        id S243610AbhIMNok (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:44:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F347161502;
+        Mon, 13 Sep 2021 13:31:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539298;
-        bh=eCqa3Xy4ktPc6sqC8YVoXvBmu21imrKosMhLGXgVduE=;
+        s=korg; t=1631539867;
+        bh=lnBHHFRuLJzQHrYQ4bLpSlqqObR463nOfp12ypBvfNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVDO65Px7KOiLMmFApk1ILQVMOI/OzJLBZiULMZkpfi4iHgVDcqINxu/oNpP42Ntt
-         1Zs6knJlvOUlTVLxGnbxh7SKf2EvS2wL0EgED0H83vqpCNOd9Bk0W+0H9yvQaSlkB9
-         noRvrAN9Txs1uWaFa4t+URMBILglwxOYwJOw20T0=
+        b=ctL4YRYYzjD3vOSV46pkGRaR+67h+Fcnp4FbsBJmmYRldbAL4TgQbrOWEeZXhewHa
+         ceaRkc/B5vbFMwBvOHR5p582/6eDx15smJ1X6truMy1iVlwCEAaqZAqZ4cLHMqpRqg
+         0154Cfv+D2Nm6mZZPFBZdrh73Yom8ywWIScXdyog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 116/144] ASoC: wcd9335: Fix a memory leak in the error handling path of the probe function
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        George Cherian <george.cherian@marvell.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 192/236] i2c: xlp9xx: fix main IRQ check
 Date:   Mon, 13 Sep 2021 15:14:57 +0200
-Message-Id: <20210913131051.811849464@linuxfoundation.org>
+Message-Id: <20210913131106.918247647@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit fc6fc81caa63900cef9ebb8b2e365c3ed5a9effb ]
+[ Upstream commit 661e8a88e8317eb9ffe69c69d6cb4876370fe7e2 ]
 
-If 'wcd9335_setup_irqs()' fails, me must release the memory allocated in
-'wcd_clsh_ctrl_alloc()', as already done in the remove function.
+Iff platform_get_irq() returns 0 for the main IRQ, the driver's probe()
+method will return 0 early (as if the method's call was successful).
+Let's consider IRQ0 valid for simplicity -- devm_request_irq() can always
+override that decision...
 
-Add an error handling path and the missing 'wcd_clsh_ctrl_free()' call.
-
-Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Message-Id: <6dc12372f09fabb70bf05941dbe6a1382dc93e43.1629091028.git.christophe.jaillet@wanadoo.fr>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 2bbd681ba2b ("i2c: xlp9xx: Driver for Netlogic XLP9XX/5XX I2C controller")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reviewed-by: George Cherian <george.cherian@marvell.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd9335.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-xlp9xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
-index a31a20dcd6b5..5ec63217ad02 100644
---- a/sound/soc/codecs/wcd9335.c
-+++ b/sound/soc/codecs/wcd9335.c
-@@ -4844,6 +4844,7 @@ static void wcd9335_codec_init(struct snd_soc_component *component)
- static int wcd9335_codec_probe(struct snd_soc_component *component)
- {
- 	struct wcd9335_codec *wcd = dev_get_drvdata(component->dev);
-+	int ret;
- 	int i;
+diff --git a/drivers/i2c/busses/i2c-xlp9xx.c b/drivers/i2c/busses/i2c-xlp9xx.c
+index f2241cedf5d3..6d24dc385522 100644
+--- a/drivers/i2c/busses/i2c-xlp9xx.c
++++ b/drivers/i2c/busses/i2c-xlp9xx.c
+@@ -517,7 +517,7 @@ static int xlp9xx_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(priv->base);
  
- 	snd_soc_component_init_regmap(component, wcd->regmap);
-@@ -4861,7 +4862,15 @@ static int wcd9335_codec_probe(struct snd_soc_component *component)
- 	for (i = 0; i < NUM_CODEC_DAIS; i++)
- 		INIT_LIST_HEAD(&wcd->dai[i].slim_ch_list);
- 
--	return wcd9335_setup_irqs(wcd);
-+	ret = wcd9335_setup_irqs(wcd);
-+	if (ret)
-+		goto free_clsh_ctrl;
-+
-+	return 0;
-+
-+free_clsh_ctrl:
-+	wcd_clsh_ctrl_free(wcd->clsh_ctrl);
-+	return ret;
- }
- 
- static void wcd9335_codec_remove(struct snd_soc_component *comp)
+ 	priv->irq = platform_get_irq(pdev, 0);
+-	if (priv->irq <= 0)
++	if (priv->irq < 0)
+ 		return priv->irq;
+ 	/* SMBAlert irq */
+ 	priv->alert_data.irq = platform_get_irq(pdev, 1);
 -- 
 2.30.2
 
