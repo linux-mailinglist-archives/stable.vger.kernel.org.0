@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F9B408D06
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25DC7408D03
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240423AbhIMNWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:22:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34850 "EHLO mail.kernel.org"
+        id S240762AbhIMNWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:22:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240726AbhIMNVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:21:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C585B6103B;
-        Mon, 13 Sep 2021 13:20:14 +0000 (UTC)
+        id S240755AbhIMNVd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:21:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72A20610D2;
+        Mon, 13 Sep 2021 13:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539215;
-        bh=/fInKGmN6+naJElx8rPkaWTIq4JwxR7euQotjQJOQbE=;
+        s=korg; t=1631539218;
+        bh=33QvFHbCTXbaUPpjLD6UmNzkN6ds9LL8q5cT5P2oI5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1phvIH0iEGPKt/KrUvtGX8BN3VKM4aj9lJ32mGJfE/sPt6/VbvDhd72ARPnDwa473
-         vhLksQg6vB/0ABA3WBYDryRyIQn2Fmc9d8nBqyi3G7GxIrprRKHvfo1ZTfms7naDYk
-         3QNdtqTKdwo+d7bf2Lbc5SSq6WxSw0CGvDEZ79SI=
+        b=MGFqIxxj9Www3nTrdUuA00Nkk6lNG8jsKqXHEd4/n1E9ZUq+Ih1K2PJB16UWVhJw0
+         myGZOfrm9jQkYs2yd6EtdX3qZg/PRCSELA5jxFf7wRS32mv12TMl1jcvw8jhoYpEO1
+         zYVqTmmwmgpyioP/s5vqDJoDE0VoxMQc/ahPrBI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Protsenko <semen.protsenko@linaro.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
+        stable@vger.kernel.org, Syed Nayyar Waris <syednwaris@gmail.com>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 084/144] arm64: dts: exynos: correct GIC CPU interfaces address range on Exynos7
-Date:   Mon, 13 Sep 2021 15:14:25 +0200
-Message-Id: <20210913131050.770742190@linuxfoundation.org>
+Subject: [PATCH 5.4 085/144] counter: 104-quad-8: Return error when invalid mode during ceiling_write
+Date:   Mon, 13 Sep 2021 15:14:26 +0200
+Message-Id: <20210913131050.801774754@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
 References: <20210913131047.974309396@linuxfoundation.org>
@@ -42,38 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
 
-[ Upstream commit 01c72cad790cb6cd3ccbe4c1402b6cb6c6bbffd0 ]
+[ Upstream commit 728246e8f7269ecd35a2c6e6795323e6d8f48db7 ]
 
-The GIC-400 CPU interfaces address range is defined as 0x2000-0x3FFF (by
-ARM).
+The 104-QUAD-8 only has two count modes where a ceiling value makes
+sense: Range Limit and Modulo-N. Outside of these two modes, setting a
+ceiling value is an invalid operation -- so let's report it as such by
+returning -EINVAL.
 
-Reported-by: Sam Protsenko <semen.protsenko@linaro.org>
-Reported-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Fixes: b9024cbc937d ("arm64: dts: Add initial device tree support for exynos7")
-Link: https://lore.kernel.org/r/20210805072110.4730-1-krzysztof.kozlowski@canonical.com
+Fixes: fc069262261c ("counter: 104-quad-8: Add lock guards - generic interface")
+Acked-by: Syed Nayyar Waris <syednwaris@gmail.com>
+Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+Link: https://lore.kernel.org/r/a2147f022829b66839a1db5530a7fada47856847.1627990337.git.vilhelm.gray@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/exynos/exynos7.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/counter/104-quad-8.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/exynos/exynos7.dtsi b/arch/arm64/boot/dts/exynos/exynos7.dtsi
-index 25549d9552ae..84f92b44c323 100644
---- a/arch/arm64/boot/dts/exynos/exynos7.dtsi
-+++ b/arch/arm64/boot/dts/exynos/exynos7.dtsi
-@@ -113,7 +113,7 @@
- 			#address-cells = <0>;
- 			interrupt-controller;
- 			reg =	<0x11001000 0x1000>,
--				<0x11002000 0x1000>,
-+				<0x11002000 0x2000>,
- 				<0x11004000 0x2000>,
- 				<0x11006000 0x2000>;
- 		};
+diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
+index 5c23a9a56921..f261a57af1c0 100644
+--- a/drivers/counter/104-quad-8.c
++++ b/drivers/counter/104-quad-8.c
+@@ -1230,12 +1230,13 @@ static ssize_t quad8_count_ceiling_write(struct counter_device *counter,
+ 	case 1:
+ 	case 3:
+ 		quad8_preset_register_set(priv, count->id, ceiling);
+-		break;
++		mutex_unlock(&priv->lock);
++		return len;
+ 	}
+ 
+ 	mutex_unlock(&priv->lock);
+ 
+-	return len;
++	return -EINVAL;
+ }
+ 
+ static ssize_t quad8_count_preset_enable_read(struct counter_device *counter,
 -- 
 2.30.2
 
