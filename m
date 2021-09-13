@@ -2,86 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05FBB40881A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 11:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 769EA40884F
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 11:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238447AbhIMJZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 05:25:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46810 "EHLO mail.kernel.org"
+        id S238701AbhIMJfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 05:35:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238400AbhIMJZm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 05:25:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAACD6101A;
-        Mon, 13 Sep 2021 09:24:26 +0000 (UTC)
+        id S238683AbhIMJfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 05:35:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C880961004;
+        Mon, 13 Sep 2021 09:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631525067;
-        bh=GMg86oIlLLx+ETn75Et6CCjLBv/Nlhtbb7ePATh9ZJA=;
+        s=korg; t=1631525636;
+        bh=GY8EbtbGrgePZfSn3NDCuLNemetE1SRK37HKfuiJrzI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kpRcJQYAjbYk0ddU/oPaybepeuhIOtwp7ger+Iyw43j7bNr3yIbwMUedjNiIdfEM2
-         aZNEOB0o7Lp7TDDXTAetLzgEQIE8CTLC471JqCmeFuEStGlZKGwlg1+EFBOlQm1yZm
-         4AKHktPEq2VIJ7H9KqedwVFIsHA8ei1sybkt4DZw=
-Date:   Mon, 13 Sep 2021 11:24:24 +0200
+        b=lXfVZu5j0ppumZyeQdoQvH4+bjWZ2qTjg+7G2oYG4+8A6qFXQ1t9Ht1Wy00W3Dxli
+         OeFQkayIypGECabAt0QI2dN2J3NHxXZiJ1A5dQ2xtWflk3NdrQdcbdCjSSMPLDLUXt
+         qr+gz75pyugwlAj99JLG6U0f/kVMoJzmSk2BcAZU=
+Date:   Mon, 13 Sep 2021 11:33:54 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jaegeuk Kim <jaegeuk@kernel.org>
-Cc:     stable@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        Chao Yu <chao@kernel.org>
-Subject: Re: [PATCH] f2fs: guarantee to write dirty data when enabling
- checkpoint back
-Message-ID: <YT8YyIiLf0u3gifM@kroah.com>
-References: <20210908220020.599899-1-jaegeuk@google.com>
- <YTmaPCd3/cpMyNEe@kroah.com>
- <YTmbhc7J5ZdVp3vI@google.com>
- <YTmcbNMRaPzQRqmf@kroah.com>
- <YTme3altl3q5lc8N@google.com>
- <YTmlAWm7g4NyM/rG@kroah.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     stable@vger.kernel.org, linux-fscrypt@vger.kernel.org,
+        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        linux-mtd@lists.infradead.org
+Subject: Re: [PATCH 0/4] backport fscrypt symlink fixes to 4.19
+Message-ID: <YT8bAlnKAYXMqFpe@kroah.com>
+References: <20210908215033.1122580-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YTmlAWm7g4NyM/rG@kroah.com>
+In-Reply-To: <20210908215033.1122580-1-ebiggers@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 09, 2021 at 08:09:05AM +0200, Greg KH wrote:
-> On Wed, Sep 08, 2021 at 10:42:53PM -0700, Jaegeuk Kim wrote:
-> > On 09/09, Greg KH wrote:
-> > > On Wed, Sep 08, 2021 at 10:28:37PM -0700, Jaegeuk Kim wrote:
-> > > > On 09/09, Greg KH wrote:
-> > > > > On Wed, Sep 08, 2021 at 03:00:20PM -0700, Jaegeuk Kim wrote:
-> > > > > > From: Jaegeuk Kim <jaegeuk@kernel.org>
-> > > > > > 
-> > > > > > commit dddd3d65293a52c2c3850c19b1e5115712e534d8 upstream.
-> > > > > > 
-> > > > > > We must flush all the dirty data when enabling checkpoint back. Let's guarantee
-> > > > > > that first by adding a retry logic on sync_inodes_sb(). In addition to that,
-> > > > > > this patch adds to flush data in fsync when checkpoint is disabled, which can
-> > > > > > mitigate the sync_inodes_sb() failures in advance.
-> > > > > > 
-> > > > > > Reviewed-by: Chao Yu <chao@kernel.org>
-> > > > > > Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-> > > > > > ---
-> > > > > >  fs/f2fs/file.c  |  5 ++---
-> > > > > >  fs/f2fs/super.c | 11 ++++++++++-
-> > > > > >  2 files changed, 12 insertions(+), 4 deletions(-)
-> > > > > 
-> > > > > What stable kernel(s) are you wanting to have this backported to?
-> > > > 
-> > > > 5.10 please.
-> > > 
-> > > Why would you want to skip 5.14.y and 5.13.y?  You never want anyone to
-> > > upgrade stable kernel releases and have a regression.
-> > 
-> > I was just looking at the essential kernel version, since the fix is only
-> > related to checkpoint=disable feature used in android only. Feel free to
-> > merge it into any stable kernels if you want.
+On Wed, Sep 08, 2021 at 02:50:29PM -0700, Eric Biggers wrote:
+> This series backports some patches that failed to apply to 4.19-stable
+> due to the prototype of inode_operations::getattr having changed in
+> v5.12, as well as several other conflicts.  Please apply to 4.19-stable.
 > 
-> No regressions for any stable releases is key here, Android is just one
-> user of the kernel...
+> Eric Biggers (4):
+>   fscrypt: add fscrypt_symlink_getattr() for computing st_size
+>   ext4: report correct st_size for encrypted symlinks
+>   f2fs: report correct st_size for encrypted symlinks
+>   ubifs: report correct st_size for encrypted symlinks
 > 
-> And in the future, just put a cc: stable in the signed-off-by area when
-> you submit the patch and it will be handled automatically, like the
-> documentation states :)
+>  fs/crypto/hooks.c               | 44 +++++++++++++++++++++++++++++++++
+>  fs/ext4/symlink.c               | 11 ++++++++-
+>  fs/f2fs/namei.c                 | 11 ++++++++-
+>  fs/ubifs/file.c                 | 12 ++++++++-
+>  include/linux/fscrypt_notsupp.h |  6 +++++
+>  include/linux/fscrypt_supp.h    |  1 +
+>  6 files changed, 82 insertions(+), 3 deletions(-)
+> 
+> -- 
+> 2.33.0.153.gba50c8fa24-goog
+> 
 
-Now queued up.
+All now queued up, thanks!
 
 greg k-h
