@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 734BA408FF3
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:47:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 580BB408D4A
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243591AbhIMNsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:48:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46760 "EHLO mail.kernel.org"
+        id S240681AbhIMNYz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:24:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241449AbhIMNpf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:45:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72A57610A6;
-        Mon, 13 Sep 2021 13:31:48 +0000 (UTC)
+        id S240949AbhIMNW1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:22:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B746F610A3;
+        Mon, 13 Sep 2021 13:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539908;
-        bh=L9vxqqCEnTNZywO212O/rL6FdrK/umGTDKqzH5UVo5U=;
+        s=korg; t=1631539259;
+        bh=GTSvQJKEyb0797DUBrkvkkZ/1BJb1V2Q9eWA1hpJoGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=stSUpMPbZFvlIy/iYih/T++TsNrfxPEpT4QW97cH23qAxSbl3OldJ1QiCHMEurjVG
-         UWVzCYrywDz852RzMStYl+jtfVZvwzb3EgHP66ReRR2DdoifBX2iVLwS6mHGjP5GVT
-         8idh4Jau4zlVisV+ihrYh895HW0I3QtUh4MDZLXw=
+        b=sw/+FhAAlc+tg5HdiFPyK46i0CG3oYZr2sqBK70eGVqH7CGHnBmvCBPfGrYQVLHDp
+         cQ2iz25E29HolKKYp0H89rexNvPKrju6QaFFrs8QeAh3B3pf1WGdhmT3Cao3ohKM38
+         KyqkvVpXtm/d3SNpflTUyKDi2aKZGWpXMxijKZXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 177/236] i2c: s3c2410: fix IRQ check
-Date:   Mon, 13 Sep 2021 15:14:42 +0200
-Message-Id: <20210913131106.391449822@linuxfoundation.org>
+Subject: [PATCH 5.4 102/144] i2c: s3c2410: fix IRQ check
+Date:   Mon, 13 Sep 2021 15:14:43 +0200
+Message-Id: <20210913131051.358624101@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,10 +58,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 40fa9e4af5d1..05831848b7bf 100644
+index d6322698b245..e6f927c6f8af 100644
 --- a/drivers/i2c/busses/i2c-s3c2410.c
 +++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -1140,7 +1140,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+@@ -1141,7 +1141,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
  	 */
  	if (!(i2c->quirks & QUIRK_POLL)) {
  		i2c->irq = ret = platform_get_irq(pdev, 0);
