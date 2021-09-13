@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D9FA409539
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F37AC40954C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344315AbhIMOjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:39:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55826 "EHLO mail.kernel.org"
+        id S1347858AbhIMOkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:40:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345024AbhIMOhG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:37:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60C3661BE6;
-        Mon, 13 Sep 2021 13:54:17 +0000 (UTC)
+        id S1345049AbhIMOhN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:37:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01D7A61BF8;
+        Mon, 13 Sep 2021 13:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541258;
-        bh=q1lh6W6UNl2ryR+ZZnrhK7It/hl2XEqy2ckAqm4ZRLw=;
+        s=korg; t=1631541260;
+        bh=4To1bOUCDLgmDWAARWr6k4/bL8hIqGaRJ22HHKwMkho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ssKbKlqFGJqALAw4Dpq2ma6/2YFAWSr1pYTYIpS6uGGksQVKx+WYVJfGkOxlxTopk
-         elrpUjVo8LlvI6J0QXyGszazWD7AcreGeMcFBLD0OhVI/muEbPV+eF4hE2xrEsg4Sm
-         eAJ+OkOfY8+yE82S1x0BQeVMZxBrNeclXYNIuUTg=
+        b=TRE1+WgtslQxNvCfZvN19sBtuOsVOsjmWKJvoxlG/plI5jtoyJ2g5GWOpjQkVN/nC
+         vPmLJkk+m5DMVWl61zJDoQTHjDmEApVlnEpY2NjjKhn9wzetZrfiZO4zwkCEFhGxXD
+         i+wBXxLbq/bWOCDiB2cIJBSMjohs3BDm7YoeuH6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 226/334] hwmon: remove amd_energy driver in Makefile
-Date:   Mon, 13 Sep 2021 15:14:40 +0200
-Message-Id: <20210913131121.055638654@linuxfoundation.org>
+Subject: [PATCH 5.14 227/334] ASoC: fsl_rpmsg: Check -EPROBE_DEFER for getting clocks
+Date:   Mon, 13 Sep 2021 15:14:41 +0200
+Message-Id: <20210913131121.094265963@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -40,41 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit b3a7ab2d4376726178909e27b6956c012277ac4e ]
+[ Upstream commit 2fbbcffea5b6adbfe90ffc842a6b3eb2d7e381ed ]
 
-Commit 9049572fb145 ("hwmon: Remove amd_energy driver") removes the driver,
-but misses to adjust the Makefile.
+The devm_clk_get() may return -EPROBE_DEFER, then clocks
+will be assigned to NULL wrongly. As the clocks are
+optional so we can use devm_clk_get_optional() instead of
+devm_clk_get().
 
-Hence, ./scripts/checkkconfigsymbols.py warns:
-
-SENSORS_AMD_ENERGY
-Referencing files: drivers/hwmon/Makefile
-
-Remove the missing piece of this driver removal.
-
-Fixes: 9049572fb145 ("hwmon: Remove amd_energy driver")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Link: https://lore.kernel.org/r/20210817084811.10673-1-lukas.bulwahn@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: b73d9e6225e8 ("ASoC: fsl_rpmsg: Add CPU DAI driver for audio base on rpmsg")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1629266614-6942-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/Makefile | 1 -
- 1 file changed, 1 deletion(-)
+ sound/soc/fsl/fsl_rpmsg.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
-index d712c61c1f5e..0241ed84b692 100644
---- a/drivers/hwmon/Makefile
-+++ b/drivers/hwmon/Makefile
-@@ -45,7 +45,6 @@ obj-$(CONFIG_SENSORS_ADT7462)	+= adt7462.o
- obj-$(CONFIG_SENSORS_ADT7470)	+= adt7470.o
- obj-$(CONFIG_SENSORS_ADT7475)	+= adt7475.o
- obj-$(CONFIG_SENSORS_AHT10)	+= aht10.o
--obj-$(CONFIG_SENSORS_AMD_ENERGY) += amd_energy.o
- obj-$(CONFIG_SENSORS_APPLESMC)	+= applesmc.o
- obj-$(CONFIG_SENSORS_ARM_SCMI)	+= scmi-hwmon.o
- obj-$(CONFIG_SENSORS_ARM_SCPI)	+= scpi-hwmon.o
+diff --git a/sound/soc/fsl/fsl_rpmsg.c b/sound/soc/fsl/fsl_rpmsg.c
+index ea5c973e2e84..d60f4dac6c1b 100644
+--- a/sound/soc/fsl/fsl_rpmsg.c
++++ b/sound/soc/fsl/fsl_rpmsg.c
+@@ -165,25 +165,25 @@ static int fsl_rpmsg_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Get the optional clocks */
+-	rpmsg->ipg = devm_clk_get(&pdev->dev, "ipg");
++	rpmsg->ipg = devm_clk_get_optional(&pdev->dev, "ipg");
+ 	if (IS_ERR(rpmsg->ipg))
+-		rpmsg->ipg = NULL;
++		return PTR_ERR(rpmsg->ipg);
+ 
+-	rpmsg->mclk = devm_clk_get(&pdev->dev, "mclk");
++	rpmsg->mclk = devm_clk_get_optional(&pdev->dev, "mclk");
+ 	if (IS_ERR(rpmsg->mclk))
+-		rpmsg->mclk = NULL;
++		return PTR_ERR(rpmsg->mclk);
+ 
+-	rpmsg->dma = devm_clk_get(&pdev->dev, "dma");
++	rpmsg->dma = devm_clk_get_optional(&pdev->dev, "dma");
+ 	if (IS_ERR(rpmsg->dma))
+-		rpmsg->dma = NULL;
++		return PTR_ERR(rpmsg->dma);
+ 
+-	rpmsg->pll8k = devm_clk_get(&pdev->dev, "pll8k");
++	rpmsg->pll8k = devm_clk_get_optional(&pdev->dev, "pll8k");
+ 	if (IS_ERR(rpmsg->pll8k))
+-		rpmsg->pll8k = NULL;
++		return PTR_ERR(rpmsg->pll8k);
+ 
+-	rpmsg->pll11k = devm_clk_get(&pdev->dev, "pll11k");
++	rpmsg->pll11k = devm_clk_get_optional(&pdev->dev, "pll11k");
+ 	if (IS_ERR(rpmsg->pll11k))
+-		rpmsg->pll11k = NULL;
++		return PTR_ERR(rpmsg->pll11k);
+ 
+ 	platform_set_drvdata(pdev, rpmsg);
+ 	pm_runtime_enable(&pdev->dev);
 -- 
 2.30.2
 
