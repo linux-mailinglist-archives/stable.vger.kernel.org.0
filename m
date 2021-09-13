@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75282408C8F
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16492408F60
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240301AbhIMNUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:20:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34854 "EHLO mail.kernel.org"
+        id S243377AbhIMNmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239447AbhIMNTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:19:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26459610CC;
-        Mon, 13 Sep 2021 13:17:25 +0000 (UTC)
+        id S241424AbhIMNjM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:39:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27A1A61279;
+        Mon, 13 Sep 2021 13:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539046;
-        bh=t69di5wsk9zap04vJghr7ora4FQh2E8rzBla83neAiU=;
+        s=korg; t=1631539733;
+        bh=0eVmFigmvePfK0NtKm7EzbzuJ3ya/9SnuQww5F3AvfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZkBL2UM7EaqbtxIdL/gyYGGOhY8aN1TY6q2iDbM/ABJWhyCGWPYRkQKk9i6eTuoO
-         0hq6pCv+7YAddPghOSRFJUGYGp11KOiI9NO+7uF+QgvUWIr6thL7BdcBZZLYU5gZnb
-         ar032Ew3LFRjP62JfnCRJYXsZE05R53a2M7VKgH0=
+        b=iCJUxSVldPC4b5PaUkWzH9gxcRRzwHgX8x0p9uNUnV4KCBqRI429E4uJgwP0j0ifg
+         d9Vx08/shStdmDGNYbCVxEp1zddkCeE23Up+c80MCdc+8Pva1hSLujf976Irtp+C7c
+         mSbgXVS+n4qNSG2i2xvSj+l4EvWlP2vm/fvetyCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Hannes Reinecke <hare@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/144] libata: fix ata_host_start()
+Subject: [PATCH 5.10 097/236] media: rockchip/rga: fix error handling in probe
 Date:   Mon, 13 Sep 2021 15:13:22 +0200
-Message-Id: <20210913131048.664739711@linuxfoundation.org>
+Message-Id: <20210913131103.653472896@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +42,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 355a8031dc174450ccad2a61c513ad7222d87a97 ]
+[ Upstream commit e58430e1d4fd01b74475d2fbe2e25b5817b729a9 ]
 
-The loop on entry of ata_host_start() may not initialize host->ops to a
-non NULL value. The test on the host_stop field of host->ops must then
-be preceded by a check that host->ops is not NULL.
+There are a few bugs in this code.  1)  No checks for whether
+dma_alloc_attrs() or __get_free_pages() failed.  2)  If
+video_register_device() fails it doesn't clean up the dma attrs or the
+free pages.  3)  The video_device_release() function frees "vfd" which
+leads to a use after free on the next line.  The call to
+video_unregister_device() is not required so I have just removed that.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Link: https://lore.kernel.org/r/20210816014456.2191776-3-damien.lemoal@wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: f7e7b48e6d79 ("[media] rockchip/rga: v4l2 m2m support")
+Reported-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/rockchip/rga/rga.c | 27 ++++++++++++++++++-----
+ 1 file changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index f67b3fb33d57..7788af0ca109 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -6394,7 +6394,7 @@ int ata_host_start(struct ata_host *host)
- 			have_stop = 1;
+diff --git a/drivers/media/platform/rockchip/rga/rga.c b/drivers/media/platform/rockchip/rga/rga.c
+index bf3fd71ec3af..6759091b15e0 100644
+--- a/drivers/media/platform/rockchip/rga/rga.c
++++ b/drivers/media/platform/rockchip/rga/rga.c
+@@ -863,12 +863,12 @@ static int rga_probe(struct platform_device *pdev)
+ 	if (IS_ERR(rga->m2m_dev)) {
+ 		v4l2_err(&rga->v4l2_dev, "Failed to init mem2mem device\n");
+ 		ret = PTR_ERR(rga->m2m_dev);
+-		goto unreg_video_dev;
++		goto rel_vdev;
  	}
  
--	if (host->ops->host_stop)
-+	if (host->ops && host->ops->host_stop)
- 		have_stop = 1;
+ 	ret = pm_runtime_resume_and_get(rga->dev);
+ 	if (ret < 0)
+-		goto unreg_video_dev;
++		goto rel_vdev;
  
- 	if (have_stop) {
+ 	rga->version.major = (rga_read(rga, RGA_VERSION_INFO) >> 24) & 0xFF;
+ 	rga->version.minor = (rga_read(rga, RGA_VERSION_INFO) >> 20) & 0x0F;
+@@ -882,11 +882,23 @@ static int rga_probe(struct platform_device *pdev)
+ 	rga->cmdbuf_virt = dma_alloc_attrs(rga->dev, RGA_CMDBUF_SIZE,
+ 					   &rga->cmdbuf_phy, GFP_KERNEL,
+ 					   DMA_ATTR_WRITE_COMBINE);
++	if (!rga->cmdbuf_virt) {
++		ret = -ENOMEM;
++		goto rel_vdev;
++	}
+ 
+ 	rga->src_mmu_pages =
+ 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
++	if (!rga->src_mmu_pages) {
++		ret = -ENOMEM;
++		goto free_dma;
++	}
+ 	rga->dst_mmu_pages =
+ 		(unsigned int *)__get_free_pages(GFP_KERNEL | __GFP_ZERO, 3);
++	if (rga->dst_mmu_pages) {
++		ret = -ENOMEM;
++		goto free_src_pages;
++	}
+ 
+ 	def_frame.stride = (def_frame.width * def_frame.fmt->depth) >> 3;
+ 	def_frame.size = def_frame.stride * def_frame.height;
+@@ -894,7 +906,7 @@ static int rga_probe(struct platform_device *pdev)
+ 	ret = video_register_device(vfd, VFL_TYPE_VIDEO, -1);
+ 	if (ret) {
+ 		v4l2_err(&rga->v4l2_dev, "Failed to register video device\n");
+-		goto rel_vdev;
++		goto free_dst_pages;
+ 	}
+ 
+ 	v4l2_info(&rga->v4l2_dev, "Registered %s as /dev/%s\n",
+@@ -902,10 +914,15 @@ static int rga_probe(struct platform_device *pdev)
+ 
+ 	return 0;
+ 
++free_dst_pages:
++	free_pages((unsigned long)rga->dst_mmu_pages, 3);
++free_src_pages:
++	free_pages((unsigned long)rga->src_mmu_pages, 3);
++free_dma:
++	dma_free_attrs(rga->dev, RGA_CMDBUF_SIZE, rga->cmdbuf_virt,
++		       rga->cmdbuf_phy, DMA_ATTR_WRITE_COMBINE);
+ rel_vdev:
+ 	video_device_release(vfd);
+-unreg_video_dev:
+-	video_unregister_device(rga->vfd);
+ unreg_v4l2_dev:
+ 	v4l2_device_unregister(&rga->v4l2_dev);
+ err_put_clk:
 -- 
 2.30.2
 
