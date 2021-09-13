@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F4C84094D4
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92B39409213
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345046AbhIMOgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:36:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51890 "EHLO mail.kernel.org"
+        id S244125AbhIMOHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:07:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345632AbhIMOck (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:32:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC4DD61BB2;
-        Mon, 13 Sep 2021 13:52:09 +0000 (UTC)
+        id S1344587AbhIMOFL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:05:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A23361A55;
+        Mon, 13 Sep 2021 13:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541130;
-        bh=a5AH1LaVXEL52OVqmReiFyNs+0ZJmKc+pEiWPGgv4wM=;
+        s=korg; t=1631540378;
+        bh=/Bt1WLdub7QGdmo7tcpUjJSyt/+wCyLZmJuPXJN8XhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iR4prfhYTxSfbPaqXFYXVL73iMCO+3859Z0bZc8fyciVCqoUZwlyyzQ4fKiKjXPuf
-         HaERMcJGtJDtUKGDpTkbfup8L8woWlmBEPMhd2/vyecTzmaEt6LjEs/OeN92Hv7pYV
-         DGVgvnQOeGLv+7zaYQUG8z7bsfwLBS0PnsXUc1n0=
+        b=fRi29TUpThH2p3oyg8rWDEpyjRYlV1Mv1d0WWj22FimjXG+tVRTN6CpHurBreAMsj
+         NeRNmePMRAxaUdtAw8ez/dzlVx819uOThsQfGi7BlAlMyjGv/0EPeCqbz+GJnrbIT+
+         j2nPN5r8IU6Tmg92vP+8VOLZPYOXwM+j0bU5dzk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Syed Nayyar Waris <syednwaris@gmail.com>,
+        William Breathitt Gray <vilhelm.gray@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 176/334] net: ti: am65-cpsw-nuss: fix RX IRQ state after .ndo_stop()
+Subject: [PATCH 5.13 169/300] counter: 104-quad-8: Return error when invalid mode during ceiling_write
 Date:   Mon, 13 Sep 2021 15:13:50 +0200
-Message-Id: <20210913131119.298885279@linuxfoundation.org>
+Message-Id: <20210913131115.118904807@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,110 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Raghavendra <vigneshr@ti.com>
+From: William Breathitt Gray <vilhelm.gray@gmail.com>
 
-[ Upstream commit 47bfc4d128dedd9e828e33b70b87b591a6d59edf ]
+[ Upstream commit 728246e8f7269ecd35a2c6e6795323e6d8f48db7 ]
 
-On TI K3 am64x platform the issue with RX IRQ is observed - it's become
-disabled forever after .ndo_stop(). The K3 CPSW driver manipulates RX IRQ
-by using standard Linux enable_irq()/disable_irq_nosync() API as there is
-no IRQ enable/disable options in CPSW HW itself, as result during
-.ndo_stop() following sequence happens
+The 104-QUAD-8 only has two count modes where a ceiling value makes
+sense: Range Limit and Modulo-N. Outside of these two modes, setting a
+ceiling value is an invalid operation -- so let's report it as such by
+returning -EINVAL.
 
-  phy_stop()
-  teardown TX/RX channels
-  wait for TX tdown complete
-  napi_disable(TX)
-  clean up TX channels
-
-  (a)
-
-  napi_disable(RX)
-
-At point (a) it's not possible to predict if RX IRQ was triggered or not.
-if RX IRQ was triggered then it also not possible to definitely say if RX
-NAPI was run or only scheduled and immediately canceled by
-napi_disable(RX). Actually the last case causes RX IRQ to be permanently
-disabled.
-
-Another observed issue is that RX IRQ enable counter become unbalanced if
-(gro_flush_timeout =! 0) while (napi_defer_hard_irqs == 0):
-
-Unbalanced enable for IRQ 44
-WARNING: CPU: 0 PID: 10 at ../kernel/irq/manage.c:776 __enable_irq+0x38/0x80
-__enable_irq+0x38/0x80
-enable_irq+0x54/0xb0
-am65_cpsw_nuss_rx_poll+0x2f4/0x368
-__napi_poll+0x34/0x1b8
-net_rx_action+0xe4/0x220
-_stext+0x11c/0x284
-run_ksoftirqd+0x4c/0x60
-
-To avoid above issues introduce flag indicating if RX was actually disabled
-before enabling it in am65_cpsw_nuss_rx_poll() and restore RX IRQ state in
-.ndo_open()
-
-Fixes: 4f7cce272403 ("net: ethernet: ti: am65-cpsw: add support for am64x cpsw3g")
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: fc069262261c ("counter: 104-quad-8: Add lock guards - generic interface")
+Acked-by: Syed Nayyar Waris <syednwaris@gmail.com>
+Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+Link: https://lore.kernel.org/r/a2147f022829b66839a1db5530a7fada47856847.1627990337.git.vilhelm.gray@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c | 13 +++++++++++--
- drivers/net/ethernet/ti/am65-cpsw-nuss.h |  2 ++
- 2 files changed, 13 insertions(+), 2 deletions(-)
+ drivers/counter/104-quad-8.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-index fb58fc470773..e967cd1ade36 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -518,6 +518,10 @@ static int am65_cpsw_nuss_common_open(struct am65_cpsw_common *common,
+diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
+index 9691f8612be8..8de776f3b142 100644
+--- a/drivers/counter/104-quad-8.c
++++ b/drivers/counter/104-quad-8.c
+@@ -715,12 +715,13 @@ static ssize_t quad8_count_ceiling_write(struct counter_device *counter,
+ 	case 1:
+ 	case 3:
+ 		quad8_preset_register_set(priv, count->id, ceiling);
+-		break;
++		mutex_unlock(&priv->lock);
++		return len;
  	}
  
- 	napi_enable(&common->napi_rx);
-+	if (common->rx_irq_disabled) {
-+		common->rx_irq_disabled = false;
-+		enable_irq(common->rx_chns.irq);
-+	}
+ 	mutex_unlock(&priv->lock);
  
- 	dev_dbg(common->dev, "cpsw_nuss started\n");
- 	return 0;
-@@ -871,8 +875,12 @@ static int am65_cpsw_nuss_rx_poll(struct napi_struct *napi_rx, int budget)
- 
- 	dev_dbg(common->dev, "%s num_rx:%d %d\n", __func__, num_rx, budget);
- 
--	if (num_rx < budget && napi_complete_done(napi_rx, num_rx))
--		enable_irq(common->rx_chns.irq);
-+	if (num_rx < budget && napi_complete_done(napi_rx, num_rx)) {
-+		if (common->rx_irq_disabled) {
-+			common->rx_irq_disabled = false;
-+			enable_irq(common->rx_chns.irq);
-+		}
-+	}
- 
- 	return num_rx;
+-	return len;
++	return -EINVAL;
  }
-@@ -1090,6 +1098,7 @@ static irqreturn_t am65_cpsw_nuss_rx_irq(int irq, void *dev_id)
- {
- 	struct am65_cpsw_common *common = dev_id;
  
-+	common->rx_irq_disabled = true;
- 	disable_irq_nosync(irq);
- 	napi_schedule(&common->napi_rx);
- 
-diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.h b/drivers/net/ethernet/ti/am65-cpsw-nuss.h
-index 5d93e346f05e..048ed10143c1 100644
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.h
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.h
-@@ -126,6 +126,8 @@ struct am65_cpsw_common {
- 	struct am65_cpsw_rx_chn	rx_chns;
- 	struct napi_struct	napi_rx;
- 
-+	bool			rx_irq_disabled;
-+
- 	u32			nuss_ver;
- 	u32			cpsw_ver;
- 	unsigned long		bus_freq;
+ static ssize_t quad8_count_preset_enable_read(struct counter_device *counter,
 -- 
 2.30.2
 
