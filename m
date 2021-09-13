@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A676E408E5F
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75C78408E59
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242114AbhIMNd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:33:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49590 "EHLO mail.kernel.org"
+        id S242078AbhIMNdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:33:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242781AbhIMNaC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:30:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04C6E610E6;
-        Mon, 13 Sep 2021 13:24:43 +0000 (UTC)
+        id S242809AbhIMNaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:30:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 896B561350;
+        Mon, 13 Sep 2021 13:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539484;
-        bh=19pcR0AWMVFoEg4dt1D7aTfSc2acNNRvpevazzOqPdA=;
+        s=korg; t=1631539487;
+        bh=j8yzQaZ7jqYtVHIcY+Z8RyZrLQRxc7MPDvul1l9dzMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDXoig9h8vqueQFo6M3ggOgP3N714AZa6QrC0az2WL+ZJlGMMCTGjD6lDIbTvfYGG
-         alZ3QQO3GvaOq0zYeYesTrMnzT5PQnXsIhMnY7ZwuvZ5DSN26RBuRJbmfDKQ9kajt1
-         hXLbVxUJTKxkZwyRH7S5pungzofLeIVn/bFwkW+8=
+        b=PIhC+AzcKo6iAiNHDmEuCzDkOUDgEsCtgeFTmjrDJ93VNdJBj2bMmFU8r1x0IOEKv
+         4KhZc0nK0UMb8jYadSAZO6KazWMwwNHLkPgbGKVk3kfHbn1CknU1SzhwOx5jCcMnh0
+         ROrwipdtiwBfHaa7xZxVZSiw9X4P/owtrpCKgSww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rick Yiu <rickyiu@google.com>,
-        Quentin Perret <qperret@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Qais Yousef <qais.yousef@arm.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
+        Yanfei Xu <yanfei.xu@windriver.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/236] sched: Fix UCLAMP_FLAG_IDLE setting
-Date:   Mon, 13 Sep 2021 15:12:28 +0200
-Message-Id: <20210913131101.820196517@linuxfoundation.org>
+Subject: [PATCH 5.10 044/236] rcu: Fix to include first blocked task in stall warning
+Date:   Mon, 13 Sep 2021 15:12:29 +0200
+Message-Id: <20210913131101.852817750@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -43,81 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Perret <qperret@google.com>
+From: Yanfei Xu <yanfei.xu@windriver.com>
 
-[ Upstream commit ca4984a7dd863f3e1c0df775ae3e744bff24c303 ]
+[ Upstream commit e6a901a44f76878ed1653626c9ff4cfc5a3f58f8 ]
 
-The UCLAMP_FLAG_IDLE flag is set on a runqueue when dequeueing the last
-uclamp active task (that is, when buckets.tasks reaches 0 for all
-buckets) to maintain the last uclamp.max and prevent blocked util from
-suddenly becoming visible.
+The for loop in rcu_print_task_stall() always omits ts[0], which points
+to the first task blocking the stalled grace period.  This in turn fails
+to count this first task, which means that ndetected will be equal to
+zero when all CPUs have passed through their quiescent states and only
+one task is blocking the stalled grace period.  This zero value for
+ndetected will in turn result in an incorrect "All QSes seen" message:
 
-However, there is an asymmetry in how the flag is set and cleared which
-can lead to having the flag set whilst there are active tasks on the rq.
-Specifically, the flag is cleared in the uclamp_rq_inc() path, which is
-called at enqueue time, but set in uclamp_rq_dec_id() which is called
-both when dequeueing a task _and_ in the update_uclamp_active() path. As
-a result, when both uclamp_rq_{dec,ind}_id() are called from
-update_uclamp_active(), the flag ends up being set but not cleared,
-hence leaving the runqueue in a broken state.
+rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+rcu:    Tasks blocked on level-1 rcu_node (CPUs 12-23):
+        (detected by 15, t=6504 jiffies, g=164777, q=9011209)
+rcu: All QSes seen, last rcu_preempt kthread activity 1 (4295252379-4295252378), jiffies_till_next_fqs=1, root ->qsmask 0x2
+BUG: sleeping function called from invalid context at include/linux/uaccess.h:156
+in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 70613, name: msgstress04
+INFO: lockdep is turned off.
+Preemption disabled at:
+[<ffff8000104031a4>] create_object.isra.0+0x204/0x4b0
+CPU: 15 PID: 70613 Comm: msgstress04 Kdump: loaded Not tainted
+5.12.2-yoctodev-standard #1
+Hardware name: Marvell OcteonTX CN96XX board (DT)
+Call trace:
+ dump_backtrace+0x0/0x2cc
+ show_stack+0x24/0x30
+ dump_stack+0x110/0x188
+ ___might_sleep+0x214/0x2d0
+ __might_sleep+0x7c/0xe0
 
-Fix this by clearing the flag in update_uclamp_active() as well.
+This commit therefore fixes the loop to include ts[0].
 
-Fixes: e496187da710 ("sched/uclamp: Enforce last task's UCLAMP_MAX")
-Reported-by: Rick Yiu <rickyiu@google.com>
-Signed-off-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Qais Yousef <qais.yousef@arm.com>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Link: https://lore.kernel.org/r/20210805102154.590709-2-qperret@google.com
+Fixes: c583bcb8f5ed ("rcu: Don't invoke try_invoke_on_locked_down_task() with irqs disabled")
+Tested-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ kernel/rcu/tree_stall.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 84c105902027..6db20a66e8e6 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1279,6 +1279,23 @@ static inline void uclamp_rq_dec(struct rq *rq, struct task_struct *p)
- 		uclamp_rq_dec_id(rq, p, clamp_id);
- }
- 
-+static inline void uclamp_rq_reinc_id(struct rq *rq, struct task_struct *p,
-+				      enum uclamp_id clamp_id)
-+{
-+	if (!p->uclamp[clamp_id].active)
-+		return;
-+
-+	uclamp_rq_dec_id(rq, p, clamp_id);
-+	uclamp_rq_inc_id(rq, p, clamp_id);
-+
-+	/*
-+	 * Make sure to clear the idle flag if we've transiently reached 0
-+	 * active tasks on rq.
-+	 */
-+	if (clamp_id == UCLAMP_MAX && (rq->uclamp_flags & UCLAMP_FLAG_IDLE))
-+		rq->uclamp_flags &= ~UCLAMP_FLAG_IDLE;
-+}
-+
- static inline void
- uclamp_update_active(struct task_struct *p)
- {
-@@ -1302,12 +1319,8 @@ uclamp_update_active(struct task_struct *p)
- 	 * affecting a valid clamp bucket, the next time it's enqueued,
- 	 * it will already see the updated clamp bucket value.
- 	 */
--	for_each_clamp_id(clamp_id) {
--		if (p->uclamp[clamp_id].active) {
--			uclamp_rq_dec_id(rq, p, clamp_id);
--			uclamp_rq_inc_id(rq, p, clamp_id);
--		}
--	}
-+	for_each_clamp_id(clamp_id)
-+		uclamp_rq_reinc_id(rq, p, clamp_id);
- 
- 	task_rq_unlock(rq, p, &rf);
- }
+diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
+index 0435e5e716a8..cdfaa44ffd70 100644
+--- a/kernel/rcu/tree_stall.h
++++ b/kernel/rcu/tree_stall.h
+@@ -275,8 +275,8 @@ static int rcu_print_task_stall(struct rcu_node *rnp, unsigned long flags)
+ 			break;
+ 	}
+ 	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
+-	for (i--; i; i--) {
+-		t = ts[i];
++	while (i) {
++		t = ts[--i];
+ 		if (!try_invoke_on_locked_down_task(t, check_slow_task, &rscr))
+ 			pr_cont(" P%d", t->pid);
+ 		else
 -- 
 2.30.2
 
