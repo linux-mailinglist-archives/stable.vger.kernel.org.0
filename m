@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 556F34095E3
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA7B1409359
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345782AbhIMOqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:46:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60498 "EHLO mail.kernel.org"
+        id S242306AbhIMOU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:20:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345656AbhIMOoL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:44:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A166D6197A;
-        Mon, 13 Sep 2021 13:57:30 +0000 (UTC)
+        id S1343722AbhIMORM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:17:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B029661AFD;
+        Mon, 13 Sep 2021 13:45:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541451;
-        bh=E06wNBVbgXrk6fcNCYy3JSYoTP/BLRNj1KcnM5hMNzw=;
+        s=korg; t=1631540701;
+        bh=9Y0OFOHCezxPl7N3Kt31p5suLdAPHG/POeu+xZp/3vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mkq77YQCknazCkWgYxsYbKrE6KlEe9YvcJFEHzaNnvEPq2jjiDLPzNODKDw1swZSD
-         LmZ1LajbpjSZb6R2FCvQnKu54vLtXMmRap1rFrgPZoNmj/ZqDaQ/J5+i9YW6Etdqw6
-         qgaFuYq5BxDYusvez3mRqYQ9/yu5R5a5afQy5qig=
+        b=aFI1tryKb9njcoFAdDMUpAuSd7RTrdu7OWYbE5XrlTUYYr7lGnqY6qMtaa/8W18Me
+         kpWSsRzbmdP3sp3QoWvn62mgJIM7OeZeE2kETEyJ8Se3TMC4gzBt2YA/zYiBSUmX0+
+         jBOuE/mjolTv08cmg0xV2KgqwRo8Hk0y/JNMDelo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 275/334] ice: add lock around Tx timestamp tracker flush
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Lars Poeschel <poeschel@lemonage.de>,
+        Miguel Ojeda <ojeda@kernel.org>
+Subject: [PATCH 5.13 268/300] auxdisplay: hd44780: Fix oops on module unloading
 Date:   Mon, 13 Sep 2021 15:15:29 +0200
-Message-Id: <20210913131122.723500884@linuxfoundation.org>
+Message-Id: <20210913131118.396647981@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Lars Poeschel <poeschel@lemonage.de>
 
-[ Upstream commit 4dd0d5c33c3ebf24a07cae6141648aeb7ba56072 ]
+commit 333ff32d54cdefc2e479892e7f15ac91e026b57d upstream.
 
-The driver didn't take the lock while flushing the Tx tracker, which
-could cause a race where one thread is trying to read timestamps out
-while another thread is trying to read the tracker to check the
-timestamps.
-
-Avoid this by ensuring that flushing is locked against read accesses.
-
-Fixes: ea9b847cda64 ("ice: enable transmit timestamps for E810 devices")
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 718e05ed92ec ("auxdisplay: Introduce hd44780_common.[ch]")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/lkml/CAHp75VfKyqy+vM0XkP9Yb+znGOTVT4zYCRY3A3nQ7C3WNUVN0g@mail.gmail.com/
+Reported-By: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Lars Poeschel <poeschel@lemonage.de>
+Tested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+[added Link, Fixes, Cc stable tags, edited message]
+Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ptp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/auxdisplay/hd44780.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
-index f54148fb0e21..8970037177fe 100644
---- a/drivers/net/ethernet/intel/ice/ice_ptp.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
-@@ -1278,6 +1278,8 @@ ice_ptp_flush_tx_tracker(struct ice_pf *pf, struct ice_ptp_tx *tx)
+--- a/drivers/auxdisplay/hd44780.c
++++ b/drivers/auxdisplay/hd44780.c
+@@ -323,8 +323,8 @@ static int hd44780_remove(struct platfor
  {
- 	u8 idx;
+ 	struct charlcd *lcd = platform_get_drvdata(pdev);
  
-+	spin_lock(&tx->lock);
-+
- 	for (idx = 0; idx < tx->len; idx++) {
- 		u8 phy_idx = idx + tx->quad_offset;
+-	kfree(lcd->drvdata);
+ 	charlcd_unregister(lcd);
++	kfree(lcd->drvdata);
  
-@@ -1290,6 +1292,8 @@ ice_ptp_flush_tx_tracker(struct ice_pf *pf, struct ice_ptp_tx *tx)
- 			tx->tstamps[idx].skb = NULL;
- 		}
- 	}
-+
-+	spin_unlock(&tx->lock);
- }
- 
- /**
--- 
-2.30.2
-
+ 	kfree(lcd);
+ 	return 0;
 
 
