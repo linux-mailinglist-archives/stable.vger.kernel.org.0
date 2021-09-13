@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B4B409037
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE23240903B
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:51:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244006AbhIMNus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:50:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51542 "EHLO mail.kernel.org"
+        id S244891AbhIMNu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:50:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241811AbhIMNsm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:48:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E1EB6136A;
-        Mon, 13 Sep 2021 13:32:47 +0000 (UTC)
+        id S243604AbhIMNsx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:48:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86915615A3;
+        Mon, 13 Sep 2021 13:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539968;
-        bh=CqTNXo0ltfAE2HkV1PFuv5rcNj/dIO288iHZCXlxNcQ=;
+        s=korg; t=1631539980;
+        bh=YGuuKEorXXXCOtl6ApTDFfVYenI2YK5ibSFWqQGCn/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ovfw2vMjz1G+QCHCVTOTO/4vul7FJ8XgureGmBpje/w7LVyJQPAcUPRgcAoDpyiyU
-         J3Aa2Zs3nOj7YJwWKUhCEqFKBwk9Te+OvrZSl71+jYr3GoBUe4/tONvmk0Xi9bjWDM
-         IuRoA9/SWpONbo/Vz/gH84RYL0rfAFkhWrlNhCXs=
+        b=q+1K5GJZlr2BLIOjxStZ2cKxr+a2V8dUGSdLmdz6B7bzN5l1lP/JERexAit5ZWo1S
+         KU0Mh0WMzadPWggHaZVOHHIkxuCgcaB8fhvLjbG7aPLfvUth0cdLCUEj1TxuzLLwaY
+         CZjGjCEoy5+Z/KY08/i10v0PTmi3yYrqVVRcAdHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Keyu Man <kman001@ucr.edu>, Wei Wang <weiwan@google.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 206/236] brcmfmac: pcie: fix oops on failure to resume and reprobe
-Date:   Mon, 13 Sep 2021 15:15:11 +0200
-Message-Id: <20210913131107.389954878@linuxfoundation.org>
+Subject: [PATCH 5.10 207/236] ipv6: make exception cache less predictible
+Date:   Mon, 13 Sep 2021 15:15:12 +0200
+Message-Id: <20210913131107.420156415@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -40,38 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ahmad Fatoum <a.fatoum@pengutronix.de>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d745ca4f2c4ae9f1bd8cf7d8ac6e22d739bffd19 ]
+[ Upstream commit a00df2caffed3883c341d5685f830434312e4a43 ]
 
-When resuming from suspend, brcmf_pcie_pm_leave_D3 will first attempt a
-hot resume and then fall back to removing the PCI device and then
-reprobing. If this probe fails, the kernel will oops, because brcmf_err,
-which is called to report the failure will dereference the stale bus
-pointer. Open code and use the default bus-less brcmf_err to avoid this.
+Even after commit 4785305c05b2 ("ipv6: use siphash in rt6_exception_hash()"),
+an attacker can still use brute force to learn some secrets from a victim
+linux host.
 
-Fixes: 8602e62441ab ("brcmfmac: pass bus to the __brcmf_err() in pcie.c")
-Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210817063521.22450-1-a.fatoum@pengutronix.de
+One way to defeat these attacks is to make the max depth of the hash
+table bucket a random value.
+
+Before this patch, each bucket of the hash table used to store exceptions
+could contain 6 items under attack.
+
+After the patch, each bucket would contains a random number of items,
+between 6 and 10. The attacker can no longer infer secrets.
+
+This is slightly increasing memory size used by the hash table,
+we do not expect this to be a problem.
+
+Following patch is dealing with the same issue in IPv4.
+
+Fixes: 35732d01fe31 ("ipv6: introduce a hash table to store dst cache")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
+Cc: Wei Wang <weiwan@google.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/route.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-index 603aff421e38..1f12dfb33938 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-@@ -2073,7 +2073,7 @@ cleanup:
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index bcf4fae83a9b..168a7b4d957a 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -1655,6 +1655,7 @@ static int rt6_insert_exception(struct rt6_info *nrt,
+ 	struct in6_addr *src_key = NULL;
+ 	struct rt6_exception *rt6_ex;
+ 	struct fib6_nh *nh = res->nh;
++	int max_depth;
+ 	int err = 0;
  
- 	err = brcmf_pcie_probe(pdev, NULL);
- 	if (err)
--		brcmf_err(bus, "probe after resume failed, err=%d\n", err);
-+		__brcmf_err(NULL, __func__, "probe after resume failed, err=%d\n", err);
+ 	spin_lock_bh(&rt6_exception_lock);
+@@ -1709,7 +1710,9 @@ static int rt6_insert_exception(struct rt6_info *nrt,
+ 	bucket->depth++;
+ 	net->ipv6.rt6_stats->fib_rt_cache++;
  
- 	return err;
- }
+-	if (bucket->depth > FIB6_MAX_DEPTH)
++	/* Randomize max depth to avoid some side channels attacks. */
++	max_depth = FIB6_MAX_DEPTH + prandom_u32_max(FIB6_MAX_DEPTH);
++	while (bucket->depth > max_depth)
+ 		rt6_exception_remove_oldest(bucket);
+ 
+ out:
 -- 
 2.30.2
 
