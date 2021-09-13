@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E09E4095F1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46EF0409313
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346273AbhIMOq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:46:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58832 "EHLO mail.kernel.org"
+        id S245720AbhIMORh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:17:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347761AbhIMOm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:42:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 686F5619A6;
-        Mon, 13 Sep 2021 13:56:51 +0000 (UTC)
+        id S244927AbhIMOPN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:15:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1954561AFB;
+        Mon, 13 Sep 2021 13:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541411;
-        bh=bF/ve4sBxRDM5n+vpRj1UJwgWtF09dYEUpq9sD7a2W8=;
+        s=korg; t=1631540654;
+        bh=DI7UZ9nXG7PUChrM01ou+/ClgMigNDLbH4SHbiJzFKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzbCcYk14vFjVLGEfbT3lygGrqyaCZYRvYRSUlQCg080BQpC5ALxkBY6yaWWEz10I
-         /KY5Yf6qa460kst/7iYEA9eOiJ0NLgrzXaSvxMALZgnrewP/aTqQPZ8re/BM6DaI0O
-         +7ol+1wUTId0cTobyDSvuUJuCC2xjVNUPJ+wNXIw=
+        b=usguDJQNAOBueLdhYzoJSl7XnpJPd8H7ImhSD9uQPRkRqJwSux/V245ekTi4grtjR
+         RpDnnc9ARcH2yFEfyxDK/RN4jRq6CJfsknXcKR7YQ0SANfSop+4YSuO8LgqbcqRoCM
+         UJtihqxDh7a3lRhAXGGrt2xRY0hispAiYsBkCA8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 288/334] net: sched: Fix qdisc_rate_table refcount leak when get tcf_block failed
-Date:   Mon, 13 Sep 2021 15:15:42 +0200
-Message-Id: <20210913131123.171163811@linuxfoundation.org>
+        stable@vger.kernel.org, Zelin Deng <zelin.deng@linux.alibaba.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.13 282/300] KVM: x86: Update vCPUs hv_clock before back to guest when tsc_offset is adjusted
+Date:   Mon, 13 Sep 2021 15:15:43 +0200
+Message-Id: <20210913131118.869794357@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Zelin Deng <zelin.deng@linux.alibaba.com>
 
-[ Upstream commit c66070125837900163b81a03063ddd657a7e9bfb ]
+commit d9130a2dfdd4b21736c91b818f87dbc0ccd1e757 upstream.
 
-The reference counting issue happens in one exception handling path of
-cbq_change_class(). When failing to get tcf_block, the function forgets
-to decrease the refcount of "rtab" increased by qdisc_put_rtab(),
-causing a refcount leak.
+When MSR_IA32_TSC_ADJUST is written by guest due to TSC ADJUST feature
+especially there's a big tsc warp (like a new vCPU is hot-added into VM
+which has been up for a long time), tsc_offset is added by a large value
+then go back to guest. This causes system time jump as tsc_timestamp is
+not adjusted in the meantime and pvclock monotonic character.
+To fix this, just notify kvm to update vCPU's guest time before back to
+guest.
 
-Fix this issue by jumping to "failure" label when get tcf_block failed.
-
-Fixes: 6529eaba33f0 ("net: sched: introduce tcf block infractructure")
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-Link: https://lore.kernel.org/r/1630252681-71588-1-git-send-email-xiyuyang19@fudan.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Zelin Deng <zelin.deng@linux.alibaba.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Message-Id: <1619576521-81399-2-git-send-email-zelin.deng@linux.alibaba.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_cbq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/sched/sch_cbq.c b/net/sched/sch_cbq.c
-index b79a7e27bb31..38a3a8394bbd 100644
---- a/net/sched/sch_cbq.c
-+++ b/net/sched/sch_cbq.c
-@@ -1614,7 +1614,7 @@ cbq_change_class(struct Qdisc *sch, u32 classid, u32 parentid, struct nlattr **t
- 	err = tcf_block_get(&cl->block, &cl->filter_list, sch, extack);
- 	if (err) {
- 		kfree(cl);
--		return err;
-+		goto failure;
- 	}
- 
- 	if (tca[TCA_RATE]) {
--- 
-2.30.2
-
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3223,6 +3223,10 @@ int kvm_set_msr_common(struct kvm_vcpu *
+ 			if (!msr_info->host_initiated) {
+ 				s64 adj = data - vcpu->arch.ia32_tsc_adjust_msr;
+ 				adjust_tsc_offset_guest(vcpu, adj);
++				/* Before back to guest, tsc_timestamp must be adjusted
++				 * as well, otherwise guest's percpu pvclock time could jump.
++				 */
++				kvm_make_request(KVM_REQ_CLOCK_UPDATE, vcpu);
+ 			}
+ 			vcpu->arch.ia32_tsc_adjust_msr = data;
+ 		}
 
 
