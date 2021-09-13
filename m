@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9326D40915A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:59:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D928408DD7
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245519AbhIMOAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:00:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46012 "EHLO mail.kernel.org"
+        id S240996AbhIMNaV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:30:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243734AbhIMN6h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:58:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2BF861A02;
-        Mon, 13 Sep 2021 13:36:43 +0000 (UTC)
+        id S241979AbhIMN23 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:28:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 558D761213;
+        Mon, 13 Sep 2021 13:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540204;
-        bh=i8Y3A2oa8ZQSghVHkk4/twGApp7a2hFmEFuBUpGnYJE=;
+        s=korg; t=1631539421;
+        bh=AbnGdYKQC5qqiEOoKwJTjXRBceh5WyClv3tpWA0VNFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2jbFhGhOSJC2ZIMLYLB8dz6hia//H14Lcu5pa5UaO/SyzwErDHqh/zEEaXHFrpyX
-         bs/+l9Q/ujh8vs0GP7YVK8hiuGGNTrjsf0WHsCjFBr1QB9STNLGLguobXUiM4aOXeM
-         i//ZLtPGnUjMVS6bTIB2QV8gfCl3qjMuqUXOemMQ=
+        b=R3nTwWVhU6Fy6L0rziYAFptbLgoF5haTW3P5E7e/ChQp8TEt3XpX0RQXgfnzyeBrM
+         rlawJu4yz7IYRdCpDjrUyn4ItAnEe8ICd/gmFq0X/64rv9BgdEvGr74wuaI335X1fO
+         2qvPmFf0hFJFWqT+mF/aJsTNty4QU/KqEE1SJpQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phong Hoang <phong.hoang.wz@renesas.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 063/300] clocksource/drivers/sh_cmt: Fix wrong setting if dont request IRQ for clock source channel
+        stable@vger.kernel.org, Ruozhu Li <liruozhu@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 019/236] nvme-tcp: dont update queue count when failing to set io queues
 Date:   Mon, 13 Sep 2021 15:12:04 +0200
-Message-Id: <20210913131111.491800130@linuxfoundation.org>
+Message-Id: <20210913131100.981636070@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,96 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Hoang <phong.hoang.wz@renesas.com>
+From: Ruozhu Li <liruozhu@huawei.com>
 
-[ Upstream commit be83c3b6e7b8ff22f72827a613bf6f3aa5afadbb ]
+[ Upstream commit 664227fde63844d69e9ec9e90a8a7801e6ff072d ]
 
-If CMT instance has at least two channels, one channel will be used
-as a clock source and another one used as a clock event device.
-In that case, IRQ is not requested for clock source channel so
-sh_cmt_clock_event_program_verify() might work incorrectly.
-Besides, when a channel is only used for clock source, don't need to
-re-set the next match_value since it should be maximum timeout as
-it still is.
+We update ctrl->queue_count and schedule another reconnect when io queue
+count is zero.But we will never try to create any io queue in next reco-
+nnection, because ctrl->queue_count already set to zero.We will end up
+having an admin-only session in Live state, which is exactly what we try
+to avoid in the original patch.
+Update ctrl->queue_count after queue_count zero checking to fix it.
 
-On the other hand, due to no IRQ, total_cycles is not counted up
-when reaches compare match time (timer counter resets to zero),
-so sh_cmt_clocksource_read() returns unexpected value.
-Therefore, use 64-bit clocksoure's mask for 32-bit or 16-bit variants
-will also lead to wrong delta calculation. Hence, this mask should
-correspond to timer counter width, and above function just returns
-the raw value of timer counter register.
-
-Fixes: bfa76bb12f23 ("clocksource: sh_cmt: Request IRQ for clock event device only")
-Fixes: 37e7742c55ba ("clocksource/drivers/sh_cmt: Fix clocksource width for 32-bit machines")
-Signed-off-by: Phong Hoang <phong.hoang.wz@renesas.com>
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210422123443.73334-1-niklas.soderlund+renesas@ragnatech.se
+Signed-off-by: Ruozhu Li <liruozhu@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/sh_cmt.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ drivers/nvme/host/tcp.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
-index d7ed99f0001f..dd0956ad969c 100644
---- a/drivers/clocksource/sh_cmt.c
-+++ b/drivers/clocksource/sh_cmt.c
-@@ -579,7 +579,8 @@ static int sh_cmt_start(struct sh_cmt_channel *ch, unsigned long flag)
- 	ch->flags |= flag;
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 82b2611d39a2..5b11d8a23813 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1755,13 +1755,13 @@ static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
+ 	if (ret)
+ 		return ret;
  
- 	/* setup timeout if no clockevent */
--	if ((flag == FLAG_CLOCKSOURCE) && (!(ch->flags & FLAG_CLOCKEVENT)))
-+	if (ch->cmt->num_channels == 1 &&
-+	    flag == FLAG_CLOCKSOURCE && (!(ch->flags & FLAG_CLOCKEVENT)))
- 		__sh_cmt_set_next(ch, ch->max_match_value);
-  out:
- 	raw_spin_unlock_irqrestore(&ch->lock, flags);
-@@ -621,20 +622,25 @@ static struct sh_cmt_channel *cs_to_sh_cmt(struct clocksource *cs)
- static u64 sh_cmt_clocksource_read(struct clocksource *cs)
- {
- 	struct sh_cmt_channel *ch = cs_to_sh_cmt(cs);
--	unsigned long flags;
- 	u32 has_wrapped;
--	u64 value;
--	u32 raw;
+-	ctrl->queue_count = nr_io_queues + 1;
+-	if (ctrl->queue_count < 2) {
++	if (nr_io_queues == 0) {
+ 		dev_err(ctrl->device,
+ 			"unable to set any I/O queues\n");
+ 		return -ENOMEM;
+ 	}
  
--	raw_spin_lock_irqsave(&ch->lock, flags);
--	value = ch->total_cycles;
--	raw = sh_cmt_get_counter(ch, &has_wrapped);
-+	if (ch->cmt->num_channels == 1) {
-+		unsigned long flags;
-+		u64 value;
-+		u32 raw;
++	ctrl->queue_count = nr_io_queues + 1;
+ 	dev_info(ctrl->device,
+ 		"creating %d I/O queues.\n", nr_io_queues);
  
--	if (unlikely(has_wrapped))
--		raw += ch->match_value + 1;
--	raw_spin_unlock_irqrestore(&ch->lock, flags);
-+		raw_spin_lock_irqsave(&ch->lock, flags);
-+		value = ch->total_cycles;
-+		raw = sh_cmt_get_counter(ch, &has_wrapped);
-+
-+		if (unlikely(has_wrapped))
-+			raw += ch->match_value + 1;
-+		raw_spin_unlock_irqrestore(&ch->lock, flags);
-+
-+		return value + raw;
-+	}
- 
--	return value + raw;
-+	return sh_cmt_get_counter(ch, &has_wrapped);
- }
- 
- static int sh_cmt_clocksource_enable(struct clocksource *cs)
-@@ -697,7 +703,7 @@ static int sh_cmt_register_clocksource(struct sh_cmt_channel *ch,
- 	cs->disable = sh_cmt_clocksource_disable;
- 	cs->suspend = sh_cmt_clocksource_suspend;
- 	cs->resume = sh_cmt_clocksource_resume;
--	cs->mask = CLOCKSOURCE_MASK(sizeof(u64) * 8);
-+	cs->mask = CLOCKSOURCE_MASK(ch->cmt->info->width);
- 	cs->flags = CLOCK_SOURCE_IS_CONTINUOUS;
- 
- 	dev_info(&ch->cmt->pdev->dev, "ch%u: used as clock source\n",
 -- 
 2.30.2
 
