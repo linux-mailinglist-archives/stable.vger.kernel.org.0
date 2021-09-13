@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB1ED4092E5
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C58804095D1
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344021AbhIMOQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59700 "EHLO mail.kernel.org"
+        id S241505AbhIMOph (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:45:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344284AbhIMOLq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:11:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05D5661ABC;
-        Mon, 13 Sep 2021 13:42:24 +0000 (UTC)
+        id S1347632AbhIMOmK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:42:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 721C861250;
+        Mon, 13 Sep 2021 13:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540545;
-        bh=woE2grbPg3WPqA9HTL1cQBCX9cOnQFmfArs0J8oXWQU=;
+        s=korg; t=1631541389;
+        bh=YaizDK3+8aCcaeOv0UjPwQK6/YhwKWk2h9k12AOdSCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yA1I1rcvnPfqcDDv2uKCuSFsKtkzpwTRqQ1OhofATM7dr64rYUqHniOL97JXjMp4Y
-         3uAfhrXr7kSQm/MUy7U2xu6gRvA2qKlw5IpgXMdIlVkEFvnSB9KhJMHCwWN/qhH5tH
-         Vl2XU0zfCgcyitTNcglPZ75a3I/Q2kV9groVIiM8=
+        b=0WEaq/LkrVlwFT6OgVZjszVtNZ4qw4nv65YES38475F0fECTQxNSCK1NxerVGHfhF
+         HDQVytKM6SsBgyTGaOmC7Epjr+Ksy6d4Zxemy14h+HXmDMrfX2NoiWOVCS+xp36bvk
+         KOnMBOnSqluxCw8iHJO5AP/nCDj9f06e0/XbzV/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 238/300] ASoC: wcd9335: Fix a double irq free in the remove function
+Subject: [PATCH 5.14 245/334] octeontx2-af: cn10k: Use FLIT0 register instead of FLIT1
 Date:   Mon, 13 Sep 2021 15:14:59 +0200
-Message-Id: <20210913131117.395159098@linuxfoundation.org>
+Message-Id: <20210913131121.684410505@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Geetha sowjanya <gakula@marvell.com>
 
-[ Upstream commit 7a6a723e98aa45f393e6add18f7309dfffa1b0e2 ]
+[ Upstream commit 623da5ca70b70f01cd483585f5cd4c463cf2f2da ]
 
-There is no point in calling 'free_irq()' explicitly for
-'WCD9335_IRQ_SLIMBUS' in the remove function.
+RVU SMMU widget stores the final translated PA at
+RVU_AF_SMMU_TLN_FLIT0<57:18> instead of FLIT1 register. This patch
+fixes the address translation logic to use the correct register.
 
-The irqs are requested in 'wcd9335_setup_irqs()' using a resource managed
-function (i.e. 'devm_request_threaded_irq()').
-'wcd9335_setup_irqs()' requests all what is defined in the 'wcd9335_irqs'
-structure.
-This structure has only one entry for 'WCD9335_IRQ_SLIMBUS'.
-
-So 'devm_request...irq()' + explicit 'free_irq()' would lead to a double
-free.
-
-Remove the unneeded 'free_irq()' from the remove function.
-
-Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Message-Id: <0614d63bc00edd7e81dd367504128f3d84f72efa.1629091028.git.christophe.jaillet@wanadoo.fr>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 893ae97214c3 ("octeontx2-af: cn10k: Support configurable LMTST regions")
+Signed-off-by: Geetha sowjanya <gakula@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd9335.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_cn10k.c | 4 ++--
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h   | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
-index 86c92e03ea5d..933f59e4e56f 100644
---- a/sound/soc/codecs/wcd9335.c
-+++ b/sound/soc/codecs/wcd9335.c
-@@ -4869,7 +4869,6 @@ static void wcd9335_codec_remove(struct snd_soc_component *comp)
- 	struct wcd9335_codec *wcd = dev_get_drvdata(comp->dev);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cn10k.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cn10k.c
+index 28dcce7d575a..dbe9149a215e 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cn10k.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cn10k.c
+@@ -82,10 +82,10 @@ static int rvu_get_lmtaddr(struct rvu *rvu, u16 pcifunc,
+ 		dev_err(rvu->dev, "%s LMTLINE iova transulation failed err:%llx\n", __func__, val);
+ 		return -EIO;
+ 	}
+-	/* PA[51:12] = RVU_AF_SMMU_TLN_FLIT1[60:21]
++	/* PA[51:12] = RVU_AF_SMMU_TLN_FLIT0[57:18]
+ 	 * PA[11:0] = IOVA[11:0]
+ 	 */
+-	pa = rvu_read64(rvu, BLKADDR_RVUM, RVU_AF_SMMU_TLN_FLIT1) >> 21;
++	pa = rvu_read64(rvu, BLKADDR_RVUM, RVU_AF_SMMU_TLN_FLIT0) >> 18;
+ 	pa &= GENMASK_ULL(39, 0);
+ 	*lmt_addr = (pa << 12) | (iova  & 0xFFF);
  
- 	wcd_clsh_ctrl_free(wcd->clsh_ctrl);
--	free_irq(regmap_irq_get_virq(wcd->irq_data, WCD9335_IRQ_SLIMBUS), wcd);
- }
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h b/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
+index 8b01ef6e2c99..4215841c9f86 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
+@@ -53,7 +53,7 @@
+ #define RVU_AF_SMMU_TXN_REQ		    (0x6008)
+ #define RVU_AF_SMMU_ADDR_RSP_STS	    (0x6010)
+ #define RVU_AF_SMMU_ADDR_TLN		    (0x6018)
+-#define RVU_AF_SMMU_TLN_FLIT1		    (0x6030)
++#define RVU_AF_SMMU_TLN_FLIT0		    (0x6020)
  
- static int wcd9335_codec_set_sysclk(struct snd_soc_component *comp,
+ /* Admin function's privileged PF/VF registers */
+ #define RVU_PRIV_CONST                      (0x8000000)
 -- 
 2.30.2
 
