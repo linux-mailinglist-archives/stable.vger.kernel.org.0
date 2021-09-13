@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C0A40957A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A138409583
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344549AbhIMOmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:42:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56362 "EHLO mail.kernel.org"
+        id S1345612AbhIMOmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:42:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346987AbhIMOkJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346988AbhIMOkJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:40:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1CF561221;
-        Mon, 13 Sep 2021 13:55:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04C3261248;
+        Mon, 13 Sep 2021 13:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541334;
-        bh=/Q+nGGbuRQCEf4nJ+zVUPSAiTbJskpr6+hRJit8n4qc=;
+        s=korg; t=1631541336;
+        bh=cZPuJCnRng6Vnwl/Bz5fI1fpZeCly3sh/DIGvZUKPtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KGyXJ9WPz488BBr7COphtnlT3egrwnZIxtBpNJOzWmWbbyzTDE837HyhwhlUvL11H
-         eDIy+1yR49N60Ds6TvbDtT28KB3DF8JFVRayyajqqiCI5zoZeyydH0i0Hf0zzCLTBT
-         yyrcBDEjG1YGE28XhCLfv2End5Uwn1AtnRXZqQ/8=
+        b=a2ou5jkfo1QwpxgnZyaEuegB4d0/8huGC3MTAfquAhA8CmvVxKNoUBIcso+ZS3w93
+         bjqRHuzKr9t1Xxa37nVe+sNw3o75CVutBFpDDtmrkE1tO+sNoPo+kLswYK7yaULeiz
+         VPFV7q4Nz3SJEA8cp+NRqmjEYzjzoFPDfEE8VqLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Len Baker <len.baker@gmx.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Jeff Layton <jlayton@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 256/334] CIFS: Fix a potencially linear read overflow
-Date:   Mon, 13 Sep 2021 15:15:10 +0200
-Message-Id: <20210913131122.066861338@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Qii Wang <qii.wang@mediatek.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 257/334] i2c: mt65xx: fix IRQ check
+Date:   Mon, 13 Sep 2021 15:15:11 +0200
+Message-Id: <20210913131122.098536972@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -42,51 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Len Baker <len.baker@gmx.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit f980d055a0f858d73d9467bb0b570721bbfcdfb8 ]
+[ Upstream commit 58fb7c643d346e2364404554f531cfa6a1a3917c ]
 
-strlcpy() reads the entire source buffer first. This read may exceed the
-destination size limit. This is both inefficient and can lead to linear
-read overflows if a source string is not NUL-terminated.
+Iff platform_get_irq() returns 0, the driver's probe() method will return 0
+early (as if the method's call was successful).  Let's consider IRQ0 valid
+for simplicity -- devm_request_irq() can always override that decision...
 
-Also, the strnlen() call does not avoid the read overflow in the strlcpy
-function when a not NUL-terminated string is passed.
-
-So, replace this block by a call to kstrndup() that avoids this type of
-overflow and does the same.
-
-Fixes: 066ce6899484d ("cifs: rename cifs_strlcpy_to_host and make it use new functions")
-Signed-off-by: Len Baker <len.baker@gmx.com>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Fixes: ce38815d39ea ("I2C: mediatek: Add driver for MediaTek I2C controller")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Reviewed-by: Qii Wang <qii.wang@mediatek.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifs_unicode.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-mt65xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/cifs/cifs_unicode.c b/fs/cifs/cifs_unicode.c
-index 9bd03a231032..171ad8b42107 100644
---- a/fs/cifs/cifs_unicode.c
-+++ b/fs/cifs/cifs_unicode.c
-@@ -358,14 +358,9 @@ cifs_strndup_from_utf16(const char *src, const int maxlen,
- 		if (!dst)
- 			return NULL;
- 		cifs_from_utf16(dst, (__le16 *) src, len, maxlen, codepage,
--			       NO_MAP_UNI_RSVD);
-+				NO_MAP_UNI_RSVD);
- 	} else {
--		len = strnlen(src, maxlen);
--		len++;
--		dst = kmalloc(len, GFP_KERNEL);
--		if (!dst)
--			return NULL;
--		strlcpy(dst, src, len);
-+		dst = kstrndup(src, maxlen, GFP_KERNEL);
- 	}
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 4ca716e09149..477480d1de6b 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -1211,7 +1211,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(i2c->pdmabase);
  
- 	return dst;
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq <= 0)
++	if (irq < 0)
+ 		return irq;
+ 
+ 	init_completion(&i2c->msg_complete);
 -- 
 2.30.2
 
