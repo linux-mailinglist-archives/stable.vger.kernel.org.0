@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 143124095D4
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DE4540930D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346019AbhIMOpk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:45:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58824 "EHLO mail.kernel.org"
+        id S1344612AbhIMORS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:17:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345614AbhIMOmY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:42:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D671361004;
-        Mon, 13 Sep 2021 13:56:48 +0000 (UTC)
+        id S242459AbhIMOPM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:15:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E78461AFA;
+        Mon, 13 Sep 2021 13:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541409;
-        bh=ADolzZ/a6d+r1ZgaXKhMKsA92fhmcxoPDcdrZNovPIQ=;
+        s=korg; t=1631540652;
+        bh=V9Z12daDq69BGaXOIG3sTgmjZulZoOY41ZxurHdYqm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PNeai3d2EqD6vJbXj1P63IUlcrbkxeePpURhqfiMVy2hu6O4SaJlxVUlzkkaGOd0O
-         12EfEUkmryaAhwAFLqDxOCwx/oaPsBJ9fsfZ8xrXNUUPjJ6+LYfLd7ec5+itnlIuRB
-         u/b0aVtFSkIfUOR2a0ffU0OKCamiFbigirqk/Qus=
+        b=CGKiidDkIXcXExP8ymAWoJwd4/u72YSAlQs2dNVPXRbFIVp3MD8qJJQHIh0wau3Gb
+         52HV3L1l3r7C1VkWmrwC6oKeY4Sg0o0fHDon6LSQmCxLkLU06+5fWt2gA/cauZnWmc
+         fnIsTCELmvnQE9w9UzzrqXvF6x2MkVhk537xT79Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 287/334] sch_htb: Fix inconsistency when leaf qdisc creation fails
-Date:   Mon, 13 Sep 2021 15:15:41 +0200
-Message-Id: <20210913131123.129930592@linuxfoundation.org>
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        =?UTF-8?q?Christian=20Borntr=C3=A4ger?= <borntraeger@de.ibm.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [PATCH 5.13 281/300] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
+Date:   Mon, 13 Sep 2021 15:15:42 +0200
+Message-Id: <20210913131118.837826474@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,321 +40,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit ca49bfd90a9dde175d2929dc1544b54841e33804 ]
+commit a3e03bc1368c1bc16e19b001fc96dc7430573cc8 upstream.
 
-In HTB offload mode, qdiscs of leaf classes are grafted to netdev
-queues. sch_htb expects the dev_queue field of these qdiscs to point to
-the corresponding queues. However, qdisc creation may fail, and in that
-case noop_qdisc is used instead. Its dev_queue doesn't point to the
-right queue, so sch_htb can lose track of used netdev queues, which will
-cause internal inconsistencies.
+While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true, it may
+not always be, and we must not rely on this. Reason is that KVM decides
+the vcpu_idx, userspace decides the vcpu_id, thus the two might not
+match.
 
-This commit fixes this bug by keeping track of the netdev queue inside
-struct htb_class. All reads of cl->leaf.q->dev_queue are replaced by the
-new field, the two values are synced on writes, and WARNs are added to
-assert equality of the two values.
+Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
+that code like
+for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
+                vcpu = kvm_get_vcpu(kvm, vcpu_id);
+		do_stuff(vcpu);
+}
+is not legit. Reason is that kvm_get_vcpu expects an vcpu_idx, not an
+vcpu_id.  The trouble is, we do actually use kvm->arch.idle_mask like
+this. To fix this problem we have two options. Either use
+kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
+or switch to indexing via vcpu_idx. The latter is preferable for obvious
+reasons.
 
-The driver API has changed: when TC_HTB_LEAF_DEL needs to move a queue,
-the driver used to pass the old and new queue IDs to sch_htb. Now that
-there is a new field (offload_queue) in struct htb_class that needs to
-be updated on this operation, the driver will pass the old class ID to
-sch_htb instead (it already knows the new class ID).
+Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
+indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
+same index as idle_mask lets make the same change for it as well.
 
-Fixes: d03b195b5aa0 ("sch_htb: Hierarchical QoS hardware offload")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/20210826115425.1744053-1-maximmi@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reviewed-by: Christian Bornträger <borntraeger@de.ibm.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: <stable@vger.kernel.org> # 3.15+
+Link: https://lore.kernel.org/r/20210827125429.1912577-1-pasic@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en/qos.c  | 15 ++-
- .../net/ethernet/mellanox/mlx5/core/en/qos.h  |  4 +-
- .../net/ethernet/mellanox/mlx5/core/en_main.c |  3 +-
- include/net/pkt_cls.h                         |  3 +-
- net/sched/sch_htb.c                           | 97 ++++++++++++-------
- 5 files changed, 72 insertions(+), 50 deletions(-)
+ arch/s390/include/asm/kvm_host.h |    1 +
+ arch/s390/kvm/interrupt.c        |   12 ++++++------
+ arch/s390/kvm/kvm-s390.c         |    2 +-
+ arch/s390/kvm/kvm-s390.h         |    2 +-
+ 4 files changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c b/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c
-index 5efe3278b0f6..1fd8baf19829 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c
-@@ -733,8 +733,8 @@ static void mlx5e_reset_qdisc(struct net_device *dev, u16 qid)
- 	spin_unlock_bh(qdisc_lock(qdisc));
- }
- 
--int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 classid, u16 *old_qid,
--		       u16 *new_qid, struct netlink_ext_ack *extack)
-+int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 *classid,
-+		       struct netlink_ext_ack *extack)
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -962,6 +962,7 @@ struct kvm_arch{
+ 	atomic64_t cmma_dirty_pages;
+ 	/* subset of available cpu features enabled by user space */
+ 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
++	/* indexed by vcpu_idx */
+ 	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
+ 	struct kvm_s390_gisa_interrupt gisa_int;
+ 	struct kvm_s390_pv pv;
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -419,13 +419,13 @@ static unsigned long deliverable_irqs(st
+ static void __set_cpu_idle(struct kvm_vcpu *vcpu)
  {
- 	struct mlx5e_qos_node *node;
- 	struct netdev_queue *txq;
-@@ -742,11 +742,9 @@ int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 classid, u16 *old_qid,
- 	bool opened;
- 	int err;
- 
--	qos_dbg(priv->mdev, "TC_HTB_LEAF_DEL classid %04x\n", classid);
--
--	*old_qid = *new_qid = 0;
-+	qos_dbg(priv->mdev, "TC_HTB_LEAF_DEL classid %04x\n", *classid);
- 
--	node = mlx5e_sw_node_find(priv, classid);
-+	node = mlx5e_sw_node_find(priv, *classid);
- 	if (!node)
- 		return -ENOENT;
- 
-@@ -764,7 +762,7 @@ int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 classid, u16 *old_qid,
- 	err = mlx5_qos_destroy_node(priv->mdev, node->hw_id);
- 	if (err) /* Not fatal. */
- 		qos_warn(priv->mdev, "Failed to destroy leaf node %u (class %04x), err = %d\n",
--			 node->hw_id, classid, err);
-+			 node->hw_id, *classid, err);
- 
- 	mlx5e_sw_node_delete(priv, node);
- 
-@@ -826,8 +824,7 @@ int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 classid, u16 *old_qid,
- 	if (opened)
- 		mlx5e_reactivate_qos_sq(priv, moved_qid, txq);
- 
--	*old_qid = mlx5e_qid_from_qos(&priv->channels, moved_qid);
--	*new_qid = mlx5e_qid_from_qos(&priv->channels, qid);
-+	*classid = node->classid;
- 	return 0;
+ 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
+-	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
++	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
  }
  
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/qos.h b/drivers/net/ethernet/mellanox/mlx5/core/en/qos.h
-index 5af7991fcd19..757682b7c0e0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/qos.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/qos.h
-@@ -34,8 +34,8 @@ int mlx5e_htb_leaf_alloc_queue(struct mlx5e_priv *priv, u16 classid,
- 			       struct netlink_ext_ack *extack);
- int mlx5e_htb_leaf_to_inner(struct mlx5e_priv *priv, u16 classid, u16 child_classid,
- 			    u64 rate, u64 ceil, struct netlink_ext_ack *extack);
--int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 classid, u16 *old_qid,
--		       u16 *new_qid, struct netlink_ext_ack *extack);
-+int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 *classid,
-+		       struct netlink_ext_ack *extack);
- int mlx5e_htb_leaf_del_last(struct mlx5e_priv *priv, u16 classid, bool force,
- 			    struct netlink_ext_ack *extack);
- int mlx5e_htb_node_modify(struct mlx5e_priv *priv, u16 classid, u64 rate, u64 ceil,
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index b7be1ef4cbb2..2d53eaf3b924 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -3453,8 +3453,7 @@ static int mlx5e_setup_tc_htb(struct mlx5e_priv *priv, struct tc_htb_qopt_offloa
- 		return mlx5e_htb_leaf_to_inner(priv, htb->parent_classid, htb->classid,
- 					       htb->rate, htb->ceil, htb->extack);
- 	case TC_HTB_LEAF_DEL:
--		return mlx5e_htb_leaf_del(priv, htb->classid, &htb->moved_qid, &htb->qid,
--					  htb->extack);
-+		return mlx5e_htb_leaf_del(priv, &htb->classid, htb->extack);
- 	case TC_HTB_LEAF_DEL_LAST:
- 	case TC_HTB_LEAF_DEL_LAST_FORCE:
- 		return mlx5e_htb_leaf_del_last(priv, htb->classid,
-diff --git a/include/net/pkt_cls.h b/include/net/pkt_cls.h
-index 298a8d10168b..fb34b66aefa7 100644
---- a/include/net/pkt_cls.h
-+++ b/include/net/pkt_cls.h
-@@ -824,10 +824,9 @@ enum tc_htb_command {
- struct tc_htb_qopt_offload {
- 	struct netlink_ext_ack *extack;
- 	enum tc_htb_command command;
--	u16 classid;
- 	u32 parent_classid;
-+	u16 classid;
- 	u16 qid;
--	u16 moved_qid;
- 	u64 rate;
- 	u64 ceil;
- };
-diff --git a/net/sched/sch_htb.c b/net/sched/sch_htb.c
-index 5f7ac27a5264..f22d26a2c89f 100644
---- a/net/sched/sch_htb.c
-+++ b/net/sched/sch_htb.c
-@@ -125,6 +125,7 @@ struct htb_class {
- 		struct htb_class_leaf {
- 			int		deficit[TC_HTB_MAXDEPTH];
- 			struct Qdisc	*q;
-+			struct netdev_queue *offload_queue;
- 		} leaf;
- 		struct htb_class_inner {
- 			struct htb_prio clprio[TC_HTB_NUMPRIO];
-@@ -1411,24 +1412,47 @@ htb_graft_helper(struct netdev_queue *dev_queue, struct Qdisc *new_q)
- 	return old_q;
- }
- 
--static void htb_offload_move_qdisc(struct Qdisc *sch, u16 qid_old, u16 qid_new)
-+static struct netdev_queue *htb_offload_get_queue(struct htb_class *cl)
-+{
-+	struct netdev_queue *queue;
-+
-+	queue = cl->leaf.offload_queue;
-+	if (!(cl->leaf.q->flags & TCQ_F_BUILTIN))
-+		WARN_ON(cl->leaf.q->dev_queue != queue);
-+
-+	return queue;
-+}
-+
-+static void htb_offload_move_qdisc(struct Qdisc *sch, struct htb_class *cl_old,
-+				   struct htb_class *cl_new, bool destroying)
+ static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
  {
- 	struct netdev_queue *queue_old, *queue_new;
- 	struct net_device *dev = qdisc_dev(sch);
--	struct Qdisc *qdisc;
- 
--	queue_old = netdev_get_tx_queue(dev, qid_old);
--	queue_new = netdev_get_tx_queue(dev, qid_new);
-+	queue_old = htb_offload_get_queue(cl_old);
-+	queue_new = htb_offload_get_queue(cl_new);
- 
--	if (dev->flags & IFF_UP)
--		dev_deactivate(dev);
--	qdisc = dev_graft_qdisc(queue_old, NULL);
--	qdisc->dev_queue = queue_new;
--	qdisc = dev_graft_qdisc(queue_new, qdisc);
--	if (dev->flags & IFF_UP)
--		dev_activate(dev);
-+	if (!destroying) {
-+		struct Qdisc *qdisc;
- 
--	WARN_ON(!(qdisc->flags & TCQ_F_BUILTIN));
-+		if (dev->flags & IFF_UP)
-+			dev_deactivate(dev);
-+		qdisc = dev_graft_qdisc(queue_old, NULL);
-+		WARN_ON(qdisc != cl_old->leaf.q);
-+	}
-+
-+	if (!(cl_old->leaf.q->flags & TCQ_F_BUILTIN))
-+		cl_old->leaf.q->dev_queue = queue_new;
-+	cl_old->leaf.offload_queue = queue_new;
-+
-+	if (!destroying) {
-+		struct Qdisc *qdisc;
-+
-+		qdisc = dev_graft_qdisc(queue_new, cl_old->leaf.q);
-+		if (dev->flags & IFF_UP)
-+			dev_activate(dev);
-+		WARN_ON(!(qdisc->flags & TCQ_F_BUILTIN));
-+	}
+ 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
+-	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
++	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
  }
  
- static int htb_graft(struct Qdisc *sch, unsigned long arg, struct Qdisc *new,
-@@ -1442,10 +1466,8 @@ static int htb_graft(struct Qdisc *sch, unsigned long arg, struct Qdisc *new,
- 	if (cl->level)
- 		return -EINVAL;
+ static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
+@@ -3050,18 +3050,18 @@ int kvm_s390_get_irq_state(struct kvm_vc
  
--	if (q->offload) {
--		dev_queue = new->dev_queue;
--		WARN_ON(dev_queue != cl->leaf.q->dev_queue);
--	}
-+	if (q->offload)
-+		dev_queue = htb_offload_get_queue(cl);
- 
- 	if (!new) {
- 		new = qdisc_create_dflt(dev_queue, &pfifo_qdisc_ops,
-@@ -1514,6 +1536,8 @@ static void htb_parent_to_leaf(struct Qdisc *sch, struct htb_class *cl,
- 	parent->ctokens = parent->cbuffer;
- 	parent->t_c = ktime_get_ns();
- 	parent->cmode = HTB_CAN_SEND;
-+	if (q->offload)
-+		parent->leaf.offload_queue = cl->leaf.offload_queue;
- }
- 
- static void htb_parent_to_leaf_offload(struct Qdisc *sch,
-@@ -1534,6 +1558,7 @@ static int htb_destroy_class_offload(struct Qdisc *sch, struct htb_class *cl,
- 				     struct netlink_ext_ack *extack)
+ static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
  {
- 	struct tc_htb_qopt_offload offload_opt;
-+	struct netdev_queue *dev_queue;
- 	struct Qdisc *q = cl->leaf.q;
- 	struct Qdisc *old = NULL;
- 	int err;
-@@ -1542,16 +1567,15 @@ static int htb_destroy_class_offload(struct Qdisc *sch, struct htb_class *cl,
- 		return -EINVAL;
+-	int vcpu_id, online_vcpus = atomic_read(&kvm->online_vcpus);
++	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
+ 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
+ 	struct kvm_vcpu *vcpu;
  
- 	WARN_ON(!q);
--	if (!destroying) {
--		/* On destroy of HTB, two cases are possible:
--		 * 1. q is a normal qdisc, but q->dev_queue has noop qdisc.
--		 * 2. q is a noop qdisc (for nodes that were inner),
--		 *    q->dev_queue is noop_netdev_queue.
-+	dev_queue = htb_offload_get_queue(cl);
-+	old = htb_graft_helper(dev_queue, NULL);
-+	if (destroying)
-+		/* Before HTB is destroyed, the kernel grafts noop_qdisc to
-+		 * all queues.
- 		 */
--		old = htb_graft_helper(q->dev_queue, NULL);
--		WARN_ON(!old);
-+		WARN_ON(!(old->flags & TCQ_F_BUILTIN));
-+	else
- 		WARN_ON(old != q);
--	}
- 
- 	if (cl->parent) {
- 		cl->parent->bstats_bias.bytes += q->bstats.bytes;
-@@ -1570,18 +1594,17 @@ static int htb_destroy_class_offload(struct Qdisc *sch, struct htb_class *cl,
- 	if (!err || destroying)
- 		qdisc_put(old);
- 	else
--		htb_graft_helper(q->dev_queue, old);
-+		htb_graft_helper(dev_queue, old);
- 
- 	if (last_child)
- 		return err;
- 
--	if (!err && offload_opt.moved_qid != 0) {
--		if (destroying)
--			q->dev_queue = netdev_get_tx_queue(qdisc_dev(sch),
--							   offload_opt.qid);
--		else
--			htb_offload_move_qdisc(sch, offload_opt.moved_qid,
--					       offload_opt.qid);
-+	if (!err && offload_opt.classid != TC_H_MIN(cl->common.classid)) {
-+		u32 classid = TC_H_MAJ(sch->handle) |
-+			      TC_H_MIN(offload_opt.classid);
-+		struct htb_class *moved_cl = htb_find(classid, sch);
-+
-+		htb_offload_move_qdisc(sch, moved_cl, cl, destroying);
+-	for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
+-		vcpu = kvm_get_vcpu(kvm, vcpu_id);
++	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
++		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
+ 		if (psw_ioint_disabled(vcpu))
+ 			continue;
+ 		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
+ 		if (deliverable_mask) {
+ 			/* lately kicked but not yet running */
+-			if (test_and_set_bit(vcpu_id, gi->kicked_mask))
++			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
+ 				return;
+ 			kvm_s390_vcpu_wakeup(vcpu);
+ 			return;
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4020,7 +4020,7 @@ static int vcpu_pre_run(struct kvm_vcpu
+ 		kvm_s390_patch_guest_per_regs(vcpu);
  	}
  
- 	return err;
-@@ -1704,9 +1727,11 @@ static int htb_delete(struct Qdisc *sch, unsigned long arg,
- 	}
+-	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.gisa_int.kicked_mask);
++	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.gisa_int.kicked_mask);
  
- 	if (last_child) {
--		struct netdev_queue *dev_queue;
-+		struct netdev_queue *dev_queue = sch->dev_queue;
-+
-+		if (q->offload)
-+			dev_queue = htb_offload_get_queue(cl);
+ 	vcpu->arch.sie_block->icptcode = 0;
+ 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -79,7 +79,7 @@ static inline int is_vcpu_stopped(struct
  
--		dev_queue = q->offload ? cl->leaf.q->dev_queue : sch->dev_queue;
- 		new_q = qdisc_create_dflt(dev_queue, &pfifo_qdisc_ops,
- 					  cl->parent->common.classid,
- 					  NULL);
-@@ -1878,7 +1903,7 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
- 			}
- 			dev_queue = netdev_get_tx_queue(dev, offload_opt.qid);
- 		} else { /* First child. */
--			dev_queue = parent->leaf.q->dev_queue;
-+			dev_queue = htb_offload_get_queue(parent);
- 			old_q = htb_graft_helper(dev_queue, NULL);
- 			WARN_ON(old_q != parent->leaf.q);
- 			offload_opt = (struct tc_htb_qopt_offload) {
-@@ -1935,6 +1960,8 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
+ static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
+ {
+-	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
++	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
+ }
  
- 		/* leaf (we) needs elementary qdisc */
- 		cl->leaf.q = new_q ? new_q : &noop_qdisc;
-+		if (q->offload)
-+			cl->leaf.offload_queue = dev_queue;
- 
- 		cl->parent = parent;
- 
--- 
-2.30.2
-
+ static inline int kvm_is_ucontrol(struct kvm *kvm)
 
 
