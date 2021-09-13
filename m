@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9922F4094DD
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5D7409222
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:07:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345314AbhIMOgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:36:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S245654AbhIMOI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:08:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345773AbhIMOdQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:33:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C1CF61BD0;
-        Mon, 13 Sep 2021 13:52:30 +0000 (UTC)
+        id S243821AbhIMOGX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:06:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64D6161A7D;
+        Mon, 13 Sep 2021 13:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541150;
-        bh=+jozNEgeDozdsFYBZqGwW+s/aqVLJxgjBKEITXl2c5A=;
+        s=korg; t=1631540398;
+        bh=LgPufdIZwv7AqVRjVYnH224yg67bZZVh48ELzU3x9bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TDw7hquoKxdZnpc8xhixyNdpqFRXK+o7cH08Ynxg9niv1DBTbbFii0QHHgSUJ0Xbo
-         T82JaBL/8mQ0odOHjhfqr5oVgUddQYWM+itkoVI3mQkBM2XoQo6p7BB+Y0+jEAK7f6
-         VoflBsdRh9gfFDMGvkzycJcU1ZL8vhqCGsyN+/No=
+        b=uw0V5YHgtpNrA1eRIvdTS6VjpcUtUKK4SpgIzRhCm3sqapSBG8X4joxxCQg6IiT5j
+         XbWGB8xqjDQeyFVCb2rvpqU4FAuDFKV0HrywKcO/e/Vm3am6QMnjFPdWUZg8zLuBCC
+         pUkSahb+QJ0ByvZJiTuSHSa6zm4qhANgshcqz+Xs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Jairaj Arava <jairaj.arava@intel.com>,
+        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@intel.com>,
+        Shuming Fan <shumingf@realtek.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 184/334] drm/msm/mdp4: refactor HW revision detection into read_mdp_hw_revision
+Subject: [PATCH 5.13 177/300] ASoC: rt5682: Implement remove callback
 Date:   Mon, 13 Sep 2021 15:13:58 +0200
-Message-Id: <20210913131119.566794132@linuxfoundation.org>
+Message-Id: <20210913131115.375969160@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,75 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit 4d319afe666b0fc9a9855ba9bdf9ae3710ecf431 ]
+[ Upstream commit 87b42abae99d3d851aec64cd4d0f7def8113950e ]
 
-Inspired by MDP5 code.
-Also use DRM_DEV_INFO for MDP version as MDP5 does.
+Let's implement a remove callback for this driver that's similar to the
+shutdown hook, but also disables the regulators before they're put by
+devm code.
 
-Cosmetic change: uint32_t -> u32 - checkpatch suggestion.
-
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Link: https://lore.kernel.org/r/20210705231641.315804-1-david@ixit.cz
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Cc: Jairaj Arava <jairaj.arava@intel.com>
+Cc: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
+Cc: Pierre-Louis Bossart <pierre-louis.bossart@intel.com>
+Cc: Shuming Fan <shumingf@realtek.com>
+Cc: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210508075151.1626903-2-swboyd@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c | 27 ++++++++++++++++--------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ sound/soc/codecs/rt5682-i2c.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-index 4a5b518288b0..3a7a01d801aa 100644
---- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-@@ -19,20 +19,13 @@ static int mdp4_hw_init(struct msm_kms *kms)
- {
- 	struct mdp4_kms *mdp4_kms = to_mdp4_kms(to_mdp_kms(kms));
- 	struct drm_device *dev = mdp4_kms->dev;
--	uint32_t version, major, minor, dmap_cfg, vg_cfg;
-+	u32 major, minor, dmap_cfg, vg_cfg;
- 	unsigned long clk;
- 	int ret = 0;
- 
- 	pm_runtime_get_sync(dev->dev);
- 
--	mdp4_enable(mdp4_kms);
--	version = mdp4_read(mdp4_kms, REG_MDP4_VERSION);
--	mdp4_disable(mdp4_kms);
--
--	major = FIELD(version, MDP4_VERSION_MAJOR);
--	minor = FIELD(version, MDP4_VERSION_MINOR);
--
--	DBG("found MDP4 version v%d.%d", major, minor);
-+	read_mdp_hw_revision(mdp4_kms, &major, &minor);
- 
- 	if (major != 4) {
- 		DRM_DEV_ERROR(dev->dev, "unexpected MDP version: v%d.%d\n",
-@@ -411,6 +404,22 @@ fail:
- 	return ret;
+diff --git a/sound/soc/codecs/rt5682-i2c.c b/sound/soc/codecs/rt5682-i2c.c
+index cd964e023d96..4a56a52adab5 100644
+--- a/sound/soc/codecs/rt5682-i2c.c
++++ b/sound/soc/codecs/rt5682-i2c.c
+@@ -280,6 +280,16 @@ static void rt5682_i2c_shutdown(struct i2c_client *client)
+ 	rt5682_reset(rt5682);
  }
  
-+static void read_mdp_hw_revision(struct mdp4_kms *mdp4_kms,
-+				 u32 *major, u32 *minor)
++static int rt5682_i2c_remove(struct i2c_client *client)
 +{
-+	struct drm_device *dev = mdp4_kms->dev;
-+	u32 version;
++	struct rt5682_priv *rt5682 = i2c_get_clientdata(client);
 +
-+	mdp4_enable(mdp4_kms);
-+	version = mdp4_read(mdp4_kms, REG_MDP4_VERSION);
-+	mdp4_disable(mdp4_kms);
++	rt5682_i2c_shutdown(client);
++	regulator_bulk_disable(ARRAY_SIZE(rt5682->supplies), rt5682->supplies);
 +
-+	*major = FIELD(version, MDP4_VERSION_MAJOR);
-+	*minor = FIELD(version, MDP4_VERSION_MINOR);
-+
-+	DRM_DEV_INFO(dev->dev, "MDP4 version v%d.%d", *major, *minor);
++	return 0;
 +}
 +
- struct msm_kms *mdp4_kms_init(struct drm_device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev->dev);
+ static const struct of_device_id rt5682_of_match[] = {
+ 	{.compatible = "realtek,rt5682i"},
+ 	{},
+@@ -306,6 +316,7 @@ static struct i2c_driver rt5682_i2c_driver = {
+ 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+ 	},
+ 	.probe = rt5682_i2c_probe,
++	.remove = rt5682_i2c_remove,
+ 	.shutdown = rt5682_i2c_shutdown,
+ 	.id_table = rt5682_i2c_id,
+ };
 -- 
 2.30.2
 
