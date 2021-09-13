@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 456FF40977A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 17:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0B3D40977C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 17:36:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233130AbhIMPhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 11:37:36 -0400
-Received: from mx0a-0064b401.pphosted.com ([205.220.166.238]:63766 "EHLO
+        id S242874AbhIMPhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 11:37:37 -0400
+Received: from mx0a-0064b401.pphosted.com ([205.220.166.238]:1050 "EHLO
         mx0a-0064b401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241401AbhIMPh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 11:37:29 -0400
+        by vger.kernel.org with ESMTP id S240371AbhIMPha (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 11:37:30 -0400
 Received: from pps.filterd (m0250810.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18DFWc6Q015211;
-        Mon, 13 Sep 2021 08:36:02 -0700
+        by mx0a-0064b401.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18DFWk6v015226;
+        Mon, 13 Sep 2021 08:36:03 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version; s=PPS06212021;
- bh=syNRd9duDpPeKklJdbnxwr+32+jRVPBqI+cME300f6w=;
- b=UARm6ea2u7i7G+46sy1ckxv6Zdqd8FV6GevVB2RpSgn6tf4TNLdyr/YUJZ2CoGIUyWTg
- DiuK6SH7v709sBqlhLqB6Dr5+NYKkZHfm+CF8T+oxmGorSurwwu1CU5Nq877P0w0uKnc
- BlKNlwAaQubLQpn4tw5LRiwGd0E+w9It+t+W7ITar+lmyxtEkjJA6w0WoBXro0sc5WVH
- d0yn7AKPFOW7cfLGTAGWL+LsFq1i4oR9YHwRyjgQ5Bc3t6XRxfIdtO89ErWncbnbviTv
- Kh3DJahcTMRjcp909aCMBPPBXv5s6CWGWcEInC4KI+rA913vZkYTZ8oh3Cj8t7//186C Yg== 
-Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2174.outbound.protection.outlook.com [104.47.59.174])
-        by mx0a-0064b401.pphosted.com with ESMTP id 3b1kfn0pm2-1
+ bh=MJmWH2i+LH7V6PPmPpaHOIec0aH3hfKddUHx3lmcZos=;
+ b=bmMZ01bmLv0mXFraMKSfIk6OZt2U/DQdVQllwRXcc4qvxStzqh10D/BjsnlaoYNNrYzv
+ c8TrW/4wKHco6BeXt3E3WNgWMkNHJLVqP/YfkPcYLXnghdJoK6C5CcuTuCHRljW3WYc5
+ YXIAIs0rqTxSCJOz2dwn3gvROnEhT7+2naSsO5sho5n0KPqsK2kwcnCV48xSpg5JFdQc
+ PYCy0zHMt4qzzS0PxB0ELDP/kUSMICuIEktXdi3hKCu4g3ZWSaptmQ/jTRZKZlvmXp6s
+ DEDjybQ64PU/YGUScLC+KYFHMO35iyZ+xhXD9/I3P2ACap7SvsCU1rPdzLILsNmf+lp0 Kw== 
+Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2173.outbound.protection.outlook.com [104.47.59.173])
+        by mx0a-0064b401.pphosted.com with ESMTP id 3b1kfn0pm4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 13 Sep 2021 08:36:02 -0700
+        Mon, 13 Sep 2021 08:36:03 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=G2xJrElYesSfZJyc8tnjfEk4wzVGT7PkAdqSi6f6jONRaAynXsa48Yba8oKN8g7JUziXUWnZkChr/tNS0+jlwAqc231Ee9IrtDcOsvJFaLzfbjXE/GbRGGvovW74HGYnoPff620S0UHW4JbRHX0z3aMHySHl0zhX6emClodz0IpIPfIsP8FHwXM0iMB+rRUFvkRoq6ZE3O6bQepUVeaM+zcmWubimkar5YIm/PfHwj88llBNEDPwEyfVAEDb7CBnN3FWxIPgmT402OBeZkgxhK/fLSkMYBCRcuG+ohSD4ZOkLQv1t88/4WWEGP43tcTgd+2nAc3Qfiiuxp9iehPcEA==
+ b=IEv3strqB7UWkIOn4q/yMiztVWzTCrIq+ag1kC9KFcN32Oz2lf3s2s+hjr1b2s5KYzIJsGyOZnGh/s8n/RHbRgxsCWIdfjUgIEJDUhixuWtJ4qfAu9jJjdUBGVSEejzDY8Qk44suZU/OvcXMNMOYPzYL+vztNilHY5u17AM4MoX8DljByoJGamqcH1Lp/6yCrJO4lQTzJKvoVg9N672wm23ifdP7EG4irva4sg5N0SHvWl0kjjLRmmLZdMCNhgxxEiHWIHRPmoXHVMhdIjXcAEWZ/LV6MSn4DijjGg9E1gWXOoRxFvwasYxrkV8+Geg7GNNY6PYykb4D3yIujVxMcg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
- bh=syNRd9duDpPeKklJdbnxwr+32+jRVPBqI+cME300f6w=;
- b=nct2RnkL7y61DDR7r4uWMlPeorIIHpbel33JpjRd8Bljg9Uc4CFLde9r4ZEA5/mg7MtsDRfqexLidbEx2a7CnTlt3PWjgQbkYnEDUAox4LfcFPVC4YnUJS2avsLqsJEAIny/dvDCqB03YGglPDzsoHMVFkYSyhOZPjn6EmTXSW0Yc6PYg4PnqVRCKjVzbJkZC4OwtNbqCQotMilEQ5CVNbHyo5uUh6n6SXH/TZ8pI3Z9fZ8KWDmOz7qxwua3PD4PA/1h30++Mkp/YYah3qBceoCOi6akomPtXP2jFMrzGmBtBQs4Njvjj2zDmwh6iS68bwqz75DcVw3mNyYwJM1jMA==
+ bh=MJmWH2i+LH7V6PPmPpaHOIec0aH3hfKddUHx3lmcZos=;
+ b=OKhlGAqz+sa8YtuZcKVp/mzcaKC7hKUQdKyhbifp3fR0XeX+MuZ73qymxYjUjyyR/9FvR45RftylawNe3Cs0zAq7fbfolFAcalE+dZod/Dmsdca/R5TuwH6JTTuTmauNGFQYrr1PvsE28wp+tWQsAPOlZJ0Nwdt+BnkHuuecfF21qySXAZ5O+bzpewb5ymebsNd7cFT+2D01Q4fg03d+0bKVLdey8Q6Ts/6JaNAmiUNEgBuXxt8Jh9tcCy3lc+GF4t8GRdeJXl/jGz14VYAqsKb3uOmTnvMtSO13owNp3AsjzNuYQFjDrLZtmwg9FWuvXSGbC5ZlRqHVnhkvSB1hsg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
@@ -43,17 +43,17 @@ Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
  by DM4PR11MB5549.namprd11.prod.outlook.com (2603:10b6:5:388::7) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.17; Mon, 13 Sep
- 2021 15:36:01 +0000
+ 2021 15:36:02 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::952a:bdc6:20c3:94cb]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::952a:bdc6:20c3:94cb%7]) with mapi id 15.20.4500.019; Mon, 13 Sep 2021
- 15:36:01 +0000
+ 15:36:02 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
 Cc:     bpf@vger.kernel.org, daniel@iogearbox.net
-Subject: [PATCH 4.19 04/13] bpf: Reject indirect var_off stack access in raw mode
-Date:   Mon, 13 Sep 2021 18:35:28 +0300
-Message-Id: <20210913153537.2162465-5-ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 05/13] bpf: Reject indirect var_off stack access in unpriv mode
+Date:   Mon, 13 Sep 2021 18:35:29 +0300
+Message-Id: <20210913153537.2162465-6-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210913153537.2162465-1-ovidiu.panait@windriver.com>
 References: <20210913153537.2162465-1-ovidiu.panait@windriver.com>
@@ -63,54 +63,54 @@ X-ClientProxiedBy: VI1PR10CA0095.EURPRD10.PROD.OUTLOOK.COM
  (2603:10a6:803:28::24) To DM4PR11MB5327.namprd11.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
-Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR10CA0095.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:803:28::24) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.14 via Frontend Transport; Mon, 13 Sep 2021 15:36:00 +0000
+Received: from otp-linux03.wrs.com (46.97.150.20) by VI1PR10CA0095.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:803:28::24) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.14 via Frontend Transport; Mon, 13 Sep 2021 15:36:01 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 33722b57-f84f-4b80-695b-08d976cc3077
+X-MS-Office365-Filtering-Correlation-Id: 7b11a0e7-8093-4ebf-154c-08d976cc312f
 X-MS-TrafficTypeDiagnostic: DM4PR11MB5549:
-X-Microsoft-Antispam-PRVS: <DM4PR11MB554925A22B86E4D98C791D7CFED99@DM4PR11MB5549.namprd11.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:480;
+X-Microsoft-Antispam-PRVS: <DM4PR11MB554954B96A1978C81A72F55DFED99@DM4PR11MB5549.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:597;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: er7tCke17f6D8EiGJdny3o5tlf3m8P8kA58aKvuJ3LhpqzO+pnJ0aTwjn6u4NiIzOri3vLd422Sl2XW7s+7i+6Kj0apGs2OwplgEusgr2gQZjdLhf/jrIpUfvLDGBxY9c5zFqF2BcWaAP+aKIcbSN1Xg4hj0id7t6s6rpj7pfwOkXx83GbJQKXxECdA2IkmEHzbu8s8+cdwYUH3Sf7+xX/w54CnfUZTd2vp/nd30+lemo0c5pLMNw4l52twGFhT1ziHZ8JEGxNg9cJOJ9putO+7YxvWHtYAxh8R+Yk8Fn4qC5aGpmE+y+NVTouvBUtVXaX0fjoDq1T9OLpMTEGwWJPAjl9XMwyGCaPwBrHsxVUz1nqL+/UuA5hfKrXfIhfc8akfOqXBK6zYWuT6RzUR8AtnaXivhqmsc1NMquergbfkYB9TOLpGmXb3gQlAyV64cNsZRmNzUvnpfkwQmIJfaeX4Q0oVTaEPK1kFPtzy+QygXfmuY2XP5ayglllpyYshp337FlcTcAfSOf0raWpG+xdbdg0h1U5Z89h7kq1aYc6KaFAdVayAW113mLk+G6Dg1dNFa3QBgOOZyjrSSwN5qA/EdquGcUiBrSRIK0ygMJRr0ofcJYeAfoXWwUbegHR9BRD8oyjnJF+jF4r/eoa+rcGlzWQd8WVaioiwu24OqRYf3+uTV8qFSmysnzomm+ISOC7mQR8ZIrlMVKl4Gfs17aA==
+X-Microsoft-Antispam-Message-Info: pwjjdO+8Ha2jYoV/+Sve290/GSPdEZyrdriIP+LUSTr0eAN2JG0v9MtzPn/jM6sAdBUMnLzteanhSCMMsAl/e3zLQTxsteUGAdp7z9l4DcOmbRh9iUpZv41CHJTxKyFOT3ib3zFUkVvS/aSbmAmyNJb/DpHk22u9jYAggGFFZNO5ZAe+tYSxavh/GCE98HlKZp3CFKOM6kGRGRNtL5y6b85P4srGRhDrWDEBGK2PnNV9RebbhEEk9QIfqeFi242ltCTNgoPDWMXhnEX0fAT9m9cyULbzYVk4reE/z4NR84CEEtvuphBaF8vzk+VYVEsjBottMZoc/QuKyTdk6CktP4EJ1mpon8axjgFK/o0WRF4BxqxR7vx1mlrCW9DUKcww9/I5XXSSVh9mUrBW3PgK7+/dQohn3Rz4dWq2cp+saY8HfvnuziFmO0O3NiLZqAPdq87FQbnj+Zf4Og2vLV7t7Zo0P8t22PNSlP1XaJNotWPBS6OMrfA+k0p+Eq8Ri4pnYfP1nwX7WifvKw4Li/bP5+AeGTVyBDrezO72wn1lv45/wSOSC8sH+LbxOaV+f2Gun08byRBfwFJcJezmucR1Q+q+kKELdtOoozj2ZGIxxYrSnOo3Gz8EqNxmKN8KzWrDwf0bkA/pi3JLqm1/HGGZ+vUbNc7g9pys2Cd+Uw1Ml9vQHdQjNv3yIz5H3mpSLKgZOJunuTCGk4d6fxtbyIytwA==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(396003)(366004)(39850400004)(136003)(376002)(478600001)(26005)(83380400001)(186003)(38350700002)(2616005)(8936002)(38100700002)(44832011)(52116002)(8676002)(6916009)(5660300002)(6506007)(956004)(86362001)(316002)(36756003)(2906002)(4326008)(1076003)(66946007)(6666004)(66476007)(66556008)(6512007)(6486002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?EPQHizXPfO+PLp5jdsptm1q38PX5QpwzCDdklt+Oz6m3V6z9nxknUiIhZbbS?=
- =?us-ascii?Q?E5XZhBn4aUhEcTLWx4lBwYWKWxrfKxtLuseudKFZzrqS1GWMCW1t+8MHZXhx?=
- =?us-ascii?Q?SJAB+SdD6KCbSC8AQ7TDphJlp+f2iVl87VL2RU6pvyvLAUpIFRBBCcxa8c/8?=
- =?us-ascii?Q?tL1CZb0RpdXke7q4mBboQDytkFgt9E1PIKb4a/B2FnYSdsvuMErD8GtvIv1W?=
- =?us-ascii?Q?X5noyNDVz4TgE8GUgV5pBxaHKOzJa505dmwcY2VPO70hVuQbFeQvKU5AArOZ?=
- =?us-ascii?Q?J7/B2dz8M/X2eVhzAkxm/RuLr4mVg51lPLwUV6/vtiXZT8EJMmpMyiKNqPLi?=
- =?us-ascii?Q?EnuJPZOhMKXrEWpvwfLuZAHoddB4jQCqjnpNo3qBt3etIgzzIC/5FBIgM8+x?=
- =?us-ascii?Q?CijKKVLyMLwK4zRzgDeMKF5z5jdcNfykxynPe+JxmBNwczLp+s/uJbAx1Z4S?=
- =?us-ascii?Q?MWnpb8OfgWN158Zgsl+5AxTXT6ZpLFyBIp5iY4cxnQNMWtEA0/9bguPaYQoJ?=
- =?us-ascii?Q?rJ3KqsUJ0FaFK5zcY4uwRuFydaZ5wbuT0oC+7QyDoph2vOaUlHu7nWjM1Kuu?=
- =?us-ascii?Q?8iYRo9eYf9MfrHwg/dbOdY2D+xN5lkgXUq7Y/h1w+AQ3VKZjdZCMSGmAtYGC?=
- =?us-ascii?Q?Jyx64n7h1KkuTBBwHKswHcG0EVDVDSFTSPe9m4eTvGrBHRAp7XnYTojC/HLh?=
- =?us-ascii?Q?3K8CXZQcmUFwhnCmRP7++W3DHIUQ1hUqyGDqyRdqTpe3VTmP2HMQCFSWn9Um?=
- =?us-ascii?Q?jiZtPAZEjPjjwzGhDBN9B/ogjeN8MpvdkAZp9mq3VCc36M9xmkRXQgUQz4Mh?=
- =?us-ascii?Q?KBJLGW2So1Wkdpg+XL7i/3/T7S34vXihCsgeegfHc1LyzcgSnoXA+13Fh4i+?=
- =?us-ascii?Q?GtrPFybOa0EAWvlWaOu8xkkjZUDxY+/wTyxKwPjwOa1CO02x7zjgYB5NlIQe?=
- =?us-ascii?Q?KBSH5hYaGKVc52jtx1EsJ9owis8BXdIxgMntyi9Vceek5sf/74IhtdNtaVVT?=
- =?us-ascii?Q?xCuaVru1HBfrBiWoAXBV+PxkXO7OrPh5ts4M30sQ5Ul+OjUxZLXRZ0Hwh+8S?=
- =?us-ascii?Q?ZkWpjph9yGD13REAczJZihSCbRVWw/703MhqNeB1cjQoEOVcax3uW85NzN1W?=
- =?us-ascii?Q?wdghj+VVdV6tuXM+dvvAXQLb1G4ynBNUR4GatdoUVmEiY2zolVxvJJYOYiIy?=
- =?us-ascii?Q?UI9L854MgMkncPwiZveIDCx9eQbUZv5DkJo0sTf7DAXiVa/lK2DEkqu5AOCc?=
- =?us-ascii?Q?GYejfx/UytCM0hNZURdLp4yBBsmH1K9ag1vjmw+PpjLjcabWz+RnOkW2I5ed?=
- =?us-ascii?Q?bY5k9jIH+BhTsSwoIF7dZeiG?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?zEFvVLJgrKJipZ55RmusMe2Txcr+1zpR31gBlZ9JPWqCrDEC7vphzBt9uWm7?=
+ =?us-ascii?Q?9kQejd3H+mReZpRXqGSUBrd/ai8Y8ePIxT4xCtGa5V4FpqAv0fKNkPN5nl6X?=
+ =?us-ascii?Q?gNUS+Po0bGX7eMmabcbOJprmfLv96iMPPZhpNYdlFD+xRxZIciKZh5Hnsl2k?=
+ =?us-ascii?Q?6EVpFd622p11GFZRsBrUOj+EDfu27bxox9iqQ3dY05iqVM9qMHlLfDSvvn80?=
+ =?us-ascii?Q?RFSSpVGzM52zy9oHPSgXSDQWywhUIhVLNDkLQxR4O0f5QU0XijUNR4SvABFn?=
+ =?us-ascii?Q?Cp+JqHiZuXr5xnQ6t7iLHXzbBOPZmiNKuGXxUc4qWPnXR6yZPqFPWZRxn7sp?=
+ =?us-ascii?Q?IORcPqmll6+1yRAPhmF8hm5rpE2h5SxPGYG673a2PsvwlpKJV7SzMGu2jQdL?=
+ =?us-ascii?Q?YSlJ9DLrRj3SSCXoJ8QYWREhcnPMg9GIYIpkdq1NW0vLTKS0OdeluzprcyWp?=
+ =?us-ascii?Q?IPWsikR+28rSnlnphrd9Vtr2h0SmR5Aa7a0jgjDrAtt6gMu/MxSg2XHHBAQJ?=
+ =?us-ascii?Q?JL+O2l04qWadeQyX6nyNM+2Dqa7iXfxY2IeiqW0sYoe8ksv57UtCCVHiP/bm?=
+ =?us-ascii?Q?OMun+ai0I89S3yw+iypSioXTGRUXOeTx+gkI0oOlijZP0GdthoLXT5FJO8mB?=
+ =?us-ascii?Q?I/rKYV0pDrF14A+1riYnfq5SBkQr7mlec3P2PJLaGnobBxK1ERK9Sd8eB/8w?=
+ =?us-ascii?Q?NRK1VyGfNRnHBIaATwWl9UYpgxZrxkVVU2tabzvW9V3iHDvrRPmirz3C/Akv?=
+ =?us-ascii?Q?vKJLxQNThqhK+8I3YhzVxuIkPcCEAhamGHstaC8cbkag/49jiwXRdCmTbVSz?=
+ =?us-ascii?Q?EUo3F4GRtCHU7O3CMnu2/j/n+Cjic28poajBGUzQ6gvoqPpUgks5gHqrhLoU?=
+ =?us-ascii?Q?BFwIkXoA9KlHiJzzlB41r67r95nVe9GjDjd1SRPGbL9ebPLnEZoNgZu13Nba?=
+ =?us-ascii?Q?aJQ4DHT17sxgfUp9830nx60iYa3GVA6i6QhcutGF5eUVDvpaiuFFbARKJaBk?=
+ =?us-ascii?Q?JjBsnxpXHaFLZspPVrmVmKE5dbSri/z/obciAuHNLhnWKKW+QjJWxCHUThPd?=
+ =?us-ascii?Q?JeX+WmhwLOAa/g5AtZgbTQwCBdibErIBTqBqRfbsl0kgnqQu676mOh0cmksW?=
+ =?us-ascii?Q?rkCsb5s+6XJpDdd0bMY5X/lz3SbAedfL1DSt0grUDHY5JlLDdpEdTXRNX+MP?=
+ =?us-ascii?Q?HPGksvN4T76ODh59+XEryN+EoPfmfzY+/i8E2Cq8ql4OlWNwamKVRMvvk9P3?=
+ =?us-ascii?Q?P51vx6p+JJa0IVNraajFhpnEElQlC5J9nC+O3yawbEEthOviXQ73Ci/UgUVw?=
+ =?us-ascii?Q?z3sWRNvtCQ+3y6ycB4Fes9ik?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 33722b57-f84f-4b80-695b-08d976cc3077
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7b11a0e7-8093-4ebf-154c-08d976cc312f
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Sep 2021 15:36:00.9508
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Sep 2021 15:36:02.1674
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: NOPECfbi+Tw1+E33GIawttz/3XNiVew7QrroodRnT9CTtmQzHxzaLun+o3pFUPxAZEvlSdtYwBLzyuMt+qkyiGJQMLz9rRJ3I3nyZjrz9oM=
+X-MS-Exchange-CrossTenant-UserPrincipalName: /ZI++CzBA0zgM6RA8TetQGjHKtIqKrJ3N4pXLzoK+2SM1TiVzCXuouDW97q5YazaUuF0DclvVNSM1RPR5AbDOq8+r8O6bMz3uRl7k+/D88o=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR11MB5549
-X-Proofpoint-ORIG-GUID: Wj4NHe_pVUp7AMOvdCUGgmZ9BpvFVBqL
-X-Proofpoint-GUID: Wj4NHe_pVUp7AMOvdCUGgmZ9BpvFVBqL
+X-Proofpoint-ORIG-GUID: 0HGXyqVN2hZNOVP9SNtqwNGmsbx-9931
+X-Proofpoint-GUID: 0HGXyqVN2hZNOVP9SNtqwNGmsbx-9931
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
  definitions=2021-09-13_07,2021-09-09_01,2020-04-07_01
@@ -125,48 +125,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andrey Ignatov <rdna@fb.com>
 
-commit f2bcd05ec7b839ff826d2008506ad2d2dff46a59 upstream.
+commit 088ec26d9c2da9d879ab73e3f4117f9df6c566ee upstream.
 
-It's hard to guarantee that whole memory is marked as initialized on
-helper return if uninitialized stack is accessed with variable offset
-since specific bounds are unknown to verifier. This may cause
-uninitialized stack leaking.
+Proper support of indirect stack access with variable offset in
+unprivileged mode (!root) requires corresponding support in Spectre
+masking for stack ALU in retrieve_ptr_limit().
 
-Reject such an access in check_stack_boundary to prevent possible
-leaking.
+There are no use-case for variable offset in unprivileged mode though so
+make verifier reject such accesses for simplicity.
 
-There are no known use-cases for indirect uninitialized stack access
-with variable offset so it shouldn't break anything.
+Pointer arithmetics is one (and only?) way to cause variable offset and
+it's already rejected in unpriv mode so that verifier won't even get to
+helper function whose argument contains variable offset, e.g.:
+
+  0: (7a) *(u64 *)(r10 -16) = 0
+  1: (7a) *(u64 *)(r10 -8) = 0
+  2: (61) r2 = *(u32 *)(r1 +0)
+  3: (57) r2 &= 4
+  4: (17) r2 -= 16
+  5: (0f) r2 += r10
+  variable stack access var_off=(0xfffffffffffffff0; 0x4) off=-16 size=1R2
+  stack pointer arithmetic goes out of range, prohibited for !root
+
+Still it looks like a good idea to reject variable offset indirect stack
+access for unprivileged mode in check_stack_boundary() explicitly.
 
 Fixes: 2011fccfb61b ("bpf: Support variable offset stack access from helpers")
 Reported-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Andrey Ignatov <rdna@fb.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+[OP: drop comment in retrieve_ptr_limit()]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
- kernel/bpf/verifier.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ kernel/bpf/verifier.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 47395fa40219..a5360b603e4c 100644
+index a5360b603e4c..d2f3bbff3175 100644
 --- a/kernel/bpf/verifier.c
 +++ b/kernel/bpf/verifier.c
-@@ -1811,6 +1811,15 @@ static int check_stack_boundary(struct bpf_verifier_env *env, int regno,
+@@ -1811,6 +1811,19 @@ static int check_stack_boundary(struct bpf_verifier_env *env, int regno,
  		if (err)
  			return err;
  	} else {
-+		/* Only initialized buffer on stack is allowed to be accessed
-+		 * with variable offset. With uninitialized buffer it's hard to
-+		 * guarantee that whole memory is marked as initialized on
-+		 * helper return since specific bounds are unknown what may
-+		 * cause uninitialized stack leaking.
++		/* Variable offset is prohibited for unprivileged mode for
++		 * simplicity since it requires corresponding support in
++		 * Spectre masking for stack ALU.
++		 * See also retrieve_ptr_limit().
 +		 */
-+		if (meta && meta->raw_mode)
-+			meta = NULL;
++		if (!env->allow_ptr_leaks) {
++			char tn_buf[48];
 +
- 		min_off = reg->smin_value + reg->off;
- 		max_off = reg->umax_value + reg->off;
- 		err = __check_stack_boundary(env, regno, min_off, access_size,
++			tnum_strn(tn_buf, sizeof(tn_buf), reg->var_off);
++			verbose(env, "R%d indirect variable offset stack access prohibited for !root, var_off=%s\n",
++				regno, tn_buf);
++			return -EACCES;
++		}
+ 		/* Only initialized buffer on stack is allowed to be accessed
+ 		 * with variable offset. With uninitialized buffer it's hard to
+ 		 * guarantee that whole memory is marked as initialized on
 -- 
 2.25.1
 
