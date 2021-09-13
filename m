@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C637F409130
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:58:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C6C6408E6C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242766AbhIMN74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:59:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40312 "EHLO mail.kernel.org"
+        id S241303AbhIMNdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:33:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245512AbhIMN5c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:57:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22970619EA;
-        Mon, 13 Sep 2021 13:36:20 +0000 (UTC)
+        id S242679AbhIMN3x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:29:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2E05610D2;
+        Mon, 13 Sep 2021 13:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540181;
-        bh=XiDtveJprzscL9tlffUBoV5vcZn/VTSikhdAvGKho7Q=;
+        s=korg; t=1631539476;
+        bh=JdhKrN9hnvrcZAnXyTjQPj8s49YOGY/IFTfdPUdDjXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=APE9k2Sucg7JJIs4Rqd77ERQts4Zv7mEEVUumHU6bPRoyja/1Oi2QVk+ujzckiVNW
-         tBK5+QWIv5J1QuVm6wvwsXtdC6aBDTfrLd2W/TZnWX+zdgOsf8QCSN8oUJVvw4pRbf
-         DZpTTN6Gn7TS1a504I9MEpuvehvmz/3c1cv+NySY=
+        b=WheeCUMiQvg+PnYaTZfHoeGRw6kAneA0yRKlD8yXpjBUd5HDePNnhsBvlUJhHOFVC
+         g8HRxbdr9FVJwOPPQ4AO+13w73zNPNQXOnn7sY9fVEqb1RyF1QsB3jes2Zb40qlTog
+         2OrXeB/w7hGn7S0P9boc0ZaGkgJ+nMlSXR4YJdQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 084/300] ASoC: mediatek: mt8183: Fix Unbalanced pm_runtime_enable in mt8183_afe_pcm_dev_probe
+Subject: [PATCH 5.10 040/236] power: supply: cw2015: use dev_err_probe to allow deferred probe
 Date:   Mon, 13 Sep 2021 15:12:25 +0200
-Message-Id: <20210913131112.217007862@linuxfoundation.org>
+Message-Id: <20210913131101.715688753@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,156 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Peter Robinson <pbrobinson@gmail.com>
 
-[ Upstream commit 19f479c37f76e926a6c0bec974a4d09826e32fc6 ]
+[ Upstream commit ad1abe476995d97bfe7546ea91bb4f3dcdfbf3ab ]
 
-Add missing pm_runtime_disable() when probe error out. It could
-avoid pm_runtime implementation complains when removing and probing
-again the driver.
+Deal with deferred probe using dev_err_probe so the error is handled
+and avoid logging lots probe defer information like the following:
 
-Fixes:a94aec035a122 ("ASoC: mediatek: mt8183: add platform driver")
+[    9.125121] cw2015 4-0062: Failed to register power supply
+[    9.211131] cw2015 4-0062: Failed to register power supply
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20210618141104.105047-3-zhangqilong3@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: b4c7715c10c1 ("power: supply: add CellWise cw2015 fuel gauge driver")
+Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8183/mt8183-afe-pcm.c | 43 ++++++++++++++--------
- 1 file changed, 27 insertions(+), 16 deletions(-)
+ drivers/power/supply/cw2015_battery.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c b/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c
-index c4a598cbbdaa..14e77df06b01 100644
---- a/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c
-+++ b/sound/soc/mediatek/mt8183/mt8183-afe-pcm.c
-@@ -1119,25 +1119,26 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 	afe->regmap = syscon_node_to_regmap(dev->parent->of_node);
- 	if (IS_ERR(afe->regmap)) {
- 		dev_err(dev, "could not get regmap from parent\n");
--		return PTR_ERR(afe->regmap);
-+		ret = PTR_ERR(afe->regmap);
-+		goto err_pm_disable;
- 	}
- 	ret = regmap_attach_dev(dev, afe->regmap, &mt8183_afe_regmap_config);
- 	if (ret) {
- 		dev_warn(dev, "regmap_attach_dev fail, ret %d\n", ret);
--		return ret;
-+		goto err_pm_disable;
+diff --git a/drivers/power/supply/cw2015_battery.c b/drivers/power/supply/cw2015_battery.c
+index 0146f1bfc29b..de1fa71be1e8 100644
+--- a/drivers/power/supply/cw2015_battery.c
++++ b/drivers/power/supply/cw2015_battery.c
+@@ -673,7 +673,9 @@ static int cw_bat_probe(struct i2c_client *client)
+ 						    &cw2015_bat_desc,
+ 						    &psy_cfg);
+ 	if (IS_ERR(cw_bat->rk_bat)) {
+-		dev_err(cw_bat->dev, "Failed to register power supply\n");
++		/* try again if this happens */
++		dev_err_probe(&client->dev, PTR_ERR(cw_bat->rk_bat),
++			"Failed to register power supply\n");
+ 		return PTR_ERR(cw_bat->rk_bat);
  	}
  
- 	rstc = devm_reset_control_get(dev, "audiosys");
- 	if (IS_ERR(rstc)) {
- 		ret = PTR_ERR(rstc);
- 		dev_err(dev, "could not get audiosys reset:%d\n", ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	ret = reset_control_reset(rstc);
- 	if (ret) {
- 		dev_err(dev, "failed to trigger audio reset:%d\n", ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	/* enable clock for regcache get default value from hw */
-@@ -1147,7 +1148,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 	ret = regmap_reinit_cache(afe->regmap, &mt8183_afe_regmap_config);
- 	if (ret) {
- 		dev_err(dev, "regmap_reinit_cache fail, ret %d\n", ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	pm_runtime_put_sync(&pdev->dev);
-@@ -1160,8 +1161,10 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 	afe->memif_size = MT8183_MEMIF_NUM;
- 	afe->memif = devm_kcalloc(dev, afe->memif_size, sizeof(*afe->memif),
- 				  GFP_KERNEL);
--	if (!afe->memif)
--		return -ENOMEM;
-+	if (!afe->memif) {
-+		ret = -ENOMEM;
-+		goto err_pm_disable;
-+	}
- 
- 	for (i = 0; i < afe->memif_size; i++) {
- 		afe->memif[i].data = &memif_data[i];
-@@ -1178,22 +1181,26 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 	afe->irqs_size = MT8183_IRQ_NUM;
- 	afe->irqs = devm_kcalloc(dev, afe->irqs_size, sizeof(*afe->irqs),
- 				 GFP_KERNEL);
--	if (!afe->irqs)
--		return -ENOMEM;
-+	if (!afe->irqs) {
-+		ret = -ENOMEM;
-+		goto err_pm_disable;
-+	}
- 
- 	for (i = 0; i < afe->irqs_size; i++)
- 		afe->irqs[i].irq_data = &irq_data[i];
- 
- 	/* request irq */
- 	irq_id = platform_get_irq(pdev, 0);
--	if (irq_id < 0)
--		return irq_id;
-+	if (irq_id < 0) {
-+		ret = irq_id;
-+		goto err_pm_disable;
-+	}
- 
- 	ret = devm_request_irq(dev, irq_id, mt8183_afe_irq_handler,
- 			       IRQF_TRIGGER_NONE, "asys-isr", (void *)afe);
- 	if (ret) {
- 		dev_err(dev, "could not request_irq for asys-isr\n");
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	/* init sub_dais */
-@@ -1204,7 +1211,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 		if (ret) {
- 			dev_warn(afe->dev, "dai register i %d fail, ret %d\n",
- 				 i, ret);
--			return ret;
-+			goto err_pm_disable;
- 		}
- 	}
- 
-@@ -1213,7 +1220,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_warn(afe->dev, "mtk_afe_combine_sub_dai fail, ret %d\n",
- 			 ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	afe->mtk_afe_hardware = &mt8183_afe_hardware;
-@@ -1229,7 +1236,7 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 					      NULL, 0);
- 	if (ret) {
- 		dev_warn(dev, "err_platform\n");
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	ret = devm_snd_soc_register_component(afe->dev,
-@@ -1238,10 +1245,14 @@ static int mt8183_afe_pcm_dev_probe(struct platform_device *pdev)
- 					      afe->num_dai_drivers);
- 	if (ret) {
- 		dev_warn(dev, "err_dai_component\n");
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	return ret;
-+
-+err_pm_disable:
-+	pm_runtime_disable(&pdev->dev);
-+	return ret;
- }
- 
- static int mt8183_afe_pcm_dev_remove(struct platform_device *pdev)
 -- 
 2.30.2
 
