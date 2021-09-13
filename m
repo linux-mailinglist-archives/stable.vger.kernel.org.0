@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EEC040961D
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:48:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30342409620
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:48:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346184AbhIMOsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:48:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60772 "EHLO mail.kernel.org"
+        id S1345510AbhIMOsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:48:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346242AbhIMOqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:46:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21D7D619F7;
-        Mon, 13 Sep 2021 13:58:41 +0000 (UTC)
+        id S1346430AbhIMOqT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:46:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B173463223;
+        Mon, 13 Sep 2021 13:58:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541522;
-        bh=E76jz9xtCITBjMUUX/IkyAHuxytwZerqTnSflWPpseQ=;
+        s=korg; t=1631541525;
+        bh=d0bhEeVlY/ajmP4a1Icwbf5i9Cn0ygByw4Bj7ZGLf0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3SaT1qCg1y/+Mr8jFbMNaxb5mFGEOu2WTrguZsn7Cv5tN7udp5vpcCYWtuWaJwhJ
-         6ob+nzJPWe8R5n5+vuTarVaF/HHlkbuZTTdkVtuqxnn/ouprAPrXBNBpQae56EKWK7
-         8h2riA0c1Flv+QZLXN8QE40jrGDyCmKj88R74ZBA=
+        b=mXPeVosi+rx1otLDOJAdPba/AIYimeqK9aBh0o8Nwh3/cWLNoKFpgSZ8n6Jj07Rko
+         UbaXVGaOHoUaBy/g1FCDmfXvZx/Vx7vSZJ20uAZ9zA1RByxUi06st6SlZSt4HwEyh5
+         BeWMmWVPOda82PMj0xW1mGzHzaklOBu3dF3AvLhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.14 330/334] RDMA/mlx5: Fix number of allocated XLT entries
-Date:   Mon, 13 Sep 2021 15:16:24 +0200
-Message-Id: <20210913131124.597356914@linuxfoundation.org>
+        stable@vger.kernel.org, Julio Faracco <jcfaracco@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.14 331/334] bootconfig: Fix missing return check of xbc_node_compose_key function
+Date:   Mon, 13 Sep 2021 15:16:25 +0200
+Message-Id: <20210913131124.627720597@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -39,43 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Julio Faracco <jcfaracco@gmail.com>
 
-commit 9660dcbe0d9186976917c94bce4e69dbd8d7a974 upstream.
+commit 903bd067faa837fddb6e5c8b740c3374dc582f04 upstream.
 
-In commit 8010d74b9965b ("RDMA/mlx5: Split the WR setup out of
-mlx5_ib_update_xlt()") the allocation logic was split out of
-mlx5_ib_update_xlt() and the logic was changed to enable better OOM
-handling. Sadly this change introduced a miscalculation of the number of
-entries that were actually allocated when under memory pressure where it
-can actually become 0 which on s390 lets dma_map_single() fail.
+The function `xbc_show_list should` handle the keys during the
+composition. Even the errors returned by the compose function. Instead
+of removing the `ret` variable, it should save the value and show the
+exact error. This missing variable is causing a compilation issue also.
 
-It can also lead to corruption of the free pages list when the wrong
-number of entries is used in the calculation of sg->length which is used
-as argument for free_pages().
+Link: https://lkml.kernel.org/r/163077087861.222577.12884543474750968146.stgit@devnote2
 
-Fix this by using the allocation size instead of misusing get_order(size).
-
+Fixes: e5efaeb8a8f5 ("bootconfig: Support mixing a value and subkeys under a key")
+Signed-off-by: Julio Faracco <jcfaracco@gmail.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: 8010d74b9965 ("RDMA/mlx5: Split the WR setup out of mlx5_ib_update_xlt()")
-Link: https://lore.kernel.org/r/20210908081849.7948-1-schnelle@linux.ibm.com
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/mr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/bootconfig/main.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -1024,7 +1024,7 @@ static void *mlx5_ib_alloc_xlt(size_t *n
+--- a/tools/bootconfig/main.c
++++ b/tools/bootconfig/main.c
+@@ -111,9 +111,11 @@ static void xbc_show_list(void)
+ 	char key[XBC_KEYLEN_MAX];
+ 	struct xbc_node *leaf;
+ 	const char *val;
++	int ret;
  
- 	if (size > MLX5_SPARE_UMR_CHUNK) {
- 		size = MLX5_SPARE_UMR_CHUNK;
--		*nents = get_order(size) / ent_size;
-+		*nents = size / ent_size;
- 		res = (void *)__get_free_pages(gfp_mask | __GFP_NOWARN,
- 					       get_order(size));
- 		if (res)
+ 	xbc_for_each_key_value(leaf, val) {
+-		if (xbc_node_compose_key(leaf, key, XBC_KEYLEN_MAX) < 0) {
++		ret = xbc_node_compose_key(leaf, key, XBC_KEYLEN_MAX);
++		if (ret < 0) {
+ 			fprintf(stderr, "Failed to compose key %d\n", ret);
+ 			break;
+ 		}
 
 
