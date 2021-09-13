@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D54040956F
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BBE24092E3
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345086AbhIMOlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:41:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55846 "EHLO mail.kernel.org"
+        id S243849AbhIMOQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:16:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346602AbhIMOjX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:39:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AA19619BB;
-        Mon, 13 Sep 2021 13:55:25 +0000 (UTC)
+        id S245342AbhIMOM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:12:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D3976128A;
+        Mon, 13 Sep 2021 13:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541326;
-        bh=icCs6G7dSIZXNzyD+9XIiANb9ilH4gOFyVQhhKVcyuw=;
+        s=korg; t=1631540572;
+        bh=7KjxYdm2sf3eaoK4A3mQFIs6I5AkhW9g0Cz3hnhWz30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OwSOkjYDPSVL0dP6JBqWM9XfrZkcAgaYsGx8vRcwju2K6BukuIAuiwTCYRWDTfg83
-         vYxb4pSlTHl/90FfN4/YpLq5935MzuTB7f3ZdJIiNRWRLbh1AE9vztQpvzKSnUxsH7
-         ZOrvCXxxGJY4UD/2pkjHMBJVAHddCKQDFDVzR9NQ=
+        b=BwM6eDMH4DiyaMXo3TX5IDCzgBJKD7BpAw8IO6k44wVEJIluG6yR4U++oStDW9f6Q
+         GTAKbh5KOQ3rP9J75vl4DmEDq9fywcdq+3FIHme9/eVO9RaLbvAUP7ycAga0KaKt86
+         G93PHgSYTwq/GsBSmKrQDDSglUOMFYkpVSyXQjNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrey Ignatov <rdna@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 254/334] bpf: Fix possible out of bound write in narrow load handling
-Date:   Mon, 13 Sep 2021 15:15:08 +0200
-Message-Id: <20210913131121.992606892@linuxfoundation.org>
+Subject: [PATCH 5.13 248/300] ath6kl: wmi: fix an error code in ath6kl_wmi_sync_point()
+Date:   Mon, 13 Sep 2021 15:15:09 +0200
+Message-Id: <20210913131117.729741624@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,127 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Ignatov <rdna@fb.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d7af7e497f0308bc97809cc48b58e8e0f13887e1 ]
+[ Upstream commit fd6729ec534cffbbeb3917761e6d1fe6a412d3fe ]
 
-Fix a verifier bug found by smatch static checker in [0].
+This error path is unlikely because of it checked for NULL and
+returned -ENOMEM earlier in the function.  But it should return
+an error code here as well if we ever do hit it because of a
+race condition or something.
 
-This problem has never been seen in prod to my best knowledge. Fixing it
-still seems to be a good idea since it's hard to say for sure whether
-it's possible or not to have a scenario where a combination of
-convert_ctx_access() and a narrow load would lead to an out of bound
-write.
-
-When narrow load is handled, one or two new instructions are added to
-insn_buf array, but before it was only checked that
-
-	cnt >= ARRAY_SIZE(insn_buf)
-
-And it's safe to add a new instruction to insn_buf[cnt++] only once. The
-second try will lead to out of bound write. And this is what can happen
-if `shift` is set.
-
-Fix it by making sure that if the BPF_RSH instruction has to be added in
-addition to BPF_AND then there is enough space for two more instructions
-in insn_buf.
-
-The full report [0] is below:
-
-kernel/bpf/verifier.c:12304 convert_ctx_accesses() warn: offset 'cnt' incremented past end of array
-kernel/bpf/verifier.c:12311 convert_ctx_accesses() warn: offset 'cnt' incremented past end of array
-
-kernel/bpf/verifier.c
-    12282
-    12283 			insn->off = off & ~(size_default - 1);
-    12284 			insn->code = BPF_LDX | BPF_MEM | size_code;
-    12285 		}
-    12286
-    12287 		target_size = 0;
-    12288 		cnt = convert_ctx_access(type, insn, insn_buf, env->prog,
-    12289 					 &target_size);
-    12290 		if (cnt == 0 || cnt >= ARRAY_SIZE(insn_buf) ||
-                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Bounds check.
-
-    12291 		    (ctx_field_size && !target_size)) {
-    12292 			verbose(env, "bpf verifier is misconfigured\n");
-    12293 			return -EINVAL;
-    12294 		}
-    12295
-    12296 		if (is_narrower_load && size < target_size) {
-    12297 			u8 shift = bpf_ctx_narrow_access_offset(
-    12298 				off, size, size_default) * 8;
-    12299 			if (ctx_field_size <= 4) {
-    12300 				if (shift)
-    12301 					insn_buf[cnt++] = BPF_ALU32_IMM(BPF_RSH,
-                                                         ^^^^^
-increment beyond end of array
-
-    12302 									insn->dst_reg,
-    12303 									shift);
---> 12304 				insn_buf[cnt++] = BPF_ALU32_IMM(BPF_AND, insn->dst_reg,
-                                                 ^^^^^
-out of bounds write
-
-    12305 								(1 << size * 8) - 1);
-    12306 			} else {
-    12307 				if (shift)
-    12308 					insn_buf[cnt++] = BPF_ALU64_IMM(BPF_RSH,
-    12309 									insn->dst_reg,
-    12310 									shift);
-    12311 				insn_buf[cnt++] = BPF_ALU64_IMM(BPF_AND, insn->dst_reg,
-                                        ^^^^^^^^^^^^^^^
-Same.
-
-    12312 								(1ULL << size * 8) - 1);
-    12313 			}
-    12314 		}
-    12315
-    12316 		new_prog = bpf_patch_insn_data(env, i + delta, insn_buf, cnt);
-    12317 		if (!new_prog)
-    12318 			return -ENOMEM;
-    12319
-    12320 		delta += cnt - 1;
-    12321
-    12322 		/* keep walking new program and skip insns we just inserted */
-    12323 		env->prog = new_prog;
-    12324 		insn      = new_prog->insnsi + i + delta;
-    12325 	}
-    12326
-    12327 	return 0;
-    12328 }
-
-[0] https://lore.kernel.org/bpf/20210817050843.GA21456@kili/
-
-v1->v2:
-- clarify that problem was only seen by static checker but not in prod;
-
-Fixes: 46f53a65d2de ("bpf: Allow narrow loads with offset > 0")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Andrey Ignatov <rdna@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210820163935.1902398-1-rdna@fb.com
+Fixes: bdcd81707973 ("Add ath6kl cleaned up driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210813113438.GB30697@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/ath/ath6kl/wmi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 10084c0600dd..9d94ac6ff50c 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -12013,6 +12013,10 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
- 		if (is_narrower_load && size < target_size) {
- 			u8 shift = bpf_ctx_narrow_access_offset(
- 				off, size, size_default) * 8;
-+			if (shift && cnt + 1 >= ARRAY_SIZE(insn_buf)) {
-+				verbose(env, "bpf verifier narrow ctx load misconfigured\n");
-+				return -EINVAL;
-+			}
- 			if (ctx_field_size <= 4) {
- 				if (shift)
- 					insn_buf[cnt++] = BPF_ALU32_IMM(BPF_RSH,
+diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
+index b137e7f34397..bd1ef6334997 100644
+--- a/drivers/net/wireless/ath/ath6kl/wmi.c
++++ b/drivers/net/wireless/ath/ath6kl/wmi.c
+@@ -2504,8 +2504,10 @@ static int ath6kl_wmi_sync_point(struct wmi *wmi, u8 if_idx)
+ 		goto free_data_skb;
+ 
+ 	for (index = 0; index < num_pri_streams; index++) {
+-		if (WARN_ON(!data_sync_bufs[index].skb))
++		if (WARN_ON(!data_sync_bufs[index].skb)) {
++			ret = -ENOMEM;
+ 			goto free_data_skb;
++		}
+ 
+ 		ep_id = ath6kl_ac2_endpoint_id(wmi->parent_dev,
+ 					       data_sync_bufs[index].
 -- 
 2.30.2
 
