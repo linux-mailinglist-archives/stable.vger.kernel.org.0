@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F25C408E6B
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFBF1408E60
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241053AbhIMNdt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:33:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53462 "EHLO mail.kernel.org"
+        id S241279AbhIMNd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:33:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242689AbhIMN3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:29:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 911C16103B;
-        Mon, 13 Sep 2021 13:24:38 +0000 (UTC)
+        id S242769AbhIMNaB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:30:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 587CB61056;
+        Mon, 13 Sep 2021 13:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539479;
-        bh=00q+aJlOKlzwhXjSi7vS+gsscWfTNQA5VQShj7MZak8=;
+        s=korg; t=1631539481;
+        bh=xJm/14y2ypvancYZsIrjqdLMdAXw9P1YUbfsY5TqiIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dhH0jeZYZQiHxECQJav7rZDKUpw0JK1g9wTskeiHbwmUdlbawsUGnadS/SNJDk1PH
-         v7eRX4vn372ffSOd+x/FtIZYXxJJHl2yoJDArAJwt94YMZGFgvzW5r7/fc90d+U7kl
-         IDayWO6ymMvSGom9FUBr4/9q/iQgDaYcjBRXT4js=
+        b=EbuuZa/jrha8R95OI63/wCl6H+iHaVvYdJZPsMni2Byby5+OGKz8lV5bT0LbPFUO5
+         UeTl+RP1KJruk9zRnN425q0eDUYNhMNtIzO6jipzr6IBljw7uQh8CypRTuFH813D3e
+         xu6sgg3IVY5YHDl9KhbV6zuDBKGzYFeuqMxeTTu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Mika=20Penttil=C3=A4?= <mika.penttila@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Pankaj Gupta <pankaj.gupta@ionos.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/236] m68k: emu: Fix invalid free in nfeth_cleanup()
-Date:   Mon, 13 Sep 2021 15:12:26 +0200
-Message-Id: <20210913131101.754701684@linuxfoundation.org>
+Subject: [PATCH 5.10 042/236] sched/numa: Fix is_core_idle()
+Date:   Mon, 13 Sep 2021 15:12:27 +0200
+Message-Id: <20210913131101.787942982@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -40,38 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Mika Penttilä <mika.penttila@gmail.com>
 
-[ Upstream commit 761608f5cf70e8876c2f0e39ca54b516bdcb7c12 ]
+[ Upstream commit 1c6829cfd3d5124b125e6df41158665aea413b35 ]
 
-In the for loop all nfeth_dev array members should be freed, not only
-the first one.  Freeing only the first array member can cause
-double-free bugs and memory leaks.
+Use the loop variable instead of the function argument to test the
+other SMT siblings for idle.
 
-Fixes: 9cd7b148312f ("m68k/atari: ARAnyM - Add support for network access")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20210705204727.10743-1-paskripkin@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: ff7db0bf24db ("sched/numa: Prefer using an idle CPU as a migration target instead of comparing tasks")
+Signed-off-by: Mika Penttilä <mika.penttila@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: Pankaj Gupta <pankaj.gupta@ionos.com>
+Link: https://lkml.kernel.org/r/20210722063946.28951-1-mika.penttila@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/emu/nfeth.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/m68k/emu/nfeth.c b/arch/m68k/emu/nfeth.c
-index d2875e32abfc..79e55421cfb1 100644
---- a/arch/m68k/emu/nfeth.c
-+++ b/arch/m68k/emu/nfeth.c
-@@ -254,8 +254,8 @@ static void __exit nfeth_cleanup(void)
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index bad97d35684d..c004e3b89c32 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -1533,7 +1533,7 @@ static inline bool is_core_idle(int cpu)
+ 		if (cpu == sibling)
+ 			continue;
  
- 	for (i = 0; i < MAX_UNIT; i++) {
- 		if (nfeth_dev[i]) {
--			unregister_netdev(nfeth_dev[0]);
--			free_netdev(nfeth_dev[0]);
-+			unregister_netdev(nfeth_dev[i]);
-+			free_netdev(nfeth_dev[i]);
- 		}
+-		if (!idle_cpu(cpu))
++		if (!idle_cpu(sibling))
+ 			return false;
  	}
- 	free_irq(nfEtherIRQ, nfeth_interrupt);
+ #endif
 -- 
 2.30.2
 
