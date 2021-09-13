@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 151EF409400
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:26:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2B04093FE
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:26:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345770AbhIMO0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1345755AbhIMO0y (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 13 Sep 2021 10:26:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46948 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346411AbhIMOY2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346418AbhIMOY2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:24:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40C3D61B46;
-        Mon, 13 Sep 2021 13:48:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09B6E61B49;
+        Mon, 13 Sep 2021 13:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540889;
-        bh=xqA451Gq5eHVww4O97l3wIjinDAwalyeCfv3LaE39KA=;
+        s=korg; t=1631540892;
+        bh=6WR/PA9doHS9lRfGDEn/9vjBBD+HOGYCtRs8PzhaRh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDLWpB2MVys5RGEOsx/CT4VgVtLttsN5palwOJ5HzUMCcalrxyP5WZNEX6SLyk1s7
-         ejJQ0rIiTA3yfFfXQ4iW0F1rcwezKFrDHcQuZ18Zchb9dFmWbGzstRaw30Dtewo3Sp
-         qg4+8+2biH2J/ZCrsR2ilco+IAuujT3XrcFk/BkM=
+        b=DMQDTeg48TFJLTRYwcg8GdVPVw/BaiU+QzsMMsAwhkp7DMUsVmMHt4r7oqgOgqtYh
+         PYJ0lsNxtpUhoeAGVG9pFutHO6Dx+bYVCaEFYAajf8i1LM1LgVWLURLVw9a8HytIzI
+         ObotZ7erBSnd3y/kh2UPAh6yeTtBxdBowaI5o4LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 077/334] blk-crypto: fix check for too-large dun_bytes
-Date:   Mon, 13 Sep 2021 15:12:11 +0200
-Message-Id: <20210913131115.996308273@linuxfoundation.org>
+        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 078/334] regulator: vctrl: Use locked regulator_get_voltage in probe path
+Date:   Mon, 13 Sep 2021 15:12:12 +0200
+Message-Id: <20210913131116.034730973@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -39,38 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit cc40b7225151f611ef837f6403cfaeadc7af214a ]
+[ Upstream commit 98e47570ba985f2310586c80409238200fa3170f ]
 
-dun_bytes needs to be less than or equal to the IV size of the
-encryption mode, not just less than or equal to BLK_CRYPTO_MAX_IV_SIZE.
+In commit e9153311491d ("regulator: vctrl-regulator: Avoid deadlock getting
+and setting the voltage"), all calls to get/set the voltage of the
+control regulator were switched to unlocked versions to avoid deadlocks.
+However, the call in the probe path is done without regulator locks
+held. In this case the locked version should be used.
 
-Currently this doesn't matter since blk_crypto_init_key() is never
-actually passed invalid values, but we might as well fix this.
+Switch back to the locked regulator_get_voltage() in the probe path to
+avoid any mishaps.
 
-Fixes: a892c8d52c02 ("block: Inline encryption support for blk-mq")
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20210825055918.51975-1-ebiggers@kernel.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: e9153311491d ("regulator: vctrl-regulator: Avoid deadlock getting and setting the voltage")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Link: https://lore.kernel.org/r/20210825033704.3307263-2-wenst@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-crypto.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/vctrl-regulator.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-crypto.c b/block/blk-crypto.c
-index c5bdaafffa29..103c2e2d50d6 100644
---- a/block/blk-crypto.c
-+++ b/block/blk-crypto.c
-@@ -332,7 +332,7 @@ int blk_crypto_init_key(struct blk_crypto_key *blk_key, const u8 *raw_key,
- 	if (mode->keysize == 0)
- 		return -EINVAL;
+diff --git a/drivers/regulator/vctrl-regulator.c b/drivers/regulator/vctrl-regulator.c
+index cbadb1c99679..93d33201ffe0 100644
+--- a/drivers/regulator/vctrl-regulator.c
++++ b/drivers/regulator/vctrl-regulator.c
+@@ -490,7 +490,8 @@ static int vctrl_probe(struct platform_device *pdev)
+ 		if (ret)
+ 			return ret;
  
--	if (dun_bytes == 0 || dun_bytes > BLK_CRYPTO_MAX_IV_SIZE)
-+	if (dun_bytes == 0 || dun_bytes > mode->ivsize)
- 		return -EINVAL;
- 
- 	if (!is_power_of_2(data_unit_size))
+-		ctrl_uV = regulator_get_voltage_rdev(vctrl->ctrl_reg->rdev);
++		/* Use locked consumer API when not in regulator framework */
++		ctrl_uV = regulator_get_voltage(vctrl->ctrl_reg);
+ 		if (ctrl_uV < 0) {
+ 			dev_err(&pdev->dev, "failed to get control voltage\n");
+ 			return ctrl_uV;
 -- 
 2.30.2
 
