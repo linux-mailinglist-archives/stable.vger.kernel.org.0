@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAD0D408F3C
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:40:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 221B3408F3E
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:40:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242673AbhIMNkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:40:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35706 "EHLO mail.kernel.org"
+        id S242772AbhIMNk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:40:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241164AbhIMNi7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:38:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 361C2610E7;
-        Mon, 13 Sep 2021 13:28:43 +0000 (UTC)
+        id S242335AbhIMNjE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:39:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C581161268;
+        Mon, 13 Sep 2021 13:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539723;
-        bh=CQ4BpHNEpcu1ROYvXKdWueVQ1Kr7eHxYG1j07hyti0s=;
+        s=korg; t=1631539726;
+        bh=ekp0c+JreeUF5Hl977yEOzwqN9bp4phjA7F5h8JaNpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMtkcAlaXkzhlaxlXMAFXQEyNbXVOOz+Cif9SCAnit16CB1TSZlTyiuEHd7Ra6zjn
-         VhmENlM0SbJjkPc1ui0szJ6s4AHXRCXqh+imA6P7HVE8AxEXL4wL9LGM12Xubeu2JA
-         NKF1vHrJRmgnT8mgY1tZjX67POfC8m4x6Os7R1dY=
+        b=gVpGmKrq1Ngs5SmQY3EOIwOtxDQue/xVZ8inQfWNNdTBG3AYC1UtDVC2G7Ea9rCgS
+         +/xDsJ8eVJzS0yKUaDqy1dVyg8woZlCkytUCO/9UCKeYNpm98+QzsTmGPHqaDjw4kf
+         SSAqg/jg6Gw1+3YnNtAdyI+3VQDZN8XpGXk2W5Js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin KaFai Lau <kafai@fb.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 103/236] tcp: seq_file: Avoid skipping sk during tcp_seek_last_pos
-Date:   Mon, 13 Sep 2021 15:13:28 +0200
-Message-Id: <20210913131103.847706651@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Demetris Ierokipides <ierokipides.dem@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 104/236] ARM: dts: meson8: Use a higher default GPU clock frequency
+Date:   Mon, 13 Sep 2021 15:13:29 +0200
+Message-Id: <20210913131103.879142541@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -42,73 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin KaFai Lau <kafai@fb.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 525e2f9fd0229eb10cb460a9e6d978257f24804e ]
+[ Upstream commit 44cf630bcb8c5ec78125805c9447dd5766792224 ]
 
-st->bucket stores the current bucket number.
-st->offset stores the offset within this bucket that is the sk to be
-seq_show().  Thus, st->offset only makes sense within the same
-st->bucket.
+We are seeing "imprecise external abort (0x1406)" errors during boot
+(which then cause the whole board to hang) on Meson8 (but not Meson8m2).
+These are observed while trying to access the GPU's registers when the
+MALI clock is running at it's default setting of 24MHz. The 3.10 vendor
+kernel uses 318.75MHz as "default" GPU frequency. Using that makes the
+"imprecise external aborts" go away.
+Add the assigned-clocks and assigned-clock-rates properties to also bump
+the MALI clock to 318.75MHz before accessing any of it's registers.
 
-These two variables are an optimization for the common no-lseek case.
-When resuming the seq_file iteration (i.e. seq_start()),
-tcp_seek_last_pos() tries to continue from the st->offset
-at bucket st->bucket.
-
-However, it is possible that the bucket pointed by st->bucket
-has changed and st->offset may end up skipping the whole st->bucket
-without finding a sk.  In this case, tcp_seek_last_pos() currently
-continues to satisfy the offset condition in the next (and incorrect)
-bucket.  Instead, regardless of the offset value, the first sk of the
-next bucket should be returned.  Thus, "bucket == st->bucket" check is
-added to tcp_seek_last_pos().
-
-The chance of hitting this is small and the issue is a decade old,
-so targeting for the next tree.
-
-Fixes: a8b690f98baf ("tcp: Fix slowness in read /proc/net/tcp")
-Signed-off-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210701200541.1033917-1-kafai@fb.com
+Fixes: 7d3f6b536e72c9 ("ARM: dts: meson8: add the Mali-450 MP6 GPU")
+Reported-by: Demetris Ierokipides <ierokipides.dem@gmail.com>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20210711214023.2163565-1-martin.blumenstingl@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_ipv4.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/meson8.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
-index 04e259a04443..71395e745bc5 100644
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -2417,6 +2417,7 @@ static void *tcp_get_idx(struct seq_file *seq, loff_t pos)
- static void *tcp_seek_last_pos(struct seq_file *seq)
- {
- 	struct tcp_iter_state *st = seq->private;
-+	int bucket = st->bucket;
- 	int offset = st->offset;
- 	int orig_num = st->num;
- 	void *rc = NULL;
-@@ -2427,7 +2428,7 @@ static void *tcp_seek_last_pos(struct seq_file *seq)
- 			break;
- 		st->state = TCP_SEQ_STATE_LISTENING;
- 		rc = listening_get_next(seq, NULL);
--		while (offset-- && rc)
-+		while (offset-- && rc && bucket == st->bucket)
- 			rc = listening_get_next(seq, rc);
- 		if (rc)
- 			break;
-@@ -2438,7 +2439,7 @@ static void *tcp_seek_last_pos(struct seq_file *seq)
- 		if (st->bucket > tcp_hashinfo.ehash_mask)
- 			break;
- 		rc = established_get_first(seq);
--		while (offset-- && rc)
-+		while (offset-- && rc && bucket == st->bucket)
- 			rc = established_get_next(seq, rc);
- 	}
- 
+diff --git a/arch/arm/boot/dts/meson8.dtsi b/arch/arm/boot/dts/meson8.dtsi
+index 04688e8abce2..740a6c816266 100644
+--- a/arch/arm/boot/dts/meson8.dtsi
++++ b/arch/arm/boot/dts/meson8.dtsi
+@@ -251,8 +251,13 @@
+ 					  "pp2", "ppmmu2", "pp4", "ppmmu4",
+ 					  "pp5", "ppmmu5", "pp6", "ppmmu6";
+ 			resets = <&reset RESET_MALI>;
++
+ 			clocks = <&clkc CLKID_CLK81>, <&clkc CLKID_MALI>;
+ 			clock-names = "bus", "core";
++
++			assigned-clocks = <&clkc CLKID_MALI>;
++			assigned-clock-rates = <318750000>;
++
+ 			operating-points-v2 = <&gpu_opp_table>;
+ 		};
+ 	};
 -- 
 2.30.2
 
