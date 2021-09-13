@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5AA2409156
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:59:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BFBB408E83
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245347AbhIMOAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:00:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46320 "EHLO mail.kernel.org"
+        id S242065AbhIMNfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:35:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244976AbhIMN6q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:58:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B719610A5;
-        Mon, 13 Sep 2021 13:37:02 +0000 (UTC)
+        id S241729AbhIMNbw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:31:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E42E61362;
+        Mon, 13 Sep 2021 13:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540223;
-        bh=hlZCErq6/PJuwsCPLLzVeydPlwvbHm2q8eaWhHa1HEQ=;
+        s=korg; t=1631539534;
+        bh=/u+Ho3eMoIK64CllGtyLRMWiqn7k0ejvmVrCM8klB9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vnl1QGUXm1bb4AVKyZS5AxIp6ZnD3PB+NaJ+G2muyFgCn2txkZSM2KLRqCvF7u1on
-         Ng5eaLMQIHiw30c+lHo/jiERXGoGXhg2n28g7uuayjA7qrmeIHYDwzv8HaBGB+QRw2
-         a56oKgafeu3/Y8lcpsw5I3ULWKZSn1WJ17V7oWNU=
+        b=YWP/RiraE+5Nkd/o6++df2coNiMfcHLZeE1c1cA/IZi3gEYxjH8fgONvmV+M/zu57
+         pArS3pghFrcSSdsmfhAJKo8IheEujwa+Nk6DlB5UZOVYEM+NzV/sBidRfGbk3KrUG+
+         DVLhOsq0eS8nC8oNhe4CsbS+UzDp3iME4AAIP+ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
+        stable@vger.kernel.org, Nayna Jain <nayna@linux.ibm.com>,
+        George Wilson <gcwilson@linux.ibm.com>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 104/300] firmware: fix theoretical UAF race with firmware cache and resume
+Subject: [PATCH 5.10 060/236] tpm: ibmvtpm: Avoid error message when process gets signal while waiting
 Date:   Mon, 13 Sep 2021 15:12:45 +0200
-Message-Id: <20210913131112.887440329@linuxfoundation.org>
+Message-Id: <20210913131102.410748782@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,115 +43,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Stefan Berger <stefanb@linux.ibm.com>
 
-[ Upstream commit 3ecc8cb7c092b2f50e21d2aaaae35b8221ee7214 ]
+[ Upstream commit 047d4226b0bca1cda5267dc68bc8291cce5364ac ]
 
-This race was discovered when I carefully analyzed the code to locate
-another firmware-related UAF issue. It can be triggered only when the
-firmware load operation is executed during suspend. This possibility is
-almost impossible because there are few firmware load and suspend actions
-in the actual environment.
+When rngd is run as root then lots of these types of message will appear
+in the kernel log if the TPM has been configured to provide random bytes:
 
-		CPU0			CPU1
-__device_uncache_fw_images():		assign_fw():
-					fw_cache_piggyback_on_request()
-					<----- P0
-	spin_lock(&fwc->name_lock);
-	...
-	list_del(&fce->list);
-	spin_unlock(&fwc->name_lock);
+[ 7406.275163] tpm tpm0: tpm_transmit: tpm_recv: error -4
 
-	uncache_firmware(fce->name);
-					<----- P1
-					kref_get(&fw_priv->ref);
+The issue is caused by the following call that is interrupted while
+waiting for the TPM's response.
 
-If CPU1 is interrupted at position P0, the new 'fce' has been added to the
-list fwc->fw_names by the fw_cache_piggyback_on_request(). In this case,
-CPU0 executes __device_uncache_fw_images() and will be able to see it when
-it traverses list fwc->fw_names. Before CPU1 executes kref_get() at P1, if
-CPU0 further executes uncache_firmware(), the count of fw_priv->ref may
-decrease to 0, causing fw_priv to be released in advance.
+sig = wait_event_interruptible(ibmvtpm->wq, !ibmvtpm->tpm_processing_cmd);
 
-Move kref_get() to the lock protection range of fwc->name_lock to fix it.
+Rather than waiting for the response in the low level driver, have it use
+the polling loop in tpm_try_transmit() that uses a command's duration to
+poll until a result has been returned by the TPM, thus ending when the
+timeout has occurred but not responding to signals and ctrl-c anymore. To
+stay in this polling loop extend tpm_ibmvtpm_status() to return
+'true' for as long as the vTPM is indicated as being busy in
+tpm_processing_cmd. Since the loop requires the TPM's timeouts, get them
+now using tpm_get_timeouts() after setting the TPM2 version flag on the
+chip.
 
-Fixes: ac39b3ea73aa ("firmware loader: let caching firmware piggyback on loading firmware")
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210719064531.3733-2-thunder.leizhen@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To recreat the resolved issue start rngd like this:
+
+sudo rngd -r /dev/hwrng -t
+sudo rngd -r /dev/tpm0 -t
+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1981473
+Fixes: 6674ff145eef ("tpm_ibmvtpm: properly handle interrupted packet receptions")
+Cc: Nayna Jain <nayna@linux.ibm.com>
+Cc: George Wilson <gcwilson@linux.ibm.com>
+Reported-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
+Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/firmware_loader/main.c | 20 ++++++++------------
- 1 file changed, 8 insertions(+), 12 deletions(-)
+ drivers/char/tpm/tpm_ibmvtpm.c | 26 +++++++++++++++-----------
+ drivers/char/tpm/tpm_ibmvtpm.h |  2 +-
+ 2 files changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
-index 68c549d71230..bdbedc6660a8 100644
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -165,7 +165,7 @@ static inline int fw_state_wait(struct fw_priv *fw_priv)
- 	return __fw_state_wait_common(fw_priv, MAX_SCHEDULE_TIMEOUT);
- }
- 
--static int fw_cache_piggyback_on_request(const char *name);
-+static void fw_cache_piggyback_on_request(struct fw_priv *fw_priv);
- 
- static struct fw_priv *__allocate_fw_priv(const char *fw_name,
- 					  struct firmware_cache *fwc,
-@@ -707,10 +707,8 @@ int assign_fw(struct firmware *fw, struct device *device)
- 	 * on request firmware.
- 	 */
- 	if (!(fw_priv->opt_flags & FW_OPT_NOCACHE) &&
--	    fw_priv->fwc->state == FW_LOADER_START_CACHE) {
--		if (fw_cache_piggyback_on_request(fw_priv->fw_name))
--			kref_get(&fw_priv->ref);
--	}
-+	    fw_priv->fwc->state == FW_LOADER_START_CACHE)
-+		fw_cache_piggyback_on_request(fw_priv);
- 
- 	/* pass the pages buffer to driver at the last minute */
- 	fw_set_page_data(fw_priv, fw);
-@@ -1259,11 +1257,11 @@ static int __fw_entry_found(const char *name)
- 	return 0;
- }
- 
--static int fw_cache_piggyback_on_request(const char *name)
-+static void fw_cache_piggyback_on_request(struct fw_priv *fw_priv)
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
+index 994385bf37c0..3ca7528322f5 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.c
++++ b/drivers/char/tpm/tpm_ibmvtpm.c
+@@ -106,17 +106,12 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
  {
--	struct firmware_cache *fwc = &fw_cache;
-+	const char *name = fw_priv->fw_name;
-+	struct firmware_cache *fwc = fw_priv->fwc;
- 	struct fw_cache_entry *fce;
--	int ret = 0;
+ 	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
+ 	u16 len;
+-	int sig;
  
- 	spin_lock(&fwc->name_lock);
- 	if (__fw_entry_found(name))
-@@ -1271,13 +1269,12 @@ static int fw_cache_piggyback_on_request(const char *name)
- 
- 	fce = alloc_fw_cache_entry(name);
- 	if (fce) {
--		ret = 1;
- 		list_add(&fce->list, &fwc->fw_names);
-+		kref_get(&fw_priv->ref);
- 		pr_debug("%s: fw: %s\n", __func__, name);
+ 	if (!ibmvtpm->rtce_buf) {
+ 		dev_err(ibmvtpm->dev, "ibmvtpm device is not ready\n");
+ 		return 0;
  	}
- found:
- 	spin_unlock(&fwc->name_lock);
--	return ret;
- }
  
- static void free_fw_cache_entry(struct fw_cache_entry *fce)
-@@ -1508,9 +1505,8 @@ static inline void unregister_fw_pm_ops(void)
- 	unregister_pm_notifier(&fw_cache.pm_notify);
- }
- #else
--static int fw_cache_piggyback_on_request(const char *name)
-+static void fw_cache_piggyback_on_request(struct fw_priv *fw_priv)
+-	sig = wait_event_interruptible(ibmvtpm->wq, !ibmvtpm->tpm_processing_cmd);
+-	if (sig)
+-		return -EINTR;
+-
+ 	len = ibmvtpm->res_len;
+ 
+ 	if (count < len) {
+@@ -237,7 +232,7 @@ static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
+ 	 * set the processing flag before the Hcall, since we may get the
+ 	 * result (interrupt) before even being able to check rc.
+ 	 */
+-	ibmvtpm->tpm_processing_cmd = true;
++	ibmvtpm->tpm_processing_cmd = 1;
+ 
+ again:
+ 	rc = ibmvtpm_send_crq(ibmvtpm->vdev,
+@@ -255,7 +250,7 @@ again:
+ 			goto again;
+ 		}
+ 		dev_err(ibmvtpm->dev, "tpm_ibmvtpm_send failed rc=%d\n", rc);
+-		ibmvtpm->tpm_processing_cmd = false;
++		ibmvtpm->tpm_processing_cmd = 0;
+ 	}
+ 
+ 	spin_unlock(&ibmvtpm->rtce_lock);
+@@ -269,7 +264,9 @@ static void tpm_ibmvtpm_cancel(struct tpm_chip *chip)
+ 
+ static u8 tpm_ibmvtpm_status(struct tpm_chip *chip)
  {
 -	return 0;
++	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
++
++	return ibmvtpm->tpm_processing_cmd;
  }
- static inline int register_fw_pm_ops(void)
- {
+ 
+ /**
+@@ -459,7 +456,7 @@ static const struct tpm_class_ops tpm_ibmvtpm = {
+ 	.send = tpm_ibmvtpm_send,
+ 	.cancel = tpm_ibmvtpm_cancel,
+ 	.status = tpm_ibmvtpm_status,
+-	.req_complete_mask = 0,
++	.req_complete_mask = 1,
+ 	.req_complete_val = 0,
+ 	.req_canceled = tpm_ibmvtpm_req_canceled,
+ };
+@@ -552,7 +549,7 @@ static void ibmvtpm_crq_process(struct ibmvtpm_crq *crq,
+ 		case VTPM_TPM_COMMAND_RES:
+ 			/* len of the data in rtce buffer */
+ 			ibmvtpm->res_len = be16_to_cpu(crq->len);
+-			ibmvtpm->tpm_processing_cmd = false;
++			ibmvtpm->tpm_processing_cmd = 0;
+ 			wake_up_interruptible(&ibmvtpm->wq);
+ 			return;
+ 		default:
+@@ -690,8 +687,15 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
+ 		goto init_irq_cleanup;
+ 	}
+ 
+-	if (!strcmp(id->compat, "IBM,vtpm20")) {
++
++	if (!strcmp(id->compat, "IBM,vtpm20"))
+ 		chip->flags |= TPM_CHIP_FLAG_TPM2;
++
++	rc = tpm_get_timeouts(chip);
++	if (rc)
++		goto init_irq_cleanup;
++
++	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+ 		rc = tpm2_get_cc_attrs_tbl(chip);
+ 		if (rc)
+ 			goto init_irq_cleanup;
+diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
+index b92aa7d3e93e..51198b137461 100644
+--- a/drivers/char/tpm/tpm_ibmvtpm.h
++++ b/drivers/char/tpm/tpm_ibmvtpm.h
+@@ -41,7 +41,7 @@ struct ibmvtpm_dev {
+ 	wait_queue_head_t wq;
+ 	u16 res_len;
+ 	u32 vtpm_version;
+-	bool tpm_processing_cmd;
++	u8 tpm_processing_cmd;
+ };
+ 
+ #define CRQ_RES_BUF_SIZE	PAGE_SIZE
 -- 
 2.30.2
 
