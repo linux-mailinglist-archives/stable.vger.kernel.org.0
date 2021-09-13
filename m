@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EAED408F2A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:40:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC24F408CB9
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:20:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242306AbhIMNkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:40:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37702 "EHLO mail.kernel.org"
+        id S240357AbhIMNVU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:21:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243119AbhIMNiS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:38:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D621A610A8;
-        Mon, 13 Sep 2021 13:28:20 +0000 (UTC)
+        id S240358AbhIMNU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:20:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C0B1610A5;
+        Mon, 13 Sep 2021 13:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539701;
-        bh=VGqeDBwfQZyypiNEGbEPnEuu7wdVJoy9VF7pwXmx/jo=;
+        s=korg; t=1631539126;
+        bh=q6fz+FHWwF37jfEGqB5DIKhy9FoX5HIuwWxn9YM3KwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hfp2cIaHn9nj4TAyv3XiUxWmQtNdCqQ8wnuvB044CeA9SWd4/inwJjZXCm6Jg0BUl
-         nGe41vUgc8tNxkCz1XZYGA47uEQGHO1JrBQ2ZaB+JedOJANl1RMPZmTtLcqTkLL9Pu
-         YHsGRodVRwgWbKnUunkROcxzvfk8/VLh1f1yDwj4=
+        b=EBk+3gSGJ9QuiLWLOxzJZkf9fcK7alytvrQaPIBX3IItgekMaGup7PNZaLEj95YEF
+         VRq8DusS25euN2V6iaUtU1WVF6+fjDHKutsePnbiQQlLtLgm14EP1xCwcruqdjOSho
+         miMsvgBwQEiXzp8DjamlnP6b8aA3qu7peXOlH1xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Utkarsh H Patel <utkarsh.h.patel@intel.com>,
-        Koba Ko <koba.ko@canonical.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 126/236] PCI: PM: Enable PME if it can be signaled from D3cold
+Subject: [PATCH 5.4 050/144] bpf: Fix a typo of reuseport map in bpf.h.
 Date:   Mon, 13 Sep 2021 15:13:51 +0200
-Message-Id: <20210913131104.642792022@linuxfoundation.org>
+Message-Id: <20210913131049.616694063@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
 
-[ Upstream commit 0e00392a895c95c6d12d42158236c8862a2f43f2 ]
+[ Upstream commit f170acda7ffaf0473d06e1e17c12cd9fd63904f5 ]
 
-PME signaling is only enabled by __pci_enable_wake() if the target
-device can signal PME from the given target power state (to avoid
-pointless reconfiguration of the device), but if the hierarchy above
-the device goes into D3cold, the device itself will end up in D3cold
-too, so if it can signal PME from D3cold, it should be enabled to
-do so in __pci_enable_wake().
+Fix s/BPF_MAP_TYPE_REUSEPORT_ARRAY/BPF_MAP_TYPE_REUSEPORT_SOCKARRAY/ typo
+in bpf.h.
 
-[Note that if the device does not end up in D3cold and it cannot
- signal PME from the original target power state, it will not signal
- PME, so in that case the behavior does not change.]
-
-Link: https://lore.kernel.org/linux-pm/3149540.aeNJFYEL58@kreacher/
-Fixes: 5bcc2fb4e815 ("PCI PM: Simplify PCI wake-up code")
-Reported-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reported-by: Utkarsh H Patel <utkarsh.h.patel@intel.com>
-Reported-by: Koba Ko <koba.ko@canonical.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: 2dbb9b9e6df6 ("bpf: Introduce BPF_PROG_TYPE_SK_REUSEPORT")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20210714124317.67526-1-kuniyu@amazon.co.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ include/uapi/linux/bpf.h       | 2 +-
+ tools/include/uapi/linux/bpf.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index d864f964bcae..29f5d699fa06 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -2469,7 +2469,14 @@ static int __pci_enable_wake(struct pci_dev *dev, pci_power_t state, bool enable
- 	if (enable) {
- 		int error;
- 
--		if (pci_pme_capable(dev, state))
-+		/*
-+		 * Enable PME signaling if the device can signal PME from
-+		 * D3cold regardless of whether or not it can signal PME from
-+		 * the current target state, because that will allow it to
-+		 * signal PME when the hierarchy above it goes into D3cold and
-+		 * the device itself ends up in D3cold as a result of that.
-+		 */
-+		if (pci_pme_capable(dev, state) || pci_pme_capable(dev, PCI_D3cold))
- 			pci_pme_active(dev, true);
- 		else
- 			ret = 1;
+diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
+index 8649422e760c..63038eb23560 100644
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -2264,7 +2264,7 @@ union bpf_attr {
+  * int bpf_sk_select_reuseport(struct sk_reuseport_md *reuse, struct bpf_map *map, void *key, u64 flags)
+  *	Description
+  *		Select a **SO_REUSEPORT** socket from a
+- *		**BPF_MAP_TYPE_REUSEPORT_ARRAY** *map*.
++ *		**BPF_MAP_TYPE_REUSEPORT_SOCKARRAY** *map*.
+  *		It checks the selected socket is matching the incoming
+  *		request in the socket buffer.
+  *	Return
+diff --git a/tools/include/uapi/linux/bpf.h b/tools/include/uapi/linux/bpf.h
+index 8649422e760c..63038eb23560 100644
+--- a/tools/include/uapi/linux/bpf.h
++++ b/tools/include/uapi/linux/bpf.h
+@@ -2264,7 +2264,7 @@ union bpf_attr {
+  * int bpf_sk_select_reuseport(struct sk_reuseport_md *reuse, struct bpf_map *map, void *key, u64 flags)
+  *	Description
+  *		Select a **SO_REUSEPORT** socket from a
+- *		**BPF_MAP_TYPE_REUSEPORT_ARRAY** *map*.
++ *		**BPF_MAP_TYPE_REUSEPORT_SOCKARRAY** *map*.
+  *		It checks the selected socket is matching the incoming
+  *		request in the socket buffer.
+  *	Return
 -- 
 2.30.2
 
