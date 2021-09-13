@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A12F3408F86
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C489408D04
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241581AbhIMNoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:44:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46524 "EHLO mail.kernel.org"
+        id S240742AbhIMNWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:22:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242650AbhIMNmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:42:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6909B61354;
-        Mon, 13 Sep 2021 13:29:51 +0000 (UTC)
+        id S240802AbhIMNVi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:21:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 821D8610E6;
+        Mon, 13 Sep 2021 13:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539792;
-        bh=n1fzEh8BglQyvMQT+P5Pol8uCH4i0Nhg/xP7DY9oYuE=;
+        s=korg; t=1631539223;
+        bh=31iWokU5YgI53j4AyT/g0+V+sQt5CtOrfxglvAlH6qo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3+P0QH3liXIgXHxCjsTPpORiZ9SCanefXfSi2GzcsbfySOZJvbwxDQtYZ5tyQX2T
-         BOs45eZyl8ZZC1bpV+d/Kgtyk2Tf5Ha3HdeaDrk/kKn+MckvCWAdPw7csnksZSUDsI
-         7VGgemjfBQ/vXDMDigxwQUUPA7lQrCfD1XSEeFIA=
+        b=Px88F4aB3BTulqhiCMcmy2PskVDY4Yx1YI4/2KA2D6ZRRqguJF/sKLwe9JWqDC4DN
+         DRE86BN6ENKDXLausSkjowCDm4fobeTtJC76LzWihkhI5/V06tyUwbu5APdsBAoxru
+         cBXDEWK4ce//eX3uC7Wv3YOlEpHfsAq9qhoxvlmw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 135/236] drm/msm/dpu: make dpu_hw_ctl_clear_all_blendstages clear necessary LMs
-Date:   Mon, 13 Sep 2021 15:14:00 +0200
-Message-Id: <20210913131104.957159343@linuxfoundation.org>
+Subject: [PATCH 5.4 060/144] Bluetooth: sco: prevent information leak in sco_conn_defer_accept()
+Date:   Mon, 13 Sep 2021 15:14:01 +0200
+Message-Id: <20210913131049.980269753@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a41cdb693595ae1904dd793fc15d6954f4295e27 ]
+[ Upstream commit 59da0b38bc2ea570ede23a3332ecb3e7574ce6b2 ]
 
-dpu_hw_ctl_clear_all_blendstages() clears settings for the few first LMs
-instead of mixers actually used for the CTL. Change it to clear
-necessary data, using provided mixer ids.
+Smatch complains that some of these struct members are not initialized
+leading to a stack information disclosure:
 
-Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210704230519.4081467-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+    net/bluetooth/sco.c:778 sco_conn_defer_accept() warn:
+    check that 'cp.retrans_effort' doesn't leak information
+
+This seems like a valid warning.  I've added a default case to fix
+this issue.
+
+Fixes: 2f69a82acf6f ("Bluetooth: Use voice setting in deferred SCO connection request")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/bluetooth/sco.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
-index 758c355b4fd8..f8c7100a8acb 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
-@@ -340,10 +340,12 @@ static void dpu_hw_ctl_clear_all_blendstages(struct dpu_hw_ctl *ctx)
- 	int i;
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index b91d6b440fdf..335264706aae 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -761,6 +761,11 @@ static void sco_conn_defer_accept(struct hci_conn *conn, u16 setting)
+ 			cp.max_latency = cpu_to_le16(0xffff);
+ 			cp.retrans_effort = 0xff;
+ 			break;
++		default:
++			/* use CVSD settings as fallback */
++			cp.max_latency = cpu_to_le16(0xffff);
++			cp.retrans_effort = 0xff;
++			break;
+ 		}
  
- 	for (i = 0; i < ctx->mixer_count; i++) {
--		DPU_REG_WRITE(c, CTL_LAYER(LM_0 + i), 0);
--		DPU_REG_WRITE(c, CTL_LAYER_EXT(LM_0 + i), 0);
--		DPU_REG_WRITE(c, CTL_LAYER_EXT2(LM_0 + i), 0);
--		DPU_REG_WRITE(c, CTL_LAYER_EXT3(LM_0 + i), 0);
-+		enum dpu_lm mixer_id = ctx->mixer_hw_caps[i].id;
-+
-+		DPU_REG_WRITE(c, CTL_LAYER(mixer_id), 0);
-+		DPU_REG_WRITE(c, CTL_LAYER_EXT(mixer_id), 0);
-+		DPU_REG_WRITE(c, CTL_LAYER_EXT2(mixer_id), 0);
-+		DPU_REG_WRITE(c, CTL_LAYER_EXT3(mixer_id), 0);
- 	}
- }
- 
+ 		hci_send_cmd(hdev, HCI_OP_ACCEPT_SYNC_CONN_REQ,
 -- 
 2.30.2
 
