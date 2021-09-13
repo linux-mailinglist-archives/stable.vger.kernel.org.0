@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04E2340925E
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE89C409511
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:40:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343936AbhIMOK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:10:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55996 "EHLO mail.kernel.org"
+        id S1346100AbhIMOhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:37:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343961AbhIMOJK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:09:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D80F613DB;
-        Mon, 13 Sep 2021 13:41:06 +0000 (UTC)
+        id S1347809AbhIMOfc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:35:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5A1461989;
+        Mon, 13 Sep 2021 13:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540467;
-        bh=4To1bOUCDLgmDWAARWr6k4/bL8hIqGaRJ22HHKwMkho=;
+        s=korg; t=1631541222;
+        bh=ohwEJtFRB3PaxDtINta776MDdnaHFIlz/gMmTM7tb7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fa9mpe2WuqsgjBEJMi1WOCQ9wsunTKGPPS+TbCkpsjYhIONC+aI/jgSV1ejLghebL
-         iLut3LgkF+J8s331NG9Z8jUWM9qmLHLvLx7rypSxW3c9jo1A556Ql+dIygY/vtdldN
-         7Jx8P36O67J7cXmQipSmo4ONdZyTTWxaMO3T1zWM=
+        b=c3Osv2qqtSKpSFTnsm68M4n6ZAuRuJQ0JVBoqAu4YZf+zDZYdwCwmz+2xqymGR2Zr
+         tsJuc2hyjvo3N/Ft+eSxMSIXkDewDaXoUJdGTxABZ712cNUPU2IqoNLrX/D3poauRr
+         eE5TEfUCujDS7m5Pv164aBtFqijsUn7w4/WS7KBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 206/300] ASoC: fsl_rpmsg: Check -EPROBE_DEFER for getting clocks
+Subject: [PATCH 5.14 213/334] PM: cpu: Make notifier chain use a raw_spinlock_t
 Date:   Mon, 13 Sep 2021 15:14:27 +0200
-Message-Id: <20210913131116.330926752@linuxfoundation.org>
+Message-Id: <20210913131120.629151058@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +42,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit 2fbbcffea5b6adbfe90ffc842a6b3eb2d7e381ed ]
+[ Upstream commit b2f6662ac08d0e7c25574ce53623c71bdae9dd78 ]
 
-The devm_clk_get() may return -EPROBE_DEFER, then clocks
-will be assigned to NULL wrongly. As the clocks are
-optional so we can use devm_clk_get_optional() instead of
-devm_clk_get().
+Invoking atomic_notifier_chain_notify() requires acquiring a spinlock_t,
+which can block under CONFIG_PREEMPT_RT. Notifications for members of the
+cpu_pm notification chain will be issued by the idle task, which can never
+block.
 
-Fixes: b73d9e6225e8 ("ASoC: fsl_rpmsg: Add CPU DAI driver for audio base on rpmsg")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1629266614-6942-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Making *all* atomic_notifiers use a raw_spinlock is too big of a hammer, as
+only notifications issued by the idle task are problematic.
+
+Special-case cpu_pm_notifier_chain by kludging a raw_notifier and
+raw_spinlock_t together, matching the atomic_notifier behavior with a
+raw_spinlock_t.
+
+Fixes: 70d932985757 ("notifier: Fix broken error handling pattern")
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_rpmsg.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ kernel/cpu_pm.c | 50 +++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 38 insertions(+), 12 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_rpmsg.c b/sound/soc/fsl/fsl_rpmsg.c
-index ea5c973e2e84..d60f4dac6c1b 100644
---- a/sound/soc/fsl/fsl_rpmsg.c
-+++ b/sound/soc/fsl/fsl_rpmsg.c
-@@ -165,25 +165,25 @@ static int fsl_rpmsg_probe(struct platform_device *pdev)
- 	}
+diff --git a/kernel/cpu_pm.c b/kernel/cpu_pm.c
+index f7e1d0eccdbc..246efc74e3f3 100644
+--- a/kernel/cpu_pm.c
++++ b/kernel/cpu_pm.c
+@@ -13,19 +13,32 @@
+ #include <linux/spinlock.h>
+ #include <linux/syscore_ops.h>
  
- 	/* Get the optional clocks */
--	rpmsg->ipg = devm_clk_get(&pdev->dev, "ipg");
-+	rpmsg->ipg = devm_clk_get_optional(&pdev->dev, "ipg");
- 	if (IS_ERR(rpmsg->ipg))
--		rpmsg->ipg = NULL;
-+		return PTR_ERR(rpmsg->ipg);
+-static ATOMIC_NOTIFIER_HEAD(cpu_pm_notifier_chain);
++/*
++ * atomic_notifiers use a spinlock_t, which can block under PREEMPT_RT.
++ * Notifications for cpu_pm will be issued by the idle task itself, which can
++ * never block, IOW it requires using a raw_spinlock_t.
++ */
++static struct {
++	struct raw_notifier_head chain;
++	raw_spinlock_t lock;
++} cpu_pm_notifier = {
++	.chain = RAW_NOTIFIER_INIT(cpu_pm_notifier.chain),
++	.lock  = __RAW_SPIN_LOCK_UNLOCKED(cpu_pm_notifier.lock),
++};
  
--	rpmsg->mclk = devm_clk_get(&pdev->dev, "mclk");
-+	rpmsg->mclk = devm_clk_get_optional(&pdev->dev, "mclk");
- 	if (IS_ERR(rpmsg->mclk))
--		rpmsg->mclk = NULL;
-+		return PTR_ERR(rpmsg->mclk);
+ static int cpu_pm_notify(enum cpu_pm_event event)
+ {
+ 	int ret;
  
--	rpmsg->dma = devm_clk_get(&pdev->dev, "dma");
-+	rpmsg->dma = devm_clk_get_optional(&pdev->dev, "dma");
- 	if (IS_ERR(rpmsg->dma))
--		rpmsg->dma = NULL;
-+		return PTR_ERR(rpmsg->dma);
+ 	/*
+-	 * atomic_notifier_call_chain has a RCU read critical section, which
+-	 * could be disfunctional in cpu idle. Copy RCU_NONIDLE code to let
+-	 * RCU know this.
++	 * This introduces a RCU read critical section, which could be
++	 * disfunctional in cpu idle. Copy RCU_NONIDLE code to let RCU know
++	 * this.
+ 	 */
+ 	rcu_irq_enter_irqson();
+-	ret = atomic_notifier_call_chain(&cpu_pm_notifier_chain, event, NULL);
++	rcu_read_lock();
++	ret = raw_notifier_call_chain(&cpu_pm_notifier.chain, event, NULL);
++	rcu_read_unlock();
+ 	rcu_irq_exit_irqson();
  
--	rpmsg->pll8k = devm_clk_get(&pdev->dev, "pll8k");
-+	rpmsg->pll8k = devm_clk_get_optional(&pdev->dev, "pll8k");
- 	if (IS_ERR(rpmsg->pll8k))
--		rpmsg->pll8k = NULL;
-+		return PTR_ERR(rpmsg->pll8k);
+ 	return notifier_to_errno(ret);
+@@ -33,10 +46,13 @@ static int cpu_pm_notify(enum cpu_pm_event event)
  
--	rpmsg->pll11k = devm_clk_get(&pdev->dev, "pll11k");
-+	rpmsg->pll11k = devm_clk_get_optional(&pdev->dev, "pll11k");
- 	if (IS_ERR(rpmsg->pll11k))
--		rpmsg->pll11k = NULL;
-+		return PTR_ERR(rpmsg->pll11k);
+ static int cpu_pm_notify_robust(enum cpu_pm_event event_up, enum cpu_pm_event event_down)
+ {
++	unsigned long flags;
+ 	int ret;
  
- 	platform_set_drvdata(pdev, rpmsg);
- 	pm_runtime_enable(&pdev->dev);
+ 	rcu_irq_enter_irqson();
+-	ret = atomic_notifier_call_chain_robust(&cpu_pm_notifier_chain, event_up, event_down, NULL);
++	raw_spin_lock_irqsave(&cpu_pm_notifier.lock, flags);
++	ret = raw_notifier_call_chain_robust(&cpu_pm_notifier.chain, event_up, event_down, NULL);
++	raw_spin_unlock_irqrestore(&cpu_pm_notifier.lock, flags);
+ 	rcu_irq_exit_irqson();
+ 
+ 	return notifier_to_errno(ret);
+@@ -49,12 +65,17 @@ static int cpu_pm_notify_robust(enum cpu_pm_event event_up, enum cpu_pm_event ev
+  * Add a driver to a list of drivers that are notified about
+  * CPU and CPU cluster low power entry and exit.
+  *
+- * This function may sleep, and has the same return conditions as
+- * raw_notifier_chain_register.
++ * This function has the same return conditions as raw_notifier_chain_register.
+  */
+ int cpu_pm_register_notifier(struct notifier_block *nb)
+ {
+-	return atomic_notifier_chain_register(&cpu_pm_notifier_chain, nb);
++	unsigned long flags;
++	int ret;
++
++	raw_spin_lock_irqsave(&cpu_pm_notifier.lock, flags);
++	ret = raw_notifier_chain_register(&cpu_pm_notifier.chain, nb);
++	raw_spin_unlock_irqrestore(&cpu_pm_notifier.lock, flags);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(cpu_pm_register_notifier);
+ 
+@@ -64,12 +85,17 @@ EXPORT_SYMBOL_GPL(cpu_pm_register_notifier);
+  *
+  * Remove a driver from the CPU PM notifier list.
+  *
+- * This function may sleep, and has the same return conditions as
+- * raw_notifier_chain_unregister.
++ * This function has the same return conditions as raw_notifier_chain_unregister.
+  */
+ int cpu_pm_unregister_notifier(struct notifier_block *nb)
+ {
+-	return atomic_notifier_chain_unregister(&cpu_pm_notifier_chain, nb);
++	unsigned long flags;
++	int ret;
++
++	raw_spin_lock_irqsave(&cpu_pm_notifier.lock, flags);
++	ret = raw_notifier_chain_unregister(&cpu_pm_notifier.chain, nb);
++	raw_spin_unlock_irqrestore(&cpu_pm_notifier.lock, flags);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(cpu_pm_unregister_notifier);
+ 
 -- 
 2.30.2
 
