@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA88F4093A1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 166E640939E
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344165AbhIMOWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:22:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41886 "EHLO mail.kernel.org"
+        id S1344911AbhIMOWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:22:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345938AbhIMOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345941AbhIMOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:20:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8150D6138F;
-        Mon, 13 Sep 2021 13:46:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4397B6121D;
+        Mon, 13 Sep 2021 13:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540802;
-        bh=xtMOXQQ2EveqFwHbeNMKXzmGBWUztrkYyekKlVY+kmQ=;
+        s=korg; t=1631540804;
+        bh=fUdaK+VTkRrihQCD1mPgnPxVsL3VfZ4s3NaOmxqcnZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pV9c+Oj9xrTK3OeIu7JMbkTurA2dfkRE3M6rHV70bOEH4JFJwtHd8AN3qj/kR5cz3
-         z4SHgNVGmjpA2zO9CXRL0PY584Cgb03S7FzGRFnuinJGJ/A8PixoIUpP52WAqEuo5k
-         dfNXHS/eDzJhkADRLJnj2vUuv9Be9U4nIh9pA3sY=
+        b=bLBYTVd+aSwjgy744+PKar5rPMUDFLMg3GNezq41JxoKSW0C0TVGHAaBa0v6ToAGN
+         MZbJ6et9nnsQKIHeOu3l3yWdrpK8SKw+Qe3uUVFP0wWLpHq5VlnYcQSioQGzYYHFpZ
+         1ey8Bpfk/XloTdY35edXfJM0DvBXmvYHw3IjhyD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wagner <dwagner@suse.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 041/334] io-wq: remove GFP_ATOMIC allocation off schedule out path
-Date:   Mon, 13 Sep 2021 15:11:35 +0200
-Message-Id: <20210913131114.834260017@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 042/334] s390/kasan: fix large PMD pages address alignment check
+Date:   Mon, 13 Sep 2021 15:11:36 +0200
+Message-Id: <20210913131114.866124072@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -40,206 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit d3e9f732c415cf22faa33d6f195e291ad82dc92e ]
+[ Upstream commit ddd63c85ef67ea9ea7282ad35eafb6568047126e ]
 
-Daniel reports that the v5.14-rc4-rt4 kernel throws a BUG when running
-stress-ng:
+It is currently possible to initialize a large PMD page when
+the address is not aligned on page boundary.
 
-| [   90.202543] BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:35
-| [   90.202549] in_atomic(): 1, irqs_disabled(): 1, non_block: 0, pid: 2047, name: iou-wrk-2041
-| [   90.202555] CPU: 5 PID: 2047 Comm: iou-wrk-2041 Tainted: G        W         5.14.0-rc4-rt4+ #89
-| [   90.202559] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
-| [   90.202561] Call Trace:
-| [   90.202577]  dump_stack_lvl+0x34/0x44
-| [   90.202584]  ___might_sleep.cold+0x87/0x94
-| [   90.202588]  rt_spin_lock+0x19/0x70
-| [   90.202593]  ___slab_alloc+0xcb/0x7d0
-| [   90.202598]  ? newidle_balance.constprop.0+0xf5/0x3b0
-| [   90.202603]  ? dequeue_entity+0xc3/0x290
-| [   90.202605]  ? io_wqe_dec_running.isra.0+0x98/0xe0
-| [   90.202610]  ? pick_next_task_fair+0xb9/0x330
-| [   90.202612]  ? __schedule+0x670/0x1410
-| [   90.202615]  ? io_wqe_dec_running.isra.0+0x98/0xe0
-| [   90.202618]  kmem_cache_alloc_trace+0x79/0x1f0
-| [   90.202621]  io_wqe_dec_running.isra.0+0x98/0xe0
-| [   90.202625]  io_wq_worker_sleeping+0x37/0x50
-| [   90.202628]  schedule+0x30/0xd0
-| [   90.202630]  schedule_timeout+0x8f/0x1a0
-| [   90.202634]  ? __bpf_trace_tick_stop+0x10/0x10
-| [   90.202637]  io_wqe_worker+0xfd/0x320
-| [   90.202641]  ? finish_task_switch.isra.0+0xd3/0x290
-| [   90.202644]  ? io_worker_handle_work+0x670/0x670
-| [   90.202646]  ? io_worker_handle_work+0x670/0x670
-| [   90.202649]  ret_from_fork+0x22/0x30
-
-which is due to the RT kernel not liking a GFP_ATOMIC allocation inside
-a raw spinlock. Besides that not working on RT, doing any kind of
-allocation from inside schedule() is kind of nasty and should be avoided
-if at all possible.
-
-This particular path happens when an io-wq worker goes to sleep, and we
-need a new worker to handle pending work. We currently allocate a small
-data item to hold the information we need to create a new worker, but we
-can instead include this data in the io_worker struct itself and just
-protect it with a single bit lock. We only really need one per worker
-anyway, as we will have run pending work between to sleep cycles.
-
-https://lore.kernel.org/lkml/20210804082418.fbibprcwtzyt5qax@beryllium.lan/
-Reported-by: Daniel Wagner <dwagner@suse.de>
-Tested-by: Daniel Wagner <dwagner@suse.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.c | 72 ++++++++++++++++++++++++++++++------------------------
- 1 file changed, 40 insertions(+), 32 deletions(-)
+ arch/s390/mm/kasan_init.c | 41 +++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 21 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 7d2ed8c7dd31..4ce83bb48021 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -51,6 +51,10 @@ struct io_worker {
- 
- 	struct completion ref_done;
- 
-+	unsigned long create_state;
-+	struct callback_head create_work;
-+	int create_index;
-+
- 	struct rcu_head rcu;
- };
- 
-@@ -272,24 +276,18 @@ static void io_wqe_inc_running(struct io_worker *worker)
- 	atomic_inc(&acct->nr_running);
- }
- 
--struct create_worker_data {
--	struct callback_head work;
--	struct io_wqe *wqe;
--	int index;
--};
--
- static void create_worker_cb(struct callback_head *cb)
- {
--	struct create_worker_data *cwd;
-+	struct io_worker *worker;
- 	struct io_wq *wq;
- 	struct io_wqe *wqe;
- 	struct io_wqe_acct *acct;
- 	bool do_create = false, first = false;
- 
--	cwd = container_of(cb, struct create_worker_data, work);
--	wqe = cwd->wqe;
-+	worker = container_of(cb, struct io_worker, create_work);
-+	wqe = worker->wqe;
- 	wq = wqe->wq;
--	acct = &wqe->acct[cwd->index];
-+	acct = &wqe->acct[worker->create_index];
- 	raw_spin_lock_irq(&wqe->lock);
- 	if (acct->nr_workers < acct->max_workers) {
- 		if (!acct->nr_workers)
-@@ -299,33 +297,42 @@ static void create_worker_cb(struct callback_head *cb)
+diff --git a/arch/s390/mm/kasan_init.c b/arch/s390/mm/kasan_init.c
+index a0fdc6dc5f9d..cc3af046c14e 100644
+--- a/arch/s390/mm/kasan_init.c
++++ b/arch/s390/mm/kasan_init.c
+@@ -107,6 +107,9 @@ static void __init kasan_early_pgtable_populate(unsigned long address,
+ 		sgt_prot &= ~_SEGMENT_ENTRY_NOEXEC;
  	}
- 	raw_spin_unlock_irq(&wqe->lock);
- 	if (do_create) {
--		create_io_worker(wq, wqe, cwd->index, first);
-+		create_io_worker(wq, wqe, worker->create_index, first);
- 	} else {
- 		atomic_dec(&acct->nr_running);
- 		io_worker_ref_put(wq);
- 	}
--	kfree(cwd);
-+	clear_bit_unlock(0, &worker->create_state);
-+	io_worker_release(worker);
- }
  
--static void io_queue_worker_create(struct io_wqe *wqe, struct io_wqe_acct *acct)
-+static void io_queue_worker_create(struct io_wqe *wqe, struct io_worker *worker,
-+				   struct io_wqe_acct *acct)
- {
--	struct create_worker_data *cwd;
- 	struct io_wq *wq = wqe->wq;
- 
- 	/* raced with exit, just ignore create call */
- 	if (test_bit(IO_WQ_BIT_EXIT, &wq->state))
- 		goto fail;
-+	if (!io_worker_get(worker))
-+		goto fail;
 +	/*
-+	 * create_state manages ownership of create_work/index. We should
-+	 * only need one entry per worker, as the worker going to sleep
-+	 * will trigger the condition, and waking will clear it once it
-+	 * runs the task_work.
++	 * The first 1MB of 1:1 mapping is mapped with 4KB pages
 +	 */
-+	if (test_bit(0, &worker->create_state) ||
-+	    test_and_set_bit_lock(0, &worker->create_state))
-+		goto fail_release;
+ 	while (address < end) {
+ 		pg_dir = pgd_offset_k(address);
+ 		if (pgd_none(*pg_dir)) {
+@@ -157,30 +160,26 @@ static void __init kasan_early_pgtable_populate(unsigned long address,
  
--	cwd = kmalloc(sizeof(*cwd), GFP_ATOMIC);
--	if (cwd) {
--		init_task_work(&cwd->work, create_worker_cb);
--		cwd->wqe = wqe;
--		cwd->index = acct->index;
--		if (!task_work_add(wq->task, &cwd->work, TWA_SIGNAL))
--			return;
+ 		pm_dir = pmd_offset(pu_dir, address);
+ 		if (pmd_none(*pm_dir)) {
+-			if (mode == POPULATE_ZERO_SHADOW &&
+-			    IS_ALIGNED(address, PMD_SIZE) &&
++			if (IS_ALIGNED(address, PMD_SIZE) &&
+ 			    end - address >= PMD_SIZE) {
+-				pmd_populate(&init_mm, pm_dir,
+-						kasan_early_shadow_pte);
+-				address = (address + PMD_SIZE) & PMD_MASK;
+-				continue;
+-			}
+-			/* the first megabyte of 1:1 is mapped with 4k pages */
+-			if (has_edat && address && end - address >= PMD_SIZE &&
+-			    mode != POPULATE_ZERO_SHADOW) {
+-				void *page;
 -
--		kfree(cwd);
--	}
-+	init_task_work(&worker->create_work, create_worker_cb);
-+	worker->create_index = acct->index;
-+	if (!task_work_add(wq->task, &worker->create_work, TWA_SIGNAL))
-+		return;
-+	clear_bit_unlock(0, &worker->create_state);
-+fail_release:
-+	io_worker_release(worker);
- fail:
- 	atomic_dec(&acct->nr_running);
- 	io_worker_ref_put(wq);
-@@ -343,7 +350,7 @@ static void io_wqe_dec_running(struct io_worker *worker)
- 	if (atomic_dec_and_test(&acct->nr_running) && io_wqe_run_queue(wqe)) {
- 		atomic_inc(&acct->nr_running);
- 		atomic_inc(&wqe->wq->worker_refs);
--		io_queue_worker_create(wqe, acct);
-+		io_queue_worker_create(wqe, worker, acct);
- 	}
- }
- 
-@@ -1004,12 +1011,12 @@ err_wq:
- 
- static bool io_task_work_match(struct callback_head *cb, void *data)
- {
--	struct create_worker_data *cwd;
-+	struct io_worker *worker;
- 
- 	if (cb->func != create_worker_cb)
- 		return false;
--	cwd = container_of(cb, struct create_worker_data, work);
--	return cwd->wqe->wq == data;
-+	worker = container_of(cb, struct io_worker, create_work);
-+	return worker->wqe->wq == data;
- }
- 
- void io_wq_exit_start(struct io_wq *wq)
-@@ -1026,12 +1033,13 @@ static void io_wq_exit_workers(struct io_wq *wq)
- 		return;
- 
- 	while ((cb = task_work_cancel_match(wq->task, io_task_work_match, wq)) != NULL) {
--		struct create_worker_data *cwd;
-+		struct io_worker *worker;
- 
--		cwd = container_of(cb, struct create_worker_data, work);
--		atomic_dec(&cwd->wqe->acct[cwd->index].nr_running);
-+		worker = container_of(cb, struct io_worker, create_work);
-+		atomic_dec(&worker->wqe->acct[worker->create_index].nr_running);
- 		io_worker_ref_put(wq);
--		kfree(cwd);
-+		clear_bit_unlock(0, &worker->create_state);
-+		io_worker_release(worker);
- 	}
- 
- 	rcu_read_lock();
+-				if (mode == POPULATE_ONE2ONE) {
+-					page = (void *)address;
+-				} else {
+-					page = kasan_early_alloc_segment();
+-					memset(page, 0, _SEGMENT_SIZE);
++				if (mode == POPULATE_ZERO_SHADOW) {
++					pmd_populate(&init_mm, pm_dir, kasan_early_shadow_pte);
++					address = (address + PMD_SIZE) & PMD_MASK;
++					continue;
++				} else if (has_edat && address) {
++					void *page;
++
++					if (mode == POPULATE_ONE2ONE) {
++						page = (void *)address;
++					} else {
++						page = kasan_early_alloc_segment();
++						memset(page, 0, _SEGMENT_SIZE);
++					}
++					pmd_val(*pm_dir) = __pa(page) | sgt_prot;
++					address = (address + PMD_SIZE) & PMD_MASK;
++					continue;
+ 				}
+-				pmd_val(*pm_dir) = __pa(page) | sgt_prot;
+-				address = (address + PMD_SIZE) & PMD_MASK;
+-				continue;
+ 			}
+-
+ 			pt_dir = kasan_early_pte_alloc();
+ 			pmd_populate(&init_mm, pm_dir, pt_dir);
+ 		} else if (pmd_large(*pm_dir)) {
 -- 
 2.30.2
 
