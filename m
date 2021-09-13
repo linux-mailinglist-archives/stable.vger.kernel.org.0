@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75C78408E59
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6D22409137
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242078AbhIMNdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:33:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50120 "EHLO mail.kernel.org"
+        id S243292AbhIMN76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:59:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242809AbhIMNaF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:30:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 896B561350;
-        Mon, 13 Sep 2021 13:24:46 +0000 (UTC)
+        id S244443AbhIMN5m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:57:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48F89619E8;
+        Mon, 13 Sep 2021 13:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539487;
-        bh=j8yzQaZ7jqYtVHIcY+Z8RyZrLQRxc7MPDvul1l9dzMw=;
+        s=korg; t=1631540190;
+        bh=3cq0E0z61O81CoR7VOoikpojWERUzS8iqJy3ROoltyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PIhC+AzcKo6iAiNHDmEuCzDkOUDgEsCtgeFTmjrDJ93VNdJBj2bMmFU8r1x0IOEKv
-         4KhZc0nK0UMb8jYadSAZO6KazWMwwNHLkPgbGKVk3kfHbn1CknU1SzhwOx5jCcMnh0
-         ROrwipdtiwBfHaa7xZxVZSiw9X4P/owtrpCKgSww=
+        b=nJEV5N9f3xvGvr7ZLahJN+OHfgLLkSTFG4+SE6HsIf/cfvshprr3PCzI9ln194MSH
+         SSnnJEzqXM5pQSfm4F60jVi99eFEwIra3u97aYK0MCsdJxtSfwgUs+kucK/uLNlf2s
+         RaX115Y0tJDXcq+ycPEPEY0wLzj1MnCkcWX5X8qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
-        Yanfei Xu <yanfei.xu@windriver.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 044/236] rcu: Fix to include first blocked task in stall warning
+Subject: [PATCH 5.13 088/300] media: cxd2880-spi: Fix an error handling path
 Date:   Mon, 13 Sep 2021 15:12:29 +0200
-Message-Id: <20210913131101.852817750@linuxfoundation.org>
+Message-Id: <20210913131112.357886124@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yanfei Xu <yanfei.xu@windriver.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e6a901a44f76878ed1653626c9ff4cfc5a3f58f8 ]
+[ Upstream commit dcb0145821017e929a733e2271c85c6f82b9c9f8 ]
 
-The for loop in rcu_print_task_stall() always omits ts[0], which points
-to the first task blocking the stalled grace period.  This in turn fails
-to count this first task, which means that ndetected will be equal to
-zero when all CPUs have passed through their quiescent states and only
-one task is blocking the stalled grace period.  This zero value for
-ndetected will in turn result in an incorrect "All QSes seen" message:
+If an error occurs after a successful 'regulator_enable()' call,
+'regulator_disable()' must be called.
 
-rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
-rcu:    Tasks blocked on level-1 rcu_node (CPUs 12-23):
-        (detected by 15, t=6504 jiffies, g=164777, q=9011209)
-rcu: All QSes seen, last rcu_preempt kthread activity 1 (4295252379-4295252378), jiffies_till_next_fqs=1, root ->qsmask 0x2
-BUG: sleeping function called from invalid context at include/linux/uaccess.h:156
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 70613, name: msgstress04
-INFO: lockdep is turned off.
-Preemption disabled at:
-[<ffff8000104031a4>] create_object.isra.0+0x204/0x4b0
-CPU: 15 PID: 70613 Comm: msgstress04 Kdump: loaded Not tainted
-5.12.2-yoctodev-standard #1
-Hardware name: Marvell OcteonTX CN96XX board (DT)
-Call trace:
- dump_backtrace+0x0/0x2cc
- show_stack+0x24/0x30
- dump_stack+0x110/0x188
- ___might_sleep+0x214/0x2d0
- __might_sleep+0x7c/0xe0
+Fix the error handling path of the probe accordingly.
 
-This commit therefore fixes the loop to include ts[0].
-
-Fixes: c583bcb8f5ed ("rcu: Don't invoke try_invoke_on_locked_down_task() with irqs disabled")
-Tested-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: cb496cd472af ("media: cxd2880-spi: Add optional vcc regulator")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_stall.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/spi/cxd2880-spi.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
-index 0435e5e716a8..cdfaa44ffd70 100644
---- a/kernel/rcu/tree_stall.h
-+++ b/kernel/rcu/tree_stall.h
-@@ -275,8 +275,8 @@ static int rcu_print_task_stall(struct rcu_node *rnp, unsigned long flags)
- 			break;
+diff --git a/drivers/media/spi/cxd2880-spi.c b/drivers/media/spi/cxd2880-spi.c
+index 931ec0727cd3..a280e4bd80c2 100644
+--- a/drivers/media/spi/cxd2880-spi.c
++++ b/drivers/media/spi/cxd2880-spi.c
+@@ -524,13 +524,13 @@ cxd2880_spi_probe(struct spi_device *spi)
+ 	if (IS_ERR(dvb_spi->vcc_supply)) {
+ 		if (PTR_ERR(dvb_spi->vcc_supply) == -EPROBE_DEFER) {
+ 			ret = -EPROBE_DEFER;
+-			goto fail_adapter;
++			goto fail_regulator;
+ 		}
+ 		dvb_spi->vcc_supply = NULL;
+ 	} else {
+ 		ret = regulator_enable(dvb_spi->vcc_supply);
+ 		if (ret)
+-			goto fail_adapter;
++			goto fail_regulator;
  	}
- 	raw_spin_unlock_irqrestore_rcu_node(rnp, flags);
--	for (i--; i; i--) {
--		t = ts[i];
-+	while (i) {
-+		t = ts[--i];
- 		if (!try_invoke_on_locked_down_task(t, check_slow_task, &rscr))
- 			pr_cont(" P%d", t->pid);
- 		else
+ 
+ 	dvb_spi->spi = spi;
+@@ -618,6 +618,9 @@ fail_frontend:
+ fail_attach:
+ 	dvb_unregister_adapter(&dvb_spi->adapter);
+ fail_adapter:
++	if (!dvb_spi->vcc_supply)
++		regulator_disable(dvb_spi->vcc_supply);
++fail_regulator:
+ 	kfree(dvb_spi);
+ 	return ret;
+ }
 -- 
 2.30.2
 
