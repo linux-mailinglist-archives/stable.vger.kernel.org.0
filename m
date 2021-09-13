@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 182B2409602
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 655D9409360
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345403AbhIMOrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:47:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33518 "EHLO mail.kernel.org"
+        id S1343913AbhIMOVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:21:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348266AbhIMOpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:45:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09C4563216;
-        Mon, 13 Sep 2021 13:58:00 +0000 (UTC)
+        id S1344166AbhIMOSg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:18:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FE5661AFF;
+        Mon, 13 Sep 2021 13:45:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541481;
-        bh=9IRgH9aahkMqStjkv0Z+jIoQe74LC1kvQUx7khhunR0=;
+        s=korg; t=1631540718;
+        bh=jGWAl/K8bG2tdjP2RrtegwZ+kT089noGrVOSSSF+j2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ayX71FwqEyBdzruRamvdGrt26jdnUU3RWpQ+9oPAS1E/shH0nrruDy85jFJvFoibv
-         xDVggZb9f7bC6os8TnTjw/PdLEm5U64UztwGWoRndOrIY/bNGvapcelLh4fF/T54Mu
-         pzSoXO2nV5s9KTycw16Qw7A0Kj4ZY4LgyND4Xdcc=
+        b=bHz2hl7Z26SYZnigoTg7dGAT3Scw4Gb+DtOU5zenFOvOT7CJ5YT3kfiMLe5Z8v8y9
+         Ev/tpm9jgsNFEOU/cbsONUPuNkWX4xpJOHcykFJ2gn6RvDlG26rj/8BiNE8Js9X/ig
+         RPQkTD1ObZKwGOCARtqWwDQ/dQqAFhn4ukSQCIoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Namjae Jeon <namjae.jeon@samsung.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.14 307/334] smb3: fix posix extensions mount option
+        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.13 300/300] clk: kirkwood: Fix a clocking boot regression
 Date:   Mon, 13 Sep 2021 15:16:01 +0200
-Message-Id: <20210913131123.803546229@linuxfoundation.org>
+Message-Id: <20210913131119.494917020@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 7321be2663da5922343cc121f1ff04924cee2e76 upstream.
+commit aaedb9e00e5400220a8871180d23a83e67f29f63 upstream.
 
-We were incorrectly initializing the posix extensions in the
-conversion to the new mount API.
+Since a few kernel releases the Pogoplug 4 has crashed like this
+during boot:
 
-CC: <stable@vger.kernel.org> # 5.11+
-Reported-by: Christian Brauner <christian.brauner@ubuntu.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Suggested-by: Namjae Jeon <namjae.jeon@samsung.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Unable to handle kernel NULL pointer dereference at virtual address 00000002
+(...)
+[<c04116ec>] (strlen) from [<c00ead80>] (kstrdup+0x1c/0x4c)
+[<c00ead80>] (kstrdup) from [<c04591d8>] (__clk_register+0x44/0x37c)
+[<c04591d8>] (__clk_register) from [<c04595ec>] (clk_hw_register+0x20/0x44)
+[<c04595ec>] (clk_hw_register) from [<c045bfa8>] (__clk_hw_register_mux+0x198/0x1e4)
+[<c045bfa8>] (__clk_hw_register_mux) from [<c045c050>] (clk_register_mux_table+0x5c/0x6c)
+[<c045c050>] (clk_register_mux_table) from [<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0+0x13c/0x1ac)
+[<c0acf3e0>] (kirkwood_clk_muxing_setup.constprop.0) from [<c0aceae0>] (of_clk_init+0x12c/0x214)
+[<c0aceae0>] (of_clk_init) from [<c0ab576c>] (time_init+0x20/0x2c)
+[<c0ab576c>] (time_init) from [<c0ab3d18>] (start_kernel+0x3dc/0x56c)
+[<c0ab3d18>] (start_kernel) from [<00000000>] (0x0)
+Code: e3130020 1afffffb e12fff1e c08a1078 (e5d03000)
+
+This is because the "powersave" mux clock 0 was provided in an unterminated
+array, which is required by the loop in the driver:
+
+        /* Count, allocate, and register clock muxes */
+        for (n = 0; desc[n].name;)
+                n++;
+
+Here n will go out of bounds and then call clk_register_mux() on random
+memory contents after the mux clock.
+
+Fix this by terminating the array with a blank entry.
+
+Fixes: 105299381d87 ("cpufreq: kirkwood: use the powersave multiplexer")
+Cc: stable@vger.kernel.org
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210814235514.403426-1-linus.walleij@linaro.org
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/fs_context.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/clk/mvebu/kirkwood.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/cifs/fs_context.c
-+++ b/fs/cifs/fs_context.c
-@@ -1266,10 +1266,17 @@ static int smb3_fs_context_parse_param(s
- 			ctx->posix_paths = 1;
- 		break;
- 	case Opt_unix:
--		if (result.negated)
-+		if (result.negated) {
-+			if (ctx->linux_ext == 1)
-+				pr_warn_once("conflicting posix mount options specified\n");
- 			ctx->linux_ext = 0;
--		else
- 			ctx->no_linux_ext = 1;
-+		} else {
-+			if (ctx->no_linux_ext == 1)
-+				pr_warn_once("conflicting posix mount options specified\n");
-+			ctx->linux_ext = 1;
-+			ctx->no_linux_ext = 0;
-+		}
- 		break;
- 	case Opt_nocase:
- 		ctx->nocase = 1;
+--- a/drivers/clk/mvebu/kirkwood.c
++++ b/drivers/clk/mvebu/kirkwood.c
+@@ -265,6 +265,7 @@ static const char *powersave_parents[] =
+ static const struct clk_muxing_soc_desc kirkwood_mux_desc[] __initconst = {
+ 	{ "powersave", powersave_parents, ARRAY_SIZE(powersave_parents),
+ 		11, 1, 0 },
++	{ }
+ };
+ 
+ static struct clk *clk_muxing_get_src(
 
 
