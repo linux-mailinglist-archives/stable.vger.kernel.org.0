@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB73A408EA6
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD91E408E6D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240173AbhIMNgN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:36:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53122 "EHLO mail.kernel.org"
+        id S241524AbhIMNdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:33:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242630AbhIMN3r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:29:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 961656128C;
-        Mon, 13 Sep 2021 13:24:30 +0000 (UTC)
+        id S242649AbhIMN3v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:29:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C2D4610CB;
+        Mon, 13 Sep 2021 13:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539471;
-        bh=DncuXUAiCeK3E2hcQb9Xi5jbNByWZIc9g+FaFuSZKos=;
+        s=korg; t=1631539473;
+        bh=R9P0z4e8Tr80sUxty0kdF9Iy08gy2aqWeUjzQ7P8GZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgtuGAuNfPoi4dABW+qM7UbCm2y7QfJv/ks+ydCPS0+UoA2yKezGXlRhyfojON8wi
-         jPRRBiW+OUoNAIB9RdIKO/qNYW4vwFjobSwADTLuUGH0f5LfgMfxdJuWEygGaHS7rE
-         //pZ3ACli+9WhUg4Dh4WoenekEpiaevq/0rw4XEE=
+        b=i2MRiVNiLvuv1V+Uy9Biqe+vUbq2eQuQsniPh/i0BICRIiw+JlMlc4IwO/Uo0PBJg
+         UL1n/6cqX+QQvn+CUOxbj8yyVrS6ye5pOADf+KST2Pg+Vn83ociCh+KYyXvvyIPPTo
+         A2iqURlWXo9hCkeu72ZWClpNQ6MHt7AHqgq6kVz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 038/236] s390/debug: fix debug area life cycle
-Date:   Mon, 13 Sep 2021 15:12:23 +0200
-Message-Id: <20210913131101.643082796@linuxfoundation.org>
+Subject: [PATCH 5.10 039/236] s390/ap: fix state machine hang after failure to enable irq
+Date:   Mon, 13 Sep 2021 15:12:24 +0200
+Message-Id: <20210913131101.682149006@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -41,179 +41,247 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Oberparleiter <oberpar@linux.ibm.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-[ Upstream commit 9372a82892c2caa6bccab9a4081166fa769699f8 ]
+[ Upstream commit cabebb697c98fb1f05cc950a747a9b6ec61a5b01 ]
 
-Currently allocation and registration of s390dbf debug areas are tied
-together. As a result, a debug area cannot be unregistered and
-re-registered while any process has an associated debugfs file open.
+If for any reason the interrupt enable for an ap queue fails the
+state machine run for the queue returned wrong return codes to the
+caller. So the caller assumed interrupt support for this queue in
+enabled and thus did not re-establish the high resolution timer used
+for polling. In the end this let to a hang for the user space process
+waiting "forever" for the reply.
 
-Fix this by splitting alloc/release from register/unregister.
+This patch reworks these return codes to return correct indications
+for the caller to re-establish the timer when a queue runs without
+interrupt support.
 
-Signed-off-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Please note that this is fixing a wrong behavior after a first
+failure (enable interrupt support for the queue) failed. However,
+looks like this occasionally happens on KVM systems.
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/debug.c | 102 +++++++++++++++++++++------------------
- 1 file changed, 56 insertions(+), 46 deletions(-)
+ drivers/s390/crypto/ap_bus.c   | 25 ++++++++-----------------
+ drivers/s390/crypto/ap_bus.h   | 10 ++--------
+ drivers/s390/crypto/ap_queue.c | 20 +++++++++++---------
+ 3 files changed, 21 insertions(+), 34 deletions(-)
 
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index e392d3e42b1d..89fbfb3b1e01 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -314,24 +314,6 @@ static debug_info_t *debug_info_create(const char *name, int pages_per_area,
- 		goto out;
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index ef738b42a092..c00a288a4eca 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -114,22 +114,13 @@ static struct bus_type ap_bus_type;
+ /* Adapter interrupt definitions */
+ static void ap_interrupt_handler(struct airq_struct *airq, bool floating);
  
- 	rc->mode = mode & ~S_IFMT;
+-static int ap_airq_flag;
++static bool ap_irq_flag;
+ 
+ static struct airq_struct ap_airq = {
+ 	.handler = ap_interrupt_handler,
+ 	.isc = AP_ISC,
+ };
+ 
+-/**
+- * ap_using_interrupts() - Returns non-zero if interrupt support is
+- * available.
+- */
+-static inline int ap_using_interrupts(void)
+-{
+-	return ap_airq_flag;
+-}
 -
--	/* create root directory */
--	rc->debugfs_root_entry = debugfs_create_dir(rc->name,
--						    debug_debugfs_root_entry);
--
--	/* append new element to linked list */
--	if (!debug_area_first) {
--		/* first element in list */
--		debug_area_first = rc;
--		rc->prev = NULL;
--	} else {
--		/* append element to end of list */
--		debug_area_last->next = rc;
--		rc->prev = debug_area_last;
--	}
--	debug_area_last = rc;
--	rc->next = NULL;
--
- 	refcount_set(&rc->ref_count, 1);
- out:
- 	return rc;
-@@ -391,27 +373,10 @@ static void debug_info_get(debug_info_t *db_info)
+ /**
+  * ap_airq_ptr() - Get the address of the adapter interrupt indicator
+  *
+@@ -139,7 +130,7 @@ static inline int ap_using_interrupts(void)
   */
- static void debug_info_put(debug_info_t *db_info)
+ void *ap_airq_ptr(void)
  {
--	int i;
--
- 	if (!db_info)
- 		return;
--	if (refcount_dec_and_test(&db_info->ref_count)) {
--		for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
--			if (!db_info->views[i])
--				continue;
--			debugfs_remove(db_info->debugfs_entries[i]);
--		}
--		debugfs_remove(db_info->debugfs_root_entry);
--		if (db_info == debug_area_first)
--			debug_area_first = db_info->next;
--		if (db_info == debug_area_last)
--			debug_area_last = db_info->prev;
--		if (db_info->prev)
--			db_info->prev->next = db_info->next;
--		if (db_info->next)
--			db_info->next->prev = db_info->prev;
-+	if (refcount_dec_and_test(&db_info->ref_count))
- 		debug_info_free(db_info);
--	}
+-	if (ap_using_interrupts())
++	if (ap_irq_flag)
+ 		return ap_airq.lsi_ptr;
+ 	return NULL;
+ }
+@@ -369,7 +360,7 @@ void ap_wait(enum ap_sm_wait wait)
+ 	switch (wait) {
+ 	case AP_SM_WAIT_AGAIN:
+ 	case AP_SM_WAIT_INTERRUPT:
+-		if (ap_using_interrupts())
++		if (ap_irq_flag)
+ 			break;
+ 		if (ap_poll_kthread) {
+ 			wake_up(&ap_poll_wait);
+@@ -444,7 +435,7 @@ static void ap_tasklet_fn(unsigned long dummy)
+ 	 * be received. Doing it in the beginning of the tasklet is therefor
+ 	 * important that no requests on any AP get lost.
+ 	 */
+-	if (ap_using_interrupts())
++	if (ap_irq_flag)
+ 		xchg(ap_airq.lsi_ptr, 0);
+ 
+ 	spin_lock_bh(&ap_queues_lock);
+@@ -514,7 +505,7 @@ static int ap_poll_thread_start(void)
+ {
+ 	int rc;
+ 
+-	if (ap_using_interrupts() || ap_poll_kthread)
++	if (ap_irq_flag || ap_poll_kthread)
+ 		return 0;
+ 	mutex_lock(&ap_poll_thread_mutex);
+ 	ap_poll_kthread = kthread_run(ap_poll_thread, NULL, "appoll");
+@@ -1014,7 +1005,7 @@ static BUS_ATTR_RO(ap_adapter_mask);
+ static ssize_t ap_interrupts_show(struct bus_type *bus, char *buf)
+ {
+ 	return scnprintf(buf, PAGE_SIZE, "%d\n",
+-			 ap_using_interrupts() ? 1 : 0);
++			 ap_irq_flag ? 1 : 0);
  }
  
- /*
-@@ -635,6 +600,31 @@ static int debug_close(struct inode *inode, struct file *file)
- 	return 0; /* success */
- }
+ static BUS_ATTR_RO(ap_interrupts);
+@@ -1687,7 +1678,7 @@ static int __init ap_module_init(void)
+ 	/* enable interrupts if available */
+ 	if (ap_interrupts_available()) {
+ 		rc = register_adapter_interrupt(&ap_airq);
+-		ap_airq_flag = (rc == 0);
++		ap_irq_flag = (rc == 0);
+ 	}
  
-+/* Create debugfs entries and add to internal list. */
-+static void _debug_register(debug_info_t *id)
-+{
-+	/* create root directory */
-+	id->debugfs_root_entry = debugfs_create_dir(id->name,
-+						    debug_debugfs_root_entry);
-+
-+	/* append new element to linked list */
-+	if (!debug_area_first) {
-+		/* first element in list */
-+		debug_area_first = id;
-+		id->prev = NULL;
-+	} else {
-+		/* append element to end of list */
-+		debug_area_last->next = id;
-+		id->prev = debug_area_last;
-+	}
-+	debug_area_last = id;
-+	id->next = NULL;
-+
-+	debug_register_view(id, &debug_level_view);
-+	debug_register_view(id, &debug_flush_view);
-+	debug_register_view(id, &debug_pages_view);
-+}
-+
- /**
-  * debug_register_mode() - creates and initializes debug area.
-  *
-@@ -664,19 +654,16 @@ debug_info_t *debug_register_mode(const char *name, int pages_per_area,
- 	if ((uid != 0) || (gid != 0))
- 		pr_warn("Root becomes the owner of all s390dbf files in sysfs\n");
- 	BUG_ON(!initialized);
--	mutex_lock(&debug_mutex);
- 
- 	/* create new debug_info */
- 	rc = debug_info_create(name, pages_per_area, nr_areas, buf_size, mode);
--	if (!rc)
--		goto out;
--	debug_register_view(rc, &debug_level_view);
--	debug_register_view(rc, &debug_flush_view);
--	debug_register_view(rc, &debug_pages_view);
--out:
--	if (!rc)
-+	if (rc) {
-+		mutex_lock(&debug_mutex);
-+		_debug_register(rc);
-+		mutex_unlock(&debug_mutex);
-+	} else {
- 		pr_err("Registering debug feature %s failed\n", name);
--	mutex_unlock(&debug_mutex);
-+	}
+ 	/* Create /sys/bus/ap. */
+@@ -1737,7 +1728,7 @@ out_bus:
+ 		bus_remove_file(&ap_bus_type, ap_bus_attrs[i]);
+ 	bus_unregister(&ap_bus_type);
+ out:
+-	if (ap_using_interrupts())
++	if (ap_irq_flag)
+ 		unregister_adapter_interrupt(&ap_airq);
+ 	kfree(ap_qci_info);
  	return rc;
- }
- EXPORT_SYMBOL(debug_register_mode);
-@@ -705,6 +692,27 @@ debug_info_t *debug_register(const char *name, int pages_per_area,
- }
- EXPORT_SYMBOL(debug_register);
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 5029b80132aa..ccdbd95cab70 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -77,12 +77,6 @@ static inline int ap_test_bit(unsigned int *ptr, unsigned int nr)
+ #define AP_FUNC_EP11  5
+ #define AP_FUNC_APXA  6
  
-+/* Remove debugfs entries and remove from internal list. */
-+static void _debug_unregister(debug_info_t *id)
-+{
-+	int i;
-+
-+	for (i = 0; i < DEBUG_MAX_VIEWS; i++) {
-+		if (!id->views[i])
-+			continue;
-+		debugfs_remove(id->debugfs_entries[i]);
-+	}
-+	debugfs_remove(id->debugfs_root_entry);
-+	if (id == debug_area_first)
-+		debug_area_first = id->next;
-+	if (id == debug_area_last)
-+		debug_area_last = id->prev;
-+	if (id->prev)
-+		id->prev->next = id->next;
-+	if (id->next)
-+		id->next->prev = id->prev;
-+}
-+
+-/*
+- * AP interrupt states
+- */
+-#define AP_INTR_DISABLED	0	/* AP interrupt disabled */
+-#define AP_INTR_ENABLED		1	/* AP interrupt enabled */
+-
+ /*
+  * AP queue state machine states
+  */
+@@ -109,7 +103,7 @@ enum ap_sm_event {
+  * AP queue state wait behaviour
+  */
+ enum ap_sm_wait {
+-	AP_SM_WAIT_AGAIN,	/* retry immediately */
++	AP_SM_WAIT_AGAIN = 0,	/* retry immediately */
+ 	AP_SM_WAIT_TIMEOUT,	/* wait for timeout */
+ 	AP_SM_WAIT_INTERRUPT,	/* wait for thin interrupt (if available) */
+ 	AP_SM_WAIT_NONE,	/* no wait */
+@@ -182,7 +176,7 @@ struct ap_queue {
+ 	enum ap_dev_state dev_state;	/* queue device state */
+ 	bool config;			/* configured state */
+ 	ap_qid_t qid;			/* AP queue id. */
+-	int interrupt;			/* indicate if interrupts are enabled */
++	bool interrupt;			/* indicate if interrupts are enabled */
+ 	int queue_count;		/* # messages currently on AP queue. */
+ 	int pendingq_count;		/* # requests on pendingq list. */
+ 	int requestq_count;		/* # requests on requestq list. */
+diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
+index 337353c9655e..639f8d25679c 100644
+--- a/drivers/s390/crypto/ap_queue.c
++++ b/drivers/s390/crypto/ap_queue.c
+@@ -19,7 +19,7 @@
+ static void __ap_flush_queue(struct ap_queue *aq);
+ 
  /**
-  * debug_unregister() - give back debug area.
+- * ap_queue_enable_interruption(): Enable interruption on an AP queue.
++ * ap_queue_enable_irq(): Enable interrupt support on this AP queue.
+  * @qid: The AP queue number
+  * @ind: the notification indicator byte
   *
-@@ -718,8 +726,10 @@ void debug_unregister(debug_info_t *id)
- 	if (!id)
- 		return;
- 	mutex_lock(&debug_mutex);
--	debug_info_put(id);
-+	_debug_unregister(id);
- 	mutex_unlock(&debug_mutex);
-+
-+	debug_info_put(id);
- }
- EXPORT_SYMBOL(debug_unregister);
+@@ -27,7 +27,7 @@ static void __ap_flush_queue(struct ap_queue *aq);
+  * value it waits a while and tests the AP queue if interrupts
+  * have been switched on using ap_test_queue().
+  */
+-static int ap_queue_enable_interruption(struct ap_queue *aq, void *ind)
++static int ap_queue_enable_irq(struct ap_queue *aq, void *ind)
+ {
+ 	struct ap_queue_status status;
+ 	struct ap_qirq_ctrl qirqctrl = { 0 };
+@@ -198,7 +198,8 @@ static enum ap_sm_wait ap_sm_read(struct ap_queue *aq)
+ 		return AP_SM_WAIT_NONE;
+ 	case AP_RESPONSE_NO_PENDING_REPLY:
+ 		if (aq->queue_count > 0)
+-			return AP_SM_WAIT_INTERRUPT;
++			return aq->interrupt ?
++				AP_SM_WAIT_INTERRUPT : AP_SM_WAIT_TIMEOUT;
+ 		aq->sm_state = AP_SM_STATE_IDLE;
+ 		return AP_SM_WAIT_NONE;
+ 	default:
+@@ -252,7 +253,8 @@ static enum ap_sm_wait ap_sm_write(struct ap_queue *aq)
+ 		fallthrough;
+ 	case AP_RESPONSE_Q_FULL:
+ 		aq->sm_state = AP_SM_STATE_QUEUE_FULL;
+-		return AP_SM_WAIT_INTERRUPT;
++		return aq->interrupt ?
++			AP_SM_WAIT_INTERRUPT : AP_SM_WAIT_TIMEOUT;
+ 	case AP_RESPONSE_RESET_IN_PROGRESS:
+ 		aq->sm_state = AP_SM_STATE_RESET_WAIT;
+ 		return AP_SM_WAIT_TIMEOUT;
+@@ -302,7 +304,7 @@ static enum ap_sm_wait ap_sm_reset(struct ap_queue *aq)
+ 	case AP_RESPONSE_NORMAL:
+ 	case AP_RESPONSE_RESET_IN_PROGRESS:
+ 		aq->sm_state = AP_SM_STATE_RESET_WAIT;
+-		aq->interrupt = AP_INTR_DISABLED;
++		aq->interrupt = false;
+ 		return AP_SM_WAIT_TIMEOUT;
+ 	default:
+ 		aq->dev_state = AP_DEV_STATE_ERROR;
+@@ -335,7 +337,7 @@ static enum ap_sm_wait ap_sm_reset_wait(struct ap_queue *aq)
+ 	switch (status.response_code) {
+ 	case AP_RESPONSE_NORMAL:
+ 		lsi_ptr = ap_airq_ptr();
+-		if (lsi_ptr && ap_queue_enable_interruption(aq, lsi_ptr) == 0)
++		if (lsi_ptr && ap_queue_enable_irq(aq, lsi_ptr) == 0)
+ 			aq->sm_state = AP_SM_STATE_SETIRQ_WAIT;
+ 		else
+ 			aq->sm_state = (aq->queue_count > 0) ?
+@@ -376,7 +378,7 @@ static enum ap_sm_wait ap_sm_setirq_wait(struct ap_queue *aq)
  
+ 	if (status.irq_enabled == 1) {
+ 		/* Irqs are now enabled */
+-		aq->interrupt = AP_INTR_ENABLED;
++		aq->interrupt = true;
+ 		aq->sm_state = (aq->queue_count > 0) ?
+ 			AP_SM_STATE_WORKING : AP_SM_STATE_IDLE;
+ 	}
+@@ -566,7 +568,7 @@ static ssize_t interrupt_show(struct device *dev,
+ 	spin_lock_bh(&aq->lock);
+ 	if (aq->sm_state == AP_SM_STATE_SETIRQ_WAIT)
+ 		rc = scnprintf(buf, PAGE_SIZE, "Enable Interrupt pending.\n");
+-	else if (aq->interrupt == AP_INTR_ENABLED)
++	else if (aq->interrupt)
+ 		rc = scnprintf(buf, PAGE_SIZE, "Interrupts enabled.\n");
+ 	else
+ 		rc = scnprintf(buf, PAGE_SIZE, "Interrupts disabled.\n");
+@@ -747,7 +749,7 @@ struct ap_queue *ap_queue_create(ap_qid_t qid, int device_type)
+ 	aq->ap_dev.device.type = &ap_queue_type;
+ 	aq->ap_dev.device_type = device_type;
+ 	aq->qid = qid;
+-	aq->interrupt = AP_INTR_DISABLED;
++	aq->interrupt = false;
+ 	spin_lock_init(&aq->lock);
+ 	INIT_LIST_HEAD(&aq->pendingq);
+ 	INIT_LIST_HEAD(&aq->requestq);
 -- 
 2.30.2
 
