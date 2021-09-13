@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24E5D408DCA
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D0A8408FE1
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242821AbhIMNaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:30:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
+        id S242865AbhIMNre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:47:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242189AbhIMN1x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:27:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80C4161264;
-        Mon, 13 Sep 2021 13:23:12 +0000 (UTC)
+        id S244286AbhIMNpc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:45:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6F42604D1;
+        Mon, 13 Sep 2021 13:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539393;
-        bh=dg2QN3AWCIWmVz2nrFCFnJUi6tR7PcdlkYoww0kPG3U=;
+        s=korg; t=1631539894;
+        bh=gc8uZJpow2K+3fgmfKtSohs6K9M3MMFkTh0irV6xbXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJfwZNaOroKU+LfPUWD4gaaq74tcQZrcS9iDdZa7Y/91Yw01VITCbPNPAmxNlBIQU
-         X+IMhzLooyAbh0XdN4u4VLpj+FAwgmytH6hiG470K2DZ4S6Go9k+Rq/yeYgaTu7O7u
-         Rc3SLllx/1k4U7faWFMOxWF/zppUFeluBwZsEc14=
+        b=ClRozPAsXwXM4FSmOv6VWrQdYKFojFJgiLsUeKa09W8WkHCcpiHLsw10iCD3Tp0t9
+         k5O/PbkUi1AncjPZJar+h4UyT4dh6uzwbFEeElFB92YFmohbBXmb2BF9uMK4tTL0+3
+         gJfXDBCxMTvpei99GktomUuEMHewZebnmCk22/Pk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 126/144] ipv4: fix endianness issue in inet_rtm_getroute_build_skb()
+Subject: [PATCH 5.10 202/236] ice: Only lock to update netdev dev_addr
 Date:   Mon, 13 Sep 2021 15:15:07 +0200
-Message-Id: <20210913131052.141914548@linuxfoundation.org>
+Message-Id: <20210913131107.255415049@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +41,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit 92548b0ee220e000d81c27ac9a80e0ede895a881 ]
+[ Upstream commit b357d9717be7f95fde2c6c4650b186a995b71e59 ]
 
-The UDP length field should be in network order.
-This removes the following sparse error:
+commit 3ba7f53f8bf1 ("ice: don't remove netdev->dev_addr from uc sync
+list") introduced calls to netif_addr_lock_bh() and
+netif_addr_unlock_bh() in the driver's ndo_set_mac() callback. This is
+fine since the driver is updated the netdev's dev_addr, but since this
+is a spinlock, the driver cannot sleep when the lock is held.
+Unfortunately the functions to add/delete MAC filters depend on a mutex.
+This was causing a trace with the lock debug kernel config options
+enabled when changing the mac address via iproute.
 
-net/ipv4/route.c:3173:27: warning: incorrect type in assignment (different base types)
-net/ipv4/route.c:3173:27:    expected restricted __be16 [usertype] len
-net/ipv4/route.c:3173:27:    got unsigned long
+[  203.273059] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:281
+[  203.273065] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 6698, name: ip
+[  203.273068] Preemption disabled at:
+[  203.273068] [<ffffffffc04aaeab>] ice_set_mac_address+0x8b/0x1c0 [ice]
+[  203.273097] CPU: 31 PID: 6698 Comm: ip Tainted: G S      W I       5.14.0-rc4 #2
+[  203.273100] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0010.010620200716 01/06/2020
+[  203.273102] Call Trace:
+[  203.273107]  dump_stack_lvl+0x33/0x42
+[  203.273113]  ? ice_set_mac_address+0x8b/0x1c0 [ice]
+[  203.273124]  ___might_sleep.cold.150+0xda/0xea
+[  203.273131]  mutex_lock+0x1c/0x40
+[  203.273136]  ice_remove_mac+0xe3/0x180 [ice]
+[  203.273155]  ? ice_fltr_add_mac_list+0x20/0x20 [ice]
+[  203.273175]  ice_fltr_prepare_mac+0x43/0xa0 [ice]
+[  203.273194]  ice_set_mac_address+0xab/0x1c0 [ice]
+[  203.273206]  dev_set_mac_address+0xb8/0x120
+[  203.273210]  dev_set_mac_address_user+0x2c/0x50
+[  203.273212]  do_setlink+0x1dd/0x10e0
+[  203.273217]  ? __nla_validate_parse+0x12d/0x1a0
+[  203.273221]  __rtnl_newlink+0x530/0x910
+[  203.273224]  ? __kmalloc_node_track_caller+0x17f/0x380
+[  203.273230]  ? preempt_count_add+0x68/0xa0
+[  203.273236]  ? _raw_spin_lock_irqsave+0x1f/0x30
+[  203.273241]  ? kmem_cache_alloc_trace+0x4d/0x440
+[  203.273244]  rtnl_newlink+0x43/0x60
+[  203.273245]  rtnetlink_rcv_msg+0x13a/0x380
+[  203.273248]  ? rtnl_calcit.isra.40+0x130/0x130
+[  203.273250]  netlink_rcv_skb+0x4e/0x100
+[  203.273256]  netlink_unicast+0x1a2/0x280
+[  203.273258]  netlink_sendmsg+0x242/0x490
+[  203.273260]  sock_sendmsg+0x58/0x60
+[  203.273263]  ____sys_sendmsg+0x1ef/0x260
+[  203.273265]  ? copy_msghdr_from_user+0x5c/0x90
+[  203.273268]  ? ____sys_recvmsg+0xe6/0x170
+[  203.273270]  ___sys_sendmsg+0x7c/0xc0
+[  203.273272]  ? copy_msghdr_from_user+0x5c/0x90
+[  203.273274]  ? ___sys_recvmsg+0x89/0xc0
+[  203.273276]  ? __netlink_sendskb+0x50/0x50
+[  203.273278]  ? mod_objcg_state+0xee/0x310
+[  203.273282]  ? __dentry_kill+0x114/0x170
+[  203.273286]  ? get_max_files+0x10/0x10
+[  203.273288]  __sys_sendmsg+0x57/0xa0
+[  203.273290]  do_syscall_64+0x37/0x80
+[  203.273295]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  203.273296] RIP: 0033:0x7f8edf96e278
+[  203.273298] Code: 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 25 63 2c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 41 54 41 89 d4 55
+[  203.273300] RSP: 002b:00007ffcb8bdac08 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+[  203.273303] RAX: ffffffffffffffda RBX: 000000006115e0ae RCX: 00007f8edf96e278
+[  203.273304] RDX: 0000000000000000 RSI: 00007ffcb8bdac70 RDI: 0000000000000003
+[  203.273305] RBP: 0000000000000000 R08: 0000000000000001 R09: 00007ffcb8bda5b0
+[  203.273306] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000001
+[  203.273306] R13: 0000555e10092020 R14: 0000000000000000 R15: 0000000000000005
 
-Fixes: 404eb77ea766 ("ipv4: support sport, dport and ip_proto in RTM_GETROUTE")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: David Ahern <dsahern@kernel.org>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by only locking when changing the netdev->dev_addr. Also, make
+sure to restore the old netdev->dev_addr on any failures.
+
+Fixes: 3ba7f53f8bf1 ("ice: don't remove netdev->dev_addr from uc sync list")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 03f35764a40e..539492998864 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -3004,7 +3004,7 @@ static struct sk_buff *inet_rtm_getroute_build_skb(__be32 src, __be32 dst,
- 		udph = skb_put_zero(skb, sizeof(struct udphdr));
- 		udph->source = sport;
- 		udph->dest = dport;
--		udph->len = sizeof(struct udphdr);
-+		udph->len = htons(sizeof(struct udphdr));
- 		udph->check = 0;
- 		break;
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index a46780570cd9..5d0dc1f811e0 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -4879,6 +4879,7 @@ static int ice_set_mac_address(struct net_device *netdev, void *pi)
+ 	struct ice_hw *hw = &pf->hw;
+ 	struct sockaddr *addr = pi;
+ 	enum ice_status status;
++	u8 old_mac[ETH_ALEN];
+ 	u8 flags = 0;
+ 	int err = 0;
+ 	u8 *mac;
+@@ -4901,8 +4902,13 @@ static int ice_set_mac_address(struct net_device *netdev, void *pi)
  	}
+ 
+ 	netif_addr_lock_bh(netdev);
++	ether_addr_copy(old_mac, netdev->dev_addr);
++	/* change the netdev's MAC address */
++	memcpy(netdev->dev_addr, mac, netdev->addr_len);
++	netif_addr_unlock_bh(netdev);
++
+ 	/* Clean up old MAC filter. Not an error if old filter doesn't exist */
+-	status = ice_fltr_remove_mac(vsi, netdev->dev_addr, ICE_FWD_TO_VSI);
++	status = ice_fltr_remove_mac(vsi, old_mac, ICE_FWD_TO_VSI);
+ 	if (status && status != ICE_ERR_DOES_NOT_EXIST) {
+ 		err = -EADDRNOTAVAIL;
+ 		goto err_update_filters;
+@@ -4925,13 +4931,12 @@ err_update_filters:
+ 	if (err) {
+ 		netdev_err(netdev, "can't set MAC %pM. filter update failed\n",
+ 			   mac);
++		netif_addr_lock_bh(netdev);
++		ether_addr_copy(netdev->dev_addr, old_mac);
+ 		netif_addr_unlock_bh(netdev);
+ 		return err;
+ 	}
+ 
+-	/* change the netdev's MAC address */
+-	memcpy(netdev->dev_addr, mac, netdev->addr_len);
+-	netif_addr_unlock_bh(netdev);
+ 	netdev_dbg(vsi->netdev, "updated MAC address to %pM\n",
+ 		   netdev->dev_addr);
+ 
 -- 
 2.30.2
 
