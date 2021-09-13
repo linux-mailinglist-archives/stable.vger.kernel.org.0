@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75F95409253
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 517AC4094E7
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245481AbhIMOKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:10:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56004 "EHLO mail.kernel.org"
+        id S245206AbhIMOgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:36:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244603AbhIMOHN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:07:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE8C661A80;
-        Mon, 13 Sep 2021 13:40:27 +0000 (UTC)
+        id S1347481AbhIMOed (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:34:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5893261BBE;
+        Mon, 13 Sep 2021 13:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540428;
-        bh=1TmjPFWzP7rpVCua5cfpuecarH08NjizhvN5yZtrNh0=;
+        s=korg; t=1631541179;
+        bh=05UkK0ig2uvtmKKXkG6BBmNtU1LU6hu1Oy8xHBzwNqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bc9SiK7oZjqlr2ZBpqggyCV0rkcsqkSEWatzeoTTOMr4zt+1/THSOW/0Hi5Z1LlT2
-         +l/HjBjxKWA9UOsJ+PtKFdIIxUuGeWFiWWzLXELGxivVBC+zRvcrADxGhRy3k3UlOW
-         PiNg2G2pN8G5LS6ZExsSr33LSgK4aRDO9wA5jzlk=
+        b=LCxok4uFqYmw8OrGDegtTtlBexuxY5OsbmSQNWgqsSfvwAZGX8y4daEa0R7xPQkER
+         3dtnZG9EOJmR+vBVRhmYRfUDn+3VLB11yHuGEln1A3Irk5Jf9GLTGbvCmOi/FAQwd6
+         emP4BiUR86GOOl2mHN7p0NJdlwcFHdkeT697AWu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Kuogee Hsieh <khsieh@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 188/300] devlink: Clear whole devlink_flash_notify struct
+Subject: [PATCH 5.14 195/334] drm/msm/dp: replug event is converted into an unplug followed by an plug events
 Date:   Mon, 13 Sep 2021 15:14:09 +0200
-Message-Id: <20210913131115.738586762@linuxfoundation.org>
+Message-Id: <20210913131119.977252231@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Kuogee Hsieh <khsieh@codeaurora.org>
 
-[ Upstream commit ed43fbac717882165a2a4bd64f7b1f56f7467bb7 ]
+[ Upstream commit 7e10bf427850f2d7133fd091999abd5fc1755cdb ]
 
-The { 0 } doesn't clear all fields in the struct, but tells to the
-compiler to set all fields to zero and doesn't touch any sub-fields
-if they exists.
+Remove special handling of replug interrupt and instead treat replug event
+as a sequential unplug followed by a plugin event. This is needed to meet
+the requirements of DP Link Layer CTS test case 4.2.1.3.
 
-The {} is an empty initialiser that instructs to fully initialize whole
-struct including sub-fields, which is error-prone for future
-devlink_flash_notify extensions.
+Changes in V2:
+-- add fixes statement
 
-Fixes: 6700acc5f1fe ("devlink: collect flash notify params into a struct")
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Changes in V3:
+-- delete EV_HPD_REPLUG_INT
+
+Fixes: f21c8a276c2d ("drm/msm/dp: handle irq_hpd with sink_count = 0 correctly")
+
+Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1628196295-7382-5-git-send-email-khsieh@codeaurora.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/devlink.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_display.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/net/core/devlink.c b/net/core/devlink.c
-index 170e44f5e7df..5d01bebffaca 100644
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -3607,7 +3607,7 @@ out_free_msg:
+diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
+index 8aca93309c1c..997fd67f7379 100644
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -55,7 +55,6 @@ enum {
+ 	EV_HPD_INIT_SETUP,
+ 	EV_HPD_PLUG_INT,
+ 	EV_IRQ_HPD_INT,
+-	EV_HPD_REPLUG_INT,
+ 	EV_HPD_UNPLUG_INT,
+ 	EV_USER_NOTIFICATION,
+ 	EV_CONNECT_PENDING_TIMEOUT,
+@@ -1119,9 +1118,6 @@ static int hpd_event_thread(void *data)
+ 		case EV_IRQ_HPD_INT:
+ 			dp_irq_hpd_handle(dp_priv, todo->data);
+ 			break;
+-		case EV_HPD_REPLUG_INT:
+-			/* do nothing */
+-			break;
+ 		case EV_USER_NOTIFICATION:
+ 			dp_display_send_hpd_notification(dp_priv,
+ 						todo->data);
+@@ -1165,10 +1161,8 @@ static irqreturn_t dp_display_irq_handler(int irq, void *dev_id)
  
- static void devlink_flash_update_begin_notify(struct devlink *devlink)
- {
--	struct devlink_flash_notify params = { 0 };
-+	struct devlink_flash_notify params = {};
+ 	if (hpd_isr_status & 0x0F) {
+ 		/* hpd related interrupts */
+-		if (hpd_isr_status & DP_DP_HPD_PLUG_INT_MASK ||
+-			hpd_isr_status & DP_DP_HPD_REPLUG_INT_MASK) {
++		if (hpd_isr_status & DP_DP_HPD_PLUG_INT_MASK)
+ 			dp_add_event(dp, EV_HPD_PLUG_INT, 0, 0);
+-		}
  
- 	__devlink_flash_update_notify(devlink,
- 				      DEVLINK_CMD_FLASH_UPDATE,
-@@ -3616,7 +3616,7 @@ static void devlink_flash_update_begin_notify(struct devlink *devlink)
+ 		if (hpd_isr_status & DP_DP_IRQ_HPD_INT_MASK) {
+ 			/* stop sentinel connect pending checking */
+@@ -1176,8 +1170,10 @@ static irqreturn_t dp_display_irq_handler(int irq, void *dev_id)
+ 			dp_add_event(dp, EV_IRQ_HPD_INT, 0, 0);
+ 		}
  
- static void devlink_flash_update_end_notify(struct devlink *devlink)
- {
--	struct devlink_flash_notify params = { 0 };
-+	struct devlink_flash_notify params = {};
+-		if (hpd_isr_status & DP_DP_HPD_REPLUG_INT_MASK)
+-			dp_add_event(dp, EV_HPD_REPLUG_INT, 0, 0);
++		if (hpd_isr_status & DP_DP_HPD_REPLUG_INT_MASK) {
++			dp_add_event(dp, EV_HPD_UNPLUG_INT, 0, 0);
++			dp_add_event(dp, EV_HPD_PLUG_INT, 0, 3);
++		}
  
- 	__devlink_flash_update_notify(devlink,
- 				      DEVLINK_CMD_FLASH_UPDATE_END,
+ 		if (hpd_isr_status & DP_DP_HPD_UNPLUG_INT_MASK)
+ 			dp_add_event(dp, EV_HPD_UNPLUG_INT, 0, 0);
 -- 
 2.30.2
 
