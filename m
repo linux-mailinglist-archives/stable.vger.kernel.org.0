@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DECA40940C
+	by mail.lfdr.de (Postfix) with ESMTP id 534C340940B
 	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:26:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345833AbhIMO1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:27:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47502 "EHLO mail.kernel.org"
+        id S1345817AbhIMO1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:27:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241377AbhIMOZX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241200AbhIMOZX (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:25:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F55361B4E;
-        Mon, 13 Sep 2021 13:48:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFCC161B48;
+        Mon, 13 Sep 2021 13:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540929;
-        bh=nIyUI+QqX2rUHWQesdYJXYi01xir+nzDH0SyBxhYbTQ=;
+        s=korg; t=1631540931;
+        bh=lVDVoa1sP9R2MLoIob+fd5qtkGB87avFrZ2575JGRtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWrv+BQqxEpGp15M8eA3AD6fM+q5byrZaC990LFwERAj8LdFCLLWy5QielmS/xmcL
-         nq22UMCze+ib//lxrp+EVIDlWIvF3DQW32ULYb5YgHOZNZX4RzIkT7Lb/WkXcVKdj3
-         w+8qzTnDNJvB64KOMQYmgLvTUVaCnyQ5lwWQZFEM=
+        b=yPp2O9pYuN1wFsLVBnAamSh1I9PgKqun/2+qyqH3QinT1R6ZkEET9amjH/jiNit9U
+         zM1Bp4Gvib8Pxlk3XP3oH3aUi83XO9xG4CnuJ2blxpUXa39nj1G6DzDRmfSXFX2a2s
+         mXL7fo+8QRM7j2Uq+a/sRmVXxv2MWkp5K29wUd+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@inria.fr>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 091/334] media: cxd2880-spi: Fix an error handling path
-Date:   Mon, 13 Sep 2021 15:12:25 +0200
-Message-Id: <20210913131116.463215848@linuxfoundation.org>
+Subject: [PATCH 5.14 092/334] drm/of: free the right object
+Date:   Mon, 13 Sep 2021 15:12:26 +0200
+Message-Id: <20210913131116.494403307@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -42,54 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Julia Lawall <Julia.Lawall@inria.fr>
 
-[ Upstream commit dcb0145821017e929a733e2271c85c6f82b9c9f8 ]
+[ Upstream commit b557a5f8da5798d27370ed6b73e673aae33efd55 ]
 
-If an error occurs after a successful 'regulator_enable()' call,
-'regulator_disable()' must be called.
+There is no need to free a NULL value.  Instead, free the object
+that is leaking due to the iterator.
 
-Fix the error handling path of the probe accordingly.
+The semantic patch that finds this problem is as follows:
 
-Fixes: cb496cd472af ("media: cxd2880-spi: Add optional vcc regulator")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+// <smpl>
+@@
+expression x,e;
+identifier f;
+@@
+ x = f(...);
+ if (x == NULL) {
+	... when any
+	    when != x = e
+*	of_node_put(x);
+	...
+ }
+// </smpl>
+
+Fixes: 6529007522de ("drm: of: Add drm_of_lvds_get_dual_link_pixel_order")
+Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210709200717.3676376-1-Julia.Lawall@inria.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/spi/cxd2880-spi.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_of.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/spi/cxd2880-spi.c b/drivers/media/spi/cxd2880-spi.c
-index e5094fff04c5..b91a1e845b97 100644
---- a/drivers/media/spi/cxd2880-spi.c
-+++ b/drivers/media/spi/cxd2880-spi.c
-@@ -524,13 +524,13 @@ cxd2880_spi_probe(struct spi_device *spi)
- 	if (IS_ERR(dvb_spi->vcc_supply)) {
- 		if (PTR_ERR(dvb_spi->vcc_supply) == -EPROBE_DEFER) {
- 			ret = -EPROBE_DEFER;
--			goto fail_adapter;
-+			goto fail_regulator;
- 		}
- 		dvb_spi->vcc_supply = NULL;
- 	} else {
- 		ret = regulator_enable(dvb_spi->vcc_supply);
- 		if (ret)
--			goto fail_adapter;
-+			goto fail_regulator;
- 	}
+diff --git a/drivers/gpu/drm/drm_of.c b/drivers/gpu/drm/drm_of.c
+index ca04c34e8251..197c57477344 100644
+--- a/drivers/gpu/drm/drm_of.c
++++ b/drivers/gpu/drm/drm_of.c
+@@ -315,7 +315,7 @@ static int drm_of_lvds_get_remote_pixels_type(
  
- 	dvb_spi->spi = spi;
-@@ -618,6 +618,9 @@ fail_frontend:
- fail_attach:
- 	dvb_unregister_adapter(&dvb_spi->adapter);
- fail_adapter:
-+	if (!dvb_spi->vcc_supply)
-+		regulator_disable(dvb_spi->vcc_supply);
-+fail_regulator:
- 	kfree(dvb_spi);
- 	return ret;
- }
+ 		remote_port = of_graph_get_remote_port(endpoint);
+ 		if (!remote_port) {
+-			of_node_put(remote_port);
++			of_node_put(endpoint);
+ 			return -EPIPE;
+ 		}
+ 
 -- 
 2.30.2
 
