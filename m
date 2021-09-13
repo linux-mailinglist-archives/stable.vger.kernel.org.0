@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EE084095BA
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 001C44095EC
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344332AbhIMOnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:43:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60204 "EHLO mail.kernel.org"
+        id S1346541AbhIMOqW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:46:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345135AbhIMOlq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:41:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6FB06124A;
-        Mon, 13 Sep 2021 13:56:20 +0000 (UTC)
+        id S1346499AbhIMOmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:42:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FDA761A10;
+        Mon, 13 Sep 2021 13:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541381;
-        bh=3HgTSiSenMZLALV6ean9E0Invt9sKdJ7P5fruDSHcSA=;
+        s=korg; t=1631541383;
+        bh=Jy7Q7Blf6tB2CjW2U9cPUJWfvPp+fLiGIafG/3WybSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WWOx+lVVVXpnLzxJi6CdA3PX0klx66SX3uT/UDKK5xK7TBV849bvXISsdC2L5UvG8
-         D7BNQt+hfW8p4Gr2ukezVQo2tANSrGdzIHntrv5qPhaMmtuGeF8KsGtyG/1AYsDunQ
-         +5CzmR53vvj2WOLeb8LTWb6qjZKzvn3yWM7xeUlU=
+        b=1KcC1I4UenpvIuJpW9sL/W9T4yXaNrfgT3w0K0GKA2n+Co78rUL74F036AEi/dlcp
+         r1Ap0398uWIk0ejHTbx2T3tEak24lrE16nq5BO7j/L7E+KcYGvWgMjQieJnngIs3y5
+         84qxkfYG6iJUPzbSOuEmBbgW6pXY/BMy58lknLUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
+        stable@vger.kernel.org, Sunil Goutham <sgoutham@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 242/334] octeontx2-af: Check capability flag while freeing ipolicer memory
-Date:   Mon, 13 Sep 2021 15:14:56 +0200
-Message-Id: <20210913131121.583008323@linuxfoundation.org>
+Subject: [PATCH 5.14 243/334] octeontx2-pf: Dont install VLAN offload rule if netdev is down
+Date:   Mon, 13 Sep 2021 15:14:57 +0200
+Message-Id: <20210913131121.622934113@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,62 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geetha sowjanya <gakula@marvell.com>
+From: Sunil Goutham <sgoutham@marvell.com>
 
-[ Upstream commit 07cccffdbdd37820ba13c645af8e74a78a266557 ]
+[ Upstream commit 05209e3570e452cdaa644e8398a8875b6a91051d ]
 
-Bandwidth profiles (ipolicer structure)is implemented only on CN10K
-platform. But current code try to free the ipolicer memory without
-checking the capibility flag leading to driver crash on OCTEONTX2
-platform. This patch fixes the issue by add capability flag check.
+Whenever user changes interface MAC address both default DMAC based
+MCAM rule and VLAN offload (for strip) rules are updated with new
+MAC address. To update or install VLAN offload rule PF driver needs
+interface's receive channel info, which is retrieved from admin
+function at the time of NIXLF initialization.
 
-Fixes: e8e095b3b3700 ("octeontx2-af: cn10k: Bandwidth profiles config support")
-Signed-off-by: Geetha sowjanya <gakula@marvell.com>
+If user changes MAC address before interface is UP, VLAN offload rule
+installation will fail and throw error as receive channel is not valid.
+To avoid this, skip VLAN offload rule installation if netdev is not UP.
+This rule will anyway be reinslatted as part of open() call.
+
+Fixes: fd9d7859db6c ("octeontx2-pf: Implement ingress/egress VLAN offload")
 Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-index 4bfbbdf38770..c32195073e8a 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-@@ -25,7 +25,7 @@ static int nix_update_mce_rule(struct rvu *rvu, u16 pcifunc,
- 			       int type, bool add);
- static int nix_setup_ipolicers(struct rvu *rvu,
- 			       struct nix_hw *nix_hw, int blkaddr);
--static void nix_ipolicer_freemem(struct nix_hw *nix_hw);
-+static void nix_ipolicer_freemem(struct rvu *rvu, struct nix_hw *nix_hw);
- static int nix_verify_bandprof(struct nix_cn10k_aq_enq_req *req,
- 			       struct nix_hw *nix_hw, u16 pcifunc);
- static int nix_free_all_bandprof(struct rvu *rvu, u16 pcifunc);
-@@ -3849,7 +3849,7 @@ static void rvu_nix_block_freemem(struct rvu *rvu, int blkaddr,
- 			kfree(txsch->schq.bmap);
- 		}
- 
--		nix_ipolicer_freemem(nix_hw);
-+		nix_ipolicer_freemem(rvu, nix_hw);
- 
- 		vlan = &nix_hw->txvlan;
- 		kfree(vlan->rsrc.bmap);
-@@ -4225,11 +4225,14 @@ static int nix_setup_ipolicers(struct rvu *rvu,
- 	return 0;
- }
- 
--static void nix_ipolicer_freemem(struct nix_hw *nix_hw)
-+static void nix_ipolicer_freemem(struct rvu *rvu, struct nix_hw *nix_hw)
- {
- 	struct nix_ipolicer *ipolicer;
- 	int layer;
- 
-+	if (!rvu->hw->cap.ipolicer)
-+		return;
-+
- 	for (layer = 0; layer < BAND_PROF_NUM_LAYERS; layer++) {
- 		ipolicer = &nix_hw->ipolicer[layer];
- 
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+index 70fcc1fd962f..692099793005 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+@@ -208,7 +208,8 @@ int otx2_set_mac_address(struct net_device *netdev, void *p)
+ 	if (!otx2_hw_set_mac_addr(pfvf, addr->sa_data)) {
+ 		memcpy(netdev->dev_addr, addr->sa_data, netdev->addr_len);
+ 		/* update dmac field in vlan offload rule */
+-		if (pfvf->flags & OTX2_FLAG_RX_VLAN_SUPPORT)
++		if (netif_running(netdev) &&
++		    pfvf->flags & OTX2_FLAG_RX_VLAN_SUPPORT)
+ 			otx2_install_rxvlan_offload_flow(pfvf);
+ 		/* update dmac address in ntuple and DMAC filter list */
+ 		if (pfvf->flags & OTX2_FLAG_DMACFLTR_SUPPORT)
 -- 
 2.30.2
 
