@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8867940935D
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0D6A4095E0
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240913AbhIMOVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:21:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39704 "EHLO mail.kernel.org"
+        id S1344170AbhIMOqA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:46:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240784AbhIMOQu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:16:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE91561B01;
-        Mon, 13 Sep 2021 13:44:40 +0000 (UTC)
+        id S1345635AbhIMOoK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:44:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F34A861151;
+        Mon, 13 Sep 2021 13:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540681;
-        bh=2HqpvZymOdCHaQf2VAqiXp2GlpNsxp2W56uhyfMbyRc=;
+        s=korg; t=1631541443;
+        bh=9Y0OFOHCezxPl7N3Kt31p5suLdAPHG/POeu+xZp/3vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KD1r+s7gAjj4IIWI51sOeVDA+JAy0LiF5Oin+0h6inqgJlGbt8T8nrnt72JfB9/Iv
-         JxR1xG6dspbwQviI/jcgBWREcFGOEgpcPfzabY4pmMe7NEQ0lYhAGxl6RpzeTZeIjk
-         UNxI/lpCZPRnxeuyZoj/yo57xXNaQG3eTnTzXX3Q=
+        b=QAU4VR3+4dPfnAoNqzHuA9iea9fZIowcLh84tc/k59B2ZhjZmFYt0mDGxpcAcOyHk
+         1lbumBxDV2VapFawjpoBGpWrgT6BfZM17zLWr2YgkYI5vg+lK63kHcAC7JpdT2ofem
+         9a1th49VUqLikJI5BzvVY7IdscSVOdbqEDkxXS7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
-Subject: [PATCH 5.13 292/300] fuse: truncate pagecache on atomic_o_trunc
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Lars Poeschel <poeschel@lemonage.de>,
+        Miguel Ojeda <ojeda@kernel.org>
+Subject: [PATCH 5.14 299/334] auxdisplay: hd44780: Fix oops on module unloading
 Date:   Mon, 13 Sep 2021 15:15:53 +0200
-Message-Id: <20210913131119.213277668@linuxfoundation.org>
+Message-Id: <20210913131123.533104379@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Lars Poeschel <poeschel@lemonage.de>
 
-commit 76224355db7570cbe6b6f75c8929a1558828dd55 upstream.
+commit 333ff32d54cdefc2e479892e7f15ac91e026b57d upstream.
 
-fuse_finish_open() will be called with FUSE_NOWRITE in case of atomic
-O_TRUNC.  This can deadlock with fuse_wait_on_page_writeback() in
-fuse_launder_page() triggered by invalidate_inode_pages2().
-
-Fix by replacing invalidate_inode_pages2() in fuse_finish_open() with a
-truncate_pagecache() call.  This makes sense regardless of FOPEN_KEEP_CACHE
-or fc->writeback cache, so do it unconditionally.
-
-Reported-by: Xie Yongji <xieyongji@bytedance.com>
-Reported-and-tested-by: syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
-Fixes: e4648309b85a ("fuse: truncate pending writes on O_TRUNC")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 718e05ed92ec ("auxdisplay: Introduce hd44780_common.[ch]")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/lkml/CAHp75VfKyqy+vM0XkP9Yb+znGOTVT4zYCRY3A3nQ7C3WNUVN0g@mail.gmail.com/
+Reported-By: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Lars Poeschel <poeschel@lemonage.de>
+Tested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+[added Link, Fixes, Cc stable tags, edited message]
+Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/file.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/auxdisplay/hd44780.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -198,12 +198,11 @@ void fuse_finish_open(struct inode *inod
- 	struct fuse_file *ff = file->private_data;
- 	struct fuse_conn *fc = get_fuse_conn(inode);
+--- a/drivers/auxdisplay/hd44780.c
++++ b/drivers/auxdisplay/hd44780.c
+@@ -323,8 +323,8 @@ static int hd44780_remove(struct platfor
+ {
+ 	struct charlcd *lcd = platform_get_drvdata(pdev);
  
--	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
--		invalidate_inode_pages2(inode->i_mapping);
- 	if (ff->open_flags & FOPEN_STREAM)
- 		stream_open(inode, file);
- 	else if (ff->open_flags & FOPEN_NONSEEKABLE)
- 		nonseekable_open(inode, file);
-+
- 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
- 		struct fuse_inode *fi = get_fuse_inode(inode);
+-	kfree(lcd->drvdata);
+ 	charlcd_unregister(lcd);
++	kfree(lcd->drvdata);
  
-@@ -211,10 +210,14 @@ void fuse_finish_open(struct inode *inod
- 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
- 		i_size_write(inode, 0);
- 		spin_unlock(&fi->lock);
-+		truncate_pagecache(inode, 0);
- 		fuse_invalidate_attr(inode);
- 		if (fc->writeback_cache)
- 			file_update_time(file);
-+	} else if (!(ff->open_flags & FOPEN_KEEP_CACHE)) {
-+		invalidate_inode_pages2(inode->i_mapping);
- 	}
-+
- 	if ((file->f_mode & FMODE_WRITE) && fc->writeback_cache)
- 		fuse_link_write_file(file);
- }
+ 	kfree(lcd);
+ 	return 0;
 
 
