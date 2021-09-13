@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2D3C409254
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 309F54094F1
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245566AbhIMOKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:10:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55568 "EHLO mail.kernel.org"
+        id S240730AbhIMOgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:36:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344734AbhIMOHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:07:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7365661A7C;
-        Mon, 13 Sep 2021 13:40:37 +0000 (UTC)
+        id S1347536AbhIMOem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:34:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EDF7619EE;
+        Mon, 13 Sep 2021 13:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540438;
-        bh=ohwEJtFRB3PaxDtINta776MDdnaHFIlz/gMmTM7tb7s=;
+        s=korg; t=1631541192;
+        bh=xWzOSUC3nB4FNyqD6n8KAzMIGWPa7Q6zrHX4Mng4a14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QJX1kfOFow+0Tsrz3Gs9HnGoh5i8wSH2o+fnHxWLEdyzL7k0+xDH9VSn96OpDrnDG
-         n8SNZu5WJNetymRBGb5/1A4P0Mu+XH+r5RedK4Da3gh9wUAkfA04RN1k59k8A1rkFO
-         jV6Achzlld2nCsmnb0zqqGpTW/0NsGuKUszJ4jVM=
+        b=uKXnmRSQNjvHY9X0zkBrZIts/IiB1jDbK46Y1ozoRWrEcOs8wh/iPtgfyatXqsqkz
+         Hscr/0F3cViYzd53H0JMr8jjs7lNxOxuElRRKlqcwhhECnH/ly9dCEOUwntdK955N7
+         odfrlEESPUH1/39YK7wNU2Ntbtkf2eXpXGHjHkFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 192/300] PM: cpu: Make notifier chain use a raw_spinlock_t
+Subject: [PATCH 5.14 199/334] usb: dwc3: meson-g12a: add IRQ check
 Date:   Mon, 13 Sep 2021 15:14:13 +0200
-Message-Id: <20210913131115.867597392@linuxfoundation.org>
+Message-Id: <20210913131120.141404527@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,130 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit b2f6662ac08d0e7c25574ce53623c71bdae9dd78 ]
+[ Upstream commit baa2986bda3f7b2386607587a4185e3dff8f98df ]
 
-Invoking atomic_notifier_chain_notify() requires acquiring a spinlock_t,
-which can block under CONFIG_PREEMPT_RT. Notifications for members of the
-cpu_pm notification chain will be issued by the idle task, which can never
-block.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_threaded_irq()
+(which takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
+an original error code. Stop calling devm_request_threaded_irq() with the
+invalid IRQ #s.
 
-Making *all* atomic_notifiers use a raw_spinlock is too big of a hammer, as
-only notifications issued by the idle task are problematic.
-
-Special-case cpu_pm_notifier_chain by kludging a raw_notifier and
-raw_spinlock_t together, matching the atomic_notifier behavior with a
-raw_spinlock_t.
-
-Fixes: 70d932985757 ("notifier: Fix broken error handling pattern")
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: f90db10779ad ("usb: dwc3: meson-g12a: Add support for IRQ based OTG switching")
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/96106462-5538-0b2f-f2ab-ee56e4853912@omp.ru
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cpu_pm.c | 50 +++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 38 insertions(+), 12 deletions(-)
+ drivers/usb/dwc3/dwc3-meson-g12a.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/cpu_pm.c b/kernel/cpu_pm.c
-index f7e1d0eccdbc..246efc74e3f3 100644
---- a/kernel/cpu_pm.c
-+++ b/kernel/cpu_pm.c
-@@ -13,19 +13,32 @@
- #include <linux/spinlock.h>
- #include <linux/syscore_ops.h>
+diff --git a/drivers/usb/dwc3/dwc3-meson-g12a.c b/drivers/usb/dwc3/dwc3-meson-g12a.c
+index ffe301d6ea35..d0f9b7c296b0 100644
+--- a/drivers/usb/dwc3/dwc3-meson-g12a.c
++++ b/drivers/usb/dwc3/dwc3-meson-g12a.c
+@@ -598,6 +598,8 @@ static int dwc3_meson_g12a_otg_init(struct platform_device *pdev,
+ 				   USB_R5_ID_DIG_IRQ, 0);
  
--static ATOMIC_NOTIFIER_HEAD(cpu_pm_notifier_chain);
-+/*
-+ * atomic_notifiers use a spinlock_t, which can block under PREEMPT_RT.
-+ * Notifications for cpu_pm will be issued by the idle task itself, which can
-+ * never block, IOW it requires using a raw_spinlock_t.
-+ */
-+static struct {
-+	struct raw_notifier_head chain;
-+	raw_spinlock_t lock;
-+} cpu_pm_notifier = {
-+	.chain = RAW_NOTIFIER_INIT(cpu_pm_notifier.chain),
-+	.lock  = __RAW_SPIN_LOCK_UNLOCKED(cpu_pm_notifier.lock),
-+};
- 
- static int cpu_pm_notify(enum cpu_pm_event event)
- {
- 	int ret;
- 
- 	/*
--	 * atomic_notifier_call_chain has a RCU read critical section, which
--	 * could be disfunctional in cpu idle. Copy RCU_NONIDLE code to let
--	 * RCU know this.
-+	 * This introduces a RCU read critical section, which could be
-+	 * disfunctional in cpu idle. Copy RCU_NONIDLE code to let RCU know
-+	 * this.
- 	 */
- 	rcu_irq_enter_irqson();
--	ret = atomic_notifier_call_chain(&cpu_pm_notifier_chain, event, NULL);
-+	rcu_read_lock();
-+	ret = raw_notifier_call_chain(&cpu_pm_notifier.chain, event, NULL);
-+	rcu_read_unlock();
- 	rcu_irq_exit_irqson();
- 
- 	return notifier_to_errno(ret);
-@@ -33,10 +46,13 @@ static int cpu_pm_notify(enum cpu_pm_event event)
- 
- static int cpu_pm_notify_robust(enum cpu_pm_event event_up, enum cpu_pm_event event_down)
- {
-+	unsigned long flags;
- 	int ret;
- 
- 	rcu_irq_enter_irqson();
--	ret = atomic_notifier_call_chain_robust(&cpu_pm_notifier_chain, event_up, event_down, NULL);
-+	raw_spin_lock_irqsave(&cpu_pm_notifier.lock, flags);
-+	ret = raw_notifier_call_chain_robust(&cpu_pm_notifier.chain, event_up, event_down, NULL);
-+	raw_spin_unlock_irqrestore(&cpu_pm_notifier.lock, flags);
- 	rcu_irq_exit_irqson();
- 
- 	return notifier_to_errno(ret);
-@@ -49,12 +65,17 @@ static int cpu_pm_notify_robust(enum cpu_pm_event event_up, enum cpu_pm_event ev
-  * Add a driver to a list of drivers that are notified about
-  * CPU and CPU cluster low power entry and exit.
-  *
-- * This function may sleep, and has the same return conditions as
-- * raw_notifier_chain_register.
-+ * This function has the same return conditions as raw_notifier_chain_register.
-  */
- int cpu_pm_register_notifier(struct notifier_block *nb)
- {
--	return atomic_notifier_chain_register(&cpu_pm_notifier_chain, nb);
-+	unsigned long flags;
-+	int ret;
-+
-+	raw_spin_lock_irqsave(&cpu_pm_notifier.lock, flags);
-+	ret = raw_notifier_chain_register(&cpu_pm_notifier.chain, nb);
-+	raw_spin_unlock_irqrestore(&cpu_pm_notifier.lock, flags);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(cpu_pm_register_notifier);
- 
-@@ -64,12 +85,17 @@ EXPORT_SYMBOL_GPL(cpu_pm_register_notifier);
-  *
-  * Remove a driver from the CPU PM notifier list.
-  *
-- * This function may sleep, and has the same return conditions as
-- * raw_notifier_chain_unregister.
-+ * This function has the same return conditions as raw_notifier_chain_unregister.
-  */
- int cpu_pm_unregister_notifier(struct notifier_block *nb)
- {
--	return atomic_notifier_chain_unregister(&cpu_pm_notifier_chain, nb);
-+	unsigned long flags;
-+	int ret;
-+
-+	raw_spin_lock_irqsave(&cpu_pm_notifier.lock, flags);
-+	ret = raw_notifier_chain_unregister(&cpu_pm_notifier.chain, nb);
-+	raw_spin_unlock_irqrestore(&cpu_pm_notifier.lock, flags);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(cpu_pm_unregister_notifier);
- 
+ 		irq = platform_get_irq(pdev, 0);
++		if (irq < 0)
++			return irq;
+ 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+ 						dwc3_meson_g12a_irq_thread,
+ 						IRQF_ONESHOT, pdev->name, priv);
 -- 
 2.30.2
 
