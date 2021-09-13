@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E8E40922A
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:09:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F144094ED
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:35:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344078AbhIMOIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:08:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54798 "EHLO mail.kernel.org"
+        id S241137AbhIMOgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:36:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242662AbhIMOGr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:06:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E49661A6C;
-        Mon, 13 Sep 2021 13:40:11 +0000 (UTC)
+        id S1344469AbhIMOdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:33:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07E8361872;
+        Mon, 13 Sep 2021 13:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540411;
-        bh=x73VeGWG/wCftAU+sqyya83+jbHEp6i30b7fFTCFvcI=;
+        s=korg; t=1631541167;
+        bh=50zYpnkjEY2pTp+vMAnZUQeG2tdydDrCG/kJxt09Po8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a0OtNno9Gl/X+igHIbLJgR5L31Q2hIZWVwyyHOscW1elU29XNWBY2kuzmJSoRzTmT
-         DKVsRthIWca5bhAvJ6xoCQbnpM68sqnKumiWiGt41NmGqHIi41U4f+xdmk3DZlOUZ6
-         hlBMtwLAdSDwtA5m+sL1OIqMO8ii2eQSR8TGASJw=
+        b=kVRGNbpUSquWDqfFrjXlzf07zuA7T+GbOqlnkJbAfXso/GQGSFomUPjT9m+nKjKFM
+         kFpyR1VXs0yE5qvQEwPswU7Gv/KIL24PZmNLIJOVDCFZGVgVMAz0GXAa33S9XX1HiZ
+         7vxvKX/0cWXM/3rcUrF6NuV58n6GvhUSq9PCr6p4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 182/300] usb: gadget: udc: s3c2410: add IRQ check
-Date:   Mon, 13 Sep 2021 15:14:03 +0200
-Message-Id: <20210913131115.541383083@linuxfoundation.org>
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 190/334] cgroup/cpuset: Miscellaneous code cleanup
+Date:   Mon, 13 Sep 2021 15:14:04 +0200
+Message-Id: <20210913131119.783011997@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +39,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit ecff88e819e31081d41cd05bb199b9bd10e13e90 ]
+[ Upstream commit 0f3adb8a1e5f36e792598c1d77a2cfac9c90a4f9 ]
 
-The driver neglects to check the result of platform_get_irq()'s call and
-blithely passes the negative error codes to request_irq() (which takes
-*unsigned* IRQ #), causing it to fail with -EINVAL, overriding an original
-error code. Stop calling request_irq() with the invalid IRQ #s.
+Use more descriptive variable names for update_prstate(), remove
+unnecessary code and fix some typos. There is no functional change.
 
-Fixes: 188db4435ac6 ("usb: gadget: s3c: use platform resources")
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/bd69b22c-b484-5a1f-c798-78d4b78405f2@omp.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/s3c2410_udc.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/cgroup/cpuset.c | 40 +++++++++++++++++++---------------------
+ 1 file changed, 19 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/s3c2410_udc.c b/drivers/usb/gadget/udc/s3c2410_udc.c
-index b154b62abefa..82c4f3fb2dae 100644
---- a/drivers/usb/gadget/udc/s3c2410_udc.c
-+++ b/drivers/usb/gadget/udc/s3c2410_udc.c
-@@ -1784,6 +1784,10 @@ static int s3c2410_udc_probe(struct platform_device *pdev)
- 	s3c2410_udc_reinit(udc);
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 592e9e37542f..28a784bf64b1 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1114,7 +1114,7 @@ enum subparts_cmd {
+  * cpus_allowed can be granted or an error code will be returned.
+  *
+  * For partcmd_disable, the cpuset is being transofrmed from a partition
+- * root back to a non-partition root. any CPUs in cpus_allowed that are in
++ * root back to a non-partition root. Any CPUs in cpus_allowed that are in
+  * parent's subparts_cpus will be taken away from that cpumask and put back
+  * into parent's effective_cpus. 0 should always be returned.
+  *
+@@ -1225,7 +1225,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
+ 		/*
+ 		 * partcmd_update w/o newmask:
+ 		 *
+-		 * addmask = cpus_allowed & parent->effectiveb_cpus
++		 * addmask = cpus_allowed & parent->effective_cpus
+ 		 *
+ 		 * Note that parent's subparts_cpus may have been
+ 		 * pre-shrunk in case there is a change in the cpu list.
+@@ -1365,12 +1365,12 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+ 			case PRS_DISABLED:
+ 				/*
+ 				 * If parent is not a partition root or an
+-				 * invalid partition root, clear the state
+-				 * state and the CS_CPU_EXCLUSIVE flag.
++				 * invalid partition root, clear its state
++				 * and its CS_CPU_EXCLUSIVE flag.
+ 				 */
+ 				WARN_ON_ONCE(cp->partition_root_state
+ 					     != PRS_ERROR);
+-				cp->partition_root_state = 0;
++				cp->partition_root_state = PRS_DISABLED;
  
- 	irq_usbd = platform_get_irq(pdev, 0);
-+	if (irq_usbd < 0) {
-+		retval = irq_usbd;
-+		goto err_udc_clk;
-+	}
+ 				/*
+ 				 * clear_bit() is an atomic operation and
+@@ -1937,30 +1937,28 @@ out:
  
- 	/* irq setup after old hardware state is cleaned up */
- 	retval = request_irq(irq_usbd, s3c2410_udc_irq,
+ /*
+  * update_prstate - update partititon_root_state
+- * cs:	the cpuset to update
+- * val: 0 - disabled, 1 - enabled
++ * cs: the cpuset to update
++ * new_prs: new partition root state
+  *
+  * Call with cpuset_mutex held.
+  */
+-static int update_prstate(struct cpuset *cs, int val)
++static int update_prstate(struct cpuset *cs, int new_prs)
+ {
+ 	int err;
+ 	struct cpuset *parent = parent_cs(cs);
+-	struct tmpmasks tmp;
++	struct tmpmasks tmpmask;
+ 
+-	if ((val != 0) && (val != 1))
+-		return -EINVAL;
+-	if (val == cs->partition_root_state)
++	if (new_prs == cs->partition_root_state)
+ 		return 0;
+ 
+ 	/*
+ 	 * Cannot force a partial or invalid partition root to a full
+ 	 * partition root.
+ 	 */
+-	if (val && cs->partition_root_state)
++	if (new_prs && (cs->partition_root_state < 0))
+ 		return -EINVAL;
+ 
+-	if (alloc_cpumasks(NULL, &tmp))
++	if (alloc_cpumasks(NULL, &tmpmask))
+ 		return -ENOMEM;
+ 
+ 	err = -EINVAL;
+@@ -1978,7 +1976,7 @@ static int update_prstate(struct cpuset *cs, int val)
+ 			goto out;
+ 
+ 		err = update_parent_subparts_cpumask(cs, partcmd_enable,
+-						     NULL, &tmp);
++						     NULL, &tmpmask);
+ 		if (err) {
+ 			update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+ 			goto out;
+@@ -1990,18 +1988,18 @@ static int update_prstate(struct cpuset *cs, int val)
+ 		 * CS_CPU_EXCLUSIVE bit.
+ 		 */
+ 		if (cs->partition_root_state == PRS_ERROR) {
+-			cs->partition_root_state = 0;
++			cs->partition_root_state = PRS_DISABLED;
+ 			update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+ 			err = 0;
+ 			goto out;
+ 		}
+ 
+ 		err = update_parent_subparts_cpumask(cs, partcmd_disable,
+-						     NULL, &tmp);
++						     NULL, &tmpmask);
+ 		if (err)
+ 			goto out;
+ 
+-		cs->partition_root_state = 0;
++		cs->partition_root_state = PRS_DISABLED;
+ 
+ 		/* Turning off CS_CPU_EXCLUSIVE will not return error */
+ 		update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+@@ -2015,11 +2013,11 @@ static int update_prstate(struct cpuset *cs, int val)
+ 		update_tasks_cpumask(parent);
+ 
+ 	if (parent->child_ecpus_count)
+-		update_sibling_cpumasks(parent, cs, &tmp);
++		update_sibling_cpumasks(parent, cs, &tmpmask);
+ 
+ 	rebuild_sched_domains_locked();
+ out:
+-	free_cpumasks(NULL, &tmp);
++	free_cpumasks(NULL, &tmpmask);
+ 	return err;
+ }
+ 
+@@ -3060,7 +3058,7 @@ retry:
+ 		goto retry;
+ 	}
+ 
+-	parent =  parent_cs(cs);
++	parent = parent_cs(cs);
+ 	compute_effective_cpumask(&new_cpus, cs, parent);
+ 	nodes_and(new_mems, cs->mems_allowed, parent->effective_mems);
+ 
 -- 
 2.30.2
 
