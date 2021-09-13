@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63DE44095DF
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C03D8409374
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344444AbhIMOp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:45:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60464 "EHLO mail.kernel.org"
+        id S1343570AbhIMOVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:21:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345641AbhIMOoK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:44:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 941DA63212;
-        Mon, 13 Sep 2021 13:57:25 +0000 (UTC)
+        id S1344141AbhIMOQu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:16:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3851E61AFE;
+        Mon, 13 Sep 2021 13:44:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541446;
-        bh=9gf2gwK8tz+up98EQlGpMp4JIki2UzwEz2uUd0fADaA=;
+        s=korg; t=1631540683;
+        bh=CL5Y3CisgtGWXW+uw3x7L2vaHHHyTBOnODkCDoZu7xI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pA4Szq1WeNsQdG82YovL/Bt4NgkgCpv+1hkycU3HuAxSMaJP31jTGeqvMtL2TZzii
-         e+SIHPblXhadkPwEYTCJ2WKoabl/IM0cTUFkprwCE0iNqFFfORx6jQwA0XOpwb75OW
-         P/lm55SzWuOxwl91dOrR8+VI4F4v1R5KK7+6vILg=
+        b=0Nt/38M9e5mDtmXFXXVtz+R3JGD4f9wJ5IIHfkXT5rg4+og1pFxHWv9qrKYP7dRRx
+         RrMhtgfzbg+84yZ6oSy/3rLopQma8MHVtgv/aP7MFgszkoduEtB2/B14KW8rpE5P5E
+         c2QUGP/4/RCZoMcylHJIdHygMG83dU4fxyY3UaCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.14 300/334] io_uring: limit fixed table size by RLIMIT_NOFILE
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.13 293/300] fuse: flush extending writes
 Date:   Mon, 13 Sep 2021 15:15:54 +0200
-Message-Id: <20210913131123.566192063@linuxfoundation.org>
+Message-Id: <20210913131119.244976614@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +38,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 3a1b8a4e843f96b636431450d8d79061605cf74b upstream.
+commit 59bda8ecee2ffc6a602b7bf2b9e43ca669cdbdcd upstream.
 
-Limit the number of files in io_uring fixed tables by RLIMIT_NOFILE,
-that's the first and the simpliest restriction that we should impose.
+Callers of fuse_writeback_range() assume that the file is ready for
+modification by the server in the supplied byte range after the call
+returns.
 
-Cc: stable@vger.kernel.org
-Suggested-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/b2756c340aed7d6c0b302c26dab50c6c5907f4ce.1629451684.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+If there's a write that extends the file beyond the end of the supplied
+range, then the file needs to be extended to at least the end of the range,
+but currently that's not done.
+
+There are at least two cases where this can cause problems:
+
+ - copy_file_range() will return short count if the file is not extended
+   up to end of the source range.
+
+ - FALLOC_FL_ZERO_RANGE | FALLOC_FL_KEEP_SIZE will not extend the file,
+   hence the region may not be fully allocated.
+
+Fix by flushing writes from the start of the range up to the end of the
+file.  This could be optimized if the writes are non-extending, etc, but
+it's probably not worth the trouble.
+
+Fixes: a2bc92362941 ("fuse: fix copy_file_range() in the writeback case")
+Fixes: 6b1bdb56b17c ("fuse: allow fallocate(FALLOC_FL_ZERO_RANGE)")
+Cc: <stable@vger.kernel.org>  # v5.2
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/fuse/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -7722,6 +7722,8 @@ static int io_sqe_files_register(struct
- 		return -EINVAL;
- 	if (nr_args > IORING_MAX_FIXED_FILES)
- 		return -EMFILE;
-+	if (nr_args > rlimit(RLIMIT_NOFILE))
-+		return -EMFILE;
- 	ret = io_rsrc_node_switch_start(ctx);
- 	if (ret)
- 		return ret;
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -2886,7 +2886,7 @@ fuse_direct_IO(struct kiocb *iocb, struc
+ 
+ static int fuse_writeback_range(struct inode *inode, loff_t start, loff_t end)
+ {
+-	int err = filemap_write_and_wait_range(inode->i_mapping, start, end);
++	int err = filemap_write_and_wait_range(inode->i_mapping, start, -1);
+ 
+ 	if (!err)
+ 		fuse_sync_writes(inode);
 
 
