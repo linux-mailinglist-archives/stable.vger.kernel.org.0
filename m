@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1429240947F
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E081A409486
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345813AbhIMObc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:31:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51038 "EHLO mail.kernel.org"
+        id S242656AbhIMObk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:31:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346889AbhIMO3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:29:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E2AB61B7D;
-        Mon, 13 Sep 2021 13:50:50 +0000 (UTC)
+        id S1347022AbhIMOaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:30:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AB1261B7B;
+        Mon, 13 Sep 2021 13:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541051;
-        bh=TVKnn333PQunDpQYQvNZzRndMa0VJJy06bQeM8/f4/I=;
+        s=korg; t=1631541053;
+        bh=RgpHTXCjyFbIXMO4IbN1PHL/wSaW+/QhGP03vHOltTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S030UuWl3L3Ip+PxqGVjpF9pIrd492ExcHzDsaORSCdt74XOjTBQZmv5QDXZSFMPJ
-         UkLS4QcWKukW1Y5PkcOTsy1Ul0pawAdY2hZGnPHSF2tZacFzyTvp1lvY0eNTQjQ2/U
-         6ff2wJlDrg0KirZWRt4IWSTCLN7SdbpfI8MYa7k4=
+        b=JgZymja0DA2Q3XlV2lfbaQK2YbgHlMYLdXXr6+b+K55vdL9HS+87I8gQCyDTajhVF
+         3eHhIaC24ka0eaNYqFEujWjV6I/wQ28xti+ZzSfvf6w5Y+p50qzQ1Nkf5cmHVChp4o
+         HzmvC12KpfyJUju+o59rtRf/QYAG5H/rtEsiA7Bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
         Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 143/334] libbpf: Return non-null error on failures in libbpf_find_prog_btf_id()
-Date:   Mon, 13 Sep 2021 15:13:17 +0200
-Message-Id: <20210913131118.190310648@linuxfoundation.org>
+Subject: [PATCH 5.14 144/334] tools: Free BTF objects at various locations
+Date:   Mon, 13 Sep 2021 15:13:18 +0200
+Message-Id: <20210913131118.221779565@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -42,48 +42,118 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quentin Monnet <quentin@isovalent.com>
 
-[ Upstream commit 6d2d73cdd673d493f9f3751188757129b1d23fb7 ]
+[ Upstream commit 369e955b3d1c12f6ec2e51a95911bb80ada55d79 ]
 
-Variable "err" is initialised to -EINVAL so that this error code is
-returned when something goes wrong in libbpf_find_prog_btf_id().
-However, a recent change in the function made use of the variable in
-such a way that it is set to 0 if retrieving linear information on the
-program is successful, and this 0 value remains if we error out on
-failures at later stages.
+Make sure to call btf__free() (and not simply free(), which does not
+free all pointers stored in the struct) on pointers to struct btf
+objects retrieved at various locations.
 
-Let's fix this by setting err to -EINVAL later in the function.
+These were found while updating the calls to btf__get_from_id().
 
-Fixes: e9fc3ce99b34 ("libbpf: Streamline error reporting for high-level APIs")
+Fixes: 999d82cbc044 ("tools/bpf: enhance test_btf file testing to test func info")
+Fixes: 254471e57a86 ("tools/bpf: bpftool: add support for func types")
+Fixes: 7b612e291a5a ("perf tools: Synthesize PERF_RECORD_* for loaded BPF programs")
+Fixes: d56354dc4909 ("perf tools: Save bpf_prog_info and BTF of new BPF programs")
+Fixes: 47c09d6a9f67 ("bpftool: Introduce "prog profile" command")
+Fixes: fa853c4b839e ("perf stat: Enable counting events for BPF programs")
 Signed-off-by: Quentin Monnet <quentin@isovalent.com>
 Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210729162028.29512-2-quentin@isovalent.com
+Link: https://lore.kernel.org/bpf/20210729162028.29512-5-quentin@isovalent.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/bpf/bpftool/prog.c                     | 5 ++++-
+ tools/perf/util/bpf-event.c                  | 4 ++--
+ tools/perf/util/bpf_counter.c                | 3 ++-
+ tools/testing/selftests/bpf/prog_tests/btf.c | 1 +
+ 4 files changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index aa5ad6fc5f40..2234d5c33177 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -9515,7 +9515,7 @@ static int libbpf_find_prog_btf_id(const char *name, __u32 attach_prog_fd)
- 	struct bpf_prog_info_linear *info_linear;
- 	struct bpf_prog_info *info;
- 	struct btf *btf = NULL;
--	int err = -EINVAL;
-+	int err;
- 
- 	info_linear = bpf_program__get_prog_info_linear(attach_prog_fd, 0);
- 	err = libbpf_get_error(info_linear);
-@@ -9524,6 +9524,8 @@ static int libbpf_find_prog_btf_id(const char *name, __u32 attach_prog_fd)
- 			attach_prog_fd);
- 		return err;
+diff --git a/tools/bpf/bpftool/prog.c b/tools/bpf/bpftool/prog.c
+index cc48726740ad..9d709b427665 100644
+--- a/tools/bpf/bpftool/prog.c
++++ b/tools/bpf/bpftool/prog.c
+@@ -781,6 +781,8 @@ prog_dump(struct bpf_prog_info *info, enum dump_mode mode,
+ 		kernel_syms_destroy(&dd);
  	}
+ 
++	btf__free(btf);
 +
-+	err = -EINVAL;
- 	info = &info_linear->info;
- 	if (!info->btf_id) {
- 		pr_warn("The target program doesn't have BTF\n");
+ 	return 0;
+ }
+ 
+@@ -2002,8 +2004,8 @@ static char *profile_target_name(int tgt_fd)
+ 	struct bpf_prog_info_linear *info_linear;
+ 	struct bpf_func_info *func_info;
+ 	const struct btf_type *t;
++	struct btf *btf = NULL;
+ 	char *name = NULL;
+-	struct btf *btf;
+ 
+ 	info_linear = bpf_program__get_prog_info_linear(
+ 		tgt_fd, 1UL << BPF_PROG_INFO_FUNC_INFO);
+@@ -2027,6 +2029,7 @@ static char *profile_target_name(int tgt_fd)
+ 	}
+ 	name = strdup(btf__name_by_offset(btf, t->name_off));
+ out:
++	btf__free(btf);
+ 	free(info_linear);
+ 	return name;
+ }
+diff --git a/tools/perf/util/bpf-event.c b/tools/perf/util/bpf-event.c
+index cdecda1ddd36..17a9844e4fbf 100644
+--- a/tools/perf/util/bpf-event.c
++++ b/tools/perf/util/bpf-event.c
+@@ -296,7 +296,7 @@ static int perf_event__synthesize_one_bpf_prog(struct perf_session *session,
+ 
+ out:
+ 	free(info_linear);
+-	free(btf);
++	btf__free(btf);
+ 	return err ? -1 : 0;
+ }
+ 
+@@ -486,7 +486,7 @@ static void perf_env__add_bpf_info(struct perf_env *env, u32 id)
+ 	perf_env__fetch_btf(env, btf_id, btf);
+ 
+ out:
+-	free(btf);
++	btf__free(btf);
+ 	close(fd);
+ }
+ 
+diff --git a/tools/perf/util/bpf_counter.c b/tools/perf/util/bpf_counter.c
+index 8150e03367bb..beca55129b0b 100644
+--- a/tools/perf/util/bpf_counter.c
++++ b/tools/perf/util/bpf_counter.c
+@@ -64,8 +64,8 @@ static char *bpf_target_prog_name(int tgt_fd)
+ 	struct bpf_prog_info_linear *info_linear;
+ 	struct bpf_func_info *func_info;
+ 	const struct btf_type *t;
++	struct btf *btf = NULL;
+ 	char *name = NULL;
+-	struct btf *btf;
+ 
+ 	info_linear = bpf_program__get_prog_info_linear(
+ 		tgt_fd, 1UL << BPF_PROG_INFO_FUNC_INFO);
+@@ -89,6 +89,7 @@ static char *bpf_target_prog_name(int tgt_fd)
+ 	}
+ 	name = strdup(btf__name_by_offset(btf, t->name_off));
+ out:
++	btf__free(btf);
+ 	free(info_linear);
+ 	return name;
+ }
+diff --git a/tools/testing/selftests/bpf/prog_tests/btf.c b/tools/testing/selftests/bpf/prog_tests/btf.c
+index 857e3f26086f..68e415f4d33c 100644
+--- a/tools/testing/selftests/bpf/prog_tests/btf.c
++++ b/tools/testing/selftests/bpf/prog_tests/btf.c
+@@ -4386,6 +4386,7 @@ skip:
+ 	fprintf(stderr, "OK");
+ 
+ done:
++	btf__free(btf);
+ 	free(func_info);
+ 	bpf_object__close(obj);
+ }
 -- 
 2.30.2
 
