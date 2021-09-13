@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B401F409FC9
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:34:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB7EE409FCB
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:34:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348326AbhIMWfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 18:35:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50366 "EHLO mail.kernel.org"
+        id S245145AbhIMWfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 18:35:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245355AbhIMWfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 18:35:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2391610FB;
-        Mon, 13 Sep 2021 22:33:52 +0000 (UTC)
+        id S1347811AbhIMWfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 18:35:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21CCA6112D;
+        Mon, 13 Sep 2021 22:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631572433;
-        bh=wR2w6YQJg3iCjxa7BhEis6kUqMGE9iGSJ/ZgLWVJ4vo=;
+        s=k20201202; t=1631572434;
+        bh=tptuobY4veaU1Xj5h+terfJeMBpui5AQbXtKgviqD2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hvYrsyGDTnjPVVLzdEEeBKzUTriIUjw5IB5hAhW3Np58Tgb9jvBqq/Q+MGUwg1jvl
-         wrJ9fZNmoAkdelBAZdVTUjzu6fpqk6i/3ro+85XxAWZAWckAw8ZmDHyu6+QEu8VeW4
-         0A+/xuUIHEN/gHLJfwr/I+/Y+NRO3U5ssF8+MqdxOEldvuBmlVchKjRDS7Re1Qfe8B
-         TP5y+hwG/5xBonEzDlcGdz/uqUlA9ow8X3mLVGEUeJkdpZJWL5VHj/6K7TbCDCyJ1s
-         D0g9USTOJ4m0j1NUQJ7t2yKjpQWaU+Bh1tXbK/a8r2wwe6eSYDDxBYwdNeqW9UmH+U
-         CK/b1mpfX4gMA==
+        b=Hzqx+tw45eXMZ6WFvs5XuERE2FCIJVjqZ7PUYjXP/AFzNbNNnon1Ofn0Gio36hr3m
+         g02MhHOzMQyNOVZt9mE6Fvg4DxeTJY4hC9z2tUYYanpbqSzrojys6zRK755GakMPY9
+         21yw/epSdq3eApNZVNNgAcM6xIgmD8cy+qXHYk/mXPdSCV+bkzaSoQ0UWu/6MC8W65
+         5JPS1SKTZ6SpteLMKmfSpNd+b0HVZASh3hYYpVXjz7HrXfEPWEPmTs4xXlICXhMTDl
+         nC20f7cVod98PosPvbap7EH4IY8sdFWWfCd4bRFkl0FeuTvd45iT4a4QcfGS503BwZ
+         93BpdFsVpcblA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mario Limonciello <mario.limonciello@amd.com>,
-        Maxwell Beck <max@ryt.one>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 10/25] ACPI: PM: s2idle: Run both AMD and Microsoft methods if both are supported
-Date:   Mon, 13 Sep 2021 18:33:24 -0400
-Message-Id: <20210913223339.435347-10-sashal@kernel.org>
+Cc:     Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 11/25] ceph: fix memory leak on decode error in ceph_handle_caps
+Date:   Mon, 13 Sep 2021 18:33:25 -0400
+Message-Id: <20210913223339.435347-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210913223339.435347-1-sashal@kernel.org>
 References: <20210913223339.435347-1-sashal@kernel.org>
@@ -43,135 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit fa209644a7124b3f4cf811ced55daef49ae39ac6 ]
+[ Upstream commit 2ad32cf09bd28a21e6ad1595355a023ed631b529 ]
 
-It was reported that on "HP ENVY x360" that power LED does not come
-back, certain keys like brightness controls do not work, and the fan
-never spins up, even under load on 5.14 final.
+If we hit a decoding error late in the frame, then we might exit the
+function without putting the pool_ns string. Ensure that we always put
+that reference on the way out of the function.
 
-In analysis of the SSDT it's clear that the Microsoft UUID doesn't
-provide functional support, but rather the AMD UUID should be
-supporting this system.
-
-Because this is a gap in the expected logic, we checked back with
-internal team.  The conclusion was that on Windows AMD uPEP *does*
-run even when Microsoft UUID present, but most OEM systems have
-adopted value of "0x3" for supported functions and hence nothing
-runs.
-
-Henceforth add support for running both Microsoft and AMD methods.
-This approach will also allow the same logic on Intel systems if
-desired at a future time as well by pulling the evaluation of
-`lps0_dsm_func_mask_microsoft` out of the `if` block for
-`acpi_s2idle_vendor_amd`.
-
-Link: https://gitlab.freedesktop.org/drm/amd/uploads/9fbcd7ec3a385cc6949c9bacf45dc41b/acpi-f.20.bin
-BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1691
-Reported-by: Maxwell Beck <max@ryt.one>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-[ rjw: Edits of the new comments ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/x86/s2idle.c | 67 +++++++++++++++++++++++----------------
- 1 file changed, 39 insertions(+), 28 deletions(-)
+ fs/ceph/caps.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
-index 3a308461246a..bd92b549fd5a 100644
---- a/drivers/acpi/x86/s2idle.c
-+++ b/drivers/acpi/x86/s2idle.c
-@@ -449,25 +449,30 @@ int acpi_s2idle_prepare_late(void)
- 	if (pm_debug_messages_on)
- 		lpi_check_constraints();
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index 39db97f149b9..c2d654156783 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -4134,8 +4134,9 @@ void ceph_handle_caps(struct ceph_mds_session *session,
+ done:
+ 	mutex_unlock(&session->s_mutex);
+ done_unlocked:
+-	ceph_put_string(extra_info.pool_ns);
+ 	iput(inode);
++out:
++	ceph_put_string(extra_info.pool_ns);
+ 	return;
  
--	if (lps0_dsm_func_mask_microsoft > 0) {
-+	/* Screen off */
-+	if (lps0_dsm_func_mask > 0)
-+		acpi_sleep_run_lps0_dsm(acpi_s2idle_vendor_amd() ?
-+					ACPI_LPS0_SCREEN_OFF_AMD :
-+					ACPI_LPS0_SCREEN_OFF,
-+					lps0_dsm_func_mask, lps0_dsm_guid);
-+
-+	if (lps0_dsm_func_mask_microsoft > 0)
- 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_OFF,
- 				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
--		acpi_sleep_run_lps0_dsm(ACPI_LPS0_MS_ENTRY,
--				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
-+
-+	/* LPS0 entry */
-+	if (lps0_dsm_func_mask > 0)
-+		acpi_sleep_run_lps0_dsm(acpi_s2idle_vendor_amd() ?
-+					ACPI_LPS0_ENTRY_AMD :
-+					ACPI_LPS0_ENTRY,
-+					lps0_dsm_func_mask, lps0_dsm_guid);
-+	if (lps0_dsm_func_mask_microsoft > 0) {
- 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_ENTRY,
- 				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
--	} else if (acpi_s2idle_vendor_amd()) {
--		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_OFF_AMD,
--				lps0_dsm_func_mask, lps0_dsm_guid);
--		acpi_sleep_run_lps0_dsm(ACPI_LPS0_ENTRY_AMD,
--				lps0_dsm_func_mask, lps0_dsm_guid);
--	} else {
--		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_OFF,
--				lps0_dsm_func_mask, lps0_dsm_guid);
--		acpi_sleep_run_lps0_dsm(ACPI_LPS0_ENTRY,
--				lps0_dsm_func_mask, lps0_dsm_guid);
-+		/* modern standby entry */
-+		acpi_sleep_run_lps0_dsm(ACPI_LPS0_MS_ENTRY,
-+				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
- 	}
--
- 	return 0;
+ flush_cap_releases:
+@@ -4150,7 +4151,7 @@ void ceph_handle_caps(struct ceph_mds_session *session,
+ bad:
+ 	pr_err("ceph_handle_caps: corrupt message\n");
+ 	ceph_msg_dump(msg);
+-	return;
++	goto out;
  }
  
-@@ -476,24 +481,30 @@ void acpi_s2idle_restore_early(void)
- 	if (!lps0_device_handle || sleep_no_lps0)
- 		return;
- 
--	if (lps0_dsm_func_mask_microsoft > 0) {
--		acpi_sleep_run_lps0_dsm(ACPI_LPS0_EXIT,
--				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
-+	/* Modern standby exit */
-+	if (lps0_dsm_func_mask_microsoft > 0)
- 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_MS_EXIT,
- 				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
--		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_ON,
--				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
--	} else if (acpi_s2idle_vendor_amd()) {
--		acpi_sleep_run_lps0_dsm(ACPI_LPS0_EXIT_AMD,
--				lps0_dsm_func_mask, lps0_dsm_guid);
--		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_ON_AMD,
--				lps0_dsm_func_mask, lps0_dsm_guid);
--	} else {
-+
-+	/* LPS0 exit */
-+	if (lps0_dsm_func_mask > 0)
-+		acpi_sleep_run_lps0_dsm(acpi_s2idle_vendor_amd() ?
-+					ACPI_LPS0_EXIT_AMD :
-+					ACPI_LPS0_EXIT,
-+					lps0_dsm_func_mask, lps0_dsm_guid);
-+	if (lps0_dsm_func_mask_microsoft > 0)
- 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_EXIT,
--				lps0_dsm_func_mask, lps0_dsm_guid);
-+				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
-+
-+	/* Screen on */
-+	if (lps0_dsm_func_mask_microsoft > 0)
- 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_ON,
--				lps0_dsm_func_mask, lps0_dsm_guid);
--	}
-+				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
-+	if (lps0_dsm_func_mask > 0)
-+		acpi_sleep_run_lps0_dsm(acpi_s2idle_vendor_amd() ?
-+					ACPI_LPS0_SCREEN_ON_AMD :
-+					ACPI_LPS0_SCREEN_ON,
-+					lps0_dsm_func_mask, lps0_dsm_guid);
- }
- 
- static const struct platform_s2idle_ops acpi_s2idle_ops_lps0 = {
+ /*
 -- 
 2.30.2
 
