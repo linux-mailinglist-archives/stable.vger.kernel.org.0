@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42C534092B9
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D54040956F
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344237AbhIMOPP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:15:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33910 "EHLO mail.kernel.org"
+        id S1345086AbhIMOlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:41:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244706AbhIMOMx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:12:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0232761ADF;
-        Mon, 13 Sep 2021 13:42:46 +0000 (UTC)
+        id S1346602AbhIMOjX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:39:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AA19619BB;
+        Mon, 13 Sep 2021 13:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540567;
-        bh=x/T83cRhfcs7rqm0aNliY6nJnUf4flwgib6m3IqIFo0=;
+        s=korg; t=1631541326;
+        bh=icCs6G7dSIZXNzyD+9XIiANb9ilH4gOFyVQhhKVcyuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BgJ4L+eDDV81i/B0hO4lAl34R6bm11WrZwn1CVy5tQ0i9Nt4K9RlSAAZDUkjjT8me
-         SipNIBj/QADjKbZxUHh0SIZHf/EohWzmNt+g736hzald+w44kj7vqN0E4FOfWr8fFh
-         RntuFXbzIIfk8DxZFyjLIr+t2rqHteNlao2v6RZc=
+        b=OwSOkjYDPSVL0dP6JBqWM9XfrZkcAgaYsGx8vRcwju2K6BukuIAuiwTCYRWDTfg83
+         vYxb4pSlTHl/90FfN4/YpLq5935MzuTB7f3ZdJIiNRWRLbh1AE9vztQpvzKSnUxsH7
+         ZOrvCXxxGJY4UD/2pkjHMBJVAHddCKQDFDVzR9NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrey Ignatov <rdna@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 247/300] net: phy: marvell10g: fix broken PHY interrupts for anyone after us in the driver probe list
+Subject: [PATCH 5.14 254/334] bpf: Fix possible out of bound write in narrow load handling
 Date:   Mon, 13 Sep 2021 15:15:08 +0200
-Message-Id: <20210913131117.695037799@linuxfoundation.org>
+Message-Id: <20210913131121.992606892@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,137 +41,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Andrey Ignatov <rdna@fb.com>
 
-[ Upstream commit 0d55649d2ad7296acfda9127e1d05518d025734a ]
+[ Upstream commit d7af7e497f0308bc97809cc48b58e8e0f13887e1 ]
 
-Enabling interrupts via device tree for the internal PHYs on the
-mv88e6390 DSA switch does not work. The driver insists to use poll mode.
+Fix a verifier bug found by smatch static checker in [0].
 
-Stage one debugging shows that the fwnode_mdiobus_phy_device_register
-function calls fwnode_irq_get properly, and phy->irq is set to a valid
-interrupt line initially.
+This problem has never been seen in prod to my best knowledge. Fixing it
+still seems to be a good idea since it's hard to say for sure whether
+it's possible or not to have a scenario where a combination of
+convert_ctx_access() and a narrow load would lead to an out of bound
+write.
 
-But it is then cleared.
+When narrow load is handled, one or two new instructions are added to
+insn_buf array, but before it was only checked that
 
-Stage two debugging shows that it is cleared here:
+	cnt >= ARRAY_SIZE(insn_buf)
 
-phy_probe:
+And it's safe to add a new instruction to insn_buf[cnt++] only once. The
+second try will lead to out of bound write. And this is what can happen
+if `shift` is set.
 
-  /* Disable the interrupt if the PHY doesn't support it
-   * but the interrupt is still a valid one
-   */
-  if (!phy_drv_supports_irq(phydrv) && phy_interrupt_is_valid(phydev))
-	phydev->irq = PHY_POLL;
+Fix it by making sure that if the BPF_RSH instruction has to be added in
+addition to BPF_AND then there is enough space for two more instructions
+in insn_buf.
 
-Okay, so does the "Marvell 88E6390 Family" PHY driver not have the
-.config_intr and .handle_interrupt function pointers? Yes it does.
+The full report [0] is below:
 
-Stage three debugging shows that the PHY device does not attempt a probe
-against the "Marvell 88E6390 Family" driver, but against the "mv88x3310"
-driver.
+kernel/bpf/verifier.c:12304 convert_ctx_accesses() warn: offset 'cnt' incremented past end of array
+kernel/bpf/verifier.c:12311 convert_ctx_accesses() warn: offset 'cnt' incremented past end of array
 
-Okay, so why does the "mv88x3310" driver match on a mv88x6390 internal
-PHY? The PHY IDs (MARVELL_PHY_ID_88E6390_FAMILY vs
-MARVELL_PHY_ID_88X3310) are way different.
+kernel/bpf/verifier.c
+    12282
+    12283 			insn->off = off & ~(size_default - 1);
+    12284 			insn->code = BPF_LDX | BPF_MEM | size_code;
+    12285 		}
+    12286
+    12287 		target_size = 0;
+    12288 		cnt = convert_ctx_access(type, insn, insn_buf, env->prog,
+    12289 					 &target_size);
+    12290 		if (cnt == 0 || cnt >= ARRAY_SIZE(insn_buf) ||
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Bounds check.
 
-Stage four debugging has us looking through:
+    12291 		    (ctx_field_size && !target_size)) {
+    12292 			verbose(env, "bpf verifier is misconfigured\n");
+    12293 			return -EINVAL;
+    12294 		}
+    12295
+    12296 		if (is_narrower_load && size < target_size) {
+    12297 			u8 shift = bpf_ctx_narrow_access_offset(
+    12298 				off, size, size_default) * 8;
+    12299 			if (ctx_field_size <= 4) {
+    12300 				if (shift)
+    12301 					insn_buf[cnt++] = BPF_ALU32_IMM(BPF_RSH,
+                                                         ^^^^^
+increment beyond end of array
 
-phy_device_register
--> device_add
-   -> bus_probe_device
-      -> device_initial_probe
-         -> __device_attach
-            -> bus_for_each_drv
-               -> driver_match_device
-                  -> drv->bus->match
-                     -> phy_bus_match
+    12302 									insn->dst_reg,
+    12303 									shift);
+--> 12304 				insn_buf[cnt++] = BPF_ALU32_IMM(BPF_AND, insn->dst_reg,
+                                                 ^^^^^
+out of bounds write
 
-Okay, so as we said, the MII_PHYSID1 of mv88e6390 does not match the
-mv88x3310 driver's PHY mask & ID, so why would phy_bus_match return...
+    12305 								(1 << size * 8) - 1);
+    12306 			} else {
+    12307 				if (shift)
+    12308 					insn_buf[cnt++] = BPF_ALU64_IMM(BPF_RSH,
+    12309 									insn->dst_reg,
+    12310 									shift);
+    12311 				insn_buf[cnt++] = BPF_ALU64_IMM(BPF_AND, insn->dst_reg,
+                                        ^^^^^^^^^^^^^^^
+Same.
 
-Ahh, phy_bus_match calls a shortcircuit method,
-phydrv->match_phy_device, and does not even bother to compare the PHY ID
-if that is implemented.
+    12312 								(1ULL << size * 8) - 1);
+    12313 			}
+    12314 		}
+    12315
+    12316 		new_prog = bpf_patch_insn_data(env, i + delta, insn_buf, cnt);
+    12317 		if (!new_prog)
+    12318 			return -ENOMEM;
+    12319
+    12320 		delta += cnt - 1;
+    12321
+    12322 		/* keep walking new program and skip insns we just inserted */
+    12323 		env->prog = new_prog;
+    12324 		insn      = new_prog->insnsi + i + delta;
+    12325 	}
+    12326
+    12327 	return 0;
+    12328 }
 
-So of course, we go inside the marvell10g.c driver and sure enough, it
-implements .match_phy_device and does not bother to check the PHY ID.
+[0] https://lore.kernel.org/bpf/20210817050843.GA21456@kili/
 
-What's interesting though is that at the end of the device_add() from
-phy_device_register(), the driver for the internal PHYs _is_ the proper
-"Marvell 88E6390 Family". This is because "mv88x3310" ends up failing to
-probe after all, and __device_attach_driver(), to quote:
+v1->v2:
+- clarify that problem was only seen by static checker but not in prod;
 
-  /*
-   * Ignore errors returned by ->probe so that the next driver can try
-   * its luck.
-   */
-
-The next (and only other) driver that matches is the 6390 driver. For
-this one, phy_probe doesn't fail, and everything expects to work as
-normal, EXCEPT phydev->irq has already been cleared by the previous
-unsuccessful probe of a driver which did not implement PHY interrupts,
-and therefore cleared that IRQ.
-
-Okay, so it is not just Marvell 6390 that has PHY interrupts broken.
-Stuff like Atheros, Aquantia, Broadcom, Qualcomm work because they are
-lexicographically before Marvell, and stuff like NXP, Realtek, Vitesse
-are broken.
-
-This goes to show how fragile it is to reset phydev->irq = PHY_POLL from
-the actual beginning of phy_probe itself. That seems like an actual bug
-of its own too, since phy_probe has side effects which are not restored
-on probe failure, but the line of thought probably was, the same driver
-will attempt probe again, so it doesn't matter. Well, looks like it
-does.
-
-Maybe it would make more sense to move the phydev->irq clearing after
-the actual device_add() in phy_device_register() completes, and the
-bound driver is the actual final one.
-
-(also, a bit frightening that drivers are permitted to bypass the MDIO
-bus matching in such a trivial way and perform PHY reads and writes from
-the .match_phy_device method, on devices that do not even belong to
-them. In the general case it might not be guaranteed that the MDIO
-accesses one driver needs to make to figure out whether to match on a
-device is safe for all other PHY devices)
-
-Fixes: a5de4be0aaaa ("net: phy: marvell10g: fix differentiation of 88X3310 from 88X3340")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Tested-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20210827132541.28953-1-kabel@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 46f53a65d2de ("bpf: Allow narrow loads with offset > 0")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Andrey Ignatov <rdna@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210820163935.1902398-1-rdna@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/marvell10g.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ kernel/bpf/verifier.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/phy/marvell10g.c b/drivers/net/phy/marvell10g.c
-index 53a433442803..f4d758f8a1ee 100644
---- a/drivers/net/phy/marvell10g.c
-+++ b/drivers/net/phy/marvell10g.c
-@@ -987,11 +987,19 @@ static int mv3310_get_number_of_ports(struct phy_device *phydev)
- 
- static int mv3310_match_phy_device(struct phy_device *phydev)
- {
-+	if ((phydev->c45_ids.device_ids[MDIO_MMD_PMAPMD] &
-+	     MARVELL_PHY_ID_MASK) != MARVELL_PHY_ID_88X3310)
-+		return 0;
-+
- 	return mv3310_get_number_of_ports(phydev) == 1;
- }
- 
- static int mv3340_match_phy_device(struct phy_device *phydev)
- {
-+	if ((phydev->c45_ids.device_ids[MDIO_MMD_PMAPMD] &
-+	     MARVELL_PHY_ID_MASK) != MARVELL_PHY_ID_88X3310)
-+		return 0;
-+
- 	return mv3310_get_number_of_ports(phydev) == 4;
- }
- 
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 10084c0600dd..9d94ac6ff50c 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -12013,6 +12013,10 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
+ 		if (is_narrower_load && size < target_size) {
+ 			u8 shift = bpf_ctx_narrow_access_offset(
+ 				off, size, size_default) * 8;
++			if (shift && cnt + 1 >= ARRAY_SIZE(insn_buf)) {
++				verbose(env, "bpf verifier narrow ctx load misconfigured\n");
++				return -EINVAL;
++			}
+ 			if (ctx_field_size <= 4) {
+ 				if (shift)
+ 					insn_buf[cnt++] = BPF_ALU32_IMM(BPF_RSH,
 -- 
 2.30.2
 
