@@ -2,225 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AD62409EC3
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 23:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B241A409EF2
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 23:14:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245321AbhIMVGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 17:06:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53462 "EHLO
+        id S1348099AbhIMVP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 17:15:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231573AbhIMVGW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 17:06:22 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2486EC061574
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 14:05:06 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id h17so6268755edj.6
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 14:05:06 -0700 (PDT)
+        with ESMTP id S1348193AbhIMVP0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 17:15:26 -0400
+Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A671FC061760
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 14:14:09 -0700 (PDT)
+Received: by mail-lf1-x136.google.com with SMTP id i25so19950579lfg.6
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 14:14:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rasmusvillemoes.dk; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=wD6wLfn0xDOQutt/AgUvNEKB8hl15ogJfUQtZqFzVtQ=;
-        b=JRajFJIqqGlp4kvZBFhIbIscc6gCCChb+nyumxk1yCGNcbvlOGBg0zTY7JPUmnBaHD
-         90uKIfh+7sSfOT5IYGSnMTfTGjB39ZRdn8bmhaQl7OJFozZEQitnXpLnfnmGsWq8D7ym
-         eLBVOD20Cs5v/DktE3IIc3FNywZuAMVQcSL/k=
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=h6laIf/b4mPqz9ieIo0BoLxfadBv/pBLzz57FwMCWS8=;
+        b=SEu7xaZSAjVMKNw5hjypkoLJ+5JYwWZcOY2BABqYuBro/CZPK17EczUQuLCrutTPGL
+         16Qz1HYIlWBLiIz9fuIN+11uBldPo/W5AePdN6GsQEA+SUtc8P+uASAYS6tS0ldHx07E
+         2lonLGUWd9SBbHuElL3JERelxOI/WCQiYZQMZ+cnIB22lorehJTp1jfpHpUXPGwAVLsr
+         iug/4lH2iw/Q756RGmEMyqecg2b3vt+REqwODu74njL+3uIRYmD7FhCYQoWZA7S/e7X4
+         zbL4RRw54fmrJ/xhPMXQuEF33NXAg8H1490G0IrDnCzFSwlQt8KLs4uiBLXAehRStlz0
+         T9Mw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=wD6wLfn0xDOQutt/AgUvNEKB8hl15ogJfUQtZqFzVtQ=;
-        b=NWH6lw8B2wvGf4r8MQCQfo2lHjGkI8lyDgPqhKXBdwlZLZ3ZR6bdBO4vh9ddZAy+qx
-         5TmF+opGuoJeVsjeIaXeRRmeFD7tJWmUePs89NsVvvHVVwElEuMT/8rsptwGEZe47yr1
-         w08OABD+JB8YJXtVpGirGIEpJLRcfAPu77L6v0kNlKoh2PEG9baua9Ya+tJpNI5K0PpY
-         VPDBHaICTw1BE+uzdntcMUytBOkA1uvLH3jMEnsmYKraXBcVmyO5MBcXhHc4MGaQwXC4
-         xGsumNwhCpW4i2Q6o4uRJX2IZQzoP+0ej5mjaYy8rD5h8UIcSA5CbThZjW1G+hDSR6dw
-         12sw==
-X-Gm-Message-State: AOAM5331Nn6xOOwdR9XpV3tKH3q55KOKy4UObb05Ac+bJR1GPrwB15TA
-        dqPfsOwlLn4QqNRDaB2UkR0gvQ==
-X-Google-Smtp-Source: ABdhPJz7Yl7kAHQCuPUlaARmIg2IFeFg5oPLn5/MiipNz67Px6e9NL25/vb4584edt2ldDWy+cmegA==
-X-Received: by 2002:aa7:de85:: with SMTP id j5mr15201090edv.147.1631567104661;
-        Mon, 13 Sep 2021 14:05:04 -0700 (PDT)
-Received: from [192.168.1.149] ([80.208.69.72])
-        by smtp.gmail.com with ESMTPSA id q19sm4495157edc.74.2021.09.13.14.05.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Sep 2021 14:05:04 -0700 (PDT)
-Subject: Re: [PATCH 5.10] overflow.h: use new generic division helpers to
- avoid / operator
-To:     Nick Desaulniers <ndesaulniers@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     llvm@lists.linux.dev, stable@vger.kernel.org,
-        Arnd Bergmann <arnd@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Pavel Machek <pavel@ucw.cz>
-References: <20210913203201.1844253-1-ndesaulniers@google.com>
-From:   Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Message-ID: <195b2f47-b92e-a00b-a2bc-d91bfdbd9d12@rasmusvillemoes.dk>
-Date:   Mon, 13 Sep 2021 23:05:02 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=h6laIf/b4mPqz9ieIo0BoLxfadBv/pBLzz57FwMCWS8=;
+        b=dTVQkFOqIZGdwd2xm07832pyZiOCC8gfnBU3uRc/EYBr1jy5c0PeH8AfSmGO5a8OcR
+         ncfNtbWGr9Hd0US5XXDLTSkaY9tP41SDl9wqQdB6hItHMgrwtNZ/SZswUtAH/THhf58v
+         LfQm0Y7Tk0yAYZbJ5QYowoEdrI5OSMSyZpH2AGa1ZmfUlc0wqt5Gy7G6nACjTlSzHTzD
+         DQ/r4M5C8ZxyMmIEtGH+DlGRqnq1ClYOXS5LQO2VLXKM/Lnii2qkidXJSQ1NyZ+E8/yD
+         LvBDjE8EygnXUWQCWmfzcPgYjwqjywnko3YPeBOpuXkVWEyyI9EbN7E0DEsDNjLBiKzh
+         krOQ==
+X-Gm-Message-State: AOAM532RPf1+uDzhYfrtbV8c9D0ZpoobUypuJd1O/8m3zhgbbNzNtiy/
+        2RtCTvi3J4OLgwZu1ZDeQAd8y11lkv7Xc4XzplJCwA==
+X-Google-Smtp-Source: ABdhPJxkLmqkKxedt4K1O1ibv9lFvdfqJ+fiA/MxD/66QbtZI4YNO+29iajeZ9ssOU5ujtimoPSmNKGFx6XRwVjLntg=
+X-Received: by 2002:a05:6512:3b9e:: with SMTP id g30mr10188187lfv.651.1631567647760;
+ Mon, 13 Sep 2021 14:14:07 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210913203201.1844253-1-ndesaulniers@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20210913131113.390368911@linuxfoundation.org> <20210913131114.028340332@linuxfoundation.org>
+ <CA+G9fYtdPnwf+fi4Oyxng65pWjW9ujZ7dd2Z-EEEHyJimNHN6g@mail.gmail.com>
+ <YT+RKemKfg6GFq0S@kroah.com> <CAKwvOdmOAKTkgFK4Oke1SFGR_NxNqXe-buj1uyDgwZ4JdnP2Vg@mail.gmail.com>
+ <CAKwvOdmCS5Q7AzUL5nziYVU7RrtRjoE9JjOXfVBWagO1Bzbsew@mail.gmail.com>
+ <CA+icZUVuRaMs=bx775gDF88_xzy8LFkBA5xaK21hFDeYvgo12A@mail.gmail.com>
+ <CAKwvOdmN3nQe8aL=jUwi0nGXzYQGic=NA2o40Q=yeHeafSsS3g@mail.gmail.com>
+ <CAHk-=whwREzjT7=OSi5=qqOkQsvMkCOYVhyKQ5t8Rdq4bBEzuw@mail.gmail.com>
+ <CAKwvOdkf3B41RRe8FDkw1H-0hBt1_PhZtZxBZ5pj0pyh7vDLmA@mail.gmail.com>
+ <CAHk-=wjP2ijctPt2Hw3DagSZ-KgdRsO6zWTTKQNnSk0MajtJgA@mail.gmail.com> <CAKwvOd=ZG8sf1ZOkuidX_49VGkQE+BJDa19_vR4gh2FNQ2F_9Q@mail.gmail.com>
+In-Reply-To: <CAKwvOd=ZG8sf1ZOkuidX_49VGkQE+BJDa19_vR4gh2FNQ2F_9Q@mail.gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Mon, 13 Sep 2021 14:13:56 -0700
+Message-ID: <CAKwvOdkz4e3HdNKFvOdDDWVijB7AKaeP14_vAEbxWXD1AviVhA@mail.gmail.com>
+Subject: Re: [PATCH 5.14 018/334] nbd: add the check to prevent overflow in __nbd_ioctl()
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Arnd Bergmann <arnd@kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Baokun Li <libaokun1@huawei.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Hulk Robot <hulkci@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        lkft-triage@lists.linaro.org, llvm@lists.linux.dev,
+        Kees Cook <keescook@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 13/09/2021 22.32, Nick Desaulniers wrote:
-> commit fad7cd3310db ("nbd: add the check to prevent overflow in
-> __nbd_ioctl()") raised an issue from the fallback helpers added in
-> commit f0907827a8a9 ("compiler.h: enable builtin overflow checkers and
-> add fallback code")
-> 
-> ERROR: modpost: "__divdi3" [drivers/block/nbd.ko] undefined!
-> 
-> As Stephen Rothwell notes:
->   The added check_mul_overflow() call is being passed 64 bit values.
->   COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW is not set for this build (see
->   include/linux/overflow.h).
-> 
-> Specifically, the helpers for checking whether the results of a
-> multiplication overflowed (__unsigned_mul_overflow,
-> __signed_add_overflow) use the division operator when
-> !COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW.  This is problematic for 64b
-> operands on 32b hosts.
-> 
-> This was fixed upstream by
-> commit 76ae847497bc ("Documentation: raise minimum supported version of
-> GCC to 5.1")
-> which is not suitable to be backported to stable; I didn't have this
-> patch ready in time.
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Arnd Bergmann <arnd@kernel.org>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-> Reported-by: Nathan Chancellor <nathan@kernel.org>
-> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-> Suggested-by: Pavel Machek <pavel@ucw.cz>
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1438
-> Link: https://lore.kernel.org/all/20210909182525.372ee687@canb.auug.org.au/
-> Link: https://lore.kernel.org/lkml/20210910234047.1019925-1-ndesaulniers@google.com/
-> Fixes: f0907827a8a9 ("compiler.h: enable builtin overflow checkers and
-> add fallback code")
-> Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-> ---
-> This kind of generic meta-programming in C and my lack of experience in
-> doing so makes me very uncomfortable (and slightly ashamed) to send
-> this. I would appreciate careful review and feedback. I would appreciate
-> if Naresh can test this with GCC 4.9, which I don't have handy.
-> 
-> Linus also suggested I look into the use of _Generic; I haven't
-> evaluated that approach yet, but I felt like posting this early for
-> feedback.
-> 
->  include/linux/math64.h   | 35 +++++++++++++++++++++++++++++++++++
->  include/linux/overflow.h |  8 ++++----
->  2 files changed, 39 insertions(+), 4 deletions(-)
-> 
-> diff --git a/include/linux/math64.h b/include/linux/math64.h
-> index 66deb1fdc2ef..bc9c12c168d0 100644
-> --- a/include/linux/math64.h
-> +++ b/include/linux/math64.h
-> @@ -10,6 +10,9 @@
->  
->  #define div64_long(x, y) div64_s64((x), (y))
->  #define div64_ul(x, y)   div64_u64((x), (y))
-> +#ifndef is_signed_type
-> +#define is_signed_type(type)       (((type)(-1)) < (type)1)
-> +#endif
->  
->  /**
->   * div_u64_rem - unsigned 64bit divide with 32bit divisor with remainder
-> @@ -111,6 +114,15 @@ extern s64 div64_s64(s64 dividend, s64 divisor);
->  
->  #endif /* BITS_PER_LONG */
+On Mon, Sep 13, 2021 at 1:50 PM Nick Desaulniers
+<ndesaulniers@google.com> wrote:
+>
+> On Mon, Sep 13, 2021 at 1:42 PM Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
+> >
+> > On Mon, Sep 13, 2021 at 1:16 PM Nick Desaulniers
+> > <ndesaulniers@google.com> wrote:
+> > >
+> > > Do we have access to _Generic in GCC 4.9?
+> >
+> > We've ended up using it unconditionally since last year, so yes.
+>
+> Sorry, grepping would have taken < 1s. I'm very lazy.
+> http://threevirtues.com/
+>
+> >
+> > In fact, the compiler version tests got removed when we raised the gcc
+> > version requirement to 4.9 in commit 6ec4476ac825 ("Raise gcc version
+> > requirement to 4.9"):
+> >
+> >    "In particular, raising the minimum to 4.9 means that we can now just
+> >     assume _Generic() exists, which is likely the much better replacement
+> >     for a lot of very convoluted built-time magic with conditionals on
+> >     sizeof and/or __builtin_choose_expr() with same_type() etc"
+> >
+> > but we haven't used it much since.
+> >
+> > The "seqprop" code for picking the right lock for seqlock is perhaps
+> > the main example, and staring at that code will make you go blind, so
+> > look away.
+>
+> Looking at my patch:
+> https://lore.kernel.org/stable/20210913203201.1844253-1-ndesaulniers@google.com/
+> I don't think _Generic helps us in the case of dispatching based on
+> the result of is_signed_type() (the operands could undergo type
+> promotion, so we'd need lots of cases that are more concisely covered
+> by is_signed_type()). It could replace the nested checks in div_64
+> with nested _Generics, I think. Not sure it's a huge win for
+> readability.  Maybe cut the number of expansions of the parameters in
+> half though. Let me give it a try just to see what it looks like.
 
-Some comments on when and how to use this would be nice (not just build
-bugs when used wrong).
+Is this more readable? Same line count.  I'm not sure if there's such
+a thing as "fallthrough" between the "cases" of _Generic to minimize
+duplication, or whether this could be factored further.  Needs lots
+more () around macro param use and tab'ed out line endings...
 
-> +#define div64_x64(dividend, divisor) ({			\
-> +	BUILD_BUG_ON_MSG(sizeof(dividend) < sizeof(u64),\
-> +	                 "prefer div_x64");		\
-> +	__builtin_choose_expr(				\
-> +		is_signed_type(typeof(dividend)),	\
-> +		div64_s64(dividend, divisor),		\
-> +		div64_u64(dividend, divisor));		\
-> +})
-> +
->  /**
->   * div_u64 - unsigned 64bit divide with 32bit divisor
->   * @dividend: unsigned 64bit dividend
-> @@ -141,6 +153,29 @@ static inline s64 div_s64(s64 dividend, s32 divisor)
->  }
->  #endif
->  
-> +#define div_x64(dividend, divisor) ({			\
-> +	BUILD_BUG_ON_MSG(sizeof(dividend) > sizeof(u32),\
-> +	                 "prefer div64_x64");		\
-> +	__builtin_choose_expr(				\
-> +		is_signed_type(typeof(dividend)),	\
-> +		div_s64(dividend, divisor),		\
-> +		div_u64(dividend, divisor));		\
-> +})
-> +
-> +#define div_64(dividend, divisor) ({						\
-> +	BUILD_BUG_ON_MSG(sizeof(dividend) > sizeof(u64),			\
-> +	                 "128b div unsupported");				\
-> +	__builtin_choose_expr(							\
-> +		__builtin_types_compatible_p(typeof(dividend), s64) ||		\
-> +		__builtin_types_compatible_p(typeof(dividend), u64),		\
 
-You can save a bit of typing using __same_type(dividend, s64) - it's a
-nice property of typeof() that it's idempotent when applied to a type
-name. _Generic would probably also do, but I don't think it would save
-that much, if anything, here.
 
->  u32 iter_div_u64_rem(u64 dividend, u32 divisor, u64 *remainder);
->  
->  #ifndef mul_u32_u32
-> diff --git a/include/linux/overflow.h b/include/linux/overflow.h
-> index ef74051d5cfe..2ebdf220c184 100644
-> --- a/include/linux/overflow.h
-> +++ b/include/linux/overflow.h
-> @@ -123,8 +123,8 @@ static inline bool __must_check __must_check_overflow(bool overflow)
->  	(void) (&__a == __d);				\
->  	*__d = __a * __b;				\
->  	__builtin_constant_p(__b) ?			\
-> -	  __b > 0 && __a > type_max(typeof(__a)) / __b : \
-> -	  __a > 0 && __b > type_max(typeof(__b)) / __a;	 \
-> +	  __b > 0 && __a > div_64(type_max(typeof(__a)), __b) :	\
-> +	  __a > 0 && __b > div_64(type_max(typeof(__b)), __a);	\
->  })
->  
->  /*
-> @@ -195,8 +195,8 @@ static inline bool __must_check __must_check_overflow(bool overflow)
->  	(void) (&__a == &__b);						\
->  	(void) (&__a == __d);						\
->  	*__d = (u64)__a * (u64)__b;					\
-> -	(__b > 0   && (__a > __tmax/__b || __a < __tmin/__b)) ||	\
-> -	(__b < (typeof(__b))-1  && (__a > __tmin/__b || __a < __tmax/__b)) || \
-> +	(__b > 0 && (__a > div_64(__tmax, __b) || __a < div_64(__tmin, __b))) ||		\
-> +	(__b < (typeof(__b))-1 && (__a > div_64(__tmin, __b) || __a < div_64(__tmax, __b))) ||	\
->  	(__b == (typeof(__b))-1 && __a == __tmin);			\
->  })
 
-I had actually forgotten what horrors lay hidden in these fallback
-macros, I just knew they needed a wooden stake sooner or later. Now you
-made me look at this right before bedtime :(
 
-So, I'd sleep a little better if we got the 64 bit tests commented back
-in in test_overflow.c, and [assuming that the above would actually make
-that file build with gcc 4.9] that patch also backported to 5.10, so we
-had some confidence that the whole house of cards is actually solid.
 
-Rasmus
+diff --git a/include/linux/math64.h b/include/linux/math64.h
+index 8652a8a35d70..8fc4d56a45b9 100644
+--- a/include/linux/math64.h
++++ b/include/linux/math64.h
+@@ -162,17 +162,17 @@ static inline s64 div_s64(s64 dividend, s32 divisor)
+                div_u64(dividend, divisor));            \
+ })
+
+-#define __div_64(dividend) _Generic((divisor), \
+-  s64: div64_x64,      \
+-  u64: div64_x64,      \
+-  default: div_x64)
++#define __div_64(dividend, divisor) _Generic((divisor),        \
++  s64: div64_x64(dividend, divisor),   \
++  u64: div64_x64(dividend, divisor),   \
++  default: div_x64(dividend, divisor))
+
+ #define div_64(dividend, divisor) ({
+         \
+        BUILD_BUG_ON_MSG(sizeof(dividend) > sizeof(u64),
+         \
+                         "128b div unsupported");
+         \
+        _Generic((dividend),    \
+-               s64: __div_64(dividend)(dividend, divisor),     \
+-               u64: __div_64(dividend)(dividend, divisor),     \
++               s64: __div_64(dividend, divisor),       \
++               u64: __div_64(dividend, divisor),       \
+                default: dividend / divisor);   \
+ })
+
+-- 
+Thanks,
+~Nick Desaulniers
