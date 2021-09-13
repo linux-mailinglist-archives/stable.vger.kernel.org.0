@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2AE74092E0
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42C534092B9
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245551AbhIMOQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:16:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33826 "EHLO mail.kernel.org"
+        id S1344237AbhIMOPP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:15:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243308AbhIMOMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:12:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F97A61ABF;
-        Mon, 13 Sep 2021 13:42:44 +0000 (UTC)
+        id S244706AbhIMOMx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:12:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0232761ADF;
+        Mon, 13 Sep 2021 13:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540565;
-        bh=8vHNDbm9Mg6XsKu3k0x7p3ZW6HeHF1yVvQ/mrbG/VTk=;
+        s=korg; t=1631540567;
+        bh=x/T83cRhfcs7rqm0aNliY6nJnUf4flwgib6m3IqIFo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ff3IE/2sumuQhXPihbUNLIagZyZlghWUjZfsESJSLqybvbuVu2hpC2zhOKpedgQxU
-         Yh+VFBaF5ywZDCSyGOLN9R1ZHERBfyUGiFbBaQMd+mknMugb9ltflae/Axo379QaEU
-         ddJT3OTKziY3HxTCT+0Q4NgGDe0YnzsEnK8uLvi8=
+        b=BgJ4L+eDDV81i/B0hO4lAl34R6bm11WrZwn1CVy5tQ0i9Nt4K9RlSAAZDUkjjT8me
+         SipNIBj/QADjKbZxUHh0SIZHf/EohWzmNt+g736hzald+w44kj7vqN0E4FOfWr8fFh
+         RntuFXbzIIfk8DxZFyjLIr+t2rqHteNlao2v6RZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 246/300] ice: Only lock to update netdev dev_addr
-Date:   Mon, 13 Sep 2021 15:15:07 +0200
-Message-Id: <20210913131117.664141618@linuxfoundation.org>
+Subject: [PATCH 5.13 247/300] net: phy: marvell10g: fix broken PHY interrupts for anyone after us in the driver probe list
+Date:   Mon, 13 Sep 2021 15:15:08 +0200
+Message-Id: <20210913131117.695037799@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -41,126 +41,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit b357d9717be7f95fde2c6c4650b186a995b71e59 ]
+[ Upstream commit 0d55649d2ad7296acfda9127e1d05518d025734a ]
 
-commit 3ba7f53f8bf1 ("ice: don't remove netdev->dev_addr from uc sync
-list") introduced calls to netif_addr_lock_bh() and
-netif_addr_unlock_bh() in the driver's ndo_set_mac() callback. This is
-fine since the driver is updated the netdev's dev_addr, but since this
-is a spinlock, the driver cannot sleep when the lock is held.
-Unfortunately the functions to add/delete MAC filters depend on a mutex.
-This was causing a trace with the lock debug kernel config options
-enabled when changing the mac address via iproute.
+Enabling interrupts via device tree for the internal PHYs on the
+mv88e6390 DSA switch does not work. The driver insists to use poll mode.
 
-[  203.273059] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:281
-[  203.273065] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 6698, name: ip
-[  203.273068] Preemption disabled at:
-[  203.273068] [<ffffffffc04aaeab>] ice_set_mac_address+0x8b/0x1c0 [ice]
-[  203.273097] CPU: 31 PID: 6698 Comm: ip Tainted: G S      W I       5.14.0-rc4 #2
-[  203.273100] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0010.010620200716 01/06/2020
-[  203.273102] Call Trace:
-[  203.273107]  dump_stack_lvl+0x33/0x42
-[  203.273113]  ? ice_set_mac_address+0x8b/0x1c0 [ice]
-[  203.273124]  ___might_sleep.cold.150+0xda/0xea
-[  203.273131]  mutex_lock+0x1c/0x40
-[  203.273136]  ice_remove_mac+0xe3/0x180 [ice]
-[  203.273155]  ? ice_fltr_add_mac_list+0x20/0x20 [ice]
-[  203.273175]  ice_fltr_prepare_mac+0x43/0xa0 [ice]
-[  203.273194]  ice_set_mac_address+0xab/0x1c0 [ice]
-[  203.273206]  dev_set_mac_address+0xb8/0x120
-[  203.273210]  dev_set_mac_address_user+0x2c/0x50
-[  203.273212]  do_setlink+0x1dd/0x10e0
-[  203.273217]  ? __nla_validate_parse+0x12d/0x1a0
-[  203.273221]  __rtnl_newlink+0x530/0x910
-[  203.273224]  ? __kmalloc_node_track_caller+0x17f/0x380
-[  203.273230]  ? preempt_count_add+0x68/0xa0
-[  203.273236]  ? _raw_spin_lock_irqsave+0x1f/0x30
-[  203.273241]  ? kmem_cache_alloc_trace+0x4d/0x440
-[  203.273244]  rtnl_newlink+0x43/0x60
-[  203.273245]  rtnetlink_rcv_msg+0x13a/0x380
-[  203.273248]  ? rtnl_calcit.isra.40+0x130/0x130
-[  203.273250]  netlink_rcv_skb+0x4e/0x100
-[  203.273256]  netlink_unicast+0x1a2/0x280
-[  203.273258]  netlink_sendmsg+0x242/0x490
-[  203.273260]  sock_sendmsg+0x58/0x60
-[  203.273263]  ____sys_sendmsg+0x1ef/0x260
-[  203.273265]  ? copy_msghdr_from_user+0x5c/0x90
-[  203.273268]  ? ____sys_recvmsg+0xe6/0x170
-[  203.273270]  ___sys_sendmsg+0x7c/0xc0
-[  203.273272]  ? copy_msghdr_from_user+0x5c/0x90
-[  203.273274]  ? ___sys_recvmsg+0x89/0xc0
-[  203.273276]  ? __netlink_sendskb+0x50/0x50
-[  203.273278]  ? mod_objcg_state+0xee/0x310
-[  203.273282]  ? __dentry_kill+0x114/0x170
-[  203.273286]  ? get_max_files+0x10/0x10
-[  203.273288]  __sys_sendmsg+0x57/0xa0
-[  203.273290]  do_syscall_64+0x37/0x80
-[  203.273295]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  203.273296] RIP: 0033:0x7f8edf96e278
-[  203.273298] Code: 89 02 48 c7 c0 ff ff ff ff eb b5 0f 1f 80 00 00 00 00 f3 0f 1e fa 48 8d 05 25 63 2c 00 8b 00 85 c0 75 17 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 58 c3 0f 1f 80 00 00 00 00 41 54 41 89 d4 55
-[  203.273300] RSP: 002b:00007ffcb8bdac08 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-[  203.273303] RAX: ffffffffffffffda RBX: 000000006115e0ae RCX: 00007f8edf96e278
-[  203.273304] RDX: 0000000000000000 RSI: 00007ffcb8bdac70 RDI: 0000000000000003
-[  203.273305] RBP: 0000000000000000 R08: 0000000000000001 R09: 00007ffcb8bda5b0
-[  203.273306] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000001
-[  203.273306] R13: 0000555e10092020 R14: 0000000000000000 R15: 0000000000000005
+Stage one debugging shows that the fwnode_mdiobus_phy_device_register
+function calls fwnode_irq_get properly, and phy->irq is set to a valid
+interrupt line initially.
 
-Fix this by only locking when changing the netdev->dev_addr. Also, make
-sure to restore the old netdev->dev_addr on any failures.
+But it is then cleared.
 
-Fixes: 3ba7f53f8bf1 ("ice: don't remove netdev->dev_addr from uc sync list")
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Stage two debugging shows that it is cleared here:
+
+phy_probe:
+
+  /* Disable the interrupt if the PHY doesn't support it
+   * but the interrupt is still a valid one
+   */
+  if (!phy_drv_supports_irq(phydrv) && phy_interrupt_is_valid(phydev))
+	phydev->irq = PHY_POLL;
+
+Okay, so does the "Marvell 88E6390 Family" PHY driver not have the
+.config_intr and .handle_interrupt function pointers? Yes it does.
+
+Stage three debugging shows that the PHY device does not attempt a probe
+against the "Marvell 88E6390 Family" driver, but against the "mv88x3310"
+driver.
+
+Okay, so why does the "mv88x3310" driver match on a mv88x6390 internal
+PHY? The PHY IDs (MARVELL_PHY_ID_88E6390_FAMILY vs
+MARVELL_PHY_ID_88X3310) are way different.
+
+Stage four debugging has us looking through:
+
+phy_device_register
+-> device_add
+   -> bus_probe_device
+      -> device_initial_probe
+         -> __device_attach
+            -> bus_for_each_drv
+               -> driver_match_device
+                  -> drv->bus->match
+                     -> phy_bus_match
+
+Okay, so as we said, the MII_PHYSID1 of mv88e6390 does not match the
+mv88x3310 driver's PHY mask & ID, so why would phy_bus_match return...
+
+Ahh, phy_bus_match calls a shortcircuit method,
+phydrv->match_phy_device, and does not even bother to compare the PHY ID
+if that is implemented.
+
+So of course, we go inside the marvell10g.c driver and sure enough, it
+implements .match_phy_device and does not bother to check the PHY ID.
+
+What's interesting though is that at the end of the device_add() from
+phy_device_register(), the driver for the internal PHYs _is_ the proper
+"Marvell 88E6390 Family". This is because "mv88x3310" ends up failing to
+probe after all, and __device_attach_driver(), to quote:
+
+  /*
+   * Ignore errors returned by ->probe so that the next driver can try
+   * its luck.
+   */
+
+The next (and only other) driver that matches is the 6390 driver. For
+this one, phy_probe doesn't fail, and everything expects to work as
+normal, EXCEPT phydev->irq has already been cleared by the previous
+unsuccessful probe of a driver which did not implement PHY interrupts,
+and therefore cleared that IRQ.
+
+Okay, so it is not just Marvell 6390 that has PHY interrupts broken.
+Stuff like Atheros, Aquantia, Broadcom, Qualcomm work because they are
+lexicographically before Marvell, and stuff like NXP, Realtek, Vitesse
+are broken.
+
+This goes to show how fragile it is to reset phydev->irq = PHY_POLL from
+the actual beginning of phy_probe itself. That seems like an actual bug
+of its own too, since phy_probe has side effects which are not restored
+on probe failure, but the line of thought probably was, the same driver
+will attempt probe again, so it doesn't matter. Well, looks like it
+does.
+
+Maybe it would make more sense to move the phydev->irq clearing after
+the actual device_add() in phy_device_register() completes, and the
+bound driver is the actual final one.
+
+(also, a bit frightening that drivers are permitted to bypass the MDIO
+bus matching in such a trivial way and perform PHY reads and writes from
+the .match_phy_device method, on devices that do not even belong to
+them. In the general case it might not be guaranteed that the MDIO
+accesses one driver needs to make to figure out whether to match on a
+device is safe for all other PHY devices)
+
+Fixes: a5de4be0aaaa ("net: phy: marvell10g: fix differentiation of 88X3310 from 88X3340")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Tested-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210827132541.28953-1-kabel@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/net/phy/marvell10g.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index a7f2f5c490e3..e16d20b77a3f 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -4911,6 +4911,7 @@ static int ice_set_mac_address(struct net_device *netdev, void *pi)
- 	struct ice_hw *hw = &pf->hw;
- 	struct sockaddr *addr = pi;
- 	enum ice_status status;
-+	u8 old_mac[ETH_ALEN];
- 	u8 flags = 0;
- 	int err = 0;
- 	u8 *mac;
-@@ -4933,8 +4934,13 @@ static int ice_set_mac_address(struct net_device *netdev, void *pi)
- 	}
+diff --git a/drivers/net/phy/marvell10g.c b/drivers/net/phy/marvell10g.c
+index 53a433442803..f4d758f8a1ee 100644
+--- a/drivers/net/phy/marvell10g.c
++++ b/drivers/net/phy/marvell10g.c
+@@ -987,11 +987,19 @@ static int mv3310_get_number_of_ports(struct phy_device *phydev)
  
- 	netif_addr_lock_bh(netdev);
-+	ether_addr_copy(old_mac, netdev->dev_addr);
-+	/* change the netdev's MAC address */
-+	memcpy(netdev->dev_addr, mac, netdev->addr_len);
-+	netif_addr_unlock_bh(netdev);
+ static int mv3310_match_phy_device(struct phy_device *phydev)
+ {
++	if ((phydev->c45_ids.device_ids[MDIO_MMD_PMAPMD] &
++	     MARVELL_PHY_ID_MASK) != MARVELL_PHY_ID_88X3310)
++		return 0;
 +
- 	/* Clean up old MAC filter. Not an error if old filter doesn't exist */
--	status = ice_fltr_remove_mac(vsi, netdev->dev_addr, ICE_FWD_TO_VSI);
-+	status = ice_fltr_remove_mac(vsi, old_mac, ICE_FWD_TO_VSI);
- 	if (status && status != ICE_ERR_DOES_NOT_EXIST) {
- 		err = -EADDRNOTAVAIL;
- 		goto err_update_filters;
-@@ -4957,13 +4963,12 @@ err_update_filters:
- 	if (err) {
- 		netdev_err(netdev, "can't set MAC %pM. filter update failed\n",
- 			   mac);
-+		netif_addr_lock_bh(netdev);
-+		ether_addr_copy(netdev->dev_addr, old_mac);
- 		netif_addr_unlock_bh(netdev);
- 		return err;
- 	}
+ 	return mv3310_get_number_of_ports(phydev) == 1;
+ }
  
--	/* change the netdev's MAC address */
--	memcpy(netdev->dev_addr, mac, netdev->addr_len);
--	netif_addr_unlock_bh(netdev);
- 	netdev_dbg(vsi->netdev, "updated MAC address to %pM\n",
- 		   netdev->dev_addr);
+ static int mv3340_match_phy_device(struct phy_device *phydev)
+ {
++	if ((phydev->c45_ids.device_ids[MDIO_MMD_PMAPMD] &
++	     MARVELL_PHY_ID_MASK) != MARVELL_PHY_ID_88X3310)
++		return 0;
++
+ 	return mv3310_get_number_of_ports(phydev) == 4;
+ }
  
 -- 
 2.30.2
