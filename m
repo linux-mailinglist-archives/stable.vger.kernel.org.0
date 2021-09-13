@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 930DC4091B9
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6938C40942F
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245324AbhIMOED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:04:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50990 "EHLO mail.kernel.org"
+        id S1344850AbhIMO2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:28:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343771AbhIMOBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:01:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 039E3613C8;
-        Mon, 13 Sep 2021 13:38:05 +0000 (UTC)
+        id S1345687AbhIMO0o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:26:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 596A061B71;
+        Mon, 13 Sep 2021 13:49:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540286;
-        bh=4vAAoX2C0toXlaw9ZCjZZwdTIj0zKqMABZc01c2o0oc=;
+        s=korg; t=1631540960;
+        bh=xmi01OkwJpGzNg2W2S7pUyCWWJVzK30TiRggTu1NR9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PS17iL8OiIoqVTaEwHNZgGGCK9uFIHYgD/jaTZFKRP7kFu+BgGOKrF3pe4SIa7L12
-         poNb2HLH9idzedpL5y4ET3psOtwClmAisEE3UplgG1hk9tkJKqG4UuJ2YLP8CuRmwd
-         y8T+E4on9VoSHdCvR5G1iont/TWgI8GLtgiqBclo=
+        b=OJX8i9VebhssbERsDZWEXtR6LBw3bNkmYbE0Rc0NsrIFdR8wd7+1Zzc0+ohAEMbto
+         +t6RjmUZs/MjJUx/gPwZ8Ygd6TnFu26d4Mn8LTsYQygb5+/KuJfi5Dts/OZDxwmv3t
+         C6J/ql+IpIb5lqcTu/pdibmVRJULHX6I6c+rYwI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Judy Hsiao <judyhsiao@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
+        stable@vger.kernel.org, robh+dt@kernel.org,
+        devicetree@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 098/300] arm64: dts: qcom: sc7180: Set adau wakeup delay to 80 ms
-Date:   Mon, 13 Sep 2021 15:12:39 +0200
-Message-Id: <20210913131112.695632410@linuxfoundation.org>
+Subject: [PATCH 5.14 106/334] arm64: dts: qcom: sm8250: fix usb2 qmp phy node
+Date:   Mon, 13 Sep 2021 15:12:40 +0200
+Message-Id: <20210913131116.960704385@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Judy Hsiao <judyhsiao@chromium.org>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit a8c7f3100e708d5f55692f0607ca80c5dcd21ce8 ]
+[ Upstream commit 63fa4322469648ae1023bb92a8b0d6a2f4bdaf2c ]
 
-Set audu wakeup delay to 80 ms for fixing pop noise during capture begin.
+Use 'lanes' as SuperSpeed lanes device node instead of just 'lane' to
+fix issues with TypeC support.
 
-Fixes: ba5f9b5d7ff3 ("arm64: dts: qcom: sc7180: Add wakeup delay for adau codec")
-Signed-off-by: Judy Hsiao <judyhsiao@chromium.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20210708090810.174767-1-judyhsiao@chromium.org
+Fixes: 46a6f297d7dd ("arm64: dts: qcom: sm8250: Add USB and PHY device nodes")
+Cc: robh+dt@kernel.org
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Link: https://lore.kernel.org/r/20210706230702.299047-2-bryan.odonoghue@linaro.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi | 2 +-
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
-index 3eb8550da1fc..3fa1ad1d0f02 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
-@@ -23,7 +23,7 @@ ap_h1_spi: &spi0 {};
- 	adau7002: audio-codec-1 {
- 		compatible = "adi,adau7002";
- 		IOVDD-supply = <&pp1800_l15a>;
--		wakeup-delay-ms = <15>;
-+		wakeup-delay-ms = <80>;
- 		#sound-dai-cells = <0>;
- 	};
- };
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index 4798368b02ef..9a6eff1813a6 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -2210,7 +2210,7 @@
+ 				 <&gcc GCC_USB3_PHY_SEC_BCR>;
+ 			reset-names = "phy", "common";
+ 
+-			usb_2_ssphy: lane@88eb200 {
++			usb_2_ssphy: lanes@88eb200 {
+ 				reg = <0 0x088eb200 0 0x200>,
+ 				      <0 0x088eb400 0 0x200>,
+ 				      <0 0x088eb800 0 0x800>;
 -- 
 2.30.2
 
