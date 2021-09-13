@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A9C1409612
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5CA5409643
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:49:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346798AbhIMOrp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:47:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34776 "EHLO mail.kernel.org"
+        id S1348521AbhIMOul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:50:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344813AbhIMOpn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:45:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C84660462;
-        Mon, 13 Sep 2021 13:58:29 +0000 (UTC)
+        id S1346882AbhIMOrJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:47:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0AD76322C;
+        Mon, 13 Sep 2021 13:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541509;
-        bh=V8unXZSxCZO3aqMWhpH/9RQZya6SIAmhYl62PatZMBY=;
+        s=korg; t=1631541535;
+        bh=zOjkwOZeZF/s9alCxj/ziN4jU7UQaPp70IN1jqRvrrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N7zi/u1AoSOly6uOz2Y3TF3ND+VqsEaPgZ9A1HjiLpIJOeoIyJ4awg5eBudSKx8CS
-         q7XgxOc0l9o6zOcCN0+TqTu3q2Ldy6nAyqPJGU2iVWCvu2qwbmmdIuShFNCsKvgsEw
-         /000Ul44HdWJUKbY2XVFxZMUJvntd2net0H/25H0=
+        b=NJT/uFCT6Igi31r/y6tNw0NlXXvrJ/29N+ymzvjTw9bjgPKgg/yXydIu0TmQj1W7I
+         B+eU60AaVOy2kBOu7l9FDjtYfsFGL0HjH+jc4QewFe9LNbP5/NsEX6VOKrvdAnSSzd
+         ivekK0Wn0VmBFI5zpPvq1yLgXFvuT7TNRn5mY4Bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+97388eb9d31b997fe1d0@syzkaller.appspotmail.com,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Nguyen Dinh Phi <phind.uet@gmail.com>
-Subject: [PATCH 5.14 308/334] tty: Fix data race between tiocsti() and flush_to_ldisc()
-Date:   Mon, 13 Sep 2021 15:16:02 +0200
-Message-Id: <20210913131123.841545810@linuxfoundation.org>
+        Alexander Antonov <alexander.antonov@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Kan Liang <kan.liang@linux.intel.com>
+Subject: [PATCH 5.14 309/334] perf/x86/intel/uncore: Fix IIO cleanup mapping procedure for SNR/ICX
+Date:   Mon, 13 Sep 2021 15:16:03 +0200
+Message-Id: <20210913131123.873839850@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,59 +41,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nguyen Dinh Phi <phind.uet@gmail.com>
+From: Alexander Antonov <alexander.antonov@linux.intel.com>
 
-commit bb2853a6a421a052268eee00fd5d3f6b3504b2b1 upstream.
+commit 3f2cbe3810a60111a33f5f6267bd5a237b826fc9 upstream.
 
-The ops->receive_buf() may be accessed concurrently from these two
-functions.  If the driver flushes data to the line discipline
-receive_buf() method while tiocsti() is waiting for the
-ops->receive_buf() to finish its work, the data race will happen.
+skx_iio_cleanup_mapping() is re-used for snr and icx, but in those
+cases it fails to use the appropriate XXX_iio_mapping_group and as
+such fails to free previously allocated resources, leading to memory
+leaks.
 
-For example:
-tty_ioctl			|tty_ldisc_receive_buf
- ->tioctsi			| ->tty_port_default_receive_buf
-				|  ->tty_ldisc_receive_buf
-   ->hci_uart_tty_receive	|   ->hci_uart_tty_receive
-    ->h4_recv                   |    ->h4_recv
-
-In this case, the h4 receive buffer will be overwritten by the
-latecomer, and we will lost the data.
-
-Hence, change tioctsi() function to use the exclusive lock interface
-from tty_buffer to avoid the data race.
-
-Reported-by: syzbot+97388eb9d31b997fe1d0@syzkaller.appspotmail.com
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
-Link: https://lore.kernel.org/r/20210823000641.2082292-1-phind.uet@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Fixes: 10337e95e04c ("perf/x86/intel/uncore: Enable I/O stacks to IIO PMON mapping on ICX")
+Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
+[peterz: Changelog]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210706090723.41850-1-alexander.antonov@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/tty_io.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/uncore_snbep.c |   40 ++++++++++++++++++++++++-----------
+ 1 file changed, 28 insertions(+), 12 deletions(-)
 
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -2290,8 +2290,6 @@ static int tty_fasync(int fd, struct fil
-  *	Locking:
-  *		Called functions take tty_ldiscs_lock
-  *		current->signal->tty check is safe without locks
-- *
-- *	FIXME: may race normal receive processing
-  */
- 
- static int tiocsti(struct tty_struct *tty, char __user *p)
-@@ -2307,8 +2305,10 @@ static int tiocsti(struct tty_struct *tt
- 	ld = tty_ldisc_ref_wait(tty);
- 	if (!ld)
- 		return -EIO;
-+	tty_buffer_lock_exclusive(tty->port);
- 	if (ld->ops->receive_buf)
- 		ld->ops->receive_buf(tty, &ch, &mbz, 1);
-+	tty_buffer_unlock_exclusive(tty->port);
- 	tty_ldisc_deref(ld);
- 	return 0;
+--- a/arch/x86/events/intel/uncore_snbep.c
++++ b/arch/x86/events/intel/uncore_snbep.c
+@@ -3838,26 +3838,32 @@ clear_attr_update:
+ 	return ret;
  }
+ 
+-static int skx_iio_set_mapping(struct intel_uncore_type *type)
+-{
+-	return pmu_iio_set_mapping(type, &skx_iio_mapping_group);
+-}
+-
+-static void skx_iio_cleanup_mapping(struct intel_uncore_type *type)
++static void
++pmu_iio_cleanup_mapping(struct intel_uncore_type *type, struct attribute_group *ag)
+ {
+-	struct attribute **attr = skx_iio_mapping_group.attrs;
++	struct attribute **attr = ag->attrs;
+ 
+ 	if (!attr)
+ 		return;
+ 
+ 	for (; *attr; attr++)
+ 		kfree((*attr)->name);
+-	kfree(attr_to_ext_attr(*skx_iio_mapping_group.attrs));
+-	kfree(skx_iio_mapping_group.attrs);
+-	skx_iio_mapping_group.attrs = NULL;
++	kfree(attr_to_ext_attr(*ag->attrs));
++	kfree(ag->attrs);
++	ag->attrs = NULL;
+ 	kfree(type->topology);
+ }
+ 
++static int skx_iio_set_mapping(struct intel_uncore_type *type)
++{
++	return pmu_iio_set_mapping(type, &skx_iio_mapping_group);
++}
++
++static void skx_iio_cleanup_mapping(struct intel_uncore_type *type)
++{
++	pmu_iio_cleanup_mapping(type, &skx_iio_mapping_group);
++}
++
+ static struct intel_uncore_type skx_uncore_iio = {
+ 	.name			= "iio",
+ 	.num_counters		= 4,
+@@ -4501,6 +4507,11 @@ static int snr_iio_set_mapping(struct in
+ 	return pmu_iio_set_mapping(type, &snr_iio_mapping_group);
+ }
+ 
++static void snr_iio_cleanup_mapping(struct intel_uncore_type *type)
++{
++	pmu_iio_cleanup_mapping(type, &snr_iio_mapping_group);
++}
++
+ static struct intel_uncore_type snr_uncore_iio = {
+ 	.name			= "iio",
+ 	.num_counters		= 4,
+@@ -4517,7 +4528,7 @@ static struct intel_uncore_type snr_unco
+ 	.attr_update		= snr_iio_attr_update,
+ 	.get_topology		= snr_iio_get_topology,
+ 	.set_mapping		= snr_iio_set_mapping,
+-	.cleanup_mapping	= skx_iio_cleanup_mapping,
++	.cleanup_mapping	= snr_iio_cleanup_mapping,
+ };
+ 
+ static struct intel_uncore_type snr_uncore_irp = {
+@@ -5092,6 +5103,11 @@ static int icx_iio_set_mapping(struct in
+ 	return pmu_iio_set_mapping(type, &icx_iio_mapping_group);
+ }
+ 
++static void icx_iio_cleanup_mapping(struct intel_uncore_type *type)
++{
++	pmu_iio_cleanup_mapping(type, &icx_iio_mapping_group);
++}
++
+ static struct intel_uncore_type icx_uncore_iio = {
+ 	.name			= "iio",
+ 	.num_counters		= 4,
+@@ -5109,7 +5125,7 @@ static struct intel_uncore_type icx_unco
+ 	.attr_update		= icx_iio_attr_update,
+ 	.get_topology		= icx_iio_get_topology,
+ 	.set_mapping		= icx_iio_set_mapping,
+-	.cleanup_mapping	= skx_iio_cleanup_mapping,
++	.cleanup_mapping	= icx_iio_cleanup_mapping,
+ };
+ 
+ static struct intel_uncore_type icx_uncore_irp = {
 
 
