@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE04D408E65
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8353409153
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240208AbhIMNdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:33:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
+        id S243948AbhIMOAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:00:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242501AbhIMNbh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:31:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35B6D610F7;
-        Mon, 13 Sep 2021 13:25:28 +0000 (UTC)
+        id S244593AbhIMN6o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:58:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9D3061A05;
+        Mon, 13 Sep 2021 13:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539528;
-        bh=+cSAMw9L8uwZ1vm8iSpE6QQ94QaxTTTPHyeaLwQH5WU=;
+        s=korg; t=1631540218;
+        bh=kOOR+xcN8/54SB6RYy9mQlEDZBHcac0OnG2mrsKPHgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dnzPVtAJoYolLdY+lyGUcepXdNiKgr+meLkfiJuiom3OODCvh4LH2YrsVqmjiKFEe
-         DeDBcBjmwcTqZxvZe0XdWQGfx54Aa0SfscxhdgAewYErMFR9ULfQO2Y9dKW3EmngPx
-         qtQgPbHy06HtrOAWD22k9HFdD9pIjFDPKFwZu0qU=
+        b=ymvCDhV2t3agCdHMDNpBphhk+QsgtqOMKojuQotXbPUfwYmld+EnNfiNSIH761Mbd
+         /yY8KLMqvm5C0EwhFyRASEL0zTAqFdMugd+YZa9tkZosKmBCri+BTwGQ6h6bNAKtSf
+         RESN40XLsUbjvac5vrKVpIyWli3HAu4iPVqpB74c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, robh+dt@kernel.org,
+        devicetree@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 058/236] crypto: qat - use proper type for vf_mask
+Subject: [PATCH 5.13 102/300] arm64: dts: qcom: sm8250: fix usb2 qmp phy node
 Date:   Mon, 13 Sep 2021 15:12:43 +0200
-Message-Id: <20210913131102.338397105@linuxfoundation.org>
+Message-Id: <20210913131112.824287275@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,70 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 462354d986b6a89c6449b85f17aaacf44e455216 ]
+[ Upstream commit 63fa4322469648ae1023bb92a8b0d6a2f4bdaf2c ]
 
-Replace vf_mask type with unsigned long to avoid a stack-out-of-bound.
+Use 'lanes' as SuperSpeed lanes device node instead of just 'lane' to
+fix issues with TypeC support.
 
-This is to fix the following warning reported by KASAN the first time
-adf_msix_isr_ae() gets called.
-
-    [  692.091987] BUG: KASAN: stack-out-of-bounds in find_first_bit+0x28/0x50
-    [  692.092017] Read of size 8 at addr ffff88afdf789e60 by task swapper/32/0
-    [  692.092076] Call Trace:
-    [  692.092089]  <IRQ>
-    [  692.092101]  dump_stack+0x9c/0xcf
-    [  692.092132]  print_address_description.constprop.0+0x18/0x130
-    [  692.092164]  ? find_first_bit+0x28/0x50
-    [  692.092185]  kasan_report.cold+0x7f/0x111
-    [  692.092213]  ? static_obj+0x10/0x80
-    [  692.092234]  ? find_first_bit+0x28/0x50
-    [  692.092262]  find_first_bit+0x28/0x50
-    [  692.092288]  adf_msix_isr_ae+0x16e/0x230 [intel_qat]
-
-Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 46a6f297d7dd ("arm64: dts: qcom: sm8250: Add USB and PHY device nodes")
+Cc: robh+dt@kernel.org
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Link: https://lore.kernel.org/r/20210706230702.299047-2-bryan.odonoghue@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_isr.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
-index da6ef007a6ae..de2f137e44ef 100644
---- a/drivers/crypto/qat/qat_common/adf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_isr.c
-@@ -15,6 +15,8 @@
- #include "adf_transport_access_macros.h"
- #include "adf_transport_internal.h"
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index 09b552396557..1316bea3eab5 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -2123,7 +2123,7 @@
+ 				 <&gcc GCC_USB3_PHY_SEC_BCR>;
+ 			reset-names = "phy", "common";
  
-+#define ADF_MAX_NUM_VFS	32
-+
- static int adf_enable_msix(struct adf_accel_dev *accel_dev)
- {
- 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
-@@ -67,7 +69,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 		struct adf_bar *pmisc =
- 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
- 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
--		u32 vf_mask;
-+		unsigned long vf_mask;
- 
- 		/* Get the interrupt sources triggered by VFs */
- 		vf_mask = ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU5) &
-@@ -88,8 +90,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 			 * unless the VF is malicious and is attempting to
- 			 * flood the host OS with VF2PF interrupts.
- 			 */
--			for_each_set_bit(i, (const unsigned long *)&vf_mask,
--					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
-+			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
- 				vf_info = accel_dev->pf.vf_info + i;
- 
- 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
+-			usb_2_ssphy: lane@88eb200 {
++			usb_2_ssphy: lanes@88eb200 {
+ 				reg = <0 0x088eb200 0 0x200>,
+ 				      <0 0x088eb400 0 0x200>,
+ 				      <0 0x088eb800 0 0x800>;
 -- 
 2.30.2
 
