@@ -2,64 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D88540890B
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 12:33:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4941E408951
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 12:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238241AbhIMKem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 06:34:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47894 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235123AbhIMKel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 06:34:41 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51740C061574
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 03:33:26 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id x6so13839061wrv.13
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 03:33:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=HVqyc5FnfRXBRGMOcu1/Umm/4Spsa2C5NcX6PZqjc4o=;
-        b=NaVZvcArl7i2NMcfGg+yih8WqlCh7/J6G1WaBbFlPbrAlqIPCjPhQesLhdCR6SauS1
-         IuIQASh/b4YrTRAWZ0hEk/VAioYYM8i/nLej+s8uMaCPLZ8C5Cc+UaXW5AOTXhGQwMNm
-         LpVoRTC/VLsKar+9AOLBdhme3gpC2w3yxEtlmuW1BXqfhZGsAQexFzaueDnc9QAQ29aJ
-         vdRaPxF/lc8E1nESw7rWmArV0d56o1rpzh2FywlogZqEOgQbIjnwOnPNGhOVJBugVrl3
-         pyLjH9Rcoq5eOD52X1gIzINSUx3d5Yw1x7f1e8v8pSTOMRFt/HvgHhyr+TbwK+H2ui+X
-         n2FQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=HVqyc5FnfRXBRGMOcu1/Umm/4Spsa2C5NcX6PZqjc4o=;
-        b=QRbfv1+RgdBnxRg6uwZ0ryjYgjfucUSumxzRUvow1O10SNiNDn5MNgA4lpEk7SpeAa
-         Pi4t59kLm24lQqq5QWp0f0IJoAjj8Bz4RvDgrmR3/fGWSL7HTOEFCH+Vis/l6HZC+kyj
-         BAq9QCGncXiB1JqiIHcF8JwtYnXxPLlFaPytnLFNgAkCqOnUDvfejc5iq4XVtQwIGtv2
-         lI9G9k6ixsGVjiqfFszRzcInheIQuRj8ZvyWoW7oZCRSKiECLw5B6XPR8QozL6vufHz8
-         Je6UEpv+fY71Qhau/EmBCv3Sek1rYibyYXB2p118S4T2CzEepqfAbxVN8iLjirGDW576
-         zwTg==
-X-Gm-Message-State: AOAM5314hVic3XLzPFVsT2iOmQAH17dGcYsyRU4bTM7QjjHtzlSjfHsU
-        h044NFPYfV8Mav8DWPvkruCoHHG4+HTmETkpGqs=
-X-Google-Smtp-Source: ABdhPJwNlNquhovugUoOxmLUv6r85HhsZ84ewBczyjE2d+aDFoe7s56U5WJORykI5ToeDcR+OEp3ho/pBaMPTM///L4=
-X-Received: by 2002:a5d:4803:: with SMTP id l3mr11779113wrq.61.1631529204909;
- Mon, 13 Sep 2021 03:33:24 -0700 (PDT)
+        id S238997AbhIMKsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 06:48:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49850 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238610AbhIMKsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 06:48:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E35F60FF2;
+        Mon, 13 Sep 2021 10:47:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631530027;
+        bh=xbngxz/rxJGMdxaLZy/Xb7h2ykFTnqg3G42jYVZiv3s=;
+        h=Subject:To:Cc:From:Date:From;
+        b=qSFMzWQOmg5XIKZ6BnJROmNHWfrC0gCfZEyIfDubj76nJPREGkVYbbVxzE+P0hODA
+         Bg3p9wjmzeWPzU76/70s4+Sb3nsT8xHEgYTqsMnmIIeC2r5Rj1QayjxsBlwtK1b7WF
+         XeOde/5CPoy9mbhos1SuTrYlEuWQgd/e1ZdLdgjI=
+Subject: FAILED: patch "[PATCH] io_uring: reexpand under-reexpanded iters" failed to apply to 5.13-stable tree
+To:     asml.silence@gmail.com, oswalpalash@gmail.com,
+        sudipm.mukherjee@gmail.com, viro@zeniv.linux.org.uk
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 13 Sep 2021 12:47:04 +0200
+Message-ID: <163153002416220@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:adf:fe46:0:0:0:0:0 with HTTP; Mon, 13 Sep 2021 03:33:24
- -0700 (PDT)
-Reply-To: dinkarim06@gmail.com
-From:   Din Karim <barristeradamslawson05@gmail.com>
-Date:   Mon, 13 Sep 2021 10:33:24 +0000
-Message-ID: <CAAbAuQxvejzHtffwGe2-fjhs3VWgHGMWvi69-AHirB3aBH4xBw@mail.gmail.com>
-Subject: Hello
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello dear,
 
-I'm Barr Din Karim,Please i wish to have a communication with you.
+The patch below does not apply to the 5.13-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I wait for your response.
+thanks,
 
-Barr Din Karim(Esq)
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 89c2b3b74918200e46699338d7bcc19b1ea12110 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Mon, 23 Aug 2021 11:18:45 +0100
+Subject: [PATCH] io_uring: reexpand under-reexpanded iters
+
+[   74.211232] BUG: KASAN: stack-out-of-bounds in iov_iter_revert+0x809/0x900
+[   74.212778] Read of size 8 at addr ffff888025dc78b8 by task
+syz-executor.0/828
+[   74.214756] CPU: 0 PID: 828 Comm: syz-executor.0 Not tainted
+5.14.0-rc3-next-20210730 #1
+[   74.216525] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+[   74.219033] Call Trace:
+[   74.219683]  dump_stack_lvl+0x8b/0xb3
+[   74.220706]  print_address_description.constprop.0+0x1f/0x140
+[   74.224226]  kasan_report.cold+0x7f/0x11b
+[   74.226085]  iov_iter_revert+0x809/0x900
+[   74.227960]  io_write+0x57d/0xe40
+[   74.232647]  io_issue_sqe+0x4da/0x6a80
+[   74.242578]  __io_queue_sqe+0x1ac/0xe60
+[   74.245358]  io_submit_sqes+0x3f6e/0x76a0
+[   74.248207]  __do_sys_io_uring_enter+0x90c/0x1a20
+[   74.257167]  do_syscall_64+0x3b/0x90
+[   74.257984]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+old_size = iov_iter_count();
+...
+iov_iter_revert(old_size - iov_iter_count());
+
+If iov_iter_revert() is done base on the initial size as above, and the
+iter is truncated and not reexpanded in the middle, it miscalculates
+borders causing problems. This trace is due to no one reexpanding after
+generic_write_checks().
+
+Now iters store how many bytes has been truncated, so reexpand them to
+the initial state right before reverting.
+
+Cc: stable@vger.kernel.org
+Reported-by: Palash Oswal <oswalpalash@gmail.com>
+Reported-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Reported-and-tested-by: syzbot+9671693590ef5aad8953@syzkaller.appspotmail.com
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index d94fb5835a20..71639d39caf9 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3281,6 +3281,7 @@ static int io_read(struct io_kiocb *req, unsigned int issue_flags)
+ 		if (req->flags & REQ_F_NOWAIT)
+ 			goto done;
+ 		/* some cases will consume bytes even on error returns */
++		iov_iter_reexpand(iter, iter->count + iter->truncated);
+ 		iov_iter_revert(iter, io_size - iov_iter_count(iter));
+ 		ret = 0;
+ 	} else if (ret == -EIOCBQUEUED) {
+@@ -3420,6 +3421,7 @@ static int io_write(struct io_kiocb *req, unsigned int issue_flags)
+ 	} else {
+ copy_iov:
+ 		/* some cases will consume bytes even on error returns */
++		iov_iter_reexpand(iter, iter->count + iter->truncated);
+ 		iov_iter_revert(iter, io_size - iov_iter_count(iter));
+ 		ret = io_setup_async_rw(req, iovec, inline_vecs, iter, false);
+ 		return ret ?: -EAGAIN;
+
