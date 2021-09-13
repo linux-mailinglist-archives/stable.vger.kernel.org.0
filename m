@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86AC8408D53
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:24:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70D93408F64
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:44:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241075AbhIMNZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:25:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34836 "EHLO mail.kernel.org"
+        id S242170AbhIMNmT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:42:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240560AbhIMNWM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:22:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C40861165;
-        Mon, 13 Sep 2021 13:20:48 +0000 (UTC)
+        id S243229AbhIMNjO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:39:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52A1C6127B;
+        Mon, 13 Sep 2021 13:28:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539249;
-        bh=YNcley9lhKLlU0/YDzyZr/Bcv02/j7nPzAc8OvPym3g=;
+        s=korg; t=1631539738;
+        bh=UHnM0abFLM3GYy1xujHHxOcpr7Sy645WE1ZG2tBFY/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YdX24zEQahodIyVZiHzw8Jk6rrVuEvJEVBOUsKmKIIKOA2P1rJrICFidCuGk6muFs
-         JVRG9Z/sur+NOtHAnXBsDAVV9RHwWLTNO93D0qhVgIvFLXKvlFeQjYx7VItJl/gzsd
-         L2h3yF6n93mSvOH+q/3MA4uq56UCxmHDU3PzR38c=
+        b=Mxh1Hj1BpiFKlTns2gsG71Qn2VqFXMdKwfU+XJJnzi8KgshrB32KyHBnLyp/HKg4G
+         WT/9NwSLRY8Xo8I4kqcqRyG1vpviiyTVvq5/RQ92KHGNg/K9XmH0/pSVuvG+Z5YiLg
+         eE8QOG+mVRCTTmyQiABzVzpsaIHNgP0qyL43jE68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Anand Moon <linux.amoon@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 066/144] ARM: dts: meson8b: odroidc1: Fix the pwm regulator supply properties
+Subject: [PATCH 5.10 142/236] drm/msm/dsi: Fix some reference counted resource leaks
 Date:   Mon, 13 Sep 2021 15:14:07 +0200
-Message-Id: <20210913131050.174935972@linuxfoundation.org>
+Message-Id: <20210913131105.191677845@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Moon <linux.amoon@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 876228e9f935f19c7afc7ba394d17e2ec9143b65 ]
+[ Upstream commit 6977cc89c87506ff17e6c05f0e37f46752256e82 ]
 
-After enabling CONFIG_REGULATOR_DEBUG=y we observe below debug logs.
-Changes help link VCCK and VDDEE pwm regulator to 5V regulator supply
-instead of dummy regulator.
+'of_find_device_by_node()' takes a reference that must be released when
+not needed anymore.
+This is expected to be done in 'dsi_destroy()'.
 
-[    7.117140] pwm-regulator regulator-vcck: Looking up pwm-supply from device tree
-[    7.117153] pwm-regulator regulator-vcck: Looking up pwm-supply property in node /regulator-vcck failed
-[    7.117184] VCCK: supplied by regulator-dummy
-[    7.117194] regulator-dummy: could not add device link regulator.8: -ENOENT
-[    7.117266] VCCK: 860 <--> 1140 mV at 986 mV, enabled
-[    7.118498] VDDEE: will resolve supply early: pwm
-[    7.118515] pwm-regulator regulator-vddee: Looking up pwm-supply from device tree
-[    7.118526] pwm-regulator regulator-vddee: Looking up pwm-supply property in node /regulator-vddee failed
-[    7.118553] VDDEE: supplied by regulator-dummy
-[    7.118563] regulator-dummy: could not add device link regulator.9: -ENOENT
+However, there are 2 issues in 'dsi_get_phy()'.
 
-Fixes: 524d96083b66 ("ARM: dts: meson8b: odroidc1: add the CPU voltage regulator")
-Fixes: 8bdf38be712d ("ARM: dts: meson8b: odroidc1: add the VDDEE regulator")
+First, if 'of_find_device_by_node()' succeeds but 'platform_get_drvdata()'
+returns NULL, 'msm_dsi->phy_dev' will still be NULL, and the reference
+won't be released in 'dsi_destroy()'.
 
-Tested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Cc: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Anand Moon <linux.amoon@gmail.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-[narmstrong: fixed typo in commit s/observer/observe/]
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20210705112358.3554-2-linux.amoon@gmail.com
+Secondly, as 'of_find_device_by_node()' already takes a reference, there is
+no need for an additional 'get_device()'.
+
+Move the assignment to 'msm_dsi->phy_dev' a few lines above and remove the
+unneeded 'get_device()' to solve both issues.
+
+Fixes: ec31abf6684e ("drm/msm/dsi: Separate PHY to another platform device")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/f15bc57648a00e7c99f943903468a04639d50596.1628241097.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/meson8b-odroidc1.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/dsi/dsi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/meson8b-odroidc1.dts b/arch/arm/boot/dts/meson8b-odroidc1.dts
-index 0f9c71137bed..c413af9a7af8 100644
---- a/arch/arm/boot/dts/meson8b-odroidc1.dts
-+++ b/arch/arm/boot/dts/meson8b-odroidc1.dts
-@@ -130,7 +130,7 @@
- 		regulator-min-microvolt = <860000>;
- 		regulator-max-microvolt = <1140000>;
+diff --git a/drivers/gpu/drm/msm/dsi/dsi.c b/drivers/gpu/drm/msm/dsi/dsi.c
+index 627048851d99..7e364b9c9f9e 100644
+--- a/drivers/gpu/drm/msm/dsi/dsi.c
++++ b/drivers/gpu/drm/msm/dsi/dsi.c
+@@ -26,8 +26,10 @@ static int dsi_get_phy(struct msm_dsi *msm_dsi)
+ 	}
  
--		vin-supply = <&p5v0>;
-+		pwm-supply = <&p5v0>;
+ 	phy_pdev = of_find_device_by_node(phy_node);
+-	if (phy_pdev)
++	if (phy_pdev) {
+ 		msm_dsi->phy = platform_get_drvdata(phy_pdev);
++		msm_dsi->phy_dev = &phy_pdev->dev;
++	}
  
- 		pwms = <&pwm_cd 0 12218 0>;
- 		pwm-dutycycle-range = <91 0>;
-@@ -162,7 +162,7 @@
- 		regulator-min-microvolt = <860000>;
- 		regulator-max-microvolt = <1140000>;
+ 	of_node_put(phy_node);
  
--		vin-supply = <&p5v0>;
-+		pwm-supply = <&p5v0>;
+@@ -36,8 +38,6 @@ static int dsi_get_phy(struct msm_dsi *msm_dsi)
+ 		return -EPROBE_DEFER;
+ 	}
  
- 		pwms = <&pwm_cd 1 12218 0>;
- 		pwm-dutycycle-range = <91 0>;
+-	msm_dsi->phy_dev = get_device(&phy_pdev->dev);
+-
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
