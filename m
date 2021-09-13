@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB442408D24
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:22:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55FFD408EFA
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241178AbhIMNX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:23:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35276 "EHLO mail.kernel.org"
+        id S243212AbhIMNi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:38:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238030AbhIMNUD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:20:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66AC461130;
-        Mon, 13 Sep 2021 13:18:07 +0000 (UTC)
+        id S241380AbhIMNgX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:36:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2129613A7;
+        Mon, 13 Sep 2021 13:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539087;
-        bh=4v2UbulIYnQNEuh8CVSloQontl7peJ3y0T4SSUMw0NE=;
+        s=korg; t=1631539669;
+        bh=CPT4ZBiULuw3xhdWyYmp8eWV+zgr5iLX8NgXvtBw9Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CKcMW6VLDg3quUNQcuK/fFCvb22gFhwUEdOfVbzjhWvF3A7RWcg+0BljDlOY2hF8M
-         CUv6KJ2y0a9mHWUIcp+sJvRbEkj0WHWw9S/jN4ZbnIiwgbTwAgzo6nFJdXZi5oRWdP
-         Wiys+R12ztcIslDNkC/sYYeHLMV8bcE2Xv5Pi7J0=
+        b=T+SS1gie+MLPH+k6oKVo3RCTPVcIYQJjRYd9Z0CzrB2T2Sn5KPwIvgIbJHxgsoY4T
+         24j+mpr8AmorMJSxIqNSDwWkr8fs98o3drzVdpt4iQulSI/FQqS2MjjYlAq7RjrJAN
+         5bCN/Ifetqx7tKPzjrb6jd2E57VrZY+3Ha6uXmxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phong Hoang <phong.hoang.wz@renesas.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 037/144] clocksource/drivers/sh_cmt: Fix wrong setting if dont request IRQ for clock source channel
-Date:   Mon, 13 Sep 2021 15:13:38 +0200
-Message-Id: <20210913131049.190228378@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+cdd51ee2e6b0b2e18c0d@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 114/236] net: cipso: fix warnings in netlbl_cipsov4_add_std
+Date:   Mon, 13 Sep 2021 15:13:39 +0200
+Message-Id: <20210913131104.222949345@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,96 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Hoang <phong.hoang.wz@renesas.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit be83c3b6e7b8ff22f72827a613bf6f3aa5afadbb ]
+[ Upstream commit 8ca34a13f7f9b3fa2c464160ffe8cc1a72088204 ]
 
-If CMT instance has at least two channels, one channel will be used
-as a clock source and another one used as a clock event device.
-In that case, IRQ is not requested for clock source channel so
-sh_cmt_clock_event_program_verify() might work incorrectly.
-Besides, when a channel is only used for clock source, don't need to
-re-set the next match_value since it should be maximum timeout as
-it still is.
+Syzbot reported warning in netlbl_cipsov4_add(). The
+problem was in too big doi_def->map.std->lvl.local_size
+passed to kcalloc(). Since this value comes from userpace there is
+no need to warn if value is not correct.
 
-On the other hand, due to no IRQ, total_cycles is not counted up
-when reaches compare match time (timer counter resets to zero),
-so sh_cmt_clocksource_read() returns unexpected value.
-Therefore, use 64-bit clocksoure's mask for 32-bit or 16-bit variants
-will also lead to wrong delta calculation. Hence, this mask should
-correspond to timer counter width, and above function just returns
-the raw value of timer counter register.
+The same problem may occur with other kcalloc() calls in
+this function, so, I've added __GFP_NOWARN flag to all
+kcalloc() calls there.
 
-Fixes: bfa76bb12f23 ("clocksource: sh_cmt: Request IRQ for clock event device only")
-Fixes: 37e7742c55ba ("clocksource/drivers/sh_cmt: Fix clocksource width for 32-bit machines")
-Signed-off-by: Phong Hoang <phong.hoang.wz@renesas.com>
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210422123443.73334-1-niklas.soderlund+renesas@ragnatech.se
+Reported-and-tested-by: syzbot+cdd51ee2e6b0b2e18c0d@syzkaller.appspotmail.com
+Fixes: 96cb8e3313c7 ("[NetLabel]: CIPSOv4 and Unlabeled packet integration")
+Acked-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/sh_cmt.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ net/netlabel/netlabel_cipso_v4.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
-index ef773db080e9..a0570213170d 100644
---- a/drivers/clocksource/sh_cmt.c
-+++ b/drivers/clocksource/sh_cmt.c
-@@ -568,7 +568,8 @@ static int sh_cmt_start(struct sh_cmt_channel *ch, unsigned long flag)
- 	ch->flags |= flag;
- 
- 	/* setup timeout if no clockevent */
--	if ((flag == FLAG_CLOCKSOURCE) && (!(ch->flags & FLAG_CLOCKEVENT)))
-+	if (ch->cmt->num_channels == 1 &&
-+	    flag == FLAG_CLOCKSOURCE && (!(ch->flags & FLAG_CLOCKEVENT)))
- 		__sh_cmt_set_next(ch, ch->max_match_value);
-  out:
- 	raw_spin_unlock_irqrestore(&ch->lock, flags);
-@@ -604,20 +605,25 @@ static struct sh_cmt_channel *cs_to_sh_cmt(struct clocksource *cs)
- static u64 sh_cmt_clocksource_read(struct clocksource *cs)
- {
- 	struct sh_cmt_channel *ch = cs_to_sh_cmt(cs);
--	unsigned long flags;
- 	u32 has_wrapped;
--	u64 value;
--	u32 raw;
- 
--	raw_spin_lock_irqsave(&ch->lock, flags);
--	value = ch->total_cycles;
--	raw = sh_cmt_get_counter(ch, &has_wrapped);
-+	if (ch->cmt->num_channels == 1) {
-+		unsigned long flags;
-+		u64 value;
-+		u32 raw;
- 
--	if (unlikely(has_wrapped))
--		raw += ch->match_value + 1;
--	raw_spin_unlock_irqrestore(&ch->lock, flags);
-+		raw_spin_lock_irqsave(&ch->lock, flags);
-+		value = ch->total_cycles;
-+		raw = sh_cmt_get_counter(ch, &has_wrapped);
-+
-+		if (unlikely(has_wrapped))
-+			raw += ch->match_value + 1;
-+		raw_spin_unlock_irqrestore(&ch->lock, flags);
-+
-+		return value + raw;
-+	}
- 
--	return value + raw;
-+	return sh_cmt_get_counter(ch, &has_wrapped);
- }
- 
- static int sh_cmt_clocksource_enable(struct clocksource *cs)
-@@ -680,7 +686,7 @@ static int sh_cmt_register_clocksource(struct sh_cmt_channel *ch,
- 	cs->disable = sh_cmt_clocksource_disable;
- 	cs->suspend = sh_cmt_clocksource_suspend;
- 	cs->resume = sh_cmt_clocksource_resume;
--	cs->mask = CLOCKSOURCE_MASK(sizeof(u64) * 8);
-+	cs->mask = CLOCKSOURCE_MASK(ch->cmt->info->width);
- 	cs->flags = CLOCK_SOURCE_IS_CONTINUOUS;
- 
- 	dev_info(&ch->cmt->pdev->dev, "ch%u: used as clock source\n",
+diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso_v4.c
+index 4f50a64315cf..50f40943c815 100644
+--- a/net/netlabel/netlabel_cipso_v4.c
++++ b/net/netlabel/netlabel_cipso_v4.c
+@@ -187,14 +187,14 @@ static int netlbl_cipsov4_add_std(struct genl_info *info,
+ 		}
+ 	doi_def->map.std->lvl.local = kcalloc(doi_def->map.std->lvl.local_size,
+ 					      sizeof(u32),
+-					      GFP_KERNEL);
++					      GFP_KERNEL | __GFP_NOWARN);
+ 	if (doi_def->map.std->lvl.local == NULL) {
+ 		ret_val = -ENOMEM;
+ 		goto add_std_failure;
+ 	}
+ 	doi_def->map.std->lvl.cipso = kcalloc(doi_def->map.std->lvl.cipso_size,
+ 					      sizeof(u32),
+-					      GFP_KERNEL);
++					      GFP_KERNEL | __GFP_NOWARN);
+ 	if (doi_def->map.std->lvl.cipso == NULL) {
+ 		ret_val = -ENOMEM;
+ 		goto add_std_failure;
+@@ -263,7 +263,7 @@ static int netlbl_cipsov4_add_std(struct genl_info *info,
+ 		doi_def->map.std->cat.local = kcalloc(
+ 					      doi_def->map.std->cat.local_size,
+ 					      sizeof(u32),
+-					      GFP_KERNEL);
++					      GFP_KERNEL | __GFP_NOWARN);
+ 		if (doi_def->map.std->cat.local == NULL) {
+ 			ret_val = -ENOMEM;
+ 			goto add_std_failure;
+@@ -271,7 +271,7 @@ static int netlbl_cipsov4_add_std(struct genl_info *info,
+ 		doi_def->map.std->cat.cipso = kcalloc(
+ 					      doi_def->map.std->cat.cipso_size,
+ 					      sizeof(u32),
+-					      GFP_KERNEL);
++					      GFP_KERNEL | __GFP_NOWARN);
+ 		if (doi_def->map.std->cat.cipso == NULL) {
+ 			ret_val = -ENOMEM;
+ 			goto add_std_failure;
 -- 
 2.30.2
 
