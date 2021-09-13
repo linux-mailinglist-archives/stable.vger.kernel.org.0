@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C42409336
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:19:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39694409356
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245118AbhIMOTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:19:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37134 "EHLO mail.kernel.org"
+        id S240932AbhIMOUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:20:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244635AbhIMORN (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344333AbhIMORN (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:17:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C365D61B20;
-        Mon, 13 Sep 2021 13:45:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5976C61B24;
+        Mon, 13 Sep 2021 13:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540706;
-        bh=ws5SJ3anQ+TeFQPoYg7MBVQZsaB4l3rY9Sgfs8htfBY=;
+        s=korg; t=1631540708;
+        bh=13A01LPjfB4eZPKnfQC7GBgeot9w4T5Qi5wyGWRiV/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WxJuVO3MEv/F9UIofQ8ZZtxEYTGAcVkmbqoL/fOnCq6JjyD9z2Yb7/QolUck7fzro
-         rAf3mDi7k5vgIlulicOlP67XffiKTSY7/qDXA/4F+QjWiVvBkK8jq1hAq7TPHZiA7J
-         guwdVB5JVnEobdwXB6/w17r1Bhr59Qe+3EjIb+Nw=
+        b=zndoAVT7o91D1zUDgJH4Xuumht3GBsQXjJUZhpQSJpCwKENkR+jSEUIGGSBE7ZVGm
+         fJk5tV4uIZs0oF95pObERk1aztkzDOgpZjIOzYDnpGQtK3Va7SIM4biFZqtBC70t6v
+         1+LCL39zCOJ+wvBKvOgKXxzrtbzg0uAsElHIUhLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 270/300] io_uring: IORING_OP_WRITE needs hash_reg_file set
-Date:   Mon, 13 Sep 2021 15:15:31 +0200
-Message-Id: <20210913131118.461240893@linuxfoundation.org>
+Subject: [PATCH 5.13 271/300] io_uring: io_uring_complete() trace should take an integer
+Date:   Mon, 13 Sep 2021 15:15:32 +0200
+Message-Id: <20210913131118.491384259@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -40,33 +40,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit 7b3188e7ed54102a5dcc73d07727f41fb528f7c8 upstream.
+commit 2fc2a7a62eb58650e71b4550cf6fa6cc0a75b2d2 upstream.
 
-During some testing, it became evident that using IORING_OP_WRITE doesn't
-hash buffered writes like the other writes commands do. That's simply
-an oversight, and can cause performance regressions when doing buffered
-writes with this command.
+It currently takes a long, and while that's normally OK, the io_uring
+limit is an int. Internally in io_uring it's an int, but sometimes it's
+passed as a long. That can yield confusing results where a completions
+seems to generate a huge result:
 
-Correct that and add the flag, so that buffered writes are correctly
-hashed when using the non-iovec based write command.
+ou-sqp-1297-1298    [001] ...1   788.056371: io_uring_complete: ring 000000000e98e046, user_data 0x0, result 4294967171, cflags 0
+
+which is due to -ECANCELED being stored in an unsigned, and then passed
+in as a long. Using the right int type, the trace looks correct:
+
+iou-sqp-338-339     [002] ...1    15.633098: io_uring_complete: ring 00000000e0ac60cf, user_data 0x0, result -125, cflags 0
 
 Cc: stable@vger.kernel.org
-Fixes: 3a6820f2bb8a ("io_uring: add non-vectored read/write commands")
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/trace/events/io_uring.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -990,6 +990,7 @@ static const struct io_op_def io_op_defs
- 	},
- 	[IORING_OP_WRITE] = {
- 		.needs_file		= 1,
-+		.hash_reg_file		= 1,
- 		.unbound_nonreg_file	= 1,
- 		.pollout		= 1,
- 		.plug			= 1,
+--- a/include/trace/events/io_uring.h
++++ b/include/trace/events/io_uring.h
+@@ -295,14 +295,14 @@ TRACE_EVENT(io_uring_fail_link,
+  */
+ TRACE_EVENT(io_uring_complete,
+ 
+-	TP_PROTO(void *ctx, u64 user_data, long res, unsigned cflags),
++	TP_PROTO(void *ctx, u64 user_data, int res, unsigned cflags),
+ 
+ 	TP_ARGS(ctx, user_data, res, cflags),
+ 
+ 	TP_STRUCT__entry (
+ 		__field(  void *,	ctx		)
+ 		__field(  u64,		user_data	)
+-		__field(  long,		res		)
++		__field(  int,		res		)
+ 		__field(  unsigned,	cflags		)
+ 	),
+ 
+@@ -313,7 +313,7 @@ TRACE_EVENT(io_uring_complete,
+ 		__entry->cflags		= cflags;
+ 	),
+ 
+-	TP_printk("ring %p, user_data 0x%llx, result %ld, cflags %x",
++	TP_printk("ring %p, user_data 0x%llx, result %d, cflags %x",
+ 			  __entry->ctx, (unsigned long long)__entry->user_data,
+ 			  __entry->res, __entry->cflags)
+ );
 
 
