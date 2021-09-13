@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF09A409FCF
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:34:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B401F409FC9
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:34:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345462AbhIMWfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 18:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50346 "EHLO mail.kernel.org"
+        id S1348326AbhIMWfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 18:35:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345583AbhIMWfI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 18:35:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF0FE610CE;
-        Mon, 13 Sep 2021 22:33:51 +0000 (UTC)
+        id S245355AbhIMWfK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 18:35:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2391610FB;
+        Mon, 13 Sep 2021 22:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631572432;
-        bh=ecIaMXb+m7FDhBfUMgGoGyY9OZ2Pm2kgMizHBu5cn38=;
+        s=k20201202; t=1631572433;
+        bh=wR2w6YQJg3iCjxa7BhEis6kUqMGE9iGSJ/ZgLWVJ4vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c7WlSCzi3xON5viWo9vgx1O1HaID2xG41b7vXpSMVcs9hYR0C/xcPYpIQTLtkFO14
-         PXB/cRB0kf27tLco7XCXyUMmkEx15Sxe4wJOEDxWJaorjFst3M9MFYKA9BsrFONt3U
-         x4jTjJgrKd2MBw81Oued+RU7btGoem+ELj4Xr4JcStXJXB1GDt1uUcWCcWlsCHKWM1
-         4lZc9S4yKgR3OipyaByOQynJKFXGbeVDfnfD3T1j8k3tfrZjSszGN+emWqbdF5EeD7
-         I5zxD+nIMOHXvpR4TymCEM4g6d7RjDUDIBtH2JjX750GjA26EerQdFaaXvD0IMYxJj
-         MlHjDubaKtmLg==
+        b=hvYrsyGDTnjPVVLzdEEeBKzUTriIUjw5IB5hAhW3Np58Tgb9jvBqq/Q+MGUwg1jvl
+         wrJ9fZNmoAkdelBAZdVTUjzu6fpqk6i/3ro+85XxAWZAWckAw8ZmDHyu6+QEu8VeW4
+         0A+/xuUIHEN/gHLJfwr/I+/Y+NRO3U5ssF8+MqdxOEldvuBmlVchKjRDS7Re1Qfe8B
+         TP5y+hwG/5xBonEzDlcGdz/uqUlA9ow8X3mLVGEUeJkdpZJWL5VHj/6K7TbCDCyJ1s
+         D0g9USTOJ4m0j1NUQJ7t2yKjpQWaU+Bh1tXbK/a8r2wwe6eSYDDxBYwdNeqW9UmH+U
+         CK/b1mpfX4gMA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Olivier MOYSAN <olivier.moysan@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.14 09/25] ASoC: audio-graph: respawn Platform Support
-Date:   Mon, 13 Sep 2021 18:33:23 -0400
-Message-Id: <20210913223339.435347-9-sashal@kernel.org>
+Cc:     Mario Limonciello <mario.limonciello@amd.com>,
+        Maxwell Beck <max@ryt.one>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 10/25] ACPI: PM: s2idle: Run both AMD and Microsoft methods if both are supported
+Date:   Mon, 13 Sep 2021 18:33:24 -0400
+Message-Id: <20210913223339.435347-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210913223339.435347-1-sashal@kernel.org>
 References: <20210913223339.435347-1-sashal@kernel.org>
@@ -43,83 +43,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 5f939f49771002f347039edf984aca42f30fc31a ]
+[ Upstream commit fa209644a7124b3f4cf811ced55daef49ae39ac6 ]
 
-commit 63f2f9cceb09f8 ("ASoC: audio-graph: remove Platform support")
-removed Platform support from audio-graph, because it doesn't have
-"plat" support on DT (simple-card has).
-But, Platform support is needed if user is using
-snd_dmaengine_pcm_register() which adds generic DMA as Platform.
-And this Platform dev is using CPU dev.
+It was reported that on "HP ENVY x360" that power LED does not come
+back, certain keys like brightness controls do not work, and the fan
+never spins up, even under load on 5.14 final.
 
-Without this patch, at least STM32MP15 audio sound card is no more
-functional (v5.13 or later). This patch respawn Platform Support on
-audio-graph again.
+In analysis of the SSDT it's clear that the Microsoft UUID doesn't
+provide functional support, but rather the AMD UUID should be
+supporting this system.
 
-Reported-by: Olivier MOYSAN <olivier.moysan@foss.st.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Tested-by: Olivier MOYSAN <olivier.moysan@foss.st.com>
-Link: https://lore.kernel.org/r/878s0jzrpf.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Because this is a gap in the expected logic, we checked back with
+internal team.  The conclusion was that on Windows AMD uPEP *does*
+run even when Microsoft UUID present, but most OEM systems have
+adopted value of "0x3" for supported functions and hence nothing
+runs.
+
+Henceforth add support for running both Microsoft and AMD methods.
+This approach will also allow the same logic on Intel systems if
+desired at a future time as well by pulling the evaluation of
+`lps0_dsm_func_mask_microsoft` out of the `if` block for
+`acpi_s2idle_vendor_amd`.
+
+Link: https://gitlab.freedesktop.org/drm/amd/uploads/9fbcd7ec3a385cc6949c9bacf45dc41b/acpi-f.20.bin
+BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1691
+Reported-by: Maxwell Beck <max@ryt.one>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+[ rjw: Edits of the new comments ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/audio-graph-card.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/acpi/x86/s2idle.c | 67 +++++++++++++++++++++++----------------
+ 1 file changed, 39 insertions(+), 28 deletions(-)
 
-diff --git a/sound/soc/generic/audio-graph-card.c b/sound/soc/generic/audio-graph-card.c
-index 5e71382467e8..546f6fd0609e 100644
---- a/sound/soc/generic/audio-graph-card.c
-+++ b/sound/soc/generic/audio-graph-card.c
-@@ -285,6 +285,7 @@ static int graph_dai_link_of_dpcm(struct asoc_simple_priv *priv,
- 	if (li->cpu) {
- 		struct snd_soc_card *card = simple_priv_to_card(priv);
- 		struct snd_soc_dai_link_component *cpus = asoc_link_to_cpu(dai_link, 0);
-+		struct snd_soc_dai_link_component *platforms = asoc_link_to_platform(dai_link, 0);
- 		int is_single_links = 0;
+diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
+index 3a308461246a..bd92b549fd5a 100644
+--- a/drivers/acpi/x86/s2idle.c
++++ b/drivers/acpi/x86/s2idle.c
+@@ -449,25 +449,30 @@ int acpi_s2idle_prepare_late(void)
+ 	if (pm_debug_messages_on)
+ 		lpi_check_constraints();
  
- 		/* Codec is dummy */
-@@ -313,6 +314,7 @@ static int graph_dai_link_of_dpcm(struct asoc_simple_priv *priv,
- 			dai_link->no_pcm = 1;
+-	if (lps0_dsm_func_mask_microsoft > 0) {
++	/* Screen off */
++	if (lps0_dsm_func_mask > 0)
++		acpi_sleep_run_lps0_dsm(acpi_s2idle_vendor_amd() ?
++					ACPI_LPS0_SCREEN_OFF_AMD :
++					ACPI_LPS0_SCREEN_OFF,
++					lps0_dsm_func_mask, lps0_dsm_guid);
++
++	if (lps0_dsm_func_mask_microsoft > 0)
+ 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_OFF,
+ 				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
+-		acpi_sleep_run_lps0_dsm(ACPI_LPS0_MS_ENTRY,
+-				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
++
++	/* LPS0 entry */
++	if (lps0_dsm_func_mask > 0)
++		acpi_sleep_run_lps0_dsm(acpi_s2idle_vendor_amd() ?
++					ACPI_LPS0_ENTRY_AMD :
++					ACPI_LPS0_ENTRY,
++					lps0_dsm_func_mask, lps0_dsm_guid);
++	if (lps0_dsm_func_mask_microsoft > 0) {
+ 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_ENTRY,
+ 				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
+-	} else if (acpi_s2idle_vendor_amd()) {
+-		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_OFF_AMD,
+-				lps0_dsm_func_mask, lps0_dsm_guid);
+-		acpi_sleep_run_lps0_dsm(ACPI_LPS0_ENTRY_AMD,
+-				lps0_dsm_func_mask, lps0_dsm_guid);
+-	} else {
+-		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_OFF,
+-				lps0_dsm_func_mask, lps0_dsm_guid);
+-		acpi_sleep_run_lps0_dsm(ACPI_LPS0_ENTRY,
+-				lps0_dsm_func_mask, lps0_dsm_guid);
++		/* modern standby entry */
++		acpi_sleep_run_lps0_dsm(ACPI_LPS0_MS_ENTRY,
++				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
+ 	}
+-
+ 	return 0;
+ }
  
- 		asoc_simple_canonicalize_cpu(cpus, is_single_links);
-+		asoc_simple_canonicalize_platform(platforms, cpus);
- 	} else {
- 		struct snd_soc_codec_conf *cconf = simple_props_to_codec_conf(dai_props, 0);
- 		struct snd_soc_dai_link_component *codecs = asoc_link_to_codec(dai_link, 0);
-@@ -366,6 +368,7 @@ static int graph_dai_link_of(struct asoc_simple_priv *priv,
- 	struct snd_soc_dai_link *dai_link = simple_priv_to_link(priv, li->link);
- 	struct snd_soc_dai_link_component *cpus = asoc_link_to_cpu(dai_link, 0);
- 	struct snd_soc_dai_link_component *codecs = asoc_link_to_codec(dai_link, 0);
-+	struct snd_soc_dai_link_component *platforms = asoc_link_to_platform(dai_link, 0);
- 	char dai_name[64];
- 	int ret, is_single_links = 0;
+@@ -476,24 +481,30 @@ void acpi_s2idle_restore_early(void)
+ 	if (!lps0_device_handle || sleep_no_lps0)
+ 		return;
  
-@@ -383,6 +386,7 @@ static int graph_dai_link_of(struct asoc_simple_priv *priv,
- 		 "%s-%s", cpus->dai_name, codecs->dai_name);
+-	if (lps0_dsm_func_mask_microsoft > 0) {
+-		acpi_sleep_run_lps0_dsm(ACPI_LPS0_EXIT,
+-				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
++	/* Modern standby exit */
++	if (lps0_dsm_func_mask_microsoft > 0)
+ 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_MS_EXIT,
+ 				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
+-		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_ON,
+-				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
+-	} else if (acpi_s2idle_vendor_amd()) {
+-		acpi_sleep_run_lps0_dsm(ACPI_LPS0_EXIT_AMD,
+-				lps0_dsm_func_mask, lps0_dsm_guid);
+-		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_ON_AMD,
+-				lps0_dsm_func_mask, lps0_dsm_guid);
+-	} else {
++
++	/* LPS0 exit */
++	if (lps0_dsm_func_mask > 0)
++		acpi_sleep_run_lps0_dsm(acpi_s2idle_vendor_amd() ?
++					ACPI_LPS0_EXIT_AMD :
++					ACPI_LPS0_EXIT,
++					lps0_dsm_func_mask, lps0_dsm_guid);
++	if (lps0_dsm_func_mask_microsoft > 0)
+ 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_EXIT,
+-				lps0_dsm_func_mask, lps0_dsm_guid);
++				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
++
++	/* Screen on */
++	if (lps0_dsm_func_mask_microsoft > 0)
+ 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_SCREEN_ON,
+-				lps0_dsm_func_mask, lps0_dsm_guid);
+-	}
++				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
++	if (lps0_dsm_func_mask > 0)
++		acpi_sleep_run_lps0_dsm(acpi_s2idle_vendor_amd() ?
++					ACPI_LPS0_SCREEN_ON_AMD :
++					ACPI_LPS0_SCREEN_ON,
++					lps0_dsm_func_mask, lps0_dsm_guid);
+ }
  
- 	asoc_simple_canonicalize_cpu(cpus, is_single_links);
-+	asoc_simple_canonicalize_platform(platforms, cpus);
- 
- 	ret = graph_link_init(priv, cpu_ep, codec_ep, li, dai_name);
- 	if (ret < 0)
-@@ -608,6 +612,7 @@ static int graph_count_noml(struct asoc_simple_priv *priv,
- 
- 	li->num[li->link].cpus		= 1;
- 	li->num[li->link].codecs	= 1;
-+	li->num[li->link].platforms     = 1;
- 
- 	li->link += 1; /* 1xCPU-Codec */
- 
-@@ -630,6 +635,7 @@ static int graph_count_dpcm(struct asoc_simple_priv *priv,
- 
- 	if (li->cpu) {
- 		li->num[li->link].cpus		= 1;
-+		li->num[li->link].platforms     = 1;
- 
- 		li->link++; /* 1xCPU-dummy */
- 	} else {
+ static const struct platform_s2idle_ops acpi_s2idle_ops_lps0 = {
 -- 
 2.30.2
 
