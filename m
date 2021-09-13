@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0010409246
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FF73409256
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244294AbhIMOKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:10:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55574 "EHLO mail.kernel.org"
+        id S245737AbhIMOKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:10:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344735AbhIMOHW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:07:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C0661A83;
-        Mon, 13 Sep 2021 13:40:39 +0000 (UTC)
+        id S244723AbhIMOIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:08:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9085861A88;
+        Mon, 13 Sep 2021 13:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540440;
-        bh=78ojPiQPyowEygpwF1GjuFOvhHMCaKV6fWIha8VPLXU=;
+        s=korg; t=1631540443;
+        bh=vQZ8aBcpON6jrIgp7vnwWUJaWfuLDh0abPyi8fIbhs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3bjD6AhfPAHUwfamwKjeLLeivAA6BuzH9GwrMBPGQ/C9US/Vy4ipYG4p8koHTnG3
-         Qy2F90kqfe1B3oUJyfzRjncwbqTKNjDBjI31WzPZzLNjdcnRnavvdi/nVW1ZnOUZtS
-         r4JE0ycepLYWJ/D/Ra0xjUYjbFo8GbCbWo7vlMwo=
+        b=o6lZ+Bs6zG2+tLYqz7Id6HmL4rq4RdxXX/4+QFZmX4pZGDtHg3SFfbwjlhqvBjnga
+         yiqNoISXp5IXZJJmZ2BLnMofr1FzCgPfjnppoq5Jed16HZmRF3hlpZALmazuUu5Rnf
+         P7Qz4b4wTVf+yRxpzAbgFi4I+9vMD3piD0msxBZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Blanquicet <josebl@microsoft.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 162/300] selftests/bpf: Fix bpf-iter-tcp4 test to print correctly the dest IP
-Date:   Mon, 13 Sep 2021 15:13:43 +0200
-Message-Id: <20210913131114.887886005@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 163/300] leds: lgm-sso: Propagate error codes from callee to caller
+Date:   Mon, 13 Sep 2021 15:13:44 +0200
+Message-Id: <20210913131114.919165374@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -40,36 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Blanquicet <josebl@microsoft.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 277b134057036df8c657079ca92c3e5e7d10aeaf ]
+[ Upstream commit 9cbc861095375793a69858f91f3ac4e817f320f0 ]
 
-Currently, this test is incorrectly printing the destination port in
-place of the destination IP.
+The one of the latest change to the driver reveals the problem that
+the error codes from callee aren't propagated to the caller of
+__sso_led_dt_parse(). Fix this accordingly.
 
-Fixes: 2767c97765cb ("selftests/bpf: Implement sample tcp/tcp6 bpf_iter programs")
-Signed-off-by: Jose Blanquicet <josebl@microsoft.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210805164044.527903-1-josebl@microsoft.com
+Fixes: 9999908ca1ab ("leds: lgm-sso: Put fwnode in any case during ->probe()")
+Fixes: c3987cd2bca3 ("leds: lgm: Add LED controller driver for LGM SoC")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/leds/blink/leds-lgm-sso.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c b/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c
-index 54380c5e1069..aa96b604b2b3 100644
---- a/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c
-+++ b/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c
-@@ -122,7 +122,7 @@ static int dump_tcp_sock(struct seq_file *seq, struct tcp_sock *tp,
+diff --git a/drivers/leds/blink/leds-lgm-sso.c b/drivers/leds/blink/leds-lgm-sso.c
+index 6c0ffcaa6b5c..24736f29d363 100644
+--- a/drivers/leds/blink/leds-lgm-sso.c
++++ b/drivers/leds/blink/leds-lgm-sso.c
+@@ -643,7 +643,7 @@ __sso_led_dt_parse(struct sso_led_priv *priv, struct fwnode_handle *fw_ssoled)
+ 							      fwnode_child,
+ 							      GPIOD_ASIS, NULL);
+ 		if (IS_ERR(led->gpiod)) {
+-			dev_err_probe(dev, PTR_ERR(led->gpiod), "led: get gpio fail!\n");
++			ret = dev_err_probe(dev, PTR_ERR(led->gpiod), "led: get gpio fail!\n");
+ 			goto __dt_err;
+ 		}
+ 
+@@ -663,8 +663,11 @@ __sso_led_dt_parse(struct sso_led_priv *priv, struct fwnode_handle *fw_ssoled)
+ 			desc->panic_indicator = 1;
+ 
+ 		ret = fwnode_property_read_u32(fwnode_child, "reg", &prop);
+-		if (ret != 0 || prop >= SSO_LED_MAX_NUM) {
++		if (ret)
++			goto __dt_err;
++		if (prop >= SSO_LED_MAX_NUM) {
+ 			dev_err(dev, "invalid LED pin:%u\n", prop);
++			ret = -EINVAL;
+ 			goto __dt_err;
+ 		}
+ 		desc->pin = prop;
+@@ -700,7 +703,8 @@ __sso_led_dt_parse(struct sso_led_priv *priv, struct fwnode_handle *fw_ssoled)
+ 				desc->brightness = LED_FULL;
+ 		}
+ 
+-		if (sso_create_led(priv, led, fwnode_child))
++		ret = sso_create_led(priv, led, fwnode_child);
++		if (ret)
+ 			goto __dt_err;
  	}
  
- 	BPF_SEQ_PRINTF(seq, "%4d: %08X:%04X %08X:%04X ",
--		       seq_num, src, srcp, destp, destp);
-+		       seq_num, src, srcp, dest, destp);
- 	BPF_SEQ_PRINTF(seq, "%02X %08X:%08X %02X:%08lX %08X %5u %8d %lu %d ",
- 		       state,
- 		       tp->write_seq - tp->snd_una, rx_queue,
+@@ -714,7 +718,7 @@ __dt_err:
+ 		sso_led_shutdown(led);
+ 	}
+ 
+-	return -EINVAL;
++	return ret;
+ }
+ 
+ static int sso_led_dt_parse(struct sso_led_priv *priv)
 -- 
 2.30.2
 
