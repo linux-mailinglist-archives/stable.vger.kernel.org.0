@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF970409432
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58A66409433
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:31:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345009AbhIMO2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:28:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45636 "EHLO mail.kernel.org"
+        id S1344949AbhIMO3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:29:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345785AbhIMO04 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:26:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B531F6136A;
-        Mon, 13 Sep 2021 13:49:27 +0000 (UTC)
+        id S1345800AbhIMO07 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:26:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5204F6152A;
+        Mon, 13 Sep 2021 13:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540968;
-        bh=rKTS/nWBZfsxfFC4uj6EZpuILt3KjEXzscEaEa/h3dY=;
+        s=korg; t=1631540970;
+        bh=WBjrp/IZ+q/vDEwt9idlzOc4t7Eba1314Ar2ALVZ7Tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLPF3KzB4u+jCl6xvGiuSc2gRsA3lD6jncRvLGjCbxwAu+FstfG5aDHTohOEnrWjz
-         n//fYNcHyqrV0qBzxQBQaJk3rpUxwOHSEKilvSHpNVDf+BDGaq18iKl4NolEqqNu1M
-         B3Hv0y1c0oeUoJr0DumU3KWFFyX4Z2aKDRAIz8ec=
+        b=ngwFBGjAbTfpwB6dL5MqL10YU3pAKei/cEQtQs9Va6rjF21XGZYZ/DgMG4KGwuRZA
+         w0Wkfaj0lxzZzscc0s74uJlI+nsm6Yrann9xpiYQPW9fREX7RPnVRh0X0pXJWkeDsO
+         VbwLvGdn44i1PvOLz1k2vW8gSSTUld90TQX7fyaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
+        stable@vger.kernel.org, Moshe Shemesh <moshe@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Shannon Nelson <snelson@pensando.io>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 109/334] driver core: Fix error return code in really_probe()
-Date:   Mon, 13 Sep 2021 15:12:43 +0200
-Message-Id: <20210913131117.060419491@linuxfoundation.org>
+Subject: [PATCH 5.14 110/334] ionic: cleanly release devlink instance
+Date:   Mon, 13 Sep 2021 15:12:44 +0200
+Message-Id: <20210913131117.091522561@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -40,63 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit f04948dea236b000da09c466a7ec931ecd8d7867 ]
+[ Upstream commit c2255ff47768c94a0ebc3968f007928bb47ea43b ]
 
-In the case of error handling, the error code returned by the subfunction
-should be propagated instead of 0.
+The failure to register devlink will leave the system with dangled
+devlink resource, which is not cleaned if devlink_port_register() fails.
 
-Fixes: 1901fb2604fb ("Driver core: fix "driver" symlink timing")
-Fixes: 23b6904442d0 ("driver core: add dev_groups to all drivers")
-Fixes: 8fd456ec0cf0 ("driver core: Add state_synced sysfs file for devices that support it")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210707074301.2722-1-thunder.leizhen@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In order to remove access to ".registered" field of struct devlink_port,
+require both devlink_register and devlink_port_register to success and
+check it through device pointer.
+
+Fixes: fbfb8031533c ("ionic: Add hardware init and device commands")
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Acked-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/dd.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ .../net/ethernet/pensando/ionic/ionic_devlink.c    | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/base/dd.c b/drivers/base/dd.c
-index 437cd61343b2..68ea1f949daa 100644
---- a/drivers/base/dd.c
-+++ b/drivers/base/dd.c
-@@ -580,7 +580,8 @@ re_probe:
- 			goto probe_failed;
- 	}
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_devlink.c b/drivers/net/ethernet/pensando/ionic/ionic_devlink.c
+index b41301a5b0df..cd520e4c5522 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_devlink.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_devlink.c
+@@ -91,20 +91,20 @@ int ionic_devlink_register(struct ionic *ionic)
+ 	attrs.flavour = DEVLINK_PORT_FLAVOUR_PHYSICAL;
+ 	devlink_port_attrs_set(&ionic->dl_port, &attrs);
+ 	err = devlink_port_register(dl, &ionic->dl_port, 0);
+-	if (err)
++	if (err) {
+ 		dev_err(ionic->dev, "devlink_port_register failed: %d\n", err);
+-	else
+-		devlink_port_type_eth_set(&ionic->dl_port,
+-					  ionic->lif->netdev);
++		devlink_unregister(dl);
++		return err;
++	}
  
--	if (driver_sysfs_add(dev)) {
-+	ret = driver_sysfs_add(dev);
-+	if (ret) {
- 		pr_err("%s: driver_sysfs_add(%s) failed\n",
- 		       __func__, dev_name(dev));
- 		goto probe_failed;
-@@ -602,15 +603,18 @@ re_probe:
- 		goto probe_failed;
- 	}
+-	return err;
++	devlink_port_type_eth_set(&ionic->dl_port, ionic->lif->netdev);
++	return 0;
+ }
  
--	if (device_add_groups(dev, drv->dev_groups)) {
-+	ret = device_add_groups(dev, drv->dev_groups);
-+	if (ret) {
- 		dev_err(dev, "device_add_groups() failed\n");
- 		goto dev_groups_failed;
- 	}
+ void ionic_devlink_unregister(struct ionic *ionic)
+ {
+ 	struct devlink *dl = priv_to_devlink(ionic);
  
--	if (dev_has_sync_state(dev) &&
--	    device_create_file(dev, &dev_attr_state_synced)) {
--		dev_err(dev, "state_synced sysfs add failed\n");
--		goto dev_sysfs_state_synced_failed;
-+	if (dev_has_sync_state(dev)) {
-+		ret = device_create_file(dev, &dev_attr_state_synced);
-+		if (ret) {
-+			dev_err(dev, "state_synced sysfs add failed\n");
-+			goto dev_sysfs_state_synced_failed;
-+		}
- 	}
- 
- 	if (test_remove) {
+-	if (ionic->dl_port.registered)
+-		devlink_port_unregister(&ionic->dl_port);
++	devlink_port_unregister(&ionic->dl_port);
+ 	devlink_unregister(dl);
+ }
 -- 
 2.30.2
 
