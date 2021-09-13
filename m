@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 001C44095EC
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F0F4092F6
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346541AbhIMOqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:46:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60398 "EHLO mail.kernel.org"
+        id S1345241AbhIMOQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:16:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346499AbhIMOmH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:42:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FDA761A10;
-        Mon, 13 Sep 2021 13:56:23 +0000 (UTC)
+        id S1344876AbhIMOOo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:14:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69356610E6;
+        Mon, 13 Sep 2021 13:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541383;
-        bh=Jy7Q7Blf6tB2CjW2U9cPUJWfvPp+fLiGIafG/3WybSo=;
+        s=korg; t=1631540625;
+        bh=g5bvzzsZ30AzMLtzWBmROfQKl3rddEjPsLLezYEkHdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1KcC1I4UenpvIuJpW9sL/W9T4yXaNrfgT3w0K0GKA2n+Co78rUL74F036AEi/dlcp
-         r1Ap0398uWIk0ejHTbx2T3tEak24lrE16nq5BO7j/L7E+KcYGvWgMjQieJnngIs3y5
-         84qxkfYG6iJUPzbSOuEmBbgW6pXY/BMy58lknLUo=
+        b=1MSJaY244PuEXWdGlo5GTE31yR/9MWeZBDrlCIGwtGlChDPGc/KLcw9CSMQKaDy9p
+         wBH6bxyqEr7yK2+DjaV1HoXZUT2wVFttj1OfjpnWEgdblCXRTKwlfe9kqKl6kCRRrA
+         3I5hIOjMKTx2B0dbShnai7NLZZzzNNVt3Upcr2CA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 243/334] octeontx2-pf: Dont install VLAN offload rule if netdev is down
+Subject: [PATCH 5.13 236/300] usb: bdc: Fix a resource leak in the error handling path of bdc_probe()
 Date:   Mon, 13 Sep 2021 15:14:57 +0200
-Message-Id: <20210913131121.622934113@linuxfoundation.org>
+Message-Id: <20210913131117.328610897@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sunil Goutham <sgoutham@marvell.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 05209e3570e452cdaa644e8398a8875b6a91051d ]
+[ Upstream commit 6f15a2a09cecb7a2faba4a75bbd101f6f962294b ]
 
-Whenever user changes interface MAC address both default DMAC based
-MCAM rule and VLAN offload (for strip) rules are updated with new
-MAC address. To update or install VLAN offload rule PF driver needs
-interface's receive channel info, which is retrieved from admin
-function at the time of NIXLF initialization.
+If an error occurs after a successful 'clk_prepare_enable()' call, it must
+be undone by a corresponding 'clk_disable_unprepare()' call.
+This call is already present in the remove function.
 
-If user changes MAC address before interface is UP, VLAN offload rule
-installation will fail and throw error as receive channel is not valid.
-To avoid this, skip VLAN offload rule installation if netdev is not UP.
-This rule will anyway be reinslatted as part of open() call.
+Add this call in the error handling path and reorder the code so that the
+'clk_prepare_enable()' call happens later in the function.
+The goal is to have as much managed resources functions as possible
+before the 'clk_prepare_enable()' call in order to keep the error handling
+path simple.
 
-Fixes: fd9d7859db6c ("octeontx2-pf: Implement ingress/egress VLAN offload")
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+While at it, remove the now unneeded 'clk' variable.
+
+Fixes: c87dca047849 ("usb: bdc: Add clock enable for new chips with a separate BDC clock")
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/f8a4a6897deb0c8cb2e576580790303550f15fcd.1629314734.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/bdc/bdc_core.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-index 70fcc1fd962f..692099793005 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-@@ -208,7 +208,8 @@ int otx2_set_mac_address(struct net_device *netdev, void *p)
- 	if (!otx2_hw_set_mac_addr(pfvf, addr->sa_data)) {
- 		memcpy(netdev->dev_addr, addr->sa_data, netdev->addr_len);
- 		/* update dmac field in vlan offload rule */
--		if (pfvf->flags & OTX2_FLAG_RX_VLAN_SUPPORT)
-+		if (netif_running(netdev) &&
-+		    pfvf->flags & OTX2_FLAG_RX_VLAN_SUPPORT)
- 			otx2_install_rxvlan_offload_flow(pfvf);
- 		/* update dmac address in ntuple and DMAC filter list */
- 		if (pfvf->flags & OTX2_FLAG_DMACFLTR_SUPPORT)
+diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
+index 251db57e51fa..fa1a3908ec3b 100644
+--- a/drivers/usb/gadget/udc/bdc/bdc_core.c
++++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
+@@ -488,27 +488,14 @@ static int bdc_probe(struct platform_device *pdev)
+ 	int irq;
+ 	u32 temp;
+ 	struct device *dev = &pdev->dev;
+-	struct clk *clk;
+ 	int phy_num;
+ 
+ 	dev_dbg(dev, "%s()\n", __func__);
+ 
+-	clk = devm_clk_get_optional(dev, "sw_usbd");
+-	if (IS_ERR(clk))
+-		return PTR_ERR(clk);
+-
+-	ret = clk_prepare_enable(clk);
+-	if (ret) {
+-		dev_err(dev, "could not enable clock\n");
+-		return ret;
+-	}
+-
+ 	bdc = devm_kzalloc(dev, sizeof(*bdc), GFP_KERNEL);
+ 	if (!bdc)
+ 		return -ENOMEM;
+ 
+-	bdc->clk = clk;
+-
+ 	bdc->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(bdc->regs))
+ 		return PTR_ERR(bdc->regs);
+@@ -545,10 +532,20 @@ static int bdc_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
++	bdc->clk = devm_clk_get_optional(dev, "sw_usbd");
++	if (IS_ERR(bdc->clk))
++		return PTR_ERR(bdc->clk);
++
++	ret = clk_prepare_enable(bdc->clk);
++	if (ret) {
++		dev_err(dev, "could not enable clock\n");
++		return ret;
++	}
++
+ 	ret = bdc_phy_init(bdc);
+ 	if (ret) {
+ 		dev_err(bdc->dev, "BDC phy init failure:%d\n", ret);
+-		return ret;
++		goto disable_clk;
+ 	}
+ 
+ 	temp = bdc_readl(bdc->regs, BDC_BDCCAP1);
+@@ -581,6 +578,8 @@ cleanup:
+ 	bdc_hw_exit(bdc);
+ phycleanup:
+ 	bdc_phy_exit(bdc);
++disable_clk:
++	clk_disable_unprepare(bdc->clk);
+ 	return ret;
+ }
+ 
 -- 
 2.30.2
 
