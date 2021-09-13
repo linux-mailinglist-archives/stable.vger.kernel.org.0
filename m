@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8E7408FD1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1434408DDE
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242915AbhIMNqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51790 "EHLO mail.kernel.org"
+        id S241507AbhIMNaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:30:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243693AbhIMNov (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:44:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3D2461465;
-        Mon, 13 Sep 2021 13:31:18 +0000 (UTC)
+        id S241486AbhIMNYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:24:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80297610CF;
+        Mon, 13 Sep 2021 13:21:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539879;
-        bh=D/xOvvpPEDcQ/8xExe5ynXZnzkYVMnjGX4YssaTfmAE=;
+        s=korg; t=1631539314;
+        bh=tThF4jZpKU2xHOEdviRgq2hF+Xvdn5VgoSe98/GUQD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ty133lJnpuefYAh3GAkJZ+Iz7xT5FtoEIHeGZ/+B0IQpPQmV9VukMJnt6/SBtIPF3
-         sNMpvJREglV+fmyb0iQlrewjw3GCUFSsifzNt5K9pKO7ZobS2/U2rfiEuMKOKDhqKV
-         aqV1+YtRmGNaTyEj8lGhGd71KxYmPBE5LdlQ5eFQ=
+        b=nHz0Jlyi1Arekm3243w4JaEOC/ZnEp0kzUL4njK8hSwBML0UXoquP3OWn9WKhv5Ut
+         jEy46/G9MsSRslIm3IXYQQMhI708CujNr+x3R1sQhkrWAst0tp066s7iuMURa5p081
+         i9u+QBN+Bx6yRiVmVEDbXZ4gZ15A22mDz/DZ+RSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Keyu Man <kman001@ucr.edu>, Wei Wang <weiwan@google.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 197/236] ASoC: wcd9335: Fix a double irq free in the remove function
+Subject: [PATCH 5.4 121/144] ipv6: make exception cache less predictible
 Date:   Mon, 13 Sep 2021 15:15:02 +0200
-Message-Id: <20210913131107.088380658@linuxfoundation.org>
+Message-Id: <20210913131051.969454176@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 7a6a723e98aa45f393e6add18f7309dfffa1b0e2 ]
+[ Upstream commit a00df2caffed3883c341d5685f830434312e4a43 ]
 
-There is no point in calling 'free_irq()' explicitly for
-'WCD9335_IRQ_SLIMBUS' in the remove function.
+Even after commit 4785305c05b2 ("ipv6: use siphash in rt6_exception_hash()"),
+an attacker can still use brute force to learn some secrets from a victim
+linux host.
 
-The irqs are requested in 'wcd9335_setup_irqs()' using a resource managed
-function (i.e. 'devm_request_threaded_irq()').
-'wcd9335_setup_irqs()' requests all what is defined in the 'wcd9335_irqs'
-structure.
-This structure has only one entry for 'WCD9335_IRQ_SLIMBUS'.
+One way to defeat these attacks is to make the max depth of the hash
+table bucket a random value.
 
-So 'devm_request...irq()' + explicit 'free_irq()' would lead to a double
-free.
+Before this patch, each bucket of the hash table used to store exceptions
+could contain 6 items under attack.
 
-Remove the unneeded 'free_irq()' from the remove function.
+After the patch, each bucket would contains a random number of items,
+between 6 and 10. The attacker can no longer infer secrets.
 
-Fixes: 20aedafdf492 ("ASoC: wcd9335: add support to wcd9335 codec")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Message-Id: <0614d63bc00edd7e81dd367504128f3d84f72efa.1629091028.git.christophe.jaillet@wanadoo.fr>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This is slightly increasing memory size used by the hash table,
+we do not expect this to be a problem.
+
+Following patch is dealing with the same issue in IPv4.
+
+Fixes: 35732d01fe31 ("ipv6: introduce a hash table to store dst cache")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Keyu Man <kman001@ucr.edu>
+Cc: Wei Wang <weiwan@google.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/wcd9335.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/ipv6/route.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
-index 4d2b1ec7c03b..0b7aae5cc783 100644
---- a/sound/soc/codecs/wcd9335.c
-+++ b/sound/soc/codecs/wcd9335.c
-@@ -4869,7 +4869,6 @@ static void wcd9335_codec_remove(struct snd_soc_component *comp)
- 	struct wcd9335_codec *wcd = dev_get_drvdata(comp->dev);
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index d6fc22f7d7a6..575bd0f1b008 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -1667,6 +1667,7 @@ static int rt6_insert_exception(struct rt6_info *nrt,
+ 	struct in6_addr *src_key = NULL;
+ 	struct rt6_exception *rt6_ex;
+ 	struct fib6_nh *nh = res->nh;
++	int max_depth;
+ 	int err = 0;
  
- 	wcd_clsh_ctrl_free(wcd->clsh_ctrl);
--	free_irq(regmap_irq_get_virq(wcd->irq_data, WCD9335_IRQ_SLIMBUS), wcd);
- }
+ 	spin_lock_bh(&rt6_exception_lock);
+@@ -1721,7 +1722,9 @@ static int rt6_insert_exception(struct rt6_info *nrt,
+ 	bucket->depth++;
+ 	net->ipv6.rt6_stats->fib_rt_cache++;
  
- static int wcd9335_codec_set_sysclk(struct snd_soc_component *comp,
+-	if (bucket->depth > FIB6_MAX_DEPTH)
++	/* Randomize max depth to avoid some side channels attacks. */
++	max_depth = FIB6_MAX_DEPTH + prandom_u32_max(FIB6_MAX_DEPTH);
++	while (bucket->depth > max_depth)
+ 		rt6_exception_remove_oldest(bucket);
+ 
+ out:
 -- 
 2.30.2
 
