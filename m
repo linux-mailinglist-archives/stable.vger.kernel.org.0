@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3089B409564
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B357409299
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344455AbhIMOlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:41:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55846 "EHLO mail.kernel.org"
+        id S242193AbhIMOMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:12:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346094AbhIMOhW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:37:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14BE561994;
-        Mon, 13 Sep 2021 13:54:34 +0000 (UTC)
+        id S1343964AbhIMOLA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:11:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3844061AAA;
+        Mon, 13 Sep 2021 13:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541275;
-        bh=3M61oGKVuWqgYKjv6y8tYDkcXvw2TcN/v3+w2eQy0hw=;
+        s=korg; t=1631540518;
+        bh=avBuPA/bEjeUC+0OIxFvvbq4eDjlC48TEm/B0pyw63o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eS5juoTkwA1WISWjRyiyTJhDxHDJsyUoFtkBOnkqcGRxgLW0QseVnMRyIh9nOno5R
-         qWzhfGW0boK6R3ecOdZbphuIBUfYGiwM6nTq3mtharcGO8oBNxVuFUCRt8GTjgYLO6
-         u807ARm5OP/59IrIEQpR2SbQv9drqoYr19vhaWCg=
+        b=bwwu8nAfP/Wt5vfTqIQnxosu4iSw4q1ztYl0UBTtgsH6ESGSI9vDnbdsEFLybzIfO
+         rBn/pErgzViomzDg1WruFBsJT+EiAGQSepYDSnLODKKfi72o+BJdyFHCB/cxVEwbFq
+         575nIgT7KwbhCb2T52kOxZtGomrbvJRThnJWf0Ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+be2baed593ea56c6a84c@syzkaller.appspotmail.com
-Subject: [PATCH 5.14 232/334] Bluetooth: add timeout sanity check to hci_inquiry
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Lukasz Majczak <lma@semihalf.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 225/300] ASoC: Intel: Skylake: Fix module resource and format selection
 Date:   Mon, 13 Sep 2021 15:14:46 +0200
-Message-Id: <20210913131121.263832472@linuxfoundation.org>
+Message-Id: <20210913131116.954625866@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +42,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit f41a4b2b5eb7872109723dab8ae1603bdd9d9ec1 ]
+[ Upstream commit e8b374b649afe756c2470e0e6668022e90bf8518 ]
 
-Syzbot hit "task hung" bug in hci_req_sync(). The problem was in
-unreasonable huge inquiry timeout passed from userspace.
-Fix it by adding sanity check for timeout value to hci_inquiry().
+Module configuration may differ between its instances depending on
+resources required and input and output audio format. Available
+parameters to select from are stored in module resource and interface
+(format) lists. These come from topology, together with description of
+each of pipe's modules.
 
-Since hci_inquiry() is the only user of hci_req_sync() with user
-controlled timeout value, it makes sense to check timeout value in
-hci_inquiry() and don't touch hci_req_sync().
+Ignoring index value provided by topology and relying always on 0th
+entry leads to unexpected module behavior due to under/overbudged
+resources assigned or impropper format selection. Fix by taking entry at
+index specified by topology.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-and-tested-by: syzbot+be2baed593ea56c6a84c@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: f6fa56e22559 ("ASoC: Intel: Skylake: Parse and update module config structure")
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Tested-by: Lukasz Majczak <lma@semihalf.com>
+Link: https://lore.kernel.org/r/20210818075742.1515155-5-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/soc/intel/skylake/skl-topology.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 2331612839d7..4c25bcd1ac4c 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1343,6 +1343,12 @@ int hci_inquiry(void __user *arg)
- 		goto done;
- 	}
+diff --git a/sound/soc/intel/skylake/skl-topology.c b/sound/soc/intel/skylake/skl-topology.c
+index 45b1521e6189..09037d555ec4 100644
+--- a/sound/soc/intel/skylake/skl-topology.c
++++ b/sound/soc/intel/skylake/skl-topology.c
+@@ -113,7 +113,7 @@ static int is_skl_dsp_widget_type(struct snd_soc_dapm_widget *w,
  
-+	/* Restrict maximum inquiry length to 60 seconds */
-+	if (ir.length > 60) {
-+		err = -EINVAL;
-+		goto done;
-+	}
-+
- 	hci_dev_lock(hdev);
- 	if (inquiry_cache_age(hdev) > INQUIRY_CACHE_AGE_MAX ||
- 	    inquiry_cache_empty(hdev) || ir.flags & IREQ_CACHE_FLUSH) {
+ static void skl_dump_mconfig(struct skl_dev *skl, struct skl_module_cfg *mcfg)
+ {
+-	struct skl_module_iface *iface = &mcfg->module->formats[0];
++	struct skl_module_iface *iface = &mcfg->module->formats[mcfg->fmt_idx];
+ 
+ 	dev_dbg(skl->dev, "Dumping config\n");
+ 	dev_dbg(skl->dev, "Input Format:\n");
+@@ -195,8 +195,8 @@ static void skl_tplg_update_params_fixup(struct skl_module_cfg *m_cfg,
+ 	struct skl_module_fmt *in_fmt, *out_fmt;
+ 
+ 	/* Fixups will be applied to pin 0 only */
+-	in_fmt = &m_cfg->module->formats[0].inputs[0].fmt;
+-	out_fmt = &m_cfg->module->formats[0].outputs[0].fmt;
++	in_fmt = &m_cfg->module->formats[m_cfg->fmt_idx].inputs[0].fmt;
++	out_fmt = &m_cfg->module->formats[m_cfg->fmt_idx].outputs[0].fmt;
+ 
+ 	if (params->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+ 		if (is_fe) {
+@@ -239,9 +239,9 @@ static void skl_tplg_update_buffer_size(struct skl_dev *skl,
+ 	/* Since fixups is applied to pin 0 only, ibs, obs needs
+ 	 * change for pin 0 only
+ 	 */
+-	res = &mcfg->module->resources[0];
+-	in_fmt = &mcfg->module->formats[0].inputs[0].fmt;
+-	out_fmt = &mcfg->module->formats[0].outputs[0].fmt;
++	res = &mcfg->module->resources[mcfg->res_idx];
++	in_fmt = &mcfg->module->formats[mcfg->fmt_idx].inputs[0].fmt;
++	out_fmt = &mcfg->module->formats[mcfg->fmt_idx].outputs[0].fmt;
+ 
+ 	if (mcfg->m_type == SKL_MODULE_TYPE_SRCINT)
+ 		multiplier = 5;
+@@ -1631,11 +1631,12 @@ int skl_tplg_update_pipe_params(struct device *dev,
+ 			struct skl_module_cfg *mconfig,
+ 			struct skl_pipe_params *params)
+ {
+-	struct skl_module_res *res = &mconfig->module->resources[0];
++	struct skl_module_res *res;
+ 	struct skl_dev *skl = get_skl_ctx(dev);
+ 	struct skl_module_fmt *format = NULL;
+ 	u8 cfg_idx = mconfig->pipe->cur_config_idx;
+ 
++	res = &mconfig->module->resources[mconfig->res_idx];
+ 	skl_tplg_fill_dma_id(mconfig, params);
+ 	mconfig->fmt_idx = mconfig->mod_cfg[cfg_idx].fmt_idx;
+ 	mconfig->res_idx = mconfig->mod_cfg[cfg_idx].res_idx;
+@@ -1644,9 +1645,9 @@ int skl_tplg_update_pipe_params(struct device *dev,
+ 		return 0;
+ 
+ 	if (params->stream == SNDRV_PCM_STREAM_PLAYBACK)
+-		format = &mconfig->module->formats[0].inputs[0].fmt;
++		format = &mconfig->module->formats[mconfig->fmt_idx].inputs[0].fmt;
+ 	else
+-		format = &mconfig->module->formats[0].outputs[0].fmt;
++		format = &mconfig->module->formats[mconfig->fmt_idx].outputs[0].fmt;
+ 
+ 	/* set the hw_params */
+ 	format->s_freq = params->s_freq;
 -- 
 2.30.2
 
