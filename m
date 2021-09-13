@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BFBB408E83
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9565E409172
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:00:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242065AbhIMNfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:35:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60032 "EHLO mail.kernel.org"
+        id S1343944AbhIMOBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:01:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241729AbhIMNbw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:31:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E42E61362;
-        Mon, 13 Sep 2021 13:25:33 +0000 (UTC)
+        id S245730AbhIMN71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:59:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00C73610FE;
+        Mon, 13 Sep 2021 13:37:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539534;
-        bh=/u+Ho3eMoIK64CllGtyLRMWiqn7k0ejvmVrCM8klB9M=;
+        s=korg; t=1631540225;
+        bh=IFq5a1R/bvoW7J5KJC/aQ63k1a7K0dBrSifk+UHnhCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YWP/RiraE+5Nkd/o6++df2coNiMfcHLZeE1c1cA/IZi3gEYxjH8fgONvmV+M/zu57
-         pArS3pghFrcSSdsmfhAJKo8IheEujwa+Nk6DlB5UZOVYEM+NzV/sBidRfGbk3KrUG+
-         DVLhOsq0eS8nC8oNhe4CsbS+UzDp3iME4AAIP+ps=
+        b=V1CoEEOKAKAv3oQW8DTJzKg9Fzi4yrOwMAgEkDqBwCud80FgdmNPBIC+sA6EcvHyP
+         oLjGLbNgXsIdeb3TVE6MeueGbwYw3VQSF9KfZdBe36/LO5oa4JJjdv3K9o0Z1XAqzF
+         F/aeAUrv/2Gkjw6KhENUHmfZnOCUodC6FHqm5K5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nayna Jain <nayna@linux.ibm.com>,
-        George Wilson <gcwilson@linux.ibm.com>,
-        Nageswara R Sastry <rnsastry@linux.ibm.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/236] tpm: ibmvtpm: Avoid error message when process gets signal while waiting
-Date:   Mon, 13 Sep 2021 15:12:45 +0200
-Message-Id: <20210913131102.410748782@linuxfoundation.org>
+Subject: [PATCH 5.13 105/300] driver core: Fix error return code in really_probe()
+Date:   Mon, 13 Sep 2021 15:12:46 +0200
+Message-Id: <20210913131112.920112329@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,149 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Berger <stefanb@linux.ibm.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 047d4226b0bca1cda5267dc68bc8291cce5364ac ]
+[ Upstream commit f04948dea236b000da09c466a7ec931ecd8d7867 ]
 
-When rngd is run as root then lots of these types of message will appear
-in the kernel log if the TPM has been configured to provide random bytes:
+In the case of error handling, the error code returned by the subfunction
+should be propagated instead of 0.
 
-[ 7406.275163] tpm tpm0: tpm_transmit: tpm_recv: error -4
-
-The issue is caused by the following call that is interrupted while
-waiting for the TPM's response.
-
-sig = wait_event_interruptible(ibmvtpm->wq, !ibmvtpm->tpm_processing_cmd);
-
-Rather than waiting for the response in the low level driver, have it use
-the polling loop in tpm_try_transmit() that uses a command's duration to
-poll until a result has been returned by the TPM, thus ending when the
-timeout has occurred but not responding to signals and ctrl-c anymore. To
-stay in this polling loop extend tpm_ibmvtpm_status() to return
-'true' for as long as the vTPM is indicated as being busy in
-tpm_processing_cmd. Since the loop requires the TPM's timeouts, get them
-now using tpm_get_timeouts() after setting the TPM2 version flag on the
-chip.
-
-To recreat the resolved issue start rngd like this:
-
-sudo rngd -r /dev/hwrng -t
-sudo rngd -r /dev/tpm0 -t
-
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1981473
-Fixes: 6674ff145eef ("tpm_ibmvtpm: properly handle interrupted packet receptions")
-Cc: Nayna Jain <nayna@linux.ibm.com>
-Cc: George Wilson <gcwilson@linux.ibm.com>
-Reported-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Signed-off-by: Stefan Berger <stefanb@linux.ibm.com>
-Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fixes: 1901fb2604fb ("Driver core: fix "driver" symlink timing")
+Fixes: 23b6904442d0 ("driver core: add dev_groups to all drivers")
+Fixes: 8fd456ec0cf0 ("driver core: Add state_synced sysfs file for devices that support it")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210707074301.2722-1-thunder.leizhen@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_ibmvtpm.c | 26 +++++++++++++++-----------
- drivers/char/tpm/tpm_ibmvtpm.h |  2 +-
- 2 files changed, 16 insertions(+), 12 deletions(-)
+ drivers/base/dd.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.c b/drivers/char/tpm/tpm_ibmvtpm.c
-index 994385bf37c0..3ca7528322f5 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.c
-+++ b/drivers/char/tpm/tpm_ibmvtpm.c
-@@ -106,17 +106,12 @@ static int tpm_ibmvtpm_recv(struct tpm_chip *chip, u8 *buf, size_t count)
- {
- 	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
- 	u16 len;
--	int sig;
- 
- 	if (!ibmvtpm->rtce_buf) {
- 		dev_err(ibmvtpm->dev, "ibmvtpm device is not ready\n");
- 		return 0;
+diff --git a/drivers/base/dd.c b/drivers/base/dd.c
+index 592b3955abe2..a421da0c9c01 100644
+--- a/drivers/base/dd.c
++++ b/drivers/base/dd.c
+@@ -560,7 +560,8 @@ re_probe:
+ 			goto probe_failed;
  	}
  
--	sig = wait_event_interruptible(ibmvtpm->wq, !ibmvtpm->tpm_processing_cmd);
--	if (sig)
--		return -EINTR;
--
- 	len = ibmvtpm->res_len;
- 
- 	if (count < len) {
-@@ -237,7 +232,7 @@ static int tpm_ibmvtpm_send(struct tpm_chip *chip, u8 *buf, size_t count)
- 	 * set the processing flag before the Hcall, since we may get the
- 	 * result (interrupt) before even being able to check rc.
- 	 */
--	ibmvtpm->tpm_processing_cmd = true;
-+	ibmvtpm->tpm_processing_cmd = 1;
- 
- again:
- 	rc = ibmvtpm_send_crq(ibmvtpm->vdev,
-@@ -255,7 +250,7 @@ again:
- 			goto again;
- 		}
- 		dev_err(ibmvtpm->dev, "tpm_ibmvtpm_send failed rc=%d\n", rc);
--		ibmvtpm->tpm_processing_cmd = false;
-+		ibmvtpm->tpm_processing_cmd = 0;
+-	if (driver_sysfs_add(dev)) {
++	ret = driver_sysfs_add(dev);
++	if (ret) {
+ 		pr_err("%s: driver_sysfs_add(%s) failed\n",
+ 		       __func__, dev_name(dev));
+ 		goto probe_failed;
+@@ -582,15 +583,18 @@ re_probe:
+ 			goto probe_failed;
  	}
  
- 	spin_unlock(&ibmvtpm->rtce_lock);
-@@ -269,7 +264,9 @@ static void tpm_ibmvtpm_cancel(struct tpm_chip *chip)
- 
- static u8 tpm_ibmvtpm_status(struct tpm_chip *chip)
- {
--	return 0;
-+	struct ibmvtpm_dev *ibmvtpm = dev_get_drvdata(&chip->dev);
-+
-+	return ibmvtpm->tpm_processing_cmd;
- }
- 
- /**
-@@ -459,7 +456,7 @@ static const struct tpm_class_ops tpm_ibmvtpm = {
- 	.send = tpm_ibmvtpm_send,
- 	.cancel = tpm_ibmvtpm_cancel,
- 	.status = tpm_ibmvtpm_status,
--	.req_complete_mask = 0,
-+	.req_complete_mask = 1,
- 	.req_complete_val = 0,
- 	.req_canceled = tpm_ibmvtpm_req_canceled,
- };
-@@ -552,7 +549,7 @@ static void ibmvtpm_crq_process(struct ibmvtpm_crq *crq,
- 		case VTPM_TPM_COMMAND_RES:
- 			/* len of the data in rtce buffer */
- 			ibmvtpm->res_len = be16_to_cpu(crq->len);
--			ibmvtpm->tpm_processing_cmd = false;
-+			ibmvtpm->tpm_processing_cmd = 0;
- 			wake_up_interruptible(&ibmvtpm->wq);
- 			return;
- 		default:
-@@ -690,8 +687,15 @@ static int tpm_ibmvtpm_probe(struct vio_dev *vio_dev,
- 		goto init_irq_cleanup;
+-	if (device_add_groups(dev, drv->dev_groups)) {
++	ret = device_add_groups(dev, drv->dev_groups);
++	if (ret) {
+ 		dev_err(dev, "device_add_groups() failed\n");
+ 		goto dev_groups_failed;
  	}
  
--	if (!strcmp(id->compat, "IBM,vtpm20")) {
-+
-+	if (!strcmp(id->compat, "IBM,vtpm20"))
- 		chip->flags |= TPM_CHIP_FLAG_TPM2;
-+
-+	rc = tpm_get_timeouts(chip);
-+	if (rc)
-+		goto init_irq_cleanup;
-+
-+	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
- 		rc = tpm2_get_cc_attrs_tbl(chip);
- 		if (rc)
- 			goto init_irq_cleanup;
-diff --git a/drivers/char/tpm/tpm_ibmvtpm.h b/drivers/char/tpm/tpm_ibmvtpm.h
-index b92aa7d3e93e..51198b137461 100644
---- a/drivers/char/tpm/tpm_ibmvtpm.h
-+++ b/drivers/char/tpm/tpm_ibmvtpm.h
-@@ -41,7 +41,7 @@ struct ibmvtpm_dev {
- 	wait_queue_head_t wq;
- 	u16 res_len;
- 	u32 vtpm_version;
--	bool tpm_processing_cmd;
-+	u8 tpm_processing_cmd;
- };
+-	if (dev_has_sync_state(dev) &&
+-	    device_create_file(dev, &dev_attr_state_synced)) {
+-		dev_err(dev, "state_synced sysfs add failed\n");
+-		goto dev_sysfs_state_synced_failed;
++	if (dev_has_sync_state(dev)) {
++		ret = device_create_file(dev, &dev_attr_state_synced);
++		if (ret) {
++			dev_err(dev, "state_synced sysfs add failed\n");
++			goto dev_sysfs_state_synced_failed;
++		}
+ 	}
  
- #define CRQ_RES_BUF_SIZE	PAGE_SIZE
+ 	if (test_remove) {
 -- 
 2.30.2
 
