@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5CA5409643
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9606C409658
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:50:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348521AbhIMOul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:50:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38518 "EHLO mail.kernel.org"
+        id S1345349AbhIMOvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:51:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346882AbhIMOrJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:47:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0AD76322C;
-        Mon, 13 Sep 2021 13:58:54 +0000 (UTC)
+        id S1345921AbhIMOrR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:47:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2143763231;
+        Mon, 13 Sep 2021 13:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541535;
-        bh=zOjkwOZeZF/s9alCxj/ziN4jU7UQaPp70IN1jqRvrrk=;
+        s=korg; t=1631541539;
+        bh=IvAwBdmLkkjY1O9Y8jbFHJ0A3p/g3xffFYofgC4W08A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NJT/uFCT6Igi31r/y6tNw0NlXXvrJ/29N+ymzvjTw9bjgPKgg/yXydIu0TmQj1W7I
-         B+eU60AaVOy2kBOu7l9FDjtYfsFGL0HjH+jc4QewFe9LNbP5/NsEX6VOKrvdAnSSzd
-         ivekK0Wn0VmBFI5zpPvq1yLgXFvuT7TNRn5mY4Bw=
+        b=q9yukfDmHao5MiCt/vdM+dhuAqk5Ub05sDfyoYo0Mae8uws5ieQlyoVmOJPGQ1Cug
+         CpzKnRyQmULN2viD+0muXegbylgRk9rrcWd0EjOMMj40FNDOFmdiniFLOWthhYQsna
+         9w3Ql0pLBejS0oXgSU5cx8uuMuB5eQ85O8o4REIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Antonov <alexander.antonov@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>
-Subject: [PATCH 5.14 309/334] perf/x86/intel/uncore: Fix IIO cleanup mapping procedure for SNR/ICX
-Date:   Mon, 13 Sep 2021 15:16:03 +0200
-Message-Id: <20210913131123.873839850@linuxfoundation.org>
+        syzbot+200c08e88ae818f849ce@syzkaller.appspotmail.com,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.14 310/334] Revert "KVM: x86: mmu: Add guest physical address check in translate_gpa()"
+Date:   Mon, 13 Sep 2021 15:16:04 +0200
+Message-Id: <20210913131123.905441516@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,113 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Antonov <alexander.antonov@linux.intel.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 3f2cbe3810a60111a33f5f6267bd5a237b826fc9 upstream.
+commit e7177339d7b5f9594b316842122b5fda9513d5e2 upstream.
 
-skx_iio_cleanup_mapping() is re-used for snr and icx, but in those
-cases it fails to use the appropriate XXX_iio_mapping_group and as
-such fails to free previously allocated resources, leading to memory
-leaks.
+Revert a misguided illegal GPA check when "translating" a non-nested GPA.
+The check is woefully incomplete as it does not fill in @exception as
+expected by all callers, which leads to KVM attempting to inject a bogus
+exception, potentially exposing kernel stack information in the process.
 
-Fixes: 10337e95e04c ("perf/x86/intel/uncore: Enable I/O stacks to IIO PMON mapping on ICX")
-Signed-off-by: Alexander Antonov <alexander.antonov@linux.intel.com>
-[peterz: Changelog]
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+ WARNING: CPU: 0 PID: 8469 at arch/x86/kvm/x86.c:525 exception_type+0x98/0xb0 arch/x86/kvm/x86.c:525
+ CPU: 1 PID: 8469 Comm: syz-executor531 Not tainted 5.14.0-rc7-syzkaller #0
+ RIP: 0010:exception_type+0x98/0xb0 arch/x86/kvm/x86.c:525
+ Call Trace:
+  x86_emulate_instruction+0xef6/0x1460 arch/x86/kvm/x86.c:7853
+  kvm_mmu_page_fault+0x2f0/0x1810 arch/x86/kvm/mmu/mmu.c:5199
+  handle_ept_misconfig+0xdf/0x3e0 arch/x86/kvm/vmx/vmx.c:5336
+  __vmx_handle_exit arch/x86/kvm/vmx/vmx.c:6021 [inline]
+  vmx_handle_exit+0x336/0x1800 arch/x86/kvm/vmx/vmx.c:6038
+  vcpu_enter_guest+0x2a1c/0x4430 arch/x86/kvm/x86.c:9712
+  vcpu_run arch/x86/kvm/x86.c:9779 [inline]
+  kvm_arch_vcpu_ioctl_run+0x47d/0x1b20 arch/x86/kvm/x86.c:10010
+  kvm_vcpu_ioctl+0x49e/0xe50 arch/x86/kvm/../../../virt/kvm/kvm_main.c:3652
+
+The bug has escaped notice because practically speaking the GPA check is
+useless.  The GPA check in question only comes into play when KVM is
+walking guest page tables (or "translating" CR3), and KVM already handles
+illegal GPA checks by setting reserved bits in rsvd_bits_mask for each
+PxE, or in the case of CR3 for loading PTDPTRs, manually checks for an
+illegal CR3.  This particular failure doesn't hit the existing reserved
+bits checks because syzbot sets guest.MAXPHYADDR=1, and IA32 architecture
+simply doesn't allow for such an absurd MAXPHYADDR, e.g. 32-bit paging
+doesn't define any reserved PA bits checks, which KVM emulates by only
+incorporating the reserved PA bits into the "high" bits, i.e. bits 63:32.
+
+Simply remove the bogus check.  There is zero meaningful value and no
+architectural justification for supporting guest.MAXPHYADDR < 32, and
+properly filling the exception would introduce non-trivial complexity.
+
+This reverts commit ec7771ab471ba6a945350353617e2e3385d0e013.
+
+Fixes: ec7771ab471b ("KVM: x86: mmu: Add guest physical address check in translate_gpa()")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210706090723.41850-1-alexander.antonov@linux.intel.com
+Reported-by: syzbot+200c08e88ae818f849ce@syzkaller.appspotmail.com
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210831164224.1119728-2-seanjc@google.com>
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/uncore_snbep.c |   40 ++++++++++++++++++++++++-----------
- 1 file changed, 28 insertions(+), 12 deletions(-)
+ arch/x86/kvm/mmu/mmu.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -3838,26 +3838,32 @@ clear_attr_update:
- 	return ret;
- }
- 
--static int skx_iio_set_mapping(struct intel_uncore_type *type)
--{
--	return pmu_iio_set_mapping(type, &skx_iio_mapping_group);
--}
--
--static void skx_iio_cleanup_mapping(struct intel_uncore_type *type)
-+static void
-+pmu_iio_cleanup_mapping(struct intel_uncore_type *type, struct attribute_group *ag)
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -323,12 +323,6 @@ static bool check_mmio_spte(struct kvm_v
+ static gpa_t translate_gpa(struct kvm_vcpu *vcpu, gpa_t gpa, u32 access,
+                                   struct x86_exception *exception)
  {
--	struct attribute **attr = skx_iio_mapping_group.attrs;
-+	struct attribute **attr = ag->attrs;
- 
- 	if (!attr)
- 		return;
- 
- 	for (; *attr; attr++)
- 		kfree((*attr)->name);
--	kfree(attr_to_ext_attr(*skx_iio_mapping_group.attrs));
--	kfree(skx_iio_mapping_group.attrs);
--	skx_iio_mapping_group.attrs = NULL;
-+	kfree(attr_to_ext_attr(*ag->attrs));
-+	kfree(ag->attrs);
-+	ag->attrs = NULL;
- 	kfree(type->topology);
+-	/* Check if guest physical address doesn't exceed guest maximum */
+-	if (kvm_vcpu_is_illegal_gpa(vcpu, gpa)) {
+-		exception->error_code |= PFERR_RSVD_MASK;
+-		return UNMAPPED_GVA;
+-	}
+-
+         return gpa;
  }
  
-+static int skx_iio_set_mapping(struct intel_uncore_type *type)
-+{
-+	return pmu_iio_set_mapping(type, &skx_iio_mapping_group);
-+}
-+
-+static void skx_iio_cleanup_mapping(struct intel_uncore_type *type)
-+{
-+	pmu_iio_cleanup_mapping(type, &skx_iio_mapping_group);
-+}
-+
- static struct intel_uncore_type skx_uncore_iio = {
- 	.name			= "iio",
- 	.num_counters		= 4,
-@@ -4501,6 +4507,11 @@ static int snr_iio_set_mapping(struct in
- 	return pmu_iio_set_mapping(type, &snr_iio_mapping_group);
- }
- 
-+static void snr_iio_cleanup_mapping(struct intel_uncore_type *type)
-+{
-+	pmu_iio_cleanup_mapping(type, &snr_iio_mapping_group);
-+}
-+
- static struct intel_uncore_type snr_uncore_iio = {
- 	.name			= "iio",
- 	.num_counters		= 4,
-@@ -4517,7 +4528,7 @@ static struct intel_uncore_type snr_unco
- 	.attr_update		= snr_iio_attr_update,
- 	.get_topology		= snr_iio_get_topology,
- 	.set_mapping		= snr_iio_set_mapping,
--	.cleanup_mapping	= skx_iio_cleanup_mapping,
-+	.cleanup_mapping	= snr_iio_cleanup_mapping,
- };
- 
- static struct intel_uncore_type snr_uncore_irp = {
-@@ -5092,6 +5103,11 @@ static int icx_iio_set_mapping(struct in
- 	return pmu_iio_set_mapping(type, &icx_iio_mapping_group);
- }
- 
-+static void icx_iio_cleanup_mapping(struct intel_uncore_type *type)
-+{
-+	pmu_iio_cleanup_mapping(type, &icx_iio_mapping_group);
-+}
-+
- static struct intel_uncore_type icx_uncore_iio = {
- 	.name			= "iio",
- 	.num_counters		= 4,
-@@ -5109,7 +5125,7 @@ static struct intel_uncore_type icx_unco
- 	.attr_update		= icx_iio_attr_update,
- 	.get_topology		= icx_iio_get_topology,
- 	.set_mapping		= icx_iio_set_mapping,
--	.cleanup_mapping	= skx_iio_cleanup_mapping,
-+	.cleanup_mapping	= icx_iio_cleanup_mapping,
- };
- 
- static struct intel_uncore_type icx_uncore_irp = {
 
 
