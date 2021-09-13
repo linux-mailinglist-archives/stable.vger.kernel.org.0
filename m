@@ -2,98 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A323409B67
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 19:58:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56FEB409B79
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 19:58:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344127AbhIMR7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 13:59:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37982 "EHLO
+        id S239541AbhIMR7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 13:59:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239541AbhIMR7a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 13:59:30 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A51C061760;
-        Mon, 13 Sep 2021 10:58:14 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id k23-20020a17090a591700b001976d2db364so633446pji.2;
-        Mon, 13 Sep 2021 10:58:14 -0700 (PDT)
+        with ESMTP id S1344413AbhIMR7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 13:59:51 -0400
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF491C061574
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 10:58:35 -0700 (PDT)
+Received: by mail-pl1-x62f.google.com with SMTP id w6so6360998pll.3
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 10:58:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:from:subject:to:cc
-         :references:content-language:in-reply-to:content-transfer-encoding;
-        bh=2WxYJlU4KgxAibTaNFJdmmGzS/DHdkvvb4gvwL9Mh1Y=;
-        b=TXGyRVNe0bPy5rvyyn4bYcWetgu5T/kmnn71UQNpkBJd7L4YFAIiykR6rw5Th7iRyM
-         0p/tfdS2b9RIjXQ0etwyo3htsY7pVFXNo55Z+jS/yaNrMRsppLAYp4ITstphq/s31oNe
-         H1cYM0/ffQeLBrDpGS0KWC3YYCzBdV2QR5BxAMQp1ldb74XMewDm55edPbI2Blx5ArA5
-         OrwQ3QUZLghrC7Ah2ZOm5OGHD6nrHS95NyZ7NDIvhK8E/EWYE2lJqx4J5xa30VEFyAqp
-         RYURPNWAVVM+pv7HRO6ZEmUZchxqQUTUL3rZRoJDB1UTyaudUFDFthgkvmJlfxozIaoE
-         sYCw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=VKqa+755YisdWu5cr9R7qQdlgQLrg2plfGQIN8rvWNw=;
+        b=KBjhlB5O9TSKM8uagT7jrl4Zd5EhRr6pf5bOqJUjWnyY5NJX/SaposJKoMMrWP/v93
+         1WfHpi5+63okml3MNtSJUHpMMlStSNZL3MaGVmfUbnnCk8Bkb0KW1KFbLn74lY/mFKFj
+         e6iT9+yvH6L+Hqvbv2yT0O8wMababokd+hYKk83sT4fIOrlqzDb10wiMRqO71RfOHaNk
+         K1XUsbDxPfkPS/BaQc6MXkuLhmYdc32v+AQEpnmONuBAEsQKE8reDjVIBeswj8RVmHM+
+         AcTSnI4Ta0O9z+MJMbaZtF9SOu7ZMDKoxrIz86vaThPMNveSGPBRhwHs4FNIp2MollZD
+         aDAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
-         :subject:to:cc:references:content-language:in-reply-to
-         :content-transfer-encoding;
-        bh=2WxYJlU4KgxAibTaNFJdmmGzS/DHdkvvb4gvwL9Mh1Y=;
-        b=zxkE4MNUjOTw0jGLm9wKBoroGLITJBIYbpxuhaNMAN3SfOHpMw/ipdSstkoYZjZyk4
-         DrKok5DKg/K8zORFRyBhI2HtVs3G1ambkTGbw0jx3ruQra59/d4XGRMbU9LdhzdVZ/Nb
-         Oh8hijBl+zUCSJO4goszYZ1XofTsygeXfnSTNo1yqNdqyU0gLghVJXJTXKSF3ggOE33V
-         7McIlumXsi9Mr+on/baEb2Y4OyUsx4Qp5USPudbv03oYsOuEGh9PTHeFuZGJN0SCrUU1
-         4a6uUZ6fVObUhP3T7jM6GIRKhmBbnwdRqNZR7Az7Y9LTMedSGzH4s69fkbifGPZYn0Wz
-         uMEQ==
-X-Gm-Message-State: AOAM53224Sg+5BxSNogZT7OX+g4FxHYSVVm8oHNREG4m69BKvsEcovRu
-        7DMsZLYPNcc5OkrggC3XFjw=
-X-Google-Smtp-Source: ABdhPJzI0KrpRfiWcYhOnllOEjiHIN67Ns0FDxBjWkGp1S/dcA2fxVKLCKgHzxjG79tA86T5h0B0og==
-X-Received: by 2002:a17:902:7103:b0:13a:356c:d0e8 with SMTP id a3-20020a170902710300b0013a356cd0e8mr11558509pll.32.1631555893603;
-        Mon, 13 Sep 2021 10:58:13 -0700 (PDT)
-Received: from [192.168.1.121] (99-44-17-11.lightspeed.irvnca.sbcglobal.net. [99.44.17.11])
-        by smtp.gmail.com with ESMTPSA id l9sm7511994pjz.55.2021.09.13.10.58.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Sep 2021 10:58:13 -0700 (PDT)
-Message-ID: <10bc90e1-21e9-42d3-3bf4-02b396b6419e@gmail.com>
-Date:   Mon, 13 Sep 2021 10:58:11 -0700
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=VKqa+755YisdWu5cr9R7qQdlgQLrg2plfGQIN8rvWNw=;
+        b=ZK61Wp0f7HjblOzyBVR5DNhYWizPgxYFVZaHpiamWQZlqkVzv4+SJJOKHyGig8OEff
+         9XecFloN785H8q1eAHrtnZNBiZo8xIpcv5gvRB5fojiKTeY8UcOJx3ul5n5aAMcdHDQE
+         xsCt/fvz/chmNOKOx/JzQM+x64dpGWyH71OWltp16V/7aQTNBXboLMLWNZXMwdGP7bqB
+         2jTSDhEeTy7JLRLlmO5KznqqKCtByA+fc5xr3FiLsgOW3vKAppJETOxyw0l6Tb+NOUV8
+         50symaAkB/0DzjZHqIeqFNS6AiohFZ+t3DEydcj2sdHwE+7J+f/+/q8IgAVWXQE8tXeb
+         F0Ig==
+X-Gm-Message-State: AOAM531G7N86nrSjgEPbwXSQIZGFknAW+WQB4vMOKZ+2mGhwqte4vGtI
+        aChG/+3+Ffy50fekNYw9hUdvGKQaOpX70oD9
+X-Google-Smtp-Source: ABdhPJwfvnQzro7JCHhP00zuAGzvBT8bsry/oFB/0zMWKq5NzbR1M2tKf6Z9Vof04L+KfjNSjBwI/w==
+X-Received: by 2002:a17:902:a407:b0:138:849b:56f6 with SMTP id p7-20020a170902a40700b00138849b56f6mr11630638plq.0.1631555915079;
+        Mon, 13 Sep 2021 10:58:35 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h16sm1743579pjt.30.2021.09.13.10.58.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Sep 2021 10:58:34 -0700 (PDT)
+Message-ID: <613f914a.1c69fb81.7cc07.594f@mx.google.com>
+Date:   Mon, 13 Sep 2021 10:58:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.0
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH 5.13 000/300] 5.13.17-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210913131109.253835823@linuxfoundation.org>
-Content-Language: en-US
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.64-236-gd7380ddf0a86
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 123 runs,
+ 3 regressions (v5.10.64-236-gd7380ddf0a86)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.10 baseline: 123 runs, 3 regressions (v5.10.64-236-gd7380=
+ddf0a86)
+
+Regressions Summary
+-------------------
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
 
 
-On 9/13/2021 6:11 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.13.17 release.
-> There are 300 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 15 Sep 2021 13:10:21 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.17-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.64-236-gd7380ddf0a86/plan/baseline/
 
-On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.64-236-gd7380ddf0a86
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d7380ddf0a86f26d31c0ed3340be78b2d6a92516 =
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
 
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-8    | multi_v7_defconfig | =
+3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613f6ff22c919c7f1899a310
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.64-=
+236-gd7380ddf0a86/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.64-=
+236-gd7380ddf0a86/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/613f6ff22c919c7f1899a324
+        failing since 90 days (last pass: v5.10.43-44-g253317604975, first =
+fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-09-13T15:36:06.006440  /lava-4510091/1/../bin/lava-test-case<8>[  =
+ 13.413955] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-09-13T15:36:06.006733  =
+
+    2021-09-13T15:36:06.006900  /lava-4510091/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/613f6ff22c919c7f1899a339
+        failing since 90 days (last pass: v5.10.43-44-g253317604975, first =
+fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-09-13T15:36:04.561669  /lava-4510091/1/../bin/lava-test-case
+    2021-09-13T15:36:04.579787  <8>[   11.986725] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/613f6ff22c919c7f1899a33a
+        failing since 90 days (last pass: v5.10.43-44-g253317604975, first =
+fail: v5.10.43-130-g87b5f83f722c)
+
+    2021-09-13T15:36:03.541857  /lava-4510091/1/../bin/lava-test-case
+    2021-09-13T15:36:03.547246  <8>[   10.967140] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
