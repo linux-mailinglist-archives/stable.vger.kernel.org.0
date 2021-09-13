@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67DB94094BD
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:34:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34DF34091B4
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344189AbhIMOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:33:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51398 "EHLO mail.kernel.org"
+        id S1343780AbhIMOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:03:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346536AbhIMObv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:31:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4E8761BA3;
-        Mon, 13 Sep 2021 13:52:04 +0000 (UTC)
+        id S1343988AbhIMOBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:01:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA9C261A2F;
+        Mon, 13 Sep 2021 13:38:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541125;
+        s=korg; t=1631540291;
         bh=PI/J8S3faVJxntKJaL4ApG7L0MfybHsspJ+xD/4/008=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJKcW1yV+YxWdax7YdDeWmQnEt56TyhfGHtRj3zSRDLhU3MR1ZzVEuslvTz8M+TR+
-         YoBzJHovXR/6plUuWaYnLnyoOsnLDlv7O5uZn81+gSLVGNmfhX/hMgfK1sjSneTerq
-         fc6FYsewpSzcuo6f9isOg35sjka6QkJ/Tm2kFtlk=
+        b=uhwiDuFODVQY4oCtdZrjOZhD2IuEcKRTAMtE9h1EIV6Xt81R8cBHI/PVCEDZjZu/k
+         77KURkS0X5KAvqTq2AgoQb/egBc0Mqqsf0px3Tsry5SqI99lR80SxJPTPoBBUtu5PT
+         NSPZElFNIWvYX2we14tNM24fpGMkX6t5gGqbDQ+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 131/334] net/mlx5e: Prohibit inner indir TIRs in IPoIB
-Date:   Mon, 13 Sep 2021 15:13:05 +0200
-Message-Id: <20210913131117.799353714@linuxfoundation.org>
+Subject: [PATCH 5.13 125/300] net/mlx5e: Prohibit inner indir TIRs in IPoIB
+Date:   Mon, 13 Sep 2021 15:13:06 +0200
+Message-Id: <20210913131113.624568182@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
