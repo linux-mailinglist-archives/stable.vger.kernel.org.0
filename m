@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F329408A45
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:32:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 634EF408A48
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239186AbhIMLdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 07:33:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36512 "EHLO mail.kernel.org"
+        id S239646AbhIMLdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 07:33:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238644AbhIMLdq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 07:33:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EE796044F;
-        Mon, 13 Sep 2021 11:32:30 +0000 (UTC)
+        id S239636AbhIMLdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 07:33:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F43B60F44;
+        Mon, 13 Sep 2021 11:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631532750;
-        bh=3khx7aJ7Ho8H+jmrURDia5CujCQJV9FcBvEKc7OR/7s=;
+        s=korg; t=1631532759;
+        bh=VO1n0BIbYLsJHfbq2aYUXrmHoBt0ZcVBRSXQ9Ih/nkU=;
         h=Subject:To:Cc:From:Date:From;
-        b=O0qWFhQ0n69o8GYw2DM7d2bfMQCrtbBcimB/fiXnE1LC+KH/iBa2dDfnXgV+KOX1w
-         Kz1Vg5TQNmTClgoyOURn80/FOJretB3xwHdwBe8uyHZxar9XB5i3leLLmJUizum99D
-         PAdyPQ9I1ElgnRRvQKZ2PpYm0Oag5wU9RQK+MjtQ=
-Subject: FAILED: patch "[PATCH] fuse: truncate pagecache on atomic_o_trunc" failed to apply to 4.19-stable tree
+        b=RRJq/ok9R0VMxJgy750wz/1rZNT+FzYqro1Pvz1jQWQJD/g9bGHBs55w83lq1Bhk7
+         hQziWbutcmzk3LCqg+1P1aCg6JbyqPugmtS5CSCBegE+eOLVUrWPfaBiQhtpXl5bog
+         39RUkkDBK6Gy3NFR0bewa9Y1YVF6CkBrgopmzPk4=
+Subject: FAILED: patch "[PATCH] fuse: truncate pagecache on atomic_o_trunc" failed to apply to 4.9-stable tree
 To:     mszeredi@redhat.com, stable@vger.kernel.org,
         xieyongji@bytedance.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 13:32:23 +0200
-Message-ID: <1631532743204250@kroah.com>
+Date:   Mon, 13 Sep 2021 13:32:24 +0200
+Message-ID: <1631532744199180@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
