@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9D98408A2E
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D946408A31
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239068AbhIMLaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 07:30:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33818 "EHLO mail.kernel.org"
+        id S238786AbhIMLau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 07:30:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239060AbhIMLaR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 07:30:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1F9C60ED8;
-        Mon, 13 Sep 2021 11:29:00 +0000 (UTC)
+        id S239554AbhIMLas (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 07:30:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70B1360F44;
+        Mon, 13 Sep 2021 11:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631532541;
-        bh=ZRfNf50BXypTykfFApQ3kYIQbxt8BoYUp8Kszi+nnt8=;
+        s=korg; t=1631532573;
+        bh=1bd3RAF7NgH3piPnUw88ZghHrYFYtPG+3QCHQFhzsHE=;
         h=Subject:To:Cc:From:Date:From;
-        b=0UIKiGeuHfJgdadIiOmkOwdmulFonfBgTcdfgafBbTUtaV5XdwzP5+2JtVpCzQGlC
-         sO1ty6Id6hpkHfyBbn4An4MMtXbbs+f8vONvbdffWK8ldlP9jdtpwhz76D7qvyEfPp
-         kYWdpjH2gm6j5lyH5PBtVWXJu3lHfrruHlkeordI=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Unconditionally clear nested.pi_pending on nested" failed to apply to 4.19-stable tree
-To:     seanjc@google.com, jmattson@google.com, pbonzini@redhat.com
+        b=dzzcrM27UVpSBmGIjdXiQsgB7X+d+V845AMFekno5vJ//8Yb4slHdeEUBAZxmYHhy
+         qTIWIHs4PZuIPByloEVqS+7Lw2Tr2bJzz8UXuFPlxCG+MV37hmeOh4Q6uvUsj8OUmF
+         Ipfx07KIlJ9DGW2Yc3v7et95dOZMjay7LaQbXW0w=
+Subject: FAILED: patch "[PATCH] KVM: arm64: vgic: Resample HW pending state on deactivation" failed to apply to 5.13-stable tree
+To:     maz@kernel.org, oupton@google.com, rananta@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 13:28:54 +0200
-Message-ID: <1631532534147183@kroah.com>
+Date:   Mon, 13 Sep 2021 13:29:30 +0200
+Message-ID: <1631532570143217@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,59 +45,217 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From f7782bb8d818d8f47c26b22079db10599922787a Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 10 Aug 2021 07:45:26 -0700
-Subject: [PATCH] KVM: nVMX: Unconditionally clear nested.pi_pending on nested
- VM-Enter
+From 3134cc8beb69d0db9de651081707c4651c011621 Mon Sep 17 00:00:00 2001
+From: Marc Zyngier <maz@kernel.org>
+Date: Thu, 19 Aug 2021 19:03:05 +0100
+Subject: [PATCH] KVM: arm64: vgic: Resample HW pending state on deactivation
 
-Clear nested.pi_pending on nested VM-Enter even if L2 will run without
-posted interrupts enabled.  If nested.pi_pending is left set from a
-previous L2, vmx_complete_nested_posted_interrupt() will pick up the
-stale flag and exit to userspace with an "internal emulation error" due
-the new L2 not having a valid nested.pi_desc.
+When a mapped level interrupt (a timer, for example) is deactivated
+by the guest, the corresponding host interrupt is equally deactivated.
+However, the fate of the pending state still needs to be dealt
+with in SW.
 
-Arguably, vmx_complete_nested_posted_interrupt() should first check for
-posted interrupts being enabled, but it's also completely reasonable that
-KVM wouldn't screw up a fundamental flag.  Not to mention that the mere
-existence of nested.pi_pending is a long-standing bug as KVM shouldn't
-move the posted interrupt out of the IRR until it's actually processed,
-e.g. KVM effectively drops an interrupt when it performs a nested VM-Exit
-with a "pending" posted interrupt.  Fixing the mess is a future problem.
+This is specially true when the interrupt was in the active+pending
+state in the virtual distributor at the point where the guest
+was entered. On exit, the pending state is potentially stale
+(the guest may have put the interrupt in a non-pending state).
 
-Prior to vmx_complete_nested_posted_interrupt() interpreting a null PI
-descriptor as an error, this was a benign bug as the null PI descriptor
-effectively served as a check on PI not being enabled.  Even then, the
-new flow did not become problematic until KVM started checking the result
-of kvm_check_nested_events().
+If we don't do anything, the interrupt will be spuriously injected
+in the guest. Although this shouldn't have any ill effect (spurious
+interrupts are always possible), we can improve the emulation by
+detecting the deactivation-while-pending case and resample the
+interrupt.
 
-Fixes: 705699a13994 ("KVM: nVMX: Enable nested posted interrupt processing")
-Fixes: 966eefb89657 ("KVM: nVMX: Disable vmcs02 posted interrupts if vmcs12 PID isn't mappable")
-Fixes: 47d3530f86c0 ("KVM: x86: Exit to userspace when kvm_check_nested_events fails")
+While we're at it, move the logic into a common helper that can
+be shared between the two GIC implementations.
+
+Fixes: e40cc57bac79 ("KVM: arm/arm64: vgic: Support level-triggered mapped interrupts")
+Reported-by: Raghavendra Rao Ananta <rananta@google.com>
+Tested-by: Raghavendra Rao Ananta <rananta@google.com>
+Reviewed-by: Oliver Upton <oupton@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Cc: Jim Mattson <jmattson@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210810144526.2662272-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/20210819180305.1670525-1-maz@kernel.org
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 264a9f4c9179..bc6327950657 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2187,12 +2187,11 @@ static void prepare_vmcs02_early(struct vcpu_vmx *vmx, struct loaded_vmcs *vmcs0
- 			 ~PIN_BASED_VMX_PREEMPTION_TIMER);
+diff --git a/arch/arm64/kvm/vgic/vgic-v2.c b/arch/arm64/kvm/vgic/vgic-v2.c
+index 2c580204f1dc..95a18cec14a3 100644
+--- a/arch/arm64/kvm/vgic/vgic-v2.c
++++ b/arch/arm64/kvm/vgic/vgic-v2.c
+@@ -60,6 +60,7 @@ void vgic_v2_fold_lr_state(struct kvm_vcpu *vcpu)
+ 		u32 val = cpuif->vgic_lr[lr];
+ 		u32 cpuid, intid = val & GICH_LR_VIRTUALID;
+ 		struct vgic_irq *irq;
++		bool deactivated;
  
- 	/* Posted interrupts setting is only taken from vmcs12.  */
--	if (nested_cpu_has_posted_intr(vmcs12)) {
-+	vmx->nested.pi_pending = false;
-+	if (nested_cpu_has_posted_intr(vmcs12))
- 		vmx->nested.posted_intr_nv = vmcs12->posted_intr_nv;
--		vmx->nested.pi_pending = false;
--	} else {
-+	else
- 		exec_control &= ~PIN_BASED_POSTED_INTR;
--	}
- 	pin_controls_set(vmx, exec_control);
+ 		/* Extract the source vCPU id from the LR */
+ 		cpuid = val & GICH_LR_PHYSID_CPUID;
+@@ -75,7 +76,8 @@ void vgic_v2_fold_lr_state(struct kvm_vcpu *vcpu)
  
- 	/*
+ 		raw_spin_lock(&irq->irq_lock);
+ 
+-		/* Always preserve the active bit */
++		/* Always preserve the active bit, note deactivation */
++		deactivated = irq->active && !(val & GICH_LR_ACTIVE_BIT);
+ 		irq->active = !!(val & GICH_LR_ACTIVE_BIT);
+ 
+ 		if (irq->active && vgic_irq_is_sgi(intid))
+@@ -96,36 +98,8 @@ void vgic_v2_fold_lr_state(struct kvm_vcpu *vcpu)
+ 		if (irq->config == VGIC_CONFIG_LEVEL && !(val & GICH_LR_STATE))
+ 			irq->pending_latch = false;
+ 
+-		/*
+-		 * Level-triggered mapped IRQs are special because we only
+-		 * observe rising edges as input to the VGIC.
+-		 *
+-		 * If the guest never acked the interrupt we have to sample
+-		 * the physical line and set the line level, because the
+-		 * device state could have changed or we simply need to
+-		 * process the still pending interrupt later.
+-		 *
+-		 * If this causes us to lower the level, we have to also clear
+-		 * the physical active state, since we will otherwise never be
+-		 * told when the interrupt becomes asserted again.
+-		 *
+-		 * Another case is when the interrupt requires a helping hand
+-		 * on deactivation (no HW deactivation, for example).
+-		 */
+-		if (vgic_irq_is_mapped_level(irq)) {
+-			bool resample = false;
+-
+-			if (val & GICH_LR_PENDING_BIT) {
+-				irq->line_level = vgic_get_phys_line_level(irq);
+-				resample = !irq->line_level;
+-			} else if (vgic_irq_needs_resampling(irq) &&
+-				   !(irq->active || irq->pending_latch)) {
+-				resample = true;
+-			}
+-
+-			if (resample)
+-				vgic_irq_set_phys_active(irq, false);
+-		}
++		/* Handle resampling for mapped interrupts if required */
++		vgic_irq_handle_resampling(irq, deactivated, val & GICH_LR_PENDING_BIT);
+ 
+ 		raw_spin_unlock(&irq->irq_lock);
+ 		vgic_put_irq(vcpu->kvm, irq);
+diff --git a/arch/arm64/kvm/vgic/vgic-v3.c b/arch/arm64/kvm/vgic/vgic-v3.c
+index 66004f61cd83..21a6207fb2ee 100644
+--- a/arch/arm64/kvm/vgic/vgic-v3.c
++++ b/arch/arm64/kvm/vgic/vgic-v3.c
+@@ -46,6 +46,7 @@ void vgic_v3_fold_lr_state(struct kvm_vcpu *vcpu)
+ 		u32 intid, cpuid;
+ 		struct vgic_irq *irq;
+ 		bool is_v2_sgi = false;
++		bool deactivated;
+ 
+ 		cpuid = val & GICH_LR_PHYSID_CPUID;
+ 		cpuid >>= GICH_LR_PHYSID_CPUID_SHIFT;
+@@ -68,7 +69,8 @@ void vgic_v3_fold_lr_state(struct kvm_vcpu *vcpu)
+ 
+ 		raw_spin_lock(&irq->irq_lock);
+ 
+-		/* Always preserve the active bit */
++		/* Always preserve the active bit, note deactivation */
++		deactivated = irq->active && !(val & ICH_LR_ACTIVE_BIT);
+ 		irq->active = !!(val & ICH_LR_ACTIVE_BIT);
+ 
+ 		if (irq->active && is_v2_sgi)
+@@ -89,36 +91,8 @@ void vgic_v3_fold_lr_state(struct kvm_vcpu *vcpu)
+ 		if (irq->config == VGIC_CONFIG_LEVEL && !(val & ICH_LR_STATE))
+ 			irq->pending_latch = false;
+ 
+-		/*
+-		 * Level-triggered mapped IRQs are special because we only
+-		 * observe rising edges as input to the VGIC.
+-		 *
+-		 * If the guest never acked the interrupt we have to sample
+-		 * the physical line and set the line level, because the
+-		 * device state could have changed or we simply need to
+-		 * process the still pending interrupt later.
+-		 *
+-		 * If this causes us to lower the level, we have to also clear
+-		 * the physical active state, since we will otherwise never be
+-		 * told when the interrupt becomes asserted again.
+-		 *
+-		 * Another case is when the interrupt requires a helping hand
+-		 * on deactivation (no HW deactivation, for example).
+-		 */
+-		if (vgic_irq_is_mapped_level(irq)) {
+-			bool resample = false;
+-
+-			if (val & ICH_LR_PENDING_BIT) {
+-				irq->line_level = vgic_get_phys_line_level(irq);
+-				resample = !irq->line_level;
+-			} else if (vgic_irq_needs_resampling(irq) &&
+-				   !(irq->active || irq->pending_latch)) {
+-				resample = true;
+-			}
+-
+-			if (resample)
+-				vgic_irq_set_phys_active(irq, false);
+-		}
++		/* Handle resampling for mapped interrupts if required */
++		vgic_irq_handle_resampling(irq, deactivated, val & ICH_LR_PENDING_BIT);
+ 
+ 		raw_spin_unlock(&irq->irq_lock);
+ 		vgic_put_irq(vcpu->kvm, irq);
+diff --git a/arch/arm64/kvm/vgic/vgic.c b/arch/arm64/kvm/vgic/vgic.c
+index 81cec508d413..5dad4996cfb2 100644
+--- a/arch/arm64/kvm/vgic/vgic.c
++++ b/arch/arm64/kvm/vgic/vgic.c
+@@ -1021,3 +1021,41 @@ bool kvm_vgic_map_is_active(struct kvm_vcpu *vcpu, unsigned int vintid)
+ 
+ 	return map_is_active;
+ }
++
++/*
++ * Level-triggered mapped IRQs are special because we only observe rising
++ * edges as input to the VGIC.
++ *
++ * If the guest never acked the interrupt we have to sample the physical
++ * line and set the line level, because the device state could have changed
++ * or we simply need to process the still pending interrupt later.
++ *
++ * We could also have entered the guest with the interrupt active+pending.
++ * On the next exit, we need to re-evaluate the pending state, as it could
++ * otherwise result in a spurious interrupt by injecting a now potentially
++ * stale pending state.
++ *
++ * If this causes us to lower the level, we have to also clear the physical
++ * active state, since we will otherwise never be told when the interrupt
++ * becomes asserted again.
++ *
++ * Another case is when the interrupt requires a helping hand on
++ * deactivation (no HW deactivation, for example).
++ */
++void vgic_irq_handle_resampling(struct vgic_irq *irq,
++				bool lr_deactivated, bool lr_pending)
++{
++	if (vgic_irq_is_mapped_level(irq)) {
++		bool resample = false;
++
++		if (unlikely(vgic_irq_needs_resampling(irq))) {
++			resample = !(irq->active || irq->pending_latch);
++		} else if (lr_pending || (lr_deactivated && irq->line_level)) {
++			irq->line_level = vgic_get_phys_line_level(irq);
++			resample = !irq->line_level;
++		}
++
++		if (resample)
++			vgic_irq_set_phys_active(irq, false);
++	}
++}
+diff --git a/arch/arm64/kvm/vgic/vgic.h b/arch/arm64/kvm/vgic/vgic.h
+index dc1f3d1657ee..14a9218641f5 100644
+--- a/arch/arm64/kvm/vgic/vgic.h
++++ b/arch/arm64/kvm/vgic/vgic.h
+@@ -169,6 +169,8 @@ void vgic_irq_set_phys_active(struct vgic_irq *irq, bool active);
+ bool vgic_queue_irq_unlock(struct kvm *kvm, struct vgic_irq *irq,
+ 			   unsigned long flags);
+ void vgic_kick_vcpus(struct kvm *kvm);
++void vgic_irq_handle_resampling(struct vgic_irq *irq,
++				bool lr_deactivated, bool lr_pending);
+ 
+ int vgic_check_ioaddr(struct kvm *kvm, phys_addr_t *ioaddr,
+ 		      phys_addr_t addr, phys_addr_t alignment);
 
