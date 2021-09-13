@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 028F6409135
+	by mail.lfdr.de (Postfix) with ESMTP id 5CDAE409136
 	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243921AbhIMN77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:59:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
+        id S243942AbhIMOAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:00:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245562AbhIMN5m (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245499AbhIMN5m (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:57:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E4E2619F9;
-        Mon, 13 Sep 2021 13:36:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C182D603E5;
+        Mon, 13 Sep 2021 13:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540192;
-        bh=yZD8SegFW9VZXM1gnQs7nsGAbgf53JK5MyEPkIN/eAk=;
+        s=korg; t=1631540195;
+        bh=zI6ZAt0/5MVMLtxd2ZnC1lYICx39p9MpuBKpK/u7SDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XsPNjeqJm6sSbfcVKY7m1P/lnzuczN5aqekjSZdG432zllcdlQnBI/oteZbx2m8un
-         FFQStkvLo9mlSqMMzMbMxuOGYNy7bSvSovPRZtDAE8WTjX8YqsqwkWE/EqMpiudJlA
-         BL2tY62JZo88TMhclDsLMqzz2VGingIBrsYbXz6c=
+        b=tSpvOnp8bPSrOKJw5NQM1IWWTjPeA7EdEBLbfSNlB7Pd0kNk//rZUtWEdblHIFv3O
+         TBkKWEW7gBxeM0DXRbWEbItPbW6rfbnKf6LRQ1/d7EEiyvPJXEh2IJSwykTpxz/kNb
+         gV6NXHUMPnOIRE8XV8/N4lLW1QklG8tGYA3nVRiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sanchayan Maity <maitysanchayan@gmail.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org,
+        Purna Chandra Mandal <purna.mandal@microchip.com>,
         Peter Ujfalusi <peter.ujfalusi@gmail.com>,
         Vinod Koul <vkoul@kernel.org>,
         Tony Lindgren <tony@atomide.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 058/300] spi: spi-fsl-dspi: Fix issue with uninitialized dma_slave_config
-Date:   Mon, 13 Sep 2021 15:11:59 +0200
-Message-Id: <20210913131111.325748437@linuxfoundation.org>
+Subject: [PATCH 5.13 059/300] spi: spi-pic32: Fix issue with uninitialized dma_slave_config
+Date:   Mon, 13 Sep 2021 15:12:00 +0200
+Message-Id: <20210913131111.358794605@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -46,7 +46,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 209ab223ad5b18e437289235e3bde12593b94ac4 ]
+[ Upstream commit 976c1de1de147bb7f4e0d87482f375221c05aeaf ]
 
 Depending on the DMA driver being used, the struct dma_slave_config may
 need to be initialized to zero for the unused data.
@@ -55,35 +55,33 @@ For example, we have three DMA drivers using src_port_window_size and
 dst_port_window_size. If these are left uninitialized, it can cause DMA
 failures.
 
-For spi-fsl-dspi, this is probably not currently an issue but is still
-good to fix though.
+For spi-pic32, this is probably not currently an issue but is still good to
+fix though.
 
-Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
-Cc: Sanchayan Maity <maitysanchayan@gmail.com>
-Cc: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: 1bcb9f8ceb67 ("spi: spi-pic32: Add PIC32 SPI master driver")
+Cc: Purna Chandra Mandal <purna.mandal@microchip.com>
 Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
 Cc: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Link: https://lore.kernel.org/r/20210810081727.19491-1-tony@atomide.com
+Link: https://lore.kernel.org/r/20210810081727.19491-2-tony@atomide.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-dspi.c | 1 +
+ drivers/spi/spi-pic32.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-fsl-dspi.c b/drivers/spi/spi-fsl-dspi.c
-index fb45e6af6638..fd004c9db9dc 100644
---- a/drivers/spi/spi-fsl-dspi.c
-+++ b/drivers/spi/spi-fsl-dspi.c
-@@ -530,6 +530,7 @@ static int dspi_request_dma(struct fsl_dspi *dspi, phys_addr_t phy_addr)
- 		goto err_rx_dma_buf;
- 	}
+diff --git a/drivers/spi/spi-pic32.c b/drivers/spi/spi-pic32.c
+index 104bde153efd..5eb7b61bbb4d 100644
+--- a/drivers/spi/spi-pic32.c
++++ b/drivers/spi/spi-pic32.c
+@@ -361,6 +361,7 @@ static int pic32_spi_dma_config(struct pic32_spi *pic32s, u32 dma_width)
+ 	struct dma_slave_config cfg;
+ 	int ret;
  
 +	memset(&cfg, 0, sizeof(cfg));
- 	cfg.src_addr = phy_addr + SPI_POPR;
- 	cfg.dst_addr = phy_addr + SPI_PUSHR;
- 	cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+ 	cfg.device_fc = true;
+ 	cfg.src_addr = pic32s->dma_base + buf_offset;
+ 	cfg.dst_addr = pic32s->dma_base + buf_offset;
 -- 
 2.30.2
 
