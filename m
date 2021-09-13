@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8785408A3C
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E36F1408A3D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:30:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239387AbhIMLcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 07:32:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35238 "EHLO mail.kernel.org"
+        id S239398AbhIMLcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 07:32:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239327AbhIMLcH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 07:32:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D6A960ED8;
-        Mon, 13 Sep 2021 11:30:51 +0000 (UTC)
+        id S239380AbhIMLcJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 07:32:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74BC661029;
+        Mon, 13 Sep 2021 11:30:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631532651;
-        bh=3rSOnPRqQHYVFIqpbCmgk2AAB5cTsgUsWRMHu/1ktAk=;
+        s=korg; t=1631532654;
+        bh=OZY5oRv45uJFbTOIdbKUDvDCPXQ6UweLmMziDTfAsVo=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZYsnABsalIyZ9PASLRrx79V3PQdfiYfhH1kNoK4faxNbnBNgJUoDRk/65PdpNYImi
-         dIBRNA6qPquL5v2MTCHQKlc/LzcTxlW6FjmAka4Mr+zAn2kE3UR1jNtkfWceGdldMh
-         SqXc2Xcgc6hZAZPOtK6ww7lsddrkFdWOFSxRBpBM=
-Subject: FAILED: patch "[PATCH] io-wq: fix wakeup race when adding new work" failed to apply to 5.13-stable tree
+        b=p0qXKjKiHw437Q4uLz/fpV3OlrD+wH2DaaIZyf0R2sHFwecWFsU7WyOVzpZun4Wuk
+         t6fGqvjregvLSVeyWKTrp9MkD9Igv5y6XXyU65uUcKDxz4pgilnXx7BwFgFkfGxPsH
+         yFoDICr3/xJpBlZ2kjzqIaHc4AoeZVvqlymCz+ww=
+Subject: FAILED: patch "[PATCH] io-wq: fix wakeup race when adding new work" failed to apply to 5.10-stable tree
 To:     axboe@kernel.dk, andres@anarazel.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 13:30:41 +0200
-Message-ID: <163153264195161@kroah.com>
+Date:   Mon, 13 Sep 2021 13:30:42 +0200
+Message-ID: <1631532642212122@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
