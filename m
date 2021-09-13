@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5068409007
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20BFE409004
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242544AbhIMNtB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:49:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51786 "EHLO mail.kernel.org"
+        id S243330AbhIMNs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:48:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243755AbhIMNqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243749AbhIMNqw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:46:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53BAB6159A;
-        Mon, 13 Sep 2021 13:32:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03B516137E;
+        Mon, 13 Sep 2021 13:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539925;
-        bh=rmyUtVsEdh0gseDg+t15mYDPwUXTV9Y5f3XzJUbybiI=;
+        s=korg; t=1631539928;
+        bh=qVu/R1PERx92QevYEvJMZewyoqWI0tU6zqzoEYAu/xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqDuORCpAj8mxVEizpXcZVMyI35S+oXneDXIy8W5Kib0sVKfkr9ZhicwRigMtOuZw
-         8NDsv9zyArMAySSa61krodeBUFCG/oB7/D7g3A8SctYElaJ54hcc37InkFMUwc1ovw
-         gxGlcp13wzX5GZC5afSKkoXF5JGCwllYBTfBFHJY=
+        b=Y67IXkT5dz8YhD5nGfYn8Jz7z3xB6LIujerjgm9K2fsp/g4KP/FQe+4KDiBwe5TGw
+         4jCHKejsKcdpZnc44qP9IjH2+ksf893qZsOHD7VL5VSNBIeEXi1loa+4/Pl+PDIaH7
+         NsolaZ21RsaAWYhMf7YXqY6D3G1pExo6t11/XHmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 217/236] f2fs: guarantee to write dirty data when enabling checkpoint back
-Date:   Mon, 13 Sep 2021 15:15:22 +0200
-Message-Id: <20210913131107.750805752@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 218/236] time: Handle negative seconds correctly in timespec64_to_ns()
+Date:   Mon, 13 Sep 2021 15:15:23 +0200
+Message-Id: <20210913131107.782810696@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -39,64 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>
 
-commit dddd3d65293a52c2c3850c19b1e5115712e534d8 upstream.
+commit 39ff83f2f6cc5cc1458dfcea9697f96338210beb upstream.
 
-We must flush all the dirty data when enabling checkpoint back. Let's guarantee
-that first by adding a retry logic on sync_inodes_sb(). In addition to that,
-this patch adds to flush data in fsync when checkpoint is disabled, which can
-mitigate the sync_inodes_sb() failures in advance.
+timespec64_ns() prevents multiplication overflows by comparing the seconds
+value of the timespec to KTIME_SEC_MAX. If the value is greater or equal it
+returns KTIME_MAX.
 
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+But that check casts the signed seconds value to unsigned which makes the
+comparision true for all negative values and therefore return wrongly
+KTIME_MAX.
+
+Negative second values are perfectly valid and required in some places,
+e.g. ptp_clock_adjtime().
+
+Remove the cast and add a check for the negative boundary which is required
+to prevent undefined behaviour due to multiplication underflow.
+
+Fixes: cb47755725da ("time: Prevent undefined behaviour in timespec64_to_ns()")'
+Signed-off-by: Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/AM6PR01MB541637BD6F336B8FFB72AF80EEC69@AM6PR01MB5416.eurprd01.prod.exchangelabs.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/file.c  |    5 ++---
- fs/f2fs/super.c |   11 ++++++++++-
- 2 files changed, 12 insertions(+), 4 deletions(-)
+ include/linux/time64.h |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -259,8 +259,7 @@ static int f2fs_do_sync_file(struct file
- 	};
- 	unsigned int seq_id = 0;
+--- a/include/linux/time64.h
++++ b/include/linux/time64.h
+@@ -25,7 +25,9 @@ struct itimerspec64 {
+ #define TIME64_MIN			(-TIME64_MAX - 1)
  
--	if (unlikely(f2fs_readonly(inode->i_sb) ||
--				is_sbi_flag_set(sbi, SBI_CP_DISABLED)))
-+	if (unlikely(f2fs_readonly(inode->i_sb)))
- 		return 0;
+ #define KTIME_MAX			((s64)~((u64)1 << 63))
++#define KTIME_MIN			(-KTIME_MAX - 1)
+ #define KTIME_SEC_MAX			(KTIME_MAX / NSEC_PER_SEC)
++#define KTIME_SEC_MIN			(KTIME_MIN / NSEC_PER_SEC)
  
- 	trace_f2fs_sync_file_enter(inode);
-@@ -274,7 +273,7 @@ static int f2fs_do_sync_file(struct file
- 	ret = file_write_and_wait_range(file, start, end);
- 	clear_inode_flag(inode, FI_NEED_IPU);
- 
--	if (ret) {
-+	if (ret || is_sbi_flag_set(sbi, SBI_CP_DISABLED)) {
- 		trace_f2fs_sync_file_exit(inode, cp_reason, datasync, ret);
- 		return ret;
- 	}
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1764,8 +1764,17 @@ restore_flag:
- 
- static void f2fs_enable_checkpoint(struct f2fs_sb_info *sbi)
+ /*
+  * Limits for settimeofday():
+@@ -124,10 +126,13 @@ static inline bool timespec64_valid_sett
+  */
+ static inline s64 timespec64_to_ns(const struct timespec64 *ts)
  {
-+	int retry = DEFAULT_RETRY_IO_COUNT;
-+
- 	/* we should flush all the data to keep data consistency */
--	sync_inodes_sb(sbi->sb);
-+	do {
-+		sync_inodes_sb(sbi->sb);
-+		cond_resched();
-+		congestion_wait(BLK_RW_ASYNC, DEFAULT_IO_TIMEOUT);
-+	} while (get_pages(sbi, F2FS_DIRTY_DATA) && retry--);
-+
-+	if (unlikely(retry < 0))
-+		f2fs_warn(sbi, "checkpoint=enable has some unwritten data.");
+-	/* Prevent multiplication overflow */
+-	if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
++	/* Prevent multiplication overflow / underflow */
++	if (ts->tv_sec >= KTIME_SEC_MAX)
+ 		return KTIME_MAX;
  
- 	down_write(&sbi->gc_lock);
- 	f2fs_dirty_to_prefree(sbi);
++	if (ts->tv_sec <= KTIME_SEC_MIN)
++		return KTIME_MIN;
++
+ 	return ((s64) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
+ }
+ 
 
 
