@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F11C2408C86
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:19:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9108408ED0
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240262AbhIMNUU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:20:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
+        id S241878AbhIMNhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:37:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236138AbhIMNTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:19:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EEB2610A2;
-        Mon, 13 Sep 2021 13:17:15 +0000 (UTC)
+        id S243128AbhIMNe6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:34:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9B81610FB;
+        Mon, 13 Sep 2021 13:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539036;
-        bh=LCusNe/AMO3RUFyj6lq33r72Gup2BEzvmGh1RFSV8nM=;
+        s=korg; t=1631539625;
+        bh=+6aVZkAa15Bnbpzpec7vES3nQAlUyQpFh+CuuHVxGDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GwJV0yVAZTGSgsgpGvHxU+Pm71dWqQL5t0vYymMtlvb7UodqoovD7telhEQ7HRXFK
-         aDFyX63FJ2gwyGBW7dp9m6AcCHSF7sS5eCFl7MO4OGWQKGWoK7GBo+qs9qQHgIEYMw
-         iJR47bd2pUY7oZMs+9VxQFvyrWBQ01idPHOwKrug=
+        b=qtVWrI/aZKED3P71pYTsn1/ignMpmErqn5fYaiP6VLmrGm5oJTTNb1b7CZFepVMHm
+         OX1xDASPdhl0I3xDZYhm3+AU76NPyS5O7Le8PBjh8SyE2laA/ocmaRIyqTrFRXEl8x
+         g+oMmCBwm7Fk9rkyiYism6mwD+5tvI9QtVLe8pRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Engel <amit.engel@dell.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 018/144] nvmet: pass back cntlid on successful completion
-Date:   Mon, 13 Sep 2021 15:13:19 +0200
-Message-Id: <20210913131048.568435634@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 095/236] media: go7007: remove redundant initialization
+Date:   Mon, 13 Sep 2021 15:13:20 +0200
+Message-Id: <20210913131103.588895477@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Engel <amit.engel@dell.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit e804d5abe2d74cfe23f5f83be580d1cdc9307111 ]
+[ Upstream commit 6f5885a7750545973bf1a942d2f0f129aef0aa06 ]
 
-According to the NVMe specification, the response dword 0 value of the
-Connect command is based on status code: return cntlid for successful
-compeltion return IPO and IATTR for connect invalid parameters.  Fix
-a missing error information for a zero sized queue, and return the
-cntlid also for I/O queue Connect commands.
+In go7007_alloc() kzalloc() is used for struct go7007
+allocation. It means that there is no need in zeroing
+any members, because kzalloc will take care of it.
 
-Signed-off-by: Amit Engel <amit.engel@dell.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Removing these reduntant initialization steps increases
+execution speed a lot:
+
+	Before:
+		+ 86.802 us   |    go7007_alloc();
+	After:
+		+ 29.595 us   |    go7007_alloc();
+
+Fixes: 866b8695d67e8 ("Staging: add the go7007 video driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/fabrics-cmd.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/media/usb/go7007/go7007-driver.c | 26 ------------------------
+ 1 file changed, 26 deletions(-)
 
-diff --git a/drivers/nvme/target/fabrics-cmd.c b/drivers/nvme/target/fabrics-cmd.c
-index 4e9004fe5c6f..5e47395afc1d 100644
---- a/drivers/nvme/target/fabrics-cmd.c
-+++ b/drivers/nvme/target/fabrics-cmd.c
-@@ -116,6 +116,7 @@ static u16 nvmet_install_queue(struct nvmet_ctrl *ctrl, struct nvmet_req *req)
- 	if (!sqsize) {
- 		pr_warn("queue size zero!\n");
- 		req->error_loc = offsetof(struct nvmf_connect_command, sqsize);
-+		req->cqe->result.u32 = IPO_IATTR_CONNECT_SQE(sqsize);
- 		ret = NVME_SC_CONNECT_INVALID_PARAM | NVME_SC_DNR;
- 		goto err;
- 	}
-@@ -250,11 +251,11 @@ static void nvmet_execute_io_connect(struct nvmet_req *req)
- 	}
+diff --git a/drivers/media/usb/go7007/go7007-driver.c b/drivers/media/usb/go7007/go7007-driver.c
+index f1767be9d868..6650eab913d8 100644
+--- a/drivers/media/usb/go7007/go7007-driver.c
++++ b/drivers/media/usb/go7007/go7007-driver.c
+@@ -691,49 +691,23 @@ struct go7007 *go7007_alloc(const struct go7007_board_info *board,
+ 						struct device *dev)
+ {
+ 	struct go7007 *go;
+-	int i;
  
- 	status = nvmet_install_queue(ctrl, req);
--	if (status) {
--		/* pass back cntlid that had the issue of installing queue */
--		req->cqe->result.u16 = cpu_to_le16(ctrl->cntlid);
-+	if (status)
- 		goto out_ctrl_put;
--	}
-+
-+	/* pass back cntlid for successful completion */
-+	req->cqe->result.u16 = cpu_to_le16(ctrl->cntlid);
+ 	go = kzalloc(sizeof(struct go7007), GFP_KERNEL);
+ 	if (go == NULL)
+ 		return NULL;
+ 	go->dev = dev;
+ 	go->board_info = board;
+-	go->board_id = 0;
+ 	go->tuner_type = -1;
+-	go->channel_number = 0;
+-	go->name[0] = 0;
+ 	mutex_init(&go->hw_lock);
+ 	init_waitqueue_head(&go->frame_waitq);
+ 	spin_lock_init(&go->spinlock);
+ 	go->status = STATUS_INIT;
+-	memset(&go->i2c_adapter, 0, sizeof(go->i2c_adapter));
+-	go->i2c_adapter_online = 0;
+-	go->interrupt_available = 0;
+ 	init_waitqueue_head(&go->interrupt_waitq);
+-	go->input = 0;
+ 	go7007_update_board(go);
+-	go->encoder_h_halve = 0;
+-	go->encoder_v_halve = 0;
+-	go->encoder_subsample = 0;
+ 	go->format = V4L2_PIX_FMT_MJPEG;
+ 	go->bitrate = 1500000;
+ 	go->fps_scale = 1;
+-	go->pali = 0;
+ 	go->aspect_ratio = GO7007_RATIO_1_1;
+-	go->gop_size = 0;
+-	go->ipb = 0;
+-	go->closed_gop = 0;
+-	go->repeat_seqhead = 0;
+-	go->seq_header_enable = 0;
+-	go->gop_header_enable = 0;
+-	go->dvd_mode = 0;
+-	go->interlace_coding = 0;
+-	for (i = 0; i < 4; ++i)
+-		go->modet[i].enable = 0;
+-	for (i = 0; i < 1624; ++i)
+-		go->modet_map[i] = 0;
+-	go->audio_deliver = NULL;
+-	go->audio_enabled = 0;
  
- 	pr_debug("adding queue %d to ctrl %d.\n", qid, ctrl->cntlid);
- 
+ 	return go;
+ }
 -- 
 2.30.2
 
