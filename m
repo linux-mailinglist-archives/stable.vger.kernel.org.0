@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82A44408A25
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:27:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC365408A26
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:27:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239659AbhIML20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 07:28:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60864 "EHLO mail.kernel.org"
+        id S239306AbhIML22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 07:28:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239683AbhIML2X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 07:28:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 512C460ED8;
-        Mon, 13 Sep 2021 11:27:07 +0000 (UTC)
+        id S239605AbhIML20 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 07:28:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6D8C60FE6;
+        Mon, 13 Sep 2021 11:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631532427;
-        bh=+7b1btpt/k1mb1V/DT6i+bNKyTsqwDlO60xH10zGkHY=;
+        s=korg; t=1631532430;
+        bh=G6zm6D9uN7xjRMtlp3MWukN4Y51SO3YVMPKojjp2Z6Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=g0/ePbbxJRuGYIaaKGwkEUy1kD/P6C0xwH5fM7nu9D8DNi3HhX81068O3xUYU54wz
-         1hfrxdkcmCHurf8NZSEkgOZDgZDfysxytWoY/CugCPJEpurAdD0qaTiqoumSds+RAz
-         sXobwPFjfLX70uro222hQae5+FYjR5rscqqzYi3k=
-Subject: FAILED: patch "[PATCH] KVM: s390: index kvm->arch.idle_mask by vcpu_idx" failed to apply to 4.9-stable tree
+        b=jcqlctZsB8exObMqEIhQyhD4VwnFMfxjEm4YPNDmCV4lxmxl3tlB0c18RRgsU9xGx
+         7BGosUVla0r5kNne36FJbuzafOhkEQqjflbUEtU+AQlOjSNhsI5agoQPF7HEorv8eZ
+         GK2MrmdUXWGMvjFVQ9IzQQ6WH+Rl41NcMGucorxo=
+Subject: FAILED: patch "[PATCH] KVM: s390: index kvm->arch.idle_mask by vcpu_idx" failed to apply to 4.14-stable tree
 To:     pasic@linux.ibm.com, borntraeger@de.ibm.com,
         imbrenda@linux.ibm.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 13:26:57 +0200
-Message-ID: <1631532417179198@kroah.com>
+Date:   Mon, 13 Sep 2021 13:26:58 +0200
+Message-ID: <163153241843142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
