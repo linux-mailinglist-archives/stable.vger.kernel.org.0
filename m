@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BAE2409476
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C258A409203
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:06:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345382AbhIMObX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:31:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51516 "EHLO mail.kernel.org"
+        id S1343985AbhIMOHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:07:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243542AbhIMO3F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:29:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C86D661357;
-        Mon, 13 Sep 2021 13:50:23 +0000 (UTC)
+        id S1344557AbhIMOFJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:05:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACAFB61264;
+        Mon, 13 Sep 2021 13:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541024;
+        s=korg; t=1631540371;
         bh=52WVVqaIL0+/oJMob99rnCz7oYQjKhwADz2fs7IpXsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JNRlnaJ4vBq5EeEdzGzdVLGN4KIKm8S5pryzWegn+j8UD8Q4CEzJZ5o/QIhkyWYpK
-         fC3vhj6jhoCtmWWChY5oxg+R3rEmI88QNfxh7zP3usmfnRZePgywnmSEn6ImBwCxSa
-         AdZp7ONLdfs/B28W9giftqdgJKYKiT3rahaaFP2s=
+        b=a7sc1kkANHcvr1Hx5xjz03xTRMSxRxdfuaVVRKQt5pExxVQJxqM1VvoEgENsHw9Rl
+         GBLz/6xjlMMyum6IAIo1meuZZpvQ0LChPsj8xqsVws57id6b2GyYbs6qOJbS99gf81
+         CC5GhSo8cwmOOvbaUXZAZS0RHKaulNi2+l6nvfos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Anand Moon <linux.amoon@gmail.com>,
         Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 130/334] ARM: dts: meson8b: ec100: Fix the pwm regulator supply properties
-Date:   Mon, 13 Sep 2021 15:13:04 +0200
-Message-Id: <20210913131117.761140931@linuxfoundation.org>
+Subject: [PATCH 5.13 124/300] ARM: dts: meson8b: ec100: Fix the pwm regulator supply properties
+Date:   Mon, 13 Sep 2021 15:13:05 +0200
+Message-Id: <20210913131113.586397941@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
