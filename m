@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A22E14093B5
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0576C4093BE
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345709AbhIMO0r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:26:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45380 "EHLO mail.kernel.org"
+        id S1345893AbhIMO0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:26:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346545AbhIMOYq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346548AbhIMOYq (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:24:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2E6461529;
-        Mon, 13 Sep 2021 13:48:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DBCC61355;
+        Mon, 13 Sep 2021 13:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540914;
-        bh=9ymwU4vLYalZSXSEX8SEiMq4+zWT1ftuULs5rsYQnP4=;
+        s=korg; t=1631540916;
+        bh=YJS5Wy8/sijmVmuKAM7B0Tftv6Exk+3vKC0Al8tvrYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A57nOcDSKS7i9qR5IFoblwrW+UBjhE0f4NXfoHU5XMTRs+BI+pdc2HTTVayN/3hQa
-         rSf2v7oSABF0953j8L2mVVDWKLbyggMBEclHoI9dw80ahjTxkqeqOVN3HzXaUk4Lxt
-         /JtUPJSWZVAKZmx8g37Nw2Nx8ZVc0qyPdKV1BgQ8=
+        b=FCKvIPOcb4UqCfF5IbASWmlbJzTJRjjrJOBJqWy+ee8+qSzsEbCSnD5tYr7DF0BTR
+         /+iV308Kl3XrluqTFmx0szp4cUwue5KA5bq7ACvn9uynxoH/3IPJAmXfYutyES1s+v
+         QRHXJ0XRWAmfdHkvtEz1sL1xbMqmrGjdQpSGPzeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Claudius Heine <ch@denx.de>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 086/334] ASoC: tlv320aic32x4: Fix TAS2505/TAS2521 channel count
-Date:   Mon, 13 Sep 2021 15:12:20 +0200
-Message-Id: <20210913131116.292595180@linuxfoundation.org>
+Subject: [PATCH 5.14 087/334] media: atmel: atmel-sama5d2-isc: fix YUYV format
+Date:   Mon, 13 Sep 2021 15:12:21 +0200
+Message-Id: <20210913131116.326785210@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -40,40 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-[ Upstream commit 3694f996be5cb8374bd224f4e5462c945d359843 ]
+[ Upstream commit 123aaf816b952e5b6ee754335596b01ba1f6c830 ]
 
-The TAS2505/TAS2521 does support up to two channels, LEFT and RIGHT,
-which are being alternated on the audio data bus by Word Clock, WCLK.
-This is documented in TI slau472 2.7.1 Digital Audio Interface. Note
-that both the LEFT and RIGHT channels are only used for audio INPUT,
-while only the LEFT channel is used for audio OUTPUT.
+SAMA5D2 does not have the YCYC field for the RLP (rounding, limiting,
+packaging) module.
+The YCYC field is supposed to work with interleaved YUV formats like YUYV.
+In SAMA5D2, we have to use YYCC field, which is used for both planar
+formats like YUV420 and interleaved formats like YUYV.
+Fix the according rlp callback to replace the generic YCYC field (which
+makes more sense from a logical point of view) with the required YYCC
+field.
 
-Fixes: b4525b6196cd7 ("ASoC: tlv320aic32x4: add support for TAS2505")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Claudius Heine <ch@denx.de>
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210708091229.56443-1-marex@denx.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: debfa496871c ("media: atmel: atmel-isc-base: add support for more formats and additional pipeline modules")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tlv320aic32x4.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../media/platform/atmel/atmel-sama5d2-isc.c    | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/sound/soc/codecs/tlv320aic32x4.c b/sound/soc/codecs/tlv320aic32x4.c
-index 2e9175b37dc9..254a016cb1f3 100644
---- a/sound/soc/codecs/tlv320aic32x4.c
-+++ b/sound/soc/codecs/tlv320aic32x4.c
-@@ -1131,7 +1131,7 @@ static struct snd_soc_dai_driver aic32x4_tas2505_dai = {
- 	.playback = {
- 			 .stream_name = "Playback",
- 			 .channels_min = 1,
--			 .channels_max = 1,
-+			 .channels_max = 2,
- 			 .rates = SNDRV_PCM_RATE_8000_96000,
- 			 .formats = AIC32X4_FORMATS,},
- 	.ops = &aic32x4_ops,
+diff --git a/drivers/media/platform/atmel/atmel-sama5d2-isc.c b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
+index 925aa80a139b..b66f1d174e9d 100644
+--- a/drivers/media/platform/atmel/atmel-sama5d2-isc.c
++++ b/drivers/media/platform/atmel/atmel-sama5d2-isc.c
+@@ -255,6 +255,23 @@ static void isc_sama5d2_config_rlp(struct isc_device *isc)
+ 	struct regmap *regmap = isc->regmap;
+ 	u32 rlp_mode = isc->config.rlp_cfg_mode;
+ 
++	/*
++	 * In sama5d2, the YUV planar modes and the YUYV modes are treated
++	 * in the same way in RLP register.
++	 * Normally, YYCC mode should be Luma(n) - Color B(n) - Color R (n)
++	 * and YCYC should be Luma(n + 1) - Color B (n) - Luma (n) - Color R (n)
++	 * but in sama5d2, the YCYC mode does not exist, and YYCC must be
++	 * selected for both planar and interleaved modes, as in fact
++	 * both modes are supported.
++	 *
++	 * Thus, if the YCYC mode is selected, replace it with the
++	 * sama5d2-compliant mode which is YYCC .
++	 */
++	if ((rlp_mode & ISC_RLP_CFG_MODE_YCYC) == ISC_RLP_CFG_MODE_YCYC) {
++		rlp_mode &= ~ISC_RLP_CFG_MODE_MASK;
++		rlp_mode |= ISC_RLP_CFG_MODE_YYCC;
++	}
++
+ 	regmap_update_bits(regmap, ISC_RLP_CFG + isc->offsets.rlp,
+ 			   ISC_RLP_CFG_MODE_MASK, rlp_mode);
+ }
 -- 
 2.30.2
 
