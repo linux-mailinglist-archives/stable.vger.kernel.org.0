@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE4864092C9
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC28140958E
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344895AbhIMOPf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:15:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37130 "EHLO mail.kernel.org"
+        id S1347830AbhIMOmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:42:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243880AbhIMOOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:14:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81B7661AE3;
-        Mon, 13 Sep 2021 13:43:24 +0000 (UTC)
+        id S1347250AbhIMOk1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:40:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2BF76187C;
+        Mon, 13 Sep 2021 13:56:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540605;
-        bh=l2XPui2b8VNLsWo6ZQxuyS/26lW9mt8IOZxqG6t76LY=;
+        s=korg; t=1631541364;
+        bh=9t8GuoK5hHe4bY+kj8WwJWralFiOKg5R9hJvMrIENWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uF7kJqohBISzgs2k5Uu8c+x2KOVVf3NDTPB8ABHg9PXwdgu/Q8YvIfTbuQhSsjWzL
-         55DWY91HKFfRJS+euGSksodNdKxWZz7vuQ1iDZQJidKRq5+PDfudhKEfY2w8ffc6bk
-         o+DqNHGa3hMxnoTj7byYrgF6Eq6LW8APe3/Psk2Y=
+        b=a6olJaKGSYyh5f1Ik53p1GOiWtdquDDn058FGxLgkdQysa640Ynt8v6VBpBSUMAWC
+         jR8LjD2CG4Ge3pG30FYQZVzsq1Xgmdm2WVQ7wCuG+w8HGBPoFGA98QxCUaiJIYRPxX
+         1/Gf0eVmd9gj6gJ+C66EO97Y+Z5yzy+7aF5ThI0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Abhishek Naik <abhishek.naik@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 260/300] octeontx2-af: Fix static code analyzer reported issues
+Subject: [PATCH 5.14 267/334] iwlwifi: skip first element in the WTAS ACPI table
 Date:   Mon, 13 Sep 2021 15:15:21 +0200
-Message-Id: <20210913131118.123308612@linuxfoundation.org>
+Message-Id: <20210913131122.451091856@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Abhishek Naik <abhishek.naik@intel.com>
 
-[ Upstream commit 698a82ebfb4b2f2014baf31b7324b328a2a6366e ]
+[ Upstream commit 19426d54302e199b3fd2d575f926a13af66be2b9 ]
 
-This patch fixes the static code analyzer reported issues
-in rvu_npc.c. The reported errors are different sizes of
-operands in bitops and returning uninitialized values.
+By mistake we were considering the first element of the WTAS wifi
+package as part of the data we want to rid, but that element is the wifi
+package signature (always 0x07), so it should be skipped.
 
-Fixes: 651cd2652339 ("octeontx2-af: MCAM entry installation support")
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Change the code to read the data starting from element 1 instead.
+
+Signed-off-by: Abhishek Naik <abhishek.naik@intel.com>
+Fixes: 28dd7ccdc56f ("iwlwifi: acpi: read TAS table from ACPI and send it to the FW")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210805141826.ff8148197b15.I70636c04e37b2b57a5df3ce611511f62203d27a7@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/fw/acpi.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-index c1a3f70063b5..4427abbc3aad 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-@@ -23,7 +23,7 @@
- #define RSVD_MCAM_ENTRIES_PER_NIXLF	1 /* Ucast for LFs */
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
+index 34933f133a0a..66f8d949c1e6 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/acpi.c
+@@ -264,7 +264,7 @@ int iwl_acpi_get_tas(struct iwl_fw_runtime *fwrt,
+ 		goto out_free;
+ 	}
  
- #define NPC_PARSE_RESULT_DMAC_OFFSET	8
--#define NPC_HW_TSTAMP_OFFSET		8
-+#define NPC_HW_TSTAMP_OFFSET		8ULL
- #define NPC_KEX_CHAN_MASK		0xFFFULL
- #define NPC_KEX_PF_FUNC_MASK		0xFFFFULL
+-	enabled = !!wifi_pkg->package.elements[0].integer.value;
++	enabled = !!wifi_pkg->package.elements[1].integer.value;
  
-@@ -1751,7 +1751,7 @@ static void npc_unmap_mcam_entry_and_cntr(struct rvu *rvu,
- 					  int blkaddr, u16 entry, u16 cntr)
- {
- 	u16 index = entry & (mcam->banksize - 1);
--	u16 bank = npc_get_bank(mcam, entry);
-+	u32 bank = npc_get_bank(mcam, entry);
+ 	if (!enabled) {
+ 		*block_list_size = -1;
+@@ -273,15 +273,15 @@ int iwl_acpi_get_tas(struct iwl_fw_runtime *fwrt,
+ 		goto out_free;
+ 	}
  
- 	/* Remove mapping and reduce counter's refcnt */
- 	mcam->entry2cntr_map[entry] = NPC_MCAM_INVALID_MAP;
-@@ -2365,8 +2365,8 @@ int rvu_mbox_handler_npc_mcam_shift_entry(struct rvu *rvu,
- 	struct npc_mcam *mcam = &rvu->hw->mcam;
- 	u16 pcifunc = req->hdr.pcifunc;
- 	u16 old_entry, new_entry;
-+	int blkaddr, rc = 0;
- 	u16 index, cntr;
--	int blkaddr, rc;
+-	if (wifi_pkg->package.elements[1].type != ACPI_TYPE_INTEGER ||
+-	    wifi_pkg->package.elements[1].integer.value >
++	if (wifi_pkg->package.elements[2].type != ACPI_TYPE_INTEGER ||
++	    wifi_pkg->package.elements[2].integer.value >
+ 	    APCI_WTAS_BLACK_LIST_MAX) {
+ 		IWL_DEBUG_RADIO(fwrt, "TAS invalid array size %llu\n",
+ 				wifi_pkg->package.elements[1].integer.value);
+ 		ret = -EINVAL;
+ 		goto out_free;
+ 	}
+-	*block_list_size = wifi_pkg->package.elements[1].integer.value;
++	*block_list_size = wifi_pkg->package.elements[2].integer.value;
  
- 	blkaddr = rvu_get_blkaddr(rvu, BLKTYPE_NPC, 0);
- 	if (blkaddr < 0)
+ 	IWL_DEBUG_RADIO(fwrt, "TAS array size %d\n", *block_list_size);
+ 	if (*block_list_size > APCI_WTAS_BLACK_LIST_MAX) {
+@@ -294,15 +294,15 @@ int iwl_acpi_get_tas(struct iwl_fw_runtime *fwrt,
+ 	for (i = 0; i < *block_list_size; i++) {
+ 		u32 country;
+ 
+-		if (wifi_pkg->package.elements[2 + i].type !=
++		if (wifi_pkg->package.elements[3 + i].type !=
+ 		    ACPI_TYPE_INTEGER) {
+ 			IWL_DEBUG_RADIO(fwrt,
+-					"TAS invalid array elem %d\n", 2 + i);
++					"TAS invalid array elem %d\n", 3 + i);
+ 			ret = -EINVAL;
+ 			goto out_free;
+ 		}
+ 
+-		country = wifi_pkg->package.elements[2 + i].integer.value;
++		country = wifi_pkg->package.elements[3 + i].integer.value;
+ 		block_list_array[i] = cpu_to_le32(country);
+ 		IWL_DEBUG_RADIO(fwrt, "TAS block list country %d\n", country);
+ 	}
 -- 
 2.30.2
 
