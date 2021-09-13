@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A429340A02A
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EDCA40A02E
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 00:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348682AbhIMWhP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 18:37:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51068 "EHLO mail.kernel.org"
+        id S244332AbhIMWhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 18:37:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348685AbhIMWgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348691AbhIMWgL (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 18:36:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1453161261;
-        Mon, 13 Sep 2021 22:34:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52A6761251;
+        Mon, 13 Sep 2021 22:34:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631572487;
-        bh=yH0gW60sdHN6nmZHM837hxZFsReYRYagQvi4kPyErxY=;
+        s=k20201202; t=1631572489;
+        bh=PKA4DAvcLVZDdP+Jr85asRFCMK0ih4a9D7RIYhscNZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAs3TYK+5ETriuH7DrDTcpDSiZzqvtSA0bVVWuF3s0MargSbm90XkVnEMR96Nb2nv
-         vZwAWppJKZwSPaXRt6v6gLKiplI3LtMnsWTUrxtpsVf1Tb2nUoOtvQaVmrfn9kJyZI
-         mpjVY5DMvvabiRjiS55b/CoP/qQLA/v6ktOCfMF98O8EvNfNQjxnnQc83pgeEpyFFe
-         BmAURAE2O/+FrpKpxiLCHREKMiiSrfyrQaV0XsdOuvyAjiT84eYJsEndM+o/HQb0gc
-         eGBdERMga9rdkJT/Dr+THQnuSHZfKnand9e3jN9eOdvlKjGcVsznDEj4ahChlxQPLu
-         waTn8i+4oIFlQ==
+        b=OOOvQI+ItrI0Vmg6/QcBlGFpqmlbwId9FPypPARsyJGwqLQIHI4+Q2qHR8uPaEWKx
+         SXhNfZgLtl0l17z4AWUYHrD53To/6Jkw+6ndpltF6QIsQnIKU534z+roo9meNshsA6
+         oHWbl3EcMlP1GfI2h3YnCQEMEz43Q7neEvsXsaJqpUsZWiHIf9Z7wyxYOX2j/7tUGe
+         fUoyNF+BeYGDkGWPfeW5LKzcSgZNXmXDHuKJ5YFsdPOekGKrCouzGGcimcr2xMa3qC
+         pRdu8+DnpQPZhSEIe4SQT3Z8idAOs9kKlnoqUGk1oemzquoY3yY+DzbZptQuV+jb6O
+         wabL4aWxlGGjA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Harini Katakam <harini.katakam@xilinx.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 04/16] dmaengine: xilinx_dma: Set DMA mask for coherent APIs
-Date:   Mon, 13 Sep 2021 18:34:30 -0400
-Message-Id: <20210913223442.435885-4-sashal@kernel.org>
+Cc:     Jeff Layton <jlayton@kernel.org>,
+        =?UTF-8?q?Jozef=20Kov=C3=A1=C4=8D?= <kovac@firma.zoznam.sk>,
+        Xiubo Li <xiubli@redhat.com>,
+        Luis Henriques <lhenriques@suse.de>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, ceph-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 05/16] ceph: request Fw caps before updating the mtime in ceph_write_iter
+Date:   Mon, 13 Sep 2021 18:34:31 -0400
+Message-Id: <20210913223442.435885-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210913223442.435885-1-sashal@kernel.org>
 References: <20210913223442.435885-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,48 +46,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit aac6c0f90799d66b8989be1e056408f33fd99fe6 ]
+[ Upstream commit b11ed50346683a749632ea664959b28d524d7395 ]
 
-The xilinx dma driver uses the consistent allocations, so for correct
-operation also set the DMA mask for coherent APIs. It fixes the below
-kernel crash with dmatest client when DMA IP is configured with 64-bit
-address width and linux is booted from high (>4GB) memory.
+The current code will update the mtime and then try to get caps to
+handle the write. If we end up having to request caps from the MDS, then
+the mtime in the cap grant will clobber the updated mtime and it'll be
+lost.
 
-Call trace:
-[  489.531257]  dma_alloc_from_pool+0x8c/0x1c0
-[  489.535431]  dma_direct_alloc+0x284/0x330
-[  489.539432]  dma_alloc_attrs+0x80/0xf0
-[  489.543174]  dma_pool_alloc+0x160/0x2c0
-[  489.547003]  xilinx_cdma_prep_memcpy+0xa4/0x180
-[  489.551524]  dmatest_func+0x3cc/0x114c
-[  489.555266]  kthread+0x124/0x130
-[  489.558486]  ret_from_fork+0x10/0x3c
-[  489.562051] ---[ end trace 248625b2d596a90a ]---
+This is most noticable when two clients are alternately writing to the
+same file. Fw caps are continually being granted and revoked, and the
+mtime ends up stuck because the updated mtimes are always being
+overwritten with the old one.
 
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Reviewed-by: Harini Katakam <harini.katakam@xilinx.com>
-Link: https://lore.kernel.org/r/1629363528-30347-1-git-send-email-radhey.shyam.pandey@xilinx.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fix this by changing the order of operations in ceph_write_iter to get
+the caps before updating the times. Also, make sure we check the pool
+full conditions before even getting any caps or uninlining.
+
+URL: https://tracker.ceph.com/issues/46574
+Reported-by: Jozef Kováč <kovac@firma.zoznam.sk>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Reviewed-by: Luis Henriques <lhenriques@suse.de>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ceph/file.c | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index 9ffdbeec436b..cab4719e4cf9 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -3070,7 +3070,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
- 		xdev->ext_addr = false;
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index 3d2e3dd4ee01..f1895f78ab45 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -1723,32 +1723,26 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 		goto out;
+ 	}
  
- 	/* Set the dma mask bits */
--	dma_set_mask(xdev->dev, DMA_BIT_MASK(addr_width));
-+	dma_set_mask_and_coherent(xdev->dev, DMA_BIT_MASK(addr_width));
+-	err = file_remove_privs(file);
+-	if (err)
++	down_read(&osdc->lock);
++	map_flags = osdc->osdmap->flags;
++	pool_flags = ceph_pg_pool_flags(osdc->osdmap, ci->i_layout.pool_id);
++	up_read(&osdc->lock);
++	if ((map_flags & CEPH_OSDMAP_FULL) ||
++	    (pool_flags & CEPH_POOL_FLAG_FULL)) {
++		err = -ENOSPC;
+ 		goto out;
++	}
  
- 	/* Initialize the DMA engine */
- 	xdev->common.dev = &pdev->dev;
+-	err = file_update_time(file);
++	err = file_remove_privs(file);
+ 	if (err)
+ 		goto out;
+ 
+-	inode_inc_iversion_raw(inode);
+-
+ 	if (ci->i_inline_version != CEPH_INLINE_NONE) {
+ 		err = ceph_uninline_data(file, NULL);
+ 		if (err < 0)
+ 			goto out;
+ 	}
+ 
+-	down_read(&osdc->lock);
+-	map_flags = osdc->osdmap->flags;
+-	pool_flags = ceph_pg_pool_flags(osdc->osdmap, ci->i_layout.pool_id);
+-	up_read(&osdc->lock);
+-	if ((map_flags & CEPH_OSDMAP_FULL) ||
+-	    (pool_flags & CEPH_POOL_FLAG_FULL)) {
+-		err = -ENOSPC;
+-		goto out;
+-	}
+-
+ 	dout("aio_write %p %llx.%llx %llu~%zd getting caps. i_size %llu\n",
+ 	     inode, ceph_vinop(inode), pos, count, i_size_read(inode));
+ 	if (fi->fmode & CEPH_FILE_MODE_LAZY)
+@@ -1761,6 +1755,12 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	if (err < 0)
+ 		goto out;
+ 
++	err = file_update_time(file);
++	if (err)
++		goto out_caps;
++
++	inode_inc_iversion_raw(inode);
++
+ 	dout("aio_write %p %llx.%llx %llu~%zd got cap refs on %s\n",
+ 	     inode, ceph_vinop(inode), pos, count, ceph_cap_string(got));
+ 
+@@ -1844,6 +1844,8 @@ static ssize_t ceph_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	}
+ 
+ 	goto out_unlocked;
++out_caps:
++	ceph_put_cap_refs(ci, got);
+ out:
+ 	if (direct_lock)
+ 		ceph_end_io_direct(inode);
 -- 
 2.30.2
 
