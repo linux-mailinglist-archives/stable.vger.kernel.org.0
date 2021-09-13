@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B69409326
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BD4D409377
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343491AbhIMOSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:18:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
+        id S241248AbhIMOVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345179AbhIMOQf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:16:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0973D61462;
-        Mon, 13 Sep 2021 13:44:30 +0000 (UTC)
+        id S1344841AbhIMOQo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:16:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B49F61AFC;
+        Mon, 13 Sep 2021 13:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540671;
-        bh=/5WfoIA9trcOShL0r1epCZXNrnIgRJUNluHQwvKt0E0=;
+        s=korg; t=1631540673;
+        bh=kl9KLjkQAlCTLw4tFE2mdHaVWrauryOV7wn3sR/c7YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLXOmJD1hFZocTGuG7xZyXdWalZodxdRy6MYEy9pICTQjDQzHAh1/och/xWgmLv1s
-         4jSfl3buzTMznY3GSMIKZppA/0XD4cZmbIwXdb7Oc/iglMujVKC4CQBmi0BAs+55f3
-         oBOUw7Yjug9jZPSNQ5OdenOLSSEsmL+IqgAvJY7M=
+        b=qatr9eySOXATLGUAQcNmGc66SCqzXV4JHl/ZYswiUDPhIMIDMVYxQmPI3VSsqCgpm
+         b2zyw4KrkKGpQBaC7MnRn9bhIjYE3nb66S49+btaLBIHvjqrmNnBMC+asEDFDEusaq
+         mPwLptFojMj8eu59yTe1i7b23iaEqHSWBwNyUDK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>
-Subject: [PATCH 5.13 288/300] ARM: dts: at91: add pinctrl-{names, 0} for all gpios
-Date:   Mon, 13 Sep 2021 15:15:49 +0200
-Message-Id: <20210913131119.075082294@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Lundberg <johalun0@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.13 289/300] io-wq: check max_worker limits if a worker transitions bound state
+Date:   Mon, 13 Sep 2021 15:15:50 +0200
+Message-Id: <20210913131119.115555510@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -40,189 +39,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit bf781869e5cf3e4ec1a47dad69b6f0df97629cbd upstream.
+commit ecc53c48c13d995e6fe5559e30ffee48d92784fd upstream.
 
-Add pinctrl-names and pinctrl-0 properties on controllers that claims to
-use pins to avoid failures due to
-commit 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
-and also to avoid using pins that may be claimed my other IPs.
+For the two places where new workers are created, we diligently check if
+we are allowed to create a new worker. If we're currently at the limit
+of how many workers of a given type we can have, then we don't create
+any new ones.
 
-Fixes: b7c2b6157079 ("ARM: at91: add Atmel's SAMA5D3 Xplained board")
-Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
-Fixes: 38153a017896 ("ARM: at91/dt: sama5d4: add dts for sama5d4 xplained board")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20210727074006.1609989-1-claudiu.beznea@microchip.com
-Cc: <stable@vger.kernel.org> # v5.7+
+If you have a mixed workload with various types of bound and unbounded
+work, then it can happen that a worker finishes one type of work and
+is then transitioned to the other type. For this case, we don't check
+if we are actually allowed to do so. This can cause io-wq to temporarily
+exceed the allowed number of workers for a given type.
+
+When retrieving work, check that the types match. If they don't, check
+if we are allowed to transition to the other type. If not, then don't
+handle the new work.
+
+Cc: stable@vger.kernel.org
+Reported-by: Johannes Lundberg <johalun0@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/at91-sam9x60ek.dts        |   16 ++++++++++++++-
- arch/arm/boot/dts/at91-sama5d3_xplained.dts |   29 ++++++++++++++++++++++++++++
- arch/arm/boot/dts/at91-sama5d4_xplained.dts |   19 ++++++++++++++++++
- 3 files changed, 63 insertions(+), 1 deletion(-)
+ fs/io-wq.c |   33 ++++++++++++++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 3 deletions(-)
 
---- a/arch/arm/boot/dts/at91-sam9x60ek.dts
-+++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
-@@ -92,6 +92,8 @@
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -424,7 +424,28 @@ static void io_wait_on_hash(struct io_wq
+ 	spin_unlock(&wq->hash->wait.lock);
+ }
  
- 	leds {
- 		compatible = "gpio-leds";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&pinctrl_gpio_leds>;
- 		status = "okay"; /* Conflict with pwm0. */
- 
- 		red {
-@@ -537,6 +539,10 @@
- 				 AT91_PIOA 19 AT91_PERIPH_A (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)	/* PA19 DAT2 periph A with pullup */
- 				 AT91_PIOA 20 AT91_PERIPH_A (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)>;	/* PA20 DAT3 periph A with pullup */
- 		};
-+		pinctrl_sdmmc0_cd: sdmmc0_cd {
-+			atmel,pins =
-+				<AT91_PIOA 23 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+		};
- 	};
- 
- 	sdmmc1 {
-@@ -569,6 +575,14 @@
- 				      AT91_PIOD 16 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
- 		};
- 	};
+-static struct io_wq_work *io_get_next_work(struct io_wqe *wqe)
++/*
++ * We can always run the work if the worker is currently the same type as
++ * the work (eg both are bound, or both are unbound). If they are not the
++ * same, only allow it if incrementing the worker count would be allowed.
++ */
++static bool io_worker_can_run_work(struct io_worker *worker,
++				   struct io_wq_work *work)
++{
++	struct io_wqe_acct *acct;
 +
-+	leds {
-+		pinctrl_gpio_leds: gpio_leds {
-+			atmel,pins = <AT91_PIOB 11 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+				      AT91_PIOB 12 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+				      AT91_PIOB 13 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+		};
-+	};
- }; /* pinctrl */
- 
- &pwm0 {
-@@ -580,7 +594,7 @@
- &sdmmc0 {
- 	bus-width = <4>;
- 	pinctrl-names = "default";
--	pinctrl-0 = <&pinctrl_sdmmc0_default>;
-+	pinctrl-0 = <&pinctrl_sdmmc0_default &pinctrl_sdmmc0_cd>;
- 	status = "okay";
- 	cd-gpios = <&pioA 23 GPIO_ACTIVE_LOW>;
- 	disable-wp;
---- a/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
-@@ -57,6 +57,8 @@
- 			};
- 
- 			spi0: spi@f0004000 {
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_spi0_cs>;
- 				cs-gpios = <&pioD 13 0>, <0>, <0>, <&pioD 16 0>;
- 				status = "okay";
- 			};
-@@ -169,6 +171,8 @@
- 			};
- 
- 			spi1: spi@f8008000 {
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_spi1_cs>;
- 				cs-gpios = <&pioC 25 0>;
- 				status = "okay";
- 			};
-@@ -248,6 +252,26 @@
- 							<AT91_PIOE 3 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
- 							 AT91_PIOE 4 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
- 					};
++	if (!(worker->flags & IO_WORKER_F_BOUND) !=
++	    !(work->flags & IO_WQ_WORK_UNBOUND))
++		return true;
 +
-+					pinctrl_gpio_leds: gpio_leds_default {
-+						atmel,pins =
-+							<AT91_PIOE 23 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOE 24 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
++	/* not the same type, check if we'd go over the limit */
++	acct = io_work_get_acct(worker->wqe, work);
++	return acct->nr_workers < acct->max_workers;
++}
 +
-+					pinctrl_spi0_cs: spi0_cs_default {
-+						atmel,pins =
-+							<AT91_PIOD 13 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOD 16 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
++static struct io_wq_work *io_get_next_work(struct io_wqe *wqe,
++					   struct io_worker *worker,
++					   bool *stalled)
+ 	__must_hold(wqe->lock)
+ {
+ 	struct io_wq_work_node *node, *prev;
+@@ -436,6 +457,9 @@ static struct io_wq_work *io_get_next_wo
+ 
+ 		work = container_of(node, struct io_wq_work, list);
+ 
++		if (!io_worker_can_run_work(worker, work))
++			break;
 +
-+					pinctrl_spi1_cs: spi1_cs_default {
-+						atmel,pins = <AT91_PIOC 25 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
-+
-+					pinctrl_vcc_mmc0_reg_gpio: vcc_mmc0_reg_gpio_default {
-+						atmel,pins = <AT91_PIOE 2 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
- 			};
- 		};
-@@ -339,6 +363,8 @@
+ 		/* not hashed, can run anytime */
+ 		if (!io_wq_is_hashed(work)) {
+ 			wq_list_del(&wqe->work_list, node, prev);
+@@ -462,6 +486,7 @@ static struct io_wq_work *io_get_next_wo
+ 		raw_spin_unlock(&wqe->lock);
+ 		io_wait_on_hash(wqe, stall_hash);
+ 		raw_spin_lock(&wqe->lock);
++		*stalled = true;
+ 	}
  
- 	vcc_mmc0_reg: fixedregulator_mmc0 {
- 		compatible = "regulator-fixed";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&pinctrl_vcc_mmc0_reg_gpio>;
- 		gpio = <&pioE 2 GPIO_ACTIVE_LOW>;
- 		regulator-name = "mmc0-card-supply";
- 		regulator-min-microvolt = <3300000>;
-@@ -362,6 +388,9 @@
+ 	return NULL;
+@@ -501,6 +526,7 @@ static void io_worker_handle_work(struct
  
- 	leds {
- 		compatible = "gpio-leds";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&pinctrl_gpio_leds>;
-+		status = "okay";
+ 	do {
+ 		struct io_wq_work *work;
++		bool stalled;
+ get_next:
+ 		/*
+ 		 * If we got some work, mark us as busy. If we didn't, but
+@@ -509,10 +535,11 @@ get_next:
+ 		 * can't make progress, any work completion or insertion will
+ 		 * clear the stalled flag.
+ 		 */
+-		work = io_get_next_work(wqe);
++		stalled = false;
++		work = io_get_next_work(wqe, worker, &stalled);
+ 		if (work)
+ 			__io_worker_busy(wqe, worker, work);
+-		else if (!wq_list_empty(&wqe->work_list))
++		else if (stalled)
+ 			wqe->flags |= IO_WQE_FLAG_STALLED;
  
- 		d2 {
- 			label = "d2";
---- a/arch/arm/boot/dts/at91-sama5d4_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
-@@ -90,6 +90,8 @@
- 			};
- 
- 			spi1: spi@fc018000 {
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&pinctrl_spi0_cs>;
- 				cs-gpios = <&pioB 21 0>;
- 				status = "okay";
- 			};
-@@ -147,6 +149,19 @@
- 						atmel,pins =
- 							<AT91_PIOE 1 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
- 					};
-+					pinctrl_spi0_cs: spi0_cs_default {
-+						atmel,pins =
-+							<AT91_PIOB 21 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
-+					pinctrl_gpio_leds: gpio_leds_default {
-+						atmel,pins =
-+							<AT91_PIOD 30 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
-+							 AT91_PIOE 15 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
-+					pinctrl_vcc_mmc1_reg: vcc_mmc1_reg {
-+						atmel,pins =
-+							<AT91_PIOE 4 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
-+					};
- 				};
- 			};
- 		};
-@@ -252,6 +267,8 @@
- 
- 	leds {
- 		compatible = "gpio-leds";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&pinctrl_gpio_leds>;
- 		status = "okay";
- 
- 		d8 {
-@@ -278,6 +295,8 @@
- 
- 	vcc_mmc1_reg: fixedregulator_mmc1 {
- 		compatible = "regulator-fixed";
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&pinctrl_vcc_mmc1_reg>;
- 		gpio = <&pioE 4 GPIO_ACTIVE_LOW>;
- 		regulator-name = "VDD MCI1";
- 		regulator-min-microvolt = <3300000>;
+ 		raw_spin_unlock_irq(&wqe->lock);
 
 
