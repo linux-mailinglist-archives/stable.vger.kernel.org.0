@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 459164095CD
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7B5E4092F9
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243827AbhIMOpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:45:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60444 "EHLO mail.kernel.org"
+        id S1344564AbhIMOQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:16:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344312AbhIMOmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:42:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D018F61C57;
-        Mon, 13 Sep 2021 13:56:25 +0000 (UTC)
+        id S1344991AbhIMOOr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:14:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9E596140F;
+        Mon, 13 Sep 2021 13:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541386;
-        bh=0uLshB3PkEcYCRLyqV5NulY2a0EyeGq/9A+aSJeZvmA=;
+        s=korg; t=1631540627;
+        bh=nibPKkH7s7lwEXlvCg+oa6kq6B5U/Up3QxyGtVMvwek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fc2srba3mGfv5qlDIctmExuUj2OMoEKW8gR2kO1wmUEg6t4QfsXghvzYzMiwInPl+
-         bvU7u2dCC6JOJ6olfH5WDCZWmGbnMxXASntP/Dn5fo5SYdtVCUoKis6hr+3h2P3jXV
-         3SBuccqcTKuGj/Xz5XCAUKuRdCfMnHKNLvxBxH4I=
+        b=nRAxCx7s0b8fxatIPwKGfWHR2N2Lss3szDlHZnYQLEzBgZXQR6KcFQAkMa5SVG9iy
+         qzqS4VJpMXIqJgtB1ORK649e/vutc6KRIjeB6E8dFbAro987h+0SVm0No0QELjT1UQ
+         uDmv6bI9UuYAnzLL/MSbHdNUKOmaINMaGbwvDFSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Leonard Crestez <leonard.crestez@nxp.com>,
+        Adriana Reus <adriana.reus@nxp.com>,
+        Sherry Sun <sherry.sun@nxp.com>,
+        Andy Duan <fugang.duan@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 244/334] octeontx2-pf: Fix algorithm index in MCAM rules with RSS action
+Subject: [PATCH 5.13 237/300] tty: serial: fsl_lpuart: fix the wrong mapbase value
 Date:   Mon, 13 Sep 2021 15:14:58 +0200
-Message-Id: <20210913131121.654552657@linuxfoundation.org>
+Message-Id: <20210913131117.362948216@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sunil Goutham <sgoutham@marvell.com>
+From: Andy Duan <fugang.duan@nxp.com>
 
-[ Upstream commit e7938365459f3a6d4edf212f435c4ad635621450 ]
+[ Upstream commit d5c38948448abc2bb6b36dbf85a554bf4748885e ]
 
-Otherthan setting action as RSS in NPC MCAM entry, RSS flowkey
-algorithm index also needs to be set. Otherwise whatever algorithm
-is defined at flowkey index '0' will be considered by HW and pkt
-flows will be distributed as such.
+Register offset needs to be applied on mapbase also.
+dma_tx/rx_request use the physical address of UARTDATA.
+Register offset is currently only applied to membase (the
+corresponding virtual addr) but not on mapbase.
 
-Fix this by saving the flowkey index sent by admin function while
-initializing RSS and then use it when framing MCAM rules.
-
-Fixes: 81a4362016e7 ("octeontx2-pf: Add RSS multi group support")
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 24b1e5f0e83c ("tty: serial: lpuart: add imx7ulp support")
+Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Adriana Reus <adriana.reus@nxp.com>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Signed-off-by: Andy Duan <fugang.duan@nxp.com>
+Link: https://lore.kernel.org/r/20210819021033.32606-1-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/marvell/octeontx2/nic/otx2_common.c  | 11 +++++++++++
- .../net/ethernet/marvell/octeontx2/nic/otx2_common.h  |  3 +++
- .../net/ethernet/marvell/octeontx2/nic/otx2_flows.c   |  1 +
- 3 files changed, 15 insertions(+)
+ drivers/tty/serial/fsl_lpuart.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-index 692099793005..a6210b020a57 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-@@ -269,6 +269,7 @@ unlock:
- int otx2_set_flowkey_cfg(struct otx2_nic *pfvf)
- {
- 	struct otx2_rss_info *rss = &pfvf->hw.rss_info;
-+	struct nix_rss_flowkey_cfg_rsp *rsp;
- 	struct nix_rss_flowkey_cfg *req;
- 	int err;
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 0d7ea144a4a6..1ed4e33cc8cf 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2595,7 +2595,7 @@ static int lpuart_probe(struct platform_device *pdev)
+ 		return PTR_ERR(sport->port.membase);
  
-@@ -283,6 +284,16 @@ int otx2_set_flowkey_cfg(struct otx2_nic *pfvf)
- 	req->group = DEFAULT_RSS_CONTEXT_GROUP;
- 
- 	err = otx2_sync_mbox_msg(&pfvf->mbox);
-+	if (err)
-+		goto fail;
-+
-+	rsp = (struct nix_rss_flowkey_cfg_rsp *)
-+			otx2_mbox_get_rsp(&pfvf->mbox.mbox, 0, &req->hdr);
-+	if (IS_ERR(rsp))
-+		goto fail;
-+
-+	pfvf->hw.flowkey_alg_idx = rsp->alg_idx;
-+fail:
- 	mutex_unlock(&pfvf->mbox.lock);
- 	return err;
- }
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
-index 8fd58cd07f50..8c602d27108a 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
-@@ -196,6 +196,9 @@ struct otx2_hw {
- 	u8			lso_udpv4_idx;
- 	u8			lso_udpv6_idx;
- 
-+	/* RSS */
-+	u8			flowkey_alg_idx;
-+
- 	/* MSI-X */
- 	u8			cint_cnt; /* CQ interrupt count */
- 	u16			npa_msixoff; /* Offset of NPA vectors */
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c
-index 4d9de525802d..fdd27c4fea86 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_flows.c
-@@ -858,6 +858,7 @@ static int otx2_add_flow_msg(struct otx2_nic *pfvf, struct otx2_flow *flow)
- 		if (flow->flow_spec.flow_type & FLOW_RSS) {
- 			req->op = NIX_RX_ACTIONOP_RSS;
- 			req->index = flow->rss_ctx_id;
-+			req->flow_key_alg = pfvf->hw.flowkey_alg_idx;
- 		} else {
- 			req->op = NIX_RX_ACTIONOP_UCAST;
- 			req->index = ethtool_get_flow_spec_ring(ring_cookie);
+ 	sport->port.membase += sdata->reg_off;
+-	sport->port.mapbase = res->start;
++	sport->port.mapbase = res->start + sdata->reg_off;
+ 	sport->port.dev = &pdev->dev;
+ 	sport->port.type = PORT_LPUART;
+ 	sport->devtype = sdata->devtype;
 -- 
 2.30.2
 
