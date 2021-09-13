@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C40DB408A43
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:31:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F329408A45
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:32:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239584AbhIMLc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 07:32:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35568 "EHLO mail.kernel.org"
+        id S239186AbhIMLdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 07:33:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239630AbhIMLcY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 07:32:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF07B60ED8;
-        Mon, 13 Sep 2021 11:31:08 +0000 (UTC)
+        id S238644AbhIMLdq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 07:33:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EE796044F;
+        Mon, 13 Sep 2021 11:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631532669;
-        bh=Eki/ddec1w2JIt2RPY3gHb9tdKVU+tEgtjSsF+opFA0=;
+        s=korg; t=1631532750;
+        bh=3khx7aJ7Ho8H+jmrURDia5CujCQJV9FcBvEKc7OR/7s=;
         h=Subject:To:Cc:From:Date:From;
-        b=KNo5Op6Cj63eUWtxNBdL1mbwEYVa4zhiqtblVV+adCpYsjRI2zQ94cQAdu/QOPBJs
-         jt20e7SsayIyRxzD5S0EuWrx4bHIdyVzrTJB/XXICE/ijN5JQU4SlKQ+9bBS/0RPHw
-         F46py9Nsd3HqrYoRFy6fRaw7N6fKMvNCtlbZeJSs=
-Subject: FAILED: patch "[PATCH] io-wq: check max_worker limits if a worker transitions bound" failed to apply to 5.10-stable tree
-To:     axboe@kernel.dk, johalun0@gmail.com
+        b=O0qWFhQ0n69o8GYw2DM7d2bfMQCrtbBcimB/fiXnE1LC+KH/iBa2dDfnXgV+KOX1w
+         Kz1Vg5TQNmTClgoyOURn80/FOJretB3xwHdwBe8uyHZxar9XB5i3leLLmJUizum99D
+         PAdyPQ9I1ElgnRRvQKZ2PpYm0Oag5wU9RQK+MjtQ=
+Subject: FAILED: patch "[PATCH] fuse: truncate pagecache on atomic_o_trunc" failed to apply to 4.19-stable tree
+To:     mszeredi@redhat.com, stable@vger.kernel.org,
+        xieyongji@bytedance.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 13:31:04 +0200
-Message-ID: <1631532664142194@kroah.com>
+Date:   Mon, 13 Sep 2021 13:32:23 +0200
+Message-ID: <1631532743204250@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,103 +46,56 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ecc53c48c13d995e6fe5559e30ffee48d92784fd Mon Sep 17 00:00:00 2001
-From: Jens Axboe <axboe@kernel.dk>
-Date: Sun, 29 Aug 2021 16:13:03 -0600
-Subject: [PATCH] io-wq: check max_worker limits if a worker transitions bound
- state
+From 76224355db7570cbe6b6f75c8929a1558828dd55 Mon Sep 17 00:00:00 2001
+From: Miklos Szeredi <mszeredi@redhat.com>
+Date: Tue, 17 Aug 2021 21:05:16 +0200
+Subject: [PATCH] fuse: truncate pagecache on atomic_o_trunc
 
-For the two places where new workers are created, we diligently check if
-we are allowed to create a new worker. If we're currently at the limit
-of how many workers of a given type we can have, then we don't create
-any new ones.
+fuse_finish_open() will be called with FUSE_NOWRITE in case of atomic
+O_TRUNC.  This can deadlock with fuse_wait_on_page_writeback() in
+fuse_launder_page() triggered by invalidate_inode_pages2().
 
-If you have a mixed workload with various types of bound and unbounded
-work, then it can happen that a worker finishes one type of work and
-is then transitioned to the other type. For this case, we don't check
-if we are actually allowed to do so. This can cause io-wq to temporarily
-exceed the allowed number of workers for a given type.
+Fix by replacing invalidate_inode_pages2() in fuse_finish_open() with a
+truncate_pagecache() call.  This makes sense regardless of FOPEN_KEEP_CACHE
+or fc->writeback cache, so do it unconditionally.
 
-When retrieving work, check that the types match. If they don't, check
-if we are allowed to transition to the other type. If not, then don't
-handle the new work.
+Reported-by: Xie Yongji <xieyongji@bytedance.com>
+Reported-and-tested-by: syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
+Fixes: e4648309b85a ("fuse: truncate pending writes on O_TRUNC")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 
-Cc: stable@vger.kernel.org
-Reported-by: Johannes Lundberg <johalun0@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 4b5fc621ab39..da3ad45028f9 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -424,7 +424,28 @@ static void io_wait_on_hash(struct io_wqe *wqe, unsigned int hash)
- 	spin_unlock(&wq->hash->wait.lock);
- }
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 97f860cfc195..5e5efb66c7d7 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -198,12 +198,11 @@ void fuse_finish_open(struct inode *inode, struct file *file)
+ 	struct fuse_file *ff = file->private_data;
+ 	struct fuse_conn *fc = get_fuse_conn(inode);
  
--static struct io_wq_work *io_get_next_work(struct io_wqe *wqe)
-+/*
-+ * We can always run the work if the worker is currently the same type as
-+ * the work (eg both are bound, or both are unbound). If they are not the
-+ * same, only allow it if incrementing the worker count would be allowed.
-+ */
-+static bool io_worker_can_run_work(struct io_worker *worker,
-+				   struct io_wq_work *work)
-+{
-+	struct io_wqe_acct *acct;
+-	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
+-		invalidate_inode_pages2(inode->i_mapping);
+ 	if (ff->open_flags & FOPEN_STREAM)
+ 		stream_open(inode, file);
+ 	else if (ff->open_flags & FOPEN_NONSEEKABLE)
+ 		nonseekable_open(inode, file);
 +
-+	if (!(worker->flags & IO_WORKER_F_BOUND) !=
-+	    !(work->flags & IO_WQ_WORK_UNBOUND))
-+		return true;
-+
-+	/* not the same type, check if we'd go over the limit */
-+	acct = io_work_get_acct(worker->wqe, work);
-+	return acct->nr_workers < acct->max_workers;
-+}
-+
-+static struct io_wq_work *io_get_next_work(struct io_wqe *wqe,
-+					   struct io_worker *worker,
-+					   bool *stalled)
- 	__must_hold(wqe->lock)
- {
- 	struct io_wq_work_node *node, *prev;
-@@ -436,6 +457,9 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe)
+ 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
+ 		struct fuse_inode *fi = get_fuse_inode(inode);
  
- 		work = container_of(node, struct io_wq_work, list);
- 
-+		if (!io_worker_can_run_work(worker, work))
-+			break;
-+
- 		/* not hashed, can run anytime */
- 		if (!io_wq_is_hashed(work)) {
- 			wq_list_del(&wqe->work_list, node, prev);
-@@ -462,6 +486,7 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe)
- 		raw_spin_unlock(&wqe->lock);
- 		io_wait_on_hash(wqe, stall_hash);
- 		raw_spin_lock(&wqe->lock);
-+		*stalled = true;
+@@ -211,10 +210,14 @@ void fuse_finish_open(struct inode *inode, struct file *file)
+ 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
+ 		i_size_write(inode, 0);
+ 		spin_unlock(&fi->lock);
++		truncate_pagecache(inode, 0);
+ 		fuse_invalidate_attr(inode);
+ 		if (fc->writeback_cache)
+ 			file_update_time(file);
++	} else if (!(ff->open_flags & FOPEN_KEEP_CACHE)) {
++		invalidate_inode_pages2(inode->i_mapping);
  	}
- 
- 	return NULL;
-@@ -501,6 +526,7 @@ static void io_worker_handle_work(struct io_worker *worker)
- 
- 	do {
- 		struct io_wq_work *work;
-+		bool stalled;
- get_next:
- 		/*
- 		 * If we got some work, mark us as busy. If we didn't, but
-@@ -509,10 +535,11 @@ static void io_worker_handle_work(struct io_worker *worker)
- 		 * can't make progress, any work completion or insertion will
- 		 * clear the stalled flag.
- 		 */
--		work = io_get_next_work(wqe);
-+		stalled = false;
-+		work = io_get_next_work(wqe, worker, &stalled);
- 		if (work)
- 			__io_worker_busy(wqe, worker, work);
--		else if (!wq_list_empty(&wqe->work_list))
-+		else if (stalled)
- 			wqe->flags |= IO_WQE_FLAG_STALLED;
- 
- 		raw_spin_unlock_irq(&wqe->lock);
++
+ 	if ((file->f_mode & FMODE_WRITE) && fc->writeback_cache)
+ 		fuse_link_write_file(file);
+ }
 
