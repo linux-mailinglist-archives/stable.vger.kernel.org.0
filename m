@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB00C408F09
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36C5D408D1B
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:22:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240932AbhIMNjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:39:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34448 "EHLO mail.kernel.org"
+        id S238064AbhIMNXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:23:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242578AbhIMNhD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:37:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D18E613A0;
-        Mon, 13 Sep 2021 13:28:01 +0000 (UTC)
+        id S240230AbhIMNUE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:20:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3748061165;
+        Mon, 13 Sep 2021 13:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539681;
-        bh=rqNdgcJrDgcO/ooLOyfmRe8+iYIJKNzdsRztlsS+D48=;
+        s=korg; t=1631539104;
+        bh=eG1rJS6uOFVEJCJS1KzwNDy/+TJGHwvXdpa98VSkd4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CZHpEY0ev6wOuupGQBCnyiH0oE+F3VkAguRKhTQX4D7Is0eYC8yDTlHQXr7B+rU+e
-         qxq2ufQyED1UpDHsxfKO2YRAFiy6RbD8S8ZSPe3eEpWgVNU2xm0nxUODT1Irp06fA8
-         fpIp0ntEcKltlJNhW5YhPzL5KTbCxhVJHKIrTmtk=
+        b=s8cSNmct3tt1hslyL+deqM1vhinunTsJ3xkaf5uZMcYr7/rtaBA1jorTCAtXwPsGa
+         bxeVdIAun8dvJZmdxZJJmKpOLXZHrOuL6Vb5k3k1XMpXcAExpbXlQ9QWFoewL0g+9M
+         yPQE+yB6NVnu7/UZ6LIkquFORkZOVNSPtbS3ICpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 118/236] devlink: Break parameter notification sequence to be before/after unload/load driver
+Subject: [PATCH 5.4 042/144] regulator: vctrl: Avoid lockdep warning in enable/disable ops
 Date:   Mon, 13 Sep 2021 15:13:43 +0200
-Message-Id: <20210913131104.373533180@linuxfoundation.org>
+Message-Id: <20210913131049.351066211@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,257 +41,414 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
 
-[ Upstream commit 05a7f4a8dff19999ca8a83a35ff4782689de7bfc ]
+[ Upstream commit 21e39809fd7c4b8ff3662f23e0168e87594c8ca8 ]
 
-The change of namespaces during devlink reload calls to driver unload
-before it accesses devlink parameters. The commands below causes to
-use-after-free bug when trying to get flow steering mode.
+vctrl_enable() and vctrl_disable() call regulator_enable() and
+regulator_disable(), respectively. However, vctrl_* are regulator ops
+and should not be calling the locked regulator APIs. Doing so results in
+a lockdep warning.
 
- * ip netns add n1
- * devlink dev reload pci/0000:00:09.0 netns n1
+Instead of exporting more internal regulator ops, model the ctrl supply
+as an actual supply to vctrl-regulator. At probe time this driver still
+needs to use the consumer API to fetch its constraints, but otherwise
+lets the regulator core handle the upstream supply for it.
 
- ==================================================================
- BUG: KASAN: use-after-free in mlx5_devlink_fs_mode_get+0x96/0xa0 [mlx5_core]
- Read of size 4 at addr ffff888009d04308 by task devlink/275
+The enable/disable/is_enabled ops are not removed, but now only track
+state internally. This preserves the original behavior with the ops
+being available, but one could argue that the original behavior was
+already incorrect: the internal state would not match the upstream
+supply if that supply had another consumer that enabled the supply,
+while vctrl-regulator was not enabled.
 
- CPU: 6 PID: 275 Comm: devlink Not tainted 5.12.0-rc2+ #2853
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
- Call Trace:
-  dump_stack+0x93/0xc2
-  print_address_description.constprop.0+0x18/0x140
-  ? mlx5_devlink_fs_mode_get+0x96/0xa0 [mlx5_core]
-  ? mlx5_devlink_fs_mode_get+0x96/0xa0 [mlx5_core]
-  kasan_report.cold+0x7c/0xd8
-  ? mlx5_devlink_fs_mode_get+0x96/0xa0 [mlx5_core]
-  mlx5_devlink_fs_mode_get+0x96/0xa0 [mlx5_core]
-  devlink_nl_param_fill+0x1c8/0xe80
-  ? __free_pages_ok+0x37a/0x8a0
-  ? devlink_flash_update_timeout_notify+0xd0/0xd0
-  ? lock_acquire+0x1a9/0x6d0
-  ? fs_reclaim_acquire+0xb7/0x160
-  ? lock_is_held_type+0x98/0x110
-  ? 0xffffffff81000000
-  ? lock_release+0x1f9/0x6c0
-  ? fs_reclaim_release+0xa1/0xf0
-  ? lock_downgrade+0x6d0/0x6d0
-  ? lock_is_held_type+0x98/0x110
-  ? lock_is_held_type+0x98/0x110
-  ? memset+0x20/0x40
-  ? __build_skb_around+0x1f8/0x2b0
-  devlink_param_notify+0x6d/0x180
-  devlink_reload+0x1c3/0x520
-  ? devlink_remote_reload_actions_performed+0x30/0x30
-  ? mutex_trylock+0x24b/0x2d0
-  ? devlink_nl_cmd_reload+0x62b/0x1070
-  devlink_nl_cmd_reload+0x66d/0x1070
-  ? devlink_reload+0x520/0x520
-  ? devlink_get_from_attrs+0x1bc/0x260
-  ? devlink_nl_pre_doit+0x64/0x4d0
-  genl_family_rcv_msg_doit+0x1e9/0x2f0
-  ? mutex_lock_io_nested+0x1130/0x1130
-  ? genl_family_rcv_msg_attrs_parse.constprop.0+0x240/0x240
-  ? security_capable+0x51/0x90
-  genl_rcv_msg+0x27f/0x4a0
-  ? genl_get_cmd+0x3c0/0x3c0
-  ? lock_acquire+0x1a9/0x6d0
-  ? devlink_reload+0x520/0x520
-  ? lock_release+0x6c0/0x6c0
-  netlink_rcv_skb+0x11d/0x340
-  ? genl_get_cmd+0x3c0/0x3c0
-  ? netlink_ack+0x9f0/0x9f0
-  ? lock_release+0x1f9/0x6c0
-  genl_rcv+0x24/0x40
-  netlink_unicast+0x433/0x700
-  ? netlink_attachskb+0x730/0x730
-  ? _copy_from_iter_full+0x178/0x650
-  ? __alloc_skb+0x113/0x2b0
-  netlink_sendmsg+0x6f1/0xbd0
-  ? netlink_unicast+0x700/0x700
-  ? lock_is_held_type+0x98/0x110
-  ? netlink_unicast+0x700/0x700
-  sock_sendmsg+0xb0/0xe0
-  __sys_sendto+0x193/0x240
-  ? __x64_sys_getpeername+0xb0/0xb0
-  ? do_sys_openat2+0x10b/0x370
-  ? __up_read+0x1a1/0x7b0
-  ? do_user_addr_fault+0x219/0xdc0
-  ? __x64_sys_openat+0x120/0x1d0
-  ? __x64_sys_open+0x1a0/0x1a0
-  __x64_sys_sendto+0xdd/0x1b0
-  ? syscall_enter_from_user_mode+0x1d/0x50
-  do_syscall_64+0x2d/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7fc69d0af14a
- Code: d8 64 89 02 48 c7 c0 ff ff ff ff eb b8 0f 1f 00 f3 0f 1e fa 41 89 ca 64 8b 04 25 18 00 00 00 85 c0 75 15 b8 2c 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 76 c3 0f 1f 44 00 00 55 48 83 ec 30 44 89 4c
- RSP: 002b:00007ffc1d8292f8 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
- RAX: ffffffffffffffda RBX: 0000000000000005 RCX: 00007fc69d0af14a
- RDX: 0000000000000038 RSI: 0000555f57c56440 RDI: 0000000000000003
- RBP: 0000555f57c56410 R08: 00007fc69d17b200 R09: 000000000000000c
- R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
- R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+The lockdep warning is as follows:
 
- Allocated by task 146:
-  kasan_save_stack+0x1b/0x40
-  __kasan_kmalloc+0x99/0xc0
-  mlx5_init_fs+0xf0/0x1c50 [mlx5_core]
-  mlx5_load+0xd2/0x180 [mlx5_core]
-  mlx5_init_one+0x2f6/0x450 [mlx5_core]
-  probe_one+0x47d/0x6e0 [mlx5_core]
-  pci_device_probe+0x2a0/0x4a0
-  really_probe+0x20a/0xc90
-  driver_probe_device+0xd8/0x380
-  device_driver_attach+0x1df/0x250
-  __driver_attach+0xff/0x240
-  bus_for_each_dev+0x11e/0x1a0
-  bus_add_driver+0x309/0x570
-  driver_register+0x1ee/0x380
-  0xffffffffa06b8062
-  do_one_initcall+0xd5/0x410
-  do_init_module+0x1c8/0x760
-  load_module+0x6d8b/0x9650
-  __do_sys_finit_module+0x118/0x1b0
-  do_syscall_64+0x2d/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+	WARNING: possible circular locking dependency detected
+	5.14.0-rc6 #2 Not tainted
+	------------------------------------------------------
+	swapper/0/1 is trying to acquire lock:
+	ffffffc011306d00 (regulator_list_mutex){+.+.}-{3:3}, at:
+		regulator_lock_dependent (arch/arm64/include/asm/current.h:19
+					  include/linux/ww_mutex.h:111
+					  drivers/regulator/core.c:329)
 
- Freed by task 275:
-  kasan_save_stack+0x1b/0x40
-  kasan_set_track+0x1c/0x30
-  kasan_set_free_info+0x20/0x30
-  __kasan_slab_free+0x102/0x140
-  slab_free_freelist_hook+0x74/0x1b0
-  kfree+0xd7/0x2a0
-  mlx5_unload+0x16/0xb0 [mlx5_core]
-  mlx5_unload_one+0xae/0x120 [mlx5_core]
-  mlx5_devlink_reload_down+0x1bc/0x380 [mlx5_core]
-  devlink_reload+0x141/0x520
-  devlink_nl_cmd_reload+0x66d/0x1070
-  genl_family_rcv_msg_doit+0x1e9/0x2f0
-  genl_rcv_msg+0x27f/0x4a0
-  netlink_rcv_skb+0x11d/0x340
-  genl_rcv+0x24/0x40
-  netlink_unicast+0x433/0x700
-  netlink_sendmsg+0x6f1/0xbd0
-  sock_sendmsg+0xb0/0xe0
-  __sys_sendto+0x193/0x240
-  __x64_sys_sendto+0xdd/0x1b0
-  do_syscall_64+0x2d/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+	but task is already holding lock:
+	ffffff8004a77160 (regulator_ww_class_mutex){+.+.}-{3:3}, at:
+		regulator_lock_recursive (drivers/regulator/core.c:156
+					  drivers/regulator/core.c:263)
 
- The buggy address belongs to the object at ffff888009d04300
-  which belongs to the cache kmalloc-128 of size 128
- The buggy address is located 8 bytes inside of
-  128-byte region [ffff888009d04300, ffff888009d04380)
- The buggy address belongs to the page:
- page:0000000086a64ecc refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff888009d04000 pfn:0x9d04
- head:0000000086a64ecc order:1 compound_mapcount:0
- flags: 0x4000000000010200(slab|head)
- raw: 4000000000010200 ffffea0000203980 0000000200000002 ffff8880050428c0
- raw: ffff888009d04000 000000008020001d 00000001ffffffff 0000000000000000
- page dumped because: kasan: bad access detected
+	which lock already depends on the new lock.
 
- Memory state around the buggy address:
-  ffff888009d04200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff888009d04280: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- >ffff888009d04300: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                       ^
-  ffff888009d04380: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ffff888009d04400: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ==================================================================
+	the existing dependency chain (in reverse order) is:
 
-The right solution to devlink reload is to notify about deletion of
-parameters, unload driver, change net namespaces, load driver and notify
-about addition of parameters.
+	-> #2 (regulator_ww_class_mutex){+.+.}-{3:3}:
+	__mutex_lock_common (include/asm-generic/atomic-instrumented.h:606
+			     include/asm-generic/atomic-long.h:29
+			     kernel/locking/mutex.c:103
+			     kernel/locking/mutex.c:144
+			     kernel/locking/mutex.c:963)
+	ww_mutex_lock (kernel/locking/mutex.c:1199)
+	regulator_lock_recursive (drivers/regulator/core.c:156
+				  drivers/regulator/core.c:263)
+	regulator_lock_dependent (drivers/regulator/core.c:343)
+	regulator_enable (drivers/regulator/core.c:2808)
+	set_machine_constraints (drivers/regulator/core.c:1536)
+	regulator_register (drivers/regulator/core.c:5486)
+	devm_regulator_register (drivers/regulator/devres.c:196)
+	reg_fixed_voltage_probe (drivers/regulator/fixed.c:289)
+	platform_probe (drivers/base/platform.c:1427)
+	[...]
 
-Fixes: 070c63f20f6c ("net: devlink: allow to change namespaces during reload")
-Reviewed-by: Parav Pandit <parav@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+	-> #1 (regulator_ww_class_acquire){+.+.}-{0:0}:
+	regulator_lock_dependent (include/linux/ww_mutex.h:129
+				  drivers/regulator/core.c:329)
+	regulator_enable (drivers/regulator/core.c:2808)
+	set_machine_constraints (drivers/regulator/core.c:1536)
+	regulator_register (drivers/regulator/core.c:5486)
+	devm_regulator_register (drivers/regulator/devres.c:196)
+	reg_fixed_voltage_probe (drivers/regulator/fixed.c:289)
+	[...]
+
+	-> #0 (regulator_list_mutex){+.+.}-{3:3}:
+	__lock_acquire (kernel/locking/lockdep.c:3052 (discriminator 4)
+			kernel/locking/lockdep.c:3174 (discriminator 4)
+			kernel/locking/lockdep.c:3789 (discriminator 4)
+			kernel/locking/lockdep.c:5015 (discriminator 4))
+	lock_acquire (arch/arm64/include/asm/percpu.h:39
+		      kernel/locking/lockdep.c:438
+		      kernel/locking/lockdep.c:5627)
+	__mutex_lock_common (include/asm-generic/atomic-instrumented.h:606
+			     include/asm-generic/atomic-long.h:29
+			     kernel/locking/mutex.c:103
+			     kernel/locking/mutex.c:144
+			     kernel/locking/mutex.c:963)
+	mutex_lock_nested (kernel/locking/mutex.c:1125)
+	regulator_lock_dependent (arch/arm64/include/asm/current.h:19
+				  include/linux/ww_mutex.h:111
+				  drivers/regulator/core.c:329)
+	regulator_enable (drivers/regulator/core.c:2808)
+	vctrl_enable (drivers/regulator/vctrl-regulator.c:400)
+	_regulator_do_enable (drivers/regulator/core.c:2617)
+	_regulator_enable (drivers/regulator/core.c:2764)
+	regulator_enable (drivers/regulator/core.c:308
+			  drivers/regulator/core.c:2809)
+	_set_opp (drivers/opp/core.c:819 drivers/opp/core.c:1072)
+	dev_pm_opp_set_rate (drivers/opp/core.c:1164)
+	set_target (drivers/cpufreq/cpufreq-dt.c:62)
+	__cpufreq_driver_target (drivers/cpufreq/cpufreq.c:2216
+				 drivers/cpufreq/cpufreq.c:2271)
+	cpufreq_online (drivers/cpufreq/cpufreq.c:1488 (discriminator 2))
+	cpufreq_add_dev (drivers/cpufreq/cpufreq.c:1563)
+	subsys_interface_register (drivers/base/bus.c:?)
+	cpufreq_register_driver (drivers/cpufreq/cpufreq.c:2819)
+	dt_cpufreq_probe (drivers/cpufreq/cpufreq-dt.c:344)
+	[...]
+
+	other info that might help us debug this:
+
+	Chain exists of:
+	  regulator_list_mutex --> regulator_ww_class_acquire --> regulator_ww_class_mutex
+
+	 Possible unsafe locking scenario:
+
+	       CPU0                    CPU1
+	       ----                    ----
+	  lock(regulator_ww_class_mutex);
+				       lock(regulator_ww_class_acquire);
+				       lock(regulator_ww_class_mutex);
+	  lock(regulator_list_mutex);
+
+	 *** DEADLOCK ***
+
+	6 locks held by swapper/0/1:
+	#0: ffffff8002d32188 (&dev->mutex){....}-{3:3}, at:
+		__device_driver_lock (drivers/base/dd.c:1030)
+	#1: ffffffc0111a0520 (cpu_hotplug_lock){++++}-{0:0}, at:
+		cpufreq_register_driver (drivers/cpufreq/cpufreq.c:2792 (discriminator 2))
+	#2: ffffff8002a8d918 (subsys mutex#9){+.+.}-{3:3}, at:
+		subsys_interface_register (drivers/base/bus.c:1033)
+	#3: ffffff800341bb90 (&policy->rwsem){+.+.}-{3:3}, at:
+		cpufreq_online (include/linux/bitmap.h:285
+				include/linux/cpumask.h:405
+				drivers/cpufreq/cpufreq.c:1399)
+	#4: ffffffc011f0b7b8 (regulator_ww_class_acquire){+.+.}-{0:0}, at:
+		regulator_enable (drivers/regulator/core.c:2808)
+	#5: ffffff8004a77160 (regulator_ww_class_mutex){+.+.}-{3:3}, at:
+		regulator_lock_recursive (drivers/regulator/core.c:156
+		drivers/regulator/core.c:263)
+
+	stack backtrace:
+	CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.14.0-rc6 #2 7c8f8996d021ed0f65271e6aeebf7999de74a9fa
+	Hardware name: Google Scarlet (DT)
+	Call trace:
+	dump_backtrace (arch/arm64/kernel/stacktrace.c:161)
+	show_stack (arch/arm64/kernel/stacktrace.c:218)
+	dump_stack_lvl (lib/dump_stack.c:106 (discriminator 2))
+	dump_stack (lib/dump_stack.c:113)
+	print_circular_bug (kernel/locking/lockdep.c:?)
+	check_noncircular (kernel/locking/lockdep.c:?)
+	__lock_acquire (kernel/locking/lockdep.c:3052 (discriminator 4)
+			kernel/locking/lockdep.c:3174 (discriminator 4)
+			kernel/locking/lockdep.c:3789 (discriminator 4)
+			kernel/locking/lockdep.c:5015 (discriminator 4))
+	lock_acquire (arch/arm64/include/asm/percpu.h:39
+		      kernel/locking/lockdep.c:438
+		      kernel/locking/lockdep.c:5627)
+	__mutex_lock_common (include/asm-generic/atomic-instrumented.h:606
+			     include/asm-generic/atomic-long.h:29
+			     kernel/locking/mutex.c:103
+			     kernel/locking/mutex.c:144
+			     kernel/locking/mutex.c:963)
+	mutex_lock_nested (kernel/locking/mutex.c:1125)
+	regulator_lock_dependent (arch/arm64/include/asm/current.h:19
+				  include/linux/ww_mutex.h:111
+				  drivers/regulator/core.c:329)
+	regulator_enable (drivers/regulator/core.c:2808)
+	vctrl_enable (drivers/regulator/vctrl-regulator.c:400)
+	_regulator_do_enable (drivers/regulator/core.c:2617)
+	_regulator_enable (drivers/regulator/core.c:2764)
+	regulator_enable (drivers/regulator/core.c:308
+			  drivers/regulator/core.c:2809)
+	_set_opp (drivers/opp/core.c:819 drivers/opp/core.c:1072)
+	dev_pm_opp_set_rate (drivers/opp/core.c:1164)
+	set_target (drivers/cpufreq/cpufreq-dt.c:62)
+	__cpufreq_driver_target (drivers/cpufreq/cpufreq.c:2216
+				 drivers/cpufreq/cpufreq.c:2271)
+	cpufreq_online (drivers/cpufreq/cpufreq.c:1488 (discriminator 2))
+	cpufreq_add_dev (drivers/cpufreq/cpufreq.c:1563)
+	subsys_interface_register (drivers/base/bus.c:?)
+	cpufreq_register_driver (drivers/cpufreq/cpufreq.c:2819)
+	dt_cpufreq_probe (drivers/cpufreq/cpufreq-dt.c:344)
+	[...]
+
+Reported-by: Brian Norris <briannorris@chromium.org>
+Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
+Fixes: e9153311491d ("regulator: vctrl-regulator: Avoid deadlock getting and setting the voltage")
+Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+Link: https://lore.kernel.org/r/20210825033704.3307263-3-wenst@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/devlink.c | 32 ++++++++++++++++++++------------
- 1 file changed, 20 insertions(+), 12 deletions(-)
+ drivers/regulator/vctrl-regulator.c | 72 +++++++++++++++++------------
+ 1 file changed, 42 insertions(+), 30 deletions(-)
 
-diff --git a/net/core/devlink.c b/net/core/devlink.c
-index 90badb6f7227..6cc8c64ed62a 100644
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -3079,10 +3079,12 @@ static void devlink_param_notify(struct devlink *devlink,
- 				 struct devlink_param_item *param_item,
- 				 enum devlink_command cmd);
- 
--static void devlink_reload_netns_change(struct devlink *devlink,
--					struct net *dest_net)
-+static void devlink_ns_change_notify(struct devlink *devlink,
-+				     struct net *dest_net, struct net *curr_net,
-+				     bool new)
+diff --git a/drivers/regulator/vctrl-regulator.c b/drivers/regulator/vctrl-regulator.c
+index 93d33201ffe0..d2a37978fc3a 100644
+--- a/drivers/regulator/vctrl-regulator.c
++++ b/drivers/regulator/vctrl-regulator.c
+@@ -37,7 +37,6 @@ struct vctrl_voltage_table {
+ struct vctrl_data {
+ 	struct regulator_dev *rdev;
+ 	struct regulator_desc desc;
+-	struct regulator *ctrl_reg;
+ 	bool enabled;
+ 	unsigned int min_slew_down_rate;
+ 	unsigned int ovp_threshold;
+@@ -82,7 +81,12 @@ static int vctrl_calc_output_voltage(struct vctrl_data *vctrl, int ctrl_uV)
+ static int vctrl_get_voltage(struct regulator_dev *rdev)
  {
- 	struct devlink_param_item *param_item;
-+	enum devlink_command cmd;
- 
- 	/* Userspace needs to be notified about devlink objects
- 	 * removed from original and entering new network namespace.
-@@ -3090,17 +3092,18 @@ static void devlink_reload_netns_change(struct devlink *devlink,
- 	 * reload process so the notifications are generated separatelly.
- 	 */
- 
--	list_for_each_entry(param_item, &devlink->param_list, list)
--		devlink_param_notify(devlink, 0, param_item,
--				     DEVLINK_CMD_PARAM_DEL);
--	devlink_notify(devlink, DEVLINK_CMD_DEL);
-+	if (!dest_net || net_eq(dest_net, curr_net))
-+		return;
- 
--	__devlink_net_set(devlink, dest_net);
-+	if (new)
-+		devlink_notify(devlink, DEVLINK_CMD_NEW);
- 
--	devlink_notify(devlink, DEVLINK_CMD_NEW);
-+	cmd = new ? DEVLINK_CMD_PARAM_NEW : DEVLINK_CMD_PARAM_DEL;
- 	list_for_each_entry(param_item, &devlink->param_list, list)
--		devlink_param_notify(devlink, 0, param_item,
--				     DEVLINK_CMD_PARAM_NEW);
-+		devlink_param_notify(devlink, 0, param_item, cmd);
+ 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
+-	int ctrl_uV = regulator_get_voltage_rdev(vctrl->ctrl_reg->rdev);
++	int ctrl_uV;
 +
-+	if (!new)
-+		devlink_notify(devlink, DEVLINK_CMD_DEL);
++	if (!rdev->supply)
++		return -EPROBE_DEFER;
++
++	ctrl_uV = regulator_get_voltage_rdev(rdev->supply->rdev);
+ 
+ 	return vctrl_calc_output_voltage(vctrl, ctrl_uV);
+ }
+@@ -92,14 +96,19 @@ static int vctrl_set_voltage(struct regulator_dev *rdev,
+ 			     unsigned int *selector)
+ {
+ 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
+-	struct regulator *ctrl_reg = vctrl->ctrl_reg;
+-	int orig_ctrl_uV = regulator_get_voltage_rdev(ctrl_reg->rdev);
+-	int uV = vctrl_calc_output_voltage(vctrl, orig_ctrl_uV);
++	int orig_ctrl_uV;
++	int uV;
+ 	int ret;
+ 
++	if (!rdev->supply)
++		return -EPROBE_DEFER;
++
++	orig_ctrl_uV = regulator_get_voltage_rdev(rdev->supply->rdev);
++	uV = vctrl_calc_output_voltage(vctrl, orig_ctrl_uV);
++
+ 	if (req_min_uV >= uV || !vctrl->ovp_threshold)
+ 		/* voltage rising or no OVP */
+-		return regulator_set_voltage_rdev(ctrl_reg->rdev,
++		return regulator_set_voltage_rdev(rdev->supply->rdev,
+ 			vctrl_calc_ctrl_voltage(vctrl, req_min_uV),
+ 			vctrl_calc_ctrl_voltage(vctrl, req_max_uV),
+ 			PM_SUSPEND_ON);
+@@ -117,7 +126,7 @@ static int vctrl_set_voltage(struct regulator_dev *rdev,
+ 		next_uV = max_t(int, req_min_uV, uV - max_drop_uV);
+ 		next_ctrl_uV = vctrl_calc_ctrl_voltage(vctrl, next_uV);
+ 
+-		ret = regulator_set_voltage_rdev(ctrl_reg->rdev,
++		ret = regulator_set_voltage_rdev(rdev->supply->rdev,
+ 					    next_ctrl_uV,
+ 					    next_ctrl_uV,
+ 					    PM_SUSPEND_ON);
+@@ -134,7 +143,7 @@ static int vctrl_set_voltage(struct regulator_dev *rdev,
+ 
+ err:
+ 	/* Try to go back to original voltage */
+-	regulator_set_voltage_rdev(ctrl_reg->rdev, orig_ctrl_uV, orig_ctrl_uV,
++	regulator_set_voltage_rdev(rdev->supply->rdev, orig_ctrl_uV, orig_ctrl_uV,
+ 				   PM_SUSPEND_ON);
+ 
+ 	return ret;
+@@ -151,16 +160,18 @@ static int vctrl_set_voltage_sel(struct regulator_dev *rdev,
+ 				 unsigned int selector)
+ {
+ 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
+-	struct regulator *ctrl_reg = vctrl->ctrl_reg;
+ 	unsigned int orig_sel = vctrl->sel;
+ 	int ret;
+ 
++	if (!rdev->supply)
++		return -EPROBE_DEFER;
++
+ 	if (selector >= rdev->desc->n_voltages)
+ 		return -EINVAL;
+ 
+ 	if (selector >= vctrl->sel || !vctrl->ovp_threshold) {
+ 		/* voltage rising or no OVP */
+-		ret = regulator_set_voltage_rdev(ctrl_reg->rdev,
++		ret = regulator_set_voltage_rdev(rdev->supply->rdev,
+ 					    vctrl->vtable[selector].ctrl,
+ 					    vctrl->vtable[selector].ctrl,
+ 					    PM_SUSPEND_ON);
+@@ -179,7 +190,7 @@ static int vctrl_set_voltage_sel(struct regulator_dev *rdev,
+ 		else
+ 			next_sel = vctrl->vtable[vctrl->sel].ovp_min_sel;
+ 
+-		ret = regulator_set_voltage_rdev(ctrl_reg->rdev,
++		ret = regulator_set_voltage_rdev(rdev->supply->rdev,
+ 					    vctrl->vtable[next_sel].ctrl,
+ 					    vctrl->vtable[next_sel].ctrl,
+ 					    PM_SUSPEND_ON);
+@@ -202,7 +213,7 @@ static int vctrl_set_voltage_sel(struct regulator_dev *rdev,
+ err:
+ 	if (vctrl->sel != orig_sel) {
+ 		/* Try to go back to original voltage */
+-		if (!regulator_set_voltage_rdev(ctrl_reg->rdev,
++		if (!regulator_set_voltage_rdev(rdev->supply->rdev,
+ 					   vctrl->vtable[orig_sel].ctrl,
+ 					   vctrl->vtable[orig_sel].ctrl,
+ 					   PM_SUSPEND_ON))
+@@ -234,10 +245,6 @@ static int vctrl_parse_dt(struct platform_device *pdev,
+ 	u32 pval;
+ 	u32 vrange_ctrl[2];
+ 
+-	vctrl->ctrl_reg = devm_regulator_get(&pdev->dev, "ctrl");
+-	if (IS_ERR(vctrl->ctrl_reg))
+-		return PTR_ERR(vctrl->ctrl_reg);
+-
+ 	ret = of_property_read_u32(np, "ovp-threshold-percent", &pval);
+ 	if (!ret) {
+ 		vctrl->ovp_threshold = pval;
+@@ -315,11 +322,11 @@ static int vctrl_cmp_ctrl_uV(const void *a, const void *b)
+ 	return at->ctrl - bt->ctrl;
  }
  
- static bool devlink_reload_supported(const struct devlink_ops *ops)
-@@ -3180,6 +3183,7 @@ static int devlink_reload(struct devlink *devlink, struct net *dest_net,
- 			  u32 *actions_performed, struct netlink_ext_ack *extack)
+-static int vctrl_init_vtable(struct platform_device *pdev)
++static int vctrl_init_vtable(struct platform_device *pdev,
++			     struct regulator *ctrl_reg)
  {
- 	u32 remote_reload_stats[DEVLINK_RELOAD_STATS_ARRAY_SIZE];
-+	struct net *curr_net;
- 	int err;
+ 	struct vctrl_data *vctrl = platform_get_drvdata(pdev);
+ 	struct regulator_desc *rdesc = &vctrl->desc;
+-	struct regulator *ctrl_reg = vctrl->ctrl_reg;
+ 	struct vctrl_voltage_range *vrange_ctrl = &vctrl->vrange.ctrl;
+ 	int n_voltages;
+ 	int ctrl_uV;
+@@ -395,23 +402,19 @@ static int vctrl_init_vtable(struct platform_device *pdev)
+ static int vctrl_enable(struct regulator_dev *rdev)
+ {
+ 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
+-	int ret = regulator_enable(vctrl->ctrl_reg);
  
- 	if (!devlink->reload_enabled)
-@@ -3187,18 +3191,22 @@ static int devlink_reload(struct devlink *devlink, struct net *dest_net,
+-	if (!ret)
+-		vctrl->enabled = true;
++	vctrl->enabled = true;
  
- 	memcpy(remote_reload_stats, devlink->stats.remote_reload_stats,
- 	       sizeof(remote_reload_stats));
+-	return ret;
++	return 0;
+ }
+ 
+ static int vctrl_disable(struct regulator_dev *rdev)
+ {
+ 	struct vctrl_data *vctrl = rdev_get_drvdata(rdev);
+-	int ret = regulator_disable(vctrl->ctrl_reg);
+ 
+-	if (!ret)
+-		vctrl->enabled = false;
++	vctrl->enabled = false;
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int vctrl_is_enabled(struct regulator_dev *rdev)
+@@ -447,6 +450,7 @@ static int vctrl_probe(struct platform_device *pdev)
+ 	struct regulator_desc *rdesc;
+ 	struct regulator_config cfg = { };
+ 	struct vctrl_voltage_range *vrange_ctrl;
++	struct regulator *ctrl_reg;
+ 	int ctrl_uV;
+ 	int ret;
+ 
+@@ -461,15 +465,20 @@ static int vctrl_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
++	ctrl_reg = devm_regulator_get(&pdev->dev, "ctrl");
++	if (IS_ERR(ctrl_reg))
++		return PTR_ERR(ctrl_reg);
 +
-+	curr_net = devlink_net(devlink);
-+	devlink_ns_change_notify(devlink, dest_net, curr_net, false);
- 	err = devlink->ops->reload_down(devlink, !!dest_net, action, limit, extack);
- 	if (err)
- 		return err;
+ 	vrange_ctrl = &vctrl->vrange.ctrl;
  
--	if (dest_net && !net_eq(dest_net, devlink_net(devlink)))
--		devlink_reload_netns_change(devlink, dest_net);
-+	if (dest_net && !net_eq(dest_net, curr_net))
-+		__devlink_net_set(devlink, dest_net);
+ 	rdesc = &vctrl->desc;
+ 	rdesc->name = "vctrl";
+ 	rdesc->type = REGULATOR_VOLTAGE;
+ 	rdesc->owner = THIS_MODULE;
++	rdesc->supply_name = "ctrl";
  
- 	err = devlink->ops->reload_up(devlink, action, limit, actions_performed, extack);
- 	devlink_reload_failed_set(devlink, !!err);
- 	if (err)
- 		return err;
+-	if ((regulator_get_linear_step(vctrl->ctrl_reg) == 1) ||
+-	    (regulator_count_voltages(vctrl->ctrl_reg) == -EINVAL)) {
++	if ((regulator_get_linear_step(ctrl_reg) == 1) ||
++	    (regulator_count_voltages(ctrl_reg) == -EINVAL)) {
+ 		rdesc->continuous_voltage_range = true;
+ 		rdesc->ops = &vctrl_ops_cont;
+ 	} else {
+@@ -486,12 +495,12 @@ static int vctrl_probe(struct platform_device *pdev)
+ 	cfg.init_data = init_data;
  
-+	devlink_ns_change_notify(devlink, dest_net, curr_net, true);
- 	WARN_ON(!(*actions_performed & BIT(action)));
- 	/* Catch driver on updating the remote action within devlink reload */
- 	WARN_ON(memcmp(remote_reload_stats, devlink->stats.remote_reload_stats,
+ 	if (!rdesc->continuous_voltage_range) {
+-		ret = vctrl_init_vtable(pdev);
++		ret = vctrl_init_vtable(pdev, ctrl_reg);
+ 		if (ret)
+ 			return ret;
+ 
+ 		/* Use locked consumer API when not in regulator framework */
+-		ctrl_uV = regulator_get_voltage(vctrl->ctrl_reg);
++		ctrl_uV = regulator_get_voltage(ctrl_reg);
+ 		if (ctrl_uV < 0) {
+ 			dev_err(&pdev->dev, "failed to get control voltage\n");
+ 			return ctrl_uV;
+@@ -514,6 +523,9 @@ static int vctrl_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
++	/* Drop ctrl-supply here in favor of regulator core managed supply */
++	devm_regulator_put(ctrl_reg);
++
+ 	vctrl->rdev = devm_regulator_register(&pdev->dev, rdesc, &cfg);
+ 	if (IS_ERR(vctrl->rdev)) {
+ 		ret = PTR_ERR(vctrl->rdev);
 -- 
 2.30.2
 
