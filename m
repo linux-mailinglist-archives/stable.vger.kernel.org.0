@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F894094A0
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D6784091D7
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:04:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346449AbhIMOcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:32:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51898 "EHLO mail.kernel.org"
+        id S244860AbhIMOFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:05:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241738AbhIMOap (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:30:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD01A6137A;
-        Mon, 13 Sep 2021 13:51:29 +0000 (UTC)
+        id S1343858AbhIMODr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:03:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A755461213;
+        Mon, 13 Sep 2021 13:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541090;
-        bh=AUAOhTPFuebkOjhrDueU01s6CvNvMJpixVeNc8usw/c=;
+        s=korg; t=1631540337;
+        bh=4lNStKHAZ5/2npc1m5PB5MYuuO/RRRqAN+uYexo6khE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6TtTWLWWneWQ7ro/hlc7+L9/bIwfGOd88KJuXZ5k1aNyYifuRfUL41dZZbii+Zvt
-         yMb8agIh1MzdMMt7gz7vRDnBh0RQ8zscefu+lxcqGWka7sGyqmB4txLbC07rc/nGDW
-         kHBLvp4a2QZ/u2JcUYG7VYVb3Gku+Rygy6ERbtcg=
+        b=TvDzcIuY9IfQUYckKgIv0Q6ZWIf2vuzeeHIhnbXPts13XW1NY8Bc8RdCc6fhIMAPj
+         JpQv2hF5Z2Az/aPIPbA1/TBfE427OhDnqExMUeQE1YTC2D4VFAPk1iW558qnrjFHTs
+         MF3rdtse3ZKCNkWcPXkUu3EgmwT3QW4dGMTnDn/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 158/334] leds: trigger: audio: Add an activate callback to ensure the initial brightness is set
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Utkarsh H Patel <utkarsh.h.patel@intel.com>,
+        Koba Ko <koba.ko@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 151/300] PCI: PM: Avoid forcing PCI_D0 for wakeup reasons inconsistently
 Date:   Mon, 13 Sep 2021 15:13:32 +0200
-Message-Id: <20210913131118.697633763@linuxfoundation.org>
+Message-Id: <20210913131114.500214240@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,122 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 64f67b5240db79eceb0bd57dae8e591fd3103ba0 ]
+[ Upstream commit da9f2150684ea684a7ddd6d7f0e38b2bdf43dcd8 ]
 
-Some 2-in-1s with a detachable (USB) keyboard(dock) have mute-LEDs in
-the speaker- and/or mic-mute keys on the keyboard.
+It is inconsistent to return PCI_D0 from pci_target_state() instead
+of the original target state if 'wakeup' is true and the device
+cannot signal PME from D0.
 
-Examples of this are the Lenovo Thinkpad10 tablet (with its USB kbd-dock)
-and the HP x2 10 series.
+This only happens when the device cannot signal PME from the original
+target state and any shallower power states (including D0) and that
+case is effectively equivalent to the one in which PME singaling is
+not supported at all.  Since the original target state is returned in
+the latter case, make the function do that in the former one too.
 
-The detachable nature of these keyboards means that the keyboard and
-thus the mute LEDs may show up after the user (or userspace restoring
-old mixer settings) has muted the speaker and/or mic.
-
-Current LED-class devices with a default_trigger of "audio-mute" or
-"audio-micmute" initialize the brightness member of led_classdev with
-ledtrig_audio_get() before registering the LED.
-
-This makes the software state after attaching the keyboard match the
-actual audio mute state, e.g. cat /sys/class/leds/foo/brightness will
-show the right value.
-
-But before this commit nothing was actually calling the led_classdev's
-brightness_set[_blocking] callback so the value returned by
-ledtrig_audio_get() was never actually being sent to the hw, leading
-to the mute LEDs staying in their default power-on state, after
-attaching the keyboard, even if ledtrig_audio_get() returned a different
-state.
-
-This could be fixed by having the individual LED drivers call
-brightness_set[_blocking] themselves after registering the LED,
-but this really is something which should be done by a led-trigger
-activate callback.
-
-Add an activate callback for this, fixing the issue of the
-mute LEDs being out of sync after (re)attaching the keyboard.
-
-Cc: Takashi Iwai <tiwai@suse.de>
-Fixes: faa2541f5b1a ("leds: trigger: Introduce audio mute LED trigger")
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Link: https://lore.kernel.org/linux-pm/3149540.aeNJFYEL58@kreacher/
+Fixes: 666ff6f83e1d ("PCI/PM: Avoid using device_may_wakeup() for runtime PM")
+Reported-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reported-by: Utkarsh H Patel <utkarsh.h.patel@intel.com>
+Reported-by: Koba Ko <koba.ko@canonical.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/trigger/ledtrig-audio.c | 37 ++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 8 deletions(-)
+ drivers/pci/pci.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/leds/trigger/ledtrig-audio.c b/drivers/leds/trigger/ledtrig-audio.c
-index f76621e88482..c6b437e6369b 100644
---- a/drivers/leds/trigger/ledtrig-audio.c
-+++ b/drivers/leds/trigger/ledtrig-audio.c
-@@ -6,10 +6,33 @@
- #include <linux/kernel.h>
- #include <linux/leds.h>
- #include <linux/module.h>
-+#include "../leds.h"
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 8d4ebe095d0c..75cab0142373 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -2599,16 +2599,20 @@ static pci_power_t pci_target_state(struct pci_dev *dev, bool wakeup)
+ 	if (dev->current_state == PCI_D3cold)
+ 		target_state = PCI_D3cold;
  
--static struct led_trigger *ledtrig_audio[NUM_AUDIO_LEDS];
- static enum led_brightness audio_state[NUM_AUDIO_LEDS];
- 
-+static int ledtrig_audio_mute_activate(struct led_classdev *led_cdev)
-+{
-+	led_set_brightness_nosleep(led_cdev, audio_state[LED_AUDIO_MUTE]);
-+	return 0;
-+}
+-	if (wakeup) {
++	if (wakeup && dev->pme_support) {
++		pci_power_t state = target_state;
 +
-+static int ledtrig_audio_micmute_activate(struct led_classdev *led_cdev)
-+{
-+	led_set_brightness_nosleep(led_cdev, audio_state[LED_AUDIO_MICMUTE]);
-+	return 0;
-+}
+ 		/*
+ 		 * Find the deepest state from which the device can generate
+ 		 * PME#.
+ 		 */
+-		if (dev->pme_support) {
+-			while (target_state
+-			      && !(dev->pme_support & (1 << target_state)))
+-				target_state--;
+-		}
++		while (state && !(dev->pme_support & (1 << state)))
++			state--;
 +
-+static struct led_trigger ledtrig_audio[NUM_AUDIO_LEDS] = {
-+	[LED_AUDIO_MUTE] = {
-+		.name     = "audio-mute",
-+		.activate = ledtrig_audio_mute_activate,
-+	},
-+	[LED_AUDIO_MICMUTE] = {
-+		.name     = "audio-micmute",
-+		.activate = ledtrig_audio_micmute_activate,
-+	},
-+};
-+
- enum led_brightness ledtrig_audio_get(enum led_audio type)
- {
- 	return audio_state[type];
-@@ -19,24 +42,22 @@ EXPORT_SYMBOL_GPL(ledtrig_audio_get);
- void ledtrig_audio_set(enum led_audio type, enum led_brightness state)
- {
- 	audio_state[type] = state;
--	led_trigger_event(ledtrig_audio[type], state);
-+	led_trigger_event(&ledtrig_audio[type], state);
- }
- EXPORT_SYMBOL_GPL(ledtrig_audio_set);
++		if (state)
++			return state;
++		else if (dev->pme_support & 1)
++			return PCI_D0;
+ 	}
  
- static int __init ledtrig_audio_init(void)
- {
--	led_trigger_register_simple("audio-mute",
--				    &ledtrig_audio[LED_AUDIO_MUTE]);
--	led_trigger_register_simple("audio-micmute",
--				    &ledtrig_audio[LED_AUDIO_MICMUTE]);
-+	led_trigger_register(&ledtrig_audio[LED_AUDIO_MUTE]);
-+	led_trigger_register(&ledtrig_audio[LED_AUDIO_MICMUTE]);
- 	return 0;
- }
- module_init(ledtrig_audio_init);
- 
- static void __exit ledtrig_audio_exit(void)
- {
--	led_trigger_unregister_simple(ledtrig_audio[LED_AUDIO_MUTE]);
--	led_trigger_unregister_simple(ledtrig_audio[LED_AUDIO_MICMUTE]);
-+	led_trigger_unregister(&ledtrig_audio[LED_AUDIO_MUTE]);
-+	led_trigger_unregister(&ledtrig_audio[LED_AUDIO_MICMUTE]);
- }
- module_exit(ledtrig_audio_exit);
- 
+ 	return target_state;
 -- 
 2.30.2
 
