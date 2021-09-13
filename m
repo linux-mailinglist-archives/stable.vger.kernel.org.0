@@ -2,85 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5996C4097FC
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 17:56:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD9D740985E
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 18:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245324AbhIMP5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 11:57:38 -0400
-Received: from 8bytes.org ([81.169.241.247]:56836 "EHLO theia.8bytes.org"
+        id S1344286AbhIMQIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 12:08:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235050AbhIMP5g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 11:57:36 -0400
-Received: from cap.home.8bytes.org (p549ad441.dip0.t-ipconnect.de [84.154.212.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by theia.8bytes.org (Postfix) with ESMTPSA id 733CA364;
-        Mon, 13 Sep 2021 17:56:17 +0200 (CEST)
-From:   Joerg Roedel <joro@8bytes.org>
-To:     x86@kernel.org
-Cc:     Eric Biederman <ebiederm@xmission.com>, kexec@lists.infradead.org,
-        Joerg Roedel <jroedel@suse.de>, stable@vger.kernel.org,
-        hpa@zytor.com, Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jiri Slaby <jslaby@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Juergen Gross <jgross@suse.com>,
-        Kees Cook <keescook@chromium.org>,
-        David Rientjes <rientjes@google.com>,
-        Cfir Cohen <cfir@google.com>,
-        Erdem Aktas <erdemaktas@google.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mike Stunes <mstunes@vmware.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Martin Radev <martin.b.radev@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Joerg Roedel <joro@8bytes.org>, linux-coco@lists.linux.dev,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH v2 02/12] x86/kexec/64: Forbid kexec when running as an SEV-ES guest
-Date:   Mon, 13 Sep 2021 17:55:53 +0200
-Message-Id: <20210913155603.28383-3-joro@8bytes.org>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913155603.28383-1-joro@8bytes.org>
-References: <20210913155603.28383-1-joro@8bytes.org>
+        id S245040AbhIMQIU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 12:08:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1495604D1;
+        Mon, 13 Sep 2021 16:07:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631549224;
+        bh=qFke4Azamer/B+x9MjnkDwCycu3qLc4uyptmNdSF3dE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ZrETo6Iz9fBfc1gCcxp51ohLFcBY2Q9VlsmUYDUljy52EOZE3f0pL5XPrBULfT75D
+         +bZh/EKS6Yx1CCuPqRmK6bDAgJbOShfsxjq8RhEnrvsprO48wSy76ZYHudvpPo0g1u
+         cw4FwJQmNZG95/ptssTlp2fbrsnwFrld1tsAkWAU=
+Date:   Mon, 13 Sep 2021 18:07:02 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>
+Subject: Re: 5.10 stable backports
+Message-ID: <YT93JrYfMDrzGXpB@kroah.com>
+References: <81a1f0ea-d875-8cce-6ac1-3307a656bb92@kernel.dk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <81a1f0ea-d875-8cce-6ac1-3307a656bb92@kernel.dk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+On Mon, Sep 13, 2021 at 09:49:05AM -0600, Jens Axboe wrote:
+> Hi Greg,
+> 
+> Looked over the 5.10/13/14 stable failures, and here's the queue for
+> 5.10. I'll be sending 5.13 and 5.14 after this.
 
-For now, kexec is not supported when running as an SEV-ES guest. Doing
-so requires additional hypervisor support and special code to hand
-over the CPUs to the new kernel in a safe way.
+Thanks for all of these, I'll queue them up later this week after this
+next round of stable releases are out.
 
-Until this is implemented, do not support kexec in SEV-ES guests.
-
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- arch/x86/kernel/machine_kexec_64.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
-index 131f30fdcfbd..a8e16a411b40 100644
---- a/arch/x86/kernel/machine_kexec_64.c
-+++ b/arch/x86/kernel/machine_kexec_64.c
-@@ -591,3 +591,11 @@ void arch_kexec_pre_free_pages(void *vaddr, unsigned int pages)
- 	 */
- 	set_memory_encrypted((unsigned long)vaddr, pages);
- }
-+
-+/*
-+ * Kexec is not supported in SEV-ES guests yet
-+ */
-+bool arch_kexec_supported(void)
-+{
-+	return !sev_es_active();
-+}
--- 
-2.33.0
-
+greg k-h
