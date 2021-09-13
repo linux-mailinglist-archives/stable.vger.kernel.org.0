@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C63F6408D23
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6715408EFF
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:39:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240194AbhIMNXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:23:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
+        id S240113AbhIMNip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:38:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240223AbhIMNUD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:20:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D79C6113E;
-        Mon, 13 Sep 2021 13:18:12 +0000 (UTC)
+        id S242391AbhIMNgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:36:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B518613AB;
+        Mon, 13 Sep 2021 13:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539093;
-        bh=Mw3hIYQzh0QVHvYsLwLfms21TRhmklsfso0cJCrNguU=;
+        s=korg; t=1631539671;
+        bh=DncR3jmiGhFTrbVDB5+N3uR1rgjhud+qBu1f4jxdqaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OBN+lD+glUXjTrilHNdLgdj5TEJIdqEi6d9JsUAuFShOVrjKEZsSeGTYnr4C1z0wX
-         ejZf97EF49aHDColQBAyZt/g81a+QjZSSKRvpUzhxOgVdBD2ZDAMtjC+wEaT2hEZXY
-         vCO2eHkV01HxNPSWdicRLbnKQWzpElI7MlIDyus8=
+        b=YI83SMcaE9m4wZC93+r2Sge3hXSgCjfsX+lVFSu6jI09eliM23uRLDLTQjTXQGfkk
+         jHHVo/OXvyoCii9gqW11gVH5kVIyTM+iBo2w+AqpAbHj5Sh7fUxHS62oyPZH9C88MZ
+         44KuCsR1FdeXEFUKHJi0Z1LM25F7GaecfAymmHdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Fiona Trahe <fiona.trahe@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Tedd Ho-Jeong An <tedd.an@intel.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 039/144] crypto: qat - use proper type for vf_mask
+Subject: [PATCH 5.10 115/236] Bluetooth: mgmt: Fix wrong opcode in the response for add_adv cmd
 Date:   Mon, 13 Sep 2021 15:13:40 +0200
-Message-Id: <20210913131049.255972256@linuxfoundation.org>
+Message-Id: <20210913131104.263649144@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,70 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Tedd Ho-Jeong An <tedd.an@intel.com>
 
-[ Upstream commit 462354d986b6a89c6449b85f17aaacf44e455216 ]
+[ Upstream commit a25fca4d3c18766b6f7a3c95fa8faec23ef464c5 ]
 
-Replace vf_mask type with unsigned long to avoid a stack-out-of-bound.
+This patch fixes the MGMT add_advertising command repsones with the
+wrong opcode when it is trying to return the not supported error.
 
-This is to fix the following warning reported by KASAN the first time
-adf_msix_isr_ae() gets called.
-
-    [  692.091987] BUG: KASAN: stack-out-of-bounds in find_first_bit+0x28/0x50
-    [  692.092017] Read of size 8 at addr ffff88afdf789e60 by task swapper/32/0
-    [  692.092076] Call Trace:
-    [  692.092089]  <IRQ>
-    [  692.092101]  dump_stack+0x9c/0xcf
-    [  692.092132]  print_address_description.constprop.0+0x18/0x130
-    [  692.092164]  ? find_first_bit+0x28/0x50
-    [  692.092185]  kasan_report.cold+0x7f/0x111
-    [  692.092213]  ? static_obj+0x10/0x80
-    [  692.092234]  ? find_first_bit+0x28/0x50
-    [  692.092262]  find_first_bit+0x28/0x50
-    [  692.092288]  adf_msix_isr_ae+0x16e/0x230 [intel_qat]
-
-Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: cbbdfa6f33198 ("Bluetooth: Enable controller RPA resolution using Experimental feature")
+Signed-off-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_isr.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/bluetooth/mgmt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
-index 4898ef41fd9f..7d319c5c071c 100644
---- a/drivers/crypto/qat/qat_common/adf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_isr.c
-@@ -59,6 +59,8 @@
- #include "adf_transport_access_macros.h"
- #include "adf_transport_internal.h"
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index 31a585fe0c7c..08f67f91d427 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -7464,7 +7464,7 @@ static int add_advertising(struct sock *sk, struct hci_dev *hdev,
+ 	 * advertising.
+ 	 */
+ 	if (hci_dev_test_flag(hdev, HCI_ENABLE_LL_PRIVACY))
+-		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_SET_ADVERTISING,
++		return mgmt_cmd_status(sk, hdev->id, MGMT_OP_ADD_ADVERTISING,
+ 				       MGMT_STATUS_NOT_SUPPORTED);
  
-+#define ADF_MAX_NUM_VFS	32
-+
- static int adf_enable_msix(struct adf_accel_dev *accel_dev)
- {
- 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
-@@ -111,7 +113,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 		struct adf_bar *pmisc =
- 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
- 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
--		u32 vf_mask;
-+		unsigned long vf_mask;
- 
- 		/* Get the interrupt sources triggered by VFs */
- 		vf_mask = ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU5) &
-@@ -132,8 +134,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
- 			 * unless the VF is malicious and is attempting to
- 			 * flood the host OS with VF2PF interrupts.
- 			 */
--			for_each_set_bit(i, (const unsigned long *)&vf_mask,
--					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
-+			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
- 				vf_info = accel_dev->pf.vf_info + i;
- 
- 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
+ 	if (cp->instance < 1 || cp->instance > hdev->le_num_of_adv_sets)
 -- 
 2.30.2
 
