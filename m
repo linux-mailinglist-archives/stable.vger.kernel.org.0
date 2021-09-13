@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75867408D80
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:25:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E5D408DCA
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241091AbhIMN0g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:26:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37956 "EHLO mail.kernel.org"
+        id S242821AbhIMNaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:30:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241077AbhIMNYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:24:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0F35610F7;
-        Mon, 13 Sep 2021 13:22:03 +0000 (UTC)
+        id S242189AbhIMN1x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:27:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80C4161264;
+        Mon, 13 Sep 2021 13:23:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539324;
-        bh=4GirnvqiFW1de6RlU3zHHWkUkP41eUj0U7fzJXGu/a8=;
+        s=korg; t=1631539393;
+        bh=dg2QN3AWCIWmVz2nrFCFnJUi6tR7PcdlkYoww0kPG3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fZ0u3e4S9Xnqk4qz9tu0ZqswNTc6M5mlyWtAakRkiDw6zCqfmXu1QpDqwhpXSYD6o
-         neHccKN92Gza5N7nss4/rZEFJOLK79sEx7lyzhC6zmUwCcZNmWl9ShrFQMUQK46yGa
-         UWR0joExND00jyRVKeF8v7/Xu9iYZOve9iUek1Bk=
+        b=iJfwZNaOroKU+LfPUWD4gaaq74tcQZrcS9iDdZa7Y/91Yw01VITCbPNPAmxNlBIQU
+         X+IMhzLooyAbh0XdN4u4VLpj+FAwgmytH6hiG470K2DZ4S6Go9k+Rq/yeYgaTu7O7u
+         Rc3SLllx/1k4U7faWFMOxWF/zppUFeluBwZsEc14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 125/144] octeontx2-af: Fix loop in free and unmap counter
-Date:   Mon, 13 Sep 2021 15:15:06 +0200
-Message-Id: <20210913131052.111182092@linuxfoundation.org>
+Subject: [PATCH 5.4 126/144] ipv4: fix endianness issue in inet_rtm_getroute_build_skb()
+Date:   Mon, 13 Sep 2021 15:15:07 +0200
+Message-Id: <20210913131052.141914548@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
 References: <20210913131047.974309396@linuxfoundation.org>
@@ -41,40 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 6537e96d743b89294b397b4865c6c061abae31b0 ]
+[ Upstream commit 92548b0ee220e000d81c27ac9a80e0ede895a881 ]
 
-When the given counter does not belong to the entry
-then code ends up in infinite loop because the loop
-cursor, entry is not getting updated further. This
-patch fixes that by updating entry for every iteration.
+The UDP length field should be in network order.
+This removes the following sparse error:
 
-Fixes: a958dd59f9ce ("octeontx2-af: Map or unmap NPC MCAM entry and counter")
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+net/ipv4/route.c:3173:27: warning: incorrect type in assignment (different base types)
+net/ipv4/route.c:3173:27:    expected restricted __be16 [usertype] len
+net/ipv4/route.c:3173:27:    got unsigned long
+
+Fixes: 404eb77ea766 ("ipv4: support sport, dport and ip_proto in RTM_GETROUTE")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Roopa Prabhu <roopa@nvidia.com>
+Cc: David Ahern <dsahern@kernel.org>
+Reviewed-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/route.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-index d82a519a0cd9..f9f246c82c97 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-@@ -2013,10 +2013,11 @@ int rvu_mbox_handler_npc_mcam_unmap_counter(struct rvu *rvu,
- 		index = find_next_bit(mcam->bmap, mcam->bmap_entries, entry);
- 		if (index >= mcam->bmap_entries)
- 			break;
-+		entry = index + 1;
-+
- 		if (mcam->entry2cntr_map[index] != req->cntr)
- 			continue;
- 
--		entry = index + 1;
- 		npc_unmap_mcam_entry_and_cntr(rvu, mcam, blkaddr,
- 					      index, req->cntr);
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 03f35764a40e..539492998864 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -3004,7 +3004,7 @@ static struct sk_buff *inet_rtm_getroute_build_skb(__be32 src, __be32 dst,
+ 		udph = skb_put_zero(skb, sizeof(struct udphdr));
+ 		udph->source = sport;
+ 		udph->dest = dport;
+-		udph->len = sizeof(struct udphdr);
++		udph->len = htons(sizeof(struct udphdr));
+ 		udph->check = 0;
+ 		break;
  	}
 -- 
 2.30.2
