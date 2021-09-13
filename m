@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 259BE408EC2
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD8D6409175
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:00:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242557AbhIMNgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:36:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58462 "EHLO mail.kernel.org"
+        id S245330AbhIMOBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:01:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242977AbhIMNeh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:34:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03C7B6113E;
-        Mon, 13 Sep 2021 13:26:51 +0000 (UTC)
+        id S1343494AbhIMN7a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:59:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CDB2613A3;
+        Mon, 13 Sep 2021 13:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539612;
-        bh=6WR/PA9doHS9lRfGDEn/9vjBBD+HOGYCtRs8PzhaRh8=;
+        s=korg; t=1631540232;
+        bh=4eJwU9lTZ0i1A1AH5qtGZtYCVZnoLLhW5OWxtOFLISU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yyWzJ5omfayvkqYW5LqlM5O6mgcaJgn2CZlWh/Wm41YkHOCMwu/gzdqh4IcxEX+yM
-         6icnQNvW+pCRFz8xHZtjHCxCNwfVkmFZHf5mhdfKWlcOx4dS5Sf/FG6PuCamswQ76a
-         TXkfrRbOnQKcuZLKBEG6pgaq8PTt5cylGk9DcdGE=
+        b=A7YolF6oZJUBKSqfvhseFgZzAGb/ACA60Q83UgoRjFZLSwlBUUJWoJlE1mwLrTJ7Q
+         KKNNnlR0KGUda8DwvwhVBNBmDX6yGt3HUIdt38TcyfTqNCfMtp1btyXgE/Twy8p6Lf
+         cajOA/DcsITiNT6/6KVbe1UNjSpXTDfRvpKkIaNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wenst@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/236] regulator: vctrl: Use locked regulator_get_voltage in probe path
+Subject: [PATCH 5.13 108/300] media: dvb-usb: fix uninit-value in vp702x_read_mac_addr
 Date:   Mon, 13 Sep 2021 15:12:49 +0200
-Message-Id: <20210913131102.541106084@linuxfoundation.org>
+Message-Id: <20210913131113.032172704@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wenst@chromium.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 98e47570ba985f2310586c80409238200fa3170f ]
+[ Upstream commit 797c061ad715a9a1480eb73f44b6939fbe3209ed ]
 
-In commit e9153311491d ("regulator: vctrl-regulator: Avoid deadlock getting
-and setting the voltage"), all calls to get/set the voltage of the
-control regulator were switched to unlocked versions to avoid deadlocks.
-However, the call in the probe path is done without regulator locks
-held. In this case the locked version should be used.
+If vp702x_usb_in_op fails, the mac address is not initialized.
+And vp702x_read_mac_addr does not handle this failure, which leads to
+the uninit-value in dvb_usb_adapter_dvb_init.
 
-Switch back to the locked regulator_get_voltage() in the probe path to
-avoid any mishaps.
+Fix this by handling the failure of vp702x_usb_in_op.
 
-Fixes: e9153311491d ("regulator: vctrl-regulator: Avoid deadlock getting and setting the voltage")
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-Link: https://lore.kernel.org/r/20210825033704.3307263-2-wenst@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 786baecfe78f ("[media] dvb-usb: move it to drivers/media/usb/dvb-usb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/vctrl-regulator.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/vp702x.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/regulator/vctrl-regulator.c b/drivers/regulator/vctrl-regulator.c
-index cbadb1c99679..93d33201ffe0 100644
---- a/drivers/regulator/vctrl-regulator.c
-+++ b/drivers/regulator/vctrl-regulator.c
-@@ -490,7 +490,8 @@ static int vctrl_probe(struct platform_device *pdev)
- 		if (ret)
- 			return ret;
+diff --git a/drivers/media/usb/dvb-usb/vp702x.c b/drivers/media/usb/dvb-usb/vp702x.c
+index bf54747e2e01..a1d9e4801a2b 100644
+--- a/drivers/media/usb/dvb-usb/vp702x.c
++++ b/drivers/media/usb/dvb-usb/vp702x.c
+@@ -291,16 +291,22 @@ static int vp702x_rc_query(struct dvb_usb_device *d, u32 *event, int *state)
+ static int vp702x_read_mac_addr(struct dvb_usb_device *d,u8 mac[6])
+ {
+ 	u8 i, *buf;
++	int ret;
+ 	struct vp702x_device_state *st = d->priv;
  
--		ctrl_uV = regulator_get_voltage_rdev(vctrl->ctrl_reg->rdev);
-+		/* Use locked consumer API when not in regulator framework */
-+		ctrl_uV = regulator_get_voltage(vctrl->ctrl_reg);
- 		if (ctrl_uV < 0) {
- 			dev_err(&pdev->dev, "failed to get control voltage\n");
- 			return ctrl_uV;
+ 	mutex_lock(&st->buf_mutex);
+ 	buf = st->buf;
+-	for (i = 6; i < 12; i++)
+-		vp702x_usb_in_op(d, READ_EEPROM_REQ, i, 1, &buf[i - 6], 1);
++	for (i = 6; i < 12; i++) {
++		ret = vp702x_usb_in_op(d, READ_EEPROM_REQ, i, 1,
++				       &buf[i - 6], 1);
++		if (ret < 0)
++			goto err;
++	}
+ 
+ 	memcpy(mac, buf, 6);
++err:
+ 	mutex_unlock(&st->buf_mutex);
+-	return 0;
++	return ret;
+ }
+ 
+ static int vp702x_frontend_attach(struct dvb_usb_adapter *adap)
 -- 
 2.30.2
 
