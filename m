@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58C074090CF
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E438A4090D7
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244503AbhIMNzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
+        id S242779AbhIMNz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:55:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245024AbhIMNxj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244726AbhIMNxj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:53:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27183619E3;
-        Mon, 13 Sep 2021 13:35:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 596C161107;
+        Mon, 13 Sep 2021 13:35:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540101;
-        bh=6AkgcefdX8RMUOHmbdDoRVQalXnWARQVGajw38GXG2s=;
+        s=korg; t=1631540103;
+        bh=zIUtON/Uqq4kJRp4uO9Wg8c/S2FX7ZCkao2ZJwC0mG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ae6B4Ls/7F8RlNwwX0jX4nZILGq3coQnawOu3SMGVMKtDzPCEaH2Px+YhxdHPQaE4
-         Y/89zWRj0xBH+EQ4qgLFFTqCOhnvmyM5/FhiyD/QIfoxqwkDrdOA2z7vmg3xErlLMT
-         a5GLrOiDBWzjFRm8Jn0Cwn5VLKF9PFrMbymIdgpM=
+        b=qzOlRFvxLojK6p4u9RzaEvblwli8Y/op+i5ZSE75lqmgBkP1fEYEdRCZzhssbSUVX
+         onQ8sBDn0qGJxN3JssG0yOOostcmOb5wB3KhUPxAS1R+Ju1t6Amavs7dEM4SfJ4Nem
+         a2whKzfw967xQmpOdtKxo8tu6QXyq6p39+MeaPNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Hansen <dave.hansen@intel.com>,
-        syzbot <syzbot+5d1bad8042a8f0e8117a@syzkaller.appspotmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org,
+        Guillaume Gardet <guillaume.gardet@arm.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Mian Yousaf Kaukab <ykaukab@suse.de>,
+        Stefan Berger <stefanb@linux.ibm.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 050/300] crypto: x86/aes-ni - add missing error checks in XTS code
-Date:   Mon, 13 Sep 2021 15:11:51 +0200
-Message-Id: <20210913131111.040600544@linuxfoundation.org>
+Subject: [PATCH 5.13 051/300] crypto: ecc - handle unaligned input buffer in ecc_swap_digits
+Date:   Mon, 13 Sep 2021 15:11:52 +0200
+Message-Id: <20210913131111.079957249@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -43,51 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Mian Yousaf Kaukab <ykaukab@suse.de>
 
-[ Upstream commit 821720b9f34ec54106ebf012a712ba73bbcf47c2 ]
+[ Upstream commit 0469dede0eeeefe12a9a2fd76078f4a266513457 ]
 
-The updated XTS code fails to check the return code of skcipher_walk_virt,
-which may lead to skcipher_walk_abort() or skcipher_walk_done() being called
-while the walk argument is in an inconsistent state.
+ecdsa_set_pub_key() makes an u64 pointer at 1 byte offset of the key.
+This results in an unaligned u64 pointer. This pointer is passed to
+ecc_swap_digits() which assumes natural alignment.
 
-So check the return value after each such call, and bail on errors.
+This causes a kernel crash on an armv7 platform:
+[    0.409022] Unhandled fault: alignment exception (0x001) at 0xc2a0a6a9
+...
+[    0.416982] PC is at ecdsa_set_pub_key+0xdc/0x120
+...
+[    0.491492] Backtrace:
+[    0.492059] [<c07c266c>] (ecdsa_set_pub_key) from [<c07c75d4>] (test_akcipher_one+0xf4/0x6c0)
 
-Fixes: 2481104fe98d ("crypto: x86/aes-ni-xts - rewrite and drop indirections via glue helper")
-Reported-by: Dave Hansen <dave.hansen@intel.com>
-Reported-by: syzbot <syzbot+5d1bad8042a8f0e8117a@syzkaller.appspotmail.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Handle unaligned input buffer in ecc_swap_digits() by replacing
+be64_to_cpu() to get_unaligned_be64(). Change type of in pointer to
+void to reflect it doesn’t necessarily need to be aligned.
+
+Fixes: 4e6602916bc6 ("crypto: ecdsa - Add support for ECDSA signature verification")
+Reported-by: Guillaume Gardet <guillaume.gardet@arm.com>
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+Tested-by: Stefan Berger <stefanb@linux.ibm.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/crypto/aesni-intel_glue.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ crypto/ecc.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/crypto/aesni-intel_glue.c b/arch/x86/crypto/aesni-intel_glue.c
-index 2144e54a6c89..388643ca2177 100644
---- a/arch/x86/crypto/aesni-intel_glue.c
-+++ b/arch/x86/crypto/aesni-intel_glue.c
-@@ -849,6 +849,8 @@ static int xts_crypt(struct skcipher_request *req, bool encrypt)
- 		return -EINVAL;
+diff --git a/crypto/ecc.h b/crypto/ecc.h
+index a006132646a4..1350e8eb6ac2 100644
+--- a/crypto/ecc.h
++++ b/crypto/ecc.h
+@@ -27,6 +27,7 @@
+ #define _CRYPTO_ECC_H
  
- 	err = skcipher_walk_virt(&walk, req, false);
-+	if (err)
-+		return err;
+ #include <crypto/ecc_curve.h>
++#include <asm/unaligned.h>
  
- 	if (unlikely(tail > 0 && walk.nbytes < walk.total)) {
- 		int blocks = DIV_ROUND_UP(req->cryptlen, AES_BLOCK_SIZE) - 2;
-@@ -862,7 +864,10 @@ static int xts_crypt(struct skcipher_request *req, bool encrypt)
- 		skcipher_request_set_crypt(&subreq, req->src, req->dst,
- 					   blocks * AES_BLOCK_SIZE, req->iv);
- 		req = &subreq;
-+
- 		err = skcipher_walk_virt(&walk, req, false);
-+		if (err)
-+			return err;
- 	} else {
- 		tail = 0;
- 	}
+ /* One digit is u64 qword. */
+ #define ECC_CURVE_NIST_P192_DIGITS  3
+@@ -46,13 +47,13 @@
+  * @out:      Output array
+  * @ndigits:  Number of digits to copy
+  */
+-static inline void ecc_swap_digits(const u64 *in, u64 *out, unsigned int ndigits)
++static inline void ecc_swap_digits(const void *in, u64 *out, unsigned int ndigits)
+ {
+ 	const __be64 *src = (__force __be64 *)in;
+ 	int i;
+ 
+ 	for (i = 0; i < ndigits; i++)
+-		out[i] = be64_to_cpu(src[ndigits - 1 - i]);
++		out[i] = get_unaligned_be64(&src[ndigits - 1 - i]);
+ }
+ 
+ /**
 -- 
 2.30.2
 
