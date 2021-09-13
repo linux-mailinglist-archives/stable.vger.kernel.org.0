@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B3A34092F2
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F6634092F0
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345182AbhIMOQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:16:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37030 "EHLO mail.kernel.org"
+        id S1345171AbhIMOQe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:16:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238338AbhIMON4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:13:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DFED6140B;
-        Mon, 13 Sep 2021 13:43:09 +0000 (UTC)
+        id S1344063AbhIMONr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:13:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED31061409;
+        Mon, 13 Sep 2021 13:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540590;
-        bh=K8UzmISREFfaPRpIjjoPdTChuW/l0SXJVoZbLGyIwU0=;
+        s=korg; t=1631540592;
+        bh=bF/ve4sBxRDM5n+vpRj1UJwgWtF09dYEUpq9sD7a2W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=15qiuAm7LbAqZneE1yEKOs2mMMtjDQ6Bgi1qQBQphpojmB2j0LIaiyIbjfXcoEOTe
-         rmvAu6PkbUQzm2Q8MxvBW/c/flccxk0p21fxzMQF3dPFgUapwOGRCzRMxJZGHTTvU2
-         MSVJulFF9Vu7c6MYC83QE4A31fimP3RyWK2Ys0I0=
+        b=UTbhcbL7+HB52tUrNkAFPG1c23+ih0IcqzIrJz+Wme6Zib8cqEum9FdSCtpnMJAbr
+         CEcY26CMh62dLyXstyux4OO7qb6qSLN215+yLdUbgjDSXwhN8nZWrShl8eArbCCiPY
+         6yKgpaKQM/9duaF8mvh1T4n3VYmKMAzTB+wht4dg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Cong Wang <cong.wang@bytedance.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 255/300] sch_htb: Fix inconsistency when leaf qdisc creation fails
-Date:   Mon, 13 Sep 2021 15:15:16 +0200
-Message-Id: <20210913131117.961825884@linuxfoundation.org>
+Subject: [PATCH 5.13 256/300] net: sched: Fix qdisc_rate_table refcount leak when get tcf_block failed
+Date:   Mon, 13 Sep 2021 15:15:17 +0200
+Message-Id: <20210913131117.994622852@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -41,319 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit ca49bfd90a9dde175d2929dc1544b54841e33804 ]
+[ Upstream commit c66070125837900163b81a03063ddd657a7e9bfb ]
 
-In HTB offload mode, qdiscs of leaf classes are grafted to netdev
-queues. sch_htb expects the dev_queue field of these qdiscs to point to
-the corresponding queues. However, qdisc creation may fail, and in that
-case noop_qdisc is used instead. Its dev_queue doesn't point to the
-right queue, so sch_htb can lose track of used netdev queues, which will
-cause internal inconsistencies.
+The reference counting issue happens in one exception handling path of
+cbq_change_class(). When failing to get tcf_block, the function forgets
+to decrease the refcount of "rtab" increased by qdisc_put_rtab(),
+causing a refcount leak.
 
-This commit fixes this bug by keeping track of the netdev queue inside
-struct htb_class. All reads of cl->leaf.q->dev_queue are replaced by the
-new field, the two values are synced on writes, and WARNs are added to
-assert equality of the two values.
+Fix this issue by jumping to "failure" label when get tcf_block failed.
 
-The driver API has changed: when TC_HTB_LEAF_DEL needs to move a queue,
-the driver used to pass the old and new queue IDs to sch_htb. Now that
-there is a new field (offload_queue) in struct htb_class that needs to
-be updated on this operation, the driver will pass the old class ID to
-sch_htb instead (it already knows the new class ID).
-
-Fixes: d03b195b5aa0 ("sch_htb: Hierarchical QoS hardware offload")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/20210826115425.1744053-1-maximmi@nvidia.com
+Fixes: 6529eaba33f0 ("net: sched: introduce tcf block infractructure")
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/1630252681-71588-1-git-send-email-xiyuyang19@fudan.edu.cn
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/en/qos.c  | 15 ++-
- .../net/ethernet/mellanox/mlx5/core/en/qos.h  |  4 +-
- .../net/ethernet/mellanox/mlx5/core/en_main.c |  3 +-
- include/net/pkt_cls.h                         |  3 +-
- net/sched/sch_htb.c                           | 97 ++++++++++++-------
- 5 files changed, 72 insertions(+), 50 deletions(-)
+ net/sched/sch_cbq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c b/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c
-index 5efe3278b0f6..1fd8baf19829 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/qos.c
-@@ -733,8 +733,8 @@ static void mlx5e_reset_qdisc(struct net_device *dev, u16 qid)
- 	spin_unlock_bh(qdisc_lock(qdisc));
- }
- 
--int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 classid, u16 *old_qid,
--		       u16 *new_qid, struct netlink_ext_ack *extack)
-+int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 *classid,
-+		       struct netlink_ext_ack *extack)
- {
- 	struct mlx5e_qos_node *node;
- 	struct netdev_queue *txq;
-@@ -742,11 +742,9 @@ int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 classid, u16 *old_qid,
- 	bool opened;
- 	int err;
- 
--	qos_dbg(priv->mdev, "TC_HTB_LEAF_DEL classid %04x\n", classid);
--
--	*old_qid = *new_qid = 0;
-+	qos_dbg(priv->mdev, "TC_HTB_LEAF_DEL classid %04x\n", *classid);
- 
--	node = mlx5e_sw_node_find(priv, classid);
-+	node = mlx5e_sw_node_find(priv, *classid);
- 	if (!node)
- 		return -ENOENT;
- 
-@@ -764,7 +762,7 @@ int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 classid, u16 *old_qid,
- 	err = mlx5_qos_destroy_node(priv->mdev, node->hw_id);
- 	if (err) /* Not fatal. */
- 		qos_warn(priv->mdev, "Failed to destroy leaf node %u (class %04x), err = %d\n",
--			 node->hw_id, classid, err);
-+			 node->hw_id, *classid, err);
- 
- 	mlx5e_sw_node_delete(priv, node);
- 
-@@ -826,8 +824,7 @@ int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 classid, u16 *old_qid,
- 	if (opened)
- 		mlx5e_reactivate_qos_sq(priv, moved_qid, txq);
- 
--	*old_qid = mlx5e_qid_from_qos(&priv->channels, moved_qid);
--	*new_qid = mlx5e_qid_from_qos(&priv->channels, qid);
-+	*classid = node->classid;
- 	return 0;
- }
- 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/qos.h b/drivers/net/ethernet/mellanox/mlx5/core/en/qos.h
-index 5af7991fcd19..757682b7c0e0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/qos.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/qos.h
-@@ -34,8 +34,8 @@ int mlx5e_htb_leaf_alloc_queue(struct mlx5e_priv *priv, u16 classid,
- 			       struct netlink_ext_ack *extack);
- int mlx5e_htb_leaf_to_inner(struct mlx5e_priv *priv, u16 classid, u16 child_classid,
- 			    u64 rate, u64 ceil, struct netlink_ext_ack *extack);
--int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 classid, u16 *old_qid,
--		       u16 *new_qid, struct netlink_ext_ack *extack);
-+int mlx5e_htb_leaf_del(struct mlx5e_priv *priv, u16 *classid,
-+		       struct netlink_ext_ack *extack);
- int mlx5e_htb_leaf_del_last(struct mlx5e_priv *priv, u16 classid, bool force,
- 			    struct netlink_ext_ack *extack);
- int mlx5e_htb_node_modify(struct mlx5e_priv *priv, u16 classid, u64 rate, u64 ceil,
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index b0424c36cf7f..814ff51db1a5 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -3447,8 +3447,7 @@ static int mlx5e_setup_tc_htb(struct mlx5e_priv *priv, struct tc_htb_qopt_offloa
- 		return mlx5e_htb_leaf_to_inner(priv, htb->parent_classid, htb->classid,
- 					       htb->rate, htb->ceil, htb->extack);
- 	case TC_HTB_LEAF_DEL:
--		return mlx5e_htb_leaf_del(priv, htb->classid, &htb->moved_qid, &htb->qid,
--					  htb->extack);
-+		return mlx5e_htb_leaf_del(priv, &htb->classid, htb->extack);
- 	case TC_HTB_LEAF_DEL_LAST:
- 	case TC_HTB_LEAF_DEL_LAST_FORCE:
- 		return mlx5e_htb_leaf_del_last(priv, htb->classid,
-diff --git a/include/net/pkt_cls.h b/include/net/pkt_cls.h
-index ec7823921bd2..b420f905f4f6 100644
---- a/include/net/pkt_cls.h
-+++ b/include/net/pkt_cls.h
-@@ -820,10 +820,9 @@ enum tc_htb_command {
- struct tc_htb_qopt_offload {
- 	struct netlink_ext_ack *extack;
- 	enum tc_htb_command command;
--	u16 classid;
- 	u32 parent_classid;
-+	u16 classid;
- 	u16 qid;
--	u16 moved_qid;
- 	u64 rate;
- 	u64 ceil;
- };
-diff --git a/net/sched/sch_htb.c b/net/sched/sch_htb.c
-index 8827987ba903..11bc6bf35f84 100644
---- a/net/sched/sch_htb.c
-+++ b/net/sched/sch_htb.c
-@@ -125,6 +125,7 @@ struct htb_class {
- 		struct htb_class_leaf {
- 			int		deficit[TC_HTB_MAXDEPTH];
- 			struct Qdisc	*q;
-+			struct netdev_queue *offload_queue;
- 		} leaf;
- 		struct htb_class_inner {
- 			struct htb_prio clprio[TC_HTB_NUMPRIO];
-@@ -1376,24 +1377,47 @@ htb_graft_helper(struct netdev_queue *dev_queue, struct Qdisc *new_q)
- 	return old_q;
- }
- 
--static void htb_offload_move_qdisc(struct Qdisc *sch, u16 qid_old, u16 qid_new)
-+static struct netdev_queue *htb_offload_get_queue(struct htb_class *cl)
-+{
-+	struct netdev_queue *queue;
-+
-+	queue = cl->leaf.offload_queue;
-+	if (!(cl->leaf.q->flags & TCQ_F_BUILTIN))
-+		WARN_ON(cl->leaf.q->dev_queue != queue);
-+
-+	return queue;
-+}
-+
-+static void htb_offload_move_qdisc(struct Qdisc *sch, struct htb_class *cl_old,
-+				   struct htb_class *cl_new, bool destroying)
- {
- 	struct netdev_queue *queue_old, *queue_new;
- 	struct net_device *dev = qdisc_dev(sch);
--	struct Qdisc *qdisc;
- 
--	queue_old = netdev_get_tx_queue(dev, qid_old);
--	queue_new = netdev_get_tx_queue(dev, qid_new);
-+	queue_old = htb_offload_get_queue(cl_old);
-+	queue_new = htb_offload_get_queue(cl_new);
- 
--	if (dev->flags & IFF_UP)
--		dev_deactivate(dev);
--	qdisc = dev_graft_qdisc(queue_old, NULL);
--	qdisc->dev_queue = queue_new;
--	qdisc = dev_graft_qdisc(queue_new, qdisc);
--	if (dev->flags & IFF_UP)
--		dev_activate(dev);
-+	if (!destroying) {
-+		struct Qdisc *qdisc;
- 
--	WARN_ON(!(qdisc->flags & TCQ_F_BUILTIN));
-+		if (dev->flags & IFF_UP)
-+			dev_deactivate(dev);
-+		qdisc = dev_graft_qdisc(queue_old, NULL);
-+		WARN_ON(qdisc != cl_old->leaf.q);
-+	}
-+
-+	if (!(cl_old->leaf.q->flags & TCQ_F_BUILTIN))
-+		cl_old->leaf.q->dev_queue = queue_new;
-+	cl_old->leaf.offload_queue = queue_new;
-+
-+	if (!destroying) {
-+		struct Qdisc *qdisc;
-+
-+		qdisc = dev_graft_qdisc(queue_new, cl_old->leaf.q);
-+		if (dev->flags & IFF_UP)
-+			dev_activate(dev);
-+		WARN_ON(!(qdisc->flags & TCQ_F_BUILTIN));
-+	}
- }
- 
- static int htb_graft(struct Qdisc *sch, unsigned long arg, struct Qdisc *new,
-@@ -1407,10 +1431,8 @@ static int htb_graft(struct Qdisc *sch, unsigned long arg, struct Qdisc *new,
- 	if (cl->level)
- 		return -EINVAL;
- 
--	if (q->offload) {
--		dev_queue = new->dev_queue;
--		WARN_ON(dev_queue != cl->leaf.q->dev_queue);
--	}
-+	if (q->offload)
-+		dev_queue = htb_offload_get_queue(cl);
- 
- 	if (!new) {
- 		new = qdisc_create_dflt(dev_queue, &pfifo_qdisc_ops,
-@@ -1479,6 +1501,8 @@ static void htb_parent_to_leaf(struct Qdisc *sch, struct htb_class *cl,
- 	parent->ctokens = parent->cbuffer;
- 	parent->t_c = ktime_get_ns();
- 	parent->cmode = HTB_CAN_SEND;
-+	if (q->offload)
-+		parent->leaf.offload_queue = cl->leaf.offload_queue;
- }
- 
- static void htb_parent_to_leaf_offload(struct Qdisc *sch,
-@@ -1499,6 +1523,7 @@ static int htb_destroy_class_offload(struct Qdisc *sch, struct htb_class *cl,
- 				     struct netlink_ext_ack *extack)
- {
- 	struct tc_htb_qopt_offload offload_opt;
-+	struct netdev_queue *dev_queue;
- 	struct Qdisc *q = cl->leaf.q;
- 	struct Qdisc *old = NULL;
- 	int err;
-@@ -1507,16 +1532,15 @@ static int htb_destroy_class_offload(struct Qdisc *sch, struct htb_class *cl,
- 		return -EINVAL;
- 
- 	WARN_ON(!q);
--	if (!destroying) {
--		/* On destroy of HTB, two cases are possible:
--		 * 1. q is a normal qdisc, but q->dev_queue has noop qdisc.
--		 * 2. q is a noop qdisc (for nodes that were inner),
--		 *    q->dev_queue is noop_netdev_queue.
-+	dev_queue = htb_offload_get_queue(cl);
-+	old = htb_graft_helper(dev_queue, NULL);
-+	if (destroying)
-+		/* Before HTB is destroyed, the kernel grafts noop_qdisc to
-+		 * all queues.
- 		 */
--		old = htb_graft_helper(q->dev_queue, NULL);
--		WARN_ON(!old);
-+		WARN_ON(!(old->flags & TCQ_F_BUILTIN));
-+	else
- 		WARN_ON(old != q);
--	}
- 
- 	if (cl->parent) {
- 		cl->parent->bstats_bias.bytes += q->bstats.bytes;
-@@ -1535,18 +1559,17 @@ static int htb_destroy_class_offload(struct Qdisc *sch, struct htb_class *cl,
- 	if (!err || destroying)
- 		qdisc_put(old);
- 	else
--		htb_graft_helper(q->dev_queue, old);
-+		htb_graft_helper(dev_queue, old);
- 
- 	if (last_child)
- 		return err;
- 
--	if (!err && offload_opt.moved_qid != 0) {
--		if (destroying)
--			q->dev_queue = netdev_get_tx_queue(qdisc_dev(sch),
--							   offload_opt.qid);
--		else
--			htb_offload_move_qdisc(sch, offload_opt.moved_qid,
--					       offload_opt.qid);
-+	if (!err && offload_opt.classid != TC_H_MIN(cl->common.classid)) {
-+		u32 classid = TC_H_MAJ(sch->handle) |
-+			      TC_H_MIN(offload_opt.classid);
-+		struct htb_class *moved_cl = htb_find(classid, sch);
-+
-+		htb_offload_move_qdisc(sch, moved_cl, cl, destroying);
+diff --git a/net/sched/sch_cbq.c b/net/sched/sch_cbq.c
+index b79a7e27bb31..38a3a8394bbd 100644
+--- a/net/sched/sch_cbq.c
++++ b/net/sched/sch_cbq.c
+@@ -1614,7 +1614,7 @@ cbq_change_class(struct Qdisc *sch, u32 classid, u32 parentid, struct nlattr **t
+ 	err = tcf_block_get(&cl->block, &cl->filter_list, sch, extack);
+ 	if (err) {
+ 		kfree(cl);
+-		return err;
++		goto failure;
  	}
  
- 	return err;
-@@ -1669,9 +1692,11 @@ static int htb_delete(struct Qdisc *sch, unsigned long arg,
- 	}
- 
- 	if (last_child) {
--		struct netdev_queue *dev_queue;
-+		struct netdev_queue *dev_queue = sch->dev_queue;
-+
-+		if (q->offload)
-+			dev_queue = htb_offload_get_queue(cl);
- 
--		dev_queue = q->offload ? cl->leaf.q->dev_queue : sch->dev_queue;
- 		new_q = qdisc_create_dflt(dev_queue, &pfifo_qdisc_ops,
- 					  cl->parent->common.classid,
- 					  NULL);
-@@ -1843,7 +1868,7 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
- 			}
- 			dev_queue = netdev_get_tx_queue(dev, offload_opt.qid);
- 		} else { /* First child. */
--			dev_queue = parent->leaf.q->dev_queue;
-+			dev_queue = htb_offload_get_queue(parent);
- 			old_q = htb_graft_helper(dev_queue, NULL);
- 			WARN_ON(old_q != parent->leaf.q);
- 			offload_opt = (struct tc_htb_qopt_offload) {
-@@ -1900,6 +1925,8 @@ static int htb_change_class(struct Qdisc *sch, u32 classid,
- 
- 		/* leaf (we) needs elementary qdisc */
- 		cl->leaf.q = new_q ? new_q : &noop_qdisc;
-+		if (q->offload)
-+			cl->leaf.offload_queue = dev_queue;
- 
- 		cl->parent = parent;
- 
+ 	if (tca[TCA_RATE]) {
 -- 
 2.30.2
 
