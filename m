@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4941E408951
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 12:47:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87036408956
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 12:48:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238997AbhIMKsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 06:48:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49850 "EHLO mail.kernel.org"
+        id S239138AbhIMKtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 06:49:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238610AbhIMKsX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 06:48:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E35F60FF2;
-        Mon, 13 Sep 2021 10:47:06 +0000 (UTC)
+        id S239151AbhIMKtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 06:49:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2182361004;
+        Mon, 13 Sep 2021 10:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631530027;
-        bh=xbngxz/rxJGMdxaLZy/Xb7h2ykFTnqg3G42jYVZiv3s=;
+        s=korg; t=1631530095;
+        bh=AcGwxii2INEuy6gFW8TtTTRjMYuFVkjDj14vn/n/StE=;
         h=Subject:To:Cc:From:Date:From;
-        b=qSFMzWQOmg5XIKZ6BnJROmNHWfrC0gCfZEyIfDubj76nJPREGkVYbbVxzE+P0hODA
-         Bg3p9wjmzeWPzU76/70s4+Sb3nsT8xHEgYTqsMnmIIeC2r5Rj1QayjxsBlwtK1b7WF
-         XeOde/5CPoy9mbhos1SuTrYlEuWQgd/e1ZdLdgjI=
-Subject: FAILED: patch "[PATCH] io_uring: reexpand under-reexpanded iters" failed to apply to 5.13-stable tree
+        b=ZLKkCs/pC0p9PVLI1biFhJpB598ENAzBy0lCoEh95Cnz7aY+vdJuxBC4Y5qHJFp0V
+         Prq8yG9AXBsGoEe9YGtHNOkkkc2kW2Bidm2dSktesxvCeWLm2dgQNZeocTxmdIlIEW
+         BTmFVTqnnyb+Yaiblx/pp4+/EdNlU+2dUD07+7u0=
+Subject: FAILED: patch "[PATCH] io_uring: reexpand under-reexpanded iters" failed to apply to 5.14-stable tree
 To:     asml.silence@gmail.com, oswalpalash@gmail.com,
         sudipm.mukherjee@gmail.com, viro@zeniv.linux.org.uk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 12:47:04 +0200
-Message-ID: <163153002416220@kroah.com>
+Date:   Mon, 13 Sep 2021 12:48:13 +0200
+Message-ID: <1631530093148138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 5.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
