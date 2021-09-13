@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 658F7408E80
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C074090CF
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241430AbhIMNfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:35:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
+        id S244503AbhIMNzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:55:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242483AbhIMN3f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:29:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98F3661354;
-        Mon, 13 Sep 2021 13:24:09 +0000 (UTC)
+        id S245024AbhIMNxj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:53:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27183619E3;
+        Mon, 13 Sep 2021 13:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539450;
-        bh=jLa9bZIjWiXqboxB1Luym7DLUd9su7iVxlQkiTZxnR4=;
+        s=korg; t=1631540101;
+        bh=6AkgcefdX8RMUOHmbdDoRVQalXnWARQVGajw38GXG2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0kqIBWDs3UM2kCr7V6vws9D0+fZe9onfAicsvEYc5EnxjEp06ecHNXBIXYsYwzWT9
-         04qDgwSFN0aAx9AfRdNc8bVcpEhvdSq3Y5Z7w1hTYChmPmEZWbD4crtOiUwm8LRMUP
-         j5Qv+OG+jW4zVzbE9G+QvSyv/kosS2eh2wSJ4uKA=
+        b=ae6B4Ls/7F8RlNwwX0jX4nZILGq3coQnawOu3SMGVMKtDzPCEaH2Px+YhxdHPQaE4
+         Y/89zWRj0xBH+EQ4qgLFFTqCOhnvmyM5/FhiyD/QIfoxqwkDrdOA2z7vmg3xErlLMT
+         a5GLrOiDBWzjFRm8Jn0Cwn5VLKF9PFrMbymIdgpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@intel.com>,
+        syzbot <syzbot+5d1bad8042a8f0e8117a@syzkaller.appspotmail.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 006/236] power: supply: axp288_fuel_gauge: Report register-address on readb / writeb errors
+Subject: [PATCH 5.13 050/300] crypto: x86/aes-ni - add missing error checks in XTS code
 Date:   Mon, 13 Sep 2021 15:11:51 +0200
-Message-Id: <20210913131100.539750159@linuxfoundation.org>
+Message-Id: <20210913131111.040600544@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit caa534c3ba40c6e8352b42cbbbca9ba481814ac8 ]
+[ Upstream commit 821720b9f34ec54106ebf012a712ba73bbcf47c2 ]
 
-When fuel_gauge_reg_readb()/_writeb() fails, report which register we
-were trying to read / write when the error happened.
+The updated XTS code fails to check the return code of skcipher_walk_virt,
+which may lead to skcipher_walk_abort() or skcipher_walk_done() being called
+while the walk argument is in an inconsistent state.
 
-Also reword the message a bit:
-- Drop the axp288 prefix, dev_err() already prints this
-- Switch from telegram / abbreviated style to a normal sentence, aligning
-  the message with those from fuel_gauge_read_*bit_word()
+So check the return value after each such call, and bail on errors.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 2481104fe98d ("crypto: x86/aes-ni-xts - rewrite and drop indirections via glue helper")
+Reported-by: Dave Hansen <dave.hansen@intel.com>
+Reported-by: syzbot <syzbot+5d1bad8042a8f0e8117a@syzkaller.appspotmail.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp288_fuel_gauge.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/crypto/aesni-intel_glue.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
-index 148eb8105803..be24529157be 100644
---- a/drivers/power/supply/axp288_fuel_gauge.c
-+++ b/drivers/power/supply/axp288_fuel_gauge.c
-@@ -149,7 +149,7 @@ static int fuel_gauge_reg_readb(struct axp288_fg_info *info, int reg)
+diff --git a/arch/x86/crypto/aesni-intel_glue.c b/arch/x86/crypto/aesni-intel_glue.c
+index 2144e54a6c89..388643ca2177 100644
+--- a/arch/x86/crypto/aesni-intel_glue.c
++++ b/arch/x86/crypto/aesni-intel_glue.c
+@@ -849,6 +849,8 @@ static int xts_crypt(struct skcipher_request *req, bool encrypt)
+ 		return -EINVAL;
+ 
+ 	err = skcipher_walk_virt(&walk, req, false);
++	if (err)
++		return err;
+ 
+ 	if (unlikely(tail > 0 && walk.nbytes < walk.total)) {
+ 		int blocks = DIV_ROUND_UP(req->cryptlen, AES_BLOCK_SIZE) - 2;
+@@ -862,7 +864,10 @@ static int xts_crypt(struct skcipher_request *req, bool encrypt)
+ 		skcipher_request_set_crypt(&subreq, req->src, req->dst,
+ 					   blocks * AES_BLOCK_SIZE, req->iv);
+ 		req = &subreq;
++
+ 		err = skcipher_walk_virt(&walk, req, false);
++		if (err)
++			return err;
+ 	} else {
+ 		tail = 0;
  	}
- 
- 	if (ret < 0) {
--		dev_err(&info->pdev->dev, "axp288 reg read err:%d\n", ret);
-+		dev_err(&info->pdev->dev, "Error reading reg 0x%02x err: %d\n", reg, ret);
- 		return ret;
- 	}
- 
-@@ -163,7 +163,7 @@ static int fuel_gauge_reg_writeb(struct axp288_fg_info *info, int reg, u8 val)
- 	ret = regmap_write(info->regmap, reg, (unsigned int)val);
- 
- 	if (ret < 0)
--		dev_err(&info->pdev->dev, "axp288 reg write err:%d\n", ret);
-+		dev_err(&info->pdev->dev, "Error writing reg 0x%02x err: %d\n", reg, ret);
- 
- 	return ret;
- }
 -- 
 2.30.2
 
