@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD16A408F5F
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:44:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C00408F67
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:44:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242269AbhIMNmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:42:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37818 "EHLO mail.kernel.org"
+        id S240246AbhIMNmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:42:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241365AbhIMNkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:40:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B404C613CF;
-        Mon, 13 Sep 2021 13:29:20 +0000 (UTC)
+        id S241942AbhIMNkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:40:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D62AC61283;
+        Mon, 13 Sep 2021 13:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539761;
-        bh=pjnJCroe+DxkfKrNgNYoolpkciWNle+1P5sU88pqt/s=;
+        s=korg; t=1631539766;
+        bh=HVmiHrBeFNiqaH8sduhcxvABJ2yP4wydtgEcHmO945o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Q2xrHSvnMOZf1+4QN/3yu5VZyWq+GHQBx8xsV+5G61uo7JUpnlzoYECByGWOMdkm
-         SFHGQ2Twbb1RPOTxj6GsF8voM7kMznJV++Rkn547bWewdOuwaf/uhhyvYXhraqp6QR
-         0eiIfOr+nICVP05zysyuatCCyEJx2s1ohzoD6PAU=
+        b=YrabLdOQPn/Cptra63nWzFhgUJZck34YZ50bzgEaEcFIiAl2b2EYN9DMzhjUpnfu3
+         QGKG/zdSDBs0d0Kd59ibS2KldRfLwuqyFaVFIt1xrE5a87uVhkNtWKSHhGDZdVceJN
+         /cn2mcTrZtVuXMF9hzmx/HUGK209Wp7yH01XFPis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
         Sergey Shtylyov <s.shtylyov@omp.ru>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 151/236] usb: phy: fsl-usb: add IRQ check
-Date:   Mon, 13 Sep 2021 15:14:16 +0200
-Message-Id: <20210913131105.500062354@linuxfoundation.org>
+Subject: [PATCH 5.10 152/236] usb: phy: twl6030: add IRQ checks
+Date:   Mon, 13 Sep 2021 15:14:17 +0200
+Message-Id: <20210913131105.529966413@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -42,36 +42,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit ecc2f30dbb25969908115c81ec23650ed982b004 ]
+[ Upstream commit 0881e22c06e66af0b64773c91c8868ead3d01aa1 ]
 
-The driver neglects to check the result of platform_get_irq()'s call and
-blithely passes the negative error codes to request_irq() (which takes
-*unsigned* IRQ #), causing it to fail with -EINVAL, overriding an original
-error code. Stop calling request_irq() with the invalid IRQ #s.
+The driver neglects to check the result of platform_get_irq()'s calls and
+blithely passes the negative error codes to request_threaded_irq() (which
+takes *unsigned* IRQ #), causing them both to fail with -EINVAL, overriding
+an original error code.  Stop calling request_threaded_irq() with the
+invalid IRQ #s.
 
-Fixes: 0807c500a1a6 ("USB: add Freescale USB OTG Transceiver driver")
+Fixes: c33fad0c3748 ("usb: otg: Adding twl6030-usb transceiver driver for OMAP4430")
 Acked-by: Felipe Balbi <balbi@kernel.org>
 Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/b0a86089-8b8b-122e-fd6d-73e8c2304964@omp.ru
+Link: https://lore.kernel.org/r/9507f50b-50f1-6dc4-f57c-3ed4e53a1c25@omp.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/phy/phy-fsl-usb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/phy/phy-twl6030-usb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/usb/phy/phy-fsl-usb.c b/drivers/usb/phy/phy-fsl-usb.c
-index f34c9437a182..972704262b02 100644
---- a/drivers/usb/phy/phy-fsl-usb.c
-+++ b/drivers/usb/phy/phy-fsl-usb.c
-@@ -873,6 +873,8 @@ int usb_otg_start(struct platform_device *pdev)
+diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
+index 8ba6c5a91557..ab3c38a7d8ac 100644
+--- a/drivers/usb/phy/phy-twl6030-usb.c
++++ b/drivers/usb/phy/phy-twl6030-usb.c
+@@ -348,6 +348,11 @@ static int twl6030_usb_probe(struct platform_device *pdev)
+ 	twl->irq2		= platform_get_irq(pdev, 1);
+ 	twl->linkstat		= MUSB_UNKNOWN;
  
- 	/* request irq */
- 	p_otg->irq = platform_get_irq(pdev, 0);
-+	if (p_otg->irq < 0)
-+		return p_otg->irq;
- 	status = request_irq(p_otg->irq, fsl_otg_isr,
- 				IRQF_SHARED, driver_name, p_otg);
- 	if (status) {
++	if (twl->irq1 < 0)
++		return twl->irq1;
++	if (twl->irq2 < 0)
++		return twl->irq2;
++
+ 	twl->comparator.set_vbus	= twl6030_set_vbus;
+ 	twl->comparator.start_srp	= twl6030_start_srp;
+ 
 -- 
 2.30.2
 
