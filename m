@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01989408FA3
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86AC8408D53
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:24:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241765AbhIMNpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:45:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41194 "EHLO mail.kernel.org"
+        id S241075AbhIMNZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:25:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242962AbhIMNmi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:42:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2101B6142A;
-        Mon, 13 Sep 2021 13:30:20 +0000 (UTC)
+        id S240560AbhIMNWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:22:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C40861165;
+        Mon, 13 Sep 2021 13:20:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539821;
-        bh=f1zQrSy7+nxWJFjmB0J4pAKu+qqdkGMgHpBP4qEm290=;
+        s=korg; t=1631539249;
+        bh=YNcley9lhKLlU0/YDzyZr/Bcv02/j7nPzAc8OvPym3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Acp7fMRLmIDqndS6HvMyXFuD7k3GVfFoMhwFH+1X/DdtlE5tXt3nC1l4d69W2ZyMO
-         faGcPX0s81++6bGNn1cjeOLamt9Wbo0VRYt3TePR8IUwceZrWIWWa45jRmzwwti4IO
-         Ug+UFiaGGcsJPe8AU/7cdB3G7hmvQxWkMg5+MHGM=
+        b=YdX24zEQahodIyVZiHzw8Jk6rrVuEvJEVBOUsKmKIIKOA2P1rJrICFidCuGk6muFs
+         JVRG9Z/sur+NOtHAnXBsDAVV9RHwWLTNO93D0qhVgIvFLXKvlFeQjYx7VItJl/gzsd
+         L2h3yF6n93mSvOH+q/3MA4uq56UCxmHDU3PzR38c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Anand Moon <linux.amoon@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 141/236] Bluetooth: fix repeated calls to sco_sock_kill
-Date:   Mon, 13 Sep 2021 15:14:06 +0200
-Message-Id: <20210913131105.153700268@linuxfoundation.org>
+Subject: [PATCH 5.4 066/144] ARM: dts: meson8b: odroidc1: Fix the pwm regulator supply properties
+Date:   Mon, 13 Sep 2021 15:14:07 +0200
+Message-Id: <20210913131050.174935972@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Anand Moon <linux.amoon@gmail.com>
 
-[ Upstream commit e1dee2c1de2b4dd00eb44004a4bda6326ed07b59 ]
+[ Upstream commit 876228e9f935f19c7afc7ba394d17e2ec9143b65 ]
 
-In commit 4e1a720d0312 ("Bluetooth: avoid killing an already killed
-socket"), a check was added to sco_sock_kill to skip killing a socket
-if the SOCK_DEAD flag was set.
+After enabling CONFIG_REGULATOR_DEBUG=y we observe below debug logs.
+Changes help link VCCK and VDDEE pwm regulator to 5V regulator supply
+instead of dummy regulator.
 
-This was done after a trace for a use-after-free bug showed that the
-same sock pointer was being killed twice.
+[    7.117140] pwm-regulator regulator-vcck: Looking up pwm-supply from device tree
+[    7.117153] pwm-regulator regulator-vcck: Looking up pwm-supply property in node /regulator-vcck failed
+[    7.117184] VCCK: supplied by regulator-dummy
+[    7.117194] regulator-dummy: could not add device link regulator.8: -ENOENT
+[    7.117266] VCCK: 860 <--> 1140 mV at 986 mV, enabled
+[    7.118498] VDDEE: will resolve supply early: pwm
+[    7.118515] pwm-regulator regulator-vddee: Looking up pwm-supply from device tree
+[    7.118526] pwm-regulator regulator-vddee: Looking up pwm-supply property in node /regulator-vddee failed
+[    7.118553] VDDEE: supplied by regulator-dummy
+[    7.118563] regulator-dummy: could not add device link regulator.9: -ENOENT
 
-Unfortunately, this check prevents sco_sock_kill from running on any
-socket. sco_sock_kill kills a socket only if it's zapped and orphaned,
-however sock_orphan announces that the socket is dead before detaching
-it. i.e., orphaned sockets have the SOCK_DEAD flag set.
+Fixes: 524d96083b66 ("ARM: dts: meson8b: odroidc1: add the CPU voltage regulator")
+Fixes: 8bdf38be712d ("ARM: dts: meson8b: odroidc1: add the VDDEE regulator")
 
-To fix this, we remove the check for SOCK_DEAD, and avoid repeated
-calls to sco_sock_kill by removing incorrect calls in:
-
-1. sco_sock_timeout. The socket should not be killed on timeout as
-further processing is expected to be done. For example,
-sco_sock_connect sets the timer then waits for the socket to be
-connected or for an error to be returned.
-
-2. sco_conn_del. This function should clean up resources for the
-connection, but the socket itself should be cleaned up in
-sco_sock_release.
-
-3. sco_sock_close. Calls to sco_sock_close in sco_sock_cleanup_listen
-and sco_sock_release are followed by sco_sock_kill. Hence the
-duplicated call should be removed.
-
-Fixes: 4e1a720d0312 ("Bluetooth: avoid killing an already killed socket")
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Tested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Anand Moon <linux.amoon@gmail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+[narmstrong: fixed typo in commit s/observer/observe/]
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20210705112358.3554-2-linux.amoon@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ arch/arm/boot/dts/meson8b-odroidc1.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 8ae8af33ae91..600b1832e1dd 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -85,7 +85,6 @@ static void sco_sock_timeout(struct timer_list *t)
- 	sk->sk_state_change(sk);
- 	bh_unlock_sock(sk);
+diff --git a/arch/arm/boot/dts/meson8b-odroidc1.dts b/arch/arm/boot/dts/meson8b-odroidc1.dts
+index 0f9c71137bed..c413af9a7af8 100644
+--- a/arch/arm/boot/dts/meson8b-odroidc1.dts
++++ b/arch/arm/boot/dts/meson8b-odroidc1.dts
+@@ -130,7 +130,7 @@
+ 		regulator-min-microvolt = <860000>;
+ 		regulator-max-microvolt = <1140000>;
  
--	sco_sock_kill(sk);
- 	sock_put(sk);
- }
+-		vin-supply = <&p5v0>;
++		pwm-supply = <&p5v0>;
  
-@@ -177,7 +176,6 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
- 		sco_sock_clear_timer(sk);
- 		sco_chan_del(sk, err);
- 		bh_unlock_sock(sk);
--		sco_sock_kill(sk);
- 		sock_put(sk);
- 	}
+ 		pwms = <&pwm_cd 0 12218 0>;
+ 		pwm-dutycycle-range = <91 0>;
+@@ -162,7 +162,7 @@
+ 		regulator-min-microvolt = <860000>;
+ 		regulator-max-microvolt = <1140000>;
  
-@@ -394,8 +392,7 @@ static void sco_sock_cleanup_listen(struct sock *parent)
-  */
- static void sco_sock_kill(struct sock *sk)
- {
--	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket ||
--	    sock_flag(sk, SOCK_DEAD))
-+	if (!sock_flag(sk, SOCK_ZAPPED) || sk->sk_socket)
- 		return;
+-		vin-supply = <&p5v0>;
++		pwm-supply = <&p5v0>;
  
- 	BT_DBG("sk %p state %d", sk, sk->sk_state);
-@@ -447,7 +444,6 @@ static void sco_sock_close(struct sock *sk)
- 	lock_sock(sk);
- 	__sco_sock_close(sk);
- 	release_sock(sk);
--	sco_sock_kill(sk);
- }
- 
- static void sco_skb_put_cmsg(struct sk_buff *skb, struct msghdr *msg,
+ 		pwms = <&pwm_cd 1 12218 0>;
+ 		pwm-dutycycle-range = <91 0>;
 -- 
 2.30.2
 
