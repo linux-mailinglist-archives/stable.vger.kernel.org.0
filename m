@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50820408CF9
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A12F3408F86
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240302AbhIMNW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:22:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34834 "EHLO mail.kernel.org"
+        id S241581AbhIMNoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:44:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240285AbhIMNVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:21:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CB75610A2;
-        Mon, 13 Sep 2021 13:19:53 +0000 (UTC)
+        id S242650AbhIMNmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:42:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6909B61354;
+        Mon, 13 Sep 2021 13:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539194;
-        bh=yigy+Nk8kyBy+/NjNCqeL55b+Y70hewK4LGHSXEnOQk=;
+        s=korg; t=1631539792;
+        bh=n1fzEh8BglQyvMQT+P5Pol8uCH4i0Nhg/xP7DY9oYuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WG+fFoOwu21Q48zcblR3hwVbl7e84MDxmycoLzz4G+WzC3rP9oeWmmy31TV0/X1YR
-         8MhiMIjx1Uy71xx/Eiw3OV06hpwLntO0WESIJ9/BY7lgwJSlKxpRj0wkNSodWeiEc1
-         MCzy3tSlTSw7cRxWF/z5hs2Ow4oeCO83kGrAG8jY=
+        b=W3+P0QH3liXIgXHxCjsTPpORiZ9SCanefXfSi2GzcsbfySOZJvbwxDQtYZ5tyQX2T
+         BOs45eZyl8ZZC1bpV+d/Kgtyk2Tf5Ha3HdeaDrk/kKn+MckvCWAdPw7csnksZSUDsI
+         7VGgemjfBQ/vXDMDigxwQUUPA7lQrCfD1XSEeFIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrej Picej <andrej.picej@norik.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 059/144] media: coda: fix frame_mem_ctrl for YUV420 and YVU420 formats
+Subject: [PATCH 5.10 135/236] drm/msm/dpu: make dpu_hw_ctl_clear_all_blendstages clear necessary LMs
 Date:   Mon, 13 Sep 2021 15:14:00 +0200
-Message-Id: <20210913131049.940184146@linuxfoundation.org>
+Message-Id: <20210913131104.957159343@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 44693d74f5653f82cd7ca0fe730eed0f6b83306a ]
+[ Upstream commit a41cdb693595ae1904dd793fc15d6954f4295e27 ]
 
-The frame memory control register value is currently determined
-before userspace selects the final capture format and never corrected.
-Update ctx->frame_mem_ctrl in __coda_start_decoding() to fix decoding
-into YUV420 or YVU420 capture buffers.
+dpu_hw_ctl_clear_all_blendstages() clears settings for the few first LMs
+instead of mixers actually used for the CTL. Change it to clear
+necessary data, using provided mixer ids.
 
-Reported-by: Andrej Picej <andrej.picej@norik.com>
-Fixes: 497e6b8559a6 ("media: coda: add sequence initialization work")
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 25fdd5933e4c ("drm/msm: Add SDM845 DPU support")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Link: https://lore.kernel.org/r/20210704230519.4081467-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 00c7bed3dd57..e6b68be09f8f 100644
---- a/drivers/media/platform/coda/coda-bit.c
-+++ b/drivers/media/platform/coda/coda-bit.c
-@@ -2023,17 +2023,25 @@ static int __coda_start_decoding(struct coda_ctx *ctx)
- 	u32 src_fourcc, dst_fourcc;
- 	int ret;
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
+index 758c355b4fd8..f8c7100a8acb 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_ctl.c
+@@ -340,10 +340,12 @@ static void dpu_hw_ctl_clear_all_blendstages(struct dpu_hw_ctl *ctx)
+ 	int i;
  
-+	q_data_src = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT);
-+	q_data_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
-+	src_fourcc = q_data_src->fourcc;
-+	dst_fourcc = q_data_dst->fourcc;
+ 	for (i = 0; i < ctx->mixer_count; i++) {
+-		DPU_REG_WRITE(c, CTL_LAYER(LM_0 + i), 0);
+-		DPU_REG_WRITE(c, CTL_LAYER_EXT(LM_0 + i), 0);
+-		DPU_REG_WRITE(c, CTL_LAYER_EXT2(LM_0 + i), 0);
+-		DPU_REG_WRITE(c, CTL_LAYER_EXT3(LM_0 + i), 0);
++		enum dpu_lm mixer_id = ctx->mixer_hw_caps[i].id;
 +
- 	if (!ctx->initialized) {
- 		ret = __coda_decoder_seq_init(ctx);
- 		if (ret < 0)
- 			return ret;
-+	} else {
-+		ctx->frame_mem_ctrl &= ~(CODA_FRAME_CHROMA_INTERLEAVE | (0x3 << 9) |
-+					 CODA9_FRAME_TILED2LINEAR);
-+		if (dst_fourcc == V4L2_PIX_FMT_NV12 || dst_fourcc == V4L2_PIX_FMT_YUYV)
-+			ctx->frame_mem_ctrl |= CODA_FRAME_CHROMA_INTERLEAVE;
-+		if (ctx->tiled_map_type == GDI_TILED_FRAME_MB_RASTER_MAP)
-+			ctx->frame_mem_ctrl |= (0x3 << 9) |
-+				((ctx->use_vdoa) ? 0 : CODA9_FRAME_TILED2LINEAR);
++		DPU_REG_WRITE(c, CTL_LAYER(mixer_id), 0);
++		DPU_REG_WRITE(c, CTL_LAYER_EXT(mixer_id), 0);
++		DPU_REG_WRITE(c, CTL_LAYER_EXT2(mixer_id), 0);
++		DPU_REG_WRITE(c, CTL_LAYER_EXT3(mixer_id), 0);
  	}
+ }
  
--	q_data_src = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT);
--	q_data_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
--	src_fourcc = q_data_src->fourcc;
--	dst_fourcc = q_data_dst->fourcc;
--
- 	coda_write(dev, ctx->parabuf.paddr, CODA_REG_BIT_PARA_BUF_ADDR);
- 
- 	ret = coda_alloc_framebuffers(ctx, q_data_dst, src_fourcc);
 -- 
 2.30.2
 
