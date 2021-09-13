@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A69D74093AE
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5D5A4093B6
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242345AbhIMOWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:22:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
+        id S1343697AbhIMOW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:22:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235366AbhIMOUr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:20:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99C70614C8;
-        Mon, 13 Sep 2021 13:46:59 +0000 (UTC)
+        id S1346169AbhIMOUw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:20:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F46D6162E;
+        Mon, 13 Sep 2021 13:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540820;
-        bh=urc2Q1qzPA3AM/O3aVlM8flpD6FGPprUNtSXje40LHA=;
+        s=korg; t=1631540822;
+        bh=ekCNyI37LpMh1ZSogFYy5VvE/VFEFlzui9wRkex0GSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vbJ7IAKw8umG6jm53E1iqybdQQ3wurtzrl6qI24sH9d8xCbFuHqnEWPJfif2FqIdM
-         BQ6aMk7Sm+fasPJ90TtYCY+KUBd2muki2lUmwJJ7DcmKn+SiSxvoih59zxnHIQ0t8c
-         ZRyXmW9Kvj37c/cecAjMbtYG+8Ci8ztMNe2UZd9Q=
+        b=JTw8sCs1eIBNYefqh+m2j0L8LMe+ksqEjkPJ+UoTime0Ve/Ty/vo94V5VEBYIyZ+I
+         OtbWv+d/WeM2TUECE4m6znhvQ5NtIchIsGKW5jLK4E5Ev6obLduEkyrl0NdziY+D/4
+         2Ls3zOx20TpKqyXxPA1JMRXF+uT54DHLvIhytt9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 047/334] s390/smp: enable DAT before CPU restart callback is called
-Date:   Mon, 13 Sep 2021 15:11:41 +0200
-Message-Id: <20210913131115.026189442@linuxfoundation.org>
+Subject: [PATCH 5.14 048/334] sched/debug: Dont update sched_domain debug directories before sched_debug_init()
+Date:   Mon, 13 Sep 2021 15:11:42 +0200
+Message-Id: <20210913131115.059992014@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -40,292 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit 915fea04f9320d0f4ab6ecbb6bf759eebcd2c41d ]
+[ Upstream commit 459b09b5a3254008b63382bf41a9b36d0b590f57 ]
 
-The restart interrupt is triggered whenever a secondary CPU is
-brought online, a remote function call dispatched from another
-CPU or a manual PSW restart is initiated and causes the system
-to kdump. The handling routine is always called with DAT turned
-off. It then initializes the stack frame and invokes a callback.
+Since CPU capacity asymmetry can stem purely from maximum frequency
+differences (e.g. Pixel 1), a rebuild of the scheduler topology can be
+issued upon loading cpufreq, see:
 
-The existing callbacks handle DAT as follows:
+  arch_topology.c::init_cpu_capacity_callback()
 
-  * __do_restart() and __machine_kexec() turn in on upon entry;
-  * __ipl_run(), __reipl_run() and __dump_run() do not turn it
-    right away, but all of them call diag308() - which turns DAT
-    on, but only if kasan is enabled;
+Turns out that if this rebuild happens *before* sched_debug_init() is
+run (which is a late initcall), we end up messing up the sched_domain debug
+directory: passing a NULL parent to debugfs_create_dir() ends up creating
+the directory at the debugfs root, which in this case creates
+/sys/kernel/debug/domains (instead of /sys/kernel/debug/sched/domains).
 
-In addition to the described complexity all callbacks (and the
-functions they call) should avoid kasan instrumentation while
-DAT is off.
+This currently doesn't happen on asymmetric systems which use cpufreq-scpi
+or cpufreq-dt drivers, as those are loaded via
+deferred_probe_initcall() (it is also a late initcall, but appears to be
+ordered *after* sched_debug_init()).
 
-This update enables DAT in the assembler restart handler and
-relieves any callbacks (which are mostly C functions) from
-dealing with DAT altogether.
+Ionela has been working on detecting maximum frequency asymmetry via ACPI,
+and that actually happens via a *device* initcall, thus before
+sched_debug_init(), and causes the aforementionned debugfs mayhem.
 
-There are four types of CPU restart that initialize control
-registers in different ways:
+One option would be to punt sched_debug_init() down to
+fs_initcall_sync(). Preventing update_sched_domain_debugfs() from running
+before sched_debug_init() appears to be the safer option.
 
-  1. Start of secondary CPU on boot - control registers are
-     inherited from the IPL CPU;
-  2. Restart of online CPU - control registers of the CPU being
-     restarted are kept;
-  3. Hotplug of offline CPU - control registers are inherited
-     from the starting CPU;
-  4. Start of offline CPU triggered by manual PSW restart -
-     the control registers are read from the absolute lowcore
-     and contain the boot time IPL CPU values updated with all
-     follow-up calls of smp_ctl_set_bit() and smp_ctl_clear_bit()
-     routines;
-
-In first three cases contents of the control registers is the
-most recent. In the latter case control registers are good
-enough to facilitate successful completion of kdump operation.
-
-Suggested-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Fixes: 3b87f136f8fc ("sched,debug: Convert sysctl sched_domains to debugfs")
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: http://lore.kernel.org/r/20210514095339.12979-1-ionela.voinescu@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/lowcore.h   |  3 ++-
- arch/s390/include/asm/processor.h |  2 ++
- arch/s390/kernel/asm-offsets.c    |  1 +
- arch/s390/kernel/entry.S          | 11 +++++++----
- arch/s390/kernel/ipl.c            |  3 ---
- arch/s390/kernel/machine_kexec.c  |  1 -
- arch/s390/kernel/setup.c          |  9 ++++++++-
- arch/s390/kernel/smp.c            | 31 ++++++++++++++++++++++---------
- 8 files changed, 42 insertions(+), 19 deletions(-)
+ kernel/sched/debug.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
-index 47bde5a20a41..11213c8bfca5 100644
---- a/arch/s390/include/asm/lowcore.h
-+++ b/arch/s390/include/asm/lowcore.h
-@@ -124,7 +124,8 @@ struct lowcore {
- 	/* Restart function and parameter. */
- 	__u64	restart_fn;			/* 0x0370 */
- 	__u64	restart_data;			/* 0x0378 */
--	__u64	restart_source;			/* 0x0380 */
-+	__u32	restart_source;			/* 0x0380 */
-+	__u32	restart_flags;			/* 0x0384 */
+diff --git a/kernel/sched/debug.c b/kernel/sched/debug.c
+index 0c5ec2776ddf..7e08e3d947c2 100644
+--- a/kernel/sched/debug.c
++++ b/kernel/sched/debug.c
+@@ -388,6 +388,13 @@ void update_sched_domain_debugfs(void)
+ {
+ 	int cpu, i;
  
- 	/* Address space pointer. */
- 	__u64	kernel_asce;			/* 0x0388 */
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index ddc7858bbce4..879b8e3f609c 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -26,6 +26,8 @@
- #define _CIF_MCCK_GUEST		BIT(CIF_MCCK_GUEST)
- #define _CIF_DEDICATED_CPU	BIT(CIF_DEDICATED_CPU)
- 
-+#define RESTART_FLAG_CTLREGS	_AC(1 << 0, U)
++	/*
++	 * This can unfortunately be invoked before sched_debug_init() creates
++	 * the debug directory. Don't touch sd_sysctl_cpus until then.
++	 */
++	if (!debugfs_sched)
++		return;
 +
- #ifndef __ASSEMBLY__
- 
- #include <linux/cpumask.h>
-diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
-index 77ff2130cb04..dc53b0452ce2 100644
---- a/arch/s390/kernel/asm-offsets.c
-+++ b/arch/s390/kernel/asm-offsets.c
-@@ -116,6 +116,7 @@ int main(void)
- 	OFFSET(__LC_RESTART_FN, lowcore, restart_fn);
- 	OFFSET(__LC_RESTART_DATA, lowcore, restart_data);
- 	OFFSET(__LC_RESTART_SOURCE, lowcore, restart_source);
-+	OFFSET(__LC_RESTART_FLAGS, lowcore, restart_flags);
- 	OFFSET(__LC_KERNEL_ASCE, lowcore, kernel_asce);
- 	OFFSET(__LC_USER_ASCE, lowcore, user_asce);
- 	OFFSET(__LC_LPP, lowcore, lpp);
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 5a2f70cbd3a9..b9716a7e326d 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -624,12 +624,15 @@ ENTRY(mcck_int_handler)
- 4:	j	4b
- ENDPROC(mcck_int_handler)
- 
--#
--# PSW restart interrupt handler
--#
- ENTRY(restart_int_handler)
- 	ALTERNATIVE "", ".insn s,0xb2800000,_LPP_OFFSET", 40
- 	stg	%r15,__LC_SAVE_AREA_RESTART
-+	TSTMSK	__LC_RESTART_FLAGS,RESTART_FLAG_CTLREGS,4
-+	jz	0f
-+	la	%r15,4095
-+	lctlg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r15)
-+0:	larl	%r15,.Lstosm_tmp
-+	stosm	0(%r15),0x04			# turn dat on, keep irqs off
- 	lg	%r15,__LC_RESTART_STACK
- 	xc	STACK_FRAME_OVERHEAD(__PT_SIZE,%r15),STACK_FRAME_OVERHEAD(%r15)
- 	stmg	%r0,%r14,STACK_FRAME_OVERHEAD+__PT_R0(%r15)
-@@ -638,7 +641,7 @@ ENTRY(restart_int_handler)
- 	xc	0(STACK_FRAME_OVERHEAD,%r15),0(%r15)
- 	lg	%r1,__LC_RESTART_FN		# load fn, parm & source cpu
- 	lg	%r2,__LC_RESTART_DATA
--	lg	%r3,__LC_RESTART_SOURCE
-+	lgf	%r3,__LC_RESTART_SOURCE
- 	ltgr	%r3,%r3				# test source cpu address
- 	jm	1f				# negative -> skip source stop
- 0:	sigp	%r4,%r3,SIGP_SENSE		# sigp sense to source cpu
-diff --git a/arch/s390/kernel/ipl.c b/arch/s390/kernel/ipl.c
-index 50e2c21e0ec9..911cd3912351 100644
---- a/arch/s390/kernel/ipl.c
-+++ b/arch/s390/kernel/ipl.c
-@@ -179,8 +179,6 @@ static inline int __diag308(unsigned long subcode, void *addr)
- 
- int diag308(unsigned long subcode, void *addr)
- {
--	if (IS_ENABLED(CONFIG_KASAN))
--		__arch_local_irq_stosm(0x04); /* enable DAT */
- 	diag_stat_inc(DIAG_STAT_X308);
- 	return __diag308(subcode, addr);
- }
-@@ -1843,7 +1841,6 @@ static struct kobj_attribute on_restart_attr = __ATTR_RW(on_restart);
- 
- static void __do_restart(void *ignore)
- {
--	__arch_local_irq_stosm(0x04); /* enable DAT */
- 	smp_send_stop();
- #ifdef CONFIG_CRASH_DUMP
- 	crash_kexec(NULL);
-diff --git a/arch/s390/kernel/machine_kexec.c b/arch/s390/kernel/machine_kexec.c
-index 1005a6935fbe..c1fbc979e0e8 100644
---- a/arch/s390/kernel/machine_kexec.c
-+++ b/arch/s390/kernel/machine_kexec.c
-@@ -263,7 +263,6 @@ static void __do_machine_kexec(void *data)
-  */
- static void __machine_kexec(void *data)
- {
--	__arch_local_irq_stosm(0x04); /* enable DAT */
- 	pfault_fini();
- 	tracing_off();
- 	debug_locks_off();
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index ff0f9e838916..ee23908f1b96 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -421,7 +421,7 @@ static void __init setup_lowcore_dat_off(void)
- 	lc->restart_stack = (unsigned long) restart_stack;
- 	lc->restart_fn = (unsigned long) do_restart;
- 	lc->restart_data = 0;
--	lc->restart_source = -1UL;
-+	lc->restart_source = -1U;
- 
- 	mcck_stack = (unsigned long)memblock_alloc(THREAD_SIZE, THREAD_SIZE);
- 	if (!mcck_stack)
-@@ -450,12 +450,19 @@ static void __init setup_lowcore_dat_off(void)
- 
- static void __init setup_lowcore_dat_on(void)
- {
-+	struct lowcore *lc = lowcore_ptr[0];
-+
- 	__ctl_clear_bit(0, 28);
- 	S390_lowcore.external_new_psw.mask |= PSW_MASK_DAT;
- 	S390_lowcore.svc_new_psw.mask |= PSW_MASK_DAT;
- 	S390_lowcore.program_new_psw.mask |= PSW_MASK_DAT;
- 	S390_lowcore.io_new_psw.mask |= PSW_MASK_DAT;
-+	__ctl_store(S390_lowcore.cregs_save_area, 0, 15);
- 	__ctl_set_bit(0, 28);
-+	mem_assign_absolute(S390_lowcore.restart_flags, RESTART_FLAG_CTLREGS);
-+	mem_assign_absolute(S390_lowcore.program_new_psw, lc->program_new_psw);
-+	memcpy_absolute(&S390_lowcore.cregs_save_area, lc->cregs_save_area,
-+			sizeof(S390_lowcore.cregs_save_area));
- }
- 
- static struct resource code_resource = {
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 8984711f72ed..8e8ace899407 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -252,6 +252,7 @@ static void pcpu_prepare_secondary(struct pcpu *pcpu, int cpu)
- 	cpumask_set_cpu(cpu, &init_mm.context.cpu_attach_mask);
- 	cpumask_set_cpu(cpu, mm_cpumask(&init_mm));
- 	lc->cpu_nr = cpu;
-+	lc->restart_flags = RESTART_FLAG_CTLREGS;
- 	lc->spinlock_lockval = arch_spin_lockval(cpu);
- 	lc->spinlock_index = 0;
- 	lc->percpu_offset = __per_cpu_offset[cpu];
-@@ -297,7 +298,7 @@ static void pcpu_start_fn(struct pcpu *pcpu, void (*func)(void *), void *data)
- 	lc->restart_stack = lc->nodat_stack;
- 	lc->restart_fn = (unsigned long) func;
- 	lc->restart_data = (unsigned long) data;
--	lc->restart_source = -1UL;
-+	lc->restart_source = -1U;
- 	pcpu_sigp_retry(pcpu, SIGP_RESTART, 0);
- }
- 
-@@ -311,12 +312,12 @@ static void __pcpu_delegate(pcpu_delegate_fn *func, void *data)
- 	func(data);	/* should not return */
- }
- 
--static void __no_sanitize_address pcpu_delegate(struct pcpu *pcpu,
--						pcpu_delegate_fn *func,
--						void *data, unsigned long stack)
-+static void pcpu_delegate(struct pcpu *pcpu,
-+			  pcpu_delegate_fn *func,
-+			  void *data, unsigned long stack)
- {
- 	struct lowcore *lc = lowcore_ptr[pcpu - pcpu_devices];
--	unsigned long source_cpu = stap();
-+	unsigned int source_cpu = stap();
- 
- 	__load_psw_mask(PSW_KERNEL_BITS | PSW_MASK_DAT);
- 	if (pcpu->address == source_cpu) {
-@@ -569,6 +570,9 @@ static void smp_ctl_bit_callback(void *info)
- 	__ctl_load(cregs, 0, 15);
- }
- 
-+static DEFINE_SPINLOCK(ctl_lock);
-+static unsigned long ctlreg;
-+
- /*
-  * Set a bit in a control register of all cpus
-  */
-@@ -576,6 +580,11 @@ void smp_ctl_set_bit(int cr, int bit)
- {
- 	struct ec_creg_mask_parms parms = { 1UL << bit, -1UL, cr };
- 
-+	spin_lock(&ctl_lock);
-+	memcpy_absolute(&ctlreg, &S390_lowcore.cregs_save_area[cr], sizeof(ctlreg));
-+	__set_bit(bit, &ctlreg);
-+	memcpy_absolute(&S390_lowcore.cregs_save_area[cr], &ctlreg, sizeof(ctlreg));
-+	spin_unlock(&ctl_lock);
- 	on_each_cpu(smp_ctl_bit_callback, &parms, 1);
- }
- EXPORT_SYMBOL(smp_ctl_set_bit);
-@@ -587,6 +596,11 @@ void smp_ctl_clear_bit(int cr, int bit)
- {
- 	struct ec_creg_mask_parms parms = { 0, ~(1UL << bit), cr };
- 
-+	spin_lock(&ctl_lock);
-+	memcpy_absolute(&ctlreg, &S390_lowcore.cregs_save_area[cr], sizeof(ctlreg));
-+	__clear_bit(bit, &ctlreg);
-+	memcpy_absolute(&S390_lowcore.cregs_save_area[cr], &ctlreg, sizeof(ctlreg));
-+	spin_unlock(&ctl_lock);
- 	on_each_cpu(smp_ctl_bit_callback, &parms, 1);
- }
- EXPORT_SYMBOL(smp_ctl_clear_bit);
-@@ -895,14 +909,13 @@ static void smp_init_secondary(void)
- /*
-  *	Activate a secondary processor.
-  */
--static void __no_sanitize_address smp_start_secondary(void *cpuvoid)
-+static void smp_start_secondary(void *cpuvoid)
- {
- 	S390_lowcore.restart_stack = (unsigned long) restart_stack;
- 	S390_lowcore.restart_fn = (unsigned long) do_restart;
- 	S390_lowcore.restart_data = 0;
--	S390_lowcore.restart_source = -1UL;
--	__ctl_load(S390_lowcore.cregs_save_area, 0, 15);
--	__load_psw_mask(PSW_KERNEL_BITS | PSW_MASK_DAT);
-+	S390_lowcore.restart_source = -1U;
-+	S390_lowcore.restart_flags = 0;
- 	call_on_stack_noreturn(smp_init_secondary, S390_lowcore.kernel_stack);
- }
- 
+ 	if (!cpumask_available(sd_sysctl_cpus)) {
+ 		if (!alloc_cpumask_var(&sd_sysctl_cpus, GFP_KERNEL))
+ 			return;
 -- 
 2.30.2
 
