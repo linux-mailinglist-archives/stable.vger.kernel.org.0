@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA348409298
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29308409551
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244437AbhIMOMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:12:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33826 "EHLO mail.kernel.org"
+        id S1343612AbhIMOkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:40:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343898AbhIMOK6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:10:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9C5761AA7;
-        Mon, 13 Sep 2021 13:41:55 +0000 (UTC)
+        id S1346075AbhIMOhV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:37:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CEC0661BFC;
+        Mon, 13 Sep 2021 13:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540516;
-        bh=fNCCnE2PR8XncUH+loQ5zcJ5/yQf6p4LuJQSEoGG2O8=;
+        s=korg; t=1631541273;
+        bh=1GAwm/Tj+KGGXH6ZyGo3xpuTalpNPjGTyKNqBGRsIrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tf+Z6jLkHQO3eZTfPG8/dx+YVlxgVQeKarSl4hSvh/9sVVAYzfPGklok4pWb3OlKY
-         xhyUT3Y4JlsNpPzCCnxZK9By5ZLKnQ5cwa2RWP/rfh/DPUE+5SYZMzvoAl1jBYuX/L
-         UT+WRc8ud+SI92kHaAP2yeUcQC+urFMsx8eIMb6E=
+        b=N1ij6CHdR0Za/28dBmkUIZwYUVIuzoN8fYqee0xGgwQliVoa5hYetAmjK5xg1jmLf
+         uQNUmLDAfuyBlMclZucKJuaxlZixHG7FDsssvpP7oQc2nWbd77H4v3AcKyyksCBaHc
+         1GABi588Y1SrOgg744fOJR9jKQg0kWJJCO7sNzTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Lukasz Majczak <lma@semihalf.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Kevin Mitchell <kevmitch@arista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 224/300] ASoC: Intel: Skylake: Leave data as is when invoking TLV IPCs
+Subject: [PATCH 5.14 231/334] lkdtm: replace SCSI_DISPATCH_CMD with SCSI_QUEUE_RQ
 Date:   Mon, 13 Sep 2021 15:14:45 +0200
-Message-Id: <20210913131116.920158200@linuxfoundation.org>
+Message-Id: <20210913131121.231234803@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Kevin Mitchell <kevmitch@arista.com>
 
-[ Upstream commit 126b3422adc80f29d2129db7f61e0113a8a526c6 ]
+[ Upstream commit d1f278da6b11585f05b2755adfc8851cbf14a1ec ]
 
-Advancing pointer initially fixed issue for some users but caused
-regression for others. Leave data as it to make it easier for end users
-to adjust their topology files if needed.
+When scsi_dispatch_cmd was moved to scsi_lib.c and made static, some
+compilers (i.e., at least gcc 8.4.0) decided to compile this
+inline. This is a problem for lkdtm.ko, which inserted a kprobe
+on this function for the SCSI_DISPATCH_CMD crashpoint.
 
-Fixes: a8cd7066f042 ("ASoC: Intel: Skylake: Strip T and L from TLV IPCs")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Tested-by: Lukasz Majczak <lma@semihalf.com>
-Link: https://lore.kernel.org/r/20210818075742.1515155-3-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Move this crashpoint one function up the call chain to
+scsi_queue_rq. Though this is also a static function, it should never be
+inlined because it is assigned as a structure entry. Therefore,
+kprobe_register should always be able to find it.
+
+Fixes: 82042a2cdb55 ("scsi: move scsi_dispatch_cmd to scsi_lib.c")
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
+Link: https://lore.kernel.org/r/20210819022940.561875-2-kevmitch@arista.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/skylake/skl-topology.c | 6 ------
- 1 file changed, 6 deletions(-)
+ Documentation/fault-injection/provoke-crashes.rst | 2 +-
+ drivers/misc/lkdtm/core.c                         | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/skylake/skl-topology.c b/sound/soc/intel/skylake/skl-topology.c
-index c0fdab39e7c2..45b1521e6189 100644
---- a/sound/soc/intel/skylake/skl-topology.c
-+++ b/sound/soc/intel/skylake/skl-topology.c
-@@ -1463,12 +1463,6 @@ static int skl_tplg_tlv_control_set(struct snd_kcontrol *kcontrol,
- 	struct skl_dev *skl = get_skl_ctx(w->dapm->dev);
+diff --git a/Documentation/fault-injection/provoke-crashes.rst b/Documentation/fault-injection/provoke-crashes.rst
+index a20ba5d93932..18de17354206 100644
+--- a/Documentation/fault-injection/provoke-crashes.rst
++++ b/Documentation/fault-injection/provoke-crashes.rst
+@@ -29,7 +29,7 @@ recur_count
+ cpoint_name
+ 	Where in the kernel to trigger the action. It can be
+ 	one of INT_HARDWARE_ENTRY, INT_HW_IRQ_EN, INT_TASKLET_ENTRY,
+-	FS_DEVRW, MEM_SWAPOUT, TIMERADD, SCSI_DISPATCH_CMD,
++	FS_DEVRW, MEM_SWAPOUT, TIMERADD, SCSI_QUEUE_RQ,
+ 	IDE_CORE_CP, or DIRECT
  
- 	if (ac->params) {
--		/*
--		 * Widget data is expected to be stripped of T and L
--		 */
--		size -= 2 * sizeof(unsigned int);
--		data += 2;
--
- 		if (size > ac->max)
- 			return -EINVAL;
- 		ac->size = size;
+ cpoint_type
+diff --git a/drivers/misc/lkdtm/core.c b/drivers/misc/lkdtm/core.c
+index 9dda87c6b54a..016cb0b150fc 100644
+--- a/drivers/misc/lkdtm/core.c
++++ b/drivers/misc/lkdtm/core.c
+@@ -82,7 +82,7 @@ static struct crashpoint crashpoints[] = {
+ 	CRASHPOINT("FS_DEVRW",		 "ll_rw_block"),
+ 	CRASHPOINT("MEM_SWAPOUT",	 "shrink_inactive_list"),
+ 	CRASHPOINT("TIMERADD",		 "hrtimer_start"),
+-	CRASHPOINT("SCSI_DISPATCH_CMD",	 "scsi_dispatch_cmd"),
++	CRASHPOINT("SCSI_QUEUE_RQ",	 "scsi_queue_rq"),
+ 	CRASHPOINT("IDE_CORE_CP",	 "generic_ide_ioctl"),
+ #endif
+ };
 -- 
 2.30.2
 
