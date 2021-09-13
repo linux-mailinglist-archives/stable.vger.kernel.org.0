@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC4B7408E8F
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 906EB409192
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:01:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242289AbhIMNfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:35:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58462 "EHLO mail.kernel.org"
+        id S244002AbhIMOCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:02:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240872AbhIMNcj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:32:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCB056137F;
-        Mon, 13 Sep 2021 13:26:02 +0000 (UTC)
+        id S243837AbhIMOAj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:00:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F326613AB;
+        Mon, 13 Sep 2021 13:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539563;
-        bh=LhIFj7V7nIgk1FlbSSAAwYm0Zja+2WrGGJvCfXGJjuc=;
+        s=korg; t=1631540255;
+        bh=L5THohV6IidN9Kc/xggYUb7EwyTAIEaF9O9yKpIKOhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jFiyt3y0nv6oHKbp9JwRNQhcwP0/8dFYXHXqksvNdO12lv8MfzwC+ZS4UvbY/6r1n
-         c3EXq/7UlMH4vxwqg350QHpK5ORRpfnW2JMfv1ygex1Iio4VeXSSWD5mkrX+bV4j1I
-         uzlaLoHAhqExtVVsSb0FxbID1MT2+CJ9VZkk5fIg=
+        b=SCcG7wWidPz40YwQ/uGaXeaXtL4sjOQC4/iF2fMxxg6JH9Dy92or2SSSUWOdqGSli
+         8IVEl/zdDDK6EjCS9+NpfcFcqO1sNxDu4eZbTOEwxZXDLh2ox8DpfxG8rp5IjaI5fz
+         jV/95zLjO4Twl7lXuB87RNe2sqgPyDdryBcF8cQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        David Rivshin <drivshin@allworx.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/236] leds: is31fl32xx: Fix missing error code in is31fl32xx_parse_dt()
+        stable@vger.kernel.org, Jun Miao <jun.miao@windriver.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 117/300] Bluetooth: btusb: Fix a unspported condition to set available debug features
 Date:   Mon, 13 Sep 2021 15:12:58 +0200
-Message-Id: <20210913131102.839470265@linuxfoundation.org>
+Message-Id: <20210913131113.349744024@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Jun Miao <jun.miao@windriver.com>
 
-[ Upstream commit e642197562cd9781453f835e1406cfe0feeb917e ]
+[ Upstream commit 20a831f04f1526f2c3442efd3dece8630216b5d2 ]
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'ret'.
+When reading the support debug features failed, there are not available
+features init. Continue to set the debug features is illogical, we should
+skip btintel_set_debug_features(), even if check it by "if (!features)".
 
-Eliminate the follow smatch warning:
-
-drivers/leds/leds-is31fl32xx.c:388 is31fl32xx_parse_dt() warn: missing
-error code 'ret'.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Fixes: 9d7cffaf99f5 ("leds: Add driver for the ISSI IS31FL32xx family of LED controllers")
-Acked-by: David Rivshin <drivshin@allworx.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: c453b10c2b28 ("Bluetooth: btusb: Configure Intel debug feature based on available support")
+Signed-off-by: Jun Miao <jun.miao@windriver.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/leds-is31fl32xx.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/bluetooth/btusb.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/leds/leds-is31fl32xx.c b/drivers/leds/leds-is31fl32xx.c
-index 2180255ad339..899ed94b6687 100644
---- a/drivers/leds/leds-is31fl32xx.c
-+++ b/drivers/leds/leds-is31fl32xx.c
-@@ -385,6 +385,7 @@ static int is31fl32xx_parse_dt(struct device *dev,
- 			dev_err(dev,
- 				"Node %pOF 'reg' conflicts with another LED\n",
- 				child);
-+			ret = -EINVAL;
- 			goto err;
- 		}
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 9122f9cc97cb..ae0cf5e71584 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -2912,10 +2912,11 @@ static int btusb_setup_intel_new(struct hci_dev *hdev)
+ 	/* Read the Intel supported features and if new exception formats
+ 	 * supported, need to load the additional DDC config to enable.
+ 	 */
+-	btintel_read_debug_features(hdev, &features);
+-
+-	/* Set DDC mask for available debug features */
+-	btintel_set_debug_features(hdev, &features);
++	err = btintel_read_debug_features(hdev, &features);
++	if (!err) {
++		/* Set DDC mask for available debug features */
++		btintel_set_debug_features(hdev, &features);
++	}
  
+ 	/* Read the Intel version information after loading the FW  */
+ 	err = btintel_read_version(hdev, &ver);
+@@ -3008,10 +3009,11 @@ static int btusb_setup_intel_newgen(struct hci_dev *hdev)
+ 	/* Read the Intel supported features and if new exception formats
+ 	 * supported, need to load the additional DDC config to enable.
+ 	 */
+-	btintel_read_debug_features(hdev, &features);
+-
+-	/* Set DDC mask for available debug features */
+-	btintel_set_debug_features(hdev, &features);
++	err = btintel_read_debug_features(hdev, &features);
++	if (!err) {
++		/* Set DDC mask for available debug features */
++		btintel_set_debug_features(hdev, &features);
++	}
+ 
+ 	/* Read the Intel version information after loading the FW  */
+ 	err = btintel_read_version_tlv(hdev, &version);
 -- 
 2.30.2
 
