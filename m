@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91FE8408A27
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:27:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44501408A29
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:27:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239609AbhIML23 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 07:28:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60952 "EHLO mail.kernel.org"
+        id S239080AbhIML25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 07:28:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239605AbhIML22 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 07:28:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A0D260F44;
-        Mon, 13 Sep 2021 11:27:12 +0000 (UTC)
+        id S238710AbhIML25 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 07:28:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 448C660F44;
+        Mon, 13 Sep 2021 11:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631532433;
-        bh=YXXaXdiZrVnQvuGtv63MWu9rQN/0BlpqR5HY8DeQghY=;
+        s=korg; t=1631532461;
+        bh=tFJOjiwe30XDT7jV2TPt0m6Tz6GqyOKI4bNEhDMME/g=;
         h=Subject:To:Cc:From:Date:From;
-        b=vCdCBfXUtZvwzfEVAtz1cinSHwAG4xCD8DArsD/JNWBIMk398fIFDWlsV8HjuCeXb
-         HssbeK8G00QyUb0dVC3JRGmK7gqkbMFRZuslG0bUyHjFclCGrMH4EHg8nbJnrAGJsb
-         JZUDiXEXqoKTEX0FI5tsDkB2ktuPaoJqzF52/HuA=
-Subject: FAILED: patch "[PATCH] KVM: s390: index kvm->arch.idle_mask by vcpu_idx" failed to apply to 4.19-stable tree
-To:     pasic@linux.ibm.com, borntraeger@de.ibm.com,
-        imbrenda@linux.ibm.com, stable@vger.kernel.org
+        b=tCVwDuIodL0zXxSY1BJNEogEqk0Qp6Uz/N+Y3dr6MMQwEw7Shz2gBsx8SUhu8r9j2
+         8P8TAGlWEbb68yau3I2rSZCHXtsTLPj6ElRkj/ym1wFec4tgbQK1ulO4ubBHPZQUgV
+         aFw+amZPKh9JehH5mONk5CQqqREjt4Z9jRAeWvUA=
+Subject: FAILED: patch "[PATCH] KVM: x86: clamp host mapping level to max_level in" failed to apply to 5.10-stable tree
+To:     pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 13:26:59 +0200
-Message-ID: <1631532419192228@kroah.com>
+Date:   Mon, 13 Sep 2021 13:27:39 +0200
+Message-ID: <1631532459169223@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -46,123 +45,73 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a3e03bc1368c1bc16e19b001fc96dc7430573cc8 Mon Sep 17 00:00:00 2001
-From: Halil Pasic <pasic@linux.ibm.com>
-Date: Fri, 27 Aug 2021 14:54:29 +0200
-Subject: [PATCH] KVM: s390: index kvm->arch.idle_mask by vcpu_idx
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From ec607a564f70519b340f7eb4cfc0f4a6b55285ac Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 6 Aug 2021 07:05:58 -0400
+Subject: [PATCH] KVM: x86: clamp host mapping level to max_level in
+ kvm_mmu_max_mapping_level
 
-While in practice vcpu->vcpu_idx ==  vcpu->vcp_id is often true, it may
-not always be, and we must not rely on this. Reason is that KVM decides
-the vcpu_idx, userspace decides the vcpu_id, thus the two might not
-match.
+This change started as a way to make kvm_mmu_hugepage_adjust a bit simpler,
+but it does fix two bugs as well.
 
-Currently kvm->arch.idle_mask is indexed by vcpu_id, which implies
-that code like
-for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
-                vcpu = kvm_get_vcpu(kvm, vcpu_id);
-		do_stuff(vcpu);
-}
-is not legit. Reason is that kvm_get_vcpu expects an vcpu_idx, not an
-vcpu_id.  The trouble is, we do actually use kvm->arch.idle_mask like
-this. To fix this problem we have two options. Either use
-kvm_get_vcpu_by_id(vcpu_id), which would loop to find the right vcpu_id,
-or switch to indexing via vcpu_idx. The latter is preferable for obvious
-reasons.
+One bug is in zapping collapsible PTEs.  If a large page size is
+disallowed but not all of them, kvm_mmu_max_mapping_level will return the
+host mapping level and the small PTEs will be zapped up to that level.
+However, if e.g. 1GB are prohibited, we can still zap 4KB mapping and
+preserve the 2MB ones. This can happen for example when NX huge pages
+are in use.
 
-Let us make switch from indexing kvm->arch.idle_mask by vcpu_id to
-indexing it by vcpu_idx.  To keep gisa_int.kicked_mask indexed by the
-same index as idle_mask lets make the same change for it as well.
+The second would happen when userspace backs guest memory
+with a 1gb hugepage but only assign a subset of the page to
+the guest.  1gb pages would be disallowed by the memslot, but
+not 2mb.  kvm_mmu_max_mapping_level() would fall through to the
+host_pfn_mapping_level() logic, see the 1gb hugepage, and map the whole
+thing into the guest.
 
-Fixes: 1ee0bc559dc3 ("KVM: s390: get rid of local_int array")
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Reviewed-by: Christian Bornträger <borntraeger@de.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # 3.15+
-Link: https://lore.kernel.org/r/20210827125429.1912577-1-pasic@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: 2f57b7051fe8 ("KVM: x86/mmu: Persist gfn_lpage_is_disallowed() to max_level")
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 118d5450c523..611f18ecde91 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -963,6 +963,7 @@ struct kvm_arch{
- 	atomic64_t cmma_dirty_pages;
- 	/* subset of available cpu features enabled by user space */
- 	DECLARE_BITMAP(cpu_feat, KVM_S390_VM_CPU_FEAT_NR_BITS);
-+	/* indexed by vcpu_idx */
- 	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
- 	struct kvm_s390_gisa_interrupt gisa_int;
- 	struct kvm_s390_pv pv;
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index d548d60caed2..16256e17a544 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -419,13 +419,13 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
- static void __set_cpu_idle(struct kvm_vcpu *vcpu)
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 54cb15e4b550..bfd2705a7291 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -2910,6 +2910,7 @@ int kvm_mmu_max_mapping_level(struct kvm *kvm,
+ 			      kvm_pfn_t pfn, int max_level)
  {
- 	kvm_s390_set_cpuflags(vcpu, CPUSTAT_WAIT);
--	set_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	set_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
+ 	struct kvm_lpage_info *linfo;
++	int host_level;
+ 
+ 	max_level = min(max_level, max_huge_page_level);
+ 	for ( ; max_level > PG_LEVEL_4K; max_level--) {
+@@ -2921,7 +2922,8 @@ int kvm_mmu_max_mapping_level(struct kvm *kvm,
+ 	if (max_level == PG_LEVEL_4K)
+ 		return PG_LEVEL_4K;
+ 
+-	return host_pfn_mapping_level(kvm, gfn, pfn, slot);
++	host_level = host_pfn_mapping_level(kvm, gfn, pfn, slot);
++	return min(host_level, max_level);
  }
  
- static void __unset_cpu_idle(struct kvm_vcpu *vcpu)
- {
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_WAIT);
--	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
+ int kvm_mmu_hugepage_adjust(struct kvm_vcpu *vcpu, gfn_t gfn,
+@@ -2945,17 +2947,12 @@ int kvm_mmu_hugepage_adjust(struct kvm_vcpu *vcpu, gfn_t gfn,
+ 	if (!slot)
+ 		return PG_LEVEL_4K;
  
- static void __reset_intercept_indicators(struct kvm_vcpu *vcpu)
-@@ -3050,18 +3050,18 @@ int kvm_s390_get_irq_state(struct kvm_vcpu *vcpu, __u8 __user *buf, int len)
+-	level = kvm_mmu_max_mapping_level(vcpu->kvm, slot, gfn, pfn, max_level);
+-	if (level == PG_LEVEL_4K)
+-		return level;
+-
+-	*req_level = level = min(level, max_level);
+-
+ 	/*
+ 	 * Enforce the iTLB multihit workaround after capturing the requested
+ 	 * level, which will be used to do precise, accurate accounting.
+ 	 */
+-	if (huge_page_disallowed)
++	*req_level = level = kvm_mmu_max_mapping_level(vcpu->kvm, slot, gfn, pfn, max_level);
++	if (level == PG_LEVEL_4K || huge_page_disallowed)
+ 		return PG_LEVEL_4K;
  
- static void __airqs_kick_single_vcpu(struct kvm *kvm, u8 deliverable_mask)
- {
--	int vcpu_id, online_vcpus = atomic_read(&kvm->online_vcpus);
-+	int vcpu_idx, online_vcpus = atomic_read(&kvm->online_vcpus);
- 	struct kvm_s390_gisa_interrupt *gi = &kvm->arch.gisa_int;
- 	struct kvm_vcpu *vcpu;
- 
--	for_each_set_bit(vcpu_id, kvm->arch.idle_mask, online_vcpus) {
--		vcpu = kvm_get_vcpu(kvm, vcpu_id);
-+	for_each_set_bit(vcpu_idx, kvm->arch.idle_mask, online_vcpus) {
-+		vcpu = kvm_get_vcpu(kvm, vcpu_idx);
- 		if (psw_ioint_disabled(vcpu))
- 			continue;
- 		deliverable_mask &= (u8)(vcpu->arch.sie_block->gcr[6] >> 24);
- 		if (deliverable_mask) {
- 			/* lately kicked but not yet running */
--			if (test_and_set_bit(vcpu_id, gi->kicked_mask))
-+			if (test_and_set_bit(vcpu_idx, gi->kicked_mask))
- 				return;
- 			kvm_s390_vcpu_wakeup(vcpu);
- 			return;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 5b45c83ced21..e144c8046ceb 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4026,7 +4026,7 @@ static int vcpu_pre_run(struct kvm_vcpu *vcpu)
- 		kvm_s390_patch_guest_per_regs(vcpu);
- 	}
- 
--	clear_bit(vcpu->vcpu_id, vcpu->kvm->arch.gisa_int.kicked_mask);
-+	clear_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.gisa_int.kicked_mask);
- 
- 	vcpu->arch.sie_block->icptcode = 0;
- 	cpuflags = atomic_read(&vcpu->arch.sie_block->cpuflags);
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 9fad25109b0d..ecd741ee3276 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -79,7 +79,7 @@ static inline int is_vcpu_stopped(struct kvm_vcpu *vcpu)
- 
- static inline int is_vcpu_idle(struct kvm_vcpu *vcpu)
- {
--	return test_bit(vcpu->vcpu_id, vcpu->kvm->arch.idle_mask);
-+	return test_bit(kvm_vcpu_get_idx(vcpu), vcpu->kvm->arch.idle_mask);
- }
- 
- static inline int kvm_is_ucontrol(struct kvm *kvm)
+ 	/*
 
