@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 472AE409025
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:49:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D65C40902F
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:49:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242513AbhIMNuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:50:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56854 "EHLO mail.kernel.org"
+        id S244825AbhIMNul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:50:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244105AbhIMNrg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244108AbhIMNrg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:47:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0F736136F;
-        Mon, 13 Sep 2021 13:32:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70CCD615E0;
+        Mon, 13 Sep 2021 13:32:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539955;
-        bh=13hYmdXLlkorhJU2QzWcDCNAEbmIkT6E+r+w6YIrh9M=;
+        s=korg; t=1631539957;
+        bh=/5WfoIA9trcOShL0r1epCZXNrnIgRJUNluHQwvKt0E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1W/nj1TY9VT/cGX23+zaTpU7USd8QcuWn9N5sBIBAmJuD0LdH2geiyWowHHftxd90
-         4znJ/Tc5uzU+3Awu3+YoL9Qn+hL1nB/S/m6cAlBJjDc7e/dcaxH5jV8GbkENhg4Oqh
-         Xc6NefG7xG+2WqbnD5Edt8queYdLtFqQMkBB6imc=
+        b=Q/c4hKOhHhedAyOpAQWlSmW//dHtTy3YHAzK51HZMhkUZEtLyMYaKk10kQbr0KVcY
+         L31iKo9iNnqrVhgIAvA6aUGxAn0WtZpHmUXsTQCYDg668T0qU9qR8uE1BtvrtaH9Bx
+         TjoyLRhlfVGyZAn+qiZuwFlzqKZMBggz/Zj+mYDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 228/236] KVM: nVMX: Unconditionally clear nested.pi_pending on nested VM-Enter
-Date:   Mon, 13 Sep 2021 15:15:33 +0200
-Message-Id: <20210913131108.106828896@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>
+Subject: [PATCH 5.10 229/236] ARM: dts: at91: add pinctrl-{names, 0} for all gpios
+Date:   Mon, 13 Sep 2021 15:15:34 +0200
+Message-Id: <20210913131108.144881210@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -40,60 +40,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit f7782bb8d818d8f47c26b22079db10599922787a upstream.
+commit bf781869e5cf3e4ec1a47dad69b6f0df97629cbd upstream.
 
-Clear nested.pi_pending on nested VM-Enter even if L2 will run without
-posted interrupts enabled.  If nested.pi_pending is left set from a
-previous L2, vmx_complete_nested_posted_interrupt() will pick up the
-stale flag and exit to userspace with an "internal emulation error" due
-the new L2 not having a valid nested.pi_desc.
+Add pinctrl-names and pinctrl-0 properties on controllers that claims to
+use pins to avoid failures due to
+commit 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
+and also to avoid using pins that may be claimed my other IPs.
 
-Arguably, vmx_complete_nested_posted_interrupt() should first check for
-posted interrupts being enabled, but it's also completely reasonable that
-KVM wouldn't screw up a fundamental flag.  Not to mention that the mere
-existence of nested.pi_pending is a long-standing bug as KVM shouldn't
-move the posted interrupt out of the IRR until it's actually processed,
-e.g. KVM effectively drops an interrupt when it performs a nested VM-Exit
-with a "pending" posted interrupt.  Fixing the mess is a future problem.
-
-Prior to vmx_complete_nested_posted_interrupt() interpreting a null PI
-descriptor as an error, this was a benign bug as the null PI descriptor
-effectively served as a check on PI not being enabled.  Even then, the
-new flow did not become problematic until KVM started checking the result
-of kvm_check_nested_events().
-
-Fixes: 705699a13994 ("KVM: nVMX: Enable nested posted interrupt processing")
-Fixes: 966eefb89657 ("KVM: nVMX: Disable vmcs02 posted interrupts if vmcs12 PID isn't mappable")
-Fixes: 47d3530f86c0 ("KVM: x86: Exit to userspace when kvm_check_nested_events fails")
-Cc: stable@vger.kernel.org
-Cc: Jim Mattson <jmattson@google.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210810144526.2662272-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: b7c2b6157079 ("ARM: at91: add Atmel's SAMA5D3 Xplained board")
+Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
+Fixes: 38153a017896 ("ARM: at91/dt: sama5d4: add dts for sama5d4 xplained board")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20210727074006.1609989-1-claudiu.beznea@microchip.com
+Cc: <stable@vger.kernel.org> # v5.7+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/nested.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/at91-sam9x60ek.dts        |   16 ++++++++++++++-
+ arch/arm/boot/dts/at91-sama5d3_xplained.dts |   29 ++++++++++++++++++++++++++++
+ arch/arm/boot/dts/at91-sama5d4_xplained.dts |   19 ++++++++++++++++++
+ 3 files changed, 63 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2243,12 +2243,11 @@ static void prepare_vmcs02_early(struct
- 			 ~PIN_BASED_VMX_PREEMPTION_TIMER);
+--- a/arch/arm/boot/dts/at91-sam9x60ek.dts
++++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
+@@ -92,6 +92,8 @@
  
- 	/* Posted interrupts setting is only taken from vmcs12.  */
--	if (nested_cpu_has_posted_intr(vmcs12)) {
-+	vmx->nested.pi_pending = false;
-+	if (nested_cpu_has_posted_intr(vmcs12))
- 		vmx->nested.posted_intr_nv = vmcs12->posted_intr_nv;
--		vmx->nested.pi_pending = false;
--	} else {
-+	else
- 		exec_control &= ~PIN_BASED_POSTED_INTR;
--	}
- 	pin_controls_set(vmx, exec_control);
+ 	leds {
+ 		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_gpio_leds>;
+ 		status = "okay"; /* Conflict with pwm0. */
  
- 	/*
+ 		red {
+@@ -537,6 +539,10 @@
+ 				 AT91_PIOA 19 AT91_PERIPH_A (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)	/* PA19 DAT2 periph A with pullup */
+ 				 AT91_PIOA 20 AT91_PERIPH_A (AT91_PINCTRL_PULL_UP | AT91_PINCTRL_DRIVE_STRENGTH_HI)>;	/* PA20 DAT3 periph A with pullup */
+ 		};
++		pinctrl_sdmmc0_cd: sdmmc0_cd {
++			atmel,pins =
++				<AT91_PIOA 23 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++		};
+ 	};
+ 
+ 	sdmmc1 {
+@@ -569,6 +575,14 @@
+ 				      AT91_PIOD 16 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
+ 		};
+ 	};
++
++	leds {
++		pinctrl_gpio_leds: gpio_leds {
++			atmel,pins = <AT91_PIOB 11 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
++				      AT91_PIOB 12 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
++				      AT91_PIOB 13 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++		};
++	};
+ }; /* pinctrl */
+ 
+ &pwm0 {
+@@ -580,7 +594,7 @@
+ &sdmmc0 {
+ 	bus-width = <4>;
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_sdmmc0_default>;
++	pinctrl-0 = <&pinctrl_sdmmc0_default &pinctrl_sdmmc0_cd>;
+ 	status = "okay";
+ 	cd-gpios = <&pioA 23 GPIO_ACTIVE_LOW>;
+ 	disable-wp;
+--- a/arch/arm/boot/dts/at91-sama5d3_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d3_xplained.dts
+@@ -57,6 +57,8 @@
+ 			};
+ 
+ 			spi0: spi@f0004000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_spi0_cs>;
+ 				cs-gpios = <&pioD 13 0>, <0>, <0>, <&pioD 16 0>;
+ 				status = "okay";
+ 			};
+@@ -169,6 +171,8 @@
+ 			};
+ 
+ 			spi1: spi@f8008000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_spi1_cs>;
+ 				cs-gpios = <&pioC 25 0>;
+ 				status = "okay";
+ 			};
+@@ -248,6 +252,26 @@
+ 							<AT91_PIOE 3 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
+ 							 AT91_PIOE 4 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
+ 					};
++
++					pinctrl_gpio_leds: gpio_leds_default {
++						atmel,pins =
++							<AT91_PIOE 23 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
++							 AT91_PIOE 24 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++					};
++
++					pinctrl_spi0_cs: spi0_cs_default {
++						atmel,pins =
++							<AT91_PIOD 13 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
++							 AT91_PIOD 16 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++					};
++
++					pinctrl_spi1_cs: spi1_cs_default {
++						atmel,pins = <AT91_PIOC 25 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++					};
++
++					pinctrl_vcc_mmc0_reg_gpio: vcc_mmc0_reg_gpio_default {
++						atmel,pins = <AT91_PIOE 2 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++					};
+ 				};
+ 			};
+ 		};
+@@ -339,6 +363,8 @@
+ 
+ 	vcc_mmc0_reg: fixedregulator_mmc0 {
+ 		compatible = "regulator-fixed";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_vcc_mmc0_reg_gpio>;
+ 		gpio = <&pioE 2 GPIO_ACTIVE_LOW>;
+ 		regulator-name = "mmc0-card-supply";
+ 		regulator-min-microvolt = <3300000>;
+@@ -362,6 +388,9 @@
+ 
+ 	leds {
+ 		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_gpio_leds>;
++		status = "okay";
+ 
+ 		d2 {
+ 			label = "d2";
+--- a/arch/arm/boot/dts/at91-sama5d4_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
+@@ -90,6 +90,8 @@
+ 			};
+ 
+ 			spi1: spi@fc018000 {
++				pinctrl-names = "default";
++				pinctrl-0 = <&pinctrl_spi0_cs>;
+ 				cs-gpios = <&pioB 21 0>;
+ 				status = "okay";
+ 			};
+@@ -147,6 +149,19 @@
+ 						atmel,pins =
+ 							<AT91_PIOE 1 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
+ 					};
++					pinctrl_spi0_cs: spi0_cs_default {
++						atmel,pins =
++							<AT91_PIOB 21 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++					};
++					pinctrl_gpio_leds: gpio_leds_default {
++						atmel,pins =
++							<AT91_PIOD 30 AT91_PERIPH_GPIO AT91_PINCTRL_NONE
++							 AT91_PIOE 15 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++					};
++					pinctrl_vcc_mmc1_reg: vcc_mmc1_reg {
++						atmel,pins =
++							<AT91_PIOE 4 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
++					};
+ 				};
+ 			};
+ 		};
+@@ -252,6 +267,8 @@
+ 
+ 	leds {
+ 		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_gpio_leds>;
+ 		status = "okay";
+ 
+ 		d8 {
+@@ -278,6 +295,8 @@
+ 
+ 	vcc_mmc1_reg: fixedregulator_mmc1 {
+ 		compatible = "regulator-fixed";
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_vcc_mmc1_reg>;
+ 		gpio = <&pioE 4 GPIO_ACTIVE_LOW>;
+ 		regulator-name = "VDD MCI1";
+ 		regulator-min-microvolt = <3300000>;
 
 
