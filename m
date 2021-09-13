@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E438A4090D7
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:56:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F171408E82
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242779AbhIMNz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:55:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
+        id S241690AbhIMNfl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:35:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244726AbhIMNxj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:53:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 596C161107;
-        Mon, 13 Sep 2021 13:35:03 +0000 (UTC)
+        id S242487AbhIMN3f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:29:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1ADEA6134F;
+        Mon, 13 Sep 2021 13:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540103;
-        bh=zIUtON/Uqq4kJRp4uO9Wg8c/S2FX7ZCkao2ZJwC0mG0=;
+        s=korg; t=1631539452;
+        bh=gHOyesAu68sPGrpUkzJYHyLALtuFHcCbITcL8Zix2Fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qzOlRFvxLojK6p4u9RzaEvblwli8Y/op+i5ZSE75lqmgBkP1fEYEdRCZzhssbSUVX
-         onQ8sBDn0qGJxN3JssG0yOOostcmOb5wB3KhUPxAS1R+Ju1t6Amavs7dEM4SfJ4Nem
-         a2whKzfw967xQmpOdtKxo8tu6QXyq6p39+MeaPNI=
+        b=a/Lh9/xkiSUydyHxVPfzxcrjBWrVlOPwEY0nu3eAFbx+l83PCXF9NbzTCCSFYpngR
+         QAQ0Te8GCz4q/bZLJhMI+AZq5SdzpszpBH4TCtnC5DfgJ7F7tKlJ/dQrCv0E0RlX7y
+         cYvzeS58ghP5mhiTXQ5PRPhRL/4evA6ooOvvdDpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Guillaume Gardet <guillaume.gardet@arm.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Mian Yousaf Kaukab <ykaukab@suse.de>,
-        Stefan Berger <stefanb@linux.ibm.com>,
+        stable@vger.kernel.org, Lokesh Vutla <lokeshvutla@ti.com>,
+        Tero Kristo <kristo@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 051/300] crypto: ecc - handle unaligned input buffer in ecc_swap_digits
+Subject: [PATCH 5.10 007/236] crypto: omap-sham - clear dma flags only after omap_sham_update_dma_stop()
 Date:   Mon, 13 Sep 2021 15:11:52 +0200
-Message-Id: <20210913131111.079957249@linuxfoundation.org>
+Message-Id: <20210913131100.571436939@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mian Yousaf Kaukab <ykaukab@suse.de>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 0469dede0eeeefe12a9a2fd76078f4a266513457 ]
+[ Upstream commit fe28140b3393b0ba1eb95cc109f974a7e58b26fd ]
 
-ecdsa_set_pub_key() makes an u64 pointer at 1 byte offset of the key.
-This results in an unaligned u64 pointer. This pointer is passed to
-ecc_swap_digits() which assumes natural alignment.
+We should not clear FLAGS_DMA_ACTIVE before omap_sham_update_dma_stop() is
+done calling dma_unmap_sg(). We already clear FLAGS_DMA_ACTIVE at the
+end of omap_sham_update_dma_stop().
 
-This causes a kernel crash on an armv7 platform:
-[    0.409022] Unhandled fault: alignment exception (0x001) at 0xc2a0a6a9
-...
-[    0.416982] PC is at ecdsa_set_pub_key+0xdc/0x120
-...
-[    0.491492] Backtrace:
-[    0.492059] [<c07c266c>] (ecdsa_set_pub_key) from [<c07c75d4>] (test_akcipher_one+0xf4/0x6c0)
+The early clearing of FLAGS_DMA_ACTIVE is not causing issues as we do not
+need to defer anything based on FLAGS_DMA_ACTIVE currently. So this can be
+applied as clean-up.
 
-Handle unaligned input buffer in ecc_swap_digits() by replacing
-be64_to_cpu() to get_unaligned_be64(). Change type of in pointer to
-void to reflect it doesn’t necessarily need to be aligned.
-
-Fixes: 4e6602916bc6 ("crypto: ecdsa - Add support for ECDSA signature verification")
-Reported-by: Guillaume Gardet <guillaume.gardet@arm.com>
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
-Tested-by: Stefan Berger <stefanb@linux.ibm.com>
+Cc: Lokesh Vutla <lokeshvutla@ti.com>
+Cc: Tero Kristo <kristo@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/ecc.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/crypto/omap-sham.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/crypto/ecc.h b/crypto/ecc.h
-index a006132646a4..1350e8eb6ac2 100644
---- a/crypto/ecc.h
-+++ b/crypto/ecc.h
-@@ -27,6 +27,7 @@
- #define _CRYPTO_ECC_H
- 
- #include <crypto/ecc_curve.h>
-+#include <asm/unaligned.h>
- 
- /* One digit is u64 qword. */
- #define ECC_CURVE_NIST_P192_DIGITS  3
-@@ -46,13 +47,13 @@
-  * @out:      Output array
-  * @ndigits:  Number of digits to copy
-  */
--static inline void ecc_swap_digits(const u64 *in, u64 *out, unsigned int ndigits)
-+static inline void ecc_swap_digits(const void *in, u64 *out, unsigned int ndigits)
- {
- 	const __be64 *src = (__force __be64 *)in;
- 	int i;
- 
- 	for (i = 0; i < ndigits; i++)
--		out[i] = be64_to_cpu(src[ndigits - 1 - i]);
-+		out[i] = get_unaligned_be64(&src[ndigits - 1 - i]);
- }
- 
- /**
+diff --git a/drivers/crypto/omap-sham.c b/drivers/crypto/omap-sham.c
+index 39d17ed1db2f..f6a8ae8a18c2 100644
+--- a/drivers/crypto/omap-sham.c
++++ b/drivers/crypto/omap-sham.c
+@@ -1735,7 +1735,7 @@ static void omap_sham_done_task(unsigned long data)
+ 		if (test_and_clear_bit(FLAGS_OUTPUT_READY, &dd->flags))
+ 			goto finish;
+ 	} else if (test_bit(FLAGS_DMA_READY, &dd->flags)) {
+-		if (test_and_clear_bit(FLAGS_DMA_ACTIVE, &dd->flags)) {
++		if (test_bit(FLAGS_DMA_ACTIVE, &dd->flags)) {
+ 			omap_sham_update_dma_stop(dd);
+ 			if (dd->err) {
+ 				err = dd->err;
 -- 
 2.30.2
 
