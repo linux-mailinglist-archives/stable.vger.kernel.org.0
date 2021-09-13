@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0831F40937B
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 995D8409383
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344044AbhIMOVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:21:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41890 "EHLO mail.kernel.org"
+        id S241181AbhIMOVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:21:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344466AbhIMOTN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:19:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF4A461B23;
-        Mon, 13 Sep 2021 13:45:57 +0000 (UTC)
+        id S1345590AbhIMOTy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:19:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46DA861B06;
+        Mon, 13 Sep 2021 13:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540758;
-        bh=yeLzWJhPWJZDhdGNl7eo4Qj3xSfSSQ8tBHBpGLlfZDU=;
+        s=korg; t=1631540760;
+        bh=rvHCwWEs1NJnaLFZS2ViQ2ziBN1C7hXmykRAgJORJVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQBwrGpOofs3mLbOM9dvvCK+BZUnm81Mr7A9qqDN0UdfqBNzreZmpziJGUoz3GxOc
-         gut/AKFXi2elSYWAx037vmEuvc41XbPc0hfLw5Uhz+UGRizMfWSlNBH2lpCuKDJk3n
-         9/mYpq6oBbbe6n38XUXdhdffQK18zKq4EOyZRBDo=
+        b=GLii3zjL8gt1FhemWjxwvkIG7gm2vZdZwk37oHv9qjVC2/1Yv0s/qeMeQbnz62p8w
+         cChUpcEDcmMpWogi9bJsPYmjWCSgHZimPo0XkrfSu5Ztfe4VQCOZLpf/mZJk4Zd/V5
+         a0bvQjVJInzn+TN55H/GZv+Cq0iCgjMqyu6JCqeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Engel <amit.engel@dell.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 022/334] nvmet: pass back cntlid on successful completion
-Date:   Mon, 13 Sep 2021 15:11:16 +0200
-Message-Id: <20210913131114.155344476@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 023/334] power: supply: smb347-charger: Add missing pin control activation
+Date:   Mon, 13 Sep 2021 15:11:17 +0200
+Message-Id: <20210913131114.187050021@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -39,51 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Engel <amit.engel@dell.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit e804d5abe2d74cfe23f5f83be580d1cdc9307111 ]
+[ Upstream commit efe2175478d5237949e33c84d9a722fc084b218c ]
 
-According to the NVMe specification, the response dword 0 value of the
-Connect command is based on status code: return cntlid for successful
-compeltion return IPO and IATTR for connect invalid parameters.  Fix
-a missing error information for a zero sized queue, and return the
-cntlid also for I/O queue Connect commands.
+Pin control needs to be activated by setting the enable bit, otherwise
+hardware rejects all pin changes. Previously this stayed unnoticed on
+Nexus 7 because pin control was enabled by default after rebooting from
+downstream kernel, which uses driver that enables the bit and charger
+registers are non-volatile until power supply (battery) is disconnected.
+Configure the pin control enable bit. This fixes the potentially
+never-enabled charging on devices that use pin control.
 
-Signed-off-by: Amit Engel <amit.engel@dell.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/fabrics-cmd.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/power/supply/smb347-charger.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/nvme/target/fabrics-cmd.c b/drivers/nvme/target/fabrics-cmd.c
-index 7d0f3523fdab..8ef564c3b32c 100644
---- a/drivers/nvme/target/fabrics-cmd.c
-+++ b/drivers/nvme/target/fabrics-cmd.c
-@@ -120,6 +120,7 @@ static u16 nvmet_install_queue(struct nvmet_ctrl *ctrl, struct nvmet_req *req)
- 	if (!sqsize) {
- 		pr_warn("queue size zero!\n");
- 		req->error_loc = offsetof(struct nvmf_connect_command, sqsize);
-+		req->cqe->result.u32 = IPO_IATTR_CONNECT_SQE(sqsize);
- 		ret = NVME_SC_CONNECT_INVALID_PARAM | NVME_SC_DNR;
- 		goto err;
- 	}
-@@ -260,11 +261,11 @@ static void nvmet_execute_io_connect(struct nvmet_req *req)
- 	}
+diff --git a/drivers/power/supply/smb347-charger.c b/drivers/power/supply/smb347-charger.c
+index df240420f2de..9d8c2fadd4d0 100644
+--- a/drivers/power/supply/smb347-charger.c
++++ b/drivers/power/supply/smb347-charger.c
+@@ -55,6 +55,7 @@
+ #define CFG_PIN_EN_CTRL_ACTIVE_LOW		0x60
+ #define CFG_PIN_EN_APSD_IRQ			BIT(1)
+ #define CFG_PIN_EN_CHARGER_ERROR		BIT(2)
++#define CFG_PIN_EN_CTRL				BIT(4)
+ #define CFG_THERM				0x07
+ #define CFG_THERM_SOFT_HOT_COMPENSATION_MASK	0x03
+ #define CFG_THERM_SOFT_HOT_COMPENSATION_SHIFT	0
+@@ -724,6 +725,15 @@ static int smb347_hw_init(struct smb347_charger *smb)
+ 	if (ret < 0)
+ 		goto fail;
  
- 	status = nvmet_install_queue(ctrl, req);
--	if (status) {
--		/* pass back cntlid that had the issue of installing queue */
--		req->cqe->result.u16 = cpu_to_le16(ctrl->cntlid);
-+	if (status)
- 		goto out_ctrl_put;
--	}
++	/* Activate pin control, making it writable. */
++	switch (smb->enable_control) {
++	case SMB3XX_CHG_ENABLE_PIN_ACTIVE_LOW:
++	case SMB3XX_CHG_ENABLE_PIN_ACTIVE_HIGH:
++		ret = regmap_set_bits(smb->regmap, CFG_PIN, CFG_PIN_EN_CTRL);
++		if (ret < 0)
++			goto fail;
++	}
 +
-+	/* pass back cntlid for successful completion */
-+	req->cqe->result.u16 = cpu_to_le16(ctrl->cntlid);
- 
- 	pr_debug("adding queue %d to ctrl %d.\n", qid, ctrl->cntlid);
- 
+ 	/*
+ 	 * Make the charging functionality controllable by a write to the
+ 	 * command register unless pin control is specified in the platform
 -- 
 2.30.2
 
