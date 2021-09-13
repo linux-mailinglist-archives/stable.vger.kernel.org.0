@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32087408E53
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31F3740915C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241269AbhIMNdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:33:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48044 "EHLO mail.kernel.org"
+        id S1343625AbhIMOA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240246AbhIMNbM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:31:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F15661106;
-        Mon, 13 Sep 2021 13:25:18 +0000 (UTC)
+        id S243252AbhIMN6o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:58:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9822603E7;
+        Mon, 13 Sep 2021 13:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539518;
-        bh=hsepQ31OwgLXooU/LsU3HqeFX53iNIWSVAqA/Waz+2c=;
+        s=korg; t=1631540211;
+        bh=UrStQuAPaM2Cr+gc5mXEncvTddHEC76z+RhnOH6qYz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sWx5yfnZ4CI8azH9zj2xGkeNsycrzrm8syj4y4w2GHYe+2Tq5681fXD035cwmfckq
-         aDtG9JA37FDwHgNoFQpmKylN+EWE9PQBmFGmIJgZNe2r+mR9/AjOyFOnnP+RradRir
-         m4bCNvUpElat+IsrS0BBZ3Oea4rPeAvrKwsh8jTc=
+        b=hZuOe5nd1fX76cm71rI2LIWoxN/PkY4FhhUh74d0E58B9mzST7wH1EVZ6vYCsXV2y
+         dJhXDmNadrpn7zidhf/3HzDCySIWBxzUm7FuuiGk9iWvhrUHW7lKlfe+TPS8SVASGM
+         jxW5fXlPf9//3zYyWorekfuvLgcgdsUSN6LwUf5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9937dc42271cd87d4b98@syzkaller.appspotmail.com,
-        Christoph Hellwig <hch@lst.de>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 055/236] block: nbd: add sanity check for first_minor
+        stable@vger.kernel.org, Rajendra Nayak <rnayak@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 099/300] soc: qcom: rpmhpd: Use corner in power_off
 Date:   Mon, 13 Sep 2021 15:12:40 +0200
-Message-Id: <20210913131102.221492964@linuxfoundation.org>
+Message-Id: <20210913131112.727882463@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit b1a811633f7321cf1ae2bb76a66805b7720e44c9 ]
+[ Upstream commit d43b3a989bc8c06fd4bbb69a7500d180db2d68e8 ]
 
-Syzbot hit WARNING in internal_create_group(). The problem was in
-too big disk->first_minor.
+rpmhpd_aggregate_corner() takes a corner as parameter, but in
+rpmhpd_power_off() the code requests the level of the first corner
+instead.
 
-disk->first_minor is initialized by value, which comes from userspace
-and there wasn't any sanity checks about value correctness. It can cause
-duplicate creation of sysfs files/links, because disk->first_minor will
-be passed to MKDEV() which causes truncation to byte. Since maximum
-minor value is 0xff, let's check if first_minor is correct minor number.
+In all (known) current cases the first corner has level 0, so this
+change should be a nop, but in case that there's a power domain with a
+non-zero lowest level this makes sure that rpmhpd_power_off() actually
+requests the lowest level - which is the closest to "power off" we can
+get.
 
-NOTE: the root case of the reported warning was in wrong error handling
-in register_disk(), but we can avoid passing knowingly wrong values to
-sysfs API, because sysfs error messages can confuse users. For example:
-user passed 1048576 as index, but sysfs complains about duplicate
-creation of /dev/block/43:0. It's not obvious how 1048576 becomes 0.
-Log and reproducer for above example can be found on syzkaller bug
-report page.
+While touching the code, also skip the unnecessary zero-initialization
+of "ret".
 
-Link: https://syzkaller.appspot.com/bug?id=03c2ae9146416edf811958d5fd7acfab75b143d1
-Fixes: b0d9111a2d53 ("nbd: use an idr to keep track of nbd devices")
-Reported-by: syzbot+9937dc42271cd87d4b98@syzkaller.appspotmail.com
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 279b7e8a62cc ("soc: qcom: rpmhpd: Add RPMh power domain driver")
+Reviewed-by: Rajendra Nayak <rnayak@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Sibi Sankar <sibis@codeaurora.org>
+Tested-by: Sibi Sankar <sibis@codeaurora.org>
+Link: https://lore.kernel.org/r/20210703005416.2668319-2-bjorn.andersson@linaro.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/soc/qcom/rpmhpd.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 59c452fff835..98274ba0701d 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1759,7 +1759,17 @@ static int nbd_dev_add(int index)
- 	refcount_set(&nbd->refs, 1);
- 	INIT_LIST_HEAD(&nbd->list);
- 	disk->major = NBD_MAJOR;
-+
-+	/* Too big first_minor can cause duplicate creation of
-+	 * sysfs files/links, since first_minor will be truncated to
-+	 * byte in __device_add_disk().
-+	 */
- 	disk->first_minor = index << part_shift;
-+	if (disk->first_minor > 0xff) {
-+		err = -EINVAL;
-+		goto out_free_idr;
-+	}
-+
- 	disk->fops = &nbd_fops;
- 	disk->private_data = nbd;
- 	sprintf(disk->disk_name, "nbd%d", index);
+diff --git a/drivers/soc/qcom/rpmhpd.c b/drivers/soc/qcom/rpmhpd.c
+index bb21c4f1c0c4..90d2e5817371 100644
+--- a/drivers/soc/qcom/rpmhpd.c
++++ b/drivers/soc/qcom/rpmhpd.c
+@@ -382,12 +382,11 @@ static int rpmhpd_power_on(struct generic_pm_domain *domain)
+ static int rpmhpd_power_off(struct generic_pm_domain *domain)
+ {
+ 	struct rpmhpd *pd = domain_to_rpmhpd(domain);
+-	int ret = 0;
++	int ret;
+ 
+ 	mutex_lock(&rpmhpd_lock);
+ 
+-	ret = rpmhpd_aggregate_corner(pd, pd->level[0]);
+-
++	ret = rpmhpd_aggregate_corner(pd, 0);
+ 	if (!ret)
+ 		pd->enabled = false;
+ 
 -- 
 2.30.2
 
