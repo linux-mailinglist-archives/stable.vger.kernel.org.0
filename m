@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED32E40952C
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5D0E409281
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345467AbhIMOib (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:38:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56448 "EHLO mail.kernel.org"
+        id S1344665AbhIMOLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:11:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345621AbhIMOgP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:36:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7022461BF5;
-        Mon, 13 Sep 2021 13:54:07 +0000 (UTC)
+        id S1345063AbhIMOJo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:09:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B89E61A89;
+        Mon, 13 Sep 2021 13:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541248;
-        bh=TkOwg5YShF1JhjzsxjWb+eY/lSIENXcAsjTd/XtvOEQ=;
+        s=korg; t=1631540491;
+        bh=kBsgrVDe7zt/GZ0Pd3XptA/5U+L9g86/TTGBqjTSM3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZRNhAiW+4nqeCUGqaYKyqmfsCbT5w6t0lafG++naeUynIqWJNuDG43M8nqnlk6sBI
-         sXmP+uAaoWQncvVrIwYSLcQ8r2DUWd2syWXuPIjf4cG3D/CRmvV4h7LzoHk+MvrlMG
-         oN7uFvlqBJ0H4/Yl7h7QLjtkT31aSM3wqVXHsRbc=
+        b=QlEOh/JS++eyoviYT/D+BEgi4X31ySL0bAxX9327Vbe3Udmvvwc0x1Lei0CaqaBSZ
+         4WGrF4N4592o9CFZktuKoWewR7b2cwbGUhL13rryMzApR1UpmOR2GXaqYdd+1LP2/J
+         Ej+ThuonNYMVCGfWWz1uRxI1rSeBRj4OOl+A8Ubk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 222/334] arm64: dts: marvell: armada-37xx: Extend PCIe MEM space
+Subject: [PATCH 5.13 215/300] gfs2: init system threads before freeze lock
 Date:   Mon, 13 Sep 2021 15:14:36 +0200
-Message-Id: <20210913131120.931793756@linuxfoundation.org>
+Message-Id: <20210913131116.620449785@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,100 +39,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 514ef1e62d6521c2199d192b1c71b79d2aa21d5a ]
+[ Upstream commit a28dc123fa66ba7f3eca7cffc4b01d96bfd35c27 ]
 
-Current PCIe MEM space of size 16 MB is not enough for some combination
-of PCIe cards (e.g. NVMe disk together with ath11k wifi card). ARM Trusted
-Firmware for Armada 3700 platform already assigns 128 MB for PCIe window,
-so extend PCIe MEM space to the end of 128 MB PCIe window which allows to
-allocate more PCIe BARs for more PCIe cards.
+Patch 96b1454f2e ("gfs2: move freeze glock outside the make_fs_rw and _ro
+functions") changed the gfs2 mount sequence so that it holds the freeze
+lock before calling gfs2_make_fs_rw. Before this patch, gfs2_make_fs_rw
+called init_threads to initialize the quotad and logd threads. That is a
+problem if the system needs to withdraw due to IO errors early in the
+mount sequence, for example, while initializing the system statfs inode:
 
-Without this change some combination of PCIe cards cannot be used and
-kernel show error messages in dmesg during initialization:
+1. An IO error causes the statfs glock to not sync properly after
+   recovery, and leaves items on the ail list.
+2. The leftover items on the ail list causes its do_xmote call to fail,
+   which makes it want to withdraw. But since the glock code cannot
+   withdraw (because the withdraw sequence uses glocks) it relies upon
+   the logd daemon to initiate the withdraw.
+3. The withdraw can never be performed by the logd daemon because all
+   this takes place before the logd daemon is started.
 
-    pci 0000:00:00.0: BAR 8: no space for [mem size 0x01800000]
-    pci 0000:00:00.0: BAR 8: failed to assign [mem size 0x01800000]
-    pci 0000:00:00.0: BAR 6: assigned [mem 0xe8000000-0xe80007ff pref]
-    pci 0000:01:00.0: BAR 8: no space for [mem size 0x01800000]
-    pci 0000:01:00.0: BAR 8: failed to assign [mem size 0x01800000]
-    pci 0000:02:03.0: BAR 8: no space for [mem size 0x01000000]
-    pci 0000:02:03.0: BAR 8: failed to assign [mem size 0x01000000]
-    pci 0000:02:07.0: BAR 8: no space for [mem size 0x00100000]
-    pci 0000:02:07.0: BAR 8: failed to assign [mem size 0x00100000]
-    pci 0000:03:00.0: BAR 0: no space for [mem size 0x01000000 64bit]
-    pci 0000:03:00.0: BAR 0: failed to assign [mem size 0x01000000 64bit]
+This patch moves function init_threads from super.c to ops_fstype.c
+and it changes gfs2_fill_super to start its threads before holding the
+freeze lock, and if there's an error, stop its threads after releasing
+it. This allows the logd to run unblocked by the freeze lock. Thus,
+the logd daemon can perform its withdraw sequence properly.
 
-Due to bugs in U-Boot port for Turris Mox, the second range in Turris Mox
-kernel DTS file for PCIe must start at 16 MB offset. Otherwise U-Boot
-crashes during loading of kernel DTB file. This bug is present only in
-U-Boot code for Turris Mox and therefore other Armada 3700 devices are not
-affected by this bug. Bug is fixed in U-Boot version 2021.07.
-
-To not break booting new kernels on existing versions of U-Boot on Turris
-Mox, use first 16 MB range for IO and second range with rest of PCIe window
-for MEM.
-
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 76f6386b25cc ("arm64: dts: marvell: Add Aardvark PCIe support for Armada 3700")
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: 96b1454f2e8e ("gfs2: move freeze glock outside the make_fs_rw and _ro functions")
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/marvell/armada-3720-turris-mox.dts | 17 +++++++++++++++++
- arch/arm64/boot/dts/marvell/armada-37xx.dtsi    | 11 +++++++++--
- 2 files changed, 26 insertions(+), 2 deletions(-)
+ fs/gfs2/ops_fstype.c | 42 ++++++++++++++++++++++++++++++
+ fs/gfs2/super.c      | 61 +++++---------------------------------------
+ 2 files changed, 48 insertions(+), 55 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-index a05b1ab2dd12..04da07ae4420 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-@@ -135,6 +135,23 @@
- 	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
- 	status = "okay";
- 	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
-+	/*
-+	 * U-Boot port for Turris Mox has a bug which always expects that "ranges" DT property
-+	 * contains exactly 2 ranges with 3 (child) address cells, 2 (parent) address cells and
-+	 * 2 size cells and also expects that the second range starts at 16 MB offset. If these
-+	 * conditions are not met then U-Boot crashes during loading kernel DTB file. PCIe address
-+	 * space is 128 MB long, so the best split between MEM and IO is to use fixed 16 MB window
-+	 * for IO and the rest 112 MB (64+32+16) for MEM, despite that maximal IO size is just 64 kB.
-+	 * This bug is not present in U-Boot ports for other Armada 3700 devices and is fixed in
-+	 * U-Boot version 2021.07. See relevant U-Boot commits (the last one contains fix):
-+	 * https://source.denx.de/u-boot/u-boot/-/commit/cb2ddb291ee6fcbddd6d8f4ff49089dfe580f5d7
-+	 * https://source.denx.de/u-boot/u-boot/-/commit/c64ac3b3185aeb3846297ad7391fc6df8ecd73bf
-+	 * https://source.denx.de/u-boot/u-boot/-/commit/4a82fca8e330157081fc132a591ebd99ba02ee33
-+	 */
-+	#address-cells = <3>;
-+	#size-cells = <2>;
-+	ranges = <0x81000000 0 0xe8000000   0 0xe8000000   0 0x01000000   /* Port 0 IO */
-+		  0x82000000 0 0xe9000000   0 0xe9000000   0 0x07000000>; /* Port 0 MEM */
+diff --git a/fs/gfs2/ops_fstype.c b/fs/gfs2/ops_fstype.c
+index bd3b3be1a473..ca76e3b8792c 100644
+--- a/fs/gfs2/ops_fstype.c
++++ b/fs/gfs2/ops_fstype.c
+@@ -1089,6 +1089,34 @@ void gfs2_online_uevent(struct gfs2_sbd *sdp)
+ 	kobject_uevent_env(&sdp->sd_kobj, KOBJ_ONLINE, envp);
+ }
  
- 	/* enabled by U-Boot if PCIe module is present */
- 	status = "disabled";
-diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-index 5db81a416cd6..9acc5d2b5a00 100644
---- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-+++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-@@ -489,8 +489,15 @@
- 			#interrupt-cells = <1>;
- 			msi-parent = <&pcie0>;
- 			msi-controller;
--			ranges = <0x82000000 0 0xe8000000   0 0xe8000000 0 0x1000000 /* Port 0 MEM */
--				  0x81000000 0 0xe9000000   0 0xe9000000 0 0x10000>; /* Port 0 IO*/
-+			/*
-+			 * The 128 MiB address range [0xe8000000-0xf0000000] is
-+			 * dedicated for PCIe and can be assigned to 8 windows
-+			 * with size a power of two. Use one 64 KiB window for
-+			 * IO at the end and the remaining seven windows
-+			 * (totaling 127 MiB) for MEM.
-+			 */
-+			ranges = <0x82000000 0 0xe8000000   0 0xe8000000   0 0x07f00000   /* Port 0 MEM */
-+				  0x81000000 0 0xefff0000   0 0xefff0000   0 0x00010000>; /* Port 0 IO */
- 			interrupt-map-mask = <0 0 0 7>;
- 			interrupt-map = <0 0 0 1 &pcie_intc 0>,
- 					<0 0 0 2 &pcie_intc 1>,
++static int init_threads(struct gfs2_sbd *sdp)
++{
++	struct task_struct *p;
++	int error = 0;
++
++	p = kthread_run(gfs2_logd, sdp, "gfs2_logd");
++	if (IS_ERR(p)) {
++		error = PTR_ERR(p);
++		fs_err(sdp, "can't start logd thread: %d\n", error);
++		return error;
++	}
++	sdp->sd_logd_process = p;
++
++	p = kthread_run(gfs2_quotad, sdp, "gfs2_quotad");
++	if (IS_ERR(p)) {
++		error = PTR_ERR(p);
++		fs_err(sdp, "can't start quotad thread: %d\n", error);
++		goto fail;
++	}
++	sdp->sd_quotad_process = p;
++	return 0;
++
++fail:
++	kthread_stop(sdp->sd_logd_process);
++	sdp->sd_logd_process = NULL;
++	return error;
++}
++
+ /**
+  * gfs2_fill_super - Read in superblock
+  * @sb: The VFS superblock
+@@ -1217,6 +1245,14 @@ static int gfs2_fill_super(struct super_block *sb, struct fs_context *fc)
+ 		goto fail_per_node;
+ 	}
+ 
++	if (!sb_rdonly(sb)) {
++		error = init_threads(sdp);
++		if (error) {
++			gfs2_withdraw_delayed(sdp);
++			goto fail_per_node;
++		}
++	}
++
+ 	error = gfs2_freeze_lock(sdp, &freeze_gh, 0);
+ 	if (error)
+ 		goto fail_per_node;
+@@ -1226,6 +1262,12 @@ static int gfs2_fill_super(struct super_block *sb, struct fs_context *fc)
+ 
+ 	gfs2_freeze_unlock(&freeze_gh);
+ 	if (error) {
++		if (sdp->sd_quotad_process)
++			kthread_stop(sdp->sd_quotad_process);
++		sdp->sd_quotad_process = NULL;
++		if (sdp->sd_logd_process)
++			kthread_stop(sdp->sd_logd_process);
++		sdp->sd_logd_process = NULL;
+ 		fs_err(sdp, "can't make FS RW: %d\n", error);
+ 		goto fail_per_node;
+ 	}
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index 4d4ceb0b6903..2bdbba5ea8d7 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -119,34 +119,6 @@ int gfs2_jdesc_check(struct gfs2_jdesc *jd)
+ 	return 0;
+ }
+ 
+-static int init_threads(struct gfs2_sbd *sdp)
+-{
+-	struct task_struct *p;
+-	int error = 0;
+-
+-	p = kthread_run(gfs2_logd, sdp, "gfs2_logd");
+-	if (IS_ERR(p)) {
+-		error = PTR_ERR(p);
+-		fs_err(sdp, "can't start logd thread: %d\n", error);
+-		return error;
+-	}
+-	sdp->sd_logd_process = p;
+-
+-	p = kthread_run(gfs2_quotad, sdp, "gfs2_quotad");
+-	if (IS_ERR(p)) {
+-		error = PTR_ERR(p);
+-		fs_err(sdp, "can't start quotad thread: %d\n", error);
+-		goto fail;
+-	}
+-	sdp->sd_quotad_process = p;
+-	return 0;
+-
+-fail:
+-	kthread_stop(sdp->sd_logd_process);
+-	sdp->sd_logd_process = NULL;
+-	return error;
+-}
+-
+ /**
+  * gfs2_make_fs_rw - Turn a Read-Only FS into a Read-Write one
+  * @sdp: the filesystem
+@@ -161,26 +133,17 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ 	struct gfs2_log_header_host head;
+ 	int error;
+ 
+-	error = init_threads(sdp);
+-	if (error) {
+-		gfs2_withdraw_delayed(sdp);
+-		return error;
+-	}
+-
+ 	j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
+-	if (gfs2_withdrawn(sdp)) {
+-		error = -EIO;
+-		goto fail;
+-	}
++	if (gfs2_withdrawn(sdp))
++		return -EIO;
+ 
+ 	error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
+ 	if (error || gfs2_withdrawn(sdp))
+-		goto fail;
++		return error;
+ 
+ 	if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT)) {
+ 		gfs2_consist(sdp);
+-		error = -EIO;
+-		goto fail;
++		return -EIO;
+ 	}
+ 
+ 	/*  Initialize some head of the log stuff  */
+@@ -188,20 +151,8 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ 	gfs2_log_pointers_init(sdp, head.lh_blkno);
+ 
+ 	error = gfs2_quota_init(sdp);
+-	if (error || gfs2_withdrawn(sdp))
+-		goto fail;
+-
+-	set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
+-
+-	return 0;
+-
+-fail:
+-	if (sdp->sd_quotad_process)
+-		kthread_stop(sdp->sd_quotad_process);
+-	sdp->sd_quotad_process = NULL;
+-	if (sdp->sd_logd_process)
+-		kthread_stop(sdp->sd_logd_process);
+-	sdp->sd_logd_process = NULL;
++	if (!error && !gfs2_withdrawn(sdp))
++		set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
+ 	return error;
+ }
+ 
 -- 
 2.30.2
 
