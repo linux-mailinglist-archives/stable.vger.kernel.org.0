@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C2A8408CBE
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:20:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD125408F2D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:40:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240526AbhIMNVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:21:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35054 "EHLO mail.kernel.org"
+        id S235044AbhIMNkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:40:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240365AbhIMNU2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:20:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 768956108B;
-        Mon, 13 Sep 2021 13:18:48 +0000 (UTC)
+        id S241696AbhIMNiW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:38:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6794C61165;
+        Mon, 13 Sep 2021 13:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539129;
-        bh=W2ISwMdnPyCwnJiP7cxVsBm/OiemhP1eI/40S9FsmAw=;
+        s=korg; t=1631539708;
+        bh=68J+BQWmQsJqIu3OXB9QcfN9zA7ylUU1onZUfpipXd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R6VERJFLHHJ5whxgUtKEXeIN8sgUmYge9zmvKVh9yyR5TEljvJVH+qa40bofYpGVy
-         h7ucNH0pjTbId0o+LG6Vh5wAcoiq7T41iRPK07UfIqXbqqHYeZUkumCnhJkisHHEPM
-         cK+cfQgU6tYdjclORKxo+kg/KaYo+3gSjsKfV2NQ=
+        b=2mYvYtuj1J6IsIUJ0B3qiirbo8dgV2t6ST/ngorjakb3BC96mbd+PvylUBOscmWDj
+         +fn77SqBwytb81vJhuulNlp1II4bnBoRPEo+gs1zxx18R8xwVVuvni6ej3X+gzro8s
+         ZtGl+/sTFT+j3AkPnxfzbq/YhpPeadplrmCuzJjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, He Fengqing <hefengqing@huawei.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 051/144] bpf: Fix potential memleak and UAF in the verifier.
-Date:   Mon, 13 Sep 2021 15:13:52 +0200
-Message-Id: <20210913131049.650854559@linuxfoundation.org>
+Subject: [PATCH 5.10 128/236] soc: qcom: smsm: Fix missed interrupts if state changes while masked
+Date:   Mon, 13 Sep 2021 15:13:53 +0200
+Message-Id: <20210913131104.714934079@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,107 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: He Fengqing <hefengqing@huawei.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 75f0fc7b48ad45a2e5736bcf8de26c8872fe8695 ]
+[ Upstream commit e3d4571955050736bbf3eda0a9538a09d9fcfce8 ]
 
-In bpf_patch_insn_data(), we first use the bpf_patch_insn_single() to
-insert new instructions, then use adjust_insn_aux_data() to adjust
-insn_aux_data. If the old env->prog have no enough room for new inserted
-instructions, we use bpf_prog_realloc to construct new_prog and free the
-old env->prog.
+The SMSM driver detects interrupt edges by tracking the last state
+it has seen (and has triggered the interrupt handler for). This works
+fine, but only if the interrupt does not change state while masked.
 
-There have two errors here. First, if adjust_insn_aux_data() return
-ENOMEM, we should free the new_prog. Second, if adjust_insn_aux_data()
-return ENOMEM, bpf_patch_insn_data() will return NULL, and env->prog has
-been freed in bpf_prog_realloc, but we will use it in bpf_check().
+For example, if an interrupt is unmasked while the state is HIGH,
+the stored last_value for that interrupt might still be LOW. Then,
+when the remote processor triggers smsm_intr() we assume that nothing
+has changed, even though the state might have changed from HIGH to LOW.
 
-So in this patch, we make the adjust_insn_aux_data() never fails. In
-bpf_patch_insn_data(), we first pre-malloc memory for the new
-insn_aux_data, then call bpf_patch_insn_single() to insert new
-instructions, at last call adjust_insn_aux_data() to adjust
-insn_aux_data.
+Attempt to fix this by checking the current remote state before
+unmasking an IRQ. Use atomic operations to avoid the interrupt handler
+from interfering with the unmask function.
 
-Fixes: 8041902dae52 ("bpf: adjust insn_aux_data when patching insns")
-Signed-off-by: He Fengqing <hefengqing@huawei.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Song Liu <songliubraving@fb.com>
-Link: https://lore.kernel.org/bpf/20210714101815.164322-1-hefengqing@huawei.com
+This fixes modem crashes in some edge cases with the BAM-DMUX driver.
+Specifically, the BAM-DMUX interrupt handler is not called for the
+HIGH -> LOW smsm state transition if the BAM-DMUX driver is loaded
+(and therefore unmasks the interrupt) after the modem was already started:
+
+qcom-q6v5-mss 4080000.remoteproc: fatal error received: a2_task.c:3188:
+  Assert FALSE failed: A2 DL PER deadlock timer expired waiting for Apps ACK
+
+Fixes: c97c4090ff72 ("soc: qcom: smsm: Add driver for Qualcomm SMSM")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20210712135703.324748-2-stephan@gerhold.net
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ drivers/soc/qcom/smsm.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 4deaf15b7618..80b219d27e37 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -8401,10 +8401,11 @@ static void convert_pseudo_ld_imm64(struct bpf_verifier_env *env)
-  * insni[off, off + cnt).  Adjust corresponding insn_aux_data by copying
-  * [0, off) and [off, end) to new locations, so the patched range stays zero
-  */
--static int adjust_insn_aux_data(struct bpf_verifier_env *env,
--				struct bpf_prog *new_prog, u32 off, u32 cnt)
-+static void adjust_insn_aux_data(struct bpf_verifier_env *env,
-+				 struct bpf_insn_aux_data *new_data,
-+				 struct bpf_prog *new_prog, u32 off, u32 cnt)
- {
--	struct bpf_insn_aux_data *new_data, *old_data = env->insn_aux_data;
-+	struct bpf_insn_aux_data *old_data = env->insn_aux_data;
- 	struct bpf_insn *insn = new_prog->insnsi;
- 	bool old_seen = old_data[off].seen;
- 	u32 prog_len;
-@@ -8417,12 +8418,9 @@ static int adjust_insn_aux_data(struct bpf_verifier_env *env,
- 	old_data[off].zext_dst = insn_has_def32(env, insn + off + cnt - 1);
+diff --git a/drivers/soc/qcom/smsm.c b/drivers/soc/qcom/smsm.c
+index 70c3c90b997c..c428d0f78816 100644
+--- a/drivers/soc/qcom/smsm.c
++++ b/drivers/soc/qcom/smsm.c
+@@ -109,7 +109,7 @@ struct smsm_entry {
+ 	DECLARE_BITMAP(irq_enabled, 32);
+ 	DECLARE_BITMAP(irq_rising, 32);
+ 	DECLARE_BITMAP(irq_falling, 32);
+-	u32 last_value;
++	unsigned long last_value;
  
- 	if (cnt == 1)
--		return 0;
-+		return;
- 	prog_len = new_prog->len;
--	new_data = vzalloc(array_size(prog_len,
--				      sizeof(struct bpf_insn_aux_data)));
--	if (!new_data)
--		return -ENOMEM;
+ 	u32 *remote_state;
+ 	u32 *subscription;
+@@ -204,8 +204,7 @@ static irqreturn_t smsm_intr(int irq, void *data)
+ 	u32 val;
+ 
+ 	val = readl(entry->remote_state);
+-	changed = val ^ entry->last_value;
+-	entry->last_value = val;
++	changed = val ^ xchg(&entry->last_value, val);
+ 
+ 	for_each_set_bit(i, entry->irq_enabled, 32) {
+ 		if (!(changed & BIT(i)))
+@@ -266,6 +265,12 @@ static void smsm_unmask_irq(struct irq_data *irqd)
+ 	struct qcom_smsm *smsm = entry->smsm;
+ 	u32 val;
+ 
++	/* Make sure our last cached state is up-to-date */
++	if (readl(entry->remote_state) & BIT(irq))
++		set_bit(irq, &entry->last_value);
++	else
++		clear_bit(irq, &entry->last_value);
 +
- 	memcpy(new_data, old_data, sizeof(struct bpf_insn_aux_data) * off);
- 	memcpy(new_data + off + cnt - 1, old_data + off,
- 	       sizeof(struct bpf_insn_aux_data) * (prog_len - off - cnt + 1));
-@@ -8433,7 +8431,6 @@ static int adjust_insn_aux_data(struct bpf_verifier_env *env,
- 	}
- 	env->insn_aux_data = new_data;
- 	vfree(old_data);
--	return 0;
- }
+ 	set_bit(irq, entry->irq_enabled);
  
- static void adjust_subprog_starts(struct bpf_verifier_env *env, u32 off, u32 len)
-@@ -8454,6 +8451,14 @@ static struct bpf_prog *bpf_patch_insn_data(struct bpf_verifier_env *env, u32 of
- 					    const struct bpf_insn *patch, u32 len)
- {
- 	struct bpf_prog *new_prog;
-+	struct bpf_insn_aux_data *new_data = NULL;
-+
-+	if (len > 1) {
-+		new_data = vzalloc(array_size(env->prog->len + len - 1,
-+					      sizeof(struct bpf_insn_aux_data)));
-+		if (!new_data)
-+			return NULL;
-+	}
- 
- 	new_prog = bpf_patch_insn_single(env->prog, off, patch, len);
- 	if (IS_ERR(new_prog)) {
-@@ -8461,10 +8466,10 @@ static struct bpf_prog *bpf_patch_insn_data(struct bpf_verifier_env *env, u32 of
- 			verbose(env,
- 				"insn %d cannot be patched due to 16-bit range\n",
- 				env->insn_aux_data[off].orig_idx);
-+		vfree(new_data);
- 		return NULL;
- 	}
--	if (adjust_insn_aux_data(env, new_prog, off, len))
--		return NULL;
-+	adjust_insn_aux_data(env, new_data, new_prog, off, len);
- 	adjust_subprog_starts(env, off, len);
- 	return new_prog;
- }
+ 	if (entry->subscription) {
 -- 
 2.30.2
 
