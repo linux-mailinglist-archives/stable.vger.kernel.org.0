@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8326B408E87
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7955D4090D3
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:56:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242040AbhIMNfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:35:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47048 "EHLO mail.kernel.org"
+        id S244876AbhIMNzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:55:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242491AbhIMN3f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:29:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBF6061284;
-        Mon, 13 Sep 2021 13:24:14 +0000 (UTC)
+        id S242393AbhIMNxq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:53:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6E9A6112E;
+        Mon, 13 Sep 2021 13:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539455;
-        bh=Rv7ILUMFH64cH54p58y+FiTuguKAxD+AM160WatMc3k=;
+        s=korg; t=1631540108;
+        bh=uN5CR+OJnxeovHmH8+k1UfXVk3zkafDXS4D4RHTAj18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qlxz8TxShS571kftfrIvCRFTxJTiohawbMjoRF4XQGubiMAzpoasgH7mh5lQfkop4
-         EWwa8Obv027pmSI+3drIrqtEUxsrOEHOwOBBi/t0U+iGi5zEX5tBODUvngfbifrLSn
-         SvrLI5ZqPTARUDbaZf3TsOQD3jaJjLTOEglNzHwM=
+        b=mFpkrJMvbM6HnxWdblyBCvKwt2UjCY9ax9E+miVJ/iyrJK53X+gXhKhcYi8qrzQYc
+         aFeNN6xe5C4uTmLqTq1NHQanWYC46mQZA6p4v6PB7rDXWIA3H7qxC5ye0vS6ePQLpB
+         nfN0Z6oCu2jb4MnGKj3wBRtxDC837PFaqy7inYTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruno Goncalves <bgoncalv@redhat.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        stable@vger.kernel.org, Rick Yiu <rickyiu@google.com>,
+        Quentin Perret <qperret@google.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Daniel Bristot de Oliveira <bristot@kernel.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
+        Qais Yousef <qais.yousef@arm.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 008/236] sched/deadline: Fix missing clock update in migrate_task_rq_dl()
-Date:   Mon, 13 Sep 2021 15:11:53 +0200
-Message-Id: <20210913131100.604595827@linuxfoundation.org>
+Subject: [PATCH 5.13 053/300] sched: Fix UCLAMP_FLAG_IDLE setting
+Date:   Mon, 13 Sep 2021 15:11:54 +0200
+Message-Id: <20210913131111.150048708@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dietmar Eggemann <dietmar.eggemann@arm.com>
+From: Quentin Perret <qperret@google.com>
 
-[ Upstream commit b4da13aa28d4fd0071247b7b41c579ee8a86c81a ]
+[ Upstream commit ca4984a7dd863f3e1c0df775ae3e744bff24c303 ]
 
-A missing clock update is causing the following warning:
+The UCLAMP_FLAG_IDLE flag is set on a runqueue when dequeueing the last
+uclamp active task (that is, when buckets.tasks reaches 0 for all
+buckets) to maintain the last uclamp.max and prevent blocked util from
+suddenly becoming visible.
 
-rq->clock_update_flags < RQCF_ACT_SKIP
-WARNING: CPU: 112 PID: 2041 at kernel/sched/sched.h:1453
-sub_running_bw.isra.0+0x190/0x1a0
-...
-CPU: 112 PID: 2041 Comm: sugov:112 Tainted: G W 5.14.0-rc1 #1
-Hardware name: WIWYNN Mt.Jade Server System
-B81.030Z1.0007/Mt.Jade Motherboard, BIOS 1.6.20210526 (SCP:
-1.06.20210526) 2021/05/26
-...
-Call trace:
-  sub_running_bw.isra.0+0x190/0x1a0
-  migrate_task_rq_dl+0xf8/0x1e0
-  set_task_cpu+0xa8/0x1f0
-  try_to_wake_up+0x150/0x3d4
-  wake_up_q+0x64/0xc0
-  __up_write+0xd0/0x1c0
-  up_write+0x4c/0x2b0
-  cppc_set_perf+0x120/0x2d0
-  cppc_cpufreq_set_target+0xe0/0x1a4 [cppc_cpufreq]
-  __cpufreq_driver_target+0x74/0x140
-  sugov_work+0x64/0x80
-  kthread_worker_fn+0xe0/0x230
-  kthread+0x138/0x140
-  ret_from_fork+0x10/0x18
+However, there is an asymmetry in how the flag is set and cleared which
+can lead to having the flag set whilst there are active tasks on the rq.
+Specifically, the flag is cleared in the uclamp_rq_inc() path, which is
+called at enqueue time, but set in uclamp_rq_dec_id() which is called
+both when dequeueing a task _and_ in the update_uclamp_active() path. As
+a result, when both uclamp_rq_{dec,ind}_id() are called from
+update_uclamp_active(), the flag ends up being set but not cleared,
+hence leaving the runqueue in a broken state.
 
-The task causing this is the `cppc_fie` DL task introduced by
-commit 1eb5dde674f5 ("cpufreq: CPPC: Add support for frequency
-invariance").
+Fix this by clearing the flag in update_uclamp_active() as well.
 
-With CONFIG_ACPI_CPPC_CPUFREQ_FIE=y and schedutil cpufreq governor on
-slow-switching system (like on this Ampere Altra WIWYNN Mt. Jade Arm
-Server):
-
-DL task `curr=sugov:112` lets `p=cppc_fie` migrate and since the latter
-is in `non_contending` state, migrate_task_rq_dl() calls
-
-  sub_running_bw()->__sub_running_bw()->cpufreq_update_util()->
-  rq_clock()->assert_clock_updated()
-
-on p.
-
-Fix this by updating the clock for a non_contending task in
-migrate_task_rq_dl() before calling sub_running_bw().
-
-Reported-by: Bruno Goncalves <bgoncalv@redhat.com>
-Signed-off-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Fixes: e496187da710 ("sched/uclamp: Enforce last task's UCLAMP_MAX")
+Reported-by: Rick Yiu <rickyiu@google.com>
+Signed-off-by: Quentin Perret <qperret@google.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Acked-by: Juri Lelli <juri.lelli@redhat.com>
-Link: https://lore.kernel.org/r/20210804135925.3734605-1-dietmar.eggemann@arm.com
+Reviewed-by: Qais Yousef <qais.yousef@arm.com>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Link: https://lore.kernel.org/r/20210805102154.590709-2-qperret@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/deadline.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/sched/core.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
-index 82c76196a9d2..a3ae00c348a8 100644
---- a/kernel/sched/deadline.c
-+++ b/kernel/sched/deadline.c
-@@ -1735,6 +1735,7 @@ static void migrate_task_rq_dl(struct task_struct *p, int new_cpu __maybe_unused
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 15b4d2fb6be3..1e9672d609f7 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1281,6 +1281,23 @@ static inline void uclamp_rq_dec(struct rq *rq, struct task_struct *p)
+ 		uclamp_rq_dec_id(rq, p, clamp_id);
+ }
+ 
++static inline void uclamp_rq_reinc_id(struct rq *rq, struct task_struct *p,
++				      enum uclamp_id clamp_id)
++{
++	if (!p->uclamp[clamp_id].active)
++		return;
++
++	uclamp_rq_dec_id(rq, p, clamp_id);
++	uclamp_rq_inc_id(rq, p, clamp_id);
++
++	/*
++	 * Make sure to clear the idle flag if we've transiently reached 0
++	 * active tasks on rq.
++	 */
++	if (clamp_id == UCLAMP_MAX && (rq->uclamp_flags & UCLAMP_FLAG_IDLE))
++		rq->uclamp_flags &= ~UCLAMP_FLAG_IDLE;
++}
++
+ static inline void
+ uclamp_update_active(struct task_struct *p)
+ {
+@@ -1304,12 +1321,8 @@ uclamp_update_active(struct task_struct *p)
+ 	 * affecting a valid clamp bucket, the next time it's enqueued,
+ 	 * it will already see the updated clamp bucket value.
  	 */
- 	raw_spin_lock(&rq->lock);
- 	if (p->dl.dl_non_contending) {
-+		update_rq_clock(rq);
- 		sub_running_bw(&p->dl, &rq->dl);
- 		p->dl.dl_non_contending = 0;
- 		/*
+-	for_each_clamp_id(clamp_id) {
+-		if (p->uclamp[clamp_id].active) {
+-			uclamp_rq_dec_id(rq, p, clamp_id);
+-			uclamp_rq_inc_id(rq, p, clamp_id);
+-		}
+-	}
++	for_each_clamp_id(clamp_id)
++		uclamp_rq_reinc_id(rq, p, clamp_id);
+ 
+ 	task_rq_unlock(rq, p, &rf);
+ }
 -- 
 2.30.2
 
