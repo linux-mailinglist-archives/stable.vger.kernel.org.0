@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCE32408FAF
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 277E6408D47
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:24:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243225AbhIMNpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:45:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
+        id S240546AbhIMNYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:24:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241463AbhIMNoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:44:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8174C61350;
-        Mon, 13 Sep 2021 13:30:46 +0000 (UTC)
+        id S240610AbhIMNXH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:23:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 837FE61214;
+        Mon, 13 Sep 2021 13:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539847;
-        bh=aR1/j4mTQJKSQr2RZXBR6jtZYZyAhqihq51z16wOFDQ=;
+        s=korg; t=1631539278;
+        bh=OH2yDzer+lljY8y7adYIAqHbNINB8ZEIvHhYPqgZF0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ikk97YBn4x6DNk3g+urFUz54pZDsry+3NqL9SJQM1InAnyLqjBhLI5k5q9stWl3+f
-         ZdiA7Elvt5h65UmcM+jWPFrnumDf1kYlQVk8IE20RFS/LavvpwIZTd8BeOHtEzlOw0
-         eWUnHPCj7uVj39FU0ImSL8rMn3OnCt0fXWJsQqL8=
+        b=Ob8QAFYj5HUzHoPkzlbLe52KFWTwcyLb+NqeA/3kLBFxFAnPqT485qvWlRd6lsd6e
+         b38/k7qjCyCSKht0+Gj/Dy8d90NztfKUgb877TjhUdi0sVxEEVEtXZDCZ83AThj4Ti
+         j8Dl6HXu5SiFlJ/LxyCG8722UkhyZzl703wcsQ3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Lukasz Majczak <lma@semihalf.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrey Ignatov <rdna@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 185/236] ASoC: Intel: Skylake: Fix module resource and format selection
+Subject: [PATCH 5.4 109/144] bpf: Fix possible out of bound write in narrow load handling
 Date:   Mon, 13 Sep 2021 15:14:50 +0200
-Message-Id: <20210913131106.665156610@linuxfoundation.org>
+Message-Id: <20210913131051.587991689@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,94 +41,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: Andrey Ignatov <rdna@fb.com>
 
-[ Upstream commit e8b374b649afe756c2470e0e6668022e90bf8518 ]
+[ Upstream commit d7af7e497f0308bc97809cc48b58e8e0f13887e1 ]
 
-Module configuration may differ between its instances depending on
-resources required and input and output audio format. Available
-parameters to select from are stored in module resource and interface
-(format) lists. These come from topology, together with description of
-each of pipe's modules.
+Fix a verifier bug found by smatch static checker in [0].
 
-Ignoring index value provided by topology and relying always on 0th
-entry leads to unexpected module behavior due to under/overbudged
-resources assigned or impropper format selection. Fix by taking entry at
-index specified by topology.
+This problem has never been seen in prod to my best knowledge. Fixing it
+still seems to be a good idea since it's hard to say for sure whether
+it's possible or not to have a scenario where a combination of
+convert_ctx_access() and a narrow load would lead to an out of bound
+write.
 
-Fixes: f6fa56e22559 ("ASoC: Intel: Skylake: Parse and update module config structure")
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Tested-by: Lukasz Majczak <lma@semihalf.com>
-Link: https://lore.kernel.org/r/20210818075742.1515155-5-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+When narrow load is handled, one or two new instructions are added to
+insn_buf array, but before it was only checked that
+
+	cnt >= ARRAY_SIZE(insn_buf)
+
+And it's safe to add a new instruction to insn_buf[cnt++] only once. The
+second try will lead to out of bound write. And this is what can happen
+if `shift` is set.
+
+Fix it by making sure that if the BPF_RSH instruction has to be added in
+addition to BPF_AND then there is enough space for two more instructions
+in insn_buf.
+
+The full report [0] is below:
+
+kernel/bpf/verifier.c:12304 convert_ctx_accesses() warn: offset 'cnt' incremented past end of array
+kernel/bpf/verifier.c:12311 convert_ctx_accesses() warn: offset 'cnt' incremented past end of array
+
+kernel/bpf/verifier.c
+    12282
+    12283 			insn->off = off & ~(size_default - 1);
+    12284 			insn->code = BPF_LDX | BPF_MEM | size_code;
+    12285 		}
+    12286
+    12287 		target_size = 0;
+    12288 		cnt = convert_ctx_access(type, insn, insn_buf, env->prog,
+    12289 					 &target_size);
+    12290 		if (cnt == 0 || cnt >= ARRAY_SIZE(insn_buf) ||
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Bounds check.
+
+    12291 		    (ctx_field_size && !target_size)) {
+    12292 			verbose(env, "bpf verifier is misconfigured\n");
+    12293 			return -EINVAL;
+    12294 		}
+    12295
+    12296 		if (is_narrower_load && size < target_size) {
+    12297 			u8 shift = bpf_ctx_narrow_access_offset(
+    12298 				off, size, size_default) * 8;
+    12299 			if (ctx_field_size <= 4) {
+    12300 				if (shift)
+    12301 					insn_buf[cnt++] = BPF_ALU32_IMM(BPF_RSH,
+                                                         ^^^^^
+increment beyond end of array
+
+    12302 									insn->dst_reg,
+    12303 									shift);
+--> 12304 				insn_buf[cnt++] = BPF_ALU32_IMM(BPF_AND, insn->dst_reg,
+                                                 ^^^^^
+out of bounds write
+
+    12305 								(1 << size * 8) - 1);
+    12306 			} else {
+    12307 				if (shift)
+    12308 					insn_buf[cnt++] = BPF_ALU64_IMM(BPF_RSH,
+    12309 									insn->dst_reg,
+    12310 									shift);
+    12311 				insn_buf[cnt++] = BPF_ALU64_IMM(BPF_AND, insn->dst_reg,
+                                        ^^^^^^^^^^^^^^^
+Same.
+
+    12312 								(1ULL << size * 8) - 1);
+    12313 			}
+    12314 		}
+    12315
+    12316 		new_prog = bpf_patch_insn_data(env, i + delta, insn_buf, cnt);
+    12317 		if (!new_prog)
+    12318 			return -ENOMEM;
+    12319
+    12320 		delta += cnt - 1;
+    12321
+    12322 		/* keep walking new program and skip insns we just inserted */
+    12323 		env->prog = new_prog;
+    12324 		insn      = new_prog->insnsi + i + delta;
+    12325 	}
+    12326
+    12327 	return 0;
+    12328 }
+
+[0] https://lore.kernel.org/bpf/20210817050843.GA21456@kili/
+
+v1->v2:
+- clarify that problem was only seen by static checker but not in prod;
+
+Fixes: 46f53a65d2de ("bpf: Allow narrow loads with offset > 0")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Andrey Ignatov <rdna@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210820163935.1902398-1-rdna@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/skylake/skl-topology.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ kernel/bpf/verifier.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/sound/soc/intel/skylake/skl-topology.c b/sound/soc/intel/skylake/skl-topology.c
-index 16f9f3bd68be..73976c6dfbdc 100644
---- a/sound/soc/intel/skylake/skl-topology.c
-+++ b/sound/soc/intel/skylake/skl-topology.c
-@@ -113,7 +113,7 @@ static int is_skl_dsp_widget_type(struct snd_soc_dapm_widget *w,
- 
- static void skl_dump_mconfig(struct skl_dev *skl, struct skl_module_cfg *mcfg)
- {
--	struct skl_module_iface *iface = &mcfg->module->formats[0];
-+	struct skl_module_iface *iface = &mcfg->module->formats[mcfg->fmt_idx];
- 
- 	dev_dbg(skl->dev, "Dumping config\n");
- 	dev_dbg(skl->dev, "Input Format:\n");
-@@ -195,8 +195,8 @@ static void skl_tplg_update_params_fixup(struct skl_module_cfg *m_cfg,
- 	struct skl_module_fmt *in_fmt, *out_fmt;
- 
- 	/* Fixups will be applied to pin 0 only */
--	in_fmt = &m_cfg->module->formats[0].inputs[0].fmt;
--	out_fmt = &m_cfg->module->formats[0].outputs[0].fmt;
-+	in_fmt = &m_cfg->module->formats[m_cfg->fmt_idx].inputs[0].fmt;
-+	out_fmt = &m_cfg->module->formats[m_cfg->fmt_idx].outputs[0].fmt;
- 
- 	if (params->stream == SNDRV_PCM_STREAM_PLAYBACK) {
- 		if (is_fe) {
-@@ -239,9 +239,9 @@ static void skl_tplg_update_buffer_size(struct skl_dev *skl,
- 	/* Since fixups is applied to pin 0 only, ibs, obs needs
- 	 * change for pin 0 only
- 	 */
--	res = &mcfg->module->resources[0];
--	in_fmt = &mcfg->module->formats[0].inputs[0].fmt;
--	out_fmt = &mcfg->module->formats[0].outputs[0].fmt;
-+	res = &mcfg->module->resources[mcfg->res_idx];
-+	in_fmt = &mcfg->module->formats[mcfg->fmt_idx].inputs[0].fmt;
-+	out_fmt = &mcfg->module->formats[mcfg->fmt_idx].outputs[0].fmt;
- 
- 	if (mcfg->m_type == SKL_MODULE_TYPE_SRCINT)
- 		multiplier = 5;
-@@ -1631,11 +1631,12 @@ int skl_tplg_update_pipe_params(struct device *dev,
- 			struct skl_module_cfg *mconfig,
- 			struct skl_pipe_params *params)
- {
--	struct skl_module_res *res = &mconfig->module->resources[0];
-+	struct skl_module_res *res;
- 	struct skl_dev *skl = get_skl_ctx(dev);
- 	struct skl_module_fmt *format = NULL;
- 	u8 cfg_idx = mconfig->pipe->cur_config_idx;
- 
-+	res = &mconfig->module->resources[mconfig->res_idx];
- 	skl_tplg_fill_dma_id(mconfig, params);
- 	mconfig->fmt_idx = mconfig->mod_cfg[cfg_idx].fmt_idx;
- 	mconfig->res_idx = mconfig->mod_cfg[cfg_idx].res_idx;
-@@ -1644,9 +1645,9 @@ int skl_tplg_update_pipe_params(struct device *dev,
- 		return 0;
- 
- 	if (params->stream == SNDRV_PCM_STREAM_PLAYBACK)
--		format = &mconfig->module->formats[0].inputs[0].fmt;
-+		format = &mconfig->module->formats[mconfig->fmt_idx].inputs[0].fmt;
- 	else
--		format = &mconfig->module->formats[0].outputs[0].fmt;
-+		format = &mconfig->module->formats[mconfig->fmt_idx].outputs[0].fmt;
- 
- 	/* set the hw_params */
- 	format->s_freq = params->s_freq;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 80b219d27e37..c5ecb6147ea2 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -8957,6 +8957,10 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
+ 		if (is_narrower_load && size < target_size) {
+ 			u8 shift = bpf_ctx_narrow_access_offset(
+ 				off, size, size_default) * 8;
++			if (shift && cnt + 1 >= ARRAY_SIZE(insn_buf)) {
++				verbose(env, "bpf verifier narrow ctx load misconfigured\n");
++				return -EINVAL;
++			}
+ 			if (ctx_field_size <= 4) {
+ 				if (shift)
+ 					insn_buf[cnt++] = BPF_ALU32_IMM(BPF_RSH,
 -- 
 2.30.2
 
