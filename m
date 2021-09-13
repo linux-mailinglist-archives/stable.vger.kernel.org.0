@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25DC7408D03
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:21:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4470E408F7D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240762AbhIMNWv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:22:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
+        id S242575AbhIMNnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:43:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240755AbhIMNVd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:21:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72A20610D2;
-        Mon, 13 Sep 2021 13:20:17 +0000 (UTC)
+        id S242980AbhIMNlP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:41:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5D9F6134F;
+        Mon, 13 Sep 2021 13:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539218;
-        bh=33QvFHbCTXbaUPpjLD6UmNzkN6ds9LL8q5cT5P2oI5o=;
+        s=korg; t=1631539789;
+        bh=uiKeTbmRF95U4LLFHxQAHG5XWouIQW7bQH0cUQ036h0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MGFqIxxj9Www3nTrdUuA00Nkk6lNG8jsKqXHEd4/n1E9ZUq+Ih1K2PJB16UWVhJw0
-         myGZOfrm9jQkYs2yd6EtdX3qZg/PRCSELA5jxFf7wRS32mv12TMl1jcvw8jhoYpEO1
-         zYVqTmmwmgpyioP/s5vqDJoDE0VoxMQc/ahPrBI8=
+        b=h41ba1VgrOSVh2JQawOPdHYZxosbwiIGANsf2ENNdgaWcCAJtSb8wkspO2xgckjZC
+         VE32xP1FFtFslE1AoWSs+KCjh2xACC9pNsZWLltLtQWqNLVBLTZs7TacDnHe7fkQfH
+         OhPrkDMbfG3okt7ClZ/XoPi8AF91JV2W+ZHj9Kc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Syed Nayyar Waris <syednwaris@gmail.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 085/144] counter: 104-quad-8: Return error when invalid mode during ceiling_write
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 161/236] libbpf: Re-build libbpf.so when libbpf.map changes
 Date:   Mon, 13 Sep 2021 15:14:26 +0200
-Message-Id: <20210913131050.801774754@linuxfoundation.org>
+Message-Id: <20210913131105.861387748@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Breathitt Gray <vilhelm.gray@gmail.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 728246e8f7269ecd35a2c6e6795323e6d8f48db7 ]
+[ Upstream commit 61c7aa5020e98ac2fdcf07d07eec1baf2e9f0a08 ]
 
-The 104-QUAD-8 only has two count modes where a ceiling value makes
-sense: Range Limit and Modulo-N. Outside of these two modes, setting a
-ceiling value is an invalid operation -- so let's report it as such by
-returning -EINVAL.
+Ensure libbpf.so is re-built whenever libbpf.map is modified.  Without this,
+changes to libbpf.map are not detected and versioned symbols mismatch error
+will be reported until `make clean && make` is used, which is a suboptimal
+developer experience.
 
-Fixes: fc069262261c ("counter: 104-quad-8: Add lock guards - generic interface")
-Acked-by: Syed Nayyar Waris <syednwaris@gmail.com>
-Signed-off-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-Link: https://lore.kernel.org/r/a2147f022829b66839a1db5530a7fada47856847.1627990337.git.vilhelm.gray@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 306b267cb3c4 ("libbpf: Verify versioned symbols")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20210815070609.987780-8-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/counter/104-quad-8.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ tools/lib/bpf/Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/counter/104-quad-8.c b/drivers/counter/104-quad-8.c
-index 5c23a9a56921..f261a57af1c0 100644
---- a/drivers/counter/104-quad-8.c
-+++ b/drivers/counter/104-quad-8.c
-@@ -1230,12 +1230,13 @@ static ssize_t quad8_count_ceiling_write(struct counter_device *counter,
- 	case 1:
- 	case 3:
- 		quad8_preset_register_set(priv, count->id, ceiling);
--		break;
-+		mutex_unlock(&priv->lock);
-+		return len;
- 	}
+diff --git a/tools/lib/bpf/Makefile b/tools/lib/bpf/Makefile
+index 310f647c2d5b..154b75fc1373 100644
+--- a/tools/lib/bpf/Makefile
++++ b/tools/lib/bpf/Makefile
+@@ -4,8 +4,9 @@
+ RM ?= rm
+ srctree = $(abs_srctree)
  
- 	mutex_unlock(&priv->lock);
++VERSION_SCRIPT := libbpf.map
+ LIBBPF_VERSION := $(shell \
+-	grep -oE '^LIBBPF_([0-9.]+)' libbpf.map | \
++	grep -oE '^LIBBPF_([0-9.]+)' $(VERSION_SCRIPT) | \
+ 	sort -rV | head -n1 | cut -d'_' -f2)
+ LIBBPF_MAJOR_VERSION := $(firstword $(subst ., ,$(LIBBPF_VERSION)))
  
--	return len;
-+	return -EINVAL;
- }
+@@ -131,7 +132,6 @@ SHARED_OBJDIR	:= $(OUTPUT)sharedobjs/
+ STATIC_OBJDIR	:= $(OUTPUT)staticobjs/
+ BPF_IN_SHARED	:= $(SHARED_OBJDIR)libbpf-in.o
+ BPF_IN_STATIC	:= $(STATIC_OBJDIR)libbpf-in.o
+-VERSION_SCRIPT	:= libbpf.map
+ BPF_HELPER_DEFS	:= $(OUTPUT)bpf_helper_defs.h
  
- static ssize_t quad8_count_preset_enable_read(struct counter_device *counter,
+ LIB_TARGET	:= $(addprefix $(OUTPUT),$(LIB_TARGET))
+@@ -184,10 +184,10 @@ $(BPF_HELPER_DEFS): $(srctree)/tools/include/uapi/linux/bpf.h
+ 
+ $(OUTPUT)libbpf.so: $(OUTPUT)libbpf.so.$(LIBBPF_VERSION)
+ 
+-$(OUTPUT)libbpf.so.$(LIBBPF_VERSION): $(BPF_IN_SHARED)
++$(OUTPUT)libbpf.so.$(LIBBPF_VERSION): $(BPF_IN_SHARED) $(VERSION_SCRIPT)
+ 	$(QUIET_LINK)$(CC) $(LDFLAGS) \
+ 		--shared -Wl,-soname,libbpf.so.$(LIBBPF_MAJOR_VERSION) \
+-		-Wl,--version-script=$(VERSION_SCRIPT) $^ -lelf -lz -o $@
++		-Wl,--version-script=$(VERSION_SCRIPT) $< -lelf -lz -o $@
+ 	@ln -sf $(@F) $(OUTPUT)libbpf.so
+ 	@ln -sf $(@F) $(OUTPUT)libbpf.so.$(LIBBPF_MAJOR_VERSION)
+ 
+@@ -202,7 +202,7 @@ $(OUTPUT)libbpf.pc:
+ 
+ check: check_abi
+ 
+-check_abi: $(OUTPUT)libbpf.so
++check_abi: $(OUTPUT)libbpf.so $(VERSION_SCRIPT)
+ 	@if [ "$(GLOBAL_SYM_COUNT)" != "$(VERSIONED_SYM_COUNT)" ]; then	 \
+ 		echo "Warning: Num of global symbols in $(BPF_IN_SHARED)"	 \
+ 		     "($(GLOBAL_SYM_COUNT)) does NOT match with num of"	 \
 -- 
 2.30.2
 
