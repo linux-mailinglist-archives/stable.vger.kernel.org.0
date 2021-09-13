@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F463408FFD
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:47:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46DC7408DC5
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:28:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242636AbhIMNsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:48:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51542 "EHLO mail.kernel.org"
+        id S240980AbhIMN3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:29:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242222AbhIMNql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:46:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4CA760FC1;
-        Mon, 13 Sep 2021 13:31:55 +0000 (UTC)
+        id S241153AbhIMNZx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:25:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 176236112E;
+        Mon, 13 Sep 2021 13:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539916;
-        bh=fT292m/SNxuzLY1t+SCsCQsUexxhcXIKN/bPLzBAUks=;
+        s=korg; t=1631539353;
+        bh=yArJWrVgo40PMQ03AcyoPAZmuGj2RjvY5scvWn8TIBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LacpkuUiwfoNHiNbwhIT8pszVtDWQhMNevtbzNLyr8e6wIborkzUSBfs3TbSoogV2
-         Orl88soTVXaQeP9gfdSUdX71m+Cu+d3NM73LmrXWOkQ1XTDubV4pRSps8thaCUGq1Y
-         6SZsCJnOaZm6mhF8yY3WNR4DcnywZwSWJJAb+dhY=
+        b=a30yU5PnTTz0c+otsL9v/cnfZpmK6aYDLJqQdKHYKSYwsYuCY7MPBt0kpwdqJx4He
+         RTQ6xKcbWwkvBZVZzGrDgsBQKACbIqEvr1z+grqL0e8dsTSfDos7ak7ZAcjP2tedZe
+         k9CkN4p7o1/y1aoXipq8FWoxTinSucsie/Qd9V7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sunil Goutham <sgoutham@marvell.com>,
-        Subbaraya Sundeep <sbhatta@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 213/236] octeontx2-af: Set proper errorcode for IPv4 checksum errors
-Date:   Mon, 13 Sep 2021 15:15:18 +0200
-Message-Id: <20210913131107.617928931@linuxfoundation.org>
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 138/144] fuse: truncate pagecache on atomic_o_trunc
+Date:   Mon, 13 Sep 2021 15:15:19 +0200
+Message-Id: <20210913131052.546705808@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sunil Goutham <sgoutham@marvell.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 1e4428b6dba9b683dc2ec0a56ed7879de3200cce ]
+commit 76224355db7570cbe6b6f75c8929a1558828dd55 upstream.
 
-With current config, for packets with IPv4 checksum errors,
-errorcode is being set to UNKNOWN. Hence added a separate
-errorcodes for outer and inner IPv4 checksum and changed
-NPC configuration accordingly.
+fuse_finish_open() will be called with FUSE_NOWRITE in case of atomic
+O_TRUNC.  This can deadlock with fuse_wait_on_page_writeback() in
+fuse_launder_page() triggered by invalidate_inode_pages2().
 
-Also turn on L2 multicast address check in NPC protocol check block.
+Fix by replacing invalidate_inode_pages2() in fuse_finish_open() with a
+truncate_pagecache() call.  This makes sense regardless of FOPEN_KEEP_CACHE
+or fc->writeback cache, so do it unconditionally.
 
-Fixes: 6b3321bacc5a ("octeontx2-af: Enable packet length and csum validation")
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Xie Yongji <xieyongji@bytedance.com>
+Reported-and-tested-by: syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
+Fixes: e4648309b85a ("fuse: truncate pending writes on O_TRUNC")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/fuse/file.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-index a8a515ba1700..6fa9358e6db4 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_npc.c
-@@ -1171,14 +1171,15 @@ int rvu_npc_init(struct rvu *rvu)
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -193,12 +193,11 @@ void fuse_finish_open(struct inode *inod
+ 	struct fuse_file *ff = file->private_data;
+ 	struct fuse_conn *fc = get_fuse_conn(inode);
  
- 	/* Enable below for Rx pkts.
- 	 * - Outer IPv4 header checksum validation.
--	 * - Detect outer L2 broadcast address and set NPC_RESULT_S[L2M].
-+	 * - Detect outer L2 broadcast address and set NPC_RESULT_S[L2B].
-+	 * - Detect outer L2 multicast address and set NPC_RESULT_S[L2M].
- 	 * - Inner IPv4 header checksum validation.
- 	 * - Set non zero checksum error code value
- 	 */
- 	rvu_write64(rvu, blkaddr, NPC_AF_PCK_CFG,
- 		    rvu_read64(rvu, blkaddr, NPC_AF_PCK_CFG) |
--		    BIT_ULL(32) | BIT_ULL(24) | BIT_ULL(6) |
--		    BIT_ULL(2) | BIT_ULL(1));
-+		    ((u64)NPC_EC_OIP4_CSUM << 32) | (NPC_EC_IIP4_CSUM << 24) |
-+		    BIT_ULL(7) | BIT_ULL(6) | BIT_ULL(2) | BIT_ULL(1));
+-	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
+-		invalidate_inode_pages2(inode->i_mapping);
+ 	if (ff->open_flags & FOPEN_STREAM)
+ 		stream_open(inode, file);
+ 	else if (ff->open_flags & FOPEN_NONSEEKABLE)
+ 		nonseekable_open(inode, file);
++
+ 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
+ 		struct fuse_inode *fi = get_fuse_inode(inode);
  
- 	/* Set RX and TX side MCAM search key size.
- 	 * LA..LD (ltype only) + Channel
--- 
-2.30.2
-
+@@ -206,10 +205,14 @@ void fuse_finish_open(struct inode *inod
+ 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
+ 		i_size_write(inode, 0);
+ 		spin_unlock(&fi->lock);
++		truncate_pagecache(inode, 0);
+ 		fuse_invalidate_attr(inode);
+ 		if (fc->writeback_cache)
+ 			file_update_time(file);
++	} else if (!(ff->open_flags & FOPEN_KEEP_CACHE)) {
++		invalidate_inode_pages2(inode->i_mapping);
+ 	}
++
+ 	if ((file->f_mode & FMODE_WRITE) && fc->writeback_cache)
+ 		fuse_link_write_file(file);
+ }
 
 
