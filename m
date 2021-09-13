@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C58804095D1
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B084F409567
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241505AbhIMOph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:45:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60460 "EHLO mail.kernel.org"
+        id S1344565AbhIMOlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:41:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347632AbhIMOmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:42:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 721C861250;
-        Mon, 13 Sep 2021 13:56:28 +0000 (UTC)
+        id S1346230AbhIMOjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:39:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05FCB61C16;
+        Mon, 13 Sep 2021 13:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541389;
-        bh=YaizDK3+8aCcaeOv0UjPwQK6/YhwKWk2h9k12AOdSCM=;
+        s=korg; t=1631541306;
+        bh=hL90DXIM74ocYY1wpc5HpqWBhujKelUfVbEiWwtusfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0WEaq/LkrVlwFT6OgVZjszVtNZ4qw4nv65YES38475F0fECTQxNSCK1NxerVGHfhF
-         HDQVytKM6SsBgyTGaOmC7Epjr+Ksy6d4Zxemy14h+HXmDMrfX2NoiWOVCS+xp36bvk
-         KOnMBOnSqluxCw8iHJO5AP/nCDj9f06e0/XbzV/E=
+        b=m5yIYuOIjkdHfwSCyDZujwquO3g/hzHefuxQHhOH06K83b+QTjWHmo7cebF/9Hxj6
+         ZzYEzkEma8MGjU1pK66J8hYEMTIPgx6vAVqHrSU0v5IFT+Ia7pwsspPf06e8Q8m5PR
+         8mCq2rMqK7bqT7YnZXdYhTp8EK1MJSi3E6QRQzdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geetha sowjanya <gakula@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Greg Ungerer <gerg@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 245/334] octeontx2-af: cn10k: Use FLIT0 register instead of FLIT1
-Date:   Mon, 13 Sep 2021 15:14:59 +0200
-Message-Id: <20210913131121.684410505@linuxfoundation.org>
+Subject: [PATCH 5.14 246/334] m68k: coldfire: return success for clk_enable(NULL)
+Date:   Mon, 13 Sep 2021 15:15:00 +0200
+Message-Id: <20210913131121.714823869@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,54 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geetha sowjanya <gakula@marvell.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 623da5ca70b70f01cd483585f5cd4c463cf2f2da ]
+[ Upstream commit f6a4f0b424df957d84fa7b9f2d02981234ff5828 ]
 
-RVU SMMU widget stores the final translated PA at
-RVU_AF_SMMU_TLN_FLIT0<57:18> instead of FLIT1 register. This patch
-fixes the address translation logic to use the correct register.
+The clk_enable is supposed work when CONFIG_HAVE_CLK is false, but it
+returns -EINVAL.  That means some drivers fail during probe.
 
-Fixes: 893ae97214c3 ("octeontx2-af: cn10k: Support configurable LMTST regions")
-Signed-off-by: Geetha sowjanya <gakula@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[    1.680000] flexcan: probe of flexcan.0 failed with error -22
+
+Fixes: c1fb1bf64bb6 ("m68k: let clk_enable() return immediately if clk is NULL")
+Fixes: bea8bcb12da0 ("m68knommu: Add support for the Coldfire m5441x.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_cn10k.c | 4 ++--
- drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h   | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/m68k/coldfire/clk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cn10k.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cn10k.c
-index 28dcce7d575a..dbe9149a215e 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_cn10k.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_cn10k.c
-@@ -82,10 +82,10 @@ static int rvu_get_lmtaddr(struct rvu *rvu, u16 pcifunc,
- 		dev_err(rvu->dev, "%s LMTLINE iova transulation failed err:%llx\n", __func__, val);
- 		return -EIO;
- 	}
--	/* PA[51:12] = RVU_AF_SMMU_TLN_FLIT1[60:21]
-+	/* PA[51:12] = RVU_AF_SMMU_TLN_FLIT0[57:18]
- 	 * PA[11:0] = IOVA[11:0]
- 	 */
--	pa = rvu_read64(rvu, BLKADDR_RVUM, RVU_AF_SMMU_TLN_FLIT1) >> 21;
-+	pa = rvu_read64(rvu, BLKADDR_RVUM, RVU_AF_SMMU_TLN_FLIT0) >> 18;
- 	pa &= GENMASK_ULL(39, 0);
- 	*lmt_addr = (pa << 12) | (iova  & 0xFFF);
+diff --git a/arch/m68k/coldfire/clk.c b/arch/m68k/coldfire/clk.c
+index 2ed841e94111..d03b6c4aa86b 100644
+--- a/arch/m68k/coldfire/clk.c
++++ b/arch/m68k/coldfire/clk.c
+@@ -78,7 +78,7 @@ int clk_enable(struct clk *clk)
+ 	unsigned long flags;
  
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h b/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
-index 8b01ef6e2c99..4215841c9f86 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_reg.h
-@@ -53,7 +53,7 @@
- #define RVU_AF_SMMU_TXN_REQ		    (0x6008)
- #define RVU_AF_SMMU_ADDR_RSP_STS	    (0x6010)
- #define RVU_AF_SMMU_ADDR_TLN		    (0x6018)
--#define RVU_AF_SMMU_TLN_FLIT1		    (0x6030)
-+#define RVU_AF_SMMU_TLN_FLIT0		    (0x6020)
+ 	if (!clk)
+-		return -EINVAL;
++		return 0;
  
- /* Admin function's privileged PF/VF registers */
- #define RVU_PRIV_CONST                      (0x8000000)
+ 	spin_lock_irqsave(&clk_lock, flags);
+ 	if ((clk->enabled++ == 0) && clk->clk_ops)
 -- 
 2.30.2
 
