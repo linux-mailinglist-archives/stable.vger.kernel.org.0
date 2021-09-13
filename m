@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59E24408D14
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5816C408F8A
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240845AbhIMNXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:23:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38020 "EHLO mail.kernel.org"
+        id S233779AbhIMNoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:44:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240160AbhIMNVt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:21:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94535610F7;
-        Mon, 13 Sep 2021 13:20:32 +0000 (UTC)
+        id S243173AbhIMNmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:42:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59A3A61409;
+        Mon, 13 Sep 2021 13:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539233;
-        bh=9hnF8+CnRoL2OmBCjCKNXSTd0852sHHFCZ5F952HWAc=;
+        s=korg; t=1631539804;
+        bh=rgDUh1MOK9zHmoxEWJmcgdk9UcoBZzxp9Kao/q7MEm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B2WKqIW4AGr0fs8vK0Stporzi8n+FeBb/pfcqZi+AXLSawFpQqPrn3OiK/pCT1o+k
-         LF8kPSexilm9MscMHdtr3qbkDKtAU2xhCSXnNfOldHKaQRz+MpN24Gm1cliqSyDuFe
-         WlHdVbLD/68smkTceKevAad8XTPwFaqn8dVGcPXk=
+        b=vr853Zg04X8KX5c0/JKM76I6OOMPE9Pa7ypzyXwMpTSlprqoBz/wKsf3YLxNX9P+m
+         gP9qIcE5FcwybbOlpJaNLi6eV+MSyfx53A9rzUq86B/SXHcmadE1qmEdntKCHMn+RR
+         8eOyO9UgSb5KZUjGykOPJ4oqEBnjrpXtukMnW+hA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/144] usb: phy: twl6030: add IRQ checks
+Subject: [PATCH 5.10 166/236] nfsd4: Fix forced-expiry locking
 Date:   Mon, 13 Sep 2021 15:14:31 +0200
-Message-Id: <20210913131050.961784753@linuxfoundation.org>
+Message-Id: <20210913131106.020822412@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 0881e22c06e66af0b64773c91c8868ead3d01aa1 ]
+[ Upstream commit f7104cc1a9159cd0d3e8526cb638ae0301de4b61 ]
 
-The driver neglects to check the result of platform_get_irq()'s calls and
-blithely passes the negative error codes to request_threaded_irq() (which
-takes *unsigned* IRQ #), causing them both to fail with -EINVAL, overriding
-an original error code.  Stop calling request_threaded_irq() with the
-invalid IRQ #s.
+This should use the network-namespace-wide client_lock, not the
+per-client cl_lock.
 
-Fixes: c33fad0c3748 ("usb: otg: Adding twl6030-usb transceiver driver for OMAP4430")
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/9507f50b-50f1-6dc4-f57c-3ed4e53a1c25@omp.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+You shouldn't see any bugs unless you're actually using the
+forced-expiry interface introduced by 89c905beccbb.
+
+Fixes: 89c905beccbb "nfsd: allow forced expiration of NFSv4 clients"
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/phy/phy-twl6030-usb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/nfsd/nfs4state.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/phy/phy-twl6030-usb.c b/drivers/usb/phy/phy-twl6030-usb.c
-index 9a7e655d5280..9337c30f0743 100644
---- a/drivers/usb/phy/phy-twl6030-usb.c
-+++ b/drivers/usb/phy/phy-twl6030-usb.c
-@@ -348,6 +348,11 @@ static int twl6030_usb_probe(struct platform_device *pdev)
- 	twl->irq2		= platform_get_irq(pdev, 1);
- 	twl->linkstat		= MUSB_UNKNOWN;
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 80e394a2e3fd..142aac9b63a8 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -2646,9 +2646,9 @@ static void force_expire_client(struct nfs4_client *clp)
+ 	struct nfsd_net *nn = net_generic(clp->net, nfsd_net_id);
+ 	bool already_expired;
  
-+	if (twl->irq1 < 0)
-+		return twl->irq1;
-+	if (twl->irq2 < 0)
-+		return twl->irq2;
-+
- 	twl->comparator.set_vbus	= twl6030_set_vbus;
- 	twl->comparator.start_srp	= twl6030_start_srp;
+-	spin_lock(&clp->cl_lock);
++	spin_lock(&nn->client_lock);
+ 	clp->cl_time = 0;
+-	spin_unlock(&clp->cl_lock);
++	spin_unlock(&nn->client_lock);
  
+ 	wait_event(expiry_wq, atomic_read(&clp->cl_rpc_users) == 0);
+ 	spin_lock(&nn->client_lock);
 -- 
 2.30.2
 
