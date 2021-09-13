@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B610E40926E
+	by mail.lfdr.de (Postfix) with ESMTP id 225B140926D
 	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244272AbhIMOL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:11:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
+        id S244024AbhIMOLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:11:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344800AbhIMOJW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344803AbhIMOJW (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:09:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3A98613BD;
-        Mon, 13 Sep 2021 13:41:26 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F00ED61406;
+        Mon, 13 Sep 2021 13:41:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540487;
-        bh=YL5lHgV7BlQITrn9EiI518hspeZX/mS836cuX6nZloM=;
+        s=korg; t=1631540489;
+        bh=ZJe7jnB1GWaJqSwLnCr04Nl2/MgqFHUp/pe6OZWi7sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tTk8k45lEBp85JYI4ODMGJqQJI3zyfm9jOimBk7q2Li7GzJBW9n4nF5wYvwyOQzfP
-         pk2/k+MWh/i3tDlwSDDMTApgBCplKfAZTa0FSbcV9I44Qo4ePv6bml1WlO4jp86XQC
-         ze+7cissVRbkdWoD22W+Kkt32NHUA3Ctn+hga3Y4=
+        b=wS/IJd475KV6g+djkLix1Ks0SYJ0zZtDmgulKEknwy9pNRAtJv7bPPD1tnUHs0roh
+         Su78MOEPYMqjTJ9lQPmmkV5d3zX4rPREF5+JfRWhx19W3Qq1mZ8YlCRkZ+AVC0ByWa
+         X04AuLdcPfYG20QT9459dyMBJQN3Os47RzF39gG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 213/300] i2c: s3c2410: fix IRQ check
-Date:   Mon, 13 Sep 2021 15:14:34 +0200
-Message-Id: <20210913131116.555380905@linuxfoundation.org>
+Subject: [PATCH 5.13 214/300] i2c: hix5hd2: fix IRQ check
+Date:   Mon, 13 Sep 2021 15:14:35 +0200
+Message-Id: <20210913131116.586927811@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -42,34 +41,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit d6840a5e370b7ea4fde16ce2caf431bcc87f9a75 ]
+[ Upstream commit f9b459c2ba5edfe247e86b45ad5dea8da542f3ea ]
 
 Iff platform_get_irq() returns 0, the driver's probe() method will return 0
 early (as if the method's call was successful).  Let's consider IRQ0 valid
 for simplicity -- devm_request_irq() can always override that decision...
 
-Fixes: e0d1ec97853f ("i2c-s3c2410: Change IRQ to be plain integer.")
+Fixes: 15ef27756b23 ("i2c: hix5hd2: add i2c controller driver")
 Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-s3c2410.c | 2 +-
+ drivers/i2c/busses/i2c-hix5hd2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 4d82761e1585..b49a1b170bb2 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -1137,7 +1137,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 	 */
- 	if (!(i2c->quirks & QUIRK_POLL)) {
- 		i2c->irq = ret = platform_get_irq(pdev, 0);
--		if (ret <= 0) {
-+		if (ret < 0) {
- 			dev_err(&pdev->dev, "cannot find IRQ\n");
- 			clk_unprepare(i2c->clk);
- 			return ret;
+diff --git a/drivers/i2c/busses/i2c-hix5hd2.c b/drivers/i2c/busses/i2c-hix5hd2.c
+index aa00ba8bcb70..61ae58f57047 100644
+--- a/drivers/i2c/busses/i2c-hix5hd2.c
++++ b/drivers/i2c/busses/i2c-hix5hd2.c
+@@ -413,7 +413,7 @@ static int hix5hd2_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(priv->regs);
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq <= 0)
++	if (irq < 0)
+ 		return irq;
+ 
+ 	priv->clk = devm_clk_get(&pdev->dev, NULL);
 -- 
 2.30.2
 
