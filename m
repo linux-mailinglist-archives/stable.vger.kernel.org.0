@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59B43408D20
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:22:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C63F6408D23
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:22:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239949AbhIMNXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:23:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34852 "EHLO mail.kernel.org"
+        id S240194AbhIMNXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:23:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240218AbhIMNUD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240223AbhIMNUD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 09:20:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D294E61209;
-        Mon, 13 Sep 2021 13:18:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D79C6113E;
+        Mon, 13 Sep 2021 13:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539090;
-        bh=vYkEmQkVzBAw2u0eg/jWlmdGtkG7V9/xJyR0+VuOTEs=;
+        s=korg; t=1631539093;
+        bh=Mw3hIYQzh0QVHvYsLwLfms21TRhmklsfso0cJCrNguU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Wig4hXeL+7cLaR+i115w5MADD7ldtC1anxal5Kv7x02bzmnHJ9fGqamfcr6YWZQ5
-         3v1PZbasdAavzCOe/OZp0MJ7NcvdVekLgPkpKVO1LE4SNQ4/ubOZnmayabYzXaEZku
-         WnE85cRHfafVAdwivKTw9IuJG/rFoNxEXZ71dhuw=
+        b=OBN+lD+glUXjTrilHNdLgdj5TEJIdqEi6d9JsUAuFShOVrjKEZsSeGTYnr4C1z0wX
+         ejZf97EF49aHDColQBAyZt/g81a+QjZSSKRvpUzhxOgVdBD2ZDAMtjC+wEaT2hEZXY
+         vCO2eHkV01HxNPSWdicRLbnKQWzpElI7MlIDyus8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+9937dc42271cd87d4b98@syzkaller.appspotmail.com,
-        Christoph Hellwig <hch@lst.de>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 038/144] block: nbd: add sanity check for first_minor
-Date:   Mon, 13 Sep 2021 15:13:39 +0200
-Message-Id: <20210913131049.222584305@linuxfoundation.org>
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Fiona Trahe <fiona.trahe@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 039/144] crypto: qat - use proper type for vf_mask
+Date:   Mon, 13 Sep 2021 15:13:40 +0200
+Message-Id: <20210913131049.255972256@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
 References: <20210913131047.974309396@linuxfoundation.org>
@@ -42,60 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit b1a811633f7321cf1ae2bb76a66805b7720e44c9 ]
+[ Upstream commit 462354d986b6a89c6449b85f17aaacf44e455216 ]
 
-Syzbot hit WARNING in internal_create_group(). The problem was in
-too big disk->first_minor.
+Replace vf_mask type with unsigned long to avoid a stack-out-of-bound.
 
-disk->first_minor is initialized by value, which comes from userspace
-and there wasn't any sanity checks about value correctness. It can cause
-duplicate creation of sysfs files/links, because disk->first_minor will
-be passed to MKDEV() which causes truncation to byte. Since maximum
-minor value is 0xff, let's check if first_minor is correct minor number.
+This is to fix the following warning reported by KASAN the first time
+adf_msix_isr_ae() gets called.
 
-NOTE: the root case of the reported warning was in wrong error handling
-in register_disk(), but we can avoid passing knowingly wrong values to
-sysfs API, because sysfs error messages can confuse users. For example:
-user passed 1048576 as index, but sysfs complains about duplicate
-creation of /dev/block/43:0. It's not obvious how 1048576 becomes 0.
-Log and reproducer for above example can be found on syzkaller bug
-report page.
+    [  692.091987] BUG: KASAN: stack-out-of-bounds in find_first_bit+0x28/0x50
+    [  692.092017] Read of size 8 at addr ffff88afdf789e60 by task swapper/32/0
+    [  692.092076] Call Trace:
+    [  692.092089]  <IRQ>
+    [  692.092101]  dump_stack+0x9c/0xcf
+    [  692.092132]  print_address_description.constprop.0+0x18/0x130
+    [  692.092164]  ? find_first_bit+0x28/0x50
+    [  692.092185]  kasan_report.cold+0x7f/0x111
+    [  692.092213]  ? static_obj+0x10/0x80
+    [  692.092234]  ? find_first_bit+0x28/0x50
+    [  692.092262]  find_first_bit+0x28/0x50
+    [  692.092288]  adf_msix_isr_ae+0x16e/0x230 [intel_qat]
 
-Link: https://syzkaller.appspot.com/bug?id=03c2ae9146416edf811958d5fd7acfab75b143d1
-Fixes: b0d9111a2d53 ("nbd: use an idr to keep track of nbd devices")
-Reported-by: syzbot+9937dc42271cd87d4b98@syzkaller.appspotmail.com
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: ed8ccaef52fa ("crypto: qat - Add support for SRIOV")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/crypto/qat/qat_common/adf_isr.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 25e81b1a59a5..bc3ab98855cf 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1744,7 +1744,17 @@ static int nbd_dev_add(int index)
- 	refcount_set(&nbd->refs, 1);
- 	INIT_LIST_HEAD(&nbd->list);
- 	disk->major = NBD_MAJOR;
+diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
+index 4898ef41fd9f..7d319c5c071c 100644
+--- a/drivers/crypto/qat/qat_common/adf_isr.c
++++ b/drivers/crypto/qat/qat_common/adf_isr.c
+@@ -59,6 +59,8 @@
+ #include "adf_transport_access_macros.h"
+ #include "adf_transport_internal.h"
+ 
++#define ADF_MAX_NUM_VFS	32
 +
-+	/* Too big first_minor can cause duplicate creation of
-+	 * sysfs files/links, since first_minor will be truncated to
-+	 * byte in __device_add_disk().
-+	 */
- 	disk->first_minor = index << part_shift;
-+	if (disk->first_minor > 0xff) {
-+		err = -EINVAL;
-+		goto out_free_idr;
-+	}
-+
- 	disk->fops = &nbd_fops;
- 	disk->private_data = nbd;
- 	sprintf(disk->disk_name, "nbd%d", index);
+ static int adf_enable_msix(struct adf_accel_dev *accel_dev)
+ {
+ 	struct adf_accel_pci *pci_dev_info = &accel_dev->accel_pci_dev;
+@@ -111,7 +113,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
+ 		struct adf_bar *pmisc =
+ 			&GET_BARS(accel_dev)[hw_data->get_misc_bar_id(hw_data)];
+ 		void __iomem *pmisc_bar_addr = pmisc->virt_addr;
+-		u32 vf_mask;
++		unsigned long vf_mask;
+ 
+ 		/* Get the interrupt sources triggered by VFs */
+ 		vf_mask = ((ADF_CSR_RD(pmisc_bar_addr, ADF_ERRSOU5) &
+@@ -132,8 +134,7 @@ static irqreturn_t adf_msix_isr_ae(int irq, void *dev_ptr)
+ 			 * unless the VF is malicious and is attempting to
+ 			 * flood the host OS with VF2PF interrupts.
+ 			 */
+-			for_each_set_bit(i, (const unsigned long *)&vf_mask,
+-					 (sizeof(vf_mask) * BITS_PER_BYTE)) {
++			for_each_set_bit(i, &vf_mask, ADF_MAX_NUM_VFS) {
+ 				vf_info = accel_dev->pf.vf_info + i;
+ 
+ 				if (!__ratelimit(&vf_info->vf2pf_ratelimit)) {
 -- 
 2.30.2
 
