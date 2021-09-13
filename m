@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C91E409575
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F6894092C5
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347385AbhIMOlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:41:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55970 "EHLO mail.kernel.org"
+        id S1344834AbhIMOP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:15:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346870AbhIMOjx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:39:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68AAC61245;
-        Mon, 13 Sep 2021 13:55:31 +0000 (UTC)
+        id S241738AbhIMOOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:14:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF79C61AE1;
+        Mon, 13 Sep 2021 13:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541331;
-        bh=DOzj4Ygmi+FMjr4Fa28O+JHTZ8km7wUXPJlgxXwdLso=;
+        s=korg; t=1631540597;
+        bh=ZsoFKtjxaynejBnhMK7B8GZj+KDmchYI0AEwUrGLKUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t1tfYVV7HN9tlPuTpYXX4isbMqavskUJwu/gW5jZx+EfoY6g7vz0djjmfM88d5na8
-         Xcs1weSzgpugcd3wPojvgtcWgo/ufMEDPGdX2lD/iqgTlRg6GVkfKnPXJXjLPGXgHf
-         h1edi5tTr5uOlfoBoEP8cwLTpNC8MKCqeQw9gjtg=
+        b=YYvMi72D6iZZoU/OUjAx1oEdEwVmUnXOwanv71k0qXLpT9snc8dh8dIShxtz95mhy
+         K+GboFBaxZ0UwTeLjsSlqoBulIecoXT436HPhQhp2L3+db3TMIA8fk3mEaM84xaZl3
+         ft+4PbDl4BxusS26Hpa2/8ETKfmM+7YyzoczAnxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 238/334] rsi: fix error code in rsi_load_9116_firmware()
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Qii Wang <qii.wang@mediatek.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 231/300] i2c: mt65xx: fix IRQ check
 Date:   Mon, 13 Sep 2021 15:14:52 +0200
-Message-Id: <20210913131121.457768654@linuxfoundation.org>
+Message-Id: <20210913131117.153861110@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit d0f8430332a16c7baa80ce2886339182c5d85f37 ]
+[ Upstream commit 58fb7c643d346e2364404554f531cfa6a1a3917c ]
 
-This code returns success if the kmemdup() fails, but obviously it
-should return -ENOMEM instead.
+Iff platform_get_irq() returns 0, the driver's probe() method will return 0
+early (as if the method's call was successful).  Let's consider IRQ0 valid
+for simplicity -- devm_request_irq() can always override that decision...
 
-Fixes: e5a1ecc97e5f ("rsi: add firmware loading for 9116 device")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210805103746.GA26417@kili
+Fixes: ce38815d39ea ("I2C: mediatek: Add driver for MediaTek I2C controller")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Reviewed-by: Qii Wang <qii.wang@mediatek.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_hal.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mt65xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_hal.c b/drivers/net/wireless/rsi/rsi_91x_hal.c
-index 99b21a2c8386..f4a26f16f00f 100644
---- a/drivers/net/wireless/rsi/rsi_91x_hal.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
-@@ -1038,8 +1038,10 @@ static int rsi_load_9116_firmware(struct rsi_hw *adapter)
- 	}
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 4e9fb6b44436..d90d80d046bd 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -1211,7 +1211,7 @@ static int mtk_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(i2c->pdmabase);
  
- 	ta_firmware = kmemdup(fw_entry->data, fw_entry->size, GFP_KERNEL);
--	if (!ta_firmware)
-+	if (!ta_firmware) {
-+		status = -ENOMEM;
- 		goto fail_release_fw;
-+	}
- 	fw_p = ta_firmware;
- 	instructions_sz = fw_entry->size;
- 	rsi_dbg(INFO_ZONE, "FW Length = %d bytes\n", instructions_sz);
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq <= 0)
++	if (irq < 0)
+ 		return irq;
+ 
+ 	init_completion(&i2c->msg_complete);
 -- 
 2.30.2
 
