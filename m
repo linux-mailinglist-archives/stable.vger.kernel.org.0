@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8020408F36
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71F5C408FA4
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241845AbhIMNkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:40:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35540 "EHLO mail.kernel.org"
+        id S242294AbhIMNpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:45:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242703AbhIMNiY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:38:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CAD161213;
-        Mon, 13 Sep 2021 13:28:35 +0000 (UTC)
+        id S238030AbhIMNmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:42:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D917461407;
+        Mon, 13 Sep 2021 13:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539716;
-        bh=xb/Pge8v09bI3SITd6QYLr980DugO1ewJVg5DuwfpyQ=;
+        s=korg; t=1631539824;
+        bh=78ojPiQPyowEygpwF1GjuFOvhHMCaKV6fWIha8VPLXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQ/vajCZMteGjyMW3wR4z/BOeV38Uz4Dps1mI/mkQHlr6cYykBe+XVz59emqRsJEu
-         YNmNPyjikziY1AKoqA5MP6zVQFqgCZbecX5T2YjSWO+/wD/5LVvLCRWBhhvxWhXovq
-         immlyxPsBgqRTsk87eYvZJ8wVYBBgXRkvjGFoxAA=
+        b=2QbPrqpVYN+Ay3qJccBMsq+gjTcxh+3pXO447Dem6j8N5G0o6nRUh7A7mwpOsLGW3
+         XeSzuJF2LSLr2hQhjZbW+HNwQFbLr2vGV48QV5ER+MRHD1QR+UgL0IfGg9NxZdns+M
+         IalLQKW4Hnw1kuA2XG6l2/zbNLBPpc/qNs/9olX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, CCJ Yeh <CCj.Yeh@mediatek.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/236] PM: EM: Increase energy calculation precision
-Date:   Mon, 13 Sep 2021 15:13:56 +0200
-Message-Id: <20210913131104.821241430@linuxfoundation.org>
+        stable@vger.kernel.org, Jose Blanquicet <josebl@microsoft.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 132/236] selftests/bpf: Fix bpf-iter-tcp4 test to print correctly the dest IP
+Date:   Mon, 13 Sep 2021 15:13:57 +0200
+Message-Id: <20210913131104.852555981@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -42,150 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Luba <lukasz.luba@arm.com>
+From: Jose Blanquicet <josebl@microsoft.com>
 
-[ Upstream commit 7fcc17d0cb12938d2b3507973a6f93fc9ed2c7a1 ]
+[ Upstream commit 277b134057036df8c657079ca92c3e5e7d10aeaf ]
 
-The Energy Model (EM) provides useful information about device power in
-each performance state to other subsystems like: Energy Aware Scheduler
-(EAS). The energy calculation in EAS does arithmetic operation based on
-the EM em_cpu_energy(). Current implementation of that function uses
-em_perf_state::cost as a pre-computed cost coefficient equal to:
-cost = power * max_frequency / frequency.
-The 'power' is expressed in milli-Watts (or in abstract scale).
+Currently, this test is incorrectly printing the destination port in
+place of the destination IP.
 
-There are corner cases when the EAS energy calculation for two Performance
-Domains (PDs) return the same value. The EAS compares these values to
-choose smaller one. It might happen that this values are equal due to
-rounding error. In such scenario, we need better resolution, e.g. 1000
-times better. To provide this possibility increase the resolution in the
-em_perf_state::cost for 64-bit architectures. The cost of increasing
-resolution on 32-bit is pretty high (64-bit division) and is not justified
-since there are no new 32bit big.LITTLE EAS systems expected which would
-benefit from this higher resolution.
-
-This patch allows to avoid the rounding to milli-Watt errors, which might
-occur in EAS energy estimation for each PD. The rounding error is common
-for small tasks which have small utilization value.
-
-There are two places in the code where it makes a difference:
-1. In the find_energy_efficient_cpu() where we are searching for
-best_delta. We might suffer there when two PDs return the same result,
-like in the example below.
-
-Scenario:
-Low utilized system e.g. ~200 sum_util for PD0 and ~220 for PD1. There
-are quite a few small tasks ~10-15 util. These tasks would suffer for
-the rounding error. These utilization values are typical when running games
-on Android. One of our partners has reported 5..10mA less battery drain
-when running with increased resolution.
-
-Some details:
-We have two PDs: PD0 (big) and PD1 (little)
-Let's compare w/o patch set ('old') and w/ patch set ('new')
-We are comparing energy w/ task and w/o task placed in the PDs
-
-a) 'old' w/o patch set, PD0
-task_util = 13
-cost = 480
-sum_util_w/o_task = 215
-sum_util_w_task = 228
-scale_cpu = 1024
-energy_w/o_task = 480 * 215 / 1024 = 100.78 => 100
-energy_w_task = 480 * 228 / 1024 = 106.87 => 106
-energy_diff = 106 - 100 = 6
-(this is equal to 'old' PD1's energy_diff in 'c)')
-
-b) 'new' w/ patch set, PD0
-task_util = 13
-cost = 480 * 1000 = 480000
-sum_util_w/o_task = 215
-sum_util_w_task = 228
-energy_w/o_task = 480000 * 215 / 1024 = 100781
-energy_w_task = 480000 * 228 / 1024  = 106875
-energy_diff = 106875 - 100781 = 6094
-(this is not equal to 'new' PD1's energy_diff in 'd)')
-
-c) 'old' w/o patch set, PD1
-task_util = 13
-cost = 160
-sum_util_w/o_task = 283
-sum_util_w_task = 293
-scale_cpu = 355
-energy_w/o_task = 160 * 283 / 355 = 127.55 => 127
-energy_w_task = 160 * 296 / 355 = 133.41 => 133
-energy_diff = 133 - 127 = 6
-(this is equal to 'old' PD0's energy_diff in 'a)')
-
-d) 'new' w/ patch set, PD1
-task_util = 13
-cost = 160 * 1000 = 160000
-sum_util_w/o_task = 283
-sum_util_w_task = 293
-scale_cpu = 355
-energy_w/o_task = 160000 * 283 / 355 = 127549
-energy_w_task = 160000 * 296 / 355 =   133408
-energy_diff = 133408 - 127549 = 5859
-(this is not equal to 'new' PD0's energy_diff in 'b)')
-
-2. Difference in the 6% energy margin filter at the end of
-find_energy_efficient_cpu(). With this patch the margin comparison also
-has better resolution, so it's possible to have better task placement
-thanks to that.
-
-Fixes: 27871f7a8a341ef ("PM: Introduce an Energy Model management framework")
-Reported-by: CCJ Yeh <CCj.Yeh@mediatek.com>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 2767c97765cb ("selftests/bpf: Implement sample tcp/tcp6 bpf_iter programs")
+Signed-off-by: Jose Blanquicet <josebl@microsoft.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20210805164044.527903-1-josebl@microsoft.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/energy_model.h | 16 ++++++++++++++++
- kernel/power/energy_model.c  |  4 +++-
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/energy_model.h b/include/linux/energy_model.h
-index b67a51c574b9..5f04a2b35e80 100644
---- a/include/linux/energy_model.h
-+++ b/include/linux/energy_model.h
-@@ -51,6 +51,22 @@ struct em_perf_domain {
- #ifdef CONFIG_ENERGY_MODEL
- #define EM_MAX_POWER 0xFFFF
- 
-+/*
-+ * Increase resolution of energy estimation calculations for 64-bit
-+ * architectures. The extra resolution improves decision made by EAS for the
-+ * task placement when two Performance Domains might provide similar energy
-+ * estimation values (w/o better resolution the values could be equal).
-+ *
-+ * We increase resolution only if we have enough bits to allow this increased
-+ * resolution (i.e. 64-bit). The costs for increasing resolution when 32-bit
-+ * are pretty high and the returns do not justify the increased costs.
-+ */
-+#ifdef CONFIG_64BIT
-+#define em_scale_power(p) ((p) * 1000)
-+#else
-+#define em_scale_power(p) (p)
-+#endif
-+
- struct em_data_callback {
- 	/**
- 	 * active_power() - Provide power at the next performance state of
-diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
-index 994ca8353543..be381eb6116a 100644
---- a/kernel/power/energy_model.c
-+++ b/kernel/power/energy_model.c
-@@ -157,7 +157,9 @@ static int em_create_perf_table(struct device *dev, struct em_perf_domain *pd,
- 	/* Compute the cost of each performance state. */
- 	fmax = (u64) table[nr_states - 1].frequency;
- 	for (i = 0; i < nr_states; i++) {
--		table[i].cost = div64_u64(fmax * table[i].power,
-+		unsigned long power_res = em_scale_power(table[i].power);
-+
-+		table[i].cost = div64_u64(fmax * power_res,
- 					  table[i].frequency);
+diff --git a/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c b/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c
+index 54380c5e1069..aa96b604b2b3 100644
+--- a/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c
++++ b/tools/testing/selftests/bpf/progs/bpf_iter_tcp4.c
+@@ -122,7 +122,7 @@ static int dump_tcp_sock(struct seq_file *seq, struct tcp_sock *tp,
  	}
  
+ 	BPF_SEQ_PRINTF(seq, "%4d: %08X:%04X %08X:%04X ",
+-		       seq_num, src, srcp, destp, destp);
++		       seq_num, src, srcp, dest, destp);
+ 	BPF_SEQ_PRINTF(seq, "%02X %08X:%08X %02X:%08lX %08X %5u %8d %lu %d ",
+ 		       state,
+ 		       tp->write_seq - tp->snd_una, rx_queue,
 -- 
 2.30.2
 
