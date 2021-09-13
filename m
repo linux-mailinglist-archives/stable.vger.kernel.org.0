@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5835E409236
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:09:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA84A409235
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:09:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344518AbhIMOJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344540AbhIMOJM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 13 Sep 2021 10:09:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55994 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343997AbhIMOHJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343998AbhIMOHJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:07:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4B0C61A81;
-        Mon, 13 Sep 2021 13:40:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D16861A85;
+        Mon, 13 Sep 2021 13:40:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540421;
-        bh=CTiolkTYws3gyQMM4I7/ByBwnzaC+QtGEsiS/SDkDMc=;
+        s=korg; t=1631540423;
+        bh=lt2d/6xG79Pm5RiHOz0sUo5GqEsJxbZVv/fJEDxiuOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gclaZhoFBAwtM/4Soav96VU1lJI33BHRKBOYv9ZWcw9YKErcsEu7bYUaa0YJrpurO
-         bi5dFzLDR+PxmC8K+ikLLrdogkgzMZzMFL/HGEvez5vj7WMs+AlpkdO1rfPUfXKJBl
-         gOmSka+O1ya8UYxeWo6U5isH94oUwwQF2k6marwQ=
+        b=hM9+fAMnNgxEmVnGfidKx7XmC8888/bON8vXXdSZ3yPmwtsDQyhAV8NdwHBVq5XM5
+         t9Lmyf/jMgTlIMfVvk3JQCm6qfu8M4DFZuAe5Ya6/qva9aVIHFtRq1c/4nIYDqIUOm
+         psLxjLoj7aqYm0xjIpACD+wk0s3IGGEiwhRCC8qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 186/300] usb: gadget: udc: renesas_usb3: Fix soc_device_match() abuse
-Date:   Mon, 13 Sep 2021 15:14:07 +0200
-Message-Id: <20210913131115.675228650@linuxfoundation.org>
+Subject: [PATCH 5.13 187/300] selftests/bpf: Fix test_core_autosize on big-endian machines
+Date:   Mon, 13 Sep 2021 15:14:08 +0200
+Message-Id: <20210913131115.708104109@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -42,73 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit cea45a3bd2dd4d9c35581328f571afd32b3c9f48 ]
+[ Upstream commit d164dd9a5c08c16a883b3de97d13948c7be7fa4d ]
 
-soc_device_match() is intended as a last resort, to handle e.g. quirks
-that cannot be handled by matching based on a compatible value.
+The "probed" part of test_core_autosize copies an integer using
+bpf_core_read() into an integer of a potentially different size.
+On big-endian machines a destination offset is required for this to
+produce a sensible result.
 
-As the device nodes for the Renesas USB 3.0 Peripheral Controller on
-R-Car E3 and RZ/G2E do have SoC-specific compatible values, the latter
-can and should be used to match against these devices.
-
-This also fixes support for the USB 3.0 Peripheral Controller on the
-R-Car E3e (R8A779M6) SoC, which is a different grading of the R-Car E3
-(R8A77990) SoC, using the same SoC-specific compatible value.
-
-Fixes: 30025efa8b5e75f5 ("usb: gadget: udc: renesas_usb3: add support for r8a77990")
-Fixes: 546970fdab1da5fe ("usb: gadget: udc: renesas_usb3: add support for r8a774c0")
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/760981fb4cd110d7cbfc9dcffa365e7c8b25c6e5.1628696960.git.geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 888d83b961f6 ("selftests/bpf: Validate libbpf's auto-sizing of LD/ST/STX instructions")
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210812224814.187460-1-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/renesas_usb3.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ .../selftests/bpf/progs/test_core_autosize.c  | 20 ++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/renesas_usb3.c b/drivers/usb/gadget/udc/renesas_usb3.c
-index f1b35a39d1ba..57d417a7c3e0 100644
---- a/drivers/usb/gadget/udc/renesas_usb3.c
-+++ b/drivers/usb/gadget/udc/renesas_usb3.c
-@@ -2707,10 +2707,15 @@ static const struct renesas_usb3_priv renesas_usb3_priv_r8a77990 = {
+diff --git a/tools/testing/selftests/bpf/progs/test_core_autosize.c b/tools/testing/selftests/bpf/progs/test_core_autosize.c
+index 44f5aa2e8956..9a7829c5e4a7 100644
+--- a/tools/testing/selftests/bpf/progs/test_core_autosize.c
++++ b/tools/testing/selftests/bpf/progs/test_core_autosize.c
+@@ -125,6 +125,16 @@ int handle_downsize(void *ctx)
+ 	return 0;
+ }
  
- static const struct of_device_id usb3_of_match[] = {
- 	{
-+		.compatible = "renesas,r8a774c0-usb3-peri",
-+		.data = &renesas_usb3_priv_r8a77990,
-+	}, {
- 		.compatible = "renesas,r8a7795-usb3-peri",
- 		.data = &renesas_usb3_priv_gen3,
--	},
--	{
-+	}, {
-+		.compatible = "renesas,r8a77990-usb3-peri",
-+		.data = &renesas_usb3_priv_r8a77990,
-+	}, {
- 		.compatible = "renesas,rcar-gen3-usb3-peri",
- 		.data = &renesas_usb3_priv_gen3,
- 	},
-@@ -2719,18 +2724,10 @@ static const struct of_device_id usb3_of_match[] = {
- MODULE_DEVICE_TABLE(of, usb3_of_match);
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++#define bpf_core_read_int bpf_core_read
++#else
++#define bpf_core_read_int(dst, sz, src) ({ \
++	/* Prevent "subtraction from stack pointer prohibited" */ \
++	volatile long __off = sizeof(*dst) - (sz); \
++	bpf_core_read((char *)(dst) + __off, sz, src); \
++})
++#endif
++
+ SEC("raw_tp/sys_enter")
+ int handle_probed(void *ctx)
+ {
+@@ -132,23 +142,23 @@ int handle_probed(void *ctx)
+ 	__u64 tmp;
  
- static const struct soc_device_attribute renesas_usb3_quirks_match[] = {
--	{
--		.soc_id = "r8a774c0",
--		.data = &renesas_usb3_priv_r8a77990,
--	},
- 	{
- 		.soc_id = "r8a7795", .revision = "ES1.*",
- 		.data = &renesas_usb3_priv_r8a7795_es1,
- 	},
--	{
--		.soc_id = "r8a77990",
--		.data = &renesas_usb3_priv_r8a77990,
--	},
- 	{ /* sentinel */ },
- };
+ 	tmp = 0;
+-	bpf_core_read(&tmp, bpf_core_field_size(in->ptr), &in->ptr);
++	bpf_core_read_int(&tmp, bpf_core_field_size(in->ptr), &in->ptr);
+ 	ptr_probed = tmp;
  
+ 	tmp = 0;
+-	bpf_core_read(&tmp, bpf_core_field_size(in->val1), &in->val1);
++	bpf_core_read_int(&tmp, bpf_core_field_size(in->val1), &in->val1);
+ 	val1_probed = tmp;
+ 
+ 	tmp = 0;
+-	bpf_core_read(&tmp, bpf_core_field_size(in->val2), &in->val2);
++	bpf_core_read_int(&tmp, bpf_core_field_size(in->val2), &in->val2);
+ 	val2_probed = tmp;
+ 
+ 	tmp = 0;
+-	bpf_core_read(&tmp, bpf_core_field_size(in->val3), &in->val3);
++	bpf_core_read_int(&tmp, bpf_core_field_size(in->val3), &in->val3);
+ 	val3_probed = tmp;
+ 
+ 	tmp = 0;
+-	bpf_core_read(&tmp, bpf_core_field_size(in->val4), &in->val4);
++	bpf_core_read_int(&tmp, bpf_core_field_size(in->val4), &in->val4);
+ 	val4_probed = tmp;
+ 
+ 	return 0;
 -- 
 2.30.2
 
