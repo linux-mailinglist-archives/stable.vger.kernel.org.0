@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B19BB4092BB
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:14:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80C7E4092EC
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344635AbhIMOPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:15:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34432 "EHLO mail.kernel.org"
+        id S1344582AbhIMOQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344243AbhIMOLR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:11:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91A3661AA8;
-        Mon, 13 Sep 2021 13:42:12 +0000 (UTC)
+        id S1344332AbhIMOLS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:11:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E76961AAC;
+        Mon, 13 Sep 2021 13:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540533;
-        bh=EB1r5Yr637ISSg4xwlnZbCG//Nyb9WBYl3rh+8XpsB4=;
+        s=korg; t=1631540535;
+        bh=TkOwg5YShF1JhjzsxjWb+eY/lSIENXcAsjTd/XtvOEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dcj2DZQjOjKjK7Zaegy8CFmtTvmxTLhQt2+FDuDkscV/E3nyPn2SZAaSv6TxDa/a/
-         dC1/YqqFf3QVussT+ST8zWuo0ZGu01vwXuarZH8+dnx2lBgExdaXNRNCth0xJLKIlg
-         uUVLReGoadKlXwG69VHMIrYb5fEvwQSWgDPMP2xc=
+        b=a5F3pNRnB7Zb1GKBUoKMnTKPsbggMmTzEF5coyWh1o+N55X0a5TXKr33RQTcCYnM/
+         uqCvyQe1/QinFNj6o67PYLXaRoodMC+/zDEPT+dk0X+3FD4CdHyw5+YQYY+IsDT6le
+         ofbgmozQrkg9XuVlwekLJg2iwfe4341nyAINR/BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 200/300] nfsd4: Fix forced-expiry locking
-Date:   Mon, 13 Sep 2021 15:14:21 +0200
-Message-Id: <20210913131116.124627036@linuxfoundation.org>
+Subject: [PATCH 5.13 201/300] arm64: dts: marvell: armada-37xx: Extend PCIe MEM space
+Date:   Mon, 13 Sep 2021 15:14:22 +0200
+Message-Id: <20210913131116.154750702@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
 References: <20210913131109.253835823@linuxfoundation.org>
@@ -40,40 +41,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit f7104cc1a9159cd0d3e8526cb638ae0301de4b61 ]
+[ Upstream commit 514ef1e62d6521c2199d192b1c71b79d2aa21d5a ]
 
-This should use the network-namespace-wide client_lock, not the
-per-client cl_lock.
+Current PCIe MEM space of size 16 MB is not enough for some combination
+of PCIe cards (e.g. NVMe disk together with ath11k wifi card). ARM Trusted
+Firmware for Armada 3700 platform already assigns 128 MB for PCIe window,
+so extend PCIe MEM space to the end of 128 MB PCIe window which allows to
+allocate more PCIe BARs for more PCIe cards.
 
-You shouldn't see any bugs unless you're actually using the
-forced-expiry interface introduced by 89c905beccbb.
+Without this change some combination of PCIe cards cannot be used and
+kernel show error messages in dmesg during initialization:
 
-Fixes: 89c905beccbb "nfsd: allow forced expiration of NFSv4 clients"
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+    pci 0000:00:00.0: BAR 8: no space for [mem size 0x01800000]
+    pci 0000:00:00.0: BAR 8: failed to assign [mem size 0x01800000]
+    pci 0000:00:00.0: BAR 6: assigned [mem 0xe8000000-0xe80007ff pref]
+    pci 0000:01:00.0: BAR 8: no space for [mem size 0x01800000]
+    pci 0000:01:00.0: BAR 8: failed to assign [mem size 0x01800000]
+    pci 0000:02:03.0: BAR 8: no space for [mem size 0x01000000]
+    pci 0000:02:03.0: BAR 8: failed to assign [mem size 0x01000000]
+    pci 0000:02:07.0: BAR 8: no space for [mem size 0x00100000]
+    pci 0000:02:07.0: BAR 8: failed to assign [mem size 0x00100000]
+    pci 0000:03:00.0: BAR 0: no space for [mem size 0x01000000 64bit]
+    pci 0000:03:00.0: BAR 0: failed to assign [mem size 0x01000000 64bit]
+
+Due to bugs in U-Boot port for Turris Mox, the second range in Turris Mox
+kernel DTS file for PCIe must start at 16 MB offset. Otherwise U-Boot
+crashes during loading of kernel DTB file. This bug is present only in
+U-Boot code for Turris Mox and therefore other Armada 3700 devices are not
+affected by this bug. Bug is fixed in U-Boot version 2021.07.
+
+To not break booting new kernels on existing versions of U-Boot on Turris
+Mox, use first 16 MB range for IO and second range with rest of PCIe window
+for MEM.
+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 76f6386b25cc ("arm64: dts: marvell: Add Aardvark PCIe support for Armada 3700")
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../boot/dts/marvell/armada-3720-turris-mox.dts | 17 +++++++++++++++++
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi    | 11 +++++++++--
+ 2 files changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 90e81f6491ff..ab81e8ae3265 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -2665,9 +2665,9 @@ static void force_expire_client(struct nfs4_client *clp)
- 	struct nfsd_net *nn = net_generic(clp->net, nfsd_net_id);
- 	bool already_expired;
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+index a05b1ab2dd12..04da07ae4420 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+@@ -135,6 +135,23 @@
+ 	pinctrl-0 = <&pcie_reset_pins &pcie_clkreq_pins>;
+ 	status = "okay";
+ 	reset-gpios = <&gpiosb 3 GPIO_ACTIVE_LOW>;
++	/*
++	 * U-Boot port for Turris Mox has a bug which always expects that "ranges" DT property
++	 * contains exactly 2 ranges with 3 (child) address cells, 2 (parent) address cells and
++	 * 2 size cells and also expects that the second range starts at 16 MB offset. If these
++	 * conditions are not met then U-Boot crashes during loading kernel DTB file. PCIe address
++	 * space is 128 MB long, so the best split between MEM and IO is to use fixed 16 MB window
++	 * for IO and the rest 112 MB (64+32+16) for MEM, despite that maximal IO size is just 64 kB.
++	 * This bug is not present in U-Boot ports for other Armada 3700 devices and is fixed in
++	 * U-Boot version 2021.07. See relevant U-Boot commits (the last one contains fix):
++	 * https://source.denx.de/u-boot/u-boot/-/commit/cb2ddb291ee6fcbddd6d8f4ff49089dfe580f5d7
++	 * https://source.denx.de/u-boot/u-boot/-/commit/c64ac3b3185aeb3846297ad7391fc6df8ecd73bf
++	 * https://source.denx.de/u-boot/u-boot/-/commit/4a82fca8e330157081fc132a591ebd99ba02ee33
++	 */
++	#address-cells = <3>;
++	#size-cells = <2>;
++	ranges = <0x81000000 0 0xe8000000   0 0xe8000000   0 0x01000000   /* Port 0 IO */
++		  0x82000000 0 0xe9000000   0 0xe9000000   0 0x07000000>; /* Port 0 MEM */
  
--	spin_lock(&clp->cl_lock);
-+	spin_lock(&nn->client_lock);
- 	clp->cl_time = 0;
--	spin_unlock(&clp->cl_lock);
-+	spin_unlock(&nn->client_lock);
- 
- 	wait_event(expiry_wq, atomic_read(&clp->cl_rpc_users) == 0);
- 	spin_lock(&nn->client_lock);
+ 	/* enabled by U-Boot if PCIe module is present */
+ 	status = "disabled";
+diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+index 5db81a416cd6..9acc5d2b5a00 100644
+--- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+@@ -489,8 +489,15 @@
+ 			#interrupt-cells = <1>;
+ 			msi-parent = <&pcie0>;
+ 			msi-controller;
+-			ranges = <0x82000000 0 0xe8000000   0 0xe8000000 0 0x1000000 /* Port 0 MEM */
+-				  0x81000000 0 0xe9000000   0 0xe9000000 0 0x10000>; /* Port 0 IO*/
++			/*
++			 * The 128 MiB address range [0xe8000000-0xf0000000] is
++			 * dedicated for PCIe and can be assigned to 8 windows
++			 * with size a power of two. Use one 64 KiB window for
++			 * IO at the end and the remaining seven windows
++			 * (totaling 127 MiB) for MEM.
++			 */
++			ranges = <0x82000000 0 0xe8000000   0 0xe8000000   0 0x07f00000   /* Port 0 MEM */
++				  0x81000000 0 0xefff0000   0 0xefff0000   0 0x00010000>; /* Port 0 IO */
+ 			interrupt-map-mask = <0 0 0 7>;
+ 			interrupt-map = <0 0 0 1 &pcie_intc 0>,
+ 					<0 0 0 2 &pcie_intc 1>,
 -- 
 2.30.2
 
