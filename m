@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44059409263
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDE5040951E
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344075AbhIMOLE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:11:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56002 "EHLO mail.kernel.org"
+        id S1346223AbhIMOh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:37:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344502AbhIMOJM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:09:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76876613E6;
-        Mon, 13 Sep 2021 13:41:14 +0000 (UTC)
+        id S242968AbhIMOfx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:35:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8376661BE2;
+        Mon, 13 Sep 2021 13:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540474;
-        bh=n/QxEZz0VLcsxcq17QY5AuHDiG3J08wHV14+Kq/Nty4=;
+        s=korg; t=1631541230;
+        bh=cgd4lvp8ET4FpQcD9aMt+wZ5XqW2kd5Gg/QmI8LlYZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GhHZz9SyvLQnRkjOdzuQiToJ9HUScBMpD8xqFlr6hG1RihE7+o1QUdEiHsIpiM8pn
-         iaqV/v6uymhPwTT3kCR6tTQy9s6BG25de1gImxLk1Fv7wvewqp8vfpY3Iqx79Nazob
-         /wlCH1DzQlrFcOG2GEMaOwDFrLHNseIUYy7pAK4c=
+        b=xZi4KNdJ3EA1R0zP5ksJAYnVdXf+yGMcVT3jYQU1mcFHFIUgaHW+PTgTfuhVe4Lf5
+         PJPWaU6z3c71nvjiJA/6x5BLTGJWp5xAiFi54GbR669/0GPC/M4SM4BmcscMQhknYR
+         7ctIH+Rry/Js9zLh67U05haOe39BVq75UI/6kTUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gang Deng <gavin.dg@linux.alibaba.com>,
-        Xu Yu <xuyu@linux.alibaba.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 209/300] mm/swap: consider max pages in iomap_swapfile_add_extent
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 216/334] libbpf: Re-build libbpf.so when libbpf.map changes
 Date:   Mon, 13 Sep 2021 15:14:30 +0200
-Message-Id: <20210913131116.426934113@linuxfoundation.org>
+Message-Id: <20210913131120.725012358@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,146 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yu <xuyu@linux.alibaba.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 36ca7943ac18aebf8aad4c50829eb2ea5ec847df ]
+[ Upstream commit 61c7aa5020e98ac2fdcf07d07eec1baf2e9f0a08 ]
 
-When the max pages (last_page in the swap header + 1) is smaller than
-the total pages (inode size) of the swapfile, iomap_swapfile_activate
-overwrites sis->max with total pages.
+Ensure libbpf.so is re-built whenever libbpf.map is modified.  Without this,
+changes to libbpf.map are not detected and versioned symbols mismatch error
+will be reported until `make clean && make` is used, which is a suboptimal
+developer experience.
 
-However, frontswap_map is a swap page state bitmap allocated using the
-initial sis->max page count read from the swap header.  If swapfile
-activation increases sis->max, it's possible for the frontswap code to
-walk off the end of the bitmap, thereby corrupting kernel memory.
-
-[djwong: modify the description a bit; the original paragraph reads:
-
-"However, frontswap_map is allocated using max pages. When test and clear
-the sis offset, which is larger than max pages, of frontswap_map in
-__frontswap_invalidate_page(), neighbors of frontswap_map may be
-overwritten, i.e., slab is polluted."
-
-Note also that this bug resulted in a behavioral change: activating a
-swap file that was formatted and later extended results in all pages
-being activated, not the number of pages recorded in the swap header.]
-
-This fixes the issue by considering the limitation of max pages of swap
-info in iomap_swapfile_add_extent().
-
-To reproduce the case, compile kernel with slub RED ZONE, then run test:
-$ sudo stress-ng -a 1 -x softlockup,resources -t 72h --metrics --times \
- --verify -v -Y /root/tmpdir/stress-ng/stress-statistic-12.yaml \
- --log-file /root/tmpdir/stress-ng/stress-logfile-12.txt \
- --temp-path /root/tmpdir/stress-ng/
-
-We'll get the error log as below:
-
-[ 1151.015141] =============================================================================
-[ 1151.016489] BUG kmalloc-16 (Not tainted): Right Redzone overwritten
-[ 1151.017486] -----------------------------------------------------------------------------
-[ 1151.017486]
-[ 1151.018997] Disabling lock debugging due to kernel taint
-[ 1151.019873] INFO: 0x0000000084e43932-0x0000000098d17cae @offset=7392. First byte 0x0 instead of 0xcc
-[ 1151.021303] INFO: Allocated in __do_sys_swapon+0xcf6/0x1170 age=43417 cpu=9 pid=3816
-[ 1151.022538]  __slab_alloc+0xe/0x20
-[ 1151.023069]  __kmalloc_node+0xfd/0x4b0
-[ 1151.023704]  __do_sys_swapon+0xcf6/0x1170
-[ 1151.024346]  do_syscall_64+0x33/0x40
-[ 1151.024925]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[ 1151.025749] INFO: Freed in put_cred_rcu+0xa1/0xc0 age=43424 cpu=3 pid=2041
-[ 1151.026889]  kfree+0x276/0x2b0
-[ 1151.027405]  put_cred_rcu+0xa1/0xc0
-[ 1151.027949]  rcu_do_batch+0x17d/0x410
-[ 1151.028566]  rcu_core+0x14e/0x2b0
-[ 1151.029084]  __do_softirq+0x101/0x29e
-[ 1151.029645]  asm_call_irq_on_stack+0x12/0x20
-[ 1151.030381]  do_softirq_own_stack+0x37/0x40
-[ 1151.031037]  do_softirq.part.15+0x2b/0x30
-[ 1151.031710]  __local_bh_enable_ip+0x4b/0x50
-[ 1151.032412]  copy_fpstate_to_sigframe+0x111/0x360
-[ 1151.033197]  __setup_rt_frame+0xce/0x480
-[ 1151.033809]  arch_do_signal+0x1a3/0x250
-[ 1151.034463]  exit_to_user_mode_prepare+0xcf/0x110
-[ 1151.035242]  syscall_exit_to_user_mode+0x27/0x190
-[ 1151.035970]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[ 1151.036795] INFO: Slab 0x000000003b9de4dc objects=44 used=9 fp=0x00000000539e349e flags=0xfffffc0010201
-[ 1151.038323] INFO: Object 0x000000004855ba01 @offset=7376 fp=0x0000000000000000
-[ 1151.038323]
-[ 1151.039683] Redzone  000000008d0afd3d: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc  ................
-[ 1151.041180] Object   000000004855ba01: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-[ 1151.042714] Redzone  0000000084e43932: 00 00 00 c0 cc cc cc cc                          ........
-[ 1151.044120] Padding  000000000864c042: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
-[ 1151.045615] CPU: 5 PID: 3816 Comm: stress-ng Tainted: G    B             5.10.50+ #7
-[ 1151.046846] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-[ 1151.048633] Call Trace:
-[ 1151.049072]  dump_stack+0x57/0x6a
-[ 1151.049585]  check_bytes_and_report+0xed/0x110
-[ 1151.050320]  check_object+0x1eb/0x290
-[ 1151.050924]  ? __x64_sys_swapoff+0x39a/0x540
-[ 1151.051646]  free_debug_processing+0x151/0x350
-[ 1151.052333]  __slab_free+0x21a/0x3a0
-[ 1151.052938]  ? _cond_resched+0x2d/0x40
-[ 1151.053529]  ? __vunmap+0x1de/0x220
-[ 1151.054139]  ? __x64_sys_swapoff+0x39a/0x540
-[ 1151.054796]  ? kfree+0x276/0x2b0
-[ 1151.055307]  kfree+0x276/0x2b0
-[ 1151.055832]  __x64_sys_swapoff+0x39a/0x540
-[ 1151.056466]  do_syscall_64+0x33/0x40
-[ 1151.057084]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[ 1151.057866] RIP: 0033:0x150340b0ffb7
-[ 1151.058481] Code: Unable to access opcode bytes at RIP 0x150340b0ff8d.
-[ 1151.059537] RSP: 002b:00007fff7f4ee238 EFLAGS: 00000246 ORIG_RAX: 00000000000000a8
-[ 1151.060768] RAX: ffffffffffffffda RBX: 00007fff7f4ee66c RCX: 0000150340b0ffb7
-[ 1151.061904] RDX: 000000000000000a RSI: 0000000000018094 RDI: 00007fff7f4ee860
-[ 1151.063033] RBP: 00007fff7f4ef980 R08: 0000000000000000 R09: 0000150340a672bd
-[ 1151.064135] R10: 00007fff7f4edca0 R11: 0000000000000246 R12: 0000000000018094
-[ 1151.065253] R13: 0000000000000005 R14: 000000000160d930 R15: 00007fff7f4ee66c
-[ 1151.066413] FIX kmalloc-16: Restoring 0x0000000084e43932-0x0000000098d17cae=0xcc
-[ 1151.066413]
-[ 1151.067890] FIX kmalloc-16: Object at 0x000000004855ba01 not freed
-
-Fixes: 67482129cdab ("iomap: add a swapfile activation function")
-Fixes: a45c0eccc564 ("iomap: move the swapfile code into a separate file")
-Signed-off-by: Gang Deng <gavin.dg@linux.alibaba.com>
-Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Fixes: 306b267cb3c4 ("libbpf: Verify versioned symbols")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20210815070609.987780-8-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/iomap/swapfile.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/lib/bpf/Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/iomap/swapfile.c b/fs/iomap/swapfile.c
-index 6250ca6a1f85..4ecf4e1f68ef 100644
---- a/fs/iomap/swapfile.c
-+++ b/fs/iomap/swapfile.c
-@@ -31,11 +31,16 @@ static int iomap_swapfile_add_extent(struct iomap_swapfile_info *isi)
- {
- 	struct iomap *iomap = &isi->iomap;
- 	unsigned long nr_pages;
-+	unsigned long max_pages;
- 	uint64_t first_ppage;
- 	uint64_t first_ppage_reported;
- 	uint64_t next_ppage;
- 	int error;
+diff --git a/tools/lib/bpf/Makefile b/tools/lib/bpf/Makefile
+index ec14aa725bb0..74c3b73a5fbe 100644
+--- a/tools/lib/bpf/Makefile
++++ b/tools/lib/bpf/Makefile
+@@ -4,8 +4,9 @@
+ RM ?= rm
+ srctree = $(abs_srctree)
  
-+	if (unlikely(isi->nr_pages >= isi->sis->max))
-+		return 0;
-+	max_pages = isi->sis->max - isi->nr_pages;
-+
- 	/*
- 	 * Round the start up and the end down so that the physical
- 	 * extent aligns to a page boundary.
-@@ -48,6 +53,7 @@ static int iomap_swapfile_add_extent(struct iomap_swapfile_info *isi)
- 	if (first_ppage >= next_ppage)
- 		return 0;
- 	nr_pages = next_ppage - first_ppage;
-+	nr_pages = min(nr_pages, max_pages);
++VERSION_SCRIPT := libbpf.map
+ LIBBPF_VERSION := $(shell \
+-	grep -oE '^LIBBPF_([0-9.]+)' libbpf.map | \
++	grep -oE '^LIBBPF_([0-9.]+)' $(VERSION_SCRIPT) | \
+ 	sort -rV | head -n1 | cut -d'_' -f2)
+ LIBBPF_MAJOR_VERSION := $(firstword $(subst ., ,$(LIBBPF_VERSION)))
  
- 	/*
- 	 * Calculate how much swap space we're adding; the first page contains
+@@ -110,7 +111,6 @@ SHARED_OBJDIR	:= $(OUTPUT)sharedobjs/
+ STATIC_OBJDIR	:= $(OUTPUT)staticobjs/
+ BPF_IN_SHARED	:= $(SHARED_OBJDIR)libbpf-in.o
+ BPF_IN_STATIC	:= $(STATIC_OBJDIR)libbpf-in.o
+-VERSION_SCRIPT	:= libbpf.map
+ BPF_HELPER_DEFS	:= $(OUTPUT)bpf_helper_defs.h
+ 
+ LIB_TARGET	:= $(addprefix $(OUTPUT),$(LIB_TARGET))
+@@ -163,10 +163,10 @@ $(BPF_HELPER_DEFS): $(srctree)/tools/include/uapi/linux/bpf.h
+ 
+ $(OUTPUT)libbpf.so: $(OUTPUT)libbpf.so.$(LIBBPF_VERSION)
+ 
+-$(OUTPUT)libbpf.so.$(LIBBPF_VERSION): $(BPF_IN_SHARED)
++$(OUTPUT)libbpf.so.$(LIBBPF_VERSION): $(BPF_IN_SHARED) $(VERSION_SCRIPT)
+ 	$(QUIET_LINK)$(CC) $(LDFLAGS) \
+ 		--shared -Wl,-soname,libbpf.so.$(LIBBPF_MAJOR_VERSION) \
+-		-Wl,--version-script=$(VERSION_SCRIPT) $^ -lelf -lz -o $@
++		-Wl,--version-script=$(VERSION_SCRIPT) $< -lelf -lz -o $@
+ 	@ln -sf $(@F) $(OUTPUT)libbpf.so
+ 	@ln -sf $(@F) $(OUTPUT)libbpf.so.$(LIBBPF_MAJOR_VERSION)
+ 
+@@ -181,7 +181,7 @@ $(OUTPUT)libbpf.pc:
+ 
+ check: check_abi
+ 
+-check_abi: $(OUTPUT)libbpf.so
++check_abi: $(OUTPUT)libbpf.so $(VERSION_SCRIPT)
+ 	@if [ "$(GLOBAL_SYM_COUNT)" != "$(VERSIONED_SYM_COUNT)" ]; then	 \
+ 		echo "Warning: Num of global symbols in $(BPF_IN_SHARED)"	 \
+ 		     "($(GLOBAL_SYM_COUNT)) does NOT match with num of"	 \
 -- 
 2.30.2
 
