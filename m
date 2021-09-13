@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 359CD408FA6
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A42408FAB
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242399AbhIMNpi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:45:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41960 "EHLO mail.kernel.org"
+        id S243066AbhIMNpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:45:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242487AbhIMNnQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:43:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 912D4610E6;
-        Mon, 13 Sep 2021 13:30:39 +0000 (UTC)
+        id S240679AbhIMNoC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:44:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D838F61056;
+        Mon, 13 Sep 2021 13:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539840;
-        bh=2N8VWcGLMbIZfAmXWxQhsD+Zzu+OnwNJ+T3nPRXW15g=;
+        s=korg; t=1631539842;
+        bh=xlzaQ63qPP3CdJ3GL2Ubx9ZSY1M296yogSSYhZHsCOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IEQ7g8wKOQwoR3xrS2r/gpnCL9DiU+JuuiejOZspP1pvrxFvQ1SrLNolgkMRijams
-         tIMVq+zquGI+xtVnU82SHob2VGqOJT4OzxwQ3PiCHk/3G7Hmqfl6Qu6Rqo49uwdVR5
-         UDHesbtim4aPrZIlH2mDJUNESkieFTljBHH1paWU=
+        b=M1z6QUBWo7vquz5IMb0Jv9CZjjrnmB7wl+Zslx6AXUhRixIKx2q5oa11buUVOX9/I
+         ll8ErEubIQtZMU7Q4ok+e9c9Xx7FDfxFq3WmnWjgcwKkW0IsZ7Q7PaI2SMjrpHkMKO
+         7r+bqNE+bYTTkgZ6fZGPacHBvLyeUDaTZapY8KTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Lukasz Majczak <lma@semihalf.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 182/236] rsi: fix an error code in rsi_probe()
-Date:   Mon, 13 Sep 2021 15:14:47 +0200
-Message-Id: <20210913131106.567718433@linuxfoundation.org>
+Subject: [PATCH 5.10 183/236] ASoC: Intel: kbl_da7219_max98927: Fix format selection for max98373
+Date:   Mon, 13 Sep 2021 15:14:48 +0200
+Message-Id: <20210913131106.597922970@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -40,33 +42,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Cezary Rojewski <cezary.rojewski@intel.com>
 
-[ Upstream commit 9adcdf6758d7c4c9bdaf22d78eb9fcae260ed113 ]
+[ Upstream commit 6d41bbf2fd3615c56dbf2b67f6cbf9e83d14a2e2 ]
 
-Return -ENODEV instead of success for unsupported devices.
+Contrary to what is said in board's file, topology targeting
+kbl_da7219_max98373 expects format 16b, not 24/32b. Partially revert
+changes added in 'ASoC: Intel: Boards: Add Maxim98373 support' to bring
+old behavior back, aligning with topology expectations.
 
-Fixes: 54fdb318c111 ("rsi: add new device model for 9116")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210816183947.GA2119@kili
+Fixes: 716d53cc7837 ("ASoC: Intel: Boards: Add Maxim98373 support")
+Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
+Tested-by: Lukasz Majczak <lma@semihalf.com>
+Link: https://lore.kernel.org/r/20210818075742.1515155-2-cezary.rojewski@intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_usb.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/intel/boards/kbl_da7219_max98927.c | 55 +++-----------------
+ 1 file changed, 7 insertions(+), 48 deletions(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_usb.c b/drivers/net/wireless/rsi/rsi_91x_usb.c
-index 00b558984798..3b13de59605e 100644
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -814,6 +814,7 @@ static int rsi_probe(struct usb_interface *pfunction,
- 	} else {
- 		rsi_dbg(ERR_ZONE, "%s: Unsupported RSI device id 0x%x\n",
- 			__func__, id->idProduct);
-+		status = -ENODEV;
- 		goto err1;
- 	}
+diff --git a/sound/soc/intel/boards/kbl_da7219_max98927.c b/sound/soc/intel/boards/kbl_da7219_max98927.c
+index e0149cf6127d..884741aa4833 100644
+--- a/sound/soc/intel/boards/kbl_da7219_max98927.c
++++ b/sound/soc/intel/boards/kbl_da7219_max98927.c
+@@ -197,7 +197,7 @@ static int kabylake_ssp0_hw_params(struct snd_pcm_substream *substream,
+ 		}
+ 		if (!strcmp(codec_dai->component->name, MAX98373_DEV0_NAME)) {
+ 			ret = snd_soc_dai_set_tdm_slot(codec_dai,
+-							0x03, 3, 8, 24);
++							0x30, 3, 8, 16);
+ 			if (ret < 0) {
+ 				dev_err(runtime->dev,
+ 						"DEV0 TDM slot err:%d\n", ret);
+@@ -206,10 +206,10 @@ static int kabylake_ssp0_hw_params(struct snd_pcm_substream *substream,
+ 		}
+ 		if (!strcmp(codec_dai->component->name, MAX98373_DEV1_NAME)) {
+ 			ret = snd_soc_dai_set_tdm_slot(codec_dai,
+-							0x0C, 3, 8, 24);
++							0xC0, 3, 8, 16);
+ 			if (ret < 0) {
+ 				dev_err(runtime->dev,
+-						"DEV0 TDM slot err:%d\n", ret);
++						"DEV1 TDM slot err:%d\n", ret);
+ 				return ret;
+ 			}
+ 		}
+@@ -309,24 +309,6 @@ static int kabylake_ssp_fixup(struct snd_soc_pcm_runtime *rtd,
+ 	 * The above 2 loops are mutually exclusive based on the stream direction,
+ 	 * thus rtd_dpcm variable will never be overwritten
+ 	 */
+-	/*
+-	 * Topology for kblda7219m98373 & kblmax98373 supports only S24_LE,
+-	 * where as kblda7219m98927 & kblmax98927 supports S16_LE by default.
+-	 * Skipping the port wise FE and BE configuration for kblda7219m98373 &
+-	 * kblmax98373 as the topology (FE & BE) supports S24_LE only.
+-	 */
+-
+-	if (!strcmp(rtd->card->name, "kblda7219m98373") ||
+-		!strcmp(rtd->card->name, "kblmax98373")) {
+-		/* The ADSP will convert the FE rate to 48k, stereo */
+-		rate->min = rate->max = 48000;
+-		chan->min = chan->max = DUAL_CHANNEL;
+-
+-		/* set SSP to 24 bit */
+-		snd_mask_none(fmt);
+-		snd_mask_set_format(fmt, SNDRV_PCM_FORMAT_S24_LE);
+-		return 0;
+-	}
  
+ 	/*
+ 	 * The ADSP will convert the FE rate to 48k, stereo, 24 bit
+@@ -477,31 +459,20 @@ static struct snd_pcm_hw_constraint_list constraints_channels_quad = {
+ static int kbl_fe_startup(struct snd_pcm_substream *substream)
+ {
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+-	struct snd_soc_pcm_runtime *soc_rt = asoc_substream_to_rtd(substream);
+ 
+ 	/*
+ 	 * On this platform for PCM device we support,
+ 	 * 48Khz
+ 	 * stereo
++	 * 16 bit audio
+ 	 */
+ 
+ 	runtime->hw.channels_max = DUAL_CHANNEL;
+ 	snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
+ 					   &constraints_channels);
+-	/*
+-	 * Setup S24_LE (32 bit container and 24 bit valid data) for
+-	 * kblda7219m98373 & kblmax98373. For kblda7219m98927 &
+-	 * kblmax98927 keeping it as 16/16 due to topology FW dependency.
+-	 */
+-	if (!strcmp(soc_rt->card->name, "kblda7219m98373") ||
+-		!strcmp(soc_rt->card->name, "kblmax98373")) {
+-		runtime->hw.formats = SNDRV_PCM_FMTBIT_S24_LE;
+-		snd_pcm_hw_constraint_msbits(runtime, 0, 32, 24);
+-
+-	} else {
+-		runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
+-		snd_pcm_hw_constraint_msbits(runtime, 0, 16, 16);
+-	}
++
++	runtime->hw.formats = SNDRV_PCM_FMTBIT_S16_LE;
++	snd_pcm_hw_constraint_msbits(runtime, 0, 16, 16);
+ 
+ 	snd_pcm_hw_constraint_list(runtime, 0,
+ 				SNDRV_PCM_HW_PARAM_RATE, &constraints_rates);
+@@ -534,23 +505,11 @@ static int kabylake_dmic_fixup(struct snd_soc_pcm_runtime *rtd,
+ static int kabylake_dmic_startup(struct snd_pcm_substream *substream)
+ {
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+-	struct snd_soc_pcm_runtime *soc_rt = asoc_substream_to_rtd(substream);
+ 
+ 	runtime->hw.channels_min = runtime->hw.channels_max = QUAD_CHANNEL;
+ 	snd_pcm_hw_constraint_list(runtime, 0, SNDRV_PCM_HW_PARAM_CHANNELS,
+ 			&constraints_channels_quad);
+ 
+-	/*
+-	 * Topology for kblda7219m98373 & kblmax98373 supports only S24_LE.
+-	 * The DMIC also configured for S24_LE. Forcing the DMIC format to
+-	 * S24_LE due to the topology FW dependency.
+-	 */
+-	if (!strcmp(soc_rt->card->name, "kblda7219m98373") ||
+-		!strcmp(soc_rt->card->name, "kblmax98373")) {
+-		runtime->hw.formats = SNDRV_PCM_FMTBIT_S24_LE;
+-		snd_pcm_hw_constraint_msbits(runtime, 0, 32, 24);
+-	}
+-
+ 	return snd_pcm_hw_constraint_list(substream->runtime, 0,
+ 			SNDRV_PCM_HW_PARAM_RATE, &constraints_rates);
+ }
 -- 
 2.30.2
 
