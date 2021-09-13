@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9A14091AB
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:02:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02254408E9E
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343507AbhIMODa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:03:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50892 "EHLO mail.kernel.org"
+        id S242401AbhIMNgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:36:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245665AbhIMOB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:01:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA0F9613A0;
-        Mon, 13 Sep 2021 13:37:51 +0000 (UTC)
+        id S240811AbhIMNdj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:33:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C460613A2;
+        Mon, 13 Sep 2021 13:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540272;
-        bh=7p23jURPt99O791M5Jh+2ov2+GWFBDqZuYrKXjjYaA0=;
+        s=korg; t=1631539580;
+        bh=AbikhgoOUsxMKmjG7zqwGjfq+lOlQ99AzdclRJKEmLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxvlsKnb4HtBHRRRrl3pFaRGEGdCnhUvLYDNClTWG09L8gHcGzX4XvBO8I4fuK9Q3
-         R42kRmtOuMcW3kWQHbHCT8OPUm2e93xov1Z2tdASTqFaO3RPniQnWuD9vk65Lu2Oce
-         Wi/zrKWjaEOwzfPxbXBmPqbR61zQE04vcG8phJvU=
+        b=k5pBEc3arrCNtT0f9o5cMd3fgYMf5/zHmMpn9SuLG/C0eamH+MCE+UrTd58DCgqWT
+         798q97HinBaOx90toUJOreZEX5KLMtrOxR4Rb2GCyNDUmHr0WcJcCykqd8m+sp9BUc
+         zb1EDUrtDUghcHYSjSZNDVqBy+HHOrR8N6glcUus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Anand Moon <linux.amoon@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Haiyue Wang <haiyue.wang@intel.com>,
+        Catherine Sullivan <csully@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 123/300] ARM: dts: meson8b: mxq: Fix the pwm regulator supply properties
-Date:   Mon, 13 Sep 2021 15:13:04 +0200
-Message-Id: <20210913131113.554716214@linuxfoundation.org>
+Subject: [PATCH 5.10 080/236] gve: fix the wrong AdminQ buffer overflow check
+Date:   Mon, 13 Sep 2021 15:13:05 +0200
+Message-Id: <20210913131103.075999348@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Moon <linux.amoon@gmail.com>
+From: Haiyue Wang <haiyue.wang@intel.com>
 
-[ Upstream commit 632062e540becbbcb067523ec8bcadb1239d9578 ]
+[ Upstream commit 63a9192b8fa1ea55efeba1f18fad52bb24d9bf12 ]
 
-After enabling CONFIG_REGULATOR_DEBUG=y we observer below debug logs.
-Changes help link VCCK and VDDEE pwm regulator to 5V regulator supply
-instead of dummy regulator.
-Add missing pwm-supply for regulator-vcck regulator node.
+The 'tail' pointer is also free-running count, so it needs to be masked
+as 'adminq_prod_cnt' does, to become an index value of AdminQ buffer.
 
-[    7.117140] pwm-regulator regulator-vcck: Looking up pwm-supply from device tree
-[    7.117153] pwm-regulator regulator-vcck: Looking up pwm-supply property in node /regulator-vcck failed
-[    7.117184] VCCK: supplied by regulator-dummy
-[    7.117194] regulator-dummy: could not add device link regulator.8: -ENOENT
-[    7.117266] VCCK: 860 <--> 1140 mV at 986 mV, enabled
-[    7.118498] VDDEE: will resolve supply early: pwm
-[    7.118515] pwm-regulator regulator-vddee: Looking up pwm-supply from device tree
-[    7.118526] pwm-regulator regulator-vddee: Looking up pwm-supply property in node /regulator-vddee failed
-[    7.118553] VDDEE: supplied by regulator-dummy
-[    7.118563] regulator-dummy: could not add device link regulator.9: -ENOENT
-
-Fixes: dee51cd0d2e8 ("ARM: dts: meson8b: mxq: add the VDDEE regulator")
-Fixes: d94f60e3dfa0 ("ARM: dts: meson8b: mxq: improve support for the TRONFY MXQ S805")
-
-Cc: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Anand Moon <linux.amoon@gmail.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20210705112358.3554-3-linux.amoon@gmail.com
+Fixes: 5cdad90de62c ("gve: Batch AQ commands for creating and destroying queues.")
+Signed-off-by: Haiyue Wang <haiyue.wang@intel.com>
+Reviewed-by: Catherine Sullivan <csully@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/meson8b-mxq.dts | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/google/gve/gve_adminq.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/meson8b-mxq.dts b/arch/arm/boot/dts/meson8b-mxq.dts
-index f3937d55472d..7adedd3258c3 100644
---- a/arch/arm/boot/dts/meson8b-mxq.dts
-+++ b/arch/arm/boot/dts/meson8b-mxq.dts
-@@ -34,6 +34,8 @@
- 		regulator-min-microvolt = <860000>;
- 		regulator-max-microvolt = <1140000>;
+diff --git a/drivers/net/ethernet/google/gve/gve_adminq.c b/drivers/net/ethernet/google/gve/gve_adminq.c
+index 24ae6a28a806..6009d76e41fc 100644
+--- a/drivers/net/ethernet/google/gve/gve_adminq.c
++++ b/drivers/net/ethernet/google/gve/gve_adminq.c
+@@ -182,7 +182,8 @@ static int gve_adminq_issue_cmd(struct gve_priv *priv,
+ 	tail = ioread32be(&priv->reg_bar0->adminq_event_counter);
  
-+		pwm-supply = <&vcc_5v>;
-+
- 		pwms = <&pwm_cd 0 1148 0>;
- 		pwm-dutycycle-range = <100 0>;
+ 	// Check if next command will overflow the buffer.
+-	if (((priv->adminq_prod_cnt + 1) & priv->adminq_mask) == tail) {
++	if (((priv->adminq_prod_cnt + 1) & priv->adminq_mask) ==
++	    (tail & priv->adminq_mask)) {
+ 		int err;
  
-@@ -79,7 +81,7 @@
- 		regulator-min-microvolt = <860000>;
- 		regulator-max-microvolt = <1140000>;
+ 		// Flush existing commands to make room.
+@@ -192,7 +193,8 @@ static int gve_adminq_issue_cmd(struct gve_priv *priv,
  
--		vin-supply = <&vcc_5v>;
-+		pwm-supply = <&vcc_5v>;
- 
- 		pwms = <&pwm_cd 1 1148 0>;
- 		pwm-dutycycle-range = <100 0>;
+ 		// Retry.
+ 		tail = ioread32be(&priv->reg_bar0->adminq_event_counter);
+-		if (((priv->adminq_prod_cnt + 1) & priv->adminq_mask) == tail) {
++		if (((priv->adminq_prod_cnt + 1) & priv->adminq_mask) ==
++		    (tail & priv->adminq_mask)) {
+ 			// This should never happen. We just flushed the
+ 			// command queue so there should be enough space.
+ 			return -ENOMEM;
 -- 
 2.30.2
 
