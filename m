@@ -2,74 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD75408743
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 10:44:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C93840878E
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 10:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238061AbhIMIpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 04:45:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35628 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238126AbhIMIpP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 04:45:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25B8360F5B;
-        Mon, 13 Sep 2021 08:43:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631522639;
-        bh=LXUxLd87uLqHw6KTkQAAPRMwWhykDO/zu8ngz08HWA8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ag+uXb04sfWp+fEgNxuuHMwEbTDrjy5sY+q/TE3HTsRVL0dOGzTKI7n8oywE+PYo+
-         /kLwcCODNwO/E2X0M0dIvHnz1VuVxpyDv7+3UTZP4FoCrOjKCGdHmghBodgc7eT7Pf
-         9ZTocEnJk75pr5J1xqoKdjAUyRvbsoO0OoiYMNfs=
-Date:   Mon, 13 Sep 2021 10:42:45 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Haakon Bugge <haakon.bugge@oracle.com>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Linux-Net <netdev@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Doug Ledford <dledford@redhat.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        OFED mailing list <linux-rdma@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Guillaume Nault <gnault@redhat.com>
-Subject: Re: Please add 2dce224f469f ("netns: protect netns ID lookups with
- RCU") to LTS
-Message-ID: <YT8PBf0FiniWR0zm@kroah.com>
-References: <7F058034-8A2B-4C19-A39E-12B0DB117328@oracle.com>
- <YToMf8zUVNVDCAKX@kroah.com>
- <756E20E4-399D-45ED-AA9A-BB351C865C65@oracle.com>
+        id S238043AbhIMIxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 04:53:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53244 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237996AbhIMIxy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Sep 2021 04:53:54 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3EF9C061574
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 01:52:38 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id t1so8820537pgv.3
+        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 01:52:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5X+PJbLoGITaGd89uqpRrrH/NIymTXZ76D5e3XthSjw=;
+        b=wvrbVgdKRZTjD0jjEXU0WZIGP/csdihaAz1wzJuyDdzuPO6IgED5Je6pthdGXGBIs/
+         8u6m6WyhNRbV3WKG4zLFn3EghqLAQSfQgWStH5InDWSX3YoBAsextv+axV57F+Ojr2RI
+         RGOxfSA3VH5+qs48Y2atuUtZHJdQKgOBOeKfAEcsOlpRyrJcN8tmZ3J45YB8s/tLKH+r
+         9HsPoUQ3ebLxDZ2ikUDqGfXi1tLl0a0iLY79namC0iwM8kmRVOe/s45P9XAdauUwGhJk
+         t+ZiVyQ8G8vPaASy9GGejfTrRp9pGfAtlI6LMv3dtQ4ly7mMT6Fd0uxasXSOnYow8Moz
+         YcCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5X+PJbLoGITaGd89uqpRrrH/NIymTXZ76D5e3XthSjw=;
+        b=XTQIQD4BQe8webhrpE2SIRgU4HowN/+9Ry0zd3VP1SY81itRD0w+RZ/5NvV1jaJ7SA
+         L/B2OEu3NBgQQkkNFf1Yn6Om5kR+bwFqAxL3bvYX4amSTpOSTzWYOeistwYtgm1sXFjI
+         dRx/rAnIqZ+Kc7BTLerd2539N2OnMloRxhUaoS3ibHFauukiRNtsrBQ6JB0YPMHs5cRt
+         ntop8+DnFyEPnVhewP23zXESVvXoHk+DmrlG3kp6q+ABcHcT5xGZI0bg/AzJlk9aWi7h
+         +whgUi6JzK1HCOXlhF0EHrCdn9xvpNlSoixD23Q6TI4FG6g60es9owAaind1dd1Y9o6q
+         h56w==
+X-Gm-Message-State: AOAM532h5RLzFPzT4OKdXoXR2zwUsxHOznfxBCPMzRjGPCXFzcTmoMIQ
+        RBgNT0b98P1wDl/G39vkja+oj4ZBybBX/T+P
+X-Google-Smtp-Source: ABdhPJwqXkDGtvUwWGaiuBYbE5NcB774anrzQE3pwhguycGqOHsr4ssdf6RQfjcebn4wpyZvife0IA==
+X-Received: by 2002:a62:3887:0:b0:3f2:6c5a:8a92 with SMTP id f129-20020a623887000000b003f26c5a8a92mr10152112pfa.8.1631523158357;
+        Mon, 13 Sep 2021 01:52:38 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w11sm7172909pgf.5.2021.09.13.01.52.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Sep 2021 01:52:38 -0700 (PDT)
+Message-ID: <613f1156.1c69fb81.ee4d9.3bdb@mx.google.com>
+Date:   Mon, 13 Sep 2021 01:52:38 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <756E20E4-399D-45ED-AA9A-BB351C865C65@oracle.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.282-84-g18813fd5c498
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 105 runs,
+ 3 regressions (v4.9.282-84-g18813fd5c498)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 10, 2021 at 02:22:32PM +0000, Haakon Bugge wrote:
-> 
-> 
-> > On 9 Sep 2021, at 15:30, Greg KH <gregkh@linuxfoundation.org> wrote:
-> > 
-> > On Thu, Sep 09, 2021 at 01:10:05PM +0000, Haakon Bugge wrote:
-> >> Hi Greg & Sasha,
-> >> 
-> >> 
-> >> tl;dr: Please add 2dce224f469f ("netns: protect netns ID lookups with
-> >> RCU") to the stable releases from v5.4 and older. It fixes a
-> >> spin_unlock_bh() in peernet2id() called with IRQs off. I think this
-> >> neat side-effect of commit 2dce224f469f was quite un-intentional,
-> >> hence no Fixes: tag or CC: stable.
-> > 
-> > Please provide a working backport for all of the relevant kernel
-> > verisons, as it does not apply cleanly on it's own.
-> 
-> I've done the backports. 4.9 is actually not needed, because it uses spin_{lock,unlock}_irqsave() in peernet2id(). Hence, we have an "offending" commit which this one fixes:
-> 
-> fba143c66abb ("netns: avoid disabling irq for netns id")
-> 
-> Will get'm out during the weekend.
+stable-rc/queue/4.9 baseline: 105 runs, 3 regressions (v4.9.282-84-g18813fd=
+5c498)
 
-All now queued up, thanks.
+Regressions Summary
+-------------------
 
-greg k-h
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.282-84-g18813fd5c498/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.282-84-g18813fd5c498
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      18813fd5c4982b3698c9a584886bf1ce72fec596 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613edd2111f8e3e651d59667
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-8=
+4-g18813fd5c498/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-8=
+4-g18813fd5c498/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613edd2111f8e3e651d59=
+668
+        failing since 303 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613edc72518fcbb72cd5967f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-8=
+4-g18813fd5c498/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-8=
+4-g18813fd5c498/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613edc72518fcbb72cd59=
+680
+        failing since 303 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/613f0f9b158e7f64b9d5966b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-8=
+4-g18813fd5c498/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.282-8=
+4-g18813fd5c498/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/613f0f9b158e7f64b9d59=
+66c
+        failing since 303 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
