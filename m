@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C258A409203
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67DB94094BD
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:34:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343985AbhIMOHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:07:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55992 "EHLO mail.kernel.org"
+        id S1344189AbhIMOd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:33:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344557AbhIMOFJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:05:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACAFB61264;
-        Mon, 13 Sep 2021 13:39:30 +0000 (UTC)
+        id S1346536AbhIMObv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:31:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4E8761BA3;
+        Mon, 13 Sep 2021 13:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540371;
-        bh=52WVVqaIL0+/oJMob99rnCz7oYQjKhwADz2fs7IpXsk=;
+        s=korg; t=1631541125;
+        bh=PI/J8S3faVJxntKJaL4ApG7L0MfybHsspJ+xD/4/008=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a7sc1kkANHcvr1Hx5xjz03xTRMSxRxdfuaVVRKQt5pExxVQJxqM1VvoEgENsHw9Rl
-         GBLz/6xjlMMyum6IAIo1meuZZpvQ0LChPsj8xqsVws57id6b2GyYbs6qOJbS99gf81
-         CC5GhSo8cwmOOvbaUXZAZS0RHKaulNi2+l6nvfos=
+        b=UJKcW1yV+YxWdax7YdDeWmQnEt56TyhfGHtRj3zSRDLhU3MR1ZzVEuslvTz8M+TR+
+         YoBzJHovXR/6plUuWaYnLnyoOsnLDlv7O5uZn81+gSLVGNmfhX/hMgfK1sjSneTerq
+         fc6FYsewpSzcuo6f9isOg35sjka6QkJ/Tm2kFtlk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Anand Moon <linux.amoon@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 124/300] ARM: dts: meson8b: ec100: Fix the pwm regulator supply properties
+Subject: [PATCH 5.14 131/334] net/mlx5e: Prohibit inner indir TIRs in IPoIB
 Date:   Mon, 13 Sep 2021 15:13:05 +0200
-Message-Id: <20210913131113.586397941@linuxfoundation.org>
+Message-Id: <20210913131117.799353714@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +40,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Moon <linux.amoon@gmail.com>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-[ Upstream commit 72ccc373b064ae3ac0c5b5f2306069b60ca118df ]
+[ Upstream commit 9c43f3865c2a03be104f1c1d5e9129c2a2bdba88 ]
 
-After enabling CONFIG_REGULATOR_DEBUG=y we observer below debug logs.
-Changes help link VCCK and VDDEE pwm regulator to 5V regulator supply
-instead of dummy regulator.
+TIR's rx_hash_field_selector_inner can be enabled only when
+tunneled_offload_en = 1. tunneled_offload_en is filled according to the
+tunneled_offload_en field in struct mlx5e_params, which is false in the
+IPoIB profile. On the other hand, the IPoIB profile passes inner_ttc =
+true to mlx5e_create_indirect_tirs, which potentially allows the latter
+function to attempt to create inner indirect TIRs without having
+tunneled_offload_en set.
 
-[    7.117140] pwm-regulator regulator-vcck: Looking up pwm-supply from device tree
-[    7.117153] pwm-regulator regulator-vcck: Looking up pwm-supply property in node /regulator-vcck failed
-[    7.117184] VCCK: supplied by regulator-dummy
-[    7.117194] regulator-dummy: could not add device link regulator.8: -ENOENT
-[    7.117266] VCCK: 860 <--> 1140 mV at 986 mV, enabled
-[    7.118498] VDDEE: will resolve supply early: pwm
-[    7.118515] pwm-regulator regulator-vddee: Looking up pwm-supply from device tree
-[    7.118526] pwm-regulator regulator-vddee: Looking up pwm-supply property in node /regulator-vddee failed
-[    7.118553] VDDEE: supplied by regulator-dummy
-[    7.118563] regulator-dummy: could not add device link regulator.9: -ENOENT
+This commit prohibits this behavior by passing inner_ttc = false to
+mlx5e_create_indirect_tirs. The latter function won't attempt to create
+inner indirect TIRs.
 
-Fixes: 087a1d8b4e4c ("ARM: dts: meson8b: ec100: add the VDDEE regulator")
-Fixes: 3e7db1c1b7a3 ("ARM: dts: meson8b: ec100: improve the description of the regulators")
+As inner indirect TIRs are not created in the IPoIB profile (this commit
+blocks it explicitly, and even before they would have failed to be
+created), the call to mlx5e_create_inner_ttc_table in
+mlx5i_create_flow_steering is a no-op and can be removed.
 
-Cc: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Anand Moon <linux.amoon@gmail.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20210705112358.3554-4-linux.amoon@gmail.com
+Fixes: 46dc933cee82 ("net/mlx5e: Provide explicit directive if to create inner indirect tirs")
+Fixes: 458821c72bd0 ("net/mlx5e: IPoIB, Add inner TTC table to IPoIB flow steering")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/meson8b-ec100.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/en/fs.h    |  6 ------
+ .../net/ethernet/mellanox/mlx5/core/en_fs.c    | 10 +++++-----
+ .../ethernet/mellanox/mlx5/core/ipoib/ipoib.c  | 18 ++----------------
+ 3 files changed, 7 insertions(+), 27 deletions(-)
 
-diff --git a/arch/arm/boot/dts/meson8b-ec100.dts b/arch/arm/boot/dts/meson8b-ec100.dts
-index 8e48ccc6b634..7e8ddc6f1252 100644
---- a/arch/arm/boot/dts/meson8b-ec100.dts
-+++ b/arch/arm/boot/dts/meson8b-ec100.dts
-@@ -148,7 +148,7 @@
- 		regulator-min-microvolt = <860000>;
- 		regulator-max-microvolt = <1140000>;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h b/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
+index 1d5ce07b83f4..43b092f5565a 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/fs.h
+@@ -248,18 +248,12 @@ struct ttc_params {
  
--		vin-supply = <&vcc_5v>;
-+		pwm-supply = <&vcc_5v>;
+ void mlx5e_set_ttc_basic_params(struct mlx5e_priv *priv, struct ttc_params *ttc_params);
+ void mlx5e_set_ttc_ft_params(struct ttc_params *ttc_params);
+-void mlx5e_set_inner_ttc_ft_params(struct ttc_params *ttc_params);
  
- 		pwms = <&pwm_cd 0 1148 0>;
- 		pwm-dutycycle-range = <100 0>;
-@@ -232,7 +232,7 @@
- 		regulator-min-microvolt = <860000>;
- 		regulator-max-microvolt = <1140000>;
+ int mlx5e_create_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
+ 			   struct mlx5e_ttc_table *ttc);
+ void mlx5e_destroy_ttc_table(struct mlx5e_priv *priv,
+ 			     struct mlx5e_ttc_table *ttc);
  
--		vin-supply = <&vcc_5v>;
-+		pwm-supply = <&vcc_5v>;
+-int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
+-				 struct mlx5e_ttc_table *ttc);
+-void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv,
+-				   struct mlx5e_ttc_table *ttc);
+-
+ void mlx5e_destroy_flow_table(struct mlx5e_flow_table *ft);
+ int mlx5e_ttc_fwd_dest(struct mlx5e_priv *priv, enum mlx5e_traffic_types type,
+ 		       struct mlx5_flow_destination *new_dest);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
+index 0b75fab41ae8..6464ac3f294e 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
+@@ -1324,7 +1324,7 @@ void mlx5e_set_ttc_basic_params(struct mlx5e_priv *priv,
+ 	ttc_params->inner_ttc = &priv->fs.inner_ttc;
+ }
  
- 		pwms = <&pwm_cd 1 1148 0>;
- 		pwm-dutycycle-range = <100 0>;
+-void mlx5e_set_inner_ttc_ft_params(struct ttc_params *ttc_params)
++static void mlx5e_set_inner_ttc_ft_params(struct ttc_params *ttc_params)
+ {
+ 	struct mlx5_flow_table_attr *ft_attr = &ttc_params->ft_attr;
+ 
+@@ -1343,8 +1343,8 @@ void mlx5e_set_ttc_ft_params(struct ttc_params *ttc_params)
+ 	ft_attr->prio = MLX5E_NIC_PRIO;
+ }
+ 
+-int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
+-				 struct mlx5e_ttc_table *ttc)
++static int mlx5e_create_inner_ttc_table(struct mlx5e_priv *priv, struct ttc_params *params,
++					struct mlx5e_ttc_table *ttc)
+ {
+ 	struct mlx5e_flow_table *ft = &ttc->ft;
+ 	int err;
+@@ -1374,8 +1374,8 @@ err:
+ 	return err;
+ }
+ 
+-void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv,
+-				   struct mlx5e_ttc_table *ttc)
++static void mlx5e_destroy_inner_ttc_table(struct mlx5e_priv *priv,
++					  struct mlx5e_ttc_table *ttc)
+ {
+ 	if (!mlx5e_tunnel_inner_ft_supported(priv->mdev))
+ 		return;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
+index 7d7ed025db0d..620d638e1e8f 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/ipoib/ipoib.c
+@@ -331,17 +331,6 @@ static int mlx5i_create_flow_steering(struct mlx5e_priv *priv)
+ 	}
+ 
+ 	mlx5e_set_ttc_basic_params(priv, &ttc_params);
+-	mlx5e_set_inner_ttc_ft_params(&ttc_params);
+-	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++)
+-		ttc_params.indir_tirn[tt] = priv->inner_indir_tir[tt].tirn;
+-
+-	err = mlx5e_create_inner_ttc_table(priv, &ttc_params, &priv->fs.inner_ttc);
+-	if (err) {
+-		netdev_err(priv->netdev, "Failed to create inner ttc table, err=%d\n",
+-			   err);
+-		goto err_destroy_arfs_tables;
+-	}
+-
+ 	mlx5e_set_ttc_ft_params(&ttc_params);
+ 	for (tt = 0; tt < MLX5E_NUM_INDIR_TIRS; tt++)
+ 		ttc_params.indir_tirn[tt] = priv->indir_tir[tt].tirn;
+@@ -350,13 +339,11 @@ static int mlx5i_create_flow_steering(struct mlx5e_priv *priv)
+ 	if (err) {
+ 		netdev_err(priv->netdev, "Failed to create ttc table, err=%d\n",
+ 			   err);
+-		goto err_destroy_inner_ttc_table;
++		goto err_destroy_arfs_tables;
+ 	}
+ 
+ 	return 0;
+ 
+-err_destroy_inner_ttc_table:
+-	mlx5e_destroy_inner_ttc_table(priv, &priv->fs.inner_ttc);
+ err_destroy_arfs_tables:
+ 	mlx5e_arfs_destroy_tables(priv);
+ 
+@@ -366,7 +353,6 @@ err_destroy_arfs_tables:
+ static void mlx5i_destroy_flow_steering(struct mlx5e_priv *priv)
+ {
+ 	mlx5e_destroy_ttc_table(priv, &priv->fs.ttc);
+-	mlx5e_destroy_inner_ttc_table(priv, &priv->fs.inner_ttc);
+ 	mlx5e_arfs_destroy_tables(priv);
+ }
+ 
+@@ -392,7 +378,7 @@ static int mlx5i_init_rx(struct mlx5e_priv *priv)
+ 	if (err)
+ 		goto err_destroy_indirect_rqts;
+ 
+-	err = mlx5e_create_indirect_tirs(priv, true);
++	err = mlx5e_create_indirect_tirs(priv, false);
+ 	if (err)
+ 		goto err_destroy_direct_rqts;
+ 
 -- 
 2.30.2
 
