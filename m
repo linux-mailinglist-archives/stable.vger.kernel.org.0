@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 760D84093A3
+	by mail.lfdr.de (Postfix) with ESMTP id BF7DE4093A5
 	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240821AbhIMOWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344468AbhIMOWi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 13 Sep 2021 10:22:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41880 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345928AbhIMOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345929AbhIMOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:20:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF4B560F9B;
-        Mon, 13 Sep 2021 13:46:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2455D60F8F;
+        Mon, 13 Sep 2021 13:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540797;
-        bh=fA/rs68FTcfev33SrJhl3zvvvGXmHpxNmGz+nusDxsY=;
+        s=korg; t=1631540799;
+        bh=K4uaTHapmH3U6xH9ucIb0nunIP0v4qwcdxnoKEqCHMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NU9MqI3Ld9wYo5XMA1PlYW9E0cqhycQROEIJvBQzrOMnAB5QoDSKHz8+xTju6FcYO
-         hcG4g89OWDG2HaHbmgVxgzuQ+rTKbbDXpUvhPJi8IcVxkPA+UPIbUM6NluzQtrdd5f
-         xZmB1G9Te1nYd/FMfOj+4Ssf17bFO/nizRdeIWw8=
+        b=MNAz8bHM0sZsJjS5neOu4gBBb9r/XPLm865y/WSQ7EQjmNbRuQS4ORuehvffI9xSJ
+         vp/WiDXlhpJ/dZxWjUC+GQkzGyhQTm/lmimngI/Y5JRcnBaOfLLP9uDJJ8G4vRc9Z/
+         42ff6lkXOoJto2UeHcnumeJ6bawXfv4DU5WkBOkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 039/334] fcntl: fix potential deadlock for &fasync_struct.fa_lock
-Date:   Mon, 13 Sep 2021 15:11:33 +0200
-Message-Id: <20210913131114.762149353@linuxfoundation.org>
+        Stian Skjelstad <stian.skjelstad@gmail.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 040/334] udf_get_extendedattr() had no boundary checks.
+Date:   Mon, 13 Sep 2021 15:11:34 +0200
+Message-Id: <20210913131114.800537644@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,76 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Stian Skjelstad <stian.skjelstad@gmail.com>
 
-[ Upstream commit 2f488f698fda820f8e6fa0407630154eceb145d6 ]
+[ Upstream commit 58bc6d1be2f3b0ceecb6027dfa17513ec6aa2abb ]
 
-There is an existing lock hierarchy of
-&dev->event_lock --> &fasync_struct.fa_lock --> &f->f_owner.lock
-from the following call chain:
+When parsing the ExtendedAttr data, malicous or corrupt attribute length
+could cause kernel hangs and buffer overruns in some special cases.
 
-  input_inject_event():
-    spin_lock_irqsave(&dev->event_lock,...);
-    input_handle_event():
-      input_pass_values():
-        input_to_handler():
-          evdev_events():
-            evdev_pass_values():
-              spin_lock(&client->buffer_lock);
-              __pass_event():
-                kill_fasync():
-                  kill_fasync_rcu():
-                    read_lock(&fa->fa_lock);
-                    send_sigio():
-                      read_lock_irqsave(&fown->lock,...);
-
-&dev->event_lock is HARDIRQ-safe, so interrupts have to be disabled
-while grabbing &fasync_struct.fa_lock, otherwise we invert the lock
-hierarchy. However, since kill_fasync which calls kill_fasync_rcu is
-an exported symbol, it may not necessarily be called with interrupts
-disabled.
-
-As kill_fasync_rcu may be called with interrupts disabled (for
-example, in the call chain above), we replace calls to
-read_lock/read_unlock on &fasync_struct.fa_lock in kill_fasync_rcu
-with read_lock_irqsave/read_unlock_irqrestore.
-
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Link: https://lore.kernel.org/r/20210822093332.25234-1-stian.skjelstad@gmail.com
+Signed-off-by: Stian Skjelstad <stian.skjelstad@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fcntl.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/udf/misc.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/fs/fcntl.c b/fs/fcntl.c
-index 932ec1e9f5bf..68added37c15 100644
---- a/fs/fcntl.c
-+++ b/fs/fcntl.c
-@@ -1004,13 +1004,14 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
- {
- 	while (fa) {
- 		struct fown_struct *fown;
-+		unsigned long flags;
+diff --git a/fs/udf/misc.c b/fs/udf/misc.c
+index eab94527340d..1614d308d0f0 100644
+--- a/fs/udf/misc.c
++++ b/fs/udf/misc.c
+@@ -173,13 +173,22 @@ struct genericFormat *udf_get_extendedattr(struct inode *inode, uint32_t type,
+ 		else
+ 			offset = le32_to_cpu(eahd->appAttrLocation);
  
- 		if (fa->magic != FASYNC_MAGIC) {
- 			printk(KERN_ERR "kill_fasync: bad magic number in "
- 			       "fasync_struct!\n");
- 			return;
+-		while (offset < iinfo->i_lenEAttr) {
++		while (offset + sizeof(*gaf) < iinfo->i_lenEAttr) {
++			uint32_t attrLength;
++
+ 			gaf = (struct genericFormat *)&ea[offset];
++			attrLength = le32_to_cpu(gaf->attrLength);
++
++			/* Detect undersized elements and buffer overflows */
++			if ((attrLength < sizeof(*gaf)) ||
++			    (attrLength > (iinfo->i_lenEAttr - offset)))
++				break;
++
+ 			if (le32_to_cpu(gaf->attrType) == type &&
+ 					gaf->attrSubtype == subtype)
+ 				return gaf;
+ 			else
+-				offset += le32_to_cpu(gaf->attrLength);
++				offset += attrLength;
  		}
--		read_lock(&fa->fa_lock);
-+		read_lock_irqsave(&fa->fa_lock, flags);
- 		if (fa->fa_file) {
- 			fown = &fa->fa_file->f_owner;
- 			/* Don't send SIGURG to processes which have not set a
-@@ -1019,7 +1020,7 @@ static void kill_fasync_rcu(struct fasync_struct *fa, int sig, int band)
- 			if (!(sig == SIGURG && fown->signum == 0))
- 				send_sigio(fown, fa->fa_fd, band);
- 		}
--		read_unlock(&fa->fa_lock);
-+		read_unlock_irqrestore(&fa->fa_lock, flags);
- 		fa = rcu_dereference(fa->fa_next);
  	}
- }
+ 
 -- 
 2.30.2
 
