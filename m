@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4634E408ECA
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:35:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DE92408C81
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241144AbhIMNgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:36:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58346 "EHLO mail.kernel.org"
+        id S236903AbhIMNTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:19:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242946AbhIMNeg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:34:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2E2861107;
-        Mon, 13 Sep 2021 13:26:38 +0000 (UTC)
+        id S236893AbhIMNSO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:18:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D998A60F23;
+        Mon, 13 Sep 2021 13:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539599;
-        bh=5g772FIa1JKIzWCgK2pejEwmlejNBzBFBpU6kSf7rpY=;
+        s=korg; t=1631539018;
+        bh=5WCdiSfoYC4iCYUhDtOeTfNzUT9R7Tz2ghmwEOEsMQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aXcRi2s1bU50i8zCMbwTEHUwiCrTpYshqAxnzWSXuNLe/rjb2QnN7sVJMB21FGqqX
-         PPE/VVzRUt2Vb1xyN1qWqbwX3e82og/YJQEkcrH1dlkGEp7F/Y4ZEbWU06mV81PedU
-         36HWU7PTlN7tKugEVqfbNnxQs1t4siOz368vwuCU=
+        b=WJmdEsHpJzBYsfauOtJ6eNqiTxsqT/CzrxF1/PMTPj8DZixrM/4kLG+rfSnMFL4i5
+         de3o41dYJxn8zGEviVLfC3HENjqpoH2lkyMT1M+c23xS3AtoJcRdxj0jp2z9DTbxQH
+         eIVAACwqHP4Mngp3VyjIg2QRh/za/WmI5ZVNBcaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Martynas Pumputis <m@lambda.lt>,
-        John Fastabend <john.fastabend@gmail.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 086/236] libbpf: Fix removal of inner map in bpf_object__create_map
-Date:   Mon, 13 Sep 2021 15:13:11 +0200
-Message-Id: <20210913131103.278478448@linuxfoundation.org>
+Subject: [PATCH 5.4 011/144] hrtimer: Ensure timerfd notification for HIGHRES=n
+Date:   Mon, 13 Sep 2021 15:13:12 +0200
+Message-Id: <20210913131048.346230114@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,77 +39,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martynas Pumputis <m@lambda.lt>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit a21ab4c59e09c2a9994a6e393b7484e3b3f78a99 ]
+[ Upstream commit 8c3b5e6ec0fee18bc2ce38d1dfe913413205f908 ]
 
-If creating an outer map of a BTF-defined map-in-map fails (via
-bpf_object__create_map()), then the previously created its inner map
-won't be destroyed.
+If high resolution timers are disabled the timerfd notification about a
+clock was set event is not happening for all cases which use
+clock_was_set_delayed() because that's a NOP for HIGHRES=n, which is wrong.
 
-Fix this by ensuring that the destroy routines are not bypassed in the
-case of a failure.
+Make clock_was_set_delayed() unconditially available to fix that.
 
-Fixes: 646f02ffdd49c ("libbpf: Add BTF-defined map-in-map support")
-Reported-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Martynas Pumputis <m@lambda.lt>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20210719173838.423148-2-m@lambda.lt
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20210713135158.196661266@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ include/linux/hrtimer.h     |  5 -----
+ kernel/time/hrtimer.c       | 32 ++++++++++++++++----------------
+ kernel/time/tick-internal.h |  3 +++
+ 3 files changed, 19 insertions(+), 21 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 04cde732d686..28923b776cdc 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -4123,6 +4123,7 @@ static int bpf_object__create_map(struct bpf_object *obj, struct bpf_map *map)
- {
- 	struct bpf_create_map_attr create_attr;
- 	struct bpf_map_def *def = &map->def;
-+	int err = 0;
+diff --git a/include/linux/hrtimer.h b/include/linux/hrtimer.h
+index 1f98b52118f0..48be92aded5e 100644
+--- a/include/linux/hrtimer.h
++++ b/include/linux/hrtimer.h
+@@ -317,16 +317,12 @@ struct clock_event_device;
  
- 	memset(&create_attr, 0, sizeof(create_attr));
+ extern void hrtimer_interrupt(struct clock_event_device *dev);
  
-@@ -4165,8 +4166,6 @@ static int bpf_object__create_map(struct bpf_object *obj, struct bpf_map *map)
- 
- 	if (bpf_map_type__is_map_in_map(def->type)) {
- 		if (map->inner_map) {
--			int err;
+-extern void clock_was_set_delayed(void);
 -
- 			err = bpf_object__create_map(obj, map->inner_map);
- 			if (err) {
- 				pr_warn("map '%s': failed to create inner map: %d\n",
-@@ -4183,8 +4182,8 @@ static int bpf_object__create_map(struct bpf_object *obj, struct bpf_map *map)
- 	if (map->fd < 0 && (create_attr.btf_key_type_id ||
- 			    create_attr.btf_value_type_id)) {
- 		char *cp, errmsg[STRERR_BUFSIZE];
--		int err = -errno;
+ extern unsigned int hrtimer_resolution;
  
-+		err = -errno;
- 		cp = libbpf_strerror_r(err, errmsg, sizeof(errmsg));
- 		pr_warn("Error in bpf_create_map_xattr(%s):%s(%d). Retrying without BTF.\n",
- 			map->name, cp, err);
-@@ -4196,15 +4195,14 @@ static int bpf_object__create_map(struct bpf_object *obj, struct bpf_map *map)
- 		map->fd = bpf_create_map_xattr(&create_attr);
- 	}
+ #else
  
--	if (map->fd < 0)
--		return -errno;
-+	err = map->fd < 0 ? -errno : 0;
+ #define hrtimer_resolution	(unsigned int)LOW_RES_NSEC
  
- 	if (bpf_map_type__is_map_in_map(def->type) && map->inner_map) {
- 		bpf_map__destroy(map->inner_map);
- 		zfree(&map->inner_map);
- 	}
+-static inline void clock_was_set_delayed(void) { }
+-
+ #endif
  
--	return 0;
-+	return err;
+ static inline ktime_t
+@@ -350,7 +346,6 @@ hrtimer_expires_remaining_adjusted(const struct hrtimer *timer)
+ 						    timer->base->get_time());
  }
  
- static int init_map_slots(struct bpf_map *map)
+-extern void clock_was_set(void);
+ #ifdef CONFIG_TIMERFD
+ extern void timerfd_clock_was_set(void);
+ #else
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index 39beb9aaa24b..e1e8d5dab0c5 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -759,22 +759,6 @@ static void hrtimer_switch_to_hres(void)
+ 	retrigger_next_event(NULL);
+ }
+ 
+-static void clock_was_set_work(struct work_struct *work)
+-{
+-	clock_was_set();
+-}
+-
+-static DECLARE_WORK(hrtimer_work, clock_was_set_work);
+-
+-/*
+- * Called from timekeeping and resume code to reprogram the hrtimer
+- * interrupt device on all cpus.
+- */
+-void clock_was_set_delayed(void)
+-{
+-	schedule_work(&hrtimer_work);
+-}
+-
+ #else
+ 
+ static inline int hrtimer_is_hres_enabled(void) { return 0; }
+@@ -892,6 +876,22 @@ void clock_was_set(void)
+ 	timerfd_clock_was_set();
+ }
+ 
++static void clock_was_set_work(struct work_struct *work)
++{
++	clock_was_set();
++}
++
++static DECLARE_WORK(hrtimer_work, clock_was_set_work);
++
++/*
++ * Called from timekeeping and resume code to reprogram the hrtimer
++ * interrupt device on all cpus and to notify timerfd.
++ */
++void clock_was_set_delayed(void)
++{
++	schedule_work(&hrtimer_work);
++}
++
+ /*
+  * During resume we might have to reprogram the high resolution timer
+  * interrupt on all online CPUs.  However, all other CPUs will be
+diff --git a/kernel/time/tick-internal.h b/kernel/time/tick-internal.h
+index 7b2496136729..5294f5b1f955 100644
+--- a/kernel/time/tick-internal.h
++++ b/kernel/time/tick-internal.h
+@@ -165,3 +165,6 @@ DECLARE_PER_CPU(struct hrtimer_cpu_base, hrtimer_bases);
+ 
+ extern u64 get_next_timer_interrupt(unsigned long basej, u64 basem);
+ void timer_clear_idle(void);
++
++void clock_was_set(void);
++void clock_was_set_delayed(void);
 -- 
 2.30.2
 
