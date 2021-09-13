@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BC7C40957B
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26CD5409581
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:42:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344598AbhIMOmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56442 "EHLO mail.kernel.org"
+        id S243290AbhIMOmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:42:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347008AbhIMOkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:40:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E93761C15;
-        Mon, 13 Sep 2021 13:55:46 +0000 (UTC)
+        id S1347011AbhIMOkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:40:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B41BE61C32;
+        Mon, 13 Sep 2021 13:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541346;
-        bh=3BRQKf+4m4hF8xbhI2zJqChxuqd8U0J5T0pyXXtX8bc=;
+        s=korg; t=1631541349;
+        bh=g5bvzzsZ30AzMLtzWBmROfQKl3rddEjPsLLezYEkHdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IX3K5A0DQ09Rm4zWCkSsQrErON6SZpXl11UayivXzuobqxBJgauExSXfYrJ2RtviW
-         U+0r+OLKHLOTsJNq1yW/J6YhGEb+vQAxRy/BwrMrL9wMOvEZZfJ3J93JJUdCYEY5YG
-         DKv4B7EoG9XE4B8WQHJ7gLEji37R6Zkuv7sLmC94=
+        b=MGEF99CYvt/NBXr2sIKiWyekv9yHaiJRoqWJGRuZZXDACxNVEs5o0tNhSXYbLPkIr
+         +wLE+f66slFzOa97oJ8I9qB3kyKL2Nqu43CieW/t4oOrwtGK00EuZ4ag7fNXR8fbaz
+         ZpeAhYmR3b/Ahar/tn4MfwTqxDPSbsr4+nOOb6UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 261/334] usb: bdc: Fix an error handling path in bdc_probe() when no suitable DMA config is available
-Date:   Mon, 13 Sep 2021 15:15:15 +0200
-Message-Id: <20210913131122.225642819@linuxfoundation.org>
+Subject: [PATCH 5.14 262/334] usb: bdc: Fix a resource leak in the error handling path of bdc_probe()
+Date:   Mon, 13 Sep 2021 15:15:16 +0200
+Message-Id: <20210913131122.264288446@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -42,38 +42,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d2f42e09393c774ab79088d8e3afcc62b3328fc9 ]
+[ Upstream commit 6f15a2a09cecb7a2faba4a75bbd101f6f962294b ]
 
-If no suitable DMA configuration is available, a previous 'bdc_phy_init()'
-call must be undone by a corresponding 'bdc_phy_exit()' call.
+If an error occurs after a successful 'clk_prepare_enable()' call, it must
+be undone by a corresponding 'clk_disable_unprepare()' call.
+This call is already present in the remove function.
 
-Branch to the existing error handling path instead of returning
-directly.
+Add this call in the error handling path and reorder the code so that the
+'clk_prepare_enable()' call happens later in the function.
+The goal is to have as much managed resources functions as possible
+before the 'clk_prepare_enable()' call in order to keep the error handling
+path simple.
 
-Fixes: cc29d4f67757 ("usb: bdc: Add support for USB phy")
+While at it, remove the now unneeded 'clk' variable.
+
+Fixes: c87dca047849 ("usb: bdc: Add clock enable for new chips with a separate BDC clock")
 Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/0c5910979f39225d5d8fe68c9ab1c147c68ddee1.1629314734.git.christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/f8a4a6897deb0c8cb2e576580790303550f15fcd.1629314734.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/bdc/bdc_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/bdc/bdc_core.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
-index 0bef6b3f049b..251db57e51fa 100644
+index 251db57e51fa..fa1a3908ec3b 100644
 --- a/drivers/usb/gadget/udc/bdc/bdc_core.c
 +++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
-@@ -560,7 +560,8 @@ static int bdc_probe(struct platform_device *pdev)
- 		if (ret) {
- 			dev_err(dev,
- 				"No suitable DMA config available, abort\n");
--			return -ENOTSUPP;
-+			ret = -ENOTSUPP;
-+			goto phycleanup;
+@@ -488,27 +488,14 @@ static int bdc_probe(struct platform_device *pdev)
+ 	int irq;
+ 	u32 temp;
+ 	struct device *dev = &pdev->dev;
+-	struct clk *clk;
+ 	int phy_num;
+ 
+ 	dev_dbg(dev, "%s()\n", __func__);
+ 
+-	clk = devm_clk_get_optional(dev, "sw_usbd");
+-	if (IS_ERR(clk))
+-		return PTR_ERR(clk);
+-
+-	ret = clk_prepare_enable(clk);
+-	if (ret) {
+-		dev_err(dev, "could not enable clock\n");
+-		return ret;
+-	}
+-
+ 	bdc = devm_kzalloc(dev, sizeof(*bdc), GFP_KERNEL);
+ 	if (!bdc)
+ 		return -ENOMEM;
+ 
+-	bdc->clk = clk;
+-
+ 	bdc->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(bdc->regs))
+ 		return PTR_ERR(bdc->regs);
+@@ -545,10 +532,20 @@ static int bdc_probe(struct platform_device *pdev)
  		}
- 		dev_dbg(dev, "Using 32-bit address\n");
  	}
+ 
++	bdc->clk = devm_clk_get_optional(dev, "sw_usbd");
++	if (IS_ERR(bdc->clk))
++		return PTR_ERR(bdc->clk);
++
++	ret = clk_prepare_enable(bdc->clk);
++	if (ret) {
++		dev_err(dev, "could not enable clock\n");
++		return ret;
++	}
++
+ 	ret = bdc_phy_init(bdc);
+ 	if (ret) {
+ 		dev_err(bdc->dev, "BDC phy init failure:%d\n", ret);
+-		return ret;
++		goto disable_clk;
+ 	}
+ 
+ 	temp = bdc_readl(bdc->regs, BDC_BDCCAP1);
+@@ -581,6 +578,8 @@ cleanup:
+ 	bdc_hw_exit(bdc);
+ phycleanup:
+ 	bdc_phy_exit(bdc);
++disable_clk:
++	clk_disable_unprepare(bdc->clk);
+ 	return ret;
+ }
+ 
 -- 
 2.30.2
 
