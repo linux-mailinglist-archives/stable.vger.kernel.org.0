@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FF494091F2
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:05:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 498084094A8
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343587AbhIMOG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:06:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54578 "EHLO mail.kernel.org"
+        id S1346543AbhIMOdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:33:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344245AbhIMOEl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:04:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB17861A54;
-        Mon, 13 Sep 2021 13:39:10 +0000 (UTC)
+        id S1345300AbhIMObP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:31:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A887F6137F;
+        Mon, 13 Sep 2021 13:51:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540351;
-        bh=uuZMw6J5hMtC9lRbJ1wg88tUyZpGYzYRmpNXWwfNY5U=;
+        s=korg; t=1631541107;
+        bh=QGONwceHGfFyctw7tnjzl26AtFPevzcDoqCzUgW9nGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZXyvybMZt6gZhldSU/o00KkYFUHrD50HLcVrzSSx+8UarykmOJd/OD2yVsh9WNLL
-         CbvBDxy6VWUjKjMbgcJUi3Fzl6GwOIQ9/vG3OXkRdAtbMScx1hNytg+zmCra88/YVp
-         RXBu++TVnkefuBth+/wFJ5oizxGgsBKnCP/OG/vM=
+        b=kySZWkc63brOtLL2Z4mXwhjItCLkj0AVt0ZjWvVx7FJlua0d5YX3mx0hwWqjBgsJa
+         GBpx5Zjde7QEwJOKjYWOwOlGPP8HoNizMi9o0kTObZxuEIZ2x6IlJ3wsnQ6kQ5aYWQ
+         fD2TBEg+v0domX6ewQgWvKCQjAdXqKf2Ii9AxR4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        CK Hu <ck.hu@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 156/300] Bluetooth: increase BTNAMSIZ to 21 chars to fix potential buffer overflow
-Date:   Mon, 13 Sep 2021 15:13:37 +0200
-Message-Id: <20210913131114.683823141@linuxfoundation.org>
+Subject: [PATCH 5.14 164/334] soc: mmsys: mediatek: add mask to mmsys routes
+Date:   Mon, 13 Sep 2021 15:13:38 +0200
+Message-Id: <20210913131118.886148306@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +43,363 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: CK Hu <ck.hu@mediatek.com>
 
-[ Upstream commit 713baf3dae8f45dc8ada4ed2f5fdcbf94a5c274d ]
+[ Upstream commit 7bdcead7a75e3eab5e711c2da78c2a0360e7f2a4 ]
 
-An earlier commit replaced using batostr to using %pMR sprintf for the
-construction of session->name. Static analysis detected that this new
-method can use a total of 21 characters (including the trailing '\0')
-so we need to increase the BTNAMSIZ from 18 to 21 to fix potential
-buffer overflows.
+SOUT has many bits and need to be cleared before set new value.
+Write only could do the clear, but for MOUT, it clears bits that
+should not be cleared. So use a mask to reset only the needed bits.
 
-Addresses-Coverity: ("Out-of-bounds write")
-Fixes: fcb73338ed53 ("Bluetooth: Use %pMR in sprintf/seq_printf instead of batostr")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+this fixes HDMI issues on MT7623/BPI-R2 since 5.13
+
+Fixes: 440147639ac7 ("soc: mediatek: mmsys: Use an array for setting the routing registers")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Signed-off-by: CK Hu <ck.hu@mediatek.com>
+Reviewed-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Reviewed-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Link: https://lore.kernel.org/r/20210729070549.5514-1-linux@fw-web.de
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/cmtp/cmtp.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/mediatek/mt8183-mmsys.h |  21 +++--
+ drivers/soc/mediatek/mtk-mmsys.c    |   7 +-
+ drivers/soc/mediatek/mtk-mmsys.h    | 133 +++++++++++++++++++---------
+ 3 files changed, 112 insertions(+), 49 deletions(-)
 
-diff --git a/net/bluetooth/cmtp/cmtp.h b/net/bluetooth/cmtp/cmtp.h
-index c32638dddbf9..f6b9dc4e408f 100644
---- a/net/bluetooth/cmtp/cmtp.h
-+++ b/net/bluetooth/cmtp/cmtp.h
-@@ -26,7 +26,7 @@
- #include <linux/types.h>
- #include <net/bluetooth/bluetooth.h>
+diff --git a/drivers/soc/mediatek/mt8183-mmsys.h b/drivers/soc/mediatek/mt8183-mmsys.h
+index 579dfc8dc8fc..9dee485807c9 100644
+--- a/drivers/soc/mediatek/mt8183-mmsys.h
++++ b/drivers/soc/mediatek/mt8183-mmsys.h
+@@ -28,25 +28,32 @@
+ static const struct mtk_mmsys_routes mmsys_mt8183_routing_table[] = {
+ 	{
+ 		DDP_COMPONENT_OVL0, DDP_COMPONENT_OVL_2L0,
+-		MT8183_DISP_OVL0_MOUT_EN, MT8183_OVL0_MOUT_EN_OVL0_2L
++		MT8183_DISP_OVL0_MOUT_EN, MT8183_OVL0_MOUT_EN_OVL0_2L,
++		MT8183_OVL0_MOUT_EN_OVL0_2L
+ 	}, {
+ 		DDP_COMPONENT_OVL_2L0, DDP_COMPONENT_RDMA0,
+-		MT8183_DISP_OVL0_2L_MOUT_EN, MT8183_OVL0_2L_MOUT_EN_DISP_PATH0
++		MT8183_DISP_OVL0_2L_MOUT_EN, MT8183_OVL0_2L_MOUT_EN_DISP_PATH0,
++		MT8183_OVL0_2L_MOUT_EN_DISP_PATH0
+ 	}, {
+ 		DDP_COMPONENT_OVL_2L1, DDP_COMPONENT_RDMA1,
+-		MT8183_DISP_OVL1_2L_MOUT_EN, MT8183_OVL1_2L_MOUT_EN_RDMA1
++		MT8183_DISP_OVL1_2L_MOUT_EN, MT8183_OVL1_2L_MOUT_EN_RDMA1,
++		MT8183_OVL1_2L_MOUT_EN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_DITHER, DDP_COMPONENT_DSI0,
+-		MT8183_DISP_DITHER0_MOUT_EN, MT8183_DITHER0_MOUT_IN_DSI0
++		MT8183_DISP_DITHER0_MOUT_EN, MT8183_DITHER0_MOUT_IN_DSI0,
++		MT8183_DITHER0_MOUT_IN_DSI0
+ 	}, {
+ 		DDP_COMPONENT_OVL_2L0, DDP_COMPONENT_RDMA0,
+-		MT8183_DISP_PATH0_SEL_IN, MT8183_DISP_PATH0_SEL_IN_OVL0_2L
++		MT8183_DISP_PATH0_SEL_IN, MT8183_DISP_PATH0_SEL_IN_OVL0_2L,
++		MT8183_DISP_PATH0_SEL_IN_OVL0_2L
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DPI0,
+-		MT8183_DISP_DPI0_SEL_IN, MT8183_DPI0_SEL_IN_RDMA1
++		MT8183_DISP_DPI0_SEL_IN, MT8183_DPI0_SEL_IN_RDMA1,
++		MT8183_DPI0_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_COLOR0,
+-		MT8183_DISP_RDMA0_SOUT_SEL_IN, MT8183_RDMA0_SOUT_COLOR0
++		MT8183_DISP_RDMA0_SOUT_SEL_IN, MT8183_RDMA0_SOUT_COLOR0,
++		MT8183_RDMA0_SOUT_COLOR0
+ 	}
+ };
  
--#define BTNAMSIZ 18
-+#define BTNAMSIZ 21
+diff --git a/drivers/soc/mediatek/mtk-mmsys.c b/drivers/soc/mediatek/mtk-mmsys.c
+index 080660ef11bf..0f949896fd06 100644
+--- a/drivers/soc/mediatek/mtk-mmsys.c
++++ b/drivers/soc/mediatek/mtk-mmsys.c
+@@ -68,7 +68,9 @@ void mtk_mmsys_ddp_connect(struct device *dev,
  
- /* CMTP ioctl defines */
- #define CMTPCONNADD	_IOW('C', 200, int)
+ 	for (i = 0; i < mmsys->data->num_routes; i++)
+ 		if (cur == routes[i].from_comp && next == routes[i].to_comp) {
+-			reg = readl_relaxed(mmsys->regs + routes[i].addr) | routes[i].val;
++			reg = readl_relaxed(mmsys->regs + routes[i].addr);
++			reg &= ~routes[i].mask;
++			reg |= routes[i].val;
+ 			writel_relaxed(reg, mmsys->regs + routes[i].addr);
+ 		}
+ }
+@@ -85,7 +87,8 @@ void mtk_mmsys_ddp_disconnect(struct device *dev,
+ 
+ 	for (i = 0; i < mmsys->data->num_routes; i++)
+ 		if (cur == routes[i].from_comp && next == routes[i].to_comp) {
+-			reg = readl_relaxed(mmsys->regs + routes[i].addr) & ~routes[i].val;
++			reg = readl_relaxed(mmsys->regs + routes[i].addr);
++			reg &= ~routes[i].mask;
+ 			writel_relaxed(reg, mmsys->regs + routes[i].addr);
+ 		}
+ }
+diff --git a/drivers/soc/mediatek/mtk-mmsys.h b/drivers/soc/mediatek/mtk-mmsys.h
+index a760a34e6eca..5f3e2bf0c40b 100644
+--- a/drivers/soc/mediatek/mtk-mmsys.h
++++ b/drivers/soc/mediatek/mtk-mmsys.h
+@@ -35,41 +35,54 @@
+ #define RDMA0_SOUT_DSI1				0x1
+ #define RDMA0_SOUT_DSI2				0x4
+ #define RDMA0_SOUT_DSI3				0x5
++#define RDMA0_SOUT_MASK				0x7
+ #define RDMA1_SOUT_DPI0				0x2
+ #define RDMA1_SOUT_DPI1				0x3
+ #define RDMA1_SOUT_DSI1				0x1
+ #define RDMA1_SOUT_DSI2				0x4
+ #define RDMA1_SOUT_DSI3				0x5
++#define RDMA1_SOUT_MASK				0x7
+ #define RDMA2_SOUT_DPI0				0x2
+ #define RDMA2_SOUT_DPI1				0x3
+ #define RDMA2_SOUT_DSI1				0x1
+ #define RDMA2_SOUT_DSI2				0x4
+ #define RDMA2_SOUT_DSI3				0x5
++#define RDMA2_SOUT_MASK				0x7
+ #define DPI0_SEL_IN_RDMA1			0x1
+ #define DPI0_SEL_IN_RDMA2			0x3
++#define DPI0_SEL_IN_MASK			0x3
+ #define DPI1_SEL_IN_RDMA1			(0x1 << 8)
+ #define DPI1_SEL_IN_RDMA2			(0x3 << 8)
++#define DPI1_SEL_IN_MASK			(0x3 << 8)
+ #define DSI0_SEL_IN_RDMA1			0x1
+ #define DSI0_SEL_IN_RDMA2			0x4
++#define DSI0_SEL_IN_MASK			0x7
+ #define DSI1_SEL_IN_RDMA1			0x1
+ #define DSI1_SEL_IN_RDMA2			0x4
++#define DSI1_SEL_IN_MASK			0x7
+ #define DSI2_SEL_IN_RDMA1			(0x1 << 16)
+ #define DSI2_SEL_IN_RDMA2			(0x4 << 16)
++#define DSI2_SEL_IN_MASK			(0x7 << 16)
+ #define DSI3_SEL_IN_RDMA1			(0x1 << 16)
+ #define DSI3_SEL_IN_RDMA2			(0x4 << 16)
++#define DSI3_SEL_IN_MASK			(0x7 << 16)
+ #define COLOR1_SEL_IN_OVL1			0x1
+ 
+ #define OVL_MOUT_EN_RDMA			0x1
+ #define BLS_TO_DSI_RDMA1_TO_DPI1		0x8
+ #define BLS_TO_DPI_RDMA1_TO_DSI			0x2
++#define BLS_RDMA1_DSI_DPI_MASK			0xf
+ #define DSI_SEL_IN_BLS				0x0
+ #define DPI_SEL_IN_BLS				0x0
++#define DPI_SEL_IN_MASK				0x1
+ #define DSI_SEL_IN_RDMA				0x1
++#define DSI_SEL_IN_MASK				0x1
+ 
+ struct mtk_mmsys_routes {
+ 	u32 from_comp;
+ 	u32 to_comp;
+ 	u32 addr;
++	u32 mask;
+ 	u32 val;
+ };
+ 
+@@ -91,124 +104,164 @@ struct mtk_mmsys_driver_data {
+ static const struct mtk_mmsys_routes mmsys_default_routing_table[] = {
+ 	{
+ 		DDP_COMPONENT_BLS, DDP_COMPONENT_DSI0,
+-		DISP_REG_CONFIG_OUT_SEL, BLS_TO_DSI_RDMA1_TO_DPI1
++		DISP_REG_CONFIG_OUT_SEL, BLS_RDMA1_DSI_DPI_MASK,
++		BLS_TO_DSI_RDMA1_TO_DPI1
+ 	}, {
+ 		DDP_COMPONENT_BLS, DDP_COMPONENT_DSI0,
+-		DISP_REG_CONFIG_DSI_SEL, DSI_SEL_IN_BLS
++		DISP_REG_CONFIG_DSI_SEL, DSI_SEL_IN_MASK,
++		DSI_SEL_IN_BLS
+ 	}, {
+ 		DDP_COMPONENT_BLS, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_OUT_SEL, BLS_TO_DPI_RDMA1_TO_DSI
++		DISP_REG_CONFIG_OUT_SEL, BLS_RDMA1_DSI_DPI_MASK,
++		BLS_TO_DPI_RDMA1_TO_DSI
+ 	}, {
+ 		DDP_COMPONENT_BLS, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DSI_SEL, DSI_SEL_IN_RDMA
++		DISP_REG_CONFIG_DSI_SEL, DSI_SEL_IN_MASK,
++		DSI_SEL_IN_RDMA
+ 	}, {
+ 		DDP_COMPONENT_BLS, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DPI_SEL, DPI_SEL_IN_BLS
++		DISP_REG_CONFIG_DPI_SEL, DPI_SEL_IN_MASK,
++		DPI_SEL_IN_BLS
+ 	}, {
+ 		DDP_COMPONENT_GAMMA, DDP_COMPONENT_RDMA1,
+-		DISP_REG_CONFIG_DISP_GAMMA_MOUT_EN, GAMMA_MOUT_EN_RDMA1
++		DISP_REG_CONFIG_DISP_GAMMA_MOUT_EN, GAMMA_MOUT_EN_RDMA1,
++		GAMMA_MOUT_EN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_OD0, DDP_COMPONENT_RDMA0,
+-		DISP_REG_CONFIG_DISP_OD_MOUT_EN, OD_MOUT_EN_RDMA0
++		DISP_REG_CONFIG_DISP_OD_MOUT_EN, OD_MOUT_EN_RDMA0,
++		OD_MOUT_EN_RDMA0
+ 	}, {
+ 		DDP_COMPONENT_OD1, DDP_COMPONENT_RDMA1,
+-		DISP_REG_CONFIG_DISP_OD_MOUT_EN, OD1_MOUT_EN_RDMA1
++		DISP_REG_CONFIG_DISP_OD_MOUT_EN, OD1_MOUT_EN_RDMA1,
++		OD1_MOUT_EN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_OVL0, DDP_COMPONENT_COLOR0,
+-		DISP_REG_CONFIG_DISP_OVL0_MOUT_EN, OVL0_MOUT_EN_COLOR0
++		DISP_REG_CONFIG_DISP_OVL0_MOUT_EN, OVL0_MOUT_EN_COLOR0,
++		OVL0_MOUT_EN_COLOR0
+ 	}, {
+ 		DDP_COMPONENT_OVL0, DDP_COMPONENT_COLOR0,
+-		DISP_REG_CONFIG_DISP_COLOR0_SEL_IN, COLOR0_SEL_IN_OVL0
++		DISP_REG_CONFIG_DISP_COLOR0_SEL_IN, COLOR0_SEL_IN_OVL0,
++		COLOR0_SEL_IN_OVL0
+ 	}, {
+ 		DDP_COMPONENT_OVL0, DDP_COMPONENT_RDMA0,
+-		DISP_REG_CONFIG_DISP_OVL_MOUT_EN, OVL_MOUT_EN_RDMA
++		DISP_REG_CONFIG_DISP_OVL_MOUT_EN, OVL_MOUT_EN_RDMA,
++		OVL_MOUT_EN_RDMA
+ 	}, {
+ 		DDP_COMPONENT_OVL1, DDP_COMPONENT_COLOR1,
+-		DISP_REG_CONFIG_DISP_OVL1_MOUT_EN, OVL1_MOUT_EN_COLOR1
++		DISP_REG_CONFIG_DISP_OVL1_MOUT_EN, OVL1_MOUT_EN_COLOR1,
++		OVL1_MOUT_EN_COLOR1
+ 	}, {
+ 		DDP_COMPONENT_OVL1, DDP_COMPONENT_COLOR1,
+-		DISP_REG_CONFIG_DISP_COLOR1_SEL_IN, COLOR1_SEL_IN_OVL1
++		DISP_REG_CONFIG_DISP_COLOR1_SEL_IN, COLOR1_SEL_IN_OVL1,
++		COLOR1_SEL_IN_OVL1
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_DPI0
++		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_MASK,
++		RDMA0_SOUT_DPI0
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_DPI1,
+-		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_DPI1
++		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_MASK,
++		RDMA0_SOUT_DPI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_DSI1,
+-		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_DSI1
++		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_MASK,
++		RDMA0_SOUT_DSI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_DSI2,
+-		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_DSI2
++		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_MASK,
++		RDMA0_SOUT_DSI2
+ 	}, {
+ 		DDP_COMPONENT_RDMA0, DDP_COMPONENT_DSI3,
+-		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_DSI3
++		DISP_REG_CONFIG_DISP_RDMA0_SOUT_EN, RDMA0_SOUT_MASK,
++		RDMA0_SOUT_DSI3
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_DPI0
++		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_MASK,
++		RDMA1_SOUT_DPI0
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DPI_SEL_IN, DPI0_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DPI_SEL_IN, DPI0_SEL_IN_MASK,
++		DPI0_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DPI1,
+-		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_DPI1
++		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_MASK,
++		RDMA1_SOUT_DPI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DPI1,
+-		DISP_REG_CONFIG_DPI_SEL_IN, DPI1_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DPI_SEL_IN, DPI1_SEL_IN_MASK,
++		DPI1_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI0,
+-		DISP_REG_CONFIG_DSIE_SEL_IN, DSI0_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DSIE_SEL_IN, DSI0_SEL_IN_MASK,
++		DSI0_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI1,
+-		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_DSI1
++		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_MASK,
++		RDMA1_SOUT_DSI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI1,
+-		DISP_REG_CONFIG_DSIO_SEL_IN, DSI1_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DSIO_SEL_IN, DSI1_SEL_IN_MASK,
++		DSI1_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI2,
+-		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_DSI2
++		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_MASK,
++		RDMA1_SOUT_DSI2
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI2,
+-		DISP_REG_CONFIG_DSIE_SEL_IN, DSI2_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DSIE_SEL_IN, DSI2_SEL_IN_MASK,
++		DSI2_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI3,
+-		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_DSI3
++		DISP_REG_CONFIG_DISP_RDMA1_SOUT_EN, RDMA1_SOUT_MASK,
++		RDMA1_SOUT_DSI3
+ 	}, {
+ 		DDP_COMPONENT_RDMA1, DDP_COMPONENT_DSI3,
+-		DISP_REG_CONFIG_DSIO_SEL_IN, DSI3_SEL_IN_RDMA1
++		DISP_REG_CONFIG_DSIO_SEL_IN, DSI3_SEL_IN_MASK,
++		DSI3_SEL_IN_RDMA1
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_DPI0
++		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_MASK,
++		RDMA2_SOUT_DPI0
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DPI0,
+-		DISP_REG_CONFIG_DPI_SEL_IN, DPI0_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DPI_SEL_IN, DPI0_SEL_IN_MASK,
++		DPI0_SEL_IN_RDMA2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DPI1,
+-		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_DPI1
++		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_MASK,
++		RDMA2_SOUT_DPI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DPI1,
+-		DISP_REG_CONFIG_DPI_SEL_IN, DPI1_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DPI_SEL_IN, DPI1_SEL_IN_MASK,
++		DPI1_SEL_IN_RDMA2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI0,
+-		DISP_REG_CONFIG_DSIE_SEL_IN, DSI0_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DSIE_SEL_IN, DSI0_SEL_IN_MASK,
++		DSI0_SEL_IN_RDMA2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI1,
+-		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_DSI1
++		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_MASK,
++		RDMA2_SOUT_DSI1
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI1,
+-		DISP_REG_CONFIG_DSIO_SEL_IN, DSI1_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DSIO_SEL_IN, DSI1_SEL_IN_MASK,
++		DSI1_SEL_IN_RDMA2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI2,
+-		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_DSI2
++		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_MASK,
++		RDMA2_SOUT_DSI2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI2,
+-		DISP_REG_CONFIG_DSIE_SEL_IN, DSI2_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DSIE_SEL_IN, DSI2_SEL_IN_MASK,
++		DSI2_SEL_IN_RDMA2
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI3,
+-		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_DSI3
++		DISP_REG_CONFIG_DISP_RDMA2_SOUT, RDMA2_SOUT_MASK,
++		RDMA2_SOUT_DSI3
+ 	}, {
+ 		DDP_COMPONENT_RDMA2, DDP_COMPONENT_DSI3,
+-		DISP_REG_CONFIG_DSIO_SEL_IN, DSI3_SEL_IN_RDMA2
++		DISP_REG_CONFIG_DSIO_SEL_IN, DSI3_SEL_IN_MASK,
++		DSI3_SEL_IN_RDMA2
+ 	}
+ };
+ 
 -- 
 2.30.2
 
