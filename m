@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C94E40950D
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:40:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A6A1409512
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346004AbhIMOhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:37:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53788 "EHLO mail.kernel.org"
+        id S1346149AbhIMOhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:37:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347795AbhIMOfc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1347807AbhIMOfc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:35:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80DE461882;
-        Mon, 13 Sep 2021 13:53:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3389A61884;
+        Mon, 13 Sep 2021 13:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541217;
-        bh=JBQB5X22bH4OzR+eKPJgzLOALvNt7tgd3bqA+ZtKwIc=;
+        s=korg; t=1631541219;
+        bh=uUatkYN8xVlepdm3tl4RbHygSuw56q8DTiAcnvJE8c4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CHvfQScNRJxTkLtkdz/Clz4c76aV8jJEZrBCeSdEb5mbBxFBtdLs8otIY7SWTLHR3
-         4PsvSVFJMXBk5GKRtpoA3whlxEZFaMrUzWS3qhnYE7sudG5l5OxPyTp3mITwqke47O
-         wRJhsgCmijEQWdo11I8SmL/tSrfGiThdtlqAJZrQ=
+        b=R1XJH3iHFK6HfcXETUbEKtp+mpHbxqDcTxlkYbtmT4qaEz/HUyczNxgXEQVTMTC7s
+         osPYtFCQvpkulYb++wsJxNUcWVuuZEhAkLNmcSh2xyg826BZnONOTNM+MDFJmhpWVm
+         ewr9cIei+4jX17RTcdyzYItM0B0Z4qtCF0hhRXD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Voon Weifeng <weifeng.voon@intel.com>,
-        Vijayakannan Ayyathurai <vijayakannan.ayyathurai@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 211/334] net: stmmac: fix INTR TBU status affecting irq count statistic
-Date:   Mon, 13 Sep 2021 15:14:25 +0200
-Message-Id: <20210913131120.550278734@linuxfoundation.org>
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Subject: [PATCH 5.14 212/334] Bluetooth: Move shutdown callback before flushing tx and rx queue
+Date:   Mon, 13 Sep 2021 15:14:26 +0200
+Message-Id: <20210913131120.589943925@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,41 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Voon Weifeng <weifeng.voon@intel.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 1975df880b959e30f28d66148a12d77b458abd76 ]
+[ Upstream commit 0ea53674d07fb6db2dd7a7ec2fdc85a12eb246c2 ]
 
-DMA channel status "Transmit buffer unavailable(TBU)" bit is not
-considered as a successful dma tx. Hence, it should not affect
-all the irq count statistic.
+Commit 0ea9fd001a14 ("Bluetooth: Shutdown controller after workqueues
+are flushed or cancelled") introduced a regression that makes mtkbtsdio
+driver stops working:
+[   36.593956] Bluetooth: hci0: Firmware already downloaded
+[   46.814613] Bluetooth: hci0: Execution of wmt command timed out
+[   46.814619] Bluetooth: hci0: Failed to send wmt func ctrl (-110)
 
-Fixes: 1103d3a5531c ("net: stmmac: dwmac4: Also use TBU interrupt to clean TX path")
-Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
-Signed-off-by: Vijayakannan Ayyathurai <vijayakannan.ayyathurai@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The shutdown callback depends on the result of hdev->rx_work, so we
+should call it before flushing rx_work:
+-> btmtksdio_shutdown()
+ -> mtk_hci_wmt_sync()
+  -> __hci_cmd_send()
+   -> wait for BTMTKSDIO_TX_WAIT_VND_EVT gets cleared
+
+-> btmtksdio_recv_event()
+ -> hci_recv_frame()
+  -> queue_work(hdev->workqueue, &hdev->rx_work)
+   -> clears BTMTKSDIO_TX_WAIT_VND_EVT
+
+So move the shutdown callback before flushing TX/RX queue to resolve the
+issue.
+
+Reported-and-tested-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Tested-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Fixes: 0ea9fd001a14 ("Bluetooth: Shutdown controller after workqueues are flushed or cancelled")
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/bluetooth/hci_core.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c
-index e63270267578..f83db62938dd 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c
-@@ -172,11 +172,12 @@ int dwmac4_dma_interrupt(void __iomem *ioaddr,
- 		x->rx_normal_irq_n++;
- 		ret |= handle_rx;
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index e1a545c8a69f..2331612839d7 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1727,6 +1727,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
+ 	hci_request_cancel_all(hdev);
+ 	hci_req_sync_lock(hdev);
+ 
++	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
++	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
++	    test_bit(HCI_UP, &hdev->flags)) {
++		/* Execute vendor specific shutdown routine */
++		if (hdev->shutdown)
++			hdev->shutdown(hdev);
++	}
++
+ 	if (!test_and_clear_bit(HCI_UP, &hdev->flags)) {
+ 		cancel_delayed_work_sync(&hdev->cmd_timer);
+ 		hci_req_sync_unlock(hdev);
+@@ -1798,14 +1806,6 @@ int hci_dev_do_close(struct hci_dev *hdev)
+ 		clear_bit(HCI_INIT, &hdev->flags);
  	}
--	if (likely(intr_status & (DMA_CHAN_STATUS_TI |
--		DMA_CHAN_STATUS_TBU))) {
-+	if (likely(intr_status & DMA_CHAN_STATUS_TI)) {
- 		x->tx_normal_irq_n++;
- 		ret |= handle_tx;
- 	}
-+	if (unlikely(intr_status & DMA_CHAN_STATUS_TBU))
-+		ret |= handle_tx;
- 	if (unlikely(intr_status & DMA_CHAN_STATUS_ERI))
- 		x->rx_early_irq++;
+ 
+-	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
+-	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
+-	    test_bit(HCI_UP, &hdev->flags)) {
+-		/* Execute vendor specific shutdown routine */
+-		if (hdev->shutdown)
+-			hdev->shutdown(hdev);
+-	}
+-
+ 	/* flush cmd  work */
+ 	flush_work(&hdev->cmd_work);
  
 -- 
 2.30.2
