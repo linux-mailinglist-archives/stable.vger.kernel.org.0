@@ -2,33 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A38C6408FA7
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9AC408FAC
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242369AbhIMNpi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:45:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41644 "EHLO mail.kernel.org"
+        id S242888AbhIMNpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:45:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241193AbhIMNm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:42:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90E666140F;
-        Mon, 13 Sep 2021 13:30:26 +0000 (UTC)
+        id S241608AbhIMNoF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:44:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6402461458;
+        Mon, 13 Sep 2021 13:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539827;
-        bh=dsms3c+evS3RID/JnKvL64KwUkp1O7wh9aJlk/eaKuA=;
+        s=korg; t=1631539855;
+        bh=yNC7/3njqplb8VC9IvrkK/nCvp1Cp9KG2cJgY3jZz0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wf8lagob0FrCdK4VdRYojB3N7Cdk60aJcg/9MSaYr8Vb6jqUW+lJqA1RFyalns1c
-         lHK7/dKIKfxzWKc3ql2WPMrWdCpHWUbDGYj6sRRtqEkfs6Ord7IEfvQsou/LgCUY2E
-         hZt4RjWzQ9SiTPeOV8RklI66tRqmTOIKfLiTOcvg=
+        b=yFLxAufn6T5vbOw3mkadL8bv5o3kG/Q+UKHxedDUNgg0jFB3RDGedPZmibWH8tLB+
+         9irGVFMF6G5KuBz2RLzxhmI1LrKKe2DlTOVPhIqlSQAzNPAiT/+oXArq61oOrTc8XO
+         fizSg1HWAjdjh9ZfZIB/s06hvOi6m8zaerU42Am8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 169/236] i2c: synquacer: fix deferred probing
-Date:   Mon, 13 Sep 2021 15:14:34 +0200
-Message-Id: <20210913131106.124621548@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 170/236] firmware: raspberrypi: Keep count of all consumers
+Date:   Mon, 13 Sep 2021 15:14:35 +0200
+Message-Id: <20210913131106.157276529@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -40,37 +45,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-[ Upstream commit 8d744da241b81f4211f4813b0d3c1981326fa9ca ]
+[ Upstream commit 1e7c57355a3bc617fc220234889e49fe722a6305 ]
 
-The driver overrides the error codes returned by platform_get_irq() to
--ENODEV, so if it returns -EPROBE_DEFER, the driver will fail the probe
-permanently instead of the deferred probing. Switch to propagating the
-error codes upstream.
+When unbinding the firmware device we need to make sure it has no
+consumers left. Otherwise we'd leave them with a firmware handle
+pointing at freed memory.
 
-Fixes: 0d676a6c4390 ("i2c: add support for Socionext SynQuacer I2C controller")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Keep a reference count of all consumers and introduce rpi_firmware_put()
+which will permit automatically decrease the reference count upon
+unbinding consumer drivers.
+
+Suggested-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-synquacer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/raspberrypi.c             | 40 ++++++++++++++++++++--
+ include/soc/bcm2835/raspberrypi-firmware.h |  2 ++
+ 2 files changed, 39 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-synquacer.c b/drivers/i2c/busses/i2c-synquacer.c
-index 31be1811d5e6..e4026c5416b1 100644
---- a/drivers/i2c/busses/i2c-synquacer.c
-+++ b/drivers/i2c/busses/i2c-synquacer.c
-@@ -578,7 +578,7 @@ static int synquacer_i2c_probe(struct platform_device *pdev)
+diff --git a/drivers/firmware/raspberrypi.c b/drivers/firmware/raspberrypi.c
+index 2371d08bdd17..8996deadd79b 100644
+--- a/drivers/firmware/raspberrypi.c
++++ b/drivers/firmware/raspberrypi.c
+@@ -7,6 +7,7 @@
+  */
  
- 	i2c->irq = platform_get_irq(pdev, 0);
- 	if (i2c->irq < 0)
--		return -ENODEV;
-+		return i2c->irq;
+ #include <linux/dma-mapping.h>
++#include <linux/kref.h>
+ #include <linux/mailbox_client.h>
+ #include <linux/module.h>
+ #include <linux/of_platform.h>
+@@ -27,6 +28,8 @@ struct rpi_firmware {
+ 	struct mbox_chan *chan; /* The property channel. */
+ 	struct completion c;
+ 	u32 enabled;
++
++	struct kref consumers;
+ };
  
- 	ret = devm_request_irq(&pdev->dev, i2c->irq, synquacer_i2c_isr,
- 			       0, dev_name(&pdev->dev), i2c);
+ static DEFINE_MUTEX(transaction_lock);
+@@ -225,12 +228,31 @@ static void rpi_register_clk_driver(struct device *dev)
+ 						-1, NULL, 0);
+ }
+ 
++static void rpi_firmware_delete(struct kref *kref)
++{
++	struct rpi_firmware *fw = container_of(kref, struct rpi_firmware,
++					       consumers);
++
++	mbox_free_channel(fw->chan);
++	kfree(fw);
++}
++
++void rpi_firmware_put(struct rpi_firmware *fw)
++{
++	kref_put(&fw->consumers, rpi_firmware_delete);
++}
++EXPORT_SYMBOL_GPL(rpi_firmware_put);
++
+ static int rpi_firmware_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct rpi_firmware *fw;
+ 
+-	fw = devm_kzalloc(dev, sizeof(*fw), GFP_KERNEL);
++	/*
++	 * Memory will be freed by rpi_firmware_delete() once all users have
++	 * released their firmware handles. Don't use devm_kzalloc() here.
++	 */
++	fw = kzalloc(sizeof(*fw), GFP_KERNEL);
+ 	if (!fw)
+ 		return -ENOMEM;
+ 
+@@ -247,6 +269,7 @@ static int rpi_firmware_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	init_completion(&fw->c);
++	kref_init(&fw->consumers);
+ 
+ 	platform_set_drvdata(pdev, fw);
+ 
+@@ -275,7 +298,8 @@ static int rpi_firmware_remove(struct platform_device *pdev)
+ 	rpi_hwmon = NULL;
+ 	platform_device_unregister(rpi_clk);
+ 	rpi_clk = NULL;
+-	mbox_free_channel(fw->chan);
++
++	rpi_firmware_put(fw);
+ 
+ 	return 0;
+ }
+@@ -284,16 +308,26 @@ static int rpi_firmware_remove(struct platform_device *pdev)
+  * rpi_firmware_get - Get pointer to rpi_firmware structure.
+  * @firmware_node:    Pointer to the firmware Device Tree node.
+  *
++ * The reference to rpi_firmware has to be released with rpi_firmware_put().
++ *
+  * Returns NULL is the firmware device is not ready.
+  */
+ struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
+ {
+ 	struct platform_device *pdev = of_find_device_by_node(firmware_node);
++	struct rpi_firmware *fw;
+ 
+ 	if (!pdev)
+ 		return NULL;
+ 
+-	return platform_get_drvdata(pdev);
++	fw = platform_get_drvdata(pdev);
++	if (!fw)
++		return NULL;
++
++	if (!kref_get_unless_zero(&fw->consumers))
++		return NULL;
++
++	return fw;
+ }
+ EXPORT_SYMBOL_GPL(rpi_firmware_get);
+ 
+diff --git a/include/soc/bcm2835/raspberrypi-firmware.h b/include/soc/bcm2835/raspberrypi-firmware.h
+index cc9cdbc66403..fdfef7fe40df 100644
+--- a/include/soc/bcm2835/raspberrypi-firmware.h
++++ b/include/soc/bcm2835/raspberrypi-firmware.h
+@@ -140,6 +140,7 @@ int rpi_firmware_property(struct rpi_firmware *fw,
+ 			  u32 tag, void *data, size_t len);
+ int rpi_firmware_property_list(struct rpi_firmware *fw,
+ 			       void *data, size_t tag_size);
++void rpi_firmware_put(struct rpi_firmware *fw);
+ struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node);
+ #else
+ static inline int rpi_firmware_property(struct rpi_firmware *fw, u32 tag,
+@@ -154,6 +155,7 @@ static inline int rpi_firmware_property_list(struct rpi_firmware *fw,
+ 	return -ENOSYS;
+ }
+ 
++static inline void rpi_firmware_put(struct rpi_firmware *fw) { }
+ static inline struct rpi_firmware *rpi_firmware_get(struct device_node *firmware_node)
+ {
+ 	return NULL;
 -- 
 2.30.2
 
