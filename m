@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CAEC408A2D
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:29:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9D98408A2E
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 13:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238490AbhIMLaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 07:30:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33764 "EHLO mail.kernel.org"
+        id S239068AbhIMLaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 07:30:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239060AbhIMLaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 07:30:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6539B60F44;
-        Mon, 13 Sep 2021 11:28:58 +0000 (UTC)
+        id S239060AbhIMLaR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 07:30:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1F9C60ED8;
+        Mon, 13 Sep 2021 11:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631532539;
-        bh=4QnIZ3ofKb0mWAOnSTVvGbEwchGLkSGk2b1EyRlsKfQ=;
+        s=korg; t=1631532541;
+        bh=ZRfNf50BXypTykfFApQ3kYIQbxt8BoYUp8Kszi+nnt8=;
         h=Subject:To:Cc:From:Date:From;
-        b=UNZqx7lhRUYvv/I81BAULb/xELtMjDn478KgVD5lQjie0pvWg/ySua6gN2jKIaDf7
-         AZqxAz82xAl8qX7FukJg7Z2LAxSmJD72Io4778PEj2tYRFTxjP8UjqQOMoQdV38FhS
-         sEqVA5Df6PoEJh1xirJZQj9riWs3mBW7G05sxxAQ=
-Subject: FAILED: patch "[PATCH] KVM: nVMX: Unconditionally clear nested.pi_pending on nested" failed to apply to 4.14-stable tree
+        b=0UIKiGeuHfJgdadIiOmkOwdmulFonfBgTcdfgafBbTUtaV5XdwzP5+2JtVpCzQGlC
+         sO1ty6Id6hpkHfyBbn4An4MMtXbbs+f8vONvbdffWK8ldlP9jdtpwhz76D7qvyEfPp
+         kYWdpjH2gm6j5lyH5PBtVWXJu3lHfrruHlkeordI=
+Subject: FAILED: patch "[PATCH] KVM: nVMX: Unconditionally clear nested.pi_pending on nested" failed to apply to 4.19-stable tree
 To:     seanjc@google.com, jmattson@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Sep 2021 13:28:53 +0200
-Message-ID: <16315325332497@kroah.com>
+Date:   Mon, 13 Sep 2021 13:28:54 +0200
+Message-ID: <1631532534147183@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
