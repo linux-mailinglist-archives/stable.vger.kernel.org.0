@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D475A40961B
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54B0C40961C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:48:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347101AbhIMOsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:48:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60770 "EHLO mail.kernel.org"
+        id S1347123AbhIMOsU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:48:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346202AbhIMOqJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346236AbhIMOqJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 13 Sep 2021 10:46:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF21861A03;
-        Mon, 13 Sep 2021 13:58:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81FF06321D;
+        Mon, 13 Sep 2021 13:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541517;
-        bh=/g+trBMoQm5LAjyoHsSB+HdF4wGta3FusR7hgMEIbGE=;
+        s=korg; t=1631541520;
+        bh=P47A4EtjqGRKwQlLlvdFzcGgy/zmVjDudGfV3o6Y2dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hbOElNVoNnrBUDm+FaCX/BA8doerYSROr1OCLQgtxj+/nGm8Y2BGzB0Vm2H/QFbkV
-         T1rDxglrIeGHUjIGGAGAf8wkcg2RUmc3V64k4NjHPUZoyWpxGB140hradXzoTrzarq
-         N4jkdmsxUWKhjUFX7EnumqjA1autc4kyWKAq6kkc=
+        b=kid79A/uqNqlNwp2uhgZKPc7SbjN9/H++ENpeYvaR1NDyAO+lvDrQj9F5Pn2iMU18
+         cZNxw8Xq9UT5IfVz2nZT1cZTy0a6EOetAvUjKlKv+jc/HerZhmWsao+ui2TMMV38LQ
+         f4tLxygUCXiHBOhdrBeZvdxtJ5pSZuWor2tMd6ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+04168c8063cfdde1db5e@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH 5.14 328/334] fbmem: dont allow too huge resolutions
-Date:   Mon, 13 Sep 2021 15:16:22 +0200
-Message-Id: <20210913131124.529193949@linuxfoundation.org>
+        stable@vger.kernel.org, Aubrey Li <aubrey.li@linux.intel.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.14 329/334] ACPI: PRM: Find PRMT table before parsing it
+Date:   Mon, 13 Sep 2021 15:16:23 +0200
+Message-Id: <20210913131124.562905529@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -43,56 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Aubrey Li <aubrey.li@intel.com>
 
-commit 8c28051cdcbe9dfcec6bd0a4709d67a09df6edae upstream.
+commit 3265cc3ec52e75fc8daf189954cebda27ad26b2e upstream.
 
-syzbot is reporting page fault at vga16fb_fillrect() [1], for
-vga16fb_check_var() is failing to detect multiplication overflow.
+Find and verify PRMT before parsing it, which eliminates a
+warning on machines without PRMT:
 
-  if (vxres * vyres > maxmem) {
-    vyres = maxmem / vxres;
-    if (vyres < yres)
-      return -ENOMEM;
-  }
+	[    7.197173] ACPI: PRMT not present
 
-Since no module would accept too huge resolutions where multiplication
-overflow happens, let's reject in the common path.
-
-Link: https://syzkaller.appspot.com/bug?extid=04168c8063cfdde1db5e [1]
-Reported-by: syzbot <syzbot+04168c8063cfdde1db5e@syzkaller.appspotmail.com>
-Debugged-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/185175d6-227a-7b55-433d-b070929b262c@i-love.sakura.ne.jp
+Fixes: cefc7ca46235 ("ACPI: PRM: implement OperationRegion handler for the PlatformRtMechanism subtype")
+Signed-off-by: Aubrey Li <aubrey.li@linux.intel.com>
+Tested-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Cc: 5.14+ <stable@vger.kernel.org> # 5.14+
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbmem.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/acpi/prmt.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -962,6 +962,7 @@ fb_set_var(struct fb_info *info, struct
- 	struct fb_var_screeninfo old_var;
- 	struct fb_videomode mode;
- 	struct fb_event event;
-+	u32 unused;
+--- a/drivers/acpi/prmt.c
++++ b/drivers/acpi/prmt.c
+@@ -288,10 +288,18 @@ invalid_guid:
  
- 	if (var->activate & FB_ACTIVATE_INV_MODE) {
- 		struct fb_videomode mode1, mode2;
-@@ -1008,6 +1009,11 @@ fb_set_var(struct fb_info *info, struct
- 	if (var->xres < 8 || var->yres < 8)
- 		return -EINVAL;
- 
-+	/* Too huge resolution causes multiplication overflow. */
-+	if (check_mul_overflow(var->xres, var->yres, &unused) ||
-+	    check_mul_overflow(var->xres_virtual, var->yres_virtual, &unused))
-+		return -EINVAL;
+ void __init init_prmt(void)
+ {
++	struct acpi_table_header *tbl;
+ 	acpi_status status;
+-	int mc = acpi_table_parse_entries(ACPI_SIG_PRMT, sizeof(struct acpi_table_prmt) +
++	int mc;
 +
- 	ret = info->fbops->fb_check_var(var, info);
- 
- 	if (ret)
++	status = acpi_get_table(ACPI_SIG_PRMT, 0, &tbl);
++	if (ACPI_FAILURE(status))
++		return;
++
++	mc = acpi_table_parse_entries(ACPI_SIG_PRMT, sizeof(struct acpi_table_prmt) +
+ 					  sizeof (struct acpi_table_prmt_header),
+ 					  0, acpi_parse_prmt, 0);
++	acpi_put_table(tbl);
+ 	/*
+ 	 * Return immediately if PRMT table is not present or no PRM module found.
+ 	 */
 
 
