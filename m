@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EECF1408E36
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:31:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0398408FB1
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242844AbhIMNal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:30:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35020 "EHLO mail.kernel.org"
+        id S243364AbhIMNpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241300AbhIMNXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:23:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A05B6103B;
-        Mon, 13 Sep 2021 13:21:30 +0000 (UTC)
+        id S241671AbhIMNoF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:44:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBDB161505;
+        Mon, 13 Sep 2021 13:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539290;
-        bh=0lVwB8LeeWG1TuWOl4NbDznDnKpNRHATvtpucMkWxFU=;
+        s=korg; t=1631539860;
+        bh=bfjypX/dZy0RAbyrQmyIbtNCF2JGg/dECCwwd9Djc3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ROGNlVwgGZaLBlCMDwOytcQGdcy+3KKdp7AWXeS+/uJjqTQkuz1a/DNmkuGpAOvb
-         Se4vubo5i2btJYT0m0cQv5XoyxkRBM2wK3ZBOIEgo2u99ttGSR3QK7wJzYtnM1P1yy
-         8ZwisaF5kpPSLOHNvHWccmGLZ5NjT9s0272MFT7s=
+        b=b7dZ181U4UNjLJOuNtLVTIbSDpc5UH5tKEcvhJpX+dCa+rvn2sKvJTHx348e45mzU
+         U7gr6OKGTLiaQHQPu9qgpoVuBXWxyWVwpKTaXPMCBpns0Q3mJh/VL4fygaulbQUE1Y
+         1oF9AvmoPCSN8zhMxyei42cvitXUGRPKexlr2cvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrey Ignatov <rdna@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 113/144] usb: bdc: Fix an error handling path in bdc_probe() when no suitable DMA config is available
+Subject: [PATCH 5.10 189/236] bpf: Fix possible out of bound write in narrow load handling
 Date:   Mon, 13 Sep 2021 15:14:54 +0200
-Message-Id: <20210913131051.716101545@linuxfoundation.org>
+Message-Id: <20210913131106.809243796@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Andrey Ignatov <rdna@fb.com>
 
-[ Upstream commit d2f42e09393c774ab79088d8e3afcc62b3328fc9 ]
+[ Upstream commit d7af7e497f0308bc97809cc48b58e8e0f13887e1 ]
 
-If no suitable DMA configuration is available, a previous 'bdc_phy_init()'
-call must be undone by a corresponding 'bdc_phy_exit()' call.
+Fix a verifier bug found by smatch static checker in [0].
 
-Branch to the existing error handling path instead of returning
-directly.
+This problem has never been seen in prod to my best knowledge. Fixing it
+still seems to be a good idea since it's hard to say for sure whether
+it's possible or not to have a scenario where a combination of
+convert_ctx_access() and a narrow load would lead to an out of bound
+write.
 
-Fixes: cc29d4f67757 ("usb: bdc: Add support for USB phy")
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/0c5910979f39225d5d8fe68c9ab1c147c68ddee1.1629314734.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When narrow load is handled, one or two new instructions are added to
+insn_buf array, but before it was only checked that
+
+	cnt >= ARRAY_SIZE(insn_buf)
+
+And it's safe to add a new instruction to insn_buf[cnt++] only once. The
+second try will lead to out of bound write. And this is what can happen
+if `shift` is set.
+
+Fix it by making sure that if the BPF_RSH instruction has to be added in
+addition to BPF_AND then there is enough space for two more instructions
+in insn_buf.
+
+The full report [0] is below:
+
+kernel/bpf/verifier.c:12304 convert_ctx_accesses() warn: offset 'cnt' incremented past end of array
+kernel/bpf/verifier.c:12311 convert_ctx_accesses() warn: offset 'cnt' incremented past end of array
+
+kernel/bpf/verifier.c
+    12282
+    12283 			insn->off = off & ~(size_default - 1);
+    12284 			insn->code = BPF_LDX | BPF_MEM | size_code;
+    12285 		}
+    12286
+    12287 		target_size = 0;
+    12288 		cnt = convert_ctx_access(type, insn, insn_buf, env->prog,
+    12289 					 &target_size);
+    12290 		if (cnt == 0 || cnt >= ARRAY_SIZE(insn_buf) ||
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Bounds check.
+
+    12291 		    (ctx_field_size && !target_size)) {
+    12292 			verbose(env, "bpf verifier is misconfigured\n");
+    12293 			return -EINVAL;
+    12294 		}
+    12295
+    12296 		if (is_narrower_load && size < target_size) {
+    12297 			u8 shift = bpf_ctx_narrow_access_offset(
+    12298 				off, size, size_default) * 8;
+    12299 			if (ctx_field_size <= 4) {
+    12300 				if (shift)
+    12301 					insn_buf[cnt++] = BPF_ALU32_IMM(BPF_RSH,
+                                                         ^^^^^
+increment beyond end of array
+
+    12302 									insn->dst_reg,
+    12303 									shift);
+--> 12304 				insn_buf[cnt++] = BPF_ALU32_IMM(BPF_AND, insn->dst_reg,
+                                                 ^^^^^
+out of bounds write
+
+    12305 								(1 << size * 8) - 1);
+    12306 			} else {
+    12307 				if (shift)
+    12308 					insn_buf[cnt++] = BPF_ALU64_IMM(BPF_RSH,
+    12309 									insn->dst_reg,
+    12310 									shift);
+    12311 				insn_buf[cnt++] = BPF_ALU64_IMM(BPF_AND, insn->dst_reg,
+                                        ^^^^^^^^^^^^^^^
+Same.
+
+    12312 								(1ULL << size * 8) - 1);
+    12313 			}
+    12314 		}
+    12315
+    12316 		new_prog = bpf_patch_insn_data(env, i + delta, insn_buf, cnt);
+    12317 		if (!new_prog)
+    12318 			return -ENOMEM;
+    12319
+    12320 		delta += cnt - 1;
+    12321
+    12322 		/* keep walking new program and skip insns we just inserted */
+    12323 		env->prog = new_prog;
+    12324 		insn      = new_prog->insnsi + i + delta;
+    12325 	}
+    12326
+    12327 	return 0;
+    12328 }
+
+[0] https://lore.kernel.org/bpf/20210817050843.GA21456@kili/
+
+v1->v2:
+- clarify that problem was only seen by static checker but not in prod;
+
+Fixes: 46f53a65d2de ("bpf: Allow narrow loads with offset > 0")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Andrey Ignatov <rdna@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210820163935.1902398-1-rdna@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/bdc/bdc_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/bpf/verifier.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/gadget/udc/bdc/bdc_core.c b/drivers/usb/gadget/udc/bdc/bdc_core.c
-index 3d33499db50b..845aead48d85 100644
---- a/drivers/usb/gadget/udc/bdc/bdc_core.c
-+++ b/drivers/usb/gadget/udc/bdc/bdc_core.c
-@@ -565,7 +565,8 @@ static int bdc_probe(struct platform_device *pdev)
- 		if (ret) {
- 			dev_err(dev,
- 				"No suitable DMA config available, abort\n");
--			return -ENOTSUPP;
-+			ret = -ENOTSUPP;
-+			goto phycleanup;
- 		}
- 		dev_dbg(dev, "Using 32-bit address\n");
- 	}
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 78f24b19f6b1..cba1f86e75cd 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -11038,6 +11038,10 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
+ 		if (is_narrower_load && size < target_size) {
+ 			u8 shift = bpf_ctx_narrow_access_offset(
+ 				off, size, size_default) * 8;
++			if (shift && cnt + 1 >= ARRAY_SIZE(insn_buf)) {
++				verbose(env, "bpf verifier narrow ctx load misconfigured\n");
++				return -EINVAL;
++			}
+ 			if (ctx_field_size <= 4) {
+ 				if (shift)
+ 					insn_buf[cnt++] = BPF_ALU32_IMM(BPF_RSH,
 -- 
 2.30.2
 
