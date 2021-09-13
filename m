@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E1FE409250
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:10:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 023F5409507
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:40:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245383AbhIMOKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:10:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59948 "EHLO mail.kernel.org"
+        id S1345578AbhIMOhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:37:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344165AbhIMOIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:08:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0055613D0;
-        Mon, 13 Sep 2021 13:40:49 +0000 (UTC)
+        id S1347647AbhIMOfR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:35:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 236D26187D;
+        Mon, 13 Sep 2021 13:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540450;
-        bh=QHSNXY9dhwl7f2GDctk4VxjuLThwO2gejCHNTBgB+q4=;
+        s=korg; t=1631541204;
+        bh=7/K3anEu52+99rFCHckyXcVwciHV5nVMsssw/LnaCiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0uZjRNJXuktll29MQXg1cUcMPKJOCftn8cIpb3SASH60yOF07SVjggNiOoE/wq3F6
-         uQ6aukX/71c7K9aijzVbrvtOlUNQ7bSK8wi9+UYuB3P1qRbQezqdPICXVz3J4Ki5Yo
-         2DDVuXRAKcmPpl2MaiSf5N5fTFPmlgPKC4QC7ryw=
+        b=hFq9eA2edtUnrVCOn9y7P+yfys7CJqXdNzq1TWs4PfRcl7DbMCsrhUz5jpBq0F6Zi
+         hSrhqAxfgVAoYWkBujLBnO7dMdW2a7fNdFT8YusO+n5B065WKSvOBH3aMEfsNc6I3X
+         R3mpkZgOCMTjEvsfB0rSeWZVpuc/n/LwhvMCZ7xU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <khsieh@codeaurora.org>,
+        stable@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>,
         Stephen Boyd <swboyd@chromium.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 166/300] drm/msm/dp: update is_connected status base on sink count at dp_pm_resume()
+Subject: [PATCH 5.14 173/334] arm64: dts: qcom: sc7280: Fixup the cpufreq node
 Date:   Mon, 13 Sep 2021 15:13:47 +0200
-Message-Id: <20210913131115.022433777@linuxfoundation.org>
+Message-Id: <20210913131119.199413572@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
+References: <20210913131113.390368911@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,78 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <khsieh@codeaurora.org>
+From: Sibi Sankar <sibis@codeaurora.org>
 
-[ Upstream commit e8a767e04dbc7b201cb17ab99dca723a3488b6d4 ]
+[ Upstream commit 11e03d692101e484df9322f892a8b6e111a82bfd ]
 
-Currently at dp_pm_resume() is_connected state is decided base on hpd connection
-status only. This will put is_connected in wrongly "true" state at the scenario
-that dongle attached to DUT but without hmdi cable connecting to it. Fix this
-problem by adding read sink count from dongle and decided is_connected state base
-on both sink count and hpd connection status.
+Fixup the register regions used by the cpufreq node on SC7280 SoC to
+support per core L3 DCVS.
 
-Changes in v2:
--- remove dp_get_sink_count() cand call drm_dp_read_sink_count()
-
-Changes in v3:
--- delete status local variable from dp_pm_resume()
-
-Changes in v4:
--- delete un necessary comment at dp_pm_resume()
-
-Fixes: d9aa6571b28ba ("drm/msm/dp: check sink_count before update is_connected status")
-Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
-Link: https://lore.kernel.org/r/1628092261-32346-1-git-send-email-khsieh@codeaurora.org
-Tested-by: Stephen Boyd <swboyd@chromium.org>
+Fixes: 7dbd121a2c58 ("arm64: dts: qcom: sc7280: Add cpufreq hw node")
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
 Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Link: https://lore.kernel.org/r/1627581885-32165-4-git-send-email-sibis@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_display.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/sc7280.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
-index cdec0a367a2c..e6706a88d804 100644
---- a/drivers/gpu/drm/msm/dp/dp_display.c
-+++ b/drivers/gpu/drm/msm/dp/dp_display.c
-@@ -1286,7 +1286,7 @@ static int dp_pm_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct msm_dp *dp_display = platform_get_drvdata(pdev);
- 	struct dp_display_private *dp;
--	u32 status;
-+	int sink_count = 0;
+diff --git a/arch/arm64/boot/dts/qcom/sc7280.dtsi b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+index 188c5768a55a..c08f07410699 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+@@ -1437,9 +1437,9 @@
  
- 	dp = container_of(dp_display, struct dp_display_private, dp_display);
- 
-@@ -1300,14 +1300,25 @@ static int dp_pm_resume(struct device *dev)
- 
- 	dp_catalog_ctrl_hpd_config(dp->catalog);
- 
--	status = dp_catalog_link_is_connected(dp->catalog);
-+	/*
-+	 * set sink to normal operation mode -- D0
-+	 * before dpcd read
-+	 */
-+	dp_link_psm_config(dp->link, &dp->panel->link_info, false);
-+
-+	if (dp_catalog_link_is_connected(dp->catalog)) {
-+		sink_count = drm_dp_read_sink_count(dp->aux);
-+		if (sink_count < 0)
-+			sink_count = 0;
-+	}
- 
-+	dp->link->sink_count = sink_count;
- 	/*
- 	 * can not declared display is connected unless
- 	 * HDMI cable is plugged in and sink_count of
- 	 * dongle become 1
- 	 */
--	if (status && dp->link->sink_count)
-+	if (dp->link->sink_count)
- 		dp->dp_display.is_connected = true;
- 	else
- 		dp->dp_display.is_connected = false;
+ 		cpufreq_hw: cpufreq@18591000 {
+ 			compatible = "qcom,cpufreq-epss";
+-			reg = <0 0x18591000 0 0x1000>,
+-			      <0 0x18592000 0 0x1000>,
+-			      <0 0x18593000 0 0x1000>;
++			reg = <0 0x18591100 0 0x900>,
++			      <0 0x18592100 0 0x900>,
++			      <0 0x18593100 0 0x900>;
+ 			clocks = <&rpmhcc RPMH_CXO_CLK>, <&gcc GCC_GPLL0>;
+ 			clock-names = "xo", "alternate";
+ 			#freq-domain-cells = <1>;
 -- 
 2.30.2
 
