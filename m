@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C2B74091AD
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02720408E4D
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343790AbhIMODq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:03:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50930 "EHLO mail.kernel.org"
+        id S240476AbhIMNcv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:32:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343945AbhIMOBa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:01:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7ED161A08;
-        Mon, 13 Sep 2021 13:37:58 +0000 (UTC)
+        id S242141AbhIMNa7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:30:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C92B861390;
+        Mon, 13 Sep 2021 13:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540279;
-        bh=PAW8F3iOHHpD8GOVpyUtJz0ATnzDkwQcrJyWQvFGFL8=;
+        s=korg; t=1631539510;
+        bh=73BHBP2Lepvrbz/yXys57hqXvqcQ4BV6oCSp1cvJvS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uNwnW6E5a88APJ7fZlVnqMiP9+cMkAQOzHQbqMDh/MgDm2lOz6Fb+k0k0C0FhTGH6
-         VTqhiS0rZlyaZ3HaVXmY7Um9YxysDrtvWB9lXms23AHunq1DSl7JNzrNIiBSoDOwhb
-         taPsIg4mMj6Ki8h7m2RyNDSYVAcxpJv69BEzB71o=
+        b=KOsp6g4brIKMk2s91Kb5PGMIGNakH3RwgY6NpwsAHEnsDG5QJKsv5m3dtVK+g9JUr
+         VIK/AFK0xN3nrH0TumnnotM9nlnrS/eGCgFqYYzdPe+Xq5RjX9Ev/eRfSFp2CWLzEm
+         LqgYsFUcS8uE7QyLCiseFz3llsEMXFG9NPDF9r6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dylan Hung <dylan_hung@aspeedtech.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 095/300] ARM: dts: aspeed-g6: Fix HVI3C function-group in pinctrl dtsi
-Date:   Mon, 13 Sep 2021 15:12:36 +0200
-Message-Id: <20210913131112.587633027@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Zhu <zhuchen@loongson.cn>,
+        Huacai Chen <chenhuacai@loongson.cn>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 052/236] irqchip/loongson-pch-pic: Improve edge triggered interrupt support
+Date:   Mon, 13 Sep 2021 15:12:37 +0200
+Message-Id: <20210913131102.124796769@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
-References: <20210913131109.253835823@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Hung <dylan_hung@aspeedtech.com>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-[ Upstream commit 8c295b7f3d01359ff4336fcb6e406e6ed37957d6 ]
+[ Upstream commit e5dec38ac5d05d17a7110c8045aa101015281e4d ]
 
-The HVI3C shall be a group of I3C function, not an independent function.
-Correct the function name from "HVI3C" to "I3C".
+Edge-triggered mode and level-triggered mode need different handlers,
+and edge-triggered mode need a specific ack operation. So improve it.
 
-Signed-off-by: Dylan Hung <dylan_hung@aspeedtech.com>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Fixes: f510f04c8c83 ("ARM: dts: aspeed: Add AST2600 pinmux nodes")
-Link: https://lore.kernel.org/r/20201029062723.20798-1-dylan_hung@aspeedtech.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: ef8c01eb64ca6719da449dab0 ("irqchip: Add Loongson PCH PIC controller")
+Signed-off-by: Chen Zhu <zhuchen@loongson.cn>
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210805132216.3539007-1-chenhuacai@loongson.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/irqchip/irq-loongson-pch-pic.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-index 7028e21bdd98..910eacc8ad3b 100644
---- a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
-@@ -208,12 +208,12 @@
- 	};
+diff --git a/drivers/irqchip/irq-loongson-pch-pic.c b/drivers/irqchip/irq-loongson-pch-pic.c
+index 9bf6b9a5f734..90e1ad6e3612 100644
+--- a/drivers/irqchip/irq-loongson-pch-pic.c
++++ b/drivers/irqchip/irq-loongson-pch-pic.c
+@@ -92,18 +92,22 @@ static int pch_pic_set_type(struct irq_data *d, unsigned int type)
+ 	case IRQ_TYPE_EDGE_RISING:
+ 		pch_pic_bitset(priv, PCH_PIC_EDGE, d->hwirq);
+ 		pch_pic_bitclr(priv, PCH_PIC_POL, d->hwirq);
++		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
+ 	case IRQ_TYPE_EDGE_FALLING:
+ 		pch_pic_bitset(priv, PCH_PIC_EDGE, d->hwirq);
+ 		pch_pic_bitset(priv, PCH_PIC_POL, d->hwirq);
++		irq_set_handler_locked(d, handle_edge_irq);
+ 		break;
+ 	case IRQ_TYPE_LEVEL_HIGH:
+ 		pch_pic_bitclr(priv, PCH_PIC_EDGE, d->hwirq);
+ 		pch_pic_bitclr(priv, PCH_PIC_POL, d->hwirq);
++		irq_set_handler_locked(d, handle_level_irq);
+ 		break;
+ 	case IRQ_TYPE_LEVEL_LOW:
+ 		pch_pic_bitclr(priv, PCH_PIC_EDGE, d->hwirq);
+ 		pch_pic_bitset(priv, PCH_PIC_POL, d->hwirq);
++		irq_set_handler_locked(d, handle_level_irq);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -113,11 +117,24 @@ static int pch_pic_set_type(struct irq_data *d, unsigned int type)
+ 	return ret;
+ }
  
- 	pinctrl_hvi3c3_default: hvi3c3_default {
--		function = "HVI3C3";
-+		function = "I3C3";
- 		groups = "HVI3C3";
- 	};
- 
- 	pinctrl_hvi3c4_default: hvi3c4_default {
--		function = "HVI3C4";
-+		function = "I3C4";
- 		groups = "HVI3C4";
- 	};
- 
++static void pch_pic_ack_irq(struct irq_data *d)
++{
++	unsigned int reg;
++	struct pch_pic *priv = irq_data_get_irq_chip_data(d);
++
++	reg = readl(priv->base + PCH_PIC_EDGE + PIC_REG_IDX(d->hwirq) * 4);
++	if (reg & BIT(PIC_REG_BIT(d->hwirq))) {
++		writel(BIT(PIC_REG_BIT(d->hwirq)),
++			priv->base + PCH_PIC_CLR + PIC_REG_IDX(d->hwirq) * 4);
++	}
++	irq_chip_ack_parent(d);
++}
++
+ static struct irq_chip pch_pic_irq_chip = {
+ 	.name			= "PCH PIC",
+ 	.irq_mask		= pch_pic_mask_irq,
+ 	.irq_unmask		= pch_pic_unmask_irq,
+-	.irq_ack		= irq_chip_ack_parent,
++	.irq_ack		= pch_pic_ack_irq,
+ 	.irq_set_affinity	= irq_chip_set_affinity_parent,
+ 	.irq_set_type		= pch_pic_set_type,
+ };
 -- 
 2.30.2
 
