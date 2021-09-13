@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46DC7408DC5
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:28:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A66E408FFB
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:47:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240980AbhIMN3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:29:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
+        id S243262AbhIMNsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:48:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241153AbhIMNZx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:25:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 176236112E;
-        Mon, 13 Sep 2021 13:22:32 +0000 (UTC)
+        id S242513AbhIMNql (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:46:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DC7661351;
+        Mon, 13 Sep 2021 13:31:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539353;
-        bh=yArJWrVgo40PMQ03AcyoPAZmuGj2RjvY5scvWn8TIBE=;
+        s=korg; t=1631539918;
+        bh=u9mDsjAypRNOHz0EDPLzTs9k7otQqwNUEMTIFHf+clQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a30yU5PnTTz0c+otsL9v/cnfZpmK6aYDLJqQdKHYKSYwsYuCY7MPBt0kpwdqJx4He
-         RTQ6xKcbWwkvBZVZzGrDgsBQKACbIqEvr1z+grqL0e8dsTSfDos7ak7ZAcjP2tedZe
-         k9CkN4p7o1/y1aoXipq8FWoxTinSucsie/Qd9V7U=
+        b=dm/4lAZUKQglTrdHx9qXRWSJ9IqiLq2lbTzc8NjQj/9OxrEYDBW0rENsET/B3fRrY
+         TDwBjxiniIl/+GK20ktr2yh0UGlJLPd1cz2BBfGgScuiwVLJYIrS1SA2g0K3qQkjje
+         /eUNly3Nq46btDv5VQcSYn9oJYm2oP5ZO7atqmaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 138/144] fuse: truncate pagecache on atomic_o_trunc
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        David Ahern <dsahern@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 214/236] ipv4: fix endianness issue in inet_rtm_getroute_build_skb()
 Date:   Mon, 13 Sep 2021 15:15:19 +0200
-Message-Id: <20210913131052.546705808@linuxfoundation.org>
+Message-Id: <20210913131107.649022423@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 76224355db7570cbe6b6f75c8929a1558828dd55 upstream.
+[ Upstream commit 92548b0ee220e000d81c27ac9a80e0ede895a881 ]
 
-fuse_finish_open() will be called with FUSE_NOWRITE in case of atomic
-O_TRUNC.  This can deadlock with fuse_wait_on_page_writeback() in
-fuse_launder_page() triggered by invalidate_inode_pages2().
+The UDP length field should be in network order.
+This removes the following sparse error:
 
-Fix by replacing invalidate_inode_pages2() in fuse_finish_open() with a
-truncate_pagecache() call.  This makes sense regardless of FOPEN_KEEP_CACHE
-or fc->writeback cache, so do it unconditionally.
+net/ipv4/route.c:3173:27: warning: incorrect type in assignment (different base types)
+net/ipv4/route.c:3173:27:    expected restricted __be16 [usertype] len
+net/ipv4/route.c:3173:27:    got unsigned long
 
-Reported-by: Xie Yongji <xieyongji@bytedance.com>
-Reported-and-tested-by: syzbot+bea44a5189836d956894@syzkaller.appspotmail.com
-Fixes: e4648309b85a ("fuse: truncate pending writes on O_TRUNC")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 404eb77ea766 ("ipv4: support sport, dport and ip_proto in RTM_GETROUTE")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Roopa Prabhu <roopa@nvidia.com>
+Cc: David Ahern <dsahern@kernel.org>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/file.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/ipv4/route.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -193,12 +193,11 @@ void fuse_finish_open(struct inode *inod
- 	struct fuse_file *ff = file->private_data;
- 	struct fuse_conn *fc = get_fuse_conn(inode);
- 
--	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
--		invalidate_inode_pages2(inode->i_mapping);
- 	if (ff->open_flags & FOPEN_STREAM)
- 		stream_open(inode, file);
- 	else if (ff->open_flags & FOPEN_NONSEEKABLE)
- 		nonseekable_open(inode, file);
-+
- 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
- 		struct fuse_inode *fi = get_fuse_inode(inode);
- 
-@@ -206,10 +205,14 @@ void fuse_finish_open(struct inode *inod
- 		fi->attr_version = atomic64_inc_return(&fc->attr_version);
- 		i_size_write(inode, 0);
- 		spin_unlock(&fi->lock);
-+		truncate_pagecache(inode, 0);
- 		fuse_invalidate_attr(inode);
- 		if (fc->writeback_cache)
- 			file_update_time(file);
-+	} else if (!(ff->open_flags & FOPEN_KEEP_CACHE)) {
-+		invalidate_inode_pages2(inode->i_mapping);
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index c5d762a2be99..ce787c386793 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -3078,7 +3078,7 @@ static struct sk_buff *inet_rtm_getroute_build_skb(__be32 src, __be32 dst,
+ 		udph = skb_put_zero(skb, sizeof(struct udphdr));
+ 		udph->source = sport;
+ 		udph->dest = dport;
+-		udph->len = sizeof(struct udphdr);
++		udph->len = htons(sizeof(struct udphdr));
+ 		udph->check = 0;
+ 		break;
  	}
-+
- 	if ((file->f_mode & FMODE_WRITE) && fc->writeback_cache)
- 		fuse_link_write_file(file);
- }
+-- 
+2.30.2
+
 
 
