@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 153B9408CB0
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:20:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B3B3408F37
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238630AbhIMNVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34856 "EHLO mail.kernel.org"
+        id S242014AbhIMNkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:40:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239614AbhIMNUe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:20:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2EB2610A3;
-        Mon, 13 Sep 2021 13:18:58 +0000 (UTC)
+        id S242657AbhIMNiY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:38:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AABD61262;
+        Mon, 13 Sep 2021 13:28:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539139;
-        bh=PKMhz0ebKCsIG/+kx1GjqvcY4PBBlBtlCPpFstCHtSk=;
+        s=korg; t=1631539713;
+        bh=uuZMw6J5hMtC9lRbJ1wg88tUyZpGYzYRmpNXWwfNY5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ds8gj8FegKb33PpljeFQcFbEaOYL3p+3xcnJigBI71TRddYtfU9qAvMJggEJ/SzLr
-         tbgljFWlEYZ009tO7Jmvq26cQIatrFMOcFo8XnuTOiSK2f6hvg5YhzGaQUSp3X8IO3
-         zaTuKBN3lw9ufXcSLxfWQZmfIdjn8YNlR7K86UdQ=
+        b=YBlnqiFSwnaf+LjmAr2SRTl99WGcRPgwlZcEnibQUipZLre9HozFUcPXgeLy1DECR
+         CSxQ0YlIL1/Xewhon8nVITTu9HdvyAOL6Zy258kSaeWd3GSpZ1aDGxx46rUtMffd+S
+         7ymv1NBuRh0Tio8Ut2b8BjIgLkmlUVa3jPtG99Ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rajendra Nayak <rnayak@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 054/144] soc: qcom: rpmhpd: Use corner in power_off
+Subject: [PATCH 5.10 130/236] Bluetooth: increase BTNAMSIZ to 21 chars to fix potential buffer overflow
 Date:   Mon, 13 Sep 2021 15:13:55 +0200
-Message-Id: <20210913131049.746780199@linuxfoundation.org>
+Message-Id: <20210913131104.789603151@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit d43b3a989bc8c06fd4bbb69a7500d180db2d68e8 ]
+[ Upstream commit 713baf3dae8f45dc8ada4ed2f5fdcbf94a5c274d ]
 
-rpmhpd_aggregate_corner() takes a corner as parameter, but in
-rpmhpd_power_off() the code requests the level of the first corner
-instead.
+An earlier commit replaced using batostr to using %pMR sprintf for the
+construction of session->name. Static analysis detected that this new
+method can use a total of 21 characters (including the trailing '\0')
+so we need to increase the BTNAMSIZ from 18 to 21 to fix potential
+buffer overflows.
 
-In all (known) current cases the first corner has level 0, so this
-change should be a nop, but in case that there's a power domain with a
-non-zero lowest level this makes sure that rpmhpd_power_off() actually
-requests the lowest level - which is the closest to "power off" we can
-get.
-
-While touching the code, also skip the unnecessary zero-initialization
-of "ret".
-
-Fixes: 279b7e8a62cc ("soc: qcom: rpmhpd: Add RPMh power domain driver")
-Reviewed-by: Rajendra Nayak <rnayak@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Sibi Sankar <sibis@codeaurora.org>
-Tested-by: Sibi Sankar <sibis@codeaurora.org>
-Link: https://lore.kernel.org/r/20210703005416.2668319-2-bjorn.andersson@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Addresses-Coverity: ("Out-of-bounds write")
+Fixes: fcb73338ed53 ("Bluetooth: Use %pMR in sprintf/seq_printf instead of batostr")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/rpmhpd.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ net/bluetooth/cmtp/cmtp.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/qcom/rpmhpd.c b/drivers/soc/qcom/rpmhpd.c
-index 51850cc68b70..aa24237a7840 100644
---- a/drivers/soc/qcom/rpmhpd.c
-+++ b/drivers/soc/qcom/rpmhpd.c
-@@ -235,12 +235,11 @@ static int rpmhpd_power_on(struct generic_pm_domain *domain)
- static int rpmhpd_power_off(struct generic_pm_domain *domain)
- {
- 	struct rpmhpd *pd = domain_to_rpmhpd(domain);
--	int ret = 0;
-+	int ret;
+diff --git a/net/bluetooth/cmtp/cmtp.h b/net/bluetooth/cmtp/cmtp.h
+index c32638dddbf9..f6b9dc4e408f 100644
+--- a/net/bluetooth/cmtp/cmtp.h
++++ b/net/bluetooth/cmtp/cmtp.h
+@@ -26,7 +26,7 @@
+ #include <linux/types.h>
+ #include <net/bluetooth/bluetooth.h>
  
- 	mutex_lock(&rpmhpd_lock);
+-#define BTNAMSIZ 18
++#define BTNAMSIZ 21
  
--	ret = rpmhpd_aggregate_corner(pd, pd->level[0]);
--
-+	ret = rpmhpd_aggregate_corner(pd, 0);
- 	if (!ret)
- 		pd->enabled = false;
- 
+ /* CMTP ioctl defines */
+ #define CMTPCONNADD	_IOW('C', 200, int)
 -- 
 2.30.2
 
