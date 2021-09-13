@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E34A4408D5C
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:24:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76BA4408FA0
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240940AbhIMNZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:25:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34832 "EHLO mail.kernel.org"
+        id S244287AbhIMNpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:45:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240591AbhIMNWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:22:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C55FC6113E;
-        Mon, 13 Sep 2021 13:20:37 +0000 (UTC)
+        id S243290AbhIMNmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:42:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16E876140D;
+        Mon, 13 Sep 2021 13:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539238;
-        bh=eLJ9Sol2cQltCVDqOhPRp1+wi1Jp3Nz8GOsN49x/vds=;
+        s=korg; t=1631539814;
+        bh=HadPXS1NZwfYjrBXJXfxjbPKQrCZynBQTKqPR9gvFNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vh9RA/suusRowSGVGYiRwyUgugJ4eL9Z20cXoXeG5VKND96toOhzbF7gYcpfwqV5q
-         XGnUSirdX9qGGcgnH2tcdo/zmat94a8vNfL/2qPTszkdEYCKnq5OtL2KThX+mibZPM
-         KuDQZgl5ybmgSO1dQqZpBH4p8dsJxD9qCWXQyupg=
+        b=sfpIxAaZ8Bz8X1EFzHRMdX4N8ZaqYZgxYRvOD0SR6bbWakKPdrowMWvNikhG7Kdtl
+         uJKbjVFEhkcVY8o3V79iLa0SjllwqeCmXkDsVtI0sGAXSR2nFi/4QSX1epzi3cUBGy
+         H2YzGD2hYmQ2RjxrsVlMF7AaPJzhrd0jHixO+8M0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>
-Subject: [PATCH 5.4 062/144] netns: protect netns ID lookups with RCU
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 138/236] cgroup/cpuset: Miscellaneous code cleanup
 Date:   Mon, 13 Sep 2021 15:14:03 +0200
-Message-Id: <20210913131050.045276595@linuxfoundation.org>
+Message-Id: <20210913131105.051434132@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,94 +39,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Waiman Long <longman@redhat.com>
 
-commit 2dce224f469f060b9998a5a869151ef83c08ce77 upstream.
+[ Upstream commit 0f3adb8a1e5f36e792598c1d77a2cfac9c90a4f9 ]
 
-__peernet2id() can be protected by RCU as it only calls idr_for_each(),
-which is RCU-safe, and never modifies the nsid table.
+Use more descriptive variable names for update_prstate(), remove
+unnecessary code and fix some typos. There is no functional change.
 
-rtnl_net_dumpid() can also do lockless lookups. It does two nested
-idr_for_each() calls on nsid tables (one direct call and one indirect
-call because of rtnl_net_dumpid_one() calling __peernet2id()). The
-netnsid tables are never updated. Therefore it is safe to not take the
-nsid_lock and run within an RCU-critical section instead.
-
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net_namespace.c |   28 ++++++++++------------------
- 1 file changed, 10 insertions(+), 18 deletions(-)
+ kernel/cgroup/cpuset.c | 40 +++++++++++++++++++---------------------
+ 1 file changed, 19 insertions(+), 21 deletions(-)
 
---- a/net/core/net_namespace.c
-+++ b/net/core/net_namespace.c
-@@ -211,9 +211,9 @@ static int net_eq_idr(int id, void *net,
- 	return 0;
- }
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index e1601d8dac29..190355aae7ee 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1114,7 +1114,7 @@ enum subparts_cmd {
+  * cpus_allowed can be granted or an error code will be returned.
+  *
+  * For partcmd_disable, the cpuset is being transofrmed from a partition
+- * root back to a non-partition root. any CPUs in cpus_allowed that are in
++ * root back to a non-partition root. Any CPUs in cpus_allowed that are in
+  * parent's subparts_cpus will be taken away from that cpumask and put back
+  * into parent's effective_cpus. 0 should always be returned.
+  *
+@@ -1225,7 +1225,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
+ 		/*
+ 		 * partcmd_update w/o newmask:
+ 		 *
+-		 * addmask = cpus_allowed & parent->effectiveb_cpus
++		 * addmask = cpus_allowed & parent->effective_cpus
+ 		 *
+ 		 * Note that parent's subparts_cpus may have been
+ 		 * pre-shrunk in case there is a change in the cpu list.
+@@ -1365,12 +1365,12 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+ 			case PRS_DISABLED:
+ 				/*
+ 				 * If parent is not a partition root or an
+-				 * invalid partition root, clear the state
+-				 * state and the CS_CPU_EXCLUSIVE flag.
++				 * invalid partition root, clear its state
++				 * and its CS_CPU_EXCLUSIVE flag.
+ 				 */
+ 				WARN_ON_ONCE(cp->partition_root_state
+ 					     != PRS_ERROR);
+-				cp->partition_root_state = 0;
++				cp->partition_root_state = PRS_DISABLED;
  
--/* Should be called with nsid_lock held. If a new id is assigned, the bool alloc
-- * is set to true, thus the caller knows that the new id must be notified via
-- * rtnl.
-+/* Must be called from RCU-critical section or with nsid_lock held. If
-+ * a new id is assigned, the bool alloc is set to true, thus the
-+ * caller knows that the new id must be notified via rtnl.
+ 				/*
+ 				 * clear_bit() is an atomic operation and
+@@ -1937,30 +1937,28 @@ out:
+ 
+ /*
+  * update_prstate - update partititon_root_state
+- * cs:	the cpuset to update
+- * val: 0 - disabled, 1 - enabled
++ * cs: the cpuset to update
++ * new_prs: new partition root state
+  *
+  * Call with cpuset_mutex held.
   */
- static int __peernet2id_alloc(struct net *net, struct net *peer, bool *alloc)
+-static int update_prstate(struct cpuset *cs, int val)
++static int update_prstate(struct cpuset *cs, int new_prs)
  {
-@@ -237,7 +237,7 @@ static int __peernet2id_alloc(struct net
- 	return NETNSA_NSID_NOT_ASSIGNED;
+ 	int err;
+ 	struct cpuset *parent = parent_cs(cs);
+-	struct tmpmasks tmp;
++	struct tmpmasks tmpmask;
+ 
+-	if ((val != 0) && (val != 1))
+-		return -EINVAL;
+-	if (val == cs->partition_root_state)
++	if (new_prs == cs->partition_root_state)
+ 		return 0;
+ 
+ 	/*
+ 	 * Cannot force a partial or invalid partition root to a full
+ 	 * partition root.
+ 	 */
+-	if (val && cs->partition_root_state)
++	if (new_prs && (cs->partition_root_state < 0))
+ 		return -EINVAL;
+ 
+-	if (alloc_cpumasks(NULL, &tmp))
++	if (alloc_cpumasks(NULL, &tmpmask))
+ 		return -ENOMEM;
+ 
+ 	err = -EINVAL;
+@@ -1978,7 +1976,7 @@ static int update_prstate(struct cpuset *cs, int val)
+ 			goto out;
+ 
+ 		err = update_parent_subparts_cpumask(cs, partcmd_enable,
+-						     NULL, &tmp);
++						     NULL, &tmpmask);
+ 		if (err) {
+ 			update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+ 			goto out;
+@@ -1990,18 +1988,18 @@ static int update_prstate(struct cpuset *cs, int val)
+ 		 * CS_CPU_EXCLUSIVE bit.
+ 		 */
+ 		if (cs->partition_root_state == PRS_ERROR) {
+-			cs->partition_root_state = 0;
++			cs->partition_root_state = PRS_DISABLED;
+ 			update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+ 			err = 0;
+ 			goto out;
+ 		}
+ 
+ 		err = update_parent_subparts_cpumask(cs, partcmd_disable,
+-						     NULL, &tmp);
++						     NULL, &tmpmask);
+ 		if (err)
+ 			goto out;
+ 
+-		cs->partition_root_state = 0;
++		cs->partition_root_state = PRS_DISABLED;
+ 
+ 		/* Turning off CS_CPU_EXCLUSIVE will not return error */
+ 		update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+@@ -2015,11 +2013,11 @@ static int update_prstate(struct cpuset *cs, int val)
+ 		update_tasks_cpumask(parent);
+ 
+ 	if (parent->child_ecpus_count)
+-		update_sibling_cpumasks(parent, cs, &tmp);
++		update_sibling_cpumasks(parent, cs, &tmpmask);
+ 
+ 	rebuild_sched_domains_locked();
+ out:
+-	free_cpumasks(NULL, &tmp);
++	free_cpumasks(NULL, &tmpmask);
+ 	return err;
  }
  
--/* should be called with nsid_lock held */
-+/* Must be called from RCU-critical section or with nsid_lock held */
- static int __peernet2id(struct net *net, struct net *peer)
- {
- 	bool no = false;
-@@ -281,9 +281,10 @@ int peernet2id(struct net *net, struct n
- {
- 	int id;
- 
--	spin_lock_bh(&net->nsid_lock);
-+	rcu_read_lock();
- 	id = __peernet2id(net, peer);
--	spin_unlock_bh(&net->nsid_lock);
-+	rcu_read_unlock();
-+
- 	return id;
- }
- EXPORT_SYMBOL(peernet2id);
-@@ -962,6 +963,7 @@ struct rtnl_net_dump_cb {
- 	int s_idx;
- };
- 
-+/* Runs in RCU-critical section. */
- static int rtnl_net_dumpid_one(int id, void *peer, void *data)
- {
- 	struct rtnl_net_dump_cb *net_cb = (struct rtnl_net_dump_cb *)data;
-@@ -1046,19 +1048,9 @@ static int rtnl_net_dumpid(struct sk_buf
- 			goto end;
+@@ -3060,7 +3058,7 @@ retry:
+ 		goto retry;
  	}
  
--	spin_lock_bh(&net_cb.tgt_net->nsid_lock);
--	if (net_cb.fillargs.add_ref &&
--	    !net_eq(net_cb.ref_net, net_cb.tgt_net) &&
--	    !spin_trylock_bh(&net_cb.ref_net->nsid_lock)) {
--		spin_unlock_bh(&net_cb.tgt_net->nsid_lock);
--		err = -EAGAIN;
--		goto end;
--	}
-+	rcu_read_lock();
- 	idr_for_each(&net_cb.tgt_net->netns_ids, rtnl_net_dumpid_one, &net_cb);
--	if (net_cb.fillargs.add_ref &&
--	    !net_eq(net_cb.ref_net, net_cb.tgt_net))
--		spin_unlock_bh(&net_cb.ref_net->nsid_lock);
--	spin_unlock_bh(&net_cb.tgt_net->nsid_lock);
-+	rcu_read_unlock();
+-	parent =  parent_cs(cs);
++	parent = parent_cs(cs);
+ 	compute_effective_cpumask(&new_cpus, cs, parent);
+ 	nodes_and(new_mems, cs->mems_allowed, parent->effective_mems);
  
- 	cb->args[0] = net_cb.idx;
- end:
+-- 
+2.30.2
+
 
 
