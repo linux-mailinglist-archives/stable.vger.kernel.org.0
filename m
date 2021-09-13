@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 718CF40902C
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:49:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 472AE409025
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244818AbhIMNuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:50:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56792 "EHLO mail.kernel.org"
+        id S242513AbhIMNuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:50:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244090AbhIMNrd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:47:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6196761288;
-        Mon, 13 Sep 2021 13:32:32 +0000 (UTC)
+        id S244105AbhIMNrg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:47:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0F736136F;
+        Mon, 13 Sep 2021 13:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539952;
-        bh=JJooFV/ryU/2X5VThW6kqQMdFjymF9VBm25fl68WEjM=;
+        s=korg; t=1631539955;
+        bh=13hYmdXLlkorhJU2QzWcDCNAEbmIkT6E+r+w6YIrh9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qF906Qo/N265eq2EQymJkDQxX/hP75m57Pflb6xe2ETE0tiWQnQbO3D+dFd5EOGus
-         fV51nq0Liq8ZXDz6jCN/iyMptw/RNEiAc2BxZfkF0/SRjDGR0kAp/8s7iEv9KCUT6E
-         khA4vVyVvumIv425XswL1V60I28UZeJzT3WymaSs=
+        b=1W/nj1TY9VT/cGX23+zaTpU7USd8QcuWn9N5sBIBAmJuD0LdH2geiyWowHHftxd90
+         4znJ/Tc5uzU+3Awu3+YoL9Qn+hL1nB/S/m6cAlBJjDc7e/dcaxH5jV8GbkENhg4Oqh
+         Xc6NefG7xG+2WqbnD5Edt8queYdLtFqQMkBB6imc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 227/236] KVM: VMX: avoid running vmx_handle_exit_irqoff in case of emulation
-Date:   Mon, 13 Sep 2021 15:15:32 +0200
-Message-Id: <20210913131108.076522198@linuxfoundation.org>
+Subject: [PATCH 5.10 228/236] KVM: nVMX: Unconditionally clear nested.pi_pending on nested VM-Enter
+Date:   Mon, 13 Sep 2021 15:15:33 +0200
+Message-Id: <20210913131108.106828896@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
 References: <20210913131100.316353015@linuxfoundation.org>
@@ -39,34 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Levitsky <mlevitsk@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 81b4b56d4f8130bbb99cf4e2b48082e5b4cfccb9 upstream.
+commit f7782bb8d818d8f47c26b22079db10599922787a upstream.
 
-If we are emulating an invalid guest state, we don't have a correct
-exit reason, and thus we shouldn't do anything in this function.
+Clear nested.pi_pending on nested VM-Enter even if L2 will run without
+posted interrupts enabled.  If nested.pi_pending is left set from a
+previous L2, vmx_complete_nested_posted_interrupt() will pick up the
+stale flag and exit to userspace with an "internal emulation error" due
+the new L2 not having a valid nested.pi_desc.
 
-Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-Message-Id: <20210826095750.1650467-2-mlevitsk@redhat.com>
+Arguably, vmx_complete_nested_posted_interrupt() should first check for
+posted interrupts being enabled, but it's also completely reasonable that
+KVM wouldn't screw up a fundamental flag.  Not to mention that the mere
+existence of nested.pi_pending is a long-standing bug as KVM shouldn't
+move the posted interrupt out of the IRR until it's actually processed,
+e.g. KVM effectively drops an interrupt when it performs a nested VM-Exit
+with a "pending" posted interrupt.  Fixing the mess is a future problem.
+
+Prior to vmx_complete_nested_posted_interrupt() interpreting a null PI
+descriptor as an error, this was a benign bug as the null PI descriptor
+effectively served as a check on PI not being enabled.  Even then, the
+new flow did not become problematic until KVM started checking the result
+of kvm_check_nested_events().
+
+Fixes: 705699a13994 ("KVM: nVMX: Enable nested posted interrupt processing")
+Fixes: 966eefb89657 ("KVM: nVMX: Disable vmcs02 posted interrupts if vmcs12 PID isn't mappable")
+Fixes: 47d3530f86c0 ("KVM: x86: Exit to userspace when kvm_check_nested_events fails")
 Cc: stable@vger.kernel.org
-Fixes: 95b5a48c4f2b ("KVM: VMX: Handle NMIs, #MCs and async #PFs in common irqs-disabled fn", 2019-06-18)
+Cc: Jim Mattson <jmattson@google.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210810144526.2662272-1-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/vmx/vmx.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/vmx/nested.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6396,6 +6396,9 @@ static void vmx_handle_exit_irqoff(struc
- {
- 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -2243,12 +2243,11 @@ static void prepare_vmcs02_early(struct
+ 			 ~PIN_BASED_VMX_PREEMPTION_TIMER);
  
-+	if (vmx->emulation_required)
-+		return;
-+
- 	if (vmx->exit_reason.basic == EXIT_REASON_EXTERNAL_INTERRUPT)
- 		handle_external_interrupt_irqoff(vcpu);
- 	else if (vmx->exit_reason.basic == EXIT_REASON_EXCEPTION_NMI)
+ 	/* Posted interrupts setting is only taken from vmcs12.  */
+-	if (nested_cpu_has_posted_intr(vmcs12)) {
++	vmx->nested.pi_pending = false;
++	if (nested_cpu_has_posted_intr(vmcs12))
+ 		vmx->nested.posted_intr_nv = vmcs12->posted_intr_nv;
+-		vmx->nested.pi_pending = false;
+-	} else {
++	else
+ 		exec_control &= ~PIN_BASED_POSTED_INTR;
+-	}
+ 	pin_controls_set(vmx, exec_control);
+ 
+ 	/*
 
 
