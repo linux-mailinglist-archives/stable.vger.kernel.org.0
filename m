@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3264D408E4C
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B874540914C
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240662AbhIMNcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:32:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46794 "EHLO mail.kernel.org"
+        id S1343525AbhIMOAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:00:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242335AbhIMNal (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:30:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 131BB610CE;
-        Mon, 13 Sep 2021 13:24:48 +0000 (UTC)
+        id S243657AbhIMN6i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:58:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8571E61A04;
+        Mon, 13 Sep 2021 13:36:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539489;
-        bh=k0eFH03eg6ySoPnVC+Xbdhj+RnyB2dgx4sfO4LDKI2s=;
+        s=korg; t=1631540209;
+        bh=+iPTouEDmJhKRWwleYbkUV+xxnNwxn1IiTN6FaGfRDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hELuGd8vLB5ku0+rWOKD8IIRyqaM3oCXEQF9nkTFIHO9rX8UgXTpJZt3BMZzl2vpN
-         doZTbrOdblosl4IQ1Fe3CYvN2Dgzxe/xGisDCB7+SbVwl3nnUnFRC4iGtNOJPzimXk
-         N4D5J5Szo/nXhY34xhLE33X0bPHkBHVBKY+WIvq8=
+        b=gnC/KcKtCrq3I1l/+NyAUMxO5PQEh9XOsi1aqM1MgDyNLikJtSNT6VUEDs2R4/56L
+         9ZxlOGOylV00c4DhzcUwG0LzPT58jSTypXJvQKabCl009kCDbFjVNiU3zkqlel2elq
+         112ROQrJwPHUYIf/2Y61OGqKcWBYMVPHK+poIXmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/236] rcu: Add lockdep_assert_irqs_disabled() to rcu_sched_clock_irq() and callees
-Date:   Mon, 13 Sep 2021 15:12:30 +0200
-Message-Id: <20210913131101.883625265@linuxfoundation.org>
+Subject: [PATCH 5.13 090/300] bpf: Fix a typo of reuseport map in bpf.h.
+Date:   Mon, 13 Sep 2021 15:12:31 +0200
+Message-Id: <20210913131112.429963929@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,120 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
 
-[ Upstream commit a649d25dcc671a33b9cc3176411920fdc5fbd98e ]
+[ Upstream commit f170acda7ffaf0473d06e1e17c12cd9fd63904f5 ]
 
-This commit adds a number of lockdep_assert_irqs_disabled() calls
-to rcu_sched_clock_irq() and a number of the functions that it calls.
-The point of this is to help track down a situation where lockdep appears
-to be insisting that interrupts are enabled within these functions, which
-should only ever be invoked from the scheduling-clock interrupt handler.
+Fix s/BPF_MAP_TYPE_REUSEPORT_ARRAY/BPF_MAP_TYPE_REUSEPORT_SOCKARRAY/ typo
+in bpf.h.
 
-Link: https://lore.kernel.org/lkml/20201111133813.GA81547@elver.google.com/
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 2dbb9b9e6df6 ("bpf: Introduce BPF_PROG_TYPE_SK_REUSEPORT")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/bpf/20210714124317.67526-1-kuniyu@amazon.co.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c        | 4 ++++
- kernel/rcu/tree_plugin.h | 1 +
- kernel/rcu/tree_stall.h  | 8 ++++++++
- 3 files changed, 13 insertions(+)
+ include/uapi/linux/bpf.h       | 2 +-
+ tools/include/uapi/linux/bpf.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 8c3ba0185082..8c81c05c4236 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -2561,6 +2561,7 @@ static void rcu_do_batch(struct rcu_data *rdp)
- void rcu_sched_clock_irq(int user)
- {
- 	trace_rcu_utilization(TPS("Start scheduler-tick"));
-+	lockdep_assert_irqs_disabled();
- 	raw_cpu_inc(rcu_data.ticks_this_gp);
- 	/* The load-acquire pairs with the store-release setting to true. */
- 	if (smp_load_acquire(this_cpu_ptr(&rcu_data.rcu_urgent_qs))) {
-@@ -2574,6 +2575,7 @@ void rcu_sched_clock_irq(int user)
- 	rcu_flavor_sched_clock_irq(user);
- 	if (rcu_pending(user))
- 		invoke_rcu_core();
-+	lockdep_assert_irqs_disabled();
- 
- 	trace_rcu_utilization(TPS("End scheduler-tick"));
- }
-@@ -3730,6 +3732,8 @@ static int rcu_pending(int user)
- 	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
- 	struct rcu_node *rnp = rdp->mynode;
- 
-+	lockdep_assert_irqs_disabled();
-+
- 	/* Check for CPU stalls, if enabled. */
- 	check_cpu_stall(rdp);
- 
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index 7d4f78bf4057..574aeaac9272 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -682,6 +682,7 @@ static void rcu_flavor_sched_clock_irq(int user)
- {
- 	struct task_struct *t = current;
- 
-+	lockdep_assert_irqs_disabled();
- 	if (user || rcu_is_cpu_rrupt_from_idle()) {
- 		rcu_note_voluntary_context_switch(current);
- 	}
-diff --git a/kernel/rcu/tree_stall.h b/kernel/rcu/tree_stall.h
-index cdfaa44ffd70..3fc21617546d 100644
---- a/kernel/rcu/tree_stall.h
-+++ b/kernel/rcu/tree_stall.h
-@@ -262,6 +262,7 @@ static int rcu_print_task_stall(struct rcu_node *rnp, unsigned long flags)
- 	struct task_struct *t;
- 	struct task_struct *ts[8];
- 
-+	lockdep_assert_irqs_disabled();
- 	if (!rcu_preempt_blocked_readers_cgp(rnp))
- 		return 0;
- 	pr_err("\tTasks blocked on level-%d rcu_node (CPUs %d-%d):",
-@@ -286,6 +287,7 @@ static int rcu_print_task_stall(struct rcu_node *rnp, unsigned long flags)
- 				".q"[rscr.rs.b.need_qs],
- 				".e"[rscr.rs.b.exp_hint],
- 				".l"[rscr.on_blkd_list]);
-+		lockdep_assert_irqs_disabled();
- 		put_task_struct(t);
- 		ndetected++;
- 	}
-@@ -474,6 +476,8 @@ static void print_other_cpu_stall(unsigned long gp_seq, unsigned long gps)
- 	struct rcu_node *rnp;
- 	long totqlen = 0;
- 
-+	lockdep_assert_irqs_disabled();
-+
- 	/* Kick and suppress, if so configured. */
- 	rcu_stall_kick_kthreads();
- 	if (rcu_stall_is_suppressed())
-@@ -495,6 +499,7 @@ static void print_other_cpu_stall(unsigned long gp_seq, unsigned long gps)
- 				}
- 		}
- 		ndetected += rcu_print_task_stall(rnp, flags); // Releases rnp->lock.
-+		lockdep_assert_irqs_disabled();
- 	}
- 
- 	for_each_possible_cpu(cpu)
-@@ -540,6 +545,8 @@ static void print_cpu_stall(unsigned long gps)
- 	struct rcu_node *rnp = rcu_get_root();
- 	long totqlen = 0;
- 
-+	lockdep_assert_irqs_disabled();
-+
- 	/* Kick and suppress, if so configured. */
- 	rcu_stall_kick_kthreads();
- 	if (rcu_stall_is_suppressed())
-@@ -594,6 +601,7 @@ static void check_cpu_stall(struct rcu_data *rdp)
- 	unsigned long js;
- 	struct rcu_node *rnp;
- 
-+	lockdep_assert_irqs_disabled();
- 	if ((rcu_stall_is_suppressed() && !READ_ONCE(rcu_kick_kthreads)) ||
- 	    !rcu_gp_in_progress())
- 		return;
+diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
+index ec6d85a81744..353f06cf210e 100644
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -3222,7 +3222,7 @@ union bpf_attr {
+  * long bpf_sk_select_reuseport(struct sk_reuseport_md *reuse, struct bpf_map *map, void *key, u64 flags)
+  *	Description
+  *		Select a **SO_REUSEPORT** socket from a
+- *		**BPF_MAP_TYPE_REUSEPORT_ARRAY** *map*.
++ *		**BPF_MAP_TYPE_REUSEPORT_SOCKARRAY** *map*.
+  *		It checks the selected socket is matching the incoming
+  *		request in the socket buffer.
+  *	Return
+diff --git a/tools/include/uapi/linux/bpf.h b/tools/include/uapi/linux/bpf.h
+index ec6d85a81744..353f06cf210e 100644
+--- a/tools/include/uapi/linux/bpf.h
++++ b/tools/include/uapi/linux/bpf.h
+@@ -3222,7 +3222,7 @@ union bpf_attr {
+  * long bpf_sk_select_reuseport(struct sk_reuseport_md *reuse, struct bpf_map *map, void *key, u64 flags)
+  *	Description
+  *		Select a **SO_REUSEPORT** socket from a
+- *		**BPF_MAP_TYPE_REUSEPORT_ARRAY** *map*.
++ *		**BPF_MAP_TYPE_REUSEPORT_SOCKARRAY** *map*.
+  *		It checks the selected socket is matching the incoming
+  *		request in the socket buffer.
+  *	Return
 -- 
 2.30.2
 
