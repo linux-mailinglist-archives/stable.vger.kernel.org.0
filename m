@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C2FA4093AB
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 597664093B3
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345669AbhIMO0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:26:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46962 "EHLO mail.kernel.org"
+        id S1345620AbhIMO0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:26:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346427AbhIMOY2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:24:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70A246121E;
-        Mon, 13 Sep 2021 13:48:24 +0000 (UTC)
+        id S1346537AbhIMOYp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:24:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF95B61211;
+        Mon, 13 Sep 2021 13:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631540904;
-        bh=oXial+xtXb9zJk9qafvV1nIjqsyZGwiQ0oHAyo3L27o=;
+        s=korg; t=1631540907;
+        bh=kA1zGDBvO3wCtWRiarIQkJ5Hkrq4acKn0FAZf4D/+c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJ9bFIKaU01Tp+cM56r62SKxYm27w5v+PmrLzp/1opjHsiEUgeQGlduAKXW24HP37
-         WyT9yLir2GctN6+hUqXPLLuOmqWGrjZUwqFEU5Xg+MAQaG1T3+yaVDKYQvH5jEsYoF
-         YDiqSP9t9lDfeDvN3vbDaj6ao/ZTVvlf7cPqL8Sk=
+        b=XUAcYD72wPD+lket65n+Oxjeu0fjaAjtHyEf7y3GCfF6xibhYGVvnvH2ZCxkX263M
+         iLBNixg2y3UqokoJDcUzaX/Fd5Zvn6l9kWMJV/+DtEAZTlTh1Yd5Y4l6Ad/Oi0H6sX
+         b6mktB97xLbR35pOxBwY2X8NfPkYCo9dtUq1L03U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Steven Price <steven.price@arm.com>,
+        stable@vger.kernel.org,
+        Harshvardhan Jha <harshvardhan.jha@oracle.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 082/334] drm/panfrost: Fix missing clk_disable_unprepare() on error in panfrost_clk_init()
-Date:   Mon, 13 Sep 2021 15:12:16 +0200
-Message-Id: <20210913131116.166444273@linuxfoundation.org>
+Subject: [PATCH 5.14 083/334] drm/gma500: Fix end of loop tests for list_for_each_entry
+Date:   Mon, 13 Sep 2021 15:12:17 +0200
+Message-Id: <20210913131116.199633598@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
 References: <20210913131113.390368911@linuxfoundation.org>
@@ -41,38 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
 
-[ Upstream commit f42498705965bd4b026953c1892c686d8b1138e4 ]
+[ Upstream commit ea9a897b8affa0f7b4c90182b785dded74e434aa ]
 
-Fix the missing clk_disable_unprepare() before return
-from panfrost_clk_init() in the error handling case.
+The list_for_each_entry() iterator, "connector" in this code, can never be
+NULL.  If we exit the loop without finding the correct  connector then
+"connector" points invalid memory that is an offset from the list head.
+This will eventually lead to memory corruption and presumably a kernel
+crash.
 
-Fixes: b681af0bc1cc ("drm: panfrost: add optional bus_clock")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210608143856.4154766-1-weiyongjun1@huawei.com
+Fixes: 9bd81acdb648 ("gma500: Convert Oaktrail to work with new output handling")
+Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210709073959.11443-1-harshvardhan.jha@oracle.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_device.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/gma500/oaktrail_lvds.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_device.c b/drivers/gpu/drm/panfrost/panfrost_device.c
-index 125ed973feaa..a2a09c51eed7 100644
---- a/drivers/gpu/drm/panfrost/panfrost_device.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_device.c
-@@ -54,7 +54,8 @@ static int panfrost_clk_init(struct panfrost_device *pfdev)
- 	if (IS_ERR(pfdev->bus_clock)) {
- 		dev_err(pfdev->dev, "get bus_clock failed %ld\n",
- 			PTR_ERR(pfdev->bus_clock));
--		return PTR_ERR(pfdev->bus_clock);
-+		err = PTR_ERR(pfdev->bus_clock);
-+		goto disable_clock;
+diff --git a/drivers/gpu/drm/gma500/oaktrail_lvds.c b/drivers/gpu/drm/gma500/oaktrail_lvds.c
+index 432bdcc57ac9..a1332878857b 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_lvds.c
++++ b/drivers/gpu/drm/gma500/oaktrail_lvds.c
+@@ -117,7 +117,7 @@ static void oaktrail_lvds_mode_set(struct drm_encoder *encoder,
+ 			continue;
  	}
  
- 	if (pfdev->bus_clock) {
+-	if (!connector) {
++	if (list_entry_is_head(connector, &mode_config->connector_list, head)) {
+ 		DRM_ERROR("Couldn't find connector when setting mode");
+ 		gma_power_end(dev);
+ 		return;
 -- 
 2.30.2
 
