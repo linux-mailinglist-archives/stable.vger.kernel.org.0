@@ -2,270 +2,278 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5924C408D5B
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:24:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11AF5408FA1
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240369AbhIMNZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:25:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35020 "EHLO mail.kernel.org"
+        id S241782AbhIMNpd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:45:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240164AbhIMNWM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:22:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6383C6112E;
-        Mon, 13 Sep 2021 13:20:40 +0000 (UTC)
+        id S243317AbhIMNmM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:42:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 445AA6135E;
+        Mon, 13 Sep 2021 13:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539240;
-        bh=jblwlzcH91SHd9WHU0gojaPkQdpUmkQ/ecklKYxsljM=;
+        s=korg; t=1631539816;
+        bh=O2FnxtmJllFLGIGlN+bgV0E7ARe/vR0+Nd/u/nZK1tM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4tRle/C1b8Y8ZfQEs8rNz1EV1AtVVNAg+ATRk2myythaWnWXUqdO55dEXYS4ls/w
-         2lRl3HL+8tDpUdsgnPD4ymk9TEk3spn4bEEN+yMuCz/MHxePe66eZX7q8Csry5D479
-         SDVv9ucV9QDemd4HEev12kLcMkkfx12d3clBe5LA=
+        b=X4o7y55j5uwHFBgjbek/qlDS2k7mFbq9reneCxU6A3XX1lzbfQwAneMm/Olm+TFU+
+         btEyFFhmuHlQmy4teEp4OdJA/kCZ1uDbVymWw16IPHhyqaYR51yKwE/sf0jOqSSdTh
+         1fq2C8c1EFZPBn3lzAO+rXh/pSiNS8g+HsMnEEuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/144] drm/amdgpu/acp: Make PM domain really work
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 139/236] cgroup/cpuset: Fix violation of cpuset locking rule
 Date:   Mon, 13 Sep 2021 15:14:04 +0200
-Message-Id: <20210913131050.076993476@linuxfoundation.org>
+Message-Id: <20210913131105.089517158@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-References: <20210913131047.974309396@linuxfoundation.org>
+In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
+References: <20210913131100.316353015@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit aff890288de2d818e4f83ec40c9315e2d735df07 ]
+[ Upstream commit 6ba34d3c73674e46d9e126e4f0cee79e5ef2481c ]
 
-Devices created by mfd_add_hotplug_devices() don't really increase the
-index of its name, so get_mfd_cell_dev() cannot find any device, hence a
-NULL dev is passed to pm_genpd_add_device():
-[   56.974926] (NULL device *): amdgpu: device acp_audio_dma.0.auto added t=
-o pm domain
-[   56.974933] (NULL device *): amdgpu: Failed to add dev to genpd
-[   56.974941] [drm:amdgpu_device_ip_init [amdgpu]] *ERROR* hw_init of IP b=
-lock <acp_ip> failed -22
-[   56.975810] amdgpu 0000:00:01.0: amdgpu: amdgpu_device_ip_init failed
-[   56.975839] amdgpu 0000:00:01.0: amdgpu: Fatal error during GPU init
-[   56.977136] ------------[ cut here ]------------
-[   56.977143] kernel BUG at mm/slub.c:4206!
-[   56.977158] invalid opcode: 0000 [#1] SMP NOPTI
-[   56.977167] CPU: 1 PID: 1648 Comm: modprobe Not tainted 5.12.0-051200rc8=
--generic #202104182230
-[   56.977175] Hardware name: To Be Filled By O.E.M. To Be Filled By O.E.M.=
-/FM2A68M-HD+, BIOS P5.20 02/13/2019
-[   56.977180] RIP: 0010:kfree+0x3bf/0x410
-[   56.977195] Code: 89 e7 48 d3 e2 f7 da e8 5f 0d 02 00 80 e7 02 75 3e 44 =
-89 ee 4c 89 e7 e8 ef 5f fd ff e9 fa fe ff ff 49 8b 44 24 08 a8 01 75 b7 <0f=
-> 0b 4c 8b 4d b0 48 8b 4d a8 48 89 da 4c 89 e6 41 b8 01 00 00 00
-[   56.977202] RSP: 0018:ffffa48640ff79f0 EFLAGS: 00010246
-[   56.977210] RAX: 0000000000000000 RBX: ffff9286127d5608 RCX: 00000000000=
-00000
-[   56.977215] RDX: 0000000000000000 RSI: ffffffffc099d0fb RDI: ffff9286127=
-d5608
-[   56.977220] RBP: ffffa48640ff7a48 R08: 0000000000000001 R09: 00000000000=
-00001
-[   56.977224] R10: 0000000000000000 R11: ffff9286087d8458 R12: fffff3ae044=
-9f540
-[   56.977229] R13: 0000000000000000 R14: dead000000000122 R15: dead0000000=
-00100
-[   56.977234] FS:  00007f9de5929540(0000) GS:ffff928612e80000(0000) knlGS:=
-0000000000000000
-[   56.977240] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   56.977245] CR2: 00007f697dd97160 CR3: 00000001110f0000 CR4: 00000000001=
-506e0
-[   56.977251] Call Trace:
-[   56.977261]  amdgpu_dm_encoder_destroy+0x1b/0x30 [amdgpu]
-[   56.978056]  drm_mode_config_cleanup+0x4f/0x2e0 [drm]
-[   56.978147]  ? kfree+0x3dd/0x410
-[   56.978157]  ? drm_managed_release+0xc8/0x100 [drm]
-[   56.978232]  drm_mode_config_init_release+0xe/0x10 [drm]
-[   56.978311]  drm_managed_release+0x9d/0x100 [drm]
-[   56.978388]  devm_drm_dev_init_release+0x4d/0x70 [drm]
-[   56.978450]  devm_action_release+0x15/0x20
-[   56.978459]  release_nodes+0x77/0xc0
-[   56.978469]  devres_release_all+0x3f/0x50
-[   56.978477]  really_probe+0x245/0x460
-[   56.978485]  driver_probe_device+0xe9/0x160
-[   56.978492]  device_driver_attach+0xab/0xb0
-[   56.978499]  __driver_attach+0x8f/0x150
-[   56.978506]  ? device_driver_attach+0xb0/0xb0
-[   56.978513]  bus_for_each_dev+0x7e/0xc0
-[   56.978521]  driver_attach+0x1e/0x20
-[   56.978528]  bus_add_driver+0x135/0x1f0
-[   56.978534]  driver_register+0x91/0xf0
-[   56.978540]  __pci_register_driver+0x54/0x60
-[   56.978549]  amdgpu_init+0x77/0x1000 [amdgpu]
-[   56.979246]  ? 0xffffffffc0dbc000
-[   56.979254]  do_one_initcall+0x48/0x1d0
-[   56.979265]  ? kmem_cache_alloc_trace+0x120/0x230
-[   56.979274]  ? do_init_module+0x28/0x280
-[   56.979282]  do_init_module+0x62/0x280
-[   56.979288]  load_module+0x71c/0x7a0
-[   56.979296]  __do_sys_finit_module+0xc2/0x120
-[   56.979305]  __x64_sys_finit_module+0x1a/0x20
-[   56.979311]  do_syscall_64+0x38/0x90
-[   56.979319]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[   56.979328] RIP: 0033:0x7f9de54f989d
-[   56.979335] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 =
-89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48=
-> 3d 01 f0 ff ff 73 01 c3 48 8b 0d c3 f5 0c 00 f7 d8 64 89 01 48
-[   56.979342] RSP: 002b:00007ffe3c395a28 EFLAGS: 00000246 ORIG_RAX: 000000=
-0000000139
-[   56.979350] RAX: ffffffffffffffda RBX: 0000560df3ef4330 RCX: 00007f9de54=
-f989d
-[   56.979355] RDX: 0000000000000000 RSI: 0000560df3a07358 RDI: 00000000000=
-0000f
-[   56.979360] RBP: 0000000000040000 R08: 0000000000000000 R09: 00000000000=
-00000
-[   56.979365] R10: 000000000000000f R11: 0000000000000246 R12: 0000560df3a=
-07358
-[   56.979369] R13: 0000000000000000 R14: 0000560df3ef4460 R15: 0000560df3e=
-f4330
-[   56.979377] Modules linked in: amdgpu(+) iommu_v2 gpu_sched drm_ttm_help=
-er ttm drm_kms_helper cec rc_core i2c_algo_bit fb_sys_fops syscopyarea sysf=
-illrect sysimgblt nft_counter xt_tcpudp ipt_REJECT nf_reject_ipv4 xt_conntr=
-ack iptable_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_m=
-angle iptable_raw iptable_security ip_set nf_tables libcrc32c nfnetlink ip6=
-_tables iptable_filter bpfilter input_leds binfmt_misc edac_mce_amd kvm_amd=
- ccp kvm snd_hda_codec_realtek snd_hda_codec_generic crct10dif_pclmul snd_h=
-da_codec_hdmi ledtrig_audio ghash_clmulni_intel aesni_intel snd_hda_intel s=
-nd_intel_dspcfg snd_seq_midi crypto_simd snd_intel_sdw_acpi cryptd snd_hda_=
-codec snd_seq_midi_event snd_rawmidi snd_hda_core snd_hwdep snd_seq fam15h_=
-power k10temp snd_pcm snd_seq_device snd_timer snd mac_hid soundcore sch_fq=
-_codel nct6775 hwmon_vid drm ip_tables x_tables autofs4 dm_mirror dm_region=
-_hash dm_log hid_generic usbhid hid uas usb_storage r8169 crc32_pclmul real=
-tek ahci xhci_pci i2c_piix4
-[   56.979521]  xhci_pci_renesas libahci video
-[   56.979541] ---[ end trace cb8f6a346f18da7b ]---
+The cpuset fields that manage partition root state do not strictly
+follow the cpuset locking rule that update to cpuset has to be done
+with both the callback_lock and cpuset_mutex held. This is now fixed
+by making sure that the locking rule is upheld.
 
-Instead of finding MFD hotplugged device by its name, simply iterate
-over the child devices to avoid the issue.
-
-Squash in unused variable removal (Alex)
-
-BugLink: https://bugs.launchpad.net/bugs/1920674
-Fixes: 25030321ba28 ("drm/amd: add pm domain for ACP IP sub blocks")
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 3881b86128d0 ("cpuset: Add an error state to cpuset.sched.partition")
+Fixes: 4b842da276a8 ("cpuset: Make CPU hotplug work with partition")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c | 54 ++++++++++++-------------
- 1 file changed, 26 insertions(+), 28 deletions(-)
+ kernel/cgroup/cpuset.c | 58 +++++++++++++++++++++++++-----------------
+ 1 file changed, 35 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c b/drivers/gpu/drm/amd/=
-amdgpu/amdgpu_acp.c
-index 82155ac3288a..64ee44c2fdd1 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acp.c
-@@ -163,17 +163,28 @@ static int acp_poweron(struct generic_pm_domain *genp=
-d)
- 	return 0;
- }
-=20
--static struct device *get_mfd_cell_dev(const char *device_name, int r)
-+static int acp_genpd_add_device(struct device *dev, void *data)
- {
--	char auto_dev_name[25];
--	struct device *dev;
-+	struct generic_pm_domain *gpd =3D data;
-+	int ret;
-=20
--	snprintf(auto_dev_name, sizeof(auto_dev_name),
--		 "%s.%d.auto", device_name, r);
--	dev =3D bus_find_device_by_name(&platform_bus_type, NULL, auto_dev_name);
--	dev_info(dev, "device %s added to pm domain\n", auto_dev_name);
-+	ret =3D pm_genpd_add_device(gpd, dev);
-+	if (ret)
-+		dev_err(dev, "Failed to add dev to genpd %d\n", ret);
-=20
--	return dev;
-+	return ret;
-+}
-+
-+static int acp_genpd_remove_device(struct device *dev, void *data)
-+{
-+	int ret;
-+
-+	ret =3D pm_genpd_remove_device(dev);
-+	if (ret)
-+		dev_err(dev, "Failed to remove dev from genpd %d\n", ret);
-+
-+	/* Continue to remove */
-+	return 0;
- }
-=20
- /**
-@@ -184,11 +195,10 @@ static struct device *get_mfd_cell_dev(const char *de=
-vice_name, int r)
-  */
- static int acp_hw_init(void *handle)
- {
--	int r, i;
-+	int r;
- 	uint64_t acp_base;
- 	u32 val =3D 0;
- 	u32 count =3D 0;
--	struct device *dev;
- 	struct i2s_platform_data *i2s_pdata =3D NULL;
-=20
- 	struct amdgpu_device *adev =3D (struct amdgpu_device *)handle;
-@@ -344,15 +354,10 @@ static int acp_hw_init(void *handle)
- 	if (r)
- 		goto failure;
-=20
--	for (i =3D 0; i < ACP_DEVS ; i++) {
--		dev =3D get_mfd_cell_dev(adev->acp.acp_cell[i].name, i);
--		r =3D pm_genpd_add_device(&adev->acp.acp_genpd->gpd, dev);
--		if (r) {
--			dev_err(dev, "Failed to add dev to genpd\n");
--			goto failure;
--		}
--	}
--
-+	r =3D device_for_each_child(adev->acp.parent, &adev->acp.acp_genpd->gpd,
-+				  acp_genpd_add_device);
-+	if (r)
-+		goto failure;
-=20
- 	/* Assert Soft reset of ACP */
- 	val =3D cgs_read_register(adev->acp.cgs_device, mmACP_SOFT_RESET);
-@@ -413,10 +418,8 @@ failure:
-  */
- static int acp_hw_fini(void *handle)
- {
--	int i, ret;
- 	u32 val =3D 0;
- 	u32 count =3D 0;
--	struct device *dev;
- 	struct amdgpu_device *adev =3D (struct amdgpu_device *)handle;
-=20
- 	/* return early if no ACP */
-@@ -461,13 +464,8 @@ static int acp_hw_fini(void *handle)
- 		udelay(100);
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 190355aae7ee..1999fcec45c7 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1148,6 +1148,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
+ 	struct cpuset *parent = parent_cs(cpuset);
+ 	int adding;	/* Moving cpus from effective_cpus to subparts_cpus */
+ 	int deleting;	/* Moving cpus from subparts_cpus to effective_cpus */
++	int new_prs;
+ 	bool part_error = false;	/* Partition error? */
+ 
+ 	percpu_rwsem_assert_held(&cpuset_rwsem);
+@@ -1183,6 +1184,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
+ 	 * A cpumask update cannot make parent's effective_cpus become empty.
+ 	 */
+ 	adding = deleting = false;
++	new_prs = cpuset->partition_root_state;
+ 	if (cmd == partcmd_enable) {
+ 		cpumask_copy(tmp->addmask, cpuset->cpus_allowed);
+ 		adding = true;
+@@ -1247,11 +1249,11 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
+ 		switch (cpuset->partition_root_state) {
+ 		case PRS_ENABLED:
+ 			if (part_error)
+-				cpuset->partition_root_state = PRS_ERROR;
++				new_prs = PRS_ERROR;
+ 			break;
+ 		case PRS_ERROR:
+ 			if (!part_error)
+-				cpuset->partition_root_state = PRS_ENABLED;
++				new_prs = PRS_ENABLED;
+ 			break;
+ 		}
+ 		/*
+@@ -1260,10 +1262,10 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
+ 		part_error = (prev_prs == PRS_ERROR);
  	}
-=20
--	for (i =3D 0; i < ACP_DEVS ; i++) {
--		dev =3D get_mfd_cell_dev(adev->acp.acp_cell[i].name, i);
--		ret =3D pm_genpd_remove_device(dev);
--		/* If removal fails, dont giveup and try rest */
--		if (ret)
--			dev_err(dev, "remove dev from genpd failed\n");
--	}
-+	device_for_each_child(adev->acp.parent, NULL,
-+			      acp_genpd_remove_device);
-=20
- 	mfd_remove_devices(adev->acp.parent);
- 	kfree(adev->acp.acp_res);
---=20
+ 
+-	if (!part_error && (cpuset->partition_root_state == PRS_ERROR))
++	if (!part_error && (new_prs == PRS_ERROR))
+ 		return 0;	/* Nothing need to be done */
+ 
+-	if (cpuset->partition_root_state == PRS_ERROR) {
++	if (new_prs == PRS_ERROR) {
+ 		/*
+ 		 * Remove all its cpus from parent's subparts_cpus.
+ 		 */
+@@ -1272,7 +1274,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
+ 				       parent->subparts_cpus);
+ 	}
+ 
+-	if (!adding && !deleting)
++	if (!adding && !deleting && (new_prs == cpuset->partition_root_state))
+ 		return 0;
+ 
+ 	/*
+@@ -1299,6 +1301,9 @@ static int update_parent_subparts_cpumask(struct cpuset *cpuset, int cmd,
+ 	}
+ 
+ 	parent->nr_subparts_cpus = cpumask_weight(parent->subparts_cpus);
++
++	if (cpuset->partition_root_state != new_prs)
++		cpuset->partition_root_state = new_prs;
+ 	spin_unlock_irq(&callback_lock);
+ 
+ 	return cmd == partcmd_update;
+@@ -1321,6 +1326,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+ 	struct cpuset *cp;
+ 	struct cgroup_subsys_state *pos_css;
+ 	bool need_rebuild_sched_domains = false;
++	int new_prs;
+ 
+ 	rcu_read_lock();
+ 	cpuset_for_each_descendant_pre(cp, pos_css, cs) {
+@@ -1360,7 +1366,8 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+ 		 * update_tasks_cpumask() again for tasks in the parent
+ 		 * cpuset if the parent's subparts_cpus changes.
+ 		 */
+-		if ((cp != cs) && cp->partition_root_state) {
++		new_prs = cp->partition_root_state;
++		if ((cp != cs) && new_prs) {
+ 			switch (parent->partition_root_state) {
+ 			case PRS_DISABLED:
+ 				/*
+@@ -1370,7 +1377,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+ 				 */
+ 				WARN_ON_ONCE(cp->partition_root_state
+ 					     != PRS_ERROR);
+-				cp->partition_root_state = PRS_DISABLED;
++				new_prs = PRS_DISABLED;
+ 
+ 				/*
+ 				 * clear_bit() is an atomic operation and
+@@ -1391,11 +1398,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+ 				/*
+ 				 * When parent is invalid, it has to be too.
+ 				 */
+-				cp->partition_root_state = PRS_ERROR;
+-				if (cp->nr_subparts_cpus) {
+-					cp->nr_subparts_cpus = 0;
+-					cpumask_clear(cp->subparts_cpus);
+-				}
++				new_prs = PRS_ERROR;
+ 				break;
+ 			}
+ 		}
+@@ -1407,8 +1410,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+ 		spin_lock_irq(&callback_lock);
+ 
+ 		cpumask_copy(cp->effective_cpus, tmp->new_cpus);
+-		if (cp->nr_subparts_cpus &&
+-		   (cp->partition_root_state != PRS_ENABLED)) {
++		if (cp->nr_subparts_cpus && (new_prs != PRS_ENABLED)) {
+ 			cp->nr_subparts_cpus = 0;
+ 			cpumask_clear(cp->subparts_cpus);
+ 		} else if (cp->nr_subparts_cpus) {
+@@ -1435,6 +1437,10 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp)
+ 					= cpumask_weight(cp->subparts_cpus);
+ 			}
+ 		}
++
++		if (new_prs != cp->partition_root_state)
++			cp->partition_root_state = new_prs;
++
+ 		spin_unlock_irq(&callback_lock);
+ 
+ 		WARN_ON(!is_in_v2_mode() &&
+@@ -1944,25 +1950,25 @@ out:
+  */
+ static int update_prstate(struct cpuset *cs, int new_prs)
+ {
+-	int err;
++	int err, old_prs = cs->partition_root_state;
+ 	struct cpuset *parent = parent_cs(cs);
+ 	struct tmpmasks tmpmask;
+ 
+-	if (new_prs == cs->partition_root_state)
++	if (old_prs == new_prs)
+ 		return 0;
+ 
+ 	/*
+ 	 * Cannot force a partial or invalid partition root to a full
+ 	 * partition root.
+ 	 */
+-	if (new_prs && (cs->partition_root_state < 0))
++	if (new_prs && (old_prs == PRS_ERROR))
+ 		return -EINVAL;
+ 
+ 	if (alloc_cpumasks(NULL, &tmpmask))
+ 		return -ENOMEM;
+ 
+ 	err = -EINVAL;
+-	if (!cs->partition_root_state) {
++	if (!old_prs) {
+ 		/*
+ 		 * Turning on partition root requires setting the
+ 		 * CS_CPU_EXCLUSIVE bit implicitly as well and cpus_allowed
+@@ -1981,14 +1987,12 @@ static int update_prstate(struct cpuset *cs, int new_prs)
+ 			update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+ 			goto out;
+ 		}
+-		cs->partition_root_state = PRS_ENABLED;
+ 	} else {
+ 		/*
+ 		 * Turning off partition root will clear the
+ 		 * CS_CPU_EXCLUSIVE bit.
+ 		 */
+-		if (cs->partition_root_state == PRS_ERROR) {
+-			cs->partition_root_state = PRS_DISABLED;
++		if (old_prs == PRS_ERROR) {
+ 			update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+ 			err = 0;
+ 			goto out;
+@@ -1999,8 +2003,6 @@ static int update_prstate(struct cpuset *cs, int new_prs)
+ 		if (err)
+ 			goto out;
+ 
+-		cs->partition_root_state = PRS_DISABLED;
+-
+ 		/* Turning off CS_CPU_EXCLUSIVE will not return error */
+ 		update_flag(CS_CPU_EXCLUSIVE, cs, 0);
+ 	}
+@@ -2017,6 +2019,12 @@ static int update_prstate(struct cpuset *cs, int new_prs)
+ 
+ 	rebuild_sched_domains_locked();
+ out:
++	if (!err) {
++		spin_lock_irq(&callback_lock);
++		cs->partition_root_state = new_prs;
++		spin_unlock_irq(&callback_lock);
++	}
++
+ 	free_cpumasks(NULL, &tmpmask);
+ 	return err;
+ }
+@@ -3080,8 +3088,10 @@ retry:
+ 	if (is_partition_root(cs) && (cpumask_empty(&new_cpus) ||
+ 	   (parent->partition_root_state == PRS_ERROR))) {
+ 		if (cs->nr_subparts_cpus) {
++			spin_lock_irq(&callback_lock);
+ 			cs->nr_subparts_cpus = 0;
+ 			cpumask_clear(cs->subparts_cpus);
++			spin_unlock_irq(&callback_lock);
+ 			compute_effective_cpumask(&new_cpus, cs, parent);
+ 		}
+ 
+@@ -3095,7 +3105,9 @@ retry:
+ 		     cpumask_empty(&new_cpus)) {
+ 			update_parent_subparts_cpumask(cs, partcmd_disable,
+ 						       NULL, tmp);
++			spin_lock_irq(&callback_lock);
+ 			cs->partition_root_state = PRS_ERROR;
++			spin_unlock_irq(&callback_lock);
+ 		}
+ 		cpuset_force_rebuild();
+ 	}
+-- 
 2.30.2
 
 
