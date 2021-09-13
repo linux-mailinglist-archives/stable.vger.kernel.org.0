@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15B2A4095F6
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:47:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5488409363
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 16:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346821AbhIMOqf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 10:46:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60772 "EHLO mail.kernel.org"
+        id S1343939AbhIMOVG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 10:21:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347895AbhIMOoa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 10:44:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C238B6322E;
-        Mon, 13 Sep 2021 13:57:50 +0000 (UTC)
+        id S1343742AbhIMOSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 10:18:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAC1A61B03;
+        Mon, 13 Sep 2021 13:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631541471;
-        bh=7KjxYdm2sf3eaoK4A3mQFIs6I5AkhW9g0Cz3hnhWz30=;
+        s=korg; t=1631540711;
+        bh=I5NO4vbOtc+RqNT1FsktWqoBMD/ekz/C/KDVI5jjs7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vOa0tqtrEKI4UxL+c5ynt1Ghm9gQ80iYVMETUvrQi3b0yTE/7POi/7knjJRGMgZhk
-         BREARWZ2+NnQ1dsr0M20tJ1kIGQm+1yRbZv51/dxWQo5Z1kvTpIqCYXIbLx+whqz51
-         25W4plGOvuYnADWAzxvQ9e0XlH9jYoUfflvngHdQ=
+        b=H9sLYAU2rifNFQEybgd3wleIz23B8GByOkI5T8WgAMATdzqBGI4HIjPNsHNPZ1uDP
+         NLrLGJ9Z13Rks6kcXnzcfX+fhuoyPCIuT/vUbTozkjoLh7PrwXW/8gObZaPr083+9W
+         4R1XVInqNST4e6k050h0Caeul0dhI8LPLzUV50wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 279/334] ath6kl: wmi: fix an error code in ath6kl_wmi_sync_point()
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.13 272/300] bio: fix page leak bio_add_hw_page failure
 Date:   Mon, 13 Sep 2021 15:15:33 +0200
-Message-Id: <20210913131122.856751599@linuxfoundation.org>
+Message-Id: <20210913131118.522241130@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131113.390368911@linuxfoundation.org>
-References: <20210913131113.390368911@linuxfoundation.org>
+In-Reply-To: <20210913131109.253835823@linuxfoundation.org>
+References: <20210913131109.253835823@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit fd6729ec534cffbbeb3917761e6d1fe6a412d3fe ]
+commit d9cf3bd531844ffbfe94b16e417037a16efc988d upstream.
 
-This error path is unlikely because of it checked for NULL and
-returned -ENOMEM earlier in the function.  But it should return
-an error code here as well if we ever do hit it because of a
-race condition or something.
+__bio_iov_append_get_pages() doesn't put not appended pages on
+bio_add_hw_page() failure, so potentially leaking them, fix it. Also, do
+the same for __bio_iov_iter_get_pages(), even though it looks like it
+can't be triggered by userspace in this case.
 
-Fixes: bdcd81707973 ("Add ath6kl cleaned up driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210813113438.GB30697@kili
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0512a75b98f8 ("block: Introduce REQ_OP_ZONE_APPEND")
+Cc: stable@vger.kernel.org # 5.8+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/1edfa6a2ffd66d55e6345a477df5387d2c1415d0.1626653825.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath6kl/wmi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ block/bio.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
-index b137e7f34397..bd1ef6334997 100644
---- a/drivers/net/wireless/ath/ath6kl/wmi.c
-+++ b/drivers/net/wireless/ath/ath6kl/wmi.c
-@@ -2504,8 +2504,10 @@ static int ath6kl_wmi_sync_point(struct wmi *wmi, u8 if_idx)
- 		goto free_data_skb;
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -979,6 +979,14 @@ static int bio_iov_bvec_set_append(struc
+ 	return 0;
+ }
  
- 	for (index = 0; index < num_pri_streams; index++) {
--		if (WARN_ON(!data_sync_bufs[index].skb))
-+		if (WARN_ON(!data_sync_bufs[index].skb)) {
-+			ret = -ENOMEM;
- 			goto free_data_skb;
-+		}
++static void bio_put_pages(struct page **pages, size_t size, size_t off)
++{
++	size_t i, nr = DIV_ROUND_UP(size + (off & ~PAGE_MASK), PAGE_SIZE);
++
++	for (i = 0; i < nr; i++)
++		put_page(pages[i]);
++}
++
+ #define PAGE_PTRS_PER_BVEC     (sizeof(struct bio_vec) / sizeof(struct page *))
  
- 		ep_id = ath6kl_ac2_endpoint_id(wmi->parent_dev,
- 					       data_sync_bufs[index].
--- 
-2.30.2
-
+ /**
+@@ -1023,8 +1031,10 @@ static int __bio_iov_iter_get_pages(stru
+ 			if (same_page)
+ 				put_page(page);
+ 		} else {
+-			if (WARN_ON_ONCE(bio_full(bio, len)))
+-                                return -EINVAL;
++			if (WARN_ON_ONCE(bio_full(bio, len))) {
++				bio_put_pages(pages + i, left, offset);
++				return -EINVAL;
++			}
+ 			__bio_add_page(bio, page, len, offset);
+ 		}
+ 		offset = 0;
+@@ -1069,6 +1079,7 @@ static int __bio_iov_append_get_pages(st
+ 		len = min_t(size_t, PAGE_SIZE - offset, left);
+ 		if (bio_add_hw_page(q, bio, page, len, offset,
+ 				max_append_sectors, &same_page) != len) {
++			bio_put_pages(pages + i, left, offset);
+ 			ret = -EINVAL;
+ 			break;
+ 		}
 
 
