@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A66E408FFB
-	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:47:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6235408DBE
+	for <lists+stable@lfdr.de>; Mon, 13 Sep 2021 15:27:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243262AbhIMNsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Sep 2021 09:48:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51540 "EHLO mail.kernel.org"
+        id S241003AbhIMN3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Sep 2021 09:29:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242513AbhIMNql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 13 Sep 2021 09:46:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DC7661351;
-        Mon, 13 Sep 2021 13:31:57 +0000 (UTC)
+        id S241830AbhIMNZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 13 Sep 2021 09:25:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B67261159;
+        Mon, 13 Sep 2021 13:22:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631539918;
-        bh=u9mDsjAypRNOHz0EDPLzTs9k7otQqwNUEMTIFHf+clQ=;
+        s=korg; t=1631539355;
+        bh=131mZfcIsJTCokU51joaa8DlCPCSoScx44gNBz7jgVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dm/4lAZUKQglTrdHx9qXRWSJ9IqiLq2lbTzc8NjQj/9OxrEYDBW0rENsET/B3fRrY
-         TDwBjxiniIl/+GK20ktr2yh0UGlJLPd1cz2BBfGgScuiwVLJYIrS1SA2g0K3qQkjje
-         /eUNly3Nq46btDv5VQcSYn9oJYm2oP5ZO7atqmaE=
+        b=TvLW0uMFDKIdR957TiJpO4csS9c6jz1KMBd71NcyaRl/ntjwts0wHyCA5AtjE81Uu
+         FuG6oQhO60k5Pz8zPDM1FUMbMvOty8Igk6QrZA/AGNqw+TLRYhdE9rPKhjNscf3wuX
+         MHtqwvAczCTV+Ra41Psa0ACAjffercYYc+H8SIqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 214/236] ipv4: fix endianness issue in inet_rtm_getroute_build_skb()
-Date:   Mon, 13 Sep 2021 15:15:19 +0200
-Message-Id: <20210913131107.649022423@linuxfoundation.org>
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.4 139/144] fuse: flush extending writes
+Date:   Mon, 13 Sep 2021 15:15:20 +0200
+Message-Id: <20210913131052.577991332@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-References: <20210913131100.316353015@linuxfoundation.org>
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +38,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 92548b0ee220e000d81c27ac9a80e0ede895a881 ]
+commit 59bda8ecee2ffc6a602b7bf2b9e43ca669cdbdcd upstream.
 
-The UDP length field should be in network order.
-This removes the following sparse error:
+Callers of fuse_writeback_range() assume that the file is ready for
+modification by the server in the supplied byte range after the call
+returns.
 
-net/ipv4/route.c:3173:27: warning: incorrect type in assignment (different base types)
-net/ipv4/route.c:3173:27:    expected restricted __be16 [usertype] len
-net/ipv4/route.c:3173:27:    got unsigned long
+If there's a write that extends the file beyond the end of the supplied
+range, then the file needs to be extended to at least the end of the range,
+but currently that's not done.
 
-Fixes: 404eb77ea766 ("ipv4: support sport, dport and ip_proto in RTM_GETROUTE")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Cc: David Ahern <dsahern@kernel.org>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+There are at least two cases where this can cause problems:
+
+ - copy_file_range() will return short count if the file is not extended
+   up to end of the source range.
+
+ - FALLOC_FL_ZERO_RANGE | FALLOC_FL_KEEP_SIZE will not extend the file,
+   hence the region may not be fully allocated.
+
+Fix by flushing writes from the start of the range up to the end of the
+file.  This could be optimized if the writes are non-extending, etc, but
+it's probably not worth the trouble.
+
+Fixes: a2bc92362941 ("fuse: fix copy_file_range() in the writeback case")
+Fixes: 6b1bdb56b17c ("fuse: allow fallocate(FALLOC_FL_ZERO_RANGE)")
+Cc: <stable@vger.kernel.org>  # v5.2
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/route.c | 2 +-
+ fs/fuse/file.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index c5d762a2be99..ce787c386793 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -3078,7 +3078,7 @@ static struct sk_buff *inet_rtm_getroute_build_skb(__be32 src, __be32 dst,
- 		udph = skb_put_zero(skb, sizeof(struct udphdr));
- 		udph->source = sport;
- 		udph->dest = dport;
--		udph->len = sizeof(struct udphdr);
-+		udph->len = htons(sizeof(struct udphdr));
- 		udph->check = 0;
- 		break;
- 	}
--- 
-2.30.2
-
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -3188,7 +3188,7 @@ fuse_direct_IO(struct kiocb *iocb, struc
+ 
+ static int fuse_writeback_range(struct inode *inode, loff_t start, loff_t end)
+ {
+-	int err = filemap_write_and_wait_range(inode->i_mapping, start, end);
++	int err = filemap_write_and_wait_range(inode->i_mapping, start, -1);
+ 
+ 	if (!err)
+ 		fuse_sync_writes(inode);
 
 
