@@ -2,67 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB82C40A6F8
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 08:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7BE640A701
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 09:01:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240282AbhING6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 02:58:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45300 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240277AbhING6N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 02:58:13 -0400
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95829C061574;
-        Mon, 13 Sep 2021 23:56:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=vPUlUbzkiqu+rcv52nE0RTFyv/GxprjJ7JCufB/wTvg=;
-        t=1631602616; x=1632812216; b=yH3bnixwvdtZl6rY0R3+TMAvyhVYA9sRRd1FzyRzE8FOBWd
-        FyQ3AzpegaxSg731hHTDvA+hPIwckMd087k6M3+soNE/tT9AE0C2LpR1J6EUtuJdqSzZkmUznr/3h
-        FFk8i67XmVPKJs+ihbvJ0sdbACmCxouxdaIQgh6OyJM8sXQnHIaraAf4LWcXD3M/wp9BfaxLslIkV
-        w8DjUhUju9pGeOR8rGppntovwWZaD60IIOK3bHRfTNLVXGoBX9Jgk36rW5j++2RgIPnONnphbgxJc
-        /QYQftN1DlFCvz6G+yw4Dt4Vm/HO21hIjeKbzReIKFckOT2oCPq3c5cR26jt1j3A==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.95-RC2)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1mQ2N3-006k5n-V1;
-        Tue, 14 Sep 2021 08:56:46 +0200
-Message-ID: <7dbe6ec5b8e6b6d1e3457d075f21a7f93cc80e9c.camel@sipsolutions.net>
-Subject: Re: [PATCH AUTOSEL 5.13 01/19] dmaengine: idxd: depends on !UML
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Sasha Levin <sashal@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Cc:     lkp <lkp@intel.com>, "Jiang, Dave" <dave.jiang@intel.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        "dmaengine@vger.kernel.org" <dmaengine@vger.kernel.org>
-Date:   Tue, 14 Sep 2021 08:56:44 +0200
-In-Reply-To: <20210913223415.435654-1-sashal@kernel.org>
-References: <20210913223415.435654-1-sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
+        id S240397AbhINHDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 03:03:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56696 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240413AbhINHDE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Sep 2021 03:03:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FB46604AC;
+        Tue, 14 Sep 2021 07:01:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631602905;
+        bh=Zb+voASq3Qg2txFsgmexeKqywne8/1IybgvG7QZQMFQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=I8k5IDN7xvjaEbxYQSsN4ZqLVuoCL86UVLYfaAQg9o6PNQDmBCIl2bZ+WeH5aBLHF
+         JEW2mIPQz9d/Fw9bXdbdKjnnq/owUhQCFK9Adc1aqgMGHXVJzwGXyqELrmXfT6qZao
+         TxTYzsCHHgjVK5FuMpNwViLyr7I7yEigmI24kS5A=
+Date:   Tue, 14 Sep 2021 09:01:43 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Todd Kjos <tkjos@google.com>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Martijn Coenen <maco@android.com>,
+        "open list:ANDROID DRIVERS" <devel@driverdev.osuosl.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Arve =?iso-8859-1?B?SGr4bm5lduVn?= <arve@android.com>,
+        Martijn Coenen <maco@google.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        kernel-team@android.com, Christian Brauner <christian@brauner.io>
+Subject: Re: [PATCH] binder: make sure fd closes complete
+Message-ID: <YUBI1wmzXpJCH3ZS@kroah.com>
+References: <20210830195146.587206-1-tkjos@google.com>
+ <CAB0TPYFmUgPTONABLTJAdonK7fY7oqURKCpLp1-WqHLtyen7Zw@mail.gmail.com>
+ <CAHRSSExONtUFu0Mb8uJeVKcyDYb8=1PO7a=aQ=DUEpA5kAcTQA@mail.gmail.com>
+ <20210903080617.GA1957@kadam>
+ <CAHRSSEyDDmGRrc_paxJ2-Gkx=qMhKKhTr_Mpj-DiL8L1gcm5VA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-malware-bazaar: not-scanned
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHRSSEyDDmGRrc_paxJ2-Gkx=qMhKKhTr_Mpj-DiL8L1gcm5VA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2021-09-13 at 22:33 +0000, Sasha Levin wrote:
-> From: Johannes Berg <johannes.berg@intel.com>
+On Fri, Sep 03, 2021 at 12:38:26PM -0700, Todd Kjos wrote:
+> On Fri, Sep 3, 2021 at 1:06 AM Dan Carpenter <dan.carpenter@oracle.com> wrote:
+> >
+> > On Thu, Sep 02, 2021 at 08:35:35AM -0700, Todd Kjos wrote:
+> > > On Tue, Aug 31, 2021 at 12:24 AM Martijn Coenen <maco@android.com> wrote:
+> > > >
+> > > > On Mon, Aug 30, 2021 at 9:51 PM 'Todd Kjos' via kernel-team
+> > > > <kernel-team@android.com> wrote:
+> > > > >
+> > > > > During BC_FREE_BUFFER processing, the BINDER_TYPE_FDA object
+> > > > > cleanup may close 1 or more fds. The close operations are
+> > > > > completed using the task work mechanism -- which means the thread
+> > > > > needs to return to userspace or the file object may never be
+> > > > > dereferenced -- which can lead to hung processes.
+> > > > >
+> > > > > Force the binder thread back to userspace if an fd is closed during
+> > > > > BC_FREE_BUFFER handling.
+> > > > >
+> > > > > Signed-off-by: Todd Kjos <tkjos@google.com>
+> > > > Reviewed-by: Martijn Coenen <maco@android.com>
+> > >
+> > > Please also add to stable releases 5.4 and later.
+> >
+> > It would be better if this had a fixes tag so we knew which is the first
+> > buggy commit.
+> >
+> > There was a long Project Zero article about the Bad Binder exploit
+> > because commit f5cb779ba163 ("ANDROID: binder: remove waitqueue when
+> > thread exits.") was marked as # 4.14 but it didn't have a Fixes tag and
+> > the actual buggy commit was in 4.9.
 > 
-> [ Upstream commit b2296eeac91555bd13f774efa7ab7d4b12fb71ef ]
+> Good point Dan. I should have included a Fixes tag. Here is the tag
+> (issue introduced in 4.20):
+> 
+> Fixes: 80cd795630d6 ("binder: fix use-after-free due to ksys_close()
+> during fdget()")
+> 
+> Greg- would you like me to send a v2 with the Fixes tag and CC'ing
+> stable appropriately?
 
-While this commit (and also "dmaengine: ioat: depends on !UML") isn't
-*wrong* per se on old kernels, the subject matter is really only
-relevant since commit 68f5d3f3b654 ("um: add PCI over virtio emulation
-driver"), since previously "UML && PCI" could not be true.
+I've added it to the commit when I added it to my tree, no need to
+resend.
 
-Hence, there's no point applying this (and the ioat one) to anything
-older than 5.14.
+thanks,
 
-johannes
-
+greg k-h
