@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD5440A962
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 10:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 418D940A963
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 10:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230475AbhINIgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 04:36:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45146 "EHLO mail.kernel.org"
+        id S229854AbhINIgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 04:36:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230184AbhINIgw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Sep 2021 04:36:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D99A6103B;
-        Tue, 14 Sep 2021 08:35:34 +0000 (UTC)
+        id S230184AbhINIgz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Sep 2021 04:36:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB12F6113B;
+        Tue, 14 Sep 2021 08:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631608535;
-        bh=WxKYR6s0pxd3Ri0MVVIqjP/eHCfae33AP40D/KS4TS8=;
+        s=korg; t=1631608538;
+        bh=L1TksDe48lJNVonC9XWZXWNDrh+ZbQ/5srht4u8I1W0=;
         h=Subject:To:From:Date:From;
-        b=E7GZkPj/pfMDVj0AQYJJvQOxjGbLaUDGwrZkRajeaaVrkNAzKuaFyfsz9+qG90s7y
-         wBZA83mtNyb591/hcsgEBRqH6Ig6b8FXmZbLseb1DUZWUV4yDZVUTkRQkkruV4+h3G
-         UPD2w/FDL5iBdwU2pZETXZFTIVTIYoku2ioejmeA=
-Subject: patch "Revert "USB: bcma: Add a check for devm_gpiod_get"" added to usb-linus
-To:     rafal@milecki.pl, gregkh@linuxfoundation.org, hslester96@gmail.com,
+        b=EoHHusVbWHmDTBz3lB8LtSmoP1AWRmchSb0jgvt8lRnxwB21nSGI0mcxuCUHGumqd
+         u2yWp4mO9Hq4GIKUaFUXoWC0sW1LNBpOnDAgCTNDWDKlo7++od1jaamEdk9X1iatdh
+         zXq+HbkHw6CjvEMedn2OU6o48sfkNp9iXxnftKL8=
+Subject: patch "usb: dwc3: core: balance phy init and exit" added to usb-linus
+To:     jun.li@nxp.com, balbi@kernel.org, faqiang.zhu@nxp.com,
+        gregkh@linuxfoundation.org, john.stultz@linaro.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 14 Sep 2021 10:35:21 +0200
-Message-ID: <1631608521246139@kroah.com>
+Message-ID: <1631608521238254@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -36,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    Revert "USB: bcma: Add a check for devm_gpiod_get"
+    usb: dwc3: core: balance phy init and exit
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,54 +52,89 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From d91adc5322ab53df4b6d1989242bfb6c63163eb2 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>
-Date: Tue, 31 Aug 2021 08:54:19 +0200
-Subject: Revert "USB: bcma: Add a check for devm_gpiod_get"
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 8cfac9a6744fcb143cb3e94ce002f09fd17fadbb Mon Sep 17 00:00:00 2001
+From: Li Jun <jun.li@nxp.com>
+Date: Wed, 8 Sep 2021 10:28:19 +0800
+Subject: usb: dwc3: core: balance phy init and exit
 
-This reverts commit f3de5d857bb2362b00e2a8d4bc886cd49dcb66db.
+After we start to do core soft reset while usb role switch,
+the phy init is invoked at every switch to device mode, but
+its counter part de-init is missing, this causes the actual
+phy init can not be done when we really want to re-init phy
+like system resume, because the counter maintained by phy
+core is not 0. considering phy init is actually redundant for
+role switch, so move out the phy init from core soft reset to
+dwc3 core init where is the only place required.
 
-That commit broke USB on all routers that have USB always powered on and
-don't require toggling any GPIO. It's a majority of devices actually.
-
-The original code worked and seemed safe: vcc GPIO is optional and
-bcma_hci_platform_power_gpio() takes care of checking the pointer before
-using it.
-
-This revert fixes:
-[   10.801127] bcma_hcd: probe of bcma0:11 failed with error -2
-
-Fixes: f3de5d857bb2 ("USB: bcma: Add a check for devm_gpiod_get")
-Cc: stable <stable@vger.kernel.org>
-Cc: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Link: https://lore.kernel.org/r/20210831065419.18371-1-zajec5@gmail.com
+Fixes: f88359e1588b ("usb: dwc3: core: Do core softreset when switch mode")
+Cc: <stable@vger.kernel.org>
+Tested-by: faqiang.zhu <faqiang.zhu@nxp.com>
+Tested-by: John Stultz <john.stultz@linaro.org> #HiKey960
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Link: https://lore.kernel.org/r/1631068099-13559-1-git-send-email-jun.li@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/bcma-hcd.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/usb/dwc3/core.c | 30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/usb/host/bcma-hcd.c b/drivers/usb/host/bcma-hcd.c
-index 337b425dd4b0..2df52f75f6b3 100644
---- a/drivers/usb/host/bcma-hcd.c
-+++ b/drivers/usb/host/bcma-hcd.c
-@@ -406,12 +406,9 @@ static int bcma_hcd_probe(struct bcma_device *core)
- 		return -ENOMEM;
- 	usb_dev->core = core;
- 
--	if (core->dev.of_node) {
-+	if (core->dev.of_node)
- 		usb_dev->gpio_desc = devm_gpiod_get(&core->dev, "vcc",
- 						    GPIOD_OUT_HIGH);
--		if (IS_ERR(usb_dev->gpio_desc))
--			return PTR_ERR(usb_dev->gpio_desc);
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index 01866dcb953b..0104a80b185e 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -264,19 +264,6 @@ static int dwc3_core_soft_reset(struct dwc3 *dwc)
+ {
+ 	u32		reg;
+ 	int		retries = 1000;
+-	int		ret;
+-
+-	usb_phy_init(dwc->usb2_phy);
+-	usb_phy_init(dwc->usb3_phy);
+-	ret = phy_init(dwc->usb2_generic_phy);
+-	if (ret < 0)
+-		return ret;
+-
+-	ret = phy_init(dwc->usb3_generic_phy);
+-	if (ret < 0) {
+-		phy_exit(dwc->usb2_generic_phy);
+-		return ret;
 -	}
  
- 	switch (core->id.id) {
- 	case BCMA_CORE_USB20_HOST:
+ 	/*
+ 	 * We're resetting only the device side because, if we're in host mode,
+@@ -310,9 +297,6 @@ static int dwc3_core_soft_reset(struct dwc3 *dwc)
+ 			udelay(1);
+ 	} while (--retries);
+ 
+-	phy_exit(dwc->usb3_generic_phy);
+-	phy_exit(dwc->usb2_generic_phy);
+-
+ 	return -ETIMEDOUT;
+ 
+ done:
+@@ -982,9 +966,21 @@ static int dwc3_core_init(struct dwc3 *dwc)
+ 		dwc->phys_ready = true;
+ 	}
+ 
++	usb_phy_init(dwc->usb2_phy);
++	usb_phy_init(dwc->usb3_phy);
++	ret = phy_init(dwc->usb2_generic_phy);
++	if (ret < 0)
++		goto err0a;
++
++	ret = phy_init(dwc->usb3_generic_phy);
++	if (ret < 0) {
++		phy_exit(dwc->usb2_generic_phy);
++		goto err0a;
++	}
++
+ 	ret = dwc3_core_soft_reset(dwc);
+ 	if (ret)
+-		goto err0a;
++		goto err1;
+ 
+ 	if (hw_mode == DWC3_GHWPARAMS0_MODE_DRD &&
+ 	    !DWC3_VER_IS_WITHIN(DWC3, ANY, 194A)) {
 -- 
 2.33.0
 
