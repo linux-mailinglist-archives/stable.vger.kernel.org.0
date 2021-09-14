@@ -2,73 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4A4040BD4A
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 03:46:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 798D740BE0D
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 05:13:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233661AbhIOBrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 21:47:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55242 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230322AbhIOBrZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 21:47:25 -0400
-Received: from mail-oo1-xc41.google.com (mail-oo1-xc41.google.com [IPv6:2607:f8b0:4864:20::c41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74206C061574
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 18:46:07 -0700 (PDT)
-Received: by mail-oo1-xc41.google.com with SMTP id t2-20020a4ae9a2000000b0028c7144f106so349260ood.6
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 18:46:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=7iCnw2B0OrtB70UipD11R0kct+aw7ND2VMDI93/EMd4=;
-        b=I+wHWZKwDAXf9j+T2kZh3TQCxUTGdx8DX9qX2HX2YySK0bYoucTVstOhKfuF/EEQIz
-         k3C9/yw0Qf8SFujETRO02GtbXagm+PU1akq4dLIjYpn9wEZgfpchXhucPqWmDTB+kCL4
-         frv7y1art++YD5YFyJoRouehwIuoe+7uEDd5oAi8n2iWiKhQcI7cFGghMTrYA7rsDhVV
-         YbcIBVYCDGSRGhrfeF8XORiWOKYf2CsH7TE/OUju5E6KfT2d8fZ72YgCviqZK9bvqmuW
-         2wxGeOP3wNNSSs5QuRt8VZv3UEB9zYXnGIj+hwexKQp6EFkAUsKG+2pREub4hSY1IdlX
-         YzKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=7iCnw2B0OrtB70UipD11R0kct+aw7ND2VMDI93/EMd4=;
-        b=6GZhCBvDe6wBZ3/OhBG/aPwR4BBisSDzYlr3B7WXpOAlzHa9eQynabKq0ke43RtLQy
-         fbb9j/Z2y54lmAJpWtVl2XLzTiRtniVU0SMbUIzw0z8H/Y4ezrdSmqXdxSWw05bFmLNb
-         mMSBknrBfTK1pIFKVlBCEIqowzZwd3k2nc+ArDGQxoS+qE2O1SVjMiukTzOCRE+lJMYt
-         WX9RgUQGIqncrPrnjY/Rny6stIzrUaohdxkwlnHeF/7N6JqAAK+515JgplzTnfpUYn+K
-         oXqe9Gk6e5erGORaoX30tG/fTJAHOpNccjere3gQTcS76AGyXTLNE/Ty6t/4maaBuHfX
-         TT3A==
-X-Gm-Message-State: AOAM5302i01Mxpia++bqmhTLs7L2he1N7Zd2Pb/PssEeNnIP6dJh2INR
-        pJnYxTHgFsovC8pZoNR2x7PpJ/ndOAv+RFNPyE0=
-X-Google-Smtp-Source: ABdhPJzTq/a91rmw2zpXpKoOtwccc4XoX06XqZx3gqy9PgUkpJCRjqK7DKHkgjoLFuzTAlCM98M51dpLt6Qbm2FDd3I=
-X-Received: by 2002:a4a:b402:: with SMTP id y2mr16499357oon.6.1631670366889;
- Tue, 14 Sep 2021 18:46:06 -0700 (PDT)
-MIME-Version: 1.0
-Received: by 2002:a05:6838:580b:0:0:0:0 with HTTP; Tue, 14 Sep 2021 18:46:06
- -0700 (PDT)
-From:   Christopher Duluh <christopherduluh222@gmail.com>
-Date:   Wed, 15 Sep 2021 02:46:06 +0100
-Message-ID: <CAAaABDvy=YjkWJ+-_v7F2zFwjM1WRqc9+3PF25sSO-ejDQgENQ@mail.gmail.com>
-Subject: Offical....Email
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S230251AbhIODOt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 23:14:49 -0400
+Received: from 192-163-196-79.unifiedlayer.com ([192.163.196.79]:49088 "EHLO
+        192-163-196-79.unifiedlayer.com" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S233232AbhIODOn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 23:14:43 -0400
+Received: from besteditor by 192-163-196-79.ipage.com with local (Exim 4.93)
+        (envelope-from <besteditor@192-163-196-79.ipage.com>)
+        id 1mQCaG-0002cS-ET; Tue, 14 Sep 2021 11:51:13 -0600
+To:     stalin_dustat@yahoo.com
+Subject: MANUSCRIPT PROOFREADING
+X-PHP-Script: scriptproofpub.org/mail4/send.php for 129.205.124.11
+X-PHP-Originating-Script: 1003:send.php
+From:   manuscriptediting34@pub.org
+Reply-To: mmanuscripteditserv@gmail.com
+Message-Id: <E1mQCaG-0002cS-ET@192-163-196-79.ipage.com>
+Date:   Tue, 14 Sep 2021 11:51:04 -0600
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - 192-163-196-79.ipage.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1003 991] / [47 12]
+X-AntiAbuse: Sender Address Domain - 192-163-196-79.ipage.com
+X-Get-Message-Sender-Via: 192-163-196-79.ipage.com: authenticated_id: besteditor/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: 192-163-196-79.ipage.com: besteditor
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+MODERN MANUSCRIPT EDITING SERVICES
+http://www.mmanuscripteditserv.com/index.htm
 
-My name is Christopher Duluh,a renowned Togo based solicitors.
-I am writing in connection to My late client ,who
-bears the same surname with you and left the sum of Ten million five
-hundred thousand United States dollars($10,5 million) in a bank before
-his death. I contacted you to seek your consent to present you to the
-bank as a heir to my late client to enable the transfer of this fund
-transfer to your account. I would enlighten you on more details and
-clarifications when i get positive response from you.
 
-Barrister Christopher Duluh, .(Esq)
-Principal Attorney of Dominion Associates
-Chambers Barristers & Solicitors
-Public Notary Lome-TOGO West Africa
-BTD/SORT-CD-00247901
-Contact Phone. 228 99793155
-Email(christopherduluh444@gmail.com)
+Do you want your manuscript TO BE written in standard English?
+Do you want your journal articles, books, conference papers, and dissertations and theses to be substantially revised or edited?
+Does your manuscript have to be in a particular journal format?
+Then, MODERN MANUSCRIPT EDITING SERVICES is the right place for you.
+So hurry up and get your papers edited in Standard English.
+
+Dear Colleague,
+Proofreading/Editing is a dynamic facet of publication, which we have taken into recognition; therefore, we call on writers/authors in all academic fields to submit their manuscripts for proofreading/editing. We have also observed that numerous articles are difficult to be understood by reviewers and editors due to poor grammatical usage, which is the consequence of the author learning English as a second language. Hence, we recommend that authors send us their manuscript(s) for accurate grammatical editing.
+
+Send your manuscript(s) to articles@mmanuscripteditserv.com or mmanuscripteditserv@gmail.com for proofreading and grammatical correction. The manuscript must be in Arial font, font size 12 and double line spacing. Upon receipt of the manuscript, an acknowledgment letter containing the manuscript number and the handling fee will be sent to the author(s).
+
+Our charges are as follows: $25 per 1000 words, meaning
+
+Number of Words	Price
+1 to 1,000    	$25
+1,001 to 2,000	$50
+2,001 to 3,000	$75
+3,001 to 4,000	$100
+4,001 to 5,000	$125
+5,001 to 6,000	$150
+6,001 to 7,000	$175
+
+Payments are made via online using credit card, PayPal or bank wire transfer. In addition, we specialize in proofreading, grammar editing, proper punctuation, paraphrasing and sentence editing, aligning articles to the required format and translating from your native language to English.
+
+For more information, please visit our website http://www.mmanuscripteditserv.com. We would appreciate it if you could share this information with your colleagues and associates. 
+
+Best regards,
+
+Dr. Philip Benz
+Editor
+Modern Manuscript Editing Services
+
+To unsubscribe, kindly send a mail to unsubscribe.mmanuscriptedit@gmail.com
+
