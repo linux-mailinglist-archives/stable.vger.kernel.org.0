@@ -2,160 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DD9240A73F
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 09:21:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C48140A889
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 09:48:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230108AbhINHWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 03:22:36 -0400
-Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:59298
-        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235026AbhINHWf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 03:22:35 -0400
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com [209.85.128.71])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id C06C34019A
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 07:21:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1631604077;
-        bh=CTieqUfrN3QD2Y917kpYPbjsuUgn/zzRL0HRoSY4mxA=;
-        h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-         In-Reply-To:Content-Type;
-        b=V8DyrMwTlNsppkAUjKLe0Pt14bQP1U4xP2T++pOPHm2BQploQMcSaPZWp4FTSCrFD
-         CCf4iyU99bgstDvxyGg+BphVe88WB/hHi5z1gHFmxElvhfqi3c/pDiF6H+6ineWpoT
-         r3R+0/lHTCCsR1t/HH+G5ZYVnkPmlpYAUJCOTbdqRO8Hry/mcSt9xiRdtV4oA8YpIJ
-         KUD6SoAwxko6TCCTYHrQ/+dEdh78ZGQahdFpahATg+UdgplYbUO15Y8xtJgxC7p9xC
-         aV0NJn7lbcvb3iaeEJNb5gnNx+lsJRbzxxc9bAln4AFYx9aTylsHi08Rn2C8ecV+Ig
-         Ybc+iG2n0TQCw==
-Received: by mail-wm1-f71.google.com with SMTP id x125-20020a1c3183000000b002e73f079eefso377701wmx.0
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 00:21:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=CTieqUfrN3QD2Y917kpYPbjsuUgn/zzRL0HRoSY4mxA=;
-        b=fHNl/qpH62Q7ZBbOFsaAdaaPGJRTk5npJUdfbTXEhDui7BZVKNBPlk/f4UInftHhCi
-         72ryjRGX+7IxWj3zVJx7AF4ecbg2Pg7TXXjoHd9OvWnB3BzaXofwXFF/BMQrM29IOG7k
-         BLfcxljpsmshngZfEWG9rTNQKA5wYKjy0BqWbuVuoUmLiOx+glOaxtIp2mjx83nUyEYc
-         9MnZ9i4myqDg62Ra04zxGAYGU0jnj/dN0oZjAazXAoy2I1hajBiBS8Q8SSIfJly2HyDF
-         WXhEHJmqMNbN9xZqF2ETVPHPSGfXeNGYpN0fiH1fu5/MBXk/ZB/XibI+zBhHnOvVOD2K
-         5LPw==
-X-Gm-Message-State: AOAM530NvueyjFJmP78QXGMHOwluF2aKFvnCPo+xzOB963bLPnAGCgPM
-        zusOigwRZ4aSpxpBNPQUhcjUn+MQkIN2qMZIYbSPRLhtpQlFvJ7ivn0fGOxu4AnmvgZ4FKvAkE6
-        8N/FUgcpFZZNTBJNAlAytwSD1GfA6R7j06Q==
-X-Received: by 2002:a05:6000:1569:: with SMTP id 9mr17026235wrz.343.1631604077421;
-        Tue, 14 Sep 2021 00:21:17 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx6q9GIV+dbbGpUDkzy+9zvc6SY1/R/bzqrROtBxibMIPF3kczBjGgM2zPWhPd5LxWs/YX10w==
-X-Received: by 2002:a05:6000:1569:: with SMTP id 9mr17026215wrz.343.1631604077251;
-        Tue, 14 Sep 2021 00:21:17 -0700 (PDT)
-Received: from [192.168.3.211] (lk.84.20.244.219.dc.cable.static.lj-kabel.net. [84.20.244.219])
-        by smtp.gmail.com with ESMTPSA id v17sm9346322wrr.69.2021.09.14.00.21.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Sep 2021 00:21:16 -0700 (PDT)
-Subject: Re: [PATCH 1/2] power: supply: max17042_battery: Clear status bits in
- interrupt handler
-To:     Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Anton Vorontsov <anton.vorontsov@linaro.org>,
-        Ramakrishna Pallala <ramakrishna.pallala@intel.com>,
-        Dirk Brandewie <dirk.brandewie@gmail.com>,
-        stable@vger.kernel.org, kernel@puri.sm
-References: <20210912205402.160939-1-sebastian.krzyszkowiak@puri.sm>
- <0123524d-b767-5b5b-8b14-60d8cea3c429@canonical.com>
- <5702731.UytLkSCjyO@pliszka>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Message-ID: <6affbb35-7b79-db6e-a346-e74d2ba2e886@canonical.com>
-Date:   Tue, 14 Sep 2021 09:21:15 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S232541AbhINHuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 03:50:10 -0400
+Received: from mail-dm6nam11on2051.outbound.protection.outlook.com ([40.107.223.51]:62816
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S239057AbhINHtt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Sep 2021 03:49:49 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ndpj68rmCDT75ivlPEprK3e7wuz4CQw45+HTx+r3EiKQIzAahX7vWF+mzyfpAWRaoNGb/T0abxvKZ8FDEq07v+8ezmaFF4OCf7LaVeVCEGlZxziK51pjyvLO3DZZt1LdOaL5Yk1QA7moUwrwS00YOtSJWvIsLzxg9574h6w1C/AM2KEcAQYYKUWqemyVYK8z8Iq0hDu4vp33cNhv6fK9B5V/SXBBMhQXSkE6Z1an8uXHqc5hjfqLXx0q8zRxdGSmn6Elr9CbDKY1Pool46JE0wEVGM/d2Vm4RMlsRBxGyc2PLBwcC08OHPWW4wEBq+R88jF52y4NNp2yigQ0bSFNMQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
+ bh=n/y/JwvADuC2cDf9OOhec9znacH7NMDxI1gfWUE1YXM=;
+ b=g+D6uct/fQPqpRwm1rNQz1VfA9pJ/rleTxj5SKtmOaB1JGZ3KYhNMFURyX4cAHVnPlkfZWmmef+XlGsEMYveSOAQen8U9VfufD5/oDeIWQVb5gYKQBasB1k7gthXgNmBUPUJrf5v7fKOC9UwRlXuZWQErzYwMzV8dG+NmdIhp8qemzQqO740G+NkclfvmhOp37tByiuj5DYWn+R6k5mmZbfW+cMzZgDPosG62eSsbGQP9b38txsk94cUQbMH5A263bhfZlrLO+ZevOyhrPEdlSlXSy4rySDDPX6d3ogeUWIZCGd16x67Mf/Xlv8hxTb5y0mtkxjt/SbHqR4ETN6uHA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.34) smtp.rcpttodomain=linuxfoundation.org
+ smtp.mailfrom=nvidia.com; dmarc=pass (p=quarantine sp=none pct=100)
+ action=none header.from=nvidia.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=n/y/JwvADuC2cDf9OOhec9znacH7NMDxI1gfWUE1YXM=;
+ b=r0K1JjxogwvnGqvzp2LqnrqbF8N5w56Lj7JZ5j7+TPt0lr5FeIeGoRqMysFzTLPbYnFaYrXdT0frlbcQgWN/JnLa/H5vlBPH+Yo1S3J+8EcNP7VSgJs+wPAFdxp+Nrbg9SOt4rt0fn0ag3sVVAGXZ4iM0AKyl1FlmtukjBBQ5bRmoOn3fRXiFpX3bMbg5cdJwiHthChDw0gSJsjOvyn+LyJBHy5O0I5zqEW2y2/Vol1qv+BvNTjtpf7SG8EJMFHpJ1PopB0N2m/RcxAr+E/TaKDhuKvQTKVs5EJADjR0ZF80pbzWFdqQtWu+IpTRUA5lC4Ivp19azt1+bIidhUGWGg==
+Received: from DM6PR03CA0038.namprd03.prod.outlook.com (2603:10b6:5:100::15)
+ by BN6PR12MB1138.namprd12.prod.outlook.com (2603:10b6:404:20::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.17; Tue, 14 Sep
+ 2021 07:48:30 +0000
+Received: from DM6NAM11FT067.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:100:cafe::ec) by DM6PR03CA0038.outlook.office365.com
+ (2603:10b6:5:100::15) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.14 via Frontend
+ Transport; Tue, 14 Sep 2021 07:48:30 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
+ smtp.mailfrom=nvidia.com; linuxfoundation.org; dkim=none (message not signed)
+ header.d=none;linuxfoundation.org; dmarc=pass action=none
+ header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.34; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.34) by
+ DM6NAM11FT067.mail.protection.outlook.com (10.13.172.76) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4500.14 via Frontend Transport; Tue, 14 Sep 2021 07:48:29 +0000
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 14 Sep
+ 2021 07:48:29 +0000
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 14 Sep
+ 2021 07:48:28 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.187.6) by mail.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18 via Frontend
+ Transport; Tue, 14 Sep 2021 07:48:28 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.4 000/144] 5.4.146-rc1 review
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+References: <20210913131047.974309396@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-In-Reply-To: <5702731.UytLkSCjyO@pliszka>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Message-ID: <016011e28b774ec69112d00c873e5f01@HQMAIL107.nvidia.com>
+Date:   Tue, 14 Sep 2021 07:48:28 +0000
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 56fe8a5c-2710-45e4-ec66-08d977540b2d
+X-MS-TrafficTypeDiagnostic: BN6PR12MB1138:
+X-Microsoft-Antispam-PRVS: <BN6PR12MB11381899F764246EE4FD37C9D9DA9@BN6PR12MB1138.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 1IuBQditOrZxkTf7Cl6j+jCMrHt0iH/D0GbsbOZDioWn2+XAYdZ/rVnYfwV1uiy1xHjwgsqWZrpNnfugJlb2ROP4jFxGAavo+wpaVItikV2dGeKFojmgPFdzmBrLqQXNBrMypV5kUwRsPSUeJdIqO3fBVovhTSTEGFrtTkHwRRAdt4iM5x3KELFo2HPuJrG75ieFKngvZJxXL6YXtL+wwqWlp96h8/VvFBqk823ixXOs/2ZfFBj0/RjWnWRTEP7bik6L02uI2InDkcaO8me1cu3rXtd3VaR62p22j9QP8JcCdMq+sJACAszEdz8Cba6qMBZdUa65m/oUm9HW9kYwtsttHCBavjl91iEn4PPNpmNdTJ6nMqwR+OIHKPaGUezD+vTjNUXhVvX4Y3s1/QplyfgfavT/qqY1SqS28qaMORKroHOFN2QdzQwmZQduFbke18ZRD+S6JNrCnz4C/FsZVnecDvDQemYSRhq4qYm20C+qbswCoduYeqZQDMr5o0xQy32lQACRaRfkErjaKbF5FLH4TzqhStqDvsFStJ35BERlkGwkCqfw5ZvzKsrsZ+cmoA+HEzOYB9tOfEQRaCSVd99QS3/Q5zb6hXU8+TsFQa7H6wLNtRADbtsp4kVGSHJL4wSzpmW11cBSLJqgsYveOpDcBut2ZebcWEbmHOHFnVMSDbrF0rUQfc23HZ6A2WfyMfuYQl5GcuFDLBgMsHZSpY6N/QxCaice8saJuwX4ZIAYCSdCFSBihndM7g04VXfPB/waQZCU/sIMFVUe3yFt9St6ZX/CagiQY6dm7ourgjg=
+X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(39860400002)(136003)(376002)(346002)(396003)(36840700001)(46966006)(70586007)(36860700001)(6916009)(70206006)(966005)(7416002)(82740400003)(36906005)(316002)(7636003)(186003)(426003)(478600001)(108616005)(24736004)(8936002)(26005)(5660300002)(47076005)(4326008)(336012)(2906002)(356005)(86362001)(54906003)(8676002)(82310400003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Sep 2021 07:48:29.7053
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 56fe8a5c-2710-45e4-ec66-08d977540b2d
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT067.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR12MB1138
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 13/09/2021 20:32, Sebastian Krzyszkowiak wrote:
-> On poniedziałek, 13 września 2021 15:02:34 CEST Krzysztof Kozlowski wrote:
->> On 12/09/2021 22:54, Sebastian Krzyszkowiak wrote:
->>> The gauge requires us to clear the status bits manually for some alerts
->>> to be properly dismissed. Previously the IRQ was configured to react only
->>> on falling edge, which wasn't technically correct (the ALRT line is active
->>> low), but it had a happy side-effect of preventing interrupt storms
->>> on uncleared alerts from happening.
->>>
->>> Fixes: 7fbf6b731bca ("power: supply: max17042: Do not enforce (incorrect)
->>> interrupt trigger type") Cc: <stable@vger.kernel.org>
->>> Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
->>> ---
->>>
->>>  drivers/power/supply/max17042_battery.c | 3 +++
->>>  1 file changed, 3 insertions(+)
->>>
->>> diff --git a/drivers/power/supply/max17042_battery.c
->>> b/drivers/power/supply/max17042_battery.c index
->>> 8dffae76b6a3..c53980c8432a 100644
->>> --- a/drivers/power/supply/max17042_battery.c
->>> +++ b/drivers/power/supply/max17042_battery.c
->>> @@ -876,6 +876,9 @@ static irqreturn_t max17042_thread_handler(int id,
->>> void *dev)> 
->>>  		max17042_set_soc_threshold(chip, 1);
->>>  	
->>>  	}
->>>
->>> +	regmap_clear_bits(chip->regmap, MAX17042_STATUS,
->>> +			  0xFFFF & ~(STATUS_POR_BIT | 
-> STATUS_BST_BIT));
->>> +
->>
->> Are you sure that this was the reason of interrupt storm? Not incorrect
->> SoC value (read from register for ModelGauge m3 while not configuring
->> fuel gauge model).
+On Mon, 13 Sep 2021 15:13:01 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.146 release.
+> There are 144 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Yes, I am sure. I have observed this on a fully configured max17055 with 
-> ModelGauge m5. It also makes sense to me based on what I read in the code and 
-> datasheets.
+> Responses should be made by Wed, 15 Sep 2021 13:10:21 +0000.
+> Anything received after that time might be too late.
 > 
-> There were two kinds of storms - the short ones happening on each SOC change 
-> caused by SOC threshold alerts set by max17042_set_soc_threshold which 
-> eventually got cleared by reconfiguring the thresholds; and a huge one 
-> happening when SOC got down to 0% that did not get away until the battery got 
-> charged to at least 1% at which point the thresholds got reconfigured again 
-> (which is how I noticed the underflow fixed by the second patch).
-
-OK, undestood.
-
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.146-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
 > 
-> Besides, I also have patches for configuring m5 gauge via DT that I'll send 
-> once I clean them up.
-
-That's cool! Happy to see such work.
-
+> thanks,
 > 
->> You should only clear bits which you are awaken for... Have in mind that
->> in DT-configuration the fuel gauge is most likely broken by missing
->> configuration. With alert enabled, several other config fields should be
->> cleared.
-> 
-> I have checked all the bits in the Status register and aside of Bst, POR and 
-> bunch of "don't-care" bits they're all alert indicators that we either handle 
-> explicitly in the interrupt handler (Smn/Smx) or implicitly via 
-> power_supply_changed (Imn/Imx, Vmn/Vmx, Tmn/Tmx, dSOCi, Bi/Br). The driver 
-> unconditionally enables alerts for SOC thresholds and all the rest stays 
-> effectively disabled at POR; however, a bootloader or firmware may configure it 
-> differently, which may be wanted for things like resuming from suspend when a 
-> bad condition happens. Therefore we need to clear all the bits anyway and I'm 
-> not sure whether iterating through them in a "if set then clear" loop gains us 
-> anything aside of additional lines of code.
+> greg k-h
 
-Seems reasonable, you're right. Could you mention this expolanation in
-commit msg or comment in the code?
+All tests passing for Tegra ...
 
+Test results for stable-v5.4:
+    10 builds:	10 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    59 tests:	59 pass, 0 fail
 
-Best regards,
-Krzysztof
+Linux version:	5.4.146-rc1-gd4596c5864b2
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
+
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
