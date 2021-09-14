@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71FD340A980
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 10:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A4C440A981
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 10:42:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230346AbhINIno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 04:43:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49384 "EHLO mail.kernel.org"
+        id S229673AbhINIoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 04:44:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229663AbhINInn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Sep 2021 04:43:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1023D60EE0;
-        Tue, 14 Sep 2021 08:42:25 +0000 (UTC)
+        id S229663AbhINIoL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Sep 2021 04:44:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB05E60F5B;
+        Tue, 14 Sep 2021 08:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631608946;
-        bh=8+6Uo8CPl2E1oWwkbNZPQ32/QLXzCLOwrmmVFZCKvYM=;
+        s=korg; t=1631608974;
+        bh=H6uWi4+tTFzSPyH2slxgormadKu6JO1RmrEuUoKIcIs=;
         h=Subject:To:From:Date:From;
-        b=zMxZ9Aw8BGNXxSJJR8UOUjd4GoxCqXK5sYyzHuQO3p5AcHb82jJDPV/7fBUGkGsPt
-         Jn2/XD8yWYiS9MRaBN4kf0lWC09DEnyHf+/ThywEveNoU+rAgN+OCDKN/Qr3Ouc9yT
-         g7t9//InnKIjYEwY3yp/VziNpoCAsxXfdRrONLv0=
-Subject: patch "usb: dwc2: gadget: Fix ISOC transfer complete handling for DDMA" added to usb-linus
-To:     Minas.Harutyunyan@synopsys.com, gregkh@linuxfoundation.org,
+        b=kgk3TK5ucPYAT3MgmTdh7ZEllC9owhET4fhlwq4Lg7BwPlygpp5NXGmwvYknsu359
+         4ro4gxwvp7lE9VKtoAS+lsGej91a/wY+fK3wlZp7Y9y0GTMUr88Z46hZgIHUEuI2B9
+         dz/pyS5cBt55xKTlwdIlhUyVpdTgfwX79pHyPiAI=
+Subject: patch "usb: gadget: f_uac2: Add missing companion descriptor for feedback EP" added to usb-linus
+To:     jackp@codeaurora.org, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 14 Sep 2021 10:42:12 +0200
-Message-ID: <163160893225484@kroah.com>
+Date:   Tue, 14 Sep 2021 10:42:52 +0200
+Message-ID: <1631608972118152@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc2: gadget: Fix ISOC transfer complete handling for DDMA
+    usb: gadget: f_uac2: Add missing companion descriptor for feedback EP
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,43 +51,82 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From dbe2518b2d8eabffa74dbf7d9fdd7dacddab7fc0 Mon Sep 17 00:00:00 2001
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Date: Sat, 11 Sep 2021 22:58:30 +0400
-Subject: usb: dwc2: gadget: Fix ISOC transfer complete handling for DDMA
+From 595091a1426a3b2625dad322f69fe569dc9d8943 Mon Sep 17 00:00:00 2001
+From: Jack Pham <jackp@codeaurora.org>
+Date: Thu, 9 Sep 2021 10:48:10 -0700
+Subject: usb: gadget: f_uac2: Add missing companion descriptor for feedback EP
 
-When last descriptor in a descriptor list completed with XferComplete
-interrupt, core switching to handle next descriptor and assert BNA
-interrupt. Both these interrupts are set while dwc2_hsotg_epint()
-handler called. Each interrupt should be handled separately: first
-XferComplete interrupt then BNA interrupt, otherwise last completed
-transfer will not be giveback to function driver as completed
-request.
+The f_uac2 function fails to enumerate when connected in SuperSpeed
+due to the feedback endpoint missing the companion descriptor.
+Add a new ss_epin_fback_desc_comp descriptor and append it behind the
+ss_epin_fback_desc both in the static definition of the ss_audio_desc
+structure as well as its dynamic construction in setup_headers().
 
-Fixes: 729cac693eec ("usb: dwc2: Change ISOC DDMA flow")
+Fixes: 24f779dac8f3 ("usb: gadget: f_uac2/u_audio: add feedback endpoint support")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Link: https://lore.kernel.org/r/a36981accc26cd674c5d8f8da6164344b94ec1fe.1631386531.git.Minas.Harutyunyan@synopsys.com
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210909174811.12534-2-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/gadget.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/usb/gadget/function/f_uac2.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index f09cbdfac9df..11d85a6e0b0d 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -3067,9 +3067,7 @@ static void dwc2_hsotg_epint(struct dwc2_hsotg *hsotg, unsigned int idx,
+diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
+index 3c34995276e7..d89c1ebb07f4 100644
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -406,6 +406,14 @@ static struct usb_endpoint_descriptor ss_epin_fback_desc = {
+ 	.bInterval = 4,
+ };
  
- 		/* In DDMA handle isochronous requests separately */
- 		if (using_desc_dma(hsotg) && hs_ep->isochronous) {
--			/* XferCompl set along with BNA */
--			if (!(ints & DXEPINT_BNAINTR))
--				dwc2_gadget_complete_isoc_request_ddma(hs_ep);
-+			dwc2_gadget_complete_isoc_request_ddma(hs_ep);
- 		} else if (dir_in) {
- 			/*
- 			 * We get OutDone from the FIFO, so we only
++static struct usb_ss_ep_comp_descriptor ss_epin_fback_desc_comp = {
++	.bLength		= sizeof(ss_epin_fback_desc_comp),
++	.bDescriptorType	= USB_DT_SS_ENDPOINT_COMP,
++	.bMaxBurst		= 0,
++	.bmAttributes		= 0,
++	.wBytesPerInterval	= cpu_to_le16(4),
++};
++
+ 
+ /* Audio Streaming IN Interface - Alt0 */
+ static struct usb_interface_descriptor std_as_in_if0_desc = {
+@@ -597,6 +605,7 @@ static struct usb_descriptor_header *ss_audio_desc[] = {
+ 	(struct usb_descriptor_header *)&ss_epout_desc_comp,
+ 	(struct usb_descriptor_header *)&as_iso_out_desc,
+ 	(struct usb_descriptor_header *)&ss_epin_fback_desc,
++	(struct usb_descriptor_header *)&ss_epin_fback_desc_comp,
+ 
+ 	(struct usb_descriptor_header *)&std_as_in_if0_desc,
+ 	(struct usb_descriptor_header *)&std_as_in_if1_desc,
+@@ -705,6 +714,7 @@ static void setup_headers(struct f_uac2_opts *opts,
+ {
+ 	struct usb_ss_ep_comp_descriptor *epout_desc_comp = NULL;
+ 	struct usb_ss_ep_comp_descriptor *epin_desc_comp = NULL;
++	struct usb_ss_ep_comp_descriptor *epin_fback_desc_comp = NULL;
+ 	struct usb_endpoint_descriptor *epout_desc;
+ 	struct usb_endpoint_descriptor *epin_desc;
+ 	struct usb_endpoint_descriptor *epin_fback_desc;
+@@ -730,6 +740,7 @@ static void setup_headers(struct f_uac2_opts *opts,
+ 		epout_desc_comp = &ss_epout_desc_comp;
+ 		epin_desc_comp = &ss_epin_desc_comp;
+ 		epin_fback_desc = &ss_epin_fback_desc;
++		epin_fback_desc_comp = &ss_epin_fback_desc_comp;
+ 		ep_int_desc = &ss_ep_int_desc;
+ 	}
+ 
+@@ -773,8 +784,11 @@ static void setup_headers(struct f_uac2_opts *opts,
+ 
+ 		headers[i++] = USBDHDR(&as_iso_out_desc);
+ 
+-		if (EPOUT_FBACK_IN_EN(opts))
++		if (EPOUT_FBACK_IN_EN(opts)) {
+ 			headers[i++] = USBDHDR(epin_fback_desc);
++			if (epin_fback_desc_comp)
++				headers[i++] = USBDHDR(epin_fback_desc_comp);
++		}
+ 	}
+ 
+ 	if (EPIN_EN(opts)) {
 -- 
 2.33.0
 
