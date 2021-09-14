@@ -2,115 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6F6F40B869
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 21:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1B5C40B872
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 21:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232716AbhINT4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 15:56:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59250 "EHLO
+        id S232867AbhINT7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 15:59:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232239AbhINT4E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 15:56:04 -0400
-Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6845C061764
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 12:54:46 -0700 (PDT)
-Received: by mail-oi1-x230.google.com with SMTP id bi4so793960oib.9
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 12:54:46 -0700 (PDT)
+        with ESMTP id S232168AbhINT7W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 15:59:22 -0400
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A789C061574
+        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 12:58:04 -0700 (PDT)
+Received: by mail-lj1-x234.google.com with SMTP id r3so857573ljc.4
+        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 12:58:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
+        d=linux-foundation.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=xtR27z6ArnQBxxqRuhMNgUKk5tpQO0X2C1F4R+xD3JM=;
-        b=SCLn97FK+hXMMlHmbUSLfHw7x68WBqS0hKDXIZGicXin4gluDW3vfgrkP2Ca4RSOpc
-         XibbKhQs8gUw+nb8qarCB2xb87HrBOpLTbs25sC+4CrzbceexThTsvsv9Cdpo2QZahKQ
-         982mpMQRpEm/DlBtrRGoR2UVPQ9sd4kxxT00lfVsz1O9mPAVEzVAllr2p8tcS8MhweBs
-         hOBITNlddkzMFCO6Spq57aTaCKRcmnK69vaaUSgFoBOb+8q59JHvx5eA/Fz67P65/ZN0
-         V3OhgYKPezO1iVjRd4iDkrNYZHd6MPS2W5rDJhUCjW7uq20J0SdaP/6dp4e+JEqOiLbz
-         cIow==
+        bh=edx594esEetpbovYxJC0BKmrfmnFRZoGc83fmQOGtYU=;
+        b=Ai5hcu7Lb33IoQQz7PYAvlBa5vu0YJnGQdY2K6Ya5ZxVajxC9hiSGS5AtFs/3zOcXR
+         HxKE9r8vz0vWGEgG0dXg/BW0cXBZlaetKrVwvdj8Z4lnG7DZx0pLp24h0K2IgX4G45im
+         TVleKsbcXnk247tzWLJYQ5Q4g3R/vIxeMhoWg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=xtR27z6ArnQBxxqRuhMNgUKk5tpQO0X2C1F4R+xD3JM=;
-        b=7a4X0baUl+McmCYoQQXxHYsmo6JGQG/8MFDkMoS354hpeHeLiQYYKYdNu8ZaMHS5Ai
-         cBqZ3B5IIh2/uBH1jlQmGHLsXTRwXDeNHRUszX7+Hepq9lkLf+Em2p5YXLVSF6IloaT4
-         teH4p9sTXTPwSXh/Mq9bkGsyCCahxygU2H2IvsQjFwAg86DeWLXwBT1KHzw5VPkAU5p7
-         DeEZEFpU2DgR4/aV/2R0XhGBuDmPDbI7mva1LDn7U7NJgxuRVvjaMeZ0dm3gvOaErYjJ
-         v3p8rdxjV8s0VUOqymiQwtHoBI+5SfHo4k1NwWDyBZTDbZ/xxqx1vYK/KbTdKchNktZ8
-         tRaQ==
-X-Gm-Message-State: AOAM532ACDPWlgHNeI10VoUFmJlNBszdxeWqKsDHJUuiwsYZdSG4T3d2
-        Krs5YuqRGD01CytcRsKoo8UZIOqpqBzs6nm0Y8Y3bQ==
-X-Google-Smtp-Source: ABdhPJyY49qMeuzZKAaa8KedjVaEkbHPUYNH9m6MA6xJpe80HJVWe/OsgcQjWGCihyusAFnyuLtDB0ocuzpVrrtBnH8=
-X-Received: by 2002:a05:6808:909:: with SMTP id w9mr2742252oih.164.1631649286048;
- Tue, 14 Sep 2021 12:54:46 -0700 (PDT)
+        bh=edx594esEetpbovYxJC0BKmrfmnFRZoGc83fmQOGtYU=;
+        b=k5TVXnwp5rk5ckicdJl00JIO5VYWDgIpDmPXBpekE0ugJtpM3Th6/wVL4Cx21ReIYy
+         fpPtRIaJCRpjZjUHNQgohdSMGJH7a2Vy/4/3XbT3OPnYE5OqTnj6xCzhLSYh5bq2Clm3
+         BP8oTUF8C0Y9GHxA/cm3N7Vllg9zxzjcrZXSJ54oqTt2xVUzVv3x5XBaCXjrsu5c308b
+         B+/EySDKAol3wmyx9++4rcEAu7HCVGbx51DU6mm7mgnqnn9N2BQ5HpdrsyKkIGJ/ZAAd
+         BiWnbsbO1dhnfjXwBoxt1sAYj7D8GV/zFj1TRINKA8QM3GlOA1ClvQfmDO3qzkf4tZsT
+         xQaQ==
+X-Gm-Message-State: AOAM531ysgT5X/YWoFXwU+6KxQ/UVgDzM7UQkA85OfV5r29G61Ivo+FO
+        yAdq31THTfeMzbZrgsngUVvUaJvr6aIaS+j/L9U=
+X-Google-Smtp-Source: ABdhPJyzlImwPdPXkUf/lCTz7OsUH4DuWkB/y3muEfAHqfs0y0PSKW7aF2GsKIYHKAfZ7LUsN2oNqQ==
+X-Received: by 2002:a2e:860e:: with SMTP id a14mr17249162lji.215.1631649481592;
+        Tue, 14 Sep 2021 12:58:01 -0700 (PDT)
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com. [209.85.167.41])
+        by smtp.gmail.com with ESMTPSA id q5sm1006235lfo.225.2021.09.14.12.57.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 14 Sep 2021 12:57:59 -0700 (PDT)
+Received: by mail-lf1-f41.google.com with SMTP id k13so942737lfv.2
+        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 12:57:59 -0700 (PDT)
+X-Received: by 2002:a05:6512:3991:: with SMTP id j17mr3042014lfu.280.1631649479060;
+ Tue, 14 Sep 2021 12:57:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210914190125.3289256-1-pgonda@google.com>
-In-Reply-To: <20210914190125.3289256-1-pgonda@google.com>
-From:   Marc Orr <marcorr@google.com>
-Date:   Tue, 14 Sep 2021 12:54:35 -0700
-Message-ID: <CAA03e5HBzp4ttsQ_o8xTmtMNhp9WM0zTUgS_SQViAAhTX5=hTQ@mail.gmail.com>
-Subject: Re: [PATCH V2] KVM: SEV: Disable KVM_CAP_VM_COPY_ENC_CONTEXT_FROM for SEV-ES
-To:     Peter Gonda <pgonda@google.com>
-Cc:     kvm list <kvm@vger.kernel.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Nathan Tempelman <natet@google.com>,
-        Brijesh Singh <brijesh.singh@amd.com>, stable@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>
+References: <20210913203201.1844253-1-ndesaulniers@google.com>
+ <195b2f47-b92e-a00b-a2bc-d91bfdbd9d12@rasmusvillemoes.dk> <202109141031.AEFD06F03F@keescook>
+ <CAHk-=wjac_3K+NQNO6tjQZU1KLgba==BOvHmHE2sgNSVj3j85g@mail.gmail.com>
+ <CAHk-=whiQBofgis_rkniz8GBP9wZtSZdcDEffgSLO62BUGV3gg@mail.gmail.com>
+ <CAKwvOdkOHxtsRGjZ2Y8x84sBaqWy8t-U3F9UbMiR7h=3_+mtqA@mail.gmail.com>
+ <CAHk-=wjUR7FwE5LsZNaoQxrKu2TS7T-=1j8XqZK2miQuEmqf3Q@mail.gmail.com>
+ <CAHk-=wgPupayk3GpwSMtkV5_onFzmmK2g3WmBV1EbSCj+D0eqw@mail.gmail.com>
+ <CAKwvOdkab9O5q=DNn643+7HRgTDdD1i201Qi_cSuXYbJbXf1qw@mail.gmail.com>
+ <CAHk-=wjf6ABFwPdsbk2674DwSLQCH0jr7w-BYvG-f2nvRQDqtQ@mail.gmail.com> <CAKwvOdk9yqEMLTAxgZNmHgRSww0AnJ-x9qd7HK3v2Vepi1BdLw@mail.gmail.com>
+In-Reply-To: <CAKwvOdk9yqEMLTAxgZNmHgRSww0AnJ-x9qd7HK3v2Vepi1BdLw@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 14 Sep 2021 12:57:42 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whmcqmpPJQrAw4vX-Z6ePjeydjw7s6tzqzvB=uBp0=6fw@mail.gmail.com>
+Message-ID: <CAHk-=whmcqmpPJQrAw4vX-Z6ePjeydjw7s6tzqzvB=uBp0=6fw@mail.gmail.com>
+Subject: Re: [PATCH 5.10] overflow.h: use new generic division helpers to
+ avoid / operator
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, llvm@lists.linux.dev,
+        stable <stable@vger.kernel.org>, Arnd Bergmann <arnd@kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Pavel Machek <pavel@ucw.cz>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 12:01 PM Peter Gonda <pgonda@google.com> wrote:
+On Tue, Sep 14, 2021 at 12:50 PM Nick Desaulniers
+<ndesaulniers@google.com> wrote:
 >
-> Copying an ASID into new vCPUs will not work for SEV-ES since the vCPUs
-> VMSAs need to be setup and measured before SEV_LAUNCH_FINISH. Return an
-> error if a users tries to KVM_CAP_VM_COPY_ENC_CONTEXT_FROM from an
-> SEV-ES guest. The destination VM is already checked for SEV and SEV-ES
-> with sev_guest(), so this ioctl already fails if the destination is SEV
-> enabled.
->
-> Enabling mirroring a VM or copying its encryption context with an SEV-ES
-> VM is more involved and should happen in its own feature patch if that's
-> needed. This is because the vCPUs of SEV-ES VMs need to be updated with
-> LAUNCH_UPDATE_VMSA before LAUNCH_FINISH. This needs KVM changes because
-> the mirror VM has all its SEV ioctls blocked and the original VM doesn't
-> know about the mirrors vCPUs.
->
-> Fixes: 54526d1fd593 ("KVM: x86: Support KVM VMs sharing SEV context")
->
-> V2:
->  * Updated changelog with more information and added stable CC.
->
-> Signed-off-by: Peter Gonda <pgonda@google.com>
-> Cc: Marc Orr <marcorr@google.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Sean Christopherson <seanjc@google.com>
-> Cc: Nathan Tempelman <natet@google.com>
-> Cc: Brijesh Singh <brijesh.singh@amd.com>
-> Cc: kvm@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> ---
->  arch/x86/kvm/svm/sev.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-> index 75e0b21ad07c..8a279027425f 100644
-> --- a/arch/x86/kvm/svm/sev.c
-> +++ b/arch/x86/kvm/svm/sev.c
-> @@ -1728,7 +1728,7 @@ int svm_vm_copy_asid_from(struct kvm *kvm, unsigned int source_fd)
->         source_kvm = source_kvm_file->private_data;
->         mutex_lock(&source_kvm->lock);
->
-> -       if (!sev_guest(source_kvm)) {
-> +       if (!sev_guest(source_kvm) || sev_es_guest(source_kvm)) {
->                 ret = -EINVAL;
->                 goto e_source_unlock;
->         }
-> --
-> 2.33.0.309.g3052b89438-goog
->
+> Just making sure __ffs() works as expected should blksize > LONG_MAX
+> on 32b targets.  I don't see the range check you're referring to.
+> loff_t is a long long, yeah?
 
-Reviewed-by: Marc Orr <marcorr@google.com>
+Christ Nick.
+
+Stop wasting my time.
+
+Read the patch:
+
+        if (!blksize)
+-               blksize = NBD_DEF_BLKSIZE;
++               blksize = 1u << NBD_DEF_BLKSIZE_BITS;
+        if (blksize < 512 || blksize > PAGE_SIZE || !is_power_of_2(blksize))
+                return -EINVAL;
+
+        nbd->config->bytesize = bytesize;
+-       nbd->config->blksize = blksize;
++       nbd->config->blksize_bits = __ffs(blksize);
+
+See that range check?
+
+Seriously, I've now replied several times to you just because you were
+too damn lazy to just look three lines up from the __ffs() that you
+reacted to, when I explicitly mentioned the range check several times,
+including in the original submission, and when it was RIGHT THERE IN
+THE PATCH IN THE ONLY PLACE THAT DID THAT __FFS.
+
+(Ok, so the lower check of range was 512, not 1024, sue me).
+
+It was all there in the diff all the time.
+
+Don't email me again about this. At least not without spending the
+FIVE SECONDS to look at what the hell you are emailing me about.
+
+           Linus
