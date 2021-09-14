@@ -2,106 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BBDE40B346
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 17:41:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CE740B352
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 17:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234569AbhINPm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 11:42:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55220 "EHLO
+        id S234845AbhINPng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 11:43:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234592AbhINPm0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 11:42:26 -0400
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D093C061764
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 08:41:09 -0700 (PDT)
-Received: by mail-pf1-x434.google.com with SMTP id n30so9927018pfq.5
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 08:41:09 -0700 (PDT)
+        with ESMTP id S234833AbhINPnd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 11:43:33 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F6BC061764
+        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 08:42:16 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id c4so6930447pls.6
+        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 08:42:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=intel-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Qq1y+DofprhZDWMKXBLFIkDNGaMcVgTMv8sDqPM5COM=;
-        b=s+2MY3/PnACAWKw8fTsVGCwqltqJN4+p9aTBDzyyYIHDF2fcGbRpmqzGFMH7zPXCPr
-         3YnLO5CesNC064ugiPAAE7wOtbz5ISopSPr98YYh7UqeQ/M4EE//OXBrKPRRgg8bIwLQ
-         PaoICJ9ZNuomwDpWU57RFK2PQmBF6RvOYCTpnXR1X/52+/yDILxbvXv3KiOJ4VwTP/5k
-         xmP7c/LP+yAQzl2EymJEeGJr8lO6WxRAQz4F5RN/ZnBVBYl2WtwgfzRjxNOVYF0TlB0A
-         mPS/s1YD7sPSfkwnWzMiiwvnDKtpaHB93qOjas+Zwbnka6xuPATYqudCepty13wsohqF
-         MvvQ==
+        bh=uqrZf2RpvTXlUmbRyI2QxPTRCT62GWMUqprCb4O9iv0=;
+        b=R68nkCIBgi4tzTf2MsQxydUGK5qmIiOepWBVPDzhpnm4nX8LXu58vXbtjzmF+E8byt
+         8XTqcGe917Vrbpjr71mFbX1tJFns3YkzB9/rGD3J7a5+FdTugj8ONEIiiO6qXJqoBHX9
+         lMoFuKn75vZN3Txje64yeqHoFnlU9Ukbjn3YJ0nvUIaMymTN1Hntmmw4vXFkudk/3fkl
+         lOSrmvIwupDazVsHuXC7BSP/kradpQEU3rS2If8rC/6nrKUQTBunjN3/mwe1kRBUhr+4
+         U9p7my/NY7OVuJXjqhH1E0g+jrvxwSqrNUUTAUKeqD29Tq0n8/de8TeKkBYA+i3hzDwD
+         16yw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Qq1y+DofprhZDWMKXBLFIkDNGaMcVgTMv8sDqPM5COM=;
-        b=5Pfhj4V4ZRMhYy8pW+cqZBI6/eMUfOJ1PVd1FC5rKO/A9CopUvk5dfSVNTqvMqJcvI
-         PLNtP/GVfBie9ureKuM0nygG6MnqJVI1VkqrgAcVDVs4m10ux8K/NNk3u94K5lxjlsch
-         W/vAIpr2ZrJbiWJOjaECK1AbTT75DcVa86FVqFsQYi2yZ9I48d397Sn7dl33yt8TPntA
-         Wd/CCJGYAgokg+AutMosFlQHTBbF4guOirMQ/8lEbGLNOZdHdbjR5uxJFDo9cKRa7dap
-         5gKoNjvO5l9Wk0Mqlr8KwRZQlw6s5+lJld0YFeFR88/MrCOGre00TWdx8rUifBB/xMX5
-         CXNQ==
-X-Gm-Message-State: AOAM533/yhh+Pp6BaDS848Ge7L48lGGeHxEI4pyfNirMavJFFE9n5JIF
-        zMXo2lKHHZgEfYlZVnzAdcL28s+2oeWdxE67YQBAH3AyTXg=
-X-Google-Smtp-Source: ABdhPJxsd9tZKF5oCMVJOQcjWY9KKdZnQOdA4gLzlfeS7JEwihQdDQtmLTP0X8DgAzREIAJLz+3Tbe0T+aMRTtBM548=
-X-Received: by 2002:a63:1e0e:: with SMTP id e14mr16045381pge.5.1631634068966;
- Tue, 14 Sep 2021 08:41:08 -0700 (PDT)
+        bh=uqrZf2RpvTXlUmbRyI2QxPTRCT62GWMUqprCb4O9iv0=;
+        b=ugmNOj6oV3d6C3ZENtS5C2nkhIc9XFVJuOsERT0sl+wyneBWMHEANzo2QpTjSv4H/V
+         ZlDLmcgYL/2OID3r0aS8+RTxnDpF32K8dvhhWKimRDCUhAmRbAQvK4pLMRTtcEgNOCp7
+         +uCCh5i1uj4lQ06E5a26Kr0rdrL+/I5vzXkcXYmSOn5nb6E/SqmIeXKRV3iA1mSX5Pn1
+         KPKpZ9bZDx6fj7OHDNRbTAktAAN0zNyuZ51MbUyBLs9b9tgs4UAUEac8d+Qff+167IXf
+         7ACcuFN4Us4yiLXYTuVut6aNHLolW6sujGLSFD9TKfIJeF6KKe9uhJ7wgPetP/GG2G4N
+         u+Iw==
+X-Gm-Message-State: AOAM531Et3ZSROQf7Rwl1IFqWkbx83JZAY+qr4H92v9hzz32n4TfFM3w
+        15khrg+VpeyRAw95BUQM/vnTbRPIKHuXj3pqONAAqw==
+X-Google-Smtp-Source: ABdhPJwdSVBKoaQKVJDayqeNTdAmPJTaWf0sE3199v0xfH37WlYDE5QvLJk18AFTt9/gOMFZnUXlAkZMmBQ27SCKhmI=
+X-Received: by 2002:a17:902:e80f:b0:13b:721d:f750 with SMTP id
+ u15-20020a170902e80f00b0013b721df750mr15580149plg.18.1631634135572; Tue, 14
+ Sep 2021 08:42:15 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210913223339.435347-1-sashal@kernel.org> <20210913223339.435347-3-sashal@kernel.org>
- <20210914095623.00005306@Huawei.com> <20210914095749.0000151f@Huawei.com> <20210914150558.n3lbmmt7h6o2uz6a@intel.com>
-In-Reply-To: <20210914150558.n3lbmmt7h6o2uz6a@intel.com>
+References: <20210913223339.435347-1-sashal@kernel.org> <20210913223339.435347-4-sashal@kernel.org>
+In-Reply-To: <20210913223339.435347-4-sashal@kernel.org>
 From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Tue, 14 Sep 2021 08:40:58 -0700
-Message-ID: <CAPcyv4gQhQvXJ7W_WuB_Gp73Xoiw1KLDi_zxWnO=zDCgm+3ihg@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.14 03/25] cxl: Move cxl_core to new directory
+Date:   Tue, 14 Sep 2021 08:42:04 -0700
+Message-ID: <CAPcyv4i5OHv2wHTO1Pdjz+qzAAWEha-7HdDdt42VyO_FasLSEA@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.14 04/25] cxl/pci: Introduce cdevm_file_operations
 To:     Sasha Levin <sashal@kernel.org>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         stable <stable@vger.kernel.org>,
-        kernel test robot <lkp@intel.com>,
-        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
-        linux-cxl@vger.kernel.org, Ben Widawsky <ben.widawsky@intel.com>
+        Ben Widawsky <ben.widawsky@intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        linux-cxl@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 8:06 AM Ben Widawsky <ben.widawsky@intel.com> wrote:
+On Mon, Sep 13, 2021 at 3:33 PM Sasha Levin <sashal@kernel.org> wrote:
 >
-> On 21-09-14 09:57:49, Jonathan Cameron wrote:
-> > On Tue, 14 Sep 2021 09:56:23 +0100
-> > Jonathan Cameron <Jonathan.Cameron@Huawei.com> wrote:
-> >
-> > > On Mon, 13 Sep 2021 18:33:17 -0400
-> > > Sasha Levin <sashal@kernel.org> wrote:
-> > >
-> > > > From: Ben Widawsky <ben.widawsky@intel.com>
-> > > >
-> > > > [ Upstream commit 5161a55c069f53d88da49274cbef6e3c74eadea9 ]
-> > > >
-> > > > CXL core is growing, and it's already arguably unmanageable. To support
-> > > > future growth, move core functionality to a new directory and rename the
-> > > > file to represent just bus support. Future work will remove non-bus
-> > > > functionality.
-> > > >
-> > > > Note that mem.h is renamed to cxlmem.h to avoid a namespace collision
-> > > > with the global ARCH=um mem.h header.
-> > >
-> > > Not a fix...
-> > >
-> > > I'm guessing this got picked up on the basis of the Reported-by: tag?
-> > > I think that was added for a minor tweak as this went through review rather
-> > > than referring to the whole patch.
-> > Or possibly because it was a precursor to the fix in the next patch.
-> >
-> > Hmm.  Ben, Dan, does it make sense for these two to go into stable?
-> >
-> > Jonathan
+> From: Dan Williams <dan.j.williams@intel.com>
 >
-> As of now, no, but having this will make future fixes much easier to cherry
-> pick.
+> [ Upstream commit 9cc238c7a526dba9ee8c210fa2828886fc65db66 ]
+>
+> In preparation for moving cxl_memdev allocation to the core, introduce
+> cdevm_file_operations to coordinate file operations shutdown relative to
+> driver data release.
+>
+> The motivation for moving cxl_memdev allocation to the core (beyond
+> better file organization of sysfs attributes in core/ and drivers in
+> cxl/), is that device lifetime is longer than module lifetime. The cxl_pci
+> module should be free to come and go without needing to coordinate with
+> devices that need the text associated with cxl_memdev_release() to stay
+> resident. The move will fix a use after free bug when looping driver
+> load / unload with CONFIG_DEBUG_KOBJECT_RELEASE=y.
+>
+> Another motivation for passing in file_operations to the core cxl_memdev
+> creation flow is to allow for alternate drivers, like unit test code, to
+> define their own ioctl backends.
 
-Sasha, please drop this. The CXL subsystem is still in major feature
-development. I would rather manually backport small fixes rather than
-backport major code movement just to make small fix backport easier.
+Hi Sasha,
 
-Let me know if there was a specific fix autosel was trying to resolve
-and we'll take a look at whether it makes sense to do a custom
-backport for -stable.
+Please drop this. It's not a fix, it's just a reorganization for
+easing the addition of new features and capabilities.
