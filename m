@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0675F40A95D
+	by mail.lfdr.de (Postfix) with ESMTP id EE56440A95F
 	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 10:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230273AbhINIgo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 04:36:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43180 "EHLO mail.kernel.org"
+        id S231300AbhINIgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 04:36:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231300AbhINIgk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231240AbhINIgk (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 14 Sep 2021 04:36:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2CD2610A6;
-        Tue, 14 Sep 2021 08:35:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F192F6103B;
+        Tue, 14 Sep 2021 08:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631608523;
-        bh=wT5nalsEI9azZtjcrOfBuIoeRcuimIemK/6YUJd4jgE=;
+        s=korg; t=1631608520;
+        bh=bk1iyErc3NDx4qjp78PTpnSl5SJVG1DmiuU9JKupqf8=;
         h=Subject:To:From:Date:From;
-        b=aMHVvO3sWu8xa0mzD8vqJdheh18VgGLVRil/kcOh14GxJEu+/kVb95zOjkEwoODlw
-         MvRqOtVMvhyVPybJiOJdBMKonr12QDzLcvWa5aqVHHwe2AVKZLTybqk9N2z55k/ydB
-         P+MiUig5iUz2yEutw0/WDDxXa0ofloSbDaWZI30I=
-Subject: patch "usb: gadget: r8a66597: fix a loop in set_feature()" added to usb-linus
-To:     dan.carpenter@oracle.com, balbi@kernel.org,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        yoshihiro.shimoda.uh@renesas.com
+        b=p+NKKjyamGSmijjjoUQXI5gQ7PKJ9lAQszxyxUEn5zrrfalaFqsv3UXuUjWspBbbw
+         xAsDSlkjQBaHPdAlzjmkFBxwBE/IrSueQAj7MdjcKK45ZK7KVVsmIEd2TL92L99Fu+
+         k/dhgPHuaHesYOm016W2ZJtbC9+YKml94VzmyjbI=
+Subject: patch "usb: gadget: u_audio: EP-OUT bInterval in fback frequency" added to usb-linus
+To:     pavel.hofman@ivitera.com, gregkh@linuxfoundation.org,
+        henrik.enquist@gmail.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 14 Sep 2021 10:35:18 +0200
-Message-ID: <1631608518254143@kroah.com>
+Message-ID: <1631608518247249@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: gadget: r8a66597: fix a loop in set_feature()
+    usb: gadget: u_audio: EP-OUT bInterval in fback frequency
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -52,43 +51,80 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 17956b53ebff6a490baf580a836cbd3eae94892b Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Mon, 6 Sep 2021 12:42:21 +0300
-Subject: usb: gadget: r8a66597: fix a loop in set_feature()
+From f5dfd98a80ff8d50cf4ae2820857d7f5a46cbab9 Mon Sep 17 00:00:00 2001
+From: Pavel Hofman <pavel.hofman@ivitera.com>
+Date: Mon, 6 Sep 2021 15:08:22 +0200
+Subject: usb: gadget: u_audio: EP-OUT bInterval in fback frequency
 
-This loop is supposed to loop until if reads something other than
-CS_IDST or until it times out after 30,000 attempts.  But because of
-the || vs && bug, it will never time out and instead it will loop a
-minimum of 30,000 times.
+The patch increases the bitshift in feedback frequency
+calculation with EP-OUT bInterval value.
 
-This bug is quite old but the code is only used in USB_DEVICE_TEST_MODE
-so it probably doesn't affect regular usage.
+Tests have revealed that Win10 and OSX UAC2 drivers require
+the feedback frequency to be based on the actual packet
+interval instead of on the USB2 microframe. Otherwise they
+ignore the feedback value. Linux snd-usb-audio driver
+detects the applied bitshift automatically.
 
-Fixes: 96fe53ef5498 ("usb: gadget: r8a66597-udc: add support for TEST_MODE")
+Tested-by: Henrik Enquist <henrik.enquist@gmail.com>
+Signed-off-by: Pavel Hofman <pavel.hofman@ivitera.com>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20210906094221.GA10957@kili
+Link: https://lore.kernel.org/r/20210906130822.12256-1-pavel.hofman@ivitera.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/r8a66597-udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/u_audio.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/r8a66597-udc.c b/drivers/usb/gadget/udc/r8a66597-udc.c
-index 65cae4883454..38e4d6b505a0 100644
---- a/drivers/usb/gadget/udc/r8a66597-udc.c
-+++ b/drivers/usb/gadget/udc/r8a66597-udc.c
-@@ -1250,7 +1250,7 @@ static void set_feature(struct r8a66597 *r8a66597, struct usb_ctrlrequest *ctrl)
- 			do {
- 				tmp = r8a66597_read(r8a66597, INTSTS0) & CTSQ;
- 				udelay(1);
--			} while (tmp != CS_IDST || timeout-- > 0);
-+			} while (tmp != CS_IDST && timeout-- > 0);
+diff --git a/drivers/usb/gadget/function/u_audio.c b/drivers/usb/gadget/function/u_audio.c
+index 32ef22857083..ad16163b5ff8 100644
+--- a/drivers/usb/gadget/function/u_audio.c
++++ b/drivers/usb/gadget/function/u_audio.c
+@@ -96,11 +96,13 @@ static const struct snd_pcm_hardware uac_pcm_hardware = {
+ };
  
- 			if (tmp == CS_IDST)
- 				r8a66597_bset(r8a66597,
+ static void u_audio_set_fback_frequency(enum usb_device_speed speed,
++					struct usb_ep *out_ep,
+ 					unsigned long long freq,
+ 					unsigned int pitch,
+ 					void *buf)
+ {
+ 	u32 ff = 0;
++	const struct usb_endpoint_descriptor *ep_desc;
+ 
+ 	/*
+ 	 * Because the pitch base is 1000000, the final divider here
+@@ -128,8 +130,13 @@ static void u_audio_set_fback_frequency(enum usb_device_speed speed,
+ 		 * byte fromat (that is Q16.16)
+ 		 *
+ 		 * ff = (freq << 16) / 8000
++		 *
++		 * Win10 and OSX UAC2 drivers require number of samples per packet
++		 * in order to honor the feedback value.
++		 * Linux snd-usb-audio detects the applied bit-shift automatically.
+ 		 */
+-		freq <<= 4;
++		ep_desc = out_ep->desc;
++		freq <<= 4 + (ep_desc->bInterval - 1);
+ 	}
+ 
+ 	ff = DIV_ROUND_CLOSEST_ULL((freq * pitch), 1953125);
+@@ -267,7 +274,7 @@ static void u_audio_iso_fback_complete(struct usb_ep *ep,
+ 		pr_debug("%s: iso_complete status(%d) %d/%d\n",
+ 			__func__, status, req->actual, req->length);
+ 
+-	u_audio_set_fback_frequency(audio_dev->gadget->speed,
++	u_audio_set_fback_frequency(audio_dev->gadget->speed, audio_dev->out_ep,
+ 				    params->c_srate, prm->pitch,
+ 				    req->buf);
+ 
+@@ -526,7 +533,7 @@ int u_audio_start_capture(struct g_audio *audio_dev)
+ 	 * be meauserd at start of playback
+ 	 */
+ 	prm->pitch = 1000000;
+-	u_audio_set_fback_frequency(audio_dev->gadget->speed,
++	u_audio_set_fback_frequency(audio_dev->gadget->speed, ep,
+ 				    params->c_srate, prm->pitch,
+ 				    req_fback->buf);
+ 
 -- 
 2.33.0
 
