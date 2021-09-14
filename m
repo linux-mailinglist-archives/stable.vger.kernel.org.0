@@ -2,234 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE89740A6B1
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 08:25:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FE3240A6D9
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 08:46:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240075AbhING05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 02:26:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38280 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239936AbhING04 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 02:26:56 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3D3EC061574
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 23:25:39 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id n10so18096484eda.10
-        for <stable@vger.kernel.org>; Mon, 13 Sep 2021 23:25:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=dRNiDC7YLs5heF9NcfR3kRhzSMIb5odMrKovtse3vZ0=;
-        b=TfNPXtb37/ctK/4DAPOe/UQzIAP8tujP01WQDhiu4XxlSP9NsLwAsRhGrff/fOwP6x
-         KvjtKG3Pq46pE38LvWcgKTK/6iGlDuL3bkJX+hphmZ5OFHtyLjFK34sF6XOoSIUYqwdb
-         1R4dZmkU1Tanex2tZkBfsSBAkE/6brNrNfTLu/zLERmDGA2XElrczKMqG5PTzYZHaX30
-         z7fngl7M5eak0Y4jucGbkYRTrixl5MC0TnKXCG1AehKyu7SlM1ckYbV/KKtgL2QL3gew
-         BnyZkZKqe4tf7b5yXzy2g9urGq3FwIdwcTlOZi30aydlhu5X9fyXRVP1MvtTBHFCuwUV
-         IYaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=dRNiDC7YLs5heF9NcfR3kRhzSMIb5odMrKovtse3vZ0=;
-        b=sMHGGo5HYNxv8k0HRcjimwcXLV8387b1T4vxvFYnCVfhXfp4K/xFtCztV9KecVSR1d
-         KeeJDqRWVWaA3zO5pBuwSpYXdSnLjK7fEfCpqLpIaV1mT06USiFJMtW9+PnlUh5nU7zv
-         UCIeWAKICN0Gr1u+Gy9VMyPobiaS0mFdmpgcl6KTIhmgXEtV0DOj7a6XpDgk1tWUXbyX
-         4x4LC1ajo8gAMzvtsveF6BN4ybryXaVRKdqHL3Ut55D9fpLBChf40Dek4LldeOKngVhw
-         HKQOYlvd7S62HOHNqj8E8ki5fERllEqBR/RpPXsn2nXVL2ZBWmquk+A5TUgfdu+YLMn9
-         Xwhg==
-X-Gm-Message-State: AOAM530ftQs/uuziSbix3qpkrNjX1+B0Z2ta4UwYlj+Gzpk03NsPwk+5
-        9P7yPB7clBDIqUMmjeLSNKKXtAoCzdhik/CaovIxSg==
-X-Google-Smtp-Source: ABdhPJzmWKzZmBP1pEjQIcGKkCAAXcKhcY+v43u2I/h9tGtB3r0vwJL8GJcy7Q4XC1BD4AqLCfxyurN+PsUjKy78SH8=
-X-Received: by 2002:aa7:dcd0:: with SMTP id w16mr17554934edu.288.1631600738232;
- Mon, 13 Sep 2021 23:25:38 -0700 (PDT)
+        id S240084AbhINGru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 02:47:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40132 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240054AbhINGrt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Sep 2021 02:47:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A80061159;
+        Tue, 14 Sep 2021 06:46:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631601992;
+        bh=mrqyMg3pEg8Gt243tr7ewmAyFoQ5qJ3l1/iqi5lPC4c=;
+        h=Subject:To:From:Date:From;
+        b=voRhN24lKfFD9j6XIPJtiujndu0Tw+2ZwiZCG5rBhu/OWcckJUmhaaDGMafoq/Mob
+         JA3l1uy31A6yu0XJF5SYaFeU/GyQU+rPujQmC54hhxmqvZgqH28FxW20CZYzonNGWD
+         ELHJZeIVxaYsbHJSVM6ZN7NtmnreuBBfPdiN3yPQ=
+Subject: patch "binder: fix freeze race" added to char-misc-linus
+To:     dualli@google.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, tkjos@google.com
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 14 Sep 2021 08:46:30 +0200
+Message-ID: <1631601990224246@kroah.com>
 MIME-Version: 1.0
-References: <20210913131100.316353015@linuxfoundation.org>
-In-Reply-To: <20210913131100.316353015@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 14 Sep 2021 11:55:26 +0530
-Message-ID: <CA+G9fYuW0Z=NxY5wHrb6J0aWH393iDt=DafLQ8tYpHd6e5YY9w@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/236] 5.10.65-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 13 Sept 2021 at 18:54, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.65 release.
-> There are 236 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 15 Sep 2021 13:10:21 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.65-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This is a note to let you know that I've just added the patch titled
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+    binder: fix freeze race
 
-## Build
-* kernel: 5.10.65-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.10.y
-* git commit: e306b25768e344bf338aeb3b1439af89af21b31e
-* git describe: v5.10.64-237-ge306b25768e3
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.64-237-ge306b25768e3
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
-## No regressions (compared to v5.10.64-215-g5352b1865825)
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-## No fixes (compared to v5.10.64-215-g5352b1865825)
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
-## Test result summary
-total: 89197, pass: 74790, fail: 603, skip: 12826, xfail: 978
+If you have any questions about this process, please let me know.
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 289 total, 289 passed, 0 failed
-* arm64: 39 total, 39 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 38 total, 38 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 51 total, 51 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 36 total, 35 passed, 1 failed
-* riscv: 30 total, 30 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 39 total, 39 passed, 0 failed
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+From b564171ade70570b7f335fa8ed17adb28409e3ac Mon Sep 17 00:00:00 2001
+From: Li Li <dualli@google.com>
+Date: Fri, 10 Sep 2021 09:42:10 -0700
+Subject: binder: fix freeze race
 
---
-Linaro LKFT
-https://lkft.linaro.org
+Currently cgroup freezer is used to freeze the application threads, and
+BINDER_FREEZE is used to freeze the corresponding binder interface.
+There's already a mechanism in ioctl(BINDER_FREEZE) to wait for any
+existing transactions to drain out before actually freezing the binder
+interface.
+
+But freezing an app requires 2 steps, freezing the binder interface with
+ioctl(BINDER_FREEZE) and then freezing the application main threads with
+cgroupfs. This is not an atomic operation. The following race issue
+might happen.
+
+1) Binder interface is frozen by ioctl(BINDER_FREEZE);
+2) Main thread A initiates a new sync binder transaction to process B;
+3) Main thread A is frozen by "echo 1 > cgroup.freeze";
+4) The response from process B reaches the frozen thread, which will
+unexpectedly fail.
+
+This patch provides a mechanism to check if there's any new pending
+transaction happening between ioctl(BINDER_FREEZE) and freezing the
+main thread. If there's any, the main thread freezing operation can
+be rolled back to finish the pending transaction.
+
+Furthermore, the response might reach the binder driver before the
+rollback actually happens. That will still cause failed transaction.
+
+As the other process doesn't wait for another response of the response,
+the response transaction failure can be fixed by treating the response
+transaction like an oneway/async one, allowing it to reach the frozen
+thread. And it will be consumed when the thread gets unfrozen later.
+
+NOTE: This patch reuses the existing definition of struct
+binder_frozen_status_info but expands the bit assignments of __u32
+member sync_recv.
+
+To ensure backward compatibility, bit 0 of sync_recv still indicates
+there's an outstanding sync binder transaction. This patch adds new
+information to bit 1 of sync_recv, indicating the binder transaction
+happens exactly when there's a race.
+
+If an existing userspace app runs on a new kernel, a sync binder call
+will set bit 0 of sync_recv so ioctl(BINDER_GET_FROZEN_INFO) still
+return the expected value (true). The app just doesn't check bit 1
+intentionally so it doesn't have the ability to tell if there's a race.
+This behavior is aligned with what happens on an old kernel which
+doesn't set bit 1 at all.
+
+A new userspace app can 1) check bit 0 to know if there's a sync binder
+transaction happened when being frozen - same as before; and 2) check
+bit 1 to know if that sync binder transaction happened exactly when
+there's a race - a new information for rollback decision.
+
+the same time, confirmed the pending transactions succeeded.
+
+Fixes: 432ff1e91694 ("binder: BINDER_FREEZE ioctl")
+Acked-by: Todd Kjos <tkjos@google.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Li Li <dualli@google.com>
+Test: stress test with apps being frozen and initiating binder calls at
+Link: https://lore.kernel.org/r/20210910164210.2282716-2-dualli@chromium.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/android/binder.c            | 35 ++++++++++++++++++++++++-----
+ drivers/android/binder_internal.h   |  2 ++
+ include/uapi/linux/android/binder.h |  7 ++++++
+ 3 files changed, 38 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index d9030cb6b1e4..1a68c2f590cf 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -3038,9 +3038,8 @@ static void binder_transaction(struct binder_proc *proc,
+ 	if (reply) {
+ 		binder_enqueue_thread_work(thread, tcomplete);
+ 		binder_inner_proc_lock(target_proc);
+-		if (target_thread->is_dead || target_proc->is_frozen) {
+-			return_error = target_thread->is_dead ?
+-				BR_DEAD_REPLY : BR_FROZEN_REPLY;
++		if (target_thread->is_dead) {
++			return_error = BR_DEAD_REPLY;
+ 			binder_inner_proc_unlock(target_proc);
+ 			goto err_dead_proc_or_thread;
+ 		}
+@@ -4648,6 +4647,22 @@ static int binder_ioctl_get_node_debug_info(struct binder_proc *proc,
+ 	return 0;
+ }
+ 
++static bool binder_txns_pending_ilocked(struct binder_proc *proc)
++{
++	struct rb_node *n;
++	struct binder_thread *thread;
++
++	if (proc->outstanding_txns > 0)
++		return true;
++
++	for (n = rb_first(&proc->threads); n; n = rb_next(n)) {
++		thread = rb_entry(n, struct binder_thread, rb_node);
++		if (thread->transaction_stack)
++			return true;
++	}
++	return false;
++}
++
+ static int binder_ioctl_freeze(struct binder_freeze_info *info,
+ 			       struct binder_proc *target_proc)
+ {
+@@ -4679,8 +4694,13 @@ static int binder_ioctl_freeze(struct binder_freeze_info *info,
+ 			(!target_proc->outstanding_txns),
+ 			msecs_to_jiffies(info->timeout_ms));
+ 
+-	if (!ret && target_proc->outstanding_txns)
+-		ret = -EAGAIN;
++	/* Check pending transactions that wait for reply */
++	if (ret >= 0) {
++		binder_inner_proc_lock(target_proc);
++		if (binder_txns_pending_ilocked(target_proc))
++			ret = -EAGAIN;
++		binder_inner_proc_unlock(target_proc);
++	}
+ 
+ 	if (ret < 0) {
+ 		binder_inner_proc_lock(target_proc);
+@@ -4696,6 +4716,7 @@ static int binder_ioctl_get_freezer_info(
+ {
+ 	struct binder_proc *target_proc;
+ 	bool found = false;
++	__u32 txns_pending;
+ 
+ 	info->sync_recv = 0;
+ 	info->async_recv = 0;
+@@ -4705,7 +4726,9 @@ static int binder_ioctl_get_freezer_info(
+ 		if (target_proc->pid == info->pid) {
+ 			found = true;
+ 			binder_inner_proc_lock(target_proc);
+-			info->sync_recv |= target_proc->sync_recv;
++			txns_pending = binder_txns_pending_ilocked(target_proc);
++			info->sync_recv |= target_proc->sync_recv |
++					(txns_pending << 1);
+ 			info->async_recv |= target_proc->async_recv;
+ 			binder_inner_proc_unlock(target_proc);
+ 		}
+diff --git a/drivers/android/binder_internal.h b/drivers/android/binder_internal.h
+index 810c0b84d3f8..402c4d4362a8 100644
+--- a/drivers/android/binder_internal.h
++++ b/drivers/android/binder_internal.h
+@@ -378,6 +378,8 @@ struct binder_ref {
+  *                        binder transactions
+  *                        (protected by @inner_lock)
+  * @sync_recv:            process received sync transactions since last frozen
++ *                        bit 0: received sync transaction after being frozen
++ *                        bit 1: new pending sync transaction during freezing
+  *                        (protected by @inner_lock)
+  * @async_recv:           process received async transactions since last frozen
+  *                        (protected by @inner_lock)
+diff --git a/include/uapi/linux/android/binder.h b/include/uapi/linux/android/binder.h
+index 20e435fe657a..3246f2c74696 100644
+--- a/include/uapi/linux/android/binder.h
++++ b/include/uapi/linux/android/binder.h
+@@ -225,7 +225,14 @@ struct binder_freeze_info {
+ 
+ struct binder_frozen_status_info {
+ 	__u32            pid;
++
++	/* process received sync transactions since last frozen
++	 * bit 0: received sync transaction after being frozen
++	 * bit 1: new pending sync transaction during freezing
++	 */
+ 	__u32            sync_recv;
++
++	/* process received async transactions since last frozen */
+ 	__u32            async_recv;
+ };
+ 
+-- 
+2.33.0
+
+
