@@ -2,91 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED1240B659
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 19:58:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5031F40B676
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 20:03:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231825AbhINSAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 14:00:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60444 "EHLO
+        id S229617AbhINSE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 14:04:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231725AbhINSAI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 14:00:08 -0400
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20FD5C061574
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 10:58:51 -0700 (PDT)
-Received: by mail-lj1-x22d.google.com with SMTP id w4so106533ljh.13
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 10:58:51 -0700 (PDT)
+        with ESMTP id S229526AbhINSE2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 14:04:28 -0400
+Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3B4C061574
+        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 11:03:10 -0700 (PDT)
+Received: by mail-ot1-x32a.google.com with SMTP id c42-20020a05683034aa00b0051f4b99c40cso19766562otu.0
+        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 11:03:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=nGuWr5Cf4Jqy9IQkXV8lo75YPFGOAqB++8MQJKEZ/ME=;
-        b=ZlJuW70tqeUSd5l9b1vYfQxAuXVWBR7mDfXJniYpdPw69gFaFm1iEolMkBXpb7F8tW
-         Wk+ksPeUQ0ahSZBY9SZsEnAB+32Je3naZX3luEWFgJfJBmfHCFGFApcQHx8a+yLHAehK
-         +vS0liL4ZrtzXm47Y4yH0uiL980+ioUyQp09LiE6pkb+UOshF2rbPiWq9KmDn+Px+Lx2
-         qcXFuZyAHqic4RmmyMqkFcUWX0wDudGquz62gJaVGWRelzD9OZbJZUEWnTQLW44iAuE6
-         4NH8Sy9TtBty16+OxZWfrDaVKFvWXlEuj98LWrUY8G6x1ESivT56rfvpR1iZczEO32iX
-         ytLQ==
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=tb4qHHViIoRDbO0ceCggoUCybSg3vUZsAfJ5wkxGsf8=;
+        b=mrV8/HUKmUxptB/Lz2m9itpBmKkmMPPgpbcgPWD8RU30/O9RsOIuQYXutCxsqcEmvb
+         8KXWCKRDIaceYsQmbL9KKoqJxBQQpbLKLdLcXm4YjML5hV1SS1wYKHSLNefTAY0cz2kK
+         oTEE0zGgyBCG3itaN2Bm/V5srBOH/IVKUg6Y4NE8qCtSUo8mgMW78XXehr3woSwJAhzP
+         dDLunnQvVJAK66v54Wb2dPRu1A2mCeZCy2KCc/tvhhtrKAC3MoSuZE94YSKrMCx1xbaa
+         oeOWS9rQg7ZuJwkT82MtoDejT/1+SpkfMuLzN/qPS4O1V8B7+6B3rgItpTAjSPa6k9rV
+         GZjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nGuWr5Cf4Jqy9IQkXV8lo75YPFGOAqB++8MQJKEZ/ME=;
-        b=gZaQdRaHU2MFI+0FpiB3ist6Xw1oRdOLmKhftpuCUahc9/4YejibqaizQsLMiSY8qR
-         tyEQJBQSEeWbO4Ph3fj8tKkj8K44pOSwtuJmze/3iQ3xWngBGRtv7dun+ohRy5vu8LVM
-         AF0PqL1DUIv/sGpxfWEFVigFzOJ8RMXGeTPexN8cvO7XD37/fImqYEb+HwNxrXnXWVwn
-         0xEtylzCfVyy2pjNLEWFb77VtoCSQxEsFHROJVMo84rRxPs0lMzng/wKD0nCAw/xl71M
-         OgjmN7KNYw8OviGl4l5focBpoNvtDdWmVgheYMjAJfVM+cXCkhEsy5AfhZlUEJGSclT7
-         3OEw==
-X-Gm-Message-State: AOAM5330mhwgcb6ME51cc3BIrOuL30AAUgOiq0TmMzZNDTTTOUMcPA9L
-        eZE60fdMgdaiH5zZYt+EKWk9s4dtROKCH3VsYaNakA==
-X-Google-Smtp-Source: ABdhPJzOHDvb2Res/SQDtP09QCjmfCMlp9GZdRXj6NTTqGM3YzEO2uGvw4XNaISgW8ko6tdzw2bQUEaqM26cKYpZOJA=
-X-Received: by 2002:a2e:b8cc:: with SMTP id s12mr17029070ljp.527.1631642329211;
- Tue, 14 Sep 2021 10:58:49 -0700 (PDT)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=tb4qHHViIoRDbO0ceCggoUCybSg3vUZsAfJ5wkxGsf8=;
+        b=vI9oD/7JDJZvZNoYEpfTYYriw6FSFDrnpGzzJUnL57ereEFh8Geg40YqvKCh5yqvgG
+         6wC3go1vDA/KQN35Co5lpc2IA3GmvaW0205GlJdezORIzBoKwG+F2C2u8DGSp/lD4JOY
+         yIsfsx4DM1c3MpolAS0zBDQHifoX/kz6k6zq+Li/j70OsGRlNn3lPqKsmujjXDQkI9F0
+         eLSgzHqjtMVOCkVFQlGBXX8DcENcYBRmT0zb8apWko8O/mKs4NtAQsFJSQm8GJrDR5q0
+         /chmDxq/dHpb8H+/MXLax0nQOzY1UWRP03DPfm1JxRGEm5QdvaI+t/XHnc6JDzljNFk2
+         g2bA==
+X-Gm-Message-State: AOAM532VfmEfsELD7WwmZsavKZWeReYjlMhOK8Bbq94jH2S7DnkZmNxe
+        miABLkrIG/ZDlszD92NIOZs=
+X-Google-Smtp-Source: ABdhPJwwJwuLdhTRTfjQGtChViG+89tRH0wpbIWo0KVUuCO2PhqySfq4XzvvVt7kujiGzTtoN3lE+A==
+X-Received: by 2002:a05:6830:25d5:: with SMTP id d21mr16043049otu.105.1631642590157;
+        Tue, 14 Sep 2021 11:03:10 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id a6sm2766643oto.36.2021.09.14.11.03.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Sep 2021 11:03:09 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 14 Sep 2021 11:03:07 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: ppc crashes in v4.14.y-queue and v4.19.y-queue
+Message-ID: <20210914180307.GA567043@roeck-us.net>
+References: <87cbd9ce-161e-7c15-fbf4-66abd2540bed@roeck-us.net>
+ <YUDKnfT6RJJDXs94@kroah.com>
 MIME-Version: 1.0
-References: <20210914171551.3223715-1-pgonda@google.com> <YUDcvRB3/QOXSi8H@google.com>
-In-Reply-To: <YUDcvRB3/QOXSi8H@google.com>
-From:   Peter Gonda <pgonda@google.com>
-Date:   Tue, 14 Sep 2021 11:58:37 -0600
-Message-ID: <CAMkAt6opZoFfW_DiyJUREBAtd8503C6j+ZbjS9YL3z+bhqHR8Q@mail.gmail.com>
-Subject: Re: [PATCH] KVM: SEV: Disable KVM_CAP_VM_COPY_ENC_CONTEXT_FROM for SEV-ES
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     kvm list <kvm@vger.kernel.org>, Marc Orr <marcorr@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Nathan Tempelman <natet@google.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YUDKnfT6RJJDXs94@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 11:32 AM Sean Christopherson <seanjc@google.com> wrote:
->
-> On Tue, Sep 14, 2021, Peter Gonda wrote:
-> > Copying an ASID into new vCPUs will not work for SEV-ES since the vCPUs
-> > VMSAs need to be setup and measured before SEV_LAUNCH_FINISH. Return an
-> > error if a users tries to KVM_CAP_VM_COPY_ENC_CONTEXT_FROM from an
-> > SEV-ES guest.
->
-> What happens if userspace does KVM_CAP_VM_COPY_ENC_CONTEXT_FROM before the source
-> has created vCPUs, i.e. before it has done SEV_LAUNCH_FINISH?
+On Tue, Sep 14, 2021 at 06:15:25PM +0200, Greg Kroah-Hartman wrote:
+> On Tue, Sep 14, 2021 at 09:03:38AM -0700, Guenter Roeck wrote:
+> > Hi,
+> > 
+> > I see the following crashes in v4.14.y-queue and v4.19.y-queue.
+> > Please let me know if I need to bisect.
+> > 
+[ ... ]
 
-That's not enough. If you wanted to be able to mirror SEV-ES you'd
-also need to call LAUNCH_UPDATE_VMSA on the mirror's vCPUs before
-SEV_LAUNCH_FINISH. That is do-able but I was writing a small change to
-fix this bug. If mirroring of SEV-ES is wanted it's a much bigger
-change.
+> 
+> Bisection would be great to track this down if at all possible.
+> 
+Attached. Reverting the offending patch fixes the problem in both v4.14.y-queue
+and v4.19.y-queue.
 
->
-> Might be worth noting that the destination cannot be an SEV guest, and therefore
-> can't be an SEV-ES guest either.
+Guenter
 
-sev_guest() implies sev_es_guest() so I think this case is covered.
-
->
-> > Fixes: 54526d1fd593 ("KVM: x86: Support KVM VMs sharing SEV context")
->
-> Cc: stable@vger.kernel.org
-
-Oops. I'll update in the V2 if needed. Added to this thread for now.
+---
+# bad: [d73a5c7790019b70d9454ee9797c223198ad8ff0] Linux 4.14.247-rc1
+# good: [f96eb53cbd76415edfba99c2cfa88567a885a428] Linux 4.14.246
+git bisect start 'HEAD' 'v4.14.246'
+# bad: [33a419b7cde2a3b8a0932319b6d54914717797f0] block: nbd: add sanity check for first_minor
+git bisect bad 33a419b7cde2a3b8a0932319b6d54914717797f0
+# good: [69f55eceb19466d9b20f926dbd16a4a0ad22ddbb] Revert "btrfs: compression: don't try to compress if we don't have enough pages"
+git bisect good 69f55eceb19466d9b20f926dbd16a4a0ad22ddbb
+# good: [f749b828e2bd070a33c3e8a1eda0e5e2de15ae81] power: supply: max17042_battery: fix typo in MAx17042_TOFF
+git bisect good f749b828e2bd070a33c3e8a1eda0e5e2de15ae81
+# good: [adccd339c64fbcd7098cf58a57acc3b7db3488d5] crypto: qat - fix naming for init/shutdown VF to PF notifications
+git bisect good adccd339c64fbcd7098cf58a57acc3b7db3488d5
+# good: [fe223807816e23234dc25460fabbe8957fec14e4] m68k: emu: Fix invalid free in nfeth_cleanup()
+git bisect good fe223807816e23234dc25460fabbe8957fec14e4
+# good: [17c695dab8970f9c7396bb7ccb25cc204b685f0b] spi: spi-pic32: Fix issue with uninitialized dma_slave_config
+git bisect good 17c695dab8970f9c7396bb7ccb25cc204b685f0b
+# good: [e2ff046bc5c21120d29085f33d3c56e3cf024ec3] clocksource/drivers/sh_cmt: Fix wrong setting if don't request IRQ for clock source channel
+git bisect good e2ff046bc5c21120d29085f33d3c56e3cf024ec3
+# first bad commit: [33a419b7cde2a3b8a0932319b6d54914717797f0] block: nbd: add sanity check for first_minor
