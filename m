@@ -2,161 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2A7240B44C
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 18:15:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A93F40B496
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 18:27:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231727AbhINQQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 12:16:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32840 "EHLO mail.kernel.org"
+        id S229492AbhINQ22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 12:28:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230131AbhINQQp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Sep 2021 12:16:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96E4960F9F;
-        Tue, 14 Sep 2021 16:15:27 +0000 (UTC)
+        id S229551AbhINQ22 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Sep 2021 12:28:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53129610A6;
+        Tue, 14 Sep 2021 16:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631636128;
-        bh=1F33Yh1KVnEmkGpplHNk1gcKW38Bkv1XhSiXF6D606g=;
+        s=korg; t=1631636830;
+        bh=aigduJq2CR6S4pAIzNs+46OI9RZyIvH6L534d0efEec=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hkrihhA9ZcwMIwOL++Juhu4owVs9Q4XNWwYvp1zRV0w8SXURsmD3q2vLdIm+VJnvf
-         V1QqWLGNejYJT918YGB0M4PaxE9dS7M9TwKyS9eWxlGhnwi3hZlU5w5A5wcs0/uyDn
-         US5VgdsMzU4yvy1lO/dtYRZWFXqAzDpnNzOhJ/yY=
-Date:   Tue, 14 Sep 2021 18:15:25 +0200
+        b=D+3HD0ml++Tx8+/VNtLtnxCU0+Tdl7DEFFUyyte/BUXQzbdPKe+XOaQTA1TDfxfQ9
+         XXv/R4LeNt6O6jKL4HUk3l6TnrKJkUn0ZiFrtRiyfjQOQORsLiK/zhBexYqlrgBo+c
+         NFf/S9/s6qSVfoLEvx2f1xNgK5LI3Im0YbBR5Mio=
+Date:   Tue, 14 Sep 2021 18:27:08 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: ppc crashes in v4.14.y-queue and v4.19.y-queue
-Message-ID: <YUDKnfT6RJJDXs94@kroah.com>
-References: <87cbd9ce-161e-7c15-fbf4-66abd2540bed@roeck-us.net>
+To:     Doug Anderson <dianders@chromium.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        "# 4.0+" <stable@vger.kernel.org>,
+        Andrzej Hajda <a.hajda@samsung.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.14 147/334] drm/bridge: ti-sn65dsi86: Dont read EDID
+ blob over DDC
+Message-ID: <YUDNXAVHfsrM7sR6@kroah.com>
+References: <20210913131113.390368911@linuxfoundation.org>
+ <20210913131118.330293390@linuxfoundation.org>
+ <CAD=FV=UhovUSmvbpc3q9=J_NSU0mcvQ3Fv8r4hi1ZNO=cMteuA@mail.gmail.com>
+ <YT93qkd8B7jy6AzV@kroah.com>
+ <CAD=FV=WPkVGTUmx2+Egt+ryO02n4cNGjN3S8gkBJP-WW3jPLWw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87cbd9ce-161e-7c15-fbf4-66abd2540bed@roeck-us.net>
+In-Reply-To: <CAD=FV=WPkVGTUmx2+Egt+ryO02n4cNGjN3S8gkBJP-WW3jPLWw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 09:03:38AM -0700, Guenter Roeck wrote:
+On Mon, Sep 13, 2021 at 09:31:03AM -0700, Doug Anderson wrote:
 > Hi,
 > 
-> I see the following crashes in v4.14.y-queue and v4.19.y-queue.
-> Please let me know if I need to bisect.
+> On Mon, Sep 13, 2021 at 9:09 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, Sep 13, 2021 at 06:57:20AM -0700, Doug Anderson wrote:
+> > > Hi,
+> > >
+> > > On Mon, Sep 13, 2021 at 6:51 AM Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > From: Douglas Anderson <dianders@chromium.org>
+> > > >
+> > > > [ Upstream commit a70e558c151043ce46a5e5999f4310e0b3551f57 ]
+> > > >
+> > > > This is really just a revert of commit 58074b08c04a ("drm/bridge:
+> > > > ti-sn65dsi86: Read EDID blob over DDC"), resolving conflicts.
+> > > >
+> > > > The old code failed to read the EDID properly in a very important
+> > > > case: before the bridge's pre_enable() was called. The way things need
+> > > > to work:
+> > > > 1. Read the EDID.
+> > > > 2. Based on the EDID, decide on video settings and pixel clock.
+> > > > 3. Enable the bridge w/ the desired settings.
+> > > >
+> > > > The way things were working:
+> > > > 1. Try to read the EDID but fail; fall back to hardcoded values.
+> > > > 2. Based on hardcoded values, decide on video settings and pixel clock.
+> > > > 3. Enable the bridge w/ the desired settings.
+> > > > 4. Try again to read the EDID, it works now!
+> > > > 5. Realize that the hardcoded settings weren't quite right.
+> > > > 6. Disable / reenable the bridge w/ the right settings.
+> > > >
+> > > > The reasons for the failures were twofold:
+> > > > a) Since we never ran the bridge chip's pre-enable then we never set
+> > > >    the bit to ignore HPD. This meant the bridge chip didn't even _try_
+> > > >    to go out on the bus and communicate with the panel.
+> > > > b) Even if we fixed things to ignore HPD, the EDID still wouldn't read
+> > > >    if the panel wasn't on.
+> > > >
+> > > > Instead of reverting the code, we could fix it to set the HPD bit and
+> > > > also power on the panel. However, it also works nicely to just let the
+> > > > panel code read the EDID. Now that we've split the driver up we can
+> > > > expose the DDC AUX channel bus to the panel node. The panel can take
+> > > > charge of reading the EDID.
+> > > >
+> > > > NOTE: in order for things to work, anyone that needs to read the EDID
+> > > > will need to instantiate their panel using the new DP AUX bus (AKA by
+> > > > listing their panel under the "aux-bus" node of the bridge chip in the
+> > > > device tree).
+> > > >
+> > > > In the future if we want to use the bridge chip to provide a full
+> > > > external DP port (which won't have a panel) then we will have to
+> > > > conditinally add EDID reading back in.
+> > > >
+> > > > Suggested-by: Andrzej Hajda <a.hajda@samsung.com>
+> > > > Signed-off-by: Douglas Anderson <dianders@chromium.org>
+> > > > Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> > > > Link: https://patchwork.freedesktop.org/patch/msgid/20210611101711.v10.9.I9330684c25f65bb318eff57f0616500f83eac3cc@changeid
+> > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > > ---
+> > > >  drivers/gpu/drm/bridge/ti-sn65dsi86.c | 22 ----------------------
+> > > >  1 file changed, 22 deletions(-)
+> > >
+> > > I guess it's not a huge deal, but I did respond to Sasha and request
+> > > that this patch be dropped from the stable queue unless the whole big
+> > > pile of patches was being backported. See:
+> > >
+> > > https://lore.kernel.org/lkml/CAD=FV=U2dGjeEzp+K1vnLTj8oPJ-GKBTTKz2XQ1OZ7QF_sTHuw@mail.gmail.com/
+> > >
+> > > I said:
+> > >
+> > > > I would suggest against backporting this one unless you're going to
+> > > > backport the whole pile of DP AUX bus patches, which probably doesn't
+> > > > make sense for stable. Even though the old EDID reading was broken for
+> > > > the first read, it still worked for later reads. ...and the first read
+> > > . didn't crash or anything--it just timed out.
+> >
+> > I see a "bunch" of patches for this driver in this -rc, did Sasha not
+> > get them all?  If not, I can drop this one, but maybe it was needed for
+> > the follow-on patches?
 > 
-> Thanks,
-> Guenter
+> It's been a long journey trying to make this bridge work better. I
+> think the easiest way to say it is that if you don't have the parent
+> of ${SUBJECT} patch, AKA:
 > 
-> ---
-> v4.14.y:
+> e0bbcc6233f7 drm/bridge: ti-sn65dsi86: Add support for the DP AUX bus
 > 
-> BUG: Kernel NULL pointer dereference at 0x000000c0
-> Faulting instruction address: 0xc0069d04
-> Oops: Kernel access of bad area, sig: 11 [#1]
-> BE MPC8544 DS
-> Modules linked in:
-> CPU: 0 PID: 473 Comm: kworker/0:1 Not tainted 4.14.247-rc1-00101-gd73a5c779001 #1
-> Workqueue: events __blk_release_queue
-> task: ce510ea0 task.stack: ce1f0000
-> NIP:  c0069d04 LR: c0565384 CTR: c0069cd4
-> REGS: ce1f1d30 TRAP: 0300   Not tainted  (4.14.247-rc1-00101-gd73a5c779001)
-> MSR:  00029000 <CE,EE,ME>  CR: 42002402  XER: 20000000
-> DEAR: 000000c0 ESR: 00000000
-> GPR00: c056951c ce1f1de0 ce510ea0 ce2e1530 ceac0000 00000000 ce511320 f2050c9c
-> GPR08: 00000001 5a5a5a5a cea752e8 97cae497 22002402 00000000 c0074dac ce23a518
-> GPR16: 00000000 00000000 00000000 00000000 00000000 00000000 c0f661c0 fffffef7
-> GPR24: c1010000 ce1f0000 00000000 00000000 ce2e1530 00000000 ce2e1520 ce2e1530
-> NIP [c0069d04] pwq_unbound_release_workfn+0x30/0x184
-> LR [c0565384] blk_mq_free_rqs+0x90/0x130
-> Call Trace:
-> [ce1f1de0] [c056a3a8] blk_mq_exit_sched+0xc0/0xe8 (unreliable)
-> [ce1f1e00] [ceaa7ea8] 0xceaa7ea8
-> [ce1f1e20] [c056951c] blk_mq_sched_tags_teardown+0x64/0xa0
-> [ce1f1e40] [c056a3b0] blk_mq_exit_sched+0xc8/0xe8
-> [ce1f1e60] [c054a24c] elevator_exit+0x98/0xc0
-> [ce1f1e80] [c05581cc] __blk_release_queue+0x58/0x13c
-> [ce1f1e90] [c006e8a4] process_one_work+0x2e4/0x6bc
-> [ce1f1ed0] [c006f18c] worker_thread+0x17c/0x46c
-> [ce1f1f10] [c0074ecc] kthread+0x120/0x15c
-> [ce1f1f40] [c001345c] ret_from_kernel_thread+0x5c/0x64
-> Instruction dump:
-> 9421ffe0 93c10018 3bc3fff0 93e1001c 7c7f1b78 9361000c 93a10014 8123fff0
-> 83a3ff94 8363ff90 7c1e4840 418200f4 <813d00c0> 71290002 41820144 93810010
-> ---[ end trace be33d503d2af084b ]---
-> 
-> BUG: Kernel NULL pointer dereference at 0x00000180
-> Faulting instruction address: 0xc00000000006e5c4
-> Oops: Kernel access of bad area, sig: 11 [#1]
-> BE SMP NR_CPUS=24 QEMU e500
-> Modules linked in:
-> CPU: 0 PID: 498 Comm: kworker/0:1 Not tainted 4.14.247-rc1-00101-gd73a5c779001 #1
-> Workqueue: events .__blk_release_queue
-> task: c00000003e1ddd40 task.stack: c00000003e540000
-> NIP:  c00000000006e5c4 LR: c0000000005dc204 CTR: c00000000006e594
-> REGS: c00000003e543530 TRAP: 0300   Not tainted  (4.14.247-rc1-00101-gd73a5c779001)
-> MSR:  0000000080009000 <EE,ME>  CR: 24002844  XER: 20000000
-> DEAR: 0000000000000180 ESR: 0000000000000000 SOFTE: 1
-> GPR00: c0000000005e0dfc c00000003e5437b0 c000000001380a00 c00000000712bba8
-> GPR04: c000000007180000 0000000000000000 000000004563074d 00000000857e8f62
-> GPR08: 000000003de9d000 0000000000000000 c00000000006e594 c0000000011d0a00
-> GPR12: 0000000044002842 c00000003fff5000 c00000000007ac78 c00000003e3d1af8
-> GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-> GPR20: 0000000000000000 0000000000000000 c00000003f00b140 c00000000138a940
-> GPR24: 0000000000000000 c00000000124a640 0000000000000000 0000000000000000
-> GPR28: c00000000712bba8 c00000000712bb88 0000000000000000 c00000000712bba8
-> NIP [c00000000006e5c4] .pwq_unbound_release_workfn+0x30/0x1c0
-> LR [c0000000005dc204] .blk_mq_free_rqs+0x9c/0x14c
-> Call Trace:
-> [c00000003e5437b0] [c00000003e543840] 0xc00000003e543840 (unreliable)
-> [c00000003e543850] [c000000000218980] .kfree+0xe4/0x3f4
-> [c00000003e5438f0] [c0000000005e0dfc] .blk_mq_sched_free_tags+0x28/0x54
-> [c00000003e543970] [c0000000005e0f1c] .blk_mq_sched_tags_teardown+0x48/0x78
-> [c00000003e543a00] [c0000000005e2030] .blk_mq_exit_sched+0xf4/0x114
-> [c00000003e543aa0] [c0000000005be008] .elevator_exit+0xb8/0xf0
-> [c00000003e543b30] [c0000000005cdba8] .__blk_release_queue+0x64/0x190
-> [c00000003e543bb0] [c000000000072604] .process_one_work+0x324/0x894
-> [c00000003e543c90] [c000000000072be0] .worker_thread+0x6c/0x4f0
-> [c00000003e543d70] [c00000000007ae28] .kthread+0x1b0/0x1b8
-> [c00000003e543e30] [c000000000000a00] .ret_from_kernel_thread+0x58/0xd8
-> Instruction dump:
-> fba1ffe8 3ba3ffe0 fbe1fff8 7c7f1b78 fb61ffd8 fbc1fff0 f821ff61 e923ffe0
-> ebc3ff78 7fbd4840 eb63ff70 419e0124 <813e0180> 71290002 41820180 7c0802a6
-> ---[ end trace a1c724264250a495 ]---
-> 
-> 
-> v4.19.y:
-> 
-> BUG: Unable to handle kernel data access at 0x6b6b6b8f
-> Faulting instruction address: 0xc05fef28
-> Oops: Kernel access of bad area, sig: 11 [#1]
-> BE SMP NR_CPUS=24 MPC8544 DS
-> Modules linked in:
-> CPU: 0 PID: 21 Comm: kworker/0:1 Tainted: G        W         4.19.207-rc1-00121-gae1a50dc8893 #1
-> Workqueue: events __blk_release_queue
-> NIP:  c05fef28 LR: c0603e3c CTR: 00000000
-> REGS: ce143d30 TRAP: 0300   Tainted: G        W          (4.19.207-rc1-00121-gae1a50dc8893)
-> MSR:  00029000 <CE,EE,ME>  CR: 84002404  XER: 00000000
-> DEAR: 6b6b6b8f ESR: 00000000
-> GPR00: c0603e3c ce143de0 ce131ee0 cea4e8a0 cea4a890 00000000 00021000 00000000
-> GPR08: 00000001 6b6b6b6b ceb26008 00001780 44002802 00000000 c0080784 ce113d88
-> GPR16: 00000000 00000000 00000000 00000000 c10b0e2c c10b0e04 fffffef7 00000402
-> GPR24: c1160000 00000000 c11627ec 00000000 cea4e8a0 cea591d8 cea4a890 00000001
-> NIP [c05fef28] blk_mq_free_rqs+0x34/0x130
-> LR [c0603e3c] blk_mq_sched_tags_teardown+0x64/0xa0
-> Call Trace:
-> [ce143e00] [c0603e3c] blk_mq_sched_tags_teardown+0x64/0xa0
-> [ce143e20] [c06046a4] blk_mq_exit_sched+0xc8/0xe8
-> [ce143e40] [c05e1bcc] elevator_exit+0x98/0xc0
-> [ce143e60] [c05ea85c] blk_exit_queue+0x30/0x50
-> [ce143e70] [c05f09f0] __blk_release_queue+0x50/0x15c
-> [ce143e80] [c0079d9c] process_one_work+0x2b0/0x6b0
-> [ce143ec0] [c007a6f0] worker_thread+0x19c/0x49c
-> [ce143f10] [c00808c4] kthread+0x140/0x17c
-> [ce143f40] [c001534c] ret_from_kernel_thread+0x14/0x1c
-> Instruction dump:
-> 7c0802a6 93c10018 7c9e2378 90010024 93810010 93a10014 93e1001c 8124005c
-> 2c090000 41820084 81230004 7c7c1b78 <81290024> 2c090000 41820070 81240000
-> ---[ end trace df2545c1cd678853 ]---
+> ...then you don't have DP AUX bus support and you shouldn't take
+> ${SUBJECT} patch. If you have that patch and it compiles / builds then
+> it means that you have all the proper dependencies. However, there are
+> _a lot_ of dependencies and I wouldn't suggest picking them all to
+> stable unless it's critical for someone.
 
+I tried to drop this one, and it turned out to be a depandancy for
+another patch for this driver.  And that was another dependancy.  So
+I've now dropped all of these from the queue.
 
-Bisection would be great to track this down if at all possible.
+Here are the commits I dropped.  If you think any should be added back,
+please let us know:
+
+05a7f4a8dff1 ("devlink: Break parameter notification sequence to be before/after unload/load driver")
+e183bf31cf0d ("drm/bridge: ti-sn65dsi86: Add some 100 us delays")
+c7782443a889 ("drm/bridge: ti-sn65dsi86: Avoid creating multiple connectors")
+a70e558c1510 ("drm/bridge: ti-sn65dsi86: Don't read EDID blob over DDC")
+acb06210b096 ("drm/bridge: ti-sn65dsi86: Fix power off sequence")
+4c1b3d94bf63 ("drm/bridge: ti-sn65dsi86: Improve probe errors with dev_err_probe()")
+4e5763f03e10 ("drm/bridge: ti-sn65dsi86: Wrap panel with panel-bridge")
 
 thanks,
 
