@@ -2,62 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F22C440B09B
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 16:28:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7A9640B289
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 17:07:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233358AbhINO3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 10:29:41 -0400
-Received: from mail-ed1-f43.google.com ([209.85.208.43]:34815 "EHLO
-        mail-ed1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233300AbhINO3k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 10:29:40 -0400
-Received: by mail-ed1-f43.google.com with SMTP id i6so20221122edu.1
-        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 07:28:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=kicEnr2Cugeg1q66CI/wvoiBYIFJN2vXcDbJaUW4tr0=;
-        b=fWRViz32OoFe5JVF+76PU+nDLAaBT0Ox76+aKcUF9RnWJrH0i9VMCp7q1DyqTYII+s
-         xOuY06CQBLihbcPAjULDZJSTt8bTc1inEdbD9VVioRixKEmK9Vp5cjroxW8z5ub35ncz
-         M8N8weTvnJn3BMelsaFHDG5azpRNomAWGH9VbvZ2CV/qRolNMjyhPbUDHkfCHW7SNGnx
-         ivN3qdztstlgcpYqGEQIsWantvQuG9vudXfvaAwx0wuMre1qoUgNLFWdjYMo2lfqMYbR
-         TB4eT4SuCndBeJmvfFa+ybyxnKiULQMYhEpZhlmvRqekESyZZO2Mx0lsrbywlCc5JWC0
-         BTXw==
-X-Gm-Message-State: AOAM532Bke+rGPKbar17JnSEKMLZ6lNrcqcJUd7LLPxnangJuN+FVMiA
-        Gx/Ec5goWhFWNECHaN/WyBg9wwxFTZo=
-X-Google-Smtp-Source: ABdhPJx/TtwjqUpck2gI5RgHPPw6P8avek2CfZ1CWFvY/bPMA1mWlaDBKIKo2V5dnfBmLBqhcPI+wA==
-X-Received: by 2002:a05:6402:150a:: with SMTP id f10mr19579705edw.318.1631629701787;
-        Tue, 14 Sep 2021 07:28:21 -0700 (PDT)
-Received: from [10.100.102.14] (109-186-240-23.bb.netvision.net.il. [109.186.240.23])
-        by smtp.gmail.com with ESMTPSA id bt24sm5011798ejb.77.2021.09.14.07.28.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 14 Sep 2021 07:28:20 -0700 (PDT)
-Subject: Re: [bug report] nvme0n1 node still exists after blktests
- nvme-tcp/014 on 5.13.16-rc1
-To:     Yi Zhang <yi.zhang@redhat.com>, Hannes Reinecke <hare@suse.de>,
-        linux-nvme@lists.infradead.org
-Cc:     stable@vger.kernel.org
-References: <CAHj4cs94pDUfSSfij=ENQxL-2PaGrHJSnhn_mHTC+hqSvPzBTQ@mail.gmail.com>
-From:   Sagi Grimberg <sagi@grimberg.me>
-Message-ID: <ca405578-5462-0ab9-91ab-de9d42ee0570@grimberg.me>
-Date:   Tue, 14 Sep 2021 17:28:19 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S234021AbhINPI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 11:08:58 -0400
+Received: from mga18.intel.com ([134.134.136.126]:9934 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233858AbhINPI6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Sep 2021 11:08:58 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10106"; a="209115430"
+X-IronPort-AV: E=Sophos;i="5.85,292,1624345200"; 
+   d="scan'208";a="209115430"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Sep 2021 08:06:00 -0700
+X-IronPort-AV: E=Sophos;i="5.85,292,1624345200"; 
+   d="scan'208";a="472024055"
+Received: from wilesamy-mobl.amr.corp.intel.com (HELO intel.com) ([10.252.131.20])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Sep 2021 08:06:00 -0700
+Date:   Tue, 14 Sep 2021 08:05:58 -0700
+From:   Ben Widawsky <ben.widawsky@intel.com>
+To:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        linux-doc@vger.kernel.org, linux-cxl@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.14 03/25] cxl: Move cxl_core to new directory
+Message-ID: <20210914150558.n3lbmmt7h6o2uz6a@intel.com>
+References: <20210913223339.435347-1-sashal@kernel.org>
+ <20210913223339.435347-3-sashal@kernel.org>
+ <20210914095623.00005306@Huawei.com>
+ <20210914095749.0000151f@Huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHj4cs94pDUfSSfij=ENQxL-2PaGrHJSnhn_mHTC+hqSvPzBTQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210914095749.0000151f@Huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 21-09-14 09:57:49, Jonathan Cameron wrote:
+> On Tue, 14 Sep 2021 09:56:23 +0100
+> Jonathan Cameron <Jonathan.Cameron@Huawei.com> wrote:
+> 
+> > On Mon, 13 Sep 2021 18:33:17 -0400
+> > Sasha Levin <sashal@kernel.org> wrote:
+> > 
+> > > From: Ben Widawsky <ben.widawsky@intel.com>
+> > > 
+> > > [ Upstream commit 5161a55c069f53d88da49274cbef6e3c74eadea9 ]
+> > > 
+> > > CXL core is growing, and it's already arguably unmanageable. To support
+> > > future growth, move core functionality to a new directory and rename the
+> > > file to represent just bus support. Future work will remove non-bus
+> > > functionality.
+> > > 
+> > > Note that mem.h is renamed to cxlmem.h to avoid a namespace collision
+> > > with the global ARCH=um mem.h header.  
+> > 
+> > Not a fix...
+> > 
+> > I'm guessing this got picked up on the basis of the Reported-by: tag?
+> > I think that was added for a minor tweak as this went through review rather
+> > than referring to the whole patch.
+> Or possibly because it was a precursor to the fix in the next patch.
+> 
+> Hmm.  Ben, Dan, does it make sense for these two to go into stable?
+> 
+> Jonathan
 
-> Hello
-> I found this failure on stable 5.13.16-rc1[1] and cannot reproduce it
-> on 5.14, seems we are missing commit[2] on 5.13.y, could anyone help
-> check it?
+As of now, no, but having this will make future fixes much easier to cherry
+pick.
 
-Was it picked up and didn't apply correctly?
+> 
+> > 
+> > Jonathan
+> > 
+> > 
+> > > 
+> > > Reported-by: kernel test robot <lkp@intel.com>
+> > > Signed-off-by: Ben Widawsky <ben.widawsky@intel.com>
+> > > Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> > > Link: https://lore.kernel.org/r/162792537866.368511.8915631504621088321.stgit@dwillia2-desk3.amr.corp.intel.com
+> > > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > ---
+> > >  Documentation/driver-api/cxl/memory-devices.rst | 2 +-
+> > >  drivers/cxl/Makefile                            | 4 +---
+> > >  drivers/cxl/core/Makefile                       | 5 +++++
+> > >  drivers/cxl/{core.c => core/bus.c}              | 4 ++--
+> > >  drivers/cxl/{mem.h => cxlmem.h}                 | 0
+> > >  drivers/cxl/pci.c                               | 2 +-
+> > >  drivers/cxl/pmem.c                              | 2 +-
+> > >  7 files changed, 11 insertions(+), 8 deletions(-)
+> > >  create mode 100644 drivers/cxl/core/Makefile
+> > >  rename drivers/cxl/{core.c => core/bus.c} (99%)
+> > >  rename drivers/cxl/{mem.h => cxlmem.h} (100%)
+> > > 
+> > > diff --git a/Documentation/driver-api/cxl/memory-devices.rst b/Documentation/driver-api/cxl/memory-devices.rst
+> > > index 487ce4f41d77..a86e2c7c551a 100644
+> > > --- a/Documentation/driver-api/cxl/memory-devices.rst
+> > > +++ b/Documentation/driver-api/cxl/memory-devices.rst
+> > > @@ -36,7 +36,7 @@ CXL Core
+> > >  .. kernel-doc:: drivers/cxl/cxl.h
+> > >     :internal:
+> > >  
+> > > -.. kernel-doc:: drivers/cxl/core.c
+> > > +.. kernel-doc:: drivers/cxl/core/bus.c
+> > >     :doc: cxl core
+> > >  
+> > >  External Interfaces
+> > > diff --git a/drivers/cxl/Makefile b/drivers/cxl/Makefile
+> > > index 32954059b37b..d1aaabc940f3 100644
+> > > --- a/drivers/cxl/Makefile
+> > > +++ b/drivers/cxl/Makefile
+> > > @@ -1,11 +1,9 @@
+> > >  # SPDX-License-Identifier: GPL-2.0
+> > > -obj-$(CONFIG_CXL_BUS) += cxl_core.o
+> > > +obj-$(CONFIG_CXL_BUS) += core/
+> > >  obj-$(CONFIG_CXL_MEM) += cxl_pci.o
+> > >  obj-$(CONFIG_CXL_ACPI) += cxl_acpi.o
+> > >  obj-$(CONFIG_CXL_PMEM) += cxl_pmem.o
+> > >  
+> > > -ccflags-y += -DDEFAULT_SYMBOL_NAMESPACE=CXL
+> > > -cxl_core-y := core.o
+> > >  cxl_pci-y := pci.o
+> > >  cxl_acpi-y := acpi.o
+> > >  cxl_pmem-y := pmem.o
+> > > diff --git a/drivers/cxl/core/Makefile b/drivers/cxl/core/Makefile
+> > > new file mode 100644
+> > > index 000000000000..ad137f96e5c8
+> > > --- /dev/null
+> > > +++ b/drivers/cxl/core/Makefile
+> > > @@ -0,0 +1,5 @@
+> > > +# SPDX-License-Identifier: GPL-2.0
+> > > +obj-$(CONFIG_CXL_BUS) += cxl_core.o
+> > > +
+> > > +ccflags-y += -DDEFAULT_SYMBOL_NAMESPACE=CXL -I$(srctree)/drivers/cxl
+> > > +cxl_core-y := bus.o
+> > > diff --git a/drivers/cxl/core.c b/drivers/cxl/core/bus.c
+> > > similarity index 99%
+> > > rename from drivers/cxl/core.c
+> > > rename to drivers/cxl/core/bus.c
+> > > index a2e4d54fc7bc..0815eec23944 100644
+> > > --- a/drivers/cxl/core.c
+> > > +++ b/drivers/cxl/core/bus.c
+> > > @@ -6,8 +6,8 @@
+> > >  #include <linux/pci.h>
+> > >  #include <linux/slab.h>
+> > >  #include <linux/idr.h>
+> > > -#include "cxl.h"
+> > > -#include "mem.h"
+> > > +#include <cxlmem.h>
+> > > +#include <cxl.h>
+> > >  
+> > >  /**
+> > >   * DOC: cxl core
+> > > diff --git a/drivers/cxl/mem.h b/drivers/cxl/cxlmem.h
+> > > similarity index 100%
+> > > rename from drivers/cxl/mem.h
+> > > rename to drivers/cxl/cxlmem.h
+> > > diff --git a/drivers/cxl/pci.c b/drivers/cxl/pci.c
+> > > index 4cf351a3cf99..a945c5fda292 100644
+> > > --- a/drivers/cxl/pci.c
+> > > +++ b/drivers/cxl/pci.c
+> > > @@ -12,9 +12,9 @@
+> > >  #include <linux/pci.h>
+> > >  #include <linux/io.h>
+> > >  #include <linux/io-64-nonatomic-lo-hi.h>
+> > > +#include "cxlmem.h"
+> > >  #include "pci.h"
+> > >  #include "cxl.h"
+> > > -#include "mem.h"
+> > >  
+> > >  /**
+> > >   * DOC: cxl pci
+> > > diff --git a/drivers/cxl/pmem.c b/drivers/cxl/pmem.c
+> > > index 0088e41dd2f3..9652c3ee41e7 100644
+> > > --- a/drivers/cxl/pmem.c
+> > > +++ b/drivers/cxl/pmem.c
+> > > @@ -6,7 +6,7 @@
+> > >  #include <linux/ndctl.h>
+> > >  #include <linux/async.h>
+> > >  #include <linux/slab.h>
+> > > -#include "mem.h"
+> > > +#include "cxlmem.h"
+> > >  #include "cxl.h"
+> > >  
+> > >  /*  
+> > 
+> 
