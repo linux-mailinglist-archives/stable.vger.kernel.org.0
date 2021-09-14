@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 739F540A982
-	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 10:43:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C53C40A98B
+	for <lists+stable@lfdr.de>; Tue, 14 Sep 2021 10:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbhINIoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 04:44:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54386 "EHLO mail.kernel.org"
+        id S230008AbhINIrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 04:47:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229663AbhINIoT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 14 Sep 2021 04:44:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66B2860EE0;
-        Tue, 14 Sep 2021 08:43:02 +0000 (UTC)
+        id S229648AbhINIrZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 14 Sep 2021 04:47:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFFC260F5B;
+        Tue, 14 Sep 2021 08:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631608983;
-        bh=wN+AKC/xAiPMCjuqKnyLO8Jfm9COVGI8WRxWTaBUZPQ=;
+        s=korg; t=1631609168;
+        bh=ucuX2rPzdhzobeImFqhAR9VL8TrafGRrqoDV2tEO7Hk=;
         h=Subject:To:From:Date:From;
-        b=N4twGX+lb0jf0w5vG2TX6gohAyMrV4glI2AxelzS8WD9eiyEnHhQfDUTOVwk5Wm01
-         DoyTjDowi6Lmdzetod+9WfCu0e+Ii0Nm1h0zb93fsmau8ZiiCLEv86Y7ocfvpPTOQa
-         MTt/ym2hD17rCnL4vqOHKDWvq2JSc2JJjkzU2WQA=
-Subject: patch "usb: gadget: f_uac2: Populate SS descriptors' wBytesPerInterval" added to usb-linus
-To:     jackp@codeaurora.org, gregkh@linuxfoundation.org,
+        b=vwv0+vE149h2Lzo0s5mp8Is2STkx17UwxGNmtF6qbs0j+2qUvuCGMssZzicHkpwGz
+         qZ45V/tt1c9yjCE8EnxEv13+y7Q8jbh4LYVimBwn/GjWlJ2pRX2/IgmWnrqjJg8VSI
+         bSBOPO7waG+Gh4YehuZziIrYXoVG20ipp25b4Ess=
+Subject: patch "misc: genwqe: Fixes DMA mask setting" added to char-misc-linus
+To:     christophe.jaillet@wanadoo.fr, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 14 Sep 2021 10:42:52 +0200
-Message-ID: <16316089729931@kroah.com>
+Date:   Tue, 14 Sep 2021 10:46:06 +0200
+Message-ID: <163160916666180@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,11 +36,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: gadget: f_uac2: Populate SS descriptors' wBytesPerInterval
+    misc: genwqe: Fixes DMA mask setting
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-linus branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -51,45 +51,38 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From f0e8a206a2a53a919e1709c654cb65d519f7befb Mon Sep 17 00:00:00 2001
-From: Jack Pham <jackp@codeaurora.org>
-Date: Thu, 9 Sep 2021 10:48:11 -0700
-Subject: usb: gadget: f_uac2: Populate SS descriptors' wBytesPerInterval
+From 8d753db5c227d1f403c4bc9cae4ae02c862413cd Mon Sep 17 00:00:00 2001
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Date: Wed, 8 Sep 2021 21:55:56 +0200
+Subject: misc: genwqe: Fixes DMA mask setting
 
-For Isochronous endpoints, the SS companion descriptor's
-wBytesPerInterval field is required to reserve bus time in order
-to transmit the required payload during the service interval.
-If left at 0, the UAC2 function is unable to transact data on its
-playback or capture endpoints in SuperSpeed mode.
+Commit 505b08777d78 ("misc: genwqe: Use dma_set_mask_and_coherent to simplify code")
+changed the logic in the code.
 
-Since f_uac2 currently does not support any bursting this value can
-be exactly equal to the calculated wMaxPacketSize.
+Instead of a ||, a && should have been used to keep the code the same.
 
-Tested with Windows 10 as a host.
-
-Fixes: f8cb3d556be3 ("usb: f_uac2: adds support for SS and SSP")
+Fixes: 505b08777d78 ("misc: genwqe: Use dma_set_mask_and_coherent to simplify code")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Link: https://lore.kernel.org/r/20210909174811.12534-3-jackp@codeaurora.org
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/be49835baa8ba6daba5813b399edf6300f7fdbda.1631130862.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_uac2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/misc/genwqe/card_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_uac2.c b/drivers/usb/gadget/function/f_uac2.c
-index d89c1ebb07f4..be864560bfea 100644
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -1178,6 +1178,9 @@ afunc_bind(struct usb_configuration *cfg, struct usb_function *fn)
- 	agdev->out_ep_maxpsize = max_t(u16, agdev->out_ep_maxpsize,
- 				le16_to_cpu(ss_epout_desc.wMaxPacketSize));
+diff --git a/drivers/misc/genwqe/card_base.c b/drivers/misc/genwqe/card_base.c
+index 2e1befbd1ad9..693981891870 100644
+--- a/drivers/misc/genwqe/card_base.c
++++ b/drivers/misc/genwqe/card_base.c
+@@ -1090,7 +1090,7 @@ static int genwqe_pci_setup(struct genwqe_dev *cd)
  
-+	ss_epin_desc_comp.wBytesPerInterval = ss_epin_desc.wMaxPacketSize;
-+	ss_epout_desc_comp.wBytesPerInterval = ss_epout_desc.wMaxPacketSize;
-+
- 	// HS and SS endpoint addresses are copied from autoconfigured FS descriptors
- 	hs_ep_int_desc.bEndpointAddress = fs_ep_int_desc.bEndpointAddress;
- 	hs_epout_desc.bEndpointAddress = fs_epout_desc.bEndpointAddress;
+ 	/* check for 64-bit DMA address supported (DAC) */
+ 	/* check for 32-bit DMA address supported (SAC) */
+-	if (dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64)) ||
++	if (dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64)) &&
+ 	    dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(32))) {
+ 		dev_err(&pci_dev->dev,
+ 			"err: neither DMA32 nor DMA64 supported\n");
 -- 
 2.33.0
 
