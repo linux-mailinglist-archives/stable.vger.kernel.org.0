@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC7A40C572
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 14:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1FA640C575
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 14:42:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237111AbhIOMnd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 08:43:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56366 "EHLO mail.kernel.org"
+        id S237489AbhIOMnm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 08:43:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237150AbhIOMnc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 08:43:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F35A160F70;
-        Wed, 15 Sep 2021 12:42:12 +0000 (UTC)
+        id S237485AbhIOMnl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 08:43:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6977261101;
+        Wed, 15 Sep 2021 12:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631709733;
-        bh=LZ1G4quTiCXtgatb+7rFrvl06exS5wJQ2QF8Ivo/Pyc=;
+        s=korg; t=1631709743;
+        bh=odTKiLmAlay1/S4qvTRCdyPc4HEMBg14RhGw2ni2wog=;
         h=Subject:To:Cc:From:Date:From;
-        b=WBVRTYjT11XoqpV3Yo4AKB83zFHWbVt5uWYVtIl0yveZgP+dpfKzhTfagqTKjx1/6
-         uWCxYYU2lxOMRFCW0tCEpDC820GW8ipRYojBjBOilKB8n65EpRU6rshsoHvTbVYEnn
-         1U4aDf78ojb/gTuSxwN979473ubR61swuPz2m1fI=
-Subject: FAILED: patch "[PATCH] pinctrl: ingenic: Fix incorrect pull up/down info" failed to apply to 4.14-stable tree
+        b=zxdz+i1nHHKf3Caio564HO2/bw4sqBd4SCkC2/07YUAVmiU7Of/DIhHSAY67APLsu
+         3zDAP0QGF56cO78U6jUV9qWKShLkV+kkrPiah/90xP71zBCg4bCdUW4QWprqOxlM86
+         ZQ6fU9oTEuP/85BMo+Hs/sT7y1hFUBXYimBel95M=
+Subject: FAILED: patch "[PATCH] pinctrl: ingenic: Fix incorrect pull up/down info" failed to apply to 4.19-stable tree
 To:     paul@crapouillou.net, linus.walleij@linaro.org,
         stable@vger.kernel.org, zhouyanjie@wanyeetech.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Sep 2021 14:42:10 +0200
-Message-ID: <163170973044156@kroah.com>
+Date:   Wed, 15 Sep 2021 14:42:12 +0200
+Message-ID: <163170973224419@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
