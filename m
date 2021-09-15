@@ -2,123 +2,357 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6607040C75F
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 16:21:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 677AB40C760
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 16:22:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237961AbhIOOWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 10:22:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58040 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238114AbhIOOWO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 10:22:14 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CCA7C0613E7
-        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 07:20:55 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id d18so1704040pll.11
-        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 07:20:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ywUzZAZUaBgLjAXwNo0WHiYv6InEC+W8UKnkNCqB3PQ=;
-        b=aTDhU1j/AatYdd3lMOgFsH5kSumcAvP093aNGaIK55fpQq0YLG6hohKnbvHqFagPy5
-         aBZ4Yuthb3kGz6daUTZ2zV3bKpY4hslnienLcCxAieL73zyo5FmJwGMG8QfQ06UiiSzc
-         EnrOBEwbZJ6mUols1EE3KePcHktLL4v7xELOv70bgF8B2E++rXzz5C8FPHO2Hxi4n0ge
-         B7qeacFtQBPlsvh65a12JBYm+jFo2Mb3Td634cbRFuwBVqi90UPdmtwTtNrphzljyzm1
-         lem3CjX+a7ajKglSG+LV+z/c4DiykujTQ/iYxMQgpQ3JZM1qMuJ7ObnAjLyC/p9SsjIJ
-         Lfxg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ywUzZAZUaBgLjAXwNo0WHiYv6InEC+W8UKnkNCqB3PQ=;
-        b=MTPEfW5FgY2J9pZ2rdCAlfn7pzSbJD8tVow3zffge5BV8dSHwzntXiy+kLXBrFcS81
-         7k2IF57r/hwqL6/lcngxfWuYuaRxZZ6ZMbghZ8feLPfzqE5ovveF5lN2JTIIlCSPOjz2
-         w7mEOLqR34bXJvEjv8+87QBodjgsCXbEPFP/d4MLgLeRmsEQnOCKdSxyzPEiY+CymuHz
-         oDVr89YJF/HokCdTpvEDx5Fp5MaeSHdynhkLUR27rLTZUWK0q6TTmOp8NXDvwteMqrU5
-         W6hxDoNiWcHMXcsMZ2aNIjBCSaFTADnOto7Zx7UyzFWS1sZzmnVQRgdVU7weuFZe5jek
-         N8dA==
-X-Gm-Message-State: AOAM531xWFPe625DhgoID9/9I0lWPW+Jpb55FvC6ZEy7Fc6Qhh0Ql1kg
-        AXPjNCfMAKTiBsxI4x3FzO6B8z/EgMV8eya4
-X-Google-Smtp-Source: ABdhPJyyD0M1DcnyAuVt/DuJCN++fqHC3N4/JkwyZAiPn1oRZpuVRRweN6DZv6fVELSDCH44ADcU/w==
-X-Received: by 2002:a17:903:246:b0:13a:22d1:88b with SMTP id j6-20020a170903024600b0013a22d1088bmr138290plh.16.1631715654449;
-        Wed, 15 Sep 2021 07:20:54 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h4sm13017pjc.28.2021.09.15.07.20.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Sep 2021 07:20:54 -0700 (PDT)
-Message-ID: <61420146.1c69fb81.57df1.00b6@mx.google.com>
-Date:   Wed, 15 Sep 2021 07:20:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S233819AbhIOOYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 10:24:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34758 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233745AbhIOOYH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 10:24:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46401610E9;
+        Wed, 15 Sep 2021 14:22:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631715768;
+        bh=EpVNSYMkbWMhe5OgIM/0+9iA6GKTfuv3JWR17uG+HMk=;
+        h=Subject:To:Cc:From:Date:From;
+        b=qojEYJ4nMM6ahShSFG23auVq1YMa3ERdkD0YVNBavxIIj3HZUZ6HginRLxjzfMVeE
+         z62aycjDVwrvS12/6t44U+qdYNlRRi7C3GiVtA4nuSBTMsLWSyTeUgWcAOrTCkfuIj
+         JwEZgZ4vy/GUq7+2XP9RSYApYVrsqoTJTvz1oegk=
+Subject: FAILED: patch "[PATCH] PCI: aardvark: Configure PCIe resources from 'ranges' DT" failed to apply to 4.19-stable tree
+To:     pali@kernel.org, lorenzo.pieralisi@arm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 15 Sep 2021 16:22:46 +0200
+Message-ID: <1631715766148125@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.13.17
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.13.y
-Subject: stable/linux-5.13.y baseline: 179 runs, 1 regressions (v5.13.17)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.13.y baseline: 179 runs, 1 regressions (v5.13.17)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-8    | defconfig | 1    =
-      =
+thanks,
 
+greg k-h
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.13.y/kernel=
-/v5.13.17/plan/baseline/
+------------------ original commit in Linus's tree ------------------
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.13.y
-  Describe: v5.13.17
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      e228609749a14bb736b6210738042a3c0a2127d1 =
+From 64f160e19e9264a7f6d89c516baae1473b6f8359 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Date: Thu, 24 Jun 2021 23:55:45 +0200
+Subject: [PATCH] PCI: aardvark: Configure PCIe resources from 'ranges' DT
+ property
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
+In commit 6df6ba974a55 ("PCI: aardvark: Remove PCIe outbound window
+configuration") was removed aardvark PCIe outbound window configuration and
+commit description said that was recommended solution by HW designers.
 
+But that commit completely removed support for configuring PCIe IO
+resources without removing PCIe IO 'ranges' from DTS files. After that
+commit PCIe IO space started to be treated as PCIe MEM space and accessing
+it just caused kernel crash.
 
-Test Regressions
----------------- =
+Moreover implementation of PCIe outbound windows prior that commit was
+incorrect. It completely ignored offset between CPU address and PCIe bus
+address and expected that in DTS is CPU address always same as PCIe bus
+address without doing any checks. Also it completely ignored size of every
+PCIe resource specified in 'ranges' DTS property and expected that every
+PCIe resource has size 128 MB (also for PCIe IO range). Again without any
+check. Apparently none of PCIe resource has in DTS specified size of 128
+MB. So it was completely broken and thanks to how aardvark mask works,
+configuration was completely ignored.
 
+This patch reverts back support for PCIe outbound window configuration but
+implementation is a new without issues mentioned above. PCIe outbound
+window is required when DTS specify in 'ranges' property non-zero offset
+between CPU and PCIe address space. To address recommendation by HW
+designers as specified in commit description of 6df6ba974a55, set default
+outbound parameters as PCIe MEM access without translation and therefore
+for this PCIe 'ranges' it is not needed to configure PCIe outbound window.
+For PCIe IO space is needed to configure aardvark PCIe outbound window.
 
+This patch fixes kernel crash when trying to access PCIe IO space.
 
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-8    | defconfig | 1    =
-      =
+Link: https://lore.kernel.org/r/20210624215546.4015-2-pali@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org # 6df6ba974a55 ("PCI: aardvark: Remove PCIe outbound window configuration")
 
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index 0c32283b3276..d6d9791aa7c7 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -119,6 +119,46 @@
+ #define PCIE_MSI_MASK_REG			(CONTROL_BASE_ADDR + 0x5C)
+ #define PCIE_MSI_PAYLOAD_REG			(CONTROL_BASE_ADDR + 0x9C)
+ 
++/* PCIe window configuration */
++#define OB_WIN_BASE_ADDR			0x4c00
++#define OB_WIN_BLOCK_SIZE			0x20
++#define OB_WIN_COUNT				8
++#define OB_WIN_REG_ADDR(win, offset)		(OB_WIN_BASE_ADDR + \
++						 OB_WIN_BLOCK_SIZE * (win) + \
++						 (offset))
++#define OB_WIN_MATCH_LS(win)			OB_WIN_REG_ADDR(win, 0x00)
++#define     OB_WIN_ENABLE			BIT(0)
++#define OB_WIN_MATCH_MS(win)			OB_WIN_REG_ADDR(win, 0x04)
++#define OB_WIN_REMAP_LS(win)			OB_WIN_REG_ADDR(win, 0x08)
++#define OB_WIN_REMAP_MS(win)			OB_WIN_REG_ADDR(win, 0x0c)
++#define OB_WIN_MASK_LS(win)			OB_WIN_REG_ADDR(win, 0x10)
++#define OB_WIN_MASK_MS(win)			OB_WIN_REG_ADDR(win, 0x14)
++#define OB_WIN_ACTIONS(win)			OB_WIN_REG_ADDR(win, 0x18)
++#define OB_WIN_DEFAULT_ACTIONS			(OB_WIN_ACTIONS(OB_WIN_COUNT-1) + 0x4)
++#define     OB_WIN_FUNC_NUM_MASK		GENMASK(31, 24)
++#define     OB_WIN_FUNC_NUM_SHIFT		24
++#define     OB_WIN_FUNC_NUM_ENABLE		BIT(23)
++#define     OB_WIN_BUS_NUM_BITS_MASK		GENMASK(22, 20)
++#define     OB_WIN_BUS_NUM_BITS_SHIFT		20
++#define     OB_WIN_MSG_CODE_ENABLE		BIT(22)
++#define     OB_WIN_MSG_CODE_MASK		GENMASK(21, 14)
++#define     OB_WIN_MSG_CODE_SHIFT		14
++#define     OB_WIN_MSG_PAYLOAD_LEN		BIT(12)
++#define     OB_WIN_ATTR_ENABLE			BIT(11)
++#define     OB_WIN_ATTR_TC_MASK			GENMASK(10, 8)
++#define     OB_WIN_ATTR_TC_SHIFT		8
++#define     OB_WIN_ATTR_RELAXED			BIT(7)
++#define     OB_WIN_ATTR_NOSNOOP			BIT(6)
++#define     OB_WIN_ATTR_POISON			BIT(5)
++#define     OB_WIN_ATTR_IDO			BIT(4)
++#define     OB_WIN_TYPE_MASK			GENMASK(3, 0)
++#define     OB_WIN_TYPE_SHIFT			0
++#define     OB_WIN_TYPE_MEM			0x0
++#define     OB_WIN_TYPE_IO			0x4
++#define     OB_WIN_TYPE_CONFIG_TYPE0		0x8
++#define     OB_WIN_TYPE_CONFIG_TYPE1		0x9
++#define     OB_WIN_TYPE_MSG			0xc
++
+ /* LMI registers base address and register offsets */
+ #define LMI_BASE_ADDR				0x6000
+ #define CFG_REG					(LMI_BASE_ADDR + 0x0)
+@@ -183,6 +223,13 @@
+ struct advk_pcie {
+ 	struct platform_device *pdev;
+ 	void __iomem *base;
++	struct {
++		phys_addr_t match;
++		phys_addr_t remap;
++		phys_addr_t mask;
++		u32 actions;
++	} wins[OB_WIN_COUNT];
++	u8 wins_count;
+ 	struct irq_domain *irq_domain;
+ 	struct irq_chip irq_chip;
+ 	struct irq_domain *msi_domain;
+@@ -369,9 +416,39 @@ static void advk_pcie_train_link(struct advk_pcie *pcie)
+ 	dev_err(dev, "link never came up\n");
+ }
+ 
++/*
++ * Set PCIe address window register which could be used for memory
++ * mapping.
++ */
++static void advk_pcie_set_ob_win(struct advk_pcie *pcie, u8 win_num,
++				 phys_addr_t match, phys_addr_t remap,
++				 phys_addr_t mask, u32 actions)
++{
++	advk_writel(pcie, OB_WIN_ENABLE |
++			  lower_32_bits(match), OB_WIN_MATCH_LS(win_num));
++	advk_writel(pcie, upper_32_bits(match), OB_WIN_MATCH_MS(win_num));
++	advk_writel(pcie, lower_32_bits(remap), OB_WIN_REMAP_LS(win_num));
++	advk_writel(pcie, upper_32_bits(remap), OB_WIN_REMAP_MS(win_num));
++	advk_writel(pcie, lower_32_bits(mask), OB_WIN_MASK_LS(win_num));
++	advk_writel(pcie, upper_32_bits(mask), OB_WIN_MASK_MS(win_num));
++	advk_writel(pcie, actions, OB_WIN_ACTIONS(win_num));
++}
++
++static void advk_pcie_disable_ob_win(struct advk_pcie *pcie, u8 win_num)
++{
++	advk_writel(pcie, 0, OB_WIN_MATCH_LS(win_num));
++	advk_writel(pcie, 0, OB_WIN_MATCH_MS(win_num));
++	advk_writel(pcie, 0, OB_WIN_REMAP_LS(win_num));
++	advk_writel(pcie, 0, OB_WIN_REMAP_MS(win_num));
++	advk_writel(pcie, 0, OB_WIN_MASK_LS(win_num));
++	advk_writel(pcie, 0, OB_WIN_MASK_MS(win_num));
++	advk_writel(pcie, 0, OB_WIN_ACTIONS(win_num));
++}
++
+ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ {
+ 	u32 reg;
++	int i;
+ 
+ 	/* Enable TX */
+ 	reg = advk_readl(pcie, PCIE_CORE_REF_CLK_REG);
+@@ -450,15 +527,51 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 	reg = PCIE_IRQ_ALL_MASK & (~PCIE_IRQ_ENABLE_INTS_MASK);
+ 	advk_writel(pcie, reg, HOST_CTRL_INT_MASK_REG);
+ 
++	/*
++	 * Enable AXI address window location generation:
++	 * When it is enabled, the default outbound window
++	 * configurations (Default User Field: 0xD0074CFC)
++	 * are used to transparent address translation for
++	 * the outbound transactions. Thus, PCIe address
++	 * windows are not required for transparent memory
++	 * access when default outbound window configuration
++	 * is set for memory access.
++	 */
+ 	reg = advk_readl(pcie, PCIE_CORE_CTRL2_REG);
+ 	reg |= PCIE_CORE_CTRL2_OB_WIN_ENABLE;
+ 	advk_writel(pcie, reg, PCIE_CORE_CTRL2_REG);
+ 
+-	/* Bypass the address window mapping for PIO */
++	/*
++	 * Set memory access in Default User Field so it
++	 * is not required to configure PCIe address for
++	 * transparent memory access.
++	 */
++	advk_writel(pcie, OB_WIN_TYPE_MEM, OB_WIN_DEFAULT_ACTIONS);
++
++	/*
++	 * Bypass the address window mapping for PIO:
++	 * Since PIO access already contains all required
++	 * info over AXI interface by PIO registers, the
++	 * address window is not required.
++	 */
+ 	reg = advk_readl(pcie, PIO_CTRL);
+ 	reg |= PIO_CTRL_ADDR_WIN_DISABLE;
+ 	advk_writel(pcie, reg, PIO_CTRL);
+ 
++	/*
++	 * Configure PCIe address windows for non-memory or
++	 * non-transparent access as by default PCIe uses
++	 * transparent memory access.
++	 */
++	for (i = 0; i < pcie->wins_count; i++)
++		advk_pcie_set_ob_win(pcie, i,
++				     pcie->wins[i].match, pcie->wins[i].remap,
++				     pcie->wins[i].mask, pcie->wins[i].actions);
++
++	/* Disable remaining PCIe outbound windows */
++	for (i = pcie->wins_count; i < OB_WIN_COUNT; i++)
++		advk_pcie_disable_ob_win(pcie, i);
++
+ 	advk_pcie_train_link(pcie);
+ 
+ 	/*
+@@ -1267,6 +1380,7 @@ static int advk_pcie_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct advk_pcie *pcie;
+ 	struct pci_host_bridge *bridge;
++	struct resource_entry *entry;
+ 	int ret, irq;
+ 
+ 	bridge = devm_pci_alloc_host_bridge(dev, sizeof(struct advk_pcie));
+@@ -1277,6 +1391,80 @@ static int advk_pcie_probe(struct platform_device *pdev)
+ 	pcie->pdev = pdev;
+ 	platform_set_drvdata(pdev, pcie);
+ 
++	resource_list_for_each_entry(entry, &bridge->windows) {
++		resource_size_t start = entry->res->start;
++		resource_size_t size = resource_size(entry->res);
++		unsigned long type = resource_type(entry->res);
++		u64 win_size;
++
++		/*
++		 * Aardvark hardware allows to configure also PCIe window
++		 * for config type 0 and type 1 mapping, but driver uses
++		 * only PIO for issuing configuration transfers which does
++		 * not use PCIe window configuration.
++		 */
++		if (type != IORESOURCE_MEM && type != IORESOURCE_MEM_64 &&
++		    type != IORESOURCE_IO)
++			continue;
++
++		/*
++		 * Skip transparent memory resources. Default outbound access
++		 * configuration is set to transparent memory access so it
++		 * does not need window configuration.
++		 */
++		if ((type == IORESOURCE_MEM || type == IORESOURCE_MEM_64) &&
++		    entry->offset == 0)
++			continue;
++
++		/*
++		 * The n-th PCIe window is configured by tuple (match, remap, mask)
++		 * and an access to address A uses this window if A matches the
++		 * match with given mask.
++		 * So every PCIe window size must be a power of two and every start
++		 * address must be aligned to window size. Minimal size is 64 KiB
++		 * because lower 16 bits of mask must be zero. Remapped address
++		 * may have set only bits from the mask.
++		 */
++		while (pcie->wins_count < OB_WIN_COUNT && size > 0) {
++			/* Calculate the largest aligned window size */
++			win_size = (1ULL << (fls64(size)-1)) |
++				   (start ? (1ULL << __ffs64(start)) : 0);
++			win_size = 1ULL << __ffs64(win_size);
++			if (win_size < 0x10000)
++				break;
++
++			dev_dbg(dev,
++				"Configuring PCIe window %d: [0x%llx-0x%llx] as %lu\n",
++				pcie->wins_count, (unsigned long long)start,
++				(unsigned long long)start + win_size, type);
++
++			if (type == IORESOURCE_IO) {
++				pcie->wins[pcie->wins_count].actions = OB_WIN_TYPE_IO;
++				pcie->wins[pcie->wins_count].match = pci_pio_to_address(start);
++			} else {
++				pcie->wins[pcie->wins_count].actions = OB_WIN_TYPE_MEM;
++				pcie->wins[pcie->wins_count].match = start;
++			}
++			pcie->wins[pcie->wins_count].remap = start - entry->offset;
++			pcie->wins[pcie->wins_count].mask = ~(win_size - 1);
++
++			if (pcie->wins[pcie->wins_count].remap & (win_size - 1))
++				break;
++
++			start += win_size;
++			size -= win_size;
++			pcie->wins_count++;
++		}
++
++		if (size > 0) {
++			dev_err(&pcie->pdev->dev,
++				"Invalid PCIe region [0x%llx-0x%llx]\n",
++				(unsigned long long)entry->res->start,
++				(unsigned long long)entry->res->end + 1);
++			return -EINVAL;
++		}
++	}
++
+ 	pcie->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(pcie->base))
+ 		return PTR_ERR(pcie->base);
+@@ -1357,6 +1545,7 @@ static int advk_pcie_remove(struct platform_device *pdev)
+ {
+ 	struct advk_pcie *pcie = platform_get_drvdata(pdev);
+ 	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
++	int i;
+ 
+ 	pci_lock_rescan_remove();
+ 	pci_stop_root_bus(bridge->bus);
+@@ -1366,6 +1555,10 @@ static int advk_pcie_remove(struct platform_device *pdev)
+ 	advk_pcie_remove_msi_irq_domain(pcie);
+ 	advk_pcie_remove_irq_domain(pcie);
+ 
++	/* Disable outbound address windows mapping */
++	for (i = 0; i < OB_WIN_COUNT; i++)
++		advk_pcie_disable_ob_win(pcie, i);
++
+ 	return 0;
+ }
+ 
 
-  Details:     https://kernelci.org/test/plan/id/6141cf512f1ea029b199a31b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.13.y/v5.13.17/a=
-rm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bananapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.13.y/v5.13.17/a=
-rm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bananapi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6141cf512f1ea029b199a=
-31c
-        new failure (last pass: v5.13.15) =
-
- =20
