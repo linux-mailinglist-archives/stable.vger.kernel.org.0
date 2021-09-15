@@ -2,106 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE9240C56E
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 14:41:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC7A40C572
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 14:42:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234186AbhIOMmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 08:42:54 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60238 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233094AbhIOMmy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 08:42:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1631709695;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=tEfV1/DYZkGpxw3ayA2oBkkT4tRl5bPyLJkShMw/OD8=;
-        b=LevlbvVeFGfsubDMLiSE747tdMHSMQUH3ZXQplr2dpJ0oJixjsjh+1cRiyjxdaJcdelaTY
-        IqAtydXQTn8102t+KrePrUEPvbUWSQkd3LyQ9I1a48nxBt5pxb6i6PrzKKjTVrcvxHsdEo
-        oCpeAMTdnzTkRHD+cja//DKcnzm9MMI=
-Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
- [209.85.219.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-527-3T2ju2s4PtefJfsRSe6J2Q-1; Wed, 15 Sep 2021 08:41:34 -0400
-X-MC-Unique: 3T2ju2s4PtefJfsRSe6J2Q-1
-Received: by mail-yb1-f199.google.com with SMTP id b9-20020a5b07890000b0290558245b7eabso3278930ybq.10
-        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 05:41:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=tEfV1/DYZkGpxw3ayA2oBkkT4tRl5bPyLJkShMw/OD8=;
-        b=bAQ8snkE84EudBwIOF/qgRvr7Ns+VntD2c2LMj5QPntXXz/4zvtBUUYNWneiPBY1no
-         yUbMH+kd7t5NsREQIsOo4HSrvEyumEx1G83wstWb9InpLFs1U63ud6oHN1K8eSDc28u1
-         1ZrOPXEPwhgNHy7McrGiivVX5EYSyVlnWj+yeGwp1UXTDCFs4Qnw7PmQUKmpI4kY7aSM
-         TvQDDrUCnzB2nqeu4hTzQQ/aGBkUr3zFIAUrR+89+uumyV3PF/eXeF2bdlZ0ipAx0nkF
-         40vpWgMAn/i31wBBRynyxrg63bzBPL1G7B651tgEjbMrTwo+h3NSIat4OjPvWhx/83gh
-         5W8A==
-X-Gm-Message-State: AOAM531uttwDfpVGBdgJaaghrnBrWxFa6GNbN6fygHXPKmkseb8G6rpK
-        /ADfXeDa2fiVvEoDIbEiQnQ1uVDUPt6Tx1xH06CO/W+ge3hL/OTWHh7IIgh3L+GvyK9zjVEh+29
-        VrVQDFMjmV2wfpr5H9S9ySzjmusRXQRlu
-X-Received: by 2002:a25:6e05:: with SMTP id j5mr6060596ybc.86.1631709693601;
-        Wed, 15 Sep 2021 05:41:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzYXfmKAL8J/kdJ6tVlq03ShaucMeQ1AyAxuj3HLKQJr7h2PEgsEt4QwRhS8cM1Vk81Nswx3FwdUgYPdMTmyWc=
-X-Received: by 2002:a25:6e05:: with SMTP id j5mr6060566ybc.86.1631709693413;
- Wed, 15 Sep 2021 05:41:33 -0700 (PDT)
+        id S237111AbhIOMnd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 08:43:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56366 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237150AbhIOMnc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 08:43:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F35A160F70;
+        Wed, 15 Sep 2021 12:42:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631709733;
+        bh=LZ1G4quTiCXtgatb+7rFrvl06exS5wJQ2QF8Ivo/Pyc=;
+        h=Subject:To:Cc:From:Date:From;
+        b=WBVRTYjT11XoqpV3Yo4AKB83zFHWbVt5uWYVtIl0yveZgP+dpfKzhTfagqTKjx1/6
+         uWCxYYU2lxOMRFCW0tCEpDC820GW8ipRYojBjBOilKB8n65EpRU6rshsoHvTbVYEnn
+         1U4aDf78ojb/gTuSxwN979473ubR61swuPz2m1fI=
+Subject: FAILED: patch "[PATCH] pinctrl: ingenic: Fix incorrect pull up/down info" failed to apply to 4.14-stable tree
+To:     paul@crapouillou.net, linus.walleij@linaro.org,
+        stable@vger.kernel.org, zhouyanjie@wanyeetech.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 15 Sep 2021 14:42:10 +0200
+Message-ID: <163170973044156@kroah.com>
 MIME-Version: 1.0
-References: <CAHj4cs94pDUfSSfij=ENQxL-2PaGrHJSnhn_mHTC+hqSvPzBTQ@mail.gmail.com>
- <ca405578-5462-0ab9-91ab-de9d42ee0570@grimberg.me>
-In-Reply-To: <ca405578-5462-0ab9-91ab-de9d42ee0570@grimberg.me>
-From:   Yi Zhang <yi.zhang@redhat.com>
-Date:   Wed, 15 Sep 2021 20:41:21 +0800
-Message-ID: <CAHj4cs8_382bLtbcR4F8RBJSmwMAdW22EiRycDjdLa0QtY2vnw@mail.gmail.com>
-Subject: Re: [bug report] nvme0n1 node still exists after blktests
- nvme-tcp/014 on 5.13.16-rc1
-To:     Sagi Grimberg <sagi@grimberg.me>
-Cc:     Hannes Reinecke <hare@suse.de>, linux-nvme@lists.infradead.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 10:28 PM Sagi Grimberg <sagi@grimberg.me> wrote:
->
->
-> > Hello
-> > I found this failure on stable 5.13.16-rc1[1] and cannot reproduce it
-> > on 5.14, seems we are missing commit[2] on 5.13.y, could anyone help
-> > check it?
->
-> Was it picked up and didn't apply correctly?
->
 
-Hi Sagi
-I tried apply that patch to stable branch, but failed to do that,
-would you or Hannes mind help backport it, thanks.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-[linux-stable-rc ((daeb634aa75f...))]$ git am
-0001-nvme-fix-refcounting-imbalance-when-all-paths-are-do.patch
-Applying: nvme: fix refcounting imbalance when all paths are down
-error: patch failed: drivers/nvme/host/nvme.h:716
-error: drivers/nvme/host/nvme.h: patch does not apply
-Patch failed at 0001 nvme: fix refcounting imbalance when all paths are down
-hint: Use 'git am --show-current-patch' to see the failed patch
-When you have resolved this problem, run "git am --continue".
-If you prefer to skip this patch, run "git am --skip" instead.
-To restore the original branch and stop patching, run "git am --abort".
+thanks,
 
-[linux-stable-rc ((daeb634aa75f...))]$ patch -p1 <
-0001-nvme-fix-refcounting-imbalance-when-all-paths-are-do.patch
-patching file drivers/nvme/host/core.c
-Hunk #1 succeeded at 3761 (offset -46 lines).
-Hunk #2 succeeded at 3771 (offset -46 lines).
-Hunk #3 succeeded at 3790 (offset -46 lines).
-patching file drivers/nvme/host/multipath.c
-Hunk #1 succeeded at 757 (offset -3 lines).
-patching file drivers/nvme/host/nvme.h
-Hunk #1 FAILED at 716.
-Hunk #2 succeeded at 775 (offset 3 lines).
-1 out of 2 hunks FAILED -- saving rejects to file drivers/nvme/host/nvme.h.rej
+greg k-h
 
--- 
-Best Regards,
-  Yi Zhang
+------------------ original commit in Linus's tree ------------------
+
+From d5e931403942b3af39212960c2592b5ba741b2bf Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Sat, 17 Jul 2021 18:48:34 +0100
+Subject: [PATCH] pinctrl: ingenic: Fix incorrect pull up/down info
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fix the pull up/down info for both the JZ4760 and JZ4770 SoCs, as the
+previous values sometimes contradicted what's written in the programming
+manual.
+
+Fixes: b5c23aa46537 ("pinctrl: add a pinctrl driver for the Ingenic jz47xx SoCs")
+Cc: <stable@vger.kernel.org> # v4.12
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Tested-by: 周琰杰 (Zhou Yanjie)<zhouyanjie@wanyeetech.com>
+Link: https://lore.kernel.org/r/20210717174836.14776-1-paul@crapouillou.net
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+
+diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
+index cd296d98548d..5a602e6479b9 100644
+--- a/drivers/pinctrl/pinctrl-ingenic.c
++++ b/drivers/pinctrl/pinctrl-ingenic.c
+@@ -744,7 +744,7 @@ static const struct ingenic_chip_info jz4755_chip_info = {
+ };
+ 
+ static const u32 jz4760_pull_ups[6] = {
+-	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0xfffff00f,
++	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0x0000000f,
+ };
+ 
+ static const u32 jz4760_pull_downs[6] = {
+@@ -1092,11 +1092,11 @@ static const struct ingenic_chip_info jz4760_chip_info = {
+ };
+ 
+ static const u32 jz4770_pull_ups[6] = {
+-	0x3fffffff, 0xfff0030c, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0xffa7f00f,
++	0x3fffffff, 0xfff0f3fc, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0x0024f00f,
+ };
+ 
+ static const u32 jz4770_pull_downs[6] = {
+-	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x00580ff0,
++	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x005b0ff0,
+ };
+ 
+ static int jz4770_uart0_data_pins[] = { 0xa0, 0xa3, };
 
