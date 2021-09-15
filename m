@@ -2,69 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1BDB40CA09
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 18:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2DA440CA65
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 18:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229889AbhIOQZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 12:25:39 -0400
-Received: from gofer.mess.org ([88.97.38.141]:55335 "EHLO gofer.mess.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230368AbhIOQZd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 12:25:33 -0400
-Received: by gofer.mess.org (Postfix, from userid 1000)
-        id 72356C66BC; Wed, 15 Sep 2021 17:24:12 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mess.org; s=2020;
-        t=1631723052; bh=P/AsyzmcgTKLSxvBEDO8t7dL3rkEQ0tOcHVXgQ1PSZU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=WkKDp3IOqlUGiH0h6fZJ8wrOsBU7aG2GQOzuKgkIRt8z6R0qV1s2e2ziHkCeEhDFl
-         QAm/P9w856Yc2OwpBMNkMpo51EDpYwaU5jglQFCIIZdnPOK6Rv5QgL9VYIP7IG+hQq
-         YhkDZfhu8X8GEB15BxQPSaKa2JtDXj+PWqqDNopz2rWJHbq/6eZDWxXsA2cGHvl4HL
-         HquihXT1GOJ13QryW18Avq9+tt0gcAeexscbyWQJDTWaOH0lqpihfBxEbfS3H1afzs
-         TpBTuHYfuUhOxfo2X9N9xouppijpFpWAhzM1RwiwVaa53M3wIkQKg1EHmdpiXC3+wI
-         P7W6+w0wU859w==
-From:   Sean Young <sean@mess.org>
-To:     linux-media@vger.kernel.org
-Cc:     stable@vger.kernel.org,
-        =?UTF-8?q?Joaqu=C3=ADn=20Alberto=20Calder=C3=B3n=20Pozo?= 
-        <kini_calderon@hotmail.com>
-Subject: [PATCH] media: ir-kbd-i2c: improve responsiveness of hauppauge zilog receivers
-Date:   Wed, 15 Sep 2021 17:24:12 +0100
-Message-Id: <20210915162412.17993-1-sean@mess.org>
-X-Mailer: git-send-email 2.20.1
+        id S229528AbhIOQhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 12:37:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33078 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229479AbhIOQhJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 12:37:09 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48627C061574
+        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 09:35:50 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id f11-20020a17090aa78b00b0018e98a7cddaso2619681pjq.4
+        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 09:35:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=b/B9yH35DM7eg2HGYYCEXP5PTrzdOyG6Ae+BGlouS0k=;
+        b=kBeM5Xtgc3RRqzGhWfzJlu1Hz1s4yCuqBhZK0Nd+sJBThXyef6x9lkuPOCbuiGd5Hh
+         nUeRsfJBVKs6H/hC0mML9Qr3sHtlKIXLdZRc8KbP3nX/P1YcAGLfh1S8Fga3dU6QUjL+
+         8gHM1cLpf1QhhjMavCQCMobR+TTdgSnFomYRfMeU4gtR8GU6QG8vQat2/u8WVdwrdhZT
+         PmSA8QpPHLRPaUYp5kz623zojCXcl/CVm/l6hcOB8ojesLzW3yo52mrjJNkzJK2EyZt7
+         LnTRAdvycSU8CjtndQ3S2Ni/Xzjze1k3HpqJ2iiscrdtkrtjeHEtPOHbJL0nHb32s5vO
+         dZuQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=b/B9yH35DM7eg2HGYYCEXP5PTrzdOyG6Ae+BGlouS0k=;
+        b=YQdcxPdyylIva60g3yhJuVT17sx4uYBkD0tC7pKLEbxaGOjg3NCRYHRG8DVext3U2j
+         XBowBBynj8Sdgo3QeKEYfh04h+LF/0hBvphLAYEDExXXfBMjcMSDe6Y3vXxsqAgUKxPY
+         TbAvuouLhOzQ5v9PUl9yh35luTyk1IldIZxlgQH5z21vjeCQJbYqh90AzWW9LAlZn1tB
+         BxMBct09ZHCQKyoW2MhV0vH+3d9LaDHsWpWNn4MG6NRQ2PcvCE5SLU54+t6V3GRU8aLK
+         zh4KydNkhSqPlQUhVLnblpOSiX8iMKJCLSwDEQ/zAtyZguLUAoIg+jbypQ7vOSE9dlev
+         7sZA==
+X-Gm-Message-State: AOAM532k/jyW+EALzHSIh+VVOJ0YS0le6e5v1REJlVkMy+synZ+OSCkt
+        MaTGBvpZ/xe7pVAfmLb6adzBui2wtS9+XpyGKC8=
+X-Google-Smtp-Source: ABdhPJw2TFXbHQDJfXLTtAO8cN3x6NY5bzJPBpjSP/qkcOOfwU/H+ziRKXAFPToKLA0WxMWgFxaA+w==
+X-Received: by 2002:a17:90a:ab86:: with SMTP id n6mr689972pjq.159.1631723749644;
+        Wed, 15 Sep 2021 09:35:49 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t10sm495080pge.10.2021.09.15.09.35.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Sep 2021 09:35:49 -0700 (PDT)
+Message-ID: <614220e5.1c69fb81.7f192.1c8c@mx.google.com>
+Date:   Wed, 15 Sep 2021 09:35:49 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.14.4-24-g6da4ee8977f4
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.14
+Subject: stable-rc/queue/5.14 baseline: 153 runs,
+ 1 regressions (v5.14.4-24-g6da4ee8977f4)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The IR receiver has two issues:
+stable-rc/queue/5.14 baseline: 153 runs, 1 regressions (v5.14.4-24-g6da4ee8=
+977f4)
 
- - Sometimes there is no response to a button press
- - Sometimes a button press is repeated when it should not have been
+Regressions Summary
+-------------------
 
-Hanging the polling interval fixes this behaviour.
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-8    | defconfig | 1    =
+      =
 
-Cc: stable@vger.kernel.org
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=994050
-Suggested-by: Joaquín Alberto Calderón Pozo <kini_calderon@hotmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
----
- drivers/media/i2c/ir-kbd-i2c.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/i2c/ir-kbd-i2c.c b/drivers/media/i2c/ir-kbd-i2c.c
-index 92376592455e..56674173524f 100644
---- a/drivers/media/i2c/ir-kbd-i2c.c
-+++ b/drivers/media/i2c/ir-kbd-i2c.c
-@@ -791,6 +791,7 @@ static int ir_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		rc_proto    = RC_PROTO_BIT_RC5 | RC_PROTO_BIT_RC6_MCE |
- 							RC_PROTO_BIT_RC6_6A_32;
- 		ir_codes    = RC_MAP_HAUPPAUGE;
-+		ir->polling_interval = 125;
- 		probe_tx = true;
- 		break;
- 	}
--- 
-2.31.1
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.14/ker=
+nel/v5.14.4-24-g6da4ee8977f4/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.14
+  Describe: v5.14.4-24-g6da4ee8977f4
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6da4ee8977f4bd178e5ab51f0602bd1ce338a557 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-8    | defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/6141ef708fa0c5582f99a2e5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.4-2=
+4-g6da4ee8977f4/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banana=
+pi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.14/v5.14.4-2=
+4-g6da4ee8977f4/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-banana=
+pi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6141ef708fa0c5582f99a=
+2e6
+        new failure (last pass: v5.14.3-328-g86b6bc3e3300) =
+
+ =20
