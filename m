@@ -2,218 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8160F40C773
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 16:30:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A97540C77F
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 16:32:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233899AbhIOObf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 10:31:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39032 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233771AbhIOObf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 10:31:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2149600D4;
-        Wed, 15 Sep 2021 14:30:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631716216;
-        bh=MZF2tAL1xFUd0aYT4HQZ28OpkE35PTHwX92JG0xST0Y=;
-        h=Subject:To:Cc:From:Date:From;
-        b=AlXl2U6oWRQsgu/1FReHS+8X5qfLICk1TPnsI0O5K80x6lQFfhH8yM6eu4LRTC3LP
-         1mgtcr3UzZGuIHGGfLLZtalVm3BGLthaVbLmhuA9kg/Jymb0Zd00eE8yHRR9is6669
-         pGFRvpmZTMM8MgLRhKf8oT+Rdn8pWfUEyW58Phg8=
-Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix reporting CRS value" failed to apply to 5.14-stable tree
-To:     pali@kernel.org, lorenzo.pieralisi@arm.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Sep 2021 16:30:03 +0200
-Message-ID: <16317162038625@kroah.com>
+        id S233899AbhIOOeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 10:34:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60736 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233745AbhIOOeA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 10:34:00 -0400
+Received: from mail-oo1-xc34.google.com (mail-oo1-xc34.google.com [IPv6:2607:f8b0:4864:20::c34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576D3C061574;
+        Wed, 15 Sep 2021 07:32:41 -0700 (PDT)
+Received: by mail-oo1-xc34.google.com with SMTP id y3-20020a4ab403000000b00290e2a52c71so956293oon.2;
+        Wed, 15 Sep 2021 07:32:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=r+B7P+bJ1yyCKcAAG/Nv16gjiQPAYq04lxb01icvVY0=;
+        b=UJS4RQRUo6Tyr7KLmtNEYku4GcNlD5VvkEwr9huMgn/7YEEzxjJPCFoiKsQ1ke4xMY
+         Pk2AQYBmwLK+tTRBJKPZqL9FwXWRr63xgXRx2t0Xd7oOeOKyq3Wy7XvunZzSgtIVrWT5
+         s8YYIJ0ohsMFUeCtHxchwsZNcOtM6v1vPLkH1sXse+sBLXiwP3x7m1Fpx01rY3sZDz2d
+         cdJfi6Q1SOTQZoIy4Wp5YO7Q1BpTI5Lzk88yg3tzo40YXVHJMUA21ucGi6YCMXAGLjnX
+         Af3r3bhcM+RODzQ2BfgRd8l0HkCHCYXe9ja/ivja/SGnq7DBC9yYQTFZtpo8ifOmTpKH
+         DlZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=r+B7P+bJ1yyCKcAAG/Nv16gjiQPAYq04lxb01icvVY0=;
+        b=T25eRHHB6trc2ODUw5wHhhPFncGXRMKPItla4gdOHEtBj3r0ftTjPH17bm84btm3qw
+         72bhz/7kd6gB84LDXv39GWtHOcrpUkyngahQROY58XdrL1FS00NiCmO4vQ4Orwsx303a
+         3Yevzlh4bwbsB8IjkSc5aL4RT3KOfrr//btejqD6KpXuPVR63EyYrOMme3sWIyv5DAJT
+         356uyqZ1oQdzpTk2MKRdt8lfIrnktLwTtsbV6DHVov+bO6i8gltkjxO7r9nV80PM66Pg
+         s9tF4zy4m4MHZCSbWwPfPILMBs0CLXkaJX6xWu6VqfNDMVwbFKzy6SkcNRz5y2BOucpO
+         yp0g==
+X-Gm-Message-State: AOAM5336hAqvQ0vlYmtihXT3Bvue3u7U1PTNa7JaP1E8Rpsj2gHli3Zd
+        Soqv0JjH7zOQLG0f316+lKA=
+X-Google-Smtp-Source: ABdhPJwgRyomaRiiwB4eFwhgiaU7i3BK8ohkqFLZfju6seY+FUtszZFtzaDdSrsMGolBHVPKC3ISXQ==
+X-Received: by 2002:a05:6820:16a8:: with SMTP id bc40mr45352oob.63.1631716360722;
+        Wed, 15 Sep 2021 07:32:40 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id x4sm41206ood.2.2021.09.15.07.32.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Sep 2021 07:32:40 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 15 Sep 2021 07:32:38 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Subject: Re: [PATCH 5.10 157/236] Bluetooth: Move shutdown callback before
+ flushing tx and rx queue
+Message-ID: <20210915143238.GA2403125@roeck-us.net>
+References: <20210913131100.316353015@linuxfoundation.org>
+ <20210913131105.720088593@linuxfoundation.org>
+ <20210915111843.GA16198@duo.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210915111843.GA16198@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 15, 2021 at 01:18:43PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > [ Upstream commit 0ea53674d07fb6db2dd7a7ec2fdc85a12eb246c2 ]
+> 
+> Upstream commit is okay...
+> 
+> > So move the shutdown callback before flushing TX/RX queue to resolve the
+> > issue.
+> 
+> ...but something went wrong in stable. This is not moving code, this
+> is duplicating it:
+> 
+> > --- a/net/bluetooth/hci_core.c
+> > +++ b/net/bluetooth/hci_core.c
+> > @@ -1726,6 +1726,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
+> >  	hci_request_cancel_all(hdev);
+> >  	hci_req_sync_lock(hdev);
+> >  
+> > +	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
+> > +	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
+> > +	    test_bit(HCI_UP, &hdev->flags)) {
+> > +		/* Execute vendor specific shutdown routine */
+> > +		if (hdev->shutdown)
+> > +			hdev->shutdown(hdev);
+> > +	}
+> > +
+> >  	if (!test_and_clear_bit(HCI_UP, &hdev->flags)) {
+> >  		cancel_delayed_work_sync(&hdev->cmd_timer);
+> >  		hci_req_sync_unlock(hdev);
+> 
+> And yes, we end up with 2 copies in 5.10.
+> 
 
-The patch below does not apply to the 5.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Same problem in v5.4.y, unfortunately.
 
-thanks,
+Guenter
 
-greg k-h
+> Best regards,
+> 								Pavel
+> --
+> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
------------------- original commit in Linus's tree ------------------
-
-From 43f5c77bcbd27cce70bf33c2b86d6726ce95dd66 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Date: Thu, 22 Jul 2021 16:40:41 +0200
-Subject: [PATCH] PCI: aardvark: Fix reporting CRS value
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Set CRSVIS flag in emulated root PCI bridge to indicate support for
-Completion Retry Status.
-
-Add check for CRSSVE flag from root PCI brige when issuing Configuration
-Read Request via PIO to correctly returns fabricated CRS value as it is
-required by PCIe spec.
-
-Link: https://lore.kernel.org/r/20210722144041.12661-5-pali@kernel.org
-Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # e0d9d30b7354 ("PCI: pci-bridge-emul: Fix big-endian support")
-
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 5b9e4e79c3ae..0c32283b3276 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -178,6 +178,8 @@
- 
- #define MSI_IRQ_NUM			32
- 
-+#define CFG_RD_CRS_VAL			0xffff0001
-+
- struct advk_pcie {
- 	struct platform_device *pdev;
- 	void __iomem *base;
-@@ -473,7 +475,7 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
- }
- 
--static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
-+static int advk_pcie_check_pio_status(struct advk_pcie *pcie, bool allow_crs, u32 *val)
- {
- 	struct device *dev = &pcie->pdev->dev;
- 	u32 reg;
-@@ -515,9 +517,30 @@ static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
- 		strcomp_status = "UR";
- 		break;
- 	case PIO_COMPLETION_STATUS_CRS:
-+		if (allow_crs && val) {
-+			/* PCIe r4.0, sec 2.3.2, says:
-+			 * If CRS Software Visibility is enabled:
-+			 * For a Configuration Read Request that includes both
-+			 * bytes of the Vendor ID field of a device Function's
-+			 * Configuration Space Header, the Root Complex must
-+			 * complete the Request to the host by returning a
-+			 * read-data value of 0001h for the Vendor ID field and
-+			 * all '1's for any additional bytes included in the
-+			 * request.
-+			 *
-+			 * So CRS in this case is not an error status.
-+			 */
-+			*val = CFG_RD_CRS_VAL;
-+			strcomp_status = NULL;
-+			break;
-+		}
- 		/* PCIe r4.0, sec 2.3.2, says:
- 		 * If CRS Software Visibility is not enabled, the Root Complex
- 		 * must re-issue the Configuration Request as a new Request.
-+		 * If CRS Software Visibility is enabled: For a Configuration
-+		 * Write Request or for any other Configuration Read Request,
-+		 * the Root Complex must re-issue the Configuration Request as
-+		 * a new Request.
- 		 * A Root Complex implementation may choose to limit the number
- 		 * of Configuration Request/CRS Completion Status loops before
- 		 * determining that something is wrong with the target of the
-@@ -586,6 +609,7 @@ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
- 	case PCI_EXP_RTCTL: {
- 		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG);
- 		*value = (val & PCIE_MSG_PM_PME_MASK) ? 0 : PCI_EXP_RTCTL_PMEIE;
-+		*value |= PCI_EXP_RTCAP_CRSVIS << 16;
- 		return PCI_BRIDGE_EMUL_HANDLED;
- 	}
- 
-@@ -667,6 +691,7 @@ static struct pci_bridge_emul_ops advk_pci_bridge_emul_ops = {
- static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
- {
- 	struct pci_bridge_emul *bridge = &pcie->bridge;
-+	int ret;
- 
- 	bridge->conf.vendor =
- 		cpu_to_le16(advk_readl(pcie, PCIE_CORE_DEV_ID_REG) & 0xffff);
-@@ -690,7 +715,15 @@ static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
- 	bridge->data = pcie;
- 	bridge->ops = &advk_pci_bridge_emul_ops;
- 
--	return pci_bridge_emul_init(bridge, 0);
-+	/* PCIe config space can be initialized after pci_bridge_emul_init() */
-+	ret = pci_bridge_emul_init(bridge, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Indicates supports for Completion Retry Status */
-+	bridge->pcie_conf.rootcap = cpu_to_le16(PCI_EXP_RTCAP_CRSVIS);
-+
-+	return 0;
- }
- 
- static bool advk_pcie_valid_device(struct advk_pcie *pcie, struct pci_bus *bus,
-@@ -742,6 +775,7 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
- 			     int where, int size, u32 *val)
- {
- 	struct advk_pcie *pcie = bus->sysdata;
-+	bool allow_crs;
- 	u32 reg;
- 	int ret;
- 
-@@ -754,7 +788,24 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
- 		return pci_bridge_emul_conf_read(&pcie->bridge, where,
- 						 size, val);
- 
-+	/*
-+	 * Completion Retry Status is possible to return only when reading all
-+	 * 4 bytes from PCI_VENDOR_ID and PCI_DEVICE_ID registers at once and
-+	 * CRSSVE flag on Root Bridge is enabled.
-+	 */
-+	allow_crs = (where == PCI_VENDOR_ID) && (size == 4) &&
-+		    (le16_to_cpu(pcie->bridge.pcie_conf.rootctl) &
-+		     PCI_EXP_RTCTL_CRSSVE);
-+
- 	if (advk_pcie_pio_is_running(pcie)) {
-+		/*
-+		 * If it is possible return Completion Retry Status so caller
-+		 * tries to issue the request again instead of failing.
-+		 */
-+		if (allow_crs) {
-+			*val = CFG_RD_CRS_VAL;
-+			return PCIBIOS_SUCCESSFUL;
-+		}
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
- 	}
-@@ -782,12 +833,20 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
- 
- 	ret = advk_pcie_wait_pio(pcie);
- 	if (ret < 0) {
-+		/*
-+		 * If it is possible return Completion Retry Status so caller
-+		 * tries to issue the request again instead of failing.
-+		 */
-+		if (allow_crs) {
-+			*val = CFG_RD_CRS_VAL;
-+			return PCIBIOS_SUCCESSFUL;
-+		}
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
- 	}
- 
- 	/* Check PIO status and get the read result */
--	ret = advk_pcie_check_pio_status(pcie, val);
-+	ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
- 	if (ret < 0) {
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
-@@ -856,7 +915,7 @@ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
- 	if (ret < 0)
- 		return PCIBIOS_SET_FAILED;
- 
--	ret = advk_pcie_check_pio_status(pcie, NULL);
-+	ret = advk_pcie_check_pio_status(pcie, false, NULL);
- 	if (ret < 0)
- 		return PCIBIOS_SET_FAILED;
- 
 
