@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43E7F40C5DD
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 15:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6828940C5DE
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 15:05:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232940AbhIONGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 09:06:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43854 "EHLO mail.kernel.org"
+        id S233060AbhIONGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 09:06:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229670AbhIONGp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 09:06:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18DD561131;
-        Wed, 15 Sep 2021 13:05:25 +0000 (UTC)
+        id S229670AbhIONGy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 09:06:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9F0361185;
+        Wed, 15 Sep 2021 13:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631711126;
-        bh=j74VSbK/tX0eGXRs30vka4PgqegLWvSY2Tjc7bFDRiA=;
+        s=korg; t=1631711135;
+        bh=OsCGkVq5mG9Ow0mLky1dn1RxPQ4NDo149eD7LiDoFAU=;
         h=Subject:To:Cc:From:Date:From;
-        b=RACMPkD5LqJSyo53IFb6ASu/9r4r3DT8vY0Tz/us9HxT6DPecGw6+Hs1RYQvlidW/
-         z6uYhGWmZEqIUf8gJB3EApkX70B1i7Wdks8drdZJdDFCD0//9tc1kIpvwaaRGh7oTy
-         5ubHeZhs8FX9khR+gADHiddb0qMIu9q6l6dIocOA=
-Subject: FAILED: patch "[PATCH] watchdog: iTCO_wdt: Fix detection of SMI-off case" failed to apply to 4.14-stable tree
+        b=Y741s+sjV9LR7ZpusFX5HAlahXfJyLm+lBG0UR4L/EP4/23f3h33lbhXlyI9nfa7Y
+         P0YNog/jMBAjsUH0sbzDqK3YWNnlRwlIaN2HkI2OLsu7zCBOnFSh8Mf5uw0ds/byOJ
+         w7lvHcEf5QP4nCAom8ZKQ+kswo3vjCCLyRwqJpHY=
+Subject: FAILED: patch "[PATCH] watchdog: iTCO_wdt: Fix detection of SMI-off case" failed to apply to 4.19-stable tree
 To:     jan.kiszka@siemens.com, grawity@gmail.com, linux@roeck-us.net,
         pbonzini@redhat.com, wim@linux-watchdog.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 15 Sep 2021 15:05:24 +0200
-Message-ID: <1631711124103231@kroah.com>
+Message-ID: <1631711124122190@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
