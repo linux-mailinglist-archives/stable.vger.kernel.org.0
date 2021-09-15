@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1853440C5A0
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 14:50:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DC9E40C5A2
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 14:50:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233264AbhIOMwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 08:52:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60628 "EHLO mail.kernel.org"
+        id S233060AbhIOMwM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 08:52:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233060AbhIOMwF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 08:52:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 808C160F70;
-        Wed, 15 Sep 2021 12:50:46 +0000 (UTC)
+        id S233222AbhIOMwL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 08:52:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E915E61186;
+        Wed, 15 Sep 2021 12:50:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631710247;
-        bh=Jok/G22HHO0J6MK4cXQkXwKyFox9hEGqzCerFk8/eEg=;
+        s=korg; t=1631710252;
+        bh=RjVhC8Y1TCarEw7PyUAjvma+YmGDB1WZti2AwSXBtrA=;
         h=Subject:To:Cc:From:Date:From;
-        b=bkTrZqohxDXC1V1Cy9/oYn2b/kfeV94+vChIEVZTyHW426DMoSfNJMYrbma89HoYk
-         HXkleMuHjCYumaMzv/VX1Yr1qGYhwenPNLAhQelPPaor21qVX27bbNUMc6bpcLXLlT
-         1daiRYRGb0F8QIQb4IO4gdjzgSCspibtDu+TV7oI=
-Subject: FAILED: patch "[PATCH] s390/qdio: fix roll-back after timeout on ESTABLISH ccw" failed to apply to 4.14-stable tree
+        b=R1ie2FgQow+8vevXIbeduI9VXoIve9Ac9L86Q6UAewNOuvnp5GrY7V2yDAzB8oj2l
+         XIcFM92UfsJ2/KAjui8kNmZEN24DhC1TJD5la96klvrer7/XEoE8GnJsV2HRsCbCkO
+         7pW5H6SrA72oedwfhZ+lGXybynt8GrigRwaxVeek=
+Subject: FAILED: patch "[PATCH] s390/qdio: fix roll-back after timeout on ESTABLISH ccw" failed to apply to 4.19-stable tree
 To:     jwi@linux.ibm.com, bblock@linux.ibm.com, hca@linux.ibm.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Sep 2021 14:50:40 +0200
-Message-ID: <16317102402306@kroah.com>
+Date:   Wed, 15 Sep 2021 14:50:41 +0200
+Message-ID: <163171024125337@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
