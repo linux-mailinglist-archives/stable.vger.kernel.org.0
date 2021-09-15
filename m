@@ -2,55 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0B9540CAF4
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 18:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EBBA40CB43
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 18:52:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229515AbhIOQsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 12:48:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48810 "EHLO mail.kernel.org"
+        id S229631AbhIOQyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 12:54:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229489AbhIOQsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 12:48:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDB8860E76;
-        Wed, 15 Sep 2021 16:46:46 +0000 (UTC)
+        id S229676AbhIOQyF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 12:54:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1235960EE5;
+        Wed, 15 Sep 2021 16:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631724407;
-        bh=TIIX51J4HKK9ign5R+E8iJkMdf+H8ttJnbVuk/HIMYY=;
+        s=k20201202; t=1631724766;
+        bh=/AxT2IZ25GTco4rDDwopvOaZ80sS4/+9LACL4M5Tal8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YatSxy0nzJk51JT8BObB4dd58XWrxN9gte99SEm6plV7QAg1Z0zgMNXFlU5o97geE
-         ugOWiVqdrWuaV0d7l2/7Zm3mQzFsL5+zJ6mk5aQaoC9duKCRg3VLmLY9HJds+rWCGO
-         6ASWSo+wCgG625rfdGKnkoOjzTZ01rm7295eyIM46fnplrdXspTaP+vUdrwxJ3Ve8T
-         XWr+243b7ZTW0j0xyf2rWC6QyaUg5yk0gMHy70MKNm51FDUsQQMr34TbbBm4/pxwiY
-         ZBgIXCw3jfTlwpMsM9LOilQrdfN1rPgd8GhYs+lA/gMZk5UG4wdVmQns4AKbP0dZsd
-         D0ODi2ZKMm6wA==
+        b=MBRAtmNazSIN9e+gDfcrhWRlZRor1qa9Va3E9hx9IQ6R9XG27sQKd81K+gy8A2vjE
+         O4dokt6w66W7BEZ+ddtog4TOwP2ojXDGSim11sqzYeFEfJGeyPNrvUS7pFjUbzbJB7
+         QR/g8iPspKGlizX4xo4BHcmyHhV4knakNebeLvCvdbpDg8OyFdED0kLXpNfyP1lK4F
+         MB0/Gr7vqhpkJQH5Dx5gFQML7O8OCHrwMYZwQz0dSAf4qkOpZifK327XGbt4fWWuid
+         cWlnj3X+e3uCehjGOU0PP+qL2Cw/bM+JwMZDnaJDGGcojRuwakiJcwVdQD/GhXDLtC
+         KMgaWGcjS8doA==
 Received: by pali.im (Postfix)
-        id D243A5E1; Wed, 15 Sep 2021 18:46:43 +0200 (CEST)
-Date:   Wed, 15 Sep 2021 18:46:43 +0200
+        id D3A265E1; Wed, 15 Sep 2021 18:52:43 +0200 (CEST)
+Date:   Wed, 15 Sep 2021 18:52:43 +0200
 From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     lorenzo.pieralisi@arm.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] PCI: aardvark: Fix reporting CRS value"
- failed to apply to 5.14-stable tree
-Message-ID: <20210915164643.wuvqooapjccdc2nd@pali>
-References: <16317162038625@kroah.com>
+Cc:     kabel@kernel.org, lorenzo.pieralisi@arm.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] PCI: aardvark: Increase polling delay to
+ 1.5s while waiting" failed to apply to 5.10-stable tree
+Message-ID: <20210915165243.xaviyv4pwdmk6vhi@pali>
+References: <16317166872028@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <16317162038625@kroah.com>
+In-Reply-To: <16317166872028@kroah.com>
 User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wednesday 15 September 2021 16:30:03 gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 5.14-stable tree.
+On Wednesday 15 September 2021 16:38:07 gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 5.10-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
 
-Hello that patch depends on commit which fixes name of rootcap member:
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e902bb7c24a7099d0eb0eb4cba06f2d91e9299f3
+Hello! Below is backport for 5.10 (and probably it should apply also for
+older versions):
+
+From 4c801c70bdcd34ca0527d54206c0358a73154801 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+Date: Thu, 22 Jul 2021 16:40:39 +0200
+Subject: [PATCH] PCI: aardvark: Increase polling delay to 1.5s while waiting
+ for PIO response
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Measurements in different conditions showed that aardvark hardware PIO
+response can take up to 1.44s. Increase wait timeout from 1ms to 1.5s to
+ensure that we do not miss responses from hardware. After 1.44s hardware
+returns errors (e.g. Completer abort).
+
+The previous two patches fixed checking for PIO status, so now we can use
+it to also catch errors which are reported by hardware after 1.44s.
+
+After applying this patch, kernel can detect and print PIO errors to dmesg:
+
+    [    6.879999] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100004
+    [    6.896436] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100004
+    [    6.913049] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100010
+    [    6.929663] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100010
+    [    6.953558] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100014
+    [    6.970170] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100014
+    [    6.994328] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100004
+
+Without this patch kernel prints only a generic error to dmesg:
+
+    [    5.246847] advk-pcie d0070000.pcie: config read/write timed out
+
+Link: https://lore.kernel.org/r/20210722144041.12661-3-pali@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org # 7fbcb5da811b ("PCI: aardvark: Don't rely on jiffies while holding spinlock")
+---
+ drivers/pci/controller/pci-aardvark.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index b1b41b61e0bd..11cf6f4e9775 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -173,7 +173,7 @@
+ 	(PCIE_CONF_BUS(bus) | PCIE_CONF_DEV(PCI_SLOT(devfn))	| \
+ 	 PCIE_CONF_FUNC(PCI_FUNC(devfn)) | PCIE_CONF_REG(where))
+ 
+-#define PIO_RETRY_CNT			500
++#define PIO_RETRY_CNT			750000 /* 1.5 s */
+ #define PIO_RETRY_DELAY			2 /* 2 us*/
+ 
+ #define LINK_WAIT_MAX_RETRIES		10
+-- 
+2.20.1
+
 
 > thanks,
 > 
@@ -58,175 +115,54 @@ https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e9
 > 
 > ------------------ original commit in Linus's tree ------------------
 > 
-> From 43f5c77bcbd27cce70bf33c2b86d6726ce95dd66 Mon Sep 17 00:00:00 2001
+> From 02bcec3ea5591720114f586960490b04b093a09e Mon Sep 17 00:00:00 2001
 > From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-> Date: Thu, 22 Jul 2021 16:40:41 +0200
-> Subject: [PATCH] PCI: aardvark: Fix reporting CRS value
+> Date: Thu, 22 Jul 2021 16:40:39 +0200
+> Subject: [PATCH] PCI: aardvark: Increase polling delay to 1.5s while waiting
+>  for PIO response
 > MIME-Version: 1.0
 > Content-Type: text/plain; charset=UTF-8
 > Content-Transfer-Encoding: 8bit
 > 
-> Set CRSVIS flag in emulated root PCI bridge to indicate support for
-> Completion Retry Status.
+> Measurements in different conditions showed that aardvark hardware PIO
+> response can take up to 1.44s. Increase wait timeout from 1ms to 1.5s to
+> ensure that we do not miss responses from hardware. After 1.44s hardware
+> returns errors (e.g. Completer abort).
 > 
-> Add check for CRSSVE flag from root PCI brige when issuing Configuration
-> Read Request via PIO to correctly returns fabricated CRS value as it is
-> required by PCIe spec.
+> The previous two patches fixed checking for PIO status, so now we can use
+> it to also catch errors which are reported by hardware after 1.44s.
 > 
-> Link: https://lore.kernel.org/r/20210722144041.12661-5-pali@kernel.org
-> Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
+> After applying this patch, kernel can detect and print PIO errors to dmesg:
+> 
+>     [    6.879999] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100004
+>     [    6.896436] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100004
+>     [    6.913049] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100010
+>     [    6.929663] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100010
+>     [    6.953558] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100014
+>     [    6.970170] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100014
+>     [    6.994328] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100004
+> 
+> Without this patch kernel prints only a generic error to dmesg:
+> 
+>     [    5.246847] advk-pcie d0070000.pcie: config read/write timed out
+> 
+> Link: https://lore.kernel.org/r/20210722144041.12661-3-pali@kernel.org
 > Signed-off-by: Pali Rohár <pali@kernel.org>
 > Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-> Cc: stable@vger.kernel.org # e0d9d30b7354 ("PCI: pci-bridge-emul: Fix big-endian support")
+> Reviewed-by: Marek Behún <kabel@kernel.org>
+> Cc: stable@vger.kernel.org # 7fbcb5da811b ("PCI: aardvark: Don't rely on jiffies while holding spinlock")
 > 
 > diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-> index 5b9e4e79c3ae..0c32283b3276 100644
+> index 8bd060e084f1..5b9e4e79c3ae 100644
 > --- a/drivers/pci/controller/pci-aardvark.c
 > +++ b/drivers/pci/controller/pci-aardvark.c
-> @@ -178,6 +178,8 @@
+> @@ -167,7 +167,7 @@
+>  #define PCIE_CONFIG_WR_TYPE0			0xa
+>  #define PCIE_CONFIG_WR_TYPE1			0xb
 >  
->  #define MSI_IRQ_NUM			32
+> -#define PIO_RETRY_CNT			500
+> +#define PIO_RETRY_CNT			750000 /* 1.5 s */
+>  #define PIO_RETRY_DELAY			2 /* 2 us*/
 >  
-> +#define CFG_RD_CRS_VAL			0xffff0001
-> +
->  struct advk_pcie {
->  	struct platform_device *pdev;
->  	void __iomem *base;
-> @@ -473,7 +475,7 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
->  	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
->  }
->  
-> -static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
-> +static int advk_pcie_check_pio_status(struct advk_pcie *pcie, bool allow_crs, u32 *val)
->  {
->  	struct device *dev = &pcie->pdev->dev;
->  	u32 reg;
-> @@ -515,9 +517,30 @@ static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
->  		strcomp_status = "UR";
->  		break;
->  	case PIO_COMPLETION_STATUS_CRS:
-> +		if (allow_crs && val) {
-> +			/* PCIe r4.0, sec 2.3.2, says:
-> +			 * If CRS Software Visibility is enabled:
-> +			 * For a Configuration Read Request that includes both
-> +			 * bytes of the Vendor ID field of a device Function's
-> +			 * Configuration Space Header, the Root Complex must
-> +			 * complete the Request to the host by returning a
-> +			 * read-data value of 0001h for the Vendor ID field and
-> +			 * all '1's for any additional bytes included in the
-> +			 * request.
-> +			 *
-> +			 * So CRS in this case is not an error status.
-> +			 */
-> +			*val = CFG_RD_CRS_VAL;
-> +			strcomp_status = NULL;
-> +			break;
-> +		}
->  		/* PCIe r4.0, sec 2.3.2, says:
->  		 * If CRS Software Visibility is not enabled, the Root Complex
->  		 * must re-issue the Configuration Request as a new Request.
-> +		 * If CRS Software Visibility is enabled: For a Configuration
-> +		 * Write Request or for any other Configuration Read Request,
-> +		 * the Root Complex must re-issue the Configuration Request as
-> +		 * a new Request.
->  		 * A Root Complex implementation may choose to limit the number
->  		 * of Configuration Request/CRS Completion Status loops before
->  		 * determining that something is wrong with the target of the
-> @@ -586,6 +609,7 @@ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
->  	case PCI_EXP_RTCTL: {
->  		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG);
->  		*value = (val & PCIE_MSG_PM_PME_MASK) ? 0 : PCI_EXP_RTCTL_PMEIE;
-> +		*value |= PCI_EXP_RTCAP_CRSVIS << 16;
->  		return PCI_BRIDGE_EMUL_HANDLED;
->  	}
->  
-> @@ -667,6 +691,7 @@ static struct pci_bridge_emul_ops advk_pci_bridge_emul_ops = {
->  static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
->  {
->  	struct pci_bridge_emul *bridge = &pcie->bridge;
-> +	int ret;
->  
->  	bridge->conf.vendor =
->  		cpu_to_le16(advk_readl(pcie, PCIE_CORE_DEV_ID_REG) & 0xffff);
-> @@ -690,7 +715,15 @@ static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
->  	bridge->data = pcie;
->  	bridge->ops = &advk_pci_bridge_emul_ops;
->  
-> -	return pci_bridge_emul_init(bridge, 0);
-> +	/* PCIe config space can be initialized after pci_bridge_emul_init() */
-> +	ret = pci_bridge_emul_init(bridge, 0);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	/* Indicates supports for Completion Retry Status */
-> +	bridge->pcie_conf.rootcap = cpu_to_le16(PCI_EXP_RTCAP_CRSVIS);
-> +
-> +	return 0;
->  }
->  
->  static bool advk_pcie_valid_device(struct advk_pcie *pcie, struct pci_bus *bus,
-> @@ -742,6 +775,7 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
->  			     int where, int size, u32 *val)
->  {
->  	struct advk_pcie *pcie = bus->sysdata;
-> +	bool allow_crs;
->  	u32 reg;
->  	int ret;
->  
-> @@ -754,7 +788,24 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
->  		return pci_bridge_emul_conf_read(&pcie->bridge, where,
->  						 size, val);
->  
-> +	/*
-> +	 * Completion Retry Status is possible to return only when reading all
-> +	 * 4 bytes from PCI_VENDOR_ID and PCI_DEVICE_ID registers at once and
-> +	 * CRSSVE flag on Root Bridge is enabled.
-> +	 */
-> +	allow_crs = (where == PCI_VENDOR_ID) && (size == 4) &&
-> +		    (le16_to_cpu(pcie->bridge.pcie_conf.rootctl) &
-> +		     PCI_EXP_RTCTL_CRSSVE);
-> +
->  	if (advk_pcie_pio_is_running(pcie)) {
-> +		/*
-> +		 * If it is possible return Completion Retry Status so caller
-> +		 * tries to issue the request again instead of failing.
-> +		 */
-> +		if (allow_crs) {
-> +			*val = CFG_RD_CRS_VAL;
-> +			return PCIBIOS_SUCCESSFUL;
-> +		}
->  		*val = 0xffffffff;
->  		return PCIBIOS_SET_FAILED;
->  	}
-> @@ -782,12 +833,20 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
->  
->  	ret = advk_pcie_wait_pio(pcie);
->  	if (ret < 0) {
-> +		/*
-> +		 * If it is possible return Completion Retry Status so caller
-> +		 * tries to issue the request again instead of failing.
-> +		 */
-> +		if (allow_crs) {
-> +			*val = CFG_RD_CRS_VAL;
-> +			return PCIBIOS_SUCCESSFUL;
-> +		}
->  		*val = 0xffffffff;
->  		return PCIBIOS_SET_FAILED;
->  	}
->  
->  	/* Check PIO status and get the read result */
-> -	ret = advk_pcie_check_pio_status(pcie, val);
-> +	ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
->  	if (ret < 0) {
->  		*val = 0xffffffff;
->  		return PCIBIOS_SET_FAILED;
-> @@ -856,7 +915,7 @@ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
->  	if (ret < 0)
->  		return PCIBIOS_SET_FAILED;
->  
-> -	ret = advk_pcie_check_pio_status(pcie, NULL);
-> +	ret = advk_pcie_check_pio_status(pcie, false, NULL);
->  	if (ret < 0)
->  		return PCIBIOS_SET_FAILED;
->  
+>  #define LINK_WAIT_MAX_RETRIES		10
 > 
