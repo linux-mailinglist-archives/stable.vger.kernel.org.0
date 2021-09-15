@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82CDF40C784
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 16:33:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 497E740C788
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 16:34:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237109AbhIOOfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 10:35:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40390 "EHLO mail.kernel.org"
+        id S237970AbhIOOgK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 10:36:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236855AbhIOOfJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 10:35:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 779A7600D4;
-        Wed, 15 Sep 2021 14:33:50 +0000 (UTC)
+        id S237956AbhIOOgK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 10:36:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DEED60EE9;
+        Wed, 15 Sep 2021 14:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631716430;
-        bh=uH/Ou4hByPC2j+Pji9XlWE1a/UrnQ9OnHcJSi2RamZY=;
+        s=korg; t=1631716491;
+        bh=/wP9KosXXU2h8Ko4XdLAb3u4iu81AiNNml8/EbNdFAo=;
         h=Subject:To:Cc:From:Date:From;
-        b=fjb2dWmgbkm3TTb+3lnRwYDbPwyniN0luask1U5w2p7vXqZcYdLfMUSB3T85vlOCp
-         uvmcywkp/NuAZCEouAnb1/RVEIM0HB8BISvC5OFzE42mMb1OJdKMYj5SFWIwL2yCQz
-         WJENkzMhu9HxEH9TV63o/N9IIsLeK6zx+18SrsBE=
-Subject: FAILED: patch "[PATCH] PCI: aardvark: Fix reporting CRS value" failed to apply to 5.13-stable tree
-To:     pali@kernel.org, lorenzo.pieralisi@arm.com
+        b=XXgNzB2dZUcYO5VKAFy2l85yzSI2d3U/py9qNpyGZcrLfALLC5S+JiTX6u6XbYAed
+         eoDanj4BukT9L3/9PgDIFwQ2g3l/lm+bPGaYBIHxJnGOOPq96b3gqNGTvN5JpdCVBq
+         +/AzfVwEi0WwdN6duVFwH13YmEK1qJQ9mNR0uzdE=
+Subject: FAILED: patch "[PATCH] f2fs: let's keep writing IOs on SBI_NEED_FSCK" failed to apply to 5.13-stable tree
+To:     jaegeuk@kernel.org, chao@kernel.org, stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Sep 2021 16:33:48 +0200
-Message-ID: <163171642817780@kroah.com>
+Date:   Wed, 15 Sep 2021 16:34:42 +0200
+Message-ID: <16317164828961@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,175 +45,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 43f5c77bcbd27cce70bf33c2b86d6726ce95dd66 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Date: Thu, 22 Jul 2021 16:40:41 +0200
-Subject: [PATCH] PCI: aardvark: Fix reporting CRS value
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 1ffc8f5f7751f91fe6af527d426a723231b741a6 Mon Sep 17 00:00:00 2001
+From: Jaegeuk Kim <jaegeuk@kernel.org>
+Date: Wed, 14 Jul 2021 16:14:02 -0700
+Subject: [PATCH] f2fs: let's keep writing IOs on SBI_NEED_FSCK
 
-Set CRSVIS flag in emulated root PCI bridge to indicate support for
-Completion Retry Status.
+SBI_NEED_FSCK is an indicator that fsck.f2fs needs to be triggered, so it
+is not fully critical to stop any IO writes. So, let's allow to write data
+instead of reporting EIO forever given SBI_NEED_FSCK, but do keep OPU.
 
-Add check for CRSSVE flag from root PCI brige when issuing Configuration
-Read Request via PIO to correctly returns fabricated CRS value as it is
-required by PCIe spec.
+Fixes: 955772787667 ("f2fs: drop inplace IO if fs status is abnormal")
+Cc: <stable@kernel.org> # v5.13+
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 
-Link: https://lore.kernel.org/r/20210722144041.12661-5-pali@kernel.org
-Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org # e0d9d30b7354 ("PCI: pci-bridge-emul: Fix big-endian support")
-
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 5b9e4e79c3ae..0c32283b3276 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -178,6 +178,8 @@
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index d2cf48c5a2e4..ba120d55e9b1 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -2498,6 +2498,8 @@ bool f2fs_should_update_outplace(struct inode *inode, struct f2fs_io_info *fio)
+ 		return true;
+ 	if (f2fs_is_atomic_file(inode))
+ 		return true;
++	if (is_sbi_flag_set(sbi, SBI_NEED_FSCK))
++		return true;
  
- #define MSI_IRQ_NUM			32
- 
-+#define CFG_RD_CRS_VAL			0xffff0001
-+
- struct advk_pcie {
- 	struct platform_device *pdev;
- 	void __iomem *base;
-@@ -473,7 +475,7 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
- 	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
- }
- 
--static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
-+static int advk_pcie_check_pio_status(struct advk_pcie *pcie, bool allow_crs, u32 *val)
- {
- 	struct device *dev = &pcie->pdev->dev;
- 	u32 reg;
-@@ -515,9 +517,30 @@ static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
- 		strcomp_status = "UR";
- 		break;
- 	case PIO_COMPLETION_STATUS_CRS:
-+		if (allow_crs && val) {
-+			/* PCIe r4.0, sec 2.3.2, says:
-+			 * If CRS Software Visibility is enabled:
-+			 * For a Configuration Read Request that includes both
-+			 * bytes of the Vendor ID field of a device Function's
-+			 * Configuration Space Header, the Root Complex must
-+			 * complete the Request to the host by returning a
-+			 * read-data value of 0001h for the Vendor ID field and
-+			 * all '1's for any additional bytes included in the
-+			 * request.
-+			 *
-+			 * So CRS in this case is not an error status.
-+			 */
-+			*val = CFG_RD_CRS_VAL;
-+			strcomp_status = NULL;
-+			break;
-+		}
- 		/* PCIe r4.0, sec 2.3.2, says:
- 		 * If CRS Software Visibility is not enabled, the Root Complex
- 		 * must re-issue the Configuration Request as a new Request.
-+		 * If CRS Software Visibility is enabled: For a Configuration
-+		 * Write Request or for any other Configuration Read Request,
-+		 * the Root Complex must re-issue the Configuration Request as
-+		 * a new Request.
- 		 * A Root Complex implementation may choose to limit the number
- 		 * of Configuration Request/CRS Completion Status loops before
- 		 * determining that something is wrong with the target of the
-@@ -586,6 +609,7 @@ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
- 	case PCI_EXP_RTCTL: {
- 		u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG);
- 		*value = (val & PCIE_MSG_PM_PME_MASK) ? 0 : PCI_EXP_RTCTL_PMEIE;
-+		*value |= PCI_EXP_RTCAP_CRSVIS << 16;
- 		return PCI_BRIDGE_EMUL_HANDLED;
+ 	/* swap file is migrating in aligned write mode */
+ 	if (is_inode_flag_set(inode, FI_ALIGNED_WRITE))
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 15cc89eef28d..f9b7fb785e1d 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -3563,7 +3563,7 @@ int f2fs_inplace_write_data(struct f2fs_io_info *fio)
+ 		goto drop_bio;
  	}
  
-@@ -667,6 +691,7 @@ static struct pci_bridge_emul_ops advk_pci_bridge_emul_ops = {
- static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
- {
- 	struct pci_bridge_emul *bridge = &pcie->bridge;
-+	int ret;
- 
- 	bridge->conf.vendor =
- 		cpu_to_le16(advk_readl(pcie, PCIE_CORE_DEV_ID_REG) & 0xffff);
-@@ -690,7 +715,15 @@ static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
- 	bridge->data = pcie;
- 	bridge->ops = &advk_pci_bridge_emul_ops;
- 
--	return pci_bridge_emul_init(bridge, 0);
-+	/* PCIe config space can be initialized after pci_bridge_emul_init() */
-+	ret = pci_bridge_emul_init(bridge, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	/* Indicates supports for Completion Retry Status */
-+	bridge->pcie_conf.rootcap = cpu_to_le16(PCI_EXP_RTCAP_CRSVIS);
-+
-+	return 0;
- }
- 
- static bool advk_pcie_valid_device(struct advk_pcie *pcie, struct pci_bus *bus,
-@@ -742,6 +775,7 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
- 			     int where, int size, u32 *val)
- {
- 	struct advk_pcie *pcie = bus->sysdata;
-+	bool allow_crs;
- 	u32 reg;
- 	int ret;
- 
-@@ -754,7 +788,24 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
- 		return pci_bridge_emul_conf_read(&pcie->bridge, where,
- 						 size, val);
- 
-+	/*
-+	 * Completion Retry Status is possible to return only when reading all
-+	 * 4 bytes from PCI_VENDOR_ID and PCI_DEVICE_ID registers at once and
-+	 * CRSSVE flag on Root Bridge is enabled.
-+	 */
-+	allow_crs = (where == PCI_VENDOR_ID) && (size == 4) &&
-+		    (le16_to_cpu(pcie->bridge.pcie_conf.rootctl) &
-+		     PCI_EXP_RTCTL_CRSSVE);
-+
- 	if (advk_pcie_pio_is_running(pcie)) {
-+		/*
-+		 * If it is possible return Completion Retry Status so caller
-+		 * tries to issue the request again instead of failing.
-+		 */
-+		if (allow_crs) {
-+			*val = CFG_RD_CRS_VAL;
-+			return PCIBIOS_SUCCESSFUL;
-+		}
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
+-	if (is_sbi_flag_set(sbi, SBI_NEED_FSCK) || f2fs_cp_error(sbi)) {
++	if (f2fs_cp_error(sbi)) {
+ 		err = -EIO;
+ 		goto drop_bio;
  	}
-@@ -782,12 +833,20 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
- 
- 	ret = advk_pcie_wait_pio(pcie);
- 	if (ret < 0) {
-+		/*
-+		 * If it is possible return Completion Retry Status so caller
-+		 * tries to issue the request again instead of failing.
-+		 */
-+		if (allow_crs) {
-+			*val = CFG_RD_CRS_VAL;
-+			return PCIBIOS_SUCCESSFUL;
-+		}
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
- 	}
- 
- 	/* Check PIO status and get the read result */
--	ret = advk_pcie_check_pio_status(pcie, val);
-+	ret = advk_pcie_check_pio_status(pcie, allow_crs, val);
- 	if (ret < 0) {
- 		*val = 0xffffffff;
- 		return PCIBIOS_SET_FAILED;
-@@ -856,7 +915,7 @@ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
- 	if (ret < 0)
- 		return PCIBIOS_SET_FAILED;
- 
--	ret = advk_pcie_check_pio_status(pcie, NULL);
-+	ret = advk_pcie_check_pio_status(pcie, false, NULL);
- 	if (ret < 0)
- 		return PCIBIOS_SET_FAILED;
- 
 
