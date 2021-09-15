@@ -2,94 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C5F940C440
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 13:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3430640C444
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 13:19:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232586AbhIOLUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 07:20:04 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:53250 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232540AbhIOLUE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 07:20:04 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 36C991C0B76; Wed, 15 Sep 2021 13:18:44 +0200 (CEST)
-Date:   Wed, 15 Sep 2021 13:18:43 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Subject: Re: [PATCH 5.10 157/236] Bluetooth: Move shutdown callback before
- flushing tx and rx queue
-Message-ID: <20210915111843.GA16198@duo.ucw.cz>
-References: <20210913131100.316353015@linuxfoundation.org>
- <20210913131105.720088593@linuxfoundation.org>
+        id S232704AbhIOLUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 07:20:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49354 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232699AbhIOLUu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 07:20:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7585E60EFF;
+        Wed, 15 Sep 2021 11:19:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631704772;
+        bh=eBcpeoo0T2T8lBdNTV95SCaPbFKAmVfuqwwSY2NQ8FY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rIKg+WYR/fvd54vJn18QNx6OYBpuXG7ZjwBBuTxDFD+1LAY3vR8jMAvnaVApRV10p
+         cp+Vp6bYiMtZBaSGVlzGeiVgAIr5phupJWlHs426HxDTlzePOnTYeyuzKuaXH5Ubss
+         e1IzgFuZS6zxj6BOUinNmacqg23zdTiPgx4FPPLc=
+Date:   Wed, 15 Sep 2021 13:19:29 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>, stable@vger.kernel.org
+Subject: Re: 5.13 stable backports
+Message-ID: <YUHWwWvmAup4ZU6i@kroah.com>
+References: <14bc2778-6ec6-f794-64b1-d89fd1ba0296@kernel.dk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210913131105.720088593@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <14bc2778-6ec6-f794-64b1-d89fd1ba0296@kernel.dk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Sep 13, 2021 at 09:49:53AM -0600, Jens Axboe wrote:
+> >From eda6d3d1acf23f63e8e29219b1379e479cf90d7d Mon Sep 17 00:00:00 2001
+> From: Pavel Begunkov <asml.silence@gmail.com>
+> Date: Mon, 13 Sep 2021 09:13:30 -0600
+> Subject: [PATCH 1/6] io_uring: place fixed tables under memcg limits
+> 
+> commit 0bea96f59ba40e63c0ae93ad6a02417b95f22f4d upstream.
+> 
+> Fixed tables may be large enough, place all of them together with
+> allocated tags under memcg limits.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+> Link: https://lore.kernel.org/r/b3ac9f5da9821bb59837b5fe25e8ef4be982218c.1629451684.git.asml.silence@gmail.com
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> ---
+>  fs/autofs/modules.builtin          |  1 +
+>  fs/btrfs/modules.builtin           |  1 +
+>  fs/configfs/modules.builtin        |  1 +
+>  fs/crypto/modules.builtin          |  0
+>  fs/debugfs/modules.builtin         |  0
+>  fs/devpts/modules.builtin          |  0
+>  fs/ecryptfs/modules.builtin        |  1 +
+>  fs/efivarfs/modules.builtin        |  1 +
+>  fs/exportfs/modules.builtin        |  1 +
+>  fs/ext2/modules.builtin            |  1 +
+>  fs/ext4/modules.builtin            |  1 +
+>  fs/fat/modules.builtin             |  2 ++
+>  fs/fuse/modules.builtin            |  1 +
+>  fs/hugetlbfs/modules.builtin       |  0
+>  fs/io-wq.h.rej                     | 25 +++++++++++++++++++++++++
+>  fs/io_uring.c                      |  8 ++++----
+>  fs/iomap/modules.builtin           |  0
+>  fs/isofs/modules.builtin           |  1 +
+>  fs/jbd2/modules.builtin            |  1 +
+>  fs/kernfs/modules.builtin          |  0
+>  fs/lockd/modules.builtin           |  1 +
+>  fs/modules.builtin                 |  9 +++++++++
+>  fs/nfs/modules.builtin             |  4 ++++
+>  fs/nfs_common/modules.builtin      |  2 ++
+>  fs/nls/modules.builtin             |  1 +
+>  fs/notify/dnotify/modules.builtin  |  0
+>  fs/notify/fanotify/modules.builtin |  0
+>  fs/notify/inotify/modules.builtin  |  0
+>  fs/notify/modules.builtin          |  0
+>  fs/proc/modules.builtin            |  0
+>  fs/pstore/modules.builtin          |  1 +
+>  fs/quota/modules.builtin           |  0
+>  fs/ramfs/modules.builtin           |  0
+>  fs/squashfs/modules.builtin        |  1 +
+>  fs/sysfs/modules.builtin           |  0
+>  fs/tracefs/modules.builtin         |  0
+>  fs/xfs/modules.builtin             |  1 +
+>  37 files changed, 62 insertions(+), 4 deletions(-)
+>  create mode 100644 fs/autofs/modules.builtin
+>  create mode 100644 fs/btrfs/modules.builtin
+>  create mode 100644 fs/configfs/modules.builtin
+>  create mode 100644 fs/crypto/modules.builtin
+>  create mode 100644 fs/debugfs/modules.builtin
+>  create mode 100644 fs/devpts/modules.builtin
+>  create mode 100644 fs/ecryptfs/modules.builtin
+>  create mode 100644 fs/efivarfs/modules.builtin
+>  create mode 100644 fs/exportfs/modules.builtin
+>  create mode 100644 fs/ext2/modules.builtin
+>  create mode 100644 fs/ext4/modules.builtin
+>  create mode 100644 fs/fat/modules.builtin
+>  create mode 100644 fs/fuse/modules.builtin
+>  create mode 100644 fs/hugetlbfs/modules.builtin
+>  create mode 100644 fs/io-wq.h.rej
+>  create mode 100644 fs/iomap/modules.builtin
+>  create mode 100644 fs/isofs/modules.builtin
+>  create mode 100644 fs/jbd2/modules.builtin
+>  create mode 100644 fs/kernfs/modules.builtin
+>  create mode 100644 fs/lockd/modules.builtin
+>  create mode 100644 fs/modules.builtin
+>  create mode 100644 fs/nfs/modules.builtin
+>  create mode 100644 fs/nfs_common/modules.builtin
+>  create mode 100644 fs/nls/modules.builtin
+>  create mode 100644 fs/notify/dnotify/modules.builtin
+>  create mode 100644 fs/notify/fanotify/modules.builtin
+>  create mode 100644 fs/notify/inotify/modules.builtin
+>  create mode 100644 fs/notify/modules.builtin
+>  create mode 100644 fs/proc/modules.builtin
+>  create mode 100644 fs/pstore/modules.builtin
+>  create mode 100644 fs/quota/modules.builtin
+>  create mode 100644 fs/ramfs/modules.builtin
+>  create mode 100644 fs/squashfs/modules.builtin
+>  create mode 100644 fs/sysfs/modules.builtin
+>  create mode 100644 fs/tracefs/modules.builtin
+>  create mode 100644 fs/xfs/modules.builtin
+> 
+> diff --git a/fs/autofs/modules.builtin b/fs/autofs/modules.builtin
+> new file mode 100644
+> index 000000000000..3425a57879aa
+> --- /dev/null
+> +++ b/fs/autofs/modules.builtin
+> @@ -0,0 +1 @@
+> +fs/autofs/autofs4.ko
 
---cNdxnHkX5QqsyA0e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+<snip>
 
-Hi!
+Something went really wrong with this backport :(
 
-> [ Upstream commit 0ea53674d07fb6db2dd7a7ec2fdc85a12eb246c2 ]
+Can you fix it up and resend these?
 
-Upstream commit is okay...
+thanks,
 
-> So move the shutdown callback before flushing TX/RX queue to resolve the
-> issue.
-
-=2E..but something went wrong in stable. This is not moving code, this
-is duplicating it:
-
-> --- a/net/bluetooth/hci_core.c
-> +++ b/net/bluetooth/hci_core.c
-> @@ -1726,6 +1726,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
->  	hci_request_cancel_all(hdev);
->  	hci_req_sync_lock(hdev);
-> =20
-> +	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
-> +	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
-> +	    test_bit(HCI_UP, &hdev->flags)) {
-> +		/* Execute vendor specific shutdown routine */
-> +		if (hdev->shutdown)
-> +			hdev->shutdown(hdev);
-> +	}
-> +
->  	if (!test_and_clear_bit(HCI_UP, &hdev->flags)) {
->  		cancel_delayed_work_sync(&hdev->cmd_timer);
->  		hci_req_sync_unlock(hdev);
-
-And yes, we end up with 2 copies in 5.10.
-
-Best regards,
-								Pavel
---
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---cNdxnHkX5QqsyA0e
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYUHWkwAKCRAw5/Bqldv6
-8pcHAJwMIKymx3gC/j1OMFbG/uKphOBu0gCfVkgEvY8X8lbln2FfmF7qbfALr4k=
-=TbG8
------END PGP SIGNATURE-----
-
---cNdxnHkX5QqsyA0e--
+greg k-h
