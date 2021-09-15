@@ -2,75 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 798D740BE0D
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 05:13:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D38340BD81
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 04:05:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230251AbhIODOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 23:14:49 -0400
-Received: from 192-163-196-79.unifiedlayer.com ([192.163.196.79]:49088 "EHLO
-        192-163-196-79.unifiedlayer.com" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233232AbhIODOn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 23:14:43 -0400
-Received: from besteditor by 192-163-196-79.ipage.com with local (Exim 4.93)
-        (envelope-from <besteditor@192-163-196-79.ipage.com>)
-        id 1mQCaG-0002cS-ET; Tue, 14 Sep 2021 11:51:13 -0600
-To:     stalin_dustat@yahoo.com
-Subject: MANUSCRIPT PROOFREADING
-X-PHP-Script: scriptproofpub.org/mail4/send.php for 129.205.124.11
-X-PHP-Originating-Script: 1003:send.php
-From:   manuscriptediting34@pub.org
-Reply-To: mmanuscripteditserv@gmail.com
-Message-Id: <E1mQCaG-0002cS-ET@192-163-196-79.ipage.com>
-Date:   Tue, 14 Sep 2021 11:51:04 -0600
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - 192-163-196-79.ipage.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [1003 991] / [47 12]
-X-AntiAbuse: Sender Address Domain - 192-163-196-79.ipage.com
-X-Get-Message-Sender-Via: 192-163-196-79.ipage.com: authenticated_id: besteditor/only user confirmed/virtual account not confirmed
-X-Authenticated-Sender: 192-163-196-79.ipage.com: besteditor
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+        id S233717AbhIOCGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 22:06:24 -0400
+Received: from szxga08-in.huawei.com ([45.249.212.255]:16201 "EHLO
+        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231979AbhIOCGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 22:06:24 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4H8Nmz685Vz1DGpP;
+        Wed, 15 Sep 2021 10:04:03 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2308.8; Wed, 15 Sep 2021 10:05:04 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2308.8; Wed, 15 Sep 2021 10:05:02 +0800
+Subject: Re: [PATCH 5.4 000/144] 5.4.146-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210913131047.974309396@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <471cd97d-ce0d-b9c4-fa01-a18ab11eaff9@huawei.com>
+Date:   Wed, 15 Sep 2021 10:05:02 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MODERN MANUSCRIPT EDITING SERVICES
-http://www.mmanuscripteditserv.com/index.htm
 
 
-Do you want your manuscript TO BE written in standard English?
-Do you want your journal articles, books, conference papers, and dissertations and theses to be substantially revised or edited?
-Does your manuscript have to be in a particular journal format?
-Then, MODERN MANUSCRIPT EDITING SERVICES is the right place for you.
-So hurry up and get your papers edited in Standard English.
+On 2021/9/13 21:13, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.146 release.
+> There are 144 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 15 Sep 2021 13:10:21 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.146-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Dear Colleague,
-Proofreading/Editing is a dynamic facet of publication, which we have taken into recognition; therefore, we call on writers/authors in all academic fields to submit their manuscripts for proofreading/editing. We have also observed that numerous articles are difficult to be understood by reviewers and editors due to poor grammatical usage, which is the consequence of the author learning English as a second language. Hence, we recommend that authors send us their manuscript(s) for accurate grammatical editing.
+Tested on arm64 and x86 for 5.4.146-rc1,
 
-Send your manuscript(s) to articles@mmanuscripteditserv.com or mmanuscripteditserv@gmail.com for proofreading and grammatical correction. The manuscript must be in Arial font, font size 12 and double line spacing. Upon receipt of the manuscript, an acknowledgment letter containing the manuscript number and the handling fee will be sent to the author(s).
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.146-rc1
+Commit: d4596c5864b2b967c1c1019d51b2c221d27e2f3b
+Compiler: gcc version 7.3.0 (GCC)
 
-Our charges are as follows: $25 per 1000 words, meaning
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8906
+passed: 8906
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-Number of Words	Price
-1 to 1,000    	$25
-1,001 to 2,000	$50
-2,001 to 3,000	$75
-3,001 to 4,000	$100
-4,001 to 5,000	$125
-5,001 to 6,000	$150
-6,001 to 7,000	$175
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8906
+passed: 8906
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-Payments are made via online using credit card, PayPal or bank wire transfer. In addition, we specialize in proofreading, grammar editing, proper punctuation, paraphrasing and sentence editing, aligning articles to the required format and translating from your native language to English.
-
-For more information, please visit our website http://www.mmanuscripteditserv.com. We would appreciate it if you could share this information with your colleagues and associates. 
-
-Best regards,
-
-Dr. Philip Benz
-Editor
-Modern Manuscript Editing Services
-
-To unsubscribe, kindly send a mail to unsubscribe.mmanuscriptedit@gmail.com
-
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
