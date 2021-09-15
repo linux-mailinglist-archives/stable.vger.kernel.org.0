@@ -2,134 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BCF440C5E6
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 15:06:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4024340C64B
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 15:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233257AbhIONIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 09:08:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51170 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233238AbhIONIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 09:08:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22A1C60232;
-        Wed, 15 Sep 2021 13:06:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631711211;
-        bh=Fj6+YG74AuRivB42rwOLHQScTjXnKWyJHzNWm5IRyAI=;
-        h=Subject:To:Cc:From:Date:From;
-        b=OU2LNG6NlNwr0afzKCYs4mqKpjj0/qGh4alGzlhZJI2yfu3a4234fU4d6iVH/FkNy
-         +AIjbjDNgOp+kLsQy8JgtADZOi91GIZkr4UGZymNNrhYzuT6CVlkjfjdd8+fvEGAtm
-         3uhhjHZIOD9BN50OBoD0rmEOL76I/m8IwPY5YWko=
-Subject: FAILED: patch "[PATCH] ARM: 9109/1: oabi-compat: add epoll_pwait handler" failed to apply to 4.9-stable tree
-To:     arnd@arndb.de, hch@lst.de, rmk+kernel@armlinux.org.uk
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Sep 2021 15:06:41 +0200
-Message-ID: <163171120149103@kroah.com>
+        id S229441AbhIONXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 09:23:49 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:46377 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233401AbhIONXt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 09:23:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1631712150;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=N8XVIae35tL1jV2ZqP53lL8GffjmSTNBE3TsFycIEN4=;
+        b=TeNbNl/vxcrv9cc1rilYyu0mNzRiWEl+qV0MwCNkNEyUT4c4tlqJwd/MXhvHmkQg5dgXSw
+        29pbb553ESI8WhaDspGuw+6mSGvv/LjiIXCy5nxSpI0mYYKLUxqYuNR1NMCxk76bKI14kW
+        zU+SAYxIdrd2gm44BLS364E1RgQ0x2M=
+Received: from mail-yb1-f200.google.com (mail-yb1-f200.google.com
+ [209.85.219.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-307-p16GpTZiPs6ksbrtIWXhPA-1; Wed, 15 Sep 2021 09:22:29 -0400
+X-MC-Unique: p16GpTZiPs6ksbrtIWXhPA-1
+Received: by mail-yb1-f200.google.com with SMTP id m16-20020a25d410000000b005ab243aaaf4so3383396ybf.20
+        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 06:22:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=N8XVIae35tL1jV2ZqP53lL8GffjmSTNBE3TsFycIEN4=;
+        b=Hs5P/MGj0A5XHihQ5fWoaBLLF8KfjhAWLFpnaxiDvppt38jp15CtRcmcR3Xm2XdCGl
+         yW3c9bKs/LgQf+NKp+FxBbfiWXh5hBLHdlGLzKF5HEL9Q7Io75DrphyyMYrC6GLBm8MP
+         Xc7U5chfLKepJtLVmNvoL9j2DuIaC0nQUkXN79f/mgcQbYV1jIXdTdkr6jIqkVRYPsP4
+         rhhmc+rSTIGW60BGv/k1GCjX+xbukPNM2Kqe05DrgNidPIJRthSkJSzK3LoClhbzgbw1
+         Uq2Ct9qJW6v0V1woFr7b/PRX1GgampBE6x9LgFjwHkBKIXuK8Tiqm6JkyPDbSYEJny/Y
+         kYWA==
+X-Gm-Message-State: AOAM532L6qVG+j2LuqE9zk/XCnb5djcOub8sJlW7O5tLGtT/meWo2zYK
+        uDggifGrqMrjh+KwxLXklEbn1ZdAzR0+kIWsrO7VWYIOvE2qLfiBlqbuiddVO+GjdzIO2ePCE0e
+        nhu8rXMVOf7eBrVYG40VreKw5H7me8pW0
+X-Received: by 2002:a25:6e05:: with SMTP id j5mr17476ybc.86.1631712148369;
+        Wed, 15 Sep 2021 06:22:28 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzlFFW+PIYA/L9A4+NI1cWzq0l7OXoGX84sFvfGDI7OOVW5F2GclVm0ysvg4GFh2FICrY4eHPWAOssysD8Rdh0=
+X-Received: by 2002:a25:6e05:: with SMTP id j5mr17454ybc.86.1631712148163;
+ Wed, 15 Sep 2021 06:22:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <CAHj4cs94pDUfSSfij=ENQxL-2PaGrHJSnhn_mHTC+hqSvPzBTQ@mail.gmail.com>
+ <ca405578-5462-0ab9-91ab-de9d42ee0570@grimberg.me> <CAHj4cs8_382bLtbcR4F8RBJSmwMAdW22EiRycDjdLa0QtY2vnw@mail.gmail.com>
+ <YUHueINHsFDRwHPa@kroah.com>
+In-Reply-To: <YUHueINHsFDRwHPa@kroah.com>
+From:   Yi Zhang <yi.zhang@redhat.com>
+Date:   Wed, 15 Sep 2021 21:22:16 +0800
+Message-ID: <CAHj4cs_c2a9CBfFhGDC8ciid1ShZhp9rEdTy_hxa87uAnG-QZg@mail.gmail.com>
+Subject: Re: [bug report] nvme0n1 node still exists after blktests
+ nvme-tcp/014 on 5.13.16-rc1
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Sagi Grimberg <sagi@grimberg.me>, Hannes Reinecke <hare@suse.de>,
+        linux-nvme@lists.infradead.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Sep 15, 2021 at 9:00 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Sep 15, 2021 at 08:41:21PM +0800, Yi Zhang wrote:
+> > On Tue, Sep 14, 2021 at 10:28 PM Sagi Grimberg <sagi@grimberg.me> wrote:
+> > >
+> > >
+> > > > Hello
+> > > > I found this failure on stable 5.13.16-rc1[1] and cannot reproduce it
+> > > > on 5.14, seems we are missing commit[2] on 5.13.y, could anyone help
+> > > > check it?
+> > >
+> > > Was it picked up and didn't apply correctly?
+> > >
+> >
+> > Hi Sagi
+> > I tried apply that patch to stable branch, but failed to do that,
+> > would you or Hannes mind help backport it, thanks.
+> >
+> > [linux-stable-rc ((daeb634aa75f...))]$ git am
+> > 0001-nvme-fix-refcounting-imbalance-when-all-paths-are-do.patch
+> > Applying: nvme: fix refcounting imbalance when all paths are down
+> > error: patch failed: drivers/nvme/host/nvme.h:716
+> > error: drivers/nvme/host/nvme.h: patch does not apply
+> > Patch failed at 0001 nvme: fix refcounting imbalance when all paths are down
+> > hint: Use 'git am --show-current-patch' to see the failed patch
+> > When you have resolved this problem, run "git am --continue".
+> > If you prefer to skip this patch, run "git am --skip" instead.
+> > To restore the original branch and stop patching, run "git am --abort".
+> >
+> > [linux-stable-rc ((daeb634aa75f...))]$ patch -p1 <
+> > 0001-nvme-fix-refcounting-imbalance-when-all-paths-are-do.patch
+> > patching file drivers/nvme/host/core.c
+> > Hunk #1 succeeded at 3761 (offset -46 lines).
+> > Hunk #2 succeeded at 3771 (offset -46 lines).
+> > Hunk #3 succeeded at 3790 (offset -46 lines).
+> > patching file drivers/nvme/host/multipath.c
+> > Hunk #1 succeeded at 757 (offset -3 lines).
+> > patching file drivers/nvme/host/nvme.h
+> > Hunk #1 FAILED at 716.
+> > Hunk #2 succeeded at 775 (offset 3 lines).
+> > 1 out of 2 hunks FAILED -- saving rejects to file drivers/nvme/host/nvme.h.rej
+>
+> 5.13 is only going to be around for a 2-3 more days, please move to
+> 5.14.y at this point in time.  No need to do any extra work for 5.13.y
+> at this point in time as it is about to be end-of-life.
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Got it, thanks for the update.
 
-thanks,
+>
+> thanks,
+>
+> greg k-h
+>
 
-greg k-h
 
------------------- original commit in Linus's tree ------------------
-
-From b6e47f3c11c17965acb2a12001af3b1cd5658f37 Mon Sep 17 00:00:00 2001
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 11 Aug 2021 08:30:20 +0100
-Subject: [PATCH] ARM: 9109/1: oabi-compat: add epoll_pwait handler
-
-The epoll_wait() syscall has a special version for OABI compat
-mode to convert the arguments to the EABI structure layout
-of the kernel. However, the later epoll_pwait() syscall was
-added in arch/arm in linux-2.6.32 without this conversion.
-
-Use the same kind of handler for both.
-
-Fixes: 369842658a36 ("ARM: 5677/1: ARM support for TIF_RESTORE_SIGMASK/pselect6/ppoll/epoll_pwait")
-Cc: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-
-diff --git a/arch/arm/kernel/sys_oabi-compat.c b/arch/arm/kernel/sys_oabi-compat.c
-index 075a2e0ed2c1..443203fafb6b 100644
---- a/arch/arm/kernel/sys_oabi-compat.c
-+++ b/arch/arm/kernel/sys_oabi-compat.c
-@@ -265,9 +265,8 @@ asmlinkage long sys_oabi_epoll_ctl(int epfd, int op, int fd,
- 	return do_epoll_ctl(epfd, op, fd, &kernel, false);
- }
- 
--asmlinkage long sys_oabi_epoll_wait(int epfd,
--				    struct oabi_epoll_event __user *events,
--				    int maxevents, int timeout)
-+static long do_oabi_epoll_wait(int epfd, struct oabi_epoll_event __user *events,
-+			       int maxevents, int timeout)
- {
- 	struct epoll_event *kbuf;
- 	struct oabi_epoll_event e;
-@@ -314,6 +313,39 @@ asmlinkage long sys_oabi_epoll_wait(int epfd,
- }
- #endif
- 
-+SYSCALL_DEFINE4(oabi_epoll_wait, int, epfd,
-+		struct oabi_epoll_event __user *, events,
-+		int, maxevents, int, timeout)
-+{
-+	return do_oabi_epoll_wait(epfd, events, maxevents, timeout);
-+}
-+
-+/*
-+ * Implement the event wait interface for the eventpoll file. It is the kernel
-+ * part of the user space epoll_pwait(2).
-+ */
-+SYSCALL_DEFINE6(oabi_epoll_pwait, int, epfd,
-+		struct oabi_epoll_event __user *, events, int, maxevents,
-+		int, timeout, const sigset_t __user *, sigmask,
-+		size_t, sigsetsize)
-+{
-+	int error;
-+
-+	/*
-+	 * If the caller wants a certain signal mask to be set during the wait,
-+	 * we apply it here.
-+	 */
-+	error = set_user_sigmask(sigmask, sigsetsize);
-+	if (error)
-+		return error;
-+
-+	error = do_oabi_epoll_wait(epfd, events, maxevents, timeout);
-+	restore_saved_sigmask_unless(error == -EINTR);
-+
-+	return error;
-+}
-+#endif
-+
- struct oabi_sembuf {
- 	unsigned short	sem_num;
- 	short		sem_op;
-diff --git a/arch/arm/tools/syscall.tbl b/arch/arm/tools/syscall.tbl
-index c5df1179fc5d..11d0b960b2c2 100644
---- a/arch/arm/tools/syscall.tbl
-+++ b/arch/arm/tools/syscall.tbl
-@@ -360,7 +360,7 @@
- 343	common	vmsplice		sys_vmsplice
- 344	common	move_pages		sys_move_pages
- 345	common	getcpu			sys_getcpu
--346	common	epoll_pwait		sys_epoll_pwait
-+346	common	epoll_pwait		sys_epoll_pwait		sys_oabi_epoll_pwait
- 347	common	kexec_load		sys_kexec_load
- 348	common	utimensat		sys_utimensat_time32
- 349	common	signalfd		sys_signalfd
+-- 
+Best Regards,
+  Yi Zhang
 
