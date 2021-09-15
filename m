@@ -2,90 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5812640CC5A
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 20:09:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5C7E40CC76
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 20:20:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230010AbhIOSLH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 14:11:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43802 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229479AbhIOSLG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 14:11:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 235A7611C6;
-        Wed, 15 Sep 2021 18:09:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631729387;
-        bh=1Il5af7mztKOfAwvyH4d2bypRKGRV9VZICNB6zMdUOg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YgtSBXPrHRwQvkCuaoHqn0iTgmC3JzAWXDEueFY8o3B5/1uF5A6GBsJjT59hS1nrE
-         GmHLFy3uPKAYq4GVYVHd59fyCMwSTg1oQ2My54j7mYmOdH8gzZyxkNbf+HszUvzN2U
-         BRu7sxQ8ne1U1MyUG5GLTJZR+5KeybqOkWRF3j68=
-Date:   Wed, 15 Sep 2021 20:09:45 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     "Alan J. Wylie" <alan@wylie.me.uk>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Regression in posix-cpu-timers.c (was Re: Linux 5.14.4)
-Message-ID: <YUI26QI7dfgjUioT@kroah.com>
-References: <1631693373201133@kroah.com>
- <87ilz1pwaq.fsf@wylie.me.uk>
+        id S230142AbhIOSVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 14:21:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57360 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230078AbhIOSVb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 14:21:31 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62722C061574;
+        Wed, 15 Sep 2021 11:20:12 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id q26so5291040wrc.7;
+        Wed, 15 Sep 2021 11:20:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jSE5pN30/YzZ6OrArHWoPl/4rxl1uhasUNbr0IfclAs=;
+        b=XfWMQ9CO3nvCCfGWVvwSxv+feW8ibR7O/YtZiRGGtGCxudU/ASUXfVNUEzet1J2uGl
+         32tSQHCzWB+d8r89wwxt7/nw3jgKDcZoWxDBXCGNdPM0oYWfb0qwq6/sPKKY0JRyZkiv
+         x6SF/mxhnEjUBKcdr1H2mwPhC/phN60mZNHDCo1YJcUcB2w79jKPIKcgHePIE0Dj17Ow
+         WCphH+xV973EyHNAuj1OVWNRMVQMDp8WVihwmbguroUhQiNPrKrttNyL1uVn4K2qX68G
+         SpmsUEDt9MPkK7Dx73/Ks90TcAvX1sDt0PlW+E8DG//o1Aw5eP68pe1ssDN5V6nhKPaO
+         ClLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jSE5pN30/YzZ6OrArHWoPl/4rxl1uhasUNbr0IfclAs=;
+        b=Hv2cK7SZh6PzbMjF/BJeAvzSVdV3YTAKl9A0JtHZUNn0Uzx5qJgY67sniNE2Z6essQ
+         SRUWsa5YSuLlDLSo/ycepbCxt52nKJb44/urVDAMf/iBFDXwl5aLTAf2UQcVgT97qugl
+         8sI9QT3p884sPq5yAaCl+8xe99xTeizXy5+J76rXiS/NzIC2m+pHGIpRKUapYOuD7PX3
+         wVNCfrPAYTS6sghC69aqOoUBl/3mVQrP6QIdnisnSvynJDJ8iQNkpJyRkyD/wLby68Q+
+         ZFO94oOAYiTMZTnj/sa4YUIlVxgB6PZA+ZQcZ7FzgKDV6h/cMLXbXuNgowJHzHFWCotI
+         oZ0g==
+X-Gm-Message-State: AOAM531WMC9iZE9pOnGhDz2c6KXzHkJElvw1j/wmHYJ9P5hqjKscOFsr
+        S/oqkdrCHDOXavo4kSxV8Ok=
+X-Google-Smtp-Source: ABdhPJznqmrebHw99NUbmJhyWBDTuXzpEDf33k6QDmoSSsyxADKOV8z6W2P+tccR/fL6J+9MPbExYg==
+X-Received: by 2002:adf:e390:: with SMTP id e16mr1508899wrm.217.1631730010863;
+        Wed, 15 Sep 2021 11:20:10 -0700 (PDT)
+Received: from localhost.localdomain ([141.226.242.178])
+        by smtp.gmail.com with ESMTPSA id u16sm730516wmc.41.2021.09.15.11.20.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Sep 2021 11:20:10 -0700 (PDT)
+From:   Amir Goldstein <amir73il@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Jan Kara <jack@suse.cz>, stable@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH 5.10] fanotify: limit number of event merge attempts
+Date:   Wed, 15 Sep 2021 21:20:08 +0300
+Message-Id: <20210915182008.1369659-1-amir73il@gmail.com>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87ilz1pwaq.fsf@wylie.me.uk>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 15, 2021 at 06:45:33PM +0100, Alan J. Wylie wrote:
-> 
-> Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
-> 
-> > I'm announcing the release of the 5.14.4 kernel.
-> 
-> I'm seeing a regression in 5.14.4
-> 
-> Running Nextcloud (a PHP web application) with a PostgreSQL backend
-> 
-> All was fine with 5.14.3
-> 
-> With 5.14.4, Nextcloud hangs loading events/contacts, etc.
-> 
-> As well as the web interface hanging, running this command on the command
-> line also errors:
-> 
-> # su apache -s /bin/bash -c "cd /var/www/htdocs/nextcloud/ && php occ maintenance:mode --on"
-> PHP Fatal error:  Maximum execution time of 0 seconds exceeded in
-> /var/www/htdocs/nextcloud/lib/private/Files/AppData/AppData.php on line 41
-> 
-> # su apache -s /bin/bash -c "cd /var/www/htdocs/nextcloud/ && php occ maintenance:mode --on"
-> PHP Fatal error:  Maximum execution time of 0 seconds exceeded in
-> /var/www/htdocs/nextcloud/3rdparty/symfony/console/Application.php on line 65
-> 
-> # su apache -s /bin/bash -c "cd /var/www/htdocs/nextcloud/ && php occ maintenance:mode --on"
-> PHP Fatal error:  Maximum execution time of 0 seconds exceeded in
-> /var/www/htdocs/nextcloud/lib/public/Files/SimpleFS/ISimpleRoot.php on line 68
-> 
-> # su apache -s /bin/bash -c "cd /var/www/htdocs/nextcloud/ && php occ maintenance:mode --on"
-> PHP Fatal error:  Maximum execution time of 0 seconds exceeded in
-> /var/www/htdocs/nextcloud/apps/theming/lib/ImageManager.php on line 313
-> 
-> Note that the above commands were all run immediately after each other,
-> but showed up in different php scripts.
-> 
-> Similar errors appear in the Apache log.
-> 
-> After reverting this commit in 5.14.4, Nextcloud resumed working.
-> 
-> $ git revert 564005805aadec9cb7e5dc4e14071b8f87cd6b58
-> 
-> This commit is 406dd42bd1ba0c01babf9cde169bb319e52f6147 in Linus's tree
+commit b8cd0ee8cda68a888a317991c1e918a8cba1a568 upstream.
 
-Thanks for bisecting this down.
+Event merges are expensive when event queue size is large, so limit the
+linear search to 128 merge tests.
 
-Does 5.15-rc1 also fail in this same way, or does it work ok?
+[Stable backport notes] The following statement from upstream commit is
+irrelevant for backport:
+-
+-In combination with 128 size hash table, there is a potential to merge
+-with up to 16K events in the hashed queue.
+-
+[Stable backport notes] The problem is as old as fanotify and described
+in the linked cover letter "Performance improvement for fanotify merge".
+This backported patch fixes the performance issue at the cost of merging
+fewer potential events.  Fixing the performance issue is more important
+than preserving the "event merge" behavior, which was not predictable in
+any way that applications could rely on.
 
-thanks,
+Link: https://lore.kernel.org/r/20210304104826.3993892-6-amir73il@gmail.com
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/linux-fsdevel/20210202162010.305971-1-amir73il@gmail.com/
+Link: https://lore.kernel.org/linux-fsdevel/20210915163334.GD6166@quack2.suse.cz/
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+---
+ fs/notify/fanotify/fanotify.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-greg k-h
+diff --git a/fs/notify/fanotify/fanotify.c b/fs/notify/fanotify/fanotify.c
+index 1192c9953620..c3af99e94f1d 100644
+--- a/fs/notify/fanotify/fanotify.c
++++ b/fs/notify/fanotify/fanotify.c
+@@ -129,11 +129,15 @@ static bool fanotify_should_merge(struct fsnotify_event *old_fsn,
+ 	return false;
+ }
+ 
++/* Limit event merges to limit CPU overhead per event */
++#define FANOTIFY_MAX_MERGE_EVENTS 128
++
+ /* and the list better be locked by something too! */
+ static int fanotify_merge(struct list_head *list, struct fsnotify_event *event)
+ {
+ 	struct fsnotify_event *test_event;
+ 	struct fanotify_event *new;
++	int i = 0;
+ 
+ 	pr_debug("%s: list=%p event=%p\n", __func__, list, event);
+ 	new = FANOTIFY_E(event);
+@@ -147,6 +151,8 @@ static int fanotify_merge(struct list_head *list, struct fsnotify_event *event)
+ 		return 0;
+ 
+ 	list_for_each_entry_reverse(test_event, list, list) {
++		if (++i > FANOTIFY_MAX_MERGE_EVENTS)
++			break;
+ 		if (fanotify_should_merge(test_event, event)) {
+ 			FANOTIFY_E(test_event)->mask |= new->mask;
+ 			return 1;
+-- 
+2.16.5
+
