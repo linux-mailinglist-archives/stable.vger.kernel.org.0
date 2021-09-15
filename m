@@ -2,87 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4FE040C5CD
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 15:00:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F3EE40C5D7
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 15:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233255AbhIONCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 09:02:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
+        id S233060AbhIONER (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 09:04:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233238AbhIONCB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 09:02:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F314961355;
-        Wed, 15 Sep 2021 13:00:41 +0000 (UTC)
+        id S229670AbhIONEQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 09:04:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86F2D6113E;
+        Wed, 15 Sep 2021 13:02:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631710842;
-        bh=HzmARJHOWjJAgObx4+6ScKwdV/y3UM/9zWgBL6v1qIE=;
+        s=korg; t=1631710978;
+        bh=mnxu1K2mZoREbcWOOsXdU8spR0L/pfVu2GBwk350gyA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TzSG5HT/nA0aV7qxqbla+EeVLteVr2gezG+jhL8aQdP+KK2aGP5mEJ6ibF+Nr3TMG
-         IeA9UuSsfYESuOuRkQlV+Xw6nnlXhEOxMH97WmDxwuLTJBLB6jBYqAK+LCdoQ1FsXJ
-         E+Y+QyvVbODvjET8sd7j5dpgUu5lgQZAbhXjRESE=
-Date:   Wed, 15 Sep 2021 15:00:40 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Yi Zhang <yi.zhang@redhat.com>
-Cc:     Sagi Grimberg <sagi@grimberg.me>, Hannes Reinecke <hare@suse.de>,
-        linux-nvme@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [bug report] nvme0n1 node still exists after blktests
- nvme-tcp/014 on 5.13.16-rc1
-Message-ID: <YUHueINHsFDRwHPa@kroah.com>
-References: <CAHj4cs94pDUfSSfij=ENQxL-2PaGrHJSnhn_mHTC+hqSvPzBTQ@mail.gmail.com>
- <ca405578-5462-0ab9-91ab-de9d42ee0570@grimberg.me>
- <CAHj4cs8_382bLtbcR4F8RBJSmwMAdW22EiRycDjdLa0QtY2vnw@mail.gmail.com>
+        b=vv1xJsQUHbbhIsreFwqMA9lj1gdVLj6csnk5xfnMTQlg8f/qdr/2vCDPBNILK7oLm
+         27Jhk47pXIglGDOLN9P712s9ncAx7K0aYaXpZ7hZIUZbaROh4zyTC1b4CHrhWZt7+R
+         MhU0MMznRBocF9Fezo5p1QLZTB/Kcg16He/czmM0=
+Date:   Wed, 15 Sep 2021 15:02:55 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Pavel Begunkov <asml.silence@gmail.com>, stable@vger.kernel.org
+Subject: Re: 5.13 stable backports
+Message-ID: <YUHu/wdJg2hXq1tJ@kroah.com>
+References: <14bc2778-6ec6-f794-64b1-d89fd1ba0296@kernel.dk>
+ <YUHWwWvmAup4ZU6i@kroah.com>
+ <cf2be99e-7b9b-c057-5248-202f610256e2@kernel.dk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHj4cs8_382bLtbcR4F8RBJSmwMAdW22EiRycDjdLa0QtY2vnw@mail.gmail.com>
+In-Reply-To: <cf2be99e-7b9b-c057-5248-202f610256e2@kernel.dk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 15, 2021 at 08:41:21PM +0800, Yi Zhang wrote:
-> On Tue, Sep 14, 2021 at 10:28 PM Sagi Grimberg <sagi@grimberg.me> wrote:
-> >
-> >
-> > > Hello
-> > > I found this failure on stable 5.13.16-rc1[1] and cannot reproduce it
-> > > on 5.14, seems we are missing commit[2] on 5.13.y, could anyone help
-> > > check it?
-> >
-> > Was it picked up and didn't apply correctly?
-> >
+On Wed, Sep 15, 2021 at 06:34:55AM -0600, Jens Axboe wrote:
+> On 9/15/21 5:19 AM, Greg Kroah-Hartman wrote:
+> > On Mon, Sep 13, 2021 at 09:49:53AM -0600, Jens Axboe wrote:
+> >> >From eda6d3d1acf23f63e8e29219b1379e479cf90d7d Mon Sep 17 00:00:00 2001
+> >> From: Pavel Begunkov <asml.silence@gmail.com>
+> >> Date: Mon, 13 Sep 2021 09:13:30 -0600
+> >> Subject: [PATCH 1/6] io_uring: place fixed tables under memcg limits
+> >>
+> >> commit 0bea96f59ba40e63c0ae93ad6a02417b95f22f4d upstream.
+> >>
+> >> Fixed tables may be large enough, place all of them together with
+> >> allocated tags under memcg limits.
+> >>
+> >> Cc: stable@vger.kernel.org
+> >> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+> >> Link: https://lore.kernel.org/r/b3ac9f5da9821bb59837b5fe25e8ef4be982218c.1629451684.git.asml.silence@gmail.com
+> >> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> >> ---
+> >>  fs/autofs/modules.builtin          |  1 +
+> >>  fs/btrfs/modules.builtin           |  1 +
+> >>  fs/configfs/modules.builtin        |  1 +
+> >>  fs/crypto/modules.builtin          |  0
+> >>  fs/debugfs/modules.builtin         |  0
+> >>  fs/devpts/modules.builtin          |  0
+> >>  fs/ecryptfs/modules.builtin        |  1 +
+> >>  fs/efivarfs/modules.builtin        |  1 +
+> >>  fs/exportfs/modules.builtin        |  1 +
+> >>  fs/ext2/modules.builtin            |  1 +
+> >>  fs/ext4/modules.builtin            |  1 +
+> >>  fs/fat/modules.builtin             |  2 ++
+> >>  fs/fuse/modules.builtin            |  1 +
+> >>  fs/hugetlbfs/modules.builtin       |  0
+> >>  fs/io-wq.h.rej                     | 25 +++++++++++++++++++++++++
+> >>  fs/io_uring.c                      |  8 ++++----
+> >>  fs/iomap/modules.builtin           |  0
+> >>  fs/isofs/modules.builtin           |  1 +
+> >>  fs/jbd2/modules.builtin            |  1 +
+> >>  fs/kernfs/modules.builtin          |  0
+> >>  fs/lockd/modules.builtin           |  1 +
+> >>  fs/modules.builtin                 |  9 +++++++++
+> >>  fs/nfs/modules.builtin             |  4 ++++
+> >>  fs/nfs_common/modules.builtin      |  2 ++
+> >>  fs/nls/modules.builtin             |  1 +
+> >>  fs/notify/dnotify/modules.builtin  |  0
+> >>  fs/notify/fanotify/modules.builtin |  0
+> >>  fs/notify/inotify/modules.builtin  |  0
+> >>  fs/notify/modules.builtin          |  0
+> >>  fs/proc/modules.builtin            |  0
+> >>  fs/pstore/modules.builtin          |  1 +
+> >>  fs/quota/modules.builtin           |  0
+> >>  fs/ramfs/modules.builtin           |  0
+> >>  fs/squashfs/modules.builtin        |  1 +
+> >>  fs/sysfs/modules.builtin           |  0
+> >>  fs/tracefs/modules.builtin         |  0
+> >>  fs/xfs/modules.builtin             |  1 +
+> >>  37 files changed, 62 insertions(+), 4 deletions(-)
+> >>  create mode 100644 fs/autofs/modules.builtin
+> >>  create mode 100644 fs/btrfs/modules.builtin
+> >>  create mode 100644 fs/configfs/modules.builtin
+> >>  create mode 100644 fs/crypto/modules.builtin
+> >>  create mode 100644 fs/debugfs/modules.builtin
+> >>  create mode 100644 fs/devpts/modules.builtin
+> >>  create mode 100644 fs/ecryptfs/modules.builtin
+> >>  create mode 100644 fs/efivarfs/modules.builtin
+> >>  create mode 100644 fs/exportfs/modules.builtin
+> >>  create mode 100644 fs/ext2/modules.builtin
+> >>  create mode 100644 fs/ext4/modules.builtin
+> >>  create mode 100644 fs/fat/modules.builtin
+> >>  create mode 100644 fs/fuse/modules.builtin
+> >>  create mode 100644 fs/hugetlbfs/modules.builtin
+> >>  create mode 100644 fs/io-wq.h.rej
+> >>  create mode 100644 fs/iomap/modules.builtin
+> >>  create mode 100644 fs/isofs/modules.builtin
+> >>  create mode 100644 fs/jbd2/modules.builtin
+> >>  create mode 100644 fs/kernfs/modules.builtin
+> >>  create mode 100644 fs/lockd/modules.builtin
+> >>  create mode 100644 fs/modules.builtin
+> >>  create mode 100644 fs/nfs/modules.builtin
+> >>  create mode 100644 fs/nfs_common/modules.builtin
+> >>  create mode 100644 fs/nls/modules.builtin
+> >>  create mode 100644 fs/notify/dnotify/modules.builtin
+> >>  create mode 100644 fs/notify/fanotify/modules.builtin
+> >>  create mode 100644 fs/notify/inotify/modules.builtin
+> >>  create mode 100644 fs/notify/modules.builtin
+> >>  create mode 100644 fs/proc/modules.builtin
+> >>  create mode 100644 fs/pstore/modules.builtin
+> >>  create mode 100644 fs/quota/modules.builtin
+> >>  create mode 100644 fs/ramfs/modules.builtin
+> >>  create mode 100644 fs/squashfs/modules.builtin
+> >>  create mode 100644 fs/sysfs/modules.builtin
+> >>  create mode 100644 fs/tracefs/modules.builtin
+> >>  create mode 100644 fs/xfs/modules.builtin
+> >>
+> >> diff --git a/fs/autofs/modules.builtin b/fs/autofs/modules.builtin
+> >> new file mode 100644
+> >> index 000000000000..3425a57879aa
+> >> --- /dev/null
+> >> +++ b/fs/autofs/modules.builtin
+> >> @@ -0,0 +1 @@
+> >> +fs/autofs/autofs4.ko
+> > 
+> > <snip>
+> > 
+> > Something went really wrong with this backport :(
 > 
-> Hi Sagi
-> I tried apply that patch to stable branch, but failed to do that,
-> would you or Hannes mind help backport it, thanks.
+> Wow yes, I think it was my 'update what's new script'. Guess I didn't
+> notice, sorry about that.
 > 
-> [linux-stable-rc ((daeb634aa75f...))]$ git am
-> 0001-nvme-fix-refcounting-imbalance-when-all-paths-are-do.patch
-> Applying: nvme: fix refcounting imbalance when all paths are down
-> error: patch failed: drivers/nvme/host/nvme.h:716
-> error: drivers/nvme/host/nvme.h: patch does not apply
-> Patch failed at 0001 nvme: fix refcounting imbalance when all paths are down
-> hint: Use 'git am --show-current-patch' to see the failed patch
-> When you have resolved this problem, run "git am --continue".
-> If you prefer to skip this patch, run "git am --skip" instead.
-> To restore the original branch and stop patching, run "git am --abort".
+> > Can you fix it up and resend these?
 > 
-> [linux-stable-rc ((daeb634aa75f...))]$ patch -p1 <
-> 0001-nvme-fix-refcounting-imbalance-when-all-paths-are-do.patch
-> patching file drivers/nvme/host/core.c
-> Hunk #1 succeeded at 3761 (offset -46 lines).
-> Hunk #2 succeeded at 3771 (offset -46 lines).
-> Hunk #3 succeeded at 3790 (offset -46 lines).
-> patching file drivers/nvme/host/multipath.c
-> Hunk #1 succeeded at 757 (offset -3 lines).
-> patching file drivers/nvme/host/nvme.h
-> Hunk #1 FAILED at 716.
-> Hunk #2 succeeded at 775 (offset 3 lines).
-> 1 out of 2 hunks FAILED -- saving rejects to file drivers/nvme/host/nvme.h.rej
+> Here's the series again. The actual change was fine, just had to get
+> rid of the garbage.
 
-5.13 is only going to be around for a 2-3 more days, please move to
-5.14.y at this point in time.  No need to do any extra work for 5.13.y
-at this point in time as it is about to be end-of-life.
-
-thanks,
+That worked, now queued up, thanks!
 
 greg k-h
