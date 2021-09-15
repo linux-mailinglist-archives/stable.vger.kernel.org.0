@@ -2,100 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D38340BD81
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 04:05:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E07B740BDF0
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 04:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233717AbhIOCGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Sep 2021 22:06:24 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:16201 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231979AbhIOCGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 22:06:24 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.53])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4H8Nmz685Vz1DGpP;
-        Wed, 15 Sep 2021 10:04:03 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2308.8; Wed, 15 Sep 2021 10:05:04 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2308.8; Wed, 15 Sep 2021 10:05:02 +0800
-Subject: Re: [PATCH 5.4 000/144] 5.4.146-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210913131047.974309396@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <471cd97d-ce0d-b9c4-fa01-a18ab11eaff9@huawei.com>
-Date:   Wed, 15 Sep 2021 10:05:02 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S235649AbhIOC7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Sep 2021 22:59:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43104 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229830AbhIOC7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Sep 2021 22:59:05 -0400
+Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8CA3C061574
+        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 19:57:46 -0700 (PDT)
+Received: by mail-yb1-xb41.google.com with SMTP id c6so2613585ybm.10
+        for <stable@vger.kernel.org>; Tue, 14 Sep 2021 19:57:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=mzEGGH8rjhvJOU6+U/0pjj4Nbyetpq5Zp+CJAv5Ib1k=;
+        b=gWdj6uPrXVaClFR53gp3OvBXR2btdVWCliXEvWoH7LZ89A76ujbx9dIXwRkhWQuRjy
+         yFaFDkInDE5VP5vXfgZlU6p7XvktEiGYGClEXQxwUrBnSvKcgGupGgPxB7gEtnMJFEOm
+         ZjSp0Yypxmh2uJXA1QCNgKQSDUY+6z6d9hrVHd5bo9LmBhQQ6Na1Vi3mtkQb7EOX0kzf
+         6uxxuItSUt9uLkSL6MfUJMjTeglhtrsEd/USeJ/gMiKY1EjOwMN7VSG8KpfGEUl6QqtA
+         /DwBQAkPgsA7QxtMg7nz/zIxDuttxPxrnZ4eHUgJpmEn7yHadJQxhQrhAxcw5cX/+b9K
+         2k8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=mzEGGH8rjhvJOU6+U/0pjj4Nbyetpq5Zp+CJAv5Ib1k=;
+        b=QnblY72IjKbpM/b3Yu7wLki/WC//WppGqAvvwjbv/ZY2UPXRl7sf/muRM0b3B/hcPo
+         3sjytg8X1WqMuRRrrjFC3BieN3ZxlTvvYctJDa19t2sDnmyl8xpPHUQWwtYut3nbSlEv
+         Nx6rFS1YOUYxpdD3fhyQhSg/9EYxHiKzQ4lF/g49Ylez1Gy0hlumceCTPNh5n3wV/wQ6
+         o6fmU2foJ8BzqmurQ7++cyE2XVdWTYkb03LtfzDxxIPWtOdL7wUDGnOVlcHyOqYX6J1i
+         o0fT7VhSyINsDbHvSNmAYRVaC19IwGEKBhOS3MmVWqCeSP7t/PuQs8KGbneGniDPioIf
+         npcA==
+X-Gm-Message-State: AOAM53177yc7sluQnAzcoHUp1mn+xsRtDriVYtT8jZ2bjHGIKvkRRem2
+        vHf+kFedprW1bNy+24ltPiecbklgH3/uEIJKUjY=
+X-Google-Smtp-Source: ABdhPJz/PcIC7b/ZTFbBCBsod04dYnzBXck+UDsr2YKoyKeprj3tkDMI806AEitGA8jvUhg0MG/G8YQtq1xajtZFY60=
+X-Received: by 2002:a25:e4c7:: with SMTP id b190mr3157253ybh.302.1631674666123;
+ Tue, 14 Sep 2021 19:57:46 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210913131047.974309396@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Received: by 2002:a05:7000:25c8:0:0:0:0 with HTTP; Tue, 14 Sep 2021 19:57:45
+ -0700 (PDT)
+Reply-To: mrdavidmorris90@gmail.com
+From:   MR DAVID MORRIS <carllynx575@gmail.com>
+Date:   Tue, 14 Sep 2021 19:57:45 -0700
+Message-ID: <CAAWHKbNC+2v3j8_AV3T_8OXgtz84TZ+qecyLzcK=9ZiO5Asn8Q@mail.gmail.com>
+Subject: SHIPMENT
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+From the office of
+ MR DAVID MORRIS
+
+ Administration Officer
+
+ United Nations Inspection Services
+
+ Atlanta, Georgia USA
 
 
-On 2021/9/13 21:13, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.146 release.
-> There are 144 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 15 Sep 2021 13:10:21 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.146-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Hello;
 
-Tested on arm64 and x86 for 5.4.146-rc1,
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.146-rc1
-Commit: d4596c5864b2b967c1c1019d51b2c221d27e2f3b
-Compiler: gcc version 7.3.0 (GCC)
+Our agency has in possession a parcel shipped from a government agency
+of the United Kingdom. During transport the package was damaged and
+the label became almost illegible. What we have deciphered appears to
+be your name.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8906
-passed: 8906
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+In events such as this we have no choice but to turn these packages
+over to the closest match on the shipping address. This is required by
+law. And this is why we are contacting you.
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8906
-passed: 8906
-failed: 0
-timeout: 0
---------------------------------------------------------------------
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+These packages have been scanned and x-rayed in hopes to find any
+information to surrender them to the rightful owner.
+
+
+We discovered, while x-raying these packages, that they contain a
+large amount of United States currency. We assume this was a
+transaction or transfer to you and that you are probably still
+expecting the delivery. (The total estimated sum is close to $8M)
+
+
+Again, we are required by law to turn this package over to the
+rightful owner and since your name appears on the shipping label, that
+owner is probably you.
+
+
+We would like you to forward this parcel to you but we need to verify
+your full name, proper shipping address and a telephone number so we
+may begin processing this claim.
+
+
+There is a limited time required by law to claim
+lost/damaged/illegible packages. Once this time expires we must turn
+the package over to the United States Government who disperses the
+contents to charities. Any unclaimed money is sent to the US Treasury
+Office where it is destroyed.
+
+
+If you feel that you should claim this money please reply with the
+information above and we can release it to you.
+
+
+CONTACT.... mrdavidmorris90@gmail.com
+
+
+Thank you for your help in this matter;
+
+
+MR DAVID MORRIS
