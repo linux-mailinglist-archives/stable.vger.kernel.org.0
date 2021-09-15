@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DB2D40C45A
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 13:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61BE940C45B
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 13:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232626AbhIOL0t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 07:26:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52624 "EHLO mail.kernel.org"
+        id S232634AbhIOL05 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 07:26:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232540AbhIOL0t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 07:26:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE37461250;
-        Wed, 15 Sep 2021 11:25:29 +0000 (UTC)
+        id S232540AbhIOL05 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 07:26:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CC2D6124E;
+        Wed, 15 Sep 2021 11:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631705130;
-        bh=8sE4X4JF/foAnbzbmEMq7FW8h3NkvruVO5Gh2XEgZOo=;
+        s=korg; t=1631705139;
+        bh=ORMHFM7HaDXUyN1oovsdTJrgBE6Tk5GaKB/T+jg03nw=;
         h=Subject:To:Cc:From:Date:From;
-        b=aJkFBnHWn6iN0uJLZ5JJJKM6fnKWCJ5aEX4BdJwp6Z4TbEMLKlYBgbMzy0er/yUL1
-         +8PcJUUdv29Wk8SfFE17+JdyQlMlFn+KnWSKrcmU/zpkR3bQdWzVmzOiIbchKQaqtL
-         fLZQOrbHxanDHDN16JL8XQS7KHAGg7sGYKqh9Orc=
-Subject: FAILED: patch "[PATCH] btrfs: fix upper limit for max_inline for page size 64K" failed to apply to 5.4-stable tree
+        b=sPSTdvsPRH3XVSBigJ8WRz8TPn5L4QePC6WDw5txzCl50Zzlu3+zQEe4RHrr+hNrV
+         r1CVAIyk31yjP5aSVt6bcHEKS4lES8ggHEzAlkJKXszTMERWqkeuaEV4N6OxNkbEoj
+         Zm2ut9TSANZNKmByWX3s9Y0ZzMhUr/HOxgDDaRgQ=
+Subject: FAILED: patch "[PATCH] btrfs: fix upper limit for max_inline for page size 64K" failed to apply to 5.10-stable tree
 To:     anand.jain@oracle.com, alexander.tsvetkov@oracle.com,
         dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 15 Sep 2021 13:25:28 +0200
-Message-ID: <1631705128101229@kroah.com>
+Message-ID: <163170512891234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
