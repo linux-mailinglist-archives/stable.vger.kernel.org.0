@@ -2,99 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D971B40C726
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 16:12:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 539FB40C72B
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 16:13:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237369AbhIOON6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 10:13:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59778 "EHLO mail.kernel.org"
+        id S237230AbhIOOOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 10:14:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237842AbhIOON5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 10:13:57 -0400
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 777EC6112E;
-        Wed, 15 Sep 2021 14:12:38 +0000 (UTC)
-Date:   Wed, 15 Sep 2021 10:12:31 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     <gregkh@linuxfoundation.org>
-Cc:     qiang.zhang@windriver.com, bristot@kernel.org,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] tracing/osnoise: Fix missed
- cpus_read_unlock() in" failed to apply to 5.14-stable tree
-Message-ID: <20210915101231.71bf18dd@oasis.local.home>
-In-Reply-To: <1631709430188167@kroah.com>
-References: <1631709430188167@kroah.com>
-X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        id S233782AbhIOOOz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 10:14:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B207B6112E;
+        Wed, 15 Sep 2021 14:13:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631715216;
+        bh=VLTqeW2ksxe3x1aS5RB4OgaBwOKelZsEoGRpdh4+PiM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=ZzASi/sxOjsZR3Lgsm3sum23GJRarvfHTjVfnkJwjOU93lPRV96RF24TMR0YPI4N9
+         fv/RTrcy8dfc3kgGXwQFQrUlfJPu81AxWjbrNiwt4S70DzhDHg184vSyW+CxnH4WFQ
+         WHEafyzAFGi8ARKvOnJiVCINhkVw0OHzRI/qqG8s=
+Subject: FAILED: patch "[PATCH] sched: Prevent balance_push() on remote runqueues" failed to apply to 5.13-stable tree
+To:     tglx@linutronix.de, bigeasy@linutronix.de, peterz@infradead.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 15 Sep 2021 16:13:33 +0200
+Message-ID: <1631715213238253@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 15 Sep 2021 14:37:10 +0200
-<gregkh@linuxfoundation.org> wrote:
 
->  
->  	cpus_read_unlock();
->  
-> -	return 0;
-> +	return retval;
->  }
->  
+The patch below does not apply to the 5.13-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-The issue was that the latest kernel uses cpu_read_unlock() instead of
-put_online_cpus(), other than that, it was trivial to fix.
+thanks,
 
-Below should apply cleanly to 5.14.
+greg k-h
 
--- Steve
+------------------ original commit in Linus's tree ------------------
 
->From 4b6b08f2e45edda4c067ac40833e3c1f84383c0b Mon Sep 17 00:00:00 2001
-From: "Qiang.Zhang" <qiang.zhang@windriver.com>
-Date: Tue, 31 Aug 2021 10:29:19 +0800
-Subject: [PATCH] tracing/osnoise: Fix missed cpus_read_unlock() in
- start_per_cpu_kthreads()
+From 868ad33bfa3bf39960982682ad3a0f8ebda1656e Mon Sep 17 00:00:00 2001
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Sat, 28 Aug 2021 15:55:52 +0200
+Subject: [PATCH] sched: Prevent balance_push() on remote runqueues
 
-When start_kthread() return error, the cpus_read_unlock() need
-to be called.
+sched_setscheduler() and rt_mutex_setprio() invoke the run-queue balance
+callback after changing priorities or the scheduling class of a task. The
+run-queue for which the callback is invoked can be local or remote.
 
-Link: https://lkml.kernel.org/r/20210831022919.27630-1-qiang.zhang@windriver.com
+That's not a problem for the regular rq::push_work which is serialized with
+a busy flag in the run-queue struct, but for the balance_push() work which
+is only valid to be invoked on the outgoing CPU that's wrong. It not only
+triggers the debug warning, but also leaves the per CPU variable push_work
+unprotected, which can result in double enqueues on the stop machine list.
 
-Cc: <stable@vger.kernel.org>
-Fixes: c8895e271f79 ("trace/osnoise: Support hotplug operations")
-Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Qiang.Zhang <qiang.zhang@windriver.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Remove the warning and validate that the function is invoked on the
+outgoing CPU.
 
-Index: linux-test.git/kernel/trace/trace_osnoise.c
-===================================================================
---- linux-test.git.orig/kernel/trace/trace_osnoise.c
-+++ linux-test.git/kernel/trace/trace_osnoise.c
-@@ -1548,7 +1548,7 @@ static int start_kthread(unsigned int cp
- static int start_per_cpu_kthreads(struct trace_array *tr)
- {
- 	struct cpumask *current_mask = &save_cpumask;
--	int retval;
-+	int retval = 0;
- 	int cpu;
+Fixes: ae7927023243 ("sched: Optimize finish_lock_switch()")
+Reported-by: Sebastian Siewior <bigeasy@linutronix.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/87zgt1hdw7.ffs@tglx
+
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index f3b27c6c5153..b21a1857b75a 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -8523,7 +8523,6 @@ static void balance_push(struct rq *rq)
+ 	struct task_struct *push_task = rq->curr;
  
- 	get_online_cpus();
-@@ -1568,13 +1568,13 @@ static int start_per_cpu_kthreads(struct
- 		retval = start_kthread(cpu);
- 		if (retval) {
- 			stop_per_cpu_kthreads();
--			return retval;
-+			break;
- 		}
- 	}
+ 	lockdep_assert_rq_held(rq);
+-	SCHED_WARN_ON(rq->cpu != smp_processor_id());
  
- 	put_online_cpus();
+ 	/*
+ 	 * Ensure the thing is persistent until balance_push_set(.on = false);
+@@ -8531,9 +8530,10 @@ static void balance_push(struct rq *rq)
+ 	rq->balance_callback = &balance_push_callback;
  
--	return 0;
-+	return retval;
- }
+ 	/*
+-	 * Only active while going offline.
++	 * Only active while going offline and when invoked on the outgoing
++	 * CPU.
+ 	 */
+-	if (!cpu_dying(rq->cpu))
++	if (!cpu_dying(rq->cpu) || rq != this_rq())
+ 		return;
  
- #ifdef CONFIG_HOTPLUG_CPU
+ 	/*
+
