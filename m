@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC5CE40C594
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 14:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60ED540C595
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 14:48:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229670AbhIOMuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233143AbhIOMuN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 15 Sep 2021 08:50:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59308 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233308AbhIOMtM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 08:49:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E81661186;
-        Wed, 15 Sep 2021 12:47:52 +0000 (UTC)
+        id S233839AbhIOMtQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 08:49:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5879061186;
+        Wed, 15 Sep 2021 12:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631710073;
-        bh=gTeIp4aD4cyd2wyIwg8xeJIHJoJFLIjFv249huao26A=;
+        s=korg; t=1631710077;
+        bh=lCMIWj6DQ7OCPAq/TPh+ikI5cjM0OuW2QoZTYCy7iJY=;
         h=Subject:To:Cc:From:Date:From;
-        b=dZ6ib/WhGQpSizzMMoNtC2pGDRnM/4CtH+eo2HllKDHpuVYbLg2trteRqW1gXzkaY
-         WPDHGN7Nv+i3Q1xsYDttczatNUGggo0nqLagjV1So3w1cWuez0AGAfHSk5npPVABn0
-         aonk496KuWMPaXLl16JAdu6I+hocqhfMaVrKzqOI=
-Subject: FAILED: patch "[PATCH] cpufreq: schedutil: Use kobject release() method to free" failed to apply to 4.9-stable tree
+        b=RfxS5m1p5z1qQebQAuNf0iTIWAgqnCx9AwciyzTM6hQIPZ3LwSIvP3Vj/xUiEhDnJ
+         bktJZCFh3dTao0c12XCxIn1S2rzWYAUveAcgXNnSu7WXmJ8jZBlgzPIQHnQezUcC1M
+         TyOIeNJb5CGqT7aJ1CFO2vi7uWcOZ1CO+qC5SNrQ=
+Subject: FAILED: patch "[PATCH] cpufreq: schedutil: Use kobject release() method to free" failed to apply to 4.14-stable tree
 To:     haokexin@gmail.com, rafael.j.wysocki@intel.com,
         stable@vger.kernel.org, viresh.kumar@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 15 Sep 2021 14:47:46 +0200
-Message-ID: <163171006613121@kroah.com>
+Date:   Wed, 15 Sep 2021 14:47:47 +0200
+Message-ID: <163171006716136@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
