@@ -2,161 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED78740C568
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 14:39:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CE9240C56E
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 14:41:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237059AbhIOMlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 08:41:03 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:35611 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234331AbhIOMlD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 08:41:03 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.west.internal (Postfix) with ESMTP id 55CF932009C4;
-        Wed, 15 Sep 2021 08:39:43 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Wed, 15 Sep 2021 08:39:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=anq4my38VxpmhyCZ2E2/QGU2BQg
-        88QWfeXmMzvtQi0w=; b=lrOVr4VyUjl2hLICKAt8tfrN7QMcMRJyy+VK3390gFl
-        7TqHP2M0MRliQJSlQm+37JBN7SbB3nq/JLX1M5B1MLQloh6m+TeBrg3j0Kpghqvl
-        M5O+ybLbCmJK5Bu6bDJfCQ1BWuoVYfmpgimQoV9unS03N4sMnV/qdcKEEUb6mMx6
-        aE9Nakn+ea3psvOnOfyTUwO2x8yHEZpJY+33w4Qd28wVCOuWZ376LP1hHg3vpHpx
-        Hd5zCKfXoeMNxFMM0veSlJOiv2wvPIgbH1Xqxvb6JxiUqfWtRD7CkgFmG0hEYBcI
-        B122QHqK6ydUAVlMWukAIRxotwV7sW3cSSazl4bwHRA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=anq4my
-        38VxpmhyCZ2E2/QGU2BQg88QWfeXmMzvtQi0w=; b=tooSXNCS134k861NLa+b2y
-        A904iUWGOrHkd3VM9a/mszoR71VYSMWJCpVHXl9/krqc1p4zYQGZKrDZVBfrR7ml
-        8Yl/BwgfTr9Qk1frWvU9LBAnZOc7I2+ssp3gDKqax+jTKhY3gvvNfrxOfHaEh3IY
-        NXZI67j32pOwXHlnhUyji+2oJwq+8X/877pIBiEemuNAqXU9JcmxpsCulkk1QCm6
-        5nxtQT/RqP8se0svaq4y5/kDSAqJkyTIERnrpv9iQX0a4XLcf4ca8QZovui5UA8d
-        vCGy3CQZ0GwdC/+ryeDlp7tn1igvmkzVLGR9MaiG1LmBXW9Hs3t+fG7gHdiyL1Vg
-        ==
-X-ME-Sender: <xms:julBYcbxZJG_9qnxBIygLn_XJ6T-ipIaNmuVFdaoqcOTCg9vnGXy4w>
-    <xme:julBYXbxsHfe-dxoB7BkVjc82fpbdWrl0j9C_eFc3_qgB40MrmfA3-Oe8yp385oRY
-    UnXigRDU6ZW6Q>
-X-ME-Received: <xmr:julBYW8rb9M7jVcZoLe3qhUClZSjlJRPE5BbS8cRclwCSy-JkgbogyAysdRT85k1Qrm4lKh68WUTBoAveXWsvb3NkSGC8gGv>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudehuddgheduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:julBYWqkknjA1N2kokRYVPObO_MJSpizbiWTc7T3VLzjVYYc2GSHvA>
-    <xmx:julBYXoBI9CoY1vSwH3MvQUyMgRza_kG4PPlBbjNGQwpphBdJMbWZw>
-    <xmx:julBYUTZmbs3oNtkNVmbl3rDYj2B8Q20KLgcf9WakyZcecRhvnLK_w>
-    <xmx:julBYYdUqi1Wm1EGTfIbVcbbNxoJp8wNvR650Pjn6GRkb48o2IT-xA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 15 Sep 2021 08:39:42 -0400 (EDT)
-Date:   Wed, 15 Sep 2021 14:39:39 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>
-Cc:     stable@vger.kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net
-Subject: Re: [PATCH 4.19 00/13] bpf: backport fixes for
- CVE-2021-34556/CVE-2021-35477
-Message-ID: <YUHpi57yv6DX/AtN@kroah.com>
-References: <20210913153537.2162465-1-ovidiu.panait@windriver.com>
+        id S234186AbhIOMmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 08:42:54 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60238 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233094AbhIOMmy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 08:42:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1631709695;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=tEfV1/DYZkGpxw3ayA2oBkkT4tRl5bPyLJkShMw/OD8=;
+        b=LevlbvVeFGfsubDMLiSE747tdMHSMQUH3ZXQplr2dpJ0oJixjsjh+1cRiyjxdaJcdelaTY
+        IqAtydXQTn8102t+KrePrUEPvbUWSQkd3LyQ9I1a48nxBt5pxb6i6PrzKKjTVrcvxHsdEo
+        oCpeAMTdnzTkRHD+cja//DKcnzm9MMI=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-527-3T2ju2s4PtefJfsRSe6J2Q-1; Wed, 15 Sep 2021 08:41:34 -0400
+X-MC-Unique: 3T2ju2s4PtefJfsRSe6J2Q-1
+Received: by mail-yb1-f199.google.com with SMTP id b9-20020a5b07890000b0290558245b7eabso3278930ybq.10
+        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 05:41:34 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=tEfV1/DYZkGpxw3ayA2oBkkT4tRl5bPyLJkShMw/OD8=;
+        b=bAQ8snkE84EudBwIOF/qgRvr7Ns+VntD2c2LMj5QPntXXz/4zvtBUUYNWneiPBY1no
+         yUbMH+kd7t5NsREQIsOo4HSrvEyumEx1G83wstWb9InpLFs1U63ud6oHN1K8eSDc28u1
+         1ZrOPXEPwhgNHy7McrGiivVX5EYSyVlnWj+yeGwp1UXTDCFs4Qnw7PmQUKmpI4kY7aSM
+         TvQDDrUCnzB2nqeu4hTzQQ/aGBkUr3zFIAUrR+89+uumyV3PF/eXeF2bdlZ0ipAx0nkF
+         40vpWgMAn/i31wBBRynyxrg63bzBPL1G7B651tgEjbMrTwo+h3NSIat4OjPvWhx/83gh
+         5W8A==
+X-Gm-Message-State: AOAM531uttwDfpVGBdgJaaghrnBrWxFa6GNbN6fygHXPKmkseb8G6rpK
+        /ADfXeDa2fiVvEoDIbEiQnQ1uVDUPt6Tx1xH06CO/W+ge3hL/OTWHh7IIgh3L+GvyK9zjVEh+29
+        VrVQDFMjmV2wfpr5H9S9ySzjmusRXQRlu
+X-Received: by 2002:a25:6e05:: with SMTP id j5mr6060596ybc.86.1631709693601;
+        Wed, 15 Sep 2021 05:41:33 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzYXfmKAL8J/kdJ6tVlq03ShaucMeQ1AyAxuj3HLKQJr7h2PEgsEt4QwRhS8cM1Vk81Nswx3FwdUgYPdMTmyWc=
+X-Received: by 2002:a25:6e05:: with SMTP id j5mr6060566ybc.86.1631709693413;
+ Wed, 15 Sep 2021 05:41:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210913153537.2162465-1-ovidiu.panait@windriver.com>
+References: <CAHj4cs94pDUfSSfij=ENQxL-2PaGrHJSnhn_mHTC+hqSvPzBTQ@mail.gmail.com>
+ <ca405578-5462-0ab9-91ab-de9d42ee0570@grimberg.me>
+In-Reply-To: <ca405578-5462-0ab9-91ab-de9d42ee0570@grimberg.me>
+From:   Yi Zhang <yi.zhang@redhat.com>
+Date:   Wed, 15 Sep 2021 20:41:21 +0800
+Message-ID: <CAHj4cs8_382bLtbcR4F8RBJSmwMAdW22EiRycDjdLa0QtY2vnw@mail.gmail.com>
+Subject: Re: [bug report] nvme0n1 node still exists after blktests
+ nvme-tcp/014 on 5.13.16-rc1
+To:     Sagi Grimberg <sagi@grimberg.me>
+Cc:     Hannes Reinecke <hare@suse.de>, linux-nvme@lists.infradead.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Sep 13, 2021 at 06:35:24PM +0300, Ovidiu Panait wrote:
-> Backport summary
-> ----------------
-> 679c782de14b ("bpf/verifier: per-register parent pointers")
-> 	* Context patch for 2039f26f3aca5 ("bpf: Fix leakage due to
-> 	  insufficient speculative store bypass mitigation").
-> 	* Context adjustments because of the code added by post-4.19 commit:
-> 	  f92a819b4cbef ("bpf: prevent out of bounds speculation on pointer
-> 	  arithmetic").
-> 
-> 0bae2d4d62d5 ("bpf: correct slot_type marking logic to allow more stack slot sharing")
-> 	* Context patch for 2039f26f3aca5 ("bpf: Fix leakage due to
-> 	  insufficient speculative store bypass mitigation").
-> 	* Minor context adjustement in selftest.
-> 
-> 2011fccfb61b ("bpf: Support variable offset stack access from helpers")
-> 	* Context patch for 2039f26f3aca5 ("bpf: Fix leakage due to
-> 	  insufficient speculative store bypass mitigation").
-> 	* 4.19 does not have the reg_state(env, regno) helper defined, so
-> 	  replace the call with "cur_regs(env) + regno".
-> 
-> f2bcd05ec7b8 ("bpf: Reject indirect var_off stack access in raw mode")
-> 	* Follow-up fix for 2011fccfb61bb ("bpf: Support variable offset stack
-> 	  access from helpers").
-> 	* Clean cherry-pick.
-> 
-> 088ec26d9c2d ("bpf: Reject indirect var_off stack access in unpriv")
-> 	* Follow-up fix for 2011fccfb61bb ("bpf: Support variable offset stack
-> 	  access from helpers").
-> 	* Drop comment in retrieve_ptr_limit(), as it was made obsolete by
-> 	  post-4.19 commit 45bfdd767e235 ("bpf: Tighten speculative pointer
-> 	  arithmetic mask").
-> 
-> 107c26a70ca8 ("bpf: Sanity check max value for var_off stack access")
-> 	* Follow-up fix for 2011fccfb61bb ("bpf: Support variable offset stack
-> 	  access from helpers").
-> 	* Clean cherry-pick.
-> 
-> 8ff80e96e3cc ("selftests/bpf: Test variable offset stack access")
-> 	* Selftest follow-up for 2011fccfb61bb ("bpf: Support variable offset
-> 	  stack access from helpers").
-> 	* Post-4.19, the verifier tests were split into different
-> 	  files, in 4.19 they are still all in test_verifier.c, so apply the
-> 	  changes manually.
-> 
-> f7cf25b2026d ("bpf: track spill/fill of constants")
-> 	* Context patch for 2039f26f3aca5 ("bpf: Fix leakage due to
-> 	  insufficient speculative store bypass mitigation").
-> 	* Drop verbose_linfo() calls, as the function is not implemented in 4.19.
-> 	* Adjust mark_reg_read() calls to match the prototype in 4.19.
-> 	  (mark_reg_read() was changed to take 4 parameters in post-4.19 commit
-> 	  5327ed3d44b75("bpf: verifier: mark verified-insn with sub-register
-> 	  zext flag"), but backporting it is out of scope for this patchseries).
-> 
-> fc559a70d57c ("selftests/bpf: fix tests due to const spill/fill")
-> 	* Selftest follow-up for f7cf25b2026d ("bpf: track spill/fill of constants").
-> 	* Post-4.19, the verifier tests were split into different
-> 	  files, in 4.19 they are still all in test_verifier.c, so apply the
-> 	  changes manually.
-> 
-> f5e81d111750 ("bpf: Introduce BPF nospec instruction for mitigating Spectre v4")
-> 	* Contextual adjustments.
-> 	* Drop arch/powerpc/net/bpf_jit_comp32.c changes, as the file is not
-> 	  present in 4.19
-> 	* Drop riscv changes, as arch/riscv/net/bpf_jit_comp.c file is not
-> 	  present in 4.19
-> 
-> 2039f26f3aca ("bpf: Fix leakage due to insufficient speculative store bypass mitigation")
-> 	* Contextual adjustments.
-> 	* Apply check_stack_write_fixed_off() changes in check_stack_write().
-> 	* Replace env->bypass_spec_v4 -> env->allow_ptr_leaks.
-> 
-> c9e73e3d2b1e ("bpf: verifier: Allocate idmap scratch in verifier env")
-> e042aa532c84 ("bpf: Fix pointer arithmetic mask tightening under state")
-> 	* Contextual adjustments.
-> 
-> With this patchseries all bpf verifier selftests pass (tested in qemu for x86_64):
-> root@intel-x86-64:~# ./test_verifier
-> ...
-> #663/p pass modified ctx pointer to helper, 3 OK
-> #664/p mov64 src == dst OK
-> #665/p mov64 src != dst OK
-> #666/u calls: ctx read at start of subprog OK
-> #666/p calls: ctx read at start of subprog OK
-> Summary: 932 PASSED, 0 SKIPPED, 0 FAILED
-> 
+On Tue, Sep 14, 2021 at 10:28 PM Sagi Grimberg <sagi@grimberg.me> wrote:
+>
+>
+> > Hello
+> > I found this failure on stable 5.13.16-rc1[1] and cannot reproduce it
+> > on 5.14, seems we are missing commit[2] on 5.13.y, could anyone help
+> > check it?
+>
+> Was it picked up and didn't apply correctly?
+>
 
-All now queued up, thanks for the backports!
+Hi Sagi
+I tried apply that patch to stable branch, but failed to do that,
+would you or Hannes mind help backport it, thanks.
 
-greg k-h
+[linux-stable-rc ((daeb634aa75f...))]$ git am
+0001-nvme-fix-refcounting-imbalance-when-all-paths-are-do.patch
+Applying: nvme: fix refcounting imbalance when all paths are down
+error: patch failed: drivers/nvme/host/nvme.h:716
+error: drivers/nvme/host/nvme.h: patch does not apply
+Patch failed at 0001 nvme: fix refcounting imbalance when all paths are down
+hint: Use 'git am --show-current-patch' to see the failed patch
+When you have resolved this problem, run "git am --continue".
+If you prefer to skip this patch, run "git am --skip" instead.
+To restore the original branch and stop patching, run "git am --abort".
+
+[linux-stable-rc ((daeb634aa75f...))]$ patch -p1 <
+0001-nvme-fix-refcounting-imbalance-when-all-paths-are-do.patch
+patching file drivers/nvme/host/core.c
+Hunk #1 succeeded at 3761 (offset -46 lines).
+Hunk #2 succeeded at 3771 (offset -46 lines).
+Hunk #3 succeeded at 3790 (offset -46 lines).
+patching file drivers/nvme/host/multipath.c
+Hunk #1 succeeded at 757 (offset -3 lines).
+patching file drivers/nvme/host/nvme.h
+Hunk #1 FAILED at 716.
+Hunk #2 succeeded at 775 (offset 3 lines).
+1 out of 2 hunks FAILED -- saving rejects to file drivers/nvme/host/nvme.h.rej
+
+-- 
+Best Regards,
+  Yi Zhang
+
