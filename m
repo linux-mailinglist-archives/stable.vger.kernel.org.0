@@ -2,60 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D46140C6A0
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 15:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54AB340C6F4
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 16:03:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233440AbhIONun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 09:50:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50448 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234212AbhIONu2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 09:50:28 -0400
-Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6796CC061574
-        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 06:49:05 -0700 (PDT)
-Received: by mail-yb1-xb41.google.com with SMTP id c206so5796178ybb.12
-        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 06:49:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=TA9ipdKFOHYEX2P/FhzOQBsVPoOMPP6BPZVepMaOzK8=;
-        b=oiBnufhP9/1pUIxmPMtIH6QQmmbQeEKXAumXdu9IYbyRbTh7vPn1Dir+ZnKXZ2FYns
-         N4jLpdpGa3gjMWn+xYb4lK175KRv9TnUu0zriFrKJXH5Q+dIk6aAnu6qUXUmvuvt/k+a
-         2DlnkTRxm09JrREhIdcIvKvEfRrAx1oupd8oVhVJC5QG6Zas9mFr3o4ChmQsdPf8njAR
-         ahP3ujZZUWwuuCGLB9KOP6OQogAa1qfZaT5rAfmh7dplyGZCq+FlRH38YJeZ7G7KLk+d
-         25t2ISStTNdrUPQPzrfSzb5qgWjuog0DbtBS4/6o6ZsA2VvMNXmSaYuwbLBBtaAd1tAj
-         n51g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=TA9ipdKFOHYEX2P/FhzOQBsVPoOMPP6BPZVepMaOzK8=;
-        b=RRA1irI3EyZERF/pcfWELqZixy+WdguzE9L0fqyaNttqzjyG1tqEw3URFwwlG9ACkr
-         x4PQQvs6S/qvIw7bF/Y3q/LFX/R681IJqo8anpKzqF9kqZv9LUlf2aTPBgENHeFfRnDM
-         bKtRqfvapJZA3QYRm3J+HCO/fCvlq5X1nBiuoELFQLBDUxtpfdER2Z49dMQM5uilxBoH
-         SBOMDjSZoFNPWZaPMI8naiC767uiVrUfLcEUOlhK6lTjF59Ki/nvyqJ3bf8NMrgFu45p
-         Ug9K4Zy96CvpHmAhHrfV/AfaLCdeCmfpg4qrO7fgvxR2gN5Yx1BOvRpkN/lsJ/EN6HFJ
-         kWdw==
-X-Gm-Message-State: AOAM530u4VfMuX6L2ZByYKzsx31S0dNpTA2n15nJJR6feNZssf9w5cb+
-        12GzThYDfdayMKT5GUVfh8p8CbHpHRRXD03b+r4=
-X-Google-Smtp-Source: ABdhPJz2FDKhAeWjyB9ZVaBiLXPaIHVzW2J4GFonSqXrjqpV3Z2CMfphVlOx3aXosUKVQ+8IZJkr9BLRvcpgpiEf8zM=
-X-Received: by 2002:a25:af49:: with SMTP id c9mr131806ybj.432.1631713744700;
- Wed, 15 Sep 2021 06:49:04 -0700 (PDT)
+        id S233545AbhIOOEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 10:04:55 -0400
+Received: from mout.kundenserver.de ([212.227.126.131]:38189 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237678AbhIOOEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Sep 2021 10:04:52 -0400
+Received: from mail-wr1-f48.google.com ([209.85.221.48]) by
+ mrelayeu.kundenserver.de (mreue011 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1M8yU2-1mWXNi0EFy-0063eu for <stable@vger.kernel.org>; Wed, 15 Sep 2021
+ 16:03:32 +0200
+Received: by mail-wr1-f48.google.com with SMTP id m9so4136142wrb.1
+        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 07:03:31 -0700 (PDT)
+X-Gm-Message-State: AOAM532VoLcVOw5dinvg3Abna0lAb1DwO1YMpWcgmYdiDDERzNgCVwl5
+        in6Xnz1kqzUW6n/78m0n0Si+WXEY04wX2x7azhA=
+X-Google-Smtp-Source: ABdhPJyPTCjN0lPxQ4vPuD3OdRsZkXbiYf9mDveCLsJeDFfgSELy7Wp7aMWX8DNrGyXWFFHV7wKAn4C5F49LOl1Lh3Y=
+X-Received: by 2002:a5d:528b:: with SMTP id c11mr34919wrv.369.1631714611596;
+ Wed, 15 Sep 2021 07:03:31 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:a05:7010:5796:b0:108:577e:6c49 with HTTP; Wed, 15 Sep 2021
- 06:49:04 -0700 (PDT)
-Reply-To: abrahamsmith@rediffmail.com
-From:   "Rev. Fr. A. Smith" <ayotolabolatito429@gmail.com>
-Date:   Wed, 15 Sep 2021 19:19:04 +0530
-Message-ID: <CAC-R5Y8QXkQ17uvQ54AoY0h5GXRyhY8bUHgyW9qZa1hTtaZC4A@mail.gmail.com>
-Subject: 2021 Covid 19 Giving Fund and Distribution of Relief Materials
-To:     undisclosed-recipients:;
+References: <163171120021629@kroah.com>
+In-Reply-To: <163171120021629@kroah.com>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Wed, 15 Sep 2021 16:03:16 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a1kZkgphnOTFx3ViRKH6ZaKbUH8iDoQyVTTbsLHX4OLmw@mail.gmail.com>
+Message-ID: <CAK8P3a1kZkgphnOTFx3ViRKH6ZaKbUH8iDoQyVTTbsLHX4OLmw@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] ARM: 9109/1: oabi-compat: add epoll_pwait
+ handler" failed to apply to 4.4-stable tree
+To:     gregkh <gregkh@linuxfoundation.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@lst.de>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        "# 3.4.x" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:qbwHBIE5bQ4oZE80okdB1PzoxJQxMyY8alnkBZmilP1daz9yOaq
+ RczYf4GDXyuRx+cU60ZsVJbuFZnsh8VtsccaFaGOKIf7kDPjnC1Jc1ruDYfc0FjBuhLCn82
+ MUX/UPvyR9vUPc6RLVg34aN9PUkRLH048smcDayP/HZomj7Z4LsWz0sa/zTBySX3Nz98YLp
+ OkEpnHo+ZWUIoO+MooFLg==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:dkISuuQJHUs=:FOy4sypRSn0rg40CvjNcDm
+ ze26oRhSqnOeObiKYgsCb2ixn8iVuX6JQMMCz543HK2oG8Cv7FptMQNJr1U4KB+Q6hemuk5I8
+ 16a8cJTa3f94ebRhi22IgwLZw8RhHmhuIbfkM/7SvbaAJdxuDkKcDIcz4M46+SIzVG+i2Y2Lm
+ cGy7P9d8cdccOCDYr2NodX3LLZqJO4g5CDTbAf30H7ERIQCgEFosQEYfcFJEsX7oE8DTvhRpO
+ 8n8ZxNTlUDTpduyWEYAzN+hrYmC557R5z+cPQKGTUAB8Q24Ka1Ze2zFTjQbs3eM2wmptPts3i
+ bvATg14CXMfxLctkF25BVjbpmV97fu3cClM3NH1kLOfYrfPTsIQyS7QWfwuKK0okplF23YDQH
+ l5ouXd6yuGRv/3RpfecCu65aj/ZBoQzLHmzi0B8ItAlRHmraG/E/usrfezAWu2cDs8zX5YUc2
+ ZRSN4e3lTN9DtgIFfgMv/uH1tx5zepP2PP+zUJqdFPqq9Y3rnvmpeN5IdJhEtNfrjGwo0Hjbd
+ Ltq5WorNvxiVk+yStBvqt4nq5Ab2sEC8OOJlC1J2bORXfOsW7TNnL85MJlvkNvG7kZ5uN1nqO
+ UpKTWV+u9IvlaVsTahJHAyZL06/srRiGmB9O9PdTdOMoPNrBkogg4jzIs4b5B0Kuw1go25YUe
+ FI4et/tMinV8SzO/fOJgtEf6+1PI7+qTjpmeBjXP/16Pcvkorxg7EkUnjc8lDn7G3CUZmR/uL
+ KeHIqpm7bgQL2nLiOH+/kzbGWhSZUZb40ECF9w==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Donation Fund Contact And Send Your Full Details To Rev. Abraham Smith
-At: abrahamsmith@rediffmail.com
+On Wed, Sep 15, 2021 at 3:06 PM <gregkh@linuxfoundation.org> wrote:
+>
+>
+> The patch below does not apply to the 4.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+
+I think we're good without the backport. While this fixes a real bug, the only
+reason to actually need OABI support is to run old binaries, and those predate
+this syscall.
+
+         Arnd
