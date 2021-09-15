@@ -2,71 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D9E640CCD2
-	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 20:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 862D340CCE9
+	for <lists+stable@lfdr.de>; Wed, 15 Sep 2021 21:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229479AbhIOSym (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Sep 2021 14:54:42 -0400
-Received: from rfvt.org.uk ([37.187.119.221]:50458 "EHLO rfvt.org.uk"
+        id S231301AbhIOTCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Sep 2021 15:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229738AbhIOSyi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 15 Sep 2021 14:54:38 -0400
-Received: from wylie.me.uk (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by rfvt.org.uk (Postfix) with ESMTPS id 31013827CB;
-        Wed, 15 Sep 2021 19:53:15 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wylie.me.uk;
-        s=mydkim005; t=1631731995;
-        bh=Pl+SCjVxOGRBsYE8vcs3O6K0c2ynaEeUUoB+PvutJhA=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References;
-        b=GI4TJ4+jzQKA/QOlhjDMPOXyFSM0UPj1TINNZ2Ly6Ex2/XoJoLSPEPzXuo+jtTP14
-         fjp5sLL7iXCWfBiogcFVtlKvQcWDn1wRN5mo056g+vcWiQXuR6/kP+NIIQLCr0J5dX
-         55VzWCF4h57dkqYvJtcLlicf9gzxhn1FaUhqCUDvhOekEam4+aHnc6gtCnNDdvakn+
-         RpZIQ1BVVgQLW63WWb2gf2NTtubbdhE5p2aI77ucUADZh3mEsgiFp48hJUmcG/ZoUW
-         6Q56PpIu+v6PQBSJptX5KZhTBSZWCQjXZEEVw5efExayNXmSsgr4uRdMnkymwgkG5D
-         JnKGcf8AfdO0A==
+        id S230454AbhIOTCJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 15 Sep 2021 15:02:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E1666103C;
+        Wed, 15 Sep 2021 19:00:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631732450;
+        bh=YkcmojiGY9QQWNOZSXXazF7PH72SyPEf2FF46vMZGi4=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=OFjb8HjsSmZK+4SVeiFai01070Y1zogb4vqszFPpGhM9vIyDkZs9APM/9Tcs/kDk7
+         VF1V3FeNh5MAvGK7lhKuylpqPmESdCbrAnOt5BL8h5OF3F7aLtD5kKuNUC49mjp20r
+         QX/1YX9xCbiR+/iE99ZN4NQ3CFJU0fsxBv7GUiE4WAhCUmZblcVcVTDUVTkJlT6+do
+         7T1suanyadkwGd3/C9EzqSgt15BoGV4bceSWAG5r8KO+wwIRYzb5QTUFs4kLgrg0nK
+         7e4vk3tj9iz1KIrwdewGmCJWliO+VYgKZV4uWILHGv5tk3FPiYg0mHZw2KizlZTdrj
+         4yalWMo018cOQ==
+Received: by mail-wr1-f53.google.com with SMTP id i23so5501528wrb.2;
+        Wed, 15 Sep 2021 12:00:50 -0700 (PDT)
+X-Gm-Message-State: AOAM531pic0hhcXxlTjjTm36rCupRNxguLdNwxkyMyekhCfX4xFpb5jc
+        1SP0zzEZoMN9seusjQ1z4GL/Sw7BE8KgBTaIXyM=
+X-Google-Smtp-Source: ABdhPJx8Nor137Y0AwvNBzqyTieu/xOANX3s9f7G1HqlVUhP8yp1vwLVZbH/Ct+G2pARpk8PDQr+RpjPUVT8GnvVKrE=
+X-Received: by 2002:adf:c10b:: with SMTP id r11mr1734773wre.336.1631732448752;
+ Wed, 15 Sep 2021 12:00:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <24898.16666.838506.586861@wylie.me.uk>
-Date:   Wed, 15 Sep 2021 19:53:14 +0100
-From:   "Alan J. Wylie" <alan@wylie.me.uk>
+References: <20210913131113.390368911@linuxfoundation.org> <20210913131123.500712780@linuxfoundation.org>
+In-Reply-To: <20210913131123.500712780@linuxfoundation.org>
+From:   Arnd Bergmann <arnd@kernel.org>
+Date:   Wed, 15 Sep 2021 21:00:32 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
+Message-ID: <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
+Subject: Re: [PATCH 5.14 298/334] time: Handle negative seconds correctly in timespec64_to_ns()
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Regression in posix-cpu-timers.c (was Re: Linux 5.14.4)
-In-Reply-To: <YUI26QI7dfgjUioT@kroah.com>
-References: <1631693373201133@kroah.com>
-        <87ilz1pwaq.fsf@wylie.me.uk>
-        <YUI26QI7dfgjUioT@kroah.com>
-X-Mailer: VM 8.2.0b under 27.2 (x86_64-pc-linux-gnu)
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-at 20:09 on Wed 15-Sep-2021 Greg Kroah-Hartman (gregkh@linuxfoundation.org) wrote:
+On Tue, Sep 14, 2021 at 1:22 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>  /*
+>   * Limits for settimeofday():
+> @@ -124,10 +126,13 @@ static inline bool timespec64_valid_sett
+>   */
+>  static inline s64 timespec64_to_ns(const struct timespec64 *ts)
+>  {
+> -       /* Prevent multiplication overflow */
+> -       if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
+> +       /* Prevent multiplication overflow / underflow */
+> +       if (ts->tv_sec >= KTIME_SEC_MAX)
+>                 return KTIME_MAX;
+>
+> +       if (ts->tv_sec <= KTIME_SEC_MIN)
+> +               return KTIME_MIN;
+> +
 
-> Does 5.15-rc1 also fail in this same way, or does it work ok?
+I just saw this get merged for the stable kernels, and had not seen this when
+Thomas originally merged it.
 
-It fails
+I can see how this helps the ptp_clock_adjtime() users, but I just
+double-checked
+what other callers exist, and I think it introduces a regression in setitimer(),
+which does
 
-# uname -a
-Linux bilbo 5.15.0-rc1 #1 SMP PREEMPT Wed Sep 15 19:19:48 BST 2021
-x86_64 AMD FX(tm)-4300 Quad-Core Processor AuthenticAMD GNU/Linux
+        nval = timespec64_to_ns(&value->it_value);
+        ninterval = timespec64_to_ns(&value->it_interval);
 
-# su apache -s /bin/bash -c "cd /var/www/htdocs/nextcloud/ && php occ maintenance:mode --off"
-PHP Fatal error: Maximum execution time of 0 seconds exceeded in
-/var/www/htdocs/nextcloud/3rdparty/symfony/console/Application.php on
-line 65
+without any further range checking that I could find. Setting timers
+with negative intervals sounds like a bad idea, and interpreting negative
+it_value as a past time instead of KTIME_SEC_MAX sounds like an
+unintended interface change.
 
-Regards
-Alan
+I haven't done any proper analysis of the changes, so maybe it's all
+good, but I think we need to double-check this, and possibly revert
+it from the stable kernels until a final conclusion.
 
--- 
-Alan J. Wylie                                          https://www.wylie.me.uk/
-
-Dance like no-one's watching. / Encrypt like everyone is.
-Security is inversely proportional to convenience
+        Arnd
