@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3535440E22A
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B644240E57A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237369AbhIPQfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44780 "EHLO mail.kernel.org"
+        id S1345757AbhIPRL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:11:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243485AbhIPQbb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:31:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C79966162E;
-        Thu, 16 Sep 2021 16:19:32 +0000 (UTC)
+        id S1350458AbhIPRJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:09:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D54A761B3F;
+        Thu, 16 Sep 2021 16:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809173;
-        bh=ag+uAeWKPVFNvafpIGu/c0r020QZZsSQcstWyrND3a0=;
+        s=korg; t=1631810233;
+        bh=tMRUhg+5IP7iS3QDrQIfnJwdTixPGUXbFkAY1SQ5LYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Qh01YW958Nb9lZoGcfsd6Wwus5JiG6qDUfrjC1Ur4f38d+RBVYqeZXH/swxbdb2F
-         ESoUQ+bpMj8k9s1qkCumv1/iLRR+ENwn7+J7k11qiEogZXqIjlpy+nANlZ/gkaAZ2b
-         36xm4jJzlp0iZemnch+kqsyew6iilmzCzhWecvWs=
+        b=i2MX/fBpfRSxPt8o4gu5BwUZpIqIt+ii7uehJyml7bYnC8UUCjyVn7rkKjQIiKE4n
+         Bk8IcOmH3OlA8W2uq+AWbncjMQdvx99E6+iQy92D6KItCphmPTxus8eSRohhr0dQ6o
+         EEKobU30F7O90P4viLkYwb6UNz85ijR+Hk6/MKW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kate Hsuan <hpa@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 057/380] libata: add ATA_HORKAGE_NO_NCQ_TRIM for Samsung 860 and 870 SSDs
-Date:   Thu, 16 Sep 2021 17:56:54 +0200
-Message-Id: <20210916155805.928036763@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.14 066/432] PCI: Return ~0 data on pciconfig_read() CAP_SYS_ADMIN failure
+Date:   Thu, 16 Sep 2021 17:56:55 +0200
+Message-Id: <20210916155813.023542107@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Krzysztof Wilczyński <kw@linux.com>
 
-commit 8a6430ab9c9c87cb64c512e505e8690bbaee190b upstream.
+commit a8bd29bd49c4156ea0ec5a97812333e2aeef44e7 upstream.
 
-Commit ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
-limited the existing ATA_HORKAGE_NO_NCQ_TRIM quirk from "Samsung SSD 8*",
-covering all Samsung 800 series SSDs, to only apply to "Samsung SSD 840*"
-and "Samsung SSD 850*" series based on information from Samsung.
+The pciconfig_read() syscall reads PCI configuration space using
+hardware-dependent config accessors.
 
-But there is a large number of users which is still reporting issues
-with the Samsung 860 and 870 SSDs combined with Intel, ASmedia or
-Marvell SATA controllers and all reporters also report these problems
-going away when disabling queued trims.
+If the read fails on PCI, most accessors don't return an error; they
+pretend the read was successful and got ~0 data from the device, so the
+syscall returns success with ~0 data in the buffer.
 
-Note that with AMD SATA controllers users are reporting even worse
-issues and only completely disabling NCQ helps there, this will be
-addressed in a separate patch.
+When the accessor does return an error, pciconfig_read() normally fills the
+user's buffer with ~0 and returns an error in errno.  But after
+e4585da22ad0 ("pci syscall.c: Switch to refcounting API"), we don't fill
+the buffer with ~0 for the EPERM "user lacks CAP_SYS_ADMIN" error.
 
-Fixes: ca6bfcb2f6d9 ("libata: Enable queued TRIM for Samsung SSD 860")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=203475
+Userspace may rely on the ~0 data to detect errors, but after e4585da22ad0,
+that would not detect CAP_SYS_ADMIN errors.
+
+Restore the original behaviour of filling the buffer with ~0 when the
+CAP_SYS_ADMIN check fails.
+
+[bhelgaas: commit log, fold in Nathan's fix
+https://lore.kernel.org/r/20210803200836.500658-1-nathan@kernel.org]
+Fixes: e4585da22ad0 ("pci syscall.c: Switch to refcounting API")
+Link: https://lore.kernel.org/r/20210729233755.1509616-1-kw@linux.com
+Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
-Cc: Kate Hsuan <hpa@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-Link: https://lore.kernel.org/r/20210823095220.30157-1-hdegoede@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/syscall.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -3950,6 +3950,10 @@ static const struct ata_blacklist_entry
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "Samsung SSD 850*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+	{ "Samsung SSD 860*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
-+						ATA_HORKAGE_ZERO_AFTER_TRIM, },
-+	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
-+						ATA_HORKAGE_ZERO_AFTER_TRIM, },
- 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
- 						ATA_HORKAGE_ZERO_AFTER_TRIM, },
+--- a/drivers/pci/syscall.c
++++ b/drivers/pci/syscall.c
+@@ -22,8 +22,10 @@ SYSCALL_DEFINE5(pciconfig_read, unsigned
+ 	long err;
+ 	int cfg_ret;
  
++	err = -EPERM;
++	dev = NULL;
+ 	if (!capable(CAP_SYS_ADMIN))
+-		return -EPERM;
++		goto error;
+ 
+ 	err = -ENODEV;
+ 	dev = pci_get_domain_bus_and_slot(0, bus, dfn);
 
 
