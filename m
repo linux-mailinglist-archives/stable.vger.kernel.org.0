@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A94E40E4E3
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E17C40E881
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349532AbhIPRF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:05:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34038 "EHLO mail.kernel.org"
+        id S1356002AbhIPRoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348402AbhIPRCq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:02:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F496613DA;
-        Thu, 16 Sep 2021 16:33:47 +0000 (UTC)
+        id S1355403AbhIPRl0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:41:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06F0961A87;
+        Thu, 16 Sep 2021 16:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810028;
-        bh=+A1tQ6AqDbb2Hhv7BzGjzqGs6YPhk+dc9hyaHPBZuPM=;
+        s=korg; t=1631811178;
+        bh=TazWVnaXvlgPzxziINEoLaxVj7c0EuAsDDIxn6rASDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7spRFA5mk0Dk2ngKN27O+Ma/qkYCRl791qsTC0/BhRHHqSHLGOQSvfwtvWKJXJxr
-         ShW1kCv9JBH8mtaet2GNVngvNJ34rk/QGz1oSkL7NtSzocld32EwjK6ymu4xVBccYI
-         ancLkO5ODjp6MOhSPB+bC49XoH15RgRw9F4qVMeU=
+        b=QKj3QARyYgyTDlZwJr2DCGTBsyPOgsDbOf/Ef8NEQnvc5C9Nqa3/r24dLmfifOM2O
+         QS9qJ2wbGPpdznZF0VvwKzbgLyHqJ0ZVepAvaEPBc39DYj2YZqpQu7a50hgrpVlUt8
+         DF7X34SV///TcaODOhD5MFiPOjYPqvM6R89mh1uo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Icecream95 <ixn@keemail.me>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Steven Price <steven.price@arm.com>
-Subject: [PATCH 5.13 371/380] drm/panfrost: Make sure MMU context lifetime is not bound to panfrost_priv
+        stable@vger.kernel.org,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Rui Miguel Silva <rui.silva@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 379/432] usb: isp1760: write to status and address register
 Date:   Thu, 16 Sep 2021 18:02:08 +0200
-Message-Id: <20210916155816.674053986@linuxfoundation.org>
+Message-Id: <20210916155823.665043741@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,450 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <boris.brezillon@collabora.com>
+From: Rui Miguel Silva <rui.silva@linaro.org>
 
-commit 7fdc48cc63a30fa3480d18bdd8c5fff2b9b15212 upstream.
+[ Upstream commit 36815a4a0763bb405ebd776c45553005c1ef7a15 ]
 
-Jobs can be in-flight when the file descriptor is closed (either because
-the process did not terminate properly, or because it didn't wait for
-all GPU jobs to be finished), and apparently panfrost_job_close() does
-not cancel already running jobs. Let's refcount the MMU context object
-so it's lifetime is no longer bound to the FD lifetime and running jobs
-can finish properly without generating spurious page faults.
+We were already writing directly the port status register to
+trigger changes in isp1763. The same is needed in other IP
+from the family, including also to setup the read address
+before reading from device.
 
-Reported-by: Icecream95 <ixn@keemail.me>
-Fixes: 7282f7645d06 ("drm/panfrost: Implement per FD address spaces")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210621133907.1683899-2-boris.brezillon@collabora.com
+Reported-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Signed-off-by: Rui Miguel Silva <rui.silva@linaro.org>
+Link: https://lore.kernel.org/r/20210827131154.4151862-4-rui.silva@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panfrost/panfrost_device.h |    8 -
- drivers/gpu/drm/panfrost/panfrost_drv.c    |   50 +--------
- drivers/gpu/drm/panfrost/panfrost_gem.c    |   20 +--
- drivers/gpu/drm/panfrost/panfrost_job.c    |    4 
- drivers/gpu/drm/panfrost/panfrost_mmu.c    |  160 +++++++++++++++++++----------
- drivers/gpu/drm/panfrost/panfrost_mmu.h    |    5 
- 6 files changed, 136 insertions(+), 111 deletions(-)
+ drivers/usb/isp1760/isp1760-hcd.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
---- a/drivers/gpu/drm/panfrost/panfrost_device.h
-+++ b/drivers/gpu/drm/panfrost/panfrost_device.h
-@@ -120,8 +120,12 @@ struct panfrost_device {
+diff --git a/drivers/usb/isp1760/isp1760-hcd.c b/drivers/usb/isp1760/isp1760-hcd.c
+index d2d19548241e..e517376c3291 100644
+--- a/drivers/usb/isp1760/isp1760-hcd.c
++++ b/drivers/usb/isp1760/isp1760-hcd.c
+@@ -182,7 +182,7 @@ struct urb_listitem {
+ 	struct urb *urb;
  };
  
- struct panfrost_mmu {
-+	struct panfrost_device *pfdev;
-+	struct kref refcount;
- 	struct io_pgtable_cfg pgtbl_cfg;
- 	struct io_pgtable_ops *pgtbl_ops;
-+	struct drm_mm mm;
-+	spinlock_t mm_lock;
- 	int as;
- 	atomic_t as_count;
- 	struct list_head list;
-@@ -132,9 +136,7 @@ struct panfrost_file_priv {
- 
- 	struct drm_sched_entity sched_entity[NUM_JOB_SLOTS];
- 
--	struct panfrost_mmu mmu;
--	struct drm_mm mm;
--	spinlock_t mm_lock;
-+	struct panfrost_mmu *mmu;
- };
- 
- static inline struct panfrost_device *to_panfrost_device(struct drm_device *ddev)
---- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-@@ -417,7 +417,7 @@ static int panfrost_ioctl_madvise(struct
- 		 * anyway, so let's not bother.
- 		 */
- 		if (!list_is_singular(&bo->mappings.list) ||
--		    WARN_ON_ONCE(first->mmu != &priv->mmu)) {
-+		    WARN_ON_ONCE(first->mmu != priv->mmu)) {
- 			ret = -EINVAL;
- 			goto out_unlock_mappings;
- 		}
-@@ -449,32 +449,6 @@ int panfrost_unstable_ioctl_check(void)
- 	return 0;
+-static const u32 isp1763_hc_portsc1_fields[] = {
++static const u32 isp176x_hc_portsc1_fields[] = {
+ 	[PORT_OWNER]		= BIT(13),
+ 	[PORT_POWER]		= BIT(12),
+ 	[PORT_LSTATUS]		= BIT(10),
+@@ -205,27 +205,28 @@ static u32 isp1760_hcd_read(struct usb_hcd *hcd, u32 field)
  }
  
--#define PFN_4G		(SZ_4G >> PAGE_SHIFT)
--#define PFN_4G_MASK	(PFN_4G - 1)
--#define PFN_16M		(SZ_16M >> PAGE_SHIFT)
--
--static void panfrost_drm_mm_color_adjust(const struct drm_mm_node *node,
--					 unsigned long color,
--					 u64 *start, u64 *end)
--{
--	/* Executable buffers can't start or end on a 4GB boundary */
--	if (!(color & PANFROST_BO_NOEXEC)) {
--		u64 next_seg;
--
--		if ((*start & PFN_4G_MASK) == 0)
--			(*start)++;
--
--		if ((*end & PFN_4G_MASK) == 0)
--			(*end)--;
--
--		next_seg = ALIGN(*start, PFN_4G);
--		if (next_seg - *start <= PFN_16M)
--			*start = next_seg + 1;
--
--		*end = min(*end, ALIGN(*start, PFN_4G) - 1);
--	}
--}
--
- static int
- panfrost_open(struct drm_device *dev, struct drm_file *file)
+ /*
+- * We need, in isp1763, to write directly the values to the portsc1
++ * We need, in isp176x, to write directly the values to the portsc1
+  * register so it will make the other values to trigger.
+  */
+ static void isp1760_hcd_portsc1_set_clear(struct isp1760_hcd *priv, u32 field,
+ 					  u32 val)
  {
-@@ -489,15 +463,11 @@ panfrost_open(struct drm_device *dev, st
- 	panfrost_priv->pfdev = pfdev;
- 	file->driver_priv = panfrost_priv;
+-	u32 bit = isp1763_hc_portsc1_fields[field];
+-	u32 port_status = readl(priv->base + ISP1763_HC_PORTSC1);
++	u32 bit = isp176x_hc_portsc1_fields[field];
++	u16 portsc1_reg = priv->is_isp1763 ? ISP1763_HC_PORTSC1 :
++		ISP176x_HC_PORTSC1;
++	u32 port_status = readl(priv->base + portsc1_reg);
  
--	spin_lock_init(&panfrost_priv->mm_lock);
--
--	/* 4G enough for now. can be 48-bit */
--	drm_mm_init(&panfrost_priv->mm, SZ_32M >> PAGE_SHIFT, (SZ_4G - SZ_32M) >> PAGE_SHIFT);
--	panfrost_priv->mm.color_adjust = panfrost_drm_mm_color_adjust;
--
--	ret = panfrost_mmu_pgtable_alloc(panfrost_priv);
--	if (ret)
--		goto err_pgtable;
-+	panfrost_priv->mmu = panfrost_mmu_ctx_create(pfdev);
-+	if (IS_ERR(panfrost_priv->mmu)) {
-+		ret = PTR_ERR(panfrost_priv->mmu);
-+		goto err_free;
-+	}
- 
- 	ret = panfrost_job_open(panfrost_priv);
- 	if (ret)
-@@ -506,9 +476,8 @@ panfrost_open(struct drm_device *dev, st
- 	return 0;
- 
- err_job:
--	panfrost_mmu_pgtable_free(panfrost_priv);
--err_pgtable:
--	drm_mm_takedown(&panfrost_priv->mm);
-+	panfrost_mmu_ctx_put(panfrost_priv->mmu);
-+err_free:
- 	kfree(panfrost_priv);
- 	return ret;
- }
-@@ -521,8 +490,7 @@ panfrost_postclose(struct drm_device *de
- 	panfrost_perfcnt_close(file);
- 	panfrost_job_close(panfrost_priv);
- 
--	panfrost_mmu_pgtable_free(panfrost_priv);
--	drm_mm_takedown(&panfrost_priv->mm);
-+	panfrost_mmu_ctx_put(panfrost_priv->mmu);
- 	kfree(panfrost_priv);
- }
- 
---- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-@@ -60,7 +60,7 @@ panfrost_gem_mapping_get(struct panfrost
- 
- 	mutex_lock(&bo->mappings.lock);
- 	list_for_each_entry(iter, &bo->mappings.list, node) {
--		if (iter->mmu == &priv->mmu) {
-+		if (iter->mmu == priv->mmu) {
- 			kref_get(&iter->refcount);
- 			mapping = iter;
- 			break;
-@@ -74,16 +74,13 @@ panfrost_gem_mapping_get(struct panfrost
- static void
- panfrost_gem_teardown_mapping(struct panfrost_gem_mapping *mapping)
- {
--	struct panfrost_file_priv *priv;
--
- 	if (mapping->active)
- 		panfrost_mmu_unmap(mapping);
- 
--	priv = container_of(mapping->mmu, struct panfrost_file_priv, mmu);
--	spin_lock(&priv->mm_lock);
-+	spin_lock(&mapping->mmu->mm_lock);
- 	if (drm_mm_node_allocated(&mapping->mmnode))
- 		drm_mm_remove_node(&mapping->mmnode);
--	spin_unlock(&priv->mm_lock);
-+	spin_unlock(&mapping->mmu->mm_lock);
- }
- 
- static void panfrost_gem_mapping_release(struct kref *kref)
-@@ -94,6 +91,7 @@ static void panfrost_gem_mapping_release
- 
- 	panfrost_gem_teardown_mapping(mapping);
- 	drm_gem_object_put(&mapping->obj->base.base);
-+	panfrost_mmu_ctx_put(mapping->mmu);
- 	kfree(mapping);
- }
- 
-@@ -143,11 +141,11 @@ int panfrost_gem_open(struct drm_gem_obj
+ 	if (val)
+-		writel(port_status | bit, priv->base + ISP1763_HC_PORTSC1);
++		writel(port_status | bit, priv->base + portsc1_reg);
  	else
- 		align = size >= SZ_2M ? SZ_2M >> PAGE_SHIFT : 0;
- 
--	mapping->mmu = &priv->mmu;
--	spin_lock(&priv->mm_lock);
--	ret = drm_mm_insert_node_generic(&priv->mm, &mapping->mmnode,
-+	mapping->mmu = panfrost_mmu_ctx_get(priv->mmu);
-+	spin_lock(&mapping->mmu->mm_lock);
-+	ret = drm_mm_insert_node_generic(&mapping->mmu->mm, &mapping->mmnode,
- 					 size >> PAGE_SHIFT, align, color, 0);
--	spin_unlock(&priv->mm_lock);
-+	spin_unlock(&mapping->mmu->mm_lock);
- 	if (ret)
- 		goto err;
- 
-@@ -176,7 +174,7 @@ void panfrost_gem_close(struct drm_gem_o
- 
- 	mutex_lock(&bo->mappings.lock);
- 	list_for_each_entry(iter, &bo->mappings.list, node) {
--		if (iter->mmu == &priv->mmu) {
-+		if (iter->mmu == priv->mmu) {
- 			mapping = iter;
- 			list_del(&iter->node);
- 			break;
---- a/drivers/gpu/drm/panfrost/panfrost_job.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_job.c
-@@ -165,7 +165,7 @@ static void panfrost_job_hw_submit(struc
- 		return;
- 	}
- 
--	cfg = panfrost_mmu_as_get(pfdev, &job->file_priv->mmu);
-+	cfg = panfrost_mmu_as_get(pfdev, job->file_priv->mmu);
- 
- 	job_write(pfdev, JS_HEAD_NEXT_LO(js), jc_head & 0xFFFFFFFF);
- 	job_write(pfdev, JS_HEAD_NEXT_HI(js), jc_head >> 32);
-@@ -527,7 +527,7 @@ static irqreturn_t panfrost_job_irq_hand
- 			if (job) {
- 				pfdev->jobs[j] = NULL;
- 
--				panfrost_mmu_as_put(pfdev, &job->file_priv->mmu);
-+				panfrost_mmu_as_put(pfdev, job->file_priv->mmu);
- 				panfrost_devfreq_record_idle(&pfdev->pfdevfreq);
- 
- 				dma_fence_signal_locked(job->done_fence);
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -1,5 +1,8 @@
- // SPDX-License-Identifier:	GPL-2.0
- /* Copyright 2019 Linaro, Ltd, Rob Herring <robh@kernel.org> */
-+
-+#include <drm/panfrost_drm.h>
-+
- #include <linux/atomic.h>
- #include <linux/bitfield.h>
- #include <linux/delay.h>
-@@ -337,7 +340,7 @@ static void mmu_tlb_inv_context_s1(void
- 
- static void mmu_tlb_sync_context(void *cookie)
- {
--	//struct panfrost_device *pfdev = cookie;
-+	//struct panfrost_mmu *mmu = cookie;
- 	// TODO: Wait 1000 GPU cycles for HW_ISSUE_6367/T60X
+-		writel(port_status & ~bit, priv->base + ISP1763_HC_PORTSC1);
++		writel(port_status & ~bit, priv->base + portsc1_reg);
  }
  
-@@ -352,57 +355,10 @@ static const struct iommu_flush_ops mmu_
- 	.tlb_flush_walk = mmu_tlb_flush_walk,
- };
- 
--int panfrost_mmu_pgtable_alloc(struct panfrost_file_priv *priv)
--{
--	struct panfrost_mmu *mmu = &priv->mmu;
--	struct panfrost_device *pfdev = priv->pfdev;
--
--	INIT_LIST_HEAD(&mmu->list);
--	mmu->as = -1;
--
--	mmu->pgtbl_cfg = (struct io_pgtable_cfg) {
--		.pgsize_bitmap	= SZ_4K | SZ_2M,
--		.ias		= FIELD_GET(0xff, pfdev->features.mmu_features),
--		.oas		= FIELD_GET(0xff00, pfdev->features.mmu_features),
--		.coherent_walk	= pfdev->coherent,
--		.tlb		= &mmu_tlb_ops,
--		.iommu_dev	= pfdev->dev,
--	};
--
--	mmu->pgtbl_ops = alloc_io_pgtable_ops(ARM_MALI_LPAE, &mmu->pgtbl_cfg,
--					      priv);
--	if (!mmu->pgtbl_ops)
--		return -EINVAL;
--
--	return 0;
--}
--
--void panfrost_mmu_pgtable_free(struct panfrost_file_priv *priv)
--{
--	struct panfrost_device *pfdev = priv->pfdev;
--	struct panfrost_mmu *mmu = &priv->mmu;
--
--	spin_lock(&pfdev->as_lock);
--	if (mmu->as >= 0) {
--		pm_runtime_get_noresume(pfdev->dev);
--		if (pm_runtime_active(pfdev->dev))
--			panfrost_mmu_disable(pfdev, mmu->as);
--		pm_runtime_put_autosuspend(pfdev->dev);
--
--		clear_bit(mmu->as, &pfdev->as_alloc_mask);
--		clear_bit(mmu->as, &pfdev->as_in_use_mask);
--		list_del(&mmu->list);
--	}
--	spin_unlock(&pfdev->as_lock);
--
--	free_io_pgtable_ops(mmu->pgtbl_ops);
--}
--
- static struct panfrost_gem_mapping *
- addr_to_mapping(struct panfrost_device *pfdev, int as, u64 addr)
+ static void isp1760_hcd_write(struct usb_hcd *hcd, u32 field, u32 val)
  {
- 	struct panfrost_gem_mapping *mapping = NULL;
--	struct panfrost_file_priv *priv;
- 	struct drm_mm_node *node;
- 	u64 offset = addr >> PAGE_SHIFT;
- 	struct panfrost_mmu *mmu;
-@@ -415,11 +371,10 @@ addr_to_mapping(struct panfrost_device *
- 	goto out;
+ 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
  
- found_mmu:
--	priv = container_of(mmu, struct panfrost_file_priv, mmu);
+-	if (unlikely(priv->is_isp1763 &&
+-		     (field >= PORT_OWNER && field <= PORT_CONNECT)))
++	if (unlikely((field >= PORT_OWNER && field <= PORT_CONNECT)))
+ 		return isp1760_hcd_portsc1_set_clear(priv, field, val);
  
--	spin_lock(&priv->mm_lock);
-+	spin_lock(&mmu->mm_lock);
- 
--	drm_mm_for_each_node(node, &priv->mm) {
-+	drm_mm_for_each_node(node, &mmu->mm) {
- 		if (offset >= node->start &&
- 		    offset < (node->start + node->size)) {
- 			mapping = drm_mm_node_to_panfrost_mapping(node);
-@@ -429,7 +384,7 @@ found_mmu:
- 		}
- 	}
- 
--	spin_unlock(&priv->mm_lock);
-+	spin_unlock(&mmu->mm_lock);
- out:
- 	spin_unlock(&pfdev->as_lock);
- 	return mapping;
-@@ -542,6 +497,107 @@ err_bo:
- 	return ret;
- }
- 
-+static void panfrost_mmu_release_ctx(struct kref *kref)
-+{
-+	struct panfrost_mmu *mmu = container_of(kref, struct panfrost_mmu,
-+						refcount);
-+	struct panfrost_device *pfdev = mmu->pfdev;
-+
-+	spin_lock(&pfdev->as_lock);
-+	if (mmu->as >= 0) {
-+		pm_runtime_get_noresume(pfdev->dev);
-+		if (pm_runtime_active(pfdev->dev))
-+			panfrost_mmu_disable(pfdev, mmu->as);
-+		pm_runtime_put_autosuspend(pfdev->dev);
-+
-+		clear_bit(mmu->as, &pfdev->as_alloc_mask);
-+		clear_bit(mmu->as, &pfdev->as_in_use_mask);
-+		list_del(&mmu->list);
-+	}
-+	spin_unlock(&pfdev->as_lock);
-+
-+	free_io_pgtable_ops(mmu->pgtbl_ops);
-+	drm_mm_takedown(&mmu->mm);
-+	kfree(mmu);
-+}
-+
-+void panfrost_mmu_ctx_put(struct panfrost_mmu *mmu)
-+{
-+	kref_put(&mmu->refcount, panfrost_mmu_release_ctx);
-+}
-+
-+struct panfrost_mmu *panfrost_mmu_ctx_get(struct panfrost_mmu *mmu)
-+{
-+	kref_get(&mmu->refcount);
-+
-+	return mmu;
-+}
-+
-+#define PFN_4G		(SZ_4G >> PAGE_SHIFT)
-+#define PFN_4G_MASK	(PFN_4G - 1)
-+#define PFN_16M		(SZ_16M >> PAGE_SHIFT)
-+
-+static void panfrost_drm_mm_color_adjust(const struct drm_mm_node *node,
-+					 unsigned long color,
-+					 u64 *start, u64 *end)
-+{
-+	/* Executable buffers can't start or end on a 4GB boundary */
-+	if (!(color & PANFROST_BO_NOEXEC)) {
-+		u64 next_seg;
-+
-+		if ((*start & PFN_4G_MASK) == 0)
-+			(*start)++;
-+
-+		if ((*end & PFN_4G_MASK) == 0)
-+			(*end)--;
-+
-+		next_seg = ALIGN(*start, PFN_4G);
-+		if (next_seg - *start <= PFN_16M)
-+			*start = next_seg + 1;
-+
-+		*end = min(*end, ALIGN(*start, PFN_4G) - 1);
-+	}
-+}
-+
-+struct panfrost_mmu *panfrost_mmu_ctx_create(struct panfrost_device *pfdev)
-+{
-+	struct panfrost_mmu *mmu;
-+
-+	mmu = kzalloc(sizeof(*mmu), GFP_KERNEL);
-+	if (!mmu)
-+		return ERR_PTR(-ENOMEM);
-+
-+	mmu->pfdev = pfdev;
-+	spin_lock_init(&mmu->mm_lock);
-+
-+	/* 4G enough for now. can be 48-bit */
-+	drm_mm_init(&mmu->mm, SZ_32M >> PAGE_SHIFT, (SZ_4G - SZ_32M) >> PAGE_SHIFT);
-+	mmu->mm.color_adjust = panfrost_drm_mm_color_adjust;
-+
-+	INIT_LIST_HEAD(&mmu->list);
-+	mmu->as = -1;
-+
-+	mmu->pgtbl_cfg = (struct io_pgtable_cfg) {
-+		.pgsize_bitmap	= SZ_4K | SZ_2M,
-+		.ias		= FIELD_GET(0xff, pfdev->features.mmu_features),
-+		.oas		= FIELD_GET(0xff00, pfdev->features.mmu_features),
-+		.coherent_walk	= pfdev->coherent,
-+		.tlb		= &mmu_tlb_ops,
-+		.iommu_dev	= pfdev->dev,
-+	};
-+
-+	mmu->pgtbl_ops = alloc_io_pgtable_ops(ARM_MALI_LPAE, &mmu->pgtbl_cfg,
-+					      mmu);
-+	if (!mmu->pgtbl_ops) {
-+		kfree(mmu);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	kref_init(&mmu->refcount);
-+
-+	return mmu;
-+}
-+
- static const char *access_type_name(struct panfrost_device *pfdev,
- 		u32 fault_status)
+ 	isp1760_field_write(priv->fields, field, val);
+@@ -367,8 +368,7 @@ static void isp1760_mem_read(struct usb_hcd *hcd, u32 src_offset, void *dst,
  {
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.h
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.h
-@@ -18,7 +18,8 @@ void panfrost_mmu_reset(struct panfrost_
- u32 panfrost_mmu_as_get(struct panfrost_device *pfdev, struct panfrost_mmu *mmu);
- void panfrost_mmu_as_put(struct panfrost_device *pfdev, struct panfrost_mmu *mmu);
+ 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
  
--int panfrost_mmu_pgtable_alloc(struct panfrost_file_priv *priv);
--void panfrost_mmu_pgtable_free(struct panfrost_file_priv *priv);
-+struct panfrost_mmu *panfrost_mmu_ctx_get(struct panfrost_mmu *mmu);
-+void panfrost_mmu_ctx_put(struct panfrost_mmu *mmu);
-+struct panfrost_mmu *panfrost_mmu_ctx_create(struct panfrost_device *pfdev);
+-	isp1760_hcd_write(hcd, MEM_BANK_SEL, ISP_BANK_0);
+-	isp1760_hcd_write(hcd, MEM_START_ADDR, src_offset);
++	isp1760_reg_write(priv->regs, ISP176x_HC_MEMORY, src_offset);
+ 	ndelay(100);
  
- #endif
+ 	bank_reads8(priv->base, src_offset, ISP_BANK_0, dst, bytes);
+@@ -496,8 +496,7 @@ static void isp1760_ptd_read(struct usb_hcd *hcd, u32 ptd_offset, u32 slot,
+ 	u16 src_offset = ptd_offset + slot * sizeof(*ptd);
+ 	struct isp1760_hcd *priv = hcd_to_priv(hcd);
+ 
+-	isp1760_hcd_write(hcd, MEM_BANK_SEL, ISP_BANK_0);
+-	isp1760_hcd_write(hcd, MEM_START_ADDR, src_offset);
++	isp1760_reg_write(priv->regs, ISP176x_HC_MEMORY, src_offset);
+ 	ndelay(90);
+ 
+ 	bank_reads8(priv->base, src_offset, ISP_BANK_0, (void *)ptd,
+-- 
+2.30.2
+
 
 
