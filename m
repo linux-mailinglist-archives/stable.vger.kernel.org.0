@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F421440DF2D
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:06:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E87840E17A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:29:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233345AbhIPQHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:07:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
+        id S242184AbhIPQaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:30:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232429AbhIPQG4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:06:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D97061268;
-        Thu, 16 Sep 2021 16:05:35 +0000 (UTC)
+        id S241310AbhIPQ2Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:28:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D87261279;
+        Thu, 16 Sep 2021 16:18:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808335;
-        bh=frPAwLbf1HlBn4EoL7eJbcqnXhFjHlwwCAZ4reVWNXw=;
+        s=korg; t=1631809080;
+        bh=niG2Lt1Ingh5RIC5tdVdvtYyFU2QIjLuQ49vE2s/LNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbYOs5yL/3HZ/vuH+m67YLJXc0owt872aDn3pW5YwbrWuEcS4u23VizYi6/ERGQQu
-         Mkw02icgWu3CayuQLcN0wvPLpseXrl5gzJHEPBhozUVVcIP2KOK51QwBBY35qMuIsw
-         eA5FgntPP1NrWqclsm5IEe4WZ7HdLewoo1eyibYQ=
+        b=WOx65U+Z2iM2a5Leye75BMgVpkhNg+vDJc8DrftXP5oT0scIg3Fv/BwV1UG3zNbm2
+         gHK2KNtXje9gUVMEBU7Hr4ubv2eB8tApfUPMtakjpc4DyYStKMVudP4G0RVujKMST9
+         ZeCH8MyFR3z8Cfl4Dw0yUTecQlVckEZY/dkOlnwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DJ Gregor <dj@corelight.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Arne Welzel <arne.welzel@corelight.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.10 034/306] dm crypt: Avoid percpu_counter spinlock contention in crypt_page_alloc()
-Date:   Thu, 16 Sep 2021 17:56:19 +0200
-Message-Id: <20210916155755.111389304@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Amelie Delaunay <amelie.delaunay@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>
+Subject: [PATCH 5.13 023/380] pinctrl: stmfx: Fix hazardous u8[] to unsigned long cast
+Date:   Thu, 16 Sep 2021 17:56:20 +0200
+Message-Id: <20210916155804.763432408@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,128 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arne Welzel <arne.welzel@corelight.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 528b16bfc3ae5f11638e71b3b63a81f9999df727 upstream.
+commit 1b73e588f47397dee6e4bdfd953e0306c60b5fe5 upstream.
 
-On systems with many cores using dm-crypt, heavy spinlock contention in
-percpu_counter_compare() can be observed when the page allocation limit
-for a given device is reached or close to be reached. This is due
-to percpu_counter_compare() taking a spinlock to compute an exact
-result on potentially many CPUs at the same time.
+Casting a small array of u8 to an unsigned long is *never* OK:
 
-Switch to non-exact comparison of allocated and allowed pages by using
-the value returned by percpu_counter_read_positive() to avoid taking
-the percpu_counter spinlock.
+- it does funny thing when the array size is less than that of a long,
+  as it accesses random places in the stack
+- it makes everything even more fun with a BE kernel
 
-This may over/under estimate the actual number of allocated pages by at
-most (batch-1) * num_online_cpus().
+Fix this by building the unsigned long used as a bitmap byte by byte,
+in a way that works across endianess and has no undefined behaviours.
 
-Currently, batch is bounded by 32. The system on which this issue was
-first observed has 256 CPUs and 512GB of RAM. With a 4k page size, this
-change may over/under estimate by 31MB. With ~10G (2%) allowed dm-crypt
-allocations, this seems an acceptable error. Certainly preferred over
-running into the spinlock contention.
+An extra BUILD_BUG_ON() catches the unlikely case where the array
+would be larger than a single unsigned long.
 
-This behavior was reproduced on an EC2 c5.24xlarge instance with 96 CPUs
-and 192GB RAM as follows, but can be provoked on systems with less CPUs
-as well.
-
- * Disable swap
- * Tune vm settings to promote regular writeback
-     $ echo 50 > /proc/sys/vm/dirty_expire_centisecs
-     $ echo 25 > /proc/sys/vm/dirty_writeback_centisecs
-     $ echo $((128 * 1024 * 1024)) > /proc/sys/vm/dirty_background_bytes
-
- * Create 8 dmcrypt devices based on files on a tmpfs
- * Create and mount an ext4 filesystem on each crypt devices
- * Run stress-ng --hdd 8 within one of above filesystems
-
-Total %system usage collected from sysstat goes to ~35%. Write throughput
-on the underlying loop device is ~2GB/s. perf profiling an individual
-kworker kcryptd thread shows the following profile, indicating spinlock
-contention in percpu_counter_compare():
-
-    99.98%     0.00%  kworker/u193:46  [kernel.kallsyms]  [k] ret_from_fork
-      |
-      --ret_from_fork
-        kthread
-        worker_thread
-        |
-         --99.92%--process_one_work
-            |
-            |--80.52%--kcryptd_crypt
-            |    |
-            |    |--62.58%--mempool_alloc
-            |    |  |
-            |    |   --62.24%--crypt_page_alloc
-            |    |     |
-            |    |      --61.51%--__percpu_counter_compare
-            |    |        |
-            |    |         --61.34%--__percpu_counter_sum
-            |    |           |
-            |    |           |--58.68%--_raw_spin_lock_irqsave
-            |    |           |  |
-            |    |           |   --58.30%--native_queued_spin_lock_slowpath
-            |    |           |
-            |    |            --0.69%--cpumask_next
-            |    |                |
-            |    |                 --0.51%--_find_next_bit
-            |    |
-            |    |--10.61%--crypt_convert
-            |    |          |
-            |    |          |--6.05%--xts_crypt
-            ...
-
-After applying this patch and running the same test, %system usage is
-lowered to ~7% and write throughput on the loop device increases
-to ~2.7GB/s. perf report shows mempool_alloc() as ~8% rather than ~62%
-in the profile and not hitting the percpu_counter() spinlock anymore.
-
-    |--8.15%--mempool_alloc
-    |    |
-    |    |--3.93%--crypt_page_alloc
-    |    |    |
-    |    |     --3.75%--__alloc_pages
-    |    |         |
-    |    |          --3.62%--get_page_from_freelist
-    |    |              |
-    |    |               --3.22%--rmqueue_bulk
-    |    |                   |
-    |    |                    --2.59%--_raw_spin_lock
-    |    |                      |
-    |    |                       --2.57%--native_queued_spin_lock_slowpath
-    |    |
-    |     --3.05%--_raw_spin_lock_irqsave
-    |               |
-    |                --2.49%--native_queued_spin_lock_slowpath
-
-Suggested-by: DJ Gregor <dj@corelight.com>
-Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Arne Welzel <arne.welzel@corelight.com>
-Fixes: 5059353df86e ("dm crypt: limit the number of allocated pages")
+Fixes: 1490d9f841b1 ("pinctrl: Add STMFX GPIO expander Pinctrl/GPIO driver")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Cc: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Link: https://lore.kernel.org/r/20210725180830.250218-1-maz@kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-crypt.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-stmfx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -2643,7 +2643,12 @@ static void *crypt_page_alloc(gfp_t gfp_
- 	struct crypt_config *cc = pool_data;
- 	struct page *page;
+--- a/drivers/pinctrl/pinctrl-stmfx.c
++++ b/drivers/pinctrl/pinctrl-stmfx.c
+@@ -566,7 +566,7 @@ static irqreturn_t stmfx_pinctrl_irq_thr
+ 	u8 pending[NR_GPIO_REGS];
+ 	u8 src[NR_GPIO_REGS] = {0, 0, 0};
+ 	unsigned long n, status;
+-	int ret;
++	int i, ret;
  
--	if (unlikely(percpu_counter_compare(&cc->n_allocated_pages, dm_crypt_pages_per_client) >= 0) &&
-+	/*
-+	 * Note, percpu_counter_read_positive() may over (and under) estimate
-+	 * the current usage by at most (batch - 1) * num_online_cpus() pages,
-+	 * but avoids potential spinlock contention of an exact result.
-+	 */
-+	if (unlikely(percpu_counter_read_positive(&cc->n_allocated_pages) >= dm_crypt_pages_per_client) &&
- 	    likely(gfp_mask & __GFP_NORETRY))
- 		return NULL;
+ 	ret = regmap_bulk_read(pctl->stmfx->map, STMFX_REG_IRQ_GPI_PENDING,
+ 			       &pending, NR_GPIO_REGS);
+@@ -576,7 +576,9 @@ static irqreturn_t stmfx_pinctrl_irq_thr
+ 	regmap_bulk_write(pctl->stmfx->map, STMFX_REG_IRQ_GPI_SRC,
+ 			  src, NR_GPIO_REGS);
  
+-	status = *(unsigned long *)pending;
++	BUILD_BUG_ON(NR_GPIO_REGS > sizeof(status));
++	for (i = 0, status = 0; i < NR_GPIO_REGS; i++)
++		status |= (unsigned long)pending[i] << (i * 8);
+ 	for_each_set_bit(n, &status, gc->ngpio) {
+ 		handle_nested_irq(irq_find_mapping(gc->irq.domain, n));
+ 		stmfx_pinctrl_irq_toggle_trigger(pctl, n);
 
 
