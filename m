@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B33A40E2BD
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 533AA40E689
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244118AbhIPQlY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:41:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51058 "EHLO mail.kernel.org"
+        id S240991AbhIPRUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:20:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243795AbhIPQjC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:39:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA21761A05;
-        Thu, 16 Sep 2021 16:22:56 +0000 (UTC)
+        id S1344108AbhIPRR0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:17:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B37B61B6F;
+        Thu, 16 Sep 2021 16:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809377;
-        bh=Wy5U/PX3PAjJpE10nXELb82V+GepA1r0QtsFfLxxq3s=;
+        s=korg; t=1631810433;
+        bh=irftnaigOj1HwVxxyoPmTK/cMsIVXDGBSpAX4h2iRNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GbwchRVMabijfRlXqSyoRqguuXTlZ7/D1tKcpJZvwlaPBRBR8BGnyvIm+8bKTXio+
-         knVpMmF6p0x9NOXPyWYySLujEhSVlqvAknBn5ye19myPId95B89WdgSxIQHsgMQNcr
-         P09ZF+D9o8t1bgyN1QFIN1wtS3k9Lo8HDSNLKRrY=
+        b=u3zDTzjQRGoWV4F2n5l+N7Gd9NNz/pZ65PK61UUEJu5oONPzobyDc5ScZt7GG/AzK
+         oTq1Zcc1GK0pHOti+fhgpUM3P4nYowS86KBmNz1Pl6pcOG+gYjosv+MM0hoI+7Ha0L
+         gsXF/uF3wT8eYc5Nf+nXiO7VHecDX4S/wwewh9W0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 132/380] f2fs: fix unexpected ENOENT comes from f2fs_map_blocks()
+Subject: [PATCH 5.14 140/432] powerpc/smp: Fix a crash while booting kvm guest with nr_cpus=2
 Date:   Thu, 16 Sep 2021 17:58:09 +0200
-Message-Id: <20210916155808.530894951@linuxfoundation.org>
+Message-Id: <20210916155815.503466512@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,103 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit adf9ea89c719c1d23794e363f631e376b3ff8cbc ]
+[ Upstream commit 8efd249babea2fec268cff90b9f5ca723dbb7499 ]
 
-In below path, it will return ENOENT if filesystem is shutdown:
+Aneesh reported a crash with a fairly recent upstream kernel when
+booting kernel whose commandline was appended with nr_cpus=2
 
-- f2fs_map_blocks
- - f2fs_get_dnode_of_data
-  - f2fs_get_node_page
-   - __get_node_page
-    - read_node_page
-     - is_sbi_flag_set(sbi, SBI_IS_SHUTDOWN)
-       return -ENOENT
- - force return value from ENOENT to 0
+1:mon> e
+cpu 0x1: Vector: 300 (Data Access) at [c000000008a67bd0]
+    pc: c00000000002557c: cpu_to_chip_id+0x3c/0x100
+    lr: c000000000058380: start_secondary+0x460/0xb00
+    sp: c000000008a67e70
+   msr: 8000000000001033
+   dar: 10
+ dsisr: 80000
+  current = 0xc00000000891bb00
+  paca    = 0xc0000018ff981f80   irqmask: 0x03   irq_happened: 0x01
+    pid   = 0, comm = swapper/1
+Linux version 5.13.0-rc3-15704-ga050a6d2b7e8 (kvaneesh@ltc-boston8) (gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0, GNU ld (GNU Binutils for Ubuntu) 2.34) #433 SMP Tue May 25 02:38:49 CDT 2021
+1:mon> t
+[link register   ] c000000000058380 start_secondary+0x460/0xb00
+[c000000008a67e70] c000000008a67eb0 (unreliable)
+[c000000008a67eb0] c0000000000589d4 start_secondary+0xab4/0xb00
+[c000000008a67f90] c00000000000c654 start_secondary_prolog+0x10/0x14
 
-It should be fine for read case, since it indicates a hole condition,
-and caller could use .m_next_pgofs to skip the hole and continue the
-lookup.
+Current code assumes that num_possible_cpus() is always greater than
+threads_per_core. However this may not be true when using nr_cpus=2 or
+similar options. Handle the case where num_possible_cpus() is not an
+exact multiple of  threads_per_core.
 
-However it may cause confusing for write case, since leaving a hole
-there, and said nothing was wrong doesn't help.
-
-There is at least one case from dax_iomap_actor() will complain that,
-so fix this in prior to supporting dax in f2fs.
-
-xfstest generic/388 reports below warning:
-
-ubuntu godown: xfstests-induced forced shutdown of /mnt/scratch_f2fs:
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 485833 at fs/dax.c:1127 dax_iomap_actor+0x339/0x370
-Call Trace:
- iomap_apply+0x1c4/0x7b0
- ? dax_iomap_rw+0x1c0/0x1c0
- dax_iomap_rw+0xad/0x1c0
- ? dax_iomap_rw+0x1c0/0x1c0
- f2fs_file_write_iter+0x5ab/0x970 [f2fs]
- do_iter_readv_writev+0x273/0x2e0
- do_iter_write+0xab/0x1f0
- vfs_iter_write+0x21/0x40
- iter_file_splice_write+0x287/0x540
- do_splice+0x37c/0xa60
- __x64_sys_splice+0x15f/0x3a0
- do_syscall_64+0x3b/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-ubuntu godown: xfstests-induced forced shutdown of /mnt/scratch_f2fs:
-------------[ cut here ]------------
-RIP: 0010:dax_iomap_pte_fault.isra.0+0x72e/0x14a0
-Call Trace:
- dax_iomap_fault+0x44/0x70
- f2fs_dax_huge_fault+0x155/0x400 [f2fs]
- f2fs_dax_fault+0x18/0x30 [f2fs]
- __do_fault+0x4e/0x120
- do_fault+0x3cf/0x7a0
- __handle_mm_fault+0xa8c/0xf20
- ? find_held_lock+0x39/0xd0
- handle_mm_fault+0x1b6/0x480
- do_user_addr_fault+0x320/0xcd0
- ? rcu_read_lock_sched_held+0x67/0xc0
- exc_page_fault+0x77/0x3f0
- ? asm_exc_page_fault+0x8/0x30
- asm_exc_page_fault+0x1e/0x30
-
-Fixes: 83a3bfdb5a8a ("f2fs: indicate shutdown f2fs to allow unmount successfully")
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: c1e53367dab1 ("powerpc/smp: Cache CPU to chip lookup")
+Reported-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Debugged-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210826100401.412519-2-srikar@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/powerpc/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 3058c7e28b11..3cd509b085f2 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -1490,7 +1490,21 @@ int f2fs_map_blocks(struct inode *inode, struct f2fs_map_blocks *map,
- 	if (err) {
- 		if (flag == F2FS_GET_BLOCK_BMAP)
- 			map->m_pblk = 0;
-+
- 		if (err == -ENOENT) {
-+			/*
-+			 * There is one exceptional case that read_node_page()
-+			 * may return -ENOENT due to filesystem has been
-+			 * shutdown or cp_error, so force to convert error
-+			 * number to EIO for such case.
-+			 */
-+			if (map->m_may_create &&
-+				(is_sbi_flag_set(sbi, SBI_IS_SHUTDOWN) ||
-+				f2fs_cp_error(sbi))) {
-+				err = -EIO;
-+				goto unlock_out;
-+			}
-+
- 			err = 0;
- 			if (map->m_next_pgofs)
- 				*map->m_next_pgofs =
+diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+index 447b78a87c8f..2e151228d7ad 100644
+--- a/arch/powerpc/kernel/smp.c
++++ b/arch/powerpc/kernel/smp.c
+@@ -1085,7 +1085,7 @@ void __init smp_prepare_cpus(unsigned int max_cpus)
+ 	}
+ 
+ 	if (cpu_to_chip_id(boot_cpuid) != -1) {
+-		int idx = num_possible_cpus() / threads_per_core;
++		int idx = DIV_ROUND_UP(num_possible_cpus(), threads_per_core);
+ 
+ 		/*
+ 		 * All threads of a core will all belong to the same core,
 -- 
 2.30.2
 
