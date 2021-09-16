@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43A5E40E81F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBACC40E4D3
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242980AbhIPRn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:43:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53756 "EHLO mail.kernel.org"
+        id S1349436AbhIPRFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:05:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354356AbhIPRjp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:39:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDA3363244;
-        Thu, 16 Sep 2021 16:51:01 +0000 (UTC)
+        id S1348106AbhIPRBs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:01:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11F8461AEF;
+        Thu, 16 Sep 2021 16:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811062;
-        bh=SyAxMhOp2pwQ74LlnnoLxvfi9WBzRJkbZSYLuemmFXQ=;
+        s=korg; t=1631809994;
+        bh=x1llO8I6QY/aU77mY1he9oAnkTsjZPkxu0kn8jqQHcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fOzSBUYq499DtdCx4d+ax59qVX9bYg/RCpnV165hlbCwW8oH66p6+p6sNuc0dwyIk
-         cp6HtaAnC2Ni/tGhx7ECu6l3Kwrtc1IP00X22Ziw5krC/X6QuOj5wrJQx2I0KjPM10
-         8Oel5unHpFDR+oYPMmfkQumozqQ9K4EhxCEYQ7Wg=
+        b=t2ZSR+j50bNLtEcvQ9i6ofWGYRvl0tKEZUjg5t13g+CFD8KY+TzPaNWSgb9Wws45g
+         cMdPkGjf3S98w/pT9VL8BUXcgbxakdd3CesUQJLxNr/I5FZQyuBX8z52LOqHjHbhaI
+         MOAbd9JLvrbhVxqDtkDtpgMreF6sEHkLQRaDRnxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 368/432] iwlwifi: mvm: fix a memory leak in iwl_mvm_mac_ctxt_beacon_changed
+        stable@vger.kernel.org, Liu Zixian <liuzixian4@huawei.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.13 360/380] mm/hugetlb: initialize hugetlb_usage in mm_init
 Date:   Thu, 16 Sep 2021 18:01:57 +0200
-Message-Id: <20210916155823.278432544@linuxfoundation.org>
+Message-Id: <20210916155816.306888747@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Qilong <zhangqilong3@huawei.com>
+From: Liu Zixian <liuzixian4@huawei.com>
 
-[ Upstream commit 0f5d44ac6e55551798dd3da0ff847c8df5990822 ]
+commit 13db8c50477d83ad3e3b9b0ae247e5cd833a7ae4 upstream.
 
-If beacon_inject_active is true, we will return without freeing
-beacon.  Fid that by freeing it before returning.
+After fork, the child process will get incorrect (2x) hugetlb_usage.  If
+a process uses 5 2MB hugetlb pages in an anonymous mapping,
 
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-[reworded the commit message]
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210802172232.d16206ca60fc.I9984a9b442c84814c307cee3213044e24d26f38a@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	HugetlbPages:	   10240 kB
+
+and then forks, the child will show,
+
+	HugetlbPages:	   20480 kB
+
+The reason for double the amount is because hugetlb_usage will be copied
+from the parent and then increased when we copy page tables from parent
+to child.  Child will have 2x actual usage.
+
+Fix this by adding hugetlb_count_init in mm_init.
+
+Link: https://lkml.kernel.org/r/20210826071742.877-1-liuzixian4@huawei.com
+Fixes: 5d317b2b6536 ("mm: hugetlb: proc: add HugetlbPages field to /proc/PID/status")
+Signed-off-by: Liu Zixian <liuzixian4@huawei.com>
+Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/hugetlb.h |    9 +++++++++
+ kernel/fork.c           |    1 +
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c
-index fd5e08961651..7f0c82189808 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c
-@@ -1005,8 +1005,10 @@ int iwl_mvm_mac_ctxt_beacon_changed(struct iwl_mvm *mvm,
- 		return -ENOMEM;
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -835,6 +835,11 @@ static inline spinlock_t *huge_pte_lockp
  
- #ifdef CONFIG_IWLWIFI_DEBUGFS
--	if (mvm->beacon_inject_active)
-+	if (mvm->beacon_inject_active) {
-+		dev_kfree_skb(beacon);
- 		return -EBUSY;
-+	}
+ void hugetlb_report_usage(struct seq_file *m, struct mm_struct *mm);
+ 
++static inline void hugetlb_count_init(struct mm_struct *mm)
++{
++	atomic_long_set(&mm->hugetlb_usage, 0);
++}
++
+ static inline void hugetlb_count_add(long l, struct mm_struct *mm)
+ {
+ 	atomic_long_add(l, &mm->hugetlb_usage);
+@@ -1019,6 +1024,10 @@ static inline spinlock_t *huge_pte_lockp
+ 	return &mm->page_table_lock;
+ }
+ 
++static inline void hugetlb_count_init(struct mm_struct *mm)
++{
++}
++
+ static inline void hugetlb_report_usage(struct seq_file *f, struct mm_struct *m)
+ {
+ }
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1045,6 +1045,7 @@ static struct mm_struct *mm_init(struct
+ 	mm->pmd_huge_pte = NULL;
  #endif
+ 	mm_init_uprobes_state(mm);
++	hugetlb_count_init(mm);
  
- 	ret = iwl_mvm_mac_ctxt_send_beacon(mvm, vif, beacon);
--- 
-2.30.2
-
+ 	if (current->mm) {
+ 		mm->flags = current->mm->flags & MMF_INIT_MASK;
 
 
