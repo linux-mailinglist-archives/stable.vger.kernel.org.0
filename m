@@ -2,92 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F085040D4F5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 10:48:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F7C940D50F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 10:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235313AbhIPIuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 04:50:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60210 "EHLO mail.kernel.org"
+        id S235245AbhIPIw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 04:52:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235242AbhIPIuJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 04:50:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36874611C4;
-        Thu, 16 Sep 2021 08:48:49 +0000 (UTC)
+        id S235226AbhIPIwY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 04:52:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA1396120F;
+        Thu, 16 Sep 2021 08:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631782129;
-        bh=XNlHT7SsRm0aHT+xH8JBSxeM0QmbStCHOez0rQuhyXY=;
+        s=korg; t=1631782264;
+        bh=NKcmBxwkV3R3tW4bY4JaBczY3HPYWnC0xy3S7LWGRSM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=X9AncDACv15clITXSoMN8JlY/fHST1jd/e9N0jbnUiMkFQ1awv+Xz2BY1ebm4ROkU
-         WtlLbobgOfRX4FhcODDSqIdImAlaK7bAoqify6yFBoJ/I3ijV4yfp3ZwLyraiLbeHb
-         HPQBZM2OEKNtjeUBP9WROZ8co+97PxO3rKUl+Ymw=
-Date:   Thu, 16 Sep 2021 10:48:47 +0200
+        b=0HPOUTzzQeuM5ZQE4uXfcBNZXnxETW8Y+I48clm9G3Lu1sJSyxpRCAAiYEUfN6hlb
+         TJyDHBn8Xl3BaeGkV8Cg/lZaeImya0yHMsytNW87XMyUMxKtyDwj1UHie9UOD9LWBH
+         rxsFnwoerQzSGnnwsgvboDjHFzeWgr7h5uUBET+E=
+Date:   Thu, 16 Sep 2021 10:51:01 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>, Pavel Machek <pavel@denx.de>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Hsin-Yi Wang <hsinyi@chromium.org>,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Subject: Re: [PATCH 5.10 157/236] Bluetooth: Move shutdown callback before
- flushing tx and rx queue
-Message-ID: <YUME73+UUdOOHzMd@kroah.com>
-References: <20210913131100.316353015@linuxfoundation.org>
- <20210913131105.720088593@linuxfoundation.org>
- <20210915111843.GA16198@duo.ucw.cz>
- <20210915143238.GA2403125@roeck-us.net>
- <YUKWK4EflIdFxFsp@sashalap>
+To:     "Alan J. Wylie" <alan@wylie.me.uk>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: Regression in posix-cpu-timers.c (was Re: Linux 5.14.4)
+Message-ID: <YUMFdVETIYkCAmZx@kroah.com>
+References: <1631693373201133@kroah.com>
+ <87ilz1pwaq.fsf@wylie.me.uk>
+ <YUI26QI7dfgjUioT@kroah.com>
+ <24898.16666.838506.586861@wylie.me.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YUKWK4EflIdFxFsp@sashalap>
+In-Reply-To: <24898.16666.838506.586861@wylie.me.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 15, 2021 at 08:56:11PM -0400, Sasha Levin wrote:
-> On Wed, Sep 15, 2021 at 07:32:38AM -0700, Guenter Roeck wrote:
-> > On Wed, Sep 15, 2021 at 01:18:43PM +0200, Pavel Machek wrote:
-> > > Hi!
-> > > 
-> > > > [ Upstream commit 0ea53674d07fb6db2dd7a7ec2fdc85a12eb246c2 ]
-> > > 
-> > > Upstream commit is okay...
-> > > 
-> > > > So move the shutdown callback before flushing TX/RX queue to resolve the
-> > > > issue.
-> > > 
-> > > ...but something went wrong in stable. This is not moving code, this
-> > > is duplicating it:
-> > > 
-> > > > --- a/net/bluetooth/hci_core.c
-> > > > +++ b/net/bluetooth/hci_core.c
-> > > > @@ -1726,6 +1726,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
-> > > >  	hci_request_cancel_all(hdev);
-> > > >  	hci_req_sync_lock(hdev);
-> > > >
-> > > > +	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
-> > > > +	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
-> > > > +	    test_bit(HCI_UP, &hdev->flags)) {
-> > > > +		/* Execute vendor specific shutdown routine */
-> > > > +		if (hdev->shutdown)
-> > > > +			hdev->shutdown(hdev);
-> > > > +	}
-> > > > +
-> > > >  	if (!test_and_clear_bit(HCI_UP, &hdev->flags)) {
-> > > >  		cancel_delayed_work_sync(&hdev->cmd_timer);
-> > > >  		hci_req_sync_unlock(hdev);
-> > > 
-> > > And yes, we end up with 2 copies in 5.10.
-> > > 
-> > 
-> > Same problem in v5.4.y, unfortunately.
+On Wed, Sep 15, 2021 at 07:53:14PM +0100, Alan J. Wylie wrote:
+> at 20:09 on Wed 15-Sep-2021 Greg Kroah-Hartman (gregkh@linuxfoundation.org) wrote:
 > 
-> Ugh, odd - it wasn't manually backported :/
+> > Does 5.15-rc1 also fail in this same way, or does it work ok?
 > 
-> I'll drop it.
+> It fails
+> 
+> # uname -a
+> Linux bilbo 5.15.0-rc1 #1 SMP PREEMPT Wed Sep 15 19:19:48 BST 2021
+> x86_64 AMD FX(tm)-4300 Quad-Core Processor AuthenticAMD GNU/Linux
+> 
+> # su apache -s /bin/bash -c "cd /var/www/htdocs/nextcloud/ && php occ maintenance:mode --off"
+> PHP Fatal error: Maximum execution time of 0 seconds exceeded in
+> /var/www/htdocs/nextcloud/3rdparty/symfony/console/Application.php on
+> line 65
 
-Also now dropped from 5.13.y.
+Thanks for testing this and letting us know so quickly.
+
+I'll go drop this from all of the pending stable queues, and revert it
+from the released stable trees and push out an update in a few hours.
 
 thanks,
 
