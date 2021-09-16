@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D495740E441
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:23:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32ED540E7BB
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243906AbhIPQ4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:56:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51940 "EHLO mail.kernel.org"
+        id S1345161AbhIPRm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:42:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346407AbhIPQyu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:54:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCDBA613CD;
-        Thu, 16 Sep 2021 16:30:20 +0000 (UTC)
+        id S1348567AbhIPRgc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:36:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C67B61A80;
+        Thu, 16 Sep 2021 16:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809821;
-        bh=PkHgKvoyfPY4SUoPcVWWAVmKs/676bv9UplHgoqlefg=;
+        s=korg; t=1631810975;
+        bh=hNkQdjx+D0Gc136GIXM7EfcSfLGXIz7OcWNb45YZdYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zvAdVXzEVW5sAMKs+dons7cC3es01R2IKNS5u9nQBhGV4AiZjpPwjHoCmYGXhUP8a
-         P0ZDU2yjC3yW5qC+MwI6IWBozwON1GHvlkgOvHToRhehw3grRBO/pff7rq0YNsnZjL
-         w5BC8um3UC5eAEkqoaNlHd6lwOT2+5Z8t5OXUaeM=
+        b=XZ03eoiUZph7svboDSdezlgaGkEx/uA52byD2F1lMeKtEaHNq1XAqsLkPCKz4QVYb
+         HnAZGyOkkl1LKOeWTp4agSRVQXAJL3nQ6UaIX8nZAKRck/wE9hUcwIkfXs0JrgceUD
+         PN2pVrMTleoxxMpqdvSeLCVT5Z55cyKVVWcQ+Ekw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chin-Yen Lee <timlee@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 296/380] rtw88: use read_poll_timeout instead of fixed sleep
-Date:   Thu, 16 Sep 2021 18:00:53 +0200
-Message-Id: <20210916155814.129903489@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Daniel Wagner <dwagner@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 305/432] nvme-tcp: dont check blk_mq_tag_to_rq when receiving pdu data
+Date:   Thu, 16 Sep 2021 18:00:54 +0200
+Message-Id: <20210916155821.158403957@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chin-Yen Lee <timlee@realtek.com>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-[ Upstream commit 02a55c0009a55b204e1e5c17295431f0a9e7d3b6 ]
+[ Upstream commit 3b01a9d0caa8276d9ce314e09610f7fb70f49a00 ]
 
-In current wow flow, driver calls rtw_wow_fw_start and sleep for 100ms,
-to wait firmware finish preliminary work and then update the value of
-WOWLAN_WAKE_REASON register to zero. But later firmware will start wow
-function with power-saving mode, in which mode the value of
-WOWLAN_WAKE_REASON register is 0xea. So driver may get 0xea value and
-return fail. We use read_poll_timeout instead to check the value to avoid
-this issue.
+We already validate it when receiving the c2hdata pdu header
+and this is not changing so this is a redundant check.
 
-Signed-off-by: Chin-Yen Lee <timlee@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210728014335.8785-2-pkshih@realtek.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/wow.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/nvme/host/tcp.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/wow.c b/drivers/net/wireless/realtek/rtw88/wow.c
-index fc9544f4e5e4..bdccfa70dddc 100644
---- a/drivers/net/wireless/realtek/rtw88/wow.c
-+++ b/drivers/net/wireless/realtek/rtw88/wow.c
-@@ -283,15 +283,26 @@ static void rtw_wow_rx_dma_start(struct rtw_dev *rtwdev)
- 
- static int rtw_wow_check_fw_status(struct rtw_dev *rtwdev, bool wow_enable)
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 18bd68b82d78..f05892e2e6c4 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -702,17 +702,9 @@ static int nvme_tcp_recv_data(struct nvme_tcp_queue *queue, struct sk_buff *skb,
+ 			      unsigned int *offset, size_t *len)
  {
--	/* wait 100ms for wow firmware to finish work */
--	msleep(100);
-+	int ret;
-+	u8 check;
-+	u32 check_dis;
+ 	struct nvme_tcp_data_pdu *pdu = (void *)queue->pdu;
+-	struct nvme_tcp_request *req;
+-	struct request *rq;
+-
+-	rq = blk_mq_tag_to_rq(nvme_tcp_tagset(queue), pdu->command_id);
+-	if (!rq) {
+-		dev_err(queue->ctrl->ctrl.device,
+-			"queue %d tag %#x not found\n",
+-			nvme_tcp_queue_id(queue), pdu->command_id);
+-		return -ENOENT;
+-	}
+-	req = blk_mq_rq_to_pdu(rq);
++	struct request *rq =
++		blk_mq_tag_to_rq(nvme_tcp_tagset(queue), pdu->command_id);
++	struct nvme_tcp_request *req = blk_mq_rq_to_pdu(rq);
  
- 	if (wow_enable) {
--		if (rtw_read8(rtwdev, REG_WOWLAN_WAKE_REASON))
-+		ret = read_poll_timeout(rtw_read8, check, !check, 1000,
-+					100000, true, rtwdev,
-+					REG_WOWLAN_WAKE_REASON);
-+		if (ret)
- 			goto wow_fail;
- 	} else {
--		if (rtw_read32_mask(rtwdev, REG_FE1IMR, BIT_FS_RXDONE) ||
--		    rtw_read32_mask(rtwdev, REG_RXPKT_NUM, BIT_RW_RELEASE))
-+		ret = read_poll_timeout(rtw_read32_mask, check_dis,
-+					!check_dis, 1000, 100000, true, rtwdev,
-+					REG_FE1IMR, BIT_FS_RXDONE);
-+		if (ret)
-+			goto wow_fail;
-+		ret = read_poll_timeout(rtw_read32_mask, check_dis,
-+					!check_dis, 1000, 100000, false, rtwdev,
-+					REG_RXPKT_NUM, BIT_RW_RELEASE);
-+		if (ret)
- 			goto wow_fail;
- 	}
- 
+ 	while (true) {
+ 		int recv_len, ret;
 -- 
 2.30.2
 
