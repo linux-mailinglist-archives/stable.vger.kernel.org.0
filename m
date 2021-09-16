@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BC9540E3F9
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDDF640E417
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244476AbhIPQxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:53:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39422 "EHLO mail.kernel.org"
+        id S241984AbhIPQzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:55:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240651AbhIPQvn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:51:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9712961279;
-        Thu, 16 Sep 2021 16:28:51 +0000 (UTC)
+        id S243774AbhIPQwJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:52:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE79161357;
+        Thu, 16 Sep 2021 16:28:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809732;
-        bh=lOgdxNF0FXJUom5Aw1wbYJCzE2eRXwY51fXUVtgzgBg=;
+        s=korg; t=1631809737;
+        bh=DGJlaWkXczT7hs0YZrX1UHK2Uy0SYQKrZyStzYEnIvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HO7LEJj9mO+Iljbk56yleNU+2KzjPm+pvE2GrtUOmG494aPvvLo8uwc0ZetJ/1acj
-         EP1lGRBwnmvPTUi0J66gHuZzl7jPgIbctDR6C5VywaJxe5+Yj9ylbETfer3e08gIg/
-         tdj3v863Dw7Uf+Qg8tT/xPehNTi7YUg/1d+gLBOk=
+        b=taLzCtAfodBbaH0aXZOczLGA7+welF7/Q9ZSwxbjSexLYMhiEOkZ6pp2QHRZKcVAv
+         amy3Oxpo5NgXF3J9ERozmOYsZc7ejNQEccG+/dsRTsVcTsrAQxtF8DR1fXmz7weqET
+         hLbAZb63yYsqzIvYUU/uuyxEw86HxUmGYJHTqGdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Tuo Li <islituo@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 263/380] drm/display: fix possible null-pointer dereference in dcn10_set_clock()
-Date:   Thu, 16 Sep 2021 18:00:20 +0200
-Message-Id: <20210916155813.026817359@linuxfoundation.org>
+Subject: [PATCH 5.13 264/380] mac80211: Fix monitor MTU limit so that A-MSDUs get through
+Date:   Thu, 16 Sep 2021 18:00:21 +0200
+Message-Id: <20210916155813.058664391@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
 References: <20210916155803.966362085@linuxfoundation.org>
@@ -41,60 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 
-[ Upstream commit 554594567b1fa3da74f88ec7b2dc83d000c58e98 ]
+[ Upstream commit 79f5962baea74ce1cd4e5949598944bff854b166 ]
 
-The variable dc->clk_mgr is checked in:
-  if (dc->clk_mgr && dc->clk_mgr->funcs->get_clock)
+The maximum MTU was set to 2304, which is the maximum MSDU size. While
+this is valid for normal WLAN interfaces, it is too low for monitor
+interfaces. A monitor interface may receive and inject MPDU frames, and
+the maximum MPDU frame size is larger than 2304. The MPDU may also
+contain an A-MSDU frame, in which case the size may be much larger than
+the MTU limit. Since the maximum size of an A-MSDU depends on the PHY
+mode of the transmitting STA, it is not possible to set an exact MTU
+limit for a monitor interface. Now the maximum MTU for a monitor
+interface is unrestricted.
 
-This indicates dc->clk_mgr can be NULL.
-However, it is dereferenced in:
-    if (!dc->clk_mgr->funcs->get_clock)
-
-To fix this null-pointer dereference, check dc->clk_mgr and the function
-pointer dc->clk_mgr->funcs->get_clock earlier, and return if one of them
-is NULL.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
+Link: https://lore.kernel.org/r/20210628123246.2070558-1-johan.almbladh@anyfinetworks.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ net/mac80211/iface.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index 7c939c0a977b..29f61a8d3e29 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -3938,13 +3938,12 @@ enum dc_status dcn10_set_clock(struct dc *dc,
- 	struct dc_clock_config clock_cfg = {0};
- 	struct dc_clocks *current_clocks = &context->bw_ctx.bw.dcn.clk;
+diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
+index 137fa4c50e07..8df7ab34911c 100644
+--- a/net/mac80211/iface.c
++++ b/net/mac80211/iface.c
+@@ -1985,9 +1985,16 @@ int ieee80211_if_add(struct ieee80211_local *local, const char *name,
  
--	if (dc->clk_mgr && dc->clk_mgr->funcs->get_clock)
--				dc->clk_mgr->funcs->get_clock(dc->clk_mgr,
--						context, clock_type, &clock_cfg);
--
--	if (!dc->clk_mgr->funcs->get_clock)
-+	if (!dc->clk_mgr || !dc->clk_mgr->funcs->get_clock)
- 		return DC_FAIL_UNSUPPORTED_1;
+ 		netdev_set_default_ethtool_ops(ndev, &ieee80211_ethtool_ops);
  
-+	dc->clk_mgr->funcs->get_clock(dc->clk_mgr,
-+		context, clock_type, &clock_cfg);
-+
- 	if (clk_khz > clock_cfg.max_clock_khz)
- 		return DC_FAIL_CLK_EXCEED_MAX;
+-		/* MTU range: 256 - 2304 */
++		/* MTU range is normally 256 - 2304, where the upper limit is
++		 * the maximum MSDU size. Monitor interfaces send and receive
++		 * MPDU and A-MSDU frames which may be much larger so we do
++		 * not impose an upper limit in that case.
++		 */
+ 		ndev->min_mtu = 256;
+-		ndev->max_mtu = local->hw.max_mtu;
++		if (type == NL80211_IFTYPE_MONITOR)
++			ndev->max_mtu = 0;
++		else
++			ndev->max_mtu = local->hw.max_mtu;
  
-@@ -3962,7 +3961,7 @@ enum dc_status dcn10_set_clock(struct dc *dc,
- 	else
- 		return DC_ERROR_UNEXPECTED;
- 
--	if (dc->clk_mgr && dc->clk_mgr->funcs->update_clocks)
-+	if (dc->clk_mgr->funcs->update_clocks)
- 				dc->clk_mgr->funcs->update_clocks(dc->clk_mgr,
- 				context, true);
- 	return DC_OK;
+ 		ret = cfg80211_register_netdevice(ndev);
+ 		if (ret) {
 -- 
 2.30.2
 
