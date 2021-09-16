@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48AFE40E4C7
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90C6440E825
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348994AbhIPRFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:05:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34034 "EHLO mail.kernel.org"
+        id S1354001AbhIPRiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:38:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347890AbhIPRAq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:00:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55B8B61AF0;
-        Thu, 16 Sep 2021 16:33:00 +0000 (UTC)
+        id S1344626AbhIPRf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:35:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA8A16152A;
+        Thu, 16 Sep 2021 16:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809980;
-        bh=6+MONF8EmtdpRsVvsw+V+vRmiKz8kfaaA31jO5pe8sg=;
+        s=korg; t=1631810959;
+        bh=GOI0nxE8w2Eym8ed3E1suqYbAwtANJs4mkix9EPI6fU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bzu3ML6Oq/WhoKijs5F2KOwhLA1QfVbKSv1xgpoS9UEEI4gLgggC45Tkf/coz2/FE
-         5DnMuC+D69U6kptP3Rx/r5pDk+oBJE/6RyFtr5PyAgSgDZmnn6pMoACcWM+D83lhhN
-         UnNgLtO6mn3XXRD7hU9I3Jmbg3mWS4BI3FkMy//o=
+        b=beulmw67NJBWZc9eTLdIH1v5TgmJRTH44hVUmTTdiiu/Q260mQFg6t7lGXkFujP3V
+         S4ahzUbyDbX1dSsSlJ05Ah3eRXL7MTM6UHH9rpyYWcqB7sM/jLDO8rGBe7DfZUbwIu
+         YrbzjtONE+MaczR2viobtplYm6BYmrfY5MdVSz1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Chris Chiu <chris.chiu@canonical.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 322/380] ASoC: soc-pcm: protect BE dailink state changes in trigger
+Subject: [PATCH 5.14 330/432] rtl8xxxu: Fix the handling of TX A-MPDU aggregation
 Date:   Thu, 16 Sep 2021 18:01:19 +0200
-Message-Id: <20210916155814.997044148@linuxfoundation.org>
+Message-Id: <20210916155822.026530170@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,205 +40,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Chris Chiu <chris.chiu@canonical.com>
 
-[ Upstream commit 0c75fc7193387776c10f7c7b440d93496e3d5e21 ]
+[ Upstream commit 95a581ab3592082c60a08090aabe09ac7d0bd650 ]
 
-When more than one FE is connected to a BE, e.g. in a mixing use case,
-the BE can be triggered multiple times when the FE are opened/started
-concurrently. This race condition is problematic in the case of
-SoundWire BE dailinks, and this is not desirable in a general
-case. The code carefully checks when the BE can be stopped or
-hw_free'ed, but the trigger code does not use any mutual exclusion.
+The TX A-MPDU aggregation is not handled in the driver since the
+ieee80211_start_tx_ba_session has never been started properly.
+Start and stop the TX BA session by tracking the TX aggregation
+status of each TID. Fix the ampdu_action and the tx descriptor
+accordingly with the given TID.
 
-Fix by using the same spinlock already used to check FE states, and
-set the state before the trigger. In case of errors,  the initial
-state will be restored.
-
-This patch does not change how the triggers are handled, it only makes
-sure the states are handled in critical sections.
-
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-Id: <20210817164054.250028-2-pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210804151325.86600-1-chris.chiu@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 103 ++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 85 insertions(+), 18 deletions(-)
+ .../net/wireless/realtek/rtl8xxxu/rtl8xxxu.h  |  2 ++
+ .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 33 ++++++++++++++-----
+ 2 files changed, 26 insertions(+), 9 deletions(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index d1c570ca21ea..b944f56a469a 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -2001,6 +2001,8 @@ int dpcm_be_dai_trigger(struct snd_soc_pcm_runtime *fe, int stream,
- 	struct snd_soc_pcm_runtime *be;
- 	struct snd_soc_dpcm *dpcm;
- 	int ret = 0;
-+	unsigned long flags;
-+	enum snd_soc_dpcm_state state;
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
+index 01735776345a..7ddce3c3f0c4 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
+@@ -1378,6 +1378,8 @@ struct rtl8xxxu_priv {
+ 	u8 no_pape:1;
+ 	u8 int_buf[USB_INTR_CONTENT_LENGTH];
+ 	u8 rssi_level;
++	DECLARE_BITMAP(tx_aggr_started, IEEE80211_NUM_TIDS);
++	DECLARE_BITMAP(tid_tx_operational, IEEE80211_NUM_TIDS);
+ 	/*
+ 	 * Only one virtual interface permitted because only STA mode
+ 	 * is supported and no iface_combinations are provided.
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index ac1061caacd6..3285a91efb91 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -4805,6 +4805,8 @@ rtl8xxxu_fill_txdesc_v1(struct ieee80211_hw *hw, struct ieee80211_hdr *hdr,
+ 	struct ieee80211_rate *tx_rate = ieee80211_get_tx_rate(hw, tx_info);
+ 	struct rtl8xxxu_priv *priv = hw->priv;
+ 	struct device *dev = &priv->udev->dev;
++	u8 *qc = ieee80211_get_qos_ctl(hdr);
++	u8 tid = qc[0] & IEEE80211_QOS_CTL_TID_MASK;
+ 	u32 rate;
+ 	u16 rate_flags = tx_info->control.rates[0].flags;
+ 	u16 seq_number;
+@@ -4828,7 +4830,7 @@ rtl8xxxu_fill_txdesc_v1(struct ieee80211_hw *hw, struct ieee80211_hdr *hdr,
  
- 	for_each_dpcm_be(fe, stream, dpcm) {
- 		struct snd_pcm_substream *be_substream;
-@@ -2017,76 +2019,141 @@ int dpcm_be_dai_trigger(struct snd_soc_pcm_runtime *fe, int stream,
+ 	tx_desc->txdw3 = cpu_to_le32((u32)seq_number << TXDESC32_SEQ_SHIFT);
  
- 		switch (cmd) {
- 		case SNDRV_PCM_TRIGGER_START:
-+			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
- 			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_PREPARE) &&
- 			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_STOP) &&
--			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED)) {
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				continue;
-+			}
-+			state = be->dpcm[stream].state;
-+			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
-+			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
+-	if (ampdu_enable)
++	if (ampdu_enable && test_bit(tid, priv->tid_tx_operational))
+ 		tx_desc->txdw1 |= cpu_to_le32(TXDESC32_AGG_ENABLE);
+ 	else
+ 		tx_desc->txdw1 |= cpu_to_le32(TXDESC32_AGG_BREAK);
+@@ -4876,6 +4878,8 @@ rtl8xxxu_fill_txdesc_v2(struct ieee80211_hw *hw, struct ieee80211_hdr *hdr,
+ 	struct rtl8xxxu_priv *priv = hw->priv;
+ 	struct device *dev = &priv->udev->dev;
+ 	struct rtl8xxxu_txdesc40 *tx_desc40;
++	u8 *qc = ieee80211_get_qos_ctl(hdr);
++	u8 tid = qc[0] & IEEE80211_QOS_CTL_TID_MASK;
+ 	u32 rate;
+ 	u16 rate_flags = tx_info->control.rates[0].flags;
+ 	u16 seq_number;
+@@ -4902,7 +4906,7 @@ rtl8xxxu_fill_txdesc_v2(struct ieee80211_hw *hw, struct ieee80211_hdr *hdr,
  
- 			ret = soc_pcm_trigger(be_substream, cmd);
--			if (ret)
-+			if (ret) {
-+				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+				be->dpcm[stream].state = state;
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				goto end;
-+			}
+ 	tx_desc40->txdw9 = cpu_to_le32((u32)seq_number << TXDESC40_SEQ_SHIFT);
  
--			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
- 			break;
- 		case SNDRV_PCM_TRIGGER_RESUME:
--			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND))
-+			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_SUSPEND) {
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				continue;
-+			}
+-	if (ampdu_enable)
++	if (ampdu_enable && test_bit(tid, priv->tid_tx_operational))
+ 		tx_desc40->txdw2 |= cpu_to_le32(TXDESC40_AGG_ENABLE);
+ 	else
+ 		tx_desc40->txdw2 |= cpu_to_le32(TXDESC40_AGG_BREAK);
+@@ -5015,12 +5019,19 @@ static void rtl8xxxu_tx(struct ieee80211_hw *hw,
+ 	if (ieee80211_is_data_qos(hdr->frame_control) && sta) {
+ 		if (sta->ht_cap.ht_supported) {
+ 			u32 ampdu, val32;
++			u8 *qc = ieee80211_get_qos_ctl(hdr);
++			u8 tid = qc[0] & IEEE80211_QOS_CTL_TID_MASK;
+ 
+ 			ampdu = (u32)sta->ht_cap.ampdu_density;
+ 			val32 = ampdu << TXDESC_AMPDU_DENSITY_SHIFT;
+ 			tx_desc->txdw2 |= cpu_to_le32(val32);
+ 
+ 			ampdu_enable = true;
 +
-+			state = be->dpcm[stream].state;
-+			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
-+			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 
- 			ret = soc_pcm_trigger(be_substream, cmd);
--			if (ret)
-+			if (ret) {
-+				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+				be->dpcm[stream].state = state;
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				goto end;
-+			}
- 
--			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
- 			break;
- 		case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
--			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
-+			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED) {
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				continue;
-+			}
-+
-+			state = be->dpcm[stream].state;
-+			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
-+			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 
- 			ret = soc_pcm_trigger(be_substream, cmd);
--			if (ret)
-+			if (ret) {
-+				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+				be->dpcm[stream].state = state;
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				goto end;
-+			}
- 
--			be->dpcm[stream].state = SND_SOC_DPCM_STATE_START;
- 			break;
- 		case SNDRV_PCM_TRIGGER_STOP:
-+			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
- 			if ((be->dpcm[stream].state != SND_SOC_DPCM_STATE_START) &&
--			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED))
-+			    (be->dpcm[stream].state != SND_SOC_DPCM_STATE_PAUSED)) {
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				continue;
-+			}
-+			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 
- 			if (!snd_soc_dpcm_can_be_free_stop(fe, be, stream))
- 				continue;
- 
-+			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+			state = be->dpcm[stream].state;
-+			be->dpcm[stream].state = SND_SOC_DPCM_STATE_STOP;
-+			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
-+
- 			ret = soc_pcm_trigger(be_substream, cmd);
--			if (ret)
-+			if (ret) {
-+				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+				be->dpcm[stream].state = state;
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				goto end;
-+			}
- 
--			be->dpcm[stream].state = SND_SOC_DPCM_STATE_STOP;
- 			break;
- 		case SNDRV_PCM_TRIGGER_SUSPEND:
--			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START)
-+			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START) {
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				continue;
-+			}
-+			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 
- 			if (!snd_soc_dpcm_can_be_free_stop(fe, be, stream))
- 				continue;
- 
-+			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+			state = be->dpcm[stream].state;
-+			be->dpcm[stream].state = SND_SOC_DPCM_STATE_STOP;
-+			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
-+
- 			ret = soc_pcm_trigger(be_substream, cmd);
--			if (ret)
-+			if (ret) {
-+				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+				be->dpcm[stream].state = state;
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				goto end;
-+			}
- 
--			be->dpcm[stream].state = SND_SOC_DPCM_STATE_SUSPEND;
- 			break;
- 		case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
--			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START)
-+			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+			if (be->dpcm[stream].state != SND_SOC_DPCM_STATE_START) {
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				continue;
-+			}
-+			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 
- 			if (!snd_soc_dpcm_can_be_free_stop(fe, be, stream))
- 				continue;
- 
-+			spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+			state = be->dpcm[stream].state;
-+			be->dpcm[stream].state = SND_SOC_DPCM_STATE_PAUSED;
-+			spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
-+
- 			ret = soc_pcm_trigger(be_substream, cmd);
--			if (ret)
-+			if (ret) {
-+				spin_lock_irqsave(&fe->card->dpcm_lock, flags);
-+				be->dpcm[stream].state = state;
-+				spin_unlock_irqrestore(&fe->card->dpcm_lock, flags);
- 				goto end;
-+			}
- 
--			be->dpcm[stream].state = SND_SOC_DPCM_STATE_PAUSED;
- 			break;
++			if (!test_bit(tid, priv->tx_aggr_started) &&
++			    !(skb->protocol == cpu_to_be16(ETH_P_PAE)))
++				if (!ieee80211_start_tx_ba_session(sta, tid, 0))
++					set_bit(tid, priv->tx_aggr_started);
  		}
  	}
+ 
+@@ -6096,6 +6107,7 @@ rtl8xxxu_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 	struct device *dev = &priv->udev->dev;
+ 	u8 ampdu_factor, ampdu_density;
+ 	struct ieee80211_sta *sta = params->sta;
++	u16 tid = params->tid;
+ 	enum ieee80211_ampdu_mlme_action action = params->action;
+ 
+ 	switch (action) {
+@@ -6108,17 +6120,20 @@ rtl8xxxu_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+ 		dev_dbg(dev,
+ 			"Changed HT: ampdu_factor %02x, ampdu_density %02x\n",
+ 			ampdu_factor, ampdu_density);
+-		break;
++		return IEEE80211_AMPDU_TX_START_IMMEDIATE;
++	case IEEE80211_AMPDU_TX_STOP_CONT:
+ 	case IEEE80211_AMPDU_TX_STOP_FLUSH:
+-		dev_dbg(dev, "%s: IEEE80211_AMPDU_TX_STOP_FLUSH\n", __func__);
+-		rtl8xxxu_set_ampdu_factor(priv, 0);
+-		rtl8xxxu_set_ampdu_min_space(priv, 0);
+-		break;
+ 	case IEEE80211_AMPDU_TX_STOP_FLUSH_CONT:
+-		dev_dbg(dev, "%s: IEEE80211_AMPDU_TX_STOP_FLUSH_CONT\n",
+-			 __func__);
++		dev_dbg(dev, "%s: IEEE80211_AMPDU_TX_STOP\n", __func__);
+ 		rtl8xxxu_set_ampdu_factor(priv, 0);
+ 		rtl8xxxu_set_ampdu_min_space(priv, 0);
++		clear_bit(tid, priv->tx_aggr_started);
++		clear_bit(tid, priv->tid_tx_operational);
++		ieee80211_stop_tx_ba_cb_irqsafe(vif, sta->addr, tid);
++		break;
++	case IEEE80211_AMPDU_TX_OPERATIONAL:
++		dev_dbg(dev, "%s: IEEE80211_AMPDU_TX_OPERATIONAL\n", __func__);
++		set_bit(tid, priv->tid_tx_operational);
+ 		break;
+ 	case IEEE80211_AMPDU_RX_START:
+ 		dev_dbg(dev, "%s: IEEE80211_AMPDU_RX_START\n", __func__);
 -- 
 2.30.2
 
