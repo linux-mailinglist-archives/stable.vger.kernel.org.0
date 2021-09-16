@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 853C340E708
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6AE640E03B
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351154AbhIPR1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:27:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46966 "EHLO mail.kernel.org"
+        id S234653AbhIPQUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348339AbhIPRZw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:25:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28EA761350;
-        Thu, 16 Sep 2021 16:44:48 +0000 (UTC)
+        id S240834AbhIPQRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:17:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 370776136A;
+        Thu, 16 Sep 2021 16:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810689;
-        bh=RbQK7DXt1AUNw7ujUS0IVL77fwIheGxdH1R23y+YR30=;
+        s=korg; t=1631808742;
+        bh=1U7V6Bj9L8VOn+hJXISyjw7MmPlFXuWObey8GMQ2gtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YOGG54b4DpHrkHN9fUj5FDxX/0ygLFZFVV21gkNu9PVFygm5/Wyav0/pDqEY33xg3
-         k7DJvd87AEQY3b3ZUgbud7VuJ/X7UHWgIMNPZUxY0D8BA/p0+XyU0jKxmcBdCFXei8
-         yqcpBa3s6PCiXSOP+alXAaEbywPieoJYE1ANHTN0=
+        b=dUOfEo+jcThwFbgjma+4Qxdwq7RV0VAAI2+g1U55lPQBXz9UB023RcvsJF+0QAvTY
+         dp/ecc1gG3LehzDSiT8IbQq9fTjoYohoFnVbxtKgcXGcPACk9BKsk5jTL/d+IbntP+
+         K83h43/8KQJANrhyh+swE+xCfQJXm9u7nUaVt6QU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
+        Anson Jacob <Anson.Jacob@amd.com>, Roy Chan <roy.chan@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 200/432] staging: hisilicon,hi6421-spmi-pmic.yaml: fix patternProperties
+Subject: [PATCH 5.10 204/306] drm/amd/display: fix incorrect CM/TF programming sequence in dwb
 Date:   Thu, 16 Sep 2021 17:59:09 +0200
-Message-Id: <20210916155817.588173520@linuxfoundation.org>
+Message-Id: <20210916155801.004701630@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +42,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Roy Chan <roy.chan@amd.com>
 
-[ Upstream commit 334201d503d5903f38f6e804263fc291ce8f451a ]
+[ Upstream commit 781e1e23131cce56fb557e6ec2260480a6bd08cc ]
 
-The regex at the patternProperties is wrong, although this was
-not reported as the DT schema was not enforcing properties.
+[How]
+the programming sequeune was for old asic.
+the correct programming sequeunce should be similar to the one
+used in mpc. the fix is copied from the mpc programming sequeunce.
 
-Fix it.
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Link: https://lore.kernel.org/r/46b2f30df235481cb1404913380e45706dfd8253.1626515862.git.mchehab+huawei@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Signed-off-by: Roy Chan <roy.chan@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ .../drm/amd/display/dc/dcn30/dcn30_dwb_cm.c   | 90 +++++++++++++------
+ 1 file changed, 64 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml b/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml
-index 8e355cddd437..6c348578e4a2 100644
---- a/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml
-+++ b/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml
-@@ -41,6 +41,8 @@ properties:
-   regulators:
-     type: object
- 
-+    additionalProperties: false
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c
+index 8593145379d9..6d621f07be48 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c
+@@ -49,6 +49,11 @@
+ static void dwb3_get_reg_field_ogam(struct dcn30_dwbc *dwbc30,
+ 	struct dcn3_xfer_func_reg *reg)
+ {
++	reg->shifts.field_region_start_base = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_BASE_B;
++	reg->masks.field_region_start_base = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_START_BASE_B;
++	reg->shifts.field_offset = dwbc30->dwbc_shift->DWB_OGAM_RAMA_OFFSET_B;
++	reg->masks.field_offset = dwbc30->dwbc_mask->DWB_OGAM_RAMA_OFFSET_B;
 +
-     properties:
-       '#address-cells':
-         const: 1
-@@ -49,11 +51,13 @@ properties:
-         const: 0
+ 	reg->shifts.exp_region0_lut_offset = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION0_LUT_OFFSET;
+ 	reg->masks.exp_region0_lut_offset = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION0_LUT_OFFSET;
+ 	reg->shifts.exp_region0_num_segments = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION0_NUM_SEGMENTS;
+@@ -66,8 +71,6 @@ static void dwb3_get_reg_field_ogam(struct dcn30_dwbc *dwbc30,
+ 	reg->masks.field_region_end_base = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_END_BASE_B;
+ 	reg->shifts.field_region_linear_slope = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_SLOPE_B;
+ 	reg->masks.field_region_linear_slope = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_START_SLOPE_B;
+-	reg->masks.field_offset = dwbc30->dwbc_mask->DWB_OGAM_RAMA_OFFSET_B;
+-	reg->shifts.field_offset = dwbc30->dwbc_shift->DWB_OGAM_RAMA_OFFSET_B;
+ 	reg->shifts.exp_region_start = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_B;
+ 	reg->masks.exp_region_start = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_START_B;
+ 	reg->shifts.exp_resion_start_segment = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_SEGMENT_B;
+@@ -147,18 +150,19 @@ static enum dc_lut_mode dwb3_get_ogam_current(
+ 	uint32_t state_mode;
+ 	uint32_t ram_select;
  
-     patternProperties:
--      '^ldo[0-9]+@[0-9a-f]$':
-+      '^(ldo|LDO)[0-9]+$':
-         type: object
+-	REG_GET(DWB_OGAM_CONTROL,
+-		DWB_OGAM_MODE, &state_mode);
+-	REG_GET(DWB_OGAM_CONTROL,
+-		DWB_OGAM_SELECT, &ram_select);
++	REG_GET_2(DWB_OGAM_CONTROL,
++		DWB_OGAM_MODE_CURRENT, &state_mode,
++		DWB_OGAM_SELECT_CURRENT, &ram_select);
  
-         $ref: "/schemas/regulator/regulator.yaml#"
- 
-+        unevaluatedProperties: false
+ 	if (state_mode == 0) {
+ 		mode = LUT_BYPASS;
+ 	} else if (state_mode == 2) {
+ 		if (ram_select == 0)
+ 			mode = LUT_RAM_A;
+-		else
++		else if (ram_select == 1)
+ 			mode = LUT_RAM_B;
++		else
++			mode = LUT_BYPASS;
+ 	} else {
+ 		// Reserved value
+ 		mode = LUT_BYPASS;
+@@ -172,10 +176,10 @@ static void dwb3_configure_ogam_lut(
+ 	struct dcn30_dwbc *dwbc30,
+ 	bool is_ram_a)
+ {
+-	REG_UPDATE(DWB_OGAM_LUT_CONTROL,
+-		DWB_OGAM_LUT_READ_COLOR_SEL, 7);
+-	REG_UPDATE(DWB_OGAM_CONTROL,
+-		DWB_OGAM_SELECT, is_ram_a == true ? 0 : 1);
++	REG_UPDATE_2(DWB_OGAM_LUT_CONTROL,
++		DWB_OGAM_LUT_WRITE_COLOR_MASK, 7,
++		DWB_OGAM_LUT_HOST_SEL, (is_ram_a == true) ? 0 : 1);
 +
- required:
-   - compatible
-   - reg
+ 	REG_SET(DWB_OGAM_LUT_INDEX, 0, DWB_OGAM_LUT_INDEX, 0);
+ }
+ 
+@@ -185,17 +189,45 @@ static void dwb3_program_ogam_pwl(struct dcn30_dwbc *dwbc30,
+ {
+ 	uint32_t i;
+ 
+-    // triple base implementation
+-	for (i = 0; i < num/2; i++) {
+-		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+0].red_reg);
+-		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+0].green_reg);
+-		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+0].blue_reg);
+-		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+1].red_reg);
+-		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+1].green_reg);
+-		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+1].blue_reg);
+-		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+2].red_reg);
+-		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+2].green_reg);
+-		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+2].blue_reg);
++	uint32_t last_base_value_red = rgb[num-1].red_reg + rgb[num-1].delta_red_reg;
++	uint32_t last_base_value_green = rgb[num-1].green_reg + rgb[num-1].delta_green_reg;
++	uint32_t last_base_value_blue = rgb[num-1].blue_reg + rgb[num-1].delta_blue_reg;
++
++	if (is_rgb_equal(rgb,  num)) {
++		for (i = 0 ; i < num; i++)
++			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].red_reg);
++
++		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_red);
++
++	} else {
++
++		REG_UPDATE(DWB_OGAM_LUT_CONTROL,
++				DWB_OGAM_LUT_WRITE_COLOR_MASK, 4);
++
++		for (i = 0 ; i < num; i++)
++			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].red_reg);
++
++		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_red);
++
++		REG_SET(DWB_OGAM_LUT_INDEX, 0, DWB_OGAM_LUT_INDEX, 0);
++
++		REG_UPDATE(DWB_OGAM_LUT_CONTROL,
++				DWB_OGAM_LUT_WRITE_COLOR_MASK, 2);
++
++		for (i = 0 ; i < num; i++)
++			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].green_reg);
++
++		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_green);
++
++		REG_SET(DWB_OGAM_LUT_INDEX, 0, DWB_OGAM_LUT_INDEX, 0);
++
++		REG_UPDATE(DWB_OGAM_LUT_CONTROL,
++				DWB_OGAM_LUT_WRITE_COLOR_MASK, 1);
++
++		for (i = 0 ; i < num; i++)
++			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].blue_reg);
++
++		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_blue);
+ 	}
+ }
+ 
+@@ -211,6 +243,8 @@ static bool dwb3_program_ogam_lut(
+ 		return false;
+ 	}
+ 
++	REG_SET(DWB_OGAM_CONTROL, 0, DWB_OGAM_MODE, 2);
++
+ 	current_mode = dwb3_get_ogam_current(dwbc30);
+ 	if (current_mode == LUT_BYPASS || current_mode == LUT_RAM_A)
+ 		next_mode = LUT_RAM_B;
+@@ -227,8 +261,7 @@ static bool dwb3_program_ogam_lut(
+ 	dwb3_program_ogam_pwl(
+ 		dwbc30, params->rgb_resulted, params->hw_points_num);
+ 
+-	REG_SET(DWB_OGAM_CONTROL, 0, DWB_OGAM_MODE, 2);
+-	REG_SET(DWB_OGAM_CONTROL, 0, DWB_OGAM_SELECT, next_mode == LUT_RAM_A ? 0 : 1);
++	REG_UPDATE(DWB_OGAM_CONTROL, DWB_OGAM_SELECT, next_mode == LUT_RAM_A ? 0 : 1);
+ 
+ 	return true;
+ }
+@@ -271,14 +304,19 @@ static void dwb3_program_gamut_remap(
+ 
+ 	struct color_matrices_reg gam_regs;
+ 
+-	REG_UPDATE(DWB_GAMUT_REMAP_COEF_FORMAT, DWB_GAMUT_REMAP_COEF_FORMAT, coef_format);
+-
+ 	if (regval == NULL || select == CM_GAMUT_REMAP_MODE_BYPASS) {
+ 		REG_SET(DWB_GAMUT_REMAP_MODE, 0,
+ 				DWB_GAMUT_REMAP_MODE, 0);
+ 		return;
+ 	}
+ 
++	REG_UPDATE(DWB_GAMUT_REMAP_COEF_FORMAT, DWB_GAMUT_REMAP_COEF_FORMAT, coef_format);
++
++	gam_regs.shifts.csc_c11 = dwbc30->dwbc_shift->DWB_GAMUT_REMAPA_C11;
++	gam_regs.masks.csc_c11  = dwbc30->dwbc_mask->DWB_GAMUT_REMAPA_C11;
++	gam_regs.shifts.csc_c12 = dwbc30->dwbc_shift->DWB_GAMUT_REMAPA_C12;
++	gam_regs.masks.csc_c12 = dwbc30->dwbc_mask->DWB_GAMUT_REMAPA_C12;
++
+ 	switch (select) {
+ 	case CM_GAMUT_REMAP_MODE_RAMA_COEFF:
+ 		gam_regs.csc_c11_c12 = REG(DWB_GAMUT_REMAPA_C11_C12);
 -- 
 2.30.2
 
