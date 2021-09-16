@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C113440E821
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D87340E4A2
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350445AbhIPRn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:43:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54172 "EHLO mail.kernel.org"
+        id S1343918AbhIPREz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:04:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354455AbhIPRkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:40:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A96A6324C;
-        Thu, 16 Sep 2021 16:51:12 +0000 (UTC)
+        id S1347305AbhIPQ6p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:58:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E270C61AEC;
+        Thu, 16 Sep 2021 16:32:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811073;
-        bh=C56UGu/jYrwM6Jfi/51pH9IQNP0Jn9eLUHEN3yNrW1s=;
+        s=korg; t=1631809924;
+        bh=v2eAQalN9+dq+alzkTjatiitCku3D0+kDsMpTGOhSng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8JknqDBrahh5B375RUB9OZZN2r83cu3tS/fQNKIKXsfTOZK7j097fG9ebcVdm6Hl
-         oQux2aKAjYnQRNmMg0ACh94nwd7uiB3icyr0qxhQD5VCm3AxmAhfJTcuH5rfvr9XuF
-         2q/xUskctjTuBuug6dWm5lSwRFEtm5GuT1sZT3Rs=
+        b=z/QlFndIrW3w71FtQwBlkQgQCJxfR1gLmZyLgjLxax97edsglf9aa5EWC1R5oshLG
+         EoDj015uJX81elgXiPdHZ0dEoXW5jRWYjDqotwt0E7iUvGdl6XnTLWwJeTo7cBc0gg
+         d6XU8ZiNtKqjw5rv8LVC9LPD/TjzgSBLB8lgnhac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 341/432] of: Dont allow __of_attached_node_sysfs() without CONFIG_SYSFS
+        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 333/380] iwlwifi: mvm: Fix scan channel flags settings
 Date:   Thu, 16 Sep 2021 18:01:30 +0200
-Message-Id: <20210916155822.394357744@linuxfoundation.org>
+Message-Id: <20210916155815.378419945@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Ilan Peer <ilan.peer@intel.com>
 
-[ Upstream commit 6211e9cb2f8faf7faae0b6caf844bfe9527cc607 ]
+[ Upstream commit 090f1be3abf3069ef856b29761f181808bf55917 ]
 
-Trying to boot without SYSFS, but with OF_DYNAMIC quickly
-results in a crash:
+The iwl_mvm_scan_ch_n_aps_flag() is called with a variable
+before the value of the variable is set. Fix it.
 
-[    0.088460] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000070
-[...]
-[    0.103927] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.14.0-rc3 #4179
-[    0.105810] Hardware name: linux,dummy-virt (DT)
-[    0.107147] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
-[    0.108876] pc : kernfs_find_and_get_ns+0x3c/0x7c
-[    0.110244] lr : kernfs_find_and_get_ns+0x3c/0x7c
-[...]
-[    0.134087] Call trace:
-[    0.134800]  kernfs_find_and_get_ns+0x3c/0x7c
-[    0.136054]  safe_name+0x4c/0xd0
-[    0.136994]  __of_attach_node_sysfs+0xf8/0x124
-[    0.138287]  of_core_init+0x90/0xfc
-[    0.139296]  driver_init+0x30/0x4c
-[    0.140283]  kernel_init_freeable+0x160/0x1b8
-[    0.141543]  kernel_init+0x30/0x140
-[    0.142561]  ret_from_fork+0x10/0x18
-
-While not having sysfs isn't a very common option these days,
-it is still expected that such configuration would work.
-
-Paper over it by bailing out from __of_attach_node_sysfs() if
-CONFIG_SYSFS isn't enabled.
-
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210820144722.169226-1-maz@kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210826224715.f6f188980a5e.Ie7331a8b94004d308f6cbde44e519155a5be91dd@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/kobj.c | 2 +-
+ drivers/net/wireless/intel/iwlwifi/mvm/scan.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/of/kobj.c b/drivers/of/kobj.c
-index a32e60b024b8..6675b5e56960 100644
---- a/drivers/of/kobj.c
-+++ b/drivers/of/kobj.c
-@@ -119,7 +119,7 @@ int __of_attach_node_sysfs(struct device_node *np)
- 	struct property *pp;
- 	int rc;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
+index 3627de2af344..ee3aff8bf7c2 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
+@@ -1648,7 +1648,7 @@ iwl_mvm_umac_scan_cfg_channels_v6(struct iwl_mvm *mvm,
+ 		struct iwl_scan_channel_cfg_umac *cfg = &cp->channel_config[i];
+ 		u32 n_aps_flag =
+ 			iwl_mvm_scan_ch_n_aps_flag(vif_type,
+-						   cfg->v2.channel_num);
++						   channels[i]->hw_value);
  
--	if (!of_kset)
-+	if (!IS_ENABLED(CONFIG_SYSFS) || !of_kset)
- 		return 0;
- 
- 	np->kobj.kset = of_kset;
+ 		cfg->flags = cpu_to_le32(flags | n_aps_flag);
+ 		cfg->v2.channel_num = channels[i]->hw_value;
 -- 
 2.30.2
 
