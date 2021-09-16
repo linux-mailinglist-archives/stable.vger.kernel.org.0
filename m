@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3330940E61A
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8925040E2A3
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346350AbhIPRSG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:18:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39806 "EHLO mail.kernel.org"
+        id S242969AbhIPQk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:40:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243903AbhIPRP6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:15:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDC8561B60;
-        Thu, 16 Sep 2021 16:39:52 +0000 (UTC)
+        id S244476AbhIPQhK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:37:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F77D619E3;
+        Thu, 16 Sep 2021 16:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810393;
-        bh=C6i133r6PyKQNNwANIqIZ3IEpoxKmgURnPQvX53zx+o=;
+        s=korg; t=1631809328;
+        bh=ad/eJpkPgo83v6XKtkqQLqLGk297D55fUFqUu8rEHyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UjqtB+Ntx4g/TpYQqUk2VAGoM7dAIO3GhJUG93q/WyQhm+WzOjGgeE7LjoIaZn8oe
-         W0/ZDRTBRGf1mETzOt3FDO+E5y7Vv2vzygrtbuF9d120LTNLDWrRaNucw/aeclUjqy
-         wiX8FK+U3vZR8tHPmWHErM9KiouZp4lDu2t5Wo+U=
+        b=Jq1ChU50isPGAoqi32Z82c/uTr1lsqnFv5lsQV6tXelrHyXyoT61iYgpND+ey9YAy
+         oGTw8F56mpNQohGnniOynqEmYLbRP4qRor0kfvxFoB4L0EvaDP2HCRVg1ArXruikvo
+         DyJusBwGsovxS9lrGu7RTvOFAHWZcufnJCHWhrYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Sanjay Kumar <sanjay.k.kumar@intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 123/432] iommu/vt-d: Update the virtual command related registers
+        stable@vger.kernel.org, Ahmad Fatoum <a.fatoum@pengutronix.de>,
+        Abel Vesa <abel.vesa@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 115/380] clk: imx8m: fix clock tree update of TF-A managed clocks
 Date:   Thu, 16 Sep 2021 17:57:52 +0200
-Message-Id: <20210916155814.927942569@linuxfoundation.org>
+Message-Id: <20210916155807.953961123@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,69 +39,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Ahmad Fatoum <a.fatoum@pengutronix.de>
 
-[ Upstream commit 4d99efb229e63928c6b03a756a2e38cd4777fbe8 ]
+[ Upstream commit d36207b848a6490e14664e2197a1c8ab51d8148e ]
 
-The VT-d spec Revision 3.3 updated the virtual command registers, virtual
-command opcode B register, virtual command response register and virtual
-command capability register (Section 10.4.43, 10.4.44, 10.4.45, 10.4.46).
-This updates the virtual command interface implementation in the Intel
-IOMMU driver accordingly.
+On the i.MX8M*, the TF-A exposes a SiP (Silicon Provider) service
+for DDR frequency scaling. The imx8m-ddrc-devfreq driver calls the
+SiP and then does clk_set_parent on the DDR muxes to synchronize
+the clock tree.
 
-Fixes: 24f27d32ab6b7 ("iommu/vt-d: Enlightened PASID allocation")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: Sanjay Kumar <sanjay.k.kumar@intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>
-Link: https://lore.kernel.org/r/20210713042649.3547403-1-baolu.lu@linux.intel.com
-Link: https://lore.kernel.org/r/20210818134852.1847070-2-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Since 936c383673b9 ("clk: imx: fix composite peripheral flags"),
+these TF-A managed muxes have SET_PARENT_GATE set, which results
+in imx8m-ddrc-devfreq's clk_set_parent after SiP failing with -EBUSY:
+
+	echo 25000000 > userspace/set_freq
+	imx8m-ddrc-devfreq 3d400000.memory-controller: failed to set
+		dram_apb parent: -16
+
+Fix this by adding a new i.MX composite flag for firmware managed
+clocks, which clears SET_PARENT_GATE.
+
+This is safe to do, because updating the Linux clock tree to reflect
+reality will always be glitch-free.
+
+Fixes: 936c383673b9 ("clk: imx: fix composite peripheral flags")
+Signed-off-by: Ahmad Fatoum <a.fatoum@pengutronix.de>
+Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
+Link: https://lore.kernel.org/r/20210810151432.9228-1-a.fatoum@pengutronix.de
+Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/pasid.h | 10 +++++-----
- include/linux/intel-iommu.h |  6 +++---
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/clk/imx/clk-composite-8m.c |  3 ++-
+ drivers/clk/imx/clk-imx8mm.c       |  7 ++++---
+ drivers/clk/imx/clk-imx8mn.c       |  7 ++++---
+ drivers/clk/imx/clk-imx8mq.c       |  7 ++++---
+ drivers/clk/imx/clk.h              | 16 ++++++++++++++--
+ 5 files changed, 28 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/iommu/intel/pasid.h b/drivers/iommu/intel/pasid.h
-index c11bc8b833b8..d5552e2c160d 100644
---- a/drivers/iommu/intel/pasid.h
-+++ b/drivers/iommu/intel/pasid.h
-@@ -28,12 +28,12 @@
- #define VCMD_CMD_ALLOC			0x1
- #define VCMD_CMD_FREE			0x2
- #define VCMD_VRSP_IP			0x1
--#define VCMD_VRSP_SC(e)			(((e) >> 1) & 0x3)
-+#define VCMD_VRSP_SC(e)			(((e) & 0xff) >> 1)
- #define VCMD_VRSP_SC_SUCCESS		0
--#define VCMD_VRSP_SC_NO_PASID_AVAIL	2
--#define VCMD_VRSP_SC_INVALID_PASID	2
--#define VCMD_VRSP_RESULT_PASID(e)	(((e) >> 8) & 0xfffff)
--#define VCMD_CMD_OPERAND(e)		((e) << 8)
-+#define VCMD_VRSP_SC_NO_PASID_AVAIL	16
-+#define VCMD_VRSP_SC_INVALID_PASID	16
-+#define VCMD_VRSP_RESULT_PASID(e)	(((e) >> 16) & 0xfffff)
-+#define VCMD_CMD_OPERAND(e)		((e) << 16)
- /*
-  * Domain ID reserved for pasid entries programmed for first-level
-  * only and pass-through transfer modes.
-diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
-index d0fa0b31994d..05a65eb155f7 100644
---- a/include/linux/intel-iommu.h
-+++ b/include/linux/intel-iommu.h
-@@ -124,9 +124,9 @@
- #define DMAR_MTRR_PHYSMASK8_REG 0x208
- #define DMAR_MTRR_PHYSBASE9_REG 0x210
- #define DMAR_MTRR_PHYSMASK9_REG 0x218
--#define DMAR_VCCAP_REG		0xe00 /* Virtual command capability register */
--#define DMAR_VCMD_REG		0xe10 /* Virtual command register */
--#define DMAR_VCRSP_REG		0xe20 /* Virtual command response register */
-+#define DMAR_VCCAP_REG		0xe30 /* Virtual command capability register */
-+#define DMAR_VCMD_REG		0xe00 /* Virtual command register */
-+#define DMAR_VCRSP_REG		0xe10 /* Virtual command response register */
+diff --git a/drivers/clk/imx/clk-composite-8m.c b/drivers/clk/imx/clk-composite-8m.c
+index 2c309e3dc8e3..04e728538cef 100644
+--- a/drivers/clk/imx/clk-composite-8m.c
++++ b/drivers/clk/imx/clk-composite-8m.c
+@@ -216,7 +216,8 @@ struct clk_hw *imx8m_clk_hw_composite_flags(const char *name,
+ 		div->width = PCG_PREDIV_WIDTH;
+ 		divider_ops = &imx8m_clk_composite_divider_ops;
+ 		mux_ops = &clk_mux_ops;
+-		flags |= CLK_SET_PARENT_GATE;
++		if (!(composite_flags & IMX_COMPOSITE_FW_MANAGED))
++			flags |= CLK_SET_PARENT_GATE;
+ 	}
  
- #define DMAR_IQER_REG_IQEI(reg)		FIELD_GET(GENMASK_ULL(3, 0), reg)
- #define DMAR_IQER_REG_ITESID(reg)	FIELD_GET(GENMASK_ULL(47, 32), reg)
+ 	div->lock = &imx_ccm_lock;
+diff --git a/drivers/clk/imx/clk-imx8mm.c b/drivers/clk/imx/clk-imx8mm.c
+index ce7127ccddab..e92621fa8b9c 100644
+--- a/drivers/clk/imx/clk-imx8mm.c
++++ b/drivers/clk/imx/clk-imx8mm.c
+@@ -470,10 +470,11 @@ static int imx8mm_clocks_probe(struct platform_device *pdev)
+ 
+ 	/*
+ 	 * DRAM clocks are manipulated from TF-A outside clock framework.
+-	 * Mark with GET_RATE_NOCACHE to always read div value from hardware
++	 * The fw_managed helper sets GET_RATE_NOCACHE and clears SET_PARENT_GATE
++	 * as div value should always be read from hardware
+ 	 */
+-	hws[IMX8MM_CLK_DRAM_ALT] = __imx8m_clk_hw_composite("dram_alt", imx8mm_dram_alt_sels, base + 0xa000, CLK_GET_RATE_NOCACHE);
+-	hws[IMX8MM_CLK_DRAM_APB] = __imx8m_clk_hw_composite("dram_apb", imx8mm_dram_apb_sels, base + 0xa080, CLK_IS_CRITICAL | CLK_GET_RATE_NOCACHE);
++	hws[IMX8MM_CLK_DRAM_ALT] = imx8m_clk_hw_fw_managed_composite("dram_alt", imx8mm_dram_alt_sels, base + 0xa000);
++	hws[IMX8MM_CLK_DRAM_APB] = imx8m_clk_hw_fw_managed_composite_critical("dram_apb", imx8mm_dram_apb_sels, base + 0xa080);
+ 
+ 	/* IP */
+ 	hws[IMX8MM_CLK_VPU_G1] = imx8m_clk_hw_composite("vpu_g1", imx8mm_vpu_g1_sels, base + 0xa100);
+diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
+index 88f6630cd472..0a76f969b28b 100644
+--- a/drivers/clk/imx/clk-imx8mn.c
++++ b/drivers/clk/imx/clk-imx8mn.c
+@@ -453,10 +453,11 @@ static int imx8mn_clocks_probe(struct platform_device *pdev)
+ 
+ 	/*
+ 	 * DRAM clocks are manipulated from TF-A outside clock framework.
+-	 * Mark with GET_RATE_NOCACHE to always read div value from hardware
++	 * The fw_managed helper sets GET_RATE_NOCACHE and clears SET_PARENT_GATE
++	 * as div value should always be read from hardware
+ 	 */
+-	hws[IMX8MN_CLK_DRAM_ALT] = __imx8m_clk_hw_composite("dram_alt", imx8mn_dram_alt_sels, base + 0xa000, CLK_GET_RATE_NOCACHE);
+-	hws[IMX8MN_CLK_DRAM_APB] = __imx8m_clk_hw_composite("dram_apb", imx8mn_dram_apb_sels, base + 0xa080, CLK_IS_CRITICAL | CLK_GET_RATE_NOCACHE);
++	hws[IMX8MN_CLK_DRAM_ALT] = imx8m_clk_hw_fw_managed_composite("dram_alt", imx8mn_dram_alt_sels, base + 0xa000);
++	hws[IMX8MN_CLK_DRAM_APB] = imx8m_clk_hw_fw_managed_composite_critical("dram_apb", imx8mn_dram_apb_sels, base + 0xa080);
+ 
+ 	hws[IMX8MN_CLK_DISP_PIXEL] = imx8m_clk_hw_composite("disp_pixel", imx8mn_disp_pixel_sels, base + 0xa500);
+ 	hws[IMX8MN_CLK_SAI2] = imx8m_clk_hw_composite("sai2", imx8mn_sai2_sels, base + 0xa600);
+diff --git a/drivers/clk/imx/clk-imx8mq.c b/drivers/clk/imx/clk-imx8mq.c
+index c491bc9c61ce..83cc2b1c3294 100644
+--- a/drivers/clk/imx/clk-imx8mq.c
++++ b/drivers/clk/imx/clk-imx8mq.c
+@@ -449,11 +449,12 @@ static int imx8mq_clocks_probe(struct platform_device *pdev)
+ 
+ 	/*
+ 	 * DRAM clocks are manipulated from TF-A outside clock framework.
+-	 * Mark with GET_RATE_NOCACHE to always read div value from hardware
++	 * The fw_managed helper sets GET_RATE_NOCACHE and clears SET_PARENT_GATE
++	 * as div value should always be read from hardware
+ 	 */
+ 	hws[IMX8MQ_CLK_DRAM_CORE] = imx_clk_hw_mux2_flags("dram_core_clk", base + 0x9800, 24, 1, imx8mq_dram_core_sels, ARRAY_SIZE(imx8mq_dram_core_sels), CLK_IS_CRITICAL);
+-	hws[IMX8MQ_CLK_DRAM_ALT] = __imx8m_clk_hw_composite("dram_alt", imx8mq_dram_alt_sels, base + 0xa000, CLK_GET_RATE_NOCACHE);
+-	hws[IMX8MQ_CLK_DRAM_APB] = __imx8m_clk_hw_composite("dram_apb", imx8mq_dram_apb_sels, base + 0xa080, CLK_IS_CRITICAL | CLK_GET_RATE_NOCACHE);
++	hws[IMX8MQ_CLK_DRAM_ALT] = imx8m_clk_hw_fw_managed_composite("dram_alt", imx8mq_dram_alt_sels, base + 0xa000);
++	hws[IMX8MQ_CLK_DRAM_APB] = imx8m_clk_hw_fw_managed_composite_critical("dram_apb", imx8mq_dram_apb_sels, base + 0xa080);
+ 
+ 	/* IP */
+ 	hws[IMX8MQ_CLK_VPU_G1] = imx8m_clk_hw_composite("vpu_g1", imx8mq_vpu_g1_sels, base + 0xa100);
+diff --git a/drivers/clk/imx/clk.h b/drivers/clk/imx/clk.h
+index 7571603bee23..e144f983fd8c 100644
+--- a/drivers/clk/imx/clk.h
++++ b/drivers/clk/imx/clk.h
+@@ -530,8 +530,9 @@ struct clk_hw *imx_clk_hw_cpu(const char *name, const char *parent_name,
+ 		struct clk *div, struct clk *mux, struct clk *pll,
+ 		struct clk *step);
+ 
+-#define IMX_COMPOSITE_CORE	BIT(0)
+-#define IMX_COMPOSITE_BUS	BIT(1)
++#define IMX_COMPOSITE_CORE		BIT(0)
++#define IMX_COMPOSITE_BUS		BIT(1)
++#define IMX_COMPOSITE_FW_MANAGED	BIT(2)
+ 
+ struct clk_hw *imx8m_clk_hw_composite_flags(const char *name,
+ 					    const char * const *parent_names,
+@@ -567,6 +568,17 @@ struct clk_hw *imx8m_clk_hw_composite_flags(const char *name,
+ 		ARRAY_SIZE(parent_names), reg, 0, \
+ 		flags | CLK_SET_RATE_NO_REPARENT | CLK_OPS_PARENT_ENABLE)
+ 
++#define __imx8m_clk_hw_fw_managed_composite(name, parent_names, reg, flags) \
++	imx8m_clk_hw_composite_flags(name, parent_names, \
++		ARRAY_SIZE(parent_names), reg, IMX_COMPOSITE_FW_MANAGED, \
++		flags | CLK_GET_RATE_NOCACHE | CLK_SET_RATE_NO_REPARENT | CLK_OPS_PARENT_ENABLE)
++
++#define imx8m_clk_hw_fw_managed_composite(name, parent_names, reg) \
++	__imx8m_clk_hw_fw_managed_composite(name, parent_names, reg, 0)
++
++#define imx8m_clk_hw_fw_managed_composite_critical(name, parent_names, reg) \
++	__imx8m_clk_hw_fw_managed_composite(name, parent_names, reg, CLK_IS_CRITICAL)
++
+ #define __imx8m_clk_composite(name, parent_names, reg, flags) \
+ 	to_clk(__imx8m_clk_hw_composite(name, parent_names, reg, flags))
+ 
 -- 
 2.30.2
 
