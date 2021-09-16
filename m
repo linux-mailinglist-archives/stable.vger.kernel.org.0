@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9567440E1D5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:14:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A831A40DEFF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242452AbhIPQbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:31:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38452 "EHLO mail.kernel.org"
+        id S240480AbhIPQF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:05:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242902AbhIPQ3q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:29:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A2EF611F2;
-        Thu, 16 Sep 2021 16:18:52 +0000 (UTC)
+        id S240620AbhIPQFp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:05:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A52A761246;
+        Thu, 16 Sep 2021 16:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809132;
-        bh=LgAGABJRu0L/gu7ZDEYzHPvx4XHTMX5WAmzcbxqprmg=;
+        s=korg; t=1631808265;
+        bh=UlY3x+vZKcnWLlGZtmBg7a8mzcI8D5G2GETGjXCfOtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OSiC+oMX8xLSEPSQmRfxcTXtCMLil1S2WwR8elXDQT95ux/8XpKZQKqlU54T7llRI
-         vJkbn6dfGBSNfy5X+0ORfUw2Noee6pqmwIJNXVgjptSRe74KZlRa0rHEWL8j4qX/nx
-         4HNo3pNRWfqmxvDwq3+M96TSu3J7qtZN8Uu+SYCk=
+        b=I+x5M44PkwovJ4qITHSOuX5BTXKSPPEyy48MTimanvvDUum5W+bt0OBdKS0b4ZiA6
+         7y1c6bSzsNUpubV3Y512BArCqsQkO4IZIJ+C+0N5c9Nov47XMvTkVS5XKKtFaU6sbo
+         g4ANwRZAsPkUU6dmytLSKrjnOnp1nTmbr15/+//o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Aravind Ramesh <aravind.ramesh@wdc.com>,
-        Adam Manzanares <a.manzanares@samsung.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 010/380] blk-zoned: allow zone management send operations without CAP_SYS_ADMIN
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
+        <zhouyanjie@wanyeetech.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.10 022/306] pinctrl: ingenic: Fix incorrect pull up/down info
 Date:   Thu, 16 Sep 2021 17:56:07 +0200
-Message-Id: <20210916155804.323506315@linuxfoundation.org>
+Message-Id: <20210916155754.692676206@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit ead3b768bb51259e3a5f2287ff5fc9041eb6f450 upstream.
+commit d5e931403942b3af39212960c2592b5ba741b2bf upstream.
 
-Zone management send operations (BLKRESETZONE, BLKOPENZONE, BLKCLOSEZONE
-and BLKFINISHZONE) should be allowed under the same permissions as write().
-(write() does not require CAP_SYS_ADMIN).
+Fix the pull up/down info for both the JZ4760 and JZ4770 SoCs, as the
+previous values sometimes contradicted what's written in the programming
+manual.
 
-Additionally, other ioctls like BLKSECDISCARD and BLKZEROOUT only check if
-the fd was successfully opened with FMODE_WRITE.
-(They do not require CAP_SYS_ADMIN).
-
-Currently, zone management send operations require both CAP_SYS_ADMIN
-and that the fd was successfully opened with FMODE_WRITE.
-
-Remove the CAP_SYS_ADMIN requirement, so that zone management send
-operations match the access control requirement of write(), BLKSECDISCARD
-and BLKZEROOUT.
-
-Fixes: 3ed05a987e0f ("blk-zoned: implement ioctls")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Aravind Ramesh <aravind.ramesh@wdc.com>
-Reviewed-by: Adam Manzanares <a.manzanares@samsung.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Cc: stable@vger.kernel.org # v4.10+
-Link: https://lore.kernel.org/r/20210811110505.29649-2-Niklas.Cassel@wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: b5c23aa46537 ("pinctrl: add a pinctrl driver for the Ingenic jz47xx SoCs")
+Cc: <stable@vger.kernel.org> # v4.12
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Tested-by: 周琰杰 (Zhou Yanjie)<zhouyanjie@wanyeetech.com>
+Link: https://lore.kernel.org/r/20210717174836.14776-1-paul@crapouillou.net
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-zoned.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/pinctrl/pinctrl-ingenic.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/block/blk-zoned.c
-+++ b/block/blk-zoned.c
-@@ -349,9 +349,6 @@ int blkdev_zone_mgmt_ioctl(struct block_
- 	if (!blk_queue_is_zoned(q))
- 		return -ENOTTY;
+--- a/drivers/pinctrl/pinctrl-ingenic.c
++++ b/drivers/pinctrl/pinctrl-ingenic.c
+@@ -363,7 +363,7 @@ static const struct ingenic_chip_info jz
+ };
  
--	if (!capable(CAP_SYS_ADMIN))
--		return -EACCES;
--
- 	if (!(mode & FMODE_WRITE))
- 		return -EBADF;
+ static const u32 jz4760_pull_ups[6] = {
+-	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0xfffff00f,
++	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0x0000000f,
+ };
  
+ static const u32 jz4760_pull_downs[6] = {
+@@ -618,11 +618,11 @@ static const struct ingenic_chip_info jz
+ };
+ 
+ static const u32 jz4770_pull_ups[6] = {
+-	0x3fffffff, 0xfff0030c, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0xffa7f00f,
++	0x3fffffff, 0xfff0f3fc, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0x0024f00f,
+ };
+ 
+ static const u32 jz4770_pull_downs[6] = {
+-	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x00580ff0,
++	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x005b0ff0,
+ };
+ 
+ static int jz4770_uart0_data_pins[] = { 0xa0, 0xa3, };
 
 
