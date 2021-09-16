@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F329240E2E3
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BE1340E69B
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243159AbhIPQmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:42:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S1347439AbhIPRWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:22:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245524AbhIPQkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:40:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EF4961501;
-        Thu, 16 Sep 2021 16:23:57 +0000 (UTC)
+        id S1352226AbhIPRUu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:20:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9D5B61B9F;
+        Thu, 16 Sep 2021 16:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809438;
-        bh=vL1tCi+P8oHoCWquG29pMGeUOGlw7/g0zHRAzDDPO2Q=;
+        s=korg; t=1631810545;
+        bh=qgrvvbgVxAgBnFAp5WVpU5JvVXZIGj1Kxl6i3UuX4rA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPjcW6eEYQvToo/+wIllTOb4MIw4RYnu5P11EdXBTTtdV/atHV5MASXhus1B/bCe6
-         IcdGUUKzjuI4+aSGEpZa3GvkuwmmfHO1n4GZbTmLDpzhtT1mI5oudA+wF5bp3DlV5B
-         M5cz9vEg2OhsOVY1A5LNXOadVsbv1J0JW2M1qjYo=
+        b=jV1tACSBzIm2OGFCZv4H8TONJZhQ2a5C2MmVyooszBjJsUCwoSWCoZ00zYD/4m1tQ
+         yIZVxuIeUxo6+Dsfp+pnalUpkV/4v7XkzMD1yUUa34F0IKAACw4HtaVbQUvTvBNn2i
+         Ic4a+E2CFY0oZuvASbJvx6tpJvUPsfmR4wD6xe0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Alexander Deucher <Alexander.Deucher@amd.com>,
+        John Clements <john.clements@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Luben Tuikov <luben.tuikov@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 155/380] net: phy: Fix data type in DP83822 dp8382x_disable_wol()
+Subject: [PATCH 5.14 163/432] drm/amdgpu: Fix koops when accessing RAS EEPROM
 Date:   Thu, 16 Sep 2021 17:58:32 +0200
-Message-Id: <20210916155809.343387376@linuxfoundation.org>
+Message-Id: <20210916155816.273246131@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Luben Tuikov <luben.tuikov@amd.com>
 
-[ Upstream commit 0d6835ffe50c9c1f098b5704394331710b67af48 ]
+[ Upstream commit 1d9d2ca85b32605ac9c74c8fa42d0c1cfbe019d4 ]
 
-The last argument of phy_clear_bits_mmd(..., u16 val); is u16 and not
-int, just inline the value into the function call arguments.
+Debugfs RAS EEPROM files are available when
+the ASIC supports RAS, and when the debugfs is
+enabled, an also when "ras_enable" module
+parameter is set to 0. However in this case,
+we get a kernel oops when accessing some of
+the "ras_..." controls in debugfs. The reason
+for this is that struct amdgpu_ras::adev is
+unset. This commit sets it, thus enabling access
+to those facilities. Note that this facilitates
+EEPROM access and not necessarily RAS features or
+functionality.
 
-No functional change.
-
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Alexander Deucher <Alexander.Deucher@amd.com>
+Cc: John Clements <john.clements@amd.com>
+Cc: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
+Acked-by: Alexander Deucher <Alexander.Deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/dp83822.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/phy/dp83822.c b/drivers/net/phy/dp83822.c
-index f7a2ec150e54..211b5476a6f5 100644
---- a/drivers/net/phy/dp83822.c
-+++ b/drivers/net/phy/dp83822.c
-@@ -326,11 +326,9 @@ static irqreturn_t dp83822_handle_interrupt(struct phy_device *phydev)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
+index fc66aca28594..95d5842385b3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
+@@ -1966,11 +1966,20 @@ int amdgpu_ras_recovery_init(struct amdgpu_device *adev)
+ 	bool exc_err_limit = false;
+ 	int ret;
  
- static int dp8382x_disable_wol(struct phy_device *phydev)
- {
--	int value = DP83822_WOL_EN | DP83822_WOL_MAGIC_EN |
--		    DP83822_WOL_SECURE_ON;
--
--	return phy_clear_bits_mmd(phydev, DP83822_DEVADDR,
--				  MII_DP83822_WOL_CFG, value);
-+	return phy_clear_bits_mmd(phydev, DP83822_DEVADDR, MII_DP83822_WOL_CFG,
-+				  DP83822_WOL_EN | DP83822_WOL_MAGIC_EN |
-+				  DP83822_WOL_SECURE_ON);
- }
+-	if (adev->ras_enabled && con)
+-		data = &con->eh_data;
+-	else
++	if (!con)
++		return 0;
++
++	/* Allow access to RAS EEPROM via debugfs, when the ASIC
++	 * supports RAS and debugfs is enabled, but when
++	 * adev->ras_enabled is unset, i.e. when "ras_enable"
++	 * module parameter is set to 0.
++	 */
++	con->adev = adev;
++
++	if (!adev->ras_enabled)
+ 		return 0;
  
- static int dp83822_read_status(struct phy_device *phydev)
++	data = &con->eh_data;
+ 	*data = kmalloc(sizeof(**data), GFP_KERNEL | __GFP_ZERO);
+ 	if (!*data) {
+ 		ret = -ENOMEM;
+@@ -1980,7 +1989,6 @@ int amdgpu_ras_recovery_init(struct amdgpu_device *adev)
+ 	mutex_init(&con->recovery_lock);
+ 	INIT_WORK(&con->recovery_work, amdgpu_ras_do_recovery);
+ 	atomic_set(&con->in_recovery, 0);
+-	con->adev = adev;
+ 
+ 	max_eeprom_records_len = amdgpu_ras_eeprom_get_record_max_length();
+ 	amdgpu_ras_validate_threshold(adev, max_eeprom_records_len);
 -- 
 2.30.2
 
