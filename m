@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D784D40E846
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2E2340E4E6
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353529AbhIPRoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53746 "EHLO mail.kernel.org"
+        id S245203AbhIPRGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:06:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354954AbhIPRkw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:40:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DBAA615E1;
-        Thu, 16 Sep 2021 16:51:34 +0000 (UTC)
+        id S1348494AbhIPRC7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:02:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64BBA61B07;
+        Thu, 16 Sep 2021 16:33:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811095;
-        bh=6GYGAVk2gYlgVH3/XQYaDlJTce6H+5zqR3EON9Hy2B4=;
+        s=korg; t=1631810039;
+        bh=FTf3K/JKJ0hcEr1SMGEyFjuVjasRrN9mn+7lq2PWXUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQJI58m+FMx/ApPtQuzVeSLTeswV76kzulSaOO6YtRc23UyxFnJbe1K8c+p/pG/+d
-         j2aqXr7wXOQlb977gQ/mTuDfPFXPlq/R/HUdtb1rx849zP/pZOhC96Hd6nO9XkBUJS
-         DdNRXkyiCOFyoOBOeA2XVj5Kh2rCTRjTtjB2ILto=
+        b=dA6w6uZnwU3BDeUw5orwaqUJ+BMzmnkzzGUb4jCGNCJXgRvzPEFG6zW4sz86RIoad
+         M3njtyLk5Bs7NHabm7Y+zdKdB6CT0exDAqoSE9ewXnzgOSfULlHRG3pz5tiWlMUvh3
+         2wAtM/HUQOiWo0Jekks0X3k5LF5KHrt0EmJulbDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 382/432] parport: remove non-zero check on count
-Date:   Thu, 16 Sep 2021 18:02:11 +0200
-Message-Id: <20210916155823.759896523@linuxfoundation.org>
+        stable@vger.kernel.org, "Jerry (Fangzhi) Zuo" <Jerry.Zuo@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.13 375/380] drm/amd/display: Update bounding box states (v2)
+Date:   Thu, 16 Sep 2021 18:02:12 +0200
+Message-Id: <20210916155816.807624961@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Jerry (Fangzhi) Zuo <Jerry.Zuo@amd.com>
 
-[ Upstream commit 0be883a0d795d9146f5325de582584147dd0dcdc ]
+commit a7a9d11e12fcc32160d55e8612e72e5ab51b15dc upstream.
 
-The check for count appears to be incorrect since a non-zero count
-check occurs a couple of statements earlier. Currently the check is
-always false and the dev->port->irq != PARPORT_IRQ_NONE part of the
-check is never tested and the if statement is dead-code. Fix this
-by removing the check on count.
+[Why]
+Drop hardcoded dispclk, dppclk, phyclk
 
-Note that this code is pre-git history, so I can't find a sha for
-it.
+[How]
+Read the corresponding values from clock table entries already populated.
 
-Acked-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Addresses-Coverity: ("Logically dead code")
-Link: https://lore.kernel.org/r/20210730100710.27405-1-colin.king@canonical.com
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1403
+Cc: stable@vger.kernel.org
+Signed-off-by: Jerry (Fangzhi) Zuo <Jerry.Zuo@amd.com>
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parport/ieee1284_ops.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c |   41 +++++++++++++-----
+ 1 file changed, 31 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/parport/ieee1284_ops.c b/drivers/parport/ieee1284_ops.c
-index 2c11bd3fe1fd..17061f1df0f4 100644
---- a/drivers/parport/ieee1284_ops.c
-+++ b/drivers/parport/ieee1284_ops.c
-@@ -518,7 +518,7 @@ size_t parport_ieee1284_ecp_read_data (struct parport *port,
- 				goto out;
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
+@@ -2398,16 +2398,37 @@ void dcn30_update_bw_bounding_box(struct
+ 	dc->dml.soc.dispclk_dppclk_vco_speed_mhz = dc->clk_mgr->dentist_vco_freq_khz / 1000.0;
  
- 			/* Yield the port for a while. */
--			if (count && dev->port->irq != PARPORT_IRQ_NONE) {
-+			if (dev->port->irq != PARPORT_IRQ_NONE) {
- 				parport_release (dev);
- 				schedule_timeout_interruptible(msecs_to_jiffies(40));
- 				parport_claim_or_block (dev);
--- 
-2.30.2
-
+ 	if (bw_params->clk_table.entries[0].memclk_mhz) {
++		int max_dcfclk_mhz = 0, max_dispclk_mhz = 0, max_dppclk_mhz = 0, max_phyclk_mhz = 0;
+ 
+-		if (bw_params->clk_table.entries[1].dcfclk_mhz > dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
++		for (i = 0; i < MAX_NUM_DPM_LVL; i++) {
++			if (bw_params->clk_table.entries[i].dcfclk_mhz > max_dcfclk_mhz)
++				max_dcfclk_mhz = bw_params->clk_table.entries[i].dcfclk_mhz;
++			if (bw_params->clk_table.entries[i].dispclk_mhz > max_dispclk_mhz)
++				max_dispclk_mhz = bw_params->clk_table.entries[i].dispclk_mhz;
++			if (bw_params->clk_table.entries[i].dppclk_mhz > max_dppclk_mhz)
++				max_dppclk_mhz = bw_params->clk_table.entries[i].dppclk_mhz;
++			if (bw_params->clk_table.entries[i].phyclk_mhz > max_phyclk_mhz)
++				max_phyclk_mhz = bw_params->clk_table.entries[i].phyclk_mhz;
++		}
++
++		if (!max_dcfclk_mhz)
++			max_dcfclk_mhz = dcn3_0_soc.clock_limits[0].dcfclk_mhz;
++		if (!max_dispclk_mhz)
++			max_dispclk_mhz = dcn3_0_soc.clock_limits[0].dispclk_mhz;
++		if (!max_dppclk_mhz)
++			max_dppclk_mhz = dcn3_0_soc.clock_limits[0].dppclk_mhz;
++		if (!max_phyclk_mhz)
++			max_phyclk_mhz = dcn3_0_soc.clock_limits[0].phyclk_mhz;
++
++		if (max_dcfclk_mhz > dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
+ 			// If max DCFCLK is greater than the max DCFCLK STA target, insert into the DCFCLK STA target array
+-			dcfclk_sta_targets[num_dcfclk_sta_targets] = bw_params->clk_table.entries[1].dcfclk_mhz;
++			dcfclk_sta_targets[num_dcfclk_sta_targets] = max_dcfclk_mhz;
+ 			num_dcfclk_sta_targets++;
+-		} else if (bw_params->clk_table.entries[1].dcfclk_mhz < dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
++		} else if (max_dcfclk_mhz < dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
+ 			// If max DCFCLK is less than the max DCFCLK STA target, cap values and remove duplicates
+ 			for (i = 0; i < num_dcfclk_sta_targets; i++) {
+-				if (dcfclk_sta_targets[i] > bw_params->clk_table.entries[1].dcfclk_mhz) {
+-					dcfclk_sta_targets[i] = bw_params->clk_table.entries[1].dcfclk_mhz;
++				if (dcfclk_sta_targets[i] > max_dcfclk_mhz) {
++					dcfclk_sta_targets[i] = max_dcfclk_mhz;
+ 					break;
+ 				}
+ 			}
+@@ -2447,7 +2468,7 @@ void dcn30_update_bw_bounding_box(struct
+ 				dcfclk_mhz[num_states] = dcfclk_sta_targets[i];
+ 				dram_speed_mts[num_states++] = optimal_uclk_for_dcfclk_sta_targets[i++];
+ 			} else {
+-				if (j < num_uclk_states && optimal_dcfclk_for_uclk[j] <= bw_params->clk_table.entries[1].dcfclk_mhz) {
++				if (j < num_uclk_states && optimal_dcfclk_for_uclk[j] <= max_dcfclk_mhz) {
+ 					dcfclk_mhz[num_states] = optimal_dcfclk_for_uclk[j];
+ 					dram_speed_mts[num_states++] = bw_params->clk_table.entries[j++].memclk_mhz * 16;
+ 				} else {
+@@ -2462,7 +2483,7 @@ void dcn30_update_bw_bounding_box(struct
+ 		}
+ 
+ 		while (j < num_uclk_states && num_states < DC__VOLTAGE_STATES &&
+-				optimal_dcfclk_for_uclk[j] <= bw_params->clk_table.entries[1].dcfclk_mhz) {
++				optimal_dcfclk_for_uclk[j] <= max_dcfclk_mhz) {
+ 			dcfclk_mhz[num_states] = optimal_dcfclk_for_uclk[j];
+ 			dram_speed_mts[num_states++] = bw_params->clk_table.entries[j++].memclk_mhz * 16;
+ 		}
+@@ -2475,9 +2496,9 @@ void dcn30_update_bw_bounding_box(struct
+ 			dcn3_0_soc.clock_limits[i].dram_speed_mts = dram_speed_mts[i];
+ 
+ 			/* Fill all states with max values of all other clocks */
+-			dcn3_0_soc.clock_limits[i].dispclk_mhz = bw_params->clk_table.entries[1].dispclk_mhz;
+-			dcn3_0_soc.clock_limits[i].dppclk_mhz  = bw_params->clk_table.entries[1].dppclk_mhz;
+-			dcn3_0_soc.clock_limits[i].phyclk_mhz  = bw_params->clk_table.entries[1].phyclk_mhz;
++			dcn3_0_soc.clock_limits[i].dispclk_mhz = max_dispclk_mhz;
++			dcn3_0_soc.clock_limits[i].dppclk_mhz  = max_dppclk_mhz;
++			dcn3_0_soc.clock_limits[i].phyclk_mhz  = max_phyclk_mhz;
+ 			dcn3_0_soc.clock_limits[i].dtbclk_mhz = dcn3_0_soc.clock_limits[0].dtbclk_mhz;
+ 			/* These clocks cannot come from bw_params, always fill from dcn3_0_soc[1] */
+ 			/* FCLK, PHYCLK_D18, SOCCLK, DSCCLK */
 
 
