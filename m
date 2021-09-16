@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E9F540E07B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40D5D40E69A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241217AbhIPQVh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+        id S1347422AbhIPRWv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:22:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241222AbhIPQPV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:15:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB03D613CE;
-        Thu, 16 Sep 2021 16:11:22 +0000 (UTC)
+        id S1352227AbhIPRUu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:20:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A006461B74;
+        Thu, 16 Sep 2021 16:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808683;
-        bh=Q0lK3HoIcSET0s++2jaRwIXt4hru6VLJ3SveAsdzYjk=;
+        s=korg; t=1631810548;
+        bh=+oD3Z40EPoxc+Zp2fbcCpgeZeVQzVYMYQ5lI2GkuKSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YuappmrBX2XRwAAA8cVokRlFs0UHyl8oVZURyCNetXnlaNvGmZqXHmSXmeu1tHGa5
-         bL0qf/CDbRVyhqzP2t2ymKCoFFGYTE286XuEa63sZ+0ZnFGR76flP2pFyuWP3hEvGM
-         m/0RyNwQgw66PWkiZzCfuFzpRqImc1zWd2sJVxzY=
+        b=tWhqQGi85uv7ei+HFIvyqjalaENFuzrZbxq0EARSf7fmR38O1gnNJMYIJHi7NYWnL
+         AiAcvbExvSZiXvDWmQliNRbBgQU9AmVauJTcxTEkNBd4xYoR0UBp0CQIS7YuleSpgg
+         knKdBGKoh6THDP/by5l3c6c5sGHNL/GEKiyHSjHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 184/306] gfs2: Fix glock recursion in freeze_go_xmote_bh
-Date:   Thu, 16 Sep 2021 17:58:49 +0200
-Message-Id: <20210916155800.353176323@linuxfoundation.org>
+Subject: [PATCH 5.14 181/432] iavf: fix locking of critical sections
+Date:   Thu, 16 Sep 2021 17:58:50 +0200
+Message-Id: <20210916155816.869611259@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +41,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit 9d9b16054b7d357afde69a027514c695092b0d22 ]
+[ Upstream commit 226d528512cfac890a1619aea4301f3dd314fe60 ]
 
-We must not call gfs2_consist (which does a file system withdraw) from
-the freeze glock's freeze_go_xmote_bh function because the withdraw
-will try to use the freeze glock, thus causing a glock recursion error.
+To avoid races between iavf_init_task(), iavf_reset_task(),
+iavf_watchdog_task(), iavf_adminq_task() as well as the shutdown and
+remove functions more locking is required.
+The current protection by __IAVF_IN_CRITICAL_TASK is needed in
+additional places.
 
-This patch changes freeze_go_xmote_bh to call function
-gfs2_assert_withdraw_delayed instead of gfs2_consist to avoid recursion.
+- The reset task performs state transitions, therefore needs locking.
+- The adminq task acts on replies from the PF in
+  iavf_virtchnl_completion() which may alter the states.
+- The init task is not only run during probe but also if a VF gets stuck
+  to reinitialize it.
+- The shutdown function performs a state transition.
+- The remove function performs a state transition and also free's
+  resources.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+iavf_lock_timeout() is introduced to avoid waiting infinitely
+and cause a deadlock. Rather unlock and print a warning.
+
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glops.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 57 ++++++++++++++++++---
+ 1 file changed, 50 insertions(+), 7 deletions(-)
 
-diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
-index 3faa421568b0..bf539eab92c6 100644
---- a/fs/gfs2/glops.c
-+++ b/fs/gfs2/glops.c
-@@ -623,16 +623,13 @@ static int freeze_go_xmote_bh(struct gfs2_glock *gl, struct gfs2_holder *gh)
- 		j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
- 
- 		error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
--		if (error)
--			gfs2_consist(sdp);
--		if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT))
--			gfs2_consist(sdp);
--
--		/*  Initialize some head of the log stuff  */
--		if (!gfs2_withdrawn(sdp)) {
--			sdp->sd_log_sequence = head.lh_sequence + 1;
--			gfs2_log_pointers_init(sdp, head.lh_blkno);
--		}
-+		if (gfs2_assert_withdraw_delayed(sdp, !error))
-+			return error;
-+		if (gfs2_assert_withdraw_delayed(sdp, head.lh_flags &
-+						 GFS2_LOG_HEAD_UNMOUNT))
-+			return -EIO;
-+		sdp->sd_log_sequence = head.lh_sequence + 1;
-+		gfs2_log_pointers_init(sdp, head.lh_blkno);
- 	}
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 0d0f16617dde..e5e6a5b11e6d 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -131,6 +131,30 @@ enum iavf_status iavf_free_virt_mem_d(struct iavf_hw *hw,
  	return 0;
  }
+ 
++/**
++ * iavf_lock_timeout - try to set bit but give up after timeout
++ * @adapter: board private structure
++ * @bit: bit to set
++ * @msecs: timeout in msecs
++ *
++ * Returns 0 on success, negative on failure
++ **/
++static int iavf_lock_timeout(struct iavf_adapter *adapter,
++			     enum iavf_critical_section_t bit,
++			     unsigned int msecs)
++{
++	unsigned int wait, delay = 10;
++
++	for (wait = 0; wait < msecs; wait += delay) {
++		if (!test_and_set_bit(bit, &adapter->crit_section))
++			return 0;
++
++		msleep(delay);
++	}
++
++	return -1;
++}
++
+ /**
+  * iavf_schedule_reset - Set the flags and schedule a reset event
+  * @adapter: board private structure
+@@ -2097,6 +2121,10 @@ static void iavf_reset_task(struct work_struct *work)
+ 	if (test_bit(__IAVF_IN_REMOVE_TASK, &adapter->crit_section))
+ 		return;
+ 
++	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 200)) {
++		schedule_work(&adapter->reset_task);
++		return;
++	}
+ 	while (test_and_set_bit(__IAVF_IN_CLIENT_TASK,
+ 				&adapter->crit_section))
+ 		usleep_range(500, 1000);
+@@ -2311,6 +2339,8 @@ static void iavf_adminq_task(struct work_struct *work)
+ 	if (!event.msg_buf)
+ 		goto out;
+ 
++	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 200))
++		goto freedom;
+ 	do {
+ 		ret = iavf_clean_arq_element(hw, &event, &pending);
+ 		v_op = (enum virtchnl_ops)le32_to_cpu(event.desc.cookie_high);
+@@ -2324,6 +2354,7 @@ static void iavf_adminq_task(struct work_struct *work)
+ 		if (pending != 0)
+ 			memset(event.msg_buf, 0, IAVF_MAX_AQ_BUF_SIZE);
+ 	} while (pending);
++	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
+ 
+ 	if ((adapter->flags &
+ 	     (IAVF_FLAG_RESET_PENDING | IAVF_FLAG_RESET_NEEDED)) ||
+@@ -3628,6 +3659,10 @@ static void iavf_init_task(struct work_struct *work)
+ 						    init_task.work);
+ 	struct iavf_hw *hw = &adapter->hw;
+ 
++	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000)) {
++		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
++		return;
++	}
+ 	switch (adapter->state) {
+ 	case __IAVF_STARTUP:
+ 		if (iavf_startup(adapter) < 0)
+@@ -3640,14 +3675,14 @@ static void iavf_init_task(struct work_struct *work)
+ 	case __IAVF_INIT_GET_RESOURCES:
+ 		if (iavf_init_get_resources(adapter) < 0)
+ 			goto init_failed;
+-		return;
++		goto out;
+ 	default:
+ 		goto init_failed;
+ 	}
+ 
+ 	queue_delayed_work(iavf_wq, &adapter->init_task,
+ 			   msecs_to_jiffies(30));
+-	return;
++	goto out;
+ init_failed:
+ 	if (++adapter->aq_wait_count > IAVF_AQ_MAX_ERR) {
+ 		dev_err(&adapter->pdev->dev,
+@@ -3656,9 +3691,11 @@ static void iavf_init_task(struct work_struct *work)
+ 		iavf_shutdown_adminq(hw);
+ 		adapter->state = __IAVF_STARTUP;
+ 		queue_delayed_work(iavf_wq, &adapter->init_task, HZ * 5);
+-		return;
++		goto out;
+ 	}
+ 	queue_delayed_work(iavf_wq, &adapter->init_task, HZ);
++out:
++	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
+ }
+ 
+ /**
+@@ -3675,9 +3712,12 @@ static void iavf_shutdown(struct pci_dev *pdev)
+ 	if (netif_running(netdev))
+ 		iavf_close(netdev);
+ 
++	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000))
++		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
+ 	/* Prevent the watchdog from running. */
+ 	adapter->state = __IAVF_REMOVE;
+ 	adapter->aq_required = 0;
++	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
+ 
+ #ifdef CONFIG_PM
+ 	pci_save_state(pdev);
+@@ -3911,10 +3951,6 @@ static void iavf_remove(struct pci_dev *pdev)
+ 				 err);
+ 	}
+ 
+-	/* Shut down all the garbage mashers on the detention level */
+-	adapter->state = __IAVF_REMOVE;
+-	adapter->aq_required = 0;
+-	adapter->flags &= ~IAVF_FLAG_REINIT_ITR_NEEDED;
+ 	iavf_request_reset(adapter);
+ 	msleep(50);
+ 	/* If the FW isn't responding, kick it once, but only once. */
+@@ -3922,6 +3958,13 @@ static void iavf_remove(struct pci_dev *pdev)
+ 		iavf_request_reset(adapter);
+ 		msleep(50);
+ 	}
++	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000))
++		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
++
++	/* Shut down all the garbage mashers on the detention level */
++	adapter->state = __IAVF_REMOVE;
++	adapter->aq_required = 0;
++	adapter->flags &= ~IAVF_FLAG_REINIT_ITR_NEEDED;
+ 	iavf_free_all_tx_resources(adapter);
+ 	iavf_free_all_rx_resources(adapter);
+ 	iavf_misc_irq_disable(adapter);
 -- 
 2.30.2
 
