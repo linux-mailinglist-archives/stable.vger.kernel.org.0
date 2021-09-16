@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD86340E619
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B95CE40E253
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245477AbhIPRSG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:18:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39748 "EHLO mail.kernel.org"
+        id S244448AbhIPQhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:37:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231364AbhIPRP6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:15:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9F0D61B66;
-        Thu, 16 Sep 2021 16:40:00 +0000 (UTC)
+        id S243690AbhIPQeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:34:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D51996187C;
+        Thu, 16 Sep 2021 16:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810401;
-        bh=oD98GLrEeCWwzXHxHRVhSCy5AxJZUZDRj2ld3mOJfVE=;
+        s=korg; t=1631809252;
+        bh=GFivrLNfYikRkIGU0RCP5Susx/2uB0bCQUn10YbB0cY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GG8wgSUKUZVbqgeAW0kiwUtZD6BFXCkNYoTNWCOlJHooVaBOOBBrG7InzQJkkFIsD
-         vvqZPGn2jrF+PY/p+2EBmky1+GJxSSv3Q3RU/GvlaXYqupbjG/82nu2INSWcZ1jdT/
-         Q2wQC/B01/sRWu9kWr+RLAN7aYhY59lQ7WcNOp6o=
+        b=rUWgZAAh2qtQqHTkgZUZY788E+CYp7xquxzwqENSrrk0Ft+ZlfxueWT7jtAsyHKwm
+         lEE8Ef8L6UYo6KpNg0aF69pLQyBijSFYclKr+TkEtjyj/rJyhr8yPWmj4xaoWTIT16
+         Y93rkepiitHg79sl0gpvFtAuqqIFl0q5UJLMQ8Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Gal Pressman <galpress@amazon.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 095/432] powerpc/stacktrace: Include linux/delay.h
+Subject: [PATCH 5.13 087/380] RDMA/efa: Remove double QP type assignment
 Date:   Thu, 16 Sep 2021 17:57:24 +0200
-Message-Id: <20210916155813.999511917@linuxfoundation.org>
+Message-Id: <20210916155807.006270517@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Suchanek <msuchanek@suse.de>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit a6cae77f1bc89368a4e2822afcddc45c3062d499 ]
+[ Upstream commit f9193d266347fe9bed5c173e7a1bf96268142a79 ]
 
-commit 7c6986ade69e ("powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()")
-introduces udelay() call without including the linux/delay.h header.
-This may happen to work on master but the header that declares the
-functionshould be included nonetheless.
+The QP type is set by the IB/core and shouldn't be set in the driver.
 
-Fixes: 7c6986ade69e ("powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()")
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210729180103.15578-1-msuchanek@suse.de
+Fixes: 40909f664d27 ("RDMA/efa: Add EFA verbs implementation")
+Link: https://lore.kernel.org/r/838c40134c1590167b888ca06ad51071139ff2ae.1627040189.git.leonro@nvidia.com
+Acked-by: Gal Pressman <galpress@amazon.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/stacktrace.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/efa/efa_verbs.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/stacktrace.c b/arch/powerpc/kernel/stacktrace.c
-index 2b0d04a1b7d2..9e4a4a7af380 100644
---- a/arch/powerpc/kernel/stacktrace.c
-+++ b/arch/powerpc/kernel/stacktrace.c
-@@ -8,6 +8,7 @@
-  * Copyright 2018 Nick Piggin, Michael Ellerman, IBM Corp.
-  */
+diff --git a/drivers/infiniband/hw/efa/efa_verbs.c b/drivers/infiniband/hw/efa/efa_verbs.c
+index 51572f1dc611..72621ecd81f7 100644
+--- a/drivers/infiniband/hw/efa/efa_verbs.c
++++ b/drivers/infiniband/hw/efa/efa_verbs.c
+@@ -717,7 +717,6 @@ struct ib_qp *efa_create_qp(struct ib_pd *ibpd,
  
-+#include <linux/delay.h>
- #include <linux/export.h>
- #include <linux/kallsyms.h>
- #include <linux/module.h>
+ 	qp->qp_handle = create_qp_resp.qp_handle;
+ 	qp->ibqp.qp_num = create_qp_resp.qp_num;
+-	qp->ibqp.qp_type = init_attr->qp_type;
+ 	qp->max_send_wr = init_attr->cap.max_send_wr;
+ 	qp->max_recv_wr = init_attr->cap.max_recv_wr;
+ 	qp->max_send_sge = init_attr->cap.max_send_sge;
 -- 
 2.30.2
 
