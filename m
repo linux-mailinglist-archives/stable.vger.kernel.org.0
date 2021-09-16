@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C15240E60A
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7095A40E2CF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345965AbhIPRR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:17:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41018 "EHLO mail.kernel.org"
+        id S245646AbhIPQmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:42:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351287AbhIPRPY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:15:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F369061B80;
-        Thu, 16 Sep 2021 16:39:38 +0000 (UTC)
+        id S245009AbhIPQkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:40:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F06F61A08;
+        Thu, 16 Sep 2021 16:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810379;
-        bh=1Csc+8o81KU3aiwd68pdpavxjXbzIBVDOKB8t/TXAA8=;
+        s=korg; t=1631809408;
+        bh=hjBsaiOmUqLXWjSvSFU75rW1+H8eKB9swhXT0Nw2DpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YXi6oFLZU2oPJY/W8K3p4Iai0ferFUPvdkd3d0p7RjE4UoZADugg/khmEhJbnfhrQ
-         H4q6tuy8/w5ds51L68KN9VqUgO1ceZEKz2SpazobLHfrnaSdZn3DG7HrLBTcileENE
-         rJqT4ODL3rgpQ8eYNNhvA2XQ390172UCFmONQnjU=
+        b=vD2u+AkB/r05P0JVyyvpL6WZfHnDYBng3+vFhS7j3bdk0e+UI5kGl035FjPRfk6Rz
+         +gu9IWR1Uichamqtx4ThYgH4w/M4UPhwDYwzYPnTPUdqRlq+vIn38Y6vDcCQxKoZKe
+         PCv6rtD1KCgqocHN8D3TFwzP6BAsaxHT42xQvcpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 119/432] scsi: qedf: Fix error codes in qedf_alloc_global_queues()
+        stable@vger.kernel.org,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 111/380] HID: amd_sfh: Fix period data field to enable sensor
 Date:   Thu, 16 Sep 2021 17:57:48 +0200
-Message-Id: <20210916155814.795193627@linuxfoundation.org>
+Message-Id: <20210916155807.805508193@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,75 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 
-[ Upstream commit ccc89737aa6b9f248cf1623014038beb6c2b7f56 ]
+[ Upstream commit 3978f54817559b28535c58a00d3d31bbd5d0b65a ]
 
-This driver has some left over "return 1" on failure style code mixed with
-"return negative error codes" style code.  The caller doesn't care so we
-should just convert everything to return negative error codes.
+Existing amd-sfh driver is programming the MP2 firmware period field in
+units of jiffies, but the MP2 firmware expects in milliseconds unit.
 
-Then there was a problem that there were two variables used to store error
-codes which just resulted in confusion.  If qedf_alloc_bdq() returned a
-negative error code, we accidentally returned success instead of
-propagating the error code.  So get rid of the "rc" variable and use
-"status" every where.
+Changing it to milliseconds.
 
-Also remove the "status = 0" initialization so that these sorts of bugs
-will be detected by the compiler in the future.
-
-Link: https://lore.kernel.org/r/20210810085023.GA23998@kili
-Fixes: 61d8658b4a43 ("scsi: qedf: Add QLogic FastLinQ offload FCoE driver framework.")
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 4b2c53d93a4b ("SFH:Transport Driver to add support of AMD Sensor Fusion Hub (SFH)")
+Reviewed-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_main.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/hid/amd-sfh-hid/amd_sfh_client.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index 85f41abcb56c..42d0d941dba5 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -3004,7 +3004,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
- {
- 	u32 *list;
- 	int i;
--	int status = 0, rc;
-+	int status;
- 	u32 *pbl;
- 	dma_addr_t page;
- 	int num_pages;
-@@ -3016,7 +3016,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
- 	 */
- 	if (!qedf->num_queues) {
- 		QEDF_ERR(&(qedf->dbg_ctx), "No MSI-X vectors available!\n");
--		return 1;
-+		return -ENOMEM;
- 	}
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+index 3589d9945da1..9c7b64e5357a 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+@@ -186,7 +186,7 @@ int amd_sfh_hid_client_init(struct amd_mp2_dev *privdata)
+ 			rc = -ENOMEM;
+ 			goto cleanup;
+ 		}
+-		info.period = msecs_to_jiffies(AMD_SFH_IDLE_LOOP);
++		info.period = AMD_SFH_IDLE_LOOP;
+ 		info.sensor_idx = cl_idx;
+ 		info.dma_address = cl_data->sensor_dma_addr[i];
  
- 	/*
-@@ -3024,7 +3024,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
- 	 * addresses of our queues
- 	 */
- 	if (!qedf->p_cpuq) {
--		status = 1;
-+		status = -EINVAL;
- 		QEDF_ERR(&qedf->dbg_ctx, "p_cpuq is NULL.\n");
- 		goto mem_alloc_failure;
- 	}
-@@ -3040,8 +3040,8 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
- 		   "qedf->global_queues=%p.\n", qedf->global_queues);
- 
- 	/* Allocate DMA coherent buffers for BDQ */
--	rc = qedf_alloc_bdq(qedf);
--	if (rc) {
-+	status = qedf_alloc_bdq(qedf);
-+	if (status) {
- 		QEDF_ERR(&qedf->dbg_ctx, "Unable to allocate bdq.\n");
- 		goto mem_alloc_failure;
- 	}
 -- 
 2.30.2
 
