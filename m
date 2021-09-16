@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2DCD40E035
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C97240E6C1
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233019AbhIPQUS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:20:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54974 "EHLO mail.kernel.org"
+        id S1343645AbhIPRZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:25:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240772AbhIPQRU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:17:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A13F161354;
-        Thu, 16 Sep 2021 16:12:06 +0000 (UTC)
+        id S1347330AbhIPRWi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:22:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFE0060F58;
+        Thu, 16 Sep 2021 16:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808727;
-        bh=OI88V02O3GL5gnQ2QJxBzWTWFq16QC+HazGDLHHH7YI=;
+        s=korg; t=1631810589;
+        bh=30flWQMPRLeBvHOnw3XigfgrDFn5hyfak+hWXBEHc6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qfFNIniJUl7jcleW5DDZYCiIMglC5H+/dAOE/TLPq3MxW4YawuxCJoDaazyhSq4tC
-         fYCXmAxQhfMlhzETOaVf1JGekq+Qyg4kxfDKYL+bq+bhHsiJZ4yyc8LxZHzsyFwZSx
-         CpXR8qoGbitpD/Q3jLO5MrOlnfKK5TpdJBnV25yU=
+        b=aWibCJ4zWtSj0s1jG2tHvw1PCIOeGaz7TgkPAXWx37oqe4xSQit7Pz7sgWaOY/ePc
+         7RsksCDG1qTW/swLFhrsGjqmLrrMZLxZ9bpS30XJ0lFHakWGoqgm7o9B0u2J6rI1Fu
+         m0SEWPDnGktHBnrOirH/4h5RV8+7tMVMXWlCuRGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Kelly Devilliv <kelly.devilliv@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 199/306] drm/msm/dsi: Fix DSI and DSI PHY regulator config from SDM660
+Subject: [PATCH 5.14 195/432] usb: host: fotg210: fix the actual_length of an iso packet
 Date:   Thu, 16 Sep 2021 17:59:04 +0200
-Message-Id: <20210916155800.842536437@linuxfoundation.org>
+Message-Id: <20210916155817.378176507@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Kelly Devilliv <kelly.devilliv@gmail.com>
 
-[ Upstream commit 462f7017a6918d152870bfb8852f3c70fd74b296 ]
+[ Upstream commit 091cb2f782f32ab68c6f5f326d7868683d3d4875 ]
 
-VDDA is not present and the specified load value is wrong. Fix it.
+We should acquire the actual_length of an iso packet
+from the iTD directly using FOTG210_ITD_LENGTH() macro.
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Link: https://lore.kernel.org/r/20210728222057.52641-1-konrad.dybcio@somainline.org
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Kelly Devilliv <kelly.devilliv@gmail.com>
+Link: https://lore.kernel.org/r/20210627125747.127646-4-kelly.devilliv@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_cfg.c          | 1 -
- drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c | 2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/host/fotg210-hcd.c | 5 ++---
+ drivers/usb/host/fotg210.h     | 5 -----
+ 2 files changed, 2 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_cfg.c b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-index b2ff68a15791..d255bea87ca4 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-@@ -158,7 +158,6 @@ static const struct msm_dsi_config sdm660_dsi_cfg = {
- 	.reg_cfg = {
- 		.num = 2,
- 		.regs = {
--			{"vdd", 73400, 32 },	/* 0.9 V */
- 			{"vdda", 12560, 4 },	/* 1.2 V */
- 		},
- 	},
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-index 519400501bcd..1ca9e73c6e07 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-@@ -168,7 +168,7 @@ const struct msm_dsi_phy_cfg dsi_phy_14nm_660_cfgs = {
- 	.reg_cfg = {
- 		.num = 1,
- 		.regs = {
--			{"vcca", 17000, 32},
-+			{"vcca", 73400, 32},
- 		},
- 	},
- 	.ops = {
+diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
+index dd29f7b68d6f..aeb235ce06c1 100644
+--- a/drivers/usb/host/fotg210-hcd.c
++++ b/drivers/usb/host/fotg210-hcd.c
+@@ -4460,13 +4460,12 @@ static bool itd_complete(struct fotg210_hcd *fotg210, struct fotg210_itd *itd)
+ 
+ 			/* HC need not update length with this error */
+ 			if (!(t & FOTG210_ISOC_BABBLE)) {
+-				desc->actual_length =
+-					fotg210_itdlen(urb, desc, t);
++				desc->actual_length = FOTG210_ITD_LENGTH(t);
+ 				urb->actual_length += desc->actual_length;
+ 			}
+ 		} else if (likely((t & FOTG210_ISOC_ACTIVE) == 0)) {
+ 			desc->status = 0;
+-			desc->actual_length = fotg210_itdlen(urb, desc, t);
++			desc->actual_length = FOTG210_ITD_LENGTH(t);
+ 			urb->actual_length += desc->actual_length;
+ 		} else {
+ 			/* URB was too late */
+diff --git a/drivers/usb/host/fotg210.h b/drivers/usb/host/fotg210.h
+index 0a91061a0551..0781442b7a24 100644
+--- a/drivers/usb/host/fotg210.h
++++ b/drivers/usb/host/fotg210.h
+@@ -683,11 +683,6 @@ static inline unsigned fotg210_read_frame_index(struct fotg210_hcd *fotg210)
+ 	return fotg210_readl(fotg210, &fotg210->regs->frame_index);
+ }
+ 
+-#define fotg210_itdlen(urb, desc, t) ({			\
+-	usb_pipein((urb)->pipe) ?				\
+-	(desc)->length - FOTG210_ITD_LENGTH(t) :			\
+-	FOTG210_ITD_LENGTH(t);					\
+-})
+ /*-------------------------------------------------------------------------*/
+ 
+ #endif /* __LINUX_FOTG210_H */
 -- 
 2.30.2
 
