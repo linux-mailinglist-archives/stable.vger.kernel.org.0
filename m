@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D6540E7CF
+	by mail.lfdr.de (Postfix) with ESMTP id 076B140E7CB
 	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344960AbhIPRgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:36:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50274 "EHLO mail.kernel.org"
+        id S244822AbhIPRgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:36:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353449AbhIPRdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353448AbhIPRdy (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:33:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D631061A71;
-        Thu, 16 Sep 2021 16:48:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 840AD61882;
+        Thu, 16 Sep 2021 16:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810903;
-        bh=57tZxUZd7v0GCY6kUSgZ3vGo5+VQ9Riqq6db6pSfRmA=;
+        s=korg; t=1631810906;
+        bh=nmZlJjMfVm8UXxDXZfpM14Y9C+so6nIKPHyHfBjxfQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JIlXEm6xOVgRf5Bn8B9cWSod9zn3nqymJLxSc0i+QuTaRLtryfCMID+6m6LQnefGv
-         GcmckKhZbR+DsDR+leQsEwzIIj14xrq1Z3/KetanFZTO/ym8/TlW9tXQmoZ2ffE5gY
-         RoAvx3thcsUNldNnIhvgzIBVtJKUHPQgSpvI9ApY=
+        b=ok0sjFbccB1MfUy3D7kKjqp8Ly7ukYMpAvzoCuuxXaP9z90fVPvHgw/EdqdqIT0ei
+         cNuopgRv7Kk+zP47F1tBScyPFqWr5rMTZ0B17j1/O2kz6/1UmmyTZF6W3rg1liC1us
+         Kj+jGMch+47Ho07ewCwRksl4jfBcOtVmWUcC/1OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Darrick J. Wong" <djwong@kernel.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        stable@vger.kernel.org, Luke Hsiao <lukehsiao@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 311/432] iomap: pass writeback errors to the mapping
-Date:   Thu, 16 Sep 2021 18:01:00 +0200
-Message-Id: <20210916155821.364409662@linuxfoundation.org>
+Subject: [PATCH 5.14 312/432] tcp: enable data-less, empty-cookie SYN with TFO_SERVER_COOKIE_NOT_REQD
+Date:   Thu, 16 Sep 2021 18:01:01 +0200
+Message-Id: <20210916155821.396157025@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -40,39 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: Luke Hsiao <lukehsiao@google.com>
 
-[ Upstream commit b69eea82d37d9ee7cfb3bf05103549dd4ed5ffc3 ]
+[ Upstream commit e3faa49bcecdfcc80e94dd75709d6acb1a5d89f6 ]
 
-Modern-day mapping_set_error has the ability to squash the usual
-negative error code into something appropriate for long-term storage in
-a struct address_space -- ENOSPC becomes AS_ENOSPC, and everything else
-becomes EIO.  iomap squashes /everything/ to EIO, just as XFS did before
-that, but this doesn't make sense.
+Since the original TFO server code was implemented in commit
+168a8f58059a22feb9e9a2dcc1b8053dbbbc12ef ("tcp: TCP Fast Open Server -
+main code path") the TFO server code has supported the sysctl bit flag
+TFO_SERVER_COOKIE_NOT_REQD. Currently, when the TFO_SERVER_ENABLE and
+TFO_SERVER_COOKIE_NOT_REQD sysctl bit flags are set, a server connection
+will accept a SYN with N bytes of data (N > 0) that has no TFO cookie,
+create a new fast open connection, process the incoming data in the SYN,
+and make the connection ready for accepting. After accepting, the
+connection is ready for read()/recvmsg() to read the N bytes of data in
+the SYN, ready for write()/sendmsg() calls and data transmissions to
+transmit data.
 
-Fix this by making it so that we can pass ENOSPC to userspace when
-writeback fails due to space problems.
+This commit changes an edge case in this feature by changing this
+behavior to apply to (N >= 0) bytes of data in the SYN rather than only
+(N > 0) bytes of data in the SYN. Now, a server will accept a data-less
+SYN without a TFO cookie if TFO_SERVER_COOKIE_NOT_REQD is set.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Caveat! While this enables a new kind of TFO (data-less empty-cookie
+SYN), some firewall rules setup may not work if they assume such packets
+are not legit TFOs and will filter them.
+
+Signed-off-by: Luke Hsiao <lukehsiao@google.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Acked-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210816205105.2533289-1-luke.w.hsiao@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/iomap/buffered-io.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_fastopen.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/iomap/buffered-io.c b/fs/iomap/buffered-io.c
-index 87ccb3438bec..b06138c6190b 100644
---- a/fs/iomap/buffered-io.c
-+++ b/fs/iomap/buffered-io.c
-@@ -1016,7 +1016,7 @@ iomap_finish_page_writeback(struct inode *inode, struct page *page,
- 
- 	if (error) {
- 		SetPageError(page);
--		mapping_set_error(inode->i_mapping, -EIO);
-+		mapping_set_error(inode->i_mapping, error);
+diff --git a/net/ipv4/tcp_fastopen.c b/net/ipv4/tcp_fastopen.c
+index 25fa4c01a17f..f1e90fc1cd18 100644
+--- a/net/ipv4/tcp_fastopen.c
++++ b/net/ipv4/tcp_fastopen.c
+@@ -379,8 +379,7 @@ struct sock *tcp_try_fastopen(struct sock *sk, struct sk_buff *skb,
+ 		return NULL;
  	}
  
- 	WARN_ON_ONCE(i_blocks_per_page(inode, page) > 1 && !iop);
+-	if (syn_data &&
+-	    tcp_fastopen_no_cookie(sk, dst, TFO_SERVER_COOKIE_NOT_REQD))
++	if (tcp_fastopen_no_cookie(sk, dst, TFO_SERVER_COOKIE_NOT_REQD))
+ 		goto fastopen;
+ 
+ 	if (foc->len == 0) {
 -- 
 2.30.2
 
