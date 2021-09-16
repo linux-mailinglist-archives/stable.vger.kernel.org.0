@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3862940E748
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71B9140E457
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244196AbhIPRbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:31:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46948 "EHLO mail.kernel.org"
+        id S244769AbhIPQ5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:57:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348984AbhIPR14 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:27:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B77DF61C12;
-        Thu, 16 Sep 2021 16:45:43 +0000 (UTC)
+        id S1344176AbhIPQyK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:54:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 733C361360;
+        Thu, 16 Sep 2021 16:29:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810744;
-        bh=6lulUNxDGiu42j/7vp+SGcWHeqNR2I22Yu3VZeFwd2w=;
+        s=korg; t=1631809794;
+        bh=/YbFxoL+VO9sDJRj89LmtYcQj6jy8z06mTZrGIZtq44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pp8ZexIFGGucdszy51PkoJ4mLhdpeuJBcVMF/KEAga/LXKy8Qwe6e0gR3mt7TbOzO
-         2jDjacn1iGyeOGzioBwIU16XqxzwkLcIH8MYCIt1x1UfoMns7cUPlis1hwtZLFLnwW
-         8o2P7hnlNKJ9DcPvaacE9juraR05OQnHyEOwPXTM=
+        b=OETeacAqF8JrRKLolNfgahiiIFsi/eUTEWmos4T9itUomPZIktRrQQvpBNjphXUy6
+         cf4yH2D1y64CQ8BMGCyj0qCXhM/4AaP4aitMENCtAzivt90UfUzsBj6scOD5F7xp4z
+         M9CdtUUpPBffDv8FUIkB9k64y8uCmgJCm1fvmOmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Rajendra Nayak <rnayak@codeaurora.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 251/432] ASoC: Intel: bytcr_rt5640: Move "Platform Clock" routes to the maps for the matching in-/output
-Date:   Thu, 16 Sep 2021 18:00:00 +0200
-Message-Id: <20210916155819.334508668@linuxfoundation.org>
+Subject: [PATCH 5.13 244/380] nvmem: qfprom: Fix up qfprom_disable_fuse_blowing() ordering
+Date:   Thu, 16 Sep 2021 18:00:01 +0200
+Message-Id: <20210916155812.372039424@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,79 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Rajendra Nayak <rnayak@codeaurora.org>
 
-[ Upstream commit dccd1dfd0770bfd494b68d1135b4547b2c602c42 ]
+[ Upstream commit 11c4b3e264d68ba6dcd52d12dbcfd3f564f2f137 ]
 
-Move the "Platform Clock" routes for the "Internal Mic" and "Speaker"
-routes to the intmic_*_map[] / *_spk_map[] arrays.
+qfprom_disable_fuse_blowing() disables a bunch of resources,
+and then does a few register writes in the 'conf' address
+space.
+It works perhaps because the resources are needed only for the
+'raw' register space writes, and that the 'conf' space allows
+read/writes regardless.
+However that makes the code look confusing, so just move the
+register writes before turning off the resources in the
+function.
 
-This ensures that these "Platform Clock" routes do not get added when the
-BYT_RT5640_NO_INTERNAL_MIC_MAP / BYT_RT5640_NO_SPEAKERS quirks are used.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210802142501.991985-2-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210806085947.22682-3-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/nvmem/qfprom.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 91a6d712eb58..c403fb672594 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -290,9 +290,6 @@ static const struct snd_soc_dapm_widget byt_rt5640_widgets[] = {
- static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
- 	{"Headphone", NULL, "Platform Clock"},
- 	{"Headset Mic", NULL, "Platform Clock"},
--	{"Internal Mic", NULL, "Platform Clock"},
--	{"Speaker", NULL, "Platform Clock"},
+diff --git a/drivers/nvmem/qfprom.c b/drivers/nvmem/qfprom.c
+index d6d3f24685a8..f372eda2b255 100644
+--- a/drivers/nvmem/qfprom.c
++++ b/drivers/nvmem/qfprom.c
+@@ -138,6 +138,9 @@ static void qfprom_disable_fuse_blowing(const struct qfprom_priv *priv,
+ {
+ 	int ret;
+ 
++	writel(old->timer_val, priv->qfpconf + QFPROM_BLOW_TIMER_OFFSET);
++	writel(old->accel_val, priv->qfpconf + QFPROM_ACCEL_OFFSET);
++
+ 	/*
+ 	 * This may be a shared rail and may be able to run at a lower rate
+ 	 * when we're not blowing fuses.  At the moment, the regulator framework
+@@ -158,9 +161,6 @@ static void qfprom_disable_fuse_blowing(const struct qfprom_priv *priv,
+ 			 "Failed to set clock rate for disable (ignoring)\n");
+ 
+ 	clk_disable_unprepare(priv->secclk);
 -
- 	{"Headset Mic", NULL, "MICBIAS1"},
- 	{"IN2P", NULL, "Headset Mic"},
- 	{"Headphone", NULL, "HPOL"},
-@@ -300,19 +297,23 @@ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
- };
+-	writel(old->timer_val, priv->qfpconf + QFPROM_BLOW_TIMER_OFFSET);
+-	writel(old->accel_val, priv->qfpconf + QFPROM_ACCEL_OFFSET);
+ }
  
- static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic1_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"DMIC1", NULL, "Internal Mic"},
- };
- 
- static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic2_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"DMIC2", NULL, "Internal Mic"},
- };
- 
- static const struct snd_soc_dapm_route byt_rt5640_intmic_in1_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"Internal Mic", NULL, "MICBIAS1"},
- 	{"IN1P", NULL, "Internal Mic"},
- };
- 
- static const struct snd_soc_dapm_route byt_rt5640_intmic_in3_map[] = {
-+	{"Internal Mic", NULL, "Platform Clock"},
- 	{"Internal Mic", NULL, "MICBIAS1"},
- 	{"IN3P", NULL, "Internal Mic"},
- };
-@@ -354,6 +355,7 @@ static const struct snd_soc_dapm_route byt_rt5640_ssp0_aif2_map[] = {
- };
- 
- static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
-+	{"Speaker", NULL, "Platform Clock"},
- 	{"Speaker", NULL, "SPOLP"},
- 	{"Speaker", NULL, "SPOLN"},
- 	{"Speaker", NULL, "SPORP"},
-@@ -361,6 +363,7 @@ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
- };
- 
- static const struct snd_soc_dapm_route byt_rt5640_mono_spk_map[] = {
-+	{"Speaker", NULL, "Platform Clock"},
- 	{"Speaker", NULL, "SPOLP"},
- 	{"Speaker", NULL, "SPOLN"},
- };
+ /**
 -- 
 2.30.2
 
