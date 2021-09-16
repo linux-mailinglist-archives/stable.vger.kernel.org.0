@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F29F40DAA5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:05:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CFBA40DAA9
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:06:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239699AbhIPNHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 09:07:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
+        id S239770AbhIPNHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 09:07:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239495AbhIPNHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 09:07:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E1ED60FBF;
-        Thu, 16 Sep 2021 13:05:42 +0000 (UTC)
+        id S239495AbhIPNHk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 09:07:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FCF460F48;
+        Thu, 16 Sep 2021 13:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631797542;
+        s=korg; t=1631797580;
         bh=Bz4ftTzAOiZzNBnhKawQylPLLT7A6C5JcxbTdEQb8AI=;
         h=Subject:To:Cc:From:Date:From;
-        b=In72ydrYf+sfy5Ez0ZCinE4SCF7NBW8MKpMm3t+DDcYHT48IC7xWKl8CvBdQh2nix
-         VrE4w5nypM16e9hLESh7YML7PKOoOfYebQF1ATCAx5PmO9OrUyjIBvafPlNTFe+pEU
-         a8c9j6kA6MXuu07QPH6ZBty1qMk5WOUofhBl5GCo=
+        b=Tapijix35qEISpUBgiLvKo6bM9NxKCQcr+NTrfsB6e1caalzPq51DpmcnR+16Cyu3
+         WaqNoMvPWr8o83s5g29pDBEwVdqxX93EtqtxS6cjrf2uHX3XbmnnTUqdEDocCleIUK
+         9vIyaqEjKAYvYWPi2S/fuJHEBPI9JizlbLLb2dMA=
 Subject: FAILED: patch "[PATCH] drm/amdgpu: use the preferred pin domain after the check" failed to apply to 5.14-stable tree
 To:     christian.koenig@amd.com, Shashank.sharma@amd.com,
         alexander.deucher@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Sep 2021 15:05:40 +0200
-Message-ID: <163179754088182@kroah.com>
+Date:   Thu, 16 Sep 2021 15:06:17 +0200
+Message-ID: <16317975776511@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
