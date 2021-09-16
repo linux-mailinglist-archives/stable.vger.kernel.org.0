@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B159140E765
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4533440E07F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347501AbhIPRcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50272 "EHLO mail.kernel.org"
+        id S241545AbhIPQVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:21:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353039AbhIPR3x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:29:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95C276113E;
-        Thu, 16 Sep 2021 16:46:37 +0000 (UTC)
+        id S241712AbhIPQUC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:20:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D769361390;
+        Thu, 16 Sep 2021 16:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810798;
-        bh=0SQO3dsOesV/b1l38s4e7bxFqHBn1nCeqqbt7vgjWlU=;
+        s=korg; t=1631808847;
+        bh=GiDCcw8EAI/e3m9h772NNoRn4DlkDc9x34kowoRI6tw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2H1BFAL1y6kHBjltq44NpWYymRhm9HOErZYhcEi1w94V+xThTHiUo1+o38O7zgg42
-         OtQUI4oMzh84OM+JOA8oiddAGLJiJnKK3EkolA4IrLuI0YEZ6TPi/u1sRfy5XI6QAG
-         bcbVlvhrhhscX0W5sftVnPOGWqrL30pHr8u9O77E=
+        b=o7OqTCdZBgPgB7bIFDm0B5CDfmOuNcBWcK7zcFKiTZXRy8Y+mb4D37oTtsSl0Ao1m
+         Bkqa6Z+6nqnR1rrOa8DNBGRn9sSa/4mac97T2Vbvu5BtE9r8+TUFEDBiGCGfK+Btit
+         aqZ4B3u3+dnIYgdRe53q1YTPdLE8KplXwuJIvjDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 239/432] ata: sata_dwc_460ex: No need to call phy_exit() befre phy_init()
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 243/306] soundwire: intel: fix potential race condition during power down
 Date:   Thu, 16 Sep 2021 17:59:48 +0200
-Message-Id: <20210916155818.936644577@linuxfoundation.org>
+Message-Id: <20210916155802.349997999@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 3ad4a31620355358316fa08fcfab37b9d6c33347 ]
+[ Upstream commit ea6942dad4b2a7e1735aa0f10f3d0b04b847750f ]
 
-Last change to device managed APIs cleaned up error path to simple phy_exit()
-call, which in some cases has been executed with NULL parameter. This per se
-is not a problem, but rather logical misconception: no need to free resource
-when it's for sure has not been allocated yet. Fix the driver accordingly.
+The power down sequence sets the link_up flag as false outside of the
+mutex_lock. This is potentially unsafe.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210727125130.19977-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+In additional the flow in that sequence can be improved by first
+testing if the link was powered, setting the link_up flag as false and
+proceeding with the power down. In case the CPA bits cannot be
+cleared, we only flag an error since we cannot deal with interrupts
+any longer.
+
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Link: https://lore.kernel.org/r/20210818024954.16873-2-yung-chuan.liao@linux.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/sata_dwc_460ex.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/soundwire/intel.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/ata/sata_dwc_460ex.c b/drivers/ata/sata_dwc_460ex.c
-index f0ef844428bb..338c2e50f759 100644
---- a/drivers/ata/sata_dwc_460ex.c
-+++ b/drivers/ata/sata_dwc_460ex.c
-@@ -1259,24 +1259,20 @@ static int sata_dwc_probe(struct platform_device *ofdev)
- 	irq = irq_of_parse_and_map(np, 0);
- 	if (irq == NO_IRQ) {
- 		dev_err(&ofdev->dev, "no SATA DMA irq\n");
--		err = -ENODEV;
--		goto error_out;
-+		return -ENODEV;
+diff --git a/drivers/soundwire/intel.c b/drivers/soundwire/intel.c
+index 6a1e862b16c3..dad4326a2a71 100644
+--- a/drivers/soundwire/intel.c
++++ b/drivers/soundwire/intel.c
+@@ -537,12 +537,14 @@ static int intel_link_power_down(struct sdw_intel *sdw)
+ 
+ 	mutex_lock(sdw->link_res->shim_lock);
+ 
+-	intel_shim_master_ip_to_glue(sdw);
+-
+ 	if (!(*shim_mask & BIT(link_id)))
+ 		dev_err(sdw->cdns.dev,
+ 			"%s: Unbalanced power-up/down calls\n", __func__);
+ 
++	sdw->cdns.link_up = false;
++
++	intel_shim_master_ip_to_glue(sdw);
++
+ 	*shim_mask &= ~BIT(link_id);
+ 
+ 	if (!*shim_mask) {
+@@ -559,20 +561,21 @@ static int intel_link_power_down(struct sdw_intel *sdw)
+ 		link_control &=  spa_mask;
+ 
+ 		ret = intel_clear_bit(shim, SDW_SHIM_LCTL, link_control, cpa_mask);
++		if (ret < 0) {
++			dev_err(sdw->cdns.dev, "%s: could not power down link\n", __func__);
++
++			/*
++			 * we leave the sdw->cdns.link_up flag as false since we've disabled
++			 * the link at this point and cannot handle interrupts any longer.
++			 */
++		}
  	}
  
- #ifdef CONFIG_SATA_DWC_OLD_DMA
- 	if (!of_find_property(np, "dmas", NULL)) {
- 		err = sata_dwc_dma_init_old(ofdev, hsdev);
- 		if (err)
--			goto error_out;
-+			return err;
- 	}
- #endif
+ 	link_control = intel_readl(shim, SDW_SHIM_LCTL);
  
- 	hsdev->phy = devm_phy_optional_get(hsdev->dev, "sata-phy");
--	if (IS_ERR(hsdev->phy)) {
--		err = PTR_ERR(hsdev->phy);
--		hsdev->phy = NULL;
--		goto error_out;
+ 	mutex_unlock(sdw->link_res->shim_lock);
+ 
+-	if (ret < 0) {
+-		dev_err(sdw->cdns.dev, "%s: could not power down link\n", __func__);
+-
+-		return ret;
 -	}
-+	if (IS_ERR(hsdev->phy))
-+		return PTR_ERR(hsdev->phy);
+-
+-	sdw->cdns.link_up = false;
+-	return 0;
++	return ret;
+ }
  
- 	err = phy_init(hsdev->phy);
- 	if (err)
+ static void intel_shim_sync_arm(struct sdw_intel *sdw)
 -- 
 2.30.2
 
