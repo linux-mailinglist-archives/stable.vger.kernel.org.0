@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AFCB40E16E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:29:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E789B40E16C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:29:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240991AbhIPQae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240632AbhIPQae (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Sep 2021 12:30:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37898 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236996AbhIPQ1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236611AbhIPQ1a (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 12:27:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3FC961529;
-        Thu, 16 Sep 2021 16:17:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B78F61555;
+        Thu, 16 Sep 2021 16:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809053;
-        bh=c4V6EWY3Wn/cNSs1oKxOGg3WnslcDrOHs2+AwiRU454=;
+        s=korg; t=1631809056;
+        bh=aQ3ss94Ysz8Z2rgJ7EBicK34Av2AyGubTaj1Y/1YGx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q1Z2eoc0DJUT/faJI4uRiavZO3Hi4Ty/MmKv+o8VVZVTZ5cP+gcpg8QHoGYxnHCGq
-         SUChXvtCjKfqNJSMG6+Y03DW87UGNA38VMxpdSLSLYrlwhf5tOBh/R7WIFZ+lUneIn
-         qSLGaAzxpQINu7raQIvmEevjRYSL72TlmEcqUkcM=
+        b=Mu2XxU7wsY4p+bWmos8vzp0jwQRb5iTkfiHdtS9Lezb/xQ9KQfDvGqExB+1XuWlEg
+         ZLzxEshcqENCHXdrob/WFFIlpFcMJkyC388k9s+/e6Jt0sCgDW8XahnycvdYeJuh8M
+         Gge5aM3nF4EyiNq6wSEUmLaaVO6naizhywM2zf6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.13 014/380] xen: fix setting of max_pfn in shared_info
-Date:   Thu, 16 Sep 2021 17:56:11 +0200
-Message-Id: <20210916155804.456268156@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Harshvardhan Jha <harshvardhan.jha@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.13 015/380] 9p/xen: Fix end of loop tests for list_for_each_entry
+Date:   Thu, 16 Sep 2021 17:56:12 +0200
+Message-Id: <20210916155804.487482613@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
 References: <20210916155803.966362085@linuxfoundation.org>
@@ -39,51 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
 
-commit 4b511d5bfa74b1926daefd1694205c7f1bcf677f upstream.
+commit 732b33d0dbf17e9483f0b50385bf606f724f50a2 upstream.
 
-Xen PV guests are specifying the highest used PFN via the max_pfn
-field in shared_info. This value is used by the Xen tools when saving
-or migrating the guest.
+This patch addresses the following problems:
+ - priv can never be NULL, so this part of the check is useless
+ - if the loop ran through the whole list, priv->client is invalid and
+it is more appropriate and sufficient to check for the end of
+list_for_each_entry loop condition.
 
-Unfortunately this field is misnamed, as in reality it is specifying
-the number of pages (including any memory holes) of the guest, so it
-is the highest used PFN + 1. Renaming isn't possible, as this is a
-public Xen hypervisor interface which needs to be kept stable.
-
-The kernel will set the value correctly initially at boot time, but
-when adding more pages (e.g. due to memory hotplug or ballooning) a
-real PFN number is stored in max_pfn. This is done when expanding the
-p2m array, and the PFN stored there is even possibly wrong, as it
-should be the last possible PFN of the just added P2M frame, and not
-one which led to the P2M expansion.
-
-Fix that by setting shared_info->max_pfn to the last possible PFN + 1.
-
-Fixes: 98dd166ea3a3c3 ("x86/xen/p2m: hint at the last populated P2M entry")
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20210730092622.9973-2-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: http://lkml.kernel.org/r/20210727000709.225032-1-harshvardhan.jha@oracle.com
+Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Tested-by: Stefano Stabellini <sstabellini@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/xen/p2m.c |    4 ++--
+ net/9p/trans_xen.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -618,8 +618,8 @@ int xen_alloc_p2m_entry(unsigned long pf
- 	}
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -138,7 +138,7 @@ static bool p9_xen_write_todo(struct xen
  
- 	/* Expanded the p2m? */
--	if (pfn > xen_p2m_last_pfn) {
--		xen_p2m_last_pfn = pfn;
-+	if (pfn >= xen_p2m_last_pfn) {
-+		xen_p2m_last_pfn = ALIGN(pfn + 1, P2M_PER_PAGE);
- 		HYPERVISOR_shared_info->arch.max_pfn = xen_p2m_last_pfn;
+ static int p9_xen_request(struct p9_client *client, struct p9_req_t *p9_req)
+ {
+-	struct xen_9pfs_front_priv *priv = NULL;
++	struct xen_9pfs_front_priv *priv;
+ 	RING_IDX cons, prod, masked_cons, masked_prod;
+ 	unsigned long flags;
+ 	u32 size = p9_req->tc.size;
+@@ -151,7 +151,7 @@ static int p9_xen_request(struct p9_clie
+ 			break;
  	}
+ 	read_unlock(&xen_9pfs_lock);
+-	if (!priv || priv->client != client)
++	if (list_entry_is_head(priv, &xen_9pfs_devs, list))
+ 		return -EINVAL;
  
+ 	num = p9_req->tc.tag % priv->num_rings;
 
 
