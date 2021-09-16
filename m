@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0CDB40DFBD
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:12:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B00A340E2AA
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238821AbhIPQNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49032 "EHLO mail.kernel.org"
+        id S243915AbhIPQlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239057AbhIPQLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:11:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6317961371;
-        Thu, 16 Sep 2021 16:09:06 +0000 (UTC)
+        id S242270AbhIPQh3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:37:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE14A61361;
+        Thu, 16 Sep 2021 16:22:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808546;
-        bh=WygAbG7iP1zh71CPbUOS9aJO6ys4FnuEnntvpvMb+oM=;
+        s=korg; t=1631809339;
+        bh=PZGC0dDtXGFEIuEDhIPnrPNRbBj4L29UyRqSIXumYeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kyjXJLTr/xxldxkV31V5tHBy17nX0U0p/Sbv5mJPMbgUkui2YvjisH6jIfvbFa8mm
-         0OTOXw/F7TOI+3+1Ur+AEWZ8opQB+5ho7Qq4whS62gEuF6784GiOP8RO2yHiHU7raB
-         WoIXgeIKF4Gtlz7Yblo0EowWvMJHCRVJsQnLkwMs=
+        b=ZsJzGTfrAbjkJXZrs79kw6TQvSub7tsnSeiOAUPU2uLmPqIsWS7R6PSwwK8/gd0V7
+         6hxXPU+6EayTT9U2dKLAPsgRZwiEs/BCxeok9nwTg9RplRLzAYa1XKLGbooDlSkr9+
+         Hhb4ks+4kIQ9p3xSUMc4KsgfwK8ifsZOXIjLzFxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/306] igc: Check if num of q_vectors is smaller than max before array access
+Subject: [PATCH 5.13 119/380] powerpc/perf: Fix the check for SIAR value
 Date:   Thu, 16 Sep 2021 17:57:56 +0200
-Message-Id: <20210916155758.522878765@linuxfoundation.org>
+Message-Id: <20210916155808.079508594@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Neftin <sasha.neftin@intel.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit 373e2829e7c2e1e606503cdb5c97749f512a4be9 ]
+[ Upstream commit 3c69a5f22223fa3e312689ec218b5059784d49d7 ]
 
-Ensure that the adapter->q_vector[MAX_Q_VECTORS] array isn't accessed
-beyond its size. It was fixed by using a local variable num_q_vectors
-as a limit for loop index, and ensure that num_q_vectors is not bigger
-than MAX_Q_VECTORS.
+Incase of random sampling, there can be scenarios where
+Sample Instruction Address Register(SIAR) may not latch
+to the sampled instruction and could result in
+the value of 0. In these scenarios it is preferred to
+return regs->nip. These corner cases are seen in the
+previous generation (p9) also.
 
-Suggested-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Patch adds the check for SIAR value along with regs_use_siar
+and siar_valid checks so that the function will return
+regs->nip incase SIAR is zero.
+
+Patch drops the code under PPMU_P10_DD1 flag check
+which handles SIAR 0 case only for Power10 DD1.
+
+Fixes: 2ca13a4cc56c9 ("powerpc/perf: Use regs->nip when SIAR is zero")
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210818171556.36912-3-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_main.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/powerpc/perf/core-book3s.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
-index 013dd2955381..cae090a07252 100644
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -4083,6 +4083,7 @@ static irqreturn_t igc_msix_ring(int irq, void *data)
+diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
+index 51622411a7cc..35658b963d5a 100644
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -2251,18 +2251,10 @@ unsigned long perf_misc_flags(struct pt_regs *regs)
   */
- static int igc_request_msix(struct igc_adapter *adapter)
+ unsigned long perf_instruction_pointer(struct pt_regs *regs)
  {
-+	unsigned int num_q_vectors = adapter->num_q_vectors;
- 	int i = 0, err = 0, vector = 0, free_vector = 0;
- 	struct net_device *netdev = adapter->netdev;
+-	bool use_siar = regs_use_siar(regs);
+ 	unsigned long siar = mfspr(SPRN_SIAR);
  
-@@ -4091,7 +4092,13 @@ static int igc_request_msix(struct igc_adapter *adapter)
- 	if (err)
- 		goto err_out;
- 
--	for (i = 0; i < adapter->num_q_vectors; i++) {
-+	if (num_q_vectors > MAX_Q_VECTORS) {
-+		num_q_vectors = MAX_Q_VECTORS;
-+		dev_warn(&adapter->pdev->dev,
-+			 "The number of queue vectors (%d) is higher than max allowed (%d)\n",
-+			 adapter->num_q_vectors, MAX_Q_VECTORS);
-+	}
-+	for (i = 0; i < num_q_vectors; i++) {
- 		struct igc_q_vector *q_vector = adapter->q_vector[i];
- 
- 		vector++;
+-	if (ppmu && (ppmu->flags & PPMU_P10_DD1)) {
+-		if (siar)
+-			return siar;
+-		else
+-			return regs->nip;
+-	} else if (use_siar && siar_valid(regs))
+-		return mfspr(SPRN_SIAR) + perf_ip_adjust(regs);
+-	else if (use_siar)
+-		return 0;		// no valid instruction pointer
++	if (regs_use_siar(regs) && siar_valid(regs) && siar)
++		return siar + perf_ip_adjust(regs);
+ 	else
+ 		return regs->nip;
+ }
 -- 
 2.30.2
 
