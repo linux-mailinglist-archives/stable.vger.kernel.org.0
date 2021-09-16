@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF76A40E34E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC5840E71E
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242275AbhIPQrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:47:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57628 "EHLO mail.kernel.org"
+        id S1352818AbhIPR2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:28:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344190AbhIPQop (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:44:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B459604E9;
-        Thu, 16 Sep 2021 16:25:50 +0000 (UTC)
+        id S1343974AbhIPR0k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:26:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87F9861A3C;
+        Thu, 16 Sep 2021 16:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809550;
-        bh=CFxoJqTD6D2XgEUt9WJ2SR1eXohXAMMWRfLmxb/Gz8Q=;
+        s=korg; t=1631810702;
+        bh=G6Y4ovkgtiaNKulr9qZGAnkDCbmrBJ7kEmwUDH2XY3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LxzumITZvYzoHP+gy9biSdduhVdE2M2qbH376s/p/GRuVsOi73pXDGbThJhfqsMT5
-         nfEWhjxLBhevX6bt5H3V7bi0nzqxYDc6nIobq5FTBYcJwOIRuGylR39vJsiqydG8Db
-         z0icsm8mZTJ1OcHL1ogMgpkdZwE+H8ibotA57f5Q=
+        b=qxxX4g4PhUFLyzsvaeeeIXjIPBMKn6gMxb81WCeoJdmaONWDjh0zrOUPTAXLH1b3y
+         P1wogcsRoNpysvS6pKEWFZPaDZj05pvnwZU5vDR11gSC8H8EBU4xiVudR+RMrcaxhC
+         Uy/pnh+PmyIiQL9clX1JZ2I3W8OOzssF9pN5acHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 195/380] video: fbdev: asiliantfb: Error out if pixclock equals zero
-Date:   Thu, 16 Sep 2021 17:59:12 +0200
-Message-Id: <20210916155810.698150123@linuxfoundation.org>
+Subject: [PATCH 5.14 204/432] misc/pvpanic-pci: Allow automatic loading
+Date:   Thu, 16 Sep 2021 17:59:13 +0200
+Message-Id: <20210916155817.733770834@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Eric Auger <eric.auger@redhat.com>
 
-[ Upstream commit b36b242d4b8ea178f7fd038965e3cac7f30c3f09 ]
+[ Upstream commit 28b6a003bcdfa1fc4603b9185b247ecca7af9bef ]
 
-The userspace program could pass any values to the driver through
-ioctl() interface. If the driver doesn't check the value of 'pixclock',
-it may cause divide error.
+The virtual machine monitor (QEMU) exposes the pvpanic-pci
+device to the guest. On guest side the module exists but
+currently isn't loaded automatically. So the driver fails
+to be probed and does not its job of handling guest panic
+events.
 
-Fix this by checking whether 'pixclock' is zero first.
+Instead of requiring manual modprobe, let's include a device
+database using the MODULE_DEVICE_TABLE macro and let the
+module auto-load when the guest gets exposed with such a
+pvpanic-pci device.
 
-The following log reveals it:
-
-[   43.861711] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
-[   43.861737] CPU: 2 PID: 11764 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #224
-[   43.861756] RIP: 0010:asiliantfb_check_var+0x4e/0x730
-[   43.861843] Call Trace:
-[   43.861848]  ? asiliantfb_remove+0x190/0x190
-[   43.861858]  fb_set_var+0x2e4/0xeb0
-[   43.861866]  ? fb_blank+0x1a0/0x1a0
-[   43.861873]  ? lock_acquire+0x1ef/0x530
-[   43.861884]  ? lock_release+0x810/0x810
-[   43.861892]  ? lock_is_held_type+0x100/0x140
-[   43.861903]  ? ___might_sleep+0x1ee/0x2d0
-[   43.861914]  ? __mutex_lock+0x620/0x1190
-[   43.861921]  ? do_fb_ioctl+0x313/0x700
-[   43.861929]  ? mutex_lock_io_nested+0xfa0/0xfa0
-[   43.861936]  ? __this_cpu_preempt_check+0x1d/0x30
-[   43.861944]  ? _raw_spin_unlock_irqrestore+0x46/0x60
-[   43.861952]  ? lockdep_hardirqs_on+0x59/0x100
-[   43.861959]  ? _raw_spin_unlock_irqrestore+0x46/0x60
-[   43.861967]  ? trace_hardirqs_on+0x6a/0x1c0
-[   43.861978]  do_fb_ioctl+0x31e/0x700
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-2-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Link: https://lore.kernel.org/r/20210629072214.901004-1-eric.auger@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/asiliantfb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/misc/pvpanic/pvpanic-pci.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/video/fbdev/asiliantfb.c b/drivers/video/fbdev/asiliantfb.c
-index 3e006da47752..84c56f525889 100644
---- a/drivers/video/fbdev/asiliantfb.c
-+++ b/drivers/video/fbdev/asiliantfb.c
-@@ -227,6 +227,9 @@ static int asiliantfb_check_var(struct fb_var_screeninfo *var,
- {
- 	unsigned long Ftarget, ratio, remainder;
+diff --git a/drivers/misc/pvpanic/pvpanic-pci.c b/drivers/misc/pvpanic/pvpanic-pci.c
+index a43c401017ae..741116b3d995 100644
+--- a/drivers/misc/pvpanic/pvpanic-pci.c
++++ b/drivers/misc/pvpanic/pvpanic-pci.c
+@@ -108,4 +108,6 @@ static struct pci_driver pvpanic_pci_driver = {
+ 	},
+ };
  
-+	if (!var->pixclock)
-+		return -EINVAL;
++MODULE_DEVICE_TABLE(pci, pvpanic_pci_id_tbl);
 +
- 	ratio = 1000000 / var->pixclock;
- 	remainder = 1000000 % var->pixclock;
- 	Ftarget = 1000000 * ratio + (1000000 * remainder) / var->pixclock;
+ module_pci_driver(pvpanic_pci_driver);
 -- 
 2.30.2
 
