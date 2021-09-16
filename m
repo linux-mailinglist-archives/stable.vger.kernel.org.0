@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8442F40E6F5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89F3840E049
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348544AbhIPR07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:26:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47082 "EHLO mail.kernel.org"
+        id S240666AbhIPQUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352542AbhIPRYv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:24:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0731361BE6;
-        Thu, 16 Sep 2021 16:44:08 +0000 (UTC)
+        id S241065AbhIPQTO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:19:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17D7A6137E;
+        Thu, 16 Sep 2021 16:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810649;
-        bh=UZWytWGmXwex4+/1vb6H6PHBd6Zm9qo4AOXiHRecuTc=;
+        s=korg; t=1631808785;
+        bh=5M+U9qXHvYHNEZev3mvucxufKEpHdDaJvFQ8BTUZvE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AHcfNif9+SODKdUsGodJY/O0LZiViU/A2XPcnIOcVYSLRHo2ccamBGmFbq7DPn8W2
-         RYZgmbaLqb7HF4vdRHuiCnT9pHAzpzbb7fyXR6dMhxmbG9DomSTW6JqAIgdSHv8Yde
-         JsEBUDUGgsWNo6zPJCH8FChk5DtmpftHQIQdi3Lc=
+        b=fTj8XfK8H1r/rsUEYJvu1CE/ZDEbQJnKlpUKZjmZDtOE3MjMDD8ql00IlQs09GOVl
+         qHlOPm19ywMSzAqYFfCqmcC1ch6Rmd0GzhgqYUWYXW+OjaIAm1fnmSVaMWR9Pn5RoC
+         ctyhgNfE7+IPfBtl+YSfqlVi0BIVjaRutph7VzKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Fabio Estevam <festevam@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Ulrich Hecht <uli+renesas@fpond.eu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 218/432] drm/bridge: nwl-dsi: Avoid potential multiplication overflow on 32-bit
+Subject: [PATCH 5.10 222/306] serial: sh-sci: fix break handling for sysrq
 Date:   Thu, 16 Sep 2021 17:59:27 +0200
-Message-Id: <20210916155818.233037950@linuxfoundation.org>
+Message-Id: <20210916155801.622433253@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Ulrich Hecht <uli+renesas@fpond.eu>
 
-[ Upstream commit 47956bc86ee4e8530cac386a04f62a6095f7afbe ]
+[ Upstream commit 87b8061bad9bd4b549b2daf36ffbaa57be2789a2 ]
 
-As nwl_dsi.lanes is u32, and NSEC_PER_SEC is 1000000000L, the second
-multiplication in
+This fixes two issues that cause the sysrq sequence to be inadvertently
+aborted on SCIF serial consoles:
 
-    dsi->lanes * 8 * NSEC_PER_SEC
+- a NUL character remains in the RX queue after a break has been detected,
+  which is then passed on to uart_handle_sysrq_char()
+- the break interrupt is handled twice on controllers with multiplexed ERI
+  and BRI interrupts
 
-will overflow on a 32-bit platform.  Fix this by making the constant
-unsigned long long, forcing 64-bit arithmetic.
-
-As iMX8 is arm64, this driver is currently used on 64-bit platforms
-only, where long is 64-bit, so this cannot happen.  But the issue will
-start to happen when the driver is reused for a 32-bit SoC (e.g.
-i.MX7ULP), or when code is copied for a new driver.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/ebb82941a86b4e35c4fcfb1ef5a5cfad7c1fceab.1626255956.git.geert+renesas@glider.be
+Signed-off-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Link: https://lore.kernel.org/r/20210816162201.28801-1-uli+renesas@fpond.eu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/nwl-dsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/sh-sci.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
-index 873995f0a741..6002404ffcb9 100644
---- a/drivers/gpu/drm/bridge/nwl-dsi.c
-+++ b/drivers/gpu/drm/bridge/nwl-dsi.c
-@@ -196,7 +196,7 @@ static u32 ps2bc(struct nwl_dsi *dsi, unsigned long long ps)
- 	u32 bpp = mipi_dsi_pixel_format_to_bpp(dsi->format);
+diff --git a/drivers/tty/serial/sh-sci.c b/drivers/tty/serial/sh-sci.c
+index 70898a999a49..f700bfaef129 100644
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -1760,6 +1760,10 @@ static irqreturn_t sci_br_interrupt(int irq, void *ptr)
  
- 	return DIV64_U64_ROUND_UP(ps * dsi->mode.clock * bpp,
--				  dsi->lanes * 8 * NSEC_PER_SEC);
-+				  dsi->lanes * 8ULL * NSEC_PER_SEC);
- }
+ 	/* Handle BREAKs */
+ 	sci_handle_breaks(port);
++
++	/* drop invalid character received before break was detected */
++	serial_port_in(port, SCxRDR);
++
+ 	sci_clear_SCxSR(port, SCxSR_BREAK_CLEAR(port));
  
- /*
+ 	return IRQ_HANDLED;
+@@ -1839,7 +1843,8 @@ static irqreturn_t sci_mpxed_interrupt(int irq, void *ptr)
+ 		ret = sci_er_interrupt(irq, ptr);
+ 
+ 	/* Break Interrupt */
+-	if ((ssr_status & SCxSR_BRK(port)) && err_enabled)
++	if (s->irqs[SCIx_ERI_IRQ] != s->irqs[SCIx_BRI_IRQ] &&
++	    (ssr_status & SCxSR_BRK(port)) && err_enabled)
+ 		ret = sci_br_interrupt(irq, ptr);
+ 
+ 	/* Overrun Interrupt */
 -- 
 2.30.2
 
