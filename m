@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B401340E673
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB9C140E671
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346722AbhIPRVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:21:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
+        id S1346687AbhIPRVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:21:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344305AbhIPQ4o (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346977AbhIPQ4o (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 12:56:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DE5B61ACF;
-        Thu, 16 Sep 2021 16:31:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54EA061ABC;
+        Thu, 16 Sep 2021 16:31:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809867;
-        bh=9FtpahGr9AGk+NCfYFtP6I3wLpCqDy1mxReJ2rVjrPU=;
+        s=korg; t=1631809869;
+        bh=w3XAvsaR0o1QNo5DOEbGOAEHTIFUhQqye8XazM8jHMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9E5JkYp2eIWPrGejEuusRRNIa+NgutR9wypppPA21shdetjKTLXL8Uxi6SgUj9gI
-         RNIKzIn02rGTvn2RQ3pcnCbOZATJAozTYHKBfPPVCIaRe+NZcqHfxSM0z6oMOQizYz
-         dH8OLsiHq5cy0eQvIhLW2sUlUJQAM5y/VvddVihk=
+        b=f70xF9XqYQI9Krd5ptJidyN7YV4An5K5LPiaAbcof3RSmCmUMfGnOUE2BcWPj//a9
+         Hddc2DbrwpbondRaQ8QeZIFysc2s8YRFiQrjgRKBFWUVOYvA/8j0yYov0h1S6Hq3Df
+         favcNMu8EaCytZn1mOt9gN9jQv6D3bDWmmYnn8c0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nishad Kamdar <nishadkamdar@gmail.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Juhee Kang <claudiajkang@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 311/380] mmc: core: Return correct emmc response in case of ioctl error
-Date:   Thu, 16 Sep 2021 18:01:08 +0200
-Message-Id: <20210916155814.643254566@linuxfoundation.org>
+Subject: [PATCH 5.13 312/380] samples: pktgen: fix to print when terminated normally
+Date:   Thu, 16 Sep 2021 18:01:09 +0200
+Message-Id: <20210916155814.675170687@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
 References: <20210916155803.966362085@linuxfoundation.org>
@@ -41,111 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishad Kamdar <nishadkamdar@gmail.com>
+From: Juhee Kang <claudiajkang@gmail.com>
 
-[ Upstream commit e72a55f2e5ddcfb3dce0701caf925ce435b87682 ]
+[ Upstream commit c0e9422c4e6ca9abd4bd6e1598400c7231eb600b ]
 
-When a read/write command is sent via ioctl to the kernel,
-and the command fails, the actual error response of the emmc
-is not sent to the user.
+Currently, most pktgen samples print the execution result when the
+program is terminated normally. However, sample03 doesn't work
+appropriately.
 
-IOCTL read/write tests are carried out using commands
-17 (Single BLock Read), 24 (Single Block Write),
-18 (Multi Block Read), 25 (Multi Block Write)
+This is results of samples:
 
-The tests are carried out on a 64Gb emmc device. All of these
-tests try to access an "out of range" sector address (0x09B2FFFF).
+    # DEV=eth0 DEST_IP=10.1.0.1 DST_MAC=00:11:22:33:44:55 ./pktgen_sample04_many_flows.sh -n 1
+    Running... ctrl^C to stop
+    Device: eth0@0
+    Result: OK: 19(c5+d13) usec, 1 (60byte,0frags)
+    51762pps 24Mb/sec (24845760bps) errors: 0
 
-It is seen that without the patch the response received by the user
-is not OUT_OF_RANGE error (R1 response 31st bit is not set) as per
-JEDEC specification. After applying the patch proper response is seen.
-This is because the function returns without copying the response to
-the user in case of failure. This patch fixes the issue.
+    # DEV=eth0 DEST_IP=10.1.0.1 DST_MAC=00:11:22:33:44:55 ./pktgen_sample03_burst_single_flow.sh -n 1
+    Running... ctrl^C to stop
 
-Hence, this memcpy is required whether we get an error response or not.
-Therefor it is moved up from the current position up to immediately
-after we have called mmc_wait_for_req().
+The reason why it doesn't print the execution result when the program is
+terminated usually is that sample03 doesn't call the function which
+prints the result, unlike other samples.
 
-The test code and the output of only the CMD17 is included in the
-commit to limit the message length.
+So, this commit solves this issue by calling the function before
+termination. Also, this commit changes control_c function to
+print_result to maintain consistency with other samples.
 
-CMD17 (Test Code Snippet):
-==========================
-        printf("Forming CMD%d\n", opt_idx);
-        /*  single block read */
-        cmd.blksz = 512;
-        cmd.blocks = 1;
-        cmd.write_flag = 0;
-        cmd.opcode = 17;
-        //cmd.arg = atoi(argv[3]);
-        cmd.arg = 0x09B2FFFF;
-        /* Expecting response R1B */
-        cmd.flags = MMC_RSP_SPI_R1 | MMC_RSP_R1 | MMC_CMD_ADTC;
-
-        memset(data, 0, sizeof(__u8) * 512);
-        mmc_ioc_cmd_set_data(cmd, data);
-
-        printf("Sending CMD%d: ARG[0x%08x]\n", opt_idx, cmd.arg);
-        if(ioctl(fd, MMC_IOC_CMD, &cmd))
-                perror("Error");
-
-        printf("\nResponse: %08x\n", cmd.response[0]);
-
-CMD17 (Output without patch):
-=============================
-test@test-LIVA-Z:~$ sudo ./mmc cmd_test /dev/mmcblk0 17
-Entering the do_mmc_commands:Device: /dev/mmcblk0 nargs:4
-Entering the do_mmc_commands:Device: /dev/mmcblk0 options[17, 0x09B2FFF]
-Forming CMD17
-Sending CMD17: ARG[0x09b2ffff]
-Error: Connection timed out
-
-Response: 00000000
-(Incorrect response)
-
-CMD17 (Output with patch):
-==========================
-test@test-LIVA-Z:~$ sudo ./mmc cmd_test /dev/mmcblk0 17
-[sudo] password for test:
-Entering the do_mmc_commands:Device: /dev/mmcblk0 nargs:4
-Entering the do_mmc_commands:Device: /dev/mmcblk0 options[17, 09B2FFFF]
-Forming CMD17
-Sending CMD17: ARG[0x09b2ffff]
-Error: Connection timed out
-
-Response: 80000900
-(Correct OUT_OF_ERROR response as per JEDEC specification)
-
-Signed-off-by: Nishad Kamdar <nishadkamdar@gmail.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Link: https://lore.kernel.org/r/20210824191726.8296-1-nishadkamdar@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Juhee Kang <claudiajkang@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/block.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ samples/pktgen/pktgen_sample03_burst_single_flow.sh | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
-index 2518bc085659..d47829b9fc0f 100644
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -542,6 +542,7 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
- 		return mmc_sanitize(card, idata->ic.cmd_timeout_ms);
+diff --git a/samples/pktgen/pktgen_sample03_burst_single_flow.sh b/samples/pktgen/pktgen_sample03_burst_single_flow.sh
+index 5adcf954de73..c12198d5bbe5 100755
+--- a/samples/pktgen/pktgen_sample03_burst_single_flow.sh
++++ b/samples/pktgen/pktgen_sample03_burst_single_flow.sh
+@@ -83,7 +83,7 @@ for ((thread = $F_THREAD; thread <= $L_THREAD; thread++)); do
+ done
  
- 	mmc_wait_for_req(card->host, &mrq);
-+	memcpy(&idata->ic.response, cmd.resp, sizeof(cmd.resp));
+ # Run if user hits control-c
+-function control_c() {
++function print_result() {
+     # Print results
+     for ((thread = $F_THREAD; thread <= $L_THREAD; thread++)); do
+ 	dev=${DEV}@${thread}
+@@ -92,11 +92,13 @@ function control_c() {
+     done
+ }
+ # trap keyboard interrupt (Ctrl-C)
+-trap control_c SIGINT
++trap true SIGINT
  
- 	if (cmd.error) {
- 		dev_err(mmc_dev(card->host), "%s: cmd error %d\n",
-@@ -591,8 +592,6 @@ static int __mmc_blk_ioctl_cmd(struct mmc_card *card, struct mmc_blk_data *md,
- 	if (idata->ic.postsleep_min_us)
- 		usleep_range(idata->ic.postsleep_min_us, idata->ic.postsleep_max_us);
- 
--	memcpy(&(idata->ic.response), cmd.resp, sizeof(cmd.resp));
--
- 	if (idata->rpmb || (cmd.flags & MMC_RSP_R1B) == MMC_RSP_R1B) {
- 		/*
- 		 * Ensure RPMB/R1B command has completed by polling CMD13
+ if [ -z "$APPEND" ]; then
+     echo "Running... ctrl^C to stop" >&2
+     pg_ctrl "start"
++
++    print_result
+ else
+     echo "Append mode: config done. Do more or use 'pg_ctrl start' to run"
+ fi
 -- 
 2.30.2
 
