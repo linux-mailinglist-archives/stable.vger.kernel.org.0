@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C37F40DF17
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:06:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F0E240E5FC
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234970AbhIPQGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:06:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45176 "EHLO mail.kernel.org"
+        id S1345953AbhIPRRE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:17:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231562AbhIPQGU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:06:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF6B461241;
-        Thu, 16 Sep 2021 16:04:58 +0000 (UTC)
+        id S1346545AbhIPRFS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:05:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08CC161B1C;
+        Thu, 16 Sep 2021 16:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808299;
-        bh=Vd3eSoJaD7la4n3peQY8qjfvoXPiinKt4hqA7LAzS9E=;
+        s=korg; t=1631810112;
+        bh=Cck+dXftzkLrcA22ZZHAK/uDUVPfUpcQBGQdQ6b1Aho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMV5d++bdOGPbCyOmbAczrCEFaWanqFdkCwPBUQqeTlZ5QkPz7y3dGmIApPbh504n
-         PEOrEMKfXxH5Bxjg0EkdfuqaGEEbhB6w/HGXgVidFtDRoKOnyGZ4g8GiX9rVSbbVyK
-         g7l9efojIYrIABj2kTrn+QJA6n7k3+CjMtZqGudw=
+        b=FcchjMTEsod9Gu1wXjWq7+DQ08tHdIZtIKlm9jfr7YcJXpZw9Bv9qHSaZd75Q4lC3
+         VjCf0+caqD6V/c/shhdJxrE3lIUxRBXCOLR54iLzkQzIiQIjof5G5RV45s9JaPIO3M
+         JFbS/GyhiP6PGhuXJqQfOSYu3HP5EHdQK7CTFKBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 007/306] btrfs: wake up async_delalloc_pages waiters after submit
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.14 003/432] io_uring: place fixed tables under memcg limits
 Date:   Thu, 16 Sep 2021 17:55:52 +0200
-Message-Id: <20210916155754.171352724@linuxfoundation.org>
+Message-Id: <20210916155810.938190192@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit ac98141d140444fe93e26471d3074c603b70e2ca upstream.
+commit 0bea96f59ba40e63c0ae93ad6a02417b95f22f4d upstream.
 
-We use the async_delalloc_pages mechanism to make sure that we've
-completed our async work before trying to continue our delalloc
-flushing.  The reason for this is we need to see any ordered extents
-that were created by our delalloc flushing.  However we're waking up
-before we do the submit work, which is before we create the ordered
-extents.  This is a pretty wide race window where we could potentially
-think there are no ordered extents and thus exit shrink_delalloc
-prematurely.  Fix this by waking us up after we've done the work to
-create ordered extents.
+Fixed tables may be large enough, place all of them together with
+allocated tags under memcg limits.
 
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/b3ac9f5da9821bb59837b5fe25e8ef4be982218c.1629451684.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/inode.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/io_uring.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -1202,11 +1202,6 @@ static noinline void async_cow_submit(st
- 	nr_pages = (async_chunk->end - async_chunk->start + PAGE_SIZE) >>
- 		PAGE_SHIFT;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7126,14 +7126,14 @@ static void **io_alloc_page_table(size_t
+ 	size_t init_size = size;
+ 	void **table;
  
--	/* atomic_sub_return implies a barrier */
--	if (atomic_sub_return(nr_pages, &fs_info->async_delalloc_pages) <
--	    5 * SZ_1M)
--		cond_wake_up_nomb(&fs_info->async_submit_wait);
--
- 	/*
- 	 * ->inode could be NULL if async_chunk_start has failed to compress,
- 	 * in which case we don't have anything to submit, yet we need to
-@@ -1215,6 +1210,11 @@ static noinline void async_cow_submit(st
- 	 */
- 	if (async_chunk->inode)
- 		submit_compressed_extents(async_chunk);
-+
-+	/* atomic_sub_return implies a barrier */
-+	if (atomic_sub_return(nr_pages, &fs_info->async_delalloc_pages) <
-+	    5 * SZ_1M)
-+		cond_wake_up_nomb(&fs_info->async_submit_wait);
- }
+-	table = kcalloc(nr_tables, sizeof(*table), GFP_KERNEL);
++	table = kcalloc(nr_tables, sizeof(*table), GFP_KERNEL_ACCOUNT);
+ 	if (!table)
+ 		return NULL;
  
- static noinline void async_cow_free(struct btrfs_work *work)
+ 	for (i = 0; i < nr_tables; i++) {
+ 		unsigned int this_size = min_t(size_t, size, PAGE_SIZE);
+ 
+-		table[i] = kzalloc(this_size, GFP_KERNEL);
++		table[i] = kzalloc(this_size, GFP_KERNEL_ACCOUNT);
+ 		if (!table[i]) {
+ 			io_free_page_table(table, init_size);
+ 			return NULL;
 
 
