@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A48D440E34F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37DEC40E08C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242788AbhIPQrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:47:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57770 "EHLO mail.kernel.org"
+        id S241621AbhIPQWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:22:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344196AbhIPQov (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:44:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E18EB613CE;
-        Thu, 16 Sep 2021 16:25:52 +0000 (UTC)
+        id S241766AbhIPQUH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:20:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E18146124D;
+        Thu, 16 Sep 2021 16:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809553;
-        bh=M/TrmTe3ciJOP0PBC3RLTmAUzusLs0iiYOrZz9bKWK0=;
+        s=korg; t=1631808866;
+        bh=8n5C2JifXzVoWvgkUvEfDECrf5ebuw6dW59g53XDHsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIWp26r7mPsmvBcy/MWYYGU2K7h6MBuoaY+yxa0bDwlLots51AWmOMRT0IyYFSlsC
-         JpUkk7fsQIEPOqBmyxUOWDUZyI1h6hNJKTq56Tbnyozx294zG0QSCluZckEJlW6EUB
-         W0gffIffYFirnELtcZNx/uY+vruia4Owfj3oqxq4=
+        b=V29ukyeeheOi31NiLHF7OXvz6G8sJMfbsurEhHW+Ym7v2nZNWZWGVCXLuB8DdERhe
+         w3B9jjh08y3LY/XoFaSHXCQR18CGs5cezYQSOKZzw8pYBPHoVNGVkeaABcOGUC2vZX
+         5BycyJgl0C1p6TcZFz54V13Iah8sq8m23oaPleu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Kuogee Hsieh <khsieh@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 196/380] video: fbdev: kyro: Error out if pixclock equals zero
-Date:   Thu, 16 Sep 2021 17:59:13 +0200
-Message-Id: <20210916155810.748096642@linuxfoundation.org>
+Subject: [PATCH 5.10 209/306] drm/msm/dp: return correct edid checksum after corrupted edid checksum read
+Date:   Thu, 16 Sep 2021 17:59:14 +0200
+Message-Id: <20210916155801.164037317@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Kuogee Hsieh <khsieh@codeaurora.org>
 
-[ Upstream commit 1520b4b7ba964f8eec2e7dd14c571d50de3e5191 ]
+[ Upstream commit 7948fe12d47a946fb8025a0534c900e3dd4b5839 ]
 
-The userspace program could pass any values to the driver through
-ioctl() interface. if the driver doesn't check the value of 'pixclock',
-it may cause divide error because the value of 'lineclock' and
-'frameclock' will be zero.
+Response with correct edid checksum saved at connector after corrupted edid
+checksum read. This fixes Link Layer CTS cases 4.2.2.3, 4.2.2.6.
 
-Fix this by checking whether 'pixclock' is zero in kyrofb_check_var().
-
-The following log reveals it:
-
-[  103.073930] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
-[  103.073942] CPU: 4 PID: 12483 Comm: syz-executor Not tainted 5.14.0-rc2-00478-g2734d6c1b1a0-dirty #118
-[  103.073959] RIP: 0010:kyrofb_set_par+0x316/0xc80
-[  103.074045] Call Trace:
-[  103.074048]  ? ___might_sleep+0x1ee/0x2d0
-[  103.074060]  ? kyrofb_ioctl+0x330/0x330
-[  103.074069]  fb_set_var+0x5bf/0xeb0
-[  103.074078]  ? fb_blank+0x1a0/0x1a0
-[  103.074085]  ? lock_acquire+0x3bd/0x530
-[  103.074094]  ? lock_release+0x810/0x810
-[  103.074103]  ? ___might_sleep+0x1ee/0x2d0
-[  103.074114]  ? __mutex_lock+0x620/0x1190
-[  103.074126]  ? trace_hardirqs_on+0x6a/0x1c0
-[  103.074137]  do_fb_ioctl+0x31e/0x700
-[  103.074144]  ? fb_getput_cmap+0x280/0x280
-[  103.074152]  ? rcu_read_lock_sched_held+0x11/0x80
-[  103.074162]  ? rcu_read_lock_sched_held+0x11/0x80
-[  103.074171]  ? __sanitizer_cov_trace_switch+0x67/0xf0
-[  103.074181]  ? __sanitizer_cov_trace_const_cmp2+0x20/0x80
-[  103.074191]  ? do_vfs_ioctl+0x14b/0x16c0
-[  103.074199]  ? vfs_fileattr_set+0xb60/0xb60
-[  103.074207]  ? rcu_read_lock_sched_held+0x11/0x80
-[  103.074216]  ? lock_release+0x483/0x810
-[  103.074224]  ? __fget_files+0x217/0x3d0
-[  103.074234]  ? __fget_files+0x239/0x3d0
-[  103.074243]  ? do_fb_ioctl+0x700/0x700
-[  103.074250]  fb_ioctl+0xe6/0x130
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-3-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1628196295-7382-6-git-send-email-khsieh@codeaurora.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/kyro/fbdev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/msm/dp/dp_panel.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/kyro/fbdev.c b/drivers/video/fbdev/kyro/fbdev.c
-index 4b8c7c16b1df..25801e8e3f74 100644
---- a/drivers/video/fbdev/kyro/fbdev.c
-+++ b/drivers/video/fbdev/kyro/fbdev.c
-@@ -399,6 +399,9 @@ static int kyrofb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+diff --git a/drivers/gpu/drm/msm/dp/dp_panel.c b/drivers/gpu/drm/msm/dp/dp_panel.c
+index 18cec4fc5e0b..2768d1d306f0 100644
+--- a/drivers/gpu/drm/msm/dp/dp_panel.c
++++ b/drivers/gpu/drm/msm/dp/dp_panel.c
+@@ -261,7 +261,7 @@ static u8 dp_panel_get_edid_checksum(struct edid *edid)
  {
- 	struct kyrofb_info *par = info->par;
+ 	struct edid *last_block;
+ 	u8 *raw_edid;
+-	bool is_edid_corrupt;
++	bool is_edid_corrupt = false;
  
-+	if (!var->pixclock)
-+		return -EINVAL;
+ 	if (!edid) {
+ 		DRM_ERROR("invalid edid input\n");
+@@ -293,7 +293,12 @@ void dp_panel_handle_sink_request(struct dp_panel *dp_panel)
+ 	panel = container_of(dp_panel, struct dp_panel_private, dp_panel);
+ 
+ 	if (panel->link->sink_request & DP_TEST_LINK_EDID_READ) {
+-		u8 checksum = dp_panel_get_edid_checksum(dp_panel->edid);
++		u8 checksum;
 +
- 	if (var->bits_per_pixel != 16 && var->bits_per_pixel != 32) {
- 		printk(KERN_WARNING "kyrofb: depth not supported: %u\n", var->bits_per_pixel);
- 		return -EINVAL;
++		if (dp_panel->edid)
++			checksum = dp_panel_get_edid_checksum(dp_panel->edid);
++		else
++			checksum = dp_panel->connector->real_edid_checksum;
+ 
+ 		dp_link_send_edid_checksum(panel->link, checksum);
+ 		dp_link_send_test_response(panel->link);
 -- 
 2.30.2
 
