@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0082340E67F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5653440DFDF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232685AbhIPRV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:21:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43514 "EHLO mail.kernel.org"
+        id S232660AbhIPQPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:15:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351937AbhIPRUA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:20:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51EFD61A10;
-        Thu, 16 Sep 2021 16:41:44 +0000 (UTC)
+        id S236100AbhIPQM3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:12:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B0B76137E;
+        Thu, 16 Sep 2021 16:09:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810504;
-        bh=21bRNlJHjvzXKdcnLpXqGJVjQNQ/P5nEphiX9ffc22A=;
+        s=korg; t=1631808564;
+        bh=JU4iJc6oY871eBLmLglTyk8lAnK2nHC5KV9FVXhDFpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KgNRuTHsR+a2nLtGq4VpXzHBh+j8FLQL0GsXH0uj7UXOGMq9RoRRKoF/4OrMj3++G
-         M/8da/faMFKWLYAF+CNwhz3wpV1Wpi/LJ3cMSYj+WV/EFTvZYVizNAnTWKd0ptDDp5
-         uElSb78mivcr/LGAr92hhzDyPiPboCVpV4LV7GCg=
+        b=AhL8iW1dC+AELtGKBvq3swutudkaUMBx177MUy1kBxA2gEo1c8I2JXxbNAsfTiQG6
+         XPK+WQYjHPgcASCqTHI7D/nGb+ZEUx8ChTGhwpWs05WjyQWRlRP3lbWzkXd3bEUJ7K
+         cRUS8aQ11+3g+Zv7H+eerUj7AT6htvXN5Y3+KOq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 133/432] KVM: PPC: Book3S HV Nested: Reflect guest PMU in-use to L0 when guest SPRs are live
+Subject: [PATCH 5.10 137/306] staging: board: Fix uninitialized spinlock when attaching genpd
 Date:   Thu, 16 Sep 2021 17:58:02 +0200
-Message-Id: <20210916155815.268614011@linuxfoundation.org>
+Message-Id: <20210916155758.715060304@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,98 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 1782663897945a5cf28e564ba5eed730098e9aa4 ]
+[ Upstream commit df00609821bf17f50a75a446266d19adb8339d84 ]
 
-After the L1 saves its PMU SPRs but before loading the L2's PMU SPRs,
-switch the pmcregs_in_use field in the L1 lppaca to the value advertised
-by the L2 in its VPA. On the way out of the L2, set it back after saving
-the L2 PMU registers (if they were in-use).
+On Armadillo-800-EVA with CONFIG_DEBUG_SPINLOCK=y:
 
-This transfers the PMU liveness indication between the L1 and L2 at the
-points where the registers are not live.
+    BUG: spinlock bad magic on CPU#0, swapper/1
+     lock: lcdc0_device+0x10c/0x308, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    CPU: 0 PID: 1 Comm: swapper Not tainted 5.11.0-rc5-armadillo-00036-gbbca04be7a80-dirty #287
+    Hardware name: Generic R8A7740 (Flattened Device Tree)
+    [<c010c3c8>] (unwind_backtrace) from [<c010a49c>] (show_stack+0x10/0x14)
+    [<c010a49c>] (show_stack) from [<c0159534>] (do_raw_spin_lock+0x20/0x94)
+    [<c0159534>] (do_raw_spin_lock) from [<c040858c>] (dev_pm_get_subsys_data+0x8c/0x11c)
+    [<c040858c>] (dev_pm_get_subsys_data) from [<c05fbcac>] (genpd_add_device+0x78/0x2b8)
+    [<c05fbcac>] (genpd_add_device) from [<c0412db4>] (of_genpd_add_device+0x34/0x4c)
+    [<c0412db4>] (of_genpd_add_device) from [<c0a1ea74>] (board_staging_register_device+0x11c/0x148)
+    [<c0a1ea74>] (board_staging_register_device) from [<c0a1eac4>] (board_staging_register_devices+0x24/0x28)
 
-This fixes the nested HV bug for which a workaround was added to the L0
-HV by commit 63279eeb7f93a ("KVM: PPC: Book3S HV: Always save guest pmu
-for guest capable of nesting"), which explains the problem in detail.
-That workaround is no longer required for guests that include this bug
-fix.
+of_genpd_add_device() is called before platform_device_register(), as it
+needs to attach the genpd before the device is probed.  But the spinlock
+is only initialized when the device is registered.
 
-Fixes: 360cae313702 ("KVM: PPC: Book3S HV: Nested guest entry via hypercall")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210811160134.904987-10-npiggin@gmail.com
+Fix this by open-coding the spinlock initialization, cfr.
+device_pm_init_common() in the internal drivers/base code, and in the
+SuperH early platform code.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/57783ece7ddae55f2bda2f59f452180bff744ea0.1626257398.git.geert+renesas@glider.be
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/pmc.h |  7 +++++++
- arch/powerpc/kvm/book3s_hv.c   | 20 ++++++++++++++++++++
- 2 files changed, 27 insertions(+)
+ drivers/staging/board/board.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/pmc.h b/arch/powerpc/include/asm/pmc.h
-index c6bbe9778d3c..3c09109e708e 100644
---- a/arch/powerpc/include/asm/pmc.h
-+++ b/arch/powerpc/include/asm/pmc.h
-@@ -34,6 +34,13 @@ static inline void ppc_set_pmu_inuse(int inuse)
- #endif
- }
+diff --git a/drivers/staging/board/board.c b/drivers/staging/board/board.c
+index cb6feb34dd40..f980af037345 100644
+--- a/drivers/staging/board/board.c
++++ b/drivers/staging/board/board.c
+@@ -136,6 +136,7 @@ int __init board_staging_register_clock(const struct board_staging_clk *bsc)
+ static int board_staging_add_dev_domain(struct platform_device *pdev,
+ 					const char *domain)
+ {
++	struct device *dev = &pdev->dev;
+ 	struct of_phandle_args pd_args;
+ 	struct device_node *np;
  
-+#ifdef CONFIG_KVM_BOOK3S_HV_POSSIBLE
-+static inline int ppc_get_pmu_inuse(void)
-+{
-+	return get_paca()->pmcregs_in_use;
-+}
-+#endif
+@@ -148,7 +149,11 @@ static int board_staging_add_dev_domain(struct platform_device *pdev,
+ 	pd_args.np = np;
+ 	pd_args.args_count = 0;
+ 
+-	return of_genpd_add_device(&pd_args, &pdev->dev);
++	/* Initialization similar to device_pm_init_common() */
++	spin_lock_init(&dev->power.lock);
++	dev->power.early_init = true;
 +
- extern void power4_enable_pmcs(void);
- 
- #else /* CONFIG_PPC64 */
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 085fb8ecbf68..af822f09785f 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -59,6 +59,7 @@
- #include <asm/kvm_book3s.h>
- #include <asm/mmu_context.h>
- #include <asm/lppaca.h>
-+#include <asm/pmc.h>
- #include <asm/processor.h>
- #include <asm/cputhreads.h>
- #include <asm/page.h>
-@@ -3852,6 +3853,18 @@ static int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
- 	    cpu_has_feature(CPU_FTR_P9_TM_HV_ASSIST))
- 		kvmppc_restore_tm_hv(vcpu, vcpu->arch.shregs.msr, true);
- 
-+#ifdef CONFIG_PPC_PSERIES
-+	if (kvmhv_on_pseries()) {
-+		barrier();
-+		if (vcpu->arch.vpa.pinned_addr) {
-+			struct lppaca *lp = vcpu->arch.vpa.pinned_addr;
-+			get_lppaca()->pmcregs_in_use = lp->pmcregs_in_use;
-+		} else {
-+			get_lppaca()->pmcregs_in_use = 1;
-+		}
-+		barrier();
-+	}
-+#endif
- 	kvmhv_load_guest_pmu(vcpu);
- 
- 	msr_check_and_set(MSR_FP | MSR_VEC | MSR_VSX);
-@@ -3986,6 +3999,13 @@ static int kvmhv_p9_guest_entry(struct kvm_vcpu *vcpu, u64 time_limit,
- 	save_pmu |= nesting_enabled(vcpu->kvm);
- 
- 	kvmhv_save_guest_pmu(vcpu, save_pmu);
-+#ifdef CONFIG_PPC_PSERIES
-+	if (kvmhv_on_pseries()) {
-+		barrier();
-+		get_lppaca()->pmcregs_in_use = ppc_get_pmu_inuse();
-+		barrier();
-+	}
-+#endif
- 
- 	vc->entry_exit_map = 0x101;
- 	vc->in_guest = 0;
++	return of_genpd_add_device(&pd_args, dev);
+ }
+ #else
+ static inline int board_staging_add_dev_domain(struct platform_device *pdev,
 -- 
 2.30.2
 
