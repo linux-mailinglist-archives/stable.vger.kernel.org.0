@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B7E040E383
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14C7940E6F2
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242747AbhIPQs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:48:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57378 "EHLO mail.kernel.org"
+        id S1347967AbhIPR0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:26:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344655AbhIPQqa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:46:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D074061504;
-        Thu, 16 Sep 2021 16:26:27 +0000 (UTC)
+        id S1352495AbhIPRYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:24:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 921C161A52;
+        Thu, 16 Sep 2021 16:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809588;
-        bh=h6FqXYCR30wR/rITiby2miwzaK5galCFD9iDPMZKP1M=;
+        s=korg; t=1631810644;
+        bh=muu/jGLTtttFmQjtnPa4AwWkhKRn8IA8zQIhSyPmmys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yh2y0XkXByvIw4+HTgzSV5UJmMqWxEiqWaJB6BspiAkyfqkN4/mT80pgLBjUzhpHy
-         AQ0m5W835e0txOSEWzQhBjfkUV4n7eafLSRPdDNdwEi80kSs0Muo63nh6/Q6BvBe3o
-         Nk+xYP1st4Q0F/nG7x4kkI1VELhgxpgznDeZXol0=
+        b=D6p/RNsVDYiw+d0BQTY+kIoy8t8A3wjolq9F7Y36zvgjmQ8qdSjOyHwL77JGucxta
+         qaSmLT7S3h7lWFjUHMBeWgSsxXYsIrmZ45vJyTlIeTyz07sEVfeqd1qBzYSQCgHNRp
+         1NvJ/3f7SgLxtlZVeeEr5pcJRCbH6H871sRKg3EM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juhee Kang <claudiajkang@gmail.com>,
+        stable@vger.kernel.org,
+        Johan Almbladh <johan.almbladh@anyfinetworks.com>,
         Andrii Nakryiko <andrii@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 208/380] samples: bpf: Fix tracex7 error raised on the missing argument
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 216/432] bpf/tests: Fix copy-and-paste error in double word test
 Date:   Thu, 16 Sep 2021 17:59:25 +0200
-Message-Id: <20210916155811.147482109@linuxfoundation.org>
+Message-Id: <20210916155818.170291119@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juhee Kang <claudiajkang@gmail.com>
+From: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 
-[ Upstream commit 7d07006f05922b95518be403f08ef8437b67aa32 ]
+[ Upstream commit ae7f47041d928b1a2f28717d095b4153c63cbf6a ]
 
-The current behavior of 'tracex7' doesn't consist with other bpf samples
-tracex{1..6}. Other samples do not require any argument to run with, but
-tracex7 should be run with btrfs device argument. (it should be executed
-with test_override_return.sh)
+This test now operates on DW as stated instead of W, which was
+already covered by another test.
 
-Currently, tracex7 doesn't have any description about how to run this
-program and raises an unexpected error. And this result might be
-confusing since users might not have a hunch about how to run this
-program.
-
-    // Current behavior
-    # ./tracex7
-    sh: 1: Syntax error: word unexpected (expecting ")")
-    // Fixed behavior
-    # ./tracex7
-    ERROR: Run with the btrfs device argument!
-
-In order to fix this error, this commit adds logic to report a message
-and exit when running this program with a missing argument.
-
-Additionally in test_override_return.sh, there is a problem with
-multiple directory(tmpmnt) creation. So in this commit adds a line with
-removing the directory with every execution.
-
-Signed-off-by: Juhee Kang <claudiajkang@gmail.com>
+Signed-off-by: Johan Almbladh <johan.almbladh@anyfinetworks.com>
 Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210727041056.23455-1-claudiajkang@gmail.com
+Link: https://lore.kernel.org/bpf/20210721104058.3755254-1-johan.almbladh@anyfinetworks.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/test_override_return.sh | 1 +
- samples/bpf/tracex7_user.c          | 5 +++++
- 2 files changed, 6 insertions(+)
+ lib/test_bpf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/samples/bpf/test_override_return.sh b/samples/bpf/test_override_return.sh
-index e68b9ee6814b..35db26f736b9 100755
---- a/samples/bpf/test_override_return.sh
-+++ b/samples/bpf/test_override_return.sh
-@@ -1,5 +1,6 @@
- #!/bin/bash
- 
-+rm -r tmpmnt
- rm -f testfile.img
- dd if=/dev/zero of=testfile.img bs=1M seek=1000 count=1
- DEVICE=$(losetup --show -f testfile.img)
-diff --git a/samples/bpf/tracex7_user.c b/samples/bpf/tracex7_user.c
-index fdcd6580dd73..8be7ce18d3ba 100644
---- a/samples/bpf/tracex7_user.c
-+++ b/samples/bpf/tracex7_user.c
-@@ -14,6 +14,11 @@ int main(int argc, char **argv)
- 	int ret = 0;
- 	FILE *f;
- 
-+	if (!argv[1]) {
-+		fprintf(stderr, "ERROR: Run with the btrfs device argument!\n");
-+		return 0;
-+	}
-+
- 	snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
- 	obj = bpf_object__open_file(filename, NULL);
- 	if (libbpf_get_error(obj)) {
+diff --git a/lib/test_bpf.c b/lib/test_bpf.c
+index d500320778c7..1c5299cb3f19 100644
+--- a/lib/test_bpf.c
++++ b/lib/test_bpf.c
+@@ -4286,8 +4286,8 @@ static struct bpf_test tests[] = {
+ 		.u.insns_int = {
+ 			BPF_LD_IMM64(R0, 0),
+ 			BPF_LD_IMM64(R1, 0xffffffffffffffffLL),
+-			BPF_STX_MEM(BPF_W, R10, R1, -40),
+-			BPF_LDX_MEM(BPF_W, R0, R10, -40),
++			BPF_STX_MEM(BPF_DW, R10, R1, -40),
++			BPF_LDX_MEM(BPF_DW, R0, R10, -40),
+ 			BPF_EXIT_INSN(),
+ 		},
+ 		INTERNAL,
 -- 
 2.30.2
 
