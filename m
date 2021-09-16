@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5758740E87D
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82DB040E4E0
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355987AbhIPRoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57086 "EHLO mail.kernel.org"
+        id S1349522AbhIPRF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:05:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355399AbhIPRl0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:41:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93EB761357;
-        Thu, 16 Sep 2021 16:52:52 +0000 (UTC)
+        id S1348404AbhIPRCq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:02:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF8C2613BD;
+        Thu, 16 Sep 2021 16:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811173;
-        bh=8B59y0L/wT2zvmO07cGzKGTGPzz20BmRT7PsdET3T74=;
+        s=korg; t=1631810022;
+        bh=iXJafTiwm+F/PRnWqxas69L3sKLJAcb7LldHNIyBmJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x4MCBBII86dMRu67RIkpDPrdIn3GiCf6vu0H/N0odJdETPZiJxvo3p9LvSMKwMKk4
-         B7WtXG6QUaxldiOgFfHcBEhdxmNUnmcOKVedMwEenKJvK7SIOpGyYq33ufhKQUU2If
-         7uc7YEexg7V0wamLyDcuBYR5FAyxszCevQ1sEGV0=
+        b=l7aUNigA7DvcUj8kn6LwPLw+b4d2eSvztMMFID8tXf1vDMQT9nd7n9OA1qEp016/+
+         ZFU5Z6DOIpwNS7H+TaOtY/DwMF6blEqday0BhcuSjqHbgZIpGcDWoZUyys2mAf3eFa
+         2yptTqy5ofvDPBuDT4vppExBiA7qoVmoL50Vg1FQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Rui Miguel Silva <rui.silva@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 377/432] usb: isp1760: fix memory pool initialization
+        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
+        Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 5.13 369/380] drm/msi/mdp4: populate priv->kms in mdp4_kms_init
 Date:   Thu, 16 Sep 2021 18:02:06 +0200
-Message-Id: <20210916155823.594534994@linuxfoundation.org>
+Message-Id: <20210916155816.607628876@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Miguel Silva <rui.silva@linaro.org>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit f757f9291f920e1da4c6cfd4064c6bf59639983e ]
+commit cb0927ab80d224c9074f53d1a55b087d12ec5a85 upstream.
 
-The loops to setup the memory pool were skipping some
-blocks, that was not visible on the ISP1763 because it has
-fewer blocks than the ISP1761. But won testing on that IP
-from the family that would be an issue.
+Without this fix boot throws NULL ptr exception at msm_dsi_manager_setup_encoder
+on devices like Nexus 7 2013 (MDP4 v4.4).
 
-Reported-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Tested-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Signed-off-by: Rui Miguel Silva <rui.silva@linaro.org>
-Link: https://lore.kernel.org/r/20210827131154.4151862-2-rui.silva@linaro.org
+Fixes: 03436e3ec69c ("drm/msm/dsi: Move setup_encoder to modeset_init")
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210811170631.39296-1-david@ixit.cz
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/isp1760/isp1760-hcd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/isp1760/isp1760-hcd.c b/drivers/usb/isp1760/isp1760-hcd.c
-index 27168b4a4ef2..ffb3a0c8c909 100644
---- a/drivers/usb/isp1760/isp1760-hcd.c
-+++ b/drivers/usb/isp1760/isp1760-hcd.c
-@@ -588,8 +588,8 @@ static void init_memory(struct isp1760_hcd *priv)
+--- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+@@ -399,6 +399,7 @@ struct msm_kms *mdp4_kms_init(struct drm
+ {
+ 	struct platform_device *pdev = to_platform_device(dev->dev);
+ 	struct mdp4_platform_config *config = mdp4_get_config(pdev);
++	struct msm_drm_private *priv = dev->dev_private;
+ 	struct mdp4_kms *mdp4_kms;
+ 	struct msm_kms *kms = NULL;
+ 	struct msm_gem_address_space *aspace;
+@@ -418,7 +419,8 @@ struct msm_kms *mdp4_kms_init(struct drm
+ 		goto fail;
+ 	}
  
- 	payload_addr = PAYLOAD_OFFSET;
+-	kms = &mdp4_kms->base.base;
++	priv->kms = &mdp4_kms->base.base;
++	kms = priv->kms;
  
--	for (i = 0, curr = 0; i < ARRAY_SIZE(mem->blocks); i++) {
--		for (j = 0; j < mem->blocks[i]; j++, curr++) {
-+	for (i = 0, curr = 0; i < ARRAY_SIZE(mem->blocks); i++, curr += j) {
-+		for (j = 0; j < mem->blocks[i]; j++) {
- 			priv->memory_pool[curr + j].start = payload_addr;
- 			priv->memory_pool[curr + j].size = mem->blocks_size[i];
- 			priv->memory_pool[curr + j].free = 1;
--- 
-2.30.2
-
+ 	mdp4_kms->dev = dev;
+ 
 
 
