@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96FE240E083
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8523740E2C4
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241556AbhIPQVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54974 "EHLO mail.kernel.org"
+        id S244224AbhIPQl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:41:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241183AbhIPQPT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:15:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1162613AC;
-        Thu, 16 Sep 2021 16:11:14 +0000 (UTC)
+        id S244574AbhIPQjT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:39:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08ED06141B;
+        Thu, 16 Sep 2021 16:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808675;
-        bh=QoClUXnsgUsdkKIUK3S7YihV40s5FkTGnHPGa3PGaME=;
+        s=korg; t=1631809391;
+        bh=xy6Pskwf2LsTKup1sy1FUidV65P0qDqckPExucv4B0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkaDilMsJ9f1doBP2lnXeoVAmjGR0KElIcSMnjy3GtLrzRk4xiaoekXiQFw1+u++b
-         GKiJMe5cHSh5k3db8dcsez8hTB67nQSD4wok7fndSuihh4mIFInP/xhR43YB+y43oc
-         H7fL7rvR/g2SvufnDcKbGrrQUfGvs0UY8pNPVUzU=
+        b=K89IifLbRF6Clmxdp1MNFIjAa0JhcGdOBr3kXWxrRw/GH/w7E4ce99lVhw1i0JTeQ
+         1FAy2g1rbBQUb3DMUzBFl8nbi25SDSRM8uXKa7uKK/N/IMKZ3lTd9K3WFqlFK7EPh6
+         GlyKwgqVcIMeRJrhfQdQ0IxDOwNxVaSXptDEbgqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oak Zeng <Oak.Zeng@amd.com>,
-        Christian Konig <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 148/306] drm/amdgpu: Fix a printing message
+Subject: [PATCH 5.13 136/380] MIPS: Malta: fix alignment of the devicetree buffer
 Date:   Thu, 16 Sep 2021 17:58:13 +0200
-Message-Id: <20210916155759.101621605@linuxfoundation.org>
+Message-Id: <20210916155808.664885362@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,79 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oak Zeng <Oak.Zeng@amd.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 95f71f12aa45d65b7f2ccab95569795edffd379a ]
+[ Upstream commit bea6a94a279bcbe6b2cde348782b28baf12255a5 ]
 
-The printing message "PSP loading VCN firmware" is mis-leading because
-people might think driver is loading VCN firmware. Actually when this
-message is printed, driver is just preparing some VCN ucode, not loading
-VCN firmware yet. The actual VCN firmware loading will be in the PSP block
-hw_init. Fix the printing message
+Starting with following patch MIPS Malta is not able to boot:
+| commit 79edff12060fe7772af08607eff50c0e2486c5ba
+| Author: Rob Herring <robh@kernel.org>
+| scripts/dtc: Update to upstream version v1.6.0-51-g183df9e9c2b9
 
-Signed-off-by: Oak Zeng <Oak.Zeng@amd.com>
-Reviewed-by: Christian Konig <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The reason is the alignment test added to the fdt_ro_probe_(). To fix
+this issue, we need to make sure that fdt_buf is aligned.
+
+Since the dtc patch was designed to uncover potential issue, I handle
+initial MIPS Malta patch as initial bug.
+
+Fixes: e81a8c7dabac ("MIPS: Malta: Setup RAM regions via DT")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c | 2 +-
- drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c | 2 +-
- drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c | 2 +-
- drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ arch/mips/mti-malta/malta-dtshim.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
-index aa8ae0ca62f9..e8737fa438f0 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
-@@ -120,7 +120,7 @@ static int vcn_v1_0_sw_init(void *handle)
- 		adev->firmware.ucode[AMDGPU_UCODE_ID_VCN].fw = adev->vcn.fw;
- 		adev->firmware.fw_size +=
- 			ALIGN(le32_to_cpu(hdr->ucode_size_bytes), PAGE_SIZE);
--		DRM_INFO("PSP loading VCN firmware\n");
-+		dev_info(adev->dev, "Will use PSP to load VCN firmware\n");
- 	}
+diff --git a/arch/mips/mti-malta/malta-dtshim.c b/arch/mips/mti-malta/malta-dtshim.c
+index 0ddf03df6268..f451268f6c38 100644
+--- a/arch/mips/mti-malta/malta-dtshim.c
++++ b/arch/mips/mti-malta/malta-dtshim.c
+@@ -22,7 +22,7 @@
+ #define  ROCIT_CONFIG_GEN1_MEMMAP_SHIFT	8
+ #define  ROCIT_CONFIG_GEN1_MEMMAP_MASK	(0xf << 8)
  
- 	r = amdgpu_vcn_resume(adev);
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-index fc939d4f4841..f493b5c3d382 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-@@ -122,7 +122,7 @@ static int vcn_v2_0_sw_init(void *handle)
- 		adev->firmware.ucode[AMDGPU_UCODE_ID_VCN].fw = adev->vcn.fw;
- 		adev->firmware.fw_size +=
- 			ALIGN(le32_to_cpu(hdr->ucode_size_bytes), PAGE_SIZE);
--		DRM_INFO("PSP loading VCN firmware\n");
-+		dev_info(adev->dev, "Will use PSP to load VCN firmware\n");
- 	}
+-static unsigned char fdt_buf[16 << 10] __initdata;
++static unsigned char fdt_buf[16 << 10] __initdata __aligned(8);
  
- 	r = amdgpu_vcn_resume(adev);
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-index 2c328362eee3..ce64d4016f90 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-@@ -152,7 +152,7 @@ static int vcn_v2_5_sw_init(void *handle)
- 			adev->firmware.fw_size +=
- 				ALIGN(le32_to_cpu(hdr->ucode_size_bytes), PAGE_SIZE);
- 		}
--		DRM_INFO("PSP loading VCN firmware\n");
-+		dev_info(adev->dev, "Will use PSP to load VCN firmware\n");
- 	}
- 
- 	r = amdgpu_vcn_resume(adev);
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-index c9c888be1228..2099f6ebd833 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-@@ -148,7 +148,7 @@ static int vcn_v3_0_sw_init(void *handle)
- 			adev->firmware.fw_size +=
- 				ALIGN(le32_to_cpu(hdr->ucode_size_bytes), PAGE_SIZE);
- 		}
--		DRM_INFO("PSP loading VCN firmware\n");
-+		dev_info(adev->dev, "Will use PSP to load VCN firmware\n");
- 	}
- 
- 	r = amdgpu_vcn_resume(adev);
+ /* determined physical memory size, not overridden by command line args	 */
+ extern unsigned long physical_memsize;
 -- 
 2.30.2
 
