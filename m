@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 470E840D993
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 14:14:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75EF940D994
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 14:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239370AbhIPMQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 08:16:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32902 "EHLO mail.kernel.org"
+        id S239373AbhIPMQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 08:16:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239161AbhIPMQH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 08:16:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6606060F58;
-        Thu, 16 Sep 2021 12:14:46 +0000 (UTC)
+        id S239161AbhIPMQJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 08:16:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D53F260E52;
+        Thu, 16 Sep 2021 12:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631794486;
-        bh=M5ZARLNJoWfFHlT6fasSeROVvyy3k2UJvxEhMRcbBwk=;
+        s=korg; t=1631794489;
+        bh=g3zm6l99f0LJyGNeWOKkxbCg9gSP63XUubpsb6MV5h8=;
         h=Subject:To:Cc:From:Date:From;
-        b=kEWs8b/1U0kj6Mxn3G3KhkEj5fzZJweMRY4JbNNKLyGdCsf5fz1l9vfEnBvCELLIA
-         RfC7QhzxmdmiD9t+vf72vsgDs9TnhhKBxCTOU8b9KpLiuKMEWrARq1Trbr8BqHUE/h
-         6mfqK00RIRP7hvgC9jwBxUUiysEVSnQENPJBIPt0=
-Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Changes to support kdump kernel for NVMe BFS" failed to apply to 4.19-stable tree
+        b=uVRKINTj5Od5jdEiJBOt8dzy8sjlqUWxrrSpJl+pmV6FJurYCo/Us20emgC0tUTsM
+         r5JUhsAGfLHLZqXPthgwvz1gccZKiNhz5LsnuX5pFLd0EObTQ0hE545fkHnstT5By6
+         aF7pGxhzlGbrhp5BwMiBCBcLwbIIJsP64iRiWF3o=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Changes to support kdump kernel for NVMe BFS" failed to apply to 5.4-stable tree
 To:     skashyap@marvell.com, himanshu.madhani@oracle.com,
         martin.petersen@oracle.com, njavali@marvell.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 16 Sep 2021 14:14:38 +0200
-Message-ID: <16317944789125@kroah.com>
+Message-ID: <1631794478254214@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
