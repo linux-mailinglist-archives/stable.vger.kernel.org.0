@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D98940E373
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C5E440E6BF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245492AbhIPQsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:48:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57528 "EHLO mail.kernel.org"
+        id S243964AbhIPRZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:25:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344721AbhIPQqi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:46:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC33E601FA;
-        Thu, 16 Sep 2021 16:26:38 +0000 (UTC)
+        id S1346896AbhIPRV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:21:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87EC5613AC;
+        Thu, 16 Sep 2021 16:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809599;
-        bh=2K+jeZhi6NWGxwSm3736qe8/WFfuxqbpxEPeczVvA9E=;
+        s=korg; t=1631810570;
+        bh=TUaNbGijjf16dwoOSELXxmYWLOmllXRTFAu0Q8E1m3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xv9DptAN42U28yRYQ3isCD/rksikPkptu7QtR8wg6o5SfLz8iThRdmoNM/5xy+YG4
-         3/mcz+miuynQ+QMniiShUP5vKq90dj9uDV5FH235mh0e2c0kCoi1H5O4wggv2n8ahT
-         yMwuPo1gkQGUCq6dUEld5t+zDhqv6KFHtuU7bzWs=
+        b=pPKMmpVcl3c4nzsAowzONnNpa5ifZOR7cOyNFmKXnkj/qz3N53W6zpQz13iB6+ww6
+         pPAECbCTpsOPQpfZupMPOtt4yDsM1dLPbaw3ONm8cEp9BtpT24oLgE1oDCDijqt1U+
+         lB12jEs+gbxrRbOw4wzfQpcY8UmrKQaAis+ozI5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 181/380] selftests: firmware: Fix ignored return val of asprintf() warn
+Subject: [PATCH 5.14 189/432] drm: avoid blocking in drm_clients_infos rcu section
 Date:   Thu, 16 Sep 2021 17:58:58 +0200
-Message-Id: <20210916155810.233553247@linuxfoundation.org>
+Message-Id: <20210916155817.158420628@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +41,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit fe968ca2cac91888310b143a483123c84906e3fc ]
+[ Upstream commit 5eff9585de220cdd131237f5665db5e6c6bdf590 ]
 
-Fix the following ingonred return val of asprintf() warn during
-build:
+Inside drm_clients_info, the rcu_read_lock is held to lock
+pid_task()->comm. However, within this protected section, a call to
+drm_is_current_master is made, which involves a mutex lock in a future
+patch. However, this is illegal because the mutex lock might block
+while in the RCU read-side critical section.
 
-cc -Wall -O2    fw_namespace.c  -o ../tools/testing/selftests/firmware/fw_namespace
-fw_namespace.c: In function ‘main’:
-fw_namespace.c:132:2: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
-  132 |  asprintf(&fw_path, "/lib/firmware/%s", fw_name);
-      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Since drm_is_current_master isn't protected by rcu_read_lock, we avoid
+this by moving it out of the RCU critical section.
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20210708031827.51293-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The following report came from intel-gfx ci's
+igt@debugfs_test@read_all_entries testcase:
+
+=============================
+[ BUG: Invalid wait context ]
+5.13.0-CI-Patchwork_20515+ #1 Tainted: G        W
+-----------------------------
+debugfs_test/1101 is trying to lock:
+ffff888132d901a8 (&dev->master_mutex){+.+.}-{3:3}, at:
+drm_is_current_master+0x1e/0x50
+other info that might help us debug this:
+context-{4:4}
+3 locks held by debugfs_test/1101:
+ #0: ffff88810fdffc90 (&p->lock){+.+.}-{3:3}, at:
+ seq_read_iter+0x53/0x3b0
+ #1: ffff888132d90240 (&dev->filelist_mutex){+.+.}-{3:3}, at:
+ drm_clients_info+0x63/0x2a0
+ #2: ffffffff82734220 (rcu_read_lock){....}-{1:2}, at:
+ drm_clients_info+0x1b1/0x2a0
+stack backtrace:
+CPU: 8 PID: 1101 Comm: debugfs_test Tainted: G        W
+5.13.0-CI-Patchwork_20515+ #1
+Hardware name: Intel Corporation CometLake Client Platform/CometLake S
+UDIMM (ERB/CRB), BIOS CMLSFWR1.R00.1263.D00.1906260926 06/26/2019
+Call Trace:
+ dump_stack+0x7f/0xad
+ __lock_acquire.cold.78+0x2af/0x2ca
+ lock_acquire+0xd3/0x300
+ ? drm_is_current_master+0x1e/0x50
+ ? __mutex_lock+0x76/0x970
+ ? lockdep_hardirqs_on+0xbf/0x130
+ __mutex_lock+0xab/0x970
+ ? drm_is_current_master+0x1e/0x50
+ ? drm_is_current_master+0x1e/0x50
+ ? drm_is_current_master+0x1e/0x50
+ drm_is_current_master+0x1e/0x50
+ drm_clients_info+0x107/0x2a0
+ seq_read_iter+0x178/0x3b0
+ seq_read+0x104/0x150
+ full_proxy_read+0x4e/0x80
+ vfs_read+0xa5/0x1b0
+ ksys_read+0x5a/0xd0
+ do_syscall_64+0x39/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210712043508.11584-3-desmondcheongzx@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/firmware/fw_namespace.c | 3 ++-
+ drivers/gpu/drm/drm_debugfs.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/firmware/fw_namespace.c b/tools/testing/selftests/firmware/fw_namespace.c
-index 0e393cb5f42d..4c6f0cd83c5b 100644
---- a/tools/testing/selftests/firmware/fw_namespace.c
-+++ b/tools/testing/selftests/firmware/fw_namespace.c
-@@ -129,7 +129,8 @@ int main(int argc, char **argv)
- 		die("mounting tmpfs to /lib/firmware failed\n");
+diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
+index 3d7182001004..b0a826489488 100644
+--- a/drivers/gpu/drm/drm_debugfs.c
++++ b/drivers/gpu/drm/drm_debugfs.c
+@@ -91,6 +91,7 @@ static int drm_clients_info(struct seq_file *m, void *data)
+ 	mutex_lock(&dev->filelist_mutex);
+ 	list_for_each_entry_reverse(priv, &dev->filelist, lhead) {
+ 		struct task_struct *task;
++		bool is_current_master = drm_is_current_master(priv);
  
- 	sys_path = argv[1];
--	asprintf(&fw_path, "/lib/firmware/%s", fw_name);
-+	if (asprintf(&fw_path, "/lib/firmware/%s", fw_name) < 0)
-+		die("error: failed to build full fw_path\n");
- 
- 	setup_fw(fw_path);
- 
+ 		rcu_read_lock(); /* locks pid_task()->comm */
+ 		task = pid_task(priv->pid, PIDTYPE_PID);
+@@ -99,7 +100,7 @@ static int drm_clients_info(struct seq_file *m, void *data)
+ 			   task ? task->comm : "<unknown>",
+ 			   pid_vnr(priv->pid),
+ 			   priv->minor->index,
+-			   drm_is_current_master(priv) ? 'y' : 'n',
++			   is_current_master ? 'y' : 'n',
+ 			   priv->authenticated ? 'y' : 'n',
+ 			   from_kuid_munged(seq_user_ns(m), uid),
+ 			   priv->magic);
 -- 
 2.30.2
 
