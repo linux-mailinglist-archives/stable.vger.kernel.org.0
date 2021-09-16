@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2117440E76D
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4940A40E3EB
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348382AbhIPRcV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:32:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50284 "EHLO mail.kernel.org"
+        id S245293AbhIPQxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:53:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353245AbhIPRaY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:30:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAB03610D1;
-        Thu, 16 Sep 2021 16:46:45 +0000 (UTC)
+        id S1345915AbhIPQvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:51:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF2D361A82;
+        Thu, 16 Sep 2021 16:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810806;
-        bh=YiX/XQyKsb+MdSBd2K4PxpLFgdhc+jiv1vDu51pUOUY=;
+        s=korg; t=1631809721;
+        bh=JcKEbqG4ljzAwAQ/lX3iUIJsq4CBhbZUDu34o5T0zxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3aMr79qKHnP/EnSwNF/Fc3G9IAqrBeSpde5c5JH151g4Jd+cw2GFfLdxxtHI1ItX
-         iYvdxTThmzVqvO9HTfSTVhWXD0jvdRk8tA7+PhoLpG4hxtweBZisgkGKfGlLx4pCDn
-         NsocC85Zjn9KSStCanuVZ1wWE20b7TAio1Z4hgtQ=
+        b=Z3LZk/jYVxThpsTDHAWoKgJ8CWHS5YrO92HDUO+owKfdqx5czVGtxnuXt9xxiAA8H
+         pQpPwx+XcBXn1VwlXJrJH+Nv6LPsd9chPRLnTWboA0RDcO2YDowF+EUG3WykTO9wmU
+         HW3m0UjylF0bI3GO8yHNHFhjPGjIihFRcroV8a00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Kuogee Hsieh <khsieh@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 267/432] ARM: dts: imx53-ppd: Fix ACHC entry
+Subject: [PATCH 5.13 259/380] drm/msm/dp: return correct edid checksum after corrupted edid checksum read
 Date:   Thu, 16 Sep 2021 18:00:16 +0200
-Message-Id: <20210916155819.868577893@linuxfoundation.org>
+Message-Id: <20210916155812.891561348@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Kuogee Hsieh <khsieh@codeaurora.org>
 
-[ Upstream commit cd7cd5b716d594e27a933c12f026d4f2426d7bf4 ]
+[ Upstream commit 7948fe12d47a946fb8025a0534c900e3dd4b5839 ]
 
-PPD has only one ACHC device, which effectively is a Kinetis
-microcontroller. It has one SPI interface used for normal
-communication. Additionally it's possible to flash the device
-firmware using NXP's EzPort protocol by correctly driving a
-second chip select pin and the device reset pin.
+Response with correct edid checksum saved at connector after corrupted edid
+checksum read. This fixes Link Layer CTS cases 4.2.2.3, 4.2.2.6.
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Link: https://lore.kernel.org/r/20210802172309.164365-3-sebastian.reichel@collabora.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1628196295-7382-6-git-send-email-khsieh@codeaurora.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx53-ppd.dts | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_panel.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx53-ppd.dts b/arch/arm/boot/dts/imx53-ppd.dts
-index 5a5fa6190a52..37d0cffea99c 100644
---- a/arch/arm/boot/dts/imx53-ppd.dts
-+++ b/arch/arm/boot/dts/imx53-ppd.dts
-@@ -70,6 +70,12 @@ cko2_11M: sgtl-clock-cko2 {
- 		clock-frequency = <11289600>;
- 	};
+diff --git a/drivers/gpu/drm/msm/dp/dp_panel.c b/drivers/gpu/drm/msm/dp/dp_panel.c
+index 9cc816663668..6eeb9a14b584 100644
+--- a/drivers/gpu/drm/msm/dp/dp_panel.c
++++ b/drivers/gpu/drm/msm/dp/dp_panel.c
+@@ -272,7 +272,7 @@ static u8 dp_panel_get_edid_checksum(struct edid *edid)
+ {
+ 	struct edid *last_block;
+ 	u8 *raw_edid;
+-	bool is_edid_corrupt;
++	bool is_edid_corrupt = false;
  
-+	achc_24M: achc-clock {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <24000000>;
-+	};
+ 	if (!edid) {
+ 		DRM_ERROR("invalid edid input\n");
+@@ -304,7 +304,12 @@ void dp_panel_handle_sink_request(struct dp_panel *dp_panel)
+ 	panel = container_of(dp_panel, struct dp_panel_private, dp_panel);
+ 
+ 	if (panel->link->sink_request & DP_TEST_LINK_EDID_READ) {
+-		u8 checksum = dp_panel_get_edid_checksum(dp_panel->edid);
++		u8 checksum;
 +
- 	sgtlsound: sound {
- 		compatible = "fsl,imx53-cpuvo-sgtl5000",
- 			     "fsl,imx-audio-sgtl5000";
-@@ -314,16 +320,13 @@ &gpio4 11 GPIO_ACTIVE_LOW
- 		    &gpio4 12 GPIO_ACTIVE_LOW>;
- 	status = "okay";
++		if (dp_panel->edid)
++			checksum = dp_panel_get_edid_checksum(dp_panel->edid);
++		else
++			checksum = dp_panel->connector->real_edid_checksum;
  
--	spidev0: spi@0 {
--		compatible = "ge,achc";
--		reg = <0>;
--		spi-max-frequency = <1000000>;
--	};
--
--	spidev1: spi@1 {
--		compatible = "ge,achc";
--		reg = <1>;
--		spi-max-frequency = <1000000>;
-+	spidev0: spi@1 {
-+		compatible = "ge,achc", "nxp,kinetis-k20";
-+		reg = <1>, <0>;
-+		vdd-supply = <&reg_3v3>;
-+		vdda-supply = <&reg_3v3>;
-+		clocks = <&achc_24M>;
-+		reset-gpios = <&gpio3 6 GPIO_ACTIVE_LOW>;
- 	};
- 
- 	gpioxra0: gpio@2 {
+ 		dp_link_send_edid_checksum(panel->link, checksum);
+ 		dp_link_send_test_response(panel->link);
 -- 
 2.30.2
 
