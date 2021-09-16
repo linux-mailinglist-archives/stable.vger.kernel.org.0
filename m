@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B8140E578
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9ABC40DF96
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345758AbhIPRL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:11:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35938 "EHLO mail.kernel.org"
+        id S239091AbhIPQLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:11:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350463AbhIPRJy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:09:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B292361B4E;
-        Thu, 16 Sep 2021 16:37:23 +0000 (UTC)
+        id S233875AbhIPQJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:09:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 001866121F;
+        Thu, 16 Sep 2021 16:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810244;
-        bh=4AcssDeN5I9YHKWLjv12UTy87NqFCUmNr+F8o0UQwMw=;
+        s=korg; t=1631808482;
+        bh=xSsEDJEwwJBjoM4dE0gI3zg3DShnLOHtZluEATll+rc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LpI6qZSOA7rFVlJI63yyEBt+eRc7WphESaPI/0fvWsXBpsTRSFwSOZzwv9/xVVcns
-         ellngM0AUNZhZbQ9VViu9sNO0sK0pZ3s//UlHTotJJ9CnvdcTkb+ogqMlbWe8V495f
-         KwyF/2okADqT8HIZ/RYzL66lsLDIFGasUfWzRM4A=
+        b=FzMLl3uUocE8DqpXhsuzmeBfbOCym+1XFPHmL25i812YmpwdhfTL7YSuk4yZmrkCu
+         g7VOz6mPziSx0ILX5qdRclqNmyb2GETOl4nKD0Vi++bGXAJI5B+1jfT9KUSEHUjW1Z
+         bLOOV2hSn/6zHm50+MkPcVtgGrwPmWUI7HdwlIMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.14 070/432] PCI: aardvark: Increase polling delay to 1.5s while waiting for PIO response
-Date:   Thu, 16 Sep 2021 17:56:59 +0200
-Message-Id: <20210916155813.160250445@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 075/306] NFSv4/pNFS: Fix a layoutget livelock loop
+Date:   Thu, 16 Sep 2021 17:57:00 +0200
+Message-Id: <20210916155756.616367382@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 02bcec3ea5591720114f586960490b04b093a09e upstream.
+[ Upstream commit e20772cbdf463c12088837e5a08bde1b876bfd25 ]
 
-Measurements in different conditions showed that aardvark hardware PIO
-response can take up to 1.44s. Increase wait timeout from 1ms to 1.5s to
-ensure that we do not miss responses from hardware. After 1.44s hardware
-returns errors (e.g. Completer abort).
+If NFS_LAYOUT_RETURN_REQUESTED is set, but there is no value set for
+the layout plh_return_seq, we can end up in a livelock loop in which
+every layout segment retrieved by a new call to layoutget is immediately
+invalidated by pnfs_layout_need_return().
+To get around this, we should just set plh_return_seq to the current
+value of the layout stateid's seqid.
 
-The previous two patches fixed checking for PIO status, so now we can use
-it to also catch errors which are reported by hardware after 1.44s.
-
-After applying this patch, kernel can detect and print PIO errors to dmesg:
-
-    [    6.879999] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100004
-    [    6.896436] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100004
-    [    6.913049] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100010
-    [    6.929663] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100010
-    [    6.953558] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100014
-    [    6.970170] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100014
-    [    6.994328] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100004
-
-Without this patch kernel prints only a generic error to dmesg:
-
-    [    5.246847] advk-pcie d0070000.pcie: config read/write timed out
-
-Link: https://lore.kernel.org/r/20210722144041.12661-3-pali@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org # 7fbcb5da811b ("PCI: aardvark: Don't rely on jiffies while holding spinlock")
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d474f96104bd ("NFS: Don't return layout segments that are in use")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/pnfs.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -207,7 +207,7 @@
- #define PCIE_CONFIG_WR_TYPE0			0xa
- #define PCIE_CONFIG_WR_TYPE1			0xb
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index 371665e0c154..fef0537d15b0 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -347,11 +347,15 @@ pnfs_set_plh_return_info(struct pnfs_layout_hdr *lo, enum pnfs_iomode iomode,
+ 		iomode = IOMODE_ANY;
+ 	lo->plh_return_iomode = iomode;
+ 	set_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags);
+-	if (seq != 0) {
+-		WARN_ON_ONCE(lo->plh_return_seq != 0 && lo->plh_return_seq != seq);
++	/*
++	 * We must set lo->plh_return_seq to avoid livelocks with
++	 * pnfs_layout_need_return()
++	 */
++	if (seq == 0)
++		seq = be32_to_cpu(lo->plh_stateid.seqid);
++	if (!lo->plh_return_seq || pnfs_seqid_is_newer(seq, lo->plh_return_seq))
+ 		lo->plh_return_seq = seq;
+-		pnfs_barrier_update(lo, seq);
+-	}
++	pnfs_barrier_update(lo, seq);
+ }
  
--#define PIO_RETRY_CNT			500
-+#define PIO_RETRY_CNT			750000 /* 1.5 s */
- #define PIO_RETRY_DELAY			2 /* 2 us*/
- 
- #define LINK_WAIT_MAX_RETRIES		10
+ static void
+-- 
+2.30.2
+
 
 
