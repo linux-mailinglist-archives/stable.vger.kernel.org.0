@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0296540E243
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D734440E5CE
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242775AbhIPQgO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:36:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44670 "EHLO mail.kernel.org"
+        id S243049AbhIPRPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:15:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243388AbhIPQbY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:31:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB1656139D;
-        Thu, 16 Sep 2021 16:19:24 +0000 (UTC)
+        id S1350743AbhIPRMG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:12:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 043B5619EA;
+        Thu, 16 Sep 2021 16:38:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809165;
-        bh=4y7d6eNf3CnLHhCIJnoYCZBlbt6It4TOIRU/5cZdg3Y=;
+        s=korg; t=1631810314;
+        bh=j61CxPG6IjYyPEc5XcZWmzte+Iu57/UMMkwH+my3scE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mzsg/KwSryV/Twt+uqK+N4QxG2rVnK6xY2unyH9YgYtlfh7kSgSU8pyreCe6hv9zq
-         3t/WUtNaBlfg8zFWW2b4KD5D0RQSXj3EJ3B9kNtpWxB0g/iEClPhadi/VTPlVsGpZK
-         c7KLAQvkV/pdI8syNvy7QP66INR9zAxbTV5OwYQc=
+        b=TzWQVh+seo0GQG7TNS8ltHWn6gnDYPpoAe7tB2UWNoc6nqurIRmaiW/Ln4mfUJsrH
+         bjZl+luEvSQ2F7yUycKGOs4loIVjDO692NgFdbjJ2i9HUUSGjSMlJQpUv/slrBxyTr
+         KFCzXh1m5UZg+yfkCj3FgE9jVRnuCSI1f9iQx/d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 055/380] io-wq: fix race between adding work and activating a free worker
+        stable@vger.kernel.org, stable@kernel.org,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.14 063/432] f2fs: fix to do sanity check for sb/cp fields correctly
 Date:   Thu, 16 Sep 2021 17:56:52 +0200
-Message-Id: <20210916155805.859379121@linuxfoundation.org>
+Message-Id: <20210916155812.920065409@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,111 +39,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Chao Yu <chao@kernel.org>
 
-commit 94ffb0a282872c2f4b14f757fa1aef2302aeaabb upstream.
+commit 65ddf6564843890a58ee3b18bb46ce67d96333fb upstream.
 
-The attempt to find and activate a free worker for new work is currently
-combined with creating a new one if we don't find one, but that opens
-io-wq up to a race where the worker that is found and activated can
-put itself to sleep without knowing that it has been selected to perform
-this new work.
+This patch fixes below problems of sb/cp sanity check:
+- in sanity_check_raw_superi(), it missed to consider log header
+blocks while cp_payload check.
+- in f2fs_sanity_check_ckpt(), it missed to check nat_bits_blocks.
 
-Fix this by moving the activation into where we add the new work item,
-then we can retain it within the wqe->lock scope and elimiate the race
-with the worker itself checking inside the lock, but sleeping outside of
-it.
-
-Cc: stable@vger.kernel.org
-Reported-by: Andres Freund <andres@anarazel.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: <stable@kernel.org>
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io-wq.c |   50 ++++++++++++++++++++++++--------------------------
- 1 file changed, 24 insertions(+), 26 deletions(-)
+ fs/f2fs/super.c |   22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -237,9 +237,9 @@ static bool io_wqe_activate_free_worker(
-  * We need a worker. If we find a free one, we're good. If not, and we're
-  * below the max number of workers, create one.
-  */
--static void io_wqe_wake_worker(struct io_wqe *wqe, struct io_wqe_acct *acct)
-+static void io_wqe_create_worker(struct io_wqe *wqe, struct io_wqe_acct *acct)
- {
--	bool ret;
-+	bool do_create = false, first = false;
- 
- 	/*
- 	 * Most likely an attempt to queue unbounded work on an io_wq that
-@@ -248,25 +248,18 @@ static void io_wqe_wake_worker(struct io
- 	if (unlikely(!acct->max_workers))
- 		pr_warn_once("io-wq is not configured for unbound workers");
- 
--	rcu_read_lock();
--	ret = io_wqe_activate_free_worker(wqe);
--	rcu_read_unlock();
--
--	if (!ret) {
--		bool do_create = false, first = false;
--
--		raw_spin_lock_irq(&wqe->lock);
--		if (acct->nr_workers < acct->max_workers) {
--			atomic_inc(&acct->nr_running);
--			atomic_inc(&wqe->wq->worker_refs);
--			if (!acct->nr_workers)
--				first = true;
--			acct->nr_workers++;
--			do_create = true;
--		}
--		raw_spin_unlock_irq(&wqe->lock);
--		if (do_create)
--			create_io_worker(wqe->wq, wqe, acct->index, first);
-+	raw_spin_lock_irq(&wqe->lock);
-+	if (acct->nr_workers < acct->max_workers) {
-+		if (!acct->nr_workers)
-+			first = true;
-+		acct->nr_workers++;
-+		do_create = true;
-+	}
-+	raw_spin_unlock_irq(&wqe->lock);
-+	if (do_create) {
-+		atomic_inc(&acct->nr_running);
-+		atomic_inc(&wqe->wq->worker_refs);
-+		create_io_worker(wqe->wq, wqe, acct->index, first);
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -3217,11 +3217,13 @@ static int sanity_check_raw_super(struct
+ 		return -EFSCORRUPTED;
  	}
- }
  
-@@ -798,7 +791,8 @@ append:
- static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
- {
- 	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
--	bool do_wake;
-+	unsigned work_flags = work->flags;
-+	bool do_create;
- 	unsigned long flags;
+-	if (le32_to_cpu(raw_super->cp_payload) >
+-				(blocks_per_seg - F2FS_CP_PACKS)) {
+-		f2fs_info(sbi, "Insane cp_payload (%u > %u)",
++	if (le32_to_cpu(raw_super->cp_payload) >=
++				(blocks_per_seg - F2FS_CP_PACKS -
++				NR_CURSEG_PERSIST_TYPE)) {
++		f2fs_info(sbi, "Insane cp_payload (%u >= %u)",
+ 			  le32_to_cpu(raw_super->cp_payload),
+-			  blocks_per_seg - F2FS_CP_PACKS);
++			  blocks_per_seg - F2FS_CP_PACKS -
++			  NR_CURSEG_PERSIST_TYPE);
+ 		return -EFSCORRUPTED;
+ 	}
  
- 	/*
-@@ -814,12 +808,16 @@ static void io_wqe_enqueue(struct io_wqe
- 	raw_spin_lock_irqsave(&wqe->lock, flags);
- 	io_wqe_insert_work(wqe, work);
- 	wqe->flags &= ~IO_WQE_FLAG_STALLED;
--	do_wake = (work->flags & IO_WQ_WORK_CONCURRENT) ||
--			!atomic_read(&acct->nr_running);
+@@ -3257,6 +3259,7 @@ int f2fs_sanity_check_ckpt(struct f2fs_s
+ 	unsigned int cp_pack_start_sum, cp_payload;
+ 	block_t user_block_count, valid_user_blocks;
+ 	block_t avail_node_count, valid_node_count;
++	unsigned int nat_blocks, nat_bits_bytes, nat_bits_blocks;
+ 	int i, j;
+ 
+ 	total = le32_to_cpu(raw_super->segment_count);
+@@ -3387,6 +3390,17 @@ skip_cross:
+ 		return 1;
+ 	}
+ 
++	nat_blocks = nat_segs << log_blocks_per_seg;
++	nat_bits_bytes = nat_blocks / BITS_PER_BYTE;
++	nat_bits_blocks = F2FS_BLK_ALIGN((nat_bits_bytes << 1) + 8);
++	if (__is_set_ckpt_flags(ckpt, CP_NAT_BITS_FLAG) &&
++		(cp_payload + F2FS_CP_PACKS +
++		NR_CURSEG_PERSIST_TYPE + nat_bits_blocks >= blocks_per_seg)) {
++		f2fs_warn(sbi, "Insane cp_payload: %u, nat_bits_blocks: %u)",
++			  cp_payload, nat_bits_blocks);
++		return -EFSCORRUPTED;
++	}
 +
-+	rcu_read_lock();
-+	do_create = !io_wqe_activate_free_worker(wqe);
-+	rcu_read_unlock();
-+
- 	raw_spin_unlock_irqrestore(&wqe->lock, flags);
- 
--	if (do_wake)
--		io_wqe_wake_worker(wqe, acct);
-+	if (do_create && ((work_flags & IO_WQ_WORK_CONCURRENT) ||
-+	    !atomic_read(&acct->nr_running)))
-+		io_wqe_create_worker(wqe, acct);
- }
- 
- void io_wq_enqueue(struct io_wq *wq, struct io_wq_work *work)
+ 	if (unlikely(f2fs_cp_error(sbi))) {
+ 		f2fs_err(sbi, "A bug case: need to run fsck");
+ 		return 1;
 
 
