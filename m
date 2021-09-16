@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A9AE40E187
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:30:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4AF340E5E5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243336AbhIPQbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:31:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37486 "EHLO mail.kernel.org"
+        id S242510AbhIPRQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:16:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242006AbhIPQ3K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:29:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 251896137B;
-        Thu, 16 Sep 2021 16:18:24 +0000 (UTC)
+        id S1345449AbhIPRHK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:07:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6804061401;
+        Thu, 16 Sep 2021 16:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809104;
-        bh=Re8N8cbG+/CTzg5RsonkIH5v2vVp0qmoaUiyiinyl9s=;
+        s=korg; t=1631810158;
+        bh=3YzuJpnFC6++lS73Cjev2j2VE/KDl8KjmZAwuijIgWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SfoygmBF2GGmtDbVwbVldgBk5LmzrQpf7ps7GSKdHmtb73ocqN879rpTpAKJGaCDq
-         n0g5ZFa5mJyqQSWUD+7RHPLG8utOZjynDuvg65LCJRLNUv1e85j/YLQKepmVe9yXqd
-         6eeJ9t8cHZGlSONnik29FyihKExlN3zSvqJsrESs=
+        b=ZgrExLQPe+qBCZmlRA2/uAGY/VXbv3T7d0tiO8/Jd+6iSq6X37Znr5aA+mUss7n6a
+         V5un6TK5JCe/MiWai3CaH4wwcJpwytoRtiCsO5aaxnPvUOJbnPeHJYI/i4/kyNWa07
+         HaNE/CVIS6xGkv0nhi26Po0TgOXiqiEDfa1hnVrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Jade Alglave <jade.alglave@arm.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Steve Capper <steve.capper@arm.com>,
         Will Deacon <will@kernel.org>,
         Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.13 031/380] arm64: mm: Fix TLBI vs ASID rollover
+Subject: [PATCH 5.14 039/432] arm64: head: avoid over-mapping in map_memory
 Date:   Thu, 16 Sep 2021 17:56:28 +0200
-Message-Id: <20210916155805.022222446@linuxfoundation.org>
+Message-Id: <20210916155812.144477991@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,119 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit 5e10f9887ed85d4f59266d5c60dd09be96b5dbd4 upstream.
+commit 90268574a3e8a6b883bd802d702a2738577e1006 upstream.
 
-When switching to an 'mm_struct' for the first time following an ASID
-rollover, a new ASID may be allocated and assigned to 'mm->context.id'.
-This reassignment can happen concurrently with other operations on the
-mm, such as unmapping pages and subsequently issuing TLB invalidation.
+The `compute_indices` and `populate_entries` macros operate on inclusive
+bounds, and thus the `map_memory` macro which uses them also operates
+on inclusive bounds.
 
-Consequently, we need to ensure that (a) accesses to 'mm->context.id'
-are atomic and (b) all page-table updates made prior to a TLBI using the
-old ASID are guaranteed to be visible to CPUs running with the new ASID.
+We pass `_end` and `_idmap_text_end` to `map_memory`, but these are
+exclusive bounds, and if one of these is sufficiently aligned (as a
+result of kernel configuration, physical placement, and KASLR), then:
 
-This was found by inspection after reviewing the VMID changes from
-Shameer but it looks like a real (yet hard to hit) bug.
+* In `compute_indices`, the computed `iend` will be in the page/block *after*
+  the final byte of the intended mapping.
 
-Cc: <stable@vger.kernel.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Jade Alglave <jade.alglave@arm.com>
-Cc: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20210806113109.2475-2-will@kernel.org
+* In `populate_entries`, an unnecessary entry will be created at the end
+  of each level of table. At the leaf level, this entry will map up to
+  SWAPPER_BLOCK_SIZE bytes of physical addresses that we did not intend
+  to map.
+
+As we may map up to SWAPPER_BLOCK_SIZE bytes more than intended, we may
+violate the boot protocol and map physical address past the 2MiB-aligned
+end address we are permitted to map. As we map these with Normal memory
+attributes, this may result in further problems depending on what these
+physical addresses correspond to.
+
+The final entry at each level may require an additional table at that
+level. As EARLY_ENTRIES() calculates an inclusive bound, we allocate
+enough memory for this.
+
+Avoid the extraneous mapping by having map_memory convert the exclusive
+end address to an inclusive end address by subtracting one, and do
+likewise in EARLY_ENTRIES() when calculating the number of required
+tables. For clarity, comments are updated to more clearly document which
+boundaries the macros operate on.  For consistency with the other
+macros, the comments in map_memory are also updated to describe `vstart`
+and `vend` as virtual addresses.
+
+Fixes: 0370b31e4845 ("arm64: Extend early page table code to allow for larger kernels")
+Cc: <stable@vger.kernel.org> # 4.16.x
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Steve Capper <steve.capper@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20210823101253.55567-1-mark.rutland@arm.com
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/mmu.h      |   29 +++++++++++++++++++++++++----
- arch/arm64/include/asm/tlbflush.h |   11 ++++++-----
- 2 files changed, 31 insertions(+), 9 deletions(-)
+ arch/arm64/include/asm/kernel-pgtable.h |    4 ++--
+ arch/arm64/kernel/head.S                |   11 ++++++-----
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
---- a/arch/arm64/include/asm/mmu.h
-+++ b/arch/arm64/include/asm/mmu.h
-@@ -27,11 +27,32 @@ typedef struct {
- } mm_context_t;
+--- a/arch/arm64/include/asm/kernel-pgtable.h
++++ b/arch/arm64/include/asm/kernel-pgtable.h
+@@ -65,8 +65,8 @@
+ #define EARLY_KASLR	(0)
+ #endif
  
- /*
-- * This macro is only used by the TLBI and low-level switch_mm() code,
-- * neither of which can race with an ASID change. We therefore don't
-- * need to reload the counter using atomic64_read().
-+ * We use atomic64_read() here because the ASID for an 'mm_struct' can
-+ * be reallocated when scheduling one of its threads following a
-+ * rollover event (see new_context() and flush_context()). In this case,
-+ * a concurrent TLBI (e.g. via try_to_unmap_one() and ptep_clear_flush())
-+ * may use a stale ASID. This is fine in principle as the new ASID is
-+ * guaranteed to be clean in the TLB, but the TLBI routines have to take
-+ * care to handle the following race:
-+ *
-+ *    CPU 0                    CPU 1                          CPU 2
-+ *
-+ *    // ptep_clear_flush(mm)
-+ *    xchg_relaxed(pte, 0)
-+ *    DSB ISHST
-+ *    old = ASID(mm)
-+ *         |                                                  <rollover>
-+ *         |                   new = new_context(mm)
-+ *         \-----------------> atomic_set(mm->context.id, new)
-+ *                             cpu_switch_mm(mm)
-+ *                             // Hardware walk of pte using new ASID
-+ *    TLBI(old)
-+ *
-+ * In this scenario, the barrier on CPU 0 and the dependency on CPU 1
-+ * ensure that the page-table walker on CPU 1 *must* see the invalid PTE
-+ * written by CPU 0.
+-#define EARLY_ENTRIES(vstart, vend, shift) (((vend) >> (shift)) \
+-					- ((vstart) >> (shift)) + 1 + EARLY_KASLR)
++#define EARLY_ENTRIES(vstart, vend, shift) \
++	((((vend) - 1) >> (shift)) - ((vstart) >> (shift)) + 1 + EARLY_KASLR)
+ 
+ #define EARLY_PGDS(vstart, vend) (EARLY_ENTRIES(vstart, vend, PGDIR_SHIFT))
+ 
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -177,7 +177,7 @@ SYM_CODE_END(preserve_boot_args)
+  * to be composed of multiple pages. (This effectively scales the end index).
+  *
+  *	vstart:	virtual address of start of range
+- *	vend:	virtual address of end of range
++ *	vend:	virtual address of end of range - we map [vstart, vend]
+  *	shift:	shift used to transform virtual address into index
+  *	ptrs:	number of entries in page table
+  *	istart:	index in table corresponding to vstart
+@@ -214,17 +214,18 @@ SYM_CODE_END(preserve_boot_args)
+  *
+  *	tbl:	location of page table
+  *	rtbl:	address to be used for first level page table entry (typically tbl + PAGE_SIZE)
+- *	vstart:	start address to map
+- *	vend:	end address to map - we map [vstart, vend]
++ *	vstart:	virtual address of start of range
++ *	vend:	virtual address of end of range - we map [vstart, vend - 1]
+  *	flags:	flags to use to map last level entries
+  *	phys:	physical address corresponding to vstart - physical memory is contiguous
+  *	pgds:	the number of pgd entries
+  *
+  * Temporaries:	istart, iend, tmp, count, sv - these need to be different registers
+- * Preserves:	vstart, vend, flags
+- * Corrupts:	tbl, rtbl, istart, iend, tmp, count, sv
++ * Preserves:	vstart, flags
++ * Corrupts:	tbl, rtbl, vend, istart, iend, tmp, count, sv
   */
--#define ASID(mm)	((mm)->context.id.counter & 0xffff)
-+#define ASID(mm)	(atomic64_read(&(mm)->context.id) & 0xffff)
- 
- static inline bool arm64_kernel_unmapped_at_el0(void)
- {
---- a/arch/arm64/include/asm/tlbflush.h
-+++ b/arch/arm64/include/asm/tlbflush.h
-@@ -245,9 +245,10 @@ static inline void flush_tlb_all(void)
- 
- static inline void flush_tlb_mm(struct mm_struct *mm)
- {
--	unsigned long asid = __TLBI_VADDR(0, ASID(mm));
-+	unsigned long asid;
- 
- 	dsb(ishst);
-+	asid = __TLBI_VADDR(0, ASID(mm));
- 	__tlbi(aside1is, asid);
- 	__tlbi_user(aside1is, asid);
- 	dsb(ish);
-@@ -256,9 +257,10 @@ static inline void flush_tlb_mm(struct m
- static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
- 					 unsigned long uaddr)
- {
--	unsigned long addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
-+	unsigned long addr;
- 
- 	dsb(ishst);
-+	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
- 	__tlbi(vale1is, addr);
- 	__tlbi_user(vale1is, addr);
- }
-@@ -283,9 +285,7 @@ static inline void __flush_tlb_range(str
- {
- 	int num = 0;
- 	int scale = 0;
--	unsigned long asid = ASID(vma->vm_mm);
--	unsigned long addr;
--	unsigned long pages;
-+	unsigned long asid, addr, pages;
- 
- 	start = round_down(start, stride);
- 	end = round_up(end, stride);
-@@ -305,6 +305,7 @@ static inline void __flush_tlb_range(str
- 	}
- 
- 	dsb(ishst);
-+	asid = ASID(vma->vm_mm);
- 
- 	/*
- 	 * When the CPU does not support TLB range operations, flush the TLB
+ 	.macro map_memory, tbl, rtbl, vstart, vend, flags, phys, pgds, istart, iend, tmp, count, sv
++	sub \vend, \vend, #1
+ 	add \rtbl, \tbl, #PAGE_SIZE
+ 	mov \sv, \rtbl
+ 	mov \count, #0
 
 
