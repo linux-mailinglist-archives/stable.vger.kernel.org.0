@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96AE740E41D
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F107840E774
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243788AbhIPQz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:55:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36672 "EHLO mail.kernel.org"
+        id S1348675AbhIPRcd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:32:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245722AbhIPQwk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:52:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A60861A8F;
-        Thu, 16 Sep 2021 16:29:12 +0000 (UTC)
+        id S1353304AbhIPRa3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:30:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 888EB610A4;
+        Thu, 16 Sep 2021 16:46:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809752;
-        bh=ZvSQ1OUU86gLrsEgQH4jnCOte73nf4mNFHcHdG57YMY=;
+        s=korg; t=1631810817;
+        bh=6XPkMybdNHKrHU4KwX8+K12QhA29HKIgLYqu2LzrJgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e8gcyS59ZW1dSSNUHPnYwCPiTjbnqjvX8ZQ/s/4XLcFPgvpCzIoZkf9H3aIcB0XIZ
-         uyI1K+hw5sE4PtnLs5ioYLs/t55D3B1KXrqhZceHIA4SdaUMglOg76ioJkJUAus6PJ
-         QnntOs317yuv0X3/pAAEVshl6Qc24o/xE5c751+s=
+        b=Ue1UYQM52yNodkeHqeo2lYt1PN4gmPMYJpINgd2oNOWD7mul9aa4Zg3UPJ8kPqJlA
+         zw2Bfs0/BzAmzF1Sc6gwGw/SA3Q7JVPA9ovWC8tJ0c+sDD3tR3waIIxk/xgWs7yIFF
+         v0/oFFIztd/bdxiGxc14XbXzQ45M8Sf9NCiv56+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org,
+        Quanyang Wang <quanyang.wang@windriver.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 270/380] arm64: dts: imx8mm-venice-gw71xx: fix USB OTG VBUS
-Date:   Thu, 16 Sep 2021 18:00:27 +0200
-Message-Id: <20210916155813.258207481@linuxfoundation.org>
+Subject: [PATCH 5.14 279/432] drm: xlnx: zynqmp_dpsub: Call pm_runtime_get_sync before setting pixel clock
+Date:   Thu, 16 Sep 2021 18:00:28 +0200
+Message-Id: <20210916155820.267592904@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Harvey <tharvey@gateworks.com>
+From: Quanyang Wang <quanyang.wang@windriver.com>
 
-[ Upstream commit bd306fdb4e60bcb1d7ea5431a74092803d3784a6 ]
+[ Upstream commit a19effb6dbe5bd1be77a6d68eba04dba8993ffeb ]
 
-The GW71xx has a USB Type-C connector with USB 2.0 signaling. GPIO1_12
-is the power-enable to the TPS25821 Source controller and power switch
-responsible for monitoring the CC pins and enabling VBUS. Therefore
-GPIO1_12 must always be enabled and the vbus output enable from the
-IMX8MM can be ignored.
+The Runtime PM subsystem will force the device "fd4a0000.zynqmp-display"
+to enter suspend state while booting if the following conditions are met:
+- the usage counter is zero (pm_runtime_get_sync hasn't been called yet)
+- no 'active' children (no zynqmp-dp-snd-xx node under dpsub node)
+- no other device in the same power domain (dpdma node has no
+		"power-domains = <&zynqmp_firmware PD_DP>" property)
 
-To fix USB OTG VBUS enable a pull-up on GPIO1_12 to always power the
-TPS25821 and change the regulator output to GPIO1_10 which is
-unconnected.
+So there is a scenario as below:
+1) DP device enters suspend state   <- call zynqmp_gpd_power_off
+2) zynqmp_disp_crtc_setup_clock	    <- configurate register VPLL_FRAC_CFG
+3) pm_runtime_get_sync		    <- call zynqmp_gpd_power_on and clear previous
+				       VPLL_FRAC_CFG configuration
+4) clk_prepare_enable(disp->pclk)   <- enable failed since VPLL_FRAC_CFG
+				       configuration is corrupted
 
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+>From above, we can see that pm_runtime_get_sync may clear register
+VPLL_FRAC_CFG configuration and result the failure of clk enabling.
+Putting pm_runtime_get_sync at the very beginning of the function
+zynqmp_disp_crtc_atomic_enable can resolve this issue.
+
+Signed-off-by: Quanyang Wang <quanyang.wang@windriver.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/xlnx/zynqmp_disp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
-index 905b68a3daa5..8e4a0ce99790 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
-@@ -46,7 +46,7 @@ reg_usb_otg1_vbus: regulator-usb-otg1 {
- 		pinctrl-0 = <&pinctrl_reg_usb1_en>;
- 		compatible = "regulator-fixed";
- 		regulator-name = "usb_otg1_vbus";
--		gpio = <&gpio1 12 GPIO_ACTIVE_HIGH>;
-+		gpio = <&gpio1 10 GPIO_ACTIVE_HIGH>;
- 		enable-active-high;
- 		regulator-min-microvolt = <5000000>;
- 		regulator-max-microvolt = <5000000>;
-@@ -156,7 +156,8 @@ MX8MM_IOMUXC_GPIO1_IO15_GPIO1_IO15	0x41
+diff --git a/drivers/gpu/drm/xlnx/zynqmp_disp.c b/drivers/gpu/drm/xlnx/zynqmp_disp.c
+index 109d627968ac..01c6ce7784dd 100644
+--- a/drivers/gpu/drm/xlnx/zynqmp_disp.c
++++ b/drivers/gpu/drm/xlnx/zynqmp_disp.c
+@@ -1452,9 +1452,10 @@ zynqmp_disp_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	struct drm_display_mode *adjusted_mode = &crtc->state->adjusted_mode;
+ 	int ret, vrefresh;
  
- 	pinctrl_reg_usb1_en: regusb1grp {
- 		fsl,pins = <
--			MX8MM_IOMUXC_GPIO1_IO12_GPIO1_IO12	0x41
-+			MX8MM_IOMUXC_GPIO1_IO10_GPIO1_IO10	0x41
-+			MX8MM_IOMUXC_GPIO1_IO12_GPIO1_IO12	0x141
- 			MX8MM_IOMUXC_GPIO1_IO13_USB1_OTG_OC	0x41
- 		>;
- 	};
++	pm_runtime_get_sync(disp->dev);
++
+ 	zynqmp_disp_crtc_setup_clock(crtc, adjusted_mode);
+ 
+-	pm_runtime_get_sync(disp->dev);
+ 	ret = clk_prepare_enable(disp->pclk);
+ 	if (ret) {
+ 		dev_err(disp->dev, "failed to enable a pixel clock\n");
 -- 
 2.30.2
 
