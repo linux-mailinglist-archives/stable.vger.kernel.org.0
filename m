@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37DA540E0F3
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCD6B40E3C1
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240669AbhIPQZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:25:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59314 "EHLO mail.kernel.org"
+        id S242394AbhIPQv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:51:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234853AbhIPQXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:23:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B83D613AC;
-        Thu, 16 Sep 2021 16:16:01 +0000 (UTC)
+        id S1344774AbhIPQsf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:48:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E22AC61506;
+        Thu, 16 Sep 2021 16:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808961;
-        bh=KyrPSSFkkaFfgTa331w9So5Bp9nfhgXOj9h8Ox5YpWU=;
+        s=korg; t=1631809651;
+        bh=wlrHyYfPWKz23ai1ZnO5b4NKnVRwj7Rn0UBQRRpgyJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBFnU+trfrTdjp8zXtK1LYAxQl23iSZW8dLqCUr8D8EYbGMdVk1MB0RySzHZmk1Sc
-         zNGq9cOAzmuf68bh9LCkm74K4rf+hhnRLKquCXP+Fm9ZrlrMoJe9WUIn13mIT96bR9
-         sx2M3AsP9iZr3rJXV7E4sw476tV6NPFYCjDomVaM=
+        b=LahYNnNukTxCKmMBvfqx79G1nIRCp9uHlnDwP8lBgL6H6A4M8eiyRTXeS/NKQlsWQ
+         DzfKxHyftW6hT3dJFhsH+pDiwfmikYdFLCQSuVZzVUEiLKD7BSI5m6uZd6vDBga9VU
+         yw+s4BW8xFjorn0lX+kPOyLQd+8FVfkvghS2lk9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Lukasz Majczak <lma@semihalf.com>,
-        Mark Brown <broonie@kernel.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 244/306] ASoC: Intel: Skylake: Fix module configuration for KPB and MIXER
+Subject: [PATCH 5.13 232/380] arm64: dts: qcom: sdm630: Rewrite memory map
 Date:   Thu, 16 Sep 2021 17:59:49 +0200
-Message-Id: <20210916155802.381969720@linuxfoundation.org>
+Message-Id: <20210916155811.974265274@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,58 +43,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cezary Rojewski <cezary.rojewski@intel.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
 
-[ Upstream commit e4e0633bcadc950b4b4af06c7f1bb7f7e3e86321 ]
+[ Upstream commit 26e02c98a9ad63eb21b9be4ac92002f555130d3b ]
 
-KeyPhrasebuffer, Mixin and Mixout modules configuration is described by
-firmware's basic module configuration structure. There are no extended
-parameters required. Update functions taking part in building
-INIT_INSTANCE IPC payload to reflect that.
+The memory map was wrong. Fix it.
 
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Tested-by: Lukasz Majczak <lma@semihalf.com>
-Link: https://lore.kernel.org/r/20210818075742.1515155-6-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20210728222542.54269-2-konrad.dybcio@somainline.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/skylake/skl-messages.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/sdm630.dtsi | 41 ++++++++++++----------------
+ 1 file changed, 18 insertions(+), 23 deletions(-)
 
-diff --git a/sound/soc/intel/skylake/skl-messages.c b/sound/soc/intel/skylake/skl-messages.c
-index 476ef1897961..79c6cf2c14bf 100644
---- a/sound/soc/intel/skylake/skl-messages.c
-+++ b/sound/soc/intel/skylake/skl-messages.c
-@@ -802,9 +802,12 @@ static u16 skl_get_module_param_size(struct skl_dev *skl,
+diff --git a/arch/arm64/boot/dts/qcom/sdm630.dtsi b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+index f91a928466c3..5ea3884b3ccb 100644
+--- a/arch/arm64/boot/dts/qcom/sdm630.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm630.dtsi
+@@ -343,10 +343,19 @@ wlan_msa_mem: wlan-msa-mem@85700000 {
+ 		};
  
- 	case SKL_MODULE_TYPE_BASE_OUTFMT:
- 	case SKL_MODULE_TYPE_MIC_SELECT:
--	case SKL_MODULE_TYPE_KPB:
- 		return sizeof(struct skl_base_outfmt_cfg);
+ 		qhee_code: qhee-code@85800000 {
+-			reg = <0x0 0x85800000 0x0 0x3700000>;
++			reg = <0x0 0x85800000 0x0 0x600000>;
+ 			no-map;
+ 		};
  
-+	case SKL_MODULE_TYPE_MIXER:
-+	case SKL_MODULE_TYPE_KPB:
-+		return sizeof(struct skl_base_cfg);
++		rmtfs_mem: memory@85e00000 {
++			compatible = "qcom,rmtfs-mem";
++			reg = <0x0 0x85e00000 0x0 0x200000>;
++			no-map;
 +
- 	default:
- 		/*
- 		 * return only base cfg when no specific module type is
-@@ -857,10 +860,14 @@ static int skl_set_module_format(struct skl_dev *skl,
- 
- 	case SKL_MODULE_TYPE_BASE_OUTFMT:
- 	case SKL_MODULE_TYPE_MIC_SELECT:
--	case SKL_MODULE_TYPE_KPB:
- 		skl_set_base_outfmt_format(skl, module_config, *param_data);
- 		break;
- 
-+	case SKL_MODULE_TYPE_MIXER:
-+	case SKL_MODULE_TYPE_KPB:
-+		skl_set_base_module_format(skl, module_config, *param_data);
-+		break;
++			qcom,client-id = <1>;
++			qcom,vmid = <15>;
++		};
 +
- 	default:
- 		skl_set_base_module_format(skl, module_config, *param_data);
- 		break;
+ 		smem_region: smem-mem@86000000 {
+ 			reg = <0 0x86000000 0 0x200000>;
+ 			no-map;
+@@ -357,58 +366,44 @@ tz_mem: memory@86200000 {
+ 			no-map;
+ 		};
+ 
+-		modem_fw_mem: modem-fw-region@8ac00000 {
++		mpss_region: mpss@8ac00000 {
+ 			reg = <0x0 0x8ac00000 0x0 0x7e00000>;
+ 			no-map;
+ 		};
+ 
+-		adsp_fw_mem: adsp-fw-region@92a00000 {
++		adsp_region: adsp@92a00000 {
+ 			reg = <0x0 0x92a00000 0x0 0x1e00000>;
+ 			no-map;
+ 		};
+ 
+-		pil_mba_mem: pil-mba-region@94800000 {
++		mba_region: mba@94800000 {
+ 			reg = <0x0 0x94800000 0x0 0x200000>;
+ 			no-map;
+ 		};
+ 
+-		buffer_mem: buffer-region@94a00000 {
++		buffer_mem: tzbuffer@94a00000 {
+ 			reg = <0x0 0x94a00000 0x0 0x100000>;
+ 			no-map;
+ 		};
+ 
+-		venus_fw_mem: venus-fw-region@9f800000 {
++		venus_region: venus@9f800000 {
+ 			reg = <0x0 0x9f800000 0x0 0x800000>;
+ 			no-map;
+ 		};
+ 
+-		secure_region2: secure-region2@f7c00000 {
+-			reg = <0x0 0xf7c00000 0x0 0x5c00000>;
+-			no-map;
+-		};
+-
+ 		adsp_mem: adsp-region@f6000000 {
+ 			reg = <0x0 0xf6000000 0x0 0x800000>;
+ 			no-map;
+ 		};
+ 
+-		qseecom_ta_mem: qseecom-ta-region@fec00000 {
+-			reg = <0x0 0xfec00000 0x0 0x1000000>;
+-			no-map;
+-		};
+-
+ 		qseecom_mem: qseecom-region@f6800000 {
+ 			reg = <0x0 0xf6800000 0x0 0x1400000>;
+ 			no-map;
+ 		};
+ 
+-		secure_display_memory: secure-region@f5c00000 {
+-			reg = <0x0 0xf5c00000 0x0 0x5c00000>;
+-			no-map;
+-		};
+-
+-		cont_splash_mem: cont-splash-region@9d400000 {
+-			reg = <0x0 0x9d400000 0x0 0x23ff000>;
++		zap_shader_region: gpu@fed00000 {
++			compatible = "shared-dma-pool";
++			reg = <0x0 0xfed00000 0x0 0xa00000>;
+ 			no-map;
+ 		};
+ 	};
 -- 
 2.30.2
 
