@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 691A040E690
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6E5A40E7CA
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350246AbhIPRWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:22:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54400 "EHLO mail.kernel.org"
+        id S1349688AbhIPRnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:43:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243555AbhIPQzp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:55:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50AF86135A;
-        Thu, 16 Sep 2021 16:30:34 +0000 (UTC)
+        id S1353963AbhIPRh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:37:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0511615A2;
+        Thu, 16 Sep 2021 16:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809834;
-        bh=n5trVym9rA9eKT958C+3eitE2IdRM6j8B2EA8KcOOJs=;
+        s=korg; t=1631810984;
+        bh=NHcXO79jXv10lKu0O6cfzY4KRkcVlLCMuWwriAIMQc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V0tq3WLd5y2WtYGcN56sKQvzwMgke1vCr2kuT1szWAFelAM7RKaH4dwUnGMYhsJFm
-         zH8mP2Mgz5jBxJ607/q9DhyGmr7y54Uud1j+XRYlsjI7vrZip1ftJUAGzbPxeR6rdM
-         9GhCBK/9cPMUNuIXrGaZOrcwsy0LrQf+Z81bXhOs=
+        b=T9MV15ub3jFzJK0gkLGVDjMoKUmCAD0om3AEaACW5ta8AIvjxJJqsGJ8Z+yJm2+nb
+         XsjnSSlsKE02LE/1ghBfsL1a/odSOuGrq1o2/4qq9Jr4LvW3gsY+7JaQQNm48Eo026
+         dW+Ap/Cd/sfLbyQBoiBeSs2UH9MHzgb/LrwlNDMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Greg Ungerer <gerg@linux-m68k.org>,
+        stable@vger.kernel.org, Kiran K <kiran.k@intel.com>,
+        Chethan T N <chethan.tumkur.narayan@intel.com>,
+        Srivatsa Ravishankar <ravishankar.srivatsa@intel.com>,
+        Manish Mandlik <mmandlik@google.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 300/380] m68knommu: only set CONFIG_ISA_DMA_API for ColdFire sub-arch
+Subject: [PATCH 5.14 308/432] Bluetooth: Fix race condition in handling NOP command
 Date:   Thu, 16 Sep 2021 18:00:57 +0200
-Message-Id: <20210916155814.266788937@linuxfoundation.org>
+Message-Id: <20210916155821.256941877@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Kiran K <kiran.k@intel.com>
 
-[ Upstream commit db87db65c1059f3be04506d122f8ec9b2fa3b05e ]
+[ Upstream commit ecb71f2566673553bc067e5b0036756871d0b9d3 ]
 
-> Hi Arnd,
->
-> First bad commit (maybe != root cause):
->
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-> head:   2f73937c9aa561e2082839bc1a8efaac75d6e244
-> commit: 47fd22f2b84765a2f7e3f150282497b902624547 [4771/5318] cs89x0: rework driver configuration
-> config: m68k-randconfig-c003-20210804 (attached as .config)
-> compiler: m68k-linux-gcc (GCC) 10.3.0
-> reproduce (this is a W=1 build):
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=47fd22f2b84765a2f7e3f150282497b902624547
->         git remote add linux-next https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
->         git fetch --no-tags linux-next master
->         git checkout 47fd22f2b84765a2f7e3f150282497b902624547
->         # save the attached .config to linux build tree
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-10.3.0 make.cross ARCH=m68k
->
-> If you fix the issue, kindly add following tag as appropriate
-> Reported-by: kernel test robot <lkp@intel.com>
->
-> All errors (new ones prefixed by >>):
->
->    In file included from include/linux/kernel.h:19,
->                     from include/linux/list.h:9,
->                     from include/linux/module.h:12,
->                     from drivers/net/ethernet/cirrus/cs89x0.c:51:
->    drivers/net/ethernet/cirrus/cs89x0.c: In function 'net_open':
->    drivers/net/ethernet/cirrus/cs89x0.c:897:20: error: implicit declaration of function 'isa_virt_to_bus'; did you mean 'virt_to_bus'? [-Werror=implicit-function-declaration]
->      897 |     (unsigned long)isa_virt_to_bus(lp->dma_buff));
->          |                    ^~~~~~~~~~~~~~~
->    include/linux/printk.h:141:17: note: in definition of macro 'no_printk'
->      141 |   printk(fmt, ##__VA_ARGS__);  \
->          |                 ^~~~~~~~~~~
->    drivers/net/ethernet/cirrus/cs89x0.c:86:3: note: in expansion of macro 'pr_debug'
->       86 |   pr_##level(fmt, ##__VA_ARGS__);   \
->          |   ^~~
->    drivers/net/ethernet/cirrus/cs89x0.c:894:3: note: in expansion of macro 'cs89_dbg'
->      894 |   cs89_dbg(1, debug, "%s: dma %lx %lx\n",
->          |   ^~~~~~~~
-> >> drivers/net/ethernet/cirrus/cs89x0.c:914:3: error: implicit declaration of function 'disable_dma'; did you mean 'disable_irq'? [-Werror=implicit-function-declaration]
+For NOP command, need to cancel work scheduled on cmd_timer,
+on receiving command status or commmand complete event.
 
-As far as I can tell, this is a bug with the m68kmmu architecture, not
-with my driver:
-The CONFIG_ISA_DMA_API option is provided for coldfire, which implements it,
-but dragonball also sets the option as a side-effect, without actually
-implementing
-the interfaces. The patch below should fix it.
+Below use case might lead to race condition multiple when NOP
+commands are queued sequentially:
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Greg Ungerer <gerg@linux-m68k.org>
+hci_cmd_work() {
+   if (atomic_read(&hdev->cmd_cnt) {
+            .
+            .
+            .
+      atomic_dec(&hdev->cmd_cnt);
+      hci_send_frame(hdev,...);
+      schedule_delayed_work(&hdev->cmd_timer,...);
+   }
+}
+
+On receiving event for first NOP, the work scheduled on hdev->cmd_timer
+is not cancelled and second NOP is dequeued and sent to controller.
+
+While waiting for an event for second NOP command, work scheduled on
+cmd_timer for the first NOP can get scheduled, resulting in sending third
+NOP command (sending back to back NOP commands). This might
+cause issues at controller side (like memory overrun, controller going
+unresponsive) resulting in hci tx timeouts, hardware errors etc.
+
+The fix to this issue is to cancel the delayed work scheduled on
+cmd_timer on receiving command status or command complete event for
+NOP command (this patch handles NOP command same as any other SIG
+command).
+
+Signed-off-by: Kiran K <kiran.k@intel.com>
+Reviewed-by: Chethan T N <chethan.tumkur.narayan@intel.com>
+Reviewed-by: Srivatsa Ravishankar <ravishankar.srivatsa@intel.com>
+Acked-by: Manish Mandlik <mmandlik@google.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/Kconfig.bus | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_event.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/arch/m68k/Kconfig.bus b/arch/m68k/Kconfig.bus
-index f1be832e2b74..d1e93a39cd3b 100644
---- a/arch/m68k/Kconfig.bus
-+++ b/arch/m68k/Kconfig.bus
-@@ -63,7 +63,7 @@ source "drivers/zorro/Kconfig"
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index f41bd5dfc313..0d0b958b7fe7 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -3282,11 +3282,9 @@ static void hci_remote_features_evt(struct hci_dev *hdev,
+ 	hci_dev_unlock(hdev);
+ }
  
- endif
+-static inline void handle_cmd_cnt_and_timer(struct hci_dev *hdev,
+-					    u16 opcode, u8 ncmd)
++static inline void handle_cmd_cnt_and_timer(struct hci_dev *hdev, u8 ncmd)
+ {
+-	if (opcode != HCI_OP_NOP)
+-		cancel_delayed_work(&hdev->cmd_timer);
++	cancel_delayed_work(&hdev->cmd_timer);
  
--if !MMU
-+if COLDFIRE
+ 	if (!test_bit(HCI_RESET, &hdev->flags)) {
+ 		if (ncmd) {
+@@ -3661,7 +3659,7 @@ static void hci_cmd_complete_evt(struct hci_dev *hdev, struct sk_buff *skb,
+ 		break;
+ 	}
  
- config ISA_DMA_API
- 	def_bool !M5272
+-	handle_cmd_cnt_and_timer(hdev, *opcode, ev->ncmd);
++	handle_cmd_cnt_and_timer(hdev, ev->ncmd);
+ 
+ 	hci_req_cmd_complete(hdev, *opcode, *status, req_complete,
+ 			     req_complete_skb);
+@@ -3762,7 +3760,7 @@ static void hci_cmd_status_evt(struct hci_dev *hdev, struct sk_buff *skb,
+ 		break;
+ 	}
+ 
+-	handle_cmd_cnt_and_timer(hdev, *opcode, ev->ncmd);
++	handle_cmd_cnt_and_timer(hdev, ev->ncmd);
+ 
+ 	/* Indicate request completion if the command failed. Also, if
+ 	 * we're not waiting for a special event and we get a success
 -- 
 2.30.2
 
