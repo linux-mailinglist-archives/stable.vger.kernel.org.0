@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF06240DFB3
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E781440E609
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237405AbhIPQNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:13:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48684 "EHLO mail.kernel.org"
+        id S1351473AbhIPRR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:17:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232954AbhIPQLP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:11:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A91B61372;
-        Thu, 16 Sep 2021 16:08:50 +0000 (UTC)
+        id S1351291AbhIPRPY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:15:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6357A61B65;
+        Thu, 16 Sep 2021 16:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808530;
-        bh=37TMLUSfMQCXfG0l7cchb1QLoKsWRbJKjTCLzDqEFk8=;
+        s=korg; t=1631810387;
+        bh=zc3aboCk0saY7I/sLex5/I6UwQO7I+Kz3RvTDi6mJTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0vVQkD4c6EESIGv14gJy8EWJima7oGBElY/HLgyhlIIgK+pLRrtkhym2tZEuBVV9
-         OvwNXZeuNDlVHuKpctoKeG+ShDcsTc6QQZnf8CxwYyHpTIGkfpWip2+5zLKTskW/bl
-         hV4h4L6Oc7pUjjRFNB3VWhpzI7cYx9UA+hAlV1dk=
+        b=iQoojTiGm+4+fsW+2EAJnoquDlWlwiOrMdRMm7dx4sepl4Gs/JNEUkfcGDRGtNU+Z
+         gQD6l7LEWWTtPoKBUkIQa2zVhgwXM7PrYfsrmTwiXVX3NfT47LArdNdo1WLT3q4JN1
+         2oIWSGC/3OztUPqLnTY/l9u6cpzi45Fx7Y0uVnvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Yajun Deng <yajun.deng@linux.dev>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 125/306] netlink: Deal with ESRCH error in nlmsg_notify()
+Subject: [PATCH 5.14 121/432] powerpc/config: Renable MTD_PHYSMAP_OF
 Date:   Thu, 16 Sep 2021 17:57:50 +0200
-Message-Id: <20210916155758.333871658@linuxfoundation.org>
+Message-Id: <20210916155814.865924741@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yajun Deng <yajun.deng@linux.dev>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit fef773fc8110d8124c73a5e6610f89e52814637d ]
+[ Upstream commit d0e28a6145c3455b69991245e7f6147eb914b34a ]
 
-Yonghong Song report:
-The bpf selftest tc_bpf failed with latest bpf-next.
-The following is the command to run and the result:
-$ ./test_progs -n 132
-[   40.947571] bpf_testmod: loading out-of-tree module taints kernel.
-test_tc_bpf:PASS:test_tc_bpf__open_and_load 0 nsec
-test_tc_bpf:PASS:bpf_tc_hook_create(BPF_TC_INGRESS) 0 nsec
-test_tc_bpf:PASS:bpf_tc_hook_create invalid hook.attach_point 0 nsec
-test_tc_bpf_basic:PASS:bpf_obj_get_info_by_fd 0 nsec
-test_tc_bpf_basic:PASS:bpf_tc_attach 0 nsec
-test_tc_bpf_basic:PASS:handle set 0 nsec
-test_tc_bpf_basic:PASS:priority set 0 nsec
-test_tc_bpf_basic:PASS:prog_id set 0 nsec
-test_tc_bpf_basic:PASS:bpf_tc_attach replace mode 0 nsec
-test_tc_bpf_basic:PASS:bpf_tc_query 0 nsec
-test_tc_bpf_basic:PASS:handle set 0 nsec
-test_tc_bpf_basic:PASS:priority set 0 nsec
-test_tc_bpf_basic:PASS:prog_id set 0 nsec
-libbpf: Kernel error message: Failed to send filter delete notification
-test_tc_bpf_basic:FAIL:bpf_tc_detach unexpected error: -3 (errno 3)
-test_tc_bpf:FAIL:test_tc_internal ingress unexpected error: -3 (errno 3)
+CONFIG_MTD_PHYSMAP_OF is not longer enabled as it depends on
+MTD_PHYSMAP which is not enabled.
 
-The failure seems due to the commit
-    cfdf0d9ae75b ("rtnetlink: use nlmsg_notify() in rtnetlink_send()")
+This is a regression from commit 642b1e8dbed7 ("mtd: maps: Merge
+physmap_of.c into physmap-core.c"), which added the extra dependency.
+Add CONFIG_MTD_PHYSMAP=y so this stays in the config, as Christophe said
+it is useful for build coverage.
 
-Deal with ESRCH error in nlmsg_notify() even the report variable is zero.
-
-Reported-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Yajun Deng <yajun.deng@linux.dev>
-Link: https://lore.kernel.org/r/20210719051816.11762-1-yajun.deng@linux.dev
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 642b1e8dbed7 ("mtd: maps: Merge physmap_of.c into physmap-core.c")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Acked-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210817045407.2445664-3-joel@jms.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/configs/mpc885_ads_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index e527f5686e2b..8434da3c0487 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -2537,13 +2537,15 @@ int nlmsg_notify(struct sock *sk, struct sk_buff *skb, u32 portid,
- 		/* errors reported via destination sk->sk_err, but propagate
- 		 * delivery errors if NETLINK_BROADCAST_ERROR flag is set */
- 		err = nlmsg_multicast(sk, skb, exclude_portid, group, flags);
-+		if (err == -ESRCH)
-+			err = 0;
- 	}
- 
- 	if (report) {
- 		int err2;
- 
- 		err2 = nlmsg_unicast(sk, skb, portid);
--		if (!err || err == -ESRCH)
-+		if (!err)
- 			err = err2;
- 	}
- 
+diff --git a/arch/powerpc/configs/mpc885_ads_defconfig b/arch/powerpc/configs/mpc885_ads_defconfig
+index 5cd17adf903f..cd08f9ed2c8d 100644
+--- a/arch/powerpc/configs/mpc885_ads_defconfig
++++ b/arch/powerpc/configs/mpc885_ads_defconfig
+@@ -33,6 +33,7 @@ CONFIG_MTD_CFI_GEOMETRY=y
+ # CONFIG_MTD_CFI_I2 is not set
+ CONFIG_MTD_CFI_I4=y
+ CONFIG_MTD_CFI_AMDSTD=y
++CONFIG_MTD_PHYSMAP=y
+ CONFIG_MTD_PHYSMAP_OF=y
+ # CONFIG_BLK_DEV is not set
+ CONFIG_NETDEVICES=y
 -- 
 2.30.2
 
