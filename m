@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B78540E23B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0392840E23F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242066AbhIPQft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:35:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44970 "EHLO mail.kernel.org"
+        id S243209AbhIPQgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:36:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242904AbhIPQdr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:33:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E82161268;
-        Thu, 16 Sep 2021 16:20:40 +0000 (UTC)
+        id S243000AbhIPQeE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:34:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA413617E3;
+        Thu, 16 Sep 2021 16:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809241;
-        bh=Y6gcQ6S1Li5VneBqUA57docK1hmgK19P/JMU+yw4syc=;
+        s=korg; t=1631809244;
+        bh=VMxKDaM3SrW+qUbRpV5JvN7HFM5PZKPdR0iiyeMpvyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpNr2n0dBEH2C+NmJypOk2Z6yYSTdfxS3KyoV6n+YIxOAAkDC21rd3wY3+pRIJ24J
-         fHf2ILvRU1XbvODpeC4uX/pdUxUvNFPR0HAu3g1zJE0X9q6qWShVaT7ErVjH0QJP5w
-         zxqZ59xQxkUEFTXiiNzptCYrgPpsmnJQOxEINx44=
+        b=hYu9YvlFnndDdVcaLvMvGLn7ljyk25Xz1o26taHYP7m9XLmt/zfuRq/QGyMoJmbbV
+         E81p5pPk18EYWgaW07BCD+ZiRpqR35A6CIYfvKwxC35ErlrblUKv2ByraidYpOtFJM
+         vGMaG/xYlzAsVaJvBYzP1rzkLLtCp/Y56SUuSGt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Daejun Park <daejun7.park@samsung.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Enrico Joedecke <joedecke@de.ibm.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 083/380] scsi: ufs: Fix memory corruption by ufshcd_read_desc_param()
-Date:   Thu, 16 Sep 2021 17:57:20 +0200
-Message-Id: <20210916155806.855421309@linuxfoundation.org>
+Subject: [PATCH 5.13 084/380] cpuidle: pseries: Fixup CEDE0 latency only for POWER10 onwards
+Date:   Thu, 16 Sep 2021 17:57:21 +0200
+Message-Id: <20210916155806.893865695@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
 References: <20210916155803.966362085@linuxfoundation.org>
@@ -42,45 +41,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
 
-[ Upstream commit d3d9c4570285090b533b00946b72647361f0345b ]
+[ Upstream commit 50741b70b0cbbafbd9199f5180e66c0c53783a4a ]
 
-If param_offset > buff_len then the memcpy() statement in
-ufshcd_read_desc_param() corrupts memory since it copies 256 + buff_len -
-param_offset bytes into a buffer with size buff_len.  Since param_offset <
-256 this results in writing past the bound of the output buffer.
+Commit d947fb4c965c ("cpuidle: pseries: Fixup exit latency for
+CEDE(0)") sets the exit latency of CEDE(0) based on the latency values
+of the Extended CEDE states advertised by the platform
 
-Link: https://lore.kernel.org/r/20210722033439.26550-2-bvanassche@acm.org
-Fixes: cbe193f6f093 ("scsi: ufs: Fix potential NULL pointer access during memcpy")
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Reviewed-by: Daejun Park <daejun7.park@samsung.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+On POWER9 LPARs, the firmwares advertise a very low value of 2us for
+CEDE1 exit latency on a Dedicated LPAR. The latency advertized by the
+PHYP hypervisor corresponds to the latency required to wakeup from the
+underlying hardware idle state. However the wakeup latency from the
+LPAR perspective should include
+
+1. The time taken to transition the CPU from the Hypervisor into the
+   LPAR post wakeup from platform idle state
+
+2. Time taken to send the IPI from the source CPU (waker) to the idle
+   target CPU (wakee).
+
+1. can be measured via timer idle test, where we queue a timer, say
+for 1ms, and enter the CEDE state. When the timer fires, in the timer
+handler we compute how much extra timer over the expected 1ms have we
+consumed. On a a POWER9 LPAR the numbers are
+
+CEDE latency measured using a timer (numbers in ns)
+N       Min      Median   Avg       90%ile  99%ile    Max    Stddev
+400     2601     5677     5668.74    5917    6413     9299   455.01
+
+1. and 2. combined can be determined by an IPI latency test where we
+send an IPI to an idle CPU and in the handler compute the time
+difference between when the IPI was sent and when the handler ran. We
+see the following numbers on POWER9 LPAR.
+
+CEDE latency measured using an IPI (numbers in ns)
+N       Min      Median   Avg       90%ile  99%ile    Max    Stddev
+400     711      7564     7369.43   8559    9514      9698   1200.01
+
+Suppose, we consider the 99th percentile latency value measured using
+the IPI to be the wakeup latency, the value would be 9.5us This is in
+the ballpark of the default value of 10us.
+
+Hence, use the exit latency of CEDE(0) based on the latency values
+advertized by platform only from POWER10 onwards. The values
+advertized on POWER10 platforms is more realistic and informed by the
+latency measurements. For earlier platforms stick to the default value
+of 10us. The fix was suggested by Michael Ellerman.
+
+Fixes: d947fb4c965c ("cpuidle: pseries: Fixup exit latency for CEDE(0)")
+Reported-by: Enrico Joedecke <joedecke@de.ibm.com>
+Signed-off-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1626676399-15975-2-git-send-email-ego@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/cpuidle/cpuidle-pseries.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 72fd41bfbd54..90837e54c2fe 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -3326,9 +3326,11 @@ int ufshcd_read_desc_param(struct ufs_hba *hba,
- 
- 	if (is_kmalloc) {
- 		/* Make sure we don't copy more data than available */
--		if (param_offset + param_size > buff_len)
--			param_size = buff_len - param_offset;
--		memcpy(param_read_buf, &desc_buf[param_offset], param_size);
-+		if (param_offset >= buff_len)
-+			ret = -EINVAL;
-+		else
-+			memcpy(param_read_buf, &desc_buf[param_offset],
-+			       min_t(u32, param_size, buff_len - param_offset));
- 	}
- out:
- 	if (is_kmalloc)
+diff --git a/drivers/cpuidle/cpuidle-pseries.c b/drivers/cpuidle/cpuidle-pseries.c
+index a2b5c6f60cf0..e592280d8acf 100644
+--- a/drivers/cpuidle/cpuidle-pseries.c
++++ b/drivers/cpuidle/cpuidle-pseries.c
+@@ -419,7 +419,21 @@ static int pseries_idle_probe(void)
+ 			cpuidle_state_table = shared_states;
+ 			max_idle_state = ARRAY_SIZE(shared_states);
+ 		} else {
+-			fixup_cede0_latency();
++			/*
++			 * Use firmware provided latency values
++			 * starting with POWER10 platforms. In the
++			 * case that we are running on a POWER10
++			 * platform but in an earlier compat mode, we
++			 * can still use the firmware provided values.
++			 *
++			 * However, on platforms prior to POWER10, we
++			 * cannot rely on the accuracy of the firmware
++			 * provided latency values. On such platforms,
++			 * go with the conservative default estimate
++			 * of 10us.
++			 */
++			if (cpu_has_feature(CPU_FTR_ARCH_31) || pvr_version_is(PVR_POWER10))
++				fixup_cede0_latency();
+ 			cpuidle_state_table = dedicated_states;
+ 			max_idle_state = NR_DEDICATED_STATES;
+ 		}
 -- 
 2.30.2
 
