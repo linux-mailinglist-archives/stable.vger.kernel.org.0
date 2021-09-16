@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFD0740E086
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B2AA40E36A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241574AbhIPQVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58934 "EHLO mail.kernel.org"
+        id S244983AbhIPQsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:48:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241743AbhIPQUE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:20:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3958D613DB;
-        Thu, 16 Sep 2021 16:14:12 +0000 (UTC)
+        id S244123AbhIPQpw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:45:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AABE761A6C;
+        Thu, 16 Sep 2021 16:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808852;
-        bh=SwozLfpYiQLE0tIiO65mXXvojnIJlmmHkdaJkfgdxgg=;
+        s=korg; t=1631809569;
+        bh=DUNfnJ8vVfCQ6WLzdPlvUhpWJUV0nFvuTGO4FjcQ7CA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCBHf4DVnypjL5FEAxMV2SOmnd08ApT6WXNlYDVQRXe0IlmlGUIGG9nLClfpRSZTU
-         Yb3LHEuxcADeSv5ls6CCWR8rjjrl7Z0I15uPVZ1BixMsTdrgJVVzv+MfHno9Y3fsOs
-         Te5pB3ybaZHzwOkDmzaDF93WCDPapbABz0zCirKQ=
+        b=Tqb1i0owxaUj0KWgTJAMSgnN1ys/tuhLWg4XBxAMg7nbneaO/OAy5xzCoy5oEw/GN
+         JZHeiFBKvxne6tPyjZ47jebAjtM26KZAWzyDkcUCWlmITCEw06e4E+f24/EkT5JLfu
+         5VgVU96k0RZmBpqW+lmaf4dXfWzmbTHOL+2V6r6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Niklas Schnelle <schnelle@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 214/306] ARM: tegra: acer-a500: Remove bogus USB VBUS regulators
+Subject: [PATCH 5.13 202/380] s390: make PCI mio support a machine flag
 Date:   Thu, 16 Sep 2021 17:59:19 +0200
-Message-Id: <20210916155801.333549648@linuxfoundation.org>
+Message-Id: <20210916155810.942469605@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +40,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit 70e740ad55e5f93a19493720f4105555fade4a73 ]
+[ Upstream commit 3322ba0d7bea1e24ae464418626f6a15b69533ab ]
 
-The configuration of USB VBUS regulators was borrowed from downstream
-kernel, which is incorrect because the corresponding GPIOs are connected
-to PROX_EN (A501 3G model) and LED_EN pins in accordance to the board
-schematics. USB works fine with both GPIOs being disabled, so remove the
-bogus USB VBUS regulators. The USB VBUS of USB3 is supplied from the fixed
-5v system regulator and device-mode USB1 doesn't have VBUS switches.
+Kernel support for the newer PCI mio instructions can be toggled off
+with the pci=nomio command line option which needs to integrate with
+common code PCI option parsing. However this option then toggles static
+branches which can't be toggled yet in an early_param() call.
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Thus commit 9964f396f1d0 ("s390: fix setting of mio addressing control")
+moved toggling the static branches to the PCI init routine.
+
+With this setup however we can't check for mio support outside the PCI
+code during early boot, i.e. before switching the static branches, which
+we need to be able to export this as an ELF HWCAP.
+
+Improve on this by turning mio availability into a machine flag that
+gets initially set based on CONFIG_PCI and the facility bit and gets
+toggled off if pci=nomio is found during PCI option parsing allowing
+simple access to this machine flag after early init.
+
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/tegra20-acer-a500-picasso.dts    | 25 +------------------
- 1 file changed, 1 insertion(+), 24 deletions(-)
+ arch/s390/include/asm/setup.h | 2 ++
+ arch/s390/kernel/early.c      | 4 ++++
+ arch/s390/pci/pci.c           | 5 ++---
+ 3 files changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
-index 5d0f0fbba1d2..5dbfb83c1b06 100644
---- a/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
-+++ b/arch/arm/boot/dts/tegra20-acer-a500-picasso.dts
-@@ -704,7 +704,6 @@ usb-phy@c5000000 {
- 		nvidia,xcvr-setup-use-fuses;
- 		nvidia,xcvr-lsfslew = <2>;
- 		nvidia,xcvr-lsrslew = <2>;
--		vbus-supply = <&vdd_vbus1>;
- 	};
+diff --git a/arch/s390/include/asm/setup.h b/arch/s390/include/asm/setup.h
+index 3e388fa208d4..519d517fedf4 100644
+--- a/arch/s390/include/asm/setup.h
++++ b/arch/s390/include/asm/setup.h
+@@ -36,6 +36,7 @@
+ #define MACHINE_FLAG_NX		BIT(15)
+ #define MACHINE_FLAG_GS		BIT(16)
+ #define MACHINE_FLAG_SCC	BIT(17)
++#define MACHINE_FLAG_PCI_MIO	BIT(18)
  
- 	usb@c5008000 {
-@@ -716,7 +715,7 @@ usb-phy@c5008000 {
- 		nvidia,xcvr-setup-use-fuses;
- 		nvidia,xcvr-lsfslew = <2>;
- 		nvidia,xcvr-lsrslew = <2>;
--		vbus-supply = <&vdd_vbus3>;
-+		vbus-supply = <&vdd_5v0_sys>;
- 	};
+ #define LPP_MAGIC		BIT(31)
+ #define LPP_PID_MASK		_AC(0xffffffff, UL)
+@@ -109,6 +110,7 @@ extern unsigned long mio_wb_bit_mask;
+ #define MACHINE_HAS_NX		(S390_lowcore.machine_flags & MACHINE_FLAG_NX)
+ #define MACHINE_HAS_GS		(S390_lowcore.machine_flags & MACHINE_FLAG_GS)
+ #define MACHINE_HAS_SCC		(S390_lowcore.machine_flags & MACHINE_FLAG_SCC)
++#define MACHINE_HAS_PCI_MIO	(S390_lowcore.machine_flags & MACHINE_FLAG_PCI_MIO)
  
- 	brcm_wifi_pwrseq: wifi-pwrseq {
-@@ -967,28 +966,6 @@ vdd_pnl: regulator@3 {
- 		vin-supply = <&vdd_5v0_sys>;
- 	};
+ /*
+  * Console mode. Override with conmode=
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index a361d2e70025..661585587cbe 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -236,6 +236,10 @@ static __init void detect_machine_facilities(void)
+ 		clock_comparator_max = -1ULL >> 1;
+ 		__ctl_set_bit(0, 53);
+ 	}
++	if (IS_ENABLED(CONFIG_PCI) && test_facility(153)) {
++		S390_lowcore.machine_flags |= MACHINE_FLAG_PCI_MIO;
++		/* the control bit is set during PCI initialization */
++	}
+ }
  
--	vdd_vbus1: regulator@4 {
--		compatible = "regulator-fixed";
--		regulator-name = "vdd_usb1_vbus";
--		regulator-min-microvolt = <5000000>;
--		regulator-max-microvolt = <5000000>;
--		regulator-always-on;
--		gpio = <&gpio TEGRA_GPIO(D, 0) GPIO_ACTIVE_HIGH>;
--		enable-active-high;
--		vin-supply = <&vdd_5v0_sys>;
--	};
--
--	vdd_vbus3: regulator@5 {
--		compatible = "regulator-fixed";
--		regulator-name = "vdd_usb3_vbus";
--		regulator-min-microvolt = <5000000>;
--		regulator-max-microvolt = <5000000>;
--		regulator-always-on;
--		gpio = <&gpio TEGRA_GPIO(D, 3) GPIO_ACTIVE_HIGH>;
--		enable-active-high;
--		vin-supply = <&vdd_5v0_sys>;
--	};
--
- 	sound {
- 		compatible = "nvidia,tegra-audio-wm8903-picasso",
- 			     "nvidia,tegra-audio-wm8903";
+ static inline void save_vector_registers(void)
+diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+index 77cd965cffef..34839bad33e4 100644
+--- a/arch/s390/pci/pci.c
++++ b/arch/s390/pci/pci.c
+@@ -893,7 +893,6 @@ static void zpci_mem_exit(void)
+ }
+ 
+ static unsigned int s390_pci_probe __initdata = 1;
+-static unsigned int s390_pci_no_mio __initdata;
+ unsigned int s390_pci_force_floating __initdata;
+ static unsigned int s390_pci_initialized;
+ 
+@@ -904,7 +903,7 @@ char * __init pcibios_setup(char *str)
+ 		return NULL;
+ 	}
+ 	if (!strcmp(str, "nomio")) {
+-		s390_pci_no_mio = 1;
++		S390_lowcore.machine_flags &= ~MACHINE_FLAG_PCI_MIO;
+ 		return NULL;
+ 	}
+ 	if (!strcmp(str, "force_floating")) {
+@@ -935,7 +934,7 @@ static int __init pci_base_init(void)
+ 		return 0;
+ 	}
+ 
+-	if (test_facility(153) && !s390_pci_no_mio) {
++	if (MACHINE_HAS_PCI_MIO) {
+ 		static_branch_enable(&have_mio);
+ 		ctl_set_bit(2, 5);
+ 	}
 -- 
 2.30.2
 
