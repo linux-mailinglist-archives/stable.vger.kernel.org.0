@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9ABC40DF96
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5156640E20A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239091AbhIPQLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:11:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48798 "EHLO mail.kernel.org"
+        id S243689AbhIPQeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:34:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233875AbhIPQJg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:09:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 001866121F;
-        Thu, 16 Sep 2021 16:08:01 +0000 (UTC)
+        id S242114AbhIPQcD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:32:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D1586187D;
+        Thu, 16 Sep 2021 16:19:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808482;
-        bh=xSsEDJEwwJBjoM4dE0gI3zg3DShnLOHtZluEATll+rc=;
+        s=korg; t=1631809190;
+        bh=/ErntHcaJEsQ56aHKC6PQIMx9WCJFdbHYVtmhwh7Cw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzMLl3uUocE8DqpXhsuzmeBfbOCym+1XFPHmL25i812YmpwdhfTL7YSuk4yZmrkCu
-         g7VOz6mPziSx0ILX5qdRclqNmyb2GETOl4nKD0Vi++bGXAJI5B+1jfT9KUSEHUjW1Z
-         bLOOV2hSn/6zHm50+MkPcVtgGrwPmWUI7HdwlIMQ=
+        b=G7H1+yjL9rQ2b1LYBJk2m3kgjObAzp2PKWW9lc7XBW7gxI4OJh/3miGby7RYanlbp
+         Z6RVIQY7WFDjF7abgh17RjGDwVWLpcJKZ9GjIqyNNCn9B+qCJuVbHV8zGJ2gNnXV2u
+         1u9fhwGUT6Hcfd/bmYFX30KYkchQ9JBsgKWQ4Eio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/306] NFSv4/pNFS: Fix a layoutget livelock loop
+        stable@vger.kernel.org, Hyun Kwon <hyun.kwon@xilinx.com>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.13 063/380] PCI: xilinx-nwl: Enable the clock through CCF
 Date:   Thu, 16 Sep 2021 17:57:00 +0200
-Message-Id: <20210916155756.616367382@linuxfoundation.org>
+Message-Id: <20210916155806.133735169@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Hyun Kwon <hyun.kwon@xilinx.com>
 
-[ Upstream commit e20772cbdf463c12088837e5a08bde1b876bfd25 ]
+commit de0a01f5296651d3a539f2d23d0db8f359483696 upstream.
 
-If NFS_LAYOUT_RETURN_REQUESTED is set, but there is no value set for
-the layout plh_return_seq, we can end up in a livelock loop in which
-every layout segment retrieved by a new call to layoutget is immediately
-invalidated by pnfs_layout_need_return().
-To get around this, we should just set plh_return_seq to the current
-value of the layout stateid's seqid.
+Enable PCIe reference clock. There is no remove function that's why
+this should be enough for simple operation.
+Normally this clock is enabled by default by firmware but there are
+usecases where this clock should be enabled by driver itself.
+It is also good that PCIe clock is recorded in a clock framework.
 
-Fixes: d474f96104bd ("NFS: Don't return layout segments that are in use")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/ee6997a08fab582b1c6de05f8be184f3fe8d5357.1624618100.git.michal.simek@xilinx.com
+Fixes: ab597d35ef11 ("PCI: xilinx-nwl: Add support for Xilinx NWL PCIe Host Controller")
+Signed-off-by: Hyun Kwon <hyun.kwon@xilinx.com>
+Signed-off-by: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/pnfs.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/pci/controller/pcie-xilinx-nwl.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 371665e0c154..fef0537d15b0 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -347,11 +347,15 @@ pnfs_set_plh_return_info(struct pnfs_layout_hdr *lo, enum pnfs_iomode iomode,
- 		iomode = IOMODE_ANY;
- 	lo->plh_return_iomode = iomode;
- 	set_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags);
--	if (seq != 0) {
--		WARN_ON_ONCE(lo->plh_return_seq != 0 && lo->plh_return_seq != seq);
-+	/*
-+	 * We must set lo->plh_return_seq to avoid livelocks with
-+	 * pnfs_layout_need_return()
-+	 */
-+	if (seq == 0)
-+		seq = be32_to_cpu(lo->plh_stateid.seqid);
-+	if (!lo->plh_return_seq || pnfs_seqid_is_newer(seq, lo->plh_return_seq))
- 		lo->plh_return_seq = seq;
--		pnfs_barrier_update(lo, seq);
--	}
-+	pnfs_barrier_update(lo, seq);
- }
+--- a/drivers/pci/controller/pcie-xilinx-nwl.c
++++ b/drivers/pci/controller/pcie-xilinx-nwl.c
+@@ -6,6 +6,7 @@
+  * (C) Copyright 2014 - 2015, Xilinx, Inc.
+  */
  
- static void
--- 
-2.30.2
-
++#include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+@@ -169,6 +170,7 @@ struct nwl_pcie {
+ 	u8 last_busno;
+ 	struct nwl_msi msi;
+ 	struct irq_domain *legacy_irq_domain;
++	struct clk *clk;
+ 	raw_spinlock_t leg_mask_lock;
+ };
+ 
+@@ -823,6 +825,16 @@ static int nwl_pcie_probe(struct platfor
+ 		return err;
+ 	}
+ 
++	pcie->clk = devm_clk_get(dev, NULL);
++	if (IS_ERR(pcie->clk))
++		return PTR_ERR(pcie->clk);
++
++	err = clk_prepare_enable(pcie->clk);
++	if (err) {
++		dev_err(dev, "can't enable PCIe ref clock\n");
++		return err;
++	}
++
+ 	err = nwl_pcie_bridge_init(pcie);
+ 	if (err) {
+ 		dev_err(dev, "HW Initialization failed\n");
 
 
