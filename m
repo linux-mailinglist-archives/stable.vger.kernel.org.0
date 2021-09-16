@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEABA40E85F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEF9840E865
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354917AbhIPRo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54410 "EHLO mail.kernel.org"
+        id S1355122AbhIPRo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355112AbhIPRlG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355115AbhIPRlG (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:41:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74D2161D7C;
-        Thu, 16 Sep 2021 16:52:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22A5C6325C;
+        Thu, 16 Sep 2021 16:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811138;
-        bh=/bBx7XA8qo2igtgTHuh0YjHpZvmk6qCG93MHBHSKgN0=;
+        s=korg; t=1631811140;
+        bh=d2zN46M7dViF3bSk5TZ29MJ30B7PIC5iRpNK9pXKP0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1fxvQjliKaqVbWr/ghah/E5ZvZufsK+Uh3LOp+6WboNIqjkYpnX/HAq3dvZqOQBK
-         qSaCpCbp+n0nS4RLb2cN7GOF7aWMXRyKRDipuyCeILq+JiWJeiutpfeaj80Ua9Df+Y
-         s43+Krkpte0+owmQuSx/eaiLZGXRdQe0eYZFLTDA=
+        b=cQx4DnxO9GSj7rfci7eRiFCzv5tc63QqdaQNgMXNKODFh7V2MdK6x2ZvRGYEw6kRx
+         Oe/SSlywi+NDGp8QxshqfxU6c7RNeMBoihWMP9xM727ybGtqVrcc/BRtAT8fstcPhO
+         wcVRBzlBPw0kYVuUwmAyinHrd4kD8d/iEs1NPPsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        Nilesh Javali <njavali@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.14 397/432] scsi: qla2xxx: Sync queue idx with queue_pair_map idx
-Date:   Thu, 16 Sep 2021 18:02:26 +0200
-Message-Id: <20210916155824.286189874@linuxfoundation.org>
+        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
+        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
+        Anton Vasilyev <vasilyev@ispras.ru>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.14 398/432] mtd: rawnand: intel: Fix error handling in probe
+Date:   Thu, 16 Sep 2021 18:02:27 +0200
+Message-Id: <20210916155824.315987763@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -42,98 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saurav Kashyap <skashyap@marvell.com>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-commit c8fadf019964d0eb1da410ba8b629494d3339db9 upstream.
+commit 0792ec82175ec45a0f45af6e0f2d3cb49c527cd4 upstream.
 
-The first invocation of function find_first_zero_bit will return 0 and
-queue_id gets set to 0.
+ebu_nand_probe() did not invoke ebu_dma_cleanup() and
+clk_disable_unprepare() on some error handling paths. The patch fixes
+that.
 
-An index of queue_pair_map also gets set to 0.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-	qpair_id = find_first_zero_bit(ha->qpair_qid_map, ha->max_qpairs);
-
-        set_bit(qpair_id, ha->qpair_qid_map);
-        ha->queue_pair_map[qpair_id] = qpair;
-
-In the alloc_queue callback driver checks the map, if queue is already
-allocated:
-
-	ha->queue_pair_map[qidx]
-
-This works fine as long as max_qpairs is greater than nvme_max_hw_queues(8)
-since the size of the queue_pair_map is equal to max_qpair. In case nr_cpus
-is less than 8, max_qpairs is less than 8. This creates wrong value
-returned as qpair.
-
-[ 1572.353669] qla2xxx [0000:24:00.3]-2121:6: Returning existing qpair of 4e00000000000000 for idx=2
-[ 1572.354458] general protection fault: 0000 [#1] SMP PTI
-[ 1572.354461] CPU: 1 PID: 44 Comm: kworker/1:1H Kdump: loaded Tainted: G          IOE    --------- -  - 4.18.0-304.el8.x86_64 #1
-[ 1572.354462] Hardware name: HP ProLiant DL380p Gen8, BIOS P70 03/01/2013
-[ 1572.354467] Workqueue: kblockd blk_mq_run_work_fn
-[ 1572.354485] RIP: 0010:qla_nvme_post_cmd+0x92/0x760 [qla2xxx]
-[ 1572.354486] Code: 84 24 5c 01 00 00 00 00 b8 0a 74 1e 66 83 79 48 00 0f 85 a8 03 00 00 48 8b 44 24 08 48 89 ee 4c 89 e7 8b 50 24 e8 5e 8e 00 00 <f0> 41 ff 47 04 0f ae f0 41 f6 47 24 04 74 19 f0 41 ff 4f 04 b8 f0
-[ 1572.354487] RSP: 0018:ffff9c81c645fc90 EFLAGS: 00010246
-[ 1572.354489] RAX: 0000000000000001 RBX: ffff8ea3e5070138 RCX: 0000000000000001
-[ 1572.354490] RDX: 0000000000000001 RSI: 0000000000000001 RDI: ffff8ea4c866b800
-[ 1572.354491] RBP: ffff8ea4c866b800 R08: 0000000000005010 R09: ffff8ea4c866b800
-[ 1572.354492] R10: 0000000000000001 R11: 000000069d1ca3ff R12: ffff8ea4bc460000
-[ 1572.354493] R13: ffff8ea3e50702b0 R14: ffff8ea4c4c16a58 R15: 4e00000000000000
-[ 1572.354494] FS:  0000000000000000(0000) GS:ffff8ea4dfd00000(0000) knlGS:0000000000000000
-[ 1572.354495] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1572.354496] CR2: 000055884504fa58 CR3: 00000005a1410001 CR4: 00000000000606e0
-[ 1572.354497] Call Trace:
-[ 1572.354503]  ? check_preempt_curr+0x62/0x90
-[ 1572.354506]  ? dma_direct_map_sg+0x72/0x1f0
-[ 1572.354509]  ? nvme_fc_start_fcp_op.part.32+0x175/0x460 [nvme_fc]
-[ 1572.354511]  ? blk_mq_dispatch_rq_list+0x11c/0x730
-[ 1572.354515]  ? __switch_to_asm+0x35/0x70
-[ 1572.354516]  ? __switch_to_asm+0x41/0x70
-[ 1572.354518]  ? __switch_to_asm+0x35/0x70
-[ 1572.354519]  ? __switch_to_asm+0x41/0x70
-[ 1572.354521]  ? __switch_to_asm+0x35/0x70
-[ 1572.354522]  ? __switch_to_asm+0x41/0x70
-[ 1572.354523]  ? __switch_to_asm+0x35/0x70
-[ 1572.354525]  ? entry_SYSCALL_64_after_hwframe+0xb9/0xca
-[ 1572.354527]  ? __switch_to_asm+0x41/0x70
-[ 1572.354529]  ? __blk_mq_sched_dispatch_requests+0xc6/0x170
-[ 1572.354531]  ? blk_mq_sched_dispatch_requests+0x30/0x60
-[ 1572.354532]  ? __blk_mq_run_hw_queue+0x51/0xd0
-[ 1572.354535]  ? process_one_work+0x1a7/0x360
-[ 1572.354537]  ? create_worker+0x1a0/0x1a0
-[ 1572.354538]  ? worker_thread+0x30/0x390
-[ 1572.354540]  ? create_worker+0x1a0/0x1a0
-[ 1572.354541]  ? kthread+0x116/0x130
-[ 1572.354543]  ? kthread_flush_work_fn+0x10/0x10
-[ 1572.354545]  ? ret_from_fork+0x35/0x40
-
-Fix is to use index 0 for admin and first IO queue.
-
-Link: https://lore.kernel.org/r/20210810043720.1137-14-njavali@marvell.com
-Fixes: e84067d74301 ("scsi: qla2xxx: Add FC-NVMe F/W initialization and transport registration")
+Fixes: 0b1039f016e8 ("mtd: rawnand: Add NAND controller support on Intel LGM SoC")
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
+Co-developed-by: Anton Vasilyev <vasilyev@ispras.ru>
+Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
 Cc: stable@vger.kernel.org
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Nilesh Javali <njavali@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210817092930.23040-1-novikov@ispras.ru
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_nvme.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/mtd/nand/raw/intel-nand-controller.c |   27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_nvme.c
-+++ b/drivers/scsi/qla2xxx/qla_nvme.c
-@@ -91,8 +91,9 @@ static int qla_nvme_alloc_queue(struct n
- 	struct qla_hw_data *ha;
- 	struct qla_qpair *qpair;
+--- a/drivers/mtd/nand/raw/intel-nand-controller.c
++++ b/drivers/mtd/nand/raw/intel-nand-controller.c
+@@ -631,19 +631,26 @@ static int ebu_nand_probe(struct platfor
+ 	ebu_host->clk_rate = clk_get_rate(ebu_host->clk);
  
--	if (!qidx)
--		qidx++;
-+	/* Map admin queue and 1st IO queue to index 0 */
-+	if (qidx)
-+		qidx--;
+ 	ebu_host->dma_tx = dma_request_chan(dev, "tx");
+-	if (IS_ERR(ebu_host->dma_tx))
+-		return dev_err_probe(dev, PTR_ERR(ebu_host->dma_tx),
+-				     "failed to request DMA tx chan!.\n");
++	if (IS_ERR(ebu_host->dma_tx)) {
++		ret = dev_err_probe(dev, PTR_ERR(ebu_host->dma_tx),
++				    "failed to request DMA tx chan!.\n");
++		goto err_disable_unprepare_clk;
++	}
  
- 	vha = (struct scsi_qla_host *)lport->private;
- 	ha = vha->hw;
+ 	ebu_host->dma_rx = dma_request_chan(dev, "rx");
+-	if (IS_ERR(ebu_host->dma_rx))
+-		return dev_err_probe(dev, PTR_ERR(ebu_host->dma_rx),
+-				     "failed to request DMA rx chan!.\n");
++	if (IS_ERR(ebu_host->dma_rx)) {
++		ret = dev_err_probe(dev, PTR_ERR(ebu_host->dma_rx),
++				    "failed to request DMA rx chan!.\n");
++		ebu_host->dma_rx = NULL;
++		goto err_cleanup_dma;
++	}
+ 
+ 	resname = devm_kasprintf(dev, GFP_KERNEL, "addr_sel%d", cs);
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, resname);
+-	if (!res)
+-		return -EINVAL;
++	if (!res) {
++		ret = -EINVAL;
++		goto err_cleanup_dma;
++	}
+ 	ebu_host->cs[cs].addr_sel = res->start;
+ 	writel(ebu_host->cs[cs].addr_sel | EBU_ADDR_MASK(5) | EBU_ADDR_SEL_REGEN,
+ 	       ebu_host->ebu + EBU_ADDR_SEL(cs));
+@@ -653,7 +660,8 @@ static int ebu_nand_probe(struct platfor
+ 	mtd = nand_to_mtd(&ebu_host->chip);
+ 	if (!mtd->name) {
+ 		dev_err(ebu_host->dev, "NAND label property is mandatory\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto err_cleanup_dma;
+ 	}
+ 
+ 	mtd->dev.parent = dev;
+@@ -681,6 +689,7 @@ err_clean_nand:
+ 	nand_cleanup(&ebu_host->chip);
+ err_cleanup_dma:
+ 	ebu_dma_cleanup(ebu_host);
++err_disable_unprepare_clk:
+ 	clk_disable_unprepare(ebu_host->clk);
+ 
+ 	return ret;
 
 
