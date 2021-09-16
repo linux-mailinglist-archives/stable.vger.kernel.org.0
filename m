@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F043F40E7DB
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59E9A40E465
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:24:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244616AbhIPRgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:36:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51274 "EHLO mail.kernel.org"
+        id S243582AbhIPQ6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:58:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353426AbhIPRdy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:33:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3170961A7F;
-        Thu, 16 Sep 2021 16:48:27 +0000 (UTC)
+        id S245696AbhIPQ4M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:56:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F48E6138F;
+        Thu, 16 Sep 2021 16:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810908;
-        bh=CV74dxIjhbf32IWeE/xsVObqeVRJv4nlTAX7l/Jk+zM=;
+        s=korg; t=1631809851;
+        bh=C56UGu/jYrwM6Jfi/51pH9IQNP0Jn9eLUHEN3yNrW1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P3hKnymlRTXok7Gt56F3g3mQHkowFytI5QVjyPm5EWGfCHteD+kM7MLz2HhzIDu0X
-         rtplUp7uCYSb4dDUfoxEbfwzRJFBoCthdw4wbAcujFGifrHbzGPJHXKSFYS86K5tIz
-         Id5/mFSHRS4qLSqBxk5N0YnLWDU3l5VahRO9KBVs=
+        b=eByXJ/ixqfeSOPZjZU/OVgmyWhY4pm4myrd/zhe40dD8jRtRHcWvWIg3XaPQcqi3+
+         YDrIg8SLgLdp2cysp8cbwFtLxZuAI3ceabjzE47JwZhnoLTv1vWBcKiIE3SBOf7Bf4
+         tArswX2Ij/BjPUo5BFcy6JaAhvBTGk8mtkgqT6VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 313/432] locking/rtmutex: Set proper wait context for lockdep
-Date:   Thu, 16 Sep 2021 18:01:02 +0200
-Message-Id: <20210916155821.429725873@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 306/380] of: Dont allow __of_attached_node_sysfs() without CONFIG_SYSFS
+Date:   Thu, 16 Sep 2021 18:01:03 +0200
+Message-Id: <20210916155814.470104685@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit b41cda03765580caf7723b8c1b672d191c71013f ]
+[ Upstream commit 6211e9cb2f8faf7faae0b6caf844bfe9527cc607 ]
 
-RT mutexes belong to the LD_WAIT_SLEEP class. Make them so.
+Trying to boot without SYSFS, but with OF_DYNAMIC quickly
+results in a crash:
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20210815211302.031014562@linutronix.de
+[    0.088460] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000070
+[...]
+[    0.103927] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.14.0-rc3 #4179
+[    0.105810] Hardware name: linux,dummy-virt (DT)
+[    0.107147] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
+[    0.108876] pc : kernfs_find_and_get_ns+0x3c/0x7c
+[    0.110244] lr : kernfs_find_and_get_ns+0x3c/0x7c
+[...]
+[    0.134087] Call trace:
+[    0.134800]  kernfs_find_and_get_ns+0x3c/0x7c
+[    0.136054]  safe_name+0x4c/0xd0
+[    0.136994]  __of_attach_node_sysfs+0xf8/0x124
+[    0.138287]  of_core_init+0x90/0xfc
+[    0.139296]  driver_init+0x30/0x4c
+[    0.140283]  kernel_init_freeable+0x160/0x1b8
+[    0.141543]  kernel_init+0x30/0x140
+[    0.142561]  ret_from_fork+0x10/0x18
+
+While not having sysfs isn't a very common option these days,
+it is still expected that such configuration would work.
+
+Paper over it by bailing out from __of_attach_node_sysfs() if
+CONFIG_SYSFS isn't enabled.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210820144722.169226-1-maz@kernel.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rtmutex.h  | 19 ++++++++++++-------
- kernel/locking/rtmutex.c |  2 +-
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ drivers/of/kobj.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/rtmutex.h b/include/linux/rtmutex.h
-index d1672de9ca89..87b325aec508 100644
---- a/include/linux/rtmutex.h
-+++ b/include/linux/rtmutex.h
-@@ -52,17 +52,22 @@ do { \
- } while (0)
+diff --git a/drivers/of/kobj.c b/drivers/of/kobj.c
+index a32e60b024b8..6675b5e56960 100644
+--- a/drivers/of/kobj.c
++++ b/drivers/of/kobj.c
+@@ -119,7 +119,7 @@ int __of_attach_node_sysfs(struct device_node *np)
+ 	struct property *pp;
+ 	int rc;
  
- #ifdef CONFIG_DEBUG_LOCK_ALLOC
--#define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname) \
--	, .dep_map = { .name = #mutexname }
-+#define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)	\
-+	.dep_map = {					\
-+		.name = #mutexname,			\
-+		.wait_type_inner = LD_WAIT_SLEEP,	\
-+	}
- #else
- #define __DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)
- #endif
+-	if (!of_kset)
++	if (!IS_ENABLED(CONFIG_SYSFS) || !of_kset)
+ 		return 0;
  
--#define __RT_MUTEX_INITIALIZER(mutexname) \
--	{ .wait_lock = __RAW_SPIN_LOCK_UNLOCKED(mutexname.wait_lock) \
--	, .waiters = RB_ROOT_CACHED \
--	, .owner = NULL \
--	__DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)}
-+#define __RT_MUTEX_INITIALIZER(mutexname)				\
-+{									\
-+	.wait_lock = __RAW_SPIN_LOCK_UNLOCKED(mutexname.wait_lock),	\
-+	.waiters = RB_ROOT_CACHED,					\
-+	.owner = NULL,							\
-+	__DEP_MAP_RT_MUTEX_INITIALIZER(mutexname)			\
-+}
- 
- #define DEFINE_RT_MUTEX(mutexname) \
- 	struct rt_mutex mutexname = __RT_MUTEX_INITIALIZER(mutexname)
-diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
-index ad0db322ed3b..1a7e3f838077 100644
---- a/kernel/locking/rtmutex.c
-+++ b/kernel/locking/rtmutex.c
-@@ -1556,7 +1556,7 @@ void __sched __rt_mutex_init(struct rt_mutex *lock, const char *name,
- 		     struct lock_class_key *key)
- {
- 	debug_check_no_locks_freed((void *)lock, sizeof(*lock));
--	lockdep_init_map(&lock->dep_map, name, key, 0);
-+	lockdep_init_map_wait(&lock->dep_map, name, key, 0, LD_WAIT_SLEEP);
- 
- 	__rt_mutex_basic_init(lock);
- }
+ 	np->kobj.kset = of_kset;
 -- 
 2.30.2
 
