@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A98BF40E31F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9F540E07B
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242961AbhIPQpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:45:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57528 "EHLO mail.kernel.org"
+        id S241217AbhIPQVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:21:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343593AbhIPQmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:42:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BC6961A3D;
-        Thu, 16 Sep 2021 16:24:50 +0000 (UTC)
+        id S241222AbhIPQPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:15:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB03D613CE;
+        Thu, 16 Sep 2021 16:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809491;
-        bh=8SccjHQBBdBLX2oYdc8x9YK5U1X7hTEEkIPQP0ZnWro=;
+        s=korg; t=1631808683;
+        bh=Q0lK3HoIcSET0s++2jaRwIXt4hru6VLJ3SveAsdzYjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VLVTyNXNM5yL33U497oTUc4f7uMvijrseuKOJkiatmX4p6O9Z2Mom8Kj032nkUVNj
-         /U5C+hrCW5aOZl/Z+22XrNL7bZzFIA+Xge1VoD1ufwkSwX1ne7d5oikvy9gocyzc8+
-         Vr1pNOSA2HpFv2VR+3aAx3abNb+dFUFXQEc/guKw=
+        b=YuappmrBX2XRwAAA8cVokRlFs0UHyl8oVZURyCNetXnlaNvGmZqXHmSXmeu1tHGa5
+         bL0qf/CDbRVyhqzP2t2ymKCoFFGYTE286XuEa63sZ+0ZnFGR76flP2pFyuWP3hEvGM
+         m/0RyNwQgw66PWkiZzCfuFzpRqImc1zWd2sJVxzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brooke Basile <brookebasile@gmail.com>,
-        "Bryan ODonoghue" <bryan.odonoghue@linaro.org>,
-        Felipe Balbi <balbi@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 172/380] usb: gadget: u_ether: fix a potential null pointer dereference
+Subject: [PATCH 5.10 184/306] gfs2: Fix glock recursion in freeze_go_xmote_bh
 Date:   Thu, 16 Sep 2021 17:58:49 +0200
-Message-Id: <20210916155809.927051509@linuxfoundation.org>
+Message-Id: <20210916155800.353176323@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 8ae01239609b29ec2eff55967c8e0fe3650cfa09 ]
+[ Upstream commit 9d9b16054b7d357afde69a027514c695092b0d22 ]
 
-f_ncm tx timeout can call us with null skb to flush
-a pending frame.  In this case skb is NULL to begin
-with but ceases to be null after dev->wrap() completes.
+We must not call gfs2_consist (which does a file system withdraw) from
+the freeze glock's freeze_go_xmote_bh function because the withdraw
+will try to use the freeze glock, thus causing a glock recursion error.
 
-In such a case in->maxpacket will be read, even though
-we've failed to check that 'in' is not NULL.
+This patch changes freeze_go_xmote_bh to call function
+gfs2_assert_withdraw_delayed instead of gfs2_consist to avoid recursion.
 
-Though I've never observed this fail in practice,
-however the 'flush operation' simply does not make sense with
-a null usb IN endpoint - there's nowhere to flush to...
-(note that we're the gadget/device, and IN is from the point
- of view of the host, so here IN actually means outbound...)
-
-Cc: Brooke Basile <brookebasile@gmail.com>
-Cc: "Bryan O'Donoghue" <bryan.odonoghue@linaro.org>
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Link: https://lore.kernel.org/r/20210701114834.884597-6-zenczykowski@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_ether.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/gfs2/glops.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
-index d1d044d9f859..85a3f6d4b5af 100644
---- a/drivers/usb/gadget/function/u_ether.c
-+++ b/drivers/usb/gadget/function/u_ether.c
-@@ -492,8 +492,9 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
- 	}
- 	spin_unlock_irqrestore(&dev->lock, flags);
+diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
+index 3faa421568b0..bf539eab92c6 100644
+--- a/fs/gfs2/glops.c
++++ b/fs/gfs2/glops.c
+@@ -623,16 +623,13 @@ static int freeze_go_xmote_bh(struct gfs2_glock *gl, struct gfs2_holder *gh)
+ 		j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
  
--	if (skb && !in) {
--		dev_kfree_skb_any(skb);
-+	if (!in) {
-+		if (skb)
-+			dev_kfree_skb_any(skb);
- 		return NETDEV_TX_OK;
+ 		error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
+-		if (error)
+-			gfs2_consist(sdp);
+-		if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT))
+-			gfs2_consist(sdp);
+-
+-		/*  Initialize some head of the log stuff  */
+-		if (!gfs2_withdrawn(sdp)) {
+-			sdp->sd_log_sequence = head.lh_sequence + 1;
+-			gfs2_log_pointers_init(sdp, head.lh_blkno);
+-		}
++		if (gfs2_assert_withdraw_delayed(sdp, !error))
++			return error;
++		if (gfs2_assert_withdraw_delayed(sdp, head.lh_flags &
++						 GFS2_LOG_HEAD_UNMOUNT))
++			return -EIO;
++		sdp->sd_log_sequence = head.lh_sequence + 1;
++		gfs2_log_pointers_init(sdp, head.lh_blkno);
  	}
- 
+ 	return 0;
+ }
 -- 
 2.30.2
 
