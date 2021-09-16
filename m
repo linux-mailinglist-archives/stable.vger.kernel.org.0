@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3760540DF31
+	by mail.lfdr.de (Postfix) with ESMTP id BA11A40DF32
 	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233681AbhIPQHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233102AbhIPQHS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Sep 2021 12:07:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46774 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232006AbhIPQHG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:07:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28A846127B;
-        Thu, 16 Sep 2021 16:05:45 +0000 (UTC)
+        id S233462AbhIPQHI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:07:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 724816127A;
+        Thu, 16 Sep 2021 16:05:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808345;
-        bh=k4vAF9wijHIjYGQoKnmECvPVxo+coml08zvVtjxwRFg=;
+        s=korg; t=1631808348;
+        bh=qb2B1/pj+fPKuwMKjMFok1Pbe1N93Mzx558OS35UmKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=earzdFkaD46r1pcx5ERYpTBSHejNyRQ+0+BWSIHjfhOpAXp9up0R4mFsH0exzmotM
-         95HhQSQ8qABuzStD/eIkfSH3/qiiBG2f4yxLQ/X9zXZGTPKEBXb9LPy/zqwrhvQ3MV
-         DHJcuYW/zAgXxthUkSf2OeLjftakOUxuCrSbpL+Q=
+        b=sgQUJweZ2+vTSj/IRNxdvpPzwt9hctVYZ2d2A0g9QiF6RHSFOhzgVORROFhme9FAq
+         afBZT+a8yOBCvOv7Y4Cq09E3ay8BwCk+A9tISjuMkMhELwf2mFsqEZd2aJ/eMsJ2u6
+         dzuR3JobOTD/VN5GgF6/kT0cJnvAuabCX0vjzPXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Zhaoyu Liu <zackaryliu@yeah.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 055/306] f2fs: quota: fix potential deadlock
-Date:   Thu, 16 Sep 2021 17:56:40 +0200
-Message-Id: <20210916155755.820722022@linuxfoundation.org>
+Subject: [PATCH 5.10 056/306] pinctrl: remove empty lines in pinctrl subsystem
+Date:   Thu, 16 Sep 2021 17:56:41 +0200
+Message-Id: <20210916155755.853120138@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
 References: <20210916155753.903069397@linuxfoundation.org>
@@ -40,232 +44,193 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Zhaoyu Liu <zackary.liu.pro@gmail.com>
 
-[ Upstream commit 9de71ede81e6d1a111fdd868b2d78d459fa77f80 ]
+[ Upstream commit 43878eb7c83d3335af7737dcce1fa79071065dfe ]
 
-xfstest generic/587 reports a deadlock issue as below:
+Remove all empty lines at the end of functions in pinctrl subsystem,
+and make the code neat.
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.14.0-rc1 #69 Not tainted
-------------------------------------------------------
-repquota/8606 is trying to acquire lock:
-ffff888022ac9320 (&sb->s_type->i_mutex_key#18){+.+.}-{3:3}, at: f2fs_quota_sync+0x207/0x300 [f2fs]
-
-but task is already holding lock:
-ffff8880084bcde8 (&sbi->quota_sem){.+.+}-{3:3}, at: f2fs_quota_sync+0x59/0x300 [f2fs]
-
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
--> #2 (&sbi->quota_sem){.+.+}-{3:3}:
-       __lock_acquire+0x648/0x10b0
-       lock_acquire+0x128/0x470
-       down_read+0x3b/0x2a0
-       f2fs_quota_sync+0x59/0x300 [f2fs]
-       f2fs_quota_on+0x48/0x100 [f2fs]
-       do_quotactl+0x5e3/0xb30
-       __x64_sys_quotactl+0x23a/0x4e0
-       do_syscall_64+0x3b/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
-
--> #1 (&sbi->cp_rwsem){++++}-{3:3}:
-       __lock_acquire+0x648/0x10b0
-       lock_acquire+0x128/0x470
-       down_read+0x3b/0x2a0
-       f2fs_unlink+0x353/0x670 [f2fs]
-       vfs_unlink+0x1c7/0x380
-       do_unlinkat+0x413/0x4b0
-       __x64_sys_unlinkat+0x50/0xb0
-       do_syscall_64+0x3b/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
-
--> #0 (&sb->s_type->i_mutex_key#18){+.+.}-{3:3}:
-       check_prev_add+0xdc/0xb30
-       validate_chain+0xa67/0xb20
-       __lock_acquire+0x648/0x10b0
-       lock_acquire+0x128/0x470
-       down_write+0x39/0xc0
-       f2fs_quota_sync+0x207/0x300 [f2fs]
-       do_quotactl+0xaff/0xb30
-       __x64_sys_quotactl+0x23a/0x4e0
-       do_syscall_64+0x3b/0x90
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-other info that might help us debug this:
-
-Chain exists of:
-  &sb->s_type->i_mutex_key#18 --> &sbi->cp_rwsem --> &sbi->quota_sem
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&sbi->quota_sem);
-                               lock(&sbi->cp_rwsem);
-                               lock(&sbi->quota_sem);
-  lock(&sb->s_type->i_mutex_key#18);
-
- *** DEADLOCK ***
-
-3 locks held by repquota/8606:
- #0: ffff88801efac0e0 (&type->s_umount_key#53){++++}-{3:3}, at: user_get_super+0xd9/0x190
- #1: ffff8880084bc380 (&sbi->cp_rwsem){++++}-{3:3}, at: f2fs_quota_sync+0x3e/0x300 [f2fs]
- #2: ffff8880084bcde8 (&sbi->quota_sem){.+.+}-{3:3}, at: f2fs_quota_sync+0x59/0x300 [f2fs]
-
-stack backtrace:
-CPU: 6 PID: 8606 Comm: repquota Not tainted 5.14.0-rc1 #69
-Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
-Call Trace:
- dump_stack_lvl+0xce/0x134
- dump_stack+0x17/0x20
- print_circular_bug.isra.0.cold+0x239/0x253
- check_noncircular+0x1be/0x1f0
- check_prev_add+0xdc/0xb30
- validate_chain+0xa67/0xb20
- __lock_acquire+0x648/0x10b0
- lock_acquire+0x128/0x470
- down_write+0x39/0xc0
- f2fs_quota_sync+0x207/0x300 [f2fs]
- do_quotactl+0xaff/0xb30
- __x64_sys_quotactl+0x23a/0x4e0
- do_syscall_64+0x3b/0x90
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f883b0b4efe
-
-The root cause is ABBA deadlock of inode lock and cp_rwsem,
-reorder locks in f2fs_quota_sync() as below to fix this issue:
-- lock inode
-- lock cp_rwsem
-- lock quota_sem
-
-Fixes: db6ec53b7e03 ("f2fs: add a rw_sem to cover quota flag changes")
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Zhaoyu Liu <zackaryliu@yeah.net>
+Link: https://lore.kernel.org/r/X98NP6NFK1Afzrgd@manjaro
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 84 ++++++++++++++++++++++++++++---------------------
- 1 file changed, 48 insertions(+), 36 deletions(-)
+ drivers/pinctrl/actions/pinctrl-owl.c         | 1 -
+ drivers/pinctrl/core.c                        | 1 -
+ drivers/pinctrl/freescale/pinctrl-imx1-core.c | 1 -
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c   | 1 -
+ drivers/pinctrl/pinctrl-at91.c                | 1 -
+ drivers/pinctrl/pinctrl-st.c                  | 1 -
+ drivers/pinctrl/pinctrl-sx150x.c              | 1 -
+ drivers/pinctrl/qcom/pinctrl-sdm845.c         | 1 -
+ drivers/pinctrl/qcom/pinctrl-ssbi-mpp.c       | 1 -
+ drivers/pinctrl/renesas/pfc-r8a77950.c        | 1 -
+ drivers/pinctrl/renesas/pfc-r8a77951.c        | 1 -
+ drivers/pinctrl/renesas/pfc-r8a7796.c         | 1 -
+ drivers/pinctrl/renesas/pfc-r8a77965.c        | 1 -
+ 13 files changed, 13 deletions(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index dad91b1f3849..de543168b370 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -2206,6 +2206,33 @@ static int f2fs_enable_quotas(struct super_block *sb)
- 	return 0;
- }
+diff --git a/drivers/pinctrl/actions/pinctrl-owl.c b/drivers/pinctrl/actions/pinctrl-owl.c
+index 903a4baf3846..c8b3e396ea27 100644
+--- a/drivers/pinctrl/actions/pinctrl-owl.c
++++ b/drivers/pinctrl/actions/pinctrl-owl.c
+@@ -444,7 +444,6 @@ static int owl_group_config_get(struct pinctrl_dev *pctrldev,
+ 	*config = pinconf_to_config_packed(param, arg);
  
-+static int f2fs_quota_sync_file(struct f2fs_sb_info *sbi, int type)
-+{
-+	struct quota_info *dqopt = sb_dqopt(sbi->sb);
-+	struct address_space *mapping = dqopt->files[type]->i_mapping;
-+	int ret = 0;
-+
-+	ret = dquot_writeback_dquots(sbi->sb, type);
-+	if (ret)
-+		goto out;
-+
-+	ret = filemap_fdatawrite(mapping);
-+	if (ret)
-+		goto out;
-+
-+	/* if we are using journalled quota */
-+	if (is_journalled_quota(sbi))
-+		goto out;
-+
-+	ret = filemap_fdatawait(mapping);
-+
-+	truncate_inode_pages(&dqopt->files[type]->i_data, 0);
-+out:
-+	if (ret)
-+		set_sbi_flag(sbi, SBI_QUOTA_NEED_REPAIR);
-+	return ret;
-+}
-+
- int f2fs_quota_sync(struct super_block *sb, int type)
- {
- 	struct f2fs_sb_info *sbi = F2FS_SB(sb);
-@@ -2213,57 +2240,42 @@ int f2fs_quota_sync(struct super_block *sb, int type)
- 	int cnt;
- 	int ret;
- 
--	/*
--	 * do_quotactl
--	 *  f2fs_quota_sync
--	 *  down_read(quota_sem)
--	 *  dquot_writeback_dquots()
--	 *  f2fs_dquot_commit
--	 *                            block_operation
--	 *                            down_read(quota_sem)
--	 */
--	f2fs_lock_op(sbi);
--
--	down_read(&sbi->quota_sem);
--	ret = dquot_writeback_dquots(sb, type);
--	if (ret)
--		goto out;
--
- 	/*
- 	 * Now when everything is written we can discard the pagecache so
- 	 * that userspace sees the changes.
- 	 */
- 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
--		struct address_space *mapping;
- 
- 		if (type != -1 && cnt != type)
- 			continue;
--		if (!sb_has_quota_active(sb, cnt))
--			continue;
- 
--		mapping = dqopt->files[cnt]->i_mapping;
-+		if (!sb_has_quota_active(sb, type))
-+			return 0;
- 
--		ret = filemap_fdatawrite(mapping);
--		if (ret)
--			goto out;
-+		inode_lock(dqopt->files[cnt]);
- 
--		/* if we are using journalled quota */
--		if (is_journalled_quota(sbi))
--			continue;
-+		/*
-+		 * do_quotactl
-+		 *  f2fs_quota_sync
-+		 *  down_read(quota_sem)
-+		 *  dquot_writeback_dquots()
-+		 *  f2fs_dquot_commit
-+		 *			      block_operation
-+		 *			      down_read(quota_sem)
-+		 */
-+		f2fs_lock_op(sbi);
-+		down_read(&sbi->quota_sem);
- 
--		ret = filemap_fdatawait(mapping);
--		if (ret)
--			set_sbi_flag(F2FS_SB(sb), SBI_QUOTA_NEED_REPAIR);
-+		ret = f2fs_quota_sync_file(sbi, cnt);
-+
-+		up_read(&sbi->quota_sem);
-+		f2fs_unlock_op(sbi);
- 
--		inode_lock(dqopt->files[cnt]);
--		truncate_inode_pages(&dqopt->files[cnt]->i_data, 0);
- 		inode_unlock(dqopt->files[cnt]);
-+
-+		if (ret)
-+			break;
- 	}
--out:
--	if (ret)
--		set_sbi_flag(F2FS_SB(sb), SBI_QUOTA_NEED_REPAIR);
--	up_read(&sbi->quota_sem);
--	f2fs_unlock_op(sbi);
  	return ret;
+-
  }
  
+ static int owl_group_config_set(struct pinctrl_dev *pctrldev,
+diff --git a/drivers/pinctrl/core.c b/drivers/pinctrl/core.c
+index 20b477cd5a30..6e6825d17a1d 100644
+--- a/drivers/pinctrl/core.c
++++ b/drivers/pinctrl/core.c
+@@ -2119,7 +2119,6 @@ struct pinctrl_dev *pinctrl_register(struct pinctrl_desc *pctldesc,
+ 		return ERR_PTR(error);
+ 
+ 	return pctldev;
+-
+ }
+ EXPORT_SYMBOL_GPL(pinctrl_register);
+ 
+diff --git a/drivers/pinctrl/freescale/pinctrl-imx1-core.c b/drivers/pinctrl/freescale/pinctrl-imx1-core.c
+index 08d110078c43..70186448d2f4 100644
+--- a/drivers/pinctrl/freescale/pinctrl-imx1-core.c
++++ b/drivers/pinctrl/freescale/pinctrl-imx1-core.c
+@@ -290,7 +290,6 @@ static const struct pinctrl_ops imx1_pctrl_ops = {
+ 	.pin_dbg_show = imx1_pin_dbg_show,
+ 	.dt_node_to_map = imx1_dt_node_to_map,
+ 	.dt_free_map = imx1_dt_free_map,
+-
+ };
+ 
+ static int imx1_pmx_set(struct pinctrl_dev *pctldev, unsigned selector,
+diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+index 68894e9e05d2..5a68e242f6b3 100644
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -188,7 +188,6 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
+ 	PIN_GRP_GPIO_2("led1_od", 12, 1, BIT(21), BIT(21), 0, "led"),
+ 	PIN_GRP_GPIO_2("led2_od", 13, 1, BIT(22), BIT(22), 0, "led"),
+ 	PIN_GRP_GPIO_2("led3_od", 14, 1, BIT(23), BIT(23), 0, "led"),
+-
+ };
+ 
+ static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
+diff --git a/drivers/pinctrl/pinctrl-at91.c b/drivers/pinctrl/pinctrl-at91.c
+index 72edc675431c..9015486e38c1 100644
+--- a/drivers/pinctrl/pinctrl-at91.c
++++ b/drivers/pinctrl/pinctrl-at91.c
+@@ -733,7 +733,6 @@ static const struct at91_pinctrl_mux_ops sam9x60_ops = {
+ 	.get_slewrate   = at91_mux_sam9x60_get_slewrate,
+ 	.set_slewrate   = at91_mux_sam9x60_set_slewrate,
+ 	.irq_type	= alt_gpio_irq_type,
+-
+ };
+ 
+ static struct at91_pinctrl_mux_ops sama5d3_ops = {
+diff --git a/drivers/pinctrl/pinctrl-st.c b/drivers/pinctrl/pinctrl-st.c
+index 7b8c7a0b13de..43d9e6c7fd81 100644
+--- a/drivers/pinctrl/pinctrl-st.c
++++ b/drivers/pinctrl/pinctrl-st.c
+@@ -541,7 +541,6 @@ static void st_pinconf_set_retime_packed(struct st_pinctrl *info,
+ 	st_regmap_field_bit_set_clear_pin(rt_p->delay_0, delay & 0x1, pin);
+ 	/* 2 bit delay, msb */
+ 	st_regmap_field_bit_set_clear_pin(rt_p->delay_1, delay & 0x2, pin);
+-
+ }
+ 
+ static void st_pinconf_set_retime_dedicated(struct st_pinctrl *info,
+diff --git a/drivers/pinctrl/pinctrl-sx150x.c b/drivers/pinctrl/pinctrl-sx150x.c
+index c110f780407b..484a3b9e875c 100644
+--- a/drivers/pinctrl/pinctrl-sx150x.c
++++ b/drivers/pinctrl/pinctrl-sx150x.c
+@@ -443,7 +443,6 @@ static void sx150x_gpio_set(struct gpio_chip *chip, unsigned int offset,
+ 		sx150x_gpio_oscio_set(pctl, value);
+ 	else
+ 		__sx150x_gpio_set(pctl, offset, value);
+-
+ }
+ 
+ static void sx150x_gpio_set_multiple(struct gpio_chip *chip,
+diff --git a/drivers/pinctrl/qcom/pinctrl-sdm845.c b/drivers/pinctrl/qcom/pinctrl-sdm845.c
+index 2834d2c1338c..c51793f6546f 100644
+--- a/drivers/pinctrl/qcom/pinctrl-sdm845.c
++++ b/drivers/pinctrl/qcom/pinctrl-sdm845.c
+@@ -1310,7 +1310,6 @@ static const struct msm_pinctrl_soc_data sdm845_pinctrl = {
+ 	.ngpios = 151,
+ 	.wakeirq_map = sdm845_pdc_map,
+ 	.nwakeirq_map = ARRAY_SIZE(sdm845_pdc_map),
+-
+ };
+ 
+ static const struct msm_pinctrl_soc_data sdm845_acpi_pinctrl = {
+diff --git a/drivers/pinctrl/qcom/pinctrl-ssbi-mpp.c b/drivers/pinctrl/qcom/pinctrl-ssbi-mpp.c
+index 681d8dcf37e3..92e7f2602847 100644
+--- a/drivers/pinctrl/qcom/pinctrl-ssbi-mpp.c
++++ b/drivers/pinctrl/qcom/pinctrl-ssbi-mpp.c
+@@ -617,7 +617,6 @@ static void pm8xxx_mpp_dbg_show_one(struct seq_file *s,
+ 		}
+ 		break;
+ 	}
+-
+ }
+ 
+ static void pm8xxx_mpp_dbg_show(struct seq_file *s, struct gpio_chip *chip)
+diff --git a/drivers/pinctrl/renesas/pfc-r8a77950.c b/drivers/pinctrl/renesas/pfc-r8a77950.c
+index 04812e62f3a4..9d89da2319e5 100644
+--- a/drivers/pinctrl/renesas/pfc-r8a77950.c
++++ b/drivers/pinctrl/renesas/pfc-r8a77950.c
+@@ -1668,7 +1668,6 @@ static const unsigned int avb_mii_pins[] = {
+ 	PIN_AVB_RX_CTL, PIN_AVB_RXC, PIN_AVB_RD0,
+ 	PIN_AVB_RD1, PIN_AVB_RD2, PIN_AVB_RD3,
+ 	PIN_AVB_TXCREFCLK,
+-
+ };
+ static const unsigned int avb_mii_mux[] = {
+ 	AVB_TX_CTL_MARK, AVB_TXC_MARK, AVB_TD0_MARK,
+diff --git a/drivers/pinctrl/renesas/pfc-r8a77951.c b/drivers/pinctrl/renesas/pfc-r8a77951.c
+index a94ebe0bf5d0..4aea6e4b7157 100644
+--- a/drivers/pinctrl/renesas/pfc-r8a77951.c
++++ b/drivers/pinctrl/renesas/pfc-r8a77951.c
+@@ -1727,7 +1727,6 @@ static const unsigned int avb_mii_pins[] = {
+ 	PIN_AVB_RX_CTL, PIN_AVB_RXC, PIN_AVB_RD0,
+ 	PIN_AVB_RD1, PIN_AVB_RD2, PIN_AVB_RD3,
+ 	PIN_AVB_TXCREFCLK,
+-
+ };
+ static const unsigned int avb_mii_mux[] = {
+ 	AVB_TX_CTL_MARK, AVB_TXC_MARK, AVB_TD0_MARK,
+diff --git a/drivers/pinctrl/renesas/pfc-r8a7796.c b/drivers/pinctrl/renesas/pfc-r8a7796.c
+index 3878d6b0db14..a67fa0e4df7c 100644
+--- a/drivers/pinctrl/renesas/pfc-r8a7796.c
++++ b/drivers/pinctrl/renesas/pfc-r8a7796.c
+@@ -1732,7 +1732,6 @@ static const unsigned int avb_mii_pins[] = {
+ 	PIN_AVB_RX_CTL, PIN_AVB_RXC, PIN_AVB_RD0,
+ 	PIN_AVB_RD1, PIN_AVB_RD2, PIN_AVB_RD3,
+ 	PIN_AVB_TXCREFCLK,
+-
+ };
+ static const unsigned int avb_mii_mux[] = {
+ 	AVB_TX_CTL_MARK, AVB_TXC_MARK, AVB_TD0_MARK,
+diff --git a/drivers/pinctrl/renesas/pfc-r8a77965.c b/drivers/pinctrl/renesas/pfc-r8a77965.c
+index 7a50b9b69a7d..7db2b7f2ff67 100644
+--- a/drivers/pinctrl/renesas/pfc-r8a77965.c
++++ b/drivers/pinctrl/renesas/pfc-r8a77965.c
+@@ -1736,7 +1736,6 @@ static const unsigned int avb_mii_pins[] = {
+ 	PIN_AVB_RX_CTL, PIN_AVB_RXC, PIN_AVB_RD0,
+ 	PIN_AVB_RD1, PIN_AVB_RD2, PIN_AVB_RD3,
+ 	PIN_AVB_TXCREFCLK,
+-
+ };
+ static const unsigned int avb_mii_mux[] = {
+ 	AVB_TX_CTL_MARK, AVB_TXC_MARK, AVB_TD0_MARK,
 -- 
 2.30.2
 
