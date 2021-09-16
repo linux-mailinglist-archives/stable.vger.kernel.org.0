@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F2E40DF83
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:10:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6039840E61D
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235627AbhIPQKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:10:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48410 "EHLO mail.kernel.org"
+        id S1346386AbhIPRSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:18:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236019AbhIPQJN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:09:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 755416128B;
-        Thu, 16 Sep 2021 16:07:43 +0000 (UTC)
+        id S243966AbhIPRP6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:15:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FC9361BA6;
+        Thu, 16 Sep 2021 16:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808464;
-        bh=oWRUCAFDJYgHIjgHuS3unULmVDpG7sU3d4EIncw7RW8=;
+        s=korg; t=1631810403;
+        bh=DerjmtjVPV3EHwZB5MvO89BhWKQ7W0uW/gnQ1822Ago=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1Z9M3/ESm9VL3M97HGSrcTgxqEjHjYaWn85AjEur444nBhllhpTv/3QQhQRAXC7z
-         gNzmI1r/arQKo3rI5Xr5BM3aZa1LGKycVSiFjMDdj3NtADucjDbfxB+TeGgeKZdBtN
-         Au7H0CkCT4rVaqUWYEFvq1wIaA02KeA5l1gDqPGA=
+        b=LJKLaMi1it00GJ0PVJ8MJ4o6ty5STPwmOOJUSCJ6J6CgbxR1zU4lCoJkLCNDd8BhQ
+         RQ8VBuhxlZfyabJ+lcPNfmjkXjnEZNzr+tTCqzPE9BwiEpic+wMU6v3NMHq/q/QPc+
+         XcUGb/skqLMhbEyaA5GQHj2NsLk8NIbt21uZvKas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 099/306] clk: at91: clk-generated: Limit the requested rate to our range
-Date:   Thu, 16 Sep 2021 17:57:24 +0200
-Message-Id: <20210916155757.448562794@linuxfoundation.org>
+Subject: [PATCH 5.14 096/432] RDMA/hns: Dont overwrite supplied QP attributes
+Date:   Thu, 16 Sep 2021 17:57:25 +0200
+Message-Id: <20210916155814.031972734@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit af7651e67b9d5f7e63ea23b118e3672ac662244a ]
+[ Upstream commit e66e49592b690d6abd537cc207b07a3db2f413d0 ]
 
-On clk_generated_determine_rate(), the requested rate could be outside
-of clk's range. Limit the rate to the clock's range to not return an
-error.
+QP attributes that were supplied by IB/core already have all parameters
+set when they are passed to the driver. The drivers are not supposed to
+change anything in struct ib_qp_init_attr.
 
-Fixes: df70aeef6083 ("clk: at91: add generated clock driver")
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20210707131213.3283509-1-codrin.ciubotariu@microchip.com
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 66d86e529dd5 ("RDMA/hns: Add UD support for HIP09")
+Link: https://lore.kernel.org/r/5987138875e8ade9aa339d4db6e1bd9694ed4591.1627040189.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/at91/clk-generated.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/infiniband/hw/hns/hns_roce_qp.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/drivers/clk/at91/clk-generated.c b/drivers/clk/at91/clk-generated.c
-index b4fc8d71daf2..b656d25a9767 100644
---- a/drivers/clk/at91/clk-generated.c
-+++ b/drivers/clk/at91/clk-generated.c
-@@ -128,6 +128,12 @@ static int clk_generated_determine_rate(struct clk_hw *hw,
- 	int i;
- 	u32 div;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_qp.c b/drivers/infiniband/hw/hns/hns_roce_qp.c
+index b101b7e578f2..c3e2fee16c0e 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_qp.c
++++ b/drivers/infiniband/hw/hns/hns_roce_qp.c
+@@ -1171,14 +1171,8 @@ struct ib_qp *hns_roce_create_qp(struct ib_pd *pd,
+ 	if (!hr_qp)
+ 		return ERR_PTR(-ENOMEM);
  
-+	/* do not look for a rate that is outside of our range */
-+	if (gck->range.max && req->rate > gck->range.max)
-+		req->rate = gck->range.max;
-+	if (gck->range.min && req->rate < gck->range.min)
-+		req->rate = gck->range.min;
-+
- 	for (i = 0; i < clk_hw_get_num_parents(hw); i++) {
- 		if (gck->chg_pid == i)
- 			continue;
+-	if (init_attr->qp_type == IB_QPT_XRC_INI)
+-		init_attr->recv_cq = NULL;
+-
+-	if (init_attr->qp_type == IB_QPT_XRC_TGT) {
++	if (init_attr->qp_type == IB_QPT_XRC_TGT)
+ 		hr_qp->xrcdn = to_hr_xrcd(init_attr->xrcd)->xrcdn;
+-		init_attr->recv_cq = NULL;
+-		init_attr->send_cq = NULL;
+-	}
+ 
+ 	if (init_attr->qp_type == IB_QPT_GSI) {
+ 		hr_qp->port = init_attr->port_num - 1;
 -- 
 2.30.2
 
