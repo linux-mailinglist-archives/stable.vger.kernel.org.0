@@ -2,87 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B854940DCA1
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 16:22:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0BC240DCF8
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 16:39:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234701AbhIPOYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 10:24:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46938 "EHLO
+        id S238528AbhIPOkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 10:40:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230243AbhIPOYA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 10:24:00 -0400
-Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00C4DC061574
-        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 07:22:39 -0700 (PDT)
-Received: by mail-lf1-x132.google.com with SMTP id i7so19103770lfr.13
-        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 07:22:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=TVvq+mcoxaKaeAH0kEVPNawuV+zW31nO+RQxj5WLtq4=;
-        b=TLHPx0/68YHTAaH2D8RMjMkqz8WHIqkNxVCkN/ua2+Jx/YC533LzNGa9+/Cc9fR9jf
-         4o1XzmbvqPosP7BmhQ3a2LDOAThDbNQy3RRj8zrLTU0IkBatMOpzLvD5jPGp1xQLYjyf
-         A8D1jP9iDU2dmIGGpv+LpB3Quf5fK9RomNrgb+HyaAo3avvMI0OOlzotA6hRelsCnpRB
-         Ut05Davu7AP6soQGlkud3z/8cr4vxMMUNxZj1rOl3E+DXCkQS+naSWSgLEDAGsd/PNNn
-         XeF06SpUhzAcrhHZKtqmvPnm7IsJVuaY8CUi8yJTdjjeMr06CfDINFL0Uaja4D65Wox0
-         1N4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=TVvq+mcoxaKaeAH0kEVPNawuV+zW31nO+RQxj5WLtq4=;
-        b=Hge3iaL3l5+oPJ3D9Q6NPXm7YFHP5PUvyVJvNS0VL0nbEICoeA1Y3VRFvpdaCc1f0e
-         W2h6nL8G4fB+mR/NhQ1/cF+IGg9Psv7D1piblh48VMIHAsef8aIe/gV1jNbQ/A08l52h
-         hFWXU56j7KJjpDM1nfW4jWm56G4nnv7XQPRBfyZ5kw6IpLVkMRZwnpDYi/qeSt12lbbG
-         pR0HPh17Si9aBgvdNufYAEkJOeXpumlUbTeGzTSYIeJE95iqa5wtK2AZOLLynDDLZGMS
-         z6Hw8yz8olZdJQIWenKWaXlly0rFw6A6OyoCzmIhq8Yc1TY2D4ImSvmKm3LhbcJ5vjbk
-         nZyQ==
-X-Gm-Message-State: AOAM532Ro/oX/TTVcTgVvKd4sLnAaC7sPTDjBlyEDFO+YC0SrtzaiIHV
-        RcX89BYF2uBt4mCUYx1BI1Rsr+qwihfP8EDXmAA=
-X-Google-Smtp-Source: ABdhPJyCS3nq2+PcilFH95Y5W20iunxPNRqQv7gqii8JY8M/c3YR8SGi0Lw8ZAKGhw/h6vGrgpsyW+uSi9Lq041/iAY=
-X-Received: by 2002:a2e:6c09:: with SMTP id h9mr5111346ljc.30.1631802147447;
- Thu, 16 Sep 2021 07:22:27 -0700 (PDT)
+        with ESMTP id S238479AbhIPOkb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 10:40:31 -0400
+Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3584CC061574;
+        Thu, 16 Sep 2021 07:39:11 -0700 (PDT)
+Received: from [IPv6:::1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: marex@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id 0FFEC82F4D;
+        Thu, 16 Sep 2021 16:39:07 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1631803148;
+        bh=5DRa0+xWbxpPVlWb1mjMVVqtqnNIlVWE0nYmVxDfEvE=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=i7pvwWj+UNf9wyLpj0X0jw8rjJbnCmfjsdb9N7xZyOajyZWcBGMsOn23RQAA8gA+4
+         sv66yYdN4MdJm5shp/Hbcku+52MyWlwMHfAetVfsX1gJTOB3vSIXLTRbLyUdLpaEEy
+         Ds3o21uXQkVfMMZ+lzfF+2xSFdi2TIfLmR3SOk0mdOfxkEv7g8/j3VmdPXCxHD+pJE
+         1KC/wUAukyGnmpMb+J8w0qa5uk68EczxPt0BwuzaVrZVswhVgGh54KOZVD9KQPIsSi
+         rOHZUgvvn7SlqzjK/dOlIcZi0qUPAa85g8uFiVrCS37X40VIZeECNmOZH7BlAuvk6E
+         dQc8vZjExQ63w==
+Subject: Re: [PATCH] rsi: Fix module dev_oper_mode parameter description
+To:     Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        netdev@vger.kernel.org
+Cc:     Amitkumar Karwar <amit.karwar@redpinesignals.com>,
+        Angus Ainslie <angus@akkea.ca>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Karun Eagalapati <karun256@gmail.com>,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        Martin Kepplinger <martink@posteo.de>,
+        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
+        Siva Rebbagondla <siva8118@gmail.com>, stable@vger.kernel.org
+References: <20210915080841.73938-1-marex@denx.de>
+ <5957470.R6RXr1ZQNe@pliszka>
+From:   Marek Vasut <marex@denx.de>
+Message-ID: <a19c659a-45c5-5e3c-f681-caaa55d085b6@denx.de>
+Date:   Thu, 16 Sep 2021 16:39:06 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Received: by 2002:a2e:a786:0:0:0:0:0 with HTTP; Thu, 16 Sep 2021 07:22:26
- -0700 (PDT)
-Reply-To: compaorekone34@gmail.com
-From:   Kone Compaore <gblaisecompaore@gmail.com>
-Date:   Thu, 16 Sep 2021 07:22:26 -0700
-Message-ID: <CAH5Hv75JsdTW-oZdF5hWZ5aFRqXDP0jA+Vcu9F3EC7LUJFKAuw@mail.gmail.com>
-Subject: Greetings from Kone
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <5957470.R6RXr1ZQNe@pliszka>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings,
+On 9/16/21 9:03 AM, Sebastian Krzyszkowiak wrote:
+> On środa, 15 września 2021 10:08:41 CEST Marek Vasut wrote:
+>> +#define DEV_OPMODE_PARAM_DESC		\
+>> +	__stringify(DEV_OPMODE_WIFI_ALONE)	"[Wi-Fi alone], "	\
+>> +	__stringify(DEV_OPMODE_BT_ALONE)	"[BT classic alone], "	\
+>> +	__stringify(DEV_OPMODE_BT_LE_ALONE)	"[BT LE], "		
+> \
+>> +	__stringify(DEV_OPMODE_BT_DUAL)		"[BT Dual], "		
+> \
+>> +	__stringify(DEV_OPMODE_STA_BT)		"[Wi-Fi STA + BT
+> classic], " \
+>> +	__stringify(DEV_OPMODE_STA_BT_LE)	"[Wi-Fi STA + BT LE], "	\
+>> +	__stringify(DEV_OPMODE_STA_BT_DUAL)	"[Wi-Fi STA + BT
+> classic + BT LE], " \
+>> +	__stringify(DEV_OPMODE_AP_BT)		"[AP + BT classic], "	
+> \
+>> +	__stringify(DEV_OPMODE_AP_BT_DUAL)	"[AP + BT classic + BT LE]"
+> 
+> There's still some inconsistency in mode naming - how about:
+> 
+> - Wi-Fi STA
 
-Greetings to you and your family.
+This mode is also AP capable
 
-My name is Mr. Kone Compaore, the auditing general with the bank,
-Africa Develop bank (ADB) Ouagadougou, Burkina Faso, in West Africa. I
-am contacting you to seek our honesty and sincere cooperation in
-confidential manner to transfer the sum of 10.5 (Ten million five
-hundred thousand Dollars) to your existing or new bank account.
+> - BT classic
+> - BT LE
+> - BT classic + BT LE
+> - Wi-Fi STA + BT classic
+> - Wi-Fi STA + BT LE
+> - Wi-Fi STA + BT classic + BT LE
+> - Wi-Fi AP + BT classic
+> - Wi-Fi AP + BT classic + BT LE
+> 
+> "alone" could be added to the first three modes (you missed it in BT LE).
 
-This money belongs to one of our bank client, a Libyan oil exporter
-who was working with the former Libyan government; I learn t that he
-was killed by the revolutionary forces since October 2011. Our bank is
-planning to transfer this entire fund into the government public
-treasury as unclaimed fund if nobody comes to claim the money from our
-bank after four years without account activities .
-
-What the bank need is proof and information about the late customer
-which I will assist you on. his is a genuine, risk free and legal
-business transaction, All details shall be sent to you once I hear
-from you.
-
-The information as contained herein be accorded the necessary
-attention, urgency as well as the secrecy it deserves.
-
-If you are really sure of your integrity, trustworthy and
-confidentiality reply back to me urgently for more details
-
-Best regards,
-Kone Compaore
+I can add the alone consistently, yes -- that's the point of the first 
+three modes, that the "other" radio is disabled by the firmware.
