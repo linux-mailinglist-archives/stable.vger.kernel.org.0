@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 045A240E8B6
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA8C640E8BE
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356134AbhIPRpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:45:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57136 "EHLO mail.kernel.org"
+        id S1356143AbhIPRpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:45:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355681AbhIPRl7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:41:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6460F6326A;
-        Thu, 16 Sep 2021 16:54:01 +0000 (UTC)
+        id S1355704AbhIPRmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:42:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEFBB6326D;
+        Thu, 16 Sep 2021 16:54:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811242;
-        bh=zOxIMmM7JqWdZCY4KIrYNtd1vD/SZ3H0XjVafAUFlXM=;
+        s=korg; t=1631811244;
+        bh=Lx/7dvfq/ZH0FLfRLQXCRbj4o1l2TjiKGWN5OXRUYgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PO3hTT8mgbof//V6683nlY6FKKKtMu9hoxW06yFwmr0z7G8spJkNGrJTPyYgabWsl
-         XliufxTDXxjMzc+dvsYjKizaIBy/0geOGF7K3m8M1gLtHxde/585oMfjvkvVlC4iIP
-         VMjgAtissi7qHM2QvM1gtbsTCg7I2waa7w20Uasc=
+        b=bLEqHb/i/bO8P1YzFCWD1KQ8+P88qLT7WobDDes2/ptLRXrc13xICJAFkQlkAuysa
+         lWHUK+rg5QpPtFAML1aKBSz6w9nZsswO0xEOtcf+yKZorzr4/+IzT0Cso8PcYH2Yj3
+         O0VwhKsFYfelplx06vVcuuZFzgDM4jzAHNgFey1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yanghui <yanghui.def@bytedance.com>,
-        Muchun Song <songmuchun@bytedance.com>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.14 409/432] mm/mempolicy: fix a race between offset_il_node and mpol_rebind_task
-Date:   Thu, 16 Sep 2021 18:02:38 +0200
-Message-Id: <20210916155824.711041910@linuxfoundation.org>
+Subject: [PATCH 5.14 410/432] memcg: enable accounting for pids in nested pid namespaces
+Date:   Thu, 16 Sep 2021 18:02:39 +0200
+Message-Id: <20210916155824.742544394@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -41,88 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yanghui <yanghui.def@bytedance.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 276aeee1c5fc00df700f0782060beae126600472 upstream.
+commit fab827dbee8c2e06ca4ba000fa6c48bcf9054aba upstream.
 
-Servers happened below panic:
+Commit 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
+enabled memcg accounting for pids allocated from init_pid_ns.pid_cachep,
+but forgot to adjust the setting for nested pid namespaces.  As a result,
+pid memory is not accounted exactly where it is really needed, inside
+memcg-limited containers with their own pid namespaces.
 
-  Kernel version:5.4.56
-  BUG: unable to handle page fault for address: 0000000000002c48
-  RIP: 0010:__next_zones_zonelist+0x1d/0x40
-  Call Trace:
-    __alloc_pages_nodemask+0x277/0x310
-    alloc_page_interleave+0x13/0x70
-    handle_mm_fault+0xf99/0x1390
-    __do_page_fault+0x288/0x500
-    do_page_fault+0x30/0x110
-    page_fault+0x3e/0x50
+Pid was one the first kernel objects enabled for memcg accounting.
+init_pid_ns.pid_cachep marked by SLAB_ACCOUNT and we can expect that any
+new pids in the system are memcg-accounted.
 
-The reason for the panic is that MAX_NUMNODES is passed in the third
-parameter in __alloc_pages_nodemask(preferred_nid).  So access to
-zonelist->zoneref->zone_idx in __next_zones_zonelist will cause a panic.
+Though recently I've noticed that it is wrong.  nested pid namespaces
+creates own slab caches for pid objects, nested pids have increased size
+because contain id both for all parent and for own pid namespaces.  The
+problem is that these slab caches are _NOT_ marked by SLAB_ACCOUNT, as a
+result any pids allocated in nested pid namespaces are not
+memcg-accounted.
 
-In offset_il_node(), first_node() returns nid from pol->v.nodes, after
-this other threads may chang pol->v.nodes before next_node().  This race
-condition will let next_node return MAX_NUMNODES.  So put pol->nodes in
-a local variable.
+Pid struct in nested pid namespace consumes up to 500 bytes memory, 100000
+such objects gives us up to ~50Mb unaccounted memory, this allow container
+to exceed assigned memcg limits.
 
-The race condition is between offset_il_node and cpuset_change_task_nodemask:
-
-  CPU0:                                     CPU1:
-  alloc_pages_vma()
-    interleave_nid(pol,)
-      offset_il_node(pol,)
-        first_node(pol->v.nodes)            cpuset_change_task_nodemask
-                        //nodes==0xc          mpol_rebind_task
-                                                mpol_rebind_policy
-                                                  mpol_rebind_nodemask(pol,nodes)
-                        //nodes==0x3
-        next_node(nid, pol->v.nodes)//return MAX_NUMNODES
-
-Link: https://lkml.kernel.org/r/20210906034658.48721-1-yanghui.def@bytedance.com
-Signed-off-by: yanghui <yanghui.def@bytedance.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/8b6de616-fd1a-02c6-cbdb-976ecdcfa604@virtuozzo.com
+Fixes: 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
+Cc: stable@vger.kernel.org
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Acked-by: Roman Gushchin <guro@fb.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mempolicy.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ kernel/pid_namespace.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -1965,17 +1965,26 @@ unsigned int mempolicy_slab_node(void)
-  */
- static unsigned offset_il_node(struct mempolicy *pol, unsigned long n)
- {
--	unsigned nnodes = nodes_weight(pol->nodes);
--	unsigned target;
-+	nodemask_t nodemask = pol->nodes;
-+	unsigned int target, nnodes;
- 	int i;
- 	int nid;
-+	/*
-+	 * The barrier will stabilize the nodemask in a register or on
-+	 * the stack so that it will stop changing under the code.
-+	 *
-+	 * Between first_node() and next_node(), pol->nodes could be changed
-+	 * by other threads. So we put pol->nodes in a local stack.
-+	 */
-+	barrier();
- 
-+	nnodes = nodes_weight(nodemask);
- 	if (!nnodes)
- 		return numa_node_id();
- 	target = (unsigned int)n % nnodes;
--	nid = first_node(pol->nodes);
-+	nid = first_node(nodemask);
- 	for (i = 0; i < target; i++)
--		nid = next_node(nid, pol->nodes);
-+		nid = next_node(nid, nodemask);
- 	return nid;
- }
- 
+--- a/kernel/pid_namespace.c
++++ b/kernel/pid_namespace.c
+@@ -51,7 +51,8 @@ static struct kmem_cache *create_pid_cac
+ 	mutex_lock(&pid_caches_mutex);
+ 	/* Name collision forces to do allocation under mutex. */
+ 	if (!*pkc)
+-		*pkc = kmem_cache_create(name, len, 0, SLAB_HWCACHE_ALIGN, 0);
++		*pkc = kmem_cache_create(name, len, 0,
++					 SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT, 0);
+ 	mutex_unlock(&pid_caches_mutex);
+ 	/* current can fail, but someone else can succeed. */
+ 	return READ_ONCE(*pkc);
 
 
