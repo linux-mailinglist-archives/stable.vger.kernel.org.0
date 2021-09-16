@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38E4840E8E2
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:01:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 025A440E44C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:23:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345580AbhIPRmq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:42:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
+        id S1343760AbhIPQ5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:57:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242151AbhIPRgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:36:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BEAE61A7A;
-        Thu, 16 Sep 2021 16:49:40 +0000 (UTC)
+        id S1346545AbhIPQzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:55:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A8EA613AB;
+        Thu, 16 Sep 2021 16:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810981;
-        bh=jlRv8kDAL7oOh3uib7Np0PoxEOF5cyMjdJSYkpy+7lc=;
+        s=korg; t=1631809832;
+        bh=8LZEJQtrtWy5w2bYAQcyCjP4Njlb9gk133v3duhkGhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zu1NYLdNd69Rv0MwN+1thIoYNCYxqD2GyNU+/L7pNrK3p0IbEDs9cQqycSnZJBODu
-         /WA+UuXRYD8oTpX/qOLhl6rBFZYKFQT38gtYiPQ2F+CrvSTPmrX+64sR7LsFpU46l5
-         O1TCf/GrBFk8HfRGIf1PyFL/LyX6b2pIdRrZoy0Q=
+        b=HThpL04eN2gf3PYLkl/lgCG+0P0pV2asXJbof7iDEvBP8NIo7lTavoF7wA7z1DxDo
+         4Wpb5M+GBxgFADhkZzHyCFFqm1rtXYBDcRq7/AHg4MZhhp1q0gRXn4U2/wpklJ1DZl
+         +q8mDEYIW4q92CBA0HdaRgyyRr5Qd5IdcWE5emYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
+        Hariprasad Kelam <hkelam@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 307/432] Bluetooth: Fix handling of LE Enhanced Connection Complete
+Subject: [PATCH 5.13 299/380] octeontx2-pf: Fix NIX1_RX interface backpressure
 Date:   Thu, 16 Sep 2021 18:00:56 +0200
-Message-Id: <20210916155821.221775853@linuxfoundation.org>
+Message-Id: <20210916155814.234325100@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,167 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Subbaraya Sundeep <sbhatta@marvell.com>
 
-[ Upstream commit cafae4cd625502f65d1798659c1aa9b62d38cc56 ]
+[ Upstream commit e8fb4df1f5d84bc08dd4f4827821a851d2eab241 ]
 
-LE Enhanced Connection Complete contains the Local RPA used in the
-connection which must be used when set otherwise there could problems
-when pairing since the address used by the remote stack could be the
-Local RPA:
+'bp_ena' in Aura context is NIX block index, setting it
+zero will always backpressure NIX0 block, even if NIXLF
+belongs to NIX1. Hence fix this by setting it appropriately
+based on NIX block address.
 
-BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 4, Part E
-page 2396
-
-  'Resolvable Private Address being used by the local device for this
-  connection. This is only valid when the Own_Address_Type (from the
-  HCI_LE_Create_Connection, HCI_LE_Set_Advertising_Parameters,
-  HCI_LE_Set_Extended_Advertising_Parameters, or
-  HCI_LE_Extended_Create_Connection commands) is set to 0x02 or
-  0x03, and the Controller generated a resolvable private address for the
-  local device using a non-zero local IRK. For other Own_Address_Type
-  values, the Controller shall return all zeros.'
-
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 93 ++++++++++++++++++++++++++-------------
- 1 file changed, 62 insertions(+), 31 deletions(-)
+ .../ethernet/marvell/octeontx2/nic/otx2_common.c  | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 78032f1d8838..f41bd5dfc313 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5133,9 +5133,64 @@ static void hci_disconn_phylink_complete_evt(struct hci_dev *hdev,
- }
- #endif
- 
-+static void le_conn_update_addr(struct hci_conn *conn, bdaddr_t *bdaddr,
-+				u8 bdaddr_type, bdaddr_t *local_rpa)
-+{
-+	if (conn->out) {
-+		conn->dst_type = bdaddr_type;
-+		conn->resp_addr_type = bdaddr_type;
-+		bacpy(&conn->resp_addr, bdaddr);
-+
-+		/* Check if the controller has set a Local RPA then it must be
-+		 * used instead or hdev->rpa.
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+index e0d1af9e7770..6c64fdbef0df 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+@@ -1201,7 +1201,22 @@ static int otx2_aura_init(struct otx2_nic *pfvf, int aura_id,
+ 	/* Enable backpressure for RQ aura */
+ 	if (aura_id < pfvf->hw.rqpool_cnt && !is_otx2_lbkvf(pfvf->pdev)) {
+ 		aq->aura.bp_ena = 0;
++		/* If NIX1 LF is attached then specify NIX1_RX.
++		 *
++		 * Below NPA_AURA_S[BP_ENA] is set according to the
++		 * NPA_BPINTF_E enumeration given as:
++		 * 0x0 + a*0x1 where 'a' is 0 for NIX0_RX and 1 for NIX1_RX so
++		 * NIX0_RX is 0x0 + 0*0x1 = 0
++		 * NIX1_RX is 0x0 + 1*0x1 = 1
++		 * But in HRM it is given that
++		 * "NPA_AURA_S[BP_ENA](w1[33:32]) - Enable aura backpressure to
++		 * NIX-RX based on [BP] level. One bit per NIX-RX; index
++		 * enumerated by NPA_BPINTF_E."
 +		 */
-+		if (local_rpa && bacmp(local_rpa, BDADDR_ANY)) {
-+			conn->init_addr_type = ADDR_LE_DEV_RANDOM;
-+			bacpy(&conn->init_addr, local_rpa);
-+		} else if (hci_dev_test_flag(conn->hdev, HCI_PRIVACY)) {
-+			conn->init_addr_type = ADDR_LE_DEV_RANDOM;
-+			bacpy(&conn->init_addr, &conn->hdev->rpa);
-+		} else {
-+			hci_copy_identity_address(conn->hdev, &conn->init_addr,
-+						  &conn->init_addr_type);
-+		}
-+	} else {
-+		conn->resp_addr_type = conn->hdev->adv_addr_type;
-+		/* Check if the controller has set a Local RPA then it must be
-+		 * used instead or hdev->rpa.
-+		 */
-+		if (local_rpa && bacmp(local_rpa, BDADDR_ANY)) {
-+			conn->resp_addr_type = ADDR_LE_DEV_RANDOM;
-+			bacpy(&conn->resp_addr, local_rpa);
-+		} else if (conn->hdev->adv_addr_type == ADDR_LE_DEV_RANDOM) {
-+			/* In case of ext adv, resp_addr will be updated in
-+			 * Adv Terminated event.
-+			 */
-+			if (!ext_adv_capable(conn->hdev))
-+				bacpy(&conn->resp_addr,
-+				      &conn->hdev->random_addr);
-+		} else {
-+			bacpy(&conn->resp_addr, &conn->hdev->bdaddr);
-+		}
++		if (pfvf->nix_blkaddr == BLKADDR_NIX1)
++			aq->aura.bp_ena = 1;
+ 		aq->aura.nix0_bpid = pfvf->bpid[0];
 +
-+		conn->init_addr_type = bdaddr_type;
-+		bacpy(&conn->init_addr, bdaddr);
-+
-+		/* For incoming connections, set the default minimum
-+		 * and maximum connection interval. They will be used
-+		 * to check if the parameters are in range and if not
-+		 * trigger the connection update procedure.
-+		 */
-+		conn->le_conn_min_interval = conn->hdev->le_conn_min_interval;
-+		conn->le_conn_max_interval = conn->hdev->le_conn_max_interval;
-+	}
-+}
-+
- static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
--			bdaddr_t *bdaddr, u8 bdaddr_type, u8 role, u16 handle,
--			u16 interval, u16 latency, u16 supervision_timeout)
-+				 bdaddr_t *bdaddr, u8 bdaddr_type,
-+				 bdaddr_t *local_rpa, u8 role, u16 handle,
-+				 u16 interval, u16 latency,
-+				 u16 supervision_timeout)
- {
- 	struct hci_conn_params *params;
- 	struct hci_conn *conn;
-@@ -5183,32 +5238,7 @@ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
- 		cancel_delayed_work(&conn->le_conn_timeout);
+ 		/* Set backpressure level for RQ's Aura */
+ 		aq->aura.bp = RQ_BP_LVL_AURA;
  	}
- 
--	if (!conn->out) {
--		/* Set the responder (our side) address type based on
--		 * the advertising address type.
--		 */
--		conn->resp_addr_type = hdev->adv_addr_type;
--		if (hdev->adv_addr_type == ADDR_LE_DEV_RANDOM) {
--			/* In case of ext adv, resp_addr will be updated in
--			 * Adv Terminated event.
--			 */
--			if (!ext_adv_capable(hdev))
--				bacpy(&conn->resp_addr, &hdev->random_addr);
--		} else {
--			bacpy(&conn->resp_addr, &hdev->bdaddr);
--		}
--
--		conn->init_addr_type = bdaddr_type;
--		bacpy(&conn->init_addr, bdaddr);
--
--		/* For incoming connections, set the default minimum
--		 * and maximum connection interval. They will be used
--		 * to check if the parameters are in range and if not
--		 * trigger the connection update procedure.
--		 */
--		conn->le_conn_min_interval = hdev->le_conn_min_interval;
--		conn->le_conn_max_interval = hdev->le_conn_max_interval;
--	}
-+	le_conn_update_addr(conn, bdaddr, bdaddr_type, local_rpa);
- 
- 	/* Lookup the identity address from the stored connection
- 	 * address and address type.
-@@ -5319,7 +5349,7 @@ static void hci_le_conn_complete_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 	BT_DBG("%s status 0x%2.2x", hdev->name, ev->status);
- 
- 	le_conn_complete_evt(hdev, ev->status, &ev->bdaddr, ev->bdaddr_type,
--			     ev->role, le16_to_cpu(ev->handle),
-+			     NULL, ev->role, le16_to_cpu(ev->handle),
- 			     le16_to_cpu(ev->interval),
- 			     le16_to_cpu(ev->latency),
- 			     le16_to_cpu(ev->supervision_timeout));
-@@ -5333,7 +5363,7 @@ static void hci_le_enh_conn_complete_evt(struct hci_dev *hdev,
- 	BT_DBG("%s status 0x%2.2x", hdev->name, ev->status);
- 
- 	le_conn_complete_evt(hdev, ev->status, &ev->bdaddr, ev->bdaddr_type,
--			     ev->role, le16_to_cpu(ev->handle),
-+			     &ev->local_rpa, ev->role, le16_to_cpu(ev->handle),
- 			     le16_to_cpu(ev->interval),
- 			     le16_to_cpu(ev->latency),
- 			     le16_to_cpu(ev->supervision_timeout));
-@@ -5369,7 +5399,8 @@ static void hci_le_ext_adv_term_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 	if (conn) {
- 		struct adv_info *adv_instance;
- 
--		if (hdev->adv_addr_type != ADDR_LE_DEV_RANDOM)
-+		if (hdev->adv_addr_type != ADDR_LE_DEV_RANDOM ||
-+		    bacmp(&conn->resp_addr, BDADDR_ANY))
- 			return;
- 
- 		if (!ev->handle) {
 -- 
 2.30.2
 
