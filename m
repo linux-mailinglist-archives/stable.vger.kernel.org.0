@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9DDC40E83C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F67B40E601
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353045AbhIPRoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53748 "EHLO mail.kernel.org"
+        id S1346650AbhIPRRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:17:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354957AbhIPRkw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:40:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 205C161353;
-        Thu, 16 Sep 2021 16:51:47 +0000 (UTC)
+        id S1348694AbhIPRDH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:03:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 979486124D;
+        Thu, 16 Sep 2021 16:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811108;
-        bh=ivWUIrP4TuiJfnMUxAyYeeKjiNltqZdsaKrlp+KtZ4o=;
+        s=korg; t=1631810052;
+        bh=LCat9Mk5HO2lAs3ESj+TNKkPWvP3d1nWE8Pr9v+E410=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGWz6n2FvYl8u2U0dRdSl6+DJlEq7bGkAcvlaY8hepWRtijvra7ZwO8vebMX5DzhI
-         vE+A1mCB5yVBZYoP10khkCkOTLUm/JkeBjANrj4YYBJd4iFFzhIoZwlZJMIJRkKzu8
-         XOC5kQ4md7DmhMc9iPbGdFYkF8LGDSF+KerGm790=
+        b=nDqpuM7JozrmrfTnJCRWpLlv75e3ZzYUgcWDxEOKUAhdqGJRWtKObExnjSjG1e1X/
+         6NGTyuPNeakO2M8HsJ2cs4sFJBXsmNhVzbQiD+s3qJmoT66+ftEX0xBe8JhBDny/mJ
+         LP/FQU9HYILL916fp7WtQnUkTMgr0l9SUogA1uXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
-        Michael Wang <yun.wang@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 387/432] net: fix NULL pointer reference in cipso_v4_doi_free
+        stable@vger.kernel.org,
+        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+        Rob Herring <robh@kernel.org>,
+        Chris Morgan <macromorgan@hotmail.com>,
+        Steven Price <steven.price@arm.com>
+Subject: [PATCH 5.13 379/380] drm/panfrost: Use u64 for size in lock_region
 Date:   Thu, 16 Sep 2021 18:02:16 +0200
-Message-Id: <20210916155823.932585609@linuxfoundation.org>
+Message-Id: <20210916155816.935310286@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 王贇 <yun.wang@linux.alibaba.com>
+From: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
 
-[ Upstream commit e842cb60e8ac1d8a15b01e0dd4dad453807a597d ]
+commit a77b58825d7221d4a45c47881c35a47ba003aa73 upstream.
 
-In netlbl_cipsov4_add_std() when 'doi_def->map.std' alloc
-failed, we sometime observe panic:
+Mali virtual addresses are 48-bit. Use a u64 instead of size_t to ensure
+we can express the "lock everything" condition as ~0ULL without
+overflow. This code was silently broken on any platform where a size_t
+is less than 48-bits; in particular, it was broken on 32-bit armv7
+platforms which remain in use with panfrost. (Mainly RK3288)
 
-  BUG: kernel NULL pointer dereference, address:
-  ...
-  RIP: 0010:cipso_v4_doi_free+0x3a/0x80
-  ...
-  Call Trace:
-   netlbl_cipsov4_add_std+0xf4/0x8c0
-   netlbl_cipsov4_add+0x13f/0x1b0
-   genl_family_rcv_msg_doit.isra.15+0x132/0x170
-   genl_rcv_msg+0x125/0x240
-
-This is because in cipso_v4_doi_free() there is no check
-on 'doi_def->map.std' when doi_def->type got value 1, which
-is possibe, since netlbl_cipsov4_add_std() haven't initialize
-it before alloc 'doi_def->map.std'.
-
-This patch just add the check to prevent panic happen in similar
-cases.
-
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+Suggested-by: Rob Herring <robh@kernel.org>
+Tested-by: Chris Morgan <macromorgan@hotmail.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210824173028.7528-3-alyssa.rosenzweig@collabora.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlabel/netlabel_cipso_v4.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/panfrost/panfrost_mmu.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso_v4.c
-index 000bb3da4f77..894e6b8f1a86 100644
---- a/net/netlabel/netlabel_cipso_v4.c
-+++ b/net/netlabel/netlabel_cipso_v4.c
-@@ -144,8 +144,8 @@ static int netlbl_cipsov4_add_std(struct genl_info *info,
- 		return -ENOMEM;
- 	doi_def->map.std = kzalloc(sizeof(*doi_def->map.std), GFP_KERNEL);
- 	if (doi_def->map.std == NULL) {
--		ret_val = -ENOMEM;
--		goto add_std_failure;
-+		kfree(doi_def);
-+		return -ENOMEM;
- 	}
- 	doi_def->type = CIPSO_V4_MAP_TRANS;
+--- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
++++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+@@ -55,7 +55,7 @@ static int write_cmd(struct panfrost_dev
+ }
  
--- 
-2.30.2
-
+ static void lock_region(struct panfrost_device *pfdev, u32 as_nr,
+-			u64 iova, size_t size)
++			u64 iova, u64 size)
+ {
+ 	u8 region_width;
+ 	u64 region = iova & PAGE_MASK;
+@@ -75,7 +75,7 @@ static void lock_region(struct panfrost_
+ 
+ 
+ static int mmu_hw_do_operation_locked(struct panfrost_device *pfdev, int as_nr,
+-				      u64 iova, size_t size, u32 op)
++				      u64 iova, u64 size, u32 op)
+ {
+ 	if (as_nr < 0)
+ 		return 0;
+@@ -92,7 +92,7 @@ static int mmu_hw_do_operation_locked(st
+ 
+ static int mmu_hw_do_operation(struct panfrost_device *pfdev,
+ 			       struct panfrost_mmu *mmu,
+-			       u64 iova, size_t size, u32 op)
++			       u64 iova, u64 size, u32 op)
+ {
+ 	int ret;
+ 
+@@ -109,7 +109,7 @@ static void panfrost_mmu_enable(struct p
+ 	u64 transtab = cfg->arm_mali_lpae_cfg.transtab;
+ 	u64 memattr = cfg->arm_mali_lpae_cfg.memattr;
+ 
+-	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0UL, AS_COMMAND_FLUSH_MEM);
++	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0ULL, AS_COMMAND_FLUSH_MEM);
+ 
+ 	mmu_write(pfdev, AS_TRANSTAB_LO(as_nr), transtab & 0xffffffffUL);
+ 	mmu_write(pfdev, AS_TRANSTAB_HI(as_nr), transtab >> 32);
+@@ -125,7 +125,7 @@ static void panfrost_mmu_enable(struct p
+ 
+ static void panfrost_mmu_disable(struct panfrost_device *pfdev, u32 as_nr)
+ {
+-	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0UL, AS_COMMAND_FLUSH_MEM);
++	mmu_hw_do_operation_locked(pfdev, as_nr, 0, ~0ULL, AS_COMMAND_FLUSH_MEM);
+ 
+ 	mmu_write(pfdev, AS_TRANSTAB_LO(as_nr), 0);
+ 	mmu_write(pfdev, AS_TRANSTAB_HI(as_nr), 0);
+@@ -225,7 +225,7 @@ static size_t get_pgsize(u64 addr, size_
+ 
+ static void panfrost_mmu_flush_range(struct panfrost_device *pfdev,
+ 				     struct panfrost_mmu *mmu,
+-				     u64 iova, size_t size)
++				     u64 iova, u64 size)
+ {
+ 	if (mmu->as < 0)
+ 		return;
 
 
