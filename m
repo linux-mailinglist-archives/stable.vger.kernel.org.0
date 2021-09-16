@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C6440E825
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 450E640E839
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354001AbhIPRiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:38:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53760 "EHLO mail.kernel.org"
+        id S1354010AbhIPRiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:38:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344626AbhIPRf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344613AbhIPRf5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:35:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA8A16152A;
-        Thu, 16 Sep 2021 16:49:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8820061506;
+        Thu, 16 Sep 2021 16:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810959;
-        bh=GOI0nxE8w2Eym8ed3E1suqYbAwtANJs4mkix9EPI6fU=;
+        s=korg; t=1631810962;
+        bh=PkHgKvoyfPY4SUoPcVWWAVmKs/676bv9UplHgoqlefg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=beulmw67NJBWZc9eTLdIH1v5TgmJRTH44hVUmTTdiiu/Q260mQFg6t7lGXkFujP3V
-         S4ahzUbyDbX1dSsSlJ05Ah3eRXL7MTM6UHH9rpyYWcqB7sM/jLDO8rGBe7DfZUbwIu
-         YrbzjtONE+MaczR2viobtplYm6BYmrfY5MdVSz1Q=
+        b=nEltelqwdRSIL7da6AzwIkzA0PUNX+NSNO7F535jJJPBIqE3m86ibAK/qF7jXiqFp
+         UUbY0bwDRdcOc7aWQTVJSz17hPc9fq4m60zlyNUHJIYeW01zRYPopd9LLdXgE+p0bS
+         ca2ucz8j5DlgSm8NQaT+wTnhkx2HLZGo7wyqH8hk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chris.chiu@canonical.com>,
+        stable@vger.kernel.org, Chin-Yen Lee <timlee@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 330/432] rtl8xxxu: Fix the handling of TX A-MPDU aggregation
-Date:   Thu, 16 Sep 2021 18:01:19 +0200
-Message-Id: <20210916155822.026530170@linuxfoundation.org>
+Subject: [PATCH 5.14 331/432] rtw88: use read_poll_timeout instead of fixed sleep
+Date:   Thu, 16 Sep 2021 18:01:20 +0200
+Message-Id: <20210916155822.065438102@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -40,134 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chris.chiu@canonical.com>
+From: Chin-Yen Lee <timlee@realtek.com>
 
-[ Upstream commit 95a581ab3592082c60a08090aabe09ac7d0bd650 ]
+[ Upstream commit 02a55c0009a55b204e1e5c17295431f0a9e7d3b6 ]
 
-The TX A-MPDU aggregation is not handled in the driver since the
-ieee80211_start_tx_ba_session has never been started properly.
-Start and stop the TX BA session by tracking the TX aggregation
-status of each TID. Fix the ampdu_action and the tx descriptor
-accordingly with the given TID.
+In current wow flow, driver calls rtw_wow_fw_start and sleep for 100ms,
+to wait firmware finish preliminary work and then update the value of
+WOWLAN_WAKE_REASON register to zero. But later firmware will start wow
+function with power-saving mode, in which mode the value of
+WOWLAN_WAKE_REASON register is 0xea. So driver may get 0xea value and
+return fail. We use read_poll_timeout instead to check the value to avoid
+this issue.
 
-Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
+Signed-off-by: Chin-Yen Lee <timlee@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210804151325.86600-1-chris.chiu@canonical.com
+Link: https://lore.kernel.org/r/20210728014335.8785-2-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/realtek/rtl8xxxu/rtl8xxxu.h  |  2 ++
- .../wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 33 ++++++++++++++-----
- 2 files changed, 26 insertions(+), 9 deletions(-)
+ drivers/net/wireless/realtek/rtw88/wow.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-index 01735776345a..7ddce3c3f0c4 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
-@@ -1378,6 +1378,8 @@ struct rtl8xxxu_priv {
- 	u8 no_pape:1;
- 	u8 int_buf[USB_INTR_CONTENT_LENGTH];
- 	u8 rssi_level;
-+	DECLARE_BITMAP(tx_aggr_started, IEEE80211_NUM_TIDS);
-+	DECLARE_BITMAP(tid_tx_operational, IEEE80211_NUM_TIDS);
- 	/*
- 	 * Only one virtual interface permitted because only STA mode
- 	 * is supported and no iface_combinations are provided.
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index ac1061caacd6..3285a91efb91 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4805,6 +4805,8 @@ rtl8xxxu_fill_txdesc_v1(struct ieee80211_hw *hw, struct ieee80211_hdr *hdr,
- 	struct ieee80211_rate *tx_rate = ieee80211_get_tx_rate(hw, tx_info);
- 	struct rtl8xxxu_priv *priv = hw->priv;
- 	struct device *dev = &priv->udev->dev;
-+	u8 *qc = ieee80211_get_qos_ctl(hdr);
-+	u8 tid = qc[0] & IEEE80211_QOS_CTL_TID_MASK;
- 	u32 rate;
- 	u16 rate_flags = tx_info->control.rates[0].flags;
- 	u16 seq_number;
-@@ -4828,7 +4830,7 @@ rtl8xxxu_fill_txdesc_v1(struct ieee80211_hw *hw, struct ieee80211_hdr *hdr,
+diff --git a/drivers/net/wireless/realtek/rtw88/wow.c b/drivers/net/wireless/realtek/rtw88/wow.c
+index fc9544f4e5e4..bdccfa70dddc 100644
+--- a/drivers/net/wireless/realtek/rtw88/wow.c
++++ b/drivers/net/wireless/realtek/rtw88/wow.c
+@@ -283,15 +283,26 @@ static void rtw_wow_rx_dma_start(struct rtw_dev *rtwdev)
  
- 	tx_desc->txdw3 = cpu_to_le32((u32)seq_number << TXDESC32_SEQ_SHIFT);
+ static int rtw_wow_check_fw_status(struct rtw_dev *rtwdev, bool wow_enable)
+ {
+-	/* wait 100ms for wow firmware to finish work */
+-	msleep(100);
++	int ret;
++	u8 check;
++	u32 check_dis;
  
--	if (ampdu_enable)
-+	if (ampdu_enable && test_bit(tid, priv->tid_tx_operational))
- 		tx_desc->txdw1 |= cpu_to_le32(TXDESC32_AGG_ENABLE);
- 	else
- 		tx_desc->txdw1 |= cpu_to_le32(TXDESC32_AGG_BREAK);
-@@ -4876,6 +4878,8 @@ rtl8xxxu_fill_txdesc_v2(struct ieee80211_hw *hw, struct ieee80211_hdr *hdr,
- 	struct rtl8xxxu_priv *priv = hw->priv;
- 	struct device *dev = &priv->udev->dev;
- 	struct rtl8xxxu_txdesc40 *tx_desc40;
-+	u8 *qc = ieee80211_get_qos_ctl(hdr);
-+	u8 tid = qc[0] & IEEE80211_QOS_CTL_TID_MASK;
- 	u32 rate;
- 	u16 rate_flags = tx_info->control.rates[0].flags;
- 	u16 seq_number;
-@@ -4902,7 +4906,7 @@ rtl8xxxu_fill_txdesc_v2(struct ieee80211_hw *hw, struct ieee80211_hdr *hdr,
- 
- 	tx_desc40->txdw9 = cpu_to_le32((u32)seq_number << TXDESC40_SEQ_SHIFT);
- 
--	if (ampdu_enable)
-+	if (ampdu_enable && test_bit(tid, priv->tid_tx_operational))
- 		tx_desc40->txdw2 |= cpu_to_le32(TXDESC40_AGG_ENABLE);
- 	else
- 		tx_desc40->txdw2 |= cpu_to_le32(TXDESC40_AGG_BREAK);
-@@ -5015,12 +5019,19 @@ static void rtl8xxxu_tx(struct ieee80211_hw *hw,
- 	if (ieee80211_is_data_qos(hdr->frame_control) && sta) {
- 		if (sta->ht_cap.ht_supported) {
- 			u32 ampdu, val32;
-+			u8 *qc = ieee80211_get_qos_ctl(hdr);
-+			u8 tid = qc[0] & IEEE80211_QOS_CTL_TID_MASK;
- 
- 			ampdu = (u32)sta->ht_cap.ampdu_density;
- 			val32 = ampdu << TXDESC_AMPDU_DENSITY_SHIFT;
- 			tx_desc->txdw2 |= cpu_to_le32(val32);
- 
- 			ampdu_enable = true;
-+
-+			if (!test_bit(tid, priv->tx_aggr_started) &&
-+			    !(skb->protocol == cpu_to_be16(ETH_P_PAE)))
-+				if (!ieee80211_start_tx_ba_session(sta, tid, 0))
-+					set_bit(tid, priv->tx_aggr_started);
- 		}
+ 	if (wow_enable) {
+-		if (rtw_read8(rtwdev, REG_WOWLAN_WAKE_REASON))
++		ret = read_poll_timeout(rtw_read8, check, !check, 1000,
++					100000, true, rtwdev,
++					REG_WOWLAN_WAKE_REASON);
++		if (ret)
+ 			goto wow_fail;
+ 	} else {
+-		if (rtw_read32_mask(rtwdev, REG_FE1IMR, BIT_FS_RXDONE) ||
+-		    rtw_read32_mask(rtwdev, REG_RXPKT_NUM, BIT_RW_RELEASE))
++		ret = read_poll_timeout(rtw_read32_mask, check_dis,
++					!check_dis, 1000, 100000, true, rtwdev,
++					REG_FE1IMR, BIT_FS_RXDONE);
++		if (ret)
++			goto wow_fail;
++		ret = read_poll_timeout(rtw_read32_mask, check_dis,
++					!check_dis, 1000, 100000, false, rtwdev,
++					REG_RXPKT_NUM, BIT_RW_RELEASE);
++		if (ret)
+ 			goto wow_fail;
  	}
  
-@@ -6096,6 +6107,7 @@ rtl8xxxu_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 	struct device *dev = &priv->udev->dev;
- 	u8 ampdu_factor, ampdu_density;
- 	struct ieee80211_sta *sta = params->sta;
-+	u16 tid = params->tid;
- 	enum ieee80211_ampdu_mlme_action action = params->action;
- 
- 	switch (action) {
-@@ -6108,17 +6120,20 @@ rtl8xxxu_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
- 		dev_dbg(dev,
- 			"Changed HT: ampdu_factor %02x, ampdu_density %02x\n",
- 			ampdu_factor, ampdu_density);
--		break;
-+		return IEEE80211_AMPDU_TX_START_IMMEDIATE;
-+	case IEEE80211_AMPDU_TX_STOP_CONT:
- 	case IEEE80211_AMPDU_TX_STOP_FLUSH:
--		dev_dbg(dev, "%s: IEEE80211_AMPDU_TX_STOP_FLUSH\n", __func__);
--		rtl8xxxu_set_ampdu_factor(priv, 0);
--		rtl8xxxu_set_ampdu_min_space(priv, 0);
--		break;
- 	case IEEE80211_AMPDU_TX_STOP_FLUSH_CONT:
--		dev_dbg(dev, "%s: IEEE80211_AMPDU_TX_STOP_FLUSH_CONT\n",
--			 __func__);
-+		dev_dbg(dev, "%s: IEEE80211_AMPDU_TX_STOP\n", __func__);
- 		rtl8xxxu_set_ampdu_factor(priv, 0);
- 		rtl8xxxu_set_ampdu_min_space(priv, 0);
-+		clear_bit(tid, priv->tx_aggr_started);
-+		clear_bit(tid, priv->tid_tx_operational);
-+		ieee80211_stop_tx_ba_cb_irqsafe(vif, sta->addr, tid);
-+		break;
-+	case IEEE80211_AMPDU_TX_OPERATIONAL:
-+		dev_dbg(dev, "%s: IEEE80211_AMPDU_TX_OPERATIONAL\n", __func__);
-+		set_bit(tid, priv->tid_tx_operational);
- 		break;
- 	case IEEE80211_AMPDU_RX_START:
- 		dev_dbg(dev, "%s: IEEE80211_AMPDU_RX_START\n", __func__);
 -- 
 2.30.2
 
