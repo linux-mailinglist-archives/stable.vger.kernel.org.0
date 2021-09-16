@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEBB140DF05
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 407BD40E564
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240622AbhIPQGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:06:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45144 "EHLO mail.kernel.org"
+        id S1348520AbhIPRLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:11:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240609AbhIPQF5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:05:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7C6A60232;
-        Thu, 16 Sep 2021 16:04:36 +0000 (UTC)
+        id S1349870AbhIPRHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:07:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 107BA6058D;
+        Thu, 16 Sep 2021 16:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808277;
-        bh=4DyClS/UIHsSMafiph54hbfYdOO+SY6GT/PU/NlSkeA=;
+        s=korg; t=1631810194;
+        bh=kNuUBg/QNlWgTbs4CpCjDCNixvrovJ6aZHwZm0Jkq7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zelS817usBDmBoh/uPF53zcSHlHPJlNJ2lvNBjT0KMqKmvJbx0HWF2z3TNJ+o49BW
-         ipQZoKABXHo8+LzJaL4u/3ibCNcX8cD3yvBl8BHZCt5mKh3SoRSvc0vtq5v3EpqZV0
-         aWXANw7X4QTFqEpbseArcMwf9IRaIhUgC2CSMsOM=
+        b=Egteq47U5Z7MgHl5gNV8i2wLTfiehLYOCNM02EC763FaGsRc5DnVS/S60ckE304ka
+         CtjbW6ft7O2YwL8+yBhVEiubaoHCdGuT9BHpjJ96tOzChNSBN5TPUtTkwLTVHnNpxy
+         kMSRP00ihfhe9ovNrf8V5qlaKEpeGkMp5RrtE9Po=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Steve Capper <steve.capper@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.10 027/306] arm64: head: avoid over-mapping in map_memory
-Date:   Thu, 16 Sep 2021 17:56:12 +0200
-Message-Id: <20210916155754.868005057@linuxfoundation.org>
+        stable@vger.kernel.org, Jingle Wu <jingle.wu@emc.com.tw>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.14 024/432] Input: elan_i2c - reduce the resume time for controller in Whitebox
+Date:   Thu, 16 Sep 2021 17:56:13 +0200
+Message-Id: <20210916155811.641292658@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: jingle.wu <jingle.wu@emc.com.tw>
 
-commit 90268574a3e8a6b883bd802d702a2738577e1006 upstream.
+commit d198b8273e3006818ea287a93eb4d8fd2543e512 upstream.
 
-The `compute_indices` and `populate_entries` macros operate on inclusive
-bounds, and thus the `map_memory` macro which uses them also operates
-on inclusive bounds.
+Similar to controllers found Voxel, Delbin, Magpie and Bobba, the one found
+in Whitebox does not need to be reset after issuing power-on command, and
+skipping reset saves resume time.
 
-We pass `_end` and `_idmap_text_end` to `map_memory`, but these are
-exclusive bounds, and if one of these is sufficiently aligned (as a
-result of kernel configuration, physical placement, and KASLR), then:
-
-* In `compute_indices`, the computed `iend` will be in the page/block *after*
-  the final byte of the intended mapping.
-
-* In `populate_entries`, an unnecessary entry will be created at the end
-  of each level of table. At the leaf level, this entry will map up to
-  SWAPPER_BLOCK_SIZE bytes of physical addresses that we did not intend
-  to map.
-
-As we may map up to SWAPPER_BLOCK_SIZE bytes more than intended, we may
-violate the boot protocol and map physical address past the 2MiB-aligned
-end address we are permitted to map. As we map these with Normal memory
-attributes, this may result in further problems depending on what these
-physical addresses correspond to.
-
-The final entry at each level may require an additional table at that
-level. As EARLY_ENTRIES() calculates an inclusive bound, we allocate
-enough memory for this.
-
-Avoid the extraneous mapping by having map_memory convert the exclusive
-end address to an inclusive end address by subtracting one, and do
-likewise in EARLY_ENTRIES() when calculating the number of required
-tables. For clarity, comments are updated to more clearly document which
-boundaries the macros operate on.  For consistency with the other
-macros, the comments in map_memory are also updated to describe `vstart`
-and `vend` as virtual addresses.
-
-Fixes: 0370b31e4845 ("arm64: Extend early page table code to allow for larger kernels")
-Cc: <stable@vger.kernel.org> # 4.16.x
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Steve Capper <steve.capper@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Acked-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20210823101253.55567-1-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Jingle Wu <jingle.wu@emc.com.tw>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210907012924.11391-1-jingle.wu@emc.com.tw
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/kernel-pgtable.h |    4 ++--
- arch/arm64/kernel/head.S                |   11 ++++++-----
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/input/mouse/elan_i2c.h      |    3 ++-
+ drivers/input/mouse/elan_i2c_core.c |    1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/kernel-pgtable.h
-+++ b/arch/arm64/include/asm/kernel-pgtable.h
-@@ -65,8 +65,8 @@
- #define EARLY_KASLR	(0)
- #endif
+--- a/drivers/input/mouse/elan_i2c.h
++++ b/drivers/input/mouse/elan_i2c.h
+@@ -55,8 +55,9 @@
+ #define ETP_FW_PAGE_SIZE_512	512
+ #define ETP_FW_SIGNATURE_SIZE	6
  
--#define EARLY_ENTRIES(vstart, vend, shift) (((vend) >> (shift)) \
--					- ((vstart) >> (shift)) + 1 + EARLY_KASLR)
-+#define EARLY_ENTRIES(vstart, vend, shift) \
-+	((((vend) - 1) >> (shift)) - ((vstart) >> (shift)) + 1 + EARLY_KASLR)
+-#define ETP_PRODUCT_ID_DELBIN	0x00C2
++#define ETP_PRODUCT_ID_WHITEBOX	0x00B8
+ #define ETP_PRODUCT_ID_VOXEL	0x00BF
++#define ETP_PRODUCT_ID_DELBIN	0x00C2
+ #define ETP_PRODUCT_ID_MAGPIE	0x0120
+ #define ETP_PRODUCT_ID_BOBBA	0x0121
  
- #define EARLY_PGDS(vstart, vend) (EARLY_ENTRIES(vstart, vend, PGDIR_SHIFT))
- 
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -191,7 +191,7 @@ SYM_CODE_END(preserve_boot_args)
-  * to be composed of multiple pages. (This effectively scales the end index).
-  *
-  *	vstart:	virtual address of start of range
-- *	vend:	virtual address of end of range
-+ *	vend:	virtual address of end of range - we map [vstart, vend]
-  *	shift:	shift used to transform virtual address into index
-  *	ptrs:	number of entries in page table
-  *	istart:	index in table corresponding to vstart
-@@ -228,17 +228,18 @@ SYM_CODE_END(preserve_boot_args)
-  *
-  *	tbl:	location of page table
-  *	rtbl:	address to be used for first level page table entry (typically tbl + PAGE_SIZE)
-- *	vstart:	start address to map
-- *	vend:	end address to map - we map [vstart, vend]
-+ *	vstart:	virtual address of start of range
-+ *	vend:	virtual address of end of range - we map [vstart, vend - 1]
-  *	flags:	flags to use to map last level entries
-  *	phys:	physical address corresponding to vstart - physical memory is contiguous
-  *	pgds:	the number of pgd entries
-  *
-  * Temporaries:	istart, iend, tmp, count, sv - these need to be different registers
-- * Preserves:	vstart, vend, flags
-- * Corrupts:	tbl, rtbl, istart, iend, tmp, count, sv
-+ * Preserves:	vstart, flags
-+ * Corrupts:	tbl, rtbl, vend, istart, iend, tmp, count, sv
-  */
- 	.macro map_memory, tbl, rtbl, vstart, vend, flags, phys, pgds, istart, iend, tmp, count, sv
-+	sub \vend, \vend, #1
- 	add \rtbl, \tbl, #PAGE_SIZE
- 	mov \sv, \rtbl
- 	mov \count, #0
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -105,6 +105,7 @@ static u32 elan_i2c_lookup_quirks(u16 ic
+ 		u32 quirks;
+ 	} elan_i2c_quirks[] = {
+ 		{ 0x0D, ETP_PRODUCT_ID_DELBIN, ETP_QUIRK_QUICK_WAKEUP },
++		{ 0x0D, ETP_PRODUCT_ID_WHITEBOX, ETP_QUIRK_QUICK_WAKEUP },
+ 		{ 0x10, ETP_PRODUCT_ID_VOXEL, ETP_QUIRK_QUICK_WAKEUP },
+ 		{ 0x14, ETP_PRODUCT_ID_MAGPIE, ETP_QUIRK_QUICK_WAKEUP },
+ 		{ 0x14, ETP_PRODUCT_ID_BOBBA, ETP_QUIRK_QUICK_WAKEUP },
 
 
