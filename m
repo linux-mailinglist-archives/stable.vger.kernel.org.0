@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BEE940DFAA
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E39C340E203
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235219AbhIPQMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:12:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46774 "EHLO mail.kernel.org"
+        id S243646AbhIPQdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:33:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234606AbhIPQJe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:09:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5881B60F5B;
-        Thu, 16 Sep 2021 16:07:59 +0000 (UTC)
+        id S242296AbhIPQbr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:31:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B62F061884;
+        Thu, 16 Sep 2021 16:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808479;
-        bh=G1ZlR/KPppvgOA8cyS27zxnrqtMOzXMJDSDxRLDiTBE=;
+        s=korg; t=1631809187;
+        bh=tMRUhg+5IP7iS3QDrQIfnJwdTixPGUXbFkAY1SQ5LYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQxFDAEAADota2qXu0FqbWz6rXJkBQQASz+s/J3Oln/bicVcX09v9kDQo10gWhO71
-         tMEe5UQqyuEOE78Nz5ei9tCtQakpA0/JAUnWYmDGqhQ1nQ2RBMv/2ygQmo0U4L4308
-         vjY3Law5aTLbvG8p7sMIsVQHenh021C5QD9nV27A=
+        b=QjP3ovaxDmjMRHCEc4+pJskzNmqjHQEn+jEWMR4J4vQsV1jVjfFlZ4f1EseBVScTU
+         6JJG0vC9Vlx7JCfRyKEoTSv9A9Cpflq4o3e6I84ig0cbQHOpxLnu5W3JUXt0o1t0Vh
+         AIqQPgWVSOkh/6cdb8p7iXyCypQwgLALi0yZ+ABM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Iliopoulos <ailiop@suse.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/306] dma-debug: fix debugfs initialization order
+        stable@vger.kernel.org,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.13 062/380] PCI: Return ~0 data on pciconfig_read() CAP_SYS_ADMIN failure
 Date:   Thu, 16 Sep 2021 17:56:59 +0200
-Message-Id: <20210916155756.581873333@linuxfoundation.org>
+Message-Id: <20210916155806.102726781@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Iliopoulos <ailiop@suse.com>
+From: Krzysztof Wilczyński <kw@linux.com>
 
-[ Upstream commit 173735c346c412d9f084825ecb04f24ada0e2986 ]
+commit a8bd29bd49c4156ea0ec5a97812333e2aeef44e7 upstream.
 
-Due to link order, dma_debug_init is called before debugfs has a chance
-to initialize (via debugfs_init which also happens in the core initcall
-stage), so the directories for dma-debug are never created.
+The pciconfig_read() syscall reads PCI configuration space using
+hardware-dependent config accessors.
 
-Decouple dma_debug_fs_init from dma_debug_init and defer its init until
-core_initcall_sync (after debugfs has been initialized) while letting
-dma-debug initialization occur as soon as possible to catch any early
-mappings, as suggested in [1].
+If the read fails on PCI, most accessors don't return an error; they
+pretend the read was successful and got ~0 data from the device, so the
+syscall returns success with ~0 data in the buffer.
 
-[1] https://lore.kernel.org/linux-iommu/YIgGa6yF%2Fadg8OSN@kroah.com/
+When the accessor does return an error, pciconfig_read() normally fills the
+user's buffer with ~0 and returns an error in errno.  But after
+e4585da22ad0 ("pci syscall.c: Switch to refcounting API"), we don't fill
+the buffer with ~0 for the EPERM "user lacks CAP_SYS_ADMIN" error.
 
-Fixes: 15b28bbcd567 ("dma-debug: move initialization to common code")
-Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Userspace may rely on the ~0 data to detect errors, but after e4585da22ad0,
+that would not detect CAP_SYS_ADMIN errors.
+
+Restore the original behaviour of filling the buffer with ~0 when the
+CAP_SYS_ADMIN check fails.
+
+[bhelgaas: commit log, fold in Nathan's fix
+https://lore.kernel.org/r/20210803200836.500658-1-nathan@kernel.org]
+Fixes: e4585da22ad0 ("pci syscall.c: Switch to refcounting API")
+Link: https://lore.kernel.org/r/20210729233755.1509616-1-kw@linux.com
+Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/dma/debug.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/pci/syscall.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index 14de1271463f..445754529917 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -794,7 +794,7 @@ static int dump_show(struct seq_file *seq, void *v)
- }
- DEFINE_SHOW_ATTRIBUTE(dump);
+--- a/drivers/pci/syscall.c
++++ b/drivers/pci/syscall.c
+@@ -22,8 +22,10 @@ SYSCALL_DEFINE5(pciconfig_read, unsigned
+ 	long err;
+ 	int cfg_ret;
  
--static void dma_debug_fs_init(void)
-+static int __init dma_debug_fs_init(void)
- {
- 	struct dentry *dentry = debugfs_create_dir("dma-api", NULL);
++	err = -EPERM;
++	dev = NULL;
+ 	if (!capable(CAP_SYS_ADMIN))
+-		return -EPERM;
++		goto error;
  
-@@ -807,7 +807,10 @@ static void dma_debug_fs_init(void)
- 	debugfs_create_u32("nr_total_entries", 0444, dentry, &nr_total_entries);
- 	debugfs_create_file("driver_filter", 0644, dentry, NULL, &filter_fops);
- 	debugfs_create_file("dump", 0444, dentry, NULL, &dump_fops);
-+
-+	return 0;
- }
-+core_initcall_sync(dma_debug_fs_init);
- 
- static int device_dma_allocations(struct device *dev, struct dma_debug_entry **out_entry)
- {
-@@ -892,8 +895,6 @@ static int dma_debug_init(void)
- 		spin_lock_init(&dma_entry_hash[i].lock);
- 	}
- 
--	dma_debug_fs_init();
--
- 	nr_pages = DIV_ROUND_UP(nr_prealloc_entries, DMA_DEBUG_DYNAMIC_ENTRIES);
- 	for (i = 0; i < nr_pages; ++i)
- 		dma_debug_create_entries(GFP_KERNEL);
--- 
-2.30.2
-
+ 	err = -ENODEV;
+ 	dev = pci_get_domain_bus_and_slot(0, bus, dfn);
 
 
