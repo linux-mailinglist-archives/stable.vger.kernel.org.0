@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C80440E5DB
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1BD140E25A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243936AbhIPRQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:16:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41020 "EHLO mail.kernel.org"
+        id S241218AbhIPQhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:37:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344343AbhIPRNX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:13:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E24561409;
-        Thu, 16 Sep 2021 16:38:50 +0000 (UTC)
+        id S244431AbhIPQfO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:35:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22C73613A1;
+        Thu, 16 Sep 2021 16:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810330;
-        bh=OoEyDpXIJdbSmFMG7xNFLhc81oUX6ApQpA9y8K1LQn8=;
+        s=korg; t=1631809276;
+        bh=2q+XIKWDWafQd4e0ZI4eVsfsQHMA/3IsAN2Ms9BzVLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YXZsg0oameqrHD9e21zVisSr19xp1ExVJMT3Wl/BBGuWjHP9FEuIEqUwiZIYd+Gn6
-         q/d2kkqc8DIZzyjaoHqy+jGwwtUoOB181LUCFpqdvoz084FqZvQ0W4/ldVdOAq+nNj
-         XljuCaptd0vb4Kqe/t/Bg3H6V+ovx7hJ/O1LI97c=
+        b=AsWttJkyBcUBX6rH2eGnoiJCNcGAyTcJUKoBpAGmn00v5W31HxMKzJQZ9d9UI1gCM
+         uOr6UaGSuDwzfytHMi7hLYWSmyXChnc9Z/cFU4PO0fefha+G+0U4/Cv8BYLjeIRrl9
+         Sb60mmtaUpAY3e335AVnISaZc14CufxB9rLGV2F4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Iliopoulos <ailiop@suse.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 102/432] dma-debug: fix debugfs initialization order
-Date:   Thu, 16 Sep 2021 17:57:31 +0200
-Message-Id: <20210916155814.237799470@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 095/380] NFSv4/pNFS: Always allow update of a zero valued layout barrier
+Date:   Thu, 16 Sep 2021 17:57:32 +0200
+Message-Id: <20210916155807.268697706@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anthony Iliopoulos <ailiop@suse.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 173735c346c412d9f084825ecb04f24ada0e2986 ]
+[ Upstream commit 45baadaad7bf9183651fb74f4ed1200da48505a5 ]
 
-Due to link order, dma_debug_init is called before debugfs has a chance
-to initialize (via debugfs_init which also happens in the core initcall
-stage), so the directories for dma-debug are never created.
+A zero value for the layout barrier indicates that it has been cleared
+(since seqid '0' is an illegal value), so we should always allow it to
+be updated.
 
-Decouple dma_debug_fs_init from dma_debug_init and defer its init until
-core_initcall_sync (after debugfs has been initialized) while letting
-dma-debug initialization occur as soon as possible to catch any early
-mappings, as suggested in [1].
-
-[1] https://lore.kernel.org/linux-iommu/YIgGa6yF%2Fadg8OSN@kroah.com/
-
-Fixes: 15b28bbcd567 ("dma-debug: move initialization to common code")
-Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: d29b468da4f9 ("pNFS/NFSv4: Improve rejection of out-of-order layouts")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/debug.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/nfs/pnfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-index dadae6255d05..f2faa13534e5 100644
---- a/kernel/dma/debug.c
-+++ b/kernel/dma/debug.c
-@@ -792,7 +792,7 @@ static int dump_show(struct seq_file *seq, void *v)
- }
- DEFINE_SHOW_ATTRIBUTE(dump);
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index 3ee607aa007b..6cc5ae51fd80 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -335,7 +335,7 @@ static bool pnfs_seqid_is_newer(u32 s1, u32 s2)
  
--static void dma_debug_fs_init(void)
-+static int __init dma_debug_fs_init(void)
+ static void pnfs_barrier_update(struct pnfs_layout_hdr *lo, u32 newseq)
  {
- 	struct dentry *dentry = debugfs_create_dir("dma-api", NULL);
- 
-@@ -805,7 +805,10 @@ static void dma_debug_fs_init(void)
- 	debugfs_create_u32("nr_total_entries", 0444, dentry, &nr_total_entries);
- 	debugfs_create_file("driver_filter", 0644, dentry, NULL, &filter_fops);
- 	debugfs_create_file("dump", 0444, dentry, NULL, &dump_fops);
-+
-+	return 0;
+-	if (pnfs_seqid_is_newer(newseq, lo->plh_barrier))
++	if (pnfs_seqid_is_newer(newseq, lo->plh_barrier) || !lo->plh_barrier)
+ 		lo->plh_barrier = newseq;
  }
-+core_initcall_sync(dma_debug_fs_init);
  
- static int device_dma_allocations(struct device *dev, struct dma_debug_entry **out_entry)
- {
-@@ -890,8 +893,6 @@ static int dma_debug_init(void)
- 		spin_lock_init(&dma_entry_hash[i].lock);
- 	}
- 
--	dma_debug_fs_init();
--
- 	nr_pages = DIV_ROUND_UP(nr_prealloc_entries, DMA_DEBUG_DYNAMIC_ENTRIES);
- 	for (i = 0; i < nr_pages; ++i)
- 		dma_debug_create_entries(GFP_KERNEL);
 -- 
 2.30.2
 
