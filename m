@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B0E40E562
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B5240E22E
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348402AbhIPRLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:11:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35944 "EHLO mail.kernel.org"
+        id S241909AbhIPQfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:35:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344872AbhIPRHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:07:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48B8861B3E;
-        Thu, 16 Sep 2021 16:36:31 +0000 (UTC)
+        id S242768AbhIPQd1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:33:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9A8861246;
+        Thu, 16 Sep 2021 16:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810191;
-        bh=PJ59wVB8Argv+CbxdZx6CyZbUvDifZ6lQH9NIE4cRtM=;
+        s=korg; t=1631809219;
+        bh=0c//bAemLoDvXKWr4N8pr+rWcNRrAJaNgqoPpGOPbAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mkJ7D4NGb6tTEBwwWQJ+IZUx/qAe7AATa9AsRS6NbRdU/dNDfDlzxnuNbsQiPwCDi
-         jlPmhMlt9kINsVzM9E46CXsw7/E73eeZ1sNWnFuLTdrQX240dJEgOazyi4KGmIqOY6
-         W+ghe9bbOeEx70tIkbde/WlckMENaruVcED2M0aY=
+        b=z1E0pghq/oV3+L67AEImUHksa7nQ5qHbBw+IDp/NnOrCiAAL3czD4mmgaAJf6c7NP
+         UrNXqlPA1Zsh/6LrXVJPmbBFay26JsPc1LGEgLdMK38n4jtTIKzB6uwgKAsUSrFdwD
+         55ZQVXfSSJ0jpCh9FaViLLMg3Add/+vkw6V5QkC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
         Jorgen Hansen <jhansen@vmware.com>,
         Wang Hai <wanghai38@huawei.com>
-Subject: [PATCH 5.14 050/432] VMCI: fix NULL pointer dereference when unmapping queue pair
-Date:   Thu, 16 Sep 2021 17:56:39 +0200
-Message-Id: <20210916155812.502328427@linuxfoundation.org>
+Subject: [PATCH 5.13 043/380] VMCI: fix NULL pointer dereference when unmapping queue pair
+Date:   Thu, 16 Sep 2021 17:56:40 +0200
+Message-Id: <20210916155805.441101696@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -89,14 +89,12 @@ Signed-off-by: Wang Hai <wanghai38@huawei.com>
 Link: https://lore.kernel.org/r/20210818124845.488312-1-wanghai38@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/vmw_vmci/vmci_queue_pair.c | 6 ++++--
+ drivers/misc/vmw_vmci/vmci_queue_pair.c |    6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-index 880c33ab9f47..94ebf7f3fd58 100644
 --- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
 +++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-@@ -2243,7 +2243,8 @@ int vmci_qp_broker_map(struct vmci_handle handle,
+@@ -2243,7 +2243,8 @@ int vmci_qp_broker_map(struct vmci_handl
  
  	result = VMCI_SUCCESS;
  
@@ -106,7 +104,7 @@ index 880c33ab9f47..94ebf7f3fd58 100644
  		struct vmci_qp_page_store page_store;
  
  		page_store.pages = guest_mem;
-@@ -2350,7 +2351,8 @@ int vmci_qp_broker_unmap(struct vmci_handle handle,
+@@ -2350,7 +2351,8 @@ int vmci_qp_broker_unmap(struct vmci_han
  		goto out;
  	}
  
@@ -116,8 +114,5 @@ index 880c33ab9f47..94ebf7f3fd58 100644
  		qp_acquire_queue_mutex(entry->produce_q);
  		result = qp_save_headers(entry);
  		if (result < VMCI_SUCCESS)
--- 
-2.33.0
-
 
 
