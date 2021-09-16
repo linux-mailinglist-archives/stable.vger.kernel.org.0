@@ -2,96 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F63F40D75C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 12:26:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E10A40D799
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 12:41:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236403AbhIPK2A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 06:28:00 -0400
-Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:40320
-        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236387AbhIPK17 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 06:27:59 -0400
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com [209.85.208.69])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id E4D0B3FDC7
-        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 10:26:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1631787998;
-        bh=6S5AMhCNVrlspN/3bjYdeLfuwtE9nTG661txhmEAamc=;
-        h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-         In-Reply-To:Content-Type;
-        b=jdVf2kKPfNvog9XGy1qS+JnSgmqepI47liE/8I+qzTOd4pbJwI0PRtRrH+Q7IcEl3
-         Q1bqkfMczZEXxPVfRHEjk6zcbSM2vW0qDFQ++rhNjJNPrOimCGlaDct8VnAPK2HyO8
-         PhXEaBy0THc/U+8jnNyHTyjFYtoLOfKjqnTYRc4Mu4+vSXYVJAlT3W+a+hVOAYnYRL
-         5vea2+BCPfVUVnnmiZYGIarqVk2HoAjJIOXZzhkuqoCiPC7NHBhqAh7nw0M0XCb0/r
-         PoZL9aLzOA+7anVGhL4U6Oq1wus0vDXEhNyWuXn9DMByq6TAEw+x1foHAJsDRonJxa
-         ChGFRYD70TItw==
-Received: by mail-ed1-f69.google.com with SMTP id z6-20020a50cd06000000b003d2c2e38f1fso4912038edi.1
-        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 03:26:38 -0700 (PDT)
+        id S235623AbhIPKms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 06:42:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235570AbhIPKms (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 06:42:48 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86629C061574
+        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 03:41:26 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id t1so5761159pgv.3
+        for <stable@vger.kernel.org>; Thu, 16 Sep 2021 03:41:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ycwq8+30tB5ctR2/HDwzHBF9BstFNNQQL2o8JRXDSQM=;
+        b=Afl7aCHWuRpGsrXr3zuH3s3M0k6+Yy6JzAYHcUpGHIoE8BapvpNstdx6Y2Be4Z7koW
+         ZbdoUfAU/t03J1GGgGXhM5PgDNnQGPMdoWSRs7sVMvKl5jJ/CZV/EADbmLsKNKl/xQuT
+         U6JLtnH8qVGd+PjUJ9jHQOZsrRQel5YS+G62BurcLAPxkatB78fqha8J5wqk0uSQ6J/Q
+         Iv/t45HrkpP0sveAhKWaJccRgIcj4rq11JcgkzEAEPVPFZvgp8SZD8INMtD0/NW56rXm
+         Wxrwru0eKPHDLS9899wmpG5s7TFqHf3U1RmnsIabAqemuhx/G4aONgf6kFy9CZKoPfhN
+         py1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=6S5AMhCNVrlspN/3bjYdeLfuwtE9nTG661txhmEAamc=;
-        b=qSAk3IGAlwa4U7Tad+N/6jWj7c71TSUhW+CyDxQh0dsMJfUkQUF8sn+m+fu6qNNUgl
-         XTGjeF2LBS5eQDiTK8UZPYmxKiP0nU51nIve8QtMWe85dOUCbJgqWDpYac25qVh+Cjhi
-         7zZqXe/syP93a+lmqTNVj40P8pdNMb4q2EAcuRTPUNHFfVDBuS1imVsglA5diZszaDQM
-         HHvFWfDXyCeWLH8i58+w0N6M6umLK/l74iUIf0ySPd6UQIgURftD5kwetFOB04YbkFfX
-         VabNuaiHwv/rrbY7MaE0oenSJsem5qtlQL2IUMK/xGvIEsJu8l4ZzsR9WCQB52EayYO1
-         mj9Q==
-X-Gm-Message-State: AOAM5322qVGtVpKc4uy4GVBDDShKYGO7SzOSKAm9n9fRoWYfGu1TTIzq
-        vDl/gxYhk27dFd3C5kGinDkyub+bfx45aPCf5VXCru+pV/deylQ5qvAtUZ+bGj/+fNVs2Jy0YWC
-        3oVQvY9yRIM37D4vmBVvWT9Y9MuJ5FpF9Hw==
-X-Received: by 2002:a05:6402:4cd:: with SMTP id n13mr5650689edw.215.1631787998092;
-        Thu, 16 Sep 2021 03:26:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyfSeMhkwPLYCWP2Bv59mSbK2nZi0Xj85qeOtzME5EdliawbHvYnmlDnqnvoh8tL8BfQ4m2Bw==
-X-Received: by 2002:a05:6402:4cd:: with SMTP id n13mr5650680edw.215.1631787997971;
-        Thu, 16 Sep 2021 03:26:37 -0700 (PDT)
-Received: from [192.168.3.211] (lk.84.20.244.219.dc.cable.static.lj-kabel.net. [84.20.244.219])
-        by smtp.gmail.com with ESMTPSA id v12sm1224424ede.16.2021.09.16.03.26.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Sep 2021 03:26:36 -0700 (PDT)
-Subject: Re: [PATCH v2 2/2] power: supply: max17042_battery: Prevent int
- underflow in set_soc_threshold
-To:     Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Dirk Brandewie <dirk.brandewie@gmail.com>, kernel@puri.sm,
-        stable@vger.kernel.org
-References: <20210914121806.1301131-1-sebastian.krzyszkowiak@puri.sm>
- <20210914121806.1301131-2-sebastian.krzyszkowiak@puri.sm>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Message-ID: <eb0d1829-2379-c0ee-4043-70c86203286d@canonical.com>
-Date:   Thu, 16 Sep 2021 12:26:35 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ycwq8+30tB5ctR2/HDwzHBF9BstFNNQQL2o8JRXDSQM=;
+        b=ZpmqBXZ5vlzDVxYKcF2SJ7GSOVE9ct15YRxGfp5SqE60wqGkfaQj4X8WDrc+xDy2Oe
+         43qyn5Trmj1ToACCil6kwS3h4tc6VNLO8E4mn0ErzwyTRQioPuKrVIf7y63OSpv2YF8T
+         btJzJLqOSZY08WiG7neLctVQE8LxKuL6wW7Awg9oYC03NBmNXBrExgNl427WPjqYEn7B
+         VcBKSvSxInZzZeCUCrxF82upGlQBvIrBvhGwKsapiYD05eABhP0ZTnNtaBrlWx2keQYz
+         wYyy2Jtq+CS47Lb6GgAkJm19hBekU2amGB5RZQH1eQRJzyNU+816Wj38WiZzfpH0aQgK
+         TzgQ==
+X-Gm-Message-State: AOAM5302lz8uJ3jq00astlyE63wM+WPEcEjtH86HNlwkl/+iZmcPDnhI
+        SylHuR2a6Iy5kTns94CZJh0m1+tfSK6l4tyRjyM=
+X-Google-Smtp-Source: ABdhPJwfSMIk9MUIzAE/QJhrYe8zts9R36HWxy+us2FjyvBsouDOdmpgoJrQy5tzEolzDg9jltP4bA==
+X-Received: by 2002:a63:65c5:: with SMTP id z188mr4358540pgb.35.1631788886012;
+        Thu, 16 Sep 2021 03:41:26 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id w30sm1932735pjj.30.2021.09.16.03.41.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Sep 2021 03:41:25 -0700 (PDT)
+Message-ID: <61431f55.1c69fb81.5af23.610d@mx.google.com>
+Date:   Thu, 16 Sep 2021 03:41:25 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20210914121806.1301131-2-sebastian.krzyszkowiak@puri.sm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.13.17-349-g6b59c9139e8e
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.13
+Subject: stable-rc/queue/5.13 baseline: 76 runs,
+ 1 regressions (v5.13.17-349-g6b59c9139e8e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14/09/2021 14:18, Sebastian Krzyszkowiak wrote:
-> max17042_set_soc_threshold gets called with offset set to 1, which means
-> that minimum threshold value would underflow once SOC got down to 0,
-> causing invalid alerts from the gauge.
-> 
-> Fixes: e5f3872d2044 ("max17042: Add support for signalling change in SOC")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-> ---
-> v2: added commit description
-> ---
+stable-rc/queue/5.13 baseline: 76 runs, 1 regressions (v5.13.17-349-g6b59c9=
+139e8e)
+
+Regressions Summary
+-------------------
+
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-8    | defconfig | 1    =
+      =
 
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
+nel/v5.13.17-349-g6b59c9139e8e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.13
+  Describe: v5.13.17-349-g6b59c9139e8e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6b59c9139e8eb0a2e737904949a52089f7a45268 =
 
 
-Best regards,
-Krzysztof
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-8    | defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/6142e7a9be96851dff99a2dd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.17-=
+349-g6b59c9139e8e/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.17-=
+349-g6b59c9139e8e/arm64/defconfig/gcc-8/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6142e7a9be96851dff99a=
+2de
+        failing since 2 days (last pass: v5.13.16-263-g6cdb0b2e1c97, first =
+fail: v5.13.16-300-gcec7fe49ccd1) =
+
+ =20
