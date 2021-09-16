@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E552040E34C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C77B940E71B
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244243AbhIPQq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:46:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57528 "EHLO mail.kernel.org"
+        id S1350881AbhIPR2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:28:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344125AbhIPQog (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:44:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C7B6613C8;
-        Thu, 16 Sep 2021 16:25:47 +0000 (UTC)
+        id S1351008AbhIPR0k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:26:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78BF361A54;
+        Thu, 16 Sep 2021 16:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809548;
-        bh=p+sAzM/XDE2JhZloIqQUgcKpO2Gb1o+zgmF5bat62yk=;
+        s=korg; t=1631810695;
+        bh=FwX7FN7wCZQNTgYk6lhZ1YOTC7+64UlCreJtVCO1vOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=psCoku0DKG3qOIoZRYDdchJ6B6GtkXHkppPgY+znMH6kvPg3wD0v4FGx7o+jP5gkP
-         l4JtkPdLl3nKmBeGhZ3ROaMedJ/NN7y46c84qM2BeJiEkghfIMXEHhze/mZwbhMQWd
-         nwlplMNLqajA3HHeJQflO1Dmv5rX9yUUNa/zvzeQ=
+        b=C98PvXdwmdXLNfnevG05BvllYgDOXYIgxcHwzSsaFEZHu+py1muX/adYE4Ly0O+ib
+         55Bff+n0ktMvY45SSEJqc3oZaZX0fjNUPwgnTwUDvXDGg3EzYi2jE0NE+4Zk4xV7B5
+         uPsBhoBaUhh3Pdpt1Q740knDKMyVPV7R7OBnHHqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 194/380] arm64: dts: allwinner: h6: tanix-tx6: Fix regulator node names
+Subject: [PATCH 5.14 202/432] bus: fsl-mc: fix arg in call to dprc_scan_objects()
 Date:   Thu, 16 Sep 2021 17:59:11 +0200
-Message-Id: <20210916155810.667218574@linuxfoundation.org>
+Message-Id: <20210916155817.660066825@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-[ Upstream commit 7ab1f6539762946de06ca14d7401ae123821bc40 ]
+[ Upstream commit aa0a1ae020e2d24749e9f8085f12ca6d46899c94 ]
 
-Regulator node names don't reflect class of the device. Fix that by
-prefixing names with "regulator-".
+Second parameter of dprc_scan_objects() is a bool not a pointer
+so change from NULL to false.
 
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210722161220.51181-2-jernej.skrabec@gmail.com
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Link: https://lore.kernel.org/r/20210715140718.8513-1-laurentiu.tudor@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bus/fsl-mc/fsl-mc-bus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts b/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
-index be81330db14f..02641191682e 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
-@@ -32,14 +32,14 @@ hdmi_con_in: endpoint {
- 		};
- 	};
+diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
+index 09c8ab5e0959..ffec838450f3 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-bus.c
++++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
+@@ -220,7 +220,7 @@ static int scan_fsl_mc_bus(struct device *dev, void *data)
+ 	root_mc_dev = to_fsl_mc_device(dev);
+ 	root_mc_bus = to_fsl_mc_bus(root_mc_dev);
+ 	mutex_lock(&root_mc_bus->scan_mutex);
+-	dprc_scan_objects(root_mc_dev, NULL);
++	dprc_scan_objects(root_mc_dev, false);
+ 	mutex_unlock(&root_mc_bus->scan_mutex);
  
--	reg_vcc3v3: vcc3v3 {
-+	reg_vcc3v3: regulator-vcc3v3 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "vcc3v3";
- 		regulator-min-microvolt = <3300000>;
- 		regulator-max-microvolt = <3300000>;
- 	};
- 
--	reg_vdd_cpu_gpu: vdd-cpu-gpu {
-+	reg_vdd_cpu_gpu: regulator-vdd-cpu-gpu {
- 		compatible = "regulator-fixed";
- 		regulator-name = "vdd-cpu-gpu";
- 		regulator-min-microvolt = <1135000>;
+ exit:
 -- 
 2.30.2
 
