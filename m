@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E1B840E7F5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8D940E4EF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349963AbhIPRn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:43:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53748 "EHLO mail.kernel.org"
+        id S1349588AbhIPRGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:06:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354328AbhIPRjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:39:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4938063240;
-        Thu, 16 Sep 2021 16:50:40 +0000 (UTC)
+        id S1348880AbhIPRDS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:03:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 741FD61B03;
+        Thu, 16 Sep 2021 16:34:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811040;
-        bh=7znTvPL8pBcDv4O+L3rPJsoXndPJdGh5ym7doU5Uw0M=;
+        s=korg; t=1631810062;
+        bh=+bY31dPJFtqpT+8jYpHZApMb6m8ON71lfddpGc5hhac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x6P7dewjOLPAMoEAw64yG75xnzjHFf0n434rfutCK/1xkywYYpfKxUVLQ6t95GSEp
-         xhZE7ELe2+ZdLGXtaHPYE4hkZTjuyMG7yvkt71SkB8hkITcv+wY5wh1UHAie59E42T
-         dugnPKqnIB46ZpOJr8cKk15hqLKzYGb1ggMbpSco=
+        b=KhKkRRYeFTLMR/wHVS/VDxPV9CLnplgu801WtIZdIgJthcLjhvMQYyYOSR9mtNXzQ
+         rxPmI9a97BNhrpTH8WOBOiZEfrbmTadt+MWrnEkZJ8FKNZUiHlPBPQK5gDt/r9VTcm
+         OWZVxgPo8Q3RNqcauEqJDhlXiqrQo44jXWl9zd5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaotan Luo <lxt@rock-chips.com>,
-        Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 361/432] ASoC: rockchip: i2s: Fixup config for DAIFMT_DSP_A/B
-Date:   Thu, 16 Sep 2021 18:01:50 +0200
-Message-Id: <20210916155823.042816397@linuxfoundation.org>
+        stable@vger.kernel.org, Shirisha Ganta <shirisha.ganta1@ibm.com>,
+        "Pratik R. Sampat" <psampat@linux.ibm.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.13 354/380] cpufreq: powernv: Fix init_chip_info initialization in numa=off
+Date:   Thu, 16 Sep 2021 18:01:51 +0200
+Message-Id: <20210916155816.100646424@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaotan Luo <lxt@rock-chips.com>
+From: Pratik R. Sampat <psampat@linux.ibm.com>
 
-[ Upstream commit 1bf56843e664eef2525bdbfae6a561e98910f676 ]
+commit f34ee9cb2c5ac5af426fee6fa4591a34d187e696 upstream.
 
-- DSP_A: PCM delay 1 bit mode, L data MSB after FRM LRC
-- DSP_B: PCM no delay mode, L data MSB during FRM LRC
+In the numa=off kernel command-line configuration init_chip_info() loops
+around the number of chips and attempts to copy the cpumask of that node
+which is NULL for all iterations after the first chip.
 
-Signed-off-by: Xiaotan Luo <lxt@rock-chips.com>
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Link: https://lore.kernel.org/r/1629950562-14281-3-git-send-email-sugar.zhang@rock-chips.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Hence, store the cpu mask for each chip instead of derving cpumask from
+node while populating the "chips" struct array and copy that to the
+chips[i].mask
+
+Fixes: 053819e0bf84 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
+Cc: stable@vger.kernel.org # v4.3+
+Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
+Signed-off-by: Pratik R. Sampat <psampat@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+[mpe: Rename goto label to out_free_chip_cpu_mask]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210728120500.87549-2-psampat@linux.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/rockchip/rockchip_i2s.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/cpufreq/powernv-cpufreq.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
-index 1fd47e56c77f..b65dfbc3545b 100644
---- a/sound/soc/rockchip/rockchip_i2s.c
-+++ b/sound/soc/rockchip/rockchip_i2s.c
-@@ -233,12 +233,12 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 	case SND_SOC_DAIFMT_I2S:
- 		val = I2S_TXCR_IBM_NORMAL;
- 		break;
--	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
--		val = I2S_TXCR_TFS_PCM;
--		break;
--	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
-+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
- 		val = I2S_TXCR_TFS_PCM | I2S_TXCR_PBM_MODE(1);
- 		break;
-+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
-+		val = I2S_TXCR_TFS_PCM;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		goto err_pm_put;
-@@ -257,12 +257,12 @@ static int rockchip_i2s_set_fmt(struct snd_soc_dai *cpu_dai,
- 	case SND_SOC_DAIFMT_I2S:
- 		val = I2S_RXCR_IBM_NORMAL;
- 		break;
--	case SND_SOC_DAIFMT_DSP_A: /* PCM no delay mode */
--		val = I2S_RXCR_TFS_PCM;
--		break;
--	case SND_SOC_DAIFMT_DSP_B: /* PCM delay 1 mode */
-+	case SND_SOC_DAIFMT_DSP_A: /* PCM delay 1 bit mode */
- 		val = I2S_RXCR_TFS_PCM | I2S_RXCR_PBM_MODE(1);
- 		break;
-+	case SND_SOC_DAIFMT_DSP_B: /* PCM no delay mode */
-+		val = I2S_RXCR_TFS_PCM;
-+		break;
- 	default:
- 		ret = -EINVAL;
- 		goto err_pm_put;
--- 
-2.30.2
-
+--- a/drivers/cpufreq/powernv-cpufreq.c
++++ b/drivers/cpufreq/powernv-cpufreq.c
+@@ -36,6 +36,7 @@
+ #define MAX_PSTATE_SHIFT	32
+ #define LPSTATE_SHIFT		48
+ #define GPSTATE_SHIFT		56
++#define MAX_NR_CHIPS		32
+ 
+ #define MAX_RAMP_DOWN_TIME				5120
+ /*
+@@ -1051,12 +1052,20 @@ static int init_chip_info(void)
+ 	unsigned int *chip;
+ 	unsigned int cpu, i;
+ 	unsigned int prev_chip_id = UINT_MAX;
++	cpumask_t *chip_cpu_mask;
+ 	int ret = 0;
+ 
+ 	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+ 		return -ENOMEM;
+ 
++	/* Allocate a chip cpu mask large enough to fit mask for all chips */
++	chip_cpu_mask = kcalloc(MAX_NR_CHIPS, sizeof(cpumask_t), GFP_KERNEL);
++	if (!chip_cpu_mask) {
++		ret = -ENOMEM;
++		goto free_and_return;
++	}
++
+ 	for_each_possible_cpu(cpu) {
+ 		unsigned int id = cpu_to_chip_id(cpu);
+ 
+@@ -1064,22 +1073,25 @@ static int init_chip_info(void)
+ 			prev_chip_id = id;
+ 			chip[nr_chips++] = id;
+ 		}
++		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
+ 	}
+ 
+ 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
+ 	if (!chips) {
+ 		ret = -ENOMEM;
+-		goto free_and_return;
++		goto out_free_chip_cpu_mask;
+ 	}
+ 
+ 	for (i = 0; i < nr_chips; i++) {
+ 		chips[i].id = chip[i];
+-		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
++		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
+ 		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
+ 		for_each_cpu(cpu, &chips[i].mask)
+ 			per_cpu(chip_info, cpu) =  &chips[i];
+ 	}
+ 
++out_free_chip_cpu_mask:
++	kfree(chip_cpu_mask);
+ free_and_return:
+ 	kfree(chip);
+ 	return ret;
 
 
