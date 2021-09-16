@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C2140E007
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E93EA40E666
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239652AbhIPQQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:16:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55040 "EHLO mail.kernel.org"
+        id S1344292AbhIPRVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:21:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240805AbhIPQOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:14:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADF656124D;
-        Thu, 16 Sep 2021 16:10:30 +0000 (UTC)
+        id S1351714AbhIPRT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:19:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11E7960D07;
+        Thu, 16 Sep 2021 16:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808631;
-        bh=EHZMCFSHyOO1L7w81BhKWJw0Y/4adHCWEe+UnisaJIg=;
+        s=korg; t=1631810493;
+        bh=G8dpfV2PElFHwAWhg2+m5dwGxUJR7xrvlAx2BMa7kq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EzmS7Y9EQJTOx5pYy5/YOyKphpYc2cwECljR092nMSc+9C5kPGvU9W25cc9cp3g95
-         +SAUZV0s+8Jbqoe+ndUuQV4PcDLQdA3fZi634h3dXDTfECD3H98fIJNs/TsZaaW9zm
-         6n5gHOEdmbAbhCgiOLTMQk6aZ/gWxQZfXC4Vi/8c=
+        b=bkp+yiYtcnZJKrbVghDu0UCghkuQhVoegOy+jel8oqk0pfFn0j43AHk+EoSPHeKxy
+         r+I8hOLHichUjr6zTG3XM0YBXCmZyK3Qio3ckBQwkHRNHEO8G4wnB1Qp31CbXA79kd
+         NAFMMyrV4/X7bYXNXfPud/Em9mp1gaZz/oJYWoYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Jordy Zomer <jordy@pwning.systems>,
+        stable@vger.kernel.org,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 164/306] serial: 8250_pci: make setup_port() parameters explicitly unsigned
+Subject: [PATCH 5.14 160/432] drm/ttm: Fix multihop assert on eviction.
 Date:   Thu, 16 Sep 2021 17:58:29 +0200
-Message-Id: <20210916155759.674992781@linuxfoundation.org>
+Message-Id: <20210916155816.166139983@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
 
-[ Upstream commit 3a96e97ab4e835078e6f27b7e1c0947814df3841 ]
+[ Upstream commit 403797925768d9fa870f5b1ebcd20016b397083b ]
 
-The bar and offset parameters to setup_port() are used in pointer math,
-and while it would be very difficult to get them to wrap as a negative
-number, just be "safe" and make them unsigned so that static checkers do
-not trip over them unintentionally.
+Problem:
+Under memory pressure when GTT domain is almost full multihop assert
+will come up when trying to evict LRU BO from VRAM to SYSTEM.
 
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Reported-by: Jordy Zomer <jordy@pwning.systems>
-Link: https://lore.kernel.org/r/20210726130717.2052096-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix:
+Don't assert on multihop error in evict code but rather do a retry
+as we do in ttm_bo_move_buffer
+
+Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210622162339.761651-6-andrey.grodzovsky@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/ttm/ttm_bo.c | 63 +++++++++++++++++++-----------------
+ 1 file changed, 34 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index 39f9ea24e316..58f718ed1bb9 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -87,7 +87,7 @@ static void moan_device(const char *str, struct pci_dev *dev)
+diff --git a/drivers/gpu/drm/ttm/ttm_bo.c b/drivers/gpu/drm/ttm/ttm_bo.c
+index 8d7fd65ccced..32202385073a 100644
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -488,6 +488,31 @@ void ttm_bo_unlock_delayed_workqueue(struct ttm_device *bdev, int resched)
+ }
+ EXPORT_SYMBOL(ttm_bo_unlock_delayed_workqueue);
  
- static int
- setup_port(struct serial_private *priv, struct uart_8250_port *port,
--	   int bar, int offset, int regshift)
-+	   u8 bar, unsigned int offset, int regshift)
++static int ttm_bo_bounce_temp_buffer(struct ttm_buffer_object *bo,
++				     struct ttm_resource **mem,
++				     struct ttm_operation_ctx *ctx,
++				     struct ttm_place *hop)
++{
++	struct ttm_placement hop_placement;
++	struct ttm_resource *hop_mem;
++	int ret;
++
++	hop_placement.num_placement = hop_placement.num_busy_placement = 1;
++	hop_placement.placement = hop_placement.busy_placement = hop;
++
++	/* find space in the bounce domain */
++	ret = ttm_bo_mem_space(bo, &hop_placement, &hop_mem, ctx);
++	if (ret)
++		return ret;
++	/* move to the bounce domain */
++	ret = ttm_bo_handle_move_mem(bo, hop_mem, false, ctx, NULL);
++	if (ret) {
++		ttm_resource_free(bo, &hop_mem);
++		return ret;
++	}
++	return 0;
++}
++
+ static int ttm_bo_evict(struct ttm_buffer_object *bo,
+ 			struct ttm_operation_ctx *ctx)
  {
- 	struct pci_dev *dev = priv->dev;
+@@ -527,12 +552,17 @@ static int ttm_bo_evict(struct ttm_buffer_object *bo,
+ 		goto out;
+ 	}
  
++bounce:
+ 	ret = ttm_bo_handle_move_mem(bo, evict_mem, true, ctx, &hop);
+-	if (unlikely(ret)) {
+-		WARN(ret == -EMULTIHOP, "Unexpected multihop in eviction - likely driver bug\n");
+-		if (ret != -ERESTARTSYS)
++	if (ret == -EMULTIHOP) {
++		ret = ttm_bo_bounce_temp_buffer(bo, &evict_mem, ctx, &hop);
++		if (ret) {
+ 			pr_err("Buffer eviction failed\n");
+-		ttm_resource_free(bo, &evict_mem);
++			ttm_resource_free(bo, &evict_mem);
++			goto out;
++		}
++		/* try and move to final place now. */
++		goto bounce;
+ 	}
+ out:
+ 	return ret;
+@@ -847,31 +877,6 @@ int ttm_bo_mem_space(struct ttm_buffer_object *bo,
+ }
+ EXPORT_SYMBOL(ttm_bo_mem_space);
+ 
+-static int ttm_bo_bounce_temp_buffer(struct ttm_buffer_object *bo,
+-				     struct ttm_resource **mem,
+-				     struct ttm_operation_ctx *ctx,
+-				     struct ttm_place *hop)
+-{
+-	struct ttm_placement hop_placement;
+-	struct ttm_resource *hop_mem;
+-	int ret;
+-
+-	hop_placement.num_placement = hop_placement.num_busy_placement = 1;
+-	hop_placement.placement = hop_placement.busy_placement = hop;
+-
+-	/* find space in the bounce domain */
+-	ret = ttm_bo_mem_space(bo, &hop_placement, &hop_mem, ctx);
+-	if (ret)
+-		return ret;
+-	/* move to the bounce domain */
+-	ret = ttm_bo_handle_move_mem(bo, hop_mem, false, ctx, NULL);
+-	if (ret) {
+-		ttm_resource_free(bo, &hop_mem);
+-		return ret;
+-	}
+-	return 0;
+-}
+-
+ static int ttm_bo_move_buffer(struct ttm_buffer_object *bo,
+ 			      struct ttm_placement *placement,
+ 			      struct ttm_operation_ctx *ctx)
 -- 
 2.30.2
 
