@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1676D40E32F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:19:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65A5840E2DD
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243551AbhIPQpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:45:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58998 "EHLO mail.kernel.org"
+        id S1343560AbhIPQma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:42:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244542AbhIPQnw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:43:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C8956124E;
-        Thu, 16 Sep 2021 16:25:09 +0000 (UTC)
+        id S245439AbhIPQk2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:40:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 037CA61A2A;
+        Thu, 16 Sep 2021 16:23:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809509;
-        bh=TPlCMuLy3O+hsf/vTMNNuUl+T/txMTqB9oMg8GAb/3I=;
+        s=korg; t=1631809424;
+        bh=pwAd2PsMoekzDJkxhzFxwpXSoO+urj7Sr1DFVU276sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKig7+/mEZ+BKWFWDxCLDceA8hmkwoGdo0br1u366+eHptYtFDYmeHTx9ERfdmSHz
-         wALnl5YVBlA9CV3ZncBLvoHGVRFlCyldQXg/rw5qPKIS+Jw8lq7LNDY6vkcuun+ntT
-         7y6hxPPfF7x51qvc1KEaysy93oWTx+k8NKmpA7R4=
+        b=ib+rqkzTgqmfkEVH3TFGT6Guj8Y51XOwE/R4ca47Be8+RWflxP/ISEN2IeGTedKhr
+         lzem2tG/dQBxJlhDhjdA5+1+nim6zD4jVue7cn8FbJYgfA34Jwq28RW8VAjH8e3Ukx
+         mGidNuWRsMgp3OYXrbrXIwyXcnh7CUfKuGtd9pf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martynas Pumputis <m@lambda.lt>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Melissa Wen <melissa.srw@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 149/380] libbpf: Fix reuse of pinned map on older kernel
-Date:   Thu, 16 Sep 2021 17:58:26 +0200
-Message-Id: <20210916155809.128170420@linuxfoundation.org>
+Subject: [PATCH 5.13 150/380] drm/vkms: Let shadow-plane helpers prepare the planes FB
+Date:   Thu, 16 Sep 2021 17:58:27 +0200
+Message-Id: <20210916155809.162639538@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
 References: <20210916155803.966362085@linuxfoundation.org>
@@ -41,117 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martynas Pumputis <m@lambda.lt>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-[ Upstream commit 97eb31384af943d6b97eb5947262cee4ef25cb87 ]
+[ Upstream commit b43e2ec03b0de040d536591713ea9c875ff34ba9 ]
 
-When loading a BPF program with a pinned map, the loader checks whether
-the pinned map can be reused, i.e. their properties match. To derive
-such of the pinned map, the loader invokes BPF_OBJ_GET_INFO_BY_FD and
-then does the comparison.
+Replace vkms' prepare_fb and cleanup_fb functions with the generic
+code for shadow-buffered planes. No functional changes.
 
-Unfortunately, on < 4.12 kernels the BPF_OBJ_GET_INFO_BY_FD is not
-available, so loading the program fails with the following error:
+This change also fixes a problem where IGT kms_flip tests would
+create a segmentation fault within vkms. The driver's prepare_fb
+function did not report an error if a BO's vmap operation failed.
+The kernel later tried to operate on the non-mapped memory areas.
+The shared shadow-plane helpers handle errors correctly, so that
+the driver now avoids the segmantation fault.
 
-	libbpf: failed to get map info for map FD 5: Invalid argument
-	libbpf: couldn't reuse pinned map at
-		'/sys/fs/bpf/tc/globals/cilium_call_policy': parameter
-		mismatch"
-	libbpf: map 'cilium_call_policy': error reusing pinned map
-	libbpf: map 'cilium_call_policy': failed to create:
-		Invalid argument(-22)
-	libbpf: failed to load object 'bpf_overlay.o'
+v2:
+	* include paragraph about IGT tests in commit message (Melissa)
 
-To fix this, fallback to derivation of the map properties via
-/proc/$PID/fdinfo/$MAP_FD if BPF_OBJ_GET_INFO_BY_FD fails with EINVAL,
-which can be used as an indicator that the kernel doesn't support
-the latter.
-
-Signed-off-by: Martynas Pumputis <m@lambda.lt>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20210712125552.58705-1-m@lambda.lt
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Melissa Wen <melissa.srw@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210705074633.9425-4-tzimmermann@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 48 +++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 45 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vkms/vkms_plane.c | 38 +------------------------------
+ 1 file changed, 1 insertion(+), 37 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index f6ebda75b030..c4d36328069c 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -3844,6 +3844,42 @@ static int bpf_map_find_btf_info(struct bpf_object *obj, struct bpf_map *map)
+diff --git a/drivers/gpu/drm/vkms/vkms_plane.c b/drivers/gpu/drm/vkms/vkms_plane.c
+index 6d310d31b75d..1b10ab2b80a3 100644
+--- a/drivers/gpu/drm/vkms/vkms_plane.c
++++ b/drivers/gpu/drm/vkms/vkms_plane.c
+@@ -8,7 +8,6 @@
+ #include <drm/drm_gem_atomic_helper.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_plane_helper.h>
+-#include <drm/drm_gem_shmem_helper.h>
+ 
+ #include "vkms_drv.h"
+ 
+@@ -150,45 +149,10 @@ static int vkms_plane_atomic_check(struct drm_plane *plane,
  	return 0;
  }
  
-+static int bpf_get_map_info_from_fdinfo(int fd, struct bpf_map_info *info)
-+{
-+	char file[PATH_MAX], buff[4096];
-+	FILE *fp;
-+	__u32 val;
-+	int err;
-+
-+	snprintf(file, sizeof(file), "/proc/%d/fdinfo/%d", getpid(), fd);
-+	memset(info, 0, sizeof(*info));
-+
-+	fp = fopen(file, "r");
-+	if (!fp) {
-+		err = -errno;
-+		pr_warn("failed to open %s: %d. No procfs support?\n", file,
-+			err);
-+		return err;
-+	}
-+
-+	while (fgets(buff, sizeof(buff), fp)) {
-+		if (sscanf(buff, "map_type:\t%u", &val) == 1)
-+			info->type = val;
-+		else if (sscanf(buff, "key_size:\t%u", &val) == 1)
-+			info->key_size = val;
-+		else if (sscanf(buff, "value_size:\t%u", &val) == 1)
-+			info->value_size = val;
-+		else if (sscanf(buff, "max_entries:\t%u", &val) == 1)
-+			info->max_entries = val;
-+		else if (sscanf(buff, "map_flags:\t%i", &val) == 1)
-+			info->map_flags = val;
-+	}
-+
-+	fclose(fp);
-+
-+	return 0;
-+}
-+
- int bpf_map__reuse_fd(struct bpf_map *map, int fd)
- {
- 	struct bpf_map_info info = {};
-@@ -3852,6 +3888,8 @@ int bpf_map__reuse_fd(struct bpf_map *map, int fd)
- 	char *new_name;
+-static int vkms_prepare_fb(struct drm_plane *plane,
+-			   struct drm_plane_state *state)
+-{
+-	struct drm_gem_object *gem_obj;
+-	struct dma_buf_map map;
+-	int ret;
+-
+-	if (!state->fb)
+-		return 0;
+-
+-	gem_obj = drm_gem_fb_get_obj(state->fb, 0);
+-	ret = drm_gem_shmem_vmap(gem_obj, &map);
+-	if (ret)
+-		DRM_ERROR("vmap failed: %d\n", ret);
+-
+-	return drm_gem_plane_helper_prepare_fb(plane, state);
+-}
+-
+-static void vkms_cleanup_fb(struct drm_plane *plane,
+-			    struct drm_plane_state *old_state)
+-{
+-	struct drm_gem_object *gem_obj;
+-	struct drm_gem_shmem_object *shmem_obj;
+-	struct dma_buf_map map;
+-
+-	if (!old_state->fb)
+-		return;
+-
+-	gem_obj = drm_gem_fb_get_obj(old_state->fb, 0);
+-	shmem_obj = to_drm_gem_shmem_obj(drm_gem_fb_get_obj(old_state->fb, 0));
+-	dma_buf_map_set_vaddr(&map, shmem_obj->vaddr);
+-	drm_gem_shmem_vunmap(gem_obj, &map);
+-}
+-
+ static const struct drm_plane_helper_funcs vkms_primary_helper_funcs = {
+ 	.atomic_update		= vkms_plane_atomic_update,
+ 	.atomic_check		= vkms_plane_atomic_check,
+-	.prepare_fb		= vkms_prepare_fb,
+-	.cleanup_fb		= vkms_cleanup_fb,
++	DRM_GEM_SHADOW_PLANE_HELPER_FUNCS,
+ };
  
- 	err = bpf_obj_get_info_by_fd(fd, &info, &len);
-+	if (err && errno == EINVAL)
-+		err = bpf_get_map_info_from_fdinfo(fd, &info);
- 	if (err)
- 		return err;
- 
-@@ -4318,12 +4356,16 @@ static bool map_is_reuse_compat(const struct bpf_map *map, int map_fd)
- 	struct bpf_map_info map_info = {};
- 	char msg[STRERR_BUFSIZE];
- 	__u32 map_info_len;
-+	int err;
- 
- 	map_info_len = sizeof(map_info);
- 
--	if (bpf_obj_get_info_by_fd(map_fd, &map_info, &map_info_len)) {
--		pr_warn("failed to get map info for map FD %d: %s\n",
--			map_fd, libbpf_strerror_r(errno, msg, sizeof(msg)));
-+	err = bpf_obj_get_info_by_fd(map_fd, &map_info, &map_info_len);
-+	if (err && errno == EINVAL)
-+		err = bpf_get_map_info_from_fdinfo(map_fd, &map_info);
-+	if (err) {
-+		pr_warn("failed to get map info for map FD %d: %s\n", map_fd,
-+			libbpf_strerror_r(errno, msg, sizeof(msg)));
- 		return false;
- 	}
- 
+ struct drm_plane *vkms_plane_init(struct vkms_device *vkmsdev,
 -- 
 2.30.2
 
