@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4192440E2A4
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A472940E5E7
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243485AbhIPQk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:40:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S244130AbhIPRQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:16:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41429 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244477AbhIPQhK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:37:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E11F3613A4;
-        Thu, 16 Sep 2021 16:22:04 +0000 (UTC)
+        id S1350864AbhIPROI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:14:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74BBD6140D;
+        Thu, 16 Sep 2021 16:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809325;
-        bh=ZEgoRxvxiugElWLqHfRlMZffpNpHjzFe/sMyW4PK2Xs=;
+        s=korg; t=1631810365;
+        bh=+Ykzp3S/c4i5bfjmtv1I9kQLib6/o3VBcPl3qIbBJKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SylsZOzWEAn+R0No4GRWCABCoFxmfdtRI6ajdYVvDgao8ko9+ruVHv+hKwVJbMOtU
-         Q7iLWgv+Zpvgx0eXgKs+6qBbBKXkUx8OiHjnlfDvRY0vvNacjeSqfOJOSIlcBKFLTc
-         ke4lE/Ankngm+gVAG89Yz/9U+PpDuB3LOUigKhUE=
+        b=s9LTyhozwjBBi0BniZ6wbFVpCB7wUazBPxBvoB8QiIViAVsqftX/jwMpQiXprG8Ha
+         c7hSJrco7ZzGo2OkdNUmB7xI0Om+2clSgHwnKTe55TPhugSAyldN/NIpFIULk2pBqI
+         QSIbICzQJCOcxYDqK+aoJEywQXURVYosAKGqKWyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Laurent Dufour <ldufour@linux.ibm.com>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 106/380] scsi: qedf: Fix error codes in qedf_alloc_global_queues()
+Subject: [PATCH 5.14 114/432] powerpc/numa: Consider the max NUMA node for migratable LPAR
 Date:   Thu, 16 Sep 2021 17:57:43 +0200
-Message-Id: <20210916155807.650939575@linuxfoundation.org>
+Message-Id: <20210916155814.627238021@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,75 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Laurent Dufour <ldufour@linux.ibm.com>
 
-[ Upstream commit ccc89737aa6b9f248cf1623014038beb6c2b7f56 ]
+[ Upstream commit 9c7248bb8de31f51c693bfa6a6ea53b1c07e0fa8 ]
 
-This driver has some left over "return 1" on failure style code mixed with
-"return negative error codes" style code.  The caller doesn't care so we
-should just convert everything to return negative error codes.
+When a LPAR is migratable, we should consider the maximum possible NUMA
+node instead of the number of NUMA nodes from the actual system.
 
-Then there was a problem that there were two variables used to store error
-codes which just resulted in confusion.  If qedf_alloc_bdq() returned a
-negative error code, we accidentally returned success instead of
-propagating the error code.  So get rid of the "rc" variable and use
-"status" every where.
+The DT property 'ibm,current-associativity-domains' defines the maximum
+number of nodes the LPAR can see when running on that box. But if the
+LPAR is being migrated on another box, it may see up to the nodes
+defined by 'ibm,max-associativity-domains'. So if a LPAR is migratable,
+that value should be used.
 
-Also remove the "status = 0" initialization so that these sorts of bugs
-will be detected by the compiler in the future.
+Unfortunately, there is no easy way to know if an LPAR is migratable or
+not. The hypervisor exports the property 'ibm,migratable-partition' in
+the case it set to migrate partition, but that would not mean that the
+current partition is migratable.
 
-Link: https://lore.kernel.org/r/20210810085023.GA23998@kili
-Fixes: 61d8658b4a43 ("scsi: qedf: Add QLogic FastLinQ offload FCoE driver framework.")
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Without this patch, when a LPAR is started on a 2 node box and then
+migrated to a 3 node box, the hypervisor may spread the LPAR's CPUs on
+the 3rd node. In that case if a CPU from that 3rd node is added to the
+LPAR, it will be wrongly assigned to the node because the kernel has
+been set to use up to 2 nodes (the configuration of the departure node).
+With this patch applies, the CPU is correctly added to the 3rd node.
+
+Fixes: f9f130ff2ec9 ("powerpc/numa: Detect support for coregroup")
+Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210511073136.17795-1-ldufour@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_main.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/powerpc/mm/numa.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index b92570a7c309..98981a61b012 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -3000,7 +3000,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
+diff --git a/arch/powerpc/mm/numa.c b/arch/powerpc/mm/numa.c
+index f2bf98bdcea2..094a1076fd1f 100644
+--- a/arch/powerpc/mm/numa.c
++++ b/arch/powerpc/mm/numa.c
+@@ -893,7 +893,7 @@ static void __init setup_node_data(int nid, u64 start_pfn, u64 end_pfn)
+ static void __init find_possible_nodes(void)
  {
- 	u32 *list;
- 	int i;
--	int status = 0, rc;
-+	int status;
- 	u32 *pbl;
- 	dma_addr_t page;
- 	int num_pages;
-@@ -3012,7 +3012,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
+ 	struct device_node *rtas;
+-	const __be32 *domains;
++	const __be32 *domains = NULL;
+ 	int prop_length, max_nodes;
+ 	u32 i;
+ 
+@@ -909,9 +909,14 @@ static void __init find_possible_nodes(void)
+ 	 * it doesn't exist, then fallback on ibm,max-associativity-domains.
+ 	 * Current denotes what the platform can support compared to max
+ 	 * which denotes what the Hypervisor can support.
++	 *
++	 * If the LPAR is migratable, new nodes might be activated after a LPM,
++	 * so we should consider the max number in that case.
  	 */
- 	if (!qedf->num_queues) {
- 		QEDF_ERR(&(qedf->dbg_ctx), "No MSI-X vectors available!\n");
--		return 1;
-+		return -ENOMEM;
+-	domains = of_get_property(rtas, "ibm,current-associativity-domains",
+-					&prop_length);
++	if (!of_get_property(of_root, "ibm,migratable-partition", NULL))
++		domains = of_get_property(rtas,
++					  "ibm,current-associativity-domains",
++					  &prop_length);
+ 	if (!domains) {
+ 		domains = of_get_property(rtas, "ibm,max-associativity-domains",
+ 					&prop_length);
+@@ -920,6 +925,8 @@ static void __init find_possible_nodes(void)
  	}
  
- 	/*
-@@ -3020,7 +3020,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
- 	 * addresses of our queues
- 	 */
- 	if (!qedf->p_cpuq) {
--		status = 1;
-+		status = -EINVAL;
- 		QEDF_ERR(&qedf->dbg_ctx, "p_cpuq is NULL.\n");
- 		goto mem_alloc_failure;
- 	}
-@@ -3036,8 +3036,8 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
- 		   "qedf->global_queues=%p.\n", qedf->global_queues);
- 
- 	/* Allocate DMA coherent buffers for BDQ */
--	rc = qedf_alloc_bdq(qedf);
--	if (rc) {
-+	status = qedf_alloc_bdq(qedf);
-+	if (status) {
- 		QEDF_ERR(&qedf->dbg_ctx, "Unable to allocate bdq.\n");
- 		goto mem_alloc_failure;
- 	}
+ 	max_nodes = of_read_number(&domains[min_common_depth], 1);
++	pr_info("Partition configured for %d NUMA nodes.\n", max_nodes);
++
+ 	for (i = 0; i < max_nodes; i++) {
+ 		if (!node_possible(i))
+ 			node_set(i, node_possible_map);
 -- 
 2.30.2
 
