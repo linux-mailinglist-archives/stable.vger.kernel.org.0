@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B38C240DEEC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A6A40DEED
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240516AbhIPQFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:05:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44356 "EHLO mail.kernel.org"
+        id S240527AbhIPQFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:05:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240506AbhIPQFO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:05:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 926A561246;
-        Thu, 16 Sep 2021 16:03:53 +0000 (UTC)
+        id S240518AbhIPQFR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:05:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 179A060232;
+        Thu, 16 Sep 2021 16:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808234;
-        bh=fdu0hx60UQdeTS0j4GfcToqzZZH8QfcTkT24Gi0DLb4=;
+        s=korg; t=1631808236;
+        bh=ObqOYrgdwAJO8POxMzYgQTUoEN6o0v/uM2wFd+WSdug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KRdN3uxNRDFZeqP5aZY4DspJaFnwqoqveCEDqNVyhyfyv+QUoF9SE3nrNAEL0DfCF
-         eFgvio7qfd9waQCwMILg+mUTwZnuyr/ez3d04UiHxhIDE5I8kAxu4x+aewPmm7E3yr
-         ZcVFuShB8ugtcW8QrY8qTrrZTFd8pxURROvPFqIU=
+        b=bZmqZeauKUONLcc5o8X8xpj6bLqLJUMYJmA0HhanbFsYYjJMjzRmt1pH2cIjV2VwW
+         xJ6AjwbI4Ug7xg7ukTLDqpLZxegZOGpNBmkAW9/fvPk5dYXX9dd1DrSPmWsX4NI/AJ
+         vWyt/ScC+QEnGPEoYzTRIzge/un3cYIwad4foSm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= 
-        <marmarek@invisiblethingslab.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.10 011/306] PCI/MSI: Skip masking MSI-X on Xen PV
-Date:   Thu, 16 Sep 2021 17:55:56 +0200
-Message-Id: <20210916155754.304225223@linuxfoundation.org>
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
+        Kajol Jain <kjain@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 012/306] powerpc/perf/hv-gpci: Fix counter value parsing
+Date:   Thu, 16 Sep 2021 17:55:57 +0200
+Message-Id: <20210916155754.337715370@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
 References: <20210916155753.903069397@linuxfoundation.org>
@@ -42,51 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-commit 1a519dc7a73c977547d8b5108d98c6e769c89f4b upstream.
+commit f9addd85fbfacf0d155e83dbee8696d6df5ed0c7 upstream.
 
-When running as Xen PV guest, masking MSI-X is a responsibility of the
-hypervisor. The guest has no write access to the relevant BAR at all - when
-it tries to, it results in a crash like this:
+H_GetPerformanceCounterInfo (0xF080) hcall returns the counter data in
+the result buffer. Result buffer has specific format defined in the PAPR
+specification. One of the fields is counter offset and width of the
+counter data returned.
 
-    BUG: unable to handle page fault for address: ffffc9004069100c
-    #PF: supervisor write access in kernel mode
-    #PF: error_code(0x0003) - permissions violation
-    RIP: e030:__pci_enable_msix_range.part.0+0x26b/0x5f0
-     e1000e_set_interrupt_capability+0xbf/0xd0 [e1000e]
-     e1000_probe+0x41f/0xdb0 [e1000e]
-     local_pci_probe+0x42/0x80
-    (...)
+Counter data are returned in a unsigned char array in big endian byte
+order. To get the final counter data, the values must be left shifted
+byte at a time. But commit 220a0c609ad17 ("powerpc/perf: Add support for
+the hv gpci (get performance counter info) interface") made the shifting
+bitwise and also assumed little endian order. Because of that, hcall
+counters values are reported incorrectly.
 
-The recently introduced function msix_mask_all() does not check the global
-variable pci_msi_ignore_mask which is set by XEN PV to bypass the masking
-of MSI[-X] interrupts.
+In particular this can lead to counters go backwards which messes up the
+counter prev vs now calculation and leads to huge counter value
+reporting:
 
-Add the check to make this function XEN PV compatible.
+  #: perf stat -e hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+           -C 0 -I 1000
+        time             counts unit events
+     1.000078854 18,446,744,073,709,535,232      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+     2.000213293                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+     3.000320107                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+     4.000428392                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+     5.000537864                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+     6.000649087                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+     7.000760312                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+     8.000865218             16,448      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+     9.000978985 18,446,744,073,709,535,232      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+    10.001088891             16,384      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+    11.001201435                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+    12.001307937 18,446,744,073,709,535,232      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
 
-Fixes: 7d5ec3d36123 ("PCI/MSI: Mask all unused MSI-X entries")
-Signed-off-by: Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210826170342.135172-1-marmarek@invisiblethingslab.com
+Fix the shifting logic to correct match the format, ie. read bytes in
+big endian order.
+
+Fixes: e4f226b1580b ("powerpc/perf/hv-gpci: Increase request buffer size")
+Cc: stable@vger.kernel.org # v4.6+
+Reported-by: Nageswara R Sastry<rnsastry@linux.ibm.com>
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Tested-by: Nageswara R Sastry<rnsastry@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210813082158.429023-1-kjain@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/msi.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/powerpc/perf/hv-gpci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -783,6 +783,9 @@ static void msix_mask_all(void __iomem *
- 	u32 ctrl = PCI_MSIX_ENTRY_CTRL_MASKBIT;
- 	int i;
+--- a/arch/powerpc/perf/hv-gpci.c
++++ b/arch/powerpc/perf/hv-gpci.c
+@@ -175,7 +175,7 @@ static unsigned long single_gpci_request
+ 	 */
+ 	count = 0;
+ 	for (i = offset; i < offset + length; i++)
+-		count |= arg->bytes[i] << (i - offset);
++		count |= (u64)(arg->bytes[i]) << ((length - 1 - (i - offset)) * 8);
  
-+	if (pci_msi_ignore_mask)
-+		return;
-+
- 	for (i = 0; i < tsize; i++, base += PCI_MSIX_ENTRY_SIZE)
- 		writel(ctrl, base + PCI_MSIX_ENTRY_VECTOR_CTRL);
- }
+ 	*value = count;
+ out:
 
 
