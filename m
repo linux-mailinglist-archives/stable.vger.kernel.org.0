@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA8C640E8BE
+	by mail.lfdr.de (Postfix) with ESMTP id 3C3B640E8BC
 	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356143AbhIPRpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1356137AbhIPRpM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 16 Sep 2021 13:45:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57146 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355704AbhIPRmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355706AbhIPRmB (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:42:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEFBB6326D;
-        Thu, 16 Sep 2021 16:54:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD8A063270;
+        Thu, 16 Sep 2021 16:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811244;
-        bh=Lx/7dvfq/ZH0FLfRLQXCRbj4o1l2TjiKGWN5OXRUYgk=;
+        s=korg; t=1631811247;
+        bh=HVB9kR55wmasf7kodz7LehfsL3we6+HIetYGCH/BOG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bLEqHb/i/bO8P1YzFCWD1KQ8+P88qLT7WobDDes2/ptLRXrc13xICJAFkQlkAuysa
-         lWHUK+rg5QpPtFAML1aKBSz6w9nZsswO0xEOtcf+yKZorzr4/+IzT0Cso8PcYH2Yj3
-         O0VwhKsFYfelplx06vVcuuZFzgDM4jzAHNgFey1c=
+        b=uqK0zuv2d0VMxqHpo3IuRuFJB/myGlM/eAZKxwuM+OmBWbQ3c9yHD5q5ZfBwD2q3w
+         e3ebh+wOutG51CsXitsKQ5GMvLlALP7EhZqY6ou/5hXqIW0OHYThjNHwfrmwx3W71o
+         Dtyl3meHBH+smn5eetmgc3zCcbWLUgeJLLWs1pNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.14 410/432] memcg: enable accounting for pids in nested pid namespaces
-Date:   Thu, 16 Sep 2021 18:02:39 +0200
-Message-Id: <20210916155824.742544394@linuxfoundation.org>
+        stable@vger.kernel.org, sumiyawang <sumiyawang@tencent.com>,
+        yongduan <yongduan@tencent.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.14 411/432] libnvdimm/pmem: Fix crash triggered when I/O in-flight during unbind
+Date:   Thu, 16 Sep 2021 18:02:40 +0200
+Message-Id: <20210916155824.774465126@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -45,59 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: sumiyawang <sumiyawang@tencent.com>
 
-commit fab827dbee8c2e06ca4ba000fa6c48bcf9054aba upstream.
+commit 32b2397c1e56f33b0b1881def965bb89bd12f448 upstream.
 
-Commit 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
-enabled memcg accounting for pids allocated from init_pid_ns.pid_cachep,
-but forgot to adjust the setting for nested pid namespaces.  As a result,
-pid memory is not accounted exactly where it is really needed, inside
-memcg-limited containers with their own pid namespaces.
+There is a use after free crash when the pmem driver tears down its
+mapping while I/O is still inbound.
 
-Pid was one the first kernel objects enabled for memcg accounting.
-init_pid_ns.pid_cachep marked by SLAB_ACCOUNT and we can expect that any
-new pids in the system are memcg-accounted.
+This is triggered by driver unbind, "ndctl destroy-namespace", while I/O
+is in flight.
 
-Though recently I've noticed that it is wrong.  nested pid namespaces
-creates own slab caches for pid objects, nested pids have increased size
-because contain id both for all parent and for own pid namespaces.  The
-problem is that these slab caches are _NOT_ marked by SLAB_ACCOUNT, as a
-result any pids allocated in nested pid namespaces are not
-memcg-accounted.
+Fix the sequence of blk_cleanup_queue() vs memunmap().
 
-Pid struct in nested pid namespace consumes up to 500 bytes memory, 100000
-such objects gives us up to ~50Mb unaccounted memory, this allow container
-to exceed assigned memcg limits.
+The crash signature is of the form:
 
-Link: https://lkml.kernel.org/r/8b6de616-fd1a-02c6-cbdb-976ecdcfa604@virtuozzo.com
-Fixes: 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ BUG: unable to handle page fault for address: ffffc90080200000
+ CPU: 36 PID: 9606 Comm: systemd-udevd
+ Call Trace:
+  ? pmem_do_bvec+0xf9/0x3a0
+  ? xas_alloc+0x55/0xd0
+  pmem_rw_page+0x4b/0x80
+  bdev_read_page+0x86/0xb0
+  do_mpage_readpage+0x5d4/0x7a0
+  ? lru_cache_add+0xe/0x10
+  mpage_readpages+0xf9/0x1c0
+  ? bd_link_disk_holder+0x1a0/0x1a0
+  blkdev_readpages+0x1d/0x20
+  read_pages+0x67/0x1a0
+
+  ndctl Call Trace in vmcore:
+  PID: 23473  TASK: ffff88c4fbbe8000  CPU: 1   COMMAND: "ndctl"
+  __schedule
+  schedule
+  blk_mq_freeze_queue_wait
+  blk_freeze_queue
+  blk_cleanup_queue
+  pmem_release_queue
+  devm_action_release
+  release_nodes
+  devres_release_all
+  device_release_driver_internal
+  device_driver_detach
+  unbind_store
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: sumiyawang <sumiyawang@tencent.com>
+Reviewed-by: yongduan <yongduan@tencent.com>
+Link: https://lore.kernel.org/r/1629632949-14749-1-git-send-email-sumiyawang@tencent.com
+Fixes: 50f44ee7248a ("mm/devm_memremap_pages: fix final page put race")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/pid_namespace.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nvdimm/pmem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/pid_namespace.c
-+++ b/kernel/pid_namespace.c
-@@ -51,7 +51,8 @@ static struct kmem_cache *create_pid_cac
- 	mutex_lock(&pid_caches_mutex);
- 	/* Name collision forces to do allocation under mutex. */
- 	if (!*pkc)
--		*pkc = kmem_cache_create(name, len, 0, SLAB_HWCACHE_ALIGN, 0);
-+		*pkc = kmem_cache_create(name, len, 0,
-+					 SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT, 0);
- 	mutex_unlock(&pid_caches_mutex);
- 	/* current can fail, but someone else can succeed. */
- 	return READ_ONCE(*pkc);
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -450,11 +450,11 @@ static int pmem_attach_disk(struct devic
+ 		pmem->pfn_flags |= PFN_MAP;
+ 		bb_range = pmem->pgmap.range;
+ 	} else {
++		addr = devm_memremap(dev, pmem->phys_addr,
++				pmem->size, ARCH_MEMREMAP_PMEM);
+ 		if (devm_add_action_or_reset(dev, pmem_release_queue,
+ 					&pmem->pgmap))
+ 			return -ENOMEM;
+-		addr = devm_memremap(dev, pmem->phys_addr,
+-				pmem->size, ARCH_MEMREMAP_PMEM);
+ 		bb_range.start =  res->start;
+ 		bb_range.end = res->end;
+ 	}
 
 
