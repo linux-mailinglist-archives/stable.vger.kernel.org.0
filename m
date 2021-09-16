@@ -2,65 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F7C940D50F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 10:51:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EA9440D58D
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 11:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235245AbhIPIw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 04:52:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33000 "EHLO mail.kernel.org"
+        id S235175AbhIPJJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 05:09:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235226AbhIPIwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 04:52:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA1396120F;
-        Thu, 16 Sep 2021 08:51:03 +0000 (UTC)
+        id S235114AbhIPJJm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 05:09:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCFD060F93;
+        Thu, 16 Sep 2021 09:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631782264;
-        bh=NKcmBxwkV3R3tW4bY4JaBczY3HPYWnC0xy3S7LWGRSM=;
+        s=korg; t=1631783302;
+        bh=ZrcY/TjOWX22TTNe924WKtenUn4hAI0AkltICMafb4E=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0HPOUTzzQeuM5ZQE4uXfcBNZXnxETW8Y+I48clm9G3Lu1sJSyxpRCAAiYEUfN6hlb
-         TJyDHBn8Xl3BaeGkV8Cg/lZaeImya0yHMsytNW87XMyUMxKtyDwj1UHie9UOD9LWBH
-         rxsFnwoerQzSGnnwsgvboDjHFzeWgr7h5uUBET+E=
-Date:   Thu, 16 Sep 2021 10:51:01 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     "Alan J. Wylie" <alan@wylie.me.uk>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Regression in posix-cpu-timers.c (was Re: Linux 5.14.4)
-Message-ID: <YUMFdVETIYkCAmZx@kroah.com>
-References: <1631693373201133@kroah.com>
- <87ilz1pwaq.fsf@wylie.me.uk>
- <YUI26QI7dfgjUioT@kroah.com>
- <24898.16666.838506.586861@wylie.me.uk>
+        b=Bd+Mu7kqg3XZwMGi661qCXVahwFWaTkLlu35HA8fOsiQaXpGV8ZTQvP9FcgKf2hOk
+         leEPnUiNyg8N+HAj8vG0GPq0z5nWy4k6gMWj8kuWtNoZU3toYXKJhGvkqDXZSY6WUo
+         /FHa+MENLeSWIGvFmSVjevjJMRrCWwzn0vfKxi5E=
+Date:   Thu, 16 Sep 2021 11:08:19 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Cc:     stable@vger.kernel.org, David Miller <davem@davemloft.net>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        stable-commits@vger.kernel.org
+Subject: Re: Patch "wwan: core: Fix missing RTM_NEWLINK event for default
+ link" has been added to the 5.14-stable tree
+Message-ID: <YUMJgwCp6Mn9e0US@kroah.com>
+References: <16317104197115@kroah.com>
+ <CAHNKnsRRaXzuoiyibMiF9brhhmNJCMKMOxY6K7rcwzQr8M8Htw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <24898.16666.838506.586861@wylie.me.uk>
+In-Reply-To: <CAHNKnsRRaXzuoiyibMiF9brhhmNJCMKMOxY6K7rcwzQr8M8Htw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Sep 15, 2021 at 07:53:14PM +0100, Alan J. Wylie wrote:
-> at 20:09 on Wed 15-Sep-2021 Greg Kroah-Hartman (gregkh@linuxfoundation.org) wrote:
+On Thu, Sep 16, 2021 at 01:54:11AM +0300, Sergey Ryazanov wrote:
+> Hello Greg,
 > 
-> > Does 5.15-rc1 also fail in this same way, or does it work ok?
+> looks like the commit 8cc236db1a91 ("wwan: core: Fix missing
+> RTM_NEWLINK event for default link") already included in v5.14, see
+> details below the patch.
 > 
-> It fails
+> On Wed, Sep 15, 2021 at 3:54 PM <gregkh@linuxfoundation.org> wrote:
+> > This is a note to let you know that I've just added the patch titled
+> >
+> >     wwan: core: Fix missing RTM_NEWLINK event for default link
+> >
+> > to the 5.14-stable tree which can be found at:
+> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> >
+> > The filename of the patch is:
+> >      wwan-core-fix-missing-rtm_newlink-event-for-default-link.patch
+> > and it can be found in the queue-5.14 subdirectory.
+> >
+> > If you, or anyone else, feels it should not be added to the stable tree,
+> > please let <stable@vger.kernel.org> know about it.
+> >
+> >
+> > From 8cc236db1a91d0c91651595ba75942a583008455 Mon Sep 17 00:00:00 2001
+> > From: Loic Poulain <loic.poulain@linaro.org>
+> > Date: Thu, 22 Jul 2021 20:21:05 +0200
+> > Subject: wwan: core: Fix missing RTM_NEWLINK event for default link
+> >
+> > From: Loic Poulain <loic.poulain@linaro.org>
+> >
+> > commit 8cc236db1a91d0c91651595ba75942a583008455 upstream.
+> >
+> > A wwan link created via the wwan_create_default_link procedure is
+> > never notified to the user (RTM_NEWLINK), causing issues with user
+> > tools relying on such event to track network links (NetworkManager).
+> >
+> > This is because the procedure misses a call to rtnl_configure_link(),
+> > which sets the link as initialized and notifies the new link (cf
+> > proper usage in __rtnl_newlink()).
+> >
+> > Cc: stable@vger.kernel.org
+> > Fixes: ca374290aaad ("wwan: core: support default netdev creation")
+> > Suggested-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+> > Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+> > Acked-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+> > Signed-off-by: David S. Miller <davem@davemloft.net>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > ---
+> >  drivers/net/wwan/wwan_core.c |    2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > --- a/drivers/net/wwan/wwan_core.c
+> > +++ b/drivers/net/wwan/wwan_core.c
+> > @@ -990,6 +990,8 @@ static void wwan_create_default_link(str
+> >
+> >         rtnl_configure_link(dev, NULL); /* Link initialized, notify new link */
+> >
+> > +       rtnl_configure_link(dev, NULL); /* Link initialized, notify new link */
+> > +
+> >  unlock:
+> >         rtnl_unlock();
 > 
-> # uname -a
-> Linux bilbo 5.15.0-rc1 #1 SMP PREEMPT Wed Sep 15 19:19:48 BST 2021
-> x86_64 AMD FX(tm)-4300 Quad-Core Processor AuthenticAMD GNU/Linux
+> This change will duplicate the notification call. Fix already in v5.14:
 > 
-> # su apache -s /bin/bash -c "cd /var/www/htdocs/nextcloud/ && php occ maintenance:mode --off"
-> PHP Fatal error: Maximum execution time of 0 seconds exceeded in
-> /var/www/htdocs/nextcloud/3rdparty/symfony/console/Application.php on
-> line 65
+> $ git log --oneline v5.14 -- drivers/net/wwan/wwan_core.c
+> d9d5b8961284 wwan: core: Avoid returning NULL from wwan_create_dev()
+> 68d1f1d4af18 wwan: core: Fix missing RTM_NEWLINK event for default link
 
-Thanks for testing this and letting us know so quickly.
+Ah, thanks for this.  It ended up going into Linus's tree with two
+different commit ids.
 
-I'll go drop this from all of the pending stable queues, and revert it
-from the released stable trees and push out an update in a few hours.
-
-thanks,
+I'll go drop it now.
 
 greg k-h
