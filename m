@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D20C40E5E4
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7437640DFA7
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244466AbhIPRQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:16:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40898 "EHLO mail.kernel.org"
+        id S234055AbhIPQMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:12:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244114AbhIPRNO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:13:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCEF96142A;
-        Thu, 16 Sep 2021 16:38:36 +0000 (UTC)
+        id S234513AbhIPQJl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:09:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DDA46124D;
+        Thu, 16 Sep 2021 16:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810317;
-        bh=tecI0xFXGZah/qzfpOPocp2W8hgrOZ2sSXszrl8VFlU=;
+        s=korg; t=1631808490;
+        bh=Y8qnr/pXbBwIp7Qc9BW2t+XD/83l1eW/qiigdu7es3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WjwL7HWCWGQi9sxx2wcrpmPAJ+wxQsAvUNvAfLEaW0SanlxEKjg0630c2x8hm/6eW
-         ZHQttuCs+gwTnLk2ERRPil19k4+GMqzwbM0cw9i32+nMdBcNla71Rhclatf3ER6PcC
-         MUZNBNZ2X8rSTMyNEVIFUxklPAPWNXYHNLEBeFNI=
+        b=J9gR9q6Mspr3npvSjO00DIqVxJOGFlpoN3VXWGBII+saG26oMh6MkOO4ZoIIZyceg
+         l0g7PptHLESb6BsDvpltWC0naXOehlVpSNVizXYPzoApUYWomliRY9A8iOsxCW42n1
+         U/ut1DXeKf8VRlXsKUdX3aW00Wii0AGtBGq1I/0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stuart Hayes <stuart.w.hayes@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 5.14 064/432] PCI/portdrv: Enable Bandwidth Notification only if port supports it
+        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 068/306] powerpc/stacktrace: Include linux/delay.h
 Date:   Thu, 16 Sep 2021 17:56:53 +0200
-Message-Id: <20210916155812.959996732@linuxfoundation.org>
+Message-Id: <20210916155756.376221967@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stuart Hayes <stuart.w.hayes@gmail.com>
+From: Michal Suchanek <msuchanek@suse.de>
 
-commit 00823dcbdd415c868390feaca16f0265101efab4 upstream.
+[ Upstream commit a6cae77f1bc89368a4e2822afcddc45c3062d499 ]
 
-Previously we assumed that all Root Ports and Switch Downstream Ports
-supported Link Bandwidth Notification.  Per spec, this is only required
-for Ports supporting Links wider than x1 and/or multiple Link speeds
-(PCIe r5.0, sec 7.5.3.6).
+commit 7c6986ade69e ("powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()")
+introduces udelay() call without including the linux/delay.h header.
+This may happen to work on master but the header that declares the
+functionshould be included nonetheless.
 
-Because we assumed all Ports supported it, we tried to set up a Bandwidth
-Notification IRQ, which failed for devices that don't support IRQs at all,
-which meant pcieport didn't attach to the Port at all.
-
-Check the Link Bandwidth Notification Capability bit and enable the service
-only when the Port supports it.
-
-[bhelgaas: commit log]
-Fixes: e8303bb7a75c ("PCI/LINK: Report degraded links via link bandwidth notification")
-Link: https://lore.kernel.org/r/20210512213314.7778-1-stuart.w.hayes@gmail.com
-Signed-off-by: Stuart Hayes <stuart.w.hayes@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7c6986ade69e ("powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()")
+Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210729180103.15578-1-msuchanek@suse.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pcie/portdrv_core.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/stacktrace.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pci/pcie/portdrv_core.c
-+++ b/drivers/pci/pcie/portdrv_core.c
-@@ -257,8 +257,13 @@ static int get_port_device_capability(st
- 		services |= PCIE_PORT_SERVICE_DPC;
+diff --git a/arch/powerpc/kernel/stacktrace.c b/arch/powerpc/kernel/stacktrace.c
+index 2f926ea9b7b9..d4a66ce93f52 100644
+--- a/arch/powerpc/kernel/stacktrace.c
++++ b/arch/powerpc/kernel/stacktrace.c
+@@ -8,6 +8,7 @@
+  * Copyright 2018 Nick Piggin, Michael Ellerman, IBM Corp.
+  */
  
- 	if (pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM ||
--	    pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT)
--		services |= PCIE_PORT_SERVICE_BWNOTIF;
-+	    pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT) {
-+		u32 linkcap;
-+
-+		pcie_capability_read_dword(dev, PCI_EXP_LNKCAP, &linkcap);
-+		if (linkcap & PCI_EXP_LNKCAP_LBNC)
-+			services |= PCIE_PORT_SERVICE_BWNOTIF;
-+	}
- 
- 	return services;
- }
++#include <linux/delay.h>
+ #include <linux/export.h>
+ #include <linux/kallsyms.h>
+ #include <linux/module.h>
+-- 
+2.30.2
+
 
 
