@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B00A340E2AA
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A18340E620
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243915AbhIPQlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:41:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51674 "EHLO mail.kernel.org"
+        id S1346428AbhIPRSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:18:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41429 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242270AbhIPQh3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:37:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE14A61361;
-        Thu, 16 Sep 2021 16:22:18 +0000 (UTC)
+        id S1344027AbhIPRQJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:16:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B91F361BBF;
+        Thu, 16 Sep 2021 16:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809339;
-        bh=PZGC0dDtXGFEIuEDhIPnrPNRbBj4L29UyRqSIXumYeg=;
+        s=korg; t=1631810420;
+        bh=UEgh7KQtnW5lA2hV2j533cGjH0PKuJRYcbQtdhF7p9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZsJzGTfrAbjkJXZrs79kw6TQvSub7tsnSeiOAUPU2uLmPqIsWS7R6PSwwK8/gd0V7
-         6hxXPU+6EayTT9U2dKLAPsgRZwiEs/BCxeok9nwTg9RplRLzAYa1XKLGbooDlSkr9+
-         Hhb4ks+4kIQ9p3xSUMc4KsgfwK8ifsZOXIjLzFxM=
+        b=17+jl6bXhO5A7yfCnzUlXm1GIw+pmpdh+e3q6UDZ9aGBjqWaM4fJFw/3oY/7Hbd56
+         dBmHE/MSzAZq2UyTvTPXKgufzHqVXBiYFruj+bbapGef6QCDrufnJZuQ8Sb3yyCjWW
+         wc4iNFGzpEd4m+stMGm7Hxu9AbzvV6gCrKad7y+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 119/380] powerpc/perf: Fix the check for SIAR value
+        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 127/432] HID: thrustmaster: clean up Makefile and adapt quirks
 Date:   Thu, 16 Sep 2021 17:57:56 +0200
-Message-Id: <20210916155808.079508594@linuxfoundation.org>
+Message-Id: <20210916155815.063006612@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kajol Jain <kjain@linux.ibm.com>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-[ Upstream commit 3c69a5f22223fa3e312689ec218b5059784d49d7 ]
+[ Upstream commit 462ba66198a4a8ea996028915af10a698086e302 ]
 
-Incase of random sampling, there can be scenarios where
-Sample Instruction Address Register(SIAR) may not latch
-to the sampled instruction and could result in
-the value of 0. In these scenarios it is preferred to
-return regs->nip. These corner cases are seen in the
-previous generation (p9) also.
+Commit c49c33637802 ("HID: support for initialization of some Thrustmaster
+wheels") messed up the Makefile and quirks during the refactoring of this
+commit.
 
-Patch adds the check for SIAR value along with regs_use_siar
-and siar_valid checks so that the function will return
-regs->nip incase SIAR is zero.
+Luckily, ./scripts/checkkconfigsymbols.py warns on non-existing configs:
 
-Patch drops the code under PPMU_P10_DD1 flag check
-which handles SIAR 0 case only for Power10 DD1.
+HID_TMINIT
+Referencing files: drivers/hid/Makefile, drivers/hid/hid-quirks.c
 
-Fixes: 2ca13a4cc56c9 ("powerpc/perf: Use regs->nip when SIAR is zero")
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210818171556.36912-3-kjain@linux.ibm.com
+Following the discussion (see Link), CONFIG_HID_THRUSTMASTER is the
+intended config for CONFIG_HID_TMINIT and the file hid-tminit.c was
+actually added as hid-thrustmaster.c.
+
+So, clean up Makefile and adapt quirks to that refactoring.
+
+Fixes: c49c33637802 ("HID: support for initialization of some Thrustmaster wheels")
+Link: https://lore.kernel.org/linux-input/CAKXUXMx6dByO03f3dX0X5zjvQp0j2AhJBg0vQFDmhZUhtKxRxw@mail.gmail.com/
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ drivers/hid/Makefile     | 1 -
+ drivers/hid/hid-quirks.c | 2 --
+ 2 files changed, 3 deletions(-)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index 51622411a7cc..35658b963d5a 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2251,18 +2251,10 @@ unsigned long perf_misc_flags(struct pt_regs *regs)
-  */
- unsigned long perf_instruction_pointer(struct pt_regs *regs)
- {
--	bool use_siar = regs_use_siar(regs);
- 	unsigned long siar = mfspr(SPRN_SIAR);
- 
--	if (ppmu && (ppmu->flags & PPMU_P10_DD1)) {
--		if (siar)
--			return siar;
--		else
--			return regs->nip;
--	} else if (use_siar && siar_valid(regs))
--		return mfspr(SPRN_SIAR) + perf_ip_adjust(regs);
--	else if (use_siar)
--		return 0;		// no valid instruction pointer
-+	if (regs_use_siar(regs) && siar_valid(regs) && siar)
-+		return siar + perf_ip_adjust(regs);
- 	else
- 		return regs->nip;
- }
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 1ea1a7c0b20f..e29efcb1c040 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -115,7 +115,6 @@ obj-$(CONFIG_HID_STEELSERIES)	+= hid-steelseries.o
+ obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
+ obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
+ obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o hid-thrustmaster.o
+-obj-$(CONFIG_HID_TMINIT)	+= hid-tminit.o
+ obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
+ obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
+ obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 51b39bda9a9d..2e104682c22b 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -662,8 +662,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb653) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb654) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a) },
+-#endif
+-#if IS_ENABLED(CONFIG_HID_TMINIT)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65d) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_TIVO)
 -- 
 2.30.2
 
