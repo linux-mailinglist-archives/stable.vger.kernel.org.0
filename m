@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61C7C40E78A
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 952AB40E3EC
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349139AbhIPRd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:33:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S244127AbhIPQxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245083AbhIPRbx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:31:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47C776135F;
-        Thu, 16 Sep 2021 16:47:15 +0000 (UTC)
+        id S1345917AbhIPQvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:51:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 592FF61A86;
+        Thu, 16 Sep 2021 16:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810835;
-        bh=kLf66jFdqBpM2bbtixzKlTJYnN7XhiRt1aGl/Zbn6r8=;
+        s=korg; t=1631809724;
+        bh=6A4UFO566NlxIX7SmKjrKxVeE046rp/rzND0uhqcNcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKoz6iksZ3+vTUhX2/+0RtGwsEhX9PTYYYwABfnPNhqw0bsvoG0i//+qxZl1HEB9a
-         DleIA0OuY2hLrIRfdXj652T7uNUYYXa+BG8ynAFlzaSJx1HW2WOAorJCF20WHDhHZU
-         iShkGG27QSiwlAsyfNRXfzfOwb/x9zRniyaFpUiU=
+        b=wwkuANL0sXDMobL6TaLXW/DC4pl0J4tUFyPON1/ziNRBixIXdvO3rP3ZZ8b6LuA8q
+         586QDRhiyReTNfQJVs7N8qODU67O1Ve/TSqWysURwWrvk6Qxdm20JNWgKkFc4zb9T4
+         Dh9awGcrDmhuBsNuL/D1nBtunrbVAqb50xwTaoNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Kuogee Hsieh <khsieh@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 268/432] arm64: dts: qcom: ipq8074: fix pci node reg property
+Subject: [PATCH 5.13 260/380] drm/msm/dp: do not end dp link training until video is ready
 Date:   Thu, 16 Sep 2021 18:00:17 +0200
-Message-Id: <20210916155819.907464385@linuxfoundation.org>
+Message-Id: <20210916155812.925244855@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +41,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Kuogee Hsieh <khsieh@codeaurora.org>
 
-[ Upstream commit 52c9887fba71fc8f12d343833fc595c762aac8c7 ]
+[ Upstream commit 2e0adc765d884cc080baa501e250bfad97035b09 ]
 
-reg property should be array of values, here it is a single array,
-leading to below warning:
+Initialize both pre-emphasis and voltage swing level to 0 before
+start link training and do not end link training until video is
+ready to reduce the period between end of link training and video
+start to meet Link Layer CTS requirement.  Some dongle main link
+symbol may become unlocked again if host did not end link training
+soon enough after completion of link training 2. Host have to re
+train main link if loss of symbol locked detected before end link
+training so that the coming video stream can be transmitted to sink
+properly. This fixes Link Layer CTS cases 4.3.2.1, 4.3.2.2, 4.3.2.3
+and 4.3.2.4.
 
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:reg:0: [268435456, 3869, 268439328, 168, 557056, 8192, 269484032, 4096] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
-[[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488]] is not of type 'null'
-[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:reg:0: [536870912, 3869, 536874784, 168, 524288, 8192, 537919488, 4096] is too long
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
-[[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488]] is not of type 'null'
-[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488] is too long
+Changes in v3:
+-- merge retrain link if loss of symbol locked happen into this patch
+-- replace dp_ctrl_loss_symbol_lock() with dp_ctrl_channel_eq_ok()
 
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210308060826.3074234-17-vkoul@kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/1628196295-7382-7-git-send-email-khsieh@codeaurora.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074.dtsi | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/msm/dp/dp_ctrl.c | 56 +++++++++++++++++++++++---------
+ 1 file changed, 41 insertions(+), 15 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074.dtsi b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-index f39bc10cc5bd..d64a6e81d1a5 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
-@@ -583,10 +583,10 @@ frame@b128000 {
+diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+index eb63920b36e8..c1514f2cb409 100644
+--- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
++++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
+@@ -1482,6 +1482,9 @@ static int dp_ctrl_link_maintenance(struct dp_ctrl_private *ctrl)
  
- 		pcie1: pci@10000000 {
- 			compatible = "qcom,pcie-ipq8074";
--			reg =  <0x10000000 0xf1d
--				0x10000f20 0xa8
--				0x00088000 0x2000
--				0x10100000 0x1000>;
-+			reg =  <0x10000000 0xf1d>,
-+			       <0x10000f20 0xa8>,
-+			       <0x00088000 0x2000>,
-+			       <0x10100000 0x1000>;
- 			reg-names = "dbi", "elbi", "parf", "config";
- 			device_type = "pci";
- 			linux,pci-domain = <1>;
-@@ -645,10 +645,10 @@ IRQ_TYPE_LEVEL_HIGH>, /* int_c */
+ 	dp_ctrl_push_idle(&ctrl->dp_ctrl);
  
- 		pcie0: pci@20000000 {
- 			compatible = "qcom,pcie-ipq8074";
--			reg =  <0x20000000 0xf1d
--				0x20000f20 0xa8
--				0x00080000 0x2000
--				0x20100000 0x1000>;
-+			reg = <0x20000000 0xf1d>,
-+			      <0x20000f20 0xa8>,
-+			      <0x00080000 0x2000>,
-+			      <0x20100000 0x1000>;
- 			reg-names = "dbi", "elbi", "parf", "config";
- 			device_type = "pci";
- 			linux,pci-domain = <0>;
++	ctrl->link->phy_params.p_level = 0;
++	ctrl->link->phy_params.v_level = 0;
++
+ 	ctrl->dp_ctrl.pixel_rate = ctrl->panel->dp_mode.drm_mode.clock;
+ 
+ 	ret = dp_ctrl_setup_main_link(ctrl, &training_step);
+@@ -1634,6 +1637,16 @@ static bool dp_ctrl_clock_recovery_any_ok(
+ 	return drm_dp_clock_recovery_ok(link_status, reduced_cnt);
+ }
+ 
++static bool dp_ctrl_channel_eq_ok(struct dp_ctrl_private *ctrl)
++{
++	u8 link_status[DP_LINK_STATUS_SIZE];
++	int num_lanes = ctrl->link->link_params.num_lanes;
++
++	dp_ctrl_read_link_status(ctrl, link_status);
++
++	return drm_dp_channel_eq_ok(link_status, num_lanes);
++}
++
+ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
+ {
+ 	int rc = 0;
+@@ -1668,6 +1681,9 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
+ 		ctrl->link->link_params.rate,
+ 		ctrl->link->link_params.num_lanes, ctrl->dp_ctrl.pixel_rate);
+ 
++	ctrl->link->phy_params.p_level = 0;
++	ctrl->link->phy_params.v_level = 0;
++
+ 	rc = dp_ctrl_enable_mainlink_clocks(ctrl);
+ 	if (rc)
+ 		return rc;
+@@ -1733,17 +1749,19 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
+ 	if (ctrl->link->sink_request & DP_TEST_LINK_PHY_TEST_PATTERN)
+ 		return rc;
+ 
+-	/* stop txing train pattern */
+-	dp_ctrl_clear_training_pattern(ctrl);
++	if (rc == 0) {  /* link train successfully */
++		/*
++		 * do not stop train pattern here
++		 * stop link training at on_stream
++		 * to pass compliance test
++		 */
++	} else  {
++		/*
++		 * link training failed
++		 * end txing train pattern here
++		 */
++		dp_ctrl_clear_training_pattern(ctrl);
+ 
+-	/*
+-	 * keep transmitting idle pattern until video ready
+-	 * to avoid main link from loss of sync
+-	 */
+-	if (rc == 0)  /* link train successfully */
+-		dp_ctrl_push_idle(dp_ctrl);
+-	else  {
+-		/* link training failed */
+ 		dp_ctrl_deinitialize_mainlink(ctrl);
+ 		rc = -ECONNRESET;
+ 	}
+@@ -1751,9 +1769,15 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
+ 	return rc;
+ }
+ 
++static int dp_ctrl_link_retrain(struct dp_ctrl_private *ctrl)
++{
++	int training_step = DP_TRAINING_NONE;
++
++	return dp_ctrl_setup_main_link(ctrl, &training_step);
++}
++
+ int dp_ctrl_on_stream(struct dp_ctrl *dp_ctrl)
+ {
+-	u32 rate = 0;
+ 	int ret = 0;
+ 	bool mainlink_ready = false;
+ 	struct dp_ctrl_private *ctrl;
+@@ -1763,10 +1787,6 @@ int dp_ctrl_on_stream(struct dp_ctrl *dp_ctrl)
+ 
+ 	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
+ 
+-	rate = ctrl->panel->link_info.rate;
+-
+-	ctrl->link->link_params.rate = rate;
+-	ctrl->link->link_params.num_lanes = ctrl->panel->link_info.num_lanes;
+ 	ctrl->dp_ctrl.pixel_rate = ctrl->panel->dp_mode.drm_mode.clock;
+ 
+ 	DRM_DEBUG_DP("rate=%d, num_lanes=%d, pixel_rate=%d\n",
+@@ -1781,6 +1801,12 @@ int dp_ctrl_on_stream(struct dp_ctrl *dp_ctrl)
+ 		}
+ 	}
+ 
++	if (!dp_ctrl_channel_eq_ok(ctrl))
++		dp_ctrl_link_retrain(ctrl);
++
++	/* stop txing train pattern to end link training */
++	dp_ctrl_clear_training_pattern(ctrl);
++
+ 	ret = dp_ctrl_enable_stream_clocks(ctrl);
+ 	if (ret) {
+ 		DRM_ERROR("Failed to start pixel clocks. ret=%d\n", ret);
 -- 
 2.30.2
 
