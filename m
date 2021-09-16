@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE1C40E5F1
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F3CD40DFE0
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344123AbhIPRQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:16:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39804 "EHLO mail.kernel.org"
+        id S234154AbhIPQPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:15:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350351AbhIPRN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:13:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6F0F61B5D;
-        Thu, 16 Sep 2021 16:38:55 +0000 (UTC)
+        id S235102AbhIPQMo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:12:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDB086137F;
+        Thu, 16 Sep 2021 16:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810336;
-        bh=nO4fqyB/6RvF5UPCubhhgOtrIynrJ98N1KVOwT5/MZo=;
+        s=korg; t=1631808572;
+        bh=7mFka9LzrtqigieZU60zukE5rqmPUDqyqXjmuylp0YU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=genCACjUSFgm0CSW/9YcevPwexCqybQKfDWYiYsaQAsTWRvIlwtzq1e9fYBHvgLWg
-         KQpVDjle89InXlA16d7+8Xg4Sm7XQtKbcogXzGEPmZkbdBadyKg0VyuDNG942rStxe
-         QfaVR1rcm6VXSBLhvJ5vhJEOCe35bRCJ8dveX03Y=
+        b=jbJOV26rZxHsuJn88kQRVGcn0WrqNxdTKY7coIKbhyfj150rmFwFlhmNCX4SIYtPU
+         5w1ryDdreQDte3UGbI/6/DTyVp7Gv3FqlBQx8lnBKo47pV36xo2f2xihL/uneTC9Kr
+         PbcfXSKO4WzTnWSPMaKtJWUP4otSaCmZIkD4XADk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 104/432] NFSv4/pNFS: Fix a layoutget livelock loop
+Subject: [PATCH 5.10 108/306] kbuild: Fix no symbols warning when CONFIG_TRIM_UNUSD_KSYMS=y
 Date:   Thu, 16 Sep 2021 17:57:33 +0200
-Message-Id: <20210916155814.299415181@linuxfoundation.org>
+Message-Id: <20210916155757.760551693@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit e20772cbdf463c12088837e5a08bde1b876bfd25 ]
+[ Upstream commit 52d83df682c82055961531853c066f4f16e234ea ]
 
-If NFS_LAYOUT_RETURN_REQUESTED is set, but there is no value set for
-the layout plh_return_seq, we can end up in a livelock loop in which
-every layout segment retrieved by a new call to layoutget is immediately
-invalidated by pnfs_layout_need_return().
-To get around this, we should just set plh_return_seq to the current
-value of the layout stateid's seqid.
+When CONFIG_TRIM_UNUSED_KSYMS is enabled, I see some warnings like this:
 
-Fixes: d474f96104bd ("NFS: Don't return layout segments that are in use")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+  nm: arch/x86/entry/vdso/vdso32/note.o: no symbols
+
+$NM (both GNU nm and llvm-nm) warns when no symbol is found in the
+object. Suppress the stderr.
+
+Fangrui Song mentioned binutils>=2.37 `nm -q` can be used to suppress
+"no symbols" [1], and llvm-nm>=13.0.0 supports -q as well.
+
+We cannot use it for now, but note it as a TODO.
+
+[1]: https://sourceware.org/bugzilla/show_bug.cgi?id=27408
+
+Fixes: bbda5ec671d3 ("kbuild: simplify dependency generation for CONFIG_TRIM_UNUSED_KSYMS")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pnfs.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ scripts/gen_ksymdeps.sh | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index ef14ea0b6ab8..da5cacad6979 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -347,11 +347,15 @@ pnfs_set_plh_return_info(struct pnfs_layout_hdr *lo, enum pnfs_iomode iomode,
- 		iomode = IOMODE_ANY;
- 	lo->plh_return_iomode = iomode;
- 	set_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags);
--	if (seq != 0) {
--		WARN_ON_ONCE(lo->plh_return_seq != 0 && lo->plh_return_seq != seq);
-+	/*
-+	 * We must set lo->plh_return_seq to avoid livelocks with
-+	 * pnfs_layout_need_return()
-+	 */
-+	if (seq == 0)
-+		seq = be32_to_cpu(lo->plh_stateid.seqid);
-+	if (!lo->plh_return_seq || pnfs_seqid_is_newer(seq, lo->plh_return_seq))
- 		lo->plh_return_seq = seq;
--		pnfs_barrier_update(lo, seq);
--	}
-+	pnfs_barrier_update(lo, seq);
- }
+diff --git a/scripts/gen_ksymdeps.sh b/scripts/gen_ksymdeps.sh
+index 1324986e1362..725e8c9c1b53 100755
+--- a/scripts/gen_ksymdeps.sh
++++ b/scripts/gen_ksymdeps.sh
+@@ -4,7 +4,13 @@
+ set -e
  
- static void
+ # List of exported symbols
+-ksyms=$($NM $1 | sed -n 's/.*__ksym_marker_\(.*\)/\1/p' | tr A-Z a-z)
++#
++# If the object has no symbol, $NM warns 'no symbols'.
++# Suppress the stderr.
++# TODO:
++#   Use -q instead of 2>/dev/null when we upgrade the minimum version of
++#   binutils to 2.37, llvm to 13.0.0.
++ksyms=$($NM $1 2>/dev/null | sed -n 's/.*__ksym_marker_\(.*\)/\1/p' | tr A-Z a-z)
+ 
+ if [ -z "$ksyms" ]; then
+ 	exit 0
 -- 
 2.30.2
 
