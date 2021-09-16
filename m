@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57AE140DF63
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 985C140E235
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233517AbhIPQJY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:09:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48542 "EHLO mail.kernel.org"
+        id S242477AbhIPQf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:35:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232702AbhIPQIR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:08:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AA3561130;
-        Thu, 16 Sep 2021 16:06:54 +0000 (UTC)
+        id S242254AbhIPQdp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:33:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F05460698;
+        Thu, 16 Sep 2021 16:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808415;
-        bh=E+Q/NMIwxAuW1Z+gE2xl4ZZHOn+lxE7zclwv5ldTtl8=;
+        s=korg; t=1631809230;
+        bh=t6xbDUtGupDzcGxTITp17lxS6T+CZ8laWc9Bu/yxFiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LwRETRxZQ9St+NIkeFIgd3G2Ds8QiJqbjM41fNMArixAygFkV426S4YTRCA0UKxIN
-         okrVV9E96Yk7Nw/htK4y3QTvXxR3b4eYrr4zue8CtnTZtwUpdQqlZ048Os3R67/9gs
-         pBqf3iZk2iMhNRvOLgHQoOeXtLYzNZoG8T3+Qk9o=
+        b=Hwhz1OUmPwmigEQSCz18uCus6L2nqjPnhfACTt4lcLrpRFQl3oqvCnmc6yf24Fp+E
+         tWvbAuuVJYoFhgIh+G0bInlPVYoIH5fl9biN046hPblZi+yGESHcPb6YUYCMxJC9n3
+         j7OPQoRTWwHp1nZSXi9chrReyh/i1lWsCAXpcAnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Rob Herring <robh@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/306] pinctrl: single: Fix error return code in pcs_parse_bits_in_pinctrl_entry()
+Subject: [PATCH 5.13 071/380] pinctrl: armada-37xx: Correct PWM pins definitions
 Date:   Thu, 16 Sep 2021 17:57:08 +0200
-Message-Id: <20210916155756.878173654@linuxfoundation.org>
+Message-Id: <20210916155806.416114730@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +42,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit d789a490d32fdf0465275e3607f8a3bc87d3f3ba ]
+[ Upstream commit baf8d6899b1e8906dc076ef26cc633e96a8bb0c3 ]
 
-Fix to return -ENOTSUPP instead of 0 when PCS_HAS_PINCONF is true, which
-is the same as that returned in pcs_parse_pinconf().
+The PWM pins on North Bridge on Armada 37xx can be configured into PWM
+or GPIO functions. When in PWM function, each pin can also be configured
+to drive low on 0 and tri-state on 1 (LED mode).
 
-Fixes: 4e7e8017a80e ("pinctrl: pinctrl-single: enhance to configure multiple pins of different modules")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210722033930.4034-2-thunder.leizhen@huawei.com
+The current definitions handle this by declaring two pin groups for each
+pin:
+- group "pwmN" with functions "pwm" and "gpio"
+- group "ledN_od" ("od" for open drain) with functions "led" and "gpio"
+
+This is semantically incorrect. The correct definition for each pin
+should be one group with three functions: "pwm", "led" and "gpio".
+
+Change the "pwmN" groups to support "led" function.
+
+Remove "ledN_od" groups. This cannot break backwards compatibility with
+older device trees: no device tree uses it since there is no PWM driver
+for this SOC yet. Also "ledN_od" groups are not even documented.
+
+Fixes: b835d6953009 ("pinctrl: armada-37xx: swap polarity on LED group")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20210719112938.27594-1-kabel@kernel.org
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-single.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../pinctrl/marvell,armada-37xx-pinctrl.txt      |  8 ++++----
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c      | 16 ++++++++--------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
-index 12cc4eb18637..17aa0d542d92 100644
---- a/drivers/pinctrl/pinctrl-single.c
-+++ b/drivers/pinctrl/pinctrl-single.c
-@@ -1222,6 +1222,7 @@ static int pcs_parse_bits_in_pinctrl_entry(struct pcs_device *pcs,
+diff --git a/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt b/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
+index 38dc56a57760..ecec514b3155 100644
+--- a/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
++++ b/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
+@@ -43,19 +43,19 @@ group emmc_nb
  
- 	if (PCS_HAS_PINCONF) {
- 		dev_err(pcs->dev, "pinconf not supported\n");
-+		res = -ENOTSUPP;
- 		goto free_pingroups;
- 	}
+ group pwm0
+  - pin 11 (GPIO1-11)
+- - functions pwm, gpio
++ - functions pwm, led, gpio
  
+ group pwm1
+  - pin 12
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pwm2
+  - pin 13
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pwm3
+  - pin 14
+- - functions pwm, gpio
++ - functions pwm, led, gpio
+ 
+ group pmic1
+  - pin 7
+diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+index 5a68e242f6b3..5cb018f98800 100644
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -167,10 +167,14 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
+ 	PIN_GRP_GPIO("jtag", 20, 5, BIT(0), "jtag"),
+ 	PIN_GRP_GPIO("sdio0", 8, 3, BIT(1), "sdio"),
+ 	PIN_GRP_GPIO("emmc_nb", 27, 9, BIT(2), "emmc"),
+-	PIN_GRP_GPIO("pwm0", 11, 1, BIT(3), "pwm"),
+-	PIN_GRP_GPIO("pwm1", 12, 1, BIT(4), "pwm"),
+-	PIN_GRP_GPIO("pwm2", 13, 1, BIT(5), "pwm"),
+-	PIN_GRP_GPIO("pwm3", 14, 1, BIT(6), "pwm"),
++	PIN_GRP_GPIO_3("pwm0", 11, 1, BIT(3) | BIT(20), 0, BIT(20), BIT(3),
++		       "pwm", "led"),
++	PIN_GRP_GPIO_3("pwm1", 12, 1, BIT(4) | BIT(21), 0, BIT(21), BIT(4),
++		       "pwm", "led"),
++	PIN_GRP_GPIO_3("pwm2", 13, 1, BIT(5) | BIT(22), 0, BIT(22), BIT(5),
++		       "pwm", "led"),
++	PIN_GRP_GPIO_3("pwm3", 14, 1, BIT(6) | BIT(23), 0, BIT(23), BIT(6),
++		       "pwm", "led"),
+ 	PIN_GRP_GPIO("pmic1", 7, 1, BIT(7), "pmic"),
+ 	PIN_GRP_GPIO("pmic0", 6, 1, BIT(8), "pmic"),
+ 	PIN_GRP_GPIO("i2c2", 2, 2, BIT(9), "i2c"),
+@@ -184,10 +188,6 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
+ 	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
+ 		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
+ 		      18, 2, "gpio", "uart"),
+-	PIN_GRP_GPIO_2("led0_od", 11, 1, BIT(20), BIT(20), 0, "led"),
+-	PIN_GRP_GPIO_2("led1_od", 12, 1, BIT(21), BIT(21), 0, "led"),
+-	PIN_GRP_GPIO_2("led2_od", 13, 1, BIT(22), BIT(22), 0, "led"),
+-	PIN_GRP_GPIO_2("led3_od", 14, 1, BIT(23), BIT(23), 0, "led"),
+ };
+ 
+ static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
 -- 
 2.30.2
 
