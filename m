@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 042BD40E2CB
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F3C40DFAC
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245560AbhIPQlw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:41:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52008 "EHLO mail.kernel.org"
+        id S235492AbhIPQMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:12:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244792AbhIPQjt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:39:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1734461A02;
-        Thu, 16 Sep 2021 16:23:21 +0000 (UTC)
+        id S237333AbhIPQKp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:10:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71EDF61360;
+        Thu, 16 Sep 2021 16:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809402;
-        bh=Xj6pz9DtrlnxsYbqktavAhkCXmnhn+dDnDPWccbAhes=;
+        s=korg; t=1631808517;
+        bh=ojuaTAZhr8Uw6QEtkXAyeaRZbg6Ro4//uWTFWOQSH8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DuKIR84vk+lIcfXDmyZMS3nk7bBZpGbqzwvjl/gVuy+FcU1j8b5xfdotcLoigsAaV
-         9z7zBOg/L9+eaB66uX5iGGgteqHXp5zqCQkzFrNSip+HoNWECrHJsxquChBApMVQ+q
-         IlZ0cn1MLvVwmtwQ6SsLvENEBs44X2hEwtPY+XfQ=
+        b=ceQpw2pyjXYHVYFYms8LF5nlk0LRs/TWwdgDkPwOq/TmZMPRODAAQxY0AfBMiQMFa
+         ZyljfBsfnkBXdTeCZlZDQvxNbSa5PJ9sC3yM5aYfieq2crLJphsqGBEm2qYAhbVsXr
+         6BEnYOslJG+znazJaJ/lTh3yYZt7PXiv+hTF5c1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Sanjay Kumar <sanjay.k.kumar@intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 109/380] iommu/vt-d: Update the virtual command related registers
+        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 121/306] iavf: do not override the adapter state in the watchdog task
 Date:   Thu, 16 Sep 2021 17:57:46 +0200
-Message-Id: <20210916155807.744108370@linuxfoundation.org>
+Message-Id: <20210916155758.192620419@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,69 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit 4d99efb229e63928c6b03a756a2e38cd4777fbe8 ]
+[ Upstream commit 22c8fd71d3a5e6fe584ccc2c1e8760e5baefd5aa ]
 
-The VT-d spec Revision 3.3 updated the virtual command registers, virtual
-command opcode B register, virtual command response register and virtual
-command capability register (Section 10.4.43, 10.4.44, 10.4.45, 10.4.46).
-This updates the virtual command interface implementation in the Intel
-IOMMU driver accordingly.
+The iavf watchdog task overrides adapter->state to __IAVF_RESETTING
+when it detects a pending reset. Then schedules iavf_reset_task() which
+takes care of the reset.
 
-Fixes: 24f27d32ab6b7 ("iommu/vt-d: Enlightened PASID allocation")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: Sanjay Kumar <sanjay.k.kumar@intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>
-Link: https://lore.kernel.org/r/20210713042649.3547403-1-baolu.lu@linux.intel.com
-Link: https://lore.kernel.org/r/20210818134852.1847070-2-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+The reset task is capable of handling the reset without changing
+adapter->state. In fact we lose the state information when the watchdog
+task prematurely changes the adapter state. This may lead to a crash if
+instead of the reset task the iavf_remove() function gets called before
+the reset task.
+In that case (if we were in state __IAVF_RUNNING previously) the
+iavf_remove() function triggers iavf_close() which fails to close the
+device because of the incorrect state information.
+
+This may result in a crash due to pending interrupts.
+kernel BUG at drivers/pci/msi.c:357!
+[...]
+Call Trace:
+ [<ffffffffbddf24dd>] pci_disable_msix+0x3d/0x50
+ [<ffffffffc08d2a63>] iavf_reset_interrupt_capability+0x23/0x40 [iavf]
+ [<ffffffffc08d312a>] iavf_remove+0x10a/0x350 [iavf]
+ [<ffffffffbddd3359>] pci_device_remove+0x39/0xc0
+ [<ffffffffbdeb492f>] __device_release_driver+0x7f/0xf0
+ [<ffffffffbdeb49c3>] device_release_driver+0x23/0x30
+ [<ffffffffbddcabb4>] pci_stop_bus_device+0x84/0xa0
+ [<ffffffffbddcacc2>] pci_stop_and_remove_bus_device+0x12/0x20
+ [<ffffffffbddf361f>] pci_iov_remove_virtfn+0xaf/0x160
+ [<ffffffffbddf3bcc>] sriov_disable+0x3c/0xf0
+ [<ffffffffbddf3ca3>] pci_disable_sriov+0x23/0x30
+ [<ffffffffc0667365>] i40e_free_vfs+0x265/0x2d0 [i40e]
+ [<ffffffffc0667624>] i40e_pci_sriov_configure+0x144/0x1f0 [i40e]
+ [<ffffffffbddd5307>] sriov_numvfs_store+0x177/0x1d0
+Code: 00 00 e8 3c 25 e3 ff 49 c7 86 88 08 00 00 00 00 00 00 5b 41 5c 41 5d 41 5e 41 5f 5d c3 48 8b 7b 28 e8 0d 44
+RIP  [<ffffffffbbbf1068>] free_msi_irqs+0x188/0x190
+
+The solution is to not touch the adapter->state in iavf_watchdog_task()
+and let the reset task handle the state transition.
+
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/pasid.h | 10 +++++-----
- include/linux/intel-iommu.h |  6 +++---
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf_main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/iommu/intel/pasid.h b/drivers/iommu/intel/pasid.h
-index c11bc8b833b8..d5552e2c160d 100644
---- a/drivers/iommu/intel/pasid.h
-+++ b/drivers/iommu/intel/pasid.h
-@@ -28,12 +28,12 @@
- #define VCMD_CMD_ALLOC			0x1
- #define VCMD_CMD_FREE			0x2
- #define VCMD_VRSP_IP			0x1
--#define VCMD_VRSP_SC(e)			(((e) >> 1) & 0x3)
-+#define VCMD_VRSP_SC(e)			(((e) & 0xff) >> 1)
- #define VCMD_VRSP_SC_SUCCESS		0
--#define VCMD_VRSP_SC_NO_PASID_AVAIL	2
--#define VCMD_VRSP_SC_INVALID_PASID	2
--#define VCMD_VRSP_RESULT_PASID(e)	(((e) >> 8) & 0xfffff)
--#define VCMD_CMD_OPERAND(e)		((e) << 8)
-+#define VCMD_VRSP_SC_NO_PASID_AVAIL	16
-+#define VCMD_VRSP_SC_INVALID_PASID	16
-+#define VCMD_VRSP_RESULT_PASID(e)	(((e) >> 16) & 0xfffff)
-+#define VCMD_CMD_OPERAND(e)		((e) << 16)
- /*
-  * Domain ID reserved for pasid entries programmed for first-level
-  * only and pass-through transfer modes.
-diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
-index 03faf20a6817..cf2dafe3ce60 100644
---- a/include/linux/intel-iommu.h
-+++ b/include/linux/intel-iommu.h
-@@ -124,9 +124,9 @@
- #define DMAR_MTRR_PHYSMASK8_REG 0x208
- #define DMAR_MTRR_PHYSBASE9_REG 0x210
- #define DMAR_MTRR_PHYSMASK9_REG 0x218
--#define DMAR_VCCAP_REG		0xe00 /* Virtual command capability register */
--#define DMAR_VCMD_REG		0xe10 /* Virtual command register */
--#define DMAR_VCRSP_REG		0xe20 /* Virtual command response register */
-+#define DMAR_VCCAP_REG		0xe30 /* Virtual command capability register */
-+#define DMAR_VCMD_REG		0xe00 /* Virtual command register */
-+#define DMAR_VCRSP_REG		0xe10 /* Virtual command response register */
- 
- #define DMAR_IQER_REG_IQEI(reg)		FIELD_GET(GENMASK_ULL(3, 0), reg)
- #define DMAR_IQER_REG_ITESID(reg)	FIELD_GET(GENMASK_ULL(47, 32), reg)
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 7023aa147043..da401d5694bf 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -1951,7 +1951,6 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 		/* check for hw reset */
+ 	reg_val = rd32(hw, IAVF_VF_ARQLEN1) & IAVF_VF_ARQLEN1_ARQENABLE_MASK;
+ 	if (!reg_val) {
+-		adapter->state = __IAVF_RESETTING;
+ 		adapter->flags |= IAVF_FLAG_RESET_PENDING;
+ 		adapter->aq_required = 0;
+ 		adapter->current_op = VIRTCHNL_OP_UNKNOWN;
 -- 
 2.30.2
 
