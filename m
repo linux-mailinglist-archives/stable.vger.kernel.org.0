@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8433040E7A5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D79BC40E635
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244236AbhIPRff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:35:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50284 "EHLO mail.kernel.org"
+        id S1351637AbhIPRTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:19:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343959AbhIPRcU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:32:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71C7D61A6E;
-        Thu, 16 Sep 2021 16:47:42 +0000 (UTC)
+        id S1347088AbhIPQ5C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:57:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2D7161AAB;
+        Thu, 16 Sep 2021 16:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810863;
-        bh=taatuuLuDBoBSsvAWC34YtQ3EAR1kJj2dTPwEIz+LIE=;
+        s=korg; t=1631809886;
+        bh=qEiAm24eqpsL2TxBMKk2BMy+kt0VnPszMUVXtFF6ej0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VrGivcZCFT78HuSqOtRdB5yZNoiOL6glJy8yEMOgueLeVWR8o7LfJDJNKxLNXx9G/
-         3BcdwJ1lsC2X4jr+NtpG/uq9mMBNwCLeLe3fX+C9d9CNOH/b9KEPs225pz2qzG07ie
-         s+KZCWnvYysBZ7Q6VJKyrLOa04pmW755maEz8rqY=
+        b=tdjkUG07g65rnbnBNKS7bZjBgIJQwLaSmIext8Q2U8CzBZmlQrXtqBZENkBzI7vlW
+         MXFJWUD/8gjq5LouhmMPFKZQ7CGU4bCsPnez3X1hvcGcPtzhGWmEwU4ApOSCtgqgCn
+         ltNsdqecA8tiURkwDCZV9bdkR8EdGFYImmDW4W4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Tuo Li <islituo@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Bongsu Jeon <bongsu.jeon@samsung.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 295/432] gpu: drm: amd: amdgpu: amdgpu_i2c: fix possible uninitialized-variable access in amdgpu_i2c_router_select_ddc_port()
+Subject: [PATCH 5.13 287/380] selftests: nci: Fix the wrong condition
 Date:   Thu, 16 Sep 2021 18:00:44 +0200
-Message-Id: <20210916155820.832512449@linuxfoundation.org>
+Message-Id: <20210916155813.836236192@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Bongsu Jeon <bongsu.jeon@samsung.com>
 
-[ Upstream commit a211260c34cfadc6068fece8c9e99e0fe1e2a2b6 ]
+[ Upstream commit 1d5b8d01db98abb8c176838fad73287366874582 ]
 
-The variable val is declared without initialization, and its address is
-passed to amdgpu_i2c_get_byte(). In this function, the value of val is
-accessed in:
-  DRM_DEBUG("i2c 0x%02x 0x%02x read failed\n",
-       addr, *val);
+memcpy should be executed only in case nla_len's value is greater than 0.
 
-Also, when amdgpu_i2c_get_byte() returns, val may remain uninitialized,
-but it is accessed in:
-  val &= ~amdgpu_connector->router.ddc_mux_control_pin;
-
-To fix this possible uninitialized-variable access, initialize val to 0 in
-amdgpu_i2c_router_select_ddc_port().
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Bongsu Jeon <bongsu.jeon@samsung.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c | 2 +-
+ tools/testing/selftests/nci/nci_dev.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-index bca4dddd5a15..82608df43396 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
-@@ -339,7 +339,7 @@ static void amdgpu_i2c_put_byte(struct amdgpu_i2c_chan *i2c_bus,
- void
- amdgpu_i2c_router_select_ddc_port(const struct amdgpu_connector *amdgpu_connector)
- {
--	u8 val;
-+	u8 val = 0;
+diff --git a/tools/testing/selftests/nci/nci_dev.c b/tools/testing/selftests/nci/nci_dev.c
+index 9687100f15ea..acd4125ff39f 100644
+--- a/tools/testing/selftests/nci/nci_dev.c
++++ b/tools/testing/selftests/nci/nci_dev.c
+@@ -110,7 +110,7 @@ static int send_cmd_mt_nla(int sd, __u16 nlmsg_type, __u32 nlmsg_pid,
+ 		na->nla_type = nla_type[cnt];
+ 		na->nla_len = nla_len[cnt] + NLA_HDRLEN;
  
- 	if (!amdgpu_connector->router.ddc_valid)
- 		return;
+-		if (nla_len > 0)
++		if (nla_len[cnt] > 0)
+ 			memcpy(NLA_DATA(na), nla_data[cnt], nla_len[cnt]);
+ 
+ 		prv_len = NLA_ALIGN(nla_len[cnt]) + NLA_HDRLEN;
 -- 
 2.30.2
 
