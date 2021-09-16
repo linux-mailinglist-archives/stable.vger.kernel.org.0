@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8816B40DF1D
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D94640E1DC
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232992AbhIPQGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:06:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45294 "EHLO mail.kernel.org"
+        id S243550AbhIPQcF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:32:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232342AbhIPQGq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:06:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF9EA61246;
-        Thu, 16 Sep 2021 16:05:25 +0000 (UTC)
+        id S243166AbhIPQaH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:30:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 911056138F;
+        Thu, 16 Sep 2021 16:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808326;
-        bh=tMRUhg+5IP7iS3QDrQIfnJwdTixPGUXbFkAY1SQ5LYU=;
+        s=korg; t=1631809138;
+        bh=SBjnB2/jwGZQdtEUeDSV8Jvs09ODmXxMnqaoW1X+oEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bMvQS+Q2visxE9XqCbeod1gLxV4CqoJ1pWlyu/RLxot7xn32brOjaddtZmL8Gp7Z1
-         Vj4X7CpC2q40QD3M6HFjclTf2MG8U6Ov+CyH3uaMTCphGwBGHanC2+ZVSkeESbzdbr
-         8ZbALFZ8fD6xkwiQOvSwiMLCV77JUqH6JG7xwCQQ=
+        b=KomuwNnBOBcOora04pUO7FHUuxYabz7lv5tTGefZXbpE1kEx9vLCaVQKKr3NEqh/I
+         Q8Ricv6tz8ZELgTAthbQLdRnmoxY5nko2NyAfjk8CdsfpowhqkuZCNfQ4/qNzdv/t6
+         GsuDW8V8gbWz/yzKo6MqAGR9tt4ipopz/yZDDh+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.10 048/306] PCI: Return ~0 data on pciconfig_read() CAP_SYS_ADMIN failure
-Date:   Thu, 16 Sep 2021 17:56:33 +0200
-Message-Id: <20210916155755.586019992@linuxfoundation.org>
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Hannes Reinecke <hare@suse.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.13 037/380] block: bfq: fix bfq_set_next_ioprio_data()
+Date:   Thu, 16 Sep 2021 17:56:34 +0200
+Message-Id: <20210916155805.231647872@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczyński <kw@linux.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-commit a8bd29bd49c4156ea0ec5a97812333e2aeef44e7 upstream.
+commit a680dd72ec336b81511e3bff48efac6dbfa563e7 upstream.
 
-The pciconfig_read() syscall reads PCI configuration space using
-hardware-dependent config accessors.
+For a request that has a priority level equal to or larger than
+IOPRIO_BE_NR, bfq_set_next_ioprio_data() prints a critical warning but
+defaults to setting the request new_ioprio field to IOPRIO_BE_NR. This
+is not consistent with the warning and the allowed values for priority
+levels. Fix this by setting the request new_ioprio field to
+IOPRIO_BE_NR - 1, the lowest priority level allowed.
 
-If the read fails on PCI, most accessors don't return an error; they
-pretend the read was successful and got ~0 data from the device, so the
-syscall returns success with ~0 data in the buffer.
-
-When the accessor does return an error, pciconfig_read() normally fills the
-user's buffer with ~0 and returns an error in errno.  But after
-e4585da22ad0 ("pci syscall.c: Switch to refcounting API"), we don't fill
-the buffer with ~0 for the EPERM "user lacks CAP_SYS_ADMIN" error.
-
-Userspace may rely on the ~0 data to detect errors, but after e4585da22ad0,
-that would not detect CAP_SYS_ADMIN errors.
-
-Restore the original behaviour of filling the buffer with ~0 when the
-CAP_SYS_ADMIN check fails.
-
-[bhelgaas: commit log, fold in Nathan's fix
-https://lore.kernel.org/r/20210803200836.500658-1-nathan@kernel.org]
-Fixes: e4585da22ad0 ("pci syscall.c: Switch to refcounting API")
-Link: https://lore.kernel.org/r/20210729233755.1509616-1-kw@linux.com
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Fixes: aee69d78dec0 ("block, bfq: introduce the BFQ-v0 I/O scheduler as an extra scheduler")
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Link: https://lore.kernel.org/r/20210811033702.368488-2-damien.lemoal@wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/syscall.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ block/bfq-iosched.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/syscall.c
-+++ b/drivers/pci/syscall.c
-@@ -22,8 +22,10 @@ SYSCALL_DEFINE5(pciconfig_read, unsigned
- 	long err;
- 	int cfg_ret;
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -5258,7 +5258,7 @@ bfq_set_next_ioprio_data(struct bfq_queu
+ 	if (bfqq->new_ioprio >= IOPRIO_BE_NR) {
+ 		pr_crit("bfq_set_next_ioprio_data: new_ioprio %d\n",
+ 			bfqq->new_ioprio);
+-		bfqq->new_ioprio = IOPRIO_BE_NR;
++		bfqq->new_ioprio = IOPRIO_BE_NR - 1;
+ 	}
  
-+	err = -EPERM;
-+	dev = NULL;
- 	if (!capable(CAP_SYS_ADMIN))
--		return -EPERM;
-+		goto error;
- 
- 	err = -ENODEV;
- 	dev = pci_get_domain_bus_and_slot(0, bus, dfn);
+ 	bfqq->entity.new_weight = bfq_ioprio_to_weight(bfqq->new_ioprio);
 
 
