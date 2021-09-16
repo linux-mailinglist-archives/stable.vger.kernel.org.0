@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6ABE40E791
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC1DB40E66A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243729AbhIPReB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:34:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50266 "EHLO mail.kernel.org"
+        id S1344361AbhIPRVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:21:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347461AbhIPRby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:31:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DDB161A65;
-        Thu, 16 Sep 2021 16:47:28 +0000 (UTC)
+        id S244138AbhIPQ4u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:56:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDD5761ABE;
+        Thu, 16 Sep 2021 16:31:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810849;
-        bh=CZhCsYV64HFBu6T5AKowOg0gIzBsvW8706diNRTk8YU=;
+        s=korg; t=1631809875;
+        bh=NyYDkBj2exwUxrdJ3yy0kdAm2cAfu+ZrmkTsZjwhJdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q76ATC12JQo4FH3ZwdVUki/Dz4Q5/lTc6x/c56OSZrw33lVwUcjGnMKC20+3qu40P
-         r8nsQE9Y771+xAteauEh9sYe4SK9haFREbglZaeazc6ElIwINx14g1L4eD3aSiEjTr
-         VU7lkLTy1+iGWWpWYfvbY/HKqBN5kXFMr9nopCmw=
+        b=OQVr09+qvvOQ08bvnUVF9mE8LiQVwqrKA0unZ94nZ8Ct4N9b6IeXMyLJo8ZaFFMGm
+         uogymu1QKijxCOjEvWqM/mLor3CT+rrslUSFz3kb6QNW8p9qMvqVIVcmMNbgcK+dg9
+         nmz8yHstQ+Wv6CQ1ldYplwAOf7xrtHkay86yEoLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <khsieh@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 290/432] drm/msm/dp: reduce link rate if failed at link training 1
-Date:   Thu, 16 Sep 2021 18:00:39 +0200
-Message-Id: <20210916155820.654594987@linuxfoundation.org>
+Subject: [PATCH 5.13 283/380] selftests/bpf: Fix flaky send_signal test
+Date:   Thu, 16 Sep 2021 18:00:40 +0200
+Message-Id: <20210916155813.708143491@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,245 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <khsieh@codeaurora.org>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 4b85d405cfe938ae7ad61656484ae88dee289e3b ]
+[ Upstream commit b16ac5bf732a5e23d164cf908ec7742d6a6120d3 ]
 
-Reduce link rate and re start link training if link training 1
-failed due to loss of clock recovery done to fix Link Layer
-CTS case 4.3.1.7.  Also only update voltage and pre-emphasis
-swing level after link training started to fix Link Layer CTS
-case 4.3.1.6.
+libbpf CI has reported send_signal test is flaky although
+I am not able to reproduce it in my local environment.
+But I am able to reproduce with on-demand libbpf CI ([1]).
 
-Changes in V2:
--- replaced cr_status with link_status[DP_LINK_STATUS_SIZE]
--- replaced dp_ctrl_any_lane_cr_done() with dp_ctrl_colco_recovery_any_ok()
--- replaced dp_ctrl_any_ane_cr_lose() with !drm_dp_clock_recovery_ok()
+Through code analysis, the following is possible reason.
+The failed subtest runs bpf program in softirq environment.
+Since bpf_send_signal() only sends to a fork of "test_progs"
+process. If the underlying current task is
+not "test_progs", bpf_send_signal() will not be triggered
+and the subtest will fail.
 
-Changes in V3:
--- return failed if lane_count <= 1
+To reduce the chances where the underlying process is not
+the intended one, this patch boosted scheduling priority to
+-20 (highest allowed by setpriority() call). And I did
+10 runs with on-demand libbpf CI with this patch and I
+didn't observe any failures.
 
-Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1628196295-7382-3-git-send-email-khsieh@codeaurora.org
-[remove unused cr_status variable]
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+ [1] https://github.com/libbpf/libbpf/actions/workflows/ondemand.yml
+
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210817190923.3186725-1-yhs@fb.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_ctrl.c | 78 ++++++++++++++++++--------------
- 1 file changed, 44 insertions(+), 34 deletions(-)
+ .../selftests/bpf/prog_tests/send_signal.c       | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-index eaddfd739885..30d20e3beb29 100644
---- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
-+++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-@@ -81,13 +81,6 @@ struct dp_ctrl_private {
- 	struct completion video_comp;
- };
+diff --git a/tools/testing/selftests/bpf/prog_tests/send_signal.c b/tools/testing/selftests/bpf/prog_tests/send_signal.c
+index 7043e6ded0e6..75b72c751772 100644
+--- a/tools/testing/selftests/bpf/prog_tests/send_signal.c
++++ b/tools/testing/selftests/bpf/prog_tests/send_signal.c
+@@ -1,5 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <test_progs.h>
++#include <sys/time.h>
++#include <sys/resource.h>
+ #include "test_send_signal_kern.skel.h"
  
--struct dp_cr_status {
--	u8 lane_0_1;
--	u8 lane_2_3;
--};
--
--#define DP_LANE0_1_CR_DONE	0x11
--
- static int dp_aux_link_configure(struct drm_dp_aux *aux,
- 					struct dp_link_info *link)
- {
-@@ -1078,7 +1071,7 @@ static int dp_ctrl_read_link_status(struct dp_ctrl_private *ctrl,
- }
- 
- static int dp_ctrl_link_train_1(struct dp_ctrl_private *ctrl,
--		struct dp_cr_status *cr, int *training_step)
-+			int *training_step)
- {
- 	int tries, old_v_level, ret = 0;
- 	u8 link_status[DP_LINK_STATUS_SIZE];
-@@ -1107,9 +1100,6 @@ static int dp_ctrl_link_train_1(struct dp_ctrl_private *ctrl,
- 		if (ret)
- 			return ret;
- 
--		cr->lane_0_1 = link_status[0];
--		cr->lane_2_3 = link_status[1];
--
- 		if (drm_dp_clock_recovery_ok(link_status,
- 			ctrl->link->link_params.num_lanes)) {
- 			return 0;
-@@ -1186,7 +1176,7 @@ static void dp_ctrl_clear_training_pattern(struct dp_ctrl_private *ctrl)
- }
- 
- static int dp_ctrl_link_train_2(struct dp_ctrl_private *ctrl,
--		struct dp_cr_status *cr, int *training_step)
-+			int *training_step)
- {
- 	int tries = 0, ret = 0;
- 	char pattern;
-@@ -1202,10 +1192,6 @@ static int dp_ctrl_link_train_2(struct dp_ctrl_private *ctrl,
- 	else
- 		pattern = DP_TRAINING_PATTERN_2;
- 
--	ret = dp_ctrl_update_vx_px(ctrl);
--	if (ret)
--		return ret;
--
- 	ret = dp_catalog_ctrl_set_pattern(ctrl->catalog, pattern);
- 	if (ret)
- 		return ret;
-@@ -1218,8 +1204,6 @@ static int dp_ctrl_link_train_2(struct dp_ctrl_private *ctrl,
- 		ret = dp_ctrl_read_link_status(ctrl, link_status);
- 		if (ret)
- 			return ret;
--		cr->lane_0_1 = link_status[0];
--		cr->lane_2_3 = link_status[1];
- 
- 		if (drm_dp_channel_eq_ok(link_status,
- 			ctrl->link->link_params.num_lanes)) {
-@@ -1239,7 +1223,7 @@ static int dp_ctrl_link_train_2(struct dp_ctrl_private *ctrl,
- static int dp_ctrl_reinitialize_mainlink(struct dp_ctrl_private *ctrl);
- 
- static int dp_ctrl_link_train(struct dp_ctrl_private *ctrl,
--		struct dp_cr_status *cr, int *training_step)
-+			int *training_step)
- {
- 	int ret = 0;
- 	u8 encoding = DP_SET_ANSI_8B10B;
-@@ -1255,7 +1239,7 @@ static int dp_ctrl_link_train(struct dp_ctrl_private *ctrl,
- 	drm_dp_dpcd_write(ctrl->aux, DP_MAIN_LINK_CHANNEL_CODING_SET,
- 				&encoding, 1);
- 
--	ret = dp_ctrl_link_train_1(ctrl, cr, training_step);
-+	ret = dp_ctrl_link_train_1(ctrl, training_step);
- 	if (ret) {
- 		DRM_ERROR("link training #1 failed. ret=%d\n", ret);
- 		goto end;
-@@ -1264,7 +1248,7 @@ static int dp_ctrl_link_train(struct dp_ctrl_private *ctrl,
- 	/* print success info as this is a result of user initiated action */
- 	DRM_DEBUG_DP("link training #1 successful\n");
- 
--	ret = dp_ctrl_link_train_2(ctrl, cr, training_step);
-+	ret = dp_ctrl_link_train_2(ctrl, training_step);
- 	if (ret) {
- 		DRM_ERROR("link training #2 failed. ret=%d\n", ret);
- 		goto end;
-@@ -1280,7 +1264,7 @@ static int dp_ctrl_link_train(struct dp_ctrl_private *ctrl,
- }
- 
- static int dp_ctrl_setup_main_link(struct dp_ctrl_private *ctrl,
--		struct dp_cr_status *cr, int *training_step)
-+			int *training_step)
- {
- 	int ret = 0;
- 
-@@ -1295,7 +1279,7 @@ static int dp_ctrl_setup_main_link(struct dp_ctrl_private *ctrl,
- 	 * a link training pattern, we have to first do soft reset.
- 	 */
- 
--	ret = dp_ctrl_link_train(ctrl, cr, training_step);
-+	ret = dp_ctrl_link_train(ctrl, training_step);
- 
- 	return ret;
- }
-@@ -1492,14 +1476,13 @@ static int dp_ctrl_deinitialize_mainlink(struct dp_ctrl_private *ctrl)
- static int dp_ctrl_link_maintenance(struct dp_ctrl_private *ctrl)
- {
- 	int ret = 0;
--	struct dp_cr_status cr;
- 	int training_step = DP_TRAINING_NONE;
- 
- 	dp_ctrl_push_idle(&ctrl->dp_ctrl);
- 
- 	ctrl->dp_ctrl.pixel_rate = ctrl->panel->dp_mode.drm_mode.clock;
- 
--	ret = dp_ctrl_setup_main_link(ctrl, &cr, &training_step);
-+	ret = dp_ctrl_setup_main_link(ctrl, &training_step);
- 	if (ret)
- 		goto end;
- 
-@@ -1630,6 +1613,25 @@ void dp_ctrl_handle_sink_request(struct dp_ctrl *dp_ctrl)
+ static volatile int sigusr1_received = 0;
+@@ -41,12 +43,23 @@ static void test_send_signal_common(struct perf_event_attr *attr,
  	}
- }
  
-+static bool dp_ctrl_clock_recovery_any_ok(
-+			const u8 link_status[DP_LINK_STATUS_SIZE],
-+			int lane_count)
-+{
-+	int reduced_cnt;
+ 	if (pid == 0) {
++		int old_prio;
 +
-+	if (lane_count <= 1)
-+		return false;
-+
-+	/*
-+	 * only interested in the lane number after reduced
-+	 * lane_count = 4, then only interested in 2 lanes
-+	 * lane_count = 2, then only interested in 1 lane
-+	 */
-+	reduced_cnt = lane_count >> 1;
-+
-+	return drm_dp_clock_recovery_ok(link_status, reduced_cnt);
-+}
-+
- int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
- {
- 	int rc = 0;
-@@ -1637,7 +1639,7 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
- 	u32 rate = 0;
- 	int link_train_max_retries = 5;
- 	u32 const phy_cts_pixel_clk_khz = 148500;
--	struct dp_cr_status cr;
-+	u8 link_status[DP_LINK_STATUS_SIZE];
- 	unsigned int training_step;
+ 		/* install signal handler and notify parent */
+ 		signal(SIGUSR1, sigusr1_handler);
  
- 	if (!dp_ctrl)
-@@ -1677,19 +1679,21 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
- 		}
+ 		close(pipe_c2p[0]); /* close read */
+ 		close(pipe_p2c[1]); /* close write */
  
- 		training_step = DP_TRAINING_NONE;
--		rc = dp_ctrl_setup_main_link(ctrl, &cr, &training_step);
-+		rc = dp_ctrl_setup_main_link(ctrl, &training_step);
- 		if (rc == 0) {
- 			/* training completed successfully */
- 			break;
- 		} else if (training_step == DP_TRAINING_1) {
- 			/* link train_1 failed */
--			if (!dp_catalog_link_is_connected(ctrl->catalog)) {
-+			if (!dp_catalog_link_is_connected(ctrl->catalog))
- 				break;
--			}
++		/* boost with a high priority so we got a higher chance
++		 * that if an interrupt happens, the underlying task
++		 * is this process.
++		 */
++		errno = 0;
++		old_prio = getpriority(PRIO_PROCESS, 0);
++		ASSERT_OK(errno, "getpriority");
++		ASSERT_OK(setpriority(PRIO_PROCESS, 0, -20), "setpriority");
 +
-+			dp_ctrl_read_link_status(ctrl, link_status);
+ 		/* notify parent signal handler is installed */
+ 		CHECK(write(pipe_c2p[1], buf, 1) != 1, "pipe_write", "err %d\n", -errno);
  
- 			rc = dp_ctrl_link_rate_down_shift(ctrl);
- 			if (rc < 0) { /* already in RBR = 1.6G */
--				if (cr.lane_0_1 & DP_LANE0_1_CR_DONE) {
-+				if (dp_ctrl_clock_recovery_any_ok(link_status,
-+					ctrl->link->link_params.num_lanes)) {
- 					/*
- 					 * some lanes are ready,
- 					 * reduce lane number
-@@ -1705,12 +1709,18 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
- 				}
- 			}
- 		} else if (training_step == DP_TRAINING_2) {
--			/* link train_2 failed, lower lane rate */
--			if (!dp_catalog_link_is_connected(ctrl->catalog)) {
-+			/* link train_2 failed */
-+			if (!dp_catalog_link_is_connected(ctrl->catalog))
- 				break;
--			}
+@@ -62,6 +75,9 @@ static void test_send_signal_common(struct perf_event_attr *attr,
+ 		/* wait for parent notification and exit */
+ 		CHECK(read(pipe_p2c[0], buf, 1) != 1, "pipe_read", "err %d\n", -errno);
  
--			rc = dp_ctrl_link_lane_down_shift(ctrl);
-+			dp_ctrl_read_link_status(ctrl, link_status);
++		/* restore the old priority */
++		ASSERT_OK(setpriority(PRIO_PROCESS, 0, old_prio), "setpriority");
 +
-+			if (!drm_dp_clock_recovery_ok(link_status,
-+					ctrl->link->link_params.num_lanes))
-+				rc = dp_ctrl_link_rate_down_shift(ctrl);
-+			else
-+				rc = dp_ctrl_link_lane_down_shift(ctrl);
-+
- 			if (rc < 0) {
- 				/* end with failure */
- 				break; /* lane == 1 already */
+ 		close(pipe_c2p[1]);
+ 		close(pipe_p2c[0]);
+ 		exit(0);
 -- 
 2.30.2
 
