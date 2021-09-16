@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D2F40DF34
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D231C40E551
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232332AbhIPQHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:07:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
+        id S1345052AbhIPRK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:10:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233219AbhIPQHK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:07:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D055661261;
-        Thu, 16 Sep 2021 16:05:49 +0000 (UTC)
+        id S1349946AbhIPRH7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:07:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7048C60E54;
+        Thu, 16 Sep 2021 16:36:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808350;
-        bh=t6xbDUtGupDzcGxTITp17lxS6T+CZ8laWc9Bu/yxFiA=;
+        s=korg; t=1631810203;
+        bh=zbUiBWOE5ZgEzv+4F+zt20ryl/sw96hGxB3ORZm8ZJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q+2Jtp95jAq1aOw/6ggGxKaz8xHvgBt1+Oz1j9e1J4xW/NXDUzhOxl3o/KlKX5x+f
-         JDNlkDyLN0tpYOqsZan8sV5uD9ZHBxnsTBQEjufCn25S2TniD2pRK7R1cdxhEln4aL
-         SSOZ29pijupB7/ej0Deumcx7RH2xl8V32oilKOnc=
+        b=zsjj3grEc6eiab5hx43aIpRzpKaVau89OCCARvMDgQEL08eTqdiLfleLymZAHcprn
+         K5CfhOEy2qF1uHpR8uTz4Du5viinkEX53pvkZcEogcXxNM1XU1Cw+FIPjH99iqgSZj
+         Q+iC9+lhwm9SRxIfE61XEAx7/MyLgcpdbY5+8WMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/306] pinctrl: armada-37xx: Correct PWM pins definitions
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 5.14 053/432] nvmem: core: fix error handling while validating keepout regions
 Date:   Thu, 16 Sep 2021 17:56:42 +0200
-Message-Id: <20210916155755.888581030@linuxfoundation.org>
+Message-Id: <20210916155812.597214198@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,103 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit baf8d6899b1e8906dc076ef26cc633e96a8bb0c3 ]
+commit de0534df93474f268486c486ea7e01b44a478026 upstream.
 
-The PWM pins on North Bridge on Armada 37xx can be configured into PWM
-or GPIO functions. When in PWM function, each pin can also be configured
-to drive low on 0 and tri-state on 1 (LED mode).
+Current error path on failure of validating keepout regions is calling
+put_device, eventhough the device is not even registered at that point.
 
-The current definitions handle this by declaring two pin groups for each
-pin:
-- group "pwmN" with functions "pwm" and "gpio"
-- group "ledN_od" ("od" for open drain) with functions "led" and "gpio"
+Fix this by adding proper error handling of freeing ida and nvmem.
 
-This is semantically incorrect. The correct definition for each pin
-should be one group with three functions: "pwm", "led" and "gpio".
-
-Change the "pwmN" groups to support "led" function.
-
-Remove "ledN_od" groups. This cannot break backwards compatibility with
-older device trees: no device tree uses it since there is no PWM driver
-for this SOC yet. Also "ledN_od" groups are not even documented.
-
-Fixes: b835d6953009 ("pinctrl: armada-37xx: swap polarity on LED group")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20210719112938.27594-1-kabel@kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fd3bb8f54a88 ("nvmem: core: Add support for keepout regions")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210806085947.22682-5-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../pinctrl/marvell,armada-37xx-pinctrl.txt      |  8 ++++----
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c      | 16 ++++++++--------
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/nvmem/core.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt b/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
-index 38dc56a57760..ecec514b3155 100644
---- a/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
-+++ b/Documentation/devicetree/bindings/pinctrl/marvell,armada-37xx-pinctrl.txt
-@@ -43,19 +43,19 @@ group emmc_nb
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -824,8 +824,11 @@ struct nvmem_device *nvmem_register(cons
  
- group pwm0
-  - pin 11 (GPIO1-11)
-- - functions pwm, gpio
-+ - functions pwm, led, gpio
+ 	if (nvmem->nkeepout) {
+ 		rval = nvmem_validate_keepouts(nvmem);
+-		if (rval)
+-			goto err_put_device;
++		if (rval) {
++			ida_free(&nvmem_ida, nvmem->id);
++			kfree(nvmem);
++			return ERR_PTR(rval);
++		}
+ 	}
  
- group pwm1
-  - pin 12
-- - functions pwm, gpio
-+ - functions pwm, led, gpio
- 
- group pwm2
-  - pin 13
-- - functions pwm, gpio
-+ - functions pwm, led, gpio
- 
- group pwm3
-  - pin 14
-- - functions pwm, gpio
-+ - functions pwm, led, gpio
- 
- group pmic1
-  - pin 7
-diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-index 5a68e242f6b3..5cb018f98800 100644
---- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-@@ -167,10 +167,14 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
- 	PIN_GRP_GPIO("jtag", 20, 5, BIT(0), "jtag"),
- 	PIN_GRP_GPIO("sdio0", 8, 3, BIT(1), "sdio"),
- 	PIN_GRP_GPIO("emmc_nb", 27, 9, BIT(2), "emmc"),
--	PIN_GRP_GPIO("pwm0", 11, 1, BIT(3), "pwm"),
--	PIN_GRP_GPIO("pwm1", 12, 1, BIT(4), "pwm"),
--	PIN_GRP_GPIO("pwm2", 13, 1, BIT(5), "pwm"),
--	PIN_GRP_GPIO("pwm3", 14, 1, BIT(6), "pwm"),
-+	PIN_GRP_GPIO_3("pwm0", 11, 1, BIT(3) | BIT(20), 0, BIT(20), BIT(3),
-+		       "pwm", "led"),
-+	PIN_GRP_GPIO_3("pwm1", 12, 1, BIT(4) | BIT(21), 0, BIT(21), BIT(4),
-+		       "pwm", "led"),
-+	PIN_GRP_GPIO_3("pwm2", 13, 1, BIT(5) | BIT(22), 0, BIT(22), BIT(5),
-+		       "pwm", "led"),
-+	PIN_GRP_GPIO_3("pwm3", 14, 1, BIT(6) | BIT(23), 0, BIT(23), BIT(6),
-+		       "pwm", "led"),
- 	PIN_GRP_GPIO("pmic1", 7, 1, BIT(7), "pmic"),
- 	PIN_GRP_GPIO("pmic0", 6, 1, BIT(8), "pmic"),
- 	PIN_GRP_GPIO("i2c2", 2, 2, BIT(9), "i2c"),
-@@ -184,10 +188,6 @@ static struct armada_37xx_pin_group armada_37xx_nb_groups[] = {
- 	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
- 		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
- 		      18, 2, "gpio", "uart"),
--	PIN_GRP_GPIO_2("led0_od", 11, 1, BIT(20), BIT(20), 0, "led"),
--	PIN_GRP_GPIO_2("led1_od", 12, 1, BIT(21), BIT(21), 0, "led"),
--	PIN_GRP_GPIO_2("led2_od", 13, 1, BIT(22), BIT(22), 0, "led"),
--	PIN_GRP_GPIO_2("led3_od", 14, 1, BIT(23), BIT(23), 0, "led"),
- };
- 
- static struct armada_37xx_pin_group armada_37xx_sb_groups[] = {
--- 
-2.30.2
-
+ 	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
 
 
