@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60E2440E56F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0F0340DF00
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350591AbhIPRLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:11:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37128 "EHLO mail.kernel.org"
+        id S240615AbhIPQF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:05:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350157AbhIPRJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:09:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22EF0619E1;
-        Thu, 16 Sep 2021 16:37:06 +0000 (UTC)
+        id S240664AbhIPQFx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:05:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC3AA61250;
+        Thu, 16 Sep 2021 16:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810227;
-        bh=c4V6EWY3Wn/cNSs1oKxOGg3WnslcDrOHs2+AwiRU454=;
+        s=korg; t=1631808272;
+        bh=9ys4q/Cq6uxiYo0LVkXwRkBOrR9jLBigOEKO29P6kHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z3fofGf9dEhOmJCQs+0OppsowSgkmZAQQOc2fhjrlriUyG1T6LHlfLSUNnebr/Yvf
-         YStc+qLKoP1q6gvCya7/pJZ8h9TgNAG7iuIEP6Huz9nPuXnqtzAIi5E8zXlyETh4gI
-         E3gQmVn1r0gH73IHP//K1iclnpAxyyqJsOWLhzbw=
+        b=EraNnlEvjWlKGCqj68RVYDaGJtq0kBd6PSRa3eIDjDBgvwjlggs9gDBq88u5uKa9F
+         6YCcz5cnLxJnMHiZPT82IombYNk+Jb1m70pdw8GgX7L5uPlmsyaMTjttMJG1P7RStP
+         nk27Q6N7A0fgo+i7t/Xh9OqiSj5ALQaC0T9JlghQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
-        Jan Beulich <jbeulich@suse.com>
-Subject: [PATCH 5.14 021/432] xen: fix setting of max_pfn in shared_info
+        stable@vger.kernel.org,
+        Iwona Winiarska <iwona.winiarska@intel.com>,
+        Andrew Jeffery <andrew@aj.id.au>, Joel Stanley <joel@aj.id.au>,
+        Joel Stanley <joel@jms.id.au>
+Subject: [PATCH 5.10 025/306] soc: aspeed: p2a-ctrl: Fix boundary check for mmap
 Date:   Thu, 16 Sep 2021 17:56:10 +0200
-Message-Id: <20210916155811.542000865@linuxfoundation.org>
+Message-Id: <20210916155754.803480552@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juergen Gross <jgross@suse.com>
+From: Iwona Winiarska <iwona.winiarska@intel.com>
 
-commit 4b511d5bfa74b1926daefd1694205c7f1bcf677f upstream.
+commit 8b07e990fb254fcbaa919616ac77f981cb48c73d upstream.
 
-Xen PV guests are specifying the highest used PFN via the max_pfn
-field in shared_info. This value is used by the Xen tools when saving
-or migrating the guest.
+The check mixes pages (vm_pgoff) with bytes (vm_start, vm_end) on one
+side of the comparison, and uses resource address (rather than just the
+resource size) on the other side of the comparison.
+This can allow malicious userspace to easily bypass the boundary check and
+map pages that are located outside memory-region reserved by the driver.
 
-Unfortunately this field is misnamed, as in reality it is specifying
-the number of pages (including any memory holes) of the guest, so it
-is the highest used PFN + 1. Renaming isn't possible, as this is a
-public Xen hypervisor interface which needs to be kept stable.
-
-The kernel will set the value correctly initially at boot time, but
-when adding more pages (e.g. due to memory hotplug or ballooning) a
-real PFN number is stored in max_pfn. This is done when expanding the
-p2m array, and the PFN stored there is even possibly wrong, as it
-should be the last possible PFN of the just added P2M frame, and not
-one which led to the P2M expansion.
-
-Fix that by setting shared_info->max_pfn to the last possible PFN + 1.
-
-Fixes: 98dd166ea3a3c3 ("x86/xen/p2m: hint at the last populated P2M entry")
+Fixes: 01c60dcea9f7 ("drivers/misc: Add Aspeed P2A control driver")
 Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Jan Beulich <jbeulich@suse.com>
-Link: https://lore.kernel.org/r/20210730092622.9973-2-jgross@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Iwona Winiarska <iwona.winiarska@intel.com>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Tested-by: Andrew Jeffery <andrew@aj.id.au>
+Reviewed-by: Joel Stanley <joel@aj.id.au>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/xen/p2m.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/soc/aspeed/aspeed-p2a-ctrl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -618,8 +618,8 @@ int xen_alloc_p2m_entry(unsigned long pf
- 	}
+--- a/drivers/soc/aspeed/aspeed-p2a-ctrl.c
++++ b/drivers/soc/aspeed/aspeed-p2a-ctrl.c
+@@ -110,7 +110,7 @@ static int aspeed_p2a_mmap(struct file *
+ 	vsize = vma->vm_end - vma->vm_start;
+ 	prot = vma->vm_page_prot;
  
- 	/* Expanded the p2m? */
--	if (pfn > xen_p2m_last_pfn) {
--		xen_p2m_last_pfn = pfn;
-+	if (pfn >= xen_p2m_last_pfn) {
-+		xen_p2m_last_pfn = ALIGN(pfn + 1, P2M_PER_PAGE);
- 		HYPERVISOR_shared_info->arch.max_pfn = xen_p2m_last_pfn;
- 	}
+-	if (vma->vm_pgoff + vsize > ctrl->mem_base + ctrl->mem_size)
++	if (vma->vm_pgoff + vma_pages(vma) > ctrl->mem_size >> PAGE_SHIFT)
+ 		return -EINVAL;
  
+ 	/* ast2400/2500 AHB accesses are not cache coherent */
 
 
