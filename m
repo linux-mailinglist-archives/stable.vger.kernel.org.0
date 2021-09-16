@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B469540E100
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52F9840E103
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241908AbhIPQ00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:26:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59936 "EHLO mail.kernel.org"
+        id S241941AbhIPQ02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:26:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242077AbhIPQYY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:24:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E262F6127B;
-        Thu, 16 Sep 2021 16:16:16 +0000 (UTC)
+        id S242112AbhIPQY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:24:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A95EC61350;
+        Thu, 16 Sep 2021 16:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808977;
-        bh=DPwHQ/O2t7CmzyS/XLygN1/o/YYDUSrXHbgLso137Ik=;
+        s=korg; t=1631808980;
+        bh=rWNi77wSCjZjarPicrsk0idQ5DGpAWrXi7WaW93lZ6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nYMQPFwsBA1UKJf/OyO8ZTGI+72/I1bana13ERT9t7fN5Sbq++iDJIiS8x2XhczKE
-         XT3w8WUpOwe0CKC9IUJGN2KmHiOlLI+qfaEba9IcDCRyVFIsT3DqZIpI/hiQZo+z/c
-         YaIwSsJQVOUMajzcJ7wIxwuc6mnZPfy3PX4syLSk=
+        b=kQ2gXQE8KAqRgU/HtACos4ehCHwNfOCR9yRbueiGtqtUo584YnIo1b23YlEqE0OrJ
+         gM1EjgYHmLDnkBMWlXLBgJ3+Jo0xxzvHamGSZeT1LdXmY29dnwrEgC3/OzBguPJOUT
+         g0e/a6moLdfGNHdKJqL5Lmv0nxz08R14Et+DCVB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Patryk Duda <pdk@semihalf.com>,
-        Benson Leung <bleung@chromium.org>
-Subject: [PATCH 5.10 293/306] platform/chrome: cros_ec_proto: Send command again when timeout occurs
-Date:   Thu, 16 Sep 2021 18:00:38 +0200
-Message-Id: <20210916155804.090816696@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.10 294/306] lib/test_stackinit: Fix static initializer test
+Date:   Thu, 16 Sep 2021 18:00:39 +0200
+Message-Id: <20210916155804.121940814@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
 References: <20210916155753.903069397@linuxfoundation.org>
@@ -39,41 +39,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patryk Duda <pdk@semihalf.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 3abc16af57c9939724df92fcbda296b25cc95168 upstream.
+commit f9398f15605a50110bf570aaa361163a85113dd1 upstream.
 
-Sometimes kernel is trying to probe Fingerprint MCU (FPMCU) when it
-hasn't initialized SPI yet. This can happen because FPMCU is restarted
-during system boot and kernel can send message in short window
-eg. between sysjump to RW and SPI initialization.
+The static initializer test got accidentally converted to a dynamic
+initializer. Fix this and retain the giant padding hole without using
+an aligned struct member.
 
-Cc: <stable@vger.kernel.org> # 4.4+
-Signed-off-by: Patryk Duda <pdk@semihalf.com>
-Link: https://lore.kernel.org/r/20210518140758.29318-1-pdk@semihalf.com
-Signed-off-by: Benson Leung <bleung@chromium.org>
+Fixes: 50ceaa95ea09 ("lib: Introduce test_stackinit module")
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210723221933.3431999-2-keescook@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/chrome/cros_ec_proto.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ lib/test_stackinit.c |   20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
 
---- a/drivers/platform/chrome/cros_ec_proto.c
-+++ b/drivers/platform/chrome/cros_ec_proto.c
-@@ -279,6 +279,15 @@ static int cros_ec_host_command_proto_qu
- 	msg->insize = sizeof(struct ec_response_get_protocol_info);
+--- a/lib/test_stackinit.c
++++ b/lib/test_stackinit.c
+@@ -67,10 +67,10 @@ static bool range_contains(char *haystac
+ #define INIT_STRUCT_none		/**/
+ #define INIT_STRUCT_zero		= { }
+ #define INIT_STRUCT_static_partial	= { .two = 0, }
+-#define INIT_STRUCT_static_all		= { .one = arg->one,		\
+-					    .two = arg->two,		\
+-					    .three = arg->three,	\
+-					    .four = arg->four,		\
++#define INIT_STRUCT_static_all		= { .one = 0,			\
++					    .two = 0,			\
++					    .three = 0,			\
++					    .four = 0,			\
+ 					}
+ #define INIT_STRUCT_dynamic_partial	= { .two = arg->two, }
+ #define INIT_STRUCT_dynamic_all		= { .one = arg->one,		\
+@@ -84,8 +84,7 @@ static bool range_contains(char *haystac
+ 					var.one = 0;			\
+ 					var.two = 0;			\
+ 					var.three = 0;			\
+-					memset(&var.four, 0,		\
+-					       sizeof(var.four))
++					var.four = 0
  
- 	ret = send_command(ec_dev, msg);
-+	/*
-+	 * Send command once again when timeout occurred.
-+	 * Fingerprint MCU (FPMCU) is restarted during system boot which
-+	 * introduces small window in which FPMCU won't respond for any
-+	 * messages sent by kernel. There is no need to wait before next
-+	 * attempt because we waited at least EC_MSG_DEADLINE_MS.
-+	 */
-+	if (ret == -ETIMEDOUT)
-+		ret = send_command(ec_dev, msg);
+ /*
+  * @name: unique string name for the test
+@@ -210,18 +209,13 @@ struct test_small_hole {
+ 	unsigned long four;
+ };
  
- 	if (ret < 0) {
- 		dev_dbg(ec_dev->dev,
+-/* Try to trigger unhandled padding in a structure. */
+-struct test_aligned {
+-	u32 internal1;
+-	u64 internal2;
+-} __aligned(64);
+-
++/* Trigger unhandled padding in a structure. */
+ struct test_big_hole {
+ 	u8 one;
+ 	u8 two;
+ 	u8 three;
+ 	/* 61 byte padding hole here. */
+-	struct test_aligned four;
++	u8 four __aligned(64);
+ } __aligned(64);
+ 
+ struct test_trailing_hole {
 
 
