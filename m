@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9573040E751
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E5CB40E0C1
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243961AbhIPRbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:31:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47082 "EHLO mail.kernel.org"
+        id S240788AbhIPQXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:23:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352831AbhIPR25 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:28:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA37D61A56;
-        Thu, 16 Sep 2021 16:45:59 +0000 (UTC)
+        id S240632AbhIPQVV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:21:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A9B8613A9;
+        Thu, 16 Sep 2021 16:14:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810760;
-        bh=4YGcCdxw4MTG0LbsryXAkz2ES/z/GJ0yp39prEeTR7o=;
+        s=korg; t=1631808891;
+        bh=BZrkluB2099K/J1qS8KSKoiffuQQBK2F02rugxMspQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pzlbx05rGYF3lFPb3c1WaZ1RiatG5R1bjyaJ5CDwDusDjGG9O3LNcOFbhHWPeRZmv
-         99io6Fy+DiZjZ2i4KwwghrlS036H0PB3nRwmtn/uBVuJW6wetdGON6Z4OAXgeAs7oQ
-         f01moEEk93SU3OdnpZgeK3spHhhFRUJQjKZhoCTU=
+        b=NzuBYgf5al87MWapcPX97wtEuPNpclgoTyrSUBZ6E2ZjHRYsML2YLDc7MhmaSKvvS
+         Fjs/sM4onvBtYb9MZ2oMKd9vbPiuDpIXsOqTVk3Kb2Y8VP3ik2rF/IO7eBRggBpNmY
+         S7IhY7M7+Md+xOLP3idikl0SpR3mQdlSwhBV1GHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 257/432] media: imx: imx7-media-csi: Fix buffer return upon stream start failure
+Subject: [PATCH 5.10 261/306] iwlwifi: pcie: free RBs during configure
 Date:   Thu, 16 Sep 2021 18:00:06 +0200
-Message-Id: <20210916155819.531823738@linuxfoundation.org>
+Message-Id: <20210916155802.970532519@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 0ada1697ed4256b38225319c9896661142a3572d ]
+[ Upstream commit 6ac5720086c8b176794eb74c5cc09f8b79017f38 ]
 
-When the stream fails to start, the first two buffers in the queue have
-been moved to the active_vb2_buf array and are returned to vb2 by
-imx7_csi_dma_unsetup_vb2_buf(). The function is called with the buffer
-state set to VB2_BUF_STATE_ERROR unconditionally, which is correct when
-stopping the stream, but not when the start operation fails. In that
-case, the state should be set to VB2_BUF_STATE_QUEUED. Fix it.
+When switching op-modes, or more generally when reconfiguring,
+we might switch the RB size. In _iwl_pcie_rx_init() we have a
+comment saying we must free all RBs since we might switch the
+size, but this is actually too late: the switch has been done
+and we'll free the buffers with the wrong size.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Tested-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fix this by always freeing the buffers, if any, at the start
+of configure, instead of only after the size may have changed.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210802170640.42d7c93279c4.I07f74e65aab0e3d965a81206fcb289dc92d74878@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx7-media-csi.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/rx.c    | 5 ++++-
+ drivers/net/wireless/intel/iwlwifi/pcie/trans.c | 3 +++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
-index 894c4de31790..2882964b8513 100644
---- a/drivers/staging/media/imx/imx7-media-csi.c
-+++ b/drivers/staging/media/imx/imx7-media-csi.c
-@@ -361,6 +361,7 @@ static void imx7_csi_dma_unsetup_vb2_buf(struct imx7_csi *csi,
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+index 94299f259518..2c13fa8f2820 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+@@ -544,6 +544,9 @@ void iwl_pcie_free_rbs_pool(struct iwl_trans *trans)
+ 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+ 	int i;
  
- 			vb->timestamp = ktime_get_ns();
- 			vb2_buffer_done(vb, return_status);
-+			csi->active_vb2_buf[i] = NULL;
- 		}
- 	}
- }
-@@ -386,9 +387,10 @@ static int imx7_csi_dma_setup(struct imx7_csi *csi)
- 	return 0;
- }
++	if (!trans_pcie->rx_pool)
++		return;
++
+ 	for (i = 0; i < RX_POOL_SIZE(trans_pcie->num_rx_bufs); i++) {
+ 		if (!trans_pcie->rx_pool[i].page)
+ 			continue;
+@@ -1094,7 +1097,7 @@ static int _iwl_pcie_rx_init(struct iwl_trans *trans)
+ 	INIT_LIST_HEAD(&rba->rbd_empty);
+ 	spin_unlock(&rba->lock);
  
--static void imx7_csi_dma_cleanup(struct imx7_csi *csi)
-+static void imx7_csi_dma_cleanup(struct imx7_csi *csi,
-+				 enum vb2_buffer_state return_status)
+-	/* free all first - we might be reconfigured for a different size */
++	/* free all first - we overwrite everything here */
+ 	iwl_pcie_free_rbs_pool(trans);
+ 
+ 	for (i = 0; i < RX_QUEUE_SIZE; i++)
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+index bb990be7c870..082768ec8aa8 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans.c
+@@ -1909,6 +1909,9 @@ static void iwl_trans_pcie_configure(struct iwl_trans *trans,
  {
--	imx7_csi_dma_unsetup_vb2_buf(csi, VB2_BUF_STATE_ERROR);
-+	imx7_csi_dma_unsetup_vb2_buf(csi, return_status);
- 	imx_media_free_dma_buf(csi->dev, &csi->underrun_buf);
- }
+ 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
  
-@@ -537,9 +539,10 @@ static int imx7_csi_init(struct imx7_csi *csi)
- 	return 0;
- }
- 
--static void imx7_csi_deinit(struct imx7_csi *csi)
-+static void imx7_csi_deinit(struct imx7_csi *csi,
-+			    enum vb2_buffer_state return_status)
- {
--	imx7_csi_dma_cleanup(csi);
-+	imx7_csi_dma_cleanup(csi, return_status);
- 	imx7_csi_init_default(csi);
- 	imx7_csi_dmareq_rff_disable(csi);
- 	clk_disable_unprepare(csi->mclk);
-@@ -702,7 +705,7 @@ static int imx7_csi_s_stream(struct v4l2_subdev *sd, int enable)
- 
- 		ret = v4l2_subdev_call(csi->src_sd, video, s_stream, 1);
- 		if (ret < 0) {
--			imx7_csi_deinit(csi);
-+			imx7_csi_deinit(csi, VB2_BUF_STATE_QUEUED);
- 			goto out_unlock;
- 		}
- 
-@@ -712,7 +715,7 @@ static int imx7_csi_s_stream(struct v4l2_subdev *sd, int enable)
- 
- 		v4l2_subdev_call(csi->src_sd, video, s_stream, 0);
- 
--		imx7_csi_deinit(csi);
-+		imx7_csi_deinit(csi, VB2_BUF_STATE_ERROR);
- 	}
- 
- 	csi->is_streaming = !!enable;
++	/* free all first - we might be reconfigured for a different size */
++	iwl_pcie_free_rbs_pool(trans);
++
+ 	trans->txqs.cmd.q_id = trans_cfg->cmd_queue;
+ 	trans->txqs.cmd.fifo = trans_cfg->cmd_fifo;
+ 	trans->txqs.cmd.wdg_timeout = trans_cfg->cmd_q_wdg_timeout;
 -- 
 2.30.2
 
