@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 220F640E60E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 172DF40DFB1
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350925AbhIPRRa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:17:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41020 "EHLO mail.kernel.org"
+        id S237251AbhIPQNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:13:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351286AbhIPRPX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:15:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D39396141B;
-        Thu, 16 Sep 2021 16:39:41 +0000 (UTC)
+        id S238278AbhIPQLP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:11:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 913A96136A;
+        Thu, 16 Sep 2021 16:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810382;
-        bh=qLNaAOyqoAqpNxxCdY/eg9rS4f8tRtYL9hWufE04kGs=;
+        s=korg; t=1631808528;
+        bh=35atDnHr5kKPvD7ZRVCpmrxJQhwkKsyZnBkWc0xcL9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hfJOtH7myOh5QlHCn7Ipbs9Z4sAv4+3z4G3+n9nHgdVzOy8xAPWHFCVQum/ypDG0c
-         lITdJ7itsUNcVdrPzeW7l5SYzTQLSKVgSffQFdXMCBXRyJHya5xh3sNe5lfqoM+Ab3
-         E9tc9CdTyDnUViDzSF77s4EvG9q8qg5jtUooRnn0=
+        b=EEGuITG7Jxen2hdBhdfW+d0a0vujXLOJifdZDUEUqm/T/OriQWaFqd4EZhTKxUeno
+         oBfG5IWMVTk4AP/t3EDqK3Ajs4SkWQJmORcoLdsElyjqNUbfJ25/jgOWAYNXVbmkZe
+         mJM/Atq55Gb0/TZP2gYiNdV69OyGvFiDP+Gc8Ni8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 120/432] powerpc/config: Fix IPV6 warning in mpc855_ads
+Subject: [PATCH 5.10 124/306] video: fbdev: kyro: fix a DoS bug by restricting user input
 Date:   Thu, 16 Sep 2021 17:57:49 +0200
-Message-Id: <20210916155814.833165587@linuxfoundation.org>
+Message-Id: <20210916155758.294474070@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit c5ac55b6cbc604ad4144c380feae20f69453df91 ]
+[ Upstream commit 98a65439172dc69cb16834e62e852afc2adb83ed ]
 
-When building this config there's a warning:
+The user can pass in any value to the driver through the 'ioctl'
+interface. The driver dost not check, which may cause DoS bugs.
 
-  79:warning: override: reassigning to symbol IPV6
+The following log reveals it:
 
-Commit 9a1762a4a4ff ("powerpc/8xx: Update mpc885_ads_defconfig to
-improve CI") added CONFIG_IPV6=y, but left '# CONFIG_IPV6 is not set'
-in.
+divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+RIP: 0010:SetOverlayViewPort+0x133/0x5f0 drivers/video/fbdev/kyro/STG4000OverlayDevice.c:476
+Call Trace:
+ kyro_dev_overlay_viewport_set drivers/video/fbdev/kyro/fbdev.c:378 [inline]
+ kyrofb_ioctl+0x2eb/0x330 drivers/video/fbdev/kyro/fbdev.c:603
+ do_fb_ioctl+0x1f3/0x700 drivers/video/fbdev/core/fbmem.c:1171
+ fb_ioctl+0xeb/0x130 drivers/video/fbdev/core/fbmem.c:1185
+ vfs_ioctl fs/ioctl.c:48 [inline]
+ __do_sys_ioctl fs/ioctl.c:753 [inline]
+ __se_sys_ioctl fs/ioctl.c:739 [inline]
+ __x64_sys_ioctl+0x19b/0x220 fs/ioctl.c:739
+ do_syscall_64+0x32/0x80 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-IPV6 is default y, so remove both to clean up the build.
-
-Fixes: 9a1762a4a4ff ("powerpc/8xx: Update mpc885_ads_defconfig to improve CI")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Acked-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210817045407.2445664-2-joel@jms.id.au
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1626235762-2590-1-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/configs/mpc885_ads_defconfig | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/video/fbdev/kyro/fbdev.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/powerpc/configs/mpc885_ads_defconfig b/arch/powerpc/configs/mpc885_ads_defconfig
-index d21f266cea9a..5cd17adf903f 100644
---- a/arch/powerpc/configs/mpc885_ads_defconfig
-+++ b/arch/powerpc/configs/mpc885_ads_defconfig
-@@ -21,7 +21,6 @@ CONFIG_INET=y
- CONFIG_IP_MULTICAST=y
- CONFIG_IP_PNP=y
- CONFIG_SYN_COOKIES=y
--# CONFIG_IPV6 is not set
- # CONFIG_FW_LOADER is not set
- CONFIG_MTD=y
- CONFIG_MTD_BLOCK=y
-@@ -76,7 +75,6 @@ CONFIG_PERF_EVENTS=y
- CONFIG_MATH_EMULATION=y
- CONFIG_VIRT_CPU_ACCOUNTING_NATIVE=y
- CONFIG_STRICT_KERNEL_RWX=y
--CONFIG_IPV6=y
- CONFIG_BPF_JIT=y
- CONFIG_DEBUG_VM_PGTABLE=y
- CONFIG_BDI_SWITCH=y
+diff --git a/drivers/video/fbdev/kyro/fbdev.c b/drivers/video/fbdev/kyro/fbdev.c
+index 8fbde92ae8b9..4b8c7c16b1df 100644
+--- a/drivers/video/fbdev/kyro/fbdev.c
++++ b/drivers/video/fbdev/kyro/fbdev.c
+@@ -372,6 +372,11 @@ static int kyro_dev_overlay_viewport_set(u32 x, u32 y, u32 ulWidth, u32 ulHeight
+ 		/* probably haven't called CreateOverlay yet */
+ 		return -EINVAL;
+ 
++	if (ulWidth == 0 || ulWidth == 0xffffffff ||
++	    ulHeight == 0 || ulHeight == 0xffffffff ||
++	    (x < 2 && ulWidth + 2 == 0))
++		return -EINVAL;
++
+ 	/* Stop Ramdac Output */
+ 	DisableRamdacOutput(deviceInfo.pSTGReg);
+ 
 -- 
 2.30.2
 
