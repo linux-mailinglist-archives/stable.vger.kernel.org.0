@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B72A340E073
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BE1340E3BE
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241383AbhIPQV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59260 "EHLO mail.kernel.org"
+        id S234640AbhIPQvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:51:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241663AbhIPQT6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:19:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17E64613A2;
-        Thu, 16 Sep 2021 16:13:58 +0000 (UTC)
+        id S1344768AbhIPQsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:48:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3FBB61875;
+        Thu, 16 Sep 2021 16:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808839;
-        bh=XTR+57XDiazcQFmw/EHVZma+L7sw9PT7OT1TmqBITX0=;
+        s=korg; t=1631809643;
+        bh=2mOwxmgFZCtHQ0+2X8MGSLYTgNI7A/inLgvNKnDqod0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MGigyVbxHwukrWpBQZBzAVbXN26BF4LKDysrdeIJhiMdjRMBIE670J3tDILGmv6aQ
-         iEzTSE6neJD5y1xtWY0OllAq0A3FomTiP5Ud1TPT5aAizefaCtAR6MHYtYPWyJjtP7
-         P3xTw/ZXbZGcxTGQa1z4qMjqVeCsL5oXhbqxZX7M=
+        b=No6nOAw1lI6ZrgCZui02EAPS+nYh/IWG/gZjccc6G3QOZkW8nmWeijb+rCw1sXq89
+         m+BRrITqrmsbSe1tJFL25uVq2l0vVkMg7MjGWBVEhonVnqeSOfSEigdph4rnVrSDvX
+         hicvl2OR0lQB7ZPOD1gXRPvCGanVUJjdJq6QA3+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Hariprasad Kelam <hkelam@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 240/306] octeontx2-pf: Fix NIX1_RX interface backpressure
-Date:   Thu, 16 Sep 2021 17:59:45 +0200
-Message-Id: <20210916155802.243413967@linuxfoundation.org>
+Subject: [PATCH 5.13 229/380] media: TDA1997x: fix tda1997x_query_dv_timings() return value
+Date:   Thu, 16 Sep 2021 17:59:46 +0200
+Message-Id: <20210916155811.875546135@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Krzysztof Hałasa <khalasa@piap.pl>
 
-[ Upstream commit e8fb4df1f5d84bc08dd4f4827821a851d2eab241 ]
+[ Upstream commit 7dee1030871a48d4f3c5a74227a4b4188463479a ]
 
-'bp_ena' in Aura context is NIX block index, setting it
-zero will always backpressure NIX0 block, even if NIXLF
-belongs to NIX1. Hence fix this by setting it appropriately
-based on NIX block address.
+Correctly propagate the tda1997x_detect_std error value.
 
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Hariprasad Kelam <hkelam@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Krzysztof Hałasa <khalasa@piap.pl>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/marvell/octeontx2/nic/otx2_common.c  | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/media/i2c/tda1997x.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-index df238e46e2ae..b062ed06235d 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-@@ -1129,7 +1129,22 @@ static int otx2_aura_init(struct otx2_nic *pfvf, int aura_id,
- 	/* Enable backpressure for RQ aura */
- 	if (aura_id < pfvf->hw.rqpool_cnt) {
- 		aq->aura.bp_ena = 0;
-+		/* If NIX1 LF is attached then specify NIX1_RX.
-+		 *
-+		 * Below NPA_AURA_S[BP_ENA] is set according to the
-+		 * NPA_BPINTF_E enumeration given as:
-+		 * 0x0 + a*0x1 where 'a' is 0 for NIX0_RX and 1 for NIX1_RX so
-+		 * NIX0_RX is 0x0 + 0*0x1 = 0
-+		 * NIX1_RX is 0x0 + 1*0x1 = 1
-+		 * But in HRM it is given that
-+		 * "NPA_AURA_S[BP_ENA](w1[33:32]) - Enable aura backpressure to
-+		 * NIX-RX based on [BP] level. One bit per NIX-RX; index
-+		 * enumerated by NPA_BPINTF_E."
-+		 */
-+		if (pfvf->nix_blkaddr == BLKADDR_NIX1)
-+			aq->aura.bp_ena = 1;
- 		aq->aura.nix0_bpid = pfvf->bpid[0];
-+
- 		/* Set backpressure level for RQ's Aura */
- 		aq->aura.bp = RQ_BP_LVL_AURA;
- 	}
+diff --git a/drivers/media/i2c/tda1997x.c b/drivers/media/i2c/tda1997x.c
+index 9554c8348c02..17cc69c3227f 100644
+--- a/drivers/media/i2c/tda1997x.c
++++ b/drivers/media/i2c/tda1997x.c
+@@ -1695,14 +1695,15 @@ static int tda1997x_query_dv_timings(struct v4l2_subdev *sd,
+ 				     struct v4l2_dv_timings *timings)
+ {
+ 	struct tda1997x_state *state = to_state(sd);
++	int ret;
+ 
+ 	v4l_dbg(1, debug, state->client, "%s\n", __func__);
+ 	memset(timings, 0, sizeof(struct v4l2_dv_timings));
+ 	mutex_lock(&state->lock);
+-	tda1997x_detect_std(state, timings);
++	ret = tda1997x_detect_std(state, timings);
+ 	mutex_unlock(&state->lock);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static const struct v4l2_subdev_video_ops tda1997x_video_ops = {
 -- 
 2.30.2
 
