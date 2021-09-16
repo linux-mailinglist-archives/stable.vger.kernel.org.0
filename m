@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E3C940E682
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0CDB40DFBD
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:12:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346921AbhIPRWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:22:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43520 "EHLO mail.kernel.org"
+        id S238821AbhIPQNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:13:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351940AbhIPRUA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:20:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8190D61139;
-        Thu, 16 Sep 2021 16:41:52 +0000 (UTC)
+        id S239057AbhIPQLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:11:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6317961371;
+        Thu, 16 Sep 2021 16:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810513;
-        bh=W5i60Y4QgjuME9OVVg9F7XwbHir4B+GwL357gXa7670=;
+        s=korg; t=1631808546;
+        bh=WygAbG7iP1zh71CPbUOS9aJO6ys4FnuEnntvpvMb+oM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8B1OWRSBX0lsJb+HUx8KwT4AxL1dI9HPW9EQxacvRPI8NCEOtn3uEX1aOL8IMLn/
-         tpQEdKdqZ00Kl9U7XqZlAa5nLaLxCfemjirvBX6KfPQq30G3b6W2vycF8pF7UByZvV
-         /d3HRUxHhtLOstzg+WkwGvH3FhH5CdutA9TU5+7o=
+        b=kyjXJLTr/xxldxkV31V5tHBy17nX0U0p/Sbv5mJPMbgUkui2YvjisH6jIfvbFa8mm
+         0OTOXw/F7TOI+3+1Ur+AEWZ8opQB+5ho7Qq4whS62gEuF6784GiOP8RO2yHiHU7raB
+         WoIXgeIKF4Gtlz7Yblo0EowWvMJHCRVJsQnLkwMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Broadus <jbroadus@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 126/432] HID: i2c-hid: Fix Elan touchpad regression
-Date:   Thu, 16 Sep 2021 17:57:55 +0200
-Message-Id: <20210916155815.026708907@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 131/306] igc: Check if num of q_vectors is smaller than max before array access
+Date:   Thu, 16 Sep 2021 17:57:56 +0200
+Message-Id: <20210916155758.522878765@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Broadus <jbroadus@gmail.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit 786537063bbfb3a7ebc6fc21b2baf37fb91df401 ]
+[ Upstream commit 373e2829e7c2e1e606503cdb5c97749f512a4be9 ]
 
-A quirk was recently added for Elan devices that has same device match
-as an entry earlier in the list. The i2c_hid_lookup_quirk function will
-always return the last match in the list, so the new entry shadows the
-old entry. The quirk in the previous entry, I2C_HID_QUIRK_BOGUS_IRQ,
-silenced a flood of messages which have reappeared in the 5.13 kernel.
+Ensure that the adapter->q_vector[MAX_Q_VECTORS] array isn't accessed
+beyond its size. It was fixed by using a local variable num_q_vectors
+as a limit for loop index, and ensure that num_q_vectors is not bigger
+than MAX_Q_VECTORS.
 
-This change moves the two quirk flags into the same entry.
-
-Fixes: ca66a6770bd9 (HID: i2c-hid: Skip ELAN power-on command after reset)
-Signed-off-by: Jim Broadus <jbroadus@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Suggested-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 46474612e73c..517141138b00 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -171,8 +171,6 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_3118,
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
--	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
--		 I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ USB_VENDOR_ID_ALPS_JP, HID_ANY_ID,
- 		 I2C_HID_QUIRK_RESET_ON_RESUME },
- 	{ I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNAPTICS_SYNA2393,
-@@ -183,7 +181,8 @@ static const struct i2c_hid_quirks {
- 	 * Sending the wakeup after reset actually break ELAN touchscreen controller
- 	 */
- 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
--		 I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET },
-+		 I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET |
-+		 I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ 0, 0 }
- };
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index 013dd2955381..cae090a07252 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -4083,6 +4083,7 @@ static irqreturn_t igc_msix_ring(int irq, void *data)
+  */
+ static int igc_request_msix(struct igc_adapter *adapter)
+ {
++	unsigned int num_q_vectors = adapter->num_q_vectors;
+ 	int i = 0, err = 0, vector = 0, free_vector = 0;
+ 	struct net_device *netdev = adapter->netdev;
  
+@@ -4091,7 +4092,13 @@ static int igc_request_msix(struct igc_adapter *adapter)
+ 	if (err)
+ 		goto err_out;
+ 
+-	for (i = 0; i < adapter->num_q_vectors; i++) {
++	if (num_q_vectors > MAX_Q_VECTORS) {
++		num_q_vectors = MAX_Q_VECTORS;
++		dev_warn(&adapter->pdev->dev,
++			 "The number of queue vectors (%d) is higher than max allowed (%d)\n",
++			 adapter->num_q_vectors, MAX_Q_VECTORS);
++	}
++	for (i = 0; i < num_q_vectors; i++) {
+ 		struct igc_q_vector *q_vector = adapter->q_vector[i];
+ 
+ 		vector++;
 -- 
 2.30.2
 
