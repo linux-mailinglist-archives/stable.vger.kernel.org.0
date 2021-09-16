@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E0A340E5CF
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CC4340E1F9
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351407AbhIPRPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:15:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37566 "EHLO mail.kernel.org"
+        id S240819AbhIPQd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:33:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350742AbhIPRMG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:12:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64B606140B;
-        Thu, 16 Sep 2021 16:38:31 +0000 (UTC)
+        id S243386AbhIPQbY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:31:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 118C16138E;
+        Thu, 16 Sep 2021 16:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810311;
-        bh=nddOb52Hhn8RUwoUAbILSuwemUiC19xRPuibnjId1js=;
+        s=korg; t=1631809162;
+        bh=t36PD241Vt04inE54Cxt7bIoDCPhYYCSm2Egul+soOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fcZOiHLxRbmLqwtWFcHeQ03Y1pbsWEid7OWjmCl95eqdwAwaiM/Py8HdnSwZoVyMm
-         AX8bxsJcJ8x3/ZF8qTqZhIe9+PFeD/fcMgbDDDAtdAGKTHIVccS67oqUHNna2eO3II
-         R0v+xRhoCThvv2hsfn5inI9WNP4+D+sgXtGUAml8=
+        b=aKlhDTt1O3/23o2YJ0GxrVXMZgxpsSdu5jGcCJvjxnWoCH/VaPJ/mQFVBTtjBjnYG
+         Ugce8qoypS6rFoLFyVxLMdYhgvi3i2+INSgCjng4kubgSN23k7kNoTTe+Wfi1WSXWx
+         W4Y5lnDUU1/fMyLmV3NFk9JIGMAyCZO7dFXcNMbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>, stable@kernel.org
-Subject: [PATCH 5.14 062/432] f2fs: lets keep writing IOs on SBI_NEED_FSCK
+        stable@vger.kernel.org, Andres Freund <andres@anarazel.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.13 054/380] io-wq: fix wakeup race when adding new work
 Date:   Thu, 16 Sep 2021 17:56:51 +0200
-Message-Id: <20210916155812.887988478@linuxfoundation.org>
+Message-Id: <20210916155805.820023413@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 1ffc8f5f7751f91fe6af527d426a723231b741a6 upstream.
+commit 87df7fb922d18e96992aa5e824aa34b2065fef59 upstream.
 
-SBI_NEED_FSCK is an indicator that fsck.f2fs needs to be triggered, so it
-is not fully critical to stop any IO writes. So, let's allow to write data
-instead of reporting EIO forever given SBI_NEED_FSCK, but do keep OPU.
+When new work is added, io_wqe_enqueue() checks if we need to wake or
+create a new worker. But that check is done outside the lock that
+otherwise synchronizes us with a worker going to sleep, so we can end
+up in the following situation:
 
-Fixes: 955772787667 ("f2fs: drop inplace IO if fs status is abnormal")
-Cc: <stable@kernel.org> # v5.13+
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+CPU0				CPU1
+lock
+insert work
+unlock
+atomic_read(nr_running) != 0
+				lock
+				atomic_dec(nr_running)
+no wakeup needed
+
+Hold the wqe lock around the "need to wakeup" check. Then we can also get
+rid of the temporary work_flags variable, as we know the work will remain
+valid as long as we hold the lock.
+
+Cc: stable@vger.kernel.org
+Reported-by: Andres Freund <andres@anarazel.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/data.c    |    2 ++
- fs/f2fs/segment.c |    2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ fs/io-wq.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -2498,6 +2498,8 @@ bool f2fs_should_update_outplace(struct
- 		return true;
- 	if (f2fs_is_atomic_file(inode))
- 		return true;
-+	if (is_sbi_flag_set(sbi, SBI_NEED_FSCK))
-+		return true;
+--- a/fs/io-wq.c
++++ b/fs/io-wq.c
+@@ -798,7 +798,7 @@ append:
+ static void io_wqe_enqueue(struct io_wqe *wqe, struct io_wq_work *work)
+ {
+ 	struct io_wqe_acct *acct = io_work_get_acct(wqe, work);
+-	int work_flags;
++	bool do_wake;
+ 	unsigned long flags;
  
- 	/* swap file is migrating in aligned write mode */
- 	if (is_inode_flag_set(inode, FI_ALIGNED_WRITE))
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -3563,7 +3563,7 @@ int f2fs_inplace_write_data(struct f2fs_
- 		goto drop_bio;
+ 	/*
+@@ -811,14 +811,14 @@ static void io_wqe_enqueue(struct io_wqe
+ 		return;
  	}
  
--	if (is_sbi_flag_set(sbi, SBI_NEED_FSCK) || f2fs_cp_error(sbi)) {
-+	if (f2fs_cp_error(sbi)) {
- 		err = -EIO;
- 		goto drop_bio;
- 	}
+-	work_flags = work->flags;
+ 	raw_spin_lock_irqsave(&wqe->lock, flags);
+ 	io_wqe_insert_work(wqe, work);
+ 	wqe->flags &= ~IO_WQE_FLAG_STALLED;
++	do_wake = (work->flags & IO_WQ_WORK_CONCURRENT) ||
++			!atomic_read(&acct->nr_running);
+ 	raw_spin_unlock_irqrestore(&wqe->lock, flags);
+ 
+-	if ((work_flags & IO_WQ_WORK_CONCURRENT) ||
+-	    !atomic_read(&acct->nr_running))
++	if (do_wake)
+ 		io_wqe_wake_worker(wqe, acct);
+ }
+ 
 
 
