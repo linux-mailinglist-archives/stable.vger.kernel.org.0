@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFAC640E629
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B78540E23B
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346031AbhIPRSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:18:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39922 "EHLO mail.kernel.org"
+        id S242066AbhIPQft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:35:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343575AbhIPRQG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:16:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D806C61BBE;
-        Thu, 16 Sep 2021 16:40:16 +0000 (UTC)
+        id S242904AbhIPQdr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:33:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E82161268;
+        Thu, 16 Sep 2021 16:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810417;
-        bh=2xJEJpfSoyORzGxGTI3s7ieeq25y1kEm0yKthuAsI48=;
+        s=korg; t=1631809241;
+        bh=Y6gcQ6S1Li5VneBqUA57docK1hmgK19P/JMU+yw4syc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fr5GS6IKl7iRlP1CBo3IyJNjwsZdfwohHYleENJYjjEnKde75OUVOXkMqmxTSxkDy
-         kSKDpoHJvesTkzVgDAL2UbWj41pvZrLpD83hl3h4V0aelg3NEjalR3sBQgkMMz/c9m
-         1lEsCg7Ju/Ix2ekHoQLdoZYbzhgOh6KmU/+fSjoo=
+        b=xpNr2n0dBEH2C+NmJypOk2Z6yYSTdfxS3KyoV6n+YIxOAAkDC21rd3wY3+pRIJ24J
+         fHf2ILvRU1XbvODpeC4uX/pdUxUvNFPR0HAu3g1zJE0X9q6qWShVaT7ErVjH0QJP5w
+         zxqZ59xQxkUEFTXiiNzptCYrgPpsmnJQOxEINx44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bart Van Assche <bvanassche@acm.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 091/432] scsi: ufs: Fix memory corruption by ufshcd_read_desc_param()
+Subject: [PATCH 5.13 083/380] scsi: ufs: Fix memory corruption by ufshcd_read_desc_param()
 Date:   Thu, 16 Sep 2021 17:57:20 +0200
-Message-Id: <20210916155813.863232564@linuxfoundation.org>
+Message-Id: <20210916155806.855421309@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,10 +63,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 708b3b62fc4d..179227180961 100644
+index 72fd41bfbd54..90837e54c2fe 100644
 --- a/drivers/scsi/ufs/ufshcd.c
 +++ b/drivers/scsi/ufs/ufshcd.c
-@@ -3419,9 +3419,11 @@ int ufshcd_read_desc_param(struct ufs_hba *hba,
+@@ -3326,9 +3326,11 @@ int ufshcd_read_desc_param(struct ufs_hba *hba,
  
  	if (is_kmalloc) {
  		/* Make sure we don't copy more data than available */
