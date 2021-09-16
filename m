@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 791E340E3CC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 977B640E742
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244180AbhIPQwL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:52:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
+        id S1344449AbhIPRbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:31:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345147AbhIPQtl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:49:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 832226159A;
-        Thu, 16 Sep 2021 16:27:52 +0000 (UTC)
+        id S1347816AbhIPR1y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:27:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E984604E9;
+        Thu, 16 Sep 2021 16:45:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809673;
-        bh=grpqI8sJsgtdBrayXqXN5K8Cvo1phWPDGxjB1M24YFE=;
+        s=korg; t=1631810729;
+        bh=ze7B5FV3b/CWQmkaH2nhTOx865klHkNYpzxXSArr3fY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X/gT1Fi5+4ABHqjRHFfNNB/pQCCWz8mQzvguQ6SNHhi6VhiVOJz/nZnpPYd6872X1
-         UgO9s4AC0I8oboeujWq4U0iqCZT4HNoK7B4Lhz9kWUUzvZsTrJlQqHEsJpggQKzmhB
-         WwqtgUsyxmUCPVp+i3ifbbxDAZ44IeahdC0icGDc=
+        b=H30og2ei89T9iZ0Hkpn0qbhCyQU8quQiIGGiMvzMJHyFShtHMnTp5E7AGmTxvrtn8
+         J1BWqR9A1s3TvOVY3yLWPN3Jbu7ADdHXq5rVazWjyT5KerkxDgtuCzl0bGy3a46OS+
+         /XXyOPwecnHX915yvzqXeBbykf8hzGqesTAuT85g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 239/380] arm64: dts: qcom: ipq6018: drop 0x from unit address
+Subject: [PATCH 5.14 247/432] netfilter: nft_compat: use nfnetlink_unicast()
 Date:   Thu, 16 Sep 2021 17:59:56 +0200
-Message-Id: <20210916155812.209966259@linuxfoundation.org>
+Message-Id: <20210916155819.203861449@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 1b91b8ef60e9a67141e66af3cca532c00f4605fe ]
+[ Upstream commit 241d1af4c11a75d4c17ecc0193a6ab60553efbfc ]
 
-Nodes need not contain '0x' for the unit address. Drop it to fix the
-below warning:
+Use nfnetlink_unicast() which already translates EAGAIN to ENOBUFS,
+since EAGAIN is reserved to report missing module dependencies to the
+nfnetlink core.
 
-arch/arm64/boot/dts/qcom/ipq6018-cp01-c1.dt.yaml: reserved-memory:
-'memory@0x60000' does not match any of the regexes
+e0241ae6ac59 ("netfilter: use nfnetlink_unicast() forgot to update
+this spot.
 
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210308060826.3074234-19-vkoul@kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reported-by: Yajun Deng <yajun.deng@linux.dev>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq6018.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nft_compat.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq6018.dtsi b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-index 9fa5b028e4f3..23ee1bfa4318 100644
---- a/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-@@ -151,7 +151,7 @@ reserved-memory {
- 		#size-cells = <2>;
- 		ranges;
+diff --git a/net/netfilter/nft_compat.c b/net/netfilter/nft_compat.c
+index 639c337c885b..272bcdb1392d 100644
+--- a/net/netfilter/nft_compat.c
++++ b/net/netfilter/nft_compat.c
+@@ -683,14 +683,12 @@ static int nfnl_compat_get_rcu(struct sk_buff *skb,
+ 		goto out_put;
+ 	}
  
--		rpm_msg_ram: memory@0x60000 {
-+		rpm_msg_ram: memory@60000 {
- 			reg = <0x0 0x60000 0x0 0x6000>;
- 			no-map;
- 		};
+-	ret = netlink_unicast(info->sk, skb2, NETLINK_CB(skb).portid,
+-			      MSG_DONTWAIT);
+-	if (ret > 0)
+-		ret = 0;
++	ret = nfnetlink_unicast(skb2, info->net, NETLINK_CB(skb).portid);
+ out_put:
+ 	rcu_read_lock();
+ 	module_put(THIS_MODULE);
+-	return ret == -EAGAIN ? -ENOBUFS : ret;
++
++	return ret;
+ }
+ 
+ static const struct nla_policy nfnl_compat_policy_get[NFTA_COMPAT_MAX+1] = {
 -- 
 2.30.2
 
