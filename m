@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E525E40DAD0
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:11:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5DCD40DAD2
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239952AbhIPNNM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 09:13:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58736 "EHLO mail.kernel.org"
+        id S239948AbhIPNNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 09:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239581AbhIPNNL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 09:13:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3F2F60EB2;
-        Thu, 16 Sep 2021 13:11:50 +0000 (UTC)
+        id S239581AbhIPNNS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 09:13:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 228AA60EB2;
+        Thu, 16 Sep 2021 13:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631797911;
-        bh=aFKapFh3ZtU1QMLP6PC03j8gOWqnOxuOWgQPsJMiQBs=;
+        s=korg; t=1631797917;
+        bh=y+J/mo1plTnh5Yl/4VcNApw8i0llgqx7Jm7Byf8NrtQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=G85dzptu9ZneHFabGhegl76jfYX6OrXeF5MNzDNK94gAzvmpveRKXxrvVQnE+VQON
-         DdVBvgJ/mnjxvArxM/PmWuH6Wn852vJBBYFR8/eu91AhRKJ9Om0gsjJ+padCiIHXj7
-         CZ7z1tYQOEsjo492ls41eJVZgk7qtny/gaJ0m+7k=
-Subject: FAILED: patch "[PATCH] drm/i915/display: Do not zero past infoframes.vsc" failed to apply to 5.13-stable tree
-To:     keescook@chromium.org, jose.souza@intel.com
+        b=SVJMTK9yV8TR8fKMBIjZtM1c9+5nRtmgjRZPKBse8Je/0VpgVomfnUrsDVLjHlS1A
+         Kw5a88bE8D6GLmV7/PUYSfDa0snt6E/6EJwiftqwl9tQwoyqDYLVfUPmJ/GqurYwz9
+         dBIYZrxAutQUtbwraaV2K1X8OfaKpxzrQAzbJeRM=
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Fix -EDEADLK handling regression" failed to apply to 5.10-stable tree
+To:     ville.syrjala@linux.intel.com, maarten.lankhorst@linux.intel.com,
+        thomas.hellstrom@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Sep 2021 15:11:38 +0200
-Message-ID: <163179789810049@kroah.com>
+Date:   Thu, 16 Sep 2021 15:11:55 +0200
+Message-ID: <163179791524653@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -34,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,37 +46,56 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c88e2647c5bb45d04dc4302018ebe6ebbf331823 Mon Sep 17 00:00:00 2001
-From: Kees Cook <keescook@chromium.org>
-Date: Thu, 17 Jun 2021 14:33:01 -0700
-Subject: [PATCH] drm/i915/display: Do not zero past infoframes.vsc
+From 78d2ad7eb4e1f0e9cd5d79788446b6092c21d3e0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Wed, 30 Jun 2021 19:44:13 +0300
+Subject: [PATCH] drm/i915/gt: Fix -EDEADLK handling regression
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-intel_dp_vsc_sdp_unpack() was using a memset() size (36, struct dp_sdp)
-larger than the destination (24, struct drm_dp_vsc_sdp), clobbering
-fields in struct intel_crtc_state after infoframes.vsc. Use the actual
-target size for the memset().
+The conversion to ww mutexes failed to address the fence code which
+already returns -EDEADLK when we run out of fences. Ww mutexes on
+the other hand treat -EDEADLK as an internal errno value indicating
+a need to restart the operation due to a deadlock. So now when the
+fence code returns -EDEADLK the higher level code erroneously
+restarts everything instead of returning the error to userspace
+as is expected.
 
-Fixes: 1b404b7dbb10 ("drm/i915/dp: Read out DP SDPs")
+To remedy this let's switch the fence code to use a different errno
+value for this. -ENOBUFS seems like a semi-reasonable unique choice.
+Apart from igt the only user of this I could find is sna, and even
+there all we do is dump the current fence registers from debugfs
+into the X server log. So no user visible functionality is affected.
+If we really cared about preserving this we could of course convert
+back to -EDEADLK higher up, but doesn't seem like that's worth
+the hassle here.
+
+Not quite sure which commit specifically broke this, but I'll
+just attribute it to the general gem ww mutex work.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: José Roberto de Souza <jose.souza@intel.com>
-Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210617213301.1824728-1-keescook@chromium.org
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@intel.com>
+Testcase: igt/gem_pread/exhaustion
+Testcase: igt/gem_pwrite/basic-exhaustion
+Testcase: igt/gem_fenced_exec_thrash/too-many-fences
+Fixes: 80f0b679d6f0 ("drm/i915: Add an implementation for i915_gem_ww_ctx locking, v2.")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210630164413.25481-1-ville.syrjala@linux.intel.com
+Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
-index 5c9222283044..6cc03b9e4321 100644
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -2868,7 +2868,7 @@ static int intel_dp_vsc_sdp_unpack(struct drm_dp_vsc_sdp *vsc,
- 	if (size < sizeof(struct dp_sdp))
- 		return -EINVAL;
+diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+index cac7f3f44642..f8948de72036 100644
+--- a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
++++ b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+@@ -348,7 +348,7 @@ static struct i915_fence_reg *fence_find(struct i915_ggtt *ggtt)
+ 	if (intel_has_pending_fb_unpin(ggtt->vm.i915))
+ 		return ERR_PTR(-EAGAIN);
  
--	memset(vsc, 0, size);
-+	memset(vsc, 0, sizeof(*vsc));
+-	return ERR_PTR(-EDEADLK);
++	return ERR_PTR(-ENOBUFS);
+ }
  
- 	if (sdp->sdp_header.HB0 != 0)
- 		return -EINVAL;
+ int __i915_vma_pin_fence(struct i915_vma *vma)
 
