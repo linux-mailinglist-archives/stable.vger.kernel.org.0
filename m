@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A13F40E1D4
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:14:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DB1840E4F5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242235AbhIPQbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:31:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38434 "EHLO mail.kernel.org"
+        id S1349288AbhIPRGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:06:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242894AbhIPQ3q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:29:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF9EA6135A;
-        Thu, 16 Sep 2021 16:18:49 +0000 (UTC)
+        id S1349362AbhIPREC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:04:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34BCB6187F;
+        Thu, 16 Sep 2021 16:34:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809130;
-        bh=PSdsfZ869WNUj+rk1MAn7QW0EmlHmwT6g3QKhyPUiZE=;
+        s=korg; t=1631810098;
+        bh=CDpKTP9txOGtsEB9oyRmv2jvG7xbiGZyTmeeWnkZ1Uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SsykF4Jie0Wj/BwhBaaixvBTmZa2kGo8sukONQXrx/uPgwgjK2WY1Hb5mbesOt2hH
-         VLR2C0iPBO7caNBAIQP09WuSnYv4iEgOHGDR4iy+oM9PWkp8P1Jq4JUYKCYZzbLJdt
-         OQ4HuYewX6K8ZMe8kqxF1GQ8OZfFMNpDOJZwPTuk=
+        b=XUNImSZw0cErrd3OQdPVtG5t61SVk5LV/nOxmRCIyXPr+N3VSIVRtDZtu16YUXhgt
+         wgDAxldZYJOE4BgLwwvamfYXDcwoJ1wxmRsPN/+dsV4GBHVZ99b9kfunUNwMNMM/tl
+         CTYVGscZJeCL1KiAhgB02rTnciNuK3ZFsJMO2X/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         Naohiro Aota <naohiro.aota@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.13 009/380] btrfs: zoned: fix double counting of split ordered extent
+Subject: [PATCH 5.14 017/432] btrfs: zoned: fix double counting of split ordered extent
 Date:   Thu, 16 Sep 2021 17:56:06 +0200
-Message-Id: <20210916155804.290041567@linuxfoundation.org>
+Message-Id: <20210916155811.399652864@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,7 +68,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/btrfs/ordered-data.c
 +++ b/fs/btrfs/ordered-data.c
-@@ -917,6 +917,7 @@ static int clone_ordered_extent(struct b
+@@ -1052,6 +1052,7 @@ static int clone_ordered_extent(struct b
  				u64 len)
  {
  	struct inode *inode = ordered->inode;
@@ -76,7 +76,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	u64 file_offset = ordered->file_offset + pos;
  	u64 disk_bytenr = ordered->disk_bytenr + pos;
  	u64 num_bytes = len;
-@@ -934,6 +935,13 @@ static int clone_ordered_extent(struct b
+@@ -1069,6 +1070,13 @@ static int clone_ordered_extent(struct b
  	else
  		type = __ffs(flags_masked);
  
