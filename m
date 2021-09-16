@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B04D740E2DB
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2179140DF9C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343539AbhIPQmY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:42:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
+        id S236839AbhIPQMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:12:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245356AbhIPQkU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:40:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C84261A0B;
-        Thu, 16 Sep 2021 16:23:38 +0000 (UTC)
+        id S232867AbhIPQKb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:10:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFB6F61263;
+        Thu, 16 Sep 2021 16:08:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809418;
-        bh=3U+Q2ExehCpShUzp7qfyAw0zZCRiu3dm9wxhWnkUSOE=;
+        s=korg; t=1631808506;
+        bh=nUWogYyAQnIGP9PhkABR991SIxEYKSuFnYvAG0oKips=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KighQ/pUt7d80AZIYZWwiejw99hkIe7BeIrX9l+FFJBUWlro8+U3kJXLhqcaivdsU
-         d+UEPsLARfAMlP9EipoZa19Defdl7AAZp10R2CFWysmIFRabJaZWkj24ptrY1Y2taB
-         Xfz/gm9G/nglW1yVG5FEdrbVaLDhMVIBe8oI+qbA=
+        b=1u31975SvNTOhZ1iHiMIMzuaVr1dBXFnYBPmLEJHvfUMoO8arRaKbxScnhoFM38D2
+         xo/4Vi00W73s28Ss/H9ZsbUkofQnKtC9VNCqg9tQoeETXwn83PGEv1e23Iui8ouBXN
+         x1TrA7OWGEOQn6MiWHnAT6GH/LanNjMY3CfQY2Bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 105/380] scsi: qedi: Fix error codes in qedi_alloc_global_queues()
+Subject: [PATCH 5.10 117/306] PCI: Use pci_update_current_state() in pci_enable_device_flags()
 Date:   Thu, 16 Sep 2021 17:57:42 +0200
-Message-Id: <20210916155807.615511554@linuxfoundation.org>
+Message-Id: <20210916155758.056539337@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 4dbe57d46d54a847875fa33e7d05877bb341585e ]
+[ Upstream commit 14858dcc3b3587f4bb5c48e130ee7d68fc2b0a29 ]
 
-This function had some left over code that returned 1 on error instead
-negative error codes.  Convert everything to use negative error codes.  The
-caller treats all non-zero returns the same so this does not affect run
-time.
+Updating the current_state field of struct pci_dev the way it is done
+in pci_enable_device_flags() before calling do_pci_enable_device() may
+not work.  For example, if the given PCI device depends on an ACPI
+power resource whose _STA method initially returns 0 ("off"), but the
+config space of the PCI device is accessible and the power state
+retrieved from the PCI_PM_CTRL register is D0, the current_state
+field in the struct pci_dev representing that device will get out of
+sync with the power.state of its ACPI companion object and that will
+lead to power management issues going forward.
 
-A couple places set "rc" instead of "status" so those error paths ended up
-returning success by mistake.  Get rid of the "rc" variable and use
-"status" everywhere.
+To avoid such issues, make pci_enable_device_flags() call
+pci_update_current_state() which takes ACPI device power management
+into account, if present, to retrieve the current power state of the
+device.
 
-Remove the bogus "status = 0" initialization, as a future proofing measure
-so the compiler will warn about uninitialized error codes.
-
-Link: https://lore.kernel.org/r/20210810084753.GD23810@kili
-Fixes: ace7f46ba5fd ("scsi: qedi: Add QLogic FastLinQ offload iSCSI driver framework.")
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/lkml/20210314000439.3138941-1-luzmaximilian@gmail.com/
+Reported-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Maximilian Luz <luzmaximilian@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_main.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/pci/pci.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_main.c b/drivers/scsi/qedi/qedi_main.c
-index edf915432704..99e1a323807d 100644
---- a/drivers/scsi/qedi/qedi_main.c
-+++ b/drivers/scsi/qedi/qedi_main.c
-@@ -1621,7 +1621,7 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
- {
- 	u32 *list;
- 	int i;
--	int status = 0, rc;
-+	int status;
- 	u32 *pbl;
- 	dma_addr_t page;
- 	int num_pages;
-@@ -1632,14 +1632,14 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 05a84f095fe7..eae6a9fdd33d 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1880,11 +1880,7 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
+ 	 * so that things like MSI message writing will behave as expected
+ 	 * (e.g. if the device really is in D0 at enable time).
  	 */
- 	if (!qedi->num_queues) {
- 		QEDI_ERR(&qedi->dbg_ctx, "No MSI-X vectors available!\n");
--		return 1;
-+		return -ENOMEM;
- 	}
+-	if (dev->pm_cap) {
+-		u16 pmcsr;
+-		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
+-		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
+-	}
++	pci_update_current_state(dev, dev->current_state);
  
- 	/* Make sure we allocated the PBL that will contain the physical
- 	 * addresses of our queues
- 	 */
- 	if (!qedi->p_cpuq) {
--		status = 1;
-+		status = -EINVAL;
- 		goto mem_alloc_failure;
- 	}
- 
-@@ -1654,13 +1654,13 @@ static int qedi_alloc_global_queues(struct qedi_ctx *qedi)
- 		  "qedi->global_queues=%p.\n", qedi->global_queues);
- 
- 	/* Allocate DMA coherent buffers for BDQ */
--	rc = qedi_alloc_bdq(qedi);
--	if (rc)
-+	status = qedi_alloc_bdq(qedi);
-+	if (status)
- 		goto mem_alloc_failure;
- 
- 	/* Allocate DMA coherent buffers for NVM_ISCSI_CFG */
--	rc = qedi_alloc_nvm_iscsi_cfg(qedi);
--	if (rc)
-+	status = qedi_alloc_nvm_iscsi_cfg(qedi);
-+	if (status)
- 		goto mem_alloc_failure;
- 
- 	/* Allocate a CQ and an associated PBL for each MSI-X
+ 	if (atomic_inc_return(&dev->enable_cnt) > 1)
+ 		return 0;		/* already enabled */
 -- 
 2.30.2
 
