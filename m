@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8B2440E7E5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AC2340E4B9
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349901AbhIPRnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:43:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54172 "EHLO mail.kernel.org"
+        id S1346968AbhIPRFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:05:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345608AbhIPRiS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:38:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CFFE63242;
-        Thu, 16 Sep 2021 16:50:17 +0000 (UTC)
+        id S1347833AbhIPRAo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:00:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2557561A03;
+        Thu, 16 Sep 2021 16:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811018;
-        bh=vSCHNd0fBThLqXKbCXghXdPcsOfYDxh1LqWH4fhyoko=;
+        s=korg; t=1631809961;
+        bh=B+lmIPtsQ/2NkqwBSrlwIz/8L2llfIB2i2MRiu/q00A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qr615oJJ2x1pJT1OXfUlQf9ZGHpe/0ga7C9G6ZRcqmc2h0bMqR1vaCw9TI60RzY/e
-         BpdinplIe5IZ43OfCQ6H5yfuWOG4V8nN/EiRnTPd4bWsDbJCMZik88z6RSnf3jBMPl
-         T1j5C37UAMpRHDejwfdEFtv+Npt0D8YToXuTady8=
+        b=P7J7aJ+AsHhC6ryzsYtLvejxNkqk9BCjT7+LUdshaAOql6dl+3G/nuWPNuU0cFneP
+         U8P5p81fFF2MF55rHJ2Xm4cQ7+gqQGrrb4HIkGKKbyD/1meHafXbcc4dLsLj/gqSa1
+         wflNYRCk+xjnC0RAfQ7Cs5nYikz2ik3MAtG86xns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Nadezda Lutovinova <lutovinova@ispras.ru>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 354/432] usb: dwc3: imx8mp: request irq after initializing dwc3
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.13 346/380] parisc: fix crash with signals and alloca
 Date:   Thu, 16 Sep 2021 18:01:43 +0200
-Message-Id: <20210916155822.813708515@linuxfoundation.org>
+Message-Id: <20210916155815.818636999@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadezda Lutovinova <lutovinova@ispras.ru>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 6a48d0ae01a6ab05ae5e78328546a2f5f6d3054a ]
+commit 030f653078316a9cc9ca6bd1b0234dcf858be35d upstream.
 
-If IRQ occurs between calling  devm_request_threaded_irq() and
-initializing dwc3_imx->dwc3, then null pointer dereference occurs
-since dwc3_imx->dwc3 is used in dwc3_imx8mp_interrupt().
+I was debugging some crashes on parisc and I found out that there is a
+crash possibility if a function using alloca is interrupted by a signal.
+The reason for the crash is that the gcc alloca implementation leaves
+garbage in the upper 32 bits of the sp register. This normally doesn't
+matter (the upper bits are ignored because the PSW W-bit is clear),
+however the signal delivery routine in the kernel uses full 64 bits of sp
+and it fails with -EFAULT if the upper 32 bits are not zero.
 
-The patch puts registration of the interrupt handler after
-initializing of neccesery data.
+I created this program that demonstrates the problem:
 
-Found by Linux Driver Verification project (linuxtesting.org).
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <alloca.h>
 
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Nadezda Lutovinova <lutovinova@ispras.ru>
-Link: https://lore.kernel.org/r/20210819154818.18334-1-lutovinova@ispras.ru
+static __attribute__((noinline,noclone)) void aa(int *size)
+{
+	void * volatile p = alloca(-*size);
+	while (1) ;
+}
+
+static void handler(int sig)
+{
+	write(1, "signal delivered\n", 17);
+	_exit(0);
+}
+
+int main(void)
+{
+	int size = -0x100;
+	signal(SIGALRM, handler);
+	alarm(1);
+	aa(&size);
+}
+
+If you compile it with optimizations, it will crash.
+The "aa" function has this disassembly:
+
+000106a0 <aa>:
+   106a0:       08 03 02 41     copy r3,r1
+   106a4:       08 1e 02 43     copy sp,r3
+   106a8:       6f c1 00 80     stw,ma r1,40(sp)
+   106ac:       37 dc 3f c1     ldo -20(sp),ret0
+   106b0:       0c 7c 12 90     stw ret0,8(r3)
+   106b4:       0f 40 10 9c     ldw 0(r26),ret0		; ret0 = 0x00000000FFFFFF00
+   106b8:       97 9c 00 7e     subi 3f,ret0,ret0	; ret0 = 0xFFFFFFFF0000013F
+   106bc:       d7 80 1c 1a     depwi 0,31,6,ret0	; ret0 = 0xFFFFFFFF00000100
+   106c0:       0b 9e 0a 1e     add,l sp,ret0,sp	;   sp = 0xFFFFFFFFxxxxxxxx
+   106c4:       e8 1f 1f f7     b,l,n 106c4 <aa+0x24>,r0
+
+This patch fixes the bug by truncating the "usp" variable to 32 bits.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-imx8mp.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/parisc/kernel/signal.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/usb/dwc3/dwc3-imx8mp.c b/drivers/usb/dwc3/dwc3-imx8mp.c
-index 756faa46d33a..d328d20abfbc 100644
---- a/drivers/usb/dwc3/dwc3-imx8mp.c
-+++ b/drivers/usb/dwc3/dwc3-imx8mp.c
-@@ -152,13 +152,6 @@ static int dwc3_imx8mp_probe(struct platform_device *pdev)
- 	}
- 	dwc3_imx->irq = irq;
- 
--	err = devm_request_threaded_irq(dev, irq, NULL, dwc3_imx8mp_interrupt,
--					IRQF_ONESHOT, dev_name(dev), dwc3_imx);
--	if (err) {
--		dev_err(dev, "failed to request IRQ #%d --> %d\n", irq, err);
--		goto disable_clks;
--	}
--
- 	pm_runtime_set_active(dev);
- 	pm_runtime_enable(dev);
- 	err = pm_runtime_get_sync(dev);
-@@ -186,6 +179,13 @@ static int dwc3_imx8mp_probe(struct platform_device *pdev)
- 	}
- 	of_node_put(dwc3_np);
- 
-+	err = devm_request_threaded_irq(dev, irq, NULL, dwc3_imx8mp_interrupt,
-+					IRQF_ONESHOT, dev_name(dev), dwc3_imx);
-+	if (err) {
-+		dev_err(dev, "failed to request IRQ #%d --> %d\n", irq, err);
-+		goto depopulate;
+--- a/arch/parisc/kernel/signal.c
++++ b/arch/parisc/kernel/signal.c
+@@ -237,6 +237,12 @@ setup_rt_frame(struct ksignal *ksig, sig
+ #endif
+ 	
+ 	usp = (regs->gr[30] & ~(0x01UL));
++#ifdef CONFIG_64BIT
++	if (is_compat_task()) {
++		/* The gcc alloca implementation leaves garbage in the upper 32 bits of sp */
++		usp = (compat_uint_t)usp;
 +	}
-+
- 	device_set_wakeup_capable(dev, true);
- 	pm_runtime_put(dev);
++#endif
+ 	/*FIXME: frame_size parameter is unused, remove it. */
+ 	frame = get_sigframe(&ksig->ka, usp, sizeof(*frame));
  
--- 
-2.30.2
-
 
 
