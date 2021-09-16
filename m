@@ -2,86 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 857FF40ED8C
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 00:53:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23CA040ED90
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 00:53:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241304AbhIPWyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 18:54:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50758 "EHLO
+        id S234333AbhIPWzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 18:55:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241276AbhIPWyY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 18:54:24 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A965C061574;
-        Thu, 16 Sep 2021 15:53:02 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1631832780;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=+uoRd7sICB9PTbOq5EWEwT9s8dxxMBDK5Hxzn1p0B2M=;
-        b=1EHh+jTMSzgz8I5umosdei/hjB4deVd+HjIXpER0jj3a9UJvUTmYCG3sktt+mmgogjx4i5
-        5D+TvgjsSbkOi2gRWJ9m/L2PsSXPUDA0fNBCaeyAQa5oIj2aZ0g7IpYrWYv2xoW3jpCr8W
-        aEJLiY9J4es14JJ3Fuu2PLS1+FTJ0bE2cZpBoUg9o8Wfp16oVUcyT6k2JW56IzITAd1Qss
-        dQHpUZYX/miD+m+QAFEvKHKOuPh3ii1buJhETb4Jo0E4cAcKIm9FXERVj2dXTWlNHeyUHk
-        iAw/eFYYzJOa1pzYeAEHGABTxJs2LapYK4cztyOfWpa2A2nA74K18B2uCKyc+Q==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1631832780;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=+uoRd7sICB9PTbOq5EWEwT9s8dxxMBDK5Hxzn1p0B2M=;
-        b=vtwgGlcj3bLHRjLYNI/SunfOnn6jEEhRquuMedQEImsrPfPUPG9QhrJlsPjoht0r0FiHu4
-        T9zSULifH9VCAfCg==
-To:     Arnd Bergmann <arnd@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>
-Subject: Re: [PATCH 5.14 298/334] time: Handle negative seconds correctly in
- timespec64_to_ns()
-In-Reply-To: <874kak9moe.ffs@tglx>
-References: <20210913131113.390368911@linuxfoundation.org>
- <20210913131123.500712780@linuxfoundation.org>
- <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
- <874kak9moe.ffs@tglx>
-Date:   Fri, 17 Sep 2021 00:53:00 +0200
-Message-ID: <87y27w875f.ffs@tglx>
+        with ESMTP id S233991AbhIPWzP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 18:55:15 -0400
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F71DC061574;
+        Thu, 16 Sep 2021 15:53:54 -0700 (PDT)
+Received: by mail-pf1-x434.google.com with SMTP id q22so7425369pfu.0;
+        Thu, 16 Sep 2021 15:53:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=wwsZOlMMirH6TC+SvGiT/r5Rp4j4FujinCyxHsjZ+pw=;
+        b=huv2r8mB8gIXfigsSOPljz3WnS0OxC548mYCEW6H5zj6yTpZDrhBvO3/eenKW1hfBr
+         N11VQt1NvoRA4+08Y0nwVsWTXitCnxy/fF8UR9qGcLZXfjBJrkQUDgAwnwaAKDc4SQZw
+         wbkrZKJtiu90xDKIjV0sD8Rh2bPKkjSlKyBgQqvo9n04HY1JhhexWbaAu1jE9gWFdlWM
+         QR986DMa8Lsx9BjmiVoo3K+Lnkq0dDt3YHLRMlsZPhLhevnzvXp85kQOuA110I92gxUZ
+         TYUgZNds+wscET3HWROTJE8mQ3fwaD0sDHRd1LCI58J3+Puj2yp/WBwVvFHplcRM0C/N
+         jxYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=wwsZOlMMirH6TC+SvGiT/r5Rp4j4FujinCyxHsjZ+pw=;
+        b=dfwxtFghm4lapQ5emp8iMAupW71B16dYESUFQkd9QGKRwF2BwJYSH2egHHlat+mAz/
+         LEAAkOamzsLrpE5UQb3WLNVGOkiU98O3FJODTaCWR5pqZmaFZCXjgbmmSWUPcqdpdFcS
+         y8WWpG6qZxXWodR7OIfjUynAciH+A6pM3N9HMSNZoP/shQqFmwbXPa23bgd1Szur7cSw
+         d4iYQUyEWaVHZarwYl5OuqAjcSy1VFzO3RQeFdq/pc9WaMl4Lw+azPeCf0Mqj0tKEgO3
+         lWduQu8LGFskb5oINEz4v6QtDaqbW/BUfdJkqHTkOhvQCrEPR6FebWAgNow3mraV3kZw
+         zqZg==
+X-Gm-Message-State: AOAM5323uHuZop3kt8VIO/tpxXle8a8O1Y8vlOII4HA3gIcqwps7QsZf
+        pKuYXleqeCLjSCldMvIlYw/zmPnaCrQ=
+X-Google-Smtp-Source: ABdhPJzF7a2gbFHLmsIEpaRBYEOyAIU1Cv5bp1IEn3AQ9grZGUttTh7raCOWB8glLQfBoQ3WM9duPg==
+X-Received: by 2002:aa7:998a:0:b0:444:b077:51ef with SMTP id k10-20020aa7998a000000b00444b07751efmr540024pfh.61.1631832833590;
+        Thu, 16 Sep 2021 15:53:53 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id d3sm8954737pjc.49.2021.09.16.15.53.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 16 Sep 2021 15:53:53 -0700 (PDT)
+Subject: Re: [PATCH 5.14 000/432] 5.14.6-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210916155810.813340753@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <0d0f22a8-57c5-b303-1d25-3b635a29afd6@gmail.com>
+Date:   Thu, 16 Sep 2021 15:53:45 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Sep 17 2021 at 00:32, Thomas Gleixner wrote:
-> I usually spend quite some time on tagging patches for stable and it's
-> annoying me that this patch got reverted while stuff which I explicitely
-> did not tag for stable got backported for whatever reason and completely
-> against the stable rules:
->
->   627ef5ae2df8 ("hrtimer: Avoid double reprogramming in __hrtimer_start_range_ns()")
->
-> What the heck qualifies this to be backported?
->
->  1) It's hot of the press and just got merged in the 5.15-rc1 merge
->     window and is not tagged for stable
->
->  2) https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
->
->     clearly states the rules but obviously our new fangled "AI" driven
->     approach to select patches for stable is blissfully ignorant of
->     these rules. I assume that AI stands for "Artifical Ignorance' here.
->
-> I already got a private bug report vs. that on 5.10.65. Annoyingly
-> 5.10.5 does not have the issue despite the fact that the resulting diff
+On 9/16/21 8:55 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.14.6 release.
+> There are 432 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 18 Sep 2021 15:57:06 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.14.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-5.14.5 obviously...
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-> between those two versions in hrtimer.c is just in comments.
->
-> Bah!
->
-> Thanks,
->
->         tglx
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
