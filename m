@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EF2E40E33E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 622E440E65A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344569AbhIPQqV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:46:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57406 "EHLO mail.kernel.org"
+        id S244459AbhIPRVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242787AbhIPQm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:42:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A82B61A38;
-        Thu, 16 Sep 2021 16:24:41 +0000 (UTC)
+        id S1346365AbhIPRSH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:18:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98FC461B94;
+        Thu, 16 Sep 2021 16:41:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809482;
-        bh=S6mRvyfE6zWLfqyssJ94k8c9NiZ88UxVsCTtHbm3egs=;
+        s=korg; t=1631810466;
+        bh=tBFjU4rwxlyvopeAxHdcfhn5BIs67VvAJydquwe6SRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3Me1ECayBWniV3/5U6ctIY8QDrt9DveY9m4b9FdnjwAaOaXRoQiS7UUWD6CLciN1
-         4xhvHk1bWxh9zZjMKSJUcT6ob9Zapa5PbeS7f/L9HBqn1qCeDw0WNjGSsqIR18TObJ
-         Ps9UHRBHAjTyauZs55belCAzxo8oxVe82qy/mnGc=
+        b=ityCdwEIYDq+v+X3KLdvuFI6owqaTuLBZC4ElAJfsS7EoiIDuB40SSEyvloMLHWTm
+         pVz39sBOz9txqlWjuskKm/Ku4/RBq0bOW5JoSuhmuwT66LVydQdCQujBnoyZv+av9R
+         7kdGFSYTQW6SqKeYEnqMplm29OPFRENSlC/W1vrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        Alexander Deucher <Alexander.Deucher@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 143/380] drm/amdgpu: Fix amdgpu_ras_eeprom_init()
+Subject: [PATCH 5.14 151/432] f2fs: fix to unmap pages from userspace process in punch_hole()
 Date:   Thu, 16 Sep 2021 17:58:20 +0200
-Message-Id: <20210916155808.915702840@linuxfoundation.org>
+Message-Id: <20210916155815.864720550@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luben Tuikov <luben.tuikov@amd.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit dce4400e6516d18313d23de45b5be8a18980b00e ]
+[ Upstream commit c8dc3047c48540183744f959412d44b08c5435e1 ]
 
-No need to account for the 2 bytes of EEPROM
-address--this is now well abstracted away by
-the fixes the the lower layers.
+We need to unmap pages from userspace process before removing pagecache
+in punch_hole() like we did in f2fs_setattr().
 
-Cc: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Cc: Alexander Deucher <Alexander.Deucher@amd.com>
-Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
-Acked-by: Alexander Deucher <Alexander.Deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Similar change:
+commit 5e44f8c374dc ("ext4: hole-punch use truncate_pagecache_range")
+
+Fixes: fbfa2cc58d53 ("f2fs: add file operations")
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/file.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-index f40c871da0c6..fb701c4fd5c5 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
-@@ -321,7 +321,7 @@ int amdgpu_ras_eeprom_init(struct amdgpu_ras_eeprom_control *control,
- 		return ret;
- 	}
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 97d48c5bdebc..74f934da825f 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -1084,7 +1084,6 @@ static int punch_hole(struct inode *inode, loff_t offset, loff_t len)
+ 		}
  
--	__decode_table_header_from_buff(hdr, &buff[2]);
-+	__decode_table_header_from_buff(hdr, buff);
+ 		if (pg_start < pg_end) {
+-			struct address_space *mapping = inode->i_mapping;
+ 			loff_t blk_start, blk_end;
+ 			struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
  
- 	if (hdr->header == EEPROM_TABLE_HDR_VAL) {
- 		control->num_recs = (hdr->tbl_size - EEPROM_TABLE_HEADER_SIZE) /
+@@ -1096,8 +1095,7 @@ static int punch_hole(struct inode *inode, loff_t offset, loff_t len)
+ 			down_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
+ 			down_write(&F2FS_I(inode)->i_mmap_sem);
+ 
+-			truncate_inode_pages_range(mapping, blk_start,
+-					blk_end - 1);
++			truncate_pagecache_range(inode, blk_start, blk_end - 1);
+ 
+ 			f2fs_lock_op(sbi);
+ 			ret = f2fs_truncate_hole(inode, pg_start, pg_end);
 -- 
 2.30.2
 
