@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6248740E4AE
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1EBB40E7DF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344654AbhIPRFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:05:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54402 "EHLO mail.kernel.org"
+        id S1344448AbhIPRnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:43:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347561AbhIPQ7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:59:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E05F7613D0;
-        Thu, 16 Sep 2021 16:32:27 +0000 (UTC)
+        id S1353974AbhIPRh7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:37:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C7A96323A;
+        Thu, 16 Sep 2021 16:50:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809948;
-        bh=CJpWZgJNWPWmgx4F6mrFhgu62lcX0csw5uUVvGK9sN0=;
+        s=korg; t=1631811008;
+        bh=gr6JQB9O6DnegPzyHBDEsWN+933MkgkXlzoSs2VkTlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pIZXcb347iIfqLxX9+0E7DN5YmCvm1BWsJgNI9pEQbM5UgeWaW0xvkNrL9bAspbZb
-         ec7Qmi2YtkIf0Es2TczS+WIUhSCgAyWugNN0jArjIsB4kQi5xAktt3C1qHZ2zGqUDK
-         2w4tx87kzs+jqZVWuzgUcFGK71QO0L6YV9h9U5tg=
+        b=Ahp4G760aUMSxVuK0HttuBsJRQRzt45EDKSS3kjNdp2+PM4jAGefGqmJwcydOqnr5
+         /nSGFGQCE6bJX95NiZkZ04r838rkV4ph0ZroFSIAhZQF1kL/YlOtAe8taYaZcacl/e
+         UxvGOU9Tn3j9k2Ig6pHEF6iNiKP+oc9QLyBddYs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2b3e5fb6c7ef285a94f6@syzkaller.appspotmail.com,
-        Haimin Zhang <tcs_kernel@tencent.com>,
+        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
+        Sunil Goutham <sgoutham@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 342/380] fix array-index-out-of-bounds in taprio_change
+Subject: [PATCH 5.14 350/432] octeontx2-pf: cleanup transmit link deriving logic
 Date:   Thu, 16 Sep 2021 18:01:39 +0200
-Message-Id: <20210916155815.669270006@linuxfoundation.org>
+Message-Id: <20210916155822.685063698@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +41,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs_kernel@tencent.com>
+From: Subbaraya Sundeep <sbhatta@marvell.com>
 
-[ Upstream commit efe487fce3061d94222c6501d7be3aa549b3dc78 ]
+[ Upstream commit 039190bb353a16657b44c5833bcad57e029c6934 ]
 
-syzbot report an array-index-out-of-bounds in taprio_change
-index 16 is out of range for type '__u16 [16]'
-that's because mqprio->num_tc is lager than TC_MAX_QUEUE,so we check
-the return value of netdev_set_num_tc.
+Unlike OcteonTx2, the channel numbers used by CGX/RPM
+and LBK on CN10K silicons aren't fixed in HW. They are
+SW programmable, hence we cannot derive transmit link
+from static channel numbers anymore. Get the same from
+admin function via mailbox.
 
-Reported-by: syzbot+2b3e5fb6c7ef285a94f6@syzkaller.appspotmail.com
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
+Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
+Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../net/ethernet/marvell/octeontx2/af/mbox.h  |  1 +
+ .../ethernet/marvell/octeontx2/af/rvu_nix.c   |  9 ++++++--
+ .../marvell/octeontx2/nic/otx2_common.c       | 23 ++-----------------
+ .../marvell/octeontx2/nic/otx2_common.h       |  1 +
+ 4 files changed, 11 insertions(+), 23 deletions(-)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 5c91df52b8c2..b0d6385fff9e 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1547,7 +1547,9 @@ static int taprio_change(struct Qdisc *sch, struct nlattr *opt,
- 	taprio_set_picos_per_byte(dev, q);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/mbox.h b/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
+index f5ec39de026a..05f4334700e9 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
++++ b/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
+@@ -717,6 +717,7 @@ struct nix_lf_alloc_rsp {
+ 	u8	cgx_links;  /* No. of CGX links present in HW */
+ 	u8	lbk_links;  /* No. of LBK links present in HW */
+ 	u8	sdp_links;  /* No. of SDP links present in HW */
++	u8	tx_link;    /* Transmit channel link number */
+ };
  
- 	if (mqprio) {
--		netdev_set_num_tc(dev, mqprio->num_tc);
-+		err = netdev_set_num_tc(dev, mqprio->num_tc);
-+		if (err)
-+			goto free_sched;
- 		for (i = 0; i < mqprio->num_tc; i++)
- 			netdev_set_tc_queue(dev, i,
- 					    mqprio->count[i],
+ struct nix_lf_free_req {
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+index c32195073e8a..87af164951ea 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
+@@ -249,9 +249,11 @@ static bool is_valid_txschq(struct rvu *rvu, int blkaddr,
+ 	return true;
+ }
+ 
+-static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
++static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf,
++			      struct nix_lf_alloc_rsp *rsp)
+ {
+ 	struct rvu_pfvf *pfvf = rvu_get_pfvf(rvu, pcifunc);
++	struct rvu_hwinfo *hw = rvu->hw;
+ 	struct mac_ops *mac_ops;
+ 	int pkind, pf, vf, lbkid;
+ 	u8 cgx_id, lmac_id;
+@@ -276,6 +278,8 @@ static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
+ 		pfvf->tx_chan_base = pfvf->rx_chan_base;
+ 		pfvf->rx_chan_cnt = 1;
+ 		pfvf->tx_chan_cnt = 1;
++		rsp->tx_link = cgx_id * hw->lmac_per_cgx + lmac_id;
++
+ 		cgx_set_pkind(rvu_cgx_pdata(cgx_id, rvu), lmac_id, pkind);
+ 		rvu_npc_set_pkind(rvu, pkind, pfvf);
+ 
+@@ -309,6 +313,7 @@ static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
+ 					rvu_nix_chan_lbk(rvu, lbkid, vf + 1);
+ 		pfvf->rx_chan_cnt = 1;
+ 		pfvf->tx_chan_cnt = 1;
++		rsp->tx_link = hw->cgx_links + lbkid;
+ 		rvu_npc_set_pkind(rvu, NPC_RX_LBK_PKIND, pfvf);
+ 		rvu_npc_install_promisc_entry(rvu, pcifunc, nixlf,
+ 					      pfvf->rx_chan_base,
+@@ -1258,7 +1263,7 @@ int rvu_mbox_handler_nix_lf_alloc(struct rvu *rvu,
+ 	rvu_write64(rvu, blkaddr, NIX_AF_LFX_TX_PARSE_CFG(nixlf), cfg);
+ 
+ 	intf = is_afvf(pcifunc) ? NIX_INTF_TYPE_LBK : NIX_INTF_TYPE_CGX;
+-	err = nix_interface_init(rvu, pcifunc, intf, nixlf);
++	err = nix_interface_init(rvu, pcifunc, intf, nixlf, rsp);
+ 	if (err)
+ 		goto free_mem;
+ 
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+index 9c8aa1f3dbbb..124465b3987c 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+@@ -586,25 +586,6 @@ void otx2_get_mac_from_af(struct net_device *netdev)
+ }
+ EXPORT_SYMBOL(otx2_get_mac_from_af);
+ 
+-static int otx2_get_link(struct otx2_nic *pfvf)
+-{
+-	int link = 0;
+-	u16 map;
+-
+-	/* cgx lmac link */
+-	if (pfvf->hw.tx_chan_base >= CGX_CHAN_BASE) {
+-		map = pfvf->hw.tx_chan_base & 0x7FF;
+-		link = 4 * ((map >> 8) & 0xF) + ((map >> 4) & 0xF);
+-	}
+-	/* LBK channel */
+-	if (pfvf->hw.tx_chan_base < SDP_CHAN_BASE) {
+-		map = pfvf->hw.tx_chan_base & 0x7FF;
+-		link = pfvf->hw.cgx_links | ((map >> 8) & 0xF);
+-	}
+-
+-	return link;
+-}
+-
+ int otx2_txschq_config(struct otx2_nic *pfvf, int lvl)
+ {
+ 	struct otx2_hw *hw = &pfvf->hw;
+@@ -660,8 +641,7 @@ int otx2_txschq_config(struct otx2_nic *pfvf, int lvl)
+ 		req->regval[1] = TXSCH_TL1_DFLT_RR_PRIO << 24 | DFLT_RR_QTM;
+ 
+ 		req->num_regs++;
+-		req->reg[2] = NIX_AF_TL3_TL2X_LINKX_CFG(schq,
+-							otx2_get_link(pfvf));
++		req->reg[2] = NIX_AF_TL3_TL2X_LINKX_CFG(schq, hw->tx_link);
+ 		/* Enable this queue and backpressure */
+ 		req->regval[2] = BIT_ULL(13) | BIT_ULL(12);
+ 
+@@ -1606,6 +1586,7 @@ void mbox_handler_nix_lf_alloc(struct otx2_nic *pfvf,
+ 	pfvf->hw.lso_tsov6_idx = rsp->lso_tsov6_idx;
+ 	pfvf->hw.cgx_links = rsp->cgx_links;
+ 	pfvf->hw.lbk_links = rsp->lbk_links;
++	pfvf->hw.tx_link = rsp->tx_link;
+ }
+ EXPORT_SYMBOL(mbox_handler_nix_lf_alloc);
+ 
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+index 8c602d27108a..11686c5cf45b 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+@@ -215,6 +215,7 @@ struct otx2_hw {
+ 	u64			cgx_fec_uncorr_blks;
+ 	u8			cgx_links;  /* No. of CGX links present in HW */
+ 	u8			lbk_links;  /* No. of LBK links present in HW */
++	u8			tx_link;    /* Transmit channel link number */
+ #define HW_TSO			0
+ #define CN10K_MBOX		1
+ #define CN10K_LMTST		2
 -- 
 2.30.2
 
