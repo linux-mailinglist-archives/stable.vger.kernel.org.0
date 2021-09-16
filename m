@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F89440DF7F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01DE640E205
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237253AbhIPQKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:10:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47552 "EHLO mail.kernel.org"
+        id S242929AbhIPQdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:33:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235586AbhIPQJJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:09:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 324276135D;
-        Thu, 16 Sep 2021 16:07:38 +0000 (UTC)
+        id S242062AbhIPQbq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:31:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 344AC6187A;
+        Thu, 16 Sep 2021 16:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808458;
-        bh=4XLyxolhrMLjNIFlyN8qlI7yuJw7mrGBG65yOjX38Uo=;
+        s=korg; t=1631809181;
+        bh=tecI0xFXGZah/qzfpOPocp2W8hgrOZ2sSXszrl8VFlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vld1SAAAM57vcXlbeGkiSXqMzS5K1gb6FV8T+j977rED5s3bMVKnO1CaYzFajBm5s
-         phyoIJmp6k1aX7SN7murXoQhE80/K3G3K5IixUiJuNed/ga8QJbpFQumpFpIK89YQX
-         5y0RT/yI6/R+UnA/FKNboMRoeLhDmK3Y1dbYEbws=
+        b=b4Lp7etH5pNwfhyeP8GM9aUqC8se3MUUHpr9BxxYtEFEru/IuRvQDbc8d8tTOWAXp
+         Jvu7oF+NssJQCB+6VDTJA9u6iyGrP7FpgfBg83GBGtpsiYS2EmIZnyEN1SuR7PCJ3p
+         EblvoB4EdnO0x950YbB9tdz1tssSTFlrFKg9KUnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 071/306] cpuidle: pseries: Mark pseries_idle_proble() as __init
-Date:   Thu, 16 Sep 2021 17:56:56 +0200
-Message-Id: <20210916155756.481321831@linuxfoundation.org>
+        stable@vger.kernel.org, Stuart Hayes <stuart.w.hayes@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.13 060/380] PCI/portdrv: Enable Bandwidth Notification only if port supports it
+Date:   Thu, 16 Sep 2021 17:56:57 +0200
+Message-Id: <20210916155806.034630655@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Stuart Hayes <stuart.w.hayes@gmail.com>
 
-[ Upstream commit d04691d373e75c83424b85c0e68e4a3f9370c10d ]
+commit 00823dcbdd415c868390feaca16f0265101efab4 upstream.
 
-After commit 7cbd631d4dec ("cpuidle: pseries: Fixup CEDE0 latency only
-for POWER10 onwards"), pseries_idle_probe() is no longer inlined when
-compiling with clang, which causes a modpost warning:
+Previously we assumed that all Root Ports and Switch Downstream Ports
+supported Link Bandwidth Notification.  Per spec, this is only required
+for Ports supporting Links wider than x1 and/or multiple Link speeds
+(PCIe r5.0, sec 7.5.3.6).
 
-WARNING: modpost: vmlinux.o(.text+0xc86a54): Section mismatch in
-reference from the function pseries_idle_probe() to the function
-.init.text:fixup_cede0_latency()
-The function pseries_idle_probe() references
-the function __init fixup_cede0_latency().
-This is often because pseries_idle_probe lacks a __init
-annotation or the annotation of fixup_cede0_latency is wrong.
+Because we assumed all Ports supported it, we tried to set up a Bandwidth
+Notification IRQ, which failed for devices that don't support IRQs at all,
+which meant pcieport didn't attach to the Port at all.
 
-pseries_idle_probe() is a non-init function, which calls
-fixup_cede0_latency(), which is an init function, explaining the
-mismatch. pseries_idle_probe() is only called from
-pseries_processor_idle_init(), which is an init function, so mark
-pseries_idle_probe() as __init so there is no more warning.
+Check the Link Bandwidth Notification Capability bit and enable the service
+only when the Port supports it.
 
-Fixes: 054e44ba99ae ("cpuidle: pseries: Add function to parse extended CEDE records")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210803211547.1093820-1-nathan@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[bhelgaas: commit log]
+Fixes: e8303bb7a75c ("PCI/LINK: Report degraded links via link bandwidth notification")
+Link: https://lore.kernel.org/r/20210512213314.7778-1-stuart.w.hayes@gmail.com
+Signed-off-by: Stuart Hayes <stuart.w.hayes@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpuidle/cpuidle-pseries.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/pcie/portdrv_core.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpuidle/cpuidle-pseries.c b/drivers/cpuidle/cpuidle-pseries.c
-index e592280d8acf..ff164dec8422 100644
---- a/drivers/cpuidle/cpuidle-pseries.c
-+++ b/drivers/cpuidle/cpuidle-pseries.c
-@@ -402,7 +402,7 @@ static void __init fixup_cede0_latency(void)
-  * pseries_idle_probe()
-  * Choose state table for shared versus dedicated partition
-  */
--static int pseries_idle_probe(void)
-+static int __init pseries_idle_probe(void)
- {
+--- a/drivers/pci/pcie/portdrv_core.c
++++ b/drivers/pci/pcie/portdrv_core.c
+@@ -257,8 +257,13 @@ static int get_port_device_capability(st
+ 		services |= PCIE_PORT_SERVICE_DPC;
  
- 	if (cpuidle_disable != IDLE_NO_OVERRIDE)
--- 
-2.30.2
-
+ 	if (pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM ||
+-	    pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT)
+-		services |= PCIE_PORT_SERVICE_BWNOTIF;
++	    pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT) {
++		u32 linkcap;
++
++		pcie_capability_read_dword(dev, PCI_EXP_LNKCAP, &linkcap);
++		if (linkcap & PCI_EXP_LNKCAP_LBNC)
++			services |= PCIE_PORT_SERVICE_BWNOTIF;
++	}
+ 
+ 	return services;
+ }
 
 
