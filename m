@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3FA840E7C5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBAD140E3F8
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344684AbhIPRf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:35:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50250 "EHLO mail.kernel.org"
+        id S244115AbhIPQxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:53:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348307AbhIPRdw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:33:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6C3B61505;
-        Thu, 16 Sep 2021 16:47:58 +0000 (UTC)
+        id S240656AbhIPQvn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:51:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E987361288;
+        Thu, 16 Sep 2021 16:28:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810879;
-        bh=grpqI8sJsgtdBrayXqXN5K8Cvo1phWPDGxjB1M24YFE=;
+        s=korg; t=1631809729;
+        bh=taatuuLuDBoBSsvAWC34YtQ3EAR1kJj2dTPwEIz+LIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qiuK0XwnR7D61pC1IZhWmnO/QlexjkFZd0oPahVy2N5LMMdj7sviZd20pig+e0YSI
-         cBFXD4yFtK3IO24z8whG9fH/8CZrDk2+7TjInKAmJ6VNwuGPOwawAAd2t2TksriiIk
-         Nx3dkpQ0kooHdVBtGL3zfsC9mOROP+KGDmlIfpn8=
+        b=e2q45D5CRXLGzBlu8Z1qa/6ubayHJN/YJaLVxMFxidMrH3197ZOIXtTkJEMQZnSEk
+         wRVgG70LhtTS0DQGMdNtHQ+fF/LxuVNJasPTGTGecum3/QFPXlOAeZwCeccGB3qxBN
+         CFAdXv9mrIGWy9x8rhnYufy8v0gkauKkvPMblvO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Tuo Li <islituo@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 270/432] arm64: dts: qcom: ipq6018: drop 0x from unit address
+Subject: [PATCH 5.13 262/380] gpu: drm: amd: amdgpu: amdgpu_i2c: fix possible uninitialized-variable access in amdgpu_i2c_router_select_ddc_port()
 Date:   Thu, 16 Sep 2021 18:00:19 +0200
-Message-Id: <20210916155819.970030949@linuxfoundation.org>
+Message-Id: <20210916155812.987786448@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Tuo Li <islituo@gmail.com>
 
-[ Upstream commit 1b91b8ef60e9a67141e66af3cca532c00f4605fe ]
+[ Upstream commit a211260c34cfadc6068fece8c9e99e0fe1e2a2b6 ]
 
-Nodes need not contain '0x' for the unit address. Drop it to fix the
-below warning:
+The variable val is declared without initialization, and its address is
+passed to amdgpu_i2c_get_byte(). In this function, the value of val is
+accessed in:
+  DRM_DEBUG("i2c 0x%02x 0x%02x read failed\n",
+       addr, *val);
 
-arch/arm64/boot/dts/qcom/ipq6018-cp01-c1.dt.yaml: reserved-memory:
-'memory@0x60000' does not match any of the regexes
+Also, when amdgpu_i2c_get_byte() returns, val may remain uninitialized,
+but it is accessed in:
+  val &= ~amdgpu_connector->router.ddc_mux_control_pin;
 
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210308060826.3074234-19-vkoul@kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+To fix this possible uninitialized-variable access, initialize val to 0 in
+amdgpu_i2c_router_select_ddc_port().
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Tuo Li <islituo@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq6018.dtsi | 2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq6018.dtsi b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-index 9fa5b028e4f3..23ee1bfa4318 100644
---- a/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-+++ b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
-@@ -151,7 +151,7 @@ reserved-memory {
- 		#size-cells = <2>;
- 		ranges;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
+index bca4dddd5a15..82608df43396 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_i2c.c
+@@ -339,7 +339,7 @@ static void amdgpu_i2c_put_byte(struct amdgpu_i2c_chan *i2c_bus,
+ void
+ amdgpu_i2c_router_select_ddc_port(const struct amdgpu_connector *amdgpu_connector)
+ {
+-	u8 val;
++	u8 val = 0;
  
--		rpm_msg_ram: memory@0x60000 {
-+		rpm_msg_ram: memory@60000 {
- 			reg = <0x0 0x60000 0x0 0x6000>;
- 			no-map;
- 		};
+ 	if (!amdgpu_connector->router.ddc_valid)
+ 		return;
 -- 
 2.30.2
 
