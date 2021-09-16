@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9960240E2BE
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3AFA40E64F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244133AbhIPQlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:41:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S242524AbhIPRUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:20:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244489AbhIPQjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:39:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71591619F5;
-        Thu, 16 Sep 2021 16:22:59 +0000 (UTC)
+        id S1347119AbhIPRR0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:17:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2157E61A02;
+        Thu, 16 Sep 2021 16:40:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809380;
-        bh=oSF4S3CTDgEgFEs4mTPb5cHmLiOozTKjmUXB/FL2zEQ=;
+        s=korg; t=1631810436;
+        bh=U2DWvr1S5m+PZP+TE0gcMwIyQOLCWBQDV4Ira79fhkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RXFWhdA+u85quEjc5M7O/b9o30HVzynFZjgBysipkpwgYAgIr19CGK6uwtM/QBgYo
-         vH8icoy3ryrPX33Q39hA9wwGb54JY26JfNlfJBaY448mNyGOg35tMW/KLgEY43ukEj
-         3e2eFue5E9EIcvE/PnB6O1c3tPJ6JoPjvT6M+z0w=
+        b=B4uXUCShLHEaMUMKwIaFBNLxRijx9i1u31cfUENI0PqmzNI2s9eISpJ++JB9p0j9B
+         4P6tcR+PGIHro+9oP/FIBXsT5L7nCngTe2eOcsyfMiX+TgiAYElMSHB4rB9TeCEQaf
+         pGTlQXsFlymyNRZl9hGcJQSFuAoodpY6QW672/Iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 133/380] f2fs: fix to unmap pages from userspace process in punch_hole()
+Subject: [PATCH 5.14 141/432] powerpc/smp: Update cpu_core_map on all PowerPc systems
 Date:   Thu, 16 Sep 2021 17:58:10 +0200
-Message-Id: <20210916155808.561604472@linuxfoundation.org>
+Message-Id: <20210916155815.536101098@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 
-[ Upstream commit c8dc3047c48540183744f959412d44b08c5435e1 ]
+[ Upstream commit b8b928030332a0ca16d42433eb2c3085600d8704 ]
 
-We need to unmap pages from userspace process before removing pagecache
-in punch_hole() like we did in f2fs_setattr().
+lscpu() uses core_siblings to list the number of sockets in the
+system. core_siblings is set using topology_core_cpumask.
 
-Similar change:
-commit 5e44f8c374dc ("ext4: hole-punch use truncate_pagecache_range")
+While optimizing the powerpc bootup path, Commit 4ca234a9cbd7
+("powerpc/smp: Stop updating cpu_core_mask").  it was found that
+updating cpu_core_mask() ended up taking a lot of time. It was thought
+that on Powerpc, cpu_core_mask() would always be same as
+cpu_cpu_mask() i.e number of sockets will always be equal to number of
+nodes. As an optimization, cpu_core_mask() was made a snapshot of
+cpu_cpu_mask().
 
-Fixes: fbfa2cc58d53 ("f2fs: add file operations")
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+However that was found to be false with PowerPc KVM guests, where each
+node could have more than one socket. So with Commit c47f892d7aa6
+("powerpc/smp: Reintroduce cpu_core_mask"), cpu_core_mask was updated
+based on chip_id but in an optimized way using some mask manipulations
+and chip_id caching.
+
+However on non-PowerNV and non-pseries KVM guests (i.e not
+implementing cpu_to_chip_id(), continued to use a copy of
+cpu_cpu_mask().
+
+There are two issues that were noticed on such systems
+1. lscpu would report one extra socket.
+On a IBM,9009-42A (aka zz system) which has only 2 chips/ sockets/
+nodes, lscpu would report
+Architecture:        ppc64le
+Byte Order:          Little Endian
+CPU(s):              160
+On-line CPU(s) list: 0-159
+Thread(s) per core:  8
+Core(s) per socket:  6
+Socket(s):           3                <--------------
+NUMA node(s):        2
+Model:               2.2 (pvr 004e 0202)
+Model name:          POWER9 (architected), altivec supported
+Hypervisor vendor:   pHyp
+Virtualization type: para
+L1d cache:           32K
+L1i cache:           32K
+L2 cache:            512K
+L3 cache:            10240K
+NUMA node0 CPU(s):   0-79
+NUMA node1 CPU(s):   80-159
+
+2. Currently cpu_cpu_mask is updated when a core is
+added/removed. However its not updated when smt mode switching or on
+CPUs are explicitly offlined. However all other percpu masks are
+updated to ensure only active/online CPUs are in the masks.
+This results in build_sched_domain traces since there will be CPUs in
+cpu_cpu_mask() but those CPUs are not present in SMT / CACHE / MC /
+NUMA domains. A loop of threads running smt mode switching and core
+add/remove will soon show this trace.
+Hence cpu_cpu_mask has to be update at smt mode switch.
+
+This will have impact on cpu_core_mask(). cpu_core_mask() is a
+snapshot of cpu_cpu_mask. Different CPUs within the same socket will
+end up having different cpu_core_masks since they are snapshots at
+different points of time. This means when lscpu will start reporting
+many more sockets than the actual number of sockets/ nodes / chips.
+
+Different ways to handle this problem:
+A. Update the snapshot aka cpu_core_mask for all CPUs whenever
+   cpu_cpu_mask is updated. This would a non-optimal solution.
+B. Instead of a cpumask_var_t, make cpu_core_map a cpumask pointer
+   pointing to cpu_cpu_mask. However percpu cpumask pointer is frowned
+   upon and we need a clean way to handle PowerPc KVM guest which is
+   not a snapshot.
+C. Update cpu_core_masks all PowerPc systems like in PowerPc KVM
+guests using mask manipulations. This approach is relatively simple
+and unifies with the existing code.
+D. On top of 3, we could also resurrect get_physical_package_id which
+   could return a nid for the said CPU. However this is not needed at this
+   time.
+
+Option C is the preferred approach for now.
+
+While this is somewhat a revert of Commit 4ca234a9cbd7 ("powerpc/smp:
+Stop updating cpu_core_mask").
+
+1. Plain revert has some conflicts
+2. For chip_id == -1, the cpu_core_mask is made identical to
+cpu_cpu_mask, unlike previously where cpu_core_mask was set to a core
+if chip_id doesn't exist.
+
+This goes by the principle that if chip_id is not exposed, then
+sockets / chip / node share the same set of CPUs.
+
+With the fix, lscpu o/p would be
+Architecture:        ppc64le
+Byte Order:          Little Endian
+CPU(s):              160
+On-line CPU(s) list: 0-159
+Thread(s) per core:  8
+Core(s) per socket:  6
+Socket(s):           2                     <--------------
+NUMA node(s):        2
+Model:               2.2 (pvr 004e 0202)
+Model name:          POWER9 (architected), altivec supported
+Hypervisor vendor:   pHyp
+Virtualization type: para
+L1d cache:           32K
+L1i cache:           32K
+L2 cache:            512K
+L3 cache:            10240K
+NUMA node0 CPU(s):   0-79
+NUMA node1 CPU(s):   80-159
+
+Fixes: 4ca234a9cbd7 ("powerpc/smp: Stop updating cpu_core_mask")
+Signed-off-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210826100401.412519-3-srikar@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/powerpc/kernel/smp.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index fb27d49e4da7..3a11e81fdf65 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -1086,7 +1086,6 @@ static int punch_hole(struct inode *inode, loff_t offset, loff_t len)
+diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+index 2e151228d7ad..12c75b95646a 100644
+--- a/arch/powerpc/kernel/smp.c
++++ b/arch/powerpc/kernel/smp.c
+@@ -1503,6 +1503,7 @@ static void add_cpu_to_masks(int cpu)
+ 	 * add it to it's own thread sibling mask.
+ 	 */
+ 	cpumask_set_cpu(cpu, cpu_sibling_mask(cpu));
++	cpumask_set_cpu(cpu, cpu_core_mask(cpu));
+ 
+ 	for (i = first_thread; i < first_thread + threads_per_core; i++)
+ 		if (cpu_online(i))
+@@ -1520,11 +1521,6 @@ static void add_cpu_to_masks(int cpu)
+ 	if (chip_id_lookup_table && ret)
+ 		chip_id = cpu_to_chip_id(cpu);
+ 
+-	if (chip_id == -1) {
+-		cpumask_copy(per_cpu(cpu_core_map, cpu), cpu_cpu_mask(cpu));
+-		goto out;
+-	}
+-
+ 	if (shared_caches)
+ 		submask_fn = cpu_l2_cache_mask;
+ 
+@@ -1534,6 +1530,10 @@ static void add_cpu_to_masks(int cpu)
+ 	/* Skip all CPUs already part of current CPU core mask */
+ 	cpumask_andnot(mask, cpu_online_mask, cpu_core_mask(cpu));
+ 
++	/* If chip_id is -1; limit the cpu_core_mask to within DIE*/
++	if (chip_id == -1)
++		cpumask_and(mask, mask, cpu_cpu_mask(cpu));
++
+ 	for_each_cpu(i, mask) {
+ 		if (chip_id == cpu_to_chip_id(i)) {
+ 			or_cpumasks_related(cpu, i, submask_fn, cpu_core_mask);
+@@ -1543,7 +1543,6 @@ static void add_cpu_to_masks(int cpu)
  		}
+ 	}
  
- 		if (pg_start < pg_end) {
--			struct address_space *mapping = inode->i_mapping;
- 			loff_t blk_start, blk_end;
- 			struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+-out:
+ 	free_cpumask_var(mask);
+ }
  
-@@ -1098,8 +1097,7 @@ static int punch_hole(struct inode *inode, loff_t offset, loff_t len)
- 			down_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
- 			down_write(&F2FS_I(inode)->i_mmap_sem);
- 
--			truncate_inode_pages_range(mapping, blk_start,
--					blk_end - 1);
-+			truncate_pagecache_range(inode, blk_start, blk_end - 1);
- 
- 			f2fs_lock_op(sbi);
- 			ret = f2fs_truncate_hole(inode, pg_start, pg_end);
 -- 
 2.30.2
 
