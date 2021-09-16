@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A529140E44B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E4840E8E2
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245606AbhIPQ5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:57:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52240 "EHLO mail.kernel.org"
+        id S1345580AbhIPRmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:42:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346540AbhIPQy7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:54:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB8256128B;
-        Thu, 16 Sep 2021 16:30:28 +0000 (UTC)
+        id S242151AbhIPRgc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:36:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BEAE61A7A;
+        Thu, 16 Sep 2021 16:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809829;
-        bh=6FDQBhcItzQbsWO+IHXEjY8lZVlNaOGGqGUti7G3Zo0=;
+        s=korg; t=1631810981;
+        bh=jlRv8kDAL7oOh3uib7Np0PoxEOF5cyMjdJSYkpy+7lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCaHmSVLuuF1JkiVfZrdGGf2J+Uypo0eHSAz8Nn0ti+iY4a4i0hbtSQkkXYoAKDDo
-         u8J3j5cJ5ouA7l/jwif8Wg1YA4o+CxZ5QPA5quLL39tUfj5Ux50ODjJERI+B/3iZyE
-         6tn3yzkq0ORVBv+3+XLLKCtrtHC5k6VNAkPOxwxI=
+        b=Zu1NYLdNd69Rv0MwN+1thIoYNCYxqD2GyNU+/L7pNrK3p0IbEDs9cQqycSnZJBODu
+         /WA+UuXRYD8oTpX/qOLhl6rBFZYKFQT38gtYiPQ2F+CrvSTPmrX+64sR7LsFpU46l5
+         O1TCf/GrBFk8HfRGIf1PyFL/LyX6b2pIdRrZoy0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chin-Yen Lee <timlee@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 298/380] rtw88: wow: fix size access error of probe request
-Date:   Thu, 16 Sep 2021 18:00:55 +0200
-Message-Id: <20210916155814.202403139@linuxfoundation.org>
+Subject: [PATCH 5.14 307/432] Bluetooth: Fix handling of LE Enhanced Connection Complete
+Date:   Thu, 16 Sep 2021 18:00:56 +0200
+Message-Id: <20210916155821.221775853@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +41,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chin-Yen Lee <timlee@realtek.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 69c7044526d984df672b8d9b6d6998c34617cde4 ]
+[ Upstream commit cafae4cd625502f65d1798659c1aa9b62d38cc56 ]
 
-Current flow will lead to null ptr access because of trying
-to get the size of freed probe-request packets. We store the
-information of packet size into rsvd page instead and also fix
-the size error issue, which will cause unstable behavoir of
-sending probe request by wow firmware.
+LE Enhanced Connection Complete contains the Local RPA used in the
+connection which must be used when set otherwise there could problems
+when pairing since the address used by the remote stack could be the
+Local RPA:
 
-Signed-off-by: Chin-Yen Lee <timlee@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210728014335.8785-6-pkshih@realtek.com
+BLUETOOTH CORE SPECIFICATION Version 5.2 | Vol 4, Part E
+page 2396
+
+  'Resolvable Private Address being used by the local device for this
+  connection. This is only valid when the Own_Address_Type (from the
+  HCI_LE_Create_Connection, HCI_LE_Set_Advertising_Parameters,
+  HCI_LE_Set_Extended_Advertising_Parameters, or
+  HCI_LE_Extended_Create_Connection commands) is set to 0x02 or
+  0x03, and the Controller generated a resolvable private address for the
+  local device using a non-zero local IRK. For other Own_Address_Type
+  values, the Controller shall return all zeros.'
+
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/fw.c | 8 ++++++--
- drivers/net/wireless/realtek/rtw88/fw.h | 1 +
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ net/bluetooth/hci_event.c | 93 ++++++++++++++++++++++++++-------------
+ 1 file changed, 62 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
-index ea2cd4db1d3c..ce57932e38a4 100644
---- a/drivers/net/wireless/realtek/rtw88/fw.c
-+++ b/drivers/net/wireless/realtek/rtw88/fw.c
-@@ -715,7 +715,7 @@ static u16 rtw_get_rsvd_page_probe_req_size(struct rtw_dev *rtwdev,
- 			continue;
- 		if ((!ssid && !rsvd_pkt->ssid) ||
- 		    rtw_ssid_equal(rsvd_pkt->ssid, ssid))
--			size = rsvd_pkt->skb->len;
-+			size = rsvd_pkt->probe_req_size;
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 78032f1d8838..f41bd5dfc313 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5133,9 +5133,64 @@ static void hci_disconn_phylink_complete_evt(struct hci_dev *hdev,
+ }
+ #endif
+ 
++static void le_conn_update_addr(struct hci_conn *conn, bdaddr_t *bdaddr,
++				u8 bdaddr_type, bdaddr_t *local_rpa)
++{
++	if (conn->out) {
++		conn->dst_type = bdaddr_type;
++		conn->resp_addr_type = bdaddr_type;
++		bacpy(&conn->resp_addr, bdaddr);
++
++		/* Check if the controller has set a Local RPA then it must be
++		 * used instead or hdev->rpa.
++		 */
++		if (local_rpa && bacmp(local_rpa, BDADDR_ANY)) {
++			conn->init_addr_type = ADDR_LE_DEV_RANDOM;
++			bacpy(&conn->init_addr, local_rpa);
++		} else if (hci_dev_test_flag(conn->hdev, HCI_PRIVACY)) {
++			conn->init_addr_type = ADDR_LE_DEV_RANDOM;
++			bacpy(&conn->init_addr, &conn->hdev->rpa);
++		} else {
++			hci_copy_identity_address(conn->hdev, &conn->init_addr,
++						  &conn->init_addr_type);
++		}
++	} else {
++		conn->resp_addr_type = conn->hdev->adv_addr_type;
++		/* Check if the controller has set a Local RPA then it must be
++		 * used instead or hdev->rpa.
++		 */
++		if (local_rpa && bacmp(local_rpa, BDADDR_ANY)) {
++			conn->resp_addr_type = ADDR_LE_DEV_RANDOM;
++			bacpy(&conn->resp_addr, local_rpa);
++		} else if (conn->hdev->adv_addr_type == ADDR_LE_DEV_RANDOM) {
++			/* In case of ext adv, resp_addr will be updated in
++			 * Adv Terminated event.
++			 */
++			if (!ext_adv_capable(conn->hdev))
++				bacpy(&conn->resp_addr,
++				      &conn->hdev->random_addr);
++		} else {
++			bacpy(&conn->resp_addr, &conn->hdev->bdaddr);
++		}
++
++		conn->init_addr_type = bdaddr_type;
++		bacpy(&conn->init_addr, bdaddr);
++
++		/* For incoming connections, set the default minimum
++		 * and maximum connection interval. They will be used
++		 * to check if the parameters are in range and if not
++		 * trigger the connection update procedure.
++		 */
++		conn->le_conn_min_interval = conn->hdev->le_conn_min_interval;
++		conn->le_conn_max_interval = conn->hdev->le_conn_max_interval;
++	}
++}
++
+ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
+-			bdaddr_t *bdaddr, u8 bdaddr_type, u8 role, u16 handle,
+-			u16 interval, u16 latency, u16 supervision_timeout)
++				 bdaddr_t *bdaddr, u8 bdaddr_type,
++				 bdaddr_t *local_rpa, u8 role, u16 handle,
++				 u16 interval, u16 latency,
++				 u16 supervision_timeout)
+ {
+ 	struct hci_conn_params *params;
+ 	struct hci_conn *conn;
+@@ -5183,32 +5238,7 @@ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
+ 		cancel_delayed_work(&conn->le_conn_timeout);
  	}
  
- 	return size;
-@@ -943,6 +943,8 @@ static struct sk_buff *rtw_get_rsvd_page_skb(struct ieee80211_hw *hw,
- 							 ssid->ssid_len, 0);
- 		else
- 			skb_new = ieee80211_probereq_get(hw, vif->addr, NULL, 0, 0);
-+		if (skb_new)
-+			rsvd_pkt->probe_req_size = (u16)skb_new->len;
- 		break;
- 	case RSVD_NLO_INFO:
- 		skb_new = rtw_nlo_info_get(hw);
-@@ -1539,6 +1541,7 @@ int rtw_fw_dump_fifo(struct rtw_dev *rtwdev, u8 fifo_sel, u32 addr, u32 size,
- static void __rtw_fw_update_pkt(struct rtw_dev *rtwdev, u8 pkt_id, u16 size,
- 				u8 location)
- {
-+	struct rtw_chip_info *chip = rtwdev->chip;
- 	u8 h2c_pkt[H2C_PKT_SIZE] = {0};
- 	u16 total_size = H2C_PKT_HDR_SIZE + H2C_PKT_UPDATE_PKT_LEN;
+-	if (!conn->out) {
+-		/* Set the responder (our side) address type based on
+-		 * the advertising address type.
+-		 */
+-		conn->resp_addr_type = hdev->adv_addr_type;
+-		if (hdev->adv_addr_type == ADDR_LE_DEV_RANDOM) {
+-			/* In case of ext adv, resp_addr will be updated in
+-			 * Adv Terminated event.
+-			 */
+-			if (!ext_adv_capable(hdev))
+-				bacpy(&conn->resp_addr, &hdev->random_addr);
+-		} else {
+-			bacpy(&conn->resp_addr, &hdev->bdaddr);
+-		}
+-
+-		conn->init_addr_type = bdaddr_type;
+-		bacpy(&conn->init_addr, bdaddr);
+-
+-		/* For incoming connections, set the default minimum
+-		 * and maximum connection interval. They will be used
+-		 * to check if the parameters are in range and if not
+-		 * trigger the connection update procedure.
+-		 */
+-		conn->le_conn_min_interval = hdev->le_conn_min_interval;
+-		conn->le_conn_max_interval = hdev->le_conn_max_interval;
+-	}
++	le_conn_update_addr(conn, bdaddr, bdaddr_type, local_rpa);
  
-@@ -1549,6 +1552,7 @@ static void __rtw_fw_update_pkt(struct rtw_dev *rtwdev, u8 pkt_id, u16 size,
- 	UPDATE_PKT_SET_LOCATION(h2c_pkt, location);
+ 	/* Lookup the identity address from the stored connection
+ 	 * address and address type.
+@@ -5319,7 +5349,7 @@ static void hci_le_conn_complete_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 	BT_DBG("%s status 0x%2.2x", hdev->name, ev->status);
  
- 	/* include txdesc size */
-+	size += chip->tx_pkt_desc_sz;
- 	UPDATE_PKT_SET_SIZE(h2c_pkt, size);
+ 	le_conn_complete_evt(hdev, ev->status, &ev->bdaddr, ev->bdaddr_type,
+-			     ev->role, le16_to_cpu(ev->handle),
++			     NULL, ev->role, le16_to_cpu(ev->handle),
+ 			     le16_to_cpu(ev->interval),
+ 			     le16_to_cpu(ev->latency),
+ 			     le16_to_cpu(ev->supervision_timeout));
+@@ -5333,7 +5363,7 @@ static void hci_le_enh_conn_complete_evt(struct hci_dev *hdev,
+ 	BT_DBG("%s status 0x%2.2x", hdev->name, ev->status);
  
- 	rtw_fw_send_h2c_packet(rtwdev, h2c_pkt);
-@@ -1558,7 +1562,7 @@ void rtw_fw_update_pkt_probe_req(struct rtw_dev *rtwdev,
- 				 struct cfg80211_ssid *ssid)
- {
- 	u8 loc;
--	u32 size;
-+	u16 size;
+ 	le_conn_complete_evt(hdev, ev->status, &ev->bdaddr, ev->bdaddr_type,
+-			     ev->role, le16_to_cpu(ev->handle),
++			     &ev->local_rpa, ev->role, le16_to_cpu(ev->handle),
+ 			     le16_to_cpu(ev->interval),
+ 			     le16_to_cpu(ev->latency),
+ 			     le16_to_cpu(ev->supervision_timeout));
+@@ -5369,7 +5399,8 @@ static void hci_le_ext_adv_term_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 	if (conn) {
+ 		struct adv_info *adv_instance;
  
- 	loc = rtw_get_rsvd_page_probe_req_location(rtwdev, ssid);
- 	if (!loc) {
-diff --git a/drivers/net/wireless/realtek/rtw88/fw.h b/drivers/net/wireless/realtek/rtw88/fw.h
-index 7c5b1d75e26f..35bc9e10dcba 100644
---- a/drivers/net/wireless/realtek/rtw88/fw.h
-+++ b/drivers/net/wireless/realtek/rtw88/fw.h
-@@ -126,6 +126,7 @@ struct rtw_rsvd_page {
- 	u8 page;
- 	bool add_txdesc;
- 	struct cfg80211_ssid *ssid;
-+	u16 probe_req_size;
- };
+-		if (hdev->adv_addr_type != ADDR_LE_DEV_RANDOM)
++		if (hdev->adv_addr_type != ADDR_LE_DEV_RANDOM ||
++		    bacmp(&conn->resp_addr, BDADDR_ANY))
+ 			return;
  
- enum rtw_keep_alive_pkt_type {
+ 		if (!ev->handle) {
 -- 
 2.30.2
 
