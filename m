@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90EC340DFFB
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9E040E320
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:19:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237460AbhIPQQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:16:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49186 "EHLO mail.kernel.org"
+        id S242984AbhIPQp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:45:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235527AbhIPQNp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:13:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AAE4613A2;
-        Thu, 16 Sep 2021 16:10:06 +0000 (UTC)
+        id S243347AbhIPQmt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:42:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E7D861A4E;
+        Thu, 16 Sep 2021 16:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808606;
-        bh=6Kf2fT33VSvHv+eQRO4BHv76VEVqVr3MVAltcQ0IzkM=;
+        s=korg; t=1631809498;
+        bh=e0YyQ89vhZJrfRip3kDvSsTUPtWMNrFtRZ/S2IQUvJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffB8uJqCep01s2hICwY8GniyHU2g68/UqhbLXA2bEG3zvT8WGzZH4/GHlaYZ+8yNl
-         7BOT7y/LNtyCGm6S5WW1qpu9kJdDRMxZZuduueDDdEOLcwCamSCQJi1I+v8+7uvqh7
-         s9/L+GX/2Fr2KJbNVdApbivzA9hA7LdxbtBqv4Uc=
+        b=yX+C7ZidXvgkC7Oqw64HsVCL7xxxOMa9xnklHPXJGOvf6J285+MjPyWwpO60nn6XR
+         1HO6utnd6oF9RFjhSxGqLLqPCDrqc4+9DSFpkSMNbMvxqlHvJ8VTdQkX+NQ2RecS4L
+         4dUTBH+xAsnXlJEviXurkTLiWyGdrJs+lVn9MsQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 156/306] video: fbdev: riva: Error out if pixclock equals zero
-Date:   Thu, 16 Sep 2021 17:58:21 +0200
-Message-Id: <20210916155759.401832273@linuxfoundation.org>
+Subject: [PATCH 5.13 145/380] ASoC: atmel: ATMEL drivers dont need HAS_DMA
+Date:   Thu, 16 Sep 2021 17:58:22 +0200
+Message-Id: <20210916155808.993072588@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit f92763cb0feba247e0939ed137b495601fd072a5 ]
+[ Upstream commit 6c5c659dfe3f02e08054a6c20019e3886618b512 ]
 
-The userspace program could pass any values to the driver through
-ioctl() interface. If the driver doesn't check the value of 'pixclock',
-it may cause divide error.
+On a config (such as arch/sh/) which does not set HAS_DMA when MMU
+is not set, several ATMEL ASoC drivers select symbols that cause
+kconfig warnings. There is one "depends on HAS_DMA" which is no longer
+needed. Dropping it eliminates the kconfig warnings and still builds
+with no problems reported.
 
-Fix this by checking whether 'pixclock' is zero first.
+Fix the following kconfig warnings:
 
-The following log reveals it:
+WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_PDC
+  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && HAS_DMA [=n]
+  Selected by [m]:
+  - SND_ATMEL_SOC_SSC [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m]
+  - SND_ATMEL_SOC_SSC_PDC [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m]
 
-[   33.396850] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
-[   33.396864] CPU: 5 PID: 11754 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #222
-[   33.396883] RIP: 0010:riva_load_video_mode+0x417/0xf70
-[   33.396969] Call Trace:
-[   33.396973]  ? debug_smp_processor_id+0x1c/0x20
-[   33.396984]  ? tick_nohz_tick_stopped+0x1a/0x90
-[   33.396996]  ? rivafb_copyarea+0x3c0/0x3c0
-[   33.397003]  ? wake_up_klogd.part.0+0x99/0xd0
-[   33.397014]  ? vprintk_emit+0x110/0x4b0
-[   33.397024]  ? vprintk_default+0x26/0x30
-[   33.397033]  ? vprintk+0x9c/0x1f0
-[   33.397041]  ? printk+0xba/0xed
-[   33.397054]  ? record_print_text.cold+0x16/0x16
-[   33.397063]  ? __kasan_check_read+0x11/0x20
-[   33.397074]  ? profile_tick+0xc0/0x100
-[   33.397084]  ? __sanitizer_cov_trace_const_cmp4+0x24/0x80
-[   33.397094]  ? riva_set_rop_solid+0x2a0/0x2a0
-[   33.397102]  rivafb_set_par+0xbe/0x610
-[   33.397111]  ? riva_set_rop_solid+0x2a0/0x2a0
-[   33.397119]  fb_set_var+0x5bf/0xeb0
-[   33.397127]  ? fb_blank+0x1a0/0x1a0
-[   33.397134]  ? lock_acquire+0x1ef/0x530
-[   33.397143]  ? lock_release+0x810/0x810
-[   33.397151]  ? lock_is_held_type+0x100/0x140
-[   33.397159]  ? ___might_sleep+0x1ee/0x2d0
-[   33.397170]  ? __mutex_lock+0x620/0x1190
-[   33.397180]  ? trace_hardirqs_on+0x6a/0x1c0
-[   33.397190]  do_fb_ioctl+0x31e/0x700
+WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_SSC_PDC
+  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m] && HAS_DMA [=n]
+  Selected by [m]:
+  - SND_AT91_SOC_SAM9G20_WM8731 [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && (ARCH_AT91 || COMPILE_TEST [=y]) && ATMEL_SSC [=m] && SND_SOC_I2C_AND_SPI [=m]
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-4-git-send-email-zheyuma97@gmail.com
+WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_SSC
+  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && HAS_DMA [=n]
+  Selected by [m]:
+  - SND_ATMEL_SOC_SSC_DMA [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m]
+
+WARNING: unmet direct dependencies detected for SND_ATMEL_SOC_SSC_DMA
+  Depends on [n]: SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && ATMEL_SSC [=m] && HAS_DMA [=n]
+  Selected by [m]:
+  - SND_ATMEL_SOC_WM8904 [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && (ARCH_AT91 || COMPILE_TEST [=y]) && ATMEL_SSC [=m] && I2C [=m]
+  - SND_AT91_SOC_SAM9X5_WM8731 [=m] && SOUND [=m] && !UML && SND [=m] && SND_SOC [=m] && SND_ATMEL_SOC [=m] && (ARCH_AT91 || COMPILE_TEST [=y]) && ATMEL_SSC [=m] && SND_SOC_I2C_AND_SPI [=m]
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210707214752.3831-1-rdunlap@infradead.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/riva/fbdev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/atmel/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/riva/fbdev.c b/drivers/video/fbdev/riva/fbdev.c
-index ce55b9d2e862..7dd621c7afe4 100644
---- a/drivers/video/fbdev/riva/fbdev.c
-+++ b/drivers/video/fbdev/riva/fbdev.c
-@@ -1084,6 +1084,9 @@ static int rivafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
- 	int mode_valid = 0;
- 	
- 	NVTRACE_ENTER();
-+	if (!var->pixclock)
-+		return -EINVAL;
-+
- 	switch (var->bits_per_pixel) {
- 	case 1 ... 8:
- 		var->red.offset = var->green.offset = var->blue.offset = 0;
+diff --git a/sound/soc/atmel/Kconfig b/sound/soc/atmel/Kconfig
+index ec04e3386bc0..8617793ed955 100644
+--- a/sound/soc/atmel/Kconfig
++++ b/sound/soc/atmel/Kconfig
+@@ -11,7 +11,6 @@ if SND_ATMEL_SOC
+ 
+ config SND_ATMEL_SOC_PDC
+ 	bool
+-	depends on HAS_DMA
+ 
+ config SND_ATMEL_SOC_DMA
+ 	bool
 -- 
 2.30.2
 
