@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB3FC40E27B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 787F640E5B2
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243869AbhIPQjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:39:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51038 "EHLO mail.kernel.org"
+        id S1350866AbhIPROI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:14:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244030AbhIPQhC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:37:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31D92613E8;
-        Thu, 16 Sep 2021 16:21:57 +0000 (UTC)
+        id S1350672AbhIPRLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:11:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AD2A61439;
+        Thu, 16 Sep 2021 16:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809317;
+        s=korg; t=1631810292;
         bh=qK0BOmwDJmF4oj3hO2aTV2/3iC+cdcHPcLgcQaJKrZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOaJUtv6Jao428wVbrqyBY+1Ga2n+s0H4dhzUqy4zdAAm/7+dShb7XH/x7thcmAdq
-         jQ/N4eyf7tE/MgJYYL0X0sCfxepe2G59WONo+OlJcisbaMNOg0IsoGeF9ntC9VxQR6
-         WGd/kzef1iUdy9USXW5FlrE91M9ZiTO6RHCePwVQ=
+        b=IJ8QsvPQ3Zq9NAJFaOkELQEaoCwsi7n9Hc1VvBC3Ip0/G6ZmXYkbzcA8SZEoUqScK
+         Dau/7pVEpSOHGkMuJrVCrr4SEZLHBEM+pZ7TLCL8/7yI1uYtfiGflfIh/lNt9/bhFr
+         gzDyI1XZahmdFD86I8CEK4tIUdpTLKAbPyXYToto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sam Protsenko <semen.protsenko@linaro.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 078/380] pinctrl: samsung: Fix pinctrl bank pin count
+Subject: [PATCH 5.14 086/432] pinctrl: samsung: Fix pinctrl bank pin count
 Date:   Thu, 16 Sep 2021 17:57:15 +0200
-Message-Id: <20210916155806.670507126@linuxfoundation.org>
+Message-Id: <20210916155813.703854577@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
