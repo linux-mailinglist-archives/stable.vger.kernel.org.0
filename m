@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E36340E41E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FB1840E74D
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243976AbhIPQz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:55:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40180 "EHLO mail.kernel.org"
+        id S244946AbhIPRbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:31:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243815AbhIPQwJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:52:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38B1061A87;
-        Thu, 16 Sep 2021 16:28:54 +0000 (UTC)
+        id S1352806AbhIPR2k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:28:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0B0161C57;
+        Thu, 16 Sep 2021 16:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809734;
-        bh=0VuDnS1DAK7hb8SAqykRlDJ6nfW5xSYDmzzXZ/RcX50=;
+        s=korg; t=1631810752;
+        bh=HJfAW2t0hTonjZ5FlDW4q1tk06LyhkwoiHH4zkem0bc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YXINOXMpHdghY80ChhUHmEaeZZ04uPq62kYr3CZn9KSEcUdqP0wlwULTU74grLsgr
-         VayZ+RCcaRoi0jyX8qsJwRVoYaq3+i2s8xP5/YrGhGR+hnOqaKAuxeXS6diIhdAGix
-         /5yBwGM4Q93TdfL8sQCXd4WqOIKN/Cn+ew57ZsDU=
+        b=mb5PXnovNRMzjD/+Eyc1CpWn8NDJjuSY86XdOrY7gtD/O4cYZNJ2ZCFlND3V8Gh5K
+         jRO7EYAU3D9a+JjgxmkrcipKU3gKNZ0uP+Z/TNkkUK9MxUGYSyAyfgnvH/yeEo8d4n
+         PJ381i1338qlvfWN2bpPhccqj83ncXS8ao9ib5EI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 246/380] drm/msm: mdp4: drop vblank get/put from prepare/complete_commit
+Subject: [PATCH 5.14 254/432] dpaa2-switch: do not enable the DPSW at probe time
 Date:   Thu, 16 Sep 2021 18:00:03 +0200
-Message-Id: <20210916155812.450749890@linuxfoundation.org>
+Message-Id: <20210916155819.435159181@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit 56bd931ae506730c9ab1e4cc4bfefa43fc2d18fa ]
+[ Upstream commit 042ad90ca7ce70f35dc5efd5b2043d2f8aceb12a ]
 
-msm_atomic is doing vblank get/put's already,
-currently there no need to duplicate the effort in MDP4
+We should not enable the switch interfaces at probe time since this is
+trigged by the open callback. Remove the call dpsw_enable() which does
+exactly this.
 
-Fix warning:
-...
-WARNING: CPU: 3 PID: 79 at drivers/gpu/drm/drm_vblank.c:1194 drm_vblank_put+0x1cc/0x1d4
-...
-and multiple vblank time-outs:
-...
-msm 5100000.mdp: vblank time out, crtc=1
-...
-
-Tested on Nexus 7 2013 (deb), LTS 5.10.50.
-
-Introduced by: 119ecb7fd3b5 ("drm/msm/mdp4: request vblank during modeset")
-
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Link: https://lore.kernel.org/r/20210715060925.7880-1-david@ixit.cz
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-index 0712752742f4..1f12bccee2b8 100644
---- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-@@ -89,13 +89,6 @@ static void mdp4_disable_commit(struct msm_kms *kms)
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
+index 98cc0133c343..5ad5419e8be3 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
+@@ -3231,12 +3231,6 @@ static int dpaa2_switch_probe(struct fsl_mc_device *sw_dev)
+ 			       &ethsw->fq[i].napi, dpaa2_switch_poll,
+ 			       NAPI_POLL_WEIGHT);
  
- static void mdp4_prepare_commit(struct msm_kms *kms, struct drm_atomic_state *state)
- {
--	int i;
--	struct drm_crtc *crtc;
--	struct drm_crtc_state *crtc_state;
+-	err = dpsw_enable(ethsw->mc_io, 0, ethsw->dpsw_handle);
+-	if (err) {
+-		dev_err(ethsw->dev, "dpsw_enable err %d\n", err);
+-		goto err_free_netdev;
+-	}
 -
--	/* see 119ecb7fd */
--	for_each_new_crtc_in_state(state, crtc, crtc_state, i)
--		drm_crtc_vblank_get(crtc);
- }
- 
- static void mdp4_flush_commit(struct msm_kms *kms, unsigned crtc_mask)
-@@ -114,12 +107,6 @@ static void mdp4_wait_flush(struct msm_kms *kms, unsigned crtc_mask)
- 
- static void mdp4_complete_commit(struct msm_kms *kms, unsigned crtc_mask)
- {
--	struct mdp4_kms *mdp4_kms = to_mdp4_kms(to_mdp_kms(kms));
--	struct drm_crtc *crtc;
--
--	/* see 119ecb7fd */
--	for_each_crtc_mask(mdp4_kms->dev, crtc, crtc_mask)
--		drm_crtc_vblank_put(crtc);
- }
- 
- static long mdp4_round_pixclk(struct msm_kms *kms, unsigned long rate,
+ 	/* Setup IRQs */
+ 	err = dpaa2_switch_setup_irqs(sw_dev);
+ 	if (err)
 -- 
 2.30.2
 
