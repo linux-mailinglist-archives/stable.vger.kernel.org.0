@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46E3A40DAD6
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:12:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C84940DAD7
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:12:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239976AbhIPNNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 09:13:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58906 "EHLO mail.kernel.org"
+        id S239978AbhIPNNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 09:13:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239977AbhIPNNj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 09:13:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E116611CA;
-        Thu, 16 Sep 2021 13:12:18 +0000 (UTC)
+        id S239581AbhIPNNm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 09:13:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65622611CA;
+        Thu, 16 Sep 2021 13:12:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631797939;
-        bh=gNYIffFDWwDd40ffveuFYgbapbL2K2uu1DuogmPs/PY=;
+        s=korg; t=1631797942;
+        bh=Lcw5fRuqxTHqrH1Q6/Dnvq3PdbPtZtyQc6VfxGSIBAM=;
         h=Subject:To:Cc:From:Date:From;
-        b=aQF4HxejMBhZziHpaPuxU+nLcxmDqI6DZwyZ/Y09yhMl5N13BT88dHShwES6zWv4f
-         VKrEnFDfcE1GSvh72xPpMgzG7kgBPHN8uxhbkvRQ0GC8R58LM5BsjiRNQKRLzRrOA4
-         WA4bsxCPfq/TcunlGQEbptZC+Zja1SRqSGgUMFzw=
-Subject: FAILED: patch "[PATCH] drm/i915/gtt: drop the page table optimisation" failed to apply to 5.13-stable tree
+        b=00kApdh3Hc5oCjB+laYWSMvU57Mko34l/EkBW+IAUmBDu9vtMZWLECw00tQOFbMhH
+         3xOIjiIYpcr6N0iSGoeNAyjtcjrD3/c7sw3n13f9Mm9kzBH9+nhfgZC4majP5M7tm4
+         Byfn/hr6O/SCG404X9E6s87ZnvhMYFUnxtjSsTAY=
+Subject: FAILED: patch "[PATCH] drm/i915/gtt: drop the page table optimisation" failed to apply to 5.10-stable tree
 To:     matthew.auld@intel.com, chris.p.wilson@intel.com,
         daniel.vetter@ffwll.ch, daniel@ffwll.ch, jon.bloomfield@intel.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Sep 2021 15:12:14 +0200
-Message-ID: <1631797934116181@kroah.com>
+Date:   Thu, 16 Sep 2021 15:12:15 +0200
+Message-ID: <1631797935221107@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
