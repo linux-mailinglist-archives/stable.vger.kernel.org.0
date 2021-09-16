@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD40E40E014
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4025840E2BF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240802AbhIPQRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:17:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54936 "EHLO mail.kernel.org"
+        id S244146AbhIPQl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:41:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241155AbhIPQPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:15:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65E21613B1;
-        Thu, 16 Sep 2021 16:11:09 +0000 (UTC)
+        id S244490AbhIPQjL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:39:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51221619F9;
+        Thu, 16 Sep 2021 16:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808669;
-        bh=HbKdG9aytO0ioDG/KY7sAZQbkCDdECINTMrITFOu0ZE=;
+        s=korg; t=1631809382;
+        bh=xlvMOsq3B07TF5p8zOcYN2pH12KXIkCZO8EBk5X2kAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DcrWTHugXaIN3EaCYnqtEVn3dGwIRJXTas0g9PZr8VUPIImMr9bOXuTlMqnh65bQn
-         oq9W3L5x73GKPuX6xXWczumOE5yfquInfnOrP4u72u/v6DozfKUbE7iKbGRPWpWkFv
-         D4RBlz9ogucxFiuQ2qSbqJcFPJW7Tboo0IkKaDcI=
+        b=gQylnP0KCJxMEco1vBalhodhecD29pH+V737/KV6I2Zab3vMrOibfVtlaI6fEcqg/
+         8ZsTIp55cF5WZx3Ed5XymUlm9EGj/70LN+9MICwcl/x5HP4S/3e3t3+VPRek/4YiU6
+         haUQOdzrJYGO77jCgEQPXWDTTKf9DA2ICWzCD9YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= <niklas.soderlund@corigine.com>,
-        Louis Peens <louis.peens@corigine.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 146/306] nfp: fix return statement in nfp_net_parse_meta()
+Subject: [PATCH 5.13 134/380] f2fs: deallocate compressed pages when error happens
 Date:   Thu, 16 Sep 2021 17:58:11 +0200
-Message-Id: <20210916155759.031428896@linuxfoundation.org>
+Message-Id: <20210916155808.595999713@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund@corigine.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 4431531c482a2c05126caaa9fcc5053a4a5c495b ]
+[ Upstream commit 827f02842e40ea2e00f401e8f4cb1bccf3b8cd86 ]
 
-The return type of the function is bool and while NULL do evaluate to
-false it's not very nice, fix this by explicitly returning false. There
-is no functional change.
+In f2fs_write_multi_pages(), f2fs_compress_pages() allocates pages for
+compression work in cc->cpages[]. Then, f2fs_write_compressed_pages() initiates
+bio submission. But, if there's any error before submitting the IOs like early
+f2fs_cp_error(), previously it didn't free cpages by f2fs_compress_free_page().
+Let's fix memory leak by putting that just before deallocating cc->cpages.
 
-Signed-off-by: Niklas Söderlund <niklas.soderlund@corigine.com>
-Signed-off-by: Louis Peens <louis.peens@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@corigine.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4c8ff7095bef ("f2fs: support data compression")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/netronome/nfp/nfp_net_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/compress.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-index 437226866ce8..dfc1f32cda2b 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_net_common.c
-@@ -1697,7 +1697,7 @@ nfp_net_parse_meta(struct net_device *netdev, struct nfp_meta_parsed *meta,
- 		case NFP_NET_META_RESYNC_INFO:
- 			if (nfp_net_tls_rx_resync_req(netdev, data, pkt,
- 						      pkt_len))
--				return NULL;
-+				return false;
- 			data += sizeof(struct nfp_net_tls_resync_req);
- 			break;
- 		default:
+diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
+index ba188722ba43..14e6a78503f1 100644
+--- a/fs/f2fs/compress.c
++++ b/fs/f2fs/compress.c
+@@ -1363,12 +1363,6 @@ static int f2fs_write_compressed_pages(struct compress_ctx *cc,
+ 
+ 	for (--i; i >= 0; i--)
+ 		fscrypt_finalize_bounce_page(&cc->cpages[i]);
+-	for (i = 0; i < cc->nr_cpages; i++) {
+-		if (!cc->cpages[i])
+-			continue;
+-		f2fs_compress_free_page(cc->cpages[i]);
+-		cc->cpages[i] = NULL;
+-	}
+ out_put_cic:
+ 	kmem_cache_free(cic_entry_slab, cic);
+ out_put_dnode:
+@@ -1379,6 +1373,12 @@ static int f2fs_write_compressed_pages(struct compress_ctx *cc,
+ 	else
+ 		f2fs_unlock_op(sbi);
+ out_free:
++	for (i = 0; i < cc->nr_cpages; i++) {
++		if (!cc->cpages[i])
++			continue;
++		f2fs_compress_free_page(cc->cpages[i]);
++		cc->cpages[i] = NULL;
++	}
+ 	page_array_free(cc->inode, cc->cpages, cc->nr_cpages);
+ 	cc->cpages = NULL;
+ 	return -EAGAIN;
 -- 
 2.30.2
 
