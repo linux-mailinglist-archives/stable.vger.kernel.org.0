@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A42940DF40
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A0A40E1F4
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233117AbhIPQH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:07:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47324 "EHLO mail.kernel.org"
+        id S241521AbhIPQdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:33:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234221AbhIPQHZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:07:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E2C261261;
-        Thu, 16 Sep 2021 16:06:03 +0000 (UTC)
+        id S234478AbhIPQbI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:31:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30D14615E6;
+        Thu, 16 Sep 2021 16:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808364;
-        bh=Q/gVRKdZshQ5u/4ZGJ6JiYrwBp8RdvdKrP0Z7HyKZts=;
+        s=korg; t=1631809151;
+        bh=7k9mglpMG+27vjeUF7L6W+gVYfPjiWAuqo6rduvlxfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpvYokwzRev5NYEn4Dm6nyQVoits2EsNSqIknUJ5wRi5X43IRS8RchOY2/MOz5b3i
-         19lwqEAsjh0A+ocXJdjfsKcq493ye9dxUqZxvb/6jRjhsA2farncY6b5v5xym+YM8X
-         yvzfSlToxiNtOsh7Rwb/uT8OR+29kFbHCqvneMyU=
+        b=Q2Ftvo9WY8lGK4MLuBm3d9JgPcWa1MRruvx5kNnDHluONH5D+klppy54bjYwlSFza
+         GTg/69S3kAoot+2Ii2yMZgZ6RpeHoE4VWy2sxep8H1iMFFrWIegXNUIJNEUwOjMfHi
+         uUROcW4zG58lc3+wCFxUANSfM3+C/izRtpMwc4ys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/306] docs: Fix infiniband uverbs minor number
+        stable@vger.kernel.org, Robin Gong <yibin.gong@nxp.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Richard Leitner <richard.leitner@skidata.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.13 050/380] dmaengine: imx-sdma: remove duplicated sdma_load_context
 Date:   Thu, 16 Sep 2021 17:56:47 +0200
-Message-Id: <20210916155756.058277948@linuxfoundation.org>
+Message-Id: <20210916155805.684179808@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Robin Gong <yibin.gong@nxp.com>
 
-[ Upstream commit 8d7e415d55610d503fdb8815344846b72d194a40 ]
+commit e555a03b112838883fdd8185d613c35d043732f2 upstream.
 
-Starting from the beginning of infiniband subsystem, the uverbs char
-devices start from 192 as a minor number, see
-commit bc38a6abdd5a ("[PATCH] IB uverbs: core implementation").
+Since sdma_transfer_init() will do sdma_load_context before any
+sdma transfer, no need once more in sdma_config_channel().
 
-This patch updates the admin guide documentation to reflect it.
-
-Fixes: 9d85025b0418 ("docs-rst: create an user's manual book")
-Link: https://lore.kernel.org/r/bad03e6bcde45550c01e12908a6fe7dfa4770703.1627477347.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ad0d92d7ba6a ("dmaengine: imx-sdma: refine to load context only once")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Robin Gong <yibin.gong@nxp.com>
+Acked-by: Vinod Koul <vkoul@kernel.org>
+Tested-by: Richard Leitner <richard.leitner@skidata.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/devices.txt | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/dma/imx-sdma.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/Documentation/admin-guide/devices.txt b/Documentation/admin-guide/devices.txt
-index 63fd4e6a014b..8b738855e1c5 100644
---- a/Documentation/admin-guide/devices.txt
-+++ b/Documentation/admin-guide/devices.txt
-@@ -3003,10 +3003,10 @@
- 		65 = /dev/infiniband/issm1     Second InfiniBand IsSM device
- 		  ...
- 		127 = /dev/infiniband/issm63    63rd InfiniBand IsSM device
--		128 = /dev/infiniband/uverbs0   First InfiniBand verbs device
--		129 = /dev/infiniband/uverbs1   Second InfiniBand verbs device
-+		192 = /dev/infiniband/uverbs0   First InfiniBand verbs device
-+		193 = /dev/infiniband/uverbs1   Second InfiniBand verbs device
- 		  ...
--		159 = /dev/infiniband/uverbs31  31st InfiniBand verbs device
-+		223 = /dev/infiniband/uverbs31  31st InfiniBand verbs device
+--- a/drivers/dma/imx-sdma.c
++++ b/drivers/dma/imx-sdma.c
+@@ -1107,7 +1107,6 @@ static void sdma_set_watermarklevel_for_
+ static int sdma_config_channel(struct dma_chan *chan)
+ {
+ 	struct sdma_channel *sdmac = to_sdma_chan(chan);
+-	int ret;
  
-  232 char	Biometric Devices
- 		0 = /dev/biometric/sensor0/fingerprint	first fingerprint sensor on first device
--- 
-2.30.2
-
+ 	sdma_disable_channel(chan);
+ 
+@@ -1147,9 +1146,7 @@ static int sdma_config_channel(struct dm
+ 		sdmac->watermark_level = 0; /* FIXME: M3_BASE_ADDRESS */
+ 	}
+ 
+-	ret = sdma_load_context(sdmac);
+-
+-	return ret;
++	return 0;
+ }
+ 
+ static int sdma_set_channel_priority(struct sdma_channel *sdmac,
 
 
