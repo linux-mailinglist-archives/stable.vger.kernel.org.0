@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B03140E3AC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15DD540E050
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239270AbhIPQv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58580 "EHLO mail.kernel.org"
+        id S240776AbhIPQUu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243768AbhIPQrS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:47:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A22FA613D2;
-        Thu, 16 Sep 2021 16:26:52 +0000 (UTC)
+        id S241346AbhIPQTW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:19:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D14206138F;
+        Thu, 16 Sep 2021 16:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809613;
-        bh=o7gyH5Uz+ypBBqv8CcUZcrma9fUYs0sYBx4Lf2zN7+0=;
+        s=korg; t=1631808812;
+        bh=n94kMwFHUMe+HkJMYWMwz/mNrdLxyfQDhWM2x1S7TPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zi04xQtFmVtG90Krs517WWo2J4YiUnWfxS5quVrXlB5fUeD4DkTF2gJ0AzQbi2Pv5
-         SnRUnPRC1A+P7tBY23mpOWzkQr2j+pmQiQiLGhUc9NzflhorACuX0bzdkHYxwfy/hb
-         b52LEZhw2DSAfUp1AZ5Rld0AJylm+qQHquoq0Wzg=
+        b=HaGZ1ZULNu3wVcXRgaN35T59SDg1f2j+L1FlJIGwqKknMKIS/Zs/NzrUsoUBZVj25
+         +JUadB4efwTa6aa1Rw+uWuh+wFyoZbJOrVPHKuoD8q5bcBg2Aps2X5w+0DttnSJyDz
+         ZATFA4Cz+DB7IWI4aieHzB8vTS5U+mZnwxpX7umo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        =?UTF-8?q?Cl=C3=A9ment=20L=C3=A9ger?= <clement.leger@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 219/380] ARM: dts: at91: use the right property for shutdown controller
+Subject: [PATCH 5.10 231/306] kselftest/arm64: pac: Fix skipping of tests on systems without PAC
 Date:   Thu, 16 Sep 2021 17:59:36 +0200
-Message-Id: <20210916155811.535823897@linuxfoundation.org>
+Message-Id: <20210916155801.928625102@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,122 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 818c4593434e81c9971b8fc278215121622c755e ]
+[ Upstream commit 0c69bd2ca6ee20064dde7853cd749284e053a874 ]
 
-The wrong property "atmel,shdwc-debouncer" was used to specify the
-debounce delay for the shutdown controler. Replace it with the
-documented and implemented property "debounce-delay-us", as mentioned
-in v4 driver submission. See:
-https://lore.kernel.org/r/1458134390-23847-3-git-send-email-nicolas.ferre@atmel.com/
+The PAC tests check to see if the system supports the relevant PAC features
+but instead of skipping the tests if they can't be executed they fail the
+tests which makes things look like they're not working when they are.
 
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Reported-by: Clément Léger <clement.leger@bootlin.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20210730172729.28093-1-nicolas.ferre@microchip.com/
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210819165723.43903-1-broonie@kernel.org
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-kizbox3_common.dtsi    | 2 +-
- arch/arm/boot/dts/at91-sam9x60ek.dts          | 2 +-
- arch/arm/boot/dts/at91-sama5d27_som1_ek.dts   | 2 +-
- arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts | 2 +-
- arch/arm/boot/dts/at91-sama5d2_icp.dts        | 2 +-
- arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts     | 2 +-
- arch/arm/boot/dts/at91-sama5d2_xplained.dts   | 2 +-
- 7 files changed, 7 insertions(+), 7 deletions(-)
+ tools/testing/selftests/arm64/pauth/pac.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91-kizbox3_common.dtsi b/arch/arm/boot/dts/at91-kizbox3_common.dtsi
-index c4b3750495da..abe27adfa4d6 100644
---- a/arch/arm/boot/dts/at91-kizbox3_common.dtsi
-+++ b/arch/arm/boot/dts/at91-kizbox3_common.dtsi
-@@ -336,7 +336,7 @@ &pwm0 {
- };
+diff --git a/tools/testing/selftests/arm64/pauth/pac.c b/tools/testing/selftests/arm64/pauth/pac.c
+index 592fe538506e..b743daa772f5 100644
+--- a/tools/testing/selftests/arm64/pauth/pac.c
++++ b/tools/testing/selftests/arm64/pauth/pac.c
+@@ -25,13 +25,15 @@
+ do { \
+ 	unsigned long hwcaps = getauxval(AT_HWCAP); \
+ 	/* data key instructions are not in NOP space. This prevents a SIGILL */ \
+-	ASSERT_NE(0, hwcaps & HWCAP_PACA) TH_LOG("PAUTH not enabled"); \
++	if (!(hwcaps & HWCAP_PACA))					\
++		SKIP(return, "PAUTH not enabled"); \
+ } while (0)
+ #define ASSERT_GENERIC_PAUTH_ENABLED() \
+ do { \
+ 	unsigned long hwcaps = getauxval(AT_HWCAP); \
+ 	/* generic key instructions are not in NOP space. This prevents a SIGILL */ \
+-	ASSERT_NE(0, hwcaps & HWCAP_PACG) TH_LOG("Generic PAUTH not enabled"); \
++	if (!(hwcaps & HWCAP_PACG)) \
++		SKIP(return, "Generic PAUTH not enabled");	\
+ } while (0)
  
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	atmel,wakeup-rtc-timer;
+ void sign_specific(struct signatures *sign, size_t val)
+@@ -256,7 +258,7 @@ TEST(single_thread_different_keys)
+ 	unsigned long hwcaps = getauxval(AT_HWCAP);
  
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sam9x60ek.dts b/arch/arm/boot/dts/at91-sam9x60ek.dts
-index ebbc9b23aef1..b1068cca4228 100644
---- a/arch/arm/boot/dts/at91-sam9x60ek.dts
-+++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
-@@ -662,7 +662,7 @@ &rtt {
- };
+ 	/* generic and data key instructions are not in NOP space. This prevents a SIGILL */
+-	ASSERT_NE(0, hwcaps & HWCAP_PACA) TH_LOG("PAUTH not enabled");
++	ASSERT_PAUTH_ENABLED();
+ 	if (!(hwcaps & HWCAP_PACG)) {
+ 		TH_LOG("WARNING: Generic PAUTH not enabled. Skipping generic key checks");
+ 		nkeys = NKEYS - 1;
+@@ -299,7 +301,7 @@ TEST(exec_changed_keys)
+ 	unsigned long hwcaps = getauxval(AT_HWCAP);
  
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	status = "okay";
- 
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-index a9e6fee55a2a..8034e5dacc80 100644
---- a/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d27_som1_ek.dts
-@@ -138,7 +138,7 @@ i2c3: i2c@600 {
- 			};
- 
- 			shdwc@f8048010 {
--				atmel,shdwc-debouncer = <976>;
-+				debounce-delay-us = <976>;
- 				atmel,wakeup-rtc-timer;
- 
- 				input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts b/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-index ff83967fd008..c145c4e5ef58 100644
---- a/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d27_wlsom1_ek.dts
-@@ -205,7 +205,7 @@ &sdmmc0 {
- };
- 
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	atmel,wakeup-rtc-timer;
- 
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d2_icp.dts b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-index bd64721fa23c..34faca597c35 100644
---- a/arch/arm/boot/dts/at91-sama5d2_icp.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_icp.dts
-@@ -693,7 +693,7 @@ &sdmmc0 {
- };
- 
- &shutdown_controller {
--	atmel,shdwc-debouncer = <976>;
-+	debounce-delay-us = <976>;
- 	atmel,wakeup-rtc-timer;
- 
- 	input@0 {
-diff --git a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-index dfd150eb0fd8..3f972a4086c3 100644
---- a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
-@@ -203,7 +203,7 @@ i2c2: i2c@600 {
- 			};
- 
- 			shdwc@f8048010 {
--				atmel,shdwc-debouncer = <976>;
-+				debounce-delay-us = <976>;
- 
- 				input@0 {
- 					reg = <0>;
-diff --git a/arch/arm/boot/dts/at91-sama5d2_xplained.dts b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-index 509c732a0d8b..627b7bf88d83 100644
---- a/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-+++ b/arch/arm/boot/dts/at91-sama5d2_xplained.dts
-@@ -347,7 +347,7 @@ i2c2: i2c@600 {
- 			};
- 
- 			shdwc@f8048010 {
--				atmel,shdwc-debouncer = <976>;
-+				debounce-delay-us = <976>;
- 				atmel,wakeup-rtc-timer;
- 
- 				input@0 {
+ 	/* generic and data key instructions are not in NOP space. This prevents a SIGILL */
+-	ASSERT_NE(0, hwcaps & HWCAP_PACA) TH_LOG("PAUTH not enabled");
++	ASSERT_PAUTH_ENABLED();
+ 	if (!(hwcaps & HWCAP_PACG)) {
+ 		TH_LOG("WARNING: Generic PAUTH not enabled. Skipping generic key checks");
+ 		nkeys = NKEYS - 1;
 -- 
 2.30.2
 
