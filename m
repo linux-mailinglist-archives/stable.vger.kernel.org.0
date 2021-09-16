@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D63FB40DF1E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4AB540E5D5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229892AbhIPQG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:06:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46146 "EHLO mail.kernel.org"
+        id S243044AbhIPRPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:15:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233940AbhIPQGo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:06:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 644FD61260;
-        Thu, 16 Sep 2021 16:05:23 +0000 (UTC)
+        id S1344809AbhIPRHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:07:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD700619E5;
+        Thu, 16 Sep 2021 16:36:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808323;
-        bh=llqVRZepbp//01/uit09MPR+SKYoDSxTzpVAjo+o9ak=;
+        s=korg; t=1631810172;
+        bh=PALLLA4cNsd3d3iksZIZjOimC2VkR4FqFNZeNO2n+SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7vxGuGLaDgbZeF/kz9JpQ73VWpxSGAFwmtskUyPhwBwPCfwenQqv8mw/iOhKfa3T
-         9SXTYt0ao4tHSKmLSWY0uxmZsQI2X56UNMp87GaQU1Y5xUDGTkoNb4BM4SkbF+R0Mj
-         w0aiturshEp6/KqC9MzNm818tocvu6YxMSE4N8Ag=
+        b=dxOVzmxVzzZyEO4speZmgi5Z163zWfdCV+ENPDzmyrj/0909+2aNGRpI19PVTU5Bt
+         wdIYBZEhFBsRxq65NybLHlu8o0VzUiNtEnOBAV9coR9lTvD4N+TMSPg0paoDuP4IFz
+         lzs97Eb3N7i8jDYADHfjfoiEd6rWAD1M1C7n4l0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?R=C3=B6tti?= 
-        <espressobinboardarmbiantempmailaddress@posteo.de>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.10 047/306] PCI: Restrict ASMedia ASM1062 SATA Max Payload Size Supported
+        stable@vger.kernel.org, zhenwei pi <pizhenwei@bytedance.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.14 043/432] crypto: public_key: fix overflow during implicit conversion
 Date:   Thu, 16 Sep 2021 17:56:32 +0200
-Message-Id: <20210916155755.552788582@linuxfoundation.org>
+Message-Id: <20210916155812.273597593@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +39,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: zhenwei pi <pizhenwei@bytedance.com>
 
-commit b12d93e9958e028856cbcb061b6e64728ca07755 upstream.
+commit f985911b7bc75d5c98ed24d8aaa8b94c590f7c6a upstream.
 
-The ASMedia ASM1062 SATA controller advertises Max_Payload_Size_Supported
-of 512, but in fact it cannot handle incoming TLPs with payload size of
-512.
+Hit kernel warning like this, it can be reproduced by verifying 256
+bytes datafile by keyctl command, run script:
+RAWDATA=rawdata
+SIGDATA=sigdata
 
-We discovered this issue on PCIe controllers capable of MPS = 512 (Aardvark
-and DesignWare), where the issue presents itself as an External Abort.
-Bjorn Helgaas says:
+modprobe pkcs8_key_parser
 
-  Probably ASM1062 reports a Malformed TLP error when it receives a data
-  payload of 512 bytes, and Aardvark, DesignWare, etc convert this to an
-  arm64 External Abort. [1]
+rm -rf *.der *.pem *.pfx
+rm -rf $RAWDATA
+dd if=/dev/random of=$RAWDATA bs=256 count=1
 
-To avoid this problem, limit the ASM1062 Max Payload Size Supported to 256
-bytes, so we set the Max Payload Size of devices that may send TLPs to the
-ASM1062 to 256 or less.
+openssl req -nodes -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem \
+  -subj "/C=CN/ST=GD/L=SZ/O=vihoo/OU=dev/CN=xx.com/emailAddress=yy@xx.com"
 
-[1] https://lore.kernel.org/linux-pci/20210601170907.GA1949035@bjorn-Precision-5520/
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212695
-Link: https://lore.kernel.org/r/20210624171418.27194-2-kabel@kernel.org
-Reported-by: Rötti <espressobinboardarmbiantempmailaddress@posteo.de>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
-Reviewed-by: Pali Rohár <pali@kernel.org>
+KEY_ID=`openssl pkcs8 -in key.pem -topk8 -nocrypt -outform DER | keyctl \
+  padd asymmetric 123 @s`
+
+keyctl pkey_sign $KEY_ID 0 $RAWDATA enc=pkcs1 hash=sha1 > $SIGDATA
+keyctl pkey_verify $KEY_ID 0 $RAWDATA $SIGDATA enc=pkcs1 hash=sha1
+
+Then the kernel reports:
+ WARNING: CPU: 5 PID: 344556 at crypto/rsa-pkcs1pad.c:540
+   pkcs1pad_verify+0x160/0x190
+ ...
+ Call Trace:
+  public_key_verify_signature+0x282/0x380
+  ? software_key_query+0x12d/0x180
+  ? keyctl_pkey_params_get+0xd6/0x130
+  asymmetric_key_verify_signature+0x66/0x80
+  keyctl_pkey_verify+0xa5/0x100
+  do_syscall_64+0x35/0xb0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The reason of this issue, in function 'asymmetric_key_verify_signature':
+'.digest_size(u8) = params->in_len(u32)' leads overflow of an u8 value,
+so use u32 instead of u8 for digest_size field. And reorder struct
+public_key_signature, it saves 8 bytes on a 64-bit machine.
+
 Cc: stable@vger.kernel.org
+Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/crypto/public_key.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -3252,6 +3252,7 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SO
- 			PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLARFLARE,
- 			PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_ASMEDIA, 0x0612, fixup_mpss_256);
- 
- /*
-  * Intel 5000 and 5100 Memory controllers have an erratum with read completion
+--- a/include/crypto/public_key.h
++++ b/include/crypto/public_key.h
+@@ -38,9 +38,9 @@ extern void public_key_free(struct publi
+ struct public_key_signature {
+ 	struct asymmetric_key_id *auth_ids[2];
+ 	u8 *s;			/* Signature */
+-	u32 s_size;		/* Number of bytes in signature */
+ 	u8 *digest;
+-	u8 digest_size;		/* Number of bytes in digest */
++	u32 s_size;		/* Number of bytes in signature */
++	u32 digest_size;	/* Number of bytes in digest */
+ 	const char *pkey_algo;
+ 	const char *hash_algo;
+ 	const char *encoding;
 
 
