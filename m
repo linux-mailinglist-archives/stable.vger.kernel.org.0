@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DC2F40E079
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3AB440E6A8
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235014AbhIPQVg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55040 "EHLO mail.kernel.org"
+        id S245546AbhIPRX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:23:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241252AbhIPQPX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:15:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABCEA61350;
-        Thu, 16 Sep 2021 16:11:25 +0000 (UTC)
+        id S1346873AbhIPRVz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:21:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 342C761BA0;
+        Thu, 16 Sep 2021 16:42:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808686;
-        bh=uvcOn9u3AjrNTH6GU4l9aWzCKroJegd43P3y47cF5OE=;
+        s=korg; t=1631810550;
+        bh=ul6PfnBjkugntozSWDHDKLQiBHMJHl1pcpXfnDvZA/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0rGEWdJL5z1Kyb1qOR8mtSFF1Kns7yDcfTGcZdSXInAC6oJaqrv4HjzF2oX6ZwkE
-         apHJ4VmAG9XSI7JCDhuueE5yatv/6IHp6xYnQZLFwxlrUbH3rPMEN1sjFm5Q2eFmKK
-         cIvYHVT9ocVLNIqs0xpRTfh2thALSwe2ruHDLgHk=
+        b=Ldr3ILXWngUUKKiTSZxCzATaZmN2rz8vznxf2V3e2255OB85V675tzWSL69VFc749
+         9aQ/lsd3hjwZnPkzyif+2+Sp20JVQnoZNloEsEG4ARjI3YPb1p02Birzfb2MopLzi6
+         nGyjXMpY+bkii1pmqzmiw3jWpIfqJsAPESUvpOV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
+        David Heidelberg <david@ixit.cz>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 185/306] arm64: dts: qcom: sdm630: Rewrite memory map
-Date:   Thu, 16 Sep 2021 17:58:50 +0200
-Message-Id: <20210916155800.392790379@linuxfoundation.org>
+Subject: [PATCH 5.14 182/432] ARM: dts: qcom: apq8064: correct clock names
+Date:   Thu, 16 Sep 2021 17:58:51 +0200
+Message-Id: <20210916155816.900596379@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,113 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit 26e02c98a9ad63eb21b9be4ac92002f555130d3b ]
+[ Upstream commit 0dc6c59892ead17a9febd11202c9f6794aac1895 ]
 
-The memory map was wrong. Fix it.
+Since new code doesn't take old clk names in account, it does fixes
+error:
 
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Link: https://lore.kernel.org/r/20210728222542.54269-2-konrad.dybcio@somainline.org
+msm_dsi 4700000.mdss_dsi: dev_pm_opp_set_clkname: Couldn't find clock: -2
+
+and following kernel oops introduced by
+b0530eb1191 ("drm/msm/dpu: Use OPP API to set clk/perf state").
+
+Also removes warning about deprecated clock names.
+
+Tested against linux-5.10.y LTS on Nexus 7 2013.
+
+Reviewed-by: Brian Masney <masneyb@onstation.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210707131453.24041-1-david@ixit.cz
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm630.dtsi | 41 ++++++++++++----------------
- 1 file changed, 18 insertions(+), 23 deletions(-)
+ arch/arm/boot/dts/qcom-apq8064.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm630.dtsi b/arch/arm64/boot/dts/qcom/sdm630.dtsi
-index deb928d303c2..7da420cd21ba 100644
---- a/arch/arm64/boot/dts/qcom/sdm630.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm630.dtsi
-@@ -343,10 +343,19 @@ wlan_msa_mem: wlan-msa-mem@85700000 {
- 		};
+diff --git a/arch/arm/boot/dts/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom-apq8064.dtsi
+index 2687c4e890ba..e36d590e8373 100644
+--- a/arch/arm/boot/dts/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8064.dtsi
+@@ -1262,9 +1262,9 @@ dsi0: mdss_dsi@4700000 {
+ 				<&mmcc DSI1_BYTE_CLK>,
+ 				<&mmcc DSI_PIXEL_CLK>,
+ 				<&mmcc DSI1_ESC_CLK>;
+-			clock-names = "iface_clk", "bus_clk", "core_mmss_clk",
+-					"src_clk", "byte_clk", "pixel_clk",
+-					"core_clk";
++			clock-names = "iface", "bus", "core_mmss",
++					"src", "byte", "pixel",
++					"core";
  
- 		qhee_code: qhee-code@85800000 {
--			reg = <0x0 0x85800000 0x0 0x3700000>;
-+			reg = <0x0 0x85800000 0x0 0x600000>;
- 			no-map;
- 		};
- 
-+		rmtfs_mem: memory@85e00000 {
-+			compatible = "qcom,rmtfs-mem";
-+			reg = <0x0 0x85e00000 0x0 0x200000>;
-+			no-map;
-+
-+			qcom,client-id = <1>;
-+			qcom,vmid = <15>;
-+		};
-+
- 		smem_region: smem-mem@86000000 {
- 			reg = <0 0x86000000 0 0x200000>;
- 			no-map;
-@@ -357,58 +366,44 @@ tz_mem: memory@86200000 {
- 			no-map;
- 		};
- 
--		modem_fw_mem: modem-fw-region@8ac00000 {
-+		mpss_region: mpss@8ac00000 {
- 			reg = <0x0 0x8ac00000 0x0 0x7e00000>;
- 			no-map;
- 		};
- 
--		adsp_fw_mem: adsp-fw-region@92a00000 {
-+		adsp_region: adsp@92a00000 {
- 			reg = <0x0 0x92a00000 0x0 0x1e00000>;
- 			no-map;
- 		};
- 
--		pil_mba_mem: pil-mba-region@94800000 {
-+		mba_region: mba@94800000 {
- 			reg = <0x0 0x94800000 0x0 0x200000>;
- 			no-map;
- 		};
- 
--		buffer_mem: buffer-region@94a00000 {
-+		buffer_mem: tzbuffer@94a00000 {
- 			reg = <0x0 0x94a00000 0x0 0x100000>;
- 			no-map;
- 		};
- 
--		venus_fw_mem: venus-fw-region@9f800000 {
-+		venus_region: venus@9f800000 {
- 			reg = <0x0 0x9f800000 0x0 0x800000>;
- 			no-map;
- 		};
- 
--		secure_region2: secure-region2@f7c00000 {
--			reg = <0x0 0xf7c00000 0x0 0x5c00000>;
--			no-map;
--		};
--
- 		adsp_mem: adsp-region@f6000000 {
- 			reg = <0x0 0xf6000000 0x0 0x800000>;
- 			no-map;
- 		};
- 
--		qseecom_ta_mem: qseecom-ta-region@fec00000 {
--			reg = <0x0 0xfec00000 0x0 0x1000000>;
--			no-map;
--		};
--
- 		qseecom_mem: qseecom-region@f6800000 {
- 			reg = <0x0 0xf6800000 0x0 0x1400000>;
- 			no-map;
- 		};
- 
--		secure_display_memory: secure-region@f5c00000 {
--			reg = <0x0 0xf5c00000 0x0 0x5c00000>;
--			no-map;
--		};
--
--		cont_splash_mem: cont-splash-region@9d400000 {
--			reg = <0x0 0x9d400000 0x0 0x23ff000>;
-+		zap_shader_region: gpu@fed00000 {
-+			compatible = "shared-dma-pool";
-+			reg = <0x0 0xfed00000 0x0 0xa00000>;
- 			no-map;
- 		};
- 	};
+ 			assigned-clocks = <&mmcc DSI1_BYTE_SRC>,
+ 					<&mmcc DSI1_ESC_SRC>,
 -- 
 2.30.2
 
