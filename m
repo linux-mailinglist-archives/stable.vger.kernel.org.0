@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFFEE40E1F2
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC36240E1F5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241419AbhIPQdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:33:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44326 "EHLO mail.kernel.org"
+        id S241768AbhIPQdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:33:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241474AbhIPQbJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:31:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E31E66137D;
-        Thu, 16 Sep 2021 16:19:13 +0000 (UTC)
+        id S243333AbhIPQbL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:31:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BB7C61391;
+        Thu, 16 Sep 2021 16:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809154;
-        bh=fYi5Vj0hvNhaeRT8uo3OjxcwrFslV1ekSpdFtnZZzBM=;
+        s=korg; t=1631809157;
+        bh=ACEv7mGYILmwjxdiUIA6X3I3eeRBxR/2Y4NXtOulj4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BM7e5RlM3MJB3GDrUbdBaLHhsfOm+Z7/tJCpgqLD+Wf3dEL7M43ccHgbDBTBmnosw
-         UEqwRHEYaO+9CjkW4I7YsP17xiSiCPBWvRNsxotTD8RqK6YjtaA0A0M5CbPlYlcYoG
-         fYaBMMbpeNxZ9LKKlJlHIn15n57c631zndbWxV1I=
+        b=V2AzFnXqS6mkYd95yq5jKjRBIZAGWy+Pm2Kd7fr9t5YY9dTNBCnuRNSODF6ix5ctF
+         tANVzmqtE4T+d8tyOqYD7veFZTwblSElCGUUONw3hHFVv8A9V2EOc3X9G9NZiMZJP5
+         jFP9RWXFLAuGhSNwPnDBlquc/m3iZ6waN1NBuf80=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 051/380] io_uring: place fixed tables under memcg limits
-Date:   Thu, 16 Sep 2021 17:56:48 +0200
-Message-Id: <20210916155805.717753236@linuxfoundation.org>
+Subject: [PATCH 5.13 052/380] io_uring: add ->splice_fd_in checks
+Date:   Thu, 16 Sep 2021 17:56:49 +0200
+Message-Id: <20210916155805.751905627@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
 References: <20210916155803.966362085@linuxfoundation.org>
@@ -41,53 +41,222 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 0bea96f59ba40e63c0ae93ad6a02417b95f22f4d upstream.
+commit 26578cda3db983b17cabe4e577af26306beb9987 upstream.
 
-Fixed tables may be large enough, place all of them together with
-allocated tags under memcg limits.
+->splice_fd_in is used only by splice/tee, but no other request checks
+it for validity. Add the check for most of request types excluding
+reads/writes/sends/recvs, we don't want overhead for them and can leave
+them be as is until the field is actually used.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/b3ac9f5da9821bb59837b5fe25e8ef4be982218c.1629451684.git.asml.silence@gmail.com
+Link: https://lore.kernel.org/r/f44bc2acd6777d932de3d71a5692235b5b2b7397.1629451684.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/io_uring.c |   52 ++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 30 insertions(+), 22 deletions(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -7195,11 +7195,11 @@ static struct io_rsrc_data *io_rsrc_data
+@@ -3474,7 +3474,7 @@ static int io_renameat_prep(struct io_ki
+ 
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->buf_index)
++	if (sqe->ioprio || sqe->buf_index || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
+ 		return -EBADF;
+@@ -3525,7 +3525,8 @@ static int io_unlinkat_prep(struct io_ki
+ 
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->off || sqe->len || sqe->buf_index)
++	if (sqe->ioprio || sqe->off || sqe->len || sqe->buf_index ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
+ 		return -EBADF;
+@@ -3571,8 +3572,8 @@ static int io_shutdown_prep(struct io_ki
+ #if defined(CONFIG_NET)
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->off || sqe->addr || sqe->rw_flags ||
+-	    sqe->buf_index)
++	if (unlikely(sqe->ioprio || sqe->off || sqe->addr || sqe->rw_flags ||
++		     sqe->buf_index || sqe->splice_fd_in))
+ 		return -EINVAL;
+ 
+ 	req->shutdown.how = READ_ONCE(sqe->len);
+@@ -3720,7 +3721,8 @@ static int io_fsync_prep(struct io_kiocb
+ 
+ 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index))
++	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index ||
++		     sqe->splice_fd_in))
+ 		return -EINVAL;
+ 
+ 	req->sync.flags = READ_ONCE(sqe->fsync_flags);
+@@ -3753,7 +3755,8 @@ static int io_fsync(struct io_kiocb *req
+ static int io_fallocate_prep(struct io_kiocb *req,
+ 			     const struct io_uring_sqe *sqe)
  {
- 	struct io_rsrc_data *data;
+-	if (sqe->ioprio || sqe->buf_index || sqe->rw_flags)
++	if (sqe->ioprio || sqe->buf_index || sqe->rw_flags ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+@@ -3784,7 +3787,7 @@ static int __io_openat_prep(struct io_ki
+ 	const char __user *fname;
+ 	int ret;
  
--	data = kzalloc(sizeof(*data), GFP_KERNEL);
-+	data = kzalloc(sizeof(*data), GFP_KERNEL_ACCOUNT);
- 	if (!data)
- 		return NULL;
+-	if (unlikely(sqe->ioprio || sqe->buf_index))
++	if (unlikely(sqe->ioprio || sqe->buf_index || sqe->splice_fd_in))
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
+ 		return -EBADF;
+@@ -3909,7 +3912,8 @@ static int io_remove_buffers_prep(struct
+ 	struct io_provide_buf *p = &req->pbuf;
+ 	u64 tmp;
  
--	data->tags = kvcalloc(nr, sizeof(*data->tags), GFP_KERNEL);
-+	data->tags = kvcalloc(nr, sizeof(*data->tags), GFP_KERNEL_ACCOUNT);
- 	if (!data->tags) {
- 		kfree(data);
- 		return NULL;
-@@ -7477,7 +7477,7 @@ static bool io_alloc_file_tables(struct
+-	if (sqe->ioprio || sqe->rw_flags || sqe->addr || sqe->len || sqe->off)
++	if (sqe->ioprio || sqe->rw_flags || sqe->addr || sqe->len || sqe->off ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	tmp = READ_ONCE(sqe->fd);
+@@ -3980,7 +3984,7 @@ static int io_provide_buffers_prep(struc
+ 	struct io_provide_buf *p = &req->pbuf;
+ 	u64 tmp;
+ 
+-	if (sqe->ioprio || sqe->rw_flags)
++	if (sqe->ioprio || sqe->rw_flags || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	tmp = READ_ONCE(sqe->fd);
+@@ -4067,7 +4071,7 @@ static int io_epoll_ctl_prep(struct io_k
+ 			     const struct io_uring_sqe *sqe)
  {
- 	unsigned i, nr_tables = DIV_ROUND_UP(nr_files, IORING_MAX_FILES_TABLE);
+ #if defined(CONFIG_EPOLL)
+-	if (sqe->ioprio || sqe->buf_index)
++	if (sqe->ioprio || sqe->buf_index || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+@@ -4113,7 +4117,7 @@ static int io_epoll_ctl(struct io_kiocb
+ static int io_madvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+ #if defined(CONFIG_ADVISE_SYSCALLS) && defined(CONFIG_MMU)
+-	if (sqe->ioprio || sqe->buf_index || sqe->off)
++	if (sqe->ioprio || sqe->buf_index || sqe->off || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+@@ -4148,7 +4152,7 @@ static int io_madvise(struct io_kiocb *r
  
--	table->files = kcalloc(nr_tables, sizeof(*table->files), GFP_KERNEL);
-+	table->files = kcalloc(nr_tables, sizeof(*table->files), GFP_KERNEL_ACCOUNT);
- 	if (!table->files)
- 		return false;
+ static int io_fadvise_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ {
+-	if (sqe->ioprio || sqe->buf_index || sqe->addr)
++	if (sqe->ioprio || sqe->buf_index || sqe->addr || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+@@ -4186,7 +4190,7 @@ static int io_statx_prep(struct io_kiocb
+ {
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->buf_index)
++	if (sqe->ioprio || sqe->buf_index || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (req->flags & REQ_F_FIXED_FILE)
+ 		return -EBADF;
+@@ -4222,7 +4226,7 @@ static int io_close_prep(struct io_kiocb
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+ 	if (sqe->ioprio || sqe->off || sqe->addr || sqe->len ||
+-	    sqe->rw_flags || sqe->buf_index)
++	    sqe->rw_flags || sqe->buf_index || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (req->flags & REQ_F_FIXED_FILE)
+ 		return -EBADF;
+@@ -4283,7 +4287,8 @@ static int io_sfr_prep(struct io_kiocb *
  
-@@ -7485,7 +7485,7 @@ static bool io_alloc_file_tables(struct
- 		unsigned int this_files = min(nr_files, IORING_MAX_FILES_TABLE);
+ 	if (unlikely(ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index))
++	if (unlikely(sqe->addr || sqe->ioprio || sqe->buf_index ||
++		     sqe->splice_fd_in))
+ 		return -EINVAL;
  
- 		table->files[i] = kcalloc(this_files, sizeof(*table->files[i]),
--					GFP_KERNEL);
-+					GFP_KERNEL_ACCOUNT);
- 		if (!table->files[i])
- 			break;
- 		nr_files -= this_files;
+ 	req->sync.off = READ_ONCE(sqe->off);
+@@ -4710,7 +4715,7 @@ static int io_accept_prep(struct io_kioc
+ 
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->len || sqe->buf_index)
++	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	accept->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
+@@ -4758,7 +4763,8 @@ static int io_connect_prep(struct io_kio
+ 
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->rw_flags)
++	if (sqe->ioprio || sqe->len || sqe->buf_index || sqe->rw_flags ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	conn->addr = u64_to_user_ptr(READ_ONCE(sqe->addr));
+@@ -5368,7 +5374,7 @@ static int io_poll_update_prep(struct io
+ 
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->buf_index)
++	if (sqe->ioprio || sqe->buf_index || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	flags = READ_ONCE(sqe->len);
+ 	if (flags & ~(IORING_POLL_UPDATE_EVENTS | IORING_POLL_UPDATE_USER_DATA |
+@@ -5603,7 +5609,7 @@ static int io_timeout_remove_prep(struct
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->buf_index || sqe->len)
++	if (sqe->ioprio || sqe->buf_index || sqe->len || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	tr->addr = READ_ONCE(sqe->addr);
+@@ -5662,7 +5668,8 @@ static int io_timeout_prep(struct io_kio
+ 
+ 	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->buf_index || sqe->len != 1)
++	if (sqe->ioprio || sqe->buf_index || sqe->len != 1 ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 	if (off && is_timeout_link)
+ 		return -EINVAL;
+@@ -5811,7 +5818,8 @@ static int io_async_cancel_prep(struct i
+ 		return -EINVAL;
+ 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->off || sqe->len || sqe->cancel_flags)
++	if (sqe->ioprio || sqe->off || sqe->len || sqe->cancel_flags ||
++	    sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	req->cancel.addr = READ_ONCE(sqe->addr);
+@@ -5868,7 +5876,7 @@ static int io_rsrc_update_prep(struct io
+ {
+ 	if (unlikely(req->flags & (REQ_F_FIXED_FILE | REQ_F_BUFFER_SELECT)))
+ 		return -EINVAL;
+-	if (sqe->ioprio || sqe->rw_flags)
++	if (sqe->ioprio || sqe->rw_flags || sqe->splice_fd_in)
+ 		return -EINVAL;
+ 
+ 	req->rsrc_update.offset = READ_ONCE(sqe->off);
 
 
