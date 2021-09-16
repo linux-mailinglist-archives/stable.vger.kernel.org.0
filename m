@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1517940E86A
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB22740E869
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355371AbhIPRod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57062 "EHLO mail.kernel.org"
+        id S1355240AbhIPRob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355364AbhIPRlX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355367AbhIPRlX (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:41:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 397FA61A84;
-        Thu, 16 Sep 2021 16:52:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F31E161288;
+        Thu, 16 Sep 2021 16:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811148;
-        bh=BBeyKNK44+fXwO9rcbxjtQzZo+draOt3fVXpXTPATWw=;
+        s=korg; t=1631811151;
+        bh=Y1Y6qKFPn2Oc4WwGT0N3jzb39fHfoRkaYrnTqW2HHjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mO04xN1vk7H2HvMvsppBAGafzP5g8rBQ0CdRRPuDS8gUhOTGHdNtKIzqE7tLokGj6
-         KTfkt33V821Tdte/W91OJw+yeDq6siazJ8Z2Mk7mRfWnYvfE/LynOK/Sv1cFFeAq7d
-         hauy53t8Wlnz8PRY4BvENGKQvuph61g4ify+4t4o=
+        b=kwOi4UBS/sliEy7sdQLiGsqtYlEGlJbZq/YFmGxFnqp0fnKe7+nbE0nmmtNKHlFCo
+         vP3BikIVDHj7tcqz8A+OcEC0Dtq0ThwRTsI4otmbLwNovFTWemJu8M0WvibxBAvnib
+         6ogX8AQQzy/wlln/e06fPqFqSIEYXdN2ayi8RE1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Konrad Rzeszutek Wilk <konrad@kernel.org>
-Subject: [PATCH 5.14 400/432] s390/pv: fix the forcing of the swiotlb
-Date:   Thu, 16 Sep 2021 18:02:29 +0200
-Message-Id: <20210916155824.390648165@linuxfoundation.org>
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.14 401/432] s390/topology: fix topology information when calling cpu hotplug notifiers
+Date:   Thu, 16 Sep 2021 18:02:30 +0200
+Message-Id: <20210916155824.424349471@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -40,50 +39,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-commit 93ebb6828723b8aef114415c4dc3518342f7dcad upstream.
+commit a052096bdd6809eeab809202726634d1ac975aa1 upstream.
 
-Since commit 903cd0f315fe ("swiotlb: Use is_swiotlb_force_bounce for
-swiotlb data bouncing") if code sets swiotlb_force it needs to do so
-before the swiotlb is initialised. Otherwise
-io_tlb_default_mem->force_bounce will not get set to true, and devices
-that use (the default) swiotlb will not bounce despite switolb_force
-having the value of SWIOTLB_FORCE.
+The cpu hotplug notifiers are called without updating the core/thread
+masks when a new CPU is added. This causes problems with code setting
+up data structures in a cpu hotplug notifier, and relying on that later
+in normal code.
 
-Let us restore swiotlb functionality for PV by fulfilling this new
-requirement.
+This caused a crash in the new core scheduling code (SCHED_CORE),
+where rq->core was set up in a notifier depending on cpu masks.
 
-This change addresses what turned out to be a fragility in
-commit 64e1f0c531d1 ("s390/mm: force swiotlb for protected
-virtualization"), which ain't exactly broken in its original context,
-but could give us some more headache if people backport the broken
-change and forget this fix.
+To fix this, add a cpu_setup_mask which is used in update_cpu_masks()
+instead of the cpu_online_mask to determine whether the cpu masks should
+be set for a certain cpu. Also move update_cpu_masks() to update the
+masks before calling notify_cpu_starting() so that the notifiers are
+seeing the updated masks.
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Fixes: 903cd0f315fe ("swiotlb: Use is_swiotlb_force_bounce for swiotlb data bouncing")
-Fixes: 64e1f0c531d1 ("s390/mm: force swiotlb for protected virtualization")
-Cc: stable@vger.kernel.org #5.3+
-Signed-off-by: Konrad Rzeszutek Wilk <konrad@kernel.org>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+[hca@linux.ibm.com: get rid of cpu_online_mask handling]
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/mm/init.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/include/asm/smp.h |    1 +
+ arch/s390/kernel/smp.c      |    9 +++++++--
+ arch/s390/kernel/topology.c |   13 +++++++------
+ 3 files changed, 15 insertions(+), 8 deletions(-)
 
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -186,9 +186,9 @@ static void pv_init(void)
- 		return;
+--- a/arch/s390/include/asm/smp.h
++++ b/arch/s390/include/asm/smp.h
+@@ -18,6 +18,7 @@ extern struct mutex smp_cpu_state_mutex;
+ extern unsigned int smp_cpu_mt_shift;
+ extern unsigned int smp_cpu_mtid;
+ extern __vector128 __initdata boot_cpu_vector_save_area[__NUM_VXRS];
++extern cpumask_t cpu_setup_mask;
  
- 	/* make sure bounce buffers are shared */
-+	swiotlb_force = SWIOTLB_FORCE;
- 	swiotlb_init(1);
- 	swiotlb_update_mem_attributes();
--	swiotlb_force = SWIOTLB_FORCE;
+ extern int __cpu_up(unsigned int cpu, struct task_struct *tidle);
+ 
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -95,6 +95,7 @@ __vector128 __initdata boot_cpu_vector_s
+ #endif
+ 
+ static unsigned int smp_max_threads __initdata = -1U;
++cpumask_t cpu_setup_mask;
+ 
+ static int __init early_nosmt(char *s)
+ {
+@@ -894,13 +895,14 @@ static void smp_init_secondary(void)
+ 	vtime_init();
+ 	vdso_getcpu_init();
+ 	pfault_init();
++	cpumask_set_cpu(cpu, &cpu_setup_mask);
++	update_cpu_masks();
+ 	notify_cpu_starting(cpu);
+ 	if (topology_cpu_dedicated(cpu))
+ 		set_cpu_flag(CIF_DEDICATED_CPU);
+ 	else
+ 		clear_cpu_flag(CIF_DEDICATED_CPU);
+ 	set_cpu_online(cpu, true);
+-	update_cpu_masks();
+ 	inc_irq_stat(CPU_RST);
+ 	local_irq_enable();
+ 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
+@@ -955,10 +957,13 @@ early_param("possible_cpus", _setup_poss
+ int __cpu_disable(void)
+ {
+ 	unsigned long cregs[16];
++	int cpu;
+ 
+ 	/* Handle possible pending IPIs */
+ 	smp_handle_ext_call();
+-	set_cpu_online(smp_processor_id(), false);
++	cpu = smp_processor_id();
++	set_cpu_online(cpu, false);
++	cpumask_clear_cpu(cpu, &cpu_setup_mask);
+ 	update_cpu_masks();
+ 	/* Disable pseudo page faults on this cpu. */
+ 	pfault_fini();
+--- a/arch/s390/kernel/topology.c
++++ b/arch/s390/kernel/topology.c
+@@ -67,7 +67,7 @@ static void cpu_group_map(cpumask_t *dst
+ 	static cpumask_t mask;
+ 
+ 	cpumask_clear(&mask);
+-	if (!cpu_online(cpu))
++	if (!cpumask_test_cpu(cpu, &cpu_setup_mask))
+ 		goto out;
+ 	cpumask_set_cpu(cpu, &mask);
+ 	switch (topology_mode) {
+@@ -88,7 +88,7 @@ static void cpu_group_map(cpumask_t *dst
+ 	case TOPOLOGY_MODE_SINGLE:
+ 		break;
+ 	}
+-	cpumask_and(&mask, &mask, cpu_online_mask);
++	cpumask_and(&mask, &mask, &cpu_setup_mask);
+ out:
+ 	cpumask_copy(dst, &mask);
  }
+@@ -99,16 +99,16 @@ static void cpu_thread_map(cpumask_t *ds
+ 	int i;
  
- void __init mem_init(void)
+ 	cpumask_clear(&mask);
+-	if (!cpu_online(cpu))
++	if (!cpumask_test_cpu(cpu, &cpu_setup_mask))
+ 		goto out;
+ 	cpumask_set_cpu(cpu, &mask);
+ 	if (topology_mode != TOPOLOGY_MODE_HW)
+ 		goto out;
+ 	cpu -= cpu % (smp_cpu_mtid + 1);
+-	for (i = 0; i <= smp_cpu_mtid; i++)
+-		if (cpu_present(cpu + i))
++	for (i = 0; i <= smp_cpu_mtid; i++) {
++		if (cpumask_test_cpu(cpu + i, &cpu_setup_mask))
+ 			cpumask_set_cpu(cpu + i, &mask);
+-	cpumask_and(&mask, &mask, cpu_online_mask);
++	}
+ out:
+ 	cpumask_copy(dst, &mask);
+ }
+@@ -569,6 +569,7 @@ void __init topology_init_early(void)
+ 	alloc_masks(info, &book_info, 2);
+ 	alloc_masks(info, &drawer_info, 3);
+ out:
++	cpumask_set_cpu(0, &cpu_setup_mask);
+ 	__arch_update_cpu_topology();
+ 	__arch_update_dedicated_flag(NULL);
+ }
 
 
