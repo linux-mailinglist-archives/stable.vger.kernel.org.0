@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28F6440DAD4
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:12:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E444040DAD5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:12:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239964AbhIPNN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 09:13:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58838 "EHLO mail.kernel.org"
+        id S239958AbhIPNNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 09:13:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239581AbhIPNN3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 09:13:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D231611CA;
-        Thu, 16 Sep 2021 13:12:08 +0000 (UTC)
+        id S239581AbhIPNNg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 09:13:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE85A611CA;
+        Thu, 16 Sep 2021 13:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631797929;
-        bh=6sYRr/jX4QXIRfdupRLX9e3UiV3r9s3FQk4S7wGJEII=;
+        s=korg; t=1631797936;
+        bh=pEwsesUV8xA9MIbUvSDbsm4+y23Bonk6i4gF1fwlm8A=;
         h=Subject:To:Cc:From:Date:From;
-        b=wWUC8fHry9StZk41UHaIJlkFb9cqkY2WPg6Q551SwtJi/YPUb5QKTMO8PTGZgzPmX
-         XEa0QNICmDQV7cqum6rPk8J9zvC+GJk9QlkyY09aFuAJTvPIOF+wJMYKc8WdIqWcTz
-         14UIk4OElflH8IQ+b2SsUnwZ6YJgaLG+VwLKnOuE=
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Fix -EDEADLK handling regression" failed to apply to 5.14-stable tree
-To:     ville.syrjala@linux.intel.com, maarten.lankhorst@linux.intel.com,
-        thomas.hellstrom@intel.com
+        b=DZf4+XsJd0wHPVlRTYILX5Z617CVGuFwlejOvGe2s9B20bOweEdkOF09Zn7rtkAcx
+         icIIEovUd9LJzNGTPmdEVMtLT0oQfGJXwH9w+v6AHiJs8Vc4G9zi5RQZQH+EHDcgkC
+         qvDnI9ZZaq9w23O0+55bp/Cip74ea3Uzp2JzaH04=
+Subject: FAILED: patch "[PATCH] drm/i915/gtt: drop the page table optimisation" failed to apply to 5.14-stable tree
+To:     matthew.auld@intel.com, chris.p.wilson@intel.com,
+        daniel.vetter@ffwll.ch, daniel@ffwll.ch, jon.bloomfield@intel.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Sep 2021 15:11:57 +0200
-Message-ID: <163179791778230@kroah.com>
+Date:   Thu, 16 Sep 2021 15:12:13 +0200
+Message-ID: <1631797933237224@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -46,56 +47,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 78d2ad7eb4e1f0e9cd5d79788446b6092c21d3e0 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
-Date: Wed, 30 Jun 2021 19:44:13 +0300
-Subject: [PATCH] drm/i915/gt: Fix -EDEADLK handling regression
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 8f88ca76b3942d82e2c1cea8735ec368d89ecc15 Mon Sep 17 00:00:00 2001
+From: Matthew Auld <matthew.auld@intel.com>
+Date: Tue, 13 Jul 2021 14:04:31 +0100
+Subject: [PATCH] drm/i915/gtt: drop the page table optimisation
 
-The conversion to ww mutexes failed to address the fence code which
-already returns -EDEADLK when we run out of fences. Ww mutexes on
-the other hand treat -EDEADLK as an internal errno value indicating
-a need to restart the operation due to a deadlock. So now when the
-fence code returns -EDEADLK the higher level code erroneously
-restarts everything instead of returning the error to userspace
-as is expected.
+We skip filling out the pt with scratch entries if the va range covers
+the entire pt, since we later have to fill it with the PTEs for the
+object pages anyway. However this might leave open a small window where
+the PTEs don't point to anything valid for the HW to consume.
 
-To remedy this let's switch the fence code to use a different errno
-value for this. -ENOBUFS seems like a semi-reasonable unique choice.
-Apart from igt the only user of this I could find is sna, and even
-there all we do is dump the current fence registers from debugfs
-into the X server log. So no user visible functionality is affected.
-If we really cared about preserving this we could of course convert
-back to -EDEADLK higher up, but doesn't seem like that's worth
-the hassle here.
+When for example using 2M GTT pages this fill_px() showed up as being
+quite significant in perf measurements, and ends up being completely
+wasted since we ignore the pt and just use the pde directly.
 
-Not quite sure which commit specifically broke this, but I'll
-just attribute it to the general gem ww mutex work.
+Anyway, currently we have our PTE construction split between alloc and
+insert, which is probably slightly iffy nowadays, since the alloc
+doesn't actually allocate anything anymore, instead it just sets up the
+page directories and points the PTEs at the scratch page. Later when we
+do the insert step we re-program the PTEs again. Better might be to
+squash the alloc and insert into a single step, then bringing back this
+optimisation(along with some others) should be possible.
 
-Cc: stable@vger.kernel.org
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@intel.com>
-Testcase: igt/gem_pread/exhaustion
-Testcase: igt/gem_pwrite/basic-exhaustion
-Testcase: igt/gem_fenced_exec_thrash/too-many-fences
-Fixes: 80f0b679d6f0 ("drm/i915: Add an implementation for i915_gem_ww_ctx locking, v2.")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210630164413.25481-1-ville.syrjala@linux.intel.com
-Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Fixes: 14826673247e ("drm/i915: Only initialize partially filled pagetables")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Jon Bloomfield <jon.bloomfield@intel.com>
+Cc: Chris Wilson <chris.p.wilson@intel.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: <stable@vger.kernel.org> # v4.15+
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210713130431.2392740-1-matthew.auld@intel.com
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-index cac7f3f44642..f8948de72036 100644
---- a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-@@ -348,7 +348,7 @@ static struct i915_fence_reg *fence_find(struct i915_ggtt *ggtt)
- 	if (intel_has_pending_fb_unpin(ggtt->vm.i915))
- 		return ERR_PTR(-EAGAIN);
+diff --git a/drivers/gpu/drm/i915/gt/gen8_ppgtt.c b/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
+index 3d02c726c746..6e0e52eeb87a 100644
+--- a/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
++++ b/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
+@@ -303,10 +303,7 @@ static void __gen8_ppgtt_alloc(struct i915_address_space * const vm,
+ 			__i915_gem_object_pin_pages(pt->base);
+ 			i915_gem_object_make_unshrinkable(pt->base);
  
--	return ERR_PTR(-EDEADLK);
-+	return ERR_PTR(-ENOBUFS);
- }
+-			if (lvl ||
+-			    gen8_pt_count(*start, end) < I915_PDES ||
+-			    intel_vgpu_active(vm->i915))
+-				fill_px(pt, vm->scratch[lvl]->encode);
++			fill_px(pt, vm->scratch[lvl]->encode);
  
- int __i915_vma_pin_fence(struct i915_vma *vma)
+ 			spin_lock(&pd->lock);
+ 			if (likely(!pd->entry[idx])) {
 
