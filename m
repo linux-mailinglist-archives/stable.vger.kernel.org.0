@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F6440E560
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4485940DF2C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347308AbhIPRLH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:11:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35946 "EHLO mail.kernel.org"
+        id S232984AbhIPQHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:07:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349868AbhIPRHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:07:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC6C1619EC;
-        Thu, 16 Sep 2021 16:36:25 +0000 (UTC)
+        id S232745AbhIPQG6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:06:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDA3361251;
+        Thu, 16 Sep 2021 16:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810186;
-        bh=y5zwYu7lDFof+ZiAvj92o91Nt3I/SpT/ccGWX4iNuB8=;
+        s=korg; t=1631808338;
+        bh=XgBjxDyfYvjBfsgRmGhtD0slwMHSQ/YKCF4tcFo6KbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVEKLLhgjsBHdSaROrxY6hcnjQ/K0OMknfnT39zNECkvJCAEXDHzYosspQ1SxEFwQ
-         9aV4/Mw9Lcy/v9vQi3SWPsCkj3UXSvXJ9zmh3WGZjIQw/R5zIeDrYjQ+gjm2RoHaaW
-         c6Jyd4DKJ5GpiidMFB2N+lEGebi+iq44XF4nzC7g=
+        b=apzBQdx2VQJcFhcdbXD6+CPybV4P1nMHok6EFT8idkk/ctNZtaQj9PEmiWwMunGJS
+         oJ3nffNQaJTO624LAu0ChCD22Q1xTY+0p2Nrjsafv+YXPmwbTqBTPeM7jtMs0+IxJc
+         8apsRi7CTpzeey9Vj45Dhvu0Lek1dBz5VhJA45X4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Nussbaum <lucas.nussbaum@inria.fr>,
-        stable@kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        David Rientjes <rientjes@google.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Tom Lendacky <thomas.lendacky@gmail.com>
-Subject: [PATCH 5.14 048/432] crypto: ccp - shutdown SEV firmware on kexec
+        stable@vger.kernel.org, Victor Gu <xigu@marvell.com>,
+        Evan Wang <xswang@marvell.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 5.10 052/306] PCI: aardvark: Fix checking for PIO status
 Date:   Thu, 16 Sep 2021 17:56:37 +0200
-Message-Id: <20210916155812.437583361@linuxfoundation.org>
+Message-Id: <20210916155755.716741959@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,151 +42,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brijesh Singh <brijesh.singh@amd.com>
+From: Evan Wang <xswang@marvell.com>
 
-commit 5441a07a127f106c9936e4f9fa1a8a93e3f31828 upstream.
+commit fcb461e2bc8b83b7eaca20cb2221e8b940f2189c upstream.
 
-The commit 97f9ac3db6612 ("crypto: ccp - Add support for SEV-ES to the
-PSP driver") added support to allocate Trusted Memory Region (TMR)
-used during the SEV-ES firmware initialization. The TMR gets locked
-during the firmware initialization and unlocked during the shutdown.
-While the TMR is locked, access to it is disallowed.
+There is an issue that when PCIe switch is connected to an Armada 3700
+board, there will be lots of warnings about PIO errors when reading the
+config space. According to Aardvark PIO read and write sequence in HW
+specification, the current way to check PIO status has the following
+issues:
 
-Currently, the CCP driver does not shutdown the firmware during the
-kexec reboot, leaving the TMR memory locked.
+1) For PIO read operation, it reports the error message, which should be
+   avoided according to HW specification.
 
-Register a callback to shutdown the SEV firmware on the kexec boot.
+2) For PIO read and write operations, it only checks PIO operation complete
+   status, which is not enough, and error status should also be checked.
 
-Fixes: 97f9ac3db6612 ("crypto: ccp - Add support for SEV-ES to the PSP driver")
-Reported-by: Lucas Nussbaum <lucas.nussbaum@inria.fr>
-Tested-by: Lucas Nussbaum <lucas.nussbaum@inria.fr>
-Cc: <stable@kernel.org>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: David Rientjes <rientjes@google.com>
-Signed-off-by: Brijesh Singh <brijesh.singh@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+This patch aligns the code with Aardvark PIO read and write sequence in HW
+specification on PIO status check and fix the warnings when reading config
+space.
+
+[pali: Fix CRS handling when CRSSVE is not enabled]
+
+Link: https://lore.kernel.org/r/20210722144041.12661-2-pali@kernel.org
+Tested-by: Victor Gu <xigu@marvell.com>
+Signed-off-by: Evan Wang <xswang@marvell.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Victor Gu <xigu@marvell.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org # b1bd5714472c ("PCI: aardvark: Indicate error in 'val' when config read fails")
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/ccp/sev-dev.c |   49 ++++++++++++++++++++-----------------------
- drivers/crypto/ccp/sp-pci.c  |   12 ++++++++++
- 2 files changed, 35 insertions(+), 26 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |   62 +++++++++++++++++++++++++++++-----
+ 1 file changed, 54 insertions(+), 8 deletions(-)
 
---- a/drivers/crypto/ccp/sev-dev.c
-+++ b/drivers/crypto/ccp/sev-dev.c
-@@ -300,6 +300,9 @@ static int __sev_platform_shutdown_locke
- 	struct sev_device *sev = psp_master->sev_data;
- 	int ret;
- 
-+	if (sev->state == SEV_STATE_UNINIT)
-+		return 0;
-+
- 	ret = __sev_do_cmd_locked(SEV_CMD_SHUTDOWN, NULL, error);
- 	if (ret)
- 		return ret;
-@@ -1019,6 +1022,20 @@ e_err:
- 	return ret;
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -57,6 +57,7 @@
+ #define   PIO_COMPLETION_STATUS_CRS		2
+ #define   PIO_COMPLETION_STATUS_CA		4
+ #define   PIO_NON_POSTED_REQ			BIT(10)
++#define   PIO_ERR_STATUS			BIT(11)
+ #define PIO_ADDR_LS				(PIO_BASE_ADDR + 0x8)
+ #define PIO_ADDR_MS				(PIO_BASE_ADDR + 0xc)
+ #define PIO_WR_DATA				(PIO_BASE_ADDR + 0x10)
+@@ -585,7 +586,7 @@ static void advk_pcie_setup_hw(struct ad
+ 	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
  }
  
-+static void sev_firmware_shutdown(struct sev_device *sev)
-+{
-+	sev_platform_shutdown(NULL);
-+
-+	if (sev_es_tmr) {
-+		/* The TMR area was encrypted, flush it from the cache */
-+		wbinvd_on_all_cpus();
-+
-+		free_pages((unsigned long)sev_es_tmr,
-+			   get_order(SEV_ES_TMR_SIZE));
-+		sev_es_tmr = NULL;
-+	}
-+}
-+
- void sev_dev_destroy(struct psp_device *psp)
+-static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
++static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
  {
- 	struct sev_device *sev = psp->sev_data;
-@@ -1026,6 +1043,8 @@ void sev_dev_destroy(struct psp_device *
- 	if (!sev)
- 		return;
+ 	struct device *dev = &pcie->pdev->dev;
+ 	u32 reg;
+@@ -596,14 +597,49 @@ static void advk_pcie_check_pio_status(s
+ 	status = (reg & PIO_COMPLETION_STATUS_MASK) >>
+ 		PIO_COMPLETION_STATUS_SHIFT;
  
-+	sev_firmware_shutdown(sev);
-+
- 	if (sev->misc)
- 		kref_put(&misc_dev->refcount, sev_exit);
- 
-@@ -1056,21 +1075,6 @@ void sev_pci_init(void)
- 	if (sev_get_api_version())
- 		goto err;
- 
--	/*
--	 * If platform is not in UNINIT state then firmware upgrade and/or
--	 * platform INIT command will fail. These command require UNINIT state.
--	 *
--	 * In a normal boot we should never run into case where the firmware
--	 * is not in UNINIT state on boot. But in case of kexec boot, a reboot
--	 * may not go through a typical shutdown sequence and may leave the
--	 * firmware in INIT or WORKING state.
--	 */
--
--	if (sev->state != SEV_STATE_UNINIT) {
--		sev_platform_shutdown(NULL);
--		sev->state = SEV_STATE_UNINIT;
--	}
--
- 	if (sev_version_greater_or_equal(0, 15) &&
- 	    sev_update_firmware(sev->dev) == 0)
- 		sev_get_api_version();
-@@ -1115,17 +1119,10 @@ err:
- 
- void sev_pci_exit(void)
- {
--	if (!psp_master->sev_data)
+-	if (!status)
 -		return;
 -
--	sev_platform_shutdown(NULL);
-+	struct sev_device *sev = psp_master->sev_data;
++	/*
++	 * According to HW spec, the PIO status check sequence as below:
++	 * 1) even if COMPLETION_STATUS(bit9:7) indicates successful,
++	 *    it still needs to check Error Status(bit11), only when this bit
++	 *    indicates no error happen, the operation is successful.
++	 * 2) value Unsupported Request(1) of COMPLETION_STATUS(bit9:7) only
++	 *    means a PIO write error, and for PIO read it is successful with
++	 *    a read value of 0xFFFFFFFF.
++	 * 3) value Completion Retry Status(CRS) of COMPLETION_STATUS(bit9:7)
++	 *    only means a PIO write error, and for PIO read it is successful
++	 *    with a read value of 0xFFFF0001.
++	 * 4) value Completer Abort (CA) of COMPLETION_STATUS(bit9:7) means
++	 *    error for both PIO read and PIO write operation.
++	 * 5) other errors are indicated as 'unknown'.
++	 */
+ 	switch (status) {
++	case PIO_COMPLETION_STATUS_OK:
++		if (reg & PIO_ERR_STATUS) {
++			strcomp_status = "COMP_ERR";
++			break;
++		}
++		/* Get the read result */
++		if (val)
++			*val = advk_readl(pcie, PIO_RD_DATA);
++		/* No error */
++		strcomp_status = NULL;
++		break;
+ 	case PIO_COMPLETION_STATUS_UR:
+ 		strcomp_status = "UR";
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CRS:
++		/* PCIe r4.0, sec 2.3.2, says:
++		 * If CRS Software Visibility is not enabled, the Root Complex
++		 * must re-issue the Configuration Request as a new Request.
++		 * A Root Complex implementation may choose to limit the number
++		 * of Configuration Request/CRS Completion Status loops before
++		 * determining that something is wrong with the target of the
++		 * Request and taking appropriate action, e.g., complete the
++		 * Request to the host as a failed transaction.
++		 *
++		 * To simplify implementation do not re-issue the Configuration
++		 * Request and complete the Request as a failed transaction.
++		 */
+ 		strcomp_status = "CRS";
+ 		break;
+ 	case PIO_COMPLETION_STATUS_CA:
+@@ -614,6 +650,9 @@ static void advk_pcie_check_pio_status(s
+ 		break;
+ 	}
  
--	if (sev_es_tmr) {
--		/* The TMR area was encrypted, flush it from the cache */
--		wbinvd_on_all_cpus();
-+	if (!sev)
-+		return;
++	if (!strcomp_status)
++		return 0;
++
+ 	if (reg & PIO_NON_POSTED_REQ)
+ 		str_posted = "Non-posted";
+ 	else
+@@ -621,6 +660,8 @@ static void advk_pcie_check_pio_status(s
  
--		free_pages((unsigned long)sev_es_tmr,
--			   get_order(SEV_ES_TMR_SIZE));
--		sev_es_tmr = NULL;
--	}
-+	sev_firmware_shutdown(sev);
+ 	dev_err(dev, "%s PIO Response Status: %s, %#x @ %#x\n",
+ 		str_posted, strcomp_status, reg, advk_readl(pcie, PIO_ADDR_LS));
++
++	return -EFAULT;
  }
---- a/drivers/crypto/ccp/sp-pci.c
-+++ b/drivers/crypto/ccp/sp-pci.c
-@@ -241,6 +241,17 @@ e_err:
- 	return ret;
+ 
+ static int advk_pcie_wait_pio(struct advk_pcie *pcie)
+@@ -858,10 +899,13 @@ static int advk_pcie_rd_conf(struct pci_
+ 		return PCIBIOS_SET_FAILED;
+ 	}
+ 
+-	advk_pcie_check_pio_status(pcie);
++	/* Check PIO status and get the read result */
++	ret = advk_pcie_check_pio_status(pcie, val);
++	if (ret < 0) {
++		*val = 0xffffffff;
++		return PCIBIOS_SET_FAILED;
++	}
+ 
+-	/* Get the read result */
+-	*val = advk_readl(pcie, PIO_RD_DATA);
+ 	if (size == 1)
+ 		*val = (*val >> (8 * (where & 3))) & 0xff;
+ 	else if (size == 2)
+@@ -925,7 +969,9 @@ static int advk_pcie_wr_conf(struct pci_
+ 	if (ret < 0)
+ 		return PCIBIOS_SET_FAILED;
+ 
+-	advk_pcie_check_pio_status(pcie);
++	ret = advk_pcie_check_pio_status(pcie, NULL);
++	if (ret < 0)
++		return PCIBIOS_SET_FAILED;
+ 
+ 	return PCIBIOS_SUCCESSFUL;
  }
- 
-+static void sp_pci_shutdown(struct pci_dev *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct sp_device *sp = dev_get_drvdata(dev);
-+
-+	if (!sp)
-+		return;
-+
-+	sp_destroy(sp);
-+}
-+
- static void sp_pci_remove(struct pci_dev *pdev)
- {
- 	struct device *dev = &pdev->dev;
-@@ -371,6 +382,7 @@ static struct pci_driver sp_pci_driver =
- 	.id_table = sp_pci_table,
- 	.probe = sp_pci_probe,
- 	.remove = sp_pci_remove,
-+	.shutdown = sp_pci_shutdown,
- 	.driver.pm = &sp_pci_pm_ops,
- };
- 
 
 
