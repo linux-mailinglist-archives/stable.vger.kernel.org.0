@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86FA540DFE3
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACE1C40E5F1
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235072AbhIPQPf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:15:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48354 "EHLO mail.kernel.org"
+        id S1344123AbhIPRQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:16:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235075AbhIPQMo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:12:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B05B6138B;
-        Thu, 16 Sep 2021 16:09:29 +0000 (UTC)
+        id S1350351AbhIPRN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:13:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6F0F61B5D;
+        Thu, 16 Sep 2021 16:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808569;
-        bh=xy6Pskwf2LsTKup1sy1FUidV65P0qDqckPExucv4B0w=;
+        s=korg; t=1631810336;
+        bh=nO4fqyB/6RvF5UPCubhhgOtrIynrJ98N1KVOwT5/MZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQme5CPNowPX0GtzlkfwzAG/9cZYARO7XxAx5unyhhhlapywM+Mas0C2Ozqh2a3eQ
-         /OAh5AqEDywKcLLPA2GtRrTgF+1CXKZe5ZN36SiOot3bulGvxomlaqXclxNfKJPPpE
-         /x2G5zTYO9M3wS4/LUQnc1peyuHMNxSar8jDgZKc=
+        b=genCACjUSFgm0CSW/9YcevPwexCqybQKfDWYiYsaQAsTWRvIlwtzq1e9fYBHvgLWg
+         KQpVDjle89InXlA16d7+8Xg4Sm7XQtKbcogXzGEPmZkbdBadyKg0VyuDNG942rStxe
+         QfaVR1rcm6VXSBLhvJ5vhJEOCe35bRCJ8dveX03Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 107/306] MIPS: Malta: fix alignment of the devicetree buffer
-Date:   Thu, 16 Sep 2021 17:57:32 +0200
-Message-Id: <20210916155757.727486102@linuxfoundation.org>
+Subject: [PATCH 5.14 104/432] NFSv4/pNFS: Fix a layoutget livelock loop
+Date:   Thu, 16 Sep 2021 17:57:33 +0200
+Message-Id: <20210916155814.299415181@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit bea6a94a279bcbe6b2cde348782b28baf12255a5 ]
+[ Upstream commit e20772cbdf463c12088837e5a08bde1b876bfd25 ]
 
-Starting with following patch MIPS Malta is not able to boot:
-| commit 79edff12060fe7772af08607eff50c0e2486c5ba
-| Author: Rob Herring <robh@kernel.org>
-| scripts/dtc: Update to upstream version v1.6.0-51-g183df9e9c2b9
+If NFS_LAYOUT_RETURN_REQUESTED is set, but there is no value set for
+the layout plh_return_seq, we can end up in a livelock loop in which
+every layout segment retrieved by a new call to layoutget is immediately
+invalidated by pnfs_layout_need_return().
+To get around this, we should just set plh_return_seq to the current
+value of the layout stateid's seqid.
 
-The reason is the alignment test added to the fdt_ro_probe_(). To fix
-this issue, we need to make sure that fdt_buf is aligned.
-
-Since the dtc patch was designed to uncover potential issue, I handle
-initial MIPS Malta patch as initial bug.
-
-Fixes: e81a8c7dabac ("MIPS: Malta: Setup RAM regions via DT")
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: d474f96104bd ("NFS: Don't return layout segments that are in use")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mti-malta/malta-dtshim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/pnfs.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/mti-malta/malta-dtshim.c b/arch/mips/mti-malta/malta-dtshim.c
-index 0ddf03df6268..f451268f6c38 100644
---- a/arch/mips/mti-malta/malta-dtshim.c
-+++ b/arch/mips/mti-malta/malta-dtshim.c
-@@ -22,7 +22,7 @@
- #define  ROCIT_CONFIG_GEN1_MEMMAP_SHIFT	8
- #define  ROCIT_CONFIG_GEN1_MEMMAP_MASK	(0xf << 8)
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index ef14ea0b6ab8..da5cacad6979 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -347,11 +347,15 @@ pnfs_set_plh_return_info(struct pnfs_layout_hdr *lo, enum pnfs_iomode iomode,
+ 		iomode = IOMODE_ANY;
+ 	lo->plh_return_iomode = iomode;
+ 	set_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags);
+-	if (seq != 0) {
+-		WARN_ON_ONCE(lo->plh_return_seq != 0 && lo->plh_return_seq != seq);
++	/*
++	 * We must set lo->plh_return_seq to avoid livelocks with
++	 * pnfs_layout_need_return()
++	 */
++	if (seq == 0)
++		seq = be32_to_cpu(lo->plh_stateid.seqid);
++	if (!lo->plh_return_seq || pnfs_seqid_is_newer(seq, lo->plh_return_seq))
+ 		lo->plh_return_seq = seq;
+-		pnfs_barrier_update(lo, seq);
+-	}
++	pnfs_barrier_update(lo, seq);
+ }
  
--static unsigned char fdt_buf[16 << 10] __initdata;
-+static unsigned char fdt_buf[16 << 10] __initdata __aligned(8);
- 
- /* determined physical memory size, not overridden by command line args	 */
- extern unsigned long physical_memsize;
+ static void
 -- 
 2.30.2
 
