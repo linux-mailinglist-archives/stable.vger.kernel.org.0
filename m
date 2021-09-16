@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10F3C40DFAC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7963240E2CC
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235492AbhIPQMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:12:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48410 "EHLO mail.kernel.org"
+        id S245569AbhIPQlw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:41:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237333AbhIPQKp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:10:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71EDF61360;
-        Thu, 16 Sep 2021 16:08:36 +0000 (UTC)
+        id S244793AbhIPQjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:39:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9BF261A09;
+        Thu, 16 Sep 2021 16:23:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808517;
-        bh=ojuaTAZhr8Uw6QEtkXAyeaRZbg6Ro4//uWTFWOQSH8Q=;
+        s=korg; t=1631809405;
+        bh=KR40IZYrHh8b0Qe0F50d+uCZNuE9iqq88TBKH+LGqd4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ceQpw2pyjXYHVYFYms8LF5nlk0LRs/TWwdgDkPwOq/TmZMPRODAAQxY0AfBMiQMFa
-         ZyljfBsfnkBXdTeCZlZDQvxNbSa5PJ9sC3yM5aYfieq2crLJphsqGBEm2qYAhbVsXr
-         6BEnYOslJG+znazJaJ/lTh3yYZt7PXiv+hTF5c1M=
+        b=ahKjbUyKMWnvfAL4YiDn39X/8x9jnXrI7Owe005U/dpt/1AOkW38KkdmNm5RArTE8
+         DZd7qCwhoXkED7WQzXadG/PQRahtJfWDwoTJTQMCLLsfm6Xb1+Qn5neYh+ZoIySCEG
+         pg4prr7uk6FvjFzX378vg++Sop9AN7AMAq7czuFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 121/306] iavf: do not override the adapter state in the watchdog task
-Date:   Thu, 16 Sep 2021 17:57:46 +0200
-Message-Id: <20210916155758.192620419@linuxfoundation.org>
+Subject: [PATCH 5.13 110/380] RDMA/hns: Fix return in hns_roce_rereg_user_mr()
+Date:   Thu, 16 Sep 2021 17:57:47 +0200
+Message-Id: <20210916155807.774581553@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Assmann <sassmann@kpanic.de>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 22c8fd71d3a5e6fe584ccc2c1e8760e5baefd5aa ]
+[ Upstream commit c4c7d7a43246a42b0355692c3ed53dff7cbb29bb ]
 
-The iavf watchdog task overrides adapter->state to __IAVF_RESETTING
-when it detects a pending reset. Then schedules iavf_reset_task() which
-takes care of the reset.
+If re-registering an MR in hns_roce_rereg_user_mr(), we should return NULL
+instead of passing 0 to ERR_PTR for clarity.
 
-The reset task is capable of handling the reset without changing
-adapter->state. In fact we lose the state information when the watchdog
-task prematurely changes the adapter state. This may lead to a crash if
-instead of the reset task the iavf_remove() function gets called before
-the reset task.
-In that case (if we were in state __IAVF_RUNNING previously) the
-iavf_remove() function triggers iavf_close() which fails to close the
-device because of the incorrect state information.
-
-This may result in a crash due to pending interrupts.
-kernel BUG at drivers/pci/msi.c:357!
-[...]
-Call Trace:
- [<ffffffffbddf24dd>] pci_disable_msix+0x3d/0x50
- [<ffffffffc08d2a63>] iavf_reset_interrupt_capability+0x23/0x40 [iavf]
- [<ffffffffc08d312a>] iavf_remove+0x10a/0x350 [iavf]
- [<ffffffffbddd3359>] pci_device_remove+0x39/0xc0
- [<ffffffffbdeb492f>] __device_release_driver+0x7f/0xf0
- [<ffffffffbdeb49c3>] device_release_driver+0x23/0x30
- [<ffffffffbddcabb4>] pci_stop_bus_device+0x84/0xa0
- [<ffffffffbddcacc2>] pci_stop_and_remove_bus_device+0x12/0x20
- [<ffffffffbddf361f>] pci_iov_remove_virtfn+0xaf/0x160
- [<ffffffffbddf3bcc>] sriov_disable+0x3c/0xf0
- [<ffffffffbddf3ca3>] pci_disable_sriov+0x23/0x30
- [<ffffffffc0667365>] i40e_free_vfs+0x265/0x2d0 [i40e]
- [<ffffffffc0667624>] i40e_pci_sriov_configure+0x144/0x1f0 [i40e]
- [<ffffffffbddd5307>] sriov_numvfs_store+0x177/0x1d0
-Code: 00 00 e8 3c 25 e3 ff 49 c7 86 88 08 00 00 00 00 00 00 5b 41 5c 41 5d 41 5e 41 5f 5d c3 48 8b 7b 28 e8 0d 44
-RIP  [<ffffffffbbbf1068>] free_msi_irqs+0x188/0x190
-
-The solution is to not touch the adapter->state in iavf_watchdog_task()
-and let the reset task handle the state transition.
-
-Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 4e9fc1dae2a9 ("RDMA/hns: Optimize the MR registration process")
+Link: https://lore.kernel.org/r/20210804125939.20516-1-yuehaibing@huawei.com
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_mr.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index 7023aa147043..da401d5694bf 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -1951,7 +1951,6 @@ static void iavf_watchdog_task(struct work_struct *work)
- 		/* check for hw reset */
- 	reg_val = rd32(hw, IAVF_VF_ARQLEN1) & IAVF_VF_ARQLEN1_ARQENABLE_MASK;
- 	if (!reg_val) {
--		adapter->state = __IAVF_RESETTING;
- 		adapter->flags |= IAVF_FLAG_RESET_PENDING;
- 		adapter->aq_required = 0;
- 		adapter->current_op = VIRTCHNL_OP_UNKNOWN;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_mr.c b/drivers/infiniband/hw/hns/hns_roce_mr.c
+index b8454dcb0318..39a085f8e605 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_mr.c
++++ b/drivers/infiniband/hw/hns/hns_roce_mr.c
+@@ -361,7 +361,9 @@ struct ib_mr *hns_roce_rereg_user_mr(struct ib_mr *ibmr, int flags, u64 start,
+ free_cmd_mbox:
+ 	hns_roce_free_cmd_mailbox(hr_dev, mailbox);
+ 
+-	return ERR_PTR(ret);
++	if (ret)
++		return ERR_PTR(ret);
++	return NULL;
+ }
+ 
+ int hns_roce_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata)
 -- 
 2.30.2
 
