@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD5DA40E70C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 381DF40E056
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347767AbhIPR2B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:28:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47936 "EHLO mail.kernel.org"
+        id S240870AbhIPQUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348361AbhIPRZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:25:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52F686127B;
-        Thu, 16 Sep 2021 16:44:39 +0000 (UTC)
+        id S241478AbhIPQTi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:19:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9CE7613D2;
+        Thu, 16 Sep 2021 16:13:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810679;
-        bh=WCtc8QbMqaSbWQcL3hMjaApj4spst0xA4YhKnnQrk+M=;
+        s=korg; t=1631808818;
+        bh=K/PGg6kLoihHZ8O6+cHlmGT+jLvgPdnTCFTMk7Bxex0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxTBYKcvQyZryMyL9yWrvx4sW7ZMdQUcxw156KJUww7sGwqny4gUaVAcp01jyLVMe
-         jN4OtXFbCtXF1RTm0ICmKwZ1NRUeAMo0buKpXgjk6Kvb14MeEDaB/JueSLnmCujJ/T
-         YhtiCJ0yjEyTdJPLJ5CNSFHYjE4PYPCemU4pX35I=
+        b=u4e0epFlL3anwwpR7d+23O0GlIT2X8xjj3rxNh0PRwZ4chvvQbzT9j4AjzAG/Im40
+         4Yf8RDtQnst1uiTZW3PWliPEuL3O/iAsDangZ/jxllm1/MkdBtsUC15TGr5Ze6CpfR
+         LsFE2z57uEBEkyir7o1EPwBBIqui1SqQVw85B+r4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
+        stable@vger.kernel.org, Zhipeng Wang <zhipeng.wang_1@nxp.com>,
+        Li Jun <jun.li@nxp.com>, Peter Chen <peter.chen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 228/432] s390: make PCI mio support a machine flag
-Date:   Thu, 16 Sep 2021 17:59:37 +0200
-Message-Id: <20210916155818.570440230@linuxfoundation.org>
+Subject: [PATCH 5.10 233/306] usb: chipidea: host: fix port index underflow and UBSAN complains
+Date:   Thu, 16 Sep 2021 17:59:38 +0200
+Message-Id: <20210916155801.994045399@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,102 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Li Jun <jun.li@nxp.com>
 
-[ Upstream commit 3322ba0d7bea1e24ae464418626f6a15b69533ab ]
+[ Upstream commit e5d6a7c6cfae9e714a0e8ff64facd1ac68a784c6 ]
 
-Kernel support for the newer PCI mio instructions can be toggled off
-with the pci=nomio command line option which needs to integrate with
-common code PCI option parsing. However this option then toggles static
-branches which can't be toggled yet in an early_param() call.
+If wIndex is 0 (and it often is), these calculations underflow and
+UBSAN complains, here resolve this by not decrementing the index when
+it is equal to 0, this copies the solution from commit 85e3990bea49
+("USB: EHCI: avoid undefined pointer arithmetic and placate UBSAN")
 
-Thus commit 9964f396f1d0 ("s390: fix setting of mio addressing control")
-moved toggling the static branches to the PCI init routine.
-
-With this setup however we can't check for mio support outside the PCI
-code during early boot, i.e. before switching the static branches, which
-we need to be able to export this as an ELF HWCAP.
-
-Improve on this by turning mio availability into a machine flag that
-gets initially set based on CONFIG_PCI and the facility bit and gets
-toggled off if pci=nomio is found during PCI option parsing allowing
-simple access to this machine flag after early init.
-
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Reported-by: Zhipeng Wang <zhipeng.wang_1@nxp.com>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Link: https://lore.kernel.org/r/1624004938-2399-1-git-send-email-jun.li@nxp.com
+Signed-off-by: Peter Chen <peter.chen@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/setup.h | 2 ++
- arch/s390/kernel/early.c      | 4 ++++
- arch/s390/pci/pci.c           | 5 ++---
- 3 files changed, 8 insertions(+), 3 deletions(-)
+ drivers/usb/chipidea/host.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/include/asm/setup.h b/arch/s390/include/asm/setup.h
-index 3a77aa96d092..bdb0c77bcfd9 100644
---- a/arch/s390/include/asm/setup.h
-+++ b/arch/s390/include/asm/setup.h
-@@ -36,6 +36,7 @@
- #define MACHINE_FLAG_NX		BIT(15)
- #define MACHINE_FLAG_GS		BIT(16)
- #define MACHINE_FLAG_SCC	BIT(17)
-+#define MACHINE_FLAG_PCI_MIO	BIT(18)
+diff --git a/drivers/usb/chipidea/host.c b/drivers/usb/chipidea/host.c
+index 48e4a5ca1835..f5f56ee07729 100644
+--- a/drivers/usb/chipidea/host.c
++++ b/drivers/usb/chipidea/host.c
+@@ -233,18 +233,26 @@ static int ci_ehci_hub_control(
+ )
+ {
+ 	struct ehci_hcd	*ehci = hcd_to_ehci(hcd);
++	unsigned int	ports = HCS_N_PORTS(ehci->hcs_params);
+ 	u32 __iomem	*status_reg;
+-	u32		temp;
++	u32		temp, port_index;
+ 	unsigned long	flags;
+ 	int		retval = 0;
+ 	struct device *dev = hcd->self.controller;
+ 	struct ci_hdrc *ci = dev_get_drvdata(dev);
  
- #define LPP_MAGIC		BIT(31)
- #define LPP_PID_MASK		_AC(0xffffffff, UL)
-@@ -110,6 +111,7 @@ extern unsigned long mio_wb_bit_mask;
- #define MACHINE_HAS_NX		(S390_lowcore.machine_flags & MACHINE_FLAG_NX)
- #define MACHINE_HAS_GS		(S390_lowcore.machine_flags & MACHINE_FLAG_GS)
- #define MACHINE_HAS_SCC		(S390_lowcore.machine_flags & MACHINE_FLAG_SCC)
-+#define MACHINE_HAS_PCI_MIO	(S390_lowcore.machine_flags & MACHINE_FLAG_PCI_MIO)
+-	status_reg = &ehci->regs->port_status[(wIndex & 0xff) - 1];
++	port_index = wIndex & 0xff;
++	port_index -= (port_index > 0);
++	status_reg = &ehci->regs->port_status[port_index];
  
- /*
-  * Console mode. Override with conmode=
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index fb84e3fc1686..9857cb046726 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -236,6 +236,10 @@ static __init void detect_machine_facilities(void)
- 		clock_comparator_max = -1ULL >> 1;
- 		__ctl_set_bit(0, 53);
- 	}
-+	if (IS_ENABLED(CONFIG_PCI) && test_facility(153)) {
-+		S390_lowcore.machine_flags |= MACHINE_FLAG_PCI_MIO;
-+		/* the control bit is set during PCI initialization */
-+	}
- }
+ 	spin_lock_irqsave(&ehci->lock, flags);
  
- static inline void save_vector_registers(void)
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 77cd965cffef..34839bad33e4 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -893,7 +893,6 @@ static void zpci_mem_exit(void)
- }
+ 	if (typeReq == SetPortFeature && wValue == USB_PORT_FEAT_SUSPEND) {
++		if (!wIndex || wIndex > ports) {
++			retval = -EPIPE;
++			goto done;
++		}
++
+ 		temp = ehci_readl(ehci, status_reg);
+ 		if ((temp & PORT_PE) == 0 || (temp & PORT_RESET) != 0) {
+ 			retval = -EPIPE;
+@@ -273,7 +281,7 @@ static int ci_ehci_hub_control(
+ 			ehci_writel(ehci, temp, status_reg);
+ 		}
  
- static unsigned int s390_pci_probe __initdata = 1;
--static unsigned int s390_pci_no_mio __initdata;
- unsigned int s390_pci_force_floating __initdata;
- static unsigned int s390_pci_initialized;
- 
-@@ -904,7 +903,7 @@ char * __init pcibios_setup(char *str)
- 		return NULL;
- 	}
- 	if (!strcmp(str, "nomio")) {
--		s390_pci_no_mio = 1;
-+		S390_lowcore.machine_flags &= ~MACHINE_FLAG_PCI_MIO;
- 		return NULL;
- 	}
- 	if (!strcmp(str, "force_floating")) {
-@@ -935,7 +934,7 @@ static int __init pci_base_init(void)
- 		return 0;
+-		set_bit((wIndex & 0xff) - 1, &ehci->suspended_ports);
++		set_bit(port_index, &ehci->suspended_ports);
+ 		goto done;
  	}
  
--	if (test_facility(153) && !s390_pci_no_mio) {
-+	if (MACHINE_HAS_PCI_MIO) {
- 		static_branch_enable(&have_mio);
- 		ctl_set_bit(2, 5);
- 	}
 -- 
 2.30.2
 
