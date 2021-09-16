@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3B1E40DF42
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFFEE40E1F2
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233179AbhIPQIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:08:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47370 "EHLO mail.kernel.org"
+        id S241419AbhIPQdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:33:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234850AbhIPQH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:07:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A5B861268;
-        Thu, 16 Sep 2021 16:06:06 +0000 (UTC)
+        id S241474AbhIPQbJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:31:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E31E66137D;
+        Thu, 16 Sep 2021 16:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808367;
-        bh=QV/0Ednd9+WnkJtTfYQvY7pchYoSJHgnRzMOvgk9Wag=;
+        s=korg; t=1631809154;
+        bh=fYi5Vj0hvNhaeRT8uo3OjxcwrFslV1ekSpdFtnZZzBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T7qEE7AgKcq6BiiJUa3LNz9Nhj/G4ME4UE9D60siOF1yXsB4ZKiIZ96EjbRg1U2/3
-         HagIp7lfUhk7/Pcjy8qEDIh1Aj0illkt+4+NyfeU+wvBdHYfBrHvtPKHm41ue/8TEy
-         WujarxmROxkX4hcO021SgTL6/DBMPza+dgyAF4RI=
+        b=BM7e5RlM3MJB3GDrUbdBaLHhsfOm+Z7/tJCpgqLD+Wf3dEL7M43ccHgbDBTBmnosw
+         UEqwRHEYaO+9CjkW4I7YsP17xiSiCPBWvRNsxotTD8RqK6YjtaA0A0M5CbPlYlcYoG
+         fYaBMMbpeNxZ9LKKlJlHIn15n57c631zndbWxV1I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khalid Aziz <khalid@gonehiking.org>,
-        Colin Ian King <colin.king@canonical.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 063/306] scsi: BusLogic: Use %X for u32 sized integer rather than %lX
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.13 051/380] io_uring: place fixed tables under memcg limits
 Date:   Thu, 16 Sep 2021 17:56:48 +0200
-Message-Id: <20210916155756.093520871@linuxfoundation.org>
+Message-Id: <20210916155805.717753236@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 2127cd21fb78c6e22d92944253afd967b0ff774d ]
+commit 0bea96f59ba40e63c0ae93ad6a02417b95f22f4d upstream.
 
-An earlier fix changed the print format specifier for adapter->bios_addr to
-use %lX. However, the integer is a u32 so the fix was wrong. Fix this by
-using the correct %X format specifier.
+Fixed tables may be large enough, place all of them together with
+allocated tags under memcg limits.
 
-Link: https://lore.kernel.org/r/20210730095031.26981-1-colin.king@canonical.com
-Fixes: 43622697117c ("scsi: BusLogic: use %lX for unsigned long rather than %X")
-Acked-by: Khalid Aziz <khalid@gonehiking.org>
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Addresses-Coverity: ("Invalid type in argument")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/b3ac9f5da9821bb59837b5fe25e8ef4be982218c.1629451684.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/BusLogic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/io_uring.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/BusLogic.c b/drivers/scsi/BusLogic.c
-index 7231de2767a9..86d9d804dea7 100644
---- a/drivers/scsi/BusLogic.c
-+++ b/drivers/scsi/BusLogic.c
-@@ -1845,7 +1845,7 @@ static bool __init blogic_reportconfig(struct blogic_adapter *adapter)
- 		else
- 			blogic_info("None, ", adapter);
- 		if (adapter->bios_addr > 0)
--			blogic_info("BIOS Address: 0x%lX, ", adapter,
-+			blogic_info("BIOS Address: 0x%X, ", adapter,
- 					adapter->bios_addr);
- 		else
- 			blogic_info("BIOS Address: None, ", adapter);
--- 
-2.30.2
-
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -7195,11 +7195,11 @@ static struct io_rsrc_data *io_rsrc_data
+ {
+ 	struct io_rsrc_data *data;
+ 
+-	data = kzalloc(sizeof(*data), GFP_KERNEL);
++	data = kzalloc(sizeof(*data), GFP_KERNEL_ACCOUNT);
+ 	if (!data)
+ 		return NULL;
+ 
+-	data->tags = kvcalloc(nr, sizeof(*data->tags), GFP_KERNEL);
++	data->tags = kvcalloc(nr, sizeof(*data->tags), GFP_KERNEL_ACCOUNT);
+ 	if (!data->tags) {
+ 		kfree(data);
+ 		return NULL;
+@@ -7477,7 +7477,7 @@ static bool io_alloc_file_tables(struct
+ {
+ 	unsigned i, nr_tables = DIV_ROUND_UP(nr_files, IORING_MAX_FILES_TABLE);
+ 
+-	table->files = kcalloc(nr_tables, sizeof(*table->files), GFP_KERNEL);
++	table->files = kcalloc(nr_tables, sizeof(*table->files), GFP_KERNEL_ACCOUNT);
+ 	if (!table->files)
+ 		return false;
+ 
+@@ -7485,7 +7485,7 @@ static bool io_alloc_file_tables(struct
+ 		unsigned int this_files = min(nr_files, IORING_MAX_FILES_TABLE);
+ 
+ 		table->files[i] = kcalloc(this_files, sizeof(*table->files[i]),
+-					GFP_KERNEL);
++					GFP_KERNEL_ACCOUNT);
+ 		if (!table->files[i])
+ 			break;
+ 		nr_files -= this_files;
 
 
