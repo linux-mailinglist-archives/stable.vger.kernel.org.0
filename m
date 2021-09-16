@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E7B240E278
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 175E840DF6B
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243829AbhIPQjC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:39:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50780 "EHLO mail.kernel.org"
+        id S232915AbhIPQJj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:09:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242219AbhIPQgs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:36:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14A6B619E4;
-        Thu, 16 Sep 2021 16:21:51 +0000 (UTC)
+        id S233709AbhIPQIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:08:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0828361356;
+        Thu, 16 Sep 2021 16:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809312;
-        bh=vyg56GirUNR23ovFMs3oCl25jd5CsoDzXuyzpiFOiB0=;
+        s=korg; t=1631808431;
+        bh=zv2U393LUqG9qv8Squqau6qezSl4qKipcRyNbdq6g+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLrx/v5cjGeT440zAh0jOanwSYRbRPMfc9T98W1iN+8Qx25uRwBvl0kzSphtHKtbA
-         e9H1/6efVu4LxWBxA7Wq7BszRQRIYt77cpnlziNBHgdHQvvSXBdNTMz+075X5dmYqJ
-         M8/kjA8ezr8iB8FaF7EVu2UITI4nWAKGVDDhhYiw=
+        b=NrC1Rqt5sXBbquImXfuKAyC2KOI473zrC2lTtWlTYgkJB7fPgdg9c5oFSMQHmuRSf
+         Ni0J6bvPJHuxhSz+ip/MLGsBPSNqHWcuHLrQHFQQdDHsKrNl+7zv26dLQVoi7dBYyA
+         dEbi2A1jYAYsZ0ICMh+tejOOMwxdgVzmbjfumpRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 076/380] docs: Fix infiniband uverbs minor number
+Subject: [PATCH 5.10 088/306] powerpc/config: Renable MTD_PHYSMAP_OF
 Date:   Thu, 16 Sep 2021 17:57:13 +0200
-Message-Id: <20210916155806.599431986@linuxfoundation.org>
+Message-Id: <20210916155757.063308632@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit 8d7e415d55610d503fdb8815344846b72d194a40 ]
+[ Upstream commit d0e28a6145c3455b69991245e7f6147eb914b34a ]
 
-Starting from the beginning of infiniband subsystem, the uverbs char
-devices start from 192 as a minor number, see
-commit bc38a6abdd5a ("[PATCH] IB uverbs: core implementation").
+CONFIG_MTD_PHYSMAP_OF is not longer enabled as it depends on
+MTD_PHYSMAP which is not enabled.
 
-This patch updates the admin guide documentation to reflect it.
+This is a regression from commit 642b1e8dbed7 ("mtd: maps: Merge
+physmap_of.c into physmap-core.c"), which added the extra dependency.
+Add CONFIG_MTD_PHYSMAP=y so this stays in the config, as Christophe said
+it is useful for build coverage.
 
-Fixes: 9d85025b0418 ("docs-rst: create an user's manual book")
-Link: https://lore.kernel.org/r/bad03e6bcde45550c01e12908a6fe7dfa4770703.1627477347.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 642b1e8dbed7 ("mtd: maps: Merge physmap_of.c into physmap-core.c")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Acked-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210817045407.2445664-3-joel@jms.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/devices.txt | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/configs/mpc885_ads_defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/admin-guide/devices.txt b/Documentation/admin-guide/devices.txt
-index 9c2be821c225..922c23bb4372 100644
---- a/Documentation/admin-guide/devices.txt
-+++ b/Documentation/admin-guide/devices.txt
-@@ -2993,10 +2993,10 @@
- 		65 = /dev/infiniband/issm1     Second InfiniBand IsSM device
- 		  ...
- 		127 = /dev/infiniband/issm63    63rd InfiniBand IsSM device
--		128 = /dev/infiniband/uverbs0   First InfiniBand verbs device
--		129 = /dev/infiniband/uverbs1   Second InfiniBand verbs device
-+		192 = /dev/infiniband/uverbs0   First InfiniBand verbs device
-+		193 = /dev/infiniband/uverbs1   Second InfiniBand verbs device
- 		  ...
--		159 = /dev/infiniband/uverbs31  31st InfiniBand verbs device
-+		223 = /dev/infiniband/uverbs31  31st InfiniBand verbs device
- 
-  232 char	Biometric Devices
- 		0 = /dev/biometric/sensor0/fingerprint	first fingerprint sensor on first device
+diff --git a/arch/powerpc/configs/mpc885_ads_defconfig b/arch/powerpc/configs/mpc885_ads_defconfig
+index 949ff9ccda5e..dbf3ff8adc65 100644
+--- a/arch/powerpc/configs/mpc885_ads_defconfig
++++ b/arch/powerpc/configs/mpc885_ads_defconfig
+@@ -34,6 +34,7 @@ CONFIG_MTD_CFI_GEOMETRY=y
+ # CONFIG_MTD_CFI_I2 is not set
+ CONFIG_MTD_CFI_I4=y
+ CONFIG_MTD_CFI_AMDSTD=y
++CONFIG_MTD_PHYSMAP=y
+ CONFIG_MTD_PHYSMAP_OF=y
+ # CONFIG_BLK_DEV is not set
+ CONFIG_NETDEVICES=y
 -- 
 2.30.2
 
