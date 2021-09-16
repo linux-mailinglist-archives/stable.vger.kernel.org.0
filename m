@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E173E40E0F2
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7839040E414
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241728AbhIPQZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:25:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59316 "EHLO mail.kernel.org"
+        id S233484AbhIPQzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:55:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240690AbhIPQXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:23:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4E1F61356;
-        Thu, 16 Sep 2021 16:16:03 +0000 (UTC)
+        id S245264AbhIPQw1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:52:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 601E561A8E;
+        Thu, 16 Sep 2021 16:29:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808964;
-        bh=B+lmIPtsQ/2NkqwBSrlwIz/8L2llfIB2i2MRiu/q00A=;
+        s=korg; t=1631809748;
+        bh=V/R0gN+i0MHEYolSOZeJFTGWHbbe7nMpSoRfbptweFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AjuJBO8e88N56ULOkDYZraU7yuBQgmpeYs4lY+jifoVU/WpG9l4ZyjM3R8QJ3++O
-         LLVlCUmzyUwsg8jkYFd9N0m5bNT16ThaAiTxhcQi9Mfb84Upopu0caNopWYEtU9RxL
-         BgvTo6WSCwg+POKCCxJfH2cUipJhUhVqfbI0lu5E=
+        b=KaagyoWAvaHk0ONXDbXybcMn2wco/fHgzeHHdO5Xi+0qEj6CZUDQdgDgIQnzB+q5c
+         mDjxLgv2TKiGrbDwZ7u7qu3iFbz/Oi/Bom0pej+FKjOBWZfrRUMKszfRH1xSjyZOCS
+         HG8U4/vd+VmDD8MseTROiV5GkIzsJZik7lF2Qd1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 280/306] parisc: fix crash with signals and alloca
+        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 268/380] arm64: dts: imx8mm-venice-gw700x: fix mp5416 pmic config
 Date:   Thu, 16 Sep 2021 18:00:25 +0200
-Message-Id: <20210916155803.621703110@linuxfoundation.org>
+Message-Id: <20210916155813.187031710@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,84 +40,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Tim Harvey <tharvey@gateworks.com>
 
-commit 030f653078316a9cc9ca6bd1b0234dcf858be35d upstream.
+[ Upstream commit 092cd75e527044050ea76bf774e7d730709b7e8b ]
 
-I was debugging some crashes on parisc and I found out that there is a
-crash possibility if a function using alloca is interrupted by a signal.
-The reason for the crash is that the gcc alloca implementation leaves
-garbage in the upper 32 bits of the sp register. This normally doesn't
-matter (the upper bits are ignored because the PSW W-bit is clear),
-however the signal delivery routine in the kernel uses full 64 bits of sp
-and it fails with -EFAULT if the upper 32 bits are not zero.
+Fix various MP5416 PMIC configurations:
+ - Update regulator names per dt-bindings
+ - ensure values fit among valid register values
+ - add required regulator-max-microamp property
+ - add regulator-always-on prop
 
-I created this program that demonstrates the problem:
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
-#include <alloca.h>
-
-static __attribute__((noinline,noclone)) void aa(int *size)
-{
-	void * volatile p = alloca(-*size);
-	while (1) ;
-}
-
-static void handler(int sig)
-{
-	write(1, "signal delivered\n", 17);
-	_exit(0);
-}
-
-int main(void)
-{
-	int size = -0x100;
-	signal(SIGALRM, handler);
-	alarm(1);
-	aa(&size);
-}
-
-If you compile it with optimizations, it will crash.
-The "aa" function has this disassembly:
-
-000106a0 <aa>:
-   106a0:       08 03 02 41     copy r3,r1
-   106a4:       08 1e 02 43     copy sp,r3
-   106a8:       6f c1 00 80     stw,ma r1,40(sp)
-   106ac:       37 dc 3f c1     ldo -20(sp),ret0
-   106b0:       0c 7c 12 90     stw ret0,8(r3)
-   106b4:       0f 40 10 9c     ldw 0(r26),ret0		; ret0 = 0x00000000FFFFFF00
-   106b8:       97 9c 00 7e     subi 3f,ret0,ret0	; ret0 = 0xFFFFFFFF0000013F
-   106bc:       d7 80 1c 1a     depwi 0,31,6,ret0	; ret0 = 0xFFFFFFFF00000100
-   106c0:       0b 9e 0a 1e     add,l sp,ret0,sp	;   sp = 0xFFFFFFFFxxxxxxxx
-   106c4:       e8 1f 1f f7     b,l,n 106c4 <aa+0x24>,r0
-
-This patch fixes the bug by truncating the "usp" variable to 32 bits.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/signal.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ .../dts/freescale/imx8mm-venice-gw700x.dtsi   | 56 ++++++++++++-------
+ 1 file changed, 37 insertions(+), 19 deletions(-)
 
---- a/arch/parisc/kernel/signal.c
-+++ b/arch/parisc/kernel/signal.c
-@@ -237,6 +237,12 @@ setup_rt_frame(struct ksignal *ksig, sig
- #endif
- 	
- 	usp = (regs->gr[30] & ~(0x01UL));
-+#ifdef CONFIG_64BIT
-+	if (is_compat_task()) {
-+		/* The gcc alloca implementation leaves garbage in the upper 32 bits of sp */
-+		usp = (compat_uint_t)usp;
-+	}
-+#endif
- 	/*FIXME: frame_size parameter is unused, remove it. */
- 	frame = get_sigframe(&ksig->ka, usp, sizeof(*frame));
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
+index c769fadbd008..11dda79cc46b 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
+@@ -283,65 +283,83 @@ pmic@69 {
+ 		reg = <0x69>;
  
+ 		regulators {
++			/* vdd_0p95: DRAM/GPU/VPU */
+ 			buck1 {
+-				regulator-name = "vdd_0p95";
+-				regulator-min-microvolt = <805000>;
++				regulator-name = "buck1";
++				regulator-min-microvolt = <800000>;
+ 				regulator-max-microvolt = <1000000>;
+-				regulator-max-microamp = <2500000>;
++				regulator-min-microamp  = <3800000>;
++				regulator-max-microamp  = <6800000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 
++			/* vdd_soc */
+ 			buck2 {
+-				regulator-name = "vdd_soc";
+-				regulator-min-microvolt = <805000>;
++				regulator-name = "buck2";
++				regulator-min-microvolt = <800000>;
+ 				regulator-max-microvolt = <900000>;
+-				regulator-max-microamp = <1000000>;
++				regulator-min-microamp  = <2200000>;
++				regulator-max-microamp  = <5200000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 
++			/* vdd_arm */
+ 			buck3_reg: buck3 {
+-				regulator-name = "vdd_arm";
+-				regulator-min-microvolt = <805000>;
++				regulator-name = "buck3";
++				regulator-min-microvolt = <800000>;
+ 				regulator-max-microvolt = <1000000>;
+-				regulator-max-microamp = <2200000>;
+-				regulator-boot-on;
++				regulator-min-microamp  = <3800000>;
++				regulator-max-microamp  = <6800000>;
++				regulator-always-on;
+ 			};
+ 
++			/* vdd_1p8 */
+ 			buck4 {
+-				regulator-name = "vdd_1p8";
++				regulator-name = "buck4";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
+-				regulator-max-microamp = <500000>;
++				regulator-min-microamp  = <2200000>;
++				regulator-max-microamp  = <5200000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 
++			/* nvcc_snvs_1p8 */
+ 			ldo1 {
+-				regulator-name = "nvcc_snvs_1p8";
++				regulator-name = "ldo1";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
+-				regulator-max-microamp = <300000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 
++			/* vdd_snvs_0p8 */
+ 			ldo2 {
+-				regulator-name = "vdd_snvs_0p8";
++				regulator-name = "ldo2";
+ 				regulator-min-microvolt = <800000>;
+ 				regulator-max-microvolt = <800000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 
++			/* vdd_0p9 */
+ 			ldo3 {
+-				regulator-name = "vdd_0p95";
+-				regulator-min-microvolt = <800000>;
+-				regulator-max-microvolt = <800000>;
++				regulator-name = "ldo3";
++				regulator-min-microvolt = <900000>;
++				regulator-max-microvolt = <900000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 
++			/* vdd_1p8 */
+ 			ldo4 {
+-				regulator-name = "vdd_1p8";
++				regulator-name = "ldo4";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 		};
+ 	};
+-- 
+2.30.2
+
 
 
