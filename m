@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA3B940DF48
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1205240DF4A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233552AbhIPQIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:08:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47588 "EHLO mail.kernel.org"
+        id S232465AbhIPQIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:08:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232392AbhIPQHn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:07:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC86661351;
-        Thu, 16 Sep 2021 16:06:17 +0000 (UTC)
+        id S233496AbhIPQHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:07:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DF946128A;
+        Thu, 16 Sep 2021 16:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808378;
-        bh=QlJJ9g6oDafpKf1UXnmxpl/ubm3+gpg3qtxl0d4dDoY=;
+        s=korg; t=1631808380;
+        bh=dSirCzk0BY2TPKfpn5m0PiD+vBnmXAxuVQrYuoQ3amg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ah9FwbcPhEusaHGByZoAOr3q1ccd2bVuQ0zNRYbnCfkDeBcmyPcV43fqle6CW/JTb
-         4FWyKunft784OnMxeEpUbz9I9LeUOozQ4R+Xl2J18+eHgVc7d6IncDZt3K0Yk4psth
-         x8IGKfPdidFMTKaYxtFOrK4YUDqK1i4NeRDsY8k8=
+        b=IvR5rW/yUjqY7NWqrkuxf9Bf4cXfubXRE+57fYdCU0PlFXqu18ouwVSCPK1agD2iV
+         AGCIuT/R43V63ILkMR63omKSsY6tDJBblWAUamP7T5HNH9hskT1H579bPSe4MqriNn
+         s3w7BlLc4pVV09Q8dHlThkV+uaZt860VmwwvJmU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Wang Hai <wanghai38@huawei.com>
-Subject: [PATCH 5.10 036/306] VMCI: fix NULL pointer dereference when unmapping queue pair
-Date:   Thu, 16 Sep 2021 17:56:21 +0200
-Message-Id: <20210916155755.178000563@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.10 037/306] media: uvc: dont do DMA on stack
+Date:   Thu, 16 Sep 2021 17:56:22 +0200
+Message-Id: <20210916155755.215626286@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
 References: <20210916155753.903069397@linuxfoundation.org>
@@ -40,79 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-commit a30dc6cf0dc51419021550152e435736aaef8799 upstream.
+commit 1a10d7fdb6d0e235e9d230916244cc2769d3f170 upstream.
 
-I got a NULL pointer dereference report when doing fuzz test:
+As warned by smatch:
+	drivers/media/usb/uvc/uvc_v4l2.c:911 uvc_ioctl_g_input() error: doing dma on the stack (&i)
+	drivers/media/usb/uvc/uvc_v4l2.c:943 uvc_ioctl_s_input() error: doing dma on the stack (&i)
 
-Call Trace:
-  qp_release_pages+0xae/0x130
-  qp_host_unregister_user_memory.isra.25+0x2d/0x80
-  vmci_qp_broker_unmap+0x191/0x320
-  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
-  vmci_host_unlocked_ioctl+0x59f/0xd50
-  ? do_vfs_ioctl+0x14b/0xa10
-  ? tomoyo_file_ioctl+0x28/0x30
-  ? vmci_host_do_alloc_queuepair.isra.9+0x1c0/0x1c0
-  __x64_sys_ioctl+0xea/0x120
-  do_syscall_64+0x34/0xb0
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+those two functions call uvc_query_ctrl passing a pointer to
+a data at the DMA stack. those are used to send URBs via
+usb_control_msg(). Using DMA stack is not supported and should
+not work anymore on modern Linux versions.
 
-When a queue pair is created by the following call, it will not
-register the user memory if the page_store is NULL, and the
-entry->state will be set to VMCIQPB_CREATED_NO_MEM.
+So, use a kmalloc'ed buffer.
 
-vmci_host_unlocked_ioctl
-  vmci_host_do_alloc_queuepair
-    vmci_qp_broker_alloc
-      qp_broker_alloc
-        qp_broker_create // set entry->state = VMCIQPB_CREATED_NO_MEM;
-
-When unmapping this queue pair, qp_host_unregister_user_memory() will
-be called to unregister the non-existent user memory, which will
-result in a null pointer reference. It will also change
-VMCIQPB_CREATED_NO_MEM to VMCIQPB_CREATED_MEM, which should not be
-present in this operation.
-
-Only when the qp broker has mem, it can unregister the user
-memory when unmapping the qp broker.
-
-Only when the qp broker has no mem, it can register the user
-memory when mapping the qp broker.
-
-Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Link: https://lore.kernel.org/r/20210818124845.488312-1-wanghai38@huawei.com
+Cc: stable@vger.kernel.org	# Kernel 4.9 and upper
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/vmw_vmci/vmci_queue_pair.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/usb/uvc/uvc_v4l2.c |   34 +++++++++++++++++++++++-----------
+ 1 file changed, 23 insertions(+), 11 deletions(-)
 
---- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
-+++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-@@ -2238,7 +2238,8 @@ int vmci_qp_broker_map(struct vmci_handl
+--- a/drivers/media/usb/uvc/uvc_v4l2.c
++++ b/drivers/media/usb/uvc/uvc_v4l2.c
+@@ -898,8 +898,8 @@ static int uvc_ioctl_g_input(struct file
+ {
+ 	struct uvc_fh *handle = fh;
+ 	struct uvc_video_chain *chain = handle->chain;
++	u8 *buf;
+ 	int ret;
+-	u8 i;
  
- 	result = VMCI_SUCCESS;
- 
--	if (context_id != VMCI_HOST_CONTEXT_ID) {
-+	if (context_id != VMCI_HOST_CONTEXT_ID &&
-+	    !QPBROKERSTATE_HAS_MEM(entry)) {
- 		struct vmci_qp_page_store page_store;
- 
- 		page_store.pages = guest_mem;
-@@ -2345,7 +2346,8 @@ int vmci_qp_broker_unmap(struct vmci_han
- 		goto out;
+ 	if (chain->selector == NULL ||
+ 	    (chain->dev->quirks & UVC_QUIRK_IGNORE_SELECTOR_UNIT)) {
+@@ -907,22 +907,27 @@ static int uvc_ioctl_g_input(struct file
+ 		return 0;
  	}
  
--	if (context_id != VMCI_HOST_CONTEXT_ID) {
-+	if (context_id != VMCI_HOST_CONTEXT_ID &&
-+	    QPBROKERSTATE_HAS_MEM(entry)) {
- 		qp_acquire_queue_mutex(entry->produce_q);
- 		result = qp_save_headers(entry);
- 		if (result < VMCI_SUCCESS)
++	buf = kmalloc(1, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
+ 	ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR, chain->selector->id,
+ 			     chain->dev->intfnum,  UVC_SU_INPUT_SELECT_CONTROL,
+-			     &i, 1);
+-	if (ret < 0)
+-		return ret;
++			     buf, 1);
++	if (!ret)
++		*input = *buf - 1;
+ 
+-	*input = i - 1;
+-	return 0;
++	kfree(buf);
++
++	return ret;
+ }
+ 
+ static int uvc_ioctl_s_input(struct file *file, void *fh, unsigned int input)
+ {
+ 	struct uvc_fh *handle = fh;
+ 	struct uvc_video_chain *chain = handle->chain;
++	u8 *buf;
+ 	int ret;
+-	u32 i;
+ 
+ 	ret = uvc_acquire_privileges(handle);
+ 	if (ret < 0)
+@@ -938,10 +943,17 @@ static int uvc_ioctl_s_input(struct file
+ 	if (input >= chain->selector->bNrInPins)
+ 		return -EINVAL;
+ 
+-	i = input + 1;
+-	return uvc_query_ctrl(chain->dev, UVC_SET_CUR, chain->selector->id,
+-			      chain->dev->intfnum, UVC_SU_INPUT_SELECT_CONTROL,
+-			      &i, 1);
++	buf = kmalloc(1, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	*buf = input + 1;
++	ret = uvc_query_ctrl(chain->dev, UVC_SET_CUR, chain->selector->id,
++			     chain->dev->intfnum, UVC_SU_INPUT_SELECT_CONTROL,
++			     buf, 1);
++	kfree(buf);
++
++	return ret;
+ }
+ 
+ static int uvc_ioctl_queryctrl(struct file *file, void *fh,
 
 
