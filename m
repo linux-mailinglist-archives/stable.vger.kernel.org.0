@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F173140E73A
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1D4440E741
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245565AbhIPRa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:30:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46946 "EHLO mail.kernel.org"
+        id S1343555AbhIPRbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:31:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347880AbhIPR1v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:27:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5D1361BFB;
-        Thu, 16 Sep 2021 16:45:23 +0000 (UTC)
+        id S1348963AbhIPR1x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:27:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CE7161A57;
+        Thu, 16 Sep 2021 16:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810724;
-        bh=FT1WNIhf/t1k+WrTQhN5g0QjMZtSCFbXIR7DRyrzoX0=;
+        s=korg; t=1631810727;
+        bh=N+oKi7eeVnuYEUVTGN5wXiWpy68Vo34sA0FAwHUYF8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lWBf79sZXmeum3uf5kEjisz9ukhum+YYBTXJif9MQ8VE64tda7qkAPtHHQ0MxG01t
-         eERG526W66pfiNpczoRLkIbMs6cs9usHFvf68Bq3PFGwataKHDGP/bo0REkg7T7PIB
-         Q6h7yDUDV3Xw2VgcL6+PX7wy4L2ajNUliL8Nds/s=
+        b=s/NqSpzQVGTotCtwJt1w0SkKmc2FAI9OTa3AdrO1qMbtkbaOT9mhp+fK25yG6s1Ot
+         SRaHIr+EA65slnuGYrIk4nPFxjoW9wu+38jJc1duVlQPBoaZ/7U6q/UTbg/BR4A2L4
+         d9HNAVKBBIyxfIwYG9tP3z3yAefIPQ8JKsU02ihE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Patrick Delaunay <patrick.delaunay@foss.st.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
+        stable@vger.kernel.org, Akhil P Oommen <akhilpo@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 245/432] ARM: dts: stm32: Update AV96 adv7513 node per dtbs_check
-Date:   Thu, 16 Sep 2021 17:59:54 +0200
-Message-Id: <20210916155819.139021574@linuxfoundation.org>
+Subject: [PATCH 5.14 246/432] drm/msm/a6xx: Fix llcc configuration for a660 gpu
+Date:   Thu, 16 Sep 2021 17:59:55 +0200
+Message-Id: <20210916155819.171116974@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -43,53 +40,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Akhil P Oommen <akhilpo@codeaurora.org>
 
-[ Upstream commit 1e6bc5987a5252948e3411e5a2dbb434fd1ea107 ]
+[ Upstream commit a6f24383f6c0a8d64d1f6afa10733ae4e8f236e0 ]
 
-Swap reg and reg-names order and drop adi,input-justification
-and adi,input-style to fix the following dtbs_check warnings:
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: adi,input-justification: False schema does not allow ['evenly']
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: adi,input-style: False schema does not allow [[1]]
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: reg-names:1: 'edid' was expected
-arch/arm/boot/dts/stm32mp157a-dhcor-avenger96.dt.yaml: hdmi-transmitter@3d: reg-names:2: 'cec' was expected
+Add the missing scache_cntl0 register programing which is required for
+a660 gpu.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Patrice Chotard <patrice.chotard@foss.st.com>
-Cc: Patrick Delaunay <patrick.delaunay@foss.st.com>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Signed-off-by: Akhil P Oommen <akhilpo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210730011945.v4.1.I110b87677ef16d97397fb7c81c07a16e1f5d211e@changeid
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 46 ++++++++++++++++-----------
+ 1 file changed, 27 insertions(+), 19 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-index 64dca5b7f748..6885948f3024 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcor-avenger96.dtsi
-@@ -220,8 +220,8 @@ &i2c2 {	/* X6 I2C2 */
- &i2c4 {
- 	hdmi-transmitter@3d {
- 		compatible = "adi,adv7513";
--		reg = <0x3d>, <0x2d>, <0x4d>, <0x5d>;
--		reg-names = "main", "cec", "edid", "packet";
-+		reg = <0x3d>, <0x4d>, <0x2d>, <0x5d>;
-+		reg-names = "main", "edid", "cec", "packet";
- 		clocks = <&cec_clock>;
- 		clock-names = "cec";
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index 9c5e4618aa0a..183b9f9c1b31 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -1383,13 +1383,13 @@ static void a6xx_llc_activate(struct a6xx_gpu *a6xx_gpu)
+ {
+ 	struct adreno_gpu *adreno_gpu = &a6xx_gpu->base;
+ 	struct msm_gpu *gpu = &adreno_gpu->base;
+-	u32 cntl1_regval = 0;
++	u32 gpu_scid, cntl1_regval = 0;
  
-@@ -239,8 +239,6 @@ hdmi-transmitter@3d {
- 		adi,input-depth = <8>;
- 		adi,input-colorspace = "rgb";
- 		adi,input-clock = "1x";
--		adi,input-style = <1>;
--		adi,input-justification = "evenly";
+ 	if (IS_ERR(a6xx_gpu->llc_mmio))
+ 		return;
  
- 		ports {
- 			#address-cells = <1>;
+ 	if (!llcc_slice_activate(a6xx_gpu->llc_slice)) {
+-		u32 gpu_scid = llcc_get_slice_id(a6xx_gpu->llc_slice);
++		gpu_scid = llcc_get_slice_id(a6xx_gpu->llc_slice);
+ 
+ 		gpu_scid &= 0x1f;
+ 		cntl1_regval = (gpu_scid << 0) | (gpu_scid << 5) | (gpu_scid << 10) |
+@@ -1409,26 +1409,34 @@ static void a6xx_llc_activate(struct a6xx_gpu *a6xx_gpu)
+ 		}
+ 	}
+ 
+-	if (cntl1_regval) {
++	if (!cntl1_regval)
++		return;
++
++	/*
++	 * Program the slice IDs for the various GPU blocks and GPU MMU
++	 * pagetables
++	 */
++	if (!a6xx_gpu->have_mmu500) {
++		a6xx_llc_write(a6xx_gpu,
++			REG_A6XX_CX_MISC_SYSTEM_CACHE_CNTL_1, cntl1_regval);
++
+ 		/*
+-		 * Program the slice IDs for the various GPU blocks and GPU MMU
+-		 * pagetables
++		 * Program cacheability overrides to not allocate cache
++		 * lines on a write miss
+ 		 */
+-		if (a6xx_gpu->have_mmu500)
+-			gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL1, GENMASK(24, 0),
+-				cntl1_regval);
+-		else {
+-			a6xx_llc_write(a6xx_gpu,
+-				REG_A6XX_CX_MISC_SYSTEM_CACHE_CNTL_1, cntl1_regval);
+-
+-			/*
+-			 * Program cacheability overrides to not allocate cache
+-			 * lines on a write miss
+-			 */
+-			a6xx_llc_rmw(a6xx_gpu,
+-				REG_A6XX_CX_MISC_SYSTEM_CACHE_CNTL_0, 0xF, 0x03);
+-		}
++		a6xx_llc_rmw(a6xx_gpu,
++			REG_A6XX_CX_MISC_SYSTEM_CACHE_CNTL_0, 0xF, 0x03);
++		return;
+ 	}
++
++	gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL1, GENMASK(24, 0), cntl1_regval);
++
++	/* On A660, the SCID programming for UCHE traffic is done in
++	 * A6XX_GBIF_SCACHE_CNTL0[14:10]
++	 */
++	if (adreno_is_a660(adreno_gpu))
++		gpu_rmw(gpu, REG_A6XX_GBIF_SCACHE_CNTL0, (0x1f << 10) |
++			(1 << 8), (gpu_scid << 10) | (1 << 8));
+ }
+ 
+ static void a6xx_llc_slices_destroy(struct a6xx_gpu *a6xx_gpu)
 -- 
 2.30.2
 
