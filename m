@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A7140E687
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D12740E03C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344137AbhIPRWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:22:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43646 "EHLO mail.kernel.org"
+        id S240713AbhIPQUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351985AbhIPRUI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:20:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AEC6161B7D;
-        Thu, 16 Sep 2021 16:42:00 +0000 (UTC)
+        id S240832AbhIPQRX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:17:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1BEE61373;
+        Thu, 16 Sep 2021 16:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810521;
-        bh=wEZMZuZoshsxDgxD7OKIj4199LxfpXQcx1QNrzPg0X8=;
+        s=korg; t=1631808740;
+        bh=cV1bULndHYuO+pws6De6elADmnvVsd2GUAbeYhywzrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TGazLvyoBpcVtwKkwUGBlE7mlh4DlUUixMfYKFvf8RSsyIDkeXWy6DxFPBYOS2EQ5
-         7ssQNitcLIrVi8fD0mBDAkR8DCxqYJdKkYhdMP8DUYC67q6ZxHs2QZpmXVVZTgJp5j
-         mtJ80Q06GFmFTRg1qv09PGOdPmJ14s3VdmRx/bqI=
+        b=lDp4neToCkQgCybxzHQVqvwZs7522iLZjbenXK1H8csiOqpywq9D09QO4IOnVuj5j
+         HL9I9xKLQ0y1cTBQMQKpf6EqrQLI19GnrATRqvXDrPbRpPMlHZx4yJcqHHs2OWkEOc
+         1GGQntx63uvrvQ/kYO8oURuYMavC9Gz7T46QV0sE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martynas Pumputis <m@lambda.lt>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 172/432] libbpf: Fix reuse of pinned map on older kernel
-Date:   Thu, 16 Sep 2021 17:58:41 +0200
-Message-Id: <20210916155816.566759470@linuxfoundation.org>
+Subject: [PATCH 5.10 177/306] ASoC: Intel: bytcr_rt5640: Move "Platform Clock" routes to the maps for the matching in-/output
+Date:   Thu, 16 Sep 2021 17:58:42 +0200
+Message-Id: <20210916155800.116356609@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,117 +41,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martynas Pumputis <m@lambda.lt>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 97eb31384af943d6b97eb5947262cee4ef25cb87 ]
+[ Upstream commit dccd1dfd0770bfd494b68d1135b4547b2c602c42 ]
 
-When loading a BPF program with a pinned map, the loader checks whether
-the pinned map can be reused, i.e. their properties match. To derive
-such of the pinned map, the loader invokes BPF_OBJ_GET_INFO_BY_FD and
-then does the comparison.
+Move the "Platform Clock" routes for the "Internal Mic" and "Speaker"
+routes to the intmic_*_map[] / *_spk_map[] arrays.
 
-Unfortunately, on < 4.12 kernels the BPF_OBJ_GET_INFO_BY_FD is not
-available, so loading the program fails with the following error:
+This ensures that these "Platform Clock" routes do not get added when the
+BYT_RT5640_NO_INTERNAL_MIC_MAP / BYT_RT5640_NO_SPEAKERS quirks are used.
 
-	libbpf: failed to get map info for map FD 5: Invalid argument
-	libbpf: couldn't reuse pinned map at
-		'/sys/fs/bpf/tc/globals/cilium_call_policy': parameter
-		mismatch"
-	libbpf: map 'cilium_call_policy': error reusing pinned map
-	libbpf: map 'cilium_call_policy': failed to create:
-		Invalid argument(-22)
-	libbpf: failed to load object 'bpf_overlay.o'
-
-To fix this, fallback to derivation of the map properties via
-/proc/$PID/fdinfo/$MAP_FD if BPF_OBJ_GET_INFO_BY_FD fails with EINVAL,
-which can be used as an indicator that the kernel doesn't support
-the latter.
-
-Signed-off-by: Martynas Pumputis <m@lambda.lt>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/bpf/20210712125552.58705-1-m@lambda.lt
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210802142501.991985-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 48 +++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 45 insertions(+), 3 deletions(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 2234d5c33177..95ca17a3bd82 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -3894,6 +3894,42 @@ static int bpf_map_find_btf_info(struct bpf_object *obj, struct bpf_map *map)
- 	return 0;
- }
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index ca14730232ba..43ee3d095a1b 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -286,9 +286,6 @@ static const struct snd_soc_dapm_widget byt_rt5640_widgets[] = {
+ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
+ 	{"Headphone", NULL, "Platform Clock"},
+ 	{"Headset Mic", NULL, "Platform Clock"},
+-	{"Internal Mic", NULL, "Platform Clock"},
+-	{"Speaker", NULL, "Platform Clock"},
+-
+ 	{"Headset Mic", NULL, "MICBIAS1"},
+ 	{"IN2P", NULL, "Headset Mic"},
+ 	{"Headphone", NULL, "HPOL"},
+@@ -296,19 +293,23 @@ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
+ };
  
-+static int bpf_get_map_info_from_fdinfo(int fd, struct bpf_map_info *info)
-+{
-+	char file[PATH_MAX], buff[4096];
-+	FILE *fp;
-+	__u32 val;
-+	int err;
-+
-+	snprintf(file, sizeof(file), "/proc/%d/fdinfo/%d", getpid(), fd);
-+	memset(info, 0, sizeof(*info));
-+
-+	fp = fopen(file, "r");
-+	if (!fp) {
-+		err = -errno;
-+		pr_warn("failed to open %s: %d. No procfs support?\n", file,
-+			err);
-+		return err;
-+	}
-+
-+	while (fgets(buff, sizeof(buff), fp)) {
-+		if (sscanf(buff, "map_type:\t%u", &val) == 1)
-+			info->type = val;
-+		else if (sscanf(buff, "key_size:\t%u", &val) == 1)
-+			info->key_size = val;
-+		else if (sscanf(buff, "value_size:\t%u", &val) == 1)
-+			info->value_size = val;
-+		else if (sscanf(buff, "max_entries:\t%u", &val) == 1)
-+			info->max_entries = val;
-+		else if (sscanf(buff, "map_flags:\t%i", &val) == 1)
-+			info->map_flags = val;
-+	}
-+
-+	fclose(fp);
-+
-+	return 0;
-+}
-+
- int bpf_map__reuse_fd(struct bpf_map *map, int fd)
- {
- 	struct bpf_map_info info = {};
-@@ -3902,6 +3938,8 @@ int bpf_map__reuse_fd(struct bpf_map *map, int fd)
- 	char *new_name;
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic1_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"DMIC1", NULL, "Internal Mic"},
+ };
  
- 	err = bpf_obj_get_info_by_fd(fd, &info, &len);
-+	if (err && errno == EINVAL)
-+		err = bpf_get_map_info_from_fdinfo(fd, &info);
- 	if (err)
- 		return libbpf_err(err);
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic2_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"DMIC2", NULL, "Internal Mic"},
+ };
  
-@@ -4381,12 +4419,16 @@ static bool map_is_reuse_compat(const struct bpf_map *map, int map_fd)
- 	struct bpf_map_info map_info = {};
- 	char msg[STRERR_BUFSIZE];
- 	__u32 map_info_len;
-+	int err;
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_in1_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"Internal Mic", NULL, "MICBIAS1"},
+ 	{"IN1P", NULL, "Internal Mic"},
+ };
  
- 	map_info_len = sizeof(map_info);
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_in3_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"Internal Mic", NULL, "MICBIAS1"},
+ 	{"IN3P", NULL, "Internal Mic"},
+ };
+@@ -350,6 +351,7 @@ static const struct snd_soc_dapm_route byt_rt5640_ssp0_aif2_map[] = {
+ };
  
--	if (bpf_obj_get_info_by_fd(map_fd, &map_info, &map_info_len)) {
--		pr_warn("failed to get map info for map FD %d: %s\n",
--			map_fd, libbpf_strerror_r(errno, msg, sizeof(msg)));
-+	err = bpf_obj_get_info_by_fd(map_fd, &map_info, &map_info_len);
-+	if (err && errno == EINVAL)
-+		err = bpf_get_map_info_from_fdinfo(map_fd, &map_info);
-+	if (err) {
-+		pr_warn("failed to get map info for map FD %d: %s\n", map_fd,
-+			libbpf_strerror_r(errno, msg, sizeof(msg)));
- 		return false;
- 	}
+ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
++	{"Speaker", NULL, "Platform Clock"},
+ 	{"Speaker", NULL, "SPOLP"},
+ 	{"Speaker", NULL, "SPOLN"},
+ 	{"Speaker", NULL, "SPORP"},
+@@ -357,6 +359,7 @@ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
+ };
  
+ static const struct snd_soc_dapm_route byt_rt5640_mono_spk_map[] = {
++	{"Speaker", NULL, "Platform Clock"},
+ 	{"Speaker", NULL, "SPOLP"},
+ 	{"Speaker", NULL, "SPOLN"},
+ };
 -- 
 2.30.2
 
