@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF35D40E045
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D8B240E315
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:19:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235400AbhIPQUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:20:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55232 "EHLO mail.kernel.org"
+        id S242420AbhIPQpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:45:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235193AbhIPQSQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:18:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E20AD6137B;
-        Thu, 16 Sep 2021 16:12:43 +0000 (UTC)
+        id S1343554AbhIPQm3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:42:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6349160F58;
+        Thu, 16 Sep 2021 16:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808764;
-        bh=kqaF2kdpyKuBuKaT20mI9yFo8DzOL4OTh5ZkI/2DHyc=;
+        s=korg; t=1631809480;
+        bh=cVzuaQ2uqDC6xVYgHkhTzbNHaKughqasOwpslbxgqfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BPOr/lMvHKV2r2UfJoOjrsgRj+sB176h4PW+jep9eJz3U79CWMHaTRjofDhAke4lQ
-         V4bNgSuuWJ1ZnMv4vVwyu0ya980K3Ngd8iFB541TlYipk/pIat+lkraQh3hHsKxjyF
-         MkcEseZ+xHCa20scRfkbKowGFG5pb9GXrGgcElWc=
+        b=XubL0OFKCqkC66uz+BIhdQx/Mg/nT/uaKsTCMBZCxjICgAxsQZfWbgG4L1M2T358z
+         Fx6bttf0zH3GzRByqw41NGRJDdyT4glH5cwuIE5SPNO9yOZwqZ3Km5qIoCRydVsYwI
+         MAgdtC0k9/ZdJEqqIqWsl3sTQPdlSEaY/qBDUDSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 181/306] media: v4l2-dv-timings.c: fix wrong condition in two for-loops
+Subject: [PATCH 5.13 169/380] igc: Check if num of q_vectors is smaller than max before array access
 Date:   Thu, 16 Sep 2021 17:58:46 +0200
-Message-Id: <20210916155800.251831688@linuxfoundation.org>
+Message-Id: <20210916155809.831596673@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit 4108b3e6db31acc4c68133290bbcc87d4db905c9 ]
+[ Upstream commit 373e2829e7c2e1e606503cdb5c97749f512a4be9 ]
 
-These for-loops should test against v4l2_dv_timings_presets[i].bt.width,
-not if i < v4l2_dv_timings_presets[i].bt.width. Luckily nothing ever broke,
-since the smallest width is still a lot higher than the total number of
-presets, but it is wrong.
+Ensure that the adapter->q_vector[MAX_Q_VECTORS] array isn't accessed
+beyond its size. It was fixed by using a local variable num_q_vectors
+as a limit for loop index, and ensure that num_q_vectors is not bigger
+than MAX_Q_VECTORS.
 
-The last item in the presets array is all 0, so the for-loop must stop
-when it reaches that sentinel.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reported-by: Krzysztof Hałasa <khalasa@piap.pl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Suggested-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-dv-timings.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/igc/igc_main.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-dv-timings.c b/drivers/media/v4l2-core/v4l2-dv-timings.c
-index 230d65a64217..af48705c704f 100644
---- a/drivers/media/v4l2-core/v4l2-dv-timings.c
-+++ b/drivers/media/v4l2-core/v4l2-dv-timings.c
-@@ -196,7 +196,7 @@ bool v4l2_find_dv_timings_cap(struct v4l2_dv_timings *t,
- 	if (!v4l2_valid_dv_timings(t, cap, fnc, fnc_handle))
- 		return false;
- 
--	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
-+	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
- 		if (v4l2_valid_dv_timings(v4l2_dv_timings_presets + i, cap,
- 					  fnc, fnc_handle) &&
- 		    v4l2_match_dv_timings(t, v4l2_dv_timings_presets + i,
-@@ -218,7 +218,7 @@ bool v4l2_find_dv_timings_cea861_vic(struct v4l2_dv_timings *t, u8 vic)
+diff --git a/drivers/net/ethernet/intel/igc/igc_main.c b/drivers/net/ethernet/intel/igc/igc_main.c
+index 9b85fdf01297..3e301c5c5270 100644
+--- a/drivers/net/ethernet/intel/igc/igc_main.c
++++ b/drivers/net/ethernet/intel/igc/igc_main.c
+@@ -4402,6 +4402,7 @@ static irqreturn_t igc_msix_ring(int irq, void *data)
+  */
+ static int igc_request_msix(struct igc_adapter *adapter)
  {
- 	unsigned int i;
++	unsigned int num_q_vectors = adapter->num_q_vectors;
+ 	int i = 0, err = 0, vector = 0, free_vector = 0;
+ 	struct net_device *netdev = adapter->netdev;
  
--	for (i = 0; i < v4l2_dv_timings_presets[i].bt.width; i++) {
-+	for (i = 0; v4l2_dv_timings_presets[i].bt.width; i++) {
- 		const struct v4l2_bt_timings *bt =
- 			&v4l2_dv_timings_presets[i].bt;
+@@ -4410,7 +4411,13 @@ static int igc_request_msix(struct igc_adapter *adapter)
+ 	if (err)
+ 		goto err_out;
  
+-	for (i = 0; i < adapter->num_q_vectors; i++) {
++	if (num_q_vectors > MAX_Q_VECTORS) {
++		num_q_vectors = MAX_Q_VECTORS;
++		dev_warn(&adapter->pdev->dev,
++			 "The number of queue vectors (%d) is higher than max allowed (%d)\n",
++			 adapter->num_q_vectors, MAX_Q_VECTORS);
++	}
++	for (i = 0; i < num_q_vectors; i++) {
+ 		struct igc_q_vector *q_vector = adapter->q_vector[i];
+ 
+ 		vector++;
 -- 
 2.30.2
 
