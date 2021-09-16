@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 582B940E07C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 756C040E3BF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241520AbhIPQVi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59282 "EHLO mail.kernel.org"
+        id S242028AbhIPQvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:51:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241695AbhIPQT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:19:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6668D61251;
-        Thu, 16 Sep 2021 16:14:04 +0000 (UTC)
+        id S1344778AbhIPQsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:48:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B4E361503;
+        Thu, 16 Sep 2021 16:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808844;
-        bh=63kIFkHrFm+wRAiUZlOM//EDuHZOFoI1nV/b2PZYWhM=;
+        s=korg; t=1631809648;
+        bh=hBMpEcqTLqk1Iuuh/VqFCCsSi3SUvQ2kusH5coJhz90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VrMHfo44vccdOcoDUliu0vvjyVXKePkWGMspCtSsldBPl4bqaaNNDKvE0w0KZZZVE
-         lIwPLCnivczeAf+M5D7lpGJ3xQHPHh/E1ZrA+sjGowMnF5HhFxzHSio+S9R4bIPTs3
-         OKlQPbU5aQztJ7fxYOG5GpYUTgZ4r9lHW/ReDuwY=
+        b=OEPfWVLprWjamuHT7wot2bB4DS1L4RhprvMhzMyhfxObM3ZWAVux0AB2MNdOhNYRs
+         rfwButiiQ506Hfy+wx2xPiK0IR5wChHj5nwmWrPFZLh/F/NwOHz5UTYKd2Mvv+f4Sr
+         vscLUFbq61tJnI++YKOJN5tpFZyuKVCGhtyjNlHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Marcos Paulo de Souza <mpdesouza@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 242/306] btrfs: tree-log: check btrfs_lookup_data_extent return value
-Date:   Thu, 16 Sep 2021 17:59:47 +0200
-Message-Id: <20210916155802.309385902@linuxfoundation.org>
+Subject: [PATCH 5.13 231/380] gfs2: Fix glock recursion in freeze_go_xmote_bh
+Date:   Thu, 16 Sep 2021 17:59:48 +0200
+Message-Id: <20210916155811.941403711@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 3736127a3aa805602b7a2ad60ec9cfce68065fbb ]
+[ Upstream commit 9d9b16054b7d357afde69a027514c695092b0d22 ]
 
-Function btrfs_lookup_data_extent calls btrfs_search_slot to verify if
-the EXTENT_ITEM exists in the extent tree. btrfs_search_slot can return
-values bellow zero if an error happened.
+We must not call gfs2_consist (which does a file system withdraw) from
+the freeze glock's freeze_go_xmote_bh function because the withdraw
+will try to use the freeze glock, thus causing a glock recursion error.
 
-Function replay_one_extent currently checks if the search found
-something (0 returned) and increments the reference, and if not, it
-seems to evaluate as 'not found'.
+This patch changes freeze_go_xmote_bh to call function
+gfs2_assert_withdraw_delayed instead of gfs2_consist to avoid recursion.
 
-Fix the condition by checking if the value was bellow zero and return
-early.
-
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/gfs2/glops.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index f36928efcf92..ec25e5eab349 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -708,7 +708,9 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
- 			 */
- 			ret = btrfs_lookup_data_extent(fs_info, ins.objectid,
- 						ins.offset);
--			if (ret == 0) {
-+			if (ret < 0) {
-+				goto out;
-+			} else if (ret == 0) {
- 				btrfs_init_generic_ref(&ref,
- 						BTRFS_ADD_DELAYED_REF,
- 						ins.objectid, ins.offset, 0);
+diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
+index 54d3fbeb3002..384565d63eea 100644
+--- a/fs/gfs2/glops.c
++++ b/fs/gfs2/glops.c
+@@ -610,16 +610,13 @@ static int freeze_go_xmote_bh(struct gfs2_glock *gl)
+ 		j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
+ 
+ 		error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
+-		if (error)
+-			gfs2_consist(sdp);
+-		if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT))
+-			gfs2_consist(sdp);
+-
+-		/*  Initialize some head of the log stuff  */
+-		if (!gfs2_withdrawn(sdp)) {
+-			sdp->sd_log_sequence = head.lh_sequence + 1;
+-			gfs2_log_pointers_init(sdp, head.lh_blkno);
+-		}
++		if (gfs2_assert_withdraw_delayed(sdp, !error))
++			return error;
++		if (gfs2_assert_withdraw_delayed(sdp, head.lh_flags &
++						 GFS2_LOG_HEAD_UNMOUNT))
++			return -EIO;
++		sdp->sd_log_sequence = head.lh_sequence + 1;
++		gfs2_log_pointers_init(sdp, head.lh_blkno);
+ 	}
+ 	return 0;
+ }
 -- 
 2.30.2
 
