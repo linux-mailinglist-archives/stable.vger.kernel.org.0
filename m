@@ -2,114 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EA9440D58D
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 11:08:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A290F40D59C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 11:12:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235175AbhIPJJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 05:09:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39334 "EHLO mail.kernel.org"
+        id S235175AbhIPJNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 05:13:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235114AbhIPJJm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 05:09:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCFD060F93;
-        Thu, 16 Sep 2021 09:08:21 +0000 (UTC)
+        id S235165AbhIPJNj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 05:13:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCACD61108;
+        Thu, 16 Sep 2021 09:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631783302;
-        bh=ZrcY/TjOWX22TTNe924WKtenUn4hAI0AkltICMafb4E=;
+        s=korg; t=1631783539;
+        bh=jQYIRqs2aOJnPuLh7/xWhgGZj1/WGuhO3shpVt0IrBk=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Bd+Mu7kqg3XZwMGi661qCXVahwFWaTkLlu35HA8fOsiQaXpGV8ZTQvP9FcgKf2hOk
-         leEPnUiNyg8N+HAj8vG0GPq0z5nWy4k6gMWj8kuWtNoZU3toYXKJhGvkqDXZSY6WUo
-         /FHa+MENLeSWIGvFmSVjevjJMRrCWwzn0vfKxi5E=
-Date:   Thu, 16 Sep 2021 11:08:19 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sergey Ryazanov <ryazanov.s.a@gmail.com>
-Cc:     stable@vger.kernel.org, David Miller <davem@davemloft.net>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        stable-commits@vger.kernel.org
-Subject: Re: Patch "wwan: core: Fix missing RTM_NEWLINK event for default
- link" has been added to the 5.14-stable tree
-Message-ID: <YUMJgwCp6Mn9e0US@kroah.com>
-References: <16317104197115@kroah.com>
- <CAHNKnsRRaXzuoiyibMiF9brhhmNJCMKMOxY6K7rcwzQr8M8Htw@mail.gmail.com>
+        b=ojr0p/6iFYpEBqQJcGzCy250PQmsyBHJ92oSUn4Sfp41wMkIGqBFvfzJKP9U77omi
+         3fM63VG7ziMoUiGnw919DNrgVbP4qq4YKoHEX9Y4xLn4nlXXw0IVBD10Puf88TukD6
+         HO2LWeZiETDE3nUbkl71Ae54P0F2R1CwR+Iw6ywk=
+Date:   Thu, 16 Sep 2021 11:12:17 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 5.14 298/334] time: Handle negative seconds correctly in
+ timespec64_to_ns()
+Message-ID: <YUMKcSemcTHcIlXR@kroah.com>
+References: <20210913131113.390368911@linuxfoundation.org>
+ <20210913131123.500712780@linuxfoundation.org>
+ <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHNKnsRRaXzuoiyibMiF9brhhmNJCMKMOxY6K7rcwzQr8M8Htw@mail.gmail.com>
+In-Reply-To: <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 16, 2021 at 01:54:11AM +0300, Sergey Ryazanov wrote:
-> Hello Greg,
-> 
-> looks like the commit 8cc236db1a91 ("wwan: core: Fix missing
-> RTM_NEWLINK event for default link") already included in v5.14, see
-> details below the patch.
-> 
-> On Wed, Sep 15, 2021 at 3:54 PM <gregkh@linuxfoundation.org> wrote:
-> > This is a note to let you know that I've just added the patch titled
+On Wed, Sep 15, 2021 at 09:00:32PM +0200, Arnd Bergmann wrote:
+> On Tue, Sep 14, 2021 at 1:22 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >  /*
+> >   * Limits for settimeofday():
+> > @@ -124,10 +126,13 @@ static inline bool timespec64_valid_sett
+> >   */
+> >  static inline s64 timespec64_to_ns(const struct timespec64 *ts)
+> >  {
+> > -       /* Prevent multiplication overflow */
+> > -       if ((unsigned long long)ts->tv_sec >= KTIME_SEC_MAX)
+> > +       /* Prevent multiplication overflow / underflow */
+> > +       if (ts->tv_sec >= KTIME_SEC_MAX)
+> >                 return KTIME_MAX;
 > >
-> >     wwan: core: Fix missing RTM_NEWLINK event for default link
-> >
-> > to the 5.14-stable tree which can be found at:
-> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> >
-> > The filename of the patch is:
-> >      wwan-core-fix-missing-rtm_newlink-event-for-default-link.patch
-> > and it can be found in the queue-5.14 subdirectory.
-> >
-> > If you, or anyone else, feels it should not be added to the stable tree,
-> > please let <stable@vger.kernel.org> know about it.
-> >
-> >
-> > From 8cc236db1a91d0c91651595ba75942a583008455 Mon Sep 17 00:00:00 2001
-> > From: Loic Poulain <loic.poulain@linaro.org>
-> > Date: Thu, 22 Jul 2021 20:21:05 +0200
-> > Subject: wwan: core: Fix missing RTM_NEWLINK event for default link
-> >
-> > From: Loic Poulain <loic.poulain@linaro.org>
-> >
-> > commit 8cc236db1a91d0c91651595ba75942a583008455 upstream.
-> >
-> > A wwan link created via the wwan_create_default_link procedure is
-> > never notified to the user (RTM_NEWLINK), causing issues with user
-> > tools relying on such event to track network links (NetworkManager).
-> >
-> > This is because the procedure misses a call to rtnl_configure_link(),
-> > which sets the link as initialized and notifies the new link (cf
-> > proper usage in __rtnl_newlink()).
-> >
-> > Cc: stable@vger.kernel.org
-> > Fixes: ca374290aaad ("wwan: core: support default netdev creation")
-> > Suggested-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
-> > Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-> > Acked-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
-> > Signed-off-by: David S. Miller <davem@davemloft.net>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> >  drivers/net/wwan/wwan_core.c |    2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > --- a/drivers/net/wwan/wwan_core.c
-> > +++ b/drivers/net/wwan/wwan_core.c
-> > @@ -990,6 +990,8 @@ static void wwan_create_default_link(str
-> >
-> >         rtnl_configure_link(dev, NULL); /* Link initialized, notify new link */
-> >
-> > +       rtnl_configure_link(dev, NULL); /* Link initialized, notify new link */
+> > +       if (ts->tv_sec <= KTIME_SEC_MIN)
+> > +               return KTIME_MIN;
 > > +
-> >  unlock:
-> >         rtnl_unlock();
 > 
-> This change will duplicate the notification call. Fix already in v5.14:
+> I just saw this get merged for the stable kernels, and had not seen this when
+> Thomas originally merged it.
 > 
-> $ git log --oneline v5.14 -- drivers/net/wwan/wwan_core.c
-> d9d5b8961284 wwan: core: Avoid returning NULL from wwan_create_dev()
-> 68d1f1d4af18 wwan: core: Fix missing RTM_NEWLINK event for default link
+> I can see how this helps the ptp_clock_adjtime() users, but I just
+> double-checked
+> what other callers exist, and I think it introduces a regression in setitimer(),
+> which does
+> 
+>         nval = timespec64_to_ns(&value->it_value);
+>         ninterval = timespec64_to_ns(&value->it_interval);
+> 
+> without any further range checking that I could find. Setting timers
+> with negative intervals sounds like a bad idea, and interpreting negative
+> it_value as a past time instead of KTIME_SEC_MAX sounds like an
+> unintended interface change.
+> 
+> I haven't done any proper analysis of the changes, so maybe it's all
+> good, but I think we need to double-check this, and possibly revert
+> it from the stable kernels until a final conclusion.
 
-Ah, thanks for this.  It ended up going into Linus's tree with two
-different commit ids.
-
-I'll go drop it now.
+I will revert it now from all stable kernels, thanks.
 
 greg k-h
