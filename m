@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B0C740E71C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC4340E03F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352811AbhIPR2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:28:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47062 "EHLO mail.kernel.org"
+        id S235312AbhIPQUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351070AbhIPR0k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:26:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 583BC61C45;
-        Thu, 16 Sep 2021 16:44:57 +0000 (UTC)
+        id S237226AbhIPQR0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:17:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D1A961357;
+        Thu, 16 Sep 2021 16:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810697;
-        bh=Xd7MZANyqt8Ww7NcsQ0jrgVGIB/rsdRloUtv60kMlBw=;
+        s=korg; t=1631808750;
+        bh=XjTFrBT1ZSd+E/i9/xgsUXeFepBfNSiQ+baEUUNu/dA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aLZZi+vhGeg5wMmIyxO/eizElzkfCqBCoePnvz7z4HVOyFC+ulFWRp6AWbkhBJXJd
-         4TxQe6mfmIBT1hi2WhRzRcBIjH2xCNHqvilGzD0i892nQPJA8XtcRtx0aQiDzGwrvh
-         PiEHTSVzso7kfp9iuGBqtAdzQaybe1xZM8GpGxhY=
+        b=nWllqYNJl7X5X0e+B9vjWxn5aEjbakf1hofE85NW98qtj45EL1yr/1d9CXr3ylA+G
+         ol+dmfiSWz8LQUGGPFmq4h6GHe28gA4SIWEC6KkAQKGXwDZlXl+JevViGi0tMdKEEV
+         goXDTMMiNf9tJpz+3m9Tynm+FPVEeELBOySfsna0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        stable@vger.kernel.org,
+        syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 203/432] bus: fsl-mc: fix mmio base address for child DPRCs
+Subject: [PATCH 5.10 207/306] Bluetooth: schedule SCO timeouts with delayed_work
 Date:   Thu, 16 Sep 2021 17:59:12 +0200
-Message-Id: <20210916155817.692298793@linuxfoundation.org>
+Message-Id: <20210916155801.099700759@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,81 +42,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit 8990f96a012f42543005b07d9e482694192e9309 ]
+[ Upstream commit ba316be1b6a00db7126ed9a39f9bee434a508043 ]
 
-Some versions of the MC firmware wrongly report 0 for register base
-address of the DPMCP associated with child DPRC objects thus rendering
-them unusable. This is particularly troublesome in ACPI boot scenarios
-where the legacy way of extracting this base address from the device
-tree does not apply.
-Given that DPMCPs share the same base address, workaround this by using
-the base address extracted from the root DPRC container.
+struct sock.sk_timer should be used as a sock cleanup timer. However,
+SCO uses it to implement sock timeouts.
 
-Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Link: https://lore.kernel.org/r/20210715140718.8513-8-laurentiu.tudor@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This causes issues because struct sock.sk_timer's callback is run in
+an IRQ context, and the timer callback function sco_sock_timeout takes
+a spin lock on the socket. However, other functions such as
+sco_conn_del and sco_conn_ready take the spin lock with interrupts
+enabled.
+
+This inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} lock usage could
+lead to deadlocks as reported by Syzbot [1]:
+       CPU0
+       ----
+  lock(slock-AF_BLUETOOTH-BTPROTO_SCO);
+  <Interrupt>
+    lock(slock-AF_BLUETOOTH-BTPROTO_SCO);
+
+To fix this, we use delayed work to implement SCO sock timouts
+instead. This allows us to avoid taking the spin lock on the socket in
+an IRQ context, and corrects the misuse of struct sock.sk_timer.
+
+As a note, cancel_delayed_work is used instead of
+cancel_delayed_work_sync in sco_sock_set_timer and
+sco_sock_clear_timer to avoid a deadlock. In the future, the call to
+bh_lock_sock inside sco_sock_timeout should be changed to lock_sock to
+synchronize with other functions using lock_sock. However, since
+sco_sock_set_timer and sco_sock_clear_timer are sometimes called under
+the locked socket (in sco_connect and __sco_sock_close),
+cancel_delayed_work_sync might cause them to sleep until an
+sco_sock_timeout that has started finishes running. But
+sco_sock_timeout would also sleep until it can grab the lock_sock.
+
+Using cancel_delayed_work is fine because sco_sock_timeout does not
+change from run to run, hence there is no functional difference
+between:
+1. waiting for a timeout to finish running before scheduling another
+timeout
+2. scheduling another timeout while a timeout is running.
+
+Link: https://syzkaller.appspot.com/bug?id=9089d89de0502e120f234ca0fc8a703f7368b31e [1]
+Reported-by: syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com
+Tested-by: syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/fsl-mc/fsl-mc-bus.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ net/bluetooth/sco.c | 35 +++++++++++++++++++++++++++++------
+ 1 file changed, 29 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
-index ffec838450f3..32b2b6d9bde0 100644
---- a/drivers/bus/fsl-mc/fsl-mc-bus.c
-+++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
-@@ -68,6 +68,8 @@ struct fsl_mc_addr_translation_range {
- #define MC_FAPR_PL	BIT(18)
- #define MC_FAPR_BMT	BIT(17)
+diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
+index 600b1832e1dd..6a338c6926e0 100644
+--- a/net/bluetooth/sco.c
++++ b/net/bluetooth/sco.c
+@@ -48,6 +48,8 @@ struct sco_conn {
+ 	spinlock_t	lock;
+ 	struct sock	*sk;
  
-+static phys_addr_t mc_portal_base_phys_addr;
++	struct delayed_work	timeout_work;
 +
- /**
-  * fsl_mc_bus_match - device to driver matching callback
-  * @dev: the fsl-mc device to match against
-@@ -703,14 +705,30 @@ static int fsl_mc_device_get_mmio_regions(struct fsl_mc_device *mc_dev,
- 		 * If base address is in the region_desc use it otherwise
- 		 * revert to old mechanism
- 		 */
--		if (region_desc.base_address)
-+		if (region_desc.base_address) {
- 			regions[i].start = region_desc.base_address +
- 						region_desc.base_offset;
--		else
-+		} else {
- 			error = translate_mc_addr(mc_dev, mc_region_type,
- 					  region_desc.base_offset,
- 					  &regions[i].start);
+ 	unsigned int    mtu;
+ };
  
-+			/*
-+			 * Some versions of the MC firmware wrongly report
-+			 * 0 for register base address of the DPMCP associated
-+			 * with child DPRC objects thus rendering them unusable.
-+			 * This is particularly troublesome in ACPI boot
-+			 * scenarios where the legacy way of extracting this
-+			 * base address from the device tree does not apply.
-+			 * Given that DPMCPs share the same base address,
-+			 * workaround this by using the base address extracted
-+			 * from the root DPRC container.
-+			 */
-+			if (is_fsl_mc_bus_dprc(mc_dev) &&
-+			    regions[i].start == region_desc.base_offset)
-+				regions[i].start += mc_portal_base_phys_addr;
-+		}
+@@ -74,9 +76,20 @@ struct sco_pinfo {
+ #define SCO_CONN_TIMEOUT	(HZ * 40)
+ #define SCO_DISCONN_TIMEOUT	(HZ * 2)
+ 
+-static void sco_sock_timeout(struct timer_list *t)
++static void sco_sock_timeout(struct work_struct *work)
+ {
+-	struct sock *sk = from_timer(sk, t, sk_timer);
++	struct sco_conn *conn = container_of(work, struct sco_conn,
++					     timeout_work.work);
++	struct sock *sk;
 +
- 		if (error < 0) {
- 			dev_err(parent_dev,
- 				"Invalid MC offset: %#x (for %s.%d\'s region %d)\n",
-@@ -1126,6 +1144,8 @@ static int fsl_mc_bus_probe(struct platform_device *pdev)
- 	plat_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	mc_portal_phys_addr = plat_res->start;
- 	mc_portal_size = resource_size(plat_res);
-+	mc_portal_base_phys_addr = mc_portal_phys_addr & ~0x3ffffff;
++	sco_conn_lock(conn);
++	sk = conn->sk;
++	if (sk)
++		sock_hold(sk);
++	sco_conn_unlock(conn);
 +
- 	error = fsl_create_mc_io(&pdev->dev, mc_portal_phys_addr,
- 				 mc_portal_size, NULL,
- 				 FSL_MC_IO_ATOMIC_CONTEXT_PORTAL, &mc_io);
++	if (!sk)
++		return;
+ 
+ 	BT_DBG("sock %p state %d", sk, sk->sk_state);
+ 
+@@ -90,14 +103,21 @@ static void sco_sock_timeout(struct timer_list *t)
+ 
+ static void sco_sock_set_timer(struct sock *sk, long timeout)
+ {
++	if (!sco_pi(sk)->conn)
++		return;
++
+ 	BT_DBG("sock %p state %d timeout %ld", sk, sk->sk_state, timeout);
+-	sk_reset_timer(sk, &sk->sk_timer, jiffies + timeout);
++	cancel_delayed_work(&sco_pi(sk)->conn->timeout_work);
++	schedule_delayed_work(&sco_pi(sk)->conn->timeout_work, timeout);
+ }
+ 
+ static void sco_sock_clear_timer(struct sock *sk)
+ {
++	if (!sco_pi(sk)->conn)
++		return;
++
+ 	BT_DBG("sock %p state %d", sk, sk->sk_state);
+-	sk_stop_timer(sk, &sk->sk_timer);
++	cancel_delayed_work(&sco_pi(sk)->conn->timeout_work);
+ }
+ 
+ /* ---- SCO connections ---- */
+@@ -177,6 +197,9 @@ static void sco_conn_del(struct hci_conn *hcon, int err)
+ 		sco_chan_del(sk, err);
+ 		bh_unlock_sock(sk);
+ 		sock_put(sk);
++
++		/* Ensure no more work items will run before freeing conn. */
++		cancel_delayed_work_sync(&conn->timeout_work);
+ 	}
+ 
+ 	hcon->sco_data = NULL;
+@@ -191,6 +214,8 @@ static void __sco_chan_add(struct sco_conn *conn, struct sock *sk,
+ 	sco_pi(sk)->conn = conn;
+ 	conn->sk = sk;
+ 
++	INIT_DELAYED_WORK(&conn->timeout_work, sco_sock_timeout);
++
+ 	if (parent)
+ 		bt_accept_enqueue(parent, sk, true);
+ }
+@@ -496,8 +521,6 @@ static struct sock *sco_sock_alloc(struct net *net, struct socket *sock,
+ 
+ 	sco_pi(sk)->setting = BT_VOICE_CVSD_16BIT;
+ 
+-	timer_setup(&sk->sk_timer, sco_sock_timeout, 0);
+-
+ 	bt_sock_link(&sco_sk_list, sk);
+ 	return sk;
+ }
 -- 
 2.30.2
 
