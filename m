@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2B9740DF6A
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1D5D40E576
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234729AbhIPQJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:09:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48798 "EHLO mail.kernel.org"
+        id S1350692AbhIPRLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:11:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232361AbhIPQI3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:08:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 624BA61246;
-        Thu, 16 Sep 2021 16:07:08 +0000 (UTC)
+        id S1350462AbhIPRJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:09:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BB0461B4C;
+        Thu, 16 Sep 2021 16:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808428;
-        bh=/qqeetjdshUCj/1BwxVNyM1IviDio7qpDkqnu228bEs=;
+        s=korg; t=1631810236;
+        bh=/ErntHcaJEsQ56aHKC6PQIMx9WCJFdbHYVtmhwh7Cw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UD8lZopFaCB26HJvinBuMJrxYUfVmhalTkIZ43H7012k0ydN3l2f4qv2imIaPfBVb
-         pdOnNtIjH5KpYE1tKAk97xk3wR9RqgOMK0c6F/QRC2T90RAU2v/u7Zuo9pnQ7JQnHr
-         EvReYDXGopCOfbpxjqpxgyGCk9P39zkBdEtbNN74=
+        b=wlpRyOBOcFDmuijRW2WwL8y0YfMPWO9qjrvYFJAOrvLBr1RlvpHaCEEWl7XcGHbbo
+         yJSZUTyV1K7czEJJObJAk2g0grhhaQHHoXjAcTlOfPlrrTsBgpvpSTp8cMXeVTL9xD
+         TrTWqX313gsVh0eZo9ndg10aigzs2eWvFe47eUic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 070/306] RDMA/mlx5: Delete not-available udata check
-Date:   Thu, 16 Sep 2021 17:56:55 +0200
-Message-Id: <20210916155756.439795641@linuxfoundation.org>
+        stable@vger.kernel.org, Hyun Kwon <hyun.kwon@xilinx.com>,
+        Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.14 067/432] PCI: xilinx-nwl: Enable the clock through CCF
+Date:   Thu, 16 Sep 2021 17:56:56 +0200
+Message-Id: <20210916155813.056249801@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Hyun Kwon <hyun.kwon@xilinx.com>
 
-[ Upstream commit 5f6bb7e32283b8e3339b7adc00638234ac199cc4 ]
+commit de0a01f5296651d3a539f2d23d0db8f359483696 upstream.
 
-XRC_TGT QPs are created through kernel verbs and don't have udata at all.
+Enable PCIe reference clock. There is no remove function that's why
+this should be enough for simple operation.
+Normally this clock is enabled by default by firmware but there are
+usecases where this clock should be enabled by driver itself.
+It is also good that PCIe clock is recorded in a clock framework.
 
-Fixes: 6eefa839c4dd ("RDMA/mlx5: Protect from kernel crash if XRC_TGT doesn't have udata")
-Fixes: e383085c2425 ("RDMA/mlx5: Set ECE options during QP create")
-Link: https://lore.kernel.org/r/b68228597e730675020aa5162745390a2d39d3a2.1628014762.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/ee6997a08fab582b1c6de05f8be184f3fe8d5357.1624618100.git.michal.simek@xilinx.com
+Fixes: ab597d35ef11 ("PCI: xilinx-nwl: Add support for Xilinx NWL PCIe Host Controller")
+Signed-off-by: Hyun Kwon <hyun.kwon@xilinx.com>
+Signed-off-by: Bharat Kumar Gogada <bharat.kumar.gogada@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/qp.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/pci/controller/pcie-xilinx-nwl.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
-index 8beba002e5dd..011477356a1d 100644
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -1842,7 +1842,6 @@ static int get_atomic_mode(struct mlx5_ib_dev *dev,
- static int create_xrc_tgt_qp(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
- 			     struct mlx5_create_qp_params *params)
- {
--	struct mlx5_ib_create_qp *ucmd = params->ucmd;
- 	struct ib_qp_init_attr *attr = params->attr;
- 	u32 uidx = params->uidx;
- 	struct mlx5_ib_resources *devr = &dev->devr;
-@@ -1862,8 +1861,6 @@ static int create_xrc_tgt_qp(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
- 	if (!in)
- 		return -ENOMEM;
+--- a/drivers/pci/controller/pcie-xilinx-nwl.c
++++ b/drivers/pci/controller/pcie-xilinx-nwl.c
+@@ -6,6 +6,7 @@
+  * (C) Copyright 2014 - 2015, Xilinx, Inc.
+  */
  
--	if (MLX5_CAP_GEN(mdev, ece_support) && ucmd)
--		MLX5_SET(create_qp_in, in, ece, ucmd->ece_options);
- 	qpc = MLX5_ADDR_OF(create_qp_in, in, qpc);
++#include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/interrupt.h>
+ #include <linux/irq.h>
+@@ -169,6 +170,7 @@ struct nwl_pcie {
+ 	u8 last_busno;
+ 	struct nwl_msi msi;
+ 	struct irq_domain *legacy_irq_domain;
++	struct clk *clk;
+ 	raw_spinlock_t leg_mask_lock;
+ };
  
- 	MLX5_SET(qpc, qpc, st, MLX5_QP_ST_XRC);
--- 
-2.30.2
-
+@@ -823,6 +825,16 @@ static int nwl_pcie_probe(struct platfor
+ 		return err;
+ 	}
+ 
++	pcie->clk = devm_clk_get(dev, NULL);
++	if (IS_ERR(pcie->clk))
++		return PTR_ERR(pcie->clk);
++
++	err = clk_prepare_enable(pcie->clk);
++	if (err) {
++		dev_err(dev, "can't enable PCIe ref clock\n");
++		return err;
++	}
++
+ 	err = nwl_pcie_bridge_init(pcie);
+ 	if (err) {
+ 		dev_err(dev, "HW Initialization failed\n");
 
 
