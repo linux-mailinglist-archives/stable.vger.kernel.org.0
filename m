@@ -2,144 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F8DA40DDF0
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 17:24:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE63140DE00
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 17:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236364AbhIPPZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 11:25:49 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:44912 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230190AbhIPPZt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 11:25:49 -0400
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id B4C8820242;
-        Thu, 16 Sep 2021 15:24:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1631805867; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6pwZFuwqADG+vDLGEr18yXqwER5eG6emxPHMsZpMqKo=;
-        b=aI56q5Ry5YjBRMbCMrLosUVT2wdEJVt4rjWC7dEP+Xb38YgX7idCDFlweawceUTr3v934L
-        d7NRt4ZciNCAfuY8VB+E+hUQYpVaF4YYnTOecjDJ3TLIjlPZxF+GJtkumBrLrB1GN/CpsD
-        KqxIAFhM0mkkJNOpx2p3rNcnF0v6LQk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1631805867;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6pwZFuwqADG+vDLGEr18yXqwER5eG6emxPHMsZpMqKo=;
-        b=SqxS6PAOAZNGNPyHvYzcFyualRRLagxUo6u/24h9gV53GukNz5dpi26t4FZGIEs5VlQwzs
-        IB7WpjQxxFkaJqDA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A537713D16;
-        Thu, 16 Sep 2021 15:24:27 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id Z2tzKKthQ2EPKQAAMHmgww
-        (envelope-from <bp@suse.de>); Thu, 16 Sep 2021 15:24:27 +0000
-Date:   Thu, 16 Sep 2021 17:24:22 +0200
-From:   Borislav Petkov <bp@suse.de>
-To:     gregkh@linuxfoundation.org
-Cc:     alexander.deucher@amd.com, lijo.lazar@amd.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] drm/amdgpu: Fix build with missing
- pm_suspend_target_state" failed to apply to 5.14-stable tree
-Message-ID: <YUNhpvXi6NTCi31q@zn.tnic>
-References: <163179759115270@kroah.com>
+        id S239167AbhIPPcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 11:32:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46492 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239172AbhIPPcE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 11:32:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 431EA6121F;
+        Thu, 16 Sep 2021 15:30:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1631806243;
+        bh=I0QaK/2rbPrDUqCwKDAgD9k9kSWTb+OYUzIOH/5tHyE=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=ahMad47Tp6ix1LHEXj8scA8cWHbqXa6tKiGjeK/GGxTwbxNOrsYFrAySpAj750Qwo
+         ZrfGbO7YyrSrRWkbBk3hUXdoQzavfQftNQsmEMqE4Ui4a4McaNS9z8mQ7YkfpyI1qv
+         x5cyj5ztgDYPxJCvPE4Xe8xUgwpV5lAIBVF2frjQtyujSuTuO6zpys+VHwm2so2BO9
+         P3YxnCptpn8ZPLCbbi2BRLAacxxiqPXYFgyWlHtVshJPfk1+O0+dqCsxZLPj8Kw+PJ
+         Yb7ytTSHc0CIYI49J8OXP5efmtrQVf29T0Nj9JrI1ZgTKf2G/4Td/xLCJbnCFJVkgm
+         pTthCaQScU9Kg==
+Date:   Thu, 16 Sep 2021 08:30:42 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     x86@kernel.org, jose.souza@intel.com, hpa@zytor.com, bp@alien8.de,
+        mingo@redhat.com, tglx@linutronix.de, kai.heng.feng@canonical.com,
+        bhelgaas@google.com, linux-pci@vger.kernel.org, rudolph@fb.com,
+        xapienz@fb.com, bmilton@fb.com, stable@vger.kernel.org,
+        paulmck@kernel.org
+Subject: Re: [PATCH] x86/intel: Disable HPET on another Intel Coffee Lake
+ platform
+Message-ID: <20210916083042.5f63163a@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20210916150707.GA1611532@bjorn-Precision-5520>
+References: <20210916131739.1260552-1-kuba@kernel.org>
+        <20210916150707.GA1611532@bjorn-Precision-5520>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <163179759115270@kroah.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Sep 16, 2021 at 03:06:31PM +0200, gregkh@linuxfoundation.org wrote:
+On Thu, 16 Sep 2021 10:07:07 -0500 Bjorn Helgaas wrote:
+> On Thu, Sep 16, 2021 at 06:17:39AM -0700, Jakub Kicinski wrote:
+> > My Lenovo T490s with i7-8665U had been marking TSC as unstable
+> > since v5.13, resulting in very sluggish desktop experience...  
 > 
-> The patch below does not apply to the 5.14-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+> Including the actual dmesg log line here might help others locate this
+> fix.
+
+Good point, will add in v2.
+
+clocksource: timekeeping watchdog on CPU3: hpet read-back delay of 316000ns, attempt 4, marking unstable
+tsc: Marking TSC unstable due to clocksource watchdog
+TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
+sched_clock: Marking unstable (14539801827657, -530891666)<-(14539319241737, -48307500)
+clocksource: Checking clocksource tsc synchronization from CPU 3 to CPUs 0-2,6-7.
+clocksource: Switched to clocksource hpet
+
+> > I have a 8086:3e34 bridge, also known as "Host bridge: Intel
+> > Corporation Coffee Lake HOST and DRAM Controller (rev 0c)".
+> > Add it to the list.
+> > 
+> > We should perhaps consider applying this quirk more widely.
+> > The Intel documentation does not list my device [1], but
+> > linuxhw [2] does, and it seems to list a few more bridges
+> > we do not currently cover (3e31, 3ecc, 3e35, 3e0f).  
 > 
-> thanks,
+> In the fine tradition of:
 > 
-> greg k-h
+>   e0748539e3d5 ("x86/intel: Disable HPET on Intel Ice Lake platforms")
+>   f8edbde885bb ("x86/intel: Disable HPET on Intel Coffee Lake H platforms")
+>   fc5db58539b4 ("x86/quirks: Disable HPET on Intel Coffe Lake platforms")
+>   62187910b0fc ("x86/intel: Add quirk to disable HPET for the Baytrail plat form")
 > 
-> ------------------ original commit in Linus's tree ------------------
+> This seems to be an ongoing issue, not just a point defect in a single
+> product, and I really hate the onesy-twosy nature of this.
+
+Indeed. Or at least cover all Coffee Lakes in one fell swoop.
+
+> Is there really no way to detect this issue automatically or fix
+> whatever Linux bug makes us trip over this?  I am no clock expert, so
+> I have absolutely no idea whether this is possible.
+
+I'm deferring to clock experts. Paul mentioned he has some prototype
+patches that may help.
+
+> > [1] https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/8th-gen-core-family-datasheet-vol-2.pdf
+> > [2] https://github.com/linuxhw/DevicePopulation/blob/master/README.md
+> > 
+> > Cc: stable@vger.kernel.org # v5.13+  
 > 
-> From a47f6a5806da4f24fbb66148a1519bf72fe060db Mon Sep 17 00:00:00 2001
-> From: Borislav Petkov <bp@suse.de>
-> Date: Tue, 24 Aug 2021 11:42:47 +0200
-> Subject: [PATCH] drm/amdgpu: Fix build with missing pm_suspend_target_state
->  module export
-> 
-> Building a randconfig here triggered:
-> 
->   ERROR: modpost: "pm_suspend_target_state" [drivers/gpu/drm/amd/amdgpu/amdgpu.ko] undefined!
-> 
-> because the module export of that symbol happens in
-> kernel/power/suspend.c which is enabled with CONFIG_SUSPEND.
-> 
-> The ifdef guards in amdgpu_acpi_is_s0ix_supported(), however, test for
-> CONFIG_PM_SLEEP which is defined like this:
-> 
->   config PM_SLEEP
->           def_bool y
->           depends on SUSPEND || HIBERNATE_CALLBACKS
-> 
-> and that randconfig has:
-> 
->   # CONFIG_SUSPEND is not set
->   CONFIG_HIBERNATE_CALLBACKS=y
-> 
-> leading to the module export missing.
-> 
-> Change the ifdeffery to depend directly on CONFIG_SUSPEND.
-> 
-> Fixes: 5706cb3c910c ("drm/amdgpu: fix checking pmops when PM_SLEEP is not enabled")
+> How did you pick v5.13?  force_disable_hpet() was added by
+> 62187910b0fc ("x86/intel: Add quirk to disable HPET for the Baytrail
+> platform"), which appeared in v3.15.
 
-Right, that Fixes tag points to a patch which is in:
+Erm, good question, it started happening for me (and others with the
+same laptop) with v5.13. I just sort of assumed it was 2e27e793e280
+("clocksource: Reduce clocksource-skew threshold"). 
 
-$ git describe 5706cb3c910c
-v5.14-rc3-28-g5706cb3c910c
-
-and this here patch is in 5.14 (and trivially in 5.14-stable) already
-too.
-
-So I'm guessing that is a noop here.
-
-Looking at lkml, you've queued that one for 5.13
-
-Subject: [PATCH 5.13 027/113] drm/amdgpu: Fix build with missing pm_suspend_target_state module export
-
-probably because the commit in Fixes was backported there too.
-
-/me goes and checks...
-
-Yap, it is:
-
-commit 8330879408e590b0d576e2e65a0ced4d9ae804bb
-Author: Randy Dunlap <rdunlap@infradead.org>
-Date:   Thu Jul 29 20:03:47 2021 -0700
-
-    drm/amdgpu: fix checking pmops when PM_SLEEP is not enabled
-    
-    commit 5706cb3c910cc8283f344bc37a889a8d523a2c6d upstream.
-
-
-Ok, all clear.
-
--- 
-Regards/Gruss,
-    Boris.
-
-SUSE Software Solutions Germany GmbH, GF: Felix Imendörffer, HRB 36809, AG Nürnberg
+It usually takes  a day to repro (4 hours was the quickest repro I've
+seen) so bisection was kind of out of question.
