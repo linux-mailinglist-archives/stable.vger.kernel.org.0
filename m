@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB22740E869
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48A1040E873
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355240AbhIPRob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57064 "EHLO mail.kernel.org"
+        id S1355949AbhIPRoh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355367AbhIPRlX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:41:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F31E161288;
-        Thu, 16 Sep 2021 16:52:30 +0000 (UTC)
+        id S1355373AbhIPRlY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:41:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D414D6324E;
+        Thu, 16 Sep 2021 16:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811151;
-        bh=Y1Y6qKFPn2Oc4WwGT0N3jzb39fHfoRkaYrnTqW2HHjY=;
+        s=korg; t=1631811154;
+        bh=Tm2faHpCHOl5c4OzcYYIMRfJQpMc9cNUrJj2eNBLEiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kwOi4UBS/sliEy7sdQLiGsqtYlEGlJbZq/YFmGxFnqp0fnKe7+nbE0nmmtNKHlFCo
-         vP3BikIVDHj7tcqz8A+OcEC0Dtq0ThwRTsI4otmbLwNovFTWemJu8M0WvibxBAvnib
-         6ogX8AQQzy/wlln/e06fPqFqSIEYXdN2ayi8RE1A=
+        b=QUNGwYPE5OQSIbJXze+bYL7YRwsPdAL8fYmTsnmyhls9orucw2Epfo2SosA5CrHVI
+         NDF+cc6SHf3P652Lvla7wQguIzYBG/ximj191BCbdrrrbsuJsltPybJAMyTLZebfPF
+         1lz+QmlWa1ZrDONtLjplP1LlbtAlbGeGyFFO3fo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.14 401/432] s390/topology: fix topology information when calling cpu hotplug notifiers
-Date:   Thu, 16 Sep 2021 18:02:30 +0200
-Message-Id: <20210916155824.424349471@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Wang <yun.wang@linux.alibaba.com>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Abaci <abaci@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.14 402/432] mm: fix panic caused by __page_handle_poison()
+Date:   Thu, 16 Sep 2021 18:02:31 +0200
+Message-Id: <20210916155824.456233563@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -39,134 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Michael Wang <yun.wang@linux.alibaba.com>
 
-commit a052096bdd6809eeab809202726634d1ac975aa1 upstream.
+commit f87060d345232c7d855167a43faf006e24afa999 upstream.
 
-The cpu hotplug notifiers are called without updating the core/thread
-masks when a new CPU is added. This causes problems with code setting
-up data structures in a cpu hotplug notifier, and relying on that later
-in normal code.
+In commit 510d25c92ec4 ("mm/hwpoison: disable pcp for
+page_handle_poison()"), __page_handle_poison() was introduced, and if we
+mark:
 
-This caused a crash in the new core scheduling code (SCHED_CORE),
-where rq->core was set up in a notifier depending on cpu masks.
+RET_A = dissolve_free_huge_page();
+RET_B = take_page_off_buddy();
 
-To fix this, add a cpu_setup_mask which is used in update_cpu_masks()
-instead of the cpu_online_mask to determine whether the cpu masks should
-be set for a certain cpu. Also move update_cpu_masks() to update the
-masks before calling notify_cpu_starting() so that the notifiers are
-seeing the updated masks.
+then __page_handle_poison was supposed to return TRUE When RET_A == 0 &&
+RET_B == TRUE
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Cc: <stable@vger.kernel.org>
-[hca@linux.ibm.com: get rid of cpu_online_mask handling]
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+But since it failed to take care the case when RET_A is -EBUSY or -ENOMEM,
+and just return the ret as a bool which actually become TRUE, it break the
+original logic.
+
+The following result is a huge page in freelist but was
+referenced as poisoned, and lead into the final panic:
+
+  kernel BUG at mm/internal.h:95!
+  invalid opcode: 0000 [#1] SMP PTI
+  skip...
+  RIP: 0010:set_page_refcounted mm/internal.h:95 [inline]
+  RIP: 0010:remove_hugetlb_page+0x23c/0x240 mm/hugetlb.c:1371
+  skip...
+  Call Trace:
+   remove_pool_huge_page+0xe4/0x110 mm/hugetlb.c:1892
+   return_unused_surplus_pages+0x8d/0x150 mm/hugetlb.c:2272
+   hugetlb_acct_memory.part.91+0x524/0x690 mm/hugetlb.c:4017
+
+This patch replaces 'bool' with 'int' to handle RET_A correctly.
+
+Link: https://lkml.kernel.org/r/61782ac6-1e8a-4f6f-35e6-e94fce3b37f5@linux.alibaba.com
+Fixes: 510d25c92ec4 ("mm/hwpoison: disable pcp for page_handle_poison()")
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Cc: <stable@vger.kernel.org>	[5.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/smp.h |    1 +
- arch/s390/kernel/smp.c      |    9 +++++++--
- arch/s390/kernel/topology.c |   13 +++++++------
- 3 files changed, 15 insertions(+), 8 deletions(-)
+ mm/memory-failure.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/s390/include/asm/smp.h
-+++ b/arch/s390/include/asm/smp.h
-@@ -18,6 +18,7 @@ extern struct mutex smp_cpu_state_mutex;
- extern unsigned int smp_cpu_mt_shift;
- extern unsigned int smp_cpu_mtid;
- extern __vector128 __initdata boot_cpu_vector_save_area[__NUM_VXRS];
-+extern cpumask_t cpu_setup_mask;
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -68,7 +68,7 @@ atomic_long_t num_poisoned_pages __read_
  
- extern int __cpu_up(unsigned int cpu, struct task_struct *tidle);
- 
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -95,6 +95,7 @@ __vector128 __initdata boot_cpu_vector_s
- #endif
- 
- static unsigned int smp_max_threads __initdata = -1U;
-+cpumask_t cpu_setup_mask;
- 
- static int __init early_nosmt(char *s)
+ static bool __page_handle_poison(struct page *page)
  {
-@@ -894,13 +895,14 @@ static void smp_init_secondary(void)
- 	vtime_init();
- 	vdso_getcpu_init();
- 	pfault_init();
-+	cpumask_set_cpu(cpu, &cpu_setup_mask);
-+	update_cpu_masks();
- 	notify_cpu_starting(cpu);
- 	if (topology_cpu_dedicated(cpu))
- 		set_cpu_flag(CIF_DEDICATED_CPU);
- 	else
- 		clear_cpu_flag(CIF_DEDICATED_CPU);
- 	set_cpu_online(cpu, true);
--	update_cpu_masks();
- 	inc_irq_stat(CPU_RST);
- 	local_irq_enable();
- 	cpu_startup_entry(CPUHP_AP_ONLINE_IDLE);
-@@ -955,10 +957,13 @@ early_param("possible_cpus", _setup_poss
- int __cpu_disable(void)
- {
- 	unsigned long cregs[16];
-+	int cpu;
+-	bool ret;
++	int ret;
  
- 	/* Handle possible pending IPIs */
- 	smp_handle_ext_call();
--	set_cpu_online(smp_processor_id(), false);
-+	cpu = smp_processor_id();
-+	set_cpu_online(cpu, false);
-+	cpumask_clear_cpu(cpu, &cpu_setup_mask);
- 	update_cpu_masks();
- 	/* Disable pseudo page faults on this cpu. */
- 	pfault_fini();
---- a/arch/s390/kernel/topology.c
-+++ b/arch/s390/kernel/topology.c
-@@ -67,7 +67,7 @@ static void cpu_group_map(cpumask_t *dst
- 	static cpumask_t mask;
+ 	zone_pcp_disable(page_zone(page));
+ 	ret = dissolve_free_huge_page(page);
+@@ -76,7 +76,7 @@ static bool __page_handle_poison(struct
+ 		ret = take_page_off_buddy(page);
+ 	zone_pcp_enable(page_zone(page));
  
- 	cpumask_clear(&mask);
--	if (!cpu_online(cpu))
-+	if (!cpumask_test_cpu(cpu, &cpu_setup_mask))
- 		goto out;
- 	cpumask_set_cpu(cpu, &mask);
- 	switch (topology_mode) {
-@@ -88,7 +88,7 @@ static void cpu_group_map(cpumask_t *dst
- 	case TOPOLOGY_MODE_SINGLE:
- 		break;
- 	}
--	cpumask_and(&mask, &mask, cpu_online_mask);
-+	cpumask_and(&mask, &mask, &cpu_setup_mask);
- out:
- 	cpumask_copy(dst, &mask);
+-	return ret;
++	return ret > 0;
  }
-@@ -99,16 +99,16 @@ static void cpu_thread_map(cpumask_t *ds
- 	int i;
  
- 	cpumask_clear(&mask);
--	if (!cpu_online(cpu))
-+	if (!cpumask_test_cpu(cpu, &cpu_setup_mask))
- 		goto out;
- 	cpumask_set_cpu(cpu, &mask);
- 	if (topology_mode != TOPOLOGY_MODE_HW)
- 		goto out;
- 	cpu -= cpu % (smp_cpu_mtid + 1);
--	for (i = 0; i <= smp_cpu_mtid; i++)
--		if (cpu_present(cpu + i))
-+	for (i = 0; i <= smp_cpu_mtid; i++) {
-+		if (cpumask_test_cpu(cpu + i, &cpu_setup_mask))
- 			cpumask_set_cpu(cpu + i, &mask);
--	cpumask_and(&mask, &mask, cpu_online_mask);
-+	}
- out:
- 	cpumask_copy(dst, &mask);
- }
-@@ -569,6 +569,7 @@ void __init topology_init_early(void)
- 	alloc_masks(info, &book_info, 2);
- 	alloc_masks(info, &drawer_info, 3);
- out:
-+	cpumask_set_cpu(0, &cpu_setup_mask);
- 	__arch_update_cpu_topology();
- 	__arch_update_dedicated_flag(NULL);
- }
+ static bool page_handle_poison(struct page *page, bool hugepage_or_freepage, bool release)
 
 
