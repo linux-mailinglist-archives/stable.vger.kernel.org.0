@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC4D440E7A6
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:34:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F04B40E3FB
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242722AbhIPRfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:35:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50288 "EHLO mail.kernel.org"
+        id S1343523AbhIPQx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:53:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348365AbhIPRcV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:32:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 487DE6320F;
-        Thu, 16 Sep 2021 16:47:45 +0000 (UTC)
+        id S240638AbhIPQvn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:51:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2056A61A84;
+        Thu, 16 Sep 2021 16:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810865;
-        bh=4hIy8UnwQrH4j2ngGlzjY5U9vxLNhjopSfaM/eeqlH0=;
+        s=korg; t=1631809726;
+        bh=sYydYxRyDsnWxhv0ACQkOPeeGjMFpExS/qG7QDvFyBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLNHxM42K2vuy3p1wv0uF3WawWkuZ/aQwln2LPCFOp4Z9rKhksc/iQ/vuNu26Ox73
-         ThKXiBdDTIoYXxBgwrE1KwSAVuNMqgm54qrXglK0xEEQxxB1VVR0EbYgss17LqtByC
-         HqanGSkdpEMk6WiKwQ1xJg920E33Ov3G3BLenwBg=
+        b=Lp9IDGKrCHwFHRMA/nID7lKDk2ZK2sSDt12Fc0mOHBVFtYV5uMn8M8nBoIARlw5YN
+         STMDsPzcSrY0tTM/Ahb9L33NblhcRPZiuuU2qNM/KhBcvLx9s0LUK4QQ6nw/LGXTTN
+         yNssFk2FI3eTYT6viGPQZATaVUNQxaJqMtZv76YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Eran Ben Elisha <eranbe@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 269/432] arm64: dts: qcom: sdm660: use reg value for memory node
+Subject: [PATCH 5.13 261/380] net/mlx5: Fix variable type to match 64bit
 Date:   Thu, 16 Sep 2021 18:00:18 +0200
-Message-Id: <20210916155819.938319765@linuxfoundation.org>
+Message-Id: <20210916155812.956220743@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Eran Ben Elisha <eranbe@nvidia.com>
 
-[ Upstream commit c81210e38966cfa1c784364e4035081c3227cf5b ]
+[ Upstream commit 979aa51967add26b37f9d77e01729d44a2da8e5f ]
 
-memory node like other node should be node@reg, which is missing in this
-case, so fix it up
+Fix the following smatch warning:
+wait_func_handle_exec_timeout() warn: should '1 << ent->idx' be a 64 bit type?
 
-arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: /: memory: False schema does not allow {'device_type': ['memory'], 'reg': [[0, 1073741824, 0, 536870912]]}
+Use 1ULL, to have a 64 bit type variable.
 
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210308060826.3074234-18-vkoul@kernel.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Eran Ben Elisha <eranbe@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/ipq8074-hk01.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
-index e8c37a1693d3..cc08dc4eb56a 100644
---- a/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
-+++ b/arch/arm64/boot/dts/qcom/ipq8074-hk01.dts
-@@ -20,7 +20,7 @@ chosen {
- 		stdout-path = "serial0";
- 	};
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index 9d79c5ec31e9..db5dfff585c9 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -877,7 +877,7 @@ static void cb_timeout_handler(struct work_struct *work)
+ 	ent->ret = -ETIMEDOUT;
+ 	mlx5_core_warn(dev, "cmd[%d]: %s(0x%x) Async, timeout. Will cause a leak of a command resource\n",
+ 		       ent->idx, mlx5_command_str(msg_to_opcode(ent->in)), msg_to_opcode(ent->in));
+-	mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++	mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, true);
  
--	memory {
-+	memory@40000000 {
- 		device_type = "memory";
- 		reg = <0x0 0x40000000 0x0 0x20000000>;
- 	};
+ out:
+ 	cmd_ent_put(ent); /* for the cmd_ent_get() took on schedule delayed work */
+@@ -994,7 +994,7 @@ static void cmd_work_handler(struct work_struct *work)
+ 		MLX5_SET(mbox_out, ent->out, status, status);
+ 		MLX5_SET(mbox_out, ent->out, syndrome, drv_synd);
+ 
+-		mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++		mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, true);
+ 		return;
+ 	}
+ 
+@@ -1008,7 +1008,7 @@ static void cmd_work_handler(struct work_struct *work)
+ 		poll_timeout(ent);
+ 		/* make sure we read the descriptor after ownership is SW */
+ 		rmb();
+-		mlx5_cmd_comp_handler(dev, 1UL << ent->idx, (ent->ret == -ETIMEDOUT));
++		mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, (ent->ret == -ETIMEDOUT));
+ 	}
+ }
+ 
+@@ -1068,7 +1068,7 @@ static void wait_func_handle_exec_timeout(struct mlx5_core_dev *dev,
+ 		       mlx5_command_str(msg_to_opcode(ent->in)), msg_to_opcode(ent->in));
+ 
+ 	ent->ret = -ETIMEDOUT;
+-	mlx5_cmd_comp_handler(dev, 1UL << ent->idx, true);
++	mlx5_cmd_comp_handler(dev, 1ULL << ent->idx, true);
+ }
+ 
+ static int wait_func(struct mlx5_core_dev *dev, struct mlx5_cmd_work_ent *ent)
 -- 
 2.30.2
 
