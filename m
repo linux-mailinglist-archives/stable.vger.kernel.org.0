@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84DB140E60B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E9840DF84
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345974AbhIPRR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:17:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41022 "EHLO mail.kernel.org"
+        id S237476AbhIPQKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:10:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351290AbhIPRPY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:15:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AD7B61B7F;
-        Thu, 16 Sep 2021 16:39:44 +0000 (UTC)
+        id S235842AbhIPQJM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:09:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E396F61283;
+        Thu, 16 Sep 2021 16:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810385;
-        bh=VMxKDaM3SrW+qUbRpV5JvN7HFM5PZKPdR0iiyeMpvyE=;
+        s=korg; t=1631808461;
+        bh=qQA5sN6pM1V3Tb0BACCtc+POK3CIZoL1+B6jfjJx5bc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cY2zTE+Mgq7TgYMp76x7LfnoGM+98DU8GhpXOh/mpMoAnTs4oz+0blPri2taK/PKL
-         71vqeMiZ2oQaBJhWbuDOMtxUAOWnFmqZ3H0Gi2GiLXYHbSewvpS+JsooUu/KBuM858
-         wUO+KMjt/xwDQmOmom2eTKSxlYdVRWKP5BHx8W54=
+        b=oIXD1P98eXgKM1RHp2M7rERBcfT0Nq0L8vvnX/Jun7a3wtjjgPmUBdWvEf3zrzPvS
+         QCZQU+2nmez01YebIh7+Atrzbj+t3gDJtpN1Q8Qds6VhNhpUJ0vVI2I9NtL5vcNH5W
+         0r8pZTm6jJQgAimWNK4jXAagWhQaZnOLo+ucLHv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Enrico Joedecke <joedecke@de.ibm.com>,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Jeff Layton <jlayton@redhat.com>, linux-cachefs@redhat.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 094/432] cpuidle: pseries: Fixup CEDE0 latency only for POWER10 onwards
+Subject: [PATCH 5.10 098/306] fscache: Fix cookie key hashing
 Date:   Thu, 16 Sep 2021 17:57:23 +0200
-Message-Id: <20210916155813.968979874@linuxfoundation.org>
+Message-Id: <20210916155757.406572188@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,91 +40,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit 50741b70b0cbbafbd9199f5180e66c0c53783a4a ]
+[ Upstream commit 35b72573e977ed6b18b094136a4fa3e0ffb13603 ]
 
-Commit d947fb4c965c ("cpuidle: pseries: Fixup exit latency for
-CEDE(0)") sets the exit latency of CEDE(0) based on the latency values
-of the Extended CEDE states advertised by the platform
+The current hash algorithm used for hashing cookie keys is really bad,
+producing almost no dispersion (after a test kernel build, ~30000 files
+were split over just 18 out of the 32768 hash buckets).
 
-On POWER9 LPARs, the firmwares advertise a very low value of 2us for
-CEDE1 exit latency on a Dedicated LPAR. The latency advertized by the
-PHYP hypervisor corresponds to the latency required to wakeup from the
-underlying hardware idle state. However the wakeup latency from the
-LPAR perspective should include
+Borrow the full_name_hash() hash function into fscache to do the hashing
+for cookie keys and, in the future, volume keys.
 
-1. The time taken to transition the CPU from the Hypervisor into the
-   LPAR post wakeup from platform idle state
+I don't want to use full_name_hash() as-is because I want the hash value to
+be consistent across arches and over time as the hash value produced may
+get used on disk.
 
-2. Time taken to send the IPI from the source CPU (waker) to the idle
-   target CPU (wakee).
+I can also optimise parts of it away as the key will always be a padded
+array of aligned 32-bit words.
 
-1. can be measured via timer idle test, where we queue a timer, say
-for 1ms, and enter the CEDE state. When the timer fires, in the timer
-handler we compute how much extra timer over the expected 1ms have we
-consumed. On a a POWER9 LPAR the numbers are
-
-CEDE latency measured using a timer (numbers in ns)
-N       Min      Median   Avg       90%ile  99%ile    Max    Stddev
-400     2601     5677     5668.74    5917    6413     9299   455.01
-
-1. and 2. combined can be determined by an IPI latency test where we
-send an IPI to an idle CPU and in the handler compute the time
-difference between when the IPI was sent and when the handler ran. We
-see the following numbers on POWER9 LPAR.
-
-CEDE latency measured using an IPI (numbers in ns)
-N       Min      Median   Avg       90%ile  99%ile    Max    Stddev
-400     711      7564     7369.43   8559    9514      9698   1200.01
-
-Suppose, we consider the 99th percentile latency value measured using
-the IPI to be the wakeup latency, the value would be 9.5us This is in
-the ballpark of the default value of 10us.
-
-Hence, use the exit latency of CEDE(0) based on the latency values
-advertized by platform only from POWER10 onwards. The values
-advertized on POWER10 platforms is more realistic and informed by the
-latency measurements. For earlier platforms stick to the default value
-of 10us. The fix was suggested by Michael Ellerman.
-
-Fixes: d947fb4c965c ("cpuidle: pseries: Fixup exit latency for CEDE(0)")
-Reported-by: Enrico Joedecke <joedecke@de.ibm.com>
-Signed-off-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1626676399-15975-2-git-send-email-ego@linux.vnet.ibm.com
+Fixes: ec0328e46d6e ("fscache: Maintain a catalogue of allocated cookies")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@redhat.com>
+cc: linux-cachefs@redhat.com
+Link: https://lore.kernel.org/r/162431201844.2908479.8293647220901514696.stgit@warthog.procyon.org.uk/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpuidle/cpuidle-pseries.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ fs/fscache/cookie.c   | 14 +-------------
+ fs/fscache/internal.h |  2 ++
+ fs/fscache/main.c     | 39 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 42 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/cpuidle/cpuidle-pseries.c b/drivers/cpuidle/cpuidle-pseries.c
-index a2b5c6f60cf0..e592280d8acf 100644
---- a/drivers/cpuidle/cpuidle-pseries.c
-+++ b/drivers/cpuidle/cpuidle-pseries.c
-@@ -419,7 +419,21 @@ static int pseries_idle_probe(void)
- 			cpuidle_state_table = shared_states;
- 			max_idle_state = ARRAY_SIZE(shared_states);
- 		} else {
--			fixup_cede0_latency();
-+			/*
-+			 * Use firmware provided latency values
-+			 * starting with POWER10 platforms. In the
-+			 * case that we are running on a POWER10
-+			 * platform but in an earlier compat mode, we
-+			 * can still use the firmware provided values.
-+			 *
-+			 * However, on platforms prior to POWER10, we
-+			 * cannot rely on the accuracy of the firmware
-+			 * provided latency values. On such platforms,
-+			 * go with the conservative default estimate
-+			 * of 10us.
-+			 */
-+			if (cpu_has_feature(CPU_FTR_ARCH_31) || pvr_version_is(PVR_POWER10))
-+				fixup_cede0_latency();
- 			cpuidle_state_table = dedicated_states;
- 			max_idle_state = NR_DEDICATED_STATES;
- 		}
+diff --git a/fs/fscache/cookie.c b/fs/fscache/cookie.c
+index 751bc5b1cddf..6104f627cc71 100644
+--- a/fs/fscache/cookie.c
++++ b/fs/fscache/cookie.c
+@@ -74,10 +74,8 @@ void fscache_free_cookie(struct fscache_cookie *cookie)
+ static int fscache_set_key(struct fscache_cookie *cookie,
+ 			   const void *index_key, size_t index_key_len)
+ {
+-	unsigned long long h;
+ 	u32 *buf;
+ 	int bufs;
+-	int i;
+ 
+ 	bufs = DIV_ROUND_UP(index_key_len, sizeof(*buf));
+ 
+@@ -91,17 +89,7 @@ static int fscache_set_key(struct fscache_cookie *cookie,
+ 	}
+ 
+ 	memcpy(buf, index_key, index_key_len);
+-
+-	/* Calculate a hash and combine this with the length in the first word
+-	 * or first half word
+-	 */
+-	h = (unsigned long)cookie->parent;
+-	h += index_key_len + cookie->type;
+-
+-	for (i = 0; i < bufs; i++)
+-		h += buf[i];
+-
+-	cookie->key_hash = h ^ (h >> 32);
++	cookie->key_hash = fscache_hash(0, buf, bufs);
+ 	return 0;
+ }
+ 
+diff --git a/fs/fscache/internal.h b/fs/fscache/internal.h
+index 08e91efbce53..64aa552b296d 100644
+--- a/fs/fscache/internal.h
++++ b/fs/fscache/internal.h
+@@ -97,6 +97,8 @@ extern struct workqueue_struct *fscache_object_wq;
+ extern struct workqueue_struct *fscache_op_wq;
+ DECLARE_PER_CPU(wait_queue_head_t, fscache_object_cong_wait);
+ 
++extern unsigned int fscache_hash(unsigned int salt, unsigned int *data, unsigned int n);
++
+ static inline bool fscache_object_congested(void)
+ {
+ 	return workqueue_congested(WORK_CPU_UNBOUND, fscache_object_wq);
+diff --git a/fs/fscache/main.c b/fs/fscache/main.c
+index c1e6cc9091aa..4207f98e405f 100644
+--- a/fs/fscache/main.c
++++ b/fs/fscache/main.c
+@@ -93,6 +93,45 @@ static struct ctl_table fscache_sysctls_root[] = {
+ };
+ #endif
+ 
++/*
++ * Mixing scores (in bits) for (7,20):
++ * Input delta: 1-bit      2-bit
++ * 1 round:     330.3     9201.6
++ * 2 rounds:   1246.4    25475.4
++ * 3 rounds:   1907.1    31295.1
++ * 4 rounds:   2042.3    31718.6
++ * Perfect:    2048      31744
++ *            (32*64)   (32*31/2 * 64)
++ */
++#define HASH_MIX(x, y, a)	\
++	(	x ^= (a),	\
++	y ^= x,	x = rol32(x, 7),\
++	x += y,	y = rol32(y,20),\
++	y *= 9			)
++
++static inline unsigned int fold_hash(unsigned long x, unsigned long y)
++{
++	/* Use arch-optimized multiply if one exists */
++	return __hash_32(y ^ __hash_32(x));
++}
++
++/*
++ * Generate a hash.  This is derived from full_name_hash(), but we want to be
++ * sure it is arch independent and that it doesn't change as bits of the
++ * computed hash value might appear on disk.  The caller also guarantees that
++ * the hashed data will be a series of aligned 32-bit words.
++ */
++unsigned int fscache_hash(unsigned int salt, unsigned int *data, unsigned int n)
++{
++	unsigned int a, x = 0, y = salt;
++
++	for (; n; n--) {
++		a = *data++;
++		HASH_MIX(x, y, a);
++	}
++	return fold_hash(x, y);
++}
++
+ /*
+  * initialise the fs caching module
+  */
 -- 
 2.30.2
 
