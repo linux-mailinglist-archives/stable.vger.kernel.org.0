@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C5E440E6BF
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 510A940E065
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243964AbhIPRZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:25:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43506 "EHLO mail.kernel.org"
+        id S237575AbhIPQVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:21:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346896AbhIPRV6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:21:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87EC5613AC;
-        Thu, 16 Sep 2021 16:42:49 +0000 (UTC)
+        id S238908AbhIPQQ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:16:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E57AE60FA0;
+        Thu, 16 Sep 2021 16:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810570;
-        bh=TUaNbGijjf16dwoOSELXxmYWLOmllXRTFAu0Q8E1m3U=;
+        s=korg; t=1631808713;
+        bh=+mysz30YchQW0dOOi+B6qmUk5Y0BtIkVvvixWjv2ans=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pPKMmpVcl3c4nzsAowzONnNpa5ifZOR7cOyNFmKXnkj/qz3N53W6zpQz13iB6+ww6
-         pPAECbCTpsOPQpfZupMPOtt4yDsM1dLPbaw3ONm8cEp9BtpT24oLgE1oDCDijqt1U+
-         lB12jEs+gbxrRbOw4wzfQpcY8UmrKQaAis+ozI5U=
+        b=DmsXcNlLidz5jzmeVmCegoCeepRIf1eFAfjmzS1XmSh/VtI3CyeDTuO1fLqQEiqiS
+         TQRklerS+c+aHEmNH8d8rNU9XitWc/yp7ZWZNcK7sr+63khMHdd84zxkp5NnygB3Nh
+         YRW7NSf13Uf0r7WTLOWSeXyGvTTO6vqmmra0OYBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 189/432] drm: avoid blocking in drm_clients_infos rcu section
-Date:   Thu, 16 Sep 2021 17:58:58 +0200
-Message-Id: <20210916155817.158420628@linuxfoundation.org>
+Subject: [PATCH 5.10 194/306] arm64: dts: qcom: msm8996: dont use underscore in node name
+Date:   Thu, 16 Sep 2021 17:58:59 +0200
+Message-Id: <20210916155800.683633817@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,93 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 5eff9585de220cdd131237f5665db5e6c6bdf590 ]
+[ Upstream commit 84f3efbe5b4654077608bc2fc027177fe4592321 ]
 
-Inside drm_clients_info, the rcu_read_lock is held to lock
-pid_task()->comm. However, within this protected section, a call to
-drm_is_current_master is made, which involves a mutex lock in a future
-patch. However, this is illegal because the mutex lock might block
-while in the RCU read-side critical section.
+We have underscore (_) in node name leading to warning:
 
-Since drm_is_current_master isn't protected by rcu_read_lock, we avoid
-this by moving it out of the RCU critical section.
+arch/arm64/boot/dts/qcom/apq8096-db820c.dt.yaml: clocks: $nodename:0: 'clocks' does not match '^([a-z][a-z0-9\\-]+-bus|bus|soc|axi|ahb|apb)(@[0-9a-f]+)?$'
+arch/arm64/boot/dts/qcom/apq8096-db820c.dt.yaml: clocks: xo_board: {'type': 'object'} is not allowed for {'compatible': ['fixed-clock'], '#clock-cells': [[0]], 'clock-frequency': [[19200000]], 'clock-output-names': ['xo_board'], 'phandle': [[115]]}
 
-The following report came from intel-gfx ci's
-igt@debugfs_test@read_all_entries testcase:
+Fix this by changing node name to use dash (-)
 
-=============================
-[ BUG: Invalid wait context ]
-5.13.0-CI-Patchwork_20515+ #1 Tainted: G        W
------------------------------
-debugfs_test/1101 is trying to lock:
-ffff888132d901a8 (&dev->master_mutex){+.+.}-{3:3}, at:
-drm_is_current_master+0x1e/0x50
-other info that might help us debug this:
-context-{4:4}
-3 locks held by debugfs_test/1101:
- #0: ffff88810fdffc90 (&p->lock){+.+.}-{3:3}, at:
- seq_read_iter+0x53/0x3b0
- #1: ffff888132d90240 (&dev->filelist_mutex){+.+.}-{3:3}, at:
- drm_clients_info+0x63/0x2a0
- #2: ffffffff82734220 (rcu_read_lock){....}-{1:2}, at:
- drm_clients_info+0x1b1/0x2a0
-stack backtrace:
-CPU: 8 PID: 1101 Comm: debugfs_test Tainted: G        W
-5.13.0-CI-Patchwork_20515+ #1
-Hardware name: Intel Corporation CometLake Client Platform/CometLake S
-UDIMM (ERB/CRB), BIOS CMLSFWR1.R00.1263.D00.1906260926 06/26/2019
-Call Trace:
- dump_stack+0x7f/0xad
- __lock_acquire.cold.78+0x2af/0x2ca
- lock_acquire+0xd3/0x300
- ? drm_is_current_master+0x1e/0x50
- ? __mutex_lock+0x76/0x970
- ? lockdep_hardirqs_on+0xbf/0x130
- __mutex_lock+0xab/0x970
- ? drm_is_current_master+0x1e/0x50
- ? drm_is_current_master+0x1e/0x50
- ? drm_is_current_master+0x1e/0x50
- drm_is_current_master+0x1e/0x50
- drm_clients_info+0x107/0x2a0
- seq_read_iter+0x178/0x3b0
- seq_read+0x104/0x150
- full_proxy_read+0x4e/0x80
- vfs_read+0xa5/0x1b0
- ksys_read+0x5a/0xd0
- do_syscall_64+0x39/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210712043508.11584-3-desmondcheongzx@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210308060826.3074234-10-vkoul@kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_debugfs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_debugfs.c b/drivers/gpu/drm/drm_debugfs.c
-index 3d7182001004..b0a826489488 100644
---- a/drivers/gpu/drm/drm_debugfs.c
-+++ b/drivers/gpu/drm/drm_debugfs.c
-@@ -91,6 +91,7 @@ static int drm_clients_info(struct seq_file *m, void *data)
- 	mutex_lock(&dev->filelist_mutex);
- 	list_for_each_entry_reverse(priv, &dev->filelist, lhead) {
- 		struct task_struct *task;
-+		bool is_current_master = drm_is_current_master(priv);
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index fd6ae5464dea..eef17434d12a 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -17,14 +17,14 @@ / {
+ 	chosen { };
  
- 		rcu_read_lock(); /* locks pid_task()->comm */
- 		task = pid_task(priv->pid, PIDTYPE_PID);
-@@ -99,7 +100,7 @@ static int drm_clients_info(struct seq_file *m, void *data)
- 			   task ? task->comm : "<unknown>",
- 			   pid_vnr(priv->pid),
- 			   priv->minor->index,
--			   drm_is_current_master(priv) ? 'y' : 'n',
-+			   is_current_master ? 'y' : 'n',
- 			   priv->authenticated ? 'y' : 'n',
- 			   from_kuid_munged(seq_user_ns(m), uid),
- 			   priv->magic);
+ 	clocks {
+-		xo_board: xo_board {
++		xo_board: xo-board {
+ 			compatible = "fixed-clock";
+ 			#clock-cells = <0>;
+ 			clock-frequency = <19200000>;
+ 			clock-output-names = "xo_board";
+ 		};
+ 
+-		sleep_clk: sleep_clk {
++		sleep_clk: sleep-clk {
+ 			compatible = "fixed-clock";
+ 			#clock-cells = <0>;
+ 			clock-frequency = <32764>;
 -- 
 2.30.2
 
