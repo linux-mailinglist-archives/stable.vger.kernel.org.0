@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E027E40E094
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8477E40E739
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241863AbhIPQWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:22:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59936 "EHLO mail.kernel.org"
+        id S1344472AbhIPRaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:30:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240527AbhIPQUb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:20:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75FF6613A5;
-        Thu, 16 Sep 2021 16:14:28 +0000 (UTC)
+        id S1352263AbhIPR04 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:26:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9880D613D5;
+        Thu, 16 Sep 2021 16:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808869;
-        bh=voVTCfJr60HLCN+IptdOiXs63lq9BY/fZ7rtt3PnHS8=;
+        s=korg; t=1631810713;
+        bh=wmAn7NASzO3JH9q1wnZ3WbFIdI3bcHKwprsxehcilEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wb6r9GueTOJDm36W/YZLdkHn0fXAT2qgfRFqYwPx2Kepzj3utRAbTVdOUrD2fRROX
-         5msQPPtBU3mZbql8jKBVg6ECxxsoN3ouQFdmV40cnLjlXeRQxXBWaeR0jzhNJDTIw0
-         BthbLwlwlxx/dio4E245F/L48w/VrUlaJ4HVlNXA=
+        b=omHmKDoV9/+M8L9i3Kcvq9hCtrr1xHZEj5RvXhTIL8O6hJYGusKJbxRGnDRVrlu6f
+         tM5WvQExkEyTvfS1rZaC1YnCGfQO/tcSvF71lp4NhqPa0YXv5jMSfjCPMLhtShtYmV
+         PiZNCGDtr73WTTsrxWOzJ7C7xFUGgL06p1kSJbjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Lukasz Majczak <lma@semihalf.com>,
-        Mark Brown <broonie@kernel.org>,
+        syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 245/306] ASoC: Intel: Skylake: Fix passing loadable flag for module
+Subject: [PATCH 5.14 241/432] Bluetooth: skip invalid hci_sync_conn_complete_evt
 Date:   Thu, 16 Sep 2021 17:59:50 +0200
-Message-Id: <20210916155802.414763444@linuxfoundation.org>
+Message-Id: <20210916155819.001775369@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit c5ed9c547cba1dc1238c6e8a0c290fd62ee6e127 ]
+[ Upstream commit 92fe24a7db751b80925214ede43f8d2be792ea7b ]
 
-skl_get_module_info() tries to set mconfig->module->loadable before
-mconfig->module has been assigned thus flag was always set to false
-and driver did not try to load module binaries.
+Syzbot reported a corrupted list in kobject_add_internal [1]. This
+happens when multiple HCI_EV_SYNC_CONN_COMPLETE event packets with
+status 0 are sent for the same HCI connection. This causes us to
+register the device more than once which corrupts the kset list.
 
-Signed-off-by: Gustaw Lewandowski <gustaw.lewandowski@linux.intel.com>
-Signed-off-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Tested-by: Lukasz Majczak <lma@semihalf.com>
-Link: https://lore.kernel.org/r/20210818075742.1515155-7-cezary.rojewski@intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+As this is forbidden behavior, we add a check for whether we're
+trying to process the same HCI_EV_SYNC_CONN_COMPLETE event multiple
+times for one connection. If that's the case, the event is invalid, so
+we report an error that the device is misbehaving, and ignore the
+packet.
+
+Link: https://syzkaller.appspot.com/bug?extid=66264bf2fd0476be7e6c [1]
+Reported-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
+Tested-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/skylake/skl-pcm.c | 25 +++++++++----------------
- 1 file changed, 9 insertions(+), 16 deletions(-)
+ net/bluetooth/hci_event.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/sound/soc/intel/skylake/skl-pcm.c b/sound/soc/intel/skylake/skl-pcm.c
-index bbe8d782e0af..b1897a057397 100644
---- a/sound/soc/intel/skylake/skl-pcm.c
-+++ b/sound/soc/intel/skylake/skl-pcm.c
-@@ -1318,21 +1318,6 @@ static int skl_get_module_info(struct skl_dev *skl,
- 		return -EIO;
- 	}
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 1c3018202564..ea7fc09478be 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -4382,6 +4382,21 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
  
--	list_for_each_entry(module, &skl->uuid_list, list) {
--		if (guid_equal(uuid_mod, &module->uuid)) {
--			mconfig->id.module_id = module->id;
--			if (mconfig->module)
--				mconfig->module->loadable = module->is_loadable;
--			ret = 0;
--			break;
--		}
--	}
--
--	if (ret)
--		return ret;
--
--	uuid_mod = &module->uuid;
--	ret = -EIO;
- 	for (i = 0; i < skl->nr_modules; i++) {
- 		skl_module = skl->modules[i];
- 		uuid_tplg = &skl_module->uuid;
-@@ -1342,10 +1327,18 @@ static int skl_get_module_info(struct skl_dev *skl,
- 			break;
- 		}
- 	}
-+
- 	if (skl->nr_modules && ret)
- 		return ret;
- 
-+	ret = -EIO;
- 	list_for_each_entry(module, &skl->uuid_list, list) {
-+		if (guid_equal(uuid_mod, &module->uuid)) {
-+			mconfig->id.module_id = module->id;
-+			mconfig->module->loadable = module->is_loadable;
-+			ret = 0;
+ 	switch (ev->status) {
+ 	case 0x00:
++		/* The synchronous connection complete event should only be
++		 * sent once per new connection. Receiving a successful
++		 * complete event when the connection status is already
++		 * BT_CONNECTED means that the device is misbehaving and sent
++		 * multiple complete event packets for the same new connection.
++		 *
++		 * Registering the device more than once can corrupt kernel
++		 * memory, hence upon detecting this invalid event, we report
++		 * an error and ignore the packet.
++		 */
++		if (conn->state == BT_CONNECTED) {
++			bt_dev_err(hdev, "Ignoring connect complete event for existing connection");
++			goto unlock;
 +		}
 +
- 		for (i = 0; i < MAX_IN_QUEUE; i++) {
- 			pin_id = &mconfig->m_in_pin[i].id;
- 			if (guid_equal(&pin_id->mod_uuid, &module->uuid))
-@@ -1359,7 +1352,7 @@ static int skl_get_module_info(struct skl_dev *skl,
- 		}
- 	}
- 
--	return 0;
-+	return ret;
- }
- 
- static int skl_populate_modules(struct skl_dev *skl)
+ 		conn->handle = __le16_to_cpu(ev->handle);
+ 		conn->state  = BT_CONNECTED;
+ 		conn->type   = ev->link_type;
 -- 
 2.30.2
 
