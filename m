@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 952AB40E3EC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 535DA40E0FA
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244127AbhIPQxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:53:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38644 "EHLO mail.kernel.org"
+        id S241056AbhIPQ0L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:26:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345917AbhIPQvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:51:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 592FF61A86;
-        Thu, 16 Sep 2021 16:28:43 +0000 (UTC)
+        id S241320AbhIPQWi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:22:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AED46141B;
+        Thu, 16 Sep 2021 16:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809724;
-        bh=6A4UFO566NlxIX7SmKjrKxVeE046rp/rzND0uhqcNcc=;
+        s=korg; t=1631808926;
+        bh=b8uqT+IdXHTCWdfTeDRGw60YPedOurUWpACJtIdz0jA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wwkuANL0sXDMobL6TaLXW/DC4pl0J4tUFyPON1/ziNRBixIXdvO3rP3ZZ8b6LuA8q
-         586QDRhiyReTNfQJVs7N8qODU67O1Ve/TSqWysURwWrvk6Qxdm20JNWgKkFc4zb9T4
-         Dh9awGcrDmhuBsNuL/D1nBtunrbVAqb50xwTaoNY=
+        b=UM/gHw8oMGRYsoMV/uCd/k56nwhTf8JonG2WeCqwTCVpmSMFKasP1hDw95RmJ4RTg
+         IAlHtb1UXGfe36PJrYN7vBuchyHzYS9ueR1JHF7Nk4BkxBkihqNi78me9v/xNb/aEt
+         GNjDwZXlafEo6ivH911OcGGnelNuNs+B+TOa1uBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuogee Hsieh <khsieh@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 260/380] drm/msm/dp: do not end dp link training until video is ready
-Date:   Thu, 16 Sep 2021 18:00:17 +0200
-Message-Id: <20210916155812.925244855@linuxfoundation.org>
+Subject: [PATCH 5.10 273/306] ath9k: fix sleeping in atomic context
+Date:   Thu, 16 Sep 2021 18:00:18 +0200
+Message-Id: <20210916155803.380321435@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,146 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuogee Hsieh <khsieh@codeaurora.org>
+From: Miaoqing Pan <miaoqing@codeaurora.org>
 
-[ Upstream commit 2e0adc765d884cc080baa501e250bfad97035b09 ]
+[ Upstream commit 7c48662b9d56666219f526a71ace8c15e6e12f1f ]
 
-Initialize both pre-emphasis and voltage swing level to 0 before
-start link training and do not end link training until video is
-ready to reduce the period between end of link training and video
-start to meet Link Layer CTS requirement.  Some dongle main link
-symbol may become unlocked again if host did not end link training
-soon enough after completion of link training 2. Host have to re
-train main link if loss of symbol locked detected before end link
-training so that the coming video stream can be transmitted to sink
-properly. This fixes Link Layer CTS cases 4.3.2.1, 4.3.2.2, 4.3.2.3
-and 4.3.2.4.
+The problem is that gpio_free() can sleep and the cfg_soc() can be
+called with spinlocks held. One problematic call tree is:
 
-Changes in v3:
--- merge retrain link if loss of symbol locked happen into this patch
--- replace dp_ctrl_loss_symbol_lock() with dp_ctrl_channel_eq_ok()
+--> ath_reset_internal() takes &sc->sc_pcu_lock spin lock
+   --> ath9k_hw_reset()
+      --> ath9k_hw_gpio_request_in()
+         --> ath9k_hw_gpio_request()
+            --> ath9k_hw_gpio_cfg_soc()
 
-Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/1628196295-7382-7-git-send-email-khsieh@codeaurora.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Remove gpio_free(), use error message instead, so we should make sure
+there is no GPIO conflict.
+
+Also remove ath9k_hw_gpio_free() from ath9k_hw_apply_gpio_override(),
+as gpio_mask will never be set for SOC chips.
+
+Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1628481916-15030-1-git-send-email-miaoqing@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dp/dp_ctrl.c | 56 +++++++++++++++++++++++---------
- 1 file changed, 41 insertions(+), 15 deletions(-)
+ drivers/net/wireless/ath/ath9k/hw.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dp/dp_ctrl.c b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-index eb63920b36e8..c1514f2cb409 100644
---- a/drivers/gpu/drm/msm/dp/dp_ctrl.c
-+++ b/drivers/gpu/drm/msm/dp/dp_ctrl.c
-@@ -1482,6 +1482,9 @@ static int dp_ctrl_link_maintenance(struct dp_ctrl_private *ctrl)
- 
- 	dp_ctrl_push_idle(&ctrl->dp_ctrl);
- 
-+	ctrl->link->phy_params.p_level = 0;
-+	ctrl->link->phy_params.v_level = 0;
-+
- 	ctrl->dp_ctrl.pixel_rate = ctrl->panel->dp_mode.drm_mode.clock;
- 
- 	ret = dp_ctrl_setup_main_link(ctrl, &training_step);
-@@ -1634,6 +1637,16 @@ static bool dp_ctrl_clock_recovery_any_ok(
- 	return drm_dp_clock_recovery_ok(link_status, reduced_cnt);
- }
- 
-+static bool dp_ctrl_channel_eq_ok(struct dp_ctrl_private *ctrl)
-+{
-+	u8 link_status[DP_LINK_STATUS_SIZE];
-+	int num_lanes = ctrl->link->link_params.num_lanes;
-+
-+	dp_ctrl_read_link_status(ctrl, link_status);
-+
-+	return drm_dp_channel_eq_ok(link_status, num_lanes);
-+}
-+
- int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
- {
- 	int rc = 0;
-@@ -1668,6 +1681,9 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
- 		ctrl->link->link_params.rate,
- 		ctrl->link->link_params.num_lanes, ctrl->dp_ctrl.pixel_rate);
- 
-+	ctrl->link->phy_params.p_level = 0;
-+	ctrl->link->phy_params.v_level = 0;
-+
- 	rc = dp_ctrl_enable_mainlink_clocks(ctrl);
- 	if (rc)
- 		return rc;
-@@ -1733,17 +1749,19 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
- 	if (ctrl->link->sink_request & DP_TEST_LINK_PHY_TEST_PATTERN)
- 		return rc;
- 
--	/* stop txing train pattern */
--	dp_ctrl_clear_training_pattern(ctrl);
-+	if (rc == 0) {  /* link train successfully */
-+		/*
-+		 * do not stop train pattern here
-+		 * stop link training at on_stream
-+		 * to pass compliance test
-+		 */
-+	} else  {
-+		/*
-+		 * link training failed
-+		 * end txing train pattern here
-+		 */
-+		dp_ctrl_clear_training_pattern(ctrl);
- 
--	/*
--	 * keep transmitting idle pattern until video ready
--	 * to avoid main link from loss of sync
--	 */
--	if (rc == 0)  /* link train successfully */
--		dp_ctrl_push_idle(dp_ctrl);
--	else  {
--		/* link training failed */
- 		dp_ctrl_deinitialize_mainlink(ctrl);
- 		rc = -ECONNRESET;
+diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
+index c86faebbc459..6b2668f065d5 100644
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -1622,7 +1622,6 @@ static void ath9k_hw_apply_gpio_override(struct ath_hw *ah)
+ 		ath9k_hw_gpio_request_out(ah, i, NULL,
+ 					  AR_GPIO_OUTPUT_MUX_AS_OUTPUT);
+ 		ath9k_hw_set_gpio(ah, i, !!(ah->gpio_val & BIT(i)));
+-		ath9k_hw_gpio_free(ah, i);
  	}
-@@ -1751,9 +1769,15 @@ int dp_ctrl_on_link(struct dp_ctrl *dp_ctrl)
- 	return rc;
  }
  
-+static int dp_ctrl_link_retrain(struct dp_ctrl_private *ctrl)
-+{
-+	int training_step = DP_TRAINING_NONE;
-+
-+	return dp_ctrl_setup_main_link(ctrl, &training_step);
-+}
-+
- int dp_ctrl_on_stream(struct dp_ctrl *dp_ctrl)
+@@ -2730,14 +2729,17 @@ static void ath9k_hw_gpio_cfg_output_mux(struct ath_hw *ah, u32 gpio, u32 type)
+ static void ath9k_hw_gpio_cfg_soc(struct ath_hw *ah, u32 gpio, bool out,
+ 				  const char *label)
  {
--	u32 rate = 0;
- 	int ret = 0;
- 	bool mainlink_ready = false;
- 	struct dp_ctrl_private *ctrl;
-@@ -1763,10 +1787,6 @@ int dp_ctrl_on_stream(struct dp_ctrl *dp_ctrl)
++	int err;
++
+ 	if (ah->caps.gpio_requested & BIT(gpio))
+ 		return;
  
- 	ctrl = container_of(dp_ctrl, struct dp_ctrl_private, dp_ctrl);
- 
--	rate = ctrl->panel->link_info.rate;
+-	/* may be requested by BSP, free anyway */
+-	gpio_free(gpio);
 -
--	ctrl->link->link_params.rate = rate;
--	ctrl->link->link_params.num_lanes = ctrl->panel->link_info.num_lanes;
- 	ctrl->dp_ctrl.pixel_rate = ctrl->panel->dp_mode.drm_mode.clock;
+-	if (gpio_request_one(gpio, out ? GPIOF_OUT_INIT_LOW : GPIOF_IN, label))
++	err = gpio_request_one(gpio, out ? GPIOF_OUT_INIT_LOW : GPIOF_IN, label);
++	if (err) {
++		ath_err(ath9k_hw_common(ah), "request GPIO%d failed:%d\n",
++			gpio, err);
+ 		return;
++	}
  
- 	DRM_DEBUG_DP("rate=%d, num_lanes=%d, pixel_rate=%d\n",
-@@ -1781,6 +1801,12 @@ int dp_ctrl_on_stream(struct dp_ctrl *dp_ctrl)
- 		}
- 	}
- 
-+	if (!dp_ctrl_channel_eq_ok(ctrl))
-+		dp_ctrl_link_retrain(ctrl);
-+
-+	/* stop txing train pattern to end link training */
-+	dp_ctrl_clear_training_pattern(ctrl);
-+
- 	ret = dp_ctrl_enable_stream_clocks(ctrl);
- 	if (ret) {
- 		DRM_ERROR("Failed to start pixel clocks. ret=%d\n", ret);
+ 	ah->caps.gpio_requested |= BIT(gpio);
+ }
 -- 
 2.30.2
 
