@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52AE040E772
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 735D140E133
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348600AbhIPRcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:32:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50298 "EHLO mail.kernel.org"
+        id S242439AbhIPQ2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:28:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353307AbhIPRa3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:30:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF56061209;
-        Thu, 16 Sep 2021 16:47:01 +0000 (UTC)
+        id S241885AbhIPQ0Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:26:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7161461526;
+        Thu, 16 Sep 2021 16:17:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810822;
-        bh=CbVVI3u3x5LLD1m+rlXi6ZEpQUh2OoookAuquMzZ6qk=;
+        s=korg; t=1631809026;
+        bh=+bY31dPJFtqpT+8jYpHZApMb6m8ON71lfddpGc5hhac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OBbRLaDz3ic/2lCu01gaiUOGJzNfrOaqAFUwrUN+TUbvav4L+MU4CGefwMUTxAvZ9
-         mN0tIKvJQnn1W+yZ7XyNFw0GYvy3WBU0APYrEesSiy1KZGoU2nZioqc/lpuwgiBr24
-         HyVgCDoNzF0O6lhV9saGFsvA2Qq2+7lJxsm9hNwk=
+        b=uovTOALOatsbOUMA8n/klkHp7h1HNiTVdXvO/mjK2ch188lePibmuXpDs86iCwzSi
+         9GET00AaLtfC1GP5JHuyADdN7X1nbtWNT5nAjPkavH29Ws5IIiUIhV1yJ/uYQEfwRF
+         3cIkcmr+VVFhLy/YZj6E0JRY++mK0vXe56UD+1EI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 281/432] ARM: dts: ixp4xx: Fix up bad interrupt flags
+        stable@vger.kernel.org, Shirisha Ganta <shirisha.ganta1@ibm.com>,
+        "Pratik R. Sampat" <psampat@linux.ibm.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 285/306] cpufreq: powernv: Fix init_chip_info initialization in numa=off
 Date:   Thu, 16 Sep 2021 18:00:30 +0200
-Message-Id: <20210916155820.334218413@linuxfoundation.org>
+Message-Id: <20210916155803.812810929@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,124 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Pratik R. Sampat <psampat@linux.ibm.com>
 
-[ Upstream commit f775d2150cb48bece63270fdefc2a0c69cf17f0f ]
+commit f34ee9cb2c5ac5af426fee6fa4591a34d187e696 upstream.
 
-The PCI hosts had bad IRQ semantics, these are all active low.
-Use the proper define and fix all in-tree users.
+In the numa=off kernel command-line configuration init_chip_info() loops
+around the number of chips and attempts to copy the cpumask of that node
+which is NULL for all iterations after the first chip.
 
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Hence, store the cpu mask for each chip instead of derving cpumask from
+node while populating the "chips" struct array and copy that to the
+chips[i].mask
+
+Fixes: 053819e0bf84 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
+Cc: stable@vger.kernel.org # v4.3+
+Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
+Signed-off-by: Pratik R. Sampat <psampat@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+[mpe: Rename goto label to out_free_chip_cpu_mask]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210728120500.87549-2-psampat@linux.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../boot/dts/intel-ixp42x-linksys-nslu2.dts   | 24 +++++-----
- .../dts/intel-ixp43x-gateworks-gw2358.dts     | 48 +++++++++----------
- 2 files changed, 36 insertions(+), 36 deletions(-)
+ drivers/cpufreq/powernv-cpufreq.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/intel-ixp42x-linksys-nslu2.dts b/arch/arm/boot/dts/intel-ixp42x-linksys-nslu2.dts
-index 5b8dcc19deee..b9a5268fe7ad 100644
---- a/arch/arm/boot/dts/intel-ixp42x-linksys-nslu2.dts
-+++ b/arch/arm/boot/dts/intel-ixp42x-linksys-nslu2.dts
-@@ -124,20 +124,20 @@ pci@c0000000 {
- 			 */
- 			interrupt-map =
- 			/* IDSEL 1 */
--			<0x0800 0 0 1 &gpio0 11 3>, /* INT A on slot 1 is irq 11 */
--			<0x0800 0 0 2 &gpio0 10 3>, /* INT B on slot 1 is irq 10 */
--			<0x0800 0 0 3 &gpio0 9  3>, /* INT C on slot 1 is irq 9 */
--			<0x0800 0 0 4 &gpio0 8  3>, /* INT D on slot 1 is irq 8 */
-+			<0x0800 0 0 1 &gpio0 11 IRQ_TYPE_LEVEL_LOW>, /* INT A on slot 1 is irq 11 */
-+			<0x0800 0 0 2 &gpio0 10 IRQ_TYPE_LEVEL_LOW>, /* INT B on slot 1 is irq 10 */
-+			<0x0800 0 0 3 &gpio0 9  IRQ_TYPE_LEVEL_LOW>, /* INT C on slot 1 is irq 9 */
-+			<0x0800 0 0 4 &gpio0 8  IRQ_TYPE_LEVEL_LOW>, /* INT D on slot 1 is irq 8 */
- 			/* IDSEL 2 */
--			<0x1000 0 0 1 &gpio0 10 3>, /* INT A on slot 2 is irq 10 */
--			<0x1000 0 0 2 &gpio0 9  3>, /* INT B on slot 2 is irq 9 */
--			<0x1000 0 0 3 &gpio0 11 3>, /* INT C on slot 2 is irq 11 */
--			<0x1000 0 0 4 &gpio0 8  3>, /* INT D on slot 2 is irq 8 */
-+			<0x1000 0 0 1 &gpio0 10 IRQ_TYPE_LEVEL_LOW>, /* INT A on slot 2 is irq 10 */
-+			<0x1000 0 0 2 &gpio0 9  IRQ_TYPE_LEVEL_LOW>, /* INT B on slot 2 is irq 9 */
-+			<0x1000 0 0 3 &gpio0 11 IRQ_TYPE_LEVEL_LOW>, /* INT C on slot 2 is irq 11 */
-+			<0x1000 0 0 4 &gpio0 8  IRQ_TYPE_LEVEL_LOW>, /* INT D on slot 2 is irq 8 */
- 			/* IDSEL 3 */
--			<0x1800 0 0 1 &gpio0 9  3>, /* INT A on slot 3 is irq 9 */
--			<0x1800 0 0 2 &gpio0 11 3>, /* INT B on slot 3 is irq 11 */
--			<0x1800 0 0 3 &gpio0 10 3>, /* INT C on slot 3 is irq 10 */
--			<0x1800 0 0 4 &gpio0 8  3>; /* INT D on slot 3 is irq 8 */
-+			<0x1800 0 0 1 &gpio0 9  IRQ_TYPE_LEVEL_LOW>, /* INT A on slot 3 is irq 9 */
-+			<0x1800 0 0 2 &gpio0 11 IRQ_TYPE_LEVEL_LOW>, /* INT B on slot 3 is irq 11 */
-+			<0x1800 0 0 3 &gpio0 10 IRQ_TYPE_LEVEL_LOW>, /* INT C on slot 3 is irq 10 */
-+			<0x1800 0 0 4 &gpio0 8  IRQ_TYPE_LEVEL_LOW>; /* INT D on slot 3 is irq 8 */
- 		};
+--- a/drivers/cpufreq/powernv-cpufreq.c
++++ b/drivers/cpufreq/powernv-cpufreq.c
+@@ -36,6 +36,7 @@
+ #define MAX_PSTATE_SHIFT	32
+ #define LPSTATE_SHIFT		48
+ #define GPSTATE_SHIFT		56
++#define MAX_NR_CHIPS		32
  
- 		ethernet@c8009000 {
-diff --git a/arch/arm/boot/dts/intel-ixp43x-gateworks-gw2358.dts b/arch/arm/boot/dts/intel-ixp43x-gateworks-gw2358.dts
-index 60a1228a970f..f5fe309f7762 100644
---- a/arch/arm/boot/dts/intel-ixp43x-gateworks-gw2358.dts
-+++ b/arch/arm/boot/dts/intel-ixp43x-gateworks-gw2358.dts
-@@ -108,35 +108,35 @@ pci@c0000000 {
- 			 */
- 			interrupt-map =
- 			/* IDSEL 1 */
--			<0x0800 0 0 1 &gpio0 11 3>, /* INT A on slot 1 is irq 11 */
--			<0x0800 0 0 2 &gpio0 10 3>, /* INT B on slot 1 is irq 10 */
--			<0x0800 0 0 3 &gpio0 9  3>, /* INT C on slot 1 is irq 9 */
--			<0x0800 0 0 4 &gpio0 8  3>, /* INT D on slot 1 is irq 8 */
-+			<0x0800 0 0 1 &gpio0 11 IRQ_TYPE_LEVEL_LOW>, /* INT A on slot 1 is irq 11 */
-+			<0x0800 0 0 2 &gpio0 10 IRQ_TYPE_LEVEL_LOW>, /* INT B on slot 1 is irq 10 */
-+			<0x0800 0 0 3 &gpio0 9  IRQ_TYPE_LEVEL_LOW>, /* INT C on slot 1 is irq 9 */
-+			<0x0800 0 0 4 &gpio0 8  IRQ_TYPE_LEVEL_LOW>, /* INT D on slot 1 is irq 8 */
- 			/* IDSEL 2 */
--			<0x1000 0 0 1 &gpio0 10 3>, /* INT A on slot 2 is irq 10 */
--			<0x1000 0 0 2 &gpio0 9  3>, /* INT B on slot 2 is irq 9 */
--			<0x1000 0 0 3 &gpio0 8  3>, /* INT C on slot 2 is irq 8 */
--			<0x1000 0 0 4 &gpio0 11 3>, /* INT D on slot 2 is irq 11 */
-+			<0x1000 0 0 1 &gpio0 10 IRQ_TYPE_LEVEL_LOW>, /* INT A on slot 2 is irq 10 */
-+			<0x1000 0 0 2 &gpio0 9  IRQ_TYPE_LEVEL_LOW>, /* INT B on slot 2 is irq 9 */
-+			<0x1000 0 0 3 &gpio0 8  IRQ_TYPE_LEVEL_LOW>, /* INT C on slot 2 is irq 8 */
-+			<0x1000 0 0 4 &gpio0 11 IRQ_TYPE_LEVEL_LOW>, /* INT D on slot 2 is irq 11 */
- 			/* IDSEL 3 */
--			<0x1800 0 0 1 &gpio0 9  3>, /* INT A on slot 3 is irq 9 */
--			<0x1800 0 0 2 &gpio0 8  3>, /* INT B on slot 3 is irq 8 */
--			<0x1800 0 0 3 &gpio0 11 3>, /* INT C on slot 3 is irq 11 */
--			<0x1800 0 0 4 &gpio0 10 3>, /* INT D on slot 3 is irq 10 */
-+			<0x1800 0 0 1 &gpio0 9  IRQ_TYPE_LEVEL_LOW>, /* INT A on slot 3 is irq 9 */
-+			<0x1800 0 0 2 &gpio0 8  IRQ_TYPE_LEVEL_LOW>, /* INT B on slot 3 is irq 8 */
-+			<0x1800 0 0 3 &gpio0 11 IRQ_TYPE_LEVEL_LOW>, /* INT C on slot 3 is irq 11 */
-+			<0x1800 0 0 4 &gpio0 10 IRQ_TYPE_LEVEL_LOW>, /* INT D on slot 3 is irq 10 */
- 			/* IDSEL 4 */
--			<0x2000 0 0 1 &gpio0 8  3>, /* INT A on slot 3 is irq 8 */
--			<0x2000 0 0 2 &gpio0 11 3>, /* INT B on slot 3 is irq 11 */
--			<0x2000 0 0 3 &gpio0 10 3>, /* INT C on slot 3 is irq 10 */
--			<0x2000 0 0 4 &gpio0 9  3>, /* INT D on slot 3 is irq 9 */
-+			<0x2000 0 0 1 &gpio0 8  IRQ_TYPE_LEVEL_LOW>, /* INT A on slot 3 is irq 8 */
-+			<0x2000 0 0 2 &gpio0 11 IRQ_TYPE_LEVEL_LOW>, /* INT B on slot 3 is irq 11 */
-+			<0x2000 0 0 3 &gpio0 10 IRQ_TYPE_LEVEL_LOW>, /* INT C on slot 3 is irq 10 */
-+			<0x2000 0 0 4 &gpio0 9  IRQ_TYPE_LEVEL_LOW>, /* INT D on slot 3 is irq 9 */
- 			/* IDSEL 6 */
--			<0x3000 0 0 1 &gpio0 10 3>, /* INT A on slot 3 is irq 10 */
--			<0x3000 0 0 2 &gpio0 9  3>, /* INT B on slot 3 is irq 9 */
--			<0x3000 0 0 3 &gpio0 8  3>, /* INT C on slot 3 is irq 8 */
--			<0x3000 0 0 4 &gpio0 11 3>, /* INT D on slot 3 is irq 11 */
-+			<0x3000 0 0 1 &gpio0 10 IRQ_TYPE_LEVEL_LOW>, /* INT A on slot 3 is irq 10 */
-+			<0x3000 0 0 2 &gpio0 9  IRQ_TYPE_LEVEL_LOW>, /* INT B on slot 3 is irq 9 */
-+			<0x3000 0 0 3 &gpio0 8  IRQ_TYPE_LEVEL_LOW>, /* INT C on slot 3 is irq 8 */
-+			<0x3000 0 0 4 &gpio0 11 IRQ_TYPE_LEVEL_LOW>, /* INT D on slot 3 is irq 11 */
- 			/* IDSEL 15 */
--			<0x7800 0 0 1 &gpio0 8  3>, /* INT A on slot 3 is irq 8 */
--			<0x7800 0 0 2 &gpio0 11 3>, /* INT B on slot 3 is irq 11 */
--			<0x7800 0 0 3 &gpio0 10 3>, /* INT C on slot 3 is irq 10 */
--			<0x7800 0 0 4 &gpio0 9  3>; /* INT D on slot 3 is irq 9 */
-+			<0x7800 0 0 1 &gpio0 8  IRQ_TYPE_LEVEL_LOW>, /* INT A on slot 3 is irq 8 */
-+			<0x7800 0 0 2 &gpio0 11 IRQ_TYPE_LEVEL_LOW>, /* INT B on slot 3 is irq 11 */
-+			<0x7800 0 0 3 &gpio0 10 IRQ_TYPE_LEVEL_LOW>, /* INT C on slot 3 is irq 10 */
-+			<0x7800 0 0 4 &gpio0 9  IRQ_TYPE_LEVEL_LOW>; /* INT D on slot 3 is irq 9 */
- 		};
+ #define MAX_RAMP_DOWN_TIME				5120
+ /*
+@@ -1051,12 +1052,20 @@ static int init_chip_info(void)
+ 	unsigned int *chip;
+ 	unsigned int cpu, i;
+ 	unsigned int prev_chip_id = UINT_MAX;
++	cpumask_t *chip_cpu_mask;
+ 	int ret = 0;
  
- 		ethernet@c800a000 {
--- 
-2.30.2
-
+ 	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+ 		return -ENOMEM;
+ 
++	/* Allocate a chip cpu mask large enough to fit mask for all chips */
++	chip_cpu_mask = kcalloc(MAX_NR_CHIPS, sizeof(cpumask_t), GFP_KERNEL);
++	if (!chip_cpu_mask) {
++		ret = -ENOMEM;
++		goto free_and_return;
++	}
++
+ 	for_each_possible_cpu(cpu) {
+ 		unsigned int id = cpu_to_chip_id(cpu);
+ 
+@@ -1064,22 +1073,25 @@ static int init_chip_info(void)
+ 			prev_chip_id = id;
+ 			chip[nr_chips++] = id;
+ 		}
++		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
+ 	}
+ 
+ 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
+ 	if (!chips) {
+ 		ret = -ENOMEM;
+-		goto free_and_return;
++		goto out_free_chip_cpu_mask;
+ 	}
+ 
+ 	for (i = 0; i < nr_chips; i++) {
+ 		chips[i].id = chip[i];
+-		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
++		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
+ 		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
+ 		for_each_cpu(cpu, &chips[i].mask)
+ 			per_cpu(chip_info, cpu) =  &chips[i];
+ 	}
+ 
++out_free_chip_cpu_mask:
++	kfree(chip_cpu_mask);
+ free_and_return:
+ 	kfree(chip);
+ 	return ret;
 
 
