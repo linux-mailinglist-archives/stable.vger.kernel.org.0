@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BF340E040
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B0C740E71C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240688AbhIPQUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:20:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55070 "EHLO mail.kernel.org"
+        id S1352811AbhIPR2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:28:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237304AbhIPQR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:17:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9201F6135E;
-        Thu, 16 Sep 2021 16:12:27 +0000 (UTC)
+        id S1351070AbhIPR0k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:26:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 583BC61C45;
+        Thu, 16 Sep 2021 16:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808748;
-        bh=vIOPACp0GIzwiZ78cHSgUvhPGpXcKbTs+u+stPp/E78=;
+        s=korg; t=1631810697;
+        bh=Xd7MZANyqt8Ww7NcsQ0jrgVGIB/rsdRloUtv60kMlBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wUWyu+C87A4QnmTq+OhQgolOOncVX+SLBmup2oF6hZsQL8IklV8SJJbEl5Pcgc8xl
-         qdIHrDfFu26AtdsjhOXLN+grAuUx5ogi6J71uypWTI/uhOTZZTgo8ytIHa2HrffrT7
-         79F0jzca3CjyEDYH7FJVwWhc6JFxm/DxHQ6k5SNs=
+        b=aLZZi+vhGeg5wMmIyxO/eizElzkfCqBCoePnvz7z4HVOyFC+ulFWRp6AWbkhBJXJd
+         4TxQe6mfmIBT1hi2WhRzRcBIjH2xCNHqvilGzD0i892nQPJA8XtcRtx0aQiDzGwrvh
+         PiEHTSVzso7kfp9iuGBqtAdzQaybe1xZM8GpGxhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 206/306] drm/vmwgfx: fix potential UAF in vmwgfx_surface.c
-Date:   Thu, 16 Sep 2021 17:59:11 +0200
-Message-Id: <20210916155801.069393715@linuxfoundation.org>
+        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 203/432] bus: fsl-mc: fix mmio base address for child DPRCs
+Date:   Thu, 16 Sep 2021 17:59:12 +0200
+Message-Id: <20210916155817.692298793@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +39,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
 
-[ Upstream commit 2bc5da528dd570c5ecabc107e6fbdbc55974276f ]
+[ Upstream commit 8990f96a012f42543005b07d9e482694192e9309 ]
 
-drm_file.master should be protected by either drm_device.master_mutex
-or drm_file.master_lookup_lock when being dereferenced. However,
-drm_master_get is called on unprotected file_priv->master pointers in
-vmw_surface_define_ioctl and vmw_gb_surface_define_internal.
+Some versions of the MC firmware wrongly report 0 for register base
+address of the DPMCP associated with child DPRC objects thus rendering
+them unusable. This is particularly troublesome in ACPI boot scenarios
+where the legacy way of extracting this base address from the device
+tree does not apply.
+Given that DPMCPs share the same base address, workaround this by using
+the base address extracted from the root DPRC container.
 
-This is fixed by replacing drm_master_get with drm_file_get_master.
-
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Zack Rusin <zackr@vmware.com>
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210724111824.59266-4-desmondcheongzx@gmail.com
+Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+Link: https://lore.kernel.org/r/20210715140718.8513-8-laurentiu.tudor@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_surface.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bus/fsl-mc/fsl-mc-bus.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-index f493b20c7a38..f1a51371de5b 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-@@ -866,7 +866,7 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
- 	user_srf->prime.base.shareable = false;
- 	user_srf->prime.base.tfile = NULL;
- 	if (drm_is_primary_client(file_priv))
--		user_srf->master = drm_master_get(file_priv->master);
-+		user_srf->master = drm_file_get_master(file_priv);
+diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
+index ffec838450f3..32b2b6d9bde0 100644
+--- a/drivers/bus/fsl-mc/fsl-mc-bus.c
++++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
+@@ -68,6 +68,8 @@ struct fsl_mc_addr_translation_range {
+ #define MC_FAPR_PL	BIT(18)
+ #define MC_FAPR_BMT	BIT(17)
  
- 	/**
- 	 * From this point, the generic resource management functions
-@@ -1537,7 +1537,7 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
++static phys_addr_t mc_portal_base_phys_addr;
++
+ /**
+  * fsl_mc_bus_match - device to driver matching callback
+  * @dev: the fsl-mc device to match against
+@@ -703,14 +705,30 @@ static int fsl_mc_device_get_mmio_regions(struct fsl_mc_device *mc_dev,
+ 		 * If base address is in the region_desc use it otherwise
+ 		 * revert to old mechanism
+ 		 */
+-		if (region_desc.base_address)
++		if (region_desc.base_address) {
+ 			regions[i].start = region_desc.base_address +
+ 						region_desc.base_offset;
+-		else
++		} else {
+ 			error = translate_mc_addr(mc_dev, mc_region_type,
+ 					  region_desc.base_offset,
+ 					  &regions[i].start);
  
- 	user_srf = container_of(srf, struct vmw_user_surface, srf);
- 	if (drm_is_primary_client(file_priv))
--		user_srf->master = drm_master_get(file_priv->master);
-+		user_srf->master = drm_file_get_master(file_priv);
- 
- 	ret = ttm_read_lock(&dev_priv->reservation_sem, true);
- 	if (unlikely(ret != 0))
++			/*
++			 * Some versions of the MC firmware wrongly report
++			 * 0 for register base address of the DPMCP associated
++			 * with child DPRC objects thus rendering them unusable.
++			 * This is particularly troublesome in ACPI boot
++			 * scenarios where the legacy way of extracting this
++			 * base address from the device tree does not apply.
++			 * Given that DPMCPs share the same base address,
++			 * workaround this by using the base address extracted
++			 * from the root DPRC container.
++			 */
++			if (is_fsl_mc_bus_dprc(mc_dev) &&
++			    regions[i].start == region_desc.base_offset)
++				regions[i].start += mc_portal_base_phys_addr;
++		}
++
+ 		if (error < 0) {
+ 			dev_err(parent_dev,
+ 				"Invalid MC offset: %#x (for %s.%d\'s region %d)\n",
+@@ -1126,6 +1144,8 @@ static int fsl_mc_bus_probe(struct platform_device *pdev)
+ 	plat_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	mc_portal_phys_addr = plat_res->start;
+ 	mc_portal_size = resource_size(plat_res);
++	mc_portal_base_phys_addr = mc_portal_phys_addr & ~0x3ffffff;
++
+ 	error = fsl_create_mc_io(&pdev->dev, mc_portal_phys_addr,
+ 				 mc_portal_size, NULL,
+ 				 FSL_MC_IO_ATOMIC_CONTEXT_PORTAL, &mc_io);
 -- 
 2.30.2
 
