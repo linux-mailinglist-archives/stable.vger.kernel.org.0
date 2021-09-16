@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07DD640E4D2
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 630DE40E882
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348108AbhIPRFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:05:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34142 "EHLO mail.kernel.org"
+        id S1356007AbhIPRor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348105AbhIPRBs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:01:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 621F161AFD;
-        Thu, 16 Sep 2021 16:33:19 +0000 (UTC)
+        id S1355406AbhIPRl1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:41:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C347661A88;
+        Thu, 16 Sep 2021 16:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810000;
-        bh=Lx/7dvfq/ZH0FLfRLQXCRbj4o1l2TjiKGWN5OXRUYgk=;
+        s=korg; t=1631811181;
+        bh=X+FLbjA7aUy6pDS2PfreaYIzs44DNysFpu7NLz6bn04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jQAVPEltyywcwHb1bwzrIGYeK8Ym4CM88uPJYHx7W6g0yobOl86FAK7ZBsXBuvAJ6
-         x80+WDnhWOxbnEq5MqXwpDW59DBgSceCtOLrdzRpaqp46YA3gxyx+Kr7+cLV0MnvGm
-         YXclcE+KK57wHgfhx1/3TsW4XiqRcyvkuroJo8ig=
+        b=cr3tpFcVGIjEprXLIxctCzCaxFI/Q4iLWNWq4ltGQ/UePshfwg8L8Kl5oUWmHcTD9
+         9640h8MttN6ddpd5jYJ9bech8IYDuZ4NzWcmQ2t95lVIPTRPk0OruC8T5BjkUI1mOq
+         dbeCsEXIkajeToU7mEcCMxUwpNipAQvOu93msPlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Roman Gushchin <guro@fb.com>, Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.13 362/380] memcg: enable accounting for pids in nested pid namespaces
+        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 370/432] iwlwifi: mvm: Fix umac scan request probe parameters
 Date:   Thu, 16 Sep 2021 18:01:59 +0200
-Message-Id: <20210916155816.373188339@linuxfoundation.org>
+Message-Id: <20210916155823.345828857@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Ilan Peer <ilan.peer@intel.com>
 
-commit fab827dbee8c2e06ca4ba000fa6c48bcf9054aba upstream.
+[ Upstream commit 35fc5feca7b24b97e828e6e6a4243b4b9b0131f8 ]
 
-Commit 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
-enabled memcg accounting for pids allocated from init_pid_ns.pid_cachep,
-but forgot to adjust the setting for nested pid namespaces.  As a result,
-pid memory is not accounted exactly where it is really needed, inside
-memcg-limited containers with their own pid namespaces.
+Both 'iwl_scan_probe_params_v3' and 'iwl_scan_probe_params_v4'
+wrongly addressed the 'bssid_array' field which should supposed
+to be any array of BSSIDs each of size ETH_ALEN and not the
+opposite. Fix it.
 
-Pid was one the first kernel objects enabled for memcg accounting.
-init_pid_ns.pid_cachep marked by SLAB_ACCOUNT and we can expect that any
-new pids in the system are memcg-accounted.
-
-Though recently I've noticed that it is wrong.  nested pid namespaces
-creates own slab caches for pid objects, nested pids have increased size
-because contain id both for all parent and for own pid namespaces.  The
-problem is that these slab caches are _NOT_ marked by SLAB_ACCOUNT, as a
-result any pids allocated in nested pid namespaces are not
-memcg-accounted.
-
-Pid struct in nested pid namespace consumes up to 500 bytes memory, 100000
-such objects gives us up to ~50Mb unaccounted memory, this allow container
-to exceed assigned memcg limits.
-
-Link: https://lkml.kernel.org/r/8b6de616-fd1a-02c6-cbdb-976ecdcfa604@virtuozzo.com
-Fixes: 5d097056c9a0 ("kmemcg: account certain kmem allocations to memcg")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210802215208.04146f24794f.I90726440ddff75013e9fecbe9fa1a05c69e3f17b@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/pid_namespace.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/fw/api/scan.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/pid_namespace.c
-+++ b/kernel/pid_namespace.c
-@@ -51,7 +51,8 @@ static struct kmem_cache *create_pid_cac
- 	mutex_lock(&pid_caches_mutex);
- 	/* Name collision forces to do allocation under mutex. */
- 	if (!*pkc)
--		*pkc = kmem_cache_create(name, len, 0, SLAB_HWCACHE_ALIGN, 0);
-+		*pkc = kmem_cache_create(name, len, 0,
-+					 SLAB_HWCACHE_ALIGN | SLAB_ACCOUNT, 0);
- 	mutex_unlock(&pid_caches_mutex);
- 	/* current can fail, but someone else can succeed. */
- 	return READ_ONCE(*pkc);
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/api/scan.h b/drivers/net/wireless/intel/iwlwifi/fw/api/scan.h
+index b2605aefc290..8b200379f7c2 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/api/scan.h
++++ b/drivers/net/wireless/intel/iwlwifi/fw/api/scan.h
+@@ -1,6 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
+ /*
+- * Copyright (C) 2012-2014, 2018-2020 Intel Corporation
++ * Copyright (C) 2012-2014, 2018-2021 Intel Corporation
+  * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
+  * Copyright (C) 2016-2017 Intel Deutschland GmbH
+  */
+@@ -874,7 +874,7 @@ struct iwl_scan_probe_params_v3 {
+ 	u8 reserved;
+ 	struct iwl_ssid_ie direct_scan[PROBE_OPTION_MAX];
+ 	__le32 short_ssid[SCAN_SHORT_SSID_MAX_SIZE];
+-	u8 bssid_array[ETH_ALEN][SCAN_BSSID_MAX_SIZE];
++	u8 bssid_array[SCAN_BSSID_MAX_SIZE][ETH_ALEN];
+ } __packed; /* SCAN_PROBE_PARAMS_API_S_VER_3 */
+ 
+ /**
+@@ -894,7 +894,7 @@ struct iwl_scan_probe_params_v4 {
+ 	__le16 reserved;
+ 	struct iwl_ssid_ie direct_scan[PROBE_OPTION_MAX];
+ 	__le32 short_ssid[SCAN_SHORT_SSID_MAX_SIZE];
+-	u8 bssid_array[ETH_ALEN][SCAN_BSSID_MAX_SIZE];
++	u8 bssid_array[SCAN_BSSID_MAX_SIZE][ETH_ALEN];
+ } __packed; /* SCAN_PROBE_PARAMS_API_S_VER_4 */
+ 
+ #define SCAN_MAX_NUM_CHANS_V3 67
+-- 
+2.30.2
+
 
 
