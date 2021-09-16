@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D5440DEF1
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E367E40E4FF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:26:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240554AbhIPQF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:05:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44542 "EHLO mail.kernel.org"
+        id S1345286AbhIPRGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:06:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240562AbhIPQFY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:05:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47DFE6124E;
-        Thu, 16 Sep 2021 16:04:03 +0000 (UTC)
+        id S1349199AbhIPRDv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:03:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B142061B22;
+        Thu, 16 Sep 2021 16:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808243;
-        bh=aQ3ss94Ysz8Z2rgJ7EBicK34Av2AyGubTaj1Y/1YGx4=;
+        s=korg; t=1631810082;
+        bh=QL4aZuOEJkfchcacfa6x3lAC/IoaWcbnIqERGifXzk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WelVSaQDiDZP85/wbY524Wl5BE6MC5ChX2rbi6SoM0dNRBpvqQ8m2T90LR2hWYjFm
-         LOmP+azd7N1h438cBww6b+Aetbl3BDuLvWhAFLlW+++JnAzkY19agh/eXIMPCpUU0v
-         vq3Mj4CuL+yRu8CZtv+pKcAL6wVkMLTXsYXHwHvk=
+        b=G7x94EI+Te4DnwuLZv8SsciOZ4ZMq2SO2Zk6XSkX9cbs/YztQV7BxunEZjJ6DRjNU
+         1uGvvM/lF1AsfH9gmJ/LRYzW5ndPeTSaQN+NdhOVvmAGobe59o+6tPnvfVjcvZy3vC
+         4pwg/wq351kq/WISIL5JzKpke4s7qFbv1TaT8dWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Harshvardhan Jha <harshvardhan.jha@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Dominique Martinet <asmadeus@codewreck.org>
-Subject: [PATCH 5.10 014/306] 9p/xen: Fix end of loop tests for list_for_each_entry
-Date:   Thu, 16 Sep 2021 17:55:59 +0200
-Message-Id: <20210916155754.407779859@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.14 011/432] btrfs: reduce the preemptive flushing threshold to 90%
+Date:   Thu, 16 Sep 2021 17:56:00 +0200
+Message-Id: <20210916155811.192987085@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 732b33d0dbf17e9483f0b50385bf606f724f50a2 upstream.
+commit 93c60b17f2b5fca2c5931d7944788d1ef5f25528 upstream.
 
-This patch addresses the following problems:
- - priv can never be NULL, so this part of the check is useless
- - if the loop ran through the whole list, priv->client is invalid and
-it is more appropriate and sufficient to check for the end of
-list_for_each_entry loop condition.
+The preemptive flushing code was added in order to avoid needing to
+synchronously wait for ENOSPC flushing to recover space.  Once we're
+almost full however we can essentially flush constantly.  We were using
+98% as a threshold to determine if we were simply full, however in
+practice this is a really high bar to hit.  For example reports of
+systems running into this problem had around 94% usage and thus
+continued to flush.  Fix this by lowering the threshold to 90%, which is
+a more sane value, especially for smaller file systems.
 
-Link: http://lkml.kernel.org/r/20210727000709.225032-1-harshvardhan.jha@oracle.com
-Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
-Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
-Tested-by: Stefano Stabellini <sstabellini@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212185
+CC: stable@vger.kernel.org # 5.12+
+Fixes: 576fa34830af ("btrfs: improve preemptive background space flushing")
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/9p/trans_xen.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/space-info.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/9p/trans_xen.c
-+++ b/net/9p/trans_xen.c
-@@ -138,7 +138,7 @@ static bool p9_xen_write_todo(struct xen
- 
- static int p9_xen_request(struct p9_client *client, struct p9_req_t *p9_req)
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -733,7 +733,7 @@ static bool need_preemptive_reclaim(stru
  {
--	struct xen_9pfs_front_priv *priv = NULL;
-+	struct xen_9pfs_front_priv *priv;
- 	RING_IDX cons, prod, masked_cons, masked_prod;
- 	unsigned long flags;
- 	u32 size = p9_req->tc.size;
-@@ -151,7 +151,7 @@ static int p9_xen_request(struct p9_clie
- 			break;
- 	}
- 	read_unlock(&xen_9pfs_lock);
--	if (!priv || priv->client != client)
-+	if (list_entry_is_head(priv, &xen_9pfs_devs, list))
- 		return -EINVAL;
+ 	u64 global_rsv_size = fs_info->global_block_rsv.reserved;
+ 	u64 ordered, delalloc;
+-	u64 thresh = div_factor_fine(space_info->total_bytes, 98);
++	u64 thresh = div_factor_fine(space_info->total_bytes, 90);
+ 	u64 used;
  
- 	num = p9_req->tc.tag % priv->num_rings;
+ 	/* If we're just plain full then async reclaim just slows us down. */
 
 
