@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C61440E8A5
+	by mail.lfdr.de (Postfix) with ESMTP id A583340E8A6
 	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356079AbhIPRpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:45:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57070 "EHLO mail.kernel.org"
+        id S1356094AbhIPRpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:45:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355638AbhIPRly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:41:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 012AA61AA3;
-        Thu, 16 Sep 2021 16:53:30 +0000 (UTC)
+        id S1355646AbhIPRlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:41:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B419261AA6;
+        Thu, 16 Sep 2021 16:53:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811211;
-        bh=FTf3K/JKJ0hcEr1SMGEyFjuVjasRrN9mn+7lq2PWXUk=;
+        s=korg; t=1631811217;
+        bh=QG1gPTa/DmDNNQMF8PqFnP80ZYjKSkN245cHYp+mJhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ct/rmzf+D+hlwqFeH/HIVma6MAd6zPyWRGlFj+hjSWK2Audxk4a1LDutRBH3IkOJU
-         cTAfo1okJQZtsKe+3StFjV+iKPSlA/3L86Dp6b9K83hoV/VHpqoV0GVwnj2SATPdYu
-         sU7TJxFGB/4I964PsV34w5Av83NXt/wpXo5Aepgk=
+        b=zIahKCR/SXk0BGOM9Lbf8kAlG9lsOtvoSYdndOkef57JQgayEx9a3+oZI80AYH19k
+         jgY7JVQYNbEBvJ/gmLieypE3FBxjX+4GwMmXUyt1vg4CWqkNf+JFV36+JtH5Q9x9ZE
+         pYJbR4j0ujPHrF49laVFSvtnV77mhWMVbf6eO0lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jerry (Fangzhi) Zuo" <Jerry.Zuo@amd.com>,
-        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        stable@vger.kernel.org, Alex Sierra <alex.sierra@amd.com>,
+        Philip Yang <philip.yang@amd.com>,
+        Jonathan Kim <jonathan.kim@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.14 424/432] drm/amd/display: Update bounding box states (v2)
-Date:   Thu, 16 Sep 2021 18:02:53 +0200
-Message-Id: <20210916155825.214280574@linuxfoundation.org>
+Subject: [PATCH 5.14 425/432] drm/amdkfd: drop process ref count when xnack disable
+Date:   Thu, 16 Sep 2021 18:02:54 +0200
+Message-Id: <20210916155825.246047518@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -40,102 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerry (Fangzhi) Zuo <Jerry.Zuo@amd.com>
+From: Alex Sierra <alex.sierra@amd.com>
 
-commit a7a9d11e12fcc32160d55e8612e72e5ab51b15dc upstream.
+commit d6043581e1d9d0507a8413a302db0e35c8506e0e upstream.
 
-[Why]
-Drop hardcoded dispclk, dppclk, phyclk
+During svm restore pages interrupt handler, kfd_process ref count was
+never dropped when xnack was disabled. Therefore, the object was never
+released.
 
-[How]
-Read the corresponding values from clock table entries already populated.
-
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1403
-Cc: stable@vger.kernel.org
-Signed-off-by: Jerry (Fangzhi) Zuo <Jerry.Zuo@amd.com>
-Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 2383f56bbe4a ("drm/amdkfd: page table restore through svm API")
+Signed-off-by: Alex Sierra <alex.sierra@amd.com>
+Reviewed-by: Philip Yang <philip.yang@amd.com>
+Reviewed-by: Jonathan Kim <jonathan.kim@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c |   41 +++++++++++++-----
- 1 file changed, 31 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_svm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
-@@ -2398,16 +2398,37 @@ void dcn30_update_bw_bounding_box(struct
- 	dc->dml.soc.dispclk_dppclk_vco_speed_mhz = dc->clk_mgr->dentist_vco_freq_khz / 1000.0;
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+@@ -2426,7 +2426,8 @@ svm_range_restore_pages(struct amdgpu_de
+ 	}
+ 	if (!p->xnack_enabled) {
+ 		pr_debug("XNACK not enabled for pasid 0x%x\n", pasid);
+-		return -EFAULT;
++		r = -EFAULT;
++		goto out;
+ 	}
+ 	svms = &p->svms;
  
- 	if (bw_params->clk_table.entries[0].memclk_mhz) {
-+		int max_dcfclk_mhz = 0, max_dispclk_mhz = 0, max_dppclk_mhz = 0, max_phyclk_mhz = 0;
- 
--		if (bw_params->clk_table.entries[1].dcfclk_mhz > dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
-+		for (i = 0; i < MAX_NUM_DPM_LVL; i++) {
-+			if (bw_params->clk_table.entries[i].dcfclk_mhz > max_dcfclk_mhz)
-+				max_dcfclk_mhz = bw_params->clk_table.entries[i].dcfclk_mhz;
-+			if (bw_params->clk_table.entries[i].dispclk_mhz > max_dispclk_mhz)
-+				max_dispclk_mhz = bw_params->clk_table.entries[i].dispclk_mhz;
-+			if (bw_params->clk_table.entries[i].dppclk_mhz > max_dppclk_mhz)
-+				max_dppclk_mhz = bw_params->clk_table.entries[i].dppclk_mhz;
-+			if (bw_params->clk_table.entries[i].phyclk_mhz > max_phyclk_mhz)
-+				max_phyclk_mhz = bw_params->clk_table.entries[i].phyclk_mhz;
-+		}
-+
-+		if (!max_dcfclk_mhz)
-+			max_dcfclk_mhz = dcn3_0_soc.clock_limits[0].dcfclk_mhz;
-+		if (!max_dispclk_mhz)
-+			max_dispclk_mhz = dcn3_0_soc.clock_limits[0].dispclk_mhz;
-+		if (!max_dppclk_mhz)
-+			max_dppclk_mhz = dcn3_0_soc.clock_limits[0].dppclk_mhz;
-+		if (!max_phyclk_mhz)
-+			max_phyclk_mhz = dcn3_0_soc.clock_limits[0].phyclk_mhz;
-+
-+		if (max_dcfclk_mhz > dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
- 			// If max DCFCLK is greater than the max DCFCLK STA target, insert into the DCFCLK STA target array
--			dcfclk_sta_targets[num_dcfclk_sta_targets] = bw_params->clk_table.entries[1].dcfclk_mhz;
-+			dcfclk_sta_targets[num_dcfclk_sta_targets] = max_dcfclk_mhz;
- 			num_dcfclk_sta_targets++;
--		} else if (bw_params->clk_table.entries[1].dcfclk_mhz < dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
-+		} else if (max_dcfclk_mhz < dcfclk_sta_targets[num_dcfclk_sta_targets-1]) {
- 			// If max DCFCLK is less than the max DCFCLK STA target, cap values and remove duplicates
- 			for (i = 0; i < num_dcfclk_sta_targets; i++) {
--				if (dcfclk_sta_targets[i] > bw_params->clk_table.entries[1].dcfclk_mhz) {
--					dcfclk_sta_targets[i] = bw_params->clk_table.entries[1].dcfclk_mhz;
-+				if (dcfclk_sta_targets[i] > max_dcfclk_mhz) {
-+					dcfclk_sta_targets[i] = max_dcfclk_mhz;
- 					break;
- 				}
- 			}
-@@ -2447,7 +2468,7 @@ void dcn30_update_bw_bounding_box(struct
- 				dcfclk_mhz[num_states] = dcfclk_sta_targets[i];
- 				dram_speed_mts[num_states++] = optimal_uclk_for_dcfclk_sta_targets[i++];
- 			} else {
--				if (j < num_uclk_states && optimal_dcfclk_for_uclk[j] <= bw_params->clk_table.entries[1].dcfclk_mhz) {
-+				if (j < num_uclk_states && optimal_dcfclk_for_uclk[j] <= max_dcfclk_mhz) {
- 					dcfclk_mhz[num_states] = optimal_dcfclk_for_uclk[j];
- 					dram_speed_mts[num_states++] = bw_params->clk_table.entries[j++].memclk_mhz * 16;
- 				} else {
-@@ -2462,7 +2483,7 @@ void dcn30_update_bw_bounding_box(struct
- 		}
- 
- 		while (j < num_uclk_states && num_states < DC__VOLTAGE_STATES &&
--				optimal_dcfclk_for_uclk[j] <= bw_params->clk_table.entries[1].dcfclk_mhz) {
-+				optimal_dcfclk_for_uclk[j] <= max_dcfclk_mhz) {
- 			dcfclk_mhz[num_states] = optimal_dcfclk_for_uclk[j];
- 			dram_speed_mts[num_states++] = bw_params->clk_table.entries[j++].memclk_mhz * 16;
- 		}
-@@ -2475,9 +2496,9 @@ void dcn30_update_bw_bounding_box(struct
- 			dcn3_0_soc.clock_limits[i].dram_speed_mts = dram_speed_mts[i];
- 
- 			/* Fill all states with max values of all other clocks */
--			dcn3_0_soc.clock_limits[i].dispclk_mhz = bw_params->clk_table.entries[1].dispclk_mhz;
--			dcn3_0_soc.clock_limits[i].dppclk_mhz  = bw_params->clk_table.entries[1].dppclk_mhz;
--			dcn3_0_soc.clock_limits[i].phyclk_mhz  = bw_params->clk_table.entries[1].phyclk_mhz;
-+			dcn3_0_soc.clock_limits[i].dispclk_mhz = max_dispclk_mhz;
-+			dcn3_0_soc.clock_limits[i].dppclk_mhz  = max_dppclk_mhz;
-+			dcn3_0_soc.clock_limits[i].phyclk_mhz  = max_phyclk_mhz;
- 			dcn3_0_soc.clock_limits[i].dtbclk_mhz = dcn3_0_soc.clock_limits[0].dtbclk_mhz;
- 			/* These clocks cannot come from bw_params, always fill from dcn3_0_soc[1] */
- 			/* FCLK, PHYCLK_D18, SOCCLK, DSCCLK */
 
 
