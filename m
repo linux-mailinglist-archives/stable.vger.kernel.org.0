@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 386C240E6AC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B45D940E076
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348750AbhIPRYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:24:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43518 "EHLO mail.kernel.org"
+        id S241439AbhIPQVe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:21:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245649AbhIPRV5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:21:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C70FB61440;
-        Thu, 16 Sep 2021 16:42:32 +0000 (UTC)
+        id S241275AbhIPQPZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:15:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E211B6127B;
+        Thu, 16 Sep 2021 16:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810553;
-        bh=35atDnHr5kKPvD7ZRVCpmrxJQhwkKsyZnBkWc0xcL9g=;
+        s=korg; t=1631808691;
+        bh=/0JtWiTJOi4JRW8g7IDSKPFVPSInRC6zR4wkgle/4Ro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K02YOYNUXht4vFC5AG0sKgUUrwNCf+A762aUy/ffds0gULIP1fGVzyPYuGql4r4i0
-         A1rBRbhNEDL1k44i4CwuX+XzYEpBD5shXIHtyMMjgrH5SwBdqPIu/+JVop+PWqydl0
-         3cRxUfvSQ75JkdwMuUJ4jU5uRjYheBerBakKe/yU=
+        b=fi3pVomqbQLMGgKMGCvOi4mT9YmQgCPCPOCh+ji0KUlR3UJWdYAqdUroI7oUEPxkD
+         L9f+GqG4XS7HCa4Xr/6HQRWZX1VceLYEVCRO5LmjKaT56qS66eYC5FQZ/WmhKci7nA
+         xgsO4FUAfsWNQ41x1axMRSkdRQlYTRUIM2OfC6Z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 183/432] video: fbdev: kyro: fix a DoS bug by restricting user input
+Subject: [PATCH 5.10 187/306] serial: 8250_omap: Handle optional overrun-throttle-ms property
 Date:   Thu, 16 Sep 2021 17:58:52 +0200
-Message-Id: <20210916155816.933160894@linuxfoundation.org>
+Message-Id: <20210916155800.457449753@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 98a65439172dc69cb16834e62e852afc2adb83ed ]
+[ Upstream commit 1fe0e1fa3209ad8e9124147775bd27b1d9f04bd4 ]
 
-The user can pass in any value to the driver through the 'ioctl'
-interface. The driver dost not check, which may cause DoS bugs.
+Handle optional overrun-throttle-ms property as done for 8250_fsl in commit
+6d7f677a2afa ("serial: 8250: Rate limit serial port rx interrupts during
+input overruns"). This can be used to rate limit the UART interrupts on
+noisy lines that end up producing messages like the following:
 
-The following log reveals it:
+ttyS ttyS2: 4 input overrun(s)
 
-divide error: 0000 [#1] PREEMPT SMP KASAN PTI
-RIP: 0010:SetOverlayViewPort+0x133/0x5f0 drivers/video/fbdev/kyro/STG4000OverlayDevice.c:476
-Call Trace:
- kyro_dev_overlay_viewport_set drivers/video/fbdev/kyro/fbdev.c:378 [inline]
- kyrofb_ioctl+0x2eb/0x330 drivers/video/fbdev/kyro/fbdev.c:603
- do_fb_ioctl+0x1f3/0x700 drivers/video/fbdev/core/fbmem.c:1171
- fb_ioctl+0xeb/0x130 drivers/video/fbdev/core/fbmem.c:1185
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl fs/ioctl.c:739 [inline]
- __x64_sys_ioctl+0x19b/0x220 fs/ioctl.c:739
- do_syscall_64+0x32/0x80 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+At least on droid4, the multiplexed USB and UART port is left to UART mode
+by the bootloader for a debug console, and if a USB charger is connected
+on boot, we get noise on the UART until the PMIC related drivers for PHY
+and charger are loaded.
 
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1626235762-2590-1-git-send-email-zheyuma97@gmail.com
+With this patch and overrun-throttle-ms = <500> we avoid the extra rx
+interrupts.
+
+Cc: Carl Philipp Klemm <philipp@uvos.xyz>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210727103533.51547-2-tony@atomide.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/kyro/fbdev.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/tty/serial/8250/8250_omap.c | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/kyro/fbdev.c b/drivers/video/fbdev/kyro/fbdev.c
-index 8fbde92ae8b9..4b8c7c16b1df 100644
---- a/drivers/video/fbdev/kyro/fbdev.c
-+++ b/drivers/video/fbdev/kyro/fbdev.c
-@@ -372,6 +372,11 @@ static int kyro_dev_overlay_viewport_set(u32 x, u32 y, u32 ulWidth, u32 ulHeight
- 		/* probably haven't called CreateOverlay yet */
- 		return -EINVAL;
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index c37468887fd2..efe4cf32add2 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -617,7 +617,7 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
+ 	struct uart_port *port = dev_id;
+ 	struct omap8250_priv *priv = port->private_data;
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+-	unsigned int iir;
++	unsigned int iir, lsr;
+ 	int ret;
  
-+	if (ulWidth == 0 || ulWidth == 0xffffffff ||
-+	    ulHeight == 0 || ulHeight == 0xffffffff ||
-+	    (x < 2 && ulWidth + 2 == 0))
-+		return -EINVAL;
+ #ifdef CONFIG_SERIAL_8250_DMA
+@@ -628,6 +628,7 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
+ #endif
+ 
+ 	serial8250_rpm_get(up);
++	lsr = serial_port_in(port, UART_LSR);
+ 	iir = serial_port_in(port, UART_IIR);
+ 	ret = serial8250_handle_irq(port, iir);
+ 
+@@ -642,6 +643,24 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
+ 		serial_port_in(port, UART_RX);
+ 	}
+ 
++	/* Stop processing interrupts on input overrun */
++	if ((lsr & UART_LSR_OE) && up->overrun_backoff_time_ms > 0) {
++		unsigned long delay;
 +
- 	/* Stop Ramdac Output */
- 	DisableRamdacOutput(deviceInfo.pSTGReg);
++		up->ier = port->serial_in(port, UART_IER);
++		if (up->ier & (UART_IER_RLSI | UART_IER_RDI)) {
++			port->ops->stop_rx(port);
++		} else {
++			/* Keep restarting the timer until
++			 * the input overrun subsides.
++			 */
++			cancel_delayed_work(&up->overrun_backoff);
++		}
++
++		delay = msecs_to_jiffies(up->overrun_backoff_time_ms);
++		schedule_delayed_work(&up->overrun_backoff, delay);
++	}
++
+ 	serial8250_rpm_put(up);
  
+ 	return IRQ_RETVAL(ret);
+@@ -1353,6 +1372,10 @@ static int omap8250_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
++	if (of_property_read_u32(np, "overrun-throttle-ms",
++				 &up.overrun_backoff_time_ms) != 0)
++		up.overrun_backoff_time_ms = 0;
++
+ 	priv->wakeirq = irq_of_parse_and_map(np, 1);
+ 
+ 	pdata = of_device_get_match_data(&pdev->dev);
 -- 
 2.30.2
 
