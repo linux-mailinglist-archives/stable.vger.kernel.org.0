@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4982A40E0D5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BC9540E3F9
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241352AbhIPQYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:24:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58822 "EHLO mail.kernel.org"
+        id S244476AbhIPQxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:53:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241201AbhIPQXO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:23:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50BEC61465;
-        Thu, 16 Sep 2021 16:15:34 +0000 (UTC)
+        id S240651AbhIPQvn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:51:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9712961279;
+        Thu, 16 Sep 2021 16:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808934;
-        bh=w6iHWZT7Y89nYZJtQYlzQhQc3f55MOOEZW8zB9l1v80=;
+        s=korg; t=1631809732;
+        bh=lOgdxNF0FXJUom5Aw1wbYJCzE2eRXwY51fXUVtgzgBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hbvHo8NSkcEWeeHaYttmmNIEw21YUsW1lbRepw/o4Z3mh9201wWeVwTkHoDdfy5kg
-         Ielmow21eW67jsc7l23s7MImuR7t7Bb6RxhD3VqwVvtaSBZTH88sY0umiGWzWlAnVV
-         vLDWg0MiPuZFGUCYIC544+Fxv9cZu/I+Zun6Fj7E=
+        b=HO7LEJj9mO+Iljbk56yleNU+2KzjPm+pvE2GrtUOmG494aPvvLo8uwc0ZetJ/1acj
+         EP1lGRBwnmvPTUi0J66gHuZzl7jPgIbctDR6C5VywaJxe5+Yj9ylbETfer3e08gIg/
+         tdj3v863Dw7Uf+Qg8tT/xPehNTi7YUg/1d+gLBOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+2b3e5fb6c7ef285a94f6@syzkaller.appspotmail.com,
-        Haimin Zhang <tcs_kernel@tencent.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Tuo Li <islituo@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 275/306] fix array-index-out-of-bounds in taprio_change
+Subject: [PATCH 5.13 263/380] drm/display: fix possible null-pointer dereference in dcn10_set_clock()
 Date:   Thu, 16 Sep 2021 18:00:20 +0200
-Message-Id: <20210916155803.453788546@linuxfoundation.org>
+Message-Id: <20210916155813.026817359@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haimin Zhang <tcs_kernel@tencent.com>
+From: Tuo Li <islituo@gmail.com>
 
-[ Upstream commit efe487fce3061d94222c6501d7be3aa549b3dc78 ]
+[ Upstream commit 554594567b1fa3da74f88ec7b2dc83d000c58e98 ]
 
-syzbot report an array-index-out-of-bounds in taprio_change
-index 16 is out of range for type '__u16 [16]'
-that's because mqprio->num_tc is lager than TC_MAX_QUEUE,so we check
-the return value of netdev_set_num_tc.
+The variable dc->clk_mgr is checked in:
+  if (dc->clk_mgr && dc->clk_mgr->funcs->get_clock)
 
-Reported-by: syzbot+2b3e5fb6c7ef285a94f6@syzkaller.appspotmail.com
-Signed-off-by: Haimin Zhang <tcs_kernel@tencent.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This indicates dc->clk_mgr can be NULL.
+However, it is dereferenced in:
+    if (!dc->clk_mgr->funcs->get_clock)
+
+To fix this null-pointer dereference, check dc->clk_mgr and the function
+pointer dc->clk_mgr->funcs->get_clock earlier, and return if one of them
+is NULL.
+
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Tuo Li <islituo@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 00853065dfa0..cb5e5220da55 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1502,7 +1502,9 @@ static int taprio_change(struct Qdisc *sch, struct nlattr *opt,
- 	taprio_set_picos_per_byte(dev, q);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index 7c939c0a977b..29f61a8d3e29 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -3938,13 +3938,12 @@ enum dc_status dcn10_set_clock(struct dc *dc,
+ 	struct dc_clock_config clock_cfg = {0};
+ 	struct dc_clocks *current_clocks = &context->bw_ctx.bw.dcn.clk;
  
- 	if (mqprio) {
--		netdev_set_num_tc(dev, mqprio->num_tc);
-+		err = netdev_set_num_tc(dev, mqprio->num_tc);
-+		if (err)
-+			goto free_sched;
- 		for (i = 0; i < mqprio->num_tc; i++)
- 			netdev_set_tc_queue(dev, i,
- 					    mqprio->count[i],
+-	if (dc->clk_mgr && dc->clk_mgr->funcs->get_clock)
+-				dc->clk_mgr->funcs->get_clock(dc->clk_mgr,
+-						context, clock_type, &clock_cfg);
+-
+-	if (!dc->clk_mgr->funcs->get_clock)
++	if (!dc->clk_mgr || !dc->clk_mgr->funcs->get_clock)
+ 		return DC_FAIL_UNSUPPORTED_1;
+ 
++	dc->clk_mgr->funcs->get_clock(dc->clk_mgr,
++		context, clock_type, &clock_cfg);
++
+ 	if (clk_khz > clock_cfg.max_clock_khz)
+ 		return DC_FAIL_CLK_EXCEED_MAX;
+ 
+@@ -3962,7 +3961,7 @@ enum dc_status dcn10_set_clock(struct dc *dc,
+ 	else
+ 		return DC_ERROR_UNEXPECTED;
+ 
+-	if (dc->clk_mgr && dc->clk_mgr->funcs->update_clocks)
++	if (dc->clk_mgr->funcs->update_clocks)
+ 				dc->clk_mgr->funcs->update_clocks(dc->clk_mgr,
+ 				context, true);
+ 	return DC_OK;
 -- 
 2.30.2
 
