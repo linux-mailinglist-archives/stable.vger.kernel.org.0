@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB9540E3BA
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ABF840E070
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240381AbhIPQvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:51:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59260 "EHLO mail.kernel.org"
+        id S240982AbhIPQV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:21:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244127AbhIPQsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:48:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 859A961526;
-        Thu, 16 Sep 2021 16:27:14 +0000 (UTC)
+        id S241664AbhIPQT6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:19:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C6BC613D3;
+        Thu, 16 Sep 2021 16:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809635;
-        bh=YC8/XbiDbaj/RxCg++JrowC1boSNXqHMcH+BfvlVeiw=;
+        s=korg; t=1631808837;
+        bh=RPUn723YwuyKp0Qjlf9A2KJKCf03ZrJex2xjJmeSgd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qwnt+l+g4r7PcFtyBicUyFCNd/oHpPmvMV7Z1Bqga3hq+ax6gpACVzEz3MD5ABveo
-         5BTqJHtVR3++71U9+XcWtfa3mV+a91KIMY7nNlpCWRFEXu4oWWY43Qaxmm/Xa3ylCy
-         beRdLk1aMgBt3ri8xvhkdnxyCautKpBHFdArCiaI=
+        b=uJe9hJj9XtRyjpYrPrLhps/EIvhZhOcGArdBzVg0mKjWD3Clwa7+EluFH9fPCjA8l
+         Uk1P1vIbneFEpjG+5VHuDilhui6iGnEUhTUODwyWKb1V4d0mfUBrgZw1J/jHFrK5Lo
+         /JF+ZomqprWSwpwqpP8HEBWYljF1aaAfZaw9EFmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Chin-Yen Lee <timlee@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 227/380] media: imx: imx7-media-csi: Fix buffer return upon stream start failure
+Subject: [PATCH 5.10 239/306] rtw88: wow: fix size access error of probe request
 Date:   Thu, 16 Sep 2021 17:59:44 +0200
-Message-Id: <20210916155811.810102976@linuxfoundation.org>
+Message-Id: <20210916155802.201747229@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Chin-Yen Lee <timlee@realtek.com>
 
-[ Upstream commit 0ada1697ed4256b38225319c9896661142a3572d ]
+[ Upstream commit 69c7044526d984df672b8d9b6d6998c34617cde4 ]
 
-When the stream fails to start, the first two buffers in the queue have
-been moved to the active_vb2_buf array and are returned to vb2 by
-imx7_csi_dma_unsetup_vb2_buf(). The function is called with the buffer
-state set to VB2_BUF_STATE_ERROR unconditionally, which is correct when
-stopping the stream, but not when the start operation fails. In that
-case, the state should be set to VB2_BUF_STATE_QUEUED. Fix it.
+Current flow will lead to null ptr access because of trying
+to get the size of freed probe-request packets. We store the
+information of packet size into rsvd page instead and also fix
+the size error issue, which will cause unstable behavoir of
+sending probe request by wow firmware.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Tested-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Reviewed-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Chin-Yen Lee <timlee@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210728014335.8785-6-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx7-media-csi.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/net/wireless/realtek/rtw88/fw.c | 8 ++++++--
+ drivers/net/wireless/realtek/rtw88/fw.h | 1 +
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
-index f85a2f5f1413..ad1bca3fe047 100644
---- a/drivers/staging/media/imx/imx7-media-csi.c
-+++ b/drivers/staging/media/imx/imx7-media-csi.c
-@@ -361,6 +361,7 @@ static void imx7_csi_dma_unsetup_vb2_buf(struct imx7_csi *csi,
- 
- 			vb->timestamp = ktime_get_ns();
- 			vb2_buffer_done(vb, return_status);
-+			csi->active_vb2_buf[i] = NULL;
- 		}
- 	}
- }
-@@ -386,9 +387,10 @@ static int imx7_csi_dma_setup(struct imx7_csi *csi)
- 	return 0;
- }
- 
--static void imx7_csi_dma_cleanup(struct imx7_csi *csi)
-+static void imx7_csi_dma_cleanup(struct imx7_csi *csi,
-+				 enum vb2_buffer_state return_status)
- {
--	imx7_csi_dma_unsetup_vb2_buf(csi, VB2_BUF_STATE_ERROR);
-+	imx7_csi_dma_unsetup_vb2_buf(csi, return_status);
- 	imx_media_free_dma_buf(csi->dev, &csi->underrun_buf);
- }
- 
-@@ -537,9 +539,10 @@ static int imx7_csi_init(struct imx7_csi *csi)
- 	return 0;
- }
- 
--static void imx7_csi_deinit(struct imx7_csi *csi)
-+static void imx7_csi_deinit(struct imx7_csi *csi,
-+			    enum vb2_buffer_state return_status)
- {
--	imx7_csi_dma_cleanup(csi);
-+	imx7_csi_dma_cleanup(csi, return_status);
- 	imx7_csi_init_default(csi);
- 	imx7_csi_dmareq_rff_disable(csi);
- 	clk_disable_unprepare(csi->mclk);
-@@ -702,7 +705,7 @@ static int imx7_csi_s_stream(struct v4l2_subdev *sd, int enable)
- 
- 		ret = v4l2_subdev_call(csi->src_sd, video, s_stream, 1);
- 		if (ret < 0) {
--			imx7_csi_deinit(csi);
-+			imx7_csi_deinit(csi, VB2_BUF_STATE_QUEUED);
- 			goto out_unlock;
- 		}
- 
-@@ -712,7 +715,7 @@ static int imx7_csi_s_stream(struct v4l2_subdev *sd, int enable)
- 
- 		v4l2_subdev_call(csi->src_sd, video, s_stream, 0);
- 
--		imx7_csi_deinit(csi);
-+		imx7_csi_deinit(csi, VB2_BUF_STATE_ERROR);
+diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
+index b2fd87834f23..0452630bcfac 100644
+--- a/drivers/net/wireless/realtek/rtw88/fw.c
++++ b/drivers/net/wireless/realtek/rtw88/fw.c
+@@ -684,7 +684,7 @@ static u16 rtw_get_rsvd_page_probe_req_size(struct rtw_dev *rtwdev,
+ 			continue;
+ 		if ((!ssid && !rsvd_pkt->ssid) ||
+ 		    rtw_ssid_equal(rsvd_pkt->ssid, ssid))
+-			size = rsvd_pkt->skb->len;
++			size = rsvd_pkt->probe_req_size;
  	}
  
- 	csi->is_streaming = !!enable;
+ 	return size;
+@@ -912,6 +912,8 @@ static struct sk_buff *rtw_get_rsvd_page_skb(struct ieee80211_hw *hw,
+ 							 ssid->ssid_len, 0);
+ 		else
+ 			skb_new = ieee80211_probereq_get(hw, vif->addr, NULL, 0, 0);
++		if (skb_new)
++			rsvd_pkt->probe_req_size = (u16)skb_new->len;
+ 		break;
+ 	case RSVD_NLO_INFO:
+ 		skb_new = rtw_nlo_info_get(hw);
+@@ -1508,6 +1510,7 @@ int rtw_fw_dump_fifo(struct rtw_dev *rtwdev, u8 fifo_sel, u32 addr, u32 size,
+ static void __rtw_fw_update_pkt(struct rtw_dev *rtwdev, u8 pkt_id, u16 size,
+ 				u8 location)
+ {
++	struct rtw_chip_info *chip = rtwdev->chip;
+ 	u8 h2c_pkt[H2C_PKT_SIZE] = {0};
+ 	u16 total_size = H2C_PKT_HDR_SIZE + H2C_PKT_UPDATE_PKT_LEN;
+ 
+@@ -1518,6 +1521,7 @@ static void __rtw_fw_update_pkt(struct rtw_dev *rtwdev, u8 pkt_id, u16 size,
+ 	UPDATE_PKT_SET_LOCATION(h2c_pkt, location);
+ 
+ 	/* include txdesc size */
++	size += chip->tx_pkt_desc_sz;
+ 	UPDATE_PKT_SET_SIZE(h2c_pkt, size);
+ 
+ 	rtw_fw_send_h2c_packet(rtwdev, h2c_pkt);
+@@ -1527,7 +1531,7 @@ void rtw_fw_update_pkt_probe_req(struct rtw_dev *rtwdev,
+ 				 struct cfg80211_ssid *ssid)
+ {
+ 	u8 loc;
+-	u32 size;
++	u16 size;
+ 
+ 	loc = rtw_get_rsvd_page_probe_req_location(rtwdev, ssid);
+ 	if (!loc) {
+diff --git a/drivers/net/wireless/realtek/rtw88/fw.h b/drivers/net/wireless/realtek/rtw88/fw.h
+index 08644540d259..f4aed247e3bd 100644
+--- a/drivers/net/wireless/realtek/rtw88/fw.h
++++ b/drivers/net/wireless/realtek/rtw88/fw.h
+@@ -117,6 +117,7 @@ struct rtw_rsvd_page {
+ 	u8 page;
+ 	bool add_txdesc;
+ 	struct cfg80211_ssid *ssid;
++	u16 probe_req_size;
+ };
+ 
+ enum rtw_keep_alive_pkt_type {
 -- 
 2.30.2
 
