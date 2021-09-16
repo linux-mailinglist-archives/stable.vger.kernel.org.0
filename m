@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AEDC40E189
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8400240E4FE
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:26:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243339AbhIPQbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:31:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37488 "EHLO mail.kernel.org"
+        id S1345269AbhIPRG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:06:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242011AbhIPQ3K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:29:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5500961374;
-        Thu, 16 Sep 2021 16:18:21 +0000 (UTC)
+        id S1349201AbhIPRDv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:03:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7845E617E3;
+        Thu, 16 Sep 2021 16:34:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809101;
-        bh=jbOO3JcidD+lx7f+8W+lPisLandk7RIrf28oPf5Cp5M=;
+        s=korg; t=1631810085;
+        bh=h//m39MXKjaSM7cXKJkiwWuxGBYGJcyZaGF+pbGT8sM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/XLCGKJqAmPC6EzDYSNvdYHBAsA4JStBahcdpb+YhH1RX+dDE3xRt4HskVBtIInf
-         xaFzRqqX+Kx1kwJ0OC/Wf3IcR4b6yxkQkNHeiJHsg233dy5+KXxqvfkRdfG4QtQKRb
-         iu+uyNE10JlmYZ7nrSpRyiZPoiDoltVLKqGLEywE=
+        b=0FHT+IEKNfbwEi3wJznAypkIZxESvV4XXxl9OiK+KsPpzabxkARCo8sQtdogBgrtT
+         E2oSOMJCSxrs5eDre/9t4PFA2c4Xqsp8dBMW9A6TJX5P5uOgM5/kFrgijITzMWbepY
+         tnrIbkdIWRvCxCZOc6dpaYDjpYrk9MCBs2GLxOoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.13 004/380] btrfs: reduce the preemptive flushing threshold to 90%
+Subject: [PATCH 5.14 012/432] btrfs: do not do preemptive flushing if the majority is global rsv
 Date:   Thu, 16 Sep 2021 17:56:01 +0200
-Message-Id: <20210916155804.123739709@linuxfoundation.org>
+Message-Id: <20210916155811.227794182@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josef Bacik <josef@toxicpanda.com>
 
-commit 93c60b17f2b5fca2c5931d7944788d1ef5f25528 upstream.
+commit 114623979405abf0b143f9c6688b3ff00ee48338 upstream.
 
-The preemptive flushing code was added in order to avoid needing to
-synchronously wait for ENOSPC flushing to recover space.  Once we're
-almost full however we can essentially flush constantly.  We were using
-98% as a threshold to determine if we were simply full, however in
-practice this is a really high bar to hit.  For example reports of
-systems running into this problem had around 94% usage and thus
-continued to flush.  Fix this by lowering the threshold to 90%, which is
-a more sane value, especially for smaller file systems.
+A common characteristic of the bug report where preemptive flushing was
+going full tilt was the fact that the vast majority of the free metadata
+space was used up by the global reserve.  The hard 90% threshold would
+cover the majority of these cases, but to be even smarter we should take
+into account how much of the outstanding reservations are covered by the
+global block reserve.  If the global block reserve accounts for the vast
+majority of outstanding reservations, skip preemptive flushing, as it
+will likely just cause churn and pain.
 
 Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212185
-CC: stable@vger.kernel.org # 5.12+
-Fixes: 576fa34830af ("btrfs: improve preemptive background space flushing")
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/space-info.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/space-info.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
 --- a/fs/btrfs/space-info.c
 +++ b/fs/btrfs/space-info.c
-@@ -833,7 +833,7 @@ static bool need_preemptive_reclaim(stru
- 				    struct btrfs_space_info *space_info)
- {
- 	u64 ordered, delalloc;
--	u64 thresh = div_factor_fine(space_info->total_bytes, 98);
-+	u64 thresh = div_factor_fine(space_info->total_bytes, 90);
- 	u64 used;
+@@ -741,6 +741,20 @@ static bool need_preemptive_reclaim(stru
+ 	     global_rsv_size) >= thresh)
+ 		return false;
  
- 	/* If we're just plain full then async reclaim just slows us down. */
++	used = space_info->bytes_may_use + space_info->bytes_pinned;
++
++	/* The total flushable belongs to the global rsv, don't flush. */
++	if (global_rsv_size >= used)
++		return false;
++
++	/*
++	 * 128MiB is 1/4 of the maximum global rsv size.  If we have less than
++	 * that devoted to other reservations then there's no sense in flushing,
++	 * we don't have a lot of things that need flushing.
++	 */
++	if (used - global_rsv_size <= SZ_128M)
++		return false;
++
+ 	/*
+ 	 * We have tickets queued, bail so we don't compete with the async
+ 	 * flushers.
 
 
