@@ -2,78 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 663C340ED8B
-	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 00:52:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 857FF40ED8C
+	for <lists+stable@lfdr.de>; Fri, 17 Sep 2021 00:53:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241297AbhIPWx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 18:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39478 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241276AbhIPWx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 18:53:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83BCF611CA;
-        Thu, 16 Sep 2021 22:52:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1631832756;
-        bh=qpV5znjV3wJfX6/pMYW3i3FIPdKrsfGHXQP0EVz8wSs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Cw4IBSDePFx49L2Fz6fTgWPUJ4plkBw0Mco/dQN2mUiA1ZOxVFt7j07hxnKlDQGt1
-         kTyen0CSLk4uRLjVIAkpAHTQBk03pJ9zPU3EjLWFT2qKHZGb4xxba8ZSRtSs7UVR47
-         8ZKX5I5AeLnZ8lYSDlCjYydn/IX+tgP29mKkdmLGmeKNZDTrk2LBSEMDLnXhe8ZCrm
-         DvUV6JotBd1STna/hZyWrSXDFE6pw0S9eq4yZwsVjYpWK3sKPpLSiA9c2ihY3Xj2Ax
-         dAi4TEFCsMReXRpdE/5KMW0D22OIeksmZHky/qC0xRjz9Aba1wrlma99HCD7IkLQtX
-         +GFT4ahhKUq2g==
-From:   Dinh Nguyen <dinguyen@kernel.org>
-To:     sboyd@kernel.org
-Cc:     dinguyen@kernel.org, mturquette@baylibre.com,
-        linux-clk@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCHv2] clk: socfpga: agilex: fix duplicate s2f_user0_clk
-Date:   Thu, 16 Sep 2021 17:51:26 -0500
-Message-Id: <20210916225126.1427700-1-dinguyen@kernel.org>
-X-Mailer: git-send-email 2.25.1
+        id S241304AbhIPWyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 18:54:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50758 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241276AbhIPWyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 18:54:24 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A965C061574;
+        Thu, 16 Sep 2021 15:53:02 -0700 (PDT)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1631832780;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=+uoRd7sICB9PTbOq5EWEwT9s8dxxMBDK5Hxzn1p0B2M=;
+        b=1EHh+jTMSzgz8I5umosdei/hjB4deVd+HjIXpER0jj3a9UJvUTmYCG3sktt+mmgogjx4i5
+        5D+TvgjsSbkOi2gRWJ9m/L2PsSXPUDA0fNBCaeyAQa5oIj2aZ0g7IpYrWYv2xoW3jpCr8W
+        aEJLiY9J4es14JJ3Fuu2PLS1+FTJ0bE2cZpBoUg9o8Wfp16oVUcyT6k2JW56IzITAd1Qss
+        dQHpUZYX/miD+m+QAFEvKHKOuPh3ii1buJhETb4Jo0E4cAcKIm9FXERVj2dXTWlNHeyUHk
+        iAw/eFYYzJOa1pzYeAEHGABTxJs2LapYK4cztyOfWpa2A2nA74K18B2uCKyc+Q==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1631832780;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=+uoRd7sICB9PTbOq5EWEwT9s8dxxMBDK5Hxzn1p0B2M=;
+        b=vtwgGlcj3bLHRjLYNI/SunfOnn6jEEhRquuMedQEImsrPfPUPG9QhrJlsPjoht0r0FiHu4
+        T9zSULifH9VCAfCg==
+To:     Arnd Bergmann <arnd@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Lukas Hannen <lukas.hannen@opensource.tttech-industrial.com>
+Subject: Re: [PATCH 5.14 298/334] time: Handle negative seconds correctly in
+ timespec64_to_ns()
+In-Reply-To: <874kak9moe.ffs@tglx>
+References: <20210913131113.390368911@linuxfoundation.org>
+ <20210913131123.500712780@linuxfoundation.org>
+ <CAK8P3a0z5jE=Z3Ps5bFTCFT7CHZR1JQ8VhdntDJAfsUxSPCcEw@mail.gmail.com>
+ <874kak9moe.ffs@tglx>
+Date:   Fri, 17 Sep 2021 00:53:00 +0200
+Message-ID: <87y27w875f.ffs@tglx>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Remove the duplicate s2f_user0_clk and the unused s2f_usr0_mux define.
+On Fri, Sep 17 2021 at 00:32, Thomas Gleixner wrote:
+> I usually spend quite some time on tagging patches for stable and it's
+> annoying me that this patch got reverted while stuff which I explicitely
+> did not tag for stable got backported for whatever reason and completely
+> against the stable rules:
+>
+>   627ef5ae2df8 ("hrtimer: Avoid double reprogramming in __hrtimer_start_range_ns()")
+>
+> What the heck qualifies this to be backported?
+>
+>  1) It's hot of the press and just got merged in the 5.15-rc1 merge
+>     window and is not tagged for stable
+>
+>  2) https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+>
+>     clearly states the rules but obviously our new fangled "AI" driven
+>     approach to select patches for stable is blissfully ignorant of
+>     these rules. I assume that AI stands for "Artifical Ignorance' here.
+>
+> I already got a private bug report vs. that on 5.10.65. Annoyingly
+> 5.10.5 does not have the issue despite the fact that the resulting diff
 
-Fixes: f817c132db67 ("clk: socfpga: agilex: fix up s2f_user0_clk
-representation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
----
- drivers/clk/socfpga/clk-agilex.c | 9 ---------
- 1 file changed, 9 deletions(-)
+5.14.5 obviously...
 
-diff --git a/drivers/clk/socfpga/clk-agilex.c b/drivers/clk/socfpga/clk-agilex.c
-index 242e94c0cf8a..bf8cd928c228 100644
---- a/drivers/clk/socfpga/clk-agilex.c
-+++ b/drivers/clk/socfpga/clk-agilex.c
-@@ -165,13 +165,6 @@ static const struct clk_parent_data mpu_mux[] = {
- 	  .name = "boot_clk", },
- };
- 
--static const struct clk_parent_data s2f_usr0_mux[] = {
--	{ .fw_name = "f2s-free-clk",
--	  .name = "f2s-free-clk", },
--	{ .fw_name = "boot_clk",
--	  .name = "boot_clk", },
--};
--
- static const struct clk_parent_data emac_mux[] = {
- 	{ .fw_name = "emaca_free_clk",
- 	  .name = "emaca_free_clk", },
-@@ -312,8 +305,6 @@ static const struct stratix10_gate_clock agilex_gate_clks[] = {
- 	  4, 0x44, 28, 1, 0, 0, 0},
- 	{ AGILEX_CS_TIMER_CLK, "cs_timer_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x24,
- 	  5, 0, 0, 0, 0x30, 1, 0},
--	{ AGILEX_S2F_USER0_CLK, "s2f_user0_clk", NULL, s2f_usr0_mux, ARRAY_SIZE(s2f_usr0_mux), 0, 0x24,
--	  6, 0, 0, 0, 0, 0, 0},
- 	{ AGILEX_EMAC0_CLK, "emac0_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0x7C,
- 	  0, 0, 0, 0, 0x94, 26, 0},
- 	{ AGILEX_EMAC1_CLK, "emac1_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0x7C,
--- 
-2.25.1
-
+> between those two versions in hrtimer.c is just in comments.
+>
+> Bah!
+>
+> Thanks,
+>
+>         tglx
