@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AA5340E7D1
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AFF340E0C7
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346639AbhIPRgJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:36:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50262 "EHLO mail.kernel.org"
+        id S240896AbhIPQX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:23:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353445AbhIPRdy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:33:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA6D463219;
-        Thu, 16 Sep 2021 16:48:14 +0000 (UTC)
+        id S241607AbhIPQWB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:22:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B5D461409;
+        Thu, 16 Sep 2021 16:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810895;
-        bh=PnYxjrbgltERqg7UPAvISCB0M4sb2EXeLVbFFERB1xY=;
+        s=korg; t=1631808918;
+        bh=RgyEE/gxv2+PbwT+Twl7+jMwQK+Cn83YUGhdVMiZbVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=095+IVOPtlFK4YjB3YXnnnQVZOwvzwCuVY9zKbmra/kkf7oPEBi/RylCyiAjJz7FE
-         NISmla9UfX/lOgy/frWvVsY0UYsf1a1gDiCIHI3SmFWvAwze3BhJ9Ehfo3bG3fWDDG
-         nksqBRu/fky70Ww3xfbXr2z0VmVqyNxsrmcGN99k=
+        b=uoTpH8WCbha7Lken38wgbLQBqHu0meJzCNTq7UC23M5gw/9h6XYXuBs08M04ulFXv
+         1Vr0+FY0NdOTZ7n6B7jBvfbSTdlBvwvbS0+LHiCtUJN9D9Sdt5daL0TUpt4EhSGMWL
+         6chtCMt20BK6Q6ySB/ngPPsLFlRKXmu9RYXxJCdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mian Yousaf Kaukab <ykaukab@suse.de>,
-        Mikko Perttunen <mperttunen@nvidia.com>,
+        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 266/432] misc: sram: Only map reserved areas in Tegra SYSRAM
+Subject: [PATCH 5.10 270/306] selftests/bpf: Fix potential unreleased lock
 Date:   Thu, 16 Sep 2021 18:00:15 +0200
-Message-Id: <20210916155819.836117756@linuxfoundation.org>
+Message-Id: <20210916155803.273406806@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,245 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikko Perttunen <mperttunen@nvidia.com>
+From: Chengfeng Ye <cyeaa@connect.ust.hk>
 
-[ Upstream commit fec29bf04994b478a43a7e60e6dd5ac1f7cb53ae ]
+[ Upstream commit 47bb27a20d6ea22cd092c1fc2bb4fcecac374838 ]
 
-On Tegra186 and later, a portion of the SYSRAM may be reserved for use
-by TZ. Non-TZ memory accesses to this portion, including speculative
-accesses, trigger SErrors that bring down the system. This does also
-happen in practice occasionally (due to speculative accesses).
+This lock is not released if the program
+return at the patched branch.
 
-To fix the issue, add a flag to the SRAM driver to only map the
-device tree-specified reserved areas depending on a flag set
-based on the compatibility string. This would not affect non-Tegra
-systems that rely on the entire thing being memory mapped.
-
-If 64K pages are being used, we cannot exactly map the 4K regions
-that are placed in SYSRAM - ioremap code instead aligns to closest
-64K pages. However, since in practice the non-accessible memory area
-is 64K aligned, these mappings do not overlap with the non-accessible
-memory area and things work out.
-
-Reviewed-by: Mian Yousaf Kaukab <ykaukab@suse.de>
-Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
-Link: https://lore.kernel.org/r/20210715103423.1811101-1-mperttunen@nvidia.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210827074140.118671-1-cyeaa@connect.ust.hk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/sram.c | 103 +++++++++++++++++++++++++++++++-------------
- drivers/misc/sram.h |   9 ++++
- 2 files changed, 82 insertions(+), 30 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/sram.c b/drivers/misc/sram.c
-index 93638ae2753a..4c26b19f5154 100644
---- a/drivers/misc/sram.c
-+++ b/drivers/misc/sram.c
-@@ -97,7 +97,24 @@ static int sram_add_partition(struct sram_dev *sram, struct sram_reserve *block,
- 	struct sram_partition *part = &sram->partition[sram->partitions];
+diff --git a/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c b/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c
+index ec281b0363b8..86f97681ad89 100644
+--- a/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c
++++ b/tools/testing/selftests/bpf/prog_tests/sockopt_inherit.c
+@@ -195,8 +195,10 @@ static void run_test(int cgroup_fd)
  
- 	mutex_init(&part->lock);
--	part->base = sram->virt_base + block->start;
-+
-+	if (sram->config && sram->config->map_only_reserved) {
-+		void __iomem *virt_base;
-+
-+		if (sram->no_memory_wc)
-+			virt_base = devm_ioremap_resource(sram->dev, &block->res);
-+		else
-+			virt_base = devm_ioremap_resource_wc(sram->dev, &block->res);
-+
-+		if (IS_ERR(virt_base)) {
-+			dev_err(sram->dev, "could not map SRAM at %pr\n", &block->res);
-+			return PTR_ERR(virt_base);
-+		}
-+
-+		part->base = virt_base;
-+	} else {
-+		part->base = sram->virt_base + block->start;
+ 	pthread_mutex_lock(&server_started_mtx);
+ 	if (CHECK_FAIL(pthread_create(&tid, NULL, server_thread,
+-				      (void *)&server_fd)))
++				      (void *)&server_fd))) {
++		pthread_mutex_unlock(&server_started_mtx);
+ 		goto close_server_fd;
 +	}
+ 	pthread_cond_wait(&server_started, &server_started_mtx);
+ 	pthread_mutex_unlock(&server_started_mtx);
  
- 	if (block->pool) {
- 		ret = sram_add_pool(sram, block, start, part);
-@@ -198,6 +215,7 @@ static int sram_reserve_regions(struct sram_dev *sram, struct resource *res)
- 
- 		block->start = child_res.start - res->start;
- 		block->size = resource_size(&child_res);
-+		block->res = child_res;
- 		list_add_tail(&block->list, &reserve_list);
- 
- 		if (of_find_property(child, "export", NULL))
-@@ -295,15 +313,17 @@ static int sram_reserve_regions(struct sram_dev *sram, struct resource *res)
- 		 */
- 		cur_size = block->start - cur_start;
- 
--		dev_dbg(sram->dev, "adding chunk 0x%lx-0x%lx\n",
--			cur_start, cur_start + cur_size);
-+		if (sram->pool) {
-+			dev_dbg(sram->dev, "adding chunk 0x%lx-0x%lx\n",
-+				cur_start, cur_start + cur_size);
- 
--		ret = gen_pool_add_virt(sram->pool,
--				(unsigned long)sram->virt_base + cur_start,
--				res->start + cur_start, cur_size, -1);
--		if (ret < 0) {
--			sram_free_partitions(sram);
--			goto err_chunks;
-+			ret = gen_pool_add_virt(sram->pool,
-+					(unsigned long)sram->virt_base + cur_start,
-+					res->start + cur_start, cur_size, -1);
-+			if (ret < 0) {
-+				sram_free_partitions(sram);
-+				goto err_chunks;
-+			}
- 		}
- 
- 		/* next allocation after this reserved block */
-@@ -331,40 +351,63 @@ static int atmel_securam_wait(void)
- 					10000, 500000);
- }
- 
-+static const struct sram_config atmel_securam_config = {
-+	.init = atmel_securam_wait,
-+};
-+
-+/*
-+ * SYSRAM contains areas that are not accessible by the
-+ * kernel, such as the first 256K that is reserved for TZ.
-+ * Accesses to those areas (including speculative accesses)
-+ * trigger SErrors. As such we must map only the areas of
-+ * SYSRAM specified in the device tree.
-+ */
-+static const struct sram_config tegra_sysram_config = {
-+	.map_only_reserved = true,
-+};
-+
- static const struct of_device_id sram_dt_ids[] = {
- 	{ .compatible = "mmio-sram" },
--	{ .compatible = "atmel,sama5d2-securam", .data = atmel_securam_wait },
-+	{ .compatible = "atmel,sama5d2-securam", .data = &atmel_securam_config },
-+	{ .compatible = "nvidia,tegra186-sysram", .data = &tegra_sysram_config },
-+	{ .compatible = "nvidia,tegra194-sysram", .data = &tegra_sysram_config },
- 	{}
- };
- 
- static int sram_probe(struct platform_device *pdev)
- {
-+	const struct sram_config *config;
- 	struct sram_dev *sram;
- 	int ret;
- 	struct resource *res;
--	int (*init_func)(void);
-+
-+	config = of_device_get_match_data(&pdev->dev);
- 
- 	sram = devm_kzalloc(&pdev->dev, sizeof(*sram), GFP_KERNEL);
- 	if (!sram)
- 		return -ENOMEM;
- 
- 	sram->dev = &pdev->dev;
-+	sram->no_memory_wc = of_property_read_bool(pdev->dev.of_node, "no-memory-wc");
-+	sram->config = config;
-+
-+	if (!config || !config->map_only_reserved) {
-+		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+		if (sram->no_memory_wc)
-+			sram->virt_base = devm_ioremap_resource(&pdev->dev, res);
-+		else
-+			sram->virt_base = devm_ioremap_resource_wc(&pdev->dev, res);
-+		if (IS_ERR(sram->virt_base)) {
-+			dev_err(&pdev->dev, "could not map SRAM registers\n");
-+			return PTR_ERR(sram->virt_base);
-+		}
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (of_property_read_bool(pdev->dev.of_node, "no-memory-wc"))
--		sram->virt_base = devm_ioremap_resource(&pdev->dev, res);
--	else
--		sram->virt_base = devm_ioremap_resource_wc(&pdev->dev, res);
--	if (IS_ERR(sram->virt_base)) {
--		dev_err(&pdev->dev, "could not map SRAM registers\n");
--		return PTR_ERR(sram->virt_base);
-+		sram->pool = devm_gen_pool_create(sram->dev, ilog2(SRAM_GRANULARITY),
-+						  NUMA_NO_NODE, NULL);
-+		if (IS_ERR(sram->pool))
-+			return PTR_ERR(sram->pool);
- 	}
- 
--	sram->pool = devm_gen_pool_create(sram->dev, ilog2(SRAM_GRANULARITY),
--					  NUMA_NO_NODE, NULL);
--	if (IS_ERR(sram->pool))
--		return PTR_ERR(sram->pool);
--
- 	sram->clk = devm_clk_get(sram->dev, NULL);
- 	if (IS_ERR(sram->clk))
- 		sram->clk = NULL;
-@@ -378,15 +421,15 @@ static int sram_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, sram);
- 
--	init_func = of_device_get_match_data(&pdev->dev);
--	if (init_func) {
--		ret = init_func();
-+	if (config && config->init) {
-+		ret = config->init();
- 		if (ret)
- 			goto err_free_partitions;
- 	}
- 
--	dev_dbg(sram->dev, "SRAM pool: %zu KiB @ 0x%p\n",
--		gen_pool_size(sram->pool) / 1024, sram->virt_base);
-+	if (sram->pool)
-+		dev_dbg(sram->dev, "SRAM pool: %zu KiB @ 0x%p\n",
-+			gen_pool_size(sram->pool) / 1024, sram->virt_base);
- 
- 	return 0;
- 
-@@ -405,7 +448,7 @@ static int sram_remove(struct platform_device *pdev)
- 
- 	sram_free_partitions(sram);
- 
--	if (gen_pool_avail(sram->pool) < gen_pool_size(sram->pool))
-+	if (sram->pool && gen_pool_avail(sram->pool) < gen_pool_size(sram->pool))
- 		dev_err(sram->dev, "removed while SRAM allocated\n");
- 
- 	if (sram->clk)
-diff --git a/drivers/misc/sram.h b/drivers/misc/sram.h
-index 9c1d21ff7347..d2058d8c8f1d 100644
---- a/drivers/misc/sram.h
-+++ b/drivers/misc/sram.h
-@@ -5,6 +5,11 @@
- #ifndef __SRAM_H
- #define __SRAM_H
- 
-+struct sram_config {
-+	int (*init)(void);
-+	bool map_only_reserved;
-+};
-+
- struct sram_partition {
- 	void __iomem *base;
- 
-@@ -15,8 +20,11 @@ struct sram_partition {
- };
- 
- struct sram_dev {
-+	const struct sram_config *config;
-+
- 	struct device *dev;
- 	void __iomem *virt_base;
-+	bool no_memory_wc;
- 
- 	struct gen_pool *pool;
- 	struct clk *clk;
-@@ -29,6 +37,7 @@ struct sram_reserve {
- 	struct list_head list;
- 	u32 start;
- 	u32 size;
-+	struct resource res;
- 	bool export;
- 	bool pool;
- 	bool protect_exec;
 -- 
 2.30.2
 
