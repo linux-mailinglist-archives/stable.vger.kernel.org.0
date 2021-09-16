@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77BB640E22B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9648940DF61
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241240AbhIPQfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:35:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44326 "EHLO mail.kernel.org"
+        id S232968AbhIPQJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:09:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237311AbhIPQdK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:33:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF789613DA;
-        Thu, 16 Sep 2021 16:20:07 +0000 (UTC)
+        id S234410AbhIPQIK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:08:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B221F60232;
+        Thu, 16 Sep 2021 16:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809208;
-        bh=eiUJ5cm6EUjMXmWsOkIArvbUh1BH3xkBosG2IV0HxsU=;
+        s=korg; t=1631808410;
+        bh=IacLRNOYMI8SqT0DcdKhrMVyP5qC88k37WGxZ7t0bZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GeZDtM2vdL1ksOzRYEuSlzO/LJtA07vAPQXMG2a7eNWnJ81+7IPb62JlYtKRlZjN1
-         SNQD7EsJnss4qM1PBhEHTKHn03p9CVhhzbj7CN2p2nEC5DQut7kHUvmE7dUTGb+JV4
-         1x5r2fMaPSUCtgchsrUuLiwWc53FC3hCX39fkDjs=
+        b=OQFv0soP5jq0C4LmGqresEKHxdcSo49ecSanACP7fRQAOebivUdogWH03pTrZr+p1
+         RQMhh0TO58oK7nlmgJm00+LYe3n7TmXxGSuON+3M+Tp3v77WEhWBBpW5fgNKc88g9z
+         RcU/2tE1rwgMsqnMVVq9x1ZAiqnNLJqOrjT5MHoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kenneth Albanowski <kenalba@google.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 069/380] HID: input: do not report stylus battery state as "full"
+        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 081/306] sunrpc: Fix return value of get_srcport()
 Date:   Thu, 16 Sep 2021 17:57:06 +0200
-Message-Id: <20210916155806.343364653@linuxfoundation.org>
+Message-Id: <20210916155756.813372821@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Anna Schumaker <Anna.Schumaker@Netapp.com>
 
-[ Upstream commit f4abaa9eebde334045ed6ac4e564d050f1df3013 ]
+[ Upstream commit 5d46dd04cb68771f77ba66dbf6fd323a4a2ce00d ]
 
-The power supply states of discharging, charging, full, etc, represent
-state of charging, not the capacity level of the battery (for which
-we have a separate property). Current HID usage tables to not allow
-for expressing charging state of the batteries found in generic
-styli, so we should simply assume that the battery is discharging
-even if current capacity is at 100% when battery strength reporting
-is done via HID interface. In fact, we were doing just that before
-commit 581c4484769e.
+Since bc1c56e9bbe9 transport->srcport may by unset, causing
+get_srcport() to return 0 when called. Fix this by querying the port
+from the underlying socket instead of the transport.
 
-This change helps UIs to not mis-represent fully charged batteries in
-styli as being charging/topping-off.
-
-Fixes: 581c4484769e ("HID: input: map digitizer battery usage")
-Reported-by: Kenneth Albanowski <kenalba@google.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: bc1c56e9bbe9 (SUNRPC: prevent port reuse on transports which don't request it)
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 2 --
- 1 file changed, 2 deletions(-)
+ net/sunrpc/xprtsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 68c8644234a4..f43b40450e97 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -419,8 +419,6 @@ static int hidinput_get_battery_property(struct power_supply *psy,
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index 7d7c08af54de..16c7758e7bf3 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -1642,7 +1642,7 @@ static int xs_get_srcport(struct sock_xprt *transport)
+ unsigned short get_srcport(struct rpc_xprt *xprt)
+ {
+ 	struct sock_xprt *sock = container_of(xprt, struct sock_xprt, xprt);
+-	return sock->srcport;
++	return xs_sock_getport(sock->sock);
+ }
+ EXPORT_SYMBOL(get_srcport);
  
- 		if (dev->battery_status == HID_BATTERY_UNKNOWN)
- 			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
--		else if (dev->battery_capacity == 100)
--			val->intval = POWER_SUPPLY_STATUS_FULL;
- 		else
- 			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
- 		break;
 -- 
 2.30.2
 
