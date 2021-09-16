@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CED0E40E261
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6F440DFE6
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242899AbhIPQha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:37:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44916 "EHLO mail.kernel.org"
+        id S235138AbhIPQPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:15:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242451AbhIPQf3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:35:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 335F6619A6;
-        Thu, 16 Sep 2021 16:21:27 +0000 (UTC)
+        id S237151AbhIPQNA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:13:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C16596138E;
+        Thu, 16 Sep 2021 16:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809287;
-        bh=ajjy6T4IfK8uBofyoeCYRqWiaeg9CzcoAga4+dJTkRI=;
+        s=korg; t=1631808579;
+        bh=66PsxHGFF27Jtkv9Tx0NBeYhrP2C21IWHYups0lC3cM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1D3dT7pj6byT/hNYMOWwb8oPXxdGZrGABkRychhX41khdd5mE8SwQuuoHuC8ezsF
-         SMJ/g3ls/mhs6l2drHYkG4INpkxXUAX3jNbBfKXoDoS4qbeLQoXtreJPbl399NiSt4
-         kM8hTJLL3vC1P1a/XstycMj8gZL54sEl0Yum7UJM=
+        b=e6lSyOXsy/0+vHZARH9O2ujbf/458MNmWJlRGTCiUEP4dJXox1ngp5CLNoJhZVJXu
+         X5pOqYID3GdLOZyU8hOYonzWijunhHI6x6ndFiXCysXpYGOIt+OwOB+o6HhiHxR6WM
+         QvHWkU4BSHjL68Is3ugzRMxRI8JT7C3nCdeq/dQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        Alexander Deucher <Alexander.Deucher@amd.com>,
+        Luben Tuikov <luben.tuikov@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 099/380] SUNRPC query transports source port
+Subject: [PATCH 5.10 111/306] drm/amdgpu: Fix amdgpu_ras_eeprom_init()
 Date:   Thu, 16 Sep 2021 17:57:36 +0200
-Message-Id: <20210916155807.393221437@linuxfoundation.org>
+Message-Id: <20210916155757.864667295@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Luben Tuikov <luben.tuikov@amd.com>
 
-[ Upstream commit a8482488a7d6d320f63a9ee1912dbb5ae5b80a61 ]
+[ Upstream commit dce4400e6516d18313d23de45b5be8a18980b00e ]
 
-Provide ability to query transport's source port.
+No need to account for the 2 bytes of EEPROM
+address--this is now well abstracted away by
+the fixes the the lower layers.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Cc: Alexander Deucher <Alexander.Deucher@amd.com>
+Signed-off-by: Luben Tuikov <luben.tuikov@amd.com>
+Acked-by: Alexander Deucher <Alexander.Deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sunrpc/xprtsock.h | 1 +
- net/sunrpc/xprtsock.c           | 7 +++++++
- 2 files changed, 8 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/sunrpc/xprtsock.h b/include/linux/sunrpc/xprtsock.h
-index 3c1423ee74b4..8c2a712cb242 100644
---- a/include/linux/sunrpc/xprtsock.h
-+++ b/include/linux/sunrpc/xprtsock.h
-@@ -10,6 +10,7 @@
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
+index 0e64c39a2372..7c3efc5f1be0 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras_eeprom.c
+@@ -305,7 +305,7 @@ int amdgpu_ras_eeprom_init(struct amdgpu_ras_eeprom_control *control,
+ 		return ret;
+ 	}
  
- int		init_socket_xprt(void);
- void		cleanup_socket_xprt(void);
-+unsigned short	get_srcport(struct rpc_xprt *);
+-	__decode_table_header_from_buff(hdr, &buff[2]);
++	__decode_table_header_from_buff(hdr, buff);
  
- #define RPC_MIN_RESVPORT	(1U)
- #define RPC_MAX_RESVPORT	(65535U)
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 3228b7a1836a..3bbf47046e8a 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -1648,6 +1648,13 @@ static int xs_get_srcport(struct sock_xprt *transport)
- 	return port;
- }
- 
-+unsigned short get_srcport(struct rpc_xprt *xprt)
-+{
-+	struct sock_xprt *sock = container_of(xprt, struct sock_xprt, xprt);
-+	return sock->srcport;
-+}
-+EXPORT_SYMBOL(get_srcport);
-+
- static unsigned short xs_next_srcport(struct sock_xprt *transport, unsigned short port)
- {
- 	if (transport->srcport != 0)
+ 	if (hdr->header == EEPROM_TABLE_HDR_VAL) {
+ 		control->num_recs = (hdr->tbl_size - EEPROM_TABLE_HEADER_SIZE) /
 -- 
 2.30.2
 
