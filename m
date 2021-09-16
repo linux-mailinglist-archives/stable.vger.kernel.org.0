@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DF7140E74E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A81C40E0C3
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:27:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347291AbhIPRbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:31:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47066 "EHLO mail.kernel.org"
+        id S240795AbhIPQXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:23:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352809AbhIPR2l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:28:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27DCD61C48;
-        Thu, 16 Sep 2021 16:45:56 +0000 (UTC)
+        id S241192AbhIPQVV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:21:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B70261407;
+        Thu, 16 Sep 2021 16:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810757;
-        bh=FkXCrBHyxq0hGuRyOSF1iQfp1/fAS0OjE1l6GxYEsVo=;
+        s=korg; t=1631808888;
+        bh=n4I1esLoy8tpS2difjeMdqt5o8f1DNiNEBQ5TqrEtPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=crJaHvOVp+3nfmjU7lejX+P0NaoyOjgQe0V3jVg3GNsR64fzl9G6/L42RHi6PwvM4
-         Y6/9hdK4+KNTleQiJgGMYGL0faIC/7fP2+yIPWqbEUmthNb9ocDU1trvOBpiKUtpf6
-         bilVDBU7C/PvOyk0XnuIH8Kpe4OLHaIozOujzWmE=
+        b=xntu0EWQxb3g2YjQ+6IOtCO0YaPZ8ZhXUtGOg17c712fZx7YA3dUDQm5vVKN6D/ZE
+         lV/H+0i1t2mE7u0bCZ7KyGcJrwo3Efvv9hqerKhrTzE8H+vOTJJ0EpJtSBnE5UJ2PB
+         V7BrIm/w94/PkmDtK3l0LWl/vTSKzmxMyGfPEHf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Umang Jain <umang.jain@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 256/432] media: imx258: Limit the max analogue gain to 480
+Subject: [PATCH 5.10 260/306] nfsd: fix crash on LOCKT on reexported NFSv3
 Date:   Thu, 16 Sep 2021 18:00:05 +0200
-Message-Id: <20210916155819.500380422@linuxfoundation.org>
+Message-Id: <20210916155802.937771714@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Umang Jain <umang.jain@ideasonboard.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit f809665ee75fff3f4ea8907f406a66d380aeb184 ]
+[ Upstream commit 0bcc7ca40bd823193224e9f38bafbd8325aaf566 ]
 
-The range for analog gain mentioned in the datasheet is [0, 480].
-The real gain formula mentioned in the datasheet is:
+Unlike other filesystems, NFSv3 tries to use fl_file in the GETLK case.
 
-	Gain = 512 / (512 – X)
-
-Hence, values larger than 511 clearly makes no sense. The gain
-register field is also documented to be of 9-bits in the datasheet.
-
-Certainly, it is enough to infer that, the kernel driver currently
-advertises an arbitrary analog gain max. Fix it by rectifying the
-value as per the data sheet i.e. 480.
-
-Signed-off-by: Umang Jain <umang.jain@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx258.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4state.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c
-index 4e695096e5d0..81cdf37216ca 100644
---- a/drivers/media/i2c/imx258.c
-+++ b/drivers/media/i2c/imx258.c
-@@ -47,7 +47,7 @@
- /* Analog gain control */
- #define IMX258_REG_ANALOG_GAIN		0x0204
- #define IMX258_ANA_GAIN_MIN		0
--#define IMX258_ANA_GAIN_MAX		0x1fff
-+#define IMX258_ANA_GAIN_MAX		480
- #define IMX258_ANA_GAIN_STEP		1
- #define IMX258_ANA_GAIN_DEFAULT		0x0
- 
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 142aac9b63a8..0313390fa4b4 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -6855,8 +6855,7 @@ nfsd4_lock(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
+ /*
+  * The NFSv4 spec allows a client to do a LOCKT without holding an OPEN,
+  * so we do a temporary open here just to get an open file to pass to
+- * vfs_test_lock.  (Arguably perhaps test_lock should be done with an
+- * inode operation.)
++ * vfs_test_lock.
+  */
+ static __be32 nfsd_test_lock(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file_lock *lock)
+ {
+@@ -6871,7 +6870,9 @@ static __be32 nfsd_test_lock(struct svc_rqst *rqstp, struct svc_fh *fhp, struct
+ 							NFSD_MAY_READ));
+ 	if (err)
+ 		goto out;
++	lock->fl_file = nf->nf_file;
+ 	err = nfserrno(vfs_test_lock(nf->nf_file, lock));
++	lock->fl_file = NULL;
+ out:
+ 	fh_unlock(fhp);
+ 	nfsd_file_put(nf);
 -- 
 2.30.2
 
