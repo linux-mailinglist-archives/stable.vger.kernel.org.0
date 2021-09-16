@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B53540E657
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9A2C40DFFC
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242210AbhIPRVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:21:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43518 "EHLO mail.kernel.org"
+        id S237489AbhIPQQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:16:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346326AbhIPRSA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:18:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 856F461BA1;
-        Thu, 16 Sep 2021 16:40:57 +0000 (UTC)
+        id S239499AbhIPQNU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:13:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADC0D61130;
+        Thu, 16 Sep 2021 16:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810458;
-        bh=YKSI2PNHhxTaGksaY2QMsaRY63mNGMnQknFbukAf0cM=;
+        s=korg; t=1631808597;
+        bh=6dNN8OQPe/wsB34uoI/ICMKD2qSsK5yWqTj8ezysK4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XchP4pd+agi1G5oq5ZSKJx+2HEyu71ESkZY67+eOOQOApwDi/TjfPs667RhMoSg8n
-         KfrreVrEcJYT2mAdpgCKaD79QYTrpuLLE4oA+Z8Cc/GVfhWBvNW9x12Sg8OYPfJIcc
-         tHX1DMm4Kh8FpUw6pgEmbYwHTDr6TALMMcsJZLJo=
+        b=J4hvoDJTaNBDBnLL34ofPh1u+rWKfuQmz98f+FaAoEq8A6oBj6aVnLrMdA0+DmGiT
+         Jz3Ws7IwJq5aA5fHuG4FvNCqhZOyOhZIscZyjrgUTDtdTT7J6+ayywGsp8GJBJPyu9
+         V+d/6VrZYXuRAfwnz3OX7zrUKXqkHpTT9Hy32/z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yongqiang Niu <yongqiang.niu@mediatek.com>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Jassi Brar <jaswinder.singh@linaro.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Fabio Estevam <festevam@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 148/432] soc: mediatek: cmdq: add address shift in jump
+Subject: [PATCH 5.10 152/306] drm/bridge: nwl-dsi: Avoid potential multiplication overflow on 32-bit
 Date:   Thu, 16 Sep 2021 17:58:17 +0200
-Message-Id: <20210916155815.770761422@linuxfoundation.org>
+Message-Id: <20210916155759.259566163@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yongqiang Niu <yongqiang.niu@mediatek.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 8b60ed2b1674b78ebc433a11efa7d48821229037 ]
+[ Upstream commit 47956bc86ee4e8530cac386a04f62a6095f7afbe ]
 
-Add address shift when compose jump instruction
-to compatible with 35bit format.
+As nwl_dsi.lanes is u32, and NSEC_PER_SEC is 1000000000L, the second
+multiplication in
 
-Fixes: 0858fde496f8 ("mailbox: cmdq: variablize address shift in platform")
-Signed-off-by: Yongqiang Niu <yongqiang.niu@mediatek.com>
-Reviewed-by: Nicolas Boichat <drinkcat@chromium.org>
-Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+    dsi->lanes * 8 * NSEC_PER_SEC
+
+will overflow on a 32-bit platform.  Fix this by making the constant
+unsigned long long, forcing 64-bit arithmetic.
+
+As iMX8 is arm64, this driver is currently used on 64-bit platforms
+only, where long is 64-bit, so this cannot happen.  But the issue will
+start to happen when the driver is reused for a 32-bit SoC (e.g.
+i.MX7ULP), or when code is copied for a new driver.
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/ebb82941a86b4e35c4fcfb1ef5a5cfad7c1fceab.1626255956.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mailbox/mtk-cmdq-mailbox.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/nwl-dsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mailbox/mtk-cmdq-mailbox.c b/drivers/mailbox/mtk-cmdq-mailbox.c
-index 67a42b514429..4f907e8f3894 100644
---- a/drivers/mailbox/mtk-cmdq-mailbox.c
-+++ b/drivers/mailbox/mtk-cmdq-mailbox.c
-@@ -168,7 +168,8 @@ static void cmdq_task_insert_into_thread(struct cmdq_task *task)
- 	dma_sync_single_for_cpu(dev, prev_task->pa_base,
- 				prev_task->pkt->cmd_buf_size, DMA_TO_DEVICE);
- 	prev_task_base[CMDQ_NUM_CMD(prev_task->pkt) - 1] =
--		(u64)CMDQ_JUMP_BY_PA << 32 | task->pa_base;
-+		(u64)CMDQ_JUMP_BY_PA << 32 |
-+		(task->pa_base >> task->cmdq->shift_pa);
- 	dma_sync_single_for_device(dev, prev_task->pa_base,
- 				   prev_task->pkt->cmd_buf_size, DMA_TO_DEVICE);
+diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
+index c65ca860712d..6cac2e58cd15 100644
+--- a/drivers/gpu/drm/bridge/nwl-dsi.c
++++ b/drivers/gpu/drm/bridge/nwl-dsi.c
+@@ -196,7 +196,7 @@ static u32 ps2bc(struct nwl_dsi *dsi, unsigned long long ps)
+ 	u32 bpp = mipi_dsi_pixel_format_to_bpp(dsi->format);
  
+ 	return DIV64_U64_ROUND_UP(ps * dsi->mode.clock * bpp,
+-				  dsi->lanes * 8 * NSEC_PER_SEC);
++				  dsi->lanes * 8ULL * NSEC_PER_SEC);
+ }
+ 
+ /*
 -- 
 2.30.2
 
