@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D031340DFE4
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A92D40E5DD
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232812AbhIPQPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:15:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48542 "EHLO mail.kernel.org"
+        id S1343561AbhIPRQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:16:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237040AbhIPQM6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:12:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1158E6138D;
-        Thu, 16 Sep 2021 16:09:34 +0000 (UTC)
+        id S1350548AbhIPRN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:13:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5392961B55;
+        Thu, 16 Sep 2021 16:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808574;
-        bh=cz22zdIyzGEbnoMifT5YpvraLwc+PKn2b02X8wSUvH8=;
+        s=korg; t=1631810338;
+        bh=Y4UIgB3891sM8ME1fxlQT60gDFlCPHdkCSYW5MO6J/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vjmgNPTlQy7He/JMhv2o4yP2NCB5fsFuAVEhf1tgkfWrqRWFtXBU0vK7gXjuUl3fr
-         I5IJDOUdoHBaEpcA07ohGwxZzUNP/q5Mi05vakQw+3lu7y+BQ0ZMISFabTb+jJr9oD
-         h1hNvuAXHCO6xnjcSHaW8oBfJ15WZR8aIais2Mtc=
+        b=ybmPcfzL0q03Fx2Vcf9MRsu4DxW69urP+fdRsUSPBRw5XiVVy4viOty3zCmZHW+gA
+         RhAmD4OnLgShgAV5eoROw35qvJK8T74LBeAPKN1HeH2cjnspB3NXkxun6MG7XM9nzk
+         jriWi2dQXkYnBZmvJVzvY+7Nq3pm3wy+6+Vg7Rx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 109/306] userfaultfd: prevent concurrent API initialization
+Subject: [PATCH 5.14 105/432] NFSv4/pNFS: Always allow update of a zero valued layout barrier
 Date:   Thu, 16 Sep 2021 17:57:34 +0200
-Message-Id: <20210916155757.794674225@linuxfoundation.org>
+Message-Id: <20210916155814.329967605@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,223 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 22e5fe2a2a279d9a6fcbdfb4dffe73821bef1c90 ]
+[ Upstream commit 45baadaad7bf9183651fb74f4ed1200da48505a5 ]
 
-userfaultfd assumes that the enabled features are set once and never
-changed after UFFDIO_API ioctl succeeded.
+A zero value for the layout barrier indicates that it has been cleared
+(since seqid '0' is an illegal value), so we should always allow it to
+be updated.
 
-However, currently, UFFDIO_API can be called concurrently from two
-different threads, succeed on both threads and leave userfaultfd's
-features in non-deterministic state.  Theoretically, other uffd operations
-(ioctl's and page-faults) can be dispatched while adversely affected by
-such changes of features.
-
-Moreover, the writes to ctx->state and ctx->features are not ordered,
-which can - theoretically, again - let userfaultfd_ioctl() think that
-userfaultfd API completed, while the features are still not initialized.
-
-To avoid races, it is arguably best to get rid of ctx->state.  Since there
-are only 2 states, record the API initialization in ctx->features as the
-uppermost bit and remove ctx->state.
-
-Link: https://lkml.kernel.org/r/20210808020724.1022515-3-namit@vmware.com
-Fixes: 9cd75c3cd4c3d ("userfaultfd: non-cooperative: add ability to report non-PF events from uffd descriptor")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Peter Xu <peterx@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d29b468da4f9 ("pNFS/NFSv4: Improve rejection of out-of-order layouts")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/userfaultfd.c | 91 +++++++++++++++++++++++-------------------------
- 1 file changed, 44 insertions(+), 47 deletions(-)
+ fs/nfs/pnfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 3d181b1a6d56..17397c7532f1 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -32,11 +32,6 @@ int sysctl_unprivileged_userfaultfd __read_mostly = 1;
+diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
+index da5cacad6979..615ac993b9f9 100644
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -335,7 +335,7 @@ static bool pnfs_seqid_is_newer(u32 s1, u32 s2)
  
- static struct kmem_cache *userfaultfd_ctx_cachep __read_mostly;
- 
--enum userfaultfd_state {
--	UFFD_STATE_WAIT_API,
--	UFFD_STATE_RUNNING,
--};
--
- /*
-  * Start with fault_pending_wqh and fault_wqh so they're more likely
-  * to be in the same cacheline.
-@@ -68,8 +63,6 @@ struct userfaultfd_ctx {
- 	unsigned int flags;
- 	/* features requested from the userspace */
- 	unsigned int features;
--	/* state machine */
--	enum userfaultfd_state state;
- 	/* released */
- 	bool released;
- 	/* memory mappings are changing because of non-cooperative event */
-@@ -103,6 +96,14 @@ struct userfaultfd_wake_range {
- 	unsigned long len;
- };
- 
-+/* internal indication that UFFD_API ioctl was successfully executed */
-+#define UFFD_FEATURE_INITIALIZED		(1u << 31)
-+
-+static bool userfaultfd_is_initialized(struct userfaultfd_ctx *ctx)
-+{
-+	return ctx->features & UFFD_FEATURE_INITIALIZED;
-+}
-+
- static int userfaultfd_wake_function(wait_queue_entry_t *wq, unsigned mode,
- 				     int wake_flags, void *key)
+ static void pnfs_barrier_update(struct pnfs_layout_hdr *lo, u32 newseq)
  {
-@@ -659,7 +660,6 @@ int dup_userfaultfd(struct vm_area_struct *vma, struct list_head *fcs)
- 
- 		refcount_set(&ctx->refcount, 1);
- 		ctx->flags = octx->flags;
--		ctx->state = UFFD_STATE_RUNNING;
- 		ctx->features = octx->features;
- 		ctx->released = false;
- 		ctx->mmap_changing = false;
-@@ -936,38 +936,33 @@ static __poll_t userfaultfd_poll(struct file *file, poll_table *wait)
- 
- 	poll_wait(file, &ctx->fd_wqh, wait);
- 
--	switch (ctx->state) {
--	case UFFD_STATE_WAIT_API:
-+	if (!userfaultfd_is_initialized(ctx))
- 		return EPOLLERR;
--	case UFFD_STATE_RUNNING:
--		/*
--		 * poll() never guarantees that read won't block.
--		 * userfaults can be waken before they're read().
--		 */
--		if (unlikely(!(file->f_flags & O_NONBLOCK)))
--			return EPOLLERR;
--		/*
--		 * lockless access to see if there are pending faults
--		 * __pollwait last action is the add_wait_queue but
--		 * the spin_unlock would allow the waitqueue_active to
--		 * pass above the actual list_add inside
--		 * add_wait_queue critical section. So use a full
--		 * memory barrier to serialize the list_add write of
--		 * add_wait_queue() with the waitqueue_active read
--		 * below.
--		 */
--		ret = 0;
--		smp_mb();
--		if (waitqueue_active(&ctx->fault_pending_wqh))
--			ret = EPOLLIN;
--		else if (waitqueue_active(&ctx->event_wqh))
--			ret = EPOLLIN;
- 
--		return ret;
--	default:
--		WARN_ON_ONCE(1);
-+	/*
-+	 * poll() never guarantees that read won't block.
-+	 * userfaults can be waken before they're read().
-+	 */
-+	if (unlikely(!(file->f_flags & O_NONBLOCK)))
- 		return EPOLLERR;
--	}
-+	/*
-+	 * lockless access to see if there are pending faults
-+	 * __pollwait last action is the add_wait_queue but
-+	 * the spin_unlock would allow the waitqueue_active to
-+	 * pass above the actual list_add inside
-+	 * add_wait_queue critical section. So use a full
-+	 * memory barrier to serialize the list_add write of
-+	 * add_wait_queue() with the waitqueue_active read
-+	 * below.
-+	 */
-+	ret = 0;
-+	smp_mb();
-+	if (waitqueue_active(&ctx->fault_pending_wqh))
-+		ret = EPOLLIN;
-+	else if (waitqueue_active(&ctx->event_wqh))
-+		ret = EPOLLIN;
-+
-+	return ret;
+-	if (pnfs_seqid_is_newer(newseq, lo->plh_barrier))
++	if (pnfs_seqid_is_newer(newseq, lo->plh_barrier) || !lo->plh_barrier)
+ 		lo->plh_barrier = newseq;
  }
  
- static const struct file_operations userfaultfd_fops;
-@@ -1161,7 +1156,7 @@ static ssize_t userfaultfd_read(struct file *file, char __user *buf,
- 	struct uffd_msg msg;
- 	int no_wait = file->f_flags & O_NONBLOCK;
- 
--	if (ctx->state == UFFD_STATE_WAIT_API)
-+	if (!userfaultfd_is_initialized(ctx))
- 		return -EINVAL;
- 
- 	for (;;) {
-@@ -1816,9 +1811,10 @@ static int userfaultfd_writeprotect(struct userfaultfd_ctx *ctx,
- static inline unsigned int uffd_ctx_features(__u64 user_features)
- {
- 	/*
--	 * For the current set of features the bits just coincide
-+	 * For the current set of features the bits just coincide. Set
-+	 * UFFD_FEATURE_INITIALIZED to mark the features as enabled.
- 	 */
--	return (unsigned int)user_features;
-+	return (unsigned int)user_features | UFFD_FEATURE_INITIALIZED;
- }
- 
- /*
-@@ -1831,12 +1827,10 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
- {
- 	struct uffdio_api uffdio_api;
- 	void __user *buf = (void __user *)arg;
-+	unsigned int ctx_features;
- 	int ret;
- 	__u64 features;
- 
--	ret = -EINVAL;
--	if (ctx->state != UFFD_STATE_WAIT_API)
--		goto out;
- 	ret = -EFAULT;
- 	if (copy_from_user(&uffdio_api, buf, sizeof(uffdio_api)))
- 		goto out;
-@@ -1853,9 +1847,13 @@ static int userfaultfd_api(struct userfaultfd_ctx *ctx,
- 	ret = -EFAULT;
- 	if (copy_to_user(buf, &uffdio_api, sizeof(uffdio_api)))
- 		goto out;
--	ctx->state = UFFD_STATE_RUNNING;
-+
- 	/* only enable the requested features for this uffd context */
--	ctx->features = uffd_ctx_features(features);
-+	ctx_features = uffd_ctx_features(features);
-+	ret = -EINVAL;
-+	if (cmpxchg(&ctx->features, 0, ctx_features) != 0)
-+		goto err_out;
-+
- 	ret = 0;
- out:
- 	return ret;
-@@ -1872,7 +1870,7 @@ static long userfaultfd_ioctl(struct file *file, unsigned cmd,
- 	int ret = -EINVAL;
- 	struct userfaultfd_ctx *ctx = file->private_data;
- 
--	if (cmd != UFFDIO_API && ctx->state == UFFD_STATE_WAIT_API)
-+	if (cmd != UFFDIO_API && !userfaultfd_is_initialized(ctx))
- 		return -EINVAL;
- 
- 	switch(cmd) {
-@@ -1976,7 +1974,6 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
- 	refcount_set(&ctx->refcount, 1);
- 	ctx->flags = flags;
- 	ctx->features = 0;
--	ctx->state = UFFD_STATE_WAIT_API;
- 	ctx->released = false;
- 	ctx->mmap_changing = false;
- 	ctx->mm = current->mm;
 -- 
 2.30.2
 
