@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E69940E5D8
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86FA540DFE3
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244057AbhIPRP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:15:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41018 "EHLO mail.kernel.org"
+        id S235072AbhIPQPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:15:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344401AbhIPRNX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:13:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0CF161B56;
-        Thu, 16 Sep 2021 16:38:52 +0000 (UTC)
+        id S235075AbhIPQMo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:12:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B05B6138B;
+        Thu, 16 Sep 2021 16:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810333;
-        bh=5BK9XdaeTZ82lpNiUBDQYwONct9Gtl02nQ2vZYZaTXE=;
+        s=korg; t=1631808569;
+        bh=xy6Pskwf2LsTKup1sy1FUidV65P0qDqckPExucv4B0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zw0NyNKFlYuNRhYW1H1e4MYN5iUhrxfLNDz5AWEXmUI9EgQV9u222T7DJyjyrW9qp
-         mLt5qWqv4AWSxbJZG5PnvHfdzkodPrmx2ZAIYiWTYspGxjuG6+3Sz9Jjiu75+oTe/a
-         FuVtOYJC1zC0AtO7B1Q1Mjvg4yCapQHAOrWp47X4=
+        b=BQme5CPNowPX0GtzlkfwzAG/9cZYARO7XxAx5unyhhhlapywM+Mas0C2Ozqh2a3eQ
+         /OAh5AqEDywKcLLPA2GtRrTgF+1CXKZe5ZN36SiOot3bulGvxomlaqXclxNfKJPPpE
+         /x2G5zTYO9M3wS4/LUQnc1peyuHMNxSar8jDgZKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 103/432] xprtrdma: Put rpcrdma_reps before waking the tear-down completion
+Subject: [PATCH 5.10 107/306] MIPS: Malta: fix alignment of the devicetree buffer
 Date:   Thu, 16 Sep 2021 17:57:32 +0200
-Message-Id: <20210916155814.268217925@linuxfoundation.org>
+Message-Id: <20210916155757.727486102@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 97480cae13ca3a9c1de3eb6fd66cf9650a60db42 ]
+[ Upstream commit bea6a94a279bcbe6b2cde348782b28baf12255a5 ]
 
-Ensure the tear-down completion is awoken only /after/ we've stopped
-fiddling with rpcrdma_rep objects in rpcrdma_post_recvs().
+Starting with following patch MIPS Malta is not able to boot:
+| commit 79edff12060fe7772af08607eff50c0e2486c5ba
+| Author: Rob Herring <robh@kernel.org>
+| scripts/dtc: Update to upstream version v1.6.0-51-g183df9e9c2b9
 
-Fixes: 15788d1d1077 ("xprtrdma: Do not refresh Receive Queue while it is draining")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+The reason is the alignment test added to the fdt_ro_probe_(). To fix
+this issue, we need to make sure that fdt_buf is aligned.
+
+Since the dtc patch was designed to uncover potential issue, I handle
+initial MIPS Malta patch as initial bug.
+
+Fixes: e81a8c7dabac ("MIPS: Malta: Setup RAM regions via DT")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtrdma/verbs.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/mips/mti-malta/malta-dtshim.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-index 649c23518ec0..5a11e318a0d9 100644
---- a/net/sunrpc/xprtrdma/verbs.c
-+++ b/net/sunrpc/xprtrdma/verbs.c
-@@ -1416,11 +1416,6 @@ void rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, int needed, bool temp)
+diff --git a/arch/mips/mti-malta/malta-dtshim.c b/arch/mips/mti-malta/malta-dtshim.c
+index 0ddf03df6268..f451268f6c38 100644
+--- a/arch/mips/mti-malta/malta-dtshim.c
++++ b/arch/mips/mti-malta/malta-dtshim.c
+@@ -22,7 +22,7 @@
+ #define  ROCIT_CONFIG_GEN1_MEMMAP_SHIFT	8
+ #define  ROCIT_CONFIG_GEN1_MEMMAP_MASK	(0xf << 8)
  
- 	rc = ib_post_recv(ep->re_id->qp, wr,
- 			  (const struct ib_recv_wr **)&bad_wr);
--	if (atomic_dec_return(&ep->re_receiving) > 0)
--		complete(&ep->re_done);
--
--out:
--	trace_xprtrdma_post_recvs(r_xprt, count, rc);
- 	if (rc) {
- 		for (wr = bad_wr; wr;) {
- 			struct rpcrdma_rep *rep;
-@@ -1431,6 +1426,11 @@ void rpcrdma_post_recvs(struct rpcrdma_xprt *r_xprt, int needed, bool temp)
- 			--count;
- 		}
- 	}
-+	if (atomic_dec_return(&ep->re_receiving) > 0)
-+		complete(&ep->re_done);
-+
-+out:
-+	trace_xprtrdma_post_recvs(r_xprt, count, rc);
- 	ep->re_receive_count += count;
- 	return;
- }
+-static unsigned char fdt_buf[16 << 10] __initdata;
++static unsigned char fdt_buf[16 << 10] __initdata __aligned(8);
+ 
+ /* determined physical memory size, not overridden by command line args	 */
+ extern unsigned long physical_memsize;
 -- 
 2.30.2
 
