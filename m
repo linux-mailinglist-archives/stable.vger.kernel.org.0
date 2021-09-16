@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6880B40E78D
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D5E40E67A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343975AbhIPRd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:33:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50262 "EHLO mail.kernel.org"
+        id S242021AbhIPRVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:21:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347176AbhIPRby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:31:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D458601FA;
-        Thu, 16 Sep 2021 16:47:26 +0000 (UTC)
+        id S1346951AbhIPQ42 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:56:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 088956137F;
+        Thu, 16 Sep 2021 16:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810846;
-        bh=1pLi6iBr1T+b9L1yd+04rfjIuKkBdvSxyjDmo1v57gw=;
+        s=korg; t=1631809856;
+        bh=ZkM60eH0yUjVRm4ry7zRSJTCPCqCrBzfUlOb97Ujv5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d63COSAWJ62kY9QI8uPf1OHq4j2CzIxIGWmU+3cmjuMFrVv0TJt6mS8JfIUh0dN1H
-         6O+q69twdCuABTcvnRS7kPtbqE2swvxtDYbsFuxpxYdKh9aMCj7hD5pGroFA4V7Pwy
-         pdJvBBk9/y7uKeiYLL0SIQxi2wbJoZ3lUEn5q2bc=
+        b=BATUH09q7TnPunZsbG7Pg6yvr/GSSt7KNksOVr6Gvwaw8RGCaNaKRnRb9tPqTBUjD
+         uNBerXKXtT/SjgFh6a2pfLjOzCyH03AzgBGoLBvnq3KkEKZs+6BBLEppCXI0hioKBL
+         VjueWuWNZcQIrersPJFdhHmZ0udI8bRFmyZ+UV10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
+        Marek Szlosek <marek.szlosek@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 289/432] Bluetooth: avoid circular locks in sco_sock_connect
+Subject: [PATCH 5.13 281/380] iavf: use mutexes for locking of critical sections
 Date:   Thu, 16 Sep 2021 18:00:38 +0200
-Message-Id: <20210916155820.624260963@linuxfoundation.org>
+Message-Id: <20210916155813.635392604@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,235 +41,436 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Stefan Assmann <sassmann@kpanic.de>
 
-[ Upstream commit 734bc5ff783115aa3164f4e9dd5967ae78e0a8ab ]
+[ Upstream commit 5ac49f3c2702f269d31cc37eb9308bc557953c4d ]
 
-In a future patch, calls to bh_lock_sock in sco.c should be replaced
-by lock_sock now that none of the functions are run in IRQ context.
+As follow-up to the discussion with Jakub Kicinski about iavf locking
+being insufficient [1] convert iavf to use mutexes instead of bitops.
+The locking logic is kept as is, just a drop-in replacement of
+enum iavf_critical_section_t with separate mutexes.
+The only difference is that the mutexes will be destroyed before the
+module is unloaded.
 
-However, doing so results in a circular locking dependency:
+[1] https://lwn.net/ml/netdev/20210316150210.00007249%40intel.com/
 
-======================================================
-WARNING: possible circular locking dependency detected
-5.14.0-rc4-syzkaller #0 Not tainted
-------------------------------------------------------
-syz-executor.2/14867 is trying to acquire lock:
-ffff88803e3c1120 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}, at:
-lock_sock include/net/sock.h:1613 [inline]
-ffff88803e3c1120 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}, at:
-sco_conn_del+0x12a/0x2a0 net/bluetooth/sco.c:191
-
-but task is already holding lock:
-ffffffff8d2dc7c8 (hci_cb_list_lock){+.+.}-{3:3}, at:
-hci_disconn_cfm include/net/bluetooth/hci_core.h:1497 [inline]
-ffffffff8d2dc7c8 (hci_cb_list_lock){+.+.}-{3:3}, at:
-hci_conn_hash_flush+0xda/0x260 net/bluetooth/hci_conn.c:1608
-
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
--> #2 (hci_cb_list_lock){+.+.}-{3:3}:
-       __mutex_lock_common kernel/locking/mutex.c:959 [inline]
-       __mutex_lock+0x12a/0x10a0 kernel/locking/mutex.c:1104
-       hci_connect_cfm include/net/bluetooth/hci_core.h:1482 [inline]
-       hci_remote_features_evt net/bluetooth/hci_event.c:3263 [inline]
-       hci_event_packet+0x2f4d/0x7c50 net/bluetooth/hci_event.c:6240
-       hci_rx_work+0x4f8/0xd30 net/bluetooth/hci_core.c:5122
-       process_one_work+0x98d/0x1630 kernel/workqueue.c:2276
-       worker_thread+0x658/0x11f0 kernel/workqueue.c:2422
-       kthread+0x3e5/0x4d0 kernel/kthread.c:319
-       ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
-
--> #1 (&hdev->lock){+.+.}-{3:3}:
-       __mutex_lock_common kernel/locking/mutex.c:959 [inline]
-       __mutex_lock+0x12a/0x10a0 kernel/locking/mutex.c:1104
-       sco_connect net/bluetooth/sco.c:245 [inline]
-       sco_sock_connect+0x227/0xa10 net/bluetooth/sco.c:601
-       __sys_connect_file+0x155/0x1a0 net/socket.c:1879
-       __sys_connect+0x161/0x190 net/socket.c:1896
-       __do_sys_connect net/socket.c:1906 [inline]
-       __se_sys_connect net/socket.c:1903 [inline]
-       __x64_sys_connect+0x6f/0xb0 net/socket.c:1903
-       do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-       do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-       entry_SYSCALL_64_after_hwframe+0x44/0xae
-
--> #0 (sk_lock-AF_BLUETOOTH-BTPROTO_SCO){+.+.}-{0:0}:
-       check_prev_add kernel/locking/lockdep.c:3051 [inline]
-       check_prevs_add kernel/locking/lockdep.c:3174 [inline]
-       validate_chain kernel/locking/lockdep.c:3789 [inline]
-       __lock_acquire+0x2a07/0x54a0 kernel/locking/lockdep.c:5015
-       lock_acquire kernel/locking/lockdep.c:5625 [inline]
-       lock_acquire+0x1ab/0x510 kernel/locking/lockdep.c:5590
-       lock_sock_nested+0xca/0x120 net/core/sock.c:3170
-       lock_sock include/net/sock.h:1613 [inline]
-       sco_conn_del+0x12a/0x2a0 net/bluetooth/sco.c:191
-       sco_disconn_cfm+0x71/0xb0 net/bluetooth/sco.c:1202
-       hci_disconn_cfm include/net/bluetooth/hci_core.h:1500 [inline]
-       hci_conn_hash_flush+0x127/0x260 net/bluetooth/hci_conn.c:1608
-       hci_dev_do_close+0x528/0x1130 net/bluetooth/hci_core.c:1778
-       hci_unregister_dev+0x1c0/0x5a0 net/bluetooth/hci_core.c:4015
-       vhci_release+0x70/0xe0 drivers/bluetooth/hci_vhci.c:340
-       __fput+0x288/0x920 fs/file_table.c:280
-       task_work_run+0xdd/0x1a0 kernel/task_work.c:164
-       exit_task_work include/linux/task_work.h:32 [inline]
-       do_exit+0xbd4/0x2a60 kernel/exit.c:825
-       do_group_exit+0x125/0x310 kernel/exit.c:922
-       get_signal+0x47f/0x2160 kernel/signal.c:2808
-       arch_do_signal_or_restart+0x2a9/0x1c40 arch/x86/kernel/signal.c:865
-       handle_signal_work kernel/entry/common.c:148 [inline]
-       exit_to_user_mode_loop kernel/entry/common.c:172 [inline]
-       exit_to_user_mode_prepare+0x17d/0x290 kernel/entry/common.c:209
-       __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
-       syscall_exit_to_user_mode+0x19/0x60 kernel/entry/common.c:302
-       ret_from_fork+0x15/0x30 arch/x86/entry/entry_64.S:288
-
-other info that might help us debug this:
-
-Chain exists of:
-  sk_lock-AF_BLUETOOTH-BTPROTO_SCO --> &hdev->lock --> hci_cb_list_lock
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(hci_cb_list_lock);
-                               lock(&hdev->lock);
-                               lock(hci_cb_list_lock);
-  lock(sk_lock-AF_BLUETOOTH-BTPROTO_SCO);
-
- *** DEADLOCK ***
-
-The issue is that the lock hierarchy should go from &hdev->lock -->
-hci_cb_list_lock --> sk_lock-AF_BLUETOOTH-BTPROTO_SCO. For example,
-one such call trace is:
-
-  hci_dev_do_close():
-    hci_dev_lock();
-    hci_conn_hash_flush():
-      hci_disconn_cfm():
-        mutex_lock(&hci_cb_list_lock);
-        sco_disconn_cfm():
-        sco_conn_del():
-          lock_sock(sk);
-
-However, in sco_sock_connect, we call lock_sock before calling
-hci_dev_lock inside sco_connect, thus inverting the lock hierarchy.
-
-We fix this by pulling the call to hci_dev_lock out from sco_connect.
-
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
+Tested-by: Marek Szlosek <marek.szlosek@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/sco.c | 39 ++++++++++++++++-----------------------
- 1 file changed, 16 insertions(+), 23 deletions(-)
+ drivers/net/ethernet/intel/iavf/iavf.h        |   9 +-
+ .../net/ethernet/intel/iavf/iavf_ethtool.c    |  10 +-
+ drivers/net/ethernet/intel/iavf/iavf_main.c   | 100 +++++++++---------
+ 3 files changed, 56 insertions(+), 63 deletions(-)
 
-diff --git a/net/bluetooth/sco.c b/net/bluetooth/sco.c
-index 9cf1ead1d832..110cfd6aa2b7 100644
---- a/net/bluetooth/sco.c
-+++ b/net/bluetooth/sco.c
-@@ -235,44 +235,32 @@ static int sco_chan_add(struct sco_conn *conn, struct sock *sk,
+diff --git a/drivers/net/ethernet/intel/iavf/iavf.h b/drivers/net/ethernet/intel/iavf/iavf.h
+index 90793b36126e..68c80f04113c 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf.h
++++ b/drivers/net/ethernet/intel/iavf/iavf.h
+@@ -186,12 +186,6 @@ enum iavf_state_t {
+ 	__IAVF_RUNNING,		/* opened, working */
+ };
+ 
+-enum iavf_critical_section_t {
+-	__IAVF_IN_CRITICAL_TASK,	/* cannot be interrupted */
+-	__IAVF_IN_CLIENT_TASK,
+-	__IAVF_IN_REMOVE_TASK,	/* device being removed */
+-};
+-
+ #define IAVF_CLOUD_FIELD_OMAC		0x01
+ #define IAVF_CLOUD_FIELD_IMAC		0x02
+ #define IAVF_CLOUD_FIELD_IVLAN	0x04
+@@ -236,6 +230,9 @@ struct iavf_adapter {
+ 	struct iavf_q_vector *q_vectors;
+ 	struct list_head vlan_filter_list;
+ 	struct list_head mac_filter_list;
++	struct mutex crit_lock;
++	struct mutex client_lock;
++	struct mutex remove_lock;
+ 	/* Lock to protect accesses to MAC and VLAN lists */
+ 	spinlock_t mac_vlan_list_lock;
+ 	char misc_vector_name[IFNAMSIZ + 9];
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
+index af43fbd8cb75..edbeb27213f8 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_ethtool.c
+@@ -1352,8 +1352,7 @@ static int iavf_add_fdir_ethtool(struct iavf_adapter *adapter, struct ethtool_rx
+ 	if (!fltr)
+ 		return -ENOMEM;
+ 
+-	while (test_and_set_bit(__IAVF_IN_CRITICAL_TASK,
+-				&adapter->crit_section)) {
++	while (!mutex_trylock(&adapter->crit_lock)) {
+ 		if (--count == 0) {
+ 			kfree(fltr);
+ 			return -EINVAL;
+@@ -1378,7 +1377,7 @@ static int iavf_add_fdir_ethtool(struct iavf_adapter *adapter, struct ethtool_rx
+ 	if (err && fltr)
+ 		kfree(fltr);
+ 
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
  	return err;
  }
  
--static int sco_connect(struct sock *sk)
-+static int sco_connect(struct hci_dev *hdev, struct sock *sk)
- {
- 	struct sco_conn *conn;
- 	struct hci_conn *hcon;
--	struct hci_dev  *hdev;
- 	int err, type;
- 
- 	BT_DBG("%pMR -> %pMR", &sco_pi(sk)->src, &sco_pi(sk)->dst);
- 
--	hdev = hci_get_route(&sco_pi(sk)->dst, &sco_pi(sk)->src, BDADDR_BREDR);
--	if (!hdev)
--		return -EHOSTUNREACH;
--
--	hci_dev_lock(hdev);
--
- 	if (lmp_esco_capable(hdev) && !disable_esco)
- 		type = ESCO_LINK;
- 	else
- 		type = SCO_LINK;
- 
- 	if (sco_pi(sk)->setting == BT_VOICE_TRANSPARENT &&
--	    (!lmp_transp_capable(hdev) || !lmp_esco_capable(hdev))) {
--		err = -EOPNOTSUPP;
--		goto done;
--	}
-+	    (!lmp_transp_capable(hdev) || !lmp_esco_capable(hdev)))
-+		return -EOPNOTSUPP;
- 
- 	hcon = hci_connect_sco(hdev, type, &sco_pi(sk)->dst,
- 			       sco_pi(sk)->setting);
--	if (IS_ERR(hcon)) {
--		err = PTR_ERR(hcon);
--		goto done;
--	}
-+	if (IS_ERR(hcon))
-+		return PTR_ERR(hcon);
- 
- 	conn = sco_conn_add(hcon);
- 	if (!conn) {
- 		hci_conn_drop(hcon);
--		err = -ENOMEM;
--		goto done;
-+		return -ENOMEM;
- 	}
- 
- 	/* Update source addr of the socket */
-@@ -280,7 +268,7 @@ static int sco_connect(struct sock *sk)
- 
- 	err = sco_chan_add(conn, sk, NULL);
- 	if (err)
--		goto done;
-+		return err;
- 
- 	if (hcon->state == BT_CONNECTED) {
- 		sco_sock_clear_timer(sk);
-@@ -290,9 +278,6 @@ static int sco_connect(struct sock *sk)
- 		sco_sock_set_timer(sk, sk->sk_sndtimeo);
- 	}
- 
--done:
--	hci_dev_unlock(hdev);
--	hci_dev_put(hdev);
- 	return err;
- }
- 
-@@ -585,6 +570,7 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
- {
- 	struct sockaddr_sco *sa = (struct sockaddr_sco *) addr;
- 	struct sock *sk = sock->sk;
-+	struct hci_dev  *hdev;
- 	int err;
- 
- 	BT_DBG("sk %p", sk);
-@@ -599,12 +585,19 @@ static int sco_sock_connect(struct socket *sock, struct sockaddr *addr, int alen
- 	if (sk->sk_type != SOCK_SEQPACKET)
+@@ -1563,8 +1562,7 @@ iavf_set_adv_rss_hash_opt(struct iavf_adapter *adapter,
  		return -EINVAL;
+ 	}
  
-+	hdev = hci_get_route(&sa->sco_bdaddr, &sco_pi(sk)->src, BDADDR_BREDR);
-+	if (!hdev)
-+		return -EHOSTUNREACH;
-+	hci_dev_lock(hdev);
-+
- 	lock_sock(sk);
+-	while (test_and_set_bit(__IAVF_IN_CRITICAL_TASK,
+-				&adapter->crit_section)) {
++	while (!mutex_trylock(&adapter->crit_lock)) {
+ 		if (--count == 0) {
+ 			kfree(rss_new);
+ 			return -EINVAL;
+@@ -1600,7 +1598,7 @@ iavf_set_adv_rss_hash_opt(struct iavf_adapter *adapter,
+ 	if (!err)
+ 		mod_delayed_work(iavf_wq, &adapter->watchdog_task, 0);
  
- 	/* Set destination address and psm */
- 	bacpy(&sco_pi(sk)->dst, &sa->sco_bdaddr);
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
  
--	err = sco_connect(sk);
-+	err = sco_connect(hdev, sk);
-+	hci_dev_unlock(hdev);
-+	hci_dev_put(hdev);
+ 	if (!rss_new_add)
+ 		kfree(rss_new);
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index e5e6a5b11e6d..23762a7ef740 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -132,21 +132,18 @@ enum iavf_status iavf_free_virt_mem_d(struct iavf_hw *hw,
+ }
+ 
+ /**
+- * iavf_lock_timeout - try to set bit but give up after timeout
+- * @adapter: board private structure
+- * @bit: bit to set
++ * iavf_lock_timeout - try to lock mutex but give up after timeout
++ * @lock: mutex that should be locked
+  * @msecs: timeout in msecs
+  *
+  * Returns 0 on success, negative on failure
+  **/
+-static int iavf_lock_timeout(struct iavf_adapter *adapter,
+-			     enum iavf_critical_section_t bit,
+-			     unsigned int msecs)
++static int iavf_lock_timeout(struct mutex *lock, unsigned int msecs)
+ {
+ 	unsigned int wait, delay = 10;
+ 
+ 	for (wait = 0; wait < msecs; wait += delay) {
+-		if (!test_and_set_bit(bit, &adapter->crit_section))
++		if (mutex_trylock(lock))
+ 			return 0;
+ 
+ 		msleep(delay);
+@@ -1940,7 +1937,7 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 	struct iavf_hw *hw = &adapter->hw;
+ 	u32 reg_val;
+ 
+-	if (test_and_set_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section))
++	if (!mutex_trylock(&adapter->crit_lock))
+ 		goto restart_watchdog;
+ 
+ 	if (adapter->flags & IAVF_FLAG_PF_COMMS_FAILED)
+@@ -1958,8 +1955,7 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 			adapter->state = __IAVF_STARTUP;
+ 			adapter->flags &= ~IAVF_FLAG_PF_COMMS_FAILED;
+ 			queue_delayed_work(iavf_wq, &adapter->init_task, 10);
+-			clear_bit(__IAVF_IN_CRITICAL_TASK,
+-				  &adapter->crit_section);
++			mutex_unlock(&adapter->crit_lock);
+ 			/* Don't reschedule the watchdog, since we've restarted
+ 			 * the init task. When init_task contacts the PF and
+ 			 * gets everything set up again, it'll restart the
+@@ -1969,14 +1965,13 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 		}
+ 		adapter->aq_required = 0;
+ 		adapter->current_op = VIRTCHNL_OP_UNKNOWN;
+-		clear_bit(__IAVF_IN_CRITICAL_TASK,
+-			  &adapter->crit_section);
++		mutex_unlock(&adapter->crit_lock);
+ 		queue_delayed_work(iavf_wq,
+ 				   &adapter->watchdog_task,
+ 				   msecs_to_jiffies(10));
+ 		goto watchdog_done;
+ 	case __IAVF_RESETTING:
+-		clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++		mutex_unlock(&adapter->crit_lock);
+ 		queue_delayed_work(iavf_wq, &adapter->watchdog_task, HZ * 2);
+ 		return;
+ 	case __IAVF_DOWN:
+@@ -1999,7 +1994,7 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 		}
+ 		break;
+ 	case __IAVF_REMOVE:
+-		clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++		mutex_unlock(&adapter->crit_lock);
+ 		return;
+ 	default:
+ 		goto restart_watchdog;
+@@ -2021,7 +2016,7 @@ static void iavf_watchdog_task(struct work_struct *work)
+ 	if (adapter->state == __IAVF_RUNNING ||
+ 	    adapter->state == __IAVF_COMM_FAILED)
+ 		iavf_detect_recover_hung(&adapter->vsi);
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
+ restart_watchdog:
+ 	if (adapter->aq_required)
+ 		queue_delayed_work(iavf_wq, &adapter->watchdog_task,
+@@ -2085,7 +2080,7 @@ static void iavf_disable_vf(struct iavf_adapter *adapter)
+ 	memset(adapter->vf_res, 0, IAVF_VIRTCHNL_VF_RESOURCE_SIZE);
+ 	iavf_shutdown_adminq(&adapter->hw);
+ 	adapter->netdev->flags &= ~IFF_UP;
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
+ 	adapter->flags &= ~IAVF_FLAG_RESET_PENDING;
+ 	adapter->state = __IAVF_DOWN;
+ 	wake_up(&adapter->down_waitqueue);
+@@ -2118,15 +2113,14 @@ static void iavf_reset_task(struct work_struct *work)
+ 	/* When device is being removed it doesn't make sense to run the reset
+ 	 * task, just return in such a case.
+ 	 */
+-	if (test_bit(__IAVF_IN_REMOVE_TASK, &adapter->crit_section))
++	if (mutex_is_locked(&adapter->remove_lock))
+ 		return;
+ 
+-	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 200)) {
++	if (iavf_lock_timeout(&adapter->crit_lock, 200)) {
+ 		schedule_work(&adapter->reset_task);
+ 		return;
+ 	}
+-	while (test_and_set_bit(__IAVF_IN_CLIENT_TASK,
+-				&adapter->crit_section))
++	while (!mutex_trylock(&adapter->client_lock))
+ 		usleep_range(500, 1000);
+ 	if (CLIENT_ENABLED(adapter)) {
+ 		adapter->flags &= ~(IAVF_FLAG_CLIENT_NEEDS_OPEN |
+@@ -2178,7 +2172,7 @@ static void iavf_reset_task(struct work_struct *work)
+ 		dev_err(&adapter->pdev->dev, "Reset never finished (%x)\n",
+ 			reg_val);
+ 		iavf_disable_vf(adapter);
+-		clear_bit(__IAVF_IN_CLIENT_TASK, &adapter->crit_section);
++		mutex_unlock(&adapter->client_lock);
+ 		return; /* Do not attempt to reinit. It's dead, Jim. */
+ 	}
+ 
+@@ -2305,13 +2299,13 @@ static void iavf_reset_task(struct work_struct *work)
+ 		adapter->state = __IAVF_DOWN;
+ 		wake_up(&adapter->down_waitqueue);
+ 	}
+-	clear_bit(__IAVF_IN_CLIENT_TASK, &adapter->crit_section);
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->client_lock);
++	mutex_unlock(&adapter->crit_lock);
+ 
+ 	return;
+ reset_err:
+-	clear_bit(__IAVF_IN_CLIENT_TASK, &adapter->crit_section);
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->client_lock);
++	mutex_unlock(&adapter->crit_lock);
+ 	dev_err(&adapter->pdev->dev, "failed to allocate resources during reinit\n");
+ 	iavf_close(netdev);
+ }
+@@ -2339,7 +2333,7 @@ static void iavf_adminq_task(struct work_struct *work)
+ 	if (!event.msg_buf)
+ 		goto out;
+ 
+-	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 200))
++	if (iavf_lock_timeout(&adapter->crit_lock, 200))
+ 		goto freedom;
+ 	do {
+ 		ret = iavf_clean_arq_element(hw, &event, &pending);
+@@ -2354,7 +2348,7 @@ static void iavf_adminq_task(struct work_struct *work)
+ 		if (pending != 0)
+ 			memset(event.msg_buf, 0, IAVF_MAX_AQ_BUF_SIZE);
+ 	} while (pending);
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
+ 
+ 	if ((adapter->flags &
+ 	     (IAVF_FLAG_RESET_PENDING | IAVF_FLAG_RESET_NEEDED)) ||
+@@ -2421,7 +2415,7 @@ static void iavf_client_task(struct work_struct *work)
+ 	 * later.
+ 	 */
+ 
+-	if (test_and_set_bit(__IAVF_IN_CLIENT_TASK, &adapter->crit_section))
++	if (!mutex_trylock(&adapter->client_lock))
+ 		return;
+ 
+ 	if (adapter->flags & IAVF_FLAG_SERVICE_CLIENT_REQUESTED) {
+@@ -2444,7 +2438,7 @@ static void iavf_client_task(struct work_struct *work)
+ 		adapter->flags &= ~IAVF_FLAG_CLIENT_NEEDS_OPEN;
+ 	}
+ out:
+-	clear_bit(__IAVF_IN_CLIENT_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->client_lock);
+ }
+ 
+ /**
+@@ -3047,8 +3041,7 @@ static int iavf_configure_clsflower(struct iavf_adapter *adapter,
+ 	if (!filter)
+ 		return -ENOMEM;
+ 
+-	while (test_and_set_bit(__IAVF_IN_CRITICAL_TASK,
+-				&adapter->crit_section)) {
++	while (!mutex_trylock(&adapter->crit_lock)) {
+ 		if (--count == 0)
+ 			goto err;
+ 		udelay(1);
+@@ -3079,7 +3072,7 @@ static int iavf_configure_clsflower(struct iavf_adapter *adapter,
  	if (err)
- 		goto done;
+ 		kfree(filter);
  
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
+ 	return err;
+ }
+ 
+@@ -3226,8 +3219,7 @@ static int iavf_open(struct net_device *netdev)
+ 		return -EIO;
+ 	}
+ 
+-	while (test_and_set_bit(__IAVF_IN_CRITICAL_TASK,
+-				&adapter->crit_section))
++	while (!mutex_trylock(&adapter->crit_lock))
+ 		usleep_range(500, 1000);
+ 
+ 	if (adapter->state != __IAVF_DOWN) {
+@@ -3262,7 +3254,7 @@ static int iavf_open(struct net_device *netdev)
+ 
+ 	iavf_irq_enable(adapter, true);
+ 
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
+ 
+ 	return 0;
+ 
+@@ -3274,7 +3266,7 @@ static int iavf_open(struct net_device *netdev)
+ err_setup_tx:
+ 	iavf_free_all_tx_resources(adapter);
+ err_unlock:
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
+ 
+ 	return err;
+ }
+@@ -3298,8 +3290,7 @@ static int iavf_close(struct net_device *netdev)
+ 	if (adapter->state <= __IAVF_DOWN_PENDING)
+ 		return 0;
+ 
+-	while (test_and_set_bit(__IAVF_IN_CRITICAL_TASK,
+-				&adapter->crit_section))
++	while (!mutex_trylock(&adapter->crit_lock))
+ 		usleep_range(500, 1000);
+ 
+ 	set_bit(__IAVF_VSI_DOWN, adapter->vsi.state);
+@@ -3310,7 +3301,7 @@ static int iavf_close(struct net_device *netdev)
+ 	adapter->state = __IAVF_DOWN_PENDING;
+ 	iavf_free_traffic_irqs(adapter);
+ 
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
+ 
+ 	/* We explicitly don't free resources here because the hardware is
+ 	 * still active and can DMA into memory. Resources are cleared in
+@@ -3659,8 +3650,8 @@ static void iavf_init_task(struct work_struct *work)
+ 						    init_task.work);
+ 	struct iavf_hw *hw = &adapter->hw;
+ 
+-	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000)) {
+-		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
++	if (iavf_lock_timeout(&adapter->crit_lock, 5000)) {
++		dev_warn(&adapter->pdev->dev, "failed to acquire crit_lock in %s\n", __FUNCTION__);
+ 		return;
+ 	}
+ 	switch (adapter->state) {
+@@ -3695,7 +3686,7 @@ static void iavf_init_task(struct work_struct *work)
+ 	}
+ 	queue_delayed_work(iavf_wq, &adapter->init_task, HZ);
+ out:
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
+ }
+ 
+ /**
+@@ -3712,12 +3703,12 @@ static void iavf_shutdown(struct pci_dev *pdev)
+ 	if (netif_running(netdev))
+ 		iavf_close(netdev);
+ 
+-	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000))
+-		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
++	if (iavf_lock_timeout(&adapter->crit_lock, 5000))
++		dev_warn(&adapter->pdev->dev, "failed to acquire crit_lock in %s\n", __FUNCTION__);
+ 	/* Prevent the watchdog from running. */
+ 	adapter->state = __IAVF_REMOVE;
+ 	adapter->aq_required = 0;
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
+ 
+ #ifdef CONFIG_PM
+ 	pci_save_state(pdev);
+@@ -3811,6 +3802,9 @@ static int iavf_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	/* set up the locks for the AQ, do this only once in probe
+ 	 * and destroy them only once in remove
+ 	 */
++	mutex_init(&adapter->crit_lock);
++	mutex_init(&adapter->client_lock);
++	mutex_init(&adapter->remove_lock);
+ 	mutex_init(&hw->aq.asq_mutex);
+ 	mutex_init(&hw->aq.arq_mutex);
+ 
+@@ -3862,8 +3856,7 @@ static int __maybe_unused iavf_suspend(struct device *dev_d)
+ 
+ 	netif_device_detach(netdev);
+ 
+-	while (test_and_set_bit(__IAVF_IN_CRITICAL_TASK,
+-				&adapter->crit_section))
++	while (!mutex_trylock(&adapter->crit_lock))
+ 		usleep_range(500, 1000);
+ 
+ 	if (netif_running(netdev)) {
+@@ -3874,7 +3867,7 @@ static int __maybe_unused iavf_suspend(struct device *dev_d)
+ 	iavf_free_misc_irq(adapter);
+ 	iavf_reset_interrupt_capability(adapter);
+ 
+-	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
++	mutex_unlock(&adapter->crit_lock);
+ 
+ 	return 0;
+ }
+@@ -3936,7 +3929,7 @@ static void iavf_remove(struct pci_dev *pdev)
+ 	struct iavf_hw *hw = &adapter->hw;
+ 	int err;
+ 	/* Indicate we are in remove and not to run reset_task */
+-	set_bit(__IAVF_IN_REMOVE_TASK, &adapter->crit_section);
++	mutex_lock(&adapter->remove_lock);
+ 	cancel_delayed_work_sync(&adapter->init_task);
+ 	cancel_work_sync(&adapter->reset_task);
+ 	cancel_delayed_work_sync(&adapter->client_task);
+@@ -3958,8 +3951,8 @@ static void iavf_remove(struct pci_dev *pdev)
+ 		iavf_request_reset(adapter);
+ 		msleep(50);
+ 	}
+-	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000))
+-		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
++	if (iavf_lock_timeout(&adapter->crit_lock, 5000))
++		dev_warn(&adapter->pdev->dev, "failed to acquire crit_lock in %s\n", __FUNCTION__);
+ 
+ 	/* Shut down all the garbage mashers on the detention level */
+ 	adapter->state = __IAVF_REMOVE;
+@@ -3984,6 +3977,11 @@ static void iavf_remove(struct pci_dev *pdev)
+ 	/* destroy the locks only once, here */
+ 	mutex_destroy(&hw->aq.arq_mutex);
+ 	mutex_destroy(&hw->aq.asq_mutex);
++	mutex_destroy(&adapter->client_lock);
++	mutex_unlock(&adapter->crit_lock);
++	mutex_destroy(&adapter->crit_lock);
++	mutex_unlock(&adapter->remove_lock);
++	mutex_destroy(&adapter->remove_lock);
+ 
+ 	iounmap(hw->hw_addr);
+ 	pci_release_regions(pdev);
 -- 
 2.30.2
 
