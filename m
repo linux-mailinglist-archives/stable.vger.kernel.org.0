@@ -2,88 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C67140D971
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 14:04:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CED1B40D990
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 14:14:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238992AbhIPMFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 08:05:52 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:53708 "EHLO www.linuxtv.org"
+        id S239269AbhIPMP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 08:15:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238988AbhIPMFw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 08:05:52 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1mQq7w-00CdFB-EE; Thu, 16 Sep 2021 12:04:28 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Fri, 30 Jul 2021 10:59:18 +0000
-Subject: [git:media_tree/master] media: rtl28xxu: fix zero-length control request
-To:     linuxtv-commits@linuxtv.org
-Cc:     Sean Young <sean@mess.org>, Johan Hovold <johan@kernel.org>,
-        Antti Palosaari <crope@iki.fi>,
-        Eero Lehtinen <debiangamer2@gmail.com>, stable@vger.kernel.org
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1mQq7w-00CdFB-EE@www.linuxtv.org>
+        id S239161AbhIPMP6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 08:15:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAFF260F4A;
+        Thu, 16 Sep 2021 12:14:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1631794478;
+        bh=OgOnhOxjebv9CKj7ezGYbX+ZoR5gtrQQEDRVK0lLqhA=;
+        h=Subject:To:Cc:From:Date:From;
+        b=hC9fUsb8mhBQHKQu+gDtgcejjyMtgcx/cRnEI2v6OOvDTT44S/P5CEDIdh6ReUpcZ
+         dAjc21vdGlOdv3krUXIA/L2vDfqJb1JYqsWjcEwZyj4CJ1M7HUQGLz9VbAFK9rMNhc
+         C1k4E5oua3zU9QhreC2wo/dM0GGh/5xl1wcd2tNM=
+Subject: FAILED: patch "[PATCH] scsi: qla2xxx: Changes to support kdump kernel for NVMe BFS" failed to apply to 5.14-stable tree
+To:     skashyap@marvell.com, himanshu.madhani@oracle.com,
+        martin.petersen@oracle.com, njavali@marvell.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 16 Sep 2021 14:14:35 +0200
+Message-ID: <1631794475121246@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: rtl28xxu: fix zero-length control request
-Author:  Johan Hovold <johan@kernel.org>
-Date:    Wed Jun 23 10:45:21 2021 +0200
+The patch below does not apply to the 5.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+thanks,
 
-Control transfers without a data stage are treated as OUT requests by
-the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-will now trigger a warning.
+greg k-h
 
-The driver uses a zero-length i2c-read request for type detection so
-update the control-request code to use usb_sndctrlpipe() in this case.
+------------------ original commit in Linus's tree ------------------
 
-Note that actually trying to read the i2c register in question does not
-work as the register might not exist (e.g. depending on the demodulator)
-as reported by Eero Lehtinen <debiangamer2@gmail.com>.
+From 4a0a542fe5e4273baf9228459ef3f75c29490cba Mon Sep 17 00:00:00 2001
+From: Saurav Kashyap <skashyap@marvell.com>
+Date: Mon, 9 Aug 2021 21:37:18 -0700
+Subject: [PATCH] scsi: qla2xxx: Changes to support kdump kernel for NVMe BFS
 
-Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
-Reported-by: Eero Lehtinen <debiangamer2@gmail.com>
-Tested-by: Eero Lehtinen <debiangamer2@gmail.com>
-Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
-Cc: stable@vger.kernel.org      # 4.0
-Cc: Antti Palosaari <crope@iki.fi>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+The MSI-X and MSI calls fails in kdump kernel. Because of this
+qla2xxx_create_qpair() fails leading to .create_queue callback failure.
+The fix is to return existing qpair instead of allocating new one and
+allocate a single hw queue.
 
- drivers/media/usb/dvb-usb-v2/rtl28xxu.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+[   19.975838] qla2xxx [0000:d8:00.1]-00c7:11: MSI-X: Failed to enable support,
+giving   up -- 16/-28.
+[   19.984885] qla2xxx [0000:d8:00.1]-0037:11: Falling back-to MSI mode --
+ret=-28.
+[   19.992278] qla2xxx [0000:d8:00.1]-0039:11: Falling back-to INTa mode --
+ret=-28.
+..
+..
+..
+[   21.141518] qla2xxx [0000:d8:00.0]-2104:2: qla_nvme_alloc_queue: handle
+00000000e7ee499d, idx =1, qsize 32
+[   21.151166] qla2xxx [0000:d8:00.0]-0181:2: FW/Driver is not multi-queue capable.
+[   21.158558] qla2xxx [0000:d8:00.0]-2122:2: Failed to allocate qpair
+[   21.164824] nvme nvme0: NVME-FC{0}: reset: Reconnect attempt failed (-22)
+[   21.171612] nvme nvme0: NVME-FC{0}: Reconnect attempt in 2 seconds
 
----
+Link: https://lore.kernel.org/r/20210810043720.1137-13-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-index 0cbdb95f8d35..795a012d4020 100644
---- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-+++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-@@ -37,7 +37,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_usb_device *d, struct rtl28xxu_req *req)
- 	} else {
- 		/* read */
- 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
--		pipe = usb_rcvctrlpipe(d->udev, 0);
-+
-+		/*
-+		 * Zero-length transfers must use usb_sndctrlpipe() and
-+		 * rtl28xxu_identify_state() uses a zero-length i2c read
-+		 * command to determine the chip type.
-+		 */
-+		if (req->size)
-+			pipe = usb_rcvctrlpipe(d->udev, 0);
-+		else
-+			pipe = usb_sndctrlpipe(d->udev, 0);
+diff --git a/drivers/scsi/qla2xxx/qla_def.h b/drivers/scsi/qla2xxx/qla_def.h
+index 60702d066ed9..55175e8a0749 100644
+--- a/drivers/scsi/qla2xxx/qla_def.h
++++ b/drivers/scsi/qla2xxx/qla_def.h
+@@ -4022,7 +4022,6 @@ struct qla_hw_data {
+ 				/* Enabled in Driver */
+ 		uint32_t	scm_enabled:1;
+ 		uint32_t	edif_enabled:1;
+-		uint32_t	max_req_queue_warned:1;
+ 		uint32_t	plogi_template_valid:1;
+ 		uint32_t	port_isolated:1;
+ 	} flags;
+diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
+index 32fe9682dd9f..cb02dade85f8 100644
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -4508,6 +4508,8 @@ qla2x00_request_irqs(struct qla_hw_data *ha, struct rsp_que *rsp)
+ 		ql_dbg(ql_dbg_init, vha, 0x0125,
+ 		    "INTa mode: Enabled.\n");
+ 		ha->flags.mr_intr_valid = 1;
++		/* Set max_qpair to 0, as MSI-X and MSI in not enabled */
++		ha->max_qpairs = 0;
  	}
  
- 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
+ clear_risc_ints:
+diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
+index fdac3f7fa080..b12e01dab88d 100644
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -108,19 +108,24 @@ static int qla_nvme_alloc_queue(struct nvme_fc_local_port *lport,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (ha->queue_pair_map[qidx]) {
+-		*handle = ha->queue_pair_map[qidx];
+-		ql_log(ql_log_info, vha, 0x2121,
+-		    "Returning existing qpair of %p for idx=%x\n",
+-		    *handle, qidx);
+-		return 0;
+-	}
++	/* Use base qpair if max_qpairs is 0 */
++	if (!ha->max_qpairs) {
++		qpair = ha->base_qpair;
++	} else {
++		if (ha->queue_pair_map[qidx]) {
++			*handle = ha->queue_pair_map[qidx];
++			ql_log(ql_log_info, vha, 0x2121,
++			       "Returning existing qpair of %p for idx=%x\n",
++			       *handle, qidx);
++			return 0;
++		}
+ 
+-	qpair = qla2xxx_create_qpair(vha, 5, vha->vp_idx, true);
+-	if (qpair == NULL) {
+-		ql_log(ql_log_warn, vha, 0x2122,
+-		    "Failed to allocate qpair\n");
+-		return -EINVAL;
++		qpair = qla2xxx_create_qpair(vha, 5, vha->vp_idx, true);
++		if (!qpair) {
++			ql_log(ql_log_warn, vha, 0x2122,
++			       "Failed to allocate qpair\n");
++			return -EINVAL;
++		}
+ 	}
+ 	*handle = qpair;
+ 
+@@ -731,18 +736,9 @@ int qla_nvme_register_hba(struct scsi_qla_host *vha)
+ 
+ 	WARN_ON(vha->nvme_local_port);
+ 
+-	if (ha->max_req_queues < 3) {
+-		if (!ha->flags.max_req_queue_warned)
+-			ql_log(ql_log_info, vha, 0x2120,
+-			       "%s: Disabling FC-NVME due to lack of free queue pairs (%d).\n",
+-			       __func__, ha->max_req_queues);
+-		ha->flags.max_req_queue_warned = 1;
+-		return ret;
+-	}
+-
+ 	qla_nvme_fc_transport.max_hw_queues =
+ 	    min((uint8_t)(qla_nvme_fc_transport.max_hw_queues),
+-		(uint8_t)(ha->max_req_queues - 2));
++		(uint8_t)(ha->max_qpairs ? ha->max_qpairs : 1));
+ 
+ 	pinfo.node_name = wwn_to_u64(vha->node_name);
+ 	pinfo.port_name = wwn_to_u64(vha->port_name);
+
