@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E864840E445
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EAA740E7C7
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343791AbhIPQ4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51638 "EHLO mail.kernel.org"
+        id S1344723AbhIPRgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:36:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346320AbhIPQyo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:54:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 650836136A;
-        Thu, 16 Sep 2021 16:30:12 +0000 (UTC)
+        id S1353447AbhIPRdy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:33:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E59F63223;
+        Thu, 16 Sep 2021 16:48:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809813;
-        bh=6LOksXce/k5HvDLNXSjLG9Te585jaGoi0SD0jX9pYW4=;
+        s=korg; t=1631810898;
+        bh=V/R0gN+i0MHEYolSOZeJFTGWHbbe7nMpSoRfbptweFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WOWoczvcB7KKu9ze60HB52ClLm8Gwfv92hxJdPVbxkVD8fBvvld2RJIm55TZcy/9o
-         v1ij9XFoTLtFGtdJutoSzeLyiuwmrtRYdAefxhe+hY3eMOBSuk8HxTTIy5wiGuRMBm
-         Jr9za8K3NW+5N3DEHgmqa3LjhJE/KuGQoYkvGNdM=
+        b=TF+jiYAy0JG9qhVyIUXGPNNA3y6FsTa5HiICRuy50EN/d1inbJ7YPppKHI8jgsDC2
+         odxpIc/dXXHToDfB3qbnnP5FHunZo4JTd/NtwHO0ixE0pvy6X7D44XhBkavdvzTgpI
+         w7rPy1WiJqe8LVmBYCZ8hbkCpGD8jw/wYVHGUROc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daire Byrne <daire@dneg.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 293/380] lockd: lockd server-side shouldnt set fl_ops
+Subject: [PATCH 5.14 301/432] arm64: dts: imx8mm-venice-gw700x: fix mp5416 pmic config
 Date:   Thu, 16 Sep 2021 18:00:50 +0200
-Message-Id: <20210916155814.030965232@linuxfoundation.org>
+Message-Id: <20210916155821.025868052@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,83 +40,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Tim Harvey <tharvey@gateworks.com>
 
-[ Upstream commit 7de875b231edb807387a81cde288aa9e1015ef9e ]
+[ Upstream commit 092cd75e527044050ea76bf774e7d730709b7e8b ]
 
-Locks have two sets of op arrays, fl_lmops for the lock manager (lockd
-or nfsd), fl_ops for the filesystem.  The server-side lockd code has
-been setting its own fl_ops, which leads to confusion (and crashes) in
-the reexport case, where the filesystem expects to be the only one
-setting fl_ops.
+Fix various MP5416 PMIC configurations:
+ - Update regulator names per dt-bindings
+ - ensure values fit among valid register values
+ - add required regulator-max-microamp property
+ - add regulator-always-on prop
 
-And there's no reason for it that I can see-the lm_get/put_owner ops do
-the same job.
-
-Reported-by: Daire Byrne <daire@dneg.com>
-Tested-by: Daire Byrne <daire@dneg.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/lockd/svclock.c | 30 ++++++++++++------------------
- 1 file changed, 12 insertions(+), 18 deletions(-)
+ .../dts/freescale/imx8mm-venice-gw700x.dtsi   | 56 ++++++++++++-------
+ 1 file changed, 37 insertions(+), 19 deletions(-)
 
-diff --git a/fs/lockd/svclock.c b/fs/lockd/svclock.c
-index 498cb70c2c0d..273a81971ed5 100644
---- a/fs/lockd/svclock.c
-+++ b/fs/lockd/svclock.c
-@@ -395,28 +395,10 @@ nlmsvc_release_lockowner(struct nlm_lock *lock)
- 		nlmsvc_put_lockowner(lock->fl.fl_owner);
- }
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
+index c769fadbd008..11dda79cc46b 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
+@@ -283,65 +283,83 @@ pmic@69 {
+ 		reg = <0x69>;
  
--static void nlmsvc_locks_copy_lock(struct file_lock *new, struct file_lock *fl)
--{
--	struct nlm_lockowner *nlm_lo = (struct nlm_lockowner *)fl->fl_owner;
--	new->fl_owner = nlmsvc_get_lockowner(nlm_lo);
--}
--
--static void nlmsvc_locks_release_private(struct file_lock *fl)
--{
--	nlmsvc_put_lockowner((struct nlm_lockowner *)fl->fl_owner);
--}
--
--static const struct file_lock_operations nlmsvc_lock_ops = {
--	.fl_copy_lock = nlmsvc_locks_copy_lock,
--	.fl_release_private = nlmsvc_locks_release_private,
--};
--
- void nlmsvc_locks_init_private(struct file_lock *fl, struct nlm_host *host,
- 						pid_t pid)
- {
- 	fl->fl_owner = nlmsvc_find_lockowner(host, pid);
--	if (fl->fl_owner != NULL)
--		fl->fl_ops = &nlmsvc_lock_ops;
- }
+ 		regulators {
++			/* vdd_0p95: DRAM/GPU/VPU */
+ 			buck1 {
+-				regulator-name = "vdd_0p95";
+-				regulator-min-microvolt = <805000>;
++				regulator-name = "buck1";
++				regulator-min-microvolt = <800000>;
+ 				regulator-max-microvolt = <1000000>;
+-				regulator-max-microamp = <2500000>;
++				regulator-min-microamp  = <3800000>;
++				regulator-max-microamp  = <6800000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
  
- /*
-@@ -788,9 +770,21 @@ nlmsvc_notify_blocked(struct file_lock *fl)
- 	printk(KERN_WARNING "lockd: notification for unknown block!\n");
- }
++			/* vdd_soc */
+ 			buck2 {
+-				regulator-name = "vdd_soc";
+-				regulator-min-microvolt = <805000>;
++				regulator-name = "buck2";
++				regulator-min-microvolt = <800000>;
+ 				regulator-max-microvolt = <900000>;
+-				regulator-max-microamp = <1000000>;
++				regulator-min-microamp  = <2200000>;
++				regulator-max-microamp  = <5200000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
  
-+static fl_owner_t nlmsvc_get_owner(fl_owner_t owner)
-+{
-+	return nlmsvc_get_lockowner(owner);
-+}
-+
-+static void nlmsvc_put_owner(fl_owner_t owner)
-+{
-+	nlmsvc_put_lockowner(owner);
-+}
-+
- const struct lock_manager_operations nlmsvc_lock_operations = {
- 	.lm_notify = nlmsvc_notify_blocked,
- 	.lm_grant = nlmsvc_grant_deferred,
-+	.lm_get_owner = nlmsvc_get_owner,
-+	.lm_put_owner = nlmsvc_put_owner,
- };
++			/* vdd_arm */
+ 			buck3_reg: buck3 {
+-				regulator-name = "vdd_arm";
+-				regulator-min-microvolt = <805000>;
++				regulator-name = "buck3";
++				regulator-min-microvolt = <800000>;
+ 				regulator-max-microvolt = <1000000>;
+-				regulator-max-microamp = <2200000>;
+-				regulator-boot-on;
++				regulator-min-microamp  = <3800000>;
++				regulator-max-microamp  = <6800000>;
++				regulator-always-on;
+ 			};
  
- /*
++			/* vdd_1p8 */
+ 			buck4 {
+-				regulator-name = "vdd_1p8";
++				regulator-name = "buck4";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
+-				regulator-max-microamp = <500000>;
++				regulator-min-microamp  = <2200000>;
++				regulator-max-microamp  = <5200000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 
++			/* nvcc_snvs_1p8 */
+ 			ldo1 {
+-				regulator-name = "nvcc_snvs_1p8";
++				regulator-name = "ldo1";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
+-				regulator-max-microamp = <300000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 
++			/* vdd_snvs_0p8 */
+ 			ldo2 {
+-				regulator-name = "vdd_snvs_0p8";
++				regulator-name = "ldo2";
+ 				regulator-min-microvolt = <800000>;
+ 				regulator-max-microvolt = <800000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 
++			/* vdd_0p9 */
+ 			ldo3 {
+-				regulator-name = "vdd_0p95";
+-				regulator-min-microvolt = <800000>;
+-				regulator-max-microvolt = <800000>;
++				regulator-name = "ldo3";
++				regulator-min-microvolt = <900000>;
++				regulator-max-microvolt = <900000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 
++			/* vdd_1p8 */
+ 			ldo4 {
+-				regulator-name = "vdd_1p8";
++				regulator-name = "ldo4";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
+ 				regulator-boot-on;
++				regulator-always-on;
+ 			};
+ 		};
+ 	};
 -- 
 2.30.2
 
