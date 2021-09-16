@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7997040DFE9
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B46F840E2D9
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235676AbhIPQPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:15:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49106 "EHLO mail.kernel.org"
+        id S242856AbhIPQmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:42:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235659AbhIPQNj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:13:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BCE260232;
-        Thu, 16 Sep 2021 16:09:59 +0000 (UTC)
+        id S245369AbhIPQkU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:40:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B6B761465;
+        Thu, 16 Sep 2021 16:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808599;
-        bh=p+sAzM/XDE2JhZloIqQUgcKpO2Gb1o+zgmF5bat62yk=;
+        s=korg; t=1631809421;
+        bh=5ANBYZHGT6lDyKTeylFDsecgH0x2gUQwZcIgDogmUro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BhIlHNsgedOldQcU2y0/9Yfoy+xEPQLDZ/1aDC20b/qKdMZesZjglOexvTtSyJiwS
-         NxYV3IS8yTUGA3/v9Q6jBtc4YVROBPpZtD71VUT2IHZe42FCh2ljx9kQCmnP1i9DkC
-         LouUn5Vv8HCBNmrM14YuPY2UwjodoVl6IygkzgRk=
+        b=kQMSxuKL916JyHJyKwCOOhXTy7+QUs3UX2kJjdCAItPMIZ8XLs/NoAuFTK2xVZsiG
+         97L07BBInEf32EVdUnEq51nZsQ+Vw+CGBz75/MlQuLgRVp240J40XRxnbs/2Ll6DTZ
+         T5JHAaUAsUpIK9SrNUuPXTS7cLGzC1uR9RYQ94fE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
         Maxime Ripard <maxime@cerno.tech>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 153/306] arm64: dts: allwinner: h6: tanix-tx6: Fix regulator node names
+Subject: [PATCH 5.13 141/380] drm/vc4: hdmi: Set HD_CTL_WHOLSMP and HD_CTL_CHALIGN_SET
 Date:   Thu, 16 Sep 2021 17:58:18 +0200
-Message-Id: <20210916155759.299212629@linuxfoundation.org>
+Message-Id: <20210916155808.846917899@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@gmail.com>
+From: Dom Cobley <popcornmix@gmail.com>
 
-[ Upstream commit 7ab1f6539762946de06ca14d7401ae123821bc40 ]
+[ Upstream commit 1698ecb218eb82587dbfc71a2e26ded66e5ecf59 ]
 
-Regulator node names don't reflect class of the device. Fix that by
-prefixing names with "regulator-".
+Symptom is random switching of speakers when using multichannel.
 
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Repeatedly running speakertest -c8 occasionally starts with
+channels jumbled. This is fixed with HD_CTL_WHOLSMP.
+
+The other bit looks beneficial and apears harmless in testing so
+I'd suggest adding it too.
+
+Documentation says: HD_CTL_WHILSMP_SET
+Wait for whole sample. When this bit is set MAI transmit will start
+only when there is at least one whole sample available in the fifo.
+
+Documentation says: HD_CTL_CHALIGN_SET
+Channel Align When Overflow. This bit is used to realign the audio
+channels in case of an overflow.
+If this bit is set, after the detection of an overflow, equal
+amount of dummy words to the missing words will be written to fifo,
+filling up the broken sample and maintaining alignment.
+
+Signed-off-by: Dom Cobley <popcornmix@gmail.com>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210722161220.51181-2-jernej.skrabec@gmail.com
+Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210525132354.297468-7-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts b/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
-index be81330db14f..02641191682e 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
-@@ -32,14 +32,14 @@ hdmi_con_in: endpoint {
- 		};
- 	};
- 
--	reg_vcc3v3: vcc3v3 {
-+	reg_vcc3v3: regulator-vcc3v3 {
- 		compatible = "regulator-fixed";
- 		regulator-name = "vcc3v3";
- 		regulator-min-microvolt = <3300000>;
- 		regulator-max-microvolt = <3300000>;
- 	};
- 
--	reg_vdd_cpu_gpu: vdd-cpu-gpu {
-+	reg_vdd_cpu_gpu: regulator-vdd-cpu-gpu {
- 		compatible = "regulator-fixed";
- 		regulator-name = "vdd-cpu-gpu";
- 		regulator-min-microvolt = <1135000>;
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index edee565334d8..155f305e7c4e 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1205,7 +1205,9 @@ static int vc4_hdmi_audio_trigger(struct snd_pcm_substream *substream, int cmd,
+ 		HDMI_WRITE(HDMI_MAI_CTL,
+ 			   VC4_SET_FIELD(vc4_hdmi->audio.channels,
+ 					 VC4_HD_MAI_CTL_CHNUM) |
+-			   VC4_HD_MAI_CTL_ENABLE);
++					 VC4_HD_MAI_CTL_WHOLSMP |
++					 VC4_HD_MAI_CTL_CHALIGN |
++					 VC4_HD_MAI_CTL_ENABLE);
+ 		break;
+ 	case SNDRV_PCM_TRIGGER_STOP:
+ 		HDMI_WRITE(HDMI_MAI_CTL,
 -- 
 2.30.2
 
