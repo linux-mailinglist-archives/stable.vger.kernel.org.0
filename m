@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9A2C40DFFC
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7997040DFE9
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237489AbhIPQQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:16:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49032 "EHLO mail.kernel.org"
+        id S235676AbhIPQPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:15:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239499AbhIPQNU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:13:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADC0D61130;
-        Thu, 16 Sep 2021 16:09:56 +0000 (UTC)
+        id S235659AbhIPQNj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:13:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BCE260232;
+        Thu, 16 Sep 2021 16:09:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808597;
-        bh=6dNN8OQPe/wsB34uoI/ICMKD2qSsK5yWqTj8ezysK4A=;
+        s=korg; t=1631808599;
+        bh=p+sAzM/XDE2JhZloIqQUgcKpO2Gb1o+zgmF5bat62yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4hvoDJTaNBDBnLL34ofPh1u+rWKfuQmz98f+FaAoEq8A6oBj6aVnLrMdA0+DmGiT
-         Jz3Ws7IwJq5aA5fHuG4FvNCqhZOyOhZIscZyjrgUTDtdTT7J6+ayywGsp8GJBJPyu9
-         V+d/6VrZYXuRAfwnz3OX7zrUKXqkHpTT9Hy32/z0=
+        b=BhIlHNsgedOldQcU2y0/9Yfoy+xEPQLDZ/1aDC20b/qKdMZesZjglOexvTtSyJiwS
+         NxYV3IS8yTUGA3/v9Q6jBtc4YVROBPpZtD71VUT2IHZe42FCh2ljx9kQCmnP1i9DkC
+         LouUn5Vv8HCBNmrM14YuPY2UwjodoVl6IygkzgRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Fabio Estevam <festevam@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 152/306] drm/bridge: nwl-dsi: Avoid potential multiplication overflow on 32-bit
-Date:   Thu, 16 Sep 2021 17:58:17 +0200
-Message-Id: <20210916155759.259566163@linuxfoundation.org>
+Subject: [PATCH 5.10 153/306] arm64: dts: allwinner: h6: tanix-tx6: Fix regulator node names
+Date:   Thu, 16 Sep 2021 17:58:18 +0200
+Message-Id: <20210916155759.299212629@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
 References: <20210916155753.903069397@linuxfoundation.org>
@@ -43,46 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Jernej Skrabec <jernej.skrabec@gmail.com>
 
-[ Upstream commit 47956bc86ee4e8530cac386a04f62a6095f7afbe ]
+[ Upstream commit 7ab1f6539762946de06ca14d7401ae123821bc40 ]
 
-As nwl_dsi.lanes is u32, and NSEC_PER_SEC is 1000000000L, the second
-multiplication in
+Regulator node names don't reflect class of the device. Fix that by
+prefixing names with "regulator-".
 
-    dsi->lanes * 8 * NSEC_PER_SEC
-
-will overflow on a 32-bit platform.  Fix this by making the constant
-unsigned long long, forcing 64-bit arithmetic.
-
-As iMX8 is arm64, this driver is currently used on 64-bit platforms
-only, where long is 64-bit, so this cannot happen.  But the issue will
-start to happen when the driver is reused for a 32-bit SoC (e.g.
-i.MX7ULP), or when code is copied for a new driver.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/ebb82941a86b4e35c4fcfb1ef5a5cfad7c1fceab.1626255956.git.geert+renesas@glider.be
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20210722161220.51181-2-jernej.skrabec@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/nwl-dsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
-index c65ca860712d..6cac2e58cd15 100644
---- a/drivers/gpu/drm/bridge/nwl-dsi.c
-+++ b/drivers/gpu/drm/bridge/nwl-dsi.c
-@@ -196,7 +196,7 @@ static u32 ps2bc(struct nwl_dsi *dsi, unsigned long long ps)
- 	u32 bpp = mipi_dsi_pixel_format_to_bpp(dsi->format);
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts b/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
+index be81330db14f..02641191682e 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h6-tanix-tx6.dts
+@@ -32,14 +32,14 @@ hdmi_con_in: endpoint {
+ 		};
+ 	};
  
- 	return DIV64_U64_ROUND_UP(ps * dsi->mode.clock * bpp,
--				  dsi->lanes * 8 * NSEC_PER_SEC);
-+				  dsi->lanes * 8ULL * NSEC_PER_SEC);
- }
+-	reg_vcc3v3: vcc3v3 {
++	reg_vcc3v3: regulator-vcc3v3 {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vcc3v3";
+ 		regulator-min-microvolt = <3300000>;
+ 		regulator-max-microvolt = <3300000>;
+ 	};
  
- /*
+-	reg_vdd_cpu_gpu: vdd-cpu-gpu {
++	reg_vdd_cpu_gpu: regulator-vdd-cpu-gpu {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "vdd-cpu-gpu";
+ 		regulator-min-microvolt = <1135000>;
 -- 
 2.30.2
 
