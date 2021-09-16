@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ABF840E070
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A2040E766
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240982AbhIPQV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59264 "EHLO mail.kernel.org"
+        id S1347517AbhIPRcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:32:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241664AbhIPQT6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:19:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C6BC613D3;
-        Thu, 16 Sep 2021 16:13:56 +0000 (UTC)
+        id S1353040AbhIPR3x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:29:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86F59630EB;
+        Thu, 16 Sep 2021 16:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808837;
-        bh=RPUn723YwuyKp0Qjlf9A2KJKCf03ZrJex2xjJmeSgd0=;
+        s=korg; t=1631810787;
+        bh=vZMjlN8+KlE6QllsSovulefHp3o4DnHg4Vgqw+JfgcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJe9hJj9XtRyjpYrPrLhps/EIvhZhOcGArdBzVg0mKjWD3Clwa7+EluFH9fPCjA8l
-         Uk1P1vIbneFEpjG+5VHuDilhui6iGnEUhTUODwyWKb1V4d0mfUBrgZw1J/jHFrK5Lo
-         /JF+ZomqprWSwpwqpP8HEBWYljF1aaAfZaw9EFmg=
+        b=ZUg3jA1Z1ZNKFV+EdjIN3w/af60cwlxL/NwsLIXZvMUjdx3XVoot0rdFrMRNJrt0q
+         4YIFFT0Ld7aM5zUyCw/f/NQ2Y18P+8p9wMfSMNJwyfauZHDq46ULbFLD2UsS3dHswM
+         OkqSn8sqp0bNJCdydkLAPpT78UZmJI6y+9N7yyeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chin-Yen Lee <timlee@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 239/306] rtw88: wow: fix size access error of probe request
+Subject: [PATCH 5.14 235/432] staging: ks7010: Fix the initialization of the sleep_status structure
 Date:   Thu, 16 Sep 2021 17:59:44 +0200
-Message-Id: <20210916155802.201747229@linuxfoundation.org>
+Message-Id: <20210916155818.808083330@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chin-Yen Lee <timlee@realtek.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 69c7044526d984df672b8d9b6d6998c34617cde4 ]
+[ Upstream commit 56315e55119c0ea57e142b6efb7c31208628ad86 ]
 
-Current flow will lead to null ptr access because of trying
-to get the size of freed probe-request packets. We store the
-information of packet size into rsvd page instead and also fix
-the size error issue, which will cause unstable behavoir of
-sending probe request by wow firmware.
+'sleep_status' has 3 atomic_t members. Initialize the 3 of them instead of
+initializing only 2 of them and setting 0 twice to the same variable.
 
-Signed-off-by: Chin-Yen Lee <timlee@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210728014335.8785-6-pkshih@realtek.com
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/d2e52a33a9beab41879551d0ae2fdfc99970adab.1626856991.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/fw.c | 8 ++++++--
- drivers/net/wireless/realtek/rtw88/fw.h | 1 +
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/staging/ks7010/ks7010_sdio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/fw.c b/drivers/net/wireless/realtek/rtw88/fw.c
-index b2fd87834f23..0452630bcfac 100644
---- a/drivers/net/wireless/realtek/rtw88/fw.c
-+++ b/drivers/net/wireless/realtek/rtw88/fw.c
-@@ -684,7 +684,7 @@ static u16 rtw_get_rsvd_page_probe_req_size(struct rtw_dev *rtwdev,
- 			continue;
- 		if ((!ssid && !rsvd_pkt->ssid) ||
- 		    rtw_ssid_equal(rsvd_pkt->ssid, ssid))
--			size = rsvd_pkt->skb->len;
-+			size = rsvd_pkt->probe_req_size;
- 	}
+diff --git a/drivers/staging/ks7010/ks7010_sdio.c b/drivers/staging/ks7010/ks7010_sdio.c
+index cbc0032c1604..98d759e7cc95 100644
+--- a/drivers/staging/ks7010/ks7010_sdio.c
++++ b/drivers/staging/ks7010/ks7010_sdio.c
+@@ -939,9 +939,9 @@ static void ks7010_private_init(struct ks_wlan_private *priv,
+ 	memset(&priv->wstats, 0, sizeof(priv->wstats));
  
- 	return size;
-@@ -912,6 +912,8 @@ static struct sk_buff *rtw_get_rsvd_page_skb(struct ieee80211_hw *hw,
- 							 ssid->ssid_len, 0);
- 		else
- 			skb_new = ieee80211_probereq_get(hw, vif->addr, NULL, 0, 0);
-+		if (skb_new)
-+			rsvd_pkt->probe_req_size = (u16)skb_new->len;
- 		break;
- 	case RSVD_NLO_INFO:
- 		skb_new = rtw_nlo_info_get(hw);
-@@ -1508,6 +1510,7 @@ int rtw_fw_dump_fifo(struct rtw_dev *rtwdev, u8 fifo_sel, u32 addr, u32 size,
- static void __rtw_fw_update_pkt(struct rtw_dev *rtwdev, u8 pkt_id, u16 size,
- 				u8 location)
- {
-+	struct rtw_chip_info *chip = rtwdev->chip;
- 	u8 h2c_pkt[H2C_PKT_SIZE] = {0};
- 	u16 total_size = H2C_PKT_HDR_SIZE + H2C_PKT_UPDATE_PKT_LEN;
+ 	/* sleep mode */
++	atomic_set(&priv->sleepstatus.status, 0);
+ 	atomic_set(&priv->sleepstatus.doze_request, 0);
+ 	atomic_set(&priv->sleepstatus.wakeup_request, 0);
+-	atomic_set(&priv->sleepstatus.wakeup_request, 0);
  
-@@ -1518,6 +1521,7 @@ static void __rtw_fw_update_pkt(struct rtw_dev *rtwdev, u8 pkt_id, u16 size,
- 	UPDATE_PKT_SET_LOCATION(h2c_pkt, location);
- 
- 	/* include txdesc size */
-+	size += chip->tx_pkt_desc_sz;
- 	UPDATE_PKT_SET_SIZE(h2c_pkt, size);
- 
- 	rtw_fw_send_h2c_packet(rtwdev, h2c_pkt);
-@@ -1527,7 +1531,7 @@ void rtw_fw_update_pkt_probe_req(struct rtw_dev *rtwdev,
- 				 struct cfg80211_ssid *ssid)
- {
- 	u8 loc;
--	u32 size;
-+	u16 size;
- 
- 	loc = rtw_get_rsvd_page_probe_req_location(rtwdev, ssid);
- 	if (!loc) {
-diff --git a/drivers/net/wireless/realtek/rtw88/fw.h b/drivers/net/wireless/realtek/rtw88/fw.h
-index 08644540d259..f4aed247e3bd 100644
---- a/drivers/net/wireless/realtek/rtw88/fw.h
-+++ b/drivers/net/wireless/realtek/rtw88/fw.h
-@@ -117,6 +117,7 @@ struct rtw_rsvd_page {
- 	u8 page;
- 	bool add_txdesc;
- 	struct cfg80211_ssid *ssid;
-+	u16 probe_req_size;
- };
- 
- enum rtw_keep_alive_pkt_type {
+ 	trx_device_init(priv);
+ 	hostif_init(priv);
 -- 
 2.30.2
 
