@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0F0340DF00
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEDCC40E51A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240615AbhIPQF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:05:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45040 "EHLO mail.kernel.org"
+        id S1344888AbhIPRH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:07:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240664AbhIPQFx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:05:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC3AA61250;
-        Thu, 16 Sep 2021 16:04:31 +0000 (UTC)
+        id S1349468AbhIPRFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:05:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89F9161881;
+        Thu, 16 Sep 2021 16:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808272;
-        bh=9ys4q/Cq6uxiYo0LVkXwRkBOrR9jLBigOEKO29P6kHo=;
+        s=korg; t=1631810135;
+        bh=aQ3ss94Ysz8Z2rgJ7EBicK34Av2AyGubTaj1Y/1YGx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EraNnlEvjWlKGCqj68RVYDaGJtq0kBd6PSRa3eIDjDBgvwjlggs9gDBq88u5uKa9F
-         6YCcz5cnLxJnMHiZPT82IombYNk+Jb1m70pdw8GgX7L5uPlmsyaMTjttMJG1P7RStP
-         nk27Q6N7A0fgo+i7t/Xh9OqiSj5ALQaC0T9JlghQ=
+        b=ICpdTwAMSY5MXZYYC2/D0qt0RNLoF3To0d30/WI7N7sELjrWGQCzZIz871OFlFshi
+         G7aVfjlylzxakucTNxF/Kx7ESXxnRGasGN/n5/LvLxIqWw9pbhQ8XPbZp+q+CatFzg
+         Xr4zBy8u3lPgnthU947CljhQHDoQ6IKAJ77TLA6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Iwona Winiarska <iwona.winiarska@intel.com>,
-        Andrew Jeffery <andrew@aj.id.au>, Joel Stanley <joel@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 5.10 025/306] soc: aspeed: p2a-ctrl: Fix boundary check for mmap
-Date:   Thu, 16 Sep 2021 17:56:10 +0200
-Message-Id: <20210916155754.803480552@linuxfoundation.org>
+        Harshvardhan Jha <harshvardhan.jha@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.14 022/432] 9p/xen: Fix end of loop tests for list_for_each_entry
+Date:   Thu, 16 Sep 2021 17:56:11 +0200
+Message-Id: <20210916155811.577357838@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Iwona Winiarska <iwona.winiarska@intel.com>
+From: Harshvardhan Jha <harshvardhan.jha@oracle.com>
 
-commit 8b07e990fb254fcbaa919616ac77f981cb48c73d upstream.
+commit 732b33d0dbf17e9483f0b50385bf606f724f50a2 upstream.
 
-The check mixes pages (vm_pgoff) with bytes (vm_start, vm_end) on one
-side of the comparison, and uses resource address (rather than just the
-resource size) on the other side of the comparison.
-This can allow malicious userspace to easily bypass the boundary check and
-map pages that are located outside memory-region reserved by the driver.
+This patch addresses the following problems:
+ - priv can never be NULL, so this part of the check is useless
+ - if the loop ran through the whole list, priv->client is invalid and
+it is more appropriate and sufficient to check for the end of
+list_for_each_entry loop condition.
 
-Fixes: 01c60dcea9f7 ("drivers/misc: Add Aspeed P2A control driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Iwona Winiarska <iwona.winiarska@intel.com>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Tested-by: Andrew Jeffery <andrew@aj.id.au>
-Reviewed-by: Joel Stanley <joel@aj.id.au>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: http://lkml.kernel.org/r/20210727000709.225032-1-harshvardhan.jha@oracle.com
+Signed-off-by: Harshvardhan Jha <harshvardhan.jha@oracle.com>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Tested-by: Stefano Stabellini <sstabellini@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/aspeed/aspeed-p2a-ctrl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/9p/trans_xen.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/soc/aspeed/aspeed-p2a-ctrl.c
-+++ b/drivers/soc/aspeed/aspeed-p2a-ctrl.c
-@@ -110,7 +110,7 @@ static int aspeed_p2a_mmap(struct file *
- 	vsize = vma->vm_end - vma->vm_start;
- 	prot = vma->vm_page_prot;
+--- a/net/9p/trans_xen.c
++++ b/net/9p/trans_xen.c
+@@ -138,7 +138,7 @@ static bool p9_xen_write_todo(struct xen
  
--	if (vma->vm_pgoff + vsize > ctrl->mem_base + ctrl->mem_size)
-+	if (vma->vm_pgoff + vma_pages(vma) > ctrl->mem_size >> PAGE_SHIFT)
+ static int p9_xen_request(struct p9_client *client, struct p9_req_t *p9_req)
+ {
+-	struct xen_9pfs_front_priv *priv = NULL;
++	struct xen_9pfs_front_priv *priv;
+ 	RING_IDX cons, prod, masked_cons, masked_prod;
+ 	unsigned long flags;
+ 	u32 size = p9_req->tc.size;
+@@ -151,7 +151,7 @@ static int p9_xen_request(struct p9_clie
+ 			break;
+ 	}
+ 	read_unlock(&xen_9pfs_lock);
+-	if (!priv || priv->client != client)
++	if (list_entry_is_head(priv, &xen_9pfs_devs, list))
  		return -EINVAL;
  
- 	/* ast2400/2500 AHB accesses are not cache coherent */
+ 	num = p9_req->tc.tag % priv->num_rings;
 
 
