@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E6640E55D
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5661540E210
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345358AbhIPRLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:11:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35936 "EHLO mail.kernel.org"
+        id S241715AbhIPQeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:34:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349867AbhIPRHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:07:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B6E961B3A;
-        Thu, 16 Sep 2021 16:36:20 +0000 (UTC)
+        id S242594AbhIPQcF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:32:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DF46615E4;
+        Thu, 16 Sep 2021 16:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810180;
-        bh=+QU8ksi4GXLDax2XVswalA2O3bTaeLudQWBptSMbjzM=;
+        s=korg; t=1631809198;
+        bh=OHERr3ZhdAhIA9oMiS4cpS6pWJVWr7Z7glyeL/ocY/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k52YnqRWATV1ehPflXJyWT1GwnpIRRtZXg4UoY78wOi/GVpAXDuEmpTSGEtkQjGLp
-         q1iH653bPZm+WXKrKcuEDriKOoBFsQRwm9GnSLAtuQDFc7nmrh0dbi+Trqk9jzIWcZ
-         fLDjrae9MPr7Ou6pHtDcjR/RS1M2piVzt7gVDLqs=
+        b=nYwFYT5OfWtg5Ilz+JADLlFnaHO8355Z1k8IPtjl7gEYAjA0enhxnJWwI6RQJnCVX
+         UDeUk1rS6ZclwgP4cDd5tv5vzdIx7i949XDTjgMG5N0crtrVNZGMbOu41bo2fcFs+w
+         VN6fHg+wzNUprbCtuwQ/OtE9hN6Oefaxw4l/W/9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
         Viresh Kumar <viresh.kumar@linaro.org>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.14 046/432] cpufreq: schedutil: Use kobject release() method to free sugov_tunables
-Date:   Thu, 16 Sep 2021 17:56:35 +0200
-Message-Id: <20210916155812.370609496@linuxfoundation.org>
+Subject: [PATCH 5.13 039/380] cpufreq: schedutil: Use kobject release() method to free sugov_tunables
+Date:   Thu, 16 Sep 2021 17:56:36 +0200
+Message-Id: <20210916155805.299153663@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -110,7 +110,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/kernel/sched/cpufreq_schedutil.c
 +++ b/kernel/sched/cpufreq_schedutil.c
-@@ -537,9 +537,17 @@ static struct attribute *sugov_attrs[] =
+@@ -536,9 +536,17 @@ static struct attribute *sugov_attrs[] =
  };
  ATTRIBUTE_GROUPS(sugov);
  
@@ -128,7 +128,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  };
  
  /********************** cpufreq governor interface *********************/
-@@ -639,12 +647,10 @@ static struct sugov_tunables *sugov_tuna
+@@ -638,12 +646,10 @@ static struct sugov_tunables *sugov_tuna
  	return tunables;
  }
  
@@ -142,7 +142,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static int sugov_init(struct cpufreq_policy *policy)
-@@ -707,7 +713,7 @@ out:
+@@ -706,7 +712,7 @@ out:
  fail:
  	kobject_put(&tunables->attr_set.kobj);
  	policy->governor_data = NULL;
@@ -151,7 +151,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  stop_kthread:
  	sugov_kthread_stop(sg_policy);
-@@ -734,7 +740,7 @@ static void sugov_exit(struct cpufreq_po
+@@ -733,7 +739,7 @@ static void sugov_exit(struct cpufreq_po
  	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
  	policy->governor_data = NULL;
  	if (!count)
