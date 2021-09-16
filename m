@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5DCD40DAD2
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:11:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E008240DAD3
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239948AbhIPNNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 09:13:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58774 "EHLO mail.kernel.org"
+        id S239896AbhIPNN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 09:13:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239581AbhIPNNS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 09:13:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 228AA60EB2;
-        Thu, 16 Sep 2021 13:11:56 +0000 (UTC)
+        id S239581AbhIPNN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 09:13:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D523C60FBF;
+        Thu, 16 Sep 2021 13:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631797917;
-        bh=y+J/mo1plTnh5Yl/4VcNApw8i0llgqx7Jm7Byf8NrtQ=;
+        s=korg; t=1631797926;
+        bh=PDriSX6WDoHSZcr4Oza/kXahicIWac4x90vELBrw7z8=;
         h=Subject:To:Cc:From:Date:From;
-        b=SVJMTK9yV8TR8fKMBIjZtM1c9+5nRtmgjRZPKBse8Je/0VpgVomfnUrsDVLjHlS1A
-         Kw5a88bE8D6GLmV7/PUYSfDa0snt6E/6EJwiftqwl9tQwoyqDYLVfUPmJ/GqurYwz9
-         dBIYZrxAutQUtbwraaV2K1X8OfaKpxzrQAzbJeRM=
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Fix -EDEADLK handling regression" failed to apply to 5.10-stable tree
+        b=xHanxXHHsbcD9d3EZIEnHj3G2puU/LIX6sK7YAUwHz88UqO/szEJoOJk12MwgVGmy
+         E0r6Ktzk1mEdUVJvUpL57gRakdTbQBKNNqD+rEugLOES97v5wBQEKwRMpParXM3fO6
+         dq08CXe0cm9F7j9Q+2Mqwm5S0Vg3M83rQtxVvIqg=
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Fix -EDEADLK handling regression" failed to apply to 5.13-stable tree
 To:     ville.syrjala@linux.intel.com, maarten.lankhorst@linux.intel.com,
         thomas.hellstrom@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Sep 2021 15:11:55 +0200
-Message-ID: <163179791524653@kroah.com>
+Date:   Thu, 16 Sep 2021 15:11:56 +0200
+Message-ID: <1631797916188169@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
