@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6415F40E54A
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:26:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C1140E1E3
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344770AbhIPRKL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:10:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37566 "EHLO mail.kernel.org"
+        id S242016AbhIPQcL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:32:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349989AbhIPRIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:08:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F30060F38;
-        Thu, 16 Sep 2021 16:36:45 +0000 (UTC)
+        id S243183AbhIPQaJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:30:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 209FA613AD;
+        Thu, 16 Sep 2021 16:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810205;
-        bh=ke0zryOFbY9VnDCnVu4dALHrZgEv3Vwhl3ONBxNtgdE=;
+        s=korg; t=1631809143;
+        bh=ItDa3DZB83Wn4oaMui8ZmDfswbUzyvlWkCkK2LB/1z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eoBkMo97vJ4iYeqNNAdvbroHl7qbk4+ieoKOtoygjF6h2hkHXdSYO0ArG8a1Q66/9
-         ak6WCbiuadeYfiYesx7MlB0nX+oWvaq+YBmU9byBjHx6cVnD6cr8hjiGlH7e24FNYB
-         PGzdfQ84l8fLcMVUsV1yvSubM8t1Ij6kj6Fus8Vk=
+        b=a9Z0MkQ5os0RNjRK/rtYI6QwRHgPvlmMAmSBtPnoeME5vMLBnY3wQYFnloO1THxBl
+         0psfR4qe2rUpEoyMEliRthiG6cpFrkdqryDVTdBQQH2iZsmjn9bDMveAvhV51wVDFZ
+         MkTokfDKmdmYAnk9JXJMMZekXUw84177zmoDIQH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
         Benjamin Block <bblock@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.14 054/432] s390/qdio: fix roll-back after timeout on ESTABLISH ccw
-Date:   Thu, 16 Sep 2021 17:56:43 +0200
-Message-Id: <20210916155812.629973081@linuxfoundation.org>
+Subject: [PATCH 5.13 047/380] s390/qdio: fix roll-back after timeout on ESTABLISH ccw
+Date:   Thu, 16 Sep 2021 17:56:44 +0200
+Message-Id: <20210916155805.586635600@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -84,7 +84,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/s390/cio/qdio_main.c
 +++ b/drivers/s390/cio/qdio_main.c
-@@ -1083,6 +1083,7 @@ int qdio_establish(struct ccw_device *cd
+@@ -1079,6 +1079,7 @@ int qdio_establish(struct ccw_device *cd
  {
  	struct qdio_irq *irq_ptr = cdev->private->qdio_data;
  	struct subchannel_id schid;
@@ -92,7 +92,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int rc;
  
  	ccw_device_get_schid(cdev, &schid);
-@@ -1111,11 +1112,8 @@ int qdio_establish(struct ccw_device *cd
+@@ -1107,11 +1108,8 @@ int qdio_establish(struct ccw_device *cd
  	qdio_setup_irq(irq_ptr, init_data);
  
  	rc = qdio_establish_thinint(irq_ptr);
@@ -106,7 +106,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	/* establish q */
  	irq_ptr->ccw.cmd_code = irq_ptr->equeue.cmd;
-@@ -1131,15 +1129,16 @@ int qdio_establish(struct ccw_device *cd
+@@ -1127,15 +1125,16 @@ int qdio_establish(struct ccw_device *cd
  	if (rc) {
  		DBF_ERROR("%4x est IO ERR", irq_ptr->schid.sch_no);
  		DBF_ERROR("rc:%4x", rc);
@@ -130,7 +130,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	if (irq_ptr->state != QDIO_IRQ_STATE_ESTABLISHED) {
  		mutex_unlock(&irq_ptr->setup_mutex);
-@@ -1156,6 +1155,14 @@ int qdio_establish(struct ccw_device *cd
+@@ -1152,6 +1151,14 @@ int qdio_establish(struct ccw_device *cd
  	qdio_print_subchannel_info(irq_ptr);
  	qdio_setup_debug_entries(irq_ptr);
  	return 0;
