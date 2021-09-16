@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E4740DF78
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D1A40E583
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233060AbhIPQKL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:10:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47552 "EHLO mail.kernel.org"
+        id S1345889AbhIPRMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:12:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234826AbhIPQIE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:08:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2F436120F;
-        Thu, 16 Sep 2021 16:06:41 +0000 (UTC)
+        id S244384AbhIPRKC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:10:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BDE961B47;
+        Thu, 16 Sep 2021 16:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808403;
-        bh=b0TWJ15KrBh9XOl6wwdaFm0lsYM5VY1rrABEVgV8nNk=;
+        s=korg; t=1631810257;
+        bh=XxTLvhR0643QwmWliVQPlTcQCaqUN3pE7YzM9cOqrmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wt6yS1vu4fQQSrW0rBwzovtn/LvTguy62D56lAnEzl55s+59CmjFa01DE1MXHgpku
-         uQy2RfUynYaeELwyAHjYT+aSPbEE7yNCPUN2sEKuJ8dyhHOZ5YevR3EQLe5j8vuwi9
-         ZO1hXV7qbyIGv+gjy2pMSoA0ALSFl8Yic6waVWEE=
+        b=FWDiTzDDCQ7zFNFwTOzRs/tNri/X0//spvzZ7YLAVztV5EMzdfGaR/phfhJhwmIQ4
+         QMpugBWc+4KDqnyYzDuMElcjgoHsZIHZaGyeYIOub/yNxxxq6tKzvL6poDr0FGGSjb
+         YyEmo5xzykiVi5e8QaO6pdHTRZ/P6jRoasKWh1aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
+        Aleksei Marov <aleksei.marov@ionos.com>,
+        Gioh Kim <gi-oh.kim@ionos.com>,
+        Md Haris Iqbal <haris.iqbal@ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 079/306] SUNRPC/xprtrdma: Fix reconnection locking
+Subject: [PATCH 5.14 075/432] RDMA/rtrs: Move sq_wr_avail to rtrs_con
 Date:   Thu, 16 Sep 2021 17:57:04 +0200
-Message-Id: <20210916155756.748474748@linuxfoundation.org>
+Message-Id: <20210916155813.331779880@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,77 +43,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Jack Wang <jinpu.wang@ionos.com>
 
-[ Upstream commit f99fa50880f5300fbbb3c0754ddc7f8738d24fe7 ]
+[ Upstream commit cfcdbd9dd7632a9bb1e308a029f5fa65008333af ]
 
-The xprtrdma client code currently relies on the task that initiated the
-connect to hold the XPRT_LOCK for the duration of the connection
-attempt. If the task is woken early, due to some other event, then that
-lock could get released early.
-Avoid races by using the same mechanism that the socket code uses of
-transferring lock ownership to the RDMA connect worker itself. That
-frees us to call rpcrdma_xprt_disconnect() directly since we're now
-guaranteed exclusion w.r.t. other callers.
+In order to account HB for sq_wr_avail properly, move sq_wr_avail from
+rtrs_srv_con to rtrs_con.
 
-Fixes: 4cf44be6f1e8 ("xprtrdma: Fix recursion into rpcrdma_xprt_disconnect()")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Although rtrs-clt do not care sq_wr_avail, but still init it to
+max_send_wr.
+
+Fixes: b38041d50add ("RDMA/rtrs: Do not signal for heatbeat")
+Link: https://lore.kernel.org/r/20210712060750.16494-7-jinpu.wang@ionos.com
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Reviewed-by: Aleksei Marov <aleksei.marov@ionos.com>
+Reviewed-by: Gioh Kim <gi-oh.kim@ionos.com>
+Reviewed-by: Md Haris Iqbal <haris.iqbal@ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprt.c               |  2 ++
- net/sunrpc/xprtrdma/transport.c | 11 +++++------
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-clt.c | 1 +
+ drivers/infiniband/ulp/rtrs/rtrs-pri.h | 1 +
+ drivers/infiniband/ulp/rtrs/rtrs-srv.c | 8 ++++----
+ drivers/infiniband/ulp/rtrs/rtrs-srv.h | 1 -
+ drivers/infiniband/ulp/rtrs/rtrs.c     | 1 +
+ 5 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index ccfa85e995fd..8201531ce5d9 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -844,6 +844,7 @@ bool xprt_lock_connect(struct rpc_xprt *xprt,
- 	spin_unlock(&xprt->transport_lock);
- 	return ret;
- }
-+EXPORT_SYMBOL_GPL(xprt_lock_connect);
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+index f023676e05e4..ece3205531b8 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+@@ -1680,6 +1680,7 @@ static int create_con_cq_qp(struct rtrs_clt_con *con)
+ 			      sess->queue_depth * 3 + 1);
+ 		max_send_sge = 2;
+ 	}
++	atomic_set(&con->c.sq_wr_avail, max_send_wr);
+ 	cq_num = max_send_wr + max_recv_wr;
+ 	/* alloc iu to recv new rkey reply when server reports flags set */
+ 	if (sess->flags & RTRS_MSG_NEW_RKEY_F || con->c.cid == 0) {
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-pri.h b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
+index b88a4944cb30..119aa3f7eafe 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-pri.h
++++ b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
+@@ -97,6 +97,7 @@ struct rtrs_con {
+ 	unsigned int		cid;
+ 	int                     nr_cqe;
+ 	atomic_t		wr_cnt;
++	atomic_t		sq_wr_avail;
+ };
  
- void xprt_unlock_connect(struct rpc_xprt *xprt, void *cookie)
- {
-@@ -860,6 +861,7 @@ void xprt_unlock_connect(struct rpc_xprt *xprt, void *cookie)
- 	spin_unlock(&xprt->transport_lock);
- 	wake_up_bit(&xprt->state, XPRT_LOCKED);
- }
-+EXPORT_SYMBOL_GPL(xprt_unlock_connect);
+ struct rtrs_sess {
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+index 44ed15f38896..cd9a4ccf4c28 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+@@ -507,11 +507,11 @@ bool rtrs_srv_resp_rdma(struct rtrs_srv_op *id, int status)
+ 		ib_update_fast_reg_key(mr->mr, ib_inc_rkey(mr->mr->rkey));
+ 	}
+ 	if (unlikely(atomic_sub_return(1,
+-				       &con->sq_wr_avail) < 0)) {
++				       &con->c.sq_wr_avail) < 0)) {
+ 		rtrs_err(s, "IB send queue full: sess=%s cid=%d\n",
+ 			 kobject_name(&sess->kobj),
+ 			 con->c.cid);
+-		atomic_add(1, &con->sq_wr_avail);
++		atomic_add(1, &con->c.sq_wr_avail);
+ 		spin_lock(&con->rsp_wr_wait_lock);
+ 		list_add_tail(&id->wait_list, &con->rsp_wr_wait_list);
+ 		spin_unlock(&con->rsp_wr_wait_lock);
+@@ -1268,7 +1268,7 @@ static void rtrs_srv_rdma_done(struct ib_cq *cq, struct ib_wc *wc)
+ 		 * post_send() RDMA write completions of IO reqs (read/write)
+ 		 * and hb.
+ 		 */
+-		atomic_add(s->signal_interval, &con->sq_wr_avail);
++		atomic_add(s->signal_interval, &con->c.sq_wr_avail);
  
- /**
-  * xprt_connect - schedule a transport connect operation
-diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
-index c26db0a37996..8e2368a0c2a2 100644
---- a/net/sunrpc/xprtrdma/transport.c
-+++ b/net/sunrpc/xprtrdma/transport.c
-@@ -249,12 +249,9 @@ xprt_rdma_connect_worker(struct work_struct *work)
- 					   xprt->stat.connect_start;
- 		xprt_set_connected(xprt);
- 		rc = -EAGAIN;
--	} else {
--		/* Force a call to xprt_rdma_close to clean up */
--		spin_lock(&xprt->transport_lock);
--		set_bit(XPRT_CLOSE_WAIT, &xprt->state);
--		spin_unlock(&xprt->transport_lock);
--	}
-+	} else
-+		rpcrdma_xprt_disconnect(r_xprt);
-+	xprt_unlock_connect(xprt, r_xprt);
- 	xprt_wake_pending_tasks(xprt, rc);
- }
+ 		if (unlikely(!list_empty_careful(&con->rsp_wr_wait_list)))
+ 			rtrs_rdma_process_wr_wait_list(con);
+@@ -1680,7 +1680,7 @@ static int create_con(struct rtrs_srv_sess *sess,
+ 		 */
+ 	}
+ 	cq_num = max_send_wr + max_recv_wr;
+-	atomic_set(&con->sq_wr_avail, max_send_wr);
++	atomic_set(&con->c.sq_wr_avail, max_send_wr);
+ 	cq_vector = rtrs_srv_get_next_cq_vector(sess);
  
-@@ -487,6 +484,8 @@ xprt_rdma_connect(struct rpc_xprt *xprt, struct rpc_task *task)
- 	struct rpcrdma_ep *ep = r_xprt->rx_ep;
- 	unsigned long delay;
+ 	/* TODO: SOFTIRQ can be faster, but be careful with softirq context */
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.h b/drivers/infiniband/ulp/rtrs/rtrs-srv.h
+index 6785c3b6363e..e81774f5acd3 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.h
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.h
+@@ -42,7 +42,6 @@ struct rtrs_srv_stats {
  
-+	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, r_xprt));
-+
- 	delay = 0;
- 	if (ep && ep->re_connect_status != 0) {
- 		delay = xprt_reconnect_delay(xprt);
+ struct rtrs_srv_con {
+ 	struct rtrs_con		c;
+-	atomic_t		sq_wr_avail;
+ 	struct list_head	rsp_wr_wait_list;
+ 	spinlock_t		rsp_wr_wait_lock;
+ };
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs.c b/drivers/infiniband/ulp/rtrs/rtrs.c
+index a8f8affc546a..0a4b4e1b5e5f 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs.c
+@@ -190,6 +190,7 @@ int rtrs_post_rdma_write_imm_empty(struct rtrs_con *con, struct ib_cqe *cqe,
+ 	struct rtrs_sess *sess = con->sess;
+ 	enum ib_send_flags sflags;
+ 
++	atomic_dec_if_positive(&con->sq_wr_avail);
+ 	sflags = (atomic_inc_return(&con->wr_cnt) % sess->signal_interval) ?
+ 		0 : IB_SEND_SIGNALED;
+ 
 -- 
 2.30.2
 
