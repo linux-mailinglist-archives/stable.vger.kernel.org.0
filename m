@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B051A40E737
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1C9C40E350
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346977AbhIPRay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:30:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47086 "EHLO mail.kernel.org"
+        id S242814AbhIPQrC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:47:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351662AbhIPR0z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:26:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE572613B5;
-        Thu, 16 Sep 2021 16:45:04 +0000 (UTC)
+        id S1344227AbhIPQox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:44:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90F1A6103B;
+        Thu, 16 Sep 2021 16:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810705;
-        bh=2K+jeZhi6NWGxwSm3736qe8/WFfuxqbpxEPeczVvA9E=;
+        s=korg; t=1631809556;
+        bh=L6dGz8/J8+Yzbn3xmkmqNCDjXg+BWLDTee5jp1EzVqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBilmd1O/9vFzDz/YZn8kaFazl1WEus0HcZlpbQ29G2xJmqaL5W0Ov/MW34FL6fMZ
-         XcwUp4EQ8GKlc5kKxBQqp5cjzqHm8f4s5/S+qeESeky0OBrJb/4ThBsBC37vSmoih3
-         wG1ONEDwRoopratZr83njgvi+TmdtKFdvP2iw0RE=
+        b=BL07/P+OOc/7/RLHlS+A7FMYJOUiG9uoKbwQhX9cIrV/z/3Ah26tohZzp6tXOUmA2
+         7B31PLrdRoZonHvc+Yzwt7gifsCr+Sft64rMuxGz689qSW6KF/nCAHwtClifbkpQGZ
+         +MAJiPR26qaqA81ZT06fQPpNOJHXK/i2gVsJcEZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 205/432] selftests: firmware: Fix ignored return val of asprintf() warn
+Subject: [PATCH 5.13 197/380] video: fbdev: riva: Error out if pixclock equals zero
 Date:   Thu, 16 Sep 2021 17:59:14 +0200
-Message-Id: <20210916155817.767129793@linuxfoundation.org>
+Message-Id: <20210916155810.778735305@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit fe968ca2cac91888310b143a483123c84906e3fc ]
+[ Upstream commit f92763cb0feba247e0939ed137b495601fd072a5 ]
 
-Fix the following ingonred return val of asprintf() warn during
-build:
+The userspace program could pass any values to the driver through
+ioctl() interface. If the driver doesn't check the value of 'pixclock',
+it may cause divide error.
 
-cc -Wall -O2    fw_namespace.c  -o ../tools/testing/selftests/firmware/fw_namespace
-fw_namespace.c: In function ‘main’:
-fw_namespace.c:132:2: warning: ignoring return value of ‘asprintf’ declared with attribute ‘warn_unused_result’ [-Wunused-result]
-  132 |  asprintf(&fw_path, "/lib/firmware/%s", fw_name);
-      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Fix this by checking whether 'pixclock' is zero first.
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20210708031827.51293-1-skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The following log reveals it:
+
+[   33.396850] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+[   33.396864] CPU: 5 PID: 11754 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #222
+[   33.396883] RIP: 0010:riva_load_video_mode+0x417/0xf70
+[   33.396969] Call Trace:
+[   33.396973]  ? debug_smp_processor_id+0x1c/0x20
+[   33.396984]  ? tick_nohz_tick_stopped+0x1a/0x90
+[   33.396996]  ? rivafb_copyarea+0x3c0/0x3c0
+[   33.397003]  ? wake_up_klogd.part.0+0x99/0xd0
+[   33.397014]  ? vprintk_emit+0x110/0x4b0
+[   33.397024]  ? vprintk_default+0x26/0x30
+[   33.397033]  ? vprintk+0x9c/0x1f0
+[   33.397041]  ? printk+0xba/0xed
+[   33.397054]  ? record_print_text.cold+0x16/0x16
+[   33.397063]  ? __kasan_check_read+0x11/0x20
+[   33.397074]  ? profile_tick+0xc0/0x100
+[   33.397084]  ? __sanitizer_cov_trace_const_cmp4+0x24/0x80
+[   33.397094]  ? riva_set_rop_solid+0x2a0/0x2a0
+[   33.397102]  rivafb_set_par+0xbe/0x610
+[   33.397111]  ? riva_set_rop_solid+0x2a0/0x2a0
+[   33.397119]  fb_set_var+0x5bf/0xeb0
+[   33.397127]  ? fb_blank+0x1a0/0x1a0
+[   33.397134]  ? lock_acquire+0x1ef/0x530
+[   33.397143]  ? lock_release+0x810/0x810
+[   33.397151]  ? lock_is_held_type+0x100/0x140
+[   33.397159]  ? ___might_sleep+0x1ee/0x2d0
+[   33.397170]  ? __mutex_lock+0x620/0x1190
+[   33.397180]  ? trace_hardirqs_on+0x6a/0x1c0
+[   33.397190]  do_fb_ioctl+0x31e/0x700
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-4-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/firmware/fw_namespace.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/riva/fbdev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/firmware/fw_namespace.c b/tools/testing/selftests/firmware/fw_namespace.c
-index 0e393cb5f42d..4c6f0cd83c5b 100644
---- a/tools/testing/selftests/firmware/fw_namespace.c
-+++ b/tools/testing/selftests/firmware/fw_namespace.c
-@@ -129,7 +129,8 @@ int main(int argc, char **argv)
- 		die("mounting tmpfs to /lib/firmware failed\n");
- 
- 	sys_path = argv[1];
--	asprintf(&fw_path, "/lib/firmware/%s", fw_name);
-+	if (asprintf(&fw_path, "/lib/firmware/%s", fw_name) < 0)
-+		die("error: failed to build full fw_path\n");
- 
- 	setup_fw(fw_path);
- 
+diff --git a/drivers/video/fbdev/riva/fbdev.c b/drivers/video/fbdev/riva/fbdev.c
+index 55554b0433cb..84d5e23ad7d3 100644
+--- a/drivers/video/fbdev/riva/fbdev.c
++++ b/drivers/video/fbdev/riva/fbdev.c
+@@ -1084,6 +1084,9 @@ static int rivafb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ 	int mode_valid = 0;
+ 	
+ 	NVTRACE_ENTER();
++	if (!var->pixclock)
++		return -EINVAL;
++
+ 	switch (var->bits_per_pixel) {
+ 	case 1 ... 8:
+ 		var->red.offset = var->green.offset = var->blue.offset = 0;
 -- 
 2.30.2
 
