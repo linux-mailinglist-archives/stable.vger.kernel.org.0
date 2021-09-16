@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D45D340E2F7
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:18:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C23540DFE8
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244474AbhIPQng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:43:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51718 "EHLO mail.kernel.org"
+        id S232624AbhIPQPp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:15:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244185AbhIPQl2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:41:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 544AC6126A;
-        Thu, 16 Sep 2021 16:24:11 +0000 (UTC)
+        id S233284AbhIPQNj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:13:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B67D6137D;
+        Thu, 16 Sep 2021 16:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809451;
-        bh=h7WoPbhk4P1tddmUKXsOWaZI7zGyW1QsZZxFbB4hm/E=;
+        s=korg; t=1631808602;
+        bh=CFxoJqTD6D2XgEUt9WJ2SR1eXohXAMMWRfLmxb/Gz8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HiypCQtxaLr1fDDG08M1yUj/Vc6lZXGH7bxdeEV5ivFj3kfz8890aFzuhbPJqIxna
-         OlvLrGo+BxHWkOZdhZmJ4P0HLEpIdf8h3hgxWLDqfF3SQhehhqkucvVAI+fYF8yjbQ
-         WYAHj/7Ih2sfA45/MymsKvr3P2o3knUef+ukc/sk=
+        b=N6ksJepscFFL9IrVPxmngx3g0YPdWaIYvR1wfNnKUYvEBCS30NoiCr/9bUyizY5DR
+         YcFZ3eZhUHbdlDmgZfsXH1Wx0CyPPh1zf0+tFYEf9j1o9tu3Hy9sZS+DCotSux756u
+         gQIA04hFjmbvgP8dlACnRk9WRwtFTSl1zLDIER9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Tomi Valkeinen <tomba@kernel.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 142/380] drm/omap: Follow implicit fencing in prepare_fb
+Subject: [PATCH 5.10 154/306] video: fbdev: asiliantfb: Error out if pixclock equals zero
 Date:   Thu, 16 Sep 2021 17:58:19 +0200
-Message-Id: <20210916155808.885018227@linuxfoundation.org>
+Message-Id: <20210916155759.339526829@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 942d8344d5f14b9ea2ae43756f319b9f44216ba4 ]
+[ Upstream commit b36b242d4b8ea178f7fd038965e3cac7f30c3f09 ]
 
-I guess no one ever tried running omap together with lima or panfrost,
-not even sure that's possible. Anyway for consistency, fix this.
+The userspace program could pass any values to the driver through
+ioctl() interface. If the driver doesn't check the value of 'pixclock',
+it may cause divide error.
 
-Reviewed-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Tomi Valkeinen <tomba@kernel.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210622165511.3169559-12-daniel.vetter@ffwll.ch
+Fix this by checking whether 'pixclock' is zero first.
+
+The following log reveals it:
+
+[   43.861711] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+[   43.861737] CPU: 2 PID: 11764 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #224
+[   43.861756] RIP: 0010:asiliantfb_check_var+0x4e/0x730
+[   43.861843] Call Trace:
+[   43.861848]  ? asiliantfb_remove+0x190/0x190
+[   43.861858]  fb_set_var+0x2e4/0xeb0
+[   43.861866]  ? fb_blank+0x1a0/0x1a0
+[   43.861873]  ? lock_acquire+0x1ef/0x530
+[   43.861884]  ? lock_release+0x810/0x810
+[   43.861892]  ? lock_is_held_type+0x100/0x140
+[   43.861903]  ? ___might_sleep+0x1ee/0x2d0
+[   43.861914]  ? __mutex_lock+0x620/0x1190
+[   43.861921]  ? do_fb_ioctl+0x313/0x700
+[   43.861929]  ? mutex_lock_io_nested+0xfa0/0xfa0
+[   43.861936]  ? __this_cpu_preempt_check+0x1d/0x30
+[   43.861944]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861952]  ? lockdep_hardirqs_on+0x59/0x100
+[   43.861959]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861967]  ? trace_hardirqs_on+0x6a/0x1c0
+[   43.861978]  do_fb_ioctl+0x31e/0x700
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-2-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/omap_plane.c | 3 +++
+ drivers/video/fbdev/asiliantfb.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/omapdrm/omap_plane.c b/drivers/gpu/drm/omapdrm/omap_plane.c
-index 801da917507d..512af976b7e9 100644
---- a/drivers/gpu/drm/omapdrm/omap_plane.c
-+++ b/drivers/gpu/drm/omapdrm/omap_plane.c
-@@ -6,6 +6,7 @@
+diff --git a/drivers/video/fbdev/asiliantfb.c b/drivers/video/fbdev/asiliantfb.c
+index 3e006da47752..84c56f525889 100644
+--- a/drivers/video/fbdev/asiliantfb.c
++++ b/drivers/video/fbdev/asiliantfb.c
+@@ -227,6 +227,9 @@ static int asiliantfb_check_var(struct fb_var_screeninfo *var,
+ {
+ 	unsigned long Ftarget, ratio, remainder;
  
- #include <drm/drm_atomic.h>
- #include <drm/drm_atomic_helper.h>
-+#include <drm/drm_gem_atomic_helper.h>
- #include <drm/drm_plane_helper.h>
- 
- #include "omap_dmm_tiler.h"
-@@ -29,6 +30,8 @@ static int omap_plane_prepare_fb(struct drm_plane *plane,
- 	if (!new_state->fb)
- 		return 0;
- 
-+	drm_gem_plane_helper_prepare_fb(plane, new_state);
++	if (!var->pixclock)
++		return -EINVAL;
 +
- 	return omap_framebuffer_pin(new_state->fb);
- }
- 
+ 	ratio = 1000000 / var->pixclock;
+ 	remainder = 1000000 % var->pixclock;
+ 	Ftarget = 1000000 * ratio + (1000000 * remainder) / var->pixclock;
 -- 
 2.30.2
 
