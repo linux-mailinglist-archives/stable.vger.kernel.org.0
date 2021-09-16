@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8B3F40E3C5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7227B40E0DF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242607AbhIPQwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:52:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37422 "EHLO mail.kernel.org"
+        id S241432AbhIPQZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:25:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244507AbhIPQsv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:48:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CB4361A7A;
-        Thu, 16 Sep 2021 16:27:38 +0000 (UTC)
+        id S241923AbhIPQXW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:23:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13F90614C8;
+        Thu, 16 Sep 2021 16:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809659;
-        bh=Bssx5ZbEaCre/TweHxP/RvtlxoCykNbf0SQAZ4MT+ac=;
+        s=korg; t=1631808945;
+        bh=WANJpW8yev+oEtAtw71e8zPFe2o8jLjScIPcYNsFcsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8TR5E/SRisckRLRU+Jog/loxdy+sbI3tPdzeF6T4CFtmxOjX+yFkVeL9EU8Q5OkQ
-         /TqDPsLzmnWewX+u67ZNtB6iwOJ2xfvZubqIZTeF2A2MNHLDS35rPvGPVeKFgCCl5C
-         1xKSj8T9CEM844zso7fQyCxpu5ZIDLwnK1dxkRpk=
+        b=eQPiDCP0MC7X7QfJrP7qIhidM+xmL9qnX+AdGQYvKM9DERdyQtONm/hXyxuIX6SmD
+         zb3QKrGa9I4vdBLjN1ktTflZYSUTP52OHLsIRiUyVWdyfZe9eeEnsqbvuk8m16/xLP
+         9dmTY3ev4cN2ntXPK5xVluUxAA1plU6ppv1O2MfI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Manish Narani <manish.narani@xilinx.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 235/380] serial: 8250_omap: Handle optional overrun-throttle-ms property
-Date:   Thu, 16 Sep 2021 17:59:52 +0200
-Message-Id: <20210916155812.077221127@linuxfoundation.org>
+Subject: [PATCH 5.10 248/306] mmc: sdhci-of-arasan: Check return value of non-void funtions
+Date:   Thu, 16 Sep 2021 17:59:53 +0200
+Message-Id: <20210916155802.521646122@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,95 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Manish Narani <manish.narani@xilinx.com>
 
-[ Upstream commit 1fe0e1fa3209ad8e9124147775bd27b1d9f04bd4 ]
+[ Upstream commit 66bad6ed2204fdb78a0a8fb89d824397106a5471 ]
 
-Handle optional overrun-throttle-ms property as done for 8250_fsl in commit
-6d7f677a2afa ("serial: 8250: Rate limit serial port rx interrupts during
-input overruns"). This can be used to rate limit the UART interrupts on
-noisy lines that end up producing messages like the following:
+At a couple of places, the return values of the non-void functions were
+not getting checked. This was reported by the coverity tool. Modify the
+code to check the return values of the same.
 
-ttyS ttyS2: 4 input overrun(s)
-
-At least on droid4, the multiplexed USB and UART port is left to UART mode
-by the bootloader for a debug console, and if a USB charger is connected
-on boot, we get noise on the UART until the PMIC related drivers for PHY
-and charger are loaded.
-
-With this patch and overrun-throttle-ms = <500> we avoid the extra rx
-interrupts.
-
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210727103533.51547-2-tony@atomide.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity: ("check_return")
+Signed-off-by: Manish Narani <manish.narani@xilinx.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/1623753837-21035-5-git-send-email-manish.narani@xilinx.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-of-arasan.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index 79418d4beb48..b6c731a267d2 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -617,7 +617,7 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- 	struct uart_port *port = dev_id;
- 	struct omap8250_priv *priv = port->private_data;
- 	struct uart_8250_port *up = up_to_u8250p(port);
--	unsigned int iir;
-+	unsigned int iir, lsr;
- 	int ret;
- 
- #ifdef CONFIG_SERIAL_8250_DMA
-@@ -628,6 +628,7 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- #endif
- 
- 	serial8250_rpm_get(up);
-+	lsr = serial_port_in(port, UART_LSR);
- 	iir = serial_port_in(port, UART_IIR);
- 	ret = serial8250_handle_irq(port, iir);
- 
-@@ -642,6 +643,24 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- 		serial_port_in(port, UART_RX);
- 	}
- 
-+	/* Stop processing interrupts on input overrun */
-+	if ((lsr & UART_LSR_OE) && up->overrun_backoff_time_ms > 0) {
-+		unsigned long delay;
+diff --git a/drivers/mmc/host/sdhci-of-arasan.c b/drivers/mmc/host/sdhci-of-arasan.c
+index 0c5479a06e9e..fc38db64a6b4 100644
+--- a/drivers/mmc/host/sdhci-of-arasan.c
++++ b/drivers/mmc/host/sdhci-of-arasan.c
+@@ -273,7 +273,12 @@ static void sdhci_arasan_set_clock(struct sdhci_host *host, unsigned int clock)
+ 			 * through low speeds without power cycling.
+ 			 */
+ 			sdhci_set_clock(host, host->max_clk);
+-			phy_power_on(sdhci_arasan->phy);
++			if (phy_power_on(sdhci_arasan->phy)) {
++				pr_err("%s: Cannot power on phy.\n",
++				       mmc_hostname(host->mmc));
++				return;
++			}
 +
-+		up->ier = port->serial_in(port, UART_IER);
-+		if (up->ier & (UART_IER_RLSI | UART_IER_RDI)) {
-+			port->ops->stop_rx(port);
-+		} else {
-+			/* Keep restarting the timer until
-+			 * the input overrun subsides.
-+			 */
-+			cancel_delayed_work(&up->overrun_backoff);
+ 			sdhci_arasan->is_phy_on = true;
+ 
+ 			/*
+@@ -323,7 +328,12 @@ static void sdhci_arasan_set_clock(struct sdhci_host *host, unsigned int clock)
+ 		msleep(20);
+ 
+ 	if (ctrl_phy) {
+-		phy_power_on(sdhci_arasan->phy);
++		if (phy_power_on(sdhci_arasan->phy)) {
++			pr_err("%s: Cannot power on phy.\n",
++			       mmc_hostname(host->mmc));
++			return;
 +		}
 +
-+		delay = msecs_to_jiffies(up->overrun_backoff_time_ms);
-+		schedule_delayed_work(&up->overrun_backoff, delay);
-+	}
-+
- 	serial8250_rpm_put(up);
- 
- 	return IRQ_RETVAL(ret);
-@@ -1353,6 +1372,10 @@ static int omap8250_probe(struct platform_device *pdev)
- 		}
+ 		sdhci_arasan->is_phy_on = true;
  	}
- 
-+	if (of_property_read_u32(np, "overrun-throttle-ms",
-+				 &up.overrun_backoff_time_ms) != 0)
-+		up.overrun_backoff_time_ms = 0;
+ }
+@@ -479,7 +489,9 @@ static int sdhci_arasan_suspend(struct device *dev)
+ 		ret = phy_power_off(sdhci_arasan->phy);
+ 		if (ret) {
+ 			dev_err(dev, "Cannot power off phy.\n");
+-			sdhci_resume_host(host);
++			if (sdhci_resume_host(host))
++				dev_err(dev, "Cannot resume host.\n");
 +
- 	priv->wakeirq = irq_of_parse_and_map(np, 1);
- 
- 	pdata = of_device_get_match_data(&pdev->dev);
+ 			return ret;
+ 		}
+ 		sdhci_arasan->is_phy_on = false;
 -- 
 2.30.2
 
