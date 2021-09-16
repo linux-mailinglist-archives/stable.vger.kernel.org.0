@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8CC340E324
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:19:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5A140DFF1
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:15:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243481AbhIPQpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:45:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58604 "EHLO mail.kernel.org"
+        id S234881AbhIPQQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:16:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343662AbhIPQnb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:43:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E0B061A51;
-        Thu, 16 Sep 2021 16:25:06 +0000 (UTC)
+        id S240704AbhIPQOW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:14:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79E756121F;
+        Thu, 16 Sep 2021 16:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809507;
-        bh=QPnP8Y83eXrqB45XfSTnst6zMUhMxU7dGsBKRkwtUKA=;
+        s=korg; t=1631808622;
+        bh=2TeIJOzXZlPqXXdgyu6M9ULE67R/6NkC2W5IBs3D10s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RXNGtmsrHB+DlPWMYDMojhiQV7sLEhDFXzw7qoFVLznH60tVoMgM4c+vSoQMAqwRl
-         FhnmbddxUuLIrtYq9kQTeT13z4eYsWJkEvMQ8SbGmfTpDQ+q4f7pIkIXyKbATfuWL1
-         /twUTSEAJe3izlXdb7SUIE5O/TgCyYD0T9YD68xM=
+        b=2adJkAiVm8mnNk4QJcqpYNBYlql9j6MQl47nniaZO7aPqaIRbfMCxEK6HDxk0e9O9
+         C66uF72EQhW+hPksbrBYmQUfb1LynTHWDiYmeITfJAbTMxFEnoUSF3LpXU2bCuw3zf
+         /wxn0yFCsrN9xq2Bjc7pN3UNjRb5M6aRKqb7quz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 148/380] media: ti-vpe: cal: fix queuing of the initial buffer
-Date:   Thu, 16 Sep 2021 17:58:25 +0200
-Message-Id: <20210916155809.096006550@linuxfoundation.org>
+Subject: [PATCH 5.10 161/306] serial: 8250: Define RX trigger levels for OxSemi 950 devices
+Date:   Thu, 16 Sep 2021 17:58:26 +0200
+Message-Id: <20210916155759.568746936@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit 892c37f8a3d673b945e951a8754695c119a2b1b0 ]
+[ Upstream commit d7aff291d069c4418285f3c8ee27b0ff67ce5998 ]
 
-When starting streaming the driver currently programs the buffer
-address to the CAL base-address register and assigns the buffer pointer
-to ctx->dma.pending. This is not correct, as the buffer is not
-"pending", but active, and causes the first buffer to be needlessly
-written twice.
+Oxford Semiconductor 950 serial port devices have a 128-byte FIFO and in
+the enhanced (650) mode, which we select in `autoconfig_has_efr' with
+the ECB bit set in the EFR register, they support the receive interrupt
+trigger level selectable with FCR bits 7:6 from the set of 16, 32, 112,
+120.  This applies to the original OX16C950 discrete UART[1] as well as
+950 cores embedded into more complex devices.
 
-Fix this by assigning the buffer pointer to ctx->dma.active.
+For these devices we set the default to 112, which sets an excessively
+high level of 112 or 7/8 of the FIFO capacity, unlike with other port
+types where we choose at most 1/2 of their respective FIFO capacities.
+Additionally we don't make the trigger level configurable.  Consequently
+frequent input overruns happen with high bit rates where hardware flow
+control cannot be used (e.g. terminal applications) even with otherwise
+highly-performant systems.
 
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Lower the default receive interrupt trigger level to 32 then, and make
+it configurable.  Document the trigger levels along with other port
+types, including the set of 16, 32, 64, 112 for the transmit interrupt
+as well[2].
+
+
+[1] "OX16C950 rev B High Performance UART with 128 byte FIFOs", Oxford
+    Semiconductor, Inc., DS-0031, Sep 05, Table 10: "Receiver Trigger
+    Levels", p. 22
+
+[2] same, Table 9: "Transmit Interrupt Trigger Levels", p. 22
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260608480.37803@angie.orcam.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/ti-vpe/cal-video.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_port.c | 3 ++-
+ include/uapi/linux/serial_reg.h     | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/ti-vpe/cal-video.c b/drivers/media/platform/ti-vpe/cal-video.c
-index 7b7436a355ee..b9405f70af9f 100644
---- a/drivers/media/platform/ti-vpe/cal-video.c
-+++ b/drivers/media/platform/ti-vpe/cal-video.c
-@@ -694,7 +694,7 @@ static int cal_start_streaming(struct vb2_queue *vq, unsigned int count)
- 
- 	spin_lock_irq(&ctx->dma.lock);
- 	buf = list_first_entry(&ctx->dma.queue, struct cal_buffer, list);
--	ctx->dma.pending = buf;
-+	ctx->dma.active = buf;
- 	list_del(&buf->list);
- 	spin_unlock_irq(&ctx->dma.lock);
- 
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 3de0a16e055a..5d40f1010fbf 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -122,7 +122,8 @@ static const struct serial8250_config uart_config[] = {
+ 		.name		= "16C950/954",
+ 		.fifo_size	= 128,
+ 		.tx_loadsz	= 128,
+-		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
++		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_01,
++		.rxtrig_bytes	= {16, 32, 112, 120},
+ 		/* UART_CAP_EFR breaks billionon CF bluetooth card. */
+ 		.flags		= UART_CAP_FIFO | UART_CAP_SLEEP,
+ 	},
+diff --git a/include/uapi/linux/serial_reg.h b/include/uapi/linux/serial_reg.h
+index be07b5470f4b..f51bc8f36813 100644
+--- a/include/uapi/linux/serial_reg.h
++++ b/include/uapi/linux/serial_reg.h
+@@ -62,6 +62,7 @@
+  * ST16C654:	 8  16  56  60		 8  16  32  56	PORT_16654
+  * TI16C750:	 1  16  32  56		xx  xx  xx  xx	PORT_16750
+  * TI16C752:	 8  16  56  60		 8  16  32  56
++ * OX16C950:	16  32 112 120		16  32  64 112	PORT_16C950
+  * Tegra:	 1   4   8  14		16   8   4   1	PORT_TEGRA
+  */
+ #define UART_FCR_R_TRIG_00	0x00
 -- 
 2.30.2
 
