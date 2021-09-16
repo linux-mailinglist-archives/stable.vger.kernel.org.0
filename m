@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58C1F40E3D5
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAB2740E706
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239405AbhIPQwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
+        id S1347294AbhIPR1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:27:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345653AbhIPQua (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:50:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F4B9615E0;
-        Thu, 16 Sep 2021 16:28:15 +0000 (UTC)
+        id S1348325AbhIPRZz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:25:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3292D61C11;
+        Thu, 16 Sep 2021 16:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809696;
-        bh=ZSD/t6GBczhauPcf8YTa/40vg1sr0JwCZIBauU0hziI=;
+        s=korg; t=1631810668;
+        bh=SRdQCPEwZvVgjGZFCEs93cZmMKILet+Vok/yBQz6qTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UbkO4Pk/iBxrza/WRQ2T7m/1tFyq36AY8PCSnz1/Y+ijSxY/v8Fg6CF0NoVIAYJE0
-         fgOCvAOSSt4OzdvWwlMu1WWUKLTU0AqqQRpgF/ChSv3TzVTs+jBiSBz/oMRuSEJd9F
-         58NBBNPncZPkTTrnPVqf6zAEZPet/hqTlRJcbwi4=
+        b=ZoSmpCxMbkmigGsZxPPz7ocI3GGSTtKcfWGdbQSw/5a7d5wEC2bSScgtLPqABfVAN
+         AURpsqYiqekoA61YhpWnMMU1NfPVWGRmfCRQwNtTFnN6qXBY71ul2JZnLxbl06Heel
+         xANKmkkXVu6qjx18w6z9HCy6pmRbULSIZ/MBZks0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yajun Deng <yajun.deng@linux.dev>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 217/380] netfilter: nft_compat: use nfnetlink_unicast()
+Subject: [PATCH 5.14 225/432] ipv4: ip_output.c: Fix out-of-bounds warning in ip_copy_addrs()
 Date:   Thu, 16 Sep 2021 17:59:34 +0200
-Message-Id: <20210916155811.470177270@linuxfoundation.org>
+Message-Id: <20210916155818.469713068@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit 241d1af4c11a75d4c17ecc0193a6ab60553efbfc ]
+[ Upstream commit 6321c7acb82872ef6576c520b0e178eaad3a25c0 ]
 
-Use nfnetlink_unicast() which already translates EAGAIN to ENOBUFS,
-since EAGAIN is reserved to report missing module dependencies to the
-nfnetlink core.
+Fix the following out-of-bounds warning:
 
-e0241ae6ac59 ("netfilter: use nfnetlink_unicast() forgot to update
-this spot.
+    In function 'ip_copy_addrs',
+        inlined from '__ip_queue_xmit' at net/ipv4/ip_output.c:517:2:
+net/ipv4/ip_output.c:449:2: warning: 'memcpy' offset [40, 43] from the object at 'fl' is out of the bounds of referenced subobject 'saddr' with type 'unsigned int' at offset 36 [-Warray-bounds]
+      449 |  memcpy(&iph->saddr, &fl4->saddr,
+          |  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      450 |         sizeof(fl4->saddr) + sizeof(fl4->daddr));
+          |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Reported-by: Yajun Deng <yajun.deng@linux.dev>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+The problem is that the original code is trying to copy data into a
+couple of struct members adjacent to each other in a single call to
+memcpy(). This causes a legitimate compiler warning because memcpy()
+overruns the length of &iph->saddr and &fl4->saddr. As these are just
+a couple of struct members, fix this by using direct assignments,
+instead of memcpy().
+
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
+
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/d5ae2e65-1f18-2577-246f-bada7eee6ccd@intel.com/
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_compat.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/ipv4/ip_output.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_compat.c b/net/netfilter/nft_compat.c
-index 5415ab14400d..31e6da30da5f 100644
---- a/net/netfilter/nft_compat.c
-+++ b/net/netfilter/nft_compat.c
-@@ -680,14 +680,12 @@ static int nfnl_compat_get_rcu(struct sk_buff *skb,
- 		goto out_put;
- 	}
- 
--	ret = netlink_unicast(info->sk, skb2, NETLINK_CB(skb).portid,
--			      MSG_DONTWAIT);
--	if (ret > 0)
--		ret = 0;
-+	ret = nfnetlink_unicast(skb2, info->net, NETLINK_CB(skb).portid);
- out_put:
- 	rcu_read_lock();
- 	module_put(THIS_MODULE);
--	return ret == -EAGAIN ? -ENOBUFS : ret;
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index 8d8a8da3ae7e..a202dcec0dc2 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -446,8 +446,9 @@ static void ip_copy_addrs(struct iphdr *iph, const struct flowi4 *fl4)
+ {
+ 	BUILD_BUG_ON(offsetof(typeof(*fl4), daddr) !=
+ 		     offsetof(typeof(*fl4), saddr) + sizeof(fl4->saddr));
+-	memcpy(&iph->saddr, &fl4->saddr,
+-	       sizeof(fl4->saddr) + sizeof(fl4->daddr));
 +
-+	return ret;
++	iph->saddr = fl4->saddr;
++	iph->daddr = fl4->daddr;
  }
  
- static const struct nla_policy nfnl_compat_policy_get[NFTA_COMPAT_MAX+1] = {
+ /* Note: skb->sk can be different from sk, in case of tunnels */
 -- 
 2.30.2
 
