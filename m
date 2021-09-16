@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 618D440DF6C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF44C40E5AE
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234853AbhIPQJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:09:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47920 "EHLO mail.kernel.org"
+        id S241097AbhIPROC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:14:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235287AbhIPQIh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:08:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FC5B60698;
-        Thu, 16 Sep 2021 16:07:16 +0000 (UTC)
+        id S1350670AbhIPRLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:11:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1B5A61A04;
+        Thu, 16 Sep 2021 16:38:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808437;
-        bh=McsK7Kc7A5CYCUqTXR2l4d64T/NaYUnB+1lCXtJkRPY=;
+        s=korg; t=1631810295;
+        bh=4S6YWeWKhBwOazdOKmO1UNOsM3JmweC9T2VmwCcFtqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKvW2za0veS+hL6SGMIXly3vJwmK74MGmI6ZEJQvrw9YvM1yYPRn+5f4rj6a4wE7q
-         3zpFR56j55Em/qbpszLEOC7cXy6GqF/V1/vGU+23h2aB/sjzT6puZcQ/ULlhUyKJNp
-         t1AF4Wx6t1lkMxnoj6pBJO3Vh4O7rE8iHScV9TtM=
+        b=Mhk7jfvsxobgBmtD0do1vij5NK0Tg6JJX+kbtCudeCCCr93mFcCyLtZy9NWGLq6Ud
+         469gfSa1TG1YYBNNNwYpT0SrnYl0JYpTSAvZKOfR2oVJWpopY1TEYWz5TZ10PK7m8f
+         M7HdOxELnHE2AEmJGnh/mS7v6Pvlq8hN5zvoHzko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Broadus <jbroadus@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 090/306] HID: i2c-hid: Fix Elan touchpad regression
-Date:   Thu, 16 Sep 2021 17:57:15 +0200
-Message-Id: <20210916155757.137020440@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 087/432] f2fs: do not submit NEW_ADDR to read node block
+Date:   Thu, 16 Sep 2021 17:57:16 +0200
+Message-Id: <20210916155813.735871818@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Broadus <jbroadus@gmail.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 786537063bbfb3a7ebc6fc21b2baf37fb91df401 ]
+[ Upstream commit b7ec2061737f12c33e45beeb967d17f31abc1ada ]
 
-A quirk was recently added for Elan devices that has same device match
-as an entry earlier in the list. The i2c_hid_lookup_quirk function will
-always return the last match in the list, so the new entry shadows the
-old entry. The quirk in the previous entry, I2C_HID_QUIRK_BOGUS_IRQ,
-silenced a flood of messages which have reappeared in the 5.13 kernel.
+After the below patch, give cp is errored, we drop dirty node pages. This
+can give NEW_ADDR to read node pages. Don't do WARN_ON() which gives
+generic/475 failure.
 
-This change moves the two quirk flags into the same entry.
-
-Fixes: ca66a6770bd9 (HID: i2c-hid: Skip ELAN power-on command after reset)
-Signed-off-by: Jim Broadus <jbroadus@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 28607bf3aa6f ("f2fs: drop dirty node pages when cp is in error status")
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/f2fs/node.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 1f08c848c33d..998aad8a9e60 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -176,8 +176,6 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_3118,
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
--	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
--		 I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ USB_VENDOR_ID_ALPS_JP, HID_ANY_ID,
- 		 I2C_HID_QUIRK_RESET_ON_RESUME },
- 	{ I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNAPTICS_SYNA2393,
-@@ -188,7 +186,8 @@ static const struct i2c_hid_quirks {
- 	 * Sending the wakeup after reset actually break ELAN touchscreen controller
- 	 */
- 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
--		 I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET },
-+		 I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET |
-+		 I2C_HID_QUIRK_BOGUS_IRQ },
- 	{ 0, 0 }
- };
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index 0be9e2d7120e..1b0fe6e64b7d 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -1321,7 +1321,8 @@ static int read_node_page(struct page *page, int op_flags)
+ 	if (err)
+ 		return err;
  
+-	if (unlikely(ni.blk_addr == NULL_ADDR) ||
++	/* NEW_ADDR can be seen, after cp_error drops some dirty node pages */
++	if (unlikely(ni.blk_addr == NULL_ADDR || ni.blk_addr == NEW_ADDR) ||
+ 			is_sbi_flag_set(sbi, SBI_IS_SHUTDOWN)) {
+ 		ClearPageUptodate(page);
+ 		return -ENOENT;
 -- 
 2.30.2
 
