@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59F4740DF43
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5CCF40E5D0
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234478AbhIPQIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:08:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47416 "EHLO mail.kernel.org"
+        id S240800AbhIPRPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:15:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234904AbhIPQHf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:07:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE6FD6126A;
-        Thu, 16 Sep 2021 16:06:08 +0000 (UTC)
+        id S1350711AbhIPRMD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:12:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07D4961B54;
+        Thu, 16 Sep 2021 16:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808369;
-        bh=kpl33kKMeZMUubWNj7vLmzSzZZZhpqs9qa4frqpNY/g=;
+        s=korg; t=1631810306;
+        bh=5OR6E+o4q2AYNSRmd2mvgScYabgkc0xkTQt0UlrvFY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2nrMjXgxpgJchlYC/o7ahMxw1s5flVDtJocNbTk6S7ljAzs4gbjlMXBDxeBg8SZ6
-         lTXJi43ibEmK2IyBm+B5dFoSnwBQe1gc5eEdN+8tVGprHZFY15BCb0+kbtGvXJ7/IN
-         fjAf4jN6GvAKzv9agVxpd2YtI/XlfibLUhjmxmwM=
+        b=Fl0md0S02PEtASxH8z/OaEXKsiOwB2lXBaVxtCqUlTk+CLVJwiIc8S9f12ZIubeVT
+         5nasWZM0/kBmqG7HazV1VTIAXiKK+mzSPgSKQ2d4h1oFCBUUkV5Ftl0SbLHy2Vthdm
+         OHP1u1QZz+oYHXcf/9Nx98Ou/CETuomg8bzXKMeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaehyoung Choi <jkkkkk.choi@samsung.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/306] pinctrl: samsung: Fix pinctrl bank pin count
+        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
+        David Heidelberg <david@ixit.cz>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.14 060/432] ARM: 9105/1: atags_to_fdt: dont warn about stack size
 Date:   Thu, 16 Sep 2021 17:56:49 +0200
-Message-Id: <20210916155756.127566954@linuxfoundation.org>
+Message-Id: <20210916155812.821838176@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaehyoung Choi <jkkkkk.choi@samsung.com>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit 70115558ab02fe8d28a6634350b3491a542aaa02 ]
+commit b30d0289de72c62516df03fdad8d53f552c69839 upstream.
 
-Commit 1abd18d1a51a ("pinctrl: samsung: Register pinctrl before GPIO")
-changes the order of GPIO and pinctrl registration: now pinctrl is
-registered before GPIO. That means gpio_chip->ngpio is not set when
-samsung_pinctrl_register() called, and one cannot rely on that value
-anymore. Use `pin_bank->nr_pins' instead of `pin_bank->gpio_chip.ngpio'
-to fix mentioned inconsistency.
+The merge_fdt_bootargs() function by definition consumes more than 1024
+bytes of stack because it has a 1024 byte command line on the stack,
+meaning that we always get a warning when building this file:
 
-Fixes: 1abd18d1a51a ("pinctrl: samsung: Register pinctrl before GPIO")
-Signed-off-by: Jaehyoung Choi <jkkkkk.choi@samsung.com>
-Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
-Link: https://lore.kernel.org/r/20210730192905.7173-1-semen.protsenko@linaro.org
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+arch/arm/boot/compressed/atags_to_fdt.c: In function 'merge_fdt_bootargs':
+arch/arm/boot/compressed/atags_to_fdt.c:98:1: warning: the frame size of 1032 bytes is larger than 1024 bytes [-Wframe-larger-than=]
+
+However, as this is the decompressor and we know that it has a very shallow
+call chain, and we do not actually risk overflowing the kernel stack
+at runtime here.
+
+This just shuts up the warning by disabling the warning flag for this
+file.
+
+Tested on Nexus 7 2012 builds.
+
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/samsung/pinctrl-samsung.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/compressed/Makefile |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/samsung/pinctrl-samsung.c b/drivers/pinctrl/samsung/pinctrl-samsung.c
-index 608eb5a07248..7f809a57bee5 100644
---- a/drivers/pinctrl/samsung/pinctrl-samsung.c
-+++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
-@@ -918,7 +918,7 @@ static int samsung_pinctrl_register(struct platform_device *pdev,
- 		pin_bank->grange.pin_base = drvdata->pin_base
- 						+ pin_bank->pin_base;
- 		pin_bank->grange.base = pin_bank->grange.pin_base;
--		pin_bank->grange.npins = pin_bank->gpio_chip.ngpio;
-+		pin_bank->grange.npins = pin_bank->nr_pins;
- 		pin_bank->grange.gc = &pin_bank->gpio_chip;
- 		pinctrl_add_gpio_range(drvdata->pctl_dev, &pin_bank->grange);
- 	}
--- 
-2.30.2
-
+--- a/arch/arm/boot/compressed/Makefile
++++ b/arch/arm/boot/compressed/Makefile
+@@ -85,6 +85,8 @@ compress-$(CONFIG_KERNEL_LZ4)  = lz4
+ libfdt_objs := fdt_rw.o fdt_ro.o fdt_wip.o fdt.o
+ 
+ ifeq ($(CONFIG_ARM_ATAG_DTB_COMPAT),y)
++CFLAGS_REMOVE_atags_to_fdt.o += -Wframe-larger-than=${CONFIG_FRAME_WARN}
++CFLAGS_atags_to_fdt.o += -Wframe-larger-than=1280
+ OBJS	+= $(libfdt_objs) atags_to_fdt.o
+ endif
+ ifeq ($(CONFIG_USE_OF),y)
 
 
