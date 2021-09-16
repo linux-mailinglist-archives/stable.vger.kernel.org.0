@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFDBF40E75C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9EF240E0B7
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:27:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344377AbhIPRby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:31:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50250 "EHLO mail.kernel.org"
+        id S240526AbhIPQXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:23:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353027AbhIPR3v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:29:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAF2461CF3;
-        Thu, 16 Sep 2021 16:46:12 +0000 (UTC)
+        id S237271AbhIPQVh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:21:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 348D861439;
+        Thu, 16 Sep 2021 16:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810773;
-        bh=hBMpEcqTLqk1Iuuh/VqFCCsSi3SUvQ2kusH5coJhz90=;
+        s=korg; t=1631808904;
+        bh=BXcgJ5FGrSa1vP6CBtltDNlV8URBJBSRWoUnZO/prXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2YFVUh311YwGJSXQmpKg/RsW7kZTWC/Yi59TOasilmdE7XAicfnXkvJXAbNReLWr4
-         OJSdbGR9CZWQf/tM5YJUwNd+8wKuyYjF+qknR/HA4bIUiC1zABERnRJcE0zYCzA6kh
-         KgDa5bO+qSUTapHQZv7n8ms8plGS41sHPDSkYGQ4=
+        b=e5TFPHIcR3KlsgmMyxissHIzg1Rp9bHW2iAPrPHG7TcvSxUTp8PM0MyGyDpYpVg9K
+         k4BJQtrDunrETx7Nnb/mtOcXyuLmIXm4CVqbwbbN1jWchbnm5HPuTQ3+rZn7Dkz/vT
+         x95ONeqPHwoo4xWISgwqa8AauXPTSUdam4855MV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 261/432] gfs2: Fix glock recursion in freeze_go_xmote_bh
+Subject: [PATCH 5.10 265/306] iwlwifi: fw: correctly limit to monitor dump
 Date:   Thu, 16 Sep 2021 18:00:10 +0200
-Message-Id: <20210916155819.669871805@linuxfoundation.org>
+Message-Id: <20210916155803.104107853@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 9d9b16054b7d357afde69a027514c695092b0d22 ]
+[ Upstream commit e6344c060209ef4e970cac18adeac1676a2a73cd ]
 
-We must not call gfs2_consist (which does a file system withdraw) from
-the freeze glock's freeze_go_xmote_bh function because the withdraw
-will try to use the freeze glock, thus causing a glock recursion error.
+In commit 79f033f6f229 ("iwlwifi: dbg: don't limit dump decisions
+to all or monitor") we changed the code to pass around a bitmap,
+but in the monitor_only case, one place accidentally used the bit
+number, not the bit mask, resulting in CSR and FW_INFO getting
+dumped instead of monitor data. Fix that.
 
-This patch changes freeze_go_xmote_bh to call function
-gfs2_assert_withdraw_delayed instead of gfs2_consist to avoid recursion.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210805141826.774fd8729a33.Ic985a787071d1c0b127ef0ba8367da896ee11f57@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glops.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
-index 54d3fbeb3002..384565d63eea 100644
---- a/fs/gfs2/glops.c
-+++ b/fs/gfs2/glops.c
-@@ -610,16 +610,13 @@ static int freeze_go_xmote_bh(struct gfs2_glock *gl)
- 		j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+index ab4a8b942c81..419eaa5cf0b5 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+@@ -2303,7 +2303,7 @@ static void iwl_fw_error_dump(struct iwl_fw_runtime *fwrt,
+ 		return;
  
- 		error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
--		if (error)
--			gfs2_consist(sdp);
--		if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT))
--			gfs2_consist(sdp);
--
--		/*  Initialize some head of the log stuff  */
--		if (!gfs2_withdrawn(sdp)) {
--			sdp->sd_log_sequence = head.lh_sequence + 1;
--			gfs2_log_pointers_init(sdp, head.lh_blkno);
--		}
-+		if (gfs2_assert_withdraw_delayed(sdp, !error))
-+			return error;
-+		if (gfs2_assert_withdraw_delayed(sdp, head.lh_flags &
-+						 GFS2_LOG_HEAD_UNMOUNT))
-+			return -EIO;
-+		sdp->sd_log_sequence = head.lh_sequence + 1;
-+		gfs2_log_pointers_init(sdp, head.lh_blkno);
- 	}
- 	return 0;
- }
+ 	if (dump_data->monitor_only)
+-		dump_mask &= IWL_FW_ERROR_DUMP_FW_MONITOR;
++		dump_mask &= BIT(IWL_FW_ERROR_DUMP_FW_MONITOR);
+ 
+ 	fw_error_dump.trans_ptr = iwl_trans_dump_data(fwrt->trans, dump_mask);
+ 	file_len = le32_to_cpu(dump_file->file_len);
 -- 
 2.30.2
 
