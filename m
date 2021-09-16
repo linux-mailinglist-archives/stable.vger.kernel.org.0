@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1EBB40E7DF
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEFE140E7D6
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344448AbhIPRnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:43:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
+        id S1349801AbhIPRnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:43:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353974AbhIPRh7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353977AbhIPRh7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:37:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C7A96323A;
-        Thu, 16 Sep 2021 16:50:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47A2863277;
+        Thu, 16 Sep 2021 16:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811008;
-        bh=gr6JQB9O6DnegPzyHBDEsWN+933MkgkXlzoSs2VkTlk=;
+        s=korg; t=1631811010;
+        bh=YEC4jJ1LBWD3tQ8++dMqLrxnkDQeusqtbuXxD3bYWI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ahp4G760aUMSxVuK0HttuBsJRQRzt45EDKSS3kjNdp2+PM4jAGefGqmJwcydOqnr5
-         /nSGFGQCE6bJX95NiZkZ04r838rkV4ph0ZroFSIAhZQF1kL/YlOtAe8taYaZcacl/e
-         UxvGOU9Tn3j9k2Ig6pHEF6iNiKP+oc9QLyBddYs0=
+        b=tMTGhvbE/QNiS3HAGYk7gmuTCYO0UECRzP2sDT3WC/U4kbboE4C5ohS9JXiCNbgc9
+         vAQ/vL4lRHm0nsTuMu0Aw7ErLktCCX9I5SswaOuZfVCdRhlk+VlTvUMiFtFDieHOEG
+         jWzA+w/NnP4GrFtf1R4A5nZBXASvnqKju0kCs5TE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
+        stable@vger.kernel.org, Juhee Kang <claudiajkang@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 350/432] octeontx2-pf: cleanup transmit link deriving logic
-Date:   Thu, 16 Sep 2021 18:01:39 +0200
-Message-Id: <20210916155822.685063698@linuxfoundation.org>
+Subject: [PATCH 5.14 351/432] samples: pktgen: fix to print when terminated normally
+Date:   Thu, 16 Sep 2021 18:01:40 +0200
+Message-Id: <20210916155822.716559782@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -41,142 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Juhee Kang <claudiajkang@gmail.com>
 
-[ Upstream commit 039190bb353a16657b44c5833bcad57e029c6934 ]
+[ Upstream commit c0e9422c4e6ca9abd4bd6e1598400c7231eb600b ]
 
-Unlike OcteonTx2, the channel numbers used by CGX/RPM
-and LBK on CN10K silicons aren't fixed in HW. They are
-SW programmable, hence we cannot derive transmit link
-from static channel numbers anymore. Get the same from
-admin function via mailbox.
+Currently, most pktgen samples print the execution result when the
+program is terminated normally. However, sample03 doesn't work
+appropriately.
 
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
+This is results of samples:
+
+    # DEV=eth0 DEST_IP=10.1.0.1 DST_MAC=00:11:22:33:44:55 ./pktgen_sample04_many_flows.sh -n 1
+    Running... ctrl^C to stop
+    Device: eth0@0
+    Result: OK: 19(c5+d13) usec, 1 (60byte,0frags)
+    51762pps 24Mb/sec (24845760bps) errors: 0
+
+    # DEV=eth0 DEST_IP=10.1.0.1 DST_MAC=00:11:22:33:44:55 ./pktgen_sample03_burst_single_flow.sh -n 1
+    Running... ctrl^C to stop
+
+The reason why it doesn't print the execution result when the program is
+terminated usually is that sample03 doesn't call the function which
+prints the result, unlike other samples.
+
+So, this commit solves this issue by calling the function before
+termination. Also, this commit changes control_c function to
+print_result to maintain consistency with other samples.
+
+Signed-off-by: Juhee Kang <claudiajkang@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/marvell/octeontx2/af/mbox.h  |  1 +
- .../ethernet/marvell/octeontx2/af/rvu_nix.c   |  9 ++++++--
- .../marvell/octeontx2/nic/otx2_common.c       | 23 ++-----------------
- .../marvell/octeontx2/nic/otx2_common.h       |  1 +
- 4 files changed, 11 insertions(+), 23 deletions(-)
+ samples/pktgen/pktgen_sample03_burst_single_flow.sh | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/mbox.h b/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
-index f5ec39de026a..05f4334700e9 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/mbox.h
-@@ -717,6 +717,7 @@ struct nix_lf_alloc_rsp {
- 	u8	cgx_links;  /* No. of CGX links present in HW */
- 	u8	lbk_links;  /* No. of LBK links present in HW */
- 	u8	sdp_links;  /* No. of SDP links present in HW */
-+	u8	tx_link;    /* Transmit channel link number */
- };
+diff --git a/samples/pktgen/pktgen_sample03_burst_single_flow.sh b/samples/pktgen/pktgen_sample03_burst_single_flow.sh
+index ab87de440277..8bf2fdffba16 100755
+--- a/samples/pktgen/pktgen_sample03_burst_single_flow.sh
++++ b/samples/pktgen/pktgen_sample03_burst_single_flow.sh
+@@ -85,7 +85,7 @@ for ((thread = $F_THREAD; thread <= $L_THREAD; thread++)); do
+ done
  
- struct nix_lf_free_req {
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-index c32195073e8a..87af164951ea 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_nix.c
-@@ -249,9 +249,11 @@ static bool is_valid_txschq(struct rvu *rvu, int blkaddr,
- 	return true;
+ # Run if user hits control-c
+-function control_c() {
++function print_result() {
+     # Print results
+     for ((thread = $F_THREAD; thread <= $L_THREAD; thread++)); do
+ 	dev=${DEV}@${thread}
+@@ -94,11 +94,13 @@ function control_c() {
+     done
  }
+ # trap keyboard interrupt (Ctrl-C)
+-trap control_c SIGINT
++trap true SIGINT
  
--static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
-+static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf,
-+			      struct nix_lf_alloc_rsp *rsp)
- {
- 	struct rvu_pfvf *pfvf = rvu_get_pfvf(rvu, pcifunc);
-+	struct rvu_hwinfo *hw = rvu->hw;
- 	struct mac_ops *mac_ops;
- 	int pkind, pf, vf, lbkid;
- 	u8 cgx_id, lmac_id;
-@@ -276,6 +278,8 @@ static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
- 		pfvf->tx_chan_base = pfvf->rx_chan_base;
- 		pfvf->rx_chan_cnt = 1;
- 		pfvf->tx_chan_cnt = 1;
-+		rsp->tx_link = cgx_id * hw->lmac_per_cgx + lmac_id;
+ if [ -z "$APPEND" ]; then
+     echo "Running... ctrl^C to stop" >&2
+     pg_ctrl "start"
 +
- 		cgx_set_pkind(rvu_cgx_pdata(cgx_id, rvu), lmac_id, pkind);
- 		rvu_npc_set_pkind(rvu, pkind, pfvf);
- 
-@@ -309,6 +313,7 @@ static int nix_interface_init(struct rvu *rvu, u16 pcifunc, int type, int nixlf)
- 					rvu_nix_chan_lbk(rvu, lbkid, vf + 1);
- 		pfvf->rx_chan_cnt = 1;
- 		pfvf->tx_chan_cnt = 1;
-+		rsp->tx_link = hw->cgx_links + lbkid;
- 		rvu_npc_set_pkind(rvu, NPC_RX_LBK_PKIND, pfvf);
- 		rvu_npc_install_promisc_entry(rvu, pcifunc, nixlf,
- 					      pfvf->rx_chan_base,
-@@ -1258,7 +1263,7 @@ int rvu_mbox_handler_nix_lf_alloc(struct rvu *rvu,
- 	rvu_write64(rvu, blkaddr, NIX_AF_LFX_TX_PARSE_CFG(nixlf), cfg);
- 
- 	intf = is_afvf(pcifunc) ? NIX_INTF_TYPE_LBK : NIX_INTF_TYPE_CGX;
--	err = nix_interface_init(rvu, pcifunc, intf, nixlf);
-+	err = nix_interface_init(rvu, pcifunc, intf, nixlf, rsp);
- 	if (err)
- 		goto free_mem;
- 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-index 9c8aa1f3dbbb..124465b3987c 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-@@ -586,25 +586,6 @@ void otx2_get_mac_from_af(struct net_device *netdev)
- }
- EXPORT_SYMBOL(otx2_get_mac_from_af);
- 
--static int otx2_get_link(struct otx2_nic *pfvf)
--{
--	int link = 0;
--	u16 map;
--
--	/* cgx lmac link */
--	if (pfvf->hw.tx_chan_base >= CGX_CHAN_BASE) {
--		map = pfvf->hw.tx_chan_base & 0x7FF;
--		link = 4 * ((map >> 8) & 0xF) + ((map >> 4) & 0xF);
--	}
--	/* LBK channel */
--	if (pfvf->hw.tx_chan_base < SDP_CHAN_BASE) {
--		map = pfvf->hw.tx_chan_base & 0x7FF;
--		link = pfvf->hw.cgx_links | ((map >> 8) & 0xF);
--	}
--
--	return link;
--}
--
- int otx2_txschq_config(struct otx2_nic *pfvf, int lvl)
- {
- 	struct otx2_hw *hw = &pfvf->hw;
-@@ -660,8 +641,7 @@ int otx2_txschq_config(struct otx2_nic *pfvf, int lvl)
- 		req->regval[1] = TXSCH_TL1_DFLT_RR_PRIO << 24 | DFLT_RR_QTM;
- 
- 		req->num_regs++;
--		req->reg[2] = NIX_AF_TL3_TL2X_LINKX_CFG(schq,
--							otx2_get_link(pfvf));
-+		req->reg[2] = NIX_AF_TL3_TL2X_LINKX_CFG(schq, hw->tx_link);
- 		/* Enable this queue and backpressure */
- 		req->regval[2] = BIT_ULL(13) | BIT_ULL(12);
- 
-@@ -1606,6 +1586,7 @@ void mbox_handler_nix_lf_alloc(struct otx2_nic *pfvf,
- 	pfvf->hw.lso_tsov6_idx = rsp->lso_tsov6_idx;
- 	pfvf->hw.cgx_links = rsp->cgx_links;
- 	pfvf->hw.lbk_links = rsp->lbk_links;
-+	pfvf->hw.tx_link = rsp->tx_link;
- }
- EXPORT_SYMBOL(mbox_handler_nix_lf_alloc);
- 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
-index 8c602d27108a..11686c5cf45b 100644
---- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
-+++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
-@@ -215,6 +215,7 @@ struct otx2_hw {
- 	u64			cgx_fec_uncorr_blks;
- 	u8			cgx_links;  /* No. of CGX links present in HW */
- 	u8			lbk_links;  /* No. of LBK links present in HW */
-+	u8			tx_link;    /* Transmit channel link number */
- #define HW_TSO			0
- #define CN10K_MBOX		1
- #define CN10K_LMTST		2
++    print_result
+ else
+     echo "Append mode: config done. Do more or use 'pg_ctrl start' to run"
+ fi
 -- 
 2.30.2
 
