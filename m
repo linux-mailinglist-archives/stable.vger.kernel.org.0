@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09E4F40E5B3
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A774E40E23A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350875AbhIPROJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:14:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
+        id S242060AbhIPQfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:35:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350671AbhIPRLz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:11:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A246161B51;
-        Thu, 16 Sep 2021 16:38:20 +0000 (UTC)
+        id S242247AbhIPQdr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:33:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 716E3613A3;
+        Thu, 16 Sep 2021 16:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810301;
-        bh=pTDZCgOLLECpEO7/lKsJDsIJa5J/YPBKF3eTQv/de/g=;
+        s=korg; t=1631809236;
+        bh=v6MgzZEhp0bw1aYurSRe/URdwkX17DL7TLIvsxTY+sM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQK1VtABycTe1e7MUlxSF4Wyv5hBK+QT/eCvrlgZv3+SSwl19Gxo49IIVNcqjJnxM
-         ljQ++mTO1mR0K1FvhvtTzjTcXQi2P43tgdKIObD0AzkNgg1s+qWOGd/VRNYbDzMSff
-         n4v9SRU3AecJi9w/ywn2NikkQSp9QCrlhZBhHrgk=
+        b=oJ5doReUTpBVW7jZfYA5FpFrg+A5sDSGwO7GpHYiyomqss/dUZpILw0VLMteMVmjD
+         cYgwjQ3/MhlvgBIgiMe4JfB88I3KgSGPTY/FONRrvpIc8RRhC1a9TfNrzdElLbtmqJ
+         KEJVhBEN/leF+lzRGXztJQTDDBi5+PHzDrm2lq4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
         Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 089/432] f2fs: fix wrong checkpoint_changed value in f2fs_remount()
+Subject: [PATCH 5.13 081/380] f2fs: fix wrong checkpoint_changed value in f2fs_remount()
 Date:   Thu, 16 Sep 2021 17:57:18 +0200
-Message-Id: <20210916155813.799896659@linuxfoundation.org>
+Message-Id: <20210916155806.789420955@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,10 +57,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 5 deletions(-)
 
 diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 7cdccb79b378..2b093a209ae4 100644
+index 97e3efe5a020..d61f7fcdc66b 100644
 --- a/fs/f2fs/super.c
 +++ b/fs/f2fs/super.c
-@@ -2071,11 +2071,10 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
+@@ -1966,11 +1966,10 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
  	bool need_restart_ckpt = false, need_stop_ckpt = false;
  	bool need_restart_flush = false, need_stop_flush = false;
  	bool no_extent_cache = !test_opt(sbi, EXTENT_CACHE);
@@ -73,7 +73,7 @@ index 7cdccb79b378..2b093a209ae4 100644
  #ifdef CONFIG_QUOTA
  	int i, j;
  #endif
-@@ -2120,8 +2119,6 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
+@@ -2015,8 +2014,6 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
  	err = parse_options(sb, data, true);
  	if (err)
  		goto restore_opts;
@@ -82,7 +82,7 @@ index 7cdccb79b378..2b093a209ae4 100644
  
  	/*
  	 * Previous and new state of filesystem is RO,
-@@ -2243,7 +2240,7 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
+@@ -2133,7 +2130,7 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
  		need_stop_flush = true;
  	}
  
