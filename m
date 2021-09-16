@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59E9A40E465
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0910C40E7EE
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243582AbhIPQ6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:58:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55312 "EHLO mail.kernel.org"
+        id S1348071AbhIPRgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:36:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245696AbhIPQ4M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:56:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F48E6138F;
-        Thu, 16 Sep 2021 16:30:50 +0000 (UTC)
+        id S1353531AbhIPReQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:34:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB47C63224;
+        Thu, 16 Sep 2021 16:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809851;
-        bh=C56UGu/jYrwM6Jfi/51pH9IQNP0Jn9eLUHEN3yNrW1s=;
+        s=korg; t=1631810911;
+        bh=jyGbl1MjEM8mx/lQQZ3zXpTmpq1jXOcRdy6X2m35FIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eByXJ/ixqfeSOPZjZU/OVgmyWhY4pm4myrd/zhe40dD8jRtRHcWvWIg3XaPQcqi3+
-         YDrIg8SLgLdp2cysp8cbwFtLxZuAI3ceabjzE47JwZhnoLTv1vWBcKiIE3SBOf7Bf4
-         tArswX2Ij/BjPUo5BFcy6JaAhvBTGk8mtkgqT6VQ=
+        b=IqIMuAUVKFgChZpA0dARAl+O/Jn5EMuQ4CbhiMtN218yY4DMFT538RQ/izrCJQy+C
+         uk/OOsbPghGKsyyWWlPRp1B2ULW/BDxGIDEHZGsapTljfaclQDW1+Ce8XEwyThlPUr
+         tlWf5K8+kCCD//EEO9YnXvm6VzpDop3AfmTJR3G0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 306/380] of: Dont allow __of_attached_node_sysfs() without CONFIG_SYSFS
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 314/432] rpc: fix gss_svc_init cleanup on failure
 Date:   Thu, 16 Sep 2021 18:01:03 +0200
-Message-Id: <20210916155814.470104685@linuxfoundation.org>
+Message-Id: <20210916155821.461805042@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 6211e9cb2f8faf7faae0b6caf844bfe9527cc607 ]
+[ Upstream commit 5a4753446253a427c0ff1e433b9c4933e5af207c ]
 
-Trying to boot without SYSFS, but with OF_DYNAMIC quickly
-results in a crash:
+The failure case here should be rare, but it's obviously wrong.
 
-[    0.088460] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000070
-[...]
-[    0.103927] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.14.0-rc3 #4179
-[    0.105810] Hardware name: linux,dummy-virt (DT)
-[    0.107147] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
-[    0.108876] pc : kernfs_find_and_get_ns+0x3c/0x7c
-[    0.110244] lr : kernfs_find_and_get_ns+0x3c/0x7c
-[...]
-[    0.134087] Call trace:
-[    0.134800]  kernfs_find_and_get_ns+0x3c/0x7c
-[    0.136054]  safe_name+0x4c/0xd0
-[    0.136994]  __of_attach_node_sysfs+0xf8/0x124
-[    0.138287]  of_core_init+0x90/0xfc
-[    0.139296]  driver_init+0x30/0x4c
-[    0.140283]  kernel_init_freeable+0x160/0x1b8
-[    0.141543]  kernel_init+0x30/0x140
-[    0.142561]  ret_from_fork+0x10/0x18
-
-While not having sysfs isn't a very common option these days,
-it is still expected that such configuration would work.
-
-Paper over it by bailing out from __of_attach_node_sysfs() if
-CONFIG_SYSFS isn't enabled.
-
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210820144722.169226-1-maz@kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/kobj.c | 2 +-
+ net/sunrpc/auth_gss/svcauth_gss.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/of/kobj.c b/drivers/of/kobj.c
-index a32e60b024b8..6675b5e56960 100644
---- a/drivers/of/kobj.c
-+++ b/drivers/of/kobj.c
-@@ -119,7 +119,7 @@ int __of_attach_node_sysfs(struct device_node *np)
- 	struct property *pp;
- 	int rc;
- 
--	if (!of_kset)
-+	if (!IS_ENABLED(CONFIG_SYSFS) || !of_kset)
- 		return 0;
- 
- 	np->kobj.kset = of_kset;
+diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
+index a81be45f40d9..3d685fe328fa 100644
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1980,7 +1980,7 @@ gss_svc_init_net(struct net *net)
+ 		goto out2;
+ 	return 0;
+ out2:
+-	destroy_use_gss_proxy_proc_entry(net);
++	rsi_cache_destroy_net(net);
+ out1:
+ 	rsc_cache_destroy_net(net);
+ 	return rv;
 -- 
 2.30.2
 
