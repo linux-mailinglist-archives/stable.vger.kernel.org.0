@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FF5C40E6C6
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87F840E2FC
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:18:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347716AbhIPRZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:25:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44342 "EHLO mail.kernel.org"
+        id S241194AbhIPQn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:43:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350742AbhIPRWu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:22:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A9B760F8F;
-        Thu, 16 Sep 2021 16:43:22 +0000 (UTC)
+        id S244506AbhIPQlv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:41:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF2E6613E6;
+        Thu, 16 Sep 2021 16:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810603;
-        bh=gB9z9wL68N4zA6j+tsmo/QkfIMZQNo6VHD+mttTBms0=;
+        s=korg; t=1631809457;
+        bh=kGXbNKcYX2nS3OMh1RxXIHO3hMuuK6b0q/CJlBpnRlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Plk1JKeKKCwrrV+lLzwneAxHOPPz/WHHj6L4jhzg3WoHqzlziuCq1Gwl3alZ4gE8+
-         La2KeySp5cP1nBaHMfK9y5T4vdsk51iCskc/mBX3f3WJGYHZmNsPI2YRolmbNTOQAf
-         wAEttnyJWMKhhEh6S5dI6qt5nsZUPGogCEhDzIzw=
+        b=JcXXDyTZ8owI8IbV256L7K8o5ZQ4Q5PP8IJJfBwvMRU3N01vHLzRsQ7ZRTlVtPXOD
+         3i+cd17l21OqpJ27NqTvUmjV3zfPZsU0K1tmTduYfCQl43/WBYAE5bu1ZquuqGeAH/
+         aOO8fU9dr7AuNDf8Y1HvDyutlaFAn7NDtLE5GBko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 169/432] media: dib8000: rewrite the init prbs logic
+Subject: [PATCH 5.13 161/380] drm/ast: Disable fast reset after DRAM initial
 Date:   Thu, 16 Sep 2021 17:58:38 +0200
-Message-Id: <20210916155816.466197666@linuxfoundation.org>
+Message-Id: <20210916155809.568023454@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,137 +41,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
 
-[ Upstream commit 8db11aebdb8f93f46a8513c22c9bd52fa23263aa ]
+[ Upstream commit f34bf652d680cf65783e7c57d61c94ee87f092bd ]
 
-The logic at dib8000_get_init_prbs() has a few issues:
+[Bug][AST2500]
 
-1. the tables used there has an extra unused value at the beginning;
-2. the dprintk() message doesn't write the right value when
-   transmission mode is not 8K;
-3. the array overflow validation is done by the callers.
+V1:
+When AST2500 acts as stand-alone VGA so that DRAM and DVO initialization
+have to be achieved by VGA driver with P2A (PCI to AHB) enabling.
+However, HW suggests disable Fast reset mode after DRAM initializaton,
+because fast reset mode is mainly designed for ARM ICE debugger.
+Once Fast reset is checked as enabling, WDT (Watch Dog Timer) should be
+first enabled to avoid system deadlock before disable fast reset mode.
 
-Rewrite the code to fix such issues.
+V2:
+Use to_pci_dev() to get revision of PCI configuration.
 
-This should also shut up those smatch warnings:
+V3:
+If SCU00 is not unlocked, just enter its password again.
+It is unnecessary to clear AHB lock condition and restore WDT default
+setting again, before Fast-reset clearing.
 
-	drivers/media/dvb-frontends/dib8000.c:2125 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_8k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2129 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_2k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2131 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_4k' 14 <= 14
-	drivers/media/dvb-frontends/dib8000.c:2134 dib8000_get_init_prbs() error: buffer overflow 'lut_prbs_8k' 14 <= 14
+V4:
+repatch after "error : could not build fake ancestor" resolved.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+V5:
+Since CVE_2019_6260 item3, Most of AST2500 have disabled P2A(PCIe to AMBA).
+However, for backward compatibility, some patches about P2A, such as items
+of v5.2 and v5.3, are considered to be upstreamed with comments.
+1. Add define macro to improve source readability.
+ast_drv.h, ast_main.c, ast_post.c
+2. Add comment about "Fast restet" is enabled for ARM-ICE debugger
+ast_post.c
+3. Add comment about Reset USB port to patch USB unknown device issue
+ast_post.c
+
+Signed-off-by: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210709080900.4056-1-kuohsiang_chou@aspeedtech.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/dib8000.c | 58 +++++++++++++++++++--------
- 1 file changed, 41 insertions(+), 17 deletions(-)
+ drivers/gpu/drm/ast/ast_drv.h  |  6 +++
+ drivers/gpu/drm/ast/ast_main.c |  5 ++
+ drivers/gpu/drm/ast/ast_post.c | 91 ++++++++++++++++++++++++----------
+ 3 files changed, 76 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/dib8000.c b/drivers/media/dvb-frontends/dib8000.c
-index 082796534b0a..bb02354a48b8 100644
---- a/drivers/media/dvb-frontends/dib8000.c
-+++ b/drivers/media/dvb-frontends/dib8000.c
-@@ -2107,32 +2107,55 @@ static void dib8000_load_ana_fe_coefs(struct dib8000_state *state, const s16 *an
- 			dib8000_write_word(state, 117 + mode, ana_fe[mode]);
+diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
+index 911f9f414774..39ca338eb80b 100644
+--- a/drivers/gpu/drm/ast/ast_drv.h
++++ b/drivers/gpu/drm/ast/ast_drv.h
+@@ -337,6 +337,11 @@ int ast_mode_config_init(struct ast_private *ast);
+ #define AST_DP501_LINKRATE	0xf014
+ #define AST_DP501_EDID_DATA	0xf020
+ 
++/* Define for Soc scratched reg */
++#define AST_VRAM_INIT_STATUS_MASK	GENMASK(7, 6)
++//#define AST_VRAM_INIT_BY_BMC		BIT(7)
++//#define AST_VRAM_INIT_READY		BIT(6)
++
+ int ast_mm_init(struct ast_private *ast);
+ 
+ /* ast post */
+@@ -346,6 +351,7 @@ bool ast_is_vga_enabled(struct drm_device *dev);
+ void ast_post_gpu(struct drm_device *dev);
+ u32 ast_mindwm(struct ast_private *ast, u32 r);
+ void ast_moutdwm(struct ast_private *ast, u32 r, u32 v);
++void ast_patch_ahb_2500(struct ast_private *ast);
+ /* ast dp501 */
+ void ast_set_dp501_video_output(struct drm_device *dev, u8 mode);
+ bool ast_backup_fw(struct drm_device *dev, u8 *addr, u32 size);
+diff --git a/drivers/gpu/drm/ast/ast_main.c b/drivers/gpu/drm/ast/ast_main.c
+index 2aff2e6cf450..79a361867955 100644
+--- a/drivers/gpu/drm/ast/ast_main.c
++++ b/drivers/gpu/drm/ast/ast_main.c
+@@ -97,6 +97,11 @@ static void ast_detect_config_mode(struct drm_device *dev, u32 *scu_rev)
+ 	jregd0 = ast_get_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xd0, 0xff);
+ 	jregd1 = ast_get_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xd1, 0xff);
+ 	if (!(jregd0 & 0x80) || !(jregd1 & 0x10)) {
++		/* Patch AST2500 */
++		if (((pdev->revision & 0xF0) == 0x40)
++			&& ((jregd0 & AST_VRAM_INIT_STATUS_MASK) == 0))
++			ast_patch_ahb_2500(ast);
++
+ 		/* Double check it's actually working */
+ 		data = ast_read32(ast, 0xf004);
+ 		if ((data != 0xFFFFFFFF) && (data != 0x00)) {
+diff --git a/drivers/gpu/drm/ast/ast_post.c b/drivers/gpu/drm/ast/ast_post.c
+index 0607658dde51..b5d92f652fd8 100644
+--- a/drivers/gpu/drm/ast/ast_post.c
++++ b/drivers/gpu/drm/ast/ast_post.c
+@@ -2028,6 +2028,40 @@ static bool ast_dram_init_2500(struct ast_private *ast)
+ 	return true;
  }
  
--static const u16 lut_prbs_2k[14] = {
--	0, 0x423, 0x009, 0x5C7, 0x7A6, 0x3D8, 0x527, 0x7FF, 0x79B, 0x3D6, 0x3A2, 0x53B, 0x2F4, 0x213
-+static const u16 lut_prbs_2k[13] = {
-+	0x423, 0x009, 0x5C7,
-+	0x7A6, 0x3D8, 0x527,
-+	0x7FF, 0x79B, 0x3D6,
-+	0x3A2, 0x53B, 0x2F4,
-+	0x213
- };
--static const u16 lut_prbs_4k[14] = {
--	0, 0x208, 0x0C3, 0x7B9, 0x423, 0x5C7, 0x3D8, 0x7FF, 0x3D6, 0x53B, 0x213, 0x029, 0x0D0, 0x48E
++void ast_patch_ahb_2500(struct ast_private *ast)
++{
++	u32	data;
 +
-+static const u16 lut_prbs_4k[13] = {
-+	0x208, 0x0C3, 0x7B9,
-+	0x423, 0x5C7, 0x3D8,
-+	0x7FF, 0x3D6, 0x53B,
-+	0x213, 0x029, 0x0D0,
-+	0x48E
- };
--static const u16 lut_prbs_8k[14] = {
--	0, 0x740, 0x069, 0x7DD, 0x208, 0x7B9, 0x5C7, 0x7FF, 0x53B, 0x029, 0x48E, 0x4C4, 0x367, 0x684
++	/* Clear bus lock condition */
++	ast_moutdwm(ast, 0x1e600000, 0xAEED1A03);
++	ast_moutdwm(ast, 0x1e600084, 0x00010000);
++	ast_moutdwm(ast, 0x1e600088, 0x00000000);
++	ast_moutdwm(ast, 0x1e6e2000, 0x1688A8A8);
++	data = ast_mindwm(ast, 0x1e6e2070);
++	if (data & 0x08000000) {					/* check fast reset */
++		/*
++		 * If "Fast restet" is enabled for ARM-ICE debugger,
++		 * then WDT needs to enable, that
++		 * WDT04 is WDT#1 Reload reg.
++		 * WDT08 is WDT#1 counter restart reg to avoid system deadlock
++		 * WDT0C is WDT#1 control reg
++		 *	[6:5]:= 01:Full chip
++		 *	[4]:= 1:1MHz clock source
++		 *	[1]:= 1:WDT will be cleeared and disabled after timeout occurs
++		 *	[0]:= 1:WDT enable
++		 */
++		ast_moutdwm(ast, 0x1E785004, 0x00000010);
++		ast_moutdwm(ast, 0x1E785008, 0x00004755);
++		ast_moutdwm(ast, 0x1E78500c, 0x00000033);
++		udelay(1000);
++	}
++	do {
++		ast_moutdwm(ast, 0x1e6e2000, 0x1688A8A8);
++		data = ast_mindwm(ast, 0x1e6e2000);
++	}	while (data != 1);
++	ast_moutdwm(ast, 0x1e6e207c, 0x08000000);	/* clear fast reset */
++}
 +
-+static const u16 lut_prbs_8k[13] = {
-+	0x740, 0x069, 0x7DD,
-+	0x208, 0x7B9, 0x5C7,
-+	0x7FF, 0x53B, 0x029,
-+	0x48E, 0x4C4, 0x367,
-+	0x684
- };
- 
- static u16 dib8000_get_init_prbs(struct dib8000_state *state, u16 subchannel)
+ void ast_post_chip_2500(struct drm_device *dev)
  {
- 	int sub_channel_prbs_group = 0;
-+	int prbs_group;
+ 	struct ast_private *ast = to_ast_private(dev);
+@@ -2035,39 +2069,44 @@ void ast_post_chip_2500(struct drm_device *dev)
+ 	u8 reg;
  
--	sub_channel_prbs_group = (subchannel / 3) + 1;
--	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n", sub_channel_prbs_group, subchannel, lut_prbs_8k[sub_channel_prbs_group]);
-+	sub_channel_prbs_group = subchannel / 3;
-+	if (sub_channel_prbs_group >= ARRAY_SIZE(lut_prbs_2k))
-+		return 0;
- 
- 	switch (state->fe[0]->dtv_property_cache.transmission_mode) {
- 	case TRANSMISSION_MODE_2K:
--			return lut_prbs_2k[sub_channel_prbs_group];
-+		prbs_group = lut_prbs_2k[sub_channel_prbs_group];
-+		break;
- 	case TRANSMISSION_MODE_4K:
--			return lut_prbs_4k[sub_channel_prbs_group];
-+		prbs_group =  lut_prbs_4k[sub_channel_prbs_group];
-+		break;
- 	default:
- 	case TRANSMISSION_MODE_8K:
--			return lut_prbs_8k[sub_channel_prbs_group];
-+		prbs_group = lut_prbs_8k[sub_channel_prbs_group];
- 	}
+ 	reg = ast_get_index_reg_mask(ast, AST_IO_CRTC_PORT, 0xd0, 0xff);
+-	if ((reg & 0x80) == 0) {/* vga only */
++	if ((reg & AST_VRAM_INIT_STATUS_MASK) == 0) {/* vga only */
+ 		/* Clear bus lock condition */
+-		ast_moutdwm(ast, 0x1e600000, 0xAEED1A03);
+-		ast_moutdwm(ast, 0x1e600084, 0x00010000);
+-		ast_moutdwm(ast, 0x1e600088, 0x00000000);
+-		ast_moutdwm(ast, 0x1e6e2000, 0x1688A8A8);
+-		ast_write32(ast, 0xf004, 0x1e6e0000);
+-		ast_write32(ast, 0xf000, 0x1);
+-		ast_write32(ast, 0x12000, 0x1688a8a8);
+-		while (ast_read32(ast, 0x12000) != 0x1)
+-			;
+-
+-		ast_write32(ast, 0x10000, 0xfc600309);
+-		while (ast_read32(ast, 0x10000) != 0x1)
+-			;
++		ast_patch_ahb_2500(ast);
 +
-+	dprintk("sub_channel_prbs_group = %d , subchannel =%d prbs = 0x%04x\n",
-+		sub_channel_prbs_group, subchannel, prbs_group);
++		/* Disable watchdog */
++		ast_moutdwm(ast, 0x1E78502C, 0x00000000);
++		ast_moutdwm(ast, 0x1E78504C, 0x00000000);
 +
-+	return prbs_group;
- }
++		/*
++		 * Reset USB port to patch USB unknown device issue
++		 * SCU90 is Multi-function Pin Control #5
++		 *	[29]:= 1:Enable USB2.0 Host port#1 (that the mutually shared USB2.0 Hub
++		 *				port).
++		 * SCU94 is Multi-function Pin Control #6
++		 *	[14:13]:= 1x:USB2.0 Host2 controller
++		 * SCU70 is Hardware Strap reg
++		 *	[23]:= 1:CLKIN is 25MHz and USBCK1 = 24/48 MHz (determined by
++		 *				[18]: 0(24)/1(48) MHz)
++		 * SCU7C is Write clear reg to SCU70
++		 *	[23]:= write 1 and then SCU70[23] will be clear as 0b.
++		 */
++		ast_moutdwm(ast, 0x1E6E2090, 0x20000000);
++		ast_moutdwm(ast, 0x1E6E2094, 0x00004000);
++		if (ast_mindwm(ast, 0x1E6E2070) & 0x00800000) {
++			ast_moutdwm(ast, 0x1E6E207C, 0x00800000);
++			mdelay(100);
++			ast_moutdwm(ast, 0x1E6E2070, 0x00800000);
++		}
++		/* Modify eSPI reset pin */
++		temp = ast_mindwm(ast, 0x1E6E2070);
++		if (temp & 0x02000000)
++			ast_moutdwm(ast, 0x1E6E207C, 0x00004000);
  
- static void dib8000_set_13seg_channel(struct dib8000_state *state)
-@@ -2409,10 +2432,8 @@ static void dib8000_set_isdbt_common_channel(struct dib8000_state *state, u8 seq
- 	/* TSB or ISDBT ? apply it now */
- 	if (c->isdbt_sb_mode) {
- 		dib8000_set_sb_channel(state);
--		if (c->isdbt_sb_subchannel < 14)
--			init_prbs = dib8000_get_init_prbs(state, c->isdbt_sb_subchannel);
--		else
--			init_prbs = 0;
-+		init_prbs = dib8000_get_init_prbs(state,
-+						  c->isdbt_sb_subchannel);
- 	} else {
- 		dib8000_set_13seg_channel(state);
- 		init_prbs = 0xfff;
-@@ -3004,6 +3025,7 @@ static int dib8000_tune(struct dvb_frontend *fe)
+ 		/* Slow down CPU/AHB CLK in VGA only mode */
+ 		temp = ast_read32(ast, 0x12008);
+ 		temp |= 0x73;
+ 		ast_write32(ast, 0x12008, temp);
  
- 	unsigned long *timeout = &state->timeout;
- 	unsigned long now = jiffies;
-+	u16 init_prbs;
- #ifdef DIB8000_AGC_FREEZE
- 	u16 agc1, agc2;
- #endif
-@@ -3302,8 +3324,10 @@ static int dib8000_tune(struct dvb_frontend *fe)
- 		break;
+-		/* Reset USB port to patch USB unknown device issue */
+-		ast_moutdwm(ast, 0x1e6e2090, 0x20000000);
+-		temp  = ast_mindwm(ast, 0x1e6e2094);
+-		temp |= 0x00004000;
+-		ast_moutdwm(ast, 0x1e6e2094, temp);
+-		temp  = ast_mindwm(ast, 0x1e6e2070);
+-		if (temp & 0x00800000) {
+-			ast_moutdwm(ast, 0x1e6e207c, 0x00800000);
+-			mdelay(100);
+-			ast_moutdwm(ast, 0x1e6e2070, 0x00800000);
+-		}
+-
+ 		if (!ast_dram_init_2500(ast))
+ 			drm_err(dev, "DRAM init failed !\n");
  
- 	case CT_DEMOD_STEP_11:  /* 41 : init prbs autosearch */
--		if (state->subchannel <= 41) {
--			dib8000_set_subchannel_prbs(state, dib8000_get_init_prbs(state, state->subchannel));
-+		init_prbs = dib8000_get_init_prbs(state, state->subchannel);
-+
-+		if (init_prbs) {
-+			dib8000_set_subchannel_prbs(state, init_prbs);
- 			*tune_state = CT_DEMOD_STEP_9;
- 		} else {
- 			*tune_state = CT_DEMOD_STOP;
 -- 
 2.30.2
 
