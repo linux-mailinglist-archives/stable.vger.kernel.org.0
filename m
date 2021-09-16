@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6621D40E753
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1022840E0B8
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347319AbhIPRbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:31:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47086 "EHLO mail.kernel.org"
+        id S240609AbhIPQXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:23:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352834AbhIPR25 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:28:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D0E161BFA;
-        Thu, 16 Sep 2021 16:46:04 +0000 (UTC)
+        id S232046AbhIPQVh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:21:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1A946140B;
+        Thu, 16 Sep 2021 16:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810765;
-        bh=5q32yhkAPNYcJ0/bDJ0z9LkFtm4G9muoIUDrfS6+4sU=;
+        s=korg; t=1631808902;
+        bh=Bxemffs1luq8b35EOX38WdqC11UYKbiJRwusEb19A48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wiOUxoRKPzoF2sa1p0dpjt7DY1yTInH74YFr7o/sfsyu09hdNbmgUAb7ObDuad69Z
-         RCilctc9cerH5E9uyMyhpH/AOKS6WWR5JO1t4ZXMWGlLCbwVwKZAn1KCUED+yzQ7Qp
-         +q+vL2IC8SKtCbse7/reqUyT29W9KJt0r2LnbMbY=
+        b=ISKcKcAkf793Y4VtyvykM4eJhHlyowRyhIc6Gvq5za/X+FNhKTXS3u8s/ffOinrrB
+         euH2HzmQNFhulFW18gvh+Sm7S1hLt/sFkrcSlfDHnZT6OC22uDJs9IVHC6lxb0q9hi
+         Zo/Z/4X5n3NHnGDHwFH0itnvIMZrz7mbaCXahFuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Krzysztof=20Ha=C5=82asa?= <khalasa@piap.pl>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 259/432] media: TDA1997x: fix tda1997x_query_dv_timings() return value
-Date:   Thu, 16 Sep 2021 18:00:08 +0200
-Message-Id: <20210916155819.604868633@linuxfoundation.org>
+Subject: [PATCH 5.10 264/306] iwlwifi: mvm: fix access to BSS elements
+Date:   Thu, 16 Sep 2021 18:00:09 +0200
+Message-Id: <20210916155803.074173155@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Hałasa <khalasa@piap.pl>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 7dee1030871a48d4f3c5a74227a4b4188463479a ]
+[ Upstream commit 6c608cd6962ebdf84fd3de6d42f88ed64d2f4e1b ]
 
-Correctly propagate the tda1997x_detect_std error value.
+BSS elements are protected using RCU, so we need to use
+RCU properly to access them, fix that.
 
-Signed-off-by: Krzysztof Hałasa <khalasa@piap.pl>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210805130823.fd8b5791ab44.Iba26800a6301078d3782fb249c476dd8ac2bf3c6@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/tda1997x.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/tda1997x.c b/drivers/media/i2c/tda1997x.c
-index 3a191e257fad..ef726faee2a4 100644
---- a/drivers/media/i2c/tda1997x.c
-+++ b/drivers/media/i2c/tda1997x.c
-@@ -1695,14 +1695,15 @@ static int tda1997x_query_dv_timings(struct v4l2_subdev *sd,
- 				     struct v4l2_dv_timings *timings)
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index 9caff70cbd27..6f301ac8cce2 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -3029,16 +3029,20 @@ static void iwl_mvm_check_he_obss_narrow_bw_ru_iter(struct wiphy *wiphy,
+ 						    void *_data)
  {
- 	struct tda1997x_state *state = to_state(sd);
-+	int ret;
+ 	struct iwl_mvm_he_obss_narrow_bw_ru_data *data = _data;
++	const struct cfg80211_bss_ies *ies;
+ 	const struct element *elem;
  
- 	v4l_dbg(1, debug, state->client, "%s\n", __func__);
- 	memset(timings, 0, sizeof(struct v4l2_dv_timings));
- 	mutex_lock(&state->lock);
--	tda1997x_detect_std(state, timings);
-+	ret = tda1997x_detect_std(state, timings);
- 	mutex_unlock(&state->lock);
+-	elem = cfg80211_find_elem(WLAN_EID_EXT_CAPABILITY, bss->ies->data,
+-				  bss->ies->len);
++	rcu_read_lock();
++	ies = rcu_dereference(bss->ies);
++	elem = cfg80211_find_elem(WLAN_EID_EXT_CAPABILITY, ies->data,
++				  ies->len);
  
--	return 0;
-+	return ret;
+ 	if (!elem || elem->datalen < 10 ||
+ 	    !(elem->data[10] &
+ 	      WLAN_EXT_CAPA10_OBSS_NARROW_BW_RU_TOLERANCE_SUPPORT)) {
+ 		data->tolerated = false;
+ 	}
++	rcu_read_unlock();
  }
  
- static const struct v4l2_subdev_video_ops tda1997x_video_ops = {
+ static void iwl_mvm_check_he_obss_narrow_bw_ru(struct ieee80211_hw *hw,
 -- 
 2.30.2
 
