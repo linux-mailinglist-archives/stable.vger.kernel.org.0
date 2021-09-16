@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7994F40E14E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:29:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60E2440E56F
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242065AbhIPQ3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:29:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37486 "EHLO mail.kernel.org"
+        id S1350591AbhIPRLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:11:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242194AbhIPQ1K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:27:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B37A615A2;
-        Thu, 16 Sep 2021 16:17:30 +0000 (UTC)
+        id S1350157AbhIPRJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:09:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22EF0619E1;
+        Thu, 16 Sep 2021 16:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809050;
-        bh=ObqOYrgdwAJO8POxMzYgQTUoEN6o0v/uM2wFd+WSdug=;
+        s=korg; t=1631810227;
+        bh=c4V6EWY3Wn/cNSs1oKxOGg3WnslcDrOHs2+AwiRU454=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qhH8blhJ7Wj0wDZqTcPpMNwSVPpdySCpJHz6Cv6MJeHGJE8Y29IrUmStZPhgM4PRN
-         c53k1bp1xvP6f/XdSZylzhw8o+RlxkgUMFChS/woRBVeFZgHBuKXPBZ7sGb4rRDJHy
-         xv5IfODBGc1wc7bR06I9/SqDQJnBTYXLGRs+jjJg=
+        b=z3fofGf9dEhOmJCQs+0OppsowSgkmZAQQOc2fhjrlriUyG1T6LHlfLSUNnebr/Yvf
+         YStc+qLKoP1q6gvCya7/pJZ8h9TgNAG7iuIEP6Huz9nPuXnqtzAIi5E8zXlyETh4gI
+         E3gQmVn1r0gH73IHP//K1iclnpAxyyqJsOWLhzbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nageswara R Sastry <rnsastry@linux.ibm.com>,
-        Kajol Jain <kjain@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.13 013/380] powerpc/perf/hv-gpci: Fix counter value parsing
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 5.14 021/432] xen: fix setting of max_pfn in shared_info
 Date:   Thu, 16 Sep 2021 17:56:10 +0200
-Message-Id: <20210916155804.422589210@linuxfoundation.org>
+Message-Id: <20210916155811.542000865@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kajol Jain <kjain@linux.ibm.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit f9addd85fbfacf0d155e83dbee8696d6df5ed0c7 upstream.
+commit 4b511d5bfa74b1926daefd1694205c7f1bcf677f upstream.
 
-H_GetPerformanceCounterInfo (0xF080) hcall returns the counter data in
-the result buffer. Result buffer has specific format defined in the PAPR
-specification. One of the fields is counter offset and width of the
-counter data returned.
+Xen PV guests are specifying the highest used PFN via the max_pfn
+field in shared_info. This value is used by the Xen tools when saving
+or migrating the guest.
 
-Counter data are returned in a unsigned char array in big endian byte
-order. To get the final counter data, the values must be left shifted
-byte at a time. But commit 220a0c609ad17 ("powerpc/perf: Add support for
-the hv gpci (get performance counter info) interface") made the shifting
-bitwise and also assumed little endian order. Because of that, hcall
-counters values are reported incorrectly.
+Unfortunately this field is misnamed, as in reality it is specifying
+the number of pages (including any memory holes) of the guest, so it
+is the highest used PFN + 1. Renaming isn't possible, as this is a
+public Xen hypervisor interface which needs to be kept stable.
 
-In particular this can lead to counters go backwards which messes up the
-counter prev vs now calculation and leads to huge counter value
-reporting:
+The kernel will set the value correctly initially at boot time, but
+when adding more pages (e.g. due to memory hotplug or ballooning) a
+real PFN number is stored in max_pfn. This is done when expanding the
+p2m array, and the PFN stored there is even possibly wrong, as it
+should be the last possible PFN of the just added P2M frame, and not
+one which led to the P2M expansion.
 
-  #: perf stat -e hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-           -C 0 -I 1000
-        time             counts unit events
-     1.000078854 18,446,744,073,709,535,232      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     2.000213293                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     3.000320107                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     4.000428392                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     5.000537864                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     6.000649087                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     7.000760312                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     8.000865218             16,448      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-     9.000978985 18,446,744,073,709,535,232      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-    10.001088891             16,384      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-    11.001201435                  0      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
-    12.001307937 18,446,744,073,709,535,232      hv_gpci/system_tlbie_count_and_time_tlbie_instructions_issued/
+Fix that by setting shared_info->max_pfn to the last possible PFN + 1.
 
-Fix the shifting logic to correct match the format, ie. read bytes in
-big endian order.
-
-Fixes: e4f226b1580b ("powerpc/perf/hv-gpci: Increase request buffer size")
-Cc: stable@vger.kernel.org # v4.6+
-Reported-by: Nageswara R Sastry<rnsastry@linux.ibm.com>
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Tested-by: Nageswara R Sastry<rnsastry@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210813082158.429023-1-kjain@linux.ibm.com
+Fixes: 98dd166ea3a3c3 ("x86/xen/p2m: hint at the last populated P2M entry")
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Link: https://lore.kernel.org/r/20210730092622.9973-2-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/perf/hv-gpci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/xen/p2m.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/perf/hv-gpci.c
-+++ b/arch/powerpc/perf/hv-gpci.c
-@@ -175,7 +175,7 @@ static unsigned long single_gpci_request
- 	 */
- 	count = 0;
- 	for (i = offset; i < offset + length; i++)
--		count |= arg->bytes[i] << (i - offset);
-+		count |= (u64)(arg->bytes[i]) << ((length - 1 - (i - offset)) * 8);
+--- a/arch/x86/xen/p2m.c
++++ b/arch/x86/xen/p2m.c
+@@ -618,8 +618,8 @@ int xen_alloc_p2m_entry(unsigned long pf
+ 	}
  
- 	*value = count;
- out:
+ 	/* Expanded the p2m? */
+-	if (pfn > xen_p2m_last_pfn) {
+-		xen_p2m_last_pfn = pfn;
++	if (pfn >= xen_p2m_last_pfn) {
++		xen_p2m_last_pfn = ALIGN(pfn + 1, P2M_PER_PAGE);
+ 		HYPERVISOR_shared_info->arch.max_pfn = xen_p2m_last_pfn;
+ 	}
+ 
 
 
