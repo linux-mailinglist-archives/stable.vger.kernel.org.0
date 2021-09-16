@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 630DE40E882
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F305B40E4D8
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356007AbhIPRor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55272 "EHLO mail.kernel.org"
+        id S243047AbhIPRFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:05:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355406AbhIPRl1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:41:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C347661A88;
-        Thu, 16 Sep 2021 16:53:00 +0000 (UTC)
+        id S1348211AbhIPRCQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:02:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73BC861AFF;
+        Thu, 16 Sep 2021 16:33:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811181;
-        bh=X+FLbjA7aUy6pDS2PfreaYIzs44DNysFpu7NLz6bn04=;
+        s=korg; t=1631810003;
+        bh=62okn562g9fz7aSO/nIT4SP19FQ7BSiz1dymBpvUuTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cr3tpFcVGIjEprXLIxctCzCaxFI/Q4iLWNWq4ltGQ/UePshfwg8L8Kl5oUWmHcTD9
-         9640h8MttN6ddpd5jYJ9bech8IYDuZ4NzWcmQ2t95lVIPTRPk0OruC8T5BjkUI1mOq
-         dbeCsEXIkajeToU7mEcCMxUwpNipAQvOu93msPlc=
+        b=AOKHr2JCNJ+fL4MTHqmRSCTxpiYdDI08LlCBJHqjv1k+nnrpmbdby8kXeRK5/1+i4
+         nppUMX4OCtk9spHOGfp+ZaKbFEgyxjeRjPWRyxHOvgUycxGpxzAOok+5qIZ1rxcAPl
+         rka2ftWwMq9AkAWyK68J4BuCVvQG0JlEyGROiLP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 370/432] iwlwifi: mvm: Fix umac scan request probe parameters
-Date:   Thu, 16 Sep 2021 18:01:59 +0200
-Message-Id: <20210916155823.345828857@linuxfoundation.org>
+        stable@vger.kernel.org, sumiyawang <sumiyawang@tencent.com>,
+        yongduan <yongduan@tencent.com>,
+        Dan Williams <dan.j.williams@intel.com>
+Subject: [PATCH 5.13 363/380] libnvdimm/pmem: Fix crash triggered when I/O in-flight during unbind
+Date:   Thu, 16 Sep 2021 18:02:00 +0200
+Message-Id: <20210916155816.405824765@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilan Peer <ilan.peer@intel.com>
+From: sumiyawang <sumiyawang@tencent.com>
 
-[ Upstream commit 35fc5feca7b24b97e828e6e6a4243b4b9b0131f8 ]
+commit 32b2397c1e56f33b0b1881def965bb89bd12f448 upstream.
 
-Both 'iwl_scan_probe_params_v3' and 'iwl_scan_probe_params_v4'
-wrongly addressed the 'bssid_array' field which should supposed
-to be any array of BSSIDs each of size ETH_ALEN and not the
-opposite. Fix it.
+There is a use after free crash when the pmem driver tears down its
+mapping while I/O is still inbound.
 
-Signed-off-by: Ilan Peer <ilan.peer@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210802215208.04146f24794f.I90726440ddff75013e9fecbe9fa1a05c69e3f17b@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is triggered by driver unbind, "ndctl destroy-namespace", while I/O
+is in flight.
+
+Fix the sequence of blk_cleanup_queue() vs memunmap().
+
+The crash signature is of the form:
+
+ BUG: unable to handle page fault for address: ffffc90080200000
+ CPU: 36 PID: 9606 Comm: systemd-udevd
+ Call Trace:
+  ? pmem_do_bvec+0xf9/0x3a0
+  ? xas_alloc+0x55/0xd0
+  pmem_rw_page+0x4b/0x80
+  bdev_read_page+0x86/0xb0
+  do_mpage_readpage+0x5d4/0x7a0
+  ? lru_cache_add+0xe/0x10
+  mpage_readpages+0xf9/0x1c0
+  ? bd_link_disk_holder+0x1a0/0x1a0
+  blkdev_readpages+0x1d/0x20
+  read_pages+0x67/0x1a0
+
+  ndctl Call Trace in vmcore:
+  PID: 23473  TASK: ffff88c4fbbe8000  CPU: 1   COMMAND: "ndctl"
+  __schedule
+  schedule
+  blk_mq_freeze_queue_wait
+  blk_freeze_queue
+  blk_cleanup_queue
+  pmem_release_queue
+  devm_action_release
+  release_nodes
+  devres_release_all
+  device_release_driver_internal
+  device_driver_detach
+  unbind_store
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: sumiyawang <sumiyawang@tencent.com>
+Reviewed-by: yongduan <yongduan@tencent.com>
+Link: https://lore.kernel.org/r/1629632949-14749-1-git-send-email-sumiyawang@tencent.com
+Fixes: 50f44ee7248a ("mm/devm_memremap_pages: fix final page put race")
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/api/scan.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/nvdimm/pmem.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/api/scan.h b/drivers/net/wireless/intel/iwlwifi/fw/api/scan.h
-index b2605aefc290..8b200379f7c2 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/api/scan.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/api/scan.h
-@@ -1,6 +1,6 @@
- /* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
- /*
-- * Copyright (C) 2012-2014, 2018-2020 Intel Corporation
-+ * Copyright (C) 2012-2014, 2018-2021 Intel Corporation
-  * Copyright (C) 2013-2015 Intel Mobile Communications GmbH
-  * Copyright (C) 2016-2017 Intel Deutschland GmbH
-  */
-@@ -874,7 +874,7 @@ struct iwl_scan_probe_params_v3 {
- 	u8 reserved;
- 	struct iwl_ssid_ie direct_scan[PROBE_OPTION_MAX];
- 	__le32 short_ssid[SCAN_SHORT_SSID_MAX_SIZE];
--	u8 bssid_array[ETH_ALEN][SCAN_BSSID_MAX_SIZE];
-+	u8 bssid_array[SCAN_BSSID_MAX_SIZE][ETH_ALEN];
- } __packed; /* SCAN_PROBE_PARAMS_API_S_VER_3 */
- 
- /**
-@@ -894,7 +894,7 @@ struct iwl_scan_probe_params_v4 {
- 	__le16 reserved;
- 	struct iwl_ssid_ie direct_scan[PROBE_OPTION_MAX];
- 	__le32 short_ssid[SCAN_SHORT_SSID_MAX_SIZE];
--	u8 bssid_array[ETH_ALEN][SCAN_BSSID_MAX_SIZE];
-+	u8 bssid_array[SCAN_BSSID_MAX_SIZE][ETH_ALEN];
- } __packed; /* SCAN_PROBE_PARAMS_API_S_VER_4 */
- 
- #define SCAN_MAX_NUM_CHANS_V3 67
--- 
-2.30.2
-
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -449,11 +449,11 @@ static int pmem_attach_disk(struct devic
+ 		pmem->pfn_flags |= PFN_MAP;
+ 		bb_range = pmem->pgmap.range;
+ 	} else {
++		addr = devm_memremap(dev, pmem->phys_addr,
++				pmem->size, ARCH_MEMREMAP_PMEM);
+ 		if (devm_add_action_or_reset(dev, pmem_release_queue,
+ 					&pmem->pgmap))
+ 			return -ENOMEM;
+-		addr = devm_memremap(dev, pmem->phys_addr,
+-				pmem->size, ARCH_MEMREMAP_PMEM);
+ 		bb_range.start =  res->start;
+ 		bb_range.end = res->end;
+ 	}
 
 
