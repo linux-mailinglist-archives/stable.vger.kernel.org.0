@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5B2440E0EE
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7524940E3CB
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234671AbhIPQZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:25:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58934 "EHLO mail.kernel.org"
+        id S244125AbhIPQwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:52:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240656AbhIPQXo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:23:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAE08613B1;
-        Thu, 16 Sep 2021 16:15:58 +0000 (UTC)
+        id S1345155AbhIPQtl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:49:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A05FE61A85;
+        Thu, 16 Sep 2021 16:27:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808959;
-        bh=fIXSzeBeU3dLvLblzJEo+/rW3xAPrg7LD3uCRPt4XWY=;
+        s=korg; t=1631809678;
+        bh=JSuMEoCZLHXcZw9K4iVZHo9WxIsZ7wd55+BApHU8Nvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UluQH3cDaKd4zrERrrFcdcd5EvWkZppT3sr7mLXqZYIxH41QM6/g0vP0/I/uUU9r+
-         8wVA3XpIkyklHQ43RqLksgi0wVSYd59kIiY4/G9d3KTxgAHRR3v6kknZcleVbqQaYm
-         6D77XyqoKqK7Jx0vRI01tVm8HQJcMbNPDPLt4DTY=
+        b=OZlEppOcIZ7q5xi3rChy60+rnObR60Wb21yozr/GzmH5FzKk7RfQ9Ag41t/50fUEM
+         iaE6JRPIXzYewEE3Y8y0zkgrHSJbrQbrDEGq7IqpHwsawNueO7qLLcS63at81xQLWa
+         5aLIDZbWvWxr5qyzIYIUYNA1PY3HocmO+lmWVddo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 253/306] Revert "USB: xhci: fix U1/U2 handling for hardware with XHCI_INTEL_HOST quirk set"
+Subject: [PATCH 5.13 241/380] arm64: dts: qcom: msm8994: dont use underscore in node name
 Date:   Thu, 16 Sep 2021 17:59:58 +0200
-Message-Id: <20210916155802.690719218@linuxfoundation.org>
+Message-Id: <20210916155812.275837794@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,93 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 2847c46c61486fd8bca9136a6e27177212e78c69 ]
+[ Upstream commit 8c678beca7ed3fa8a2c6d86f6603bc23400f9ad8 ]
 
-This reverts commit 5d5323a6f3625f101dbfa94ba3ef7706cce38760.
+We have underscore (_) in node name leading to warning:
+arch/arm64/boot/dts/qcom/msm8994-msft-lumia-octagon-cityman.dt.yaml: clocks: xo_board: {'type': 'object'} is not allowed for {'compatible': ['fixed-clock'], '#clock-cells': [[0]], 'clock-frequency': [[19200000]], 'phandle': [[26]]}
+arch/arm64/boot/dts/qcom/msm8994-msft-lumia-octagon-cityman.dt.yaml: clocks: sleep_clk: {'type': 'object'} is not allowed for {'compatible': ['fixed-clock'], '#clock-cells': [[0]], 'clock-frequency': [[32768]]}
 
-That commit effectively disabled Intel host initiated U1/U2 lpm for devices
-with periodic endpoints.
+Fix this by changing node name to use dash (-)
 
-Before that commit we disabled host initiated U1/U2 lpm if the exit latency
-was larger than any periodic endpoint service interval, this is according
-to xhci spec xhci 1.1 specification section 4.23.5.2
-
-After that commit we incorrectly checked that service interval was smaller
-than U1/U2 inactivity timeout. This is not relevant, and can't happen for
-Intel hosts as previously set U1/U2 timeout = 105% * service interval.
-
-Patch claimed it solved cases where devices can't be enumerated because of
-bandwidth issues. This might be true but it's a side effect of accidentally
-turning off lpm.
-
-exit latency calculations have been revised since then
-
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210820123503.2605901-5-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210308060826.3074234-9-vkoul@kernel.org
+[bjorn: Added clock-output-names to satisfy parent_names]
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8994.dtsi | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index a8d97e23f601..c51391b45207 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -4666,19 +4666,19 @@ static u16 xhci_calculate_u1_timeout(struct xhci_hcd *xhci,
- {
- 	unsigned long long timeout_ns;
+diff --git a/arch/arm64/boot/dts/qcom/msm8994.dtsi b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+index f9f0b5aa6a26..87a3217e88ef 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8994.dtsi
+@@ -15,16 +15,18 @@ / {
+ 	chosen { };
  
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
--	else
--		timeout_ns = udev->u1_params.sel;
--
- 	/* Prevent U1 if service interval is shorter than U1 exit latency */
- 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
--		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
-+		if (xhci_service_interval_to_ns(desc) <= udev->u1_params.mel) {
- 			dev_dbg(&udev->dev, "Disable U1, ESIT shorter than exit latency\n");
- 			return USB3_LPM_DISABLED;
- 		}
- 	}
+ 	clocks {
+-		xo_board: xo_board {
++		xo_board: xo-board {
+ 			compatible = "fixed-clock";
+ 			#clock-cells = <0>;
+ 			clock-frequency = <19200000>;
++			clock-output-names = "xo_board";
+ 		};
  
-+	if (xhci->quirks & XHCI_INTEL_HOST)
-+		timeout_ns = xhci_calculate_intel_u1_timeout(udev, desc);
-+	else
-+		timeout_ns = udev->u1_params.sel;
-+
- 	/* The U1 timeout is encoded in 1us intervals.
- 	 * Don't return a timeout of zero, because that's USB3_LPM_DISABLED.
- 	 */
-@@ -4730,19 +4730,19 @@ static u16 xhci_calculate_u2_timeout(struct xhci_hcd *xhci,
- {
- 	unsigned long long timeout_ns;
+-		sleep_clk: sleep_clk {
++		sleep_clk: sleep-clk {
+ 			compatible = "fixed-clock";
+ 			#clock-cells = <0>;
+ 			clock-frequency = <32768>;
++			clock-output-names = "sleep_clk";
+ 		};
+ 	};
  
--	if (xhci->quirks & XHCI_INTEL_HOST)
--		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
--	else
--		timeout_ns = udev->u2_params.sel;
--
- 	/* Prevent U2 if service interval is shorter than U2 exit latency */
- 	if (usb_endpoint_xfer_int(desc) || usb_endpoint_xfer_isoc(desc)) {
--		if (xhci_service_interval_to_ns(desc) <= timeout_ns) {
-+		if (xhci_service_interval_to_ns(desc) <= udev->u2_params.mel) {
- 			dev_dbg(&udev->dev, "Disable U2, ESIT shorter than exit latency\n");
- 			return USB3_LPM_DISABLED;
- 		}
- 	}
- 
-+	if (xhci->quirks & XHCI_INTEL_HOST)
-+		timeout_ns = xhci_calculate_intel_u2_timeout(udev, desc);
-+	else
-+		timeout_ns = udev->u2_params.sel;
-+
- 	/* The U2 timeout is encoded in 256us intervals */
- 	timeout_ns = DIV_ROUND_UP_ULL(timeout_ns, 256 * 1000);
- 	/* If the necessary timeout value is bigger than what we can set in the
 -- 
 2.30.2
 
