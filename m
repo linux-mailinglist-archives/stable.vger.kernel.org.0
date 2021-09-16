@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D615340E6F1
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4681C40E03A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347983AbhIPR0m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:26:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47064 "EHLO mail.kernel.org"
+        id S240490AbhIPQU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352490AbhIPRYj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:24:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6C0361A51;
-        Thu, 16 Sep 2021 16:44:00 +0000 (UTC)
+        id S240818AbhIPQRW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:17:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 010EE60F92;
+        Thu, 16 Sep 2021 16:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810641;
-        bh=9dp2HsjXh0v3QGCZzbXCEO3dbuO7d+bUPgzfJXClYpg=;
+        s=korg; t=1631808737;
+        bh=VhGEEEhCadpoX8sJ7wF6ti6HEh/hkg6HaHOAQWnfBjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VWTXqwhXorzfMZWBL7P/zQHmIL8bxCa4hSn1AoUOkE2/X70+4qvcdY4fStRiRj8bF
-         bOT5YCHw7z7LIuj5BTCeia9WF8919Aj6ElhJNDkskvEcSmaVI9RfGyhfHLiOdFvZYi
-         8jnVAJjzNsk45H/QGrSpvxF43svqO6SP2x18VENA=
+        b=mEWCFU6n+KfJGWMaEAWJ7TixF9QjWpUc5+/fIn84JAWamGH2acUgKcJ5Djq7eiiL7
+         t2+7yyYCjIyeR5xhlO5oec+CW4TDIaltafD7E8tFW8R1fNq9Xi2IalDN3XDmoPwLDl
+         HOLB/1J+FkF/lVhREtyHukwmOGaxbSA/8o6Cjcoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Ronak Vijay Raheja <rraheja@codeaurora.org>,
-        Jack Pham <jackp@codeaurora.org>,
+        stable@vger.kernel.org, Anson Jacob <Anson.Jacob@amd.com>,
+        Roy Chan <roy.chan@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 198/432] usb: gadget: composite: Allow bMaxPower=0 if self-powered
-Date:   Thu, 16 Sep 2021 17:59:07 +0200
-Message-Id: <20210916155817.514315041@linuxfoundation.org>
+Subject: [PATCH 5.10 203/306] drm/amd/display: fix missing writeback disablement if plane is removed
+Date:   Thu, 16 Sep 2021 17:59:08 +0200
+Message-Id: <20210916155800.972003906@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +42,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Pham <jackp@codeaurora.org>
+From: Roy Chan <roy.chan@amd.com>
 
-[ Upstream commit bcacbf06c891374e7fdd7b72d11cda03b0269b43 ]
+[ Upstream commit 82367e7f22d085092728f45fd5fbb15e3fb997c0 ]
 
-Currently the composite driver encodes the MaxPower field of
-the configuration descriptor by reading the c->MaxPower of the
-usb_configuration only if it is non-zero, otherwise it falls back
-to using the value hard-coded in CONFIG_USB_GADGET_VBUS_DRAW.
-However, there are cases when a configuration must explicitly set
-bMaxPower to 0, particularly if its bmAttributes also has the
-Self-Powered bit set, which is a valid combination.
+[Why]
+If the plane has been removed, the writeback disablement logic
+doesn't run
 
-This is specifically called out in the USB PD specification section
-9.1, in which a PDUSB device "shall report zero in the bMaxPower
-field after negotiating a mutually agreeable Contract", and also
-verified by the USB Type-C Functional Test TD.4.10.2 Sink Power
-Precedence Test.
+[How]
+fix the logic order
 
-The fix allows the c->MaxPower to be used for encoding the bMaxPower
-even if it is 0, if the self-powered bit is also set.  An example
-usage of this would be for a ConfigFS gadget to be dynamically
-updated by userspace when the Type-C connection is determined to be
-operating in Power Delivery mode.
-
-Co-developed-by: Ronak Vijay Raheja <rraheja@codeaurora.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Ronak Vijay Raheja <rraheja@codeaurora.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Link: https://lore.kernel.org/r/20210720080907.30292-1-jackp@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Signed-off-by: Roy Chan <roy.chan@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/composite.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 14 ++++++++------
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c | 12 +++++++++++-
+ 2 files changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
-index 72a9797dbbae..504c1cbc255d 100644
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -482,7 +482,7 @@ static u8 encode_bMaxPower(enum usb_device_speed speed,
- {
- 	unsigned val;
- 
--	if (c->MaxPower)
-+	if (c->MaxPower || (c->bmAttributes & USB_CONFIG_ATT_SELFPOWER))
- 		val = c->MaxPower;
- 	else
- 		val = CONFIG_USB_GADGET_VBUS_DRAW;
-@@ -936,7 +936,11 @@ static int set_config(struct usb_composite_dev *cdev,
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+index 9d3ccdd35582..79a2b9c785f0 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+@@ -1704,13 +1704,15 @@ void dcn20_program_front_end_for_ctx(
+ 				dcn20_program_pipe(dc, pipe, context);
+ 				pipe = pipe->bottom_pipe;
+ 			}
+-			/* Program secondary blending tree and writeback pipes */
+-			pipe = &context->res_ctx.pipe_ctx[i];
+-			if (!pipe->prev_odm_pipe && pipe->stream->num_wb_info > 0
+-					&& (pipe->update_flags.raw || pipe->plane_state->update_flags.raw || pipe->stream->update_flags.raw)
+-					&& hws->funcs.program_all_writeback_pipes_in_tree)
+-				hws->funcs.program_all_writeback_pipes_in_tree(dc, pipe->stream, context);
+ 		}
++		/* Program secondary blending tree and writeback pipes */
++		pipe = &context->res_ctx.pipe_ctx[i];
++		if (!pipe->top_pipe && !pipe->prev_odm_pipe
++				&& pipe->stream && pipe->stream->num_wb_info > 0
++				&& (pipe->update_flags.raw || (pipe->plane_state && pipe->plane_state->update_flags.raw)
++					|| pipe->stream->update_flags.raw)
++				&& hws->funcs.program_all_writeback_pipes_in_tree)
++			hws->funcs.program_all_writeback_pipes_in_tree(dc, pipe->stream, context);
  	}
+ }
  
- 	/* when we return, be sure our power usage is valid */
--	power = c->MaxPower ? c->MaxPower : CONFIG_USB_GADGET_VBUS_DRAW;
-+	if (c->MaxPower || (c->bmAttributes & USB_CONFIG_ATT_SELFPOWER))
-+		power = c->MaxPower;
-+	else
-+		power = CONFIG_USB_GADGET_VBUS_DRAW;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+index 97909d5aab34..22c77e96f6a5 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+@@ -396,12 +396,22 @@ void dcn30_program_all_writeback_pipes_in_tree(
+ 			for (i_pipe = 0; i_pipe < dc->res_pool->pipe_count; i_pipe++) {
+ 				struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[i_pipe];
+ 
++				if (!pipe_ctx->plane_state)
++					continue;
 +
- 	if (gadget->speed < USB_SPEED_SUPER)
- 		power = min(power, 500U);
- 	else
+ 				if (pipe_ctx->plane_state == wb_info.writeback_source_plane) {
+ 					wb_info.mpcc_inst = pipe_ctx->plane_res.mpcc_inst;
+ 					break;
+ 				}
+ 			}
+-			ASSERT(wb_info.mpcc_inst != -1);
++
++			if (wb_info.mpcc_inst == -1) {
++				/* Disable writeback pipe and disconnect from MPCC
++				 * if source plane has been removed
++				 */
++				dc->hwss.disable_writeback(dc, wb_info.dwb_pipe_inst);
++				continue;
++			}
+ 
+ 			ASSERT(wb_info.dwb_pipe_inst < dc->res_pool->res_cap->num_dwb);
+ 			dwb = dc->res_pool->dwbc[wb_info.dwb_pipe_inst];
 -- 
 2.30.2
 
