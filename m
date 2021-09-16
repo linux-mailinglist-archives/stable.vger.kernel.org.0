@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C40A240E4B8
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E578340E827
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346662AbhIPRFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:05:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34024 "EHLO mail.kernel.org"
+        id S1343857AbhIPRiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:38:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347845AbhIPRAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:00:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBC3A61880;
-        Thu, 16 Sep 2021 16:32:46 +0000 (UTC)
+        id S1344612AbhIPRf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:35:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92D3363232;
+        Thu, 16 Sep 2021 16:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809967;
-        bh=7mmHLthpFheFiPyehS8KBoLv55k9vZhDiW0Qcdq4vcI=;
+        s=korg; t=1631810946;
+        bh=aaidjrucUKnmG5VQ3F5mQ4dXhXB0XltpnQ3cCWjebso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kjNeQaR5eOGloATrkgRcNsN/apTIIkHIVtmYuesmc8IPGdjP1yBQUOzqcffcTUWg7
-         kbzhCr1zdC8F469LdzozjOhdSlaS5cRFwHqgo8DOQV+9njDdcDRbP06vnqUKDWfRJa
-         rVLCnokROIlWke2dnoeym1TTD9PQRuQ0oh1sM2Ek=
+        b=WvKLGDaNlS3A57gt9rtIehhDFjSjVMyCgbgknjPm1omaSshgDctkr/+Tk4imUGOGQ
+         VwClkwoaDwho0NOeXOv4aAPX875oFzbViK9ZatRqRA2g3b86CPYkrLL9HmDmRSEsX0
+         dzt1xGRFo/qEubA497ZOLiVRv8SeAg03AfbZ9spk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 317/380] usbip: give back URBs for unsent unlink requests during cleanup
-Date:   Thu, 16 Sep 2021 18:01:14 +0200
-Message-Id: <20210916155814.833193407@linuxfoundation.org>
+Subject: [PATCH 5.14 326/432] gfs2: Dont call dlm after protocol is unmounted
+Date:   Thu, 16 Sep 2021 18:01:15 +0200
+Message-Id: <20210916155821.892028212@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,69 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 258c81b341c8025d79073ce2d6ce19dcdc7d10d2 ]
+[ Upstream commit d1340f80f0b8066321b499a376780da00560e857 ]
 
-In vhci_device_unlink_cleanup(), the URBs for unsent unlink requests are
-not given back. This sometimes causes usb_kill_urb to wait indefinitely
-for that urb to be given back. syzbot has reported a hung task issue [1]
-for this.
+In the gfs2 withdraw sequence, the dlm protocol is unmounted with a call
+to lm_unmount. After a withdraw, users are allowed to unmount the
+withdrawn file system. But at that point we may still have glocks left
+over that we need to free via unmount's call to gfs2_gl_hash_clear.
+These glocks may have never been completed because of whatever problem
+caused the withdraw (IO errors or whatever).
 
-To fix this, give back the urbs corresponding to unsent unlink requests
-(unlink_tx list) similar to how urbs corresponding to unanswered unlink
-requests (unlink_rx list) are given back.
+Before this patch, function gdlm_put_lock would still try to call into
+dlm to unlock these leftover glocks, which resulted in dlm returning
+-EINVAL because the lock space was abandoned. These glocks were never
+freed because there was no mechanism after that to free them.
 
-[1]: https://syzkaller.appspot.com/bug?id=08f12df95ae7da69814e64eb5515d5a85ed06b76
+This patch adds a check to gdlm_put_lock to see if the locking protocol
+was inactive (DFL_UNMOUNT flag) and if so, free the glock and not
+make the invalid call into dlm.
 
-Reported-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
-Tested-by: syzbot+74d6ef051d3d2eacf428@syzkaller.appspotmail.com
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20210820190122.16379-2-mail@anirudhrb.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I could have combined this "if" with the one that follows, related to
+leftover glock LVBs, but I felt the code was more readable with its own
+if clause.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/vhci_hcd.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ fs/gfs2/lock_dlm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
-index 4ba6bcdaa8e9..190bd3d1c1f0 100644
---- a/drivers/usb/usbip/vhci_hcd.c
-+++ b/drivers/usb/usbip/vhci_hcd.c
-@@ -957,8 +957,32 @@ static void vhci_device_unlink_cleanup(struct vhci_device *vdev)
- 	spin_lock(&vdev->priv_lock);
+diff --git a/fs/gfs2/lock_dlm.c b/fs/gfs2/lock_dlm.c
+index dac040162ecc..50578f881e6d 100644
+--- a/fs/gfs2/lock_dlm.c
++++ b/fs/gfs2/lock_dlm.c
+@@ -299,6 +299,11 @@ static void gdlm_put_lock(struct gfs2_glock *gl)
+ 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
+ 	gfs2_update_request_times(gl);
  
- 	list_for_each_entry_safe(unlink, tmp, &vdev->unlink_tx, list) {
-+		struct urb *urb;
-+
-+		/* give back urb of unsent unlink request */
- 		pr_info("unlink cleanup tx %lu\n", unlink->unlink_seqnum);
-+
-+		urb = pickup_urb_and_free_priv(vdev, unlink->unlink_seqnum);
-+		if (!urb) {
-+			list_del(&unlink->list);
-+			kfree(unlink);
-+			continue;
-+		}
-+
-+		urb->status = -ENODEV;
-+
-+		usb_hcd_unlink_urb_from_ep(hcd, urb);
-+
- 		list_del(&unlink->list);
-+
-+		spin_unlock(&vdev->priv_lock);
-+		spin_unlock_irqrestore(&vhci->lock, flags);
-+
-+		usb_hcd_giveback_urb(hcd, urb, urb->status);
-+
-+		spin_lock_irqsave(&vhci->lock, flags);
-+		spin_lock(&vdev->priv_lock);
-+
- 		kfree(unlink);
- 	}
++	/* don't want to call dlm if we've unmounted the lock protocol */
++	if (test_bit(DFL_UNMOUNT, &ls->ls_recover_flags)) {
++		gfs2_glock_free(gl);
++		return;
++	}
+ 	/* don't want to skip dlm_unlock writing the lvb when lock has one */
  
+ 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
 -- 
 2.30.2
 
