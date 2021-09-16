@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66FDE40E544
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:26:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16A9540E1DF
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242853AbhIPRJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:09:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37016 "EHLO mail.kernel.org"
+        id S242119AbhIPQcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:32:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344446AbhIPRHK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:07:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDB8661406;
-        Thu, 16 Sep 2021 16:36:00 +0000 (UTC)
+        id S242647AbhIPQ3X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:29:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3B58613AB;
+        Thu, 16 Sep 2021 16:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810161;
-        bh=8QkFF/3Y9FGExd+iL28DhiubSmPdF5al9BiXWID5Znk=;
+        s=korg; t=1631809108;
+        bh=aIZTJcZ34DYC/I8CV3ny8Vd4ai6sNEM4V4adrAWU5vQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=brgmptVF02gaL8BldHfKryj4BCacIE6K3DDBIyHDr/VgpjxDRsHQPHWdQcEL62uWQ
-         TOkQTl2TzOlTXNNRvaxB8D10FFiu5rBOakLl6AUp2CnyXPzbEg8NF1//qbgCwfL4Vz
-         J37Ugi1afjt0ft7BWgpeJEFClfLqlVe+a0EH3BZ4=
+        b=xNO2nPHUxekNggkTCI7mHBO5p18R9xX0EmbjfZAKMmkmkyYOMtPPTe/WnyZ9pZfma
+         D9I8YXsR+AQ/qUshqL8d0BWwBV9E5bMXiPhF+lUhUakrplNKdtnlhDoMCgPgtpGFBo
+         LY671DORIgLdv9MVkL9DdM9upNyIoXzI7udm2d+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Mark Brown <broonie@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will@kernel.org>,
         Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.14 040/432] arm64: Do not trap PMSNEVFR_EL1
+Subject: [PATCH 5.13 032/380] arm64: head: avoid over-mapping in map_memory
 Date:   Thu, 16 Sep 2021 17:56:29 +0200
-Message-Id: <20210916155812.177771920@linuxfoundation.org>
+Message-Id: <20210916155805.057693947@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Elisei <alexandru.elisei@arm.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit 50cb99fa89aa2bec2cab2f9917010bbd7769bfa3 upstream.
+commit 90268574a3e8a6b883bd802d702a2738577e1006 upstream.
 
-Commit 31c00d2aeaa2 ("arm64: Disable fine grained traps on boot") zeroed
-the fine grained trap registers to prevent unwanted register traps from
-occuring. However, for the PMSNEVFR_EL1 register, the corresponding
-HDFG{R,W}TR_EL2.nPMSNEVFR_EL1 fields must be 1 to disable trapping. Set
-both fields to 1 if FEAT_SPEv1p2 is detected to disable read and write
-traps.
+The `compute_indices` and `populate_entries` macros operate on inclusive
+bounds, and thus the `map_memory` macro which uses them also operates
+on inclusive bounds.
 
-Fixes: 31c00d2aeaa2 ("arm64: Disable fine grained traps on boot")
-Cc: <stable@vger.kernel.org> # 5.13.x
-Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Reviewed-by: Mark Brown <broonie@kernel.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210824154523.906270-1-alexandru.elisei@arm.com
+We pass `_end` and `_idmap_text_end` to `map_memory`, but these are
+exclusive bounds, and if one of these is sufficiently aligned (as a
+result of kernel configuration, physical placement, and KASLR), then:
+
+* In `compute_indices`, the computed `iend` will be in the page/block *after*
+  the final byte of the intended mapping.
+
+* In `populate_entries`, an unnecessary entry will be created at the end
+  of each level of table. At the leaf level, this entry will map up to
+  SWAPPER_BLOCK_SIZE bytes of physical addresses that we did not intend
+  to map.
+
+As we may map up to SWAPPER_BLOCK_SIZE bytes more than intended, we may
+violate the boot protocol and map physical address past the 2MiB-aligned
+end address we are permitted to map. As we map these with Normal memory
+attributes, this may result in further problems depending on what these
+physical addresses correspond to.
+
+The final entry at each level may require an additional table at that
+level. As EARLY_ENTRIES() calculates an inclusive bound, we allocate
+enough memory for this.
+
+Avoid the extraneous mapping by having map_memory convert the exclusive
+end address to an inclusive end address by subtracting one, and do
+likewise in EARLY_ENTRIES() when calculating the number of required
+tables. For clarity, comments are updated to more clearly document which
+boundaries the macros operate on.  For consistency with the other
+macros, the comments in map_memory are also updated to describe `vstart`
+and `vend` as virtual addresses.
+
+Fixes: 0370b31e4845 ("arm64: Extend early page table code to allow for larger kernels")
+Cc: <stable@vger.kernel.org> # 4.16.x
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Steve Capper <steve.capper@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20210823101253.55567-1-mark.rutland@arm.com
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/el2_setup.h |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/kernel-pgtable.h |    4 ++--
+ arch/arm64/kernel/head.S                |   11 ++++++-----
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
---- a/arch/arm64/include/asm/el2_setup.h
-+++ b/arch/arm64/include/asm/el2_setup.h
-@@ -149,8 +149,17 @@
- 	ubfx	x1, x1, #ID_AA64MMFR0_FGT_SHIFT, #4
- 	cbz	x1, .Lskip_fgt_\@
+--- a/arch/arm64/include/asm/kernel-pgtable.h
++++ b/arch/arm64/include/asm/kernel-pgtable.h
+@@ -65,8 +65,8 @@
+ #define EARLY_KASLR	(0)
+ #endif
  
--	msr_s	SYS_HDFGRTR_EL2, xzr
--	msr_s	SYS_HDFGWTR_EL2, xzr
-+	mov	x0, xzr
-+	mrs	x1, id_aa64dfr0_el1
-+	ubfx	x1, x1, #ID_AA64DFR0_PMSVER_SHIFT, #4
-+	cmp	x1, #3
-+	b.lt	.Lset_fgt_\@
-+	/* Disable PMSNEVFR_EL1 read and write traps */
-+	orr	x0, x0, #(1 << 62)
-+
-+.Lset_fgt_\@:
-+	msr_s	SYS_HDFGRTR_EL2, x0
-+	msr_s	SYS_HDFGWTR_EL2, x0
- 	msr_s	SYS_HFGRTR_EL2, xzr
- 	msr_s	SYS_HFGWTR_EL2, xzr
- 	msr_s	SYS_HFGITR_EL2, xzr
+-#define EARLY_ENTRIES(vstart, vend, shift) (((vend) >> (shift)) \
+-					- ((vstart) >> (shift)) + 1 + EARLY_KASLR)
++#define EARLY_ENTRIES(vstart, vend, shift) \
++	((((vend) - 1) >> (shift)) - ((vstart) >> (shift)) + 1 + EARLY_KASLR)
+ 
+ #define EARLY_PGDS(vstart, vend) (EARLY_ENTRIES(vstart, vend, PGDIR_SHIFT))
+ 
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -176,7 +176,7 @@ SYM_CODE_END(preserve_boot_args)
+  * to be composed of multiple pages. (This effectively scales the end index).
+  *
+  *	vstart:	virtual address of start of range
+- *	vend:	virtual address of end of range
++ *	vend:	virtual address of end of range - we map [vstart, vend]
+  *	shift:	shift used to transform virtual address into index
+  *	ptrs:	number of entries in page table
+  *	istart:	index in table corresponding to vstart
+@@ -213,17 +213,18 @@ SYM_CODE_END(preserve_boot_args)
+  *
+  *	tbl:	location of page table
+  *	rtbl:	address to be used for first level page table entry (typically tbl + PAGE_SIZE)
+- *	vstart:	start address to map
+- *	vend:	end address to map - we map [vstart, vend]
++ *	vstart:	virtual address of start of range
++ *	vend:	virtual address of end of range - we map [vstart, vend - 1]
+  *	flags:	flags to use to map last level entries
+  *	phys:	physical address corresponding to vstart - physical memory is contiguous
+  *	pgds:	the number of pgd entries
+  *
+  * Temporaries:	istart, iend, tmp, count, sv - these need to be different registers
+- * Preserves:	vstart, vend, flags
+- * Corrupts:	tbl, rtbl, istart, iend, tmp, count, sv
++ * Preserves:	vstart, flags
++ * Corrupts:	tbl, rtbl, vend, istart, iend, tmp, count, sv
+  */
+ 	.macro map_memory, tbl, rtbl, vstart, vend, flags, phys, pgds, istart, iend, tmp, count, sv
++	sub \vend, \vend, #1
+ 	add \rtbl, \tbl, #PAGE_SIZE
+ 	mov \sv, \rtbl
+ 	mov \count, #0
 
 
