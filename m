@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE71940E06F
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF63840E3B7
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241343AbhIPQVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:21:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59256 "EHLO mail.kernel.org"
+        id S240086AbhIPQvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:51:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241654AbhIPQT5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:19:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E3A96139F;
-        Thu, 16 Sep 2021 16:13:50 +0000 (UTC)
+        id S245082AbhIPQsF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:48:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BEFE56124B;
+        Thu, 16 Sep 2021 16:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808831;
-        bh=S/mYC2aZPFp2a9cuahC+9ncNQUxRy7at7ImfNz5LxPU=;
+        s=korg; t=1631809632;
+        bh=DLsL0fEIJu4CmK1/of73Xd2UD5LwRFimUx9537icPPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvODgczZxIG4KAWqsqW75GOoLcXBaGQE+WXP1x7ngOwADHsBSE2lJFC8/10u0uIFM
-         g28YBYA7OEw48pf/2CX3ij4ezLiPyiUPP4dxexNVY2jBr9CX+cXBrHM2X1dJCkQ2YF
-         Lsz0NgfsHU8G+dNw/imqS+PopEas+V8OKULM1WVs=
+        b=Hmbg9c8Ku0WxSDZhbyypLX8Nc3qSTH4qxMRLfLSlZ9vEP4fUrKKbrCaJZ5hnB1+V3
+         5DTJ9figYp7CFWt5sHtjuG+ihwNY/A7ISLNQI43QEnVgRGdYPdJ86Zx6liMKOJ6/27
+         6vDLy1yeuR6aCyNa5JVfrHBM6/yH3HsFewXGZp8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Umang Jain <umang.jain@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 238/306] rtw88: wow: build wow function only if CONFIG_PM is on
+Subject: [PATCH 5.13 226/380] media: imx258: Limit the max analogue gain to 480
 Date:   Thu, 16 Sep 2021 17:59:43 +0200
-Message-Id: <20210916155802.169834628@linuxfoundation.org>
+Message-Id: <20210916155811.774299909@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Umang Jain <umang.jain@ideasonboard.com>
 
-[ Upstream commit 05e45887382c4c0f9522515759b34991aa17e69d ]
+[ Upstream commit f809665ee75fff3f4ea8907f406a66d380aeb184 ]
 
-The kernel test robot reports undefined reference after we report wakeup
-reason to mac80211. This is because CONFIG_PM is not defined in the testing
-configuration file. In fact, functions within wow.c are used if CONFIG_PM
-is defined, so use CONFIG_PM to decide whether we build this file or not.
+The range for analog gain mentioned in the datasheet is [0, 480].
+The real gain formula mentioned in the datasheet is:
 
-The reported messages are:
-   hppa-linux-ld: drivers/net/wireless/realtek/rtw88/wow.o: in function `rtw_wow_show_wakeup_reason':
->> (.text+0x6c4): undefined reference to `ieee80211_report_wowlan_wakeup'
->> hppa-linux-ld: (.text+0x6e0): undefined reference to `ieee80211_report_wowlan_wakeup'
+	Gain = 512 / (512 – X)
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210728014335.8785-4-pkshih@realtek.com
+Hence, values larger than 511 clearly makes no sense. The gain
+register field is also documented to be of 9-bits in the datasheet.
+
+Certainly, it is enough to infer that, the kernel driver currently
+advertises an arbitrary analog gain max. Fix it by rectifying the
+value as per the data sheet i.e. 480.
+
+Signed-off-by: Umang Jain <umang.jain@ideasonboard.com>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/Makefile | 2 +-
+ drivers/media/i2c/imx258.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/Makefile b/drivers/net/wireless/realtek/rtw88/Makefile
-index c0e4b111c8b4..73d6807a8cdf 100644
---- a/drivers/net/wireless/realtek/rtw88/Makefile
-+++ b/drivers/net/wireless/realtek/rtw88/Makefile
-@@ -15,9 +15,9 @@ rtw88_core-y += main.o \
- 	   ps.o \
- 	   sec.o \
- 	   bf.o \
--	   wow.o \
- 	   regd.o
+diff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c
+index b3fa28d05fa6..cdeaaec31879 100644
+--- a/drivers/media/i2c/imx258.c
++++ b/drivers/media/i2c/imx258.c
+@@ -47,7 +47,7 @@
+ /* Analog gain control */
+ #define IMX258_REG_ANALOG_GAIN		0x0204
+ #define IMX258_ANA_GAIN_MIN		0
+-#define IMX258_ANA_GAIN_MAX		0x1fff
++#define IMX258_ANA_GAIN_MAX		480
+ #define IMX258_ANA_GAIN_STEP		1
+ #define IMX258_ANA_GAIN_DEFAULT		0x0
  
-+rtw88_core-$(CONFIG_PM) += wow.o
- 
- obj-$(CONFIG_RTW88_8822B)	+= rtw88_8822b.o
- rtw88_8822b-objs		:= rtw8822b.o rtw8822b_table.o
 -- 
 2.30.2
 
