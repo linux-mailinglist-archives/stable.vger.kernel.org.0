@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B218940E435
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FBFF40E74C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240651AbhIPQ42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:56:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36928 "EHLO mail.kernel.org"
+        id S243739AbhIPRbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:31:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245743AbhIPQwk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:52:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E903361A8A;
-        Thu, 16 Sep 2021 16:29:22 +0000 (UTC)
+        id S1352807AbhIPR2k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:28:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 735B4613C8;
+        Thu, 16 Sep 2021 16:45:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809763;
-        bh=ulygN54DIgMwclPTclf9FlS0lmHQWf9LgYJJ/C3EWVI=;
+        s=korg; t=1631810755;
+        bh=TnE9Wlka/HbaP3UhSIR4v05u7JFUS6ZvZ5/7L0O4TAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iT/N+lQ9Q3fAfnQyNOHBeBHHmwmnRJwGh60FD/Y3HHcAt1TV2ruWLHeIe/ZugQXEw
-         yCoQ4ss5a/Z7wwZ0OuT0z3L2TUwxCQ0Sp6YfjK1AsBm6mg6qSAsy3LiuxDN+0IyRoi
-         SJ6QzJfi5PExC1A/sPmUObu6WVvFILCAeeJczNxc=
+        b=U+gECLyuT+Z8JlPEjM/IDmNzoJonDBSDvmB0uXV6Cr6N5wtP6r+pHsUDWf6F5vSrE
+         kBbTVVhJx++u/CsLVRufolqoyAy9zb2x/2qW4fwau2r/mfB+IRRAKh4YhQ+UZtlHPX
+         USmXcvnIC38jSdjKYE6QCEQCAjjc0qSE3UlqkplU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Umang Jain <umang.jain@ideasonboard.com>,
+        Bingbu Cao <bingbu.cao@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 247/380] drm/msm/dsi: Fix DSI and DSI PHY regulator config from SDM660
+Subject: [PATCH 5.14 255/432] media: imx258: Rectify mismatch of VTS value
 Date:   Thu, 16 Sep 2021 18:00:04 +0200
-Message-Id: <20210916155812.485995074@linuxfoundation.org>
+Message-Id: <20210916155819.468844818@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 462f7017a6918d152870bfb8852f3c70fd74b296 ]
+[ Upstream commit 51f93add3669f1b1f540de1cf397815afbd4c756 ]
 
-VDDA is not present and the specified load value is wrong. Fix it.
+The frame_length_lines (0x0340) registers are hard-coded as follows:
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Link: https://lore.kernel.org/r/20210728222057.52641-1-konrad.dybcio@somainline.org
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+- 4208x3118
+  frame_length_lines = 0x0c50
+
+- 2104x1560
+  frame_length_lines = 0x0638
+
+- 1048x780
+  frame_length_lines = 0x034c
+
+The driver exposes the V4L2_CID_VBLANK control in read-only mode and
+sets its value to vts_def - height, where vts_def is a mode-dependent
+value coming from the supported_modes array. It is set using one of
+the following macros defined in the driver:
+
+  #define IMX258_VTS_30FPS                0x0c98
+  #define IMX258_VTS_30FPS_2K             0x0638
+  #define IMX258_VTS_30FPS_VGA            0x034c
+
+There's a clear mismatch in the value for the full resolution mode i.e.
+IMX258_VTS_30FPS. Fix it by rectifying the macro with the value set for
+the frame_length_lines register as stated above.
+
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Umang Jain <umang.jain@ideasonboard.com>
+Reviewed-by: Bingbu Cao <bingbu.cao@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi_cfg.c          | 1 -
- drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c | 2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+ drivers/media/i2c/imx258.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_cfg.c b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-index f3f1c03c7db9..763f127e4621 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_cfg.c
-@@ -154,7 +154,6 @@ static const struct msm_dsi_config sdm660_dsi_cfg = {
- 	.reg_cfg = {
- 		.num = 2,
- 		.regs = {
--			{"vdd", 73400, 32 },	/* 0.9 V */
- 			{"vdda", 12560, 4 },	/* 1.2 V */
- 		},
- 	},
-diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-index 65d68eb9e3cb..c96fd752fa1d 100644
---- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-+++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_14nm.c
-@@ -1049,7 +1049,7 @@ const struct msm_dsi_phy_cfg dsi_phy_14nm_660_cfgs = {
- 	.reg_cfg = {
- 		.num = 1,
- 		.regs = {
--			{"vcca", 17000, 32},
-+			{"vcca", 73400, 32},
- 		},
- 	},
- 	.ops = {
+diff --git a/drivers/media/i2c/imx258.c b/drivers/media/i2c/imx258.c
+index 7ab9e5f9f267..4e695096e5d0 100644
+--- a/drivers/media/i2c/imx258.c
++++ b/drivers/media/i2c/imx258.c
+@@ -23,7 +23,7 @@
+ #define IMX258_CHIP_ID			0x0258
+ 
+ /* V_TIMING internal */
+-#define IMX258_VTS_30FPS		0x0c98
++#define IMX258_VTS_30FPS		0x0c50
+ #define IMX258_VTS_30FPS_2K		0x0638
+ #define IMX258_VTS_30FPS_VGA		0x034c
+ #define IMX258_VTS_MAX			0xffff
 -- 
 2.30.2
 
