@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6739440E112
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5451A40E416
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:22:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241426AbhIPQ1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:27:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37486 "EHLO mail.kernel.org"
+        id S231766AbhIPQzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:55:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241235AbhIPQZL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:25:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64C2B604E9;
-        Thu, 16 Sep 2021 16:16:33 +0000 (UTC)
+        id S245606AbhIPQwb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:52:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2541D61A8B;
+        Thu, 16 Sep 2021 16:29:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808994;
-        bh=IkSr81dmRKz8Vb0/fkgJQKts2MtDrWrqbK1Bm8mS7Q0=;
+        s=korg; t=1631809750;
+        bh=COzna+AUvS9AjH9VMQTRotAp6F8lPQK/nnKVsWvii1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8IOaeuaalPZJ5QWPIVR7rNz2QE1gx9qVzhrCJUoEvvNOEwiy1ovNrKjWhGG2k9hQ
-         prHdTXc1V8JmoZFtlHE2xOjaCnhVoQuAKJCtgEp4LK/GrorJ4XEfPwSXYyeEKp3eE+
-         zVVu/h6B2hjZSy63Ih0u0iaUCveL/kMiHv8Z+Agk=
+        b=a46SiYkViEIkHlTf5HQnzOQy8kE8XAOBy2KUuv5k8et5R4Efh1K8O/encXAiejZqF
+         CRsAYlZUUbmg6OASGOosp1/9b0C+V3jY0Qtdt7WlPgW6kWnJl5ijv+vzU+De0dENqx
+         aJxfYN9zhohoHGQSXFNYGITq5Nwna3vBnb55eS7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chenying <chenying.kernel@bytedance.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.10 281/306] ovl: fix BUG_ON() in may_delete() when called from ovl_cleanup()
+        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 269/380] arm64: dts: imx8mm-venice-gw700x: fix invalid pmic pin config
 Date:   Thu, 16 Sep 2021 18:00:26 +0200
-Message-Id: <20210916155803.654485025@linuxfoundation.org>
+Message-Id: <20210916155813.227621278@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chenying <chenying.kernel@bytedance.com>
+From: Tim Harvey <tharvey@gateworks.com>
 
-commit 52d5a0c6bd8a89f460243ed937856354f8f253a3 upstream.
+[ Upstream commit 500659f3b401fe6ffd1d63f2449d16d8a4204db7 ]
 
-If function ovl_instantiate() returns an error, ovl_cleanup will be called
-and try to remove newdentry from wdir, but the newdentry has been moved to
-udir at this time.  This will causes BUG_ON(victim->d_parent->d_inode !=
-dir) in fs/namei.c:may_delete.
+The GW700x PMIC does not have an interrupt. Remove the invalid pin
+config.
 
-Signed-off-by: chenying <chenying.kernel@bytedance.com>
-Fixes: 01b39dcc9568 ("ovl: use inode_insert5() to hash a newly created inode")
-Link: https://lore.kernel.org/linux-unionfs/e6496a94-a161-dc04-c38a-d2544633acb4@bytedance.com/
-Cc: <stable@vger.kernel.org> # v4.18
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/dir.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi | 8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -542,8 +542,10 @@ static int ovl_create_over_whiteout(stru
- 			goto out_cleanup;
- 	}
- 	err = ovl_instantiate(dentry, inode, newdentry, hardlink);
--	if (err)
--		goto out_cleanup;
-+	if (err) {
-+		ovl_cleanup(udir, newdentry);
-+		dput(newdentry);
-+	}
- out_dput:
- 	dput(upper);
- out_unlock:
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
+index 11dda79cc46b..00f86cada30d 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw700x.dtsi
+@@ -278,8 +278,6 @@ rtc@68 {
+ 
+ 	pmic@69 {
+ 		compatible = "mps,mp5416";
+-		pinctrl-names = "default";
+-		pinctrl-0 = <&pinctrl_pmic>;
+ 		reg = <0x69>;
+ 
+ 		regulators {
+@@ -444,12 +442,6 @@ MX8MM_IOMUXC_I2C2_SDA_I2C2_SDA		0x400001c3
+ 		>;
+ 	};
+ 
+-	pinctrl_pmic: pmicgrp {
+-		fsl,pins = <
+-			MX8MM_IOMUXC_GPIO1_IO03_GPIO1_IO3	0x41
+-		>;
+-	};
+-
+ 	pinctrl_uart2: uart2grp {
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_UART2_RXD_UART2_DCE_RX	0x140
+-- 
+2.30.2
+
 
 
