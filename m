@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 846C540DEF6
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89EAF40E1D2
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:14:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240555AbhIPQFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:05:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44698 "EHLO mail.kernel.org"
+        id S241974AbhIPQbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:31:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240539AbhIPQFe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:05:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C321561241;
-        Thu, 16 Sep 2021 16:04:12 +0000 (UTC)
+        id S242872AbhIPQ3o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:29:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E93261130;
+        Thu, 16 Sep 2021 16:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808253;
-        bh=LDOCNYiRG8y48Kp3dDBTvpKz232yVRp7s0kGyjwtVgU=;
+        s=korg; t=1631809124;
+        bh=EX9RbR/g7CdtthmohUNp1pQW/MaDhhIkIsTCRNQMkB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDrvZQzFPP8V8heeJl9qvN/tShQY50BqWYyY9I8RFUuGDIGA72/l/wMv8xZMh3UCf
-         uhwi+6oTpZ318qkk4ZWVAdl3HO+Lzdr2NlS4DGTZax/4IOrM7VfqZ8Qo8qGFJueSHf
-         mYGYKv2ok7gZokhXGu4nVvuJjiF1uyDldA8yBDNI=
+        b=aDCjnyc+H6ygtaNpEUKs7/u7WwOLecEvVbw818/Bwum7juhohVKhcWKbBzHZwgNFi
+         lwa+NLNFflYpBvtl8DB4MqbxpA9ZR5/PNo8L7W5Vmvd+ASPWwwqOlJuqU094LKf5su
+         X0GKpR7P+9JW9d6u4hlbjCv0jnRhSu6Oqw7erxXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kris Chaplin <kris.chaplin@intel.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.10 018/306] clk: socfpga: agilex: fix the parents of the psi_ref_clk
-Date:   Thu, 16 Sep 2021 17:56:03 +0200
-Message-Id: <20210916155754.547037615@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Tsvetkov <alexander.tsvetkov@oracle.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.13 007/380] btrfs: fix upper limit for max_inline for page size 64K
+Date:   Thu, 16 Sep 2021 17:56:04 +0200
+Message-Id: <20210916155804.220225336@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Anand Jain <anand.jain@oracle.com>
 
-commit 9d563236cca43fc4fe190b3be173444bd48e2a3b upstream.
+commit 6f93e834fa7c5faa0372e46828b4b2a966ac61d7 upstream.
 
-The psi_ref_clk comes from the C2 node of the main_pll and periph_pll,
-not the C3.
+The mount option max_inline ranges from 0 to the sectorsize (which is
+now equal to page size). But we parse the mount options too early and
+before the actual sectorsize is read from the superblock. So the upper
+limit of max_inline is unaware of the actual sectorsize and is limited
+by the temporary sectorsize 4096, even on a system where the default
+sectorsize is 64K.
 
-Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agilex platform")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kris Chaplin <kris.chaplin@intel.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20210713144621.605140-1-dinguyen@kernel.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fix this by reading the superblock sectorsize before the mount option
+parse.
+
+Reported-by: Alexander Tsvetkov <alexander.tsvetkov@oracle.com>
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/socfpga/clk-agilex.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/btrfs/disk-io.c |   48 ++++++++++++++++++++++++------------------------
+ 1 file changed, 24 insertions(+), 24 deletions(-)
 
---- a/drivers/clk/socfpga/clk-agilex.c
-+++ b/drivers/clk/socfpga/clk-agilex.c
-@@ -107,10 +107,10 @@ static const struct clk_parent_data gpio
- };
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -3329,6 +3329,30 @@ int __cold open_ctree(struct super_block
+ 	 */
+ 	fs_info->compress_type = BTRFS_COMPRESS_ZLIB;
  
- static const struct clk_parent_data psi_ref_free_mux[] = {
--	{ .fw_name = "main_pll_c3",
--	  .name = "main_pll_c3", },
--	{ .fw_name = "peri_pll_c3",
--	  .name = "peri_pll_c3", },
-+	{ .fw_name = "main_pll_c2",
-+	  .name = "main_pll_c2", },
-+	{ .fw_name = "peri_pll_c2",
-+	  .name = "peri_pll_c2", },
- 	{ .fw_name = "osc1",
- 	  .name = "osc1", },
- 	{ .fw_name = "cb-intosc-hs-div2-clk",
++	/*
++	 * Flag our filesystem as having big metadata blocks if they are bigger
++	 * than the page size.
++	 */
++	if (btrfs_super_nodesize(disk_super) > PAGE_SIZE) {
++		if (!(features & BTRFS_FEATURE_INCOMPAT_BIG_METADATA))
++			btrfs_info(fs_info,
++				"flagging fs with big metadata feature");
++		features |= BTRFS_FEATURE_INCOMPAT_BIG_METADATA;
++	}
++
++	/* Set up fs_info before parsing mount options */
++	nodesize = btrfs_super_nodesize(disk_super);
++	sectorsize = btrfs_super_sectorsize(disk_super);
++	stripesize = sectorsize;
++	fs_info->dirty_metadata_batch = nodesize * (1 + ilog2(nr_cpu_ids));
++	fs_info->delalloc_batch = sectorsize * 512 * (1 + ilog2(nr_cpu_ids));
++
++	fs_info->nodesize = nodesize;
++	fs_info->sectorsize = sectorsize;
++	fs_info->sectorsize_bits = ilog2(sectorsize);
++	fs_info->csums_per_leaf = BTRFS_MAX_ITEM_SIZE(fs_info) / fs_info->csum_size;
++	fs_info->stripesize = stripesize;
++
+ 	ret = btrfs_parse_options(fs_info, options, sb->s_flags);
+ 	if (ret) {
+ 		err = ret;
+@@ -3356,30 +3380,6 @@ int __cold open_ctree(struct super_block
+ 		btrfs_info(fs_info, "has skinny extents");
+ 
+ 	/*
+-	 * flag our filesystem as having big metadata blocks if
+-	 * they are bigger than the page size
+-	 */
+-	if (btrfs_super_nodesize(disk_super) > PAGE_SIZE) {
+-		if (!(features & BTRFS_FEATURE_INCOMPAT_BIG_METADATA))
+-			btrfs_info(fs_info,
+-				"flagging fs with big metadata feature");
+-		features |= BTRFS_FEATURE_INCOMPAT_BIG_METADATA;
+-	}
+-
+-	nodesize = btrfs_super_nodesize(disk_super);
+-	sectorsize = btrfs_super_sectorsize(disk_super);
+-	stripesize = sectorsize;
+-	fs_info->dirty_metadata_batch = nodesize * (1 + ilog2(nr_cpu_ids));
+-	fs_info->delalloc_batch = sectorsize * 512 * (1 + ilog2(nr_cpu_ids));
+-
+-	/* Cache block sizes */
+-	fs_info->nodesize = nodesize;
+-	fs_info->sectorsize = sectorsize;
+-	fs_info->sectorsize_bits = ilog2(sectorsize);
+-	fs_info->csums_per_leaf = BTRFS_MAX_ITEM_SIZE(fs_info) / fs_info->csum_size;
+-	fs_info->stripesize = stripesize;
+-
+-	/*
+ 	 * mixed block groups end up with duplicate but slightly offset
+ 	 * extent buffers for the same range.  It leads to corruptions
+ 	 */
 
 
