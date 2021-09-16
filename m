@@ -2,117 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEF5440D29E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 06:39:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E500040D2DD
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 07:28:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234298AbhIPElP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 00:41:15 -0400
-Received: from so254-9.mailgun.net ([198.61.254.9]:24870 "EHLO
-        so254-9.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231517AbhIPElK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 00:41:10 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1631767190; h=Content-Type: MIME-Version: Message-ID: Date:
- References: In-Reply-To: Subject: Cc: To: From: Sender;
- bh=/+s/jscahNm5opYfahNTF4pek+pW4Sb5V6rCSNLcwfc=; b=FGc0k4WQCqrOSbdkFu870Txj66eRPKkmuaKzjFBZtIv6NlhnOSlpMJGCyVeOwE6faR+OYfGO
- ktHzCFtikDRTN/bCrrAh7fMC9YqhMTIGSBmfrhvPuBKDUSVlLoI1Ff9zLhoPmpAO+NhV50of
- 4U3Ltda8b9uTWA1G55t8RZJ3gvM=
-X-Mailgun-Sending-Ip: 198.61.254.9
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n07.prod.us-east-1.postgun.com with SMTP id
- 6142ca8e507800c880a4bef5 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Thu, 16 Sep 2021 04:39:42
- GMT
-Sender: kvalo=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 33B47C43619; Thu, 16 Sep 2021 04:39:41 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL
-        autolearn=no autolearn_force=no version=3.4.0
-Received: from tykki (tynnyri.adurom.net [51.15.11.48])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: kvalo)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id ABD35C4338F;
-        Thu, 16 Sep 2021 04:39:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 smtp.codeaurora.org ABD35C4338F
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=codeaurora.org
-From:   Kalle Valo <kvalo@codeaurora.org>
-To:     Marek Vasut <marex@denx.de>
-Cc:     netdev@vger.kernel.org,
-        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
-        Angus Ainslie <angus@akkea.ca>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Karun Eagalapati <karun256@gmail.com>,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Martin Kepplinger <martink@posteo.de>,
-        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Siva Rebbagondla <siva8118@gmail.com>, stable@vger.kernel.org,
-        "linux-wireless\@vger.kernel.org" <linux-wireless@vger.kernel.org>
-Subject: Re: [PATCH] rsi: Fix module dev_oper_mode parameter description
-In-Reply-To: <20210915080841.73938-1-marex@denx.de> (Marek Vasut's message of
-        "Wed, 15 Sep 2021 10:08:41 +0200")
-References: <20210915080841.73938-1-marex@denx.de>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
-Date:   Thu, 16 Sep 2021 07:39:33 +0300
-Message-ID: <87fsu516d6.fsf@codeaurora.org>
+        id S234298AbhIPF3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 01:29:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36692 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230193AbhIPF3Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Sep 2021 01:29:25 -0400
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34BCCC061766
+        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 22:28:05 -0700 (PDT)
+Received: by mail-pg1-x536.google.com with SMTP id u18so5148083pgf.0
+        for <stable@vger.kernel.org>; Wed, 15 Sep 2021 22:28:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Kuik8S1rnmD+zjPPAi8GOX3SNNYdOJRoGwCMRQp8FKc=;
+        b=45HsC0SlnbxPOVxvAmuC4E8dG0/ED5Bo7nyr8IxtfT403zohBKPEAd+kggToZxdMML
+         JQvh7IFKa8XnOsMomSBNa4xF1HgjhpQw94DAD4HLvF9AbGbMf1zSup+1yIKinkbTolml
+         hwa+oGbSMyDdW7mBY5O6EdrHttjtfDX5QUJM/d8FAJdqWMefklLz/S/Sfdd4SEavdBYC
+         ANCn7hg6vU7IOV1Ws3WVDkkaykiQAs0j31mjE3+3o3sonSKf4GKZIvcV9Tjz9jnKvKtS
+         OP7dN3yli9gIdiKGJyyHuFBSqpjiphdqhxGycPauhJNmTlVq8eKp78N4NrdbXlJ7TULe
+         Wd6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Kuik8S1rnmD+zjPPAi8GOX3SNNYdOJRoGwCMRQp8FKc=;
+        b=vUXee/Oxhnmk9d58e9dPYrBJZlxkBxA0Qvg7121sEQ6brKymNyU6r2hIRP+Jslzjy0
+         I7B4gfdNDnap82n80av9Oi6a2fG/3XOHS3TLe4/cHZyuc9BMs25o6TJGm8xJNZ+76D8J
+         gsqYhM9wzQNDkB2F1WvIAYk0ZKZwS3xnQlauln3DDhsW8jbVGp8Xf9lHSto2kVg8UkjR
+         IOb7lnk2EqVtdFjpbdt+hHW+YagFJiVNHNrwDOUT6ovgTd+hi+mjNNQevB63ieEFGI5W
+         dKQI08WV7TBGIXW2aPUEOT9CD6u74P1dseDCXcLrZN5MD2SZpWMEu8ZudqHaIlPtca4B
+         lPAw==
+X-Gm-Message-State: AOAM53192tGI9tT3W5nIiD0TosZgy79arcEFan664g8NlhIAfn0QytWv
+        CS/fGrcbtD4ZLVl/L8wv45cYZUfZouUsXIlRtBg=
+X-Google-Smtp-Source: ABdhPJxZcEhNjhkacjzLwjCLse+Oy7MT2YEUB/RVzhMwRAPzj6krIKrU6y/JONSi2lM0d/cgJDO5BA==
+X-Received: by 2002:a62:1697:0:b0:43d:eaaa:cf5 with SMTP id 145-20020a621697000000b0043deaaa0cf5mr3245126pfw.56.1631770084415;
+        Wed, 15 Sep 2021 22:28:04 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u21sm1664013pgk.57.2021.09.15.22.28.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Sep 2021 22:28:03 -0700 (PDT)
+Message-ID: <6142d5e3.1c69fb81.79ffa.77d2@mx.google.com>
+Date:   Wed, 15 Sep 2021 22:28:03 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.13.17-68-gfe61ccdae2c1
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.13
+Subject: stable-rc/queue/5.13 baseline: 80 runs,
+ 1 regressions (v5.13.17-68-gfe61ccdae2c1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+ linux-wireless
+stable-rc/queue/5.13 baseline: 80 runs, 1 regressions (v5.13.17-68-gfe61ccd=
+ae2c1)
 
-Marek Vasut <marex@denx.de> writes:
+Regressions Summary
+-------------------
 
-> The module parameters are missing dev_oper_mode 12, BT classic alone,
-> add it. Moreover, the parameters encode newlines, which ends up being
-> printed malformed e.g. by modinfo, so fix that too.
->
-> However, the module parameter string is duplicated in both USB and SDIO
-> modules and the dev_oper_mode mode enumeration in those module parameters
-> is a duplicate of macros used by the driver. Furthermore, the enumeration
-> is confusing.
->
-> So, deduplicate the module parameter string and use __stringify() to
-> encode the correct mode enumeration values into the module parameter
-> string. Finally, replace 'Wi-Fi' with 'Wi-Fi alone' and 'BT' with
-> 'BT classic alone' to clarify what those modes really mean.
->
-> Fixes: 898b255339310 ("rsi: add module parameter operating mode")
-> Signed-off-by: Marek Vasut <marex@denx.de>
-> Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
-> Cc: Angus Ainslie <angus@akkea.ca>
-> Cc: David S. Miller <davem@davemloft.net>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Kalle Valo <kvalo@codeaurora.org>
-> Cc: Karun Eagalapati <karun256@gmail.com>
-> Cc: Martin Fuzzey <martin.fuzzey@flowbird.group>
-> Cc: Martin Kepplinger <martink@posteo.de>
-> Cc: Prameela Rani Garnepudi <prameela.j04cs@gmail.com>
-> Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-> Cc: Siva Rebbagondla <siva8118@gmail.com>
-> To: netdev@vger.kernel.org
-> Cc: <stable@vger.kernel.org> # 4.17+
-> ---
->  drivers/net/wireless/rsi/rsi_91x_sdio.c |  5 +----
->  drivers/net/wireless/rsi/rsi_91x_usb.c  |  5 +----
->  drivers/net/wireless/rsi/rsi_hal.h      | 11 +++++++++++
->  3 files changed, 13 insertions(+), 8 deletions(-)
+platform  | arch | lab          | compiler | defconfig          | regressio=
+ns
+----------+------+--------------+----------+--------------------+----------=
+--
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1        =
+  =
 
-linux-wireless is not included so patchwork won't see this patch. Please
-resubmit (as v2) and include linux-wireless, more info in the wiki
-below.
 
--- 
-https://patchwork.kernel.org/project/linux-wireless/list/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
+nel/v5.13.17-68-gfe61ccdae2c1/plan/baseline/
 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.13
+  Describe: v5.13.17-68-gfe61ccdae2c1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      fe61ccdae2c14fed6c3efcb1426691db8598fa40 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform  | arch | lab          | compiler | defconfig          | regressio=
+ns
+----------+------+--------------+----------+--------------------+----------=
+--
+beagle-xm | arm  | lab-baylibre | gcc-8    | multi_v7_defconfig | 1        =
+  =
+
+
+  Details:     https://kernelci.org/test/plan/id/6142a32474039bcf4099a2de
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.17-=
+68-gfe61ccdae2c1/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.17-=
+68-gfe61ccdae2c1/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
+xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6142a32474039bcf4099a=
+2df
+        failing since 0 day (last pass: v5.13.17-17-ge0578f173e9a, first fa=
+il: v5.13.17-68-g71a177e69b76) =
+
+ =20
