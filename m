@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5029440E201
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2B9740DF6A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242259AbhIPQdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:33:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44898 "EHLO mail.kernel.org"
+        id S234729AbhIPQJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:09:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235730AbhIPQbo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:31:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A77DC61A03;
-        Thu, 16 Sep 2021 16:19:35 +0000 (UTC)
+        id S232361AbhIPQI3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:08:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 624BA61246;
+        Thu, 16 Sep 2021 16:07:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809176;
-        bh=5OR6E+o4q2AYNSRmd2mvgScYabgkc0xkTQt0UlrvFY8=;
+        s=korg; t=1631808428;
+        bh=/qqeetjdshUCj/1BwxVNyM1IviDio7qpDkqnu228bEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kmb4kARQco/B3Qpct1BIdB4Gj2vm3Zii+TrFl20OcGOCl3K9pHAbFCppFUHMeAZmJ
-         7Y4eZxj0g3EHry/wsISJfPUjuGygepMe7qPJAed491ewY5Rm/HvuIvcqxiE6cO+UH/
-         M6/qHlYSfXr3OxNuLtKZay3C4zYDcrz7YkUpIAAY=
+        b=UD8lZopFaCB26HJvinBuMJrxYUfVmhalTkIZ43H7012k0ydN3l2f4qv2imIaPfBVb
+         pdOnNtIjH5KpYE1tKAk97xk3wR9RqgOMK0c6F/QRC2T90RAU2v/u7Zuo9pnQ7JQnHr
+         EvReYDXGopCOfbpxjqpxgyGCk9P39zkBdEtbNN74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
-        David Heidelberg <david@ixit.cz>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.13 058/380] ARM: 9105/1: atags_to_fdt: dont warn about stack size
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 070/306] RDMA/mlx5: Delete not-available udata check
 Date:   Thu, 16 Sep 2021 17:56:55 +0200
-Message-Id: <20210916155805.959751346@linuxfoundation.org>
+Message-Id: <20210916155756.439795641@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Heidelberg <david@ixit.cz>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit b30d0289de72c62516df03fdad8d53f552c69839 upstream.
+[ Upstream commit 5f6bb7e32283b8e3339b7adc00638234ac199cc4 ]
 
-The merge_fdt_bootargs() function by definition consumes more than 1024
-bytes of stack because it has a 1024 byte command line on the stack,
-meaning that we always get a warning when building this file:
+XRC_TGT QPs are created through kernel verbs and don't have udata at all.
 
-arch/arm/boot/compressed/atags_to_fdt.c: In function 'merge_fdt_bootargs':
-arch/arm/boot/compressed/atags_to_fdt.c:98:1: warning: the frame size of 1032 bytes is larger than 1024 bytes [-Wframe-larger-than=]
-
-However, as this is the decompressor and we know that it has a very shallow
-call chain, and we do not actually risk overflowing the kernel stack
-at runtime here.
-
-This just shuts up the warning by disabling the warning flag for this
-file.
-
-Tested on Nexus 7 2012 builds.
-
-Acked-by: Nicolas Pitre <nico@fluxnic.net>
-Signed-off-by: David Heidelberg <david@ixit.cz>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6eefa839c4dd ("RDMA/mlx5: Protect from kernel crash if XRC_TGT doesn't have udata")
+Fixes: e383085c2425 ("RDMA/mlx5: Set ECE options during QP create")
+Link: https://lore.kernel.org/r/b68228597e730675020aa5162745390a2d39d3a2.1628014762.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/compressed/Makefile |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/infiniband/hw/mlx5/qp.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/arm/boot/compressed/Makefile
-+++ b/arch/arm/boot/compressed/Makefile
-@@ -85,6 +85,8 @@ compress-$(CONFIG_KERNEL_LZ4)  = lz4
- libfdt_objs := fdt_rw.o fdt_ro.o fdt_wip.o fdt.o
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index 8beba002e5dd..011477356a1d 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -1842,7 +1842,6 @@ static int get_atomic_mode(struct mlx5_ib_dev *dev,
+ static int create_xrc_tgt_qp(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
+ 			     struct mlx5_create_qp_params *params)
+ {
+-	struct mlx5_ib_create_qp *ucmd = params->ucmd;
+ 	struct ib_qp_init_attr *attr = params->attr;
+ 	u32 uidx = params->uidx;
+ 	struct mlx5_ib_resources *devr = &dev->devr;
+@@ -1862,8 +1861,6 @@ static int create_xrc_tgt_qp(struct mlx5_ib_dev *dev, struct mlx5_ib_qp *qp,
+ 	if (!in)
+ 		return -ENOMEM;
  
- ifeq ($(CONFIG_ARM_ATAG_DTB_COMPAT),y)
-+CFLAGS_REMOVE_atags_to_fdt.o += -Wframe-larger-than=${CONFIG_FRAME_WARN}
-+CFLAGS_atags_to_fdt.o += -Wframe-larger-than=1280
- OBJS	+= $(libfdt_objs) atags_to_fdt.o
- endif
- ifeq ($(CONFIG_USE_OF),y)
+-	if (MLX5_CAP_GEN(mdev, ece_support) && ucmd)
+-		MLX5_SET(create_qp_in, in, ece, ucmd->ece_options);
+ 	qpc = MLX5_ADDR_OF(create_qp_in, in, qpc);
+ 
+ 	MLX5_SET(qpc, qpc, st, MLX5_QP_ST_XRC);
+-- 
+2.30.2
+
 
 
