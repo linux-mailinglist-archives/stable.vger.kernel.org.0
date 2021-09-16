@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00FC840DF74
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09E4F40E5B3
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235340AbhIPQJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:09:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49144 "EHLO mail.kernel.org"
+        id S1350875AbhIPROJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:14:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235322AbhIPQIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:08:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85C8361351;
-        Thu, 16 Sep 2021 16:07:24 +0000 (UTC)
+        id S1350671AbhIPRLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:11:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A246161B51;
+        Thu, 16 Sep 2021 16:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808445;
-        bh=gGAvN8+OozOp8m8QhHWhRw230nuepddHX0OLUf66zsI=;
+        s=korg; t=1631810301;
+        bh=pTDZCgOLLECpEO7/lKsJDsIJa5J/YPBKF3eTQv/de/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bF03UKvjBqaI4tKZB7nHVo2MeTD1qsPqK+QZ8gyDrjXJEWpARSzrL0kn56ThVPt+9
-         DraHiPvs9WMQfDISyWw+pOQzAXYm53IhxAxrUV5UcgJsxOFFIh7bbnRhdoEKV/mAnd
-         fXatQULH7uUcK7cvqCBQ/C0b9+uR2Nj2cdtXm6AM=
+        b=nQK1VtABycTe1e7MUlxSF4Wyv5hBK+QT/eCvrlgZv3+SSwl19Gxo49IIVNcqjJnxM
+         ljQ++mTO1mR0K1FvhvtTzjTcXQi2P43tgdKIObD0AzkNgg1s+qWOGd/VRNYbDzMSff
+         n4v9SRU3AecJi9w/ywn2NikkQSp9QCrlhZBhHrgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 093/306] scsi: ufs: ufs-exynos: Fix static checker warning
+Subject: [PATCH 5.14 089/432] f2fs: fix wrong checkpoint_changed value in f2fs_remount()
 Date:   Thu, 16 Sep 2021 17:57:18 +0200
-Message-Id: <20210916155757.238098158@linuxfoundation.org>
+Message-Id: <20210916155813.799896659@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alim Akhtar <alim.akhtar@samsung.com>
+From: Chao Yu <chao@kernel.org>
 
-[ Upstream commit 313bf281f2091552f509fd05a74172c70ce7572f ]
+[ Upstream commit 277afbde6ca2b38729683fc17c031b4bc942068d ]
 
-clk_get_rate() returns unsigned long and currently this driver stores the
-return value in u32 type, resulting the below warning:
+In f2fs_remount(), return value of test_opt() is an unsigned int type
+variable, however when we compare it to a bool type variable, it cause
+wrong result, fix it.
 
-Fixed smatch warnings:
-
-        drivers/scsi/ufs/ufs-exynos.c:286 exynos_ufs_get_clk_info()
-        warn: wrong type for 'ufs->mclk_rate' (should be 'ulong')
-
-        drivers/scsi/ufs/ufs-exynos.c:287 exynos_ufs_get_clk_info()
-        warn: wrong type for 'pclk_rate' (should be 'ulong')
-
-Link: https://lore.kernel.org/r/20210819171131.55912-1-alim.akhtar@samsung.com
-Fixes: 55f4b1f73631 ("scsi: ufs: ufs-exynos: Add UFS host support for Exynos SoCs")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 4354994f097d ("f2fs: checkpoint disabling")
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-exynos.c | 4 ++--
- drivers/scsi/ufs/ufs-exynos.h | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ fs/f2fs/super.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufs-exynos.c b/drivers/scsi/ufs/ufs-exynos.c
-index f54b494ca448..3f4f3d6f48f9 100644
---- a/drivers/scsi/ufs/ufs-exynos.c
-+++ b/drivers/scsi/ufs/ufs-exynos.c
-@@ -259,7 +259,7 @@ static int exynos_ufs_get_clk_info(struct exynos_ufs *ufs)
- 	struct ufs_hba *hba = ufs->hba;
- 	struct list_head *head = &hba->clk_list_head;
- 	struct ufs_clk_info *clki;
--	u32 pclk_rate;
-+	unsigned long pclk_rate;
- 	u32 f_min, f_max;
- 	u8 div = 0;
- 	int ret = 0;
-@@ -298,7 +298,7 @@ static int exynos_ufs_get_clk_info(struct exynos_ufs *ufs)
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 7cdccb79b378..2b093a209ae4 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -2071,11 +2071,10 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
+ 	bool need_restart_ckpt = false, need_stop_ckpt = false;
+ 	bool need_restart_flush = false, need_stop_flush = false;
+ 	bool no_extent_cache = !test_opt(sbi, EXTENT_CACHE);
+-	bool disable_checkpoint = test_opt(sbi, DISABLE_CHECKPOINT);
++	bool enable_checkpoint = !test_opt(sbi, DISABLE_CHECKPOINT);
+ 	bool no_io_align = !F2FS_IO_ALIGNED(sbi);
+ 	bool no_atgc = !test_opt(sbi, ATGC);
+ 	bool no_compress_cache = !test_opt(sbi, COMPRESS_CACHE);
+-	bool checkpoint_changed;
+ #ifdef CONFIG_QUOTA
+ 	int i, j;
+ #endif
+@@ -2120,8 +2119,6 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
+ 	err = parse_options(sb, data, true);
+ 	if (err)
+ 		goto restore_opts;
+-	checkpoint_changed =
+-			disable_checkpoint != test_opt(sbi, DISABLE_CHECKPOINT);
+ 
+ 	/*
+ 	 * Previous and new state of filesystem is RO,
+@@ -2243,7 +2240,7 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
+ 		need_stop_flush = true;
  	}
  
- 	if (unlikely(pclk_rate < f_min || pclk_rate > f_max)) {
--		dev_err(hba->dev, "not available pclk range %d\n", pclk_rate);
-+		dev_err(hba->dev, "not available pclk range %lu\n", pclk_rate);
- 		ret = -EINVAL;
- 		goto out;
- 	}
-diff --git a/drivers/scsi/ufs/ufs-exynos.h b/drivers/scsi/ufs/ufs-exynos.h
-index 76d6e39efb2f..541b577c371c 100644
---- a/drivers/scsi/ufs/ufs-exynos.h
-+++ b/drivers/scsi/ufs/ufs-exynos.h
-@@ -197,7 +197,7 @@ struct exynos_ufs {
- 	u32 pclk_div;
- 	u32 pclk_avail_min;
- 	u32 pclk_avail_max;
--	u32 mclk_rate;
-+	unsigned long mclk_rate;
- 	int avail_ln_rx;
- 	int avail_ln_tx;
- 	int rx_sel_idx;
+-	if (checkpoint_changed) {
++	if (enable_checkpoint == !!test_opt(sbi, DISABLE_CHECKPOINT)) {
+ 		if (test_opt(sbi, DISABLE_CHECKPOINT)) {
+ 			err = f2fs_disable_checkpoint(sbi);
+ 			if (err)
 -- 
 2.30.2
 
