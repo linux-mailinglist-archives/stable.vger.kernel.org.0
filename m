@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E971E40E351
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 041A140E6BC
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:31:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241086AbhIPQrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:47:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59202 "EHLO mail.kernel.org"
+        id S1346095AbhIPRZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:25:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245602AbhIPQoD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:44:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC28C61A53;
-        Thu, 16 Sep 2021 16:25:17 +0000 (UTC)
+        id S1343995AbhIPRWE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:22:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 668E561502;
+        Thu, 16 Sep 2021 16:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809518;
-        bh=cuOdGNw7f1QnFZNVV4eoDeQrIqRmu4KsyB2G/6dTrig=;
+        s=korg; t=1631810581;
+        bh=2x7/CSbTysEkoXuTJRs3YjYmDB0FmJSXP4i7ZfdVy3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VW1gOBm5h/cgXpxNIvnFpnk3utkvXYznVewwd6JC5G2B58V25y1oT+UFcZyBexLp3
-         tnpO9rgDipMTIFLrD153EwYeeazsTtVdLLPMJpRgxvxp02VNc7lU8guIzpj1gH3MK7
-         RPDEoTn3boefb9ai3FJCJaSFENas+J8fKIyL8zjk=
+        b=gp08Ix/Vyl8UO0HvAyeGY3lBTYqAUIPfN184WjINSFOVjHV7HWMNqnicjsrA4d5tR
+         8bL7gTy0/8ugh3SuK9TeJI6Mr6Z+PVHymyF1XOB1Pn2+wBYCGLVxDwKbLN1LPUqQg3
+         36MxIY4KpyMkEArl+pwbiMWCHMyB0a+mic+RrB44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Zhouyi Zhou <zhouzhouyi@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 184/380] media: platform: stm32: unprepare clocks at handling errors in probe
+Subject: [PATCH 5.14 192/432] rcu: Fix macro name CONFIG_TASKS_RCU_TRACE
 Date:   Thu, 16 Sep 2021 17:59:01 +0200
-Message-Id: <20210916155810.329373630@linuxfoundation.org>
+Message-Id: <20210916155817.262276114@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Zhouyi Zhou <zhouzhouyi@gmail.com>
 
-[ Upstream commit 055d2db28ec2fa3ab5c527c5604f1b32b89fa13a ]
+[ Upstream commit fed31a4dd3adb5455df7c704de2abb639a1dc1c0 ]
 
-stm32_cec_probe() did not unprepare clocks on error handling paths. The
-patch fixes that.
+This commit fixes several typos where CONFIG_TASKS_RCU_TRACE should
+instead be CONFIG_TASKS_TRACE_RCU.  Among other things, these typos
+could cause CONFIG_TASKS_TRACE_RCU_READ_MB=y kernels to suffer from
+memory-ordering bugs that could result in false-positive quiescent
+states and too-short grace periods.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Zhouyi Zhou <zhouzhouyi@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/platform/stm32/stm32-cec.c | 26 ++++++++++++++------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ include/linux/rcupdate.h | 2 +-
+ kernel/rcu/tree_plugin.h | 8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/cec/platform/stm32/stm32-cec.c b/drivers/media/cec/platform/stm32/stm32-cec.c
-index ea4b1ebfca99..0ffd89712536 100644
---- a/drivers/media/cec/platform/stm32/stm32-cec.c
-+++ b/drivers/media/cec/platform/stm32/stm32-cec.c
-@@ -305,14 +305,16 @@ static int stm32_cec_probe(struct platform_device *pdev)
+diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
+index d9680b798b21..955c82b4737c 100644
+--- a/include/linux/rcupdate.h
++++ b/include/linux/rcupdate.h
+@@ -167,7 +167,7 @@ void synchronize_rcu_tasks(void);
+ # define synchronize_rcu_tasks synchronize_rcu
+ # endif
  
- 	cec->clk_hdmi_cec = devm_clk_get(&pdev->dev, "hdmi-cec");
- 	if (IS_ERR(cec->clk_hdmi_cec) &&
--	    PTR_ERR(cec->clk_hdmi_cec) == -EPROBE_DEFER)
--		return -EPROBE_DEFER;
-+	    PTR_ERR(cec->clk_hdmi_cec) == -EPROBE_DEFER) {
-+		ret = -EPROBE_DEFER;
-+		goto err_unprepare_cec_clk;
-+	}
- 
- 	if (!IS_ERR(cec->clk_hdmi_cec)) {
- 		ret = clk_prepare(cec->clk_hdmi_cec);
- 		if (ret) {
- 			dev_err(&pdev->dev, "Can't prepare hdmi-cec clock\n");
--			return ret;
-+			goto err_unprepare_cec_clk;
- 		}
- 	}
- 
-@@ -324,19 +326,27 @@ static int stm32_cec_probe(struct platform_device *pdev)
- 			CEC_NAME, caps,	CEC_MAX_LOG_ADDRS);
- 	ret = PTR_ERR_OR_ZERO(cec->adap);
- 	if (ret)
--		return ret;
-+		goto err_unprepare_hdmi_cec_clk;
- 
- 	ret = cec_register_adapter(cec->adap, &pdev->dev);
--	if (ret) {
--		cec_delete_adapter(cec->adap);
--		return ret;
--	}
-+	if (ret)
-+		goto err_delete_adapter;
- 
- 	cec_hw_init(cec);
- 
- 	platform_set_drvdata(pdev, cec);
- 
- 	return 0;
-+
-+err_delete_adapter:
-+	cec_delete_adapter(cec->adap);
-+
-+err_unprepare_hdmi_cec_clk:
-+	clk_unprepare(cec->clk_hdmi_cec);
-+
-+err_unprepare_cec_clk:
-+	clk_unprepare(cec->clk_cec);
-+	return ret;
+-# ifdef CONFIG_TASKS_RCU_TRACE
++# ifdef CONFIG_TASKS_TRACE_RCU
+ # define rcu_tasks_trace_qs(t)						\
+ 	do {								\
+ 		if (!likely(READ_ONCE((t)->trc_reader_checked)) &&	\
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index de1dc3bb7f70..6ce104242b23 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -2982,17 +2982,17 @@ static void noinstr rcu_dynticks_task_exit(void)
+ /* Turn on heavyweight RCU tasks trace readers on idle/user entry. */
+ static void rcu_dynticks_task_trace_enter(void)
+ {
+-#ifdef CONFIG_TASKS_RCU_TRACE
++#ifdef CONFIG_TASKS_TRACE_RCU
+ 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB))
+ 		current->trc_reader_special.b.need_mb = true;
+-#endif /* #ifdef CONFIG_TASKS_RCU_TRACE */
++#endif /* #ifdef CONFIG_TASKS_TRACE_RCU */
  }
  
- static int stm32_cec_remove(struct platform_device *pdev)
+ /* Turn off heavyweight RCU tasks trace readers on idle/user exit. */
+ static void rcu_dynticks_task_trace_exit(void)
+ {
+-#ifdef CONFIG_TASKS_RCU_TRACE
++#ifdef CONFIG_TASKS_TRACE_RCU
+ 	if (IS_ENABLED(CONFIG_TASKS_TRACE_RCU_READ_MB))
+ 		current->trc_reader_special.b.need_mb = false;
+-#endif /* #ifdef CONFIG_TASKS_RCU_TRACE */
++#endif /* #ifdef CONFIG_TASKS_TRACE_RCU */
+ }
 -- 
 2.30.2
 
