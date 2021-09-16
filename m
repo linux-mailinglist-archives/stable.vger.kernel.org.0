@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A92D40E5DD
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:28:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B918D40E263
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343561AbhIPRQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:16:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39802 "EHLO mail.kernel.org"
+        id S242590AbhIPQhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:37:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350548AbhIPRN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:13:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5392961B55;
-        Thu, 16 Sep 2021 16:38:58 +0000 (UTC)
+        id S242383AbhIPQf2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:35:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8304F619E5;
+        Thu, 16 Sep 2021 16:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810338;
-        bh=Y4UIgB3891sM8ME1fxlQT60gDFlCPHdkCSYW5MO6J/w=;
+        s=korg; t=1631809285;
+        bh=5uWLQIGjypxunhfDBSoc978te0fgAKCKAPXtNb+PCdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ybmPcfzL0q03Fx2Vcf9MRsu4DxW69urP+fdRsUSPBRw5XiVVy4viOty3zCmZHW+gA
-         RhAmD4OnLgShgAV5eoROw35qvJK8T74LBeAPKN1HeH2cjnspB3NXkxun6MG7XM9nzk
-         jriWi2dQXkYnBZmvJVzvY+7Nq3pm3wy+6+Vg7Rx8=
+        b=LT5Xk+wR708p43QCsJncuPitRwm6lNARZZA4B5TT4wCugNbe8Eif4hrJAinRL66Bg
+         r9SGC+7BfBOhCA8qSHm2OUbmHnwt5RQ0IeX9PGqyCeGR5OUlr5vXdeZ3DWEN3XM4bR
+         cQHOp4dbMgVq2NFVTPF3CxTfaEjykzW8RLit3Ib4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 105/432] NFSv4/pNFS: Always allow update of a zero valued layout barrier
-Date:   Thu, 16 Sep 2021 17:57:34 +0200
-Message-Id: <20210916155814.329967605@linuxfoundation.org>
+Subject: [PATCH 5.13 098/380] SUNRPC/xprtrdma: Fix reconnection locking
+Date:   Thu, 16 Sep 2021 17:57:35 +0200
+Message-Id: <20210916155807.361980100@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +43,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 45baadaad7bf9183651fb74f4ed1200da48505a5 ]
+[ Upstream commit f99fa50880f5300fbbb3c0754ddc7f8738d24fe7 ]
 
-A zero value for the layout barrier indicates that it has been cleared
-(since seqid '0' is an illegal value), so we should always allow it to
-be updated.
+The xprtrdma client code currently relies on the task that initiated the
+connect to hold the XPRT_LOCK for the duration of the connection
+attempt. If the task is woken early, due to some other event, then that
+lock could get released early.
+Avoid races by using the same mechanism that the socket code uses of
+transferring lock ownership to the RDMA connect worker itself. That
+frees us to call rpcrdma_xprt_disconnect() directly since we're now
+guaranteed exclusion w.r.t. other callers.
 
-Fixes: d29b468da4f9 ("pNFS/NFSv4: Improve rejection of out-of-order layouts")
+Fixes: 4cf44be6f1e8 ("xprtrdma: Fix recursion into rpcrdma_xprt_disconnect()")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pnfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/xprt.c               |  2 ++
+ net/sunrpc/xprtrdma/transport.c | 11 +++++------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index da5cacad6979..615ac993b9f9 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -335,7 +335,7 @@ static bool pnfs_seqid_is_newer(u32 s1, u32 s2)
+diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
+index 19fa8616b8cf..8d3983c8b4d6 100644
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -872,6 +872,7 @@ bool xprt_lock_connect(struct rpc_xprt *xprt,
+ 	spin_unlock(&xprt->transport_lock);
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(xprt_lock_connect);
  
- static void pnfs_barrier_update(struct pnfs_layout_hdr *lo, u32 newseq)
+ void xprt_unlock_connect(struct rpc_xprt *xprt, void *cookie)
  {
--	if (pnfs_seqid_is_newer(newseq, lo->plh_barrier))
-+	if (pnfs_seqid_is_newer(newseq, lo->plh_barrier) || !lo->plh_barrier)
- 		lo->plh_barrier = newseq;
+@@ -888,6 +889,7 @@ void xprt_unlock_connect(struct rpc_xprt *xprt, void *cookie)
+ 	spin_unlock(&xprt->transport_lock);
+ 	wake_up_bit(&xprt->state, XPRT_LOCKED);
+ }
++EXPORT_SYMBOL_GPL(xprt_unlock_connect);
+ 
+ /**
+  * xprt_connect - schedule a transport connect operation
+diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
+index 19a49d26b1e4..d2052f06acfa 100644
+--- a/net/sunrpc/xprtrdma/transport.c
++++ b/net/sunrpc/xprtrdma/transport.c
+@@ -249,12 +249,9 @@ xprt_rdma_connect_worker(struct work_struct *work)
+ 					   xprt->stat.connect_start;
+ 		xprt_set_connected(xprt);
+ 		rc = -EAGAIN;
+-	} else {
+-		/* Force a call to xprt_rdma_close to clean up */
+-		spin_lock(&xprt->transport_lock);
+-		set_bit(XPRT_CLOSE_WAIT, &xprt->state);
+-		spin_unlock(&xprt->transport_lock);
+-	}
++	} else
++		rpcrdma_xprt_disconnect(r_xprt);
++	xprt_unlock_connect(xprt, r_xprt);
+ 	xprt_wake_pending_tasks(xprt, rc);
  }
  
+@@ -487,6 +484,8 @@ xprt_rdma_connect(struct rpc_xprt *xprt, struct rpc_task *task)
+ 	struct rpcrdma_ep *ep = r_xprt->rx_ep;
+ 	unsigned long delay;
+ 
++	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, r_xprt));
++
+ 	delay = 0;
+ 	if (ep && ep->re_connect_status != 0) {
+ 		delay = xprt_reconnect_delay(xprt);
 -- 
 2.30.2
 
