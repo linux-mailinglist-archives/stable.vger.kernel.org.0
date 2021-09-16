@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F52B40E769
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B74B240E3B9
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347611AbhIPRcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:32:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47996 "EHLO mail.kernel.org"
+        id S231376AbhIPQvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:51:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353054AbhIPR3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:29:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBA7360F6B;
-        Thu, 16 Sep 2021 16:46:42 +0000 (UTC)
+        id S245068AbhIPQsF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:48:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ECCC60FA0;
+        Thu, 16 Sep 2021 16:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810803;
-        bh=KMk49yov0aAIJvFdbrdKIwR8Zc6m977asTdDdJtRt4Q=;
+        s=korg; t=1631809627;
+        bh=3O0lqPPUH/2D2pVU3SgtAvx6ACObZxJzsIqXDUgcDLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6n2ISLtpFSMwnHcLv5JI4ru+zs5jv1GQGDzoSBit/65oLeFxI+RXo3RCYgsFjtxv
-         /IOl61LcL5CkGd/vXMGCD0Obh/ryQatqF6nJLKGRY/HsDX0RhTb0LIPwJ+XGgCDUKh
-         Gr8qr/V7ivdXiYm5mon/dfFBaWfQOJOxIazGPgfY=
+        b=ZzQeWQGwFjEPA7qOhDSLA51MyXHqEHWlUpk1oTWVyocV/8MzXhidFh2wPcC0l82tF
+         gYCjQQ1ZxUkSFc58OtB108KxaXbaKmvk5MsCm9H0UOYprgTvjBUQrYsnzumrs0kbHC
+         a9xGQgACnibZUkr0KNOFCeV22SjXMszvUqJZIZmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Zankel <chris@zankel.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        linux-xtensa@linux-xtensa.org, Jiri Slaby <jslaby@suse.cz>,
+        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 231/432] xtensa: ISS: dont panic in rs_init
-Date:   Thu, 16 Sep 2021 17:59:40 +0200
-Message-Id: <20210916155818.675080589@linuxfoundation.org>
+Subject: [PATCH 5.13 224/380] dpaa2-switch: do not enable the DPSW at probe time
+Date:   Thu, 16 Sep 2021 17:59:41 +0200
+Message-Id: <20210916155811.710697285@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit 23411c720052ad860b3e579ee4873511e367130a ]
+[ Upstream commit 042ad90ca7ce70f35dc5efd5b2043d2f8aceb12a ]
 
-While alloc_tty_driver failure in rs_init would mean we have much bigger
-problem, there is no reason to panic when tty_register_driver fails
-there. It can fail for various reasons.
+We should not enable the switch interfaces at probe time since this is
+trigged by the open callback. Remove the call dpsw_enable() which does
+exactly this.
 
-So handle the failure gracefully. Actually handle them both while at it.
-This will make at least the console functional as it was enabled earlier
-by console_initcall in iss_console_init. Instead of shooting down the
-whole system.
-
-We move tty_port_init() after alloc_tty_driver(), so that we don't need
-to destroy the port in case the latter function fails.
-
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: linux-xtensa@linux-xtensa.org
-Acked-by: Max Filippov <jcmvbkbc@gmail.com>
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20210723074317.32690-2-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/platforms/iss/console.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/arch/xtensa/platforms/iss/console.c b/arch/xtensa/platforms/iss/console.c
-index 21184488c277..0108504dfb45 100644
---- a/arch/xtensa/platforms/iss/console.c
-+++ b/arch/xtensa/platforms/iss/console.c
-@@ -136,9 +136,13 @@ static const struct tty_operations serial_ops = {
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
+index 58964d22cb17..e3a3499ba7a2 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-switch.c
+@@ -3231,12 +3231,6 @@ static int dpaa2_switch_probe(struct fsl_mc_device *sw_dev)
+ 			       &ethsw->fq[i].napi, dpaa2_switch_poll,
+ 			       NAPI_POLL_WEIGHT);
  
- static int __init rs_init(void)
- {
--	tty_port_init(&serial_port);
-+	int ret;
- 
- 	serial_driver = alloc_tty_driver(SERIAL_MAX_NUM_LINES);
-+	if (!serial_driver)
-+		return -ENOMEM;
-+
-+	tty_port_init(&serial_port);
- 
- 	/* Initialize the tty_driver structure */
- 
-@@ -156,8 +160,15 @@ static int __init rs_init(void)
- 	tty_set_operations(serial_driver, &serial_ops);
- 	tty_port_link_device(&serial_port, serial_driver, 0);
- 
--	if (tty_register_driver(serial_driver))
--		panic("Couldn't register serial driver\n");
-+	ret = tty_register_driver(serial_driver);
-+	if (ret) {
-+		pr_err("Couldn't register serial driver\n");
-+		tty_driver_kref_put(serial_driver);
-+		tty_port_destroy(&serial_port);
-+
-+		return ret;
-+	}
-+
- 	return 0;
- }
- 
+-	err = dpsw_enable(ethsw->mc_io, 0, ethsw->dpsw_handle);
+-	if (err) {
+-		dev_err(ethsw->dev, "dpsw_enable err %d\n", err);
+-		goto err_free_netdev;
+-	}
+-
+ 	/* Setup IRQs */
+ 	err = dpaa2_switch_setup_irqs(sw_dev);
+ 	if (err)
 -- 
 2.30.2
 
