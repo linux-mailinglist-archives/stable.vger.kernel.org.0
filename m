@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A31DD40E70E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA81A40E04D
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347322AbhIPR2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:28:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46950 "EHLO mail.kernel.org"
+        id S235767AbhIPQUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348327AbhIPRZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:25:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D10CC630EA;
-        Thu, 16 Sep 2021 16:44:22 +0000 (UTC)
+        id S241199AbhIPQTT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:19:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8526C61130;
+        Thu, 16 Sep 2021 16:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810663;
-        bh=uKKv48X/rwTXchpUk/HynlKWdL8cvr6NSDQypKRjBG4=;
+        s=korg; t=1631808799;
+        bh=tJx5Me14Up6H331wYl0tEsLU0NwA6R6MkytkCBcxx38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCtqouMJo1hLtOSXHL7D3d/BWn+vLEYngYxpafZWRQDNDz/02JkZkVYLPNd/kYkcB
-         mApKSg+MWSHOQSExP6uU0H/FwjpwetC3yKt8HMWchJJXTjS2DWqDBy9/T13HzF1Ici
-         14dRdHDQYgOV62Ziky2Vz2UYPD57qjDaFiaMRTQE=
+        b=ahZIRuEDdhFVTLyVM6lpMn/zDK+LiQ2haHpqpkU7+/lL5tpfMPK6ANVN+Q1kvcafM
+         /jfv/1sVlkiIquafkM6Gk6QdDTO1hAMNkwdsrvYWf+/AQjrpdVdzEyGDmuoq78yR4O
+         oe9m7UD/h/eej0j1giI3EBdwZWMQx7xEpcaJ6JpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Brandon Wyman <bjwyman@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 223/432] net: ipa: fix ipa_cmd_table_valid()
+Subject: [PATCH 5.10 227/306] hwmon: (pmbus/ibm-cffps) Fix write bits for LED control
 Date:   Thu, 16 Sep 2021 17:59:32 +0200
-Message-Id: <20210916155818.406946877@linuxfoundation.org>
+Message-Id: <20210916155801.797580566@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,160 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Brandon Wyman <bjwyman@gmail.com>
 
-[ Upstream commit f2c1dac0abcfa93e8b20065b8d6b4b2b6f9990aa ]
+[ Upstream commit 76b72736f574ec38b3e94603ea5f74b1853f26b0 ]
 
-Stop supporting different sizes for hashed and non-hashed filter or
-route tables.  Add BUILD_BUG_ON() calls to verify the sizes of the
-fields in the filter/route table initialization immediate command
-are the same.
+When doing a PMBus write for the LED control on the IBM Common Form
+Factor Power Supplies (ibm-cffps), the DAh command requires that bit 7
+be low and bit 6 be high in order to indicate that you are truly
+attempting to do a write.
 
-Add a check to ipa_cmd_table_valid() to ensure the size of the
-memory region being checked fits within the immediate command field
-that must hold it.
-
-Remove two Boolean parameters used only for error reporting.  This
-actually fixes a bug that would only show up if IPA_VALIDATE were
-defined.  Define ipa_cmd_table_valid() unconditionally (no longer
-dependent on IPA_VALIDATE).
-
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Brandon Wyman <bjwyman@gmail.com>
+Link: https://lore.kernel.org/r/20210806225131.1808759-1-bjwyman@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa_cmd.c   | 38 ++++++++++++++++++++++++-------------
- drivers/net/ipa/ipa_cmd.h   | 15 +++------------
- drivers/net/ipa/ipa_table.c |  2 +-
- 3 files changed, 29 insertions(+), 26 deletions(-)
+ drivers/hwmon/pmbus/ibm-cffps.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ipa/ipa_cmd.c b/drivers/net/ipa/ipa_cmd.c
-index af44ca41189e..bda8677eae88 100644
---- a/drivers/net/ipa/ipa_cmd.c
-+++ b/drivers/net/ipa/ipa_cmd.c
-@@ -159,35 +159,45 @@ static void ipa_cmd_validate_build(void)
- 	BUILD_BUG_ON(TABLE_SIZE > field_max(IP_FLTRT_FLAGS_NHASH_SIZE_FMASK));
- #undef TABLE_COUNT_MAX
- #undef TABLE_SIZE
--}
+diff --git a/drivers/hwmon/pmbus/ibm-cffps.c b/drivers/hwmon/pmbus/ibm-cffps.c
+index 2fb7540ee952..79bc2032dcb2 100644
+--- a/drivers/hwmon/pmbus/ibm-cffps.c
++++ b/drivers/hwmon/pmbus/ibm-cffps.c
+@@ -50,9 +50,9 @@
+ #define CFFPS_MFR_VAUX_FAULT			BIT(6)
+ #define CFFPS_MFR_CURRENT_SHARE_WARNING		BIT(7)
  
--#ifdef IPA_VALIDATE
-+	/* Hashed and non-hashed fields are assumed to be the same size */
-+	BUILD_BUG_ON(field_max(IP_FLTRT_FLAGS_HASH_SIZE_FMASK) !=
-+		     field_max(IP_FLTRT_FLAGS_NHASH_SIZE_FMASK));
-+	BUILD_BUG_ON(field_max(IP_FLTRT_FLAGS_HASH_ADDR_FMASK) !=
-+		     field_max(IP_FLTRT_FLAGS_NHASH_ADDR_FMASK));
-+}
+-#define CFFPS_LED_BLINK				BIT(0)
+-#define CFFPS_LED_ON				BIT(1)
+-#define CFFPS_LED_OFF				BIT(2)
++#define CFFPS_LED_BLINK				(BIT(0) | BIT(6))
++#define CFFPS_LED_ON				(BIT(1) | BIT(6))
++#define CFFPS_LED_OFF				(BIT(2) | BIT(6))
+ #define CFFPS_BLINK_RATE_MS			250
  
- /* Validate a memory region holding a table */
--bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem,
--			 bool route, bool ipv6, bool hashed)
-+bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem, bool route)
- {
-+	u32 offset_max = field_max(IP_FLTRT_FLAGS_NHASH_ADDR_FMASK);
-+	u32 size_max = field_max(IP_FLTRT_FLAGS_NHASH_SIZE_FMASK);
-+	const char *table = route ? "route" : "filter";
- 	struct device *dev = &ipa->pdev->dev;
--	u32 offset_max;
- 
--	offset_max = hashed ? field_max(IP_FLTRT_FLAGS_HASH_ADDR_FMASK)
--			    : field_max(IP_FLTRT_FLAGS_NHASH_ADDR_FMASK);
-+	/* Size must fit in the immediate command field that holds it */
-+	if (mem->size > size_max) {
-+		dev_err(dev, "%s table region size too large\n", table);
-+		dev_err(dev, "    (0x%04x > 0x%04x)\n",
-+			mem->size, size_max);
-+
-+		return false;
-+	}
-+
-+	/* Offset must fit in the immediate command field that holds it */
- 	if (mem->offset > offset_max ||
- 	    ipa->mem_offset > offset_max - mem->offset) {
--		dev_err(dev, "IPv%c %s%s table region offset too large\n",
--			ipv6 ? '6' : '4', hashed ? "hashed " : "",
--			route ? "route" : "filter");
-+		dev_err(dev, "%s table region offset too large\n", table);
- 		dev_err(dev, "    (0x%04x + 0x%04x > 0x%04x)\n",
- 			ipa->mem_offset, mem->offset, offset_max);
- 
- 		return false;
- 	}
- 
-+	/* Entire memory range must fit within IPA-local memory */
- 	if (mem->offset > ipa->mem_size ||
- 	    mem->size > ipa->mem_size - mem->offset) {
--		dev_err(dev, "IPv%c %s%s table region out of range\n",
--			ipv6 ? '6' : '4', hashed ? "hashed " : "",
--			route ? "route" : "filter");
-+		dev_err(dev, "%s table region out of range\n", table);
- 		dev_err(dev, "    (0x%04x + 0x%04x > 0x%04x)\n",
- 			mem->offset, mem->size, ipa->mem_size);
- 
-@@ -197,6 +207,8 @@ bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem,
- 	return true;
- }
- 
-+#ifdef IPA_VALIDATE
-+
- /* Validate the memory region that holds headers */
- static bool ipa_cmd_header_valid(struct ipa *ipa)
- {
-diff --git a/drivers/net/ipa/ipa_cmd.h b/drivers/net/ipa/ipa_cmd.h
-index b99262281f41..ea723419c826 100644
---- a/drivers/net/ipa/ipa_cmd.h
-+++ b/drivers/net/ipa/ipa_cmd.h
-@@ -57,20 +57,18 @@ struct ipa_cmd_info {
- 	enum dma_data_direction direction;
- };
- 
--#ifdef IPA_VALIDATE
--
- /**
-  * ipa_cmd_table_valid() - Validate a memory region holding a table
-  * @ipa:	- IPA pointer
-  * @mem:	- IPA memory region descriptor
-  * @route:	- Whether the region holds a route or filter table
-- * @ipv6:	- Whether the table is for IPv6 or IPv4
-- * @hashed:	- Whether the table is hashed or non-hashed
-  *
-  * Return:	true if region is valid, false otherwise
-  */
- bool ipa_cmd_table_valid(struct ipa *ipa, const struct ipa_mem *mem,
--			    bool route, bool ipv6, bool hashed);
-+			    bool route);
-+
-+#ifdef IPA_VALIDATE
- 
- /**
-  * ipa_cmd_data_valid() - Validate command-realted configuration is valid
-@@ -82,13 +80,6 @@ bool ipa_cmd_data_valid(struct ipa *ipa);
- 
- #else /* !IPA_VALIDATE */
- 
--static inline bool ipa_cmd_table_valid(struct ipa *ipa,
--				       const struct ipa_mem *mem, bool route,
--				       bool ipv6, bool hashed)
--{
--	return true;
--}
--
- static inline bool ipa_cmd_data_valid(struct ipa *ipa)
- {
- 	return true;
-diff --git a/drivers/net/ipa/ipa_table.c b/drivers/net/ipa/ipa_table.c
-index c617a9156f26..4f5b6749f6aa 100644
---- a/drivers/net/ipa/ipa_table.c
-+++ b/drivers/net/ipa/ipa_table.c
-@@ -161,7 +161,7 @@ ipa_table_valid_one(struct ipa *ipa, enum ipa_mem_id mem_id, bool route)
- 	else
- 		size = (1 + IPA_FILTER_COUNT_MAX) * sizeof(__le64);
- 
--	if (!ipa_cmd_table_valid(ipa, mem, route, ipv6, hashed))
-+	if (!ipa_cmd_table_valid(ipa, mem, route))
- 		return false;
- 
- 	/* mem->size >= size is sufficient, but we'll demand more */
+ enum {
 -- 
 2.30.2
 
