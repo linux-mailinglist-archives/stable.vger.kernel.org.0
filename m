@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B9140E457
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1186240E09A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244769AbhIPQ5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:57:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40196 "EHLO mail.kernel.org"
+        id S235605AbhIPQWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:22:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344176AbhIPQyK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:54:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 733C361360;
-        Thu, 16 Sep 2021 16:29:53 +0000 (UTC)
+        id S236066AbhIPQUi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:20:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9B6461406;
+        Thu, 16 Sep 2021 16:14:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809794;
-        bh=/YbFxoL+VO9sDJRj89LmtYcQj6jy8z06mTZrGIZtq44=;
+        s=korg; t=1631808877;
+        bh=ipq2xZ7CFfhWJwJIgNAoPCVmyXRWSBM7cc6PGH9Baig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OETeacAqF8JrRKLolNfgahiiIFsi/eUTEWmos4T9itUomPZIktRrQQvpBNjphXUy6
-         cf4yH2D1y64CQ8BMGCyj0qCXhM/4AaP4aitMENCtAzivt90UfUzsBj6scOD5F7xp4z
-         M9CdtUUpPBffDv8FUIkB9k64y8uCmgJCm1fvmOmM=
+        b=qhVcWrF9S0JmFsxPFKxPpPW1t2hzCqYbrI0yc4tXDunVaGwcYNvRto4nxJ4UHowFT
+         G4UDjCKbodg2BZCztwgtV7l03jXXQIx9EC1f27dZfzwzV056IQEsDjlcGG6kplqzPD
+         ZsJs27DEG7oCb+lzpLyCJJxzXH9VdyTvP2Qcd+Dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Rajendra Nayak <rnayak@codeaurora.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Michael <msbroadf@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 244/380] nvmem: qfprom: Fix up qfprom_disable_fuse_blowing() ordering
+Subject: [PATCH 5.10 256/306] usbip:vhci_hcd USB port can get stuck in the disabled state
 Date:   Thu, 16 Sep 2021 18:00:01 +0200
-Message-Id: <20210916155812.372039424@linuxfoundation.org>
+Message-Id: <20210916155802.794908059@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajendra Nayak <rnayak@codeaurora.org>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 11c4b3e264d68ba6dcd52d12dbcfd3f564f2f137 ]
+[ Upstream commit 66cce9e73ec61967ed1f97f30cee79bd9a2bb7ee ]
 
-qfprom_disable_fuse_blowing() disables a bunch of resources,
-and then does a few register writes in the 'conf' address
-space.
-It works perhaps because the resources are needed only for the
-'raw' register space writes, and that the 'conf' space allows
-read/writes regardless.
-However that makes the code look confusing, so just move the
-register writes before turning off the resources in the
-function.
+When a remote usb device is attached to the local Virtual USB
+Host Controller Root Hub port, the bound device driver may send
+a port reset command.
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Rajendra Nayak <rnayak@codeaurora.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210806085947.22682-3-srinivas.kandagatla@linaro.org
+vhci_hcd accepts port resets only when the device doesn't have
+port address assigned to it. When reset happens device is in
+assigned/used state and vhci_hcd rejects it leaving the port in
+a stuck state.
+
+This problem was found when a blue-tooth or xbox wireless dongle
+was passed through using usbip.
+
+A few drivers reset the port during probe including mt76 driver
+specific to this bug report. Fix the problem with a change to
+honor reset requests when device is in used state (VDEV_ST_USED).
+
+Reported-and-tested-by: Michael <msbroadf@gmail.com>
+Suggested-by: Michael <msbroadf@gmail.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210819225937.41037-1-skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/qfprom.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/usbip/vhci_hcd.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvmem/qfprom.c b/drivers/nvmem/qfprom.c
-index d6d3f24685a8..f372eda2b255 100644
---- a/drivers/nvmem/qfprom.c
-+++ b/drivers/nvmem/qfprom.c
-@@ -138,6 +138,9 @@ static void qfprom_disable_fuse_blowing(const struct qfprom_priv *priv,
- {
- 	int ret;
+diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
+index 190bd3d1c1f0..b07b2925ff78 100644
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -455,8 +455,14 @@ static int vhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
+ 			vhci_hcd->port_status[rhport] &= ~(1 << USB_PORT_FEAT_RESET);
+ 			vhci_hcd->re_timeout = 0;
  
-+	writel(old->timer_val, priv->qfpconf + QFPROM_BLOW_TIMER_OFFSET);
-+	writel(old->accel_val, priv->qfpconf + QFPROM_ACCEL_OFFSET);
-+
- 	/*
- 	 * This may be a shared rail and may be able to run at a lower rate
- 	 * when we're not blowing fuses.  At the moment, the regulator framework
-@@ -158,9 +161,6 @@ static void qfprom_disable_fuse_blowing(const struct qfprom_priv *priv,
- 			 "Failed to set clock rate for disable (ignoring)\n");
- 
- 	clk_disable_unprepare(priv->secclk);
--
--	writel(old->timer_val, priv->qfpconf + QFPROM_BLOW_TIMER_OFFSET);
--	writel(old->accel_val, priv->qfpconf + QFPROM_ACCEL_OFFSET);
- }
- 
- /**
++			/*
++			 * A few drivers do usb reset during probe when
++			 * the device could be in VDEV_ST_USED state
++			 */
+ 			if (vhci_hcd->vdev[rhport].ud.status ==
+-			    VDEV_ST_NOTASSIGNED) {
++				VDEV_ST_NOTASSIGNED ||
++			    vhci_hcd->vdev[rhport].ud.status ==
++				VDEV_ST_USED) {
+ 				usbip_dbg_vhci_rh(
+ 					" enable rhport %d (status %u)\n",
+ 					rhport,
 -- 
 2.30.2
 
