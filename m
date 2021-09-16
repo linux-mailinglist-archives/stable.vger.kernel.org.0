@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 756C040E3BF
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B159140E765
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242028AbhIPQvp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:51:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36672 "EHLO mail.kernel.org"
+        id S1347501AbhIPRcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:32:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344778AbhIPQsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:48:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B4E361503;
-        Thu, 16 Sep 2021 16:27:28 +0000 (UTC)
+        id S1353039AbhIPR3x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:29:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95C276113E;
+        Thu, 16 Sep 2021 16:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809648;
-        bh=hBMpEcqTLqk1Iuuh/VqFCCsSi3SUvQ2kusH5coJhz90=;
+        s=korg; t=1631810798;
+        bh=0SQO3dsOesV/b1l38s4e7bxFqHBn1nCeqqbt7vgjWlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEPfWVLprWjamuHT7wot2bB4DS1L4RhprvMhzMyhfxObM3ZWAVux0AB2MNdOhNYRs
-         rfwButiiQ506Hfy+wx2xPiK0IR5wChHj5nwmWrPFZLh/F/NwOHz5UTYKd2Mvv+f4Sr
-         vscLUFbq61tJnI++YKOJN5tpFZyuKVCGhtyjNlHs=
+        b=2H1BFAL1y6kHBjltq44NpWYymRhm9HOErZYhcEi1w94V+xThTHiUo1+o38O7zgg42
+         OtQUI4oMzh84OM+JOA8oiddAGLJiJnKK3EkolA4IrLuI0YEZ6TPi/u1sRfy5XI6QAG
+         bcbVlvhrhhscX0W5sftVnPOGWqrL30pHr8u9O77E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 231/380] gfs2: Fix glock recursion in freeze_go_xmote_bh
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 239/432] ata: sata_dwc_460ex: No need to call phy_exit() befre phy_init()
 Date:   Thu, 16 Sep 2021 17:59:48 +0200
-Message-Id: <20210916155811.941403711@linuxfoundation.org>
+Message-Id: <20210916155818.936644577@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 9d9b16054b7d357afde69a027514c695092b0d22 ]
+[ Upstream commit 3ad4a31620355358316fa08fcfab37b9d6c33347 ]
 
-We must not call gfs2_consist (which does a file system withdraw) from
-the freeze glock's freeze_go_xmote_bh function because the withdraw
-will try to use the freeze glock, thus causing a glock recursion error.
+Last change to device managed APIs cleaned up error path to simple phy_exit()
+call, which in some cases has been executed with NULL parameter. This per se
+is not a problem, but rather logical misconception: no need to free resource
+when it's for sure has not been allocated yet. Fix the driver accordingly.
 
-This patch changes freeze_go_xmote_bh to call function
-gfs2_assert_withdraw_delayed instead of gfs2_consist to avoid recursion.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210727125130.19977-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glops.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/ata/sata_dwc_460ex.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/fs/gfs2/glops.c b/fs/gfs2/glops.c
-index 54d3fbeb3002..384565d63eea 100644
---- a/fs/gfs2/glops.c
-+++ b/fs/gfs2/glops.c
-@@ -610,16 +610,13 @@ static int freeze_go_xmote_bh(struct gfs2_glock *gl)
- 		j_gl->gl_ops->go_inval(j_gl, DIO_METADATA);
- 
- 		error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
--		if (error)
--			gfs2_consist(sdp);
--		if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT))
--			gfs2_consist(sdp);
--
--		/*  Initialize some head of the log stuff  */
--		if (!gfs2_withdrawn(sdp)) {
--			sdp->sd_log_sequence = head.lh_sequence + 1;
--			gfs2_log_pointers_init(sdp, head.lh_blkno);
--		}
-+		if (gfs2_assert_withdraw_delayed(sdp, !error))
-+			return error;
-+		if (gfs2_assert_withdraw_delayed(sdp, head.lh_flags &
-+						 GFS2_LOG_HEAD_UNMOUNT))
-+			return -EIO;
-+		sdp->sd_log_sequence = head.lh_sequence + 1;
-+		gfs2_log_pointers_init(sdp, head.lh_blkno);
+diff --git a/drivers/ata/sata_dwc_460ex.c b/drivers/ata/sata_dwc_460ex.c
+index f0ef844428bb..338c2e50f759 100644
+--- a/drivers/ata/sata_dwc_460ex.c
++++ b/drivers/ata/sata_dwc_460ex.c
+@@ -1259,24 +1259,20 @@ static int sata_dwc_probe(struct platform_device *ofdev)
+ 	irq = irq_of_parse_and_map(np, 0);
+ 	if (irq == NO_IRQ) {
+ 		dev_err(&ofdev->dev, "no SATA DMA irq\n");
+-		err = -ENODEV;
+-		goto error_out;
++		return -ENODEV;
  	}
- 	return 0;
- }
+ 
+ #ifdef CONFIG_SATA_DWC_OLD_DMA
+ 	if (!of_find_property(np, "dmas", NULL)) {
+ 		err = sata_dwc_dma_init_old(ofdev, hsdev);
+ 		if (err)
+-			goto error_out;
++			return err;
+ 	}
+ #endif
+ 
+ 	hsdev->phy = devm_phy_optional_get(hsdev->dev, "sata-phy");
+-	if (IS_ERR(hsdev->phy)) {
+-		err = PTR_ERR(hsdev->phy);
+-		hsdev->phy = NULL;
+-		goto error_out;
+-	}
++	if (IS_ERR(hsdev->phy))
++		return PTR_ERR(hsdev->phy);
+ 
+ 	err = phy_init(hsdev->phy);
+ 	if (err)
 -- 
 2.30.2
 
