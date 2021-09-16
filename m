@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0915940E347
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8BF840E039
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244549AbhIPQqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:46:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57378 "EHLO mail.kernel.org"
+        id S234356AbhIPQU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344030AbhIPQo3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:44:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60B4D61A50;
-        Thu, 16 Sep 2021 16:25:34 +0000 (UTC)
+        id S240809AbhIPQRV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:17:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39C2661351;
+        Thu, 16 Sep 2021 16:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809534;
-        bh=UZo5Yy7QTYhzHVk71euLtpgz+jm8v+bFd92XXXXGbD8=;
+        s=korg; t=1631808734;
+        bh=wUMljGhgc5yPRcPZeHQ2QtxN4l0omWgDnImvqWZCzSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kD5yjxQmOoiISbmF8xS+sZ7yLXCYnFDRK3kVplEoLtF8ltg7wT7jqr1hD3cav4oJl
-         ngQQFlZrCXoomTJaact0LyMRaejh76wBuako7bLT1/lQa+cT6NHkPVV+951Ct4iJOP
-         HrU3lLcdnCx8WQR1q1vG6zv7ntRX9tCbfcyPqsvI=
+        b=QjitLb0wMQQm3Lzadj8uTbgP8daNJM4VIG9Grn2KL2AcjJoNSxR48YnlLmKDH7izd
+         wuFWhTX0WIiF2Tk9C3R/V4KlD0QA1KPlFwBGTYt7VP1sijbLWcBZMVUR3Wog3DD2o0
+         4ThIay1jXCxCHQ6jMY46yjKrNzhOswhr+WEHKkMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Jacob <Anson.Jacob@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Sanjay R Mehta <sanju.mehta@amd.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 190/380] drm/amd/amdgpu: Update debugfs link_settings output link_rate field in hex
+Subject: [PATCH 5.10 202/306] thunderbolt: Fix port linking by checking all adapters
 Date:   Thu, 16 Sep 2021 17:59:07 +0200
-Message-Id: <20210916155810.532984345@linuxfoundation.org>
+Message-Id: <20210916155800.938708217@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,72 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Jacob <Anson.Jacob@amd.com>
+From: Sanjay R Mehta <sanju.mehta@amd.com>
 
-[ Upstream commit 1a394b3c3de2577f200cb623c52a5c2b82805cec ]
+[ Upstream commit 42716425ad7e1b6529ec61c260c11176841f4b5f ]
 
-link_rate is updated via debugfs using hex values, set it to output
-in hex as well.
+In tb_switch_default_link_ports(), while linking of ports,
+only odd-numbered ports (1,3,5..) are considered and even-numbered
+ports are not considered.
 
-eg: Resolution: 1920x1080@144Hz
-cat /sys/kernel/debug/dri/0/DP-1/link_settings
-Current:  4  0x14  0  Verified:  4  0x1e  0  Reported:  4  0x1e  16  Preferred:  0  0x0  0
+AMD host router has lane adapters at 2 and 3 and link ports at adapter 2
+is not considered due to which lane bonding gets disabled.
 
-echo "4 0x1e" > /sys/kernel/debug/dri/0/DP-1/link_settings
+Hence added a fix such that all ports are considered during
+linking of ports.
 
-cat /sys/kernel/debug/dri/0/DP-1/link_settings
-Current:  4  0x1e  0  Verified:  4  0x1e  0  Reported:  4  0x1e  16  Preferred:  4  0x1e  0
-
-Signed-off-by: Anson Jacob <Anson.Jacob@amd.com>
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Signed-off-by: Sanjay R Mehta <sanju.mehta@amd.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/display/amdgpu_dm/amdgpu_dm_debugfs.c    | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/thunderbolt/switch.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
-index 1b6b15708b96..08ff1166ffc8 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
-@@ -197,29 +197,29 @@ static ssize_t dp_link_settings_read(struct file *f, char __user *buf,
+diff --git a/drivers/thunderbolt/switch.c b/drivers/thunderbolt/switch.c
+index 9a272a516b2d..c4b157c29af7 100644
+--- a/drivers/thunderbolt/switch.c
++++ b/drivers/thunderbolt/switch.c
+@@ -2204,7 +2204,7 @@ static void tb_switch_default_link_ports(struct tb_switch *sw)
+ {
+ 	int i;
  
- 	rd_buf_ptr = rd_buf;
+-	for (i = 1; i <= sw->config.max_port_number; i += 2) {
++	for (i = 1; i <= sw->config.max_port_number; i++) {
+ 		struct tb_port *port = &sw->ports[i];
+ 		struct tb_port *subordinate;
  
--	str_len = strlen("Current:  %d  %d  %d  ");
--	snprintf(rd_buf_ptr, str_len, "Current:  %d  %d  %d  ",
-+	str_len = strlen("Current:  %d  0x%x  %d  ");
-+	snprintf(rd_buf_ptr, str_len, "Current:  %d  0x%x  %d  ",
- 			link->cur_link_settings.lane_count,
- 			link->cur_link_settings.link_rate,
- 			link->cur_link_settings.link_spread);
- 	rd_buf_ptr += str_len;
- 
--	str_len = strlen("Verified:  %d  %d  %d  ");
--	snprintf(rd_buf_ptr, str_len, "Verified:  %d  %d  %d  ",
-+	str_len = strlen("Verified:  %d  0x%x  %d  ");
-+	snprintf(rd_buf_ptr, str_len, "Verified:  %d  0x%x  %d  ",
- 			link->verified_link_cap.lane_count,
- 			link->verified_link_cap.link_rate,
- 			link->verified_link_cap.link_spread);
- 	rd_buf_ptr += str_len;
- 
--	str_len = strlen("Reported:  %d  %d  %d  ");
--	snprintf(rd_buf_ptr, str_len, "Reported:  %d  %d  %d  ",
-+	str_len = strlen("Reported:  %d  0x%x  %d  ");
-+	snprintf(rd_buf_ptr, str_len, "Reported:  %d  0x%x  %d  ",
- 			link->reported_link_cap.lane_count,
- 			link->reported_link_cap.link_rate,
- 			link->reported_link_cap.link_spread);
- 	rd_buf_ptr += str_len;
- 
--	str_len = strlen("Preferred:  %d  %d  %d  ");
--	snprintf(rd_buf_ptr, str_len, "Preferred:  %d  %d  %d\n",
-+	str_len = strlen("Preferred:  %d  0x%x  %d  ");
-+	snprintf(rd_buf_ptr, str_len, "Preferred:  %d  0x%x  %d\n",
- 			link->preferred_link_setting.lane_count,
- 			link->preferred_link_setting.link_rate,
- 			link->preferred_link_setting.link_spread);
 -- 
 2.30.2
 
