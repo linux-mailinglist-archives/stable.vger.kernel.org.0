@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BCFB40E668
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:30:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 529BB40E108
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344338AbhIPRVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:21:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51938 "EHLO mail.kernel.org"
+        id S241265AbhIPQ0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:26:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347032AbhIPQ4u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:56:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A5EF61381;
-        Thu, 16 Sep 2021 16:31:20 +0000 (UTC)
+        id S241262AbhIPQYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:24:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1C17613D5;
+        Thu, 16 Sep 2021 16:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809880;
-        bh=wT3iu+1KsIblfmC2Xxu1rpoOWJc5iroPFIXC6zv3PRM=;
+        s=korg; t=1631808988;
+        bh=lKfQLl80sJAtRksVLfOVG9Ax5WTP8K6CA8bju2R/rjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aTNqd+yZRFwBpPTxPDSv1YDluD3Ql2Ew0VlpZrI5rBCMNSnrYHS7wnoyAEdWthrcW
-         eEZcFrm/5ZeJyIZnkNJqhZckG7Hxr54c2wzmQR47CLO5ZNB4icApdN/8QF3xtbTqyF
-         Rihh+xeJNwOuLC/zRjKxaJyT4Y1YoVuDkjqGc1zA=
+        b=d9BGWFrLqMNc+0+KSgj9gZ3jFjpk9IGkwkM0fsos0SU/Diwb/6go7uN/aityEARtZ
+         dcDXcitMyN1tyNetcn0BfHbwYIUmG/uyLWWxp/yeBp3aXN/+3AJOsHpI7ZXpNdxUtb
+         HzwuM5P6V2kx0y5ohVPnOt6dsBUuM34GVk4bj8hA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-staging@lists.linux.dev,
-        Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 285/380] staging: rts5208: Fix get_ms_information() heap buffer size
+        stable@vger.kernel.org, David Heidelberg <david@ixit.cz>,
+        Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 5.10 297/306] drm/msi/mdp4: populate priv->kms in mdp4_kms_init
 Date:   Thu, 16 Sep 2021 18:00:42 +0200
-Message-Id: <20210916155813.771281329@linuxfoundation.org>
+Message-Id: <20210916155804.220512364@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,84 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: David Heidelberg <david@ixit.cz>
 
-[ Upstream commit cbe34165cc1b7d1110b268ba8b9f30843c941639 ]
+commit cb0927ab80d224c9074f53d1a55b087d12ec5a85 upstream.
 
-Fix buf allocation size (it needs to be 2 bytes larger). Found when
-__alloc_size() annotations were added to kmalloc() interfaces.
+Without this fix boot throws NULL ptr exception at msm_dsi_manager_setup_encoder
+on devices like Nexus 7 2013 (MDP4 v4.4).
 
-In file included from ./include/linux/string.h:253,
-                 from ./include/linux/bitmap.h:10,
-                 from ./include/linux/cpumask.h:12,
-                 from ./arch/x86/include/asm/paravirt.h:17,
-                 from ./arch/x86/include/asm/irqflags.h:63,
-                 from ./include/linux/irqflags.h:16,
-                 from ./include/linux/rcupdate.h:26,
-                 from ./include/linux/rculist.h:11,
-                 from ./include/linux/pid.h:5,
-                 from ./include/linux/sched.h:14,
-                 from ./include/linux/blkdev.h:5,
-                 from drivers/staging/rts5208/rtsx_scsi.c:12:
-In function 'get_ms_information',
-    inlined from 'ms_sp_cmnd' at drivers/staging/rts5208/rtsx_scsi.c:2877:12,
-    inlined from 'rtsx_scsi_handler' at drivers/staging/rts5208/rtsx_scsi.c:3247:12:
-./include/linux/fortify-string.h:54:29: warning: '__builtin_memcpy' forming offset [106, 107] is out
- of the bounds [0, 106] [-Warray-bounds]
-   54 | #define __underlying_memcpy __builtin_memcpy
-      |                             ^
-./include/linux/fortify-string.h:417:2: note: in expansion of macro '__underlying_memcpy'
-  417 |  __underlying_##op(p, q, __fortify_size);   \
-      |  ^~~~~~~~~~~~~
-./include/linux/fortify-string.h:463:26: note: in expansion of macro '__fortify_memcpy_chk'
-  463 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,   \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/staging/rts5208/rtsx_scsi.c:2851:3: note: in expansion of macro 'memcpy'
- 2851 |   memcpy(buf + i, ms_card->raw_sys_info, 96);
-      |   ^~~~~~
+Fixes: 03436e3ec69c ("drm/msm/dsi: Move setup_encoder to modeset_init")
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-staging@lists.linux.dev
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210818044252.1533634-1-keescook@chromium.org
+Cc: <stable@vger.kernel.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
+Link: https://lore.kernel.org/r/20210811170631.39296-1-david@ixit.cz
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rts5208/rtsx_scsi.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/rts5208/rtsx_scsi.c b/drivers/staging/rts5208/rtsx_scsi.c
-index 1deb74112ad4..11d9d9155eef 100644
---- a/drivers/staging/rts5208/rtsx_scsi.c
-+++ b/drivers/staging/rts5208/rtsx_scsi.c
-@@ -2802,10 +2802,10 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
- 	}
+--- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+@@ -397,6 +397,7 @@ struct msm_kms *mdp4_kms_init(struct drm
+ {
+ 	struct platform_device *pdev = to_platform_device(dev->dev);
+ 	struct mdp4_platform_config *config = mdp4_get_config(pdev);
++	struct msm_drm_private *priv = dev->dev_private;
+ 	struct mdp4_kms *mdp4_kms;
+ 	struct msm_kms *kms = NULL;
+ 	struct msm_gem_address_space *aspace;
+@@ -412,7 +413,8 @@ struct msm_kms *mdp4_kms_init(struct drm
  
- 	if (dev_info_id == 0x15) {
--		buf_len = 0x3A;
-+		buf_len = 0x3C;
- 		data_len = 0x3A;
- 	} else {
--		buf_len = 0x6A;
-+		buf_len = 0x6C;
- 		data_len = 0x6A;
- 	}
+ 	mdp_kms_init(&mdp4_kms->base, &kms_funcs);
  
-@@ -2855,11 +2855,7 @@ static int get_ms_information(struct scsi_cmnd *srb, struct rtsx_chip *chip)
- 	}
+-	kms = &mdp4_kms->base.base;
++	priv->kms = &mdp4_kms->base.base;
++	kms = priv->kms;
  
- 	rtsx_stor_set_xfer_buf(buf, buf_len, srb);
--
--	if (dev_info_id == 0x15)
--		scsi_set_resid(srb, scsi_bufflen(srb) - 0x3C);
--	else
--		scsi_set_resid(srb, scsi_bufflen(srb) - 0x6C);
-+	scsi_set_resid(srb, scsi_bufflen(srb) - buf_len);
+ 	mdp4_kms->dev = dev;
  
- 	kfree(buf);
- 	return STATUS_SUCCESS;
--- 
-2.30.2
-
 
 
