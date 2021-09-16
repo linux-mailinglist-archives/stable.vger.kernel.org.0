@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BC0240DACB
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:11:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DBA940DACC
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 15:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239888AbhIPNMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 09:12:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58514 "EHLO mail.kernel.org"
+        id S239947AbhIPNMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 09:12:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239581AbhIPNMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 09:12:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EA50611C4;
-        Thu, 16 Sep 2021 13:11:16 +0000 (UTC)
+        id S239581AbhIPNMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 09:12:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B61860FBF;
+        Thu, 16 Sep 2021 13:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631797877;
-        bh=aTtpVVYPZe/akWC5Fk7WYBCmctokVimjNJnC6aNSZCI=;
+        s=korg; t=1631797886;
+        bh=BbbjaVN+FAMcSR9iMeThXEnaes17GrWJO4/aOjn38ec=;
         h=Subject:To:Cc:From:Date:From;
-        b=bBa0nIwg/9jp45jHdOIGs+jqCUhhk7v/7AsqSjKJ034CozmPBTPcs6WSE3/WpjKBN
-         qZL5CeIC4Tx1+zx4NnJSA0Cj9U91hWKU6WotsIJWYLgIqrLUP6IwbwNSWUwgxU9BAs
-         J8h/nlFsxl8grhG08em+t1uG/56NYxoEGtTA0nyM=
-Subject: FAILED: patch "[PATCH] drm/i915: Revert "drm/i915/gem: Asynchronous cmdparser"" failed to apply to 5.14-stable tree
+        b=VoLjbeuGUEWPAtYLm3xb1/qRtKl4KdjF50u9FgfkbOFwu3RTvz2UUfv3R/9M6ujL+
+         Sz7DxhNuRB/xr8H1eVsAGTOfuGjjpEP8lfkDoK80FyMrpaHl6E/SPvtNg5q+GwZ92/
+         ByFFEP0gef0rO4sw8NbSGyxPzBdRwoVJC5CWSQ3s=
+Subject: FAILED: patch "[PATCH] drm/i915: Revert "drm/i915/gem: Asynchronous cmdparser"" failed to apply to 5.13-stable tree
 To:     jason@jlekstrand.net, daniel.vetter@ffwll.ch,
         jon.bloomfield@intel.com, maarten.lankhorst@linux.intel.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 16 Sep 2021 15:11:14 +0200
-Message-ID: <163179787490175@kroah.com>
+Date:   Thu, 16 Sep 2021 15:11:15 +0200
+Message-ID: <16317978752086@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.14-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
