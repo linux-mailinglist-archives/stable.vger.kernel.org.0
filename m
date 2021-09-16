@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D4640DF02
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:04:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AFCB40E16E
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:29:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240656AbhIPQF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:05:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45104 "EHLO mail.kernel.org"
+        id S240991AbhIPQae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:30:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240666AbhIPQFz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:05:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24B416124B;
-        Thu, 16 Sep 2021 16:04:33 +0000 (UTC)
+        id S236996AbhIPQ1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:27:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3FC961529;
+        Thu, 16 Sep 2021 16:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808274;
-        bh=0ePl1E+3PuCV1SPXw9xIHOSJrgfL54JPk9ra8OAYrxg=;
+        s=korg; t=1631809053;
+        bh=c4V6EWY3Wn/cNSs1oKxOGg3WnslcDrOHs2+AwiRU454=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pajEWI+rYKN8gLLY9wEyvHKPSVVrzw4Lq+AY8ogSueAdT29DfqHNELj/cPJ/dhlQL
-         SFv2zMWLNtjPmUzVMY/HWvXriX9NfGtUISAxmm+dz+phLTpdr6HCtNu9NTAjK+O0g7
-         Z9IXLEUo6HHpuYsaYgOKI2Ht1NCFiqtLw5rJJH1c=
+        b=Q1Z2eoc0DJUT/faJI4uRiavZO3Hi4Ty/MmKv+o8VVZVTZ5cP+gcpg8QHoGYxnHCGq
+         SUChXvtCjKfqNJSMG6+Y03DW87UGNA38VMxpdSLSLYrlwhf5tOBh/R7WIFZ+lUneIn
+         qSLGaAzxpQINu7raQIvmEevjRYSL72TlmEcqUkcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Jade Alglave <jade.alglave@arm.com>,
-        Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.10 026/306] arm64: mm: Fix TLBI vs ASID rollover
+        stable@vger.kernel.org, Juergen Gross <jgross@suse.com>,
+        Jan Beulich <jbeulich@suse.com>
+Subject: [PATCH 5.13 014/380] xen: fix setting of max_pfn in shared_info
 Date:   Thu, 16 Sep 2021 17:56:11 +0200
-Message-Id: <20210916155754.836388244@linuxfoundation.org>
+Message-Id: <20210916155804.456268156@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,119 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Juergen Gross <jgross@suse.com>
 
-commit 5e10f9887ed85d4f59266d5c60dd09be96b5dbd4 upstream.
+commit 4b511d5bfa74b1926daefd1694205c7f1bcf677f upstream.
 
-When switching to an 'mm_struct' for the first time following an ASID
-rollover, a new ASID may be allocated and assigned to 'mm->context.id'.
-This reassignment can happen concurrently with other operations on the
-mm, such as unmapping pages and subsequently issuing TLB invalidation.
+Xen PV guests are specifying the highest used PFN via the max_pfn
+field in shared_info. This value is used by the Xen tools when saving
+or migrating the guest.
 
-Consequently, we need to ensure that (a) accesses to 'mm->context.id'
-are atomic and (b) all page-table updates made prior to a TLBI using the
-old ASID are guaranteed to be visible to CPUs running with the new ASID.
+Unfortunately this field is misnamed, as in reality it is specifying
+the number of pages (including any memory holes) of the guest, so it
+is the highest used PFN + 1. Renaming isn't possible, as this is a
+public Xen hypervisor interface which needs to be kept stable.
 
-This was found by inspection after reviewing the VMID changes from
-Shameer but it looks like a real (yet hard to hit) bug.
+The kernel will set the value correctly initially at boot time, but
+when adding more pages (e.g. due to memory hotplug or ballooning) a
+real PFN number is stored in max_pfn. This is done when expanding the
+p2m array, and the PFN stored there is even possibly wrong, as it
+should be the last possible PFN of the just added P2M frame, and not
+one which led to the P2M expansion.
 
-Cc: <stable@vger.kernel.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Jade Alglave <jade.alglave@arm.com>
-Cc: Shameer Kolothum <shameerali.kolothum.thodi@huawei.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20210806113109.2475-2-will@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fix that by setting shared_info->max_pfn to the last possible PFN + 1.
+
+Fixes: 98dd166ea3a3c3 ("x86/xen/p2m: hint at the last populated P2M entry")
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jan Beulich <jbeulich@suse.com>
+Link: https://lore.kernel.org/r/20210730092622.9973-2-jgross@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/mmu.h      |   29 +++++++++++++++++++++++++----
- arch/arm64/include/asm/tlbflush.h |   11 ++++++-----
- 2 files changed, 31 insertions(+), 9 deletions(-)
+ arch/x86/xen/p2m.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/include/asm/mmu.h
-+++ b/arch/arm64/include/asm/mmu.h
-@@ -30,11 +30,32 @@ typedef struct {
- } mm_context_t;
- 
- /*
-- * This macro is only used by the TLBI and low-level switch_mm() code,
-- * neither of which can race with an ASID change. We therefore don't
-- * need to reload the counter using atomic64_read().
-+ * We use atomic64_read() here because the ASID for an 'mm_struct' can
-+ * be reallocated when scheduling one of its threads following a
-+ * rollover event (see new_context() and flush_context()). In this case,
-+ * a concurrent TLBI (e.g. via try_to_unmap_one() and ptep_clear_flush())
-+ * may use a stale ASID. This is fine in principle as the new ASID is
-+ * guaranteed to be clean in the TLB, but the TLBI routines have to take
-+ * care to handle the following race:
-+ *
-+ *    CPU 0                    CPU 1                          CPU 2
-+ *
-+ *    // ptep_clear_flush(mm)
-+ *    xchg_relaxed(pte, 0)
-+ *    DSB ISHST
-+ *    old = ASID(mm)
-+ *         |                                                  <rollover>
-+ *         |                   new = new_context(mm)
-+ *         \-----------------> atomic_set(mm->context.id, new)
-+ *                             cpu_switch_mm(mm)
-+ *                             // Hardware walk of pte using new ASID
-+ *    TLBI(old)
-+ *
-+ * In this scenario, the barrier on CPU 0 and the dependency on CPU 1
-+ * ensure that the page-table walker on CPU 1 *must* see the invalid PTE
-+ * written by CPU 0.
-  */
--#define ASID(mm)	((mm)->context.id.counter & 0xffff)
-+#define ASID(mm)	(atomic64_read(&(mm)->context.id) & 0xffff)
- 
- static inline bool arm64_kernel_unmapped_at_el0(void)
- {
---- a/arch/arm64/include/asm/tlbflush.h
-+++ b/arch/arm64/include/asm/tlbflush.h
-@@ -245,9 +245,10 @@ static inline void flush_tlb_all(void)
- 
- static inline void flush_tlb_mm(struct mm_struct *mm)
- {
--	unsigned long asid = __TLBI_VADDR(0, ASID(mm));
-+	unsigned long asid;
- 
- 	dsb(ishst);
-+	asid = __TLBI_VADDR(0, ASID(mm));
- 	__tlbi(aside1is, asid);
- 	__tlbi_user(aside1is, asid);
- 	dsb(ish);
-@@ -256,9 +257,10 @@ static inline void flush_tlb_mm(struct m
- static inline void flush_tlb_page_nosync(struct vm_area_struct *vma,
- 					 unsigned long uaddr)
- {
--	unsigned long addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
-+	unsigned long addr;
- 
- 	dsb(ishst);
-+	addr = __TLBI_VADDR(uaddr, ASID(vma->vm_mm));
- 	__tlbi(vale1is, addr);
- 	__tlbi_user(vale1is, addr);
- }
-@@ -283,9 +285,7 @@ static inline void __flush_tlb_range(str
- {
- 	int num = 0;
- 	int scale = 0;
--	unsigned long asid = ASID(vma->vm_mm);
--	unsigned long addr;
--	unsigned long pages;
-+	unsigned long asid, addr, pages;
- 
- 	start = round_down(start, stride);
- 	end = round_up(end, stride);
-@@ -305,6 +305,7 @@ static inline void __flush_tlb_range(str
+--- a/arch/x86/xen/p2m.c
++++ b/arch/x86/xen/p2m.c
+@@ -618,8 +618,8 @@ int xen_alloc_p2m_entry(unsigned long pf
  	}
  
- 	dsb(ishst);
-+	asid = ASID(vma->vm_mm);
+ 	/* Expanded the p2m? */
+-	if (pfn > xen_p2m_last_pfn) {
+-		xen_p2m_last_pfn = pfn;
++	if (pfn >= xen_p2m_last_pfn) {
++		xen_p2m_last_pfn = ALIGN(pfn + 1, P2M_PER_PAGE);
+ 		HYPERVISOR_shared_info->arch.max_pfn = xen_p2m_last_pfn;
+ 	}
  
- 	/*
- 	 * When the CPU does not support TLB range operations, flush the TLB
 
 
