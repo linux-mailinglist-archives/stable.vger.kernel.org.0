@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C9BE40E7E2
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:59:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6EB940E11A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347601AbhIPRgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:36:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50298 "EHLO mail.kernel.org"
+        id S235322AbhIPQ1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:27:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348503AbhIPRc3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:32:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F6B063215;
-        Thu, 16 Sep 2021 16:47:47 +0000 (UTC)
+        id S241194AbhIPQZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:25:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56F1A6127A;
+        Thu, 16 Sep 2021 16:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810868;
-        bh=5LuBohqvQBhRmRYfLetL1XDC8lNwVpB96plU8EyjnMM=;
+        s=korg; t=1631809002;
+        bh=bzVyH0WygYFynfdGZJOFwl3JxrjxYE8Z4Ea6+S+LLT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jo7ayBZmvqp7rDm9CadW3/YMpSmApOBOn5oiqWyYlY4XY+RG+xG+HoxMAjPlFdnNv
-         i2taDQlkZ+SgK8p8Ri/9+XaMALPe1GykmT+QPE6xTwzbqmBWR7V2qMMZZc/7+bYPav
-         GHmBHfv99e793aZVlz3/xpbFQ87uKGNz601tmSew=
+        b=WrnJd206PtO+r7B4tW10m5vSnS6UiPCITl3PHPopYj/qXvKgBWc2IBPA5fHyc8ybB
+         GcU48oXZ629nzyKTeY7450wZicpGGuJEmWu8neQDXobWXJRmR8WlT52rTLafhYSHXL
+         aOOLuNBYSh29Rxuak1JsKU9u1wYbf7FzzpA7hE3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Tuo Li <islituo@gmail.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 296/432] drm/display: fix possible null-pointer dereference in dcn10_set_clock()
-Date:   Thu, 16 Sep 2021 18:00:45 +0200
-Message-Id: <20210916155820.863945105@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 301/306] drm/amd/display: Update number of DCN3 clock states
+Date:   Thu, 16 Sep 2021 18:00:46 +0200
+Message-Id: <20210916155804.347854380@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuo Li <islituo@gmail.com>
+From: Aurabindo Pillai <aurabindo.pillai@amd.com>
 
-[ Upstream commit 554594567b1fa3da74f88ec7b2dc83d000c58e98 ]
+commit 0bbf06d888734041e813b916d7821acd4f72005a upstream.
 
-The variable dc->clk_mgr is checked in:
-  if (dc->clk_mgr && dc->clk_mgr->funcs->get_clock)
+[Why & How]
+The DCN3 SoC parameter num_states was calculated but not saved into the
+object.
 
-This indicates dc->clk_mgr can be NULL.
-However, it is dereferenced in:
-    if (!dc->clk_mgr->funcs->get_clock)
-
-To fix this null-pointer dereference, check dc->clk_mgr and the function
-pointer dc->clk_mgr->funcs->get_clock earlier, and return if one of them
-is NULL.
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Tuo Li <islituo@gmail.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1403
+Cc: stable@vger.kernel.org
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index dee1ce5f9609..75fa4adcf5f4 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -3628,13 +3628,12 @@ enum dc_status dcn10_set_clock(struct dc *dc,
- 	struct dc_clock_config clock_cfg = {0};
- 	struct dc_clocks *current_clocks = &context->bw_ctx.bw.dcn.clk;
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_resource.c
+@@ -2522,6 +2522,7 @@ void dcn30_update_bw_bounding_box(struct
+ 			dram_speed_mts[num_states++] = bw_params->clk_table.entries[j++].memclk_mhz * 16;
+ 		}
  
--	if (dc->clk_mgr && dc->clk_mgr->funcs->get_clock)
--				dc->clk_mgr->funcs->get_clock(dc->clk_mgr,
--						context, clock_type, &clock_cfg);
--
--	if (!dc->clk_mgr->funcs->get_clock)
-+	if (!dc->clk_mgr || !dc->clk_mgr->funcs->get_clock)
- 		return DC_FAIL_UNSUPPORTED_1;
- 
-+	dc->clk_mgr->funcs->get_clock(dc->clk_mgr,
-+		context, clock_type, &clock_cfg);
-+
- 	if (clk_khz > clock_cfg.max_clock_khz)
- 		return DC_FAIL_CLK_EXCEED_MAX;
- 
-@@ -3652,7 +3651,7 @@ enum dc_status dcn10_set_clock(struct dc *dc,
- 	else
- 		return DC_ERROR_UNEXPECTED;
- 
--	if (dc->clk_mgr && dc->clk_mgr->funcs->update_clocks)
-+	if (dc->clk_mgr->funcs->update_clocks)
- 				dc->clk_mgr->funcs->update_clocks(dc->clk_mgr,
- 				context, true);
- 	return DC_OK;
--- 
-2.30.2
-
++		dcn3_0_soc.num_states = num_states;
+ 		for (i = 0; i < dcn3_0_soc.num_states; i++) {
+ 			dcn3_0_soc.clock_limits[i].state = i;
+ 			dcn3_0_soc.clock_limits[i].dcfclk_mhz = dcfclk_mhz[i];
 
 
