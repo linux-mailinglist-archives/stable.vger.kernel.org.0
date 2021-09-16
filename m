@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4485940DF2C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:06:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AED240E22D
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232984AbhIPQHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:07:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
+        id S241857AbhIPQfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:35:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232745AbhIPQG6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:06:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDA3361251;
-        Thu, 16 Sep 2021 16:05:37 +0000 (UTC)
+        id S239649AbhIPQdM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:33:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61BC06139F;
+        Thu, 16 Sep 2021 16:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808338;
-        bh=XgBjxDyfYvjBfsgRmGhtD0slwMHSQ/YKCF4tcFo6KbI=;
+        s=korg; t=1631809211;
+        bh=8gg7AK441555JIJ//7xJtZMyg3TqeqWKgaUCit8Uwqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=apzBQdx2VQJcFhcdbXD6+CPybV4P1nMHok6EFT8idkk/ctNZtaQj9PEmiWwMunGJS
-         oJ3nffNQaJTO624LAu0ChCD22Q1xTY+0p2Nrjsafv+YXPmwbTqBTPeM7jtMs0+IxJc
-         8apsRi7CTpzeey9Vj45Dhvu0Lek1dBz5VhJA45X4=
+        b=tXkIU5VlT2iROM6+Di4EHCjpQB98UALQaRhedV6vCqeziBwbyZoc1/fdo0fgDut74
+         1brJKgus5NcXdjHW1JwGpFG86HOWVtGU5f8en0i0IRWxSCwFotaWllnP/jRxtIq7E8
+         PrgQ2iUUEU6qikrk8ZIA951YG9usBFwWXwf9WhVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Victor Gu <xigu@marvell.com>,
-        Evan Wang <xswang@marvell.com>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.10 052/306] PCI: aardvark: Fix checking for PIO status
+        stable@vger.kernel.org, DJ Gregor <dj@corelight.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Arne Welzel <arne.welzel@corelight.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.13 040/380] dm crypt: Avoid percpu_counter spinlock contention in crypt_page_alloc()
 Date:   Thu, 16 Sep 2021 17:56:37 +0200
-Message-Id: <20210916155755.716741959@linuxfoundation.org>
+Message-Id: <20210916155805.337531130@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,159 +41,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Wang <xswang@marvell.com>
+From: Arne Welzel <arne.welzel@corelight.com>
 
-commit fcb461e2bc8b83b7eaca20cb2221e8b940f2189c upstream.
+commit 528b16bfc3ae5f11638e71b3b63a81f9999df727 upstream.
 
-There is an issue that when PCIe switch is connected to an Armada 3700
-board, there will be lots of warnings about PIO errors when reading the
-config space. According to Aardvark PIO read and write sequence in HW
-specification, the current way to check PIO status has the following
-issues:
+On systems with many cores using dm-crypt, heavy spinlock contention in
+percpu_counter_compare() can be observed when the page allocation limit
+for a given device is reached or close to be reached. This is due
+to percpu_counter_compare() taking a spinlock to compute an exact
+result on potentially many CPUs at the same time.
 
-1) For PIO read operation, it reports the error message, which should be
-   avoided according to HW specification.
+Switch to non-exact comparison of allocated and allowed pages by using
+the value returned by percpu_counter_read_positive() to avoid taking
+the percpu_counter spinlock.
 
-2) For PIO read and write operations, it only checks PIO operation complete
-   status, which is not enough, and error status should also be checked.
+This may over/under estimate the actual number of allocated pages by at
+most (batch-1) * num_online_cpus().
 
-This patch aligns the code with Aardvark PIO read and write sequence in HW
-specification on PIO status check and fix the warnings when reading config
-space.
+Currently, batch is bounded by 32. The system on which this issue was
+first observed has 256 CPUs and 512GB of RAM. With a 4k page size, this
+change may over/under estimate by 31MB. With ~10G (2%) allowed dm-crypt
+allocations, this seems an acceptable error. Certainly preferred over
+running into the spinlock contention.
 
-[pali: Fix CRS handling when CRSSVE is not enabled]
+This behavior was reproduced on an EC2 c5.24xlarge instance with 96 CPUs
+and 192GB RAM as follows, but can be provoked on systems with less CPUs
+as well.
 
-Link: https://lore.kernel.org/r/20210722144041.12661-2-pali@kernel.org
-Tested-by: Victor Gu <xigu@marvell.com>
-Signed-off-by: Evan Wang <xswang@marvell.com>
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Victor Gu <xigu@marvell.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org # b1bd5714472c ("PCI: aardvark: Indicate error in 'val' when config read fails")
+ * Disable swap
+ * Tune vm settings to promote regular writeback
+     $ echo 50 > /proc/sys/vm/dirty_expire_centisecs
+     $ echo 25 > /proc/sys/vm/dirty_writeback_centisecs
+     $ echo $((128 * 1024 * 1024)) > /proc/sys/vm/dirty_background_bytes
+
+ * Create 8 dmcrypt devices based on files on a tmpfs
+ * Create and mount an ext4 filesystem on each crypt devices
+ * Run stress-ng --hdd 8 within one of above filesystems
+
+Total %system usage collected from sysstat goes to ~35%. Write throughput
+on the underlying loop device is ~2GB/s. perf profiling an individual
+kworker kcryptd thread shows the following profile, indicating spinlock
+contention in percpu_counter_compare():
+
+    99.98%     0.00%  kworker/u193:46  [kernel.kallsyms]  [k] ret_from_fork
+      |
+      --ret_from_fork
+        kthread
+        worker_thread
+        |
+         --99.92%--process_one_work
+            |
+            |--80.52%--kcryptd_crypt
+            |    |
+            |    |--62.58%--mempool_alloc
+            |    |  |
+            |    |   --62.24%--crypt_page_alloc
+            |    |     |
+            |    |      --61.51%--__percpu_counter_compare
+            |    |        |
+            |    |         --61.34%--__percpu_counter_sum
+            |    |           |
+            |    |           |--58.68%--_raw_spin_lock_irqsave
+            |    |           |  |
+            |    |           |   --58.30%--native_queued_spin_lock_slowpath
+            |    |           |
+            |    |            --0.69%--cpumask_next
+            |    |                |
+            |    |                 --0.51%--_find_next_bit
+            |    |
+            |    |--10.61%--crypt_convert
+            |    |          |
+            |    |          |--6.05%--xts_crypt
+            ...
+
+After applying this patch and running the same test, %system usage is
+lowered to ~7% and write throughput on the loop device increases
+to ~2.7GB/s. perf report shows mempool_alloc() as ~8% rather than ~62%
+in the profile and not hitting the percpu_counter() spinlock anymore.
+
+    |--8.15%--mempool_alloc
+    |    |
+    |    |--3.93%--crypt_page_alloc
+    |    |    |
+    |    |     --3.75%--__alloc_pages
+    |    |         |
+    |    |          --3.62%--get_page_from_freelist
+    |    |              |
+    |    |               --3.22%--rmqueue_bulk
+    |    |                   |
+    |    |                    --2.59%--_raw_spin_lock
+    |    |                      |
+    |    |                       --2.57%--native_queued_spin_lock_slowpath
+    |    |
+    |     --3.05%--_raw_spin_lock_irqsave
+    |               |
+    |                --2.49%--native_queued_spin_lock_slowpath
+
+Suggested-by: DJ Gregor <dj@corelight.com>
+Reviewed-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Arne Welzel <arne.welzel@corelight.com>
+Fixes: 5059353df86e ("dm crypt: limit the number of allocated pages")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   62 +++++++++++++++++++++++++++++-----
- 1 file changed, 54 insertions(+), 8 deletions(-)
+ drivers/md/dm-crypt.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -57,6 +57,7 @@
- #define   PIO_COMPLETION_STATUS_CRS		2
- #define   PIO_COMPLETION_STATUS_CA		4
- #define   PIO_NON_POSTED_REQ			BIT(10)
-+#define   PIO_ERR_STATUS			BIT(11)
- #define PIO_ADDR_LS				(PIO_BASE_ADDR + 0x8)
- #define PIO_ADDR_MS				(PIO_BASE_ADDR + 0xc)
- #define PIO_WR_DATA				(PIO_BASE_ADDR + 0x10)
-@@ -585,7 +586,7 @@ static void advk_pcie_setup_hw(struct ad
- 	advk_writel(pcie, reg, PCIE_CORE_CMD_STATUS_REG);
- }
+--- a/drivers/md/dm-crypt.c
++++ b/drivers/md/dm-crypt.c
+@@ -2661,7 +2661,12 @@ static void *crypt_page_alloc(gfp_t gfp_
+ 	struct crypt_config *cc = pool_data;
+ 	struct page *page;
  
--static void advk_pcie_check_pio_status(struct advk_pcie *pcie)
-+static int advk_pcie_check_pio_status(struct advk_pcie *pcie, u32 *val)
- {
- 	struct device *dev = &pcie->pdev->dev;
- 	u32 reg;
-@@ -596,14 +597,49 @@ static void advk_pcie_check_pio_status(s
- 	status = (reg & PIO_COMPLETION_STATUS_MASK) >>
- 		PIO_COMPLETION_STATUS_SHIFT;
- 
--	if (!status)
--		return;
--
+-	if (unlikely(percpu_counter_compare(&cc->n_allocated_pages, dm_crypt_pages_per_client) >= 0) &&
 +	/*
-+	 * According to HW spec, the PIO status check sequence as below:
-+	 * 1) even if COMPLETION_STATUS(bit9:7) indicates successful,
-+	 *    it still needs to check Error Status(bit11), only when this bit
-+	 *    indicates no error happen, the operation is successful.
-+	 * 2) value Unsupported Request(1) of COMPLETION_STATUS(bit9:7) only
-+	 *    means a PIO write error, and for PIO read it is successful with
-+	 *    a read value of 0xFFFFFFFF.
-+	 * 3) value Completion Retry Status(CRS) of COMPLETION_STATUS(bit9:7)
-+	 *    only means a PIO write error, and for PIO read it is successful
-+	 *    with a read value of 0xFFFF0001.
-+	 * 4) value Completer Abort (CA) of COMPLETION_STATUS(bit9:7) means
-+	 *    error for both PIO read and PIO write operation.
-+	 * 5) other errors are indicated as 'unknown'.
++	 * Note, percpu_counter_read_positive() may over (and under) estimate
++	 * the current usage by at most (batch - 1) * num_online_cpus() pages,
++	 * but avoids potential spinlock contention of an exact result.
 +	 */
- 	switch (status) {
-+	case PIO_COMPLETION_STATUS_OK:
-+		if (reg & PIO_ERR_STATUS) {
-+			strcomp_status = "COMP_ERR";
-+			break;
-+		}
-+		/* Get the read result */
-+		if (val)
-+			*val = advk_readl(pcie, PIO_RD_DATA);
-+		/* No error */
-+		strcomp_status = NULL;
-+		break;
- 	case PIO_COMPLETION_STATUS_UR:
- 		strcomp_status = "UR";
- 		break;
- 	case PIO_COMPLETION_STATUS_CRS:
-+		/* PCIe r4.0, sec 2.3.2, says:
-+		 * If CRS Software Visibility is not enabled, the Root Complex
-+		 * must re-issue the Configuration Request as a new Request.
-+		 * A Root Complex implementation may choose to limit the number
-+		 * of Configuration Request/CRS Completion Status loops before
-+		 * determining that something is wrong with the target of the
-+		 * Request and taking appropriate action, e.g., complete the
-+		 * Request to the host as a failed transaction.
-+		 *
-+		 * To simplify implementation do not re-issue the Configuration
-+		 * Request and complete the Request as a failed transaction.
-+		 */
- 		strcomp_status = "CRS";
- 		break;
- 	case PIO_COMPLETION_STATUS_CA:
-@@ -614,6 +650,9 @@ static void advk_pcie_check_pio_status(s
- 		break;
- 	}
++	if (unlikely(percpu_counter_read_positive(&cc->n_allocated_pages) >= dm_crypt_pages_per_client) &&
+ 	    likely(gfp_mask & __GFP_NORETRY))
+ 		return NULL;
  
-+	if (!strcomp_status)
-+		return 0;
-+
- 	if (reg & PIO_NON_POSTED_REQ)
- 		str_posted = "Non-posted";
- 	else
-@@ -621,6 +660,8 @@ static void advk_pcie_check_pio_status(s
- 
- 	dev_err(dev, "%s PIO Response Status: %s, %#x @ %#x\n",
- 		str_posted, strcomp_status, reg, advk_readl(pcie, PIO_ADDR_LS));
-+
-+	return -EFAULT;
- }
- 
- static int advk_pcie_wait_pio(struct advk_pcie *pcie)
-@@ -858,10 +899,13 @@ static int advk_pcie_rd_conf(struct pci_
- 		return PCIBIOS_SET_FAILED;
- 	}
- 
--	advk_pcie_check_pio_status(pcie);
-+	/* Check PIO status and get the read result */
-+	ret = advk_pcie_check_pio_status(pcie, val);
-+	if (ret < 0) {
-+		*val = 0xffffffff;
-+		return PCIBIOS_SET_FAILED;
-+	}
- 
--	/* Get the read result */
--	*val = advk_readl(pcie, PIO_RD_DATA);
- 	if (size == 1)
- 		*val = (*val >> (8 * (where & 3))) & 0xff;
- 	else if (size == 2)
-@@ -925,7 +969,9 @@ static int advk_pcie_wr_conf(struct pci_
- 	if (ret < 0)
- 		return PCIBIOS_SET_FAILED;
- 
--	advk_pcie_check_pio_status(pcie);
-+	ret = advk_pcie_check_pio_status(pcie, NULL);
-+	if (ret < 0)
-+		return PCIBIOS_SET_FAILED;
- 
- 	return PCIBIOS_SUCCESSFUL;
- }
 
 
