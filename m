@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A40D40E3C4
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F16D540E0B5
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:27:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242514AbhIPQwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:52:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36928 "EHLO mail.kernel.org"
+        id S241462AbhIPQXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344711AbhIPQsi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:48:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48DE461A78;
-        Thu, 16 Sep 2021 16:27:36 +0000 (UTC)
+        id S241458AbhIPQVg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:21:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1DAA613A7;
+        Thu, 16 Sep 2021 16:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809656;
-        bh=PrlHO9V//nsNUl1uc4NBsy5zgOjPEtrfBnv8qKKmAsU=;
+        s=korg; t=1631808899;
+        bh=C56UGu/jYrwM6Jfi/51pH9IQNP0Jn9eLUHEN3yNrW1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6PUnu2mIdMsknjX0gHY1eAW7sAS+RQFeP61hE/hmCb92LG9Z00wDo+fPpbokRISt
-         W6jbFQttXPVmShA/PbFY0mILbeF6w8CRk/WiHju5vBNhBXUNam0PE3U8JvNSjtnxnK
-         8iAGAr5xXeoJddQLa/+2unRo767GV85LZE+xBISE=
+        b=0tbEEdDovYUox7gH1wErXY3em/dCo4dNxSXKhVbyh7ffZyeN9/2yL434pxXq0YfRC
+         3reMjStySNdG+oq2tXhub3umLMMWY2UOs0BVgYTymlRBWRmUE0T8fV+L0R3zJsUd0W
+         oJmgHKNt1s5vmxKKQGD00jrfcT/WyR6WwCGhJU2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 234/380] net: ipa: fix IPA v4.9 interconnects
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 246/306] of: Dont allow __of_attached_node_sysfs() without CONFIG_SYSFS
 Date:   Thu, 16 Sep 2021 17:59:51 +0200
-Message-Id: <20210916155812.038187946@linuxfoundation.org>
+Message-Id: <20210916155802.446364467@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 0fd75f5760b6a7a7f35dff46a6cdc4f6d1a86ee8 ]
+[ Upstream commit 6211e9cb2f8faf7faae0b6caf844bfe9527cc607 ]
 
-Three interconnects are defined for IPA version 4.9, but there
-should only be two.  They should also use names that match what's
-used for other platforms (and specified in the Device Tree binding).
+Trying to boot without SYSFS, but with OF_DYNAMIC quickly
+results in a crash:
 
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[    0.088460] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000070
+[...]
+[    0.103927] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.14.0-rc3 #4179
+[    0.105810] Hardware name: linux,dummy-virt (DT)
+[    0.107147] pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
+[    0.108876] pc : kernfs_find_and_get_ns+0x3c/0x7c
+[    0.110244] lr : kernfs_find_and_get_ns+0x3c/0x7c
+[...]
+[    0.134087] Call trace:
+[    0.134800]  kernfs_find_and_get_ns+0x3c/0x7c
+[    0.136054]  safe_name+0x4c/0xd0
+[    0.136994]  __of_attach_node_sysfs+0xf8/0x124
+[    0.138287]  of_core_init+0x90/0xfc
+[    0.139296]  driver_init+0x30/0x4c
+[    0.140283]  kernel_init_freeable+0x160/0x1b8
+[    0.141543]  kernel_init+0x30/0x140
+[    0.142561]  ret_from_fork+0x10/0x18
+
+While not having sysfs isn't a very common option these days,
+it is still expected that such configuration would work.
+
+Paper over it by bailing out from __of_attach_node_sysfs() if
+CONFIG_SYSFS isn't enabled.
+
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210820144722.169226-1-maz@kernel.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa_data-v4.9.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/of/kobj.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ipa/ipa_data-v4.9.c b/drivers/net/ipa/ipa_data-v4.9.c
-index e41be790f45e..75b50a50e348 100644
---- a/drivers/net/ipa/ipa_data-v4.9.c
-+++ b/drivers/net/ipa/ipa_data-v4.9.c
-@@ -392,18 +392,13 @@ static const struct ipa_mem_data ipa_mem_data = {
- /* Interconnect rates are in 1000 byte/second units */
- static const struct ipa_interconnect_data ipa_interconnect_data[] = {
- 	{
--		.name			= "ipa_to_llcc",
-+		.name			= "memory",
- 		.peak_bandwidth		= 600000,	/* 600 MBps */
- 		.average_bandwidth	= 150000,	/* 150 MBps */
- 	},
--	{
--		.name			= "llcc_to_ebi1",
--		.peak_bandwidth		= 1804000,	/* 1.804 GBps */
--		.average_bandwidth	= 150000,	/* 150 MBps */
--	},
- 	/* Average rate is unused for the next interconnect */
- 	{
--		.name			= "appss_to_ipa",
-+		.name			= "config",
- 		.peak_bandwidth		= 74000,	/* 74 MBps */
- 		.average_bandwidth	= 0,		/* unused */
- 	},
+diff --git a/drivers/of/kobj.c b/drivers/of/kobj.c
+index a32e60b024b8..6675b5e56960 100644
+--- a/drivers/of/kobj.c
++++ b/drivers/of/kobj.c
+@@ -119,7 +119,7 @@ int __of_attach_node_sysfs(struct device_node *np)
+ 	struct property *pp;
+ 	int rc;
+ 
+-	if (!of_kset)
++	if (!IS_ENABLED(CONFIG_SYSFS) || !of_kset)
+ 		return 0;
+ 
+ 	np->kobj.kset = of_kset;
 -- 
 2.30.2
 
