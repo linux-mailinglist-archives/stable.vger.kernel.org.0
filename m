@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F4540E3C9
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B3140E6F4
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243626AbhIPQwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:52:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38644 "EHLO mail.kernel.org"
+        id S1347977AbhIPR06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:26:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344866AbhIPQtT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:49:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6AFB615A2;
-        Thu, 16 Sep 2021 16:27:49 +0000 (UTC)
+        id S1352543AbhIPRYv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:24:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FF9661BF7;
+        Thu, 16 Sep 2021 16:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809670;
-        bh=5Ig2ASFP7PQhU3grkOm7W7+VUDD0CcVerGaQ3MjpO8Y=;
+        s=korg; t=1631810655;
+        bh=CFxoJqTD6D2XgEUt9WJ2SR1eXohXAMMWRfLmxb/Gz8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WG72mle0fJ+jXGW6xsNaJtqzMO0CTJfsp1wRVKYCB79ynG0elR05XeO0SO53EtMo5
-         2HtQYv/7zgR4G2Mtsc9yjImQYbrTT+Z7ouSQbUA7przBwU/A0gIMu/FOEOiecRTBm6
-         x/2ErwIXNFc87VXcK9yhO2VRoSx5iaNXxF90yg+8=
+        b=Z7RsBE4SSaNLzidMIEM5Zd3slYmA8WB/E1EP3rywrTkjoFbUP9siJxoZMm4c4dZMM
+         i9m5SbxfBcdX+nnS1bY65zFA//HraG4zsedpGhUIcrZh+/Ll0J6B/gyLsfUX+rMRCW
+         stTT5rAolbHfpkW04h7IffLClEFwnJjb4jjIDEv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 212/380] Bluetooth: skip invalid hci_sync_conn_complete_evt
+Subject: [PATCH 5.14 220/432] video: fbdev: asiliantfb: Error out if pixclock equals zero
 Date:   Thu, 16 Sep 2021 17:59:29 +0200
-Message-Id: <20210916155811.291549995@linuxfoundation.org>
+Message-Id: <20210916155818.298104293@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 92fe24a7db751b80925214ede43f8d2be792ea7b ]
+[ Upstream commit b36b242d4b8ea178f7fd038965e3cac7f30c3f09 ]
 
-Syzbot reported a corrupted list in kobject_add_internal [1]. This
-happens when multiple HCI_EV_SYNC_CONN_COMPLETE event packets with
-status 0 are sent for the same HCI connection. This causes us to
-register the device more than once which corrupts the kset list.
+The userspace program could pass any values to the driver through
+ioctl() interface. If the driver doesn't check the value of 'pixclock',
+it may cause divide error.
 
-As this is forbidden behavior, we add a check for whether we're
-trying to process the same HCI_EV_SYNC_CONN_COMPLETE event multiple
-times for one connection. If that's the case, the event is invalid, so
-we report an error that the device is misbehaving, and ignore the
-packet.
+Fix this by checking whether 'pixclock' is zero first.
 
-Link: https://syzkaller.appspot.com/bug?extid=66264bf2fd0476be7e6c [1]
-Reported-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
-Tested-by: syzbot+66264bf2fd0476be7e6c@syzkaller.appspotmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+The following log reveals it:
+
+[   43.861711] divide error: 0000 [#1] PREEMPT SMP KASAN PTI
+[   43.861737] CPU: 2 PID: 11764 Comm: i740 Not tainted 5.14.0-rc2-00513-gac532c9bbcfb-dirty #224
+[   43.861756] RIP: 0010:asiliantfb_check_var+0x4e/0x730
+[   43.861843] Call Trace:
+[   43.861848]  ? asiliantfb_remove+0x190/0x190
+[   43.861858]  fb_set_var+0x2e4/0xeb0
+[   43.861866]  ? fb_blank+0x1a0/0x1a0
+[   43.861873]  ? lock_acquire+0x1ef/0x530
+[   43.861884]  ? lock_release+0x810/0x810
+[   43.861892]  ? lock_is_held_type+0x100/0x140
+[   43.861903]  ? ___might_sleep+0x1ee/0x2d0
+[   43.861914]  ? __mutex_lock+0x620/0x1190
+[   43.861921]  ? do_fb_ioctl+0x313/0x700
+[   43.861929]  ? mutex_lock_io_nested+0xfa0/0xfa0
+[   43.861936]  ? __this_cpu_preempt_check+0x1d/0x30
+[   43.861944]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861952]  ? lockdep_hardirqs_on+0x59/0x100
+[   43.861959]  ? _raw_spin_unlock_irqrestore+0x46/0x60
+[   43.861967]  ? trace_hardirqs_on+0x6a/0x1c0
+[   43.861978]  do_fb_ioctl+0x31e/0x700
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1627293835-17441-2-git-send-email-zheyuma97@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/video/fbdev/asiliantfb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 62c99e015609..c5de24372971 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -4373,6 +4373,21 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
+diff --git a/drivers/video/fbdev/asiliantfb.c b/drivers/video/fbdev/asiliantfb.c
+index 3e006da47752..84c56f525889 100644
+--- a/drivers/video/fbdev/asiliantfb.c
++++ b/drivers/video/fbdev/asiliantfb.c
+@@ -227,6 +227,9 @@ static int asiliantfb_check_var(struct fb_var_screeninfo *var,
+ {
+ 	unsigned long Ftarget, ratio, remainder;
  
- 	switch (ev->status) {
- 	case 0x00:
-+		/* The synchronous connection complete event should only be
-+		 * sent once per new connection. Receiving a successful
-+		 * complete event when the connection status is already
-+		 * BT_CONNECTED means that the device is misbehaving and sent
-+		 * multiple complete event packets for the same new connection.
-+		 *
-+		 * Registering the device more than once can corrupt kernel
-+		 * memory, hence upon detecting this invalid event, we report
-+		 * an error and ignore the packet.
-+		 */
-+		if (conn->state == BT_CONNECTED) {
-+			bt_dev_err(hdev, "Ignoring connect complete event for existing connection");
-+			goto unlock;
-+		}
++	if (!var->pixclock)
++		return -EINVAL;
 +
- 		conn->handle = __le16_to_cpu(ev->handle);
- 		conn->state  = BT_CONNECTED;
- 		conn->type   = ev->link_type;
+ 	ratio = 1000000 / var->pixclock;
+ 	remainder = 1000000 % var->pixclock;
+ 	Ftarget = 1000000 * ratio + (1000000 * remainder) / var->pixclock;
 -- 
 2.30.2
 
