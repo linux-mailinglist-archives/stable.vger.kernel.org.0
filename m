@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6AE640E03B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28DD940E70A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234653AbhIPQUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:20:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55042 "EHLO mail.kernel.org"
+        id S1347787AbhIPR17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:27:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240834AbhIPQRX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:17:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 370776136A;
-        Thu, 16 Sep 2021 16:12:22 +0000 (UTC)
+        id S1348871AbhIPRZ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:25:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC06561A53;
+        Thu, 16 Sep 2021 16:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808742;
-        bh=1U7V6Bj9L8VOn+hJXISyjw7MmPlFXuWObey8GMQ2gtY=;
+        s=korg; t=1631810692;
+        bh=7UCtEtr/QStiFxeem2PIB4IzGccfSnnMDlxg8E1GFug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dUOfEo+jcThwFbgjma+4Qxdwq7RV0VAAI2+g1U55lPQBXz9UB023RcvsJF+0QAvTY
-         dp/ecc1gG3LehzDSiT8IbQq9fTjoYohoFnVbxtKgcXGcPACk9BKsk5jTL/d+IbntP+
-         K83h43/8KQJANrhyh+swE+xCfQJXm9u7nUaVt6QU=
+        b=gEfkVVV3R9/LCDKqC66CCi8ohaiL6+xG1EyuxYt0llU78ShWxnBtavfWLZZj9rwax
+         KIHSyvGkdyFFbcARpe6fSv47vfI8t++DQpyURvppvaEtcRqprFL0u2rNUGao3GQpg2
+         gfv/fVc7Te7bFMJMa30kCwqpnoO5423TPVH8fjwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
-        Anson Jacob <Anson.Jacob@amd.com>, Roy Chan <roy.chan@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 204/306] drm/amd/display: fix incorrect CM/TF programming sequence in dwb
-Date:   Thu, 16 Sep 2021 17:59:09 +0200
-Message-Id: <20210916155801.004701630@linuxfoundation.org>
+Subject: [PATCH 5.14 201/432] tty: serial: jsm: hold port lock when reporting modem line changes
+Date:   Thu, 16 Sep 2021 17:59:10 +0200
+Message-Id: <20210916155817.627903205@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,188 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roy Chan <roy.chan@amd.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 781e1e23131cce56fb557e6ec2260480a6bd08cc ]
+[ Upstream commit 240e126c28df084222f0b661321e8e3ecb0d232e ]
 
-[How]
-the programming sequeune was for old asic.
-the correct programming sequeunce should be similar to the one
-used in mpc. the fix is copied from the mpc programming sequeunce.
+uart_handle_dcd_change() requires a port lock to be held and will emit a
+warning when lockdep is enabled.
 
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Anson Jacob <Anson.Jacob@amd.com>
-Signed-off-by: Roy Chan <roy.chan@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Held corresponding lock to fix the following warnings.
+
+[  132.528648] WARNING: CPU: 5 PID: 11600 at drivers/tty/serial/serial_core.c:3046 uart_handle_dcd_change+0xf4/0x120
+[  132.530482] Modules linked in:
+[  132.531050] CPU: 5 PID: 11600 Comm: jsm Not tainted 5.14.0-rc1-00003-g7fef2edf7cc7-dirty #31
+[  132.535268] RIP: 0010:uart_handle_dcd_change+0xf4/0x120
+[  132.557100] Call Trace:
+[  132.557562]  ? __free_pages+0x83/0xb0
+[  132.558213]  neo_parse_modem+0x156/0x220
+[  132.558897]  neo_param+0x399/0x840
+[  132.559495]  jsm_tty_open+0x12f/0x2d0
+[  132.560131]  uart_startup.part.18+0x153/0x340
+[  132.560888]  ? lock_is_held_type+0xe9/0x140
+[  132.561660]  uart_port_activate+0x7f/0xe0
+[  132.562351]  ? uart_startup.part.18+0x340/0x340
+[  132.563003]  tty_port_open+0x8d/0xf0
+[  132.563523]  ? uart_set_options+0x1e0/0x1e0
+[  132.564125]  uart_open+0x24/0x40
+[  132.564604]  tty_open+0x15c/0x630
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/1626242003-3809-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/dcn30/dcn30_dwb_cm.c   | 90 +++++++++++++------
- 1 file changed, 64 insertions(+), 26 deletions(-)
+ drivers/tty/serial/jsm/jsm_neo.c | 2 ++
+ drivers/tty/serial/jsm/jsm_tty.c | 3 +++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c
-index 8593145379d9..6d621f07be48 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_dwb_cm.c
-@@ -49,6 +49,11 @@
- static void dwb3_get_reg_field_ogam(struct dcn30_dwbc *dwbc30,
- 	struct dcn3_xfer_func_reg *reg)
- {
-+	reg->shifts.field_region_start_base = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_BASE_B;
-+	reg->masks.field_region_start_base = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_START_BASE_B;
-+	reg->shifts.field_offset = dwbc30->dwbc_shift->DWB_OGAM_RAMA_OFFSET_B;
-+	reg->masks.field_offset = dwbc30->dwbc_mask->DWB_OGAM_RAMA_OFFSET_B;
-+
- 	reg->shifts.exp_region0_lut_offset = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION0_LUT_OFFSET;
- 	reg->masks.exp_region0_lut_offset = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION0_LUT_OFFSET;
- 	reg->shifts.exp_region0_num_segments = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION0_NUM_SEGMENTS;
-@@ -66,8 +71,6 @@ static void dwb3_get_reg_field_ogam(struct dcn30_dwbc *dwbc30,
- 	reg->masks.field_region_end_base = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_END_BASE_B;
- 	reg->shifts.field_region_linear_slope = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_SLOPE_B;
- 	reg->masks.field_region_linear_slope = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_START_SLOPE_B;
--	reg->masks.field_offset = dwbc30->dwbc_mask->DWB_OGAM_RAMA_OFFSET_B;
--	reg->shifts.field_offset = dwbc30->dwbc_shift->DWB_OGAM_RAMA_OFFSET_B;
- 	reg->shifts.exp_region_start = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_B;
- 	reg->masks.exp_region_start = dwbc30->dwbc_mask->DWB_OGAM_RAMA_EXP_REGION_START_B;
- 	reg->shifts.exp_resion_start_segment = dwbc30->dwbc_shift->DWB_OGAM_RAMA_EXP_REGION_START_SEGMENT_B;
-@@ -147,18 +150,19 @@ static enum dc_lut_mode dwb3_get_ogam_current(
- 	uint32_t state_mode;
- 	uint32_t ram_select;
- 
--	REG_GET(DWB_OGAM_CONTROL,
--		DWB_OGAM_MODE, &state_mode);
--	REG_GET(DWB_OGAM_CONTROL,
--		DWB_OGAM_SELECT, &ram_select);
-+	REG_GET_2(DWB_OGAM_CONTROL,
-+		DWB_OGAM_MODE_CURRENT, &state_mode,
-+		DWB_OGAM_SELECT_CURRENT, &ram_select);
- 
- 	if (state_mode == 0) {
- 		mode = LUT_BYPASS;
- 	} else if (state_mode == 2) {
- 		if (ram_select == 0)
- 			mode = LUT_RAM_A;
--		else
-+		else if (ram_select == 1)
- 			mode = LUT_RAM_B;
-+		else
-+			mode = LUT_BYPASS;
- 	} else {
- 		// Reserved value
- 		mode = LUT_BYPASS;
-@@ -172,10 +176,10 @@ static void dwb3_configure_ogam_lut(
- 	struct dcn30_dwbc *dwbc30,
- 	bool is_ram_a)
- {
--	REG_UPDATE(DWB_OGAM_LUT_CONTROL,
--		DWB_OGAM_LUT_READ_COLOR_SEL, 7);
--	REG_UPDATE(DWB_OGAM_CONTROL,
--		DWB_OGAM_SELECT, is_ram_a == true ? 0 : 1);
-+	REG_UPDATE_2(DWB_OGAM_LUT_CONTROL,
-+		DWB_OGAM_LUT_WRITE_COLOR_MASK, 7,
-+		DWB_OGAM_LUT_HOST_SEL, (is_ram_a == true) ? 0 : 1);
-+
- 	REG_SET(DWB_OGAM_LUT_INDEX, 0, DWB_OGAM_LUT_INDEX, 0);
- }
- 
-@@ -185,17 +189,45 @@ static void dwb3_program_ogam_pwl(struct dcn30_dwbc *dwbc30,
- {
- 	uint32_t i;
- 
--    // triple base implementation
--	for (i = 0; i < num/2; i++) {
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+0].red_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+0].green_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+0].blue_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+1].red_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+1].green_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+1].blue_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+2].red_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+2].green_reg);
--		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[2*i+2].blue_reg);
-+	uint32_t last_base_value_red = rgb[num-1].red_reg + rgb[num-1].delta_red_reg;
-+	uint32_t last_base_value_green = rgb[num-1].green_reg + rgb[num-1].delta_green_reg;
-+	uint32_t last_base_value_blue = rgb[num-1].blue_reg + rgb[num-1].delta_blue_reg;
-+
-+	if (is_rgb_equal(rgb,  num)) {
-+		for (i = 0 ; i < num; i++)
-+			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].red_reg);
-+
-+		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_red);
-+
-+	} else {
-+
-+		REG_UPDATE(DWB_OGAM_LUT_CONTROL,
-+				DWB_OGAM_LUT_WRITE_COLOR_MASK, 4);
-+
-+		for (i = 0 ; i < num; i++)
-+			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].red_reg);
-+
-+		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_red);
-+
-+		REG_SET(DWB_OGAM_LUT_INDEX, 0, DWB_OGAM_LUT_INDEX, 0);
-+
-+		REG_UPDATE(DWB_OGAM_LUT_CONTROL,
-+				DWB_OGAM_LUT_WRITE_COLOR_MASK, 2);
-+
-+		for (i = 0 ; i < num; i++)
-+			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].green_reg);
-+
-+		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_green);
-+
-+		REG_SET(DWB_OGAM_LUT_INDEX, 0, DWB_OGAM_LUT_INDEX, 0);
-+
-+		REG_UPDATE(DWB_OGAM_LUT_CONTROL,
-+				DWB_OGAM_LUT_WRITE_COLOR_MASK, 1);
-+
-+		for (i = 0 ; i < num; i++)
-+			REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, rgb[i].blue_reg);
-+
-+		REG_SET(DWB_OGAM_LUT_DATA, 0, DWB_OGAM_LUT_DATA, last_base_value_blue);
+diff --git a/drivers/tty/serial/jsm/jsm_neo.c b/drivers/tty/serial/jsm/jsm_neo.c
+index bf0e2a4cb0ce..c6f927a76c3b 100644
+--- a/drivers/tty/serial/jsm/jsm_neo.c
++++ b/drivers/tty/serial/jsm/jsm_neo.c
+@@ -815,7 +815,9 @@ static void neo_parse_isr(struct jsm_board *brd, u32 port)
+ 		/* Parse any modem signal changes */
+ 		jsm_dbg(INTR, &ch->ch_bd->pci_dev,
+ 			"MOD_STAT: sending to parse_modem_sigs\n");
++		spin_lock_irqsave(&ch->uart_port.lock, lock_flags);
+ 		neo_parse_modem(ch, readb(&ch->ch_neo_uart->msr));
++		spin_unlock_irqrestore(&ch->uart_port.lock, lock_flags);
  	}
  }
  
-@@ -211,6 +243,8 @@ static bool dwb3_program_ogam_lut(
- 		return false;
- 	}
+diff --git a/drivers/tty/serial/jsm/jsm_tty.c b/drivers/tty/serial/jsm/jsm_tty.c
+index 8e42a7682c63..d74cbbbf33c6 100644
+--- a/drivers/tty/serial/jsm/jsm_tty.c
++++ b/drivers/tty/serial/jsm/jsm_tty.c
+@@ -187,6 +187,7 @@ static void jsm_tty_break(struct uart_port *port, int break_state)
  
-+	REG_SET(DWB_OGAM_CONTROL, 0, DWB_OGAM_MODE, 2);
-+
- 	current_mode = dwb3_get_ogam_current(dwbc30);
- 	if (current_mode == LUT_BYPASS || current_mode == LUT_RAM_A)
- 		next_mode = LUT_RAM_B;
-@@ -227,8 +261,7 @@ static bool dwb3_program_ogam_lut(
- 	dwb3_program_ogam_pwl(
- 		dwbc30, params->rgb_resulted, params->hw_points_num);
+ static int jsm_tty_open(struct uart_port *port)
+ {
++	unsigned long lock_flags;
+ 	struct jsm_board *brd;
+ 	struct jsm_channel *channel =
+ 		container_of(port, struct jsm_channel, uart_port);
+@@ -240,6 +241,7 @@ static int jsm_tty_open(struct uart_port *port)
+ 	channel->ch_cached_lsr = 0;
+ 	channel->ch_stops_sent = 0;
  
--	REG_SET(DWB_OGAM_CONTROL, 0, DWB_OGAM_MODE, 2);
--	REG_SET(DWB_OGAM_CONTROL, 0, DWB_OGAM_SELECT, next_mode == LUT_RAM_A ? 0 : 1);
-+	REG_UPDATE(DWB_OGAM_CONTROL, DWB_OGAM_SELECT, next_mode == LUT_RAM_A ? 0 : 1);
++	spin_lock_irqsave(&port->lock, lock_flags);
+ 	termios = &port->state->port.tty->termios;
+ 	channel->ch_c_cflag	= termios->c_cflag;
+ 	channel->ch_c_iflag	= termios->c_iflag;
+@@ -259,6 +261,7 @@ static int jsm_tty_open(struct uart_port *port)
+ 	jsm_carrier(channel);
  
- 	return true;
- }
-@@ -271,14 +304,19 @@ static void dwb3_program_gamut_remap(
+ 	channel->ch_open_count++;
++	spin_unlock_irqrestore(&port->lock, lock_flags);
  
- 	struct color_matrices_reg gam_regs;
- 
--	REG_UPDATE(DWB_GAMUT_REMAP_COEF_FORMAT, DWB_GAMUT_REMAP_COEF_FORMAT, coef_format);
--
- 	if (regval == NULL || select == CM_GAMUT_REMAP_MODE_BYPASS) {
- 		REG_SET(DWB_GAMUT_REMAP_MODE, 0,
- 				DWB_GAMUT_REMAP_MODE, 0);
- 		return;
- 	}
- 
-+	REG_UPDATE(DWB_GAMUT_REMAP_COEF_FORMAT, DWB_GAMUT_REMAP_COEF_FORMAT, coef_format);
-+
-+	gam_regs.shifts.csc_c11 = dwbc30->dwbc_shift->DWB_GAMUT_REMAPA_C11;
-+	gam_regs.masks.csc_c11  = dwbc30->dwbc_mask->DWB_GAMUT_REMAPA_C11;
-+	gam_regs.shifts.csc_c12 = dwbc30->dwbc_shift->DWB_GAMUT_REMAPA_C12;
-+	gam_regs.masks.csc_c12 = dwbc30->dwbc_mask->DWB_GAMUT_REMAPA_C12;
-+
- 	switch (select) {
- 	case CM_GAMUT_REMAP_MODE_RAMA_COEFF:
- 		gam_regs.csc_c11_c12 = REG(DWB_GAMUT_REMAPA_C11_C12);
+ 	jsm_dbg(OPEN, &channel->ch_bd->pci_dev, "finish\n");
+ 	return 0;
 -- 
 2.30.2
 
