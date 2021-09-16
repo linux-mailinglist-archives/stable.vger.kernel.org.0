@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DD6E40E34B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:20:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B86B40E077
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:21:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244576AbhIPQq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:46:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57530 "EHLO mail.kernel.org"
+        id S241460AbhIPQVf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:21:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344123AbhIPQog (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:44:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EE3361A57;
-        Thu, 16 Sep 2021 16:25:45 +0000 (UTC)
+        id S241282AbhIPQPZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:15:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F0D360F58;
+        Thu, 16 Sep 2021 16:11:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809546;
-        bh=L/kYqinvZKgiNpnF/JFP/OdfPQwTZRg8Ij6fzHTyWUA=;
+        s=korg; t=1631808697;
+        bh=0sRjAYb+0qs4QnC1cjMiOdZudBqfkjzC6vfJ9zbTIDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ilwEdn1fWUK3CxKceGWzlKrWk4f8KfMYH46gdhm9GYEYN39YKL5ugkldQUFCpV0hU
-         r92nWOm8p3KZT+C8/1VulZ1eyYkmEwQkHjBn0AmE3xdan2XJWylaSdn+PIRDHBv3Kc
-         WWRkQuQTMKxm9UXlDCLCUzD6GZOiAtYVUPDImqWs=
+        b=2p9kE5Yg4PhndvTzQHAo1O+/3aVnmns6J0BGK3IQs9zl6m5oXSegPODxj1dlOXFjT
+         xew9b1Ig/oAmnwU1JVe/FD+xiJE0Qr010EkC4ATRd6vAfl4WGSnKl2hGshdWoJ5Yzg
+         xOa7LYNauUoXU99y7BWYkaexYVHD9f1T9rLdwWy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 176/380] staging: hisilicon,hi6421-spmi-pmic.yaml: fix patternProperties
-Date:   Thu, 16 Sep 2021 17:58:53 +0200
-Message-Id: <20210916155810.069150812@linuxfoundation.org>
+Subject: [PATCH 5.10 189/306] arm64: dts: qcom: ipq8074: fix pci node reg property
+Date:   Thu, 16 Sep 2021 17:58:54 +0200
+Message-Id: <20210916155800.517255620@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit 334201d503d5903f38f6e804263fc291ce8f451a ]
+[ Upstream commit 52c9887fba71fc8f12d343833fc595c762aac8c7 ]
 
-The regex at the patternProperties is wrong, although this was
-not reported as the DT schema was not enforcing properties.
+reg property should be array of values, here it is a single array,
+leading to below warning:
 
-Fix it.
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:reg:0: [268435456, 3869, 268439328, 168, 557056, 8192, 269484032, 4096] is too long
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@10000000:ranges: 'oneOf' conditional failed, one must be fixed:
+[[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488]] is not of type 'null'
+[2164260864, 0, 270532608, 270532608, 0, 1048576, 2181038080, 0, 271581184, 271581184, 0, 13631488] is too long
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:reg:0: [536870912, 3869, 536874784, 168, 524288, 8192, 537919488, 4096] is too long
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
+arch/arm64/boot/dts/qcom/ipq8074-hk01.dt.yaml: soc: pci@20000000:ranges: 'oneOf' conditional failed, one must be fixed:
+[[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488]] is not of type 'null'
+[2164260864, 0, 538968064, 538968064, 0, 1048576, 2181038080, 0, 540016640, 540016640, 0, 13631488] is too long
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Link: https://lore.kernel.org/r/46b2f30df235481cb1404913380e45706dfd8253.1626515862.git.mchehab+huawei@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210308060826.3074234-17-vkoul@kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/ipq8074.dtsi | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml b/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml
-index 3b23ad56b31a..ef664b4458fb 100644
---- a/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml
-+++ b/drivers/staging/hikey9xx/hisilicon,hi6421-spmi-pmic.yaml
-@@ -42,6 +42,8 @@ properties:
-   regulators:
-     type: object
+diff --git a/arch/arm64/boot/dts/qcom/ipq8074.dtsi b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
+index 829e37ac82f6..776a6b0f61a6 100644
+--- a/arch/arm64/boot/dts/qcom/ipq8074.dtsi
++++ b/arch/arm64/boot/dts/qcom/ipq8074.dtsi
+@@ -567,10 +567,10 @@ frame@b128000 {
  
-+    additionalProperties: false
-+
-     properties:
-       '#address-cells':
-         const: 1
-@@ -50,11 +52,13 @@ properties:
-         const: 0
+ 		pcie1: pci@10000000 {
+ 			compatible = "qcom,pcie-ipq8074";
+-			reg =  <0x10000000 0xf1d
+-				0x10000f20 0xa8
+-				0x00088000 0x2000
+-				0x10100000 0x1000>;
++			reg =  <0x10000000 0xf1d>,
++			       <0x10000f20 0xa8>,
++			       <0x00088000 0x2000>,
++			       <0x10100000 0x1000>;
+ 			reg-names = "dbi", "elbi", "parf", "config";
+ 			device_type = "pci";
+ 			linux,pci-domain = <1>;
+@@ -629,10 +629,10 @@ IRQ_TYPE_LEVEL_HIGH>, /* int_c */
  
-     patternProperties:
--      '^ldo[0-9]+@[0-9a-f]$':
-+      '^(ldo|LDO)[0-9]+$':
-         type: object
- 
-         $ref: "/schemas/regulator/regulator.yaml#"
- 
-+        unevaluatedProperties: false
-+
- required:
-   - compatible
-   - reg
+ 		pcie0: pci@20000000 {
+ 			compatible = "qcom,pcie-ipq8074";
+-			reg =  <0x20000000 0xf1d
+-				0x20000f20 0xa8
+-				0x00080000 0x2000
+-				0x20100000 0x1000>;
++			reg = <0x20000000 0xf1d>,
++			      <0x20000f20 0xa8>,
++			      <0x00080000 0x2000>,
++			      <0x20100000 0x1000>;
+ 			reg-names = "dbi", "elbi", "parf", "config";
+ 			device_type = "pci";
+ 			linux,pci-domain = <0>;
 -- 
 2.30.2
 
