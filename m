@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC1540E0FF
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:28:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2891740E443
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:23:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241897AbhIPQ0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:26:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59974 "EHLO mail.kernel.org"
+        id S1343648AbhIPQ4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:56:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242075AbhIPQYX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:24:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 280026124E;
-        Thu, 16 Sep 2021 16:16:13 +0000 (UTC)
+        id S1346408AbhIPQyu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:54:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39EC061130;
+        Thu, 16 Sep 2021 16:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808974;
-        bh=FfIc2Dd5s62bLwj4RwZEowrUsf/Bc2Q+FoX2p0OTEU8=;
+        s=korg; t=1631809826;
+        bh=rzXuxzwfo0rUa+MXxZD9zmqtGv25AxQYRDc7PVfMWU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zd2rqUGpJYB8/ruBD2NSzv2xjXbquKg0EoBZWVSDHCVPMm8gcWcE0eNpFdgWzNrbz
-         Lm0/CX+N8EuKK1sNfMEAlYll13GYmAtaiWeBy3CjlfyJCbJVwe5mAXG395VPtUTwZ2
-         83M0be9iFm1GXebdFOF/lrYMqrGGmbNsELOjYLEM=
+        b=CuU6bc4LuX8aIhdwgOJKLY0VyhD02L4s/e76xEMt5skJSDtqcA00Ia1rkk8rspRmM
+         Mu2JO77nez/asojrOCnA0lJVxpldb9CGMifnAOUsmnuF2z8MFotSsz4m56TWl4WdcX
+         UVzkHzeVyTFFAeP4nA+87PknpZhQQkR/CbbVB+hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, sumiyawang <sumiyawang@tencent.com>,
-        yongduan <yongduan@tencent.com>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 5.10 292/306] libnvdimm/pmem: Fix crash triggered when I/O in-flight during unbind
+        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 280/380] rpc: fix gss_svc_init cleanup on failure
 Date:   Thu, 16 Sep 2021 18:00:37 +0200
-Message-Id: <20210916155804.052687458@linuxfoundation.org>
+Message-Id: <20210916155813.603825829@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: sumiyawang <sumiyawang@tencent.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-commit 32b2397c1e56f33b0b1881def965bb89bd12f448 upstream.
+[ Upstream commit 5a4753446253a427c0ff1e433b9c4933e5af207c ]
 
-There is a use after free crash when the pmem driver tears down its
-mapping while I/O is still inbound.
+The failure case here should be rare, but it's obviously wrong.
 
-This is triggered by driver unbind, "ndctl destroy-namespace", while I/O
-is in flight.
-
-Fix the sequence of blk_cleanup_queue() vs memunmap().
-
-The crash signature is of the form:
-
- BUG: unable to handle page fault for address: ffffc90080200000
- CPU: 36 PID: 9606 Comm: systemd-udevd
- Call Trace:
-  ? pmem_do_bvec+0xf9/0x3a0
-  ? xas_alloc+0x55/0xd0
-  pmem_rw_page+0x4b/0x80
-  bdev_read_page+0x86/0xb0
-  do_mpage_readpage+0x5d4/0x7a0
-  ? lru_cache_add+0xe/0x10
-  mpage_readpages+0xf9/0x1c0
-  ? bd_link_disk_holder+0x1a0/0x1a0
-  blkdev_readpages+0x1d/0x20
-  read_pages+0x67/0x1a0
-
-  ndctl Call Trace in vmcore:
-  PID: 23473  TASK: ffff88c4fbbe8000  CPU: 1   COMMAND: "ndctl"
-  __schedule
-  schedule
-  blk_mq_freeze_queue_wait
-  blk_freeze_queue
-  blk_cleanup_queue
-  pmem_release_queue
-  devm_action_release
-  release_nodes
-  devres_release_all
-  device_release_driver_internal
-  device_driver_detach
-  unbind_store
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: sumiyawang <sumiyawang@tencent.com>
-Reviewed-by: yongduan <yongduan@tencent.com>
-Link: https://lore.kernel.org/r/1629632949-14749-1-git-send-email-sumiyawang@tencent.com
-Fixes: 50f44ee7248a ("mm/devm_memremap_pages: fix final page put race")
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/pmem.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/sunrpc/auth_gss/svcauth_gss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -448,11 +448,11 @@ static int pmem_attach_disk(struct devic
- 		pmem->pfn_flags |= PFN_MAP;
- 		bb_range = pmem->pgmap.range;
- 	} else {
-+		addr = devm_memremap(dev, pmem->phys_addr,
-+				pmem->size, ARCH_MEMREMAP_PMEM);
- 		if (devm_add_action_or_reset(dev, pmem_release_queue,
- 					&pmem->pgmap))
- 			return -ENOMEM;
--		addr = devm_memremap(dev, pmem->phys_addr,
--				pmem->size, ARCH_MEMREMAP_PMEM);
- 		bb_range.start =  res->start;
- 		bb_range.end = res->end;
- 	}
+diff --git a/net/sunrpc/auth_gss/svcauth_gss.c b/net/sunrpc/auth_gss/svcauth_gss.c
+index 6dff64374bfe..e22f2d65457d 100644
+--- a/net/sunrpc/auth_gss/svcauth_gss.c
++++ b/net/sunrpc/auth_gss/svcauth_gss.c
+@@ -1980,7 +1980,7 @@ gss_svc_init_net(struct net *net)
+ 		goto out2;
+ 	return 0;
+ out2:
+-	destroy_use_gss_proxy_proc_entry(net);
++	rsi_cache_destroy_net(net);
+ out1:
+ 	rsc_cache_destroy_net(net);
+ 	return rv;
+-- 
+2.30.2
+
 
 
