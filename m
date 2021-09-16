@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CECE40E4CD
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79EE740E7F1
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244454AbhIPRFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:05:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34054 "EHLO mail.kernel.org"
+        id S1349950AbhIPRn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:43:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347949AbhIPRBE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:01:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F4A861AF8;
-        Thu, 16 Sep 2021 16:33:05 +0000 (UTC)
+        id S1354084AbhIPRie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:38:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 231436159A;
+        Thu, 16 Sep 2021 16:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809986;
-        bh=IkSr81dmRKz8Vb0/fkgJQKts2MtDrWrqbK1Bm8mS7Q0=;
+        s=korg; t=1631811029;
+        bh=ipq2xZ7CFfhWJwJIgNAoPCVmyXRWSBM7cc6PGH9Baig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JqKMJ1EO9eyDa8/Okp5ZJTAdvy+KtHsPzTBVLp4WipvdPN5iRQeFQTzGZ2L5BEbCu
-         U2ct+iI4Y1bQ/sKl1NwQwXmFoPt+4egaWoO64jviufuqnBk0HUH5qBmfKGKPxJ4PFO
-         iC+A8t2VQmLS1OalEzXONYSBIAARAfc43jU6Oewg=
+        b=PtnvuDChtPzM2ztIjEB7AI51AXiN08o+IEuUOvtU25o07y1v8btyDdpbmEyBbOhfg
+         Yvwl2EgHaxjcgdMBYz7uTgqInmBTWIrezRhHdE/esKvdXYQHENX6W0JZ78oNL+UK5q
+         GA3ALuEiYn+mXAN3pNBO9ThX3g9i39oJ7K5VrgEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, chenying <chenying.kernel@bytedance.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.13 349/380] ovl: fix BUG_ON() in may_delete() when called from ovl_cleanup()
+        stable@vger.kernel.org, Michael <msbroadf@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 357/432] usbip:vhci_hcd USB port can get stuck in the disabled state
 Date:   Thu, 16 Sep 2021 18:01:46 +0200
-Message-Id: <20210916155815.920098425@linuxfoundation.org>
+Message-Id: <20210916155822.908125591@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: chenying <chenying.kernel@bytedance.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit 52d5a0c6bd8a89f460243ed937856354f8f253a3 upstream.
+[ Upstream commit 66cce9e73ec61967ed1f97f30cee79bd9a2bb7ee ]
 
-If function ovl_instantiate() returns an error, ovl_cleanup will be called
-and try to remove newdentry from wdir, but the newdentry has been moved to
-udir at this time.  This will causes BUG_ON(victim->d_parent->d_inode !=
-dir) in fs/namei.c:may_delete.
+When a remote usb device is attached to the local Virtual USB
+Host Controller Root Hub port, the bound device driver may send
+a port reset command.
 
-Signed-off-by: chenying <chenying.kernel@bytedance.com>
-Fixes: 01b39dcc9568 ("ovl: use inode_insert5() to hash a newly created inode")
-Link: https://lore.kernel.org/linux-unionfs/e6496a94-a161-dc04-c38a-d2544633acb4@bytedance.com/
-Cc: <stable@vger.kernel.org> # v4.18
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+vhci_hcd accepts port resets only when the device doesn't have
+port address assigned to it. When reset happens device is in
+assigned/used state and vhci_hcd rejects it leaving the port in
+a stuck state.
+
+This problem was found when a blue-tooth or xbox wireless dongle
+was passed through using usbip.
+
+A few drivers reset the port during probe including mt76 driver
+specific to this bug report. Fix the problem with a change to
+honor reset requests when device is in used state (VDEV_ST_USED).
+
+Reported-and-tested-by: Michael <msbroadf@gmail.com>
+Suggested-by: Michael <msbroadf@gmail.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210819225937.41037-1-skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/dir.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/usbip/vhci_hcd.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -542,8 +542,10 @@ static int ovl_create_over_whiteout(stru
- 			goto out_cleanup;
- 	}
- 	err = ovl_instantiate(dentry, inode, newdentry, hardlink);
--	if (err)
--		goto out_cleanup;
-+	if (err) {
-+		ovl_cleanup(udir, newdentry);
-+		dput(newdentry);
-+	}
- out_dput:
- 	dput(upper);
- out_unlock:
+diff --git a/drivers/usb/usbip/vhci_hcd.c b/drivers/usb/usbip/vhci_hcd.c
+index 190bd3d1c1f0..b07b2925ff78 100644
+--- a/drivers/usb/usbip/vhci_hcd.c
++++ b/drivers/usb/usbip/vhci_hcd.c
+@@ -455,8 +455,14 @@ static int vhci_hub_control(struct usb_hcd *hcd, u16 typeReq, u16 wValue,
+ 			vhci_hcd->port_status[rhport] &= ~(1 << USB_PORT_FEAT_RESET);
+ 			vhci_hcd->re_timeout = 0;
+ 
++			/*
++			 * A few drivers do usb reset during probe when
++			 * the device could be in VDEV_ST_USED state
++			 */
+ 			if (vhci_hcd->vdev[rhport].ud.status ==
+-			    VDEV_ST_NOTASSIGNED) {
++				VDEV_ST_NOTASSIGNED ||
++			    vhci_hcd->vdev[rhport].ud.status ==
++				VDEV_ST_USED) {
+ 				usbip_dbg_vhci_rh(
+ 					" enable rhport %d (status %u)\n",
+ 					rhport,
+-- 
+2.30.2
+
 
 
