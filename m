@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9105840E887
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AAAF40E88C
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356013AbhIPRor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57132 "EHLO mail.kernel.org"
+        id S1356026AbhIPRot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355457AbhIPRld (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355464AbhIPRld (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:41:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35C9863265;
-        Thu, 16 Sep 2021 16:53:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0CA661AA2;
+        Thu, 16 Sep 2021 16:53:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811186;
-        bh=FWb6d6XzmIZXge2kv7982JAbVeMuvXGgk5FpLS+he5Y=;
+        s=korg; t=1631811189;
+        bh=hiZVbOzKz6FJ1lqu2ced98widGKPNPXQdE93qPRkpKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lbmGQ/lmMAIcKOkfD1ZB3L1l7d5Akw6QOXvcjc3ClZZpkS86cZL7lVWGxDNP5CaSP
-         VKj+0+E4C4gMjAV1Xv+i9TOtIjLBSY/CdExGigEJbBVF5+UX1DHM2tm/hQZLoUI03v
-         oRM/WSWf45cz5NXTJHizcdfIhLTxv1b+yvZnElag=
+        b=IGh4bZVDPJ4wluEej1XOUZk5+lOmAMrWYSn522lkmRjzIcYnm5rUqnF4kRZw2viAi
+         CsOSmKYxkhIO6G71UI4h8mmX00cL84BKtbgyL60r0AYfBSoVwxU08VjMzsj1dadeWK
+         5898nnQlqxp7l2OsmXSyHVyInY8bWe3VHYB9CAwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
-        Song Yoong Siang <yoong.siang.song@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.14 415/432] net: stmmac: Fix overall budget calculation for rxtx_napi
-Date:   Thu, 16 Sep 2021 18:02:44 +0200
-Message-Id: <20210916155824.902586517@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Emil Velikov <emil.velikov@collabora.com>,
+        Dave Airlie <airlied@redhat.com>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH 5.14 416/432] drm/mgag200: Select clock in PLL update functions
+Date:   Thu, 16 Sep 2021 18:02:45 +0200
+Message-Id: <20210916155824.934365580@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -40,89 +42,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Yoong Siang <yoong.siang.song@intel.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-commit 81d0885d68ec427e62044cf46a400c9958ea0092 upstream.
+commit 147696720eca12ae48d020726208b9a61cdd80bc upstream.
 
-tx_done is not used for napi_complete_done(). Thus, NAPI busy polling
-mechanism by gro_flush_timeout and napi_defer_hard_irqs will not able
-be triggered after a packet is transmitted when there is no receive
-packet.
+Put the clock-selection code into each of the PLL-update functions to
+make them select the correct pixel clock. Instead of copying the code,
+introduce a new helper WREG_MISC_MASKED, which does masked writes into
+<MISC>. Use it from each individual PLL update function.
 
-Fix this by taking the maximum value between tx_done and rx_done as
-overall budget completed by the rxtx NAPI poll to ensure XDP Tx ZC
-operation is continuously polling for next Tx frame. This gives
-benefit of lower packet submission processing latency and jitter
-under XDP Tx ZC mode.
+The pixel clock for video output was not actually set before programming
+the clock's values. It worked because the device had the correct clock
+pre-set.
 
-Performance of tx-only using xdp-sock on Intel ADL-S platform is
-the same with and without this patch.
+v2:
+	* don't duplicate <MISC> update code (Sam)
 
-root@intel-corei7-64:~# ./xdpsock -i enp0s30f4 -t -z -q 1 -n 10
- sock0@enp0s30f4:1 txonly xdp-drv
-                   pps            pkts           10.00
-rx                 0              0
-tx                 511630         8659520
-
- sock0@enp0s30f4:1 txonly xdp-drv
-                   pps            pkts           10.00
-rx                 0              0
-tx                 511625         13775808
-
- sock0@enp0s30f4:1 txonly xdp-drv
-                   pps            pkts           10.00
-rx                 0              0
-tx                 511619         18892032
-
-Fixes: 132c32ee5bc0 ("net: stmmac: Add TX via XDP zero-copy socket")
-Cc: <stable@vger.kernel.org> # 5.13.x
-Co-developed-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Song Yoong Siang <yoong.siang.song@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: db05f8d3dc87 ("drm/mgag200: Split MISC register update into PLL selection, SYNC and I/O")
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.9+
+Link: https://patchwork.freedesktop.org/patch/msgid/20210714142240.21979-2-tzimmermann@suse.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/mgag200/mgag200_drv.h  |   16 ++++++++++++++++
+ drivers/gpu/drm/mgag200/mgag200_mode.c |   20 +++++++++++++-------
+ drivers/gpu/drm/mgag200/mgag200_reg.h  |    9 ++++-----
+ 3 files changed, 33 insertions(+), 12 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -5342,7 +5342,7 @@ static int stmmac_napi_poll_rxtx(struct
- 	struct stmmac_channel *ch =
- 		container_of(napi, struct stmmac_channel, rxtx_napi);
- 	struct stmmac_priv *priv = ch->priv_data;
--	int rx_done, tx_done;
-+	int rx_done, tx_done, rxtx_done;
- 	u32 chan = ch->index;
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.h
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
+@@ -43,6 +43,22 @@
+ #define ATTR_INDEX 0x1fc0
+ #define ATTR_DATA 0x1fc1
  
- 	priv->xstats.napi_poll++;
-@@ -5352,14 +5352,16 @@ static int stmmac_napi_poll_rxtx(struct
- 
- 	rx_done = stmmac_rx_zc(priv, budget, chan);
- 
-+	rxtx_done = max(tx_done, rx_done);
++#define WREG_MISC(v)						\
++	WREG8(MGA_MISC_OUT, v)
 +
- 	/* If either TX or RX work is not complete, return budget
- 	 * and keep pooling
- 	 */
--	if (tx_done >= budget || rx_done >= budget)
-+	if (rxtx_done >= budget)
- 		return budget;
++#define RREG_MISC(v)						\
++	((v) = RREG8(MGA_MISC_IN))
++
++#define WREG_MISC_MASKED(v, mask)				\
++	do {							\
++		u8 misc_;					\
++		u8 mask_ = (mask);				\
++		RREG_MISC(misc_);				\
++		misc_ &= ~mask_;				\
++		misc_ |= ((v) & mask_);				\
++		WREG_MISC(misc_);				\
++	} while (0)
++
+ #define WREG_ATTR(reg, v)					\
+ 	do {							\
+ 		RREG8(0x1fda);					\
+--- a/drivers/gpu/drm/mgag200/mgag200_mode.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+@@ -174,6 +174,8 @@ static int mgag200_g200_set_plls(struct
+ 	drm_dbg_kms(dev, "clock: %ld vco: %ld m: %d n: %d p: %d s: %d\n",
+ 		    clock, f_vco, m, n, p, s);
  
- 	/* all work done, exit the polling mode */
--	if (napi_complete_done(napi, rx_done)) {
-+	if (napi_complete_done(napi, rxtx_done)) {
- 		unsigned long flags;
- 
- 		spin_lock_irqsave(&ch->lock, flags);
-@@ -5370,7 +5372,7 @@ static int stmmac_napi_poll_rxtx(struct
- 		spin_unlock_irqrestore(&ch->lock, flags);
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	WREG_DAC(MGA1064_PIX_PLLC_M, m);
+ 	WREG_DAC(MGA1064_PIX_PLLC_N, n);
+ 	WREG_DAC(MGA1064_PIX_PLLC_P, (p | (s << 3)));
+@@ -289,6 +291,8 @@ static int mga_g200se_set_plls(struct mg
+ 		return 1;
  	}
  
--	return min(rx_done, budget - 1);
-+	return min(rxtx_done, budget - 1);
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	WREG_DAC(MGA1064_PIX_PLLC_M, m);
+ 	WREG_DAC(MGA1064_PIX_PLLC_N, n);
+ 	WREG_DAC(MGA1064_PIX_PLLC_P, p);
+@@ -385,6 +389,8 @@ static int mga_g200wb_set_plls(struct mg
+ 		}
+ 	}
+ 
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	for (i = 0; i <= 32 && pll_locked == false; i++) {
+ 		if (i > 0) {
+ 			WREG8(MGAREG_CRTC_INDEX, 0x1e);
+@@ -522,6 +528,8 @@ static int mga_g200ev_set_plls(struct mg
+ 		}
+ 	}
+ 
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	WREG8(DAC_INDEX, MGA1064_PIX_CLK_CTL);
+ 	tmp = RREG8(DAC_DATA);
+ 	tmp |= MGA1064_PIX_CLK_CTL_CLK_DIS;
+@@ -654,6 +662,9 @@ static int mga_g200eh_set_plls(struct mg
+ 			}
+ 		}
+ 	}
++
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	for (i = 0; i <= 32 && pll_locked == false; i++) {
+ 		WREG8(DAC_INDEX, MGA1064_PIX_CLK_CTL);
+ 		tmp = RREG8(DAC_DATA);
+@@ -754,6 +765,8 @@ static int mga_g200er_set_plls(struct mg
+ 		}
+ 	}
+ 
++	WREG_MISC_MASKED(MGAREG_MISC_CLKSEL_MGA, MGAREG_MISC_CLKSEL_MASK);
++
+ 	WREG8(DAC_INDEX, MGA1064_PIX_CLK_CTL);
+ 	tmp = RREG8(DAC_DATA);
+ 	tmp |= MGA1064_PIX_CLK_CTL_CLK_DIS;
+@@ -787,8 +800,6 @@ static int mga_g200er_set_plls(struct mg
+ 
+ static int mgag200_crtc_set_plls(struct mga_device *mdev, long clock)
+ {
+-	u8 misc;
+-
+ 	switch(mdev->type) {
+ 	case G200_PCI:
+ 	case G200_AGP:
+@@ -808,11 +819,6 @@ static int mgag200_crtc_set_plls(struct
+ 		return mga_g200er_set_plls(mdev, clock);
+ 	}
+ 
+-	misc = RREG8(MGA_MISC_IN);
+-	misc &= ~MGAREG_MISC_CLK_SEL_MASK;
+-	misc |= MGAREG_MISC_CLK_SEL_MGA_MSK;
+-	WREG8(MGA_MISC_OUT, misc);
+-
+ 	return 0;
  }
  
- /**
+--- a/drivers/gpu/drm/mgag200/mgag200_reg.h
++++ b/drivers/gpu/drm/mgag200/mgag200_reg.h
+@@ -222,11 +222,10 @@
+ 
+ #define MGAREG_MISC_IOADSEL	(0x1 << 0)
+ #define MGAREG_MISC_RAMMAPEN	(0x1 << 1)
+-#define MGAREG_MISC_CLK_SEL_MASK	GENMASK(3, 2)
+-#define MGAREG_MISC_CLK_SEL_VGA25	(0x0 << 2)
+-#define MGAREG_MISC_CLK_SEL_VGA28	(0x1 << 2)
+-#define MGAREG_MISC_CLK_SEL_MGA_PIX	(0x2 << 2)
+-#define MGAREG_MISC_CLK_SEL_MGA_MSK	(0x3 << 2)
++#define MGAREG_MISC_CLKSEL_MASK		GENMASK(3, 2)
++#define MGAREG_MISC_CLKSEL_VGA25	(0x0 << 2)
++#define MGAREG_MISC_CLKSEL_VGA28	(0x1 << 2)
++#define MGAREG_MISC_CLKSEL_MGA		(0x3 << 2)
+ #define MGAREG_MISC_VIDEO_DIS	(0x1 << 4)
+ #define MGAREG_MISC_HIGH_PG_SEL	(0x1 << 5)
+ #define MGAREG_MISC_HSYNCPOL		BIT(6)
 
 
