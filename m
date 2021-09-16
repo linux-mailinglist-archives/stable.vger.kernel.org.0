@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF9840E865
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70D7540E867
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355122AbhIPRo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
+        id S1355146AbhIPRoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355115AbhIPRlG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:41:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22A5C6325C;
-        Thu, 16 Sep 2021 16:52:19 +0000 (UTC)
+        id S1355132AbhIPRlH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:41:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D041E63256;
+        Thu, 16 Sep 2021 16:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811140;
-        bh=d2zN46M7dViF3bSk5TZ29MJ30B7PIC5iRpNK9pXKP0Q=;
+        s=korg; t=1631811143;
+        bh=9XEd6jM7C1DNQk4a7j9DzEhbZ4YMjGsfHBaAZtN4/y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cQx4DnxO9GSj7rfci7eRiFCzv5tc63QqdaQNgMXNKODFh7V2MdK6x2ZvRGYEw6kRx
-         Oe/SSlywi+NDGp8QxshqfxU6c7RNeMBoihWMP9xM727ybGtqVrcc/BRtAT8fstcPhO
-         wcVRBzlBPw0kYVuUwmAyinHrd4kD8d/iEs1NPPsw=
+        b=UZPh9eLrWqMwZd6u0POu3T42sUPnu1sMk3UF2eCBzDabl0tauj+KFlsbEb3xesnnM
+         7XYo2gxQQwMRK1Nrd+e3Q//zU6+8e0NT0v1savPZaNxLXHzNzDZC3E7I+/ZQMS+1Fw
+         2uvkpiPy/8jghP5KH3MsXsWikrpYU5NrwMqzHQuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evgeny Novikov <novikov@ispras.ru>,
-        Kirill Shilimanov <kirill.shilimanov@huawei.com>,
-        Anton Vasilyev <vasilyev@ispras.ru>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.14 398/432] mtd: rawnand: intel: Fix error handling in probe
-Date:   Thu, 16 Sep 2021 18:02:27 +0200
-Message-Id: <20210916155824.315987763@linuxfoundation.org>
+        stable@vger.kernel.org, Shirisha Ganta <shirisha.ganta1@ibm.com>,
+        "Pratik R. Sampat" <psampat@linux.ibm.com>,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.14 399/432] cpufreq: powernv: Fix init_chip_info initialization in numa=off
+Date:   Thu, 16 Sep 2021 18:02:28 +0200
+Message-Id: <20210916155824.356547642@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -41,84 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evgeny Novikov <novikov@ispras.ru>
+From: Pratik R. Sampat <psampat@linux.ibm.com>
 
-commit 0792ec82175ec45a0f45af6e0f2d3cb49c527cd4 upstream.
+commit f34ee9cb2c5ac5af426fee6fa4591a34d187e696 upstream.
 
-ebu_nand_probe() did not invoke ebu_dma_cleanup() and
-clk_disable_unprepare() on some error handling paths. The patch fixes
-that.
+In the numa=off kernel command-line configuration init_chip_info() loops
+around the number of chips and attempts to copy the cpumask of that node
+which is NULL for all iterations after the first chip.
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Hence, store the cpu mask for each chip instead of derving cpumask from
+node while populating the "chips" struct array and copy that to the
+chips[i].mask
 
-Fixes: 0b1039f016e8 ("mtd: rawnand: Add NAND controller support on Intel LGM SoC")
-Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
-Co-developed-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Signed-off-by: Kirill Shilimanov <kirill.shilimanov@huawei.com>
-Co-developed-by: Anton Vasilyev <vasilyev@ispras.ru>
-Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210817092930.23040-1-novikov@ispras.ru
+Fixes: 053819e0bf84 ("cpufreq: powernv: Handle throttling due to Pmax capping at chip level")
+Cc: stable@vger.kernel.org # v4.3+
+Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
+Signed-off-by: Pratik R. Sampat <psampat@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+[mpe: Rename goto label to out_free_chip_cpu_mask]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210728120500.87549-2-psampat@linux.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/intel-nand-controller.c |   27 ++++++++++++++++++---------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ drivers/cpufreq/powernv-cpufreq.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
---- a/drivers/mtd/nand/raw/intel-nand-controller.c
-+++ b/drivers/mtd/nand/raw/intel-nand-controller.c
-@@ -631,19 +631,26 @@ static int ebu_nand_probe(struct platfor
- 	ebu_host->clk_rate = clk_get_rate(ebu_host->clk);
+--- a/drivers/cpufreq/powernv-cpufreq.c
++++ b/drivers/cpufreq/powernv-cpufreq.c
+@@ -36,6 +36,7 @@
+ #define MAX_PSTATE_SHIFT	32
+ #define LPSTATE_SHIFT		48
+ #define GPSTATE_SHIFT		56
++#define MAX_NR_CHIPS		32
  
- 	ebu_host->dma_tx = dma_request_chan(dev, "tx");
--	if (IS_ERR(ebu_host->dma_tx))
--		return dev_err_probe(dev, PTR_ERR(ebu_host->dma_tx),
--				     "failed to request DMA tx chan!.\n");
-+	if (IS_ERR(ebu_host->dma_tx)) {
-+		ret = dev_err_probe(dev, PTR_ERR(ebu_host->dma_tx),
-+				    "failed to request DMA tx chan!.\n");
-+		goto err_disable_unprepare_clk;
-+	}
+ #define MAX_RAMP_DOWN_TIME				5120
+ /*
+@@ -1046,12 +1047,20 @@ static int init_chip_info(void)
+ 	unsigned int *chip;
+ 	unsigned int cpu, i;
+ 	unsigned int prev_chip_id = UINT_MAX;
++	cpumask_t *chip_cpu_mask;
+ 	int ret = 0;
  
- 	ebu_host->dma_rx = dma_request_chan(dev, "rx");
--	if (IS_ERR(ebu_host->dma_rx))
--		return dev_err_probe(dev, PTR_ERR(ebu_host->dma_rx),
--				     "failed to request DMA rx chan!.\n");
-+	if (IS_ERR(ebu_host->dma_rx)) {
-+		ret = dev_err_probe(dev, PTR_ERR(ebu_host->dma_rx),
-+				    "failed to request DMA rx chan!.\n");
-+		ebu_host->dma_rx = NULL;
-+		goto err_cleanup_dma;
-+	}
+ 	chip = kcalloc(num_possible_cpus(), sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+ 		return -ENOMEM;
  
- 	resname = devm_kasprintf(dev, GFP_KERNEL, "addr_sel%d", cs);
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, resname);
--	if (!res)
--		return -EINVAL;
-+	if (!res) {
-+		ret = -EINVAL;
-+		goto err_cleanup_dma;
++	/* Allocate a chip cpu mask large enough to fit mask for all chips */
++	chip_cpu_mask = kcalloc(MAX_NR_CHIPS, sizeof(cpumask_t), GFP_KERNEL);
++	if (!chip_cpu_mask) {
++		ret = -ENOMEM;
++		goto free_and_return;
 +	}
- 	ebu_host->cs[cs].addr_sel = res->start;
- 	writel(ebu_host->cs[cs].addr_sel | EBU_ADDR_MASK(5) | EBU_ADDR_SEL_REGEN,
- 	       ebu_host->ebu + EBU_ADDR_SEL(cs));
-@@ -653,7 +660,8 @@ static int ebu_nand_probe(struct platfor
- 	mtd = nand_to_mtd(&ebu_host->chip);
- 	if (!mtd->name) {
- 		dev_err(ebu_host->dev, "NAND label property is mandatory\n");
--		return -EINVAL;
-+		ret = -EINVAL;
-+		goto err_cleanup_dma;
++
+ 	for_each_possible_cpu(cpu) {
+ 		unsigned int id = cpu_to_chip_id(cpu);
+ 
+@@ -1059,22 +1068,25 @@ static int init_chip_info(void)
+ 			prev_chip_id = id;
+ 			chip[nr_chips++] = id;
+ 		}
++		cpumask_set_cpu(cpu, &chip_cpu_mask[nr_chips-1]);
  	}
  
- 	mtd->dev.parent = dev;
-@@ -681,6 +689,7 @@ err_clean_nand:
- 	nand_cleanup(&ebu_host->chip);
- err_cleanup_dma:
- 	ebu_dma_cleanup(ebu_host);
-+err_disable_unprepare_clk:
- 	clk_disable_unprepare(ebu_host->clk);
+ 	chips = kcalloc(nr_chips, sizeof(struct chip), GFP_KERNEL);
+ 	if (!chips) {
+ 		ret = -ENOMEM;
+-		goto free_and_return;
++		goto out_free_chip_cpu_mask;
+ 	}
  
+ 	for (i = 0; i < nr_chips; i++) {
+ 		chips[i].id = chip[i];
+-		cpumask_copy(&chips[i].mask, cpumask_of_node(chip[i]));
++		cpumask_copy(&chips[i].mask, &chip_cpu_mask[i]);
+ 		INIT_WORK(&chips[i].throttle, powernv_cpufreq_work_fn);
+ 		for_each_cpu(cpu, &chips[i].mask)
+ 			per_cpu(chip_info, cpu) =  &chips[i];
+ 	}
+ 
++out_free_chip_cpu_mask:
++	kfree(chip_cpu_mask);
+ free_and_return:
+ 	kfree(chip);
  	return ret;
 
 
