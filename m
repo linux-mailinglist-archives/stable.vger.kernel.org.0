@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1173340DFAB
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:11:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C15240E60A
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235519AbhIPQMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:12:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48498 "EHLO mail.kernel.org"
+        id S1345965AbhIPRR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:17:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235640AbhIPQKv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:10:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16A966127B;
-        Thu, 16 Sep 2021 16:08:38 +0000 (UTC)
+        id S1351287AbhIPRPY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:15:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F369061B80;
+        Thu, 16 Sep 2021 16:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631808519;
-        bh=l78uYDchjdPKARcINjvKtyH8RNP7Yr+otkiFfhf5K+w=;
+        s=korg; t=1631810379;
+        bh=1Csc+8o81KU3aiwd68pdpavxjXbzIBVDOKB8t/TXAA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dbewErynX3/ipH0G/2KVaG1EOCtXJP7JS1psZ8vTFLgyQgo+NSWPsV3q96yUD6KmY
-         erfWnTEhk6aEv2RczO+EDcKAjLIXiwf7ecDl67eFRoXkNuAseirFeavzkDu1SI2hC7
-         k8uFhT+bEyG1EbhbKr9Sd11/Fe12tt8nIzLHe1Lc=
+        b=YXi6oFLZU2oPJY/W8K3p4Iai0ferFUPvdkd3d0p7RjE4UoZADugg/khmEhJbnfhrQ
+         H4q6tuy8/w5ds51L68KN9VqUgO1ceZEKz2SpazobLHfrnaSdZn3DG7HrLBTcileENE
+         rJqT4ODL3rgpQ8eYNNhvA2XQ390172UCFmONQnjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 122/306] iavf: fix locking of critical sections
-Date:   Thu, 16 Sep 2021 17:57:47 +0200
-Message-Id: <20210916155758.230914697@linuxfoundation.org>
+Subject: [PATCH 5.14 119/432] scsi: qedf: Fix error codes in qedf_alloc_global_queues()
+Date:   Thu, 16 Sep 2021 17:57:48 +0200
+Message-Id: <20210916155814.795193627@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,178 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Assmann <sassmann@kpanic.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 226d528512cfac890a1619aea4301f3dd314fe60 ]
+[ Upstream commit ccc89737aa6b9f248cf1623014038beb6c2b7f56 ]
 
-To avoid races between iavf_init_task(), iavf_reset_task(),
-iavf_watchdog_task(), iavf_adminq_task() as well as the shutdown and
-remove functions more locking is required.
-The current protection by __IAVF_IN_CRITICAL_TASK is needed in
-additional places.
+This driver has some left over "return 1" on failure style code mixed with
+"return negative error codes" style code.  The caller doesn't care so we
+should just convert everything to return negative error codes.
 
-- The reset task performs state transitions, therefore needs locking.
-- The adminq task acts on replies from the PF in
-  iavf_virtchnl_completion() which may alter the states.
-- The init task is not only run during probe but also if a VF gets stuck
-  to reinitialize it.
-- The shutdown function performs a state transition.
-- The remove function performs a state transition and also free's
-  resources.
+Then there was a problem that there were two variables used to store error
+codes which just resulted in confusion.  If qedf_alloc_bdq() returned a
+negative error code, we accidentally returned success instead of
+propagating the error code.  So get rid of the "rc" variable and use
+"status" every where.
 
-iavf_lock_timeout() is introduced to avoid waiting infinitely
-and cause a deadlock. Rather unlock and print a warning.
+Also remove the "status = 0" initialization so that these sorts of bugs
+will be detected by the compiler in the future.
 
-Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20210810085023.GA23998@kili
+Fixes: 61d8658b4a43 ("scsi: qedf: Add QLogic FastLinQ offload FCoE driver framework.")
+Acked-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 57 ++++++++++++++++++---
- 1 file changed, 50 insertions(+), 7 deletions(-)
+ drivers/scsi/qedf/qedf_main.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index da401d5694bf..f06c079e812e 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -131,6 +131,30 @@ enum iavf_status iavf_free_virt_mem_d(struct iavf_hw *hw,
- 	return 0;
- }
- 
-+/**
-+ * iavf_lock_timeout - try to set bit but give up after timeout
-+ * @adapter: board private structure
-+ * @bit: bit to set
-+ * @msecs: timeout in msecs
-+ *
-+ * Returns 0 on success, negative on failure
-+ **/
-+static int iavf_lock_timeout(struct iavf_adapter *adapter,
-+			     enum iavf_critical_section_t bit,
-+			     unsigned int msecs)
-+{
-+	unsigned int wait, delay = 10;
-+
-+	for (wait = 0; wait < msecs; wait += delay) {
-+		if (!test_and_set_bit(bit, &adapter->crit_section))
-+			return 0;
-+
-+		msleep(delay);
-+	}
-+
-+	return -1;
-+}
-+
- /**
-  * iavf_schedule_reset - Set the flags and schedule a reset event
-  * @adapter: board private structure
-@@ -2064,6 +2088,10 @@ static void iavf_reset_task(struct work_struct *work)
- 	if (test_bit(__IAVF_IN_REMOVE_TASK, &adapter->crit_section))
- 		return;
- 
-+	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 200)) {
-+		schedule_work(&adapter->reset_task);
-+		return;
-+	}
- 	while (test_and_set_bit(__IAVF_IN_CLIENT_TASK,
- 				&adapter->crit_section))
- 		usleep_range(500, 1000);
-@@ -2278,6 +2306,8 @@ static void iavf_adminq_task(struct work_struct *work)
- 	if (!event.msg_buf)
- 		goto out;
- 
-+	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 200))
-+		goto freedom;
- 	do {
- 		ret = iavf_clean_arq_element(hw, &event, &pending);
- 		v_op = (enum virtchnl_ops)le32_to_cpu(event.desc.cookie_high);
-@@ -2291,6 +2321,7 @@ static void iavf_adminq_task(struct work_struct *work)
- 		if (pending != 0)
- 			memset(event.msg_buf, 0, IAVF_MAX_AQ_BUF_SIZE);
- 	} while (pending);
-+	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
- 
- 	if ((adapter->flags &
- 	     (IAVF_FLAG_RESET_PENDING | IAVF_FLAG_RESET_NEEDED)) ||
-@@ -3593,6 +3624,10 @@ static void iavf_init_task(struct work_struct *work)
- 						    init_task.work);
- 	struct iavf_hw *hw = &adapter->hw;
- 
-+	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000)) {
-+		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
-+		return;
-+	}
- 	switch (adapter->state) {
- 	case __IAVF_STARTUP:
- 		if (iavf_startup(adapter) < 0)
-@@ -3605,14 +3640,14 @@ static void iavf_init_task(struct work_struct *work)
- 	case __IAVF_INIT_GET_RESOURCES:
- 		if (iavf_init_get_resources(adapter) < 0)
- 			goto init_failed;
--		return;
-+		goto out;
- 	default:
- 		goto init_failed;
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index 85f41abcb56c..42d0d941dba5 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -3004,7 +3004,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
+ {
+ 	u32 *list;
+ 	int i;
+-	int status = 0, rc;
++	int status;
+ 	u32 *pbl;
+ 	dma_addr_t page;
+ 	int num_pages;
+@@ -3016,7 +3016,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
+ 	 */
+ 	if (!qedf->num_queues) {
+ 		QEDF_ERR(&(qedf->dbg_ctx), "No MSI-X vectors available!\n");
+-		return 1;
++		return -ENOMEM;
  	}
  
- 	queue_delayed_work(iavf_wq, &adapter->init_task,
- 			   msecs_to_jiffies(30));
--	return;
-+	goto out;
- init_failed:
- 	if (++adapter->aq_wait_count > IAVF_AQ_MAX_ERR) {
- 		dev_err(&adapter->pdev->dev,
-@@ -3621,9 +3656,11 @@ static void iavf_init_task(struct work_struct *work)
- 		iavf_shutdown_adminq(hw);
- 		adapter->state = __IAVF_STARTUP;
- 		queue_delayed_work(iavf_wq, &adapter->init_task, HZ * 5);
--		return;
-+		goto out;
+ 	/*
+@@ -3024,7 +3024,7 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
+ 	 * addresses of our queues
+ 	 */
+ 	if (!qedf->p_cpuq) {
+-		status = 1;
++		status = -EINVAL;
+ 		QEDF_ERR(&qedf->dbg_ctx, "p_cpuq is NULL.\n");
+ 		goto mem_alloc_failure;
  	}
- 	queue_delayed_work(iavf_wq, &adapter->init_task, HZ);
-+out:
-+	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
- }
+@@ -3040,8 +3040,8 @@ static int qedf_alloc_global_queues(struct qedf_ctx *qedf)
+ 		   "qedf->global_queues=%p.\n", qedf->global_queues);
  
- /**
-@@ -3640,9 +3677,12 @@ static void iavf_shutdown(struct pci_dev *pdev)
- 	if (netif_running(netdev))
- 		iavf_close(netdev);
- 
-+	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000))
-+		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
- 	/* Prevent the watchdog from running. */
- 	adapter->state = __IAVF_REMOVE;
- 	adapter->aq_required = 0;
-+	clear_bit(__IAVF_IN_CRITICAL_TASK, &adapter->crit_section);
- 
- #ifdef CONFIG_PM
- 	pci_save_state(pdev);
-@@ -3870,10 +3910,6 @@ static void iavf_remove(struct pci_dev *pdev)
- 				 err);
+ 	/* Allocate DMA coherent buffers for BDQ */
+-	rc = qedf_alloc_bdq(qedf);
+-	if (rc) {
++	status = qedf_alloc_bdq(qedf);
++	if (status) {
+ 		QEDF_ERR(&qedf->dbg_ctx, "Unable to allocate bdq.\n");
+ 		goto mem_alloc_failure;
  	}
- 
--	/* Shut down all the garbage mashers on the detention level */
--	adapter->state = __IAVF_REMOVE;
--	adapter->aq_required = 0;
--	adapter->flags &= ~IAVF_FLAG_REINIT_ITR_NEEDED;
- 	iavf_request_reset(adapter);
- 	msleep(50);
- 	/* If the FW isn't responding, kick it once, but only once. */
-@@ -3881,6 +3917,13 @@ static void iavf_remove(struct pci_dev *pdev)
- 		iavf_request_reset(adapter);
- 		msleep(50);
- 	}
-+	if (iavf_lock_timeout(adapter, __IAVF_IN_CRITICAL_TASK, 5000))
-+		dev_warn(&adapter->pdev->dev, "failed to set __IAVF_IN_CRITICAL_TASK in %s\n", __FUNCTION__);
-+
-+	/* Shut down all the garbage mashers on the detention level */
-+	adapter->state = __IAVF_REMOVE;
-+	adapter->aq_required = 0;
-+	adapter->flags &= ~IAVF_FLAG_REINIT_ITR_NEEDED;
- 	iavf_free_all_tx_resources(adapter);
- 	iavf_free_all_rx_resources(adapter);
- 	iavf_misc_irq_disable(adapter);
 -- 
 2.30.2
 
