@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB8B440E61E
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5631040E2A6
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:17:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346398AbhIPRSI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:18:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39810 "EHLO mail.kernel.org"
+        id S243668AbhIPQlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:41:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243910AbhIPRP6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:15:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 754F461B62;
-        Thu, 16 Sep 2021 16:39:55 +0000 (UTC)
+        id S242294AbhIPQhO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:37:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6606761407;
+        Thu, 16 Sep 2021 16:22:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810395;
-        bh=cBJWFyV6EyLbG/4VrZy8SeVrYZV28j/07wIWkvWr7a8=;
+        s=korg; t=1631809331;
+        bh=SGzqUnpgDK46LkHVv3zcFeFk5dH3PCp7IRB9mX6et10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6orn9N3LM2BAVec4Qp6B0OZgz1J3jpXc5pJNPByehf1PuawoYrRhnU0ffRwe1Js+
-         hgpUmgLSlyKvYZ/pTO92Rzbqk9qFgmKIrBvDCjAQVdF6XiIBh+7l51GYR/xMvreIbL
-         5iTSo0PeDuuVieli0GR9LXIWTZe5QQ+RTFBvnbNA=
+        b=N/7TPnop98GWHe1ZuXaBZdYmj43DSy80RdMGOJBKqbJRBCTfzdbsOGEh+Sz2a4YHw
+         zmg6qlKt0vegJ7mJSKPPsfB5oWxJs07LRE1RXkLwRMalwuASepVgOVLVW43ZN1QW1O
+         VY17rMhZozHQzxJiAGBj74UPUAVe9RmtJoL2j1mE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Fabiano Rosas <farosas@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 124/432] RDMA/hns: Fix return in hns_roce_rereg_user_mr()
+Subject: [PATCH 5.13 116/380] KVM: PPC: Book3S HV: Fix copy_tofrom_guest routines
 Date:   Thu, 16 Sep 2021 17:57:53 +0200
-Message-Id: <20210916155814.959044887@linuxfoundation.org>
+Message-Id: <20210916155807.984471525@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Fabiano Rosas <farosas@linux.ibm.com>
 
-[ Upstream commit c4c7d7a43246a42b0355692c3ed53dff7cbb29bb ]
+[ Upstream commit 5d7d6dac8fe99ed59eee2300e4a03370f94d5222 ]
 
-If re-registering an MR in hns_roce_rereg_user_mr(), we should return NULL
-instead of passing 0 to ERR_PTR for clarity.
+The __kvmhv_copy_tofrom_guest_radix function was introduced along with
+nested HV guest support. It uses the platform's Radix MMU quadrants to
+provide a nested hypervisor with fast access to its nested guests
+memory (H_COPY_TOFROM_GUEST hypercall). It has also since been added
+as a fast path for the kvmppc_ld/st routines which are used during
+instruction emulation.
 
-Fixes: 4e9fc1dae2a9 ("RDMA/hns: Optimize the MR registration process")
-Link: https://lore.kernel.org/r/20210804125939.20516-1-yuehaibing@huawei.com
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+The commit def0bfdbd603 ("powerpc: use probe_user_read() and
+probe_user_write()") changed the low level copy function from
+raw_copy_from_user to probe_user_read, which adds a check to
+access_ok. In powerpc that is:
+
+ static inline bool __access_ok(unsigned long addr, unsigned long size)
+ {
+         return addr < TASK_SIZE_MAX && size <= TASK_SIZE_MAX - addr;
+ }
+
+and TASK_SIZE_MAX is 0x0010000000000000UL for 64-bit, which means that
+setting the two MSBs of the effective address (which correspond to the
+quadrant) now cause access_ok to reject the access.
+
+This was not caught earlier because the most common code path via
+kvmppc_ld/st contains a fallback (kvm_read_guest) that is likely to
+succeed for L1 guests. For nested guests there is no fallback.
+
+Another issue is that probe_user_read (now __copy_from_user_nofault)
+does not return the number of bytes not copied in case of failure, so
+the destination memory is not being cleared anymore in
+kvmhv_copy_from_guest_radix:
+
+ ret = kvmhv_copy_tofrom_guest_radix(vcpu, eaddr, to, NULL, n);
+ if (ret > 0)                            <-- always false!
+         memset(to + (n - ret), 0, ret);
+
+This patch fixes both issues by skipping access_ok and open-coding the
+low level __copy_to/from_user_inatomic.
+
+Fixes: def0bfdbd603 ("powerpc: use probe_user_read() and probe_user_write()")
+Signed-off-by: Fabiano Rosas <farosas@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210805212616.2641017-2-farosas@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_mr.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/kvm/book3s_64_mmu_radix.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_mr.c b/drivers/infiniband/hw/hns/hns_roce_mr.c
-index 006c84bb3f9f..7089ac780291 100644
---- a/drivers/infiniband/hw/hns/hns_roce_mr.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_mr.c
-@@ -352,7 +352,9 @@ struct ib_mr *hns_roce_rereg_user_mr(struct ib_mr *ibmr, int flags, u64 start,
- free_cmd_mbox:
- 	hns_roce_free_cmd_mailbox(hr_dev, mailbox);
+diff --git a/arch/powerpc/kvm/book3s_64_mmu_radix.c b/arch/powerpc/kvm/book3s_64_mmu_radix.c
+index d909c069363e..e7924664a944 100644
+--- a/arch/powerpc/kvm/book3s_64_mmu_radix.c
++++ b/arch/powerpc/kvm/book3s_64_mmu_radix.c
+@@ -64,10 +64,12 @@ unsigned long __kvmhv_copy_tofrom_guest_radix(int lpid, int pid,
+ 	}
+ 	isync();
  
--	return ERR_PTR(ret);
-+	if (ret)
-+		return ERR_PTR(ret);
-+	return NULL;
- }
++	pagefault_disable();
+ 	if (is_load)
+-		ret = copy_from_user_nofault(to, (const void __user *)from, n);
++		ret = __copy_from_user_inatomic(to, (const void __user *)from, n);
+ 	else
+-		ret = copy_to_user_nofault((void __user *)to, from, n);
++		ret = __copy_to_user_inatomic((void __user *)to, from, n);
++	pagefault_enable();
  
- int hns_roce_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata)
+ 	/* switch the pid first to avoid running host with unallocated pid */
+ 	if (quadrant == 1 && pid != old_pid)
 -- 
 2.30.2
 
