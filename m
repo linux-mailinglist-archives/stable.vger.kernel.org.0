@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C77B940E71B
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06BF340E040
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:20:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350881AbhIPR2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:28:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47064 "EHLO mail.kernel.org"
+        id S240688AbhIPQUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:20:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351008AbhIPR0k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:26:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78BF361A54;
-        Thu, 16 Sep 2021 16:44:54 +0000 (UTC)
+        id S237304AbhIPQR0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:17:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9201F6135E;
+        Thu, 16 Sep 2021 16:12:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810695;
-        bh=FwX7FN7wCZQNTgYk6lhZ1YOTC7+64UlCreJtVCO1vOw=;
+        s=korg; t=1631808748;
+        bh=vIOPACp0GIzwiZ78cHSgUvhPGpXcKbTs+u+stPp/E78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C98PvXdwmdXLNfnevG05BvllYgDOXYIgxcHwzSsaFEZHu+py1muX/adYE4Ly0O+ib
-         55Bff+n0ktMvY45SSEJqc3oZaZX0fjNUPwgnTwUDvXDGg3EzYi2jE0NE+4Zk4xV7B5
-         uPsBhoBaUhh3Pdpt1Q740knDKMyVPV7R7OBnHHqg=
+        b=wUWyu+C87A4QnmTq+OhQgolOOncVX+SLBmup2oF6hZsQL8IklV8SJJbEl5Pcgc8xl
+         qdIHrDfFu26AtdsjhOXLN+grAuUx5ogi6J71uypWTI/uhOTZZTgo8ytIHa2HrffrT7
+         79F0jzca3CjyEDYH7FJVwWhc6JFxm/DxHQ6k5SNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 202/432] bus: fsl-mc: fix arg in call to dprc_scan_objects()
+        stable@vger.kernel.org,
+        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 206/306] drm/vmwgfx: fix potential UAF in vmwgfx_surface.c
 Date:   Thu, 16 Sep 2021 17:59:11 +0200
-Message-Id: <20210916155817.660066825@linuxfoundation.org>
+Message-Id: <20210916155801.069393715@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
 
-[ Upstream commit aa0a1ae020e2d24749e9f8085f12ca6d46899c94 ]
+[ Upstream commit 2bc5da528dd570c5ecabc107e6fbdbc55974276f ]
 
-Second parameter of dprc_scan_objects() is a bool not a pointer
-so change from NULL to false.
+drm_file.master should be protected by either drm_device.master_mutex
+or drm_file.master_lookup_lock when being dereferenced. However,
+drm_master_get is called on unprotected file_priv->master pointers in
+vmw_surface_define_ioctl and vmw_gb_surface_define_internal.
 
-Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Link: https://lore.kernel.org/r/20210715140718.8513-1-laurentiu.tudor@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is fixed by replacing drm_master_get with drm_file_get_master.
+
+Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Zack Rusin <zackr@vmware.com>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210724111824.59266-4-desmondcheongzx@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/fsl-mc/fsl-mc-bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bus/fsl-mc/fsl-mc-bus.c b/drivers/bus/fsl-mc/fsl-mc-bus.c
-index 09c8ab5e0959..ffec838450f3 100644
---- a/drivers/bus/fsl-mc/fsl-mc-bus.c
-+++ b/drivers/bus/fsl-mc/fsl-mc-bus.c
-@@ -220,7 +220,7 @@ static int scan_fsl_mc_bus(struct device *dev, void *data)
- 	root_mc_dev = to_fsl_mc_device(dev);
- 	root_mc_bus = to_fsl_mc_bus(root_mc_dev);
- 	mutex_lock(&root_mc_bus->scan_mutex);
--	dprc_scan_objects(root_mc_dev, NULL);
-+	dprc_scan_objects(root_mc_dev, false);
- 	mutex_unlock(&root_mc_bus->scan_mutex);
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+index f493b20c7a38..f1a51371de5b 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+@@ -866,7 +866,7 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
+ 	user_srf->prime.base.shareable = false;
+ 	user_srf->prime.base.tfile = NULL;
+ 	if (drm_is_primary_client(file_priv))
+-		user_srf->master = drm_master_get(file_priv->master);
++		user_srf->master = drm_file_get_master(file_priv);
  
- exit:
+ 	/**
+ 	 * From this point, the generic resource management functions
+@@ -1537,7 +1537,7 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
+ 
+ 	user_srf = container_of(srf, struct vmw_user_surface, srf);
+ 	if (drm_is_primary_client(file_priv))
+-		user_srf->master = drm_master_get(file_priv->master);
++		user_srf->master = drm_file_get_master(file_priv);
+ 
+ 	ret = ttm_read_lock(&dev_priv->reservation_sem, true);
+ 	if (unlikely(ret != 0))
 -- 
 2.30.2
 
