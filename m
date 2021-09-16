@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D8C240E710
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:32:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9789E40E3B0
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:21:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347710AbhIPR2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:28:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46944 "EHLO mail.kernel.org"
+        id S239382AbhIPQvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:51:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348357AbhIPRZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:25:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18F2861BF9;
-        Thu, 16 Sep 2021 16:44:41 +0000 (UTC)
+        id S244871AbhIPQrw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:47:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0E1361882;
+        Thu, 16 Sep 2021 16:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810682;
-        bh=ezkR6FE9Ez4NXnqgMlKtUypzQDU5EPkRhUYB0p2hiQ0=;
+        s=korg; t=1631809618;
+        bh=Lc4+sA1v5F/jes2Rb9XXiWEbIV278sT9/liBkcqxlbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D2LMxyjtZ0mO1sgM4EhnkVdV3kd1ehjtvf4DHwxxzihuTUsF0Sxj5F4qR6jBCSYkK
-         qcx4REfkZTOtfp4RvB/oTEh1+0sJBc3yppz6+xjHX5cMrpTjQ2nqzbl6s3nFTVLeI8
-         nDjg60orZoQNvj/IBimL9LYjAlIdBfeNOVB4/yGg=
+        b=F6S2q+WV1ZjAVZGsEVKPgS0T5Akyi4xhKhEuuB7malV8yvaj/48aUVTnbNINdJRLC
+         VPIRvRnu+LxkRcrMfOmfQEMpOd3Sp4Arq490X/sz6CBIAgVK4lqnpzk6BBGv8XcGow
+         92Ac36NNB2RCkXzgaryuKpxDEvOHW1q8U/sd0kc4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 229/432] serial: 8250: Define RX trigger levels for OxSemi 950 devices
+Subject: [PATCH 5.13 221/380] ASoC: Intel: bytcr_rt5640: Move "Platform Clock" routes to the maps for the matching in-/output
 Date:   Thu, 16 Sep 2021 17:59:38 +0200
-Message-Id: <20210916155818.603483573@linuxfoundation.org>
+Message-Id: <20210916155811.607018268@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,72 +41,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit d7aff291d069c4418285f3c8ee27b0ff67ce5998 ]
+[ Upstream commit dccd1dfd0770bfd494b68d1135b4547b2c602c42 ]
 
-Oxford Semiconductor 950 serial port devices have a 128-byte FIFO and in
-the enhanced (650) mode, which we select in `autoconfig_has_efr' with
-the ECB bit set in the EFR register, they support the receive interrupt
-trigger level selectable with FCR bits 7:6 from the set of 16, 32, 112,
-120.  This applies to the original OX16C950 discrete UART[1] as well as
-950 cores embedded into more complex devices.
+Move the "Platform Clock" routes for the "Internal Mic" and "Speaker"
+routes to the intmic_*_map[] / *_spk_map[] arrays.
 
-For these devices we set the default to 112, which sets an excessively
-high level of 112 or 7/8 of the FIFO capacity, unlike with other port
-types where we choose at most 1/2 of their respective FIFO capacities.
-Additionally we don't make the trigger level configurable.  Consequently
-frequent input overruns happen with high bit rates where hardware flow
-control cannot be used (e.g. terminal applications) even with otherwise
-highly-performant systems.
+This ensures that these "Platform Clock" routes do not get added when the
+BYT_RT5640_NO_INTERNAL_MIC_MAP / BYT_RT5640_NO_SPEAKERS quirks are used.
 
-Lower the default receive interrupt trigger level to 32 then, and make
-it configurable.  Document the trigger levels along with other port
-types, including the set of 16, 32, 64, 112 for the transmit interrupt
-as well[2].
-
-
-[1] "OX16C950 rev B High Performance UART with 128 byte FIFOs", Oxford
-    Semiconductor, Inc., DS-0031, Sep 05, Table 10: "Receiver Trigger
-    Levels", p. 22
-
-[2] same, Table 9: "Transmit Interrupt Trigger Levels", p. 22
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2106260608480.37803@angie.orcam.me.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210802142501.991985-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c | 3 ++-
- include/uapi/linux/serial_reg.h     | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 1da29a219842..66374704747e 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -122,7 +122,8 @@ static const struct serial8250_config uart_config[] = {
- 		.name		= "16C950/954",
- 		.fifo_size	= 128,
- 		.tx_loadsz	= 128,
--		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
-+		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_01,
-+		.rxtrig_bytes	= {16, 32, 112, 120},
- 		/* UART_CAP_EFR breaks billionon CF bluetooth card. */
- 		.flags		= UART_CAP_FIFO | UART_CAP_SLEEP,
- 	},
-diff --git a/include/uapi/linux/serial_reg.h b/include/uapi/linux/serial_reg.h
-index be07b5470f4b..f51bc8f36813 100644
---- a/include/uapi/linux/serial_reg.h
-+++ b/include/uapi/linux/serial_reg.h
-@@ -62,6 +62,7 @@
-  * ST16C654:	 8  16  56  60		 8  16  32  56	PORT_16654
-  * TI16C750:	 1  16  32  56		xx  xx  xx  xx	PORT_16750
-  * TI16C752:	 8  16  56  60		 8  16  32  56
-+ * OX16C950:	16  32 112 120		16  32  64 112	PORT_16C950
-  * Tegra:	 1   4   8  14		16   8   4   1	PORT_TEGRA
-  */
- #define UART_FCR_R_TRIG_00	0x00
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 22dbd9d93c1e..4bddb969176f 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -290,9 +290,6 @@ static const struct snd_soc_dapm_widget byt_rt5640_widgets[] = {
+ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
+ 	{"Headphone", NULL, "Platform Clock"},
+ 	{"Headset Mic", NULL, "Platform Clock"},
+-	{"Internal Mic", NULL, "Platform Clock"},
+-	{"Speaker", NULL, "Platform Clock"},
+-
+ 	{"Headset Mic", NULL, "MICBIAS1"},
+ 	{"IN2P", NULL, "Headset Mic"},
+ 	{"Headphone", NULL, "HPOL"},
+@@ -300,19 +297,23 @@ static const struct snd_soc_dapm_route byt_rt5640_audio_map[] = {
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic1_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"DMIC1", NULL, "Internal Mic"},
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_dmic2_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"DMIC2", NULL, "Internal Mic"},
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_in1_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"Internal Mic", NULL, "MICBIAS1"},
+ 	{"IN1P", NULL, "Internal Mic"},
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_intmic_in3_map[] = {
++	{"Internal Mic", NULL, "Platform Clock"},
+ 	{"Internal Mic", NULL, "MICBIAS1"},
+ 	{"IN3P", NULL, "Internal Mic"},
+ };
+@@ -354,6 +355,7 @@ static const struct snd_soc_dapm_route byt_rt5640_ssp0_aif2_map[] = {
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
++	{"Speaker", NULL, "Platform Clock"},
+ 	{"Speaker", NULL, "SPOLP"},
+ 	{"Speaker", NULL, "SPOLN"},
+ 	{"Speaker", NULL, "SPORP"},
+@@ -361,6 +363,7 @@ static const struct snd_soc_dapm_route byt_rt5640_stereo_spk_map[] = {
+ };
+ 
+ static const struct snd_soc_dapm_route byt_rt5640_mono_spk_map[] = {
++	{"Speaker", NULL, "Platform Clock"},
+ 	{"Speaker", NULL, "SPOLP"},
+ 	{"Speaker", NULL, "SPOLN"},
+ };
 -- 
 2.30.2
 
