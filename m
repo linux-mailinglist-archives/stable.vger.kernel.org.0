@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3860840E85C
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98AD240E859
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 20:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354702AbhIPRoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:44:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54172 "EHLO mail.kernel.org"
+        id S1354552AbhIPRoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:44:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355053AbhIPRlB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1355056AbhIPRlB (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 16 Sep 2021 13:41:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F6E063251;
-        Thu, 16 Sep 2021 16:52:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D06E6324F;
+        Thu, 16 Sep 2021 16:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631811127;
-        bh=6G4IsplKoyeetAmOlTy7tdSl++/n/23XqHH2qpFwkFM=;
+        s=korg; t=1631811129;
+        bh=IkSr81dmRKz8Vb0/fkgJQKts2MtDrWrqbK1Bm8mS7Q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Q4K/hGNmVO79ZLfEDe5Ub8rQfF89lvXMcMQqhUW394OvW/JRBs52uIRv27DSZ9/b
-         FN2chM4NEDiZ5xaANvfRNIYcMI6Kyfy8b9egWHaRXVkdOg2wER99IvgmAltuih4Nd6
-         s9JIllKnfGCwRu5GO8DQGd3CCSZ7WU3PxlOgeTBw=
+        b=VaNvHDVh+Mh4Aks/OsHHXpbC52L7E7Mp0GJ/4owDiGnVzpvKX+CNIfxLFs5/aXXTE
+         67+5lTfmsw5/X7+DufmdLSAVZ6xXyVx2IYSAIYtCF4+0SM1QKhw2IVCeFQ3jtMwhYZ
+         SlXHlp66CuIYD/lXRd8pufjYE/y9uhSpkR+bjZaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        John Ogness <john.ogness@linutronix.de>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 5.14 393/432] printk/console: Check consistent sequence number when handling race in console_unlock()
-Date:   Thu, 16 Sep 2021 18:02:22 +0200
-Message-Id: <20210916155824.128483011@linuxfoundation.org>
+        stable@vger.kernel.org, chenying <chenying.kernel@bytedance.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.14 394/432] ovl: fix BUG_ON() in may_delete() when called from ovl_cleanup()
+Date:   Thu, 16 Sep 2021 18:02:23 +0200
+Message-Id: <20210916155824.163686275@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
 References: <20210916155810.813340753@linuxfoundation.org>
@@ -41,75 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+From: chenying <chenying.kernel@bytedance.com>
 
-commit 11e4b63abbe23872b45f325a7c6c8b7f9ff42cad upstream.
+commit 52d5a0c6bd8a89f460243ed937856354f8f253a3 upstream.
 
-The standard printk() tries to flush the message to the console
-immediately. It tries to take the console lock. If the lock is
-already taken then the current owner is responsible for flushing
-even the new message.
+If function ovl_instantiate() returns an error, ovl_cleanup will be called
+and try to remove newdentry from wdir, but the newdentry has been moved to
+udir at this time.  This will causes BUG_ON(victim->d_parent->d_inode !=
+dir) in fs/namei.c:may_delete.
 
-There is a small race window between checking whether a new message is
-available and releasing the console lock. It is solved by re-checking
-the state after releasing the console lock. If the check is positive
-then console_unlock() tries to take the lock again and process the new
-message as well.
-
-The commit 996e966640ddea7b535c ("printk: remove logbuf_lock") causes that
-console_seq is not longer read atomically. As a result, the re-check might
-be done with an inconsistent 64-bit index.
-
-Solve it by using the last sequence number that has been checked under
-the console lock. In the worst case, it will take the lock again only
-to realized that the new message has already been proceed. But it
-was possible even before.
-
-The variable next_seq is marked as __maybe_unused to call down compiler
-warning when CONFIG_PRINTK is not defined.
-
-Fixes: commit 996e966640ddea7b535c ("printk: remove logbuf_lock")
-Reported-by: kernel test robot <lkp@intel.com>  # unused next_seq warning
-Cc: stable@vger.kernel.org # 5.13
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Reviewed-by: John Ogness <john.ogness@linutronix.de>
-Link: https://lore.kernel.org/r/20210702150657.26760-1-pmladek@suse.com
+Signed-off-by: chenying <chenying.kernel@bytedance.com>
+Fixes: 01b39dcc9568 ("ovl: use inode_insert5() to hash a newly created inode")
+Link: https://lore.kernel.org/linux-unionfs/e6496a94-a161-dc04-c38a-d2544633acb4@bytedance.com/
+Cc: <stable@vger.kernel.org> # v4.18
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/printk/printk.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/overlayfs/dir.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2545,6 +2545,7 @@ void console_unlock(void)
- 	bool do_cond_resched, retry;
- 	struct printk_info info;
- 	struct printk_record r;
-+	u64 __maybe_unused next_seq;
- 
- 	if (console_suspended) {
- 		up_console_sem();
-@@ -2654,8 +2655,10 @@ skip:
- 			cond_resched();
+--- a/fs/overlayfs/dir.c
++++ b/fs/overlayfs/dir.c
+@@ -542,8 +542,10 @@ static int ovl_create_over_whiteout(stru
+ 			goto out_cleanup;
  	}
- 
--	console_locked = 0;
-+	/* Get consistent value of the next-to-be-used sequence number. */
-+	next_seq = console_seq;
- 
-+	console_locked = 0;
- 	up_console_sem();
- 
- 	/*
-@@ -2664,7 +2667,7 @@ skip:
- 	 * there's a new owner and the console_unlock() from them will do the
- 	 * flush, no worries.
- 	 */
--	retry = prb_read_valid(prb, console_seq, NULL);
-+	retry = prb_read_valid(prb, next_seq, NULL);
- 	printk_safe_exit_irqrestore(flags);
- 
- 	if (retry && console_trylock())
+ 	err = ovl_instantiate(dentry, inode, newdentry, hardlink);
+-	if (err)
+-		goto out_cleanup;
++	if (err) {
++		ovl_cleanup(udir, newdentry);
++		dput(newdentry);
++	}
+ out_dput:
+ 	dput(upper);
+ out_unlock:
 
 
