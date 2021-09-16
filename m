@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6408340E246
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A93B40DF79
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:09:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243483AbhIPQgQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:36:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43876 "EHLO mail.kernel.org"
+        id S233662AbhIPQKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:10:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241708AbhIPQc4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:32:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 331D06138B;
-        Thu, 16 Sep 2021 16:20:00 +0000 (UTC)
+        id S234413AbhIPQIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:08:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 600EE611F2;
+        Thu, 16 Sep 2021 16:06:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809200;
-        bh=4AcssDeN5I9YHKWLjv12UTy87NqFCUmNr+F8o0UQwMw=;
+        s=korg; t=1631808400;
+        bh=w40nHKlwfktxdo7bfB8EF2NShgTfGDqxiqB+0MZR0iQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qx0amIblk8dA7fxqbooV1Eoxl5tSU2dFINDhRfX+2/HTfhUkmhU/RQYMAWo9C3in3
-         XbHa8Dyhra+bqLuxoWSELkLKlQQonKqOZudedThkn4AtXJ7ivcNGBDp7kVMMa3VoR7
-         9ZxGTTawcJScwyM8/gBVwzpWUUcR1Eh/kaqicTKM=
+        b=ONuCK0ZMn2HuoztCchtSTdoVYcbV786UAXdXIz9B0v8bzkRAgJCNXt7mbUFe5p4Zq
+         2B2gfbbTzjKXZEqqjKl7MFxzsPnGlVeQ7HG0+W2FgJdKev0QNV4ASRmyCfDciiRXD2
+         8bmjkdCugpKye+Vv4YEiA0cIgWDUHIl2wB5I3yS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.13 066/380] PCI: aardvark: Increase polling delay to 1.5s while waiting for PIO response
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 078/306] SUNRPC: Fix potential memory corruption
 Date:   Thu, 16 Sep 2021 17:57:03 +0200
-Message-Id: <20210916155806.240738748@linuxfoundation.org>
+Message-Id: <20210916155756.716861334@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
+References: <20210916155753.903069397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 02bcec3ea5591720114f586960490b04b093a09e upstream.
+[ Upstream commit c2dc3e5fad13aca5d7bdf4bcb52b1a1d707c8555 ]
 
-Measurements in different conditions showed that aardvark hardware PIO
-response can take up to 1.44s. Increase wait timeout from 1ms to 1.5s to
-ensure that we do not miss responses from hardware. After 1.44s hardware
-returns errors (e.g. Completer abort).
+We really should not call rpc_wake_up_queued_task_set_status() with
+xprt->snd_task as an argument unless we are certain that is actually an
+rpc_task.
 
-The previous two patches fixed checking for PIO status, so now we can use
-it to also catch errors which are reported by hardware after 1.44s.
-
-After applying this patch, kernel can detect and print PIO errors to dmesg:
-
-    [    6.879999] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100004
-    [    6.896436] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100004
-    [    6.913049] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100010
-    [    6.929663] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100010
-    [    6.953558] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100014
-    [    6.970170] advk-pcie d0070000.pcie: Non-posted PIO Response Status: CA, 0xe00 @ 0x100014
-    [    6.994328] advk-pcie d0070000.pcie: Posted PIO Response Status: COMP_ERR, 0x804 @ 0x100004
-
-Without this patch kernel prints only a generic error to dmesg:
-
-    [    5.246847] advk-pcie d0070000.pcie: config read/write timed out
-
-Link: https://lore.kernel.org/r/20210722144041.12661-3-pali@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org # 7fbcb5da811b ("PCI: aardvark: Don't rely on jiffies while holding spinlock")
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0445f92c5d53 ("SUNRPC: Fix disconnection races")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/sunrpc/xprt.h | 1 +
+ net/sunrpc/xprt.c           | 6 ++++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -207,7 +207,7 @@
- #define PCIE_CONFIG_WR_TYPE0			0xa
- #define PCIE_CONFIG_WR_TYPE1			0xb
+diff --git a/include/linux/sunrpc/xprt.h b/include/linux/sunrpc/xprt.h
+index cad1fa2b6baa..e7b997d6f031 100644
+--- a/include/linux/sunrpc/xprt.h
++++ b/include/linux/sunrpc/xprt.h
+@@ -421,6 +421,7 @@ void			xprt_unlock_connect(struct rpc_xprt *, void *);
+ #define XPRT_CONGESTED		(9)
+ #define XPRT_CWND_WAIT		(10)
+ #define XPRT_WRITE_SPACE	(11)
++#define XPRT_SND_IS_COOKIE	(12)
  
--#define PIO_RETRY_CNT			500
-+#define PIO_RETRY_CNT			750000 /* 1.5 s */
- #define PIO_RETRY_DELAY			2 /* 2 us*/
- 
- #define LINK_WAIT_MAX_RETRIES		10
+ static inline void xprt_set_connected(struct rpc_xprt *xprt)
+ {
+diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
+index 9a50764be916..ccfa85e995fd 100644
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -746,9 +746,9 @@ void xprt_force_disconnect(struct rpc_xprt *xprt)
+ 	/* Try to schedule an autoclose RPC call */
+ 	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
+ 		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
+-	else if (xprt->snd_task)
++	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
+ 		rpc_wake_up_queued_task_set_status(&xprt->pending,
+-				xprt->snd_task, -ENOTCONN);
++						   xprt->snd_task, -ENOTCONN);
+ 	spin_unlock(&xprt->transport_lock);
+ }
+ EXPORT_SYMBOL_GPL(xprt_force_disconnect);
+@@ -837,6 +837,7 @@ bool xprt_lock_connect(struct rpc_xprt *xprt,
+ 		goto out;
+ 	if (xprt->snd_task != task)
+ 		goto out;
++	set_bit(XPRT_SND_IS_COOKIE, &xprt->state);
+ 	xprt->snd_task = cookie;
+ 	ret = true;
+ out:
+@@ -852,6 +853,7 @@ void xprt_unlock_connect(struct rpc_xprt *xprt, void *cookie)
+ 	if (!test_bit(XPRT_LOCKED, &xprt->state))
+ 		goto out;
+ 	xprt->snd_task =NULL;
++	clear_bit(XPRT_SND_IS_COOKIE, &xprt->state);
+ 	xprt->ops->release_xprt(xprt, NULL);
+ 	xprt_schedule_autodisconnect(xprt);
+ out:
+-- 
+2.30.2
+
 
 
