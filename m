@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C1C40E13A
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 18:29:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C443740E785
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:33:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242506AbhIPQ2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:28:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38934 "EHLO mail.kernel.org"
+        id S1349160AbhIPRdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:33:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241916AbhIPQ00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:26:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D98CE6124B;
-        Thu, 16 Sep 2021 16:17:10 +0000 (UTC)
+        id S1347147AbhIPRbv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:31:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31A8F61A6C;
+        Thu, 16 Sep 2021 16:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809031;
-        bh=86SkcsOZkAWlN95A54tyIhtwcSWmeBkWL2qRJF9eVT8=;
+        s=korg; t=1631810827;
+        bh=qMBC1L/AVg6yHH1DMtljl6zFQJ6blv5t5dZtGJ+J2Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LHqTOrU339b7tF/WTbhOh7fC/utx6rd9NZHfRdTdJZ//BO+hdkCdZ8qrbX+VyV0RC
-         7qfKPeTgkAsfw89kwXHC0G0fC2MB3xCn7VQuf1+3WSkvS+xgGoUxVnuzSn6RWsk7z+
-         ONpE7jh9A8xSSlN/HvKaNEuVPdpl+RLfIjX9Y9+U=
+        b=vCLN0AWTXn9LZ6q19SWg2ZrR0jxKPyg4XGakWieh5e3+GikEa75y5mpr/25hkT87t
+         Rqu8KsT2f+pe205MXKfsbGAJwIPN2q+Iwb+pWXcLqXB3HBaPbz9WsAuUoMusWz3UxY
+         BVTTpyjkRBpSEi9rwgl840ikG3Xl2T/I5iMbH4xY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Guillaume Morin <guillaume@morinfr.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 287/306] hugetlb: fix hugetlb cgroup refcounting during vma split
+        stable@vger.kernel.org, Anson Jacob <Anson.Jacob@amd.com>,
+        Roy Chan <roy.chan@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.14 283/432] drm/amd/display: fix missing writeback disablement if plane is removed
 Date:   Thu, 16 Sep 2021 18:00:32 +0200
-Message-Id: <20210916155803.886798245@linuxfoundation.org>
+Message-Id: <20210916155820.403621919@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155753.903069397@linuxfoundation.org>
-References: <20210916155753.903069397@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,97 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Roy Chan <roy.chan@amd.com>
 
-commit 09a26e832705fdb7a9484495b71a05e0bbc65207 upstream.
+[ Upstream commit 82367e7f22d085092728f45fd5fbb15e3fb997c0 ]
 
-Guillaume Morin reported hitting the following WARNING followed by GPF or
-NULL pointer deference either in cgroups_destroy or in the kill_css path.:
+[Why]
+If the plane has been removed, the writeback disablement logic
+doesn't run
 
-    percpu ref (css_release) <= 0 (-1) after switching to atomic
-    WARNING: CPU: 23 PID: 130 at lib/percpu-refcount.c:196 percpu_ref_switch_to_atomic_rcu+0x127/0x130
-    CPU: 23 PID: 130 Comm: ksoftirqd/23 Kdump: loaded Tainted: G           O      5.10.60 #1
-    RIP: 0010:percpu_ref_switch_to_atomic_rcu+0x127/0x130
-    Call Trace:
-       rcu_core+0x30f/0x530
-       rcu_core_si+0xe/0x10
-       __do_softirq+0x103/0x2a2
-       run_ksoftirqd+0x2b/0x40
-       smpboot_thread_fn+0x11a/0x170
-       kthread+0x10a/0x140
-       ret_from_fork+0x22/0x30
+[How]
+fix the logic order
 
-Upon further examination, it was discovered that the css structure was
-associated with hugetlb reservations.
-
-For private hugetlb mappings the vma points to a reserve map that
-contains a pointer to the css.  At mmap time, reservations are set up
-and a reference to the css is taken.  This reference is dropped in the
-vma close operation; hugetlb_vm_op_close.  However, if a vma is split no
-additional reference to the css is taken yet hugetlb_vm_op_close will be
-called twice for the split vma resulting in an underflow.
-
-Fix by taking another reference in hugetlb_vm_op_open.  Note that the
-reference is only taken for the owner of the reserve map.  In the more
-common fork case, the pointer to the reserve map is cleared for
-non-owning vmas.
-
-Link: https://lkml.kernel.org/r/20210830215015.155224-1-mike.kravetz@oracle.com
-Fixes: e9fe92ae0cd2 ("hugetlb_cgroup: add reservation accounting for private mappings")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Guillaume Morin <guillaume@morinfr.org>
-Suggested-by: Guillaume Morin <guillaume@morinfr.org>
-Tested-by: Guillaume Morin <guillaume@morinfr.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Anson Jacob <Anson.Jacob@amd.com>
+Signed-off-by: Roy Chan <roy.chan@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/hugetlb_cgroup.h |   12 ++++++++++++
- mm/hugetlb.c                   |    4 +++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 14 ++++++++------
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c | 12 +++++++++++-
+ 2 files changed, 19 insertions(+), 7 deletions(-)
 
---- a/include/linux/hugetlb_cgroup.h
-+++ b/include/linux/hugetlb_cgroup.h
-@@ -118,6 +118,13 @@ static inline void hugetlb_cgroup_put_rs
- 	css_put(&h_cg->css);
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+index 5c2853654cca..a47ba1d45be9 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+@@ -1723,13 +1723,15 @@ void dcn20_program_front_end_for_ctx(
+ 
+ 				pipe = pipe->bottom_pipe;
+ 			}
+-			/* Program secondary blending tree and writeback pipes */
+-			pipe = &context->res_ctx.pipe_ctx[i];
+-			if (!pipe->prev_odm_pipe && pipe->stream->num_wb_info > 0
+-					&& (pipe->update_flags.raw || pipe->plane_state->update_flags.raw || pipe->stream->update_flags.raw)
+-					&& hws->funcs.program_all_writeback_pipes_in_tree)
+-				hws->funcs.program_all_writeback_pipes_in_tree(dc, pipe->stream, context);
+ 		}
++		/* Program secondary blending tree and writeback pipes */
++		pipe = &context->res_ctx.pipe_ctx[i];
++		if (!pipe->top_pipe && !pipe->prev_odm_pipe
++				&& pipe->stream && pipe->stream->num_wb_info > 0
++				&& (pipe->update_flags.raw || (pipe->plane_state && pipe->plane_state->update_flags.raw)
++					|| pipe->stream->update_flags.raw)
++				&& hws->funcs.program_all_writeback_pipes_in_tree)
++			hws->funcs.program_all_writeback_pipes_in_tree(dc, pipe->stream, context);
+ 	}
  }
  
-+static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+	if (resv_map->css)
-+		css_get(resv_map->css);
-+}
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+index 2e8ab9775fa3..fafed1e4a998 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+@@ -398,12 +398,22 @@ void dcn30_program_all_writeback_pipes_in_tree(
+ 			for (i_pipe = 0; i_pipe < dc->res_pool->pipe_count; i_pipe++) {
+ 				struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[i_pipe];
+ 
++				if (!pipe_ctx->plane_state)
++					continue;
 +
- extern int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					struct hugetlb_cgroup **ptr);
- extern int hugetlb_cgroup_charge_cgroup_rsvd(int idx, unsigned long nr_pages,
-@@ -196,6 +203,11 @@ static inline void hugetlb_cgroup_put_rs
- {
- }
- 
-+static inline void resv_map_dup_hugetlb_cgroup_uncharge_info(
-+						struct resv_map *resv_map)
-+{
-+}
+ 				if (pipe_ctx->plane_state == wb_info.writeback_source_plane) {
+ 					wb_info.mpcc_inst = pipe_ctx->plane_res.mpcc_inst;
+ 					break;
+ 				}
+ 			}
+-			ASSERT(wb_info.mpcc_inst != -1);
 +
- static inline int hugetlb_cgroup_charge_cgroup(int idx, unsigned long nr_pages,
- 					       struct hugetlb_cgroup **ptr)
- {
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3659,8 +3659,10 @@ static void hugetlb_vm_op_open(struct vm
- 	 * after this open call completes.  It is therefore safe to take a
- 	 * new reference here without additional locking.
- 	 */
--	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER))
-+	if (resv && is_vma_resv_set(vma, HPAGE_RESV_OWNER)) {
-+		resv_map_dup_hugetlb_cgroup_uncharge_info(resv);
- 		kref_get(&resv->refs);
-+	}
- }
++			if (wb_info.mpcc_inst == -1) {
++				/* Disable writeback pipe and disconnect from MPCC
++				 * if source plane has been removed
++				 */
++				dc->hwss.disable_writeback(dc, wb_info.dwb_pipe_inst);
++				continue;
++			}
  
- static void hugetlb_vm_op_close(struct vm_area_struct *vma)
+ 			ASSERT(wb_info.dwb_pipe_inst < dc->res_pool->res_cap->num_dwb);
+ 			dwb = dc->res_pool->dwbc[wb_info.dwb_pipe_inst];
+-- 
+2.30.2
+
 
 
