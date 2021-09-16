@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED63540E1FB
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90E6640E55D
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242835AbhIPQda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:33:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44746 "EHLO mail.kernel.org"
+        id S1345358AbhIPRLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:11:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243429AbhIPQb3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:31:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91B1C617E4;
-        Thu, 16 Sep 2021 16:19:27 +0000 (UTC)
+        id S1349867AbhIPRHy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:07:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B6E961B3A;
+        Thu, 16 Sep 2021 16:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809168;
-        bh=VpqibazGaGaKZs17HggpfPXN0bItp3YjUsaEjAdb05k=;
+        s=korg; t=1631810180;
+        bh=+QU8ksi4GXLDax2XVswalA2O3bTaeLudQWBptSMbjzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FVE5TByUE/81BNApsg8qLI4UrPLUimYoPB0OV2Pwk8kaPIc08hJ8m7kTqtNcEbFyU
-         2kIZmTIeDmCWONVopM6K9mdFKyYaeqArYghFCK3bCVGc58nr+K9XVjhVrv3Nl+cfTy
-         v3fIG29Qyv6vNbfYwQsNIzV7NHpKM51ft+XAukVw=
+        b=k52YnqRWATV1ehPflXJyWT1GwnpIRRtZXg4UoY78wOi/GVpAXDuEmpTSGEtkQjGLp
+         q1iH653bPZm+WXKrKcuEDriKOoBFsQRwm9GnSLAtuQDFc7nmrh0dbi+Trqk9jzIWcZ
+         fLDjrae9MPr7Ou6pHtDcjR/RS1M2piVzt7gVDLqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.13 038/380] power: supply: max17042: handle fails of reading status register
+        stable@vger.kernel.org, Kevin Hao <haokexin@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.14 046/432] cpufreq: schedutil: Use kobject release() method to free sugov_tunables
 Date:   Thu, 16 Sep 2021 17:56:35 +0200
-Message-Id: <20210916155805.263324484@linuxfoundation.org>
+Message-Id: <20210916155812.370609496@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +40,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-commit 54784ffa5b267f57161eb8fbb811499f22a0a0bf upstream.
+commit e5c6b312ce3cc97e90ea159446e6bfa06645364d upstream.
 
-Reading status register can fail in the interrupt handler.  In such
-case, the regmap_read() will not store anything useful under passed
-'val' variable and random stack value will be used to determine type of
-interrupt.
+The struct sugov_tunables is protected by the kobject, so we can't free
+it directly. Otherwise we would get a call trace like this:
+  ODEBUG: free active (active state 0) object type: timer_list hint: delayed_work_timer_fn+0x0/0x30
+  WARNING: CPU: 3 PID: 720 at lib/debugobjects.c:505 debug_print_object+0xb8/0x100
+  Modules linked in:
+  CPU: 3 PID: 720 Comm: a.sh Tainted: G        W         5.14.0-rc1-next-20210715-yocto-standard+ #507
+  Hardware name: Marvell OcteonTX CN96XX board (DT)
+  pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
+  pc : debug_print_object+0xb8/0x100
+  lr : debug_print_object+0xb8/0x100
+  sp : ffff80001ecaf910
+  x29: ffff80001ecaf910 x28: ffff00011b10b8d0 x27: ffff800011043d80
+  x26: ffff00011a8f0000 x25: ffff800013cb3ff0 x24: 0000000000000000
+  x23: ffff80001142aa68 x22: ffff800011043d80 x21: ffff00010de46f20
+  x20: ffff800013c0c520 x19: ffff800011d8f5b0 x18: 0000000000000010
+  x17: 6e6968207473696c x16: 5f72656d6974203a x15: 6570797420746365
+  x14: 6a626f2029302065 x13: 303378302f307830 x12: 2b6e665f72656d69
+  x11: ffff8000124b1560 x10: ffff800012331520 x9 : ffff8000100ca6b0
+  x8 : 000000000017ffe8 x7 : c0000000fffeffff x6 : 0000000000000001
+  x5 : ffff800011d8c000 x4 : ffff800011d8c740 x3 : 0000000000000000
+  x2 : ffff0001108301c0 x1 : ab3c90eedf9c0f00 x0 : 0000000000000000
+  Call trace:
+   debug_print_object+0xb8/0x100
+   __debug_check_no_obj_freed+0x1c0/0x230
+   debug_check_no_obj_freed+0x20/0x88
+   slab_free_freelist_hook+0x154/0x1c8
+   kfree+0x114/0x5d0
+   sugov_exit+0xbc/0xc0
+   cpufreq_exit_governor+0x44/0x90
+   cpufreq_set_policy+0x268/0x4a8
+   store_scaling_governor+0xe0/0x128
+   store+0xc0/0xf0
+   sysfs_kf_write+0x54/0x80
+   kernfs_fop_write_iter+0x128/0x1c0
+   new_sync_write+0xf0/0x190
+   vfs_write+0x2d4/0x478
+   ksys_write+0x74/0x100
+   __arm64_sys_write+0x24/0x30
+   invoke_syscall.constprop.0+0x54/0xe0
+   do_el0_svc+0x64/0x158
+   el0_svc+0x2c/0xb0
+   el0t_64_sync_handler+0xb0/0xb8
+   el0t_64_sync+0x198/0x19c
+  irq event stamp: 5518
+  hardirqs last  enabled at (5517): [<ffff8000100cbd7c>] console_unlock+0x554/0x6c8
+  hardirqs last disabled at (5518): [<ffff800010fc0638>] el1_dbg+0x28/0xa0
+  softirqs last  enabled at (5504): [<ffff8000100106e0>] __do_softirq+0x4d0/0x6c0
+  softirqs last disabled at (5483): [<ffff800010049548>] irq_exit+0x1b0/0x1b8
 
-Handle the regmap_read() failure to avoid handling interrupt type and
-triggering changed power supply event based on random stack value.
+So split the original sugov_tunables_free() into two functions,
+sugov_clear_global_tunables() is just used to clear the global_tunables
+and the new sugov_tunables_free() is used as kobj_type::release to
+release the sugov_tunables safely.
 
-Fixes: 39e7213edc4f ("max17042_battery: Support regmap to access device's registers")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 9bdcb44e391d ("cpufreq: schedutil: New governor based on scheduler utilization data")
+Cc: 4.7+ <stable@vger.kernel.org> # 4.7+
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/supply/max17042_battery.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ kernel/sched/cpufreq_schedutil.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -869,8 +869,12 @@ static irqreturn_t max17042_thread_handl
- {
- 	struct max17042_chip *chip = dev;
- 	u32 val;
-+	int ret;
-+
-+	ret = regmap_read(chip->regmap, MAX17042_STATUS, &val);
-+	if (ret)
-+		return IRQ_HANDLED;
+--- a/kernel/sched/cpufreq_schedutil.c
++++ b/kernel/sched/cpufreq_schedutil.c
+@@ -537,9 +537,17 @@ static struct attribute *sugov_attrs[] =
+ };
+ ATTRIBUTE_GROUPS(sugov);
  
--	regmap_read(chip->regmap, MAX17042_STATUS, &val);
- 	if ((val & STATUS_INTR_SOCMIN_BIT) ||
- 		(val & STATUS_INTR_SOCMAX_BIT)) {
- 		dev_info(&chip->client->dev, "SOC threshold INTR\n");
++static void sugov_tunables_free(struct kobject *kobj)
++{
++	struct gov_attr_set *attr_set = container_of(kobj, struct gov_attr_set, kobj);
++
++	kfree(to_sugov_tunables(attr_set));
++}
++
+ static struct kobj_type sugov_tunables_ktype = {
+ 	.default_groups = sugov_groups,
+ 	.sysfs_ops = &governor_sysfs_ops,
++	.release = &sugov_tunables_free,
+ };
+ 
+ /********************** cpufreq governor interface *********************/
+@@ -639,12 +647,10 @@ static struct sugov_tunables *sugov_tuna
+ 	return tunables;
+ }
+ 
+-static void sugov_tunables_free(struct sugov_tunables *tunables)
++static void sugov_clear_global_tunables(void)
+ {
+ 	if (!have_governor_per_policy())
+ 		global_tunables = NULL;
+-
+-	kfree(tunables);
+ }
+ 
+ static int sugov_init(struct cpufreq_policy *policy)
+@@ -707,7 +713,7 @@ out:
+ fail:
+ 	kobject_put(&tunables->attr_set.kobj);
+ 	policy->governor_data = NULL;
+-	sugov_tunables_free(tunables);
++	sugov_clear_global_tunables();
+ 
+ stop_kthread:
+ 	sugov_kthread_stop(sg_policy);
+@@ -734,7 +740,7 @@ static void sugov_exit(struct cpufreq_po
+ 	count = gov_attr_set_put(&tunables->attr_set, &sg_policy->tunables_hook);
+ 	policy->governor_data = NULL;
+ 	if (!count)
+-		sugov_tunables_free(tunables);
++		sugov_clear_global_tunables();
+ 
+ 	mutex_unlock(&global_tunables_lock);
+ 
 
 
