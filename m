@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10D1A40E583
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:27:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E93A540E245
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345889AbhIPRMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 13:12:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36118 "EHLO mail.kernel.org"
+        id S242924AbhIPQgP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 12:36:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244384AbhIPRKC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 13:10:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BDE961B47;
-        Thu, 16 Sep 2021 16:37:37 +0000 (UTC)
+        id S241910AbhIPQc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 12:32:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88A0F613D3;
+        Thu, 16 Sep 2021 16:20:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631810257;
-        bh=XxTLvhR0643QwmWliVQPlTcQCaqUN3pE7YzM9cOqrmk=;
+        s=korg; t=1631809203;
+        bh=PigDoh3hyPXh6lz7HeYb2Ci/XfGGvqQFWZpJhMgen44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWDiTzDDCQ7zFNFwTOzRs/tNri/X0//spvzZ7YLAVztV5EMzdfGaR/phfhJhwmIQ4
-         QMpugBWc+4KDqnyYzDuMElcjgoHsZIHZaGyeYIOub/yNxxxq6tKzvL6poDr0FGGSjb
-         YyEmo5xzykiVi5e8QaO6pdHTRZ/P6jRoasKWh1aw=
+        b=1aIsmiho1UNTeCt/dKJjTODbF4N3UPSPPckNuk6JhYrxtaYxl+r1Mqh9QCOUExoU7
+         v69j38HJYbyq1h0aNCPNNQ2cCFqZae+pHX72dDqhWaHvJm5zI5s2QU5bqojXR+tP6U
+         +DedOPGHX295AkXt/qZ7BcddhPE12oQ1xM2KCy2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@ionos.com>,
-        Aleksei Marov <aleksei.marov@ionos.com>,
-        Gioh Kim <gi-oh.kim@ionos.com>,
-        Md Haris Iqbal <haris.iqbal@ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.14 075/432] RDMA/rtrs: Move sq_wr_avail to rtrs_con
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.13 067/380] PCI: aardvark: Fix masking and unmasking legacy INTx interrupts
 Date:   Thu, 16 Sep 2021 17:57:04 +0200
-Message-Id: <20210916155813.331779880@linuxfoundation.org>
+Message-Id: <20210916155806.271913475@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
-References: <20210916155810.813340753@linuxfoundation.org>
+In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
+References: <20210916155803.966362085@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,118 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@ionos.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit cfcdbd9dd7632a9bb1e308a029f5fa65008333af ]
+commit d212dcee27c1f89517181047e5485fcbba4a25c2 upstream.
 
-In order to account HB for sq_wr_avail properly, move sq_wr_avail from
-rtrs_srv_con to rtrs_con.
+irq_mask and irq_unmask callbacks need to be properly guarded by raw spin
+locks as masking/unmasking procedure needs atomic read-modify-write
+operation on hardware register.
 
-Although rtrs-clt do not care sq_wr_avail, but still init it to
-max_send_wr.
-
-Fixes: b38041d50add ("RDMA/rtrs: Do not signal for heatbeat")
-Link: https://lore.kernel.org/r/20210712060750.16494-7-jinpu.wang@ionos.com
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Reviewed-by: Aleksei Marov <aleksei.marov@ionos.com>
-Reviewed-by: Gioh Kim <gi-oh.kim@ionos.com>
-Reviewed-by: Md Haris Iqbal <haris.iqbal@ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20210820155020.3000-1-pali@kernel.org
+Reported-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-clt.c | 1 +
- drivers/infiniband/ulp/rtrs/rtrs-pri.h | 1 +
- drivers/infiniband/ulp/rtrs/rtrs-srv.c | 8 ++++----
- drivers/infiniband/ulp/rtrs/rtrs-srv.h | 1 -
- drivers/infiniband/ulp/rtrs/rtrs.c     | 1 +
- 5 files changed, 7 insertions(+), 5 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-index f023676e05e4..ece3205531b8 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-@@ -1680,6 +1680,7 @@ static int create_con_cq_qp(struct rtrs_clt_con *con)
- 			      sess->queue_depth * 3 + 1);
- 		max_send_sge = 2;
- 	}
-+	atomic_set(&con->c.sq_wr_avail, max_send_wr);
- 	cq_num = max_send_wr + max_recv_wr;
- 	/* alloc iu to recv new rkey reply when server reports flags set */
- 	if (sess->flags & RTRS_MSG_NEW_RKEY_F || con->c.cid == 0) {
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-pri.h b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
-index b88a4944cb30..119aa3f7eafe 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-pri.h
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
-@@ -97,6 +97,7 @@ struct rtrs_con {
- 	unsigned int		cid;
- 	int                     nr_cqe;
- 	atomic_t		wr_cnt;
-+	atomic_t		sq_wr_avail;
- };
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -230,6 +230,7 @@ struct advk_pcie {
+ 	u8 wins_count;
+ 	struct irq_domain *irq_domain;
+ 	struct irq_chip irq_chip;
++	raw_spinlock_t irq_lock;
+ 	struct irq_domain *msi_domain;
+ 	struct irq_domain *msi_inner_domain;
+ 	struct irq_chip msi_bottom_irq_chip;
+@@ -1045,22 +1046,28 @@ static void advk_pcie_irq_mask(struct ir
+ {
+ 	struct advk_pcie *pcie = d->domain->host_data;
+ 	irq_hw_number_t hwirq = irqd_to_hwirq(d);
++	unsigned long flags;
+ 	u32 mask;
  
- struct rtrs_sess {
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-index 44ed15f38896..cd9a4ccf4c28 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-@@ -507,11 +507,11 @@ bool rtrs_srv_resp_rdma(struct rtrs_srv_op *id, int status)
- 		ib_update_fast_reg_key(mr->mr, ib_inc_rkey(mr->mr->rkey));
- 	}
- 	if (unlikely(atomic_sub_return(1,
--				       &con->sq_wr_avail) < 0)) {
-+				       &con->c.sq_wr_avail) < 0)) {
- 		rtrs_err(s, "IB send queue full: sess=%s cid=%d\n",
- 			 kobject_name(&sess->kobj),
- 			 con->c.cid);
--		atomic_add(1, &con->sq_wr_avail);
-+		atomic_add(1, &con->c.sq_wr_avail);
- 		spin_lock(&con->rsp_wr_wait_lock);
- 		list_add_tail(&id->wait_list, &con->rsp_wr_wait_list);
- 		spin_unlock(&con->rsp_wr_wait_lock);
-@@ -1268,7 +1268,7 @@ static void rtrs_srv_rdma_done(struct ib_cq *cq, struct ib_wc *wc)
- 		 * post_send() RDMA write completions of IO reqs (read/write)
- 		 * and hb.
- 		 */
--		atomic_add(s->signal_interval, &con->sq_wr_avail);
-+		atomic_add(s->signal_interval, &con->c.sq_wr_avail);
++	raw_spin_lock_irqsave(&pcie->irq_lock, flags);
+ 	mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
+ 	mask |= PCIE_ISR1_INTX_ASSERT(hwirq);
+ 	advk_writel(pcie, mask, PCIE_ISR1_MASK_REG);
++	raw_spin_unlock_irqrestore(&pcie->irq_lock, flags);
+ }
  
- 		if (unlikely(!list_empty_careful(&con->rsp_wr_wait_list)))
- 			rtrs_rdma_process_wr_wait_list(con);
-@@ -1680,7 +1680,7 @@ static int create_con(struct rtrs_srv_sess *sess,
- 		 */
- 	}
- 	cq_num = max_send_wr + max_recv_wr;
--	atomic_set(&con->sq_wr_avail, max_send_wr);
-+	atomic_set(&con->c.sq_wr_avail, max_send_wr);
- 	cq_vector = rtrs_srv_get_next_cq_vector(sess);
+ static void advk_pcie_irq_unmask(struct irq_data *d)
+ {
+ 	struct advk_pcie *pcie = d->domain->host_data;
+ 	irq_hw_number_t hwirq = irqd_to_hwirq(d);
++	unsigned long flags;
+ 	u32 mask;
  
- 	/* TODO: SOFTIRQ can be faster, but be careful with softirq context */
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.h b/drivers/infiniband/ulp/rtrs/rtrs-srv.h
-index 6785c3b6363e..e81774f5acd3 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.h
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.h
-@@ -42,7 +42,6 @@ struct rtrs_srv_stats {
++	raw_spin_lock_irqsave(&pcie->irq_lock, flags);
+ 	mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
+ 	mask &= ~PCIE_ISR1_INTX_ASSERT(hwirq);
+ 	advk_writel(pcie, mask, PCIE_ISR1_MASK_REG);
++	raw_spin_unlock_irqrestore(&pcie->irq_lock, flags);
+ }
  
- struct rtrs_srv_con {
- 	struct rtrs_con		c;
--	atomic_t		sq_wr_avail;
- 	struct list_head	rsp_wr_wait_list;
- 	spinlock_t		rsp_wr_wait_lock;
- };
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs.c b/drivers/infiniband/ulp/rtrs/rtrs.c
-index a8f8affc546a..0a4b4e1b5e5f 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs.c
-@@ -190,6 +190,7 @@ int rtrs_post_rdma_write_imm_empty(struct rtrs_con *con, struct ib_cqe *cqe,
- 	struct rtrs_sess *sess = con->sess;
- 	enum ib_send_flags sflags;
+ static int advk_pcie_irq_map(struct irq_domain *h,
+@@ -1144,6 +1151,8 @@ static int advk_pcie_init_irq_domain(str
+ 	struct irq_chip *irq_chip;
+ 	int ret = 0;
  
-+	atomic_dec_if_positive(&con->sq_wr_avail);
- 	sflags = (atomic_inc_return(&con->wr_cnt) % sess->signal_interval) ?
- 		0 : IB_SEND_SIGNALED;
- 
--- 
-2.30.2
-
++	raw_spin_lock_init(&pcie->irq_lock);
++
+ 	pcie_intc_node =  of_get_next_child(node, NULL);
+ 	if (!pcie_intc_node) {
+ 		dev_err(dev, "No PCIe Intc node found\n");
 
 
