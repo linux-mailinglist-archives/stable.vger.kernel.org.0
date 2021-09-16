@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16A9540E1DF
-	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0110140E547
+	for <lists+stable@lfdr.de>; Thu, 16 Sep 2021 19:26:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242119AbhIPQcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Sep 2021 12:32:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37898 "EHLO mail.kernel.org"
+        id S245325AbhIPRKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Sep 2021 13:10:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242647AbhIPQ3X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 16 Sep 2021 12:29:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3B58613AB;
-        Thu, 16 Sep 2021 16:18:27 +0000 (UTC)
+        id S237857AbhIPRHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 16 Sep 2021 13:07:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3408161B2B;
+        Thu, 16 Sep 2021 16:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1631809108;
-        bh=aIZTJcZ34DYC/I8CV3ny8Vd4ai6sNEM4V4adrAWU5vQ=;
+        s=korg; t=1631810166;
+        bh=rBUMzl3onosp598T5s5G9TA9eIJrYtyHlU6jND7CCzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xNO2nPHUxekNggkTCI7mHBO5p18R9xX0EmbjfZAKMmkmkyYOMtPPTe/WnyZ9pZfma
-         D9I8YXsR+AQ/qUshqL8d0BWwBV9E5bMXiPhF+lUhUakrplNKdtnlhDoMCgPgtpGFBo
-         LY671DORIgLdv9MVkL9DdM9upNyIoXzI7udm2d+8=
+        b=0ixcatMbZ0TucVyBFz2b9u3dVUXK9xe6jHV1JgfajL0HDcl8gA2j5/B1zMGV04an3
+         FOyddCs8FsABfbOeuVZtqEOphAYFekGlrrHqco2FzSc1k0a83ObzB/uGB7V4uhzthK
+         l15LF3a7DhH7HEpW2dG+rzYmP1CLMRUI2bbaFGK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Steve Capper <steve.capper@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 5.13 032/380] arm64: head: avoid over-mapping in map_memory
-Date:   Thu, 16 Sep 2021 17:56:29 +0200
-Message-Id: <20210916155805.057693947@linuxfoundation.org>
+        stable@vger.kernel.org, Drew Fustini <drew@pdp7.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.14 041/432] iio: ltc2983: fix device probe
+Date:   Thu, 16 Sep 2021 17:56:30 +0200
+Message-Id: <20210916155812.209482033@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,106 +42,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Nuno Sá <nuno.sa@analog.com>
 
-commit 90268574a3e8a6b883bd802d702a2738577e1006 upstream.
+commit b76d26d69ecc97ebb24aaf40427a13c808a4f488 upstream.
 
-The `compute_indices` and `populate_entries` macros operate on inclusive
-bounds, and thus the `map_memory` macro which uses them also operates
-on inclusive bounds.
+There is no reason to assume that the IRQ rising edge (indicating that
+the device start up phase is done) will happen after we request the IRQ.
+If the device is already up by the time we request it, the call to
+'wait_for_completion_timeout()' will timeout and we will fail the device
+probe even though there's nothing wrong.
 
-We pass `_end` and `_idmap_text_end` to `map_memory`, but these are
-exclusive bounds, and if one of these is sufficiently aligned (as a
-result of kernel configuration, physical placement, and KASLR), then:
+Fix it by just polling the status register until we get the indication that
+the device is up and running. As a side effect of this fix, requesting the
+IRQ is also moved to after the setup function.
 
-* In `compute_indices`, the computed `iend` will be in the page/block *after*
-  the final byte of the intended mapping.
-
-* In `populate_entries`, an unnecessary entry will be created at the end
-  of each level of table. At the leaf level, this entry will map up to
-  SWAPPER_BLOCK_SIZE bytes of physical addresses that we did not intend
-  to map.
-
-As we may map up to SWAPPER_BLOCK_SIZE bytes more than intended, we may
-violate the boot protocol and map physical address past the 2MiB-aligned
-end address we are permitted to map. As we map these with Normal memory
-attributes, this may result in further problems depending on what these
-physical addresses correspond to.
-
-The final entry at each level may require an additional table at that
-level. As EARLY_ENTRIES() calculates an inclusive bound, we allocate
-enough memory for this.
-
-Avoid the extraneous mapping by having map_memory convert the exclusive
-end address to an inclusive end address by subtracting one, and do
-likewise in EARLY_ENTRIES() when calculating the number of required
-tables. For clarity, comments are updated to more clearly document which
-boundaries the macros operate on.  For consistency with the other
-macros, the comments in map_memory are also updated to describe `vstart`
-and `vend` as virtual addresses.
-
-Fixes: 0370b31e4845 ("arm64: Extend early page table code to allow for larger kernels")
-Cc: <stable@vger.kernel.org> # 4.16.x
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Steve Capper <steve.capper@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Acked-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20210823101253.55567-1-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: f110f3188e563 ("iio: temperature: Add support for LTC2983")
+Reported-and-tested-by: Drew Fustini <drew@pdp7.com>
+Reviewed-by: Drew Fustini <drew@pdp7.com>
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: <Stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210811133220.190264-2-nuno.sa@analog.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/kernel-pgtable.h |    4 ++--
- arch/arm64/kernel/head.S                |   11 ++++++-----
- 2 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/iio/temperature/ltc2983.c |   30 ++++++++++++++----------------
+ 1 file changed, 14 insertions(+), 16 deletions(-)
 
---- a/arch/arm64/include/asm/kernel-pgtable.h
-+++ b/arch/arm64/include/asm/kernel-pgtable.h
-@@ -65,8 +65,8 @@
- #define EARLY_KASLR	(0)
- #endif
+--- a/drivers/iio/temperature/ltc2983.c
++++ b/drivers/iio/temperature/ltc2983.c
+@@ -89,6 +89,8 @@
  
--#define EARLY_ENTRIES(vstart, vend, shift) (((vend) >> (shift)) \
--					- ((vstart) >> (shift)) + 1 + EARLY_KASLR)
-+#define EARLY_ENTRIES(vstart, vend, shift) \
-+	((((vend) - 1) >> (shift)) - ((vstart) >> (shift)) + 1 + EARLY_KASLR)
+ #define	LTC2983_STATUS_START_MASK	BIT(7)
+ #define	LTC2983_STATUS_START(x)		FIELD_PREP(LTC2983_STATUS_START_MASK, x)
++#define	LTC2983_STATUS_UP_MASK		GENMASK(7, 6)
++#define	LTC2983_STATUS_UP(reg)		FIELD_GET(LTC2983_STATUS_UP_MASK, reg)
  
- #define EARLY_PGDS(vstart, vend) (EARLY_ENTRIES(vstart, vend, PGDIR_SHIFT))
+ #define	LTC2983_STATUS_CHAN_SEL_MASK	GENMASK(4, 0)
+ #define	LTC2983_STATUS_CHAN_SEL(x) \
+@@ -1362,17 +1364,16 @@ put_child:
  
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -176,7 +176,7 @@ SYM_CODE_END(preserve_boot_args)
-  * to be composed of multiple pages. (This effectively scales the end index).
-  *
-  *	vstart:	virtual address of start of range
-- *	vend:	virtual address of end of range
-+ *	vend:	virtual address of end of range - we map [vstart, vend]
-  *	shift:	shift used to transform virtual address into index
-  *	ptrs:	number of entries in page table
-  *	istart:	index in table corresponding to vstart
-@@ -213,17 +213,18 @@ SYM_CODE_END(preserve_boot_args)
-  *
-  *	tbl:	location of page table
-  *	rtbl:	address to be used for first level page table entry (typically tbl + PAGE_SIZE)
-- *	vstart:	start address to map
-- *	vend:	end address to map - we map [vstart, vend]
-+ *	vstart:	virtual address of start of range
-+ *	vend:	virtual address of end of range - we map [vstart, vend - 1]
-  *	flags:	flags to use to map last level entries
-  *	phys:	physical address corresponding to vstart - physical memory is contiguous
-  *	pgds:	the number of pgd entries
-  *
-  * Temporaries:	istart, iend, tmp, count, sv - these need to be different registers
-- * Preserves:	vstart, vend, flags
-- * Corrupts:	tbl, rtbl, istart, iend, tmp, count, sv
-+ * Preserves:	vstart, flags
-+ * Corrupts:	tbl, rtbl, vend, istart, iend, tmp, count, sv
-  */
- 	.macro map_memory, tbl, rtbl, vstart, vend, flags, phys, pgds, istart, iend, tmp, count, sv
-+	sub \vend, \vend, #1
- 	add \rtbl, \tbl, #PAGE_SIZE
- 	mov \sv, \rtbl
- 	mov \count, #0
+ static int ltc2983_setup(struct ltc2983_data *st, bool assign_iio)
+ {
+-	u32 iio_chan_t = 0, iio_chan_v = 0, chan, iio_idx = 0;
++	u32 iio_chan_t = 0, iio_chan_v = 0, chan, iio_idx = 0, status;
+ 	int ret;
+-	unsigned long time;
+-
+-	/* make sure the device is up */
+-	time = wait_for_completion_timeout(&st->completion,
+-					    msecs_to_jiffies(250));
+ 
+-	if (!time) {
++	/* make sure the device is up: start bit (7) is 0 and done bit (6) is 1 */
++	ret = regmap_read_poll_timeout(st->regmap, LTC2983_STATUS_REG, status,
++				       LTC2983_STATUS_UP(status) == 1, 25000,
++				       25000 * 10);
++	if (ret) {
+ 		dev_err(&st->spi->dev, "Device startup timed out\n");
+-		return -ETIMEDOUT;
++		return ret;
+ 	}
+ 
+ 	st->iio_chan = devm_kzalloc(&st->spi->dev,
+@@ -1492,10 +1493,11 @@ static int ltc2983_probe(struct spi_devi
+ 	ret = ltc2983_parse_dt(st);
+ 	if (ret)
+ 		return ret;
+-	/*
+-	 * let's request the irq now so it is used to sync the device
+-	 * startup in ltc2983_setup()
+-	 */
++
++	ret = ltc2983_setup(st, true);
++	if (ret)
++		return ret;
++
+ 	ret = devm_request_irq(&spi->dev, spi->irq, ltc2983_irq_handler,
+ 			       IRQF_TRIGGER_RISING, name, st);
+ 	if (ret) {
+@@ -1503,10 +1505,6 @@ static int ltc2983_probe(struct spi_devi
+ 		return ret;
+ 	}
+ 
+-	ret = ltc2983_setup(st, true);
+-	if (ret)
+-		return ret;
+-
+ 	indio_dev->name = name;
+ 	indio_dev->num_channels = st->iio_channels;
+ 	indio_dev->channels = st->iio_chan;
 
 
